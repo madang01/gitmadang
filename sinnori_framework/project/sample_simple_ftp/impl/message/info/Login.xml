@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	item type : (unsigned) byte, (unsigned) short, (unsigned) integer, long,
+					fixed length string, 
+					ub pascal string, us pascal string, si pascal string, 
+					fixed length byte[], variable length byte[] 
+	array counter type : reference 변수참조, direct 직접입력
+-->
+<sinnori_message>
+<messageID>Login</messageID>
+<desc>암화화이용 로그인</desc>
+<singleitem name="idCipherBase64" type="si pascal string">
+	<desc>아이디를 암호한후 Base64로 인코딩한 값</desc>
+</singleitem>
+<singleitem name="pwdCipherBase64" type="si pascal string">
+	<desc>비밀번호를 암호한후 Base64로 인코딩한 값</desc>
+</singleitem>
+
+<singleitem name="sessionKeyBase64" type="si pascal string">
+	<desc>Base64로 인코딩된 session key</desc>
+</singleitem>
+<singleitem name="ivBase64" type="si pascal string">
+	<desc>Base64로 인코딩된 iv</desc>
+</singleitem>
+</sinnori_message>

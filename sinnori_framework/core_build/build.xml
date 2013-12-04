@@ -1,0 +1,124 @@
+<project name="sinnori_framework" default="debug" basedir=".">
+	<description>
+		Sinnori Framework
+	</description>
+	<!-- set global properties for this build -->
+	<property name="src" location="src" />
+	<property name="build" location="build" />
+	<property name="dist" location="dist" />
+	
+	<target name="java.debug.yes.init" description="컴파일시 디버깅 정보를 가지도록 디버깅 지정 변수 초기화">
+		<property name="java.debug" value="true" />
+	</target>
+	
+	<target name="java.debug.no.init" description="컴파일시 디버깅 정보가 없도록 디버깅 지정 변수 초기화">
+		<property name="java.debug" value="false" />
+	</target>
+
+	<target name="clean" description="clean up">
+		<!-- Delete the ${build} and ${dist} directory trees -->
+		<delete dir="${build}" />
+		<delete dir="${dist}" />
+	</target>
+
+	<target name="init" depends="clean">
+		<!-- Create the time stamp -->
+		<tstamp />
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}/common_lib" />
+		<mkdir dir="${build}/server_lib" />
+		<mkdir dir="${build}/client_lib" />
+		<mkdir dir="${build}/all_lib" />
+		<mkdir dir="${dist}" />
+	</target>
+
+	<target name="compile.common" depends="init" description="신놀이 프레임 워크 common 패키지 컴파일">
+		<!-- Compile the java code from ${src} into ${build} -->
+		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" destdir="${build}/common_lib">
+			<src path="src/kr/pe/sinnori/common/" />
+			<classpath>
+				<fileset dir="lib/in">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="lib/ex">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="make.common" depends="compile.common" description="신놀이 프레임 워크 common 패키지 jar 만들기">
+		<!-- Create the distribution directory -->
+		<jar jarfile="${dist}/sinnori_lib_common.jar" basedir="${build}/common_lib">
+			<!-- include name="kr/pe/sinnori/common/**" / -->
+			<restrict>
+				<name name="**/*.class" />
+				<archives>
+					<zips>
+						<fileset dir="lib/in" includes="**/*.jar" />
+					</zips>
+				</archives>
+			</restrict>
+		</jar>
+	</target>
+
+	<!-- common + server 패키지 컴파일, server 패키지와 client 패키지 의존성 없어야 한다. -->
+	<target name="compile.server" depends="make.common" description="신놀이 프레임 워크 server 패키지 컴파일">
+		<!-- Compile the java code from ${src} into ${build} -->
+		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" destdir="${build}/server_lib">
+			<src path="src/kr/pe/sinnori/server/" />
+			<classpath>
+				<fileset file="${dist}/sinnori_lib_common.jar" />
+				<fileset dir="lib/ex">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+
+	<!-- common + client 패키지 컴파일, server 패키지와 client 패키지 의존성 없어야 한다. -->
+	<target name="compile.client" depends="compile.server" description="신놀이 프레임 워크 client 패키지 컴파일">
+		<!-- Compile the java code from ${src} into ${build} -->
+		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" destdir="${build}/client_lib">
+			<src path="src/kr/pe/sinnori/client/" />
+			<classpath>
+				<fileset file="${dist}/sinnori_lib_common.jar" />
+				<fileset dir="lib/ex">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+
+	
+	<target name="make.all" depends="compile.client" description="신놀이 프레임 워크 jar 만들기">
+		<!-- Create the distribution directory -->
+		<copy todir="${build}/all_lib" verbose="true" overwrite="true">
+			<fileset dir="${build}/common_lib" />
+		</copy>
+		<copy todir="${build}/all_lib" verbose="true" overwrite="true">
+			<fileset dir="${build}/server_lib" />
+		</copy>
+		<copy todir="${build}/all_lib" verbose="true" overwrite="true">
+			<fileset dir="${build}/client_lib" />
+		</copy>
+		<jar jarfile="${dist}/sinnori_framework.jar" basedir="${build}/all_lib">
+			<restrict>
+				<name name="**/*.class" />
+				<archives>
+					<zips>
+						<fileset dir="lib/in" includes="**/*.jar" />
+					</zips>
+				</archives>
+			</restrict>
+		</jar>
+	</target>
+
+	<target name="debug" depends="java.debug.yes.init, make.all" description="신놀이 프레임 워크 컴파일후 jar 만들기">
+		<echo message="java.debug=${java.debug}" />
+	</target>
+	
+	<target name="nodebug" depends="java.debug.no.init, make.all" description="신놀이 프레임 워크 컴파일후 jar 만들기">
+		<echo message="3.java.debug=${java.debug}" />
+	</target>
+</project>

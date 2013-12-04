@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	item type : (unsigned) byte, (unsigned) short, (unsigned) integer, long,
+					fixed length string, 
+					ub pascal string, us pascal string, si pascal string, 
+					fixed length byte[], variable length byte[] 
+	array counter type : reference 변수참조, direct 직접입력
+-->
+<sinnori_message>
+<messageID>FileListResult</messageID>
+<desc>서버 파일 목록 응답</desc>
+<singleitem name="requestDirectory" type="si pascal string">
+	<desc>파일 목록을 가져올 서버 디렉토리명</desc>
+</singleitem>
+<singleitem name="pathSeperator" type="ub pascal string">
+	<desc>파일시스템 고유 경로 구별 문자</desc>
+</singleitem>
+<singleitem name="taskResult" type="ub pascal string">
+	<desc>성공여부, Y:성공, N:실패</desc>
+</singleitem>
+<singleitem name="resultMessage" type="si pascal string">
+	<desc>실패시 실패 사유, 성공시 축하 메시지</desc>
+</singleitem>
+<singleitem name="cntOfDriver" type="integer" />
+<array name="driverList" cnttype="reference" cntvalue="cntOfDriver">
+	<singleitem name="driverName" type="ub pascal string">
+		<desc>드라이브명, Microsoft OS 인 경우만 유효하다.</desc>
+	</singleitem>
+</array>
+<singleitem name="cntOfFile" type="integer" />
+<array name="fileList" cnttype="reference" cntvalue="cntOfFile">
+	<singleitem name="fileName" type="si pascal string" />
+	<singleitem name="fileSize" type="long" />
+	<singleitem name="fileType" type="byte">
+		<desc>파일 종류, 1:디렉토리, 0:파일</desc>
+	</singleitem>
+</array>
+</sinnori_message>

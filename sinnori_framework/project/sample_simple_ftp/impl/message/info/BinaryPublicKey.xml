@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	item type : (unsigned) byte, (unsigned) short, (unsigned) integer, long,
+					fixed length string, 
+					ub pascal string, us pascal string, si pascal string, 
+					fixed length byte[], variable length byte[] 
+	array counter type : reference 변수참조, direct 직접입력
+-->
+<sinnori_message>
+<messageID>BinaryPublicKey</messageID>
+<desc>이진 데이터로 된 공개키</desc>
+<singleitem name="publicKeyBytes" type="si variable length byte[]" />
+</sinnori_message>

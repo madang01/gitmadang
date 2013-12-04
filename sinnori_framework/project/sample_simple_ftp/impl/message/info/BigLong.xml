@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+	item type : (unsigned) byte, (unsigned) short, (unsigned) integer, long,
+					fixed length string, 
+					ub pascal string, us pascal string, si pascal string, 
+					fixed length byte[], variable length byte[] 
+	array counter type : reference 변수참조, direct 직접입력
+-->
+<sinnori_message>
+<messageID>BigLong</messageID>
+<desc>확장된 크기를 갖는 스트림에서도 long 타입이 잘 읽혀 지는지 검사를 위한 메시지</desc>
+<singleitem name="filler1" type="si variable length byte[]" />
+<singleitem name="value1" type="long" />
+<singleitem name="value2" type="long" />
+</sinnori_message>

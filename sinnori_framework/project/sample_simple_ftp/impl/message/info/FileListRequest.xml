@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	item type : (unsigned) byte, (unsigned) short, (unsigned) integer, long,
+					fixed length string, 
+					ub pascal string, us pascal string, si pascal string, 
+					fixed length byte[], variable length byte[] 
+	array counter type : reference 변수참조, direct 직접입력
+-->
+<sinnori_message>
+<messageID>FileListRequest</messageID>
+<desc>서버 파일 목록 요청</desc>
+<singleitem name="requestDirectory" type="si pascal string">
+	<desc>파일 목록을 가져올 서버 디렉토리명</desc>
+</singleitem>
+</sinnori_message>

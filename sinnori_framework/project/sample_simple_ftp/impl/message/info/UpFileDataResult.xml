@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	item type : (unsigned) byte, (unsigned) short, (unsigned) integer, long,
+					fixed length string, 
+					ub pascal string, us pascal string, si pascal string, 
+					fixed length byte[], variable length byte[] 
+	array counter type : reference 변수참조, direct 직접입력
+-->
+<sinnori_message>
+<messageID>UpFileDataResult</messageID>
+<desc>업로드할 파일 조각을 가지고 있는 입력 메시지에 대한 출력 메시지</desc>
+<singleitem name="taskResult" type="ub pascal string">
+	<desc>메시지 1:1 대응 비지니스 로직 수행 후 성공여부 , Y:성공, N:실패</desc>
+</singleitem>
+<singleitem name="resultMessage" type="ub pascal string">
+	<desc>결과 메세지</desc>
+</singleitem>
+<singleitem name="serverTargetFileID" type="integer">
+	<desc>서버 목적지 파일 식별자</desc>
+</singleitem>
+<singleitem name="fileBlockNo" type="integer">
+	<desc>파일 조각 순번, 자바는 배열 크기가 정수로 제한되는데 BitSet 도 그대로 그 문제를 상속한다.</desc>
+</singleitem>
+</sinnori_message>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	item type : (unsigned) byte, (unsigned) short, (unsigned) integer, long,
+					fixed length string, 
+					ub pascal string, us pascal string, si pascal string, 
+					fixed length byte[], variable length byte[] 
+	array counter type : reference 변수참조, direct 직접입력
+-->
+<sinnori_message>
+<messageID>DownFileInfo</messageID>
+<desc>다로드할 파일 정보를 담고 있는 입력 메시지</desc>
+<singleitem name="localFilePathName" type="ub pascal string">
+	<desc>로컬 파일 경로, 디버깅 목적성 정보로.</desc>
+</singleitem>
+<singleitem name="localFileName" type="ub pascal string">
+	<desc>로컬 파일 이름, 디버깅 목적성 정보로.</desc>
+</singleitem>
+<singleitem name="remoteFilePathName" type="ub pascal string">
+	<desc>원격지 파일 경로</desc>
+</singleitem>
+<singleitem name="remoteFileName" type="ub pascal string">
+	<desc>원격지 파일 이름</desc>
+</singleitem>
+<singleitem name="remoteFileSize" type="long">
+	<desc>"원격지 파일 크기" 로 클라이언트에서 다운로드 준비로 준비한 파일 크기로서 서버에서 전송할 파일 크기랑 일치해야한다.</desc>
+</singleitem>
+<singleitem name="clientTargetFileID" type="integer">
+	<desc>클라이언트 목적지 파일 식별자</desc>
+</singleitem>
+<singleitem name="fileBlockSize" type="integer">
+	<desc>전송할 파일 조각 크기</desc>
+</singleitem>
+</sinnori_message>

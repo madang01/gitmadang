@@ -1,0 +1,4 @@
+export PROJECT_LOC=/home/madang01/sinnori_framework
+export SINNORI_LOG_PATH=$PROJECT_LOC/log
+export SINNORI_CONFIG_FILE=$PROJECT_LOC/config/sinnori_config.properties
+export JAVA_OPTS="-Xmx1024m -Xms1024m"
