@@ -92,7 +92,19 @@
 		<mkdir dir="${build}" />
 	</target>
 	
-	<target name="compile" depends="init" description="클라이언트 어플리 케이션 컴파일">
+	<target name="lib.clean" depends="var.init">
+		<delete dir="${lib}" />
+	</target>
+
+	<target name="lib.init" depends="lib.clean">
+		<!-- Create the time stamp -->
+		<tstamp />
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${lib}/ex" />
+		<mkdir dir="${lib}/in" />
+	</target>
+	
+	<target name="compile" depends="lib.init, init" description="클라이언트 어플리 케이션 컴파일">
 		<!-- Compile the java code from ${src} into ${build} -->
 		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}" destdir="${build}">
 			<classpath>

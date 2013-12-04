@@ -31,8 +31,20 @@
 		<mkdir dir="${build}/all_lib" />
 		<mkdir dir="${dist}" />
 	</target>
+	
+	<target name="lib.clean" depends="var.init">
+		<delete dir="${lib}" />
+	</target>
 
-	<target name="compile.common" depends="init" description="신놀이 프레임 워크 common 패키지 컴파일">
+	<target name="lib.init" depends="lib.clean">
+		<!-- Create the time stamp -->
+		<tstamp />
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${lib}/ex" />
+		<mkdir dir="${lib}/in" />
+	</target>
+
+	<target name="compile.common" depends="lib.init, init" description="신놀이 프레임 워크 common 패키지 컴파일">
 		<!-- Compile the java code from ${src} into ${build} -->
 		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" destdir="${build}/common_lib">
 			<src path="src/kr/pe/sinnori/common/" />
