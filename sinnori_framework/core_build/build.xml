@@ -6,6 +6,7 @@
 	<property name="src" location="src" />
 	<property name="build" location="build" />
 	<property name="dist" location="dist" />
+	<property name="lib" location="lib" />
 	
 	<target name="java.debug.yes.init" description="컴파일시 디버깅 정보를 가지도록 디버깅 지정 변수 초기화">
 		<property name="java.debug" value="true" />
@@ -32,7 +33,7 @@
 		<mkdir dir="${dist}" />
 	</target>
 	
-	<target name="lib.clean" depends="var.init">
+	<target name="lib.clean">
 		<delete dir="${lib}" />
 	</target>
 
