@@ -33,11 +33,8 @@
 		<mkdir dir="${dist}" />
 	</target>
 	
-	<target name="lib.clean">
-		<delete dir="${lib}" />
-	</target>
-
-	<target name="lib.init" depends="lib.clean">
+	
+	<target name="lib.init">
 		<!-- Create the time stamp -->
 		<tstamp />
 		<!-- Create the build directory structure used by compile -->

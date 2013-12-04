@@ -63,11 +63,8 @@
 	
 	<target name="make.sinnori" depends="var.init, dos.make.framework, unix.make.framework" description="신놀이 프레임 워크 컴파일 하여 jar 라이브러리 만들기" />
 	
-	<target name="lib.clean" depends="var.init">
-		<delete dir="${lib}" />
-	</target>
-
-	<target name="lib.init" depends="lib.clean">
+	
+	<target name="lib.init">
 		<!-- Create the time stamp -->
 		<tstamp />
 		<!-- Create the build directory structure used by compile -->
