@@ -12,11 +12,11 @@ import kr.pe.sinnori.common.updownfile.LocalTargetFileResource;
 import kr.pe.sinnori.common.updownfile.LocalTargetFileResourceManager;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
-import kr.pe.sinnori.server.executor.AbstractServerExecutor;
+import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;
 import kr.pe.sinnori.server.io.LetterListToClient;
 import kr.pe.sinnori.server.io.LetterToClient;
 
-public final class CancelUploadFileSExtor extends AbstractServerExecutor {
+public final class CancelUploadFileSExtor extends AbstractAuthServerExecutor {
 
 	@Override
 	protected void doTask(SocketChannel fromSC, InputMessage inObj,

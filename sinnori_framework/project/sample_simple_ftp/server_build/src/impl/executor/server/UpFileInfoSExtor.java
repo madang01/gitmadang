@@ -1,3 +1,21 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
 package impl.executor.server;
 
 import java.nio.channels.SocketChannel;
@@ -11,12 +29,22 @@ import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
 import kr.pe.sinnori.common.updownfile.LocalTargetFileResource;
 import kr.pe.sinnori.common.updownfile.LocalTargetFileResourceManager;
+import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
-import kr.pe.sinnori.server.executor.AbstractServerExecutor;
+import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;
 import kr.pe.sinnori.server.io.LetterListToClient;
 import kr.pe.sinnori.server.io.LetterToClient;
 
-public final class UpFileInfoSExtor extends AbstractServerExecutor {
+/**
+ * <pre>
+ * 로그인 요구 서비스로 업로드할 준비를 수행하는 비지니스 로직.
+ * 업로드할 파일에 락을 걸고 락 정보를 클라이언트로 보낸다.
+ * </pre>
+ * 
+ * @author Jonghoon Won
+ *
+ */
+public final class UpFileInfoSExtor extends AbstractAuthServerExecutor {
 
 	@Override
 	protected void doTask(SocketChannel fromSC, InputMessage inObj,
@@ -53,9 +81,18 @@ public final class UpFileInfoSExtor extends AbstractServerExecutor {
 				return;
 			}
 			
+			int serverTargetFileID = localTargetFileResource.getTargetFileID();
+			
+			ClientResource clientResource = clientResourceManager.getClientResource(fromSC);
+			clientResource.addLocalTargetFileID(serverTargetFileID);
+			
+			
 			outObj.setAttribute("taskResult", "Y");
 			outObj.setAttribute("resultMessage", "업로드할 파일을 받아줄 준비가 되었습니다.");
-			outObj.setAttribute("serverTargetFileID", localTargetFileResource.getTargetFileID());
+			outObj.setAttribute("serverTargetFileID", serverTargetFileID);
+			
+			// FIXME!
+			// log.info(outObj.toString());
 			
 			/*
 			LetterToClient letterToClient = new LetterToClient(fromSC, outObj);

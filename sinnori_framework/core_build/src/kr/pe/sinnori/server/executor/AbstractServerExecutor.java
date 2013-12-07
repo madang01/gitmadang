@@ -28,13 +28,12 @@ import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
-import kr.pe.sinnori.server.io.LetterFromClient;
 import kr.pe.sinnori.server.io.LetterListToClient;
 import kr.pe.sinnori.server.io.LetterToClient;
 
 /**
  * <pre>
- * 서버 비지니스 로직 부모 클래스. 
+ * 로그인을 요구하지 않는 서버 비지니스 로직 부모 클래스. 
  * 메시지는 자신만의 서버 비지니스를 갖는다. 
  * 개발자는 이 클래스를 상속 받은 메시지별 비지니스 로직을 개발하며, 
  * 이렇게 개발된 비지니스 로직 모듈은 동적으로 로딩된다.
@@ -53,7 +52,8 @@ public abstract class AbstractServerExecutor implements CommonRootIF {
 	 *       이렇게 소켓 채널과 메시지를 묶은 이유는 
 	 *       소켓 채널을 통해서만 서버와의 데이터 교환을 할 수 있기때문이다. 
 	 * 
-	 * @param fromLetter 받은 편지
+	 * @param fromSC 입력 메시지를 보낸 클라이언트와 연결된 소켓
+	 * @param inObj 입력 메시지
 	 * @param commonProjectInfo 공통 프로젝트 정보
 	 * @param messageManger 메시지 관리자
 	 * @param clientResourceManager 클라리언트 자원 관리자
@@ -61,13 +61,15 @@ public abstract class AbstractServerExecutor implements CommonRootIF {
 	 * @throws MessageInfoNotFoundException 메시지 정보 파일이 존재하지 않을때 던지는 예외
 	 * @throws MessageItemException 메시지 항목 값을 얻을때 혹은 항목 값을 설정할때 항목 관련 에러 발생시 던지는 예외
 	 */
+	
 	public ArrayList<LetterToClient> executeInputMessage(
-			LetterFromClient fromLetter,
+			SocketChannel fromSC,
+			InputMessage inObj,
 			CommonProjectInfo commonProjectInfo,
 			MessageMangerIF messageManger,
 			ClientResourceManagerIF clientResourceManager) throws MessageInfoNotFoundException, MessageItemException {
-		InputMessage inObj = fromLetter.getInputMessage();
-		SocketChannel fromSC = fromLetter.getFromSC();
+		// InputMessage inObj = fromLetter.getInputMessage();
+		// SocketChannel fromSC = fromLetter.getFromSC();
 		
 
 		LetterListToClient letterListToClient = new LetterListToClient(fromSC, inObj, clientResourceManager);
@@ -94,7 +96,8 @@ public abstract class AbstractServerExecutor implements CommonRootIF {
 	 *       소켓 채널을 통해서만 서버와의 데이터 교환을 할 수 있기때문이다.
 	 * </pre> 
 	 * 
-	 * @param fromLetter 받은 편지
+	 * @param fromSC 입력 메시지를 보낸 클라이언트와 연결된 소켓
+	 * @param inObj 입력 메시지
 	 * @param commonProjectInfo 공통 프로젝트 정보
 	 * @param ouputMessageQueue 출력 메시지 큐
 	 * @param messageManger 메시지 관리자
@@ -104,13 +107,14 @@ public abstract class AbstractServerExecutor implements CommonRootIF {
 	 * @throws MessageItemException 메시지 항목 값을 얻을때 혹은 항목 값을 설정할때 항목 관련 에러 발생시 던지는 예외 
 	 */
 	public ArrayList<LetterToClient> executeInputMessage(
-			LetterFromClient fromLetter,
+			SocketChannel fromSC,
+			InputMessage inObj,
 			CommonProjectInfo commonProjectInfo,
 			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
 			MessageMangerIF messageManger,
 			ClientResourceManagerIF clientResourceManager) throws MessageInfoNotFoundException, MessageItemException {
-		InputMessage inObj = fromLetter.getInputMessage();
-		SocketChannel fromSC = fromLetter.getFromSC();
+		// InputMessage inObj = fromLetter.getInputMessage();
+		// SocketChannel fromSC = fromLetter.getFromSC();
 		
 
 		LetterListToClient letterListToClient = new LetterListToClient(fromSC, inObj, clientResourceManager);
@@ -128,7 +132,7 @@ public abstract class AbstractServerExecutor implements CommonRootIF {
 	
 	/**
 	 * 출력메시지 직접 전송하는 개발자가 직접 작성해야할 비지니스 로직
-	 * @param fromSC 입력 메시지를 보낸 소켓 채널
+	 * @param fromSC 입력 메시지를 보낸 클라이언트와 연결된 소켓
 	 * @param inObj 입력 메시지
 	 * @param letterListToClient 직접 출력 메시지 큐에 출력 메시지를 전달하므로 추가된 출력 메시지가 하나도 없을 수 있다.
 	 * @param ouputMessageQueue 출력 메시지 큐, 파일 관련 2개의 메시지 UpFileInfo, DownFileInfo 에서만 유효하다. 

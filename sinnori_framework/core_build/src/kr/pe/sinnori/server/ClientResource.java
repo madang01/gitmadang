@@ -306,6 +306,9 @@ public class ClientResource implements CommonRootIF {
 	
 	/** 로그 아웃시 할당 받은 자원을 해제한다. */
 	public void logout() {
+		// FIXME!
+		log.info(String.format("clientSC[%d] logout", clientSC.hashCode()));
+		
 		messageInputStreamResource.destory();
 		
 		LocalSourceFileResourceManager localSourceFileResourceManager = LocalSourceFileResourceManager.getInstance();
@@ -315,6 +318,8 @@ public class ClientResource implements CommonRootIF {
 			LocalSourceFileResource  localSourceFileResource  = localSourceFileResourceManager.getLocalSourceFileResource(localSourceFileID);
 			localSourceFileResourceManager.putLocalSourceFileResource(localSourceFileResource);
 			
+			log.info(String.format("clientSC[%d] loginID[%s] logout, free localSourceFileID[%d]", clientSC.hashCode(), loginID, localSourceFileID));
+			
 		}
 		
 		LocalTargetFileResourceManager localTargetFileResourceManager = LocalTargetFileResourceManager.getInstance();
@@ -323,16 +328,27 @@ public class ClientResource implements CommonRootIF {
 			int localTargetFileID = localTargetFileIDIterator.next();
 			LocalTargetFileResource localTargetFileResource = localTargetFileResourceManager.getLocalTargetFileResource(localTargetFileID);
 			localTargetFileResourceManager.putLocalTargetFileResource(localTargetFileResource);
+			
+			log.info(String.format("clientSC[%d] loginID[%s] logout, free localTargetFileID[%d]", clientSC.hashCode(), loginID, localTargetFileID));
 		}
+		
+		loginID = null;
 	}
 	
 	
 	public void addLocalSourceFileID(int localSourceFileID) {
+		log.info(String.format("SC[%d] add localSourceFileID=[%d]", clientSC.hashCode(), localSourceFileID));
+		
 		localSourceFileIDSet.add(localSourceFileID);
 	}
 	
-	public void remoteLocalSourceFileID(int localSourceFileID) {
+	public void removeLocalSourceFileID(int localSourceFileID) {
+		// log.info(String.format("SC[%d] remove localSourceFileID=[%d]", clientSC.hashCode(), localSourceFileID));
+		
 		boolean isLocalSourceFileID = localSourceFileIDSet.remove(localSourceFileID);
+		
+		log.info(String.format("SC[%d] remove localSourceFileID=[%d], isLocalSourceFileID=[%s]", clientSC.hashCode(), localSourceFileID, isLocalSourceFileID));
+		
 		if (isLocalSourceFileID) {
 			LocalSourceFileResourceManager localSourceFileResourceManager = LocalSourceFileResourceManager.getInstance();
 			LocalSourceFileResource  localSourceFileResource = localSourceFileResourceManager.getLocalSourceFileResource(localSourceFileID);
@@ -345,11 +361,18 @@ public class ClientResource implements CommonRootIF {
 	}
 
 	public void addLocalTargetFileID(int localTargetFileID) {
+		log.info(String.format("SC[%d] add localTargetFileID=[%d]", clientSC.hashCode(), localTargetFileID));
+		
 		localTargetFileIDSet.add(localTargetFileID);
 	}
 	
 	public void removeLocalTargetFileID(int localTargetFileID) {
+		// log.info(String.format("SC[%d] remove localTargetFileID=[%d]", clientSC.hashCode(), localTargetFileID));
+		
 		boolean isLocalTargetFileID = localTargetFileIDSet.remove(localTargetFileID);
+		
+		log.info(String.format("SC[%d] remove localTargetFileID=[%d], isLocalTargetFileID=[%s]", clientSC.hashCode(), localTargetFileID, isLocalTargetFileID));
+		
 		if (isLocalTargetFileID) {
 			LocalTargetFileResourceManager localTargetFileResourceManager = LocalTargetFileResourceManager.getInstance();
 			LocalTargetFileResource localTargetFileResource = localTargetFileResourceManager.getLocalTargetFileResource(localTargetFileID);

@@ -11,12 +11,13 @@ import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResource;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResourceManager;
+import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
-import kr.pe.sinnori.server.executor.AbstractServerExecutor;
+import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;
 import kr.pe.sinnori.server.io.LetterListToClient;
 import kr.pe.sinnori.server.io.LetterToClient;
 
-public final class DownFileInfoSExtor extends AbstractServerExecutor {
+public final class DownFileInfoSExtor extends AbstractAuthServerExecutor {
 
 	@Override
 	protected void doTask(SocketChannel fromSC, InputMessage inObj,
@@ -53,11 +54,16 @@ public final class DownFileInfoSExtor extends AbstractServerExecutor {
 				letterToClientList.addLetterToClient(fromSC, outObj);
 				return;
 			}
+			
+			int serverSourceFileID = localSourceFileResource.getSourceFileID(); 
 
+			ClientResource clientResource = clientResourceManager.getClientResource(fromSC);
+			clientResource.addLocalSourceFileID(serverSourceFileID);
+			
 			outObj.setAttribute("taskResult", "Y");
 			outObj.setAttribute("resultMessage", "업로드할 파일을 받아줄 준비가 되었습니다.");
 			outObj.setAttribute("clientTargetFileID", clientTargetFileID);
-			outObj.setAttribute("serverSourceFileID", localSourceFileResource.getSourceFileID());
+			outObj.setAttribute("serverSourceFileID", serverSourceFileID);
 			letterToClientList.addLetterToClient(fromSC, outObj);
 		} catch (IllegalArgumentException e) {
 			outObj.setAttribute("taskResult", "N");

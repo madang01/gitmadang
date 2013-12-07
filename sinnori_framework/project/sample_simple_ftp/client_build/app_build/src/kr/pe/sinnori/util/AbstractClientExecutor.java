@@ -26,6 +26,7 @@ import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
 import kr.pe.sinnori.common.exception.NoMatchOutputMessage;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.ServerExcecutorUnknownException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
@@ -64,6 +65,8 @@ public abstract class AbstractClientExecutor implements CommonRootIF {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
 			throw e;
+		} catch (NotLoginException e) {
+			e.printStackTrace();
 		} catch (Exception e) {
 			log.warn("Exception::통제 못한 에러 발생", e);
 		}
@@ -127,9 +130,12 @@ public abstract class AbstractClientExecutor implements CommonRootIF {
 	 * @throws NoMatchOutputMessage
 	 * @throws InterruptedException
 	 * @throws ServerExcecutorUnknownException
+	 * @throws NotLoginException
 	 */
 	abstract protected void doTask(MessageMangerIF messageManger, ClientProjectIF clientProject)
 			throws SocketTimeoutException, ServerNotReadyException, DynamicClassCallException, 
 			NoMoreDataPacketBufferException, BodyFormatException, 
-			MessageInfoNotFoundException, MessageItemException, NoMatchOutputMessage, ServerExcecutorUnknownException, InterruptedException;
+			MessageInfoNotFoundException, MessageItemException, 
+			NoMatchOutputMessage, ServerExcecutorUnknownException, 
+			InterruptedException, NotLoginException;
 }

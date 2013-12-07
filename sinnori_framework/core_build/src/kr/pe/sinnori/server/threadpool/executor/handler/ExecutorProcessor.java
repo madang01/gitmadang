@@ -30,6 +30,7 @@ import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
+import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;
 import kr.pe.sinnori.server.executor.AbstractServerExecutor;
 import kr.pe.sinnori.server.executor.SererExecutorClassLoaderManagerIF;
 import kr.pe.sinnori.server.io.LetterFromClient;
@@ -88,16 +89,34 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 				LetterFromClient fromLetter = inputMessageQueue.take();
 
 				InputMessage inObj = fromLetter.getInputMessage();
+				SocketChannel fromSC = fromLetter.getFromSC();
+				
 				String messageID = inObj.getMessageID();
 				try {
 					AbstractServerExecutor executor = sererExecutorClassLoaderManager.getServerExecutorObject(messageID);
+					if (executor instanceof AbstractAuthServerExecutor) {
+						/** 로그인 요구 서비스인 경우 로그인 여부 검사 */
+						if (! clientResourceManager.getClientResource(fromSC).isLogin()) {
+							OutputMessage errorOutObj = messageManger.createOutputMessage("SelfExn");
+
+							errorOutObj.messageHeaderInfo = inObj.messageHeaderInfo;
+							errorOutObj.setAttribute("whereError", "S");
+							errorOutObj.setAttribute("errorGubun", "A");
+							errorOutObj.setAttribute("errorMessageID", messageID);
+							errorOutObj.setAttribute("errorMessage", "this input message demand login");
+
+							LetterToClient toLetter = new LetterToClient(fromSC, errorOutObj);
+							ouputMessageQueue.put(toLetter);
+							return;
+						}
+					}
 					
 					ArrayList<LetterToClient> toList = null;
 					
 					if (messageID.equals("DownFileInfo") || messageID.equals("UpFileInfo")) {
-						toList = executor.executeInputMessage(fromLetter, commonProjectInfo, ouputMessageQueue, messageManger, clientResourceManager);
+						toList = executor.executeInputMessage(fromSC, inObj, commonProjectInfo, ouputMessageQueue, messageManger, clientResourceManager);
 					} else {
-						toList = executor.executeInputMessage(fromLetter, commonProjectInfo, messageManger, clientResourceManager); 
+						toList = executor.executeInputMessage(fromSC, inObj, commonProjectInfo, messageManger, clientResourceManager); 
 					}
 					
 
@@ -109,8 +128,6 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 						ouputMessageQueue.put(toLetter);
 					}
 				} catch (DynamicClassCallException e) {
-					SocketChannel fromSC = fromLetter.getFromSC();
-					
 					log.warn(String.format("fromSC=[%d], inObj[%s], %s", fromSC.hashCode(), inObj.toString(), e.getMessage()), e);
 					
 					OutputMessage errorOutObj = null;
@@ -130,8 +147,6 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 					LetterToClient toLetter = new LetterToClient(fromSC, errorOutObj);
 					ouputMessageQueue.put(toLetter);
 				} catch (MessageInfoNotFoundException e) {
-					SocketChannel fromSC = fromLetter.getFromSC();
-					
 					log.warn(String.format("fromSC=[%d], inObj[%s], %s", fromSC.hashCode(), inObj.toString(), e.getMessage()), e);
 					
 					OutputMessage errorOutObj = null;
@@ -151,8 +166,6 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 					LetterToClient toLetter = new LetterToClient(fromSC, errorOutObj);
 					ouputMessageQueue.put(toLetter);
 				} catch(MessageItemException e) {
-					SocketChannel fromSC = fromLetter.getFromSC();
-					
 					log.warn(String.format("fromSC=[%d], inObj[%s], %s", fromSC.hashCode(), inObj.toString(), e.getMessage()), e);
 					
 					OutputMessage errorOutObj = null;
@@ -172,7 +185,6 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 					LetterToClient toLetter = new LetterToClient(fromSC, errorOutObj);
 					ouputMessageQueue.put(toLetter);
 				} catch (Exception e) {
-					SocketChannel fromSC = fromLetter.getFromSC();
 					
 					String errorMessgae = e.getMessage();
 					if (null == errorMessgae) {

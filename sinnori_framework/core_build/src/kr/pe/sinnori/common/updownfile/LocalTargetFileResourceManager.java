@@ -119,7 +119,7 @@ public class LocalTargetFileResourceManager implements CommonRootIF {
 			localTargetFileResourceQueue.add(localTargetFileResource);
 		}
 		
-		log.warn(String.format("localTargetFileID[%d] 큐 반환", localTargetFileResource.getTargetFileID()));
+		log.info(String.format("localTargetFileID[%d] 큐 반환", localTargetFileResource.getTargetFileID()));
 	}
 	
 	/**

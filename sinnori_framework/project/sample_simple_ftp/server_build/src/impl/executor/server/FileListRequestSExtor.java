@@ -17,11 +17,11 @@ import kr.pe.sinnori.common.util.DirectoryFirstComparator;
 import kr.pe.sinnori.common.util.NameFirstComparator;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
-import kr.pe.sinnori.server.executor.AbstractServerExecutor;
+import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;
 import kr.pe.sinnori.server.io.LetterListToClient;
 import kr.pe.sinnori.server.io.LetterToClient;
 
-public final class FileListRequestSExtor extends AbstractServerExecutor {
+public final class FileListRequestSExtor extends AbstractAuthServerExecutor {
 	
 	private void makeErrorOutMessage(OutputMessage outObj, String errorMessge) throws MessageItemException {
 		outObj.setAttribute("taskResult", "N");

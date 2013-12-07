@@ -13,11 +13,11 @@ import kr.pe.sinnori.common.updownfile.LocalSourceFileResource;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResourceManager;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
-import kr.pe.sinnori.server.executor.AbstractServerExecutor;
+import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;
 import kr.pe.sinnori.server.io.LetterListToClient;
 import kr.pe.sinnori.server.io.LetterToClient;
 
-public final class DownFileDataSExtor extends AbstractServerExecutor {
+public final class DownFileDataSExtor extends AbstractAuthServerExecutor {
 
 	
 	@Override
@@ -74,7 +74,7 @@ public final class DownFileDataSExtor extends AbstractServerExecutor {
 			} finally {
 				if (isCompletedReadingFile) {
 					ClientResource clientResource = clientResourceManager.getClientResource(fromSC);
-					clientResource.remoteLocalSourceFileID(serverSourceFileID);
+					clientResource.removeLocalSourceFileID(serverSourceFileID);
 					// localTargetFileResourceManager.putLocalSourceFileResource(localSourceFileResource);
 				}
 			}

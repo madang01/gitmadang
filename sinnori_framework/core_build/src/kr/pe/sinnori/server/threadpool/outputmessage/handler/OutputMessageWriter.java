@@ -229,8 +229,9 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 							ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
 
 							do {
-								try {
-									toSC.write(byteBuffer);
+								// try {
+								toSC.write(byteBuffer);
+									/*
 								} catch(ClosedByInterruptException e) {
 									log.warn("ClosedByInterruptException", e);
 									try {
@@ -241,6 +242,7 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 									}
 									Thread.currentThread().interrupt();
 								}
+								*/
 							} while(byteBuffer.hasRemaining());
 						}
 					}
@@ -251,9 +253,19 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 						toSC.close();
 					} catch (IOException e1) {
 					}
+				} catch(ClosedByInterruptException e) {
+					/** ClosedByInterruptException 는 IOException 상속 받기때문에 따라 처리  */
+					log.warn(String.format("ClosedByInterruptException::%s index[%d] toSC[%d] write error",
+							commonProjectInfo.projectName, index, toSC.hashCode()), e);
+					try {
+						toSC.close();
+					} catch (IOException e1) {
+					}
+					
+					throw e;
 				} catch (IOException e) {
 					log.warn(String.format("IOException::%s index[%d] toSC[%d] write error",
-							index, toSC.hashCode()), e);
+							commonProjectInfo.projectName, index, toSC.hashCode()), e);
 					
 					try {
 						toSC.close();
@@ -273,7 +285,8 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 			}
 		
 			log.warn(String.format("%s index[%d] loop exit", commonProjectInfo.projectName, index));
-		
+		} catch(ClosedByInterruptException e) {
+			/** 이미 로그를 찍은 상태로 nothing */
 		} catch (Exception e) {
 			log.warn(String.format("Exception::%s index[%d]", commonProjectInfo.projectName, index), e);
 		}

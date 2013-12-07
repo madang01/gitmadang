@@ -122,7 +122,8 @@ public class SinnoriAppClientMain implements CommonRootIF {
 			// SinnoriWorker.getInstance().start("sample_simple_chat", "TestVirtualInputStream");
 			
 			
-			SinnoriWorker.getInstance().start(projectName, "TestFtpClient", 1);
+			SinnoriWorker.getInstance().start(projectName, "FtpImitationClient", 1);
+			// SinnoriWorker.getInstance().start(projectName, "TestLoginService", 1);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -30,7 +30,10 @@ import kr.pe.sinnori.common.util.HexUtil;
 import org.apache.commons.dbcp.BasicDataSource;
 
 /**
- * 신놀이 DB 연결 관리자
+ * <pre>
+ * DB 연결 폴 관리자인 아파치 commons-dbcp 를 신놀이 설정 파일에서 
+ * 지정한 DB 관련 환경 변수값에 맞쳐 설정하여 이용하는 클래스.
+ * </pre>
  * 
  * @author Jonghoon Won
  * 

@@ -65,6 +65,8 @@ import kr.pe.sinnori.common.message.OutputMessage;
 public class ClientProject extends AbstractProject implements ClientProjectIF, OutputMessageQueueQueueMangerIF {
 	/** 모니터 객체 */
 	private final Object outputMessageQueuerQueueMonitor = new Object();
+	
+	// private final Object anonymousServerMessageTaskMonitor = new Object();
 
 	/** 비동기 방식에서 사용되는 입력 메시지 큐 */
 	private LinkedBlockingQueue<LetterToServer> inputMessageQueue = null;
@@ -83,6 +85,8 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 	
 	/** 프로젝트의 연결 클래스 폴 */
 	private AbstractConnectionPool connectionPool = null;
+	
+	private AnonymousServerMessageProcessorThread anonymousServerMessageProcessorThread = null;
 	
 	/**
 	 * 생성자
@@ -188,6 +192,10 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 						inputMessageQueue, this, 
 						outputMessageReaderPool, this, this);
 			}
+			
+			
+			anonymousServerMessageProcessorThread = new AnonymousServerMessageProcessorThread(projectName, serverOutputMessageQueue);
+			anonymousServerMessageProcessorThread.start();
 		}
 	}
 	
@@ -274,6 +282,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 		
 	}	
 	
+
 	public MonitorClientProjectInfo getInfo() {
 		MonitorClientProjectInfo clientProjectInfo = new MonitorClientProjectInfo();
 		clientProjectInfo.projectName = commonProjectInfo.projectName;
@@ -293,6 +302,81 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 		}
 		
 		return clientProjectInfo;
+	}
+	
+	/**
+	 * <pre>
+	 * 서버에서 보내는 익명 메시지 처리 쓰레드.
+	 * 처음 지정되는 익명 메시지 처리자는 디폴트 처리자({@link DefaultAnonymousServerMessageTask }) 로 익명 메시지 로그만 찍는다. 
+	 * 주) 비동기에서만 동작한다.
+	 * </pre>
+	 * @author Jonghoon Won
+	 *
+	 */
+	private class AnonymousServerMessageProcessorThread extends Thread {
+		//private final Object monitor = new Object();
+		
+		private String projectName = null;
+		private LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue = null;
+		private AnonymousServerMessageTaskIF anonymousServerMessageTask = null;
+		
+		
+		/**
+		 * 생성자
+		 * @param projectName 프로젝트 이름
+		 * @param serverOutputMessageQueue 서버 익명 출력 메시지 큐
+		 */
+		public AnonymousServerMessageProcessorThread(String projectName, LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue) {
+			this.projectName = projectName;
+			this.serverOutputMessageQueue= serverOutputMessageQueue;			
+			this.anonymousServerMessageTask = new DefaultAnonymousServerMessageTask();
+		}
+
+		public void run() {
+			try {
+				while (!Thread.currentThread().isInterrupted()) {
+					OutputMessage outObj = serverOutputMessageQueue.take();
+					//synchronized (monitor) {
+						anonymousServerMessageTask.doTask(projectName, outObj);
+					//}
+				}
+				log.warn("Thread loop exit");
+			} catch (InterruptedException e) {
+				log.warn(String.format("project[%s] AnonymousServerMessageProcessorThread interrupt", projectName), e);
+			} catch (Exception e) {
+				log.warn(String.format("project[%s] AnonymousServerMessageProcessorThread unknow error", projectName), e);
+			}
+        }
+		
+		/**
+		 * 새로운 서버 익명 메시지 비지니스 로직으로 교체를 한다.
+		 * @param newAnonymousServerMessageTask 새로운 서버 익명 메시지 비지니스 로직
+		 */
+		public void changeAnonymousServerMessageTask(AnonymousServerMessageTaskIF newAnonymousServerMessageTask) {
+			if (null == newAnonymousServerMessageTask) {
+				String errorMessage = "parameter newAnonymousServerMessageTask is null";
+				IllegalArgumentException e = new IllegalArgumentException(errorMessage);
+				log.warn("IllegalArgumentException", e);
+				throw e;
+			}
+			//synchronized (monitor) {
+				anonymousServerMessageTask = newAnonymousServerMessageTask;
+			//}
+		}
+	}
+	
+	/**
+	 * 새로운 서버 익명 메시지 비지니스 로직으로 교체를 한다.
+	 * @param newAnonymousServerMessageTask 새로운 서버 익명 메시지 비지니스 로직
+	 */
+	public void changeAnonymousServerMessageTask(AnonymousServerMessageTaskIF newAnonymousServerMessageTask) {
+		/**
+		 * anonymousServerMessageProcessorThread 는 비동기일때만 초기화 되므로 동기일때에는 null 값이다.
+		 * 따라서 null 값이면 비동기이므로 무시한다.
+		 */
+		if (null == anonymousServerMessageProcessorThread) return;
+
+		anonymousServerMessageProcessorThread.changeAnonymousServerMessageTask(newAnonymousServerMessageTask);
 	}
 }
 

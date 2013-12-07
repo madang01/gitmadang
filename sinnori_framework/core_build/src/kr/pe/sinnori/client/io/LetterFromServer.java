@@ -23,6 +23,7 @@ import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
 import kr.pe.sinnori.common.exception.NoMatchOutputMessage;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.ServerExcecutorUnknownException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.message.OutputMessage;
@@ -60,10 +61,13 @@ public class LetterFromServer implements CommonRootIF {
 	 * @throws NoMatchOutputMessage 원하는 출력 메시지를 얻지 못했을때 발생
 	 * @throws MessageItemException 메시지에서 항목 값을 얻어올때 혹은 항목 값을 설정할때 항목 관련 에러 발생시 던지는 예외 
 	 * @throws ServerExcecutorUnknownException 서버 비지니스 로직 실행시 알수 없는 에러 발생시 던지는 예외
+	 * @throws NotLoginException 로그인 서비스에 비 로그인 접근시 던지는 예외
 	 */
 	public OutputMessage getOutputMessage(String wantedOutputMessageID) throws 
 			BodyFormatException, DynamicClassCallException,
-			NoMoreDataPacketBufferException, MessageInfoNotFoundException, NoMatchOutputMessage, MessageItemException, ServerExcecutorUnknownException {
+			NoMoreDataPacketBufferException, MessageInfoNotFoundException, 
+			NoMatchOutputMessage, MessageItemException, 
+			ServerExcecutorUnknownException, NotLoginException {
 		
 		String outputMessageID = outObj.getMessageID();
 		if (outputMessageID.equals("SelfExn")) {
@@ -116,6 +120,10 @@ public class LetterFromServer implements CommonRootIF {
 			
 			if (errorGubun.equals("U")) {
 				throw new ServerExcecutorUnknownException(errorBuffer.toString());
+			}
+			
+			if (errorGubun.equals("A")) {
+				throw new NotLoginException(errorBuffer.toString());
 			}
 			
 			errorBuffer.delete(0, errorBuffer.length());

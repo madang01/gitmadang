@@ -1,7 +1,23 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package kr.pe.sinnori.gui.action.fileupdownscreen;
 
 import java.awt.event.ActionEvent;
-import java.io.File;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
@@ -15,12 +31,17 @@ import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.message.OutputMessage;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResource;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResourceManager;
-import kr.pe.sinnori.gui.FileUpDownScreenIF;
-import kr.pe.sinnori.gui.LocalFileTreeNode;
-import kr.pe.sinnori.gui.MainControllerIF;
-import kr.pe.sinnori.gui.RemoteFileTreeNode;
-import kr.pe.sinnori.gui.UploadFileTransferTask;
+import kr.pe.sinnori.gui.lib.FileUpDownScreenIF;
+import kr.pe.sinnori.gui.lib.LocalFileTreeNode;
+import kr.pe.sinnori.gui.lib.MainControllerIF;
+import kr.pe.sinnori.gui.lib.RemoteFileTreeNode;
+import kr.pe.sinnori.gui.lib.UploadFileTransferTask;
 
+/**
+ * 업로드 이벤트 처리 클래스
+ * @author Jonghoon Won
+ *
+ */
 @SuppressWarnings("serial")
 public class UploadSwingAction extends AbstractAction implements CommonRootIF {
 	private JFrame mainFrame = null;
@@ -32,7 +53,17 @@ public class UploadSwingAction extends AbstractAction implements CommonRootIF {
 	private RemoteFileTreeNode remoteRootNode = null;
 	private String remotePathSeperator = null;
 	
-
+	/**
+	 * 생성자
+	 * @param mainFrame 메인 프레임
+	 * @param mainController 메인 제어자
+	 * @param fileUpDownScreen 파일 송수신 화면을 제어하는 기능 제공 인터페이스
+	 * @param localTree 로컬 트리
+	 * @param localRootNode 로컬 루트 노드
+	 * @param remoteTree 원격지 트리
+	 * @param remoteRootNode 원격지 루트 노드
+	 * @param remotePathSeperator 원격지 파일 구분자. 참고) 원격지 파일 목록을 요청하기전에 생성시에는 null 값이다.
+	 */
 	public UploadSwingAction(JFrame mainFrame,
 			MainControllerIF mainController,
 			FileUpDownScreenIF fileUpDownScreen,
@@ -81,7 +112,13 @@ public class UploadSwingAction extends AbstractAction implements CommonRootIF {
 
 		String localFilePathName = (String)localRootNode.getUserObject();
 		String localFileName = localSelectedNode.getFileName();
-		long localFileSize = -1;
+		long localFileSize = localSelectedNode.getFileSize();
+		if (0 == localFileSize) {
+			String errorMessage = "업 로드할 파일 크기가 0 입니다.";
+			JOptionPane.showMessageDialog(mainFrame, errorMessage);
+			return;
+		}
+		
 		String remoteFilePathName = (String)remoteRootNode.getUserObject();
 		String remoteFileName = "";
 		int fileBlockSize = 1024 * 32;
@@ -129,21 +166,18 @@ public class UploadSwingAction extends AbstractAction implements CommonRootIF {
 		// FIXME!
 		log.info(String.format("copy localFilePathName[%s] localFileName[%s] to remoteFilePathName[%s] remoteFileName[%s]",
 				localFilePathName,  localFileName, remoteFilePathName, remoteFileName));
-		
 
-		StringBuilder sourceFileBuilder = new StringBuilder(localFilePathName);
-		sourceFileBuilder.append(File.separator);
-		sourceFileBuilder.append(localFileName);
-		String sourceFileFullName = sourceFileBuilder.toString();
-
-		File localSourceFile = new File(sourceFileFullName);
-
-		localFileSize = localSourceFile.length();
-		
 		LocalSourceFileResourceManager localSourceFileResourceManager = LocalSourceFileResourceManager.getInstance();
 		LocalSourceFileResource localSourceFileResource = null;
 
 		try {
+			localSourceFileResource = localSourceFileResourceManager.pollLocalSourceFileResource(localFilePathName, localFileName, localFileSize, remoteFilePathName, remoteFileName, fileBlockSize);
+			
+			if (null == localSourceFileResource) {
+				JOptionPane.showMessageDialog(mainFrame, "큐로부터 원본 파일 자원 할당에 실패하였습니다.");
+				return;
+			}
+			
 			OutputMessage upFileInfoResulOutObj = mainController
 					.readyUploadFile(localFilePathName, localFileName,
 							localFileSize, remoteFilePathName,
@@ -151,6 +185,9 @@ public class UploadSwingAction extends AbstractAction implements CommonRootIF {
 
 			/** 정상적인 업로드 파일 준비 출력 메시지를 받지 못했을 경우 처리 종료 */
 			if (null == upFileInfoResulOutObj) return;
+			
+			// FIXME!
+			log.info(upFileInfoResulOutObj.toString());
 				
 
 			int serverTargetFileID = -1;
@@ -162,12 +199,7 @@ public class UploadSwingAction extends AbstractAction implements CommonRootIF {
 				return;
 			}
 			
-			localSourceFileResource = localSourceFileResourceManager.pollLocalSourceFileResource(localFilePathName, localFileName, localFileSize, remoteFilePathName, remoteFileName, fileBlockSize);
 			
-			if (null == localSourceFileResource) {
-				JOptionPane.showMessageDialog(mainFrame, "큐로부터 원본 파일 자원 할당에 실패하였습니다.");
-				return;
-			}
 			
 			UploadFileTransferTask uploadFileTransferTask = new UploadFileTransferTask(mainFrame, mainController, fileUpDownScreen, serverTargetFileID, localSourceFileResource);
 			mainController.openFileTransferProcessDialog(new StringBuilder(localFileName).append(" 업로드 중...").toString(), localFileSize, uploadFileTransferTask);

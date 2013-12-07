@@ -28,6 +28,7 @@ import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
 import kr.pe.sinnori.common.exception.NoMatchOutputMessage;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.ServerExcecutorUnknownException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.lib.CommonStaticFinal;
@@ -51,7 +52,9 @@ public class TestNetAllDataTypeCExtor extends AbstractClientExecutor {
 	protected void doTask(MessageMangerIF messageManger, ClientProjectIF clientProject)
 			throws SocketTimeoutException, ServerNotReadyException,
 			DynamicClassCallException, NoMoreDataPacketBufferException,
-			BodyFormatException, MessageInfoNotFoundException, NoMatchOutputMessage, InterruptedException, MessageItemException, ServerExcecutorUnknownException {
+			BodyFormatException, MessageInfoNotFoundException, 
+			NoMatchOutputMessage, InterruptedException, 
+			MessageItemException, ServerExcecutorUnknownException, NotLoginException {
 		java.util.Random random = new java.util.Random();
 		
 		InputMessage allDataTypeInObj = null;

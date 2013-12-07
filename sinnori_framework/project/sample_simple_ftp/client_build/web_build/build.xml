@@ -1,11 +1,12 @@
 <project name="sample_simple_ftp_webclient" default="compile_webclass" basedir=".">
 	<description>
-		Web Application Client Project Of Sinnori Framework
+		Web Application Client Project Using Sinnori Framework
 	</description>
 	<!-- set global properties for this build -->
 	<property name="src" location="src" />
 	<property name="build" location="build" />
 	<property name="dist" location="dist" />
+	<property name="corelib" location="corelib" />
 	<property name="lib" location="lib" />
 	<property name="framework.build" location="../../../../core_build" />
 	<property name="webclass" location="../../web_app_base/ROOT/WEB-INF/classes" />
@@ -20,7 +21,7 @@
 	</condition>
 		
 	<condition property="is.web.yes">
-		<istrue value="${is.web}" />
+		<istrue value="${is.tomcat}" />
 	</condition>
 	
 	<condition property="java.debug.yes">
@@ -28,55 +29,60 @@
 	</condition>
 	
 	<target name="java.debug.yes.init" if="java.debug.yes" description="framework with debug info">
-		<property name="framework.java.debug" value="debug" />
+		<property name="core.java.debug" value="debug" />
 	</target>
 	
 	<target name="java.debug.no.init" unless="java.debug.yes" description="framework with no debug info">
-		<property name="framework.java.debug" value="nodebug" />
+		<property name="core.java.debug" value="nodebug" />
 	</target>
 	
-	<target name="dos.init" if="is.windows.yes">
-		<property name="servletlib" location="${dos.servletlib}" />
-	</target>
-	<target name="unix.init" if="is.unix.yes">
-		<property name="servletlib" location="${unix.servletlib}" />
-	</target>
-	<target name="var.init" depends="java.debug.no.init, java.debug.yes.init, dos.init, unix.init" description="var init">
-		<echo message="is.web=${is.web}" />
-	</target>
-	
-	<target name="unix.make.framework" if="is.unix.yes">
-		<echo message="유니스 신놀이 프레임 워크 컴파일후 jar 만들기" />
-		<exec dir="${framework.build}" executable="ant">
-			<arg value="${framework.java.debug}" />
-		</exec>
-	</target>
-	
-	<target name="dos.make.framework" if="is.windows.yes">
-		<echo message="도스 신놀이 프레임 워크 컴파일후 jar 만들기" />
-		<exec dir="${framework.build}" executable="cmd">
-			<arg value="/c" />
-			<arg value="ant.bat" />
-			<arg value="${framework.java.debug}" />
-		</exec>
-	</target>
-	
-	<target name="make.sinnori" depends="var.init, dos.make.framework, unix.make.framework" description="신놀이 프레임 워크 컴파일 하여 jar 라이브러리 만들기" />
-	
-	
-	<target name="lib.init">
-		<!-- Create the time stamp -->
-		<tstamp />
-		<!-- Create the build directory structure used by compile -->
+	<target name="libdir.init">
+		<mkdir dir="${corelib}/ex" />
+		<mkdir dir="${corelib}/in" />
 		<mkdir dir="${lib}/ex" />
 		<mkdir dir="${lib}/in" />
 	</target>
 	
-	<target name="copy" description="lib.init">
-		<copy todir="${lib}/ex" verbose="true" overwrite="true">
+	<target name="var.init" depends="libdir.init, java.debug.no.init, java.debug.yes.init" description="var init">
+		<echo message="is.tomcat=${is.tomcat}" />
+		<property name="servletlib" location="${tomcat.servletlib}" />
+	</target>
+	
+	<target name="unix.make.core" if="is.unix.yes">
+		<echo message="유니스 신놀이 프레임 워크 컴파일후 jar 만들기" />
+		<exec dir="${framework.build}" executable="ant">
+			<arg value="${core.java.debug}" />
+		</exec>
+	</target>
+	
+	<target name="dos.make.core" if="is.windows.yes">
+		<echo message="도스 신놀이 프레임 워크 컴파일후 jar 만들기" />
+		<exec dir="${framework.build}" executable="cmd">
+			<arg value="/c" />
+			<arg value="ant.bat" />
+			<arg value="${core.java.debug}" />
+		</exec>
+	</target>
+	
+	<target name="make.sinnori" depends="var.init, dos.make.core, unix.make.core" description="신놀이 프레임 워크 컴파일 하여 jar 라이브러리 만들기" />
+	
+	<target name="corelib.clean" depends="var.init">
+		<delete dir="${corelib}" />
+	</target>
+	
+	<target name="corelib.init" depends="corelib.clean">
+		<!-- Create the time stamp -->
+		<tstamp />
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${corelib}/ex" />
+		<mkdir dir="${corelib}/in" />
+	</target>
+	
+	<target name="copy" description="신놀이 프레임 워크 core copy" depends="corelib.init">
+		<copy todir="${corelib}/ex" verbose="true" overwrite="true">
 			<fileset file="${framework.build}/dist/sinnori_framework.jar" />
 		</copy>
-		<copy todir="${lib}/ex" verbose="true" overwrite="true">
+		<copy todir="${corelib}/ex" verbose="true" overwrite="true">
 			<fileset dir="${framework.build}/lib/ex/" />
 		</copy>
 	</target>
@@ -113,17 +119,17 @@
 				<fileset dir="${servletlib}">
 					<include name="**/servlet-api.jar" />
 				</fileset>
-				<fileset dir="lib\in">
+				<fileset dir="${corelib}\in">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="lib\ex">
+				<fileset dir="${corelib}\ex">
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>
 		</javac>
 	</target>
 	
-	<target name="compile.weblib" depends="init, compile.webbeans" description="웹 라이브러리 컴파일">
+	<target name="compile.weblib" if="is.web.yes" depends="init, compile.webbeans" description="웹 라이브러리 컴파일">
 	
 		<!-- Compile the java code from ${src} into ${build} -->
 		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" destdir="${build}/weblib">
@@ -133,10 +139,10 @@
 				<fileset dir="${servletlib}">
 					<include name="**/servlet-api.jar" />
 				</fileset>
-				<fileset dir="lib\in">
+				<fileset dir="${corelib}\in">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="lib\ex">
+				<fileset dir="${corelib}\ex">
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>
@@ -150,7 +156,7 @@
 				<name name="**/*.class" />
 				<archives>
 					<zips>
-						<fileset dir="lib/in" includes="**/*.jar" />
+						<fileset dir="corelib/in" includes="**/*.jar" />
 					</zips>
 				</archives>
 			</restrict>
@@ -185,7 +191,7 @@
 		<echo message="웹 라이브러리를 서블릿 엔진 라이브리러 위치로 배포합니다. 관리자 권한으로 수행 하시기 바랍니다." />
 		<!-- Create the distribution directory -->
 		<copy todir="${servletlib}" verbose="true" overwrite="true">
-			<fileset file="${lib}/ex/sinnori_framework.jar" />
+			<fileset file="${corelib}/ex/sinnori_framework.jar" />
 		</copy>
 	</target>
 	
@@ -202,7 +208,7 @@
 				<fileset dir="${servletlib}/">
 					<include name="servlet-api.jar" />
 				</fileset>
-				<fileset dir="lib\ex">
+				<fileset dir="${corelib}\ex">
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>

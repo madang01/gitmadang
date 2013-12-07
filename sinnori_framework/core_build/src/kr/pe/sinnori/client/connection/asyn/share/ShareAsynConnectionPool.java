@@ -90,6 +90,7 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 		super(commonProjectInfo, serverOutputMessageQueue);
 		// log.info("create new MultiNoneBlockConnectionPool");
 		
+		
 		this.mailBoxCnt = mailBoxCnt;
 		
 		

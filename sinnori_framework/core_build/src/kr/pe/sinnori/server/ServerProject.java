@@ -528,9 +528,12 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 			}
 			
 			// clientResout.getMessageInputStreamResource().destory();
+			if (clientResource.isLogin()) {
+				String loginID = clientResource.getLoginID();
+				loginIDToSCHash.remove(loginID);
+			}
 			clientResource.logout();
-			String loginID = clientResource.getLoginID();
-			loginIDToSCHash.remove(loginID);
+			
 
 			scToClientResourceHash.remove(sc);			
 		}
