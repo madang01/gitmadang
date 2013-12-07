@@ -573,7 +573,9 @@ public class Step2SinnoriConfigScreen extends JPanel {
 			
 			File fileObj = new File(workerBinaryPath);
 			if (!fileObj.exists()) {
-				fileObj.mkdir();
+				boolean isCreatedDir = fileObj.mkdir();
+				System.out.printf("propKey[%s] 경로 생성 여부[%s] 경로[%s]", propKey, isCreatedDir, workerBinaryPath);
+				System.out.println("");
 			}
 			
 			propKey = "sinnori_worker.client.executor.impl.source.path.value";
@@ -582,7 +584,10 @@ public class Step2SinnoriConfigScreen extends JPanel {
 			
 			fileObj = new File(workerSourcePath);
 			if (!fileObj.exists()) {
-				fileObj.mkdir();
+				boolean isCreatedDir = fileObj.mkdir();
+				
+				System.out.printf("propKey[%s] 경로 생성 여부[%s] 경로[%s]", propKey, isCreatedDir, workerBinaryPath);
+				System.out.println("");
 			}
 			
 			
