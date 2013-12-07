@@ -6,7 +6,7 @@
 ############
 *.zip
 *.jar
-!sinnori_framework/SinnoriConfigUtil.jar
+!sinnori_framework/SinnoriAntBuildUtil.jar
 !sinnori_framework/core_build/lib/ex/*.jar
 !sinnori_framework/project/sample_simple_ftp/client_build/app_build/lib/ex/forms-1.3.0.jar
 
