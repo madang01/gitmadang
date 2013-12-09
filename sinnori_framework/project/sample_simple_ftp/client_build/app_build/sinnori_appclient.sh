@@ -1,5 +1,5 @@
 #!/bin/sh
-export SINNORI_FRAMEWORK_LOC=/home/madang01/sinnori_framework
+export SINNORI_FRAMEWORK_LOC=/home/madang01/gitclient/sinnori_framework
 export SINNORI_PROJECT_NAME=sample_simple_ftp
 export JAVA_OPTS="-Xmx1024m -Xms1024m"
 export APPCLIENT_BUILD_LOC=$SINNORI_FRAMEWORK_LOC/project/$SINNORI_PROJECT_NAME/client_build/app_build

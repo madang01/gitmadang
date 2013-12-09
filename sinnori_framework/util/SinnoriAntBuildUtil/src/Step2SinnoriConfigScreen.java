@@ -575,8 +575,10 @@ public class Step2SinnoriConfigScreen extends JPanel {
 			if (!fileObj.exists()) {
 				
 				boolean isCreatedDir = fileObj.mkdirs();
-				System.out.printf("propKey[%s] 경로 생성 여부[%s] 경로[%s]", propKey, isCreatedDir, workerBinaryPath);
+				System.out.printf("환경변수[%s] 경로 생성 여부[%s] 경로[%s]", propKey, isCreatedDir, workerBinaryPath);
 				System.out.println("");
+				
+				if (! isCreatedDir) System.exit(1);
 			}
 			
 			propKey = "sinnori_worker.client.executor.impl.source.path.value";
@@ -587,100 +589,92 @@ public class Step2SinnoriConfigScreen extends JPanel {
 			if (!fileObj.exists()) {
 				boolean isCreatedDir = fileObj.mkdirs();
 				
-				System.out.printf("propKey[%s] 경로 생성 여부[%s] 경로[%s]", propKey, isCreatedDir, workerBinaryPath);
+				System.out.printf("환경변수[%s] 경로 생성 여부[%s] 경로[%s]", propKey, isCreatedDir, workerBinaryPath);
 				System.out.println("");
+				
+				if (! isCreatedDir) System.exit(1);
 			}
 			
 			
 			for (int j=0; j < innerProjectList.length; j++) {
 
-				if (innerProjectList[i][j].equals(projectName)) {
-					propKey = new StringBuilder(innerProjectList[i][j]).append(".common.message_info.xmlpath.value").toString();
-					String innerProjectMessagePath = innerProjectMessagePathTextField[i][j].getText();
-					configOfProject.setProperty(propKey, innerProjectMessagePath);
-					
-					propKey = new StringBuilder(innerProjectList[i][j]).append(".server.executor.impl.binary.path.value").toString();
-					String innerProjectExecutorBinaryPath = innerProjectExecutorBinaryPathTextField[i][j].getText();
-					configOfProject.setProperty(propKey, innerProjectExecutorBinaryPath);
-					
-					propKey = new StringBuilder(innerProjectList[i][j]).append(".server.executor.impl.source.path.value").toString();
-					String innerProjectExecutorSourcePath = innerProjectExecutorSourcePathTextField[i][j].getText();
-					configOfProject.setProperty(propKey, innerProjectExecutorSourcePath);
-				} else {
-					// 	innerProjectMessagePathTextField
-					
-					propKey = new StringBuilder(innerProjectList[i][j]).append(".common.message_info.xmlpath.value").toString();
-					String innerProjectMessagePath = innerProjectMessagePathTextField[i][j].getText();
-
-					fileObj = new File(innerProjectMessagePath);
-					if (!fileObj.exists()) {
-						String errorMessage = String.format("프로젝트[%s]의 환경변수[%s]의  경로[%s] 가 존재하지 않습니다.", projectName, propKey, innerProjectMessagePath);
-						JOptionPane.showMessageDialog(mainFrame, errorMessage);
-						
+				propKey = new StringBuilder(innerProjectList[i][j]).append(".common.message_info.xmlpath.value").toString();
+				String innerProjectMessagePath = innerProjectMessagePathTextField[i][j].getText();
+				
+				fileObj = new File(innerProjectMessagePath);
+				if (!fileObj.exists()) {
+					String errorMessage = String.format("프로젝트[%s]의 환경변수[%s]의  경로[%s] 가 존재하지 않습니다.", projectName, propKey, innerProjectMessagePath);
+					JOptionPane.showMessageDialog(mainFrame, errorMessage);
+					if (innerProjectMessagePathTextField[i][j].isEditable()) {
 						innerProjectMessagePathTextField[i][j].requestFocus();
 						innerProjectMessagePathTextField[i][j].grabFocus();
-						return false;
 					}
-					
-					if (!fileObj.isDirectory()) {
-						String errorMessage = String.format("프로젝트[%s]의 환경변수[%s]에 입력한 경로 값[%s]은 디렉토리가 아닙니다.", projectName, propKey, innerProjectMessagePath);
-						JOptionPane.showMessageDialog(mainFrame, errorMessage);
-						
-						innerProjectMessagePathTextField[i][j].requestFocus();
-						innerProjectMessagePathTextField[i][j].grabFocus();
-						return false;
-					}
-					
-					configOfProject.setProperty(propKey, innerProjectMessagePath);
-					
-					propKey = new StringBuilder(innerProjectList[i][j]).append(".server.executor.impl.binary.path.value").toString();
-					String innerProjectExecutorBinaryPath = innerProjectExecutorBinaryPathTextField[i][j].getText();
-					
-					fileObj = new File(innerProjectMessagePath);
-					if (!fileObj.exists()) {
-						String errorMessage = String.format("환경변수[%s]의  경로[%s] 가 존재하지 않습니다.", propKey, innerProjectExecutorBinaryPath);
-						JOptionPane.showMessageDialog(mainFrame, errorMessage);
-						
-						innerProjectExecutorBinaryPathTextField[i][j].requestFocus();
-						innerProjectExecutorBinaryPathTextField[i][j].grabFocus();
-						return false;
-					}
-					
-					if (!fileObj.isDirectory()) {
-						String errorMessage = String.format("환경변수[%s]에 입력한 경로 값[%s]은 디렉토리가 아닙니다.", propKey, innerProjectExecutorBinaryPath);
-						JOptionPane.showMessageDialog(mainFrame, errorMessage);
-						
-						innerProjectExecutorBinaryPathTextField[i][j].requestFocus();
-						innerProjectExecutorBinaryPathTextField[i][j].grabFocus();
-						return false;
-					}
-					
-					configOfProject.setProperty(propKey, innerProjectExecutorBinaryPath);
-					
-					propKey = new StringBuilder(innerProjectList[i][j]).append(".server.executor.impl.source.path.value").toString();
-					String innerProjectExecutorSourcePath = innerProjectExecutorSourcePathTextField[i][j].getText();
-					
-					fileObj = new File(innerProjectMessagePath);
-					if (!fileObj.exists()) {
-						String errorMessage = String.format("환경변수[%s]의  경로[%s] 가 존재하지 않습니다.", propKey, innerProjectExecutorSourcePath);
-						JOptionPane.showMessageDialog(mainFrame, errorMessage);
-						
-						innerProjectExecutorSourcePathTextField[i][j].requestFocus();
-						innerProjectExecutorSourcePathTextField[i][j].grabFocus();
-						return false;
-					}
-					
-					if (!fileObj.isDirectory()) {
-						String errorMessage = String.format("환경변수[%s]에 입력한 경로 값[%s]은 디렉토리가 아닙니다.", propKey, innerProjectExecutorSourcePath);
-						JOptionPane.showMessageDialog(mainFrame, errorMessage);
-						
-						innerProjectExecutorSourcePathTextField[i][j].requestFocus();
-						innerProjectExecutorSourcePathTextField[i][j].grabFocus();
-						return false;
-					}
-					
-					configOfProject.setProperty(propKey, innerProjectExecutorSourcePath);
+					return false;
 				}
+				
+				if (!fileObj.isDirectory()) {
+					String errorMessage = String.format("프로젝트[%s]의 환경변수[%s]에 입력한 경로 값[%s]은 디렉토리가 아닙니다.", projectName, propKey, innerProjectMessagePath);
+					JOptionPane.showMessageDialog(mainFrame, errorMessage);
+					
+					if (innerProjectMessagePathTextField[i][j].isEditable()) {
+						innerProjectMessagePathTextField[i][j].requestFocus();
+						innerProjectMessagePathTextField[i][j].grabFocus();
+					}
+					return false;
+				}
+				
+				configOfProject.setProperty(propKey, innerProjectMessagePath);
+				
+				propKey = new StringBuilder(innerProjectList[i][j]).append(".server.executor.impl.binary.path.value").toString();
+				String innerProjectExecutorBinaryPath = innerProjectExecutorBinaryPathTextField[i][j].getText();
+				
+				fileObj = new File(innerProjectExecutorBinaryPath);
+				if (!fileObj.exists()) {
+					boolean isCreatedDir = fileObj.mkdirs();
+					System.out.printf("환경변수[%s] 경로 생성 여부[%s] 경로[%s]", propKey, isCreatedDir, innerProjectExecutorBinaryPath);
+					System.out.println("");
+					
+					if (! isCreatedDir) System.exit(1);
+				}
+				
+				if (!fileObj.isDirectory()) {
+					String errorMessage = String.format("환경변수[%s]에 입력한 경로 값[%s]은 디렉토리가 아닙니다.", propKey, innerProjectExecutorBinaryPath);
+					JOptionPane.showMessageDialog(mainFrame, errorMessage);
+					
+					if (innerProjectExecutorBinaryPathTextField[i][j].isEditable()) {
+						innerProjectExecutorBinaryPathTextField[i][j].requestFocus();
+						innerProjectExecutorBinaryPathTextField[i][j].grabFocus();
+					}
+					return false;
+				}
+				
+				configOfProject.setProperty(propKey, innerProjectExecutorBinaryPath);
+				
+				
+				propKey = new StringBuilder(innerProjectList[i][j]).append(".server.executor.impl.source.path.value").toString();
+				String innerProjectExecutorSourcePath = innerProjectExecutorSourcePathTextField[i][j].getText();
+				
+				fileObj = new File(innerProjectExecutorSourcePath);
+				if (!fileObj.exists()) {
+					boolean isCreatedDir = fileObj.mkdirs();
+					System.out.printf("환경변수[%s] 경로 생성 여부[%s] 경로[%s]", propKey, isCreatedDir, innerProjectExecutorSourcePath);
+					System.out.println("");
+					
+					if (! isCreatedDir) System.exit(1);
+				}
+				
+				
+				if (!fileObj.isDirectory()) {
+					String errorMessage = String.format("환경변수[%s]에 입력한 경로 값[%s]은 디렉토리가 아닙니다.", propKey, innerProjectExecutorSourcePath);
+					JOptionPane.showMessageDialog(mainFrame, errorMessage);
+					if (innerProjectExecutorSourcePathTextField[i][j].isEditable()) {
+						innerProjectExecutorSourcePathTextField[i][j].requestFocus();
+						innerProjectExecutorSourcePathTextField[i][j].grabFocus();
+					}
+					return false;
+				}
+				
+				configOfProject.setProperty(propKey, innerProjectExecutorSourcePath);
 			}
 			
 			StringBuilder configFileBuilder = new StringBuilder(sinnoriInstallAbsPathName);
