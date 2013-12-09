@@ -77,7 +77,13 @@
 	    %>
 	    <table>
 		<tr valign="top">
-		<td id="leftmenu"><jsp:include page="<%=arryTopMenuPage[nTopMenu][1]%>" /></td><td id="body"><jsp:include page="<%=targeturl%>" /></td>
+		<td id="leftmenu"><jsp:include page="<%=arryTopMenuPage[nTopMenu][1]%>" /></td><td id="body"><%
+		if (targeturl.indexOf("/") == 0) {
+		%><jsp:include page="<%=targeturl%>" /><%
+		} else {
+		%><iframe src="<%=targeturl%>" width="800" height="600" /><%
+		}
+		%></td>
 		</tr>
 	    </table><%
 		    }
