@@ -2,7 +2,6 @@
 <ul>
 	<li><a href="#">기능 명세</a>
 		<ul>
-		<li><a href="/PageJump.jsp?topmenu=3&targeturl=/techdoc/body.jsp">body</a></li>
 		<li><a href="#">신놀이 프레임 워크 기능 명세</a></li>
 		<li><a href="/PageJump.jsp?topmenu=3&targeturl=http://www.3rabbitz.com/c0b9eb893bd99490">파일 송수신 클라이언트 기능 명세</a></li>
 		</ul>
