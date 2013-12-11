@@ -98,7 +98,7 @@ public class SinnoriAppClientMain implements CommonRootIF {
 			 * 2013.08.19 bytesVar2 size 30000 byte, DJSON, NoShare + Asyn
 			 * INFO  kr.pe.sinnori.util.AbstractClientExecutor.execute(AbstractClientExecutor.java:105) - [1000]회 실행 평균 수행 시간=[26.768999] ms
 			 * 
-			 * 2013.12.12 bytesVar2 size 30000 byte, DHB, 4Kbyte Buffer, NoShare + Asyn, ArrayList+ConcurrentHashMap
+			 * 2013.12.12 bytesVar2 size 30000 byte, DHB, 4Kbyte Buffer, NoShare + Asyn, ArrayList+c
 			 * INFO  kr.pe.sinnori.util.AbstractClientExecutor.execute(AbstractClientExecutor.java:115) - [1000]회 실행 평균 수행 시간=[11.395000] ms
 			 * 
 			 */

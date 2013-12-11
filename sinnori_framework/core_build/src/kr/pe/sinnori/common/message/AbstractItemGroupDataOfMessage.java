@@ -497,23 +497,17 @@ public abstract class AbstractItemGroupDataOfMessage implements ItemGroupDataIF,
 			throw new MessageItemException(String.format(
 					"이 메소드는 단일 항목만 허용합니다. 메시지[%s] 항목[%s]", messageID, key));
 		}
-
-		String valueTypeForLang = itemValue.getClass().getCanonicalName();
-
-		// System.out.printf("key[%s], valueTypeForLang[%s]\n", key,
-		// valueTypeForLang);
 		
-
 		SingleItemInfo singleItemInfo = (SingleItemInfo) itemInfo;
 		String itemType = singleItemInfo.getItemType();
+		Class<?> valueTypeForLang = singleItemInfo.getItemTypeForLang();
 		
-		if (!singleItemInfo.getItemTypeForLang().equals(valueTypeForLang)) {
+		if (!valueTypeForLang.isInstance(itemValue)) {
 			throw new MessageItemException(String.format(
 					"%s 항목[%s]의 타입[%s::%s] 과 값의 타입[%s]이 일치하지 않습니다.",
-					messageID, key, itemType, valueTypeForLang,
-					valueTypeForLang));
+					messageID, key, itemType, valueTypeForLang.getName(),
+					itemValue.getClass().getName()));
 		}
-		
 		
 		
 		int itemTypeID = singleItemInfo.getItemTypeID();

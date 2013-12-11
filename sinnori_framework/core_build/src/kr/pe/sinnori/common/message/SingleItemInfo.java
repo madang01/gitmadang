@@ -31,7 +31,7 @@ import kr.pe.sinnori.common.lib.CommonType;
 public class SingleItemInfo extends AbstractItemInfo {
 	private String itemName;
 	private String itemType;
-	private String itemTypeForLang;
+	private Class<?> itemTypeForLang;
 	private int itemTypeID;
 	private String itemDefaultValue;
 	private Object itemDefaultValueForLang=null;
@@ -81,7 +81,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 		}
 				
 		if (itemType.equals("byte")) {
-			itemTypeForLang = "java.lang.Byte";
+			itemTypeForLang = java.lang.Byte.class;
 			if (null != itemDefaultValue) {
 				try {
 					itemDefaultValueForLang = Byte.parseByte(itemDefaultValue);
@@ -93,7 +93,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 				}
 			}
 		} else if (itemType.equals("unsigned byte")) {
-			itemTypeForLang = "java.lang.Short";
+			itemTypeForLang = java.lang.Short.class;
 			
 			if (null != itemDefaultValue) {
 				try {
@@ -106,7 +106,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 				}
 			}
 		} else if (itemType.equals("short")) {
-			itemTypeForLang = "java.lang.Short";
+			itemTypeForLang = java.lang.Short.class;
 			
 			if (null != itemDefaultValue) {
 				try {
@@ -119,7 +119,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 				}
 			}
 		} else if (itemType.equals("unsigned short")) {
-			itemTypeForLang = "java.lang.Integer";
+			itemTypeForLang = java.lang.Integer.class;
 			
 			if (null != itemDefaultValue) {
 				try {
@@ -132,7 +132,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 				}
 			}
 		} else if (itemType.equals("integer")) {
-			itemTypeForLang = "java.lang.Integer";
+			itemTypeForLang = java.lang.Integer.class;
 			
 			if (null != itemDefaultValue) {
 				try {
@@ -145,7 +145,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 				}
 			}
 		} else if (itemType.equals("unsigned integer")) {
-			itemTypeForLang = "java.lang.Long";
+			itemTypeForLang = java.lang.Long.class;
 			
 			if (null != itemDefaultValue) {
 				try {
@@ -158,7 +158,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 				}
 			}
 		} else if (itemType.equals("long")) {
-			itemTypeForLang = "java.lang.Long";
+			itemTypeForLang = java.lang.Long.class;
 			
 			if (null != itemDefaultValue) {
 				try {
@@ -171,32 +171,32 @@ public class SingleItemInfo extends AbstractItemInfo {
 				}
 			}
 		} else if (itemType.equals("ub pascal string")) {
-			itemTypeForLang = "java.lang.String";
+			itemTypeForLang = java.lang.String.class;
 			
 			if (null != itemDefaultValue) {
 				itemDefaultValueForLang = itemDefaultValue;
 			}
 		} else if (itemType.equals("us pascal string")) {
-			itemTypeForLang = "java.lang.String";
+			itemTypeForLang = java.lang.String.class;
 			
 			if (null != itemDefaultValue) {
 				itemDefaultValueForLang = itemDefaultValue;
 			}
 		} else if (itemType.equals("si pascal string")) {
-			itemTypeForLang = "java.lang.String";
+			itemTypeForLang = java.lang.String.class;
 			
 			if (null != itemDefaultValue) {
 				itemDefaultValueForLang = itemDefaultValue;
 			}
 		} else if (itemType.equals("fixed length string")) {
-			itemTypeForLang = "java.lang.String";
+			itemTypeForLang = java.lang.String.class;
 			
 			if (null != itemDefaultValue) {
 				itemDefaultValueForLang = itemDefaultValue;
 			}
 		
 		} else if (itemType.equals("ub variable length byte[]")) {
-			itemTypeForLang = "byte[]";
+			itemTypeForLang = byte[].class;
 			
 			if (null != itemDefaultValue) {
 				String errorMessage = "타입 variable length byte[]은  디폴트 값을 지정할 수 없습니다.";
@@ -204,7 +204,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 				
 			}
 		} else if (itemType.equals("us variable length byte[]")) {
-			itemTypeForLang = "byte[]";
+			itemTypeForLang = byte[].class;
 			
 			if (null != itemDefaultValue) {
 				String errorMessage = "타입 variable length byte[]은  디폴트 값을 지정할 수 없습니다.";
@@ -212,7 +212,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 				
 			}
 		} else if (itemType.equals("si variable length byte[]")) {
-			itemTypeForLang = "byte[]";
+			itemTypeForLang = byte[].class;
 			
 			if (null != itemDefaultValue) {
 				String errorMessage = "타입 variable length byte[]은  디폴트 값을 지정할 수 없습니다.";
@@ -220,7 +220,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 				
 			}
 		} else if (itemType.equals("fixed length byte[]")) {
-			itemTypeForLang = "byte[]";
+			itemTypeForLang = byte[].class;
 			
 			if (null != itemDefaultValue) {
 				String errorMessage = "타입 fixed length byte[]은  디폴트 값을 지정할 수 없습니다.";
@@ -267,7 +267,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 	 * 
 	 * @return 자바 언어에서 쓰이는 항목 타입
 	 */
-	public String getItemTypeForLang() {
+	public Class<?> getItemTypeForLang() {
 		return itemTypeForLang;
 	}
 	
