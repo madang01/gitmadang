@@ -80,6 +80,7 @@ public class ClientResource implements CommonRootIF {
 	private HashSet<Integer> localTargetFileIDSet = new HashSet<Integer>();
 	
 
+	private LocalTargetFileResourceManager localTargetFileResourceManager = LocalTargetFileResourceManager.getInstance();
 	/**
 	 * 생성자
 	 * @param commonProjectInfo 연결 공통 데이터
@@ -322,7 +323,6 @@ public class ClientResource implements CommonRootIF {
 			
 		}
 		
-		LocalTargetFileResourceManager localTargetFileResourceManager = LocalTargetFileResourceManager.getInstance();
 		Iterator<Integer> localTargetFileIDIterator = localTargetFileIDSet.iterator();
 		while(localTargetFileIDIterator.hasNext()) {
 			int localTargetFileID = localTargetFileIDIterator.next();
@@ -337,7 +337,7 @@ public class ClientResource implements CommonRootIF {
 	
 	
 	public void addLocalSourceFileID(int localSourceFileID) {
-		log.info(String.format("SC[%d] add localSourceFileID=[%d]", clientSC.hashCode(), localSourceFileID));
+		log.info(String.format("clientSC[%d] add localSourceFileID=[%d]", clientSC.hashCode(), localSourceFileID));
 		
 		localSourceFileIDSet.add(localSourceFileID);
 	}
@@ -347,7 +347,7 @@ public class ClientResource implements CommonRootIF {
 		
 		boolean isLocalSourceFileID = localSourceFileIDSet.remove(localSourceFileID);
 		
-		log.info(String.format("SC[%d] remove localSourceFileID=[%d], isLocalSourceFileID=[%s]", clientSC.hashCode(), localSourceFileID, isLocalSourceFileID));
+		log.info(String.format("clientSC[%d] remove localSourceFileID=[%d], isLocalSourceFileID=[%s]", clientSC.hashCode(), localSourceFileID, isLocalSourceFileID));
 		
 		if (isLocalSourceFileID) {
 			LocalSourceFileResourceManager localSourceFileResourceManager = LocalSourceFileResourceManager.getInstance();
@@ -374,7 +374,7 @@ public class ClientResource implements CommonRootIF {
 		log.info(String.format("SC[%d] remove localTargetFileID=[%d], isLocalTargetFileID=[%s]", clientSC.hashCode(), localTargetFileID, isLocalTargetFileID));
 		
 		if (isLocalTargetFileID) {
-			LocalTargetFileResourceManager localTargetFileResourceManager = LocalTargetFileResourceManager.getInstance();
+			
 			LocalTargetFileResource localTargetFileResource = localTargetFileResourceManager.getLocalTargetFileResource(localTargetFileID);
 			localTargetFileResourceManager.putLocalTargetFileResource(localTargetFileResource);
 		}

@@ -8,7 +8,7 @@
 -->
 <sinnori_message>
 <messageID>DownFileInfo</messageID>
-<desc>다로드할 파일 정보를 담고 있는 입력 메시지</desc>
+<desc>다운로드 파일 준비 요청 입력 메시지</desc>
 <singleitem name="localFilePathName" type="ub pascal string">
 	<desc>로컬 파일 경로, 디버깅 목적성 정보로.</desc>
 </singleitem>

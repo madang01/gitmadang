@@ -8,7 +8,7 @@
 -->
 <sinnori_message>
 <messageID>UpFileData</messageID>
-<desc>업로드할 파일 조각을 가지고 있는 입력 메시지</desc>
+<desc>파일 업로드 파일 조각 요청 입력 메시지</desc>
 <singleitem name="serverTargetFileID" type="integer">
 	<desc>서버 목적지 파일 식별자</desc>
 </singleitem>

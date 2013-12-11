@@ -8,7 +8,7 @@
 -->
 <sinnori_message>
 <messageID>DownFileInfoResult</messageID>
-<desc>다로드할 파일 정보를 담고있는 입력 메시지에 대한 출력 메시지</desc>
+<desc>다운로드 파일 준비 요청 출력 메시지</desc>
 <singleitem name="taskResult" type="ub pascal string">
 	<desc>메시지 1:1 대응 비지니스 로직 수행 후 성공여부 , Y:성공, N:실패</desc>
 </singleitem>

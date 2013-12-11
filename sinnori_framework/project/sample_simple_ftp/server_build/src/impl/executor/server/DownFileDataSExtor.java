@@ -80,7 +80,11 @@ public final class DownFileDataSExtor extends AbstractAuthServerExecutor {
 			}
 			
 		} catch (IllegalArgumentException e) {
-			log.warn("IllegalArgumentException", e);
+			log.warn(String.format("serverSourceFileID[%d] lock free::%s", serverSourceFileID, e.getMessage()), e);
+			
+			ClientResource clientResource = clientResourceManager.getClientResource(fromSC);
+			clientResource.removeLocalSourceFileID(serverSourceFileID);
+			
 			outObj.setAttribute("taskResult", "N");
 			
 			outObj.setAttribute("resultMessage", new StringBuilder("서버 에러 메시지\n").append(e.getMessage()).toString());
@@ -91,7 +95,10 @@ public final class DownFileDataSExtor extends AbstractAuthServerExecutor {
 			letterToClientList.addLetterToClient(fromSC, outObj);
 			return;
 		} catch (UpDownFileException e) {
-			log.warn(String.format("serverSourceFileID[%d]::%s", serverSourceFileID, e.getMessage()), e);
+			log.warn(String.format("serverSourceFileID[%d] lock free::%s", serverSourceFileID, e.getMessage()), e);
+			
+			ClientResource clientResource = clientResourceManager.getClientResource(fromSC);
+			clientResource.removeLocalSourceFileID(serverSourceFileID);
 			
 			outObj.setAttribute("taskResult", "N");
 			outObj.setAttribute("resultMessage", new StringBuilder("서버 에러 메시지\n").append(e.getMessage()).toString());
