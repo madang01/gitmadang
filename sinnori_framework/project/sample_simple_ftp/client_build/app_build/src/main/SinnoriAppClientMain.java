@@ -49,7 +49,7 @@ public class SinnoriAppClientMain implements CommonRootIF {
 			 * INFO  kr.pe.sinnori.util.AbstractClientExecutor.execute(AbstractClientExecutor.java:105) - [1000]회 실행 평균 수행 시간=[0.890000] ms
 			 * INFO  kr.pe.sinnori.util.AbstractClientExecutor.execute(AbstractClientExecutor.java:105) - [1000]회 실행 평균 수행 시간=[0.912000] ms
 			 */
-			// SinnoriWorker.getInstance().start("sample_simple_chat", "TestLocalAllDataType", 1000);
+			// SinnoriWorker.getInstance().start(projectName, "TestLocalAllDataType", 1000);
 			
 			/**
 			 * 2013.07.09 TestNetEco
@@ -61,7 +61,7 @@ public class SinnoriAppClientMain implements CommonRootIF {
 			 * 2013.07.24 TestNetEco
 			 * INFO  kr.pe.sinnori.util.AbstractClientExecutor.execute(AbstractClientExecutor.java:105) - [1000]회 실행 평균 수행 시간=[2.208000] ms
 			 */
-			// SinnoriWorker.getInstance().start("sample_simple_chat", "TestNetEco", 1000);
+			// SinnoriWorker.getInstance().start(projectName, "TestNetEco", 1000);
 			
 			/**
 			 * 2013.07.09 TestNetAllDataType
@@ -90,7 +90,7 @@ public class SinnoriAppClientMain implements CommonRootIF {
 			 * INFO  kr.pe.sinnori.util.AbstractClientExecutor.execute(AbstractClientExecutor.java:105) - [1000]회 실행 평균 수행 시간=[12.992000] ms
 			 * INFO  kr.pe.sinnori.util.AbstractClientExecutor.execute(AbstractClientExecutor.java:105) - [1000]회 실행 평균 수행 시간=[13.185000] ms
 			 * INFO  kr.pe.sinnori.util.AbstractClientExecutor.execute(AbstractClientExecutor.java:105) - [1000]회 실행 평균 수행 시간=[11.501000] ms
-			 * 2013.08.14 TestNetAllDataType, bytesVar2 size 30000 byte, ArrayList+HashMap, NoShare + Syn
+			 * 2013.08.14 TestNetAllDataType, bytesVar2 size 30000 byte, ArrayList+c, NoShare + Syn
 			 * INFO  kr.pe.sinnori.util.AbstractClientExecutor.execute(AbstractClientExecutor.java:105) - [1000]회 실행 평균 수행 시간=[12.552000] ms
 			 * INFO  kr.pe.sinnori.util.AbstractClientExecutor.execute(AbstractClientExecutor.java:105) - [1000]회 실행 평균 수행 시간=[12.219000] ms
 			 * INFO  kr.pe.sinnori.util.AbstractClientExecutor.execute(AbstractClientExecutor.java:105) - [1000]회 실행 평균 수행 시간=[12.506000] ms
@@ -98,14 +98,17 @@ public class SinnoriAppClientMain implements CommonRootIF {
 			 * 2013.08.19 bytesVar2 size 30000 byte, DJSON, NoShare + Asyn
 			 * INFO  kr.pe.sinnori.util.AbstractClientExecutor.execute(AbstractClientExecutor.java:105) - [1000]회 실행 평균 수행 시간=[26.768999] ms
 			 * 
+			 * 2013.12.12 bytesVar2 size 30000 byte, DHB, 4Kbyte Buffer, NoShare + Asyn, ArrayList+ConcurrentHashMap
+			 * INFO  kr.pe.sinnori.util.AbstractClientExecutor.execute(AbstractClientExecutor.java:115) - [1000]회 실행 평균 수행 시간=[11.395000] ms
+			 * 
 			 */
-			// SinnoriWorker.getInstance().start("sample_simple_chat", "TestNetAllDataType", 1000);
+			SinnoriWorker.getInstance().start(projectName, "TestNetAllDataType", 1000);
 			
 			
-			// SinnoriWorker.getInstance().start("sample_simple_chat", "TestBigSizeMessages");
+			// SinnoriWorker.getInstance().start(projectName, "TestBigSizeMessages");
 			
 			
-			// SinnoriWorker.getInstance().start("sample_simple_chat", "TestMessageHeader");
+			// SinnoriWorker.getInstance().start(projectName, "TestMessageHeader");
 			/**
 			 * 2013.08.14 bytesVar2 size 8000 byte
 			 * :: LinkedHashmap 사용하는 경우
@@ -113,16 +116,16 @@ public class SinnoriAppClientMain implements CommonRootIF {
 			 * :: ArrayList + HashMap 사용하는 경우
 			 * INFO  kr.pe.sinnori.util.AbstractClientExecutor.execute(AbstractClientExecutor.java:105) - [10000]회 실행 평균 수행 시간=[0.062400] ms
 			 */
-			// SinnoriWorker.getInstance().start("sample_simple_chat", "SpeedTestV001", 10000);
+			// SinnoriWorker.getInstance().start(projectName, "SpeedTestV001", 10000);
 			
 			/**
 			 * 2013.07.09 TestVirtualInputStream
 			 * INFO  kr.pe.sinnori.util.AbstractClientExecutor.execute(AbstractClientExecutor.java:67) - 수행 시간=[13.000000] ms
 			 */
-			// SinnoriWorker.getInstance().start("sample_simple_chat", "TestVirtualInputStream");
+			// SinnoriWorker.getInstance().start(projectName, "TestVirtualInputStream");
 			
 			
-			SinnoriWorker.getInstance().start(projectName, "FtpImitationClient", 1);
+			// SinnoriWorker.getInstance().start(projectName, "FtpImitationClient", 1);
 			// SinnoriWorker.getInstance().start(projectName, "TestLoginService", 1);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block

@@ -76,6 +76,7 @@ public class ArrayData implements CommonRootIF {
 		arrayName = arrayInfo.getArrayName();
 		arrayCntType = arrayInfo.getArrayCntType();
 		arrayCntValue = arrayInfo.getArrayCntValue();
+		
 		if (arrayCntType.equals("direct")) {
 			try {
 				arraySize = Integer.parseInt(arrayCntValue);
@@ -94,12 +95,15 @@ public class ArrayData implements CommonRootIF {
 			}
 
 		} else {
+			
 			try {
-				arraySize = (Integer) this.parent.getAttribute(arrayCntValue);
+				// FIXME!
+				arraySize = (Integer) this.parent.getAttribute(arrayCntValue);;
 			} catch (MessageItemException e) {
 				log.fatal(e.getMessage(), e);
 				System.exit(1);
 			}
+
 			if (arraySize < 0) {
 				String errorMessage = String.format(
 						"%s 배열[%s] 에서  참조 변수로 지정된 배열 크기[%d] 가 0 보다 작습니다.",

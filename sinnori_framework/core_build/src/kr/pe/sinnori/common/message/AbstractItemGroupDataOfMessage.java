@@ -21,7 +21,7 @@ import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.MessageItemException;
@@ -66,7 +66,8 @@ public abstract class AbstractItemGroupDataOfMessage implements ItemGroupDataIF,
 	 * 구성된다. (1) 단일 항목 : (unsigned) byte, (unsigned) short, (unsigned) integer,
 	 * long, String, byte[] (2) 배열 : 정규식으로 표현하면 [단일 항목 | 배열]*
 	 */
-	private HashMap<String, Object> itemValueHash = new HashMap<String, Object>();
+	private ConcurrentHashMap<String, Object> itemValueHash = null;
+	
 
 	/** 항목 순서별 항목 이름을 갖는 목록. 항목은 순서를 갖기에 꼭 필요한 자료 구조. */
 	private ArrayList<AbstractItemInfo> itemInfoList = null;
@@ -105,6 +106,13 @@ public abstract class AbstractItemGroupDataOfMessage implements ItemGroupDataIF,
 			throw e;
 		}
 
+		int itemInfoListSize = messageInfo.getItemInfoList().size();
+		
+		// FIXME!
+		// log.info(String.format("itemInfoListSize=[%d]", itemInfoListSize));
+		
+		itemValueHash = new ConcurrentHashMap<String, Object>(itemInfoListSize);
+		
 		this.messageID = messageID;
 
 	
@@ -413,7 +421,7 @@ public abstract class AbstractItemGroupDataOfMessage implements ItemGroupDataIF,
 		if (null == key) {
 			throw new MessageItemException("파라미터 항목 이름이 null 입니다.");
 		}
-
+		
 		AbstractItemInfo itemInfo = messageInfo.getItemInfo(key);
 		if (null == itemInfo) {
 			throw new MessageItemException(String.format(
@@ -425,8 +433,12 @@ public abstract class AbstractItemGroupDataOfMessage implements ItemGroupDataIF,
 			ArrayData arrayData = (ArrayData) itemValueHash.get(key);
 
 			if (null == arrayData) {
+				// FIXME!
+				// log.info(String.format("key=[%s]", key));
+				
 				arrayData = new ArrayData(messageID, this,
 						(ArrayInfo) itemInfo);
+
 				itemValueHash.put(key, arrayData);
 			}
 
@@ -434,16 +446,26 @@ public abstract class AbstractItemGroupDataOfMessage implements ItemGroupDataIF,
 		}
 		
 		Object retObj = itemValueHash.get(key);
+		
+		
+		// FIXME!
+		/*
+		if (null == retObj) {
+			log.info(String.format("key[%s] retObj is null, itemValueHash=[%s]", key, itemValueHash.toString()));
+		} else {
+			log.info(String.format("key[%s] retObj is not null, itemValueHash=[%s]", key, itemValueHash.toString()));
+		}
+		*/
+				
 		if (null ==  retObj) {
 			SingleItemInfo singleItemInfo = (SingleItemInfo)itemInfo;
 			Object defaultValueForLang = singleItemInfo.getItemDefaultValueForLang();
-			// itemInfo.g
 			if (null != defaultValueForLang) {
 				itemValueHash.put(key, defaultValueForLang);
 				retObj = defaultValueForLang;
 			}
 		}
-
+		
 		return retObj;
 
 	}
@@ -458,6 +480,9 @@ public abstract class AbstractItemGroupDataOfMessage implements ItemGroupDataIF,
 		if (null == itemValue) {
 			throw new MessageItemException("파라미터 항목 값이 null 입니다.");
 		}
+		
+		// FIXME!
+		//log.info(String.format("1.key=[%s], itemValue=[%s]", key, itemValue.toString()));
 
 		AbstractItemInfo itemInfo = messageInfo.getItemInfo(key);
 
@@ -497,6 +522,10 @@ public abstract class AbstractItemGroupDataOfMessage implements ItemGroupDataIF,
 		itemTypeManger.checkValue(itemTypeID, itemCharsetForLang, itemSizeForLang, itemValue);
 		
 		itemValueHash.put(key, itemValue);
+		
+		// FIXME!
+		//log.info(String.format("2.key=[%s], itemValue=[%s]", key, itemValueHash.get(key).toString()));
+		//log.info(String.format("3.key=[%s], itemValue=[%s]", key, itemValueHash.get(key).toString()));
 	}
 	
 

@@ -71,7 +71,7 @@
 				</archives>
 			</restrict>
 			<manifest>
-				<attribute name="Main-Class" value="MesgXSLUtil" />
+				<attribute name="Main-Class" value="JDBCTestMain"/>
 				<attribute name="Class-Path" value="${manifest.classpath}" />
 			</manifest>
 		</jar>

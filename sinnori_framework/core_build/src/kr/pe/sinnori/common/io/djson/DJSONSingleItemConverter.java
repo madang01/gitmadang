@@ -3,7 +3,7 @@ package kr.pe.sinnori.common.io.djson;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import kr.pe.sinnori.common.SingleItemJConverterIF;
 import kr.pe.sinnori.common.exception.BodyFormatException;
@@ -78,7 +78,7 @@ public class DJSONSingleItemConverter implements CommonRootIF, SingleItemJConver
 
 	@Override
 	public void S2I(String itemName, int itemTypeID, int itemSizeForLang,
-			Charset itemCharsetForLang, HashMap<String, Object> itemValueHash,
+			Charset itemCharsetForLang, ConcurrentHashMap<String, Object> itemValueHash,
 			JSONObject jsonObj) throws IllegalArgumentException,
 			BodyFormatException {
 		itemValueHash.put(itemName,

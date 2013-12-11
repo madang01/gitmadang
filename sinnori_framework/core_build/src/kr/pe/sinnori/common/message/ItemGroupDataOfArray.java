@@ -21,7 +21,7 @@ import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.MessageItemException;
@@ -62,7 +62,9 @@ public class ItemGroupDataOfArray implements ItemGroupDataIF,
 	
 	private ArrayList<AbstractItemInfo> itemInfoList = null;
 
-	private HashMap<String, Object> itemValueHash = new HashMap<String, Object>();
+	private ConcurrentHashMap<String, Object> itemValueHash = null;
+	
+	
 
 	// private AbstractMultiItemData parent = null;
 	private String arrayName = null;
@@ -72,7 +74,13 @@ public class ItemGroupDataOfArray implements ItemGroupDataIF,
 	public ItemGroupDataOfArray(String parentPath, int inx, ArrayInfo arrayInfo) {
 		// System.out.printf("2.path=[%s], inx=[%d], arrayName=[%s]\n", path,
 		// inx, arrayName);
+		int itemInfoListSize = arrayInfo.getItemInfoList().size();
+		// FIXME!
+		// log.info(String.format("itemInfoListSize=[%d]", itemInfoListSize));
 
+		itemValueHash = new ConcurrentHashMap<String, Object>(itemInfoListSize);
+		
+		
 		this.parentPath = parentPath;
 		this.inx = inx;
 		this.arrayInfo = arrayInfo;
@@ -421,6 +429,9 @@ public class ItemGroupDataOfArray implements ItemGroupDataIF,
 		if (null == itemValue) {
 			throw new MessageItemException("파라미터 값이 null 입니다.");
 		}
+		
+		// FIXME!
+		// log.info(String.format("key=[%s]", key));
 
 		AbstractItemInfo itemInfo = arrayInfo.getItemInfo(key);
 

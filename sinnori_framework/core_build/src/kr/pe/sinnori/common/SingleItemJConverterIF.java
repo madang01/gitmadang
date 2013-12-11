@@ -1,7 +1,7 @@
 package kr.pe.sinnori.common;
 
 import java.nio.charset.Charset;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.message.ItemTypeManger;
@@ -42,6 +42,6 @@ public interface SingleItemJConverterIF {
 	 */
 	public void S2I(String itemName, int itemTypeID, 
 			int itemSizeForLang, Charset itemCharsetForLang, 
-			HashMap<String, Object> itemValueHash, JSONObject jsonObj)
+			ConcurrentHashMap<String, Object> itemValueHash, JSONObject jsonObj)
 			throws IllegalArgumentException, BodyFormatException;
 }

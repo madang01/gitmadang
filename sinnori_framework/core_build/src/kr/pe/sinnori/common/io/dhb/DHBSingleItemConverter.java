@@ -22,7 +22,7 @@ import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
@@ -30,8 +30,8 @@ import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
 import kr.pe.sinnori.common.exception.UnknownItemTypeException;
 import kr.pe.sinnori.common.io.InputStreamIF;
 import kr.pe.sinnori.common.io.OutputStreamIF;
-import kr.pe.sinnori.common.io.SingleItemSConverterIF;
 import kr.pe.sinnori.common.io.SingleItemSConverterByTypeIF;
+import kr.pe.sinnori.common.io.SingleItemSConverterIF;
 import kr.pe.sinnori.common.lib.CharsetUtil;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.CommonStaticFinal;
@@ -113,7 +113,7 @@ public class DHBSingleItemConverter implements SingleItemSConverterIF, CommonRoo
 	@Override
 	public void S2I(String itemName, int itemTypeID, 
 			int itemSizeForLang, Charset itemCharsetForLang, 
-			HashMap<String, Object> itemValueHash, InputStreamIF sr)
+			ConcurrentHashMap<String, Object> itemValueHash, InputStreamIF sr)
 			throws SinnoriCharsetCodingException, BufferUnderflowException, IllegalArgumentException, BodyFormatException {
 
 		itemValueHash.put(itemName,
