@@ -121,7 +121,7 @@ public class UploadSwingAction extends AbstractAction implements CommonRootIF {
 		
 		String remoteFilePathName = (String)remoteRootNode.getUserObject();
 		String remoteFileName = "";
-		int fileBlockSize = 1024 * 32;
+		int fileBlockSize = mainController.getFileBlockSize();
 
 		TreePath remoteSelectedPath = remoteTree.getSelectionPath();
 		if (null != remoteSelectedPath) {

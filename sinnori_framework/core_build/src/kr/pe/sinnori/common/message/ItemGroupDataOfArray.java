@@ -21,7 +21,7 @@ import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
 
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.MessageItemException;
@@ -62,7 +62,7 @@ public class ItemGroupDataOfArray implements ItemGroupDataIF,
 	
 	private ArrayList<AbstractItemInfo> itemInfoList = null;
 
-	private ConcurrentHashMap<String, Object> itemValueHash = null;
+	private HashMap<String, Object> itemValueHash = null;
 	
 	
 
@@ -78,7 +78,7 @@ public class ItemGroupDataOfArray implements ItemGroupDataIF,
 		// FIXME!
 		// log.info(String.format("itemInfoListSize=[%d]", itemInfoListSize));
 
-		itemValueHash = new ConcurrentHashMap<String, Object>(itemInfoListSize);
+		itemValueHash = new HashMap<String, Object>(itemInfoListSize);
 		
 		
 		this.parentPath = parentPath;

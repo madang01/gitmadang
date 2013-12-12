@@ -85,13 +85,18 @@ public class ArrayData implements CommonRootIF {
 					String errorMessage = String.format(
 							"%s 배열[%s] 에서 직접 입력된 배열 크기[%s] 가 0 보다 작습니다.",
 							parentPath, arrayName, arrayCntValue);
-					throw new RuntimeException(errorMessage);
+					
+					// throw new RuntimeException(errorMessage);
+					log.fatal(errorMessage);
+					System.exit(1);
 				}
 			} catch (NumberFormatException num_e) {
 				String errorMessage = String.format(
 						"%s 배열[%s] 에서 직접 입력된 배열 크기[%s] 가 숫자가 아닙니다.",
 						parentPath, arrayName, arrayCntValue);
-				throw new RuntimeException(errorMessage);
+				// throw new RuntimeException(errorMessage);
+				log.fatal(errorMessage);
+				System.exit(1);
 			}
 
 		} else {
@@ -108,7 +113,9 @@ public class ArrayData implements CommonRootIF {
 				String errorMessage = String.format(
 						"%s 배열[%s] 에서  참조 변수로 지정된 배열 크기[%d] 가 0 보다 작습니다.",
 						parentPath, arrayName, arraySize);
-				throw new RuntimeException(errorMessage);
+				// throw new RuntimeException(errorMessage);
+				log.fatal(errorMessage);
+				System.exit(1);
 			}
 		}
 

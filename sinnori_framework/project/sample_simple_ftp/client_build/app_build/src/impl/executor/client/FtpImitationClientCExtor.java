@@ -120,6 +120,10 @@ public class FtpImitationClientCExtor extends AbstractClientExecutor implements 
 		});
 	}
 	
+	public int getFileBlockSize() {
+		return (1024*40);
+	}
+	
 	public void loginOK() {
 		fileUpDownScreen = new FileUpDownScreen(mainFrame, this);
 		

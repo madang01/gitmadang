@@ -839,7 +839,7 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 			this.targetTextField = targetTextField;
 			this.targetJButton = targetJButton;
 			
-			putValue(NAME, "API");
+			putValue(NAME, "미설치");
 			putValue(SHORT_DESCRIPTION, "자체적으로 공개키/개인키 생성 방법 선택");
 		}
 		
@@ -870,7 +870,7 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 			this.targetTextField = targetTextField;
 			this.targetJButton = targetJButton;
 			
-			putValue(NAME, "File");
+			putValue(NAME, "설치");
 			putValue(SHORT_DESCRIPTION, "외부 파일을 이용한 공개키/개인키 생성 방법 선택");
 		}
 		

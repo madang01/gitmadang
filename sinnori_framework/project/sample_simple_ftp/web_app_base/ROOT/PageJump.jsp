@@ -2,7 +2,7 @@
 
 	final String arryTopMenuPage[][] =	{ 
 		{ "소개", null, "/about.jsp"},
-		{ "용어사전", null, "/glossary/main.jsp"},
+		{ "따라하기", null, "/stepbystep/main.jsp"},
 		{ "다운로드", null, "/download/main.jsp"},
 		{ "문서", "/techdoc/leftmenu.jsp", "/techdoc/sinnori_website_structure_intro.jsp"},
 		{ "마당쇠", "/madangsoe/leftmenu.jsp", "/madangsoe/body.jsp"}, 

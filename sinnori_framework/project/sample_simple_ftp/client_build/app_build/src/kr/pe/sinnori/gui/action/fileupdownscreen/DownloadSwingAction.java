@@ -130,7 +130,7 @@ public class DownloadSwingAction extends AbstractAction implements CommonRootIF 
 		}
 		
 		
-		int fileBlockSize = 1024 * 32;
+		int fileBlockSize = mainController.getFileBlockSize();
 
 		TreePath localSelectedPath = localTree.getSelectionPath();
 		if (null != localSelectedPath) {

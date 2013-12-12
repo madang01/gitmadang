@@ -21,7 +21,7 @@ package kr.pe.sinnori.common.io;
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.charset.Charset;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
 
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
@@ -72,7 +72,7 @@ public interface SingleItemSConverterIF {
 	 */
 	public void S2I(String itemName, int itemTypeID, 
 			int itemSizeForLang, Charset itemCharsetForLang, 
-			ConcurrentHashMap<String, Object> itemValueHash, InputStreamIF sr)
+			HashMap<String, Object> itemValueHash, InputStreamIF sr)
 			throws SinnoriCharsetCodingException, BufferUnderflowException, IllegalArgumentException, BodyFormatException;
 	
 	/**

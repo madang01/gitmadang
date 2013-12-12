@@ -22,7 +22,7 @@ import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
 
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
@@ -113,7 +113,7 @@ public class DHBSingleItemConverter implements SingleItemSConverterIF, CommonRoo
 	@Override
 	public void S2I(String itemName, int itemTypeID, 
 			int itemSizeForLang, Charset itemCharsetForLang, 
-			ConcurrentHashMap<String, Object> itemValueHash, InputStreamIF sr)
+			HashMap<String, Object> itemValueHash, InputStreamIF sr)
 			throws SinnoriCharsetCodingException, BufferUnderflowException, IllegalArgumentException, BodyFormatException {
 
 		itemValueHash.put(itemName,
@@ -123,23 +123,27 @@ public class DHBSingleItemConverter implements SingleItemSConverterIF, CommonRoo
 	@Override
 	public void writeGroupHead(String groupName, OutputStreamIF sw) throws BodyFormatException, NoMoreDataPacketBufferException {
 		// DHB는 아무일 안함
+		return;
 	}
 
 	@Override
 	public void readGroupHead(String groupName, InputStreamIF sr)
 			throws BodyFormatException {
 		// DHB는 아무일 안함
+		return;
 	}
 
 	@Override
 	public void writeGroupTail(String groupName, OutputStreamIF sw) throws BodyFormatException, NoMoreDataPacketBufferException {
 		// DHB는 아무일 안함
+		return;
 	}
 
 	@Override
 	public void readGroupTail(String groupName, InputStreamIF sr)
 			throws BodyFormatException {
 		// DHB는 아무일 안함
+		return;
 	}
 	
 	

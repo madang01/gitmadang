@@ -5,6 +5,7 @@
 # Packages #
 ############
 *.zip
+*.tar.gz
 *.jar
 !sinnori_framework/SinnoriAntBuildUtil.jar
 !sinnori_framework/core_build/lib/ex/*.jar

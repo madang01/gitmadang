@@ -21,7 +21,7 @@ import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
 
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.MessageItemException;
@@ -66,7 +66,7 @@ public abstract class AbstractItemGroupDataOfMessage implements ItemGroupDataIF,
 	 * 구성된다. (1) 단일 항목 : (unsigned) byte, (unsigned) short, (unsigned) integer,
 	 * long, String, byte[] (2) 배열 : 정규식으로 표현하면 [단일 항목 | 배열]*
 	 */
-	private ConcurrentHashMap<String, Object> itemValueHash = null;
+	private HashMap<String, Object> itemValueHash = null;
 	
 
 	/** 항목 순서별 항목 이름을 갖는 목록. 항목은 순서를 갖기에 꼭 필요한 자료 구조. */
@@ -111,7 +111,7 @@ public abstract class AbstractItemGroupDataOfMessage implements ItemGroupDataIF,
 		// FIXME!
 		// log.info(String.format("itemInfoListSize=[%d]", itemInfoListSize));
 		
-		itemValueHash = new ConcurrentHashMap<String, Object>(itemInfoListSize);
+		itemValueHash = new HashMap<String, Object>(itemInfoListSize);
 		
 		this.messageID = messageID;
 

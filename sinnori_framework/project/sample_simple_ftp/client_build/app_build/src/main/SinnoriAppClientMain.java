@@ -102,7 +102,7 @@ public class SinnoriAppClientMain implements CommonRootIF {
 			 * INFO  kr.pe.sinnori.util.AbstractClientExecutor.execute(AbstractClientExecutor.java:115) - [1000]회 실행 평균 수행 시간=[11.395000] ms
 			 * 
 			 */
-			SinnoriWorker.getInstance().start(projectName, "TestNetAllDataType", 1000);
+			//SinnoriWorker.getInstance().start(projectName, "TestNetAllDataType", 1000);
 			
 			
 			// SinnoriWorker.getInstance().start(projectName, "TestBigSizeMessages");
@@ -125,7 +125,7 @@ public class SinnoriAppClientMain implements CommonRootIF {
 			// SinnoriWorker.getInstance().start(projectName, "TestVirtualInputStream");
 			
 			
-			// SinnoriWorker.getInstance().start(projectName, "FtpImitationClient", 1);
+			SinnoriWorker.getInstance().start(projectName, "FtpImitationClient", 1);
 			// SinnoriWorker.getInstance().start(projectName, "TestLoginService", 1);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block

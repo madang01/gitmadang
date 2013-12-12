@@ -26,6 +26,11 @@ import kr.pe.sinnori.common.message.OutputMessage;
  */
 public interface MainControllerIF {
 	/**
+	 * @return 파일 블락 크기, 설정파일 데이터 패킷 버퍼 크기에서 1024 bytes 를 뺀 값이다.  
+	 */
+	public int getFileBlockSize();
+	
+	/**
 	 * 로그인 성공, 연결 화면에서 파일 송수신 화면으로 전환한다.
 	 */
 	public void loginOK();
