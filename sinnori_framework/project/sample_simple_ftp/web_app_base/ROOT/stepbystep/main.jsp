@@ -51,7 +51,7 @@
 				(2) git init<br/>
 				(3) git remote add origin https://github.com/SinnoriTeam/gitsinnori.git<br/> 
 				(4) git pull origin master<br/>
-				(5) git reset --hard f6c39850933785b4316a0fb0c43caf77d4436e01<br/>
+				(5) git reset --hard 418addc28b7ac853874fd3c640b3fa42cd0c546a<br/>
 				</dd>
 			</li>
 			<li>
