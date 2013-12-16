@@ -23,16 +23,12 @@
 				<dt>우분투</dt>
 				<dd>
 				터미널에서 (1) cd ~<br/>
-				(2) mkdir gitsinnori<br/>
-				(3) cd gitsinnori<br/>
 				</dd>
 			</li>
 			<li>
 				<dt>윈도7</dt>
 				<dd>
-				명령 프롬프트(=cmd) (1) d:<br/>
-				(2) mkdir gitsinnori<br/>
-				(3) cd gitsinnori<br/>&nbsp;
+				명령 프롬프트(=cmd) (1) d:<br/>&nbsp;
 				</dd>
 			</li>
 			</ol>
@@ -48,10 +44,9 @@
 				<dt>우분투</dt>
 				<dd>
 				터미널에서 (1) sudo apt-get install git<br/> 
-				(2) git init<br/>
-				(3) git remote add origin https://github.com/SinnoriTeam/gitsinnori.git<br/> 
-				(4) git pull origin master<br/>
-				(5) git reset --hard c11c1c6fe11b5591c2767e5367d331396f96fbf0<br/>
+				(2) git clone https://github.com/SinnoriTeam/gitsinnori.git<br/> 
+				(3) git gitsinnori<br/>
+				(4) git checkout c11c1c6fe11b5591c2767e5367d331396f96fbf0<br/>
 				</dd>
 			</li>
 			<li>
@@ -64,7 +59,7 @@
 				주의점) 권장하는 데로 "advenced context menu" 를 꼭 선택해서 설치를 해 주시기 바랍니다. 앞으로 이 기준으로 설명할것이기때문입니다.<br/>
 				(2) Windows 탐색기를 이용하여 gitsinnori 디렉토리에서 마우스 오른쪽 버튼을 눌러 나오는 팝업 메뉴에서 <br/>
 				"Git Bash Here" 를 선택합니다. 그러면 윈도우 환경에서 우분투랑 비슷한 터미털이 뜨지요.<br/> 
-				그 다음은 위에 언급한 우분투 (2) 항에서 (5)항까지 동일합니다.<br/>&nbsp;
+				그 다음은 위에 언급한 우분투 (2) 항에서 (4)항까지 동일합니다.<br/>&nbsp;
 				</dd>
 			</li>
 			</ol>
