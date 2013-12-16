@@ -1,6 +1,6 @@
 <%@ page language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
-<h1>신놀이 개발 프레임워크 따라하기</h1>
+<h1>신놀이 개발 프레임워크 시작하기</h1>
 
 <ol>
 <li>
@@ -51,7 +51,7 @@
 				(2) git init<br/>
 				(3) git remote add origin https://github.com/SinnoriTeam/gitsinnori.git<br/> 
 				(4) git pull origin master<br/>
-				(5) git reset --hard 418addc28b7ac853874fd3c640b3fa42cd0c546a<br/>
+				(5) git reset --hard c11c1c6fe11b5591c2767e5367d331396f96fbf0<br/>
 				</dd>
 			</li>
 			<li>

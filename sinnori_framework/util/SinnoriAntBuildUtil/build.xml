@@ -1,4 +1,4 @@
-<project name="SinnoriAntBuildUtil" default="all" basedir=".">
+<project name="SinnoriAntBuildUtil" default="dist" basedir=".">
 	<description>
 		신놀이 프레임 워크를 이용한 프로젝트들에 속한 설정파일및 셀 내용중 
 		신놀이 프레임 워크가 설치된 경로로 바꾸어 주는 편의 기능 제공 유틸.
@@ -81,6 +81,12 @@
 
 	<target name="all" depends="make" description="">
 		<echo message="java.debug=${java.debug}" />
+	</target>
+
+	<target name="dist" depends="make" description="배포">
+        <copy todir="../.." verbose="true" overwrite="true">
+            <fileset file="${dist}/SinnoriAntBuildUtil.jar" />
+        </copy> 
 	</target>
 	
 </project>

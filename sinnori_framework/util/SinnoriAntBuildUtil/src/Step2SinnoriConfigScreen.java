@@ -56,7 +56,6 @@ public class Step2SinnoriConfigScreen extends JPanel {
 	private JFrame mainFrame = null;
 	private MainControllerIF mainController = null;
 
-	// FIXME!
 	private String sinnoriInstallAbsPathName = null;
 	
 	private ArrayList<String> mainProjectList = null;
@@ -137,7 +136,7 @@ public class Step2SinnoriConfigScreen extends JPanel {
 			String propProjectList = configOfProject.getProperty(propKey);
 			if (null == propProjectList) {
 				System.out.printf("필수 항목 '프로젝트 목록'[%s] 변수및 값이 설정되지 않았습니다.", propKey);
-				System.out.println("");
+				System.out.println();
 				System.exit(1);
 			}
 			
@@ -147,7 +146,7 @@ public class Step2SinnoriConfigScreen extends JPanel {
 			
 			if (projectCntOfConfig < 1) {
 				System.out.printf("필수 항목 '프로젝트 목록'[%s] 값이 없습니다.", propKey);
-				System.out.println("");
+				System.out.println();
 				System.exit(1);
 			}
 			// String projectOfConfing[] = new String[cntOfProject];
@@ -197,14 +196,15 @@ public class Step2SinnoriConfigScreen extends JPanel {
 			
 			propKey = "sessionkey.rsa_keypair_source.value";
 			
+			String rsaKeypairSource = configOfProject.getProperty(propKey);
+			
+			
 			JLabel sessionKeySourceLabel = new JLabel(propKey);
 			commonItemsPanel.add(sessionKeySourceLabel, "2, 4");
 			
 			JPanel sessionKeySourceValuePanel = new JPanel();
 			commonItemsPanel.add(sessionKeySourceValuePanel, "4, 4, left, default");
 			sessionKeySourceValuePanel.setLayout(new BoxLayout(sessionKeySourceValuePanel, BoxLayout.X_AXIS));
-			
-			
 			
 			apiRadioButton[i] = new JRadioButton("API");
 			apiRadioButton[i].setMnemonic(KeyEvent.VK_C);
@@ -223,6 +223,7 @@ public class Step2SinnoriConfigScreen extends JPanel {
 			rsaKeypairSourceGroup.add(fileButton[i]);
 			
 			propKey = "sessionkey.rsa_keypair_path.value";
+			String rsaKeyPairPath = configOfProject.getProperty(propKey);
 			
 			JLabel rsaKeyPairPathLabel = new JLabel(propKey);
 			commonItemsPanel.add(rsaKeyPairPathLabel, "2, 6");
@@ -231,15 +232,35 @@ public class Step2SinnoriConfigScreen extends JPanel {
 			rsaKeyPairPathValuePanel.setLayout(new BoxLayout(rsaKeyPairPathValuePanel, BoxLayout.X_AXIS));
 			
 			rsaKeyPairPathTextField[i] = new JTextField();
-			
-			// String rsaKeyPairPath = propertiesOfProject.getProperty(propKey);
-			
-			StringBuilder rsaKeyPairPathBuilder = new StringBuilder(this.sinnoriInstallAbsPathName);
-			rsaKeyPairPathBuilder.append(File.separator);
-			rsaKeyPairPathBuilder.append("rsa_keypair");
-			
-			rsaKeyPairPathTextField[i].setText(rsaKeyPairPathBuilder.toString());
 			rsaKeyPairPathTextField[i].setColumns(30);
+			
+			File rsaKeyPairPathFileObj = new File(rsaKeyPairPath);
+			
+			if (!rsaKeyPairPathFileObj.exists() || !rsaKeyPairPathFileObj.isDirectory()) {
+				StringBuilder rsaKeyPairPathBuilder = new StringBuilder(this.sinnoriInstallAbsPathName);
+				rsaKeyPairPathBuilder.append(File.separator);
+				rsaKeyPairPathBuilder.append("project");
+				rsaKeyPairPathBuilder.append(File.separator);
+				rsaKeyPairPathBuilder.append(projectName);
+				rsaKeyPairPathBuilder.append(File.separator);
+				rsaKeyPairPathBuilder.append("rsa_keypair");
+				
+				rsaKeyPairPath = rsaKeyPairPathBuilder.toString();
+				
+				rsaKeyPairPathFileObj = new File(rsaKeyPairPath);
+				if (!rsaKeyPairPathFileObj.exists()) {
+					rsaKeyPairPathFileObj.mkdirs();
+				}
+				
+				if (!rsaKeyPairPathFileObj.isDirectory()) {
+					System.out.printf("프로젝트[%s]의 환경 변수[%s] 새롭게 설정한 RSA 키 경로 값[%s]은 디렉토리가 아닙니다.", projectName, propKey, rsaKeyPairPath);
+					System.out.println();
+					System.exit(1);
+				}
+			}
+			
+			rsaKeyPairPathTextField[i].setText(rsaKeyPairPath);
+			
 			
 			rsaKeyPairPathValuePanel.add(rsaKeyPairPathTextField[i]);
 			
@@ -256,8 +277,7 @@ public class Step2SinnoriConfigScreen extends JPanel {
 			
 			APIOnSwingAction apiOnSwingAction = new APIOnSwingAction(rsaKeyPairPathTextField[i], rsaKeyPairPathButton);
 			apiRadioButton[i].setAction(apiOnSwingAction);
-			
-			String rsaKeypairSource = configOfProject.getProperty(propKey);
+						
 			if (rsaKeypairSource.equals("File")) {
 				apiRadioButton[i].setSelected(false);
 				fileButton[i].setSelected(true);
@@ -542,28 +562,30 @@ public class Step2SinnoriConfigScreen extends JPanel {
 			propKey = "sessionkey.rsa_keypair_path.value";
 			String rsaKeyPairPath = rsaKeyPairPathTextField[i].getText();
 			
+			File fileObj = new File(rsaKeyPairPath);
+			if (!fileObj.exists()) {
+				String errorMessage = String.format("프로젝트[%s]의 환경 변수[%s] RSA 키 경로[%s]가 존재하지 않습니다.", projectName, propKey, rsaKeyPairPath);
+				JOptionPane.showMessageDialog(mainFrame, errorMessage);
+				
+				rsaKeyPairPathTextField[i].requestFocus();
+				rsaKeyPairPathTextField[i].grabFocus();
+				return false;
+			}
+			
+			if (!fileObj.isDirectory()) {
+				String errorMessage = String.format("프로젝트[%s]의 환경 변수[%s] RSA 키 경로 값[%s]은 디렉토리가 아닙니다.", projectName, propKey, rsaKeyPairPath);
+				JOptionPane.showMessageDialog(mainFrame, errorMessage);
+				
+				rsaKeyPairPathTextField[i].requestFocus();
+				rsaKeyPairPathTextField[i].grabFocus();
+				return false;
+			}
+			
 			if (fileButton[i].isSelected()) {
-				File fileObj = new File(rsaKeyPairPath);
-				if (!fileObj.exists()) {
-					String errorMessage = String.format("프로젝트[%s]의 환경 변수[%s] RSA 키 경로[%s]가 존재하지 않습니다.", projectName, propKey, rsaKeyPairPath);
-					JOptionPane.showMessageDialog(mainFrame, errorMessage);
-					
-					rsaKeyPairPathTextField[i].requestFocus();
-					rsaKeyPairPathTextField[i].grabFocus();
-					return false;
-				}
-				
-				if (!fileObj.isDirectory()) {
-					String errorMessage = String.format("프로젝트[%s]의 환경 변수[%s] RSA 키 경로 값[%s]은 디렉토리가 아닙니다.", projectName, propKey, rsaKeyPairPath);
-					JOptionPane.showMessageDialog(mainFrame, errorMessage);
-					
-					rsaKeyPairPathTextField[i].requestFocus();
-					rsaKeyPairPathTextField[i].grabFocus();
-					return false;
-				}
-				
+				configOfProject.setProperty("sessionkey.rsa_keypair_source.value", "File");
 				configOfProject.setProperty(propKey, rsaKeyPairPath);
 			} else {
+				configOfProject.setProperty("sessionkey.rsa_keypair_source.value", "API");
 				configOfProject.setProperty(propKey, rsaKeyPairPath);
 			}
 			
@@ -571,12 +593,12 @@ public class Step2SinnoriConfigScreen extends JPanel {
 			String workerBinaryPath = workerBinaryPathTextField[i].getText();
 			configOfProject.setProperty(propKey, workerBinaryPath);
 			
-			File fileObj = new File(workerBinaryPath);
+			fileObj = new File(workerBinaryPath);
 			if (!fileObj.exists()) {
 				
 				boolean isCreatedDir = fileObj.mkdirs();
 				System.out.printf("환경변수[%s] 경로 생성 여부[%s] 경로[%s]", propKey, isCreatedDir, workerBinaryPath);
-				System.out.println("");
+				System.out.println();
 				
 				if (! isCreatedDir) System.exit(1);
 			}
@@ -590,7 +612,7 @@ public class Step2SinnoriConfigScreen extends JPanel {
 				boolean isCreatedDir = fileObj.mkdirs();
 				
 				System.out.printf("환경변수[%s] 경로 생성 여부[%s] 경로[%s]", propKey, isCreatedDir, workerBinaryPath);
-				System.out.println("");
+				System.out.println();
 				
 				if (! isCreatedDir) System.exit(1);
 			}
@@ -632,7 +654,7 @@ public class Step2SinnoriConfigScreen extends JPanel {
 				if (!fileObj.exists()) {
 					boolean isCreatedDir = fileObj.mkdirs();
 					System.out.printf("환경변수[%s] 경로 생성 여부[%s] 경로[%s]", propKey, isCreatedDir, innerProjectExecutorBinaryPath);
-					System.out.println("");
+					System.out.println();
 					
 					if (! isCreatedDir) System.exit(1);
 				}
@@ -658,7 +680,7 @@ public class Step2SinnoriConfigScreen extends JPanel {
 				if (!fileObj.exists()) {
 					boolean isCreatedDir = fileObj.mkdirs();
 					System.out.printf("환경변수[%s] 경로 생성 여부[%s] 경로[%s]", propKey, isCreatedDir, innerProjectExecutorSourcePath);
-					System.out.println("");
+					System.out.println();
 					
 					if (! isCreatedDir) System.exit(1);
 				}

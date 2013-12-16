@@ -34,7 +34,6 @@
 		<mkdir dir="${build}/common_lib" />
 		<mkdir dir="${build}/server_lib" />
 		<mkdir dir="${build}/client_lib" />
-		<mkdir dir="${build}/all_lib" />
 		<mkdir dir="${dist}" />
 	</target>
 
@@ -100,17 +99,39 @@
 
 	
 	<target name="make.all" depends="compile.client" description="신놀이 프레임 워크 jar 만들기">
-		<!-- Create the distribution directory -->
-		<copy todir="${build}/all_lib" verbose="true" overwrite="true">
+		<!-- Create the distribution directory -->		
+		<jar jarfile="${dist}/sinnori_framework.jar">
 			<fileset dir="${build}/common_lib" />
-		</copy>
-		<copy todir="${build}/all_lib" verbose="true" overwrite="true">
 			<fileset dir="${build}/server_lib" />
-		</copy>
-		<copy todir="${build}/all_lib" verbose="true" overwrite="true">
 			<fileset dir="${build}/client_lib" />
-		</copy>
-		<jar jarfile="${dist}/sinnori_framework.jar" basedir="${build}/all_lib">
+			
+			<restrict>
+				<name name="**/*.class" />
+				<archives>
+					<zips>
+						<fileset dir="lib/in" includes="**/*.jar" />
+					</zips>
+				</archives>
+			</restrict>
+		</jar>
+		
+		<jar jarfile="${dist}/sinnori_lib_client.jar">
+			<fileset dir="${build}/common_lib" />
+			<fileset dir="${build}/client_lib" />
+			
+			<restrict>
+				<name name="**/*.class" />
+				<archives>
+					<zips>
+						<fileset dir="lib/in" includes="**/*.jar" />
+					</zips>
+				</archives>
+			</restrict>
+		</jar>
+		
+		<jar jarfile="${dist}/sinnori_lib_server.jar">
+			<fileset dir="${build}/common_lib" />
+			<fileset dir="${build}/server_lib" />
 			<restrict>
 				<name name="**/*.class" />
 				<archives>

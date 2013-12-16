@@ -2,10 +2,10 @@
 
 	final String arryTopMenuPage[][] =	{ 
 		{ "소개", null, "/about.jsp"},
-		{ "따라하기", null, "/stepbystep/main.jsp"},
+		{ "시작하기", null, "/stepbystep/main.jsp"},
 		{ "다운로드", null, "/download/main.jsp"},
 		{ "문서", "/techdoc/leftmenu.jsp", "/techdoc/sinnori_website_structure_intro.jsp"},
-		{ "마당쇠", "/madangsoe/leftmenu.jsp", "/madangsoe/body.jsp"}, 
+		{ "마당쇠", "/madangsoe/leftmenu.jsp", "/construction_zone.jsp"}, 
 		{ "실험과 검증", "/testcode/leftmenu.jsp" , "/testcode/body.jsp"}
 	};
 
@@ -77,13 +77,19 @@
 	    %>
 	    <table>
 		<tr valign="top">
-		<td id="leftmenu"><jsp:include page="<%=arryTopMenuPage[nTopMenu][1]%>" /></td><td id="body"><%
-		if (targeturl.indexOf("/") == 0) {
+		<td id="leftmenu"><jsp:include page="<%=arryTopMenuPage[nTopMenu][1]%>" /></td><td id="body">
+		<div style="overflow:auto;width:800px;"><%
+		int inxOfExt = targeturl.lastIndexOf(".");
+		String extStr = null; 
+		if (inxOfExt > 0) extStr = targeturl.substring(inxOfExt);
+		
+		
+		if (null != extStr && (extStr.equals(".jsp") || extStr.equals(".html") || extStr.equals(".htm"))) {
 		%><jsp:include page="<%=targeturl%>" /><%
 		} else {
 		%><iframe src="<%=targeturl%>" width="800" height="600" /><%
 		}
-		%></td>
+		%></div></td>
 		</tr>
 	    </table><%
 		    }
