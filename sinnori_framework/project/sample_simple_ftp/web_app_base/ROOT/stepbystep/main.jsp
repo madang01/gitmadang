@@ -45,7 +45,7 @@
 				<dd>
 				터미널에서 (1) sudo apt-get install git<br/> 
 				(2) git clone https://github.com/SinnoriTeam/gitsinnori.git<br/> 
-				(3) git gitsinnori<br/>
+				(3) cd gitsinnori<br/>
 				(4) git checkout c11c1c6fe11b5591c2767e5367d331396f96fbf0<br/>
 				</dd>
 			</li>
