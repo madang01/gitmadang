@@ -14,7 +14,9 @@
 </singleitem>
 <singleitem name="errorGubun" type="ub pascal string">
 	<desc> 에러 종류 B : BodyFormatException, D : DynamicClassCallException, 
-	N : NoMoreBodyBufferException, M : MessageInfoNotFoundException 
+	N : NoMoreBodyBufferException, M : MessageInfoNotFoundException, 
+	I : MessageItemException, U : ServerExcecutorUnknownException,
+	A : NotLoginException
 	</desc>
 </singleitem>
 <singleitem name="errorMessageID" type="ub pascal string">

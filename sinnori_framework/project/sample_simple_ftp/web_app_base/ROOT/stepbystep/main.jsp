@@ -23,12 +23,14 @@
 				<dt>우분투</dt>
 				<dd>
 				터미널에서 (1) cd ~<br/>
+				(2) mkdir gitsinnori<br/>
 				</dd>
 			</li>
 			<li>
 				<dt>윈도7</dt>
 				<dd>
-				명령 프롬프트(=cmd) (1) d:<br/>&nbsp;
+				명령 프롬프트(=cmd) (1) d:<br/>
+				(2) mkdir gitsinnori<br/>&nbsp;
 				</dd>
 			</li>
 			</ol>
@@ -44,9 +46,9 @@
 				<dt>우분투</dt>
 				<dd>
 				터미널에서 (1) sudo apt-get install git<br/> 
-				(2) git clone https://github.com/SinnoriTeam/gitsinnori.git<br/> 
+				(2) git clone https://github.com/SinnoriTeam/gitsinnori.git gitsinnori<br/>
 				(3) cd gitsinnori<br/>
-				(4) git checkout c11c1c6fe11b5591c2767e5367d331396f96fbf0<br/>
+				(4) git checkout v1.0<br/>
 				</dd>
 			</li>
 			<li>
