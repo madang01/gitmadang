@@ -5,7 +5,7 @@
 		<li><a href="/PageJump.jsp?topmenu=3&targeturl=/techdoc/sinnori_ant_buil_techdoc.html">신놀이 Ant Build 기술 문서</a></li>
 		<li><a href="/PageJump.jsp?topmenu=3&targeturl=/techdoc/sinnori_message_techdoc.html">신놀이 메시지 기술 문서</a></li>
 		<li><a href="/PageJump.jsp?topmenu=3&targeturl=/techdoc/sinnori_server_techdoc.html">신놀이 서버 기술 문서</a></li>
-		<li><a href="/PageJump.jsp?topmenu=3&targeturl=/construction_zone.jsp">신놀이 클라이언트 접속용 API 기술 문서</a></li>
+		<li><a href="/PageJump.jsp?topmenu=3&targeturl=/techdoc/sinnori_client_api_techdoc.html">신놀이 클라이언트 접속용 API 기술 문서</a></li>
 		<li><a href="/PageJump.jsp?topmenu=3&targeturl=/techdoc/sinnori_fileupdown_techdoc.html">신놀이 파일송수신 기술명세</a></li>
 		</ul>
 	</li>
