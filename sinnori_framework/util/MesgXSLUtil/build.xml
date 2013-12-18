@@ -21,6 +21,8 @@
 		<!-- Create the build directory structure used by compile -->
 		<mkdir dir="${build}" />
 		<mkdir dir="${dist}" />
+		<mkdir dir="lib/in" />
+		<mkdir dir="lib/ex" />
 	</target>
 
 	<target name="compile" depends="init" description="컴파일">

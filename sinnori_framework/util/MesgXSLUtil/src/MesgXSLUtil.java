@@ -50,6 +50,7 @@ public class MesgXSLUtil {
 					
 					if (null == lineStr) break;
 					
+					
 					System.out.printf("xslStringBuilder.append(\"%s", StringEscapeUtils.escapeJava(lineStr));
 					System.out.printf(lineSeparator);
 					System.out.printf("\");");
