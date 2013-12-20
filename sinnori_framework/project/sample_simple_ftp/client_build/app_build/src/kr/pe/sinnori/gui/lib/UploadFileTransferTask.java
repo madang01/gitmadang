@@ -41,7 +41,6 @@ import kr.pe.sinnori.gui.screen.FileTranferProcessDialog;
 public class UploadFileTransferTask implements FileTransferTaskIF, CommonRootIF {
 	private JFrame mainFrame = null;
 	private MainControllerIF mainController = null;
-	private FileUpDownScreenIF fileUpDownScreen = null;
 	private FileTranferProcessDialog fileTranferProcessDialog = null;
 	private int serverTargetFileID = -1;
 	private LocalSourceFileResource localSourceFileResource = null;
@@ -52,17 +51,15 @@ public class UploadFileTransferTask implements FileTransferTaskIF, CommonRootIF 
 	 * 생성자
 	 * @param mainFrame 메인 프레임
 	 * @param mainController 메인 제어자
-	 * @param fileUpDownScreen 파일 송수신 화면을 제어하는 기능 제공 인터페이스
 	 * @param serverTargetFileID 서버 목적지 파일 식별자. 참고) 서버는 업로드할 파일에 락을 거는데 이 식별자를 통해서 이를 관리한다.
 	 * @param localSourceFileResource 로컬 원본 파일 자원
 	 */
 	public UploadFileTransferTask(JFrame mainFrame,
-			MainControllerIF mainController, FileUpDownScreenIF fileUpDownScreen,
+			MainControllerIF mainController,
 			int serverTargetFileID,
 			LocalSourceFileResource localSourceFileResource) {
 		this.mainFrame = mainFrame;
 		this.mainController = mainController;
-		this.fileUpDownScreen = fileUpDownScreen;
 		this.serverTargetFileID = serverTargetFileID;
 		this.localSourceFileResource = localSourceFileResource;
 	}
@@ -99,9 +96,6 @@ public class UploadFileTransferTask implements FileTransferTaskIF, CommonRootIF 
 						
 						break;
 					}
-						
-					
-					
 				}
 
 				byte fileData[] = localSourceFileResource
@@ -129,14 +123,8 @@ public class UploadFileTransferTask implements FileTransferTaskIF, CommonRootIF 
 			JOptionPane.showMessageDialog(mainFrame, e.toString());
 			return;
 		} finally {
-			fileUpDownScreen.reloadRemoteFileList();
+			mainController.endUploadTask();
 		}
-
-		
-		// fileTranferProcessDialog.updateInfoMesg();
-		
-		// Task 종료후 파일 전송 창 자동 종료
-		// fileTranferProcessDialog.closeFileTransferProcessDialog();
 	}
 
 	@Override

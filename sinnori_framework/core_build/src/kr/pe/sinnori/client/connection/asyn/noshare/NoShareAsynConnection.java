@@ -36,6 +36,7 @@ import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
+import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.CommonStaticFinal;
@@ -321,6 +322,51 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		log.info(String.format("sendInputMessage 시간차=[%d]", (endTime - startTime)));
 
 		return letterFromServer;
+	}
+	
+	@Override
+	public void sendOnlyInputMessage(
+			InputMessage inObj) throws ServerNotReadyException,
+			SocketTimeoutException, NoMoreDataPacketBufferException,
+			BodyFormatException, MessageInfoNotFoundException, NotSupportedException {
+		long startTime = 0;
+		long endTime = 0;
+		startTime = new java.util.Date().getTime();
+		// log.info("inputMessage=[%s]", inputMessage.toString());
+		try {
+			serverOpen();
+		} catch (InterruptedException e2) {
+			Thread.currentThread().interrupt();
+			return;
+		}
+		
+		boolean isInterrupted = false;
+
+		try {
+			mailbox.setActive();
+
+			LetterToServer letterToServer = new LetterToServer(this, inObj);
+			try {
+				mailbox.putInputMessage(letterToServer);
+			} catch (InterruptedException e) {
+				isInterrupted = true;
+				try {
+					mailbox.putInputMessage(letterToServer);
+				} catch (InterruptedException e1) {
+					log.fatal("인터럽트 받아 후속 처리중 발생", e);
+					System.exit(1);
+				}
+			}
+			
+		} finally {
+			mailbox.setDisable();
+
+			if (isInterrupted)
+				Thread.currentThread().interrupt();
+		}
+
+		endTime = new java.util.Date().getTime();
+		log.info(String.format("sendOnlyInputMessage 시간차=[%d]", (endTime - startTime)));
 	}
 
 	@Override

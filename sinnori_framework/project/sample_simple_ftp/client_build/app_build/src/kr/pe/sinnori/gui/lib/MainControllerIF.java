@@ -102,6 +102,10 @@ public interface MainControllerIF {
 	public OutputMessage doDownloadFile(int serverSourceFileID, int fileBlockNo);
 	
 	
+	public void openUploadProcessDialog(int serverTargetFileID, String mesg, long fileSize);
+	
+	public void endUploadTask();
+	
 	/**
 	 * 파일 전송 현황 창을 연다. 참고) 모달 윈도우 
 	 * @param mesg 메시지
@@ -144,4 +148,11 @@ public interface MainControllerIF {
 	 * @return 서버에 다운로드 취소 결과 출력 메시지
 	 */
 	public OutputMessage cancelDownloadFile(int serverSourceFileID);
+	
+	/**
+	 * 익명 메시지 처리
+	 * @param projectName 프로젝트 이름
+	 * @param outObj 출력 메시지
+	 */
+	public void doAnonymousServerMessageTask(String projectName, OutputMessage outObj);
 }

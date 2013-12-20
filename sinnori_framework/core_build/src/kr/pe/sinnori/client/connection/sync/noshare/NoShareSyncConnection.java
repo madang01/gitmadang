@@ -30,6 +30,7 @@ import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
 import kr.pe.sinnori.common.lib.CommonProjectInfo;
@@ -315,6 +316,15 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 		
 
 		return letterFromServer;
+	}
+	
+	
+	@Override
+	public void sendOnlyInputMessage(
+			InputMessage inObj) throws ServerNotReadyException,
+			SocketTimeoutException, NoMoreDataPacketBufferException,
+			BodyFormatException, MessageInfoNotFoundException, NotSupportedException {		
+		throw new NotSupportedException("비공유+동기 연결은 출력 메시지를 받지 않고 입력 메시지만 보내는 기능을 지원하지 않습니다.");
 	}
 
 

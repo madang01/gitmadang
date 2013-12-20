@@ -43,6 +43,7 @@ public class LocalSourceFileResource implements CommonRootIF {
 	private final Object monitor = new Object();
 	
 	private boolean isInQueue = true;
+	private boolean isCanceled = false; 
 	
 	private int sourceFileID = 0;
 	// private int clientTargetFileID = -1;
@@ -302,6 +303,7 @@ public class LocalSourceFileResource implements CommonRootIF {
 	 */
 	public void queueIn() {
 		isInQueue = true;
+		isCanceled = false;
 	}
 
 	/**
@@ -310,6 +312,17 @@ public class LocalSourceFileResource implements CommonRootIF {
 	public void queueOut() {
 		isInQueue = false;
 		// lastCallerThrowable = new Throwable();
+	}
+	
+	/**
+	 * 취소 상태로 만든다. 사용자의 취소 혹은 목적지 파일 IO 에러시 호출된다. 취소 상태에서는 원본 파일을 읽을 수 없다.
+	 */
+	public void cancel() {
+		isCanceled = true;
+	}
+	
+	public boolean getIsCanceled() {
+		return isCanceled;
 	}
 
 	/**
@@ -411,6 +424,13 @@ public class LocalSourceFileResource implements CommonRootIF {
 			String errorMessage = String.format("sourceFileID[%d]::parameter fileData is null", sourceFileID);
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		
+		if (isCanceled) {
+			String errorMessage = String.format("sourceFileID[%d] was canceled", sourceFileID);
+			log.warn(errorMessage);
+			throw new UpDownFileException(errorMessage);
 		}
 		
 		// FIXME!

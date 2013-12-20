@@ -19,11 +19,13 @@ package kr.pe.sinnori.client.connection.sync.noshare;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.AbstractConnectionPool;
 import kr.pe.sinnori.client.io.LetterFromServer;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
 import kr.pe.sinnori.common.lib.CommonProjectInfo;
@@ -132,4 +134,23 @@ public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 		return retLetterList;
 	}
 	
+	@Override
+	public AbstractConnection getConnection() throws InterruptedException, NotSupportedException {
+		NoShareSyncConnection conn = connectionQueue.take();
+		
+		synchronized (monitor) {
+			conn.queueOut();
+			return conn;
+		}
+	}
+	
+	@Override
+	public void freeConnection(AbstractConnection conn) throws NotSupportedException {
+		NoShareSyncConnection serverConnection = (NoShareSyncConnection)conn;
+		synchronized (monitor) {
+			if (serverConnection.isInQueue()) return;
+			serverConnection.queueIn();
+		}
+		connectionQueue.offer(serverConnection);
+	}
 }

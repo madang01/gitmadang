@@ -38,6 +38,7 @@ import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
+import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.CommonStaticFinal;
@@ -416,6 +417,80 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 		
 		// log.info("sendInputMessage end");
 		return letterFromServer;
+	}
+	
+	@Override
+	public void sendOnlyInputMessage(
+			InputMessage inObj) throws ServerNotReadyException,
+			SocketTimeoutException, NoMoreDataPacketBufferException,
+			BodyFormatException, MessageInfoNotFoundException, NotSupportedException {
+		long startTime = 0;
+		long endTime = 0;
+		startTime = new java.util.Date().getTime();
+
+		// log.info("projectName[%s] inputMessage=[%s]", projectName,
+		// inObj.toString());
+		try {
+			serverOpen();
+		} catch (InterruptedException e1) {
+			Thread.currentThread().interrupt();
+		}
+
+		PrivateMailbox mailbox = null;
+		int mailboxID = -1;
+		
+		
+		boolean isInterrupted = false;
+		
+		try {
+			try {
+				mailbox = PrivateMailboxWaitingQueue.take();
+				
+				
+			} catch (InterruptedException e) {
+				try {
+					mailbox = PrivateMailboxWaitingQueue.take();
+				} catch (InterruptedException e1) {
+					log.fatal("인터럽트 받아 후속 처리중 발생", e1);
+					System.exit(1);
+				}
+				isInterrupted = true;
+			}
+			mailbox.setActive();
+			mailboxID = mailbox.getMailboxID();
+			hashActiveMailBox.put(mailboxID, mailbox);
+			
+			LetterToServer letterToServer = new LetterToServer(this, inObj);
+			try {
+				mailbox.putInputMessage(letterToServer);
+			} catch (InterruptedException e) {
+				isInterrupted = true;
+				try {
+					mailbox.putInputMessage(letterToServer);
+				} catch (InterruptedException e1) {
+					log.fatal("인터럽트 받아 후속 처리중 발생", e);
+					System.exit(1);
+				}
+			}
+			
+		} finally {
+			if (null != mailbox) {
+				hashActiveMailBox.remove(mailboxID);
+				mailbox.setDisable();
+				/**
+				 * InterruptedException 를 발생시키지 않는 offer 메소드 사용. 개인 메일함
+				 * 큐(=PrivateMailboxWaitingQueue) 는 메일함의 갯수를 고정으로 갖으며, 그것을 넘어서는
+				 * 메일함을 가질 이유는 없다. 단, 2번이상 넣기 시도등 큐에 2개 이상 중복되는 경우에 오동작을 한다. 하지만
+				 * 큐에 대한 사용자 개입을 원천적으로 차단되어 2개이상 중복하여 큐에 들어갈 일은 없다.
+				 */
+				PrivateMailboxWaitingQueue.offer(mailbox);
+			}
+			
+			if (isInterrupted) Thread.currentThread().interrupt();
+		}
+
+		endTime = new java.util.Date().getTime();
+		log.info(String.format("sendInputMessage 시간차=[%d]", (endTime - startTime)));	
 	}
 
 	/**

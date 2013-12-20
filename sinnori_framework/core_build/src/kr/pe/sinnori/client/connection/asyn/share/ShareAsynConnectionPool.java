@@ -20,6 +20,7 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.AbstractConnectionPool;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderPoolIF;
 import kr.pe.sinnori.client.io.LetterFromServer;
@@ -28,6 +29,7 @@ import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
+import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
@@ -152,5 +154,15 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 			indexOfConnection = (indexOfConnection + 1) % connectionList.size();
 		}
 		return serverConnection.sendInputMessage(inputMessage);
+	}
+	
+	@Override
+	public AbstractConnection getConnection() throws InterruptedException, NotSupportedException {
+		throw new NotSupportedException("공유+비동기 연결 폴은 직접적으로 연결 객체를 받을 수 없습니다.");
+	}
+	
+	@Override
+	public void freeConnection(AbstractConnection conn) throws NotSupportedException {
+		throw new NotSupportedException("공유+비동기 연결 폴은 직접적으로 연결 객체를 받지 못하므로 반환 기능도 없습니다.");
 	}
 }

@@ -21,6 +21,7 @@ package kr.pe.sinnori.client;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.AbstractConnectionPool;
 import kr.pe.sinnori.client.connection.asyn.noshare.NoShareAsynConnectionPool;
 import kr.pe.sinnori.client.connection.asyn.share.ShareAsynConnectionPool;
@@ -34,6 +35,7 @@ import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
+import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.lib.AbstractProject;
 import kr.pe.sinnori.common.lib.CommonProjectInfo;
@@ -213,6 +215,17 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 		return commonProjectInfo;
 	}
 	
+	@Override
+	public AbstractConnection getConnection() throws InterruptedException, NotSupportedException {
+		return connectionPool.getConnection();
+	}
+	
+	@Override
+	public void freeConnection(AbstractConnection conn) throws NotSupportedException {
+		connectionPool.freeConnection(conn);;
+	}
+	
+	
 	/**
 	 * 서버에서 보낸 불특정 다수로 출력 메시지를 얻는다. 단 서버에서 보낸 불특정 다수로 출력 메시지가 들어올 때까지 블락 된다.
 	 * @return 서버에서 보낸 불특정 다수로 출력 메시지
@@ -365,10 +378,8 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 		}
 	}
 	
-	/**
-	 * 새로운 서버 익명 메시지 비지니스 로직으로 교체를 한다.
-	 * @param newAnonymousServerMessageTask 새로운 서버 익명 메시지 비지니스 로직
-	 */
+	
+	@Override
 	public void changeAnonymousServerMessageTask(AnonymousServerMessageTaskIF newAnonymousServerMessageTask) {
 		/**
 		 * anonymousServerMessageProcessorThread 는 비동기일때만 초기화 되므로 동기일때에는 null 값이다.
@@ -378,5 +389,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 
 		anonymousServerMessageProcessorThread.changeAnonymousServerMessageTask(newAnonymousServerMessageTask);
 	}
+	
+	
 }
 

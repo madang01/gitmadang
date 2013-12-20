@@ -26,16 +26,12 @@ import javax.swing.JTree;
 import javax.swing.tree.TreePath;
 
 import kr.pe.sinnori.common.exception.MessageItemException;
-import kr.pe.sinnori.common.exception.UpDownFileException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.message.OutputMessage;
-import kr.pe.sinnori.common.updownfile.LocalSourceFileResource;
-import kr.pe.sinnori.common.updownfile.LocalSourceFileResourceManager;
 import kr.pe.sinnori.gui.lib.FileUpDownScreenIF;
 import kr.pe.sinnori.gui.lib.LocalFileTreeNode;
 import kr.pe.sinnori.gui.lib.MainControllerIF;
 import kr.pe.sinnori.gui.lib.RemoteFileTreeNode;
-import kr.pe.sinnori.gui.lib.UploadFileTransferTask;
 
 /**
  * 업로드 이벤트 처리 클래스
@@ -167,16 +163,8 @@ public class UploadSwingAction extends AbstractAction implements CommonRootIF {
 		log.info(String.format("copy localFilePathName[%s] localFileName[%s] to remoteFilePathName[%s] remoteFileName[%s]",
 				localFilePathName,  localFileName, remoteFilePathName, remoteFileName));
 
-		LocalSourceFileResourceManager localSourceFileResourceManager = LocalSourceFileResourceManager.getInstance();
-		LocalSourceFileResource localSourceFileResource = null;
-
 		try {
-			localSourceFileResource = localSourceFileResourceManager.pollLocalSourceFileResource(localFilePathName, localFileName, localFileSize, remoteFilePathName, remoteFileName, fileBlockSize);
 			
-			if (null == localSourceFileResource) {
-				JOptionPane.showMessageDialog(mainFrame, "큐로부터 원본 파일 자원 할당에 실패하였습니다.");
-				return;
-			}
 			
 			OutputMessage upFileInfoResulOutObj = mainController
 					.readyUploadFile(localFilePathName, localFileName,
@@ -200,9 +188,7 @@ public class UploadSwingAction extends AbstractAction implements CommonRootIF {
 			}
 			
 			
-			
-			UploadFileTransferTask uploadFileTransferTask = new UploadFileTransferTask(mainFrame, mainController, fileUpDownScreen, serverTargetFileID, localSourceFileResource);
-			mainController.openFileTransferProcessDialog(new StringBuilder(localFileName).append(" 업로드 중...").toString(), localFileSize, uploadFileTransferTask);
+			mainController.openUploadProcessDialog(serverTargetFileID, new StringBuilder(localFileName).append(" 업로드 중...").toString(), localFileSize);
 			
 			/*
 			int localFileBlockMaxNo = localSourceFileResource.getFileBlockMaxNo();
@@ -235,17 +221,6 @@ public class UploadSwingAction extends AbstractAction implements CommonRootIF {
 			// log.warn(errorMessage, e1);
 			JOptionPane.showMessageDialog(mainFrame, errorMessage);
 			return;
-			
-		} catch (UpDownFileException e1) {
-			// String errorMessage = String.format("로컬 원본 파일[%s]을 읽는데 실패하였습니다.", sourceFileFullName);
-			String errorMessage = e1.toString();
-			//log.warn(errorMessage, e1);
-			JOptionPane.showMessageDialog(mainFrame, errorMessage);
-			return;
-		} finally {
-			if (null != localSourceFileResource) localSourceFileResourceManager.putLocalSourceFileResource(localSourceFileResource);
-			
-			// mainController.closeFileTransferProcessDialog();
-		}		
+		}
 	}
 }

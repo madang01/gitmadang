@@ -19,10 +19,12 @@ package kr.pe.sinnori.client;
 
 import java.net.SocketTimeoutException;
 
+import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.io.LetterFromServer;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.message.InputMessage;
@@ -58,4 +60,24 @@ public interface ClientProjectIF {
 	 * @return 공통 프로젝트 정보
 	 */
 	public CommonProjectInfo getCommonProjectInfo();
+	
+	/**
+	 * @return연결 객체
+	 * @throws InterruptedException 연결 폴에서 연결 객체를 가져올때 인터럽트가 걸렸을 경우 던지는 예외
+	 * @throws NotSupportedException 공유+비동기 연결 폴에서 실행시 던지는 예외.  공유+비동기 연결 폴은 직접적으로 연결 객체를 받을 수 없다.
+	 */
+	public AbstractConnection getConnection() throws InterruptedException, NotSupportedException;
+	
+	/**
+	 * 연결 객체를 반환한다.
+	 * @param conn
+	 * @throws NotSupportedException
+	 */
+	public void freeConnection(AbstractConnection conn) throws NotSupportedException;
+	
+	/**
+	 * 새로운 서버 익명 메시지 비지니스 로직으로 교체를 한다.
+	 * @param newAnonymousServerMessageTask 새로운 서버 익명 메시지 비지니스 로직
+	 */
+	public void changeAnonymousServerMessageTask(AnonymousServerMessageTaskIF newAnonymousServerMessageTask);
 }

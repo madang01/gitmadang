@@ -60,7 +60,7 @@ public final class DownFileDataSExtor extends AbstractAuthServerExecutor {
 			isCompletedReadingFile = localSourceFileResource.readSourceFileData(fileBlockNo, fileData, true);
 			
 			// FIXME!
-			log.info(String.format("파일 읽기 결과[%s]", isCompletedReadingFile));
+			// log.info(String.format("파일 읽기 결과[%s]", isCompletedReadingFile));
 						
 			
 			outObj.setAttribute("taskResult", "Y");
