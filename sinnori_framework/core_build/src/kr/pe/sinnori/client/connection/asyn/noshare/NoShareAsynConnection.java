@@ -271,52 +271,61 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 				
 		boolean isInterrupted = false;
 
-		try {
-			mailbox.setActive();
-
-			LetterToServer letterToServer = new LetterToServer(this, inObj);
+		/**
+		 * <pre>
+		 * 공유+비동기 연결 객체를 직접 받을 수 없기때문에 동시 사용이 불가능 하므로 synchronized (mailbox) 를 걸어줄 필요 없지만,
+		 * 비공유+비동기 연결 객체는 직접 받을 수 있기때문에 동시 사용 가능이 가능하므로 synchronized (mailbox) 를 걸어주어야 한다.
+		 * </pre>
+		 */
+		synchronized (mailbox) {
 			try {
-				mailbox.putInputMessage(letterToServer);
-			} catch (InterruptedException e) {
-				isInterrupted = true;
+				mailbox.setActive();
+
+				LetterToServer letterToServer = new LetterToServer(this, inObj);
 				try {
 					mailbox.putInputMessage(letterToServer);
-				} catch (InterruptedException e1) {
-					log.fatal("인터럽트 받아 후속 처리중 발생", e);
-					System.exit(1);
-				}
-			}
-			
-			
-
-			OutputMessage workOutObj = null;
-			
-			try {				
-				workOutObj = mailbox.takeOutputMessage();
-				
-				letterFromServer = new LetterFromServer(workOutObj);
-			} catch(InterruptedException e) {
-				/** 인터럽트 발생시 메소드 끝가지 로직 수행후 인터럽트 상태를 복귀 시켜 최종 인터럽트 처리를 마무리 하도록 유도 */					
-				if (isInterrupted) {
-					log.fatal("인터럽트 받아 후속 처리중 발생", e);
-					System.exit(1);
-				} else {
+				} catch (InterruptedException e) {
+					isInterrupted = true;
 					try {
-						workOutObj = mailbox.takeOutputMessage();
-					} catch(InterruptedException e1) {
-						log.fatal("인터럽트 받아 후속 처리중 발생", e1);
+						mailbox.putInputMessage(letterToServer);
+					} catch (InterruptedException e1) {
+						log.fatal("인터럽트 받아 후속 처리중 발생", e);
 						System.exit(1);
 					}
-					isInterrupted = true;
 				}
-			}
-			
-		} finally {
-			mailbox.setDisable();
+				
+				
 
-			if (isInterrupted)
-				Thread.currentThread().interrupt();
+				OutputMessage workOutObj = null;
+				
+				try {				
+					workOutObj = mailbox.takeOutputMessage();
+					
+					letterFromServer = new LetterFromServer(workOutObj);
+				} catch(InterruptedException e) {
+					/** 인터럽트 발생시 메소드 끝가지 로직 수행후 인터럽트 상태를 복귀 시켜 최종 인터럽트 처리를 마무리 하도록 유도 */					
+					if (isInterrupted) {
+						log.fatal("인터럽트 받아 후속 처리중 발생", e);
+						System.exit(1);
+					} else {
+						try {
+							workOutObj = mailbox.takeOutputMessage();
+						} catch(InterruptedException e1) {
+							log.fatal("인터럽트 받아 후속 처리중 발생", e1);
+							System.exit(1);
+						}
+						isInterrupted = true;
+					}
+				}
+				
+			} finally {
+				mailbox.setDisable();
+
+				if (isInterrupted)
+					Thread.currentThread().interrupt();
+			}
 		}
+		
 
 		endTime = new java.util.Date().getTime();
 		log.info(String.format("sendInputMessage 시간차=[%d]", (endTime - startTime)));
@@ -341,28 +350,29 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		}
 		
 		boolean isInterrupted = false;
-
-		try {
-			mailbox.setActive();
-
-			LetterToServer letterToServer = new LetterToServer(this, inObj);
+		synchronized (mailbox) {
 			try {
-				mailbox.putInputMessage(letterToServer);
-			} catch (InterruptedException e) {
-				isInterrupted = true;
+				mailbox.setActive();
+	
+				LetterToServer letterToServer = new LetterToServer(this, inObj);
 				try {
 					mailbox.putInputMessage(letterToServer);
-				} catch (InterruptedException e1) {
-					log.fatal("인터럽트 받아 후속 처리중 발생", e);
-					System.exit(1);
+				} catch (InterruptedException e) {
+					isInterrupted = true;
+					try {
+						mailbox.putInputMessage(letterToServer);
+					} catch (InterruptedException e1) {
+						log.fatal("인터럽트 받아 후속 처리중 발생", e);
+						System.exit(1);
+					}
 				}
+				
+			} finally {
+				mailbox.setDisable();
+	
+				if (isInterrupted)
+					Thread.currentThread().interrupt();
 			}
-			
-		} finally {
-			mailbox.setDisable();
-
-			if (isInterrupted)
-				Thread.currentThread().interrupt();
 		}
 
 		endTime = new java.util.Date().getTime();

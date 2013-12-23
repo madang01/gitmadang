@@ -17,7 +17,7 @@
 
 package kr.pe.sinnori.common.updownfile;
 
-import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.common.exception.UpDownFileException;
@@ -35,7 +35,7 @@ public class LocalTargetFileResourceManager implements CommonRootIF {
 	private final Object monitor = new Object(); 
 	
 	private LinkedBlockingQueue<LocalTargetFileResource> localTargetFileResourceQueue  = null;
-	private HashMap<Integer, LocalTargetFileResource> localTargetFileResourceHash = null;
+	private Hashtable<Integer, LocalTargetFileResource> localTargetFileResourceHash = null;
 	
 	/**
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스
@@ -61,7 +61,7 @@ public class LocalTargetFileResourceManager implements CommonRootIF {
 		
 		
 		localTargetFileResourceQueue = new LinkedBlockingQueue<LocalTargetFileResource>(localTargetFileResourceCnt);
-		localTargetFileResourceHash = new HashMap<Integer, LocalTargetFileResource>();
+		localTargetFileResourceHash = new Hashtable<Integer, LocalTargetFileResource>();
 		
 		for (int i=0; i < localTargetFileResourceCnt; i++) {
 			localTargetFileResourceQueue.add(new LocalTargetFileResource(i));
@@ -119,6 +119,8 @@ public class LocalTargetFileResourceManager implements CommonRootIF {
 			localTargetFileResourceQueue.add(localTargetFileResource);
 		}
 		
+		// FIXME! 잠시 디버깅을 위해서 리소스 자원 많이 잡는 Throwable 객체 생성. 나중 삭제해야함.
+		// Throwable t = new Throwable();
 		log.info(String.format("localTargetFileID[%d] 큐 반환", localTargetFileResource.getTargetFileID()));
 	}
 	
@@ -128,9 +130,9 @@ public class LocalTargetFileResourceManager implements CommonRootIF {
 	 * @return 목적 파일 식별자에 1:1 대응하는 로컬 목적 파일 자원, 할당 받은 로컬 목적 파일 자원들중 목적 파일 식별자를 갖는것이 없을 경우 null 를 반환한다.
 	 */
 	public LocalTargetFileResource getLocalTargetFileResource(int targetFileID) {
-		synchronized (monitor) {
+		// synchronized (monitor) {
 			LocalTargetFileResource localTargetFileResource = localTargetFileResourceHash.get(targetFileID);
 			return localTargetFileResource;
-		}
+		// }
 	}
 }

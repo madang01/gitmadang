@@ -158,11 +158,11 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 	
 	@Override
 	public AbstractConnection getConnection() throws InterruptedException, NotSupportedException {
-		throw new NotSupportedException("공유+비동기 연결 폴은 직접적으로 연결 객체를 받을 수 없습니다.");
+		throw new NotSupportedException("공유+비동기 연결 객체는 직접적으로 받을 수 없습니다.");
 	}
 	
 	@Override
 	public void freeConnection(AbstractConnection conn) throws NotSupportedException {
-		throw new NotSupportedException("공유+비동기 연결 폴은 직접적으로 연결 객체를 받지 못하므로 반환 기능도 없습니다.");
+		throw new NotSupportedException("공유+비동기 연결 객체를 직접 받지 않으므로 반환 기능도 없습니다.");
 	}
 }

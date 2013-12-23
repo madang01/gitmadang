@@ -18,7 +18,6 @@
 package impl.executor.server;
 
 import java.nio.channels.SocketChannel;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
@@ -32,8 +31,6 @@ import kr.pe.sinnori.common.updownfile.LocalTargetFileResourceManager;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;
-import kr.pe.sinnori.server.io.LetterListToClient;
-import kr.pe.sinnori.server.io.LetterToClient;
 
 /**
  * @author Jonghoon Won
@@ -43,15 +40,16 @@ public class UpFileData2SExtor extends AbstractAuthServerExecutor {
 
 	@Override
 	protected void doTask(SocketChannel fromSC, InputMessage inObj,
-			LetterListToClient letterToClientList,
-			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
-			MessageMangerIF messageManger,
+			MessageMangerIF messageManger,			
 			ClientResourceManagerIF clientResourceManager)
 			throws MessageInfoNotFoundException, MessageItemException {
 		LocalTargetFileResourceManager localTargetFileResourceManager = LocalTargetFileResourceManager.getInstance();
 		
 		OutputMessage outObj = messageManger.createOutputMessage("UpFileDataResult");
+		outObj.messageHeaderInfo.mailboxID = CommonStaticFinal.SERVER_MAILBOX_ID;
+		outObj.messageHeaderInfo.mailID = clientResourceManager.getClientResource(fromSC).getServerMailID();
 		
+		int clientSourceFileID = (Integer)inObj.getAttribute("clientSourceFileID");
 		int serverTargetFileID = (Integer)inObj.getAttribute("serverTargetFileID");
 		int fileBlockNo = (Integer)inObj.getAttribute("fileBlockNo");
 		byte[] fileData = (byte[])inObj.getAttribute("fileData");
@@ -59,32 +57,25 @@ public class UpFileData2SExtor extends AbstractAuthServerExecutor {
 		// FIXME!
 		// log.info(inObj.toString());
 		
+		outObj.setAttribute("clientSourceFileID", clientSourceFileID);
+		outObj.setAttribute("serverTargetFileID", serverTargetFileID);
+		outObj.setAttribute("fileBlockNo", fileBlockNo);
+		
 		LocalTargetFileResource localTargetFileResource = localTargetFileResourceManager.getLocalTargetFileResource(serverTargetFileID);
 		
 		if (null == localTargetFileResource) {
 			log.info(String.format("serverTargetFileID[%d] 업로드 파일을 받을 자원이 준비되지 않았습니다.", serverTargetFileID));
 			
-			outObj.messageHeaderInfo.mailboxID = CommonStaticFinal.SERVER_MAILBOX_ID;
-			outObj.messageHeaderInfo.mailID = clientResourceManager.getClientResource(fromSC).getServerMailID();
+			
 			outObj.setAttribute("taskResult", "N");
 			outObj.setAttribute("resultMessage", "서버에서 업로드 파일을 받을 자원이 준비되지 않았습니다.");
-			outObj.setAttribute("serverTargetFileID", serverTargetFileID);
 			
-			try {
-				ouputMessageQueue.put(new LetterToClient(fromSC, outObj));
-			} catch (InterruptedException e) {
-				try {
-					ouputMessageQueue.put(new LetterToClient(fromSC, outObj));
-				} catch (InterruptedException e1) {
-					log.fatal("InterruptedException", e1);
-					System.exit(1);
-				}
-				
-			}
 			
-			// letterToClientList.addLetterToClient(fromSC, outObj);
+			sendAnonymous(fromSC, outObj);
 			return;
 		}
+		
+		
 		
 		boolean isCompletedWritingFile = false; 
 		try {
@@ -100,48 +91,25 @@ public class UpFileData2SExtor extends AbstractAuthServerExecutor {
 			ClientResource clientResource = clientResourceManager.getClientResource(fromSC);
 			clientResource.removeLocalTargetFileID(serverTargetFileID);
 			
-			outObj.messageHeaderInfo.mailboxID = CommonStaticFinal.SERVER_MAILBOX_ID;
-			outObj.messageHeaderInfo.mailID = clientResource.getServerMailID();
-			outObj.setAttribute("taskResult", "N");
-			outObj.setAttribute("resultMessage", "서버::"+e.getMessage());
-			outObj.setAttribute("serverTargetFileID", serverTargetFileID);
 			
-			try {
-				ouputMessageQueue.put(new LetterToClient(fromSC, outObj));
-			} catch (InterruptedException e1) {
-				try {
-					ouputMessageQueue.put(new LetterToClient(fromSC, outObj));
-				} catch (InterruptedException e2) {
-					log.fatal("InterruptedException", e2);
-					System.exit(1);
-				}
-			}			
-			// letterToClientList.addLetterToClient(fromSC, outObj);
+			outObj.setAttribute("taskResult", "N");
+			
+			outObj.setAttribute("resultMessage", new StringBuilder("서버 IllegalArgumentException::").append(e.getMessage()).toString());
+			
+			
+			sendAnonymous(fromSC, outObj);
 			return;
 		} catch (UpDownFileException e) {
 			log.info(String.format("serverTargetFileID[%d] lock free::%s", serverTargetFileID, e.getMessage()), e);
 			
 			ClientResource clientResource = clientResourceManager.getClientResource(fromSC);
 			clientResource.removeLocalTargetFileID(serverTargetFileID);
-			
-			outObj.messageHeaderInfo.mailboxID = CommonStaticFinal.SERVER_MAILBOX_ID;
-			outObj.messageHeaderInfo.mailID = clientResource.getServerMailID();
+						
 			outObj.setAttribute("taskResult", "N");
-			outObj.setAttribute("resultMessage", "서버::"+e.getMessage());
-			outObj.setAttribute("serverTargetFileID", serverTargetFileID);
+			outObj.setAttribute("resultMessage", new StringBuilder("서버::").append(e.getMessage()).toString());
 			
-			try {
-				ouputMessageQueue.put(new LetterToClient(fromSC, outObj));
-			} catch (InterruptedException e1) {
-				try {
-					ouputMessageQueue.put(new LetterToClient(fromSC, outObj));
-				} catch (InterruptedException e2) {
-					log.fatal("InterruptedException", e2);
-					System.exit(1);
-				}
-				
-			}
-			// letterToClientList.addLetterToClient(fromSC, outObj);
+			
+			sendAnonymous(fromSC, outObj);
 			return;
 		}
 	}

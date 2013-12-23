@@ -342,76 +342,85 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 		
 		boolean isInterrupted = false;
 		
-		try {
+		/**
+		 * <pre>
+		 * 공유+비동기 연결 객체를 직접 받을 수 없기때문에 동시 사용이 불가능 하므로 synchronized (mailbox) 를 걸어줄 필요 없지만,
+		 * 비공유+비동기 연결 객체는 직접 받을 수 있기때문에 동시 사용 가능이 가능하므로 synchronized (mailbox) 를 걸어주어야 한다.
+		 * 
+		 * 공유+비동기 연결 객체인 이곳에서 불필요한 synchronized (mailbox) 를 걸어준 이유는 비공유+비동기 연결 객체와 맞추기 위함이다.
+		 * </pre>
+		 */
+		synchronized (mailbox) {
 			try {
-				mailbox = PrivateMailboxWaitingQueue.take();
-				
-				
-			} catch (InterruptedException e) {
 				try {
 					mailbox = PrivateMailboxWaitingQueue.take();
-				} catch (InterruptedException e1) {
-					log.fatal("인터럽트 받아 후속 처리중 발생", e1);
-					System.exit(1);
-				}
-				isInterrupted = true;
-			}
-			mailbox.setActive();
-			mailboxID = mailbox.getMailboxID();
-			hashActiveMailBox.put(mailboxID, mailbox);
-			
-			LetterToServer letterToServer = new LetterToServer(this, inObj);
-			try {
-				mailbox.putInputMessage(letterToServer);
-			} catch (InterruptedException e) {
-				isInterrupted = true;
-				try {
-					mailbox.putInputMessage(letterToServer);
-				} catch (InterruptedException e1) {
-					log.fatal("인터럽트 받아 후속 처리중 발생", e);
-					System.exit(1);
-				}
-			}
-			
-			OutputMessage workOutObj = null;
-			
-			try {				
-				workOutObj = mailbox.takeOutputMessage();
-				
-				letterFromServer = new LetterFromServer(workOutObj);
-			} catch(InterruptedException e) {
-				/** 인터럽트 발생시 메소드 끝가지 로직 수행후 인터럽트 상태를 복귀 시켜 최종 인터럽트 처리를 마무리 하도록 유도 */					
-				if (isInterrupted) {
-					log.fatal("인터럽트 받아 후속 처리중 발생", e);
-					System.exit(1);
-				} else {
+					
+					
+				} catch (InterruptedException e) {
 					try {
-						workOutObj = mailbox.takeOutputMessage();
-					} catch(InterruptedException e1) {
+						mailbox = PrivateMailboxWaitingQueue.take();
+					} catch (InterruptedException e1) {
 						log.fatal("인터럽트 받아 후속 처리중 발생", e1);
 						System.exit(1);
 					}
 					isInterrupted = true;
 				}
-			}	
-			
-			
-		} finally {
-			if (null != mailbox) {
-				hashActiveMailBox.remove(mailboxID);
-				mailbox.setDisable();
-				/**
-				 * InterruptedException 를 발생시키지 않는 offer 메소드 사용. 개인 메일함
-				 * 큐(=PrivateMailboxWaitingQueue) 는 메일함의 갯수를 고정으로 갖으며, 그것을 넘어서는
-				 * 메일함을 가질 이유는 없다. 단, 2번이상 넣기 시도등 큐에 2개 이상 중복되는 경우에 오동작을 한다. 하지만
-				 * 큐에 대한 사용자 개입을 원천적으로 차단되어 2개이상 중복하여 큐에 들어갈 일은 없다.
-				 */
-				PrivateMailboxWaitingQueue.offer(mailbox);
+				mailbox.setActive();
+				mailboxID = mailbox.getMailboxID();
+				hashActiveMailBox.put(mailboxID, mailbox);
+				
+				LetterToServer letterToServer = new LetterToServer(this, inObj);
+				try {
+					mailbox.putInputMessage(letterToServer);
+				} catch (InterruptedException e) {
+					isInterrupted = true;
+					try {
+						mailbox.putInputMessage(letterToServer);
+					} catch (InterruptedException e1) {
+						log.fatal("인터럽트 받아 후속 처리중 발생", e);
+						System.exit(1);
+					}
+				}
+				
+				OutputMessage workOutObj = null;
+				
+				try {				
+					workOutObj = mailbox.takeOutputMessage();
+					
+					letterFromServer = new LetterFromServer(workOutObj);
+				} catch(InterruptedException e) {
+					/** 인터럽트 발생시 메소드 끝가지 로직 수행후 인터럽트 상태를 복귀 시켜 최종 인터럽트 처리를 마무리 하도록 유도 */					
+					if (isInterrupted) {
+						log.fatal("인터럽트 받아 후속 처리중 발생", e);
+						System.exit(1);
+					} else {
+						try {
+							workOutObj = mailbox.takeOutputMessage();
+						} catch(InterruptedException e1) {
+							log.fatal("인터럽트 받아 후속 처리중 발생", e1);
+							System.exit(1);
+						}
+						isInterrupted = true;
+					}
+				}	
+				
+				
+			} finally {
+				if (null != mailbox) {
+					hashActiveMailBox.remove(mailboxID);
+					mailbox.setDisable();
+					/**
+					 * InterruptedException 를 발생시키지 않는 offer 메소드 사용. 개인 메일함
+					 * 큐(=PrivateMailboxWaitingQueue) 는 메일함의 갯수를 고정으로 갖으며, 그것을 넘어서는
+					 * 메일함을 가질 이유는 없다. 단, 2번이상 넣기 시도등 큐에 2개 이상 중복되는 경우에 오동작을 한다. 하지만
+					 * 큐에 대한 사용자 개입을 원천적으로 차단되어 2개이상 중복하여 큐에 들어갈 일은 없다.
+					 */
+					PrivateMailboxWaitingQueue.offer(mailbox);
+				}
+				
+				if (isInterrupted) Thread.currentThread().interrupt();
 			}
-			
-			if (isInterrupted) Thread.currentThread().interrupt();
 		}
-
 		endTime = new java.util.Date().getTime();
 		log.info(String.format("sendInputMessage 시간차=[%d]", (endTime - startTime)));
 		
@@ -437,56 +446,55 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 		}
 
 		PrivateMailbox mailbox = null;
-		int mailboxID = -1;
-		
-		
+		int mailboxID = -1;		
 		boolean isInterrupted = false;
 		
 		try {
+			mailbox = PrivateMailboxWaitingQueue.take();
+		} catch (InterruptedException e) {
 			try {
 				mailbox = PrivateMailboxWaitingQueue.take();
-				
-				
-			} catch (InterruptedException e) {
-				try {
-					mailbox = PrivateMailboxWaitingQueue.take();
-				} catch (InterruptedException e1) {
-					log.fatal("인터럽트 받아 후속 처리중 발생", e1);
-					System.exit(1);
-				}
-				isInterrupted = true;
+			} catch (InterruptedException e1) {
+				log.fatal("인터럽트 받아 후속 처리중 발생", e1);
+				System.exit(1);
 			}
-			mailbox.setActive();
-			mailboxID = mailbox.getMailboxID();
-			hashActiveMailBox.put(mailboxID, mailbox);
-			
-			LetterToServer letterToServer = new LetterToServer(this, inObj);
+			isInterrupted = true;
+		}
+		
+		synchronized (mailbox) {
 			try {
-				mailbox.putInputMessage(letterToServer);
-			} catch (InterruptedException e) {
-				isInterrupted = true;
+				mailbox.setActive();
+				mailboxID = mailbox.getMailboxID();
+				hashActiveMailBox.put(mailboxID, mailbox);
+				
+				LetterToServer letterToServer = new LetterToServer(this, inObj);
 				try {
 					mailbox.putInputMessage(letterToServer);
-				} catch (InterruptedException e1) {
-					log.fatal("인터럽트 받아 후속 처리중 발생", e);
-					System.exit(1);
+				} catch (InterruptedException e) {
+					isInterrupted = true;
+					try {
+						mailbox.putInputMessage(letterToServer);
+					} catch (InterruptedException e1) {
+						log.fatal("인터럽트 받아 후속 처리중 발생", e);
+						System.exit(1);
+					}
 				}
+				
+			} finally {
+				if (null != mailbox) {
+					hashActiveMailBox.remove(mailboxID);
+					mailbox.setDisable();
+					/**
+					 * InterruptedException 를 발생시키지 않는 offer 메소드 사용. 개인 메일함
+					 * 큐(=PrivateMailboxWaitingQueue) 는 메일함의 갯수를 고정으로 갖으며, 그것을 넘어서는
+					 * 메일함을 가질 이유는 없다. 단, 2번이상 넣기 시도등 큐에 2개 이상 중복되는 경우에 오동작을 한다. 하지만
+					 * 큐에 대한 사용자 개입을 원천적으로 차단되어 2개이상 중복하여 큐에 들어갈 일은 없다.
+					 */
+					PrivateMailboxWaitingQueue.offer(mailbox);
+				}
+				
+				if (isInterrupted) Thread.currentThread().interrupt();
 			}
-			
-		} finally {
-			if (null != mailbox) {
-				hashActiveMailBox.remove(mailboxID);
-				mailbox.setDisable();
-				/**
-				 * InterruptedException 를 발생시키지 않는 offer 메소드 사용. 개인 메일함
-				 * 큐(=PrivateMailboxWaitingQueue) 는 메일함의 갯수를 고정으로 갖으며, 그것을 넘어서는
-				 * 메일함을 가질 이유는 없다. 단, 2번이상 넣기 시도등 큐에 2개 이상 중복되는 경우에 오동작을 한다. 하지만
-				 * 큐에 대한 사용자 개입을 원천적으로 차단되어 2개이상 중복하여 큐에 들어갈 일은 없다.
-				 */
-				PrivateMailboxWaitingQueue.offer(mailbox);
-			}
-			
-			if (isInterrupted) Thread.currentThread().interrupt();
 		}
 
 		endTime = new java.util.Date().getTime();

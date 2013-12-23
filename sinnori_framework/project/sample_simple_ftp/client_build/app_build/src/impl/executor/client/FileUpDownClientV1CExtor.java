@@ -51,12 +51,14 @@ import kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager;
 import kr.pe.sinnori.common.sessionkey.SymmetricKey;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResource;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResourceManager;
-import kr.pe.sinnori.gui.lib.FileTransferTaskIF;
+import kr.pe.sinnori.common.updownfile.LocalTargetFileResource;
+import kr.pe.sinnori.common.updownfile.LocalTargetFileResourceManager;
 import kr.pe.sinnori.gui.lib.MainControllerIF;
-import kr.pe.sinnori.gui.lib.UploadFileTransferTask;
 import kr.pe.sinnori.gui.screen.ConnectionScreen;
 import kr.pe.sinnori.gui.screen.FileTranferProcessDialog;
 import kr.pe.sinnori.gui.screen.FileUpDownScreen;
+import kr.pe.sinnori.gui.screen.fileupdownscreen.task.DownloadFileTransferTask;
+import kr.pe.sinnori.gui.screen.fileupdownscreen.task.UploadFileTransferTask;
 import kr.pe.sinnori.util.AbstractClientExecutor;
 
 import org.apache.commons.codec.binary.Base64;
@@ -85,6 +87,10 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	
 	private LocalSourceFileResourceManager localSourceFileResourceManager = LocalSourceFileResourceManager.getInstance();
 	private LocalSourceFileResource localSourceFileResource = null;
+	
+	
+	private LocalTargetFileResourceManager  localTargetFileResourceManager = LocalTargetFileResourceManager.getInstance();
+	private LocalTargetFileResource localTargetFileResource = null;
 	
 	/**
 	 * Initialize the contents of the frame.
@@ -140,10 +146,12 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		});
 	}
 	
+	@Override
 	public int getFileBlockSize() {
 		return (1024*40);
 	}
 	
+	@Override
 	public void loginOK() {
 		fileUpDownScreen = new FileUpDownScreen(mainFrame, this);
 		
@@ -159,10 +167,38 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		fileUpDownScreen.setVisible(true);
 	}
 	
+	@Override
 	public byte[] connectServer(String host, int port) {
 		commonProjectInfo.serverHost = host;
 		commonProjectInfo.serverPort = port;
 		
+		OutputMessage binaryPublicKeyOutObj = getBinaryPublicKey();
+		if (null == binaryPublicKeyOutObj) return null;
+		try {
+			binaryPublicKeyBytes = (byte[])binaryPublicKeyOutObj.getAttribute("publicKeyBytes");
+		} catch (MessageItemException e) {
+			log.warn("MessageItemException", e);
+			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+			return null;
+		}
+		
+		try {
+			clientSessionKeyManager = new ClientSessionKeyManager(binaryPublicKeyBytes);
+		} catch (IllegalArgumentException e) {
+			log.warn("MessageInfoNotFoundException", e);
+			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+			return null;
+		} catch (SymmetricException e) {
+			log.warn("MessageInfoNotFoundException", e);
+			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+			return null;
+		}
+		
+		return binaryPublicKeyBytes;
+	}
+	
+	@Override
+	public OutputMessage getBinaryPublicKey() {
 		InputMessage binaryPublicKeyInObj = null;
 		
 		try {
@@ -213,10 +249,11 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 			return null;
 		}
 		
+		OutputMessage binaryPublicKeyOutObj = null;
 		
 		try {
-			OutputMessage binaryPublicKeyOutObj = letterFromServer.getOutputMessage("BinaryPublicKey");
-			binaryPublicKeyBytes = (byte[])binaryPublicKeyOutObj.getAttribute("publicKeyBytes");
+			binaryPublicKeyOutObj = letterFromServer.getOutputMessage("BinaryPublicKey");
+			// binaryPublicKeyBytes = (byte[])binaryPublicKeyOutObj.getAttribute("publicKeyBytes");
 			
 		} catch (IllegalArgumentException e) {
 			log.warn("IllegalArgumentException", e);
@@ -255,24 +292,11 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
 			return null;
 		}
-
 		
-		try {
-			clientSessionKeyManager = new ClientSessionKeyManager(binaryPublicKeyBytes);
-		} catch (IllegalArgumentException e) {
-			log.warn("MessageInfoNotFoundException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (SymmetricException e) {
-			log.warn("MessageInfoNotFoundException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		}
-		
-		return binaryPublicKeyBytes;
+		return binaryPublicKeyOutObj;
 	}
 	
-	
+	@Override
 	public boolean login(String id, String pwd) {
 		// FIXME!
 		log.info(String.format("id=[%s], pwd=[%s]", id, pwd));
@@ -452,6 +476,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		return true;
 	}
 	
+	@Override
 	public OutputMessage getRemoteFileList(String requestDirectory) {
 		InputMessage fileListInObj = null;
 		
@@ -559,7 +584,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		return fileListResultOutObj;
 	}
 	
-	
+	@Override
 	public OutputMessage readyUploadFile(String localFilePathName, String localFileName, long localFileSize, 
 			String remoteFilePathName, String remoteFileName, int fileBlockSize) {
 		try {
@@ -585,7 +610,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		
 		try {
 			inObj = messageManger.createInputMessage("UpFileInfo");
-		} catch (IllegalArgumentException e) {
+		} catch (IllegalArgumentException e) {			
 			log.warn("IllegalArgumentException", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
 			return null;
@@ -594,10 +619,9 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
 			return null;
 		}
-			
-		
 		
 		try {
+			inObj.setAttribute("clientSourceFileID", localSourceFileResource.getSourceFileID());
 			inObj.setAttribute("localFilePathName", localFilePathName);
 			inObj.setAttribute("localFileName", localFileName);
 			inObj.setAttribute("localFileSize", localFileSize);
@@ -642,6 +666,8 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		} catch (MessageInfoNotFoundException e) {
 			log.warn("MessageInfoNotFoundException", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+			
+			localSourceFileResourceManager.putLocalSourceFileResource(localSourceFileResource);
 			return null;
 		}
 		
@@ -651,12 +677,27 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 			
 			String taskResult = (String)outObj.getAttribute("taskResult");
 			String resultMessage = (String)outObj.getAttribute("resultMessage");
-			// int serverTargetFileID = (Integer)outObj.getAttribute("serverTargetFileID");
+			int serverTargetFileID = (Integer)outObj.getAttribute("serverTargetFileID");
+			int clientSourceFileID = (Integer)outObj.getAttribute("clientSourceFileID");
 			
 			if (taskResult.equals("N")) {
+				// localSourceFileResource
+				
 				JOptionPane.showMessageDialog(mainFrame, resultMessage);
 				return null;
 			}
+			
+			int workingClientSourceFileID = localSourceFileResource.getSourceFileID();
+			
+			if (clientSourceFileID != workingClientSourceFileID) {
+				String errorMessage = String.format("서버 clientSourceFileID[%d] 와 클라이언트 clientSourceFileID[%d] 불일치", clientSourceFileID, workingClientSourceFileID);
+				log.warn(errorMessage);				
+				JOptionPane.showMessageDialog(mainFrame, errorMessage);
+				return null;
+			}
+			
+			localSourceFileResource.setTargetFileID(serverTargetFileID);
+			
 		} catch (IllegalArgumentException e) {
 			log.warn("IllegalArgumentException", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
@@ -698,7 +739,54 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		return outObj;
 	}
 	
+	@Override
+	public void freeLocalSourceFileResource() {
+		if (null != localSourceFileResource) {
+			localSourceFileResourceManager.putLocalSourceFileResource(localSourceFileResource);
+			localSourceFileResource = null;
+		}
+	}
+	
+	@Override
+	public void openUploadProcessDialog(int serverTargetFileID, String mesg, long fileSize) {
+		localSourceFileResource.setTargetFileID(serverTargetFileID);
+		
+		UploadFileTransferTask uploadFileTransferTask = new UploadFileTransferTask(mainFrame, this, serverTargetFileID, localSourceFileResource);
+		
+		// fileUpDownScreen.setIsCanceledUpDownFileTransfer(false);
+		fileProcessDialog = new FileTranferProcessDialog(this, mainFrame, mesg, fileSize, uploadFileTransferTask);
+		fileProcessDialog.setVisible(true);
+		fileProcessDialog.setDefaultCloseOperation(
+			    JDialog.DO_NOTHING_ON_CLOSE);
+		fileProcessDialog.addWindowListener(new WindowAdapter() {
+			    public void windowClosing(WindowEvent we) {
+			    	// fileProcessDialog.cancelTask();
+			    	localSourceFileResource.cancel();
+			    }
+			});		
+	}
+	
+	@Override
+	public void endUploadTask() {
+		// FIXME!
+		log.info("call");
+		
+		if (null != localSourceFileResource) {
+			/** localSourceFileResource 를 null 만들기 전에 파일 업로드 진행 모달 윈도우를 가장 먼저 닫아야 한다. */
+			fileProcessDialog.dispose();
+			localSourceFileResourceManager.putLocalSourceFileResource(localSourceFileResource);
+			localSourceFileResource = null;
+			fileUpDownScreen.reloadRemoteFileList();
+		}
+	}
+	
+	@Override
 	public OutputMessage doUploadFile(int serverTargetFileID, int fileBlockNo, byte[] fileData) {
+		if (null == localSourceFileResource) {
+			log.warn("localSourceFileResource is null");
+			return null;
+		}
+		
 		InputMessage inObj = null;
 		
 		try {
@@ -715,6 +803,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		
 		
 		try {
+			inObj.setAttribute("clientSourceFileID", localSourceFileResource.getSourceFileID());
 			inObj.setAttribute("serverTargetFileID", serverTargetFileID);
 			inObj.setAttribute("fileBlockNo", fileBlockNo);
 			inObj.setAttribute("fileData", fileData);
@@ -814,8 +903,29 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		return outObj;
 	}
 	
+	// FIXME!
+	@Override
 	public OutputMessage readyDownloadFile(String localFilePathName, String localFileName, 
-			String remoteFilePathName, String remoteFileName, long remoteFileSize, int clientTargetFileID, int fileBlockSize) {
+			String remoteFilePathName, String remoteFileName, long remoteFileSize, int fileBlockSize) {
+	
+		try {
+			localTargetFileResource = localTargetFileResourceManager.pollLocalTargetFileResource(remoteFilePathName, remoteFileName, remoteFileSize, localFilePathName, localFileName, fileBlockSize);
+		} catch (IllegalArgumentException e1) {
+			JOptionPane.showMessageDialog(mainFrame, e1.toString());
+			return null;
+		} catch (UpDownFileException e1) {
+			JOptionPane.showMessageDialog(mainFrame, e1.toString());
+			return null;
+		}
+		
+		if (null == localTargetFileResource) {
+			JOptionPane.showMessageDialog(mainFrame, "큐로부터 목적지 파일 자원 할당에 실패하였습니다.");
+			return null;
+		}
+		
+		int clientTargetFileID = localTargetFileResource.getTargetFileID();
+		
+		
 		InputMessage inObj = null;
 		
 		try {
@@ -883,14 +993,19 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		try {
 			outObj = letterFromServer.getOutputMessage("DownFileInfoResult");
 			
+			// FIXME!
+			log.info(outObj.toString());
+			
 			String taskResult = (String)outObj.getAttribute("taskResult");
 			String resultMessage = (String)outObj.getAttribute("resultMessage");
-			// int serverTargetFileID = (Integer)outObj.getAttribute("serverTargetFileID");
+			int serverSourceFileID = (Integer)outObj.getAttribute("serverSourceFileID");
 			
 			if (taskResult.equals("N")) {
 				JOptionPane.showMessageDialog(mainFrame, resultMessage);
 				return null;
 			}
+			
+			localTargetFileResource.setSourceFileID(serverSourceFileID);
 		} catch (IllegalArgumentException e) {
 			log.warn("IllegalArgumentException", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
@@ -932,7 +1047,51 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		return outObj;
 	}
 	
+	@Override
+	public void freeLocalTargetFileResource() {
+		if (null != localTargetFileResource) {
+			localTargetFileResourceManager.putLocalTargetFileResource(localTargetFileResource);
+			localTargetFileResource = null;
+		}
+	}
+	
+	@Override
+	public void openDownloadProcessDialog(int serverSourceFileID, String mesg, long fileSize) {
+		localTargetFileResource.setSourceFileID(serverSourceFileID);
+		
+		DownloadFileTransferTask downloadFileTransferTask = new DownloadFileTransferTask(mainFrame, this, serverSourceFileID, localTargetFileResource);
+		
+		fileProcessDialog = new FileTranferProcessDialog(this, mainFrame, mesg, fileSize, downloadFileTransferTask);
+		fileProcessDialog.setVisible(true);
+		fileProcessDialog.setDefaultCloseOperation(
+			    JDialog.DO_NOTHING_ON_CLOSE);
+		fileProcessDialog.addWindowListener(new WindowAdapter() {
+			    public void windowClosing(WindowEvent we) {
+			    	// fileProcessDialog.cancelTask();
+			    	localTargetFileResource.cancel();
+			    }
+			});
+		
+	}
+	
+	@Override
+	public void endDownloadTask() {
+		if (null != localTargetFileResource) {
+			/** localTargetFileResource 를 null 만들기 전에 파일 다운로드 진행 모달 윈도우를 가장 먼저 닫아야 한다. */
+			fileProcessDialog.dispose();
+			localTargetFileResourceManager.putLocalTargetFileResource(localTargetFileResource);
+			localTargetFileResource = null;
+			fileUpDownScreen.reloadLocalFileList();
+		}
+	}
+	
+	@Override
 	public OutputMessage doDownloadFile(int serverSourceFileID, int fileBlockNo) {
+		if (null == localTargetFileResource) {
+			log.warn("localTargetFileResource is null");
+			return null;
+		}
+		
 		InputMessage inObj = null;
 		
 		try {
@@ -950,6 +1109,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		
 		try {
 			inObj.setAttribute("serverSourceFileID", serverSourceFileID);
+			inObj.setAttribute("clientTargetFileID", localTargetFileResource.getTargetFileID());
 			inObj.setAttribute("fileBlockNo", fileBlockNo);
 		} catch (MessageItemException e) {
 			log.warn("MessageItemException", e);
@@ -1044,27 +1204,18 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		return outObj;
 	}
 	
-	public void openFileTransferProcessDialog(String mesg, long fileSize, FileTransferTaskIF fileTransferTask) {
-		// fileUpDownScreen.setIsCanceledUpDownFileTransfer(false);
-		fileProcessDialog = new FileTranferProcessDialog(mainFrame, mesg, fileSize, fileTransferTask);
-		fileProcessDialog.setVisible(true);
-		fileProcessDialog.setDefaultCloseOperation(
-			    JDialog.DO_NOTHING_ON_CLOSE);
-		fileProcessDialog.addWindowListener(new WindowAdapter() {
-			    public void windowClosing(WindowEvent we) {
-			    	fileProcessDialog.cancelTask();
-			    }
-			});
-	}
-	
+	/*
 	public void noticeAddingFileDataToFileTransferProcessDialog(int receivedDataSize) {
 		if (null == fileProcessDialog) return;
 		
 		fileProcessDialog.noticeAddingFileData(receivedDataSize);	
 	}
+	*/
 	
-	
-	public OutputMessage cancelUploadFile(int serverTargetFileID) {
+	@Override
+	public OutputMessage cancelUploadFile() {
+		int serverTargetFileID = localSourceFileResource.getTargetFileID();
+		
 		InputMessage inObj = null;
 		
 		try {
@@ -1080,6 +1231,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		}
 		
 		try {
+			inObj.setAttribute("clientSourceFileID", localSourceFileResource.getSourceFileID());
 			inObj.setAttribute("serverTargetFileID", serverTargetFileID);
 		} catch (MessageItemException e) {
 			log.warn("MessageItemException", e);
@@ -1173,7 +1325,10 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		return outObj;
 	}
 	
-	public OutputMessage cancelDownloadFile(int serverSourceFileID) {
+	@Override
+	public OutputMessage cancelDownloadFile() {
+		int serverSourceFileID = localTargetFileResource.getSourceFileID();
+		
 		InputMessage inObj = null;
 		
 		try {
@@ -1188,8 +1343,9 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 			return null;
 		}
 		
-		try {
+		try {			
 			inObj.setAttribute("serverSourceFileID", serverSourceFileID);
+			inObj.setAttribute("clientTargetFileID", localTargetFileResource.getSourceFileID());
 		} catch (MessageItemException e) {
 			log.warn("MessageItemException", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
@@ -1286,39 +1442,12 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	public void doAnonymousServerMessageTask(String projectName, OutputMessage outObj) {
 		log.info(outObj.toString());;
 	}
-
-
-	/* (non-Javadoc)
-	 * @see kr.pe.sinnori.gui.lib.MainControllerIF#openUploadProcessDialog(int, java.lang.String, long)
-	 */
+	
 	@Override
-	public void openUploadProcessDialog(int serverTargetFileID, String mesg,
-			long fileSize) {
-		UploadFileTransferTask uploadFileTransferTask = new UploadFileTransferTask(mainFrame, this, serverTargetFileID, localSourceFileResource);
-		
-		// fileUpDownScreen.setIsCanceledUpDownFileTransfer(false);
-		fileProcessDialog = new FileTranferProcessDialog(mainFrame, mesg, fileSize, uploadFileTransferTask);
-		fileProcessDialog.setVisible(true);
-		fileProcessDialog.setDefaultCloseOperation(
-			    JDialog.DO_NOTHING_ON_CLOSE);
-		fileProcessDialog.addWindowListener(new WindowAdapter() {
-			    public void windowClosing(WindowEvent we) {
-			    	fileProcessDialog.cancelTask();
-			    }
-			});
-		
-	}
-
-
-	/* (non-Javadoc)
-	 * @see kr.pe.sinnori.gui.lib.MainControllerIF#endUploadTask()
-	 */
-	@Override
-	public void endUploadTask() {
-		if (null != localSourceFileResource) {
-			localSourceFileResourceManager.putLocalSourceFileResource(localSourceFileResource);
-			localSourceFileResource = null;
-			fileUpDownScreen.reloadRemoteFileList();
-		}
-	}
+	public OutputMessage doDownloadFileAll() {
+		/**
+		 * 파일 송수신 버전 2차 전용 기능
+		 */
+		return null;
+	}	
 }

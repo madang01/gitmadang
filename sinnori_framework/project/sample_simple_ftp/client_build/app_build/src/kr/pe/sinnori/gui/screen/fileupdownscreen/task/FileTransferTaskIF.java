@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package kr.pe.sinnori.gui.lib;
+package kr.pe.sinnori.gui.screen.fileupdownscreen.task;
 
 import kr.pe.sinnori.gui.screen.FileTranferProcessDialog;
 
@@ -43,8 +43,14 @@ public interface FileTransferTaskIF {
 	 * @param fileTranferProcessDialog 파일 송수신 상태를 보여주는 모달 윈도우
 	 */
 	public void setFileTranferProcessDialog(FileTranferProcessDialog fileTranferProcessDialog);
+
 	/**
-	 * 파일 송수신 상태를 보여주는 모달 윈도우 에서 사용자가 송수신을 취소한 경우 호출된다.
+	 * 파일 송수신 작업 취소를 요청한다. 
 	 */
 	public void cancelTask();
+	
+	/**
+	 * 파일 송수신 작업이 끝났을 경우 호출되는 메소드
+	 */
+	public void endTask();
 }

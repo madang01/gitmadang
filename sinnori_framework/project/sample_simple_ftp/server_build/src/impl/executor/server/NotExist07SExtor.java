@@ -18,7 +18,6 @@
 package impl.executor.server;
 
 import java.nio.channels.SocketChannel;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
@@ -27,8 +26,6 @@ import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.executor.AbstractServerExecutor;
-import kr.pe.sinnori.server.io.LetterListToClient;
-import kr.pe.sinnori.server.io.LetterToClient;
 
 /**
  * 메세지 식별자 NotExist07 비지니스 로직
@@ -40,9 +37,7 @@ public final class NotExist07SExtor extends AbstractServerExecutor {
 
 	@Override
 	protected void doTask(SocketChannel fromSC, InputMessage inObj,
-			LetterListToClient letterToClientList,
-			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
-			MessageMangerIF messageManger,
+			MessageMangerIF messageManger,			
 			ClientResourceManagerIF clientResourceManager)
 			throws MessageInfoNotFoundException, MessageItemException {
 
@@ -50,7 +45,7 @@ public final class NotExist07SExtor extends AbstractServerExecutor {
 		String mCase = (String) inObj.getAttribute("mCase");
 		outObj.setAttribute("mCase", mCase);
 
-		letterToClientList.addLetterToClient(fromSC, outObj);
+		sendSelf(outObj);
 	}
 
 }

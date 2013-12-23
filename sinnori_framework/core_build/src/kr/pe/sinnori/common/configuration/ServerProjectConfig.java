@@ -19,6 +19,8 @@ package kr.pe.sinnori.common.configuration;
 
 import java.io.File;
 import java.util.Properties;
+import java.util.StringTokenizer;
+import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
@@ -68,6 +70,8 @@ public class ServerProjectConfig {
 	
 	private int dataPacketBufferCnt;
 	
+	private TreeSet<String> anonymousExceptionInputMessageSet = new TreeSet<String>();
+	
 
 	/**
 	 * <pre>
@@ -115,7 +119,7 @@ public class ServerProjectConfig {
 				System.exit(1);
 			}
 		}
-		this.log.info(String.format("%s::prop value[%s], new value[%s]", propKey, propValue, maxClients));
+		log.info(String.format("%s::prop value[%s], new value[%s]", propKey, propValue, maxClients));
 		
 		
 		/******** 서버 비지니스 로직 시작 **********/
@@ -191,7 +195,7 @@ public class ServerProjectConfig {
 				System.exit(1);
 			}
 		}
-		this.log.info(String.format("%s::prop value[%s], new value[%d]", propKey, propValue, monitorClientRequestChecktime));
+		log.info(String.format("%s::prop value[%s], new value[%d]", propKey, propValue, monitorClientRequestChecktime));
 		
 		
 		propKey = getKeyName("monitor.client.request.timeout");
@@ -216,7 +220,7 @@ public class ServerProjectConfig {
 			System.exit(1);
 		}
 		
-		this.log.info(String.format("%s::prop value[%s], new value[%d]", propKey, propValue, monitorClientRequestTimeout));
+		log.info(String.format("%s::prop value[%s], new value[%d]", propKey, propValue, monitorClientRequestTimeout));
 		/******** 서버 프로젝트 모니터 종료 **********/
 		
 		
@@ -237,7 +241,7 @@ public class ServerProjectConfig {
 				System.exit(1);
 			}
 		}
-		this.log.info(String.format("%s::prop value[%s], new value[%s]", propKey, propValue, acceptSelectorTimeout));
+		log.info(String.format("%s::prop value[%s], new value[%s]", propKey, propValue, acceptSelectorTimeout));
 		
 		
 		propKey = getKeyName("pool.accept_processor.size");
@@ -257,7 +261,8 @@ public class ServerProjectConfig {
 				System.exit(1);
 			}
 		}
-		this.log.info(String.format("%s::prop value[%s], new value[%s]", propKey, propValue, acceptProcessorSize));
+		
+		log.info(String.format("%s::prop value[%s], new value[%s]", propKey, propValue, acceptProcessorSize));
 		
 		
 		propKey = getKeyName("pool.accept_processor.max_size");
@@ -281,7 +286,7 @@ public class ServerProjectConfig {
 				System.exit(1);
 			}
 		}
-		this.log.info(String.format("%s::prop value[%s], new value[%s]", propKey, propValue, acceptProcessorMaxSize));
+		log.info(String.format("%s::prop value[%s], new value[%s]", propKey, propValue, acceptProcessorMaxSize));
 		
 		propKey = getKeyName("pool.input_message_reader.size");
 		propValue = configFileProperties.getProperty(propKey);
@@ -300,7 +305,7 @@ public class ServerProjectConfig {
 				System.exit(1);
 			}
 		}
-		this.log.info(String.format("%s::prop value[%s], new value[%s]", propKey, propValue, inputMessageReaderSize));
+		log.info(String.format("%s::prop value[%s], new value[%s]", propKey, propValue, inputMessageReaderSize));
 		
 		
 		propKey = getKeyName("pool.input_message_reader.max_size");
@@ -485,8 +490,21 @@ public class ServerProjectConfig {
 				System.exit(1);
 			}
 		}
-		this.log.info(String.format("%s::prop value[%s], new value[%d]", propKey, propValue, outputMessageQueueSize));
+		log.info(String.format("%s::prop value[%s], new value[%d]", propKey, propValue, outputMessageQueueSize));
 		/***** 서버 비동기 입출력 지원용 자원 종료 *****/
+		
+		propKey = getKeyName("anonymous_exception_inputmessage_set");
+		propValue = configFileProperties.getProperty(propKey);
+		if (null == propValue) {
+			log.info(String.format("%s::prop value[%s], new value[%s]", propKey, propValue, "empty"));
+		} else {
+			StringTokenizer anonymousExceptionInputMessageToken = new StringTokenizer(propValue, ",");
+			while (anonymousExceptionInputMessageToken.hasMoreTokens()) {
+				String token = anonymousExceptionInputMessageToken.nextToken().trim();
+				anonymousExceptionInputMessageSet.add(token);
+			}
+			log.info(String.format("%s::prop value[%s], new value[%s]", propKey, propValue, anonymousExceptionInputMessageSet.toString()));
+		}
 		
 		/**
 		 * 데이터 패킷 버퍼 수, 설정 파일에서 지정할 수 없다. 공식에 의해서 자동적으로 값이 설정된다.
@@ -515,7 +533,7 @@ public class ServerProjectConfig {
 		
 		dataPacketBufferCnt += minBufferCnt;
 		
-		this.log.info(String.format("%s::prop value[%s], new value[%d], 시스템 필요 갯수[%d]", propKey, propValue, dataPacketBufferCnt, minBufferCnt));
+		log.info(String.format("%s::prop value[%s], new value[%d], 시스템 필요 갯수[%d]", propKey, propValue, dataPacketBufferCnt, minBufferCnt));
 	}
 
 	/**
@@ -673,6 +691,14 @@ public class ServerProjectConfig {
 	public long getMonitorClientRequestTimeout() {
 		return monitorClientRequestTimeout;
 	}
+	
+	/**
+	 * @return 설정파일에서 정의한 익명 예외 발생 시키는 메시지 목록
+	 */
+	public TreeSet<String> getAnonymousExceptionInputMessageSet() {
+		return anonymousExceptionInputMessageSet;
+	}
+	
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
@@ -724,12 +750,9 @@ public class ServerProjectConfig {
 		builder.append(outputMessageQueueSize);
 		builder.append(", dataPacketBufferCnt=");
 		builder.append(dataPacketBufferCnt);
+		builder.append(", anonymousExceptionInputMessageSet=");
+		builder.append(anonymousExceptionInputMessageSet.toString());
 		builder.append("]");
 		return builder.toString();
-	}
-
-	
-	
-	
-	
+	}	
 }

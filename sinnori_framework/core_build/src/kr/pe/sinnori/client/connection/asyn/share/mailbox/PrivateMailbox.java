@@ -123,19 +123,21 @@ public class PrivateMailbox implements CommonRootIF {
 	 */
 	public void putInputMessage(LetterToServer letterToServer)
 			throws InterruptedException, SocketTimeoutException {
-		InputMessage inputMessage = letterToServer.getInputMessage();
-		inputMessage.messageHeaderInfo.mailboxID = this.mailboxID;
-		inputMessage.messageHeaderInfo.mailID = this.mailID;
+		InputMessage inObj = letterToServer.getInputMessage();
+		inObj.messageHeaderInfo.mailboxID = this.mailboxID;
+		inObj.messageHeaderInfo.mailID = this.mailID;
+		inputMessageQueue.put(letterToServer);
+		/*
 		boolean result = inputMessageQueue.offer(letterToServer, socketTimeOut, TimeUnit.MILLISECONDS);
-		// inputMessageQueue.put(letterToServer);
 		if (!result) {
 			String errorMsg = String
-					.format("입력 메시지 큐 응답 시간[%d]이 초과되었습니다. serverConnection=[%s], mailboxID=[%d], mailID=[%d]",
+					.format("입력 메시지 큐 응답 시간[%d]이 초과되었습니다. serverConnection=[%s], inObj=[%s]",
 							socketTimeOut, serverConnection.getSimpleConnectionInfo(),
-							mailboxID, mailID);
+							inObj.toString());
 			log.warn(errorMsg);
 			throw new SocketTimeoutException(errorMsg);
 		}
+		*/
 	}
 
 	/**

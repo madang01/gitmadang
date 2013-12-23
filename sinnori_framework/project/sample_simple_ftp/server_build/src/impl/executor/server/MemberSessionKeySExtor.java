@@ -19,7 +19,6 @@ package impl.executor.server;
 
 import java.nio.channels.SocketChannel;
 import java.sql.SQLException;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
@@ -32,8 +31,6 @@ import kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager;
 import kr.pe.sinnori.common.sessionkey.SymmetricKey;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.executor.AbstractServerExecutor;
-import kr.pe.sinnori.server.io.LetterListToClient;
-import kr.pe.sinnori.server.io.LetterToClient;
 
 /**
  * 메세지 식별자 MemberSessionKey 비지니스 로직
@@ -46,9 +43,7 @@ public final class MemberSessionKeySExtor extends
 
 	@Override
 	protected void doTask(SocketChannel fromSC, InputMessage inObj,
-			LetterListToClient letterToClientList,
-			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
-			MessageMangerIF messageManger,
+			MessageMangerIF messageManger,			
 			ClientResourceManagerIF clientResourceManager)
 			throws MessageInfoNotFoundException, MessageItemException {
 
@@ -66,9 +61,9 @@ public final class MemberSessionKeySExtor extends
 				.getAttribute("answerCipherBase64");
 		// answerCipherBase64
 
-		OutputMessage outputMessage = messageManger.createOutputMessage("MessageResult");
+		OutputMessage outObj = messageManger.createOutputMessage("MessageResult");
 		// outputMessage.mMessageID = inObj.getMesgID();
-		outputMessage.setAttribute("taskMessageID", inObj.getMessageID());
+		outObj.setAttribute("taskMessageID", inObj.getMessageID());
 
 		// SymmetricKey symmetricKey =
 		// ServerSessionKeyManager.getInstance().getSymmetricKey(inObj.sessionKeyBase64,
@@ -79,14 +74,14 @@ public final class MemberSessionKeySExtor extends
 			symmetricKey = ServerSessionKeyManager.getInstance()
 					.getSymmetricKey(sessionKeyBase64, ivBase64);
 		} catch (IllegalArgumentException e1) {
-			outputMessage.setAttribute("taskResult", "N");
-			outputMessage.setAttribute("resultMessage", e1.toString());
-			letterToClientList.addLetterToClient(fromSC, outputMessage);
+			outObj.setAttribute("taskResult", "N");
+			outObj.setAttribute("resultMessage", e1.toString());
+			sendSelf(outObj);
 			return;
 		} catch (SymmetricException e1) {
-			outputMessage.setAttribute("taskResult", "N");
-			outputMessage.setAttribute("resultMessage", e1.toString());
-			letterToClientList.addLetterToClient(fromSC, outputMessage);
+			outObj.setAttribute("taskResult", "N");
+			outObj.setAttribute("resultMessage", e1.toString());
+			sendSelf(outObj);
 			return;
 		}
 
@@ -107,8 +102,8 @@ public final class MemberSessionKeySExtor extends
 		 * String.format("회원 가입이 실패하였습니다.");
 		 */
 
-		outputMessage.setAttribute("taskResult", "N");
-		outputMessage.setAttribute("resultMessage", "회원 가입이 실패하였습니다.");
+		outObj.setAttribute("taskResult", "N");
+		outObj.setAttribute("resultMessage", "회원 가입이 실패하였습니다.");
 
 		String sql_check = "select count(*) from member where id = ?";
 		String sql_task = "insert into member (id, pwd, nickname, question, answer, last_login_date, login_fail_cnt, last_access_login_date) values (?, ?, ?, ?, ?, CURDATE(), ?, CURDATE())";
@@ -123,19 +118,19 @@ public final class MemberSessionKeySExtor extends
 			 * .format("id::IllegalArgumentException");
 			 */
 			// outputMessage.setAttribute("taskResult", "N");
-			outputMessage.setAttribute("resultMessage",
+			outObj.setAttribute("resultMessage",
 					"id::IllegalArgumentException");
 
-			letterToClientList.addLetterToClient(fromSC, outputMessage);
+			sendSelf(outObj);
 			return;
 		} catch (SymmetricException e) {
 			/*
 			 * outputMessage.mResult = "N"; outputMessage.mMessage = String
 			 * .format("id::SymmetricException");
 			 */
-			outputMessage
+			outObj
 					.setAttribute("resultMessage", "id::SymmetricException");
-			letterToClientList.addLetterToClient(fromSC, outputMessage);
+			sendSelf(outObj);
 			return;
 		}
 
@@ -146,18 +141,18 @@ public final class MemberSessionKeySExtor extends
 			 * outputMessage.mResult = "N"; outputMessage.mMessage = String
 			 * .format("password::IllegalArgumentException");
 			 */
-			outputMessage.setAttribute("resultMessage",
+			outObj.setAttribute("resultMessage",
 					"password::IllegalArgumentException");
-			letterToClientList.addLetterToClient(fromSC, outputMessage);
+			sendSelf(outObj);
 			return;
 		} catch (SymmetricException e) {
 			/*
 			 * outputMessage.mResult = "N"; outputMessage.mMessage = String
 			 * .format("password::SymmetricException");
 			 */
-			outputMessage.setAttribute("resultMessage",
+			outObj.setAttribute("resultMessage",
 					"password::SymmetricException");
-			letterToClientList.addLetterToClient(fromSC, outputMessage);
+			sendSelf(outObj);
 			return;
 		}
 
@@ -169,18 +164,18 @@ public final class MemberSessionKeySExtor extends
 			 * outputMessage.mResult = "N"; outputMessage.mMessage = String
 			 * .format("nickname::IllegalArgumentException");
 			 */
-			outputMessage.setAttribute("resultMessage",
+			outObj.setAttribute("resultMessage",
 					"nickname::IllegalArgumentException");
-			letterToClientList.addLetterToClient(fromSC, outputMessage);
+			sendSelf(outObj);
 			return;
 		} catch (SymmetricException e) {
 			/*
 			 * outputMessage.mResult = "N"; outputMessage.mMessage = String
 			 * .format("nickname::SymmetricException");
 			 */
-			outputMessage.setAttribute("resultMessage",
+			outObj.setAttribute("resultMessage",
 					"nickname::SymmetricException");
-			letterToClientList.addLetterToClient(fromSC, outputMessage);
+			sendSelf(outObj);
 			return;
 		}
 
@@ -192,18 +187,18 @@ public final class MemberSessionKeySExtor extends
 			 * outputMessage.mResult = "N"; outputMessage.mMessage = String
 			 * .format("question::IllegalArgumentException");
 			 */
-			outputMessage.setAttribute("resultMessage",
+			outObj.setAttribute("resultMessage",
 					"question::IllegalArgumentException");
-			letterToClientList.addLetterToClient(fromSC, outputMessage);
+			sendSelf(outObj);
 			return;
 		} catch (SymmetricException e) {
 			/*
 			 * outputMessage.mResult = "N"; outputMessage.mMessage = String
 			 * .format("question::SymmetricException");
 			 */
-			outputMessage.setAttribute("resultMessage",
+			outObj.setAttribute("resultMessage",
 					"question::SymmetricException");
-			letterToClientList.addLetterToClient(fromSC, outputMessage);
+			sendSelf(outObj);
 			return;
 		}
 
@@ -214,18 +209,18 @@ public final class MemberSessionKeySExtor extends
 			 * outputMessage.mResult = "N"; outputMessage.mMessage = String
 			 * .format("answer::IllegalArgumentException");
 			 */
-			outputMessage.setAttribute("resultMessage",
+			outObj.setAttribute("resultMessage",
 					"answer::IllegalArgumentException");
-			letterToClientList.addLetterToClient(fromSC, outputMessage);
+			sendSelf(outObj);
 			return;
 		} catch (SymmetricException e) {
 			/*
 			 * outputMessage.mResult = "N"; outputMessage.mMessage = String
 			 * .format("answer::SymmetricException");
 			 */
-			outputMessage.setAttribute("resultMessage",
+			outObj.setAttribute("resultMessage",
 					"answer::SymmetricException");
-			letterToClientList.addLetterToClient(fromSC, outputMessage);
+			sendSelf(outObj);
 			return;
 		}
 
@@ -251,9 +246,9 @@ public final class MemberSessionKeySExtor extends
 					 * String.format( "동일 아이디[%s]로 이미 가입한 회원이 있습니다.", id);
 					 */
 
-					outputMessage.setAttribute("resultMessage", String.format(
+					outObj.setAttribute("resultMessage", String.format(
 							"동일 아이디[%s]로 이미 가입한 회원이 있습니다.", id));
-					letterToClientList.addLetterToClient(fromSC, outputMessage);
+					sendSelf(outObj);
 					return;
 				}
 			}
@@ -280,9 +275,9 @@ public final class MemberSessionKeySExtor extends
 				 * String.format("회원 가입을 축하드립니다.");
 				 */
 
-				outputMessage.setAttribute("taskResult", "Y");
-				outputMessage.setAttribute("resultMessage", "회원 가입을 축하드립니다.");
-				letterToClientList.addLetterToClient(fromSC, outputMessage);
+				outObj.setAttribute("taskResult", "Y");
+				outObj.setAttribute("resultMessage", "회원 가입을 축하드립니다.");
+				sendSelf(outObj);
 				return;
 			}
 
@@ -292,9 +287,9 @@ public final class MemberSessionKeySExtor extends
 			 * outputMessage.mResult = "N"; outputMessage.mMessage = String
 			 * .format("db insert fail::RuntimeException");
 			 */
-			outputMessage.setAttribute("resultMessage",
+			outObj.setAttribute("resultMessage",
 					"db insert fail::RuntimeException");
-			letterToClientList.addLetterToClient(fromSC, outputMessage);
+			sendSelf(outObj);
 			return;
 		} catch (java.lang.Exception e) {
 			log.warn("Exception", e);
@@ -302,9 +297,9 @@ public final class MemberSessionKeySExtor extends
 			 * outputMessage.mResult = "N"; outputMessage.mMessage = String
 			 * .format("unknown error::RuntimeException");
 			 */
-			outputMessage.setAttribute("resultMessage",
+			outObj.setAttribute("resultMessage",
 					"unknown error::RuntimeException");
-			letterToClientList.addLetterToClient(fromSC, outputMessage);
+			sendSelf(outObj);
 			return;
 		} finally {
 			try {
@@ -342,7 +337,7 @@ public final class MemberSessionKeySExtor extends
 			}
 		}
 
-		letterToClientList.addLetterToClient(fromSC, outputMessage);
+		sendSelf(outObj);
 
 	}
 

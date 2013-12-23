@@ -17,6 +17,7 @@
 
 
 package kr.pe.sinnori.gui.screen;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
@@ -34,7 +35,14 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
 
-import kr.pe.sinnori.gui.lib.FileTransferTaskIF;
+import kr.pe.sinnori.common.lib.CommonRootIF;
+import kr.pe.sinnori.common.message.OutputMessage;
+import kr.pe.sinnori.gui.lib.MainControllerIF;
+import kr.pe.sinnori.gui.screen.fileupdownscreen.task.DownloadFileTransferTask;
+import kr.pe.sinnori.gui.screen.fileupdownscreen.task.DownloadFileTransferTask2;
+import kr.pe.sinnori.gui.screen.fileupdownscreen.task.FileTransferTaskIF;
+import kr.pe.sinnori.gui.screen.fileupdownscreen.task.UploadFileTransferTask;
+import kr.pe.sinnori.gui.screen.fileupdownscreen.task.UploadFileTransferTask2;
 
 /**
  * 파일 송수신 전송 상태 모달 윈도우
@@ -42,9 +50,9 @@ import kr.pe.sinnori.gui.lib.FileTransferTaskIF;
  *
  */
 @SuppressWarnings("serial")
-public class FileTranferProcessDialog extends JDialog  implements ActionListener {
+public class FileTranferProcessDialog extends JDialog  implements CommonRootIF, ActionListener {
 	// private final Object monitor = new Object();
-	// private MainControllerIF mainController = null;
+	private MainControllerIF mainController = null;
 
 	
 	private long fileSize = 0;
@@ -61,18 +69,21 @@ public class FileTranferProcessDialog extends JDialog  implements ActionListener
 	
 	/**
 	 * 생성자
+	 * @param mainController 메인 제어자
 	 * @param mainFrame 메인 프레임
 	 * @param mesg 메시지
 	 * @param fileSize 전송할 파일 크기
 	 * @param fileTransferTask 파일 송수신 전송 상태 모달 윈도우에서 호출한 사용자 정의 비지니스 로직
 	 */
-	public FileTranferProcessDialog(final JFrame mainFrame, String mesg, long fileSize, FileTransferTaskIF fileTransferTask) {
+	public FileTranferProcessDialog(MainControllerIF mainController, final JFrame mainFrame, String mesg, long fileSize, FileTransferTaskIF fileTransferTask) {
 		super(mainFrame, "파일 전송 현황 보고 창" , true);
+		
+		this.mainController = mainController;
 		this.mesgLabel.setText(mesg);
 		this.fileSize = fileSize;
 		// this.mainController = mainController;
 		this.fileTransferTask = fileTransferTask;
-		this.fileTransferTask.setFileTranferProcessDialog(this);
+		if (null != fileTransferTask) this.fileTransferTask.setFileTranferProcessDialog(this);
 		
 		
 		setBounds(100, 100, 500, 156);
@@ -149,7 +160,7 @@ public class FileTranferProcessDialog extends JDialog  implements ActionListener
 			}
 		}
 		
-		fileTransferTaskThread = new FileTransferTaskThread(this);
+		fileTransferTaskThread = new FileTransferTaskThread();
 		
 		this.startTimeStamp = System.currentTimeMillis();
 		
@@ -168,24 +179,64 @@ public class FileTranferProcessDialog extends JDialog  implements ActionListener
 			if (receivedDataSize > fileSize) totalReceivedDataSize = fileSize;
 		// }
 		
-		
 		progressBar.setValue((int)(totalReceivedDataSize*100L/fileSize));
 		
 		// updateInfoMesg();
 		
-		if (receivedDataSize == fileSize) {
+		if (totalReceivedDataSize == fileSize) {
 			mesgLabel.setText("파일 전송이 완료되었습니다.");
 			// this.dispose();
 		}
 		
 		updateInfoMesg();
 	}
+	
+	public boolean isFinished() {
+		return (totalReceivedDataSize == fileSize);
+	}
 
 	/** 
-	 * 파일 전송 작업 취소 시킨다. 결과적으로 취소 작업이 완료되면 윈도우는 닫힌다.
+	 * 사용자 취소 버튼 혹은 윈도우 닫기 이벤트 처리 메소드
 	 */
-	public void cancelTask() {
-		fileTransferTask.cancelTask();
+	public void cancelEvent() {		
+		if (fileTransferTask instanceof UploadFileTransferTask) {			
+			fileTransferTask.cancelTask();
+		} else if (fileTransferTask instanceof DownloadFileTransferTask) {
+				fileTransferTask.cancelTask();
+		} else if (fileTransferTask instanceof UploadFileTransferTask2) {
+			// FIXME!
+			log.info("UploadFileTransferTask2'cancelEvent start");
+			
+			fileTransferTask.cancelTask();
+						
+			OutputMessage cancelUploadFileResultOutObj = mainController.cancelUploadFile();
+			if (null == cancelUploadFileResultOutObj) return;
+			
+			// FIXME!
+			log.info("UploadFileTransferTask2'cancelEvent end");
+		} else if (fileTransferTask instanceof DownloadFileTransferTask2) {
+			mainController.cancelDownloadFile();
+		} else {
+			Throwable t = new Throwable();
+			log.warn("예상하지 못한 곳에서 호출, 원인 제거 필요", t);
+		}
+	}
+	
+	/**
+	 * 중지 요청, 다운 로드를 모두 받았을 경우 혹은 다운 로드 취소 완료시에 호출된다.
+	 */
+	public void stopTask() {
+		if (fileTransferTask instanceof DownloadFileTransferTask2) {
+			fileTransferTask.cancelTask();
+			fileTransferTaskThread.interrupt();
+		} else if (fileTransferTask instanceof UploadFileTransferTask2) {
+			fileTransferTask.cancelTask();
+			fileTransferTaskThread.notify();
+				//fileTransferTaskThread.interrupt();
+		} else {
+			Throwable t = new Throwable();
+			log.warn("파일 송수신 진행 작업 DownloadFileTransferTask2 이 아닌데 호출되었음, 원인 제거 필요", t);
+		}
 	}
 
 	/**
@@ -195,22 +246,22 @@ public class FileTranferProcessDialog extends JDialog  implements ActionListener
 	 *
 	 */
 	class FileTransferTaskThread extends Thread {
-		private FileTranferProcessDialog fileTranferProcessDialog = null;
+		// private FileTranferProcessDialog fileTranferProcessDialog = null;
 		
 		/**
 		 * 생성자
-		 * @param fileTranferProcessDialog 파일 송수신 전송 상태 모달 윈도우
 		 */
-		public FileTransferTaskThread(FileTranferProcessDialog fileTranferProcessDialog) {
-			this.fileTranferProcessDialog = fileTranferProcessDialog;
+		public FileTransferTaskThread() {
+			// this.fileTranferProcessDialog = fileTranferProcessDialog;
 		}
 		
 		public void run() {
-            // compute primes larger than minPrime
+			if (null == fileTransferTask) return;
+			
 			try {
 				fileTransferTask.doTask();
 			} finally {
-				fileTranferProcessDialog.dispose();
+				fileTransferTask.endTask();
 			}
         }
 	}
@@ -258,11 +309,8 @@ public class FileTranferProcessDialog extends JDialog  implements ActionListener
 
 	@Override
 	public void actionPerformed(ActionEvent ae) {
-			
-		// boolean cancelResult = mainControllerIF.cancelFileTransferProcessDialog();
-		// if (cancelResult) finishWindow();
-		
-		// mainController.turnOnFileTransferCanceledFlag();
-		fileTransferTask.cancelTask();
+		if (null != fileTransferTask) {
+			cancelEvent();
+		}
 	}
 }

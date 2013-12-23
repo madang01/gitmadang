@@ -42,8 +42,10 @@ import kr.pe.sinnori.common.lib.CommonRootIF;
 public class LocalTargetFileResource implements CommonRootIF {
 	private final Object monitor = new Object(); 
 	
-	private boolean isInQueue = true;
+	private boolean isCanceled = false;
 	
+	private boolean isInQueue = true;
+	private int sourceFileID = -1;
 	private int targetFileID = 0;
 	private String targetFilePathName = null;
 	private String targetFileName = null;
@@ -63,10 +65,46 @@ public class LocalTargetFileResource implements CommonRootIF {
 	
 	// private String oldSourceFileInfo = null;
 	
+	/**
+	 * @return the isCanceled
+	 */
+	public boolean isCanceled() {
+		return isCanceled;
+	}
+
+	/**
+	 * 
+	 */
+	public void cancel() {
+		this.isCanceled = true;
+	}
+
+
+
 	public LocalTargetFileResource(int targetFileID) {
 		this.targetFileID = targetFileID;
 	}
 	
+	
+	
+	/**
+	 * @return the sourceFileID
+	 */
+	public int getSourceFileID() {
+		return sourceFileID;
+	}
+
+
+
+	/**
+	 * @param sourceFileID the sourceFileID to set
+	 */
+	public void setSourceFileID(int sourceFileID) {
+		this.sourceFileID = sourceFileID;
+	}
+
+
+
 	/**
 	 * <pre> 
 	 * 원격지에 있는 원본 파일을 로컬 목적지 파일로 복사할 준비로 로컬 목적지 파일의 락을 건다.
@@ -288,6 +326,7 @@ public class LocalTargetFileResource implements CommonRootIF {
 	 */
 	public void queueIn() {
 		isInQueue = true;
+		isCanceled = false;
 	}
 
 	/**
@@ -305,39 +344,43 @@ public class LocalTargetFileResource implements CommonRootIF {
 	protected void releaseFileLock() {
 		// FIXME!
 		log.info(String.format("call releaseFileLock, targetFileID[%d], 목적지 파일[%s][%s]", targetFileID, targetFilePathName, targetFileName));
-				
-		workedFileBlockBitSet = null;
-		
-		if (null != targetFileLock) {
-			try {
-				targetFileLock.release();
-				targetFileLock = null;
-			} catch (IOException e) {
-				/** 파일 락 해제시 입출력 에러 발생 */
-				String errorMessage = String.format("targetFileID[%d]::목적지 파일[%s][%s] 락 해제시 입출력 에러 발생", targetFileID, targetFilePathName, targetFileName);
-				log.warn(errorMessage, e);
-			}
-		}
 
-		if (null != targetFileChannel) {
-			try {
-				targetFileChannel.close();
-				targetFileChannel = null;
-			} catch (IOException e) {
-				/** 파일 채널 닫기시 입출력 에러 발생 */
-				String errorMessage = String.format("targetFileID[%d]::목적지 파일[%s][%s] 채널 닫기시 입출력 에러 발생", targetFileID, targetFilePathName, targetFileName);
-				log.warn(errorMessage, e);
+		synchronized (monitor) {
+			sourceFileID = -1;
+			
+			workedFileBlockBitSet = null;
+			
+			if (null != targetFileLock) {
+				try {
+					targetFileLock.release();
+					targetFileLock = null;
+				} catch (IOException e) {
+					/** 파일 락 해제시 입출력 에러 발생 */
+					String errorMessage = String.format("targetFileID[%d]::목적지 파일[%s][%s] 락 해제시 입출력 에러 발생", targetFileID, targetFilePathName, targetFileName);
+					log.warn(errorMessage, e);
+				}
 			}
-		}
-		
-		if (null != targetRandomAccessFile) {
-			try {
-				targetRandomAccessFile.close();
-				targetRandomAccessFile = null;
-			} catch (IOException e) {
-				/** 파일 채널 닫기시 입출력 에러 발생 */
-				String errorMessage = String.format("targetFileID[%d]::목적지 파일[%s][%s] 랜덤 접근 파일 객체 닫기시 입출력 에러 발생", targetFileID, targetFilePathName, targetFileName);
-				log.warn(errorMessage, e);
+	
+			if (null != targetFileChannel) {
+				try {
+					targetFileChannel.close();
+					targetFileChannel = null;
+				} catch (IOException e) {
+					/** 파일 채널 닫기시 입출력 에러 발생 */
+					String errorMessage = String.format("targetFileID[%d]::목적지 파일[%s][%s] 채널 닫기시 입출력 에러 발생", targetFileID, targetFilePathName, targetFileName);
+					log.warn(errorMessage, e);
+				}
+			}
+			
+			if (null != targetRandomAccessFile) {
+				try {
+					targetRandomAccessFile.close();
+					targetRandomAccessFile = null;
+				} catch (IOException e) {
+					/** 파일 채널 닫기시 입출력 에러 발생 */
+					String errorMessage = String.format("targetFileID[%d]::목적지 파일[%s][%s] 랜덤 접근 파일 객체 닫기시 입출력 에러 발생", targetFileID, targetFilePathName, targetFileName);
+					log.warn(errorMessage, e);
+				}
 			}
 		}
 	}
@@ -388,16 +431,20 @@ public class LocalTargetFileResource implements CommonRootIF {
 		
 		// sourceRandomAccessFile.seek(fileBlockSize*fileBlockNo);
 		// sourceRandomAccessFile.write(fileData);
-		try {
-			targetFileChannel.write(ByteBuffer.wrap(fileData), (long)fileBlockSize*fileBlockNo);
-		} catch (IOException e) {
-			/** n 번째 목적지 파일 조각 쓰기 실패 */
-			String errorMessage = String.format("targetFileID[%d]::%d 번째 목적지 파일[%s][%s] 조각 쓰기 실패", targetFileID, fileBlockNo, targetFilePathName, targetFileName);
-			log.warn(errorMessage);
-			new UpDownFileException(errorMessage);
-		}
+		
 		
 		synchronized (monitor) {
+			if (null == workedFileBlockBitSet) return false;
+			
+			try {
+				targetFileChannel.write(ByteBuffer.wrap(fileData), (long)fileBlockSize*fileBlockNo);
+			} catch (IOException e) {
+				/** n 번째 목적지 파일 조각 쓰기 실패 */
+				String errorMessage = String.format("targetFileID[%d]::%d 번째 목적지 파일[%s][%s] 조각 쓰기 실패", targetFileID, fileBlockNo, targetFilePathName, targetFileName);
+				log.warn(errorMessage);
+				new UpDownFileException(errorMessage);
+			}
+			
 			if (workedFileBlockBitSet.get(fileBlockNo)) {
 				/** 파일 조각 중복 도착 */
 				String errorMessage = String.format("targetFileID[%d]::파일 조각[%d] 중복 도착", targetFileID, fileBlockNo); 
@@ -410,8 +457,6 @@ public class LocalTargetFileResource implements CommonRootIF {
 			boolean isCompletedWritingFile = (workedFileBlockBitSet.cardinality() == (fileBlockMaxNo+1));
 			return isCompletedWritingFile;
 		}
-		
-		
 	}
 	
 	/**
@@ -483,6 +528,10 @@ public class LocalTargetFileResource implements CommonRootIF {
 		StringBuilder builder = new StringBuilder();
 		builder.append("UpFileResource [isInQueue=");
 		builder.append(isInQueue);
+		builder.append(", isCanceled=");
+		builder.append(isCanceled);
+		builder.append(", sourceFileID=");
+		builder.append(sourceFileID);
 		builder.append(", targetFileID=");
 		builder.append(targetFileID);
 		builder.append(", targetFilePathName=");

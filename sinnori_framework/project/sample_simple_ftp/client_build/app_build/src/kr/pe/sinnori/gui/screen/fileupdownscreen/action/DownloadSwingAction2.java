@@ -1,3 +1,4 @@
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -15,8 +16,7 @@
  * limitations under the License.
  */
 
-
-package kr.pe.sinnori.gui.action.fileupdownscreen;
+package kr.pe.sinnori.gui.screen.fileupdownscreen.action;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -28,25 +28,21 @@ import javax.swing.JTree;
 import javax.swing.tree.TreePath;
 
 import kr.pe.sinnori.common.exception.MessageItemException;
-import kr.pe.sinnori.common.exception.UpDownFileException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.message.OutputMessage;
-import kr.pe.sinnori.common.updownfile.LocalTargetFileResource;
-import kr.pe.sinnori.common.updownfile.LocalTargetFileResourceManager;
 import kr.pe.sinnori.gui.lib.AbstractFileTreeNode;
-import kr.pe.sinnori.gui.lib.DownloadFileTransferTask;
-import kr.pe.sinnori.gui.lib.FileUpDownScreenIF;
 import kr.pe.sinnori.gui.lib.LocalFileTreeNode;
 import kr.pe.sinnori.gui.lib.MainControllerIF;
 import kr.pe.sinnori.gui.lib.RemoteFileTreeNode;
+import kr.pe.sinnori.gui.screen.fileupdownscreen.FileUpDownScreenIF;
 
 /**
- * 다운로드 이벤트 처리 클래스
+ * 다운로드 이벤트 처리 버전2 클래스
  * @author Jonghoon Won
  *
  */
 @SuppressWarnings("serial")
-public class DownloadSwingAction extends AbstractAction implements CommonRootIF {
+public class DownloadSwingAction2 extends AbstractAction implements CommonRootIF {
 	private JFrame mainFrame = null;
 	private MainControllerIF mainController = null;
 	private FileUpDownScreenIF fileUpDownScreen = null;
@@ -67,7 +63,7 @@ public class DownloadSwingAction extends AbstractAction implements CommonRootIF 
 	 * @param remoteRootNode 원격지 루트 노드
 	 * @param remotePathSeperator 원격지 파일 구분자. 참고) 원격지 파일 목록을 요청하기전에 생성시에는 null 값이다.
 	 */
-	public DownloadSwingAction(JFrame mainFrame,
+	public DownloadSwingAction2(JFrame mainFrame,
 			MainControllerIF mainController,
 			FileUpDownScreenIF fileUpDownScreen,
 			JTree localTree,
@@ -114,10 +110,7 @@ public class DownloadSwingAction extends AbstractAction implements CommonRootIF 
 					"원격지 디렉토리를 선택하였습니다. 원격지 파일을 선택해 주세요.");
 			return;
 		}
-		
-		LocalTargetFileResourceManager  localTargetFileResourceManager = LocalTargetFileResourceManager.getInstance();
-		
-		
+				
 		String localFilePathName = (String)localRootNode.getUserObject();
 		String localFileName = "";
 		String remoteFilePathName = remoteRootNode.getFileName();
@@ -176,70 +169,26 @@ public class DownloadSwingAction extends AbstractAction implements CommonRootIF 
 		log.info(String.format("copy remoteFilePathName[%s] remoteFileName[%s] to localFilePathName[%s] localFileName[%s]",
 				remoteFilePathName, remoteFileName, localFilePathName,  localFileName));
 		
-		LocalTargetFileResource localTargetFileResource = null;
-		try {
-			localTargetFileResource = localTargetFileResourceManager.pollLocalTargetFileResource(remoteFilePathName, remoteFileName, remoteFileSize, localFilePathName, localFileName, fileBlockSize);
-			
-			if (null == localTargetFileResource) {
-				JOptionPane.showMessageDialog(mainFrame, "큐로부터 목적지 파일 자원 할당에 실패하였습니다.");
-				return;
-			}
 		
-			int clientTargetFileID = localTargetFileResource.getTargetFileID();
-			// int fileBlockMaxNo =  localTargetFileResource.getFileBlockMaxNo();
-			
-			OutputMessage downFileInfoResulOutObj = mainController
-					.readyDownloadFile(localFilePathName, localFileName,
-							remoteFilePathName, remoteFileName, remoteFileSize, clientTargetFileID, fileBlockSize);
-			
-			if (null == downFileInfoResulOutObj) return;
-			
-			int serverSourceFileID = -1;
-			try {
-				serverSourceFileID = (Integer)downFileInfoResulOutObj.getAttribute("serverSourceFileID");
-			} catch (MessageItemException e1) {
-				log.warn("MessageItemException", e1);
-				
-				JOptionPane.showMessageDialog(mainFrame, e1.getMessage());
-				return;
-			}
-			
-			DownloadFileTransferTask downloadFileTransferTask = new DownloadFileTransferTask(mainFrame, mainController, fileUpDownScreen, serverSourceFileID, localTargetFileResource);
-			mainController.openFileTransferProcessDialog(new StringBuilder(remoteFileName).append(" 다운로드 중...").toString(), remoteFileSize, downloadFileTransferTask);
-			
-			/*
-			int fileBlockNo=0;
-			for (; fileBlockNo <= fileBlockMaxNo; fileBlockNo++) {
-				boolean isCanceled = fileUpDownScreen.getIsCancelFileTransfer();
-				if (isCanceled) {
-					fileUpDownScreen.setIsCanceledUpDownFileTransfer(false);
-					
-					OutputMessage cancelDownloadFileResultOutObj = mainController.cancelDownloadFile(serverSourceFileID);
-					// 서버 다운로드 취소 성공시 루프 종료
-					if (null != cancelDownloadFileResultOutObj) break;
-				}
-				
-				OutputMessage downFileDataResulOutObj = mainController.doDownloadFile(serverSourceFileID, fileBlockNo);
-				byte[] fileData = (byte[]) downFileDataResulOutObj.getAttribute("fileData");
-				
-				localTargetFileResource.writeTargetFileData(fileBlockNo, fileData, true);
-					
-				mainController.noticeAddingFileDataToFileTransferProcessDialog(fileData.length);
-				
-			}
-			
-			fileUpDownScreen.reloadLocalFileList();
-			*/
-			
-		} catch (IllegalArgumentException e1) {
-			JOptionPane.showMessageDialog(mainFrame, e1.toString());
+		OutputMessage downFileInfoResulOutObj = mainController
+				.readyDownloadFile(localFilePathName, localFileName,
+						remoteFilePathName, remoteFileName, remoteFileSize, fileBlockSize);
+		
+		if (null == downFileInfoResulOutObj) {
+			mainController.freeLocalTargetFileResource();
 			return;
-		} catch (UpDownFileException e1) {
-			JOptionPane.showMessageDialog(mainFrame, e1.toString());
-			return;
-		} finally {
-			if (null != localTargetFileResource) localTargetFileResourceManager.putLocalTargetFileResource(localTargetFileResource);
-			// mainController.closeFileTransferProcessDialog();
 		}
+		
+		int serverSourceFileID = -1;
+		try {
+			serverSourceFileID = (Integer)downFileInfoResulOutObj.getAttribute("serverSourceFileID");
+		} catch (MessageItemException e1) {
+			log.warn("MessageItemException", e1);
+			
+			JOptionPane.showMessageDialog(mainFrame, e1.getMessage());
+			return;
+		}
+		
+		mainController.openDownloadProcessDialog(serverSourceFileID, new StringBuilder(remoteFileName).append(" 다운로드 중...").toString(), remoteFileSize);
 	}
 }

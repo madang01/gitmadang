@@ -132,9 +132,5 @@ public class SinnoriAppClientMain implements CommonRootIF {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
 	}
-	
-	
 }

@@ -46,7 +46,7 @@ public class LocalSourceFileResource implements CommonRootIF {
 	private boolean isCanceled = false; 
 	
 	private int sourceFileID = 0;
-	// private int clientTargetFileID = -1;
+	private int targetFileID = -1;
 	private String targetFilePathName = null;
 	private String targetFileName = null;
 	private long sourceFileSize = 0;
@@ -64,7 +64,26 @@ public class LocalSourceFileResource implements CommonRootIF {
 	public LocalSourceFileResource(int sourceFileID) {
 		this.sourceFileID = sourceFileID;
 	}
+		
 	
+	/**
+	 * @return the targetFileID
+	 */
+	public int getTargetFileID() {
+		return targetFileID;
+	}
+
+
+
+	/**
+	 * @param targetFileID the targetFileID to set
+	 */
+	public void setTargetFileID(int targetFileID) {
+		this.targetFileID = targetFileID;
+	}
+
+
+
 	/**
 	 * <pre> 
 	 * 로컬에 있는 원본 파일을 원격지에 있는 목적지 파일로 복사할 준비로 로컬 원본 파일의 락을 건다.
@@ -321,7 +340,7 @@ public class LocalSourceFileResource implements CommonRootIF {
 		isCanceled = true;
 	}
 	
-	public boolean getIsCanceled() {
+	public boolean isCanceled() {
 		return isCanceled;
 	}
 
@@ -332,6 +351,9 @@ public class LocalSourceFileResource implements CommonRootIF {
 	protected void releaseFileLock() {
 		// FIXME!
 		log.info(String.format("call releaseFileLock, sourceFileID[%d], 원본 파일[%s][%s]", sourceFileID, sourceFilePathName, sourceFileName));
+		
+		
+		targetFileID = -1;
 		
 		workedFileBlockBitSet = null;
 		
@@ -424,13 +446,6 @@ public class LocalSourceFileResource implements CommonRootIF {
 			String errorMessage = String.format("sourceFileID[%d]::parameter fileData is null", sourceFileID);
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		
-		if (isCanceled) {
-			String errorMessage = String.format("sourceFileID[%d] was canceled", sourceFileID);
-			log.warn(errorMessage);
-			throw new UpDownFileException(errorMessage);
 		}
 		
 		// FIXME!
@@ -551,10 +566,12 @@ public class LocalSourceFileResource implements CommonRootIF {
 		StringBuilder builder = new StringBuilder();
 		builder.append("UpFileResource [isInQueue=");
 		builder.append(isInQueue);
+		builder.append(", isCanceled=");
+		builder.append(isCanceled);
 		builder.append(", sourceFileID=");
 		builder.append(sourceFileID);
-		// builder.append(", clientTargetFileID=");
-		// builder.append(clientTargetFileID);
+		builder.append(", targetFileID=");
+		builder.append(targetFileID);
 		builder.append(", targetFilePathName=");
 		builder.append(targetFilePathName);
 		builder.append(", targetFileName=");

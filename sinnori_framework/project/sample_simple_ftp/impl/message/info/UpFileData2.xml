@@ -9,6 +9,9 @@
 <sinnori_message>
 <messageID>UpFileData2</messageID>
 <desc>파일 업로드 파일 조각 요청 버전2 입력 메시지</desc>
+<singleitem name="clientSourceFileID" type="integer">
+	<desc>클라이언트 원본 파일 식별자</desc>
+</singleitem>
 <singleitem name="serverTargetFileID" type="integer">
 	<desc>서버 목적지 파일 식별자</desc>
 </singleitem>

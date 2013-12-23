@@ -7,18 +7,12 @@
 	array counter type : reference 변수참조, direct 직접입력
 -->
 <sinnori_message>
-<messageID>UpFileData</messageID>
-<desc>파일 업로드 파일 조각 요청 입력 메시지</desc>
+<messageID>CancelUploadFile2</messageID>
+<desc>파일 업로드 전송 취소 버전2 입력 메시지</desc>
 <singleitem name="clientSourceFileID" type="integer">
 	<desc>클라이언트 원본 파일 식별자</desc>
 </singleitem>
 <singleitem name="serverTargetFileID" type="integer">
 	<desc>서버 목적지 파일 식별자</desc>
-</singleitem>
-<singleitem name="fileBlockNo" type="integer">
-	<desc>클라이언트 원본 파일 조각 순번, 자바는 배열 크기가 정수로 제한되는데 BitSet 도 그대로 그 문제를 상속한다.</desc>
-</singleitem>
-<singleitem name="fileData" type="si variable length byte[]">
-	<desc>클라이언트 원본 파일 조각 데이터</desc>
 </singleitem>
 </sinnori_message>

@@ -17,10 +17,12 @@
 
 package impl.executor.server;
 
+import java.io.File;
 import java.nio.channels.SocketChannel;
 
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
+import kr.pe.sinnori.common.lib.CommonStaticFinal;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
@@ -31,11 +33,11 @@ import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;
 
 /**
- * 파일 업로드 취소 서버 비지니스 로직 클래스
+ * 파일 업로드 취소 버전2 서버 비지니스 로직 클래스
  * @author Jonghoon Won
  *
  */
-public final class CancelUploadFileSExtor extends AbstractAuthServerExecutor {
+public class CancelUploadFile2SExtor extends AbstractAuthServerExecutor {
 
 	@Override
 	protected void doTask(SocketChannel fromSC, InputMessage inObj,
@@ -44,8 +46,9 @@ public final class CancelUploadFileSExtor extends AbstractAuthServerExecutor {
 			throws MessageInfoNotFoundException, MessageItemException {
 		LocalTargetFileResourceManager localTargetFileResourceManager = LocalTargetFileResourceManager.getInstance();
 		OutputMessage outObj = messageManger.createOutputMessage("CancelUploadFileResult");
-		outObj.messageHeaderInfo = inObj.messageHeaderInfo;
-		
+		// outObj.messageHeaderInfo = inObj.messageHeaderInfo;
+		outObj.messageHeaderInfo.mailboxID = CommonStaticFinal.SERVER_MAILBOX_ID;
+		outObj.messageHeaderInfo.mailID = clientResourceManager.getClientResource(fromSC).getServerMailID();
 		
 		int clientSourceFileID = (Integer)inObj.getAttribute("clientSourceFileID");
 		int serverTargetFileID = (Integer)inObj.getAttribute("serverTargetFileID");
@@ -58,13 +61,14 @@ public final class CancelUploadFileSExtor extends AbstractAuthServerExecutor {
 		localTargetFileResource = localTargetFileResourceManager.getLocalTargetFileResource(serverTargetFileID);
 		
 		if (null == localTargetFileResource) {
+			
 			outObj.setAttribute("taskResult", "N");
 			outObj.setAttribute("resultMessage", String.format("존재하지 않는 서버 목적지 파일[%d] 식별자입니다.", serverTargetFileID));
 			outObj.setAttribute("clientSourceFileID", clientSourceFileID);
 			outObj.setAttribute("serverTargetFileID", serverTargetFileID);
 			
-			// letterToClientList.addLetterToClient(fromSC, outObj);
-			sendSelf(outObj);
+			//letterToClientList.addLetterToClient(fromSC, outObj);
+			sendAnonymous(fromSC, outObj);
 			return;
 		}
 		
@@ -75,14 +79,20 @@ public final class CancelUploadFileSExtor extends AbstractAuthServerExecutor {
 		// localTargetFileResourceManager.putLocalTargetFileResource(localTargetFileResource);
 		
 		outObj.setAttribute("taskResult", "Y");
-		outObj.setAttribute("resultMessage", String.format("서버 업로드용 목적지 파일[%d] 자원을 성공적으로 해제하였습니다.", serverTargetFileID));
+		outObj.setAttribute("resultMessage", 
+				String.format("서버 업로드용 목적지 파일[%d][%s%s%s] 자원을 성공적으로 해제하였습니다.", 
+						serverTargetFileID, 
+						localTargetFileResource.getTargetFilePathName(),
+						File.pathSeparator,
+						localTargetFileResource.getTargetFileName()));
 		outObj.setAttribute("clientSourceFileID", clientSourceFileID);
 		outObj.setAttribute("serverTargetFileID", serverTargetFileID);
 		
 		// FIXME!
 		log.info(outObj.toString());
 		
-		// letterToClientList.addLetterToClient(fromSC, outObj);
-		sendSelf(outObj);
+		
+		//letterToClientList.addLetterToClient(fromSC, outObj);
+		sendAnonymous(fromSC, outObj);
 	}
 }

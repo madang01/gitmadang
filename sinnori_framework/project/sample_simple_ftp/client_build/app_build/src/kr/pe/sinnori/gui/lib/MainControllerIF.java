@@ -43,6 +43,11 @@ public interface MainControllerIF {
 	public byte[] connectServer(String host, int port);
 	
 	/**
+	 * @return 이진 공개키 출력 메시지
+	 */
+	public OutputMessage getBinaryPublicKey();
+	
+	/**
 	 * 로그인하여 성공여부를 반환한다.
 	 * @param id 아이디
 	 * @param pwd 비밀번호
@@ -71,6 +76,11 @@ public interface MainControllerIF {
 			String remoteFilePathName, String remoteFileName, int fileBlockSize);
 	
 	/**
+	 * {@link #readyUploadFile(String, String, long, String, String, int)} 에서 락을 걸은 로컬 원본 파일 자원을 해제한다.
+	 */
+	public void freeLocalSourceFileResource();
+	
+	/**
 	 * 업로드 준비된 서버측에 업로드할 로컬 파일 조각을 담음 메시지를 보낸다. 
 	 * @param serverTargetFileID 서버 송수신 자원 파일 식별자 
 	 * @param fileBlockNo 파일 조각 번호
@@ -86,12 +96,16 @@ public interface MainControllerIF {
 	 * @param remoteFilePathName 원격지 파일 경로
 	 * @param remoteFileName 원격지 파일 이름
 	 * @param remoteFileSize 원격지 파일 크기
-	 * @param clientFileID 클라이언트 송수신 자원 파일 식별자
 	 * @param fileBlockSize 송수신 파일 조각 크기
 	 * @return 파일 다운로드 준비 출력 메시지
 	 */
 	public OutputMessage readyDownloadFile(String localFilePathName, String localFileName, 
-			String remoteFilePathName, String remoteFileName, long remoteFileSize, int clientFileID, int fileBlockSize);
+			String remoteFilePathName, String remoteFileName, long remoteFileSize, int fileBlockSize);
+	
+	/**
+	 * {@link #readyDownloadFile(String, String, String, String, long, int)} 에서 락을 걸은 로컬 목적지 파일 자원을 해제한다.
+	 */
+	public void freeLocalTargetFileResource();
 	
 	/**
 	 * 다운로드 준비된 서버측에 다운 로드 파일 조각을 요구하는 메시지를 보낸다.
@@ -102,18 +116,34 @@ public interface MainControllerIF {
 	public OutputMessage doDownloadFile(int serverSourceFileID, int fileBlockNo);
 	
 	
+	public OutputMessage doDownloadFileAll();
+	
+	/**
+	 * 파일 업로드 진행 상태 모달 윈도우를 띄운다. 내부적으로 "파일 업로드 진행 작업 쓰레드" 를 수행한다. 
+	 * @param serverTargetFileID 서버 목적지 파일 식별자
+	 * @param mesg 메시지
+	 * @param fileSize 파일 크기
+	 */
 	public void openUploadProcessDialog(int serverTargetFileID, String mesg, long fileSize);
 	
+	/**
+	 * 파일 업로드 진행 작업 쓰레드 종료후 호출 되는 메소드이다.
+	 */
 	public void endUploadTask();
 	
 	/**
-	 * 파일 전송 현황 창을 연다. 참고) 모달 윈도우 
+	 * 파일 다운로드 진행 상태 모달 윈도우를 띄운다. 내부적으로 "파일 다운로드 진행 작업 쓰레드" 를 수행한다.
+	 * @param serverSourceFileID
 	 * @param mesg 메시지
 	 * @param fileSize 전송할 파일 크기
-	 * @param fileTransferTask 쓰레드에서 호출될 파일 전송 비지니스 로직
 	 */
-	public void openFileTransferProcessDialog(String mesg, long fileSize, FileTransferTaskIF fileTransferTask);
-
+	public void openDownloadProcessDialog(int serverSourceFileID, String mesg, long fileSize);
+	/**
+	 * 파일 다운로드 진행 작업 쓰레드 종료후 호출 되는 메소드이다.
+	 */
+	public void endDownloadTask();
+	
+	
 	/**
 	 * <pre>
 	 * 전송 받은 파일 조각 크기를 "파일 전송 현황 창"에 알린다. 
@@ -132,22 +162,20 @@ public interface MainControllerIF {
 	 *  </pre>    
 	 * @param receivedDataSize 전송 받은 파일 조각 크기
 	 */
-	public void noticeAddingFileDataToFileTransferProcessDialog(int receivedDataSize);
+	// public void noticeAddingFileDataToFileTransferProcessDialog(int receivedDataSize);
 
 	
 	/**
 	 * 서버에 업로드 취소를 알린다.
-	 * @param serverTargetFileID 업로드 중인 서버 목적지 파일 식별자
 	 * @return 서버에 업로드 취소 결과 출력 메시지
 	 */
-	public OutputMessage cancelUploadFile(int serverTargetFileID);
+	public OutputMessage cancelUploadFile();
 	
 	/**
 	 * 서버에 다운 로드 취소를 알린다.
-	 * @param serverSourceFileID  다운로드 중인 서버 원본 파일 식별자
 	 * @return 서버에 다운로드 취소 결과 출력 메시지
 	 */
-	public OutputMessage cancelDownloadFile(int serverSourceFileID);
+	public OutputMessage cancelDownloadFile();
 	
 	/**
 	 * 익명 메시지 처리

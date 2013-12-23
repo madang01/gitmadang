@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package kr.pe.sinnori.gui.action.fileupdownscreen;
+package kr.pe.sinnori.gui.screen.fileupdownscreen.action;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -28,9 +28,9 @@ import javax.swing.tree.TreePath;
 import kr.pe.sinnori.common.exception.MessageItemException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.message.OutputMessage;
-import kr.pe.sinnori.gui.lib.FileUpDownScreenIF;
 import kr.pe.sinnori.gui.lib.MainControllerIF;
 import kr.pe.sinnori.gui.lib.RemoteFileTreeNode;
+import kr.pe.sinnori.gui.screen.fileupdownscreen.FileUpDownScreenIF;
 
 /**
  * 원격지 트리 노드 마우스 이벤트 처리 클래스

@@ -25,10 +25,12 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
+import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.dhb.header.DHBMessageHeader;
 import kr.pe.sinnori.common.lib.AbstractProject;
@@ -175,6 +177,20 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 		int outputMessageWriterSize = serverProjectInfo.getOutputMessageWriterSize();
 		int outputMessageWriterMaxSize = serverProjectInfo.getOutputMessageWriterMaxSize();
 		
+		TreeSet<String> anonymousExceptionInputMessageSet = serverProjectInfo.getAnonymousExceptionInputMessageSet();
+		Iterator<String> anonymousExceptionInputMessageIter = anonymousExceptionInputMessageSet.iterator();
+		while(anonymousExceptionInputMessageIter.hasNext()) {
+			try {
+				this.createInputMessage(anonymousExceptionInputMessageIter.next());
+			} catch (IllegalArgumentException e) {
+				log.fatal(String.format("projectName[%s] %s", projectName, e.getMessage()), e);
+				System.exit(1);
+			} catch (MessageInfoNotFoundException e) {
+				log.fatal(String.format("projectName[%s] %s", projectName, e.getMessage()), e);
+				System.exit(1);
+			}
+		}
+		
 		
 		dataPacketBufferQueue = new LinkedBlockingQueue<WrapBuffer>(dataPacketBufferCnt);
 		
@@ -189,9 +205,6 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 			log.fatal(errorMessage, e);
 			throw new NoMoreDataPacketBufferException(errorMessage);
 		}
-		
-		
-		
 		
 		acceptQueue = new LinkedBlockingQueue<SocketChannel>(
 				serverProjectInfo.getAcceptQueueSize());
@@ -213,9 +226,12 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 		acceptProcessorPool = new AcceptProcessorPool(acceptProcessorSize,
 				acceptProcessorMaxSize, acceptQueue, inputMessageReaderPool);
 
-		executorProcessorPool = new ExecutorProcessorPool(
+		
+		
+		executorProcessorPool = new ExecutorProcessorPool(projectName,
 				executorProcessorSize, executorProcessorMaxSize,
-				commonProjectInfo, inputMessageQueue, outputMessageQueue, 
+				anonymousExceptionInputMessageSet,
+				inputMessageQueue, outputMessageQueue, 
 				this, this, this);
 
 		outputMessageWriterPool = new OutputMessageWriterPool(

@@ -19,7 +19,6 @@
 package impl.executor.server;
 
 import java.nio.channels.SocketChannel;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
@@ -32,28 +31,27 @@ import kr.pe.sinnori.common.updownfile.LocalTargetFileResourceManager;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;
-import kr.pe.sinnori.server.io.LetterListToClient;
-import kr.pe.sinnori.server.io.LetterToClient;
 
 public final class UpFileDataSExtor extends AbstractAuthServerExecutor {
 
 	@Override
 	protected void doTask(SocketChannel fromSC, InputMessage inObj,
-			LetterListToClient letterToClientList,
-			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
-			MessageMangerIF messageManger,
+			MessageMangerIF messageManger,			
 			ClientResourceManagerIF clientResourceManager)
 			throws MessageInfoNotFoundException, MessageItemException {
 		LocalTargetFileResourceManager localTargetFileResourceManager = LocalTargetFileResourceManager.getInstance();
 		
 		OutputMessage outObj = messageManger.createOutputMessage("UpFileDataResult");
 		
+		int clientSourceFileID = (Integer)inObj.getAttribute("clientSourceFileID");
 		int serverTargetFileID = (Integer)inObj.getAttribute("serverTargetFileID");
 		int fileBlockNo = (Integer)inObj.getAttribute("fileBlockNo");
 		byte[] fileData = (byte[])inObj.getAttribute("fileData");
 		
 		// FIXME!
 		// log.info(inObj.toString());
+		
+		outObj.setAttribute("clientSourceFileID", clientSourceFileID);
 		
 		LocalTargetFileResource localTargetFileResource = localTargetFileResourceManager.getLocalTargetFileResource(serverTargetFileID);
 		
@@ -63,14 +61,18 @@ public final class UpFileDataSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("taskResult", "N");
 			outObj.setAttribute("resultMessage", "서버에서 업로드 파일을 받을 자원이 준비되지 않았습니다.");
 			outObj.setAttribute("serverTargetFileID", serverTargetFileID);
+			outObj.setAttribute("clientSourceFileID", -1);
 			
-			letterToClientList.addLetterToClient(fromSC, outObj);
+			sendSelf(outObj);
 			return;
 		}
 		
-		boolean isCompletedWritingFile = false; 
+		outObj.setAttribute("clientSourceFileID", localTargetFileResource.getSourceFileID());
+		
+		
+		boolean isFinished = false; 
 		try {
-			isCompletedWritingFile = localTargetFileResource.writeTargetFileData(fileBlockNo, fileData, true);
+			isFinished = localTargetFileResource.writeTargetFileData(fileBlockNo, fileData, true);
 			
 			// FIXME!
 			// log.info(String.format("파일 쓰기 결과[%s]", isCompletedWritingFile));
@@ -79,9 +81,12 @@ public final class UpFileDataSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("resultMessage", "서버에 수신한 파일 조각을 성공적으로 저장했습니다.");
 			outObj.setAttribute("serverTargetFileID", serverTargetFileID);
 			try {
-				letterToClientList.addLetterToClient(fromSC, outObj);
+				sendSelf(outObj);
 			} finally {
-				if (isCompletedWritingFile) {
+				if (isFinished) {
+					
+					log.info(String.format("clientSourceFileID[%s] to serverTargetFileID[%d] 파일 업로드 전체 완료", localTargetFileResource.getSourceFileID(), serverTargetFileID));
+					
 					ClientResource clientResource = clientResourceManager.getClientResource(fromSC);
 					clientResource.removeLocalTargetFileID(serverTargetFileID);
 					// localTargetFileResourceManager.putLocalTargetFileResource(localTargetFileResource);
@@ -98,7 +103,7 @@ public final class UpFileDataSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("resultMessage", "서버::"+e.getMessage());
 			outObj.setAttribute("serverTargetFileID", serverTargetFileID);
 			
-			letterToClientList.addLetterToClient(fromSC, outObj);
+			sendSelf(outObj);
 			return;
 		} catch (UpDownFileException e) {
 			log.info(String.format("serverTargetFileID[%d] lock free::%s", serverTargetFileID, e.getMessage()), e);
@@ -110,7 +115,7 @@ public final class UpFileDataSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("resultMessage", "서버::"+e.getMessage());
 			outObj.setAttribute("serverTargetFileID", serverTargetFileID);
 			
-			letterToClientList.addLetterToClient(fromSC, outObj);
+			sendSelf(outObj);
 			return;
 		}
 	}

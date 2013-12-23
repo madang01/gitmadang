@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package kr.pe.sinnori.gui.lib;
+package kr.pe.sinnori.gui.screen.fileupdownscreen.task;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -24,6 +24,7 @@ import kr.pe.sinnori.common.exception.UpDownFileException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.message.OutputMessage;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResource;
+import kr.pe.sinnori.gui.lib.MainControllerIF;
 import kr.pe.sinnori.gui.screen.FileTranferProcessDialog;
 
 /**
@@ -45,7 +46,7 @@ public class UploadFileTransferTask implements FileTransferTaskIF, CommonRootIF 
 	private int serverTargetFileID = -1;
 	private LocalSourceFileResource localSourceFileResource = null;
 
-	private boolean isCanceled = false;
+	// private boolean isCanceled = false;
 
 	/**
 	 * 생성자
@@ -81,21 +82,14 @@ public class UploadFileTransferTask implements FileTransferTaskIF, CommonRootIF 
 			for (; fileBlockNo <= localFileBlockMaxNo; fileBlockNo++) {
 				// boolean isCanceled =
 				// fileUpDownScreen.getIsCancelFileTransfer();
-				if (isCanceled) {
-					isCanceled = false;
-					// fileUpDownScreen.setIsCanceledUpDownFileTransfer(false);
+				if (localSourceFileResource.isCanceled()) {
 					// FIXME!
 					log.info("do cancel");
-
-					OutputMessage cancelUploadFileResultOutObj = mainController
-							.cancelUploadFile(serverTargetFileID);
-					/** 서버 업로드 취소 성공시 루프 종료 */
-					if (null != cancelUploadFileResultOutObj) {
-						// FIXME!
-						log.info(cancelUploadFileResultOutObj.toString());
-						
-						break;
-					}
+					
+					OutputMessage cancelUploadFileResultOutObj = mainController.cancelUploadFile();
+					
+					/** 파일 업로드 취소 완료시 종료, 파일 업로드 취소 실패시 파일 업로드 작업 계속 진행 */
+					if (null != cancelUploadFileResultOutObj) break;
 				}
 
 				byte fileData[] = localSourceFileResource
@@ -122,14 +116,17 @@ public class UploadFileTransferTask implements FileTransferTaskIF, CommonRootIF 
 		} catch (UpDownFileException e) {
 			JOptionPane.showMessageDialog(mainFrame, e.toString());
 			return;
-		} finally {
-			mainController.endUploadTask();
 		}
 	}
-
+	
 	@Override
 	public void cancelTask() {
-		isCanceled = true;
+		localSourceFileResource.cancel();
+	}
+	
+	@Override
+	public void endTask() {
+		mainController.endUploadTask();
 	}
 
 }

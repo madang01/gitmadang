@@ -15,27 +15,28 @@
  * limitations under the License.
  */
 
-package kr.pe.sinnori.gui.action.fileupdownscreen;
+package kr.pe.sinnori.gui.screen.fileupdownscreen.action;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
 
 import javax.swing.AbstractAction;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTree;
 
 import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.gui.lib.FileUpDownScreenIF;
 import kr.pe.sinnori.gui.lib.LocalFileTreeNode;
+import kr.pe.sinnori.gui.screen.fileupdownscreen.FileUpDownScreenIF;
 
 /**
- * 로컬 부모 경로로 이동 이벤트 처리 클래스
+ * MS사 윈도우 OS 류에서 사용하는 로컬 드라이브 목록 변경 이벤트 처리 클래스.
  * @author Jonghoon Won
  *
  */
 @SuppressWarnings("serial")
-public class LocalParentSwingAction extends AbstractAction implements CommonRootIF {
+public class LocalDriverChangeAction extends AbstractAction implements CommonRootIF {
 	private JFrame mainFrame = null;
 	private FileUpDownScreenIF fileUpDownScreen = null;
 	private JTree localTree = null;
@@ -48,7 +49,7 @@ public class LocalParentSwingAction extends AbstractAction implements CommonRoot
 	 * @param localTree 로컬 트리
 	 * @param localRootNode 로컬 루트 노드
 	 */
-	public LocalParentSwingAction(JFrame mainFrame, 
+	public LocalDriverChangeAction(JFrame mainFrame, 
 			FileUpDownScreenIF fileUpDownScreen, 
 			JTree localTree,
 			LocalFileTreeNode localRootNode) {
@@ -56,32 +57,46 @@ public class LocalParentSwingAction extends AbstractAction implements CommonRoot
 		this.fileUpDownScreen = fileUpDownScreen;
 		this.localTree = localTree;
 		this.localRootNode = localRootNode;
-		
-		putValue(NAME, "..");
-		putValue(SHORT_DESCRIPTION, "로컬 작업 경로를 부모 경로로 변경하는 이벤트");
 	}
-
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		System.out.printf(
-				"localParentSwingAction::call actionPerformed [%d]",
-				e.getID());
-		System.out.println("");
+		@SuppressWarnings("unchecked")
+		JComboBox<String> cb = (JComboBox<String>)e.getSource();
 
-		File localParntePathFile = localRootNode.getFileObj().getParentFile();
+		int selectedInx = cb.getSelectedIndex();
+		if (selectedInx > 0) {
+			String driverName = (String)cb.getSelectedItem();
+			
+			StringBuilder newWorkPathBuilder = new StringBuilder(driverName);
+			// newWorkPathBuilder.append(File.separator);
+			// newWorkPathBuilder.append(selNode.getFileName());
+			String newWorkPath = newWorkPathBuilder.toString();
 
-		if (null == localParntePathFile) {
-			// log.debug("localParntePathFile is null");
+			log.debug(String.format("newWorkPath=[%s]", newWorkPath));
+			
 
-			JOptionPane.showMessageDialog(mainFrame,
-					"로컬 루트 디렉토리로 상위 디렉토리가 없습니다.");
-			return;
+			File localSelectedPathFile = new File(newWorkPath);
+
+			if (!localSelectedPathFile.exists()) {
+				// log.debug(String.format("선택된 디렉토리[%s]가 존재하지 않습니다.", newWorkPath));
+
+				JOptionPane.showMessageDialog(mainFrame, "선택된 디렉토리가 존재하지 않습니다");
+				return;
+			}
+
+			if (!localSelectedPathFile.isDirectory()) {
+				// log.debug(String.format("선택된 디렉토리[%s]가 디렉토리가 아닙니다.", newWorkPath));
+				
+				JOptionPane.showMessageDialog(mainFrame,
+						"선택된 디렉토리가 디렉토리가 아닙니다.");
+				return;
+			}
+
+			localRootNode.changeFileObj(localSelectedPathFile);
+			localRootNode.removeAllChildren();
+			fileUpDownScreen.makeLocalTreeNode(localRootNode);
+			fileUpDownScreen.repaintTree(localTree);
 		}
-
-		localRootNode.changeFileObj(localParntePathFile);
-		localRootNode.removeAllChildren();
-
-		fileUpDownScreen.makeLocalTreeNode(localRootNode);
-		fileUpDownScreen.repaintTree(localTree);
 	}
 }

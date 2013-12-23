@@ -35,7 +35,7 @@ public class FileUpDown2AnonymousServerMessageTask implements CommonRootIF, Anon
 	
 	@Override
 	public void doTask(String projectName, OutputMessage outObj) {
-		log.info(String.format("projectName[%s] %s", projectName, outObj.toString()));
+		// log.info(String.format("projectName[%s] %s", projectName, outObj.toString()));
 		
 		mainController.doAnonymousServerMessageTask(projectName, outObj);
 	}

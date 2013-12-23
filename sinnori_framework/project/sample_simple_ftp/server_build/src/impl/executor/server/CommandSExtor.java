@@ -20,7 +20,6 @@ package impl.executor.server;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.util.StringTokenizer;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
@@ -31,8 +30,6 @@ import kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.executor.AbstractServerExecutor;
-import kr.pe.sinnori.server.io.LetterListToClient;
-import kr.pe.sinnori.server.io.LetterToClient;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -46,9 +43,7 @@ public final class CommandSExtor extends AbstractServerExecutor {
 
 	@Override
 	protected void doTask(SocketChannel fromSC, InputMessage inObj,
-			LetterListToClient letterToClientList,
-			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
-			MessageMangerIF messageManger,
+			MessageMangerIF messageManger,			
 			ClientResourceManagerIF clientResourceManager)
 			throws MessageInfoNotFoundException, MessageItemException {
 
@@ -182,6 +177,7 @@ public final class CommandSExtor extends AbstractServerExecutor {
 		log.info(String.format("outObj=[%s]", outObj.toString()));
 
 		// FIXME!, 비지니스 로직 추가로 toSC, toOut 생성
-		letterToClientList.addLetterToClient(fromSC, outObj);
+		// letterToClientList.addLetterToClient(fromSC, outObj);
+		sendSelf(outObj);
 	}
 }

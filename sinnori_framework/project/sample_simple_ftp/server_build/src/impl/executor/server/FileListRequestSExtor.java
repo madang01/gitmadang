@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.channels.SocketChannel;
 import java.util.Arrays;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
@@ -18,8 +17,6 @@ import kr.pe.sinnori.common.util.NameFirstComparator;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;
-import kr.pe.sinnori.server.io.LetterListToClient;
-import kr.pe.sinnori.server.io.LetterToClient;
 
 public final class FileListRequestSExtor extends AbstractAuthServerExecutor {
 	
@@ -32,9 +29,7 @@ public final class FileListRequestSExtor extends AbstractAuthServerExecutor {
 
 	@Override
 	protected void doTask(SocketChannel fromSC, InputMessage inObj,
-			LetterListToClient letterToClientList,
-			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
-			MessageMangerIF messageManger,
+			MessageMangerIF messageManger,			
 			ClientResourceManagerIF clientResourceManager)
 			throws MessageInfoNotFoundException, MessageItemException {
 
@@ -53,7 +48,8 @@ public final class FileListRequestSExtor extends AbstractAuthServerExecutor {
 		
 		if (!clientResource.isLogin()) {
 			makeErrorOutMessage(outObj, "로그인 서비스입니다. 로그인을 해 주세요.");
-			letterToClientList.addLetterToClient(fromSC, outObj);
+			// letterToClientList.addLetterToClient(fromSC, outObj);
+			sendSelf(outObj);
 			return;
 		}
 		
@@ -72,7 +68,8 @@ public final class FileListRequestSExtor extends AbstractAuthServerExecutor {
 			*/
 			// outObj.getAttribute("fileList");
 			
-			letterToClientList.addLetterToClient(fromSC, outObj);
+			// letterToClientList.addLetterToClient(fromSC, outObj);
+			sendSelf(outObj);
 			return;
 		}
 		
@@ -86,7 +83,8 @@ public final class FileListRequestSExtor extends AbstractAuthServerExecutor {
 			makeErrorOutMessage(outObj, "요청한 디렉토리가 존재하지 않습니다.");
 			// outObj.getAttribute("fileList");
 			
-			letterToClientList.addLetterToClient(fromSC, outObj);
+			// letterToClientList.addLetterToClient(fromSC, outObj);
+			sendSelf(outObj);
 			return;
 		}
 		
@@ -100,7 +98,8 @@ public final class FileListRequestSExtor extends AbstractAuthServerExecutor {
 			makeErrorOutMessage(outObj, "요청한 디렉토리명은 서버쪽에 파일로 디렉토리가 아닙니다.");
 			// outObj.getAttribute("fileList");
 			
-			letterToClientList.addLetterToClient(fromSC, outObj);
+			// letterToClientList.addLetterToClient(fromSC, outObj);
+			sendSelf(outObj);
 			return;
 		}
 		
@@ -114,7 +113,8 @@ public final class FileListRequestSExtor extends AbstractAuthServerExecutor {
 			makeErrorOutMessage(outObj, "요청한 디렉토리를 읽을수가 없습니다. 서버쪽 파일시스템 읽기 권한을 확인해주세요.");
 			// outObj.getAttribute("fileList");
 			
-			letterToClientList.addLetterToClient(fromSC, outObj);
+			// letterToClientList.addLetterToClient(fromSC, outObj);
+			sendSelf(outObj);
 			return;
 		}
 		
@@ -132,7 +132,8 @@ public final class FileListRequestSExtor extends AbstractAuthServerExecutor {
 			makeErrorOutMessage(outObj, "입력으로 들어온 상대 경로를 포함한 경로를 절대 경로로 변환할때 에러 발생");
 			// outObj.getAttribute("fileList");
 			
-			letterToClientList.addLetterToClient(fromSC, outObj);
+			// letterToClientList.addLetterToClient(fromSC, outObj);
+			sendSelf(outObj);
 			return;
 		}
 				
@@ -216,6 +217,7 @@ public final class FileListRequestSExtor extends AbstractAuthServerExecutor {
 		// FIXME!
 		log.info(String.format("out.requestDirectory=[%s]",  (String)outObj.getAttribute("requestDirectory")));
 
-		letterToClientList.addLetterToClient(fromSC, outObj);
+		// letterToClientList.addLetterToClient(fromSC, outObj);
+		sendSelf(outObj);
 	}
 }

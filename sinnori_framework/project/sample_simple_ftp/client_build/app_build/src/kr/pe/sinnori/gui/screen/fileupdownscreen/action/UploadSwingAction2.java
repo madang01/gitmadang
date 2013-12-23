@@ -16,7 +16,7 @@
  */
 
 
-package kr.pe.sinnori.gui.action.fileupdownscreen;
+package kr.pe.sinnori.gui.screen.fileupdownscreen.action;
 
 import java.awt.event.ActionEvent;
 
@@ -29,10 +29,10 @@ import javax.swing.tree.TreePath;
 import kr.pe.sinnori.common.exception.MessageItemException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.message.OutputMessage;
-import kr.pe.sinnori.gui.lib.FileUpDownScreenIF;
 import kr.pe.sinnori.gui.lib.LocalFileTreeNode;
 import kr.pe.sinnori.gui.lib.MainControllerIF;
 import kr.pe.sinnori.gui.lib.RemoteFileTreeNode;
+import kr.pe.sinnori.gui.screen.fileupdownscreen.FileUpDownScreenIF;
 
 
 /**
@@ -173,7 +173,10 @@ public class UploadSwingAction2 extends AbstractAction implements CommonRootIF {
 							remoteFileName, fileBlockSize);
 
 			/** 정상적인 업로드 파일 준비 출력 메시지를 받지 못했을 경우 처리 종료 */
-			if (null == upFileInfoResulOutObj) return;
+			if (null == upFileInfoResulOutObj) {
+				mainController.freeLocalSourceFileResource();
+				return;
+			}
 			
 			// FIXME!
 			log.info(upFileInfoResulOutObj.toString());

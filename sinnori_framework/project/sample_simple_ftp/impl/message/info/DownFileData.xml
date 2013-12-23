@@ -12,8 +12,11 @@
 <singleitem name="serverSourceFileID" type="integer">
 	<desc>서버 원본 파일 식별자</desc>
 </singleitem>
+<singleitem name="clientTargetFileID" type="integer">
+	<desc>클라이언트 목적지 파일 식별자</desc>
+</singleitem>
 <singleitem name="fileBlockNo" type="integer">
-	<desc>파일 조각 순번</desc>
+	<desc>서버 원본 파일 조각 순번</desc>
 </singleitem>
 
 </sinnori_message>

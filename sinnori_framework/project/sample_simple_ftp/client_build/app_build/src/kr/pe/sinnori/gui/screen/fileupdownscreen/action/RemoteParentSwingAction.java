@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package kr.pe.sinnori.gui.action.fileupdownscreen;
+package kr.pe.sinnori.gui.screen.fileupdownscreen.action;
 
 import java.awt.event.ActionEvent;
 
@@ -27,9 +27,9 @@ import javax.swing.JTree;
 import kr.pe.sinnori.common.exception.MessageItemException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.message.OutputMessage;
-import kr.pe.sinnori.gui.lib.FileUpDownScreenIF;
 import kr.pe.sinnori.gui.lib.MainControllerIF;
 import kr.pe.sinnori.gui.lib.RemoteFileTreeNode;
+import kr.pe.sinnori.gui.screen.fileupdownscreen.FileUpDownScreenIF;
 
 @SuppressWarnings("serial")
 public class RemoteParentSwingAction extends AbstractAction implements

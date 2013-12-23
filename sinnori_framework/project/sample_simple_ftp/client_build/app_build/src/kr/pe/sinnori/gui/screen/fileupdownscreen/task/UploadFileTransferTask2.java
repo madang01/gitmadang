@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package kr.pe.sinnori.gui.lib;
+package kr.pe.sinnori.gui.screen.fileupdownscreen.task;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -25,6 +25,7 @@ import kr.pe.sinnori.common.exception.UpDownFileException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.message.OutputMessage;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResource;
+import kr.pe.sinnori.gui.lib.MainControllerIF;
 import kr.pe.sinnori.gui.screen.FileTranferProcessDialog;
 
 /**
@@ -82,23 +83,15 @@ public class UploadFileTransferTask2 implements FileTransferTaskIF, CommonRootIF
 		try {
 
 			for (; fileBlockNo <= localFileBlockMaxNo; fileBlockNo++) {
+				// FIXME!
+				log.info(String.format("1.fileBlockNo=%d, localFileBlockMaxNo=%d", fileBlockNo, localFileBlockMaxNo));
+				
 				// boolean isCanceled =
 				// fileUpDownScreen.getIsCancelFileTransfer();
-				if (localSourceFileResource.getIsCanceled()) {
-					// isCanceled = false;
-					// fileUpDownScreen.setIsCanceledUpDownFileTransfer(false);
+				if (localSourceFileResource.isCanceled()) {
 					// FIXME!
 					log.info("do cancel");
-
-					OutputMessage cancelUploadFileResultOutObj = mainController
-							.cancelUploadFile(serverTargetFileID);
-					/** 서버 업로드 취소 성공시 루프 종료 */
-					if (null != cancelUploadFileResultOutObj) {
-						// FIXME!
-						log.info(cancelUploadFileResultOutObj.toString());
-						
-						break;
-					}
+					break;
 				}
 
 				byte fileData[] = localSourceFileResource
@@ -125,21 +118,16 @@ public class UploadFileTransferTask2 implements FileTransferTaskIF, CommonRootIF
 		} catch (UpDownFileException e) {
 			JOptionPane.showMessageDialog(mainFrame, e.toString());
 			return;
-		} finally {
-			// fileUpDownScreen.reloadRemoteFileList();
-			mainController.endUploadTask();
 		}
-
-		
-		// fileTranferProcessDialog.updateInfoMesg();
-		
-		// Task 종료후 파일 전송 창 자동 종료
-		// fileTranferProcessDialog.closeFileTransferProcessDialog();
 	}
-
+	
 	@Override
 	public void cancelTask() {
 		localSourceFileResource.cancel();
 	}
 
+	@Override
+	public void endTask() {
+		mainController.endUploadTask();
+	}
 }

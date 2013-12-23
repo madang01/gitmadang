@@ -15,43 +15,68 @@
  * limitations under the License.
  */
 
-package kr.pe.sinnori.gui.action.fileupdownscreen;
+package kr.pe.sinnori.gui.screen.fileupdownscreen.action;
 
 import java.awt.event.ActionEvent;
+import java.io.File;
 
 import javax.swing.AbstractAction;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JTree;
 
 import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.gui.lib.FileUpDownScreenIF;
+import kr.pe.sinnori.gui.lib.LocalFileTreeNode;
+import kr.pe.sinnori.gui.screen.fileupdownscreen.FileUpDownScreenIF;
 
 /**
- * 로컬 경로 재 갱신 이벤트 처리 클래스
+ * 로컬 부모 경로로 이동 이벤트 처리 클래스
  * @author Jonghoon Won
  *
  */
 @SuppressWarnings("serial")
-public class LocalReloadSwingAction extends AbstractAction implements CommonRootIF {
+public class LocalParentSwingAction extends AbstractAction implements CommonRootIF {
+	private JFrame mainFrame = null;
 	private FileUpDownScreenIF fileUpDownScreen = null;
-	
+	private JTree localTree = null;
+	private LocalFileTreeNode localRootNode = null;
 	
 	/**
 	 * 생성자
+	 * @param mainFrame 메인 프레임
 	 * @param fileUpDownScreen 파일 송수신 화면을 제어하는 기능 제공 인터페이스
+	 * @param localTree 로컬 트리
+	 * @param localRootNode 로컬 루트 노드
 	 */
-	public LocalReloadSwingAction(FileUpDownScreenIF fileUpDownScreen) {
+	public LocalParentSwingAction(JFrame mainFrame, 
+			FileUpDownScreenIF fileUpDownScreen, 
+			JTree localTree,
+			LocalFileTreeNode localRootNode) {
+		this.mainFrame = mainFrame;
 		this.fileUpDownScreen = fileUpDownScreen;
+		this.localTree = localTree;
+		this.localRootNode = localRootNode;
 		
-		putValue(NAME, "reload");
-		putValue(SHORT_DESCRIPTION, "로컬 작업 경로의 파일 목록 재 읽기 이벤트");
+		putValue(NAME, "..");
+		putValue(SHORT_DESCRIPTION, "로컬 작업 경로를 부모 경로로 변경하는 이벤트");
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
-		log.debug(String.format("e.getID=[%d]", e.getID()));
-		/*
+		File localParntePathFile = localRootNode.getFileObj().getParentFile();
+
+		if (null == localParntePathFile) {
+			// log.debug("localParntePathFile is null");
+
+			JOptionPane.showMessageDialog(mainFrame,
+					"로컬 루트 디렉토리로 상위 디렉토리가 없습니다.");
+			return;
+		}
+
+		localRootNode.changeFileObj(localParntePathFile);
 		localRootNode.removeAllChildren();
+
 		fileUpDownScreen.makeLocalTreeNode(localRootNode);
 		fileUpDownScreen.repaintTree(localTree);
-		*/
-		fileUpDownScreen.reloadLocalFileList();
 	}
 }

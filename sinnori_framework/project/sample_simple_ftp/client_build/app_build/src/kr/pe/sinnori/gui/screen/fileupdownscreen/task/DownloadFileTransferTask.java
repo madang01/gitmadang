@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package kr.pe.sinnori.gui.lib;
+package kr.pe.sinnori.gui.screen.fileupdownscreen.task;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -25,6 +25,7 @@ import kr.pe.sinnori.common.exception.UpDownFileException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.message.OutputMessage;
 import kr.pe.sinnori.common.updownfile.LocalTargetFileResource;
+import kr.pe.sinnori.gui.lib.MainControllerIF;
 import kr.pe.sinnori.gui.screen.FileTranferProcessDialog;
 
 /**
@@ -43,29 +44,26 @@ import kr.pe.sinnori.gui.screen.FileTranferProcessDialog;
 public class DownloadFileTransferTask implements CommonRootIF, FileTransferTaskIF {
 	private JFrame mainFrame = null;
 	private MainControllerIF mainController = null;
-	private FileUpDownScreenIF fileUpDownScreen = null;
 	private FileTranferProcessDialog fileTranferProcessDialog = null;
 	
 	private int serverSourceFileID = -1;
 	private LocalTargetFileResource localTargetFileResource = null;
 
-	private boolean isCanceled = false;
+	// private boolean isCanceled = false;
 
 	/**
 	 * 생성자
 	 * @param mainFrame 메인 프레임
 	 * @param mainController 메인 제어자
-	 * @param fileUpDownScreen 파일 송수신 화면을 제어하는 기능 제공 인터페이스
 	 * @param serverSourceFileID 서버 소스 파일 식별자. 참고) 서버는 다운로드 할 서버 파일에 걸린 락을 거는데 이 식별자를 통해서 이를 관리한다.
 	 * @param localTargetFileResource 로컬 목적지 파일 자원
 	 */
 	public DownloadFileTransferTask(JFrame mainFrame,
-			MainControllerIF mainController, FileUpDownScreenIF fileUpDownScreen,
+			MainControllerIF mainController,
 			int serverSourceFileID,
 			LocalTargetFileResource localTargetFileResource) {
 		this.mainFrame = mainFrame;
 		this.mainController = mainController;
-		this.fileUpDownScreen = fileUpDownScreen;
 		this.serverSourceFileID = serverSourceFileID;
 		this.localTargetFileResource = localTargetFileResource;
 	}
@@ -83,11 +81,11 @@ public class DownloadFileTransferTask implements CommonRootIF, FileTransferTaskI
 
 			for (; fileBlockNo <= fileBlockMaxNo; fileBlockNo++) {
 				// boolean isCanceled = fileUpDownScreen.getIsCancelFileTransfer();
-				if (isCanceled) {
-					isCanceled = false;
+				if (localTargetFileResource.isCanceled()) {
+					// isCanceled = false;
 					// fileUpDownScreen.setIsCanceledUpDownFileTransfer(false);
 					
-					OutputMessage cancelDownloadFileResultOutObj = mainController.cancelDownloadFile(serverSourceFileID);
+					OutputMessage cancelDownloadFileResultOutObj = mainController.cancelDownloadFile();
 					/** 서버 다운로드 취소 성공시 루프 종료 */
 					if (null != cancelDownloadFileResultOutObj) break;
 				}
@@ -116,19 +114,16 @@ public class DownloadFileTransferTask implements CommonRootIF, FileTransferTaskI
 		} catch (UpDownFileException e) {
 			JOptionPane.showMessageDialog(mainFrame, e.toString());
 			return;
-		} finally {
-			fileUpDownScreen.reloadLocalFileList();
 		}
-
-		// fileTranferProcessDialog.updateInfoMesg();
-		
-		// Task 종료후 파일 전송 창 자동 종료
-		// fileTranferProcessDialog.closeFileTransferProcessDialog();
 	}
-
+	
 	@Override
 	public void cancelTask() {
-		isCanceled = true;
+		localTargetFileResource.cancel();
+	}	
+	
+	@Override
+	public void endTask() {
+		mainController.endDownloadTask();
 	}
-
 }

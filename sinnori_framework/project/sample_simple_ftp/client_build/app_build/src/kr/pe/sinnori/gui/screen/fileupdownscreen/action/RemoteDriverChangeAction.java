@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package kr.pe.sinnori.gui.action.fileupdownscreen;
+package kr.pe.sinnori.gui.screen.fileupdownscreen.action;
 
 import java.awt.event.ActionEvent;
 
@@ -28,9 +28,9 @@ import javax.swing.JTree;
 import kr.pe.sinnori.common.exception.MessageItemException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.message.OutputMessage;
-import kr.pe.sinnori.gui.lib.FileUpDownScreenIF;
 import kr.pe.sinnori.gui.lib.MainControllerIF;
 import kr.pe.sinnori.gui.lib.RemoteFileTreeNode;
+import kr.pe.sinnori.gui.screen.fileupdownscreen.FileUpDownScreenIF;
 
 /**
  * MS사 윈도우 OS 류에서 사용하는 원격지 드라이브 목록 변경 이벤트 처리 클래스.

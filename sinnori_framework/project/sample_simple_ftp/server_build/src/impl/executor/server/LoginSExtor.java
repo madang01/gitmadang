@@ -18,7 +18,6 @@
 package impl.executor.server;
 
 import java.nio.channels.SocketChannel;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
@@ -32,8 +31,6 @@ import kr.pe.sinnori.common.sessionkey.SymmetricKey;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.executor.AbstractServerExecutor;
-import kr.pe.sinnori.server.io.LetterListToClient;
-import kr.pe.sinnori.server.io.LetterToClient;
 
 /**
  * 메세지 식별자 Login 비지니스 로직
@@ -45,9 +42,7 @@ public final class LoginSExtor extends AbstractServerExecutor {
 
 	@Override
 	protected void doTask(SocketChannel fromSC, InputMessage inObj,
-			LetterListToClient letterToClientList,
-			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
-			MessageMangerIF messageManger,
+			MessageMangerIF messageManger,			
 			ClientResourceManagerIF clientResourceManager)
 			throws MessageInfoNotFoundException, MessageItemException {
 
@@ -68,13 +63,13 @@ public final class LoginSExtor extends AbstractServerExecutor {
 			
 			outObj.setAttribute("taskResult", "N");
 			outObj.setAttribute("resultMessage",  new StringBuilder("서버").append("::getSymmetricKey::").append(e.toString()).toString());
-			letterToClientList.addLetterToClient(fromSC, outObj);
+			sendSelf(outObj);
 			return;
 		} catch (SymmetricException e) {
 			log.warn("SymmetricException", e);
 			outObj.setAttribute("taskResult", "N");
 			outObj.setAttribute("resultMessage",  new StringBuilder("서버").append("::getSymmetricKey::").append(e.toString()).toString());
-			letterToClientList.addLetterToClient(fromSC, outObj);
+			sendSelf(outObj);
 			return;
 		}
 		
@@ -90,19 +85,19 @@ public final class LoginSExtor extends AbstractServerExecutor {
 			log.warn("IllegalArgumentException", e);
 			
 			outObj.setAttribute("resultMessage",  new StringBuilder("서버").append("::id::").append(e.toString()).toString());
-			letterToClientList.addLetterToClient(fromSC, outObj);
+			sendSelf(outObj);
 			return;
 		} catch (SymmetricException e) {
 			log.warn("SymmetricException", e);
 			
 			outObj.setAttribute("resultMessage",  new StringBuilder("서버").append("::id::").append(e.toString()).toString());
-			letterToClientList.addLetterToClient(fromSC, outObj);
+			sendSelf(outObj);
 			return;
 		} catch (SinnoriUnsupportedEncodingException e) {
 			log.warn("SinnoriUnsupportedEncodingException", e);
 			
 			outObj.setAttribute("resultMessage",  new StringBuilder("서버").append("::id::").append(e.toString()).toString());
-			letterToClientList.addLetterToClient(fromSC, outObj);
+			sendSelf(outObj);
 			return;
 		}
 		
@@ -112,18 +107,18 @@ public final class LoginSExtor extends AbstractServerExecutor {
 			log.warn("IllegalArgumentException", e);
 			
 			outObj.setAttribute("resultMessage",  new StringBuilder("서버").append("::password::").append(e.toString()).toString());
-			letterToClientList.addLetterToClient(fromSC, outObj);
+			sendSelf(outObj);
 			return;
 		} catch (SymmetricException e) {
 			log.warn("SymmetricException", e);
 			
 			outObj.setAttribute("resultMessage", new StringBuilder("서버").append("::password::").append(e.toString()).toString());
-			letterToClientList.addLetterToClient(fromSC, outObj);
+			sendSelf(outObj);
 			return;
 		} catch (SinnoriUnsupportedEncodingException e) {
 			log.warn("SinnoriUnsupportedEncodingException", e);
 			outObj.setAttribute("resultMessage", new StringBuilder("서버").append("::password::").append(e.toString()).toString());
-			letterToClientList.addLetterToClient(fromSC, outObj);
+			sendSelf(outObj);
 			return;
 		}
 		
@@ -134,7 +129,7 @@ public final class LoginSExtor extends AbstractServerExecutor {
 			outObj.setAttribute("taskResult", "N");
 			outObj.setAttribute("resultMessage", new StringBuilder(mID).append(" 아이디가 존재하지 않습니다.").toString());
 
-			letterToClientList.addLetterToClient(fromSC, outObj);
+			sendSelf(outObj);
 			return;
 		}
 		
@@ -142,7 +137,7 @@ public final class LoginSExtor extends AbstractServerExecutor {
 			outObj.setAttribute("taskResult", "N");
 			outObj.setAttribute("resultMessage", "비밀번호가 잘못 되었습니다.");
 
-			letterToClientList.addLetterToClient(fromSC, outObj);
+			sendSelf(outObj);
 			return;
 		}
 		
@@ -150,7 +145,7 @@ public final class LoginSExtor extends AbstractServerExecutor {
 			outObj.setAttribute("taskResult", "N");
 			outObj.setAttribute("resultMessage", "이미 로그인한 상태입니다.");
 
-			letterToClientList.addLetterToClient(fromSC, outObj);
+			sendSelf(outObj);
 			return;
 		}
 		
@@ -162,6 +157,6 @@ public final class LoginSExtor extends AbstractServerExecutor {
 		outObj.setAttribute("taskResult", "Y");
 		outObj.setAttribute("resultMessage", "회원 가입을 축하드립니다.");
 
-		letterToClientList.addLetterToClient(fromSC, outObj);
+		sendSelf(outObj);
 	}
 }

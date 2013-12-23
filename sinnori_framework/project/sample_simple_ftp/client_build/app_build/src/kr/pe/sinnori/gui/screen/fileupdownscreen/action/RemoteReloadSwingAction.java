@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-package kr.pe.sinnori.gui.action.fileupdownscreen;
+package kr.pe.sinnori.gui.screen.fileupdownscreen.action;
 
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
 import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.gui.lib.FileUpDownScreenIF;
+import kr.pe.sinnori.gui.screen.fileupdownscreen.FileUpDownScreenIF;
 
 /**
  * 원격지 경로 재 갱신 이벤트 클래스.

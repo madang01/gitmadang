@@ -19,7 +19,6 @@
 package impl.executor.server;
 
 import java.nio.channels.SocketChannel;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
@@ -32,8 +31,6 @@ import kr.pe.sinnori.common.updownfile.LocalTargetFileResourceManager;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;
-import kr.pe.sinnori.server.io.LetterListToClient;
-import kr.pe.sinnori.server.io.LetterToClient;
 
 /**
  * <pre>
@@ -48,21 +45,24 @@ public final class UpFileInfoSExtor extends AbstractAuthServerExecutor {
 
 	@Override
 	protected void doTask(SocketChannel fromSC, InputMessage inObj,
-			LetterListToClient letterToClientList,
-			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
-			MessageMangerIF messageManger,
+			MessageMangerIF messageManger,			
 			ClientResourceManagerIF clientResourceManager)
 			throws MessageInfoNotFoundException, MessageItemException {
 		LocalTargetFileResourceManager localTargetFileResourceManager = LocalTargetFileResourceManager.getInstance();
 		OutputMessage outObj = messageManger.createOutputMessage("UpFileInfoResult");
 		outObj.messageHeaderInfo = inObj.messageHeaderInfo;
 		
+		
+		int clientSourceFileID = (Integer)inObj.getAttribute("clientSourceFileID");
 		String localFilePathName = (String)inObj.getAttribute("localFilePathName");
 		String localFileName = (String)inObj.getAttribute("localFileName");
 		Long localFileSize = (Long)inObj.getAttribute("localFileSize");
 		String remoteFilePathName = (String)inObj.getAttribute("remoteFilePathName");
 		String remoteFileName = (String)inObj.getAttribute("remoteFileName");
 		int fileBlockSize = (Integer)inObj.getAttribute("fileBlockSize");
+		
+		
+		outObj.setAttribute("clientSourceFileID", clientSourceFileID);
 		
 		// FIXME!
 		log.info(inObj.toString());
@@ -77,10 +77,12 @@ public final class UpFileInfoSExtor extends AbstractAuthServerExecutor {
 				outObj.setAttribute("taskResult", "N");
 				outObj.setAttribute("resultMessage", "큐로부터 목적지 파일 자원 할당에 실패하였습니다.");
 				outObj.setAttribute("serverTargetFileID", -1);
-				letterToClientList.addLetterToClient(fromSC, outObj);
+				
+				sendSelf(outObj);
 				return;
 			}
 			
+			localTargetFileResource.setSourceFileID(clientSourceFileID);
 			int serverTargetFileID = localTargetFileResource.getTargetFileID();
 			
 			ClientResource clientResource = clientResourceManager.getClientResource(fromSC);
@@ -105,7 +107,7 @@ public final class UpFileInfoSExtor extends AbstractAuthServerExecutor {
 				return;
 			}
 		*/
-			letterToClientList.addLetterToClient(fromSC, outObj);
+			sendSelf(outObj);
 		} catch (IllegalArgumentException e) {
 			log.info("IllegalArgumentException", e);
 			
@@ -122,7 +124,7 @@ public final class UpFileInfoSExtor extends AbstractAuthServerExecutor {
 			}
 			return;
 			*/
-			letterToClientList.addLetterToClient(fromSC, outObj);
+			sendSelf(outObj);
 		} catch (UpDownFileException e) {
 			log.info("UpDownFileException", e);
 			
@@ -139,7 +141,7 @@ public final class UpFileInfoSExtor extends AbstractAuthServerExecutor {
 			}
 			return;
 			*/
-			letterToClientList.addLetterToClient(fromSC, outObj);
+			sendSelf(outObj);
 		}
 	}
 }

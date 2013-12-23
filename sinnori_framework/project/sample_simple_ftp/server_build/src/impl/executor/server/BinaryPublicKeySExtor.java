@@ -18,7 +18,6 @@
 package impl.executor.server;
 
 import java.nio.channels.SocketChannel;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
@@ -28,8 +27,6 @@ import kr.pe.sinnori.common.message.OutputMessage;
 import kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.executor.AbstractServerExecutor;
-import kr.pe.sinnori.server.io.LetterListToClient;
-import kr.pe.sinnori.server.io.LetterToClient;
 
 /**
  * 
@@ -40,9 +37,7 @@ public final class BinaryPublicKeySExtor extends AbstractServerExecutor {
 	
 	@Override
 	protected void doTask(SocketChannel fromSC, InputMessage inObj,
-			LetterListToClient letterToClientList,
-			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
-			MessageMangerIF messageManger,
+			MessageMangerIF messageManger,			
 			ClientResourceManagerIF clientResourceManager)
 			throws MessageInfoNotFoundException, MessageItemException {
 		
@@ -56,7 +51,6 @@ public final class BinaryPublicKeySExtor extends AbstractServerExecutor {
 		outObj.setAttribute("publicKeyBytes", ServerSessionKeyManager.getInstance().getPublicKeyBytes());
 		
 
-		letterToClientList.addLetterToClient(fromSC, outObj);
-		
+		sendSelf(outObj);
 	}
 }

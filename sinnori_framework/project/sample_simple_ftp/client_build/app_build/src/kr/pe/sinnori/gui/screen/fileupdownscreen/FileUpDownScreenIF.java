@@ -15,12 +15,14 @@
  * limitations under the License.
  */
 
-package kr.pe.sinnori.gui.lib;
+package kr.pe.sinnori.gui.screen.fileupdownscreen;
 
 import javax.swing.JTree;
 
 import kr.pe.sinnori.common.exception.MessageItemException;
 import kr.pe.sinnori.common.message.OutputMessage;
+import kr.pe.sinnori.gui.lib.LocalFileTreeNode;
+import kr.pe.sinnori.gui.lib.RemoteFileTreeNode;
 
 /**
  * 파일 송수신 화면을 제어하는 기능 제공 인터페이스. 

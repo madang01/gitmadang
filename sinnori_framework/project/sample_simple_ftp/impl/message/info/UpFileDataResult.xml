@@ -9,16 +9,19 @@
 <sinnori_message>
 <messageID>UpFileDataResult</messageID>
 <desc>파일 업로드 파일 조각 요청 출력 메시지</desc>
-<singleitem name="taskResult" type="ub pascal string">
-	<desc>메시지 1:1 대응 비지니스 로직 수행 후 성공여부 , Y:성공, N:실패</desc>
-</singleitem>
-<singleitem name="resultMessage" type="ub pascal string">
-	<desc>결과 메세지</desc>
+<singleitem name="clientSourceFileID" type="integer">
+	<desc>클라이언트 원본 파일 식별자</desc>
 </singleitem>
 <singleitem name="serverTargetFileID" type="integer">
 	<desc>서버 목적지 파일 식별자</desc>
 </singleitem>
 <singleitem name="fileBlockNo" type="integer">
 	<desc>파일 조각 순번, 자바는 배열 크기가 정수로 제한되는데 BitSet 도 그대로 그 문제를 상속한다.</desc>
+</singleitem>
+<singleitem name="taskResult" type="ub pascal string">
+	<desc>메시지 1:1 대응 비지니스 로직 수행 후 성공여부 , Y:성공, N:실패</desc>
+</singleitem>
+<singleitem name="resultMessage" type="ub pascal string">
+	<desc>결과 메세지</desc>
 </singleitem>
 </sinnori_message>

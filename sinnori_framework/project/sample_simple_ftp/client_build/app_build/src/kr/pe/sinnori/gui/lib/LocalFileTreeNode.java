@@ -41,7 +41,7 @@ public class LocalFileTreeNode extends AbstractFileTreeNode {
 		}
 		*/
 		
-		log.info(String.format("fileName=[%s], userObject=[%s], isRoot=[%s]", fileName, getUserObject(), isRoot()));
+		// log.info(String.format("fileName=[%s], userObject=[%s], isRoot=[%s]", fileName, getUserObject(), isRoot()));
 	}
 	
 	/**
