@@ -87,7 +87,7 @@ public final class ClientProjectManager implements CommonRootIF {
 	public ClientProject getClientProject(String projectName) {
 		ClientProject clientProject =  clientProjectHash.get(projectName);
 		if (null == clientProject) {
-			log.fatal(String.format("신놀이 프레임 워크 환경설정 파일에 프로젝트[%s]가 정의되지 않았습니다."));
+			log.fatal(String.format("신놀이 프레임 워크 환경설정 파일에 프로젝트[%s]가 정의되지 않았습니다.", projectName));
 			System.exit(1);
 		}
 		
