@@ -84,7 +84,7 @@ public class UploadFileTransferTask2 implements FileTransferTaskIF, CommonRootIF
 
 			for (; fileBlockNo <= localFileBlockMaxNo; fileBlockNo++) {
 				// FIXME!
-				log.info(String.format("1.fileBlockNo=%d, localFileBlockMaxNo=%d", fileBlockNo, localFileBlockMaxNo));
+				// log.info(String.format("1.fileBlockNo=%d, localFileBlockMaxNo=%d", fileBlockNo, localFileBlockMaxNo));
 				
 				// boolean isCanceled =
 				// fileUpDownScreen.getIsCancelFileTransfer();

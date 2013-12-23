@@ -129,24 +129,41 @@ public class DownloadSwingAction2 extends AbstractAction implements CommonRootIF
 		if (null != localSelectedPath) {
 			LocalFileTreeNode localSelectedNode = (LocalFileTreeNode) localSelectedPath
 					.getLastPathComponent();
-			if (AbstractFileTreeNode.FileType.File == localSelectedNode
-					.getFileType()) {
-				int yesOption = JOptionPane.showConfirmDialog(mainFrame, String
-						.format("원격지 파일[%s]을 로컬 파일[%s]에 덮어 쓰시겠습니까?",
-								remoteFileName,
-								localSelectedNode.getFileName()), "덮어쓰기 확인창",
-						JOptionPane.YES_NO_OPTION);
-				if (JOptionPane.NO_OPTION == yesOption)
-					return;
-
-				localFileName = localSelectedNode.getFileName();
+			
+			if (localSelectedNode.isRoot()) {
+				int cntOfChild = localRootNode.getChildCount();
+				for (int i=0;i < cntOfChild; i++) {
+					LocalFileTreeNode localFileTreeNode = (LocalFileTreeNode)localRootNode.getChildAt(i);
+					String localTempFileName = localFileTreeNode.getFileName();
+					if (localTempFileName.equals(remoteFileName)) {
+						int yesOption = JOptionPane.showConfirmDialog(mainFrame, String
+								.format("원격지 파일[%s]과 동일한 파일이 로컬 작업 경로[%s]에 존재합니다. 파일을 덮어 쓰시겠습니까?",
+										remoteFileName, localFilePathName), "덮어쓰기 확인창",
+								JOptionPane.YES_NO_OPTION);
+						if (JOptionPane.NO_OPTION == yesOption) return;
+						break;
+					}
+				}
 			} else {
-				StringBuilder targetPathBuilder = new StringBuilder(localFilePathName);
-				targetPathBuilder.append(File.separator);
-				targetPathBuilder.append(localSelectedNode.getFileName());
-				localFilePathName = targetPathBuilder.toString();
-				// targetPath = targetPath + File.separator +
-				// localSelectedNode.getFileName();
+				if (AbstractFileTreeNode.FileType.File == localSelectedNode
+						.getFileType()) {
+					int yesOption = JOptionPane.showConfirmDialog(mainFrame, String
+							.format("원격지 파일[%s]을 로컬 파일[%s]에 덮어 쓰시겠습니까?",
+									remoteFileName,
+									localSelectedNode.getFileName()), "덮어쓰기 확인창",
+							JOptionPane.YES_NO_OPTION);
+					if (JOptionPane.NO_OPTION == yesOption)
+						return;
+	
+					localFileName = localSelectedNode.getFileName();
+				} else {
+					StringBuilder targetPathBuilder = new StringBuilder(localFilePathName);
+					targetPathBuilder.append(File.separator);
+					targetPathBuilder.append(localSelectedNode.getFileName());
+					localFilePathName = targetPathBuilder.toString();
+					// targetPath = targetPath + File.separator +
+					// localSelectedNode.getFileName();
+				}
 			}
 		} else {
 			int cntOfChild = localRootNode.getChildCount();

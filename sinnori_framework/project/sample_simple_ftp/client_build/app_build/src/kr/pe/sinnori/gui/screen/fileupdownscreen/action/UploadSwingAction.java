@@ -123,25 +123,41 @@ public class UploadSwingAction extends AbstractAction implements CommonRootIF {
 		if (null != remoteSelectedPath) {
 			RemoteFileTreeNode remoteSelectedNode = (RemoteFileTreeNode) remoteSelectedPath
 					.getLastPathComponent();
-
-			if (RemoteFileTreeNode.FileType.File == remoteSelectedNode
-					.getFileType()) {
-				int yesOption = JOptionPane.showConfirmDialog(mainFrame,
-						String.format("로컬 파일[%s]을 원격지 파일[%s]에 덮어 쓰시겠습니까?",
-								localFileName,
-								remoteSelectedNode.getFileName()),
-						"덮어쓰기 확인창", JOptionPane.YES_NO_OPTION);
-
-				if (JOptionPane.NO_OPTION == yesOption)
-					return;
-
-				remoteFileName = remoteSelectedNode.getFileName();
-			} else if (!remoteSelectedNode.isRoot()) {
-				/** 업로드한 파일의 위치로 원격지 자식 디렉토리를 선택한 경우 */
-				StringBuilder targetPathBuilder = new StringBuilder(remoteFilePathName);
-				targetPathBuilder.append(remotePathSeperator);
-				targetPathBuilder.append(remoteSelectedNode.getFileName());
-				remoteFilePathName = targetPathBuilder.toString();
+			
+			if (remoteSelectedNode.isRoot()) {
+				int cntOfChild = remoteRootNode.getChildCount();
+				for (int i=0;i < cntOfChild; i++) {
+					RemoteFileTreeNode remoteFileTreeNode = (RemoteFileTreeNode)remoteRootNode.getChildAt(i);
+					String remoteTempFileName = remoteFileTreeNode.getFileName();
+					if (remoteTempFileName.equals(localFileName)) {
+						int yesOption = JOptionPane.showConfirmDialog(mainFrame, String
+								.format("로컬 파일[%s]과 동일한 파일이 원격지 작업 경로[%s]에 존재합니다. 파일을 덮어 쓰시겠습니까?",
+										localFileName, remoteFilePathName), "덮어쓰기 확인창",
+								JOptionPane.YES_NO_OPTION);
+						if (JOptionPane.NO_OPTION == yesOption) return;
+						break;
+					}
+				}
+			} else {
+				if (RemoteFileTreeNode.FileType.File == remoteSelectedNode
+						.getFileType()) {
+					int yesOption = JOptionPane.showConfirmDialog(mainFrame,
+							String.format("로컬 파일[%s]을 원격지 파일[%s]에 덮어 쓰시겠습니까?",
+									localFileName,
+									remoteSelectedNode.getFileName()),
+							"덮어쓰기 확인창", JOptionPane.YES_NO_OPTION);
+	
+					if (JOptionPane.NO_OPTION == yesOption)
+						return;
+	
+					remoteFileName = remoteSelectedNode.getFileName();
+				} else {
+					/** 업로드한 파일의 위치로 원격지 자식 디렉토리를 선택한 경우 */
+					StringBuilder targetPathBuilder = new StringBuilder(remoteFilePathName);
+					targetPathBuilder.append(remotePathSeperator);
+					targetPathBuilder.append(remoteSelectedNode.getFileName());
+					remoteFilePathName = targetPathBuilder.toString();
+				}
 			}
 		} else {
 			int cntOfChild = remoteRootNode.getChildCount();
