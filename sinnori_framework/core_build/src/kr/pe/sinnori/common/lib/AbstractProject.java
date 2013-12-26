@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.nio.ByteOrder;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.common.configuration.ProjectConfig;
@@ -51,7 +52,7 @@ public abstract class AbstractProject implements CommonRootIF, DataPacketBufferQ
 	
 	
 	/** 키가 메시지 식별자, 값이 메시지 정보인 메시지 정보 해쉬 */
-	private HashMap<String, MessageInfo> messageInfoHash = new HashMap<String, MessageInfo>();
+	private Hashtable<String, MessageInfo> messageInfoHash = new Hashtable<String, MessageInfo>();
 	/**
 	 * <pre>
 	 * 키가 메시지 식별자, 값이 메시지 정보 파일 정보인 메시지 정보 해쉬
@@ -240,7 +241,7 @@ public abstract class AbstractProject implements CommonRootIF, DataPacketBufferQ
 
 		MessageInfo messageInfo = null;
 
-		synchronized (messageInfoHash) {
+		//synchronized (messageInfoHash) {
 			messageInfo = messageInfoHash.get(messageID);
 
 			if (null == messageInfo) {
@@ -289,7 +290,7 @@ public abstract class AbstractProject implements CommonRootIF, DataPacketBufferQ
 					messageInfo = readMessageXMLFile(workedFile);
 				}
 			}
-		}
+		//}
 
 		return messageInfo;
 	}

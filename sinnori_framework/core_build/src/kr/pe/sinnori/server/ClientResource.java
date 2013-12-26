@@ -40,8 +40,10 @@ import kr.pe.sinnori.common.updownfile.LocalTargetFileResourceManager;
  * 
  */
 public class ClientResource implements CommonRootIF {
-	private String projectName = null;
+	private final Object monitorOfServerMailID = new Object();
 	
+	private String projectName = null;
+
 	/** 이 자원을 소유한 소켓 채널 */
 	private SocketChannel clientSC = null;
 
@@ -263,18 +265,18 @@ public class ClientResource implements CommonRootIF {
 	 * 메일 식별자를 반환한다. 메일 식별자는 자동 증가된다.
 	 */
 	public int getServerMailID() {
-		if (null == clientSC)
+		if (null == clientSC) {
+			log.warn("clientSC is null");
 			return serverMailID;
+		}
 
-		synchronized (clientSC) {
-			int retValue = serverMailID;
-
+		synchronized (monitorOfServerMailID) {
 			if (Integer.MAX_VALUE == serverMailID) {
 				serverMailID = Integer.MIN_VALUE;
 			} else {
 				serverMailID++;
 			}
-			return retValue;
+			return serverMailID;
 		}
 	}
 

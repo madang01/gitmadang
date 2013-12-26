@@ -21,10 +21,8 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.channels.SocketChannel;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.TreeSet;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -74,10 +72,10 @@ import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterPool;
  */
 public class ServerProject extends AbstractProject implements ClientResourceManagerIF, SererExecutorClassLoaderManagerIF {
 	/** 모니터 객체 */
-	private final Object clientResourceMonitor = new Object();
+	// private final Object clientResourceMonitor = new Object();
 	
 	/** 클래스 파일 정보 해쉬, 키  클래스명, 값 동적으로 로딩한 클래스 파일 정보. */
-	private HashMap<String, ReadFileInfo> loadedClassFileInfoHash = new HashMap<String, ReadFileInfo>();
+	private Hashtable<String, ReadFileInfo> loadedClassFileInfoHash = new Hashtable<String, ReadFileInfo>();
 	
 	/** 접속 승인 큐 */
 	private LinkedBlockingQueue<SocketChannel> acceptQueue = null;
@@ -109,9 +107,9 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 	// private SinnoriClassLoader classLoader = null;
 	
 	/** 클라이언트 자원 해쉬 */
-	private Map<SocketChannel, ClientResource> scToClientResourceHash = new Hashtable<SocketChannel, ClientResource>();
+	private Hashtable<SocketChannel, ClientResource> scToClientResourceHash = new Hashtable<SocketChannel, ClientResource>();
 
-	private Map<String, SocketChannel> loginIDToSCHash = new Hashtable<String, SocketChannel>();
+	private Hashtable<String, SocketChannel> loginIDToSCHash = new Hashtable<String, SocketChannel>();
 	
 	
 	private ServerProjectMonitor serverProjectMonitor = null;
@@ -478,7 +476,7 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 			throw new DynamicClassCallException(errorMessage);
 		}
 
-		synchronized (loadedClassFileInfoHash) {			
+		// synchronized (loadedClassFileInfoHash) {			
 			classResource = loadedClassFileInfoHash.get(className);
 			
 			if (null == classResource) {
@@ -503,7 +501,7 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 				}
 			}
 			returnObj = (AbstractServerExecutor)classResource.resultObject;
-		}
+		// }
 
 		return returnObj;
 	}
@@ -512,7 +510,7 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 	@Override
 	public void addNewClient(SocketChannel sc)
 			throws NoMoreDataPacketBufferException {
-		synchronized (clientResourceMonitor) {
+		// synchronized (clientResourceMonitor) {
 			ClientResource clientResource = scToClientResourceHash.get(sc);
 			if (null != clientResource) {
 				log.warn(String.format("클라이언트 자원에서 신규 클라이언트[%d] 등록시 중복 시도", sc.hashCode()));
@@ -523,12 +521,12 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 					this);
 
 			scToClientResourceHash.put(sc, clientResource);
-		}
+		// }
 	}
 
 	@Override
 	public void removeClient(SocketChannel sc) {
-		synchronized (clientResourceMonitor) {
+		// synchronized (clientResourceMonitor) {
 			try {
 				sc.close();
 			} catch (IOException e1) {
@@ -550,7 +548,7 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 			
 
 			scToClientResourceHash.remove(sc);			
-		}
+		// }
 	}
 	
 	// FIXME!
