@@ -621,6 +621,8 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		} catch (NotLoginException e) {
 			log.warn("NotLoginException", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+			
+			goToFirstScreen();
 			return null;
 		}
 		
@@ -778,6 +780,8 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		} catch (NotLoginException e) {
 			log.warn("NotLoginException", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+			
+			goToFirstScreen();
 			return null;
 		}
 		
@@ -945,6 +949,8 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		} catch (NotLoginException e) {
 			log.warn("NotLoginException", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+			
+			goToFirstScreen();
 			return null;
 		}
 		
@@ -1093,6 +1099,8 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		} catch (NotLoginException e) {
 			log.warn("NotLoginException", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+			
+			goToFirstScreen();
 			return null;
 		}
 		
@@ -1259,6 +1267,8 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		} catch (NotLoginException e) {
 			log.warn("NotLoginException", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+			
+			goToFirstScreen();
 			return null;
 		}
 		
@@ -1377,6 +1387,8 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		} catch (NotLoginException e) {
 			log.warn("NotLoginException", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+			
+			goToFirstScreen();
 			return null;
 		}
 		
@@ -1494,6 +1506,8 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		} catch (NotLoginException e) {
 			log.warn("NotLoginException", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+			
+			goToFirstScreen();
 			return null;
 		}
 		
