@@ -17,6 +17,7 @@
 package kr.pe.sinnori.client.connection.sync.noshare;
 
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.connection.AbstractConnection;
@@ -43,7 +44,9 @@ import kr.pe.sinnori.common.message.InputMessage;
 public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 	/** Connection Pool 운영을 위한 변수 */
 	private LinkedBlockingQueue<NoShareSyncConnection> connectionQueue = null;
+	private ArrayList<NoShareSyncConnection> connectionList = new ArrayList<NoShareSyncConnection>();
 	private int connectionPoolSize;
+	private boolean isFailToGetConnection = false;
 	
 	/** 소켓 쓰기 랩 버퍼 목록 */
 	// private ArrayList<WrapBuffer> inputMessageWriteBufferList = new ArrayList<WrapBuffer>();
@@ -84,6 +87,7 @@ public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 					serverOutputMessageQueue, messageProtocol, messageManger, 
 					dataPacketBufferQueueManager);
 			connectionQueue.add(serverConnection);
+			connectionList.add(serverConnection);
 		}
 		
 	}
@@ -102,15 +106,23 @@ public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 	public LetterFromServer sendInputMessage(InputMessage inputMessage)
 			throws ServerNotReadyException, SocketTimeoutException,
 			NoMoreDataPacketBufferException, BodyFormatException, MessageInfoNotFoundException {
-		NoShareSyncConnection serverConnection = null;
+		NoShareSyncConnection conn = null;
 		// synchronized (monitor) {
 		try {
-			serverConnection = connectionQueue.take();
-			serverConnection.queueOut();
+			conn = connectionQueue.poll();
+			if (null == conn) {
+				if (!isFailToGetConnection) {
+					isFailToGetConnection = true;
+					log.warn("WARNING::connection queue empty");
+				}
+				conn = connectionQueue.take();
+			}
+			
+			conn.queueOut();
 		} catch (InterruptedException e) {
 			try {
-				serverConnection = connectionQueue.take();
-				serverConnection.queueOut();
+				conn = connectionQueue.take();
+				conn.queueOut();
 			} catch (InterruptedException e1) {
 				log.fatal("인터럽트 받아 후속 처리중 발생", e1);
 				System.exit(1);
@@ -120,12 +132,12 @@ public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 
 		LetterFromServer retLetterList = null;
 		try {
-			retLetterList = serverConnection.sendInputMessage(inputMessage);
+			retLetterList = conn.sendInputMessage(inputMessage);
 		} finally {
 			// synchronized (monitor) {
 			try {
-				serverConnection.queueIn();
-				connectionQueue.put(serverConnection);
+				conn.queueIn();
+				connectionQueue.put(conn);
 			} catch (InterruptedException e) {
 				log.fatal("발생할 이유 없음 원인 제거 필요함", e);
 			}
@@ -136,7 +148,14 @@ public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 	
 	@Override
 	public AbstractConnection getConnection() throws InterruptedException, NotSupportedException {
-		NoShareSyncConnection conn = connectionQueue.take();
+		NoShareSyncConnection conn = connectionQueue.poll();
+		if (null == conn) {
+			if (!isFailToGetConnection) {
+				isFailToGetConnection = true;
+				log.warn("WARNING::connection queue empty");
+			}
+			conn = connectionQueue.take();
+		}
 		
 		synchronized (monitor) {
 			conn.queueOut();
@@ -146,11 +165,26 @@ public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 	
 	@Override
 	public void freeConnection(AbstractConnection conn) throws NotSupportedException {
+		if (null == conn) return;
+		
 		NoShareSyncConnection serverConnection = (NoShareSyncConnection)conn;
 		synchronized (monitor) {
 			if (serverConnection.isInQueue()) return;
 			serverConnection.queueIn();
 		}
 		connectionQueue.offer(serverConnection);
+	}
+	
+	@Override
+	public ArrayList<AbstractConnection> getConnectionList() {
+		ArrayList<AbstractConnection>  list = new ArrayList<AbstractConnection>();
+		
+		int connectionListSize = connectionList.size();
+		for (int i = 0; i < connectionListSize; i++) {
+			AbstractConnection conn = connectionList.get(i);
+			list.add(conn);
+		}
+		
+		return list;
 	}
 }

@@ -17,11 +17,8 @@
 package kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.NotYetConnectedException;
-import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -106,7 +103,7 @@ public class InputMessageWriter extends Thread implements CommonRootIF {
 						.getServerConnection();
 				InputMessage inObj = letterToServer.getInputMessage();
 	
-				SocketChannel toSC = noneBlockConnection.getSocketChannel();
+				// SocketChannel toSC = noneBlockConnection.getSocketChannel();
 				
 				ByteOrder clientByteOrder = noneBlockConnection.getByteOrderOfProject();
 				Charset clientCharset = noneBlockConnection.getCharsetOfProject();
@@ -120,33 +117,7 @@ public class InputMessageWriter extends Thread implements CommonRootIF {
 				
 				try {
 					inObjWrapBufferList = messageProtocol.M2S(inObj, clientByteOrder, clientCharset);
-					
-					int inObjWrapBufferListSize = inObjWrapBufferList.size();
-					
-					synchronized (toSC) {
-						/**
-						 * 2013.07.24 잔존 데이타 발생하므로 GatheringByteChannel 를 이용하는 바이트 버퍼 배열 쓰기 방식 포기.
-						 */
-						for (int i=0; i < inObjWrapBufferListSize; i++) {
-							WrapBuffer wrapBuffer = inObjWrapBufferList.get(i);
-							ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
-
-							do {
-								try {
-									toSC.write(byteBuffer);
-								} catch(ClosedByInterruptException e) {
-									log.warn("ClosedByInterruptException", e);
-									try {
-										toSC.write(byteBuffer);
-									} catch(ClosedByInterruptException e1) {
-										log.fatal("ClosedByInterruptException", e1);
-										System.exit(1);
-									}
-									Thread.currentThread().interrupt();
-								}
-							} while(byteBuffer.hasRemaining());
-						}
-					}	
+					noneBlockConnection.write(inObjWrapBufferList);
 				} catch (NoMoreDataPacketBufferException e) {
 					log.warn("NoMoreDataPacketBufferException", e);
 					
@@ -213,17 +184,13 @@ public class InputMessageWriter extends Thread implements CommonRootIF {
 				} catch (NotYetConnectedException e) {
 					// ClosedChannelException
 					log.warn(String.format("NotYetConnectedException::%s, inObj=[%s]", noneBlockConnection.getSimpleConnectionInfo(), inObj.toString()), e);
-					try {
-						toSC.close();
-					} catch (IOException e1) {
-					}
+					
+					noneBlockConnection.closeServer();
 				} catch (IOException e) {
 					// ClosedChannelException
 					log.warn(String.format("IOException::%s, inObj=[%s]", noneBlockConnection.getSimpleConnectionInfo(), inObj.toString()), e);
-					try {
-						toSC.close();
-					} catch (IOException e1) {
-					}
+					
+					noneBlockConnection.closeServer();
 				} finally {
 					if (null != inObjWrapBufferList) {
 						int bodyWrapBufferListSiz = inObjWrapBufferList.size();

@@ -17,6 +17,7 @@
 package kr.pe.sinnori.client.connection;
 
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.io.LetterFromServer;
@@ -113,4 +114,6 @@ public abstract class AbstractConnectionPool implements CommonRootIF {
 	 * @return 전체 메일함 갯수
 	 */
 	abstract public int getTotalMailbox();
+	
+	abstract public ArrayList<AbstractConnection> getConnectionList();
 }

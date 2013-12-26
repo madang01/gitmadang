@@ -470,6 +470,32 @@ public final class SinnoriConfig {
 		}
 		resourceHash.put(propKey, localTargetFileResourceCnt);		
 		log.info(String.format("%s::prop value[%s], new value[%d]", propKey, propValue, (Integer)resourceHash.get(propKey)));
+		
+		
+		propKey = "common.updownfile.file_block_max_size.value";
+		propValue = configFileProperties.getProperty(propKey);
+		int fileBlockMaxSize=1024*1024;
+		if (null != propValue) {
+			try {
+				fileBlockMaxSize = Integer.parseInt(propValue);
+				
+				if (fileBlockMaxSize < 1024) {
+					log.fatal(String.format("warning:: key[%s] minimum value 1024 but value[%s]", propKey, propValue));
+					System.exit(1);
+				}
+				
+				if (0 != (fileBlockMaxSize % 1024)) {
+					log.fatal(String.format("warning:: key[%s]'s value[%s] is not a multiple of 1024", propKey, propValue));
+					System.exit(1);
+				}
+				
+			} catch(NumberFormatException e) {
+				log.fatal(String.format("warning:: key[%s] integer but value[%s]", propKey, propValue));
+				System.exit(1);
+			}
+		}
+		resourceHash.put(propKey, fileBlockMaxSize);		
+		log.info(String.format("%s::prop value[%s], new value[%d]", propKey, propValue, (Integer)resourceHash.get(propKey)));
 		/******** 파일 송수신 종료 **********/
 
 		/******** 프로젝트 모니터 시작 **********/

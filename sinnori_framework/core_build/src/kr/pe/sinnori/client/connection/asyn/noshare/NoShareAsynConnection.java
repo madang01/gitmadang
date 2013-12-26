@@ -167,6 +167,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 					
 				
 			serverSC = SocketChannel.open();
+			finalReadTime = new java.util.Date();
 
 			infoStringBuilder.append("new serverSC[");
 			infoStringBuilder.append(serverSC.hashCode());

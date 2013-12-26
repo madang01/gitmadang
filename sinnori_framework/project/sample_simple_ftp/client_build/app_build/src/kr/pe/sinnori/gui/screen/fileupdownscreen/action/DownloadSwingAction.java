@@ -161,8 +161,6 @@ public class DownloadSwingAction extends AbstractAction implements CommonRootIF 
 					targetPathBuilder.append(File.separator);
 					targetPathBuilder.append(localSelectedNode.getFileName());
 					localFilePathName = targetPathBuilder.toString();
-					// targetPath = targetPath + File.separator +
-					// localSelectedNode.getFileName();
 				}
 			}
 		} else {
@@ -203,33 +201,5 @@ public class DownloadSwingAction extends AbstractAction implements CommonRootIF 
 		}
 			
 		mainController.openDownloadProcessDialog(serverSourceFileID, new StringBuilder(remoteFileName).append(" 다운로드 중...").toString(), remoteFileSize);
-			
-			/*
-			int fileBlockNo=0;
-			for (; fileBlockNo <= fileBlockMaxNo; fileBlockNo++) {
-				boolean isCanceled = fileUpDownScreen.getIsCancelFileTransfer();
-				if (isCanceled) {
-					fileUpDownScreen.setIsCanceledUpDownFileTransfer(false);
-					
-					OutputMessage cancelDownloadFileResultOutObj = mainController.cancelDownloadFile(serverSourceFileID);
-					// 서버 다운로드 취소 성공시 루프 종료
-					if (null != cancelDownloadFileResultOutObj) break;
-				}
-				
-				OutputMessage downFileDataResulOutObj = mainController.doDownloadFile(serverSourceFileID, fileBlockNo);
-				byte[] fileData = (byte[]) downFileDataResulOutObj.getAttribute("fileData");
-				
-				localTargetFileResource.writeTargetFileData(fileBlockNo, fileData, true);
-					
-				mainController.noticeAddingFileDataToFileTransferProcessDialog(fileData.length);
-				
-			}
-			
-			fileUpDownScreen.reloadLocalFileList();
-			*/
-			
-		
-		//if (null != localTargetFileResource) localTargetFileResourceManager.putLocalTargetFileResource(localTargetFileResource);
-			// mainController.closeFileTransferProcessDialog();
 	}
 }

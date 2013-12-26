@@ -153,6 +153,11 @@ public class ConnectionScreen extends JPanel implements CommonRootIF {
 		add(emptyLabel, "4, 13");
 	}
 	
+	public void init() {
+		// FIXME! 나중에는 비밀번호 초기화를 해 주어야 한다. 지금은 편의를 위해서  강제적으로 입력
+		passwordField.setText("1234");
+	}
+	
 	/**
 	 * 파일 송수신 서버 접속 이벤트 처리 클래스
 	 * @author Jonghoon Won

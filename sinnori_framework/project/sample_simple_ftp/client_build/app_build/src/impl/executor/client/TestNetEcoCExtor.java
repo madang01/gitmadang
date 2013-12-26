@@ -28,11 +28,6 @@ public class TestNetEcoCExtor extends AbstractClientExecutor {
 			MessageInfoNotFoundException, NoMatchOutputMessage, 
 			InterruptedException, MessageItemException, 
 			ServerExcecutorUnknownException, NotLoginException {
-		
-		// AbstractConnectionPool sinnoriConnectionPool = SinnoriClientManager.getInstance().getConnectionPool("sinnori");
-		// Thread.sleep(2000);
-		
-		
 		java.util.Random random = new java.util.Random();
 
 		InputMessage echoInObj = null;
@@ -47,8 +42,8 @@ public class TestNetEcoCExtor extends AbstractClientExecutor {
 		echoInObj.messageHeaderInfo.mailboxID = CommonStaticFinal.SERVER_MAILBOX_ID;
 		echoInObj.messageHeaderInfo.mailID = Integer.MIN_VALUE;
 
-		echoInObj.setAttribute("mRandomInt", random.nextInt());
-		echoInObj.setAttribute("mStartTime", new java.util.Date().getTime());
+		echoInObj.setAttribute("randomInt", random.nextInt());
+		echoInObj.setAttribute("startTime", new java.util.Date().getTime());
 
 		LetterFromServer letterFromServer = clientProject
 				.sendInputMessage(echoInObj);
@@ -62,10 +57,10 @@ public class TestNetEcoCExtor extends AbstractClientExecutor {
 
 		// log.info(String.format("echoOutObj=[%s]", echoOutObj.toString()));
 
-		if (((int) echoOutObj.getAttribute("mRandomInt") == (int) echoInObj
-				.getAttribute("mRandomInt"))
-				&& ((long) echoOutObj.getAttribute("mStartTime") == (long) echoInObj
-						.getAttribute("mStartTime"))) {
+		if (((int) echoOutObj.getAttribute("randomInt") == (int) echoInObj
+				.getAttribute("randomInt"))
+				&& ((long) echoOutObj.getAttribute("startTime") == (long) echoInObj
+						.getAttribute("startTime"))) {
 			// isSame = true;
 			log.info("성공::echo 메시지 입력/출력 동일함");
 		} else {

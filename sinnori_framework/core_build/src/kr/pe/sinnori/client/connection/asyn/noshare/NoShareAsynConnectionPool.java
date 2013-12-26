@@ -17,6 +17,7 @@
 package kr.pe.sinnori.client.connection.asyn.noshare;
 
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.connection.AbstractConnection;
@@ -47,7 +48,9 @@ import kr.pe.sinnori.common.message.OutputMessage;
 public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 	/** Connection Pool 운영을 위한 변수 */
 	private LinkedBlockingQueue<NoShareAsynConnection> connectionQueue = null;
+	private ArrayList<NoShareAsynConnection> connectionList = new ArrayList<NoShareAsynConnection>();
 	private int connectionPoolSize;
+	private boolean isFailToGetConnection = false;
 
 	
 	/**
@@ -101,6 +104,7 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 					outputMessageReaderPool, messageManger, 
 					dataPacketBufferQueueManager);
 			connectionQueue.add(serverConnection);
+			connectionList.add(serverConnection);
 		}
 	}
 	
@@ -119,16 +123,24 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 	public LetterFromServer sendInputMessage(InputMessage inputMessage)
 			throws ServerNotReadyException, SocketTimeoutException,
 			NoMoreDataPacketBufferException, BodyFormatException, MessageInfoNotFoundException {
-		NoShareAsynConnection serverConnection = null;
+		NoShareAsynConnection conn = null;
 
 		/** 쓰레드 간에 공유를 막기 위해 queueOut 사용*/
 		try {
-			serverConnection = connectionQueue.take();
-			serverConnection.queueOut();
+			conn = connectionQueue.poll();
+			if (null == conn) {
+				if (!isFailToGetConnection) {
+					isFailToGetConnection = true;
+					log.warn("WARNING::connection queue empty");
+				}
+				conn = connectionQueue.take();
+			}
+			
+			conn.queueOut();
 		} catch (InterruptedException e) {
 			try {
-				serverConnection = connectionQueue.take();
-				serverConnection.queueOut();
+				conn = connectionQueue.take();
+				conn.queueOut();
 			} catch (InterruptedException e1) {
 				log.fatal("인터럽트 받아 후속 처리중 발생", e1);
 				System.exit(1);
@@ -137,10 +149,10 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 
 		LetterFromServer retLetterList = null;
 		try {
-			retLetterList = serverConnection.sendInputMessage(inputMessage);
+			retLetterList = conn.sendInputMessage(inputMessage);
 		} finally {
-			serverConnection.queueIn();
-			connectionQueue.offer(serverConnection);
+			conn.queueIn();
+			connectionQueue.offer(conn);
 		}
 
 		return retLetterList;
@@ -148,7 +160,14 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 	
 	@Override
 	public AbstractConnection getConnection() throws InterruptedException, NotSupportedException {
-		NoShareAsynConnection conn = connectionQueue.take();
+		NoShareAsynConnection conn = connectionQueue.poll();
+		if (null == conn) {
+			if (!isFailToGetConnection) {
+				isFailToGetConnection = true;
+				log.warn("WARNING::connection queue empty");
+			}
+			conn = connectionQueue.take();
+		}
 		
 		synchronized (monitor) {
 			conn.queueOut();
@@ -158,6 +177,8 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 	
 	@Override
 	public void freeConnection(AbstractConnection conn) throws NotSupportedException {
+		if (null == conn) return;
+
 		NoShareAsynConnection serverConnection = (NoShareAsynConnection)conn;
 		
 		synchronized (monitor) {
@@ -166,5 +187,18 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 		}
 		
 		connectionQueue.offer(serverConnection);
+	}
+
+	@Override
+	public final ArrayList<AbstractConnection> getConnectionList() {
+		ArrayList<AbstractConnection>  list = new ArrayList<AbstractConnection>();
+		int connectionListSize = connectionList.size();
+		
+		for (int i = 0; i < connectionListSize; i++) {
+			AbstractConnection conn = connectionList.get(i);
+			list.add(conn);
+		}
+		
+		return list;
 	}
 }

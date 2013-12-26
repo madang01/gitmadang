@@ -147,13 +147,13 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 	public LetterFromServer sendInputMessage(InputMessage inputMessage)
 			throws ServerNotReadyException, SocketTimeoutException,
 			NoMoreDataPacketBufferException, BodyFormatException, MessageInfoNotFoundException {
-		ShareAsynConnection serverConnection = null;
+		ShareAsynConnection conn = null;
 
 		synchronized (monitor) {
-			serverConnection = connectionList.get(indexOfConnection);
+			conn = connectionList.get(indexOfConnection);
 			indexOfConnection = (indexOfConnection + 1) % connectionList.size();
 		}
-		return serverConnection.sendInputMessage(inputMessage);
+		return conn.sendInputMessage(inputMessage);
 	}
 	
 	@Override
@@ -164,5 +164,18 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 	@Override
 	public void freeConnection(AbstractConnection conn) throws NotSupportedException {
 		throw new NotSupportedException("공유+비동기 연결 객체를 직접 받지 않으므로 반환 기능도 없습니다.");
+	}
+	
+	@Override
+	public ArrayList<AbstractConnection> getConnectionList() {
+		ArrayList<AbstractConnection>  list = new ArrayList<AbstractConnection>();
+		
+		int connectionListSize = connectionList.size();
+		for (int i = 0; i < connectionListSize; i++) {
+			AbstractConnection conn = connectionList.get(i);
+			list.add(conn);
+		}
+		
+		return list;
 	}
 }

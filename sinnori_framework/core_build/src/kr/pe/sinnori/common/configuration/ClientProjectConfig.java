@@ -72,6 +72,12 @@ public class ClientProjectConfig {
 	/** 데이터 패킷 버퍼 수 */
 	private int dataPacketBufferCnt;
 	
+	/***** 모니터 환경 변수 시작 *****/
+	// FIXME!
+	private long monitorTimeInterval = 0L;
+	private long requestTimeout = 0L;
+	/***** 모니터 환경 변수 종료 *****/
+	
 	
 	/**
 	 * <pre>
@@ -423,6 +429,44 @@ public class ClientProjectConfig {
 		dataPacketBufferCnt += minBufferCnt;
 		
 		this.log.info(String.format("%s::prop value[%s], new value[%d], 시스템 필요 갯수[%d]", propKey, propValue, dataPacketBufferCnt, minBufferCnt));
+		
+		/***** 모니터 시작 *****/
+		// FIXME!
+		propKey = getKeyName("monitor.time_interval");		
+		propValue = configFileProperties.getProperty(propKey);		
+		monitorTimeInterval = 10000L;
+		if (null != propValue) {
+			try {
+				monitorTimeInterval = Long.parseLong(propValue);
+				if (monitorTimeInterval < 1000) {
+					log.fatal(String.format("warning:: key[%s] minimum value 1000 but value[%s]", propKey, propValue));
+					System.exit(1);
+				}
+			} catch(NumberFormatException e) {
+				this.log.fatal(String.format("warning:: key[%s] integer but value[%s]", propKey, propValue));
+				System.exit(1);
+			}
+		}
+		log.info(String.format("%s::prop value[%s], new value[%d]", propKey, propValue, monitorTimeInterval));
+		
+		
+		propKey = getKeyName("monitor.request_timeout");		
+		propValue = configFileProperties.getProperty(propKey);		
+		requestTimeout = socketTimeout*2;
+		if (null != propValue) {
+			try {
+				requestTimeout = Long.parseLong(propValue);
+				if (requestTimeout < socketTimeout) {
+					log.fatal(String.format("warning:: key[%s] minimum value %d but value[%s]", propKey, socketTimeout, propValue));
+					System.exit(1);
+				}
+			} catch(NumberFormatException e) {
+				this.log.fatal(String.format("warning:: key[%s] integer but value[%s]", propKey, propValue));
+				System.exit(1);
+			}
+		}
+		log.info(String.format("%s::prop value[%s], new value[%d]", propKey, propValue, requestTimeout));
+		/***** 모니터 종료 *****/
 	}
 
 	
@@ -553,6 +597,20 @@ public class ClientProjectConfig {
 	public int getDataPacketBufferCnt() {
 		return dataPacketBufferCnt;
 	}
+	
+	/**
+	 * @return 프로젝트 모니터링 시간 간격, 단위 ms.
+	 */
+	public long getMonitorTimeInterval() {
+		return monitorTimeInterval;
+	}
+	
+	/**
+	 * @return 데이터를 송신하지 않고 기다려주는 최대 시간, 단위 ms, 이 시간 초과된 클라이언트는 소켓을 닫은다. 
+	 */
+	public long getRequestTimeout() {
+		return requestTimeout;
+	}
 
 	@Override
 	public String toString() {
@@ -591,6 +649,10 @@ public class ClientProjectConfig {
 		builder.append(inputMessageQueueSize);		
 		builder.append(", dataPacketBufferCnt=");
 		builder.append(dataPacketBufferCnt);
+		builder.append(", monitorTimeInterval=");
+		builder.append(monitorTimeInterval);
+		builder.append(", requestTimeout=");
+		builder.append(requestTimeout);
 		builder.append("]");
 		return builder.toString();
 	}	

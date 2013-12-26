@@ -35,6 +35,7 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.dhb.header.DHBMessageHeader;
 import kr.pe.sinnori.common.lib.AbstractProject;
 import kr.pe.sinnori.common.lib.ClassFileFilter;
+import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.ReadFileInfo;
 import kr.pe.sinnori.common.lib.SinnoriClassLoader;
 import kr.pe.sinnori.common.lib.WrapBuffer;
@@ -107,16 +108,13 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 	
 	// private SinnoriClassLoader classLoader = null;
 	
-	/******** 서버 프로젝트 모니터 시작 **********/
-	private long monitorClientRequestChecktime = 0;
-	private long monitorClientRequestTimeout = 0;
-	/******** 서버 프로젝트 모니터 종료 **********/
-	
 	/** 클라이언트 자원 해쉬 */
 	private Map<SocketChannel, ClientResource> scToClientResourceHash = new Hashtable<SocketChannel, ClientResource>();
 
 	private Map<String, SocketChannel> loginIDToSCHash = new Hashtable<String, SocketChannel>();
 	
+	
+	private ServerProjectMonitor serverProjectMonitor = null;
 	
 	/**
 	 * 생성자
@@ -128,11 +126,6 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 		
 		
 		ServerProjectConfig serverProjectInfo = projectInfo.getServerProjectInfo();
-		
-		
-		monitorClientRequestChecktime = serverProjectInfo.getMonitorClientRequestChecktime();
-		monitorClientRequestTimeout = serverProjectInfo.getMonitorClientRequestTimeout();
-		
 		
 		serverExecutorPrefix = serverProjectInfo.getServerExecutorPrefix();
 		serverExecutorSuffix = serverProjectInfo.getServerExecutorSuffix();
@@ -238,7 +231,9 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 				outputMessageWriterSize, outputMessageWriterMaxSize,
 				commonProjectInfo, outputMessageQueue, messageExchangeProtocol,
 				this, this, this);
-
+		
+		serverProjectMonitor = new ServerProjectMonitor(serverProjectInfo.getMonitorTimeInterval(), serverProjectInfo.getRequestTimeout());
+		
 	}
 	
 	
@@ -246,6 +241,7 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 	 * 서버 시작
 	 */
 	synchronized public void startServer() {
+		serverProjectMonitor.start();
 		outputMessageWriterPool.startAll();
 		executorProcessorPool.startAll();
 		inputMessageReaderPool.startAll();
@@ -262,6 +258,8 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 	 * 서버 종료
 	 */
 	synchronized public void stopServer() {
+		serverProjectMonitor.interrupt();
+		
 		if (acceptSelector.isInterrupted()) return;
 		
 		acceptSelector.interrupt();
@@ -584,11 +582,10 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 	}
 	
 	
-	
 	/**
 	 * @return 서버 프로젝트 정보
 	 */
-	public MonitorServerProjectInfo getInfo() {
+	public MonitorServerProjectInfo getInfo(long requestTimeout) {
 		MonitorServerProjectInfo serverProjectInfo = new MonitorServerProjectInfo();
 		
 		serverProjectInfo.projectName = commonProjectInfo.projectName;
@@ -601,24 +598,23 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 		serverProjectInfo.clientCnt = scToClientResourceHash.size();
 		
 		Iterator<SocketChannel> scKeyIterator = scToClientResourceHash.keySet().iterator();
+		java.util.Date currentTime = new java.util.Date();
+		
 		while(scKeyIterator.hasNext()) {
 			SocketChannel sc = scKeyIterator.next();
+			
 			ClientResource cr = scToClientResourceHash.get(sc);
-
-			java.util.Date finalReadTime = cr.getFinalReadTime();
-			java.util.Date currentTime = new java.util.Date(); 
-			
-			long elapsedTime = currentTime.getTime() - finalReadTime.getTime();
-			
-			if (elapsedTime < monitorClientRequestChecktime) continue;
-			
-			if (!cr.isReading()) continue;
 			
 			MonitorClientInfo monitorClientInfo = new MonitorClientInfo();
 			monitorClientInfo.scHashCode =  sc.hashCode();
 			monitorClientInfo.isConnected = sc.isConnected();
-			if (elapsedTime  >= monitorClientRequestTimeout) {
-				/** 지금은 로그로만 지켜보지만 나중에는 삭제할 것이다. */
+
+			java.util.Date finalReadTime = cr.getFinalReadTime();
+			
+			
+			long elapsedTime = currentTime.getTime() - finalReadTime.getTime();
+			if (elapsedTime  >= requestTimeout) {
+				// 지금은 로그로만 지켜보지만 나중에는 삭제할 것이다. 
 				monitorClientInfo.timeout = elapsedTime;
 			} else {
 				monitorClientInfo.timeout = -1;
@@ -628,6 +624,51 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 		}
 				
 		return serverProjectInfo;
+	}
+	
+	/**
+	 * 서버 프로젝트 모니터
+	 * @author Jonghoon won
+	 *
+	 */
+	private class ServerProjectMonitor extends Thread implements CommonRootIF {
+		
+		private long monitorInterval;
+		private long requestTimeout;
+		
+		public ServerProjectMonitor(long monitorInterval, long requestTimeout) {
+			this.monitorInterval = monitorInterval;
+			this.requestTimeout = requestTimeout;
+		}
+		
+		@Override
+		public void run() {
+			try {
+				while (!Thread.currentThread().isInterrupted()) {
+					
+					MonitorServerProjectInfo serverProjectInfo = getInfo(requestTimeout);
+					
+					log.info(serverProjectInfo.toString());
+					
+					int size = serverProjectInfo.monitorClientInfoList.size();
+					
+					for (int i=0; i < size; i++) {
+						MonitorClientInfo monitorClientInfo =serverProjectInfo.monitorClientInfoList.get(i);
+						if (-1 != monitorClientInfo.timeout) {
+							// 삭제 대상
+							log.info(String.format("server project[%s] ServerProjectMonitor 삭제 대상, %s", commonProjectInfo.projectName, monitorClientInfo.toString()));
+						}
+					}
+					
+					Thread.sleep(monitorInterval);
+				}
+				log.warn(String.format("server project[%s] ServerProjectMonitor loop exit", commonProjectInfo.projectName));
+			} catch (InterruptedException e) {
+				log.warn(String.format("server project[%s] ServerProjectMonitor interrupt", commonProjectInfo.projectName), e);
+			} catch (Exception e) {
+				log.warn(String.format("server project[%s] ServerProjectMonitor unknow error", commonProjectInfo.projectName), e);
+			}
+		}
 	}
 	
 }

@@ -18,7 +18,6 @@
 package kr.pe.sinnori.server;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.StringTokenizer;
 
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
@@ -67,10 +66,6 @@ public final class ServerProjectManager implements CommonRootIF {
 			}
 			serverProjectHash.put(projectName, serverProject);
 		}
-		
-		ServerProjectMonitor serverProjectMonitor =  new ServerProjectMonitor();
-		
-		serverProjectMonitor.start();
 	}
 	
 	/**
@@ -87,28 +82,4 @@ public final class ServerProjectManager implements CommonRootIF {
 		
 		return serverProject;
 	}
-	
-	private class ServerProjectMonitor extends Thread implements CommonRootIF {
-		
-		@Override
-		public void run() {
-			try {
-				while (!Thread.currentThread().isInterrupted()) {
-					Iterator<String>  projectNameIterator = serverProjectHash.keySet().iterator();
-					while(projectNameIterator.hasNext()) {
-						String projectName = projectNameIterator.next();
-						ServerProject serverProject = serverProjectHash.get(projectName);
-						
-						log.info(serverProject.getInfo().toString());
-					}
-					
-					Thread.sleep((Long)conf.getResource("common.server.monitor.interval.value"));
-				}
-				// InterruptedException
-			} catch (Exception e) {
-				log.warn("Exception", e);
-			}
-		}
-	}
-
 }

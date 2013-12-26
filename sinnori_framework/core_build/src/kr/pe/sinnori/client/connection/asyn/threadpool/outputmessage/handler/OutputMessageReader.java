@@ -163,28 +163,30 @@ public class OutputMessageReader extends Thread implements
 						int positionBeforeWork = lastInputStreamBuffer.position();
 
 						try {
+							synchronized (serverSC) {
+								numRead = serverSC.read(lastInputStreamBuffer);
 
-							numRead = serverSC.read(lastInputStreamBuffer);
+								// if (numRead > 0) log.info("1.numRead=[%d]",
+								// numRead);
 
-							// if (numRead > 0) log.info("1.numRead=[%d]",
-							// numRead);
+								if (numRead == -1) {
+									log.warn("1.socket channel read -1, remove client");
+									closeServer(selectionKey, clientConnection);
+									continue;
+								}
 
-							if (numRead == -1) {
-								log.warn("1.socket channel read -1, remove client");
-								closeServer(selectionKey, clientConnection);
-								continue;
+								numRead = serverSC.read(lastInputStreamBuffer);
+
+								// if (numRead > 0) log.info("1.numRead=[%d]",
+								// numRead);
+
+								if (numRead == -1) {
+									log.warn("2.socket channel read -1, remove client");
+									closeServer(selectionKey, clientConnection);
+									continue;
+								}
 							}
-
-							numRead = serverSC.read(lastInputStreamBuffer);
-
-							// if (numRead > 0) log.info("1.numRead=[%d]",
-							// numRead);
-
-							if (numRead == -1) {
-								log.warn("2.socket channel read -1, remove client");
-								closeServer(selectionKey, clientConnection);
-								continue;
-							}
+							
 							
 							if (lastInputStreamBuffer.position() == positionBeforeWork)
 								continue;
@@ -261,6 +263,9 @@ public class OutputMessageReader extends Thread implements
 	@Override
 	public void addNewServer(AbstractAsynConnection clientConnection)
 			throws InterruptedException {
+		
+		clientConnection.register(scToConnectionHash, newClients);
+		/*
 		SocketChannel sc = clientConnection.getSocketChannel();
 
 		log.info(String.format(
@@ -270,6 +275,7 @@ public class OutputMessageReader extends Thread implements
 
 		scToConnectionHash.put(sc, clientConnection);
 		newClients.add(sc);
+		*/
 
 		if (getState().equals(Thread.State.NEW))
 			return;
@@ -291,8 +297,9 @@ public class OutputMessageReader extends Thread implements
 			selector.wakeup();
 
 			Thread.sleep(readSelectorWakeupInterval);
-
-		} while (sc.isConnected() && !sc.isRegistered());
+		
+		// } while (sc.isConnected() && !sc.isRegistered());
+		} while (clientConnection.isConnected() && !clientConnection.isRegistered());
 	}
 
 }

@@ -19,6 +19,7 @@
 package kr.pe.sinnori.client;
 
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.connection.AbstractConnection;
@@ -39,6 +40,7 @@ import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.lib.AbstractProject;
 import kr.pe.sinnori.common.lib.CommonProjectInfo;
+import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.CommonType;
 import kr.pe.sinnori.common.lib.OutputMessageQueueQueueMangerIF;
 import kr.pe.sinnori.common.lib.WrapBuffer;
@@ -89,6 +91,8 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 	private AbstractConnectionPool connectionPool = null;
 	
 	private AnonymousServerMessageProcessorThread anonymousServerMessageProcessorThread = null;
+	
+	private ClientProjectMonitor clientProjectMonitor = null;
 	
 	/**
 	 * 생성자
@@ -196,9 +200,12 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 			}
 			
 			
-			anonymousServerMessageProcessorThread = new AnonymousServerMessageProcessorThread(projectName, serverOutputMessageQueue);
+			anonymousServerMessageProcessorThread = new AnonymousServerMessageProcessorThread();
 			anonymousServerMessageProcessorThread.start();
 		}
+		
+		clientProjectMonitor = new ClientProjectMonitor(clientProjectInfo.getMonitorTimeInterval(), clientProjectInfo.getRequestTimeout());
+		clientProjectMonitor.start();
 	}
 	
 	
@@ -237,16 +244,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 		outputMessage = serverOutputMessageQueue.take();
 		return outputMessage;
 	}
-	/*
-	public void startAsynPool() {
-		if (null != inputMessageWriterPool) {
-			inputMessageWriterPool.startAll();
-		}
-		if (null != outputMessageReaderPool) {
-			outputMessageReaderPool.startAll();
-		}
-	}
-	*/
+	
 	/**
 	 * 비동기 입출력용 소켓 읽기/쓰기 쓰레드들을 중지한다. 동기 모드인 경우에 호출할 경우 아무 동작 없다.
 	 */
@@ -295,7 +293,9 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 		
 	}	
 	
-
+	/**
+	 * @return 클라이언트 프로젝트 정보
+	 */
 	public MonitorClientProjectInfo getInfo() {
 		MonitorClientProjectInfo clientProjectInfo = new MonitorClientProjectInfo();
 		clientProjectInfo.projectName = commonProjectInfo.projectName;
@@ -329,8 +329,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 	private class AnonymousServerMessageProcessorThread extends Thread {
 		//private final Object monitor = new Object();
 		
-		private String projectName = null;
-		private LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue = null;
+		// private LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue = null;
 		private AnonymousServerMessageTaskIF anonymousServerMessageTask = null;
 		
 		
@@ -339,9 +338,8 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 		 * @param projectName 프로젝트 이름
 		 * @param serverOutputMessageQueue 서버 익명 출력 메시지 큐
 		 */
-		public AnonymousServerMessageProcessorThread(String projectName, LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue) {
-			this.projectName = projectName;
-			this.serverOutputMessageQueue= serverOutputMessageQueue;			
+		public AnonymousServerMessageProcessorThread() {
+			// this.serverOutputMessageQueue= serverOutputMessageQueue;			
 			this.anonymousServerMessageTask = new DefaultAnonymousServerMessageTask();
 		}
 
@@ -350,14 +348,16 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 				while (!Thread.currentThread().isInterrupted()) {
 					OutputMessage outObj = serverOutputMessageQueue.take();
 					//synchronized (monitor) {
-						anonymousServerMessageTask.doTask(projectName, outObj);
+						anonymousServerMessageTask.doTask(commonProjectInfo.projectName, outObj);
 					//}
 				}
+				
+				log.info(String.format("client project[%s] AnonymousServerMessageProcessorThread loop exit", commonProjectInfo.projectName));
 				log.warn("Thread loop exit");
 			} catch (InterruptedException e) {
-				log.warn(String.format("project[%s] AnonymousServerMessageProcessorThread interrupt", projectName), e);
+				log.warn(String.format("client project[%s] AnonymousServerMessageProcessorThread interrupt", commonProjectInfo.projectName), e);
 			} catch (Exception e) {
-				log.warn(String.format("project[%s] AnonymousServerMessageProcessorThread unknow error", projectName), e);
+				log.warn(String.format("client project[%s] AnonymousServerMessageProcessorThread unknow error", commonProjectInfo.projectName), e);
 			}
         }
 		
@@ -390,6 +390,70 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 		anonymousServerMessageProcessorThread.changeAnonymousServerMessageTask(newAnonymousServerMessageTask);
 	}
 	
+	/**
+	 * 익명 서버 메시지 처리자 쓰레드 종료
+	 */
+	public void stopAnonymousServerMessageProcessorThread() {
+		if (null != anonymousServerMessageProcessorThread) {
+			anonymousServerMessageProcessorThread.interrupt();
+		}
+	}
 	
+	// FIXME!
+	private class ClientProjectMonitor extends Thread implements CommonRootIF {
+		private long monitorInterval;
+		private long requestTimeout;
+		
+		public ClientProjectMonitor(long monitorInterval, long requestTimeout) {
+			this.monitorInterval = monitorInterval;
+			this.requestTimeout = requestTimeout;
+		}
+		
+		@Override
+		public void run() {
+			ArrayList<AbstractConnection>  list = connectionPool.getConnectionList();
+			int listSize = list.size();
+			try {
+				while (!Thread.currentThread().isInterrupted()) {	
+					log.info(getInfo().toString());
+					
+					long currentTime = System.currentTimeMillis();
+					
+					for (int i=0; i < listSize; i++) {
+						AbstractConnection conn = list.get(i);
+						
+						java.util.Date finalReadTime = conn.getFinalReadTime();
+						if (null == finalReadTime) continue;
+						
+						if ((finalReadTime.getTime() - currentTime) > requestTimeout) {
+							log.info(String.format("project[%s] requestTimeout[%d] over so socket close, conn[%s]", commonProjectInfo.projectName, requestTimeout, conn.toString()));
+							conn.closeServer();
+						}
+					}
+					
+					Thread.sleep(monitorInterval);
+				}
+				
+				log.warn(String.format("client project[%s] ClientProjectMonitor loop exit", commonProjectInfo.projectName));
+			} catch (InterruptedException e) {
+				log.warn(String.format("client project[%s] ClientProjectMonitor interrupt", commonProjectInfo.projectName), e);
+			} catch (Exception e) {
+				log.warn(String.format("client project[%s] ClientProjectMonitor unknow error", commonProjectInfo.projectName), e);
+			}
+		}
+	}
+	
+	public void stopMonitor() {
+		if (null != clientProjectMonitor) clientProjectMonitor.interrupt();
+	}
+	
+	public void stop() {
+		// FIXME!
+		log.info(String.format("project[%s] client project stop", commonProjectInfo.projectName));
+		
+		stopAsynPool();
+		stopAnonymousServerMessageProcessorThread();
+		stopMonitor();
+	}
 }
 

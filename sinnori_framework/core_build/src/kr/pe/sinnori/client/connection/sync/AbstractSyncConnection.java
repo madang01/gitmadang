@@ -123,6 +123,7 @@ public abstract class AbstractSyncConnection extends AbstractConnection {
 					commonProjectInfo.serverHost,
 					commonProjectInfo.serverPort);
 			serverSC = SocketChannel.open();
+			finalReadTime = new java.util.Date();
 			
 			infoStringBuilder.append("new serverSC[");
 			infoStringBuilder.append(serverSC.hashCode());

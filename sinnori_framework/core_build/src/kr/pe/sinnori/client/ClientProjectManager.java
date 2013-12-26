@@ -18,7 +18,6 @@
 package kr.pe.sinnori.client;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.StringTokenizer;
 
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
@@ -36,8 +35,7 @@ public final class ClientProjectManager implements CommonRootIF {
 	// private final Object monitor = new Object();
 	
 	private HashMap<String, ClientProject> clientProjectHash = new HashMap<String, ClientProject>();
-
-
+	
 	/** 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스 */
 	private static final class ClientProjectManagerHolder {
 		static final ClientProjectManager singleton = new ClientProjectManager();
@@ -74,9 +72,6 @@ public final class ClientProjectManager implements CommonRootIF {
 			}
 			clientProjectHash.put(projectName, clientProject);
 		}
-		
-		ClinetProjectMonitor clinetProjectMonitor = new ClinetProjectMonitor();
-		clinetProjectMonitor.start();
 	}
 	
 	/**
@@ -93,29 +88,4 @@ public final class ClientProjectManager implements CommonRootIF {
 		
 		return clientProjectHash.get(projectName);
 	}
-	
-	private class ClinetProjectMonitor extends Thread implements CommonRootIF {
-		
-		@Override
-		public void run() {
-			try {
-				while (!Thread.currentThread().isInterrupted()) {
-					Iterator<String>  projectNameIterator = clientProjectHash.keySet().iterator();
-					while(projectNameIterator.hasNext()) {
-						String projectName = projectNameIterator.next();
-						ClientProject clientProject = clientProjectHash.get(projectName);
-						
-						log.info(clientProject.getInfo().toString());
-					}
-					
-					Thread.sleep((Long)conf.getResource("common.client.monitor.interval.value"));
-				}
-				
-				// InterruptedException
-			} catch (Exception e) {
-				log.warn("Exception", e);
-			}
-		}
-	}
-
 }

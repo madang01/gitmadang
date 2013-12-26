@@ -75,11 +75,11 @@ public class UploadFileTransferTask implements FileTransferTaskIF, CommonRootIF 
 		// FIXME!
 		log.info("UploadFileTransferTask start");
 					
-		int localFileBlockMaxNo = localSourceFileResource.getFileBlockMaxNo();
-		int fileBlockNo = 0;
+		int endFileBlockNo = localSourceFileResource.getEndFileBlockNo();
+		int startFileBlockNo = 0;
 		try {
 
-			for (; fileBlockNo <= localFileBlockMaxNo; fileBlockNo++) {
+			for (; startFileBlockNo <= endFileBlockNo; startFileBlockNo++) {
 				// boolean isCanceled =
 				// fileUpDownScreen.getIsCancelFileTransfer();
 				if (localSourceFileResource.isCanceled()) {
@@ -93,13 +93,13 @@ public class UploadFileTransferTask implements FileTransferTaskIF, CommonRootIF 
 				}
 
 				byte fileData[] = localSourceFileResource
-						.getByteArrayOfFileBlockNo(fileBlockNo);
+						.getByteArrayOfFileBlockNo(startFileBlockNo);
 
-				localSourceFileResource.readSourceFileData(fileBlockNo,
+				localSourceFileResource.readSourceFileData(startFileBlockNo,
 						fileData, true);
 
 				OutputMessage upFileDataResultOutObj = mainController
-						.doUploadFile(serverTargetFileID, fileBlockNo, fileData);
+						.doUploadFile(serverTargetFileID, startFileBlockNo, fileData);
 				if (null == upFileDataResultOutObj)
 					break;
 

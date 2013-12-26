@@ -89,9 +89,12 @@ public class DHBMessageHeader implements CommonRootIF {
 	 */
 	public DHBMessageHeader(int messageIDFixedSize) {
 		this.messageIDFixedSize = messageIDFixedSize;
-		this.messageHeaderSize = (messageIDFixedSize+ 2 + 4 + 8 + MD5_BYTESIZE*2); 
+		this.messageHeaderSize = getMessageHeaderSize(messageIDFixedSize); 
 	}
 	
+	public static int getMessageHeaderSize(int messageIDFixedSize) {
+		return (messageIDFixedSize+ 2 + 4 + 8 + MD5_BYTESIZE*2);
+	}
 	/**
 	 * 입력 받은 메세지 식별자의 유효성을 판별해 준다. 단 크기에 대해서는 검사하지 않는다.
 	 * 
@@ -116,7 +119,7 @@ public class DHBMessageHeader implements CommonRootIF {
 	 */
 	public void readMessageHeader(ByteBuffer srcBuffer, java.security.MessageDigest md5, CharsetDecoder streamCharsetDecoder) throws HeaderFormatException {
 		if (srcBuffer.remaining() < messageHeaderSize) {
-			String errorMessage = String.format("파라미터 소스 버퍼의 크기[%d]가 메시지 헤더 크기[%d] 보다 작습니다.");
+			String errorMessage = String.format("파라미터 소스 버퍼의 크기[%d]가 메시지 헤더 크기[%d] 보다 작습니다.", srcBuffer.remaining(), messageHeaderSize);
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}

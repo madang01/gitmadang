@@ -68,6 +68,8 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 	/** 메일 식별자를 키로 활성화된 메일함을 값으로 가지는 해쉬 */
 	private Map<Integer, PrivateMailbox> hashActiveMailBox = new Hashtable<Integer, PrivateMailbox>();
 	
+	private boolean isFailToGetMailbox = false;
+	
 	/**
 	 * 생성자
 	 * @param index 연결 클래스 번호
@@ -196,6 +198,8 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 				
 				
 				serverSC = SocketChannel.open();
+				
+				finalReadTime = new java.util.Date();
 				
 				infoStringBuilder.append("new serverSC[");
 				infoStringBuilder.append(serverSC.hashCode());
@@ -353,8 +357,14 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 		synchronized (mailbox) {
 			try {
 				try {
-					mailbox = PrivateMailboxWaitingQueue.take();
-					
+					mailbox = PrivateMailboxWaitingQueue.poll();					
+					if (null == mailbox) {
+						if (!isFailToGetMailbox) {
+							isFailToGetMailbox = true;
+							log.warn("WARNING::mailbox queue empty");
+						}
+						mailbox = PrivateMailboxWaitingQueue.take();
+					}
 					
 				} catch (InterruptedException e) {
 					try {

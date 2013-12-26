@@ -121,7 +121,7 @@ private final Object monitor = new Object();
 		
 		// FIXME! 잠시 디버깅을 위해서 리소스 자원 많이 잡는 Throwable 객체 생성. 나중 삭제해야함.
 		// Throwable t = new Throwable();
-		log.warn(String.format("localSourceFileID[%d] 큐 반환", localSourceFileResource.getSourceFileID()));
+		log.info(String.format("localSourceFileID[%d] 큐 반환", localSourceFileResource.getSourceFileID()));
 	}
 	
 	/**

@@ -18,6 +18,12 @@
 
 package impl.executor.client;
 
+/**
+ * 가상적으로 입력 메시지들을 넣은 거대 스트림으로부터 랜덤하게 데이터를 순차적으로 읽으면서 출력 메시지를 바르게 추출하는지 검사하기 위한 로직이다.
+ * 
+ * @author Jonghoon Won
+ *
+ */
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharsetEncoder;
@@ -77,12 +83,12 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		}
 		
 		messageIDFixedSize = projectInfo.getMessageIDFixedSize();
+			
 		
-		// dhbHeader.messageHeaderSize;
-		
+		DHBMessageHeader.getMessageHeaderSize(messageIDFixedSize);
 		DHBMessageProtocol dhbMessageProtocol = 
-				new DHBMessageProtocol(commonProjectInfo.dataPacketBufferSize, 
-						commonProjectInfo.dataPacketBufferMaxCntPerMessage,
+				new DHBMessageProtocol(messageIDFixedSize, 
+						DHBMessageHeader.getMessageHeaderSize(messageIDFixedSize),
 						dataPacketBufferQueueManager);
 		
 		MessageInputStreamResourcePerSocket messageInputStreamResource = 
@@ -133,8 +139,7 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 				scOwnLastBuffer.put(readBytes);
 				
 				log.info(String.format("2.len=[%d], baseBuffer.remaining=[%d], scOwnLastBuffer.remaining=[%d]", len, baseBuffer.remaining(), scOwnLastBuffer.remaining()));
-				
-				
+
 				ArrayList<AbstractMessage> readInputMessageList = null;
 				
 				readInputMessageList = dhbMessageProtocol.S2MList(InputMessage.class, commonProjectInfo.charsetOfProject, messageInputStreamResource, messageManger);
@@ -164,8 +169,8 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		echoInObj.messageHeaderInfo.mailboxID = CommonStaticFinal.SERVER_MAILBOX_ID;
 		echoInObj.messageHeaderInfo.mailID = Integer.MIN_VALUE;
 
-		echoInObj.setAttribute("mRandomInt", random.nextInt());
-		echoInObj.setAttribute("mStartTime", new java.util.Date().getTime());
+		echoInObj.setAttribute("randomInt", random.nextInt());
+		echoInObj.setAttribute("startTime", new java.util.Date().getTime());
 		
 		orgInputMessageList.add(echoInObj);
 		
@@ -191,6 +196,7 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		messageHeader.bodySize = bodySize;
 		messageHeader.bodyMD5 = md5.digest();
 		
+				
 		messageHeader.writeMessageHeader(baseBuffer, commonProjectInfo.charsetOfProject, charsetOfProjectEncoder, md5);
 		
 		for (int i=0; i < bufferListSize; i++) {

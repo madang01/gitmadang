@@ -103,12 +103,12 @@ public interface MainControllerIF {
 			String remoteFilePathName, String remoteFileName, long remoteFileSize, int fileBlockSize);
 	
 	/**
-	 * {@link #readyDownloadFile(String, String, String, String, long, int)} 에서 락을 걸은 로컬 목적지 파일 자원을 해제한다.
+	 * 다운로드할 목적지 파일 자원을 해제한다. 서버에 파일 다운로드 준비를 요청하여 실패시에만 호출된다. 
 	 */
 	public void freeLocalTargetFileResource();
 	
 	/**
-	 * 다운로드 준비된 서버측에 다운 로드 파일 조각을 요구하는 메시지를 보낸다.
+	 * 다운로드 준비된 서버측에 다운로드하고자 하는 개별 파일 조각을 요구하는 메시지를 보낸다.
 	 * @param serverSourceFileID 클라이언트 송수신 자원 파일 식별자
 	 * @param fileBlockNo 파일 조각 번호
 	 * @return 파일 다운로드 요청 출력 메시지 
@@ -116,6 +116,10 @@ public interface MainControllerIF {
 	public OutputMessage doDownloadFile(int serverSourceFileID, int fileBlockNo);
 	
 	
+	/**
+	 * 파일 다운로드 준비된 서버측에 다운로드하고자 하는 파일 전체를 요구하는 메시지를 보낸다. 파일 송수신 버전2 전용 메소드.
+	 * @return 가상적으로 만들어진 파일 다운로드 요청 출력 메시지 
+	 */
 	public OutputMessage doDownloadFileAll();
 	
 	/**
@@ -138,32 +142,11 @@ public interface MainControllerIF {
 	 * @param fileSize 전송할 파일 크기
 	 */
 	public void openDownloadProcessDialog(int serverSourceFileID, String mesg, long fileSize);
+
 	/**
 	 * 파일 다운로드 진행 작업 쓰레드 종료후 호출 되는 메소드이다.
 	 */
 	public void endDownloadTask();
-	
-	
-	/**
-	 * <pre>
-	 * 전송 받은 파일 조각 크기를 "파일 전송 현황 창"에 알린다. 
-	 * 이때  "파일 전송 현황 창" 준비 여부를 반환한다.
-	 * 
-	 * 파일 조각을 송신 혹은 수신하는 측에서는 
-	 * "파일 전송 현황 창" 에서 사용자가 취소 할 경우 파일 조각 송신 혹은 수신을 중단해야 한다.
-	 * 그렇기때문에 파일 조각을 송수신하는 측에서 파일 조각 크기를 "파일 전송 현황 창"에 알려줄때,
-	 * 취소 이벤트 발생 여부를 받아서 이를 근거로 파일 조각 송수신을 중단하게 한다.
-	 * 전제 조건 :   "파일 전송 현황 창" 준비여부가 취소 이벤트 발생 여부가 될려면 다음과 같은 조건을 만족해야한다. 
-	 * 첫번째 "파일 전송 현황 창" 오픈후 파일 조각 송수신 혹은 파일 종료가 일어남을 보장해야 한다.
-	 * 두번째 "파일 전송 현황 창" 오픈, 파일 조각 송수신, 종료는 각각 다른 쓰레드에서 수행되어도 되지만, 
-	 * 오직 전담 쓰레드에서 수행되어야 하며 오픈과 종료는 딱 1번 수행되어 한다.
-	 * 다시말하자면 병렬 수행 금지이다.  
-	 * 
-	 *  </pre>    
-	 * @param receivedDataSize 전송 받은 파일 조각 크기
-	 */
-	// public void noticeAddingFileDataToFileTransferProcessDialog(int receivedDataSize);
-
 	
 	/**
 	 * 서버에 업로드 취소를 알린다.
@@ -172,7 +155,7 @@ public interface MainControllerIF {
 	public OutputMessage cancelUploadFile();
 	
 	/**
-	 * 서버에 다운 로드 취소를 알린다.
+	 * 서버에 다운로드 취소를 알린다.
 	 * @return 서버에 다운로드 취소 결과 출력 메시지
 	 */
 	public OutputMessage cancelDownloadFile();
@@ -180,7 +163,7 @@ public interface MainControllerIF {
 	/**
 	 * 익명 메시지 처리
 	 * @param projectName 프로젝트 이름
-	 * @param outObj 출력 메시지
+	 * @param outObj 익명의 출력 메시지
 	 */
 	public void doAnonymousServerMessageTask(String projectName, OutputMessage outObj);
 }

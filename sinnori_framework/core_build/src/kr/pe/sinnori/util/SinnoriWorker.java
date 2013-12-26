@@ -77,7 +77,10 @@ public class SinnoriWorker implements CommonRootIF {
 				System.exit(1);
 			}
 			
-			((ClientProject)clientProject).stopAsynPool();
+			// clientProject.stopAnonymousServerMessageProcessorThread();
+			// clientProject.stopAsynPool();
+			// clientProject.stopMonitor();
+			clientProject.stop();
 		} else if (prop_sinnori_running_mode.equals("server")) {
 			ServerProject serverProject = ServerProjectManager.getInstance().getServerProject(projectName);
 			
@@ -97,7 +100,10 @@ public class SinnoriWorker implements CommonRootIF {
 				System.exit(1);
 			}
 			
-			((ClientProject)clientProject).stopAsynPool();
+			// clientProject.stopAnonymousServerMessageProcessorThread();
+			// clientProject.stopAsynPool();
+			// clientProject.stopMonitor();
+			clientProject.stop();
 		}
 	}
 	
@@ -124,7 +130,10 @@ public class SinnoriWorker implements CommonRootIF {
 				System.exit(1);
 			}
 			
-			// ((ClientProject)clientProject).stopAsynPool();
+			// clientProject.stopAnonymousServerMessageProcessorThread();
+			// clientProject.stopAsynPool();
+			// clientProject.stopMonitor();
+			clientProject.stop();
 		} else if (prop_sinnori_running_mode.equals("server")) {
 			ServerProject serverProject = ServerProjectManager.getInstance().getServerProject(projectName);
 			
@@ -144,7 +153,10 @@ public class SinnoriWorker implements CommonRootIF {
 				System.exit(1);
 			}
 			
-			// ((ClientProject)clientProject).stopAsynPool();
+			// clientProject.stopAnonymousServerMessageProcessorThread();
+			// clientProject.stopAsynPool();
+			// clientProject.stopMonitor();
+			clientProject.stop();
 		}
 	}
 }

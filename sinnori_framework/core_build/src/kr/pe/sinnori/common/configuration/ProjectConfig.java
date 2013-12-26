@@ -246,8 +246,7 @@ public class ProjectConfig {
 		
 		
 		/** 가공 데이터 시작 */
-		DHBMessageHeader messageHeader = new DHBMessageHeader(messageIDFixedSize);
-		messageHeaderSize = messageHeader.messageHeaderSize;
+		messageHeaderSize = DHBMessageHeader.getMessageHeaderSize(messageIDFixedSize);
 		messageBodyMaxSize = dataPacketBufferSize - messageHeaderSize;
 		/** 가공 데이터 종료 */
 		

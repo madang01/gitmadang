@@ -161,8 +161,6 @@ public class DownloadSwingAction2 extends AbstractAction implements CommonRootIF
 					targetPathBuilder.append(File.separator);
 					targetPathBuilder.append(localSelectedNode.getFileName());
 					localFilePathName = targetPathBuilder.toString();
-					// targetPath = targetPath + File.separator +
-					// localSelectedNode.getFileName();
 				}
 			}
 		} else {

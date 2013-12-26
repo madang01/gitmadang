@@ -75,11 +75,11 @@ public class DownloadFileTransferTask implements CommonRootIF, FileTransferTaskI
 	
 	@Override
 	public void doTask() {
-		int fileBlockMaxNo =  localTargetFileResource.getFileBlockMaxNo();
-		int fileBlockNo = 0;
+		int endFileBlockNo =  localTargetFileResource.getEndFileBlockNo();
+		int startFileBlockNo = 0;
 		try {
 
-			for (; fileBlockNo <= fileBlockMaxNo; fileBlockNo++) {
+			for (; startFileBlockNo <= endFileBlockNo; startFileBlockNo++) {
 				// boolean isCanceled = fileUpDownScreen.getIsCancelFileTransfer();
 				if (localTargetFileResource.isCanceled()) {
 					// isCanceled = false;
@@ -90,7 +90,7 @@ public class DownloadFileTransferTask implements CommonRootIF, FileTransferTaskI
 					if (null != cancelDownloadFileResultOutObj) break;
 				}
 				
-				OutputMessage downFileDataResulOutObj = mainController.doDownloadFile(serverSourceFileID, fileBlockNo);
+				OutputMessage downFileDataResulOutObj = mainController.doDownloadFile(serverSourceFileID, startFileBlockNo);
 				
 				if (null == downFileDataResulOutObj) break;
 				
@@ -98,12 +98,12 @@ public class DownloadFileTransferTask implements CommonRootIF, FileTransferTaskI
 				try {
 					fileData = (byte[]) downFileDataResulOutObj.getAttribute("fileData");
 				} catch (MessageItemException e) {
-					log.warn(String.format("서버 소스 파일 식별자[%d] 의 [%d] 번째 다운 로드 시도중 메시지 항목 에러 발생", serverSourceFileID, fileBlockNo), e);
+					log.warn(String.format("서버 소스 파일 식별자[%d] 의 [%d] 번째 다운 로드 시도중 메시지 항목 에러 발생", serverSourceFileID, startFileBlockNo), e);
 					JOptionPane.showMessageDialog(mainFrame, e.toString());
 					break;
 				}
 				
-				localTargetFileResource.writeTargetFileData(fileBlockNo, fileData, true);
+				localTargetFileResource.writeTargetFileData(startFileBlockNo, fileData, true);
 					
 				fileTranferProcessDialog.noticeAddingFileData(fileData.length);
 			}

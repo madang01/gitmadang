@@ -17,9 +17,13 @@
 
 package kr.pe.sinnori.client.connection;
 
+import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.io.LetterFromServer;
@@ -34,6 +38,7 @@ import kr.pe.sinnori.common.lib.CommonStaticFinal;
 import kr.pe.sinnori.common.lib.CommonType;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageInputStreamResourcePerSocket;
+import kr.pe.sinnori.common.lib.WrapBuffer;
 import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
 
@@ -71,7 +76,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 	
 
 	/** 최종 읽기를 수행한 시간. 초기값은 클라이언트(=SocketChannel) 생성시간이다. */
-	protected java.util.Date finalReadTime = null;
+	protected java.util.Date finalReadTime = new java.util.Date();
 	/** echo 메세지를 보낸 횟수. */
 	protected int echoMesgCount = 0;
 	
@@ -121,7 +126,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 		messageInputStreamResource.initResource();
 		
 		echoMesgCount = 0;
-		finalReadTime = null;
+		// finalReadTime = null;
 	}
 	
 	/**
@@ -136,10 +141,80 @@ public abstract class AbstractConnection implements CommonRootIF {
 	 * 
 	 * @return 소켓 채널
 	 */
+	/*
 	public SocketChannel getSocketChannel() {
 		return serverSC;
 	}
+	*/
+	/**
+	 * @return 소켓 연결 여부
+	 */
+	public boolean isConnected() {
+		synchronized (serverSC) {
+			if (null == serverSC) {
+				log.warn(String.format("serverSC is null, conn=[%s]", getSimpleConnectionInfo()));
+				return false;
+			}
+		
+			return serverSC.isConnected();
+		}
+	}
+	
+	/**
+	 * @return 임의 selector 에 등록 여부
+	 */
+	public boolean isRegistered() {
+		synchronized (serverSC) {
+			if (null == serverSC) {
+				log.warn(String.format("serverSC is null, conn=[%s]", getSimpleConnectionInfo()));
+				return false;
+			}
+		
+		
+			return serverSC.isRegistered();
+		}
+	}
+	
+	/**
+	 * 입력 메시지 스트림이 담긴 WrapBuff 목록의 소켓 쓰기 
+	 * @param inObjWrapBufferList 입력 메시지 스트림이 담긴 WrapBuff 목록
+	 * @throws IOException 소켓 쓰기 에러 발생시 던지는 예외
+	 */
+	public void write(ArrayList<WrapBuffer> inObjWrapBufferList) throws IOException {
+		// if (null == inObjWrapBufferList) return;
+		
+		int inObjWrapBufferListSize = inObjWrapBufferList.size();
+		
+		synchronized (serverSC) {
+			if (null == serverSC) {
+				log.warn(String.format("serverSC is null, conn=[%s]", getSimpleConnectionInfo()));
+				return;
+			}
+			
+			/**
+			 * 2013.07.24 잔존 데이타 발생하므로 GatheringByteChannel 를 이용하는 바이트 버퍼 배열 쓰기 방식 포기.
+			 */
+			for (int i=0; i < inObjWrapBufferListSize; i++) {
+				WrapBuffer wrapBuffer = inObjWrapBufferList.get(i);
+				ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
 
+				do {
+					try {
+						serverSC.write(byteBuffer);
+					} catch(ClosedByInterruptException e) {
+						log.warn("ClosedByInterruptException", e);
+						try {
+							serverSC.write(byteBuffer);
+						} catch(ClosedByInterruptException e1) {
+							log.fatal("ClosedByInterruptException", e1);
+							System.exit(1);
+						}
+						Thread.currentThread().interrupt();
+					}
+				} while(byteBuffer.hasRemaining());
+			}
+		}	
+	}
 	
 	/**
 	 * 서버와 연결을 맺는다.
@@ -292,7 +367,11 @@ public abstract class AbstractConnection implements CommonRootIF {
 		strBuffer.append("], index=[");
 		strBuffer.append(index);
 		strBuffer.append(", serverSC=[");
-		strBuffer.append(serverSC.hashCode());
+		if (null != serverSC) {
+			strBuffer.append(serverSC.hashCode());
+		} else {
+			strBuffer.append("null");
+		}
 		strBuffer.append("]");
 		strBuffer.append(CommonStaticFinal.NEWLINE);
 		strBuffer.append(commonProjectInfo.toString());

@@ -46,11 +46,6 @@ public class ServerProjectConfig {
 	private File serverExecutorClassPath = null;
 	/******** 서버 비지니스 로직 종료 **********/
 	
-	/******** 서버 프로젝트 모니터 시작 **********/
-	private long monitorClientRequestChecktime = 0;
-	private long monitorClientRequestTimeout = 0;
-	/******** 서버 프로젝트 모니터 종료 **********/
-	
 	/***** 서버 비동기 입출력 지원용 자원 시작 *****/
 	private long acceptSelectorTimeout;
 	private int acceptProcessorSize;
@@ -71,6 +66,13 @@ public class ServerProjectConfig {
 	private int dataPacketBufferCnt;
 	
 	private TreeSet<String> anonymousExceptionInputMessageSet = new TreeSet<String>();
+	
+	/***** 모니터 환경 변수 시작 *****/
+	// FIXME!
+	private long monitorTimeInterval = 0L;
+	private long requestTimeout = 0L;
+	/***** 모니터 환경 변수 종료 *****/
+	
 	
 
 	/**
@@ -177,51 +179,7 @@ public class ServerProjectConfig {
 		log.info(String.format("%s::prop value[%s], new value[%s]", propKey, propValue, serverExecutorSuffix));
 		/******** 서버 비지니스 로직 종료 **********/
 		
-		/******** 서버 프로젝트 모니터 시작 **********/
 		
-		propKey = getKeyName("monitor.client.request.checktime");
-		propValue = configFileProperties.getProperty(propKey);
-		if (null == propValue) {
-			monitorClientRequestChecktime = 1000;
-		} else {
-			try {
-				monitorClientRequestChecktime = Long.parseLong(propValue);
-				if (monitorClientRequestChecktime < 1000) {
-					log.fatal(String.format("warning:: key[%s] minimum value 1000 but value[%s]", propKey, propValue));
-					System.exit(1);
-				}
-			} catch(NumberFormatException nfe) {
-				log.fatal(String.format("warning:: key[%s] integer but value[%s]", propKey, propValue));
-				System.exit(1);
-			}
-		}
-		log.info(String.format("%s::prop value[%s], new value[%d]", propKey, propValue, monitorClientRequestChecktime));
-		
-		
-		propKey = getKeyName("monitor.client.request.timeout");
-		propValue = configFileProperties.getProperty(propKey);
-		if (null == propValue) {
-			monitorClientRequestTimeout = 1000;
-		} else {
-			try {
-				monitorClientRequestTimeout = Long.parseLong(propValue);
-				if (monitorClientRequestTimeout < 1000) {
-					log.fatal(String.format("warning:: key[%s] minimum value 1000 but value[%s]", propKey, propValue));
-					System.exit(1);
-				}
-			} catch(NumberFormatException nfe) {
-				log.fatal(String.format("warning:: key[%s] integer but value[%s]", propKey, propValue));
-				System.exit(1);
-			}
-		}
-		
-		if (monitorClientRequestTimeout < monitorClientRequestChecktime) {
-			log.fatal(String.format("warning:: key[%s] value[%d] smaller than key[%s] value[%d]", propKey, monitorClientRequestTimeout, getKeyName("monitor.client.request.checktime"), monitorClientRequestChecktime));
-			System.exit(1);
-		}
-		
-		log.info(String.format("%s::prop value[%s], new value[%d]", propKey, propValue, monitorClientRequestTimeout));
-		/******** 서버 프로젝트 모니터 종료 **********/
 		
 		
 		/***** 서버 비동기 입출력 지원용 자원 시작 *****/
@@ -534,6 +492,47 @@ public class ServerProjectConfig {
 		dataPacketBufferCnt += minBufferCnt;
 		
 		log.info(String.format("%s::prop value[%s], new value[%d], 시스템 필요 갯수[%d]", propKey, propValue, dataPacketBufferCnt, minBufferCnt));
+		
+		
+		/******** 서버 프로젝트 모니터 시작 **********/
+		propKey = getKeyName("monitor.time_interval");
+		propValue = configFileProperties.getProperty(propKey);
+		if (null == propValue) {
+			monitorTimeInterval = 10000L;
+		} else {
+			try {
+				monitorTimeInterval = Long.parseLong(propValue);
+				if (monitorTimeInterval < 1000L) {
+					log.fatal(String.format("warning:: key[%s] minimum value 1000 but value[%s]", propKey, propValue));
+					System.exit(1);
+				}
+			} catch(NumberFormatException nfe) {
+				log.fatal(String.format("warning:: key[%s] integer but value[%s]", propKey, propValue));
+				System.exit(1);
+			}
+		}
+		
+		
+		log.info(String.format("%s::prop value[%s], new value[%d]", propKey, propValue, monitorTimeInterval));
+		
+		propKey = getKeyName("monitor.request_timeout");
+		propValue = configFileProperties.getProperty(propKey);
+		if (null == propValue) {
+			requestTimeout = 10000L;
+		} else {
+			try {
+				requestTimeout = Long.parseLong(propValue);
+				if (requestTimeout < 1000L) {
+					log.fatal(String.format("warning:: key[%s] minimum value 1000 but value[%s]", propKey, propValue));
+					System.exit(1);
+				}
+			} catch(NumberFormatException nfe) {
+				log.fatal(String.format("warning:: key[%s] integer but value[%s]", propKey, propValue));
+				System.exit(1);
+			}
+		}
+		log.info(String.format("%s::prop value[%s], new value[%d]", propKey, propValue, requestTimeout));
+		/******** 서버 프로젝트 모니터 종료 **********/
 	}
 
 	/**
@@ -679,17 +678,17 @@ public class ServerProjectConfig {
 	
 
 	/**
-	 * @return 지정 시간을 초과하도록 데이터를 송신하지 않는 클라이언트들을 모니터링 하기 위한 시간, 단위 ms
+	 * @return 데이터를 송신하지 않고 기다려주는 최대 시간, 단위 ms, 이 시간 초과된 클라이언트는 소켓을 닫은다. 
 	 */
-	public long getMonitorClientRequestChecktime() {
-		return monitorClientRequestChecktime;
+	public long getRequestTimeout() {
+		return requestTimeout;
 	}
 
 	/**
-	 * @return 클라이언트에서 메시지 시작 데이터를 보낸후 지정 시간을 초과하도록 송신이 없는 경우 클라이언트 삭제를 위한 시간, 최소 값은 checktime 이다. 단위 ms
+	 * @return 프로젝트 모니터링 시간 간격, 단위 ms.
 	 */
-	public long getMonitorClientRequestTimeout() {
-		return monitorClientRequestTimeout;
+	public long getMonitorTimeInterval() {
+		return monitorTimeInterval;
 	}
 	
 	/**
@@ -718,10 +717,10 @@ public class ServerProjectConfig {
 		builder.append(serverExecutorSourcePath);
 		builder.append(", serverExecutorClassPath=");
 		builder.append(serverExecutorClassPath);
-		builder.append(", monitorClientRequestChecktime=");
-		builder.append(monitorClientRequestChecktime);
-		builder.append(", monitorClientRequestTimeout=");
-		builder.append(monitorClientRequestTimeout);
+		builder.append(", requestTimeout=");
+		builder.append(requestTimeout);
+		builder.append(", monitorTimeInterval=");
+		builder.append(monitorTimeInterval);
 		builder.append(", acceptSelectorTimeout=");
 		builder.append(acceptSelectorTimeout);
 		builder.append(", acceptProcessorSize=");

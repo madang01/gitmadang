@@ -64,7 +64,7 @@ import kr.pe.sinnori.util.AbstractClientExecutor;
 import org.apache.commons.codec.binary.Base64;
 
 /**
- * 샘플 파일 송수신 클라이언트 비지니스 모듈
+ * 샘플 파일 송수신 클라이언트 버전1
  * @author Jonghoon Won
  *
  */
@@ -92,6 +92,9 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	private LocalTargetFileResourceManager  localTargetFileResourceManager = LocalTargetFileResourceManager.getInstance();
 	private LocalTargetFileResource localTargetFileResource = null;
 	
+	private int connectionScreenWidth = -1, connectionScreenHeight = -1;
+	private int fileUpDownScreenWidth = -1, fileUpDownScreenHeight = -1;
+	
 	/**
 	 * Initialize the contents of the frame.
 	 */
@@ -109,14 +112,20 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		
 		
 		mainFrame = new JFrame();
-		// mainFrame.setBounds(100, 100, 450, 300);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		mainFrame.setBounds(100, 100, 450, 223);
+		// mainFrame.setBounds(100, 100, 450, 223);
 		
 		connectionScreen = new ConnectionScreen(mainFrame, this);
 		
 		mainFrame.add(connectionScreen);
 		mainFrame.pack();
+		
+		// FIXME!
+		// log.info(String.format("1.mainFrame width=[%d], height=[%d]", mainFrame.getWidth(), mainFrame.getHeight()));
+		
+		connectionScreenWidth = mainFrame.getWidth();
+		connectionScreenHeight = mainFrame.getHeight();
+		
 		
 		connectionScreen.setVisible(true);
 		mainFrame.setVisible(true);
@@ -157,14 +166,40 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		
 		connectionScreen.setVisible(false);
 		mainFrame.remove(connectionScreen);
-		connectionScreen = null;
+		// connectionScreen = null;
 		// mainFrame.setBounds(100, 100, 450, 420);
 		mainFrame.add(fileUpDownScreen);
 		
-		mainFrame.pack();
+		if (-1 == fileUpDownScreenWidth) {
+			mainFrame.pack();
+			fileUpDownScreenWidth = mainFrame.getWidth();
+			fileUpDownScreenHeight = mainFrame.getHeight();
+		} else {
+			mainFrame.setBounds(100, 100, fileUpDownScreenWidth, fileUpDownScreenHeight);
+		}
+		
+		// FIXME!
+		log.info(String.format("2. mainFrame width=[%d], height=[%d]", fileUpDownScreenWidth, fileUpDownScreenHeight));
 		
 		
 		fileUpDownScreen.setVisible(true);
+	}
+	
+	private void freeResource() {
+		if (null != conn) conn.closeServer();
+		freeLocalSourceFileResource();
+		freeLocalTargetFileResource();	
+	}
+	
+	public void goToFirstScreen() {
+		freeResource();
+		fileUpDownScreen.setVisible(false);
+		mainFrame.remove(fileUpDownScreen);
+		fileUpDownScreen = null;
+		mainFrame.add(connectionScreen);		
+		mainFrame.setBounds(100, 100, connectionScreenWidth, connectionScreenHeight);
+		connectionScreen.init();
+		connectionScreen.setVisible(true);
 	}
 	
 	@Override
@@ -230,10 +265,12 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		} catch (SocketTimeoutException e) {
 			log.warn("SocketTimeoutException", e);
 			JOptionPane.showMessageDialog(mainFrame, "지정된 연결 시간을 초과하였습니다.");
+			/** 로그인전 공개키 요구 */
 			return null;
 		} catch (ServerNotReadyException e) {
 			log.warn("ServerNotReadyException", e);
 			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			/** 로그인전 공개키 요구 */
 			return null;
 		} catch (NoMoreDataPacketBufferException e) {
 			log.warn("NoMoreDataPacketBufferException", e);
@@ -407,10 +444,12 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		} catch (SocketTimeoutException e) {
 			log.warn("SocketTimeoutException", e);
 			JOptionPane.showMessageDialog(mainFrame, "지정된 연결 시간을 초과하였습니다.");
+			/** 로그인 요구 */
 			return false;
 		} catch (ServerNotReadyException e) {
 			log.warn("ServerNotReadyException", e);
 			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			/** 로그인 요구 */
 			return false;
 		} catch (NoMoreDataPacketBufferException e) {
 			log.warn("NoMoreDataPacketBufferException", e);
@@ -513,10 +552,14 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		} catch (SocketTimeoutException e) {
 			log.warn("SocketTimeoutException", e);
 			JOptionPane.showMessageDialog(mainFrame, "지정된 연결 시간을 초과하였습니다.");
+			
+			goToFirstScreen();
 			return null;
 		} catch (ServerNotReadyException e) {
 			log.warn("ServerNotReadyException", e);
 			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			
+			goToFirstScreen();
 			return null;
 		} catch (NoMoreDataPacketBufferException e) {
 			log.warn("NoMoreDataPacketBufferException", e);
@@ -650,10 +693,14 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		} catch (SocketTimeoutException e) {
 			log.warn("SocketTimeoutException", e);
 			JOptionPane.showMessageDialog(mainFrame, "지정된 연결 시간을 초과하였습니다.");
+			
+			goToFirstScreen();
 			return null;
 		} catch (ServerNotReadyException e) {
 			log.warn("ServerNotReadyException", e);
 			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			
+			goToFirstScreen();
 			return null;
 		} catch (NoMoreDataPacketBufferException e) {
 			log.warn("NoMoreDataPacketBufferException", e);
@@ -666,8 +713,6 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		} catch (MessageInfoNotFoundException e) {
 			log.warn("MessageInfoNotFoundException", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			
-			localSourceFileResourceManager.putLocalSourceFileResource(localSourceFileResource);
 			return null;
 		}
 		
@@ -768,16 +813,15 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	
 	@Override
 	public void endUploadTask() {
-		// FIXME!
-		log.info("call");
-		
-		if (null != localSourceFileResource) {
-			/** localSourceFileResource 를 null 만들기 전에 파일 업로드 진행 모달 윈도우를 가장 먼저 닫아야 한다. */
-			fileProcessDialog.dispose();
-			localSourceFileResourceManager.putLocalSourceFileResource(localSourceFileResource);
-			localSourceFileResource = null;
-			fileUpDownScreen.reloadRemoteFileList();
+		if (null == localSourceFileResource) {
+			log.warn("localSourceFileResource is null");
+			return;
 		}
+		
+		/** localSourceFileResource 를 null 만들기 전에 파일 업로드 진행 모달 윈도우를 가장 먼저 닫아야 한다. */
+		fileProcessDialog.dispose();
+		freeLocalSourceFileResource();
+		fileUpDownScreen.reloadRemoteFileList();
 	}
 	
 	@Override
@@ -831,10 +875,14 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		} catch (SocketTimeoutException e) {
 			log.warn("SocketTimeoutException", e);
 			JOptionPane.showMessageDialog(mainFrame, "지정된 연결 시간을 초과하였습니다.");
+			
+			goToFirstScreen();
 			return null;
 		} catch (ServerNotReadyException e) {
 			log.warn("ServerNotReadyException", e);
 			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			
+			goToFirstScreen();
 			return null;
 		} catch (NoMoreDataPacketBufferException e) {
 			log.warn("NoMoreDataPacketBufferException", e);
@@ -970,10 +1018,14 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		} catch (SocketTimeoutException e) {
 			log.warn("SocketTimeoutException", e);
 			JOptionPane.showMessageDialog(mainFrame, "지정된 연결 시간을 초과하였습니다.");
+			
+			goToFirstScreen();
 			return null;
 		} catch (ServerNotReadyException e) {
 			log.warn("ServerNotReadyException", e);
 			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			
+			goToFirstScreen();
 			return null;
 		} catch (NoMoreDataPacketBufferException e) {
 			log.warn("NoMoreDataPacketBufferException", e);
@@ -1049,10 +1101,13 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	
 	@Override
 	public void freeLocalTargetFileResource() {
-		if (null != localTargetFileResource) {
-			localTargetFileResourceManager.putLocalTargetFileResource(localTargetFileResource);
-			localTargetFileResource = null;
+		if (null == localTargetFileResource) {
+			log.warn("localTargetFileResource is null");
+			return;
 		}
+		
+		localTargetFileResourceManager.putLocalTargetFileResource(localTargetFileResource);
+		localTargetFileResource = null;
 	}
 	
 	@Override
@@ -1076,13 +1131,15 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	
 	@Override
 	public void endDownloadTask() {
-		if (null != localTargetFileResource) {
-			/** localTargetFileResource 를 null 만들기 전에 파일 다운로드 진행 모달 윈도우를 가장 먼저 닫아야 한다. */
-			fileProcessDialog.dispose();
-			localTargetFileResourceManager.putLocalTargetFileResource(localTargetFileResource);
-			localTargetFileResource = null;
-			fileUpDownScreen.reloadLocalFileList();
+		if (null == localTargetFileResource) {
+			log.warn("localTargetFileResource is null");
+			return;
 		}
+		
+		/** localTargetFileResource 를 null 만들기 전에 파일 다운로드 진행 모달 윈도우를 가장 먼저 닫아야 한다. */
+		fileProcessDialog.dispose();
+		freeLocalTargetFileResource();
+		fileUpDownScreen.reloadLocalFileList();
 	}
 	
 	@Override
@@ -1132,10 +1189,14 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		} catch (SocketTimeoutException e) {
 			log.warn("SocketTimeoutException", e);
 			JOptionPane.showMessageDialog(mainFrame, "지정된 연결 시간을 초과하였습니다.");
+			
+			goToFirstScreen();
 			return null;
 		} catch (ServerNotReadyException e) {
 			log.warn("ServerNotReadyException", e);
 			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			
+			goToFirstScreen();
 			return null;
 		} catch (NoMoreDataPacketBufferException e) {
 			log.warn("NoMoreDataPacketBufferException", e);
@@ -1204,13 +1265,6 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		return outObj;
 	}
 	
-	/*
-	public void noticeAddingFileDataToFileTransferProcessDialog(int receivedDataSize) {
-		if (null == fileProcessDialog) return;
-		
-		fileProcessDialog.noticeAddingFileData(receivedDataSize);	
-	}
-	*/
 	
 	@Override
 	public OutputMessage cancelUploadFile() {
@@ -1253,10 +1307,14 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		} catch (SocketTimeoutException e) {
 			log.warn("SocketTimeoutException", e);
 			JOptionPane.showMessageDialog(mainFrame, "지정된 연결 시간을 초과하였습니다.");
+			
+			goToFirstScreen();
 			return null;
 		} catch (ServerNotReadyException e) {
 			log.warn("ServerNotReadyException", e);
 			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			
+			goToFirstScreen();
 			return null;
 		} catch (NoMoreDataPacketBufferException e) {
 			log.warn("NoMoreDataPacketBufferException", e);
@@ -1366,10 +1424,14 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		} catch (SocketTimeoutException e) {
 			log.warn("SocketTimeoutException", e);
 			JOptionPane.showMessageDialog(mainFrame, "지정된 연결 시간을 초과하였습니다.");
+			
+			goToFirstScreen();
 			return null;
 		} catch (ServerNotReadyException e) {
 			log.warn("ServerNotReadyException", e);
 			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			
+			goToFirstScreen();
 			return null;
 		} catch (NoMoreDataPacketBufferException e) {
 			log.warn("NoMoreDataPacketBufferException", e);
@@ -1448,6 +1510,14 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		/**
 		 * 파일 송수신 버전 2차 전용 기능
 		 */
+		Throwable t = new Throwable();
+		log.fatal("파일 송수신 버전 2차 전용 메소드", t);
+		System.exit(1);
 		return null;
-	}	
+	}
+	
+	@Override
+	protected void finalize() throws Throwable {
+		freeResource();
+	}
 }

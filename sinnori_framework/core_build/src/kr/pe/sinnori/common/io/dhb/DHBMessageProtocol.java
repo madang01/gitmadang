@@ -188,6 +188,7 @@ public class DHBMessageProtocol implements CommonRootIF, MessageExchangeProtocol
 					
 					/** 헤더 읽기 */
 					DHBMessageHeader  workMessageHeader = new DHBMessageHeader(messageIDFixedSize);
+					
 					workMessageHeader.readMessageHeader(dupMessageHeaderBuffer, md5, charsetOfProjectDecoder);
 					
 					// log.debug(String.format("3.2 dupMessageHeaderBuffer=[%s]", dupMessageHeaderBuffer.toString()));

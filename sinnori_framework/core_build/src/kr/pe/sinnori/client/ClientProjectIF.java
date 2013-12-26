@@ -80,4 +80,9 @@ public interface ClientProjectIF {
 	 * @param newAnonymousServerMessageTask 새로운 서버 익명 메시지 비지니스 로직
 	 */
 	public void changeAnonymousServerMessageTask(AnonymousServerMessageTaskIF newAnonymousServerMessageTask);
+	
+	/**
+	 * 클라이언트 프로젝트 중지
+	 */
+	public void stop();
 }

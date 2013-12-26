@@ -48,5 +48,9 @@ public abstract class CommonStaticFinal {
 	public static final long MAX_KEY_FILE_SIZE = 1024 * 4L;
 	
 	public static final String EMPTY_STRING = "";
+	
+	/****** 파일 송수신 start ****/
+	public static final long UP_DOWN_SOURCE_FILE_MAX_SIZE = Long.MAX_VALUE - Integer.MAX_VALUE + 1;
+	/****** 파일 송수신 end ****/
 
 }
