@@ -100,9 +100,30 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		// this.messageManger = messageManger;
 		// this.outputMessageQueue = outputMessageQueue;
 		mailbox = new PrivateMailbox(this, mailboxID, inputMessageQueue, outputMessageQueueQueueManger);
-				
-		log.info(String.format("create SingleNoneBlockConnection, projectName=[%s][%d]",
-				commonProjectInfo.projectName, index));
+		
+		
+		try {
+			reopenSocketChannel();
+		} catch (IOException e) {
+			String errorMessage = String.format("project[%s] NoShareAsynConnection[%d], fail to config a socket channel", commonProjectInfo.projectName, index);
+			log.fatal(errorMessage, e);
+			System.exit(1);
+		}
+		
+		/**
+		 * 연결 종류별로 설정이 모두 다르다 따라서 설정 변수 "소켓 자동접속 여부"에 따른 서버 연결은 연결별 설정후 수행해야 한다.
+		 */
+		if (whetherToAutoConnect) {
+			try {
+				serverOpen();
+			} catch (ServerNotReadyException e) {
+				log.warn(String.format("project[%s] NoShareAsynConnection[%d] fail to connect server", commonProjectInfo.projectName, index), e);
+				// System.exit(1);
+			}
+		}
+		
+		
+		log.info(String.format("project[%s] NoShareAsynConnection[%d] 생성자 end", commonProjectInfo.projectName, index));
 	}
 	
 	/**
@@ -129,12 +150,20 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		isQueueIn = false;
 	}
 	
+	/**
+	 * 비공유 + 비동기 연결 전용 소켓 채널 열기
+	 * @throws IOException 소켓 채널을 개방할때 혹은 비공유 + 비동기 에 맞도록 설정할때 에러 발생시 던지는 예외 
+	 */
+	private void reopenSocketChannel() throws IOException {
+		serverSC = SocketChannel.open();
+		serverSC.configureBlocking(false);
+		serverSC.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
+		serverSC.setOption(StandardSocketOptions.TCP_NODELAY, true);
+		serverSC.setOption(StandardSocketOptions.SO_LINGER, 0);
+	}
+	
 	@Override
 	public void serverOpen() throws ServerNotReadyException, InterruptedException {
-		// log.info("projectName[%s%02d] call serverOpen start", projectName,
-		// index);
-		StringBuilder infoStringBuilder = null;
-		
 		/**
 		 * <pre>
 		 * 서버와 연결하는 시간보다 연결 이후 시간이 훨씬 길기때문에,
@@ -144,104 +173,131 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		 * 연결 할때만 if 문 중복 비용만 더 추가될 것이다.
 		 * </pre>
 		 */
-		if (null == serverSC) {
-			infoStringBuilder = new StringBuilder("projectName[");
-			infoStringBuilder.append(commonProjectInfo.projectName);
-			infoStringBuilder.append("] asyn connection[");
-			infoStringBuilder.append(index);
-			infoStringBuilder.append("] ");
-		} else if (!serverSC.isConnected()) {
-			infoStringBuilder = new StringBuilder("projectName[");
-			infoStringBuilder.append(commonProjectInfo.projectName);
-			infoStringBuilder.append("] asyn connection[");
-			infoStringBuilder.append(index);
-			infoStringBuilder.append("] old serverSC[");
-			infoStringBuilder.append(serverSC.hashCode());
-			infoStringBuilder.append("] ");
-		} else {
-			return;
-		}
+		
+		StringBuilder infoBuilder = null;
+		
+		infoBuilder = new StringBuilder("projectName[");
+		infoBuilder.append(commonProjectInfo.projectName);
+		infoBuilder.append("] asyn connection[");
+		infoBuilder.append(index);
+		infoBuilder.append("] serverSC[");
+		infoBuilder.append(serverSC.hashCode());
+		infoBuilder.append("]");
+		
+		String info = infoBuilder.toString(); 
 		
 		try {
-			// synchronized (monitor) {
-					
+			synchronized (monitor) {
+				// (재)연결 판단 로직, 2번이상 SocketChannel.open() 호출하는것을 막는 역활을 한다.
+				if (serverSC.isConnected()) {
+					log.info(new StringBuilder(info).append(" connected").toString());
+					return;
+				} 
 				
-			serverSC = SocketChannel.open();
-			finalReadTime = new java.util.Date();
-
-			infoStringBuilder.append("new serverSC[");
-			infoStringBuilder.append(serverSC.hashCode());
-			infoStringBuilder.append("] ");
-			
-			log.info(infoStringBuilder.toString());
-			
-
-			serverSC.configureBlocking(false);
-			serverSC.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
-			serverSC.setOption(StandardSocketOptions.TCP_NODELAY, true);
-			serverSC.setOption(StandardSocketOptions.SO_LINGER, 0);
-			
-			// sc.setSendBufferSize(io_buffer_size);
-			// sc.setReceiveBufferSize(io_buffer_size);
-			InetSocketAddress remoteAddr = new InetSocketAddress(
-					commonProjectInfo.serverHost,
-					commonProjectInfo.serverPort);
-			serverSC.connect(remoteAddr);
-			finishConnect();
-			initSocketResource();
-			// log.info("serverSC isConnected=[%s]",
-			// serverSC.isConnected());
-			afterConnectionWork();
-			// }
-			
+				
+				log.info(new StringBuilder(info).append(" before connect").toString());
+				
+				finalReadTime = new java.util.Date();
+				InetSocketAddress remoteAddr = new InetSocketAddress(
+						commonProjectInfo.serverHost,
+						commonProjectInfo.serverPort);
+				
+				if (!serverSC.isOpen()) {
+					reopenSocketChannel();
+					
+					log.info(new StringBuilder(info).append(" serverSC closed and reopen new serverSC=").append(serverSC.hashCode()).toString());
+				}
+				serverSC.connect(remoteAddr);
+				finishConnect();
+				initSocketResource();
+				afterConnectionWork();
+				
+				log.info(new StringBuilder(info).append(" after connect").toString());
+			}
 
 		} catch (ConnectException e) {
-			throw new ServerNotReadyException(
-					String.format(
-							"ConnectException::%s conn index[%02d], host[%s], port[%d]", 
-							commonProjectInfo.projectName,
-							index, commonProjectInfo.serverHost,
-							commonProjectInfo.serverPort));
-		} catch (UnknownHostException e) {
-			throw new ServerNotReadyException(
-					String.format(
-							"UnknownHostException::%s conn index[%02d], host[%s], port[%d]", commonProjectInfo.projectName
-							, index, commonProjectInfo.serverHost,
-							commonProjectInfo.serverPort));
-		} catch (ClosedChannelException e) {
-			throw new ServerNotReadyException(
-					String.format(
-							"ClosedChannelException::%s conn index[%02d], host[%s], port[%d]", 
-							commonProjectInfo.projectName,
-							index, commonProjectInfo.serverHost,
-							commonProjectInfo.serverPort));
-		} catch (IOException e) {
-			try {
-				if (null != serverSC) serverSC.close();
-			} catch (IOException e1) {
-			}
+			String errorMessage = String.format(
+					"ConnectException::%s conn[%d] index[%02d], host[%s], port[%d]", 
+					commonProjectInfo.projectName,
+					serverSC.hashCode(),
+					index, commonProjectInfo.serverHost,
+					commonProjectInfo.serverPort);
 			
-			throw new ServerNotReadyException(
-					String.format(
-							"IOException::%s conn index[%02d], host[%s], port[%d]", 
-							commonProjectInfo.projectName,
-							index, commonProjectInfo.serverHost,
-							commonProjectInfo.serverPort));
+			log.warn(errorMessage, e);
+			
+			throw new ServerNotReadyException(errorMessage);
+		} catch (UnknownHostException e) {
+			String errorMessage = String.format(
+					"UnknownHostException::%s conn[%d] index[%02d], host[%s], port[%d]", 
+					commonProjectInfo.projectName,
+					serverSC.hashCode(),
+					index, commonProjectInfo.serverHost,
+					commonProjectInfo.serverPort);
+			
+			log.warn(errorMessage, e);
+			
+			throw new ServerNotReadyException(errorMessage);
+		} catch (ClosedChannelException e) {
+			String errorMessage = String.format(
+					"ClosedChannelException::%s conn[%d] index[%02d], host[%s], port[%d]", 
+					commonProjectInfo.projectName,
+					serverSC.hashCode(),
+					index, commonProjectInfo.serverHost,
+					commonProjectInfo.serverPort);
+			
+			log.warn(errorMessage, e);
+			
+			throw new ServerNotReadyException(errorMessage);
+		} catch (IOException e) {
+			String errorMessage = String.format(
+					"IOException::%s conn[%d] index[%02d], host[%s], port[%d]", 
+					commonProjectInfo.projectName,
+					serverSC.hashCode(),
+					index, commonProjectInfo.serverHost,
+					commonProjectInfo.serverPort);
+			
+			log.warn(errorMessage, e);
+			
+			serverClose();
+			
+			throw new ServerNotReadyException(errorMessage);
 		} catch (ServerNotReadyException e) {
-			closeServer();
+			String errorMessage = String.format(
+					"ServerNotReadyException::%s conn[%d] index[%02d], host[%s], port[%d]", 
+					commonProjectInfo.projectName,
+					serverSC.hashCode(),
+					index, commonProjectInfo.serverHost,
+					commonProjectInfo.serverPort);
+			
+			log.warn(errorMessage, e);
+			
+			serverClose();
+			
 			throw e;
 		} catch (InterruptedException e) {
-			closeServer();
+			String errorMessage = String.format(
+					"ServerNotReadyException::%s conn[%d] index[%02d], host[%s], port[%d]", 
+					commonProjectInfo.projectName,
+					serverSC.hashCode(),
+					index, commonProjectInfo.serverHost,
+					commonProjectInfo.serverPort);
+			log.warn(errorMessage, e);
+			
+			serverClose();
 			
 			throw e;
 		} catch (Exception e) {
-			closeServer();
+			String errorMessage = String.format(
+					"unknown exception::%s conn[%d] index[%02d], host[%s], port[%d]", 
+					commonProjectInfo.projectName,
+					serverSC.hashCode(),
+					index, commonProjectInfo.serverHost,
+					commonProjectInfo.serverPort);
+			log.warn(errorMessage, e);
 			
-			log.warn("unknown exception", e);
-			throw new ServerNotReadyException(String.format(
-					"unknown::index[%d], projectName[%s], host[%s], port[%d]",
-					index, commonProjectInfo.projectName, commonProjectInfo.serverHost,
-					commonProjectInfo.serverPort));
+			serverClose();
+			
+			throw new ServerNotReadyException(errorMessage);
 		}
 
 		// log.info("projectName[%s%02d] call serverOpen end", projectName,
@@ -335,7 +391,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 	}
 	
 	@Override
-	public void sendOnlyInputMessage(
+	public void sendInputMessageWithoutResponse(
 			InputMessage inObj) throws ServerNotReadyException,
 			SocketTimeoutException, NoMoreDataPacketBufferException,
 			BodyFormatException, MessageInfoNotFoundException, NotSupportedException {
@@ -434,6 +490,6 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 	public void finalize() {
 		// MessageInputStreamResource messageInputStreamResource = getMessageInputStreamResource();
 		messageInputStreamResource.destory();
-		log.warn(String.format("SingleNoneBlockConnection 소멸::[%s]", toString()));
+		log.warn(String.format("NoShareAsynConnection 소멸::[%s]", toString()));
 	}
 }

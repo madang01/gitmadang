@@ -60,36 +60,7 @@ public final class CommandSExtor extends AbstractServerExecutor {
 
 			String commandValue = token.nextToken().trim().toUpperCase();
 
-			if (commandValue.equals("/메세지이진형식변경요청")) {
-				commandBuffer.append("/메세지이진형식변경답변");
-
-				if (!token.hasMoreTokens()) {
-					commandBuffer.append(" ");
-					commandBuffer.append("FALSE");
-					commandBuffer.append(" ");
-					commandBuffer.append("메세지 이진 형식 미 지정 오류 ");
-				} else {
-					String messageType = token.nextToken().toUpperCase();
-
-					if (!messageType.equals("DELIM")
-							&& !messageType.equals("DHB")
-							&& !messageType.equals("LINE")) {
-
-						commandBuffer.append(" ");
-						commandBuffer.append("FALSE");
-						commandBuffer.append(" ");
-						commandBuffer.append("지원하지 않는 메세지 이진 형식[ ");
-						commandBuffer.append(messageType);
-						commandBuffer.append("]입니다. ");
-					} else {
-						clientResource.setBinaryFormatType(messageType);
-						commandBuffer.append(" ");
-						commandBuffer.append("TRUE");
-						commandBuffer.append(" ");
-						commandBuffer.append(messageType);
-					}
-				}
-			} else if (commandValue.equals("/문자셋변경요청")) {
+			if (commandValue.equals("/문자셋변경요청")) {
 				commandBuffer.append("/문자셋변경답변");
 				if (!token.hasMoreTokens()) {
 					commandBuffer.append(" ");

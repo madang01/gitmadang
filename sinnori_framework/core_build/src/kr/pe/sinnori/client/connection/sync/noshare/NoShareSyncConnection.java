@@ -17,10 +17,17 @@
 package kr.pe.sinnori.client.connection.sync.noshare;
 
 import java.io.IOException;
+import java.net.ConnectException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.net.StandardSocketOptions;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedByInterruptException;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.NotYetConnectedException;
+import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -67,7 +74,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 	/** 큐 등록 상태 */
 	private boolean isQueueIn = true;
 	
-	
+	private Socket serverSocket = null;
 	
 	
 
@@ -93,6 +100,48 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 		
 		this.messageProtocol = messageProtocol;
 		this.messageManger = messageManger;
+		
+		try {
+			reopenSocketChannel();
+		} catch (IOException e) {
+			String errorMessage = String.format("project[%s] NoShareSyncConnection[%d], fail to config a socket channel", commonProjectInfo.projectName, index);
+			log.fatal(errorMessage, e);
+			System.exit(1);
+		}
+		
+		/**
+		 * 연결 종류별로 설정이 모두 다르다 따라서 설정 변수 "소켓 자동접속 여부"에 따른 서버 연결은 연결별 설정후 수행해야 한다.
+		 */
+		if (whetherToAutoConnect) {
+			try {
+				serverOpen();
+			} catch (ServerNotReadyException e) {
+				log.warn(String.format("project[%s] NoShareSyncConnection[%d] fail to connect server", commonProjectInfo.projectName, index), e);
+				// System.exit(1);
+			}
+		}
+		
+		log.info(String.format("project[%s] NoShareSyncConnection[%d] 생성자 end", commonProjectInfo.projectName, index));
+	}
+	
+	/**
+	 * 비공유 + 동기 연결 전용 소켓 채널 열기
+	 * @throws IOException 소켓 채널을 개방할때 혹은 비공유 + 동기 에 맞도록 설정할때 에러 발생시 던지는 예외 
+	 */
+	private void reopenSocketChannel() throws IOException {
+		serverSC = SocketChannel.open();
+		serverSC.configureBlocking(true);
+		serverSC.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
+		serverSC.setOption(StandardSocketOptions.TCP_NODELAY, true);
+		serverSC.setOption(StandardSocketOptions.SO_LINGER, 0);
+		
+		serverSocket = serverSC.socket();
+		// serverSocket.setKeepAlive(true);
+		// serverSocket.setTcpNoDelay(true);
+		serverSocket.setSoTimeout((int) socketTimeOut);
+		
+		serverSocket = serverSC.socket();
+		serverSocket.setSoTimeout((int) socketTimeOut);
 	}
 	
 	/**
@@ -118,6 +167,117 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 	public void queueOut() {
 		isQueueIn = false;
 	}
+	
+	@Override
+	public void serverOpen() throws ServerNotReadyException {
+		// log.info("projectName[%s%02d] call serverOpen start", projectName,
+		// index);
+		/**
+		 * <pre>
+		 * 서버와 연결하는 시간보다 연결 이후 시간이 훨씬 길기때문에,
+		 * 연결시 비용이 더 들어가도 연결후 비용을 더 줄일 수 만 있다면 좋을 것이다.
+		 * 아래와 같이 재연결을 판단하는 if 문을 2번 사용하여 이를 달성한다.
+		 * 그러면 소켓 채널이 서버와 연결된 후에는 동기화 비용 없어지고
+		 * 연결 할때만 if 문 중복 비용만 더 추가될 것이다.
+		 * </pre>
+		 */
+		
+		StringBuilder infoBuilder = null;
+		
+		infoBuilder = new StringBuilder("projectName[");
+		infoBuilder.append(commonProjectInfo.projectName);
+		infoBuilder.append("] asyn connection[");
+		infoBuilder.append(index);
+		infoBuilder.append("] serverSC[");
+		infoBuilder.append(serverSC.hashCode());
+		infoBuilder.append("]");
+		
+		String info = infoBuilder.toString(); 
+		
+	
+		try {
+			// log.info("open start");
+			synchronized (monitor) {
+				// (재)연결 판단 로직, 2번이상 SocketChannel.open() 호출하는것을 막는 역활을 한다.
+				if (serverSC.isConnected()) {
+					log.info(new StringBuilder(info).append(" connected").toString());
+					return;
+				}
+				
+				log.info(new StringBuilder(info).append(" before connect").toString());
+				
+				finalReadTime = new java.util.Date();
+				
+				InetSocketAddress remoteAddr = new InetSocketAddress(
+						commonProjectInfo.serverHost,
+						commonProjectInfo.serverPort);
+				/**
+				 * 주의할것 : serverSC.connect(remoteAddr); 는 무조건 블락되어 사용할 수 없음.
+				 * 아래처럼 사용해야 타임아웃 걸림.
+				 */
+				// log.info("111111 socketTimeOut=[%d]", socketTimeOut);
+				if (!serverSC.isOpen()) {
+					reopenSocketChannel();
+					log.info(new StringBuilder(info).append(" serverSC closed and reopen new serverSC=").append(serverSC.hashCode()).toString());
+				}
+				serverSocket.connect(remoteAddr, (int) socketTimeOut);
+	
+				initSocketResource();
+				
+				/** 소켓 스트림은 소켓 연결후에 만들어야 한다. */
+				try {
+					if (null != inputStream) {
+						inputStream.close();
+					}
+				} catch (IOException e) {
+				}
+				
+				try {
+					this.inputStream = serverSocket.getInputStream();
+				} catch (IOException e) {
+					try {
+						serverSC.close();
+					} catch (IOException e1) {
+					}
+					throw e;
+				}
+			}
+		} catch (ConnectException e) {
+			throw new ServerNotReadyException(String.format(
+					"ConnectException::%s conn index[%02d], host[%s], port[%d]",
+					commonProjectInfo.projectName, index, commonProjectInfo.serverHost,
+					commonProjectInfo.serverPort));
+		} catch (UnknownHostException e) {
+			throw new ServerNotReadyException(String.format(
+					"UnknownHostException::%s conn index[%02d], host[%s], port[%d]",
+					commonProjectInfo.projectName, index, commonProjectInfo.serverHost,
+					commonProjectInfo.serverPort));
+		} catch (ClosedChannelException e) {
+			throw new ServerNotReadyException(
+					String.format(
+							"ClosedChannelException::%s conn index[%02d], host[%s], port[%d]",
+							commonProjectInfo.projectName, index, commonProjectInfo.serverHost,
+							commonProjectInfo.serverPort));
+		} catch (IOException e) {
+			serverClose();
+			
+			throw new ServerNotReadyException(String.format(
+					"IOException::%s conn index[%02d], host[%s], port[%d]",
+					commonProjectInfo.projectName, index, commonProjectInfo.serverHost,
+					commonProjectInfo.serverPort));
+		} catch (Exception e) {
+			serverClose();
+			
+			log.warn("unknown error", e);
+			throw new ServerNotReadyException(
+					String.format(
+							"unknown::%s conn index[%02d], host[%s], port[%d]",
+							commonProjectInfo.projectName, index, commonProjectInfo.serverHost,
+							commonProjectInfo.serverPort));
+		}
+		// log.info("projectName[%s%02d] call serverOpen end", projectName,
+		// index);
+	}	
 
 	@Override
 	public LetterFromServer sendInputMessage(InputMessage inObj)
@@ -180,14 +340,14 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 			
 			// ClosedChannelException
 			log.warn(errorMessage, e);
-			closeServer();
+			serverClose();
 			
 			throw new ServerNotReadyException(errorMessage);
 		} catch (IOException e) {
 			String errorMessage = String.format("IOException::%s, inObj=[%s]", getSimpleConnectionInfo(), inObj.toString()); 
 			// ClosedChannelException
 			log.warn(errorMessage, e);
-			closeServer();
+			serverClose();
 			
 			throw new ServerNotReadyException(errorMessage);
 		} finally {
@@ -265,7 +425,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 			
 		} catch (HeaderFormatException e) {
 			log.warn(String.format("HeaderFormatException::%s", e.getMessage()), e);
-			closeServer();
+			serverClose();
 		} catch (SocketTimeoutException e) {
 			log.warn(String.format("SocketTimeoutException, inObj=[%s]",
 					inObj.toString()), e);
@@ -278,11 +438,11 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 			 * 적용한 것 이기때문에 소켓을 닫을 필요는 없다.
 			 * </pre>
 			 */
-			closeServer();
+			serverClose();
 			throw e;
 		} catch (IOException e) {
 			log.fatal("IOException", e);
-			closeServer();
+			serverClose();
 			// System.exit(1);
 		} finally {
 			
@@ -320,7 +480,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 	
 	
 	@Override
-	public void sendOnlyInputMessage(
+	public void sendInputMessageWithoutResponse(
 			InputMessage inObj) throws ServerNotReadyException,
 			SocketTimeoutException, NoMoreDataPacketBufferException,
 			BodyFormatException, MessageInfoNotFoundException, NotSupportedException {		

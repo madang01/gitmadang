@@ -86,27 +86,7 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 		this.finishConnectMaxCall = finishConnectMaxCall;
 		this.finishConnectWaittingTime = finishConnectWaittingTime;
 		this.inputMessageQueue = inputMessageQueue;
-		this.outputMessageReaderPool = outputMessageReaderPool;
-		
-
-		/**
-		 * <pre>
-		 * 비동기 신규 소켓 채널을 서버 접속하기전에 먼저 
-		 * 비동기 입출력 지원용 출력 메시지 소켓 읽기 쓰레드에 등록되어야 한다.
-		 * 그 동작을 가능하게 해주는것이 outputMessageReaderPool 이다.
-		 * 소켓 연결 동작은 이렇게 비동기/동기에 따라 다르게 동작해야 하므로 이 지점에서 소켓 채널 연결 동작을 수행한다.
-		 * </pre>
-		 */
-		if (whetherToAutoConnect) {
-			try {
-				serverOpen();
-			} catch (ServerNotReadyException e) {
-				log.fatal(String.format(
-						"projectName[%s][%d] ServerNotReadyException in AbstractConnection()",
-						commonProjectInfo.projectName, index), e);
-				System.exit(1);
-			}
-		}
+		this.outputMessageReaderPool = outputMessageReaderPool;		
 	}
 	
 	/**
@@ -123,7 +103,7 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 			do {
 				
 				if (callNumberOfFinishConnect >= finishConnectMaxCall) {
-					closeServer();
+					serverClose();
 					
 					String errorMessage = String
 							.format("%s asyn connection[%02d], host[%s], port[%d] 에서 연결 완결 확인 메소드(=finishConnect) 호출 횟수가 최대치 도달했습니다.",
@@ -140,7 +120,7 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 				Thread.sleep(finishConnectWaittingTime);
 			} while (!serverSC.finishConnect());
 		} catch (IOException e) {
-			closeServer();
+			serverClose();
 			
 			
 			String errorMessage = String

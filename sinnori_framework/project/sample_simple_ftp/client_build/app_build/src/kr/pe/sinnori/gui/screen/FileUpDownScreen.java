@@ -163,33 +163,7 @@ public class FileUpDownScreen extends JPanel implements FileUpDownScreenIF {
 		add(localScrollPane, "2, 4, fill, fill");
 		
 		localTree = new JTree(localRootNode);
-		/*
-		localTree.setModel(new DefaultTreeModel(
-			new DefaultMutableTreeNode("JTree") {
-				{
-					DefaultMutableTreeNode node_1;
-					node_1 = new DefaultMutableTreeNode("colors");
-						node_1.add(new DefaultMutableTreeNode("blue"));
-						node_1.add(new DefaultMutableTreeNode("violet"));
-						node_1.add(new DefaultMutableTreeNode("red"));
-						node_1.add(new DefaultMutableTreeNode("yellow"));
-					add(node_1);
-					node_1 = new DefaultMutableTreeNode("sports");
-						node_1.add(new DefaultMutableTreeNode("basketball"));
-						node_1.add(new DefaultMutableTreeNode("soccer"));
-						node_1.add(new DefaultMutableTreeNode("football"));
-						node_1.add(new DefaultMutableTreeNode("hockey"));
-					add(node_1);
-					node_1 = new DefaultMutableTreeNode("food");
-						node_1.add(new DefaultMutableTreeNode("hot dogs"));
-						node_1.add(new DefaultMutableTreeNode("pizza"));
-						node_1.add(new DefaultMutableTreeNode("ravioli"));
-						node_1.add(new DefaultMutableTreeNode("bananas33333333333333333333333333333333333333333333"));
-					add(node_1);
-				}
-			}
-		));
-		*/
+		
 		localScrollPane.setViewportView(localTree);
 		
 		JPanel centerPanel = new JPanel();
@@ -212,42 +186,10 @@ public class FileUpDownScreen extends JPanel implements FileUpDownScreenIF {
 		JScrollPane remoteScrollPane = new JScrollPane();
 		add(remoteScrollPane, "6, 4, fill, fill");
 		
-		remoteTree = new JTree(remoteRootNode);
-		/*
-		remoteTree.setModel(new DefaultTreeModel(
-			new DefaultMutableTreeNode("JTree") {
-				{
-					DefaultMutableTreeNode node_1;
-					node_1 = new DefaultMutableTreeNode("colors");
-						node_1.add(new DefaultMutableTreeNode("blue"));
-						node_1.add(new DefaultMutableTreeNode("violet"));
-						node_1.add(new DefaultMutableTreeNode("red"));
-						node_1.add(new DefaultMutableTreeNode("yellow222222222222222222222222222222222222"));
-					add(node_1);
-					node_1 = new DefaultMutableTreeNode("sports");
-						node_1.add(new DefaultMutableTreeNode("basketball"));
-						node_1.add(new DefaultMutableTreeNode("soccer"));
-						node_1.add(new DefaultMutableTreeNode("football"));
-						node_1.add(new DefaultMutableTreeNode("hockey"));
-					add(node_1);
-					node_1 = new DefaultMutableTreeNode("food");
-						node_1.add(new DefaultMutableTreeNode("hot dogs"));
-						node_1.add(new DefaultMutableTreeNode("pizza"));
-						node_1.add(new DefaultMutableTreeNode("ravioli"));
-						node_1.add(new DefaultMutableTreeNode("bananas333333333333333"));
-					add(node_1);
-				}
-			}
-		));
-		*/
-		remoteScrollPane.setViewportView(remoteTree);
-		
-		
-		
-		
+		remoteTree = new JTree(remoteRootNode);		
+		remoteScrollPane.setViewportView(remoteTree);		
 		TreeCellRenderer treeCellRenderer = new TreeCellRenderer();
-		
-		
+
 		/** 로컬 드라이브 */
 		localDriverComboBox.setMaximumRowCount(24);
 		
@@ -330,6 +272,10 @@ public class FileUpDownScreen extends JPanel implements FileUpDownScreenIF {
 		
 		repaintTree(localTree);
 		
+		
+	}
+	
+	public void init() {
 		OutputMessage fileListOutObj = this.mainController
 				.getRemoteFileList(".");
 
@@ -351,6 +297,7 @@ public class FileUpDownScreen extends JPanel implements FileUpDownScreenIF {
 			}
 		}
 	}
+	
 
 	/**
 	 * 원격지 경로 구분자를 반환한다. 주의점) 원격지 파일 목록 출력 메시지를 받은후에 설정되는 값이다.

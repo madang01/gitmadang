@@ -604,6 +604,8 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 			ClientResource cr = scToClientResourceHash.get(sc);
 			
 			MonitorClientInfo monitorClientInfo = new MonitorClientInfo();
+			monitorClientInfo.sc = sc;
+			monitorClientInfo.cr = cr;
 			monitorClientInfo.scHashCode =  sc.hashCode();
 			monitorClientInfo.isConnected = sc.isConnected();
 
@@ -654,7 +656,9 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 						MonitorClientInfo monitorClientInfo =serverProjectInfo.monitorClientInfoList.get(i);
 						if (-1 != monitorClientInfo.timeout) {
 							// 삭제 대상
-							log.info(String.format("server project[%s] ServerProjectMonitor 삭제 대상, %s", commonProjectInfo.projectName, monitorClientInfo.toString()));
+							log.info(String.format("server project[%s] ServerProjectMonitor 삭제 대상, %s", commonProjectInfo.projectName, monitorClientInfo.cr.toString()));
+							// monitorClientInfo.scHashCode
+							removeClient(monitorClientInfo.sc);
 						}
 					}
 					

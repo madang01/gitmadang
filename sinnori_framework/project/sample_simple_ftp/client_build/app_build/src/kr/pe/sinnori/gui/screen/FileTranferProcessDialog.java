@@ -270,9 +270,9 @@ public class FileTranferProcessDialog extends JDialog  implements CommonRootIF, 
 	 * 송수신 받은 데이터에 맞추어 메시지를 갱신한다.
 	 */
 	public void updateInfoMesg() {
+		DecimalFormat df = new DecimalFormat("#,##0.##");
 		
-		
-		String reciveLabelTxt = String.format("%d bytes/%d bytes", totalReceivedDataSize, fileSize);
+		String reciveLabelTxt = String.format("%s bytes/%s bytes", df.format(totalReceivedDataSize), df.format(fileSize));
 		reciveLabel.setText(reciveLabelTxt);
 
 		long currentTimeStamp = System.currentTimeMillis();
@@ -284,7 +284,7 @@ public class FileTranferProcessDialog extends JDialog  implements CommonRootIF, 
 		// 초당 전송 bytes
 		double receivedDataPerSecond = (double)totalReceivedDataSize / secondGapTime;
 		
-		DecimalFormat df = new DecimalFormat("#,##0.##");
+		
 		StringBuilder speedLabelTxtBuilder = new StringBuilder();;
 		if (receivedDataPerSecond < 1024) {
 			// bytes

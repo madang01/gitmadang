@@ -185,12 +185,12 @@ public class InputMessageWriter extends Thread implements CommonRootIF {
 					// ClosedChannelException
 					log.warn(String.format("NotYetConnectedException::%s, inObj=[%s]", noneBlockConnection.getSimpleConnectionInfo(), inObj.toString()), e);
 					
-					noneBlockConnection.closeServer();
+					noneBlockConnection.serverClose();
 				} catch (IOException e) {
 					// ClosedChannelException
 					log.warn(String.format("IOException::%s, inObj=[%s]", noneBlockConnection.getSimpleConnectionInfo(), inObj.toString()), e);
 					
-					noneBlockConnection.closeServer();
+					noneBlockConnection.serverClose();
 				} finally {
 					if (null != inObjWrapBufferList) {
 						int bodyWrapBufferListSiz = inObjWrapBufferList.size();

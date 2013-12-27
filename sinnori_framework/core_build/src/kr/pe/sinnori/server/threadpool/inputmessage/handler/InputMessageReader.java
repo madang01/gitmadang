@@ -229,6 +229,7 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 
 							if (positionAfterReading == positionBeforeReading) continue;
 							
+							clientResource.setFinalReadTime();
 
 							// log.info("lastInputStreamBuffer[%s]",
 							// lastInputStreamBuffer.toString());

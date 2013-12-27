@@ -25,7 +25,6 @@ import java.util.Iterator;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.common.lib.CommonType;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageInputStreamResourcePerSocket;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResource;
@@ -61,7 +60,7 @@ public class ClientResource implements CommonRootIF {
 
 
 	// 클라이언트와 메세지를 주고 받을때의 메세지 이진 형식.
-	private CommonType.MESSAGE_PROTOCOL messageProtocol = null;	
+	//private CommonType.MESSAGE_PROTOCOL messageProtocol = null;	
 	// 클라이언트와 메세지를 주고 받을때의 문자셋.
 	private java.nio.charset.Charset clientCharset = null;	
 	// 클라이언트 ByteOrder
@@ -97,7 +96,8 @@ public class ClientResource implements CommonRootIF {
 		messageInputStreamResource = new MessageInputStreamResourcePerSocket(commonProjectInfo.byteOrderOfProject, dataPacketBufferQueueManager);
 		setByteOrder(commonProjectInfo.byteOrderOfProject);
 		setClientCharset(commonProjectInfo.charsetOfProject);
-		setBinaryFormatType(commonProjectInfo.messageProtocol);
+		// setBinaryFormatType(commonProjectInfo.messageProtocol);
+		loginID = null;
 	}
 
 	/**
@@ -207,9 +207,11 @@ public class ClientResource implements CommonRootIF {
 	 * 
 	 * @return 메세지 이진 형식
 	 */
+	/*
 	public CommonType.MESSAGE_PROTOCOL getBinaryFormatType() {
 		return messageProtocol;
 	}
+	*/
 
 	/**
 	 * 메세지 이진 형식을 변경한다.
@@ -217,6 +219,7 @@ public class ClientResource implements CommonRootIF {
 	 * @param newMessageBinaryFormat
 	 *            새로운 메세지 이진 형식명
 	 */
+	/*
 	public void setBinaryFormatType(String newMessageBinaryFormat) {
 		if (null == newMessageBinaryFormat) {
 			throw new RuntimeException("newMessageBinaryFormat is null");
@@ -235,8 +238,9 @@ public class ClientResource implements CommonRootIF {
 		}
 		if (i == message_binary_format_values.length) {
 			log.warn(String.format("잘못된 값[%s]을 지정하였습니다.", newMessageBinaryFormat));
-		}
+		}		
 	}
+	*/
 
 	/**
 	 * 메세지 이진 형식을 변경한다.
@@ -244,6 +248,7 @@ public class ClientResource implements CommonRootIF {
 	 * @param newMessageBinaryFormat
 	 *            변경을 원하는 이진 형식
 	 */
+	/*
 	public void setBinaryFormatType(
 			CommonType.MESSAGE_PROTOCOL newMessageBinaryFormat) {
 		if (null == newMessageBinaryFormat) {
@@ -251,6 +256,7 @@ public class ClientResource implements CommonRootIF {
 		}
 		messageProtocol = newMessageBinaryFormat;
 	}
+	*/
 
 	/**
 	 * 이 자원을 소유한 소켓 채널을 반환한다.
@@ -393,6 +399,45 @@ public class ClientResource implements CommonRootIF {
 	 */
 	public boolean isReading() {
 		return messageInputStreamResource.isReading();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("ClientResource [monitorOfServerMailID=");
+		builder.append(monitorOfServerMailID);
+		builder.append(", projectName=");
+		builder.append(projectName);
+		builder.append(", clientSC=");
+		builder.append(clientSC.hashCode());
+		builder.append(", finalReadTime=");
+		builder.append(finalReadTime);
+		builder.append(", echoMesgCount=");
+		builder.append(echoMesgCount);
+		builder.append(", messageInputStreamResource.size=");
+		builder.append(messageInputStreamResource.getMessageReadWrapBufferList().size());		
+		// builder.append(", messageProtocol=");
+		// builder.append(messageProtocol);
+		builder.append(", clientCharset=");
+		builder.append(clientCharset);
+		builder.append(", clientByteOrder=");
+		builder.append(clientByteOrder);
+		
+		builder.append(", serverMailID=");
+		builder.append(serverMailID);
+		builder.append(", loginID=");
+		builder.append(loginID);
+		builder.append(", localSourceFileIDSet=");
+		builder.append(localSourceFileIDSet.toString());
+		builder.append(", localTargetFileIDSet=");
+		builder.append(localTargetFileIDSet.toString());
+		// builder.append(", localTargetFileResourceManager=");
+		// builder.append(localTargetFileResourceManager);
+		builder.append("]");
+		return builder.toString();
 	}
 	
 	

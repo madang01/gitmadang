@@ -151,17 +151,44 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 		}
 		
 		if (isInterrupted) Thread.currentThread().interrupt();
+		
+		try {
+			reopenSocketChannel();
+		} catch (IOException e) {
+			String errorMessage = String.format("project[%s] ShareAsynConnection[%d], fail to config a socket channel", commonProjectInfo.projectName, index);
+			log.fatal(errorMessage, e);
+			System.exit(1);
+		}
+		
+		/**
+		 * 연결 종류별로 설정이 모두 다르다 따라서 설정 변수 "소켓 자동접속 여부"에 따른 서버 연결은 연결별 설정후 수행해야 한다.
+		 */
+		if (whetherToAutoConnect) {
+			try {
+				serverOpen();
+			} catch (ServerNotReadyException e) {
+				log.warn(String.format("project[%s] ShareAsynConnection[%d] fail to connect server", commonProjectInfo.projectName, index), e);
+				// System.exit(1);
+			}
+		}
+		
+		log.info(String.format("project[%s] ShareAsynConnection[%d] 생성자 end", commonProjectInfo.projectName, index));
 	}
 	
+	/**
+	 * 공유 + 비동기 연결 전용 소켓 채널 열기
+	 * @throws IOException 소켓 채널을 개방할때 혹은 공유 + 비동기 에 맞도록 설정할때 에러 발생시 던지는 예외 
+	 */
+	private void reopenSocketChannel() throws IOException {
+		serverSC = SocketChannel.open();
+		serverSC.configureBlocking(false);
+		serverSC.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
+		serverSC.setOption(StandardSocketOptions.TCP_NODELAY, true);
+		serverSC.setOption(StandardSocketOptions.SO_LINGER, 0);
+	}
 	
 	@Override
 	public void serverOpen() throws ServerNotReadyException, InterruptedException {
-		// log.info("projectName[%s%02d] call serverOpen start", projectName,
-		// index);
-
-		// int oldServerSCHashCode = -1;
-		//boolean isNew = true;
-		
 		/**
 		 * <pre>
 		 * 서버와 연결하는 시간보다 연결 이후 시간이 훨씬 길기때문에,
@@ -171,62 +198,47 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 		 * 연결 할때만 if 문 중복 비용만 더 추가될 것이다.
 		 * </pre>
 		 */
-		/** (재)연결 판단 로직 */
-		if (null != serverSC && serverSC.isConnected()) return;
+		
+		StringBuilder infoBuilder = null;
+		
+		infoBuilder = new StringBuilder("projectName[");
+		infoBuilder.append(commonProjectInfo.projectName);
+		infoBuilder.append("] asyn connection[");
+		infoBuilder.append(index);
+		infoBuilder.append("] serverSC[");
+		infoBuilder.append(serverSC.hashCode());
+		infoBuilder.append("]");
+		
+		String info = infoBuilder.toString(); 
 		
 		try {
-			synchronized (monitor) {
-				StringBuilder infoStringBuilder = null;
-				/** (재)연결 판단 로직, 2번이상 SocketChannel.open() 호출하는것을 막는 역활을 한다. */
-				if (null == serverSC) {
-					infoStringBuilder = new StringBuilder("projectName[");
-					infoStringBuilder.append(commonProjectInfo.projectName);
-					infoStringBuilder.append("] asyn connection[");
-					infoStringBuilder.append(index);
-					infoStringBuilder.append("] ");
-				} else if (!serverSC.isConnected()) {
-					infoStringBuilder = new StringBuilder("projectName[");
-					infoStringBuilder.append(commonProjectInfo.projectName);
-					infoStringBuilder.append("] asyn connection[");
-					infoStringBuilder.append(index);
-					infoStringBuilder.append("] old serverSC[");
-					infoStringBuilder.append(serverSC.hashCode());
-					infoStringBuilder.append("] ");
-				} else {
+			synchronized (monitor) {	
+				// (재)연결 판단 로직, 2번이상 SocketChannel.open() 호출하는것을 막는 역활을 한다.
+				if (serverSC.isConnected()) {
+					log.info(new StringBuilder(info).append(" connected").toString());
 					return;
 				}
 				
-				
-				serverSC = SocketChannel.open();
+				log.info(new StringBuilder(info).append(" before connect").toString());
 				
 				finalReadTime = new java.util.Date();
 				
-				infoStringBuilder.append("new serverSC[");
-				infoStringBuilder.append(serverSC.hashCode());
-				infoStringBuilder.append("] ");
-				
-				log.info(infoStringBuilder.toString());
-				
 
-				serverSC.configureBlocking(false);
-				serverSC.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
-				serverSC.setOption(StandardSocketOptions.TCP_NODELAY, true);
-				serverSC.setOption(StandardSocketOptions.SO_LINGER, 0);
-				
-				// sc.setSendBufferSize(io_buffer_size);
-				// sc.setReceiveBufferSize(io_buffer_size);
 				InetSocketAddress remoteAddr = new InetSocketAddress(
 						commonProjectInfo.serverHost,
 						commonProjectInfo.serverPort);
+				if (!serverSC.isOpen()) {
+					reopenSocketChannel();
+					
+					log.info(new StringBuilder(info).append(" serverSC closed and reopen new serverSC=").append(serverSC.hashCode()).toString());
+				}
 				serverSC.connect(remoteAddr);
+				// log.info(new StringBuilder(info).append(" after connect").toString());
 				finishConnect();
-				initSocketResource();
-				// log.info("serverSC isConnected=[%s]",
-				// serverSC.isConnected());
+				// log.info(new StringBuilder(info).append(" after finishConnect").toString());
 				afterConnectionWork();
+				log.info(new StringBuilder(info).append(" after connect").toString());	
 			}
-			
-
 		} catch (ConnectException e) {
 			throw new ServerNotReadyException(
 					String.format(
@@ -249,7 +261,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 							index, commonProjectInfo.serverHost,
 							commonProjectInfo.serverPort));
 		} catch (IOException e) {
-			closeServer();
+			serverClose();
 			
 			throw new ServerNotReadyException(
 					String.format(
@@ -259,11 +271,11 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 		} catch (ServerNotReadyException e) {
 			throw e;
 		} catch (InterruptedException e) {
-			closeServer();
+			serverClose();
 			
 			throw e;
 		} catch (Exception e) {
-			closeServer();
+			serverClose();
 			
 			log.warn("unknown exception", e);
 			throw new ServerNotReadyException(String.format(
@@ -439,7 +451,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 	}
 	
 	@Override
-	public void sendOnlyInputMessage(
+	public void sendInputMessageWithoutResponse(
 			InputMessage inObj) throws ServerNotReadyException,
 			SocketTimeoutException, NoMoreDataPacketBufferException,
 			BodyFormatException, MessageInfoNotFoundException, NotSupportedException {

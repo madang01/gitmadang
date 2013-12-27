@@ -427,7 +427,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 						
 						if ((finalReadTime.getTime() - currentTime) > requestTimeout) {
 							log.info(String.format("project[%s] requestTimeout[%d] over so socket close, conn[%s]", commonProjectInfo.projectName, requestTimeout, conn.toString()));
-							conn.closeServer();
+							conn.serverClose();
 						}
 					}
 					

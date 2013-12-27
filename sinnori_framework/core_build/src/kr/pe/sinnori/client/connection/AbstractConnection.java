@@ -95,13 +95,14 @@ public abstract class AbstractConnection implements CommonRootIF {
 	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자
 	 * @param serverOutputMessageQueue  서버에서 보내는 불특정 출력 메시지를 받는 큐
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷 버퍼를 할당 받지 못했을 경우 던지는 예외
+	 * @throws InterruptedException 
 	 */
 	public AbstractConnection(int index, 
 			long socketTimeOut,
 			boolean whetherToAutoConnect,
 			CommonProjectInfo commonProjectInfo,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager,
-			LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue) throws NoMoreDataPacketBufferException {
+			LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue) throws NoMoreDataPacketBufferException, InterruptedException {
 		this.index = index;
 		this.socketTimeOut = socketTimeOut;
 		this.whetherToAutoConnect = whetherToAutoConnect;
@@ -111,7 +112,16 @@ public abstract class AbstractConnection implements CommonRootIF {
 		messageInputStreamResource = new MessageInputStreamResourcePerSocket(commonProjectInfo.byteOrderOfProject, dataPacketBufferQueueManager);
 		
 		this.serverOutputMessageQueue = serverOutputMessageQueue;
-		
+	
+		/*
+		try {
+			serverSC = SocketChannel.open();
+		} catch (IOException e) {
+			String errorMessage = String.format("project[%s] connection[%d], fail to open a socket channel", commonProjectInfo.projectName, index);
+			log.fatal(errorMessage, e);
+			System.exit(1);
+		}
+		*/
 	}
 	
 	
@@ -150,29 +160,28 @@ public abstract class AbstractConnection implements CommonRootIF {
 	 * @return 소켓 연결 여부
 	 */
 	public boolean isConnected() {
-		synchronized (serverSC) {
-			if (null == serverSC) {
-				log.warn(String.format("serverSC is null, conn=[%s]", getSimpleConnectionInfo()));
-				return false;
-			}
-		
-			return serverSC.isConnected();
-		}
+		return serverSC.isConnected();
+	}
+	
+	/**
+	 * @return 소캣 개방 여부
+	 */
+	public boolean isOpen() {
+		return serverSC.isOpen();
+	}
+	
+	/**
+	 * @return 연결 작업중 여부
+	 */
+	public boolean isConnectionPending() {
+		return serverSC.isConnectionPending();
 	}
 	
 	/**
 	 * @return 임의 selector 에 등록 여부
 	 */
 	public boolean isRegistered() {
-		synchronized (serverSC) {
-			if (null == serverSC) {
-				log.warn(String.format("serverSC is null, conn=[%s]", getSimpleConnectionInfo()));
-				return false;
-			}
-		
-		
-			return serverSC.isRegistered();
-		}
+		return serverSC.isRegistered();
 	}
 	
 	/**
@@ -229,17 +238,14 @@ public abstract class AbstractConnection implements CommonRootIF {
 	/**
 	 * FIXME! 테스트 못하였음. 사이드 이팩트 영향력 측정 못하였음. 소켓 채널을 닫는다.
 	 */
-	public void closeServer() {
+	public void serverClose() {
 		synchronized (monitor) {
 			try {
-				if (serverSC != null)
-					serverSC.close();
-
+				// if (serverSC != null)serverSC.close();
+				serverSC.close();
 			} catch (Exception e) {
 				log.warn(String.format("server name[%s] socket channel close fail",
 						commonProjectInfo.projectName), e);
-			} finally {
-				serverSC = null;
 			}
 		}
 	}
@@ -353,7 +359,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 	 * @throws MessageInfoNotFoundException 메시지 정보가 없을때 던지는 예외
 	 * @throws NotSupportedException 공유+비동기 연결 객체에서 이 메소드 호출시 던지는 예외, 공유+비동기 연결 폴은 직접적으로 연결 객체를 받을 수 없음.
 	 */
-	abstract public void sendOnlyInputMessage(
+	abstract public void sendInputMessageWithoutResponse(
 			InputMessage inputMessage) throws ServerNotReadyException,
 			SocketTimeoutException, NoMoreDataPacketBufferException,
 			BodyFormatException, MessageInfoNotFoundException, NotSupportedException;

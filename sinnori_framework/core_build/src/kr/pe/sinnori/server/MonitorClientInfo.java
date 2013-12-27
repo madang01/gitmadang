@@ -18,12 +18,16 @@
 
 package kr.pe.sinnori.server;
 
+import java.nio.channels.SocketChannel;
+
 /**
  * 모니터링용 클라이언트 정보
  * @author Jonghoon Won
  *
  */
 public class MonitorClientInfo {
+	public SocketChannel sc;
+	public ClientResource cr;
 	public int scHashCode;
 	public boolean isConnected;
 	/**

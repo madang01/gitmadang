@@ -88,7 +88,7 @@ public class DHBMessageProtocol implements CommonRootIF, MessageExchangeProtocol
 		try {
 			md5 = MessageDigest.getInstance("MD5");
 		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
+			log.fatal("failed to get a MD5 instance", e);
 			System.exit(1);
 		}
 		

@@ -163,14 +163,14 @@ public class OutputMessageReader extends Thread implements
 						int positionBeforeWork = lastInputStreamBuffer.position();
 
 						try {
-							synchronized (serverSC) {
+							// synchronized (serverSC) {
 								numRead = serverSC.read(lastInputStreamBuffer);
 
 								// if (numRead > 0) log.info("1.numRead=[%d]",
 								// numRead);
 
 								if (numRead == -1) {
-									log.warn("1.socket channel read -1, remove client");
+									log.warn(String.format("1.serverSC[%d] read -1, remove client", serverSC.hashCode()));
 									closeServer(selectionKey, clientConnection);
 									continue;
 								}
@@ -181,11 +181,11 @@ public class OutputMessageReader extends Thread implements
 								// numRead);
 
 								if (numRead == -1) {
-									log.warn("2.socket channel read -1, remove client");
+									log.warn(String.format("2.serverSC[%d] read -1, remove client", serverSC.hashCode()));
 									closeServer(selectionKey, clientConnection);
 									continue;
 								}
-							}
+							// }
 							
 							
 							if (lastInputStreamBuffer.position() == positionBeforeWork)
@@ -241,7 +241,7 @@ public class OutputMessageReader extends Thread implements
 		AbstractAsynConnection clientConnection = scToConnectionHash
 				.get(close_sc);
 		scToConnectionHash.remove(close_sc);
-		if (null != clientConnection) clientConnection.closeServer();
+		if (null != clientConnection) clientConnection.serverClose();
 	}
 
 	/**
@@ -256,7 +256,7 @@ public class OutputMessageReader extends Thread implements
 		close_sc = (SocketChannel) selectionKey.channel();
 
 		scToConnectionHash.remove(close_sc);
-		clientConnection.closeServer();
+		clientConnection.serverClose();
 
 	}
 

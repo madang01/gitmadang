@@ -277,7 +277,9 @@ public class FileUpDownScreen2 extends JPanel implements FileUpDownScreenIF {
 		log.info(String.format("소요시간=[%d]", end - start));
 		
 		repaintTree(localTree);
-		
+	}
+	
+	public void init() {
 		OutputMessage fileListOutObj = this.mainController
 				.getRemoteFileList(".");
 

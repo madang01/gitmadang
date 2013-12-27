@@ -16,20 +16,11 @@
  */
 package kr.pe.sinnori.client.connection.sync;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.ConnectException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.StandardSocketOptions;
-import java.net.UnknownHostException;
-import java.nio.channels.ClosedChannelException;
-import java.nio.channels.SocketChannel;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.message.OutputMessage;
@@ -64,151 +55,5 @@ public abstract class AbstractSyncConnection extends AbstractConnection {
 			LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue) throws InterruptedException, NoMoreDataPacketBufferException {
 		super(index, socketTimeOut, whetherToAutoConnect, commonProjectInfo, dataPacketBufferQueueManager, serverOutputMessageQueue);
 		// log.info("whether_to_auto_connect=[%s]", whether_to_auto_connect);
-		/**
-		 * <pre> 
-		 * 비동기 방식의 경우 신규 소켓 채널을 서버 접속하기전에 먼저 
-		 * 비동기 입출력 지원용 출력 메시지 소켓 읽기 쓰레드에 등록되어야 한다.
-		 * 소켓 연결 동작은 이렇게 비동기/동기에 따라 다르게 동작해야 하므로 이 지점에서 소켓 채널 연결 동작을 수행한다.
-		 * </pre>
-		 */
-		if (whetherToAutoConnect) {
-			try {
-				serverOpen();
-			} catch (ServerNotReadyException e) {
-				log.fatal(String.format("projectName[%s][%d] ServerNotReadyException in AbstractConnection()",
-						commonProjectInfo.projectName, index), e);
-				System.exit(1);
-			}
-		}
-	}
-
-	
-	@Override
-	public void serverOpen() throws ServerNotReadyException {
-		// log.info("projectName[%s%02d] call serverOpen start", projectName,
-		// index);
-		
-		StringBuilder infoStringBuilder = null;
-		/**
-		 * <pre>
-		 * 서버와 연결하는 시간보다 연결 이후 시간이 훨씬 길기때문에,
-		 * 연결시 비용이 더 들어가도 연결후 비용을 더 줄일 수 만 있다면 좋을 것이다.
-		 * 아래와 같이 재연결을 판단하는 if 문을 2번 사용하여 이를 달성한다.
-		 * 그러면 소켓 채널이 서버와 연결된 후에는 동기화 비용 없어지고
-		 * 연결 할때만 if 문 중복 비용만 더 추가될 것이다.
-		 * </pre>
-		 */
-		if (null == serverSC) {
-			infoStringBuilder = new StringBuilder("projectName[");
-			infoStringBuilder.append(commonProjectInfo.projectName);
-			infoStringBuilder.append("] asyn connection[");
-			infoStringBuilder.append(index);
-			infoStringBuilder.append("] ");
-		} else if (!serverSC.isConnected()) {
-			infoStringBuilder = new StringBuilder("projectName[");
-			infoStringBuilder.append(commonProjectInfo.projectName);
-			infoStringBuilder.append("] asyn connection[");
-			infoStringBuilder.append(index);
-			infoStringBuilder.append("] old serverSC[");
-			infoStringBuilder.append(serverSC.hashCode());
-			infoStringBuilder.append("] ");
-		} else {
-			return;
-		}
-		try {
-			// log.info("open start");
-			//synchronized (monitor) {
-			
-			InetSocketAddress remoteAddr = new InetSocketAddress(
-					commonProjectInfo.serverHost,
-					commonProjectInfo.serverPort);
-			serverSC = SocketChannel.open();
-			finalReadTime = new java.util.Date();
-			
-			infoStringBuilder.append("new serverSC[");
-			infoStringBuilder.append(serverSC.hashCode());
-			infoStringBuilder.append("] ");
-			
-			log.info(infoStringBuilder.toString());
-			
-			
-			serverSC.configureBlocking(true);
-			serverSC.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
-			serverSC.setOption(StandardSocketOptions.TCP_NODELAY, true);
-			serverSC.setOption(StandardSocketOptions.SO_LINGER, 0);
-
-			Socket sc = serverSC.socket();
-
-			// sc.setKeepAlive(true);
-			// sc.setTcpNoDelay(true);
-			sc.setSoTimeout((int) socketTimeOut);
-			/**
-			 * 주의할것 : serverSC.connect(remoteAddr); 는 무조건 블락되어 사용할 수 없음.
-			 * 아래처럼 사용해야 타임아웃 걸림.
-			 */
-			// log.info("111111 socketTimeOut=[%d]", socketTimeOut);
-			sc.connect(remoteAddr, (int) socketTimeOut);
-
-			initSocketResource();
-			
-			/** 소켓 스트림은 소켓 연결후에 만들어야 한다. */
-			try {
-				if (null != inputStream) {
-					inputStream.close();
-				}
-			} catch (IOException e) {
-			}
-			
-			try {
-				this.inputStream = sc.getInputStream();
-			} catch (IOException e) {
-				try {
-					serverSC.close();
-				} catch (IOException e1) {
-				}
-				throw e;
-			}
-			
-			
-			//}
-		} catch (ConnectException e) {
-			
-			throw new ServerNotReadyException(String.format(
-					"ConnectException::%s conn index[%02d], host[%s], port[%d]",
-					commonProjectInfo.projectName, index, commonProjectInfo.serverHost,
-					commonProjectInfo.serverPort));
-		} catch (UnknownHostException e) {
-			throw new ServerNotReadyException(String.format(
-					"UnknownHostException::%s conn index[%02d], host[%s], port[%d]",
-					commonProjectInfo.projectName, index, commonProjectInfo.serverHost,
-					commonProjectInfo.serverPort));
-		} catch (ClosedChannelException e) {
-			throw new ServerNotReadyException(
-					String.format(
-							"ClosedChannelException::%s conn index[%02d], host[%s], port[%d]",
-							commonProjectInfo.projectName, index, commonProjectInfo.serverHost,
-							commonProjectInfo.serverPort));
-		} catch (IOException e) {
-			closeServer();
-			
-			throw new ServerNotReadyException(String.format(
-					"IOException::%s conn index[%02d], host[%s], port[%d]",
-					commonProjectInfo.projectName, index, commonProjectInfo.serverHost,
-					commonProjectInfo.serverPort));
-		} catch (Exception e) {
-			closeServer();
-			
-			log.warn("unknown error", e);
-			throw new ServerNotReadyException(
-					String.format(
-							"unknown::%s conn index[%02d], host[%s], port[%d]",
-							commonProjectInfo.projectName, index, commonProjectInfo.serverHost,
-							commonProjectInfo.serverPort));
-		}
-
-		
-
-		// log.info("projectName[%s%02d] call serverOpen end", projectName,
-		// index);
 	}	
 }

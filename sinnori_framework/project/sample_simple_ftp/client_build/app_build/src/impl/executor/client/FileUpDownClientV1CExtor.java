@@ -69,6 +69,7 @@ import org.apache.commons.codec.binary.Base64;
  *
  */
 public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements MainControllerIF {
+	// private final Object monitor = new Object();
 	private AbstractConnection conn = null;
 	
 	private JFrame mainFrame = null;
@@ -129,6 +130,8 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		
 		connectionScreen.setVisible(true);
 		mainFrame.setVisible(true);
+		
+		fileUpDownScreen = new FileUpDownScreen(mainFrame, this);
 	}
 		
 	
@@ -162,7 +165,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	
 	@Override
 	public void loginOK() {
-		fileUpDownScreen = new FileUpDownScreen(mainFrame, this);
+		fileUpDownScreen.init();
 		
 		connectionScreen.setVisible(false);
 		mainFrame.remove(connectionScreen);
@@ -175,7 +178,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 			fileUpDownScreenWidth = mainFrame.getWidth();
 			fileUpDownScreenHeight = mainFrame.getHeight();
 		} else {
-			mainFrame.setBounds(100, 100, fileUpDownScreenWidth, fileUpDownScreenHeight);
+			mainFrame.setBounds(mainFrame.getX(), mainFrame.getY(), fileUpDownScreenWidth, fileUpDownScreenHeight);
 		}
 		
 		// FIXME!
@@ -186,20 +189,23 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	}
 	
 	private void freeResource() {
-		if (null != conn) conn.closeServer();
+		if (null != conn) conn.serverClose();
 		freeLocalSourceFileResource();
 		freeLocalTargetFileResource();	
 	}
 	
 	public void goToFirstScreen() {
-		freeResource();
-		fileUpDownScreen.setVisible(false);
-		mainFrame.remove(fileUpDownScreen);
-		fileUpDownScreen = null;
-		mainFrame.add(connectionScreen);		
-		mainFrame.setBounds(100, 100, connectionScreenWidth, connectionScreenHeight);
-		connectionScreen.init();
-		connectionScreen.setVisible(true);
+		// synchronized (monitor) {
+			if (!fileUpDownScreen.isVisible()) return;
+			fileUpDownScreen.setVisible(false);
+
+			freeResource();			
+			mainFrame.remove(fileUpDownScreen);
+			mainFrame.add(connectionScreen);		
+			mainFrame.setBounds(mainFrame.getX(), mainFrame.getY(), connectionScreenWidth, connectionScreenHeight);
+			connectionScreen.init();
+			connectionScreen.setVisible(true);
+		// }
 	}
 	
 	@Override
@@ -515,123 +521,221 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		return true;
 	}
 	
+	/**
+	 * <pre>
+	 * 입력 메시지를 보내 로그인을 요구하는 입력 메시지 1:1 대응 서버 비지니스 로직으로부터 출력 메시지를 얻는다.
+	 * </pre>
+	 *   
+	 * @param 입력 메시지
+	 * @param outputMessageID 출력 메시지 식별자, 주) 입력 메시지 1:1 대응 서버 비지니스 로직이 보내는 출력 메시지 식별자와 일치해야한다.
+	 * @return 출력 메시지
+	 */
+	private OutputMessage getOutputMessageForLoginServie(InputMessage inObj, String outputMessageID, boolean isNoResponse) {
+		if (!conn.isConnected()) {
+			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			goToFirstScreen();
+			return null;
+		}
+		
+		OutputMessage outObj = null;
+		
+		if (isNoResponse) {
+			try {
+				conn.sendInputMessageWithoutResponse(inObj);
+			} catch (SocketTimeoutException e) {
+				log.warn("SocketTimeoutException", e);
+				JOptionPane.showMessageDialog(mainFrame, "지정된 연결 시간을 초과하였습니다.");
+				
+				goToFirstScreen();
+				return null;
+			} catch (ServerNotReadyException e) {
+				log.warn("ServerNotReadyException", e);
+				JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+				
+				goToFirstScreen();
+				return null;
+			} catch (NoMoreDataPacketBufferException e) {
+				log.warn("NoMoreDataPacketBufferException", e);
+				JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+				return null;
+			} catch (BodyFormatException e) {
+				log.warn("BodyFormatException", e);
+				JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+				return null;
+			} catch (MessageInfoNotFoundException e) {
+				log.warn("MessageInfoNotFoundException", e);
+				JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+				return null;
+			} catch (NotSupportedException e) {
+				log.fatal("NotSupportedException", e);
+				JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+				System.exit(1);
+				return null;
+			}
+			
+			try {
+				outObj = messageManger.createOutputMessage("MessageResult");
+				outObj.setAttribute("taskMessageID", inObj.getMessageID());
+				outObj.setAttribute("taskResult", "Y");
+				outObj.setAttribute("resultMessage", "가상적으로 성공 처리");
+			} catch (IllegalArgumentException e) {
+				log.warn("IllegalArgumentException", e);
+				JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+				return null;
+			} catch (MessageInfoNotFoundException e) {
+				log.warn("MessageInfoNotFoundException", e);
+				JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+				return null;
+			} catch (MessageItemException e) {
+				log.warn("MessageItemException", e);
+				JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+				return null;
+			}
+		} else {
+			LetterFromServer letterFromServer = null;
+			try {				
+				letterFromServer = conn.sendInputMessage(inObj);
+				if (null == letterFromServer) {
+					String errorMessage = String.format("inObj[%s] letterFromServer is null", inObj.getMessageID()); 
+					log.warn(errorMessage);
+					JOptionPane.showMessageDialog(mainFrame, errorMessage);
+					return null;
+				}
+			} catch (SocketTimeoutException e) {
+				log.warn("SocketTimeoutException", e);
+				JOptionPane.showMessageDialog(mainFrame, "지정된 연결 시간을 초과하였습니다.");
+				
+				goToFirstScreen();
+				return null;
+			} catch (ServerNotReadyException e) {
+				log.warn("ServerNotReadyException", e);
+				JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+				
+				goToFirstScreen();
+				return null;
+			} catch (NoMoreDataPacketBufferException e) {
+				log.warn("NoMoreDataPacketBufferException", e);
+				JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+				return null;
+			} catch (BodyFormatException e) {
+				log.warn("BodyFormatException", e);
+				JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+				return null;
+			} catch (MessageInfoNotFoundException e) {
+				log.warn("MessageInfoNotFoundException", e);
+				JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+				return null;
+			}			
+			
+			try {
+				outObj = letterFromServer.getOutputMessage(outputMessageID);
+			} catch (IllegalArgumentException e) {
+				log.warn("IllegalArgumentException", e);
+				JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+				return null;
+			} catch (BodyFormatException e) {
+				log.warn("BodyFormatException", e);
+				JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+				return null;
+			} catch (DynamicClassCallException e) {
+				log.warn("DynamicClassCallException", e);
+				JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+				return null;
+			} catch (NoMoreDataPacketBufferException e) {
+				log.warn("NoMoreDataPacketBufferException", e);
+				JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+				return null;
+			} catch (MessageInfoNotFoundException e) {
+				log.warn("MessageInfoNotFoundException", e);
+				JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+				return null;
+			} catch (NoMatchOutputMessage e) {
+				log.warn("NoMatchOutputMessage", e);
+				JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+				return null;
+			} catch (MessageItemException e) {
+				log.warn("MessageItemException", e);
+				JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+				return null;
+			} catch (ServerExcecutorUnknownException e) {
+				log.warn("ServerExcecutorUnknownException", e);
+				JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+				return null;
+			} catch (NotLoginException e) {
+				log.warn("NotLoginException", e);
+				JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+				
+				goToFirstScreen();
+				return null;
+			}
+		}
+		
+		return outObj;
+	}
+	
 	@Override
 	public OutputMessage getRemoteFileList(String requestDirectory) {
-		InputMessage fileListInObj = null;
+		if (!conn.isConnected()) {
+			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			goToFirstScreen();
+			return null;
+		}
+		
+		InputMessage inObj = null;
 		
 		try {
-			fileListInObj = messageManger.createInputMessage("FileListRequest");
-		} catch (IllegalArgumentException e) {
-			log.warn("IllegalArgumentException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
+			inObj = messageManger.createInputMessage("FileListRequest");
+		
 		} catch (MessageInfoNotFoundException e) {
 			log.warn("MessageInfoNotFoundException", e);
+			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+			return null;
+		} catch (Exception e) {
+			log.warn("unknown exception", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
 			return null;
 		}
 		
 		try {
-			fileListInObj.setAttribute("requestDirectory", requestDirectory);
+			inObj.setAttribute("requestDirectory", requestDirectory);
 		} catch (MessageItemException e) {
 			log.warn("MessageItemException", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
 			return null;
 		}
 		
-		LetterFromServer letterFromServer = null;
-		try {
-			letterFromServer = conn.sendInputMessage(fileListInObj);
-			
-			if (null == letterFromServer) {
-				String errorMessage = String.format("input message[%s] letterFromServer is null", fileListInObj.getMessageID()); 
-				log.warn(errorMessage);
-				JOptionPane.showMessageDialog(mainFrame, errorMessage);
-				return null;
-			}
-		} catch (SocketTimeoutException e) {
-			log.warn("SocketTimeoutException", e);
-			JOptionPane.showMessageDialog(mainFrame, "지정된 연결 시간을 초과하였습니다.");
-			
-			goToFirstScreen();
-			return null;
-		} catch (ServerNotReadyException e) {
-			log.warn("ServerNotReadyException", e);
-			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
-			
-			goToFirstScreen();
-			return null;
-		} catch (NoMoreDataPacketBufferException e) {
-			log.warn("NoMoreDataPacketBufferException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (BodyFormatException e) {
-			log.warn("BodyFormatException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (MessageInfoNotFoundException e) {
-			log.warn("MessageInfoNotFoundException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		}
-		
-		OutputMessage fileListResultOutObj = null;
-		try {
-			fileListResultOutObj = letterFromServer.getOutputMessage("FileListResult");
-			String taskResult = (String)fileListResultOutObj.getAttribute("taskResult");
-			String resultMessage = (String)fileListResultOutObj.getAttribute("resultMessage");
+		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "FileListResult", false);
+		if (null == outObj) return null;
+		try {			
+			String taskResult = (String)outObj.getAttribute("taskResult");
+			String resultMessage = (String)outObj.getAttribute("resultMessage");
 			
 			if (taskResult.equals("N")) {
 				JOptionPane.showMessageDialog(mainFrame, resultMessage);
 				return null;
 			}
-			
-		} catch (IllegalArgumentException e) {
-			log.warn("IllegalArgumentException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (BodyFormatException e) {
-			log.warn("BodyFormatException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (DynamicClassCallException e) {
-			log.warn("DynamicClassCallException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (NoMoreDataPacketBufferException e) {
-			log.warn("NoMoreDataPacketBufferException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (MessageInfoNotFoundException e) {
-			log.warn("MessageInfoNotFoundException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (NoMatchOutputMessage e) {
-			log.warn("NoMatchOutputMessage", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
 		} catch (MessageItemException e) {
 			log.warn("MessageItemException", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
 			return null;
-		} catch (ServerExcecutorUnknownException e) {
-			log.warn("ServerExcecutorUnknownException", e);
+		} catch (Exception e) {
+			log.warn("unknown exception", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (NotLoginException e) {
-			log.warn("NotLoginException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			
-			goToFirstScreen();
 			return null;
 		}
 		
-		return fileListResultOutObj;
+		return outObj;
 	}
 	
 	@Override
 	public OutputMessage readyUploadFile(String localFilePathName, String localFileName, long localFileSize, 
 			String remoteFilePathName, String remoteFileName, int fileBlockSize) {
+		if (!conn.isConnected()) {
+			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			goToFirstScreen();
+			return null;
+		}
+		
 		try {
 			localSourceFileResource = localSourceFileResourceManager.pollLocalSourceFileResource(localFilePathName, localFileName, localFileSize, remoteFilePathName, remoteFileName, fileBlockSize);
 		} catch (IllegalArgumentException e1) {
@@ -681,47 +785,9 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		}
 		
 		
-		LetterFromServer letterFromServer = null;
-		
+		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "UpFileInfoResult", false);
+		if (null == outObj) return null;
 		try {
-			letterFromServer = conn.sendInputMessage(inObj);
-			
-			if (null == letterFromServer) {
-				String errorMessage = String.format("input message[%s] letterFromServer is null", inObj.getMessageID()); 
-				log.warn(errorMessage);
-				JOptionPane.showMessageDialog(mainFrame, errorMessage);
-				return null;
-			}
-		} catch (SocketTimeoutException e) {
-			log.warn("SocketTimeoutException", e);
-			JOptionPane.showMessageDialog(mainFrame, "지정된 연결 시간을 초과하였습니다.");
-			
-			goToFirstScreen();
-			return null;
-		} catch (ServerNotReadyException e) {
-			log.warn("ServerNotReadyException", e);
-			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
-			
-			goToFirstScreen();
-			return null;
-		} catch (NoMoreDataPacketBufferException e) {
-			log.warn("NoMoreDataPacketBufferException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (BodyFormatException e) {
-			log.warn("BodyFormatException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (MessageInfoNotFoundException e) {
-			log.warn("MessageInfoNotFoundException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		}
-		
-		OutputMessage outObj = null;
-		try {
-			outObj = letterFromServer.getOutputMessage("UpFileInfoResult");
-			
 			String taskResult = (String)outObj.getAttribute("taskResult");
 			String resultMessage = (String)outObj.getAttribute("resultMessage");
 			int serverTargetFileID = (Integer)outObj.getAttribute("serverTargetFileID");
@@ -745,43 +811,15 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 			
 			localSourceFileResource.setTargetFileID(serverTargetFileID);
 			
-		} catch (IllegalArgumentException e) {
-			log.warn("IllegalArgumentException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (BodyFormatException e) {
-			log.warn("BodyFormatException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (DynamicClassCallException e) {
-			log.warn("DynamicClassCallException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (NoMoreDataPacketBufferException e) {
-			log.warn("NoMoreDataPacketBufferException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (MessageInfoNotFoundException e) {
-			log.warn("MessageInfoNotFoundException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (NoMatchOutputMessage e) {
-			log.warn("NoMatchOutputMessage", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
+		
 		} catch (MessageItemException e) {
 			log.warn("MessageItemException", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
 			return null;
-		} catch (ServerExcecutorUnknownException e) {
-			log.warn("ServerExcecutorUnknownException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (NotLoginException e) {
-			log.warn("NotLoginException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
 			
-			goToFirstScreen();
+		} catch (Exception e) {
+			log.warn("unknown exception", e);
+			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
 			return null;
 		}
 		
@@ -830,6 +868,12 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	
 	@Override
 	public OutputMessage doUploadFile(int serverTargetFileID, int fileBlockNo, byte[] fileData) {
+		if (!conn.isConnected()) {
+			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			goToFirstScreen();
+			return null;
+		}
+		
 		if (null == localSourceFileResource) {
 			log.warn("localSourceFileResource is null");
 			return null;
@@ -865,47 +909,9 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		//FIXME!
 		// log.warn(inObj.toString());
 		
-		LetterFromServer letterFromServer = null;
-		
+		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "UpFileDataResult", false);
+		if (null == outObj) return null;
 		try {
-			letterFromServer = conn.sendInputMessage(inObj);
-			
-			if (null == letterFromServer) {
-				String errorMessage = String.format("input message[%s] letterFromServer is null", inObj.getMessageID()); 
-				log.warn(errorMessage);
-				JOptionPane.showMessageDialog(mainFrame, errorMessage);
-				return null;
-			}
-		} catch (SocketTimeoutException e) {
-			log.warn("SocketTimeoutException", e);
-			JOptionPane.showMessageDialog(mainFrame, "지정된 연결 시간을 초과하였습니다.");
-			
-			goToFirstScreen();
-			return null;
-		} catch (ServerNotReadyException e) {
-			log.warn("ServerNotReadyException", e);
-			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
-			
-			goToFirstScreen();
-			return null;
-		} catch (NoMoreDataPacketBufferException e) {
-			log.warn("NoMoreDataPacketBufferException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (BodyFormatException e) {
-			log.warn("BodyFormatException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (MessageInfoNotFoundException e) {
-			log.warn("MessageInfoNotFoundException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		}
-		
-		OutputMessage outObj = null;
-		try {
-			outObj = letterFromServer.getOutputMessage("UpFileDataResult");
-			
 			String taskResult = (String)outObj.getAttribute("taskResult");
 			String resultMessage = (String)outObj.getAttribute("resultMessage");
 			// int serverTargetFileID = (Integer)outObj.getAttribute("serverTargetFileID");
@@ -914,46 +920,16 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 				JOptionPane.showMessageDialog(mainFrame, resultMessage);
 				return null;
 			}
-		} catch (IllegalArgumentException e) {
-			log.warn("IllegalArgumentException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (BodyFormatException e) {
-			log.warn("BodyFormatException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (DynamicClassCallException e) {
-			log.warn("DynamicClassCallException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (NoMoreDataPacketBufferException e) {
-			log.warn("NoMoreDataPacketBufferException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (MessageInfoNotFoundException e) {
-			log.warn("MessageInfoNotFoundException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (NoMatchOutputMessage e) {
-			log.warn("NoMatchOutputMessage", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
 		} catch (MessageItemException e) {
 			log.warn("MessageItemException", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
 			return null;
-		} catch (ServerExcecutorUnknownException e) {
-			log.warn("ServerExcecutorUnknownException", e);
+		} catch (Exception e) {
+			log.warn("unknown exception", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (NotLoginException e) {
-			log.warn("NotLoginException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			
-			goToFirstScreen();
 			return null;
 		}
-		
+
 		return outObj;
 	}
 	
@@ -961,7 +937,12 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	@Override
 	public OutputMessage readyDownloadFile(String localFilePathName, String localFileName, 
 			String remoteFilePathName, String remoteFileName, long remoteFileSize, int fileBlockSize) {
-	
+		if (!conn.isConnected()) {
+			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			goToFirstScreen();
+			return null;
+		}
+		
 		try {
 			localTargetFileResource = localTargetFileResourceManager.pollLocalTargetFileResource(remoteFilePathName, remoteFileName, remoteFileSize, localFilePathName, localFileName, fileBlockSize);
 		} catch (IllegalArgumentException e1) {
@@ -1010,49 +991,11 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		}
 		
 		
-		LetterFromServer letterFromServer = null;
-		
+		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "DownFileInfoResult", false);
+		if (null == outObj) return null;
 		try {
-			letterFromServer = conn.sendInputMessage(inObj);
-			
-			if (null == letterFromServer) {
-				String errorMessage = String.format("input message[%s] letterFromServer is null", inObj.getMessageID()); 
-				log.warn(errorMessage);
-				JOptionPane.showMessageDialog(mainFrame, errorMessage);
-				return null;
-			}
-		} catch (SocketTimeoutException e) {
-			log.warn("SocketTimeoutException", e);
-			JOptionPane.showMessageDialog(mainFrame, "지정된 연결 시간을 초과하였습니다.");
-			
-			goToFirstScreen();
-			return null;
-		} catch (ServerNotReadyException e) {
-			log.warn("ServerNotReadyException", e);
-			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
-			
-			goToFirstScreen();
-			return null;
-		} catch (NoMoreDataPacketBufferException e) {
-			log.warn("NoMoreDataPacketBufferException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (BodyFormatException e) {
-			log.warn("BodyFormatException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (MessageInfoNotFoundException e) {
-			log.warn("MessageInfoNotFoundException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		}
-		
-		OutputMessage outObj = null;
-		try {
-			outObj = letterFromServer.getOutputMessage("DownFileInfoResult");
-			
 			// FIXME!
-			log.info(outObj.toString());
+			// log.info(outObj.toString());
 			
 			String taskResult = (String)outObj.getAttribute("taskResult");
 			String resultMessage = (String)outObj.getAttribute("resultMessage");
@@ -1063,44 +1006,14 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 				return null;
 			}
 			
-			localTargetFileResource.setSourceFileID(serverSourceFileID);
-		} catch (IllegalArgumentException e) {
-			log.warn("IllegalArgumentException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (BodyFormatException e) {
-			log.warn("BodyFormatException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (DynamicClassCallException e) {
-			log.warn("DynamicClassCallException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (NoMoreDataPacketBufferException e) {
-			log.warn("NoMoreDataPacketBufferException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (MessageInfoNotFoundException e) {
-			log.warn("MessageInfoNotFoundException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (NoMatchOutputMessage e) {
-			log.warn("NoMatchOutputMessage", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
+			localTargetFileResource.setSourceFileID(serverSourceFileID);		
 		} catch (MessageItemException e) {
 			log.warn("MessageItemException", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
 			return null;
-		} catch (ServerExcecutorUnknownException e) {
-			log.warn("ServerExcecutorUnknownException", e);
+		} catch (Exception e) {
+			log.warn("unknown exception", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (NotLoginException e) {
-			log.warn("NotLoginException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			
-			goToFirstScreen();
 			return null;
 		}
 		
@@ -1152,6 +1065,12 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	
 	@Override
 	public OutputMessage doDownloadFile(int serverSourceFileID, int fileBlockNo) {
+		if (!conn.isConnected()) {
+			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			goToFirstScreen();
+			return null;
+		}
+		
 		if (null == localTargetFileResource) {
 			log.warn("localTargetFileResource is null");
 			return null;
@@ -1183,47 +1102,9 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		}
 		
 		
-		LetterFromServer letterFromServer = null;
-		
-		try {
-			letterFromServer = conn.sendInputMessage(inObj);
-			
-			if (null == letterFromServer) {
-				String errorMessage = String.format("input message[%s] letterFromServer is null", inObj.getMessageID()); 
-				log.warn(errorMessage);
-				JOptionPane.showMessageDialog(mainFrame, errorMessage);
-				return null;
-			}
-		} catch (SocketTimeoutException e) {
-			log.warn("SocketTimeoutException", e);
-			JOptionPane.showMessageDialog(mainFrame, "지정된 연결 시간을 초과하였습니다.");
-			
-			goToFirstScreen();
-			return null;
-		} catch (ServerNotReadyException e) {
-			log.warn("ServerNotReadyException", e);
-			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
-			
-			goToFirstScreen();
-			return null;
-		} catch (NoMoreDataPacketBufferException e) {
-			log.warn("NoMoreDataPacketBufferException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (BodyFormatException e) {
-			log.warn("BodyFormatException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (MessageInfoNotFoundException e) {
-			log.warn("MessageInfoNotFoundException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		}
-		
-		OutputMessage outObj = null;
-		try {
-			outObj = letterFromServer.getOutputMessage("DownFileDataResult");
-			
+		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "DownFileDataResult", false);
+		if (null == outObj) return null;
+		try {			
 			String taskResult = (String)outObj.getAttribute("taskResult");
 			String resultMessage = (String)outObj.getAttribute("resultMessage");
 			// int serverTargetFileID = (Integer)outObj.getAttribute("serverTargetFileID");
@@ -1231,44 +1112,14 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 			if (taskResult.equals("N")) {
 				JOptionPane.showMessageDialog(mainFrame, resultMessage);
 				return null;
-			}
-		} catch (IllegalArgumentException e) {
-			log.warn("IllegalArgumentException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (BodyFormatException e) {
-			log.warn("BodyFormatException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (DynamicClassCallException e) {
-			log.warn("DynamicClassCallException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (NoMoreDataPacketBufferException e) {
-			log.warn("NoMoreDataPacketBufferException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (MessageInfoNotFoundException e) {
-			log.warn("MessageInfoNotFoundException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (NoMatchOutputMessage e) {
-			log.warn("NoMatchOutputMessage", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
+			}		
 		} catch (MessageItemException e) {
 			log.warn("MessageItemException", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
 			return null;
-		} catch (ServerExcecutorUnknownException e) {
-			log.warn("ServerExcecutorUnknownException", e);
+		} catch (Exception e) {
+			log.warn("unknown exception", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (NotLoginException e) {
-			log.warn("NotLoginException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			
-			goToFirstScreen();
 			return null;
 		}
 		
@@ -1278,6 +1129,11 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	
 	@Override
 	public OutputMessage cancelUploadFile() {
+		if (!conn.isConnected()) {
+			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			goToFirstScreen();
+			return null;
+		}
 		int serverTargetFileID = localSourceFileResource.getTargetFileID();
 		
 		InputMessage inObj = null;
@@ -1303,47 +1159,9 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 			return null;
 		}
 		
-		LetterFromServer letterFromServer = null;
-		
-		try {
-			letterFromServer = conn.sendInputMessage(inObj);
-			
-			if (null == letterFromServer) {
-				String errorMessage = String.format("input message[%s] letterFromServer is null", inObj.getMessageID()); 
-				log.warn(errorMessage);
-				JOptionPane.showMessageDialog(mainFrame, errorMessage);
-				return null;
-			}
-		} catch (SocketTimeoutException e) {
-			log.warn("SocketTimeoutException", e);
-			JOptionPane.showMessageDialog(mainFrame, "지정된 연결 시간을 초과하였습니다.");
-			
-			goToFirstScreen();
-			return null;
-		} catch (ServerNotReadyException e) {
-			log.warn("ServerNotReadyException", e);
-			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
-			
-			goToFirstScreen();
-			return null;
-		} catch (NoMoreDataPacketBufferException e) {
-			log.warn("NoMoreDataPacketBufferException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (BodyFormatException e) {
-			log.warn("BodyFormatException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (MessageInfoNotFoundException e) {
-			log.warn("MessageInfoNotFoundException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		}
-		
-		OutputMessage outObj = null;
-		try {
-			outObj = letterFromServer.getOutputMessage("CancelUploadFileResult");
-			
+		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "CancelUploadFileResult", false);
+		if (null == outObj) return null;
+		try {			
 			String taskResult = (String)outObj.getAttribute("taskResult");
 			String resultMessage = (String)outObj.getAttribute("resultMessage");
 			// int serverTargetFileID = (Integer)outObj.getAttribute("serverTargetFileID");
@@ -1351,44 +1169,14 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 			if (taskResult.equals("N")) {
 				JOptionPane.showMessageDialog(mainFrame, resultMessage);
 				return null;
-			}
-		} catch (IllegalArgumentException e) {
-			log.warn("IllegalArgumentException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (BodyFormatException e) {
-			log.warn("BodyFormatException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (DynamicClassCallException e) {
-			log.warn("DynamicClassCallException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (NoMoreDataPacketBufferException e) {
-			log.warn("NoMoreDataPacketBufferException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (MessageInfoNotFoundException e) {
-			log.warn("MessageInfoNotFoundException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (NoMatchOutputMessage e) {
-			log.warn("NoMatchOutputMessage", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
+			}		
 		} catch (MessageItemException e) {
 			log.warn("MessageItemException", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
 			return null;
-		} catch (ServerExcecutorUnknownException e) {
-			log.warn("ServerExcecutorUnknownException", e);
+		} catch (Exception e) {
+			log.warn("unknown exception", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (NotLoginException e) {
-			log.warn("NotLoginException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			
-			goToFirstScreen();
 			return null;
 		}
 		
@@ -1397,6 +1185,12 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	
 	@Override
 	public OutputMessage cancelDownloadFile() {
+		if (!conn.isConnected()) {
+			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			goToFirstScreen();
+			return null;
+		}
+		
 		int serverSourceFileID = localTargetFileResource.getSourceFileID();
 		
 		InputMessage inObj = null;
@@ -1422,47 +1216,9 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 			return null;
 		}
 		
-		LetterFromServer letterFromServer = null;
-		
-		try {
-			letterFromServer = conn.sendInputMessage(inObj);
-			
-			if (null == letterFromServer) {
-				String errorMessage = String.format("input message[%s] letterFromServer is null", inObj.getMessageID()); 
-				log.warn(errorMessage);
-				JOptionPane.showMessageDialog(mainFrame, errorMessage);
-				return null;
-			}
-		} catch (SocketTimeoutException e) {
-			log.warn("SocketTimeoutException", e);
-			JOptionPane.showMessageDialog(mainFrame, "지정된 연결 시간을 초과하였습니다.");
-			
-			goToFirstScreen();
-			return null;
-		} catch (ServerNotReadyException e) {
-			log.warn("ServerNotReadyException", e);
-			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
-			
-			goToFirstScreen();
-			return null;
-		} catch (NoMoreDataPacketBufferException e) {
-			log.warn("NoMoreDataPacketBufferException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (BodyFormatException e) {
-			log.warn("BodyFormatException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (MessageInfoNotFoundException e) {
-			log.warn("MessageInfoNotFoundException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		}
-		
-		OutputMessage outObj = null;
-		try {
-			outObj = letterFromServer.getOutputMessage("CancelDownloadFileResult");
-			
+		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "CancelDownloadFileResult", false);
+		if (null == outObj) return null;
+		try {			
 			String taskResult = (String)outObj.getAttribute("taskResult");
 			String resultMessage = (String)outObj.getAttribute("resultMessage");
 			// int serverTargetFileID = (Integer)outObj.getAttribute("serverTargetFileID");
@@ -1470,44 +1226,14 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 			if (taskResult.equals("N")) {
 				JOptionPane.showMessageDialog(mainFrame, resultMessage);
 				return null;
-			}
-		} catch (IllegalArgumentException e) {
-			log.warn("IllegalArgumentException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (BodyFormatException e) {
-			log.warn("BodyFormatException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (DynamicClassCallException e) {
-			log.warn("DynamicClassCallException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (NoMoreDataPacketBufferException e) {
-			log.warn("NoMoreDataPacketBufferException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (MessageInfoNotFoundException e) {
-			log.warn("MessageInfoNotFoundException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (NoMatchOutputMessage e) {
-			log.warn("NoMatchOutputMessage", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
+			}	
 		} catch (MessageItemException e) {
 			log.warn("MessageItemException", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
 			return null;
-		} catch (ServerExcecutorUnknownException e) {
-			log.warn("ServerExcecutorUnknownException", e);
+		} catch (Exception e) {
+			log.warn("unknown exception", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			return null;
-		} catch (NotLoginException e) {
-			log.warn("NotLoginException", e);
-			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-			
-			goToFirstScreen();
 			return null;
 		}
 		
