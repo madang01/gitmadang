@@ -28,9 +28,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -56,7 +54,7 @@ import kr.pe.sinnori.server.io.LetterFromClient;
  */
 public class InputMessageReader extends Thread implements CommonRootIF,
 		InputMessageReaderIF {
-	private final Object monitor = new Object();
+	// private final Object monitor = new Object();
 	private int index;
 	private long readSelectorWakeupInterval;
 	//private CommonProjectInfo commonProjectInfo; 
@@ -67,7 +65,8 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 	private LinkedBlockingQueue<LetterFromClient> inputMessageQueue;
 	
 	
-	private Map<SocketChannel, SocketChannel> newClients = new Hashtable<SocketChannel, SocketChannel>();	
+	// private Hashtable<SocketChannel, SocketChannel> newClients = new Hashtable<SocketChannel, SocketChannel>();
+	private LinkedBlockingQueue<SocketChannel> waitingSCQueue = new LinkedBlockingQueue<SocketChannel>();
 	private Selector selector = null;
 	
 	// private DelimServerReader delimReader = DelimServerReader.getInstance();
@@ -100,8 +99,7 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 		// this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 		this.clientResourceManager = clientResourceManager;
 		this.inputMessageQueue = inputMessageQueue;
-		
-		
+
 		try {
 			selector = Selector.open();
 		} catch (IOException ioe) {
@@ -117,7 +115,8 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 	public void addClient(SocketChannel sc) throws InterruptedException,
 	NoMoreDataPacketBufferException {
 		clientResourceManager.addNewClient(sc);		
-		newClients.put(sc, sc);
+		// newClients.put(sc, sc);
+		waitingSCQueue.put(sc);
 
 		if (getState().equals(Thread.State.NEW))
 			return;
@@ -143,9 +142,10 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 
 	@Override
 	public int getCntOfClients() {
-		synchronized (monitor) {
-			return (newClients.size() + selector.keys().size());
-		}
+		// synchronized (monitor) {
+			// return (newClients.size() + selector.keys().size());
+		// }
+		return (waitingSCQueue.size() + selector.keys().size());
 	}
 
 	/**
@@ -155,7 +155,8 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 	 *             selector 등록시 발생
 	 */
 	private void processNewConnection() throws ClosedChannelException {
-		synchronized (monitor) {
+		/*
+		// synchronized (monitor) {
 			// Iterator<SocketChannel> iter = newClients.iterator();
 			Iterator<SocketChannel> iter = newClients.keySet().iterator();
 
@@ -171,6 +172,11 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 				sc.register(selector, SelectionKey.OP_READ);
 				iter.remove();
 			}
+		// }
+		 */
+		while(!waitingSCQueue.isEmpty()) {
+			SocketChannel sc = waitingSCQueue.poll();
+			if (null != sc) sc.register(selector, SelectionKey.OP_READ);
 		}
 	}
 
