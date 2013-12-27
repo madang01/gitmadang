@@ -395,7 +395,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 		StringBuilder strBuffer = new StringBuilder();
 		strBuffer.append("projectName=[");
 		strBuffer.append(commonProjectInfo.projectName);
-		strBuffer.append("], index=[");
+		strBuffer.append("], connection=[");
 		strBuffer.append(index);
 		strBuffer.append(", serverSC=[");
 		if (null != serverSC) {

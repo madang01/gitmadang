@@ -57,7 +57,7 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 	// private final Object monitor = new Object();
 	private int index;
 	private long readSelectorWakeupInterval;
-	//private CommonProjectInfo commonProjectInfo; 
+	private CommonProjectInfo commonProjectInfo; 
 	private MessageExchangeProtocolIF messageProtocol;
 	private MessageMangerIF messageManger = null;
 	// private DataPacketBufferQueueManagerIF dataPacketBufferQueueManager;
@@ -93,7 +93,7 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 			ClientResourceManagerIF clientResourceManager) {
 		this.index = index;
 		this.readSelectorWakeupInterval = readSelectorWakeupInterval;
-		// this.commonProjectInfo = commonProjectInfo;
+		this.commonProjectInfo = commonProjectInfo;
 		this.messageProtocol = messageProtocol;
 		this.messageManger = messageManger;
 		// this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
@@ -142,46 +142,28 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 
 	@Override
 	public int getCntOfClients() {
-		// synchronized (monitor) {
-			// return (newClients.size() + selector.keys().size());
-		// }
 		return (waitingSCQueue.size() + selector.keys().size());
 	}
 
 	/**
 	 * 신규 client들을 selector에 등록한다.
-	 * 
-	 * @throws ClosedChannelException
-	 *             selector 등록시 발생
 	 */
-	private void processNewConnection() throws ClosedChannelException {
-		/*
-		// synchronized (monitor) {
-			// Iterator<SocketChannel> iter = newClients.iterator();
-			Iterator<SocketChannel> iter = newClients.keySet().iterator();
-
-			if (!iter.hasNext())
-				return;
-
-			SocketChannel sc = iter.next();
-			sc.register(selector, SelectionKey.OP_READ);
-			iter.remove();
-
-			while (iter.hasNext()) {
-				sc = iter.next();
-				sc.register(selector, SelectionKey.OP_READ);
-				iter.remove();
-			}
-		// }
-		 */
+	private void processNewConnection() {		
 		while(!waitingSCQueue.isEmpty()) {
 			SocketChannel sc = waitingSCQueue.poll();
-			if (null != sc) sc.register(selector, SelectionKey.OP_READ);
+			// if (null != sc) {
+				try {
+					sc.register(selector, SelectionKey.OP_READ);
+				} catch (ClosedChannelException e) {
+					log.warn(String.format("%s InputMessageReader[%d] socket channel[%d] fail to register selector", commonProjectInfo.projectName, index, sc.hashCode()), e);
+				}
+			// }
 		}
 	}
 
 	@Override
 	public void run() {
+		log.info(String.format("%s InputMessageReader[%d] Thread start", commonProjectInfo.projectName, index));
 		// LinkedBlockingQueue<LetterFromClient> inputQueue =
 		// common.QueueManager.getInputMessageQueue();
 
@@ -216,8 +198,8 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 							int numRead = sc.read(lastInputStreamBuffer);
 							if (numRead == -1) {
 								log.warn(String.format(
-										"RequestProcessor[%d] socket channel read -1, remove client",
-										index));
+										"%s InputMessageReader[%d] socket channel read -1, remove client",
+										commonProjectInfo.projectName, index));
 								closeClient(key);
 								continue;
 							}
@@ -225,8 +207,8 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 																// 읽기 방지
 							if (numRead == -1) {
 								log.warn(String.format(
-										"RequestProcessor[%d] socket channel read -1, remove client",
-										index));
+										"%s InputMessageReader[%d] socket channel read -1, remove client",
+										commonProjectInfo.projectName, index));
 								closeClient(key);
 								continue;
 							}
@@ -267,7 +249,7 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 							closeClient(key);
 							continue;
 						} catch (IOException e) {
-							log.warn(String.format("Index[%d] error", index), e);
+							log.warn(String.format("%s InputMessageReader[%d] error", commonProjectInfo.projectName, index), e);
 							closeClient(key);
 							continue;
 						}
@@ -275,11 +257,11 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 				}
 			}
 
-			log.warn(String.format("Index[%d] loop exit", index));
+			log.warn(String.format("%s InputMessageReader[%d] loop exit", commonProjectInfo.projectName, index));
 		} catch (InterruptedException e) {
-			log.warn(String.format("Index[%d] stop", index), e);
+			log.warn(String.format("%s InputMessageReader[%d] stop", commonProjectInfo.projectName, index), e);
 		} catch (Exception e) {
-			log.warn(String.format("Index[%d] error", index), e);
+			log.warn(String.format("%s InputMessageReader[%d] error", commonProjectInfo.projectName, index), e);
 		}
 	}
 

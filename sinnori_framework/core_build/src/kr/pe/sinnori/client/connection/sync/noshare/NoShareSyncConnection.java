@@ -182,29 +182,19 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 		 * </pre>
 		 */
 		
-		StringBuilder infoBuilder = null;
-		
-		infoBuilder = new StringBuilder("projectName[");
-		infoBuilder.append(commonProjectInfo.projectName);
-		infoBuilder.append("] asyn connection[");
-		infoBuilder.append(index);
-		infoBuilder.append("] serverSC[");
-		infoBuilder.append(serverSC.hashCode());
-		infoBuilder.append("]");
-		
-		String info = infoBuilder.toString(); 
+		 
 		
 	
 		try {
 			// log.info("open start");
-			synchronized (monitor) {
+			// synchronized (monitor) {
 				// (재)연결 판단 로직, 2번이상 SocketChannel.open() 호출하는것을 막는 역활을 한다.
 				if (serverSC.isConnected()) {
-					log.info(new StringBuilder(info).append(" connected").toString());
+					//log.info(new StringBuilder(info).append(" connected").toString());
 					return;
 				}
 				
-				log.info(new StringBuilder(info).append(" before connect").toString());
+				//log.info(new StringBuilder(info).append(" before connect").toString());
 				
 				finalReadTime = new java.util.Date();
 				
@@ -218,7 +208,20 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 				// log.info("111111 socketTimeOut=[%d]", socketTimeOut);
 				if (!serverSC.isOpen()) {
 					reopenSocketChannel();
-					log.info(new StringBuilder(info).append(" serverSC closed and reopen new serverSC=").append(serverSC.hashCode()).toString());
+					
+					StringBuilder infoBuilder = null;
+					
+					infoBuilder = new StringBuilder("projectName[");
+					infoBuilder.append(commonProjectInfo.projectName);
+					infoBuilder.append("] asyn connection[");
+					infoBuilder.append(index);
+					infoBuilder.append("] serverSC[");
+					infoBuilder.append(serverSC.hashCode());
+					infoBuilder.append("]");
+					
+					// String info = infoBuilder.toString();
+					// log.info(new StringBuilder(info).append(" serverSC closed and reopen new serverSC=").append(serverSC.hashCode()).toString());
+					log.info(infoBuilder.append(" serverSC closed and reopen new serverSC=").append(serverSC.hashCode()).toString());
 				}
 				serverSocket.connect(remoteAddr, (int) socketTimeOut);
 	
@@ -241,7 +244,8 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 					}
 					throw e;
 				}
-			}
+				//log.info(new StringBuilder(info).append(" after connect").toString());
+			//}
 		} catch (ConnectException e) {
 			throw new ServerNotReadyException(String.format(
 					"ConnectException::%s conn index[%02d], host[%s], port[%d]",

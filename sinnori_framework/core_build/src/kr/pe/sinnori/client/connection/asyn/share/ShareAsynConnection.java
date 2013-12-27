@@ -199,27 +199,17 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 		 * </pre>
 		 */
 		
-		StringBuilder infoBuilder = null;
 		
-		infoBuilder = new StringBuilder("projectName[");
-		infoBuilder.append(commonProjectInfo.projectName);
-		infoBuilder.append("] asyn connection[");
-		infoBuilder.append(index);
-		infoBuilder.append("] serverSC[");
-		infoBuilder.append(serverSC.hashCode());
-		infoBuilder.append("]");
-		
-		String info = infoBuilder.toString(); 
 		
 		try {
 			synchronized (monitor) {	
 				// (재)연결 판단 로직, 2번이상 SocketChannel.open() 호출하는것을 막는 역활을 한다.
 				if (serverSC.isConnected()) {
-					log.info(new StringBuilder(info).append(" connected").toString());
+					//log.info(new StringBuilder(info).append(" connected").toString());
 					return;
 				}
 				
-				log.info(new StringBuilder(info).append(" before connect").toString());
+				//log.info(new StringBuilder(info).append(" before connect").toString());
 				
 				finalReadTime = new java.util.Date();
 				
@@ -230,14 +220,26 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 				if (!serverSC.isOpen()) {
 					reopenSocketChannel();
 					
-					log.info(new StringBuilder(info).append(" serverSC closed and reopen new serverSC=").append(serverSC.hashCode()).toString());
+					StringBuilder infoBuilder = null;
+					
+					infoBuilder = new StringBuilder("projectName[");
+					infoBuilder.append(commonProjectInfo.projectName);
+					infoBuilder.append("] asyn connection[");
+					infoBuilder.append(index);
+					infoBuilder.append("] serverSC[");
+					infoBuilder.append(serverSC.hashCode());
+					infoBuilder.append("]");
+					
+					// String info = infoBuilder.toString(); 
+					// log.info(new StringBuilder(info).append(" serverSC closed and reopen new serverSC=").append(serverSC.hashCode()).toString());
+					log.info(infoBuilder.append(" serverSC closed and reopen new serverSC=").append(serverSC.hashCode()).toString());
 				}
 				serverSC.connect(remoteAddr);
 				// log.info(new StringBuilder(info).append(" after connect").toString());
 				finishConnect();
 				// log.info(new StringBuilder(info).append(" after finishConnect").toString());
 				afterConnectionWork();
-				log.info(new StringBuilder(info).append(" after connect").toString());	
+				//log.info(new StringBuilder(info).append(" after connect").toString());	
 			}
 		} catch (ConnectException e) {
 			throw new ServerNotReadyException(

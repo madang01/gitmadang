@@ -35,9 +35,9 @@ public abstract class AbstractThreadPool implements ThreadPoolIF, CommonRootIF {
 
 	@Override
 	public int size() {
-		synchronized (monitor) {
+		// synchronized (monitor) {
 			return pool.size();
-		}
+		// }
 	}
 
 	@Override

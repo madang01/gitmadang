@@ -119,7 +119,7 @@ public class InputMessageWriter extends Thread implements CommonRootIF {
 					inObjWrapBufferList = messageProtocol.M2S(inObj, clientByteOrder, clientCharset);
 					noneBlockConnection.write(inObjWrapBufferList);
 				} catch (NoMoreDataPacketBufferException e) {
-					log.warn("NoMoreDataPacketBufferException", e);
+					log.warn(String.format("%s InputMessageWriter[%d] NoMoreDataPacketBufferException::%s, inObj=[%s]", noneBlockConnection.getSimpleConnectionInfo(), index, e.getMessage(), inObj.toString()), e);
 					
 					OutputMessage errorOutObj = null;
 					try {
@@ -143,7 +143,8 @@ public class InputMessageWriter extends Thread implements CommonRootIF {
 					noneBlockConnection
 							.putToOutputMessageQueue(errorOutObj);
 				} catch (BodyFormatException e) {
-					log.warn("BodyFormatException", e);
+					log.warn(String.format("%s InputMessageWriter[%d] BodyFormatException::%s, inObj=[%s]", noneBlockConnection.getSimpleConnectionInfo(), index, e.getMessage(), inObj.toString()), e);
+					// log.warn("BodyFormatException", e);
 					
 					/**
 					 * <pre>
@@ -162,7 +163,7 @@ public class InputMessageWriter extends Thread implements CommonRootIF {
 					try {
 						errorOutObj = messageManger.createOutputMessage(
 								"SelfExn");
-					} catch (MessageInfoNotFoundException e1) {
+					} catch (MessageInfoNotFoundException e1) {						
 						log.fatal(	"시스템 필수 메시지 정보[SelfExn]가 존재하지 않습니다.", e1);
 						System.exit(1);
 					}
@@ -182,13 +183,11 @@ public class InputMessageWriter extends Thread implements CommonRootIF {
 							.putToOutputMessageQueue(errorOutObj);
 				
 				} catch (NotYetConnectedException e) {
-					// ClosedChannelException
-					log.warn(String.format("NotYetConnectedException::%s, inObj=[%s]", noneBlockConnection.getSimpleConnectionInfo(), inObj.toString()), e);
+					log.warn(String.format("%s InputMessageWriter[%d] NotYetConnectedException::%s, inObj=[%s]", noneBlockConnection.getSimpleConnectionInfo(), index, e.getMessage(), inObj.toString()), e);
 					
 					noneBlockConnection.serverClose();
 				} catch (IOException e) {
-					// ClosedChannelException
-					log.warn(String.format("IOException::%s, inObj=[%s]", noneBlockConnection.getSimpleConnectionInfo(), inObj.toString()), e);
+					log.warn(String.format("%s InputMessageWriter[%d] IOException::%s, inObj=[%s]", noneBlockConnection.getSimpleConnectionInfo(), index, e.getMessage(), inObj.toString()), e);
 					
 					noneBlockConnection.serverClose();
 				} finally {
@@ -203,15 +202,15 @@ public class InputMessageWriter extends Thread implements CommonRootIF {
 				}			
 			}
 			
-			log.warn(String.format("%s index[%d] loop exit", commonProjectInfo.projectName, index));
+			log.warn(String.format("%s InputMessageWriter[%d] loop exit", commonProjectInfo.projectName, index));
 		} catch (Exception e) {
-			log.warn(String.format("Exception::%s index[%d]", commonProjectInfo.projectName, index), e);
+			log.warn(String.format("%s InputMessageWriter[%d] unknown error::%s", commonProjectInfo.projectName, index, e.getMessage()), e);
 		}
 
-		log.warn(String.format("%s index[%d] thread end", commonProjectInfo.projectName, index));
+		log.warn(String.format("%s InputMessageWriter[%d] thread end", commonProjectInfo.projectName, index));
 	}
 
 	public void finalize() {
-		log.warn(String.format("%s index[%d] 소멸::[%s]", commonProjectInfo.projectName, index, toString()));
+		log.warn(String.format("%s InputMessageWriter[%d] 소멸::[%s]", commonProjectInfo.projectName, index, toString()));
 	}
 }
