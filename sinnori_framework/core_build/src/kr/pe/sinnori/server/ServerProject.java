@@ -34,6 +34,7 @@ import kr.pe.sinnori.common.io.dhb.header.DHBMessageHeader;
 import kr.pe.sinnori.common.lib.AbstractProject;
 import kr.pe.sinnori.common.lib.ClassFileFilter;
 import kr.pe.sinnori.common.lib.CommonRootIF;
+import kr.pe.sinnori.common.lib.MessageInputStreamResourcePerSocket;
 import kr.pe.sinnori.common.lib.ReadFileInfo;
 import kr.pe.sinnori.common.lib.SinnoriClassLoader;
 import kr.pe.sinnori.common.lib.WrapBuffer;
@@ -109,7 +110,7 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 	/** 클라이언트 자원 해쉬 */
 	private Hashtable<SocketChannel, ClientResource> scToClientResourceHash = new Hashtable<SocketChannel, ClientResource>();
 
-	private Hashtable<String, SocketChannel> loginIDToSCHash = new Hashtable<String, SocketChannel>();
+	private Hashtable<String, ClientResource> loginIDToSCHash = new Hashtable<String, ClientResource>();
 	
 	
 	private ServerProjectMonitor serverProjectMonitor = null;
@@ -187,9 +188,9 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 		
 		try {
 			for (int i = 0; i < dataPacketBufferCnt; i++) {
-				WrapBuffer buffer = new WrapBuffer(commonProjectInfo.dataPacketBufferSize);
+				WrapBuffer buffer = new WrapBuffer(commonProjectInfo.getDataPacketBufferSize());
 				dataPacketBufferQueue.add(buffer);
-				buffer.getByteBuffer().order(commonProjectInfo.byteOrderOfProject);
+				buffer.getByteBuffer().order(commonProjectInfo.getByteOrderOfProject());
 			}
 		} catch (OutOfMemoryError e) {
 			String errorMessage = "OutOfMemoryError";
@@ -205,8 +206,8 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 				serverProjectInfo.getOutputMessageQueueSize());
 		
 		
-		acceptSelector = new AcceptSelector(projectName, commonProjectInfo.serverHost, 
-				commonProjectInfo.serverPort, acceptSelectTimeout, maxClients, acceptQueue, this);
+		acceptSelector = new AcceptSelector(projectName, commonProjectInfo.getServerHost(), 
+				commonProjectInfo.getServerPort(), acceptSelectTimeout, maxClients, acceptQueue, this);
 		
 		inputMessageReaderPool = new InputMessageReaderPool(
 				inputMessageReaderSize, inputMessageReaderMaxSize,
@@ -215,13 +216,12 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 				this, this, this);
 
 		acceptProcessorPool = new AcceptProcessorPool(acceptProcessorSize,
-				acceptProcessorMaxSize, acceptQueue, inputMessageReaderPool);
-
+				acceptProcessorMaxSize, commonProjectInfo, acceptQueue, inputMessageReaderPool);		
 		
-		
-		executorProcessorPool = new ExecutorProcessorPool(projectName,
+		executorProcessorPool = new ExecutorProcessorPool(
 				executorProcessorSize, executorProcessorMaxSize,
 				anonymousExceptionInputMessageSet,
+				commonProjectInfo,
 				inputMessageQueue, outputMessageQueue, 
 				this, this, this);
 
@@ -517,8 +517,9 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 				return;
 			}
 
-			clientResource = new ClientResource(commonProjectInfo, sc,
-					this);
+			clientResource = new ClientResource(sc,
+					commonProjectInfo,
+					new MessageInputStreamResourcePerSocket(commonProjectInfo.getByteOrderOfProject(), this));
 
 			scToClientResourceHash.put(sc, clientResource);
 		// }
@@ -552,16 +553,10 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 	}
 	
 	// FIXME!
-	public void loginOK(String loginID, SocketChannel clientSC) {
-		ClientResource clientResource  = scToClientResourceHash.get(clientSC);
-		if (null == clientResource) {
-			log.fatal(String.format("clientSC[%d]'s resource not exist"));
-			System.exit(1);
-		}
-		
+	public void loginOK(String loginID, ClientResource clientResource) {
 		clientResource.setLoginID(loginID);
 		
-		loginIDToSCHash.put(loginID, clientSC);
+		loginIDToSCHash.put(loginID, clientResource);
 	}
 	
 	public boolean isLogin(String loginID) {
@@ -586,7 +581,7 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 	public MonitorServerProjectInfo getInfo(long requestTimeout) {
 		MonitorServerProjectInfo serverProjectInfo = new MonitorServerProjectInfo();
 		
-		serverProjectInfo.projectName = commonProjectInfo.projectName;
+		serverProjectInfo.projectName = commonProjectInfo.getProjectName();
 		serverProjectInfo.dataPacketBufferQueueSize = dataPacketBufferQueue.size();
 		
 		serverProjectInfo.acceptQueueSize = acceptQueue.size();
@@ -656,7 +651,7 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 						MonitorClientInfo monitorClientInfo =serverProjectInfo.monitorClientInfoList.get(i);
 						if (-1 != monitorClientInfo.timeout) {
 							// 삭제 대상
-							log.info(String.format("server project[%s] ServerProjectMonitor 삭제 대상, %s", commonProjectInfo.projectName, monitorClientInfo.cr.toString()));
+							log.info(String.format("server project[%s] ServerProjectMonitor 삭제 대상, %s", commonProjectInfo.getProjectName(), monitorClientInfo.cr.toString()));
 							// monitorClientInfo.scHashCode
 							removeClient(monitorClientInfo.sc);
 						}
@@ -664,11 +659,11 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 					
 					Thread.sleep(monitorInterval);
 				}
-				log.warn(String.format("server project[%s] ServerProjectMonitor loop exit", commonProjectInfo.projectName));
+				log.warn(String.format("server project[%s] ServerProjectMonitor loop exit", commonProjectInfo.getProjectName()));
 			} catch (InterruptedException e) {
-				log.warn(String.format("server project[%s] ServerProjectMonitor interrupt", commonProjectInfo.projectName), e);
+				log.warn(String.format("server project[%s] ServerProjectMonitor interrupt", commonProjectInfo.getProjectName()), e);
 			} catch (Exception e) {
-				log.warn(String.format("server project[%s] ServerProjectMonitor unknow error", commonProjectInfo.projectName), e);
+				log.warn(String.format("server project[%s] ServerProjectMonitor unknow error", commonProjectInfo.getProjectName()), e);
 			}
 		}
 	}

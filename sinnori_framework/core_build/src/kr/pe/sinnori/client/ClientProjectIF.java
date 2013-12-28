@@ -26,6 +26,7 @@ import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
+import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
 import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.message.InputMessage;
 
@@ -85,4 +86,9 @@ public interface ClientProjectIF {
 	 * 클라이언트 프로젝트 중지
 	 */
 	public void stop();
+	
+	/**
+	 * @return 메시지 스트림 변환 프로토콜
+	 */
+	public MessageExchangeProtocolIF getMessageExchangeProtocol();
 }

@@ -17,15 +17,15 @@
 
 package impl.executor.server;
 
-import java.nio.channels.SocketChannel;
-
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
+import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.executor.AbstractServerExecutor;
+import kr.pe.sinnori.server.executor.LetterSender;
 
 /**
  * 메세지 식별자 NotExist03 비지니스 로직
@@ -36,7 +36,8 @@ import kr.pe.sinnori.server.executor.AbstractServerExecutor;
 public final class NotExist03SExtor extends AbstractServerExecutor {
 
 	@Override
-	protected void doTask(SocketChannel fromSC, InputMessage inObj,
+	protected void doTask(CommonProjectInfo commonProjectInfo,
+			LetterSender letterSender, InputMessage inObj,
 			MessageMangerIF messageManger,			
 			ClientResourceManagerIF clientResourceManager)
 			throws MessageInfoNotFoundException, MessageItemException {
@@ -45,7 +46,6 @@ public final class NotExist03SExtor extends AbstractServerExecutor {
 		String mCase = (String) inObj.getAttribute("mCase");
 		outObj.setAttribute("mCase", mCase);
 
-		sendSelf(outObj);
+		letterSender.sendSelf(outObj);
 	}
-
 }

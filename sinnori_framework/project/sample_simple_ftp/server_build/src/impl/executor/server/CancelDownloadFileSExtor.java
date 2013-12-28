@@ -1,9 +1,8 @@
 package impl.executor.server;
 
-import java.nio.channels.SocketChannel;
-
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
+import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
@@ -12,15 +11,17 @@ import kr.pe.sinnori.common.updownfile.LocalSourceFileResourceManager;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;
+import kr.pe.sinnori.server.executor.LetterSender;
 
 public final class CancelDownloadFileSExtor extends AbstractAuthServerExecutor {
 
 	@Override
-	protected void doTask(SocketChannel fromSC, InputMessage inObj,
+	protected void doTask(CommonProjectInfo commonProjectInfo,
+			LetterSender letterSender, InputMessage inObj,
 			MessageMangerIF messageManger,			
 			ClientResourceManagerIF clientResourceManager)
 			throws MessageInfoNotFoundException, MessageItemException {
-		LocalSourceFileResourceManager localSourceFileResourceManager = LocalSourceFileResourceManager.getInstance();
+		LocalSourceFileResourceManager localSourceFileResourceManager = LocalSourceFileResourceManager.getInstance();		
 		OutputMessage outObj = messageManger.createOutputMessage("CancelDownloadFileResult");
 		outObj.messageHeaderInfo = inObj.messageHeaderInfo;
 		
@@ -39,11 +40,11 @@ public final class CancelDownloadFileSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("resultMessage", String.format("존재하지 않는 서버 원본 파일[%d] 식별자입니다.", serverSourceFileID));
 			outObj.setAttribute("serverSourceFileID", serverSourceFileID);
 			outObj.setAttribute("clientTargetFileID", clientTargetFileID);
-			sendSelf(outObj);
+			letterSender.sendSelf(outObj);
 			return;
 		}
 		
-		ClientResource clientResource = clientResourceManager.getClientResource(fromSC);
+		ClientResource clientResource = letterSender.getInObjClientResource();
 		clientResource.removeLocalSourceFileID(serverSourceFileID);
 		
 		// localSourceFileResourceManager.putLocalSourceFileResource(localSourceFileResource);
@@ -52,6 +53,6 @@ public final class CancelDownloadFileSExtor extends AbstractAuthServerExecutor {
 		outObj.setAttribute("resultMessage", String.format("서버 다운로드용 원본 파일[%d] 자원을 성공적으로 해제하였습니다.", serverSourceFileID));
 		outObj.setAttribute("serverSourceFileID", serverSourceFileID);
 		outObj.setAttribute("clientTargetFileID", clientTargetFileID);
-		sendSelf(outObj);
+		letterSender.sendSelf(outObj);
 	}
 }

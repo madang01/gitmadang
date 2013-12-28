@@ -17,15 +17,15 @@
 
 package impl.executor.server;
 
-import java.nio.channels.SocketChannel;
-
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
+import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.executor.AbstractServerExecutor;
+import kr.pe.sinnori.server.executor.LetterSender;
 
 /**
  * 메세지 식별자 BigString 비지니스 로직
@@ -36,7 +36,8 @@ import kr.pe.sinnori.server.executor.AbstractServerExecutor;
 public final class BigStringSExtor extends AbstractServerExecutor {
 
 	@Override
-	protected void doTask(SocketChannel fromSC, InputMessage inObj,
+	protected void doTask(CommonProjectInfo commonProjectInfo,
+			LetterSender letterSender, InputMessage inObj,
 			MessageMangerIF messageManger,			
 			ClientResourceManagerIF clientResourceManager)
 			throws MessageInfoNotFoundException, MessageItemException {
@@ -59,6 +60,6 @@ public final class BigStringSExtor extends AbstractServerExecutor {
 		outObj.setAttribute("filler2", (byte[]) inObj.getAttribute("filler2"));
 		outObj.setAttribute("value4", (String) inObj.getAttribute("value4"));
 
-		sendSelf(outObj);
+		letterSender.sendSelf(outObj);
 	}
 }

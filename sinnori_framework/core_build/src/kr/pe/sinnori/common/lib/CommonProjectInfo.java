@@ -19,8 +19,6 @@ package kr.pe.sinnori.common.lib;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 
-import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
-
 
 /**
  * 공통 환경 변수들중 네트워크에서 메시지 교환에 필요한 변수들 묶음 클래스
@@ -29,25 +27,109 @@ import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
  * 
  */
 public class CommonProjectInfo {
-	public String projectName = null;
+	private String projectName = null;
 	/** 서버 호스트 */
-	public String serverHost = null;
+	private String serverHost = null;
 	/** 서버 포트 */
-	public int serverPort = -1;
+	private int serverPort = -1;
 	/** 이진 데이터 형식 종류 */
-	public CommonType.MESSAGE_PROTOCOL messageProtocol = null;
+	private CommonType.MESSAGE_PROTOCOL messageProtocol = null;
 	/** 바이트 순서 */
-	public ByteOrder byteOrderOfProject = null;
+	private ByteOrder byteOrderOfProject = null;
 	/** 문자셋 */
-	public Charset charsetOfProject = null;
+	private Charset charsetOfProject = null;
 	/** 데이터 패킷 버퍼 크기 */
-	public int dataPacketBufferSize;
+	private int dataPacketBufferSize;
 	/** 메시지당 최대 데이터 패킷 할당 갯수 */
-	public int dataPacketBufferMaxCntPerMessage;
+	private int dataPacketBufferMaxCntPerMessage;
 	
-	
-	public MessageExchangeProtocolIF messageExchangeProtocol = null;
-	
+	public CommonProjectInfo(String projectName, 
+			String serverHost, int serverPort, 
+			CommonType.MESSAGE_PROTOCOL messageProtocol,
+			ByteOrder byteOrderOfProject,
+			Charset charsetOfProject,
+			int dataPacketBufferSize,
+			int dataPacketBufferMaxCntPerMessage) {
+		this.projectName = projectName;
+		this.serverHost = serverHost;
+		this.serverPort = serverPort;
+		this.messageProtocol = messageProtocol;
+		this.byteOrderOfProject = byteOrderOfProject;
+		this.charsetOfProject = charsetOfProject;
+		this.dataPacketBufferSize = dataPacketBufferSize;
+		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
+	}
+
+	/**
+	 * @return the projectName
+	 */
+	public String getProjectName() {
+		return projectName;
+	}
+
+	/**
+	 * @return the serverHost
+	 */
+	public String getServerHost() {
+		return serverHost;
+	}
+
+	/**
+	 * @return the serverPort
+	 */
+	public int getServerPort() {
+		return serverPort;
+	}
+		
+
+	/**
+	 * @param serverHost the serverHost to set
+	 */
+	public void setServerHost(String serverHost) {
+		this.serverHost = serverHost;
+	}
+
+	/**
+	 * @param serverPort the serverPort to set
+	 */
+	public void setServerPort(int serverPort) {
+		this.serverPort = serverPort;
+	}
+
+	/**
+	 * @return the messageProtocol
+	 */
+	public CommonType.MESSAGE_PROTOCOL getMessageProtocol() {
+		return messageProtocol;
+	}
+
+	/**
+	 * @return the byteOrderOfProject
+	 */
+	public ByteOrder getByteOrderOfProject() {
+		return byteOrderOfProject;
+	}
+
+	/**
+	 * @return the charsetOfProject
+	 */
+	public Charset getCharsetOfProject() {
+		return charsetOfProject;
+	}
+
+	/**
+	 * @return the dataPacketBufferSize
+	 */
+	public int getDataPacketBufferSize() {
+		return dataPacketBufferSize;
+	}
+
+	/**
+	 * @return the dataPacketBufferMaxCntPerMessage
+	 */
+	public int getDataPacketBufferMaxCntPerMessage() {
+		return dataPacketBufferMaxCntPerMessage;
+	}
 
 	@Override
 	public String toString() {
@@ -67,9 +149,7 @@ public class CommonProjectInfo {
 		builder.append(", dataPacketBufferSize=");
 		builder.append(dataPacketBufferSize);
 		builder.append(", dataPacketBufferMaxCntPerMessage=");
-		builder.append(dataPacketBufferMaxCntPerMessage);
-		builder.append(", messageExchangeProtocol=");
-		builder.append(messageExchangeProtocol.toString());
+		builder.append(dataPacketBufferMaxCntPerMessage);		
 		builder.append("]");
 		return builder.toString();
 	}	

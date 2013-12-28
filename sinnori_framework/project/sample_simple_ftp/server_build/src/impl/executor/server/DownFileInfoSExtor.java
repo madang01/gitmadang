@@ -1,10 +1,9 @@
 package impl.executor.server;
 
-import java.nio.channels.SocketChannel;
-
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
 import kr.pe.sinnori.common.exception.UpDownFileException;
+import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
@@ -13,11 +12,13 @@ import kr.pe.sinnori.common.updownfile.LocalSourceFileResourceManager;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;
+import kr.pe.sinnori.server.executor.LetterSender;
 
 public final class DownFileInfoSExtor extends AbstractAuthServerExecutor {
 
 	@Override
-	protected void doTask(SocketChannel fromSC, InputMessage inObj,
+	protected void doTask(CommonProjectInfo commonProjectInfo,
+			LetterSender letterSender, InputMessage inObj,
 			MessageMangerIF messageManger,			
 			ClientResourceManagerIF clientResourceManager)
 			throws MessageInfoNotFoundException, MessageItemException {
@@ -47,7 +48,7 @@ public final class DownFileInfoSExtor extends AbstractAuthServerExecutor {
 				outObj.setAttribute("clientTargetFileID", clientTargetFileID);
 				outObj.setAttribute("serverSourceFileID", -1);
 				// letterToClientList.addLetterToClient(fromSC, outObj);
-				sendSelf(outObj);
+				letterSender.sendSelf(outObj);
 				return;
 			}
 			
@@ -55,7 +56,7 @@ public final class DownFileInfoSExtor extends AbstractAuthServerExecutor {
 			
 			int serverSourceFileID = localSourceFileResource.getSourceFileID(); 
 
-			ClientResource clientResource = clientResourceManager.getClientResource(fromSC);
+			ClientResource clientResource = letterSender.getInObjClientResource();
 			clientResource.addLocalSourceFileID(serverSourceFileID);
 			
 			outObj.setAttribute("taskResult", "Y");
@@ -63,21 +64,21 @@ public final class DownFileInfoSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("clientTargetFileID", clientTargetFileID);
 			outObj.setAttribute("serverSourceFileID", serverSourceFileID);
 			// letterToClientList.addLetterToClient(fromSC, outObj);
-			sendSelf(outObj);
+			letterSender.sendSelf(outObj);
 		} catch (IllegalArgumentException e) {
 			outObj.setAttribute("taskResult", "N");
 			outObj.setAttribute("resultMessage", "서버::"+e.getMessage());
 			outObj.setAttribute("clientTargetFileID", clientTargetFileID);
 			outObj.setAttribute("serverSourceFileID", -1);
 			// letterToClientList.addLetterToClient(fromSC, outObj);
-			sendSelf(outObj);
+			letterSender.sendSelf(outObj);
 		} catch (UpDownFileException e) {
 			outObj.setAttribute("taskResult", "N");
 			outObj.setAttribute("resultMessage", "서버::"+e.getMessage());
 			outObj.setAttribute("clientTargetFileID", clientTargetFileID);
 			outObj.setAttribute("serverSourceFileID", -1);
 			// letterToClientList.addLetterToClient(fromSC, outObj);
-			sendSelf(outObj);
+			letterSender.sendSelf(outObj);
 		}		
 	}
 }

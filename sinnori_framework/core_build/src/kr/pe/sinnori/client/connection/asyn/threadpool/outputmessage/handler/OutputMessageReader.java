@@ -24,7 +24,6 @@ import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -123,7 +122,7 @@ public class OutputMessageReader extends Thread implements
 				try {
 					sc.register(selector, SelectionKey.OP_READ);
 				} catch (ClosedChannelException e) {
-					log.warn(String.format("%s index[%d] socket channel[%d] fail to register selector", commonProjectInfo.projectName, index, sc.hashCode()));
+					log.warn(String.format("%s index[%d] socket channel[%d] fail to register selector", commonProjectInfo.getProjectName(), index, sc.hashCode()));
 					scToConnectionHash.remove(sc);
 				}
 			// }
@@ -132,7 +131,7 @@ public class OutputMessageReader extends Thread implements
 
 	@Override
 	public void run() {
-		log.info(String.format("%s OutputMessageReader[%d] Thread start", commonProjectInfo.projectName, index));
+		log.info(String.format("%s OutputMessageReader[%d] Thread start", commonProjectInfo.getProjectName(), index));
 
 		int numRead = 0;
 		// long totalRead = 0;
@@ -168,8 +167,6 @@ public class OutputMessageReader extends Thread implements
 
 						MessageInputStreamResourcePerSocket messageInputStreamResource = asynConnection.getMessageInputStreamResource();
 						ByteBuffer lastInputStreamBuffer = messageInputStreamResource.getLastBuffer();						
-						// ByteOrder clientByteOrder = clientConnection.getByteOrder();
-						Charset charsetOfProject = asynConnection.getCharsetOfProject();
 						
 						int positionBeforeWork = lastInputStreamBuffer.position();
 
@@ -205,7 +202,7 @@ public class OutputMessageReader extends Thread implements
 							asynConnection.setFinalReadTime();
 							
 							ArrayList<AbstractMessage> outputMessageList = null;	
-							outputMessageList = messageProtocol.S2MList(OutputMessage.class, charsetOfProject, messageInputStreamResource, messageManger);
+							outputMessageList = messageProtocol.S2MList(OutputMessage.class, commonProjectInfo.getCharsetOfProject(), messageInputStreamResource, messageManger);
 							
 							int cntOfMesages = outputMessageList.size();
 							for (int i = 0; i < cntOfMesages; i++) {
@@ -233,14 +230,14 @@ public class OutputMessageReader extends Thread implements
 				}
 			}
 
-			log.warn(String.format("%s index[%d] loop exit", commonProjectInfo.projectName, index));
+			log.warn(String.format("%s index[%d] loop exit", commonProjectInfo.getProjectName(), index));
 		} catch (Exception e) {
-			log.fatal(String.format("%s index[%d] unknown error", commonProjectInfo.projectName,
+			log.fatal(String.format("%s index[%d] unknown error", commonProjectInfo.getProjectName(),
 					index), e);
 			System.exit(1);
 		}
 
-		log.warn(String.format("%s index[%d] Thread end", commonProjectInfo.projectName, index));
+		log.warn(String.format("%s index[%d] Thread end", commonProjectInfo.getProjectName(), index));
 	}
 	
 

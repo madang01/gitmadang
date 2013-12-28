@@ -105,7 +105,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		try {
 			reopenSocketChannel();
 		} catch (IOException e) {
-			String errorMessage = String.format("project[%s] NoShareAsynConnection[%d], fail to config a socket channel", commonProjectInfo.projectName, index);
+			String errorMessage = String.format("project[%s] NoShareAsynConnection[%d], fail to config a socket channel", commonProjectInfo.getProjectName(), index);
 			log.fatal(errorMessage, e);
 			System.exit(1);
 		}
@@ -117,13 +117,13 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 			try {
 				serverOpen();
 			} catch (ServerNotReadyException e) {
-				log.warn(String.format("project[%s] NoShareAsynConnection[%d] fail to connect server", commonProjectInfo.projectName, index), e);
+				log.warn(String.format("project[%s] NoShareAsynConnection[%d] fail to connect server", commonProjectInfo.getProjectName(), index), e);
 				// System.exit(1);
 			}
 		}
 		
 		
-		log.info(String.format("project[%s] NoShareAsynConnection[%d] 생성자 end", commonProjectInfo.projectName, index));
+		log.info(String.format("project[%s] NoShareAsynConnection[%d] 생성자 end", commonProjectInfo.getProjectName(), index));
 	}
 	
 	/**
@@ -189,15 +189,15 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 				
 				finalReadTime = new java.util.Date();
 				InetSocketAddress remoteAddr = new InetSocketAddress(
-						commonProjectInfo.serverHost,
-						commonProjectInfo.serverPort);
+						commonProjectInfo.getServerHost(),
+						commonProjectInfo.getServerPort());
 				
 				if (!serverSC.isOpen()) {
 					reopenSocketChannel();
 					StringBuilder infoBuilder = null;
 					
 					infoBuilder = new StringBuilder("projectName[");
-					infoBuilder.append(commonProjectInfo.projectName);
+					infoBuilder.append(commonProjectInfo.getProjectName());
 					infoBuilder.append("] asyn connection[");
 					infoBuilder.append(index);
 					infoBuilder.append("] serverSC[");
@@ -218,44 +218,44 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 
 		} catch (ConnectException e) {
 			String errorMessage = String.format(
-					"ConnectException::%s conn[%d] index[%02d], host[%s], port[%d]", 
-					commonProjectInfo.projectName,
+					"ServerNotReadyException::%s conn[%d] index[%02d], host[%s], port[%d]", 
+					commonProjectInfo.getProjectName(),
 					serverSC.hashCode(),
-					index, commonProjectInfo.serverHost,
-					commonProjectInfo.serverPort);
+					index, commonProjectInfo.getServerHost(),
+					commonProjectInfo.getServerPort());
 			
 			log.warn(errorMessage, e);
 			
 			throw new ServerNotReadyException(errorMessage);
 		} catch (UnknownHostException e) {
 			String errorMessage = String.format(
-					"UnknownHostException::%s conn[%d] index[%02d], host[%s], port[%d]", 
-					commonProjectInfo.projectName,
+					"ServerNotReadyException::%s conn[%d] index[%02d], host[%s], port[%d]", 
+					commonProjectInfo.getProjectName(),
 					serverSC.hashCode(),
-					index, commonProjectInfo.serverHost,
-					commonProjectInfo.serverPort);
+					index, commonProjectInfo.getServerHost(),
+					commonProjectInfo.getServerPort());
 			
 			log.warn(errorMessage, e);
 			
 			throw new ServerNotReadyException(errorMessage);
 		} catch (ClosedChannelException e) {
 			String errorMessage = String.format(
-					"ClosedChannelException::%s conn[%d] index[%02d], host[%s], port[%d]", 
-					commonProjectInfo.projectName,
+					"ServerNotReadyException::%s conn[%d] index[%02d], host[%s], port[%d]", 
+					commonProjectInfo.getProjectName(),
 					serverSC.hashCode(),
-					index, commonProjectInfo.serverHost,
-					commonProjectInfo.serverPort);
+					index, commonProjectInfo.getServerHost(),
+					commonProjectInfo.getServerPort());
 			
 			log.warn(errorMessage, e);
 			
 			throw new ServerNotReadyException(errorMessage);
 		} catch (IOException e) {
 			String errorMessage = String.format(
-					"IOException::%s conn[%d] index[%02d], host[%s], port[%d]", 
-					commonProjectInfo.projectName,
+					"ServerNotReadyException::%s conn[%d] index[%02d], host[%s], port[%d]", 
+					commonProjectInfo.getProjectName(),
 					serverSC.hashCode(),
-					index, commonProjectInfo.serverHost,
-					commonProjectInfo.serverPort);
+					index, commonProjectInfo.getServerHost(),
+					commonProjectInfo.getServerPort());
 			
 			log.warn(errorMessage, e);
 			
@@ -265,10 +265,10 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		} catch (ServerNotReadyException e) {
 			String errorMessage = String.format(
 					"ServerNotReadyException::%s conn[%d] index[%02d], host[%s], port[%d]", 
-					commonProjectInfo.projectName,
+					commonProjectInfo.getProjectName(),
 					serverSC.hashCode(),
-					index, commonProjectInfo.serverHost,
-					commonProjectInfo.serverPort);
+					index, commonProjectInfo.getServerHost(),
+					commonProjectInfo.getServerPort());
 			
 			log.warn(errorMessage, e);
 			
@@ -278,10 +278,10 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		} catch (InterruptedException e) {
 			String errorMessage = String.format(
 					"ServerNotReadyException::%s conn[%d] index[%02d], host[%s], port[%d]", 
-					commonProjectInfo.projectName,
+					commonProjectInfo.getProjectName(),
 					serverSC.hashCode(),
-					index, commonProjectInfo.serverHost,
-					commonProjectInfo.serverPort);
+					index, commonProjectInfo.getServerHost(),
+					commonProjectInfo.getServerPort());
 			log.warn(errorMessage, e);
 			
 			serverClose();
@@ -290,10 +290,10 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		} catch (Exception e) {
 			String errorMessage = String.format(
 					"unknown exception::%s conn[%d] index[%02d], host[%s], port[%d]", 
-					commonProjectInfo.projectName,
+					commonProjectInfo.getProjectName(),
 					serverSC.hashCode(),
-					index, commonProjectInfo.serverHost,
-					commonProjectInfo.serverPort);
+					index, commonProjectInfo.getServerHost(),
+					commonProjectInfo.getServerPort());
 			log.warn(errorMessage, e);
 			
 			serverClose();

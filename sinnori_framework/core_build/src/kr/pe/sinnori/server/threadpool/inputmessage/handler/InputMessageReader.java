@@ -26,7 +26,6 @@ import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
@@ -155,7 +154,7 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 				try {
 					sc.register(selector, SelectionKey.OP_READ);
 				} catch (ClosedChannelException e) {
-					log.warn(String.format("%s InputMessageReader[%d] socket channel[%d] fail to register selector", commonProjectInfo.projectName, index, sc.hashCode()), e);
+					log.warn(String.format("%s InputMessageReader[%d] socket channel[%d] fail to register selector", commonProjectInfo.getProjectName(), index, sc.hashCode()), e);
 				}
 			// }
 		}
@@ -163,7 +162,7 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 
 	@Override
 	public void run() {
-		log.info(String.format("%s InputMessageReader[%d] Thread start", commonProjectInfo.projectName, index));
+		log.info(String.format("%s InputMessageReader[%d] Thread start", commonProjectInfo.getProjectName(), index));
 		// LinkedBlockingQueue<LetterFromClient> inputQueue =
 		// common.QueueManager.getInputMessageQueue();
 
@@ -187,8 +186,6 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 						
 						MessageInputStreamResourcePerSocket messageInputStreamResource = clientResource.getMessageInputStreamResource();
 						lastInputStreamBuffer = messageInputStreamResource.getLastBuffer();
-						// ByteOrder clientByteOrder = clientResource.getByteOrder();
-						Charset clientCharset = clientResource.getCharset();
 						
 						try {
 
@@ -199,7 +196,7 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 							if (numRead == -1) {
 								log.warn(String.format(
 										"%s InputMessageReader[%d] socket channel read -1, remove client",
-										commonProjectInfo.projectName, index));
+										commonProjectInfo.getProjectName(), index));
 								closeClient(key);
 								continue;
 							}
@@ -208,7 +205,7 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 							if (numRead == -1) {
 								log.warn(String.format(
 										"%s InputMessageReader[%d] socket channel read -1, remove client",
-										commonProjectInfo.projectName, index));
+										commonProjectInfo.getProjectName(), index));
 								closeClient(key);
 								continue;
 							}
@@ -225,7 +222,7 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 							ArrayList<AbstractMessage> inputMessageList = null;
 
 							try {
-								inputMessageList = messageProtocol.S2MList(InputMessage.class, clientCharset, messageInputStreamResource, messageManger);
+								inputMessageList = messageProtocol.S2MList(InputMessage.class, commonProjectInfo.getCharsetOfProject(), messageInputStreamResource, messageManger);
 								
 								
 							} catch (NoMoreDataPacketBufferException e) {
@@ -242,14 +239,14 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 							int cntOfMesages = inputMessageList.size();
 							for (int i = 0; i < cntOfMesages; i++) {
 								InputMessage inObj = (InputMessage)inputMessageList.get(i);
-								inputMessageQueue.put(new LetterFromClient(sc, inObj));
+								inputMessageQueue.put(new LetterFromClient(sc, inObj, clientResource));
 							}
 						} catch (NotYetConnectedException e) {
 							log.warn("io error", e);
 							closeClient(key);
 							continue;
 						} catch (IOException e) {
-							log.warn(String.format("%s InputMessageReader[%d] error", commonProjectInfo.projectName, index), e);
+							log.warn(String.format("%s InputMessageReader[%d] error", commonProjectInfo.getProjectName(), index), e);
 							closeClient(key);
 							continue;
 						}
@@ -257,11 +254,11 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 				}
 			}
 
-			log.warn(String.format("%s InputMessageReader[%d] loop exit", commonProjectInfo.projectName, index));
+			log.warn(String.format("%s InputMessageReader[%d] loop exit", commonProjectInfo.getProjectName(), index));
 		} catch (InterruptedException e) {
-			log.warn(String.format("%s InputMessageReader[%d] stop", commonProjectInfo.projectName, index), e);
+			log.warn(String.format("%s InputMessageReader[%d] stop", commonProjectInfo.getProjectName(), index), e);
 		} catch (Exception e) {
-			log.warn(String.format("%s InputMessageReader[%d] error", commonProjectInfo.projectName, index), e);
+			log.warn(String.format("%s InputMessageReader[%d] error", commonProjectInfo.getProjectName(), index), e);
 		}
 	}
 

@@ -63,6 +63,6 @@ public interface ClientResourceManagerIF {
 	 */
 	public int getCntOfAllClients();
 	
-	public void loginOK(String loginID, SocketChannel clientSC);
+	public void loginOK(String loginID, ClientResource clientResource);
 	public boolean isLogin(String loginID);
 }

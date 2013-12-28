@@ -29,5 +29,7 @@ package kr.pe.sinnori.server.executor;
  *
  */
 public abstract class AbstractAuthServerExecutor extends AbstractServerExecutor {
-
+	public AbstractAuthServerExecutor() {
+		// super();
+	}
 }

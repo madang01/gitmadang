@@ -18,11 +18,10 @@
 
 package impl.executor.server;
 
-import java.nio.channels.SocketChannel;
-
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
 import kr.pe.sinnori.common.exception.UpDownFileException;
+import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
@@ -31,11 +30,13 @@ import kr.pe.sinnori.common.updownfile.LocalTargetFileResourceManager;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;
+import kr.pe.sinnori.server.executor.LetterSender;
 
 public final class UpFileDataSExtor extends AbstractAuthServerExecutor {
 
 	@Override
-	protected void doTask(SocketChannel fromSC, InputMessage inObj,
+	protected void doTask(CommonProjectInfo commonProjectInfo,
+			LetterSender letterSender, InputMessage inObj,
 			MessageMangerIF messageManger,			
 			ClientResourceManagerIF clientResourceManager)
 			throws MessageInfoNotFoundException, MessageItemException {
@@ -63,7 +64,7 @@ public final class UpFileDataSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("serverTargetFileID", serverTargetFileID);
 			outObj.setAttribute("clientSourceFileID", -1);
 			
-			sendSelf(outObj);
+			letterSender.sendSelf(outObj);
 			return;
 		}
 		
@@ -81,13 +82,13 @@ public final class UpFileDataSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("resultMessage", "서버에 수신한 파일 조각을 성공적으로 저장했습니다.");
 			outObj.setAttribute("serverTargetFileID", serverTargetFileID);
 			try {
-				sendSelf(outObj);
+				letterSender.sendSelf(outObj);
 			} finally {
 				if (isFinished) {
 					
 					log.info(String.format("clientSourceFileID[%s] to serverTargetFileID[%d] 파일 업로드 전체 완료", localTargetFileResource.getSourceFileID(), serverTargetFileID));
 					
-					ClientResource clientResource = clientResourceManager.getClientResource(fromSC);
+					ClientResource clientResource = letterSender.getInObjClientResource();
 					clientResource.removeLocalTargetFileID(serverTargetFileID);
 					// localTargetFileResourceManager.putLocalTargetFileResource(localTargetFileResource);
 				}
@@ -96,26 +97,26 @@ public final class UpFileDataSExtor extends AbstractAuthServerExecutor {
 		} catch (IllegalArgumentException e) {
 			log.info(String.format("serverTargetFileID[%d] lock free::%s", serverTargetFileID, e.getMessage()), e);
 			
-			ClientResource clientResource = clientResourceManager.getClientResource(fromSC);
+			ClientResource clientResource = letterSender.getInObjClientResource();
 			clientResource.removeLocalTargetFileID(serverTargetFileID);
 			
 			outObj.setAttribute("taskResult", "N");
 			outObj.setAttribute("resultMessage", "서버::"+e.getMessage());
 			outObj.setAttribute("serverTargetFileID", serverTargetFileID);
 			
-			sendSelf(outObj);
+			letterSender.sendSelf(outObj);
 			return;
 		} catch (UpDownFileException e) {
 			log.info(String.format("serverTargetFileID[%d] lock free::%s", serverTargetFileID, e.getMessage()), e);
 			
-			ClientResource clientResource = clientResourceManager.getClientResource(fromSC);
+			ClientResource clientResource = letterSender.getInObjClientResource();
 			clientResource.removeLocalTargetFileID(serverTargetFileID);
 			
 			outObj.setAttribute("taskResult", "N");
 			outObj.setAttribute("resultMessage", "서버::"+e.getMessage());
 			outObj.setAttribute("serverTargetFileID", serverTargetFileID);
 			
-			sendSelf(outObj);
+			letterSender.sendSelf(outObj);
 			return;
 		}
 	}

@@ -24,6 +24,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
+import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.CommonStaticFinal;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
@@ -33,6 +34,7 @@ import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;
 import kr.pe.sinnori.server.executor.AbstractServerExecutor;
+import kr.pe.sinnori.server.executor.LetterSender;
 import kr.pe.sinnori.server.executor.SererExecutorClassLoaderManagerIF;
 import kr.pe.sinnori.server.io.LetterFromClient;
 import kr.pe.sinnori.server.io.LetterToClient;
@@ -44,9 +46,9 @@ import kr.pe.sinnori.server.io.LetterToClient;
  * @author Jonghoon Won
  */
 public class ExecutorProcessor extends Thread implements CommonRootIF {
-	private String projectName;
 	private int index;
 	private TreeSet<String> anonymousExceptionInputMessageSet;
+	private CommonProjectInfo commonProjectInfo = null;
 	private LinkedBlockingQueue<LetterFromClient> inputMessageQueue;
 	private LinkedBlockingQueue<LetterToClient> ouputMessageQueue;
 	private MessageMangerIF messageManger;
@@ -55,9 +57,9 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 	
 	/**
 	 * 생성자
-	 * @param projectName 소속 프로젝트 이름
 	 * @param index 순번
 	 * @param anonymousExceptionInputMessageSet 설정파일에서 정의한 익명 예외 발생 시키는 메시지 목록
+	 * @param commonProjectInfo 공통 연결 데이터
 	 * @param inputMessageQueue 입력 메시지 큐
 	 * @param ouputMessageQueue 출력 메시지 큐
 	 * @param messageManger 메시지 관리자
@@ -65,16 +67,17 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 	 * @param clientResourceManager 클라이언트 자원 관리자
 	 * 
 	 */
-	public ExecutorProcessor(String projectName, int index, 
+	public ExecutorProcessor(int index, 
 			TreeSet<String> anonymousExceptionInputMessageSet,
+			CommonProjectInfo commonProjectInfo,
 			LinkedBlockingQueue<LetterFromClient> inputMessageQueue,
 			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
 			MessageMangerIF messageManger,
 			SererExecutorClassLoaderManagerIF sererExecutorClassLoaderManager,
 			ClientResourceManagerIF clientResourceManager) {
-		this.projectName = projectName;
 		this.index = index;
 		this.anonymousExceptionInputMessageSet = anonymousExceptionInputMessageSet;
+		this.commonProjectInfo = commonProjectInfo;
 		this.inputMessageQueue = inputMessageQueue;
 		this.ouputMessageQueue = ouputMessageQueue;
 		this.messageManger = messageManger;
@@ -82,6 +85,7 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 		// this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 		this.clientResourceManager = clientResourceManager;
 	}
+	
 	
 	public void sendSelf(InputMessage inObj, SocketChannel fromSC, OutputMessage outObj) throws InterruptedException {
 		outObj.messageHeaderInfo = inObj.messageHeaderInfo;
@@ -104,10 +108,13 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 	public void run() {
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
-				LetterFromClient fromLetter = inputMessageQueue.take();
+				LetterFromClient letterFromClient = inputMessageQueue.take();
 
-				InputMessage inObj = fromLetter.getInputMessage();
-				SocketChannel fromSC = fromLetter.getFromSC();
+				ClientResource inObjClientResource = letterFromClient.getClientResource();
+				InputMessage inObj = letterFromClient.getInputMessage();
+				LetterSender letterSender = new LetterSender(inObjClientResource, inObj, ouputMessageQueue);
+
+				// SocketChannel fromSC = letterFromClient.getFromSC();
 				
 				String messageID = inObj.getMessageID();
 				AbstractServerExecutor executor = null;
@@ -115,7 +122,7 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 					executor = sererExecutorClassLoaderManager.getServerExecutorObject(messageID);
 					if (executor instanceof AbstractAuthServerExecutor) {
 						/** 로그인 요구 서비스인 경우 로그인 여부 검사 */
-						if (! clientResourceManager.getClientResource(fromSC).isLogin()) {
+						if (! inObjClientResource.isLogin()) {
 							OutputMessage errorOutObj = messageManger.createOutputMessage("SelfExn");
 
 							// errorOutObj.messageHeaderInfo = inObj.messageHeaderInfo;
@@ -127,24 +134,25 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 							// LetterToClient toLetter = new LetterToClient(fromSC, errorOutObj);
 							// ouputMessageQueue.put(toLetter);
 							if (anonymousExceptionInputMessageSet.contains(messageID)) {
-								sendAnonymous(fromSC, errorOutObj);
+								letterSender.sendAnonymous(errorOutObj);
 							} else {
-								sendSelf(inObj, fromSC, errorOutObj);
+								letterSender.sendSelf(errorOutObj);
 							}
 							return;
 						}
 					}
 					
-					executor.executeInputMessage(fromSC, inObj, ouputMessageQueue, messageManger, clientResourceManager);
+					executor.executeInputMessage(commonProjectInfo, letterSender, inObj, ouputMessageQueue, messageManger, clientResourceManager);
 					
 				} catch (DynamicClassCallException e) {
-					log.warn(String.format("fromSC=[%d], inObj[%s], %s", fromSC.hashCode(), inObj.toString(), e.getMessage()), e);
+					log.warn(String.format("%s ExecutorProcessor[%d] %s, %s", 
+							commonProjectInfo.getProjectName(), index, letterFromClient.toString(), e.getMessage()), e);
 					
 					OutputMessage errorOutObj = null;
 					try {
 						errorOutObj = messageManger.createOutputMessage("SelfExn");
 					} catch (MessageInfoNotFoundException e1) {
-						log.fatal(String.format("projectName[%s] 시스템 필수 메시지 정보[SelfExn]가 존재하지 않습니다.", projectName), e1);
+						log.fatal(String.format("%s ExecutorProcessor[%d] %s, 시스템 필수 메시지 정보[SelfExn]가 존재하지 않습니다.", commonProjectInfo.getProjectName(), index, letterFromClient.toString()), e1);
 						System.exit(1);
 					}
 					
@@ -157,19 +165,20 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 					// LetterToClient toLetter = new LetterToClient(fromSC, errorOutObj);
 					// ouputMessageQueue.put(toLetter);
 					if (anonymousExceptionInputMessageSet.contains(messageID)) {
-						sendAnonymous(fromSC, errorOutObj);
+						letterSender.sendAnonymous(errorOutObj);
 					} else {
-						sendSelf(inObj, fromSC, errorOutObj);
+						letterSender.sendSelf(errorOutObj);
 					}
 					
 				} catch (MessageInfoNotFoundException e) {
-					log.warn(String.format("projectName[%s] fromSC=[%d], inObj[%s], %s", projectName, fromSC.hashCode(), inObj.toString(), e.getMessage()), e);
+					log.warn(String.format("%s ExecutorProcessor[%d] %s, %s", 
+							commonProjectInfo.getProjectName(), index, letterFromClient.toString(), e.getMessage()), e);
 					
 					OutputMessage errorOutObj = null;
 					try {
 						errorOutObj = messageManger.createOutputMessage("SelfExn");
 					} catch (MessageInfoNotFoundException e1) {
-						log.fatal(String.format("projectName[%s] 시스템 필수 메시지 정보[SelfExn]가 존재하지 않습니다.", projectName), e1);
+						log.fatal(String.format("%s ExecutorProcessor[%d] %s, 시스템 필수 메시지 정보[SelfExn]가 존재하지 않습니다.", commonProjectInfo.getProjectName(), index, letterFromClient.toString()), e1);
 						System.exit(1);
 					}
 					
@@ -182,18 +191,19 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 					// LetterToClient toLetter = new LetterToClient(fromSC, errorOutObj);
 					// ouputMessageQueue.put(toLetter);
 					if (anonymousExceptionInputMessageSet.contains(messageID)) {
-						sendAnonymous(fromSC, errorOutObj);
+						letterSender.sendAnonymous(errorOutObj);
 					} else {
-						sendSelf(inObj, fromSC, errorOutObj);
+						letterSender.sendSelf(errorOutObj);
 					}
 				} catch(MessageItemException e) {
-					log.warn(String.format("projectName[%s] fromSC=[%d], inObj[%s], %s", projectName, fromSC.hashCode(), inObj.toString(), e.getMessage()), e);
+					log.warn(String.format("%s ExecutorProcessor[%d] %s, %s", 
+							commonProjectInfo.getProjectName(), index, letterFromClient.toString(), e.getMessage()), e);
 					
 					OutputMessage errorOutObj = null;
 					try {
 						errorOutObj = messageManger.createOutputMessage("SelfExn");
 					} catch (MessageInfoNotFoundException e1) {
-						log.fatal(String.format("projectName[%s] 시스템 필수 메시지 정보[SelfExn]가 존재하지 않습니다.", projectName), e1);
+						log.fatal(String.format("%s ExecutorProcessor[%d] %s, 시스템 필수 메시지 정보[SelfExn]가 존재하지 않습니다.", commonProjectInfo.getProjectName(), index, letterFromClient.toString()), e1);
 						System.exit(1);
 					}
 					
@@ -206,12 +216,11 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 					// LetterToClient toLetter = new LetterToClient(fromSC, errorOutObj);
 					// ouputMessageQueue.put(toLetter);
 					if (anonymousExceptionInputMessageSet.contains(messageID)) {
-						sendAnonymous(fromSC, errorOutObj);
+						letterSender.sendAnonymous(errorOutObj);
 					} else {
-						sendSelf(inObj, fromSC, errorOutObj);
+						letterSender.sendSelf(errorOutObj);
 					}
-				} catch (Exception e) {
-					
+				} catch (Exception e) {					
 					String errorMessgae = e.getMessage();
 					if (null == errorMessgae) {
 						errorMessgae = "Unknown Exception";
@@ -220,14 +229,15 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 						
 					}
 					
-					log.warn(String.format("projectName[%s] fromSC=[%d], inObj[%s], %s", projectName, fromSC.hashCode(), inObj.toString(), errorMessgae), e);
+					log.warn(String.format("%s ExecutorProcessor[%d] %s, %s", 
+							commonProjectInfo.getProjectName(), index, letterFromClient.toString(), errorMessgae), e);
 					
 					
 					OutputMessage errorOutObj = null;
 					try {
 						errorOutObj = messageManger.createOutputMessage("SelfExn");
 					} catch (MessageInfoNotFoundException e1) {
-						log.fatal(String.format("projectName[%s] 시스템 필수 메시지 정보[SelfExn]가 존재하지 않습니다.", projectName), e1);
+						log.fatal(String.format("%s ExecutorProcessor[%d] %s, 시스템 필수 메시지 정보[SelfExn]가 존재하지 않습니다.", commonProjectInfo.getProjectName(), index, letterFromClient.toString()), e1);
 						System.exit(1);
 					}
 					
@@ -240,17 +250,17 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 					// LetterToClient toLetter = new LetterToClient(fromSC, errorOutObj);
 					// ouputMessageQueue.put(toLetter);
 					if (anonymousExceptionInputMessageSet.contains(messageID)) {
-						sendAnonymous(fromSC, errorOutObj);
+						letterSender.sendAnonymous(errorOutObj);
 					} else {
-						sendSelf(inObj, fromSC, errorOutObj);
+						letterSender.sendSelf(errorOutObj);
 					}
 				}
 			}
-			log.warn("Thread loop exit");
+			log.warn(String.format("%s ExecutorProcessor[%d] loop exit", commonProjectInfo.getProjectName(), index));
 		} catch (InterruptedException e) {
-			log.warn(String.format("projectName[%s] Index[%d] stop", projectName, index), e);
+			log.warn(String.format("%s ExecutorProcessor[%d] stop", commonProjectInfo.getProjectName(), index), e);
 		} catch (Exception e) {
-			log.warn(String.format("projectName[%s] Index[%d] error", projectName, index), e);
+			log.warn(String.format("%s ExecutorProcessor[%d] error", commonProjectInfo.getProjectName(), index), e);
 		}
 
 	}

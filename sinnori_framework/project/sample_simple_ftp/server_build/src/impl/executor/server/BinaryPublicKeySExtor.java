@@ -17,16 +17,16 @@
 
 package impl.executor.server;
 
-import java.nio.channels.SocketChannel;
-
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
+import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
 import kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.executor.AbstractServerExecutor;
+import kr.pe.sinnori.server.executor.LetterSender;
 
 /**
  * 
@@ -36,7 +36,8 @@ import kr.pe.sinnori.server.executor.AbstractServerExecutor;
 public final class BinaryPublicKeySExtor extends AbstractServerExecutor {
 	
 	@Override
-	protected void doTask(SocketChannel fromSC, InputMessage inObj,
+	protected void doTask(CommonProjectInfo commonProjectInfo,
+			LetterSender letterSender, InputMessage inObj,
 			MessageMangerIF messageManger,			
 			ClientResourceManagerIF clientResourceManager)
 			throws MessageInfoNotFoundException, MessageItemException {
@@ -51,6 +52,6 @@ public final class BinaryPublicKeySExtor extends AbstractServerExecutor {
 		outObj.setAttribute("publicKeyBytes", ServerSessionKeyManager.getInstance().getPublicKeyBytes());
 		
 
-		sendSelf(outObj);
+		letterSender.sendSelf(outObj);
 	}
 }

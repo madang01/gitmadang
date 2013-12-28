@@ -20,6 +20,7 @@ package kr.pe.sinnori.server.threadpool.accept.processor;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 import kr.pe.sinnori.server.threadpool.accept.processor.handler.AcceptProcessor;
 import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderPoolIF;
@@ -33,36 +34,37 @@ import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderPoolIF;
 public class AcceptProcessorPool extends AbstractThreadPool {
 	private LinkedBlockingQueue<SocketChannel> acceptQueue;
 	private int maxHandler;
+	private CommonProjectInfo commonProjectInfo = null;
 	private InputMessageReaderPoolIF inputMessageReaderPoolIF = null;
-
+	
 	/**
 	 * 생성자
-	 * 
-	 * @param size
-	 *            소켓 채널의 신규 등록 처리를 수행하는 쓰레드 갯수
-	 * @param max
-	 *            소켓 채널의 신규 등록 처리를 수행하는 쓰레드 최대 갯수
-	 * @param acceptQueue
-	 *            생산자 신규 소켓 채널 요청자, 소비자 소켓 채널의 신규 등록 처리를 수행하는 쓰레드인 큐
+	 * @param size 소켓 채널의 신규 등록 처리를 수행하는 쓰레드 갯수
+	 * @param max 소켓 채널의 신규 등록 처리를 수행하는 쓰레드 최대 갯수
+	 * @param commonProjectInfo 공통 연결 데이터
+	 * @param acceptQueue 신규 등록할 소켓 채널을 받는 큐
+	 * @param inputMessageReaderPoolIF 서버에 접속 승인된 클라이언트(=소켓 채널) 등록 처리 쓰레드가 바라보는 입력 메시지 소켓 읽기 담당 쓰레드 폴 인터페이스
 	 */
 	public AcceptProcessorPool(int size, int max,
-			LinkedBlockingQueue<SocketChannel> acceptQueue,
+			CommonProjectInfo commonProjectInfo,
+			LinkedBlockingQueue<SocketChannel> acceptQueue,			
 			InputMessageReaderPoolIF inputMessageReaderPoolIF) {
 		if (size <= 0) {
-			throw new IllegalArgumentException("파라미터 초기 핸들러 갯수는 0보다 커야 합니다.");
+			throw new IllegalArgumentException(String.format("%s 파라미터 초기 핸들러 갯수는 0보다 커야 합니다.", commonProjectInfo.getProjectName()));
 		}
 		if (max <= 0) {
-			throw new IllegalArgumentException("파라미터 최대 핸들러 갯수는 0보다 커야 합니다.");
+			throw new IllegalArgumentException(String.format("%s 파라미터 최대 핸들러 갯수는 0보다 커야 합니다.", commonProjectInfo.getProjectName()));
 		}
 
 		if (size > max) {
 			throw new IllegalArgumentException(String.format(
-					"파라미터 초기 핸들러 갯수[%d]는 최대 핸들러 갯수[%d]보다 작거나 같아야 합니다.", size,
+					"%s 파라미터 초기 핸들러 갯수[%d]는 최대 핸들러 갯수[%d]보다 작거나 같아야 합니다.", commonProjectInfo.getProjectName(), size,
 					max));
 		}
 
 		this.acceptQueue = acceptQueue;
 		this.maxHandler = max;
+		this.commonProjectInfo = commonProjectInfo;
 		this.inputMessageReaderPoolIF = inputMessageReaderPoolIF;
 
 		for (int i = 0; i < size; i++) {
@@ -81,11 +83,11 @@ public class AcceptProcessorPool extends AbstractThreadPool {
 							inputMessageReaderPoolIF);
 					pool.add(handler);
 				} catch (Exception e) {
-					log.warn("AcceptProcessor handler 등록 실패", e);
+					log.warn(String.format("%s AcceptProcessor[%d] handler 등록 실패", commonProjectInfo.getProjectName(), size), e);
 				}
 			} else {
 				throw new RuntimeException(String.format(
-						"최대 핸들러 갯수[%d]를 초과할수없습니다.", maxHandler));
+						"%s AcceptProcessor 최대 갯수[%d]를 초과할수없습니다.", commonProjectInfo.getProjectName(), maxHandler));
 			}
 		}
 	}

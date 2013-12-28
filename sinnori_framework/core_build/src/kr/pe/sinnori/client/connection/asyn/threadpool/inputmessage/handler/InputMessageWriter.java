@@ -92,7 +92,7 @@ public class InputMessageWriter extends Thread implements CommonRootIF {
 				try {
 					letterToServer = inputMessageQueue.take();
 				} catch (InterruptedException e) {
-					log.warn(String.format("%s index[%d] stop", commonProjectInfo.projectName, index), e);
+					log.warn(String.format("%s index[%d] stop", commonProjectInfo.getProjectName(), index), e);
 					break;
 				}
 	
@@ -105,8 +105,8 @@ public class InputMessageWriter extends Thread implements CommonRootIF {
 	
 				// SocketChannel toSC = noneBlockConnection.getSocketChannel();
 				
-				ByteOrder clientByteOrder = noneBlockConnection.getByteOrderOfProject();
-				Charset clientCharset = noneBlockConnection.getCharsetOfProject();
+				ByteOrder clientByteOrder = commonProjectInfo.getByteOrderOfProject();
+				Charset clientCharset = commonProjectInfo.getCharsetOfProject();
 	
 				
 				
@@ -202,15 +202,15 @@ public class InputMessageWriter extends Thread implements CommonRootIF {
 				}			
 			}
 			
-			log.warn(String.format("%s InputMessageWriter[%d] loop exit", commonProjectInfo.projectName, index));
+			log.warn(String.format("%s InputMessageWriter[%d] loop exit", commonProjectInfo.getProjectName(), index));
 		} catch (Exception e) {
-			log.warn(String.format("%s InputMessageWriter[%d] unknown error::%s", commonProjectInfo.projectName, index, e.getMessage()), e);
+			log.warn(String.format("%s InputMessageWriter[%d] unknown error::%s", commonProjectInfo.getProjectName(), index, e.getMessage()), e);
 		}
 
-		log.warn(String.format("%s InputMessageWriter[%d] thread end", commonProjectInfo.projectName, index));
+		log.warn(String.format("%s InputMessageWriter[%d] thread end", commonProjectInfo.getProjectName(), index));
 	}
 
 	public void finalize() {
-		log.warn(String.format("%s InputMessageWriter[%d] 소멸::[%s]", commonProjectInfo.projectName, index, toString()));
+		log.warn(String.format("%s InputMessageWriter[%d] 소멸::[%s]", commonProjectInfo.getProjectName(), index, toString()));
 	}
 }

@@ -20,6 +20,7 @@ package kr.pe.sinnori.server.io;
 import java.nio.channels.SocketChannel;
 
 import kr.pe.sinnori.common.message.InputMessage;
+import kr.pe.sinnori.server.ClientResource;
 
 /**
  * 클라이언트로부터 받은 편지(=수신편지). 클라이언트로부터 받은 편지는 송신자와 송신자가 보낸 입력 메세지로 구성된다.
@@ -28,44 +29,51 @@ import kr.pe.sinnori.common.message.InputMessage;
  * 
  */
 public class LetterFromClient {
-	private SocketChannel sc;
-	private InputMessage inputMessage;
+	private SocketChannel clientSC;
+	private InputMessage inObj;
+	private ClientResource clientResource  = null;
 
+	public LetterFromClient(SocketChannel clientSC, InputMessage inObj, ClientResource clientResource) {
+		this.clientSC = clientSC;
+		this.inObj = inObj;
+		this.clientResource = clientResource;
+	}
+	
 	/**
 	 * 메세지를 반환한다.
 	 * 
 	 * @return 메세지
 	 */
 	public InputMessage getInputMessage() {
-		return inputMessage;
+		return inObj;
 	}
-
-	@Override
-	public String toString() {
-		StringBuffer strBuff = new StringBuffer();
-		strBuff.append("SocketChannel hash[");
-		if (sc != null) {
-			strBuff.append(sc.hashCode());
-		} else {
-			strBuff.append("sc is empty");
-		}
-		strBuff.append("], out=");
-		strBuff.append(inputMessage.toString());
-		return strBuff.toString();
-	}
-
-	public LetterFromClient(SocketChannel sc, InputMessage inputMessage) {
-		this.sc = sc;
-		this.inputMessage = inputMessage;
-	}
-
+	
 	/**
 	 * 송신할 client, 즉 송신자를 반환한다.
 	 * 
 	 * @return 송신할 client, 즉 송신자
 	 */
+	/*
 	public SocketChannel getFromSC() {
-		return sc;
+		return clientSC;
+	}
+	*/
+	
+	public ClientResource getClientResource() {
+		return clientResource;
 	}
 
+	@Override
+	public String toString() {
+		StringBuffer strBuff = new StringBuffer();
+		strBuff.append("clientSC=[");
+		if (clientSC != null) {
+			strBuff.append(clientSC.hashCode());
+		} else {
+			strBuff.append("clientSC is empty");
+		}
+		strBuff.append("], inObj=");
+		strBuff.append(inObj.toString());
+		return strBuff.toString();
+	}	
 }

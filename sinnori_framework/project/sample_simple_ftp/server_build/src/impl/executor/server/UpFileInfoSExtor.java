@@ -18,11 +18,10 @@
 
 package impl.executor.server;
 
-import java.nio.channels.SocketChannel;
-
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
 import kr.pe.sinnori.common.exception.UpDownFileException;
+import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
@@ -31,6 +30,7 @@ import kr.pe.sinnori.common.updownfile.LocalTargetFileResourceManager;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;
+import kr.pe.sinnori.server.executor.LetterSender;
 
 /**
  * <pre>
@@ -44,7 +44,8 @@ import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;
 public final class UpFileInfoSExtor extends AbstractAuthServerExecutor {
 
 	@Override
-	protected void doTask(SocketChannel fromSC, InputMessage inObj,
+	protected void doTask(CommonProjectInfo commonProjectInfo,
+			LetterSender letterSender, InputMessage inObj,
 			MessageMangerIF messageManger,			
 			ClientResourceManagerIF clientResourceManager)
 			throws MessageInfoNotFoundException, MessageItemException {
@@ -78,14 +79,14 @@ public final class UpFileInfoSExtor extends AbstractAuthServerExecutor {
 				outObj.setAttribute("resultMessage", "큐로부터 목적지 파일 자원 할당에 실패하였습니다.");
 				outObj.setAttribute("serverTargetFileID", -1);
 				
-				sendSelf(outObj);
+				letterSender.sendSelf(outObj);
 				return;
 			}
 			
 			localTargetFileResource.setSourceFileID(clientSourceFileID);
 			int serverTargetFileID = localTargetFileResource.getTargetFileID();
 			
-			ClientResource clientResource = clientResourceManager.getClientResource(fromSC);
+			ClientResource clientResource = letterSender.getInObjClientResource();
 			clientResource.addLocalTargetFileID(serverTargetFileID);
 			
 			
@@ -107,7 +108,7 @@ public final class UpFileInfoSExtor extends AbstractAuthServerExecutor {
 				return;
 			}
 		*/
-			sendSelf(outObj);
+			letterSender.sendSelf(outObj);
 		} catch (IllegalArgumentException e) {
 			log.info("IllegalArgumentException", e);
 			
@@ -124,7 +125,7 @@ public final class UpFileInfoSExtor extends AbstractAuthServerExecutor {
 			}
 			return;
 			*/
-			sendSelf(outObj);
+			letterSender.sendSelf(outObj);
 		} catch (UpDownFileException e) {
 			log.info("UpDownFileException", e);
 			
@@ -141,7 +142,7 @@ public final class UpFileInfoSExtor extends AbstractAuthServerExecutor {
 			}
 			return;
 			*/
-			sendSelf(outObj);
+			letterSender.sendSelf(outObj);
 		}
 	}
 }

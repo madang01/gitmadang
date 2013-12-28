@@ -17,10 +17,9 @@
 
 package impl.executor.server;
 
-import java.nio.channels.SocketChannel;
-
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
+import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
@@ -29,6 +28,7 @@ import kr.pe.sinnori.common.updownfile.LocalTargetFileResourceManager;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;
+import kr.pe.sinnori.server.executor.LetterSender;
 
 /**
  * 파일 업로드 취소 서버 비지니스 로직 클래스
@@ -38,7 +38,8 @@ import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;
 public final class CancelUploadFileSExtor extends AbstractAuthServerExecutor {
 
 	@Override
-	protected void doTask(SocketChannel fromSC, InputMessage inObj,
+	protected void doTask(CommonProjectInfo commonProjectInfo,
+			LetterSender letterSender, InputMessage inObj,
 			MessageMangerIF messageManger,			
 			ClientResourceManagerIF clientResourceManager)
 			throws MessageInfoNotFoundException, MessageItemException {
@@ -64,11 +65,11 @@ public final class CancelUploadFileSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("serverTargetFileID", serverTargetFileID);
 			
 			// letterToClientList.addLetterToClient(fromSC, outObj);
-			sendSelf(outObj);
+			letterSender.sendSelf(outObj);
 			return;
 		}
 		
-		ClientResource clientResource = clientResourceManager.getClientResource(fromSC);
+		ClientResource clientResource = letterSender.getInObjClientResource();
 		clientResource.removeLocalTargetFileID(serverTargetFileID);
 		
 		
@@ -83,6 +84,6 @@ public final class CancelUploadFileSExtor extends AbstractAuthServerExecutor {
 		log.info(outObj.toString());
 		
 		// letterToClientList.addLetterToClient(fromSC, outObj);
-		sendSelf(outObj);
+		letterSender.sendSelf(outObj);
 	}
 }

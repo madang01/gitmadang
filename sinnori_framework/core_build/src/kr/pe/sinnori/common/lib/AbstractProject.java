@@ -87,22 +87,16 @@ public abstract class AbstractProject implements CommonRootIF, DataPacketBufferQ
 			System.exit(1);
 		}
 		
-		commonProjectInfo = new CommonProjectInfo();
-		commonProjectInfo.projectName = projectName;
-		commonProjectInfo.serverHost = projectInfo.getServerHost();
-		commonProjectInfo.serverPort = projectInfo.getServerPort();
-		commonProjectInfo.messageProtocol = projectInfo.getBinaryFormatType();
-		commonProjectInfo.byteOrderOfProject =  projectInfo.getByteOrder();
-		commonProjectInfo.charsetOfProject = projectInfo.getCharset();
-		commonProjectInfo.dataPacketBufferSize = projectInfo.getDataPacketBufferSize();
-		commonProjectInfo.dataPacketBufferMaxCntPerMessage = projectInfo.getDataPacketBufferMaxCntPerMessage();
-		// commonProjectInfo.messageIDFixedSize = projectInfo.getMessageIDFixedSize();
-		// commonProjectInfo.messageHeaderSize = projectInfo.getMessageHeaderSize();
-		// commonProjectInfo.messageBodyMaxSize = projectInfo.getMessageBodyMaxSize();
+		commonProjectInfo = new CommonProjectInfo(projectName, 
+				projectInfo.getServerHost(),
+				projectInfo.getServerPort(),
+				projectInfo.getBinaryFormatType(),
+				projectInfo.getByteOrder(),
+				projectInfo.getCharset(),
+				projectInfo.getDataPacketBufferSize(),
+				projectInfo.getDataPacketBufferMaxCntPerMessage());
 		
-		
-		
-		switch (commonProjectInfo.messageProtocol) {
+		switch (commonProjectInfo.getMessageProtocol()) {
 			case DHB : {
 				messageExchangeProtocol = new DHBMessageProtocol(
 						projectInfo.getMessageIDFixedSize(), 
@@ -116,13 +110,11 @@ public abstract class AbstractProject implements CommonRootIF, DataPacketBufferQ
 				break;
 			}
 			default : {
-				log.fatal(String.format("project[%s] 지원하지 않는 메시지 프로토콜[%s] 입니다.", projectName, commonProjectInfo.messageProtocol));
+				log.fatal(String.format("project[%s] 지원하지 않는 메시지 프로토콜[%s] 입니다.", projectName, commonProjectInfo.getMessageProtocol()));
 				System.exit(1);
 			}
 		}
  		
-		commonProjectInfo.messageExchangeProtocol = messageExchangeProtocol;
-		
 
 		messageInfoPath = projectInfo.getMessageInfoPath();
 		FilenameFilter xmlFilter = new XMLFileFilter();
@@ -152,10 +144,8 @@ public abstract class AbstractProject implements CommonRootIF, DataPacketBufferQ
 
 			readMessageXMLFile(f);
 		}
-		
-		
 	}
-
+	
 	
 	/**
 	 * 메시지 스키마를 정의한 XML 파일을 SAX 파싱하여 읽어 메시지 스키마 목록에 추가한다.
@@ -168,7 +158,7 @@ public abstract class AbstractProject implements CommonRootIF, DataPacketBufferQ
 		// xmlFile.getAbsolutePath());
 
 		// SinnoriMessageSchema
-		MessageInfoSAXParser messageSAXUtil = new MessageInfoSAXParser(xmlFile, commonProjectInfo.charsetOfProject);
+		MessageInfoSAXParser messageSAXUtil = new MessageInfoSAXParser(xmlFile, commonProjectInfo.getCharsetOfProject());
 		MessageInfo messageInfo = messageSAXUtil.parse();
 
 		if (null != messageInfo) {
@@ -178,7 +168,7 @@ public abstract class AbstractProject implements CommonRootIF, DataPacketBufferQ
 			if (null != messageInfoHash.get(messageID)) {
 				log.warn(String.format(
 						"project[%s] warning :: 기 등록된 메시지 식별자[%s]입니다. 신놀이 메시지 정보 파일[%s]의 이름이 메시지 식별자인지 다시 한번 확인하시기 바랍니다.",
-						commonProjectInfo.projectName, messageID, xmlFile.getName()));
+						commonProjectInfo.getProjectName(), messageID, xmlFile.getName()));
 				return null;
 			}
 
@@ -192,7 +182,7 @@ public abstract class AbstractProject implements CommonRootIF, DataPacketBufferQ
 			if (!fileName.equals(messageIDFile)) {
 				log.warn(String.format(
 						"project[%s] warning :: 메시지 정보 파일[%s]의 이름은 메시지 식별자[%s] 이어야 합니다.",
-						commonProjectInfo.projectName, xmlFile.getName(), messageID));
+						commonProjectInfo.getProjectName(), xmlFile.getName(), messageID));
 				return null;
 			}
 
@@ -203,13 +193,13 @@ public abstract class AbstractProject implements CommonRootIF, DataPacketBufferQ
 			messageInfoFileInfoHash.put(messageID, messageInfoFileInfo);
 			messageInfoHash.put(messageID, messageInfo);
 
-			log.info(String.format("project[%s] 메시지[%s] 정보를 담고 있는 XML로 작성된 파일 로딩 성공", commonProjectInfo.projectName, messageID));
+			log.info(String.format("project[%s] 메시지[%s] 정보를 담고 있는 XML로 작성된 파일 로딩 성공", commonProjectInfo.getProjectName(), messageID));
 			// System.out.printf("메시지 식별자[%s] 등록\n", messageID);
 			// System.out.printf("=================================================\n%s\n=================================================\n",
 			// messageInfo.toString());
 
 		} else {
-			log.info(String.format("project[%s] 메시지 정보 파일[%s] 로딩 실패", commonProjectInfo.projectName, xmlFile.getAbsolutePath()));
+			log.info(String.format("project[%s] 메시지 정보 파일[%s] 로딩 실패", commonProjectInfo.getProjectName(), xmlFile.getAbsolutePath()));
 		}
 		return messageInfo;
 	}
@@ -235,7 +225,7 @@ public abstract class AbstractProject implements CommonRootIF, DataPacketBufferQ
 					String.format("파라미터 메시지 식별자[%s]는 메시지 식별자 이름 규칙을 위반 하였습니다.",
 							messageID));
 			/** Throwable 객체 생성은 리소스를 많이 잡아 먹지만 잘못된 메시지 식별자를 넣은 소스를 추적하여 제거 하기 위한 부득이한 조취임 */
-			log.warn(String.format("project[%s] IllegalArgumentException in getMessageInfo", commonProjectInfo.projectName), e);
+			log.warn(String.format("project[%s] IllegalArgumentException in getMessageInfo", commonProjectInfo.getProjectName()), e);
 			throw e;
 		}
 
@@ -261,19 +251,19 @@ public abstract class AbstractProject implements CommonRootIF, DataPacketBufferQ
 				File xmlFile = new File(xmlFileName.toString());
 				if (!xmlFile.exists()) {
 					log.warn(String.format("project[%s] warning :: not exist file , file name=[%s]",
-							commonProjectInfo.projectName, xmlFile.getAbsolutePath()));
+							commonProjectInfo.getProjectName(), xmlFile.getAbsolutePath()));
 					return null;
 				}
 
 				if (!xmlFile.isFile()) {
 					log.warn(String.format("project[%s] warning :: not file , file name=[%s]",
-							commonProjectInfo.projectName, xmlFile.getAbsolutePath()));
+							commonProjectInfo.getProjectName(), xmlFile.getAbsolutePath()));
 					return null;
 				}
 
 				if (!xmlFile.canRead()) {
 					log.warn(String.format("project[%s] warning :: can't read, file name=[%s]",
-							commonProjectInfo.projectName, xmlFile.getAbsolutePath()));
+							commonProjectInfo.getProjectName(), xmlFile.getAbsolutePath()));
 					return null;
 				}
 
@@ -323,7 +313,7 @@ public abstract class AbstractProject implements CommonRootIF, DataPacketBufferQ
 	public WrapBuffer pollDataPacketBuffer(ByteOrder newByteOrder) throws NoMoreDataPacketBufferException {
 		WrapBuffer buffer = dataPacketBufferQueue.poll();
 		if (null == buffer) {
-			String errorMessage = String.format("클라이언트 프로젝트[%s]에서 데이터 패킷 버퍼 큐가 부족합니다.", commonProjectInfo.projectName);
+			String errorMessage = String.format("클라이언트 프로젝트[%s]에서 데이터 패킷 버퍼 큐가 부족합니다.", commonProjectInfo.getProjectName());
 			throw new NoMoreDataPacketBufferException(errorMessage);
 		}
 		
@@ -344,7 +334,7 @@ public abstract class AbstractProject implements CommonRootIF, DataPacketBufferQ
 		 */
 		synchronized (dataPacketBufferQueueMonitor) {
 			if (buffer.isInQueue()) {
-				log.warn(String.format("project[%s] 데이터 패킷 버퍼 2번 연속 반환 시도", commonProjectInfo.projectName));
+				log.warn(String.format("project[%s] 데이터 패킷 버퍼 2번 연속 반환 시도", commonProjectInfo.getProjectName()));
 				return;
 			}
 			buffer.queueIn();
@@ -355,12 +345,12 @@ public abstract class AbstractProject implements CommonRootIF, DataPacketBufferQ
 	
 	@Override
 	public int getDataPacketBufferMaxCntPerMessage() {
-		return commonProjectInfo.dataPacketBufferMaxCntPerMessage;
+		return commonProjectInfo.getDataPacketBufferMaxCntPerMessage();
 	}
 	
 	@Override
 	public int getDataPacketBufferSize() {
-		return commonProjectInfo.dataPacketBufferSize;
+		return commonProjectInfo.getDataPacketBufferMaxCntPerMessage();
 	}
 	
 	@Override
@@ -372,4 +362,6 @@ public abstract class AbstractProject implements CommonRootIF, DataPacketBufferQ
 		
 		return strBuilder.toString();
 	}
+	
+	
 }

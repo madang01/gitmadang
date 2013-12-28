@@ -76,7 +76,9 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 			bigByteInObj.setAttribute("value2", (byte) 0x60);
 			
 			// log.debug(bigByteInObj.toString());
-			warpBufferList = commonProjectInfo.messageExchangeProtocol.M2S(bigByteInObj, commonProjectInfo.byteOrderOfProject, commonProjectInfo.charsetOfProject);
+			
+			warpBufferList = clientProject.getMessageExchangeProtocol().M2S(bigByteInObj, commonProjectInfo.getByteOrderOfProject(), commonProjectInfo.getCharsetOfProject());
+
 			/**
 			 * 데이터를 받은것처럼 위장하기 위해서 position 을 limit 위치로 이동
 			 */
@@ -93,7 +95,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 			
 			ArrayList<AbstractMessage> outObjList = null;
 			try {
-				outObjList = commonProjectInfo.messageExchangeProtocol.S2MList(OutputMessage.class, commonProjectInfo.charsetOfProject, messageInputStreamResourcePerSocket, messageManger);
+				outObjList = clientProject.getMessageExchangeProtocol().S2MList(OutputMessage.class, commonProjectInfo.getCharsetOfProject(), messageInputStreamResourcePerSocket, messageManger);
 			} catch (HeaderFormatException e) {
 				log.fatal("HeaderFormatException", e);
 				System.exit(1);
@@ -126,7 +128,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 			bigUByteInObj.setAttribute("value1", (short)Byte.MAX_VALUE);
 			bigUByteInObj.setAttribute("value2", (short) 0x10);
 			
-			warpBufferList = commonProjectInfo.messageExchangeProtocol.M2S(bigUByteInObj, commonProjectInfo.byteOrderOfProject, commonProjectInfo.charsetOfProject);
+			warpBufferList = clientProject.getMessageExchangeProtocol().M2S(bigUByteInObj, commonProjectInfo.getByteOrderOfProject(), commonProjectInfo.getCharsetOfProject());
 			/**
 			 * 데이터를 받은것처럼 위장하기 위해서 position 을 limit 위치로 이동
 			 */
@@ -142,7 +144,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 			
 			ArrayList<AbstractMessage> outObjList = null;
 			try {
-				outObjList = commonProjectInfo.messageExchangeProtocol.S2MList(OutputMessage.class, commonProjectInfo.charsetOfProject, messageInputStreamResourcePerSocket, messageManger);
+				outObjList = clientProject.getMessageExchangeProtocol().S2MList(OutputMessage.class, commonProjectInfo.getCharsetOfProject(), messageInputStreamResourcePerSocket, messageManger);
 			} catch (HeaderFormatException e) {
 				log.fatal("HeaderFormatException", e);
 				System.exit(1);
@@ -176,7 +178,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 			bigShortInObj.setAttribute("value1", (short)Short.MAX_VALUE);
 			bigShortInObj.setAttribute("value2", (short) 0x1110);
 			
-			warpBufferList = commonProjectInfo.messageExchangeProtocol.M2S(bigShortInObj, commonProjectInfo.byteOrderOfProject, commonProjectInfo.charsetOfProject);
+			warpBufferList = clientProject.getMessageExchangeProtocol().M2S(bigShortInObj, commonProjectInfo.getByteOrderOfProject(), commonProjectInfo.getCharsetOfProject());
 			/**
 			 * 데이터를 받은것처럼 위장하기 위해서 position 을 limit 위치로 이동
 			 */
@@ -192,7 +194,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 			
 			ArrayList<AbstractMessage> outObjList = null;
 			try {
-				outObjList = commonProjectInfo.messageExchangeProtocol.S2MList(OutputMessage.class, commonProjectInfo.charsetOfProject, messageInputStreamResourcePerSocket, messageManger);
+				outObjList = clientProject.getMessageExchangeProtocol().S2MList(OutputMessage.class, commonProjectInfo.getCharsetOfProject(), messageInputStreamResourcePerSocket, messageManger);
 			} catch (HeaderFormatException e) {
 				log.fatal("HeaderFormatException", e);
 				System.exit(1);
@@ -226,7 +228,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 			bigUShortInObj.setAttribute("value1", (int)Short.MAX_VALUE);
 			bigUShortInObj.setAttribute("value2", (int) 0x1211);
 			
-			warpBufferList = commonProjectInfo.messageExchangeProtocol.M2S(bigUShortInObj, commonProjectInfo.byteOrderOfProject, commonProjectInfo.charsetOfProject);
+			warpBufferList = clientProject.getMessageExchangeProtocol().M2S(bigUShortInObj, commonProjectInfo.getByteOrderOfProject(), commonProjectInfo.getCharsetOfProject());
 			/**
 			 * 데이터를 받은것처럼 위장하기 위해서 position 을 limit 위치로 이동
 			 */
@@ -242,7 +244,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 			
 			ArrayList<AbstractMessage> outObjList = null;
 			try {
-				outObjList = commonProjectInfo.messageExchangeProtocol.S2MList(OutputMessage.class, commonProjectInfo.charsetOfProject, messageInputStreamResourcePerSocket, messageManger);
+				outObjList = clientProject.getMessageExchangeProtocol().S2MList(OutputMessage.class, commonProjectInfo.getCharsetOfProject(), messageInputStreamResourcePerSocket, messageManger);
 			} catch (HeaderFormatException e) {
 				log.fatal("HeaderFormatException", e);
 				System.exit(1);
@@ -277,7 +279,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 			bigIntInObj.setAttribute("value1", Integer.MAX_VALUE);
 			bigIntInObj.setAttribute("value2", (int) 0x11221110);
 			
-			warpBufferList = commonProjectInfo.messageExchangeProtocol.M2S(bigIntInObj, commonProjectInfo.byteOrderOfProject, commonProjectInfo.charsetOfProject);
+			warpBufferList = clientProject.getMessageExchangeProtocol().M2S(bigIntInObj, commonProjectInfo.getByteOrderOfProject(), commonProjectInfo.getCharsetOfProject());
 			/**
 			 * 데이터를 받은것처럼 위장하기 위해서 position 을 limit 위치로 이동
 			 */
@@ -293,7 +295,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 			
 			ArrayList<AbstractMessage> outObjList = null;
 			try {
-				outObjList = commonProjectInfo.messageExchangeProtocol.S2MList(OutputMessage.class, commonProjectInfo.charsetOfProject, messageInputStreamResourcePerSocket, messageManger);
+				outObjList = clientProject.getMessageExchangeProtocol().S2MList(OutputMessage.class, commonProjectInfo.getCharsetOfProject(), messageInputStreamResourcePerSocket, messageManger);
 			} catch (HeaderFormatException e) {
 				log.fatal("HeaderFormatException", e);
 				System.exit(1);
@@ -327,7 +329,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 			bigUIntInObj.setAttribute("value1", (long)Integer.MAX_VALUE);
 			bigUIntInObj.setAttribute("value2", (long) 0x11231111);
 			
-			warpBufferList = commonProjectInfo.messageExchangeProtocol.M2S(bigUIntInObj, commonProjectInfo.byteOrderOfProject, commonProjectInfo.charsetOfProject);
+			warpBufferList = clientProject.getMessageExchangeProtocol().M2S(bigUIntInObj, commonProjectInfo.getByteOrderOfProject(), commonProjectInfo.getCharsetOfProject());
 			/**
 			 * 데이터를 받은것처럼 위장하기 위해서 position 을 limit 위치로 이동
 			 */
@@ -343,7 +345,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 			
 			ArrayList<AbstractMessage> outObjList = null;
 			try {
-				outObjList = commonProjectInfo.messageExchangeProtocol.S2MList(OutputMessage.class, commonProjectInfo.charsetOfProject, messageInputStreamResourcePerSocket, messageManger);
+				outObjList = clientProject.getMessageExchangeProtocol().S2MList(OutputMessage.class, commonProjectInfo.getCharsetOfProject(), messageInputStreamResourcePerSocket, messageManger);
 			} catch (HeaderFormatException e) {
 				log.fatal("HeaderFormatException", e);
 				System.exit(1);
@@ -377,7 +379,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 			bigLongInObj.setAttribute("value1", Long.MAX_VALUE);
 			bigLongInObj.setAttribute("value2", (long)0x1122111011221110L);
 			
-			warpBufferList = commonProjectInfo.messageExchangeProtocol.M2S(bigLongInObj, commonProjectInfo.byteOrderOfProject, commonProjectInfo.charsetOfProject);
+			warpBufferList = clientProject.getMessageExchangeProtocol().M2S(bigLongInObj, commonProjectInfo.getByteOrderOfProject(), commonProjectInfo.getCharsetOfProject());
 			/**
 			 * 데이터를 받은것처럼 위장하기 위해서 position 을 limit 위치로 이동
 			 */
@@ -393,7 +395,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 			
 			ArrayList<AbstractMessage> outObjList = null;
 			try {
-				outObjList = commonProjectInfo.messageExchangeProtocol.S2MList(OutputMessage.class, commonProjectInfo.charsetOfProject, messageInputStreamResourcePerSocket, messageManger);
+				outObjList = clientProject.getMessageExchangeProtocol().S2MList(OutputMessage.class, commonProjectInfo.getCharsetOfProject(), messageInputStreamResourcePerSocket, messageManger);
 			} catch (HeaderFormatException e) {
 				log.fatal("HeaderFormatException", e);
 				System.exit(1);
@@ -429,7 +431,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 			bigFixedLenStringInObj.setAttribute("filler1", new byte[startSize]); // 데이터 패킷 맨끝 크기 4082 byte
 			bigFixedLenStringInObj.setAttribute("value1", value1);
 			
-			warpBufferList = commonProjectInfo.messageExchangeProtocol.M2S(bigFixedLenStringInObj, commonProjectInfo.byteOrderOfProject, commonProjectInfo.charsetOfProject);
+			warpBufferList = clientProject.getMessageExchangeProtocol().M2S(bigFixedLenStringInObj, commonProjectInfo.getByteOrderOfProject(), commonProjectInfo.getCharsetOfProject());
 			/**
 			 * 데이터를 받은것처럼 위장하기 위해서 position 을 limit 위치로 이동
 			 */
@@ -460,7 +462,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 			
 			ArrayList<AbstractMessage> outObjList = null;
 			try {
-				outObjList = commonProjectInfo.messageExchangeProtocol.S2MList(OutputMessage.class, commonProjectInfo.charsetOfProject, messageInputStreamResourcePerSocket, messageManger);
+				outObjList = clientProject.getMessageExchangeProtocol().S2MList(OutputMessage.class, commonProjectInfo.getCharsetOfProject(), messageInputStreamResourcePerSocket, messageManger);
 			} catch (HeaderFormatException e) {
 				log.fatal("HeaderFormatException", e);
 				System.exit(1);
@@ -499,7 +501,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 			bigFixedLenStringInObj.setAttribute("filler1", new byte[startSize]); // 데이터 패킷 맨끝 크기 4082 byte
 			bigFixedLenStringInObj.setAttribute("value1", value1);
 			
-			warpBufferList = commonProjectInfo.messageExchangeProtocol.M2S(bigFixedLenStringInObj, commonProjectInfo.byteOrderOfProject, commonProjectInfo.charsetOfProject);
+			warpBufferList = clientProject.getMessageExchangeProtocol().M2S(bigFixedLenStringInObj, commonProjectInfo.getByteOrderOfProject(), commonProjectInfo.getCharsetOfProject());
 			/**
 			 * 데이터를 받은것처럼 위장하기 위해서 position 을 limit 위치로 이동
 			 */
@@ -527,7 +529,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 			
 			ArrayList<AbstractMessage> outObjList = null;
 			try {
-				outObjList = commonProjectInfo.messageExchangeProtocol.S2MList(OutputMessage.class, commonProjectInfo.charsetOfProject, messageInputStreamResourcePerSocket, messageManger);
+				outObjList = clientProject.getMessageExchangeProtocol().S2MList(OutputMessage.class, commonProjectInfo.getCharsetOfProject(), messageInputStreamResourcePerSocket, messageManger);
 			} catch (HeaderFormatException e) {
 				log.fatal("HeaderFormatException", e);
 				System.exit(1);

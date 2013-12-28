@@ -20,7 +20,6 @@ package kr.pe.sinnori.client.connection;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
@@ -35,7 +34,6 @@ import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.CommonStaticFinal;
-import kr.pe.sinnori.common.lib.CommonType;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageInputStreamResourcePerSocket;
 import kr.pe.sinnori.common.lib.WrapBuffer;
@@ -109,7 +107,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 		this.commonProjectInfo = commonProjectInfo;
 		
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-		messageInputStreamResource = new MessageInputStreamResourcePerSocket(commonProjectInfo.byteOrderOfProject, dataPacketBufferQueueManager);
+		messageInputStreamResource = new MessageInputStreamResourcePerSocket(commonProjectInfo.getByteOrderOfProject(), dataPacketBufferQueueManager);
 		
 		this.serverOutputMessageQueue = serverOutputMessageQueue;
 	
@@ -117,7 +115,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 		try {
 			serverSC = SocketChannel.open();
 		} catch (IOException e) {
-			String errorMessage = String.format("project[%s] connection[%d], fail to open a socket channel", commonProjectInfo.projectName, index);
+			String errorMessage = String.format("project[%s] connection[%d], fail to open a socket channel", commonProjectInfo.getProjectName(), index);
 			log.fatal(errorMessage, e);
 			System.exit(1);
 		}
@@ -245,7 +243,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 				serverSC.close();
 			} catch (Exception e) {
 				log.warn(String.format("server name[%s] socket channel close fail",
-						commonProjectInfo.projectName), e);
+						commonProjectInfo.getProjectName()), e);
 			}
 		}
 	}
@@ -254,7 +252,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 	 * @return 프로젝트 이름
 	 */
 	public String getProjectName() {
-		return commonProjectInfo.projectName;
+		return commonProjectInfo.getProjectName();
 	}
 	
 	/**
@@ -263,33 +261,6 @@ public abstract class AbstractConnection implements CommonRootIF {
 	public final long getSocketTimeOut() {
 		return socketTimeOut;
 	}
-
-	/**
-	 * @return 바이트 순서
-	 */
-	public final ByteOrder getByteOrderOfProject() {
-		return commonProjectInfo.byteOrderOfProject;
-	}
-
-	/**
-	 * @return 문자셋
-	 */
-	public final java.nio.charset.Charset getCharsetOfProject() {
-		return commonProjectInfo.charsetOfProject;
-	}
-
-	
-
-	/**
-	 * @return 이진 데이터 형식
-	 */
-	public final CommonType.MESSAGE_PROTOCOL getBinaryFormatType() {
-		return commonProjectInfo.messageProtocol;
-	}
-
-	
-	
-	
 	
 	/**
 	 * @return 소켓 채널 전용 읽기 자원
@@ -369,7 +340,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 	public String toString() {
 		StringBuilder strBuffer = new StringBuilder();
 		strBuffer.append("projectName=[");
-		strBuffer.append(commonProjectInfo.projectName);
+		strBuffer.append(commonProjectInfo.getProjectName());
 		strBuffer.append("], index=[");
 		strBuffer.append(index);
 		strBuffer.append(", serverSC=[");
@@ -394,7 +365,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 	public String getSimpleConnectionInfo() {
 		StringBuilder strBuffer = new StringBuilder();
 		strBuffer.append("projectName=[");
-		strBuffer.append(commonProjectInfo.projectName);
+		strBuffer.append(commonProjectInfo.getProjectName());
 		strBuffer.append("], connection=[");
 		strBuffer.append(index);
 		strBuffer.append(", serverSC=[");

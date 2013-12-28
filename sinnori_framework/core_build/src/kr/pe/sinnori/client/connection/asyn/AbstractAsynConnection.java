@@ -106,9 +106,9 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 					
 					String errorMessage = String
 							.format("%s asyn connection[%02d], host[%s], port[%d] 에서 연결 완결 확인 메소드(=finishConnect) 호출 횟수가 최대치 도달했습니다.",
-									commonProjectInfo.projectName, index,
-									commonProjectInfo.serverHost,
-									commonProjectInfo.serverPort);
+									commonProjectInfo.getProjectName(), index,
+									commonProjectInfo.getServerHost(),
+									commonProjectInfo.getServerPort());
 					log.warn(errorMessage);
 					throw new ServerNotReadyException(errorMessage);
 				}
@@ -124,8 +124,8 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 			
 			String errorMessage = String
 					.format("%s asyn connection[%02d], host[%s], port[%d] 에서 연결중 에러가 발생하였습니다.",
-							commonProjectInfo.projectName, index, commonProjectInfo.serverHost,
-							commonProjectInfo.serverPort);
+							commonProjectInfo.getProjectName(), index, commonProjectInfo.getServerHost(),
+							commonProjectInfo.getServerPort());
 			log.warn(errorMessage, e);
 			throw new ServerNotReadyException(errorMessage);
 		}

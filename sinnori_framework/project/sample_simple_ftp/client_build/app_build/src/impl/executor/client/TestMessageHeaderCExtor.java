@@ -58,9 +58,9 @@ public class TestMessageHeaderCExtor extends AbstractClientExecutor {
 		ProjectConfig projectInfo = null;
 		
 		try {
-			projectInfo = (ProjectConfig)conf.getResource(commonProjectInfo.projectName);
+			projectInfo = (ProjectConfig)conf.getResource(commonProjectInfo.getProjectName());
 		} catch(RuntimeException e) {
-			log.fatal(String.format("%s 프로젝트 정보가 존재하지 않습니다.", commonProjectInfo.projectName));
+			log.fatal(String.format("%s 프로젝트 정보가 존재하지 않습니다.", commonProjectInfo.getProjectName()));
 			System.exit(1);
 		}
 		
@@ -68,8 +68,8 @@ public class TestMessageHeaderCExtor extends AbstractClientExecutor {
 		
 		
 		
-		CharsetEncoder charsetOfProjectEncoder = CharsetUtil.createCharsetEncoder(commonProjectInfo.charsetOfProject);
-		CharsetDecoder clinetCharsetDecoder = CharsetUtil.createCharsetDecoder(commonProjectInfo.charsetOfProject);
+		CharsetEncoder charsetOfProjectEncoder = CharsetUtil.createCharsetEncoder(commonProjectInfo.getCharsetOfProject());
+		CharsetDecoder clinetCharsetDecoder = CharsetUtil.createCharsetDecoder(commonProjectInfo.getCharsetOfProject());
 		
 		java.util.Random random = new java.util.Random();
 		
@@ -81,8 +81,8 @@ public class TestMessageHeaderCExtor extends AbstractClientExecutor {
 			System.exit(1);
 		}
 		
-		ByteBuffer workBuffer = ByteBuffer.allocate(commonProjectInfo.dataPacketBufferSize);
-		workBuffer.order(commonProjectInfo.byteOrderOfProject);
+		ByteBuffer workBuffer = ByteBuffer.allocate(commonProjectInfo.getDataPacketBufferSize());
+		workBuffer.order(commonProjectInfo.getByteOrderOfProject());
 		
 		DHBMessageHeader orgMessageHeader = new DHBMessageHeader(messageIDFixedSize);
 		orgMessageHeader.messageID = "Echo";
@@ -92,7 +92,7 @@ public class TestMessageHeaderCExtor extends AbstractClientExecutor {
 		orgMessageHeader.bodyMD5 = new byte[DHBMessageHeader.MD5_BYTESIZE];
 		random.nextBytes(orgMessageHeader.bodyMD5);
 		
-		orgMessageHeader.writeMessageHeader(workBuffer, commonProjectInfo.charsetOfProject, charsetOfProjectEncoder, md5);
+		orgMessageHeader.writeMessageHeader(workBuffer, commonProjectInfo.getCharsetOfProject(), charsetOfProjectEncoder, md5);
 		workBuffer.flip();
 		
 		// log.info(workBuffer.toString());

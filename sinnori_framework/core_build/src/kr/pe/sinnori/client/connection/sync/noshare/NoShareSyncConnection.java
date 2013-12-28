@@ -104,7 +104,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 		try {
 			reopenSocketChannel();
 		} catch (IOException e) {
-			String errorMessage = String.format("project[%s] NoShareSyncConnection[%d], fail to config a socket channel", commonProjectInfo.projectName, index);
+			String errorMessage = String.format("project[%s] NoShareSyncConnection[%d], fail to config a socket channel", commonProjectInfo.getProjectName(), index);
 			log.fatal(errorMessage, e);
 			System.exit(1);
 		}
@@ -116,12 +116,12 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 			try {
 				serverOpen();
 			} catch (ServerNotReadyException e) {
-				log.warn(String.format("project[%s] NoShareSyncConnection[%d] fail to connect server", commonProjectInfo.projectName, index), e);
+				log.warn(String.format("project[%s] NoShareSyncConnection[%d] fail to connect server", commonProjectInfo.getProjectName(), index), e);
 				// System.exit(1);
 			}
 		}
 		
-		log.info(String.format("project[%s] NoShareSyncConnection[%d] 생성자 end", commonProjectInfo.projectName, index));
+		log.info(String.format("project[%s] NoShareSyncConnection[%d] 생성자 end", commonProjectInfo.getProjectName(), index));
 	}
 	
 	/**
@@ -199,8 +199,8 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 				finalReadTime = new java.util.Date();
 				
 				InetSocketAddress remoteAddr = new InetSocketAddress(
-						commonProjectInfo.serverHost,
-						commonProjectInfo.serverPort);
+						commonProjectInfo.getServerHost(),
+						commonProjectInfo.getServerPort());
 				/**
 				 * 주의할것 : serverSC.connect(remoteAddr); 는 무조건 블락되어 사용할 수 없음.
 				 * 아래처럼 사용해야 타임아웃 걸림.
@@ -212,7 +212,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 					StringBuilder infoBuilder = null;
 					
 					infoBuilder = new StringBuilder("projectName[");
-					infoBuilder.append(commonProjectInfo.projectName);
+					infoBuilder.append(commonProjectInfo.getProjectName());
 					infoBuilder.append("] asyn connection[");
 					infoBuilder.append(index);
 					infoBuilder.append("] serverSC[");
@@ -249,26 +249,26 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 		} catch (ConnectException e) {
 			throw new ServerNotReadyException(String.format(
 					"ConnectException::%s conn index[%02d], host[%s], port[%d]",
-					commonProjectInfo.projectName, index, commonProjectInfo.serverHost,
-					commonProjectInfo.serverPort));
+					commonProjectInfo.getProjectName(), index, commonProjectInfo.getServerHost(),
+					commonProjectInfo.getServerPort()));
 		} catch (UnknownHostException e) {
 			throw new ServerNotReadyException(String.format(
 					"UnknownHostException::%s conn index[%02d], host[%s], port[%d]",
-					commonProjectInfo.projectName, index, commonProjectInfo.serverHost,
-					commonProjectInfo.serverPort));
+					commonProjectInfo.getProjectName(), index, commonProjectInfo.getServerHost(),
+					commonProjectInfo.getServerPort()));
 		} catch (ClosedChannelException e) {
 			throw new ServerNotReadyException(
 					String.format(
 							"ClosedChannelException::%s conn index[%02d], host[%s], port[%d]",
-							commonProjectInfo.projectName, index, commonProjectInfo.serverHost,
-							commonProjectInfo.serverPort));
+							commonProjectInfo.getProjectName(), index, commonProjectInfo.getServerHost(),
+							commonProjectInfo.getServerPort()));
 		} catch (IOException e) {
 			serverClose();
 			
 			throw new ServerNotReadyException(String.format(
 					"IOException::%s conn index[%02d], host[%s], port[%d]",
-					commonProjectInfo.projectName, index, commonProjectInfo.serverHost,
-					commonProjectInfo.serverPort));
+					commonProjectInfo.getProjectName(), index, commonProjectInfo.getServerHost(),
+					commonProjectInfo.getServerPort()));
 		} catch (Exception e) {
 			serverClose();
 			
@@ -276,8 +276,8 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 			throw new ServerNotReadyException(
 					String.format(
 							"unknown::%s conn index[%02d], host[%s], port[%d]",
-							commonProjectInfo.projectName, index, commonProjectInfo.serverHost,
-							commonProjectInfo.serverPort));
+							commonProjectInfo.getProjectName(), index, commonProjectInfo.getServerHost(),
+							commonProjectInfo.getServerPort()));
 		}
 		// log.info("projectName[%s%02d] call serverOpen end", projectName,
 		// index);
@@ -311,7 +311,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 		ArrayList<WrapBuffer> inputStreamWrapBufferList = null;
 		
 		try {
-			inObjWrapBufferList = messageProtocol.M2S(inObj, commonProjectInfo.byteOrderOfProject, commonProjectInfo.charsetOfProject);
+			inObjWrapBufferList = messageProtocol.M2S(inObj, commonProjectInfo.getByteOrderOfProject(), commonProjectInfo.getCharsetOfProject());
 			
 			int inObjWrapBufferListSize = inObjWrapBufferList.size();
 			
@@ -375,7 +375,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 
 			// for(int i=0; i < 1; i++) {
 			ByteBuffer lastInputStreamBuffer = messageInputStreamResource.getLastBuffer();
-			lastInputStreamBuffer.order(commonProjectInfo.byteOrderOfProject);
+			lastInputStreamBuffer.order(commonProjectInfo.getByteOrderOfProject());
 			
 			byte recvBytes[] = lastInputStreamBuffer.array();
 			
@@ -397,7 +397,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 				setFinalReadTime();
 				
 				outputMessageList = messageProtocol.S2MList(OutputMessage.class,  
-						commonProjectInfo.charsetOfProject, messageInputStreamResource, messageManger);
+						commonProjectInfo.getCharsetOfProject(), messageInputStreamResource, messageManger);
 				
 				
 				outputMessageListSize = outputMessageList.size();

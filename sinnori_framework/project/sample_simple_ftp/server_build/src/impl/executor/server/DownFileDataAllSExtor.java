@@ -17,11 +17,10 @@
 
 package impl.executor.server;
 
-import java.nio.channels.SocketChannel;
-
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
 import kr.pe.sinnori.common.exception.UpDownFileException;
+import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
@@ -30,6 +29,7 @@ import kr.pe.sinnori.common.updownfile.LocalSourceFileResourceManager;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;
+import kr.pe.sinnori.server.executor.LetterSender;
 
 /**
  * @author Jonghoon Won
@@ -38,14 +38,15 @@ import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;
 public class DownFileDataAllSExtor extends AbstractAuthServerExecutor {
 	
 	@Override
-	protected void doTask(SocketChannel fromSC, InputMessage inObj,
+	protected void doTask(CommonProjectInfo commonProjectInfo,
+			LetterSender letterSender, InputMessage inObj,
 			MessageMangerIF messageManger,			
 			ClientResourceManagerIF clientResourceManager)
 			throws MessageInfoNotFoundException, MessageItemException {
 		
 		log.info(inObj.toString());
 		
-		ClientResource clientResource = clientResourceManager.getClientResource(fromSC);
+		ClientResource clientResource = letterSender.getInObjClientResource();
 		
 		LocalSourceFileResourceManager localTargetFileResourceManager = LocalSourceFileResourceManager.getInstance();
 		
@@ -72,7 +73,7 @@ public class DownFileDataAllSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("fileData", new byte[0]);
 			
 			// letterToClientList.addLetterToClient(fromSC, outObj);
-			sendAnonymous(fromSC, outObj);
+			letterSender.sendAnonymous(outObj);
 			return;
 		}
 		
@@ -93,7 +94,7 @@ public class DownFileDataAllSExtor extends AbstractAuthServerExecutor {
 					outObj.setAttribute("resultMessage", String.format("서버 다운로드용 원본 파일[%d] 자원을 성공적으로 해제하였습니다.", serverSourceFileID));
 					outObj.setAttribute("serverSourceFileID", serverSourceFileID);
 					outObj.setAttribute("clientTargetFileID", clientTargetFileID);
-					sendAnonymous(fromSC, outObj);
+					letterSender.sendAnonymous(outObj);
 					
 					clientResource.removeLocalSourceFileID(serverSourceFileID);
 					return;
@@ -114,7 +115,7 @@ public class DownFileDataAllSExtor extends AbstractAuthServerExecutor {
 				outObj.setAttribute("fileBlockNo", startFileBlockNo);
 				outObj.setAttribute("fileData", fileData);
 				
-				sendAnonymous(fromSC, outObj);
+				letterSender.sendAnonymous(outObj);
 			}
 
 			// FIXME!
@@ -140,7 +141,7 @@ public class DownFileDataAllSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("fileBlockNo", startFileBlockNo);
 			outObj.setAttribute("fileData", new byte[0]);
 			
-			sendAnonymous(fromSC, outObj);
+			letterSender.sendAnonymous(outObj);
 			return;
 		} catch (UpDownFileException e) {
 			log.warn(String.format("serverSourceFileID[%d] lock free::%s", serverSourceFileID, e.getMessage()), e);
@@ -157,7 +158,7 @@ public class DownFileDataAllSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("fileBlockNo", startFileBlockNo);
 			outObj.setAttribute("fileData", new byte[0]);
 			
-			sendAnonymous(fromSC, outObj);
+			letterSender.sendAnonymous(outObj);
 			return;
 		}
 	}

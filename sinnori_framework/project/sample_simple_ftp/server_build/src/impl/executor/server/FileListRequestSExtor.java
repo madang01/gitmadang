@@ -2,11 +2,11 @@ package impl.executor.server;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.channels.SocketChannel;
 import java.util.Arrays;
 
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
+import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.message.ArrayData;
 import kr.pe.sinnori.common.message.InputMessage;
@@ -17,6 +17,7 @@ import kr.pe.sinnori.common.util.NameFirstComparator;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;
+import kr.pe.sinnori.server.executor.LetterSender;
 
 public final class FileListRequestSExtor extends AbstractAuthServerExecutor {
 	
@@ -28,7 +29,8 @@ public final class FileListRequestSExtor extends AbstractAuthServerExecutor {
 	}
 
 	@Override
-	protected void doTask(SocketChannel fromSC, InputMessage inObj,
+	protected void doTask(CommonProjectInfo commonProjectInfo,
+			LetterSender letterSender, InputMessage inObj,
 			MessageMangerIF messageManger,			
 			ClientResourceManagerIF clientResourceManager)
 			throws MessageInfoNotFoundException, MessageItemException {
@@ -44,12 +46,12 @@ public final class FileListRequestSExtor extends AbstractAuthServerExecutor {
 		outObj.setAttribute("requestDirectory", requestDirectory);
 		outObj.setAttribute("pathSeperator", File.separator);
 		
-		ClientResource clientResource = clientResourceManager.getClientResource(fromSC);
+		ClientResource clientResource = letterSender.getInObjClientResource();
 		
 		if (!clientResource.isLogin()) {
 			makeErrorOutMessage(outObj, "로그인 서비스입니다. 로그인을 해 주세요.");
 			// letterToClientList.addLetterToClient(fromSC, outObj);
-			sendSelf(outObj);
+			letterSender.sendSelf(outObj);
 			return;
 		}
 		
@@ -69,7 +71,7 @@ public final class FileListRequestSExtor extends AbstractAuthServerExecutor {
 			// outObj.getAttribute("fileList");
 			
 			// letterToClientList.addLetterToClient(fromSC, outObj);
-			sendSelf(outObj);
+			letterSender.sendSelf(outObj);
 			return;
 		}
 		
@@ -84,7 +86,7 @@ public final class FileListRequestSExtor extends AbstractAuthServerExecutor {
 			// outObj.getAttribute("fileList");
 			
 			// letterToClientList.addLetterToClient(fromSC, outObj);
-			sendSelf(outObj);
+			letterSender.sendSelf(outObj);
 			return;
 		}
 		
@@ -99,7 +101,7 @@ public final class FileListRequestSExtor extends AbstractAuthServerExecutor {
 			// outObj.getAttribute("fileList");
 			
 			// letterToClientList.addLetterToClient(fromSC, outObj);
-			sendSelf(outObj);
+			letterSender.sendSelf(outObj);
 			return;
 		}
 		
@@ -114,7 +116,7 @@ public final class FileListRequestSExtor extends AbstractAuthServerExecutor {
 			// outObj.getAttribute("fileList");
 			
 			// letterToClientList.addLetterToClient(fromSC, outObj);
-			sendSelf(outObj);
+			letterSender.sendSelf(outObj);
 			return;
 		}
 		
@@ -133,7 +135,7 @@ public final class FileListRequestSExtor extends AbstractAuthServerExecutor {
 			// outObj.getAttribute("fileList");
 			
 			// letterToClientList.addLetterToClient(fromSC, outObj);
-			sendSelf(outObj);
+			letterSender.sendSelf(outObj);
 			return;
 		}
 				
@@ -218,6 +220,6 @@ public final class FileListRequestSExtor extends AbstractAuthServerExecutor {
 		log.info(String.format("out.requestDirectory=[%s]",  (String)outObj.getAttribute("requestDirectory")));
 
 		// letterToClientList.addLetterToClient(fromSC, outObj);
-		sendSelf(outObj);
+		letterSender.sendSelf(outObj);
 	}
 }

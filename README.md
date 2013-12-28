@@ -12,7 +12,7 @@ AdvancedChatServer 를 기반으로 작성되었습니다.
 
 그리고 코어 라이브러리에 필요한 외부 라이브러리는 아래와 같습니다.
 
-commons-codec-1.6.jar
+commons-codec-1.9.jar
 commons-dbcp-1.4.jar
 commons-lang-2.6.jar
 commons-pool-1.6.jar
@@ -22,7 +22,7 @@ log4j-1.2.17.jar
 
 모두 아파치2 라이센스들입니다.
 
-파일 : commons-codec-1.6.jar, commons-dbcp-1.4.jar, commons-lang-2.6.jar, commons-pool-1.6.jar
+파일 : commons-codec-1.9.jar, commons-dbcp-1.4.jar, commons-lang-2.6.jar, commons-pool-1.6.jar
 주소 : http://commons.apache.org/
 라이센스 : Apache License 2.0
 

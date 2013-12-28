@@ -83,7 +83,7 @@ public class DHBMessageProtocol implements CommonRootIF, MessageExchangeProtocol
 	
 	@Override
 	public ArrayList<WrapBuffer> M2S(AbstractMessage messageObj, ByteOrder byteOrderOfProject, Charset charsetOfProject) throws NoMoreDataPacketBufferException, BodyFormatException {
-		CharsetEncoder charsetOfProjectEncoder = CharsetUtil.createCharsetEncoder(charsetOfProject);
+		CharsetEncoder charsetOfProjectEncoder = CharsetUtil.createCharsetEncoder(charsetOfProject);		
 		java.security.MessageDigest md5 = null;
 		try {
 			md5 = MessageDigest.getInstance("MD5");
@@ -91,6 +91,8 @@ public class DHBMessageProtocol implements CommonRootIF, MessageExchangeProtocol
 			log.fatal("failed to get a MD5 instance", e);
 			System.exit(1);
 		}
+		// java.security.MessageDigest md5 = DigestUtils.getMd5Digest();
+		
 		
 		/** 바디 만들기 */
 		FreeSizeOutputStream bodyOutputStream = 
@@ -155,6 +157,8 @@ public class DHBMessageProtocol implements CommonRootIF, MessageExchangeProtocol
 			e.printStackTrace();
 			System.exit(1);
 		}
+		
+		// java.security.MessageDigest md5 = DigestUtils.getMd5Digest();
 		
 		boolean isMoreMessage = false;
 		

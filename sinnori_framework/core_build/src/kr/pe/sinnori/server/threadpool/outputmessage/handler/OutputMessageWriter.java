@@ -19,11 +19,9 @@ package kr.pe.sinnori.server.threadpool.outputmessage.handler;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -37,7 +35,6 @@ import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.lib.WrapBuffer;
 import kr.pe.sinnori.common.message.OutputMessage;
-import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.io.LetterToClient;
 
@@ -53,7 +50,7 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 	private MessageExchangeProtocolIF messageProtocol;
 	private MessageMangerIF messageManger;
 	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManager;
-	private ClientResourceManagerIF clientResourceManager;
+	//private ClientResourceManagerIF clientResourceManager;
 	private LinkedBlockingQueue<LetterToClient> outputMessageQueue;
 	
 	// private static DHBServerWriter dhbWriter = DHBServerWriter.getInstance();
@@ -85,7 +82,7 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 		this.messageProtocol = messageProtocol;
 		this.messageManger = messageManger;
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-		this.clientResourceManager = clientResourceManager;
+		//this.clientResourceManager = clientResourceManager;
 		this.outputMessageQueue = outputMessageQueue;
 	}
 
@@ -105,26 +102,19 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 				try {
 					toLetter = outputMessageQueue.take();
 				} catch (InterruptedException e) {
-					log.warn(String.format("%s index[%d] stop", commonProjectInfo.projectName, index), e);
+					log.warn(String.format("%s index[%d] stop", commonProjectInfo.getProjectName(), index), e);
 					break;
 				}
 
 				SocketChannel toSC = toLetter.getToSC();
 				OutputMessage outObj = toLetter.getOutputMessage();
-
-				// if (!toSC.isConnected()) continue;
-
-				ClientResource clientResource = clientResourceManager.getClientResource(toSC);
-				ByteOrder clientByteOrder = clientResource.getByteOrder();
-				Charset clientCharset = clientResource.getCharset();
-				
 				
 				ArrayList<WrapBuffer> outObjWrapBufferList = null;
 				
 				
 				try {
 					try {
-						outObjWrapBufferList = messageProtocol.M2S(outObj, clientByteOrder, clientCharset);
+						outObjWrapBufferList = messageProtocol.M2S(outObj, commonProjectInfo.getByteOrderOfProject(), commonProjectInfo.getCharsetOfProject());
 					} catch (NoMoreDataPacketBufferException e) {
 						log.warn("NoMoreDataPacketBufferException", e);
 						
@@ -145,7 +135,7 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 								e.getMessage());
 
 						try {
-							outObjWrapBufferList = messageProtocol.M2S(errorOutObj, clientByteOrder, clientCharset);
+							outObjWrapBufferList = messageProtocol.M2S(errorOutObj, commonProjectInfo.getByteOrderOfProject(), commonProjectInfo.getCharsetOfProject());
 						} catch (NoMoreDataPacketBufferException e1) {
 							/**
 							 * 대책 없음. 로그만 남기고 종료.
@@ -197,7 +187,7 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 						// LetterFromServer letterFromServer = new
 						// LetterFromServer(errorOutObj);
 						try {
-							outObjWrapBufferList = messageProtocol.M2S(errorOutObj, clientByteOrder, clientCharset);
+							outObjWrapBufferList = messageProtocol.M2S(errorOutObj, commonProjectInfo.getByteOrderOfProject(), commonProjectInfo.getCharsetOfProject());
 						} catch (NoMoreDataPacketBufferException e1) {
 							/**
 							 * 대책 없음. 로그만 남기고 종료.
@@ -248,7 +238,7 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 					}
 				} catch (NotYetConnectedException e) {
 					// ClosedChannelException
-					log.warn(String.format("NotYetConnectedException:: %s index[%d] toSC[%d], inObj=[%s]", commonProjectInfo.projectName, index, toSC.hashCode(), outObj.toString()), e);
+					log.warn(String.format("NotYetConnectedException:: %s index[%d] toSC[%d], inObj=[%s]", commonProjectInfo.getProjectName(), index, toSC.hashCode(), outObj.toString()), e);
 					try {
 						toSC.close();
 					} catch (IOException e1) {
@@ -256,7 +246,7 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 				} catch(ClosedByInterruptException e) {
 					/** ClosedByInterruptException 는 IOException 상속 받기때문에 따라 처리  */
 					log.warn(String.format("ClosedByInterruptException::%s index[%d] toSC[%d] write error",
-							commonProjectInfo.projectName, index, toSC.hashCode()), e);
+							commonProjectInfo.getProjectName(), index, toSC.hashCode()), e);
 					try {
 						toSC.close();
 					} catch (IOException e1) {
@@ -265,7 +255,7 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 					throw e;
 				} catch (IOException e) {
 					log.warn(String.format("IOException::%s index[%d] toSC[%d] write error",
-							commonProjectInfo.projectName, index, toSC.hashCode()), e);
+							commonProjectInfo.getProjectName(), index, toSC.hashCode()), e);
 					
 					try {
 						toSC.close();
@@ -284,14 +274,14 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 				}
 			}
 		
-			log.warn(String.format("%s index[%d] loop exit", commonProjectInfo.projectName, index));
+			log.warn(String.format("%s index[%d] loop exit", commonProjectInfo.getProjectName(), index));
 		} catch(ClosedByInterruptException e) {
 			/** 이미 로그를 찍은 상태로 nothing */
 		} catch (Exception e) {
-			log.warn(String.format("Exception::%s index[%d]", commonProjectInfo.projectName, index), e);
+			log.warn(String.format("Exception::%s index[%d]", commonProjectInfo.getProjectName(), index), e);
 		}
 		
-		log.warn(String.format("%s index[%d] thread end", commonProjectInfo.projectName, index));
+		log.warn(String.format("%s index[%d] thread end", commonProjectInfo.getProjectName(), index));
 	}
 	
 	public void finalize() {

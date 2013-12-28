@@ -64,8 +64,8 @@ public class TestLocalAllDataTypeCExtor extends AbstractClientExecutor {
 		// log.info(String.format("before DataPacketBufferQueue state=[%s]", dataPacketBufferQueueManager.getQueueState()));
 		
 		CommonProjectInfo commonProjectInfo = clientProject.getCommonProjectInfo();
-		// CharsetEncoder charsetOfProjectEncoder = CharsetUtil.createCharsetEncoder(commonProjectInfo.charsetOfProject);
-		// CharsetDecoder clinetCharsetDecoder = CharsetUtil.createCharsetDecoder(commonProjectInfo.charsetOfProject);
+		// CharsetEncoder charsetOfProjectEncoder = CharsetUtil.createCharsetEncoder(commonProjectInfo.getCharsetOfProject());
+		// CharsetDecoder clinetCharsetDecoder = CharsetUtil.createCharsetDecoder(commonProjectInfo.getCharsetOfProject());
 		
 		
 		/*
@@ -186,7 +186,7 @@ public class TestLocalAllDataTypeCExtor extends AbstractClientExecutor {
 		
 		
 		ArrayList<WrapBuffer> warpBufferList = 
-				commonProjectInfo.messageExchangeProtocol.M2S(allDataTypeInObj, commonProjectInfo.byteOrderOfProject, commonProjectInfo.charsetOfProject);
+				clientProject.getMessageExchangeProtocol().M2S(allDataTypeInObj, commonProjectInfo.getByteOrderOfProject(), commonProjectInfo.getCharsetOfProject());
 		
 		/**
 		 * 데이터를 받은것처럼 위장하기 위해서 position 을 limit 위치로 이동
@@ -205,7 +205,7 @@ public class TestLocalAllDataTypeCExtor extends AbstractClientExecutor {
 		
 		ArrayList<AbstractMessage> outObjList = null;
 		try {
-			outObjList = commonProjectInfo.messageExchangeProtocol.S2MList(OutputMessage.class, commonProjectInfo.charsetOfProject, messageInputStreamResourcePerSocket, messageManger);
+			outObjList = clientProject.getMessageExchangeProtocol().S2MList(OutputMessage.class, commonProjectInfo.getCharsetOfProject(), messageInputStreamResourcePerSocket, messageManger);
 		} catch (HeaderFormatException e) {
 			log.fatal("HeaderFormatException", e);
 			System.exit(1);

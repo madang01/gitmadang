@@ -206,8 +206,8 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 	
 	@Override
 	public byte[] connectServer(String host, int port) {
-		commonProjectInfo.serverHost = host;
-		commonProjectInfo.serverPort = port;
+		commonProjectInfo.setServerHost(host);
+		commonProjectInfo.setServerPort(port);
 		
 		OutputMessage binaryPublicKeyOutObj = getBinaryPublicKey();
 		if (null == binaryPublicKeyOutObj) return null;
@@ -372,7 +372,7 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 		String sessionKeyBase64 = null;
 		String ivBase64 = null;
 		
-		String charsetName = commonProjectInfo.charsetOfProject.name();
+		String charsetName = commonProjectInfo.getCharsetOfProject().name();
 		
 		try {
 			idCipherBase64 = symmetricKey.encryptStringBase64(id, charsetName);

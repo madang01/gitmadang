@@ -23,7 +23,7 @@ package kr.pe.sinnori.client;
  * @author Jonghoon Won
  *
  */
-public class MonitorClientProjectInfo {
+public class ClientProjectMonitorInfo {
 	public String projectName;
 	public int dataPacketBufferQueueSize;
 	
@@ -32,7 +32,7 @@ public class MonitorClientProjectInfo {
 	
 	public int inputMessageQueueSize;
 	public int outputMessageQueueQueueSize;
-	public int serverOutputMessageQueueSize;
+	public int serverAnymouseOutputMessageQueue;
 	
 	
 	@Override
@@ -55,8 +55,8 @@ public class MonitorClientProjectInfo {
 		builder.append(", outputMessageQueueQueueSize=");
 		builder.append(outputMessageQueueQueueSize);
 		
-		builder.append(", serverOutputMessageQueueSize=");
-		builder.append(serverOutputMessageQueueSize);
+		builder.append(", serverAnymouseOutputMessageQueue=");
+		builder.append(serverAnymouseOutputMessageQueue);
 		
 		builder.append("]");
 		return builder.toString();

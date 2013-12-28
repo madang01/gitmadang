@@ -17,18 +17,14 @@
 
 package kr.pe.sinnori.server.executor;
 
-import java.nio.channels.SocketChannel;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
+import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.common.lib.CommonStaticFinal;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.message.InputMessage;
-import kr.pe.sinnori.common.message.MessageHeaderInfo;
-import kr.pe.sinnori.common.message.OutputMessage;
-import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.io.LetterToClient;
 
@@ -43,11 +39,7 @@ import kr.pe.sinnori.server.io.LetterToClient;
  * @author Jonghoon Won
  * 
  */
-public abstract class AbstractServerExecutor implements CommonRootIF {
-	private SocketChannel fromSC = null;
-	private MessageHeaderInfo headInfoOfInObj = null; 
-	private LinkedBlockingQueue<LetterToClient> ouputMessageQueue = null;
-	private ClientResourceManagerIF clientResourceManager = null;
+public abstract class AbstractServerExecutor implements CommonRootIF { 
 	
 	/**
 	 * <pre>
@@ -68,78 +60,19 @@ public abstract class AbstractServerExecutor implements CommonRootIF {
 	 * @throws MessageItemException 메시지 항목 값을 얻을때 혹은 항목 값을 설정할때 항목 관련 에러 발생시 던지는 예외
 	 */
 	public void executeInputMessage(
-			SocketChannel fromSC,
+			final CommonProjectInfo commonProjectInfo,
+			LetterSender letterSender,
 			InputMessage inObj,
 			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
 			MessageMangerIF messageManger,
 			ClientResourceManagerIF clientResourceManager) throws MessageInfoNotFoundException, MessageItemException {
-		this.fromSC = fromSC;
-		this.headInfoOfInObj = inObj.messageHeaderInfo;
-		this.ouputMessageQueue = ouputMessageQueue;
-		this.clientResourceManager = clientResourceManager;
-
 		// FIXME!
 		// log.info("inputMessage=[%s]", inputMessage.toString());
 		
-		doTask(fromSC, inObj, messageManger, clientResourceManager);
+		doTask(commonProjectInfo, letterSender, inObj, messageManger, clientResourceManager);
 	}
 		
-	public void sendSelf(OutputMessage outObj) {
-		outObj.messageHeaderInfo = headInfoOfInObj;
-		LetterToClient letterToClient = new LetterToClient(fromSC, outObj);
-		try {
-			ouputMessageQueue.put(letterToClient);
-		} catch (InterruptedException e) {
-			try {
-				log.info("InterruptedException, call ouputMessageQueue.put again");
-				ouputMessageQueue.put(letterToClient);
-			} catch (InterruptedException e1) {
-				log.warn(String.format("InterruptedException ignore self outObj[%s]", outObj.toString()), e1);
-			}
-		}
-	}
 	
-	public void sendAnonymous(SocketChannel toSC, OutputMessage outObj) {
-		ClientResource clientResource = clientResourceManager.getClientResource(toSC);
-		outObj.messageHeaderInfo.mailboxID = CommonStaticFinal.SERVER_MAILBOX_ID;
-		outObj.messageHeaderInfo.mailID = clientResource.getServerMailID();
-		
-		LetterToClient letterToClient = new LetterToClient(toSC, outObj);
-		try {
-			ouputMessageQueue.put(letterToClient);
-		} catch (InterruptedException e) {
-			try {
-				log.info("InterruptedException, call ouputMessageQueue.put again");
-				ouputMessageQueue.put(letterToClient);
-			} catch (InterruptedException e1) {
-				log.warn(String.format("InterruptedException ignore self outObj[%s]", outObj.toString()), e1);
-			}
-		}
-	}
-	/*
-	public void sendListAnonymous(SocketChannel toSC, List<OutputMessage> outObjList) {
-		ClientResource clientResource = clientResourceManager.getClientResource(toSC);
-		
-		int size = outObjList.size();
-		for (int i=0; i < size; i++) {
-			OutputMessage outObj = outObjList.get(i);
-			outObj.messageHeaderInfo.mailboxID = CommonStaticFinal.SERVER_MAILBOX_ID;
-			outObj.messageHeaderInfo.mailID = clientResource.getServerMailID();
-			
-			LetterToClient letterToClient = new LetterToClient(toSC, outObj);
-			try {
-				ouputMessageQueue.put(letterToClient);
-			} catch (InterruptedException e) {
-				try {
-					log.info("InterruptedException, call ouputMessageQueue.put again");
-					ouputMessageQueue.put(letterToClient);
-				} catch (InterruptedException e1) {
-					log.warn(String.format("InterruptedException ignore self outObj[%s]", outObj.toString()), e1);
-				}
-			}
-		}
-	}
-	*/
 	
 	/**
 	 * 출력메시지 직접 전송하는 개발자가 직접 작성해야할 비지니스 로직
@@ -150,7 +83,8 @@ public abstract class AbstractServerExecutor implements CommonRootIF {
 	 * @throws MessageInfoNotFoundException 메시지 정보 파일이 존재하지 않을때 던지는 예외
 	 * @throws MessageItemException 메시지 항목 값을 얻을때 혹은 항목 값을 설정할때 항목 관련 에러 발생시 던지는 예외
 	 */
-	abstract protected void doTask(SocketChannel fromSC, InputMessage inObj,
+	abstract protected void doTask(final CommonProjectInfo commonProjectInfo,
+			LetterSender letterSender, InputMessage inObj,
 			MessageMangerIF messageManger,			
 			ClientResourceManagerIF clientResourceManager)
 			throws MessageInfoNotFoundException, MessageItemException;

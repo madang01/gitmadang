@@ -1,10 +1,9 @@
 package impl.executor.server;
 
-import java.nio.channels.SocketChannel;
-
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
 import kr.pe.sinnori.common.exception.UpDownFileException;
+import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
@@ -13,12 +12,14 @@ import kr.pe.sinnori.common.updownfile.LocalSourceFileResourceManager;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;
+import kr.pe.sinnori.server.executor.LetterSender;
 
 public final class DownFileDataSExtor extends AbstractAuthServerExecutor {
 
 	
 	@Override
-	protected void doTask(SocketChannel fromSC, InputMessage inObj,
+	protected void doTask(CommonProjectInfo commonProjectInfo,
+			LetterSender letterSender, InputMessage inObj,
 			MessageMangerIF messageManger,			
 			ClientResourceManagerIF clientResourceManager)
 			throws MessageInfoNotFoundException, MessageItemException {
@@ -45,7 +46,7 @@ public final class DownFileDataSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("fileData", new byte[0]);
 			
 			// letterToClientList.addLetterToClient(fromSC, outObj);
-			sendSelf(outObj);
+			letterSender.sendSelf(outObj);
 			return;
 		}
 		
@@ -66,10 +67,10 @@ public final class DownFileDataSExtor extends AbstractAuthServerExecutor {
 			
 			try {
 				// letterToClientList.addLetterToClient(fromSC, outObj);
-				sendSelf(outObj);
+				letterSender.sendSelf(outObj);
 			} finally {
 				if (isCompletedReadingFile) {
-					ClientResource clientResource = clientResourceManager.getClientResource(fromSC);
+					ClientResource clientResource = letterSender.getInObjClientResource();
 					clientResource.removeLocalSourceFileID(serverSourceFileID);
 					// localTargetFileResourceManager.putLocalSourceFileResource(localSourceFileResource);
 				}
@@ -78,7 +79,7 @@ public final class DownFileDataSExtor extends AbstractAuthServerExecutor {
 		} catch (IllegalArgumentException e) {
 			log.warn(String.format("serverSourceFileID[%d] lock free::%s", serverSourceFileID, e.getMessage()), e);
 			
-			ClientResource clientResource = clientResourceManager.getClientResource(fromSC);
+			ClientResource clientResource = letterSender.getInObjClientResource();
 			clientResource.removeLocalSourceFileID(serverSourceFileID);
 			
 			outObj.setAttribute("taskResult", "N");
@@ -89,12 +90,12 @@ public final class DownFileDataSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("fileData", new byte[0]);
 			
 			// letterToClientList.addLetterToClient(fromSC, outObj);
-			sendSelf(outObj);
+			letterSender.sendSelf(outObj);
 			return;
 		} catch (UpDownFileException e) {
 			log.warn(String.format("serverSourceFileID[%d] lock free::%s", serverSourceFileID, e.getMessage()), e);
 			
-			ClientResource clientResource = clientResourceManager.getClientResource(fromSC);
+			ClientResource clientResource = letterSender.getInObjClientResource();
 			clientResource.removeLocalSourceFileID(serverSourceFileID);
 			
 			outObj.setAttribute("taskResult", "N");
@@ -104,7 +105,7 @@ public final class DownFileDataSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("fileData", new byte[0]);
 			
 			// letterToClientList.addLetterToClient(fromSC, outObj);
-			sendSelf(outObj);
+			letterSender.sendSelf(outObj);
 			return;
 		}
 	}
