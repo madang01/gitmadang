@@ -21,7 +21,7 @@ import java.nio.channels.SocketChannel;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.MessageInputStreamResourcePerSocket;
 import kr.pe.sinnori.common.message.OutputMessage;
@@ -45,7 +45,7 @@ public class ClientResource implements CommonRootIF {
 	/** 이 자원을 소유한 소켓 채널 */
 	private SocketChannel clientSC = null;
 	
-	private CommonProjectInfo commonProjectInfo = null;
+	private ClientProjectConfigIF clientProjectConfig = null;
 	
 	/**
 	 * 최종 읽기를 수행한 시간. 초기값은 클라이언트(=SocketChannel) 생성시간이다.
@@ -77,14 +77,14 @@ public class ClientResource implements CommonRootIF {
 	/**
 	 * 생성자
 	 * @param clientSC 서버에 접속한 클라이언트 소켓 채널
-	 * @param commonProjectInfo 연결 공통 데이터
+	 * @param clientProjectConfig 프로젝트의 클라이언트 환경 변수
 	 * @param messageInputStreamResource 소켓 채널 전용 읽기 자원
 	 */
 	public ClientResource(SocketChannel clientSC, 
-			CommonProjectInfo commonProjectInfo,
+			ClientProjectConfigIF clientProjectConfig,
 			MessageInputStreamResourcePerSocket messageInputStreamResource) {
 		this.clientSC = clientSC;
-		this.commonProjectInfo = commonProjectInfo;
+		this.clientProjectConfig = clientProjectConfig;
 		this.finalReadTime = new java.util.Date();
 		this.messageInputStreamResource = messageInputStreamResource;
 		loginID = null;
@@ -102,7 +102,7 @@ public class ClientResource implements CommonRootIF {
 	 * @return 소켓 채널이 속한 프로젝트명
 	 */
 	public String getProjectName() {
-		return commonProjectInfo.getProjectName();
+		return clientProjectConfig.getProjectName();
 	}
 	/**
 	 * 마지막으로 읽은 시간을 반환한다.
@@ -287,7 +287,7 @@ public class ClientResource implements CommonRootIF {
 		StringBuilder builder = new StringBuilder();
 		builder.append("ClientResource [");
 		builder.append("projectName=");
-		builder.append(commonProjectInfo.getProjectName());
+		builder.append(clientProjectConfig.getProjectName());
 		builder.append(", clientSC=");
 		builder.append(clientSC.hashCode());
 		builder.append(", monitorOfServerMailID=");

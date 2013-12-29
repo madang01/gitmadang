@@ -163,7 +163,7 @@ public class MadangsoeMemberSvl extends AbstractServlet {
 					}
 					binaryPublicKeyInObj.setAttribute("publicKeyBytes", sessionKeyServerManger.getPublicKeyBytes());
 
-					LetterFromServer letterFromServer = clientProject.sendInputMessage(binaryPublicKeyInObj);
+					LetterFromServer letterFromServer = clientProject.sendSyncInputMessage(binaryPublicKeyInObj);
 
 					
 					if (null == letterFromServer) {
@@ -216,7 +216,7 @@ public class MadangsoeMemberSvl extends AbstractServlet {
 							Base64.encodeBase64String(ivBytes));
 
 					LetterFromServer letterFromServer = clientProject
-							.sendInputMessage(memberSessionKeyInObj);
+							.sendSyncInputMessage(memberSessionKeyInObj);
 
 					if (null == letterFromServer) {
 						errorMessage = String.format(

@@ -19,10 +19,10 @@ package impl.executor.server;
 
 import java.sql.SQLException;
 
+import kr.pe.sinnori.common.configuration.ServerProjectConfigIF;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
 import kr.pe.sinnori.common.exception.SymmetricException;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.lib.SinnoriDBManager;
 import kr.pe.sinnori.common.message.InputMessage;
@@ -43,7 +43,7 @@ public final class MemberSessionKeySExtor extends
 		AbstractServerExecutor {
 
 	@Override
-	protected void doTask(CommonProjectInfo commonProjectInfo,
+	protected void doTask(ServerProjectConfigIF serverProjectConfig,
 			LetterSender letterSender, InputMessage inObj,
 			MessageMangerIF messageManger,			
 			ClientResourceManagerIF clientResourceManager)

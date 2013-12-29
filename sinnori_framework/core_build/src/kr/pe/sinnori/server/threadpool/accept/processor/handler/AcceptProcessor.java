@@ -22,6 +22,7 @@ import java.net.Socket;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import kr.pe.sinnori.common.configuration.ServerProjectConfigIF;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderPoolIF;
@@ -34,20 +35,23 @@ import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderPoolIF;
  */
 public class AcceptProcessor extends Thread implements CommonRootIF {
 	private int index; // AcceptSelectorPool에서 생성한 순서
+	ServerProjectConfigIF serverProjectConfig;
 	private LinkedBlockingQueue<SocketChannel> acceptQueue;
 	private InputMessageReaderPoolIF inputMessageReaderPoolIF = null;
 
 	/**
-	 * AcceptProcessor 생성자
-	 * 
-	 * @param index
-	 *            AcceptProcessorPool에서 생성한 순서
+	 * 생성자
+	 * @param index 쓰레드 순번
+	 * @param serverProjectConfig 프로젝트의 공통 포함한 서버 환경 변수 접근 인터페이스
+	 * @param acceptQueue 접속 요청 소켓 채널을 입력 받는 큐
+	 * @param inputMessageReaderPoolIF 접속 요청 소켓 채널 등록 처리할 입력 메시지 읽기 폴 인터페이스
 	 */
-
 	public AcceptProcessor(int index,
+			ServerProjectConfigIF serverProjectConfig,
 			LinkedBlockingQueue<SocketChannel> acceptQueue,
 			InputMessageReaderPoolIF inputMessageReaderPoolIF) {
 		this.index = index;
+		this.serverProjectConfig = serverProjectConfig;
 		this.acceptQueue = acceptQueue;
 		this.inputMessageReaderPoolIF = inputMessageReaderPoolIF;
 	}
@@ -62,7 +66,7 @@ public class AcceptProcessor extends Thread implements CommonRootIF {
 	 */
 	@Override
 	public void run() {
-		// log.info("Index[%d] start", index);
+		log.info(String.format("%s AcceptProcessor[%d] start", serverProjectConfig.getProjectName(), index));
 
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
@@ -82,11 +86,11 @@ public class AcceptProcessor extends Thread implements CommonRootIF {
 					clientSC.close();
 				}
 			}
-			log.warn("Thread loop exit");
+			log.warn(String.format("%s AcceptProcessor[%d] loop exit", serverProjectConfig.getProjectName(), index));
 		} catch (InterruptedException e) {
-			log.warn(String.format("Index[%d] stop", index), e);
+			log.warn(String.format("%s AcceptProcessor[%d] stop", serverProjectConfig.getProjectName(), index), e);
 		} catch (Exception e) {
-			log.warn(String.format("Index[%d] error", index), e);
+			log.warn(String.format("%s AcceptProcessor[%d] unknown error", serverProjectConfig.getProjectName(), index), e);
 		}
 	}
 }

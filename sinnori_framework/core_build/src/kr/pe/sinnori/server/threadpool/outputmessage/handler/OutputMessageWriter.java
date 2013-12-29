@@ -25,17 +25,16 @@ import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import kr.pe.sinnori.common.configuration.ServerProjectConfigIF;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.lib.WrapBuffer;
 import kr.pe.sinnori.common.message.OutputMessage;
-import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.io.LetterToClient;
 
 /**
@@ -46,43 +45,32 @@ import kr.pe.sinnori.server.io.LetterToClient;
  */
 public class OutputMessageWriter extends Thread implements CommonRootIF {
 	private int index;
-	private CommonProjectInfo commonProjectInfo;
+	private ServerProjectConfigIF serverProjectConfig;
 	private MessageExchangeProtocolIF messageProtocol;
 	private MessageMangerIF messageManger;
 	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManager;
-	//private ClientResourceManagerIF clientResourceManager;
-	private LinkedBlockingQueue<LetterToClient> outputMessageQueue;
-	
-	// private static DHBServerWriter dhbWriter = DHBServerWriter.getInstance();
-	// private static DelimServerWriter delimWriter = DelimServerWriter.getInstance();
-
-	// private ByteBuffer outputMessageBuffer = null;
-	// private ByteBuffer outputByteBuffer = null;
-
-	
+	private LinkedBlockingQueue<LetterToClient> outputMessageQueue;	
 
 	/**
 	 * 생성자
 	 * @param index 순번
-	 * @param commonProjectInfo 공통 연결 데이터
+	 * @param serverProjectConfig 프로젝트의 공통 포함한 서버 환경 변수 접근 인터페이스 
 	 * @param outputMessageQueue 출력 메시지 큐
+	 * @param messageProtocol 메시지 교환 프로토콜
 	 * @param messageManger 메시지 관리자
 	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자
-	 * @param clientResourceManager 클라이언트 자원 관리자
 	 */
 	public OutputMessageWriter(int index, 
-			CommonProjectInfo commonProjectInfo,
+			ServerProjectConfigIF serverProjectConfig,
 			LinkedBlockingQueue<LetterToClient> outputMessageQueue,
 			MessageExchangeProtocolIF messageProtocol,
 			MessageMangerIF messageManger,
-			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager,
-			ClientResourceManagerIF clientResourceManager) {
+			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) {
 		this.index = index;
-		this.commonProjectInfo = commonProjectInfo;
+		this.serverProjectConfig = serverProjectConfig;
 		this.messageProtocol = messageProtocol;
 		this.messageManger = messageManger;
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-		//this.clientResourceManager = clientResourceManager;
 		this.outputMessageQueue = outputMessageQueue;
 	}
 
@@ -91,10 +79,8 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 	 */
 	@Override
 	public void run() {
+		log.info(String.format("%s OutputMessageWriter[%d] start", serverProjectConfig.getProjectName(), index));
 		
-		
-		
-
 		try {
 			
 			while (!Thread.currentThread().isInterrupted()) {
@@ -102,7 +88,7 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 				try {
 					toLetter = outputMessageQueue.take();
 				} catch (InterruptedException e) {
-					log.warn(String.format("%s index[%d] stop", commonProjectInfo.getProjectName(), index), e);
+					log.warn(String.format("%s index[%d] stop", serverProjectConfig.getProjectName(), index), e);
 					break;
 				}
 
@@ -114,7 +100,7 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 				
 				try {
 					try {
-						outObjWrapBufferList = messageProtocol.M2S(outObj, commonProjectInfo.getByteOrderOfProject(), commonProjectInfo.getCharsetOfProject());
+						outObjWrapBufferList = messageProtocol.M2S(outObj, serverProjectConfig.getByteOrder(), serverProjectConfig.getCharset());
 					} catch (NoMoreDataPacketBufferException e) {
 						log.warn("NoMoreDataPacketBufferException", e);
 						
@@ -135,19 +121,19 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 								e.getMessage());
 
 						try {
-							outObjWrapBufferList = messageProtocol.M2S(errorOutObj, commonProjectInfo.getByteOrderOfProject(), commonProjectInfo.getCharsetOfProject());
+							outObjWrapBufferList = messageProtocol.M2S(errorOutObj, serverProjectConfig.getByteOrder(), serverProjectConfig.getCharset());
 						} catch (NoMoreDataPacketBufferException e1) {
 							/**
 							 * 대책 없음. 로그만 남기고 종료.
 							 */
-							String errorMessage = String.format("NoMoreDataPacketBufferException");
+							String errorMessage = String.format("%s OutputMessageWriter[%d] errorOutObj=[%s], %s", serverProjectConfig.getProjectName(), index, errorOutObj.toString(), e1.toString());
 							log.warn(errorMessage, e1);
 							continue;
 						} catch (BodyFormatException e1) {
 							/**
 							 * 원이 제거 필요함. 로그만 남기고 종료.
 							 */
-							String errorMessage = String.format("BodyFormatException::errorOutObj=[%s], %s", errorOutObj.toString(), e1.toString());
+							String errorMessage = String.format("%s OutputMessageWriter[%d] errorOutObj=[%s], %s", serverProjectConfig.getProjectName(), index, errorOutObj.toString(), e1.toString());
 							log.warn(errorMessage, e1);
 							continue;
 						}
@@ -187,19 +173,19 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 						// LetterFromServer letterFromServer = new
 						// LetterFromServer(errorOutObj);
 						try {
-							outObjWrapBufferList = messageProtocol.M2S(errorOutObj, commonProjectInfo.getByteOrderOfProject(), commonProjectInfo.getCharsetOfProject());
+							outObjWrapBufferList = messageProtocol.M2S(errorOutObj, serverProjectConfig.getByteOrder(), serverProjectConfig.getCharset());
 						} catch (NoMoreDataPacketBufferException e1) {
 							/**
 							 * 대책 없음. 로그만 남기고 종료.
 							 */
-							String errorMessage = String.format("NoMoreDataPacketBufferException");
+							String errorMessage = String.format("%s OutputMessageWriter[%d] errorOutObj=[%s], %s", serverProjectConfig.getProjectName(), index, errorOutObj.toString(), e1.toString());
 							log.warn(errorMessage, e1);
 							continue;
 						} catch (BodyFormatException e1) {
 							/**
 							 * 원이 제거 필요함. 로그만 남기고 종료.
 							 */
-							String errorMessage = String.format("BodyFormatException::errorOutObj=[%s], %s", errorOutObj.toString(), e1.toString());
+							String errorMessage = String.format("%s OutputMessageWriter[%d] errorOutObj=[%s], %s", serverProjectConfig.getProjectName(), index, errorOutObj.toString(), e1.toString());
 							log.warn(errorMessage, e1);
 							continue;
 						}
@@ -238,15 +224,16 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 					}
 				} catch (NotYetConnectedException e) {
 					// ClosedChannelException
-					log.warn(String.format("NotYetConnectedException:: %s index[%d] toSC[%d], inObj=[%s]", commonProjectInfo.getProjectName(), index, toSC.hashCode(), outObj.toString()), e);
+					log.warn(String.format("%s OutputMessageWriter[%d] toSC[%d] NotYetConnectedException",
+							serverProjectConfig.getProjectName(), index, toSC.hashCode()), e);
 					try {
 						toSC.close();
 					} catch (IOException e1) {
 					}
 				} catch(ClosedByInterruptException e) {
-					/** ClosedByInterruptException 는 IOException 상속 받기때문에 따라 처리  */
-					log.warn(String.format("ClosedByInterruptException::%s index[%d] toSC[%d] write error",
-							commonProjectInfo.getProjectName(), index, toSC.hashCode()), e);
+					/** ClosedByInterruptException 는 IOException 상속 받기때문에 따로 처리  */
+					log.warn(String.format("%s OutputMessageWriter[%d] toSC[%d] ClosedByInterruptException",
+							serverProjectConfig.getProjectName(), index, toSC.hashCode()), e);
 					try {
 						toSC.close();
 					} catch (IOException e1) {
@@ -254,8 +241,8 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 					
 					throw e;
 				} catch (IOException e) {
-					log.warn(String.format("IOException::%s index[%d] toSC[%d] write error",
-							commonProjectInfo.getProjectName(), index, toSC.hashCode()), e);
+					log.warn(String.format("%s OutputMessageWriter[%d] toSC[%d] IOException",
+							serverProjectConfig.getProjectName(), index, toSC.hashCode()), e);
 					
 					try {
 						toSC.close();
@@ -274,17 +261,17 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 				}
 			}
 		
-			log.warn(String.format("%s index[%d] loop exit", commonProjectInfo.getProjectName(), index));
+			log.warn(String.format("%s OutputMessageWriter[%d] loop exit", serverProjectConfig.getProjectName(), index));		
 		} catch(ClosedByInterruptException e) {
 			/** 이미 로그를 찍은 상태로 nothing */
 		} catch (Exception e) {
-			log.warn(String.format("Exception::%s index[%d]", commonProjectInfo.getProjectName(), index), e);
+			log.warn(String.format("%s OutputMessageWriter[%d] unknown error", serverProjectConfig.getProjectName(), index), e);
 		}
 		
-		log.warn(String.format("%s index[%d] thread end", commonProjectInfo.getProjectName(), index));
+		// log.warn(String.format("%s OutputMessageWriter[%d] thread end", commonProjectInfo.getProjectName(), index));
 	}
 	
 	public void finalize() {
-		log.warn(String.format("index[%d] 소멸::[%s]", index, toString()));
+		log.warn(String.format("%s OutputMessageWriter[%d] destory", serverProjectConfig.getProjectName(), index));
 	}
 }

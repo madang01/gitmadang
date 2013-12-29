@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
+import kr.pe.sinnori.common.configuration.ServerProjectConfigIF;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.message.ArrayData;
 import kr.pe.sinnori.common.message.InputMessage;
@@ -29,7 +29,7 @@ public final class FileListRequestSExtor extends AbstractAuthServerExecutor {
 	}
 
 	@Override
-	protected void doTask(CommonProjectInfo commonProjectInfo,
+	protected void doTask(ServerProjectConfigIF serverProjectConfig,
 			LetterSender letterSender, InputMessage inObj,
 			MessageMangerIF messageManger,			
 			ClientResourceManagerIF clientResourceManager)

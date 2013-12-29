@@ -162,8 +162,7 @@ public interface MainControllerIF {
 	
 	/**
 	 * 익명 메시지 처리
-	 * @param projectName 프로젝트 이름
 	 * @param outObj 익명의 출력 메시지
 	 */
-	public void doAnonymousServerMessageTask(String projectName, OutputMessage outObj);
+	public void doAnonymousServerMessageTask(OutputMessage outObj);
 }

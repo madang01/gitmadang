@@ -21,12 +21,12 @@ import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.io.LetterFromServer;
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
@@ -41,11 +41,8 @@ public abstract class AbstractConnectionPool implements CommonRootIF {
 	/** 모니터 */
 	protected final Object monitor = new Object();
 	
-	/**
-	 * 연결 클래스 묶음은 서버 이름으로 추상화된 1개의 연결 클래스로<br/>
-	 * 연결에 필요한 정보는 연결 클래스에서 공통적으로 사용되어야 한다.
-	 */
-	protected CommonProjectInfo commonProjectInfo = null;
+	/** 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스 */
+	protected ClientProjectConfigIF clientProjectConfig = null;
 
 	/**
 	 * 서버에서 공지등 불특정 다수한테 메시지를 보낼때 출력 메시지를 담은 큐
@@ -55,11 +52,11 @@ public abstract class AbstractConnectionPool implements CommonRootIF {
 	
 	/**
 	 * 생성자
-	 * @param commonProjectInfo 연결 공통 데이터
+	 * @param clientProjectConfig 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
 	 * @param serverOutputMessageQueue 서버에서 보내는 불특정 다수 메시지를 받는 큐
 	 */
-	protected AbstractConnectionPool(CommonProjectInfo commonProjectInfo, LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue) {
-		this.commonProjectInfo = commonProjectInfo;
+	protected AbstractConnectionPool(ClientProjectConfigIF clientProjectConfig, LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue) {
+		this.clientProjectConfig = clientProjectConfig;
 		this.serverOutputMessageQueue = serverOutputMessageQueue;
 	}
 	
@@ -79,20 +76,14 @@ public abstract class AbstractConnectionPool implements CommonRootIF {
 	 *             스트림에서 메시지로, 메시지에서 스트림으로 바꿀때 바디 부분 구성 실패시 발생
 	 * @throws MessageInfoNotFoundException 메시지 정보가 없을때 던지는 예외
 	 */
-	abstract public LetterFromServer sendInputMessage(
+	abstract public LetterFromServer sendSyncInputMessage(
 			InputMessage inputMessage) throws ServerNotReadyException,
 			SocketTimeoutException, NoMoreDataPacketBufferException,
 			BodyFormatException, MessageInfoNotFoundException;
 	
-	/**
-	 * @return 공통 프로젝트 정보
-	 */
-	public CommonProjectInfo getCommonProjectInfo() {
-		return commonProjectInfo;
-	}
 	
 	/**
-	 * @return연결 객체
+	 * @return 연결 객체
 	 * @throws InterruptedException 연결 폴에서 연결 객체를 가져올때 인터럽트가 걸렸을 경우 던지는 예외
 	 * @throws NotSupportedException 공유+비동기 연결 폴에서 실행시 던지는 예외.  공유+비동기 연결 폴은 직접적으로 연결 객체를 받을 수 없다.
 	 */

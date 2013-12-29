@@ -27,6 +27,7 @@ import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.io.LetterToClient;
 
 /**
+ * 클라이언트로 보내는 편지 배달부. 서버 비지니스 로직 호출할때 마다 할당 된다. 
  * @author Jonghoon won
  *
  */
@@ -35,13 +36,22 @@ public class LetterSender implements CommonRootIF {
 	private ClientResource inObjClientResource  = null;
 	private LinkedBlockingQueue<LetterToClient> ouputMessageQueue = null;
 	
-	
+	/**
+	 * 생성자
+	 * @param inObjClientResource 입력 메시지 보낸 클라이언트의 자원
+	 * @param inObj 입력 메시지, 입력 메시지를 보낸 클라이언트 당사자한테 출력 메시지를 보낼때 입력 메시지의 메일박스 식별자와 메일 식별자가 필요하다.
+	 * @param ouputMessageQueue 출력 메시지를 담아 보낼 큐
+	 */
 	public LetterSender(ClientResource inObjClientResource, InputMessage inObj, LinkedBlockingQueue<LetterToClient> ouputMessageQueue) {
 		this.inObjClientResource = inObjClientResource;
 		this.inObj = inObj;
 		this.ouputMessageQueue = ouputMessageQueue;
 	}
 	
+	/**
+	 * 출력 메시지를 비 익명으로 입력 메시지 보낸 클라이언트로 보낸다.
+	 * @param outObj 출력 메시지
+	 */
 	public void sendSelf(OutputMessage outObj) {
 		outObj.messageHeaderInfo = inObj.messageHeaderInfo;
 		
@@ -59,6 +69,10 @@ public class LetterSender implements CommonRootIF {
 		}
 	}
 	
+	/**
+	 * 출력 메시지를 익명으로 입력 메시지 보낸 클라이언트로 보낸다.
+	 * @param outObj
+	 */
 	public void sendAnonymous(OutputMessage outObj) {
 		outObj.messageHeaderInfo.mailboxID = CommonStaticFinal.SERVER_MAILBOX_ID;
 		outObj.messageHeaderInfo.mailID = inObjClientResource.getServerMailID();
@@ -77,6 +91,11 @@ public class LetterSender implements CommonRootIF {
 		}
 	}
 	
+	/**
+	 * 출력 메시지를 익명으로 지정하는 클라이언트로 보낸다.
+	 * @param outObjClientResource 출력 메시지를 받고자 하는 클라이언트 자원
+	 * @param outObj 출력 메시지
+	 */
 	public void sendAnonymous(ClientResource outObjClientResource, OutputMessage outObj) {
 		outObj.messageHeaderInfo.mailboxID = CommonStaticFinal.SERVER_MAILBOX_ID;
 		outObj.messageHeaderInfo.mailID = outObjClientResource.getServerMailID();
@@ -96,7 +115,7 @@ public class LetterSender implements CommonRootIF {
 	}
 
 	/**
-	 * @return the inObjClientResource
+	 * @return 입력 메시지를 보낸 클라이언트의 자원
 	 */
 	public ClientResource getInObjClientResource() {
 		return inObjClientResource;

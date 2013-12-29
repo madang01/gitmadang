@@ -60,7 +60,7 @@ public class EchoTestSvl extends AbstractServlet {
 		String errorMessage = "";
 		
 		LetterFromServer letterFromServer = clientProject
-				.sendInputMessage(echoInObj);
+				.sendSyncInputMessage(echoInObj);
 
 		if (null == letterFromServer) {
 			errorMessage = String.format("input message[%s] is null, maybe socket close", echoInObj.getMessageID()); 

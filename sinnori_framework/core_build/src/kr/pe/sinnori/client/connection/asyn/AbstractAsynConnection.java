@@ -25,9 +25,9 @@ import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderPoolIF;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReader;
 import kr.pe.sinnori.client.io.LetterToServer;
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.message.OutputMessage;
 
@@ -61,7 +61,7 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 	 * @param socketTimeOut 자동 접속 여부
 	 * @param finishConnectMaxCall 비동기 방식에서 연결 확립 시도 최대 호출 횟수
 	 * @param finishConnectWaittingTime 비동기 연결 확립 시도 간격
-	 * @param commonProjectInfo 연결 공통 데이터
+	 * @param clientProjectConfig 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
 	 * @param serverOutputMessageQueue 서버에서 보내는 공지등 불특정 다수한테 보내는 출력 메시지 큐
 	 * @param inputMessageQueue 입력 메시지 큐
 	 * @param outputMessageReaderPool 서버에 접속한 소켓 채널을 균등하게 소켓 읽기 담당 쓰레드에 등록하기 위한 인터페이스
@@ -74,13 +74,13 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 			boolean whetherToAutoConnect,
 			int finishConnectMaxCall,
 			long finishConnectWaittingTime,
-			CommonProjectInfo commonProjectInfo,
+			ClientProjectConfigIF clientProjectConfig,
 			LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
 			OutputMessageReaderPoolIF outputMessageReaderPool,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws InterruptedException, NoMoreDataPacketBufferException {
 		super(index, socketTimeOut, whetherToAutoConnect, 
-				commonProjectInfo, dataPacketBufferQueueManager, serverOutputMessageQueue);
+				clientProjectConfig, dataPacketBufferQueueManager, serverOutputMessageQueue);
 
 		this.finishConnectMaxCall = finishConnectMaxCall;
 		this.finishConnectWaittingTime = finishConnectWaittingTime;
@@ -106,9 +106,9 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 					
 					String errorMessage = String
 							.format("%s asyn connection[%02d], host[%s], port[%d] 에서 연결 완결 확인 메소드(=finishConnect) 호출 횟수가 최대치 도달했습니다.",
-									commonProjectInfo.getProjectName(), index,
-									commonProjectInfo.getServerHost(),
-									commonProjectInfo.getServerPort());
+									clientProjectConfig.getProjectName(), index,
+									clientProjectConfig.getServerHost(),
+									clientProjectConfig.getServerPort());
 					log.warn(errorMessage);
 					throw new ServerNotReadyException(errorMessage);
 				}
@@ -124,8 +124,8 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 			
 			String errorMessage = String
 					.format("%s asyn connection[%02d], host[%s], port[%d] 에서 연결중 에러가 발생하였습니다.",
-							commonProjectInfo.getProjectName(), index, commonProjectInfo.getServerHost(),
-							commonProjectInfo.getServerPort());
+							clientProjectConfig.getProjectName(), index, clientProjectConfig.getServerHost(),
+							clientProjectConfig.getServerPort());
 			log.warn(errorMessage, e);
 			throw new ServerNotReadyException(errorMessage);
 		}

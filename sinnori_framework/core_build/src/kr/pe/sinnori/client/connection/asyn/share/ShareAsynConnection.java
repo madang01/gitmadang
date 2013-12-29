@@ -34,13 +34,13 @@ import kr.pe.sinnori.client.connection.asyn.share.mailbox.PrivateMailbox;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderPoolIF;
 import kr.pe.sinnori.client.io.LetterFromServer;
 import kr.pe.sinnori.client.io.LetterToServer;
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.CommonStaticFinal;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
@@ -78,7 +78,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 	 * @param finishConnectMaxCall 비동기 방식에서 연결 확립 시도 최대 호출 횟수
 	 * @param finishConnectWaittingTime 비동기 연결 확립 시도 간격
 	 * @param mailBoxCnt 메일 박스 갯수
-	 * @param commonProjectInfo 연결 공통 데이터 
+	 * @param clientProjectConfig 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
 	 * @param serverOutputMessageQueue 서버에서 보내는 불특정 출력 메시지를 받는 큐
 	 * @param inputMessageQueue 입력 메시지 큐
 	 * @param outputMessageQueueQueueManager 출력 메시지 큐를 원소로 가지는 큐 관리자
@@ -95,7 +95,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 			int finishConnectMaxCall,
 			long finishConnectWaittingTime,
 			int mailBoxCnt,
-			CommonProjectInfo commonProjectInfo,			
+			ClientProjectConfigIF clientProjectConfig,			
 			LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
 			OutputMessageQueueQueueMangerIF outputMessageQueueQueueManager, 
@@ -105,12 +105,12 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 			NoMoreDataPacketBufferException, NoMoreOutputMessageQueueException {
 		
 		super(index, socketTimeOut, whetherToAutoConnect, 
-				finishConnectMaxCall, finishConnectWaittingTime, commonProjectInfo, 
+				finishConnectMaxCall, finishConnectWaittingTime, clientProjectConfig, 
 				serverOutputMessageQueue, inputMessageQueue,
 				outputMessageReaderPool, dataPacketBufferQueueManager);
 		
 		log.info(String.format("create MultiNoneBlockConnection, projectName=[%s%02d], mailBoxCnt=[%d]",
-				commonProjectInfo.getProjectName(), index, mailBoxCnt));
+				clientProjectConfig.getProjectName(), index, mailBoxCnt));
 
 		// this.messageManger = messageManger;
 		PrivateMailboxWaitingQueue = new LinkedBlockingQueue<PrivateMailbox>(
@@ -155,7 +155,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 		try {
 			reopenSocketChannel();
 		} catch (IOException e) {
-			String errorMessage = String.format("project[%s] ShareAsynConnection[%d], fail to config a socket channel", commonProjectInfo.getProjectName(), index);
+			String errorMessage = String.format("project[%s] ShareAsynConnection[%d], fail to config a socket channel", clientProjectConfig.getProjectName(), index);
 			log.fatal(errorMessage, e);
 			System.exit(1);
 		}
@@ -167,12 +167,12 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 			try {
 				serverOpen();
 			} catch (ServerNotReadyException e) {
-				log.warn(String.format("project[%s] ShareAsynConnection[%d] fail to connect server", commonProjectInfo.getProjectName(), index), e);
+				log.warn(String.format("project[%s] ShareAsynConnection[%d] fail to connect server", clientProjectConfig.getProjectName(), index), e);
 				// System.exit(1);
 			}
 		}
 		
-		log.info(String.format("project[%s] ShareAsynConnection[%d] 생성자 end", commonProjectInfo.getProjectName(), index));
+		log.info(String.format("project[%s] ShareAsynConnection[%d] 생성자 end", clientProjectConfig.getProjectName(), index));
 	}
 	
 	/**
@@ -215,15 +215,15 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 				
 
 				InetSocketAddress remoteAddr = new InetSocketAddress(
-						commonProjectInfo.getServerHost(),
-						commonProjectInfo.getServerPort());
+						clientProjectConfig.getServerHost(),
+						clientProjectConfig.getServerPort());
 				if (!serverSC.isOpen()) {
 					reopenSocketChannel();
 					
 					StringBuilder infoBuilder = null;
 					
 					infoBuilder = new StringBuilder("projectName[");
-					infoBuilder.append(commonProjectInfo.getProjectName());
+					infoBuilder.append(clientProjectConfig.getProjectName());
 					infoBuilder.append("] asyn connection[");
 					infoBuilder.append(index);
 					infoBuilder.append("] serverSC[");
@@ -245,32 +245,32 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 			throw new ServerNotReadyException(
 					String.format(
 							"ConnectException::%s conn index[%02d], host[%s], port[%d]", 
-							commonProjectInfo.getProjectName(),
-							index, commonProjectInfo.getServerHost(),
-							commonProjectInfo.getServerPort()));
+							clientProjectConfig.getProjectName(),
+							index, clientProjectConfig.getServerHost(),
+							clientProjectConfig.getServerPort()));
 		} catch (UnknownHostException e) {
 			throw new ServerNotReadyException(
 					String.format(
 							"UnknownHostException::%s conn index[%02d], host[%s], port[%d]", 
-							commonProjectInfo.getProjectName(),
-							index, commonProjectInfo.getServerHost(),
-							commonProjectInfo.getServerPort()));
+							clientProjectConfig.getProjectName(),
+							index, clientProjectConfig.getServerHost(),
+							clientProjectConfig.getServerPort()));
 		} catch (ClosedChannelException e) {
 			throw new ServerNotReadyException(
 					String.format(
 							"ClosedChannelException::%s conn index[%02d], host[%s], port[%d]", 
-							commonProjectInfo.getProjectName(),
-							index, commonProjectInfo.getServerHost(),
-							commonProjectInfo.getServerPort()));
+							clientProjectConfig.getProjectName(),
+							index, clientProjectConfig.getServerHost(),
+							clientProjectConfig.getServerPort()));
 		} catch (IOException e) {
 			serverClose();
 			
 			throw new ServerNotReadyException(
 					String.format(
 							"IOException::index[%d], projectName[%s], host[%s], port[%d]",
-							index, commonProjectInfo.getProjectName(), 
-							commonProjectInfo.getServerHost(),
-							commonProjectInfo.getServerPort()));
+							index, clientProjectConfig.getProjectName(), 
+							clientProjectConfig.getServerHost(),
+							clientProjectConfig.getServerPort()));
 		} catch (ServerNotReadyException e) {
 			throw e;
 		} catch (InterruptedException e) {
@@ -283,9 +283,9 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 			log.warn("unknown exception", e);
 			throw new ServerNotReadyException(String.format(
 					"unknown::%s conn index[%02d], host[%s], port[%d]", 
-					commonProjectInfo.getProjectName(),
-					index, commonProjectInfo.getServerHost(),
-					commonProjectInfo.getServerPort()));
+					clientProjectConfig.getProjectName(),
+					index, clientProjectConfig.getServerHost(),
+					clientProjectConfig.getServerPort()));
 		}
 
 		// log.info("projectName[%s%02d] call serverOpen end", projectName,
@@ -327,7 +327,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 			if (null == mailbox) {
 				
 				log.warn(String.format("no match mailid, projectName=[%s%02d], serverSC=[%d], outputMessage=[%s]",
-						commonProjectInfo.getProjectName(), index, serverSC.hashCode(),
+						clientProjectConfig.getProjectName(), index, serverSC.hashCode(),
 						outObj.toString()));
 				return;
 			}			
@@ -336,7 +336,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 	}
 
 	@Override
-	public LetterFromServer sendInputMessage(InputMessage inObj)
+	public LetterFromServer sendSyncInputMessage(InputMessage inObj)
 			throws ServerNotReadyException, SocketTimeoutException,
 			NoMoreDataPacketBufferException, BodyFormatException, MessageInfoNotFoundException {
 		long startTime = 0;
@@ -447,14 +447,14 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 			}
 		}
 		endTime = new java.util.Date().getTime();
-		log.info(String.format("sendInputMessage 시간차=[%d]", (endTime - startTime)));
+		log.info(String.format("시간차=[%d]", (endTime - startTime)));
 		
-		// log.info("sendInputMessage end");
+		// log.info("end");
 		return letterFromServer;
 	}
 	
 	@Override
-	public void sendInputMessageWithoutResponse(
+	public void sendAsyncInputMessage(
 			InputMessage inObj) throws ServerNotReadyException,
 			SocketTimeoutException, NoMoreDataPacketBufferException,
 			BodyFormatException, MessageInfoNotFoundException, NotSupportedException {
@@ -523,7 +523,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 		}
 
 		endTime = new java.util.Date().getTime();
-		log.info(String.format("sendInputMessage 시간차=[%d]", (endTime - startTime)));	
+		log.info(String.format("시간차=[%d]", (endTime - startTime)));	
 	}
 
 	/**

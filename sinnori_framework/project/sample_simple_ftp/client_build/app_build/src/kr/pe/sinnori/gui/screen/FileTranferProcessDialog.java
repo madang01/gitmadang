@@ -205,15 +205,16 @@ public class FileTranferProcessDialog extends JDialog  implements CommonRootIF, 
 				fileTransferTask.cancelTask();
 		} else if (fileTransferTask instanceof UploadFileTransferTask2) {
 			// FIXME!
-			log.info("UploadFileTransferTask2'cancelEvent start");
+			// log.info("UploadFileTransferTask2'cancelEvent start");
 			
 			fileTransferTask.cancelTask();
 						
+			@SuppressWarnings("unused")
 			OutputMessage cancelUploadFileResultOutObj = mainController.cancelUploadFile();
-			if (null == cancelUploadFileResultOutObj) return;
+			// if (null == cancelUploadFileResultOutObj) return;
 			
 			// FIXME!
-			log.info("UploadFileTransferTask2'cancelEvent end");
+			// log.info("UploadFileTransferTask2'cancelEvent end");
 		} else if (fileTransferTask instanceof DownloadFileTransferTask2) {
 			mainController.cancelDownloadFile();
 		} else {

@@ -59,7 +59,9 @@ public class DHBSingleItemConverter implements SingleItemSConverterIF, CommonRoo
 			new ConverterDHBFixedLengthBytes()
 	};
 	
-	
+	/**
+	 * 생성자
+	 */
 	public DHBSingleItemConverter() {
 		ItemTypeManger itemTypeManger = ItemTypeManger.getInstance();
 		

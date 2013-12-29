@@ -25,6 +25,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import kr.pe.sinnori.client.ClientProjectIF;
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.configuration.ProjectConfig;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
@@ -34,7 +35,6 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.io.dhb.header.DHBMessageHeader;
 import kr.pe.sinnori.common.lib.CharsetUtil;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.util.AbstractClientExecutor;
 
@@ -46,21 +46,17 @@ import kr.pe.sinnori.util.AbstractClientExecutor;
 public class TestMessageHeaderCExtor extends AbstractClientExecutor {
 
 	@Override
-	protected void doTask(MessageMangerIF messageManger,
+	protected void doTask(ClientProjectConfigIF clientProjectConfig, MessageMangerIF messageManger,
 			ClientProjectIF clientProject) throws SocketTimeoutException,
 			ServerNotReadyException, DynamicClassCallException,
 			NoMoreDataPacketBufferException, BodyFormatException,
 			MessageInfoNotFoundException, InterruptedException {
-		
-		
-		final CommonProjectInfo commonProjectInfo = clientProject.getCommonProjectInfo();
-		
 		ProjectConfig projectInfo = null;
 		
 		try {
-			projectInfo = (ProjectConfig)conf.getResource(commonProjectInfo.getProjectName());
+			projectInfo = (ProjectConfig)conf.getResource(clientProjectConfig.getProjectName());
 		} catch(RuntimeException e) {
-			log.fatal(String.format("%s 프로젝트 정보가 존재하지 않습니다.", commonProjectInfo.getProjectName()));
+			log.fatal(String.format("%s 프로젝트 정보가 존재하지 않습니다.", clientProjectConfig.getProjectName()));
 			System.exit(1);
 		}
 		
@@ -68,8 +64,8 @@ public class TestMessageHeaderCExtor extends AbstractClientExecutor {
 		
 		
 		
-		CharsetEncoder charsetOfProjectEncoder = CharsetUtil.createCharsetEncoder(commonProjectInfo.getCharsetOfProject());
-		CharsetDecoder clinetCharsetDecoder = CharsetUtil.createCharsetDecoder(commonProjectInfo.getCharsetOfProject());
+		CharsetEncoder charsetOfProjectEncoder = CharsetUtil.createCharsetEncoder(clientProjectConfig.getCharset());
+		CharsetDecoder clinetCharsetDecoder = CharsetUtil.createCharsetDecoder(clientProjectConfig.getCharset());
 		
 		java.util.Random random = new java.util.Random();
 		
@@ -81,8 +77,8 @@ public class TestMessageHeaderCExtor extends AbstractClientExecutor {
 			System.exit(1);
 		}
 		
-		ByteBuffer workBuffer = ByteBuffer.allocate(commonProjectInfo.getDataPacketBufferSize());
-		workBuffer.order(commonProjectInfo.getByteOrderOfProject());
+		ByteBuffer workBuffer = ByteBuffer.allocate(clientProjectConfig.getDataPacketBufferSize());
+		workBuffer.order(clientProjectConfig.getByteOrder());
 		
 		DHBMessageHeader orgMessageHeader = new DHBMessageHeader(messageIDFixedSize);
 		orgMessageHeader.messageID = "Echo";
@@ -92,7 +88,7 @@ public class TestMessageHeaderCExtor extends AbstractClientExecutor {
 		orgMessageHeader.bodyMD5 = new byte[DHBMessageHeader.MD5_BYTESIZE];
 		random.nextBytes(orgMessageHeader.bodyMD5);
 		
-		orgMessageHeader.writeMessageHeader(workBuffer, commonProjectInfo.getCharsetOfProject(), charsetOfProjectEncoder, md5);
+		orgMessageHeader.writeMessageHeader(workBuffer, clientProjectConfig.getCharset(), charsetOfProjectEncoder, md5);
 		workBuffer.flip();
 		
 		// log.info(workBuffer.toString());

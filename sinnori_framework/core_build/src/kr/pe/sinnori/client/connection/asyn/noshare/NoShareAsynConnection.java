@@ -32,13 +32,13 @@ import kr.pe.sinnori.client.connection.asyn.share.mailbox.PrivateMailbox;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderPoolIF;
 import kr.pe.sinnori.client.io.LetterFromServer;
 import kr.pe.sinnori.client.io.LetterToServer;
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.CommonStaticFinal;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
@@ -68,7 +68,11 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 	/**
 	 * 생성자
 	 * @param index 연결 클래스 번호
-	 * @param commonProjectInfo 연결 공통 데이터
+	 * @param socketTimeOut 소켓 타임 아웃
+	 * @param whetherToAutoConnect 자동 연결 여부
+	 * @param finishConnectMaxCall 연결 확립 최대 시도 횟수
+	 * @param finishConnectWaittingTime 연결 확립 재 시도 간격
+	 * @param clientProjectConfig 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
 	 * @param serverOutputMessageQueue 서버에서 보내는 공지등 불특정 다수한테 보내는 출력 메시지 큐
 	 * @param inputMessageQueue 입력 메시지 큐
 	 * @param outputMessageQueueQueueManger 출력 메시지 큐를 원소로 가지는 큐 관리자
@@ -84,7 +88,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 			boolean whetherToAutoConnect,
 			int finishConnectMaxCall,
 			long finishConnectWaittingTime,
-			CommonProjectInfo commonProjectInfo,
+			ClientProjectConfigIF clientProjectConfig,
 			LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
 			OutputMessageQueueQueueMangerIF outputMessageQueueQueueManger, 
@@ -94,7 +98,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 			NoMoreDataPacketBufferException, NoMoreOutputMessageQueueException {		
 		super(index, socketTimeOut, whetherToAutoConnect, 
 				finishConnectMaxCall, finishConnectWaittingTime, 
-				commonProjectInfo, serverOutputMessageQueue, inputMessageQueue, 
+				clientProjectConfig, serverOutputMessageQueue, inputMessageQueue, 
 				outputMessageReaderPool, dataPacketBufferQueueManager);
 
 		// this.messageManger = messageManger;
@@ -105,7 +109,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		try {
 			reopenSocketChannel();
 		} catch (IOException e) {
-			String errorMessage = String.format("project[%s] NoShareAsynConnection[%d], fail to config a socket channel", commonProjectInfo.getProjectName(), index);
+			String errorMessage = String.format("project[%s] NoShareAsynConnection[%d], fail to config a socket channel", clientProjectConfig.getProjectName(), index);
 			log.fatal(errorMessage, e);
 			System.exit(1);
 		}
@@ -117,13 +121,13 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 			try {
 				serverOpen();
 			} catch (ServerNotReadyException e) {
-				log.warn(String.format("project[%s] NoShareAsynConnection[%d] fail to connect server", commonProjectInfo.getProjectName(), index), e);
+				log.warn(String.format("project[%s] NoShareAsynConnection[%d] fail to connect server", clientProjectConfig.getProjectName(), index), e);
 				// System.exit(1);
 			}
 		}
 		
 		
-		log.info(String.format("project[%s] NoShareAsynConnection[%d] 생성자 end", commonProjectInfo.getProjectName(), index));
+		log.info(String.format("project[%s] NoShareAsynConnection[%d] 생성자 end", clientProjectConfig.getProjectName(), index));
 	}
 	
 	/**
@@ -189,15 +193,15 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 				
 				finalReadTime = new java.util.Date();
 				InetSocketAddress remoteAddr = new InetSocketAddress(
-						commonProjectInfo.getServerHost(),
-						commonProjectInfo.getServerPort());
+						clientProjectConfig.getServerHost(),
+						clientProjectConfig.getServerPort());
 				
 				if (!serverSC.isOpen()) {
 					reopenSocketChannel();
 					StringBuilder infoBuilder = null;
 					
 					infoBuilder = new StringBuilder("projectName[");
-					infoBuilder.append(commonProjectInfo.getProjectName());
+					infoBuilder.append(clientProjectConfig.getProjectName());
 					infoBuilder.append("] asyn connection[");
 					infoBuilder.append(index);
 					infoBuilder.append("] serverSC[");
@@ -219,10 +223,10 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		} catch (ConnectException e) {
 			String errorMessage = String.format(
 					"ServerNotReadyException::%s conn[%d] index[%02d], host[%s], port[%d]", 
-					commonProjectInfo.getProjectName(),
+					clientProjectConfig.getProjectName(),
 					serverSC.hashCode(),
-					index, commonProjectInfo.getServerHost(),
-					commonProjectInfo.getServerPort());
+					index, clientProjectConfig.getServerHost(),
+					clientProjectConfig.getServerPort());
 			
 			log.warn(errorMessage, e);
 			
@@ -230,10 +234,10 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		} catch (UnknownHostException e) {
 			String errorMessage = String.format(
 					"ServerNotReadyException::%s conn[%d] index[%02d], host[%s], port[%d]", 
-					commonProjectInfo.getProjectName(),
+					clientProjectConfig.getProjectName(),
 					serverSC.hashCode(),
-					index, commonProjectInfo.getServerHost(),
-					commonProjectInfo.getServerPort());
+					index, clientProjectConfig.getServerHost(),
+					clientProjectConfig.getServerPort());
 			
 			log.warn(errorMessage, e);
 			
@@ -241,10 +245,10 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		} catch (ClosedChannelException e) {
 			String errorMessage = String.format(
 					"ServerNotReadyException::%s conn[%d] index[%02d], host[%s], port[%d]", 
-					commonProjectInfo.getProjectName(),
+					clientProjectConfig.getProjectName(),
 					serverSC.hashCode(),
-					index, commonProjectInfo.getServerHost(),
-					commonProjectInfo.getServerPort());
+					index, clientProjectConfig.getServerHost(),
+					clientProjectConfig.getServerPort());
 			
 			log.warn(errorMessage, e);
 			
@@ -252,10 +256,10 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		} catch (IOException e) {
 			String errorMessage = String.format(
 					"ServerNotReadyException::%s conn[%d] index[%02d], host[%s], port[%d]", 
-					commonProjectInfo.getProjectName(),
+					clientProjectConfig.getProjectName(),
 					serverSC.hashCode(),
-					index, commonProjectInfo.getServerHost(),
-					commonProjectInfo.getServerPort());
+					index, clientProjectConfig.getServerHost(),
+					clientProjectConfig.getServerPort());
 			
 			log.warn(errorMessage, e);
 			
@@ -265,10 +269,10 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		} catch (ServerNotReadyException e) {
 			String errorMessage = String.format(
 					"ServerNotReadyException::%s conn[%d] index[%02d], host[%s], port[%d]", 
-					commonProjectInfo.getProjectName(),
+					clientProjectConfig.getProjectName(),
 					serverSC.hashCode(),
-					index, commonProjectInfo.getServerHost(),
-					commonProjectInfo.getServerPort());
+					index, clientProjectConfig.getServerHost(),
+					clientProjectConfig.getServerPort());
 			
 			log.warn(errorMessage, e);
 			
@@ -278,10 +282,10 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		} catch (InterruptedException e) {
 			String errorMessage = String.format(
 					"ServerNotReadyException::%s conn[%d] index[%02d], host[%s], port[%d]", 
-					commonProjectInfo.getProjectName(),
+					clientProjectConfig.getProjectName(),
 					serverSC.hashCode(),
-					index, commonProjectInfo.getServerHost(),
-					commonProjectInfo.getServerPort());
+					index, clientProjectConfig.getServerHost(),
+					clientProjectConfig.getServerPort());
 			log.warn(errorMessage, e);
 			
 			serverClose();
@@ -290,10 +294,10 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		} catch (Exception e) {
 			String errorMessage = String.format(
 					"unknown exception::%s conn[%d] index[%02d], host[%s], port[%d]", 
-					commonProjectInfo.getProjectName(),
+					clientProjectConfig.getProjectName(),
 					serverSC.hashCode(),
-					index, commonProjectInfo.getServerHost(),
-					commonProjectInfo.getServerPort());
+					index, clientProjectConfig.getServerHost(),
+					clientProjectConfig.getServerPort());
 			log.warn(errorMessage, e);
 			
 			serverClose();
@@ -307,7 +311,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 	
 
 	@Override
-	public LetterFromServer sendInputMessage(InputMessage inObj)
+	public LetterFromServer sendSyncInputMessage(InputMessage inObj)
 			throws ServerNotReadyException, SocketTimeoutException,
 			NoMoreDataPacketBufferException, BodyFormatException, MessageInfoNotFoundException {
 
@@ -386,13 +390,13 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		
 
 		endTime = new java.util.Date().getTime();
-		log.info(String.format("sendInputMessage 시간차=[%d]", (endTime - startTime)));
+		log.info(String.format("시간차=[%d]", (endTime - startTime)));
 
 		return letterFromServer;
 	}
 	
 	@Override
-	public void sendInputMessageWithoutResponse(
+	public void sendAsyncInputMessage(
 			InputMessage inObj) throws ServerNotReadyException,
 			SocketTimeoutException, NoMoreDataPacketBufferException,
 			BodyFormatException, MessageInfoNotFoundException, NotSupportedException {

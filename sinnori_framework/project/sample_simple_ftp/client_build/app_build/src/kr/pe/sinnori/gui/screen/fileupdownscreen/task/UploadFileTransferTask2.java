@@ -90,7 +90,7 @@ public class UploadFileTransferTask2 implements FileTransferTaskIF, CommonRootIF
 				// fileUpDownScreen.getIsCancelFileTransfer();
 				if (localSourceFileResource.isCanceled()) {
 					// FIXME!
-					log.info("do cancel");
+					log.info("서버 목적지 파일 해제따른 업로드 중지");
 					break;
 				}
 

@@ -25,13 +25,13 @@ import kr.pe.sinnori.client.connection.AbstractConnectionPool;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderPoolIF;
 import kr.pe.sinnori.client.io.LetterFromServer;
 import kr.pe.sinnori.client.io.LetterToServer;
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.lib.OutputMessageQueueQueueMangerIF;
@@ -60,7 +60,7 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 	 * @param whetherToAutoConnect 자동 접속 여부
 	 * @param finishConnectMaxCall 비동기 방식에서 연결 확립 시도 최대 호출 횟수
 	 * @param finishConnectWaittingTime 비동기 연결 확립 시도 간격
-	 * @param commonProjectInfo 공통 프로젝트 정보
+	 * @param clientProjectConfig 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
 	 * @param serverOutputMessageQueue 서버에서 보내는 불특정 출력 메시지를 받는 큐
 	 * @param inputMessageQueue 입력 메시지 큐
 	 * @param outputMessageQueueQueueManger 출력 메시지 큐를 원소로 가지는 큐 관리자
@@ -77,7 +77,7 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 			boolean whetherToAutoConnect,
 			int finishConnectMaxCall,
 			long finishConnectWaittingTime,
-			CommonProjectInfo commonProjectInfo,
+			ClientProjectConfigIF clientProjectConfig,
 			LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
 			OutputMessageQueueQueueMangerIF outputMessageQueueQueueManger, 
@@ -85,7 +85,7 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 			MessageMangerIF messageManger,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager)
 			throws NoMoreDataPacketBufferException, InterruptedException, NoMoreOutputMessageQueueException {
-		super(commonProjectInfo, serverOutputMessageQueue);
+		super(clientProjectConfig, serverOutputMessageQueue);
 		
 		this.connectionPoolSize = connectionPoolSize;
 		
@@ -99,7 +99,7 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 		for (int i = 0; i < connectionPoolSize; i++) {
 			NoShareAsynConnection serverConnection = new NoShareAsynConnection(
 					i, socketTimeOut, whetherToAutoConnect, 
-					finishConnectMaxCall, finishConnectWaittingTime, commonProjectInfo, 
+					finishConnectMaxCall, finishConnectWaittingTime, clientProjectConfig, 
 					serverOutputMessageQueue, inputMessageQueue, outputMessageQueueQueueManger,
 					outputMessageReaderPool, messageManger, 
 					dataPacketBufferQueueManager);
@@ -120,7 +120,7 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 	
 
 	@Override
-	public LetterFromServer sendInputMessage(InputMessage inputMessage)
+	public LetterFromServer sendSyncInputMessage(InputMessage inputMessage)
 			throws ServerNotReadyException, SocketTimeoutException,
 			NoMoreDataPacketBufferException, BodyFormatException, MessageInfoNotFoundException {
 		NoShareAsynConnection conn = null;
@@ -149,7 +149,7 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 
 		LetterFromServer retLetterList = null;
 		try {
-			retLetterList = conn.sendInputMessage(inputMessage);
+			retLetterList = conn.sendSyncInputMessage(inputMessage);
 		} finally {
 			conn.queueIn();
 			connectionQueue.offer(conn);

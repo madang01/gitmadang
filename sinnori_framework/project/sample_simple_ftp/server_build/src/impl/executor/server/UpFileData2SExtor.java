@@ -17,10 +17,10 @@
 
 package impl.executor.server;
 
+import kr.pe.sinnori.common.configuration.ServerProjectConfigIF;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
 import kr.pe.sinnori.common.exception.UpDownFileException;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
@@ -38,7 +38,7 @@ import kr.pe.sinnori.server.executor.LetterSender;
 public class UpFileData2SExtor extends AbstractAuthServerExecutor {
 
 	@Override
-	protected void doTask(CommonProjectInfo commonProjectInfo,
+	protected void doTask(ServerProjectConfigIF serverProjectConfig,
 			LetterSender letterSender, InputMessage inObj,
 			MessageMangerIF messageManger,			
 			ClientResourceManagerIF clientResourceManager)

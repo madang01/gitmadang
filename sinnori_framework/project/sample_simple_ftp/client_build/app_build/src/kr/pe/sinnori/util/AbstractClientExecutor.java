@@ -20,6 +20,7 @@ package kr.pe.sinnori.util;
 import java.net.SocketTimeoutException;
 
 import kr.pe.sinnori.client.ClientProjectIF;
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
@@ -38,17 +39,19 @@ import kr.pe.sinnori.common.lib.MessageMangerIF;
  *
  */
 public abstract class AbstractClientExecutor implements CommonRootIF {
+	
 	/**
-	 * 클라이언트 비지니스 로직을 수행한다. 
-	 * @param messageManger
-	 * @param clientProject
-	 * @throws InterruptedException
+	 * 클라이언트 비지니스 로직을 수행한다.
+	 * @param clientProjectConfig 프로젝트의 클라이언트 환경 변수
+	 * @param messageManger 프로젝트의 메시지 관리자
+	 * @param clientProject 외부에 제공되는 프로젝트 기능 인터페이스
+	 * @throws InterruptedException 쓰레드 인터럽트 발생시 던지는 예외
 	 */
-	public void execute(MessageMangerIF messageManger, ClientProjectIF clientProject) throws InterruptedException {
+	public void execute(ClientProjectConfigIF clientProjectConfig, MessageMangerIF messageManger, ClientProjectIF clientProject) throws InterruptedException {
 		long firstErraseTime = new java.util.Date().getTime();
 		
 		try {
-			doTask(messageManger, clientProject);
+			doTask(clientProjectConfig, messageManger, clientProject);
 		} catch (SocketTimeoutException e) {
 			e.printStackTrace();
 		} catch (ServerNotReadyException e) {
@@ -74,21 +77,22 @@ public abstract class AbstractClientExecutor implements CommonRootIF {
 		long lastErraseTime = new java.util.Date().getTime() - firstErraseTime;
 		log.info(String.format("수행 시간=[%f] ms", (float) lastErraseTime));
 	}
-	
-	
+		
 	/**
-	 * 지정된 반복 횟수 만큼 클라이언트 비지니스 로직을 수행한다. 
-	 * @param clientProject 외부 시선 클라이언트 프로젝트
+	 * 지정된 반복 횟수 만큼 클라이언트 비지니스 로직을 수행한다.
+	 * @param clientProjectConfig 프로젝트의 클라이언트 환경 변수
+	 * @param messageManger 프로젝트의 메시지 관리자
+	 * @param clientProject 외부에 제공되는 프로젝트 기능 인터페이스
 	 * @param count 반복 횟수
-	 * @throws InterruptedException 쓰레드 인터럽트
+	 * @throws InterruptedException 쓰레드 인터럽트 발생시 던지는 예외
 	 */
-	public void execute(MessageMangerIF messageManger, ClientProjectIF clientProject, int count) throws InterruptedException {
+	public void execute(ClientProjectConfigIF clientProjectConfig, MessageMangerIF messageManger, ClientProjectIF clientProject, int count) throws InterruptedException {
 		long firstErraseTime = new java.util.Date().getTime();
 		
 		try {
 			for (int i=0; i < count; i++) {
 				try {
-					doTask(messageManger, clientProject);
+					doTask(clientProjectConfig, messageManger, clientProject);
 				} catch (SocketTimeoutException e) {
 					e.printStackTrace();
 				}
@@ -118,8 +122,9 @@ public abstract class AbstractClientExecutor implements CommonRootIF {
 	
 	/**
 	 * 개발자가 작성해야할 클라이언트 비지니스 로직이 담기는 메소드
-	 * @param messageManger 메시지 
-	 * @param clientProject
+	 * @param clientProjectConfig 프로젝트의 클라이언트 환경 변수
+	 * @param messageManger 프로젝트의 메시지 관리자
+	 * @param clientProject 외부에 제공되는 프로젝트 기능 인터페이스
 	 * @throws SocketTimeoutException
 	 * @throws ServerNotReadyException
 	 * @throws DynamicClassCallException
@@ -132,7 +137,7 @@ public abstract class AbstractClientExecutor implements CommonRootIF {
 	 * @throws ServerExcecutorUnknownException
 	 * @throws NotLoginException
 	 */
-	abstract protected void doTask(MessageMangerIF messageManger, ClientProjectIF clientProject)
+	abstract protected void doTask(ClientProjectConfigIF clientProjectConfig, MessageMangerIF messageManger, ClientProjectIF clientProject)
 			throws SocketTimeoutException, ServerNotReadyException, DynamicClassCallException, 
 			NoMoreDataPacketBufferException, BodyFormatException, 
 			MessageInfoNotFoundException, MessageItemException, 

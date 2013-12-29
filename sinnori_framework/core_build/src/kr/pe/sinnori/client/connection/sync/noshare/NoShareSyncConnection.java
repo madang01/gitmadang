@@ -33,6 +33,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.connection.sync.AbstractSyncConnection;
 import kr.pe.sinnori.client.io.LetterFromServer;
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
@@ -40,7 +41,6 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.lib.WrapBuffer;
@@ -81,7 +81,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 	/**
 	 * 생성자
 	 * @param index 연결 클래스 번호
-	 * @param commonProjectInfo 연결 공통 데이터
+	 * @param clientProjectConfig 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
 	 * @param serverOutputMessageQueue 서버에서 보내는 공지등 불특정 다수한테 보내는 출력 메시지 큐
 	 * @param messageProtocol 메시지 교환 프로토콜
 	 * @param messageManger 메시지 관리자
@@ -91,12 +91,12 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 	public NoShareSyncConnection(int index, 
 			long socketTimeOut,
 			boolean whetherToAutoConnect,
-			CommonProjectInfo commonProjectInfo,
+			ClientProjectConfigIF clientProjectConfig,
 			LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue,
 			MessageExchangeProtocolIF messageProtocol,
 			MessageMangerIF messageManger, 
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws InterruptedException, NoMoreDataPacketBufferException {
-		super(index, socketTimeOut, whetherToAutoConnect, commonProjectInfo, dataPacketBufferQueueManager, serverOutputMessageQueue);
+		super(index, socketTimeOut, whetherToAutoConnect, clientProjectConfig, dataPacketBufferQueueManager, serverOutputMessageQueue);
 		
 		this.messageProtocol = messageProtocol;
 		this.messageManger = messageManger;
@@ -104,7 +104,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 		try {
 			reopenSocketChannel();
 		} catch (IOException e) {
-			String errorMessage = String.format("project[%s] NoShareSyncConnection[%d], fail to config a socket channel", commonProjectInfo.getProjectName(), index);
+			String errorMessage = String.format("project[%s] NoShareSyncConnection[%d], fail to config a socket channel", clientProjectConfig.getProjectName(), index);
 			log.fatal(errorMessage, e);
 			System.exit(1);
 		}
@@ -116,12 +116,12 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 			try {
 				serverOpen();
 			} catch (ServerNotReadyException e) {
-				log.warn(String.format("project[%s] NoShareSyncConnection[%d] fail to connect server", commonProjectInfo.getProjectName(), index), e);
+				log.warn(String.format("project[%s] NoShareSyncConnection[%d] fail to connect server", clientProjectConfig.getProjectName(), index), e);
 				// System.exit(1);
 			}
 		}
 		
-		log.info(String.format("project[%s] NoShareSyncConnection[%d] 생성자 end", commonProjectInfo.getProjectName(), index));
+		log.info(String.format("project[%s] NoShareSyncConnection[%d] 생성자 end", clientProjectConfig.getProjectName(), index));
 	}
 	
 	/**
@@ -199,8 +199,8 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 				finalReadTime = new java.util.Date();
 				
 				InetSocketAddress remoteAddr = new InetSocketAddress(
-						commonProjectInfo.getServerHost(),
-						commonProjectInfo.getServerPort());
+						clientProjectConfig.getServerHost(),
+						clientProjectConfig.getServerPort());
 				/**
 				 * 주의할것 : serverSC.connect(remoteAddr); 는 무조건 블락되어 사용할 수 없음.
 				 * 아래처럼 사용해야 타임아웃 걸림.
@@ -212,7 +212,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 					StringBuilder infoBuilder = null;
 					
 					infoBuilder = new StringBuilder("projectName[");
-					infoBuilder.append(commonProjectInfo.getProjectName());
+					infoBuilder.append(clientProjectConfig.getProjectName());
 					infoBuilder.append("] asyn connection[");
 					infoBuilder.append(index);
 					infoBuilder.append("] serverSC[");
@@ -249,26 +249,26 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 		} catch (ConnectException e) {
 			throw new ServerNotReadyException(String.format(
 					"ConnectException::%s conn index[%02d], host[%s], port[%d]",
-					commonProjectInfo.getProjectName(), index, commonProjectInfo.getServerHost(),
-					commonProjectInfo.getServerPort()));
+					clientProjectConfig.getProjectName(), index, clientProjectConfig.getServerHost(),
+					clientProjectConfig.getServerPort()));
 		} catch (UnknownHostException e) {
 			throw new ServerNotReadyException(String.format(
 					"UnknownHostException::%s conn index[%02d], host[%s], port[%d]",
-					commonProjectInfo.getProjectName(), index, commonProjectInfo.getServerHost(),
-					commonProjectInfo.getServerPort()));
+					clientProjectConfig.getProjectName(), index, clientProjectConfig.getServerHost(),
+					clientProjectConfig.getServerPort()));
 		} catch (ClosedChannelException e) {
 			throw new ServerNotReadyException(
 					String.format(
 							"ClosedChannelException::%s conn index[%02d], host[%s], port[%d]",
-							commonProjectInfo.getProjectName(), index, commonProjectInfo.getServerHost(),
-							commonProjectInfo.getServerPort()));
+							clientProjectConfig.getProjectName(), index, clientProjectConfig.getServerHost(),
+							clientProjectConfig.getServerPort()));
 		} catch (IOException e) {
 			serverClose();
 			
 			throw new ServerNotReadyException(String.format(
 					"IOException::%s conn index[%02d], host[%s], port[%d]",
-					commonProjectInfo.getProjectName(), index, commonProjectInfo.getServerHost(),
-					commonProjectInfo.getServerPort()));
+					clientProjectConfig.getProjectName(), index, clientProjectConfig.getServerHost(),
+					clientProjectConfig.getServerPort()));
 		} catch (Exception e) {
 			serverClose();
 			
@@ -276,15 +276,15 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 			throw new ServerNotReadyException(
 					String.format(
 							"unknown::%s conn index[%02d], host[%s], port[%d]",
-							commonProjectInfo.getProjectName(), index, commonProjectInfo.getServerHost(),
-							commonProjectInfo.getServerPort()));
+							clientProjectConfig.getProjectName(), index, clientProjectConfig.getServerHost(),
+							clientProjectConfig.getServerPort()));
 		}
 		// log.info("projectName[%s%02d] call serverOpen end", projectName,
 		// index);
 	}	
 
 	@Override
-	public LetterFromServer sendInputMessage(InputMessage inObj)
+	public LetterFromServer sendSyncInputMessage(InputMessage inObj)
 			throws ServerNotReadyException, SocketTimeoutException,
 			NoMoreDataPacketBufferException, BodyFormatException, MessageInfoNotFoundException {
 		long startTime = 0;
@@ -311,7 +311,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 		ArrayList<WrapBuffer> inputStreamWrapBufferList = null;
 		
 		try {
-			inObjWrapBufferList = messageProtocol.M2S(inObj, commonProjectInfo.getByteOrderOfProject(), commonProjectInfo.getCharsetOfProject());
+			inObjWrapBufferList = messageProtocol.M2S(inObj, clientProjectConfig.getByteOrder(), clientProjectConfig.getCharset());
 			
 			int inObjWrapBufferListSize = inObjWrapBufferList.size();
 			
@@ -375,7 +375,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 
 			// for(int i=0; i < 1; i++) {
 			ByteBuffer lastInputStreamBuffer = messageInputStreamResource.getLastBuffer();
-			lastInputStreamBuffer.order(commonProjectInfo.getByteOrderOfProject());
+			lastInputStreamBuffer.order(clientProjectConfig.getByteOrder());
 			
 			byte recvBytes[] = lastInputStreamBuffer.array();
 			
@@ -397,7 +397,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 				setFinalReadTime();
 				
 				outputMessageList = messageProtocol.S2MList(OutputMessage.class,  
-						commonProjectInfo.getCharsetOfProject(), messageInputStreamResource, messageManger);
+						clientProjectConfig.getCharset(), messageInputStreamResource, messageManger);
 				
 				
 				outputMessageListSize = outputMessageList.size();
@@ -470,7 +470,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 			if (isInterrupted) Thread.currentThread().interrupt();
 			
 			endTime = new java.util.Date().getTime();
-			log.info(String.format("sendInputMessage 시간차=[%d]", (endTime - startTime)));
+			log.info(String.format("시간차=[%d]", (endTime - startTime)));
 		}
 
 		// FIXME!
@@ -484,7 +484,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 	
 	
 	@Override
-	public void sendInputMessageWithoutResponse(
+	public void sendAsyncInputMessage(
 			InputMessage inObj) throws ServerNotReadyException,
 			SocketTimeoutException, NoMoreDataPacketBufferException,
 			BodyFormatException, MessageInfoNotFoundException, NotSupportedException {		

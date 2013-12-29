@@ -26,12 +26,12 @@ import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.io.LetterFromServer;
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.CommonStaticFinal;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
@@ -54,8 +54,8 @@ public abstract class AbstractConnection implements CommonRootIF {
 	
 	/** 연결 클래스 번호 */
 	protected int index;
-	/** 서버와 연결에 필요한 공통 항목및 자원 */
-	protected CommonProjectInfo commonProjectInfo = null;
+	/** 프로젝트의 클라이언트 환경 변수 */
+	protected ClientProjectConfigIF clientProjectConfig = null;
 	/** 데이터 패킷 버퍼 관리자 */
 	protected DataPacketBufferQueueManagerIF dataPacketBufferQueueManager = null;
 	
@@ -89,7 +89,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 	 * @param index 연결 클래스 번호
 	 * @param socketTimeOut 소켓 타임 아웃
 	 * @param whetherToAutoConnect 자동 접속 여부
-	 * @param commonProjectInfo 연결 공통 데이터
+	 * @param clientProjectConfig 프로젝트의 클라이언트 환경 변수
 	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자
 	 * @param serverOutputMessageQueue  서버에서 보내는 불특정 출력 메시지를 받는 큐
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷 버퍼를 할당 받지 못했을 경우 던지는 예외
@@ -98,16 +98,16 @@ public abstract class AbstractConnection implements CommonRootIF {
 	public AbstractConnection(int index, 
 			long socketTimeOut,
 			boolean whetherToAutoConnect,
-			CommonProjectInfo commonProjectInfo,
+			ClientProjectConfigIF clientProjectConfig,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager,
 			LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue) throws NoMoreDataPacketBufferException, InterruptedException {
 		this.index = index;
 		this.socketTimeOut = socketTimeOut;
 		this.whetherToAutoConnect = whetherToAutoConnect;
-		this.commonProjectInfo = commonProjectInfo;
+		this.clientProjectConfig = clientProjectConfig;
 		
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-		messageInputStreamResource = new MessageInputStreamResourcePerSocket(commonProjectInfo.getByteOrderOfProject(), dataPacketBufferQueueManager);
+		messageInputStreamResource = new MessageInputStreamResourcePerSocket(clientProjectConfig.getByteOrder(), dataPacketBufferQueueManager);
 		
 		this.serverOutputMessageQueue = serverOutputMessageQueue;
 	
@@ -122,10 +122,6 @@ public abstract class AbstractConnection implements CommonRootIF {
 		*/
 	}
 	
-	
-	public CommonProjectInfo getCommonProjectInfo() {
-		return commonProjectInfo;
-	}
 
 	/**
 	 * 소켓에 종속적인 자원 초기화.
@@ -243,7 +239,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 				serverSC.close();
 			} catch (Exception e) {
 				log.warn(String.format("server name[%s] socket channel close fail",
-						commonProjectInfo.getProjectName()), e);
+						clientProjectConfig.getProjectName()), e);
 			}
 		}
 	}
@@ -252,7 +248,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 	 * @return 프로젝트 이름
 	 */
 	public String getProjectName() {
-		return commonProjectInfo.getProjectName();
+		return clientProjectConfig.getProjectName();
 	}
 	
 	/**
@@ -299,7 +295,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 	}
 	
 	/**
-	 * 입력 메시지를 받아 서버로 보낸후 출력 메시지를 얻더 반환한다.
+	 * 입력 메시지를 보낸후 출력 메시지를 받아 반환을 한다.
 	 * 
 	 * @param inputMessage
 	 *            입력 메시지
@@ -314,14 +310,14 @@ public abstract class AbstractConnection implements CommonRootIF {
 	 *             스트림에서 메시지로, 메시지에서 스트림으로 바꿀때 바디 부분 구성 실패시 발생
 	 * @throws MessageInfoNotFoundException 메시지 정보가 없을때 던지는 예외
 	 */
-	abstract public LetterFromServer sendInputMessage(
+	abstract public LetterFromServer sendSyncInputMessage(
 			InputMessage inputMessage) throws ServerNotReadyException,
 			SocketTimeoutException, NoMoreDataPacketBufferException,
 			BodyFormatException, MessageInfoNotFoundException;
 	
 	
 	/**
-	 * 메시지를 보내기만 한다. 파일 전송에 유효하다.
+	 * 입력 메시지를 보내기만 하며 출력 메시지를 기다리지 않는다.
 	 * @param inputMessage 입력 메시지
 	 * @throws ServerNotReadyException 서버 연결 실패시 발생
 	 * @throws SocketTimeoutException 서버 응답 시간 초과시 발생
@@ -330,7 +326,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 	 * @throws MessageInfoNotFoundException 메시지 정보가 없을때 던지는 예외
 	 * @throws NotSupportedException 공유+비동기 연결 객체에서 이 메소드 호출시 던지는 예외, 공유+비동기 연결 폴은 직접적으로 연결 객체를 받을 수 없음.
 	 */
-	abstract public void sendInputMessageWithoutResponse(
+	abstract public void sendAsyncInputMessage(
 			InputMessage inputMessage) throws ServerNotReadyException,
 			SocketTimeoutException, NoMoreDataPacketBufferException,
 			BodyFormatException, MessageInfoNotFoundException, NotSupportedException;
@@ -339,9 +335,8 @@ public abstract class AbstractConnection implements CommonRootIF {
 	@Override
 	public String toString() {
 		StringBuilder strBuffer = new StringBuilder();
-		strBuffer.append("projectName=[");
-		strBuffer.append(commonProjectInfo.getProjectName());
-		strBuffer.append("], index=[");
+		strBuffer.append(clientProjectConfig.getProjectName());
+		strBuffer.append("index=[");
 		strBuffer.append(index);
 		strBuffer.append(", serverSC=[");
 		if (null != serverSC) {
@@ -351,7 +346,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 		}
 		strBuffer.append("]");
 		strBuffer.append(CommonStaticFinal.NEWLINE);
-		strBuffer.append(commonProjectInfo.toString());
+		strBuffer.append(clientProjectConfig.toString());
 		strBuffer.append(CommonStaticFinal.NEWLINE);
 		strBuffer.append("], finalReadTime=[");
 		strBuffer.append(finalReadTime);
@@ -365,7 +360,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 	public String getSimpleConnectionInfo() {
 		StringBuilder strBuffer = new StringBuilder();
 		strBuffer.append("projectName=[");
-		strBuffer.append(commonProjectInfo.getProjectName());
+		strBuffer.append(clientProjectConfig.getProjectName());
 		strBuffer.append("], connection=[");
 		strBuffer.append(index);
 		strBuffer.append(", serverSC=[");

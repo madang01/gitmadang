@@ -25,11 +25,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.client.io.LetterToServer;
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
@@ -46,7 +46,7 @@ import kr.pe.sinnori.common.message.OutputMessage;
 public class InputMessageWriter extends Thread implements CommonRootIF {
 	/** 입력 메시지 쓰기 쓰레드 번호 */
 	private int index;
-	private CommonProjectInfo commonProjectInfo = null;
+	private ClientProjectConfigIF clientProjectConfig = null;
 	/** 입력 메시지 큐 */
 	private LinkedBlockingQueue<LetterToServer> inputMessageQueue = null;
 	
@@ -59,7 +59,7 @@ public class InputMessageWriter extends Thread implements CommonRootIF {
 	/**
 	 * 생성자
 	 * @param index 순번
-	 * @param commonProjectInfo 연결 공통 데이터
+	 * @param clientProjectConfig 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
 	 * @param inputMessageQueue 입력 메시지 큐
 	 * @param messageProtocol 메시지 교환 프로프로콜
 	 * @param messageManger 메시지 관리자
@@ -67,13 +67,13 @@ public class InputMessageWriter extends Thread implements CommonRootIF {
 	 * @throws NoMoreDataPacketBufferException 
 	 */
 	public InputMessageWriter(int index,
-			CommonProjectInfo commonProjectInfo,
+			ClientProjectConfigIF clientProjectConfig,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
 			MessageExchangeProtocolIF messageProtocol,
 			MessageMangerIF messageManger,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
 		this.index = index;
-		this.commonProjectInfo = commonProjectInfo;
+		this.clientProjectConfig = clientProjectConfig;
 		this.inputMessageQueue = inputMessageQueue;
 		this.messageProtocol = messageProtocol;
 		this.messageManger = messageManger;
@@ -83,7 +83,7 @@ public class InputMessageWriter extends Thread implements CommonRootIF {
 
 	@Override
 	public void run() {
-		log.info(String.format("InputMessageWriter[%d] thread start", index));
+		log.info(String.format("InputMessageWriter[%d] start", index));
 
 		// ByteBuffer inputMessageWriteBuffer = inputMessageWrapBuffer.getByteBuffer();
 		try {
@@ -92,7 +92,7 @@ public class InputMessageWriter extends Thread implements CommonRootIF {
 				try {
 					letterToServer = inputMessageQueue.take();
 				} catch (InterruptedException e) {
-					log.warn(String.format("%s index[%d] stop", commonProjectInfo.getProjectName(), index), e);
+					log.warn(String.format("%s index[%d] stop", clientProjectConfig.getProjectName(), index), e);
 					break;
 				}
 	
@@ -105,8 +105,8 @@ public class InputMessageWriter extends Thread implements CommonRootIF {
 	
 				// SocketChannel toSC = noneBlockConnection.getSocketChannel();
 				
-				ByteOrder clientByteOrder = commonProjectInfo.getByteOrderOfProject();
-				Charset clientCharset = commonProjectInfo.getCharsetOfProject();
+				ByteOrder clientByteOrder = clientProjectConfig.getByteOrder();
+				Charset clientCharset = clientProjectConfig.getCharset();
 	
 				
 				
@@ -202,15 +202,15 @@ public class InputMessageWriter extends Thread implements CommonRootIF {
 				}			
 			}
 			
-			log.warn(String.format("%s InputMessageWriter[%d] loop exit", commonProjectInfo.getProjectName(), index));
+			log.warn(String.format("%s InputMessageWriter[%d] loop exit", clientProjectConfig.getProjectName(), index));
 		} catch (Exception e) {
-			log.warn(String.format("%s InputMessageWriter[%d] unknown error::%s", commonProjectInfo.getProjectName(), index, e.getMessage()), e);
+			log.warn(String.format("%s InputMessageWriter[%d] unknown error::%s", clientProjectConfig.getProjectName(), index, e.getMessage()), e);
 		}
 
-		log.warn(String.format("%s InputMessageWriter[%d] thread end", commonProjectInfo.getProjectName(), index));
+		log.warn(String.format("%s InputMessageWriter[%d] thread end", clientProjectConfig.getProjectName(), index));
 	}
 
 	public void finalize() {
-		log.warn(String.format("%s InputMessageWriter[%d] 소멸::[%s]", commonProjectInfo.getProjectName(), index, toString()));
+		log.warn(String.format("%s InputMessageWriter[%d] 소멸::[%s]", clientProjectConfig.getProjectName(), index, toString()));
 	}
 }

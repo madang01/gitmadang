@@ -21,12 +21,13 @@ import kr.pe.sinnori.common.exception.DynamicClassCallException;
 
 
 /**
+ * 서버 비지니스 로직 클래스 로더 관리자 인터페이스
  * @author Jonghoon Won
  *
  */
 public interface SererExecutorClassLoaderManagerIF {
 	/**
-	 * 메시지 식별자에 대응하는 비지니스 로직 클래스 인스턴스를 반환한다.
+	 * 메시지 식별자에 대응하는 서버 비지니스 로직 클래스 인스턴스를 반환한다.
 	 * @param messageID 메시지 식별자
 	 * @return 메시지 식별자에 대응하는 비지니스 로직 클래스 인스턴스
 	 * @throws IllegalArgumentException 파라미터 메시지 식별자 값이 잘못 되었을 경우 던지는 예외.

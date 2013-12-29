@@ -32,10 +32,10 @@ import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.MessageInputStreamResourcePerSocket;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
@@ -52,7 +52,7 @@ public class OutputMessageReader extends Thread implements
 		OutputMessageReaderIF, CommonRootIF {
 	/** 출력 메시지를 읽는 쓰레드 번호 */
 	private int index;
-	private CommonProjectInfo commonProjectInfo = null;
+	private ClientProjectConfigIF clientProjectConfig = null;
 	private MessageExchangeProtocolIF messageProtocol = null;
 	private MessageMangerIF messageManger = null;
 	
@@ -72,17 +72,17 @@ public class OutputMessageReader extends Thread implements
 	 * 생성자
 	 * @param index 순번
 	 * @param readSelectorWakeupInterval 출력 메시지 소켓 읽기 담당 쓰레드에서 블락된 읽기 이벤트 전용 selector 를 깨우는 주기
-	 * @param commonProjectInfo 공통 프로젝트 정보
+	 * @param clientProjectConfig 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
 	 * @param messageProtocol 메시지 교환 프로토콜
 	 * @param messageManger  메시지 관리자
 	 */
 	public OutputMessageReader(int index, long readSelectorWakeupInterval,
-			CommonProjectInfo commonProjectInfo,
+			ClientProjectConfigIF clientProjectConfig,
 			MessageExchangeProtocolIF messageProtocol,
 			MessageMangerIF messageManger) {
 		this.index = index;
 		this.readSelectorWakeupInterval = readSelectorWakeupInterval;
-		this.commonProjectInfo = commonProjectInfo;
+		this.clientProjectConfig = clientProjectConfig;
 		this.messageProtocol = messageProtocol;
 		this.messageManger = messageManger;
 		// this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
@@ -103,26 +103,13 @@ public class OutputMessageReader extends Thread implements
 	 * 신규 채널를 selector 에 읽기 이벤트 등록한다.
 	 */
 	private void processNewConnection() {
-		/*
-		Iterator<SocketChannel> iter = newClients.iterator();
-
-		while (iter.hasNext()) {
-			SocketChannel sc = iter.next();
-			try {
-				sc.register(selector, SelectionKey.OP_READ);
-			} catch (ClosedChannelException e) {
-				closeServer(sc);
-			}
-			iter.remove();
-		}
-		*/
 		while(!waitingSCQueue.isEmpty()) {
 			SocketChannel sc = waitingSCQueue.poll();
 			// if (null != sc) {
 				try {
 					sc.register(selector, SelectionKey.OP_READ);
 				} catch (ClosedChannelException e) {
-					log.warn(String.format("%s index[%d] socket channel[%d] fail to register selector", commonProjectInfo.getProjectName(), index, sc.hashCode()));
+					log.warn(String.format("%s index[%d] socket channel[%d] fail to register selector", clientProjectConfig.getProjectName(), index, sc.hashCode()));
 					scToConnectionHash.remove(sc);
 				}
 			// }
@@ -131,7 +118,7 @@ public class OutputMessageReader extends Thread implements
 
 	@Override
 	public void run() {
-		log.info(String.format("%s OutputMessageReader[%d] Thread start", commonProjectInfo.getProjectName(), index));
+		log.info(String.format("%s OutputMessageReader[%d] start", clientProjectConfig.getProjectName(), index));
 
 		int numRead = 0;
 		// long totalRead = 0;
@@ -159,9 +146,7 @@ public class OutputMessageReader extends Thread implements
 						AbstractAsynConnection asynConnection = scToConnectionHash
 								.get(serverSC);
 						if (null == asynConnection) {
-							log.warn(String.format(
-									"sc[%s] connection match fail",
-									serverSC.hashCode()));
+							log.warn(String.format("%s OutputMessageReader[%d] socket channel[%d] is no match for AbstractAsynConnection", clientProjectConfig.getProjectName(), index, serverSC.hashCode()));
 							continue;
 						}
 
@@ -178,7 +163,7 @@ public class OutputMessageReader extends Thread implements
 								// numRead);
 
 								if (numRead == -1) {
-									log.warn(String.format("1.%s read -1, remove client", asynConnection.getSimpleConnectionInfo()));
+									log.warn(String.format("1.%s OutputMessageReader[%d] read -1, remove client", asynConnection.getSimpleConnectionInfo(), index));
 									closeServer(selectionKey, asynConnection);
 									continue;
 								}
@@ -189,7 +174,7 @@ public class OutputMessageReader extends Thread implements
 								// numRead);
 
 								if (numRead == -1) {
-									log.warn(String.format("2.%s read -1, remove client", asynConnection.getSimpleConnectionInfo()));
+									log.warn(String.format("2.%s OutputMessageReader[%d] read -1, remove client", asynConnection.getSimpleConnectionInfo(), index));
 									closeServer(selectionKey, asynConnection);
 									continue;
 								}
@@ -202,7 +187,7 @@ public class OutputMessageReader extends Thread implements
 							asynConnection.setFinalReadTime();
 							
 							ArrayList<AbstractMessage> outputMessageList = null;	
-							outputMessageList = messageProtocol.S2MList(OutputMessage.class, commonProjectInfo.getCharsetOfProject(), messageInputStreamResource, messageManger);
+							outputMessageList = messageProtocol.S2MList(OutputMessage.class, clientProjectConfig.getCharset(), messageInputStreamResource, messageManger);
 							
 							int cntOfMesages = outputMessageList.size();
 							for (int i = 0; i < cntOfMesages; i++) {
@@ -210,19 +195,19 @@ public class OutputMessageReader extends Thread implements
 								asynConnection.putToOutputMessageQueue(outObj);
 							}
 						} catch (NotYetConnectedException e) {
-							log.warn(String.format("%s NotYetConnectedException[%d]::%s", asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
+							log.warn(String.format("%s OutputMessageReader[%d]::%s", asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
 							closeServer(selectionKey, asynConnection);
 							continue;
 						} catch (IOException e) {
-							log.warn(String.format("%s IOException[%d]::%s", asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
+							log.warn(String.format("%s OutputMessageReader[%d]::%s", asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
 							closeServer(selectionKey, asynConnection);
 							continue;
 						} catch(HeaderFormatException e) {
-							log.warn(String.format("%s HeaderFormatException[%d]::%s", asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
+							log.warn(String.format("%s OutputMessageReader[%d]::%s", asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
 							closeServer(selectionKey, asynConnection);
 							continue;
 						} catch (NoMoreDataPacketBufferException e) {
-							log.warn(String.format("%s NoMoreDataPacketBufferException[%d]::%s", asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
+							log.warn(String.format("%s OutputMessageReader[%d]::%s", asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
 							closeServer(selectionKey, asynConnection);
 							continue;
 						}
@@ -230,14 +215,14 @@ public class OutputMessageReader extends Thread implements
 				}
 			}
 
-			log.warn(String.format("%s index[%d] loop exit", commonProjectInfo.getProjectName(), index));
+			log.warn(String.format("%s OutputMessageReader[%d] loop exit", clientProjectConfig.getProjectName(), index));
 		} catch (Exception e) {
-			log.fatal(String.format("%s index[%d] unknown error", commonProjectInfo.getProjectName(),
+			log.fatal(String.format("%s OutputMessageReader[%d] unknown error", clientProjectConfig.getProjectName(),
 					index), e);
 			System.exit(1);
 		}
 
-		log.warn(String.format("%s index[%d] Thread end", commonProjectInfo.getProjectName(), index));
+		// log.warn(String.format("%s OutputMessageReader[%d] Thread end", clientProjectConfig.getProjectName(), index));
 	}
 	
 
@@ -262,18 +247,6 @@ public class OutputMessageReader extends Thread implements
 			throws InterruptedException {
 		
 		clientConnection.register(scToConnectionHash, waitingSCQueue);
-		
-		/*
-		SocketChannel sc = clientConnection.getSocketChannel();
-
-		log.info(String.format(
-				"project[%s] asyn connection[%02d] new serverSC=[%d]",
-				clientConnection.getProjectName(), clientConnection.getIndex(),
-				sc.hashCode()));
-
-		scToConnectionHash.put(sc, clientConnection);
-		newClients.add(sc);
-		*/
 
 		if (getState().equals(Thread.State.NEW))
 			return;

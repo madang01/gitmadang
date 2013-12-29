@@ -20,9 +20,9 @@ package kr.pe.sinnori.server.threadpool.inputmessage;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import kr.pe.sinnori.common.configuration.ServerProjectConfigIF;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
@@ -41,7 +41,7 @@ public class InputMessageReaderPool extends AbstractThreadPool implements
 		InputMessageReaderPoolIF {
 	private int maxHandler;
 	private long readSelectorWakeupInterval;
-	private CommonProjectInfo commonProjectInfo;
+	private ServerProjectConfigIF serverProjectConfig;
 	private LinkedBlockingQueue<LetterFromClient> inputMessageQueue;
 	private MessageExchangeProtocolIF messageProtocol;
 	private MessageMangerIF messageManger;
@@ -54,7 +54,7 @@ public class InputMessageReaderPool extends AbstractThreadPool implements
 	 * @param size 입력 메시지 소켓 읽기 담당 쓰레드 초기 크기
 	 * @param max 입력 메시지 소켓 읽기 담당 쓰레드 최대 크기
 	 * @param readSelectorWakeupInterval 입력 메시지 소켓 읽기 담당 쓰레드에서 블락된 읽기 이벤트 전용 selector 를 깨우는 주기
-	 * @param commonProjectInfo 공통 연결 데이터
+	 * @param serverProjectConfig 프로젝트의 공통 포함한 서버 환경 변수 접근 인터페이스
 	 * @param inputMessageQueue 입력 메시지 큐
 	 * @param messageProtocol 메시지 교환 프로토콜
 	 * @param messageManger 메시지 관리자
@@ -63,28 +63,27 @@ public class InputMessageReaderPool extends AbstractThreadPool implements
 	 */
 	public InputMessageReaderPool(int size, int max,
 			long readSelectorWakeupInterval,  
-			CommonProjectInfo commonProjectInfo, 
+			ServerProjectConfigIF serverProjectConfig, 
 			LinkedBlockingQueue<LetterFromClient> inputMessageQueue,
 			MessageExchangeProtocolIF messageProtocol,
 			MessageMangerIF messageManger,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager,
 			ClientResourceManagerIF clientResourceManager) {
 		if (size <= 0) {
-			throw new IllegalArgumentException("파라미터 초기 핸들러 갯수는 0보다 커야 합니다.");
+			throw new IllegalArgumentException(String.format("%s 파라미터 size 는 0보다 커야 합니다.", serverProjectConfig.getProjectName()));
 		}
 		if (max <= 0) {
-			throw new IllegalArgumentException("파라미터 최대 핸들러 갯수는 0보다 커야 합니다.");
+			throw new IllegalArgumentException(String.format("%s 파라미터 max 는 0보다 커야 합니다.", serverProjectConfig.getProjectName()));
 		}
 
 		if (size > max) {
 			throw new IllegalArgumentException(String.format(
-					"파라미터 초기 핸들러 갯수[%d]는 최대 핸들러 갯수[%d]보다 작거나 같아야 합니다.", size,
-					max));
+					"%s 파라미터 size[%d]는 파라미터 max[%d]보다 작거나 같아야 합니다.", serverProjectConfig.getProjectName(), size, max));
 		}
 
 		this.maxHandler = max;
 		this.readSelectorWakeupInterval = readSelectorWakeupInterval;
-		this.commonProjectInfo = commonProjectInfo;
+		this.serverProjectConfig = serverProjectConfig;
 		this.inputMessageQueue = inputMessageQueue;
 		this.messageProtocol = messageProtocol;
 		this.messageManger = messageManger;
@@ -104,16 +103,19 @@ public class InputMessageReaderPool extends AbstractThreadPool implements
 
 			if (size < maxHandler) {
 				try {
-					Thread handler = new InputMessageReader(size, readSelectorWakeupInterval, commonProjectInfo,
+					Thread handler = new InputMessageReader(size, readSelectorWakeupInterval, serverProjectConfig,
 							inputMessageQueue, messageProtocol, messageManger, 
 							dataPacketBufferQueueManager, clientResourceManager);
 					pool.add(handler);
 				} catch (Exception e) {
-					log.warn("handler 등록 실패", e);
+					String errorMessage = String.format("%s InputMessageReader[%d] 등록 실패", serverProjectConfig.getProjectName(), size); 
+					log.warn(errorMessage, e);
+					throw new RuntimeException(errorMessage);
 				}
 			} else {
-				throw new RuntimeException(String.format(
-						"최대 핸들러 갯수[%d]를 초과할수없습니다.", maxHandler));
+				String errorMessage = String.format("%s InputMessageReader 최대 갯수[%d]를 넘을 수 없습니다.", serverProjectConfig.getProjectName(), maxHandler); 
+				log.warn(errorMessage);
+				throw new RuntimeException(errorMessage);
 			}
 		}
 	}

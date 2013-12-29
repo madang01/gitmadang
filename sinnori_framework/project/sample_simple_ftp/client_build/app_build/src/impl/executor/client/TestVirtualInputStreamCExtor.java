@@ -32,6 +32,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 import kr.pe.sinnori.client.ClientProjectIF;
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.configuration.ProjectConfig;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
@@ -45,7 +46,6 @@ import kr.pe.sinnori.common.io.dhb.DHBMessageProtocol;
 import kr.pe.sinnori.common.io.dhb.DHBSingleItemConverter;
 import kr.pe.sinnori.common.io.dhb.header.DHBMessageHeader;
 import kr.pe.sinnori.common.lib.CharsetUtil;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.CommonStaticFinal;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageInputStreamResourcePerSocket;
@@ -64,21 +64,20 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 	int messageIDFixedSize;
 
 	@Override
-	protected void doTask(MessageMangerIF messageManger,
+	protected void doTask(ClientProjectConfigIF clientProjectConfig, MessageMangerIF messageManger,
 			ClientProjectIF clientProject) throws SocketTimeoutException,
 			ServerNotReadyException, DynamicClassCallException,
 			NoMoreDataPacketBufferException, BodyFormatException,
 			MessageInfoNotFoundException, InterruptedException, MessageItemException {
 
 		DataPacketBufferQueueManagerIF dataPacketBufferQueueManager = (DataPacketBufferQueueManagerIF)clientProject;
-		final CommonProjectInfo commonProjectInfo = clientProject.getCommonProjectInfo();
 		
 		ProjectConfig projectInfo = null;
 		
 		try {
-			projectInfo = (ProjectConfig)conf.getResource(commonProjectInfo.getProjectName());
+			projectInfo = (ProjectConfig)conf.getResource(clientProjectConfig.getProjectName());
 		} catch(RuntimeException e) {
-			log.fatal(String.format("%s 프로젝트 정보가 존재하지 않습니다.", commonProjectInfo.getProjectName()));
+			log.fatal(String.format("%s 프로젝트 정보가 존재하지 않습니다.", clientProjectConfig.getProjectName()));
 			System.exit(1);
 		}
 		
@@ -92,11 +91,11 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 						dataPacketBufferQueueManager);
 		
 		MessageInputStreamResourcePerSocket messageInputStreamResource = 
-				new MessageInputStreamResourcePerSocket(commonProjectInfo.getByteOrderOfProject(), dataPacketBufferQueueManager);
+				new MessageInputStreamResourcePerSocket(clientProjectConfig.getByteOrder(), dataPacketBufferQueueManager);
 		
 		
-		CharsetEncoder charsetOfProjectEncoder = CharsetUtil.createCharsetEncoder(commonProjectInfo.getCharsetOfProject());
-		// CharsetDecoder charsetOfProjectDecoder = CharsetUtil.createCharsetDecoder(commonProjectInfo.getCharsetOfProject());
+		CharsetEncoder charsetOfProjectEncoder = CharsetUtil.createCharsetEncoder(clientProjectConfig.getCharset());
+		// CharsetDecoder charsetOfProjectDecoder = CharsetUtil.createCharsetDecoder(clientProject.getCharset());
 		
 		
 		
@@ -110,12 +109,12 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		
 		java.util.Random random = new java.util.Random();
 		
-		baseBuffer.order(commonProjectInfo.getByteOrderOfProject());
+		baseBuffer.order(clientProjectConfig.getByteOrder());
 		
-		addAllDataTypeInObj(messageManger, dataPacketBufferQueueManager, md5, random, commonProjectInfo, charsetOfProjectEncoder);
-		addEchoInObj(messageManger, dataPacketBufferQueueManager, md5, random, commonProjectInfo, charsetOfProjectEncoder);
-		addEchoInObj(messageManger, dataPacketBufferQueueManager, md5, random, commonProjectInfo, charsetOfProjectEncoder);
-		addAllDataTypeInObj(messageManger, dataPacketBufferQueueManager, md5, random, commonProjectInfo, charsetOfProjectEncoder);
+		addAllDataTypeInObj(clientProjectConfig, messageManger, dataPacketBufferQueueManager, md5, random, charsetOfProjectEncoder);
+		addEchoInObj(clientProjectConfig, messageManger, dataPacketBufferQueueManager, md5, random, charsetOfProjectEncoder);
+		addEchoInObj(clientProjectConfig, messageManger, dataPacketBufferQueueManager, md5, random, charsetOfProjectEncoder);
+		addAllDataTypeInObj(clientProjectConfig, messageManger, dataPacketBufferQueueManager, md5, random, charsetOfProjectEncoder);
 		
 		
 		baseBuffer.flip();
@@ -142,7 +141,7 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 
 				ArrayList<AbstractMessage> readInputMessageList = null;
 				
-				readInputMessageList = dhbMessageProtocol.S2MList(InputMessage.class, commonProjectInfo.getCharsetOfProject(), messageInputStreamResource, messageManger);
+				readInputMessageList = dhbMessageProtocol.S2MList(InputMessage.class, clientProjectConfig.getCharset(), messageInputStreamResource, messageManger);
 				
 				// ArrayList<InputMessage> readInputMessageList = messageInputStreamResource.getInputMessageList(messageManger, charsetOfProjectDecoder, md5);
 				int readInputMessageListSize = readInputMessageList.size();
@@ -156,11 +155,10 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		}
 	}
 	
-	private void addEchoInObj(MessageMangerIF messageManger,
+	private void addEchoInObj(ClientProjectConfigIF clientProjectConfig, MessageMangerIF messageManger,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager,
 			java.security.MessageDigest md5,
-			java.util.Random random,
-			CommonProjectInfo commonProjectInfo, 
+			java.util.Random random, 
 			CharsetEncoder charsetOfProjectEncoder) throws MessageInfoNotFoundException, BodyFormatException, NoMoreDataPacketBufferException, MessageItemException {
 		DHBSingleItemConverter dhbSingleItemConverter = new DHBSingleItemConverter();
 		
@@ -174,7 +172,7 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		
 		orgInputMessageList.add(echoInObj);
 		
-		FreeSizeOutputStream fsos = new FreeSizeOutputStream(commonProjectInfo.getByteOrderOfProject(), commonProjectInfo.getCharsetOfProject(), charsetOfProjectEncoder, dataPacketBufferQueueManager);
+		FreeSizeOutputStream fsos = new FreeSizeOutputStream(clientProjectConfig.getByteOrder(), clientProjectConfig.getCharset(), charsetOfProjectEncoder, dataPacketBufferQueueManager);
 		
 		echoInObj.M2S(fsos, dhbSingleItemConverter);
 		
@@ -197,7 +195,7 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		messageHeader.bodyMD5 = md5.digest();
 		
 				
-		messageHeader.writeMessageHeader(baseBuffer, commonProjectInfo.getCharsetOfProject(), charsetOfProjectEncoder, md5);
+		messageHeader.writeMessageHeader(baseBuffer, clientProjectConfig.getCharset(), charsetOfProjectEncoder, md5);
 		
 		for (int i=0; i < bufferListSize; i++) {
 			WrapBuffer bodyWrapBuffer = bufferList.remove(0);
@@ -207,11 +205,10 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		}
 	}
 	
-	private void addAllDataTypeInObj(MessageMangerIF messageManger,
+	private void addAllDataTypeInObj(ClientProjectConfigIF clientProjectConfig, MessageMangerIF messageManger,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager,
 			java.security.MessageDigest md5,
-			java.util.Random random,
-			CommonProjectInfo commonProjectInfo, 
+			java.util.Random random, 
 			CharsetEncoder charsetOfProjectEncoder) throws MessageInfoNotFoundException, BodyFormatException, NoMoreDataPacketBufferException, MessageItemException {
 		DHBSingleItemConverter dhbSingleItemConverter = new DHBSingleItemConverter();
 		
@@ -321,7 +318,7 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		
 		orgInputMessageList.add(allDataTypeInObj);
 		
-		FreeSizeOutputStream fsos = new FreeSizeOutputStream(commonProjectInfo.getByteOrderOfProject(), commonProjectInfo.getCharsetOfProject(), charsetOfProjectEncoder, dataPacketBufferQueueManager);
+		FreeSizeOutputStream fsos = new FreeSizeOutputStream(clientProjectConfig.getByteOrder(), clientProjectConfig.getCharset(), charsetOfProjectEncoder, dataPacketBufferQueueManager);
 		
 		allDataTypeInObj.M2S(fsos, dhbSingleItemConverter);
 		
@@ -343,7 +340,7 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		messageHeader.bodySize = bodySize;
 		messageHeader.bodyMD5 = md5.digest();
 		
-		messageHeader.writeMessageHeader(baseBuffer, commonProjectInfo.getCharsetOfProject(), charsetOfProjectEncoder, md5);
+		messageHeader.writeMessageHeader(baseBuffer, clientProjectConfig.getCharset(), charsetOfProjectEncoder, md5);
 		
 		for (int i=0; i < bufferListSize; i++) {
 			WrapBuffer bodyWrapBuffer = bufferList.remove(0);

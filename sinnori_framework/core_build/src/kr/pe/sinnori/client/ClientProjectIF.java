@@ -27,7 +27,6 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.message.InputMessage;
 
 /**
@@ -52,18 +51,13 @@ public interface ClientProjectIF {
 	 *             스트림에서 메시지로, 메시지에서 스트림으로 바꿀때 바디 부분 구성 실패시 발생
 	 * @throws MessageInfoNotFoundException 메시지 정보가 없을때 던지는 예외
 	 */
-	public LetterFromServer sendInputMessage(
+	public LetterFromServer sendSyncInputMessage(
 			InputMessage inputMessage) throws ServerNotReadyException,
 			SocketTimeoutException, NoMoreDataPacketBufferException,
 			BodyFormatException, MessageInfoNotFoundException;
-	
+		
 	/**
-	 * @return 공통 프로젝트 정보
-	 */
-	public CommonProjectInfo getCommonProjectInfo();
-	
-	/**
-	 * @return연결 객체
+	 * @return 연결 객체
 	 * @throws InterruptedException 연결 폴에서 연결 객체를 가져올때 인터럽트가 걸렸을 경우 던지는 예외
 	 * @throws NotSupportedException 공유+비동기 연결 폴에서 실행시 던지는 예외.  공유+비동기 연결 폴은 직접적으로 연결 객체를 받을 수 없다.
 	 */

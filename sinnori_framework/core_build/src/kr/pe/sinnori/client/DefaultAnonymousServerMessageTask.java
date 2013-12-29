@@ -18,6 +18,7 @@
 
 package kr.pe.sinnori.client;
 
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.message.OutputMessage;
 
@@ -29,7 +30,7 @@ import kr.pe.sinnori.common.message.OutputMessage;
 public class DefaultAnonymousServerMessageTask implements CommonRootIF, AnonymousServerMessageTaskIF {
 	
 	@Override
-	public void doTask(String projectName, OutputMessage outObj) {
-		log.info(String.format("projectName[%s] %s", projectName, outObj.toString()));
+	public void doTask(ClientProjectConfigIF clientProjectConfig, OutputMessage outObj) {
+		log.info(String.format("projectName[%s] %s", clientProjectConfig.getProjectName(), outObj.toString()));
 	}
 }

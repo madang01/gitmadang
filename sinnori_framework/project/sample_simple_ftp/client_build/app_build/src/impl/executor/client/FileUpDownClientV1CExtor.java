@@ -29,6 +29,7 @@ import javax.swing.JOptionPane;
 import kr.pe.sinnori.client.ClientProjectIF;
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.io.LetterFromServer;
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
@@ -42,7 +43,6 @@ import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.exception.SinnoriUnsupportedEncodingException;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.exception.UpDownFileException;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
@@ -70,6 +70,13 @@ import org.apache.commons.codec.binary.Base64;
  */
 public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements MainControllerIF {
 	// private final Object monitor = new Object();
+	/**
+	 * 메시지 교환 종류(MESSAGE_EXCHANGE_TYPE)
+	 * 비동기 메시지(ASYNC_MESSAGE) : 입력 메시지를 보내기만 하며 출력 메시지를 기다리지 않는다.
+	 * 동기 메시지(SYNC_MESSAGE) : 입력 메시지를 보낸후 출력 메시지를 받아 반환을 한다.
+	 */
+	private enum MESSAGE_EXCHANGE_TYPE {ASYNC_MESSAGE, SYNC_MESSAGE};
+	
 	private AbstractConnection conn = null;
 	
 	private JFrame mainFrame = null;
@@ -81,7 +88,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 
 	private MessageMangerIF messageManger = null;
 	private ClientProjectIF clientProject = null;
-	private CommonProjectInfo commonProjectInfo = null;
+	private ClientProjectConfigIF clientProjectConfig = null;
 	private byte[] binaryPublicKeyBytes = null;
 	
 	private ClientSessionKeyManager clientSessionKeyManager = null;
@@ -109,20 +116,24 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		} catch (NotSupportedException e) {
 			log.fatal("NotSupportedException", e);
 			System.exit(1);
-		}
-		
+		}		
 		
 		mainFrame = new JFrame();
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		mainFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+			public void windowClosed(java.awt.event.WindowEvent evt){
+				freeResource();
+			}
+		});
+		
 		// mainFrame.setBounds(100, 100, 450, 223);
 		
-		connectionScreen = new ConnectionScreen(mainFrame, this);
+		connectionScreen = new ConnectionScreen(clientProjectConfig, mainFrame, this);
 		
 		mainFrame.add(connectionScreen);
 		mainFrame.pack();
 		
-		// FIXME!
-		// log.info(String.format("1.mainFrame width=[%d], height=[%d]", mainFrame.getWidth(), mainFrame.getHeight()));
+		
 		
 		connectionScreenWidth = mainFrame.getWidth();
 		connectionScreenHeight = mainFrame.getHeight();
@@ -132,18 +143,23 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		mainFrame.setVisible(true);
 		
 		fileUpDownScreen = new FileUpDownScreen(mainFrame, this);
+		
+		// FIXME!
+		/*log.info(String.format("1.connectionScreen width=[%d], height=[%d]", connectionScreen.getWidth(), connectionScreen.getHeight()));
+		log.info(String.format("1.fileUpDownScreen width=[%d], height=[%d]", fileUpDownScreen.getWidth(), fileUpDownScreen.getHeight()));
+		log.info(String.format("1.mainFrame width=[%d], height=[%d]", mainFrame.getWidth(), mainFrame.getHeight()));*/
 	}
 		
 	
 	@Override
-	protected void doTask(MessageMangerIF messageManger, ClientProjectIF clientProject)
+	protected void doTask(ClientProjectConfigIF clientProjectConfig, MessageMangerIF messageManger, ClientProjectIF clientProject)
 			throws SocketTimeoutException, ServerNotReadyException,
 			DynamicClassCallException, NoMoreDataPacketBufferException,
 			BodyFormatException, MessageInfoNotFoundException, InterruptedException {
 		// connectionOK = this;
 		this.messageManger = messageManger;
 		this.clientProject = clientProject;
-		this.commonProjectInfo = clientProject.getCommonProjectInfo();
+		this.clientProjectConfig = clientProjectConfig;
 		
 		
 		EventQueue.invokeLater(new Runnable() {
@@ -209,9 +225,8 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	}
 	
 	@Override
-	public byte[] connectServer(String host, int port) {
-		commonProjectInfo.setServerHost(host);
-		commonProjectInfo.setServerPort(port);
+	public byte[] connectServer(String newServerHost, int newServerPort) {
+		clientProjectConfig.changeServerAddress(newServerHost, newServerPort);
 		
 		OutputMessage binaryPublicKeyOutObj = getBinaryPublicKey();
 		if (null == binaryPublicKeyOutObj) return null;
@@ -262,7 +277,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 			
 		LetterFromServer letterFromServer = null;
 		try {
-			letterFromServer = conn.sendInputMessage(binaryPublicKeyInObj);
+			letterFromServer = conn.sendSyncInputMessage(binaryPublicKeyInObj);
 			
 			if (null == letterFromServer) {
 				log.warn(String.format("input message[%s] letterFromServer is null", binaryPublicKeyInObj.getMessageID()));
@@ -374,7 +389,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		String sessionKeyBase64 = null;
 		String ivBase64 = null;
 		
-		String charsetName = commonProjectInfo.getCharsetOfProject().name();
+		String charsetName = clientProjectConfig.getCharset().name();
 		
 		try {
 			idCipherBase64 = symmetricKey.encryptStringBase64(id, charsetName);
@@ -439,7 +454,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 			
 		LetterFromServer letterFromServer = null;
 		try {
-			letterFromServer = conn.sendInputMessage(loginInObj);
+			letterFromServer = conn.sendSyncInputMessage(loginInObj);
 			
 			if (null == letterFromServer) {
 				String errorMessage = String.format("input message[%s] letterFromServer is null", loginInObj.getMessageID()); 
@@ -530,18 +545,18 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	 * @param outputMessageID 출력 메시지 식별자, 주) 입력 메시지 1:1 대응 서버 비지니스 로직이 보내는 출력 메시지 식별자와 일치해야한다.
 	 * @return 출력 메시지
 	 */
-	private OutputMessage getOutputMessageForLoginServie(InputMessage inObj, String outputMessageID, boolean isNoResponse) {
+	private OutputMessage getOutputMessageForLoginServie(InputMessage inObj, String outputMessageID, MESSAGE_EXCHANGE_TYPE messageExchangeType) {
 		if (!conn.isConnected()) {
-			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			JOptionPane.showMessageDialog(mainFrame, "서버와의 연결이 끊어 졌습니다.");
 			goToFirstScreen();
 			return null;
 		}
 		
 		OutputMessage outObj = null;
 		
-		if (isNoResponse) {
+		if (messageExchangeType == MESSAGE_EXCHANGE_TYPE.ASYNC_MESSAGE) {
 			try {
-				conn.sendInputMessageWithoutResponse(inObj);
+				conn.sendAsyncInputMessage(inObj);
 			} catch (SocketTimeoutException e) {
 				log.warn("SocketTimeoutException", e);
 				JOptionPane.showMessageDialog(mainFrame, "지정된 연결 시간을 초과하였습니다.");
@@ -594,7 +609,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		} else {
 			LetterFromServer letterFromServer = null;
 			try {				
-				letterFromServer = conn.sendInputMessage(inObj);
+				letterFromServer = conn.sendSyncInputMessage(inObj);
 				if (null == letterFromServer) {
 					String errorMessage = String.format("inObj[%s] letterFromServer is null", inObj.getMessageID()); 
 					log.warn(errorMessage);
@@ -676,7 +691,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	@Override
 	public OutputMessage getRemoteFileList(String requestDirectory) {
 		if (!conn.isConnected()) {
-			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			JOptionPane.showMessageDialog(mainFrame, "서버와의 연결이 끊어 졌습니다.");
 			goToFirstScreen();
 			return null;
 		}
@@ -704,7 +719,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 			return null;
 		}
 		
-		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "FileListResult", false);
+		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "FileListResult", MESSAGE_EXCHANGE_TYPE.SYNC_MESSAGE);
 		if (null == outObj) return null;
 		try {			
 			String taskResult = (String)outObj.getAttribute("taskResult");
@@ -731,7 +746,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	public OutputMessage readyUploadFile(String localFilePathName, String localFileName, long localFileSize, 
 			String remoteFilePathName, String remoteFileName, int fileBlockSize) {
 		if (!conn.isConnected()) {
-			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			JOptionPane.showMessageDialog(mainFrame, "서버와의 연결이 끊어 졌습니다.");
 			goToFirstScreen();
 			return null;
 		}
@@ -785,7 +800,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		}
 		
 		
-		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "UpFileInfoResult", false);
+		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "UpFileInfoResult", MESSAGE_EXCHANGE_TYPE.SYNC_MESSAGE);
 		if (null == outObj) return null;
 		try {
 			String taskResult = (String)outObj.getAttribute("taskResult");
@@ -869,7 +884,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	@Override
 	public OutputMessage doUploadFile(int serverTargetFileID, int fileBlockNo, byte[] fileData) {
 		if (!conn.isConnected()) {
-			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			JOptionPane.showMessageDialog(mainFrame, "서버와의 연결이 끊어 졌습니다.");
 			goToFirstScreen();
 			return null;
 		}
@@ -909,7 +924,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		//FIXME!
 		// log.warn(inObj.toString());
 		
-		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "UpFileDataResult", false);
+		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "UpFileDataResult", MESSAGE_EXCHANGE_TYPE.SYNC_MESSAGE);
 		if (null == outObj) return null;
 		try {
 			String taskResult = (String)outObj.getAttribute("taskResult");
@@ -938,7 +953,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	public OutputMessage readyDownloadFile(String localFilePathName, String localFileName, 
 			String remoteFilePathName, String remoteFileName, long remoteFileSize, int fileBlockSize) {
 		if (!conn.isConnected()) {
-			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			JOptionPane.showMessageDialog(mainFrame, "서버와의 연결이 끊어 졌습니다.");
 			goToFirstScreen();
 			return null;
 		}
@@ -991,7 +1006,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		}
 		
 		
-		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "DownFileInfoResult", false);
+		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "DownFileInfoResult", MESSAGE_EXCHANGE_TYPE.SYNC_MESSAGE);
 		if (null == outObj) return null;
 		try {
 			// FIXME!
@@ -1066,7 +1081,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	@Override
 	public OutputMessage doDownloadFile(int serverSourceFileID, int fileBlockNo) {
 		if (!conn.isConnected()) {
-			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			JOptionPane.showMessageDialog(mainFrame, "서버와의 연결이 끊어 졌습니다.");
 			goToFirstScreen();
 			return null;
 		}
@@ -1102,7 +1117,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		}
 		
 		
-		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "DownFileDataResult", false);
+		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "DownFileDataResult", MESSAGE_EXCHANGE_TYPE.SYNC_MESSAGE);
 		if (null == outObj) return null;
 		try {			
 			String taskResult = (String)outObj.getAttribute("taskResult");
@@ -1127,11 +1142,12 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	}
 	
 	
+	
 	@Override
 	public OutputMessage cancelUploadFile() {
 		if (!conn.isConnected()) {
-			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
-			goToFirstScreen();
+			JOptionPane.showMessageDialog(mainFrame, "서버와의 연결이 끊어 졌습니다.");
+			goToFirstScreen();			
 			return null;
 		}
 		int serverTargetFileID = localSourceFileResource.getTargetFileID();
@@ -1139,6 +1155,12 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		InputMessage inObj = null;
 		
 		try {
+			/**
+			 * <pre>
+			 * 서버 목적지 파일의 락을 해제하는 시간이 걸린다. 따라서 주의가 필요하다. 
+			 * 파일 송수신 버전2의 경우 파일 업로드 취소는 비동기 메시지 CancelUploadFile2 로 처리되었다.
+			 * </pre>
+			 */
 			inObj = messageManger.createInputMessage("CancelUploadFile");
 		} catch (IllegalArgumentException e) {
 			log.warn("IllegalArgumentException", e);
@@ -1159,7 +1181,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 			return null;
 		}
 		
-		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "CancelUploadFileResult", false);
+		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "CancelUploadFileResult", MESSAGE_EXCHANGE_TYPE.SYNC_MESSAGE);
 		if (null == outObj) return null;
 		try {			
 			String taskResult = (String)outObj.getAttribute("taskResult");
@@ -1186,7 +1208,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	@Override
 	public OutputMessage cancelDownloadFile() {
 		if (!conn.isConnected()) {
-			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			JOptionPane.showMessageDialog(mainFrame, "서버와의 연결이 끊어 졌습니다.");
 			goToFirstScreen();
 			return null;
 		}
@@ -1216,7 +1238,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 			return null;
 		}
 		
-		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "CancelDownloadFileResult", false);
+		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "CancelDownloadFileResult", MESSAGE_EXCHANGE_TYPE.SYNC_MESSAGE);
 		if (null == outObj) return null;
 		try {			
 			String taskResult = (String)outObj.getAttribute("taskResult");
@@ -1241,7 +1263,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	}
 	
 	@Override
-	public void doAnonymousServerMessageTask(String projectName, OutputMessage outObj) {
+	public void doAnonymousServerMessageTask(OutputMessage outObj) {
 		log.info(outObj.toString());;
 	}
 	

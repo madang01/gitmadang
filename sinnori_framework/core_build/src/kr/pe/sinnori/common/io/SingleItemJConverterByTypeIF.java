@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package kr.pe.sinnori.common.io;
 
 import java.nio.charset.Charset;
@@ -8,11 +25,13 @@ import org.json.simple.JSONObject;
 
 
 /**
+ * <pre>
  * 프로토콜의 항목 타입 단일 항목 JSON Object 변환기 인터페이스.<br/>
  * 이 인터페이스는 프로토콜 그리고 데이터 타입별로 구현된다.<br/>
  * 이 인터페이스를 상속 받는 클래스는 입출력 스트림을 운영하여 프로토콜과 데이터 타입에 맞도록 구현한다.<br/>
  * 참고) 타입별 필요한 파라미터는 다르지만 동일 인터페이스를 갖기 위해서 모든 파라미터를 받는다.
- * 
+ * </pre>
+ *  
  * @author Jonghoon Won
  *
  */

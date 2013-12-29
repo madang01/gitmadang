@@ -19,6 +19,7 @@ package kr.pe.sinnori.util;
 
 import kr.pe.sinnori.client.ClientProject;
 import kr.pe.sinnori.client.ClientProjectManager;
+import kr.pe.sinnori.common.configuration.ProjectConfig;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.server.ServerProject;
 import kr.pe.sinnori.server.ServerProjectManager;
@@ -79,16 +80,20 @@ public class SinnoriWorker implements CommonRootIF {
 	 * @throws InterruptedException 쓰레드 인터럽트
 	 */
 	public void start(String projectName, String clinetExecutorName) throws InterruptedException {
+		ProjectConfig projectConfig = (ProjectConfig)conf.getResource(projectName);
+		if (null == projectConfig) throw new RuntimeException(String.format("projectName[%s] not exist", projectName));
+		
 		String prop_sinnori_running_mode = (String)conf.getResource("sinnori_worker.running_mode.value");
 		
 		if (prop_sinnori_running_mode.equals("client")) {
 			String clientExecetorClassName = getClientExecetorClassName(clinetExecutorName);
 			ClientProject clientProject = ClientProjectManager.getInstance().getClientProject(projectName);
 			
+			
 			try {
 				Class<?> c = Class.forName(clientExecetorClassName);				
 				AbstractClientExecutor clientExecutorObj = (AbstractClientExecutor)c.newInstance();
-				clientExecutorObj.execute(clientProject, clientProject);
+				clientExecutorObj.execute(projectConfig, clientProject, clientProject);
 			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
 				e.printStackTrace();
 				System.exit(1);
@@ -111,7 +116,7 @@ public class SinnoriWorker implements CommonRootIF {
 			try {
 				Class<?> c = Class.forName(clientExecetorClassName);				
 				AbstractClientExecutor clientExecutorObj = (AbstractClientExecutor)c.newInstance();
-				clientExecutorObj.execute(clientProject, clientProject);
+				clientExecutorObj.execute(projectConfig, clientProject, clientProject);
 			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
 				e.printStackTrace();
 				System.exit(1);
@@ -132,6 +137,9 @@ public class SinnoriWorker implements CommonRootIF {
 	 * @throws InterruptedException 쓰레드 인터럽트
 	 */
 	public void start(String projectName, String clinetExecutorName, int count) throws InterruptedException {
+		ProjectConfig projectConfig = (ProjectConfig)conf.getResource(projectName);
+		if (null == projectConfig) throw new RuntimeException(String.format("projectName[%s] not exist", projectName));
+		
 		String prop_sinnori_running_mode = (String)conf.getResource("sinnori_worker.running_mode.value");
 		
 		if (prop_sinnori_running_mode.equals("client")) {
@@ -141,7 +149,7 @@ public class SinnoriWorker implements CommonRootIF {
 			try {
 				Class<?> c = Class.forName(clientExecetorClassName);				
 				AbstractClientExecutor clientExecutorObj = (AbstractClientExecutor)c.newInstance();
-				clientExecutorObj.execute(clientProject, clientProject, count);
+				clientExecutorObj.execute(projectConfig, clientProject, clientProject, count);
 			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
 				e.printStackTrace();
 				System.exit(1);
@@ -164,7 +172,7 @@ public class SinnoriWorker implements CommonRootIF {
 			try {
 				Class<?> c = Class.forName(clientExecetorClassName);				
 				AbstractClientExecutor clientExecutorObj = (AbstractClientExecutor)c.newInstance();
-				clientExecutorObj.execute(clientProject, clientProject, count);
+				clientExecutorObj.execute(projectConfig, clientProject, clientProject, count);
 			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
 				e.printStackTrace();
 				System.exit(1);

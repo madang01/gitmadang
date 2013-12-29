@@ -19,9 +19,9 @@ package impl.executor.server;
 
 import java.util.StringTokenizer;
 
+import kr.pe.sinnori.common.configuration.ServerProjectConfigIF;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
@@ -41,7 +41,7 @@ import org.apache.commons.codec.binary.Base64;
 public final class CommandSExtor extends AbstractServerExecutor {
 
 	@Override
-	protected void doTask(CommonProjectInfo commonProjectInfo,
+	protected void doTask(ServerProjectConfigIF serverProjectConfig,
 			LetterSender letterSender, InputMessage inObj,
 			MessageMangerIF messageManger,			
 			ClientResourceManagerIF clientResourceManager)

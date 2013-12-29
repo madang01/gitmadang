@@ -31,10 +31,10 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import kr.pe.sinnori.common.configuration.ServerProjectConfigIF;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageInputStreamResourcePerSocket;
@@ -56,19 +56,16 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 	// private final Object monitor = new Object();
 	private int index;
 	private long readSelectorWakeupInterval;
-	private CommonProjectInfo commonProjectInfo; 
+	private ServerProjectConfigIF serverProjectConfig; 
 	private MessageExchangeProtocolIF messageProtocol;
 	private MessageMangerIF messageManger = null;
-	// private DataPacketBufferQueueManagerIF dataPacketBufferQueueManager;
+	
 	private ClientResourceManagerIF clientResourceManager;
 	private LinkedBlockingQueue<LetterFromClient> inputMessageQueue;
 	
-	
-	// private Hashtable<SocketChannel, SocketChannel> newClients = new Hashtable<SocketChannel, SocketChannel>();
 	private LinkedBlockingQueue<SocketChannel> waitingSCQueue = new LinkedBlockingQueue<SocketChannel>();
 	private Selector selector = null;
 	
-	// private DelimServerReader delimReader = DelimServerReader.getInstance();
 
 
 
@@ -76,7 +73,7 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 	 * 생성자
 	 * @param index 순번
 	 * @param readSelectorWakeupInterval 입력 메시지 소켓 읽기 담당 쓰레드에서 블락된 읽기 이벤트 전용 selector 를 깨우는 주기
-	 * @param commonProjectInfo 공통 연결 데이터
+	 * @param serverProjectConfig 프로젝트의 공통 포함한 서버 환경 변수 접근 인터페이스
 	 * @param inputMessageQueue 입력 메시지 큐
 	 * @param messageProtocol 메시지 교환 프로토콜
 	 * @param messageManger 메시지 관리자
@@ -84,7 +81,7 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 	 * @param clientResourceManager 클라이언트 자원 관리자
 	 */
 	public InputMessageReader(int index, long readSelectorWakeupInterval,
-			CommonProjectInfo commonProjectInfo,
+			ServerProjectConfigIF serverProjectConfig, 
 			LinkedBlockingQueue<LetterFromClient> inputMessageQueue,
 			MessageExchangeProtocolIF messageProtocol,
 			MessageMangerIF messageManger,
@@ -92,10 +89,9 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 			ClientResourceManagerIF clientResourceManager) {
 		this.index = index;
 		this.readSelectorWakeupInterval = readSelectorWakeupInterval;
-		this.commonProjectInfo = commonProjectInfo;
+		this.serverProjectConfig = serverProjectConfig;
 		this.messageProtocol = messageProtocol;
 		this.messageManger = messageManger;
-		// this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 		this.clientResourceManager = clientResourceManager;
 		this.inputMessageQueue = inputMessageQueue;
 
@@ -154,7 +150,7 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 				try {
 					sc.register(selector, SelectionKey.OP_READ);
 				} catch (ClosedChannelException e) {
-					log.warn(String.format("%s InputMessageReader[%d] socket channel[%d] fail to register selector", commonProjectInfo.getProjectName(), index, sc.hashCode()), e);
+					log.warn(String.format("%s InputMessageReader[%d] socket channel[%d] fail to register selector", serverProjectConfig.getProjectName(), index, sc.hashCode()), e);
 				}
 			// }
 		}
@@ -162,9 +158,7 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 
 	@Override
 	public void run() {
-		log.info(String.format("%s InputMessageReader[%d] Thread start", commonProjectInfo.getProjectName(), index));
-		// LinkedBlockingQueue<LetterFromClient> inputQueue =
-		// common.QueueManager.getInputMessageQueue();
+		log.info(String.format("%s InputMessageReader[%d] start", serverProjectConfig.getProjectName(), index));
 
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
@@ -179,10 +173,15 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 					while (selectionkey_iter.hasNext()) {
 						SelectionKey key = selectionkey_iter.next();
 						selectionkey_iter.remove();
-						SocketChannel sc = (SocketChannel) key.channel();
+						SocketChannel clientSC = (SocketChannel) key.channel();
 						ByteBuffer lastInputStreamBuffer = null;
 						ClientResource clientResource = clientResourceManager
-								.getClientResource(sc);
+								.getClientResource(clientSC);
+						
+						if (null == clientResource) {
+							log.warn(String.format("%s InputMessageReader[%d] socket channel[%d] is no match for ClientResource", serverProjectConfig.getProjectName(), index, clientSC.hashCode()));
+							continue;
+						}
 						
 						MessageInputStreamResourcePerSocket messageInputStreamResource = clientResource.getMessageInputStreamResource();
 						lastInputStreamBuffer = messageInputStreamResource.getLastBuffer();
@@ -192,20 +191,20 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 							int positionBeforeReading = lastInputStreamBuffer.position();
 							
 							
-							int numRead = sc.read(lastInputStreamBuffer);
+							int numRead = clientSC.read(lastInputStreamBuffer);
 							if (numRead == -1) {
 								log.warn(String.format(
 										"%s InputMessageReader[%d] socket channel read -1, remove client",
-										commonProjectInfo.getProjectName(), index));
+										serverProjectConfig.getProjectName(), index));
 								closeClient(key);
 								continue;
 							}
-							numRead = sc.read(lastInputStreamBuffer); // 2번 읽기로 1byte
+							numRead = clientSC.read(lastInputStreamBuffer); // 2번 읽기로 1byte
 																// 읽기 방지
 							if (numRead == -1) {
 								log.warn(String.format(
 										"%s InputMessageReader[%d] socket channel read -1, remove client",
-										commonProjectInfo.getProjectName(), index));
+										serverProjectConfig.getProjectName(), index));
 								closeClient(key);
 								continue;
 							}
@@ -222,7 +221,7 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 							ArrayList<AbstractMessage> inputMessageList = null;
 
 							try {
-								inputMessageList = messageProtocol.S2MList(InputMessage.class, commonProjectInfo.getCharsetOfProject(), messageInputStreamResource, messageManger);
+								inputMessageList = messageProtocol.S2MList(InputMessage.class, serverProjectConfig.getCharset(), messageInputStreamResource, messageManger);
 								
 								
 							} catch (NoMoreDataPacketBufferException e) {
@@ -239,14 +238,14 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 							int cntOfMesages = inputMessageList.size();
 							for (int i = 0; i < cntOfMesages; i++) {
 								InputMessage inObj = (InputMessage)inputMessageList.get(i);
-								inputMessageQueue.put(new LetterFromClient(sc, inObj, clientResource));
+								inputMessageQueue.put(new LetterFromClient(clientSC, inObj, clientResource));
 							}
 						} catch (NotYetConnectedException e) {
 							log.warn("io error", e);
 							closeClient(key);
 							continue;
 						} catch (IOException e) {
-							log.warn(String.format("%s InputMessageReader[%d] error", commonProjectInfo.getProjectName(), index), e);
+							log.warn(String.format("%s InputMessageReader[%d] error", serverProjectConfig.getProjectName(), index), e);
 							closeClient(key);
 							continue;
 						}
@@ -254,11 +253,11 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 				}
 			}
 
-			log.warn(String.format("%s InputMessageReader[%d] loop exit", commonProjectInfo.getProjectName(), index));
+			log.warn(String.format("%s InputMessageReader[%d] loop exit", serverProjectConfig.getProjectName(), index));
 		} catch (InterruptedException e) {
-			log.warn(String.format("%s InputMessageReader[%d] stop", commonProjectInfo.getProjectName(), index), e);
+			log.warn(String.format("%s InputMessageReader[%d] stop", serverProjectConfig.getProjectName(), index), e);
 		} catch (Exception e) {
-			log.warn(String.format("%s InputMessageReader[%d] error", commonProjectInfo.getProjectName(), index), e);
+			log.warn(String.format("%s InputMessageReader[%d] unknown error", serverProjectConfig.getProjectName(), index), e);
 		}
 	}
 

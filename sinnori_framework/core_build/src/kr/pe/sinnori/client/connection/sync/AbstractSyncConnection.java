@@ -20,8 +20,8 @@ import java.io.InputStream;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.connection.AbstractConnection;
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.message.OutputMessage;
 
@@ -41,7 +41,7 @@ public abstract class AbstractSyncConnection extends AbstractConnection {
 	 * @param index 연결 클래스 번호
 	 * @param socketTimeOut 소켓 타임 아웃
 	 * @param whetherToAutoConnect 자동 접속 여부
-	 * @param commonProjectInfo 연결 공통 데이터
+	 * @param clientProjectConfig 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
 	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자
 	 * @param serverOutputMessageQueue 서버에서 보내는 불특정 출력 메시지를 받는 큐
 	 * @throws InterruptedException 쓰레드 인터럽트
@@ -50,10 +50,10 @@ public abstract class AbstractSyncConnection extends AbstractConnection {
 	public AbstractSyncConnection(int index, 
 			long socketTimeOut,
 			boolean whetherToAutoConnect,
-			CommonProjectInfo commonProjectInfo,
+			ClientProjectConfigIF clientProjectConfig,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager,
 			LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue) throws InterruptedException, NoMoreDataPacketBufferException {
-		super(index, socketTimeOut, whetherToAutoConnect, commonProjectInfo, dataPacketBufferQueueManager, serverOutputMessageQueue);
+		super(index, socketTimeOut, whetherToAutoConnect, clientProjectConfig, dataPacketBufferQueueManager, serverOutputMessageQueue);
 		// log.info("whether_to_auto_connect=[%s]", whether_to_auto_connect);
 	}	
 }

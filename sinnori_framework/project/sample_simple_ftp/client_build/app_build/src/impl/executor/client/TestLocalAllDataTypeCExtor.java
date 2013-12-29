@@ -23,6 +23,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import kr.pe.sinnori.client.ClientProjectIF;
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
@@ -30,7 +31,6 @@ import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageInputStreamResourcePerSocket;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
@@ -55,7 +55,7 @@ import kr.pe.sinnori.util.AbstractClientExecutor;
 public class TestLocalAllDataTypeCExtor extends AbstractClientExecutor {
 
 	@Override
-	protected void doTask(MessageMangerIF messageManger, ClientProjectIF clientProject)
+	protected void doTask(ClientProjectConfigIF clientProjectConfig, MessageMangerIF messageManger, ClientProjectIF clientProject)
 			throws SocketTimeoutException, ServerNotReadyException,
 			DynamicClassCallException, NoMoreDataPacketBufferException,
 			BodyFormatException, MessageInfoNotFoundException, InterruptedException, MessageItemException {
@@ -63,9 +63,8 @@ public class TestLocalAllDataTypeCExtor extends AbstractClientExecutor {
 		DataPacketBufferQueueManagerIF dataPacketBufferQueueManager = (DataPacketBufferQueueManagerIF)clientProject;
 		// log.info(String.format("before DataPacketBufferQueue state=[%s]", dataPacketBufferQueueManager.getQueueState()));
 		
-		CommonProjectInfo commonProjectInfo = clientProject.getCommonProjectInfo();
-		// CharsetEncoder charsetOfProjectEncoder = CharsetUtil.createCharsetEncoder(commonProjectInfo.getCharsetOfProject());
-		// CharsetDecoder clinetCharsetDecoder = CharsetUtil.createCharsetDecoder(commonProjectInfo.getCharsetOfProject());
+		// CharsetEncoder charsetOfProjectEncoder = CharsetUtil.createCharsetEncoder(commonProjectInfo.getCharset());
+		// CharsetDecoder clinetCharsetDecoder = CharsetUtil.createCharsetDecoder(commonProjectInfo.getCharset());
 		
 		
 		/*
@@ -186,7 +185,7 @@ public class TestLocalAllDataTypeCExtor extends AbstractClientExecutor {
 		
 		
 		ArrayList<WrapBuffer> warpBufferList = 
-				clientProject.getMessageExchangeProtocol().M2S(allDataTypeInObj, commonProjectInfo.getByteOrderOfProject(), commonProjectInfo.getCharsetOfProject());
+				clientProject.getMessageExchangeProtocol().M2S(allDataTypeInObj, clientProjectConfig.getByteOrder(), clientProjectConfig.getCharset());
 		
 		/**
 		 * 데이터를 받은것처럼 위장하기 위해서 position 을 limit 위치로 이동
@@ -205,7 +204,7 @@ public class TestLocalAllDataTypeCExtor extends AbstractClientExecutor {
 		
 		ArrayList<AbstractMessage> outObjList = null;
 		try {
-			outObjList = clientProject.getMessageExchangeProtocol().S2MList(OutputMessage.class, commonProjectInfo.getCharsetOfProject(), messageInputStreamResourcePerSocket, messageManger);
+			outObjList = clientProject.getMessageExchangeProtocol().S2MList(OutputMessage.class, clientProjectConfig.getCharset(), messageInputStreamResourcePerSocket, messageManger);
 		} catch (HeaderFormatException e) {
 			log.fatal("HeaderFormatException", e);
 			System.exit(1);

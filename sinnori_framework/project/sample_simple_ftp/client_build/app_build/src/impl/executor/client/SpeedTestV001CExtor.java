@@ -22,6 +22,7 @@ import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 
 import kr.pe.sinnori.client.ClientProjectIF;
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
@@ -53,7 +54,7 @@ import kr.pe.sinnori.util.AbstractClientExecutor;
 public class SpeedTestV001CExtor extends AbstractClientExecutor {
 
 	@Override
-	protected void doTask(MessageMangerIF messageManger, ClientProjectIF clientProject)
+	protected void doTask(ClientProjectConfigIF clientProjectConfig, MessageMangerIF messageManger, ClientProjectIF clientProject)
 			throws SocketTimeoutException, ServerNotReadyException,
 			DynamicClassCallException, NoMoreDataPacketBufferException,
 			BodyFormatException, MessageInfoNotFoundException, InterruptedException, MessageItemException {

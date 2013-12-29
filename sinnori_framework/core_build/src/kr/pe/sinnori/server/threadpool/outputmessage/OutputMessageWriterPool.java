@@ -21,12 +21,11 @@ package kr.pe.sinnori.server.threadpool.outputmessage;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
+import kr.pe.sinnori.common.configuration.ServerProjectConfigIF;
 import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
-import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.io.LetterToClient;
 import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriter;
 
@@ -37,51 +36,46 @@ import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriter
  */
 public class OutputMessageWriterPool extends AbstractThreadPool {
 	private int maxHandler;
-	private CommonProjectInfo commonProjectInfo;
+	private ServerProjectConfigIF serverProjectConfig;
 	private MessageExchangeProtocolIF messageProtocol;
 	private MessageMangerIF messageManger;
 	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManger;
-	private ClientResourceManagerIF clientResourceManager;
 	private LinkedBlockingQueue<LetterToClient> outputMessageQueue = null;
 	
 	/**
 	 * 생성자
 	 * @param size 출력 메시지 쓰기 쓰레드 갯수
 	 * @param max 출력 메시지 쓰기 쓰레드 최대 갯수
-	 * @param commonProjectInfo 연결 공통 데이터
+	 * @param serverProjectConfig 프로젝트의 공통 포함한 서버 환경 변수 접근 인터페이스
 	 * @param outputMessageQueue 출력 메시지 큐
 	 * @param messageProtocol 메시지 교환 프로토콜
 	 * @param messageManger 메시지 관리자
 	 * @param dataPacketBufferQueueManger 데이터 패킷 버퍼 큐 관리자
-	 * @param clientResourceManager 클라이언트 자원 관리자
 	 */
 	public OutputMessageWriterPool(int size, int max,
-			CommonProjectInfo commonProjectInfo,
+			ServerProjectConfigIF serverProjectConfig,
 			LinkedBlockingQueue<LetterToClient> outputMessageQueue,
 			MessageExchangeProtocolIF messageProtocol,
 			MessageMangerIF messageManger,
-			DataPacketBufferQueueManagerIF dataPacketBufferQueueManger,
-			ClientResourceManagerIF clientResourceManager) {
+			DataPacketBufferQueueManagerIF dataPacketBufferQueueManger) {
 		if (size <= 0) {
-			throw new IllegalArgumentException("파라미터 초기 핸들러 갯수는 0보다 커야 합니다.");
+			throw new IllegalArgumentException(String.format("%s 파라미터 size 는 0보다 커야 합니다.", serverProjectConfig.getProjectName()));
 		}
 		if (max <= 0) {
-			throw new IllegalArgumentException("파라미터 최대 핸들러 갯수는 0보다 커야 합니다.");
+			throw new IllegalArgumentException(String.format("%s 파라미터 max 는 0보다 커야 합니다.", serverProjectConfig.getProjectName()));
 		}
 
 		if (size > max) {
 			throw new IllegalArgumentException(String.format(
-					"파라미터 초기 핸들러 갯수[%d]는 최대 핸들러 갯수[%d]보다 작거나 같아야 합니다.", size,
-					max));
+					"%s 파라미터 size[%d]는 파라미터 max[%d]보다 작거나 같아야 합니다.", serverProjectConfig.getProjectName(), size, max));
 		}
 
 		this.maxHandler = max;
-		this.commonProjectInfo = commonProjectInfo;
+		this.serverProjectConfig = serverProjectConfig;
 		this.outputMessageQueue = outputMessageQueue;
 		this.messageProtocol = messageProtocol;
 		this.messageManger = messageManger;
 		this.dataPacketBufferQueueManger = dataPacketBufferQueueManger;
-		this.clientResourceManager = clientResourceManager;
 
 		for (int i = 0; i < size; i++) {
 			addHandler();
@@ -92,20 +86,23 @@ public class OutputMessageWriterPool extends AbstractThreadPool {
 	public void addHandler() {
 		synchronized (monitor) {
 			int size = pool.size();
-			if (size > maxHandler) {
-				log.warn(String.format("더 이상 출력 메시지 쓰기 쓰레드 생성할 수 없습니다. 최대 생성수[%d] 도달",
-						maxHandler));
-				return;
-			}
-
-			try {
-				Thread handler = new OutputMessageWriter(size, commonProjectInfo, 
-						outputMessageQueue, messageProtocol, messageManger, 
-						dataPacketBufferQueueManger, clientResourceManager);
-				
-				pool.add(handler);
-			} catch (Exception e) {
-				log.warn("handler 등록 실패", e);
+			
+			if (size < maxHandler) {
+				try {
+					Thread handler = new OutputMessageWriter(size, serverProjectConfig, 
+							outputMessageQueue, messageProtocol, messageManger, 
+							dataPacketBufferQueueManger);
+					
+					pool.add(handler);
+				} catch (Exception e) {
+					String errorMessage = String.format("%s OutputMessageWriter[%d] 등록 실패", serverProjectConfig.getProjectName(), size); 
+					log.warn(errorMessage, e);
+					throw new RuntimeException(errorMessage);
+				}
+			} else {
+				String errorMessage = String.format("%s OutputMessageWriter 최대 갯수[%d]를 넘을 수 없습니다.", serverProjectConfig.getProjectName(), maxHandler); 
+				log.warn(errorMessage);
+				throw new RuntimeException(errorMessage);
 			}
 		}
 	}

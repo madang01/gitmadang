@@ -25,13 +25,13 @@ import kr.pe.sinnori.client.connection.AbstractConnectionPool;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderPoolIF;
 import kr.pe.sinnori.client.io.LetterFromServer;
 import kr.pe.sinnori.client.io.LetterToServer;
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.lib.OutputMessageQueueQueueMangerIF;
@@ -63,7 +63,7 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 	 * @param finishConnectMaxCall 비동기 연결 확립 시도 최대 횟수
 	 * @param finishConnectWaittingTime 비동기 연결 확립 시도 간격
 	 * @param mailBoxCnt 메일함 갯수
-	 * @param commonProjectInfo 공통 프로젝트 정보
+	 * @param clientProjectConfig 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
 	 * @param serverOutputMessageQueue 서버에서 보내는 불특정 출력 메시지를 받는 큐
 	 * @param inputMessageQueue 입력 메시지 큐
 	 * @param outputMessageQueueQueueManager 출력 메시지 큐를 원소로 가지는 큐 관리자
@@ -81,7 +81,7 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 			int finishConnectMaxCall,
 			long finishConnectWaittingTime,
 			int mailBoxCnt,			
-			CommonProjectInfo commonProjectInfo,
+			ClientProjectConfigIF clientProjectConfig,
 			LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
 			OutputMessageQueueQueueMangerIF outputMessageQueueQueueManager, 
@@ -89,7 +89,7 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 			MessageMangerIF messageManger,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager)
 			throws NoMoreDataPacketBufferException, InterruptedException, NoMoreOutputMessageQueueException {
-		super(commonProjectInfo, serverOutputMessageQueue);
+		super(clientProjectConfig, serverOutputMessageQueue);
 		// log.info("create new MultiNoneBlockConnectionPool");
 		
 		
@@ -108,7 +108,7 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 					finishConnectMaxCall,
 					finishConnectWaittingTime,
 					mailBoxCnt,
-					commonProjectInfo, 
+					clientProjectConfig, 
 					serverOutputMessageQueue, inputMessageQueue,					 
 					outputMessageQueueQueueManager,
 					outputMessageReaderPool, messageManger,
@@ -144,7 +144,7 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 	}
 	
 	@Override
-	public LetterFromServer sendInputMessage(InputMessage inputMessage)
+	public LetterFromServer sendSyncInputMessage(InputMessage inputMessage)
 			throws ServerNotReadyException, SocketTimeoutException,
 			NoMoreDataPacketBufferException, BodyFormatException, MessageInfoNotFoundException {
 		ShareAsynConnection conn = null;
@@ -153,7 +153,7 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 			conn = connectionList.get(indexOfConnection);
 			indexOfConnection = (indexOfConnection + 1) % connectionList.size();
 		}
-		return conn.sendInputMessage(inputMessage);
+		return conn.sendSyncInputMessage(inputMessage);
 	}
 	
 	@Override

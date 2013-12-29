@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package kr.pe.sinnori.common.io.djson;
 
 import java.nio.BufferOverflowException;
@@ -5,12 +22,12 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 
-import kr.pe.sinnori.common.SingleItemJConverterIF;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.UnknownItemTypeException;
 import kr.pe.sinnori.common.io.FixedSizeOutputStream;
 import kr.pe.sinnori.common.io.SingleItemJConverterByTypeIF;
+import kr.pe.sinnori.common.io.SingleItemJConverterIF;
 import kr.pe.sinnori.common.lib.CharsetUtil;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.CommonStaticFinal;
@@ -19,9 +36,17 @@ import kr.pe.sinnori.common.util.HexUtil;
 
 import org.json.simple.JSONObject;
 
+/**
+ * 단일 항목 JSON 변환기 인터페이스<br/>
+ * 이 인터페이스는 프로토콜 별로 구현된다.
+ * 
+ * @author Jonghoon won
+ *
+ */
 public class DJSONSingleItemConverter implements CommonRootIF, SingleItemJConverterIF {
 	public static final int BYTE_ARRAY_MAX_LENGTH = Integer.MAX_VALUE/8;
 
+	
 	private SingleItemJConverterByTypeIF[] converterByTypeList = new SingleItemJConverterByTypeIF[] { 
 			new ConverterDJSONByte(), new ConverterDJSONUnsignedByte(), 
 			new ConverterDJSONShort(), new ConverterDJSONUnsignedShort(),
@@ -33,7 +58,9 @@ public class DJSONSingleItemConverter implements CommonRootIF, SingleItemJConver
 			new ConverterDJSONFixedLengthBytes()
 	};
 	
-	
+	/**
+	 * 생성자
+	 */
 	public DJSONSingleItemConverter() {
 		ItemTypeManger itemTypeManger = ItemTypeManger.getInstance();
 		

@@ -4,6 +4,7 @@ import java.net.SocketTimeoutException;
 
 import kr.pe.sinnori.client.ClientProjectIF;
 import kr.pe.sinnori.client.io.LetterFromServer;
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
@@ -22,7 +23,7 @@ import kr.pe.sinnori.util.AbstractClientExecutor;
 public class TestNetEcoCExtor extends AbstractClientExecutor {
 
 	@Override
-	protected void doTask(MessageMangerIF messageManger, ClientProjectIF clientProject) throws SocketTimeoutException,
+	protected void doTask(ClientProjectConfigIF clientProjectConfig, MessageMangerIF messageManger, ClientProjectIF clientProject) throws SocketTimeoutException,
 			ServerNotReadyException, DynamicClassCallException,
 			NoMoreDataPacketBufferException, BodyFormatException,
 			MessageInfoNotFoundException, NoMatchOutputMessage, 
@@ -46,7 +47,7 @@ public class TestNetEcoCExtor extends AbstractClientExecutor {
 		echoInObj.setAttribute("startTime", new java.util.Date().getTime());
 
 		LetterFromServer letterFromServer = clientProject
-				.sendInputMessage(echoInObj);
+				.sendSyncInputMessage(echoInObj);
 
 		if (null == letterFromServer) {
 			log.warn(String.format("input message[%s] letterFromServer is null", echoInObj.getMessageID()));

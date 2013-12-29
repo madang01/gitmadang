@@ -70,6 +70,7 @@ public class UploadFileTransferTask implements FileTransferTaskIF, CommonRootIF 
 		this.fileTranferProcessDialog = fileTranferProcessDialog;
 	}
 	
+	
 	@Override
 	public void doTask() {
 		// FIXME!
@@ -84,12 +85,13 @@ public class UploadFileTransferTask implements FileTransferTaskIF, CommonRootIF 
 				// fileUpDownScreen.getIsCancelFileTransfer();
 				if (localSourceFileResource.isCanceled()) {
 					// FIXME!
-					log.info("do cancel");
+					log.info("사용자의 업로드 중지 요청");
 					
+					@SuppressWarnings("unused")
 					OutputMessage cancelUploadFileResultOutObj = mainController.cancelUploadFile();
 					
-					/** 파일 업로드 취소 완료시 종료, 파일 업로드 취소 실패시 파일 업로드 작업 계속 진행 */
-					if (null != cancelUploadFileResultOutObj) break;
+					/** 파일 업로드 취소는 에러 여부에 상관없이 종료 */
+					break;
 				}
 
 				byte fileData[] = localSourceFileResource

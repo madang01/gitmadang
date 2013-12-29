@@ -23,6 +23,7 @@ import java.nio.ByteBuffer;
 import kr.pe.sinnori.client.ClientProjectIF;
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.io.LetterFromServer;
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
@@ -51,7 +52,7 @@ public class TestNetAllDataType2CExtor extends AbstractClientExecutor {
 	private static AbstractConnection conn = null;
 
 	@Override
-	protected void doTask(MessageMangerIF messageManger, ClientProjectIF clientProject)
+	protected void doTask(ClientProjectConfigIF clientProjectConfig, MessageMangerIF messageManger, ClientProjectIF clientProject)
 			throws SocketTimeoutException, ServerNotReadyException,
 			DynamicClassCallException, NoMoreDataPacketBufferException,
 			BodyFormatException, MessageInfoNotFoundException, 
@@ -177,7 +178,7 @@ public class TestNetAllDataType2CExtor extends AbstractClientExecutor {
 		allDataTypeInObj.messageHeaderInfo.mailboxID = CommonStaticFinal.SERVER_MAILBOX_ID;
 		allDataTypeInObj.messageHeaderInfo.mailID = Integer.MIN_VALUE;
 		
-		LetterFromServer letterFromServer = conn.sendInputMessage(allDataTypeInObj);
+		LetterFromServer letterFromServer = conn.sendSyncInputMessage(allDataTypeInObj);
 
 		if (null == letterFromServer) {
 			log.warn(String.format("input message[%s] letterFromServer is null", allDataTypeInObj.getMessageID()));

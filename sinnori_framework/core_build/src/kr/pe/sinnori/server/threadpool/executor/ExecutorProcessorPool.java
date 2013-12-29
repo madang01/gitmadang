@@ -20,7 +20,7 @@ package kr.pe.sinnori.server.threadpool.executor;
 import java.util.TreeSet;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
+import kr.pe.sinnori.common.configuration.ServerProjectConfigIF;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
@@ -39,7 +39,7 @@ public class ExecutorProcessorPool extends AbstractThreadPool {
 	
 	private int maxHandler;
 	private TreeSet<String> anonymousExceptionInputMessageSet;
-	private CommonProjectInfo commonProjectInfo = null;
+	private ServerProjectConfigIF serverProjectConfig;
 	private MessageMangerIF messageManger;
 	private SererExecutorClassLoaderManagerIF sererExecutorClassLoaderManager;
 	
@@ -52,7 +52,7 @@ public class ExecutorProcessorPool extends AbstractThreadPool {
 	 * @param size 서버 비지니스 로직 수행자 쓰레드 갯수
 	 * @param max 서버 비지니스 로직 수행자 쓰레드 최대 갯수
 	 * @param anonymousExceptionInputMessageSet 설정파일에서 정의한 익명 예외 발생 시키는 메시지 목록
-	 * @param commonProjectInfo 공통 연결 데이터
+	 * @param serverProjectConfig 프로젝트의 공통 포함한 서버 환경 변수 접근 인터페이스
 	 * @param inputMessageQueue 입력 메시지 큐
 	 * @param ouputMessageQueue 출력 메시지 큐
 	 * @param messageManger 메시지 관리자
@@ -61,28 +61,27 @@ public class ExecutorProcessorPool extends AbstractThreadPool {
 	 */
 	public ExecutorProcessorPool(int size, int max,
 			TreeSet<String> anonymousExceptionInputMessageSet,
-			CommonProjectInfo commonProjectInfo,
+			ServerProjectConfigIF serverProjectConfig,
 			LinkedBlockingQueue<LetterFromClient> inputMessageQueue,
 			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
 			MessageMangerIF messageManger,
 			SererExecutorClassLoaderManagerIF sererExecutorClassLoaderManager,
 			ClientResourceManagerIF clientResourceManager) {
 		if (size <= 0) {
-			throw new IllegalArgumentException("파라미터 초기 핸들러 갯수는 0보다 커야 합니다.");
+			throw new IllegalArgumentException(String.format("%s 파라미터 size 는 0보다 커야 합니다.", serverProjectConfig.getProjectName()));
 		}
 		if (max <= 0) {
-			throw new IllegalArgumentException("파라미터 최대 핸들러 갯수는 0보다 커야 합니다.");
+			throw new IllegalArgumentException(String.format("%s 파라미터 max 는 0보다 커야 합니다.", serverProjectConfig.getProjectName()));
 		}
 
 		if (size > max) {
 			throw new IllegalArgumentException(String.format(
-					"파라미터 초기 핸들러 갯수[%d]는 최대 핸들러 갯수[%d]보다 작거나 같아야 합니다.", size,
-					max));
+					"%s 파라미터 size[%d]는 파라미터 max[%d]보다 작거나 같아야 합니다.", serverProjectConfig.getProjectName(), size, max));
 		}
 		
 		this.maxHandler = max;
 		this.anonymousExceptionInputMessageSet = anonymousExceptionInputMessageSet;
-		this.commonProjectInfo = commonProjectInfo;
+		this.serverProjectConfig = serverProjectConfig;
 		this.inputMessageQueue = inputMessageQueue;
 		this.ouputMessageQueue = ouputMessageQueue;
 		this.messageManger = messageManger;
@@ -102,15 +101,17 @@ public class ExecutorProcessorPool extends AbstractThreadPool {
 			if (size < maxHandler) {
 				try {
 					Thread handler = new ExecutorProcessor(size, anonymousExceptionInputMessageSet,
-							commonProjectInfo,
+							serverProjectConfig,
 							inputMessageQueue, ouputMessageQueue,
 							messageManger, sererExecutorClassLoaderManager, clientResourceManager);
 					pool.add(handler);
 				} catch (Exception e) {
-					log.warn(String.format("%s ExecutorProcessor[%d] handler 등록 실패", commonProjectInfo.getProjectName(), size), e);
+					String errorMessage = String.format("%s ExecutorProcessor[%d] 등록 실패", serverProjectConfig.getProjectName(), size); 
+					log.warn(errorMessage, e);
+					throw new RuntimeException(errorMessage);
 				}
 			} else {
-				String errorMessage = String.format("%s ExecutorProcessor[%d] 최대 갯수[%d]를 넘을 수 없습니다.", commonProjectInfo.getProjectName(), size, maxHandler); 
+				String errorMessage = String.format("%s ExecutorProcessor 최대 갯수[%d]를 넘을 수 없습니다.", serverProjectConfig.getProjectName(), maxHandler); 
 				log.warn(errorMessage);
 				throw new RuntimeException(errorMessage);
 			}

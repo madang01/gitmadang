@@ -31,7 +31,7 @@ import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessa
 import kr.pe.sinnori.client.connection.sync.noshare.NoShareSyncConnectionPool;
 import kr.pe.sinnori.client.io.LetterFromServer;
 import kr.pe.sinnori.client.io.LetterToServer;
-import kr.pe.sinnori.common.configuration.ClientProjectConfig;
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
@@ -40,7 +40,6 @@ import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
 import kr.pe.sinnori.common.lib.AbstractProject;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.CommonType;
 import kr.pe.sinnori.common.lib.OutputMessageQueueQueueMangerIF;
@@ -104,20 +103,20 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 	 */
 	public ClientProject(String projectName) throws NoMoreDataPacketBufferException, NoMoreOutputMessageQueueException, InterruptedException {		
 		super(projectName);
+		 
+		ClientProjectConfigIF clientProjectConfig = (ClientProjectConfigIF)projectConfig;
 		
-		ClientProjectConfig clientProjectInfo = projectInfo.getClientProjectInfo();
-		
-		int dataPacketBufferCnt = clientProjectInfo.getDataPacketBufferCnt();
-		int connectionCount = clientProjectInfo.getConnectionCount();		
-		long socketTimeOut = clientProjectInfo.getSocketTimeout();
-		boolean whetherToAutoConnect = clientProjectInfo.getWhetherToAutoConnect();		
+		int dataPacketBufferCnt = clientProjectConfig.getClientDataPacketBufferCnt();
+		int connectionCount = clientProjectConfig.getClientConnectionCount();		
+		long socketTimeOut = clientProjectConfig.getClientSocketTimeout();
+		boolean whetherToAutoConnect = clientProjectConfig.getClientWhetherToAutoConnect();		
 
 		dataPacketBufferQueue = new LinkedBlockingQueue<WrapBuffer>(dataPacketBufferCnt);
 		try {
 			for (int i = 0; i < dataPacketBufferCnt; i++) {
-				WrapBuffer buffer = new WrapBuffer(commonProjectInfo.getDataPacketBufferSize());
+				WrapBuffer buffer = new WrapBuffer(clientProjectConfig.getDataPacketBufferSize());
 				dataPacketBufferQueue.add(buffer);
-				buffer.getByteBuffer().order(commonProjectInfo.getByteOrderOfProject());
+				buffer.getByteBuffer().order(clientProjectConfig.getByteOrder());
 			}
 		} catch (OutOfMemoryError e) {
 			String errorMessage = "OutOfMemoryError";
@@ -126,34 +125,34 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 		}
 		
 		
-		boolean channelBlockingMode = clientProjectInfo.getChannelBlockingMode();
-		CommonType.THREAD_SHARE_MODE threadShareMode = clientProjectInfo.getThreadShareMode();
+		boolean channelBlockingMode = clientProjectConfig.getClientChannelBlockingMode();
+		CommonType.THREAD_SHARE_MODE threadShareMode = clientProjectConfig.getClientThreadShareMode();
 		
 		
 		if (channelBlockingMode) {			
 			connectionPool = new NoShareSyncConnectionPool(connectionCount, 
-					socketTimeOut, whetherToAutoConnect, commonProjectInfo, messageExchangeProtocol, this, this);
+					socketTimeOut, whetherToAutoConnect, clientProjectConfig, messageExchangeProtocol, this, this);
 		} else {
-			int inputMessageQueueSize = clientProjectInfo.getInputMessageQueueSize();
-			int OutputMessageQueueSize = clientProjectInfo.getOutputMessageQueueSize();
-			int finishConnectMaxCall = clientProjectInfo.getFinishConnectMaxCall();
-			long finishConnectWaittingTime = clientProjectInfo.getReadSelectorWakeupInterval();
-			long readSelectorWakeupInterval = clientProjectInfo.getReadSelectorWakeupInterval();
+			int inputMessageQueueSize = clientProjectConfig.getClientInputMessageQueueSize();
+			int OutputMessageQueueSize = clientProjectConfig.getClientOutputMessageQueueSize();
+			int finishConnectMaxCall = clientProjectConfig.getClientFinishConnectMaxCall();
+			long finishConnectWaittingTime = clientProjectConfig.getClientReadSelectorWakeupInterval();
+			long readSelectorWakeupInterval = clientProjectConfig.getClientReadSelectorWakeupInterval();
 		
 			serverAnymouseOutputMessageQueue  = new LinkedBlockingQueue<OutputMessage>(OutputMessageQueueSize);
 			
 			inputMessageQueue = new LinkedBlockingQueue<LetterToServer>(inputMessageQueueSize);
 			
 			inputMessageWriterPool = new InputMessageWriterPool(
-					clientProjectInfo.getInputMessageWriterSize(),
-					clientProjectInfo.getInputMessageWriterMaxSize(),
-					commonProjectInfo,
+					clientProjectConfig.getClientInputMessageWriterSize(),
+					clientProjectConfig.getClientInputMessageWriterMaxSize(),
+					clientProjectConfig,
 					inputMessageQueue, messageExchangeProtocol, this, this);
 			
 			outputMessageReaderPool = new OutputMessageReaderPool(
-					clientProjectInfo.getOutputMessageReaderSize(),
-					clientProjectInfo.getOutputMessageReaderMaxSize(), 
-					readSelectorWakeupInterval, commonProjectInfo, messageExchangeProtocol, this);
+					clientProjectConfig.getClientOutputMessageReaderSize(),
+					clientProjectConfig.getClientOutputMessageReaderMaxSize(), 
+					readSelectorWakeupInterval, clientProjectConfig, messageExchangeProtocol, this);
 			
 			inputMessageWriterPool.startAll();
 			outputMessageReaderPool.startAll();
@@ -161,7 +160,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 			
 			
 			if (CommonType.THREAD_SHARE_MODE.Multi == threadShareMode) {
-				int mailBoxCnt = clientProjectInfo.getMultiMailboxCnt();
+				int mailBoxCnt = clientProjectConfig.getClientShareAsynConnMailboxCnt();
 				
 				int  outputMessageQueueQueueSize = mailBoxCnt * connectionCount;
 				outputMessageQueueQueue = new LinkedBlockingQueue<WrapOutputMessageQueue>(outputMessageQueueQueueSize);
@@ -179,7 +178,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 						socketTimeOut, whetherToAutoConnect,
 						finishConnectMaxCall, finishConnectWaittingTime, 
 						mailBoxCnt,
-						commonProjectInfo, 
+						clientProjectConfig, 
 						serverAnymouseOutputMessageQueue, 
 						inputMessageQueue, this, 
 						outputMessageReaderPool, this, this);
@@ -194,7 +193,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 				connectionPool = new NoShareAsynConnectionPool(connectionCount, 
 						socketTimeOut, whetherToAutoConnect,
 						finishConnectMaxCall, finishConnectWaittingTime, 
-						commonProjectInfo, 
+						clientProjectConfig, 
 						serverAnymouseOutputMessageQueue, 
 						inputMessageQueue, this, 
 						outputMessageReaderPool, this, this);
@@ -205,23 +204,19 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 			anonymousServerMessageProcessorThread.start();
 		}
 		
-		clientProjectMonitor = new ClientProjectMonitor(clientProjectInfo.getMonitorTimeInterval(), clientProjectInfo.getRequestTimeout());
+		clientProjectMonitor = new ClientProjectMonitor(clientProjectConfig.getClientMonitorTimeInterval(), clientProjectConfig.getClientRequestTimeout());
 		clientProjectMonitor.start();
 	}
 	
 	
 	@Override
-	public LetterFromServer sendInputMessage(
+	public LetterFromServer sendSyncInputMessage(
 			InputMessage inputMessage) throws ServerNotReadyException,
 			SocketTimeoutException, NoMoreDataPacketBufferException,
 			BodyFormatException, MessageInfoNotFoundException {
-		return connectionPool.sendInputMessage(inputMessage);
+		return connectionPool.sendSyncInputMessage(inputMessage);
 	}
 	
-	@Override
-	public CommonProjectInfo getCommonProjectInfo() {
-		return commonProjectInfo;
-	}
 	
 	@Override
 	public AbstractConnection getConnection() throws InterruptedException, NotSupportedException {
@@ -264,7 +259,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 			throws NoMoreOutputMessageQueueException {
 		WrapOutputMessageQueue wrapOutputMessageQueue = outputMessageQueueQueue.poll();
 		if (null == wrapOutputMessageQueue) {
-			String errorMessage = String.format("클라이언트 프로젝트[%s]에서 랩 출력 메시지큐가 부족합니다.", commonProjectInfo.getProjectName());
+			String errorMessage = String.format("클라이언트 프로젝트[%s]에서 랩 출력 메시지큐가 부족합니다.", projectConfig.getProjectName());
 			throw new NoMoreOutputMessageQueueException(errorMessage);
 		}
 		
@@ -298,24 +293,24 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 	 * @return 클라이언트 프로젝트 정보
 	 */
 	public ClientProjectMonitorInfo getInfo() {
-		ClientProjectMonitorInfo clientProjectInfo = new ClientProjectMonitorInfo();
-		clientProjectInfo.projectName = commonProjectInfo.getProjectName();
-		clientProjectInfo.dataPacketBufferQueueSize = dataPacketBufferQueue.size();
+		ClientProjectMonitorInfo clientProjectMonitorInfo = new ClientProjectMonitorInfo();
+		clientProjectMonitorInfo.projectName = projectConfig.getProjectName();
+		clientProjectMonitorInfo.dataPacketBufferQueueSize = dataPacketBufferQueue.size();
 		
-		clientProjectInfo.usedMailboxCnt = connectionPool.getUsedMailboxCnt();
-		clientProjectInfo.totalMailbox = connectionPool.getTotalMailbox();
+		clientProjectMonitorInfo.usedMailboxCnt = connectionPool.getUsedMailboxCnt();
+		clientProjectMonitorInfo.totalMailbox = connectionPool.getTotalMailbox();
 		
 		if (connectionPool instanceof NoShareSyncConnectionPool) {
-			clientProjectInfo.inputMessageQueueSize = -1;
-			clientProjectInfo.outputMessageQueueQueueSize = -1;
-			clientProjectInfo.serverAnymouseOutputMessageQueue = -1;
+			clientProjectMonitorInfo.inputMessageQueueSize = -1;
+			clientProjectMonitorInfo.outputMessageQueueQueueSize = -1;
+			clientProjectMonitorInfo.serverAnymouseOutputMessageQueue = -1;
 		} else {
-			clientProjectInfo.inputMessageQueueSize = inputMessageQueue.size();
-			clientProjectInfo.outputMessageQueueQueueSize = outputMessageQueueQueue.size();
-			clientProjectInfo.serverAnymouseOutputMessageQueue = serverAnymouseOutputMessageQueue.size();
+			clientProjectMonitorInfo.inputMessageQueueSize = inputMessageQueue.size();
+			clientProjectMonitorInfo.outputMessageQueueQueueSize = outputMessageQueueQueue.size();
+			clientProjectMonitorInfo.serverAnymouseOutputMessageQueue = serverAnymouseOutputMessageQueue.size();
 		}
 		
-		return clientProjectInfo;
+		return clientProjectMonitorInfo;
 	}
 	
 	/**
@@ -349,16 +344,16 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 				while (!Thread.currentThread().isInterrupted()) {
 					OutputMessage outObj = serverAnymouseOutputMessageQueue.take();
 					//synchronized (monitor) {
-						anonymousServerMessageTask.doTask(commonProjectInfo.getProjectName(), outObj);
+						anonymousServerMessageTask.doTask(projectConfig, outObj);
 					//}
 				}
 				
-				log.info(String.format("client project[%s] AnonymousServerMessageProcessorThread loop exit", commonProjectInfo.getProjectName()));
+				log.info(String.format("client project[%s] AnonymousServerMessageProcessorThread loop exit", projectConfig.getProjectName()));
 				log.warn("Thread loop exit");
 			} catch (InterruptedException e) {
-				log.warn(String.format("client project[%s] AnonymousServerMessageProcessorThread interrupt", commonProjectInfo.getProjectName()), e);
+				log.warn(String.format("client project[%s] AnonymousServerMessageProcessorThread interrupt", projectConfig.getProjectName()), e);
 			} catch (Exception e) {
-				log.warn(String.format("client project[%s] AnonymousServerMessageProcessorThread unknow error", commonProjectInfo.getProjectName()), e);
+				log.warn(String.format("client project[%s] AnonymousServerMessageProcessorThread unknow error", projectConfig.getProjectName()), e);
 			}
         }
 		
@@ -427,7 +422,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 						if (null == finalReadTime) continue;
 						
 						if ((finalReadTime.getTime() - currentTime) > requestTimeout) {
-							log.info(String.format("project[%s] requestTimeout[%d] over so socket close, conn[%s]", commonProjectInfo.getProjectName(), requestTimeout, conn.toString()));
+							log.info(String.format("project[%s] requestTimeout[%d] over so socket close, conn[%s]", projectConfig.getProjectName(), requestTimeout, conn.toString()));
 							conn.serverClose();
 						}
 					}
@@ -435,11 +430,11 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 					Thread.sleep(monitorInterval);
 				}
 				
-				log.warn(String.format("client project[%s] ClientProjectMonitor loop exit", commonProjectInfo.getProjectName()));
+				log.warn(String.format("client project[%s] ClientProjectMonitor loop exit", projectConfig.getProjectName()));
 			} catch (InterruptedException e) {
-				log.warn(String.format("client project[%s] ClientProjectMonitor interrupt", commonProjectInfo.getProjectName()), e);
+				log.warn(String.format("client project[%s] ClientProjectMonitor interrupt", projectConfig.getProjectName()), e);
 			} catch (Exception e) {
-				log.warn(String.format("client project[%s] ClientProjectMonitor unknow error", commonProjectInfo.getProjectName()), e);
+				log.warn(String.format("client project[%s] ClientProjectMonitor unknow error", projectConfig.getProjectName()), e);
 			}
 		}
 	}
@@ -450,7 +445,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 	
 	public void stop() {
 		// FIXME!
-		log.info(String.format("project[%s] client project stop", commonProjectInfo.getProjectName()));
+		log.info(String.format("project[%s] client project stop", projectConfig.getProjectName()));
 		
 		stopAsynPool();
 		stopAnonymousServerMessageProcessorThread();

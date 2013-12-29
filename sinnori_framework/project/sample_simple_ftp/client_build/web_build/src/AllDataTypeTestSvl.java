@@ -158,7 +158,7 @@ public class AllDataTypeTestSvl extends AbstractServlet {
 		
 		String errorMessage = "";
 		
-		LetterFromServer letterFromServer = clientProject.sendInputMessage(allDataTypeInObj);
+		LetterFromServer letterFromServer = clientProject.sendSyncInputMessage(allDataTypeInObj);
 
 		if (null == letterFromServer) {
 			errorMessage = String.format("input message[%s] letterList is null", allDataTypeInObj.getMessageID()); 

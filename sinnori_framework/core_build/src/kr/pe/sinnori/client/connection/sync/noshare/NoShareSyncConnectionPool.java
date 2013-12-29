@@ -23,13 +23,13 @@ import java.util.concurrent.LinkedBlockingQueue;
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.AbstractConnectionPool;
 import kr.pe.sinnori.client.io.LetterFromServer;
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.message.InputMessage;
@@ -48,16 +48,13 @@ public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 	private int connectionPoolSize;
 	private boolean isFailToGetConnection = false;
 	
-	/** 소켓 쓰기 랩 버퍼 목록 */
-	// private ArrayList<WrapBuffer> inputMessageWriteBufferList = new ArrayList<WrapBuffer>();
-
 	/**
 	 * 생성자
 	 * @param connectionPoolSize 연결 폴 크기
 	 * @param socketTimeOut 소켓 타임 아웃
 	 * @param whetherToAutoConnect 자동 연결 여부
-	 * @param commonProjectInfo 공통 프로젝트 정보
-	 * @Param messageProtocol 메시지 교환 프로토콜
+	 * @param clientProjectConfig 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
+	 * @param messageProtocol 메시지 교환 프로토콜
 	 * @param messageManger 메시지 관리자
 	 * @param dataPacketBufferQueueManager 데이터 패킷 큐 관리자
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷을 할당 받지 못할을 경우 던지는 예외
@@ -66,12 +63,12 @@ public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 	public NoShareSyncConnectionPool(int connectionPoolSize, 
 			long socketTimeOut,
 			boolean whetherToAutoConnect,
-			CommonProjectInfo commonProjectInfo,
+			ClientProjectConfigIF clientProjectConfig,
 			MessageExchangeProtocolIF messageProtocol,
 			MessageMangerIF messageManger, 
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager)
 			throws NoMoreDataPacketBufferException, InterruptedException {
-		super(commonProjectInfo, null);
+		super(clientProjectConfig, null);
 
 		// log.info("create new SingleBlockConnectionPool");
 
@@ -83,7 +80,7 @@ public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 		
 		for (int i = 0; i < connectionPoolSize; i++) {
 			NoShareSyncConnection serverConnection = new NoShareSyncConnection(
-					i, socketTimeOut, whetherToAutoConnect, commonProjectInfo, 
+					i, socketTimeOut, whetherToAutoConnect, clientProjectConfig, 
 					serverOutputMessageQueue, messageProtocol, messageManger, 
 					dataPacketBufferQueueManager);
 			connectionQueue.add(serverConnection);
@@ -103,7 +100,7 @@ public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 	}
 
 	@Override
-	public LetterFromServer sendInputMessage(InputMessage inputMessage)
+	public LetterFromServer sendSyncInputMessage(InputMessage inputMessage)
 			throws ServerNotReadyException, SocketTimeoutException,
 			NoMoreDataPacketBufferException, BodyFormatException, MessageInfoNotFoundException {
 		NoShareSyncConnection conn = null;
@@ -132,7 +129,7 @@ public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 
 		LetterFromServer retLetterList = null;
 		try {
-			retLetterList = conn.sendInputMessage(inputMessage);
+			retLetterList = conn.sendSyncInputMessage(inputMessage);
 		} finally {
 			// synchronized (monitor) {
 			try {

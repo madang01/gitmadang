@@ -28,7 +28,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import kr.pe.sinnori.common.configuration.ProjectConfig;
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.configuration.SinnoriConfig;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.gui.lib.MainControllerIF;
@@ -46,6 +46,7 @@ import com.jgoodies.forms.layout.RowSpec;
  */
 @SuppressWarnings("serial")
 public class ConnectionScreen extends JPanel implements CommonRootIF {
+	private ClientProjectConfigIF clientProjectConfig;
 	private JFrame mainFrame = null;
 	private MainControllerIF mainController = null;
 	
@@ -56,9 +57,9 @@ public class ConnectionScreen extends JPanel implements CommonRootIF {
 	private final Action connectionButtonAction = new ConnectionButtonAction();
 	
 	
-	private final String projectName = "sample_simple_ftp";
+	
 	private SinnoriConfig sinnoriConfig = SinnoriConfig.getInstance();
-	private ProjectConfig projectConfig = sinnoriConfig.getProjectConfig(projectName);
+	
 	
 
 	/**
@@ -66,9 +67,9 @@ public class ConnectionScreen extends JPanel implements CommonRootIF {
 	 * @param mainFrame 메일 프레임
 	 * @param mainController 메인 제어자
 	 */
-	public ConnectionScreen(final JFrame mainFrame, MainControllerIF mainController) {
+	public ConnectionScreen(ClientProjectConfigIF clientProjectConfig, final JFrame mainFrame, MainControllerIF mainController) {
 		super();
-		
+		this.clientProjectConfig = clientProjectConfig;
 		this.mainFrame = mainFrame;
 		this.mainController = mainController;
 		initialize();
@@ -137,8 +138,8 @@ public class ConnectionScreen extends JPanel implements CommonRootIF {
 		this.add(passwordField, "4, 10, fill, default");
 		
 		// FIXME!
-		hostTextField.setText(projectConfig.getServerHost());
-		portTextField.setText(String.valueOf(projectConfig.getServerPort()));
+		hostTextField.setText(clientProjectConfig.getServerHost());
+		portTextField.setText(String.valueOf(clientProjectConfig.getServerPort()));
 		idTextField.setText("test01");
 		passwordField.setText("1234");
 		
@@ -193,8 +194,7 @@ public class ConnectionScreen extends JPanel implements CommonRootIF {
 			byte[] binaryPublicKeyBytes = mainController.connectServer(newServerHost, newServerPort);
 			
 			if (null == binaryPublicKeyBytes) return;
-			
-			projectConfig.changeServerHostInfo(newServerHost, newServerPort);
+						
 			sinnoriConfig.save();
 			
 			String id = idTextField.getText();

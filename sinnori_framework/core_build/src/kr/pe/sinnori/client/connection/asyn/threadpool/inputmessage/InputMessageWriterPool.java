@@ -21,8 +21,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler.InputMessageWriter;
 import kr.pe.sinnori.client.io.LetterToServer;
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
@@ -34,7 +34,7 @@ import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
  */
 public class InputMessageWriterPool extends AbstractThreadPool {
 	private int maxHandler;
-	private CommonProjectInfo commonProjectInfo = null;
+	private ClientProjectConfigIF clientProjectConfig = null;
 	private LinkedBlockingQueue<LetterToServer> inputMessageQueue;
 	private MessageMangerIF messageManger = null;
 	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManager;
@@ -46,33 +46,32 @@ public class InputMessageWriterPool extends AbstractThreadPool {
 	 * 생성자
 	 * @param size 클라이언트 입력 메시지 소켓 쓰기 담당 쓰레드 초기 갯수
 	 * @param max 클라이언트 입력 메시지 소켓 쓰기 담당 쓰레드 최대 갯수
-	 * @param commonProjectInfo 공통 연결 데이터
+	 * @param clientProjectConfig 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
 	 * @param inputMessageQueue 입력 메시지 큐
 	 * @param messageProtocol 메시지 교환 프로프로콜
 	 * @param messageManger 메시지 관리자
 	 * @param dataPacketBufferQueueManager 데이터 패킷 큐 관리자
 	 */
 	public InputMessageWriterPool(int size, int max,
-			CommonProjectInfo commonProjectInfo, 
+			ClientProjectConfigIF clientProjectConfig, 
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue, 
 			MessageExchangeProtocolIF messageProtocol, 
 			MessageMangerIF messageManger,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) {
 		if (size <= 0) {
-			throw new IllegalArgumentException("파라미터 초기 핸들러 갯수는 0보다 커야 합니다.");
+			throw new IllegalArgumentException(String.format("%s 파라미터 size 는 0보다 커야 합니다.", clientProjectConfig.getProjectName()));
 		}
 		if (max <= 0) {
-			throw new IllegalArgumentException("파라미터 최대 핸들러 갯수는 0보다 커야 합니다.");
+			throw new IllegalArgumentException(String.format("%s 파라미터 max 는 0보다 커야 합니다.", clientProjectConfig.getProjectName()));
 		}
 
 		if (size > max) {
 			throw new IllegalArgumentException(String.format(
-					"파라미터 초기 핸들러 갯수[%d]는 최대 핸들러 갯수[%d]보다 작거나 같아야 합니다.", size,
-					max));
+					"%s 파라미터 size[%d]는 파라미터 max[%d]보다 작거나 같아야 합니다.", clientProjectConfig.getProjectName(), size, max));
 		}
 		
 		this.maxHandler = max;
-		this.commonProjectInfo = commonProjectInfo;
+		this.clientProjectConfig = clientProjectConfig;
 		this.inputMessageQueue = inputMessageQueue;
 		this.messageProtocol = messageProtocol;
 		this.messageManger = messageManger;
@@ -90,23 +89,19 @@ public class InputMessageWriterPool extends AbstractThreadPool {
 
 			if (size < maxHandler) {
 				try {
-					/*
-					WrapBuffer wrapBuffer = dataPacketBufferQueueManager.pollDataPacketBuffer();
-					if (null == wrapBuffer) {
-						log.severe("데이터 패킷 버퍼 확보 실패");
-						return;
-					}
-					*/
-					// ioWrapBufferList.add(wrapBuffer);
-
-					Thread handler = new InputMessageWriter(size, commonProjectInfo,
+					Thread handler = new InputMessageWriter(size, clientProjectConfig,
 							inputMessageQueue, messageProtocol, messageManger, dataPacketBufferQueueManager);
+					
 					pool.add(handler);
-
-					// log.info("InputMessageWriter[%d] wrapBuffer=[%d]", size, wrapBuffer.hashCode());
 				} catch (Exception e) {
-					log.warn("handler 등록 실패", e);
+					String errorMessage = String.format("%s InputMessageWriter[%d] 등록 실패", clientProjectConfig.getProjectName(), size); 
+					log.warn(errorMessage, e);
+					throw new RuntimeException(errorMessage);
 				}
+			} else {
+				String errorMessage = String.format("%s InputMessageWriter 최대 갯수[%d]를 넘을 수 없습니다.", clientProjectConfig.getProjectName(), maxHandler); 
+				log.warn(errorMessage);
+				throw new RuntimeException(errorMessage);
 			}
 		}
 	}

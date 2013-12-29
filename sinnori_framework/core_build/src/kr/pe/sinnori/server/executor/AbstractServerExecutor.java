@@ -19,9 +19,9 @@ package kr.pe.sinnori.server.executor;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
+import kr.pe.sinnori.common.configuration.ServerProjectConfigIF;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.message.InputMessage;
@@ -51,7 +51,8 @@ public abstract class AbstractServerExecutor implements CommonRootIF {
 	 *       소켓 채널을 통해서만 서버와의 데이터 교환을 할 수 있기때문이다. 
 	 * </pre>
 	 *       
-	 * @param fromSC 입력 메시지를 보낸 클라이언트와 연결된 소켓
+	 * @param serverProjectConfig 프로젝트의 서버 환경 변수
+	 * @param letterSender 클라이언트로 보내는 편지 배달부
 	 * @param inObj 입력 메시지
 	 * @param ouputMessageQueue 출력 메시지 큐
 	 * @param messageManger 메시지 관리자
@@ -59,8 +60,7 @@ public abstract class AbstractServerExecutor implements CommonRootIF {
 	 * @throws MessageInfoNotFoundException 메시지 정보 파일이 존재하지 않을때 던지는 예외
 	 * @throws MessageItemException 메시지 항목 값을 얻을때 혹은 항목 값을 설정할때 항목 관련 에러 발생시 던지는 예외
 	 */
-	public void executeInputMessage(
-			final CommonProjectInfo commonProjectInfo,
+	public void executeInputMessage(ServerProjectConfigIF serverProjectConfig,
 			LetterSender letterSender,
 			InputMessage inObj,
 			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
@@ -69,21 +69,22 @@ public abstract class AbstractServerExecutor implements CommonRootIF {
 		// FIXME!
 		// log.info("inputMessage=[%s]", inputMessage.toString());
 		
-		doTask(commonProjectInfo, letterSender, inObj, messageManger, clientResourceManager);
+		doTask(serverProjectConfig, letterSender, inObj, messageManger, clientResourceManager);
 	}
 		
 	
 	
 	/**
 	 * 출력메시지 직접 전송하는 개발자가 직접 작성해야할 비지니스 로직
-	 * @param fromSC 입력 메시지를 보낸 클라이언트와 연결된 소켓
+	 * @param serverProjectConfig 프로젝트의 서버 환경 변수
+	 * @param letterSender 클라이언트로 보내는 편지 배달부
 	 * @param inObj 입력 메시지	  
 	 * @param messageManger 메시지 관리자
 	 * @param clientResourceManager 클라이언트 자원 관리자
 	 * @throws MessageInfoNotFoundException 메시지 정보 파일이 존재하지 않을때 던지는 예외
 	 * @throws MessageItemException 메시지 항목 값을 얻을때 혹은 항목 값을 설정할때 항목 관련 에러 발생시 던지는 예외
 	 */
-	abstract protected void doTask(final CommonProjectInfo commonProjectInfo,
+	abstract protected void doTask(ServerProjectConfigIF serverProjectConfig,
 			LetterSender letterSender, InputMessage inObj,
 			MessageMangerIF messageManger,			
 			ClientResourceManagerIF clientResourceManager)

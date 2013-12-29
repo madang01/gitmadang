@@ -29,6 +29,7 @@ import javax.swing.JOptionPane;
 import kr.pe.sinnori.client.ClientProjectIF;
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.io.LetterFromServer;
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
@@ -42,7 +43,6 @@ import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.exception.SinnoriUnsupportedEncodingException;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.exception.UpDownFileException;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
@@ -71,7 +71,14 @@ import org.apache.commons.codec.binary.Base64;
  */
 public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements MainControllerIF {
 	// private final Object monitor = new Object();
-	private AbstractConnection conn = null;
+	/**
+	 * 메시지 교환 종류(MESSAGE_EXCHANGE_TYPE)
+	 * 비동기 메시지(ASYNC_MESSAGE) : 입력 메시지를 보내기만 하며 출력 메시지를 기다리지 않는다.
+	 * 동기 메시지(SYNC_MESSAGE) : 입력 메시지를 보낸후 출력 메시지를 받아 반환을 한다.
+	 */
+	private enum MESSAGE_EXCHANGE_TYPE {ASYNC_MESSAGE, SYNC_MESSAGE};
+	
+	private AbstractConnection conn = null; 
 	
 	private JFrame mainFrame = null;
 
@@ -82,7 +89,7 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 
 	private MessageMangerIF messageManger = null;
 	private ClientProjectIF clientProject = null;
-	private CommonProjectInfo commonProjectInfo = null;
+	private ClientProjectConfigIF clientProjectConfig = null;
 	private byte[] binaryPublicKeyBytes = null;
 	
 	private ClientSessionKeyManager clientSessionKeyManager = null;
@@ -116,11 +123,15 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 		
 		
 		mainFrame = new JFrame();
-		// mainFrame.setBounds(100, 100, 450, 300);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		mainFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+			public void windowClosed(java.awt.event.WindowEvent evt){
+				freeResource();
+			}
+		});
 		// mainFrame.setBounds(100, 100, 450, 223);
 		
-		connectionScreen = new ConnectionScreen(mainFrame, this);
+		connectionScreen = new ConnectionScreen(clientProjectConfig, mainFrame, this);
 		
 		mainFrame.add(connectionScreen);
 		mainFrame.pack();
@@ -136,14 +147,14 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 		
 	
 	@Override
-	protected void doTask(MessageMangerIF messageManger, ClientProjectIF clientProject)
+	protected void doTask(ClientProjectConfigIF clientProjectConfig, MessageMangerIF messageManger, ClientProjectIF clientProject)
 			throws SocketTimeoutException, ServerNotReadyException,
 			DynamicClassCallException, NoMoreDataPacketBufferException,
 			BodyFormatException, MessageInfoNotFoundException, InterruptedException {
 		// connectionOK = this;
 		this.messageManger = messageManger;
 		this.clientProject = clientProject;
-		this.commonProjectInfo = clientProject.getCommonProjectInfo();
+		this.clientProjectConfig = clientProjectConfig;
 		
 		this.fileUpDown2AnonymousServerMessageTask = new FileUpDown2AnonymousServerMessageTask(this);
 		clientProject.changeAnonymousServerMessageTask(fileUpDown2AnonymousServerMessageTask);;
@@ -163,6 +174,9 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 	public int getFileBlockSize() {
 		return (1024*30);
 	}
+	
+	
+	
 	
 	@Override
 	public void loginOK() {
@@ -205,9 +219,9 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 	}
 	
 	@Override
-	public byte[] connectServer(String host, int port) {
-		commonProjectInfo.setServerHost(host);
-		commonProjectInfo.setServerPort(port);
+	public byte[] connectServer(String newServerHost, int newServerPort) {
+		clientProjectConfig.changeServerAddress(newServerHost, newServerPort);
+		
 		
 		OutputMessage binaryPublicKeyOutObj = getBinaryPublicKey();
 		if (null == binaryPublicKeyOutObj) return null;
@@ -258,7 +272,7 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 			
 		LetterFromServer letterFromServer = null;
 		try {
-			letterFromServer = conn.sendInputMessage(binaryPublicKeyInObj);
+			letterFromServer = conn.sendSyncInputMessage(binaryPublicKeyInObj);
 			
 			if (null == letterFromServer) {
 				log.warn(String.format("input message[%s] letterFromServer is null", binaryPublicKeyInObj.getMessageID()));
@@ -372,7 +386,7 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 		String sessionKeyBase64 = null;
 		String ivBase64 = null;
 		
-		String charsetName = commonProjectInfo.getCharsetOfProject().name();
+		String charsetName = clientProjectConfig.getCharset().name();
 		
 		try {
 			idCipherBase64 = symmetricKey.encryptStringBase64(id, charsetName);
@@ -437,7 +451,7 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 			
 		LetterFromServer letterFromServer = null;
 		try {
-			letterFromServer = conn.sendInputMessage(loginInObj);
+			letterFromServer = conn.sendSyncInputMessage(loginInObj);
 			
 			if (null == letterFromServer) {
 				String errorMessage = String.format("input message[%s] letterFromServer is null", loginInObj.getMessageID()); 
@@ -521,6 +535,7 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 		return true;
 	}
 	
+	
 	/**
 	 * <pre>
 	 * 입력 메시지를 보내 로그인을 요구하는 입력 메시지 1:1 대응 서버 비지니스 로직으로부터 출력 메시지를 얻는다.
@@ -530,18 +545,21 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 	 * @param outputMessageID 출력 메시지 식별자, 주) 입력 메시지 1:1 대응 서버 비지니스 로직이 보내는 출력 메시지 식별자와 일치해야한다.
 	 * @return 출력 메시지
 	 */
-	private OutputMessage getOutputMessageForLoginServie(InputMessage inObj, String outputMessageID, boolean isNoResponse) {
+	
+	
+	
+	private OutputMessage getOutputMessageForLoginServie(InputMessage inObj, String outputMessageID, MESSAGE_EXCHANGE_TYPE messageExchangeType) {
 		if (!conn.isConnected()) {
-			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			JOptionPane.showMessageDialog(mainFrame, "서버와의 연결이 끊어 졌습니다.");
 			goToFirstScreen();
 			return null;
 		}
 		
 		OutputMessage outObj = null;
 		
-		if (isNoResponse) {
+		if (messageExchangeType == MESSAGE_EXCHANGE_TYPE.ASYNC_MESSAGE) {
 			try {
-				conn.sendInputMessageWithoutResponse(inObj);
+				conn.sendAsyncInputMessage(inObj);
 			} catch (SocketTimeoutException e) {
 				log.warn("SocketTimeoutException", e);
 				JOptionPane.showMessageDialog(mainFrame, "지정된 연결 시간을 초과하였습니다.");
@@ -575,7 +593,7 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 			
 			try {
 				outObj = messageManger.createOutputMessage("MessageResult");
-				outObj.setAttribute("taskMessageID", inObj.getMessageID());
+				outObj.setAttribute("taskMessageID", "CancelUploadFile");
 				outObj.setAttribute("taskResult", "Y");
 				outObj.setAttribute("resultMessage", "가상적으로 성공 처리");
 			} catch (IllegalArgumentException e) {
@@ -590,11 +608,11 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 				log.warn("MessageItemException", e);
 				JOptionPane.showMessageDialog(mainFrame, e.getMessage());
 				return null;
-			}
+			}		
 		} else {
 			LetterFromServer letterFromServer = null;
 			try {				
-				letterFromServer = conn.sendInputMessage(inObj);
+				letterFromServer = conn.sendSyncInputMessage(inObj);
 				if (null == letterFromServer) {
 					String errorMessage = String.format("inObj[%s] letterFromServer is null", inObj.getMessageID()); 
 					log.warn(errorMessage);
@@ -677,7 +695,7 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 	@Override
 	public OutputMessage getRemoteFileList(String requestDirectory) {
 		if (!conn.isConnected()) {
-			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			JOptionPane.showMessageDialog(mainFrame, "서버와의 연결이 끊어 졌습니다.");
 			goToFirstScreen();
 			return null;
 		}
@@ -704,7 +722,7 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 			return null;
 		}
 		
-		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "FileListResult", false);
+		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "FileListResult", MESSAGE_EXCHANGE_TYPE.SYNC_MESSAGE);
 		if (null == outObj) return null;
 		try {
 			String taskResult = (String)outObj.getAttribute("taskResult");
@@ -732,7 +750,7 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 			String remoteFilePathName, String remoteFileName, int fileBlockSize) {
 		
 		if (!conn.isConnected()) {
-			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			JOptionPane.showMessageDialog(mainFrame, "서버와의 연결이 끊어 졌습니다.");
 			goToFirstScreen();
 			return null;
 		}
@@ -786,7 +804,7 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 			return null;
 		}
 		
-		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "UpFileInfoResult", false);
+		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "UpFileInfoResult", MESSAGE_EXCHANGE_TYPE.SYNC_MESSAGE);
 		if (null == outObj) return null;
 		try {			
 			String taskResult = (String)outObj.getAttribute("taskResult");
@@ -871,7 +889,7 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 	@Override
 	public OutputMessage doUploadFile(int serverTargetFileID, int fileBlockNo, byte[] fileData) {
 		if (!conn.isConnected()) {
-			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			JOptionPane.showMessageDialog(mainFrame, "서버와의 연결이 끊어 졌습니다.");
 			goToFirstScreen();
 			return null;
 		}
@@ -909,8 +927,8 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 		
 		//FIXME!
 		// log.info(inObj.toString());
-
-		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "UpFileDataResult", true);
+		/** UpFileData2 */
+		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "UpFileDataResult", MESSAGE_EXCHANGE_TYPE.ASYNC_MESSAGE);
 		if (null == outObj) return null;
 		return outObj;
 	}
@@ -919,7 +937,7 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 	public OutputMessage readyDownloadFile(String localFilePathName, String localFileName, 
 			String remoteFilePathName, String remoteFileName, long remoteFileSize, int fileBlockSize) {
 		if (!conn.isConnected()) {
-			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			JOptionPane.showMessageDialog(mainFrame, "서버와의 연결이 끊어 졌습니다.");
 			goToFirstScreen();
 			return null;
 		}
@@ -970,7 +988,7 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 			return null;
 		}
 		
-		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "DownFileInfoResult", false);
+		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "DownFileInfoResult", MESSAGE_EXCHANGE_TYPE.SYNC_MESSAGE);
 		if (null == outObj) return null;
 		try {
 			String taskResult = (String)outObj.getAttribute("taskResult");
@@ -1055,7 +1073,7 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 	@Override
 	public OutputMessage doDownloadFileAll() {
 		if (!conn.isConnected()) {
-			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			JOptionPane.showMessageDialog(mainFrame, "서버와의 연결이 끊어 졌습니다.");
 			goToFirstScreen();
 			return null;
 		}
@@ -1082,8 +1100,8 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
 			return null;
 		}
-		
-		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "MessageResult", true);
+		/** DownFileDataAll */
+		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "MessageResult", MESSAGE_EXCHANGE_TYPE.ASYNC_MESSAGE);
 		if (null == outObj) return null;
 		return outObj;
 	}
@@ -1092,7 +1110,7 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 	public OutputMessage cancelUploadFile() {
 		if (!conn.isConnected()) {
 			/** 서버로 파일 조각을 보내는 파일 업로드 작업중이므로 첫화면으로 가지 않고 이곳에서는 단지 에러 메시지만 보여주면 된다. */
-			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			JOptionPane.showMessageDialog(mainFrame, "서버와의 연결이 끊어 졌습니다.");
 			return null;
 		}
 		
@@ -1100,6 +1118,13 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 		InputMessage inObj = null;
 		
 		try {
+			/**
+			 * <pre>
+			 * 비동기 메시지 CancelUploadFile2 가 필요한 이유는 
+			 * 응답을 기다리지 않고 로컬 원본 파일 조각을 서버로 보내기때문에 서버 목적지 파일의 락을 해제하는 시간이 걸린다.
+			 * 따라서 파일 업로드 취소는 비동기 메시지로 처리되어야 한다.
+			 * </pre>
+			 */
 			inObj = messageManger.createInputMessage("CancelUploadFile2");
 		} catch (IllegalArgumentException e) {
 			log.warn("IllegalArgumentException", e);
@@ -1119,8 +1144,8 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
 			return null;
 		}
-		
-		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "CancelUploadFileResult", true);
+		/** CancelUploadFile2 */
+		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "CancelUploadFileResult", MESSAGE_EXCHANGE_TYPE.ASYNC_MESSAGE);
 		if (null == outObj) return null;
 		
 		return outObj;
@@ -1129,7 +1154,7 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 	@Override
 	public OutputMessage cancelDownloadFile() {
 		if (!conn.isConnected()) {
-			JOptionPane.showMessageDialog(mainFrame, "서버가 준비되지 않았습니다. 서버및 네트워크 연결 상태를 점검하세요.");
+			JOptionPane.showMessageDialog(mainFrame, "서버와의 연결이 끊어 졌습니다.");
 			goToFirstScreen();
 			return null;
 		}
@@ -1158,14 +1183,14 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 			return null;			
 		}
 		
-		
-		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "CancelDownloadFileResult", true);
+		/** CancelDownloadFile2 */
+		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "CancelDownloadFileResult", MESSAGE_EXCHANGE_TYPE.ASYNC_MESSAGE);
 		if (null == outObj) return null;
 		return outObj;
 	}
 	
 	@Override
-	public void doAnonymousServerMessageTask(String projectName, OutputMessage outObj) {
+	public void doAnonymousServerMessageTask(OutputMessage outObj) {
 		// log.info(String.format("projectName[%s] %s", projectName, outObj.toString()));
 
 		String messageID = outObj.getMessageID();
@@ -1263,13 +1288,13 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 				localTargetFileResource.cancel();
 				fileProcessDialog.stopTask();
 			} else if (messageID.equals("SelfExn")) {
-				log.warn(String.format("projectName[%s] SelfExn, %s", projectName, outObj.toString()));
+				log.warn(String.format("projectName[%s] SelfExn, %s", clientProjectConfig.getProjectName(), outObj.toString()));
 			} else {
-				log.warn(String.format("projectName[%s] unknown output message, %s", projectName, outObj.toString()));
+				log.warn(String.format("projectName[%s] unknown output message, %s", clientProjectConfig.getProjectName(), outObj.toString()));
 			}
 			
 		} catch (MessageItemException e) {
-			log.warn(String.format("projectName[%s] %s", projectName, e.getMessage()), e);
+			log.warn(String.format("projectName[%s] %s", clientProjectConfig.getProjectName(), e.getMessage()), e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
 		}
 	}

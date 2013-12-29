@@ -59,7 +59,7 @@ public class MessageInputStreamResourcePerSocket implements CommonRootIF {
 	
 	/**
 	 * 생성자
-	 * @param commonProjectInfo 공통 프로젝트 정보
+	 * @param byteOrderOfProject 프로젝트의 바이트 오더
 	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷 버퍼 확보 실패시 던지는 예외
 	 */

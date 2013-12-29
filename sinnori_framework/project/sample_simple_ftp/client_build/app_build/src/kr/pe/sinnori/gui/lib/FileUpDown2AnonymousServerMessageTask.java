@@ -19,24 +19,30 @@
 package kr.pe.sinnori.gui.lib;
 
 import kr.pe.sinnori.client.AnonymousServerMessageTaskIF;
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.message.OutputMessage;
 
 /**
+ * 파일 송수신 버전2의 서버 익명 메시지 처리자
  * @author Jonghoon Won
  *
  */
 public class FileUpDown2AnonymousServerMessageTask implements CommonRootIF, AnonymousServerMessageTaskIF {
 	private MainControllerIF mainController = null;
 	
+	/**
+	 * 생성자
+	 * @param mainController 서버로부터 받은 익명 서버 메시지 처리를 맡을 메인 제어자 
+	 */
 	public FileUpDown2AnonymousServerMessageTask(MainControllerIF mainController) {
 		this.mainController = mainController;
 	}
 	
 	@Override
-	public void doTask(String projectName, OutputMessage outObj) {
-		// log.info(String.format("projectName[%s] %s", projectName, outObj.toString()));
+	public void doTask(ClientProjectConfigIF clientProjectConfig, OutputMessage outObj) {
+		// log.info(String.format("projectName[%s] %s", clientProjectConfig.getProjectName(), outObj.toString()));
 		
-		mainController.doAnonymousServerMessageTask(projectName, outObj);
+		mainController.doAnonymousServerMessageTask(outObj);
 	}
 }

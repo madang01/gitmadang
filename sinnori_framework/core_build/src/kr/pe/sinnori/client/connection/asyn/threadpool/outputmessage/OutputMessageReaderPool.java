@@ -20,8 +20,8 @@ package kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage;
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReader;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReaderIF;
+import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
-import kr.pe.sinnori.common.lib.CommonProjectInfo;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 
@@ -35,7 +35,7 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements
 		OutputMessageReaderPoolIF {
 	private int maxHandler;
 	private long readSelectorWakeupInterval;
-	private CommonProjectInfo commonProjectInfo = null;
+	private ClientProjectConfigIF clientProjectConfig = null;
 	private MessageExchangeProtocolIF messageProtocol = null;
 	private MessageMangerIF messageManger = null;
 	
@@ -44,30 +44,29 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements
 	 * @param size 클라이언트 출력 메시지 소켓 읽기 담당 쓰레드 초기 갯수
 	 * @param max 클라이언트 출력 메시지 소켓 읽기 담당 쓰레드 최대 갯수
 	 * @param readSelectorWakeupInterval 출력 메시지 소켓 읽기 담당 쓰레드에서 블락된 읽기 이벤트 전용 selector 를 깨우는 주기
-	 * @param commonProjectInfo 공통 연결 데이터
+	 * @param clientProjectConfig 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
 	 * @param messageProtocol 메시지 교환 프로토콜
 	 * @param messageManger 메시지 관리자
 	 */
 	public OutputMessageReaderPool(int size, int max, long readSelectorWakeupInterval, 
-			CommonProjectInfo commonProjectInfo,
+			ClientProjectConfigIF clientProjectConfig,
 			MessageExchangeProtocolIF messageProtocol,
 			MessageMangerIF messageManger) {
 		if (size <= 0) {
-			throw new IllegalArgumentException("파라미터 초기 핸들러 갯수는 0보다 커야 합니다.");
+			throw new IllegalArgumentException(String.format("%s 파라미터 size 는 0보다 커야 합니다.", clientProjectConfig.getProjectName()));
 		}
 		if (max <= 0) {
-			throw new IllegalArgumentException("파라미터 최대 핸들러 갯수는 0보다 커야 합니다.");
+			throw new IllegalArgumentException(String.format("%s 파라미터 max 는 0보다 커야 합니다.", clientProjectConfig.getProjectName()));
 		}
 
 		if (size > max) {
 			throw new IllegalArgumentException(String.format(
-					"파라미터 초기 핸들러 갯수[%d]는 최대 핸들러 갯수[%d]보다 작거나 같아야 합니다.", size,
-					max));
+					"%s 파라미터 size[%d]는 파라미터 max[%d]보다 작거나 같아야 합니다.", clientProjectConfig.getProjectName(), size, max));
 		}
 
 		this.maxHandler = max;
 		this.readSelectorWakeupInterval = readSelectorWakeupInterval;
-		this.commonProjectInfo = commonProjectInfo;
+		this.clientProjectConfig = clientProjectConfig;
 		this.messageProtocol = messageProtocol;
 		this.messageManger = messageManger;
 		
@@ -84,11 +83,17 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements
 
 			if (size < maxHandler) {
 				try {
-					Thread handler = new OutputMessageReader(size, readSelectorWakeupInterval, commonProjectInfo, messageProtocol, messageManger);
+					Thread handler = new OutputMessageReader(size, readSelectorWakeupInterval, clientProjectConfig, messageProtocol, messageManger);
 					pool.add(handler);
 				} catch (Exception e) {
-					log.warn("handler 등록 실패", e);
+					String errorMessage = String.format("%s OutputMessageReader[%d] 등록 실패", clientProjectConfig.getProjectName(), size); 
+					log.warn(errorMessage, e);
+					throw new RuntimeException(errorMessage);
 				}
+			} else {
+				String errorMessage = String.format("%s OutputMessageReader 최대 갯수[%d]를 넘을 수 없습니다.", clientProjectConfig.getProjectName(), maxHandler); 
+				log.warn(errorMessage);
+				throw new RuntimeException(errorMessage);
 			}
 		}
 	}
@@ -107,6 +112,7 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements
 				minHandler = handler;
 			}
 		}
-		minHandler.addNewServer(serverConnection); // 마지막으로 ReqeustHandler에 등록
+		// 읽기 전용 selector 에 최소로 등록된 소켓 채널을 가지고 있는 출력 메시지 읽기 처리 쓰레드에 연결 객체 등록 
+		minHandler.addNewServer(serverConnection);
 	}
 }

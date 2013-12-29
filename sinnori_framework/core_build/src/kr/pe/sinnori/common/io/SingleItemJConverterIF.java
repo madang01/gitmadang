@@ -1,4 +1,4 @@
-package kr.pe.sinnori.common;
+package kr.pe.sinnori.common.io;
 
 import java.nio.charset.Charset;
 import java.util.HashMap;
@@ -8,7 +8,7 @@ import kr.pe.sinnori.common.message.ItemTypeManger;
 
 import org.json.simple.JSONObject;
 
-public interface SingleItemJConverterIF {
+public interface SingleItemJConverterIF {	
 	/**
 	 * <pre>
 	 * 항목 정보와 항목의 값을 스트림에 저장한다. 
@@ -21,7 +21,7 @@ public interface SingleItemJConverterIF {
 	 * @param itemValue 항목 값
 	 * @param itemSizeForLang 언어에 특화된 부가 정보중 하나인 항목 크기
 	 * @param itemCharsetForLang 언어에 특화된 부가 정보중 하나인 문자셋
-	 * @param sw 출력 스트림
+	 * @param jsonObj json 객체
 	 * @throws BodyFormatException 항목 쓰기 실패시 던지는 예외
 	 * @throws IllegalArgumentException 잘못된 파라미터 넣었을 경우 던지는 예외
 	 */
@@ -36,7 +36,7 @@ public interface SingleItemJConverterIF {
 	 * @param itemSizeForLang 언어에 특화된 부가 정보중 하나인 항목 크기
 	 * @param itemCharsetForLang 언어에 특화된 부가 정보중 하나인 문자셋
 	 * @param itemValueHash 항목명 해쉬, 키는 항목명, 값은 항목의 값이다.
-	 * @param sr 입력 스트림
+	 * @param jsonObj json 객체
 	 * @throws IllegalArgumentException 잘못된 파라미터 넣었을 경우 던지는 예외
 	 * @throws BodyFormatException 항목 쓰기 실패시 던지는 예외
 	 */
