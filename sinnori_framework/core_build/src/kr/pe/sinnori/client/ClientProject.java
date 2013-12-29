@@ -41,7 +41,7 @@ import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
 import kr.pe.sinnori.common.lib.AbstractProject;
 import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.common.lib.CommonType;
+import kr.pe.sinnori.common.lib.CommonType.CONNECTION_TYPE;
 import kr.pe.sinnori.common.lib.OutputMessageQueueQueueMangerIF;
 import kr.pe.sinnori.common.lib.WrapBuffer;
 import kr.pe.sinnori.common.lib.WrapOutputMessageQueue;
@@ -124,12 +124,11 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 			throw new NoMoreDataPacketBufferException(errorMessage);
 		}
 		
-		
-		boolean channelBlockingMode = clientProjectConfig.getClientChannelBlockingMode();
-		CommonType.THREAD_SHARE_MODE threadShareMode = clientProjectConfig.getClientThreadShareMode();
+		CONNECTION_TYPE connectionType = clientProjectConfig.getConnectionType();
 		
 		
-		if (channelBlockingMode) {			
+		
+		if (CONNECTION_TYPE.NoShareSync == connectionType) {			
 			connectionPool = new NoShareSyncConnectionPool(connectionCount, 
 					socketTimeOut, whetherToAutoConnect, clientProjectConfig, messageExchangeProtocol, this, this);
 		} else {
@@ -158,8 +157,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 			outputMessageReaderPool.startAll();
 			
 			
-			
-			if (CommonType.THREAD_SHARE_MODE.Multi == threadShareMode) {
+			if (CONNECTION_TYPE.ShareAsyn == connectionType) {
 				int mailBoxCnt = clientProjectConfig.getClientShareAsynConnMailboxCnt();
 				
 				int  outputMessageQueueQueueSize = mailBoxCnt * connectionCount;
@@ -197,8 +195,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 						serverAnymouseOutputMessageQueue, 
 						inputMessageQueue, this, 
 						outputMessageReaderPool, this, this);
-			}
-			
+			}			
 			
 			anonymousServerMessageProcessorThread = new AnonymousServerMessageProcessorThread();
 			anonymousServerMessageProcessorThread.start();

@@ -213,7 +213,7 @@ public class TestNetAllDataTypeCExtor extends AbstractClientExecutor {
 		}
 		*/
 
-		log.info(String.format("TestNetAllDataType Network 입/출력 비교결과=[%s]", allDataTypeInObjStr.equals(allDataTypeOutObjStr)));
+		log.info(String.format("입/출력 비교결과=[%s]", allDataTypeInObjStr.equals(allDataTypeOutObjStr)));
 		
 	}
 

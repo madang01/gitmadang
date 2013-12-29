@@ -28,6 +28,7 @@ import java.util.TreeSet;
 
 import kr.pe.sinnori.common.io.dhb.header.DHBMessageHeader;
 import kr.pe.sinnori.common.lib.CommonType;
+import kr.pe.sinnori.common.lib.CommonType.CONNECTION_TYPE;
 
 import org.apache.log4j.Logger;
 
@@ -69,10 +70,9 @@ public class ProjectConfig implements ClientProjectConfigIF, ServerProjectConfig
 	
 	/************* client 변수 종료 ******************/
 	/***** 연결 클래스 관련 환경 변수 시작 *****/
-	/** 소켓 채널 랩 클래스인 연결 클래스의 쓰레드 공유 모드 */
-	private CommonType.THREAD_SHARE_MODE clientThreadShareMode;
-	/** 소켓 채널 blocking 모드 */
-	private boolean clientChannelBlockingMode;
+	/** 연결 종류 */
+	private CONNECTION_TYPE connectionType;
+
 	/** 연결 클래스 갯수 */
 	private int clientConnectionCount;
 	/** 연결 생성시 자동 접속 여부 */
@@ -387,38 +387,24 @@ public class ProjectConfig implements ClientProjectConfigIF, ServerProjectConfig
 		String propValue = null;
 		String startIndexKey = null;
 		
-		propKey = getClientKeyName("connection.thread_share_mode");
+		propKey = getClientKeyName("connection.type");
 		propValue = configFileProperties.getProperty(propKey);
 		if (null == propValue) {
-			clientThreadShareMode = CommonType.THREAD_SHARE_MODE.Single;
+			connectionType = CONNECTION_TYPE.NoShareAsyn;
 		} else {
-			if (propValue.equals("Multi")) {
-				clientThreadShareMode = CommonType.THREAD_SHARE_MODE.Multi;
-			} else if (propValue.equals("Single")) {
-				clientThreadShareMode = CommonType.THREAD_SHARE_MODE.Single;
+			if (propValue.equals("NoShareAsyn")) {
+				connectionType = CONNECTION_TYPE.NoShareAsyn;
+			} else if (propValue.equals("ShareAsyn")) {
+				connectionType = CONNECTION_TYPE.ShareAsyn;
+			} else if (propValue.equals("NoShareSync")) {
+				connectionType = CONNECTION_TYPE.NoShareSync;
 			} else {
 				log.fatal(String.format("warning:: key[%s] set Multi, Single but value[%s]", propKey, propValue));
 				System.exit(1);
 			}
 		}
-		this.log.info(String.format("%s::prop value[%s], new value[%s]", propKey, propValue, clientThreadShareMode));
-		
-		propKey = getClientKeyName("connection.channel_blocking_mode");
-		propValue = configFileProperties.getProperty(propKey);
-		if (null == propValue) {
-			clientChannelBlockingMode = false;
-		} else {
-			if (propValue.equals("true")) {
-				clientChannelBlockingMode = true;
-			} else if (propValue.equals("false")) {
-				clientChannelBlockingMode = false;
-			} else {
-				log.fatal(String.format("warning:: key[%s] set true, false but value[%s]", propKey, propValue));
-				System.exit(1);
-			}
-		}
-		this.log.info(String.format("%s::prop value[%s], new value[%s]", propKey, propValue, clientChannelBlockingMode));
-		
+		this.log.info(String.format("%s::prop value[%s], new value[%s]", propKey, propValue, connectionType));
+
 		propKey = getClientKeyName("connection.count");
 		propValue = configFileProperties.getProperty(propKey);
 		if (null == propValue) {
@@ -683,10 +669,10 @@ public class ProjectConfig implements ClientProjectConfigIF, ServerProjectConfig
 		 */
 		propKey = getClientKeyName("data_packet_buffer_cnt");
 		int minBufferCnt = 100;
-		if (CommonType.THREAD_SHARE_MODE.Multi == clientThreadShareMode) {
-			minBufferCnt = clientConnectionCount + clientInputMessageWriterMaxSize;
+		if (CONNECTION_TYPE.NoShareSync == connectionType) {
+			minBufferCnt = clientConnectionCount*2;			
 		} else {
-			minBufferCnt = clientConnectionCount*2;
+			minBufferCnt = clientConnectionCount + clientInputMessageWriterMaxSize;
 		}
 		
 		propValue = configFileProperties.getProperty(propKey);
@@ -1285,14 +1271,11 @@ public class ProjectConfig implements ClientProjectConfigIF, ServerProjectConfig
 
 	/*******************************************************************/
 	@Override
-	public CommonType.THREAD_SHARE_MODE getClientThreadShareMode() {
-		return clientThreadShareMode;
+	public CONNECTION_TYPE getConnectionType() {
+		return connectionType;
 	}
 
-	@Override
-	public boolean getClientChannelBlockingMode() {
-		return clientChannelBlockingMode;
-	}
+	
 
 	@Override
 	public int getClientConnectionCount() {
@@ -1522,10 +1505,8 @@ public class ProjectConfig implements ClientProjectConfigIF, ServerProjectConfig
 		StringBuilder builder = new StringBuilder();
 		builder.append("ClientProject [projectName=");
 		builder.append(projectName);
-		builder.append(", clientThreadShareMode=");
-		builder.append(clientThreadShareMode);
-		builder.append(", clientChannelBlockingMode=");
-		builder.append(clientChannelBlockingMode);
+		builder.append(", connectionType=");
+		builder.append(connectionType);		
 		builder.append(", clientConnectionCount=");
 		builder.append(clientConnectionCount);
 		builder.append(", clientWhetherToAutoConnect=");
@@ -1645,10 +1626,8 @@ public class ProjectConfig implements ClientProjectConfigIF, ServerProjectConfig
 		builder.append(serverHost);
 		builder.append(", serverPort=");
 		builder.append(serverPort);
-		builder.append(", clientThreadShareMode=");
-		builder.append(clientThreadShareMode);
-		builder.append(", clientChannelBlockingMode=");
-		builder.append(clientChannelBlockingMode);
+		builder.append(", connectionType=");
+		builder.append(connectionType);		
 		builder.append(", clientConnectionCount=");
 		builder.append(clientConnectionCount);
 		builder.append(", clientWhetherToAutoConnect=");

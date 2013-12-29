@@ -29,15 +29,17 @@ public class CommonType {
 	public enum MESSAGE_PROTOCOL {
 		DHB, DJSON 
 	};
+	
 
 	/**
-	 * 소켓 채널 쓰레드간에 공유 모드 Single : 소켓 채널을 쓰레드간에 공유 하지 않는 모드 Multi : 소켓 채널을 쓰레드간에
-	 * 공유하는 모드.
+	 * 연결 종류, NoShareAsyn(비공유+비동기), ShareAsyn(공유+비동기), NoShareSync(비공유+동기)
+	 * @author Jonghoon won
+	 *
 	 */
-	public enum THREAD_SHARE_MODE {
-		Single, Multi
+	public enum CONNECTION_TYPE {
+		NoShareAsyn, ShareAsyn, NoShareSync
 	};
-
+	
 	/**
 	 * 섹션키에서 대칭키 인코딩 방법 NONE : 인코딩 없음 BASE64 : 대칭키는 Base64 인코딩으로 되어있음. 참고) 공개키
 	 * 암호화 라이브러리에서 공개키로 암호화 할때 이진 데이터를 못받고 문자열만 받을 경우 부득이 Base64 인코딩해야함.

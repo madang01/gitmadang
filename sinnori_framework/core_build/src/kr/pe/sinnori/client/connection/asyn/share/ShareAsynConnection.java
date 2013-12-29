@@ -369,27 +369,29 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 		 * 공유+비동기 연결 객체인 이곳에서 불필요한 synchronized (mailbox) 를 걸어준 이유는 비공유+비동기 연결 객체와 맞추기 위함이다.
 		 * </pre>
 		 */
-		synchronized (mailbox) {
-			try {
-				try {
-					mailbox = PrivateMailboxWaitingQueue.poll();					
-					if (null == mailbox) {
-						if (!isFailToGetMailbox) {
-							isFailToGetMailbox = true;
-							log.warn("WARNING::mailbox queue empty");
-						}
-						mailbox = PrivateMailboxWaitingQueue.take();
-					}
-					
-				} catch (InterruptedException e) {
-					try {
-						mailbox = PrivateMailboxWaitingQueue.take();
-					} catch (InterruptedException e1) {
-						log.fatal("인터럽트 받아 후속 처리중 발생", e1);
-						System.exit(1);
-					}
-					isInterrupted = true;
+		
+		try {
+			mailbox = PrivateMailboxWaitingQueue.poll();					
+			if (null == mailbox) {
+				if (!isFailToGetMailbox) {
+					isFailToGetMailbox = true;
+					log.warn("WARNING::mailbox queue empty");
 				}
+				mailbox = PrivateMailboxWaitingQueue.take();
+			}
+			
+		} catch (InterruptedException e) {
+			try {
+				mailbox = PrivateMailboxWaitingQueue.take();
+			} catch (InterruptedException e1) {
+				log.fatal("인터럽트 받아 후속 처리중 발생", e1);
+				System.exit(1);
+			}
+			isInterrupted = true;
+		}
+		
+		synchronized (mailbox) {
+			try {				
 				mailbox.setActive();
 				mailboxID = mailbox.getMailboxID();
 				hashActiveMailBox.put(mailboxID, mailbox);

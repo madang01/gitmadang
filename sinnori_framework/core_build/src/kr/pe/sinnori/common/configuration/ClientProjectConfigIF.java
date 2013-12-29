@@ -17,7 +17,8 @@
 
 package kr.pe.sinnori.common.configuration;
 
-import kr.pe.sinnori.common.lib.CommonType;
+import kr.pe.sinnori.common.lib.CommonType.CONNECTION_TYPE;
+
 
 /**
  * 프로젝트의 공통 포함한 클라이언트 환경 변수 접근 인터페이스.
@@ -25,17 +26,13 @@ import kr.pe.sinnori.common.lib.CommonType;
  *
  */
 public interface ClientProjectConfigIF extends CommonProjectConfigIF {
+	
 	/**
-	 * 소켓 채널 랩 클래스인 연결 클래스의 쓰레드 공유 모드를 반환한다.
-	 * @return 소켓 채널 랩 클래스인 연결 클래스의 쓰레드 공유 모드
+	 * @return 연결 종류, NoShareAsyn(비공유+비동기), ShareAsyn(공유+비동기), NoShareSync(비공유+동기)
 	 */
-	public CommonType.THREAD_SHARE_MODE getClientThreadShareMode();
+	public CONNECTION_TYPE getConnectionType();
 
-	/**
-	 * 소켓 채널 blocking 모드를 반환한다.
-	 * @return 소켓 채널 blocking 모드
-	 */
-	public boolean getClientChannelBlockingMode();
+	
 
 	/**
 	 * 연결 클래스 갯수를 반환한다.

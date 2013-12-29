@@ -182,38 +182,30 @@ public abstract class AbstractConnection implements CommonRootIF {
 	 * 입력 메시지 스트림이 담긴 WrapBuff 목록의 소켓 쓰기 
 	 * @param inObjWrapBufferList 입력 메시지 스트림이 담긴 WrapBuff 목록
 	 * @throws IOException 소켓 쓰기 에러 발생시 던지는 예외
+	 * @throws ClosedByInterruptException 
 	 */
-	public void write(ArrayList<WrapBuffer> inObjWrapBufferList) throws IOException {
+	public void write(ArrayList<WrapBuffer> inObjWrapBufferList) throws ClosedByInterruptException, IOException {
 		// if (null == inObjWrapBufferList) return;
 		
 		int inObjWrapBufferListSize = inObjWrapBufferList.size();
 		
 		synchronized (serverSC) {
+			/*
 			if (null == serverSC) {
 				log.warn(String.format("serverSC is null, conn=[%s]", getSimpleConnectionInfo()));
 				return;
 			}
+			*/
 			
 			/**
 			 * 2013.07.24 잔존 데이타 발생하므로 GatheringByteChannel 를 이용하는 바이트 버퍼 배열 쓰기 방식 포기.
-			 */
+			 */			
 			for (int i=0; i < inObjWrapBufferListSize; i++) {
 				WrapBuffer wrapBuffer = inObjWrapBufferList.get(i);
 				ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
-
+				
 				do {
-					try {
-						serverSC.write(byteBuffer);
-					} catch(ClosedByInterruptException e) {
-						log.warn("ClosedByInterruptException", e);
-						try {
-							serverSC.write(byteBuffer);
-						} catch(ClosedByInterruptException e1) {
-							log.fatal("ClosedByInterruptException", e1);
-							System.exit(1);
-						}
-						Thread.currentThread().interrupt();
-					}
+					serverSC.write(byteBuffer);									
 				} while(byteBuffer.hasRemaining());
 			}
 		}	

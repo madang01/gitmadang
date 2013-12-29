@@ -18,6 +18,7 @@ package kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler;
 
 import java.io.IOException;
 import java.nio.ByteOrder;
+import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.NotYetConnectedException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -184,6 +185,11 @@ public class InputMessageWriter extends Thread implements CommonRootIF {
 				
 				} catch (NotYetConnectedException e) {
 					log.warn(String.format("%s InputMessageWriter[%d] NotYetConnectedException::%s, inObj=[%s]", noneBlockConnection.getSimpleConnectionInfo(), index, e.getMessage(), inObj.toString()), e);
+					
+					noneBlockConnection.serverClose();
+					
+				} catch(ClosedByInterruptException e) {
+					log.warn(String.format("%s InputMessageWriter[%d] ClosedByInterruptException::%s, inObj=[%s]", noneBlockConnection.getSimpleConnectionInfo(), index, e.getMessage(), inObj.toString()), e);
 					
 					noneBlockConnection.serverClose();
 				} catch (IOException e) {

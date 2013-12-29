@@ -587,6 +587,8 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 			} catch (NotSupportedException e) {
 				log.fatal("NotSupportedException", e);
 				JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+				
+				freeResource();
 				System.exit(1);
 				return null;
 			}
@@ -1066,6 +1068,7 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 		
 		Throwable t = new Throwable();
 		log.fatal("파일 송수신 버전 1차 전용 메소드", t);
+		freeResource();
 		System.exit(1);
 		return null;
 	}
