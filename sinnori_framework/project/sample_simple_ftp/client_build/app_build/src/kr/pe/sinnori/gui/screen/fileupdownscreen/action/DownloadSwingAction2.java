@@ -194,6 +194,9 @@ public class DownloadSwingAction2 extends AbstractAction implements CommonRootIF
 			return;
 		}
 		
+		// FIXME!
+		log.info(downFileInfoResulOutObj.toString());
+		
 		int serverSourceFileID = -1;
 		try {
 			serverSourceFileID = (Integer)downFileInfoResulOutObj.getAttribute("serverSourceFileID");

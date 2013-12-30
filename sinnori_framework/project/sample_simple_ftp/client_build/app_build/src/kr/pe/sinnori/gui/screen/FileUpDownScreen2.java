@@ -280,26 +280,8 @@ public class FileUpDownScreen2 extends JPanel implements FileUpDownScreenIF {
 	}
 	
 	public void init() {
-		OutputMessage fileListOutObj = this.mainController
-				.getRemoteFileList(".");
-
-		if (null == fileListOutObj) {
-			remoteRootNode.chageFileName(".");
-		} else {
-			try {
-				remotePathSeperator = (String) fileListOutObj.getAttribute("pathSeperator");
-				// FIXME!
-				log.info(fileListOutObj.toString());
-
-				makeRemoteTreeNode(fileListOutObj, remoteRootNode);
-				repaintTree(remoteTree);
-				
-			} catch (MessageItemException e) {
-				log.warn("MessageItemException", e);
-				JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-				return;
-			}
-		}
+		remoteRootNode.chageFileName(".");
+		reloadRemoteFileList();
 	}
 
 	/**

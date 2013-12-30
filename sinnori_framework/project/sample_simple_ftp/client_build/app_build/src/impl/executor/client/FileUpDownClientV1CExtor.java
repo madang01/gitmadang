@@ -1279,6 +1279,17 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	}
 	
 	@Override
+	public OutputMessage doLoginEcho() {
+		/**
+		 * 파일 송수신 버전 2차 전용 기능
+		 */
+		Throwable t = new Throwable();
+		log.fatal("파일 송수신 버전 2차 전용 메소드", t);
+		System.exit(1);
+		return null;
+	}
+	
+	@Override
 	protected void finalize() throws Throwable {
 		freeResource();
 	}

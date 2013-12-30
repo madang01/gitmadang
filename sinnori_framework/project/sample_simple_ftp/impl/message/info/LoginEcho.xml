@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+	item type : (unsigned) byte, (unsigned) short, (unsigned) integer, long,
+					fixed length string, 
+					ub pascal string, us pascal string, si pascal string, 
+					fixed length byte[], variable length byte[] 
+	array counter type : reference 변수참조, direct 직접입력
+-->
+<sinnori_message>
+<messageID>LoginEcho</messageID>
+<desc>로그인 서비스를 위한 에코 메시지, 에코 메시지는 내용없이 살아 있는지 여부 판단용 메시지이다.</desc>
+</sinnori_message>

@@ -63,7 +63,7 @@ public class DownloadFileTransferTask2 implements CommonRootIF, FileTransferTask
 		
 		try {
 			while(!localTargetFileResource.isCanceled() && !fileTranferProcessDialog.isFinished()) {
-				OutputMessage outObj = mainController.getBinaryPublicKey();
+				OutputMessage outObj = mainController.doLoginEcho();
 				if (null == outObj) break;
 				/**
 				 * this.wait(intervalOfTimeoutCheck); 는 잘 동작하지 않아 sleep 로 대체함

@@ -202,6 +202,9 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 	
 	private void freeResource() {
 		if (null != conn) conn.serverClose();
+		if (null != fileProcessDialog) {
+			fileProcessDialog.dispose();
+		}
 		freeLocalSourceFileResource();
 		freeLocalTargetFileResource();	
 	}
@@ -992,6 +995,10 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 		
 		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "DownFileInfoResult", MESSAGE_EXCHANGE_TYPE.SYNC_MESSAGE);
 		if (null == outObj) return null;
+		
+		// FIXME!
+		log.info(outObj.toString());
+		
 		try {
 			String taskResult = (String)outObj.getAttribute("taskResult");
 			String resultMessage = (String)outObj.getAttribute("resultMessage");
@@ -1106,6 +1113,31 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 		/** DownFileDataAll */
 		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "MessageResult", MESSAGE_EXCHANGE_TYPE.ASYNC_MESSAGE);
 		if (null == outObj) return null;
+		return outObj;
+	}
+	
+	public OutputMessage doLoginEcho() {
+		if (!conn.isConnected()) {
+			JOptionPane.showMessageDialog(mainFrame, "서버와의 연결이 끊어 졌습니다.");
+			goToFirstScreen();
+			return null;
+		}
+		
+		InputMessage inObj = null;
+		
+		try {
+			inObj = messageManger.createInputMessage("LoginEcho");
+		} catch (IllegalArgumentException e) {
+			log.warn("IllegalArgumentException", e);
+			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+			return null;
+		} catch (MessageInfoNotFoundException e) {
+			log.warn("MessageInfoNotFoundException", e);
+			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+			return null;
+		}
+		
+		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "LoginEcho", MESSAGE_EXCHANGE_TYPE.SYNC_MESSAGE);
 		return outObj;
 	}
 		

@@ -338,7 +338,7 @@ public class LocalSourceFileResource implements CommonRootIF {
 					"sourceFileID[%d]::다른 프로그램에서 락을 걸어 원본 파일[%s] 락 획득에 실패",
 					sourceFileID, sourcefullFileName);
 			log.warn(errorMessage);
-			new UpDownFileException(errorMessage);
+			throw new UpDownFileException(errorMessage);
 		}
 
 		// long realSourceFileSize = sourceFileObj.length();
@@ -436,9 +436,11 @@ public class LocalSourceFileResource implements CommonRootIF {
 	 * 위한 조취이다.
 	 */
 	protected void releaseFileLock() {
+		// FIXME!
+		Throwable t = new Throwable();
 		log.info(String.format(
 				"call releaseFileLock, sourceFileID[%d], 원본 파일[%s][%s]",
-				sourceFileID, sourceFilePathName, sourceFileName));
+				sourceFileID, sourceFilePathName, sourceFileName), t);
 
 		targetFileID = -1;
 
@@ -575,7 +577,7 @@ public class LocalSourceFileResource implements CommonRootIF {
 						sourceFileID, fileBlockNo, sourceFilePathName,
 						sourceFileName);
 				log.warn(errorMessage);
-				new UpDownFileException(errorMessage);
+				throw new UpDownFileException(errorMessage);
 			}
 
 			if (workedFileBlockBitSet.get(fileBlockNo)) {

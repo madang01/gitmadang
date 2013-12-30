@@ -123,6 +123,12 @@ public interface MainControllerIF {
 	public OutputMessage doDownloadFileAll();
 	
 	/**
+	 * 서버가 살아 있는지 확인하기 위해 로그인 서비스를 위한 에코 메시지를 보내고 받는다.   
+	 * @return 로그인 서비스를 위한 에코 출력 메시지
+	 */
+	public OutputMessage doLoginEcho();
+	
+	/**
 	 * 파일 업로드 진행 상태 모달 윈도우를 띄운다. 내부적으로 "파일 업로드 진행 작업 쓰레드" 를 수행한다. 
 	 * @param serverTargetFileID 서버 목적지 파일 식별자
 	 * @param mesg 메시지

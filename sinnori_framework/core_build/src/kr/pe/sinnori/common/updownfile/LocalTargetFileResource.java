@@ -353,7 +353,7 @@ public class LocalTargetFileResource implements CommonRootIF {
 					"targetFileID[%d]::다른 프로그램에서 락을 걸어 목적지 파일[%s] 락 획득에 실패",
 					targetFileID, targetfullFileName);
 			log.warn(errorMessage);
-			new UpDownFileException(errorMessage);
+			throw new UpDownFileException(errorMessage);
 		}
 
 		try {
@@ -365,7 +365,7 @@ public class LocalTargetFileResource implements CommonRootIF {
 					.format("targetFileID[%d]::기존에 데이터 삭제를 위한 목적지 파일[%s] 크기 0 으로 설정 실패",
 							targetFileID, targetfullFileName);
 			log.warn(errorMessage, e);
-			new UpDownFileException(errorMessage);
+			throw new UpDownFileException(errorMessage);
 		}
 		
 		// FIXME!
@@ -554,7 +554,7 @@ public class LocalTargetFileResource implements CommonRootIF {
 						targetFileID, fileBlockNo, targetFilePathName,
 						targetFileName);
 				log.warn(errorMessage);
-				new UpDownFileException(errorMessage);
+				throw new UpDownFileException(errorMessage);
 			}
 
 			if (workedFileBlockBitSet.get(fileBlockNo)) {

@@ -52,6 +52,8 @@ public final class DownFileInfoSExtor extends AbstractAuthServerExecutor {
 				return;
 			}
 			
+			log.info("localSourceFileResource 할당 성공");
+			
 			localSourceFileResource.setTargetFileID(clientTargetFileID);
 			
 			int serverSourceFileID = localSourceFileResource.getSourceFileID(); 
@@ -79,6 +81,8 @@ public final class DownFileInfoSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("serverSourceFileID", -1);
 			// letterToClientList.addLetterToClient(fromSC, outObj);
 			letterSender.sendSelf(outObj);
-		}		
+		}
+		
+		log.info("end");
 	}
 }
