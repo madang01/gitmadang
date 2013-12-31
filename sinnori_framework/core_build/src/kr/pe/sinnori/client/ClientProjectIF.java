@@ -74,7 +74,7 @@ public interface ClientProjectIF {
 	 * 새로운 서버 익명 메시지 비지니스 로직으로 교체를 한다.
 	 * @param newAnonymousServerMessageTask 새로운 서버 익명 메시지 비지니스 로직
 	 */
-	public void changeAnonymousServerMessageTask(AnonymousServerMessageTaskIF newAnonymousServerMessageTask);
+	public void changeAsynOutputMessageTask(AsynOutputMessageTaskIF newAnonymousServerMessageTask);
 	
 	/**
 	 * 클라이언트 프로젝트 중지

@@ -33,7 +33,6 @@ import java.util.ArrayList;
 
 import kr.pe.sinnori.client.ClientProjectIF;
 import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
-import kr.pe.sinnori.common.configuration.ProjectConfig;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
@@ -71,23 +70,11 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 			MessageInfoNotFoundException, InterruptedException, MessageItemException {
 
 		DataPacketBufferQueueManagerIF dataPacketBufferQueueManager = (DataPacketBufferQueueManagerIF)clientProject;
+
+		messageIDFixedSize = clientProjectConfig.getMessageIDFixedSize();			
 		
-		ProjectConfig projectInfo = null;
-		
-		try {
-			projectInfo = (ProjectConfig)conf.getResource(clientProjectConfig.getProjectName());
-		} catch(RuntimeException e) {
-			log.fatal(String.format("%s 프로젝트 정보가 존재하지 않습니다.", clientProjectConfig.getProjectName()));
-			System.exit(1);
-		}
-		
-		messageIDFixedSize = projectInfo.getMessageIDFixedSize();
-			
-		
-		DHBMessageHeader.getMessageHeaderSize(messageIDFixedSize);
 		DHBMessageProtocol dhbMessageProtocol = 
-				new DHBMessageProtocol(messageIDFixedSize, 
-						DHBMessageHeader.getMessageHeaderSize(messageIDFixedSize),
+				new DHBMessageProtocol(messageIDFixedSize,
 						dataPacketBufferQueueManager);
 		
 		MessageInputStreamResourcePerSocket messageInputStreamResource = 
@@ -252,7 +239,7 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		// allDataTypeInObj.setAttribute("bytesVar2", new byte[] { 1, 2, 3, 4, 5, 6, 7,
 		// 8,
 		// 9, 10, 11 });
-		allDataTypeInObj.setAttribute("bytesVar2", ByteBuffer.allocate(8000).array());
+		allDataTypeInObj.setAttribute("bytesVar2", ByteBuffer.allocate(30000).array());
 
 		int memberListCnt = 2;
 		allDataTypeInObj.setAttribute("cnt", memberListCnt);

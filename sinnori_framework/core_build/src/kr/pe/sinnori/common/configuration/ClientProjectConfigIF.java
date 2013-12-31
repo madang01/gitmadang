@@ -75,6 +75,11 @@ public interface ClientProjectConfigIF extends CommonProjectConfigIF {
 	public long getClientFinishConnectWaittingTime();
 	
 	/**
+	 * @return 비동기 출력 메시지 처리자 쓰레드 갯수
+	 */
+	public int getClientAsynOutputMessageExecutorThreadCnt();
+	
+	/**
 	 * @return 입력 메시지 소켓 쓰기 담당 쓰레드 초기 갯수
 	 */
 	public int getClientInputMessageWriterSize();

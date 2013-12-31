@@ -86,6 +86,9 @@ public class ProjectConfig implements ClientProjectConfigIF, ServerProjectConfig
 	private int clientFinishConnectMaxCall;
 	/** 클라이언트 비동기 소켓 채널의 연결 확립을 재 시도 간격 */
 	private long clientFinishConnectWaittingTime;
+	// FIXME!
+	/** 비동기 출력 메시지 처리자 쓰레드 갯수 */
+	private int clientAsynOutputMessageExecutorThreadCnt;
 	/** 출력 메시지 큐 크기 */
 	private int clientOutputMessageQueueSize;
 	/** 메일함 갯수 */
@@ -146,7 +149,7 @@ public class ProjectConfig implements ClientProjectConfigIF, ServerProjectConfig
 	
 	private int serverDataPacketBufferCnt;
 	
-	private TreeSet<String> serverAnonymousExceptionInputMessageSet = new TreeSet<String>();
+	private TreeSet<String> asynInputMessageSet = new TreeSet<String>();
 	
 	/***** 모니터 환경 변수 시작 *****/
 	private long serverMonitorTimeInterval = 0L;
@@ -495,6 +498,26 @@ public class ProjectConfig implements ClientProjectConfigIF, ServerProjectConfig
 			}
 		}
 		log.info(String.format("%s::prop value[%s], new value[%d]", propKey, propValue, clientFinishConnectWaittingTime));
+		
+		// FIXME!
+		propKey = getClientKeyName("asyn.output_message_executor_thread_cnt");
+		propValue = configFileProperties.getProperty(propKey);
+		startIndexKey = propKey;
+		clientAsynOutputMessageExecutorThreadCnt = 1;
+		if (null != propValue) {
+			try {
+				clientAsynOutputMessageExecutorThreadCnt = Integer.parseInt(propValue);
+				if (clientAsynOutputMessageExecutorThreadCnt < 1) {
+					log.fatal(String.format("warning:: key[%s] minimum value 1 but value[%s]", propKey, propValue));
+					System.exit(1);
+				}
+			} catch(NumberFormatException e) {
+				this.log.fatal(String.format("warning:: key[%s] integer but value[%s]", propKey, propValue));
+				System.exit(1);
+			}
+		}
+		log.info(String.format("%s::prop value[%s], new value[%d]", propKey, propValue, clientAsynOutputMessageExecutorThreadCnt));
+		
 		
 		propKey = getClientKeyName("asyn.input_message_writer.size");
 		propValue = configFileProperties.getProperty(propKey);
@@ -1091,9 +1114,9 @@ public class ProjectConfig implements ClientProjectConfigIF, ServerProjectConfig
 			StringTokenizer anonymousExceptionInputMessageToken = new StringTokenizer(propValue, ",");
 			while (anonymousExceptionInputMessageToken.hasMoreTokens()) {
 				String token = anonymousExceptionInputMessageToken.nextToken().trim();
-				serverAnonymousExceptionInputMessageSet.add(token);
+				asynInputMessageSet.add(token);
 			}
-			log.info(String.format("%s::prop value[%s], new value[%s]", propKey, propValue, serverAnonymousExceptionInputMessageSet.toString()));
+			log.info(String.format("%s::prop value[%s], new value[%s]", propKey, propValue, asynInputMessageSet.toString()));
 		}
 		
 		/**
@@ -1313,6 +1336,11 @@ public class ProjectConfig implements ClientProjectConfigIF, ServerProjectConfig
 	}
 	
 	@Override
+	public int getClientAsynOutputMessageExecutorThreadCnt() {
+		return clientAsynOutputMessageExecutorThreadCnt;
+	}
+	
+	@Override
 	public int getClientInputMessageWriterSize() {
 		return clientInputMessageWriterSize;
 	}
@@ -1465,8 +1493,8 @@ public class ProjectConfig implements ClientProjectConfigIF, ServerProjectConfig
 	}
 	
 	@Override
-	public TreeSet<String> getServerAnonymousExceptionInputMessageSet() {
-		return serverAnonymousExceptionInputMessageSet;
+	public TreeSet<String> getAsynInputMessageSet() {
+		return asynInputMessageSet;
 	}
 
 	@Override
@@ -1520,7 +1548,9 @@ public class ProjectConfig implements ClientProjectConfigIF, ServerProjectConfig
 		builder.append(", clientFinishConnectMaxCall=");
 		builder.append(clientFinishConnectMaxCall);
 		builder.append(", clientFinishConnectWaittingTime=");
-		builder.append(clientFinishConnectWaittingTime);		
+		builder.append(clientFinishConnectWaittingTime);
+		builder.append(", clientInputMessageWriterSize=");
+		builder.append(clientInputMessageWriterSize);
 		builder.append(", clientInputMessageWriterSize=");
 		builder.append(clientInputMessageWriterSize);
 		builder.append(", clientInputMessageWriterMaxSize=");
@@ -1590,8 +1620,8 @@ public class ProjectConfig implements ClientProjectConfigIF, ServerProjectConfig
 		builder.append(serverOutputMessageQueueSize);
 		builder.append(", serverDataPacketBufferCnt=");
 		builder.append(serverDataPacketBufferCnt);
-		builder.append(", serverAnonymousExceptionInputMessageSet=");
-		builder.append(serverAnonymousExceptionInputMessageSet.toString());
+		builder.append(", asynInputMessageSet=");
+		builder.append(asynInputMessageSet.toString());
 		builder.append("]");
 		return builder.toString();
 	}
@@ -1638,6 +1668,8 @@ public class ProjectConfig implements ClientProjectConfigIF, ServerProjectConfig
 		builder.append(clientFinishConnectMaxCall);
 		builder.append(", clientFinishConnectWaittingTime=");
 		builder.append(clientFinishConnectWaittingTime);
+		builder.append(", clientInputMessageWriterSize=");
+		builder.append(clientInputMessageWriterSize);
 		builder.append(", clientOutputMessageQueueSize=");
 		builder.append(clientOutputMessageQueueSize);
 		builder.append(", clientShareAsynConnMailboxCnt=");
@@ -1698,8 +1730,8 @@ public class ProjectConfig implements ClientProjectConfigIF, ServerProjectConfig
 		builder.append(serverOutputMessageQueueSize);
 		builder.append(", serverDataPacketBufferCnt=");
 		builder.append(serverDataPacketBufferCnt);
-		builder.append(", serverAnonymousExceptionInputMessageSet=");
-		builder.append(serverAnonymousExceptionInputMessageSet);
+		builder.append(", asynInputMessageSet=");
+		builder.append(asynInputMessageSet);
 		builder.append(", serverMonitorTimeInterval=");
 		builder.append(serverMonitorTimeInterval);
 		builder.append(", serverRequestTimeout=");

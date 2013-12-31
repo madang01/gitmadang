@@ -115,6 +115,35 @@ public class OutputMessageReader extends Thread implements
 			// }
 		}
 	}
+	
+	@Override
+	public void addNewServer(AbstractAsynConnection clientConnection)
+			throws InterruptedException {
+		
+		clientConnection.register(scToConnectionHash, waitingSCQueue);
+
+		if (getState().equals(Thread.State.NEW))
+			return;
+
+		/**
+		 * <pre>
+		 * (1) 소켓 채널을 selector 에 등록한다. 
+		 * (2) 소켓 채널을 등록한 selector 를 깨우는 신호를 보낸후 
+		 * (3) 설정 파일에서 지정된 시간 만큼 대기 후
+		 * (4) 소켓 채널이 계속 연결된 상태이고 selector 에 등록이 안되었다면 
+		 *     (2) 번항에서 부터 다시 반복한다. 
+		 * (5) 소켓 채널이 계속 연결된 상태가 아니거나 혹은 selector 에 등록되었다면 루프를 종료한다.
+		 * 참고) (3) 항을 수행하는 순간 selector 가 깨어나 있어 
+		 *       소켓 읽기를 수행하는 과정에서 헤더 포맷 에러를 만날 경우 소켓을 닫고 동시에 selector 에 등록 취소한다.
+		 *       이것이 소켓 채널이 연결된 상태인지를 검사해야 하는 이유이다.
+		 * </pre>
+		 */
+		do {
+			selector.wakeup();
+
+			Thread.sleep(readSelectorWakeupInterval);		
+		} while (clientConnection.isConnected() && !clientConnection.isRegistered());
+	}
 
 	@Override
 	public void run() {
@@ -156,7 +185,6 @@ public class OutputMessageReader extends Thread implements
 						int positionBeforeWork = lastInputStreamBuffer.position();
 
 						try {
-							
 								numRead = serverSC.read(lastInputStreamBuffer);
 
 								// if (numRead > 0) log.info("1.numRead=[%d]",
@@ -241,36 +269,4 @@ public class OutputMessageReader extends Thread implements
 		clientConnection.serverClose();
 
 	}
-
-	@Override
-	public void addNewServer(AbstractAsynConnection clientConnection)
-			throws InterruptedException {
-		
-		clientConnection.register(scToConnectionHash, waitingSCQueue);
-
-		if (getState().equals(Thread.State.NEW))
-			return;
-
-		/**
-		 * <pre>
-		 * (1) 소켓 채널을 selector 에 등록한다. 
-		 * (2) 소켓 채널을 등록한 selector 를 깨우는 신호를 보낸후 
-		 * (3) 설정 파일에서 지정된 시간 만큼 대기 후
-		 * (4) 소켓 채널이 계속 연결된 상태이고 selector 에 등록이 안되었다면 
-		 *     (2) 번항에서 부터 다시 반복한다. 
-		 * (5) 소켓 채널이 계속 연결된 상태가 아니거나 혹은 selector 에 등록되었다면 루프를 종료한다.
-		 * 참고) (3) 항을 수행하는 순간 selector 가 깨어나 있어 
-		 *       소켓 읽기를 수행하는 과정에서 헤더 포맷 에러를 만날 경우 소켓을 닫고 동시에 selector 에 등록 취소한다.
-		 *       이것이 소켓 채널이 연결된 상태인지를 검사해야 하는 이유이다.
-		 * </pre>
-		 */
-		do {
-			selector.wakeup();
-
-			Thread.sleep(readSelectorWakeupInterval);
-		
-		// } while (sc.isConnected() && !sc.isRegistered());
-		} while (clientConnection.isConnected() && !clientConnection.isRegistered());
-	}
-
 }

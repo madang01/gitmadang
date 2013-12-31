@@ -44,7 +44,7 @@ import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.lib.CommonStaticFinal;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
-import kr.pe.sinnori.common.lib.OutputMessageQueueQueueMangerIF;
+import kr.pe.sinnori.common.lib.SyncOutputMessageQueueQueueMangerIF;
 import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
 
@@ -79,7 +79,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 	 * @param finishConnectWaittingTime 비동기 연결 확립 시도 간격
 	 * @param mailBoxCnt 메일 박스 갯수
 	 * @param clientProjectConfig 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
-	 * @param serverOutputMessageQueue 서버에서 보내는 불특정 출력 메시지를 받는 큐
+	 * @param asynOutputMessageQueue 서버에서 보내는 불특정 출력 메시지를 받는 큐
 	 * @param inputMessageQueue 입력 메시지 큐
 	 * @param outputMessageQueueQueueManager 출력 메시지 큐를 원소로 가지는 큐 관리자
 	 * @param outputMessageReaderPool 서버에 접속한 소켓 채널을 균등하게 소켓 읽기 담당 쓰레드에 등록하기 위한 인터페이스
@@ -96,9 +96,9 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 			long finishConnectWaittingTime,
 			int mailBoxCnt,
 			ClientProjectConfigIF clientProjectConfig,			
-			LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue,
+			LinkedBlockingQueue<OutputMessage> asynOutputMessageQueue,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
-			OutputMessageQueueQueueMangerIF outputMessageQueueQueueManager, 
+			SyncOutputMessageQueueQueueMangerIF outputMessageQueueQueueManager, 
 			OutputMessageReaderPoolIF outputMessageReaderPool,
 			MessageMangerIF messageManger,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws InterruptedException, 
@@ -106,7 +106,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 		
 		super(index, socketTimeOut, whetherToAutoConnect, 
 				finishConnectMaxCall, finishConnectWaittingTime, clientProjectConfig, 
-				serverOutputMessageQueue, inputMessageQueue,
+				asynOutputMessageQueue, inputMessageQueue,
 				outputMessageReaderPool, dataPacketBufferQueueManager);
 		
 		log.info(String.format("create MultiNoneBlockConnection, projectName=[%s%02d], mailBoxCnt=[%d]",
@@ -300,13 +300,13 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 			/** 서버에서 보내는 공지등 불특정 다수한테 보내는 출력 메시지 */
 			boolean result = false;
 			try {
-				result = serverOutputMessageQueue.offer(outObj, socketTimeOut, TimeUnit.MILLISECONDS);
+				result = asynOutputMessageQueue.offer(outObj, socketTimeOut, TimeUnit.MILLISECONDS);
 			} catch (InterruptedException e) {
 				/**
 				 * 인터럽트 발생시 메소드 끝가지 로직 수행후 인터럽트 상태를 복귀 시켜 최종 인터럽트 처리를 마무리 하도록 유도
 				 */				
 				try {
-					result = serverOutputMessageQueue.offer(outObj, socketTimeOut, TimeUnit.MILLISECONDS);
+					result = asynOutputMessageQueue.offer(outObj, socketTimeOut, TimeUnit.MILLISECONDS);
 				} catch (InterruptedException e1) {
 					log.fatal("인터럽트 받아 후속 처리중 발생", e1);
 					System.exit(1);
@@ -331,7 +331,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 						outObj.toString()));
 				return;
 			}			
-			mailbox.putToOutputMessageQueue(outObj);
+			mailbox.putToSyncOutputMessageQueue(outObj);
 		}
 	}
 
@@ -412,7 +412,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 				OutputMessage workOutObj = null;
 				
 				try {				
-					workOutObj = mailbox.takeOutputMessage();
+					workOutObj = mailbox.takeSyncOutputMessage();
 					
 					letterFromServer = new LetterFromServer(workOutObj);
 				} catch(InterruptedException e) {
@@ -422,7 +422,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 						System.exit(1);
 					} else {
 						try {
-							workOutObj = mailbox.takeOutputMessage();
+							workOutObj = mailbox.takeSyncOutputMessage();
 						} catch(InterruptedException e1) {
 							log.fatal("인터럽트 받아 후속 처리중 발생", e1);
 							System.exit(1);
@@ -456,7 +456,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 	}
 	
 	@Override
-	public void sendAsyncInputMessage(
+	public void sendAsynInputMessage(
 			InputMessage inObj) throws ServerNotReadyException,
 			SocketTimeoutException, NoMoreDataPacketBufferException,
 			BodyFormatException, MessageInfoNotFoundException, NotSupportedException {

@@ -82,7 +82,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 	/**
 	 * 서버에서 공지등 불특정 다수한테 메시지를 보낼때 출력 메시지를 담은 큐
 	 */
-	protected LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue = null;
+	protected LinkedBlockingQueue<OutputMessage> asynOutputMessageQueue = null;
 	
 	/**
 	 * 생성자
@@ -91,7 +91,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 	 * @param whetherToAutoConnect 자동 접속 여부
 	 * @param clientProjectConfig 프로젝트의 클라이언트 환경 변수
 	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자
-	 * @param serverOutputMessageQueue  서버에서 보내는 불특정 출력 메시지를 받는 큐
+	 * @param asynOutputMessageQueue  서버에서 보내는 불특정 출력 메시지를 받는 큐
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷 버퍼를 할당 받지 못했을 경우 던지는 예외
 	 * @throws InterruptedException 
 	 */
@@ -100,7 +100,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 			boolean whetherToAutoConnect,
 			ClientProjectConfigIF clientProjectConfig,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager,
-			LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue) throws NoMoreDataPacketBufferException, InterruptedException {
+			LinkedBlockingQueue<OutputMessage> asynOutputMessageQueue) throws NoMoreDataPacketBufferException, InterruptedException {
 		this.index = index;
 		this.socketTimeOut = socketTimeOut;
 		this.whetherToAutoConnect = whetherToAutoConnect;
@@ -109,7 +109,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 		messageInputStreamResource = new MessageInputStreamResourcePerSocket(clientProjectConfig.getByteOrder(), dataPacketBufferQueueManager);
 		
-		this.serverOutputMessageQueue = serverOutputMessageQueue;
+		this.asynOutputMessageQueue = asynOutputMessageQueue;
 	
 		/*
 		try {
@@ -318,7 +318,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 	 * @throws MessageInfoNotFoundException 메시지 정보가 없을때 던지는 예외
 	 * @throws NotSupportedException 공유+비동기 연결 객체에서 이 메소드 호출시 던지는 예외, 공유+비동기 연결 폴은 직접적으로 연결 객체를 받을 수 없음.
 	 */
-	abstract public void sendAsyncInputMessage(
+	abstract public void sendAsynInputMessage(
 			InputMessage inputMessage) throws ServerNotReadyException,
 			SocketTimeoutException, NoMoreDataPacketBufferException,
 			BodyFormatException, MessageInfoNotFoundException, NotSupportedException;

@@ -31,8 +31,8 @@ public class ClientProjectMonitorInfo {
 	public int totalMailbox;
 	
 	public int inputMessageQueueSize;
-	public int outputMessageQueueQueueSize;
-	public int serverAnymouseOutputMessageQueue;
+	public int syncOutputMessageQueueQueueSize;
+	public int AsynOutputMessageQueueSize;
 	
 	
 	@Override
@@ -53,10 +53,10 @@ public class ClientProjectMonitorInfo {
 		builder.append(inputMessageQueueSize);
 		
 		builder.append(", outputMessageQueueQueueSize=");
-		builder.append(outputMessageQueueQueueSize);
+		builder.append(syncOutputMessageQueueQueueSize);
 		
-		builder.append(", serverAnymouseOutputMessageQueue=");
-		builder.append(serverAnymouseOutputMessageQueue);
+		builder.append(", AsynOutputMessageQueueSize=");
+		builder.append(AsynOutputMessageQueueSize);
 		
 		builder.append("]");
 		return builder.toString();

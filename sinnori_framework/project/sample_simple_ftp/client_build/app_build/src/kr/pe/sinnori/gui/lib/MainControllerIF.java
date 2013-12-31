@@ -103,6 +103,11 @@ public interface MainControllerIF {
 			String remoteFilePathName, String remoteFileName, long remoteFileSize, int fileBlockSize);
 	
 	/**
+	 * @return 로컬 목적지 파일 크기 재조정 실패여부, 참고) 만약 중복 받기이면 0으로 이어받기이면 아무 동작 안한다.
+	 */
+	public boolean truncateLocalTargetFileResource();
+	
+	/**
 	 * 다운로드할 목적지 파일 자원을 해제한다. 서버에 파일 다운로드 준비를 요청하여 실패시에만 호출된다. 
 	 */
 	public void freeLocalTargetFileResource();
@@ -167,8 +172,8 @@ public interface MainControllerIF {
 	public OutputMessage cancelDownloadFile();
 	
 	/**
-	 * 익명 메시지 처리
-	 * @param outObj 익명의 출력 메시지
+	 * 서버에서 보내는 비동기 출력 메시지 처리
+	 * @param outObj 서버에서 보내는 비동기 출력 메시지
 	 */
-	public void doAnonymousServerMessageTask(OutputMessage outObj);
+	public void doAsynOutputMessageTask(OutputMessage outObj);
 }

@@ -62,7 +62,7 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 	 * @param finishConnectMaxCall 비동기 방식에서 연결 확립 시도 최대 호출 횟수
 	 * @param finishConnectWaittingTime 비동기 연결 확립 시도 간격
 	 * @param clientProjectConfig 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
-	 * @param serverOutputMessageQueue 서버에서 보내는 공지등 불특정 다수한테 보내는 출력 메시지 큐
+	 * @param asynOutputMessageQueue 서버에서 보내는 공지등 불특정 다수한테 보내는 출력 메시지 큐
 	 * @param inputMessageQueue 입력 메시지 큐
 	 * @param outputMessageReaderPool 서버에 접속한 소켓 채널을 균등하게 소켓 읽기 담당 쓰레드에 등록하기 위한 인터페이스
 	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자
@@ -75,12 +75,12 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 			int finishConnectMaxCall,
 			long finishConnectWaittingTime,
 			ClientProjectConfigIF clientProjectConfig,
-			LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue,
+			LinkedBlockingQueue<OutputMessage> asynOutputMessageQueue,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
 			OutputMessageReaderPoolIF outputMessageReaderPool,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws InterruptedException, NoMoreDataPacketBufferException {
 		super(index, socketTimeOut, whetherToAutoConnect, 
-				clientProjectConfig, dataPacketBufferQueueManager, serverOutputMessageQueue);
+				clientProjectConfig, dataPacketBufferQueueManager, asynOutputMessageQueue);
 
 		this.finishConnectMaxCall = finishConnectMaxCall;
 		this.finishConnectWaittingTime = finishConnectWaittingTime;

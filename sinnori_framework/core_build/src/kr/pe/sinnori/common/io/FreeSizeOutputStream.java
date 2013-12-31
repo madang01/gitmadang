@@ -47,12 +47,15 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 	private int dataPacketBufferMaxCntPerMessage;
 	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManager = null;
 	
-	private byte shortBytes[] = { CommonStaticFinal.ZERO_BYTE,
+	/**
+	 * 주) 아래 SHORT_BYTES, INTEGER_BYTES, LONG_BYTES 는 객체 인스턴스마다 필요합니다. 만약 static 으로 만들면 thread safe 문제에 직면할 것입니다.
+	 */
+	private final byte SHORT_BYTES[] = { CommonStaticFinal.ZERO_BYTE,
 			CommonStaticFinal.ZERO_BYTE };
-	private byte intBytes[] = { CommonStaticFinal.ZERO_BYTE,
+	private final byte INTEGER_BYTES[] = { CommonStaticFinal.ZERO_BYTE,
 			CommonStaticFinal.ZERO_BYTE, CommonStaticFinal.ZERO_BYTE,
 			CommonStaticFinal.ZERO_BYTE };
-	private byte longBytes[] = { CommonStaticFinal.ZERO_BYTE,
+	private final byte LONG_BYTES[] = { CommonStaticFinal.ZERO_BYTE,
 			CommonStaticFinal.ZERO_BYTE, CommonStaticFinal.ZERO_BYTE,
 			CommonStaticFinal.ZERO_BYTE, CommonStaticFinal.ZERO_BYTE,
 			CommonStaticFinal.ZERO_BYTE, CommonStaticFinal.ZERO_BYTE,
@@ -113,7 +116,7 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 	 */
 	private void clearShortBuffer() {
 		shortBuffer.clear();
-		Arrays.fill(shortBytes, CommonStaticFinal.ZERO_BYTE);
+		Arrays.fill(SHORT_BYTES, CommonStaticFinal.ZERO_BYTE);
 	}
 
 	/**
@@ -121,7 +124,7 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 	 */
 	private void clearIntBuffer() {
 		intBuffer.clear();
-		Arrays.fill(intBytes, CommonStaticFinal.ZERO_BYTE);
+		Arrays.fill(INTEGER_BYTES, CommonStaticFinal.ZERO_BYTE);
 	}
 	
 	/**
@@ -171,7 +174,7 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 	 */
 	private void clearLongBuffer() {
 		longBuffer.clear();
-		Arrays.fill(longBytes, CommonStaticFinal.ZERO_BYTE);
+		Arrays.fill(LONG_BYTES, CommonStaticFinal.ZERO_BYTE);
 	}
 	
 	/**

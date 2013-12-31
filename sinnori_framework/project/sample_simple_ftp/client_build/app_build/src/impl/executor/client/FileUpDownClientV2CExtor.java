@@ -53,7 +53,7 @@ import kr.pe.sinnori.common.updownfile.LocalSourceFileResource;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResourceManager;
 import kr.pe.sinnori.common.updownfile.LocalTargetFileResource;
 import kr.pe.sinnori.common.updownfile.LocalTargetFileResourceManager;
-import kr.pe.sinnori.gui.lib.FileUpDown2AnonymousServerMessageTask;
+import kr.pe.sinnori.gui.lib.FileUpDown2AsynOutputMessageTask;
 import kr.pe.sinnori.gui.lib.MainControllerIF;
 import kr.pe.sinnori.gui.screen.ConnectionScreen;
 import kr.pe.sinnori.gui.screen.FileTranferProcessDialog;
@@ -94,7 +94,7 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 	
 	private ClientSessionKeyManager clientSessionKeyManager = null;
 	
-	private FileUpDown2AnonymousServerMessageTask  fileUpDown2AnonymousServerMessageTask = null;
+	private FileUpDown2AsynOutputMessageTask  fileUpDown2AsynOutputMessageTask = null;
 	
 	private LocalSourceFileResourceManager localSourceFileResourceManager = LocalSourceFileResourceManager.getInstance();
 	private LocalSourceFileResource localSourceFileResource = null;
@@ -156,8 +156,8 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 		this.clientProject = clientProject;
 		this.clientProjectConfig = clientProjectConfig;
 		
-		this.fileUpDown2AnonymousServerMessageTask = new FileUpDown2AnonymousServerMessageTask(this);
-		clientProject.changeAnonymousServerMessageTask(fileUpDown2AnonymousServerMessageTask);;
+		this.fileUpDown2AsynOutputMessageTask = new FileUpDown2AsynOutputMessageTask(this);
+		clientProject.changeAsynOutputMessageTask(fileUpDown2AsynOutputMessageTask);;
 		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -562,7 +562,7 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 		
 		if (messageExchangeType == MESSAGE_EXCHANGE_TYPE.ASYNC_MESSAGE) {
 			try {
-				conn.sendAsyncInputMessage(inObj);
+				conn.sendAsynInputMessage(inObj);
 			} catch (SocketTimeoutException e) {
 				log.warn("SocketTimeoutException", e);
 				JOptionPane.showMessageDialog(mainFrame, "지정된 연결 시간을 초과하였습니다.");
@@ -1009,7 +1009,7 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 				return null;
 			}
 			
-			localTargetFileResource.setSourceFileID(serverSourceFileID);		
+			localTargetFileResource.setSourceFileID(serverSourceFileID);			
 		} catch (MessageItemException e) {
 			log.warn("MessageItemException", e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
@@ -1021,6 +1021,25 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 		}
 		
 		return outObj;
+	}
+	
+	public boolean truncateLocalTargetFileResource() {
+		try {
+			localTargetFileResource.truncate();
+		} catch (UpDownFileException e) {
+			// TODO Auto-generated catch block
+			log.warn(e.getMessage(), e);
+			JOptionPane.showMessageDialog(mainFrame, e.getMessage());			 
+			OutputMessage outObj = cancelDownloadFileV1();
+			if (null == outObj) return false;
+
+			JOptionPane.showMessageDialog(mainFrame, 
+					String.format("정상적으로 원격지 원본파일[%s]의 로컬 목적지 파일[%s] 다운 로드가 취소 되었습니다.",
+							localTargetFileResource.getSourceFileName(), localTargetFileResource.getTargetFileName()));
+			return false;
+		}
+		
+		return true;
 	}
 	
 	@Override
@@ -1224,8 +1243,64 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 		return outObj;
 	}
 	
+	private OutputMessage cancelDownloadFileV1() {
+		if (!conn.isConnected()) {
+			JOptionPane.showMessageDialog(mainFrame, "서버와의 연결이 끊어 졌습니다.");
+			goToFirstScreen();
+			return null;
+		}
+		
+		int serverSourceFileID = localTargetFileResource.getSourceFileID();
+		
+		InputMessage inObj = null;
+		
+		try {
+			inObj = messageManger.createInputMessage("CancelDownloadFile");
+		} catch (IllegalArgumentException e) {
+			log.warn("IllegalArgumentException", e);
+			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+			return null;
+		} catch (MessageInfoNotFoundException e) {
+			log.warn("MessageInfoNotFoundException", e);
+			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+			return null;
+		}
+		
+		try {			
+			inObj.setAttribute("serverSourceFileID", serverSourceFileID);
+			inObj.setAttribute("clientTargetFileID", localTargetFileResource.getSourceFileID());
+		} catch (MessageItemException e) {
+			log.warn("MessageItemException", e);
+			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+			return null;
+		}
+		
+		OutputMessage outObj = getOutputMessageForLoginServie(inObj, "CancelDownloadFileResult", MESSAGE_EXCHANGE_TYPE.SYNC_MESSAGE);
+		if (null == outObj) return null;
+		try {			
+			String taskResult = (String)outObj.getAttribute("taskResult");
+			String resultMessage = (String)outObj.getAttribute("resultMessage");
+			// int serverTargetFileID = (Integer)outObj.getAttribute("serverTargetFileID");
+			
+			if (taskResult.equals("N")) {
+				JOptionPane.showMessageDialog(mainFrame, resultMessage);
+				return null;
+			}	
+		} catch (MessageItemException e) {
+			log.warn("MessageItemException", e);
+			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+			return null;
+		} catch (Exception e) {
+			log.warn("unknown exception", e);
+			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+			return null;
+		}
+		
+		return outObj;
+	}
+	
 	@Override
-	public void doAnonymousServerMessageTask(OutputMessage outObj) {
+	public void doAsynOutputMessageTask(OutputMessage outObj) {
 		// log.info(String.format("projectName[%s] %s", projectName, outObj.toString()));
 
 		String messageID = outObj.getMessageID();

@@ -42,7 +42,7 @@ import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
 import kr.pe.sinnori.common.lib.AbstractProject;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.CommonType.CONNECTION_TYPE;
-import kr.pe.sinnori.common.lib.OutputMessageQueueQueueMangerIF;
+import kr.pe.sinnori.common.lib.SyncOutputMessageQueueQueueMangerIF;
 import kr.pe.sinnori.common.lib.WrapBuffer;
 import kr.pe.sinnori.common.lib.WrapOutputMessageQueue;
 import kr.pe.sinnori.common.message.InputMessage;
@@ -66,7 +66,7 @@ import kr.pe.sinnori.common.message.OutputMessage;
  * @author Jonghoon Won
  *
  */
-public class ClientProject extends AbstractProject implements ClientProjectIF, OutputMessageQueueQueueMangerIF {
+public class ClientProject extends AbstractProject implements ClientProjectIF, SyncOutputMessageQueueQueueMangerIF {
 	/** 모니터 객체 */
 	private final Object outputMessageQueuerQueueMonitor = new Object();
 	
@@ -76,10 +76,10 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 	private LinkedBlockingQueue<LetterToServer> inputMessageQueue = null;
 	
 	/** 비동기 방식에서 사용되는 출력 메시지 큐를 원소로 가지는 큐 */
-	private LinkedBlockingQueue<WrapOutputMessageQueue> outputMessageQueueQueue = null;
+	private LinkedBlockingQueue<WrapOutputMessageQueue> syncOutputMessageQueueQueue = null;
 	
 	/** 서버에서 보내는 불특정 다수 메시지를 받는 큐 */
-	private LinkedBlockingQueue<OutputMessage> serverAnymouseOutputMessageQueue = null;
+	private LinkedBlockingQueue<OutputMessage> asynOutputMessageQueue = null;
 
 	/** 비동기 방식에서 사용되는 입력 메시지 쓰기 쓰레드 */
 	private InputMessageWriterPool inputMessageWriterPool = null;
@@ -90,7 +90,8 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 	/** 프로젝트의 연결 클래스 폴 */
 	private AbstractConnectionPool connectionPool = null;
 	
-	private AnonymousServerMessageProcessorThread anonymousServerMessageProcessorThread = null;
+	private AsynOutputMessageExecutorThread[] asynOutputMessageExecutorThreadList = null;
+	// private AsynOutputMessageExecutorThread asynOutputMessageExecutorThread = null;
 	
 	private ClientProjectMonitor clientProjectMonitor = null;
 	
@@ -138,7 +139,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 			long finishConnectWaittingTime = clientProjectConfig.getClientReadSelectorWakeupInterval();
 			long readSelectorWakeupInterval = clientProjectConfig.getClientReadSelectorWakeupInterval();
 		
-			serverAnymouseOutputMessageQueue  = new LinkedBlockingQueue<OutputMessage>(OutputMessageQueueSize);
+			asynOutputMessageQueue  = new LinkedBlockingQueue<OutputMessage>(OutputMessageQueueSize);
 			
 			inputMessageQueue = new LinkedBlockingQueue<LetterToServer>(inputMessageQueueSize);
 			
@@ -161,14 +162,14 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 				int mailBoxCnt = clientProjectConfig.getClientShareAsynConnMailboxCnt();
 				
 				int  outputMessageQueueQueueSize = mailBoxCnt * connectionCount;
-				outputMessageQueueQueue = new LinkedBlockingQueue<WrapOutputMessageQueue>(outputMessageQueueQueueSize);
+				syncOutputMessageQueueQueue = new LinkedBlockingQueue<WrapOutputMessageQueue>(outputMessageQueueQueueSize);
 				
 				
 				for (int i=0; i < connectionCount; i++) {
 					for (int j=0; j < mailBoxCnt; j++) {
 						LinkedBlockingQueue<OutputMessage> outputMessageQueue = new LinkedBlockingQueue<OutputMessage>(OutputMessageQueueSize);
 						WrapOutputMessageQueue wrapOutputMessageQeuue = new WrapOutputMessageQueue(outputMessageQueue);
-						outputMessageQueueQueue.add(wrapOutputMessageQeuue);
+						syncOutputMessageQueueQueue.add(wrapOutputMessageQeuue);
 					}
 				}
 
@@ -177,28 +178,33 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 						finishConnectMaxCall, finishConnectWaittingTime, 
 						mailBoxCnt,
 						clientProjectConfig, 
-						serverAnymouseOutputMessageQueue, 
+						asynOutputMessageQueue, 
 						inputMessageQueue, this, 
 						outputMessageReaderPool, this, this);
 			} else {
-				outputMessageQueueQueue = new LinkedBlockingQueue<WrapOutputMessageQueue>(connectionCount);
+				syncOutputMessageQueueQueue = new LinkedBlockingQueue<WrapOutputMessageQueue>(connectionCount);
 				for (int i=0; i < connectionCount; i++) {
 					LinkedBlockingQueue<OutputMessage> outputMessageQueue = new LinkedBlockingQueue<OutputMessage>(OutputMessageQueueSize);
 					WrapOutputMessageQueue wrapOutputMessageQeuue = new WrapOutputMessageQueue(outputMessageQueue);
-					outputMessageQueueQueue.add(wrapOutputMessageQeuue);
+					syncOutputMessageQueueQueue.add(wrapOutputMessageQeuue);
 				}
 				
 				connectionPool = new NoShareAsynConnectionPool(connectionCount, 
 						socketTimeOut, whetherToAutoConnect,
 						finishConnectMaxCall, finishConnectWaittingTime, 
 						clientProjectConfig, 
-						serverAnymouseOutputMessageQueue, 
+						asynOutputMessageQueue, 
 						inputMessageQueue, this, 
 						outputMessageReaderPool, this, this);
 			}			
+
+			asynOutputMessageExecutorThreadList = new AsynOutputMessageExecutorThread[clientProjectConfig.getClientAsynOutputMessageExecutorThreadCnt()];
 			
-			anonymousServerMessageProcessorThread = new AnonymousServerMessageProcessorThread();
-			anonymousServerMessageProcessorThread.start();
+			for (int i=0; i < asynOutputMessageExecutorThreadList.length; i++) {
+				asynOutputMessageExecutorThreadList[i] = new AsynOutputMessageExecutorThread();
+				asynOutputMessageExecutorThreadList[i].start();
+			}
+			
 		}
 		
 		clientProjectMonitor = new ClientProjectMonitor(clientProjectConfig.getClientMonitorTimeInterval(), clientProjectConfig.getClientRequestTimeout());
@@ -234,7 +240,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 	public OutputMessage takeServerOutputMessageQueue()
 			throws InterruptedException {
 		OutputMessage outputMessage = null;
-		outputMessage = serverAnymouseOutputMessageQueue.take();
+		outputMessage = asynOutputMessageQueue.take();
 		return outputMessage;
 	}
 	
@@ -254,7 +260,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 	@Override
 	public WrapOutputMessageQueue pollOutputMessageQueue()
 			throws NoMoreOutputMessageQueueException {
-		WrapOutputMessageQueue wrapOutputMessageQueue = outputMessageQueueQueue.poll();
+		WrapOutputMessageQueue wrapOutputMessageQueue = syncOutputMessageQueueQueue.poll();
 		if (null == wrapOutputMessageQueue) {
 			String errorMessage = String.format("클라이언트 프로젝트[%s]에서 랩 출력 메시지큐가 부족합니다.", projectConfig.getProjectName());
 			throw new NoMoreOutputMessageQueueException(errorMessage);
@@ -282,7 +288,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 			wrapOutputMessageQueue.queueIn();
 		}
 
-		outputMessageQueueQueue.add(wrapOutputMessageQueue);
+		syncOutputMessageQueueQueue.add(wrapOutputMessageQueue);
 		
 	}	
 	
@@ -299,12 +305,12 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 		
 		if (connectionPool instanceof NoShareSyncConnectionPool) {
 			clientProjectMonitorInfo.inputMessageQueueSize = -1;
-			clientProjectMonitorInfo.outputMessageQueueQueueSize = -1;
-			clientProjectMonitorInfo.serverAnymouseOutputMessageQueue = -1;
+			clientProjectMonitorInfo.syncOutputMessageQueueQueueSize = -1;
+			clientProjectMonitorInfo.AsynOutputMessageQueueSize = -1;
 		} else {
 			clientProjectMonitorInfo.inputMessageQueueSize = inputMessageQueue.size();
-			clientProjectMonitorInfo.outputMessageQueueQueueSize = outputMessageQueueQueue.size();
-			clientProjectMonitorInfo.serverAnymouseOutputMessageQueue = serverAnymouseOutputMessageQueue.size();
+			clientProjectMonitorInfo.syncOutputMessageQueueQueueSize = syncOutputMessageQueueQueue.size();
+			clientProjectMonitorInfo.AsynOutputMessageQueueSize = asynOutputMessageQueue.size();
 		}
 		
 		return clientProjectMonitorInfo;
@@ -313,35 +319,35 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 	/**
 	 * <pre>
 	 * 서버에서 보내는 익명 메시지 처리 쓰레드.
-	 * 처음 지정되는 익명 메시지 처리자는 디폴트 처리자({@link DefaultAnonymousServerMessageTask }) 로 익명 메시지 로그만 찍는다. 
+	 * 처음 지정되는 익명 메시지 처리자는 디폴트 처리자({@link DefaultAsynOutputMessageTask }) 로 익명 메시지 로그만 찍는다. 
 	 * 주) 비동기에서만 동작한다.
 	 * </pre>
 	 * @author Jonghoon Won
 	 *
 	 */
-	private class AnonymousServerMessageProcessorThread extends Thread {
+	private class AsynOutputMessageExecutorThread extends Thread {
 		//private final Object monitor = new Object();
 		
 		// private LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue = null;
-		private AnonymousServerMessageTaskIF anonymousServerMessageTask = null;
+		private AsynOutputMessageTaskIF asynOutputMessageTask = null;
 		
 		
 		/**
 		 * 생성자
 		 * @param projectName 프로젝트 이름
-		 * @param serverAnymouseOutputMessageQueue 서버 익명 출력 메시지 큐
+		 * @param asynOutputMessageQueue 서버 익명 출력 메시지 큐
 		 */
-		public AnonymousServerMessageProcessorThread() {
+		public AsynOutputMessageExecutorThread() {
 			// this.serverOutputMessageQueue= serverOutputMessageQueue;			
-			this.anonymousServerMessageTask = new DefaultAnonymousServerMessageTask();
+			this.asynOutputMessageTask = new DefaultAsynOutputMessageTask();
 		}
 
 		public void run() {
 			try {
 				while (!Thread.currentThread().isInterrupted()) {
-					OutputMessage outObj = serverAnymouseOutputMessageQueue.take();
+					OutputMessage outObj = asynOutputMessageQueue.take();
 					//synchronized (monitor) {
-						anonymousServerMessageTask.doTask(projectConfig, outObj);
+						asynOutputMessageTask.doTask(projectConfig, outObj);
 					//}
 				}
 				
@@ -358,37 +364,41 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 		 * 새로운 서버 익명 메시지 비지니스 로직으로 교체를 한다.
 		 * @param newAnonymousServerMessageTask 새로운 서버 익명 메시지 비지니스 로직
 		 */
-		public void changeAnonymousServerMessageTask(AnonymousServerMessageTaskIF newAnonymousServerMessageTask) {
-			if (null == newAnonymousServerMessageTask) {
-				String errorMessage = "parameter newAnonymousServerMessageTask is null";
+		public void changeAsynOutputMessageTask(AsynOutputMessageTaskIF newAsynOutputMessageTask) {
+			if (null == newAsynOutputMessageTask) {
+				String errorMessage = "parameter newAsynOutputMessageTask is null";
 				IllegalArgumentException e = new IllegalArgumentException(errorMessage);
 				log.warn("IllegalArgumentException", e);
 				throw e;
 			}
 			//synchronized (monitor) {
-				anonymousServerMessageTask = newAnonymousServerMessageTask;
+				asynOutputMessageTask = newAsynOutputMessageTask;
 			//}
 		}
 	}
 	
 	
 	@Override
-	public void changeAnonymousServerMessageTask(AnonymousServerMessageTaskIF newAnonymousServerMessageTask) {
+	public void changeAsynOutputMessageTask(AsynOutputMessageTaskIF newAsynOutputMessageTask) {
 		/**
-		 * anonymousServerMessageProcessorThread 는 비동기일때만 초기화 되므로 동기일때에는 null 값이다.
+		 * asynOutputMessageExecutorThread 는 비동기일때만 초기화 되므로 동기일때에는 null 값이다.
 		 * 따라서 null 값이면 비동기이므로 무시한다.
 		 */
-		if (null == anonymousServerMessageProcessorThread) return;
-
-		anonymousServerMessageProcessorThread.changeAnonymousServerMessageTask(newAnonymousServerMessageTask);
+		if (null == asynOutputMessageExecutorThreadList) return;
+		
+		for (int i=0; i < asynOutputMessageExecutorThreadList.length; i++) {
+			asynOutputMessageExecutorThreadList[i].changeAsynOutputMessageTask(newAsynOutputMessageTask);
+		}
 	}
 	
 	/**
-	 * 익명 서버 메시지 처리자 쓰레드 종료
+	 * 서버 비동기 출력 메시지 처리자 쓰레드 종료
 	 */
-	public void stopAnonymousServerMessageProcessorThread() {
-		if (null != anonymousServerMessageProcessorThread) {
-			anonymousServerMessageProcessorThread.interrupt();
+	public void stopAsynOutputMessageExecutorThread() {
+		if (null != asynOutputMessageExecutorThreadList) {
+			for (int i=0; i < asynOutputMessageExecutorThreadList.length; i++) {
+				asynOutputMessageExecutorThreadList[i].interrupt();
+			}
 		}
 	}
 	
@@ -445,7 +455,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, O
 		log.info(String.format("project[%s] client project stop", projectConfig.getProjectName()));
 		
 		stopAsynPool();
-		stopAnonymousServerMessageProcessorThread();
+		stopAsynOutputMessageExecutorThread();
 		stopMonitor();
 	}
 	

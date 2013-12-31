@@ -52,12 +52,15 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 	private int indexOfWorkBuffer;
 	private int dataPacketBufferMaxCntPerMessage;
 	
-	private byte shortBytes[] = { CommonStaticFinal.ZERO_BYTE,
+	/**
+	 * 주) 아래 shortBytes, intBytes, longBytes 는 객체 인스턴스마다 필요합니다. 만약 static 으로 만들면 thread safe 문제에 직면할 것입니다.
+	 */
+	private final byte SHORT_BYTES[] = { CommonStaticFinal.ZERO_BYTE,
 			CommonStaticFinal.ZERO_BYTE };
-	private byte intBytes[] = { CommonStaticFinal.ZERO_BYTE,
+	private final byte INTEGER_BYTES[] = { CommonStaticFinal.ZERO_BYTE,
 			CommonStaticFinal.ZERO_BYTE, CommonStaticFinal.ZERO_BYTE,
 			CommonStaticFinal.ZERO_BYTE };
-	private byte longBytes[] = { CommonStaticFinal.ZERO_BYTE,
+	private final byte LONG_BYTES[] = { CommonStaticFinal.ZERO_BYTE,
 			CommonStaticFinal.ZERO_BYTE, CommonStaticFinal.ZERO_BYTE,
 			CommonStaticFinal.ZERO_BYTE, CommonStaticFinal.ZERO_BYTE,
 			CommonStaticFinal.ZERO_BYTE, CommonStaticFinal.ZERO_BYTE,
@@ -115,13 +118,13 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 		
 		streamByteOrder = workBuffer.order();
 		
-		shortBuffer = ByteBuffer.wrap(shortBytes);
+		shortBuffer = ByteBuffer.wrap(SHORT_BYTES);
 		shortBuffer.order(streamByteOrder);
 
-		intBuffer = ByteBuffer.wrap(intBytes);
+		intBuffer = ByteBuffer.wrap(INTEGER_BYTES);
 		intBuffer.order(streamByteOrder);
 
-		longBuffer = ByteBuffer.wrap(longBytes);
+		longBuffer = ByteBuffer.wrap(LONG_BYTES);
 		longBuffer.order(streamByteOrder);
 	}
 
@@ -156,7 +159,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 	 */
 	private void clearShortBuffer() {
 		shortBuffer.clear();
-		Arrays.fill(shortBytes, CommonStaticFinal.ZERO_BYTE);
+		Arrays.fill(SHORT_BYTES, CommonStaticFinal.ZERO_BYTE);
 	}
 
 	/**
@@ -164,7 +167,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 	 */
 	private void clearIntBuffer() {
 		intBuffer.clear();
-		Arrays.fill(intBytes, CommonStaticFinal.ZERO_BYTE);
+		Arrays.fill(INTEGER_BYTES, CommonStaticFinal.ZERO_BYTE);
 	}
 
 	/**
@@ -172,7 +175,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 	 */
 	private void clearLongBuffer() {
 		longBuffer.clear();
-		Arrays.fill(longBytes, CommonStaticFinal.ZERO_BYTE);
+		Arrays.fill(LONG_BYTES, CommonStaticFinal.ZERO_BYTE);
 	}
 	
 	
@@ -257,7 +260,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 			}
 			*/
 			
-			workBuffer.get(shortBytes, shortBuffer.position(), shortBuffer.remaining());
+			workBuffer.get(SHORT_BYTES, shortBuffer.position(), shortBuffer.remaining());
 			
 			shortBuffer.clear();
 			retValue = shortBuffer.getShort();
@@ -293,7 +296,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 				intBuffer.put(workBuffer.get());
 			}
 			*/
-			workBuffer.get(intBytes, intBuffer.position(), intBuffer.remaining());
+			workBuffer.get(INTEGER_BYTES, intBuffer.position(), intBuffer.remaining());
 		}
 		
 		intBuffer.clear();
@@ -326,7 +329,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 			}
 			*/
 			
-			workBuffer.get(intBytes, intBuffer.position(), intBuffer.remaining());
+			workBuffer.get(INTEGER_BYTES, intBuffer.position(), intBuffer.remaining());
 			
 			intBuffer.clear();
 			retValue = intBuffer.getInt();
@@ -360,7 +363,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 				longBuffer.put(workBuffer.get());
 			}
 			*/
-			workBuffer.get(longBytes, longBuffer.position(), longBuffer.remaining());
+			workBuffer.get(LONG_BYTES, longBuffer.position(), longBuffer.remaining());
 		}
 
 		longBuffer.clear();
@@ -385,7 +388,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 				longBuffer.put(workBuffer.get());
 			}
 			*/
-			workBuffer.get(longBytes, longBuffer.position(), longBuffer.remaining());
+			workBuffer.get(LONG_BYTES, longBuffer.position(), longBuffer.remaining());
 
 			longBuffer.clear();
 			retValue = longBuffer.getLong();
@@ -417,8 +420,12 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 					remainingBytes));
 		}
 
+		/*
 		byte strBytes[] = new byte[len];
 		ByteBuffer dstBuffer = ByteBuffer.wrap(strBytes);
+		*/
+		ByteBuffer dstBuffer = ByteBuffer.allocate(len);
+		
 
 		getBytesFromWorkBuffer(dstBuffer);
 		dstBuffer.flip();
@@ -590,10 +597,12 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 					remainingBytes));
 		}
 
+		/*
 		byte srcBuffer[] = new byte[len];
-		
-
 		ByteBuffer dstBuffer = ByteBuffer.wrap(srcBuffer);
+		*/
+		ByteBuffer dstBuffer = ByteBuffer.allocate(len);
+		byte srcBuffer[] = dstBuffer.array();
 
 		getBytesFromWorkBuffer(dstBuffer);
 		return srcBuffer;

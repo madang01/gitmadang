@@ -556,7 +556,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		
 		if (messageExchangeType == MESSAGE_EXCHANGE_TYPE.ASYNC_MESSAGE) {
 			try {
-				conn.sendAsyncInputMessage(inObj);
+				conn.sendAsynInputMessage(inObj);
 			} catch (SocketTimeoutException e) {
 				log.warn("SocketTimeoutException", e);
 				JOptionPane.showMessageDialog(mainFrame, "지정된 연결 시간을 초과하였습니다.");
@@ -1020,7 +1020,8 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 				JOptionPane.showMessageDialog(mainFrame, resultMessage);
 				return null;
 			}
-			
+
+			localTargetFileResource.truncate();
 			localTargetFileResource.setSourceFileID(serverSourceFileID);		
 		} catch (MessageItemException e) {
 			log.warn("MessageItemException", e);
@@ -1033,6 +1034,26 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		}
 		
 		return outObj;
+	}
+	
+	
+	public boolean truncateLocalTargetFileResource() {
+		try {
+			localTargetFileResource.truncate();
+		} catch (UpDownFileException e) {
+			// TODO Auto-generated catch block
+			log.warn(e.getMessage(), e);
+			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
+			OutputMessage outObj = cancelDownloadFile();
+			if (null == outObj) return false;
+
+			JOptionPane.showMessageDialog(mainFrame, 
+					String.format("정상적으로 원격지 원본파일[%s]의 로컬 목적지 파일[%s] 다운 로드가 취소 되었습니다.",
+							localTargetFileResource.getSourceFileName(), localTargetFileResource.getTargetFileName()));
+			return false;
+		}
+		
+		return true;
 	}
 	
 	@Override
@@ -1049,6 +1070,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	@Override
 	public void openDownloadProcessDialog(int serverSourceFileID, String mesg, long fileSize) {
 		localTargetFileResource.setSourceFileID(serverSourceFileID);
+		
 		
 		DownloadFileTransferTask downloadFileTransferTask = new DownloadFileTransferTask(mainFrame, this, serverSourceFileID, localTargetFileResource);
 		
@@ -1263,7 +1285,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	}
 	
 	@Override
-	public void doAnonymousServerMessageTask(OutputMessage outObj) {
+	public void doAsynOutputMessageTask(OutputMessage outObj) {
 		log.info(outObj.toString());;
 	}
 	

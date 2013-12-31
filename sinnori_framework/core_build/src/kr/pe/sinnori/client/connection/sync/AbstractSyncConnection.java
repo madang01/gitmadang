@@ -43,7 +43,7 @@ public abstract class AbstractSyncConnection extends AbstractConnection {
 	 * @param whetherToAutoConnect 자동 접속 여부
 	 * @param clientProjectConfig 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
 	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자
-	 * @param serverOutputMessageQueue 서버에서 보내는 불특정 출력 메시지를 받는 큐
+	 * @param asynOutputMessageQueue 서버에서 보내는 불특정 출력 메시지를 받는 큐
 	 * @throws InterruptedException 쓰레드 인터럽트
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷 버퍼를 할당 받지 못했을 경우 던지는 예외
 	 */
@@ -52,8 +52,8 @@ public abstract class AbstractSyncConnection extends AbstractConnection {
 			boolean whetherToAutoConnect,
 			ClientProjectConfigIF clientProjectConfig,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager,
-			LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue) throws InterruptedException, NoMoreDataPacketBufferException {
-		super(index, socketTimeOut, whetherToAutoConnect, clientProjectConfig, dataPacketBufferQueueManager, serverOutputMessageQueue);
+			LinkedBlockingQueue<OutputMessage> asynOutputMessageQueue) throws InterruptedException, NoMoreDataPacketBufferException {
+		super(index, socketTimeOut, whetherToAutoConnect, clientProjectConfig, dataPacketBufferQueueManager, asynOutputMessageQueue);
 		// log.info("whether_to_auto_connect=[%s]", whether_to_auto_connect);
 	}	
 }

@@ -484,7 +484,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 	
 	
 	@Override
-	public void sendAsyncInputMessage(
+	public void sendAsynInputMessage(
 			InputMessage inObj) throws ServerNotReadyException,
 			SocketTimeoutException, NoMoreDataPacketBufferException,
 			BodyFormatException, MessageInfoNotFoundException, NotSupportedException {		

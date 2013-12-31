@@ -34,7 +34,7 @@ import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
-import kr.pe.sinnori.common.lib.OutputMessageQueueQueueMangerIF;
+import kr.pe.sinnori.common.lib.SyncOutputMessageQueueQueueMangerIF;
 import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
 
@@ -61,9 +61,9 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 	 * @param finishConnectMaxCall 비동기 방식에서 연결 확립 시도 최대 호출 횟수
 	 * @param finishConnectWaittingTime 비동기 연결 확립 시도 간격
 	 * @param clientProjectConfig 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
-	 * @param serverOutputMessageQueue 서버에서 보내는 불특정 출력 메시지를 받는 큐
+	 * @param asynOutputMessageQueue 서버에서 보내는 불특정 출력 메시지를 받는 큐
 	 * @param inputMessageQueue 입력 메시지 큐
-	 * @param outputMessageQueueQueueManger 출력 메시지 큐를 원소로 가지는 큐 관리자
+	 * @param syncOutputMessageQueueQueueManger 출력 메시지 큐를 원소로 가지는 큐 관리자
 	 * @param outputMessageReaderPool 서버에 접속한 소켓 채널을 균등하게 소켓 읽기 담당 쓰레드에 등록하기 위한 인터페이스
 	 * @param messageManger 메시지 관리자
 	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자
@@ -78,14 +78,14 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 			int finishConnectMaxCall,
 			long finishConnectWaittingTime,
 			ClientProjectConfigIF clientProjectConfig,
-			LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue,
+			LinkedBlockingQueue<OutputMessage> asynOutputMessageQueue,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
-			OutputMessageQueueQueueMangerIF outputMessageQueueQueueManger, 
+			SyncOutputMessageQueueQueueMangerIF syncOutputMessageQueueQueueManger, 
 			OutputMessageReaderPoolIF outputMessageReaderPool,
 			MessageMangerIF messageManger,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager)
 			throws NoMoreDataPacketBufferException, InterruptedException, NoMoreOutputMessageQueueException {
-		super(clientProjectConfig, serverOutputMessageQueue);
+		super(clientProjectConfig, asynOutputMessageQueue);
 		
 		this.connectionPoolSize = connectionPoolSize;
 		
@@ -100,7 +100,7 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 			NoShareAsynConnection serverConnection = new NoShareAsynConnection(
 					i, socketTimeOut, whetherToAutoConnect, 
 					finishConnectMaxCall, finishConnectWaittingTime, clientProjectConfig, 
-					serverOutputMessageQueue, inputMessageQueue, outputMessageQueueQueueManger,
+					asynOutputMessageQueue, inputMessageQueue, syncOutputMessageQueueQueueManger,
 					outputMessageReaderPool, messageManger, 
 					dataPacketBufferQueueManager);
 			connectionQueue.add(serverConnection);

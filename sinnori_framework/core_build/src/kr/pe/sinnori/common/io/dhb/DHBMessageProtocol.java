@@ -68,11 +68,11 @@ public class DHBMessageProtocol implements CommonRootIF, MessageExchangeProtocol
 	private DHBSingleItemConverter dhbSingleItemConverter = null;
 	
 	public DHBMessageProtocol(
-			int messageIDFixedSize, int messageHeaderSize, 
+			int messageIDFixedSize, 
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) {
 		
 		this.messageIDFixedSize = messageIDFixedSize;
-		this.messageHeaderSize = messageHeaderSize;
+		this.messageHeaderSize = DHBMessageHeader.getMessageHeaderSize(messageIDFixedSize);
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 		
 		this.dataPacketBufferSize= dataPacketBufferQueueManager.getDataPacketBufferSize();

@@ -355,18 +355,6 @@ public class LocalTargetFileResource implements CommonRootIF {
 			log.warn(errorMessage);
 			throw new UpDownFileException(errorMessage);
 		}
-
-		try {
-			targetFileChannel.truncate(0L);
-		} catch (IOException e) {
-			/** 기존에 데이터 삭제를 위한 목적지 파일 크기 0 으로 설정 실패 */
-			releaseFileLock();
-			String errorMessage = String
-					.format("targetFileID[%d]::기존에 데이터 삭제를 위한 목적지 파일[%s] 크기 0 으로 설정 실패",
-							targetFileID, targetfullFileName);
-			log.warn(errorMessage, e);
-			throw new UpDownFileException(errorMessage);
-		}
 		
 		// FIXME!
 		/*
@@ -477,6 +465,31 @@ public class LocalTargetFileResource implements CommonRootIF {
 	}
 
 	/**
+	 * <pre>
+	 * 목적지 파일 크기를 재 조정한다.
+	 * 
+	 * 중복 받기 이면 크기 0 으로 이어받기 이면 아무런 동작도 하지 않는다.
+	 * 목적지 파일 크기는 서버/클라이언트 쌍방 다운로드 할 준비가 끝났을 시점에 크기 재조정이 되어야 한다.
+	 * 업로드시에는 서버 업로드 준비 비지니스 로직에서 호출될것이며,
+	 * 다운로드시에는 서버 다운로드 준비 출력 메시지를 받은 후 호출될것이다.
+	 * </pre> 
+	 * @throws UpDownFileException 파일 크기 재조정시 입출력 에러 발생시 던지는 예외
+	 */
+	public void truncate() throws UpDownFileException {
+		try {
+			targetFileChannel.truncate(0L);
+		} catch (IOException e) {
+			/** 기존에 데이터 삭제를 위한 목적지 파일 크기 0 으로 설정 실패 */
+			releaseFileLock();
+			String errorMessage = String
+					.format("targetFileID[%d]::기존에 데이터 삭제를 위한 목적지 파일[%s][%s] 크기 0 으로 설정 실패",
+							targetFileID, targetFilePathName, targetFileName);
+			log.warn(errorMessage, e);
+			throw new UpDownFileException(errorMessage);
+		}
+	}
+	
+	/**
 	 * 수신한 파일 조각을 저장한다.
 	 * 
 	 * @param fileBlockNo
@@ -494,7 +507,6 @@ public class LocalTargetFileResource implements CommonRootIF {
 	public boolean writeTargetFileData(int fileBlockNo, byte[] fileData,
 			boolean checkOver) throws IllegalArgumentException,
 			UpDownFileException {
-
 		if (fileBlockNo < 0) {
 			String errorMessage = String
 					.format("targetFileID[%d]::parameter fileBlockNo[%d] less than zero",
@@ -537,6 +549,8 @@ public class LocalTargetFileResource implements CommonRootIF {
 				throw new IllegalArgumentException(errorMessage);
 			}
 		}
+		
+		
 		
 		synchronized (monitor) {
 			if (null == workedFileBlockBitSet) {

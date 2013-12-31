@@ -169,7 +169,7 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 		int outputMessageWriterSize = serverProjectConfig.getServerOutputMessageWriterSize();
 		int outputMessageWriterMaxSize = serverProjectConfig.getServerOutputMessageWriterMaxSize();
 		
-		TreeSet<String> anonymousExceptionInputMessageSet = serverProjectConfig.getServerAnonymousExceptionInputMessageSet();
+		TreeSet<String> anonymousExceptionInputMessageSet = serverProjectConfig.getAsynInputMessageSet();
 		Iterator<String> anonymousExceptionInputMessageIter = anonymousExceptionInputMessageSet.iterator();
 		while(anonymousExceptionInputMessageIter.hasNext()) {
 			try {

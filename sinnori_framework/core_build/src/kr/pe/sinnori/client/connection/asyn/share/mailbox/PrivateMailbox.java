@@ -25,7 +25,7 @@ import kr.pe.sinnori.client.connection.asyn.share.ShareAsynConnection;
 import kr.pe.sinnori.client.io.LetterToServer;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.common.lib.OutputMessageQueueQueueMangerIF;
+import kr.pe.sinnori.common.lib.SyncOutputMessageQueueQueueMangerIF;
 import kr.pe.sinnori.common.lib.WrapOutputMessageQueue;
 import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
@@ -58,10 +58,10 @@ public class PrivateMailbox implements CommonRootIF {
 	private int mailboxID;
 	/** 입력 메시지 큐 */
 	private LinkedBlockingQueue<LetterToServer> inputMessageQueue = null;
-	private OutputMessageQueueQueueMangerIF outputMessageQueueQueueManager = null;
+	private SyncOutputMessageQueueQueueMangerIF syncOutputMessageQueueQueueManager = null;
 	/** 출력 메시지 큐 */
 	private WrapOutputMessageQueue wrapOutputMessageQueue = null;
-	private LinkedBlockingQueue<OutputMessage> outputMessageQueue = null;
+	private LinkedBlockingQueue<OutputMessage> syncOutputMessageQueue = null;
 	/** 메일함이 속한 비동기 연결 방식의 소켓 채널을 쓰레드간에 공유할려는 연결 클래스 */
 	private AbstractAsynConnection serverConnection = null;
 	/** 메일함 사용 여부 */
@@ -94,14 +94,14 @@ public class PrivateMailbox implements CommonRootIF {
 	public PrivateMailbox(AbstractAsynConnection serverConnection,
 			int mailboxID,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
-			OutputMessageQueueQueueMangerIF outputMessageQueueQueueManager) throws NoMoreOutputMessageQueueException {
+			SyncOutputMessageQueueQueueMangerIF outputMessageQueueQueueManager) throws NoMoreOutputMessageQueueException {
 		// this.mailboxMonitor = mailboxMonitor;
 		this.serverConnection = serverConnection;
 		this.mailboxID = mailboxID;
 		this.inputMessageQueue = inputMessageQueue;
-		this.outputMessageQueueQueueManager = outputMessageQueueQueueManager;
+		this.syncOutputMessageQueueQueueManager = outputMessageQueueQueueManager;
 		this.wrapOutputMessageQueue = outputMessageQueueQueueManager.pollOutputMessageQueue();
-		this.outputMessageQueue = wrapOutputMessageQueue.getOutputMessageQueue();
+		this.syncOutputMessageQueue = wrapOutputMessageQueue.getOutputMessageQueue();
 		socketTimeOut = serverConnection.getSocketTimeOut();
 	}
 
@@ -154,7 +154,7 @@ public class PrivateMailbox implements CommonRootIF {
 	 * @param outputMessage
 	 *            출력 메시지
 	 */
-	public void putToOutputMessageQueue(OutputMessage outputMessage) {
+	public void putToSyncOutputMessageQueue(OutputMessage outputMessage) {
 		if (!isActive) {
 			String errorMessage = String
 					.format("메일함이 사용중이 아닙니다. 메일함 큐에서 대기중, serverConnection=[%s], outputMessage=[%s]",
@@ -180,14 +180,14 @@ public class PrivateMailbox implements CommonRootIF {
 
 		boolean result = false;
 		
-		result = outputMessageQueue.offer(outputMessage);
+		result = syncOutputMessageQueue.offer(outputMessage);
 		
 		
 		if (!result) {
 			StringBuilder errorMessageStringBuilder = new StringBuilder("메일 식별자와 일치하지 않는 출력 메시지들로 출력 메시지 큐가 꽉 차 있어 큐를 비웁니다. ");
 			int i=0;
-			while(outputMessageQueue.isEmpty()) {
-				OutputMessage outObj = outputMessageQueue.poll();
+			while(syncOutputMessageQueue.isEmpty()) {
+				OutputMessage outObj = syncOutputMessageQueue.poll();
 				
 				if (null == outObj) break;
 				
@@ -199,7 +199,7 @@ public class PrivateMailbox implements CommonRootIF {
 			}
 			log.warn(errorMessageStringBuilder.toString());
 			
-			outputMessageQueue.offer(outputMessage);
+			syncOutputMessageQueue.offer(outputMessage);
 			return;
 		}
 	}
@@ -213,11 +213,11 @@ public class PrivateMailbox implements CommonRootIF {
 	 *             못했을때 발생
 	 * @throws InterruptedException 인터럽트 발생시 던지는 예외
 	 */
-	public OutputMessage takeOutputMessage() throws SocketTimeoutException, InterruptedException {
+	public OutputMessage takeSyncOutputMessage() throws SocketTimeoutException, InterruptedException {
 		OutputMessage workOutObj = null;
 		
 		do {
-			workOutObj = outputMessageQueue.poll(socketTimeOut,
+			workOutObj = syncOutputMessageQueue.poll(socketTimeOut,
 					TimeUnit.MILLISECONDS);
 			if (null == workOutObj) {
 				String errorMsg = String
@@ -259,9 +259,9 @@ public class PrivateMailbox implements CommonRootIF {
 			mailID++;
 
 		int inx = 0;
-		while (!outputMessageQueue.isEmpty()) {
+		while (!syncOutputMessageQueue.isEmpty()) {
 			log.info(String.format("mailbox[%d]'s outputMessageQueue not empty, letter[%d]=[%s]",
-					mailboxID, inx++, outputMessageQueue.poll().toString()));
+					mailboxID, inx++, syncOutputMessageQueue.poll().toString()));
 		}
 	}
 
@@ -282,7 +282,7 @@ public class PrivateMailbox implements CommonRootIF {
 
 		log.warn(errorMsg);
 		
-		outputMessageQueueQueueManager.putOutputMessageQueue(wrapOutputMessageQueue);
+		syncOutputMessageQueueQueueManager.putOutputMessageQueue(wrapOutputMessageQueue);
 		super.finalize();
 	}
 }

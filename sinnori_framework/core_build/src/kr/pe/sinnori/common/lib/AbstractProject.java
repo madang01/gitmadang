@@ -87,8 +87,7 @@ public abstract class AbstractProject implements CommonRootIF, DataPacketBufferQ
 		switch (projectConfig.getMessageProtocol()) {
 			case DHB : {
 				messageExchangeProtocol = new DHBMessageProtocol(
-						projectConfig.getMessageIDFixedSize(), 
-						projectConfig.getMessageHeaderSize(), this);
+						projectConfig.getMessageIDFixedSize(), this);
 				
 				break;
 			}

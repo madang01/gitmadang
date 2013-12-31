@@ -135,9 +135,9 @@ public interface ServerProjectConfigIF extends CommonProjectConfigIF {
 	public long getServerMonitorTimeInterval();
 	
 	/**
-	 * @return 설정파일에서 정의한 익명 예외 발생 시키는 메시지 목록
+	 * @return 비동기 입력 메시지 집합
 	 */
-	public TreeSet<String> getServerAnonymousExceptionInputMessageSet();
+	public TreeSet<String> getAsynInputMessageSet();
 	
 	/**
 	 * @return 프로젝트의 공통 환경 변수들 제외한 서버 환경 변수들만의 toString

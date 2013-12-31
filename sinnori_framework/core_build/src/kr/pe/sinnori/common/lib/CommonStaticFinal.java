@@ -30,7 +30,7 @@ public abstract class CommonStaticFinal {
 	public static final short ZERO_SHORT = 0;
 	public static final int ZERO_INTEGER = 0;
 	public static final long ZERO_LONG = 0L;
-	
+		
 	/************* network binary stream start *************/
 	public static final short MAX_UNSIGNED_BYTE = 0xff;
 	public static final int MAX_UNSIGNED_SHORT = 0xffff;

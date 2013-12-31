@@ -83,6 +83,7 @@ public final class UpFileInfoSExtor extends AbstractAuthServerExecutor {
 				return;
 			}
 			
+			localTargetFileResource.truncate();
 			localTargetFileResource.setSourceFileID(clientSourceFileID);
 			int serverTargetFileID = localTargetFileResource.getTargetFileID();
 			
@@ -112,6 +113,10 @@ public final class UpFileInfoSExtor extends AbstractAuthServerExecutor {
 		} catch (IllegalArgumentException e) {
 			log.info("IllegalArgumentException", e);
 			
+			if (null != localTargetFileResource) {
+				localTargetFileResourceManager.putLocalTargetFileResource(localTargetFileResource);
+			}
+			
 			outObj.setAttribute("taskResult", "N");
 			outObj.setAttribute("resultMessage", e.getMessage());
 			outObj.setAttribute("serverTargetFileID", -1);
@@ -128,6 +133,10 @@ public final class UpFileInfoSExtor extends AbstractAuthServerExecutor {
 			letterSender.sendSelf(outObj);
 		} catch (UpDownFileException e) {
 			log.info("UpDownFileException", e);
+			
+			if (null != localTargetFileResource) {
+				localTargetFileResourceManager.putLocalTargetFileResource(localTargetFileResource);
+			}
 			
 			outObj.setAttribute("taskResult", "N");
 			outObj.setAttribute("resultMessage", "서버::"+e.getMessage());

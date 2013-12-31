@@ -23,8 +23,7 @@ public final class DownFileInfoSExtor extends AbstractAuthServerExecutor {
 			ClientResourceManagerIF clientResourceManager)
 			throws MessageInfoNotFoundException, MessageItemException {
 		OutputMessage outObj = messageManger.createOutputMessage("DownFileInfoResult");
-		// outObj.messageHeaderInfo = inObj.messageHeaderInfo;
-		
+
 		String localFilePathName = (String)inObj.getAttribute("localFilePathName");
 		String localFileName = (String)inObj.getAttribute("localFileName");
 		String remoteFilePathName = (String)inObj.getAttribute("remoteFilePathName");
@@ -65,9 +64,14 @@ public final class DownFileInfoSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("resultMessage", "업로드할 파일을 받아줄 준비가 되었습니다.");
 			outObj.setAttribute("clientTargetFileID", clientTargetFileID);
 			outObj.setAttribute("serverSourceFileID", serverSourceFileID);
-			// letterToClientList.addLetterToClient(fromSC, outObj);
 			letterSender.sendSelf(outObj);
 		} catch (IllegalArgumentException e) {
+			log.info("IllegalArgumentException", e);
+			
+			if (null != localSourceFileResource) {
+				localSourceFileResourceManager.putLocalSourceFileResource(localSourceFileResource);
+			}
+			
 			outObj.setAttribute("taskResult", "N");
 			outObj.setAttribute("resultMessage", "서버::"+e.getMessage());
 			outObj.setAttribute("clientTargetFileID", clientTargetFileID);
@@ -75,6 +79,8 @@ public final class DownFileInfoSExtor extends AbstractAuthServerExecutor {
 			// letterToClientList.addLetterToClient(fromSC, outObj);
 			letterSender.sendSelf(outObj);
 		} catch (UpDownFileException e) {
+			log.info("UpDownFileException", e);
+			
 			outObj.setAttribute("taskResult", "N");
 			outObj.setAttribute("resultMessage", "서버::"+e.getMessage());
 			outObj.setAttribute("clientTargetFileID", clientTargetFileID);
