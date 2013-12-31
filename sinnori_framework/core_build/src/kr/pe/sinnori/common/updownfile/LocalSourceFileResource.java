@@ -569,7 +569,10 @@ public class LocalSourceFileResource implements CommonRootIF {
 			}
 			
 			try {
-				sourceFileChannel.read(ByteBuffer.wrap(fileData), (long) fileBlockSize * fileBlockNo);
+				// FIXME!
+				// sourceFileChannel.read(ByteBuffer.wrap(fileData), (long) fileBlockSize * fileBlockNo);
+				sourceRandomAccessFile.seek((long) fileBlockSize * fileBlockNo);
+				sourceRandomAccessFile.read(fileData);
 			} catch (IOException e) {
 				/** n 번째 원본 파일 조각 읽기 실패 */
 				String errorMessage = String.format(

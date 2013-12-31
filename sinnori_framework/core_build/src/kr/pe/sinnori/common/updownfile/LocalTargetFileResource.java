@@ -559,8 +559,10 @@ public class LocalTargetFileResource implements CommonRootIF {
 			}
 			
 			try {
-				targetFileChannel.write(ByteBuffer.wrap(fileData),
-						(long) fileBlockSize * fileBlockNo);
+				// FIXME!
+				// targetFileChannel.write(ByteBuffer.wrap(fileData), (long) fileBlockSize * fileBlockNo);
+				targetRandomAccessFile.seek((long) fileBlockSize * fileBlockNo);
+				targetRandomAccessFile.write(fileData);
 			} catch (IOException e) {
 				/** n 번째 목적지 파일 조각 쓰기 실패 */
 				String errorMessage = String.format(

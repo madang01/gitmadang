@@ -420,10 +420,6 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 					remainingBytes));
 		}
 
-		/*
-		byte strBytes[] = new byte[len];
-		ByteBuffer dstBuffer = ByteBuffer.wrap(strBytes);
-		*/
 		ByteBuffer dstBuffer = ByteBuffer.allocate(len);
 		
 
@@ -596,11 +592,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 					"지정된 bye 크기[%d]는  남아 있은 버퍼 크기[%d] 보다 작거나 같아야 합니다.", len,
 					remainingBytes));
 		}
-
-		/*
-		byte srcBuffer[] = new byte[len];
-		ByteBuffer dstBuffer = ByteBuffer.wrap(srcBuffer);
-		*/
+		
 		ByteBuffer dstBuffer = ByteBuffer.allocate(len);
 		byte srcBuffer[] = dstBuffer.array();
 

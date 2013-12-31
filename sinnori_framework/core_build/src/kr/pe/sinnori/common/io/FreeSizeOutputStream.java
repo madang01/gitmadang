@@ -506,7 +506,13 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 		
 		CharBuffer strCharBuffer = CharBuffer.wrap(str);
 
-		ByteBuffer strByteBuffer = ByteBuffer.allocate(len);
+		ByteBuffer strByteBuffer = null;
+		try {
+			strByteBuffer = ByteBuffer.allocate(len);
+		} catch (OutOfMemoryError e) {
+			log.warn("OutOfMemoryError", e);
+			throw e;
+		}
 		
 		
 		Arrays.fill(strByteBuffer.array(), CommonStaticFinal.ZERO_BYTE);

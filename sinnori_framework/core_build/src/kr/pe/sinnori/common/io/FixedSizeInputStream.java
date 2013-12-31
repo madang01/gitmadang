@@ -194,10 +194,12 @@ public class FixedSizeInputStream implements CommonRootIF, InputStreamIF {
 					"파라미터 길이[%d]는  남아 있은 버퍼 크기[%d] 보다 작거나 같아야 합니다.", len,
 					remainingBytes));
 		}
-
+		
+		ByteBuffer dstBuffer = null;
 		byte dstBytes[] = null;
 		try {
-			dstBytes = new byte[len];
+			dstBuffer = ByteBuffer.allocate(len);
+			dstBytes = dstBuffer.array();
 		} catch (OutOfMemoryError e) {
 			log.warn("OutOfMemoryError", e);
 			throw e;
@@ -209,8 +211,6 @@ public class FixedSizeInputStream implements CommonRootIF, InputStreamIF {
 		 */
 		streamBuffer.get(dstBytes);
 		
-		
-		ByteBuffer dstBuffer = ByteBuffer.wrap(dstBytes);
 		
 		CharBuffer dstCharBuffer = null;
 		try {
