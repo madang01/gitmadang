@@ -55,17 +55,23 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 	/**
 	 * 주) 아래 shortBytes, intBytes, longBytes 는 객체 인스턴스마다 필요합니다. 만약 static 으로 만들면 thread safe 문제에 직면할 것입니다.
 	 */
-	private final byte SHORT_BYTES[] = { CommonStaticFinal.ZERO_BYTE,
+	/*
+	private byte SHORT_BYTES[] = { CommonStaticFinal.ZERO_BYTE,
 			CommonStaticFinal.ZERO_BYTE };
-	private final byte INTEGER_BYTES[] = { CommonStaticFinal.ZERO_BYTE,
-			CommonStaticFinal.ZERO_BYTE, CommonStaticFinal.ZERO_BYTE,
-			CommonStaticFinal.ZERO_BYTE };
-	private final byte LONG_BYTES[] = { CommonStaticFinal.ZERO_BYTE,
-			CommonStaticFinal.ZERO_BYTE, CommonStaticFinal.ZERO_BYTE,
-			CommonStaticFinal.ZERO_BYTE, CommonStaticFinal.ZERO_BYTE,
+	private byte INTEGER_BYTES[] = { CommonStaticFinal.ZERO_BYTE,
 			CommonStaticFinal.ZERO_BYTE, CommonStaticFinal.ZERO_BYTE,
 			CommonStaticFinal.ZERO_BYTE };
+	private byte LONG_BYTES[] = { CommonStaticFinal.ZERO_BYTE,
+			CommonStaticFinal.ZERO_BYTE, CommonStaticFinal.ZERO_BYTE,
+			CommonStaticFinal.ZERO_BYTE, CommonStaticFinal.ZERO_BYTE,
+			CommonStaticFinal.ZERO_BYTE, CommonStaticFinal.ZERO_BYTE,
+			CommonStaticFinal.ZERO_BYTE };
+			*/
 
+	private byte[] shortBytes = null;
+	private byte[] intBytes = null;
+	private byte[] longBytes = null;
+	
 	private ByteBuffer shortBuffer = null;
 	private ByteBuffer intBuffer = null;
 	private ByteBuffer longBuffer = null;
@@ -118,14 +124,18 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 		
 		streamByteOrder = workBuffer.order();
 		
-		shortBuffer = ByteBuffer.wrap(SHORT_BYTES);
+		shortBuffer = ByteBuffer.allocate(2);
 		shortBuffer.order(streamByteOrder);
+		shortBytes = shortBuffer.array();
+		
 
-		intBuffer = ByteBuffer.wrap(INTEGER_BYTES);
+		intBuffer = ByteBuffer.allocate(4);
 		intBuffer.order(streamByteOrder);
+		intBytes = intBuffer.array();		
 
-		longBuffer = ByteBuffer.wrap(LONG_BYTES);
+		longBuffer = ByteBuffer.allocate(8);
 		longBuffer.order(streamByteOrder);
+		longBytes = longBuffer.array();		
 	}
 
 	/**
@@ -159,7 +169,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 	 */
 	private void clearShortBuffer() {
 		shortBuffer.clear();
-		Arrays.fill(SHORT_BYTES, CommonStaticFinal.ZERO_BYTE);
+		Arrays.fill(shortBytes, CommonStaticFinal.ZERO_BYTE);
 	}
 
 	/**
@@ -167,7 +177,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 	 */
 	private void clearIntBuffer() {
 		intBuffer.clear();
-		Arrays.fill(INTEGER_BYTES, CommonStaticFinal.ZERO_BYTE);
+		Arrays.fill(intBytes, CommonStaticFinal.ZERO_BYTE);
 	}
 
 	/**
@@ -175,7 +185,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 	 */
 	private void clearLongBuffer() {
 		longBuffer.clear();
-		Arrays.fill(LONG_BYTES, CommonStaticFinal.ZERO_BYTE);
+		Arrays.fill(longBytes, CommonStaticFinal.ZERO_BYTE);
 	}
 	
 	
@@ -185,13 +195,13 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 	 * @param dstBuffer
 	 *            목적지 바이트 버퍼
 	 */
-	private void getBytesFromWorkBuffer(ByteBuffer dstBuffer) {
+	private void getBytesFromWorkBuffer(ByteBuffer dstByteBuffer) {
 		// log.info("getBytesFromWorkBuffer::dstBuffer=[%s]",
 		// dstBuffer.toString());
-
+		/*
 		do {
 			int workRemainingByte = workBuffer.remaining();
-			int dstRemainingByte = dstBuffer.remaining();
+			int dstRemainingByte = dstByteBuffer.remaining();
 
 			// FIXME!			
 			// log.info("getBytesFromWorkBuffer::workBuffer=[%s]", workBuffer.toString());
@@ -201,15 +211,15 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 			if (workRemainingByte > dstRemainingByte) {
 				int limit = workBuffer.limit();
 				workBuffer.limit(workBuffer.position() + dstRemainingByte);
-				dstBuffer.put(workBuffer);
+				dstByteBuffer.put(workBuffer);
 				workBuffer.limit(limit);
 				// log.info("getBytesFromWorkBuffer::2.workBuffer=[%s]",
 				// workBuffer.toString());
 				break;
 			}
 
-			dstBuffer.put(workBuffer);
-			if (!dstBuffer.hasRemaining())
+			dstByteBuffer.put(workBuffer);
+			if (!dstByteBuffer.hasRemaining())
 				break;
 			nextBuffer();
 			
@@ -217,7 +227,65 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 		} while (true);		
 		
 		// dstBuffer.flip();
+		 */
+		do {
+			int len = dstByteBuffer.remaining();
+			if (workBuffer.remaining() >= len) {
+				int oldLimitOfSrc = workBuffer.limit();
+				workBuffer.limit(workBuffer.position() + len);
+				dstByteBuffer.put(workBuffer);
+				workBuffer.limit(oldLimitOfSrc);				
+				break;				
+			} else {
+				dstByteBuffer.put(workBuffer);
+				nextBuffer();
+			}
+		} while (dstByteBuffer.hasRemaining());
+		
+		
 	}
+	
+	// FIXME!
+	private void getBytesFromWorkBuffer(byte[] dstBytes) {
+		int offset = 0;
+		int len = dstBytes.length;
+		do {
+			int remainingBytes = workBuffer.remaining();
+			
+			if (remainingBytes >= len) {
+				workBuffer.get(dstBytes, offset, len);
+				// len = 0;
+				break;
+			} else {
+				workBuffer.get(dstBytes, offset, remainingBytes);
+				offset += remainingBytes;
+				len -= remainingBytes;
+				nextBuffer();
+			}
+			
+		} while (0 != len);
+	}
+	
+	private void getBytesFromWorkBuffer(byte[] dstBytes, int offset, int len) {
+		do {
+			int remainingBytes = workBuffer.remaining();
+			
+			if (remainingBytes >= len) {
+				workBuffer.get(dstBytes, offset, len);
+				// len = 0;
+				break;
+			} else {
+				workBuffer.get(dstBytes, offset, remainingBytes);
+				offset += remainingBytes;
+				len -= remainingBytes;
+				nextBuffer();
+			}
+			
+		} while (0 != len);
+	}
+	
+	
+	
 	
 	@Override
 	public Charset getCharset() {
@@ -227,12 +295,21 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 	@Override
 	public byte getByte() throws BufferUnderflowException {
 		byte retValue;
+		
 		try {
 			retValue = workBuffer.get();
 		} catch (BufferUnderflowException e) {
 			nextBuffer();
 			retValue = workBuffer.get();
 		}
+		/*
+		if (workBuffer.hasRemaining()) {
+			retValue = workBuffer.get();
+		} else {
+			nextBuffer();
+			retValue = workBuffer.get();
+		}
+		*/
 		return retValue;
 	}
 
@@ -260,7 +337,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 			}
 			*/
 			
-			workBuffer.get(SHORT_BYTES, shortBuffer.position(), shortBuffer.remaining());
+			workBuffer.get(shortBytes, shortBuffer.position(), shortBuffer.remaining());
 			
 			shortBuffer.clear();
 			retValue = shortBuffer.getShort();
@@ -296,7 +373,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 				intBuffer.put(workBuffer.get());
 			}
 			*/
-			workBuffer.get(INTEGER_BYTES, intBuffer.position(), intBuffer.remaining());
+			workBuffer.get(intBytes, intBuffer.position(), intBuffer.remaining());
 		}
 		
 		intBuffer.clear();
@@ -329,7 +406,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 			}
 			*/
 			
-			workBuffer.get(INTEGER_BYTES, intBuffer.position(), intBuffer.remaining());
+			workBuffer.get(intBytes, intBuffer.position(), intBuffer.remaining());
 			
 			intBuffer.clear();
 			retValue = intBuffer.getInt();
@@ -363,7 +440,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 				longBuffer.put(workBuffer.get());
 			}
 			*/
-			workBuffer.get(LONG_BYTES, longBuffer.position(), longBuffer.remaining());
+			workBuffer.get(longBytes, longBuffer.position(), longBuffer.remaining());
 		}
 
 		longBuffer.clear();
@@ -388,7 +465,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 				longBuffer.put(workBuffer.get());
 			}
 			*/
-			workBuffer.get(LONG_BYTES, longBuffer.position(), longBuffer.remaining());
+			workBuffer.get(longBytes, longBuffer.position(), longBuffer.remaining());
 
 			longBuffer.clear();
 			retValue = longBuffer.getLong();
@@ -428,7 +505,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 				
 		CharBuffer dstCharBuffer = null;
 		
-		try {
+		try {			
 			dstCharBuffer = wantedCharsetDecoder.decode(dstBuffer);
 		} catch(CharacterCodingException e) {
 			String errorMessage = String.format("read data hex[%s], charset[%s]", HexUtil.byteBufferAllToHex(dstBuffer), wantedCharsetDecoder.charset().name());
@@ -512,9 +589,9 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 	}
 
 	@Override
-	public void getBytes(byte[] dstBuffer, int offset, int len)
+	public void getBytes(byte[] dstBytes, int offset, int len)
 			throws BufferUnderflowException, IllegalArgumentException {
-		if (null == dstBuffer) {
+		if (null == dstBytes) {
 			throw new IllegalArgumentException("파라미터 목적지 버퍼는 null 입니다.");
 		}
 
@@ -541,35 +618,36 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 					remainingBytes));
 		}
 
-		if (offset >= dstBuffer.length) {
+		if (offset >= dstBytes.length) {
 			throw new IllegalArgumentException(String.format(
 					"지정된 옵셋[%d]는  타겟 버퍼 크기[%d] 보다 작아야 합니다.", offset,
-					dstBuffer.length));
+					dstBytes.length));
 		}
 
-		if (len > dstBuffer.length) {
+		if (len > dstBytes.length) {
 			throw new IllegalArgumentException(String.format(
 					"지정된 길이[%d]는  타겟 버퍼 크기[%d] 보다 작거나 같아야 합니다.", len,
-					dstBuffer.length));
+					dstBytes.length));
 		}
 
-		ByteBuffer dstByteBuffer = ByteBuffer.wrap(dstBuffer, offset, len);
+		// ByteBuffer dstByteBuffer = ByteBuffer.wrap(dstBytes, offset, len);
 
-		getBytesFromWorkBuffer(dstByteBuffer);
+		getBytesFromWorkBuffer(dstBytes, offset, len);
 	}
 
 	@Override
-	public void getBytes(byte[] dstBuffer) throws BufferUnderflowException,
+	public void getBytes(byte[] dstBytes) throws BufferUnderflowException,
 			IllegalArgumentException {
-		if (null == dstBuffer) {
-			throw new IllegalArgumentException("paramerter dstBuffer is null");
+		if (null == dstBytes) {
+			throw new IllegalArgumentException("paramerter dstBytes is null");
 		}
 		
 		
 
-		ByteBuffer dstByteBuffer = ByteBuffer.wrap(dstBuffer);
-
-		getBytesFromWorkBuffer(dstByteBuffer);
+		// ByteBuffer dstByteBuffer = ByteBuffer.wrap(dstBytes);
+		// getBytesFromWorkBuffer(dstByteBuffer);
+		
+		getBytesFromWorkBuffer(dstBytes);
 	}
 
 	@Override
@@ -593,11 +671,14 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 					remainingBytes));
 		}
 		
-		ByteBuffer dstBuffer = ByteBuffer.allocate(len);
-		byte srcBuffer[] = dstBuffer.array();
+		// ByteBuffer dstBuffer = ByteBuffer.allocate(len);
+		// byte srcBuffer[] = dstBuffer.array();
+		// getBytesFromWorkBuffer(dstBuffer);
+		// return srcBuffer;
 
-		getBytesFromWorkBuffer(dstBuffer);
-		return srcBuffer;
+		byte srcBytes[] = new byte[len];
+		getBytesFromWorkBuffer(srcBytes);
+		return srcBytes;
 	}
 
 	@Override

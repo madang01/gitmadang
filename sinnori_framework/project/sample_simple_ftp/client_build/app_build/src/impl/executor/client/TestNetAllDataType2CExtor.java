@@ -18,7 +18,6 @@
 package impl.executor.client;
 
 import java.net.SocketTimeoutException;
-import java.nio.ByteBuffer;
 
 import kr.pe.sinnori.client.ClientProjectIF;
 import kr.pe.sinnori.client.connection.AbstractConnection;
@@ -113,7 +112,7 @@ public class TestNetAllDataType2CExtor extends AbstractClientExecutor {
 		allDataTypeInObj.setAttribute("bytesVar1", new byte[] { (byte) 0x77, (byte) 0x88 });
 		// allDataTypeInObj.setAttribute("bytesVar2", new byte[] { 1, 2, 3, 4, 5, 6, 7, 8,
 		// 9, 10, 11 });
-		allDataTypeInObj.setAttribute("bytesVar2", ByteBuffer.allocate(30000).array());
+		allDataTypeInObj.setAttribute("bytesVar2", new byte[30000]);
 
 		int memberListCnt = 2;
 		allDataTypeInObj.setAttribute("cnt", memberListCnt);

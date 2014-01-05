@@ -50,6 +50,7 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 	/**
 	 * 주) 아래 SHORT_BYTES, INTEGER_BYTES, LONG_BYTES 는 객체 인스턴스마다 필요합니다. 만약 static 으로 만들면 thread safe 문제에 직면할 것입니다.
 	 */
+	/*
 	private final byte SHORT_BYTES[] = { CommonStaticFinal.ZERO_BYTE,
 			CommonStaticFinal.ZERO_BYTE };
 	private final byte INTEGER_BYTES[] = { CommonStaticFinal.ZERO_BYTE,
@@ -60,10 +61,15 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 			CommonStaticFinal.ZERO_BYTE, CommonStaticFinal.ZERO_BYTE,
 			CommonStaticFinal.ZERO_BYTE, CommonStaticFinal.ZERO_BYTE,
 			CommonStaticFinal.ZERO_BYTE };
+			*/
+	private byte[] shortBytes = null;
+	private byte[] intBytes = null;
+	private byte[] longBytes = null;
 
 	private ByteBuffer shortBuffer = null;
 	private ByteBuffer intBuffer = null;
 	private ByteBuffer longBuffer = null;
+	
 	private ByteBuffer workBuffer = null;
 
 	/**
@@ -103,12 +109,15 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 		
 		shortBuffer = ByteBuffer.allocate(2);
 		shortBuffer.order(streamByteOrder);
+		shortBytes = shortBuffer.array();
 
 		intBuffer = ByteBuffer.allocate(4);
 		intBuffer.order(streamByteOrder);
+		intBytes = intBuffer.array();
 
 		longBuffer = ByteBuffer.allocate(8);
 		longBuffer.order(streamByteOrder);
+		longBytes = longBuffer.array();
 	}
 	
 	/**
@@ -116,7 +125,7 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 	 */
 	private void clearShortBuffer() {
 		shortBuffer.clear();
-		Arrays.fill(SHORT_BYTES, CommonStaticFinal.ZERO_BYTE);
+		Arrays.fill(shortBytes, CommonStaticFinal.ZERO_BYTE);
 	}
 
 	/**
@@ -124,7 +133,7 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 	 */
 	private void clearIntBuffer() {
 		intBuffer.clear();
-		Arrays.fill(INTEGER_BYTES, CommonStaticFinal.ZERO_BYTE);
+		Arrays.fill(intBytes, CommonStaticFinal.ZERO_BYTE);
 	}
 	
 	/**
@@ -174,7 +183,7 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 	 */
 	private void clearLongBuffer() {
 		longBuffer.clear();
-		Arrays.fill(LONG_BYTES, CommonStaticFinal.ZERO_BYTE);
+		Arrays.fill(longBytes, CommonStaticFinal.ZERO_BYTE);
 	}
 	
 	/**
@@ -248,7 +257,7 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 	/**
 	 * 스트림을 확장해가면서 스트림에 소스 바이트 버퍼의 내용을 저장한다. 단 스트림은 최대 크기 제약이 있다.
 	 * 
-	 * @param srcBuffer
+	 * @param srcByteBuffer
 	 *            소스 바이트 버퍼
 	 * @throws BufferOverflowException
 	 *             버퍼 크기를 벗어난 쓰기 시도시 발생
@@ -257,24 +266,79 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 	 * @throws NoMoreDataPacketBufferException
 	 *             스트림 확장을 위한 랩 버퍼 확보 실패시 발생
 	 */
-	private void putBytesToWorkBuffer(ByteBuffer srcBuffer)
+	private void putBytesToWorkBuffer(ByteBuffer srcByteBuffer)
 			throws BufferOverflowException, IllegalArgumentException,
 			NoMoreDataPacketBufferException {
+		/*
 		do {
 			try {
-				workBuffer.put(srcBuffer);
+				workBuffer.put(srcByteBuffer);
 			} catch (BufferOverflowException e) {
-				int newLimit = srcBuffer.position() + workBuffer.remaining();
-				srcBuffer.limit(newLimit);
-				workBuffer.put(srcBuffer);
-				srcBuffer.limit(srcBuffer.capacity());
+				int newLimit = srcByteBuffer.position() + workBuffer.remaining();
+				srcByteBuffer.limit(newLimit);
+				workBuffer.put(srcByteBuffer);
+				srcByteBuffer.limit(srcByteBuffer.capacity());
 			}
 
-			if (!srcBuffer.hasRemaining())
+			if (!srcByteBuffer.hasRemaining())
 				break;
 
 			addBuffer();
 		} while (true);
+		*/
+		
+		do {
+			int remainingBytes = workBuffer.remaining();
+			if (remainingBytes >= srcByteBuffer.remaining()) {
+				workBuffer.put(srcByteBuffer);
+				break;
+			} else {
+				int oldLimitOfSrc = srcByteBuffer.limit();
+				srcByteBuffer.limit(srcByteBuffer.position() + remainingBytes);
+				workBuffer.put(srcByteBuffer);
+				srcByteBuffer.limit(oldLimitOfSrc);				
+				addBuffer();
+			}
+		} while (srcByteBuffer.hasRemaining());
+	}
+	
+	// FIXME!
+	private void putBytesToWorkBuffer(byte[] srcBytes)
+			throws BufferOverflowException, IllegalArgumentException,
+			NoMoreDataPacketBufferException {
+		int offset = 0;
+		int len = srcBytes.length; 
+		do {
+			int remainingBytes = workBuffer.remaining();
+			if (remainingBytes >= len) {
+				workBuffer.put(srcBytes, offset, len);
+				// len = 0;
+				break;
+			} else {
+				workBuffer.put(srcBytes, offset, remainingBytes);
+				offset += remainingBytes;
+				len -= remainingBytes;
+				addBuffer();
+			}
+		} while (0 != len);
+	}
+	
+	private void putBytesToWorkBuffer(byte[] srcBytes, int offset, int len)
+			throws BufferOverflowException, IllegalArgumentException,
+			NoMoreDataPacketBufferException { 
+		do {
+			int remainingBytes = workBuffer.remaining();
+			if (remainingBytes >= len) {
+				workBuffer.put(srcBytes, offset, len);
+				// len = 0;
+				break;
+			} else {
+				workBuffer.put(srcBytes, offset, remainingBytes);
+				offset += remainingBytes;
+				len -= remainingBytes;
+				addBuffer();
+			}
+		} while (0 != len);
 	}
 	
 	/** 
@@ -514,14 +578,16 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 			throw e;
 		}
 		
-		
-		Arrays.fill(strByteBuffer.array(), CommonStaticFinal.ZERO_BYTE);
+		byte srcBytes[] = strByteBuffer.array(); 
+		Arrays.fill(srcBytes, CommonStaticFinal.ZERO_BYTE);
 		wantedCharsetEncoder.encode(strCharBuffer, strByteBuffer, true);
 		// log.info("strBufer=[%s]", strBufer.toString());
-		strByteBuffer.rewind();
-
-		putBytesToWorkBuffer(strByteBuffer);
 		
+		/*
+		strByteBuffer.rewind();
+		putBytesToWorkBuffer(strByteBuffer);
+		*/
+		putBytesToWorkBuffer(srcBytes);
 	}
 
 	@Override
@@ -620,12 +686,12 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 	}
 
 	@Override
-	public void putBytes(byte[] srcBuffer, int offset, int length)
+	public void putBytes(byte[] srcBytes, int offset, int length)
 			throws BufferOverflowException, IllegalArgumentException,
 			NoMoreDataPacketBufferException {
-		if (srcBuffer == null) {
+		if (srcBytes == null) {
 			throw new IllegalArgumentException(
-					"파리미터 소스 바이트 배열(=srcBuffer)의 값이 null 입니다.");
+					"파리미터 소스 바이트 배열(=srcBytes)의 값이 null 입니다.");
 		}
 
 		if (offset < 0) {
@@ -653,18 +719,17 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 					length, remainingBytes));
 		}
 
-		ByteBuffer srcByteBuffer = ByteBuffer
-				.wrap(srcBuffer, offset, length);
+		// ByteBuffer srcByteBuffer = ByteBuffer.wrap(srcBytes, offset, length);
 
-		putBytesToWorkBuffer(srcByteBuffer);
+		putBytesToWorkBuffer(srcBytes, offset, length);
 	}
 
 	@Override
-	public void putBytes(byte[] srcBuffer) throws BufferOverflowException,
+	public void putBytes(byte[] srcBytes) throws BufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException {
-		if (srcBuffer == null) {
+		if (srcBytes == null) {
 			throw new IllegalArgumentException(
-					"파리미터 소스 바이트 배열(=srcBuffer)의 값이 null 입니다.");
+					"파리미터 소스 바이트 배열(=srcBytes)의 값이 null 입니다.");
 		}
 		/*
 		if (srcBuffer.length > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
@@ -676,16 +741,16 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 		}
 		*/
 
-		ByteBuffer srcByteBuffer = ByteBuffer.wrap(srcBuffer);
+		// ByteBuffer srcByteBuffer = ByteBuffer.wrap(srcBuffer);
 
-		putBytesToWorkBuffer(srcByteBuffer);
+		putBytesToWorkBuffer(srcBytes);
 		
 	}
 
 	@Override
-	public void putBytes(ByteBuffer srcBuffer) throws BufferOverflowException,
+	public void putBytes(ByteBuffer srcByteBuffer) throws BufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException {
-		if (srcBuffer == null) {
+		if (srcByteBuffer == null) {
 			throw new IllegalArgumentException("파리미터 소스 버퍼의 값이 null 입니다.");
 		}
 
@@ -704,7 +769,7 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 		 * slice 메소드를 통해 원본 버퍼의 속성과 별개의 속성을 갖는 <br/>
 		 * 그리고 실제 필요한 영역만을 가지는 바이트 버퍼를 만든다.
 		 */
-		ByteBuffer sliceBuffer = srcBuffer.slice();
+		ByteBuffer sliceBuffer = srcByteBuffer.slice();
 
 		putBytesToWorkBuffer(sliceBuffer);
 		

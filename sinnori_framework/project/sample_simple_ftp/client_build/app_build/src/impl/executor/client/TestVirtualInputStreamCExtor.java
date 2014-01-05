@@ -239,7 +239,7 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		// allDataTypeInObj.setAttribute("bytesVar2", new byte[] { 1, 2, 3, 4, 5, 6, 7,
 		// 8,
 		// 9, 10, 11 });
-		allDataTypeInObj.setAttribute("bytesVar2", ByteBuffer.allocate(30000).array());
+		allDataTypeInObj.setAttribute("bytesVar2", new byte[30000]);
 
 		int memberListCnt = 2;
 		allDataTypeInObj.setAttribute("cnt", memberListCnt);

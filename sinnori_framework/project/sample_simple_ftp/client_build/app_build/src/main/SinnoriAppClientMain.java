@@ -123,11 +123,11 @@ public class SinnoriAppClientMain implements CommonRootIF {
 			 * 2013.07.09 TestVirtualInputStream
 			 * INFO  kr.pe.sinnori.util.AbstractClientExecutor.execute(AbstractClientExecutor.java:67) - 수행 시간=[13.000000] ms
 			 */
-			// SinnoriWorker.getInstance().start(projectName, "TestVirtualInputStream");
+			//SinnoriWorker.getInstance().start(projectName, "TestVirtualInputStream");
 			
 			
-			SinnoriWorker.getInstance().start(projectName, "FileUpDownClientV1", 1);
-			// SinnoriWorker.getInstance().start(projectName, "FileUpDownClientV2", 1);
+			SinnoriWorker.getInstance().start(projectName, "FileUpDownClientV1");
+			//SinnoriWorker.getInstance().start(projectName, "FileUpDownClientV2");
 			//SinnoriWorker.getInstance().start(projectName, "TestLoginService", 1);			
 		} catch (Exception e) {
 			e.printStackTrace();
