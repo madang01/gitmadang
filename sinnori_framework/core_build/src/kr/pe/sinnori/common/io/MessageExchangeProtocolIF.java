@@ -1,6 +1,5 @@
 package kr.pe.sinnori.common.io;
 
-import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
@@ -23,13 +22,12 @@ public interface MessageExchangeProtocolIF {
 	/**
 	 * 메시지를 데이터 패킷 버퍼로 구현한 스트림으로 변환한다.
 	 * @param messageObj 스트림으로 변환을 원하는 메시지
-	 * @param clientByteOrder 바이트 오더
 	 * @param clientCharset 문자셋
 	 * @return 메시지 내용이 담긴 데이터 패킷 버퍼 목록
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷 버퍼가 없을때 던지는 예외
 	 * @throws BodyFormatException 바디 구성할때 에러 발생시 던지는 예외
 	 */
-	public ArrayList<WrapBuffer> M2S(AbstractMessage messageObj, ByteOrder clientByteOrder, Charset clientCharset) throws NoMoreDataPacketBufferException, BodyFormatException;
+	public ArrayList<WrapBuffer> M2S(AbstractMessage messageObj, Charset clientCharset) throws NoMoreDataPacketBufferException, BodyFormatException;
 	
 	
 	/**

@@ -17,7 +17,6 @@
 package kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler;
 
 import java.io.IOException;
-import java.nio.ByteOrder;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.NotYetConnectedException;
 import java.nio.charset.Charset;
@@ -106,7 +105,6 @@ public class InputMessageWriter extends Thread implements CommonRootIF {
 	
 				// SocketChannel toSC = noneBlockConnection.getSocketChannel();
 				
-				ByteOrder clientByteOrder = clientProjectConfig.getByteOrder();
 				Charset clientCharset = clientProjectConfig.getCharset();
 	
 				
@@ -117,7 +115,7 @@ public class InputMessageWriter extends Thread implements CommonRootIF {
 				ArrayList<WrapBuffer> inObjWrapBufferList = null;
 				
 				try {
-					inObjWrapBufferList = messageProtocol.M2S(inObj, clientByteOrder, clientCharset);
+					inObjWrapBufferList = messageProtocol.M2S(inObj, clientCharset);
 					noneBlockConnection.write(inObjWrapBufferList);
 				} catch (NoMoreDataPacketBufferException e) {
 					log.warn(String.format("%s InputMessageWriter[%d] NoMoreDataPacketBufferException::%s, inObj=[%s]", noneBlockConnection.getSimpleConnectionInfo(), index, e.getMessage(), inObj.toString()), e);

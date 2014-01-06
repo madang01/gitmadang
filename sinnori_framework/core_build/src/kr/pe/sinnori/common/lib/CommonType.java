@@ -27,7 +27,7 @@ public class CommonType {
 	 * 메시지를 스트림으로 인코딩/디코딩 하는 방법.
 	 */
 	public enum MESSAGE_PROTOCOL {
-		DHB, DJSON 
+		DHB, DJSON, THB 
 	};
 	
 

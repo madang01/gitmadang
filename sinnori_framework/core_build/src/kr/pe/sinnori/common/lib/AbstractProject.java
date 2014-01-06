@@ -32,6 +32,7 @@ import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
 import kr.pe.sinnori.common.io.dhb.DHBMessageProtocol;
 import kr.pe.sinnori.common.io.dhb.header.DHBMessageHeader;
 import kr.pe.sinnori.common.io.djson.DJSONMessageProtocol;
+import kr.pe.sinnori.common.io.thb.THBMessageProtocol;
 import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.MessageInfo;
 import kr.pe.sinnori.common.message.MessageInfoSAXParser;
@@ -86,14 +87,16 @@ public abstract class AbstractProject implements CommonRootIF, DataPacketBufferQ
 		
 		switch (projectConfig.getMessageProtocol()) {
 			case DHB : {
-				messageExchangeProtocol = new DHBMessageProtocol(
-						projectConfig.getMessageIDFixedSize(), this);
+				messageExchangeProtocol = new DHBMessageProtocol(projectConfig.getMessageIDFixedSize(), this);
 				
 				break;
 			}
 			case DJSON : {
-				messageExchangeProtocol = new DJSONMessageProtocol(
-						this);
+				messageExchangeProtocol = new DJSONMessageProtocol(this);
+				break;
+			}
+			case THB : {
+				messageExchangeProtocol = new THBMessageProtocol(projectConfig.getMessageIDFixedSize(), this);
 				break;
 			}
 			default : {
@@ -299,9 +302,13 @@ public abstract class AbstractProject implements CommonRootIF, DataPacketBufferQ
 		return new OutputMessage(messageID, messageInfo);
 	}
 	
+	@Override
+	public ByteOrder getByteOrder() {
+		return projectConfig.getByteOrder();
+	}
 	
 	@Override
-	public WrapBuffer pollDataPacketBuffer(ByteOrder newByteOrder) throws NoMoreDataPacketBufferException {
+	public WrapBuffer pollDataPacketBuffer() throws NoMoreDataPacketBufferException {
 		WrapBuffer buffer = dataPacketBufferQueue.poll();
 		if (null == buffer) {
 			String errorMessage = String.format("클라이언트 프로젝트[%s]에서 데이터 패킷 버퍼 큐가 부족합니다.", projectConfig.getProjectName());
@@ -310,7 +317,7 @@ public abstract class AbstractProject implements CommonRootIF, DataPacketBufferQ
 		
 		
 		buffer.queueOut();
-		buffer.getByteBuffer().order(newByteOrder);
+		buffer.getByteBuffer().order(projectConfig.getByteOrder());
 		
 		return buffer;
 	}

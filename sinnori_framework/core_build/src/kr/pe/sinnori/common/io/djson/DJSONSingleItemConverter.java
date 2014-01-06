@@ -28,6 +28,7 @@ import kr.pe.sinnori.common.exception.UnknownItemTypeException;
 import kr.pe.sinnori.common.io.FixedSizeOutputStream;
 import kr.pe.sinnori.common.io.SingleItemJConverterByTypeIF;
 import kr.pe.sinnori.common.io.SingleItemJConverterIF;
+import kr.pe.sinnori.common.io.djson.header.DJSONHeader;
 import kr.pe.sinnori.common.lib.CharsetUtil;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.CommonStaticFinal;

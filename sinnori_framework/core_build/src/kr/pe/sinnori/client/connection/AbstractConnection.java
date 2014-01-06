@@ -107,7 +107,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 		this.clientProjectConfig = clientProjectConfig;
 		
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-		messageInputStreamResource = new MessageInputStreamResourcePerSocket(clientProjectConfig.getByteOrder(), dataPacketBufferQueueManager);
+		messageInputStreamResource = new MessageInputStreamResourcePerSocket(dataPacketBufferQueueManager);
 		
 		this.asynOutputMessageQueue = asynOutputMessageQueue;
 	

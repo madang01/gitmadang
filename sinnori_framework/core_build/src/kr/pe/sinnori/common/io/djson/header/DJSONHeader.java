@@ -1,4 +1,4 @@
-package kr.pe.sinnori.common.io.djson;
+package kr.pe.sinnori.common.io.djson.header;
 
 import java.nio.charset.Charset;
 

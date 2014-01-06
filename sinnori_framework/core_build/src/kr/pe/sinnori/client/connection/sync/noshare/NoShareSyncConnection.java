@@ -311,7 +311,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 		ArrayList<WrapBuffer> inputStreamWrapBufferList = null;
 		
 		try {
-			inObjWrapBufferList = messageProtocol.M2S(inObj, clientProjectConfig.getByteOrder(), clientProjectConfig.getCharset());
+			inObjWrapBufferList = messageProtocol.M2S(inObj, clientProjectConfig.getCharset());
 			
 			int inObjWrapBufferListSize = inObjWrapBufferList.size();
 			

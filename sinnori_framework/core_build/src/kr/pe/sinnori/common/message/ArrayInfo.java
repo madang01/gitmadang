@@ -49,7 +49,6 @@ public class ArrayInfo extends AbstractItemInfo implements
 	 * 메시지 정보 파일을 순차적으로 읽기 때문에 배열 뒤에 위치하면 알 수가 없다
 	 */
 	private String arrayCntValue = null;
-	private StringBuffer arrayType = new StringBuffer();
 
 	/**
 	 * 생성자
@@ -65,11 +64,6 @@ public class ArrayInfo extends AbstractItemInfo implements
 		this.arrayName = arrayName;
 		this.arrayCntType = arrayCntType;
 		this.arrayCntValue = arrayCntValue;
-
-		// arrayType = arrayCntType+arrayCntValue;
-		arrayType.append(arrayCntType);
-		arrayType.append(",");
-		arrayType.append(arrayCntValue);
 	}
 
 	/**

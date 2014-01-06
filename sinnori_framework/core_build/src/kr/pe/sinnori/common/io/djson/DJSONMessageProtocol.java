@@ -15,6 +15,7 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.FreeSizeInputStream;
 import kr.pe.sinnori.common.io.FreeSizeOutputStream;
 import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
+import kr.pe.sinnori.common.io.djson.header.DJSONHeader;
 import kr.pe.sinnori.common.lib.CharsetUtil;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
@@ -52,11 +53,11 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageExchangeProtoc
 	
 	@Override
 	public ArrayList<WrapBuffer> M2S(AbstractMessage messageObj,
-			ByteOrder clientByteOrder, Charset clientCharset)
+			Charset clientCharset)
 			throws NoMoreDataPacketBufferException, BodyFormatException {
 		CharsetEncoder clientCharsetEncoder = CharsetUtil.createCharsetEncoder(clientCharset);
 		FreeSizeOutputStream bodyOutputStream = 
-				new FreeSizeOutputStream(clientByteOrder, clientCharset, 
+				new FreeSizeOutputStream(clientCharset, 
 						clientCharsetEncoder, 0, dataPacketBufferQueueManager);
 		String jsonStr = messageObj.toJSONString();
 		
@@ -67,7 +68,7 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageExchangeProtoc
 		bodyOutputStream.putInt(jsonStrBytes.length);
 		bodyOutputStream.putBytes(jsonStrBytes);
 		
-		ArrayList<WrapBuffer> messageWrapBufferList = bodyOutputStream.getDataPacketBufferList();
+		ArrayList<WrapBuffer> messageWrapBufferList = bodyOutputStream.getFlipDataPacketBufferList();
 		
 		return messageWrapBufferList;
 	}
@@ -83,6 +84,7 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageExchangeProtoc
 		CharsetDecoder charsetOfProjectDecoder = CharsetUtil.createCharsetDecoder(clientCharset);
 		ArrayList<WrapBuffer> messageReadWrapBufferList = messageInputStreamResource.getMessageReadWrapBufferList();
 		DJSONHeader messageHeader = (DJSONHeader)messageInputStreamResource.getEtcInfo();
+		ByteOrder byteOrderOfProject = messageInputStreamResource.getByteOrder();
 		
 		ArrayList<AbstractMessage> messageList = new ArrayList<AbstractMessage>();
 		
@@ -98,7 +100,7 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageExchangeProtoc
 	
 				int lastIndex = messageReadWrapBufferListSize - 1;
 				ByteBuffer lastInputStreamBuffer = messageReadWrapBufferList.get(lastIndex).getByteBuffer();
-				ByteOrder byteOrderOfLastBuffer = lastInputStreamBuffer.order();
+				
 				int finalReadPosition = lastInputStreamBuffer.position();
 				long inputStramSizeBeforeMessageWork = lastIndex	* dataPacketBufferSize + finalReadPosition;
 				
@@ -110,7 +112,7 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageExchangeProtoc
 						&& inputStramSizeBeforeMessageWork >= messageHeaderSize) {
 					/** 헤더 읽기전 위치 마크및 헤더 읽을 위치 0으로 이동 */
 					ByteBuffer dupMessageHeaderBuffer = messageReadWrapBufferList.get(0).getByteBuffer().duplicate();
-					dupMessageHeaderBuffer.order(byteOrderOfLastBuffer);
+					dupMessageHeaderBuffer.order(byteOrderOfProject);
 					dupMessageHeaderBuffer.position(messageHeaderSize);
 					dupMessageHeaderBuffer.flip();
 					
@@ -364,7 +366,7 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageExchangeProtoc
 						if (inputStramSizeBeforeMessageWork >= messageHeaderSize) {
 							/** 헤더 읽기전 위치 마크및 헤더 읽을 위치 0으로 이동 */
 							ByteBuffer dupMessageHeaderBuffer = lastInputStreamBuffer.duplicate();
-							dupMessageHeaderBuffer.order(byteOrderOfLastBuffer);
+							dupMessageHeaderBuffer.order(byteOrderOfProject);
 							dupMessageHeaderBuffer.position(messageHeaderSize);
 							dupMessageHeaderBuffer.flip();
 							
@@ -387,7 +389,7 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageExchangeProtoc
 						}
 					} else if (!lastInputStreamBuffer.hasRemaining()) {
 						/** 다음 버퍼 */
-						lastInputStreamBuffer = addWrapBuffer(messageReadWrapBufferList, messageHeader, byteOrderOfLastBuffer);
+						lastInputStreamBuffer = addWrapBuffer(messageReadWrapBufferList, messageHeader);
 					}
 				}
 			} while (isMoreMessage);
@@ -406,7 +408,7 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageExchangeProtoc
 	 * @return 읽기 전용 버퍼 목록에 추가된 읽기 전용 버퍼
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷 버퍼를 확보 할 수 없을대 던지는 예외
 	 */
-	private ByteBuffer addWrapBuffer(ArrayList<WrapBuffer> messageReadWrapBufferList, DJSONHeader messageHeader, ByteOrder byteOrderOfLastBuffer) throws NoMoreDataPacketBufferException {
+	private ByteBuffer addWrapBuffer(ArrayList<WrapBuffer> messageReadWrapBufferList, DJSONHeader messageHeader) throws NoMoreDataPacketBufferException {
 		/** 메시지 1개당 최대 데이터 패킷 버퍼 갯수에 도달했을 경우 에러 처리함 */
 		if (dataPacketBufferMaxCntPerMessage == messageReadWrapBufferList
 				.size()) {
@@ -420,7 +422,7 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageExchangeProtoc
 					errorMessage);
 		}
 		
-		WrapBuffer wrapBuffer = dataPacketBufferQueueManager.pollDataPacketBuffer(byteOrderOfLastBuffer);
+		WrapBuffer wrapBuffer = dataPacketBufferQueueManager.pollDataPacketBuffer();
 		messageReadWrapBufferList.add(wrapBuffer);
 		ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
 		

@@ -59,16 +59,14 @@ public class MessageInputStreamResourcePerSocket implements CommonRootIF {
 	
 	/**
 	 * 생성자
-	 * @param byteOrderOfProject 프로젝트의 바이트 오더
 	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷 버퍼 확보 실패시 던지는 예외
 	 */
-	public MessageInputStreamResourcePerSocket(ByteOrder byteOrderOfProject,
-			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
+	public MessageInputStreamResourcePerSocket(DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
 		
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 		
-		WrapBuffer wrapBuffer = dataPacketBufferQueueManager.pollDataPacketBuffer(byteOrderOfProject);
+		WrapBuffer wrapBuffer = dataPacketBufferQueueManager.pollDataPacketBuffer();
 		messageReadWrapBufferList.add(wrapBuffer);
 	}
 	
@@ -85,6 +83,9 @@ public class MessageInputStreamResourcePerSocket implements CommonRootIF {
 		this.messageReadWrapBufferList = messageReadWrapBufferList;
 	}
 	
+	public ByteOrder getByteOrder() {
+		return dataPacketBufferQueueManager.getByteOrder();
+	}
 	
 	/**
 	 * @return 부가 정보

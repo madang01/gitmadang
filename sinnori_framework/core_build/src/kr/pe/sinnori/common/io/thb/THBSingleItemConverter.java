@@ -15,8 +15,7 @@
  * limitations under the License.
  */
 
-
-package kr.pe.sinnori.common.io.dhb;
+package kr.pe.sinnori.common.io.thb;
 
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
@@ -38,15 +37,10 @@ import kr.pe.sinnori.common.lib.CommonStaticFinal;
 import kr.pe.sinnori.common.message.ItemTypeManger;
 
 /**
- * <pre>
- * DHB 프로토콜의 단일 항목 스트림 변환기 구현 클래스.
- * 참고) 항목 타입 독립적인 접근을 위해서 동일 인터페이스를 갖도록 한다.
- * </pre>
- * 
  * @author Jonghoon Won
  *
  */
-public class DHBSingleItemConverter implements SingleItemSConverterIF, CommonRootIF {
+public class THBSingleItemConverter implements SingleItemSConverterIF, CommonRootIF {
 	
 	private final SingleItemSConverterByTypeIF[] converterByTypeList = new SingleItemSConverterByTypeIF[] { 
 			new ConverterDHBByte(), new ConverterDHBUnsignedByte(), 
@@ -62,7 +56,7 @@ public class DHBSingleItemConverter implements SingleItemSConverterIF, CommonRoo
 	/**
 	 * 생성자
 	 */
-	public DHBSingleItemConverter() {
+	public THBSingleItemConverter() {
 		ItemTypeManger itemTypeManger = ItemTypeManger.getInstance();
 		
 		int itemTypeCnt = itemTypeManger.getItemTypeCnt();

@@ -251,6 +251,7 @@ public abstract class AbstractItemGroupDataOfMessage implements ItemGroupDataIF,
 					throw new BodyFormatException(errorMessage);
 				}
 			} else {
+				/*
 				ArrayData arrayData = (ArrayData) itemValueHash
 						.get(key);
 				if (null == arrayData) {
@@ -259,6 +260,11 @@ public abstract class AbstractItemGroupDataOfMessage implements ItemGroupDataIF,
 					itemValueHash.put(key, arrayData);
 	
 				}
+				*/
+				ArrayData arrayData = new ArrayData(messageID, this,
+						(ArrayInfo) itemInfo);
+				itemValueHash.put(key, arrayData);
+				
 				
 				sisc.readGroupHead(key, sr);
 	

@@ -519,7 +519,7 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 
 			clientResource = new ClientResource(sc,
 					projectConfig,
-					new MessageInputStreamResourcePerSocket(projectConfig.getByteOrder(), this));
+					new MessageInputStreamResourcePerSocket(this));
 
 			scToClientResourceHash.put(sc, clientResource);
 		// }

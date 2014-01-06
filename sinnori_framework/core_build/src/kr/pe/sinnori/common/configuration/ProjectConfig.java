@@ -342,6 +342,8 @@ public class ProjectConfig implements ClientProjectConfigIF, ServerProjectConfig
 				messageProtocol = CommonType.MESSAGE_PROTOCOL.DHB;
 			} else if (proValue.equals("DJSON")) {
 				messageProtocol = CommonType.MESSAGE_PROTOCOL.DJSON;
+			} else if (proValue.equals("THB")) {
+				messageProtocol = CommonType.MESSAGE_PROTOCOL.THB;
 			} else {
 				log.fatal(String.format("지원하지 않는 이진형식[%s] 입니다.", proValue));
 				System.exit(1);

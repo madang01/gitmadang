@@ -33,7 +33,7 @@ public interface DataPacketBufferQueueManagerIF {
 	 * 클라이언트 프로젝트 자원인 데이터 패킷 버퍼 큐에서 데이터 패킷 버퍼를 얻어온다.
 	 * @return 데이터 패킷 버퍼
 	 */
-	public WrapBuffer pollDataPacketBuffer(ByteOrder newByteOrder) throws NoMoreDataPacketBufferException;
+	public WrapBuffer pollDataPacketBuffer() throws NoMoreDataPacketBufferException;
 	/**
 	 * 클라이언트 프로젝트 자원인 데이터 패킷 버퍼 큐에 데이터 패킷 버퍼를 반환한다.
 	 * @param buffer 데이터 패킷 버퍼
@@ -54,4 +54,9 @@ public interface DataPacketBufferQueueManagerIF {
 	 * @return 큐 상태
 	 */
 	public String getQueueState();
+	
+	/**
+	 * @return 데이터 패킷 버퍼의 바이트 오더. 참고) 데이터 패킷 버퍼의 바이트 오더는 데이터 패킷 버퍼 관리자 생성시 결정되는 프로젝트의 바이트 오더이다.
+	 */
+	public ByteOrder getByteOrder();
 }

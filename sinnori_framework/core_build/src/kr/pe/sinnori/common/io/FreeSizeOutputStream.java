@@ -74,26 +74,24 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 
 	/**
 	 * 생성자
-	 * @param streamByteOrder 바이트 오더
 	 * @param streamCharset 문자셋 
 	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 관리자
 	 * @throws NoMoreDataPacketBufferException 데이터 패키 버퍼를 확보하지 못했을 경우 던지는 예외
 	 */
-	public FreeSizeOutputStream(ByteOrder streamByteOrder, Charset streamCharset, CharsetEncoder streamCharsetEncoder, DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
-		this(streamByteOrder, streamCharset, streamCharsetEncoder, 0, dataPacketBufferQueueManager);
+	public FreeSizeOutputStream(Charset streamCharset, CharsetEncoder streamCharsetEncoder, DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
+		this(streamCharset, streamCharsetEncoder, 0, dataPacketBufferQueueManager);
 	}
 	
 	/**
 	 * 생성자 
-	 * @param streamByteOrder
-	 * @param streamCharset
-	 * @param streamCharsetEncoder
-	 * @param firtBufferPosition
-	 * @param dataPacketBufferQueueManager
-	 * @throws NoMoreDataPacketBufferException
+	 * @param streamCharset 문자셋
+	 * @param streamCharsetEncoder 문자셋 인코더
+	 * @param firtBufferPosition 데이터 패킷 버퍼 관리자로 부터 첫번째로 할당 받은 데이터 패킷 버퍼의 쓰기 시작 위치, DHB 프로토콜에서 DHB 헤더를 건너뛰고 바디 부터 바디 부분을 먼저 구성할때 필요하다.
+	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 관리자
+	 * @throws NoMoreDataPacketBufferException 데이터 패키 버퍼를 확보하지 못했을 경우 던지는 예외
 	 */
-	public FreeSizeOutputStream(ByteOrder streamByteOrder, Charset streamCharset, CharsetEncoder streamCharsetEncoder, int firtBufferPosition, DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
-		this.streamByteOrder = streamByteOrder;
+	public FreeSizeOutputStream(Charset streamCharset, CharsetEncoder streamCharsetEncoder, int firtBufferPosition, DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
+		this.streamByteOrder = dataPacketBufferQueueManager.getByteOrder();
 		this.streamCharset = streamCharset;
 		this.streamCharsetEncoder = streamCharsetEncoder;
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
@@ -101,7 +99,7 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 		dataPacketBufferMaxCntPerMessage = dataPacketBufferQueueManager.getDataPacketBufferMaxCntPerMessage();
 		
 		dataPacketBufferList = new ArrayList<WrapBuffer>();
-		WrapBuffer wrapBuffer = dataPacketBufferQueueManager.pollDataPacketBuffer(streamByteOrder);
+		WrapBuffer wrapBuffer = dataPacketBufferQueueManager.pollDataPacketBuffer();
 		workBuffer = wrapBuffer.getByteBuffer();
 		workBuffer.position(firtBufferPosition);
 		dataPacketBufferList.add(wrapBuffer);
@@ -168,7 +166,7 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 		/** 새로운 바디 버퍼 받아 오기 */
 		WrapBuffer newWrapBuffer = null;
 		try {
-			newWrapBuffer = dataPacketBufferQueueManager.pollDataPacketBuffer(streamByteOrder);
+			newWrapBuffer = dataPacketBufferQueueManager.pollDataPacketBuffer();
 		} catch (NoMoreDataPacketBufferException e) {
 			freeDataPacketBufferList();
 			throw e;
@@ -344,7 +342,7 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 	/** 
 	 * @return 출력 스트림 쓰기 과정 결과 물이 담긴 버퍼 목록, 모든 버퍼는 읽기 가능 상태 flip 되어진다.
 	 */
-	public ArrayList<WrapBuffer> getDataPacketBufferList() {
+	public ArrayList<WrapBuffer> getFlipDataPacketBufferList() {
 		int bufferSize = dataPacketBufferList.size();
 		for (int i = 0; i < bufferSize; i++) {
 			dataPacketBufferList.get(i).getByteBuffer().flip();

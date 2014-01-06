@@ -185,7 +185,7 @@ public class TestLocalAllDataTypeCExtor extends AbstractClientExecutor {
 		
 		
 		ArrayList<WrapBuffer> warpBufferList = 
-				clientProject.getMessageExchangeProtocol().M2S(allDataTypeInObj, clientProjectConfig.getByteOrder(), clientProjectConfig.getCharset());
+				clientProject.getMessageExchangeProtocol().M2S(allDataTypeInObj, clientProjectConfig.getCharset());
 		
 		/**
 		 * 데이터를 받은것처럼 위장하기 위해서 position 을 limit 위치로 이동

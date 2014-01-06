@@ -227,6 +227,7 @@ public class ItemGroupDataOfArray implements ItemGroupDataIF,
 					throw new BodyFormatException(errorMessage);
 				}
 			} else {
+				/*
 				ArrayData arrayData = (ArrayData) itemValueHash.get(key);
 				if (null == arrayData) {
 
@@ -234,6 +235,10 @@ public class ItemGroupDataOfArray implements ItemGroupDataIF,
 							(ArrayInfo) itemInfo);
 					itemValueHash.put(key, arrayData);
 				}
+				*/
+				ArrayData arrayData = new ArrayData(currentPath, this,
+						(ArrayInfo) itemInfo);
+				itemValueHash.put(key, arrayData);
 				
 				sisc.readGroupHead(key, sr);
 

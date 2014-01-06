@@ -100,7 +100,7 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 				
 				try {
 					try {
-						outObjWrapBufferList = messageProtocol.M2S(outObj, serverProjectConfig.getByteOrder(), serverProjectConfig.getCharset());
+						outObjWrapBufferList = messageProtocol.M2S(outObj, serverProjectConfig.getCharset());
 					} catch (NoMoreDataPacketBufferException e) {
 						log.warn("NoMoreDataPacketBufferException", e);
 						
@@ -121,7 +121,7 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 								e.getMessage());
 
 						try {
-							outObjWrapBufferList = messageProtocol.M2S(errorOutObj, serverProjectConfig.getByteOrder(), serverProjectConfig.getCharset());
+							outObjWrapBufferList = messageProtocol.M2S(errorOutObj, serverProjectConfig.getCharset());
 						} catch (NoMoreDataPacketBufferException e1) {
 							/**
 							 * 대책 없음. 로그만 남기고 종료.
@@ -173,7 +173,7 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 						// LetterFromServer letterFromServer = new
 						// LetterFromServer(errorOutObj);
 						try {
-							outObjWrapBufferList = messageProtocol.M2S(errorOutObj, serverProjectConfig.getByteOrder(), serverProjectConfig.getCharset());
+							outObjWrapBufferList = messageProtocol.M2S(errorOutObj, serverProjectConfig.getCharset());
 						} catch (NoMoreDataPacketBufferException e1) {
 							/**
 							 * 대책 없음. 로그만 남기고 종료.

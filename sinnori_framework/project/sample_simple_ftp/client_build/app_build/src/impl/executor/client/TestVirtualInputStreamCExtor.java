@@ -71,14 +71,12 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 
 		DataPacketBufferQueueManagerIF dataPacketBufferQueueManager = (DataPacketBufferQueueManagerIF)clientProject;
 
-		messageIDFixedSize = clientProjectConfig.getMessageIDFixedSize();			
+		messageIDFixedSize = clientProjectConfig.getMessageIDFixedSize();
 		
-		DHBMessageProtocol dhbMessageProtocol = 
-				new DHBMessageProtocol(messageIDFixedSize,
-						dataPacketBufferQueueManager);
+		DHBMessageProtocol dhbMessageProtocol = new DHBMessageProtocol(messageIDFixedSize, dataPacketBufferQueueManager);
 		
 		MessageInputStreamResourcePerSocket messageInputStreamResource = 
-				new MessageInputStreamResourcePerSocket(clientProjectConfig.getByteOrder(), dataPacketBufferQueueManager);
+				new MessageInputStreamResourcePerSocket(dataPacketBufferQueueManager);
 		
 		
 		CharsetEncoder charsetOfProjectEncoder = CharsetUtil.createCharsetEncoder(clientProjectConfig.getCharset());
@@ -130,10 +128,10 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 				
 				readInputMessageList = dhbMessageProtocol.S2MList(InputMessage.class, clientProjectConfig.getCharset(), messageInputStreamResource, messageManger);
 				
-				// ArrayList<InputMessage> readInputMessageList = messageInputStreamResource.getInputMessageList(messageManger, charsetOfProjectDecoder, md5);
 				int readInputMessageListSize = readInputMessageList.size();
 				for (int i=0; i< readInputMessageListSize; i++) {
 					InputMessage inObj = (InputMessage)readInputMessageList.get(i);
+					log.info(String.format("inObj[%d] %s", i, inObj.getMessageID()));
 					log.info(inObj.toString());
 				}
 			}
@@ -159,13 +157,13 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		
 		orgInputMessageList.add(echoInObj);
 		
-		FreeSizeOutputStream fsos = new FreeSizeOutputStream(clientProjectConfig.getByteOrder(), clientProjectConfig.getCharset(), charsetOfProjectEncoder, dataPacketBufferQueueManager);
+		FreeSizeOutputStream fsos = new FreeSizeOutputStream(clientProjectConfig.getCharset(), charsetOfProjectEncoder, dataPacketBufferQueueManager);
 		
 		echoInObj.M2S(fsos, dhbSingleItemConverter);
 		
 		long bodySize = fsos.postion();
 		
-		ArrayList<WrapBuffer> bufferList = fsos.getDataPacketBufferList();
+		ArrayList<WrapBuffer> bufferList = fsos.getFlipDataPacketBufferList();
 		
 		int bufferListSize = bufferList.size();
 		for (int i=0; i < bufferListSize; i++) {
@@ -305,13 +303,13 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		
 		orgInputMessageList.add(allDataTypeInObj);
 		
-		FreeSizeOutputStream fsos = new FreeSizeOutputStream(clientProjectConfig.getByteOrder(), clientProjectConfig.getCharset(), charsetOfProjectEncoder, dataPacketBufferQueueManager);
+		FreeSizeOutputStream fsos = new FreeSizeOutputStream(clientProjectConfig.getCharset(), charsetOfProjectEncoder, dataPacketBufferQueueManager);
 		
 		allDataTypeInObj.M2S(fsos, dhbSingleItemConverter);
 		
 		long bodySize = fsos.postion();
 		
-		ArrayList<WrapBuffer> bufferList = fsos.getDataPacketBufferList();
+		ArrayList<WrapBuffer> bufferList = fsos.getFlipDataPacketBufferList();
 		
 		int bufferListSize = bufferList.size();
 		for (int i=0; i < bufferListSize; i++) {
