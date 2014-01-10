@@ -34,7 +34,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import kr.pe.sinnori.common.configuration.ServerProjectConfigIF;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
+import kr.pe.sinnori.common.io.MessageProtocolIF;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageInputStreamResourcePerSocket;
@@ -57,7 +57,7 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 	private int index;
 	private long readSelectorWakeupInterval;
 	private ServerProjectConfigIF serverProjectConfig; 
-	private MessageExchangeProtocolIF messageProtocol;
+	private MessageProtocolIF messageProtocol;
 	private MessageMangerIF messageManger = null;
 	
 	private ClientResourceManagerIF clientResourceManager;
@@ -83,7 +83,7 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 	public InputMessageReader(int index, long readSelectorWakeupInterval,
 			ServerProjectConfigIF serverProjectConfig, 
 			LinkedBlockingQueue<LetterFromClient> inputMessageQueue,
-			MessageExchangeProtocolIF messageProtocol,
+			MessageProtocolIF messageProtocol,
 			MessageMangerIF messageManger,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager,
 			ClientResourceManagerIF clientResourceManager) {
@@ -160,19 +160,20 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 	public void run() {
 		log.info(String.format("%s InputMessageReader[%d] start", serverProjectConfig.getProjectName(), index));
 
+		int numRead = 0;
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
 				processNewConnection();
 				int keyReady = selector.select();
 
 				if (keyReady > 0) {
-					Set<SelectionKey> selectionkey_set = selector
+					Set<SelectionKey> selectionKeySet = selector
 							.selectedKeys();
-					Iterator<SelectionKey> selectionkey_iter = selectionkey_set
+					Iterator<SelectionKey> selectionKeyIter = selectionKeySet
 							.iterator();
-					while (selectionkey_iter.hasNext()) {
-						SelectionKey key = selectionkey_iter.next();
-						selectionkey_iter.remove();
+					while (selectionKeyIter.hasNext()) {
+						SelectionKey key = selectionKeyIter.next();
+						selectionKeyIter.remove();
 						SocketChannel clientSC = (SocketChannel) key.channel();
 						ByteBuffer lastInputStreamBuffer = null;
 						ClientResource clientResource = clientResourceManager
@@ -184,14 +185,17 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 						}
 						
 						MessageInputStreamResourcePerSocket messageInputStreamResource = clientResource.getMessageInputStreamResource();
-						lastInputStreamBuffer = messageInputStreamResource.getLastBuffer();
+						
 						
 						try {
-
-							int positionBeforeReading = lastInputStreamBuffer.position();
+							lastInputStreamBuffer = messageInputStreamResource.getLastDataPacketBuffer();
+							log.info(String.format("1. %s InputMessageReader[%d] lastInputStreamBuffer[%s]", 
+									serverProjectConfig.getProjectName(), index, lastInputStreamBuffer.toString()));
 							
+							int positionBeforeReading = lastInputStreamBuffer.position();							
 							
-							int numRead = clientSC.read(lastInputStreamBuffer);
+							numRead = clientSC.read(lastInputStreamBuffer);
+							
 							if (numRead == -1) {
 								log.warn(String.format(
 										"%s InputMessageReader[%d] socket channel read -1, remove client",
@@ -199,8 +203,14 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 								closeClient(key);
 								continue;
 							}
-							numRead = clientSC.read(lastInputStreamBuffer); // 2번 읽기로 1byte
-																// 읽기 방지
+							
+							log.info(String.format("2. %s InputMessageReader[%d] numRead=[%d] lastInputStreamBuffer[%s]", 
+									serverProjectConfig.getProjectName(), index, numRead, lastInputStreamBuffer.toString()));
+							
+							
+							/** 2번 읽기로 1byte 읽기 방지 */
+							numRead = clientSC.read(lastInputStreamBuffer);
+
 							if (numRead == -1) {
 								log.warn(String.format(
 										"%s InputMessageReader[%d] socket channel read -1, remove client",
@@ -208,38 +218,40 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 								closeClient(key);
 								continue;
 							}
-
+							
+							log.info(String.format("3. %s InputMessageReader[%d] numRead=[%d] lastInputStreamBuffer[%s]", 
+									serverProjectConfig.getProjectName(), index, numRead, lastInputStreamBuffer.toString()));
+														
+							
 							int positionAfterReading = lastInputStreamBuffer.position();
 
 							if (positionAfterReading == positionBeforeReading) continue;
 							
 							clientResource.setFinalReadTime();
-
-							// log.info("lastInputStreamBuffer[%s]",
-							// lastInputStreamBuffer.toString());
-
-							ArrayList<AbstractMessage> inputMessageList = null;
-
-							try {
-								inputMessageList = messageProtocol.S2MList(InputMessage.class, serverProjectConfig.getCharset(), messageInputStreamResource, messageManger);
-								
-								
-							} catch (NoMoreDataPacketBufferException e) {
-								log.warn(String.format("NoMoreDataPacketBufferException::%s", e.getMessage()), e);
-								closeClient(key);
-								continue;
-							} catch (HeaderFormatException e) {
-								log.warn(String.format("HeaderFormatException::%s",
-										e.getMessage()), e);
-								closeClient(key);
-								continue;
-							}
+												
+							
+							ArrayList<AbstractMessage> inputMessageList = messageProtocol.S2MList(InputMessage.class, serverProjectConfig.getCharset(), messageInputStreamResource, messageManger);
 
 							int cntOfMesages = inputMessageList.size();
+							
+							log.info(String.format("%s InputMessageReader[%d] cntOfMesages=[%d]", 
+									serverProjectConfig.getProjectName(), index, cntOfMesages));
+							
 							for (int i = 0; i < cntOfMesages; i++) {
 								InputMessage inObj = (InputMessage)inputMessageList.get(i);
 								inputMessageQueue.put(new LetterFromClient(clientSC, inObj, clientResource));
-							}
+							}							
+
+						} catch (NoMoreDataPacketBufferException e) {
+							log.warn(String.format("%s InputMessageReader[%d] NoMoreDataPacketBufferException::%s", 
+									serverProjectConfig.getProjectName(), index, e.getMessage()), e);
+							closeClient(key);
+							continue;
+						} catch (HeaderFormatException e) {
+							log.warn(String.format("%s InputMessageReader[%d] HeaderFormatException::%s", 
+									serverProjectConfig.getProjectName(), index, e.getMessage()), e);
+							closeClient(key);
+							continue;
 						} catch (NotYetConnectedException e) {
 							log.warn("io error", e);
 							closeClient(key);

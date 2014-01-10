@@ -60,7 +60,7 @@ public class CancelDownloadFile2SExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("serverSourceFileID", serverSourceFileID);
 			outObj.setAttribute("clientTargetFileID", clientTargetFileID);
 			
-			letterSender.sendAnonymous(outObj);
+			letterSender.sendAsyn(outObj);
 			return;
 		}
 		

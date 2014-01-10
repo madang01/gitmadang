@@ -1281,9 +1281,11 @@ public class ProjectConfig implements ClientProjectConfigIF, ServerProjectConfig
 	
 	@Override
 	public void changeServerAddress(String newServerHost, int newServerPort) {
+		/*
 		Throwable t = new Throwable("추적용 가짜 예외");
 		log.info(String.format("old serverHost[%s] to new serverHost[%s], old serverPost[%d] to new serverPost[%d]", 
 				serverHost, newServerHost, serverPort, newServerPort), t);
+				*/
 		
 		this.serverHost = newServerHost;
 		String prop_key = getCommonKeyName("host");

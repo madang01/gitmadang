@@ -21,7 +21,7 @@ import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReader;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReaderIF;
 import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
-import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
+import kr.pe.sinnori.common.io.MessageProtocolIF;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 
@@ -36,7 +36,7 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements
 	private int maxHandler;
 	private long readSelectorWakeupInterval;
 	private ClientProjectConfigIF clientProjectConfig = null;
-	private MessageExchangeProtocolIF messageProtocol = null;
+	private MessageProtocolIF messageProtocol = null;
 	private MessageMangerIF messageManger = null;
 	
 	/**
@@ -50,7 +50,7 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements
 	 */
 	public OutputMessageReaderPool(int size, int max, long readSelectorWakeupInterval, 
 			ClientProjectConfigIF clientProjectConfig,
-			MessageExchangeProtocolIF messageProtocol,
+			MessageProtocolIF messageProtocol,
 			MessageMangerIF messageManger) {
 		if (size <= 0) {
 			throw new IllegalArgumentException(String.format("%s 파라미터 size 는 0보다 커야 합니다.", clientProjectConfig.getProjectName()));

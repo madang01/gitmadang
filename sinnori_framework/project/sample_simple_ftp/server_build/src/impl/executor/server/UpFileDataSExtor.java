@@ -64,7 +64,7 @@ public final class UpFileDataSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("serverTargetFileID", serverTargetFileID);
 			outObj.setAttribute("clientSourceFileID", -1);
 			
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		}
 		
@@ -82,7 +82,7 @@ public final class UpFileDataSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("resultMessage", "서버에 수신한 파일 조각을 성공적으로 저장했습니다.");
 			outObj.setAttribute("serverTargetFileID", serverTargetFileID);
 			try {
-				letterSender.sendSelf(outObj);
+				letterSender.sendSync(outObj);
 			} finally {
 				if (isFinished) {
 					
@@ -104,7 +104,7 @@ public final class UpFileDataSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("resultMessage", "서버::"+e.getMessage());
 			outObj.setAttribute("serverTargetFileID", serverTargetFileID);
 			
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		} catch (UpDownFileException e) {
 			log.info(String.format("serverTargetFileID[%d] lock free::%s", serverTargetFileID, e.getMessage()), e);
@@ -116,7 +116,7 @@ public final class UpFileDataSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("resultMessage", "서버::"+e.getMessage());
 			outObj.setAttribute("serverTargetFileID", serverTargetFileID);
 			
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		}
 	}

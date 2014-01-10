@@ -60,6 +60,6 @@ public final class BigStringSExtor extends AbstractServerExecutor {
 		outObj.setAttribute("filler2", (byte[]) inObj.getAttribute("filler2"));
 		outObj.setAttribute("value4", (String) inObj.getAttribute("value4"));
 
-		letterSender.sendSelf(outObj);
+		letterSender.sendSync(outObj);
 	}
 }

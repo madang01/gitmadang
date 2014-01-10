@@ -93,6 +93,6 @@ public final class CommandSExtor extends AbstractServerExecutor {
 
 		// FIXME!, 비지니스 로직 추가로 toSC, toOut 생성
 		// letterToClientList.addLetterToClient(fromSC, outObj);
-		letterSender.sendSelf(outObj);
+		letterSender.sendSync(outObj);
 	}
 }

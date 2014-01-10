@@ -38,7 +38,7 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
-import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
+import kr.pe.sinnori.common.io.MessageProtocolIF;
 import kr.pe.sinnori.common.lib.AbstractProject;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.CommonType.CONNECTION_TYPE;
@@ -460,7 +460,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 	}
 	
 	@Override
-	public MessageExchangeProtocolIF getMessageExchangeProtocol() {
+	public MessageProtocolIF getMessageExchangeProtocol() {
 		return messageExchangeProtocol;
 	}
 }

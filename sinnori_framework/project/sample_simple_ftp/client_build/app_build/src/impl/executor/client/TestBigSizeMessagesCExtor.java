@@ -16,7 +16,7 @@ import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
-import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
+import kr.pe.sinnori.common.io.MessageProtocolIF;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageInputStreamResourcePerSocket;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
@@ -47,7 +47,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 		int warpBufferListSize = 0;
 		// log.info(String.format("before DataPacketBufferQueue state=[%s]", dataPacketBufferQueueManager.getQueueState()));
 		
-		MessageExchangeProtocolIF messageExchangeProtocol = clientProject.getMessageExchangeProtocol();
+		MessageProtocolIF messageExchangeProtocol = clientProject.getMessageExchangeProtocol();
 		
 		
 		String messageID = null;

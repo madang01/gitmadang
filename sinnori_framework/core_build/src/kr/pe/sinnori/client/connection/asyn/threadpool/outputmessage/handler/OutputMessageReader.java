@@ -35,7 +35,7 @@ import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
+import kr.pe.sinnori.common.io.MessageProtocolIF;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.MessageInputStreamResourcePerSocket;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
@@ -53,7 +53,7 @@ public class OutputMessageReader extends Thread implements
 	/** 출력 메시지를 읽는 쓰레드 번호 */
 	private int index;
 	private ClientProjectConfigIF clientProjectConfig = null;
-	private MessageExchangeProtocolIF messageProtocol = null;
+	private MessageProtocolIF messageProtocol = null;
 	private MessageMangerIF messageManger = null;
 	
 	/** 소켓 채널를 통해 연결 클래스를 얻기 위한 해쉬 */
@@ -78,7 +78,7 @@ public class OutputMessageReader extends Thread implements
 	 */
 	public OutputMessageReader(int index, long readSelectorWakeupInterval,
 			ClientProjectConfigIF clientProjectConfig,
-			MessageExchangeProtocolIF messageProtocol,
+			MessageProtocolIF messageProtocol,
 			MessageMangerIF messageManger) {
 		this.index = index;
 		this.readSelectorWakeupInterval = readSelectorWakeupInterval;
@@ -160,13 +160,13 @@ public class OutputMessageReader extends Thread implements
 
 				if (keyReady > 0) {
 
-					Set<SelectionKey> selectionkey_set = selector
+					Set<SelectionKey> selectionKeySet = selector
 							.selectedKeys();
-					Iterator<SelectionKey> selectionkey_iter = selectionkey_set
+					Iterator<SelectionKey> selectionKeyIter = selectionKeySet
 							.iterator();
-					while (selectionkey_iter.hasNext()) {
-						SelectionKey selectionKey = selectionkey_iter.next();
-						selectionkey_iter.remove();
+					while (selectionKeyIter.hasNext()) {
+						SelectionKey selectionKey = selectionKeyIter.next();
+						selectionKeyIter.remove();
 						SocketChannel serverSC = (SocketChannel) selectionKey
 								.channel();
 
@@ -180,48 +180,50 @@ public class OutputMessageReader extends Thread implements
 						}
 
 						MessageInputStreamResourcePerSocket messageInputStreamResource = asynConnection.getMessageInputStreamResource();
-						ByteBuffer lastInputStreamBuffer = messageInputStreamResource.getLastBuffer();						
+						ByteBuffer lastInputStreamBuffer = null;						
 						
-						int positionBeforeWork = lastInputStreamBuffer.position();
 
 						try {
-								numRead = serverSC.read(lastInputStreamBuffer);
-
-								// if (numRead > 0) log.info("1.numRead=[%d]",
-								// numRead);
-
-								if (numRead == -1) {
-									log.warn(String.format("1.%s OutputMessageReader[%d] read -1, remove client", asynConnection.getSimpleConnectionInfo(), index));
-									closeServer(selectionKey, asynConnection);
-									continue;
-								}
-
-								numRead = serverSC.read(lastInputStreamBuffer);
-
-								// if (numRead > 0) log.info("1.numRead=[%d]",
-								// numRead);
-
-								if (numRead == -1) {
-									log.warn(String.format("2.%s OutputMessageReader[%d] read -1, remove client", asynConnection.getSimpleConnectionInfo(), index));
-									closeServer(selectionKey, asynConnection);
-									continue;
-								}
+							lastInputStreamBuffer = messageInputStreamResource.getLastDataPacketBuffer();
+							log.info(String.format("1.%s OutputMessageReader[%d] lastInputStreamBuffer[%s]", asynConnection.getSimpleConnectionInfo(), index, lastInputStreamBuffer.toString()));
 							
+							int positionBeforeReading = lastInputStreamBuffer.position();
 							
-							
-							if (lastInputStreamBuffer.position() == positionBeforeWork)
+							numRead = serverSC.read(lastInputStreamBuffer);
+
+							if (numRead == -1) {
+								log.warn(String.format("1.%s OutputMessageReader[%d] read -1, remove client", asynConnection.getSimpleConnectionInfo(), index));
+								closeServer(selectionKey, asynConnection);
 								continue;
+							}
+							
+							log.info(String.format("2.%s OutputMessageReader[%d] numRead[%d] lastInputStreamBuffer[%s]", asynConnection.getSimpleConnectionInfo(), index, numRead, lastInputStreamBuffer.toString()));
 
+							
+							numRead = serverSC.read(lastInputStreamBuffer);
+								
+							log.info(String.format("3.%s OutputMessageReader[%d] numRead[%d] lastInputStreamBuffer[%s]", asynConnection.getSimpleConnectionInfo(), index, numRead, lastInputStreamBuffer.toString()));
+							
+							if (numRead == -1) {
+								log.warn(String.format("2.%s OutputMessageReader[%d] read -1, remove client", asynConnection.getSimpleConnectionInfo(), index));
+								closeServer(selectionKey, asynConnection);
+								continue;
+							}
+							
+							int positionAfterReading = lastInputStreamBuffer.position();
+
+							if (positionAfterReading == positionBeforeReading) continue;
+							
 							asynConnection.setFinalReadTime();
 							
-							ArrayList<AbstractMessage> outputMessageList = null;	
-							outputMessageList = messageProtocol.S2MList(OutputMessage.class, clientProjectConfig.getCharset(), messageInputStreamResource, messageManger);
-							
+							ArrayList<AbstractMessage> outputMessageList = messageProtocol.S2MList(OutputMessage.class, clientProjectConfig.getCharset(), messageInputStreamResource, messageManger);
+								
 							int cntOfMesages = outputMessageList.size();
 							for (int i = 0; i < cntOfMesages; i++) {
 								OutputMessage outObj = (OutputMessage)outputMessageList.get(i);
 								asynConnection.putToOutputMessageQueue(outObj);
-							}
+							}							
+							
 						} catch (NotYetConnectedException e) {
 							log.warn(String.format("%s OutputMessageReader[%d]::%s", asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
 							closeServer(selectionKey, asynConnection);

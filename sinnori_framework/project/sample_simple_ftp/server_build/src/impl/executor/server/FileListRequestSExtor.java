@@ -51,7 +51,7 @@ public final class FileListRequestSExtor extends AbstractAuthServerExecutor {
 		if (!clientResource.isLogin()) {
 			makeErrorOutMessage(outObj, "로그인 서비스입니다. 로그인을 해 주세요.");
 			// letterToClientList.addLetterToClient(fromSC, outObj);
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		}
 		
@@ -71,7 +71,7 @@ public final class FileListRequestSExtor extends AbstractAuthServerExecutor {
 			// outObj.getAttribute("fileList");
 			
 			// letterToClientList.addLetterToClient(fromSC, outObj);
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		}
 		
@@ -86,7 +86,7 @@ public final class FileListRequestSExtor extends AbstractAuthServerExecutor {
 			// outObj.getAttribute("fileList");
 			
 			// letterToClientList.addLetterToClient(fromSC, outObj);
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		}
 		
@@ -101,7 +101,7 @@ public final class FileListRequestSExtor extends AbstractAuthServerExecutor {
 			// outObj.getAttribute("fileList");
 			
 			// letterToClientList.addLetterToClient(fromSC, outObj);
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		}
 		
@@ -116,7 +116,7 @@ public final class FileListRequestSExtor extends AbstractAuthServerExecutor {
 			// outObj.getAttribute("fileList");
 			
 			// letterToClientList.addLetterToClient(fromSC, outObj);
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		}
 		
@@ -135,7 +135,7 @@ public final class FileListRequestSExtor extends AbstractAuthServerExecutor {
 			// outObj.getAttribute("fileList");
 			
 			// letterToClientList.addLetterToClient(fromSC, outObj);
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		}
 				
@@ -220,6 +220,6 @@ public final class FileListRequestSExtor extends AbstractAuthServerExecutor {
 		log.info(String.format("out.requestDirectory=[%s]",  (String)outObj.getAttribute("requestDirectory")));
 
 		// letterToClientList.addLetterToClient(fromSC, outObj);
-		letterSender.sendSelf(outObj);
+		letterSender.sendSync(outObj);
 	}
 }

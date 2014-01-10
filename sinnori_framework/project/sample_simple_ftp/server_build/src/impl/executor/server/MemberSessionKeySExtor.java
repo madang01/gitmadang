@@ -78,12 +78,12 @@ public final class MemberSessionKeySExtor extends
 		} catch (IllegalArgumentException e1) {
 			outObj.setAttribute("taskResult", "N");
 			outObj.setAttribute("resultMessage", e1.toString());
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		} catch (SymmetricException e1) {
 			outObj.setAttribute("taskResult", "N");
 			outObj.setAttribute("resultMessage", e1.toString());
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		}
 
@@ -123,7 +123,7 @@ public final class MemberSessionKeySExtor extends
 			outObj.setAttribute("resultMessage",
 					"id::IllegalArgumentException");
 
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		} catch (SymmetricException e) {
 			/*
@@ -132,7 +132,7 @@ public final class MemberSessionKeySExtor extends
 			 */
 			outObj
 					.setAttribute("resultMessage", "id::SymmetricException");
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		}
 
@@ -145,7 +145,7 @@ public final class MemberSessionKeySExtor extends
 			 */
 			outObj.setAttribute("resultMessage",
 					"password::IllegalArgumentException");
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		} catch (SymmetricException e) {
 			/*
@@ -154,7 +154,7 @@ public final class MemberSessionKeySExtor extends
 			 */
 			outObj.setAttribute("resultMessage",
 					"password::SymmetricException");
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		}
 
@@ -168,7 +168,7 @@ public final class MemberSessionKeySExtor extends
 			 */
 			outObj.setAttribute("resultMessage",
 					"nickname::IllegalArgumentException");
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		} catch (SymmetricException e) {
 			/*
@@ -177,7 +177,7 @@ public final class MemberSessionKeySExtor extends
 			 */
 			outObj.setAttribute("resultMessage",
 					"nickname::SymmetricException");
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		}
 
@@ -191,7 +191,7 @@ public final class MemberSessionKeySExtor extends
 			 */
 			outObj.setAttribute("resultMessage",
 					"question::IllegalArgumentException");
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		} catch (SymmetricException e) {
 			/*
@@ -200,7 +200,7 @@ public final class MemberSessionKeySExtor extends
 			 */
 			outObj.setAttribute("resultMessage",
 					"question::SymmetricException");
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		}
 
@@ -213,7 +213,7 @@ public final class MemberSessionKeySExtor extends
 			 */
 			outObj.setAttribute("resultMessage",
 					"answer::IllegalArgumentException");
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		} catch (SymmetricException e) {
 			/*
@@ -222,7 +222,7 @@ public final class MemberSessionKeySExtor extends
 			 */
 			outObj.setAttribute("resultMessage",
 					"answer::SymmetricException");
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		}
 
@@ -250,7 +250,7 @@ public final class MemberSessionKeySExtor extends
 
 					outObj.setAttribute("resultMessage", String.format(
 							"동일 아이디[%s]로 이미 가입한 회원이 있습니다.", id));
-					letterSender.sendSelf(outObj);
+					letterSender.sendSync(outObj);
 					return;
 				}
 			}
@@ -279,7 +279,7 @@ public final class MemberSessionKeySExtor extends
 
 				outObj.setAttribute("taskResult", "Y");
 				outObj.setAttribute("resultMessage", "회원 가입을 축하드립니다.");
-				letterSender.sendSelf(outObj);
+				letterSender.sendSync(outObj);
 				return;
 			}
 
@@ -291,7 +291,7 @@ public final class MemberSessionKeySExtor extends
 			 */
 			outObj.setAttribute("resultMessage",
 					"db insert fail::RuntimeException");
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		} catch (java.lang.Exception e) {
 			log.warn("Exception", e);
@@ -301,7 +301,7 @@ public final class MemberSessionKeySExtor extends
 			 */
 			outObj.setAttribute("resultMessage",
 					"unknown error::RuntimeException");
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		} finally {
 			try {
@@ -339,7 +339,7 @@ public final class MemberSessionKeySExtor extends
 			}
 		}
 
-		letterSender.sendSelf(outObj);
+		letterSender.sendSync(outObj);
 
 	}
 

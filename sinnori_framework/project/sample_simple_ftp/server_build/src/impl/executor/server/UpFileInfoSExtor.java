@@ -79,7 +79,7 @@ public final class UpFileInfoSExtor extends AbstractAuthServerExecutor {
 				outObj.setAttribute("resultMessage", "큐로부터 목적지 파일 자원 할당에 실패하였습니다.");
 				outObj.setAttribute("serverTargetFileID", -1);
 				
-				letterSender.sendSelf(outObj);
+				letterSender.sendSync(outObj);
 				return;
 			}
 			
@@ -109,7 +109,7 @@ public final class UpFileInfoSExtor extends AbstractAuthServerExecutor {
 				return;
 			}
 		*/
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 		} catch (IllegalArgumentException e) {
 			log.info("IllegalArgumentException", e);
 			
@@ -130,7 +130,7 @@ public final class UpFileInfoSExtor extends AbstractAuthServerExecutor {
 			}
 			return;
 			*/
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 		} catch (UpDownFileException e) {
 			log.info("UpDownFileException", e);
 			
@@ -151,7 +151,7 @@ public final class UpFileInfoSExtor extends AbstractAuthServerExecutor {
 			}
 			return;
 			*/
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 		}
 	}
 }

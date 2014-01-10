@@ -22,7 +22,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.common.configuration.ServerProjectConfigIF;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
+import kr.pe.sinnori.common.io.MessageProtocolIF;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
@@ -43,7 +43,7 @@ public class InputMessageReaderPool extends AbstractThreadPool implements
 	private long readSelectorWakeupInterval;
 	private ServerProjectConfigIF serverProjectConfig;
 	private LinkedBlockingQueue<LetterFromClient> inputMessageQueue;
-	private MessageExchangeProtocolIF messageProtocol;
+	private MessageProtocolIF messageProtocol;
 	private MessageMangerIF messageManger;
 	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManager;
 	private ClientResourceManagerIF clientResourceManager;
@@ -65,7 +65,7 @@ public class InputMessageReaderPool extends AbstractThreadPool implements
 			long readSelectorWakeupInterval,  
 			ServerProjectConfigIF serverProjectConfig, 
 			LinkedBlockingQueue<LetterFromClient> inputMessageQueue,
-			MessageExchangeProtocolIF messageProtocol,
+			MessageProtocolIF messageProtocol,
 			MessageMangerIF messageManger,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager,
 			ClientResourceManagerIF clientResourceManager) {

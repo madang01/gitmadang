@@ -46,7 +46,7 @@ public final class NotExist08SExtor extends AbstractServerExecutor {
 		String mCase = (String) inObj.getAttribute("mCase");
 		outObj.setAttribute("mCase", mCase);
 
-		letterSender.sendSelf(outObj);
+		letterSender.sendSync(outObj);
 	}
 
 }

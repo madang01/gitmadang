@@ -205,7 +205,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 				ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
 				
 				do {
-					serverSC.write(byteBuffer);									
+					serverSC.write(byteBuffer);
 				} while(byteBuffer.hasRemaining());
 			}
 		}	

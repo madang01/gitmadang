@@ -274,10 +274,6 @@ public interface InputStreamIF {
 	 */
 	public long position();
 	
-	/**
-	 * 스트림을 구성하는 데이터 패킷 버퍼 목록을 해제한다.
-	 */
-	public void freeDataPacketBufferList();
 	
 	
 	/**

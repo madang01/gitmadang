@@ -22,8 +22,8 @@ import kr.pe.sinnori.common.exception.MessageItemException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.InputStreamIF;
 import kr.pe.sinnori.common.io.OutputStreamIF;
-import kr.pe.sinnori.common.io.SingleItemSConverterIF;
-import kr.pe.sinnori.common.io.djson.DJSONSingleItemConverter;
+import kr.pe.sinnori.common.io.dhb.DHBSingleItem2StreamIF;
+import kr.pe.sinnori.common.io.djson.DJSONSingleItem2JSON;
 
 import org.json.simple.JSONObject;
 
@@ -88,7 +88,7 @@ public interface ItemGroupDataIF {
 	 * @throws BodyFormatException
 	 *             이진 스트림에서 데이터를 읽어오는 과정에서 내부 오류가 발생시 던지는 예외
 	 */
-	public void S2M(InputStreamIF sr, SingleItemSConverterIF sisc) throws BodyFormatException;
+	public void O2M(InputStreamIF sr, DHBSingleItem2StreamIF sisc) throws BodyFormatException;
 
 	/**
 	 * 항목 그룹 내용을 DHB 방식으로 이진 스트림에 저장한다.
@@ -100,12 +100,12 @@ public interface ItemGroupDataIF {
 	 * @throws NoMoreDataPacketBufferException
 	 *             이진 스트림에 데이터를 쓰는 과정에서 바디 버퍼 확보에 실패시 던지는 예외
 	 */
-	public void M2S(OutputStreamIF sw, SingleItemSConverterIF sisc) throws BodyFormatException,
+	public void M2O(OutputStreamIF sw, DHBSingleItem2StreamIF sisc) throws BodyFormatException,
 	NoMoreDataPacketBufferException;
 	
 	
-	public void JSON2M(JSONObject jsonObj, DJSONSingleItemConverter djsonSingleItemConverter) throws BodyFormatException;
-	public void M2JSON(JSONObject jsonObj, DJSONSingleItemConverter djsonSingleItemConverter) throws BodyFormatException;
+	public void O2M(JSONObject jsonObj, DJSONSingleItem2JSON djsonSingleItemConverter) throws BodyFormatException;
+	public void M2O(JSONObject jsonObj, DJSONSingleItem2JSON djsonSingleItemConverter) throws BodyFormatException;
 	
 	public String toJSONString();
 }

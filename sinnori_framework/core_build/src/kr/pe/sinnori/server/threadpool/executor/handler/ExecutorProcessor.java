@@ -114,9 +114,9 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 							// LetterToClient toLetter = new LetterToClient(fromSC, errorOutObj);
 							// ouputMessageQueue.put(toLetter);
 							if (anonymousExceptionInputMessageSet.contains(messageID)) {
-								letterSender.sendAnonymous(errorOutObj);
+								letterSender.sendAsyn(errorOutObj);
 							} else {
-								letterSender.sendSelf(errorOutObj);
+								letterSender.sendSync(errorOutObj);
 							}
 							return;
 						}
@@ -145,9 +145,9 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 					// LetterToClient toLetter = new LetterToClient(fromSC, errorOutObj);
 					// ouputMessageQueue.put(toLetter);
 					if (anonymousExceptionInputMessageSet.contains(messageID)) {
-						letterSender.sendAnonymous(errorOutObj);
+						letterSender.sendAsyn(errorOutObj);
 					} else {
-						letterSender.sendSelf(errorOutObj);
+						letterSender.sendSync(errorOutObj);
 					}
 					
 				} catch (MessageInfoNotFoundException e) {
@@ -171,9 +171,9 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 					// LetterToClient toLetter = new LetterToClient(fromSC, errorOutObj);
 					// ouputMessageQueue.put(toLetter);
 					if (anonymousExceptionInputMessageSet.contains(messageID)) {
-						letterSender.sendAnonymous(errorOutObj);
+						letterSender.sendAsyn(errorOutObj);
 					} else {
-						letterSender.sendSelf(errorOutObj);
+						letterSender.sendSync(errorOutObj);
 					}
 				} catch(MessageItemException e) {
 					log.warn(String.format("%s ExecutorProcessor[%d] %s, %s", 
@@ -196,9 +196,9 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 					// LetterToClient toLetter = new LetterToClient(fromSC, errorOutObj);
 					// ouputMessageQueue.put(toLetter);
 					if (anonymousExceptionInputMessageSet.contains(messageID)) {
-						letterSender.sendAnonymous(errorOutObj);
+						letterSender.sendAsyn(errorOutObj);
 					} else {
-						letterSender.sendSelf(errorOutObj);
+						letterSender.sendSync(errorOutObj);
 					}
 				} catch (Exception e) {					
 					String errorMessgae = e.getMessage();
@@ -230,9 +230,9 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 					// LetterToClient toLetter = new LetterToClient(fromSC, errorOutObj);
 					// ouputMessageQueue.put(toLetter);
 					if (anonymousExceptionInputMessageSet.contains(messageID)) {
-						letterSender.sendAnonymous(errorOutObj);
+						letterSender.sendAsyn(errorOutObj);
 					} else {
-						letterSender.sendSelf(errorOutObj);
+						letterSender.sendSync(errorOutObj);
 					}
 				}
 			}

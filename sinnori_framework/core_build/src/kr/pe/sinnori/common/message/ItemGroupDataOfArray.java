@@ -29,8 +29,8 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
 import kr.pe.sinnori.common.io.InputStreamIF;
 import kr.pe.sinnori.common.io.OutputStreamIF;
-import kr.pe.sinnori.common.io.SingleItemSConverterIF;
-import kr.pe.sinnori.common.io.djson.DJSONSingleItemConverter;
+import kr.pe.sinnori.common.io.dhb.DHBSingleItem2StreamIF;
+import kr.pe.sinnori.common.io.djson.DJSONSingleItem2JSON;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.CommonType;
 import kr.pe.sinnori.common.util.HexUtil;
@@ -112,7 +112,7 @@ public class ItemGroupDataOfArray implements ItemGroupDataIF,
 	}
 
 	@Override
-	public void M2S(OutputStreamIF sw, SingleItemSConverterIF sisc) throws BodyFormatException, NoMoreDataPacketBufferException {
+	public void M2O(OutputStreamIF sw, DHBSingleItem2StreamIF sisc) throws BodyFormatException, NoMoreDataPacketBufferException {
 		// int keySize = keyList.size();
 
 		int itemInfoListSize = itemInfoList.size();
@@ -155,10 +155,7 @@ public class ItemGroupDataOfArray implements ItemGroupDataIF,
 					log.warn(errorMessage, e);
 					throw new BodyFormatException(errorMessage);
 				}
-			} else {
-				sisc.writeGroupHead(key, sw);
-				
-				
+			} else {				
 				ArrayData arrayData = (ArrayData) itemValueHash.get(key);
 				if (null == arrayData) {
 					arrayData = new ArrayData(parentPath, this,
@@ -166,19 +163,21 @@ public class ItemGroupDataOfArray implements ItemGroupDataIF,
 					itemValueHash.put(key, arrayData);
 				}
 				
+				sisc.writeGroupHead(key, (ArrayInfo) itemInfo, sw);
+				
 				int arrayDataSize = arrayData.size();
 				for (int j = 0; j < arrayDataSize; j++) {
 					ItemGroupDataIF itemGroupData = arrayData.get(j);
-					itemGroupData.M2S(sw, sisc);
+					itemGroupData.M2O(sw, sisc);
 				}
 
-				sisc.writeGroupTail(key, sw);
+				sisc.writeGroupTail(key, (ArrayInfo) itemInfo, sw);
 			}
 		}
 	}
 
 	@Override
-	public void S2M(InputStreamIF sr, SingleItemSConverterIF sisc) throws BodyFormatException {
+	public void O2M(InputStreamIF sr, DHBSingleItem2StreamIF sisc) throws BodyFormatException {
 		// int keySize = keyList.size();
 
 		int itemInfoListSize = itemInfoList.size();
@@ -240,21 +239,21 @@ public class ItemGroupDataOfArray implements ItemGroupDataIF,
 						(ArrayInfo) itemInfo);
 				itemValueHash.put(key, arrayData);
 				
-				sisc.readGroupHead(key, sr);
+				sisc.readGroupHead(key, (ArrayInfo) itemInfo, sr);
 
 				int arrayDataSize = arrayData.size();
 				for (int j = 0; j < arrayDataSize; j++) {
 					ItemGroupDataIF itemGroupData = arrayData.get(j);
-					itemGroupData.S2M(sr, sisc);
+					itemGroupData.O2M(sr, sisc);
 				}
 				
-				sisc.readGroupTail(key, sr);
+				sisc.readGroupTail(key, (ArrayInfo) itemInfo, sr);
 			}
 		}
 
 	}
 	
-	public void JSON2M(JSONObject jsonObj, DJSONSingleItemConverter djsonSingleItemConverter) throws BodyFormatException {
+	public void O2M(JSONObject jsonObj, DJSONSingleItem2JSON djsonSingleItemConverter) throws BodyFormatException {
 		int itemInfoListSize = itemInfoList.size();
 		for (int i = 0; i < itemInfoListSize; i++) {
 			AbstractItemInfo itemInfo = itemInfoList.get(i);
@@ -311,14 +310,14 @@ public class ItemGroupDataOfArray implements ItemGroupDataIF,
 				for (int j = 0; j < arrayDataSize; j++) {
 					JSONObject jsonObjOfArray = (JSONObject)jsonArrayData.get(j);
 					ItemGroupDataIF itemGroupData = arrayData.get(j);
-					itemGroupData.JSON2M(jsonObjOfArray, djsonSingleItemConverter);
+					itemGroupData.O2M(jsonObjOfArray, djsonSingleItemConverter);
 				}
 				
 			}
 		}
 	}
 	
-	public void M2JSON(JSONObject jsonObj, DJSONSingleItemConverter djsonSingleItemConverter) throws BodyFormatException {
+	public void M2O(JSONObject jsonObj, DJSONSingleItem2JSON djsonSingleItemConverter) throws BodyFormatException {
 		int itemInfoListSize = itemInfoList.size();
 		for (int i = 0; i < itemInfoListSize; i++) {
 		
@@ -376,7 +375,7 @@ public class ItemGroupDataOfArray implements ItemGroupDataIF,
 				for (int j = 0; j < arrayDataSize; j++) {
 					JSONObject jsonObjOfArray = (JSONObject)jsonArrayData.get(j);
 					ItemGroupDataIF itemGroupData = arrayData.get(j);
-					itemGroupData.M2JSON(jsonObjOfArray, djsonSingleItemConverter);
+					itemGroupData.M2O(jsonObjOfArray, djsonSingleItemConverter);
 				}				
 			}
 		}

@@ -46,7 +46,7 @@ public final class DownFileDataSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("fileData", new byte[0]);
 			
 			// letterToClientList.addLetterToClient(fromSC, outObj);
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		}
 		
@@ -67,7 +67,7 @@ public final class DownFileDataSExtor extends AbstractAuthServerExecutor {
 			
 			try {
 				// letterToClientList.addLetterToClient(fromSC, outObj);
-				letterSender.sendSelf(outObj);
+				letterSender.sendSync(outObj);
 			} finally {
 				if (isCompletedReadingFile) {
 					ClientResource clientResource = letterSender.getInObjClientResource();
@@ -90,7 +90,7 @@ public final class DownFileDataSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("fileData", new byte[0]);
 			
 			// letterToClientList.addLetterToClient(fromSC, outObj);
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		} catch (UpDownFileException e) {
 			log.warn(String.format("serverSourceFileID[%d] lock free::%s", serverSourceFileID, e.getMessage()), e);
@@ -105,7 +105,7 @@ public final class DownFileDataSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("fileData", new byte[0]);
 			
 			// letterToClientList.addLetterToClient(fromSC, outObj);
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		}
 	}

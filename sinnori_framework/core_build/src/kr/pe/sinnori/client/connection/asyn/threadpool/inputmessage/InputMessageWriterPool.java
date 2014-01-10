@@ -22,7 +22,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler.InputMessageWriter;
 import kr.pe.sinnori.client.io.LetterToServer;
 import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
-import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
+import kr.pe.sinnori.common.io.MessageProtocolIF;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
@@ -39,7 +39,7 @@ public class InputMessageWriterPool extends AbstractThreadPool {
 	private MessageMangerIF messageManger = null;
 	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManager;
 	// private ArrayList<WrapBuffer> ioWrapBufferList = new ArrayList<WrapBuffer>();
-	private MessageExchangeProtocolIF messageProtocol = null;
+	private MessageProtocolIF messageProtocol = null;
 	
 	
 	/**
@@ -55,7 +55,7 @@ public class InputMessageWriterPool extends AbstractThreadPool {
 	public InputMessageWriterPool(int size, int max,
 			ClientProjectConfigIF clientProjectConfig, 
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue, 
-			MessageExchangeProtocolIF messageProtocol, 
+			MessageProtocolIF messageProtocol, 
 			MessageMangerIF messageManger,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) {
 		if (size <= 0) {

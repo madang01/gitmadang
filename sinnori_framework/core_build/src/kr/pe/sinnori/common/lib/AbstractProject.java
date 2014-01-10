@@ -28,7 +28,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import kr.pe.sinnori.common.configuration.ProjectConfig;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
+import kr.pe.sinnori.common.io.MessageProtocolIF;
 import kr.pe.sinnori.common.io.dhb.DHBMessageProtocol;
 import kr.pe.sinnori.common.io.dhb.header.DHBMessageHeader;
 import kr.pe.sinnori.common.io.djson.DJSONMessageProtocol;
@@ -70,7 +70,7 @@ public abstract class AbstractProject implements CommonRootIF, DataPacketBufferQ
 	// 공통 환경 변수들중 네트워크에서 메시지 교환에 필요한 변수들 묶음 
 	// protected CommonProjectInfo commonProjectInfo = null;
 	
-	protected MessageExchangeProtocolIF messageExchangeProtocol = null;
+	protected MessageProtocolIF messageExchangeProtocol = null;
 	
 	
 	/**

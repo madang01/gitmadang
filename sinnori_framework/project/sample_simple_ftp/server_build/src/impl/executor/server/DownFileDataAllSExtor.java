@@ -73,7 +73,7 @@ public class DownFileDataAllSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("fileData", new byte[0]);
 			
 			// letterToClientList.addLetterToClient(fromSC, outObj);
-			letterSender.sendAnonymous(outObj);
+			letterSender.sendAsyn(outObj);
 			return;
 		}
 		
@@ -94,7 +94,7 @@ public class DownFileDataAllSExtor extends AbstractAuthServerExecutor {
 					outObj.setAttribute("resultMessage", String.format("서버 다운로드용 원본 파일[%d] 자원을 성공적으로 해제하였습니다.", serverSourceFileID));
 					outObj.setAttribute("serverSourceFileID", serverSourceFileID);
 					outObj.setAttribute("clientTargetFileID", clientTargetFileID);
-					letterSender.sendAnonymous(outObj);
+					letterSender.sendAsyn(outObj);
 					
 					clientResource.removeLocalSourceFileID(serverSourceFileID);
 					return;
@@ -115,7 +115,7 @@ public class DownFileDataAllSExtor extends AbstractAuthServerExecutor {
 				outObj.setAttribute("fileBlockNo", startFileBlockNo);
 				outObj.setAttribute("fileData", fileData);
 				
-				letterSender.sendAnonymous(outObj);
+				letterSender.sendAsyn(outObj);
 			}
 
 			// FIXME!
@@ -141,7 +141,7 @@ public class DownFileDataAllSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("fileBlockNo", startFileBlockNo);
 			outObj.setAttribute("fileData", new byte[0]);
 			
-			letterSender.sendAnonymous(outObj);
+			letterSender.sendAsyn(outObj);
 			return;
 		} catch (UpDownFileException e) {
 			log.warn(String.format("serverSourceFileID[%d] lock free::%s", serverSourceFileID, e.getMessage()), e);
@@ -158,7 +158,7 @@ public class DownFileDataAllSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("fileBlockNo", startFileBlockNo);
 			outObj.setAttribute("fileData", new byte[0]);
 			
-			letterSender.sendAnonymous(outObj);
+			letterSender.sendAsyn(outObj);
 			return;
 		}
 	}

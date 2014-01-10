@@ -19,7 +19,6 @@
 package impl.executor.client;
 
 import java.net.SocketTimeoutException;
-import java.nio.ByteBuffer;
 
 import kr.pe.sinnori.client.ClientProjectIF;
 import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
@@ -103,7 +102,7 @@ public class SpeedTestV001CExtor extends AbstractClientExecutor {
 		inObj.setAttribute("bytesVar1", new byte[] { (byte) 0x77, (byte) 0x88 });
 		// inObj.setAttribute("bytesVar2", new byte[] { 1, 2, 3, 4, 5, 6, 7, 8,
 		// 9, 10, 11 });
-		inObj.setAttribute("bytesVar2", ByteBuffer.allocate(8000).array());
+		inObj.setAttribute("bytesVar2", new byte[30000]);
 
 		int memberListCnt = 2;
 		inObj.setAttribute("cnt", memberListCnt);

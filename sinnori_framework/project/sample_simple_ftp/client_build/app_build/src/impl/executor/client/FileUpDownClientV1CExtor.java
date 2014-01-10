@@ -620,6 +620,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 				log.warn("SocketTimeoutException", e);
 				JOptionPane.showMessageDialog(mainFrame, "지정된 연결 시간을 초과하였습니다.");
 				
+				// conn.serverClose();
 				goToFirstScreen();
 				return null;
 			} catch (ServerNotReadyException e) {

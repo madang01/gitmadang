@@ -67,7 +67,7 @@ public class UpFileData2SExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("resultMessage", "서버에서 업로드 파일을 받을 자원이 준비되지 않았습니다.");
 			
 			
-			letterSender.sendAnonymous(outObj);
+			letterSender.sendAsyn(outObj);
 			return;
 		}
 		
@@ -93,7 +93,7 @@ public class UpFileData2SExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("resultMessage", new StringBuilder("서버 IllegalArgumentException::").append(e.getMessage()).toString());
 			
 			
-			letterSender.sendAnonymous(outObj);
+			letterSender.sendAsyn(outObj);
 			return;
 		} catch (UpDownFileException e) {
 			log.info(String.format("serverTargetFileID[%d] lock free::%s", serverTargetFileID, e.getMessage()), e);
@@ -105,7 +105,7 @@ public class UpFileData2SExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("resultMessage", new StringBuilder("서버::").append(e.getMessage()).toString());
 			
 			
-			letterSender.sendAnonymous(outObj);
+			letterSender.sendAsyn(outObj);
 			return;
 		}
 	}

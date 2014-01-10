@@ -131,6 +131,6 @@ public final class AllDataTypeSExtor extends AbstractServerExecutor {
 			}
 		}
 
-		letterSender.sendSelf(outObj);
+		letterSender.sendSync(outObj);
 	}	
 }

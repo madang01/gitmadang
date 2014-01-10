@@ -41,6 +41,6 @@ public class LoginEchoSExtor extends AbstractAuthServerExecutor {
 			throws MessageInfoNotFoundException, MessageItemException {
 
 		OutputMessage outObj = messageManger.createOutputMessage("LoginEcho");
-		letterSender.sendSelf(outObj);
+		letterSender.sendSync(outObj);
 	}
 }

@@ -178,13 +178,20 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		 * </pre>
 		 */
 		
-		
-		
 		try {
 			synchronized (monitor) {
 				// (재)연결 판단 로직, 2번이상 SocketChannel.open() 호출하는것을 막는 역활을 한다.
 				if (serverSC.isConnected()) {
-					//log.info(new StringBuilder(info).append(" connected").toString());
+					StringBuilder infoBuilder = null;
+					
+					infoBuilder = new StringBuilder("projectName[");
+					infoBuilder.append(clientProjectConfig.getProjectName());
+					infoBuilder.append("] asyn connection[");
+					infoBuilder.append(index);
+					infoBuilder.append("] serverSC[");
+					infoBuilder.append(serverSC.hashCode());
+					infoBuilder.append("]");
+					log.info(new StringBuilder(infoBuilder.toString()).append(" connected").toString());
 					return;
 				} 
 				
@@ -217,6 +224,17 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 				initSocketResource();
 				afterConnectionWork();
 				
+				
+				StringBuilder infoBuilder = null;
+				
+				infoBuilder = new StringBuilder("projectName[");
+				infoBuilder.append(clientProjectConfig.getProjectName());
+				infoBuilder.append("] asyn connection[");
+				infoBuilder.append(index);
+				infoBuilder.append("] serverSC[");
+				infoBuilder.append(serverSC.hashCode());
+				infoBuilder.append("]");
+				log.info(new StringBuilder(infoBuilder.toString()).append(" connect").toString());
 				//log.info(new StringBuilder(info).append(" after connect").toString());
 			}
 
@@ -335,8 +353,8 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 
 		/**
 		 * <pre>
-		 * 공유+비동기 연결 객체를 직접 받을 수 없기때문에 동시 사용이 불가능 하므로 synchronized (mailbox) 를 걸어줄 필요 없지만,
-		 * 비공유+비동기 연결 객체는 직접 받을 수 있기때문에 동시 사용 가능이 가능하므로 synchronized (mailbox) 를 걸어주어야 한다.
+		 * 공유+비동기 연결 객체를 직접 받을 수 없지만 동시 사용이 가능 하므로 synchronized (mailbox) 를 걸어주어야 한다.
+		 * 비공유+비동기 연결 객체는 원칙적으로 공유할 수 없지만 직접 받을 수 있기때문에 동시 사용 가능이 가능하므로 synchronized (mailbox) 를 걸어주어야 한다.
 		 * </pre>
 		 */
 		synchronized (mailbox) {
@@ -412,6 +430,13 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		}
 		
 		boolean isInterrupted = false;
+		
+		/**
+		 * <pre>
+		 * 공유+비동기 연결 객체를 직접 받을 수 없지만 동시 사용이 가능 하므로 synchronized (mailbox) 를 걸어주어야 한다.
+		 * 비공유+비동기 연결 객체는 원칙적으로 공유할 수 없지만 직접 받을 수 있기때문에 동시 사용 가능이 가능하므로 synchronized (mailbox) 를 걸어주어야 한다.
+		 * </pre>
+		 */
 		synchronized (mailbox) {
 			try {
 				mailbox.setActive();

@@ -29,7 +29,7 @@ import kr.pe.sinnori.common.configuration.ServerProjectConfigIF;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
+import kr.pe.sinnori.common.io.MessageProtocolIF;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
@@ -46,7 +46,7 @@ import kr.pe.sinnori.server.io.LetterToClient;
 public class OutputMessageWriter extends Thread implements CommonRootIF {
 	private int index;
 	private ServerProjectConfigIF serverProjectConfig;
-	private MessageExchangeProtocolIF messageProtocol;
+	private MessageProtocolIF messageProtocol;
 	private MessageMangerIF messageManger;
 	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManager;
 	private LinkedBlockingQueue<LetterToClient> outputMessageQueue;	
@@ -63,7 +63,7 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 	public OutputMessageWriter(int index, 
 			ServerProjectConfigIF serverProjectConfig,
 			LinkedBlockingQueue<LetterToClient> outputMessageQueue,
-			MessageExchangeProtocolIF messageProtocol,
+			MessageProtocolIF messageProtocol,
 			MessageMangerIF messageManger,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) {
 		this.index = index;

@@ -50,6 +50,6 @@ public final class SelfExnSExtor extends AbstractServerExecutor {
 				(String) inObj.getAttribute("errorMessageID"));
 		outObj.setAttribute("errorMessage", (String) inObj.getAttribute("errorMessage"));
 
-		letterSender.sendSelf(outObj);
+		letterSender.sendSync(outObj);
 	}
 }

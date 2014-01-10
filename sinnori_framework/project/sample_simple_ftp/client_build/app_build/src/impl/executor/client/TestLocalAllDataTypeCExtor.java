@@ -61,23 +61,6 @@ public class TestLocalAllDataTypeCExtor extends AbstractClientExecutor {
 			BodyFormatException, MessageInfoNotFoundException, InterruptedException, MessageItemException {
 
 		DataPacketBufferQueueManagerIF dataPacketBufferQueueManager = (DataPacketBufferQueueManagerIF)clientProject;
-		// log.info(String.format("before DataPacketBufferQueue state=[%s]", dataPacketBufferQueueManager.getQueueState()));
-		
-		// CharsetEncoder charsetOfProjectEncoder = CharsetUtil.createCharsetEncoder(commonProjectInfo.getCharset());
-		// CharsetDecoder clinetCharsetDecoder = CharsetUtil.createCharsetDecoder(commonProjectInfo.getCharset());
-		
-		
-		/*
-		DHBMessageExchangeProtocol dhbMessageExchangeProtocol = 
-				new DHBMessageExchangeProtocol(commonProjectInfo.dataPacketBufferSize, 
-						commonProjectInfo.dataPacketBufferMaxCntPerMessage, 
-						commonProjectInfo.messageIDFixedSize, commonProjectInfo.messageHeaderSize, 
-						dataPacketBufferQueueManager);
-						*/
-		
-		// DHBSingleItemConverter dhbSingleItemConverter = new DHBSingleItemConverter();
-		
-		
 		
 		InputMessage allDataTypeInObj = messageManger.createInputMessage("AllDataType");
 		allDataTypeInObj.setAttribute("byteVar1", Byte.MAX_VALUE);
@@ -119,7 +102,7 @@ public class TestLocalAllDataTypeCExtor extends AbstractClientExecutor {
 		// allDataTypeInObj.setAttribute("bytesVar2", new byte[] { 1, 2, 3, 4, 5, 6, 7,
 		// 8,
 		// 9, 10, 11 });
-		allDataTypeInObj.setAttribute("bytesVar2", ByteBuffer.allocate(30000).array());
+		allDataTypeInObj.setAttribute("bytesVar2", new byte[30000]);
 
 		int memberListCnt = 2;
 		allDataTypeInObj.setAttribute("cnt", memberListCnt);
@@ -228,9 +211,10 @@ public class TestLocalAllDataTypeCExtor extends AbstractClientExecutor {
 		
 		// FIXME!
 		// log.info(allDataTypeOutObjStr);
-		
-		log.info(String.format("Local 입/출력 비교결과=[%s]",
-				allDataTypeInObjStr.equals(allDataTypeOutObjStr)));
-
+		boolean result = allDataTypeInObjStr.equals(allDataTypeOutObjStr);
+		if (!result) {
+			log.warn(String.format("Local 입/출력 비교결과=[%s]",
+					allDataTypeInObjStr.equals(allDataTypeOutObjStr)));
+		}
 	}
 }

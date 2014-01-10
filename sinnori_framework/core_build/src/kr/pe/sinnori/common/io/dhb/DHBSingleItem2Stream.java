@@ -15,7 +15,8 @@
  * limitations under the License.
  */
 
-package kr.pe.sinnori.common.io.thb;
+
+package kr.pe.sinnori.common.io.dhb;
 
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
@@ -29,50 +30,54 @@ import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
 import kr.pe.sinnori.common.exception.UnknownItemTypeException;
 import kr.pe.sinnori.common.io.InputStreamIF;
 import kr.pe.sinnori.common.io.OutputStreamIF;
-import kr.pe.sinnori.common.io.SingleItemSConverterByTypeIF;
-import kr.pe.sinnori.common.io.SingleItemSConverterIF;
 import kr.pe.sinnori.common.lib.CharsetUtil;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.CommonStaticFinal;
+import kr.pe.sinnori.common.message.ArrayInfo;
 import kr.pe.sinnori.common.message.ItemTypeManger;
 
 /**
+ * <pre>
+ * DHB 프로토콜의 단일 항목 스트림 변환기 구현 클래스.
+ * 참고) 항목 타입 독립적인 접근을 위해서 동일 인터페이스를 갖도록 한다.
+ * </pre>
+ * 
  * @author Jonghoon Won
  *
  */
-public class THBSingleItemConverter implements SingleItemSConverterIF, CommonRootIF {
+public class DHBSingleItem2Stream implements DHBSingleItem2StreamIF, CommonRootIF {
 	
-	private final SingleItemSConverterByTypeIF[] converterByTypeList = new SingleItemSConverterByTypeIF[] { 
-			new ConverterDHBByte(), new ConverterDHBUnsignedByte(), 
-			new ConverterDHBShort(), new ConverterDHBUnsignedShort(),
-			new ConverterDHBInt(), new ConverterDHBUnsignedInt(), 
-			new ConverterDHBLong(), new ConverterDHBUBPascalString(),
-			new ConverterDHBUSPascalString(), new ConverterDHBSIPascalString(), 
-			new ConverterDHBFixedLengthString(), new ConverterDHBUBVariableLengthBytes(), 
-			new ConverterDHBUSVariableLengthBytes(), new ConverterDHBSIVariableLengthBytes(), 
-			new ConverterDHBFixedLengthBytes()
+	private final DHBSingleItemType2StreamIF[] dhbSingleItemType2StreamList = new DHBSingleItemType2StreamIF[] { 
+			new DHBSingleItemByte2Stream(), new DHBSingleItemUnsignedByte2Stream(), 
+			new DHBSingleItemShort2Stream(), new DHBSingleItemUnsignedShort2Stream(),
+			new DHBSingleItemInt2Stream(), new DHBSingleItemUnsignedInt2Stream(), 
+			new DHBSingleItemLong2Stream(), new DHBSingleItemUBPascalString2Stream(),
+			new DHBSingleItemUSPascalString2Stream(), new DHBSingleItemSIPascalString2Stream(), 
+			new DHBSingleItemFixedLengthString2Stream(), new DHBSingleItemUBVariableLengthBytes2Stream(), 
+			new DHBSingleItemUSVariableLengthBytes2Stream(), new DHBSingleItemSIVariableLengthBytes2Stream(), 
+			new DHBSingleItemFixedLengthBytes2Stream()
 	};
 	
 	/**
 	 * 생성자
 	 */
-	public THBSingleItemConverter() {
+	public DHBSingleItem2Stream() {
 		ItemTypeManger itemTypeManger = ItemTypeManger.getInstance();
 		
 		int itemTypeCnt = itemTypeManger.getItemTypeCnt();
 		
-		if (itemTypeCnt != converterByTypeList.length) {
+		if (itemTypeCnt != dhbSingleItemType2StreamList.length) {
 			String errorMessage = 
 					String.format("송신 단일 항목 변환기 목록 크기[%d]와 항목 타입 관리자의 크기[%d]가 다릅니다.", 
-							converterByTypeList.length, itemTypeCnt);
+							dhbSingleItemType2StreamList.length, itemTypeCnt);
 			log.fatal(errorMessage);
 			
 			log.fatal("송신 단일 항목 변환기 목록 크기와 항목 타입 관리자의 크기가 다릅니다.");
 			System.exit(1);
 		}
 		
-		for (int i=0; i < converterByTypeList.length; i++) {
-			String itemType = converterByTypeList[i].getItemType();
+		for (int i=0; i < dhbSingleItemType2StreamList.length; i++) {
+			String itemType = dhbSingleItemType2StreamList[i].getItemType();
 			try {
 				int itemTypeID = itemTypeManger.getItemTypeID(itemType);
 				
@@ -102,7 +107,7 @@ public class THBSingleItemConverter implements SingleItemSConverterIF, CommonRoo
 			throws BodyFormatException, IllegalArgumentException, BufferOverflowException, NoMoreDataPacketBufferException {
 		
 		
-		converterByTypeList[itemTypeID].putValue(itemName, itemValue, itemSizeForLang, itemCharsetForLang, sw);
+		dhbSingleItemType2StreamList[itemTypeID].putValue(itemName, itemValue, itemSizeForLang, itemCharsetForLang, sw);
 		
 	}
 	
@@ -113,30 +118,30 @@ public class THBSingleItemConverter implements SingleItemSConverterIF, CommonRoo
 			throws SinnoriCharsetCodingException, BufferUnderflowException, IllegalArgumentException, BodyFormatException {
 
 		itemValueHash.put(itemName,
-				converterByTypeList[itemTypeID].getValue(itemName, itemSizeForLang, itemCharsetForLang, sr));
+				dhbSingleItemType2StreamList[itemTypeID].getValue(itemName, itemSizeForLang, itemCharsetForLang, sr));
 	}
 	
 	@Override
-	public void writeGroupHead(String groupName, OutputStreamIF sw) throws BodyFormatException, NoMoreDataPacketBufferException {
+	public void writeGroupHead(String groupName, ArrayInfo arrayInfo, OutputStreamIF sw) throws BodyFormatException, NoMoreDataPacketBufferException {
 		// DHB는 아무일 안함
 		return;
 	}
 
 	@Override
-	public void readGroupHead(String groupName, InputStreamIF sr)
+	public void readGroupHead(String groupName, ArrayInfo arrayInfo, InputStreamIF sr)
 			throws BodyFormatException {
 		// DHB는 아무일 안함
 		return;
 	}
 
 	@Override
-	public void writeGroupTail(String groupName, OutputStreamIF sw) throws BodyFormatException, NoMoreDataPacketBufferException {
+	public void writeGroupTail(String groupName, ArrayInfo arrayInfo, OutputStreamIF sw) throws BodyFormatException, NoMoreDataPacketBufferException {
 		// DHB는 아무일 안함
 		return;
 	}
 
 	@Override
-	public void readGroupTail(String groupName, InputStreamIF sr)
+	public void readGroupTail(String groupName, ArrayInfo arrayInfo, InputStreamIF sr)
 			throws BodyFormatException {
 		// DHB는 아무일 안함
 		return;
@@ -144,7 +149,7 @@ public class THBSingleItemConverter implements SingleItemSConverterIF, CommonRoo
 	
 	
 	/** DHB 프로토콜의 byte 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDHBByte implements SingleItemSConverterByTypeIF {
+	private final class DHBSingleItemByte2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
@@ -172,7 +177,7 @@ public class THBSingleItemConverter implements SingleItemSConverterIF, CommonRoo
 	}
 
 	/** DHB 프로토콜의 unsigned byte 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDHBUnsignedByte implements SingleItemSConverterByTypeIF {
+	private final class DHBSingleItemUnsignedByte2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
@@ -199,7 +204,7 @@ public class THBSingleItemConverter implements SingleItemSConverterIF, CommonRoo
 	}
 
 	/** DHB 프로토콜의 short 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDHBShort implements SingleItemSConverterByTypeIF {
+	private final class DHBSingleItemShort2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
@@ -227,7 +232,7 @@ public class THBSingleItemConverter implements SingleItemSConverterIF, CommonRoo
 	}
 
 	/** DHB 프로토콜의 unsigned short 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDHBUnsignedShort implements SingleItemSConverterByTypeIF {
+	private final class DHBSingleItemUnsignedShort2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
@@ -255,7 +260,7 @@ public class THBSingleItemConverter implements SingleItemSConverterIF, CommonRoo
 	}
 
 	/** DHB 프로토콜의 integer 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDHBInt implements SingleItemSConverterByTypeIF {
+	private final class DHBSingleItemInt2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
@@ -283,7 +288,7 @@ public class THBSingleItemConverter implements SingleItemSConverterIF, CommonRoo
 	}
 
 	/** DHB 프로토콜의 unsigned integer 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDHBUnsignedInt implements SingleItemSConverterByTypeIF {
+	private final class DHBSingleItemUnsignedInt2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
@@ -311,7 +316,7 @@ public class THBSingleItemConverter implements SingleItemSConverterIF, CommonRoo
 	}
 
 	/** DHB 프로토콜의 long 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDHBLong implements SingleItemSConverterByTypeIF {
+	private final class DHBSingleItemLong2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
@@ -339,7 +344,7 @@ public class THBSingleItemConverter implements SingleItemSConverterIF, CommonRoo
 	}
 
 	/** DHB 프로토콜의 ub pascal string 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDHBUBPascalString implements SingleItemSConverterByTypeIF {
+	private final class DHBSingleItemUBPascalString2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
@@ -367,7 +372,7 @@ public class THBSingleItemConverter implements SingleItemSConverterIF, CommonRoo
 	}
 
 	/** DHB 프로토콜의 us pascal string 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDHBUSPascalString implements SingleItemSConverterByTypeIF {
+	private final class DHBSingleItemUSPascalString2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
@@ -395,7 +400,7 @@ public class THBSingleItemConverter implements SingleItemSConverterIF, CommonRoo
 	}
 
 	/** DHB 프로토콜의 si pascal string 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDHBSIPascalString implements SingleItemSConverterByTypeIF {
+	private final class DHBSingleItemSIPascalString2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
@@ -423,7 +428,7 @@ public class THBSingleItemConverter implements SingleItemSConverterIF, CommonRoo
 	}
 
 	/** DHB 프로토콜의 fixed length string 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDHBFixedLengthString implements SingleItemSConverterByTypeIF {
+	private final class DHBSingleItemFixedLengthString2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
@@ -463,7 +468,7 @@ public class THBSingleItemConverter implements SingleItemSConverterIF, CommonRoo
 	
 
 	/** DHB 프로토콜의 ub variable length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDHBUBVariableLengthBytes implements SingleItemSConverterByTypeIF {
+	private final class DHBSingleItemUBVariableLengthBytes2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
@@ -498,7 +503,7 @@ public class THBSingleItemConverter implements SingleItemSConverterIF, CommonRoo
 	}
 
 	/** DHB 프로토콜의 us variable length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDHBUSVariableLengthBytes implements SingleItemSConverterByTypeIF {
+	private final class DHBSingleItemUSVariableLengthBytes2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
@@ -527,7 +532,7 @@ public class THBSingleItemConverter implements SingleItemSConverterIF, CommonRoo
 	}
 	
 	/** DHB 프로토콜의 si variable length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDHBSIVariableLengthBytes implements SingleItemSConverterByTypeIF {
+	private final class DHBSingleItemSIVariableLengthBytes2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
@@ -557,7 +562,7 @@ public class THBSingleItemConverter implements SingleItemSConverterIF, CommonRoo
 	}
 	
 	/** DHB 프로토콜의 fixed length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDHBFixedLengthBytes implements SingleItemSConverterByTypeIF {
+	private final class DHBSingleItemFixedLengthBytes2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,

@@ -409,10 +409,6 @@ public class FixedSizeInputStream implements CommonRootIF, InputStreamIF {
 	}
 	
 	
-	@Override
-	public void freeDataPacketBufferList() {
-		// 파라미터로 받는 고정 크기 버퍼를 입력 스트림으로 취급하므로 해당 사항 없음
-	}
 	
 	@Override
 	public long indexOf(byte[] searchBytes) {

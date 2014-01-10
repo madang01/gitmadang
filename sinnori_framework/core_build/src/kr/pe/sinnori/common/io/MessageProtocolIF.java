@@ -17,7 +17,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  * @author Jonghoon Won
  *
  */
-public interface MessageExchangeProtocolIF {
+public interface MessageProtocolIF {
 	
 	/**
 	 * 메시지를 데이터 패킷 버퍼로 구현한 스트림으로 변환한다.

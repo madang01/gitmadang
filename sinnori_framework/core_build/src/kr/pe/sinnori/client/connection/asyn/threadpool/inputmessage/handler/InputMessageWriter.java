@@ -29,7 +29,7 @@ import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
+import kr.pe.sinnori.common.io.MessageProtocolIF;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
@@ -50,7 +50,7 @@ public class InputMessageWriter extends Thread implements CommonRootIF {
 	/** 입력 메시지 큐 */
 	private LinkedBlockingQueue<LetterToServer> inputMessageQueue = null;
 	
-	private MessageExchangeProtocolIF messageProtocol = null;
+	private MessageProtocolIF messageProtocol = null;
 	private MessageMangerIF messageManger = null;
 	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManager = null;
 	
@@ -69,7 +69,7 @@ public class InputMessageWriter extends Thread implements CommonRootIF {
 	public InputMessageWriter(int index,
 			ClientProjectConfigIF clientProjectConfig,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
-			MessageExchangeProtocolIF messageProtocol,
+			MessageProtocolIF messageProtocol,
 			MessageMangerIF messageManger,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
 		this.index = index;

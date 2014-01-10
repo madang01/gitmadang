@@ -65,7 +65,7 @@ public final class CancelUploadFileSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("serverTargetFileID", serverTargetFileID);
 			
 			// letterToClientList.addLetterToClient(fromSC, outObj);
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		}
 		
@@ -84,6 +84,6 @@ public final class CancelUploadFileSExtor extends AbstractAuthServerExecutor {
 		log.info(outObj.toString());
 		
 		// letterToClientList.addLetterToClient(fromSC, outObj);
-		letterSender.sendSelf(outObj);
+		letterSender.sendSync(outObj);
 	}
 }

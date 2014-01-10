@@ -16,7 +16,7 @@
  */
 
 
-package kr.pe.sinnori.common.io;
+package kr.pe.sinnori.common.io.dhb;
 
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
@@ -26,6 +26,9 @@ import java.util.HashMap;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
+import kr.pe.sinnori.common.io.InputStreamIF;
+import kr.pe.sinnori.common.io.OutputStreamIF;
+import kr.pe.sinnori.common.message.ArrayInfo;
 import kr.pe.sinnori.common.message.ItemTypeManger;
 
 /**
@@ -34,7 +37,7 @@ import kr.pe.sinnori.common.message.ItemTypeManger;
  * @author Jonghoon Won
  *
  */
-public interface SingleItemSConverterIF {
+public interface DHBSingleItem2StreamIF {
 	
 	/**
 	 * <pre>
@@ -82,7 +85,7 @@ public interface SingleItemSConverterIF {
 	 * @throws BodyFormatException 그룹의 시작을 알리는 내용을 저장하는 과정에서 에러 발생시 던지는 예외
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷 버퍼를 확보하지 못했을때 던지는 예외
 	 */
-	public void writeGroupHead(String groupName, OutputStreamIF sw) throws BodyFormatException, NoMoreDataPacketBufferException;
+	public void writeGroupHead(String groupName, ArrayInfo arrayInfo, OutputStreamIF sw) throws BodyFormatException, NoMoreDataPacketBufferException;
 	
 	/**
 	 * 그룹의 시작을 알리는 내용을 읽어 온다. 단 그룹의 시작을 알리는 내용이 저장한 내용과 일치하지 않으면 바디 포맷 예외를 던진다.
@@ -90,7 +93,7 @@ public interface SingleItemSConverterIF {
 	 * @param sr 입력 BodyFormatException
 	 * @throws BodyFormatException 그룹의 시작을 알리는 내용이 저장한 내용과 일치하지 않을때 던지는 예외
 	 */
-	public void readGroupHead(String groupName, InputStreamIF sr) throws BodyFormatException;
+	public void readGroupHead(String groupName, ArrayInfo arrayInfo, InputStreamIF sr) throws BodyFormatException;
 	
 	/**
 	 * 그룹 종료를 알리는 내용을 출력 스트림에 저장한다. 참고) DHB는 아무 일도 안하고, DXML 에서는 그룹이름을 종료 태그로 출력한다.
@@ -99,7 +102,7 @@ public interface SingleItemSConverterIF {
 	 * @throws BodyFormatException 그룹의 종료를 알리는 내용을 저장하는 과정에서 에러 발생시 던지는 예외
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷 버퍼를 확보하지 못했을때 던지는 예외
 	 */
-	public void writeGroupTail(String groupName, OutputStreamIF sw) throws BodyFormatException, NoMoreDataPacketBufferException;
+	public void writeGroupTail(String groupName, ArrayInfo arrayInfo, OutputStreamIF sw) throws BodyFormatException, NoMoreDataPacketBufferException;
 	
 	/**
 	 * 그룹의 종료를 알리는 내용을 읽어 온다. 단 그룹의 종료를 알리는 내용이 저장한 내용과 일치하지 않으면 바디 포맷 예외를 던진다.
@@ -107,5 +110,5 @@ public interface SingleItemSConverterIF {
 	 * @param sr 입력 스트림
 	 * @throws BodyFormatException 그룹의 종료를 알리는 내용이 저장한 내용과 일치하지 않을때 던지는 예외
 	 */
-	public void readGroupTail(String groupName, InputStreamIF sr) throws BodyFormatException;
+	public void readGroupTail(String groupName, ArrayInfo arrayInfo, InputStreamIF sr) throws BodyFormatException;
 }

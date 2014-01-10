@@ -40,7 +40,7 @@ import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
-import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
+import kr.pe.sinnori.common.io.MessageProtocolIF;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.lib.WrapBuffer;
@@ -66,7 +66,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 	private MessageMangerIF messageManger = null;
 	
 	
-	private MessageExchangeProtocolIF messageProtocol = null;
+	private MessageProtocolIF messageProtocol = null;
 	
 
 	
@@ -93,7 +93,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 			boolean whetherToAutoConnect,
 			ClientProjectConfigIF clientProjectConfig,
 			LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue,
-			MessageExchangeProtocolIF messageProtocol,
+			MessageProtocolIF messageProtocol,
 			MessageMangerIF messageManger, 
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws InterruptedException, NoMoreDataPacketBufferException {
 		super(index, socketTimeOut, whetherToAutoConnect, clientProjectConfig, dataPacketBufferQueueManager, serverOutputMessageQueue);
@@ -374,7 +374,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 			
 
 			// for(int i=0; i < 1; i++) {
-			ByteBuffer lastInputStreamBuffer = messageInputStreamResource.getLastBuffer();
+			ByteBuffer lastInputStreamBuffer = messageInputStreamResource.getLastDataPacketBuffer();
 			lastInputStreamBuffer.order(clientProjectConfig.getByteOrder());
 			
 			byte recvBytes[] = lastInputStreamBuffer.array();
@@ -403,7 +403,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 				outputMessageListSize = outputMessageList.size();
 				if (outputMessageListSize != 0) break;
 				
-				lastInputStreamBuffer = messageInputStreamResource.getLastBuffer();
+				lastInputStreamBuffer = messageInputStreamResource.getLastDataPacketBuffer();
 				recvBytes = lastInputStreamBuffer.array();
 				
 				numRead = inputStream.read(recvBytes,

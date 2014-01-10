@@ -296,8 +296,8 @@ public class ClientResource implements CommonRootIF {
 		builder.append(finalReadTime);
 		builder.append(", echoMesgCount=");
 		builder.append(echoMesgCount);
-		builder.append(", messageInputStreamResource.size=");
-		builder.append(messageInputStreamResource.getMessageReadWrapBufferList().size());		
+		builder.append(", messageInputStreamResource.WrapBufferListSize=");
+		builder.append(messageInputStreamResource.getDataPacketBufferListSize());		
 		builder.append(", serverMailID=");
 		builder.append(serverMailID);
 		builder.append(", loginID=");

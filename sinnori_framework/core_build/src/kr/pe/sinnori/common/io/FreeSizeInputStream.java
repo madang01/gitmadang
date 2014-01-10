@@ -31,8 +31,6 @@ import java.util.Arrays;
 import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.CommonStaticFinal;
-import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
-import kr.pe.sinnori.common.lib.WrapBuffer;
 import kr.pe.sinnori.common.util.HexUtil;
 
 /**
@@ -42,15 +40,15 @@ import kr.pe.sinnori.common.util.HexUtil;
  *
  */
 public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
-	private ArrayList<WrapBuffer> streamBufferList;
+	private ArrayList<ByteBuffer> streamBufferList;
 	private Charset streamCharset;
 	private CharsetDecoder streamCharsetDecoder = null;
-	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManager = null;
+	
 	
 	private ByteOrder streamByteOrder = null;
 	private ByteBuffer workBuffer;
 	private int indexOfWorkBuffer;
-	private int dataPacketBufferMaxCntPerMessage;
+	// private int dataPacketBufferMaxCntPerMessage;
 	
 	/**
 	 * 주) 아래 shortBytes, intBytes, longBytes 는 객체 인스턴스마다 필요합니다. 만약 static 으로 만들면 thread safe 문제에 직면할 것입니다.
@@ -81,37 +79,37 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 	 * 생성자
 	 * @param streamBufferList 데이터 패킷 버퍼 목록, 주의점) 읽기 가능한 영역만을 다루기 때문에 flip 된 상태인지 확인 필요함.
 	 * @param streamCharsetDecoder 스트림 문자셋 디코더
-	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 관리자
+	 * @param dataPacketBufferMaxCntPerMessage 해당 프로젝트의 메시지당 받을 수 있는 최대 데이터 패킷 버퍼 갯수
 	 */
-	public FreeSizeInputStream(ArrayList<WrapBuffer> streamBufferList, 
+	public FreeSizeInputStream(ArrayList<ByteBuffer> streamBufferList, 
 			CharsetDecoder  streamCharsetDecoder,
-			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) {
+			int dataPacketBufferMaxCntPerMessage) {
 		if (null == streamBufferList) {
-			String errorMessage = "파라미터 데이터 패킷 버퍼 목록이 null 입니다.";
+			String errorMessage = "parameter streamBufferList  is null";
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
 		
 		if (null == streamCharsetDecoder) {
-			String errorMessage = "파라미터 스트림 문자셋 디코더가 null 입니다.";
+			String errorMessage = "parameter streamCharsetDecoder is null";
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		if (null == dataPacketBufferQueueManager) {
-			String errorMessage = "파라미터 데이터 패킷 버퍼 큐 관리자가 null 입니다.";
+		if (dataPacketBufferMaxCntPerMessage <= 0) {
+			String errorMessage = String.format("parameter dataPacketBufferMaxCntPerMessage[%d] less than zero", dataPacketBufferMaxCntPerMessage);
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
+		
 		
 		this.streamBufferList = streamBufferList;
 		this.streamCharset = streamCharsetDecoder.charset();
 		this.streamCharsetDecoder = streamCharsetDecoder;
-		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 		
 		
-		dataPacketBufferMaxCntPerMessage = dataPacketBufferQueueManager.getDataPacketBufferMaxCntPerMessage();
+		
 		if (streamBufferList.size() > dataPacketBufferMaxCntPerMessage) {
 			String errorMessage = String.format(
 					"파라미터 바디 버퍼 목록의 크기[%d]는 1개 메시지당 할당 받을 수 있는 최대 값[%d]을 넘을수 없습니다.",
@@ -120,7 +118,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 		}
 		
 		indexOfWorkBuffer = 0;
-		workBuffer = streamBufferList.get(indexOfWorkBuffer).getByteBuffer();
+		workBuffer = streamBufferList.get(indexOfWorkBuffer);
 		
 		streamByteOrder = workBuffer.order();
 		
@@ -136,6 +134,11 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 		longBuffer = ByteBuffer.allocate(8);
 		longBuffer.order(streamByteOrder);
 		longBytes = longBuffer.array();		
+	}
+	
+	
+	public ArrayList<ByteBuffer> getStreamBufferList() {
+		return streamBufferList;
 	}
 
 	/**
@@ -161,7 +164,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 		}
 
 		indexOfWorkBuffer++;
-		workBuffer = streamBufferList.get(indexOfWorkBuffer).getByteBuffer();
+		workBuffer = streamBufferList.get(indexOfWorkBuffer);
 	}
 	
 	/**
@@ -684,15 +687,11 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 	@Override
 	public void skip(int len) throws BufferUnderflowException,
 			IllegalArgumentException {
-		if (len <= 0) {
+		if (0 == len) return;
+		
+		if (len < 0) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 생략할 길이[%d]는  0 보다 커야 합니다.", len));
-		}
-
-		if (len > CommonStaticFinal.MAX_UNSIGNED_BYTE) {
-			throw new IllegalArgumentException(String.format(
-					"파라미터 생략할 길이[%d]는  unsigned byte 최대값[%d] 보다 작거나 같아야 합니다.",
-					len, CommonStaticFinal.MAX_UNSIGNED_BYTE));
 		}
 
 		long remainingBytes = remaining();
@@ -705,7 +704,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 		int dstRemainingByte = len;
 		do {
 			int workRemainingByte = workBuffer.remaining();
-			if (dstRemainingByte < workRemainingByte) {
+			if (dstRemainingByte <= workRemainingByte) {
 				workBuffer.position(workBuffer.position() + dstRemainingByte);
 				dstRemainingByte = 0;
 				break;
@@ -713,8 +712,50 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 
 			workBuffer.position(workBuffer.limit());
 			dstRemainingByte -= workRemainingByte;
-			if (dstRemainingByte <= 0)
+			
+			if (dstRemainingByte <= 0) {
+				log.warn(
+String.format("dstRemainingByte equal to or less than zero, maybe remaining() bug, remainingBytes=[%d], len=[%d]"
+					, remainingBytes, len));
 				break;
+			}
+			nextBuffer();
+		} while (true);
+	}
+	
+	public void skip(long len) throws BufferUnderflowException, IllegalArgumentException {
+		if (0 == len) return;
+		
+		if (len < 0) {
+			throw new IllegalArgumentException(String.format(
+					"파라미터 생략할 길이[%d]는  0 보다 커야 합니다.", len));
+		}
+		
+		
+		long remainingBytes = remaining();
+		if (len > remainingBytes) {
+			throw new IllegalArgumentException(String.format(
+					"파라미터 생략할 길이[%d]는  남아 있은 버퍼 크기[%d] 보다 작거나 같아야 합니다.", len,
+					remainingBytes));
+		}
+		
+		long dstRemainingByte = len;
+		do {
+			int workRemainingByte = workBuffer.remaining();
+			if (dstRemainingByte <= workRemainingByte) {
+				workBuffer.position(workBuffer.position() + (int)dstRemainingByte);
+				dstRemainingByte = 0;
+				break;
+			}
+		
+			workBuffer.position(workBuffer.limit());
+			dstRemainingByte -= workRemainingByte;
+			if (dstRemainingByte <= 0) {
+				log.warn(
+String.format("dstRemainingByte equal to or less than zero, maybe remaining() bug, remainingBytes=[%d], len=[%d]"
+						, remainingBytes, len));
+				break;
+			}
 			nextBuffer();
 		} while (true);
 	}
@@ -730,8 +771,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 		
 		int bodyBufferSize = streamBufferList.size();
 		for (int i = indexOfWorkBuffer; i < bodyBufferSize; i++) {
-			remaingBytes += streamBufferList.get(i).getByteBuffer()
-					.remaining();
+			remaingBytes += streamBufferList.get(i).remaining();
 		}
 		
 		return remaingBytes;
@@ -750,15 +790,15 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 
 		return positionInBuffer;
 	}
-
-	@Override
-	public void freeDataPacketBufferList() {		
-		int bodyBufferSize = streamBufferList.size();
-		
-		for (int i = 0; i < bodyBufferSize; i++) {
-			dataPacketBufferQueueManager.putDataPacketBuffer(streamBufferList.remove(0));
-		}
+	
+	public int getIndexOfWorkBuffer() {
+		return indexOfWorkBuffer;
 	}
+	
+	public int getPositionOfWorkBuffer() {
+		return workBuffer.position();
+	}
+	
 	
 	@Override
 	public long indexOf(byte[] searchBytes) {
@@ -768,7 +808,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 		long retPosition = 0;
 		
 		for (int inxOfBuffer = indexOfWorkBuffer; inxOfBuffer < streamBufferListSize; inxOfBuffer++) {
-			ByteBuffer baseSearchWorkBuffer = streamBufferList.get(inxOfBuffer).getByteBuffer().duplicate();
+			ByteBuffer baseSearchWorkBuffer = streamBufferList.get(inxOfBuffer).duplicate();
 			int baseSearchWorkRemaining = baseSearchWorkBuffer.remaining();
 
 			/**
@@ -794,7 +834,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 						if (inxOfBuffer+1 >= streamBufferListSize) return -1;
 						
 						/** 다음 버퍼의 내용과 바꾼후 검색중인 바이트 배열과 비교를 계속 진행한다. */
-						searchWorkBuffer = streamBufferList.get(inxOfBuffer+1).getByteBuffer().duplicate();
+						searchWorkBuffer = streamBufferList.get(inxOfBuffer+1).duplicate();
 					}
 				}
 				

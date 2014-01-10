@@ -52,7 +52,7 @@ public class LetterSender implements CommonRootIF {
 	 * 출력 메시지를 비 익명으로 입력 메시지 보낸 클라이언트로 보낸다.
 	 * @param outObj 출력 메시지
 	 */
-	public void sendSelf(OutputMessage outObj) {
+	public void sendSync(OutputMessage outObj) {
 		outObj.messageHeaderInfo = inObj.messageHeaderInfo;
 		
 		try {
@@ -73,7 +73,7 @@ public class LetterSender implements CommonRootIF {
 	 * 출력 메시지를 익명으로 입력 메시지 보낸 클라이언트로 보낸다.
 	 * @param outObj
 	 */
-	public void sendAnonymous(OutputMessage outObj) {
+	public void sendAsyn(OutputMessage outObj) {
 		outObj.messageHeaderInfo.mailboxID = CommonStaticFinal.SERVER_MAILBOX_ID;
 		outObj.messageHeaderInfo.mailID = inObjClientResource.getServerMailID();
 		
@@ -96,7 +96,7 @@ public class LetterSender implements CommonRootIF {
 	 * @param outObjClientResource 출력 메시지를 받고자 하는 클라이언트 자원
 	 * @param outObj 출력 메시지
 	 */
-	public void sendAnonymous(ClientResource outObjClientResource, OutputMessage outObj) {
+	public void sendAsyn(ClientResource outObjClientResource, OutputMessage outObj) {
 		outObj.messageHeaderInfo.mailboxID = CommonStaticFinal.SERVER_MAILBOX_ID;
 		outObj.messageHeaderInfo.mailID = outObjClientResource.getServerMailID();
 		

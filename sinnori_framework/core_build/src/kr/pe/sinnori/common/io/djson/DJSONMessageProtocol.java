@@ -1,7 +1,24 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
 package kr.pe.sinnori.common.io.djson;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
@@ -12,9 +29,10 @@ import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
 import kr.pe.sinnori.common.io.FreeSizeInputStream;
 import kr.pe.sinnori.common.io.FreeSizeOutputStream;
-import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
+import kr.pe.sinnori.common.io.MessageProtocolIF;
 import kr.pe.sinnori.common.io.djson.header.DJSONHeader;
 import kr.pe.sinnori.common.lib.CharsetUtil;
 import kr.pe.sinnori.common.lib.CommonRootIF;
@@ -30,25 +48,38 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-public class DJSONMessageProtocol implements CommonRootIF, MessageExchangeProtocolIF {
-	private DJSONSingleItemConverter djsonSingleItemConverter = null;
+/**
+ * JSON 프로토콜<br/>
+ * JSON 프로토콜은 DHB 응용으로 프레임 구조는 4byte 존슨 문자열 크기 + 존슨 문자열 로 구성된다.<br/>
+ * 바디 부분은 존슨 문자열이며 헤더는 단지 그 크기만을 지정한다.<br/>
+ * 존슨 문자열은 외부라이브러리에 전적으로 의존한다.<br/>
+ * 신놀이 메시지의 전달 개념도는 신놀이 메시지 -> 존슨 객체 -> 4byte 존슨 문자열 크기 + 존슨 문자열 전송<br/> 
+ *   ==> 4byte 존슨 문자열 크기 + 존슨 문자열 수신 -> 존슨 객체 -> 신놀이 메시지 와 같다.<br/>
+ *   
+ * @author Jonghoon won
+ *
+ */
+public class DJSONMessageProtocol implements CommonRootIF, MessageProtocolIF {
+	private DJSONSingleItem2JSON djsonSingleItemConverter = null;
 	
 	/** 데이터 패킷 크기 */
-	private int dataPacketBufferSize;
+	// private int dataPacketBufferSize;
 	/** 1개 메시당 데이터 패킷 버퍼 최대수 */ 
-	private int dataPacketBufferMaxCntPerMessage;
+	// private int dataPacketBufferMaxCntPerMessage;
 	
 	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManager = null;
 	
 	
 	private static final int messageHeaderSize = 4;
 	
+	private JSONParser jsonParser = new JSONParser();	
+	
 	public DJSONMessageProtocol( 
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) {
-		this.dataPacketBufferSize = dataPacketBufferQueueManager.getDataPacketBufferSize();
-		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferQueueManager.getDataPacketBufferMaxCntPerMessage();
+		// this.dataPacketBufferSize = dataPacketBufferQueueManager.getDataPacketBufferSize();
+		// this.dataPacketBufferMaxCntPerMessage = dataPacketBufferQueueManager.getDataPacketBufferMaxCntPerMessage();
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-		this.djsonSingleItemConverter = new DJSONSingleItemConverter();
+		this.djsonSingleItemConverter = new DJSONSingleItem2JSON();
 	}
 	
 	@Override
@@ -82,95 +113,91 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageExchangeProtoc
 			NoMoreDataPacketBufferException {
 		
 		CharsetDecoder charsetOfProjectDecoder = CharsetUtil.createCharsetDecoder(clientCharset);
-		ArrayList<WrapBuffer> messageReadWrapBufferList = messageInputStreamResource.getMessageReadWrapBufferList();
-		DJSONHeader messageHeader = (DJSONHeader)messageInputStreamResource.getEtcInfo();
-		ByteOrder byteOrderOfProject = messageInputStreamResource.getByteOrder();
+		// ArrayList<WrapBuffer> messageReadWrapBufferList = messageInputStreamResource.getMessageReadWrapBufferList();
+		DJSONHeader messageHeader = (DJSONHeader)messageInputStreamResource.getUserDefObject();
+		// ByteOrder byteOrderOfProject = messageInputStreamResource.getByteOrder();
 		
 		ArrayList<AbstractMessage> messageList = new ArrayList<AbstractMessage>();
 		
 		boolean isMoreMessage = false;
 		
+		int messageReadWrapBufferListSize = messageInputStreamResource.getDataPacketBufferListSize();
+		if (messageReadWrapBufferListSize == 0) {
+			log.fatal(String.format("messageReadWrapBufferListSize is zero"));
+			System.exit(1);
+		}
+		
 		try {
+			/** 메시지들을 추출후 메시지들이 놓인 영역은 삭제합니다. 따라서 데이터 패킷 버퍼 목록의 시작 인덱스와 시작위치는 0이 됩니다. */   
+			int startIndex = 0;
+			int startPosition = 0;
+			/** 최종적으로 읽어온 마지막 버퍼의 인덱스와 위치를 기억합니다. */
+			int lastIndex = messageReadWrapBufferListSize - 1;
+			ByteBuffer lastInputStreamBuffer = messageInputStreamResource.getLastDataPacketBuffer();
+			int lastPosition = lastInputStreamBuffer.position();
+			
+			/**
+			 * 소켓별 스트림 자원을 갖는다. 스트림은 데이터 패킷 버퍼 목록으로 구현한다.<br/>
+			 * 반환되는 스트림은 데이터 패킷 버퍼의 속성을 건들지 않기 위해서 복사본으로 구성되며 읽기 가능 상태이다.<br/>
+			 * 내부 처리를 요약하면 All ByteBuffer.duplicate().flip() 이다.<br/>
+			 * 매번 새로운 스트림이 만들어지는 단점이 있다. <br/>  
+			 */
+			FreeSizeInputStream freeSizeInputStream = messageInputStreamResource.getFreeSizeInputStream(charsetOfProjectDecoder);
+			
+			// long inputStramSizeBeforeMessageWork = (lastIndex - startIndex) * dataPacketBufferSize - startPosition + lastPosition;
+			long inputStramSizeBeforeMessageWork = freeSizeInputStream.remaining();
+			
+			log.info(String.format("1. startIndex=[%d], startPosition=[%d], lastIndex=[%d], lastPosition=[%d], inputStramSizeBeforeMessageWork[%d]"
+					, startIndex, startPosition, lastIndex, lastPosition, inputStramSizeBeforeMessageWork));
+			
 			do {
-				int messageReadWrapBufferListSize = messageReadWrapBufferList.size();
-				if (messageReadWrapBufferListSize == 0) {
-					log.fatal(String.format("messageReadWrapBufferListSize is zero"));
-					System.exit(1);
-				}
-	
-				int lastIndex = messageReadWrapBufferListSize - 1;
-				ByteBuffer lastInputStreamBuffer = messageReadWrapBufferList.get(lastIndex).getByteBuffer();
-				
-				int finalReadPosition = lastInputStreamBuffer.position();
-				long inputStramSizeBeforeMessageWork = lastIndex	* dataPacketBufferSize + finalReadPosition;
-				
 				isMoreMessage = false;
-				
-				// log.debug(String.format("1. messageReadWrapBufferListSize=[%d], lastInputStreamBuffer=[%s], inputStramSizeBeforeMessageWork=[%d]", messageReadWrapBufferListSize, lastInputStreamBuffer.toString(), inputStramSizeBeforeMessageWork));
 				
 				if (null == messageHeader
 						&& inputStramSizeBeforeMessageWork >= messageHeaderSize) {
-					/** 헤더 읽기전 위치 마크및 헤더 읽을 위치 0으로 이동 */
-					ByteBuffer dupMessageHeaderBuffer = messageReadWrapBufferList.get(0).getByteBuffer().duplicate();
-					dupMessageHeaderBuffer.order(byteOrderOfProject);
-					dupMessageHeaderBuffer.position(messageHeaderSize);
-					dupMessageHeaderBuffer.flip();
+			
+					
+					
+					/** 스트림 통해서 헤더 읽기 */
+					// int positionOfStream = startIndex*dataPacketBufferSize+startPosition;
+					// if (positionOfStream > 0) freeSizeInputStream.skip((long)startIndex*dataPacketBufferSize+startPosition);
+					
+					DJSONHeader  workMessageHeader = new DJSONHeader();
+					workMessageHeader.lenOfJSONStr = freeSizeInputStream.getInt();
+					
+					
 					
 					// log.debug(String.format("3.1 dupMessageHeaderBuffer=[%s]", dupMessageHeaderBuffer.toString()));
 					
-					/** 헤더 읽기 */
-					DJSONHeader  workMessageHeader = new DJSONHeader();
-					workMessageHeader.lenOfJSONStr = dupMessageHeaderBuffer.getInt();
+					
 					
 					// log.debug(String.format("3.2 dupMessageHeaderBuffer=[%s]", dupMessageHeaderBuffer.toString()));
 					//log.debug(String.format("4. lastInputStreamBuffer=[%s]", lastInputStreamBuffer.toString()));
 					// log.debug(workMessageHeader.toString());
 					
 					messageHeader = workMessageHeader;
-				} 
-				
-				
-				if (null != messageHeader) {
-					//log.debug(String.format("5. lastInputStreamBuffer=[%s]", lastInputStreamBuffer.toString()));
 					
-					long messagePacketSize = (long)messageHeader.lenOfJSONStr + messageHeaderSize;
+					long messageFrameSize = (long)messageHeader.lenOfJSONStr + messageHeaderSize;
 					
-					if (inputStramSizeBeforeMessageWork >= messagePacketSize) {
+					if (inputStramSizeBeforeMessageWork >= messageFrameSize) {
 						/** 메시지 추출*/
-						
-						int endPositionOfMessage  = (int)(messagePacketSize - lastIndex * dataPacketBufferSize);
-						
-						/**
-						 * 마지막 출력 메시지 래퍼 버퍼내 메시지의 끝 위치는 
-						 * 마지막으로 데이터를 읽어 들인 위치 안쪽에 위치하므로 
-						 * long 타입을 integer 타입으로 변환해도 문제가 안된다.
-						 */
-						lastInputStreamBuffer.position(endPositionOfMessage);
-						
-						//log.debug(String.format("8. lastInputStreamBuffer=[%s]", lastInputStreamBuffer.toString()));
-						
-						/** flip후 헤더 제외한 body 부분에 커서 위치 */
-						WrapBuffer firstOutputMessageWrapBuffer = messageReadWrapBufferList.get(0);
-						ByteBuffer firstOutputMessageBuffer = firstOutputMessageWrapBuffer.getByteBuffer();
-						firstOutputMessageBuffer.flip();
-						firstOutputMessageBuffer.position(messageHeaderSize);
-						
-						for (int i=1; i < messageReadWrapBufferListSize; i++) {
-							ByteBuffer workBuffer = messageReadWrapBufferList.get(i).getByteBuffer();
-							workBuffer.flip();
+						String jsonStr = null;
+						try {
+							jsonStr = freeSizeInputStream.getString(messageHeader.lenOfJSONStr, DJSONHeader.JSON_STRING_CHARSET.newDecoder());
+						} catch (SinnoriCharsetCodingException e1) {
+							String errorMessage = e1.getMessage();
+							log.warn(String.format("문자셋 문제로 JSON 문자열 추출 실패, %s", errorMessage), e1);
+							/**
+							 * json 객체를 얻지 못하면 json 객체에 포함된 
+							 * 신놀이 메시지 운영정보(메시지 식별자, 메일 박스 식별자, 메일 식별자)를 얻을 수 없다.
+							 * 신놀이 메시지 운영정보는 헤더 정보이므로 이를 정상적으로 얻지 못했기때문에 헤더 포맷 에러 처리를 한다.  
+							 */
+							throw new HeaderFormatException(errorMessage);
 						}
 						
-						/** 바디 스트림으로 부터 메시지 내용 추출 */
-						FreeSizeInputStream bodyInputStream = 
-								new FreeSizeInputStream(messageReadWrapBufferList, charsetOfProjectDecoder, dataPacketBufferQueueManager);
-						byte[] jsonBytes = bodyInputStream.getBytes(messageHeader.lenOfJSONStr);
-						String jsonStr = new String(jsonBytes, DJSONHeader.JSON_STRING_CHARSET);
-						
-						// FIXME!
-						// log.info(jsonStr);
-						
-						JSONParser jsonParser = new JSONParser();
-						
+						startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
+						startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
+											
 						JSONObject jsonObj = null;
 						
 						try {
@@ -213,16 +240,8 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageExchangeProtoc
 								workInObj.messageHeaderInfo.mailboxID = mailboxID;
 								workInObj.messageHeaderInfo.mailID = mailID;
 								
-								workInObj.JSON2M(jsonObj, djsonSingleItemConverter);
+								workInObj.O2M(jsonObj, djsonSingleItemConverter);
 								
-								if (bodyInputStream.remaining() > 0) {
-									// FIXME! 잔존 데이터 있음. 
-									String errorMessage = String
-											.format("메시지[%s]를 읽는 과정에서 잔존 데이터가 남았습니다.",
-													workInObj.toString());
-									// log.warn(errorMessage, e);
-									throw new HeaderFormatException(errorMessage);
-								}
 							} catch (MessageInfoNotFoundException e) {
 								log.info(String.format("MessageInfoNotFoundException::header=[%s]",
 										messageHeader.toString()), e);
@@ -275,16 +294,7 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageExchangeProtoc
 								workOutObj.messageHeaderInfo.mailboxID = mailboxID;
 								workOutObj.messageHeaderInfo.mailID = mailID;
 								
-								workOutObj.JSON2M(jsonObj, djsonSingleItemConverter);
-								
-								if (bodyInputStream.remaining() > 0) {
-									// FIXME! 잔존 데이터 있음. 
-									String errorMessage = String
-											.format("메시지[%s]를 읽는 과정에서 잔존 데이터가 남았습니다.",
-													workOutObj.toString());
-									// log.warn(errorMessage, e);
-									throw new HeaderFormatException(errorMessage);
-								}
+								workOutObj.O2M(jsonObj, djsonSingleItemConverter);
 							} catch (MessageInfoNotFoundException e) {
 								log.info(String.format("BodyFormatException::header=[%s]",
 										messageHeader.toString()), e);
@@ -330,103 +340,33 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageExchangeProtoc
 							
 							
 							/** 목록에 메시지 추가 */
-							messageList.add(workOutObj);	
+							messageList.add(workOutObj);							
 						}
 						
-						
-						
-						
-						
-						//log.debug(String.format("11. lastInputStreamBuffer=[%s]", lastInputStreamBuffer.toString()));
-						
-						/** 추출된 메시지 영역 삭제 - 추출된 메시지 내용이 담겨 있는 마지막을 제외한 출력 메시지 랩 버퍼를 삭제한다.  */
-						messageInputStreamResource.freeWrapBufferWithoutLastBuffer(endPositionOfMessage, finalReadPosition);
-						
-						/** 메시지 추출 종료후 다음 메시지 추출을 위한 변수 초기화 */
-						messageHeader = null;
-						
-						// lastIndex = 0;
-						// inputStramSizeBeforeMessageWork = lastInputStreamBuffer.remaining();
-	
-						/**
-						 * <pre>
-						 * 다음 메시지 존재 여부를 판단하여 결과적으로 다음 메시지를 추출하도록 한다.   
-						 * 참고) 소켓 채널 관점에서 읽기 이벤트 전용 selector 는 다음 읽은 데이터가 없을때까지 대기 모드로 빠진다.
-						 * 때문에 출력 메시지 랩 버퍼에 존재하는 모든 메시지를 추츨해야만 무한 대기 없이 메시지 처리를 할 수 있다.
-						 * 쉽게 예를 들면 "가" 메시지 와 "나" 메시지가 마지막 출력 메시지 랩 버퍼에 동시에 들어온 상태라면 
-						 * "가" 메시지만 추출할 경우 "나" 메시지는 계속 대기 상태로 있게 된다. 
-						 * 클라이언트에서 "다" 메시지를 보내어 읽기 이벤트가 발생되어야 깨어나서 "나" 메시지가 처리가 된다.
-						 * </pre>
-						 */
-						
-						inputStramSizeBeforeMessageWork = lastInputStreamBuffer.position();
-						
-						//log.debug(String.format("12. lastInputStreamBuffer=[%s]", lastInputStreamBuffer.toString()));
-						
-						if (inputStramSizeBeforeMessageWork >= messageHeaderSize) {
-							/** 헤더 읽기전 위치 마크및 헤더 읽을 위치 0으로 이동 */
-							ByteBuffer dupMessageHeaderBuffer = lastInputStreamBuffer.duplicate();
-							dupMessageHeaderBuffer.order(byteOrderOfProject);
-							dupMessageHeaderBuffer.position(messageHeaderSize);
-							dupMessageHeaderBuffer.flip();
-							
-							//log.debug(String.format("14 dupMessageHeaderBuffer=[%s]", dupMessageHeaderBuffer.toString()));
-							
-							/** 헤더 읽기 */
-							DJSONHeader  workMessageHeader = new DJSONHeader();
-							workMessageHeader.lenOfJSONStr = dupMessageHeaderBuffer.getInt();
-							
-							//log.debug(String.format("15. lastInputStreamBuffer=[%s]", lastInputStreamBuffer.toString()));
-							
-							
-							messageHeader = workMessageHeader;
-							
-							
-							if (inputStramSizeBeforeMessageWork >= ((long)workMessageHeader.lenOfJSONStr + messageHeaderSize)) {
-								/** 버퍼 안에 다음 메시지 존재 함. */
-								isMoreMessage = true;
-							}
+						inputStramSizeBeforeMessageWork = freeSizeInputStream.remaining();
+						if (inputStramSizeBeforeMessageWork > messageHeaderSize) {
+							isMoreMessage = true;
+							messageHeader = null;
 						}
-					} else if (!lastInputStreamBuffer.hasRemaining()) {
-						/** 다음 버퍼 */
-						lastInputStreamBuffer = addWrapBuffer(messageReadWrapBufferList, messageHeader);
 					}
 				}
 			} while (isMoreMessage);
+				
+			if (messageList.size() > 0) {
+				messageInputStreamResource.truncate(startIndex, startPosition);
+			} else if (!lastInputStreamBuffer.hasRemaining()) {
+				/** 메시지 추출 실패했는데도 마지막 버퍼가 꽉차있다면 스트림 크기를 증가시킨다. 단 설정파일 환경변수 "메시지당 최대 데이터 패킷 갯수" 만큼만 증가될수있다. */
+				lastInputStreamBuffer = messageInputStreamResource.nextDataPacketBuffer();
+			}
+			
 		} catch(MessageItemException e) {
 			log.fatal(e.getMessage(), e);
 			System.exit(1);
 		} finally {
-			messageInputStreamResource.setEtcInfo(messageHeader);
+			messageInputStreamResource.setUserDefObject(messageHeader);
 		}
 		
 		
 		return messageList;
-	}
-
-	/**
-	 * @return 읽기 전용 버퍼 목록에 추가된 읽기 전용 버퍼
-	 * @throws NoMoreDataPacketBufferException 데이터 패킷 버퍼를 확보 할 수 없을대 던지는 예외
-	 */
-	private ByteBuffer addWrapBuffer(ArrayList<WrapBuffer> messageReadWrapBufferList, DJSONHeader messageHeader) throws NoMoreDataPacketBufferException {
-		/** 메시지 1개당 최대 데이터 패킷 버퍼 갯수에 도달했을 경우 에러 처리함 */
-		if (dataPacketBufferMaxCntPerMessage == messageReadWrapBufferList
-				.size()) {
-			String errorMessage = String
-					.format("메시지당 최대 데이터 패킷 갯수[%d]를 넘는 메시지[%s]입니다. ",
-							dataPacketBufferMaxCntPerMessage,
-							messageHeader
-									.toString());
-			// log.warn(errorMessage);
-			throw new NoMoreDataPacketBufferException(
-					errorMessage);
-		}
-		
-		WrapBuffer wrapBuffer = dataPacketBufferQueueManager.pollDataPacketBuffer();
-		messageReadWrapBufferList.add(wrapBuffer);
-		ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
-		
-		return byteBuffer;
-	}
-	
+	}	
 }

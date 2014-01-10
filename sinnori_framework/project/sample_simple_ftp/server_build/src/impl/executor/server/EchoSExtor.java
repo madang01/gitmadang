@@ -50,7 +50,7 @@ public final class EchoSExtor extends AbstractServerExecutor {
 				(long) inObj.getAttribute("startTime"));
 
 		// letterToClientList.addLetterToClient(fromSC, outObj);
-		letterSender.sendSelf(outObj);
+		letterSender.sendSync(outObj);
 	}
 
 }

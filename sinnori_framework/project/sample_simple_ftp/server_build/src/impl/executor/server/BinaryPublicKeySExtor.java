@@ -52,6 +52,6 @@ public final class BinaryPublicKeySExtor extends AbstractServerExecutor {
 		outObj.setAttribute("publicKeyBytes", ServerSessionKeyManager.getInstance().getPublicKeyBytes());
 		
 
-		letterSender.sendSelf(outObj);
+		letterSender.sendSync(outObj);
 	}
 }

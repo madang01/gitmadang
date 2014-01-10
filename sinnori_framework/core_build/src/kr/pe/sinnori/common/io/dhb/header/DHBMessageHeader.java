@@ -80,6 +80,9 @@ public class DHBMessageHeader implements CommonRootIF {
 	/** 메시지 헤더 크기, 참고) 환경 변수로 지정되는 고정 크기를 갖는 메시지 식별자 크기 값으로 정해지는 크기이다. */
 	public int messageHeaderSize = -1;
 	
+	// public int bodyMD5Offset = -1;
+	// public int headerMD5Offset = -1;
+	
 	/** 메시지 헤더의 내용을 버퍼를 통해 읽을 경우 헤어 부분만 복사한 바이트 배열 */
 	private byte messageHeaderBytes[] = null;
 	
@@ -89,12 +92,24 @@ public class DHBMessageHeader implements CommonRootIF {
 	 */
 	public DHBMessageHeader(int messageIDFixedSize) {
 		this.messageIDFixedSize = messageIDFixedSize;
+		// this.bodyMD5Offset = messageIDFixedSize + 2 + 4 + 8;
+		// this.headerMD5Offset = bodyMD5Offset + MD5_BYTESIZE;
 		this.messageHeaderSize = getMessageHeaderSize(messageIDFixedSize); 
+		
 	}
 	
 	public static int getMessageHeaderSize(int messageIDFixedSize) {
 		return (messageIDFixedSize+ 2 + 4 + 8 + MD5_BYTESIZE*2);
 	}
+	
+	public static int getBodyMD5Offset(int messageIDFixedSize) {
+		return (messageIDFixedSize+ 2 + 4 + 8);
+	}
+	
+	public static int getHeaderMD5Offset(int messageIDFixedSize) {
+		return (messageIDFixedSize+ 2 + 4 + 8 + MD5_BYTESIZE);
+	}
+	
 	/**
 	 * 입력 받은 메세지 식별자의 유효성을 판별해 준다. 단 크기에 대해서는 검사하지 않는다.
 	 * 

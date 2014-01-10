@@ -64,13 +64,13 @@ public final class LoginSExtor extends AbstractServerExecutor {
 			
 			outObj.setAttribute("taskResult", "N");
 			outObj.setAttribute("resultMessage",  new StringBuilder("서버").append("::getSymmetricKey::").append(e.toString()).toString());
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		} catch (SymmetricException e) {
 			log.warn("SymmetricException", e);
 			outObj.setAttribute("taskResult", "N");
 			outObj.setAttribute("resultMessage",  new StringBuilder("서버").append("::getSymmetricKey::").append(e.toString()).toString());
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		}
 		
@@ -88,19 +88,19 @@ public final class LoginSExtor extends AbstractServerExecutor {
 			log.warn("IllegalArgumentException", e);
 			
 			outObj.setAttribute("resultMessage",  new StringBuilder("서버").append("::id::").append(e.toString()).toString());
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		} catch (SymmetricException e) {
 			log.warn("SymmetricException", e);
 			
 			outObj.setAttribute("resultMessage",  new StringBuilder("서버").append("::id::").append(e.toString()).toString());
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		} catch (SinnoriUnsupportedEncodingException e) {
 			log.warn("SinnoriUnsupportedEncodingException", e);
 			
 			outObj.setAttribute("resultMessage",  new StringBuilder("서버").append("::id::").append(e.toString()).toString());
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		}
 		
@@ -110,18 +110,18 @@ public final class LoginSExtor extends AbstractServerExecutor {
 			log.warn("IllegalArgumentException", e);
 			
 			outObj.setAttribute("resultMessage",  new StringBuilder("서버").append("::password::").append(e.toString()).toString());
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		} catch (SymmetricException e) {
 			log.warn("SymmetricException", e);
 			
 			outObj.setAttribute("resultMessage", new StringBuilder("서버").append("::password::").append(e.toString()).toString());
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		} catch (SinnoriUnsupportedEncodingException e) {
 			log.warn("SinnoriUnsupportedEncodingException", e);
 			outObj.setAttribute("resultMessage", new StringBuilder("서버").append("::password::").append(e.toString()).toString());
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		}
 		
@@ -132,7 +132,7 @@ public final class LoginSExtor extends AbstractServerExecutor {
 			outObj.setAttribute("taskResult", "N");
 			outObj.setAttribute("resultMessage", new StringBuilder(mID).append(" 아이디가 존재하지 않습니다.").toString());
 
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		}
 		
@@ -140,7 +140,7 @@ public final class LoginSExtor extends AbstractServerExecutor {
 			outObj.setAttribute("taskResult", "N");
 			outObj.setAttribute("resultMessage", "비밀번호가 잘못 되었습니다.");
 
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		}
 		
@@ -148,7 +148,7 @@ public final class LoginSExtor extends AbstractServerExecutor {
 			outObj.setAttribute("taskResult", "N");
 			outObj.setAttribute("resultMessage", "이미 로그인한 상태입니다.");
 
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		}
 		
@@ -160,6 +160,6 @@ public final class LoginSExtor extends AbstractServerExecutor {
 		outObj.setAttribute("taskResult", "Y");
 		outObj.setAttribute("resultMessage", "회원 가입을 축하드립니다.");
 
-		letterSender.sendSelf(outObj);
+		letterSender.sendSync(outObj);
 	}
 }

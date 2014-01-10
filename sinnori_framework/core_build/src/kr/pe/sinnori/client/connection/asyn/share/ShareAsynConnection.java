@@ -361,15 +361,6 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 		
 		boolean isInterrupted = false;
 		
-		/**
-		 * <pre>
-		 * 공유+비동기 연결 객체를 직접 받을 수 없기때문에 동시 사용이 불가능 하므로 synchronized (mailbox) 를 걸어줄 필요 없지만,
-		 * 비공유+비동기 연결 객체는 직접 받을 수 있기때문에 동시 사용 가능이 가능하므로 synchronized (mailbox) 를 걸어주어야 한다.
-		 * 
-		 * 공유+비동기 연결 객체인 이곳에서 불필요한 synchronized (mailbox) 를 걸어준 이유는 비공유+비동기 연결 객체와 맞추기 위함이다.
-		 * </pre>
-		 */
-		
 		try {
 			mailbox = PrivateMailboxWaitingQueue.poll();					
 			if (null == mailbox) {
@@ -390,6 +381,12 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 			isInterrupted = true;
 		}
 		
+		/**
+		 * <pre>
+		 * 공유+비동기 연결 객체를 직접 받을 수 없지만 동시 사용이 가능 하므로 synchronized (mailbox) 를 걸어주어야 한다.
+		 * 비공유+비동기 연결 객체는 원칙적으로 공유할 수 없지만 직접 받을 수 있기때문에 동시 사용 가능이 가능하므로 synchronized (mailbox) 를 걸어주어야 한다.
+		 * </pre>
+		 */
 		synchronized (mailbox) {
 			try {				
 				mailbox.setActive();
@@ -488,6 +485,12 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 			isInterrupted = true;
 		}
 		
+		/**
+		 * <pre>
+		 * 공유+비동기 연결 객체를 직접 받을 수 없지만 동시 사용이 가능 하므로 synchronized (mailbox) 를 걸어주어야 한다.
+		 * 비공유+비동기 연결 객체는 원칙적으로 공유할 수 없지만 직접 받을 수 있기때문에 동시 사용 가능이 가능하므로 synchronized (mailbox) 를 걸어주어야 한다.
+		 * </pre>
+		 */		
 		synchronized (mailbox) {
 			try {
 				mailbox.setActive();

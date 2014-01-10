@@ -40,6 +40,6 @@ public class NoLoginEchoSExtor extends AbstractServerExecutor {
 			throws MessageInfoNotFoundException, MessageItemException {
 
 		OutputMessage outObj = messageManger.createOutputMessage("NoLoginEcho");		
-		letterSender.sendSelf(outObj);
+		letterSender.sendSync(outObj);
 	}
 }

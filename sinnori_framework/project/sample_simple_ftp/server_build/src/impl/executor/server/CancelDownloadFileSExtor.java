@@ -40,7 +40,7 @@ public final class CancelDownloadFileSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("resultMessage", String.format("존재하지 않는 서버 원본 파일[%d] 식별자입니다.", serverSourceFileID));
 			outObj.setAttribute("serverSourceFileID", serverSourceFileID);
 			outObj.setAttribute("clientTargetFileID", clientTargetFileID);
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 			return;
 		}
 		
@@ -53,6 +53,6 @@ public final class CancelDownloadFileSExtor extends AbstractAuthServerExecutor {
 		outObj.setAttribute("resultMessage", String.format("서버 다운로드용 원본 파일[%d] 자원을 성공적으로 해제하였습니다.", serverSourceFileID));
 		outObj.setAttribute("serverSourceFileID", serverSourceFileID);
 		outObj.setAttribute("clientTargetFileID", clientTargetFileID);
-		letterSender.sendSelf(outObj);
+		letterSender.sendSync(outObj);
 	}
 }

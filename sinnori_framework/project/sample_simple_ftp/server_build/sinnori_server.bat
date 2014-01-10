@@ -6,4 +6,4 @@ set SERVER_BUILD_LOC=%SINNORI_FRAMEWORK_LOC%\project\%SINNORI_PROJECT_NAME%\serv
 set SINNORI_PROJECT_LOG_PATH=%SINNORI_FRAMEWORK_LOC%\project\%SINNORI_PROJECT_NAME%\log\server
 set SINNORI_PROJECT_CONFIG_FILE=%SINNORI_FRAMEWORK_LOC%\project\%SINNORI_PROJECT_NAME%\config\project_config.properties
 
-java -jar %SERVER_BUILD_LOC%\dist\SinnoriServerMain.jar
+java %JAVA_OPTS% -jar %SERVER_BUILD_LOC%\dist\SinnoriServerMain.jar

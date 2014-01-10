@@ -8,4 +8,4 @@ set SINNORI_PROJECT_LOG_PATH=%SINNORI_FRAMEWORK_LOC%\project\%SINNORI_PROJECT_NA
 set SINNORI_PROJECT_CONFIG_FILE=%SINNORI_FRAMEWORK_LOC%\project\%SINNORI_PROJECT_NAME%\config\project_config.properties
 
 
-java -jar %APPCLIENT_BUILD_LOC%\dist\SinnoriAppClientMain.jar
+java %JAVA_OPTS% -jar %APPCLIENT_BUILD_LOC%\dist\SinnoriAppClientMain.jar

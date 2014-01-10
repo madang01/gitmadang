@@ -47,7 +47,7 @@ public final class DownFileInfoSExtor extends AbstractAuthServerExecutor {
 				outObj.setAttribute("clientTargetFileID", clientTargetFileID);
 				outObj.setAttribute("serverSourceFileID", -1);
 				// letterToClientList.addLetterToClient(fromSC, outObj);
-				letterSender.sendSelf(outObj);
+				letterSender.sendSync(outObj);
 				return;
 			}
 			
@@ -64,7 +64,7 @@ public final class DownFileInfoSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("resultMessage", "업로드할 파일을 받아줄 준비가 되었습니다.");
 			outObj.setAttribute("clientTargetFileID", clientTargetFileID);
 			outObj.setAttribute("serverSourceFileID", serverSourceFileID);
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 		} catch (IllegalArgumentException e) {
 			log.info("IllegalArgumentException", e);
 			
@@ -77,7 +77,7 @@ public final class DownFileInfoSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("clientTargetFileID", clientTargetFileID);
 			outObj.setAttribute("serverSourceFileID", -1);
 			// letterToClientList.addLetterToClient(fromSC, outObj);
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 		} catch (UpDownFileException e) {
 			log.info("UpDownFileException", e);
 			
@@ -86,7 +86,7 @@ public final class DownFileInfoSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("clientTargetFileID", clientTargetFileID);
 			outObj.setAttribute("serverSourceFileID", -1);
 			// letterToClientList.addLetterToClient(fromSC, outObj);
-			letterSender.sendSelf(outObj);
+			letterSender.sendSync(outObj);
 		}
 		
 		log.info("end");

@@ -22,7 +22,7 @@ package kr.pe.sinnori.server.threadpool.outputmessage;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.common.configuration.ServerProjectConfigIF;
-import kr.pe.sinnori.common.io.MessageExchangeProtocolIF;
+import kr.pe.sinnori.common.io.MessageProtocolIF;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
@@ -37,7 +37,7 @@ import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriter
 public class OutputMessageWriterPool extends AbstractThreadPool {
 	private int maxHandler;
 	private ServerProjectConfigIF serverProjectConfig;
-	private MessageExchangeProtocolIF messageProtocol;
+	private MessageProtocolIF messageProtocol;
 	private MessageMangerIF messageManger;
 	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManger;
 	private LinkedBlockingQueue<LetterToClient> outputMessageQueue = null;
@@ -55,7 +55,7 @@ public class OutputMessageWriterPool extends AbstractThreadPool {
 	public OutputMessageWriterPool(int size, int max,
 			ServerProjectConfigIF serverProjectConfig,
 			LinkedBlockingQueue<LetterToClient> outputMessageQueue,
-			MessageExchangeProtocolIF messageProtocol,
+			MessageProtocolIF messageProtocol,
 			MessageMangerIF messageManger,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManger) {
 		if (size <= 0) {

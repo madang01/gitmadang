@@ -26,8 +26,6 @@ import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.UnknownItemTypeException;
 import kr.pe.sinnori.common.io.FixedSizeOutputStream;
-import kr.pe.sinnori.common.io.SingleItemJConverterByTypeIF;
-import kr.pe.sinnori.common.io.SingleItemJConverterIF;
 import kr.pe.sinnori.common.io.djson.header.DJSONHeader;
 import kr.pe.sinnori.common.lib.CharsetUtil;
 import kr.pe.sinnori.common.lib.CommonRootIF;
@@ -44,41 +42,41 @@ import org.json.simple.JSONObject;
  * @author Jonghoon won
  *
  */
-public class DJSONSingleItemConverter implements CommonRootIF, SingleItemJConverterIF {
+public class DJSONSingleItem2JSON implements CommonRootIF, DJSONSingleItem2JSONIF {
 	public static final int BYTE_ARRAY_MAX_LENGTH = Integer.MAX_VALUE/8;
 
 	
-	private SingleItemJConverterByTypeIF[] converterByTypeList = new SingleItemJConverterByTypeIF[] { 
-			new ConverterDJSONByte(), new ConverterDJSONUnsignedByte(), 
-			new ConverterDJSONShort(), new ConverterDJSONUnsignedShort(),
-			new ConverterDJSONInt(), new ConverterDJSONUnsignedInt(), 
-			new ConverterDJSONLong(), new ConverterDJSONUBPascalString(),
-			new ConverterDJSONUSPascalString(), new ConverterDJSONSIPascalString(), 
-			new ConverterDJSONFixedLengthString(), new ConverterDJSONUBVariableLengthBytes(), 
-			new ConverterDJSONUSVariableLengthBytes(), new ConverterDJSONSIVariableLengthBytes(), 
-			new ConverterDJSONFixedLengthBytes()
+	private DJSONSingleItemType2JSONIF[] jsonSingleItemType2JSONList = new DJSONSingleItemType2JSONIF[] { 
+			new DJSONSingleItemByte2JSON(), new DJSONSingleItemUnsignedByte2JSON(), 
+			new DJSONSingleItemShort2JSON(), new DJSONSingleItemUnsignedShort2JSON(),
+			new DJSONSingleItemInt2JSON(), new DJSONSingleItemUnsignedInt2JSON(), 
+			new DJSONSingleItemLong2JSON(), new DJSONSingleItemUBPascalString2JSON(),
+			new DJSONSingleItemUSPascalString2JSON(), new DJSONSingleItemSIPascalString2JSON(), 
+			new DJSONSingleItemFixedLengthString2JSON(), new DJSONSingleItemUBVariableLengthBytes2JSON(), 
+			new DJSONSingleItemUSVariableLengthBytes2JSON(), new DJSONSingleItemSIVariableLengthBytes2JSON(), 
+			new DJSONSingleItemFixedLengthBytes2JSON()
 	};
 	
 	/**
 	 * 생성자
 	 */
-	public DJSONSingleItemConverter() {
+	public DJSONSingleItem2JSON() {
 		ItemTypeManger itemTypeManger = ItemTypeManger.getInstance();
 		
 		int itemTypeCnt = itemTypeManger.getItemTypeCnt();
 		
-		if (itemTypeCnt != converterByTypeList.length) {
+		if (itemTypeCnt != jsonSingleItemType2JSONList.length) {
 			String errorMessage = 
 					String.format("송신 단일 항목 변환기 목록 크기[%d]와 항목 타입 관리자의 크기[%d]가 다릅니다.", 
-							converterByTypeList.length, itemTypeCnt);
+							jsonSingleItemType2JSONList.length, itemTypeCnt);
 			log.fatal(errorMessage);
 			
 			log.fatal("송신 단일 항목 변환기 목록 크기와 항목 타입 관리자의 크기가 다릅니다.");
 			System.exit(1);
 		}
 		
-		for (int i=0; i < converterByTypeList.length; i++) {
-			String itemType = converterByTypeList[i].getItemType();
+		for (int i=0; i < jsonSingleItemType2JSONList.length; i++) {
+			String itemType = jsonSingleItemType2JSONList[i].getItemType();
 			try {
 				int itemTypeID = itemTypeManger.getItemTypeID(itemType);
 				
@@ -100,7 +98,7 @@ public class DJSONSingleItemConverter implements CommonRootIF, SingleItemJConver
 	public void I2S(String itemName, int itemTypeID, Object itemValue,
 			int itemSizeForLang, Charset itemCharsetForLang, JSONObject jsonObj)
 			throws BodyFormatException, IllegalArgumentException {
-		converterByTypeList[itemTypeID].putValue(itemName, itemValue, itemSizeForLang, itemCharsetForLang, jsonObj);
+		jsonSingleItemType2JSONList[itemTypeID].putValue(itemName, itemValue, itemSizeForLang, itemCharsetForLang, jsonObj);
 		
 	}
 
@@ -110,12 +108,12 @@ public class DJSONSingleItemConverter implements CommonRootIF, SingleItemJConver
 			JSONObject jsonObj) throws IllegalArgumentException,
 			BodyFormatException {
 		itemValueHash.put(itemName,
-				converterByTypeList[itemTypeID].getValue(itemName, itemSizeForLang, itemCharsetForLang, jsonObj));
+				jsonSingleItemType2JSONList[itemTypeID].getValue(itemName, itemSizeForLang, itemCharsetForLang, jsonObj));
 		
 	}
 	
 	/** DJSON 프로토콜의 byte 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDJSONByte implements SingleItemJConverterByTypeIF {
+	private final class DJSONSingleItemByte2JSON implements DJSONSingleItemType2JSONIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, JSONObject jsonObj) throws IllegalArgumentException, BodyFormatException {
@@ -170,7 +168,7 @@ public class DJSONSingleItemConverter implements CommonRootIF, SingleItemJConver
 	}
 
 	/** DJSON 프로토콜의 unsigned byte 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDJSONUnsignedByte implements SingleItemJConverterByTypeIF {
+	private final class DJSONSingleItemUnsignedByte2JSON implements DJSONSingleItemType2JSONIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, JSONObject jsonObj) throws IllegalArgumentException, BodyFormatException {
@@ -223,7 +221,7 @@ public class DJSONSingleItemConverter implements CommonRootIF, SingleItemJConver
 	}
 
 	/** DJSON 프로토콜의 short 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDJSONShort implements SingleItemJConverterByTypeIF {
+	private final class DJSONSingleItemShort2JSON implements DJSONSingleItemType2JSONIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, JSONObject jsonObj) throws IllegalArgumentException, BodyFormatException {
@@ -277,7 +275,7 @@ public class DJSONSingleItemConverter implements CommonRootIF, SingleItemJConver
 	}
 
 	/** DJSON 프로토콜의 unsigned short 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDJSONUnsignedShort implements SingleItemJConverterByTypeIF {
+	private final class DJSONSingleItemUnsignedShort2JSON implements DJSONSingleItemType2JSONIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, JSONObject jsonObj) throws IllegalArgumentException, BodyFormatException {
@@ -332,7 +330,7 @@ public class DJSONSingleItemConverter implements CommonRootIF, SingleItemJConver
 	}
 
 	/** DJSON 프로토콜의 integer 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDJSONInt implements SingleItemJConverterByTypeIF {
+	private final class DJSONSingleItemInt2JSON implements DJSONSingleItemType2JSONIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, JSONObject jsonObj) throws IllegalArgumentException, BodyFormatException {
@@ -387,7 +385,7 @@ public class DJSONSingleItemConverter implements CommonRootIF, SingleItemJConver
 	}
 
 	/** DJSON 프로토콜의 unsigned integer 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDJSONUnsignedInt implements SingleItemJConverterByTypeIF {
+	private final class DJSONSingleItemUnsignedInt2JSON implements DJSONSingleItemType2JSONIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, JSONObject jsonObj) throws IllegalArgumentException, BodyFormatException {
@@ -440,7 +438,7 @@ public class DJSONSingleItemConverter implements CommonRootIF, SingleItemJConver
 	}
 
 	/** DJSON 프로토콜의 long 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDJSONLong implements SingleItemJConverterByTypeIF {
+	private final class DJSONSingleItemLong2JSON implements DJSONSingleItemType2JSONIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, JSONObject jsonObj) throws IllegalArgumentException, BodyFormatException {
@@ -486,7 +484,7 @@ public class DJSONSingleItemConverter implements CommonRootIF, SingleItemJConver
 	}
 
 	/** DJSON 프로토콜의 ub pascal string 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDJSONUBPascalString implements SingleItemJConverterByTypeIF {
+	private final class DJSONSingleItemUBPascalString2JSON implements DJSONSingleItemType2JSONIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, JSONObject jsonObj) throws IllegalArgumentException, BodyFormatException {
@@ -537,7 +535,7 @@ public class DJSONSingleItemConverter implements CommonRootIF, SingleItemJConver
 	}
 
 	/** DJSON 프로토콜의 us pascal string 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDJSONUSPascalString implements SingleItemJConverterByTypeIF {
+	private final class DJSONSingleItemUSPascalString2JSON implements DJSONSingleItemType2JSONIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, JSONObject jsonObj) throws IllegalArgumentException, BodyFormatException {
@@ -588,7 +586,7 @@ public class DJSONSingleItemConverter implements CommonRootIF, SingleItemJConver
 	}
 
 	/** DJSON 프로토콜의 si pascal string 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDJSONSIPascalString implements SingleItemJConverterByTypeIF {
+	private final class DJSONSingleItemSIPascalString2JSON implements DJSONSingleItemType2JSONIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, JSONObject jsonObj) throws IllegalArgumentException, BodyFormatException {
@@ -633,7 +631,7 @@ public class DJSONSingleItemConverter implements CommonRootIF, SingleItemJConver
 	}
 
 	/** DJSON 프로토콜의 fixed length string 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDJSONFixedLengthString implements SingleItemJConverterByTypeIF {
+	private final class DJSONSingleItemFixedLengthString2JSON implements DJSONSingleItemType2JSONIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, JSONObject jsonObj) throws IllegalArgumentException, BodyFormatException {
@@ -706,7 +704,7 @@ public class DJSONSingleItemConverter implements CommonRootIF, SingleItemJConver
 	
 
 	/** DJSON 프로토콜의 ub variable length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDJSONUBVariableLengthBytes implements SingleItemJConverterByTypeIF {
+	private final class DJSONSingleItemUBVariableLengthBytes2JSON implements DJSONSingleItemType2JSONIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, JSONObject jsonObj) throws IllegalArgumentException, BodyFormatException {
@@ -782,7 +780,7 @@ public class DJSONSingleItemConverter implements CommonRootIF, SingleItemJConver
 	}
 
 	/** DJSON 프로토콜의 us variable length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDJSONUSVariableLengthBytes implements SingleItemJConverterByTypeIF {
+	private final class DJSONSingleItemUSVariableLengthBytes2JSON implements DJSONSingleItemType2JSONIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, JSONObject jsonObj) throws IllegalArgumentException, BodyFormatException {
@@ -858,7 +856,7 @@ public class DJSONSingleItemConverter implements CommonRootIF, SingleItemJConver
 	}
 	
 	/** DJSON 프로토콜의 si variable length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDJSONSIVariableLengthBytes implements SingleItemJConverterByTypeIF {
+	private final class DJSONSingleItemSIVariableLengthBytes2JSON implements DJSONSingleItemType2JSONIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, JSONObject jsonObj) throws IllegalArgumentException, BodyFormatException {
@@ -927,7 +925,7 @@ public class DJSONSingleItemConverter implements CommonRootIF, SingleItemJConver
 	}
 	
 	/** DJSON 프로토콜의 fixed length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class ConverterDJSONFixedLengthBytes implements SingleItemJConverterByTypeIF {
+	private final class DJSONSingleItemFixedLengthBytes2JSON implements DJSONSingleItemType2JSONIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
 				Charset itemCharsetForLang, JSONObject jsonObj) throws IllegalArgumentException, BodyFormatException {
