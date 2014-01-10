@@ -18,6 +18,7 @@
 package kr.pe.sinnori.common.io.dhb;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
@@ -46,6 +47,8 @@ import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
 import kr.pe.sinnori.common.util.HexUtil;
 
+import org.apache.commons.codec.binary.Hex;
+
 /**
  * 메시지 교환 프로토콜 DHB 를 구현한 클래스.
  * 
@@ -65,6 +68,8 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 	private int messageHeaderSize;
 	// private int bodyMD5Offset;
 	private int headerMD5Offset;
+	
+	private ByteOrder byteOrderOfProject = null;
 
 	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManager = null;
 	private DHBSingleItem2Stream dhbSingleItem2Stream = null;
@@ -79,6 +84,8 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 		// DHBMessageHeader.getBodyMD5Offset(messageIDFixedSize);
 		this.headerMD5Offset = DHBMessageHeader
 				.getHeaderMD5Offset(messageIDFixedSize);
+		
+		this.byteOrderOfProject = dataPacketBufferQueueManager.getByteOrder();
 
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 
@@ -126,7 +133,7 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 				.getByteBuffer();
 		firstWorkBuffer.flip();
 		ByteBuffer firstDupBuffer = firstWorkBuffer.duplicate();
-		firstDupBuffer.order(dataPacketBufferQueueManager.getByteOrder());
+		firstDupBuffer.order(byteOrderOfProject);
 		firstDupBuffer.position(messageHeaderSize);
 		md5.update(firstDupBuffer);
 
@@ -135,6 +142,7 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 					.getByteBuffer();
 			workBuffer.flip();
 			ByteBuffer dupBuffer = workBuffer.duplicate();
+			dupBuffer.order(byteOrderOfProject);
 			md5.update(dupBuffer);
 		}
 
@@ -183,42 +191,40 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 			log.fatal(String.format("messageReadWrapBufferListSize is zero"));
 			System.exit(1);
 		}
+		
+		/** 최종적으로 읽어온 마지막 버퍼의 인덱스와 위치를 기억합니다. */
+		// int lastIndex = messageReadWrapBufferListSize - 1;
+		ByteBuffer lastInputStreamBuffer = messageInputStreamResource
+				.getLastDataPacketBuffer();
+		// int lastPosition = lastInputStreamBuffer.position();
+
+		/**
+		 * 소켓별 스트림 자원을 갖는다. 스트림은 데이터 패킷 버퍼 목록으로 구현한다.<br/>
+		 * 반환되는 스트림은 데이터 패킷 버퍼의 속성을 건들지 않기 위해서 복사본으로 구성되며 읽기 가능 상태이다.<br/>
+		 * 내부 처리를 요약하면 All ByteBuffer.duplicate().flip() 이다.<br/>
+		 * 매번 새로운 스트림이 만들어지는 단점이 있다. <br/>
+		 */
+		FreeSizeInputStream freeSizeInputStream = messageInputStreamResource
+				.getFreeSizeInputStream(charsetOfProjectDecoder);
+		
+		ArrayList<ByteBuffer> streamBufferList = freeSizeInputStream
+				.getStreamBufferList();
+		int streamBufferListSize = streamBufferList.size();
+		/**
+		 * 메시지들을 추출후 메시지들이 놓인 영역은 삭제합니다. 따라서 데이터 패킷 버퍼 목록의 시작 인덱스와 시작위치는 0이
+		 * 됩니다.
+		 */
+		int startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
+		int startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
 
 		try {
-
-			/**
-			 * 메시지들을 추출후 메시지들이 놓인 영역은 삭제합니다. 따라서 데이터 패킷 버퍼 목록의 시작 인덱스와 시작위치는 0이
-			 * 됩니다.
-			 */
-			int startIndex = 0;
-			int startPosition = 0;
-			/** 최종적으로 읽어온 마지막 버퍼의 인덱스와 위치를 기억합니다. */
-			int lastIndex = messageReadWrapBufferListSize - 1;
-			ByteBuffer lastInputStreamBuffer = messageInputStreamResource
-					.getLastDataPacketBuffer();
-			int lastPosition = lastInputStreamBuffer.position();
-
-			/**
-			 * 소켓별 스트림 자원을 갖는다. 스트림은 데이터 패킷 버퍼 목록으로 구현한다.<br/>
-			 * 반환되는 스트림은 데이터 패킷 버퍼의 속성을 건들지 않기 위해서 복사본으로 구성되며 읽기 가능 상태이다.<br/>
-			 * 내부 처리를 요약하면 All ByteBuffer.duplicate().flip() 이다.<br/>
-			 * 매번 새로운 스트림이 만들어지는 단점이 있다. <br/>
-			 */
-			FreeSizeInputStream freeSizeInputStream = messageInputStreamResource
-					.getFreeSizeInputStream(charsetOfProjectDecoder);
-
 			// long inputStramSizeBeforeMessageWork = (lastIndex - startIndex) *
 			// dataPacketBufferSize - startPosition + lastPosition;
 			long inputStramSizeBeforeMessageWork = freeSizeInputStream
 					.remaining();
-
-			log.info(String
-					.format("1. lastIndex=[%d], lastPosition=[%d], inputStramSizeBeforeMessageWork[%d]",
-							lastIndex, lastPosition, inputStramSizeBeforeMessageWork));
-
-			ArrayList<ByteBuffer> streamBufferList = freeSizeInputStream
-					.getStreamBufferList();
-			int streamBufferListSize = streamBufferList.size();
+			
+			/*log.info(String.format("1. messageHeaderSize=[%d], inputStramSizeBeforeMessageWork[%d]",
+					messageHeaderSize, inputStramSizeBeforeMessageWork));*/
 
 			do {
 				// log.debug(String.format("1. messageReadWrapBufferListSize=[%d], lastInputStreamBuffer=[%s], inputStramSizeBeforeMessageWork=[%d]",
@@ -233,24 +239,35 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 
 					byte[] headerMD5 = null;
 
-					startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
-					// startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
-
 					int spaceBytesOfHeaderMD5 = headerMD5Offset;
 
 					for (int i = startIndex; i < streamBufferListSize; i++) {
 						ByteBuffer dupByteBuffer = streamBufferList.get(i)
 								.duplicate();
-						// dupByteBuffer.order(messageInputStreamResource.getByteOrder());
+						dupByteBuffer.order(byteOrderOfProject);
+						// log.info(String.format("1.i[%d] spaceBytesOfHeaderMD5[%d] %s", i, spaceBytesOfHeaderMD5, dupByteBuffer.toString()));
+						
+						
 						int spaceBytesOfDupByteBuffer = dupByteBuffer
 								.remaining();
 						if (spaceBytesOfHeaderMD5 <= spaceBytesOfDupByteBuffer) {
 							dupByteBuffer.limit(dupByteBuffer.position()
 									+ spaceBytesOfHeaderMD5);
+							
+							// FIXME!
+							//log.info(String.format("3.i[%d] spaceBytesOfHeaderMD5[%d]", i, spaceBytesOfHeaderMD5));
+							//log.info(String.format("%s", dupByteBuffer.toString()));
+							//log.info(String.format("%s", HexUtil.byteBufferAvailableToHex(dupByteBuffer)));
+							
 							md5.update(dupByteBuffer);
 							headerMD5 = md5.digest();
+							
+							//log.info(String.format("3.%s", HexUtil.byteArrayAllToHex(headerMD5)));
 							break;
 						} else {
+							// FIXME!
+							//log.info(String.format("2.i[%d] spaceBytesOfHeaderMD5[%d] %s", i, spaceBytesOfHeaderMD5, dupByteBuffer.toString()));
+							
 							md5.update(dupByteBuffer);
 							spaceBytesOfHeaderMD5 -= spaceBytesOfDupByteBuffer;
 						}
@@ -273,9 +290,9 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 					workMessageHeader.mailID = freeSizeInputStream.getInt();
 					workMessageHeader.bodySize = freeSizeInputStream.getLong();
 					workMessageHeader.bodyMD5 = freeSizeInputStream
-							.getBytes(workMessageHeader.messageHeaderSize);
+							.getBytes(DHBMessageHeader.MD5_BYTESIZE);
 					workMessageHeader.headerMD5 = freeSizeInputStream
-							.getBytes(workMessageHeader.messageHeaderSize);
+							.getBytes(DHBMessageHeader.MD5_BYTESIZE);
 
 					if (workMessageHeader.bodySize < 0) {
 						// header format exception
@@ -290,19 +307,33 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 
 					if (!isValidHeaderMD5) {
 						String errorMessage = String.format(
-								"different header MD5, %s",
-								workMessageHeader.toString());
+								"different header MD5, %s, headerMD5[%s]",
+								workMessageHeader.toString(), Hex.encodeHexString(headerMD5));
 
 						throw new HeaderFormatException(errorMessage);
 					}
 
 					messageHeader = workMessageHeader;
+				}
 
+				if (null != messageHeader) {
+					//log.info(String.format("2. startIndex=[%d], startPosition=[%d], messageHeader=[%s]", startIndex, startPosition, messageHeader.toString()));
+					
 					long messageFrameSize = messageHeader.messageHeaderSize
 							+ messageHeader.bodySize;
 
 					if (inputStramSizeBeforeMessageWork >= messageFrameSize) {
 						/** 메시지 추출 */
+						
+						long postionBeforeReadingBody = freeSizeInputStream.position();
+						long expectedPosition = startIndex*lastInputStreamBuffer.capacity()+startPosition+messageHeaderSize;
+						
+						//log.info(String.format("3. messageFrameSize=[%d], postionBeforeReadingBody=[%d], expectedPosition=[%d]", messageFrameSize, postionBeforeReadingBody, expectedPosition));
+						
+						if (expectedPosition != postionBeforeReadingBody) {
+							postionBeforeReadingBody = expectedPosition;
+							freeSizeInputStream.skip(expectedPosition);
+						}
 
 						/** body MD5 구하기 */
 						int startBodyIndex = freeSizeInputStream
@@ -310,15 +341,19 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 						// int startBodyPostion = freeSizeInputStream.getPositionOfWorkBuffer();
 						byte[] bodyMD5 = null;
 						long spaceBytesOfBodyMD5 = messageHeader.bodySize;
+						// md5.reset();
 						for (int i = startBodyIndex; i < streamBufferListSize; i++) {
 							ByteBuffer dupByteBuffer = streamBufferList.get(i)
 									.duplicate();
-							// dupByteBuffer.order(messageInputStreamResource.getByteOrder());
-							int spaceBytesOfDupByteBuffer = dupByteBuffer
-									.remaining();
+							dupByteBuffer.order(byteOrderOfProject);
+														
+							int spaceBytesOfDupByteBuffer = dupByteBuffer.remaining();
+							
+							// FIXME!
+							//log.info(String.format("4. dupByteBuffer[%d]=[%s], spaceBytesOfBodyMD5=[%d], spaceBytesOfDupByteBuffer=[%d]", i, dupByteBuffer.toString(), spaceBytesOfBodyMD5, spaceBytesOfDupByteBuffer));
+							
 							if (spaceBytesOfBodyMD5 <= spaceBytesOfDupByteBuffer) {
-								dupByteBuffer.limit(dupByteBuffer.position()
-										+ spaceBytesOfHeaderMD5);
+								dupByteBuffer.limit(dupByteBuffer.position() + (int)spaceBytesOfBodyMD5);
 								md5.update(dupByteBuffer);
 								bodyMD5 = md5.digest();
 								break;
@@ -340,8 +375,7 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 							throw new HeaderFormatException(errorMessage);
 						}
 
-						long postionBeforeReadingBody = freeSizeInputStream
-								.position();
+						
 
 						if (targetClass.equals(InputMessage.class)) {
 							InputMessage workInObj = null;
@@ -350,18 +384,18 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 										.createInputMessage(messageHeader.messageID);
 								workInObj.messageHeaderInfo.mailboxID = messageHeader.mailboxID;
 								workInObj.messageHeaderInfo.mailID = messageHeader.mailID;
-
+								
 								workInObj.O2M(freeSizeInputStream,
-										dhbSingleItem2Stream);
+										dhbSingleItem2Stream);								
 
-								long postionAfterReadingBody = freeSizeInputStream
-										.position();
-
-								if ((postionAfterReadingBody - postionBeforeReadingBody) != messageHeader.bodySize) {
+								long postionAfterReadingBody = freeSizeInputStream.position();
+								long bodySize = postionAfterReadingBody - postionBeforeReadingBody;
+								
+								if (bodySize != messageHeader.bodySize) {
 									// FIXME! 잔존 데이터 있음.
 									String errorMessage = String.format(
-											"메시지[%s]를 읽는 과정에서 잔존 데이터가 남았습니다.",
-											workInObj.toString());
+											"메시지[%s]를 읽는 과정에서 잔존 데이터[%d bytes]가 남았습니다.",
+											workInObj.toString(), (messageHeader.bodySize - bodySize));
 									// log.warn(errorMessage, e);
 									throw new HeaderFormatException(
 											errorMessage);
@@ -448,11 +482,15 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 								workOutObj.O2M(freeSizeInputStream,
 										dhbSingleItem2Stream);
 
-								if (freeSizeInputStream.remaining() > 0) {
+								long postionAfterReadingBody = freeSizeInputStream.position();
+								
+								long bodySize = postionAfterReadingBody - postionBeforeReadingBody;
+								
+								if (bodySize != messageHeader.bodySize) {
 									// FIXME! 잔존 데이터 있음.
 									String errorMessage = String.format(
-											"메시지[%s]를 읽는 과정에서 잔존 데이터가 남았습니다.",
-											workOutObj.toString());
+											"메시지[%s]를 읽는 과정에서 잔존 데이터[%d bytes]가 남았습니다.",
+											workOutObj.toString(), (messageHeader.bodySize - bodySize));
 									// log.warn(errorMessage, e);
 									throw new HeaderFormatException(
 											errorMessage);
@@ -532,15 +570,16 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 						inputStramSizeBeforeMessageWork = freeSizeInputStream.remaining();
 						if (inputStramSizeBeforeMessageWork > messageHeaderSize) {
 							isMoreMessage = true;
-							messageHeader = null;
 						}
+						
+						startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
+						startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
+						messageHeader = null;
 					}
 				}
 			} while (isMoreMessage);
 			
 			if (messageList.size() > 0) {
-				startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
-				startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
 				messageInputStreamResource.truncate(startIndex, startPosition);
 			} else if (!lastInputStreamBuffer.hasRemaining()) {
 				/** 메시지 추출 실패했는데도 마지막 버퍼가 꽉차있다면 스트림 크기를 증가시킨다. 단 설정파일 환경변수 "메시지당 최대 데이터 패킷 갯수" 만큼만 증가될수있다. */

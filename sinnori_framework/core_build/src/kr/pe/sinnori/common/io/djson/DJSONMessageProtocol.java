@@ -127,60 +127,57 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageProtocolIF {
 			System.exit(1);
 		}
 		
-		try {
-			/** 메시지들을 추출후 메시지들이 놓인 영역은 삭제합니다. 따라서 데이터 패킷 버퍼 목록의 시작 인덱스와 시작위치는 0이 됩니다. */   
-			int startIndex = 0;
-			int startPosition = 0;
-			/** 최종적으로 읽어온 마지막 버퍼의 인덱스와 위치를 기억합니다. */
-			int lastIndex = messageReadWrapBufferListSize - 1;
-			ByteBuffer lastInputStreamBuffer = messageInputStreamResource.getLastDataPacketBuffer();
-			int lastPosition = lastInputStreamBuffer.position();
-			
-			/**
-			 * 소켓별 스트림 자원을 갖는다. 스트림은 데이터 패킷 버퍼 목록으로 구현한다.<br/>
-			 * 반환되는 스트림은 데이터 패킷 버퍼의 속성을 건들지 않기 위해서 복사본으로 구성되며 읽기 가능 상태이다.<br/>
-			 * 내부 처리를 요약하면 All ByteBuffer.duplicate().flip() 이다.<br/>
-			 * 매번 새로운 스트림이 만들어지는 단점이 있다. <br/>  
-			 */
-			FreeSizeInputStream freeSizeInputStream = messageInputStreamResource.getFreeSizeInputStream(charsetOfProjectDecoder);
-			
+		/**
+		 * 소켓별 스트림 자원을 갖는다. 스트림은 데이터 패킷 버퍼 목록으로 구현한다.<br/>
+		 * 반환되는 스트림은 데이터 패킷 버퍼의 속성을 건들지 않기 위해서 복사본으로 구성되며 읽기 가능 상태이다.<br/>
+		 * 내부 처리를 요약하면 All ByteBuffer.duplicate().flip() 이다.<br/>
+		 * 매번 새로운 스트림이 만들어지는 단점이 있다. <br/>
+		 */
+		FreeSizeInputStream freeSizeInputStream = messageInputStreamResource
+				.getFreeSizeInputStream(charsetOfProjectDecoder);
+		ByteBuffer lastInputStreamBuffer = messageInputStreamResource
+				.getLastDataPacketBuffer();
+		
+		int startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
+		int startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
+		
+		try {			
 			// long inputStramSizeBeforeMessageWork = (lastIndex - startIndex) * dataPacketBufferSize - startPosition + lastPosition;
 			long inputStramSizeBeforeMessageWork = freeSizeInputStream.remaining();
 			
-			log.info(String.format("1. startIndex=[%d], startPosition=[%d], lastIndex=[%d], lastPosition=[%d], inputStramSizeBeforeMessageWork[%d]"
-					, startIndex, startPosition, lastIndex, lastPosition, inputStramSizeBeforeMessageWork));
+			/*log.info(String.format("1. messageHeaderSize=[%d], inputStramSizeBeforeMessageWork[%d]",
+					messageHeaderSize, inputStramSizeBeforeMessageWork));*/
 			
 			do {
 				isMoreMessage = false;
 				
 				if (null == messageHeader
 						&& inputStramSizeBeforeMessageWork >= messageHeaderSize) {
-			
 					
-					
-					/** 스트림 통해서 헤더 읽기 */
-					// int positionOfStream = startIndex*dataPacketBufferSize+startPosition;
-					// if (positionOfStream > 0) freeSizeInputStream.skip((long)startIndex*dataPacketBufferSize+startPosition);
-					
+					/** 스트림 통해서 헤더 읽기 */					
 					DJSONHeader  workMessageHeader = new DJSONHeader();
 					workMessageHeader.lenOfJSONStr = freeSizeInputStream.getInt();
 					
 					
-					
-					// log.debug(String.format("3.1 dupMessageHeaderBuffer=[%s]", dupMessageHeaderBuffer.toString()));
-					
-					
-					
-					// log.debug(String.format("3.2 dupMessageHeaderBuffer=[%s]", dupMessageHeaderBuffer.toString()));
-					//log.debug(String.format("4. lastInputStreamBuffer=[%s]", lastInputStreamBuffer.toString()));
-					// log.debug(workMessageHeader.toString());
-					
 					messageHeader = workMessageHeader;
-					
+				}
+				
+				if (null != messageHeader) {					
 					long messageFrameSize = (long)messageHeader.lenOfJSONStr + messageHeaderSize;
 					
 					if (inputStramSizeBeforeMessageWork >= messageFrameSize) {
 						/** 메시지 추출*/
+						long postionBeforeReadingBody = freeSizeInputStream.position();
+						
+						long expectedPosition = startIndex*lastInputStreamBuffer.capacity()+startPosition+messageHeaderSize;
+						
+						// log.info(String.format("3. messageFrameSize=[%d], postionBeforeReadingBody=[%d], expectedPosition=[%d]", messageFrameSize, postionBeforeReadingBody, expectedPosition));
+						
+						if (expectedPosition != postionBeforeReadingBody) {
+							postionBeforeReadingBody = expectedPosition;
+							freeSizeInputStream.skip(expectedPosition);
+						}
+						
 						String jsonStr = null;
 						try {
 							jsonStr = freeSizeInputStream.getString(messageHeader.lenOfJSONStr, DJSONHeader.JSON_STRING_CHARSET.newDecoder());
@@ -195,8 +192,6 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageProtocolIF {
 							throw new HeaderFormatException(errorMessage);
 						}
 						
-						startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
-						startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
 											
 						JSONObject jsonObj = null;
 						
@@ -346,8 +341,10 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageProtocolIF {
 						inputStramSizeBeforeMessageWork = freeSizeInputStream.remaining();
 						if (inputStramSizeBeforeMessageWork > messageHeaderSize) {
 							isMoreMessage = true;
-							messageHeader = null;
 						}
+						messageHeader = null;
+						startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
+						startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
 					}
 				}
 			} while (isMoreMessage);

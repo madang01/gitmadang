@@ -144,28 +144,30 @@ public class THBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 			System.exit(1);
 		}
 		
+		/**
+		 * 소켓별 스트림 자원을 갖는다. 스트림은 데이터 패킷 버퍼 목록으로 구현한다.<br/>
+		 * 반환되는 스트림은 데이터 패킷 버퍼의 속성을 건들지 않기 위해서 복사본으로 구성되며 읽기 가능 상태이다.<br/>
+		 * 내부 처리를 요약하면 All ByteBuffer.duplicate().flip() 이다.<br/>
+		 * 매번 새로운 스트림이 만들어지는 단점이 있다. <br/>
+		 */
+		FreeSizeInputStream freeSizeInputStream = messageInputStreamResource
+				.getFreeSizeInputStream(charsetOfProjectDecoder);
+		ByteBuffer lastInputStreamBuffer = messageInputStreamResource
+				.getLastDataPacketBuffer();
+		
+		int startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
+		int startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
+		
 		try {
-			ByteBuffer lastInputStreamBuffer = messageInputStreamResource
-					.getLastDataPacketBuffer();
-			int lastIndex = messageReadWrapBufferListSize - 1;
-			int lastPosition = lastInputStreamBuffer.position();
-			
-			/**
-			 * 소켓별 스트림 자원을 갖는다. 스트림은 데이터 패킷 버퍼 목록으로 구현한다.<br/>
-			 * 반환되는 스트림은 데이터 패킷 버퍼의 속성을 건들지 않기 위해서 복사본으로 구성되며 읽기 가능 상태이다.<br/>
-			 * 내부 처리를 요약하면 All ByteBuffer.duplicate().flip() 이다.<br/>
-			 * 매번 새로운 스트림이 만들어지는 단점이 있다. <br/>
-			 */
-			FreeSizeInputStream freeSizeInputStream = messageInputStreamResource
-					.getFreeSizeInputStream(charsetOfProjectDecoder);
+			// int lastIndex = messageReadWrapBufferListSize - 1;
+			// int lastPosition = lastInputStreamBuffer.position();
 			
 			long inputStramSizeBeforeMessageWork = freeSizeInputStream
 					.remaining();
 
-			log.info(String
-					.format("1. lastIndex=[%d], lastPosition=[%d], inputStramSizeBeforeMessageWork[%d]",
-							lastIndex, lastPosition, inputStramSizeBeforeMessageWork));
-
+			/*log.info(String.format("1. messageHeaderSize=[%d], inputStramSizeBeforeMessageWork[%d]",
+					messageHeaderSize, inputStramSizeBeforeMessageWork));*/
+			
 			// ArrayList<ByteBuffer> streamBufferList = freeSizeInputStream.getStreamBufferList();
 			// int streamBufferListSize = streamBufferList.size();
 			
@@ -201,13 +203,26 @@ public class THBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 					
 					
 					messageHeader = workMessageHeader;
+				}
+				
+				if (null != messageHeader) {
+					// log.info(String.format("2. startIndex=[%d], startPosition=[%d], messageHeader=[%s]", startIndex, startPosition, messageHeader.toString()));
 					
-					long messageFrameSize = messageHeader.messageHeaderSize
-							+ messageHeader.bodySize;
+					long messageFrameSize = messageHeaderSize + messageHeader.bodySize;
+					
 					if (inputStramSizeBeforeMessageWork >= messageFrameSize) {
 						/** 메시지 추출 */
-						long postionBeforeReadingBody = freeSizeInputStream
-								.position();
+						long postionBeforeReadingBody = freeSizeInputStream.position();
+						
+						long expectedPosition = startIndex*lastInputStreamBuffer.capacity()+startPosition+messageHeaderSize;
+						
+						// log.info(String.format("3. messageFrameSize=[%d], postionBeforeReadingBody=[%d], expectedPosition=[%d]", messageFrameSize, postionBeforeReadingBody, expectedPosition));
+						
+						if (expectedPosition != postionBeforeReadingBody) {
+							postionBeforeReadingBody = expectedPosition;
+							freeSizeInputStream.skip(expectedPosition);
+						}
+						
 						
 						if (targetClass.equals(InputMessage.class)) {
 							InputMessage workInObj = null;
@@ -216,18 +231,22 @@ public class THBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 										.createInputMessage(messageHeader.messageID);
 								workInObj.messageHeaderInfo.mailboxID = messageHeader.mailboxID;
 								workInObj.messageHeaderInfo.mailID = messageHeader.mailID;
+								
+								workInObj.O2M(freeSizeInputStream, dhbSingleItem2Stream);
+								
+								long postionAfterReadingBody = freeSizeInputStream.position();
+								
+								// FIXME!
+								// log.info(String.format("freeSizeInputStream byteorder=[%s]", freeSizeInputStream.getByteOrder().toString()));
+								
+								// log.info(String.format("postionBeforeReadingBody=[%d], postionAfterReadingBody=[%d], messageHeader.bodySize=[%d]", postionBeforeReadingBody, postionAfterReadingBody, messageHeader.bodySize));
 
-								workInObj.O2M(freeSizeInputStream,
-										dhbSingleItem2Stream);
-
-								long postionAfterReadingBody = freeSizeInputStream
-										.position();
-
-								if ((postionAfterReadingBody - postionBeforeReadingBody) != messageHeader.bodySize) {
+								long bodySize = postionAfterReadingBody - postionBeforeReadingBody;
+								if (bodySize != messageHeader.bodySize) {
 									// FIXME! 잔존 데이터 있음.
 									String errorMessage = String.format(
-											"메시지[%s]를 읽는 과정에서 잔존 데이터가 남았습니다.",
-											workInObj.toString());
+											"메시지[%s]를 읽는 과정에서 잔존 데이터[%d bytes]가 남았습니다.",
+											workInObj.toString(), (messageHeader.bodySize - bodySize));
 									// log.warn(errorMessage, e);
 									throw new HeaderFormatException(
 											errorMessage);
@@ -311,14 +330,22 @@ public class THBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 								workOutObj.messageHeaderInfo.mailboxID = messageHeader.mailboxID;
 								workOutObj.messageHeaderInfo.mailID = messageHeader.mailID;
 
+								
+								
 								workOutObj.O2M(freeSizeInputStream,
 										dhbSingleItem2Stream);
 
-								if (freeSizeInputStream.remaining() > 0) {
+								long postionAfterReadingBody = freeSizeInputStream.position();
+								
+								long bodySize = postionAfterReadingBody - postionBeforeReadingBody;
+								
+								// log.info(String.format("postionBeforeReadingBody=[%d], postionAfterReadingBody=[%d], messageHeader.bodySize=[%d]", postionBeforeReadingBody, postionAfterReadingBody, messageHeader.bodySize));
+								
+								if (bodySize != messageHeader.bodySize) {
 									// FIXME! 잔존 데이터 있음.
 									String errorMessage = String.format(
-											"메시지[%s]를 읽는 과정에서 잔존 데이터가 남았습니다.",
-											workOutObj.toString());
+											"메시지[%s]를 읽는 과정에서 잔존 데이터[%d bytes]가 남았습니다.",
+											workOutObj.toString(), (messageHeader.bodySize - bodySize));
 									// log.warn(errorMessage, e);
 									throw new HeaderFormatException(
 											errorMessage);
@@ -398,15 +425,17 @@ public class THBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 						inputStramSizeBeforeMessageWork = freeSizeInputStream.remaining();
 						if (inputStramSizeBeforeMessageWork > messageHeaderSize) {
 							isMoreMessage = true;
-							messageHeader = null;
 						}
+						messageHeader = null;
+						startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
+						startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
 					}
 				}
 			} while (isMoreMessage);
 			
+			
+			
 			if (messageList.size() > 0) {
-				int startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
-				int startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
 				messageInputStreamResource.truncate(startIndex, startPosition);
 			} else if (!lastInputStreamBuffer.hasRemaining()) {
 				/** 메시지 추출 실패했는데도 마지막 버퍼가 꽉차있다면 스트림 크기를 증가시킨다. 단 설정파일 환경변수 "메시지당 최대 데이터 패킷 갯수" 만큼만 증가될수있다. */

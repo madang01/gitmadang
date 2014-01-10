@@ -182,7 +182,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 			synchronized (monitor) {
 				// (재)연결 판단 로직, 2번이상 SocketChannel.open() 호출하는것을 막는 역활을 한다.
 				if (serverSC.isConnected()) {
-					StringBuilder infoBuilder = null;
+					/*StringBuilder infoBuilder = null;
 					
 					infoBuilder = new StringBuilder("projectName[");
 					infoBuilder.append(clientProjectConfig.getProjectName());
@@ -191,7 +191,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 					infoBuilder.append("] serverSC[");
 					infoBuilder.append(serverSC.hashCode());
 					infoBuilder.append("]");
-					log.info(new StringBuilder(infoBuilder.toString()).append(" connected").toString());
+					log.info(new StringBuilder(infoBuilder.toString()).append(" connected").toString());*/
 					return;
 				} 
 				

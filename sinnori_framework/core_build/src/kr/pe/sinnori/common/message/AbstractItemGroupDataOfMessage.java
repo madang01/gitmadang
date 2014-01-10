@@ -281,11 +281,12 @@ public abstract class AbstractItemGroupDataOfMessage implements ItemGroupDataIF,
 				sisc.readGroupTail(key, (ArrayInfo) itemInfo, sr);
 			}
 		}
-		
+		/*
 		long remainingBytes = sr.remaining();
 		if (0 != remainingBytes) {
 			log.info(String.format("메시시[%s] 항목을 모두 읽은후에도 남은 바이트[%d]가 존재합니다.", messageID, remainingBytes));
 		}
+		*/
 
 	}
 	

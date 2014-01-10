@@ -62,7 +62,10 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 			NoMoreDataPacketBufferException, BodyFormatException,
 			MessageInfoNotFoundException, InterruptedException, MessageItemException {
 
+		
 		DataPacketBufferQueueManagerIF dataPacketBufferQueueManager = (DataPacketBufferQueueManagerIF)clientProject;
+		
+		
 
 		// messageIDFixedSize = clientProjectConfig.getMessageIDFixedSize();
 		
@@ -92,12 +95,16 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		
 		baseBuffer.order(clientProjectConfig.getByteOrder());
 		
-		addAllDataTypeInObj(clientProjectConfig, messageManger, messageProtocol);
-		addEchoInObj(clientProjectConfig, messageManger, random, messageProtocol);
-		addEchoInObj(clientProjectConfig, messageManger, random, messageProtocol);
-		addAllDataTypeInObj(clientProjectConfig, messageManger, messageProtocol);
+		
+		addAllDataTypeInObj(clientProjectConfig, messageManger, messageProtocol, dataPacketBufferQueueManager);
+		addEchoInObj(clientProjectConfig, messageManger, random, messageProtocol, dataPacketBufferQueueManager);
+		addEchoInObj(clientProjectConfig, messageManger, random, messageProtocol, dataPacketBufferQueueManager);
+		addAllDataTypeInObj(clientProjectConfig, messageManger, messageProtocol, dataPacketBufferQueueManager);
 		
 		baseBuffer.flip();
+		
+		// FIXME!
+		log.info(String.format("baseBuffer=[%s]", baseBuffer.toString()));
 		
 		try {
 			while (baseBuffer.hasRemaining()) {
@@ -108,14 +115,14 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 				
 				len = Math.min(len, scOwnLastBuffer.remaining());
 				
-				log.info(String.format("1.len=[%d], baseBuffer.remaining=[%d], scOwnLastBuffer.remaining=[%d]", len, baseBuffer.remaining(), scOwnLastBuffer.remaining()));
+				log.info(String.format("1.len=[%d], baseBuffer.position=[%d], scOwnLastBuffer.position=[%d]", len, baseBuffer.position(), scOwnLastBuffer.position()));
 				
 				byte readBytes[] = new byte[len];
 				baseBuffer.get(readBytes);
 				
 				scOwnLastBuffer.put(readBytes);
 				
-				log.info(String.format("2.len=[%d], baseBuffer.remaining=[%d], scOwnLastBuffer.remaining=[%d]", len, baseBuffer.remaining(), scOwnLastBuffer.remaining()));
+				log.info(String.format("2.len=[%d], baseBuffer.position=[%d], scOwnLastBuffer.position=[%d]", len, baseBuffer.position(), scOwnLastBuffer.position()));
 
 				ArrayList<AbstractMessage> readInputMessageList = null;
 				
@@ -133,9 +140,11 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		}
 	}
 	
-	private void addEchoInObj(ClientProjectConfigIF clientProjectConfig, MessageMangerIF messageManger,			
+	private void addEchoInObj(ClientProjectConfigIF clientProjectConfig, 
+			MessageMangerIF messageManger,			
 			java.util.Random random, 
-			MessageProtocolIF messageProtocol) throws MessageInfoNotFoundException, BodyFormatException, NoMoreDataPacketBufferException, MessageItemException {
+			MessageProtocolIF messageProtocol,
+			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws MessageInfoNotFoundException, BodyFormatException, NoMoreDataPacketBufferException, MessageItemException {
 		
 		
 		
@@ -149,13 +158,18 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		
 		orgInputMessageList.add(echoInObj);
 		
+		// FIXME!
+		// log.info(echoInObj.toString());
+		
 		ArrayList<WrapBuffer> warpBufferList = messageProtocol.M2S(echoInObj, clientProjectConfig.getCharset());
 		
 		int warpBufferListSize = warpBufferList.size();
 		for (int i=0; i < warpBufferListSize; i++) {
-			ByteBuffer workByteBuffer = warpBufferList.get(i).getByteBuffer();
+			WrapBuffer wrapBuffer = warpBufferList.get(i);
+			ByteBuffer workByteBuffer = wrapBuffer.getByteBuffer();
 			baseBuffer.put(workByteBuffer);
 			// log.debug(oneBuffer.toString());
+			dataPacketBufferQueueManager.putDataPacketBuffer(wrapBuffer);
 		}
 		
 		/*
@@ -195,7 +209,7 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 	}
 	
 	private void addAllDataTypeInObj(ClientProjectConfigIF clientProjectConfig, MessageMangerIF messageManger,
-			MessageProtocolIF messageProtocol) throws MessageInfoNotFoundException, BodyFormatException, NoMoreDataPacketBufferException, MessageItemException {
+			MessageProtocolIF messageProtocol, DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws MessageInfoNotFoundException, BodyFormatException, NoMoreDataPacketBufferException, MessageItemException {
 		
 		
 		InputMessage allDataTypeInObj = messageManger.createInputMessage("AllDataType");
@@ -308,9 +322,11 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		
 		int warpBufferListSize = warpBufferList.size();
 		for (int i=0; i < warpBufferListSize; i++) {
-			ByteBuffer workByteBuffer = warpBufferList.get(i).getByteBuffer();
+			WrapBuffer wrapBuffer = warpBufferList.get(i);
+			ByteBuffer workByteBuffer = wrapBuffer.getByteBuffer();
 			baseBuffer.put(workByteBuffer);
 			// log.debug(oneBuffer.toString());
+			dataPacketBufferQueueManager.putDataPacketBuffer(wrapBuffer);
 		}
 	
 		/*

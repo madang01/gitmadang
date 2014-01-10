@@ -298,6 +298,10 @@ public class DHBMessageHeader implements CommonRootIF {
 			/** 백업한 position 복귀, 즉 헤더 시작 위치 */
 			dstBuffer.position(positionBeforeWork);
 
+			// FIXME!
+			// log.info(String.format("%s", dstBuffer.toString()));
+			//log.info(String.format("%s", HexUtil.byteBufferAvailableToHex(dstBuffer)));
+			
 			md5.update(dstBuffer);
 			headerMD5 = md5.digest();
 			

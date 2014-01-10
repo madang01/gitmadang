@@ -165,6 +165,9 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 
 		indexOfWorkBuffer++;
 		workBuffer = streamBufferList.get(indexOfWorkBuffer);
+		
+		// FIXME!
+		//log.info(String.format("in nextBuffer, indexOfWorkBuffer=[%d], workBuffer.capacity=[%d]", indexOfWorkBuffer, workBuffer.capacity()));
 	}
 	
 	/**
@@ -779,13 +782,10 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 
 	@Override
 	public long position() {
-		long positionInBuffer = 0;
-
-		if (indexOfWorkBuffer > 0) {
-			positionInBuffer = (indexOfWorkBuffer - 1)
-					* workBuffer.capacity();
-		}
-
+		// FIXME!
+		// log.info(String.format("in position, indexOfWorkBuffer=[%d], workBuffer.capacity=[%d]", indexOfWorkBuffer, workBuffer.capacity()));
+		
+		long positionInBuffer = indexOfWorkBuffer*(long)workBuffer.capacity();
 		positionInBuffer += workBuffer.position();
 
 		return positionInBuffer;
@@ -809,6 +809,7 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 		
 		for (int inxOfBuffer = indexOfWorkBuffer; inxOfBuffer < streamBufferListSize; inxOfBuffer++) {
 			ByteBuffer baseSearchWorkBuffer = streamBufferList.get(inxOfBuffer).duplicate();
+			baseSearchWorkBuffer.order(streamByteOrder);
 			int baseSearchWorkRemaining = baseSearchWorkBuffer.remaining();
 
 			/**
@@ -818,6 +819,7 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 	
 			while (baseSearchWorkBuffer.hasRemaining()) {
 				ByteBuffer searchWorkBuffer = baseSearchWorkBuffer.duplicate();
+				searchWorkBuffer.order(streamByteOrder);
 				// int searchWorkPosition = searchWorkBuffer.position();
 				
 				
@@ -835,6 +837,7 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 						
 						/** 다음 버퍼의 내용과 바꾼후 검색중인 바이트 배열과 비교를 계속 진행한다. */
 						searchWorkBuffer = streamBufferList.get(inxOfBuffer+1).duplicate();
+						searchWorkBuffer.order(streamByteOrder);
 					}
 				}
 				

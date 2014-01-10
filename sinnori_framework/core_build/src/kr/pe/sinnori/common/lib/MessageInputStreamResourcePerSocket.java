@@ -61,6 +61,8 @@ public class MessageInputStreamResourcePerSocket implements CommonRootIF {
 	private ByteBuffer lastByteBuffer = null;
 	private ByteBuffer firstByteBuffer = null;
 	
+	
+	
 	/**
 	 * 생성자
 	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자
@@ -88,8 +90,15 @@ public class MessageInputStreamResourcePerSocket implements CommonRootIF {
 	public MessageInputStreamResourcePerSocket(ArrayList<WrapBuffer> messageReadWrapBufferList,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
+		this.byteOrderOfProject = dataPacketBufferQueueManager.getByteOrder();
+		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferQueueManager.getDataPacketBufferMaxCntPerMessage();
 		this.dataPacketBufferList = messageReadWrapBufferList;
+		
+		firstByteBuffer = dataPacketBufferList.get(0).getByteBuffer();
+		lastByteBuffer = dataPacketBufferList.get(dataPacketBufferList.size()-1).getByteBuffer();	
 	}
+	
+	
 	
 	public ByteOrder getByteOrder() {
 		return dataPacketBufferQueueManager.getByteOrder();
@@ -203,6 +212,9 @@ public class MessageInputStreamResourcePerSocket implements CommonRootIF {
 	 * @param startPostion 메시지 삭제후 최종 시작 버퍼의 위치
 	 */
 	public void truncate(int startIndex, int startPostion) {
+		//FIXME!
+		//log.info(String.format("before truncate, startIndex=[%d], startPostion=[%d], lastByteBuffer.pos=[%d]", startIndex, startPostion, lastByteBuffer.position()));
+		
 		if (startIndex < 0) {
 			String errorMessage = String.format("parameter startIndex[%d] less than zero", startIndex);
 			throw new IllegalArgumentException(errorMessage);
@@ -219,11 +231,13 @@ public class MessageInputStreamResourcePerSocket implements CommonRootIF {
 		}
 		
 		firstByteBuffer = dataPacketBufferList.get(startIndex).getByteBuffer();
+		//log.info(String.format("1.in truncate, firstByteBuffer=[%s]", firstByteBuffer.toString()));
+		
+		firstByteBuffer.limit(firstByteBuffer.position());
 		firstByteBuffer.position(startPostion);
+		
 		firstByteBuffer.compact();
-		/** 첫번째 버퍼의 남은 공간을 채우기 위한 버퍼 속성 조정 */
-		firstByteBuffer.position(firstByteBuffer.limit());
-		firstByteBuffer.limit(firstByteBuffer.capacity());
+		//log.info(String.format("2.in truncate, firstByteBuffer=[%s]", firstByteBuffer.toString()));
 		
 		for (int i=0; i < startIndex; i++) {
 			WrapBuffer workWrapBuffer = dataPacketBufferList.remove(0);
@@ -238,11 +252,14 @@ public class MessageInputStreamResourcePerSocket implements CommonRootIF {
 			nextByteBuffer.put(currentByteBuffer);
 		}
 		
-		lastByteBuffer = dataPacketBufferList.get(flipBufferListSize).getByteBuffer();
-		lastByteBuffer.compact();
-		/** 마지막 버퍼의 남은 공간을 채우기 위한 버퍼 속성 조정 */
-		lastByteBuffer.position(lastByteBuffer.limit());
-		lastByteBuffer.limit(lastByteBuffer.capacity());
+		if (flipBufferListSize > 0) {
+			lastByteBuffer = dataPacketBufferList.get(flipBufferListSize).getByteBuffer();
+			lastByteBuffer.compact();
+		}
+		
+		
+		//FIXME!
+		//log.info(String.format("after truncate, startIndex=[%d], startPostion=[%d], lastByteBuffer.pos=[%d]", startIndex, startPostion, lastByteBuffer.position()));
 	}
 	
 	/**
@@ -299,7 +316,7 @@ public class MessageInputStreamResourcePerSocket implements CommonRootIF {
 		*/
 		WrapBuffer lastWrapBuffer = dataPacketBufferQueueManager.pollDataPacketBuffer(); 
 		dataPacketBufferList.add(lastWrapBuffer);
-		lastByteBuffer = lastWrapBuffer.getByteBuffer();		
+		lastByteBuffer = lastWrapBuffer.getByteBuffer();
 		return lastByteBuffer;
 	}
 	
@@ -308,9 +325,11 @@ public class MessageInputStreamResourcePerSocket implements CommonRootIF {
 	}
 	
 	public FreeSizeInputStream getFreeSizeInputStream(CharsetDecoder charsetOfProjectDecoder) {
+		
 		int dataPacketBufferListSize = dataPacketBufferList.size();
 		
 		ArrayList<ByteBuffer> streamBufferList = new ArrayList<ByteBuffer>(dataPacketBufferListSize);
+		
 		for (int i=0; i < dataPacketBufferListSize; i++) {
 			ByteBuffer dupPacketBuffer = dataPacketBufferList.get(i).getByteBuffer().duplicate();
 			dupPacketBuffer.order(byteOrderOfProject);
@@ -319,7 +338,8 @@ public class MessageInputStreamResourcePerSocket implements CommonRootIF {
 		}
 		
 		FreeSizeInputStream freeSizeInputStream = 
-				new FreeSizeInputStream(streamBufferList, charsetOfProjectDecoder, dataPacketBufferMaxCntPerMessage);		
+				new FreeSizeInputStream(streamBufferList, charsetOfProjectDecoder, this.dataPacketBufferMaxCntPerMessage);
+		
 		return freeSizeInputStream;
 	}
 	

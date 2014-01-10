@@ -185,7 +185,7 @@ public class OutputMessageReader extends Thread implements
 
 						try {
 							lastInputStreamBuffer = messageInputStreamResource.getLastDataPacketBuffer();
-							log.info(String.format("1.%s OutputMessageReader[%d] lastInputStreamBuffer[%s]", asynConnection.getSimpleConnectionInfo(), index, lastInputStreamBuffer.toString()));
+							// log.info(String.format("1.%s OutputMessageReader[%d] lastInputStreamBuffer[%s]", asynConnection.getSimpleConnectionInfo(), index, lastInputStreamBuffer.toString()));
 							
 							int positionBeforeReading = lastInputStreamBuffer.position();
 							
@@ -197,12 +197,12 @@ public class OutputMessageReader extends Thread implements
 								continue;
 							}
 							
-							log.info(String.format("2.%s OutputMessageReader[%d] numRead[%d] lastInputStreamBuffer[%s]", asynConnection.getSimpleConnectionInfo(), index, numRead, lastInputStreamBuffer.toString()));
+							// log.info(String.format("2.%s OutputMessageReader[%d] numRead[%d] lastInputStreamBuffer[%s]", asynConnection.getSimpleConnectionInfo(), index, numRead, lastInputStreamBuffer.toString()));
 
 							
 							numRead = serverSC.read(lastInputStreamBuffer);
 								
-							log.info(String.format("3.%s OutputMessageReader[%d] numRead[%d] lastInputStreamBuffer[%s]", asynConnection.getSimpleConnectionInfo(), index, numRead, lastInputStreamBuffer.toString()));
+							// log.info(String.format("3.%s OutputMessageReader[%d] numRead[%d] lastInputStreamBuffer[%s]", asynConnection.getSimpleConnectionInfo(), index, numRead, lastInputStreamBuffer.toString()));
 							
 							if (numRead == -1) {
 								log.warn(String.format("2.%s OutputMessageReader[%d] read -1, remove client", asynConnection.getSimpleConnectionInfo(), index));
