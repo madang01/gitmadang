@@ -164,6 +164,15 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		serverSC.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
 		serverSC.setOption(StandardSocketOptions.TCP_NODELAY, true);
 		serverSC.setOption(StandardSocketOptions.SO_LINGER, 0);
+		
+		StringBuilder infoBuilder = null;
+		
+		infoBuilder = new StringBuilder("projectName[");
+		infoBuilder.append(clientProjectConfig.getProjectName());
+		infoBuilder.append("] asyn+noshare connection[");
+		infoBuilder.append(index);
+		infoBuilder.append("]");
+		log.info(infoBuilder.append(" (re)open new serverSC=").append(serverSC.hashCode()).toString());
 	}
 	
 	@Override
@@ -205,19 +214,6 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 				
 				if (!serverSC.isOpen()) {
 					reopenSocketChannel();
-					StringBuilder infoBuilder = null;
-					
-					infoBuilder = new StringBuilder("projectName[");
-					infoBuilder.append(clientProjectConfig.getProjectName());
-					infoBuilder.append("] asyn connection[");
-					infoBuilder.append(index);
-					infoBuilder.append("] serverSC[");
-					infoBuilder.append(serverSC.hashCode());
-					infoBuilder.append("]");
-					
-					// String info = infoBuilder.toString(); 
-					// log.info(new StringBuilder(info).append(" serverSC closed and reopen new serverSC=").append(serverSC.hashCode()).toString());
-					log.info(infoBuilder.append(" serverSC closed and reopen new serverSC=").append(serverSC.hashCode()).toString());
 				}
 				serverSC.connect(remoteAddr);
 				finishConnect();

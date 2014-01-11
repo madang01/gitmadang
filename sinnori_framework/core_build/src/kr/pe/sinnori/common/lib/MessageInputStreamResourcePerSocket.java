@@ -119,14 +119,6 @@ public class MessageInputStreamResourcePerSocket implements CommonRootIF {
 		this.userDefObject = newUserDefObject;
 	}
 	
-	/**
-	 * @return 메시지 내용을 담고 있는 데이터 패킷 버퍼 큐 목록
-	 */
-	/*
-	public ArrayList<WrapBuffer> getMessageReadWrapBufferList() {
-		return wrapBufferList;
-	}
-	*/
 	
 	/**
 	 * 클라이언트 연결 클래스의 소켓이 닫혔을 경우 호출 되는 초기화 함수. 1개 남은 바이트 버퍼의 속성값은 모두 초기화(=clear) 된다.
@@ -176,31 +168,6 @@ public class MessageInputStreamResourcePerSocket implements CommonRootIF {
 		return true;
 	}
 	
-	
-	
-	/**
-	 * 다음 메시지를 받기 위한 마지막 데이터 패킷 버퍼를 제외한<br/>
-	 * 추출된 메시지의 내용을 담은 데이터 패킷 버퍼를 데이터 패킷 버퍼 큐 관리자한테 반환한다.
-	 * 
-	 * @param endPositionOfMessage 마지막 데이터 패킷 버퍼에서 메시지가 끝나는 지점
-	 * @param finalReadPosition 마지막 데이터 패킷 버퍼의 최종 데이터 수신 위치
-	 */
-	/*public void freeWrapBufferWithoutLastBuffer(int endPositionOfMessage, int finalReadPosition) {
-		ByteBuffer lastInputStreamBuffer = getLastDataPacketBuffer();
-		
-		*//** 추출된 메시지 영역 삭제 - 마지막 출력 메시지 랩 버퍼에 존재하는 잔존 데이터를 처음 위치로 이동 시킨후 다음 데이터 읽기 준비를 한다. *//*
-		lastInputStreamBuffer.position(endPositionOfMessage);
-		lastInputStreamBuffer.limit(finalReadPosition);
-		lastInputStreamBuffer.compact();
-		
-		int outputMessageWrapBufferListSize = wrapBufferList.size();
-		for (int j=1; j < outputMessageWrapBufferListSize ; j++) {
-			WrapBuffer outputMessageWrapBuffer = wrapBufferList.get(0);
-			wrapBufferList.remove(0);
-			dataPacketBufferQueueManager.putDataPacketBuffer(outputMessageWrapBuffer);
-		}
-		
-	}*/
 	
 	/**
 	 * 지정된 인덱스까지 데이터 패킷 랩 버퍼를 삭제하며 <br/>
@@ -262,6 +229,11 @@ public class MessageInputStreamResourcePerSocket implements CommonRootIF {
 		//log.info(String.format("after truncate, startIndex=[%d], startPostion=[%d], lastByteBuffer.pos=[%d]", startIndex, startPostion, lastByteBuffer.position()));
 	}
 	
+	public ByteBuffer getLastDataPacketBuffer() {
+		// return dataPacketBufferList.get(dataPacketBufferList.size()-1).getByteBuffer();
+		return lastByteBuffer;
+	}
+	
 	/**
 	 * @return 데이터 패킷 버퍼 추가 가능 여부
 	 */
@@ -269,43 +241,7 @@ public class MessageInputStreamResourcePerSocket implements CommonRootIF {
 		return (dataPacketBufferMaxCntPerMessage != dataPacketBufferList.size());
 	}
 	
-	/**
-	 * 
-	 * @param index 얻고자 하는 데이터 패킷 버퍼 목록 상의 위치
-	 * @return 패킷 버퍼목록에서 지정된 위치를 갖는 데이터 패킷 버퍼
-	 */
-	public ByteBuffer getDataPacketBuffer(int index) {		
-		if (index < 0) {
-			String errorMessage = String.format("parameter index[%d] less than zero", index);
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		if (index >= dataPacketBufferList.size()) {
-			String errorMessage = String.format("parameter index[%d] equal to or greater than WrapBufferList'size[%d]", index, dataPacketBufferList.size());
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		int dataPacketBufferListSize = dataPacketBufferList.size();
-		
-		if (index >= dataPacketBufferListSize) {
-			String errorMessage = String.format("parameter index[%d] over than the WrapBufferList' size[%d]", index, dataPacketBufferListSize);
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		
-		return dataPacketBufferList.get(index).getByteBuffer();
-	}
-	
-	public ByteBuffer getFirstDataPacketBuffer() {
-		return dataPacketBufferList.get(0).getByteBuffer();
-	}
-	
-	public ByteBuffer getLastDataPacketBuffer() {
-		return dataPacketBufferList.get(dataPacketBufferList.size()-1).getByteBuffer();
-	}
-	
 	public ByteBuffer nextDataPacketBuffer() throws NoMoreDataPacketBufferException {
-		/*
 		if (!canNextDataPacketBuffer()) {
 			String errorMessage = String
 					.format("메시지당 최대 데이터 패킷 갯수[%d]을 넘을 수 없습니다.",
@@ -313,7 +249,7 @@ public class MessageInputStreamResourcePerSocket implements CommonRootIF {
 			throw new NoMoreDataPacketBufferException(
 					errorMessage);
 		}
-		*/
+		
 		WrapBuffer lastWrapBuffer = dataPacketBufferQueueManager.pollDataPacketBuffer(); 
 		dataPacketBufferList.add(lastWrapBuffer);
 		lastByteBuffer = lastWrapBuffer.getByteBuffer();
@@ -324,7 +260,18 @@ public class MessageInputStreamResourcePerSocket implements CommonRootIF {
 		return dataPacketBufferList.size();
 	}
 	
-	public FreeSizeInputStream getFreeSizeInputStream(CharsetDecoder charsetOfProjectDecoder) {
+	/**
+	 * 호출되는 시점 기준으로 소켓 종속 읽기 전용 스트림을 반환한다.
+	 * 
+	 * 주의점) 소켓 종속 읽기 전용 스트림은 데이터 패킷 버퍼 목록으로 구현한다.
+	 * 이 메소드는 내부적으로 데이터 패킷 버퍼 목록을 읽기 가능상태로 복사하여 
+	 * 가변 스트림을 구성한것이기때문에 스트림의 조작및 스트림이 가진 데이터 패킷 버퍼 목록의 조작은 
+	 * 원본 데이터 패킷 버퍼 목록에 아무런 영향을 주지 않는다.
+	 * 
+	 * @param charsetDecoderOfProject 프로젝트의 문자셋을 갖는 디코더
+	 * @return 호출되는 시점 기준으로 소켓 종속 읽기 전용 스트림
+	 */
+	public FreeSizeInputStream getFreeSizeInputStream(CharsetDecoder charsetDecoderOfProject) {
 		
 		int dataPacketBufferListSize = dataPacketBufferList.size();
 		
@@ -338,15 +285,8 @@ public class MessageInputStreamResourcePerSocket implements CommonRootIF {
 		}
 		
 		FreeSizeInputStream freeSizeInputStream = 
-				new FreeSizeInputStream(streamBufferList, charsetOfProjectDecoder, this.dataPacketBufferMaxCntPerMessage);
+				new FreeSizeInputStream(streamBufferList, charsetDecoderOfProject, dataPacketBufferQueueManager);
 		
 		return freeSizeInputStream;
-	}
-	
-	public void flipAllBuffer() {
-		int dataPacketBufferListSize = dataPacketBufferList.size();
-		for (int i=0; i < dataPacketBufferListSize; i++) {
-			dataPacketBufferList.get(i).getByteBuffer().flip();
-		}
 	}
 }

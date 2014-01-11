@@ -192,8 +192,8 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 							log.info(String.format("1. %s InputMessageReader[%d] lastInputStreamBuffer[%s]", 
 									serverProjectConfig.getProjectName(), index, lastInputStreamBuffer.toString()));
 							
-							int positionBeforeReading = lastInputStreamBuffer.position();							
-							
+							// int positionBeforeReading = lastInputStreamBuffer.position();							
+							/*
 							numRead = clientSC.read(lastInputStreamBuffer);
 							
 							if (numRead == -1) {
@@ -208,7 +208,7 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 									serverProjectConfig.getProjectName(), index, numRead, lastInputStreamBuffer.toString()));
 							
 							
-							/** 2번 읽기로 1byte 읽기 방지 */
+							// 2번 읽기로 1byte 읽기 방지
 							numRead = clientSC.read(lastInputStreamBuffer);
 
 							if (numRead == -1) {
@@ -226,6 +226,26 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 							int positionAfterReading = lastInputStreamBuffer.position();
 
 							if (positionAfterReading == positionBeforeReading) continue;
+							*/
+							
+							do {
+								numRead = clientSC.read(lastInputStreamBuffer);
+								if (numRead < 1) break;
+								
+								if (!lastInputStreamBuffer.hasRemaining()) {
+									if (!messageInputStreamResource.canNextDataPacketBuffer()) break;
+									lastInputStreamBuffer = messageInputStreamResource.nextDataPacketBuffer();
+								}
+							} while(true);
+							
+							if (numRead == -1) {
+								log.warn(String.format(
+										"%s InputMessageReader[%d] socket channel read -1, remove client",
+										serverProjectConfig.getProjectName(), index));
+								closeClient(key);
+								continue;
+							}
+							
 							
 							clientResource.setFinalReadTime();
 												

@@ -96,10 +96,10 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		baseBuffer.order(clientProjectConfig.getByteOrder());
 		
 		
-		addAllDataTypeInObj(clientProjectConfig, messageManger, messageProtocol, dataPacketBufferQueueManager);
+		addAllDataTypeInObj(clientProjectConfig, messageManger, random, messageProtocol, dataPacketBufferQueueManager);
 		addEchoInObj(clientProjectConfig, messageManger, random, messageProtocol, dataPacketBufferQueueManager);
 		addEchoInObj(clientProjectConfig, messageManger, random, messageProtocol, dataPacketBufferQueueManager);
-		addAllDataTypeInObj(clientProjectConfig, messageManger, messageProtocol, dataPacketBufferQueueManager);
+		addAllDataTypeInObj(clientProjectConfig, messageManger, random, messageProtocol, dataPacketBufferQueueManager);
 		
 		baseBuffer.flip();
 		
@@ -209,6 +209,7 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 	}
 	
 	private void addAllDataTypeInObj(ClientProjectConfigIF clientProjectConfig, MessageMangerIF messageManger,
+			java.util.Random random, 
 			MessageProtocolIF messageProtocol, DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws MessageInfoNotFoundException, BodyFormatException, NoMoreDataPacketBufferException, MessageItemException {
 		
 		
@@ -232,7 +233,7 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 
 		allDataTypeInObj.setAttribute("intVar1", Integer.MAX_VALUE);
 		allDataTypeInObj.setAttribute("intVar2", Integer.MIN_VALUE);
-		allDataTypeInObj.setAttribute("intVar3", (int) 31);
+		allDataTypeInObj.setAttribute("intVar3", random.nextInt());
 
 		allDataTypeInObj.setAttribute("unsignedIntVar1", (long) 0);
 		allDataTypeInObj.setAttribute("unsignedIntVar2", (long) 0x7fffffff);
@@ -241,14 +242,14 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 
 		allDataTypeInObj.setAttribute("longVar1", Long.MAX_VALUE);
 		allDataTypeInObj.setAttribute("longVar2", Long.MIN_VALUE);
-		allDataTypeInObj.setAttribute("longVar3", (long) 32);
+		allDataTypeInObj.setAttribute("longVar3", random.nextLong());
 
 		allDataTypeInObj.setAttribute("strVar1", "testHH");
 		allDataTypeInObj.setAttribute("strVar2", "1234");
 		allDataTypeInObj.setAttribute("strVar3", "uiop");
 
-		allDataTypeInObj.setAttribute("bytesVar1", new byte[] { (byte) 0x77,
-				(byte) 0x88 });
+		byte[] bytesVar1 = new byte[]{-30, 76};
+		allDataTypeInObj.setAttribute("bytesVar1", bytesVar1);
 		// allDataTypeInObj.setAttribute("bytesVar2", new byte[] { 1, 2, 3, 4, 5, 6, 7,
 		// 8,
 		// 9, 10, 11 });
@@ -315,6 +316,9 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		itemList[1][0].setAttribute("itemID", "3");
 		itemList[1][0].setAttribute("itemName", "안좋은검");
 		itemList[1][0].setAttribute("itemCnt", 65000);
+		
+		// FIXME!
+		//log.info(allDataTypeInObj.toString());
 		
 		orgInputMessageList.add(allDataTypeInObj);
 		

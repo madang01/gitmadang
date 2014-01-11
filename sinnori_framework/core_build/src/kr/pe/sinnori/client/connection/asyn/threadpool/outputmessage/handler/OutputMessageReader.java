@@ -187,8 +187,9 @@ public class OutputMessageReader extends Thread implements
 							lastInputStreamBuffer = messageInputStreamResource.getLastDataPacketBuffer();
 							// log.info(String.format("1.%s OutputMessageReader[%d] lastInputStreamBuffer[%s]", asynConnection.getSimpleConnectionInfo(), index, lastInputStreamBuffer.toString()));
 							
-							int positionBeforeReading = lastInputStreamBuffer.position();
-							
+							// int positionBeforeReading = lastInputStreamBuffer.position();
+
+							/*
 							numRead = serverSC.read(lastInputStreamBuffer);
 
 							if (numRead == -1) {
@@ -209,10 +210,25 @@ public class OutputMessageReader extends Thread implements
 								closeServer(selectionKey, asynConnection);
 								continue;
 							}
-							
-							int positionAfterReading = lastInputStreamBuffer.position();
+							*/
+							do {
+								numRead = serverSC.read(lastInputStreamBuffer);
+								if (numRead < 1) break;
+								
+								if (!lastInputStreamBuffer.hasRemaining()) {
+									if (!messageInputStreamResource.canNextDataPacketBuffer()) break;
+									lastInputStreamBuffer = messageInputStreamResource.nextDataPacketBuffer();
+								}
+							} while(true);
 
-							if (positionAfterReading == positionBeforeReading) continue;
+							if (numRead == -1) {
+								log.warn(String.format("1.%s OutputMessageReader[%d] read -1, remove client", asynConnection.getSimpleConnectionInfo(), index));
+								closeServer(selectionKey, asynConnection);
+								continue;
+							}
+							
+							/*int positionAfterReading = lastInputStreamBuffer.position();
+							if (positionAfterReading == positionBeforeReading) continue;*/
 							
 							asynConnection.setFinalReadTime();
 							

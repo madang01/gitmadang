@@ -31,6 +31,7 @@ import java.util.Arrays;
 import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.CommonStaticFinal;
+import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.util.HexUtil;
 
 /**
@@ -79,11 +80,11 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 	 * 생성자
 	 * @param streamBufferList 데이터 패킷 버퍼 목록, 주의점) 읽기 가능한 영역만을 다루기 때문에 flip 된 상태인지 확인 필요함.
 	 * @param streamCharsetDecoder 스트림 문자셋 디코더
-	 * @param dataPacketBufferMaxCntPerMessage 해당 프로젝트의 메시지당 받을 수 있는 최대 데이터 패킷 버퍼 갯수
+	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자, 메시지당 받을 수 있는 최대 데이터 패킷 버퍼 갯수를 얻기 위해 사용된다.
 	 */
 	public FreeSizeInputStream(ArrayList<ByteBuffer> streamBufferList, 
 			CharsetDecoder  streamCharsetDecoder,
-			int dataPacketBufferMaxCntPerMessage) {
+			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) {
 		if (null == streamBufferList) {
 			String errorMessage = "parameter streamBufferList  is null";
 			log.warn(errorMessage);
@@ -97,19 +98,12 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		if (dataPacketBufferMaxCntPerMessage <= 0) {
-			String errorMessage = String.format("parameter dataPacketBufferMaxCntPerMessage[%d] less than zero", dataPacketBufferMaxCntPerMessage);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
 		
 		this.streamBufferList = streamBufferList;
 		this.streamCharset = streamCharsetDecoder.charset();
 		this.streamCharsetDecoder = streamCharsetDecoder;
 		
-		
-		
+		int dataPacketBufferMaxCntPerMessage = dataPacketBufferQueueManager.getDataPacketBufferMaxCntPerMessage();
 		if (streamBufferList.size() > dataPacketBufferMaxCntPerMessage) {
 			String errorMessage = String.format(
 					"파라미터 바디 버퍼 목록의 크기[%d]는 1개 메시지당 할당 받을 수 있는 최대 값[%d]을 넘을수 없습니다.",

@@ -142,6 +142,15 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 		
 		serverSocket = serverSC.socket();
 		serverSocket.setSoTimeout((int) socketTimeOut);
+		
+		StringBuilder infoBuilder = null;
+		
+		infoBuilder = new StringBuilder("projectName[");
+		infoBuilder.append(clientProjectConfig.getProjectName());
+		infoBuilder.append("] sync+noshare connection[");
+		infoBuilder.append(index);
+		infoBuilder.append("]");		
+		log.info(infoBuilder.append(" (re)open new serverSC=").append(serverSC.hashCode()).toString());
 	}
 	
 	/**
@@ -208,20 +217,6 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 				// log.info("111111 socketTimeOut=[%d]", socketTimeOut);
 				if (!serverSC.isOpen()) {
 					reopenSocketChannel();
-					
-					StringBuilder infoBuilder = null;
-					
-					infoBuilder = new StringBuilder("projectName[");
-					infoBuilder.append(clientProjectConfig.getProjectName());
-					infoBuilder.append("] asyn connection[");
-					infoBuilder.append(index);
-					infoBuilder.append("] serverSC[");
-					infoBuilder.append(serverSC.hashCode());
-					infoBuilder.append("]");
-					
-					// String info = infoBuilder.toString();
-					// log.info(new StringBuilder(info).append(" serverSC closed and reopen new serverSC=").append(serverSC.hashCode()).toString());
-					log.info(infoBuilder.append(" serverSC closed and reopen new serverSC=").append(serverSC.hashCode()).toString());
 				}
 				serverSocket.connect(remoteAddr, (int) socketTimeOut);
 	
