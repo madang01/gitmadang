@@ -193,9 +193,7 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 					
 					int outObjWrapBufferListSize = outObjWrapBufferList.size();
 					
-					
-					// ByteBuffer outObjByteBufferArray[] = new ByteBuffer[outObjWrapBufferListSize];
-					
+					// long startTime = System.currentTimeMillis();
 					synchronized (toSC) {
 						/**
 						 * 2013.07.24 잔존 데이타 발생하므로 GatheringByteChannel 를 이용하는 바이트 버퍼 배열 쓰기 방식 포기.
@@ -205,22 +203,11 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 							ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
 
 							do {
-								// try {
 								toSC.write(byteBuffer);
-									/*
-								} catch(ClosedByInterruptException e) {
-									log.warn("ClosedByInterruptException", e);
-									try {
-										toSC.write(byteBuffer);
-									} catch(ClosedByInterruptException e1) {
-										log.fatal("ClosedByInterruptException", e1);
-										System.exit(1);
-									}
-									Thread.currentThread().interrupt();
-								}
-								*/
 							} while(byteBuffer.hasRemaining());
 						}
+						//long endTime = System.currentTimeMillis();
+						//log.info(String.format("elapsed time=[%s]", endTime - startTime));
 					}
 				} catch (NotYetConnectedException e) {
 					// ClosedChannelException

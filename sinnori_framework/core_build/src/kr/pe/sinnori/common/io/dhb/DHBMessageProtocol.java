@@ -333,13 +333,10 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 									.getStreamBufferList();
 							streamBufferListSize = streamBufferList.size();
 							
-							/*startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
+							startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
 							startPosition = freeSizeInputStream.getPositionOfWorkBuffer();							
 							long expectedPosition = startIndex*lastInputStreamBuffer.capacity()+startPosition+messageHeaderSize;
-							freeSizeInputStream.skip(expectedPosition);*/
-							startIndex = 0;
-							startPosition = 0;
-							freeSizeInputStream.skip(messageHeaderSize);
+							freeSizeInputStream.skip(expectedPosition);
 						}
 						
 						long postionBeforeReadingBody = freeSizeInputStream.position();

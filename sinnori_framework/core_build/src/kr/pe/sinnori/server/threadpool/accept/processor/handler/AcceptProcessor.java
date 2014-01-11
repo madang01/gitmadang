@@ -18,7 +18,7 @@
 package kr.pe.sinnori.server.threadpool.accept.processor.handler;
 
 // import java.util.logging.Level;
-import java.net.Socket;
+import java.net.StandardSocketOptions;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -73,11 +73,17 @@ public class AcceptProcessor extends Thread implements CommonRootIF {
 				SocketChannel clientSC = acceptQueue.take();
 				clientSC.configureBlocking(false);
 
-				Socket sc = clientSC.socket();
+				/*Socket sc = clientSC.socket();
 				sc.setKeepAlive(true);
-				sc.setTcpNoDelay(true);
+				sc.setTcpNoDelay(true);*/
 				// sc.setSendBufferSize(io_buffer_size);
 				// sc.setReceiveBufferSize(io_buffer_size);
+				
+				clientSC.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
+				clientSC.setOption(StandardSocketOptions.TCP_NODELAY, true);
+				clientSC.setOption(StandardSocketOptions.SO_LINGER, 0);
+				clientSC.setOption(StandardSocketOptions.SO_SNDBUF, 30*1024);
+				clientSC.setOption(StandardSocketOptions.SO_RCVBUF, serverProjectConfig.getDataPacketBufferSize());
 
 				try {
 					inputMessageReaderPoolIF.addNewClient(clientSC);

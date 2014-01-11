@@ -177,13 +177,10 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageProtocolIF {
 						if (null == freeSizeInputStream) {
 							freeSizeInputStream = messageInputStreamResource
 									.getFreeSizeInputStream(charsetOfProjectDecoder);
-							/*startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
+							startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
 							startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
 							long expectedPosition = startIndex*lastInputStreamBuffer.capacity()+startPosition+messageHeaderSize;
-							freeSizeInputStream.skip(expectedPosition);*/
-							startIndex = 0;
-							startPosition = 0;
-							freeSizeInputStream.skip(messageHeaderSize);
+							freeSizeInputStream.skip(expectedPosition);
 						}
 						
 						String jsonStr = null;

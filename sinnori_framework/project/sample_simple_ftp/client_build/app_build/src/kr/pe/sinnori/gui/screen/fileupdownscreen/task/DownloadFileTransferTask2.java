@@ -84,7 +84,7 @@ public class DownloadFileTransferTask2 implements CommonRootIF, FileTransferTask
 	@Override
 	public void endTask() {
 		// FIXME!
-		log.info("call");
+		// log.info("call");
 		mainController.endDownloadTask();
 	}
 }

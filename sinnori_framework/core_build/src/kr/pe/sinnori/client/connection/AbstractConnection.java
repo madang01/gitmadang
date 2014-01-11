@@ -191,7 +191,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 		
 		int inObjWrapBufferListSize = inObjWrapBufferList.size();
 		
-		long startTime = System.currentTimeMillis();
+		// long startTime = System.currentTimeMillis();
 		synchronized (serverSC) {
 			/**
 			 * 2013.07.24 잔존 데이타 발생하므로 GatheringByteChannel 를 이용하는 바이트 버퍼 배열 쓰기 방식 포기.
@@ -205,8 +205,9 @@ public abstract class AbstractConnection implements CommonRootIF {
 				} while(byteBuffer.hasRemaining());
 			}
 		}
-		long endTime = System.currentTimeMillis();
-		log.info(String.format("elapsed time=[%s]", endTime - startTime));
+		
+		/*long endTime = System.currentTimeMillis();
+		log.info(String.format("elapsed time=[%s]", endTime - startTime));*/
 	}
 	
 	/**
