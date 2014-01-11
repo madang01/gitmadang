@@ -32,7 +32,7 @@ import kr.pe.sinnori.common.exception.MessageItemException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
-import kr.pe.sinnori.common.lib.MessageInputStreamResourcePerSocket;
+import kr.pe.sinnori.common.lib.SocketInputStream;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.lib.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
@@ -183,7 +183,7 @@ public class TestLocalAllDataTypeCExtor extends AbstractClientExecutor {
 		
 		// FreeSizeInputStream fsis = new FreeSizeInputStream(warpBufferList, clinetCharsetDecoder, dataPacketBufferQueueManager);
 		
-		MessageInputStreamResourcePerSocket messageInputStreamResourcePerSocket = new MessageInputStreamResourcePerSocket(warpBufferList, dataPacketBufferQueueManager);
+		SocketInputStream messageInputStreamResourcePerSocket = new SocketInputStream(warpBufferList, dataPacketBufferQueueManager);
 		
 		ArrayList<AbstractMessage> outObjList = null;
 		try {

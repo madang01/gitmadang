@@ -37,7 +37,7 @@ import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.MessageProtocolIF;
 import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.common.lib.MessageInputStreamResourcePerSocket;
+import kr.pe.sinnori.common.lib.SocketInputStream;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
@@ -179,7 +179,7 @@ public class OutputMessageReader extends Thread implements
 							continue;
 						}
 
-						MessageInputStreamResourcePerSocket messageInputStreamResource = asynConnection.getMessageInputStreamResource();
+						SocketInputStream messageInputStreamResource = asynConnection.getMessageInputStreamResource();
 						ByteBuffer lastInputStreamBuffer = null;						
 						
 

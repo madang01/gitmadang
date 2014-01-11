@@ -39,8 +39,8 @@ import kr.pe.sinnori.common.io.thb.header.THBMessageHeader;
 import kr.pe.sinnori.common.lib.CharsetUtil;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
-import kr.pe.sinnori.common.lib.MessageInputStreamResourcePerSocket;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
+import kr.pe.sinnori.common.lib.SocketInputStream;
 import kr.pe.sinnori.common.lib.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.InputMessage;
@@ -129,7 +129,7 @@ public class THBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 	@Override
 	public ArrayList<AbstractMessage> S2MList(Class<? extends AbstractMessage> targetClass,
 			Charset charsetOfProject,
-			MessageInputStreamResourcePerSocket messageInputStreamResource, 
+			SocketInputStream messageInputStreamResource, 
 			MessageMangerIF messageManger) 
 					throws HeaderFormatException, NoMoreDataPacketBufferException {
 		CharsetDecoder charsetOfProjectDecoder = CharsetUtil.createCharsetDecoder(charsetOfProject);		
@@ -144,32 +144,22 @@ public class THBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 			System.exit(1);
 		}
 		
+		ByteBuffer lastInputStreamBuffer = messageInputStreamResource
+				.getLastDataPacketBuffer();
+		
 		/**
 		 * 소켓별 스트림 자원을 갖는다. 스트림은 데이터 패킷 버퍼 목록으로 구현한다.<br/>
 		 * 반환되는 스트림은 데이터 패킷 버퍼의 속성을 건들지 않기 위해서 복사본으로 구성되며 읽기 가능 상태이다.<br/>
 		 * 내부 처리를 요약하면 All ByteBuffer.duplicate().flip() 이다.<br/>
 		 * 매번 새로운 스트림이 만들어지는 단점이 있다. <br/>
 		 */
-		FreeSizeInputStream freeSizeInputStream = messageInputStreamResource
-				.getFreeSizeInputStream(charsetOfProjectDecoder);
-		ByteBuffer lastInputStreamBuffer = messageInputStreamResource
-				.getLastDataPacketBuffer();
-		
-		int startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
-		int startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
+		FreeSizeInputStream freeSizeInputStream = null;
+		int startIndex = -1;
+		int startPosition = -1;
 		
 		try {
-			// int lastIndex = messageReadWrapBufferListSize - 1;
-			// int lastPosition = lastInputStreamBuffer.position();
-			
-			long inputStramSizeBeforeMessageWork = freeSizeInputStream
-					.remaining();
-
-			/*log.info(String.format("1. messageHeaderSize=[%d], inputStramSizeBeforeMessageWork[%d]",
-					messageHeaderSize, inputStramSizeBeforeMessageWork));*/
-			
-			// ArrayList<ByteBuffer> streamBufferList = freeSizeInputStream.getStreamBufferList();
-			// int streamBufferListSize = streamBufferList.size();
+			// long inputStramSizeBeforeMessageWork = freeSizeInputStream.remaining();
+			long inputStramSizeBeforeMessageWork = messageInputStreamResource.position();
 			
 			do {
 				isMoreMessage = false;
@@ -177,6 +167,13 @@ public class THBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 				if (null == messageHeader
 						&& inputStramSizeBeforeMessageWork >= messageHeaderSize) {
 					/** 헤더 읽기 */
+					if (null == freeSizeInputStream) {
+						freeSizeInputStream = messageInputStreamResource
+								.getFreeSizeInputStream(charsetOfProjectDecoder);
+						startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
+						startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
+					}
+					
 					THBMessageHeader  workMessageHeader = new THBMessageHeader(messageIDFixedSize);
 					
 					try {
@@ -212,16 +209,22 @@ public class THBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 					
 					if (inputStramSizeBeforeMessageWork >= messageFrameSize) {
 						/** 메시지 추출 */
+						if (null == freeSizeInputStream) {
+							freeSizeInputStream = messageInputStreamResource
+									.getFreeSizeInputStream(charsetOfProjectDecoder);
+							/*startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
+							startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
+							long expectedPosition = startIndex*lastInputStreamBuffer.capacity()+startPosition+messageHeaderSize;
+							freeSizeInputStream.skip(expectedPosition);*/
+							
+							startIndex = 0;
+							startPosition = 0;
+							freeSizeInputStream.skip(messageHeaderSize);
+						}
+						
 						long postionBeforeReadingBody = freeSizeInputStream.position();
 						
-						long expectedPosition = startIndex*lastInputStreamBuffer.capacity()+startPosition+messageHeaderSize;
-						
 						// log.info(String.format("3. messageFrameSize=[%d], postionBeforeReadingBody=[%d], expectedPosition=[%d]", messageFrameSize, postionBeforeReadingBody, expectedPosition));
-						
-						if (expectedPosition != postionBeforeReadingBody) {
-							postionBeforeReadingBody = expectedPosition;
-							freeSizeInputStream.skip(expectedPosition);
-						}
 						
 						
 						if (targetClass.equals(InputMessage.class)) {

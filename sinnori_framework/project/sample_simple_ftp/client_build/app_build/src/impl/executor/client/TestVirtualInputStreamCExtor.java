@@ -40,8 +40,8 @@ import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.io.MessageProtocolIF;
 import kr.pe.sinnori.common.lib.CommonStaticFinal;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
-import kr.pe.sinnori.common.lib.MessageInputStreamResourcePerSocket;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
+import kr.pe.sinnori.common.lib.SocketInputStream;
 import kr.pe.sinnori.common.lib.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.ArrayData;
@@ -73,8 +73,8 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		// DHBMessageProtocol dhbMessageProtocol = new DHBMessageProtocol(messageIDFixedSize, dataPacketBufferQueueManager);
 		// dhbMessageProtocol.M2S(messageObj, charsetOfProject);
 		
-		MessageInputStreamResourcePerSocket messageInputStreamResource = 
-				new MessageInputStreamResourcePerSocket(dataPacketBufferQueueManager);
+		SocketInputStream messageInputStreamResource = 
+				new SocketInputStream(dataPacketBufferQueueManager);
 		
 		
 		//CharsetEncoder charsetOfProjectEncoder = CharsetUtil.createCharsetEncoder(clientProjectConfig.getCharset());

@@ -37,7 +37,7 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.MessageProtocolIF;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
-import kr.pe.sinnori.common.lib.MessageInputStreamResourcePerSocket;
+import kr.pe.sinnori.common.lib.SocketInputStream;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.InputMessage;
@@ -184,13 +184,13 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 							continue;
 						}
 						
-						MessageInputStreamResourcePerSocket messageInputStreamResource = clientResource.getMessageInputStreamResource();
+						SocketInputStream messageInputStreamResource = clientResource.getMessageInputStreamResource();
 						
 						
 						try {
 							lastInputStreamBuffer = messageInputStreamResource.getLastDataPacketBuffer();
-							log.info(String.format("1. %s InputMessageReader[%d] lastInputStreamBuffer[%s]", 
-									serverProjectConfig.getProjectName(), index, lastInputStreamBuffer.toString()));
+							/*log.info(String.format("1. %s InputMessageReader[%d] lastInputStreamBuffer[%s]", 
+									serverProjectConfig.getProjectName(), index, lastInputStreamBuffer.toString()));*/
 							
 							// int positionBeforeReading = lastInputStreamBuffer.position();							
 							/*
@@ -254,8 +254,8 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 
 							int cntOfMesages = inputMessageList.size();
 							
-							log.info(String.format("%s InputMessageReader[%d] cntOfMesages=[%d]", 
-									serverProjectConfig.getProjectName(), index, cntOfMesages));
+							/*log.info(String.format("%s InputMessageReader[%d] cntOfMesages=[%d]", 
+									serverProjectConfig.getProjectName(), index, cntOfMesages));*/
 							
 							for (int i = 0; i < cntOfMesages; i++) {
 								InputMessage inObj = (InputMessage)inputMessageList.get(i);

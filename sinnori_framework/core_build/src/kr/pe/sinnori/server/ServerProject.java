@@ -34,7 +34,7 @@ import kr.pe.sinnori.common.io.dhb.header.DHBMessageHeader;
 import kr.pe.sinnori.common.lib.AbstractProject;
 import kr.pe.sinnori.common.lib.ClassFileFilter;
 import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.common.lib.MessageInputStreamResourcePerSocket;
+import kr.pe.sinnori.common.lib.SocketInputStream;
 import kr.pe.sinnori.common.lib.ReadFileInfo;
 import kr.pe.sinnori.common.lib.SinnoriClassLoader;
 import kr.pe.sinnori.common.lib.WrapBuffer;
@@ -519,7 +519,7 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 
 			clientResource = new ClientResource(sc,
 					projectConfig,
-					new MessageInputStreamResourcePerSocket(this));
+					new SocketInputStream(this));
 
 			scToClientResourceHash.put(sc, clientResource);
 		// }

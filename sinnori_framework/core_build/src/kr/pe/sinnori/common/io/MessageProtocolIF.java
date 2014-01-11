@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.lib.MessageInputStreamResourcePerSocket;
+import kr.pe.sinnori.common.lib.SocketInputStream;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.lib.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
@@ -46,7 +46,7 @@ public interface MessageProtocolIF {
 	 */
 	public ArrayList<AbstractMessage> S2MList(Class<? extends AbstractMessage> targetClass, 
 			Charset clientCharset,
-			MessageInputStreamResourcePerSocket messageInputStreamResource, 
+			SocketInputStream messageInputStreamResource, 
 			MessageMangerIF messageManger) 
 					throws HeaderFormatException, NoMoreDataPacketBufferException;
 }

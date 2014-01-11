@@ -35,7 +35,7 @@ import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.CommonStaticFinal;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
-import kr.pe.sinnori.common.lib.MessageInputStreamResourcePerSocket;
+import kr.pe.sinnori.common.lib.SocketInputStream;
 import kr.pe.sinnori.common.lib.WrapBuffer;
 import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
@@ -70,7 +70,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 	protected boolean whetherToAutoConnect;
 
 	/** 소켓 채널 전용 읽기 자원 */
-	protected MessageInputStreamResourcePerSocket messageInputStreamResource = null;
+	protected SocketInputStream messageInputStreamResource = null;
 	
 
 	/** 최종 읽기를 수행한 시간. 초기값은 클라이언트(=SocketChannel) 생성시간이다. */
@@ -107,7 +107,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 		this.clientProjectConfig = clientProjectConfig;
 		
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-		messageInputStreamResource = new MessageInputStreamResourcePerSocket(dataPacketBufferQueueManager);
+		messageInputStreamResource = new SocketInputStream(dataPacketBufferQueueManager);
 		
 		this.asynOutputMessageQueue = asynOutputMessageQueue;
 	
@@ -187,16 +187,12 @@ public abstract class AbstractConnection implements CommonRootIF {
 	public void write(ArrayList<WrapBuffer> inObjWrapBufferList) throws ClosedByInterruptException, IOException {
 		// if (null == inObjWrapBufferList) return;
 		
+		 
+		
 		int inObjWrapBufferListSize = inObjWrapBufferList.size();
 		
+		long startTime = System.currentTimeMillis();
 		synchronized (serverSC) {
-			/*
-			if (null == serverSC) {
-				log.warn(String.format("serverSC is null, conn=[%s]", getSimpleConnectionInfo()));
-				return;
-			}
-			*/
-			
 			/**
 			 * 2013.07.24 잔존 데이타 발생하므로 GatheringByteChannel 를 이용하는 바이트 버퍼 배열 쓰기 방식 포기.
 			 */			
@@ -208,7 +204,9 @@ public abstract class AbstractConnection implements CommonRootIF {
 					serverSC.write(byteBuffer);
 				} while(byteBuffer.hasRemaining());
 			}
-		}	
+		}
+		long endTime = System.currentTimeMillis();
+		log.info(String.format("elapsed time=[%s]", endTime - startTime));
 	}
 	
 	/**
@@ -253,7 +251,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 	/**
 	 * @return 소켓 채널 전용 읽기 자원
 	 */
-	public MessageInputStreamResourcePerSocket getMessageInputStreamResource() {
+	public SocketInputStream getMessageInputStreamResource() {
 		
 		return messageInputStreamResource;
 	}

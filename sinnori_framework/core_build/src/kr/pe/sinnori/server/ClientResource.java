@@ -23,7 +23,7 @@ import java.util.Iterator;
 
 import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
 import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.common.lib.MessageInputStreamResourcePerSocket;
+import kr.pe.sinnori.common.lib.SocketInputStream;
 import kr.pe.sinnori.common.message.OutputMessage;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResource;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResourceManager;
@@ -57,7 +57,7 @@ public class ClientResource implements CommonRootIF {
 	private int echoMesgCount = 0;
 	
 	/** 소켓 채널 전용 읽기 자원 */
-	private MessageInputStreamResourcePerSocket messageInputStreamResource = null;
+	private SocketInputStream messageInputStreamResource = null;
 
 	/**
 	 * 클라이언트에 할당되는 서버 편지 식별자.
@@ -82,7 +82,7 @@ public class ClientResource implements CommonRootIF {
 	 */
 	public ClientResource(SocketChannel clientSC, 
 			ClientProjectConfigIF clientProjectConfig,
-			MessageInputStreamResourcePerSocket messageInputStreamResource) {
+			SocketInputStream messageInputStreamResource) {
 		this.clientSC = clientSC;
 		this.clientProjectConfig = clientProjectConfig;
 		this.finalReadTime = new java.util.Date();
@@ -93,7 +93,7 @@ public class ClientResource implements CommonRootIF {
 	/**
 	 * @return 소켓 채널 전용 읽기 자원
 	 */
-	public MessageInputStreamResourcePerSocket getMessageInputStreamResource() {
+	public SocketInputStream getMessageInputStreamResource() {
 		
 		return messageInputStreamResource;
 	}

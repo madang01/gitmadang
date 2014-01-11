@@ -18,7 +18,7 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.io.MessageProtocolIF;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
-import kr.pe.sinnori.common.lib.MessageInputStreamResourcePerSocket;
+import kr.pe.sinnori.common.lib.SocketInputStream;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.lib.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
@@ -81,7 +81,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 			}
 			
 			
-			MessageInputStreamResourcePerSocket messageInputStreamResourcePerSocket = new MessageInputStreamResourcePerSocket(warpBufferList, dataPacketBufferQueueManager);
+			SocketInputStream messageInputStreamResourcePerSocket = new SocketInputStream(warpBufferList, dataPacketBufferQueueManager);
 			
 			ArrayList<AbstractMessage> outObjList = null;
 			try {
@@ -130,7 +130,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 				// log.debug(oneBuffer.toString());
 			}
 			// log.info(String.format("messageID[%s].M2BDHB FreeSizeOutputStream position=[%d], remaining=[%d]", messageID, fsos.postion(), fsos.remaining()));
-			MessageInputStreamResourcePerSocket messageInputStreamResourcePerSocket = new MessageInputStreamResourcePerSocket(warpBufferList, dataPacketBufferQueueManager);
+			SocketInputStream messageInputStreamResourcePerSocket = new SocketInputStream(warpBufferList, dataPacketBufferQueueManager);
 			
 			ArrayList<AbstractMessage> outObjList = null;
 			try {
@@ -180,7 +180,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 				// log.debug(oneBuffer.toString());
 			}
 			
-			MessageInputStreamResourcePerSocket messageInputStreamResourcePerSocket = new MessageInputStreamResourcePerSocket(warpBufferList, dataPacketBufferQueueManager);
+			SocketInputStream messageInputStreamResourcePerSocket = new SocketInputStream(warpBufferList, dataPacketBufferQueueManager);
 			
 			ArrayList<AbstractMessage> outObjList = null;
 			try {
@@ -230,7 +230,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 				// log.debug(oneBuffer.toString());
 			}
 			
-			MessageInputStreamResourcePerSocket messageInputStreamResourcePerSocket = new MessageInputStreamResourcePerSocket(warpBufferList, dataPacketBufferQueueManager);
+			SocketInputStream messageInputStreamResourcePerSocket = new SocketInputStream(warpBufferList, dataPacketBufferQueueManager);
 			
 			ArrayList<AbstractMessage> outObjList = null;
 			try {
@@ -281,7 +281,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 				// log.debug(oneBuffer.toString());
 			}
 			
-			MessageInputStreamResourcePerSocket messageInputStreamResourcePerSocket = new MessageInputStreamResourcePerSocket(warpBufferList, dataPacketBufferQueueManager);
+			SocketInputStream messageInputStreamResourcePerSocket = new SocketInputStream(warpBufferList, dataPacketBufferQueueManager);
 			
 			ArrayList<AbstractMessage> outObjList = null;
 			try {
@@ -331,7 +331,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 				// log.debug(oneBuffer.toString());
 			}
 			
-			MessageInputStreamResourcePerSocket messageInputStreamResourcePerSocket = new MessageInputStreamResourcePerSocket(warpBufferList, dataPacketBufferQueueManager);
+			SocketInputStream messageInputStreamResourcePerSocket = new SocketInputStream(warpBufferList, dataPacketBufferQueueManager);
 			
 			ArrayList<AbstractMessage> outObjList = null;
 			try {
@@ -381,7 +381,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 				// log.debug(oneBuffer.toString());
 			}
 			
-			MessageInputStreamResourcePerSocket messageInputStreamResourcePerSocket = new MessageInputStreamResourcePerSocket(warpBufferList, dataPacketBufferQueueManager);
+			SocketInputStream messageInputStreamResourcePerSocket = new SocketInputStream(warpBufferList, dataPacketBufferQueueManager);
 			
 			ArrayList<AbstractMessage> outObjList = null;
 			try {
@@ -448,7 +448,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 			
 			
 			
-			MessageInputStreamResourcePerSocket messageInputStreamResourcePerSocket = new MessageInputStreamResourcePerSocket(warpBufferList, dataPacketBufferQueueManager);
+			SocketInputStream messageInputStreamResourcePerSocket = new SocketInputStream(warpBufferList, dataPacketBufferQueueManager);
 			
 			ArrayList<AbstractMessage> outObjList = null;
 			try {
@@ -515,7 +515,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 //			}
 //			log.info(String.format("warpBufferList[0] hex=[%s]", HexUtil.byteBufferAvailableToHex(warpBufferList.get(0).getByteBuffer())));
 			
-			MessageInputStreamResourcePerSocket messageInputStreamResourcePerSocket = new MessageInputStreamResourcePerSocket(warpBufferList, dataPacketBufferQueueManager);
+			SocketInputStream messageInputStreamResourcePerSocket = new SocketInputStream(warpBufferList, dataPacketBufferQueueManager);
 			
 			ArrayList<AbstractMessage> outObjList = null;
 			try {

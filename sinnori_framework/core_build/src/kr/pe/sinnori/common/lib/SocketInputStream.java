@@ -28,9 +28,9 @@ import kr.pe.sinnori.common.io.MessageProtocolIF;
 
 /**
  * <pre>
- * 소켓에 1:1로 할당되는 메시지 입력 스트림 자원 클래스.
- * 자원은 2가지이다.
- * 첫번째 소켓 읽기를 할때 필요한  메시지 내용을 담을 데이터 패킷 버퍼 목록
+ * 소켓에 1:1로 할당되는 메시지 입력 스트림 클래스.
+ * 주요 자료 구조로 2가지를 갖는다.
+ * 첫번째 소켓 읽기를 할때 가상의 입력 스트림을 구현하여 필요한  메시지 내용을 담을 데이터 패킷 버퍼 목록
  * 두번째 메시지 처리 중 필요한 상태 정보를 갖는 부과 정보. 
  *       예) DHB 프로토콜의 경우 DHB 헤더 정보. 
  * 
@@ -47,7 +47,7 @@ import kr.pe.sinnori.common.io.MessageProtocolIF;
  * @author Jonghoon Won
  *
  */
-public class MessageInputStreamResourcePerSocket implements CommonRootIF {
+public class SocketInputStream implements CommonRootIF {
 	/** 소켓 채널 전용 출력 메시지 읽기 전용 버퍼 목록, 참고) 언제나 읽기가 가능 하도록 최소 크기가 1이다. */
 	private ArrayList<WrapBuffer> dataPacketBufferList = new  ArrayList<WrapBuffer>();
 	/** 메시지를 추출시 생기는 부가 정보를  */
@@ -68,7 +68,7 @@ public class MessageInputStreamResourcePerSocket implements CommonRootIF {
 	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷 버퍼 확보 실패시 던지는 예외
 	 */
-	public MessageInputStreamResourcePerSocket(DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
+	public SocketInputStream(DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
 		
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 		this.byteOrderOfProject = dataPacketBufferQueueManager.getByteOrder();
@@ -87,7 +87,7 @@ public class MessageInputStreamResourcePerSocket implements CommonRootIF {
 	 * @param dataPacketBufferQueueManager
 	 * @throws NoMoreDataPacketBufferException
 	 */
-	public MessageInputStreamResourcePerSocket(ArrayList<WrapBuffer> messageReadWrapBufferList,
+	public SocketInputStream(ArrayList<WrapBuffer> messageReadWrapBufferList,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 		this.byteOrderOfProject = dataPacketBufferQueueManager.getByteOrder();
@@ -98,6 +98,11 @@ public class MessageInputStreamResourcePerSocket implements CommonRootIF {
 		lastByteBuffer = dataPacketBufferList.get(dataPacketBufferList.size()-1).getByteBuffer();	
 	}
 	
+	
+	public long position() {
+		long dataPacketBufferListSizeWithoutLastBuffer = dataPacketBufferList.size() - 1;
+		return dataPacketBufferListSizeWithoutLastBuffer *  lastByteBuffer.capacity() + lastByteBuffer.position();
+	}
 	
 	
 	public ByteOrder getByteOrder() {
@@ -124,8 +129,8 @@ public class MessageInputStreamResourcePerSocket implements CommonRootIF {
 	 * 클라이언트 연결 클래스의 소켓이 닫혔을 경우 호출 되는 초기화 함수. 1개 남은 바이트 버퍼의 속성값은 모두 초기화(=clear) 된다.
 	 */
 	public void initResource() {
-		int dataPacketBufferListSize = dataPacketBufferList.size() - 1;
-		for (int i=0; i < dataPacketBufferListSize; i++) {
+		int dataPacketBufferListSizeWithoutLastBuffer = dataPacketBufferList.size() - 1;
+		for (int i=0; i < dataPacketBufferListSizeWithoutLastBuffer; i++) {
 			WrapBuffer workWrapBuffer = dataPacketBufferList.remove(0);
 			dataPacketBufferQueueManager.putDataPacketBuffer(workWrapBuffer);
 		}
