@@ -162,14 +162,14 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 	public ArrayList<AbstractMessage> S2MList(
 			Class<? extends AbstractMessage> targetClass,
 			Charset charsetOfProject,
-			SocketInputStream messageInputStreamResource,
+			SocketInputStream socketInputStream,
 			MessageMangerIF messageManger) throws HeaderFormatException,
 			NoMoreDataPacketBufferException {
 		CharsetDecoder charsetOfProjectDecoder = CharsetUtil
 				.createCharsetDecoder(charsetOfProject);
 		// ArrayList<WrapBuffer> messageReadWrapBufferList =
 		// messageInputStreamResource.getMessageReadWrapBufferList();
-		DHBMessageHeader messageHeader = (DHBMessageHeader) messageInputStreamResource
+		DHBMessageHeader messageHeader = (DHBMessageHeader) socketInputStream
 				.getUserDefObject();
 
 		ArrayList<AbstractMessage> messageList = new ArrayList<AbstractMessage>();
@@ -185,7 +185,7 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 		// java.security.MessageDigest md5 = DigestUtils.getMd5Digest();
 
 		boolean isMoreMessage = false;
-		int messageReadWrapBufferListSize = messageInputStreamResource
+		int messageReadWrapBufferListSize = socketInputStream
 				.getDataPacketBufferListSize();
 		if (messageReadWrapBufferListSize == 0) {
 			log.fatal(String.format("messageReadWrapBufferListSize is zero"));
@@ -194,7 +194,7 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 		
 		/** 최종적으로 읽어온 마지막 버퍼의 인덱스와 위치를 기억합니다. */
 		// int lastIndex = messageReadWrapBufferListSize - 1;
-		ByteBuffer lastInputStreamBuffer = messageInputStreamResource
+		ByteBuffer lastInputStreamBuffer = socketInputStream
 				.getLastDataPacketBuffer();
 		// int lastPosition = lastInputStreamBuffer.position();
 
@@ -212,25 +212,29 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 
 		try {
 			// long inputStramSizeBeforeMessageWork = freeSizeInputStream.remaining();
-			long inputStramSizeBeforeMessageWork = messageInputStreamResource.position();
+			long inputStramSizeBeforeMessageWork = socketInputStream.position();
+			
 			
 			
 			/*log.info(String.format("1. messageHeaderSize=[%d], inputStramSizeBeforeMessageWork[%d]",
 					messageHeaderSize, inputStramSizeBeforeMessageWork));*/
 
 			do {
-				// log.debug(String.format("1. messageReadWrapBufferListSize=[%d], lastInputStreamBuffer=[%s], inputStramSizeBeforeMessageWork=[%d]",
-				// messageReadWrapBufferListSize,
-				// lastInputStreamBuffer.toString(),
-				// inputStramSizeBeforeMessageWork));
+				
+				/*log.info(String.format("1. isMoreMessage=[%s], messageHeaderSize=[%d], inputStramSizeBeforeMessageWork[%d]",
+						isMoreMessage, messageHeaderSize, inputStramSizeBeforeMessageWork));*/
+				
+				
 				isMoreMessage = false;
 
 				if (null == messageHeader
 						&& inputStramSizeBeforeMessageWork >= messageHeaderSize) {
 					/** 스트림 통해 DHB 헤더 읽기전 header MD5 구하기 */
 					
+					/*log.info(String.format("2. inputStramSizeBeforeMessageWork[%d]", inputStramSizeBeforeMessageWork));*/
+					
 					if (null == freeSizeInputStream) {
-						freeSizeInputStream = messageInputStreamResource
+						freeSizeInputStream = socketInputStream
 								.getFreeSizeInputStream(charsetOfProjectDecoder);
 						streamBufferList = freeSizeInputStream
 								.getStreamBufferList();
@@ -319,7 +323,8 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 				}
 
 				if (null != messageHeader) {
-					//log.info(String.format("2. startIndex=[%d], startPosition=[%d], messageHeader=[%s]", startIndex, startPosition, messageHeader.toString()));
+					/*log.info(String.format("3. inputStramSizeBeforeMessageWork[%d]", inputStramSizeBeforeMessageWork));*/
+					
 					
 					long messageFrameSize = messageHeader.messageHeaderSize
 							+ messageHeader.bodySize;
@@ -327,7 +332,7 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 					if (inputStramSizeBeforeMessageWork >= messageFrameSize) {
 						/** 메시지 추출 */
 						if (null == freeSizeInputStream) {
-							freeSizeInputStream = messageInputStreamResource
+							freeSizeInputStream = socketInputStream
 									.getFreeSizeInputStream(charsetOfProjectDecoder);
 							streamBufferList = freeSizeInputStream
 									.getStreamBufferList();
@@ -340,15 +345,12 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 						}
 						
 						long postionBeforeReadingBody = freeSizeInputStream.position();
-						/*
-						long expectedPosition = startIndex*lastInputStreamBuffer.capacity()+startPosition+messageHeaderSize;
 						
-						//log.info(String.format("3. messageFrameSize=[%d], postionBeforeReadingBody=[%d], expectedPosition=[%d]", messageFrameSize, postionBeforeReadingBody, expectedPosition));
 						
-						if (expectedPosition != postionBeforeReadingBody) {
-							postionBeforeReadingBody = expectedPosition;
-							freeSizeInputStream.skip(expectedPosition);
-						}*/
+						/*long expectedPosition = startIndex*lastInputStreamBuffer.capacity()+startPosition+messageHeaderSize;
+						log.info(String.format("4.startIndex=[%d], startPosition=[%d], freeSizeInputStream.remaining=[%d], expectedPosition=[%d], postionBeforeReadingBody=[%d]"
+								, startIndex, startPosition, freeSizeInputStream.remaining(), expectedPosition, postionBeforeReadingBody));						
+						log.info(String.format("4.messageHeader=[%s]", messageHeader.toString()));*/
 
 						/** body MD5 구하기 */
 						int startBodyIndex = freeSizeInputStream
@@ -582,29 +584,34 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 							messageList.add(workOutObj);
 						}
 
-						inputStramSizeBeforeMessageWork = freeSizeInputStream.remaining();
+						inputStramSizeBeforeMessageWork -= messageFrameSize;
 						if (inputStramSizeBeforeMessageWork > messageHeaderSize) {
 							isMoreMessage = true;
 						}
 						
-						startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
+						/*if (freeSizeInputStream.remaining() != inputStramSizeBeforeMessageWork) {
+							log.warn(String.format("different freeSizeInputStream.remaining[%d] to inputStramSizeBeforeMessageWork[%d]"
+									, freeSizeInputStream.remaining(), inputStramSizeBeforeMessageWork));
+						}*/
+						
 						startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
+						startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
 						messageHeader = null;
 					}
 				}
 			} while (isMoreMessage);
 			
 			if (messageList.size() > 0) {
-				messageInputStreamResource.truncate(startIndex, startPosition);
+				socketInputStream.truncate(startIndex, startPosition);
 			} else if (!lastInputStreamBuffer.hasRemaining()) {
 				/** 메시지 추출 실패했는데도 마지막 버퍼가 꽉차있다면 스트림 크기를 증가시킨다. 단 설정파일 환경변수 "메시지당 최대 데이터 패킷 갯수" 만큼만 증가될수있다. */
-				lastInputStreamBuffer = messageInputStreamResource.nextDataPacketBuffer();
+				lastInputStreamBuffer = socketInputStream.nextDataPacketBuffer();
 			}
 		} catch (MessageItemException e) {
 			log.fatal(e.getMessage(), e);
 			System.exit(1);
 		} finally {
-			messageInputStreamResource.setUserDefObject(messageHeader);
+			socketInputStream.setUserDefObject(messageHeader);
 		}
 
 		return messageList;

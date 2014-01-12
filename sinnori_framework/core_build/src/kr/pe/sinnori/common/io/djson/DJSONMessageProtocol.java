@@ -108,26 +108,26 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageProtocolIF {
 	public ArrayList<AbstractMessage> S2MList(
 			Class<? extends AbstractMessage> targetClass,
 			Charset clientCharset,
-			SocketInputStream messageInputStreamResource,
+			SocketInputStream socketInputStream,
 			MessageMangerIF messageManger) throws HeaderFormatException,
 			NoMoreDataPacketBufferException {
 		
 		CharsetDecoder charsetOfProjectDecoder = CharsetUtil.createCharsetDecoder(clientCharset);
 		// ArrayList<WrapBuffer> messageReadWrapBufferList = messageInputStreamResource.getMessageReadWrapBufferList();
-		DJSONHeader messageHeader = (DJSONHeader)messageInputStreamResource.getUserDefObject();
+		DJSONHeader messageHeader = (DJSONHeader)socketInputStream.getUserDefObject();
 		// ByteOrder byteOrderOfProject = messageInputStreamResource.getByteOrder();
 		
 		ArrayList<AbstractMessage> messageList = new ArrayList<AbstractMessage>();
 		
 		boolean isMoreMessage = false;
 		
-		int messageReadWrapBufferListSize = messageInputStreamResource.getDataPacketBufferListSize();
+		int messageReadWrapBufferListSize = socketInputStream.getDataPacketBufferListSize();
 		if (messageReadWrapBufferListSize == 0) {
 			log.fatal(String.format("messageReadWrapBufferListSize is zero"));
 			System.exit(1);
 		}
 		
-		ByteBuffer lastInputStreamBuffer = messageInputStreamResource
+		ByteBuffer lastInputStreamBuffer = socketInputStream
 				.getLastDataPacketBuffer();
 		
 		/**
@@ -143,7 +143,7 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageProtocolIF {
 		try {			
 			// long inputStramSizeBeforeMessageWork = (lastIndex - startIndex) * dataPacketBufferSize - startPosition + lastPosition;
 			// long inputStramSizeBeforeMessageWork = freeSizeInputStream.remaining();
-			long inputStramSizeBeforeMessageWork = messageInputStreamResource.position();
+			long inputStramSizeBeforeMessageWork = socketInputStream.position();
 			
 			/*log.info(String.format("1. messageHeaderSize=[%d], inputStramSizeBeforeMessageWork[%d]",
 					messageHeaderSize, inputStramSizeBeforeMessageWork));*/
@@ -156,7 +156,7 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageProtocolIF {
 					
 					/** 스트림 통해서 헤더 읽기 */
 					if (null == freeSizeInputStream) {
-						freeSizeInputStream = messageInputStreamResource
+						freeSizeInputStream = socketInputStream
 								.getFreeSizeInputStream(charsetOfProjectDecoder);
 						startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
 						startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
@@ -175,7 +175,7 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageProtocolIF {
 					if (inputStramSizeBeforeMessageWork >= messageFrameSize) {
 						/** 메시지 추출*/
 						if (null == freeSizeInputStream) {
-							freeSizeInputStream = messageInputStreamResource
+							freeSizeInputStream = socketInputStream
 									.getFreeSizeInputStream(charsetOfProjectDecoder);
 							startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
 							startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
@@ -355,17 +355,17 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageProtocolIF {
 			} while (isMoreMessage);
 				
 			if (messageList.size() > 0) {
-				messageInputStreamResource.truncate(startIndex, startPosition);
+				socketInputStream.truncate(startIndex, startPosition);
 			} else if (!lastInputStreamBuffer.hasRemaining()) {
 				/** 메시지 추출 실패했는데도 마지막 버퍼가 꽉차있다면 스트림 크기를 증가시킨다. 단 설정파일 환경변수 "메시지당 최대 데이터 패킷 갯수" 만큼만 증가될수있다. */
-				lastInputStreamBuffer = messageInputStreamResource.nextDataPacketBuffer();
+				lastInputStreamBuffer = socketInputStream.nextDataPacketBuffer();
 			}
 			
 		} catch(MessageItemException e) {
 			log.fatal(e.getMessage(), e);
 			System.exit(1);
 		} finally {
-			messageInputStreamResource.setUserDefObject(messageHeader);
+			socketInputStream.setUserDefObject(messageHeader);
 		}
 		
 		

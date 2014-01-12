@@ -129,22 +129,22 @@ public class THBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 	@Override
 	public ArrayList<AbstractMessage> S2MList(Class<? extends AbstractMessage> targetClass,
 			Charset charsetOfProject,
-			SocketInputStream messageInputStreamResource, 
+			SocketInputStream socketInputStream, 
 			MessageMangerIF messageManger) 
 					throws HeaderFormatException, NoMoreDataPacketBufferException {
 		CharsetDecoder charsetOfProjectDecoder = CharsetUtil.createCharsetDecoder(charsetOfProject);		
-		THBMessageHeader messageHeader = (THBMessageHeader)messageInputStreamResource.getUserDefObject();		
+		THBMessageHeader messageHeader = (THBMessageHeader)socketInputStream.getUserDefObject();		
 		ArrayList<AbstractMessage> messageList = new ArrayList<AbstractMessage>();		
 		
 		boolean isMoreMessage = false;
-		int messageReadWrapBufferListSize = messageInputStreamResource
+		int messageReadWrapBufferListSize = socketInputStream
 				.getDataPacketBufferListSize();
 		if (messageReadWrapBufferListSize == 0) {
 			log.fatal(String.format("messageReadWrapBufferListSize is zero"));
 			System.exit(1);
 		}
 		
-		ByteBuffer lastInputStreamBuffer = messageInputStreamResource
+		ByteBuffer lastInputStreamBuffer = socketInputStream
 				.getLastDataPacketBuffer();
 		
 		/**
@@ -159,7 +159,7 @@ public class THBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 		
 		try {
 			// long inputStramSizeBeforeMessageWork = freeSizeInputStream.remaining();
-			long inputStramSizeBeforeMessageWork = messageInputStreamResource.position();
+			long inputStramSizeBeforeMessageWork = socketInputStream.position();
 			
 			do {
 				isMoreMessage = false;
@@ -168,7 +168,7 @@ public class THBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 						&& inputStramSizeBeforeMessageWork >= messageHeaderSize) {
 					/** 헤더 읽기 */
 					if (null == freeSizeInputStream) {
-						freeSizeInputStream = messageInputStreamResource
+						freeSizeInputStream = socketInputStream
 								.getFreeSizeInputStream(charsetOfProjectDecoder);
 						startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
 						startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
@@ -210,7 +210,7 @@ public class THBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 					if (inputStramSizeBeforeMessageWork >= messageFrameSize) {
 						/** 메시지 추출 */
 						if (null == freeSizeInputStream) {
-							freeSizeInputStream = messageInputStreamResource
+							freeSizeInputStream = socketInputStream
 									.getFreeSizeInputStream(charsetOfProjectDecoder);
 							startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
 							startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
@@ -435,16 +435,16 @@ public class THBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 			
 			
 			if (messageList.size() > 0) {
-				messageInputStreamResource.truncate(startIndex, startPosition);
+				socketInputStream.truncate(startIndex, startPosition);
 			} else if (!lastInputStreamBuffer.hasRemaining()) {
 				/** 메시지 추출 실패했는데도 마지막 버퍼가 꽉차있다면 스트림 크기를 증가시킨다. 단 설정파일 환경변수 "메시지당 최대 데이터 패킷 갯수" 만큼만 증가될수있다. */
-				lastInputStreamBuffer = messageInputStreamResource.nextDataPacketBuffer();
+				lastInputStreamBuffer = socketInputStream.nextDataPacketBuffer();
 			}	
 		} catch(MessageItemException e) {
 			log.fatal(e.getMessage(), e);
 			System.exit(1);
 		} finally {
-			messageInputStreamResource.setUserDefObject(messageHeader);
+			socketInputStream.setUserDefObject(messageHeader);
 		}
 		
 		

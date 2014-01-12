@@ -164,7 +164,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		serverSC.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
 		serverSC.setOption(StandardSocketOptions.TCP_NODELAY, true);
 		serverSC.setOption(StandardSocketOptions.SO_LINGER, 0);
-		// serverSC.setOption(StandardSocketOptions.SO_SNDBUF, clientProjectConfig.getDataPacketBufferSize()*2);
+		serverSC.setOption(StandardSocketOptions.SO_SNDBUF, 65536);
 		// serverSC.setOption(StandardSocketOptions.SO_RCVBUF, clientProjectConfig.getDataPacketBufferSize()*2);
 		//SO_SNDBUF
 		

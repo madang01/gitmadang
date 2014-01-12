@@ -73,7 +73,7 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		// DHBMessageProtocol dhbMessageProtocol = new DHBMessageProtocol(messageIDFixedSize, dataPacketBufferQueueManager);
 		// dhbMessageProtocol.M2S(messageObj, charsetOfProject);
 		
-		SocketInputStream messageInputStreamResource = 
+		SocketInputStream socketInputStream = 
 				new SocketInputStream(dataPacketBufferQueueManager);
 		
 		
@@ -111,22 +111,22 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 				int len = random.nextInt(3000) + 30;
 				len = Math.min(len, baseBuffer.remaining());
 				
-				ByteBuffer scOwnLastBuffer = messageInputStreamResource.getLastDataPacketBuffer();
+				ByteBuffer scOwnLastBuffer = socketInputStream.getLastDataPacketBuffer();
 				
 				len = Math.min(len, scOwnLastBuffer.remaining());
 				
-				log.info(String.format("1.len=[%d], baseBuffer.position=[%d], scOwnLastBuffer.position=[%d]", len, baseBuffer.position(), scOwnLastBuffer.position()));
+				log.info(String.format("1.len=[%d], baseBuffer.position=[%d], socketInputStream.position=[%d]", len, baseBuffer.position(), socketInputStream.position()));
 				
 				byte readBytes[] = new byte[len];
 				baseBuffer.get(readBytes);
 				
 				scOwnLastBuffer.put(readBytes);
 				
-				log.info(String.format("2.len=[%d], baseBuffer.position=[%d], scOwnLastBuffer.position=[%d]", len, baseBuffer.position(), scOwnLastBuffer.position()));
+				log.info(String.format("2.len=[%d], baseBuffer.position=[%d], socketInputStream.position=[%d]", len, baseBuffer.position(), socketInputStream.position()));
 
 				ArrayList<AbstractMessage> readInputMessageList = null;
 				
-				readInputMessageList = messageProtocol.S2MList(InputMessage.class, clientProjectConfig.getCharset(), messageInputStreamResource, messageManger);
+				readInputMessageList = messageProtocol.S2MList(InputMessage.class, clientProjectConfig.getCharset(), socketInputStream, messageManger);
 				
 				int readInputMessageListSize = readInputMessageList.size();
 				for (int i=0; i< readInputMessageListSize; i++) {

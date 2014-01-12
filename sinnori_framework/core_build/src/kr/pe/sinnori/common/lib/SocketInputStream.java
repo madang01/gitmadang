@@ -181,57 +181,110 @@ public class SocketInputStream implements CommonRootIF {
 	 * 동시에 삭제된 버퍼는 데이터 패킷 랩 버퍼 관리자에 반환된다.<br/>
 	 * 
 	 * @param startIndex 메시지 삭제후 최종 시작 버퍼의 인덱스
-	 * @param startPostion 메시지 삭제후 최종 시작 버퍼의 위치
+	 * @param startPosition 메시지 삭제후 최종 시작 버퍼의 위치
 	 */
-	public void truncate(int startIndex, int startPostion) {
-		//FIXME!
-		//log.info(String.format("before truncate, startIndex=[%d], startPostion=[%d], lastByteBuffer.pos=[%d]", startIndex, startPostion, lastByteBuffer.position()));
+	public void truncate(int startIndex, int startPosition) {
+		int dataPacketBufferListSize = dataPacketBufferList.size();
 		
 		if (startIndex < 0) {
 			String errorMessage = String.format("parameter startIndex[%d] less than zero", startIndex);
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		if (startIndex >= dataPacketBufferList.size()) {
-			String errorMessage = String.format("parameter startIndex[%d] equal to or greater than WrapBufferList'size[%d]", startIndex, dataPacketBufferList.size());
+		if (startIndex >= dataPacketBufferListSize) {
+			String errorMessage = String.format("parameter startIndex[%d] equal to or greater than WrapBufferList'size[%d]", startIndex, dataPacketBufferListSize);
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		if (startPostion < 0) {
-			String errorMessage = String.format("parameter startPostion[%d] less than zero", startPostion);
+		if (startPosition < 0) {
+			String errorMessage = String.format("parameter startPosition[%d] less than zero", startPosition);
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
+		/** 첫번째 버퍼를 startIndex 로 변경 */
 		firstByteBuffer = dataPacketBufferList.get(startIndex).getByteBuffer();
 		//log.info(String.format("1.in truncate, firstByteBuffer=[%s]", firstByteBuffer.toString()));
 		
-		firstByteBuffer.limit(firstByteBuffer.position());
-		firstByteBuffer.position(startPostion);
+		/** 첫번째 버퍼의 읽어온 데이터의 크기 */
+		int endPosition = firstByteBuffer.position();
 		
+		/*long truncatedLength = startIndex * lastByteBuffer.capacity() + startPosition;		
+		log.info(String.format("in truncate, startIndex=[%d], startPosition=[%d], endPosition=[%d], position[%d] of last, dataPacketBufferListSize=[%d], truncatedLength=[%d]"
+				, startIndex, startPosition, endPosition, lastByteBuffer.position(), dataPacketBufferListSize, truncatedLength));*/
+		
+		// FIXME!
+		/*if (startPostion > readingBytesOfFirstBuffer) {
+			String errorMessage = String.format("parameter startPostion[%d] greater than readingBytesOfFirstBuffer[%d]", startPostion, readingBytesOfFirstBuffer);
+			log.warn(errorMessage);
+		}*/
+		
+		/** 첫번째 버퍼의 읽어온 데이터를 첫 시작 위치로 밀어 올린다. */
+		firstByteBuffer.limit(endPosition);
+		firstByteBuffer.position(startPosition);
 		firstByteBuffer.compact();
 		//log.info(String.format("2.in truncate, firstByteBuffer=[%s]", firstByteBuffer.toString()));
 		
+		/** startIndex 이전 버퍼 삭제(=반환) */
 		for (int i=0; i < startIndex; i++) {
 			WrapBuffer workWrapBuffer = dataPacketBufferList.remove(0);
 			dataPacketBufferQueueManager.putDataPacketBuffer(workWrapBuffer);
+			dataPacketBufferListSize--;
 		}
 		
-		int flipBufferListSize = dataPacketBufferList.size() - 1;
+		int flipBufferListSize = dataPacketBufferListSize - 1;
 		for (int i=0; i < flipBufferListSize ; i++) {
 			ByteBuffer currentByteBuffer = dataPacketBufferList.get(i).getByteBuffer();
 			ByteBuffer nextByteBuffer = dataPacketBufferList.get(i+1).getByteBuffer();
 			nextByteBuffer.flip();
-			nextByteBuffer.put(currentByteBuffer);
+			
+			int currentRemainingBytes = currentByteBuffer.remaining();
+			int nextRemainingBytes = nextByteBuffer.remaining();
+			if (currentRemainingBytes < nextRemainingBytes) {
+				/** truncate 한후, flip를 하는 과정에서 마지막 버퍼의 내용이 남은 채로 이전 버퍼로 이동 **/
+				
+				// log.info(String.format("1.dataPacketBufferList[%d] currentRemainingBytes=[%d], nextRemainingBytes=[%d]", i, currentRemainingBytes, nextRemainingBytes));
+				
+				int backupNextLimit = nextByteBuffer.limit();
+				nextByteBuffer.limit(nextByteBuffer.position()+currentRemainingBytes);
+				currentByteBuffer.put(nextByteBuffer);				
+				nextByteBuffer.limit(backupNextLimit);
+				nextByteBuffer.compact();
+			} else {
+				/** truncate 한후, flip를 하는 과정에서 마지막 버퍼의 내용이 모두 이전 버퍼로 이동 **/
+				
+				// log.info(String.format("2.dataPacketBufferList[%d] currentRemainingBytes=[%d], nextRemainingBytes=[%d]", i, currentRemainingBytes, nextRemainingBytes));
+				
+				// FIXME!
+				/*if (i+1 != flipBufferListSize) {
+					log.warn(String.format("다음 버퍼의 모든것이 이동될때에는 오직 다음 버퍼가 마지막 버퍼일때뿐이다. 마지막 버퍼 인덱스[%d]와 다음 버퍼 인덱스[%d] 불일치"
+							, flipBufferListSize, i+1));
+				}*/
+				
+				currentByteBuffer.put(nextByteBuffer);
+				
+				/** 마지막 랩 버퍼를 현재 버퍼로 변경 */
+				lastByteBuffer = currentByteBuffer;
+				
+				/** 마지막 랩 버퍼 반환 */
+				WrapBuffer lastWrapBuffer = dataPacketBufferList.get(flipBufferListSize);
+				dataPacketBufferQueueManager.putDataPacketBuffer(lastWrapBuffer);
+				dataPacketBufferList.remove(i+1);
+				dataPacketBufferListSize--;
+			}
 		}
 		
-		if (flipBufferListSize > 0) {
-			lastByteBuffer = dataPacketBufferList.get(flipBufferListSize).getByteBuffer();
-			lastByteBuffer.compact();
-		}
-		
-		
-		//FIXME!
-		//log.info(String.format("after truncate, startIndex=[%d], startPostion=[%d], lastByteBuffer.pos=[%d]", startIndex, startPostion, lastByteBuffer.position()));
+		// FIXME! 지정된 구간 삭제후 남은 데이터 패킷 목록 점검을 위한 디버깅 코드
+		/*int size = dataPacketBufferList.size();
+		if (dataPacketBufferListSize != size) {
+			log.warn(String.format("different dataPacketBufferListSize=[%d] to dataPacketBufferList.size[%d]", dataPacketBufferListSize, size));
+		}		
+		for (int i=0; i < dataPacketBufferListSize; i++) {
+			WrapBuffer workWrapBuffer = dataPacketBufferList.get(i);
+			ByteBuffer workByteBuffer = workWrapBuffer.getByteBuffer();
+			if (workByteBuffer.position() != workByteBuffer.capacity()) {
+				log.warn(String.format("workByteBuffer[%d][%s]", i, workByteBuffer.toString()));
+			}
+		}*/
 	}
 	
 	public ByteBuffer getLastDataPacketBuffer() {

@@ -765,9 +765,8 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 	@Override
 	public long remaining() {
 		long remaingBytes = 0;
-		
 		int streamBufferListSize = streamBufferList.size();
-		
+		/*
 		int lastIndexOfStreamBufferList = streamBufferListSize -1;
 		remaingBytes += streamBufferList.get(indexOfWorkBuffer).remaining();
 		int countOfWorkBuffer = indexOfWorkBuffer+2;
@@ -778,10 +777,11 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 		if (lastIndexOfStreamBufferList != indexOfWorkBuffer) {
 			remaingBytes += streamBufferList.get(lastIndexOfStreamBufferList).remaining();
 		}
+		*/
 		
-		/*for (int i = indexOfWorkBuffer; i < streamBufferListSize; i++) {
+		for (int i = indexOfWorkBuffer; i < streamBufferListSize; i++) {
 			remaingBytes += streamBufferList.get(i).remaining();
-		}*/
+		}
 		
 		return remaingBytes;
 	}

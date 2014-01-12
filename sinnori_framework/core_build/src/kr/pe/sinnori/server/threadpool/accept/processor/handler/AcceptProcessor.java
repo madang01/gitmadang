@@ -82,8 +82,8 @@ public class AcceptProcessor extends Thread implements CommonRootIF {
 				clientSC.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
 				clientSC.setOption(StandardSocketOptions.TCP_NODELAY, true);
 				clientSC.setOption(StandardSocketOptions.SO_LINGER, 0);
-				clientSC.setOption(StandardSocketOptions.SO_SNDBUF, 30*1024);
-				clientSC.setOption(StandardSocketOptions.SO_RCVBUF, serverProjectConfig.getDataPacketBufferSize());
+				clientSC.setOption(StandardSocketOptions.SO_SNDBUF, 65536);
+				// clientSC.setOption(StandardSocketOptions.SO_RCVBUF, serverProjectConfig.getDataPacketBufferSize());
 
 				try {
 					inputMessageReaderPoolIF.addNewClient(clientSC);
