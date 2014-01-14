@@ -103,6 +103,145 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageProtocolIF {
 		
 		return messageWrapBufferList;
 	}
+	
+	/**
+	 * 신놀이 메시지가 아닌 json 객체를 다루고자 할때를 위해 제공된 메소드.
+	 * @param clientCharset
+	 * @param socketInputStream
+	 * @param messageManger
+	 * @return
+	 * @throws HeaderFormatException
+	 * @throws NoMoreDataPacketBufferException
+	 */
+	public ArrayList<JSONObject> S2MList(Charset clientCharset,
+			SocketInputStream socketInputStream,
+			MessageMangerIF messageManger) throws HeaderFormatException,
+			NoMoreDataPacketBufferException {
+		
+		CharsetDecoder charsetOfProjectDecoder = CharsetUtil.createCharsetDecoder(clientCharset);
+		DJSONHeader messageHeader = (DJSONHeader)socketInputStream.getUserDefObject();
+		ArrayList<JSONObject> messageList = new ArrayList<JSONObject>();
+		boolean isMoreMessage = false;
+		
+		int messageReadWrapBufferListSize = socketInputStream.getDataPacketBufferListSize();
+		if (messageReadWrapBufferListSize == 0) {
+			log.fatal(String.format("messageReadWrapBufferListSize is zero"));
+			System.exit(1);
+		}
+		
+		ByteBuffer lastInputStreamBuffer = socketInputStream
+				.getLastDataPacketBuffer();
+		
+		/**
+		 * 소켓별 스트림 자원을 갖는다. 스트림은 데이터 패킷 버퍼 목록으로 구현한다.<br/>
+		 * 반환되는 스트림은 데이터 패킷 버퍼의 속성을 건들지 않기 위해서 복사본으로 구성되며 읽기 가능 상태이다.<br/>
+		 * 내부 처리를 요약하면 All ByteBuffer.duplicate().flip() 이다.<br/>
+		 * 매번 새로운 스트림이 만들어지는 단점이 있다. <br/>
+		 */
+		FreeSizeInputStream freeSizeInputStream = null;
+		int startIndex = -1;
+		int startPosition = -1;
+		
+		try {
+			long inputStramSizeBeforeMessageWork = socketInputStream.position();
+			
+			/*log.info(String.format("1. messageHeaderSize=[%d], inputStramSizeBeforeMessageWork[%d]",
+					messageHeaderSize, inputStramSizeBeforeMessageWork));*/
+			do {
+				isMoreMessage = false;
+				
+				if (null == messageHeader
+						&& inputStramSizeBeforeMessageWork >= messageHeaderSize) {
+					
+					/** 스트림 통해서 헤더 읽기 */
+					if (null == freeSizeInputStream) {
+						freeSizeInputStream = socketInputStream
+								.getFreeSizeInputStream(charsetOfProjectDecoder);
+						/*startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
+						startPosition = freeSizeInputStream.getPositionOfWorkBuffer();*/
+						
+						startIndex = 0;
+						startPosition = 0;
+					}
+					
+					DJSONHeader  workMessageHeader = new DJSONHeader();
+					workMessageHeader.lenOfJSONStr = freeSizeInputStream.getInt();
+					
+					
+					messageHeader = workMessageHeader;
+				}
+				
+				if (null != messageHeader) {					
+					long messageFrameSize = (long)messageHeader.lenOfJSONStr + messageHeaderSize;
+					
+					if (inputStramSizeBeforeMessageWork >= messageFrameSize) {
+						/** 메시지 추출*/
+						if (null == freeSizeInputStream) {
+							freeSizeInputStream = socketInputStream
+									.getFreeSizeInputStream(charsetOfProjectDecoder);
+							/*startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
+							startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
+							long skipBytes = startIndex*lastInputStreamBuffer.capacity()+startPosition+messageHeaderSize;*/
+							
+							startIndex = 0;
+							startPosition = 0;
+							long skipBytes = startPosition+messageHeaderSize;
+
+							freeSizeInputStream.skip(skipBytes);
+						}
+						
+						String jsonStr = null;
+						try {
+							jsonStr = freeSizeInputStream.getString(messageHeader.lenOfJSONStr, DJSONHeader.JSON_STRING_CHARSET.newDecoder());
+						} catch (SinnoriCharsetCodingException e1) {
+							String errorMessage = e1.getMessage();
+							log.warn(String.format("문자셋 문제로 JSON 문자열 추출 실패, %s", errorMessage), e1);
+							/**
+							 * json 객체를 얻지 못하면 json 객체에 포함된 
+							 * 신놀이 메시지 운영정보(메시지 식별자, 메일 박스 식별자, 메일 식별자)를 얻을 수 없다.
+							 * 신놀이 메시지 운영정보는 헤더 정보이므로 이를 정상적으로 얻지 못했기때문에 헤더 포맷 에러 처리를 한다.  
+							 */
+							throw new HeaderFormatException(errorMessage);
+						}
+						
+											
+						JSONObject jsonObj = null;
+						
+						try {
+							jsonObj = (JSONObject)jsonParser.parse(jsonStr);
+						} catch(ParseException pe){
+							/** FIXME! 존슨 문자열 파싱 실패시 처리 정책 없음. 현재 임시적으로 소켓 닫기 위해서 헤더 포멧 에러 발생 처리함. */
+							log.warn("ParseException", pe);
+							throw new HeaderFormatException(String.format("JSON ParseException::%s::%s", pe.toString(), jsonStr));
+						}
+	
+						/** 목록에 메시지 추가 */
+						messageList.add(jsonObj);
+						
+						inputStramSizeBeforeMessageWork = freeSizeInputStream.remaining();
+						if (inputStramSizeBeforeMessageWork > messageHeaderSize) {
+							isMoreMessage = true;
+						}
+						messageHeader = null;
+						startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
+						startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
+					}
+				}
+			} while (isMoreMessage);
+				
+			if (messageList.size() > 0) {
+				socketInputStream.truncate(startIndex, startPosition);
+			} else if (!lastInputStreamBuffer.hasRemaining()) {
+				/** 메시지 추출 실패했는데도 마지막 버퍼가 꽉차있다면 스트림 크기를 증가시킨다. 단 설정파일 환경변수 "메시지당 최대 데이터 패킷 갯수" 만큼만 증가될수있다. */
+				lastInputStreamBuffer = socketInputStream.nextDataPacketBuffer();
+			}
+		} finally {
+			socketInputStream.setUserDefObject(messageHeader);
+		}
+		
+		
+		return messageList;
+	}
 
 	@Override
 	public ArrayList<AbstractMessage> S2MList(
@@ -113,9 +252,7 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageProtocolIF {
 			NoMoreDataPacketBufferException {
 		
 		CharsetDecoder charsetOfProjectDecoder = CharsetUtil.createCharsetDecoder(clientCharset);
-		// ArrayList<WrapBuffer> messageReadWrapBufferList = messageInputStreamResource.getMessageReadWrapBufferList();
 		DJSONHeader messageHeader = (DJSONHeader)socketInputStream.getUserDefObject();
-		// ByteOrder byteOrderOfProject = messageInputStreamResource.getByteOrder();
 		
 		ArrayList<AbstractMessage> messageList = new ArrayList<AbstractMessage>();
 		
@@ -158,8 +295,11 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageProtocolIF {
 					if (null == freeSizeInputStream) {
 						freeSizeInputStream = socketInputStream
 								.getFreeSizeInputStream(charsetOfProjectDecoder);
-						startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
-						startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
+						/*startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
+						startPosition = freeSizeInputStream.getPositionOfWorkBuffer();*/
+						
+						startIndex = 0;
+						startPosition = 0;
 					}
 					
 					DJSONHeader  workMessageHeader = new DJSONHeader();
@@ -177,10 +317,15 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageProtocolIF {
 						if (null == freeSizeInputStream) {
 							freeSizeInputStream = socketInputStream
 									.getFreeSizeInputStream(charsetOfProjectDecoder);
-							startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
+							/*startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
 							startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
-							long expectedPosition = startIndex*lastInputStreamBuffer.capacity()+startPosition+messageHeaderSize;
-							freeSizeInputStream.skip(expectedPosition);
+							long skipBytes = startIndex*lastInputStreamBuffer.capacity()+startPosition+messageHeaderSize;*/
+							
+							startIndex = 0;
+							startPosition = 0;
+							long skipBytes = startPosition+messageHeaderSize;
+
+							freeSizeInputStream.skip(skipBytes);
 						}
 						
 						String jsonStr = null;

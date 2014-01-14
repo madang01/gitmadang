@@ -37,8 +37,8 @@ import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.MessageProtocolIF;
 import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.common.lib.SocketInputStream;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
+import kr.pe.sinnori.common.lib.SocketInputStream;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.OutputMessage;
 
@@ -155,11 +155,10 @@ public class OutputMessageReader extends Thread implements
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
 				processNewConnection();
-
+				
 				int keyReady = selector.select();
 
-				if (keyReady > 0) {
-
+				if (keyReady > 0) {					
 					Set<SelectionKey> selectionKeySet = selector
 							.selectedKeys();
 					Iterator<SelectionKey> selectionKeyIter = selectionKeySet
@@ -167,8 +166,7 @@ public class OutputMessageReader extends Thread implements
 					while (selectionKeyIter.hasNext()) {
 						SelectionKey selectionKey = selectionKeyIter.next();
 						selectionKeyIter.remove();
-						SocketChannel serverSC = (SocketChannel) selectionKey
-								.channel();
+						SocketChannel serverSC = (SocketChannel) selectionKey.channel();
 
 						// log.info("11111111111111111");
 
@@ -185,55 +183,32 @@ public class OutputMessageReader extends Thread implements
 
 						try {
 							lastInputStreamBuffer = messageInputStreamResource.getLastDataPacketBuffer();
-							// log.info(String.format("1.%s OutputMessageReader[%d] lastInputStreamBuffer[%s]", asynConnection.getSimpleConnectionInfo(), index, lastInputStreamBuffer.toString()));
 							
-							// int positionBeforeReading = lastInputStreamBuffer.position();
-
-							/*
-							numRead = serverSC.read(lastInputStreamBuffer);
-
-							if (numRead == -1) {
-								log.warn(String.format("1.%s OutputMessageReader[%d] read -1, remove client", asynConnection.getSimpleConnectionInfo(), index));
-								closeServer(selectionKey, asynConnection);
-								continue;
-							}
-							
-							// log.info(String.format("2.%s OutputMessageReader[%d] numRead[%d] lastInputStreamBuffer[%s]", asynConnection.getSimpleConnectionInfo(), index, numRead, lastInputStreamBuffer.toString()));
-
-							
-							numRead = serverSC.read(lastInputStreamBuffer);
-								
-							// log.info(String.format("3.%s OutputMessageReader[%d] numRead[%d] lastInputStreamBuffer[%s]", asynConnection.getSimpleConnectionInfo(), index, numRead, lastInputStreamBuffer.toString()));
-							
-							if (numRead == -1) {
-								log.warn(String.format("2.%s OutputMessageReader[%d] read -1, remove client", asynConnection.getSimpleConnectionInfo(), index));
-								closeServer(selectionKey, asynConnection);
-								continue;
-							}
-							*/
+							// long totalReadBytes = 0;
 							do {
 								numRead = serverSC.read(lastInputStreamBuffer);
+								
 								if (numRead < 1) break;
+								
+								// totalReadBytes += numRead;
+								
+								/*log.info(String.format("numRead=[%d], totalReadBytes=[%d], messageInputStreamResource.position=[%d],lastInputStreamBuffer.hasRemaining=[%s]"
+										, numRead, totalReadBytes, messageInputStreamResource.position(), lastInputStreamBuffer.hasRemaining()));*/
 								
 								if (!lastInputStreamBuffer.hasRemaining()) {
 									if (!messageInputStreamResource.canNextDataPacketBuffer()) break;
 									lastInputStreamBuffer = messageInputStreamResource.nextDataPacketBuffer();
 								}
 							} while(true);
+							
+							// FIXME! 한번에 읽는 바이트 추적용 로그
+							// log.info(String.format("totalReadBytes=[%d], %d", totalReadBytes, serverSC.getOption(StandardSocketOptions.SO_RCVBUF)));
+							// log.info(String.format("totalReadBytes=[%d], messageInputStreamResource.position=[%d]", totalReadBytes, messageInputStreamResource.position()));
 
-							if (numRead == -1) {
-								log.warn(String.format("1.%s OutputMessageReader[%d] read -1, remove client", asynConnection.getSimpleConnectionInfo(), index));
-								closeServer(selectionKey, asynConnection);
-								continue;
-							}
-							
-							/*int positionAfterReading = lastInputStreamBuffer.position();
-							if (positionAfterReading == positionBeforeReading) continue;*/
-							
 							asynConnection.setFinalReadTime();
 							
 							ArrayList<AbstractMessage> outputMessageList = messageProtocol.S2MList(OutputMessage.class, clientProjectConfig.getCharset(), messageInputStreamResource, messageManger);
-								
+							
 							int cntOfMesages = outputMessageList.size();
 							for (int i = 0; i < cntOfMesages; i++) {
 								OutputMessage outObj = (OutputMessage)outputMessageList.get(i);

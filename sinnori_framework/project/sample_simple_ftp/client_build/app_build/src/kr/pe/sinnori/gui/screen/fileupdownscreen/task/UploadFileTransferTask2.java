@@ -107,6 +107,13 @@ public class UploadFileTransferTask2 implements FileTransferTaskIF, CommonRootIF
 
 				// mainController.noticeFileBlockSizeToFileTransferProcessDialog(fileData.length);
 				fileTranferProcessDialog.noticeAddingFileData(fileData.length);
+				
+				try {
+					Thread.sleep(2);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			
 			// FIXME!

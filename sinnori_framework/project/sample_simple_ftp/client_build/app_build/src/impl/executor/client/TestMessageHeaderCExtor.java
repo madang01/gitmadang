@@ -33,6 +33,7 @@ import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
+import kr.pe.sinnori.common.io.FixedSizeInputStream;
 import kr.pe.sinnori.common.io.dhb.header.DHBMessageHeader;
 import kr.pe.sinnori.common.lib.CharsetUtil;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
@@ -89,15 +90,18 @@ public class TestMessageHeaderCExtor extends AbstractClientExecutor {
 		random.nextBytes(orgMessageHeader.bodyMD5);
 		
 		orgMessageHeader.writeMessageHeader(workBuffer, clientProjectConfig.getCharset(), charsetOfProjectEncoder, md5);
-		workBuffer.flip();
+		
+		workBuffer.flip();		
+		FixedSizeInputStream headerInputStream = new FixedSizeInputStream(workBuffer, clinetCharsetDecoder);
 		
 		// log.info(workBuffer.toString());
 		// log.info(orgMessageHeader.toString());
 		
 		DHBMessageHeader dupMessageHeader = new DHBMessageHeader(messageIDFixedSize);
 		
+		
 		try {
-			dupMessageHeader.readMessageHeader(workBuffer, md5, clinetCharsetDecoder);
+			dupMessageHeader.readMessageHeader(headerInputStream);
 			workBuffer.flip();
 			// log.info(workBuffer.toString());
 		

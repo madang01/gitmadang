@@ -31,7 +31,6 @@ import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
 import kr.pe.sinnori.common.io.FreeSizeInputStream;
 import kr.pe.sinnori.common.io.FreeSizeOutputStream;
 import kr.pe.sinnori.common.io.MessageProtocolIF;
@@ -39,8 +38,8 @@ import kr.pe.sinnori.common.io.dhb.header.DHBMessageHeader;
 import kr.pe.sinnori.common.lib.CharsetUtil;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
-import kr.pe.sinnori.common.lib.SocketInputStream;
 import kr.pe.sinnori.common.lib.MessageMangerIF;
+import kr.pe.sinnori.common.lib.SocketInputStream;
 import kr.pe.sinnori.common.lib.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.InputMessage;
@@ -56,12 +55,6 @@ import org.apache.commons.codec.binary.Hex;
  * 
  */
 public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
-
-	/** 데이터 패킷 크기 */
-	// private int dataPacketBufferSize;
-	/** 1개 메시당 데이터 패킷 버퍼 최대수 */
-	//private int dataPacketBufferMaxCntPerMessage;
-
 	/** 메시지 헤더에 사용되는 문자열 메시지 식별자의 크기, 단위 byte */
 	private int messageIDFixedSize;
 	/** 메시지 헤더 크기, 단위 byte */
@@ -76,23 +69,27 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 
 	public DHBMessageProtocol(int messageIDFixedSize,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) {
+		/*if (messageIDFixedSize < 0) {
+			String errorMessage = String.format("parameter messageIDFixedSize less than zero");
+			log.warn(errorMessage);
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		int dataPacketBufferSize = dataPacketBufferQueueManager.getDataPacketBufferSize();
+		if (messageIDFixedSize > dataPacketBufferSize) {
+			log.fatal(String.format("parameter messageIDFixedSize[%d] greater than dataPacketBufferSize[%d]", messageIDFixedSize, dataPacketBufferSize));
+			System.exit(1);
+		}*/
 
 		this.messageIDFixedSize = messageIDFixedSize;
 		this.messageHeaderSize = DHBMessageHeader
 				.getMessageHeaderSize(messageIDFixedSize);
-		// this.bodyMD5Offset =
-		// DHBMessageHeader.getBodyMD5Offset(messageIDFixedSize);
+		// this.bodyMD5Offset = DHBMessageHeader.getBodyMD5Offset(messageIDFixedSize);
 		this.headerMD5Offset = DHBMessageHeader
-				.getHeaderMD5Offset(messageIDFixedSize);
-		
+				.getHeaderMD5Offset(messageIDFixedSize);		
 		this.byteOrderOfProject = dataPacketBufferQueueManager.getByteOrder();
-
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-
-		// this.dataPacketBufferSize = dataPacketBufferQueueManager.getDataPacketBufferSize();
-		// this.dataPacketBufferMaxCntPerMessage = dataPacketBufferQueueManager.getDataPacketBufferMaxCntPerMessage();
-
-		dhbSingleItem2Stream = new DHBSingleItem2Stream();
+		this.dhbSingleItem2Stream = new DHBSingleItem2Stream();
 	}
 
 	@Override
@@ -167,8 +164,6 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 			NoMoreDataPacketBufferException {
 		CharsetDecoder charsetOfProjectDecoder = CharsetUtil
 				.createCharsetDecoder(charsetOfProject);
-		// ArrayList<WrapBuffer> messageReadWrapBufferList =
-		// messageInputStreamResource.getMessageReadWrapBufferList();
 		DHBMessageHeader messageHeader = (DHBMessageHeader) socketInputStream
 				.getUserDefObject();
 
@@ -239,8 +234,10 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 						streamBufferList = freeSizeInputStream
 								.getStreamBufferList();
 						streamBufferListSize = streamBufferList.size();
-						startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
-						startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
+						/*startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
+						startPosition = freeSizeInputStream.getPositionOfWorkBuffer();*/
+						startIndex = 0;
+						startPosition = 0;
 					}
 
 					byte[] headerMD5 = null;
@@ -280,25 +277,8 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 					}
 
 					/** 헤더 읽기 */
-					DHBMessageHeader workMessageHeader = new DHBMessageHeader(
-							messageIDFixedSize);
-					try {
-						workMessageHeader.messageID = freeSizeInputStream
-								.getString( messageIDFixedSize,
-										CharsetUtil.createCharsetDecoder(DHBMessageHeader.HEADER_CHARSET)).trim();
-					} catch (SinnoriCharsetCodingException e1) {
-						String errorMessage = e1.getMessage();
-						log.warn(errorMessage, e1);
-						throw new HeaderFormatException(errorMessage);
-					}
-					workMessageHeader.mailboxID = freeSizeInputStream
-							.getUnsignedShort();
-					workMessageHeader.mailID = freeSizeInputStream.getInt();
-					workMessageHeader.bodySize = freeSizeInputStream.getLong();
-					workMessageHeader.bodyMD5 = freeSizeInputStream
-							.getBytes(DHBMessageHeader.MD5_BYTESIZE);
-					workMessageHeader.headerMD5 = freeSizeInputStream
-							.getBytes(DHBMessageHeader.MD5_BYTESIZE);
+					DHBMessageHeader workMessageHeader = new DHBMessageHeader(messageIDFixedSize);
+					workMessageHeader.readMessageHeader(freeSizeInputStream);
 
 					if (workMessageHeader.bodySize < 0) {
 						// header format exception
@@ -338,10 +318,15 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 									.getStreamBufferList();
 							streamBufferListSize = streamBufferList.size();
 							
-							startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
+							/*startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
 							startPosition = freeSizeInputStream.getPositionOfWorkBuffer();							
-							long expectedPosition = startIndex*lastInputStreamBuffer.capacity()+startPosition+messageHeaderSize;
-							freeSizeInputStream.skip(expectedPosition);
+							long skipBytes = startIndex*lastInputStreamBuffer.capacity()+startPosition+messageHeaderSize;*/
+							
+							startIndex = 0;
+							startPosition = 0;
+							long skipBytes = startPosition+messageHeaderSize;
+							
+							freeSizeInputStream.skip(skipBytes);
 						}
 						
 						long postionBeforeReadingBody = freeSizeInputStream.position();
@@ -390,9 +375,7 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 											HexUtil.byteArrayAllToHex(bodyMD5));
 
 							throw new HeaderFormatException(errorMessage);
-						}
-
-						
+						}						
 
 						if (targetClass.equals(InputMessage.class)) {
 							InputMessage workInObj = null;

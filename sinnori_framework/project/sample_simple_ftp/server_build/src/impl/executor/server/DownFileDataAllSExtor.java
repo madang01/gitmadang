@@ -82,6 +82,9 @@ public class DownFileDataAllSExtor extends AbstractAuthServerExecutor {
 		int endFileBlockNo = localSourceFileResource.getEndFileBlockNo();
 		try {
 			for (; startFileBlockNo <= endFileBlockNo; startFileBlockNo++) {
+				if (clientResource.isLogin()) {
+					break;
+				}
 				if (localSourceFileResource.isCanceled()) {
 					log.info(String.format("serverSourceFileID[%s] to clientTargetFileID[%d] 파일 다운로드 취소", serverSourceFileID, localSourceFileResource.getTargetFileID()));
 					

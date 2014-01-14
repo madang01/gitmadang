@@ -45,7 +45,7 @@ import kr.pe.sinnori.server.io.LetterToClient;
  */
 public class ExecutorProcessor extends Thread implements CommonRootIF {
 	private int index;
-	private TreeSet<String> anonymousExceptionInputMessageSet;
+	private TreeSet<String> asynInputMessageSet;
 	private ServerProjectConfigIF serverProjectConfig = null;
 	private LinkedBlockingQueue<LetterFromClient> inputMessageQueue;
 	private LinkedBlockingQueue<LetterToClient> ouputMessageQueue;
@@ -56,7 +56,7 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 	/**
 	 * 생성자
 	 * @param index 순번
-	 * @param anonymousExceptionInputMessageSet 설정파일에서 정의한 익명 예외 발생 시키는 메시지 목록
+	 * @param asynInputMessageSet 설정파일에서 정의한 비동기 입력 메시지 집합
 	 * @param serverProjectConfig 프로젝트의 공통 포함한 서버 환경 변수 접근 인터페이스
 	 * @param inputMessageQueue 입력 메시지 큐
 	 * @param ouputMessageQueue 출력 메시지 큐
@@ -66,7 +66,7 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 	 * 
 	 */
 	public ExecutorProcessor(int index, 
-			TreeSet<String> anonymousExceptionInputMessageSet,
+			TreeSet<String> asynInputMessageSet,
 			ServerProjectConfigIF serverProjectConfig,
 			LinkedBlockingQueue<LetterFromClient> inputMessageQueue,
 			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
@@ -74,7 +74,7 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 			SererExecutorClassLoaderManagerIF sererExecutorClassLoaderManager,
 			ClientResourceManagerIF clientResourceManager) {
 		this.index = index;
-		this.anonymousExceptionInputMessageSet = anonymousExceptionInputMessageSet;
+		this.asynInputMessageSet = asynInputMessageSet;
 		this.serverProjectConfig = serverProjectConfig;
 		this.inputMessageQueue = inputMessageQueue;
 		this.ouputMessageQueue = ouputMessageQueue;
@@ -113,7 +113,7 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 
 							// LetterToClient toLetter = new LetterToClient(fromSC, errorOutObj);
 							// ouputMessageQueue.put(toLetter);
-							if (anonymousExceptionInputMessageSet.contains(messageID)) {
+							if (asynInputMessageSet.contains(messageID)) {
 								letterSender.sendAsyn(errorOutObj);
 							} else {
 								letterSender.sendSync(errorOutObj);
@@ -144,7 +144,7 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 
 					// LetterToClient toLetter = new LetterToClient(fromSC, errorOutObj);
 					// ouputMessageQueue.put(toLetter);
-					if (anonymousExceptionInputMessageSet.contains(messageID)) {
+					if (asynInputMessageSet.contains(messageID)) {
 						letterSender.sendAsyn(errorOutObj);
 					} else {
 						letterSender.sendSync(errorOutObj);
@@ -170,7 +170,7 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 
 					// LetterToClient toLetter = new LetterToClient(fromSC, errorOutObj);
 					// ouputMessageQueue.put(toLetter);
-					if (anonymousExceptionInputMessageSet.contains(messageID)) {
+					if (asynInputMessageSet.contains(messageID)) {
 						letterSender.sendAsyn(errorOutObj);
 					} else {
 						letterSender.sendSync(errorOutObj);
@@ -195,7 +195,7 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 
 					// LetterToClient toLetter = new LetterToClient(fromSC, errorOutObj);
 					// ouputMessageQueue.put(toLetter);
-					if (anonymousExceptionInputMessageSet.contains(messageID)) {
+					if (asynInputMessageSet.contains(messageID)) {
 						letterSender.sendAsyn(errorOutObj);
 					} else {
 						letterSender.sendSync(errorOutObj);
@@ -229,7 +229,7 @@ public class ExecutorProcessor extends Thread implements CommonRootIF {
 
 					// LetterToClient toLetter = new LetterToClient(fromSC, errorOutObj);
 					// ouputMessageQueue.put(toLetter);
-					if (anonymousExceptionInputMessageSet.contains(messageID)) {
+					if (asynInputMessageSet.contains(messageID)) {
 						letterSender.sendAsyn(errorOutObj);
 					} else {
 						letterSender.sendSync(errorOutObj);

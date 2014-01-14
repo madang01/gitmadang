@@ -213,8 +213,7 @@ public class TestLocalAllDataTypeCExtor extends AbstractClientExecutor {
 		// log.info(allDataTypeOutObjStr);
 		boolean result = allDataTypeInObjStr.equals(allDataTypeOutObjStr);
 		if (!result) {
-			log.warn(String.format("Local 입/출력 비교결과=[%s]",
-					allDataTypeInObjStr.equals(allDataTypeOutObjStr)));
+			log.warn(String.format("Local 입/출력 비교결과=[%s]", result));
 		}
 	}
 }

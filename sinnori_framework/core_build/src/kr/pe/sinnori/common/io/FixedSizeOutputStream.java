@@ -177,7 +177,7 @@ public class FixedSizeOutputStream implements CommonRootIF, OutputStreamIF {
 					"파라미터 값[%d]이 unsigned byte 최대값[%d]을 넘었습니다.", value,
 					CommonStaticFinal.MAX_UNSIGNED_BYTE));
 		}
-		ByteBuffer int_buffer = ByteBuffer.allocate(2);
+		/*ByteBuffer int_buffer = ByteBuffer.allocate(2);
 		int_buffer.order(bufferByteOrder);
 		int_buffer.putShort((short) value);
 
@@ -188,7 +188,13 @@ public class FixedSizeOutputStream implements CommonRootIF, OutputStreamIF {
 			int_buffer.position(0);
 			int_buffer.limit(1);
 		}
-		outputStreamBuffer.put(int_buffer);
+		outputStreamBuffer.put(int_buffer);*/
+		
+		/**
+		 * 우분투 jdk 1.6.x에서 테스트한 시스템 디폴트 ByteOrder는 LITTLE_ENDIAN 로 정수(=Integer)
+		 * 0xff 를 byte 형 변환하면 0xff 이다.
+		 */
+		putByte((byte) value);
 	}
 	
 	@Override
@@ -204,7 +210,7 @@ public class FixedSizeOutputStream implements CommonRootIF, OutputStreamIF {
 					CommonStaticFinal.MAX_UNSIGNED_BYTE));
 		}
 
-		ByteBuffer int_buffer = ByteBuffer.allocate(2);
+		/*ByteBuffer int_buffer = ByteBuffer.allocate(2);
 		int_buffer.order(bufferByteOrder);
 		int_buffer.putShort((short) value);
 		
@@ -215,7 +221,13 @@ public class FixedSizeOutputStream implements CommonRootIF, OutputStreamIF {
 			int_buffer.position(0);
 			int_buffer.limit(1);
 		}
-		outputStreamBuffer.put(int_buffer);
+		outputStreamBuffer.put(int_buffer);*/
+		
+		/**
+		 * 우분투 jdk 1.6.x에서 테스트한 시스템 디폴트 ByteOrder는 LITTLE_ENDIAN 로 정수(=Integer)
+		 * 0xff 를 byte 형 변환하면 0xff 이다.
+		 */
+		putByte((byte) value);
 	}
 
 	@Override

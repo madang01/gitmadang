@@ -38,7 +38,7 @@ public class ExecutorProcessorPool extends AbstractThreadPool {
 	// execuate_processor_pool_max_size
 	
 	private int maxHandler;
-	private TreeSet<String> anonymousExceptionInputMessageSet;
+	private TreeSet<String> asynInputMessageSet;
 	private ServerProjectConfigIF serverProjectConfig;
 	private MessageMangerIF messageManger;
 	private SererExecutorClassLoaderManagerIF sererExecutorClassLoaderManager;
@@ -51,7 +51,7 @@ public class ExecutorProcessorPool extends AbstractThreadPool {
 	 * 생성자
 	 * @param size 서버 비지니스 로직 수행자 쓰레드 갯수
 	 * @param max 서버 비지니스 로직 수행자 쓰레드 최대 갯수
-	 * @param anonymousExceptionInputMessageSet 설정파일에서 정의한 익명 예외 발생 시키는 메시지 목록
+	 * @param asynInputMessageSet 설정파일에서 정의한 비동기 입력 메시지 집합
 	 * @param serverProjectConfig 프로젝트의 공통 포함한 서버 환경 변수 접근 인터페이스
 	 * @param inputMessageQueue 입력 메시지 큐
 	 * @param ouputMessageQueue 출력 메시지 큐
@@ -60,7 +60,7 @@ public class ExecutorProcessorPool extends AbstractThreadPool {
 	 * @param clientResourceManager 클라이언트 자원 관리자
 	 */
 	public ExecutorProcessorPool(int size, int max,
-			TreeSet<String> anonymousExceptionInputMessageSet,
+			TreeSet<String> asynInputMessageSet,
 			ServerProjectConfigIF serverProjectConfig,
 			LinkedBlockingQueue<LetterFromClient> inputMessageQueue,
 			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
@@ -80,7 +80,7 @@ public class ExecutorProcessorPool extends AbstractThreadPool {
 		}
 		
 		this.maxHandler = max;
-		this.anonymousExceptionInputMessageSet = anonymousExceptionInputMessageSet;
+		this.asynInputMessageSet = asynInputMessageSet;
 		this.serverProjectConfig = serverProjectConfig;
 		this.inputMessageQueue = inputMessageQueue;
 		this.ouputMessageQueue = ouputMessageQueue;
@@ -100,7 +100,7 @@ public class ExecutorProcessorPool extends AbstractThreadPool {
 
 			if (size < maxHandler) {
 				try {
-					Thread handler = new ExecutorProcessor(size, anonymousExceptionInputMessageSet,
+					Thread handler = new ExecutorProcessor(size, asynInputMessageSet,
 							serverProjectConfig,
 							inputMessageQueue, ouputMessageQueue,
 							messageManger, sererExecutorClassLoaderManager, clientResourceManager);

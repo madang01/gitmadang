@@ -206,9 +206,9 @@ public class OutputMessageWriter extends Thread implements CommonRootIF {
 								toSC.write(byteBuffer);
 							} while(byteBuffer.hasRemaining());
 						}
-						//long endTime = System.currentTimeMillis();
-						//log.info(String.format("elapsed time=[%s]", endTime - startTime));
 					}
+					//long endTime = System.currentTimeMillis();
+					//log.info(String.format("elapsed time=[%s]", endTime - startTime));
 				} catch (NotYetConnectedException e) {
 					// ClosedChannelException
 					log.warn(String.format("%s OutputMessageWriter[%d] toSC[%d] NotYetConnectedException",

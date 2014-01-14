@@ -151,55 +151,43 @@ public class PrivateMailbox implements CommonRootIF {
 	 *       쓰레드가 깨어 나서 이후 처리를 하게 된다.
 	 * </pre>
 	 * @see AbstractAsynConnection#putToOutputMessageQueue(OutputMessage)
-	 * @param outputMessage
+	 * @param outObj
 	 *            출력 메시지
 	 */
-	public void putToSyncOutputMessageQueue(OutputMessage outputMessage) {
+	public void putToSyncOutputMessageQueue(OutputMessage outObj) {
 		if (!isActive) {
 			String errorMessage = String
-					.format("메일함이 사용중이 아닙니다. 메일함 큐에서 대기중, serverConnection=[%s], outputMessage=[%s]",
+					.format("메일함이 사용중이 아닙니다. 출력 메시지를 버립니다. %s, outObj=[%s]",
 							serverConnection.getSimpleConnectionInfo(),
-							outputMessage.toString());
+							outObj.toString());
 
 			log.warn(errorMessage);
 			return;
 		}
-
-		// OutputMessage outputMessage =
-		// letterFromServer.getOutputMessage();
-		int fromMailID = outputMessage.messageHeaderInfo.mailID;
+		
+		int fromMailID = outObj.messageHeaderInfo.mailID;
 
 		if (mailID != fromMailID) {
 			String errorMessage = String
-					.format("메일식별자 불일치 에러, %s, mailbox'mailID=[%d], outputMessage=[%s]",
+					.format("메일식별자 불일치 에러. 출력 메시지를 버립니다. %s, mailbox'mailID=[%d], outObj=[%s]",
 							serverConnection.getSimpleConnectionInfo(), this.mailID,
-							outputMessage.toString());
+							outObj.toString());
 			log.warn(errorMessage);
 			return;
 		}
 
 		boolean result = false;
 		
-		result = syncOutputMessageQueue.offer(outputMessage);
+		result = syncOutputMessageQueue.offer(outObj);
 		
 		
 		if (!result) {
-			StringBuilder errorMessageStringBuilder = new StringBuilder("메일 식별자와 일치하지 않는 출력 메시지들로 출력 메시지 큐가 꽉 차 있어 큐를 비웁니다. ");
-			int i=0;
-			while(syncOutputMessageQueue.isEmpty()) {
-				OutputMessage outObj = syncOutputMessageQueue.poll();
-				
-				if (null == outObj) break;
-				
-				errorMessageStringBuilder.append("출력메시지[[");
-				errorMessageStringBuilder.append(i++);
-				errorMessageStringBuilder.append("]=[");
-				errorMessageStringBuilder.append(outObj.toString());
-				errorMessageStringBuilder.append("]");
-			}
-			log.warn(errorMessageStringBuilder.toString());
+			StringBuilder errorMessageStringBuilder = new StringBuilder("출력 메시지 큐가 꽉 차 있어 출력 메시지[");
+			errorMessageStringBuilder.append(outObj.toString());
+			errorMessageStringBuilder.append("] 를 버립니다. ");
+			errorMessageStringBuilder.append(serverConnection.getSimpleConnectionInfo());
 			
-			syncOutputMessageQueue.offer(outputMessage);
+			log.warn(errorMessageStringBuilder.toString());
 			return;
 		}
 	}
@@ -221,7 +209,7 @@ public class PrivateMailbox implements CommonRootIF {
 					TimeUnit.MILLISECONDS);
 			if (null == workOutObj) {
 				String errorMsg = String
-						.format("서버 응답 시간[%d]이 초과되었습니다. serverConnection=[%s], mailboxID=[%d], mailID=[%d]",
+						.format("서버 응답 시간[%d]이 초과되었습니다. %s, mailboxID=[%d], mailID=[%d]",
 								socketTimeOut, serverConnection.getSimpleConnectionInfo(),
 								mailboxID, mailID);
 				log.warn(errorMsg);
@@ -231,10 +219,9 @@ public class PrivateMailbox implements CommonRootIF {
 			if (workOutObj.messageHeaderInfo.mailID == mailID) return workOutObj;				
 			
 			log.warn(String.format(
-					"프로젝트 서버[%s]와 연결된 메일 박스[%d]를 통해 보낸 입력 메시지의 메일 식별자[%d]와 전달 받은 출력 메시지[%s][%s]의 메일 식별자가 다릅니다.",
-					serverConnection.getProjectName(), mailboxID,
+					"%s 연결 객체의 메일 박스[%d]를 통해 보낸 입력 메시지의 메일 식별자[%d]와 전달 받은 출력 메시지[%s]의 메일 식별자가 다릅니다.",
+					serverConnection.getSimpleConnectionInfo(), mailboxID,
 					mailID,
-					workOutObj.messageHeaderInfo.toString(),
 					workOutObj.toString()));
 			
 		} while (true);		
@@ -277,7 +264,7 @@ public class PrivateMailbox implements CommonRootIF {
 	@Override
 	protected void finalize() throws Throwable {
 		String errorMsg = String
-				.format("회수못한 mailbox. serverConnection=[%s], mailboxID=[%d], mailID=[%d]",
+				.format("회수못한 mailbox. %s, mailboxID=[%d], mailID=[%d]",
 						serverConnection.getSimpleConnectionInfo(), mailboxID, mailID);
 
 		log.warn(errorMsg);

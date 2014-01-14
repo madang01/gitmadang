@@ -21,16 +21,15 @@ import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-import java.util.Arrays;
 import java.util.regex.Pattern;
 
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
-import kr.pe.sinnori.common.io.FixedSizeInputStream;
 import kr.pe.sinnori.common.io.FixedSizeOutputStream;
+import kr.pe.sinnori.common.io.InputStreamIF;
+import kr.pe.sinnori.common.io.dhb.header.DHBMessageHeader;
 import kr.pe.sinnori.common.lib.CharsetUtil;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 
@@ -58,9 +57,6 @@ public class THBMessageHeader implements CommonRootIF {
 	/** 메시지 헤더 크기, 참고) 환경 변수로 지정되는 고정 크기를 갖는 메시지 식별자 크기 값으로 정해지는 크기이다. */
 	public int messageHeaderSize = -1;
 	
-	/** 메시지 헤더의 내용을 버퍼를 통해 읽을 경우 헤어 부분만 복사한 바이트 배열 */
-	private byte messageHeaderBytes[] = null;
-	
 	/**
 	 * 생성자
 	 * @param messageIDFixedSize 메시지 헤더의 고정 크기를 갖는 메시지 식별자 크기
@@ -70,6 +66,11 @@ public class THBMessageHeader implements CommonRootIF {
 		this.messageHeaderSize = getMessageHeaderSize(messageIDFixedSize); 
 	}
 	
+	/**
+	 * 지정된 메시지 식별자 크기를 갖는 THB 헤더 크기를 반환한다.
+	 * @param messageIDFixedSize 메시지 식별자 크기
+	 * @return 지정된 메시지 식별자 크기를 갖는 THB 헤더 크기
+	 */
 	public static int getMessageHeaderSize(int messageIDFixedSize) {
 		return (messageIDFixedSize+ 2 + 4 + 8);
 	}
@@ -86,87 +87,6 @@ public class THBMessageHeader implements CommonRootIF {
 		Pattern p = Pattern.compile("[[a-zA-Z][a-zA-Z0-9]]+");
 		boolean isValid = p.matcher(messageID).matches();
 		return isValid;
-	}
-	
-	/**
-	 * 소스 버퍼의 내용을 읽어 메시지 헤더의 내용을 채운다. 참고) 이 메소드 정상 종료후 소스 버퍼의 현재 읽을 위치는 메시지 헤더 크기이다.
-	 * @param srcBuffer 메시지 헤더의 내용을 가지고 있는 소스 버퍼, 반듯이 position=0 그리고 limit=capacity 이어야 한다.
-	 * @param streamCharsetDecoder 문자셋 디코더
-	 * @throws HeaderFormatException 메시지 헤더의 내용을 소스 버퍼로 부터 읽을때 에러 발생시 던지는 예외
-	 */
-	public void readMessageHeader(ByteBuffer srcBuffer, CharsetDecoder streamCharsetDecoder) throws HeaderFormatException {
-		if (srcBuffer.remaining() < messageHeaderSize) {
-			String errorMessage = String.format("파라미터 소스 버퍼의 크기[%d]가 메시지 헤더 크기[%d] 보다 작습니다.", srcBuffer.remaining(), messageHeaderSize);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		if (null != messageHeaderBytes) {
-			String errorMessage = "메시지 헤더 읽기 메소드 중복 호출되었습니다.";
-			log.warn(errorMessage);
-		}
-		
-		int beforePosition = srcBuffer.position();
-		
-		if (0 != beforePosition) {
-			/** 다음 메시지를 읽을때 이미 읽어 들인 메시지를 소거후 읽기를 강제하기 위한 방어 로직 */
-			String errorMessage = "파라미터 소스 버퍼의 읽을 위치가 0이 아닙니다. 헤더 위치는 소스 버퍼 처음 즉 0에 위치해야 합니다.";
-			log.warn(errorMessage);
-			throw new HeaderFormatException(errorMessage);
-		}
-		
-		FixedSizeInputStream headerInputStream = new FixedSizeInputStream(
-				srcBuffer, streamCharsetDecoder);
-		try {
-			this.messageID = headerInputStream
-					.getString(
-							messageIDFixedSize,
-							CharsetUtil
-									.createCharsetDecoder(HEADER_CHARSET)).trim();
-			
-			if (null == this.messageID) {
-				/** 메시지 식별자 값이 null 이 되는것을 막기 위한 방어 코드 */
-				String errorMessage = "메시지 헤더에서 읽은 메시지 식별자 값이 null 입니다.";
-				throw new HeaderFormatException(errorMessage);
-			}
-			
-			/** 메시지명 유효성 검사 */
-			if (!IsValidMessageID(messageID)) {
-				String errorMessage = String.format("메시지 헤더에서 읽은 메시지 식별자 값[%s]이 유효하지 않습니다.", messageID);
-				throw new HeaderFormatException(errorMessage);
-			}
-			
-			this.mailboxID = headerInputStream
-					.getUnsignedShort();
-
-			this.mailID = headerInputStream
-					.getInt();
-			
-			this.bodySize = headerInputStream.getLong();
-			
-			if (this.bodySize < 0) {
-				// header format exception
-				String errorMessage = String.format("바디 크기[%d]가 0 보다 작습니다.",
-						this.bodySize);
-				throw new HeaderFormatException(errorMessage);
-			}
-			
-			srcBuffer.flip();
-			
-			messageHeaderBytes = new byte[messageHeaderSize];
-			
-			srcBuffer.get(messageHeaderBytes);
-		} catch (BufferUnderflowException e) {
-			log.fatal("BufferUnderflowException", e);
-			System.exit(1);
-		} catch (IllegalArgumentException e) {
-			log.fatal("IllegalArgumentException", e);
-			System.exit(1);
-		} catch (SinnoriCharsetCodingException e) {
-			String errorMessage = String.format("메시지 헤더에서 메시지 식별자 읽는 도중 CharsetCodingException 발생, %s", e.getMessage());
-			// log.warn(errorMessage, e);
-			throw new HeaderFormatException(errorMessage);
-		}
 	}
 	
 	/**
@@ -216,28 +136,35 @@ public class THBMessageHeader implements CommonRootIF {
 		}
 	}
 	
-	public boolean compareMessageHeader(byte srcMessageHeaderBytes[], CharsetDecoder streamCharsetDecoder) {
-		if (null == messageHeaderBytes) {
-			String errorMessage = "메시지 헤더 읽기 메소드를 먼저 호출하시기 바랍니다.";
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
+	/**
+	 * 헤더 정보를 갖고 있는 입력 스트림으로 부터 THB 헤더 정보를 읽어 내용을 채운다.
+	 * @param headerInputStream 헤더 정보를 갖고 있는 입력 스트림
+	 * @throws HeaderFormatException 메시지 식별자 읽을때 문자셋 에러 발생시 던지는 예외
+	 */
+	public void readMessageHeader(InputStreamIF headerInputStream) throws HeaderFormatException {
+		
+		try {
+			this.messageID = headerInputStream
+					.getString( messageIDFixedSize,
+							CharsetUtil.createCharsetDecoder(DHBMessageHeader.HEADER_CHARSET)).trim();
+			this.mailboxID = headerInputStream
+					.getUnsignedShort();
+			this.mailID = headerInputStream.getInt();
+			this.bodySize = headerInputStream.getLong();
+		} catch (IllegalArgumentException e) {
+			log.fatal("IllegalArgumentException", e);
+			System.exit(1);
+		} catch (BufferUnderflowException e) {
+			log.fatal("BufferUnderflowException", e);
+			System.exit(1);
+		} catch (SinnoriCharsetCodingException e) {
+			String errorMessage = e.getMessage();
+			log.warn(errorMessage, e);
+			throw new HeaderFormatException(errorMessage);
 		}
-		
-		if (null == srcMessageHeaderBytes) {
-			String errorMessage = "파라미터 소스 버퍼가 null 입니다.";
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		if (srcMessageHeaderBytes.length != messageHeaderSize) {
-			String errorMessage = String.format("파라미터 소스 버퍼의 크기[%d]가 메시지 헤더 크기[%d]와 다릅니다.", srcMessageHeaderBytes.length, messageHeaderSize);
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		return Arrays.equals(srcMessageHeaderBytes, messageHeaderBytes);
-		
-	
 	}
+	
+	
 	
 
 	@Override

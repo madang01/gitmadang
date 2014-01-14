@@ -77,8 +77,15 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 	
 	
 	/**
-	 * 생성자
-	 * @param streamBufferList 데이터 패킷 버퍼 목록, 주의점) 읽기 가능한 영역만을 다루기 때문에 flip 된 상태인지 확인 필요함.
+	 * 생성자.
+	 * 입려으로 받는 스트림 버퍼 목록은 동일 크기를 갖는 버퍼들로 이루어진 앞에서 부터 꽉찬 버퍼 목록임을 가정하여 동작한다.
+	 * 스트림 버퍼 목록의 모든 버퍼의 "버퍼 크기"(=capacity) 는 동일해야 한다.
+	 * 앞에서 부터 꽉찬 버퍼 목록이란 
+	 * 첫번째 부터 마지막 버퍼까지 읽어올 "시작 위치"(=postion)는 0으로 시작되며, 
+	 * "종료 위치"(=limit)는 마지막 버퍼를 제외하고 "버퍼 크기"(=capacity) 와 같다.
+	 * 마지막 버퍼의 "종료 위치"는 0 보다 크며 "버퍼 크기"(=capacity) 보다는 작거나 같다.
+	 * 
+	 * @param streamBufferList 스트림 버퍼 목록, 주의점) 동일 "버퍼 크기"(=capacity) 를 갖는 앞에서 부터 꽉찬 버퍼 목록이어야 한다.
 	 * @param streamCharsetDecoder 스트림 문자셋 디코더
 	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자, 메시지당 받을 수 있는 최대 데이터 패킷 버퍼 갯수를 얻기 위해 사용된다.
 	 */
@@ -106,13 +113,14 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 		int dataPacketBufferMaxCntPerMessage = dataPacketBufferQueueManager.getDataPacketBufferMaxCntPerMessage();
 		if (streamBufferList.size() > dataPacketBufferMaxCntPerMessage) {
 			String errorMessage = String.format(
-					"파라미터 바디 버퍼 목록의 크기[%d]는 1개 메시지당 할당 받을 수 있는 최대 값[%d]을 넘을수 없습니다.",
+					"파라미터 streamBufferList 의 크기[%d]는 1개 메시지당 할당 받을 수 있는 최대 값[%d]을 넘을수 없습니다.",
 					streamBufferList.size(), dataPacketBufferMaxCntPerMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
 		indexOfWorkBuffer = 0;
 		workBuffer = streamBufferList.get(indexOfWorkBuffer);
+		
 		
 		streamByteOrder = workBuffer.order();
 		
@@ -130,7 +138,9 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 		longBytes = longBuffer.array();		
 	}
 	
-	
+	/**
+	 * @return 스트림을 구성하는 버퍼 목록
+	 */
 	public ArrayList<ByteBuffer> getStreamBufferList() {
 		return streamBufferList;
 	}
@@ -186,48 +196,13 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 	private void clearLongBuffer() {
 		longBuffer.clear();
 		Arrays.fill(longBytes, CommonStaticFinal.ZERO_BYTE);
-	}
-	
+	}	
 	
 	/**
-	 * 목적지 바이트 버퍼 크기 만큼 목적지 바이트 버퍼에 스트림의 내용을 읽어 저장한다. 주) 목적지 바이트 버퍼의 내용을 읽을려면 flip 등을 해야 한다.  
-	 * 
-	 * @param dstBuffer
-	 *            목적지 바이트 버퍼
+	 * 목적지 바이트 버퍼에 스트림의 내용을 읽어 저장한다. 주) 목적지 바이트 버퍼의 내용을 읽을려면 flip 등을 해야 한다.
+	 * @param dstBuffer 목적지 바이트 버퍼
 	 */
-	private void getBytesFromWorkBuffer(ByteBuffer dstByteBuffer) {
-		// log.info("getBytesFromWorkBuffer::dstBuffer=[%s]",
-		// dstBuffer.toString());
-		/*
-		do {
-			int workRemainingByte = workBuffer.remaining();
-			int dstRemainingByte = dstByteBuffer.remaining();
-
-			// FIXME!			
-			// log.info("getBytesFromWorkBuffer::workBuffer=[%s]", workBuffer.toString());
-			// log.info("getBytesFromWorkBuffer::dstBuffer=[%s]", dstBuffer.toString());
-			// log.info("getBytesFromWorkBuffer::1.workBuffer=[%s]", workBuffer.toString());
-
-			if (workRemainingByte > dstRemainingByte) {
-				int limit = workBuffer.limit();
-				workBuffer.limit(workBuffer.position() + dstRemainingByte);
-				dstByteBuffer.put(workBuffer);
-				workBuffer.limit(limit);
-				// log.info("getBytesFromWorkBuffer::2.workBuffer=[%s]",
-				// workBuffer.toString());
-				break;
-			}
-
-			dstByteBuffer.put(workBuffer);
-			if (!dstByteBuffer.hasRemaining())
-				break;
-			nextBuffer();
-			
-			
-		} while (true);		
-		
-		// dstBuffer.flip();
-		 */
+	private void getBytesFromWorkBuffer(ByteBuffer dstByteBuffer) {		
 		do {
 			int len = dstByteBuffer.remaining();
 			if (workBuffer.remaining() >= len) {
@@ -241,11 +216,12 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 				nextBuffer();
 			}
 		} while (dstByteBuffer.hasRemaining());
-		
-		
 	}
 	
-	// FIXME!
+	/**
+	 *  목적지 바이트 배열 크기 만큼 목적지 바이트 배열에 스트림의 내용을 읽어 저장한다.
+	 * @param dstBytes 목적지 바이트 버퍼
+	 */
 	private void getBytesFromWorkBuffer(byte[] dstBytes) {
 		int offset = 0;
 		int len = dstBytes.length;
@@ -254,7 +230,6 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 			
 			if (remainingBytes >= len) {
 				workBuffer.get(dstBytes, offset, len);
-				// len = 0;
 				break;
 			} else {
 				workBuffer.get(dstBytes, offset, remainingBytes);
@@ -266,6 +241,12 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 		} while (0 != len);
 	}
 	
+	/**
+	 * 목적지 바이트 배열에 지정된 시작위치에 지정된 크기 만큼 스트림의 내용을 읽어와서 저장한다.
+	 * @param dstBytes 목적지 바이트 배열
+	 * @param offset 스트림 내용이 저장될 목적지 바이트 배열의 시작 위치 
+	 * @param len 스트림으로 부터 읽어 올 크기 
+	 */
 	private void getBytesFromWorkBuffer(byte[] dstBytes, int offset, int len) {
 		do {
 			int remainingBytes = workBuffer.remaining();
@@ -283,8 +264,6 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 			
 		} while (0 != len);
 	}
-	
-	
 	
 	
 	@Override
@@ -497,7 +476,13 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 					remainingBytes));
 		}
 
-		ByteBuffer dstBuffer = ByteBuffer.allocate(len);
+		ByteBuffer dstBuffer = null;
+		try {
+			dstBuffer = ByteBuffer.allocate(len);
+		} catch (OutOfMemoryError e) {
+			log.warn("OutOfMemoryError", e);
+			throw e;
+		}
 		
 
 		getBytesFromWorkBuffer(dstBuffer);
@@ -526,15 +511,15 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 	public String getStringAll() throws BufferUnderflowException,
 			IllegalArgumentException, SinnoriCharsetCodingException {
 		long remainingBytes = remaining();
-		/*
-		if (remainingBytes > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
+		
+		if (remainingBytes > Integer.MAX_VALUE) {
 			throw new IllegalArgumentException(
 					String.format(
-							"문자열로 변환될 남아 있는 버퍼 크기[%d]는  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.",
+							"문자열로 변환될 남아 있는 버퍼 크기[%d]는  integer 최대값[%d] 보다 작거나 같아야 합니다.",
 							remainingBytes,
-							CommonStaticFinal.MAX_UNSIGNED_SHORT));
+							Integer.MAX_VALUE));
 		}
-		*/
+		
 		
 		if (0 == remainingBytes)
 			return "";
@@ -605,11 +590,11 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 					"지정된 길이[%d]는  0 보다 커야 합니다.", len));
 		}
 
-		if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
+		/*if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 문자열 길이[%d]는  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.",
 					len, CommonStaticFinal.MAX_UNSIGNED_SHORT));
-		}
+		}*/
 
 		long remainingBytes = remaining();
 		if (len > remainingBytes) {
@@ -658,11 +643,11 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 					"지정된 길이[%d]는  0 과 같거나 커야 합니다.", len));
 		}
 
-		if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
+		/*if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
 			throw new IllegalArgumentException(String.format(
-					"파라미터 문자열 길이[%d]는  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.",
+					"파라미터 len[%d]는  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.",
 					len, CommonStaticFinal.MAX_UNSIGNED_SHORT));
-		}
+		}*/
 
 		long remainingBytes = remaining();
 		if (len > remainingBytes) {
@@ -676,7 +661,13 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 		// getBytesFromWorkBuffer(dstBuffer);
 		// return srcBuffer;
 
-		byte srcBytes[] = new byte[len];
+		byte srcBytes[] = null;
+		try {
+			srcBytes = new byte[len];
+		} catch (OutOfMemoryError e) {
+			log.warn("OutOfMemoryError", e);
+			throw e;
+		}
 		getBytesFromWorkBuffer(srcBytes);
 		return srcBytes;
 	}
@@ -688,7 +679,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 		
 		if (len < 0) {
 			throw new IllegalArgumentException(String.format(
-					"파라미터 생략할 길이[%d]는  0 보다 커야 합니다.", len));
+					"파라미터 생략할 길이[%d]는  0 보다 크거나 같아야 합니다.", len));
 		}
 
 		long remainingBytes = remaining();
@@ -710,12 +701,12 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 			workBuffer.position(workBuffer.limit());
 			dstRemainingByte -= workRemainingByte;
 			
-			if (dstRemainingByte <= 0) {
+			/*if (dstRemainingByte <= 0) {
 				log.warn(
 String.format("dstRemainingByte equal to or less than zero, maybe remaining() bug, remainingBytes=[%d], len=[%d]"
 					, remainingBytes, len));
 				break;
-			}
+			}*/
 			nextBuffer();
 		} while (true);
 	}
@@ -725,7 +716,7 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 		
 		if (len < 0) {
 			throw new IllegalArgumentException(String.format(
-					"파라미터 생략할 길이[%d]는  0 보다 커야 합니다.", len));
+					"파라미터 생략할 길이[%d]는  0 보다 크거나 같아야 합니다.", len));
 		}
 		
 		
@@ -747,12 +738,12 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 		
 			workBuffer.position(workBuffer.limit());
 			dstRemainingByte -= workRemainingByte;
-			if (dstRemainingByte <= 0) {
+			/*if (dstRemainingByte <= 0) {
 				log.warn(
 String.format("dstRemainingByte equal to or less than zero, maybe remaining() bug, remainingBytes=[%d], len=[%d]"
 						, remainingBytes, len));
 				break;
-			}
+			}*/
 			nextBuffer();
 		} while (true);
 	}
@@ -766,22 +757,26 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 	public long remaining() {
 		long remaingBytes = 0;
 		int streamBufferListSize = streamBufferList.size();
-		/*
+		
 		int lastIndexOfStreamBufferList = streamBufferListSize -1;
+		
 		remaingBytes += streamBufferList.get(indexOfWorkBuffer).remaining();
-		int countOfWorkBuffer = indexOfWorkBuffer+2;
-		if (countOfWorkBuffer < streamBufferListSize) {
-			
-			remaingBytes += (streamBufferListSize - countOfWorkBuffer) * (long)workBuffer.capacity();
-		}
+		
 		if (lastIndexOfStreamBufferList != indexOfWorkBuffer) {
+			int countOfFullBuffer = lastIndexOfStreamBufferList - indexOfWorkBuffer - 1;
+			remaingBytes += countOfFullBuffer * (long)workBuffer.capacity();
+			
 			remaingBytes += streamBufferList.get(lastIndexOfStreamBufferList).remaining();
 		}
-		*/
 		
+		// FIXME! debug code
+		/*long debugRemaingBytes = 0;
 		for (int i = indexOfWorkBuffer; i < streamBufferListSize; i++) {
-			remaingBytes += streamBufferList.get(i).remaining();
+			debugRemaingBytes += streamBufferList.get(i).remaining();
 		}
+		if (debugRemaingBytes != remaingBytes) {
+			log.warn(String.format("남아 있는 양 공식[%d]과 실체 측정치[%d] 다름", remaingBytes, debugRemaingBytes));
+		}*/
 		
 		return remaingBytes;
 	}
@@ -791,8 +786,8 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 		// FIXME!
 		// log.info(String.format("in position, indexOfWorkBuffer=[%d], workBuffer.capacity=[%d]", indexOfWorkBuffer, workBuffer.capacity()));
 		
-		long positionInBuffer = indexOfWorkBuffer*(long)workBuffer.capacity();
-		positionInBuffer += workBuffer.position();
+		long positionInBuffer = indexOfWorkBuffer*(long)workBuffer.capacity() 
+				+ workBuffer.position();
 
 		return positionInBuffer;
 	}
@@ -804,6 +799,7 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 	public int getPositionOfWorkBuffer() {
 		return workBuffer.position();
 	}
+	
 	
 	
 	@Override

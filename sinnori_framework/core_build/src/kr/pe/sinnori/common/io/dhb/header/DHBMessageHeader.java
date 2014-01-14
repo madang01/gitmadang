@@ -21,16 +21,14 @@ import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-import java.util.Arrays;
 import java.util.regex.Pattern;
 
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
-import kr.pe.sinnori.common.io.FixedSizeInputStream;
 import kr.pe.sinnori.common.io.FixedSizeOutputStream;
+import kr.pe.sinnori.common.io.InputStreamIF;
 import kr.pe.sinnori.common.lib.CharsetUtil;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.util.HexUtil;
@@ -80,32 +78,39 @@ public class DHBMessageHeader implements CommonRootIF {
 	/** 메시지 헤더 크기, 참고) 환경 변수로 지정되는 고정 크기를 갖는 메시지 식별자 크기 값으로 정해지는 크기이다. */
 	public int messageHeaderSize = -1;
 	
-	// public int bodyMD5Offset = -1;
-	// public int headerMD5Offset = -1;
-	
-	/** 메시지 헤더의 내용을 버퍼를 통해 읽을 경우 헤어 부분만 복사한 바이트 배열 */
-	private byte messageHeaderBytes[] = null;
-	
 	/**
 	 * 생성자
 	 * @param messageIDFixedSize 메시지 헤더의 고정 크기를 갖는 메시지 식별자 크기
 	 */
 	public DHBMessageHeader(int messageIDFixedSize) {
 		this.messageIDFixedSize = messageIDFixedSize;
-		// this.bodyMD5Offset = messageIDFixedSize + 2 + 4 + 8;
-		// this.headerMD5Offset = bodyMD5Offset + MD5_BYTESIZE;
 		this.messageHeaderSize = getMessageHeaderSize(messageIDFixedSize); 
 		
 	}
 	
+	/**
+	 * 지정된 메시지 식별자 크기를 갖는 DHB 헤더 크기를 반환한다.
+	 * @param messageIDFixedSize 메시지 식별자 크기
+	 * @return 지정된 메시지 식별자 크기를 갖는 THB 헤더 크기
+	 */
 	public static int getMessageHeaderSize(int messageIDFixedSize) {
-		return (messageIDFixedSize+ 2 + 4 + 8 + MD5_BYTESIZE*2);
+		return (messageIDFixedSize + 2 + 4 + 8 + MD5_BYTESIZE*2);
 	}
 	
-	public static int getBodyMD5Offset(int messageIDFixedSize) {
+	
+	/*public static int getBodyMD5Offset(int messageIDFixedSize) {
 		return (messageIDFixedSize+ 2 + 4 + 8);
-	}
+	}*/
 	
+	/**
+	 * <pre>
+	 * 지정된 메시지 식별자 크기를 갖는 DHB 헤더의 헤더 MD5 옵셋을 반환한다. 
+	 * 참고) 헤더 MD5를 구하기 위해서 필요한 정보, 헤더 MD5를 제외한 헤더 부분의 크기이다.
+	 * </pre>
+	 *  
+	 * @param messageIDFixedSize 메시지 식별자 크기
+	 * @return 지정된 메시지 식별자 크기를 갖는 DHB 헤더의 헤더 MD5 옵셋
+	 */
 	public static int getHeaderMD5Offset(int messageIDFixedSize) {
 		return (messageIDFixedSize+ 2 + 4 + 8 + MD5_BYTESIZE);
 	}
@@ -123,114 +128,6 @@ public class DHBMessageHeader implements CommonRootIF {
 		Pattern p = Pattern.compile("[[a-zA-Z][a-zA-Z0-9]]+");
 		boolean isValid = p.matcher(messageID).matches();
 		return isValid;
-	}
-	
-	/**
-	 * 소스 버퍼의 내용을 읽어 메시지 헤더의 내용을 채운다. 참고) 이 메소드 정상 종료후 소스 버퍼의 현재 읽을 위치는 메시지 헤더 크기이다.
-	 * @param srcBuffer 메시지 헤더의 내용을 가지고 있는 소스 버퍼, 반듯이 position=0 그리고 limit=capacity 이어야 한다.
-	 * @param md5 MD5
-	 * @param streamCharsetDecoder 문자셋 디코더
-	 * @throws HeaderFormatException 메시지 헤더의 내용을 소스 버퍼로 부터 읽을때 에러 발생시 던지는 예외
-	 */
-	public void readMessageHeader(ByteBuffer srcBuffer, java.security.MessageDigest md5, CharsetDecoder streamCharsetDecoder) throws HeaderFormatException {
-		if (srcBuffer.remaining() < messageHeaderSize) {
-			String errorMessage = String.format("파라미터 소스 버퍼의 크기[%d]가 메시지 헤더 크기[%d] 보다 작습니다.", srcBuffer.remaining(), messageHeaderSize);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		if (null != messageHeaderBytes) {
-			String errorMessage = "메시지 헤더 읽기 메소드 중복 호출되었습니다.";
-			log.warn(errorMessage);
-		}
-		
-		int beforePosition = srcBuffer.position();
-		
-		if (0 != beforePosition) {
-			/** 다음 메시지를 읽을때 이미 읽어 들인 메시지를 소거후 읽기를 강제하기 위한 방어 로직 */
-			String errorMessage = "파라미터 소스 버퍼의 읽을 위치가 0이 아닙니다. 헤더 위치는 소스 버퍼 처음 즉 0에 위치해야 합니다.";
-			log.warn(errorMessage);
-			throw new HeaderFormatException(errorMessage);
-		}
-		
-		FixedSizeInputStream headerInputStream = new FixedSizeInputStream(
-				srcBuffer, streamCharsetDecoder);
-		try {
-			this.messageID = headerInputStream
-					.getString(
-							messageIDFixedSize,
-							CharsetUtil
-									.createCharsetDecoder(HEADER_CHARSET)).trim();
-			
-			if (null == this.messageID) {
-				/** 메시지 식별자 값이 null 이 되는것을 막기 위한 방어 코드 */
-				String errorMessage = "메시지 헤더에서 읽은 메시지 식별자 값이 null 입니다.";
-				throw new HeaderFormatException(errorMessage);
-			}
-			
-			/** 메시지명 유효성 검사 */
-			if (!IsValidMessageID(messageID)) {
-				String errorMessage = String.format("메시지 헤더에서 읽은 메시지 식별자 값[%s]이 유효하지 않습니다.", messageID);
-				throw new HeaderFormatException(errorMessage);
-			}
-			
-			this.mailboxID = headerInputStream
-					.getUnsignedShort();
-
-			this.mailID = headerInputStream
-					.getInt();
-			
-			this.bodySize = headerInputStream.getLong();
-			
-			if (this.bodySize < 0) {
-				// header format exception
-				String errorMessage = String.format("바디 크기[%d]가 0 보다 작습니다.",
-						this.bodySize);
-				throw new HeaderFormatException(errorMessage);
-			}
-
-			this.bodyMD5 = new byte[MD5_BYTESIZE];			
-			headerInputStream.getBytes(this.bodyMD5);
-			
-			srcBuffer.mark();
-			
-			this.headerMD5 = new byte[MD5_BYTESIZE];
-			headerInputStream.getBytes(this.headerMD5);
-			
-			
-			srcBuffer.reset();
-			srcBuffer.flip();
-			
-			
-			md5.update(srcBuffer);
-			byte resultHeaderMD5[] = md5.digest();
-			
-
-			boolean isValidHeaderMD5 = java.util.Arrays.equals(
-					resultHeaderMD5, this.headerMD5);
-
-			if (!isValidHeaderMD5) {
-				String errorMessage = String.format(
-						"fail to check header MD5, header[%s]",
-						this.toString());
-
-				throw new HeaderFormatException(errorMessage);
-			}
-			
-			messageHeaderBytes = new byte[messageHeaderSize];
-			srcBuffer.clear();
-			srcBuffer.get(messageHeaderBytes);
-		} catch (BufferUnderflowException e) {
-			log.fatal("BufferUnderflowException", e);
-			System.exit(1);
-		} catch (IllegalArgumentException e) {
-			log.fatal("IllegalArgumentException", e);
-			System.exit(1);
-		} catch (SinnoriCharsetCodingException e) {
-			String errorMessage = String.format("메시지 헤더에서 메시지 식별자 읽는 도중 CharsetCodingException 발생, %s", e.getMessage());
-			// log.warn(errorMessage, e);
-			throw new HeaderFormatException(errorMessage);
-		}
 	}
 	
 	/**
@@ -323,98 +220,35 @@ public class DHBMessageHeader implements CommonRootIF {
 		}
 	}
 	
-	public boolean compareMessageHeader(byte srcMessageHeaderBytes[], CharsetDecoder streamCharsetDecoder) {
-		if (null == messageHeaderBytes) {
-			String errorMessage = "메시지 헤더 읽기 메소드를 먼저 호출하시기 바랍니다.";
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		if (null == srcMessageHeaderBytes) {
-			String errorMessage = "파라미터 소스 버퍼가 null 입니다.";
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		if (srcMessageHeaderBytes.length != messageHeaderSize) {
-			String errorMessage = String.format("파라미터 소스 버퍼의 크기[%d]가 메시지 헤더 크기[%d]와 다릅니다.", srcMessageHeaderBytes.length, messageHeaderSize);
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		return Arrays.equals(srcMessageHeaderBytes, messageHeaderBytes);
-		
-		/*
-		
-		int beforePosition = srcBuffer.position();
-		// int beforeLimit = srcBuffer.limit();
-		
-		FixedSizeInputStream headerInputStream = new FixedSizeInputStream(
-				srcBuffer, streamCharsetDecoder);
-		
-		String srcMessageID = null;
-		int srcMailboxID = -1;
-		int srcMailID = -1;
-		long srcBodySize = -1;
-		byte srcBodyMD5[] = new byte[MD5_BYTESIZE];
-		byte srcHeaderMD5[] = new byte[MD5_BYTESIZE];
-		
+	/**
+	 * 헤더 정보를 갖고 있는 입력 스트림으로 부터 DHB 헤더 정보를 읽어 내용을 채운다.
+	 * @param headerInputStream 헤더 정보를 갖고 있는 입력 스트림
+	 * @throws HeaderFormatException 메시지 식별자 읽을때 문자셋 에러 발생시 던지는 예외
+	 */
+	public void readMessageHeader(InputStreamIF headerInputStream) throws HeaderFormatException {
 		try {
-			srcMessageID = headerInputStream
-					.getString(
-							messageIDFixedSize,
-							CharsetUtil
-									.createCharsetDecoder(HEADER_CHARSET)).trim();
-		} catch (BufferUnderflowException e) {
-			log.fatal("BufferUnderflowException", e);
-			System.exit(1);
+			this.messageID = headerInputStream
+					.getString( messageIDFixedSize,
+							CharsetUtil.createCharsetDecoder(DHBMessageHeader.HEADER_CHARSET)).trim();
+			this.mailboxID = headerInputStream
+					.getUnsignedShort();
+			this.mailID = headerInputStream.getInt();
+			this.bodySize = headerInputStream.getLong();
+			this.bodyMD5 = headerInputStream
+					.getBytes(DHBMessageHeader.MD5_BYTESIZE);
+			this.headerMD5 = headerInputStream
+					.getBytes(DHBMessageHeader.MD5_BYTESIZE);
 		} catch (IllegalArgumentException e) {
 			log.fatal("IllegalArgumentException", e);
 			System.exit(1);
-		} catch(SinnoriCharsetCodingException e) {
-			srcBuffer.position(beforePosition);
-			
-			String errorMessage = "SinnoriCharsetCodingException";
+		} catch (BufferUnderflowException e) {
+			log.fatal("BufferUnderflowException", e);
+			System.exit(1);
+		} catch (SinnoriCharsetCodingException e) {
+			String errorMessage = e.getMessage();
 			log.warn(errorMessage, e);
-			
-			return false;
+			throw new HeaderFormatException(errorMessage);
 		}
-
-		srcMailboxID = headerInputStream
-				.getUnsignedShort();
-		srcMailID = headerInputStream
-				.getInt();
-		
-		srcBodySize = headerInputStream.getLong();
-		
-		if (this.bodySize < 0) {
-			srcBuffer.position(beforePosition);
-			
-			// header format exception
-			String errorMessage = String.format("바디 크기[%d]가 0 보다 작습니다.",
-					this.bodySize);
-			
-			log.warn(errorMessage);
-			
-			return false;
-		}
-		
-		headerInputStream.getBytes(srcBodyMD5);
-		headerInputStream.getBytes(srcHeaderMD5);
-
-		if (!srcMessageID.equals(this.messageID)) return false;
-		
-		if (srcMailboxID != this.mailboxID) return false;
-		
-		if (srcMailID != this.mailID) return false;
-		
-		if (srcBodySize != this.bodySize) return false;
-		
-		if (!Arrays.equals(srcBodyMD5, this.bodyMD5)) return false;
-		
-		if (!Arrays.equals(srcHeaderMD5, this.headerMD5)) return false;
-		
-		return true;
-		*/
 	}
 	
 

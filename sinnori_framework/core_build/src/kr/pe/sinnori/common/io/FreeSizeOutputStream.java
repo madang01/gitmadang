@@ -86,11 +86,11 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 	 * 생성자 
 	 * @param streamCharset 문자셋
 	 * @param streamCharsetEncoder 문자셋 인코더
-	 * @param firtBufferPosition 데이터 패킷 버퍼 관리자로 부터 첫번째로 할당 받은 데이터 패킷 버퍼의 쓰기 시작 위치, DHB 프로토콜에서 DHB 헤더를 건너뛰고 바디 부터 바디 부분을 먼저 구성할때 필요하다.
+	 * @param firtBufferStartPosition 데이터 패킷 버퍼 관리자로 부터 첫번째로 할당 받은 데이터 패킷 버퍼의 쓰기 시작 위치, DHB 프로토콜에서 DHB 헤더를 건너뛰고 바디 부터 바디 부분을 먼저 구성할때 필요하다.
 	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 관리자
 	 * @throws NoMoreDataPacketBufferException 데이터 패키 버퍼를 확보하지 못했을 경우 던지는 예외
 	 */
-	public FreeSizeOutputStream(Charset streamCharset, CharsetEncoder streamCharsetEncoder, int firtBufferPosition, DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
+	public FreeSizeOutputStream(Charset streamCharset, CharsetEncoder streamCharsetEncoder, int firtBufferStartPosition, DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
 		this.streamByteOrder = dataPacketBufferQueueManager.getByteOrder();
 		this.streamCharset = streamCharset;
 		this.streamCharsetEncoder = streamCharsetEncoder;
@@ -101,7 +101,7 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 		dataPacketBufferList = new ArrayList<WrapBuffer>();
 		WrapBuffer wrapBuffer = dataPacketBufferQueueManager.pollDataPacketBuffer();
 		workBuffer = wrapBuffer.getByteBuffer();
-		workBuffer.position(firtBufferPosition);
+		workBuffer.position(firtBufferStartPosition);
 		dataPacketBufferList.add(wrapBuffer);
 		
 		

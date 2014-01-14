@@ -164,7 +164,8 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		serverSC.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
 		serverSC.setOption(StandardSocketOptions.TCP_NODELAY, true);
 		serverSC.setOption(StandardSocketOptions.SO_LINGER, 0);
-		serverSC.setOption(StandardSocketOptions.SO_SNDBUF, 65536);
+		// serverSC.setOption(StandardSocketOptions.SO_SNDBUF, 65536);
+		// serverSC.setOption(StandardSocketOptions.SO_RCVBUF, 65536);
 		// serverSC.setOption(StandardSocketOptions.SO_RCVBUF, clientProjectConfig.getDataPacketBufferSize()*2);
 		//SO_SNDBUF
 		
@@ -417,9 +418,8 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 			InputMessage inObj) throws ServerNotReadyException,
 			SocketTimeoutException, NoMoreDataPacketBufferException,
 			BodyFormatException, MessageInfoNotFoundException, NotSupportedException {
-		long startTime = 0;
-		long endTime = 0;
-		startTime = new java.util.Date().getTime();
+		//long startTime = new java.util.Date().getTime();
+		
 		// log.info("inputMessage=[%s]", inputMessage.toString());
 		try {
 			serverOpen();
@@ -461,8 +461,8 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 			}
 		}
 
-		endTime = new java.util.Date().getTime();
-		log.info(String.format("sendOnlyInputMessage 시간차=[%d]", (endTime - startTime)));
+		/*long endTime = new java.util.Date().getTime();
+		log.info(String.format("sendOnlyInputMessage 시간차=[%d]", (endTime - startTime)));*/
 	}
 
 	@Override

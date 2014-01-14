@@ -169,11 +169,12 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 		int outputMessageWriterSize = serverProjectConfig.getServerOutputMessageWriterSize();
 		int outputMessageWriterMaxSize = serverProjectConfig.getServerOutputMessageWriterMaxSize();
 		
-		TreeSet<String> anonymousExceptionInputMessageSet = serverProjectConfig.getAsynInputMessageSet();
-		Iterator<String> anonymousExceptionInputMessageIter = anonymousExceptionInputMessageSet.iterator();
-		while(anonymousExceptionInputMessageIter.hasNext()) {
+		TreeSet<String> asynInputMessageSet = serverProjectConfig.getAsynInputMessageSet();
+		/** 비동기 입력 메시지 집합에 속한 입력 메시지들 존재 여부 검사 */
+		Iterator<String> asynInputMessageIter = asynInputMessageSet.iterator();
+		while(asynInputMessageIter.hasNext()) {
 			try {
-				this.createInputMessage(anonymousExceptionInputMessageIter.next());
+				this.createInputMessage(asynInputMessageIter.next());
 			} catch (IllegalArgumentException e) {
 				log.fatal(String.format("projectName[%s] %s", projectName, e.getMessage()), e);
 				System.exit(1);
@@ -220,7 +221,7 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 		
 		executorProcessorPool = new ExecutorProcessorPool(
 				executorProcessorSize, executorProcessorMaxSize,
-				anonymousExceptionInputMessageSet,
+				asynInputMessageSet,
 				serverProjectConfig,
 				inputMessageQueue, outputMessageQueue, 
 				this, this, this);

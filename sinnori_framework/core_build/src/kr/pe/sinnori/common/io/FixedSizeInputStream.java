@@ -27,7 +27,6 @@ import java.nio.charset.CharsetDecoder;
 
 import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.common.lib.CommonStaticFinal;
 import kr.pe.sinnori.common.util.HexUtil;
 
 /**
@@ -181,12 +180,12 @@ public class FixedSizeInputStream implements CommonRootIF, InputStreamIF {
 					"파라미터 길이[%d]는  0 보다 크거나 같아야 합니다.", len));
 		}
 
-		if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
+		/*if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
 			throw new IllegalArgumentException(
 					String.format(
 							"파리미터 문자열 길이(=len)의 값[%d]은  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.",
 							len, CommonStaticFinal.MAX_UNSIGNED_SHORT));
-		}
+		}*/
 
 		long remainingBytes = remaining();
 		if (len > remainingBytes) {
@@ -199,11 +198,11 @@ public class FixedSizeInputStream implements CommonRootIF, InputStreamIF {
 		byte dstBytes[] = null;
 		try {
 			dstBuffer = ByteBuffer.allocate(len);
-			dstBytes = dstBuffer.array();
 		} catch (OutOfMemoryError e) {
 			log.warn("OutOfMemoryError", e);
 			throw e;
 		}
+		dstBytes = dstBuffer.array();
 				
 		/*
 		 * ByteBuffer.get(Byte[]) 메소드는 내부적으로 ByteBuffer.get() 으로 동작하므로 버퍼 속성
@@ -236,12 +235,12 @@ public class FixedSizeInputStream implements CommonRootIF, InputStreamIF {
 			IllegalArgumentException, SinnoriCharsetCodingException {
 		long remainingBytes = remaining();
 
-		if (remainingBytes > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
+		if (remainingBytes > Integer.MAX_VALUE) {
 			throw new IllegalArgumentException(
 					String.format(
-							"문자열로 변환될 남아 있는 버퍼 크기[%d]는  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.",
+							"문자열로 변환될 남아 있는 버퍼 크기[%d]는  integer 최대값[%d] 보다 작거나 같아야 합니다.",
 							remainingBytes,
-							CommonStaticFinal.MAX_UNSIGNED_SHORT));
+							Integer.MAX_VALUE));
 		}
 
 		if (0 == remainingBytes)
@@ -263,11 +262,11 @@ public class FixedSizeInputStream implements CommonRootIF, InputStreamIF {
 			throw new IllegalArgumentException(String.format(
 					"문자열 크기[%d]로 음수값이 전달되었습니다.", len));
 
-		if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
+		/*if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
 			throw new IllegalArgumentException(String.format(
 					"문자열 길이[%d]는  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.", len,
 					CommonStaticFinal.MAX_UNSIGNED_SHORT));
-		}
+		}*/
 
 		if (0 == len)
 			return "";
@@ -310,11 +309,11 @@ public class FixedSizeInputStream implements CommonRootIF, InputStreamIF {
 					"파라미터 길이[%d]는  0 보다 커야 합니다.", len));
 		}
 
-		if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
+		/*if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 문자열 길이[%d]는  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.",
 					len, CommonStaticFinal.MAX_UNSIGNED_SHORT));
-		}
+		}*/
 
 		long remainingBytes = remaining();
 		if (len > remainingBytes) {
@@ -358,11 +357,11 @@ public class FixedSizeInputStream implements CommonRootIF, InputStreamIF {
 					"파라미터 길이[%d]는  0 과 같거나 커야 합니다.", len));
 		}
 
-		if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
+		/*if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 문자열 길이[%d]는  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.",
 					len, CommonStaticFinal.MAX_UNSIGNED_SHORT));
-		}
+		}*/
 
 		long remainingBytes = remaining();
 		if (len > remainingBytes) {
@@ -392,11 +391,11 @@ public class FixedSizeInputStream implements CommonRootIF, InputStreamIF {
 					"파라미터 길이[%d]는  0 보다 커야 합니다.", len));
 		}
 
-		if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
+		/*if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 문자열 길이[%d]는  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.",
 					len, CommonStaticFinal.MAX_UNSIGNED_SHORT));
-		}
+		}*/
 
 		long remainingBytes = remaining();
 		if (len > remainingBytes) {

@@ -29,12 +29,10 @@ import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
 import kr.pe.sinnori.common.io.FreeSizeInputStream;
 import kr.pe.sinnori.common.io.FreeSizeOutputStream;
 import kr.pe.sinnori.common.io.MessageProtocolIF;
 import kr.pe.sinnori.common.io.dhb.DHBSingleItem2Stream;
-import kr.pe.sinnori.common.io.dhb.header.DHBMessageHeader;
 import kr.pe.sinnori.common.io.thb.header.THBMessageHeader;
 import kr.pe.sinnori.common.lib.CharsetUtil;
 import kr.pe.sinnori.common.lib.CommonRootIF;
@@ -170,30 +168,20 @@ public class THBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 					if (null == freeSizeInputStream) {
 						freeSizeInputStream = socketInputStream
 								.getFreeSizeInputStream(charsetOfProjectDecoder);
-						startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
-						startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
+						/*startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
+						startPosition = freeSizeInputStream.getPositionOfWorkBuffer();*/
+						
+						startIndex = 0;
+						startPosition = 0;
 					}
 					
 					THBMessageHeader  workMessageHeader = new THBMessageHeader(messageIDFixedSize);
-					
-					try {
-						workMessageHeader.messageID = freeSizeInputStream
-								.getString( messageIDFixedSize,
-										CharsetUtil.createCharsetDecoder(DHBMessageHeader.HEADER_CHARSET)).trim();
-					} catch (SinnoriCharsetCodingException e1) {
-						String errorMessage = e1.getMessage();
-						log.warn(errorMessage, e1);
-						throw new HeaderFormatException(errorMessage);
-					}
-					workMessageHeader.mailboxID = freeSizeInputStream
-							.getUnsignedShort();
-					workMessageHeader.mailID = freeSizeInputStream.getInt();
-					workMessageHeader.bodySize = freeSizeInputStream.getLong();
+					workMessageHeader.readMessageHeader(freeSizeInputStream);
 
 					if (workMessageHeader.bodySize < 0) {
 						// header format exception
 						String errorMessage = String.format(
-								"dhb header body size less than zero %s",
+								"thb header body size less than zero %s",
 								workMessageHeader.toString());
 						throw new HeaderFormatException(errorMessage);
 					}
@@ -212,10 +200,15 @@ public class THBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 						if (null == freeSizeInputStream) {
 							freeSizeInputStream = socketInputStream
 									.getFreeSizeInputStream(charsetOfProjectDecoder);
-							startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
+							/*startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
 							startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
-							long expectedPosition = startIndex*lastInputStreamBuffer.capacity()+startPosition+messageHeaderSize;
-							freeSizeInputStream.skip(expectedPosition);
+							long skipBytes = startIndex*lastInputStreamBuffer.capacity()+startPosition+messageHeaderSize;*/
+							
+							startIndex = 0;
+							startPosition = 0;
+							long skipBytes = messageHeaderSize;
+							
+							freeSizeInputStream.skip(skipBytes);
 						}
 						
 						long postionBeforeReadingBody = freeSizeInputStream.position();
@@ -421,7 +414,8 @@ public class THBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 							messageList.add(workOutObj);
 						}
 
-						inputStramSizeBeforeMessageWork = freeSizeInputStream.remaining();
+						// inputStramSizeBeforeMessageWork = freeSizeInputStream.remaining();
+						inputStramSizeBeforeMessageWork -= messageFrameSize;
 						if (inputStramSizeBeforeMessageWork > messageHeaderSize) {
 							isMoreMessage = true;
 						}

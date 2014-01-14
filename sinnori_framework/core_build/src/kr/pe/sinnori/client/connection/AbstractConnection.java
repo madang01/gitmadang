@@ -226,7 +226,19 @@ public abstract class AbstractConnection implements CommonRootIF {
 	public void serverClose() {
 		synchronized (monitor) {
 			try {
-				// if (serverSC != null)serverSC.close();
+				serverSC.shutdownInput();
+			} catch (Exception e) {
+				log.warn(String.format("server name[%s] socket channel shutdownInput fail",
+						clientProjectConfig.getProjectName()), e);
+			}
+			try {
+				serverSC.shutdownOutput();
+			} catch (Exception e) {
+				log.warn(String.format("server name[%s] socket channel shutdownOutput fail",
+						clientProjectConfig.getProjectName()), e);
+			}
+			
+			try {
 				serverSC.close();
 			} catch (Exception e) {
 				log.warn(String.format("server name[%s] socket channel close fail",
@@ -354,14 +366,9 @@ public abstract class AbstractConnection implements CommonRootIF {
 		strBuffer.append(clientProjectConfig.getProjectName());
 		strBuffer.append("], connection=[");
 		strBuffer.append(index);
-		strBuffer.append(", serverSC=[");
-		if (null != serverSC) {
-			strBuffer.append(serverSC.hashCode());
-		} else {
-			strBuffer.append("null");
-		}
+		strBuffer.append("], serverSC=[");
+		strBuffer.append(serverSC.hashCode());		
 		strBuffer.append("]");
-
 		return strBuffer.toString();
 	}
 }

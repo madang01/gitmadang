@@ -52,7 +52,7 @@ public class ClientProjectMonitorInfo {
 		builder.append(", inputMessageQueueSize=");
 		builder.append(inputMessageQueueSize);
 		
-		builder.append(", outputMessageQueueQueueSize=");
+		builder.append(", SyncOutputMessageQueueQueueSize=");
 		builder.append(syncOutputMessageQueueQueueSize);
 		
 		builder.append(", AsynOutputMessageQueueSize=");

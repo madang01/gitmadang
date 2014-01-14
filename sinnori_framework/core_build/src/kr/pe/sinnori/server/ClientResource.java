@@ -130,24 +130,13 @@ public class ClientResource implements CommonRootIF {
 	}
 
 	/**
-	 * 이 자원을 소유한 소켓 채널을 반환한다.
-	 * 
-	 * @return 이 자원을 소유한 소켓 채널
-	 */
-	/*
-	public final SocketChannel getSocketChannel() {
-		return clientSC;
-	}
-	*/
-
-	/**
 	 * 메일 식별자를 반환한다. 메일 식별자는 자동 증가된다.
 	 */
 	public int getServerMailID() {
-		if (null == clientSC) {
+		/*if (null == clientSC) {
 			log.warn("clientSC is null");
 			return serverMailID;
-		}
+		}*/
 
 		synchronized (monitorOfServerMailID) {
 			if (Integer.MAX_VALUE == serverMailID) {
@@ -183,7 +172,9 @@ public class ClientResource implements CommonRootIF {
 	 * @return 로그인 여부
 	 */
 	public boolean isLogin() {
-		return (null != loginID);
+		// if (null == clientSC) return false;
+		
+		return (clientSC.isConnected() && null != loginID);
 	}
 	
 	/** 로그 아웃시 할당 받은 자원을 해제한다. */

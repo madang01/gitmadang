@@ -61,7 +61,8 @@ public class SocketInputStream implements CommonRootIF {
 	private ByteBuffer lastByteBuffer = null;
 	private ByteBuffer firstByteBuffer = null;
 	
-	
+	// FIXME! S2MList 걸린 시간 로그 남기기
+	//private long startTime = 0L;
 	
 	/**
 	 * 생성자
@@ -100,8 +101,8 @@ public class SocketInputStream implements CommonRootIF {
 	
 	
 	public long position() {
-		long dataPacketBufferListSizeWithoutLastBuffer = dataPacketBufferList.size() - 1;
-		return dataPacketBufferListSizeWithoutLastBuffer *  lastByteBuffer.capacity() + lastByteBuffer.position();
+		long lastIndexOfDataPacketBufferList = dataPacketBufferList.size() - 1;
+		return lastIndexOfDataPacketBufferList *  lastByteBuffer.capacity() + lastByteBuffer.position();
 	}
 	
 	
@@ -208,15 +209,11 @@ public class SocketInputStream implements CommonRootIF {
 		/** 첫번째 버퍼의 읽어온 데이터의 크기 */
 		int endPosition = firstByteBuffer.position();
 		
-		/*long truncatedLength = startIndex * lastByteBuffer.capacity() + startPosition;		
-		log.info(String.format("in truncate, startIndex=[%d], startPosition=[%d], endPosition=[%d], position[%d] of last, dataPacketBufferListSize=[%d], truncatedLength=[%d]"
-				, startIndex, startPosition, endPosition, lastByteBuffer.position(), dataPacketBufferListSize, truncatedLength));*/
+		if (startPosition > endPosition) {
+			String errorMessage = String.format("parameter startPosition[%d] greater than endPosition[%d]", startPosition, endPosition);
+			throw new IllegalArgumentException(errorMessage);
+		}
 		
-		// FIXME!
-		/*if (startPostion > readingBytesOfFirstBuffer) {
-			String errorMessage = String.format("parameter startPostion[%d] greater than readingBytesOfFirstBuffer[%d]", startPostion, readingBytesOfFirstBuffer);
-			log.warn(errorMessage);
-		}*/
 		
 		/** 첫번째 버퍼의 읽어온 데이터를 첫 시작 위치로 밀어 올린다. */
 		firstByteBuffer.limit(endPosition);
@@ -285,6 +282,11 @@ public class SocketInputStream implements CommonRootIF {
 				log.warn(String.format("workByteBuffer[%d][%s]", i, workByteBuffer.toString()));
 			}
 		}*/
+		
+		// FIXME!
+		/*long endTime = System.currentTimeMillis();		
+		log.info(String.format("elapsed time=[%s]", endTime - startTime));
+		startTime = endTime;*/
 	}
 	
 	public ByteBuffer getLastDataPacketBuffer() {

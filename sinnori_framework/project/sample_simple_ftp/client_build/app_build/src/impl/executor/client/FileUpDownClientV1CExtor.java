@@ -176,7 +176,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	
 	@Override
 	public int getFileBlockSize() {
-		return (1024*30);
+		return (1024*63);
 	}
 	
 	@Override
