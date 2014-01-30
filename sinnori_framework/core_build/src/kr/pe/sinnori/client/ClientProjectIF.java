@@ -84,5 +84,5 @@ public interface ClientProjectIF {
 	/**
 	 * @return 메시지 스트림 변환 프로토콜
 	 */
-	public MessageProtocolIF getMessageExchangeProtocol();
+	public MessageProtocolIF getMessageProtocol();
 }

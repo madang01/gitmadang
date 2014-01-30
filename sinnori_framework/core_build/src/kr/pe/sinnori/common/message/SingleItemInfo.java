@@ -370,6 +370,8 @@ public class SingleItemInfo extends AbstractItemInfo {
 		strBuff.append(itemDefaultValue);
 		strBuff.append("], itemSize=[");
 		strBuff.append(itemSize);
+		strBuff.append("], itemCharset=[");
+		strBuff.append(itemCharset);
 		strBuff.append("] }");
 
 		return strBuff.toString();

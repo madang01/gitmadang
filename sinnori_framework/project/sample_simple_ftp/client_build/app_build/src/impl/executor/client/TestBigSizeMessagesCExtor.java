@@ -47,7 +47,7 @@ public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {
 		int warpBufferListSize = 0;
 		// log.info(String.format("before DataPacketBufferQueue state=[%s]", dataPacketBufferQueueManager.getQueueState()));
 		
-		MessageProtocolIF messageExchangeProtocol = clientProject.getMessageExchangeProtocol();
+		MessageProtocolIF messageExchangeProtocol = clientProject.getMessageProtocol();
 		
 		
 		String messageID = null;

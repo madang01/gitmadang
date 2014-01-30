@@ -166,7 +166,11 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageProtocolIF {
 					
 					DJSONHeader  workMessageHeader = new DJSONHeader();
 					workMessageHeader.lenOfJSONStr = freeSizeInputStream.getInt();
-					
+					if (workMessageHeader.lenOfJSONStr < 0) {
+						String errorMessage = String.format("json header::json string length[%d] less than zero", workMessageHeader.lenOfJSONStr);
+						log.warn(errorMessage);
+						throw new HeaderFormatException(errorMessage);
+					}
 					
 					messageHeader = workMessageHeader;
 				}
@@ -190,6 +194,9 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageProtocolIF {
 							freeSizeInputStream.skip(skipBytes);
 						}
 						
+						/**
+						 * 참고) 존슨 문자열은 지정된 크기 만큼의 UTF-8 문자열이므로 바디 크기만큼 읽도록 제한을 걸 이유 없음.
+						 */
 						String jsonStr = null;
 						try {
 							jsonStr = freeSizeInputStream.getString(messageHeader.lenOfJSONStr, DJSONHeader.JSON_STRING_CHARSET.newDecoder());

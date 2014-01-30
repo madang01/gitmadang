@@ -460,7 +460,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 	}
 	
 	@Override
-	public MessageProtocolIF getMessageExchangeProtocol() {
+	public MessageProtocolIF getMessageProtocol() {
 		return messageExchangeProtocol;
 	}
 }

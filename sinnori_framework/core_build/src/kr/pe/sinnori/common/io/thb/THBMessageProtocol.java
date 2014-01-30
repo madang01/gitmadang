@@ -181,7 +181,7 @@ public class THBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 					if (workMessageHeader.bodySize < 0) {
 						// header format exception
 						String errorMessage = String.format(
-								"thb header body size less than zero %s",
+								"thb header::body size less than zero %s",
 								workMessageHeader.toString());
 						throw new HeaderFormatException(errorMessage);
 					}
@@ -215,206 +215,182 @@ public class THBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 						
 						// log.info(String.format("3. messageFrameSize=[%d], postionBeforeReadingBody=[%d], expectedPosition=[%d]", messageFrameSize, postionBeforeReadingBody, expectedPosition));
 						
+						/** 바디 크기 만큼만 읽도록 제한 크기 설정 */
+						freeSizeInputStream.setLimitedSizeToRead(messageHeader.bodySize);
 						
-						if (targetClass.equals(InputMessage.class)) {
-							InputMessage workInObj = null;
-							try {
-								workInObj = messageManger
-										.createInputMessage(messageHeader.messageID);
-								workInObj.messageHeaderInfo.mailboxID = messageHeader.mailboxID;
-								workInObj.messageHeaderInfo.mailID = messageHeader.mailID;
-								
-								workInObj.O2M(freeSizeInputStream, dhbSingleItem2Stream);
-								
-								long postionAfterReadingBody = freeSizeInputStream.position();
-								
-								// FIXME!
-								// log.info(String.format("freeSizeInputStream byteorder=[%s]", freeSizeInputStream.getByteOrder().toString()));
-								
-								// log.info(String.format("postionBeforeReadingBody=[%d], postionAfterReadingBody=[%d], messageHeader.bodySize=[%d]", postionBeforeReadingBody, postionAfterReadingBody, messageHeader.bodySize));
+						try {
+							/** 바디 추출 */
 
-								long bodySize = postionAfterReadingBody - postionBeforeReadingBody;
-								if (bodySize != messageHeader.bodySize) {
-									// FIXME! 잔존 데이터 있음.
-									String errorMessage = String.format(
-											"메시지[%s]를 읽는 과정에서 잔존 데이터[%d bytes]가 남았습니다.",
-											workInObj.toString(), (messageHeader.bodySize - bodySize));
-									// log.warn(errorMessage, e);
-									throw new HeaderFormatException(
-											errorMessage);
-								}
-							} catch (MessageInfoNotFoundException e) {
-								log.info(
-										String.format(
-												"MessageInfoNotFoundException::header=[%s]",
-												messageHeader.toString()), e);
-
-								InputMessage errorInObj = null;
+							if (targetClass.equals(InputMessage.class)) {
+								InputMessage workInObj = null;
 								try {
-									errorInObj = messageManger
-											.createInputMessage("SelfExn");
-								} catch (MessageInfoNotFoundException e1) {
-									log.fatal(
-											"시스템 필수 메시지 정보[SelfExn]가 존재하지 않습니다.",
-											e1);
-									System.exit(1);
+									workInObj = messageManger
+											.createInputMessage(messageHeader.messageID);
+									workInObj.messageHeaderInfo.mailboxID = messageHeader.mailboxID;
+									workInObj.messageHeaderInfo.mailID = messageHeader.mailID;
+									
+									workInObj.O2M(freeSizeInputStream, dhbSingleItem2Stream);
+								} catch (MessageInfoNotFoundException e) {
+									log.info(
+											String.format(
+													"MessageInfoNotFoundException::header=[%s]",
+													messageHeader.toString()), e);
+
+									InputMessage errorInObj = null;
+									try {
+										errorInObj = messageManger
+												.createInputMessage("SelfExn");
+									} catch (MessageInfoNotFoundException e1) {
+										log.fatal(
+												"시스템 필수 메시지 정보[SelfExn]가 존재하지 않습니다.",
+												e1);
+										System.exit(1);
+									}
+									/**
+									 * 참고) 메시지 정보 파일 없기때문에 정상적인 메시지를 생성할 수 없어 헤더 정보를
+									 * 통해 메시지 헤더 정보를 저장한다.
+									 */
+									errorInObj.messageHeaderInfo.mailboxID = messageHeader.mailboxID;
+									errorInObj.messageHeaderInfo.mailID = messageHeader.mailID;
+									errorInObj.setAttribute("whereError", "S");
+									errorInObj.setAttribute("errorGubun", "M");
+									errorInObj.setAttribute("errorMessageID",
+											messageHeader.messageID);
+									errorInObj.setAttribute("errorMessage",
+											e.getMessage());
+
+									workInObj = errorInObj;
+								} catch (BodyFormatException e) {
+									log.info(String.format(
+											"BodyFormatException::header=[%s]",
+											messageHeader.toString()), e);
+
+									InputMessage errorInObj = null;
+									try {
+										errorInObj = messageManger
+												.createInputMessage("SelfExn");
+									} catch (MessageInfoNotFoundException e1) {
+										log.fatal(
+												"시스템 필수 메시지 정보[SelfExn]가 존재하지 않습니다.",
+												e1);
+										System.exit(1);
+									}
+
+									errorInObj.messageHeaderInfo = workInObj.messageHeaderInfo;
+									errorInObj.setAttribute("whereError", "S");
+									errorInObj.setAttribute("errorGubun", "B");
+									errorInObj.setAttribute("errorMessageID",
+											messageHeader.messageID);
+									errorInObj.setAttribute("errorMessage", e.getMessage());
+
+									workInObj = errorInObj;
 								}
-								/**
-								 * 참고) 메시지 정보 파일 없기때문에 정상적인 메시지를 생성할 수 없어 헤더 정보를
-								 * 통해 메시지 헤더 정보를 저장한다.
-								 */
-								errorInObj.messageHeaderInfo.mailboxID = messageHeader.mailboxID;
-								errorInObj.messageHeaderInfo.mailID = messageHeader.mailID;
-								errorInObj.setAttribute("whereError", "S");
-								errorInObj.setAttribute("errorGubun", "M");
-								errorInObj.setAttribute("errorMessageID",
-										messageHeader.messageID);
-								errorInObj.setAttribute("errorMessage",
-										e.getMessage());
 
-								workInObj = errorInObj;
+								// log.debug(String.format("10. lastInputStreamBuffer=[%s]",
+								// lastInputStreamBuffer.toString()));
 
-								long skipBytes = messageHeader.bodySize;
-								freeSizeInputStream.skip(skipBytes);
-							} catch (BodyFormatException e) {
-								log.info(String.format(
-										"BodyFormatException::header=[%s]",
-										messageHeader.toString()), e);
-
-								InputMessage errorInObj = null;
+								/** 목록에 메시지 추가 */
+								messageList.add(workInObj);
+							} else {
+								OutputMessage workOutObj = null;
 								try {
-									errorInObj = messageManger
-											.createInputMessage("SelfExn");
-								} catch (MessageInfoNotFoundException e1) {
-									log.fatal(
-											"시스템 필수 메시지 정보[SelfExn]가 존재하지 않습니다.",
-											e1);
-									System.exit(1);
+									workOutObj = messageManger
+											.createOutputMessage(messageHeader.messageID);
+									workOutObj.messageHeaderInfo.mailboxID = messageHeader.mailboxID;
+									workOutObj.messageHeaderInfo.mailID = messageHeader.mailID;
+
+									
+									
+									workOutObj.O2M(freeSizeInputStream, dhbSingleItem2Stream);
+								} catch (MessageInfoNotFoundException e) {
+									log.info(String.format(
+											"BodyFormatException::header=[%s]",
+											messageHeader.toString()), e);
+
+									OutputMessage errorOutObj = null;
+									try {
+										errorOutObj = messageManger
+												.createOutputMessage("SelfExn");
+									} catch (MessageInfoNotFoundException e1) {
+										log.fatal(
+												"시스템 필수 메시지 정보[SelfExn]가 존재하지 않습니다.",
+												e1);
+										System.exit(1);
+									}
+									/**
+									 * 참고) 메시지 정보 파일 없기때문에 정상적인 메시지를 생성할 수 없어 헤더 정보를
+									 * 통해 메시지 헤더 정보를 저장한다.
+									 */
+									errorOutObj.messageHeaderInfo.mailboxID = messageHeader.mailboxID;
+									errorOutObj.messageHeaderInfo.mailID = messageHeader.mailID;
+									errorOutObj.setAttribute("whereError", "S");
+									errorOutObj.setAttribute("errorGubun", "M");
+									errorOutObj.setAttribute("errorMessageID",
+											messageHeader.messageID);
+									errorOutObj.setAttribute("errorMessage",
+											e.getMessage());
+
+									workOutObj = errorOutObj;
+								} catch (BodyFormatException e) {
+									log.info(String.format(
+											"BodyFormatException::header=[%s]",
+											messageHeader.toString()), e);
+
+									OutputMessage errorOutObj = null;
+									try {
+										errorOutObj = messageManger
+												.createOutputMessage("SelfExn");
+									} catch (MessageInfoNotFoundException e1) {
+										log.fatal(
+												"시스템 필수 메시지 정보[SelfExn]가 존재하지 않습니다.",
+												e1);
+										System.exit(1);
+									}
+
+									errorOutObj.messageHeaderInfo = workOutObj.messageHeaderInfo;
+									errorOutObj.setAttribute("whereError", "S");
+									errorOutObj.setAttribute("errorGubun", "B");
+									errorOutObj.setAttribute("errorMessageID",
+											messageHeader.messageID);
+									errorOutObj.setAttribute("errorMessage",
+											e.getMessage());
+
+									workOutObj = errorOutObj;
 								}
 
-								errorInObj.messageHeaderInfo = workInObj.messageHeaderInfo;
-								errorInObj.setAttribute("whereError", "S");
-								errorInObj.setAttribute("errorGubun", "B");
-								errorInObj.setAttribute("errorMessageID",
-										messageHeader.messageID);
-								errorInObj.setAttribute("errorMessage",
-										e.getMessage());
+								// log.debug(String.format("10. lastInputStreamBuffer=[%s]",
+								// lastInputStreamBuffer.toString()));
 
-								workInObj = errorInObj;
-
-								long postionAfterReadingBody = freeSizeInputStream
-										.position();
-								long skipBytes = messageHeader.bodySize
-										- (postionAfterReadingBody - postionBeforeReadingBody);
-								freeSizeInputStream.skip(skipBytes);
+								/** 목록에 메시지 추가 */
+								messageList.add(workOutObj);
 							}
-
-							// log.debug(String.format("10. lastInputStreamBuffer=[%s]",
-							// lastInputStreamBuffer.toString()));
-
-							/** 목록에 메시지 추가 */
-							messageList.add(workInObj);
-						} else {
-							OutputMessage workOutObj = null;
-							try {
-								workOutObj = messageManger
-										.createOutputMessage(messageHeader.messageID);
-								workOutObj.messageHeaderInfo.mailboxID = messageHeader.mailboxID;
-								workOutObj.messageHeaderInfo.mailID = messageHeader.mailID;
-
-								
-								
-								workOutObj.O2M(freeSizeInputStream,
-										dhbSingleItem2Stream);
-
-								long postionAfterReadingBody = freeSizeInputStream.position();
-								
-								long bodySize = postionAfterReadingBody - postionBeforeReadingBody;
-								
-								// log.info(String.format("postionBeforeReadingBody=[%d], postionAfterReadingBody=[%d], messageHeader.bodySize=[%d]", postionBeforeReadingBody, postionAfterReadingBody, messageHeader.bodySize));
-								
-								if (bodySize != messageHeader.bodySize) {
-									// FIXME! 잔존 데이터 있음.
-									String errorMessage = String.format(
-											"메시지[%s]를 읽는 과정에서 잔존 데이터[%d bytes]가 남았습니다.",
-											workOutObj.toString(), (messageHeader.bodySize - bodySize));
-									// log.warn(errorMessage, e);
-									throw new HeaderFormatException(
-											errorMessage);
-								}
-							} catch (MessageInfoNotFoundException e) {
-								log.info(String.format(
-										"BodyFormatException::header=[%s]",
-										messageHeader.toString()), e);
-
-								OutputMessage errorOutObj = null;
-								try {
-									errorOutObj = messageManger
-											.createOutputMessage("SelfExn");
-								} catch (MessageInfoNotFoundException e1) {
-									log.fatal(
-											"시스템 필수 메시지 정보[SelfExn]가 존재하지 않습니다.",
-											e1);
-									System.exit(1);
-								}
-								/**
-								 * 참고) 메시지 정보 파일 없기때문에 정상적인 메시지를 생성할 수 없어 헤더 정보를
-								 * 통해 메시지 헤더 정보를 저장한다.
-								 */
-								errorOutObj.messageHeaderInfo.mailboxID = messageHeader.mailboxID;
-								errorOutObj.messageHeaderInfo.mailID = messageHeader.mailID;
-								errorOutObj.setAttribute("whereError", "S");
-								errorOutObj.setAttribute("errorGubun", "M");
-								errorOutObj.setAttribute("errorMessageID",
-										messageHeader.messageID);
-								errorOutObj.setAttribute("errorMessage",
-										e.getMessage());
-
-								workOutObj = errorOutObj;
-
-								long skipBytes = messageHeader.bodySize;
-								freeSizeInputStream.skip(skipBytes);
-							} catch (BodyFormatException e) {
-								log.info(String.format(
-										"BodyFormatException::header=[%s]",
-										messageHeader.toString()), e);
-
-								OutputMessage errorOutObj = null;
-								try {
-									errorOutObj = messageManger
-											.createOutputMessage("SelfExn");
-								} catch (MessageInfoNotFoundException e1) {
-									log.fatal(
-											"시스템 필수 메시지 정보[SelfExn]가 존재하지 않습니다.",
-											e1);
-									System.exit(1);
-								}
-
-								errorOutObj.messageHeaderInfo = workOutObj.messageHeaderInfo;
-								errorOutObj.setAttribute("whereError", "S");
-								errorOutObj.setAttribute("errorGubun", "B");
-								errorOutObj.setAttribute("errorMessageID",
-										messageHeader.messageID);
-								errorOutObj.setAttribute("errorMessage",
-										e.getMessage());
-
-								workOutObj = errorOutObj;
-
-								long postionAfterReadingBody = freeSizeInputStream
-										.position();
-								long skipBytes = messageHeader.bodySize
-										- (postionAfterReadingBody - postionBeforeReadingBody);
-								freeSizeInputStream.skip(skipBytes);
+						} finally  {
+							/** 잔존 데이터 확인 */
+							long postionAfterReadingBody = freeSizeInputStream.position();
+							
+							long bodySize = postionAfterReadingBody - postionBeforeReadingBody;
+							if (bodySize != messageHeader.bodySize) {
+								String errorMessage = String.format(
+										"메시지[%s]를 읽는 과정에서 잔존 데이터[%d bytes]가 남았습니다.",
+										messageHeader.messageID, (messageHeader.bodySize - bodySize));
+								log.warn(errorMessage);
+								/*throw new HeaderFormatException(errorMessage);*/
 							}
-
-							// log.debug(String.format("10. lastInputStreamBuffer=[%s]",
-							// lastInputStreamBuffer.toString()));
-
-							/** 목록에 메시지 추가 */
-							messageList.add(workOutObj);
+							
+							/**
+							 * <pre>
+							 * 강제적으로 바디 크기 만큼의 데이터를 모두 읽은 것처럼 처리하여,
+							 * 스트림의 위치를 다음 메시지를 읽을 수 있는 위치로 재 설정한다.
+							 * </pre> 
+							 */							
+							long skipBytes = messageHeader.bodySize
+									- (postionAfterReadingBody - postionBeforeReadingBody);
+							freeSizeInputStream.skip(skipBytes);
+							
+							/** 바디 만큼만 읽을 수 있는 제한을 푼다. */
+							freeSizeInputStream.freeLimitedSizeToRead();
 						}
 
-						// inputStramSizeBeforeMessageWork = freeSizeInputStream.remaining();
 						inputStramSizeBeforeMessageWork -= messageFrameSize;
 						if (inputStramSizeBeforeMessageWork > messageHeaderSize) {
 							isMoreMessage = true;

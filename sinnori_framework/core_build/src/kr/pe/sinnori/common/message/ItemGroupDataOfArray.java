@@ -139,19 +139,20 @@ public class ItemGroupDataOfArray implements ItemGroupDataIF,
 				try {
 					sisc.I2S(key, itemTypeID, value, itemSizeForLang, itemCharsetForLang, sw);
 				} catch (OutOfMemoryError e) {
-					String errorMessage = String.format("OutOfMemoryError::%s.%s value=[%s], itemSizeForLang=[%d], itemCharset=[%s]", parentPath, 
-							key, value, itemSizeForLang, itemCharsetForLang);
+					String errorMessage = String.format("%s %s, OutOfMemoryError=[%s]", 
+							parentPath, singleItemInfo.toString(), e.getMessage());
+					
 					log.warn(errorMessage, e);
 					throw new BodyFormatException(errorMessage);
 				} catch (IllegalArgumentException e) {
-					String errorMessage = 
-							String.format("IllegalArgumentException::%s.%s value=[%s], itemSizeForLang=[%d], itemCharset=[%s], message=[%s]", 
-									parentPath, key, value, itemSizeForLang, itemCharsetForLang, e.getMessage());
+					String errorMessage = String.format("%s %s, IllegalArgumentException=[%s]", 
+							parentPath, singleItemInfo.toString(), e.getMessage());
+					
 					log.warn(errorMessage, e);
 					throw new BodyFormatException(errorMessage);
 				} catch (BufferOverflowException e) {
-					String errorMessage = String.format("BufferOverflowException::%s.%s value=[%s], itemSizeForLang=[%d], itemCharset=[%s]", parentPath, 
-							key, value, itemSizeForLang, itemCharsetForLang);
+					String errorMessage = String.format("%s %s, BufferOverflowException=[%s]", 
+							parentPath, singleItemInfo.toString(), e.getMessage());
 					log.warn(errorMessage, e);
 					throw new BodyFormatException(errorMessage);
 				}
@@ -203,25 +204,23 @@ public class ItemGroupDataOfArray implements ItemGroupDataIF,
 				try {
 					sisc.S2I(key, itemTypeID, itemSizeForLang, itemCharsetForLang, itemValueHash, sr);
 				} catch (OutOfMemoryError e) {
-					String errorMessage = String.format("OutOfMemoryError::%s.%s itemSizeForLang=[%d], itemCharset=[%s]", parentPath, 
-							key, itemSizeForLang, itemCharsetForLang);
+					String errorMessage = String.format("%s %s, OutOfMemoryError=[%s]", 
+							parentPath, singleItemInfo.toString(), e.getMessage());
 					log.warn(errorMessage, e);
 					throw new BodyFormatException(errorMessage);
 				} catch (SinnoriCharsetCodingException e) {
-					String errorMessage = 
-							String.format("SinnoriCharsetCodingException::%s.%s itemSizeForLang=[%d], itemCharset=[%s], message=[%s]", 
-									parentPath, key, itemSizeForLang, itemCharsetForLang, e.getMessage());
+					String errorMessage = String.format("%s %s, SinnoriCharsetCodingException=[%s]", 
+							parentPath, singleItemInfo.toString(), e.getMessage());
 					log.warn(errorMessage, e);
 					throw new BodyFormatException(errorMessage);
 				} catch (IllegalArgumentException e) {
-					String errorMessage = 
-							String.format("IllegalArgumentException::%s.%s itemSizeForLang=[%d], itemCharset=[%s], message=[%s]", 
-									parentPath, key, itemSizeForLang, itemCharsetForLang, e.getMessage());
+					String errorMessage = String.format("%s %s, IllegalArgumentException=[%s]", 
+							parentPath, singleItemInfo.toString(), e.getMessage());
 					log.warn(errorMessage, e);
 					throw new BodyFormatException(errorMessage);
 				} catch (BufferUnderflowException e) {
-					String errorMessage = String.format("BufferUnderflowException::%s.%s itemSizeForLang=[%d], itemCharset=[%s]", parentPath, 
-							key, itemSizeForLang, itemCharsetForLang);
+					String errorMessage = String.format("%s %s, BufferUnderflowException=[%s]", 
+							parentPath, singleItemInfo.toString(), e.getMessage());
 					log.warn(errorMessage, e);
 					throw new BodyFormatException(errorMessage);
 				}
@@ -270,14 +269,13 @@ public class ItemGroupDataOfArray implements ItemGroupDataIF,
 				try {
 					djsonSingleItemConverter.S2I(key, itemTypeID, itemSizeForLang, itemCharsetForLang, itemValueHash, jsonObj);
 				} catch (OutOfMemoryError e) {
-					String errorMessage = String.format("OutOfMemoryError::%s.%s itemSizeForLang=[%d], itemCharset=[%s]", parentPath, 
-							key, itemSizeForLang, itemCharsetForLang);
+					String errorMessage = String.format("%s %s, OutOfMemoryError=[%s]", 
+							parentPath, singleItemInfo.toString(), e.getMessage());
 					log.warn(errorMessage, e);
 					throw new BodyFormatException(errorMessage);
 				} catch (IllegalArgumentException e) {
-					String errorMessage = 
-							String.format("IllegalArgumentException::%s.%s itemSizeForLang=[%d], itemCharset=[%s], message=[%s]", 
-									parentPath, key, itemSizeForLang, itemCharsetForLang, e.getMessage());
+					String errorMessage = String.format("%s %s, IllegalArgumentException=[%s]", 
+							parentPath, singleItemInfo.toString(), e.getMessage());
 					log.warn(errorMessage, e);
 					throw new BodyFormatException(errorMessage);
 				}
@@ -342,14 +340,13 @@ public class ItemGroupDataOfArray implements ItemGroupDataIF,
 				try {
 					djsonSingleItemConverter.I2S(key, itemTypeID, value, itemSizeForLang, itemCharsetForLang, jsonObj);
 				} catch (OutOfMemoryError e) {
-					String errorMessage = String.format("OutOfMemoryError::%s.%s value=[%s], itemSizeForLang=[%d], itemCharset=[%s]", parentPath, 
-							key, value, itemSizeForLang, itemCharsetForLang);
+					String errorMessage = String.format("%s %s, OutOfMemoryError=[%s]", 
+							parentPath, singleItemInfo.toString(), e.getMessage());					
 					log.warn(errorMessage, e);
 					throw new BodyFormatException(errorMessage);
 				} catch (IllegalArgumentException e) {
-					String errorMessage = 
-							String.format("IllegalArgumentException::%s.%s value=[%s], itemSizeForLang=[%d], itemCharset=[%s], message=[%s]", 
-									parentPath, key, value, itemSizeForLang, itemCharsetForLang, e.getMessage());
+					String errorMessage = String.format("%s %s, IllegalArgumentException=[%s]", 
+							parentPath, singleItemInfo.toString(), e.getMessage());
 					log.warn(errorMessage, e);
 					throw new BodyFormatException(errorMessage);
 				}

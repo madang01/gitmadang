@@ -168,7 +168,7 @@ public class TestLocalAllDataTypeCExtor extends AbstractClientExecutor {
 		
 		
 		ArrayList<WrapBuffer> warpBufferList = 
-				clientProject.getMessageExchangeProtocol().M2S(allDataTypeInObj, clientProjectConfig.getCharset());
+				clientProject.getMessageProtocol().M2S(allDataTypeInObj, clientProjectConfig.getCharset());
 		
 		/**
 		 * 데이터를 받은것처럼 위장하기 위해서 position 을 limit 위치로 이동
@@ -187,7 +187,7 @@ public class TestLocalAllDataTypeCExtor extends AbstractClientExecutor {
 		
 		ArrayList<AbstractMessage> outObjList = null;
 		try {
-			outObjList = clientProject.getMessageExchangeProtocol().S2MList(OutputMessage.class, clientProjectConfig.getCharset(), messageInputStreamResourcePerSocket, messageManger);
+			outObjList = clientProject.getMessageProtocol().S2MList(OutputMessage.class, clientProjectConfig.getCharset(), messageInputStreamResourcePerSocket, messageManger);
 		} catch (HeaderFormatException e) {
 			log.fatal("HeaderFormatException", e);
 			System.exit(1);

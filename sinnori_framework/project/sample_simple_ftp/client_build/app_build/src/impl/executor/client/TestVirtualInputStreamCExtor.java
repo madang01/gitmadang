@@ -48,12 +48,13 @@ import kr.pe.sinnori.common.message.ArrayData;
 import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.ItemGroupDataIF;
 import kr.pe.sinnori.common.message.ItemGroupDataOfArray;
+import kr.pe.sinnori.common.util.HexUtil;
 import kr.pe.sinnori.util.AbstractClientExecutor;
 
 public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 	private ArrayList<InputMessage> orgInputMessageList = new ArrayList<InputMessage>();  
-	private ByteBuffer baseBuffer = ByteBuffer.allocate(1024*1024);
-	// int messageIDFixedSize;
+	private ByteBuffer baseBuffer = ByteBuffer.allocate(1*1024*1024);
+	private static int mailID = 1;
 
 	@Override
 	protected void doTask(ClientProjectConfigIF clientProjectConfig, MessageMangerIF messageManger,
@@ -66,63 +67,83 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		DataPacketBufferQueueManagerIF dataPacketBufferQueueManager = (DataPacketBufferQueueManagerIF)clientProject;
 		
 		
-
-		// messageIDFixedSize = clientProjectConfig.getMessageIDFixedSize();
+		MessageProtocolIF messageProtocol = clientProject.getMessageProtocol();
 		
-		MessageProtocolIF messageProtocol = clientProject.getMessageExchangeProtocol();
-		// DHBMessageProtocol dhbMessageProtocol = new DHBMessageProtocol(messageIDFixedSize, dataPacketBufferQueueManager);
-		// dhbMessageProtocol.M2S(messageObj, charsetOfProject);
+		
 		
 		SocketInputStream socketInputStream = 
 				new SocketInputStream(dataPacketBufferQueueManager);
 		
-		
-		//CharsetEncoder charsetOfProjectEncoder = CharsetUtil.createCharsetEncoder(clientProjectConfig.getCharset());
-		// CharsetDecoder charsetOfProjectDecoder = CharsetUtil.createCharsetDecoder(clientProject.getCharset());
-		
-		
-		/*
-		java.security.MessageDigest md5 = null;
-		try {
-			md5 = MessageDigest.getInstance("MD5");
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		*/
-		
 		java.util.Random random = new java.util.Random();
 		
 		baseBuffer.order(clientProjectConfig.getByteOrder());
+				
+		addAllDataTypeInObj(10, clientProjectConfig, messageManger, random, messageProtocol, dataPacketBufferQueueManager);
+		
+		log.info(String.format("1.baseBuffer=[%s]", baseBuffer.toString()));
 		
 		
-		addAllDataTypeInObj(clientProjectConfig, messageManger, random, messageProtocol, dataPacketBufferQueueManager);
+		// log.info(String.format("1.baseBuffer=[%s]", HexUtil.byteBufferToHex(baseBuffer, 0, 523)));
+		
+		addEchoInObj(clientProjectConfig, messageManger, random, messageProtocol, dataPacketBufferQueueManager);
+		
+		log.info(String.format("2.baseBuffer=[%s]", baseBuffer.toString()));
+		
+		addEchoInObj(clientProjectConfig, messageManger, random, messageProtocol, dataPacketBufferQueueManager);
+		
+		log.info(String.format("3.baseBuffer=[%s]", baseBuffer.toString()));
+		
+		addAllDataTypeInObj(10, clientProjectConfig, messageManger, random, messageProtocol, dataPacketBufferQueueManager);
+		
+		log.info(String.format("4.baseBuffer=[%s]", baseBuffer.toString()));
+		
+		addAllDataTypeInObj(10, clientProjectConfig, messageManger, random, messageProtocol, dataPacketBufferQueueManager);
+		addAllDataTypeInObj(10, clientProjectConfig, messageManger, random, messageProtocol, dataPacketBufferQueueManager);
+		
+		addAllDataTypeInObj(30000, clientProjectConfig, messageManger, random, messageProtocol, dataPacketBufferQueueManager);
 		addEchoInObj(clientProjectConfig, messageManger, random, messageProtocol, dataPacketBufferQueueManager);
 		addEchoInObj(clientProjectConfig, messageManger, random, messageProtocol, dataPacketBufferQueueManager);
-		addAllDataTypeInObj(clientProjectConfig, messageManger, random, messageProtocol, dataPacketBufferQueueManager);
+		addAllDataTypeInObj(30000,clientProjectConfig, messageManger, random, messageProtocol, dataPacketBufferQueueManager);
+		addEchoInObj(clientProjectConfig, messageManger, random, messageProtocol, dataPacketBufferQueueManager);
+		addAllDataTypeInObj(30000,clientProjectConfig, messageManger, random, messageProtocol, dataPacketBufferQueueManager);
 		
 		baseBuffer.flip();
 		
+		/*// FIXME!, THB 64 bytes 에서만 유효, DHB Header 96 bytes, 조작할 메시지 시작 옵셋 739, 조작할 위치 79, 
+		int t1 = baseBuffer.getInt((643+64+66+13));
+		log.info(String.format("t1=[%d]", t1));
+		
+		byte b1 = baseBuffer.get((643+64+66+13+4));
+		log.info(String.format("b1=[%x]", b1));
+		
+		
+		int t2 = baseBuffer.getInt((1134+64+66+13));
+		log.info(String.format("t2=[%d]", t2));
+		
 		// FIXME!
-		log.info(String.format("baseBuffer=[%s]", baseBuffer.toString()));
+		log.info(String.format("baseBuffer=[%s]", baseBuffer.toString()));*/
 		
 		try {
 			while (baseBuffer.hasRemaining()) {
 				int len = random.nextInt(3000) + 30;
 				len = Math.min(len, baseBuffer.remaining());
-				
+				ByteBuffer sourceBuffer = ByteBuffer.allocate(len);
+				baseBuffer.get(sourceBuffer.array());
+								
 				ByteBuffer scOwnLastBuffer = socketInputStream.getLastDataPacketBuffer();
 				
-				len = Math.min(len, scOwnLastBuffer.remaining());
+				while(sourceBuffer.hasRemaining()) {
+					if (!scOwnLastBuffer.hasRemaining()) {
+						scOwnLastBuffer = socketInputStream.nextDataPacketBuffer();
+					}
+						
+					scOwnLastBuffer.put(sourceBuffer.get());
+				}
 				
-				log.info(String.format("1.len=[%d], baseBuffer.position=[%d], socketInputStream.position=[%d]", len, baseBuffer.position(), socketInputStream.position()));
+				// log.info(String.format("1.len=[%d], baseBuffer.position=[%d], socketInputStream.position=[%d]", len, baseBuffer.position(), socketInputStream.position()));
 				
-				byte readBytes[] = new byte[len];
-				baseBuffer.get(readBytes);
 				
-				scOwnLastBuffer.put(readBytes);
-				
-				log.info(String.format("2.len=[%d], baseBuffer.position=[%d], socketInputStream.position=[%d]", len, baseBuffer.position(), socketInputStream.position()));
+				// log.info(String.format("2.len=[%d], baseBuffer.position=[%d], socketInputStream.position=[%d]", len, baseBuffer.position(), socketInputStream.position()));
 
 				ArrayList<AbstractMessage> readInputMessageList = null;
 				
@@ -151,15 +172,14 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		InputMessage echoInObj = messageManger.createInputMessage("Echo");
 
 		echoInObj.messageHeaderInfo.mailboxID = CommonStaticFinal.SERVER_MAILBOX_ID;
-		echoInObj.messageHeaderInfo.mailID = Integer.MIN_VALUE;
+		echoInObj.messageHeaderInfo.mailID = mailID++;
 
 		echoInObj.setAttribute("randomInt", random.nextInt());
 		echoInObj.setAttribute("startTime", new java.util.Date().getTime());
 		
 		orgInputMessageList.add(echoInObj);
 		
-		// FIXME!
-		// log.info(echoInObj.toString());
+		
 		
 		ArrayList<WrapBuffer> warpBufferList = messageProtocol.M2S(echoInObj, clientProjectConfig.getCharset());
 		
@@ -171,49 +191,17 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 			// log.debug(oneBuffer.toString());
 			dataPacketBufferQueueManager.putDataPacketBuffer(wrapBuffer);
 		}
-		
-		/*
-		DHBSingleItemProtocol dhbSingleItemConverter = new DHBSingleItemProtocol();
-		FreeSizeOutputStream fsos = new FreeSizeOutputStream(clientProjectConfig.getCharset(), charsetOfProjectEncoder, dataPacketBufferQueueManager);
-		
-		echoInObj.M2S(fsos, dhbSingleItemConverter);
-		
-		long bodySize = fsos.postion();
-		
-		ArrayList<WrapBuffer> bufferList = fsos.getFlipDataPacketBufferList();
-		
-		int bufferListSize = bufferList.size();
-		for (int i=0; i < bufferListSize; i++) {
-			WrapBuffer bodyWrapBuffer = bufferList.get(i);
-			ByteBuffer dupBodyBuffer = bodyWrapBuffer.getByteBuffer().duplicate();
-			md5.update(dupBodyBuffer);
-		}
-		
-		DHBMessageHeader messageHeader = new DHBMessageHeader(messageIDFixedSize);
-		messageHeader.messageID = echoInObj.getMessageID();
-		messageHeader.mailboxID = 1;
-		messageHeader.mailID = orgInputMessageList.size();
-		messageHeader.bodySize = bodySize;
-		messageHeader.bodyMD5 = md5.digest();
-		
-				
-		messageHeader.writeMessageHeader(baseBuffer, clientProjectConfig.getCharset(), charsetOfProjectEncoder, md5);
-		
-		for (int i=0; i < bufferListSize; i++) {
-			WrapBuffer bodyWrapBuffer = bufferList.remove(0);
-			ByteBuffer bodyBuffer = bodyWrapBuffer.getByteBuffer();
-			baseBuffer.put(bodyBuffer);
-			dataPacketBufferQueueManager.putDataPacketBuffer(bodyWrapBuffer);
-		}
-		*/
 	}
 	
-	private void addAllDataTypeInObj(ClientProjectConfigIF clientProjectConfig, MessageMangerIF messageManger,
+	private void addAllDataTypeInObj(int lenOfBytesVar2, ClientProjectConfigIF clientProjectConfig, MessageMangerIF messageManger,
 			java.util.Random random, 
 			MessageProtocolIF messageProtocol, DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws MessageInfoNotFoundException, BodyFormatException, NoMoreDataPacketBufferException, MessageItemException {
 		
 		
 		InputMessage allDataTypeInObj = messageManger.createInputMessage("AllDataType");
+		allDataTypeInObj.messageHeaderInfo.mailboxID = CommonStaticFinal.SERVER_MAILBOX_ID;
+		allDataTypeInObj.messageHeaderInfo.mailID = mailID++;
+		
 		allDataTypeInObj.setAttribute("byteVar1", Byte.MAX_VALUE);
 		allDataTypeInObj.setAttribute("byteVar2", Byte.MIN_VALUE);
 		allDataTypeInObj.setAttribute("byteVar3", (byte) 0x60);
@@ -244,6 +232,7 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		allDataTypeInObj.setAttribute("longVar2", Long.MIN_VALUE);
 		allDataTypeInObj.setAttribute("longVar3", random.nextLong());
 
+		// FIXME!
 		allDataTypeInObj.setAttribute("strVar1", "testHH");
 		allDataTypeInObj.setAttribute("strVar2", "1234");
 		allDataTypeInObj.setAttribute("strVar3", "uiop");
@@ -253,7 +242,7 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		// allDataTypeInObj.setAttribute("bytesVar2", new byte[] { 1, 2, 3, 4, 5, 6, 7,
 		// 8,
 		// 9, 10, 11 });
-		allDataTypeInObj.setAttribute("bytesVar2", new byte[30000]);
+		allDataTypeInObj.setAttribute("bytesVar2", new byte[lenOfBytesVar2]);
 
 		int memberListCnt = 2;
 		allDataTypeInObj.setAttribute("cnt", memberListCnt);
@@ -317,8 +306,7 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		itemList[1][0].setAttribute("itemName", "안좋은검");
 		itemList[1][0].setAttribute("itemCnt", 65000);
 		
-		// FIXME!
-		//log.info(allDataTypeInObj.toString());
+		
 		
 		orgInputMessageList.add(allDataTypeInObj);
 		
@@ -332,41 +320,10 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 			// log.debug(oneBuffer.toString());
 			dataPacketBufferQueueManager.putDataPacketBuffer(wrapBuffer);
 		}
-	
-		/*
-		 * 
-		DHBSingleItemProtocol dhbSingleItemConverter = new DHBSingleItemProtocol();
 		
-		FreeSizeOutputStream fsos = new FreeSizeOutputStream(clientProjectConfig.getCharset(), charsetOfProjectEncoder, dataPacketBufferQueueManager);
-		
-		allDataTypeInObj.M2S(fsos, dhbSingleItemConverter);
-		
-		long bodySize = fsos.postion();
-		
-		ArrayList<WrapBuffer> bufferList = fsos.getFlipDataPacketBufferList();
-		
-		int bufferListSize = bufferList.size();
-		for (int i=0; i < bufferListSize; i++) {
-			WrapBuffer bodyWrapBuffer = bufferList.get(i);
-			ByteBuffer dupBodyBuffer = bodyWrapBuffer.getByteBuffer().duplicate();
-			md5.update(dupBodyBuffer);
-		}
-		
-		DHBMessageHeader messageHeader = new DHBMessageHeader(messageIDFixedSize);
-		messageHeader.messageID = allDataTypeInObj.getMessageID();
-		messageHeader.mailboxID = 1;
-		messageHeader.mailID = orgInputMessageList.size();
-		messageHeader.bodySize = bodySize;
-		messageHeader.bodyMD5 = md5.digest();
-		
-		messageHeader.writeMessageHeader(baseBuffer, clientProjectConfig.getCharset(), charsetOfProjectEncoder, md5);
-		
-		for (int i=0; i < bufferListSize; i++) {
-			WrapBuffer bodyWrapBuffer = bufferList.remove(0);
-			ByteBuffer bodyBuffer = bodyWrapBuffer.getByteBuffer();
-			baseBuffer.put(bodyBuffer);
-			dataPacketBufferQueueManager.putDataPacketBuffer(bodyWrapBuffer);
-		}
-		*/
+		/*// FIXME! THB 프로토콜에서만 유효
+		if (5 == mailID) {
+			baseBuffer.putInt((643+64+66+13), -1);
+		}*/
 	}
 }

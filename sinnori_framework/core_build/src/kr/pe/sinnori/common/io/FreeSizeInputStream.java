@@ -43,30 +43,17 @@ import kr.pe.sinnori.common.util.HexUtil;
 public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 	private ArrayList<ByteBuffer> streamBufferList;
 	private Charset streamCharset;
-	private CharsetDecoder streamCharsetDecoder = null;
-	
-	
+	private CharsetDecoder streamCharsetDecoder = null;	
 	private ByteOrder streamByteOrder = null;
+	
 	private ByteBuffer workBuffer;
 	private int indexOfWorkBuffer;
-	// private int dataPacketBufferMaxCntPerMessage;
+	
+	private long limitedSizeToRead = -1;
 	
 	/**
 	 * 주) 아래 shortBytes, intBytes, longBytes 는 객체 인스턴스마다 필요합니다. 만약 static 으로 만들면 thread safe 문제에 직면할 것입니다.
 	 */
-	/*
-	private byte SHORT_BYTES[] = { CommonStaticFinal.ZERO_BYTE,
-			CommonStaticFinal.ZERO_BYTE };
-	private byte INTEGER_BYTES[] = { CommonStaticFinal.ZERO_BYTE,
-			CommonStaticFinal.ZERO_BYTE, CommonStaticFinal.ZERO_BYTE,
-			CommonStaticFinal.ZERO_BYTE };
-	private byte LONG_BYTES[] = { CommonStaticFinal.ZERO_BYTE,
-			CommonStaticFinal.ZERO_BYTE, CommonStaticFinal.ZERO_BYTE,
-			CommonStaticFinal.ZERO_BYTE, CommonStaticFinal.ZERO_BYTE,
-			CommonStaticFinal.ZERO_BYTE, CommonStaticFinal.ZERO_BYTE,
-			CommonStaticFinal.ZERO_BYTE };
-			*/
-
 	private byte[] shortBytes = null;
 	private byte[] intBytes = null;
 	private byte[] longBytes = null;
@@ -77,13 +64,19 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 	
 	
 	/**
+	 * <pre>
 	 * 생성자.
-	 * 입려으로 받는 스트림 버퍼 목록은 동일 크기를 갖는 버퍼들로 이루어진 앞에서 부터 꽉찬 버퍼 목록임을 가정하여 동작한다.
-	 * 스트림 버퍼 목록의 모든 버퍼의 "버퍼 크기"(=capacity) 는 동일해야 한다.
-	 * 앞에서 부터 꽉찬 버퍼 목록이란 
-	 * 첫번째 부터 마지막 버퍼까지 읽어올 "시작 위치"(=postion)는 0으로 시작되며, 
+	 * 입려으로 받는 스트림 버퍼 목록은 동일 크기를 갖는 버퍼들로 이루어진 "앞에서 부터 꽉찬 버퍼 목록"임을 가정하여 동작한다.
+	 * 먼저 스트림 버퍼 목록의 모든 버퍼의 "버퍼 크기"(=capacity) 는 동일해야 한다.
+	 * "앞에서 부터 꽉찬 버퍼 목록"이란 
+	 * 첫번째 부터 마지막 버퍼까지 읽어올 "시작 위치"(=position)는 0으로 시작되며, 
 	 * "종료 위치"(=limit)는 마지막 버퍼를 제외하고 "버퍼 크기"(=capacity) 와 같다.
 	 * 마지막 버퍼의 "종료 위치"는 0 보다 크며 "버퍼 크기"(=capacity) 보다는 작거나 같다.
+	 * 
+	 * - "앞에서 부터 꽉찬 버퍼 목록" 이 성립하지 않았을때 오 동작하는 메소드 목록 -
+	 * 첫번째 {@link #position()}  
+	 * 두번째 {@link #remaining()}
+	 * </pre>
 	 * 
 	 * @param streamBufferList 스트림 버퍼 목록, 주의점) 동일 "버퍼 크기"(=capacity) 를 갖는 앞에서 부터 꽉찬 버퍼 목록이어야 한다.
 	 * @param streamCharsetDecoder 스트림 문자셋 디코더
@@ -121,13 +114,11 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 		indexOfWorkBuffer = 0;
 		workBuffer = streamBufferList.get(indexOfWorkBuffer);
 		
-		
 		streamByteOrder = workBuffer.order();
 		
 		shortBuffer = ByteBuffer.allocate(2);
 		shortBuffer.order(streamByteOrder);
 		shortBytes = shortBuffer.array();
-		
 
 		intBuffer = ByteBuffer.allocate(4);
 		intBuffer.order(streamByteOrder);
@@ -135,7 +126,9 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 
 		longBuffer = ByteBuffer.allocate(8);
 		longBuffer.order(streamByteOrder);
-		longBytes = longBuffer.array();		
+		longBytes = longBuffer.array();
+		
+		limitedSizeToRead = remaining();
 	}
 	
 	/**
@@ -143,6 +136,25 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 	 */
 	public ArrayList<ByteBuffer> getStreamBufferList() {
 		return streamBufferList;
+	}
+	
+	public void setLimitedSizeToRead(long newLimitedWorkSize) {
+		if (newLimitedWorkSize <= 0) {
+			String errorMessage = "parameter newLimitedWorkSize less than or equals to zero";
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		long remainingBytes = remaining();
+		if (newLimitedWorkSize > remainingBytes) {
+			String errorMessage = String.format("parameter newLimitedWorkSize[%d] greater than remainingBytes[%d]", newLimitedWorkSize, remainingBytes);
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		limitedSizeToRead = newLimitedWorkSize;
+	}
+	
+	public void freeLimitedSizeToRead() {
+		limitedSizeToRead = remaining();
 	}
 
 	/**
@@ -266,13 +278,16 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 	}
 	
 	
-	@Override
-	public Charset getCharset() {
-		return streamCharset;
-	}
+	
 	
 	@Override
 	public byte getByte() throws BufferUnderflowException {
+		if (limitedSizeToRead < 1) {
+			String errorMessage = String.format("BufferUnderflowException, limitedSizeToRead[%d] smaller than one byte", limitedSizeToRead);
+			log.info(errorMessage);
+			throw new BufferUnderflowException();
+		}
+		
 		byte retValue;
 		
 		try {
@@ -294,12 +309,24 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 
 	@Override
 	public short getUnsignedByte() throws BufferUnderflowException {
+		if (limitedSizeToRead < 1) {
+			String errorMessage = String.format("BufferUnderflowException, limitedSizeToRead[%d] smaller than one byte", limitedSizeToRead);
+			log.info(errorMessage);
+			throw new BufferUnderflowException();
+		}
+		
 		short retValue = (short) (0xFF & getByte());
 		return retValue;
 	}
 
 	@Override
 	public short getShort() throws BufferUnderflowException {
+		if (limitedSizeToRead < 2) {
+			String errorMessage = String.format("BufferUnderflowException, limitedSizeToRead[%d] smaller than two bytes", limitedSizeToRead);
+			log.info(errorMessage);
+			throw new BufferUnderflowException();
+		}
+		
 		short retValue;
 
 		try {
@@ -326,6 +353,12 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 
 	@Override
 	public int getUnsignedShort() throws BufferUnderflowException {
+		if (limitedSizeToRead < 2) {
+			String errorMessage = String.format("BufferUnderflowException, limitedSizeToRead[%d] smaller than two bytes", limitedSizeToRead);
+			log.info(errorMessage);
+			throw new BufferUnderflowException();
+		}
+		
 		int retValue;
 
 		clearIntBuffer();
@@ -366,6 +399,12 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 
 	@Override
 	public int getInt() throws BufferUnderflowException {
+		if (limitedSizeToRead < 4) {
+			String errorMessage = String.format("BufferUnderflowException, limitedSizeToRead[%d] smaller than four bytes", limitedSizeToRead);
+			log.info(errorMessage);
+			throw new BufferUnderflowException();
+		}
+		
 		int retValue;
 
 		try {
@@ -395,6 +434,12 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 
 	@Override
 	public long getUnsignedInt() throws BufferUnderflowException {
+		if (limitedSizeToRead < 4) {
+			String errorMessage = String.format("BufferUnderflowException, limitedSizeToRead[%d] smaller than four bytes", limitedSizeToRead);
+			log.info(errorMessage);
+			throw new BufferUnderflowException();
+		}
+		
 		long retValue;
 
 		clearLongBuffer();
@@ -430,6 +475,12 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 
 	@Override
 	public long getLong() throws BufferUnderflowException {
+		if (limitedSizeToRead < 8) {
+			String errorMessage = String.format("BufferUnderflowException, limitedSizeToRead[%d] smaller than eight bytes", limitedSizeToRead);
+			log.info(errorMessage);
+			throw new BufferUnderflowException();
+		}
+		
 		long retValue;
 
 		try {
@@ -457,24 +508,21 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 			throws BufferUnderflowException, IllegalArgumentException, SinnoriCharsetCodingException {
 		if (len < 0) {
 			throw new IllegalArgumentException(String.format(
-					"파라미터 길이[%d]는  0 보다 크거나 같아야 합니다.", len));
+					"parameter len[%d] less than zero", len));
 		}
 
-		/*
-		if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
-			throw new IllegalArgumentException(
-					String.format(
-							"파리미터 문자열 길이(=len)의 값[%d]은  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.",
-							len, CommonStaticFinal.MAX_UNSIGNED_SHORT));
+		if (limitedSizeToRead < len) {
+			String errorMessage = String.format("BufferUnderflowException, limitedSizeToRead[%d] smaller than parameter len[%d]", limitedSizeToRead, len);
+			log.info(errorMessage);
+			throw new BufferUnderflowException();
 		}
-		*/
 
-		long remainingBytes = remaining();
+		/*long remainingBytes = remaining();
 		if (remainingBytes < len) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 길이[%d]는  남아 있은 버퍼 크기[%d] 보다 작거나 같아야 합니다.", len,
 					remainingBytes));
-		}
+		}*/
 
 		ByteBuffer dstBuffer = null;
 		try {
@@ -520,9 +568,8 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 							Integer.MAX_VALUE));
 		}
 		
+		if (0 == remainingBytes) return "";
 		
-		if (0 == remainingBytes)
-			return "";
 		return getString((int) remainingBytes, streamCharsetDecoder);
 	}
 
@@ -540,16 +587,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 			throw new IllegalArgumentException(String.format(
 					"문자열 크기[%d]로 음수값이 전달되었습니다.", len));
 
-		/*
-		if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
-			throw new IllegalArgumentException(String.format(
-					"문자열 길이[%d]는  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.", len,
-					CommonStaticFinal.MAX_UNSIGNED_SHORT));
-		}
-		*/
-
-		if (0 == len)
-			return "";
+		if (0 == len) return "";
 
 		return getString(len, streamCharsetDecoder);
 	}
@@ -589,20 +627,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 			throw new IllegalArgumentException(String.format(
 					"지정된 길이[%d]는  0 보다 커야 합니다.", len));
 		}
-
-		/*if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
-			throw new IllegalArgumentException(String.format(
-					"파라미터 문자열 길이[%d]는  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.",
-					len, CommonStaticFinal.MAX_UNSIGNED_SHORT));
-		}*/
-
-		long remainingBytes = remaining();
-		if (len > remainingBytes) {
-			throw new IllegalArgumentException(String.format(
-					"지정된 bye 크기[%d]는  남아 있은 버퍼 크기[%d] 보다 작거나 같아야 합니다.", len,
-					remainingBytes));
-		}
-
+		
 		if (offset >= dstBytes.length) {
 			throw new IllegalArgumentException(String.format(
 					"지정된 옵셋[%d]는  타겟 버퍼 크기[%d] 보다 작아야 합니다.", offset,
@@ -614,8 +639,19 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 					"지정된 길이[%d]는  타겟 버퍼 크기[%d] 보다 작거나 같아야 합니다.", len,
 					dstBytes.length));
 		}
-
-		// ByteBuffer dstByteBuffer = ByteBuffer.wrap(dstBytes, offset, len);
+		
+		if (limitedSizeToRead < len) {
+			String errorMessage = String.format("BufferUnderflowException, limitedSizeToRead[%d] smaller than parameter len[%d]", limitedSizeToRead, len);
+			log.info(errorMessage);
+			throw new BufferUnderflowException();
+		}
+		
+		/*long remainingBytes = remaining();
+		if (len > remainingBytes) {
+			throw new IllegalArgumentException(String.format(
+					"지정된 bye 크기[%d]는  남아 있은 버퍼 크기[%d] 보다 작거나 같아야 합니다.", len,
+					remainingBytes));
+		}*/
 
 		getBytesFromWorkBuffer(dstBytes, offset, len);
 	}
@@ -627,10 +663,11 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 			throw new IllegalArgumentException("paramerter dstBytes is null");
 		}
 		
-		
-
-		// ByteBuffer dstByteBuffer = ByteBuffer.wrap(dstBytes);
-		// getBytesFromWorkBuffer(dstByteBuffer);
+		if (limitedSizeToRead < dstBytes.length) {
+			String errorMessage = String.format("BufferUnderflowException, limitedSizeToRead[%d] smaller than the length[%d] of parameter dstBytes", limitedSizeToRead, dstBytes.length);
+			log.info(errorMessage);
+			throw new BufferUnderflowException();
+		}
 		
 		getBytesFromWorkBuffer(dstBytes);
 	}
@@ -643,24 +680,19 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 					"지정된 길이[%d]는  0 과 같거나 커야 합니다.", len));
 		}
 
-		/*if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
-			throw new IllegalArgumentException(String.format(
-					"파라미터 len[%d]는  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.",
-					len, CommonStaticFinal.MAX_UNSIGNED_SHORT));
-		}*/
+		if (limitedSizeToRead < len) {
+			String errorMessage = String.format("BufferUnderflowException, limitedSizeToRead[%d] smaller than parameter len[%d]", limitedSizeToRead, len);
+			log.info(errorMessage);
+			throw new BufferUnderflowException();
+		}
 
-		long remainingBytes = remaining();
+		/*long remainingBytes = remaining();
 		if (len > remainingBytes) {
 			throw new IllegalArgumentException(String.format(
 					"지정된 bye 크기[%d]는  남아 있은 버퍼 크기[%d] 보다 작거나 같아야 합니다.", len,
 					remainingBytes));
-		}
-		
-		// ByteBuffer dstBuffer = ByteBuffer.allocate(len);
-		// byte srcBuffer[] = dstBuffer.array();
-		// getBytesFromWorkBuffer(dstBuffer);
-		// return srcBuffer;
-
+		}*/
+	
 		byte srcBytes[] = null;
 		try {
 			srcBytes = new byte[len];
@@ -682,12 +714,18 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 					"파라미터 생략할 길이[%d]는  0 보다 크거나 같아야 합니다.", len));
 		}
 
-		long remainingBytes = remaining();
+		if (limitedSizeToRead < len) {
+			String errorMessage = String.format("BufferUnderflowException, limitedSizeToRead[%d] smaller than parameter len[%d]", limitedSizeToRead, len);
+			log.info(errorMessage);
+			throw new BufferUnderflowException();
+		}
+		
+		/*long remainingBytes = remaining();
 		if (len > remainingBytes) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 생략할 길이[%d]는  남아 있은 버퍼 크기[%d] 보다 작거나 같아야 합니다.", len,
 					remainingBytes));
-		}
+		}*/
 
 		int dstRemainingByte = len;
 		do {
@@ -719,13 +757,18 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 					"파라미터 생략할 길이[%d]는  0 보다 크거나 같아야 합니다.", len));
 		}
 		
+		if (limitedSizeToRead < len) {
+			String errorMessage = String.format("BufferUnderflowException, limitedSizeToRead[%d] smaller than parameter len[%d]", limitedSizeToRead, len);
+			log.info(errorMessage);
+			throw new BufferUnderflowException();
+		}
 		
-		long remainingBytes = remaining();
+		/*long remainingBytes = remaining();
 		if (len > remainingBytes) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 생략할 길이[%d]는  남아 있은 버퍼 크기[%d] 보다 작거나 같아야 합니다.", len,
 					remainingBytes));
-		}
+		}*/
 		
 		long dstRemainingByte = len;
 		do {
@@ -752,19 +795,24 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 	public ByteOrder getByteOrder() {
 		return streamByteOrder;
 	}
+	
+	@Override
+	public Charset getCharset() {
+		return streamCharset;
+	}
 
 	@Override
 	public long remaining() {
 		long remaingBytes = 0;
-		int streamBufferListSize = streamBufferList.size();
-		
-		int lastIndexOfStreamBufferList = streamBufferListSize -1;
-		
+
 		remaingBytes += streamBufferList.get(indexOfWorkBuffer).remaining();
 		
+		int streamBufferListSize = streamBufferList.size();		
+		int lastIndexOfStreamBufferList = streamBufferListSize -1;
+		
 		if (lastIndexOfStreamBufferList != indexOfWorkBuffer) {
-			int countOfFullBuffer = lastIndexOfStreamBufferList - indexOfWorkBuffer - 1;
-			remaingBytes += countOfFullBuffer * (long)workBuffer.capacity();
+			int countOfFullStreamBuffer = lastIndexOfStreamBufferList - indexOfWorkBuffer - 1;
+			remaingBytes += countOfFullStreamBuffer * (long)workBuffer.capacity();
 			
 			remaingBytes += streamBufferList.get(lastIndexOfStreamBufferList).remaining();
 		}
@@ -782,6 +830,9 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 	}
 
 	@Override
+	/**
+	 * 주의 : "앞에서 부터 꽉찬 버퍼 목록" 이 전제되어야 정상 동작한다.
+	 */
 	public long position() {
 		// FIXME!
 		// log.info(String.format("in position, indexOfWorkBuffer=[%d], workBuffer.capacity=[%d]", indexOfWorkBuffer, workBuffer.capacity()));
@@ -799,7 +850,6 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 	public int getPositionOfWorkBuffer() {
 		return workBuffer.position();
 	}
-	
 	
 	
 	@Override

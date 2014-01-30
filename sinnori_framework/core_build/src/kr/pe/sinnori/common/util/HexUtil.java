@@ -122,7 +122,7 @@ public class HexUtil {
 		return byteBufferToHex(buffer, position, limit);
 	}
 
-	private static String byteBufferToHex(ByteBuffer buffer, int offset,
+	public static String byteBufferToHex(ByteBuffer buffer, int offset,
 			int length) throws IllegalArgumentException {
 		if (null == buffer) {
 			throw new IllegalArgumentException("parm buffer is null");
