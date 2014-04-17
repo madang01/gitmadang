@@ -64,16 +64,20 @@ public interface MainControllerIF {
 	
 	/**
 	 * 서버에 업로드 파일 준비하라는 메시지를 보낸다.
+	 * @param append 덧붙이기 여부, true : 덧붙이기(=append), false : 덮어쓰기(=overwrite) 
 	 * @param localFilePathName 로컬 파일 경로
 	 * @param localFileName 로컬 파일 이름
 	 * @param localFileSize 로컬 파일 크기
 	 * @param remoteFilePathName 원격지 파일 경로
 	 * @param remoteFileName 원격지 파일 이름, 없다면 로컬 파일 이름으로 대체된다.
+	 * @param remoteFileSize 원격지 파일 크기
 	 * @param fileBlockSize 송수신 파일 조각 크기
 	 * @return 업로드 준비 출력 메시지
 	 */
-	public OutputMessage readyUploadFile(String localFilePathName, String localFileName, long localFileSize, 
-			String remoteFilePathName, String remoteFileName, int fileBlockSize);
+	public OutputMessage readyUploadFile(boolean append, 
+			String localFilePathName, String localFileName, long localFileSize, 
+			String remoteFilePathName, String remoteFileName, long remoteFileSize,
+			int fileBlockSize);
 	
 	/**
 	 * {@link #readyUploadFile(String, String, long, String, String, int)} 에서 락을 걸은 로컬 원본 파일 자원을 해제한다.
@@ -91,16 +95,20 @@ public interface MainControllerIF {
 	
 	/**
 	 * 서버에 다운로드 파일 준비를 하라는 메시지를 보낸다.
+	 * @param append 덧붙이기 여부, true : 덧붙이기(=append), false : 덮어쓰기(=overwrite)
 	 * @param localFilePathName 로컬 파일 경로
 	 * @param localFileName 로컬 파일 이름
+	 * @param localFileSize 로컬 파일 크기
 	 * @param remoteFilePathName 원격지 파일 경로
 	 * @param remoteFileName 원격지 파일 이름
 	 * @param remoteFileSize 원격지 파일 크기
 	 * @param fileBlockSize 송수신 파일 조각 크기
 	 * @return 파일 다운로드 준비 출력 메시지
 	 */
-	public OutputMessage readyDownloadFile(String localFilePathName, String localFileName, 
-			String remoteFilePathName, String remoteFileName, long remoteFileSize, int fileBlockSize);
+	public OutputMessage readyDownloadFile(boolean append, 
+			String localFilePathName, String localFileName, long localFileSize, 
+			String remoteFilePathName, String remoteFileName, long remoteFileSize, 
+			int fileBlockSize);
 	
 	/**
 	 * @return 로컬 목적지 파일 크기 재조정 실패여부, 참고) 만약 중복 받기이면 0으로 이어받기이면 아무 동작 안한다.

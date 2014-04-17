@@ -29,6 +29,7 @@ import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
 import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
 import kr.pe.sinnori.common.io.FreeSizeInputStream;
 import kr.pe.sinnori.common.io.FreeSizeOutputStream;
@@ -242,6 +243,14 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageProtocolIF {
 				/** 메시지 추출 실패했는데도 마지막 버퍼가 꽉차있다면 스트림 크기를 증가시킨다. 단 설정파일 환경변수 "메시지당 최대 데이터 패킷 갯수" 만큼만 증가될수있다. */
 				lastInputStreamBuffer = socketInputStream.nextDataPacketBuffer();
 			}
+		} catch (IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			log.fatal(errorMessage, e);
+			System.exit(1);
+		} catch (SinnoriBufferUnderflowException e) {
+			String errorMessage = e.getMessage();
+			log.fatal(errorMessage, e);
+			System.exit(1);
 		} finally {
 			socketInputStream.setUserDefObject(messageHeader);
 		}
@@ -513,6 +522,14 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageProtocolIF {
 				lastInputStreamBuffer = socketInputStream.nextDataPacketBuffer();
 			}
 			
+		} catch (IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+			log.fatal(errorMessage, e);
+			System.exit(1);
+		} catch (SinnoriBufferUnderflowException e) {
+			String errorMessage = e.getMessage();
+			log.fatal(errorMessage, e);
+			System.exit(1);
 		} catch(MessageItemException e) {
 			log.fatal(e.getMessage(), e);
 			System.exit(1);

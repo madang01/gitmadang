@@ -19,12 +19,12 @@
 package kr.pe.sinnori.common.io.dhb;
 
 import java.nio.BufferOverflowException;
-import java.nio.BufferUnderflowException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
 import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
 import kr.pe.sinnori.common.io.InputStreamIF;
 import kr.pe.sinnori.common.io.OutputStreamIF;
@@ -70,13 +70,13 @@ public interface DHBSingleItem2StreamIF {
 	 * @param itemValueHash 항목명 해쉬, 키는 항목명, 값은 항목의 값이다.
 	 * @param sr 입력 스트림
 	 * @throws SinnoriCharsetCodingException 문자셋 디코딩시 에러 발생시 던지는 예외
-	 * @throws BufferUnderflowException 버퍼 크기를 넘어선 읽기 시도시 던지는 예외
+	 * @throws SinnoriBufferUnderflowException 버퍼 크기를 넘어선 읽기 시도시 던지는 예외
 	 * @throws IllegalArgumentException 잘못된 파라미터 넣었을 경우 던지는 예외
 	 */
 	public void S2I(String itemName, int itemTypeID, 
 			int itemSizeForLang, Charset itemCharsetForLang, 
 			HashMap<String, Object> itemValueHash, InputStreamIF sr)
-			throws SinnoriCharsetCodingException, BufferUnderflowException, IllegalArgumentException, BodyFormatException;
+			throws SinnoriCharsetCodingException, SinnoriBufferUnderflowException, IllegalArgumentException, BodyFormatException;
 	
 	/**
 	 * 그룹 시작을 알리는 내용을 출력 스트림에 저장한다. 참고) DHB는 아무 일도 안하고, DXML 에서는 그룹이름을 시작 태그로 출력한다.

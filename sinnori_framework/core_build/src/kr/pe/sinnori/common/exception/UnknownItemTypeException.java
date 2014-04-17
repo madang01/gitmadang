@@ -25,7 +25,11 @@ package kr.pe.sinnori.common.exception;
  */
 @SuppressWarnings("serial")
 public class UnknownItemTypeException extends Exception {
-	public UnknownItemTypeException(String errmsg) {
-		super(errmsg);
+	/**
+	 * 생성자
+	 * @param errorMessage 에러 메시지
+	 */
+	public UnknownItemTypeException(String errorMessage) {
+		super(errorMessage);
 	}
 }

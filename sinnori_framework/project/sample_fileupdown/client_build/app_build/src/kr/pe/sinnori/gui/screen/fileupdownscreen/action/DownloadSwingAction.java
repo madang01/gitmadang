@@ -86,6 +86,65 @@ public class DownloadSwingAction extends AbstractAction implements CommonRootIF 
 		putValue(NAME, "downlaod");
 		putValue(SHORT_DESCRIPTION, "download remote file to client");
 	}
+	
+	/**
+	 * 다운로드 이어받기/덮어쓰기/취소 여부를 묻는 창
+	 * @param remoteFileName 사용자가 다운로드 하겠다고 선택한 원격지 파일 이름
+	 * @param localWorkPathName 로컬 파일 작업 경로
+	 * @return 사용자의 이어받기/덮어쓰기/취소 선택값, 디폴트 이어받기, 단 로컬에 원격지에서 선택한 파일과 같은 이름이 없거나 있어도 파일 크기가 0일 경우에는 덮어쓰기값으로 설정된다.
+	 * 참고) 이어받기:JOptionPane.YES_OPTION, 덮어쓰기:JOptionPane.NO_OPTION, 취소:JOptionPane.CANCEL_OPTION,  
+	 *  
+	 */
+	private int getYesNoCancel(String remoteFileName,  String localWorkPathName) {
+		Object[] options = {"이어받기",
+		"덮어쓰기",
+		"취소"};
+		int yesNoCancelOption = JOptionPane.showOptionDialog(mainFrame,
+				String
+				.format("원격지 파일[%s]과 동일한 파일이 로컬 작업 경로[%s]에 존재합니다. 파일을 덮어 쓰시겠습니까?",
+						remoteFileName, localWorkPathName),
+		"이어받기 확인창",
+		JOptionPane.YES_NO_CANCEL_OPTION,
+		JOptionPane.QUESTION_MESSAGE,
+		null,
+		options,
+		options[0]);
+		
+		return yesNoCancelOption;
+	}
+	
+	/**
+	 * 로컬에 원격지에서 선택한 파일과 같은 파일 이름이 있고 파일 크기가 0 보다 크다면,
+	 * 사용자에게 이어받기/덮어쓰기/취소 여부를 묻는다.
+	 * 단, 로컬에 원격지에서 선택한 파일과 같은 이름이 없거나 있어도 파일 크기가 0일 경우에는 덮어쓰기값으로 설정된다. 
+	 *   
+	 * @param remoteFileName 사용자가 다운로드 하겠다고 선택한 원격지 파일 이름
+	 * @param localWorkPathName 로컬 파일 작업 경로
+	 * @return 사용자의 이어받기/덮어쓰기/취소 선택값, 디폴트 이어받기, 단 로컬에 원격지에서 선택한 파일과 같은 이름이 없거나 있어도 파일 크기가 0일 경우에는 덮어쓰기값으로 설정된다.
+	 * 참고) 이어받기:JOptionPane.YES_OPTION, 덮어쓰기:JOptionPane.NO_OPTION, 취소:JOptionPane.CANCEL_OPTION
+	 */
+	private int getYesNoCancelOfLocalRootNode(String remoteFileName,  String localWorkPathName) {
+		int cntOfChild = localRootNode.getChildCount();
+		for (int i=0;i < cntOfChild; i++) {
+			LocalFileTreeNode localFileTreeNode = (LocalFileTreeNode)localRootNode.getChildAt(i);
+			String localTempFileName = localFileTreeNode.getFileName();
+			long localTempFileSize = localFileTreeNode.getFileSize();
+			if (localTempFileName.equals(remoteFileName)) {
+				/*int yesOption = JOptionPane.showConfirmDialog(mainFrame, String
+						.format("원격지 파일[%s]과 동일한 파일이 로컬 작업 경로[%s]에 존재합니다. 파일을 덮어 쓰시겠습니까?",
+								remoteFileName, localWorkPathName), "덮어쓰기 확인창",
+						JOptionPane.YES_NO_OPTION);
+				if (JOptionPane.NO_OPTION == yesOption) return;
+				break;*/
+				if (localTempFileSize > 0) {
+					int yesNoCancel = getYesNoCancel(remoteFileName, localWorkPathName);
+					return yesNoCancel;
+				}
+				break;
+			}
+		}
+		return JOptionPane.NO_OPTION;
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -111,8 +170,10 @@ public class DownloadSwingAction extends AbstractAction implements CommonRootIF 
 			return;
 		}
 		
+		boolean append = false;
 		String localFilePathName = (String)localRootNode.getUserObject();
 		String localFileName = "";
+		long localFileSize=0L;
 		String remoteFilePathName = remoteRootNode.getFileName();
 		String remoteFileName = remoteSelectedNode.getFileName();
 		long remoteFileSize = remoteSelectedNode.getFileSize();
@@ -131,7 +192,7 @@ public class DownloadSwingAction extends AbstractAction implements CommonRootIF 
 					.getLastPathComponent();
 			
 			if (localSelectedNode.isRoot()) {
-				int cntOfChild = localRootNode.getChildCount();
+				/*int cntOfChild = localRootNode.getChildCount();
 				for (int i=0;i < cntOfChild; i++) {
 					LocalFileTreeNode localFileTreeNode = (LocalFileTreeNode)localRootNode.getChildAt(i);
 					String localTempFileName = localFileTreeNode.getFileName();
@@ -143,11 +204,22 @@ public class DownloadSwingAction extends AbstractAction implements CommonRootIF 
 						if (JOptionPane.NO_OPTION == yesOption) return;
 						break;
 					}
+				}*/
+				int yesNoCancelOption = getYesNoCancelOfLocalRootNode(remoteFileName, localFilePathName);
+				/** 취소 */
+				if (JOptionPane.CANCEL_OPTION == yesNoCancelOption) return;
+				
+				if (JOptionPane.NO_OPTION == yesNoCancelOption) {
+					/** 덮어쓰기 */
+					append = false;
+				} else {
+					/** 이어 받기 */
+					append = true;
 				}
 			} else {
 				if (AbstractFileTreeNode.FileType.File == localSelectedNode
 						.getFileType()) {
-					int yesOption = JOptionPane.showConfirmDialog(mainFrame, String
+					/*int yesOption = JOptionPane.showConfirmDialog(mainFrame, String
 							.format("원격지 파일[%s]을 로컬 파일[%s]에 덮어 쓰시겠습니까?",
 									remoteFileName,
 									localSelectedNode.getFileName()), "덮어쓰기 확인창",
@@ -155,7 +227,26 @@ public class DownloadSwingAction extends AbstractAction implements CommonRootIF 
 					if (JOptionPane.NO_OPTION == yesOption)
 						return;
 	
+					localFileName = localSelectedNode.getFileName();*/
 					localFileName = localSelectedNode.getFileName();
+					localFileSize = localSelectedNode.getFileSize();
+					
+					if (0 == localFileSize) {
+						/** 덮어쓰기 */
+						append = false;
+					} else {
+						int yesNoCancelOption = getYesNoCancelOfLocalRootNode(remoteFileName, localFilePathName);
+						/** 취소 */
+						if (JOptionPane.CANCEL_OPTION == yesNoCancelOption) return;
+						
+						if (JOptionPane.NO_OPTION == yesNoCancelOption) {
+							/** 덮어쓰기 */
+							append = false;
+						} else {
+							/** 이어 받기 */
+							append = true;
+						}
+					}
 				} else {
 					StringBuilder targetPathBuilder = new StringBuilder(localFilePathName);
 					targetPathBuilder.append(File.separator);
@@ -164,7 +255,7 @@ public class DownloadSwingAction extends AbstractAction implements CommonRootIF 
 				}
 			}
 		} else {
-			int cntOfChild = localRootNode.getChildCount();
+			/*int cntOfChild = localRootNode.getChildCount();
 			for (int i=0;i < cntOfChild; i++) {
 				LocalFileTreeNode localFileTreeNode = (LocalFileTreeNode)localRootNode.getChildAt(i);
 				String localTempFileName = localFileTreeNode.getFileName();
@@ -176,6 +267,17 @@ public class DownloadSwingAction extends AbstractAction implements CommonRootIF 
 					if (JOptionPane.NO_OPTION == yesOption) return;
 					break;
 				}
+			}*/
+			int yesNoCancelOption = getYesNoCancelOfLocalRootNode(remoteFileName, localFilePathName);
+			/** 취소 */
+			if (JOptionPane.CANCEL_OPTION == yesNoCancelOption) return;
+			
+			if (JOptionPane.NO_OPTION == yesNoCancelOption) {
+				/** 덮어쓰기 */
+				append = false;
+			} else {
+				/** 이어 받기 */
+				append = true;
 			}
 		}
 		
@@ -185,7 +287,9 @@ public class DownloadSwingAction extends AbstractAction implements CommonRootIF 
 				remoteFilePathName, remoteFileName, localFilePathName,  localFileName));
 		
 		
-		OutputMessage downFileInfoResultOutObj = mainController.readyDownloadFile(localFilePathName, localFileName, remoteFilePathName, remoteFileName, remoteFileSize, fileBlockSize);
+		OutputMessage downFileInfoResultOutObj = mainController.readyDownloadFile(append, 
+				localFilePathName, localFileName, localFileSize,
+				remoteFilePathName, remoteFileName, remoteFileSize, fileBlockSize);
 		if (null == downFileInfoResultOutObj) {
 			mainController.freeLocalTargetFileResource();
 			return;

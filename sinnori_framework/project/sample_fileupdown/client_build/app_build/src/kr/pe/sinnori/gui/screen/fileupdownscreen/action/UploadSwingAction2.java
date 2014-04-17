@@ -29,6 +29,7 @@ import javax.swing.tree.TreePath;
 import kr.pe.sinnori.common.exception.MessageItemException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.message.OutputMessage;
+import kr.pe.sinnori.gui.lib.AbstractFileTreeNode.FileType;
 import kr.pe.sinnori.gui.lib.LocalFileTreeNode;
 import kr.pe.sinnori.gui.lib.MainControllerIF;
 import kr.pe.sinnori.gui.lib.RemoteFileTreeNode;
@@ -83,6 +84,61 @@ public class UploadSwingAction2 extends AbstractAction implements CommonRootIF {
 		putValue(NAME, "upload");
 		putValue(SHORT_DESCRIPTION, "upload local file to server");
 	}
+	
+	/**
+	 * 업로드 이어받기/덮어쓰기/취소 여부를 묻는 창
+	 * @param localFileName 사용자가 업로드 하겠다고 선택한 로컬 파일 이름
+	 * @param remoteFilePathName 원격지 파일 작업 경로
+	 * @return 사용자의 이어받기/덮어쓰기/취소 선택값, 디폴트 이어받기, 단 원격지에 로컬에서 선택한 파일과 같은 이름이 없거나 있어도 파일 크기가 0일 경우에는 덮어쓰기값으로 설정된다.
+	 * 참고) 이어받기:JOptionPane.YES_OPTION, 덮어쓰기:JOptionPane.NO_OPTION, 취소:JOptionPane.CANCEL_OPTION,  
+	 */
+	private int getYesNoCancel(String localFileName,  String remoteFilePathName) {
+		Object[] options = {"이어받기",
+		"덮어쓰기",
+		"취소"};
+		int yesNoCancelOption = JOptionPane.showOptionDialog(mainFrame,
+				String
+				.format("로컬 파일[%s]과 동일한 파일이 원격지 작업 경로[%s]에 존재합니다. 이어받기/덮어쓰기/취소를 선택하세요",
+						localFileName, remoteFilePathName),
+		"이어받기 확인창",
+		JOptionPane.YES_NO_CANCEL_OPTION,
+		JOptionPane.QUESTION_MESSAGE,
+		null,
+		options,
+		options[0]);
+		
+		return yesNoCancelOption;
+	}
+	
+	/**
+	 * 원격지에 로컬에서 선택한 파일과 같은 파일 이름이 있고 파일 크기가 0 보다 크다면,
+	 * 사용자에게 업로드 이어받기/덮어쓰기/취소 여부를 물어 그 결과 값을 반환한다.
+	 * 단 원격지에 로컬에서 선택한 파일과 같은 이름이 없거나 있어도 파일 크기가 0일 경우에는 덮어쓰기(JOptionPane.NO_OPTION)로 반환한다.
+	 * 참고) 이어받기:JOptionPane.YES_OPTION, 덮어쓰기:JOptionPane.NO_OPTION, 취소:JOptionPane.CANCEL_OPTION,
+	 *   
+	 * @param localFileName 사용자가 업로드 하겠다고 선택한 로컬 파일 이름
+	 * @param remoteWorkPathName 원격지 파일 작업 경로
+	 * @return 사용자의 이어받기/덮어쓰기/취소 선택값, 단 원격지에 로컬에서 선택한 파일과 같은 이름이 없거나 있어도 파일 크기가 0일 경우에는 덮어쓰기값으로 설정된다.
+	 * 참고) 이어받기:JOptionPane.YES_OPTION, 덮어쓰기:JOptionPane.NO_OPTION, 취소:JOptionPane.CANCEL_OPTION
+	 */
+	private int getYesNoCancelOfRemoteRootNode(String localFileName,  String remoteWorkPathName) {
+		int cntOfChild = remoteRootNode.getChildCount();
+		for (int i=0;i < cntOfChild; i++) {
+			RemoteFileTreeNode remoteFileTreeNode = (RemoteFileTreeNode)remoteRootNode.getChildAt(i);
+			if (remoteFileTreeNode.getFileType() == FileType.Directory) continue;
+			
+			String remoteTempFileName = remoteFileTreeNode.getFileName();
+			long remoteTempFileSize = remoteFileTreeNode.getFileSize();
+			if (remoteTempFileName.equals(localFileName)) {
+				if (remoteTempFileSize > 0) {
+					int yesNoCancelOption = getYesNoCancel(localFileName, remoteWorkPathName);
+					return yesNoCancelOption;
+				}
+				break;
+			}
+		}
+		return JOptionPane.NO_OPTION;
+	}
 
 	public void actionPerformed(ActionEvent e) {
 		log.info(String.format("e.getID=[%d]", e.getID()));
@@ -116,8 +172,10 @@ public class UploadSwingAction2 extends AbstractAction implements CommonRootIF {
 			return;
 		}
 		
+		boolean append = false;
 		String remoteFilePathName = (String)remoteRootNode.getUserObject();
 		String remoteFileName = "";
+		long remoteFileSize = 0L;
 		int fileBlockSize = mainController.getFileBlockSize();
 
 		TreePath remoteSelectedPath = remoteTree.getSelectionPath();
@@ -125,53 +183,72 @@ public class UploadSwingAction2 extends AbstractAction implements CommonRootIF {
 			RemoteFileTreeNode remoteSelectedNode = (RemoteFileTreeNode) remoteSelectedPath
 					.getLastPathComponent();
 			if (remoteSelectedNode.isRoot()) {
-				int cntOfChild = remoteRootNode.getChildCount();
-				for (int i=0;i < cntOfChild; i++) {
-					RemoteFileTreeNode remoteFileTreeNode = (RemoteFileTreeNode)remoteRootNode.getChildAt(i);
-					String remoteTempFileName = remoteFileTreeNode.getFileName();
-					if (remoteTempFileName.equals(localFileName)) {
-						int yesOption = JOptionPane.showConfirmDialog(mainFrame, String
-								.format("로컬 파일[%s]과 동일한 파일이 원격지 작업 경로[%s]에 존재합니다. 파일을 덮어 쓰시겠습니까?",
-										localFileName, remoteFilePathName), "덮어쓰기 확인창",
-								JOptionPane.YES_NO_OPTION);
-						if (JOptionPane.NO_OPTION == yesOption) return;
-						break;
-					}
-				}
-			} else {
+				int yesNoCancelOption = getYesNoCancelOfRemoteRootNode(localFileName, remoteFilePathName);
+				/** 취소 */
+				if (JOptionPane.CANCEL_OPTION == yesNoCancelOption) return;
+				
+				if (JOptionPane.NO_OPTION == yesNoCancelOption) {
+					/** 덮어쓰기 */
+					append = false;
+				} else {
+					/** 이어 받기 */
+					append = true;
+				}				
+			} else {				
 				if (RemoteFileTreeNode.FileType.File == remoteSelectedNode
 						.getFileType()) {
-					int yesOption = JOptionPane.showConfirmDialog(mainFrame,
+					/*int yesOption = JOptionPane.showConfirmDialog(mainFrame,
 							String.format("로컬 파일[%s]을 원격지 파일[%s]에 덮어 쓰시겠습니까?",
 									localFileName,
 									remoteSelectedNode.getFileName()),
 							"덮어쓰기 확인창", JOptionPane.YES_NO_OPTION);
 	
 					if (JOptionPane.NO_OPTION == yesOption)
-						return;
-	
+						return;*/
+					
+					remoteFileSize = remoteSelectedNode.getFileSize();
 					remoteFileName = remoteSelectedNode.getFileName();
+					
+					if(0 == remoteFileSize) {
+						/** 덮어쓰기 */
+						append = false;
+					} else {
+						int yesNoCancelOption = getYesNoCancel(localFileName, remoteFilePathName);
+						
+						/** 취소 */
+						if (JOptionPane.CANCEL_OPTION == yesNoCancelOption) return;
+						
+						if (JOptionPane.NO_OPTION == yesNoCancelOption) {
+							/** 덮어쓰기 */
+							append = false;
+						} else {
+							/** 이어 받기 */
+							append = true;
+						}
+					}
+	
 				} else {
 					/** 업로드한 파일의 위치로 원격지 자식 디렉토리를 선택한 경우 */
 					StringBuilder targetPathBuilder = new StringBuilder(remoteFilePathName);
 					targetPathBuilder.append(remotePathSeperator);
 					targetPathBuilder.append(remoteSelectedNode.getFileName());
 					remoteFilePathName = targetPathBuilder.toString();
+					
+					/** 덮어쓰기 */
+					append = false;
 				}
 			}
 		} else {
-			int cntOfChild = remoteRootNode.getChildCount();
-			for (int i=0;i < cntOfChild; i++) {
-				RemoteFileTreeNode remoteFileTreeNode = (RemoteFileTreeNode)remoteRootNode.getChildAt(i);
-				String remoteTempFileName = remoteFileTreeNode.getFileName();
-				if (remoteTempFileName.equals(localFileName)) {
-					int yesOption = JOptionPane.showConfirmDialog(mainFrame, String
-							.format("로컬 파일[%s]과 동일한 파일이 원격지 작업 경로[%s]에 존재합니다. 파일을 덮어 쓰시겠습니까?",
-									localFileName, remoteFilePathName), "덮어쓰기 확인창",
-							JOptionPane.YES_NO_OPTION);
-					if (JOptionPane.NO_OPTION == yesOption) return;
-					break;
-				}
+			int yesNoCancelOption = getYesNoCancelOfRemoteRootNode(localFileName, remoteFilePathName);
+			/** 취소 */
+			if (JOptionPane.CANCEL_OPTION == yesNoCancelOption) return;
+			
+			if (JOptionPane.NO_OPTION == yesNoCancelOption) {
+				/** 덮어쓰기 */
+				append = false;
+			} else {
+				/** 이어 받기 */
+				append = true;
 			}
 		}
 
@@ -183,9 +260,9 @@ public class UploadSwingAction2 extends AbstractAction implements CommonRootIF {
 
 		try {
 			OutputMessage upFileInfoResulOutObj = mainController
-					.readyUploadFile(localFilePathName, localFileName,
+					.readyUploadFile(append, localFilePathName, localFileName,
 							localFileSize, remoteFilePathName,
-							remoteFileName, fileBlockSize);
+							remoteFileName, remoteFileSize, fileBlockSize);
 
 			/** 정상적인 업로드 파일 준비 출력 메시지를 받지 못했을 경우 처리 종료 */
 			if (null == upFileInfoResulOutObj) {
@@ -194,7 +271,7 @@ public class UploadSwingAction2 extends AbstractAction implements CommonRootIF {
 			}
 			
 			// FIXME!
-			log.info(upFileInfoResulOutObj.toString());
+			// log.info(upFileInfoResulOutObj.toString());
 				
 
 			int serverTargetFileID = -1;

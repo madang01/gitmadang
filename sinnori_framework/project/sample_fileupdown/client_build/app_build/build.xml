@@ -1,6 +1,6 @@
-<project name="sample_simple_ftp_appclient" default="make" basedir=".">
+<project name="sample_fileupdown_appclient" default="make" basedir=".">
 	<description>
-		Application Client Project Using Sinnori Framework
+		샘플 파일 송수신 자바 스윙 클라이언트
 	</description>
 	<!-- set global properties for this build -->
 	<property name="src" location="src" />

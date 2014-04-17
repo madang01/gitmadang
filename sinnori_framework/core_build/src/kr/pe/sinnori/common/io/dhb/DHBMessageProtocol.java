@@ -31,6 +31,7 @@ import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.MessageItemException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
 import kr.pe.sinnori.common.io.FreeSizeInputStream;
 import kr.pe.sinnori.common.io.FreeSizeOutputStream;
 import kr.pe.sinnori.common.io.MessageProtocolIF;
@@ -326,10 +327,20 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 							startPosition = 0;
 							long skipBytes = startPosition+messageHeaderSize;
 							
-							freeSizeInputStream.skip(skipBytes);
+							try {
+								freeSizeInputStream.skip(skipBytes);
+							} catch (IllegalArgumentException e) {
+								String errorMessage = e.getMessage();
+								log.fatal(errorMessage, e);
+								System.exit(1);
+							} catch (SinnoriBufferUnderflowException e) {
+								String errorMessage = e.getMessage();
+								log.fatal(errorMessage, e);
+								System.exit(1);
+							}
 						}
 						
-						long postionBeforeReadingBody = freeSizeInputStream.position();
+						// long postionBeforeReadingBody = freeSizeInputStream.position();
 						
 						
 						/*long expectedPosition = startIndex*lastInputStreamBuffer.capacity()+startPosition+messageHeaderSize;
@@ -555,8 +566,10 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 								messageList.add(workOutObj);
 							}
 						} finally  {
+							long limitedSizeToRead = freeSizeInputStream.getLimitedSizeToRead();
+							
 							/** 잔존 데이터 확인 */
-							long postionAfterReadingBody = freeSizeInputStream.position();
+							/*long postionAfterReadingBody = freeSizeInputStream.position();
 							
 							long bodySize = postionAfterReadingBody - postionBeforeReadingBody;							
 							if (bodySize != messageHeader.bodySize) {
@@ -564,7 +577,13 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 										"메시지[%s]를 읽는 과정에서 잔존 데이터[%d bytes]가 남았습니다.",
 										messageHeader.messageID, (messageHeader.bodySize - bodySize));
 								log.warn(errorMessage);
-								/*throw new HeaderFormatException(errorMessage);*/
+								throw new HeaderFormatException(errorMessage);
+							}*/
+							if (limitedSizeToRead > 0) {
+								String errorMessage = String.format(
+										"메시지[%s]를 읽는 과정에서 잔존 데이터[%d bytes]가 남았습니다.",
+										messageHeader.messageID, limitedSizeToRead);
+								log.warn(errorMessage);
 							}
 							
 							/**
@@ -573,9 +592,20 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 							 * 스트림의 위치를 다음 메시지를 읽을 수 있는 위치로 재 설정한다.
 							 * </pre> 
 							 */							
-							long skipBytes = messageHeader.bodySize
+							/*long skipBytes = messageHeader.bodySize
 									- (postionAfterReadingBody - postionBeforeReadingBody);
-							freeSizeInputStream.skip(skipBytes);
+							freeSizeInputStream.skip(skipBytes);*/
+							try {
+								freeSizeInputStream.skip(limitedSizeToRead);
+							} catch (IllegalArgumentException e) {
+								String errorMessage = e.getMessage();
+								log.fatal(errorMessage, e);
+								System.exit(1);
+							} catch (SinnoriBufferUnderflowException e) {
+								String errorMessage = e.getMessage();
+								log.fatal(errorMessage, e);
+								System.exit(1);
+							}
 							
 							/** 바디 만큼만 읽을 수 있는 제한을 푼다. */
 							freeSizeInputStream.freeLimitedSizeToRead();

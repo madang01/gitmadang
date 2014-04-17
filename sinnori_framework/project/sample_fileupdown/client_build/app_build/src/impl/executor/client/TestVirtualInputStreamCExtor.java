@@ -48,13 +48,12 @@ import kr.pe.sinnori.common.message.ArrayData;
 import kr.pe.sinnori.common.message.InputMessage;
 import kr.pe.sinnori.common.message.ItemGroupDataIF;
 import kr.pe.sinnori.common.message.ItemGroupDataOfArray;
-import kr.pe.sinnori.common.util.HexUtil;
 import kr.pe.sinnori.util.AbstractClientExecutor;
 
 public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 	private ArrayList<InputMessage> orgInputMessageList = new ArrayList<InputMessage>();  
 	private ByteBuffer baseBuffer = ByteBuffer.allocate(1*1024*1024);
-	private static int mailID = 1;
+	private int mailID = 1;
 
 	@Override
 	protected void doTask(ClientProjectConfigIF clientProjectConfig, MessageMangerIF messageManger,
@@ -98,6 +97,9 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		log.info(String.format("4.baseBuffer=[%s]", baseBuffer.toString()));
 		
 		addAllDataTypeInObj(10, clientProjectConfig, messageManger, random, messageProtocol, dataPacketBufferQueueManager);
+		
+		log.info(String.format("5.baseBuffer=[%s]", baseBuffer.toString()));
+		
 		addAllDataTypeInObj(10, clientProjectConfig, messageManger, random, messageProtocol, dataPacketBufferQueueManager);
 		
 		addAllDataTypeInObj(30000, clientProjectConfig, messageManger, random, messageProtocol, dataPacketBufferQueueManager);
@@ -321,9 +323,11 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 			dataPacketBufferQueueManager.putDataPacketBuffer(wrapBuffer);
 		}
 		
-		/*// FIXME! THB 프로토콜에서만 유효
+		// FIXME! THB 프로토콜에서만 유효
 		if (5 == mailID) {
 			baseBuffer.putInt((643+64+66+13), -1);
-		}*/
+		} else if (6 == mailID) {
+			baseBuffer.putInt((1134+64+66+13), 30000);
+		}
 	}
 }

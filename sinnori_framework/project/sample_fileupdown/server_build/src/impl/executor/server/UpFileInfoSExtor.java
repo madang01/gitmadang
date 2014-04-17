@@ -43,6 +43,17 @@ import kr.pe.sinnori.server.executor.LetterSender;
  */
 public final class UpFileInfoSExtor extends AbstractAuthServerExecutor {
 
+	private void sendSync(
+			String taskResult, String resultMessage, int serverTargetFileID, int clientSourceFileID,
+			LetterSender letterSender, MessageMangerIF messageManger) throws IllegalArgumentException, MessageInfoNotFoundException, MessageItemException {
+		OutputMessage outObj = messageManger.createOutputMessage("UpFileInfoResult");
+		outObj.setAttribute("taskResult", taskResult);
+		outObj.setAttribute("resultMessage", resultMessage);
+		outObj.setAttribute("serverTargetFileID", serverTargetFileID);
+		outObj.setAttribute("clientSourceFileID", clientSourceFileID);
+		letterSender.sendSync(outObj);
+	}
+	
 	@Override
 	protected void doTask(ServerProjectConfigIF serverProjectConfig,
 			LetterSender letterSender, InputMessage inObj,
@@ -50,66 +61,69 @@ public final class UpFileInfoSExtor extends AbstractAuthServerExecutor {
 			ClientResourceManagerIF clientResourceManager)
 			throws MessageInfoNotFoundException, MessageItemException {
 		LocalTargetFileResourceManager localTargetFileResourceManager = LocalTargetFileResourceManager.getInstance();
-		OutputMessage outObj = messageManger.createOutputMessage("UpFileInfoResult");
-		outObj.messageHeaderInfo = inObj.messageHeaderInfo;
+		// OutputMessage outObj = messageManger.createOutputMessage("UpFileInfoResult");
+		// outObj.messageHeaderInfo = inObj.messageHeaderInfo;
 		
-		
+		byte appendByte = (Byte)inObj.getAttribute("append");
 		int clientSourceFileID = (Integer)inObj.getAttribute("clientSourceFileID");
 		String localFilePathName = (String)inObj.getAttribute("localFilePathName");
 		String localFileName = (String)inObj.getAttribute("localFileName");
-		Long localFileSize = (Long)inObj.getAttribute("localFileSize");
+		long localFileSize = (Long)inObj.getAttribute("localFileSize");
 		String remoteFilePathName = (String)inObj.getAttribute("remoteFilePathName");
 		String remoteFileName = (String)inObj.getAttribute("remoteFileName");
+		long remoteFileSize = (Long)inObj.getAttribute("remoteFileSize");
 		int fileBlockSize = (Integer)inObj.getAttribute("fileBlockSize");
 		
 		
-		outObj.setAttribute("clientSourceFileID", clientSourceFileID);
+		// outObj.setAttribute("clientSourceFileID", clientSourceFileID);
 		
 		// FIXME!
 		log.info(inObj.toString());
+		
+		/** 서버 목적지 파일 식별자, 디폴트 값은 에러를 나타내는 -1 */
+		int serverTargetFileID = -1;
+		
+		boolean append;
+		if (0 == appendByte) {
+			append = false;
+		} else if (1 == appendByte) {
+			append = true;
+		} else {
+			sendSync("N", 
+					String.format("파라미터 append 값[%x]에 알수 없는 값이 들어왔습니다.", appendByte), serverTargetFileID, 
+					clientSourceFileID, letterSender, messageManger);
+			return;
+		}
 		
 		LocalTargetFileResource  localTargetFileResource = null;
 		
 		
 		try {
-			localTargetFileResource = localTargetFileResourceManager.pollLocalTargetFileResource(localFilePathName, localFileName, localFileSize, remoteFilePathName, remoteFileName, fileBlockSize);
+			localTargetFileResource = localTargetFileResourceManager.pollLocalTargetFileResource(append, 
+					localFilePathName, localFileName, localFileSize, 
+					remoteFilePathName, remoteFileName, remoteFileSize, fileBlockSize);
 			
 			if (null == localTargetFileResource) {
-				outObj.setAttribute("taskResult", "N");
+				/*outObj.setAttribute("taskResult", "N");
 				outObj.setAttribute("resultMessage", "큐로부터 목적지 파일 자원 할당에 실패하였습니다.");
 				outObj.setAttribute("serverTargetFileID", -1);
 				
-				letterSender.sendSync(outObj);
+				letterSender.sendSync(outObj);*/
+				sendSync("N", "큐로부터 목적지 파일 자원 할당에 실패하였습니다.", serverTargetFileID, 
+						clientSourceFileID, letterSender, messageManger);
 				return;
 			}
 			
 			localTargetFileResource.truncate();
 			localTargetFileResource.setSourceFileID(clientSourceFileID);
-			int serverTargetFileID = localTargetFileResource.getTargetFileID();
+			serverTargetFileID = localTargetFileResource.getTargetFileID();
 			
 			ClientResource clientResource = letterSender.getInObjClientResource();
 			clientResource.addLocalTargetFileID(serverTargetFileID);
 			
+			sendSync("Y", "파일 업로드 준비가 되었습니다.", serverTargetFileID, 
+					clientSourceFileID, letterSender, messageManger);
 			
-			outObj.setAttribute("taskResult", "Y");
-			outObj.setAttribute("resultMessage", "업로드할 파일을 받아줄 준비가 되었습니다.");
-			outObj.setAttribute("serverTargetFileID", serverTargetFileID);
-			
-			// FIXME!
-			// log.info(outObj.toString());
-			
-			/*
-			LetterToClient letterToClient = new LetterToClient(fromSC, outObj);
-			
-			try {
-				ouputMessageQueue.put(letterToClient);
-			} catch (InterruptedException e1) {
-				// 출력 메시지 큐 담는 과정에서 인터럽트 발생시 로그만 남기고 무시
-				log.warn("업로드 파일 준비 실패했다는 내용을 담은 출력 메시지[UpFileInfoResult]를 출력 메시지 큐 담는 과정에서 인터럽트 발생", e1);
-				return;
-			}
-		*/
-			letterSender.sendSync(outObj);
 		} catch (IllegalArgumentException e) {
 			log.info("IllegalArgumentException", e);
 			
@@ -117,41 +131,16 @@ public final class UpFileInfoSExtor extends AbstractAuthServerExecutor {
 				localTargetFileResourceManager.putLocalTargetFileResource(localTargetFileResource);
 			}
 			
-			outObj.setAttribute("taskResult", "N");
-			outObj.setAttribute("resultMessage", e.getMessage());
-			outObj.setAttribute("serverTargetFileID", -1);
-			/*
-			LetterToClient letterToClient = new LetterToClient(fromSC, outObj);
-			try {
-				ouputMessageQueue.put(letterToClient);
-			} catch (InterruptedException e1) {
-				//  출력 메시지 큐 담는 과정에서 인터럽트 발생시 로그만 남기고 무시 
-				log.warn("업로드 파일 준비 실패했다는 내용을 담은 출력 메시지[UpFileInfoResult]를 출력 메시지 큐 담는 과정에서 인터럽트 발생", e1);
-			}
-			return;
-			*/
-			letterSender.sendSync(outObj);
+			sendSync("N", String.format("IllegalArgumentException::%s", e.getMessage()), serverTargetFileID, 
+					clientSourceFileID, letterSender, messageManger);
 		} catch (UpDownFileException e) {
 			log.info("UpDownFileException", e);
 			
 			if (null != localTargetFileResource) {
 				localTargetFileResourceManager.putLocalTargetFileResource(localTargetFileResource);
 			}
-			
-			outObj.setAttribute("taskResult", "N");
-			outObj.setAttribute("resultMessage", "서버::"+e.getMessage());
-			outObj.setAttribute("serverTargetFileID", -1);
-			/*
-			LetterToClient letterToClient = new LetterToClient(fromSC, outObj);
-			try {
-				ouputMessageQueue.put(letterToClient);
-			} catch (InterruptedException e1) {
-				// 출력 메시지 큐 담는 과정에서 인터럽트 발생시 로그만 남기고 무시 
-				log.warn("업로드 파일 준비 실패했다는 내용을 담은 출력 메시지[UpFileInfoResult]를 출력 메시지 큐 담는 과정에서 인터럽트 발생", e1);
-			}
-			return;
-			*/
-			letterSender.sendSync(outObj);
+			sendSync("N", String.format("UpDownFileException::%s", e.getMessage()), serverTargetFileID, 
+					clientSourceFileID, letterSender, messageManger);
 		}
 	}
 }

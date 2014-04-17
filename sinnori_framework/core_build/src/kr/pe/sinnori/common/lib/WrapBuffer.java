@@ -39,7 +39,8 @@ public class WrapBuffer implements CommonRootIF {
 	 * @param capacity 큐 ByteBuffer 용량
 	 */
 	public WrapBuffer(int capacity) {
-		buffer = ByteBuffer.allocate(capacity);
+		//buffer = ByteBuffer.allocate(capacity);
+		buffer = ByteBuffer.allocateDirect(capacity);
 	}
 	
 	

@@ -7,7 +7,11 @@ package kr.pe.sinnori.common.exception;
  */
 @SuppressWarnings("serial")
 public class UpDownFileException extends Exception {
-	public UpDownFileException(String errmsg) {
-		super(errmsg);
+	/**
+	 * 생성자
+	 * @param errorMessage 에러 메시지
+	 */
+	public UpDownFileException(String errorMessage) {
+		super(errorMessage);
 	}
 }

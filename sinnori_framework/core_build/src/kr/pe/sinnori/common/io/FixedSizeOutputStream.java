@@ -23,7 +23,6 @@ import java.nio.ByteOrder;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
-import java.util.Arrays;
 
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
@@ -512,13 +511,16 @@ public class FixedSizeOutputStream implements CommonRootIF, OutputStreamIF {
 					"파라미터 생략할 쓰기 크기[%d]는 unsinged byte 최대값[%d]보다 작어야 합니다.",
 					skipBytes, CommonStaticFinal.MAX_UNSIGNED_BYTE));
 		}
+		
+		if (skipBytes > outputStreamBuffer.remaining()) {
+			String errorMessage = String.format(
+					"parameter skipBytes greater than remainging bytes[%d] of outputStreamBuffer",
+					skipBytes, outputStreamBuffer.remaining());
+			log.info(errorMessage);
+			throw new BufferOverflowException();
+		}
 
 		int newLimit = outputStreamBuffer.position() + skipBytes;
-		ByteBuffer dupBuffer = outputStreamBuffer.duplicate();
-		dupBuffer.limit(newLimit);
-		ByteBuffer sliceBuffer = dupBuffer.slice();
-		Arrays.fill(sliceBuffer.array(), (byte) 0);
-
 		outputStreamBuffer.position(newLimit);
 	}
 
@@ -533,8 +535,15 @@ public class FixedSizeOutputStream implements CommonRootIF, OutputStreamIF {
 		} else {
 			ByteBuffer dupBuffer = outputStreamBuffer.duplicate();
 			dupBuffer.flip();
-			int limit = dupBuffer.limit();
-			byte resultBytes[] = new byte[limit];
+			int size = dupBuffer.remaining();			
+			byte resultBytes[] = null;
+			try {
+				resultBytes = new byte[size];
+			} catch (OutOfMemoryError e) {
+				log.warn("OutOfMemoryError", e);
+				throw e;
+			}
+			
 			dupBuffer.get(resultBytes);
 			return resultBytes;
 		}

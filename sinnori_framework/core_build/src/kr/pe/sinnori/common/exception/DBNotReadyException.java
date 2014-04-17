@@ -27,8 +27,12 @@ package kr.pe.sinnori.common.exception;
 @SuppressWarnings("serial")
 public class DBNotReadyException extends Exception {
 
-	public DBNotReadyException(String message) {
-		super(message);
+	/**
+	 * 생성자
+	 * @param errorMessage 에러 메시지
+	 */
+	public DBNotReadyException(String errorMessage) {
+		super(errorMessage);
 	}
 
 }

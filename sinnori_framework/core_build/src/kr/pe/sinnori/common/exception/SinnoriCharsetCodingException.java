@@ -26,7 +26,11 @@ package kr.pe.sinnori.common.exception;
 @SuppressWarnings("serial")
 public final class SinnoriCharsetCodingException extends Exception {
 
-	public SinnoriCharsetCodingException(String errmsg) {
-		super(errmsg);
+	/**
+	 * 생성자
+	 * @param errorMessage 에러 메시지
+	 */
+	public SinnoriCharsetCodingException(String errorMessage) {
+		super(errorMessage);
 	}
 }

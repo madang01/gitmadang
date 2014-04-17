@@ -30,10 +30,10 @@ public class HeaderFormatException extends Exception {
 	/**
 	 * 생성자
 	 * 
-	 * @param errmsg
+	 * @param errorMessage
 	 *            에러 내용
 	 */
-	public HeaderFormatException(String errmsg) {
-		super(errmsg);
+	public HeaderFormatException(String errorMessage) {
+		super(errorMessage);
 	}
 }

@@ -30,10 +30,10 @@ public class DynamicClassCallException extends Exception {
 	/**
 	 * 생성자
 	 * 
-	 * @param errmsg
+	 * @param errorMessage
 	 *            에러 내용
 	 */
-	public DynamicClassCallException(String errmsg) {
-		super(errmsg);
+	public DynamicClassCallException(String errorMessage) {
+		super(errorMessage);
 	}
 }

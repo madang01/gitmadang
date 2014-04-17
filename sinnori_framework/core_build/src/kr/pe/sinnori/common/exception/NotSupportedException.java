@@ -4,9 +4,9 @@ package kr.pe.sinnori.common.exception;
 public class NotSupportedException extends Exception {
 	/**
 	 * 생성자
-	 * @param errmsg 에러 내용
+	 * @param errorMessage 에러 내용
 	 */
-	public NotSupportedException(String errmsg) {
-		super(errmsg);
+	public NotSupportedException(String errorMessage) {
+		super(errorMessage);
 	}
 }

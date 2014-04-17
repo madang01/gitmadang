@@ -28,10 +28,10 @@ public class NoMoreDataPacketBufferException extends Exception {
 
 	/**
 	 * 생성자
-	 * @param errmsg 에러 내용
+	 * @param errorMessage 에러 내용
 	 */
-	public NoMoreDataPacketBufferException(String errmsg) {
-		super(errmsg);
+	public NoMoreDataPacketBufferException(String errorMessage) {
+		super(errorMessage);
 	}
 
 }

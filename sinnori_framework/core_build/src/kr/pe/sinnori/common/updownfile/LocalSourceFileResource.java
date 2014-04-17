@@ -28,7 +28,6 @@ import java.util.BitSet;
 
 import kr.pe.sinnori.common.exception.UpDownFileException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.common.lib.CommonStaticFinal;
 
 /**
  * <pre>
@@ -48,14 +47,23 @@ public class LocalSourceFileResource implements CommonRootIF {
 
 	private int sourceFileID = 0;
 	private int targetFileID = -1;
+
+	private boolean append;
+	
 	private String targetFilePathName = null;
 	private String targetFileName = null;
-	private long sourceFileSize = 0;
+	private long targetFileSize = 0L;
+	
 	private String sourceFilePathName = null;
 	private String sourceFileName = null;
-	private int fileBlockSize = 0;
-	private long endFileBlockNo = 0;
-	private long lastFileDataLength = 0;
+	private long sourceFileSize = 0L;
+	
+	private int fileBlockSize = 0;	
+	private long startFileBlockNo = 0L;
+	private long endFileBlockNo = 0L;
+	private long firstFileDataLength = 0L;
+	private long lastFileDataLength = 0L;
+	
 	/** 주의점 : BitSet 의 크기는 동적으로 자란다. 따라서 해당 비트 인덱스에 대한 엄격한 제한이 필요하다. */
 	private BitSet workedFileBlockBitSet = null;
 	private RandomAccessFile sourceRandomAccessFile = null;
@@ -63,8 +71,6 @@ public class LocalSourceFileResource implements CommonRootIF {
 	private FileLock sourceFileLock = null;
 	
 	
-	// private ArrayList<MappedByteBuffer> mappedByteBufferList = new ArrayList<MappedByteBuffer>();
-
 	public LocalSourceFileResource(int sourceFileID) {
 		this.sourceFileID = sourceFileID;
 	}
@@ -83,32 +89,28 @@ public class LocalSourceFileResource implements CommonRootIF {
 	public void setTargetFileID(int targetFileID) {
 		this.targetFileID = targetFileID;
 	}
-
+	
 	/**
 	 * <pre>
 	 * 로컬에 있는 원본 파일을 원격지에 있는 목적지 파일로 복사할 준비로 로컬 원본 파일의 락을 건다.
 	 * 	 * 참고) protected 선언은 동일 패키지 클래스인 {@link LocalSourceFileResourceManager}  접근시키기 위한 조취이다.
 	 * </pre>
 	 * 
-	 * @param sourceFilePathName
-	 *            원본 파일의 경로 이름
-	 * @param sourceFileName
-	 *            원본 파일 이름
-	 * @param sourceFileSize
-	 *            원본 파일 크기
-	 * @param targetFilePathName
-	 *            원본 파일의 경로 이름
-	 * @param targetFileName
-	 *            원본 파일 이름
-	 * @param fileBlockSize
-	 *            파일 송수신 파일 조각 크기
-	 * @thrwos IllegalArgumentException 잘못된 파라미터 입력시 던지는 예외
-	 * @throws UpDownFileException
-	 *             파일 송수신과 관련된 파일 관련 작업시 발생한 에러
+	 * @param append 이어받기 여부
+	 * @param sourceFilePathName 원본 파일의 경로 이름
+	 * @param sourceFileName 경로명을 제외한 원본 파일 이름
+	 * @param sourceFileSize 원본 파일 크기
+	 * @param targetFilePathName 목적지 파일의 경로 이름
+	 * @param targetFileName 경로명을 제외한 목적지 파일 이름
+	 * @param targetFileSize 목적지 파일 크기
+	 * @param fileBlockSize 파일 송수신 파일 조각 크기
+	 * @throws IllegalArgumentException 잘못된 파라미터 입력시 던지는 예외
+	 * @throws UpDownFileException 파일 송수신과 관련된 파일 관련 작업시 발생한 에러
 	 */
-	protected void readyReadingFile(String sourceFilePathName,
-			String sourceFileName, long sourceFileSize,
-			String targetFilePathName, String targetFileName, int fileBlockSize)
+	protected void readyReadingFile(boolean append, 
+			String sourceFilePathName, String sourceFileName, long sourceFileSize,
+			String targetFilePathName, String targetFileName, long targetFileSize, 
+			int fileBlockSize)
 			throws IllegalArgumentException, UpDownFileException {
 		if (null == sourceFilePathName) {
 			String errorMessage = String.format(
@@ -148,19 +150,19 @@ public class LocalSourceFileResource implements CommonRootIF {
 
 		if (sourceFileSize <= 0) {
 			String errorMessage = String
-					.format("sourceFileID[%d]::parameter sourceFileSize[%d] less than zero",
+					.format("sourceFileID[%d]::parameter sourceFileSize[%d] is less than or equal to zero",
 							sourceFileID, sourceFileSize);
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		if (sourceFileSize > CommonStaticFinal.UP_DOWN_SOURCE_FILE_MAX_SIZE) {
+		/*if (sourceFileSize > CommonStaticFinal.UP_DOWN_SOURCE_FILE_MAX_SIZE) {
 			String errorMessage = String
 					.format("sourceFileID[%d]::parameter sourceFileSize[%d] is over than max[%d]",
 							sourceFileID, sourceFileSize, CommonStaticFinal.UP_DOWN_SOURCE_FILE_MAX_SIZE);
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
-		}
+		}*/
 
 		if (null == targetFilePathName) {
 			String errorMessage = String.format(
@@ -191,10 +193,18 @@ public class LocalSourceFileResource implements CommonRootIF {
 
 		if (targetFileName.equals("")) {
 			String errorMessage = String
-					.format("sourceFileID[%d]::parameter targetFileName is a empty, so change to parameter sourceFileName[%s]",
+					.format("sourceFileID[%d]::parameter targetFileName is a empty, so parameter 'targetFileName' change to sourceFileName[%s]",
 							sourceFileID, sourceFileName);
 			log.info(errorMessage);
 			targetFileName = sourceFileName;
+		}
+		
+		if (targetFileSize < 0) {
+			String errorMessage = String
+					.format("sourceFileID[%d]::targetFile[%s][%s]::parameter targetFileSize[%d] less than zero",
+							sourceFileID, targetFilePathName, targetFileName, targetFileSize);
+			log.warn(errorMessage);
+			throw new IllegalArgumentException(errorMessage);
 		}
 
 		if (fileBlockSize <= 0) {
@@ -220,15 +230,18 @@ public class LocalSourceFileResource implements CommonRootIF {
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
-				
-		this.targetFilePathName = targetFilePathName;
-		this.targetFileName = targetFileName;
-		this.sourceFileSize = sourceFileSize;
+		
+		this.append = append;
 		this.sourceFilePathName = sourceFilePathName;
 		this.sourceFileName = sourceFileName;
+		this.sourceFileSize = sourceFileSize;		
+		this.targetFilePathName = targetFilePathName;
+		this.targetFileName = targetFileName;
+		this.targetFileSize = targetFileSize;
 		this.fileBlockSize = fileBlockSize;
-		this.endFileBlockNo = (sourceFileSize + fileBlockSize - 1)
-				/ fileBlockSize - 1;
+		
+		
+		this.endFileBlockNo = (sourceFileSize + fileBlockSize - 1) / fileBlockSize - 1;
 
 		if (endFileBlockNo > Integer.MAX_VALUE - 1) {
 			/**
@@ -242,11 +255,48 @@ public class LocalSourceFileResource implements CommonRootIF {
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
-
-		this.lastFileDataLength = sourceFileSize - endFileBlockNo
-				* fileBlockSize;
+		
+		this.lastFileDataLength = sourceFileSize - endFileBlockNo * fileBlockSize;
 
 		workedFileBlockBitSet = new BitSet((int) endFileBlockNo + 1);
+		
+		if (append) {
+			/** 이어받기 */
+			this.startFileBlockNo = (this.targetFileSize + fileBlockSize - 1) / fileBlockSize - 1;
+			
+			if (startFileBlockNo > Integer.MAX_VALUE - 1) {
+				/**
+				 * 자바는 배열 크기가 정수로 제한되는데, 파일 조각 받은 여부를 기억하는 BitSet 도 그대로 그 문제를 상속한다.
+				 * 따라서 fileBlock 최대 갯수는 정수(=Integer) 이어야 한다.
+				 */
+				String errorMessage = String
+						.format("sourceFileID[%d]::startFileBlockNo[%d] is greater than (Integer.MAX - 1)",
+								sourceFileID, startFileBlockNo);
+				log.warn(errorMessage);
+				throw new IllegalArgumentException(errorMessage);
+			}
+			
+			if (startFileBlockNo > endFileBlockNo) {
+				String errorMessage = String
+						.format("sourceFileID[%d]::the variable 'startFileBlockNo'[%d] is greater than endFileBlockNo[%d], sourceFileSize=[%d], ",
+								sourceFileID, startFileBlockNo, endFileBlockNo);
+				log.warn(errorMessage);
+				throw new IllegalArgumentException(errorMessage);
+			}
+			
+			this.firstFileDataLength = fileBlockSize - (this.targetFileSize - startFileBlockNo * fileBlockSize);
+			
+			/** 이어 받기를 시작하는 위치 전까지 데이터 읽기 여부를 참으로 설정한다. */
+			for (int i=0; i < startFileBlockNo; i++ ) {
+				workedFileBlockBitSet.set(i);
+			}
+		} else {
+			/** 덮어 쓰기 */
+			this.startFileBlockNo = 0;
+			this.firstFileDataLength = fileBlockSize;
+		}
+		
+		
 
 		File sourceFilePath = new File(sourceFilePathName);
 
@@ -348,51 +398,21 @@ public class LocalSourceFileResource implements CommonRootIF {
 			/** 입출력 에러 발생으로 파일 크기 얻기 실패 */
 			releaseFileLock();
 			String errorMessage = String.format(
-					"sourceFileID[%d]::입출력 에러 발생으로 파일[%s] 크기 얻기 실패",
+					"sourceFileID[%d]::입출력 에러 발생으로 소스 파일[%s] 크기 얻기 실패",
 					sourceFileID, sourcefullFileName);
 			log.warn(errorMessage, e);
 			throw new UpDownFileException(errorMessage);
 		}
 
 		if (realSourceFileSize != sourceFileSize) {
-			/** 클라이언트에서 인식하는 서버 소스 파일의 크기외 실제 크기가 같지 않습니다. */
 			releaseFileLock();
 			String errorMessage = String
-					.format("sourceFileID[%d]::클라이언트에서 인식하는 서버 소스 파일[%s]의 크기[%d]외 실제 크기[%d]가 같지 않습니다.",
+					.format("sourceFileID[%d]::소스 파일[%s]의 크기[%d]외 실제 크기[%d]가 같지 않습니다.",
 							sourceFileID, sourcefullFileName,
 							realSourceFileSize, sourceFileSize);
 			log.warn(errorMessage);
 			throw new UpDownFileException(errorMessage);
 		}
-		
-		// FIXME!
-		/*
-		int mappedByteBufferListSize = (int)endFileBlockNo+1;
-		long tmpSourceFileSize = sourceFileSize;
-
-		int i=0;
-		try {
-			for (; i < mappedByteBufferListSize; i++) {
-				long minSize = Math.min(tmpSourceFileSize, (long)fileBlockSize);
-				
-				MappedByteBuffer mappedByteBuffer = sourceFileChannel.map(MapMode.READ_ONLY, 0L+(long)i*fileBlockSize, minSize);
-				
-				
-				mappedByteBufferList.add(mappedByteBuffer);
-				
-				tmpSourceFileSize -= fileBlockSize;
-			}
-		} catch (Exception e) {
-			releaseFileLock();
-			String errorMessage = String.format(
-					"[%d] sourceFileID[%d]::입출력 에러 발생으로 원본 파일[%s] 에서 MappedByteBuffer 얻기 실패",
-					i, sourceFileID, sourcefullFileName);
-			log.warn(errorMessage, e);
-			throw new UpDownFileException(errorMessage);
-		}
-		
-		log.info(String.format("mappedByteBufferList init success, mappedByteBufferListSize[%d]", mappedByteBufferListSize));
-		*/
 	}
 
 	/**
@@ -510,7 +530,8 @@ public class LocalSourceFileResource implements CommonRootIF {
 		byte[] fileData = null;
 		if (fileBlockNo == endFileBlockNo) {
 			fileData = new byte[(int) lastFileDataLength];
-
+		} else if (fileBlockNo == startFileBlockNo) {
+				fileData = new byte[(int) firstFileDataLength];
 		} else {
 			fileData = new byte[fileBlockSize];
 
@@ -539,16 +560,24 @@ public class LocalSourceFileResource implements CommonRootIF {
 		// sourceFileBuffer
 		if (fileBlockNo < 0) {
 			String errorMessage = String
-					.format("sourceFileID[%d]::parameter fileBlockNo[%d] less than zero",
+					.format("sourceFileID[%d]::parameter fileBlockNo[%d] is less than zero",
 							sourceFileID, fileBlockNo);
+			log.warn(errorMessage);
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (fileBlockNo < startFileBlockNo) {
+			String errorMessage = String
+					.format("sourceFileID[%d]::parameter fileBlockNo[%d] is less than startFileBlockNo[%d]",
+							sourceFileID, fileBlockNo, startFileBlockNo);
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
 
 		if (fileBlockNo > endFileBlockNo) {
 			String errorMessage = String
-					.format("sourceFileID[%d]::parameter fileBlockNo[%d] greater than maxFileBlockNo[%d]",
-							sourceFileID, fileBlockNo);
+					.format("sourceFileID[%d]::parameter fileBlockNo[%d] is greater than endFileBlockNo[%d]",
+							sourceFileID, fileBlockNo, endFileBlockNo);
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
@@ -561,6 +590,14 @@ public class LocalSourceFileResource implements CommonRootIF {
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
+		long sourceFileOffset;
+		
+		if (append && startFileBlockNo == fileBlockNo) {
+			sourceFileOffset = (long)fileBlockSize * fileBlockNo + fileBlockSize - fileData.length;
+		} else {
+			sourceFileOffset = (long)fileBlockSize * fileBlockNo;
+		}
+		
 		synchronized (monitor) {
 			if (null == workedFileBlockBitSet) {
 				log.info(String.format("workedFileBlockBitSet is null, sourceFileID[%d] sourceFile[%s][%s] fileBlockNo[%d]", sourceFileID, sourceFilePathName, sourceFileName, fileBlockNo));
@@ -570,7 +607,7 @@ public class LocalSourceFileResource implements CommonRootIF {
 			try {
 				// FIXME!
 				// sourceFileChannel.read(ByteBuffer.wrap(fileData), (long) fileBlockSize * fileBlockNo);
-				sourceRandomAccessFile.seek((long) fileBlockSize * fileBlockNo);
+				sourceRandomAccessFile.seek(sourceFileOffset);
 				sourceRandomAccessFile.read(fileData);
 			} catch (IOException e) {
 				/** n 번째 원본 파일 조각 읽기 실패 */
@@ -600,78 +637,6 @@ public class LocalSourceFileResource implements CommonRootIF {
 		}
 	}
 	
-	/**
-	 * 
-	 * @param fileBlockNo
-	 * @param fileData
-	 * @param checkOver
-	 * @return
-	 * @throws IllegalArgumentException
-	 * @throws UpDownFileException
-	 */
-	/*
-	public boolean readSourceFileData2(int fileBlockNo, byte[] fileData,
-			boolean checkOver) throws IllegalArgumentException,
-			UpDownFileException {
-		// sourceFileBuffer
-		if (fileBlockNo < 0) {
-			String errorMessage = String
-					.format("sourceFileID[%d]::parameter fileBlockNo[%d] less than zero",
-							sourceFileID, fileBlockNo);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-
-		if (fileBlockNo > endFileBlockNo) {
-			String errorMessage = String
-					.format("sourceFileID[%d]::parameter fileBlockNo[%d] greater than maxFileBlockNo[%d]",
-							sourceFileID, fileBlockNo);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-
-		if (null == fileData) {
-			String errorMessage = String.format(
-					"sourceFileID[%d]::parameter fileData is null",
-					sourceFileID);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		synchronized (monitor) {
-			if (null == workedFileBlockBitSet) {
-				log.info(String.format("workedFileBlockBitSet is null, sourceFileID[%d] sourceFile[%s][%s] fileBlockNo[%d]", sourceFileID, sourceFilePathName, sourceFileName, fileBlockNo));
-				return false;
-			}
-			
-			// FIXME!
-			MappedByteBuffer mappedByteBuffer = null;
-			try {
-				mappedByteBuffer = mappedByteBufferList.get(fileBlockNo);
-				mappedByteBuffer.get(fileData);
-			} catch(Exception  e) {
-				log.fatal("Exception", e);
-				System.exit(1);
-			}	
-
-			if (workedFileBlockBitSet.get(fileBlockNo)) {
-				String errorMessage = String.format(
-						"sourceFileID[%d]::파일 조각[%d] 중복 도착", sourceFileID,
-						fileBlockNo);
-				log.warn(errorMessage);
-				if (checkOver)
-					throw new UpDownFileException(errorMessage);
-			} else {
-				workedFileBlockBitSet.set(fileBlockNo);
-			}
-
-			boolean isFinished = (workedFileBlockBitSet
-					.cardinality() == (endFileBlockNo + 1));
-			return isFinished;
-		}
-	}
-	*/
-
 	/**
 	 * @return the sourceFileID
 	 */
@@ -728,6 +693,15 @@ public class LocalSourceFileResource implements CommonRootIF {
 		return fileBlockSize;
 	}
 
+	/**
+	 * @return the startFileBlockNo
+	 */
+	public int getStartFileBlockNo() {
+		return (int)startFileBlockNo;
+	}
+	/**
+	 * @return the endFileBlockNo
+	 */
 	public int getEndFileBlockNo() {
 		return (int) endFileBlockNo;
 	}
@@ -750,20 +724,24 @@ public class LocalSourceFileResource implements CommonRootIF {
 		builder.append(isInQueue);
 		builder.append(", isCanceled=");
 		builder.append(isCanceled);
+		builder.append(", append=");
+		builder.append(append);
 		builder.append(", sourceFileID=");
 		builder.append(sourceFileID);
 		builder.append(", targetFileID=");
 		builder.append(targetFileID);
-		builder.append(", targetFilePathName=");
-		builder.append(targetFilePathName);
-		builder.append(", targetFileName=");
-		builder.append(targetFileName);
-		builder.append(", sourceFileSize=");
-		builder.append(sourceFileSize);
 		builder.append(", sourceFilePathName=");
 		builder.append(sourceFilePathName);
 		builder.append(", sourceFileName=");
 		builder.append(sourceFileName);
+		builder.append(", sourceFileSize=");
+		builder.append(sourceFileSize);		
+		builder.append(", targetFilePathName=");
+		builder.append(targetFilePathName);
+		builder.append(", targetFileName=");
+		builder.append(targetFileName);
+		builder.append(", targetFileSize=");
+		builder.append(targetFileSize);		
 		builder.append(", fileBlockSize=");
 		builder.append(fileBlockSize);
 		builder.append("]");

@@ -28,10 +28,10 @@ public class SymmetricException extends Exception {
 	/**
 	 * 생성자
 	 * 
-	 * @param errmsg
+	 * @param errorMessage
 	 *            에러 내용
 	 */
-	public SymmetricException(String errmsg) {
-		super(errmsg);
+	public SymmetricException(String errorMessage) {
+		super(errorMessage);
 	}
 }

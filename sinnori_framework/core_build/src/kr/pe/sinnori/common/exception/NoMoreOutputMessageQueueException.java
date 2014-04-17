@@ -29,10 +29,10 @@ public class NoMoreOutputMessageQueueException extends Exception {
 
 	/**
 	 * 생성자
-	 * @param errmsg 에러 내용
+	 * @param errorMessage 에러 내용
 	 */
-	public NoMoreOutputMessageQueueException(String errmsg) {
-		super(errmsg);
+	public NoMoreOutputMessageQueueException(String errorMessage) {
+		super(errorMessage);
 	}
 
 }

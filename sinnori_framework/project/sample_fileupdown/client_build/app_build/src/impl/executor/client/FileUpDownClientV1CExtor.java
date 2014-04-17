@@ -744,8 +744,9 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	}
 	
 	@Override
-	public OutputMessage readyUploadFile(String localFilePathName, String localFileName, long localFileSize, 
-			String remoteFilePathName, String remoteFileName, int fileBlockSize) {
+	public OutputMessage readyUploadFile(boolean append, 
+			String localFilePathName, String localFileName, long localFileSize, 
+			String remoteFilePathName, String remoteFileName, long remoteFileSize, int fileBlockSize) {
 		if (!conn.isConnected()) {
 			JOptionPane.showMessageDialog(mainFrame, "서버와의 연결이 끊어 졌습니다.");
 			goToFirstScreen();
@@ -753,7 +754,10 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		}
 		
 		try {
-			localSourceFileResource = localSourceFileResourceManager.pollLocalSourceFileResource(localFilePathName, localFileName, localFileSize, remoteFilePathName, remoteFileName, fileBlockSize);
+			localSourceFileResource = localSourceFileResourceManager
+					.pollLocalSourceFileResource(append,
+					localFilePathName, localFileName, localFileSize, 
+					remoteFilePathName, remoteFileName, remoteFileSize, fileBlockSize);
 		} catch (IllegalArgumentException e1) {
 			String errorMessage = e1.toString();
 			log.warn(errorMessage, e1);
@@ -792,6 +796,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 			inObj.setAttribute("localFileSize", localFileSize);
 			inObj.setAttribute("remoteFilePathName", remoteFilePathName);
 			inObj.setAttribute("remoteFileName", remoteFileName);
+			inObj.setAttribute("remoteFileSize", remoteFileSize);
 			inObj.setAttribute("fileBlockSize", fileBlockSize);
 		} catch (MessageItemException e) {
 			log.warn("MessageItemException", e);
@@ -951,7 +956,8 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	
 	// FIXME!
 	@Override
-	public OutputMessage readyDownloadFile(String localFilePathName, String localFileName, 
+	public OutputMessage readyDownloadFile(boolean append, 
+			String localFilePathName, String localFileName, long localFileSize,
 			String remoteFilePathName, String remoteFileName, long remoteFileSize, int fileBlockSize) {
 		if (!conn.isConnected()) {
 			JOptionPane.showMessageDialog(mainFrame, "서버와의 연결이 끊어 졌습니다.");
@@ -960,7 +966,10 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		}
 		
 		try {
-			localTargetFileResource = localTargetFileResourceManager.pollLocalTargetFileResource(remoteFilePathName, remoteFileName, remoteFileSize, localFilePathName, localFileName, fileBlockSize);
+			localTargetFileResource = localTargetFileResourceManager
+					.pollLocalTargetFileResource(append,
+							remoteFilePathName, remoteFileName, remoteFileSize, 
+							localFilePathName, localFileName, localFileSize, fileBlockSize);
 		} catch (IllegalArgumentException e1) {
 			JOptionPane.showMessageDialog(mainFrame, e1.toString());
 			return null;
@@ -993,8 +1002,12 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		
 		
 		try {
+			if (append) inObj.setAttribute("append", (byte)0x01);
+			else inObj.setAttribute("append", (byte)0x00);
+				
 			inObj.setAttribute("localFilePathName", localFilePathName);
 			inObj.setAttribute("localFileName", localFileName);
+			inObj.setAttribute("localFileSize", localFileSize);
 			inObj.setAttribute("remoteFilePathName", remoteFilePathName);
 			inObj.setAttribute("remoteFileName", remoteFileName);
 			inObj.setAttribute("remoteFileSize", remoteFileSize);

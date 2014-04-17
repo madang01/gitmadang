@@ -26,6 +26,7 @@ import java.util.HashMap;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.MessageItemException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
 import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
 import kr.pe.sinnori.common.io.InputStreamIF;
 import kr.pe.sinnori.common.io.OutputStreamIF;
@@ -218,11 +219,16 @@ public class ItemGroupDataOfArray implements ItemGroupDataIF,
 							parentPath, singleItemInfo.toString(), e.getMessage());
 					log.warn(errorMessage, e);
 					throw new BodyFormatException(errorMessage);
-				} catch (BufferUnderflowException e) {
-					String errorMessage = String.format("%s %s, BufferUnderflowException=[%s]", 
+				} catch (SinnoriBufferUnderflowException e) {
+					String errorMessage = String.format("%s %s, SinnoriBufferUnderflowException=[%s]", 
 							parentPath, singleItemInfo.toString(), e.getMessage());
 					log.warn(errorMessage, e);
 					throw new BodyFormatException(errorMessage);
+				} catch (BufferUnderflowException e) {
+					String errorMessage = String.format("%s %s, BufferUnderflowException", 
+							parentPath, singleItemInfo.toString());
+					log.fatal(errorMessage, e);
+					System.exit(1);
 				}
 			} else {
 				/*

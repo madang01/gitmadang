@@ -17,7 +17,6 @@
 
 package kr.pe.sinnori.common.io;
 
-import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.CharBuffer;
@@ -25,6 +24,7 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
+import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
 import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.util.HexUtil;
@@ -96,24 +96,39 @@ public class FixedSizeInputStream implements CommonRootIF, InputStreamIF {
 	}
 
 	@Override
-	public byte getByte() throws BufferUnderflowException {
+	public byte getByte() throws SinnoriBufferUnderflowException {
+		long remainingBytes = remaining();
+		if (0 == remainingBytes) {
+			throw new SinnoriBufferUnderflowException(String.format("the remaining bytes[%d] is less than one byte", remainingBytes));
+		}
+		
 		return streamBuffer.get();
 	}
 
 	@Override
-	public short getUnsignedByte() throws BufferUnderflowException {
+	public short getUnsignedByte() throws SinnoriBufferUnderflowException {
 		short retValue = (short) (0xFF & getByte());
 		return retValue;
 	}
 
 	@Override
-	public short getShort() throws BufferUnderflowException {
+	public short getShort() throws SinnoriBufferUnderflowException {
+		long remainingBytes = remaining();
+		if (2 > remainingBytes) {
+			throw new SinnoriBufferUnderflowException(String.format("the remaining bytes[%d] is less than two bytes", remainingBytes));
+		}
+		
 		short value = streamBuffer.getShort();
 		return value;
 	}
 
 	@Override
-	public int getUnsignedShort() throws BufferUnderflowException {
+	public int getUnsignedShort() throws SinnoriBufferUnderflowException {
+		long remainingBytes = remaining();
+		if (2 > remainingBytes) {
+			throw new SinnoriBufferUnderflowException(String.format("the remaining bytes[%d] is less than two bytes", remainingBytes));
+		}
+		
 		int retValue;
 
 		intBuffer.clear();
@@ -137,13 +152,23 @@ public class FixedSizeInputStream implements CommonRootIF, InputStreamIF {
 	}
 
 	@Override
-	public int getInt() throws BufferUnderflowException {
+	public int getInt() throws SinnoriBufferUnderflowException {
+		long remainingBytes = remaining();
+		if (4 > remainingBytes) {
+			throw new SinnoriBufferUnderflowException(String.format("the remaining bytes[%d] is less than four bytes", remainingBytes));
+		}
+		
 		int value = streamBuffer.getInt();
 		return value;
 	}
 
 	@Override
-	public long getUnsignedInt() throws BufferUnderflowException {
+	public long getUnsignedInt() throws SinnoriBufferUnderflowException {
+		long remainingBytes = remaining();
+		if (4 > remainingBytes) {
+			throw new SinnoriBufferUnderflowException(String.format("the remaining bytes[%d] is less than four bytes", remainingBytes));
+		}
+		
 		long retValue;
 
 		longBuffer.clear();
@@ -167,17 +192,22 @@ public class FixedSizeInputStream implements CommonRootIF, InputStreamIF {
 	}
 
 	@Override
-	public long getLong() throws BufferUnderflowException {
+	public long getLong() throws SinnoriBufferUnderflowException {
+		long remainingBytes = remaining();
+		if (8 > remainingBytes) {
+			throw new SinnoriBufferUnderflowException(String.format("the remaining bytes[%d] is less than eight bytes", remainingBytes));
+		}
+		
 		long value = streamBuffer.getLong();
 		return value;
 	}
 
 	@Override
 	public String getString(final int len, final CharsetDecoder wantedCharsetDecoder)
-			throws BufferUnderflowException, IllegalArgumentException, SinnoriCharsetCodingException {
+			throws SinnoriBufferUnderflowException, IllegalArgumentException, SinnoriCharsetCodingException {
 		if (len < 0) {
 			throw new IllegalArgumentException(String.format(
-					"파라미터 길이[%d]는  0 보다 크거나 같아야 합니다.", len));
+					"parameter len[%d] less than zero", len));
 		}
 
 		/*if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
@@ -189,9 +219,7 @@ public class FixedSizeInputStream implements CommonRootIF, InputStreamIF {
 
 		long remainingBytes = remaining();
 		if (len > remainingBytes) {
-			throw new IllegalArgumentException(String.format(
-					"파라미터 길이[%d]는  남아 있은 버퍼 크기[%d] 보다 작거나 같아야 합니다.", len,
-					remainingBytes));
+			throw new SinnoriBufferUnderflowException(String.format("the parameter len[%d] is greater than the remaining bytes[%d]", len, remainingBytes));
 		}
 		
 		ByteBuffer dstBuffer = null;
@@ -225,23 +253,23 @@ public class FixedSizeInputStream implements CommonRootIF, InputStreamIF {
 	}
 
 	@Override
-	public String getString(final int len) throws BufferUnderflowException,
+	public String getString(final int len) throws SinnoriBufferUnderflowException,
 			IllegalArgumentException, SinnoriCharsetCodingException {
 		return getString(len, streamCharsetDecoder);
 	}
 
 	@Override
-	public String getStringAll() throws BufferUnderflowException,
+	public String getStringAll() throws SinnoriBufferUnderflowException,
 			IllegalArgumentException, SinnoriCharsetCodingException {
 		long remainingBytes = remaining();
 
-		if (remainingBytes > Integer.MAX_VALUE) {
+		/*if (remainingBytes > Integer.MAX_VALUE) {
 			throw new IllegalArgumentException(
 					String.format(
 							"문자열로 변환될 남아 있는 버퍼 크기[%d]는  integer 최대값[%d] 보다 작거나 같아야 합니다.",
 							remainingBytes,
 							Integer.MAX_VALUE));
-		}
+		}*/
 
 		if (0 == remainingBytes)
 			return "";
@@ -249,18 +277,18 @@ public class FixedSizeInputStream implements CommonRootIF, InputStreamIF {
 	}
 
 	@Override
-	public String getPascalString() throws BufferUnderflowException,
+	public String getPascalString() throws SinnoriBufferUnderflowException,
 			IllegalArgumentException, SinnoriCharsetCodingException {
 		return getUBPascalString();
 	}
 
 	@Override
-	public String getSIPascalString() throws BufferUnderflowException,
+	public String getSIPascalString() throws SinnoriBufferUnderflowException,
 			IllegalArgumentException, SinnoriCharsetCodingException {
 		int len = getInt();
 		if (len < 0)
 			throw new IllegalArgumentException(String.format(
-					"문자열 크기[%d]로 음수값이 전달되었습니다.", len));
+					"the pascal string length[%d] whose type is integer is less than zero", len));
 
 		/*if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
 			throw new IllegalArgumentException(String.format(
@@ -275,7 +303,7 @@ public class FixedSizeInputStream implements CommonRootIF, InputStreamIF {
 	}
 
 	@Override
-	public String getUSPascalString() throws BufferUnderflowException,
+	public String getUSPascalString() throws SinnoriBufferUnderflowException,
 			IllegalArgumentException, SinnoriCharsetCodingException {
 		int numOfBytes = getUnsignedShort();
 		if (0 == numOfBytes)
@@ -284,7 +312,7 @@ public class FixedSizeInputStream implements CommonRootIF, InputStreamIF {
 	}
 
 	@Override
-	public String getUBPascalString() throws BufferUnderflowException,
+	public String getUBPascalString() throws SinnoriBufferUnderflowException,
 			IllegalArgumentException, SinnoriCharsetCodingException {
 		int numOfBytes = getUnsignedByte();
 		if (0 == numOfBytes)
@@ -293,68 +321,64 @@ public class FixedSizeInputStream implements CommonRootIF, InputStreamIF {
 	}
 
 	@Override
-	public void getBytes(byte[] dstBuffer, int offset, int len)
-			throws BufferUnderflowException, IllegalArgumentException {
-		if (null == dstBuffer) {
-			throw new IllegalArgumentException("파라미터 목적지 버퍼는 null 입니다.");
+	public void getBytes(byte[] dstBytes, int offset, int len)
+			throws SinnoriBufferUnderflowException, IllegalArgumentException {
+		if (null == dstBytes) {
+			throw new IllegalArgumentException("ths parameter dstBytes is null");
 		}
 
 		if (offset < 0) {
 			throw new IllegalArgumentException(String.format(
-					"파라미터 옵셋 크기[%d]는  0 보다 크거나 같아야 합니다.", offset));
+					"the parameter offset[%d] is less than zero", offset));
 		}
 
 		if (len <= 0) {
 			throw new IllegalArgumentException(String.format(
-					"파라미터 길이[%d]는  0 보다 커야 합니다.", len));
+					"the parameter len[%d] is less than or equal to zero", len));
 		}
 
 		/*if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 문자열 길이[%d]는  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.",
 					len, CommonStaticFinal.MAX_UNSIGNED_SHORT));
-		}*/
+		}*/		
 
+		if (offset >= dstBytes.length) {
+			throw new IllegalArgumentException(String.format(
+					"the parameter offset[%d] is greater than or equal to the dest buffer's length[%d]", offset, dstBytes.length));
+		}
+
+		if (len > dstBytes.length) {
+			throw new IllegalArgumentException(String.format(
+					"the parameter len[%d] is greater than the dest buffer's length[%d]", len, dstBytes.length));
+		}
+		
 		long remainingBytes = remaining();
 		if (len > remainingBytes) {
-			throw new IllegalArgumentException(String.format(
-					"파라미터 길이[%d]는  남아 있은 버퍼 크기[%d] 보다 작거나 같아야 합니다.", len,
-					remainingBytes));
-		}
-
-		if (offset >= dstBuffer.length) {
-			throw new IllegalArgumentException(String.format(
-					"파라미터 옵셋[%d]는  목적지 버퍼 크기[%d] 보다 작아야 합니다.", offset,
-					dstBuffer.length));
-		}
-
-		if (len > dstBuffer.length) {
-			throw new IllegalArgumentException(String.format(
-					"파라미터 길이[%d]는  목적지 버퍼 크기[%d] 보다 작거나 같아야 합니다.", len,
-					dstBuffer.length));
+			throw new SinnoriBufferUnderflowException(String.format("parameter len[%d] greater than the remaining bytes[%d]", len, remainingBytes));
 		}
 
 		// int position = streamBuffer.position();
 
-		streamBuffer.get(dstBuffer, offset, len);
+		streamBuffer.get(dstBytes, offset, len);
 	}
 
 	@Override
-	public void getBytes(byte[] targetBuffer) throws BufferUnderflowException,
+	public void getBytes(byte[] targetBuffer) throws SinnoriBufferUnderflowException,
 			IllegalArgumentException {
 		if (null == targetBuffer) {
 			throw new IllegalArgumentException(
-					"paramerter targetBuffer is null");
+					"the paramerter targetBuffer is null");
 		}
 		getBytes(targetBuffer, 0, targetBuffer.length);
 	}
 
 	@Override
-	public byte[] getBytes(int len) throws BufferUnderflowException,
+	public byte[] getBytes(int len) throws SinnoriBufferUnderflowException,
 			IllegalArgumentException, OutOfMemoryError {
 		if (len < 0) {
 			throw new IllegalArgumentException(String.format(
-					"파라미터 길이[%d]는  0 과 같거나 커야 합니다.", len));
+					"the parameter len[%d] is less than zero", len));
 		}
 
 		/*if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
@@ -365,9 +389,7 @@ public class FixedSizeInputStream implements CommonRootIF, InputStreamIF {
 
 		long remainingBytes = remaining();
 		if (len > remainingBytes) {
-			throw new IllegalArgumentException(String.format(
-					"파라미터 길이[%d]는  남아 있은 버퍼 크기[%d] 보다 작거나 같아야 합니다.", len,
-					remainingBytes));
+			throw new SinnoriBufferUnderflowException(String.format("the parameter len[%d] is greater than the remaining bytes[%d]", len, remainingBytes));
 		}
 
 		byte buffer[] = null;
@@ -385,10 +407,10 @@ public class FixedSizeInputStream implements CommonRootIF, InputStreamIF {
 	}
 
 	@Override
-	public void skip(int len) {
+	public void skip(int len) throws SinnoriBufferUnderflowException {
 		if (len <= 0) {
 			throw new IllegalArgumentException(String.format(
-					"파라미터 길이[%d]는  0 보다 커야 합니다.", len));
+					"the parameter len[%d] is less than zero", len));
 		}
 
 		/*if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
@@ -399,9 +421,7 @@ public class FixedSizeInputStream implements CommonRootIF, InputStreamIF {
 
 		long remainingBytes = remaining();
 		if (len > remainingBytes) {
-			throw new IllegalArgumentException(String.format(
-					"파라미터 길이[%d]는  남아 있은 버퍼 크기[%d] 보다 작거나 같아야 합니다.", len,
-					remainingBytes));
+			throw new SinnoriBufferUnderflowException(String.format("the parameter len[%d] is greater than the remaining bytes[%d]", len, remainingBytes));
 		}
 
 		streamBuffer.position(streamBuffer.position() + len);

@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
 import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
 import kr.pe.sinnori.common.io.FixedSizeOutputStream;
 import kr.pe.sinnori.common.io.InputStreamIF;
@@ -205,8 +206,7 @@ public class DHBMessageHeader implements CommonRootIF {
 			/** 백업한 limit 복귀 */
 			dstBuffer.limit(limitBeofreWork);
 			
-			headerOutputStream.putBytes(headerMD5);
-			
+			headerOutputStream.putBytes(headerMD5);		
 		} catch (BufferOverflowException e) {
 			log.fatal("BufferOverflowException", e);
 			System.exit(1);
@@ -240,6 +240,9 @@ public class DHBMessageHeader implements CommonRootIF {
 					.getBytes(DHBMessageHeader.MD5_BYTESIZE);
 		} catch (IllegalArgumentException e) {
 			log.fatal("IllegalArgumentException", e);
+			System.exit(1);
+		} catch (SinnoriBufferUnderflowException e) {
+			log.fatal("SinnoriBufferUnderflowException", e);
 			System.exit(1);
 		} catch (BufferUnderflowException e) {
 			log.fatal("BufferUnderflowException", e);

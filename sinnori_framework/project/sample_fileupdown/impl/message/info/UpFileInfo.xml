@@ -9,6 +9,9 @@
 <sinnori_message>
 <messageID>UpFileInfo</messageID>
 <desc>파일 업로드 준비 요청 입력 메시지</desc>
+<singleitem name="append" type="byte">
+	<desc>이어받기 여부 만약 참이면 목적지 파일뒤로 이어받기를 하며, 거짓이면 목적지 파일을 처음부터 덮어쓴다. 0x00 : 거짓, 0x01 : 참</desc>
+</singleitem>
 <singleitem name="clientSourceFileID" type="integer">
 	<desc>클라이언트 원본 파일 식별자</desc>
 </singleitem>
@@ -26,6 +29,9 @@
 </singleitem>
 <singleitem name="remoteFileName" type="ub pascal string">
 	<desc>원격지 파일 이름</desc>
+</singleitem>
+<singleitem name="remoteFileSize" type="long">
+	<desc>원격지 파일 크기, 이어받기시 필요한 정보</desc>
 </singleitem>
 <singleitem name="fileBlockSize" type="integer">
 	<desc>전송할 파일 조각 크기</desc>

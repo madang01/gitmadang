@@ -18,11 +18,11 @@
 package kr.pe.sinnori.common.io.dhb;
 
 import java.nio.BufferOverflowException;
-import java.nio.BufferUnderflowException;
 import java.nio.charset.Charset;
 
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
 import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
 import kr.pe.sinnori.common.io.InputStreamIF;
 import kr.pe.sinnori.common.io.OutputStreamIF;
@@ -44,13 +44,13 @@ public interface DHBSingleItemType2StreamIF {
 	 * @param itemCharsetForLang 언어에 특화된 부가 정보중 하나인 문자셋
 	 * @param sr 입력 스트림
 	 * @return 입력 스트림으로 부터 읽은 항목의 값
-	 * @throws BufferUnderflowException  버퍼 크기를 넘어선 읽기 시도시 던지는 예외
+	 * @throws SinnoriBufferUnderflowException  버퍼 크기를 넘어선 읽기 시도시 던지는 예외
 	 * @throws IllegalArgumentException 잘못된 파라미터 넣었을 경우 던지는 예외
 	 * @throws SinnoriCharsetCodingException 문자셋 디코딩시 에러 발생시 던지는 예외
 	 * @throws BodyFormatException 바디 구것시 에러 발생시 던지는 예외
 	 */
 	public Object getValue(String itemName, int itemSizeForLang,
-			Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
+			Charset itemCharsetForLang, InputStreamIF sr) throws SinnoriBufferUnderflowException,
 			IllegalArgumentException, SinnoriCharsetCodingException, BodyFormatException;
 	
 	/**

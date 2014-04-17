@@ -69,19 +69,23 @@ public class LocalTargetFileResourceManager implements CommonRootIF {
 	}
 	
 	/**
-	 * 큐에서 파일 자원 관리자를 받아서 소스 파일을 받을 목적지 파일을 준비시킨후 반환한다.  
+	 * 큐에서 파일 자원 관리자를 받아서 소스 파일을 받을 목적지 파일을 준비시킨후 반환한다.
+	 * 
+	 * @param append 이어받기 여부
 	 * @param sourceFilePathName 소스 파일 경로 이름
 	 * @param sourceFileName 소스 파일명
 	 * @param sourceFileSize 소스 파일 크기
 	 * @param targetFilePathName 목적지 파일 경로 이름
 	 * @param targetFileName 목적지 파일 이름
+	 * @param targetFileSize 목적지 파일 크기
 	 * @param fileBlockSize 송수신 파일 조각 크기 
 	 * @return 소스 파일을 받을 목적지 파일을 준비된 파일 자원 관리자
 	 * @throws IllegalArgumentException 잘못된 파라미터 입력시 던지는 예외
 	 * @throws UpDownFileException 파일 송수신과 관련된 파일 관련 작업시 발생한 에러
 	 */
-	public LocalTargetFileResource pollLocalTargetFileResource(String sourceFilePathName, String sourceFileName, long sourceFileSize,
-			String targetFilePathName,String targetFileName, 
+	public LocalTargetFileResource pollLocalTargetFileResource(boolean append,
+			String sourceFilePathName, String sourceFileName, long sourceFileSize,
+			String targetFilePathName,String targetFileName, long targetFileSize, 
 			int fileBlockSize) throws IllegalArgumentException, UpDownFileException {
 		
 		LocalTargetFileResource localTargetFileResource = null;
@@ -92,7 +96,8 @@ public class LocalTargetFileResourceManager implements CommonRootIF {
 			localTargetFileResourceHash.put(localTargetFileResource.getTargetFileID(), localTargetFileResource);
 		}
 		
-		localTargetFileResource.readyWritingFile(sourceFilePathName, sourceFileName, sourceFileSize, targetFilePathName, targetFileName, fileBlockSize);
+		localTargetFileResource.readyWritingFile(append, sourceFilePathName, sourceFileName, sourceFileSize, 
+				targetFilePathName, targetFileName, targetFileSize, fileBlockSize);
 		return localTargetFileResource;
 	}
 

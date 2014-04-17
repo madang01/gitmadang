@@ -29,10 +29,10 @@ public class ServerNotReadyException extends Exception {
 	/**
 	 * 생성자
 	 * 
-	 * @param message
+	 * @param errorMessage
 	 *            에러 내용
 	 */
-	public ServerNotReadyException(String message) {
-		super(message);
+	public ServerNotReadyException(String errorMessage) {
+		super(errorMessage);
 	}
 }

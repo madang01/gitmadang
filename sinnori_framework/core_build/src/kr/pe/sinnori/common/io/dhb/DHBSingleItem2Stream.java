@@ -19,13 +19,13 @@
 package kr.pe.sinnori.common.io.dhb;
 
 import java.nio.BufferOverflowException;
-import java.nio.BufferUnderflowException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
 
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
 import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
 import kr.pe.sinnori.common.exception.UnknownItemTypeException;
 import kr.pe.sinnori.common.io.InputStreamIF;
@@ -115,7 +115,7 @@ public class DHBSingleItem2Stream implements DHBSingleItem2StreamIF, CommonRootI
 	public void S2I(String itemName, int itemTypeID, 
 			int itemSizeForLang, Charset itemCharsetForLang, 
 			HashMap<String, Object> itemValueHash, InputStreamIF sr)
-			throws SinnoriCharsetCodingException, BufferUnderflowException, IllegalArgumentException, BodyFormatException {
+			throws SinnoriCharsetCodingException, SinnoriBufferUnderflowException, IllegalArgumentException, BodyFormatException {
 
 		itemValueHash.put(itemName,
 				dhbSingleItemType2StreamList[itemTypeID].getValue(itemName, itemSizeForLang, itemCharsetForLang, sr));
@@ -152,7 +152,7 @@ public class DHBSingleItem2Stream implements DHBSingleItem2StreamIF, CommonRootI
 	private final class DHBSingleItemByte2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
+				Charset itemCharsetForLang, InputStreamIF sr) throws SinnoriBufferUnderflowException,
 				IllegalArgumentException, SinnoriCharsetCodingException {
 			return sr.getByte();
 		}
@@ -180,7 +180,7 @@ public class DHBSingleItem2Stream implements DHBSingleItem2StreamIF, CommonRootI
 	private final class DHBSingleItemUnsignedByte2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
+				Charset itemCharsetForLang, InputStreamIF sr) throws SinnoriBufferUnderflowException,
 				IllegalArgumentException, SinnoriCharsetCodingException {
 			return sr.getUnsignedByte();
 		}
@@ -207,7 +207,7 @@ public class DHBSingleItem2Stream implements DHBSingleItem2StreamIF, CommonRootI
 	private final class DHBSingleItemShort2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
+				Charset itemCharsetForLang, InputStreamIF sr) throws SinnoriBufferUnderflowException,
 				IllegalArgumentException, SinnoriCharsetCodingException {
 			return sr.getShort();
 		}
@@ -235,7 +235,7 @@ public class DHBSingleItem2Stream implements DHBSingleItem2StreamIF, CommonRootI
 	private final class DHBSingleItemUnsignedShort2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
+				Charset itemCharsetForLang, InputStreamIF sr) throws SinnoriBufferUnderflowException,
 				IllegalArgumentException, SinnoriCharsetCodingException {
 			return sr.getUnsignedShort();
 		}
@@ -263,7 +263,7 @@ public class DHBSingleItem2Stream implements DHBSingleItem2StreamIF, CommonRootI
 	private final class DHBSingleItemInt2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
+				Charset itemCharsetForLang, InputStreamIF sr) throws SinnoriBufferUnderflowException,
 				IllegalArgumentException, SinnoriCharsetCodingException {
 			return sr.getInt();
 		}
@@ -291,7 +291,7 @@ public class DHBSingleItem2Stream implements DHBSingleItem2StreamIF, CommonRootI
 	private final class DHBSingleItemUnsignedInt2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
+				Charset itemCharsetForLang, InputStreamIF sr) throws SinnoriBufferUnderflowException,
 				IllegalArgumentException, SinnoriCharsetCodingException {
 			return sr.getUnsignedInt();
 		}
@@ -319,7 +319,7 @@ public class DHBSingleItem2Stream implements DHBSingleItem2StreamIF, CommonRootI
 	private final class DHBSingleItemLong2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
+				Charset itemCharsetForLang, InputStreamIF sr) throws SinnoriBufferUnderflowException,
 				IllegalArgumentException, SinnoriCharsetCodingException {
 			return sr.getLong();
 		}
@@ -347,7 +347,7 @@ public class DHBSingleItem2Stream implements DHBSingleItem2StreamIF, CommonRootI
 	private final class DHBSingleItemUBPascalString2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
+				Charset itemCharsetForLang, InputStreamIF sr) throws SinnoriBufferUnderflowException,
 				IllegalArgumentException, SinnoriCharsetCodingException {
 			return sr.getUBPascalString();
 		}
@@ -375,7 +375,7 @@ public class DHBSingleItem2Stream implements DHBSingleItem2StreamIF, CommonRootI
 	private final class DHBSingleItemUSPascalString2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
+				Charset itemCharsetForLang, InputStreamIF sr) throws SinnoriBufferUnderflowException,
 				IllegalArgumentException, SinnoriCharsetCodingException {
 			return sr.getUSPascalString();
 		}
@@ -403,7 +403,7 @@ public class DHBSingleItem2Stream implements DHBSingleItem2StreamIF, CommonRootI
 	private final class DHBSingleItemSIPascalString2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
+				Charset itemCharsetForLang, InputStreamIF sr) throws SinnoriBufferUnderflowException,
 				IllegalArgumentException, SinnoriCharsetCodingException {
 			return sr.getSIPascalString();
 		}
@@ -431,7 +431,7 @@ public class DHBSingleItem2Stream implements DHBSingleItem2StreamIF, CommonRootI
 	private final class DHBSingleItemFixedLengthString2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
+				Charset itemCharsetForLang, InputStreamIF sr) throws SinnoriBufferUnderflowException,
 				IllegalArgumentException, SinnoriCharsetCodingException {
 			if (null == itemCharsetForLang) {
 				return sr.getString(itemSizeForLang).trim();
@@ -471,7 +471,7 @@ public class DHBSingleItem2Stream implements DHBSingleItem2StreamIF, CommonRootI
 	private final class DHBSingleItemUBVariableLengthBytes2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
+				Charset itemCharsetForLang, InputStreamIF sr) throws SinnoriBufferUnderflowException,
 				IllegalArgumentException, SinnoriCharsetCodingException {
 			short len = sr.getUnsignedByte();
 			return sr.getBytes(len);
@@ -506,7 +506,7 @@ public class DHBSingleItem2Stream implements DHBSingleItem2StreamIF, CommonRootI
 	private final class DHBSingleItemUSVariableLengthBytes2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
+				Charset itemCharsetForLang, InputStreamIF sr) throws SinnoriBufferUnderflowException,
 				IllegalArgumentException, SinnoriCharsetCodingException {
 			int len = sr.getUnsignedShort();
 			return sr.getBytes(len);
@@ -535,7 +535,7 @@ public class DHBSingleItem2Stream implements DHBSingleItem2StreamIF, CommonRootI
 	private final class DHBSingleItemSIVariableLengthBytes2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
+				Charset itemCharsetForLang, InputStreamIF sr) throws SinnoriBufferUnderflowException,
 				IllegalArgumentException, SinnoriCharsetCodingException {
 			int len = sr.getInt();
 			return sr.getBytes(len);
@@ -565,7 +565,7 @@ public class DHBSingleItem2Stream implements DHBSingleItem2StreamIF, CommonRootI
 	private final class DHBSingleItemFixedLengthBytes2Stream implements DHBSingleItemType2StreamIF {
 		@Override
 		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, InputStreamIF sr) throws BufferUnderflowException,
+				Charset itemCharsetForLang, InputStreamIF sr) throws SinnoriBufferUnderflowException,
 				IllegalArgumentException, SinnoriCharsetCodingException {
 
 			return sr.getBytes(itemSizeForLang);

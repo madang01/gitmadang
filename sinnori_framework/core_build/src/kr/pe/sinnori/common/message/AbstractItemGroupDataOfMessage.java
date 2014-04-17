@@ -26,6 +26,7 @@ import java.util.HashMap;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.MessageItemException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
 import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
 import kr.pe.sinnori.common.io.InputStreamIF;
 import kr.pe.sinnori.common.io.OutputStreamIF;
@@ -173,8 +174,8 @@ public abstract class AbstractItemGroupDataOfMessage implements ItemGroupDataIF,
 					log.warn(errorMessage, e);
 					throw new BodyFormatException(errorMessage);
 				} catch (BufferOverflowException e) {
-					String errorMessage = String.format("%s %s, BufferOverflowException=[%s]", 
-							messageID, singleItemInfo.toString(), e.getMessage());
+					String errorMessage = String.format("%s %s, BufferOverflowException=[%d remaining bytes]", 
+							messageID, singleItemInfo.toString(), sw.remaining());
 					log.warn(errorMessage, e);
 					throw new BodyFormatException(errorMessage);
 				}
@@ -243,12 +244,17 @@ public abstract class AbstractItemGroupDataOfMessage implements ItemGroupDataIF,
 					String errorMessage = String.format("%s %s, IllegalArgumentException=[%s]", 
 									messageID, singleItemInfo.toString(), e.getMessage());
 					log.warn(errorMessage, e);
-					throw new BodyFormatException(errorMessage);
-				} catch (BufferUnderflowException e) {
-					String errorMessage = String.format("%s %s, BufferUnderflowException=[%s]", 
+					throw new BodyFormatException(errorMessage);					
+				} catch (SinnoriBufferUnderflowException e) {
+					String errorMessage = String.format("%s %s, SinnoriBufferUnderflowException=[%s]", 
 							messageID, singleItemInfo.toString(), e.getMessage());
 					log.warn(errorMessage, e);
 					throw new BodyFormatException(errorMessage);
+				} catch (BufferUnderflowException e) {
+					String errorMessage = String.format("%s %s, BufferUnderflowException", 
+							messageID, singleItemInfo.toString());
+					log.fatal(errorMessage, e);
+					System.exit(1);
 				}
 			} else {
 				/*
@@ -271,8 +277,7 @@ public abstract class AbstractItemGroupDataOfMessage implements ItemGroupDataIF,
 	
 				int arrayDataSize = arrayData.size();
 				for (int j = 0; j < arrayDataSize; j++) {
-					ItemGroupDataIF itemGroupData = arrayData
-							.get(j);
+					ItemGroupDataIF itemGroupData = arrayData.get(j);
 					itemGroupData.O2M(sr, sisc);
 				}
 				

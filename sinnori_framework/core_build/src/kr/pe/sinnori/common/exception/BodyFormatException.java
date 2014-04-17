@@ -30,11 +30,11 @@ public class BodyFormatException extends Exception {
 	/**
 	 * 생성자
 	 * 
-	 * @param errmsg
+	 * @param errorMessage
 	 *            에러 내용
 	 */
-	public BodyFormatException(String errmsg) {
-		super(errmsg);
+	public BodyFormatException(String errorMessage) {
+		super(errorMessage);
 	}
 
 }

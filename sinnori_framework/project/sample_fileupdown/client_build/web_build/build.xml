@@ -1,6 +1,6 @@
-<project name="sample_simple_ftp_webclient" default="compile_webclass" basedir=".">
+<project name="sample_fileupdown_webclient" default="compile_webclass" basedir=".">
 	<description>
-		Web Application Client Project Using Sinnori Framework
+		샘플 파일 송수신 웹 클라이언트
 	</description>
 	<!-- set global properties for this build -->
 	<property name="src" location="src" />

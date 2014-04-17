@@ -41,6 +41,7 @@ public class FileUpDownFileResourceSpeedTestMain implements CommonRootIF {
 	
 	private String testTargetFilePath = null;
 	private String testTargetFileName = null;
+	private long testTargetFileSize = 0L;
 
 	public FileUpDownFileResourceSpeedTestMain(String testSourceFileFullName, String testTargetFileFullName) {
 		File sourceFileObj = new File(testSourceFileFullName);
@@ -101,6 +102,7 @@ public class FileUpDownFileResourceSpeedTestMain implements CommonRootIF {
 		File parentTargetFileObj = canonicaltargetFileObj.getParentFile();
 		testTargetFilePath = parentTargetFileObj.getAbsolutePath();
 		testTargetFileName = canonicaltargetFileObj.getName();
+		testTargetFileSize = parentTargetFileObj.length();
 
 		log.info(String.format("testSourceFilePath[%s], testSourceFileName=[%s]",
 				testSourceFilePath, testSourceFileName));
@@ -119,8 +121,8 @@ public class FileUpDownFileResourceSpeedTestMain implements CommonRootIF {
 		long endTime = 0L;
 		try {
 			localSourceFileResource = localSourceFileResourceManager
-					.pollLocalSourceFileResource(testSourceFilePath, testSourceFileName,
-							testSourceFileSize, testTargetFilePath, testTargetFileName,
+					.pollLocalSourceFileResource(false, testSourceFilePath, testSourceFileName,
+							testSourceFileSize, testTargetFilePath, testTargetFileName, testTargetFileSize,
 							getfileBlockSize());
 			
 			startTime = System.currentTimeMillis();
@@ -165,12 +167,13 @@ public class FileUpDownFileResourceSpeedTestMain implements CommonRootIF {
 		
 		try {
 			localSourceFileResource = localSourceFileResourceManager
-					.pollLocalSourceFileResource(testSourceFilePath, testSourceFileName,
-							testSourceFileSize, testTargetFilePath, testTargetFileName,
+					.pollLocalSourceFileResource(false, testSourceFilePath, testSourceFileName,
+							testSourceFileSize, testTargetFilePath, testTargetFileName, testTargetFileSize,
 							getfileBlockSize());
 			
-			localTargetFileResource = localTargetFileResourceManager.pollLocalTargetFileResource(testSourceFilePath, testSourceFileName,
-							testSourceFileSize, testTargetFilePath, testTargetFileName, getfileBlockSize());
+			localTargetFileResource = localTargetFileResourceManager.pollLocalTargetFileResource(false, testSourceFilePath, testSourceFileName,
+							testSourceFileSize, testTargetFilePath, testTargetFileName, testTargetFileSize, 
+							getfileBlockSize());
 			
 			startTime = System.currentTimeMillis();
 			
