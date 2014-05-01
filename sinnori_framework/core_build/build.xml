@@ -1,4 +1,4 @@
-<project name="sinnori_framework" default="debug" basedir=".">
+<project name="sinnori_framework_core" default="debug" basedir=".">
 	<description>
 		Sinnori Framework Core Library
 	</description>
