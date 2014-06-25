@@ -17,21 +17,17 @@
 
 package impl.executor.client;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.SocketTimeoutException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.DigestInputStream;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
 import kr.pe.sinnori.client.ClientProjectIF;
@@ -51,6 +47,7 @@ import kr.pe.sinnori.common.updownfile.LocalSourceFileResource;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResourceManager;
 import kr.pe.sinnori.common.updownfile.LocalTargetFileResource;
 import kr.pe.sinnori.common.updownfile.LocalTargetFileResourceManager;
+import kr.pe.sinnori.common.util.HexUtil;
 import kr.pe.sinnori.util.AbstractClientExecutor;
 
 public class TestFileUpDownCExtor extends AbstractClientExecutor {
@@ -62,6 +59,8 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 	private String testTargetFileName = null;
 	private long testTargetFileSize = 0L;
 
+	
+	
 	@Override
 	protected void doTask(ClientProjectConfigIF clientProjectConfig,
 			MessageMangerIF messageManger, ClientProjectIF clientProject)
@@ -76,6 +75,8 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 
 		File srcFileObj = null;
 		File dstFileObj = null;
+		
+		
 
 		/**
 		 * 시나리오 1 : 덮어쓰기 시나리오 1-1 : 데이터 버퍼 크기 대략 3배 복사
@@ -86,7 +87,10 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 		dstFileObj = createNewTargetFile(0L);
 		saveTargetFileVariables(dstFileObj);
 
-		testUpload(dataBufferSize, false);
+		doVirtualUpload(dataBufferSize, false);
+		
+		showReportMD5(srcFileObj, dstFileObj);
+		
 
 		/**
 		 * 시나리오 1 : 덮어쓰기 시나리오 1-2 : 데이터 버퍼 크기 대략 3배 보다 약간 큰 복사
@@ -97,7 +101,7 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 		dstFileObj = createNewTargetFile(0L);
 		saveTargetFileVariables(dstFileObj);
 
-		testUpload(dataBufferSize, false);
+		doVirtualUpload(dataBufferSize, false);
 
 		/**
 		 * 시나리오 2 : 덧붙이기 시나리오 2-1 : 데이터 버퍼 크기 대략 3배인 소스 파일과 소스 파일보다 작은 경우, 같은
@@ -110,7 +114,7 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 		dstFileObj = createNewTargetFile((dataBufferSize - dataBufferSize / 2L));
 		saveTargetFileVariables(dstFileObj);
 
-		testUpload(dataBufferSize, true);
+		doVirtualUpload(dataBufferSize, true);
 	}
 
 	/**
@@ -268,6 +272,11 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 		 */
 	}
 
+	/**
+	 * 지정된 길이만큼 파일을 자른다.
+	 * @param fileObj 파일 객체
+	 * @param fileSize 원하는 파일 크기
+	 */
 	public void truncateFile(File fileObj, long fileSize) {
 		if (fileSize < 0) {
 			String errorMessage = String.format(
@@ -368,28 +377,67 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 	 */
 	public byte[] getMD5Checksum(File fileObj) {
 		byte[] md5Bytes = null;
+		FileInputStream fis = null;
+		BufferedInputStream bis = null;
 		try {
-			InputStream input = new FileInputStream(fileObj);
-			byte[] buffer = new byte[1024];
+			fis = new FileInputStream(fileObj);
+			bis = new BufferedInputStream(fis);
+			
+			byte[] buffer = new byte[1024*4];
 			MessageDigest md5Hash = MessageDigest.getInstance("MD5");
 			int numRead = 0;
 			while (numRead != -1) {
-				numRead = input.read(buffer);
+				numRead = bis.read(buffer);
 				if (numRead > 0) {
 					md5Hash.update(buffer, 0, numRead);
 				}
 			}
-			input.close();
+			
 
 			md5Bytes = md5Hash.digest();
 
 		} catch (Throwable t) {
 			t.printStackTrace();
+		} finally {
+			if (null != fis) {
+				try {
+					fis.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			if (null != bis) {
+				try {
+					bis.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return md5Bytes;
 	}
+	
+	/**
+	 * 원본과 목적지 두 파일의 MD5 비교하여 리포팅 한다. 
+	 * @param srcFileObj 원본 파일 객체
+	 * @param dstFileObj 목적지 파일 객체
+	 */
+	public void showReportMD5(File srcFileObj, File dstFileObj) {
+		byte[] srcMD5Bytes = null;
+		byte[] dstMD5Bytes = null;
+		srcMD5Bytes = getMD5Checksum(srcFileObj);
+		dstMD5Bytes = getMD5Checksum(dstFileObj);
+		
+		log.info(String.format("파일 MD5 비교 결과 :: %s", java.util.Arrays.equals(srcMD5Bytes, dstMD5Bytes)));
+		log.info(String.format("source file md5[%s], destination file md5[%s]", HexUtil.byteArrayAllToHex(srcMD5Bytes), HexUtil.byteArrayAllToHex(dstMD5Bytes)));
+	}
 
-	public void testUpload(int dataBufferSize, boolean append) {
+	/**
+	 * 지정된 송수신 버퍼 크기와 이어받기여부에 맞게 가상 파일 업로드를 수행한다.
+	 * @param dataBufferSize 지정된 송수신 버퍼 크기
+	 * @param append 이어받기 여부, 참이면 목적지 파일에 이어 받고 거짓이면 목적지 파일을 덮어 쓴다.
+	 */
+	public void doVirtualUpload(int dataBufferSize, boolean append) {
 		LocalSourceFileResourceManager localSourceFileResourceManager = LocalSourceFileResourceManager
 				.getInstance();
 
