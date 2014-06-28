@@ -456,10 +456,10 @@ public class LocalSourceFileResource implements CommonRootIF {
 	 */
 	protected void releaseFileLock() {
 		// FIXME!
-		Throwable t = new Throwable();
+		/*Throwable t = new Throwable();
 		log.info(String.format(
 				"call releaseFileLock, sourceFileID[%d], 원본 파일[%s][%s]",
-				sourceFileID, sourceFilePathName, sourceFileName), t);
+				sourceFileID, sourceFilePathName, sourceFileName), t);*/
 
 		targetFileID = -1;
 

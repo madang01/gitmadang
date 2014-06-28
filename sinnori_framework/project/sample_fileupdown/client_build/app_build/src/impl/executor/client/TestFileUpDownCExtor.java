@@ -89,11 +89,11 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 
 		doVirtualUpload(dataBufferSize, false);
 		
-		showReportMD5(srcFileObj, dstFileObj);
+		showReportMD5("덮어쓰기 시나리오 1-1", srcFileObj, dstFileObj);
 		
 
 		/**
-		 * 시나리오 1 : 덮어쓰기 시나리오 1-2 : 데이터 버퍼 크기 대략 3배 보다 약간 큰 복사
+		 * 시나리오 2 : 덮어쓰기 시나리오 1-2 : 데이터 버퍼 크기 대략 3배 보다 약간 큰 복사
 		 */
 		srcFileObj = createNewSourceFile(dataBufferSize * 3L + 100);
 		saveSourceFileVariables(srcFileObj);
@@ -102,19 +102,34 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 		saveTargetFileVariables(dstFileObj);
 
 		doVirtualUpload(dataBufferSize, false);
+		
+		showReportMD5("덮어쓰기 시나리오 1-2", srcFileObj, dstFileObj);
 
 		/**
-		 * 시나리오 2 : 덧붙이기 시나리오 2-1 : 데이터 버퍼 크기 대략 3배인 소스 파일과 소스 파일보다 작은 경우, 같은
-		 * 경우, 보다 큰 경우 3가지 크기를 갖는 목적지 파일 시나리오 2-1-1 : 데이터 버퍼 크기 대략 3배인 소스 파일과
-		 * (dataBufferSize - dataBufferSize/2) byte 목적지 파일
+		 * 시나리오 3 : 이어붙이기 시나리오 3-1 : 원본 파일이 50% 전송된후 실패하여 이어붙이기 
 		 */
 		srcFileObj = createNewSourceFile(dataBufferSize * 3L);
 		saveSourceFileVariables(srcFileObj);
 
-		dstFileObj = createNewTargetFile((dataBufferSize - dataBufferSize / 2L));
-		saveTargetFileVariables(dstFileObj);
-
+		
+		try {
+			copyFile(srcFileObj, dstFileObj);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
+		truncateFile(dstFileObj, dataBufferSize / 2L);
+				
+		// showReportMD5("이어붙이기 시나리오 3-1, 이어붙이기전 상황", srcFileObj, dstFileObj);		
+		
 		doVirtualUpload(dataBufferSize, true);
+		
+		showReportMD5("이어붙이기 시나리오 3-1", srcFileObj, dstFileObj);
+		
+		/**
+		 * 시나리오 3 : 이어붙이기 시나리오 3-2 : 이어붙이기 과정에서 목적지 파일이 이어붙이기 전 데이터를 보존함을 증명 
+		 */
 	}
 
 	/**
@@ -418,22 +433,27 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 	}
 	
 	/**
-	 * 원본과 목적지 두 파일의 MD5 비교하여 리포팅 한다. 
+	 * 원본과 목적지 두 파일의 MD5 비교하여 리포팅 한다.
+	 * @param title 리포트 제목 
 	 * @param srcFileObj 원본 파일 객체
 	 * @param dstFileObj 목적지 파일 객체
 	 */
-	public void showReportMD5(File srcFileObj, File dstFileObj) {
+	public void showReportMD5(String title, File srcFileObj, File dstFileObj) {
 		byte[] srcMD5Bytes = null;
 		byte[] dstMD5Bytes = null;
 		srcMD5Bytes = getMD5Checksum(srcFileObj);
 		dstMD5Bytes = getMD5Checksum(dstFileObj);
 		
-		log.info(String.format("파일 MD5 비교 결과 :: %s", java.util.Arrays.equals(srcMD5Bytes, dstMD5Bytes)));
-		log.info(String.format("source file md5[%s], destination file md5[%s]", HexUtil.byteArrayAllToHex(srcMD5Bytes), HexUtil.byteArrayAllToHex(dstMD5Bytes)));
+		log.info(String.format("%s 파일 MD5 비교 결과 :: %s", title, java.util.Arrays.equals(srcMD5Bytes, dstMD5Bytes)));
+		log.info(String.format("%s source file md5[%s], destination file md5[%s]", title, HexUtil.byteArrayAllToHex(srcMD5Bytes), HexUtil.byteArrayAllToHex(dstMD5Bytes)));
 	}
 
 	/**
-	 * 지정된 송수신 버퍼 크기와 이어받기여부에 맞게 가상 파일 업로드를 수행한다.
+	 * <pre>
+	 * 지정된 송수신 버퍼 크기와 이어받기여부에 맞게 가상 파일 업로드를 수행한다. 
+	 * 가상 파일 업로드는 파일 송수신을 위한 클라이언트와 서버간에 파일 업로드 행위를 가상적으로 구현한다.
+	 * 파일 송수신이 원격 파일 복사 혹은 이어 붙이기 라면 가상 파일 업로드는 로컬 파일 복사 혹은 이어 붙이기이다.
+	 * </pre>  
 	 * @param dataBufferSize 지정된 송수신 버퍼 크기
 	 * @param append 이어받기 여부, 참이면 목적지 파일에 이어 받고 거짓이면 목적지 파일을 덮어 쓴다.
 	 */
