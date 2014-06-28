@@ -420,15 +420,18 @@ public class LocalTargetFileResource implements CommonRootIF {
 			throw new UpDownFileException(errorMessage);
 		}
 
-		if (realTargetFileSize != targetFileSize) {			
-			releaseFileLock();
-			String errorMessage = String
-					.format("targetFileID[%d]::목적지 파일[%s]의 크기[%d]외 실제 크기[%d]가 같지 않습니다.",
-							targetFileID, targetfullFileName,
-							realTargetFileSize, targetFileSize);
-			log.warn(errorMessage);
-			throw new UpDownFileException(errorMessage);
+		if (!append) {
+			if (realTargetFileSize != targetFileSize) {			
+				releaseFileLock();
+				String errorMessage = String
+						.format("targetFileID[%d]::목적지 파일[%s]의 크기[%d]외 실제 크기[%d]가 같지 않습니다.",
+								targetFileID, targetfullFileName,
+								realTargetFileSize, targetFileSize);
+				log.warn(errorMessage);
+				throw new UpDownFileException(errorMessage);
+			}
 		}
+		
 		
 		// FIXME!
 		/*

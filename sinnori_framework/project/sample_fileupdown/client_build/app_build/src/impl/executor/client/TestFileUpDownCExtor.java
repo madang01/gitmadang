@@ -84,7 +84,7 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 		srcFileObj = createNewSourceFile(dataBufferSize * 3L);
 		saveSourceFileVariables(srcFileObj);
 
-		dstFileObj = createNewTargetFile(0L);
+		dstFileObj = createNewTargetFile(false, 0L);
 		saveTargetFileVariables(dstFileObj);
 
 		doVirtualUpload(dataBufferSize, false);
@@ -98,7 +98,7 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 		srcFileObj = createNewSourceFile(dataBufferSize * 3L + 100);
 		saveSourceFileVariables(srcFileObj);
 
-		dstFileObj = createNewTargetFile(0L);
+		dstFileObj = createNewTargetFile(false, 0L);
 		saveTargetFileVariables(dstFileObj);
 
 		doVirtualUpload(dataBufferSize, false);
@@ -129,7 +129,26 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 		
 		/**
 		 * 시나리오 3 : 이어붙이기 시나리오 3-2 : 이어붙이기 과정에서 목적지 파일이 이어붙이기 전 데이터를 보존함을 증명 
-		 */
+		 */			
+		srcFileObj = createNewSourceFile(dataBufferSize * 3L);
+		saveSourceFileVariables(srcFileObj);
+
+		long oldDstFileSize = dataBufferSize / 2L;
+		
+		dstFileObj = createNewTargetFile(false, oldDstFileSize);
+		
+		
+		byte[] srcMD5Bytes = null;
+		byte[] dstMD5Bytes = null;
+		srcMD5Bytes = getMD5Checksum(dstFileObj);
+		
+		doVirtualUpload(dataBufferSize, true);
+		
+		truncateFile(dstFileObj, oldDstFileSize);
+		
+		dstMD5Bytes = getMD5Checksum(dstFileObj);
+		
+		showReportMD5("이어붙이기 시나리오 3-2", srcMD5Bytes, dstMD5Bytes);
 	}
 
 	/**
@@ -246,11 +265,13 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 	/**
 	 * 지정된 크기를 갖는 파일 업로드/다운로드시 사용할 목적지 파일을 생성한다.
 	 * 
+	 * @param isRandom 파일 데이터 랜덤 생성 여부
 	 * @param dstFileSize
 	 *            목적지 파일 크기, 0보다 크거나 작다. 단위 byte.
+	 *            
 	 * @return 지정된 크기를 갖는 목적지 파일 객체
 	 */
-	public File createNewTargetFile(long dstFileSize) {
+	public File createNewTargetFile(boolean isRandom, long dstFileSize) {
 		if (dstFileSize < 0) {
 			String errorMessage = String.format(
 					"targetFileSize=[%d] is less than zero", dstFileSize);
@@ -268,10 +289,58 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 			log.fatal(errorMessage, e);
 			System.exit(1);
 		}
-
+		
 		if (dstFileSize > 0) {
-			truncateFile(dstFileObj, dstFileSize);
+			if (isRandom) {
+				RandomAccessFile rafOfTargetFile = null;
+				Random random = new Random();
+				long sumBytes = 0L;
 
+				try {
+					rafOfTargetFile = new RandomAccessFile(dstFileObj, "rw");
+				} catch (FileNotFoundException e) {
+					String errorMessage = "파일 업다운 테스트용 목적지 파일의 RandomAccessFile 객체 생성 실패";
+					log.fatal(errorMessage, e);
+					System.exit(1);
+				}
+
+				try {
+					while (sumBytes < dstFileSize) {
+						long gap = dstFileSize - sumBytes;
+
+						byte bytes[] = null;
+						if (gap < 1024L) {
+							bytes = new byte[(int) gap];
+							sumBytes += gap;
+						} else {
+							bytes = new byte[1024];
+							sumBytes += 1024L;
+						}
+
+						random.nextBytes(bytes);
+						try {
+							rafOfTargetFile.write(bytes);
+						} catch (IOException e) {
+							String errorMessage = String.format(
+									"sumBytes=[%d], bytes.length=[%d]", sumBytes,
+									bytes.length);
+							log.fatal(errorMessage, e);
+							System.exit(1);
+						}
+
+					}
+				} finally {
+					if (rafOfTargetFile != null) {
+						try {
+							rafOfTargetFile.close();
+						} catch (Exception e) {
+
+						}
+					}
+				}
+			} else {
+				truncateFile(dstFileObj, dstFileSize);
+			}
 		}
 
 		return dstFileObj;
@@ -444,8 +513,19 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 		srcMD5Bytes = getMD5Checksum(srcFileObj);
 		dstMD5Bytes = getMD5Checksum(dstFileObj);
 		
-		log.info(String.format("%s 파일 MD5 비교 결과 :: %s", title, java.util.Arrays.equals(srcMD5Bytes, dstMD5Bytes)));
-		log.info(String.format("%s source file md5[%s], destination file md5[%s]", title, HexUtil.byteArrayAllToHex(srcMD5Bytes), HexUtil.byteArrayAllToHex(dstMD5Bytes)));
+		log.info(String.format("%s::파일 MD5 비교 결과 = %s", title, java.util.Arrays.equals(srcMD5Bytes, dstMD5Bytes)));
+		log.info(String.format("%s::source file md5[%s], destination file md5[%s]", title, HexUtil.byteArrayAllToHex(srcMD5Bytes), HexUtil.byteArrayAllToHex(dstMD5Bytes)));
+	}
+	
+	/**
+	 * 원본과 목적지 MD5 바이트 배열를 비교하여 리포팅 한다.
+	 * @param title 리포트 제목
+	 * @param srcDstMD5Bytes 원본 MD5 바이트 배열
+	 * @param dstDstMD5Bytes 목적지 MD5 바이트 배열
+	 */
+	public void showReportMD5(String title, byte[] srcMD5Bytes, byte[] dstMD5Bytes) {
+		log.info(String.format("%s::MD5 비교 결과 = %s", title, java.util.Arrays.equals(srcMD5Bytes, dstMD5Bytes)));
+		log.info(String.format("%s::source MD5[%s], target MD5[%s]", title, HexUtil.byteArrayAllToHex(srcMD5Bytes), HexUtil.byteArrayAllToHex(dstMD5Bytes)));
 	}
 
 	/**
@@ -479,7 +559,7 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 							testTargetFileSize, dataBufferSize);
 
 			localTargetFileResource = localTargetFileResourceManager
-					.pollLocalTargetFileResource(false, testSourceFilePath,
+					.pollLocalTargetFileResource(append, testSourceFilePath,
 							testSourceFileName, testSourceFileSize,
 							testTargetFilePath, testTargetFileName,
 							testTargetFileSize, dataBufferSize);
