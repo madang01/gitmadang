@@ -250,8 +250,18 @@ public class LocalTargetFileResource implements CommonRootIF {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
+		if (append) {
+			/** 이어받기 */
+			if (sourceFileSize <= targetFileSize) {
+				String errorMessage = String
+						.format("targetFileID[%d]::targetFile[%s][%s]::parameter sourceFileSize[%d] less than or equal to parameter targetFileSize[%d]",
+								targetFileID, targetFilePathName, targetFileName, sourceFileSize, targetFileSize);
+				log.warn(errorMessage);
+				throw new IllegalArgumentException(errorMessage);
+			}			
+		}
 		
-		
+		this.append = append;
 		this.sourceFilePathName = sourceFilePathName;
 		this.sourceFileName = sourceFileName;
 		this.sourceFileSize = sourceFileSize;
@@ -260,40 +270,26 @@ public class LocalTargetFileResource implements CommonRootIF {
 		this.targetFileSize = targetFileSize;
 		this.fileBlockSize = fileBlockSize;
 		
-		this.endFileBlockNo = (sourceFileSize + fileBlockSize - 1) / fileBlockSize - 1;
-
-		if (endFileBlockNo > Integer.MAX_VALUE - 1) {
-			/**
-			 * 자바는 배열 크기가 정수로 제한되는데, 파일 조각 받은 여부를 기억하는 BitSet 도 그대로 그 문제를 상속한다.
-			 * 따라서 fileBlock 최대 갯수는 정수(=Integer) 이어야 한다.
-			 */
-			String errorMessage = String
-					.format("targetFileID[%d]::endFileBlockNo[%d] greater than (Integer.MAX - 1), maybe parameter fileBlockSize[%d] is not enough size or parameter sourceFileSize[%d] too big",
-							targetFileID, endFileBlockNo, fileBlockSize,
-							sourceFileSize);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-
-		this.lastFileDataLength = sourceFileSize - endFileBlockNo * fileBlockSize;
-
-		workedFileBlockBitSet = new BitSet((int) endFileBlockNo + 1);
+		
 		
 		if (append) {
 			/** 이어받기 */
-			this.startFileBlockNo = (this.targetFileSize + fileBlockSize - 1) / fileBlockSize - 1;
-			
-			if (startFileBlockNo > Integer.MAX_VALUE - 1) {
+			this.endFileBlockNo = (sourceFileSize + fileBlockSize - 1) / fileBlockSize - 1;
+
+			if (endFileBlockNo > Integer.MAX_VALUE - 1) {
 				/**
 				 * 자바는 배열 크기가 정수로 제한되는데, 파일 조각 받은 여부를 기억하는 BitSet 도 그대로 그 문제를 상속한다.
 				 * 따라서 fileBlock 최대 갯수는 정수(=Integer) 이어야 한다.
 				 */
 				String errorMessage = String
-						.format("targetFileID[%d]::startFileBlockNo[%d] is greater than (Integer.MAX - 1)",
-								targetFileID, startFileBlockNo);
+						.format("targetFileID[%d]::endFileBlockNo[%d] greater than (Integer.MAX - 1), maybe parameter fileBlockSize[%d] is not enough size or parameter sourceFileSize[%d] too big",
+								targetFileID, endFileBlockNo, fileBlockSize,
+								sourceFileSize);
 				log.warn(errorMessage);
 				throw new IllegalArgumentException(errorMessage);
-			}
+			}			
+			
+			this.startFileBlockNo = (this.targetFileSize + fileBlockSize - 1) / fileBlockSize - 1;
 			
 			if (startFileBlockNo > endFileBlockNo) {
 				String errorMessage = String
@@ -303,7 +299,27 @@ public class LocalTargetFileResource implements CommonRootIF {
 				throw new IllegalArgumentException(errorMessage);
 			}
 			
-			this.firstFileDataLength = fileBlockSize - (this.targetFileSize - startFileBlockNo * fileBlockSize);
+			if (sourceFileSize < fileBlockSize) {
+				/** 원본 파일 크기가 전송할 데이터 블락 크기 보다 작은 경우 */
+				this.firstFileDataLength = sourceFileSize - this.targetFileSize;
+			} else {
+				/** 원본 파일 크기가 전송할 데이터 블락 크기 보다 크거나 같은 경우 */
+				/** 첫번째로 전송할 블락에서 이미 전송된 데이터 크기  */
+				long transferedDataSizeForStartFileBlockNo = this.targetFileSize - startFileBlockNo * fileBlockSize;
+				/** 첫번째로 전송할 블락에서 이미 전송된 데이터를 제외 */
+				this.firstFileDataLength = fileBlockSize - transferedDataSizeForStartFileBlockNo;
+			}
+			
+			if (endFileBlockNo == startFileBlockNo) {
+				/** 전송할 데이터 블락이 1개뿐인 경우 */
+				this.lastFileDataLength = sourceFileSize - this.targetFileSize;
+			} else {
+				/** 전송할 데이터 블락이 2개 이상인 경우 */
+				this.lastFileDataLength = sourceFileSize - endFileBlockNo * fileBlockSize;
+			}
+			
+			
+			workedFileBlockBitSet = new BitSet((int) endFileBlockNo + 1);
 			
 			/** 이어 받기를 시작하는 위치 전까지 데이터 쓰기 여부를 참으로 설정한다. */
 			for (int i=0; i < startFileBlockNo; i++ ) {
@@ -311,10 +327,56 @@ public class LocalTargetFileResource implements CommonRootIF {
 			}
 		} else {
 			/** 덮어 쓰기 */
-			this.startFileBlockNo = 0;
-			this.firstFileDataLength = fileBlockSize;
-		}
+			
+			this.endFileBlockNo = (sourceFileSize + fileBlockSize - 1) / fileBlockSize - 1;
 
+			if (endFileBlockNo > Integer.MAX_VALUE - 1) {
+				/**
+				 * 자바는 배열 크기가 정수로 제한되는데, 파일 조각 받은 여부를 기억하는 BitSet 도 그대로 그 문제를 상속한다.
+				 * 따라서 fileBlock 최대 갯수는 정수(=Integer) 이어야 한다.
+				 */
+				String errorMessage = String
+						.format("targetFileID[%d]::endFileBlockNo[%d] greater than (Integer.MAX - 1), maybe parameter fileBlockSize[%d] is not enough size or parameter sourceFileSize[%d] too big",
+								targetFileID, endFileBlockNo, fileBlockSize,
+								sourceFileSize);
+				log.warn(errorMessage);
+				throw new IllegalArgumentException(errorMessage);
+			}
+			
+			this.startFileBlockNo = 0;
+			
+			if (startFileBlockNo > endFileBlockNo) {
+				String errorMessage = String
+						.format("targetFileID[%d]::the variable 'startFileBlockNo'[%d] is greater than endFileBlockNo[%d], sourceFileSize=[%d], ",
+								targetFileID, startFileBlockNo, endFileBlockNo);
+				log.warn(errorMessage);
+				throw new IllegalArgumentException(errorMessage);
+			}
+			
+			if (sourceFileSize < fileBlockSize){
+				/** 원본 파일 크기가 전송할 데이터 블락 크기 보다 작은 경우 */
+				this.firstFileDataLength = sourceFileSize;
+			} else {
+				/** 원본 파일 크기가 전송할 데이터 블락 크기 보다 크거나 같은 경우 */
+				this.firstFileDataLength = fileBlockSize;
+			}
+
+			if (endFileBlockNo == startFileBlockNo) {
+				/** 전송할 데이터 블락이 1개뿐인 경우 */
+				this.lastFileDataLength = sourceFileSize;
+			} else {
+				/** 전송할 데이터 블락이 2개 이상인 경우 */
+				this.lastFileDataLength = sourceFileSize - endFileBlockNo * fileBlockSize;
+			}		
+			
+			workedFileBlockBitSet = new BitSet((int) endFileBlockNo + 1);
+		}
+		
+
+		// FIXME!
+/*		log.info(String.format("startFileBlockNo=[%d], endFileBlockNo=[%d], firstFileDataLength=[%d], lastFileDataLength=[%d]",
+				startFileBlockNo, endFileBlockNo, firstFileDataLength, lastFileDataLength));*/
+				
 		File targetFilePath = new File(targetFilePathName);
 
 		if (!targetFilePath.exists()) {
@@ -543,7 +605,7 @@ public class LocalTargetFileResource implements CommonRootIF {
 
 	/**
 	 * <pre>
-	 * 목적지 파일 크기를 재 조정한다.
+	 * 목적지 파일 크기를 0으로 재 조정한다.
 	 * 
 	 * 중복 받기 이면 크기 0 으로 이어받기 이면 아무런 동작도 하지 않는다.
 	 * 목적지 파일 크기는 서버/클라이언트 쌍방 다운로드 할 준비가 끝났을 시점에 크기 재조정이 되어야 한다.
@@ -552,7 +614,7 @@ public class LocalTargetFileResource implements CommonRootIF {
 	 * </pre> 
 	 * @throws UpDownFileException 파일 크기 재조정시 입출력 에러 발생시 던지는 예외
 	 */
-	public void truncate() throws UpDownFileException {
+	public void makeZeroSizeFile() throws UpDownFileException {
 		if (append) return;
 		
 		/** 덮어 쓰기일때 크기 0으로 설정 */
@@ -650,11 +712,18 @@ public class LocalTargetFileResource implements CommonRootIF {
 		long targetFileOffset;
 		
 		if (append && startFileBlockNo == fileBlockNo) {
-			targetFileOffset = (long)fileBlockSize * fileBlockNo + fileBlockSize - fileData.length;
+			if (sourceFileSize < fileBlockSize) {
+				targetFileOffset = sourceFileSize - fileData.length;
+			} else {
+				targetFileOffset = (long)fileBlockSize * fileBlockNo + fileBlockSize - fileData.length;
+			}
+			
 		} else {
 			targetFileOffset = (long)fileBlockSize * fileBlockNo;
 		}
 		
+		// FIXME!
+		//log.info(String.format("append=[%s], startFileBlockNo=[%d], fileBlockNo=[%d]", append, startFileBlockNo, fileBlockNo));
 		
 		synchronized (monitor) {
 			if (null == workedFileBlockBitSet) {
@@ -664,9 +733,11 @@ public class LocalTargetFileResource implements CommonRootIF {
 			
 			try {
 				// FIXME!
-				// targetFileChannel.write(ByteBuffer.wrap(fileData), (long) fileBlockSize * fileBlockNo);
 				targetRandomAccessFile.seek(targetFileOffset);
 				targetRandomAccessFile.write(fileData);
+				
+				// FIXME!
+				//log.info(String.format("fileBlockNo=[%d], targetFileOffset=[%d], fileData length=[%d]", fileBlockNo, targetFileOffset, fileData.length));
 			} catch (IOException e) {
 				/** n 번째 목적지 파일 조각 쓰기 실패 */
 				String errorMessage = String.format(

@@ -50,6 +50,26 @@ import kr.pe.sinnori.common.updownfile.LocalTargetFileResourceManager;
 import kr.pe.sinnori.common.util.HexUtil;
 import kr.pe.sinnori.util.AbstractClientExecutor;
 
+/**
+ * <pre>
+ * 파일 송수신 모듈 테스트.
+ *
+ * 시나리오 1 : 파일 덮어쓰기
+ * (1) 원본 파일 크기가 파일 전송 버퍼 크기 보다 작은 경우
+ * (2) 원본 파일 크기가 파일 전송 버퍼 크기의 3배인 경우
+ * (3) 원본 파일 크기가 파일 전송 버퍼 크기의 3배를 약간 넘는 크기인 경우
+ * 시나리오 2 : 파일 이어붙이기
+ * (1) 원본 파일 크기가 파일 전송 버퍼 크기 보다 작은 경우
+ * (2) 원본 파일 크기가 파일 전송 버퍼 크기의 3배인 경우
+ * (3) 원본 파일 크기가 파일 전송 버퍼 크기의 3배를 약간 넘는 크기인 경우
+ * 시나리오 3 : 파일 이어붙이기시 원본 파일 보존 여부
+ * (1) 원본 파일 크기가 파일 전송 버퍼 크기 보다 작은 경우
+ * (2) 원본 파일 크기가 파일 전송 버퍼 크기의 3배인 경우
+ * (3) 원본 파일 크기가 파일 전송 버퍼 크기의 3배를 약간 넘는 크기인 경우
+ *  </pre>
+ * @author Jonghoon Won
+ *
+ */
 public class TestFileUpDownCExtor extends AbstractClientExecutor {
 	private String testSourceFilePath = null;
 	private String testSourceFileName = null;
@@ -79,34 +99,70 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 		
 
 		/**
-		 * 시나리오 1 : 덮어쓰기 시나리오 1-1 : 데이터 버퍼 크기 대략 3배 복사
+		 * 시나리오 1 : 덮어쓰기 시나리오 1-1 : 원본 파일 크기가 데이터 버퍼 크기 보다 작은 경우
 		 */
-		srcFileObj = createNewSourceFile(dataBufferSize * 3L);
+		srcFileObj = createNewSourceFile(dataBufferSize / 3L);
 		saveSourceFileVariables(srcFileObj);
 
-		dstFileObj = createNewTargetFile(false, 0L);
+		dstFileObj = createNewTargetFile(0L);
 		saveTargetFileVariables(dstFileObj);
 
 		doVirtualUpload(dataBufferSize, false);
 		
 		showReportMD5("덮어쓰기 시나리오 1-1", srcFileObj, dstFileObj);
 		
-
 		/**
-		 * 시나리오 2 : 덮어쓰기 시나리오 1-2 : 데이터 버퍼 크기 대략 3배 보다 약간 큰 복사
+		 * 시나리오 1 : 덮어쓰기 시나리오 1-2 : 원본 파일 크기가 데이터 버퍼 크기의 3배
 		 */
-		srcFileObj = createNewSourceFile(dataBufferSize * 3L + 100);
+		srcFileObj = createNewSourceFile(dataBufferSize * 3L);
 		saveSourceFileVariables(srcFileObj);
 
-		dstFileObj = createNewTargetFile(false, 0L);
+		dstFileObj = createNewTargetFile(0L);
 		saveTargetFileVariables(dstFileObj);
 
 		doVirtualUpload(dataBufferSize, false);
 		
 		showReportMD5("덮어쓰기 시나리오 1-2", srcFileObj, dstFileObj);
+		
 
 		/**
-		 * 시나리오 3 : 이어붙이기 시나리오 3-1 : 원본 파일이 50% 전송된후 실패하여 이어붙이기 
+		 * 시나리오 1 : 덮어쓰기 시나리오 1-3 : 원본 파일 크기가 데이터 버퍼 크기의 3배를 약간 넘는 크기
+		 */
+		srcFileObj = createNewSourceFile(dataBufferSize * 3L + dataBufferSize/3L);
+		saveSourceFileVariables(srcFileObj);
+
+		dstFileObj = createNewTargetFile(0L);
+		saveTargetFileVariables(dstFileObj);
+
+		doVirtualUpload(dataBufferSize, false);
+		
+		showReportMD5("덮어쓰기 시나리오 1-3", srcFileObj, dstFileObj);
+
+		/**
+		 * 시나리오 2 : 이어붙이기 시나리오 2-1 : 원본 파일 크기가 데이터 버퍼 크기 보다 작은 원본 파일의 내용중 50% 전송된후 실패하여 이어붙이기 
+		 */
+		srcFileObj = createNewSourceFile(dataBufferSize / 3L);
+		saveSourceFileVariables(srcFileObj);
+
+		
+		try {
+			copyFile(srcFileObj, dstFileObj);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
+		truncateFile(dstFileObj, srcFileObj.length() / 2L);
+		
+		saveTargetFileVariables(dstFileObj);
+		
+		
+		doVirtualUpload(dataBufferSize, true);
+		
+		showReportMD5("이어붙이기 시나리오 2-1", srcFileObj, dstFileObj);
+		
+		/**
+		 * 시나리오 2 : 이어붙이기 시나리오 2-2 : 원본 파일 크기가 데이터 버퍼 크기의 3배인 원본 파일의 내용중 50% 전송된후 실패하여 이어붙이기 
 		 */
 		srcFileObj = createNewSourceFile(dataBufferSize * 3L);
 		saveSourceFileVariables(srcFileObj);
@@ -119,24 +175,47 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 			System.exit(1);
 		}
 		
-		truncateFile(dstFileObj, dataBufferSize / 2L);
+		truncateFile(dstFileObj, srcFileObj.length() / 2L);
+		
+		saveTargetFileVariables(dstFileObj);
 				
-		// showReportMD5("이어붙이기 시나리오 3-1, 이어붙이기전 상황", srcFileObj, dstFileObj);		
 		
 		doVirtualUpload(dataBufferSize, true);
 		
-		showReportMD5("이어붙이기 시나리오 3-1", srcFileObj, dstFileObj);
+		showReportMD5("이어붙이기 시나리오 2-2", srcFileObj, dstFileObj);
 		
 		/**
-		 * 시나리오 3 : 이어붙이기 시나리오 3-2 : 이어붙이기 과정에서 목적지 파일이 이어붙이기 전 데이터를 보존함을 증명 
-		 */			
-		srcFileObj = createNewSourceFile(dataBufferSize * 3L);
+		 * 시나리오 2 : 이어붙이기 시나리오 2-3 : 원본 파일 크기가 데이터 버퍼 크기의 3배를 약간 넘는 원본 파일의 50% 이후  전송된후 실패하여 이어붙이기
+		 */
+		srcFileObj = createNewSourceFile(dataBufferSize * 3L + dataBufferSize/3L);
 		saveSourceFileVariables(srcFileObj);
 
-		long oldDstFileSize = dataBufferSize / 2L;
 		
-		dstFileObj = createNewTargetFile(false, oldDstFileSize);
+		try {
+			copyFile(srcFileObj, dstFileObj);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
 		
+		truncateFile(dstFileObj, srcFileObj.length() / 2L);
+				
+		saveTargetFileVariables(dstFileObj);
+		
+		doVirtualUpload(dataBufferSize, true);
+		
+		showReportMD5("이어붙이기 시나리오 2-3", srcFileObj, dstFileObj);
+		
+		/**
+		 * 시나리오 3 : 이어붙이기시 원본 보존 시나리오 3-1 : 원본 파일 크기가 데이터 버퍼 크기 보다 작은 원본 파일의 50% 이후 이어붙이기 과정에서 목적지 파일이 이어붙이기 전 데이터를 보존함을 증명 
+		 */			
+		srcFileObj = createNewSourceFile(dataBufferSize / 3L);
+		saveSourceFileVariables(srcFileObj);
+
+		long oldDstFileSize = srcFileObj.length() / 2L;
+		
+		dstFileObj = createNewTargetFile(oldDstFileSize);
+		saveTargetFileVariables(dstFileObj);
 		
 		byte[] srcMD5Bytes = null;
 		byte[] dstMD5Bytes = null;
@@ -148,7 +227,54 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 		
 		dstMD5Bytes = getMD5Checksum(dstFileObj);
 		
-		showReportMD5("이어붙이기 시나리오 3-2", srcMD5Bytes, dstMD5Bytes);
+		showReportMD5("이어붙이기 시나리오 3-1", dstFileObj, srcMD5Bytes, dstMD5Bytes);
+		
+		
+		/**
+		 * 시나리오 3 : 이어붙이기시 원본 보존 시나리오 3-2 : 원본 파일 크기가 데이터 버퍼 크기의 3배인 원본 파일의 50% 이후 이어붙이기 과정에서 목적지 파일이 이어붙이기 전 데이터를 보존함을 증명 
+		 */			
+		srcFileObj = createNewSourceFile(dataBufferSize * 3L);
+		saveSourceFileVariables(srcFileObj);
+
+		oldDstFileSize = srcFileObj.length() / 2L;
+		
+		dstFileObj = createNewTargetFile(oldDstFileSize);
+		saveTargetFileVariables(dstFileObj);
+		
+		
+		srcMD5Bytes = getMD5Checksum(dstFileObj);
+		
+		doVirtualUpload(dataBufferSize, true);
+		
+		truncateFile(dstFileObj, oldDstFileSize);
+		
+		dstMD5Bytes = getMD5Checksum(dstFileObj);
+		
+		showReportMD5("이어붙이기 시나리오 3-2", dstFileObj, srcMD5Bytes, dstMD5Bytes);
+		
+		/**
+		 * 시나리오 3 : 이어붙이기시 원본 보존 시나리오 3-3 : 원본 파일 크기가 데이터 버퍼 크기의 3배를 약간 넘는 원본 파일의 50% 이후 이어붙이기 과정에서 목적지 파일이 이어붙이기 전 데이터를 보존함을 증명 
+		 */			
+		srcFileObj = createNewSourceFile(dataBufferSize * 3L + dataBufferSize / 3L);
+		saveSourceFileVariables(srcFileObj);
+
+		oldDstFileSize = srcFileObj.length() / 2L;
+		
+		dstFileObj = createNewTargetFile(oldDstFileSize);
+		
+		saveTargetFileVariables(dstFileObj);
+		
+		log.info(String.format("%s::%d::%s siz = %d", "시나리오 3-3", oldDstFileSize, dstFileObj.getAbsolutePath(), dstFileObj.length()));
+		
+		srcMD5Bytes = getMD5Checksum(dstFileObj);
+		
+		doVirtualUpload(dataBufferSize, true);
+		
+		truncateFile(dstFileObj, oldDstFileSize);
+		
+		dstMD5Bytes = getMD5Checksum(dstFileObj);
+		
+		showReportMD5("이어붙이기 시나리오 3-3", dstFileObj, srcMD5Bytes, dstMD5Bytes);
 	}
 
 	/**
@@ -183,7 +309,7 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		log.info(String.format("param sourceFileSize[%d]", srcFileSize));
+		// log.info(String.format("param sourceFileSize[%d]", srcFileSize));
 
 		File sourceFileObj = null;
 
@@ -263,22 +389,21 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 	}
 
 	/**
-	 * 지정된 크기를 갖는 파일 업로드/다운로드시 사용할 목적지 파일을 생성한다.
+	 * 지정된 크기로 랜덤 데이터를 갖는 파일 업로드/다운로드시 사용할 목적지 파일을 생성한다.
 	 * 
-	 * @param isRandom 파일 데이터 랜덤 생성 여부
 	 * @param dstFileSize
 	 *            목적지 파일 크기, 0보다 크거나 작다. 단위 byte.
 	 *            
 	 * @return 지정된 크기를 갖는 목적지 파일 객체
 	 */
-	public File createNewTargetFile(boolean isRandom, long dstFileSize) {
+	public File createNewTargetFile(long dstFileSize) {
 		if (dstFileSize < 0) {
 			String errorMessage = String.format(
 					"targetFileSize=[%d] is less than zero", dstFileSize);
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		log.info(String.format("param targetFileSize[%d]", dstFileSize));
+		// log.info(String.format("param targetFileSize[%d]", dstFileSize));
 
 		File dstFileObj = null;
 
@@ -290,74 +415,66 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 			System.exit(1);
 		}
 		
-		if (dstFileSize > 0) {
-			if (isRandom) {
-				RandomAccessFile rafOfTargetFile = null;
-				Random random = new Random();
-				long sumBytes = 0L;
+		if (dstFileSize > 0) {			
+			RandomAccessFile rafOfTargetFile = null;
+			Random random = new Random();
+			long sumBytes = 0L;
 
-				try {
-					rafOfTargetFile = new RandomAccessFile(dstFileObj, "rw");
-				} catch (FileNotFoundException e) {
-					String errorMessage = "파일 업다운 테스트용 목적지 파일의 RandomAccessFile 객체 생성 실패";
-					log.fatal(errorMessage, e);
-					System.exit(1);
-				}
-
-				try {
-					while (sumBytes < dstFileSize) {
-						long gap = dstFileSize - sumBytes;
-
-						byte bytes[] = null;
-						if (gap < 1024L) {
-							bytes = new byte[(int) gap];
-							sumBytes += gap;
-						} else {
-							bytes = new byte[1024];
-							sumBytes += 1024L;
-						}
-
-						random.nextBytes(bytes);
-						try {
-							rafOfTargetFile.write(bytes);
-						} catch (IOException e) {
-							String errorMessage = String.format(
-									"sumBytes=[%d], bytes.length=[%d]", sumBytes,
-									bytes.length);
-							log.fatal(errorMessage, e);
-							System.exit(1);
-						}
-
-					}
-				} finally {
-					if (rafOfTargetFile != null) {
-						try {
-							rafOfTargetFile.close();
-						} catch (Exception e) {
-
-						}
-					}
-				}
-			} else {
-				truncateFile(dstFileObj, dstFileSize);
+			try {
+				rafOfTargetFile = new RandomAccessFile(dstFileObj, "rw");
+			} catch (FileNotFoundException e) {
+				String errorMessage = "파일 업다운 테스트용 목적지 파일의 RandomAccessFile 객체 생성 실패";
+				log.fatal(errorMessage, e);
+				System.exit(1);
 			}
+
+			try {
+				while (sumBytes < dstFileSize) {
+					long gap = dstFileSize - sumBytes;
+
+					byte bytes[] = null;
+					if (gap < 1024L) {
+						bytes = new byte[(int) gap];
+						sumBytes += gap;
+					} else {
+						bytes = new byte[1024];
+						sumBytes += 1024L;
+					}
+
+					random.nextBytes(bytes);
+					try {
+						rafOfTargetFile.write(bytes);
+					} catch (IOException e) {
+						String errorMessage = String.format(
+								"sumBytes=[%d], bytes.length=[%d]", sumBytes,
+								bytes.length);
+						log.fatal(errorMessage, e);
+						System.exit(1);
+					}
+
+				}
+			} finally {
+				if (rafOfTargetFile != null) {
+					try {
+						rafOfTargetFile.close();
+					} catch (Exception e) {
+
+					}
+				}
+			}
+			
 		}
 
-		return dstFileObj;
-
-		/*
-		 * testTargetFilePath = targetFileObj.getParentFile().getAbsolutePath();
-		 * testTargetFileName = targetFileObj.getName(); testTargetFileSize =
-		 * targetFileSize;
-		 * 
-		 * log.info(String.format(
-		 * "testTargetFilePath[%s], testTargetFileName[%s], testTargetFileSize=[%d]"
-		 * , testTargetFilePath, testTargetFileName, testTargetFileSize));
-		 */
+		return new File(dstFileObj.getAbsolutePath());
 	}
 
 	/**
-	 * 지정된 길이만큼 파일을 자른다.
+	 * <pre>
+	 * 지정된 길이만큼 파일을 자른다. 단 지정된 길이는 양수이며 파일 길이 보다 작거나 같아야 한다
+	 * 파일 절삭은 FileChannel.truncate 를 이용하기때문에 자바 API FileChannel.truncate 의 제약사항을 그대로 상속 받는다.
+	 * FileChannel.truncate 는 파일 길이 보다 작을 경우만 동작하고 크거나 같은 경우 아무 동작도 하지 않는다.
+	 * </pre>
+	 * 
 	 * @param fileObj 파일 객체
 	 * @param fileSize 원하는 파일 크기
 	 */
@@ -367,33 +484,54 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 					"fileSize=[%d] is less than zero", fileSize);
 			throw new IllegalArgumentException(errorMessage);
 		}
+		
+		if (fileObj.length() <= fileSize) {
+			String errorMessage = String.format(
+					"fileSize=[%d] is greater than or equal to file size[%d]", fileSize, fileObj.length());
+			throw new IllegalArgumentException(errorMessage);
+		}
 
 		RandomAccessFile rafOfDestinationFile = null;
 		try {
-			rafOfDestinationFile = new RandomAccessFile(fileObj, "rw");
+			rafOfDestinationFile = new RandomAccessFile(fileObj.getAbsolutePath(), "rw");
 		} catch (FileNotFoundException e) {
 			String errorMessage = "원하는 파일 길이로 설정하기 위한 랜덤 파일 객체 생성 실패";
 			log.fatal(errorMessage, e);
 			System.exit(1);
 		}
+		
+		FileChannel fc = null;
 
 		try {
-			rafOfDestinationFile.getChannel().truncate(fileSize);
+			fc = rafOfDestinationFile.getChannel();
+			
+			fc.truncate(fileSize);
+			
+			// log.info(String.format("111111. fc size=[%d], fileSize=[%d]", fc.size(), fileSize));
+		
 		} catch (IOException e) {
 			String errorMessage = "원하는 파일 길이로 설정 실패";
 			log.fatal(errorMessage, e);
 			System.exit(1);
+		} finally {
+			if (null != fc) {
+				try {
+					fc.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			if (null != rafOfDestinationFile) {
+				try {
+					rafOfDestinationFile.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 
-	/*
-	 * private String getFullPath(String filePath, String fileName) {
-	 * StringBuilder sb = new StringBuilder(filePath);
-	 * sb.append(File.separator); sb.append(fileName); return sb.toString(); }
-	 */
-
-	// getFullPath(testSourceFilePath, testSourceFileName)
-	// getFullPath(testTargetFilePath, testTargetFileName)
+	
 	/**
 	 * 파일 복사
 	 * 
@@ -520,11 +658,12 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 	/**
 	 * 원본과 목적지 MD5 바이트 배열를 비교하여 리포팅 한다.
 	 * @param title 리포트 제목
+	 * @param fileObj 파일 객체
 	 * @param srcDstMD5Bytes 원본 MD5 바이트 배열
 	 * @param dstDstMD5Bytes 목적지 MD5 바이트 배열
 	 */
-	public void showReportMD5(String title, byte[] srcMD5Bytes, byte[] dstMD5Bytes) {
-		log.info(String.format("%s::MD5 비교 결과 = %s", title, java.util.Arrays.equals(srcMD5Bytes, dstMD5Bytes)));
+	public void showReportMD5(String title, File fileObj, byte[] srcMD5Bytes, byte[] dstMD5Bytes) {
+		log.info(String.format("%s::%s MD5 비교 결과 = %s", title, fileObj.getAbsolutePath(), java.util.Arrays.equals(srcMD5Bytes, dstMD5Bytes)));
 		log.info(String.format("%s::source MD5[%s], target MD5[%s]", title, HexUtil.byteArrayAllToHex(srcMD5Bytes), HexUtil.byteArrayAllToHex(dstMD5Bytes)));
 	}
 
@@ -566,8 +705,10 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 
 			startTime = System.currentTimeMillis();
 
-			int startFileBlockNo = 0;
+			int startFileBlockNo = localSourceFileResource.getStartFileBlockNo();
 			int endFileBlockNo = localSourceFileResource.getEndFileBlockNo();
+			
+			//log.info(String.format("startFileBlockNo=[%d], endFileBlockNo=[%d]", startFileBlockNo, endFileBlockNo));
 
 			for (; startFileBlockNo <= endFileBlockNo; startFileBlockNo++) {
 				byte fileData[] = localSourceFileResource
@@ -600,6 +741,11 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 		}
 	}
 
+	/**
+	 * 주어진 파일 송수신 데이터 버퍼 크기를 갖으며 파일 송수신 수행 모듈를 통해 읽기 속도를 측정하여 보여준다.
+	 * 
+	 * @param dataBufferSize 데이터 버퍼 크기
+	 */
 	public void testReadFileSpeed(int dataBufferSize) {
 		LocalSourceFileResourceManager localSourceFileResourceManager = LocalSourceFileResourceManager
 				.getInstance();
@@ -646,6 +792,11 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 		}
 	}
 
+	/**
+	 * 주어진 파일 송수신 데이터 버퍼 크기를 갖으며 파일 송수신 수행 모듈를 통해 읽고 쓰는 속도를 측정하여 보여준다.
+	 * 
+	 * @param dataBufferSize 데이터 버퍼 크기
+	 */
 	public void testWriteFileSpeed(int dataBufferSize) {
 		LocalSourceFileResourceManager localSourceFileResourceManager = LocalSourceFileResourceManager
 				.getInstance();

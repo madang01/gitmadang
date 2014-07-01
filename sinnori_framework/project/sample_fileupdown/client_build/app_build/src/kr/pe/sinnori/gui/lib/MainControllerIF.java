@@ -113,7 +113,7 @@ public interface MainControllerIF {
 	/**
 	 * @return 로컬 목적지 파일 크기 재조정 실패여부, 참고) 만약 중복 받기이면 0으로 이어받기이면 아무 동작 안한다.
 	 */
-	public boolean truncateLocalTargetFileResource();
+	public boolean makeZeroToDownloadFileSize();
 	
 	/**
 	 * 다운로드할 목적지 파일 자원을 해제한다. 서버에 파일 다운로드 준비를 요청하여 실패시에만 호출된다. 

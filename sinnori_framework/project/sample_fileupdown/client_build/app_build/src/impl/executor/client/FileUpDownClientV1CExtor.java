@@ -1035,7 +1035,7 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 				return null;
 			}
 
-			localTargetFileResource.truncate();
+			//localTargetFileResource.makeZeroSizeFile();
 			localTargetFileResource.setSourceFileID(serverSourceFileID);		
 		} catch (MessageItemException e) {
 			log.warn("MessageItemException", e);
@@ -1051,9 +1051,9 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	}
 	
 	
-	public boolean truncateLocalTargetFileResource() {
+	public boolean makeZeroToDownloadFileSize() {
 		try {
-			localTargetFileResource.truncate();
+			localTargetFileResource.makeZeroSizeFile();
 		} catch (UpDownFileException e) {
 			// TODO Auto-generated catch block
 			log.warn(e.getMessage(), e);

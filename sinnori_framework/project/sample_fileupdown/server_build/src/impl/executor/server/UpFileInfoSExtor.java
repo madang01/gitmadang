@@ -114,7 +114,7 @@ public final class UpFileInfoSExtor extends AbstractAuthServerExecutor {
 				return;
 			}
 			
-			localTargetFileResource.truncate();
+			localTargetFileResource.makeZeroSizeFile();
 			localTargetFileResource.setSourceFileID(clientSourceFileID);
 			serverTargetFileID = localTargetFileResource.getTargetFileID();
 			

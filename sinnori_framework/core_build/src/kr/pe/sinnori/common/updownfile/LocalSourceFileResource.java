@@ -206,7 +206,8 @@ public class LocalSourceFileResource implements CommonRootIF {
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
-
+		
+		
 		if (fileBlockSize <= 0) {
 			String errorMessage = String
 					.format("sourceFileID[%d]::parameter fileBlockSize[%d] less than or equal zero",
@@ -231,6 +232,18 @@ public class LocalSourceFileResource implements CommonRootIF {
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
+		if (append) {
+			/** 이어받기 */
+			if (sourceFileSize <= targetFileSize) {
+				String errorMessage = String
+						.format("sourceFileID[%d]::sourceFile[%s][%s]::parameter sourceFileSize[%d] less than or equal to parameter targetFileSize[%d]",
+								sourceFileID, sourceFilePathName, sourceFilePathName, sourceFileSize, targetFileSize);
+				log.warn(errorMessage);
+				throw new IllegalArgumentException(errorMessage);
+			}			
+		}
+		
+		
 		this.append = append;
 		this.sourceFilePathName = sourceFilePathName;
 		this.sourceFileName = sourceFileName;
@@ -239,42 +252,84 @@ public class LocalSourceFileResource implements CommonRootIF {
 		this.targetFileName = targetFileName;
 		this.targetFileSize = targetFileSize;
 		this.fileBlockSize = fileBlockSize;
-		
-		
-		this.endFileBlockNo = (sourceFileSize + fileBlockSize - 1) / fileBlockSize - 1;
-
-		if (endFileBlockNo > Integer.MAX_VALUE - 1) {
-			/**
-			 * 자바는 배열 크기가 정수로 제한되는데, 파일 조각 받은 여부를 기억하는 BitSet 도 그대로 그 문제를 상속한다.
-			 * 따라서 fileBlock 최대 갯수는 정수(=Integer) 이어야 한다.
-			 */
-			String errorMessage = String
-					.format("sourceFileID[%d]::endFileBlockNo[%d] greater than (Integer.MAX - 1), maybe parameter fileBlockSize[%d] is not enough size or parameter sourceFileSize[%d] too big",
-							sourceFileID, endFileBlockNo, fileBlockSize,
-							sourceFileSize);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		this.lastFileDataLength = sourceFileSize - endFileBlockNo * fileBlockSize;
-
-		workedFileBlockBitSet = new BitSet((int) endFileBlockNo + 1);
-		
+				
 		if (append) {
 			/** 이어받기 */
-			this.startFileBlockNo = (this.targetFileSize + fileBlockSize - 1) / fileBlockSize - 1;
-			
-			if (startFileBlockNo > Integer.MAX_VALUE - 1) {
+			this.endFileBlockNo = (sourceFileSize + fileBlockSize - 1) / fileBlockSize - 1;
+
+			if (endFileBlockNo > Integer.MAX_VALUE - 1) {
 				/**
 				 * 자바는 배열 크기가 정수로 제한되는데, 파일 조각 받은 여부를 기억하는 BitSet 도 그대로 그 문제를 상속한다.
 				 * 따라서 fileBlock 최대 갯수는 정수(=Integer) 이어야 한다.
 				 */
 				String errorMessage = String
-						.format("sourceFileID[%d]::startFileBlockNo[%d] is greater than (Integer.MAX - 1)",
-								sourceFileID, startFileBlockNo);
+						.format("sourceFileID[%d]::endFileBlockNo[%d] greater than (Integer.MAX - 1), maybe parameter fileBlockSize[%d] is not enough size or parameter sourceFileSize[%d] too big",
+								sourceFileID, endFileBlockNo, fileBlockSize,
+								sourceFileSize);
+				log.warn(errorMessage);
+				throw new IllegalArgumentException(errorMessage);
+			}	
+			
+			
+			this.startFileBlockNo = (this.targetFileSize + fileBlockSize - 1) / fileBlockSize - 1;
+			if (startFileBlockNo > endFileBlockNo) {
+				String errorMessage = String
+						.format("sourceFileID[%d]::the variable 'startFileBlockNo'[%d] is greater than endFileBlockNo[%d], sourceFileSize=[%d], ",
+								sourceFileID, startFileBlockNo, endFileBlockNo);
+				log.warn(errorMessage);
+				throw new IllegalArgumentException(errorMessage);
+			}		
+			
+			if (sourceFileSize < fileBlockSize) {
+				/** 원본 파일 크기가 전송할 데이터 블락 크기 보다 작은 경우 */
+				this.firstFileDataLength = sourceFileSize - this.targetFileSize;
+			} else {
+				/** 원본 파일 크기가 전송할 데이터 블락 크기 보다 크거나 같은 경우 */
+				/** 첫번째로 전송할 블락에서 이미 전송된 데이터 크기  */
+				long transferedDataSizeForStartFileBlockNo = this.targetFileSize - startFileBlockNo * fileBlockSize;
+				/** 첫번째로 전송할 블락에서 이미 전송된 데이터를 제외 */
+				this.firstFileDataLength = fileBlockSize - transferedDataSizeForStartFileBlockNo;
+			}
+			
+			if (endFileBlockNo == startFileBlockNo) {
+				/** 전송할 데이터 블락이 1개뿐인 경우 */
+				this.lastFileDataLength = sourceFileSize - this.targetFileSize;
+			} else {
+				/** 전송할 데이터 블락이 2개 이상인 경우 */
+				this.lastFileDataLength = sourceFileSize - endFileBlockNo * fileBlockSize;
+			}
+			
+			
+			workedFileBlockBitSet = new BitSet((int) endFileBlockNo + 1);			
+			
+			/** 이어 받기를 시작하는 위치 전까지 데이터 읽기 여부를 참으로 설정한다. */
+			for (int i=0; i < startFileBlockNo; i++ ) {
+				workedFileBlockBitSet.set(i, true);
+			}
+			
+			// FIXME!
+			//log.info(String.format("targetFileSize=[%d], fileBlockSize=[%d], firstFileDataLength=[%d]", targetFileSize, fileBlockSize, firstFileDataLength));
+			//log.info("111111AAAA");
+			
+		} else {
+			/** 덮어 쓰기 */
+			
+			this.endFileBlockNo = (sourceFileSize + fileBlockSize - 1) / fileBlockSize - 1;
+
+			if (endFileBlockNo > Integer.MAX_VALUE - 1) {
+				/**
+				 * 자바는 배열 크기가 정수로 제한되는데, 파일 조각 받은 여부를 기억하는 BitSet 도 그대로 그 문제를 상속한다.
+				 * 따라서 fileBlock 최대 갯수는 정수(=Integer) 이어야 한다.
+				 */
+				String errorMessage = String
+						.format("sourceFileID[%d]::endFileBlockNo[%d] greater than (Integer.MAX - 1), maybe parameter fileBlockSize[%d] is not enough size or parameter sourceFileSize[%d] too big",
+								sourceFileID, endFileBlockNo, fileBlockSize,
+								sourceFileSize);
 				log.warn(errorMessage);
 				throw new IllegalArgumentException(errorMessage);
 			}
+					
+			this.startFileBlockNo = 0;
 			
 			if (startFileBlockNo > endFileBlockNo) {
 				String errorMessage = String
@@ -284,20 +339,39 @@ public class LocalSourceFileResource implements CommonRootIF {
 				throw new IllegalArgumentException(errorMessage);
 			}
 			
-			this.firstFileDataLength = fileBlockSize - (this.targetFileSize - startFileBlockNo * fileBlockSize);
-			
-			/** 이어 받기를 시작하는 위치 전까지 데이터 읽기 여부를 참으로 설정한다. */
-			for (int i=0; i < startFileBlockNo; i++ ) {
-				workedFileBlockBitSet.set(i);
+			if (sourceFileSize < fileBlockSize){
+				/** 원본 파일 크기가 전송할 데이터 블락 크기 보다 작은 경우 */
+				this.firstFileDataLength = sourceFileSize;
+			} else {
+				/** 원본 파일 크기가 전송할 데이터 블락 크기 보다 크거나 같은 경우 */
+				this.firstFileDataLength = fileBlockSize;
 			}
-		} else {
-			/** 덮어 쓰기 */
-			this.startFileBlockNo = 0;
-			this.firstFileDataLength = fileBlockSize;
+			
+			if (endFileBlockNo == startFileBlockNo) {
+				/** 전송할 데이터 블락이 1개뿐인 경우 */
+				this.lastFileDataLength = sourceFileSize;
+			} else {
+				/** 전송할 데이터 블락이 2개 이상인 경우 */
+				this.lastFileDataLength = sourceFileSize - endFileBlockNo * fileBlockSize;
+			}
+			
+			
+			
+			
+			workedFileBlockBitSet = new BitSet((int) endFileBlockNo + 1);
+			// FIXME!
+			//log.info("222222222222AAAA");
 		}
 		
 		
-
+		
+		
+		
+		// FIXME!
+		/*log.info(String.format("startFileBlockNo=[%d], endFileBlockNo=[%d], firstFileDataLength=[%d], lastFileDataLength=[%d]",
+				startFileBlockNo, endFileBlockNo, firstFileDataLength, lastFileDataLength));*/
+		
+		
 		File sourceFilePath = new File(sourceFilePathName);
 
 		if (!sourceFilePath.exists()) {
@@ -413,6 +487,7 @@ public class LocalSourceFileResource implements CommonRootIF {
 			log.warn(errorMessage);
 			throw new UpDownFileException(errorMessage);
 		}
+		
 	}
 
 	/**
@@ -593,7 +668,11 @@ public class LocalSourceFileResource implements CommonRootIF {
 		long sourceFileOffset;
 		
 		if (append && startFileBlockNo == fileBlockNo) {
-			sourceFileOffset = (long)fileBlockSize * fileBlockNo + fileBlockSize - fileData.length;
+			if (sourceFileSize < fileBlockSize) {
+				sourceFileOffset = sourceFileSize - fileData.length;
+			} else {
+				sourceFileOffset = (long)fileBlockSize * fileBlockNo + fileBlockSize - fileData.length;
+			}
 		} else {
 			sourceFileOffset = (long)fileBlockSize * fileBlockNo;
 		}
@@ -609,6 +688,9 @@ public class LocalSourceFileResource implements CommonRootIF {
 				// sourceFileChannel.read(ByteBuffer.wrap(fileData), (long) fileBlockSize * fileBlockNo);
 				sourceRandomAccessFile.seek(sourceFileOffset);
 				sourceRandomAccessFile.read(fileData);
+				
+				// FIXME!
+				//log.info(String.format("fileBlockNo=[%d], sourceFileOffset=[%d], fileData length=[%d]", fileBlockNo, sourceFileOffset, fileData.length));
 			} catch (IOException e) {
 				/** n 번째 원본 파일 조각 읽기 실패 */
 				String errorMessage = String.format(

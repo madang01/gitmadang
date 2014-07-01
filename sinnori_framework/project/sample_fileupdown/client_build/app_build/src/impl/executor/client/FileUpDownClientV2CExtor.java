@@ -1035,9 +1035,9 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 		return outObj;
 	}
 	
-	public boolean truncateLocalTargetFileResource() {
+	public boolean makeZeroToDownloadFileSize() {
 		try {
-			localTargetFileResource.truncate();
+			localTargetFileResource.makeZeroSizeFile();
 		} catch (UpDownFileException e) {
 			// TODO Auto-generated catch block
 			log.warn(e.getMessage(), e);

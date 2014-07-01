@@ -306,9 +306,9 @@ public class DownloadSwingAction extends AbstractAction implements CommonRootIF 
 		}
 		
 		/**
-		 * 다운로드 하기전에 로컬 목적지 파일 크기 재조정, 만약 중복 받기이면 0으로 이어받기이면 아무 동작 안한다.
+		 * 서버에서 다운로드할 준비가 되었다면 로컬 목적지 파일 크기를 0으로 재조정, 만약 중복 받기이면 크기 0으로 이어받기이면 아무 동작 안한다.
 		 */
-		if (!mainController.truncateLocalTargetFileResource()) return;
+		if (!mainController.makeZeroToDownloadFileSize()) return;
 			
 		mainController.openDownloadProcessDialog(serverSourceFileID, new StringBuilder(remoteFileName).append(" 다운로드 중...").toString(), remoteFileSize);
 	}
