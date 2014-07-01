@@ -104,7 +104,7 @@ public final class DownFileInfoSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("clientTargetFileID", clientTargetFileID);
 			outObj.setAttribute("serverSourceFileID", serverSourceFileID);
 			letterSender.sendSync(outObj);*/
-			sendSync("Y", "파일 업로드 준비가 되었습니다.", serverSourceFileID, 
+			sendSync("Y", "파일 다운로드 준비가 되었습니다.", serverSourceFileID, 
 					clientTargetFileID, letterSender, messageManger);
 		} catch (IllegalArgumentException e) {
 			log.info("IllegalArgumentException", e);

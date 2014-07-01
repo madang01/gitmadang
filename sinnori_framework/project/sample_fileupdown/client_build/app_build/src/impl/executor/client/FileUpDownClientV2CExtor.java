@@ -799,6 +799,8 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 		}
 		
 		try {
+			if (append) inObj.setAttribute("append", (byte)0x01);
+			else inObj.setAttribute("append", (byte)0x00);
 			inObj.setAttribute("clientSourceFileID", localSourceFileResource.getSourceFileID());
 			inObj.setAttribute("localFilePathName", localFilePathName);
 			inObj.setAttribute("localFileName", localFileName);
@@ -1089,7 +1091,9 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 		if (null == localTargetFileResource) {
 			log.warn("localTargetFileResource is null");
 			return;
-		}		
+		}
+		
+		log.info("call endDownloadTask");
 		
 		/** localTargetFileResource 를 null 만들기 전에 파일 다운로드 진행 모달 윈도우를 가장 먼저 닫아야 한다. */
 		fileProcessDialog.dispose();
@@ -1313,7 +1317,9 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 	
 	@Override
 	public void doAsynOutputMessageTask(OutputMessage outObj) {
+		// FIXME!
 		// log.info(String.format("projectName[%s] %s", projectName, outObj.toString()));
+		// log.info(outObj.toString());
 
 		String messageID = outObj.getMessageID();
 		try {
@@ -1353,6 +1359,7 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 					return;
 				}
 				
+								
 				int serverSourceFileID = (Integer) outObj.getAttribute("serverSourceFileID");
 				int clientTargetFileID = (Integer) outObj.getAttribute("clientTargetFileID");
 				String taskResult = (String) outObj.getAttribute("taskResult");

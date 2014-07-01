@@ -63,8 +63,20 @@ public class DownloadFileTransferTask2 implements CommonRootIF, FileTransferTask
 		
 		try {
 			while(!localTargetFileResource.isCanceled() && !fileTranferProcessDialog.isFinished()) {
-				OutputMessage outObj = mainController.doLoginEcho();
-				if (null == outObj) break;
+				// FIXME!
+				//log.info("AAAAAAAAAAAA");
+				
+				/**
+				 * 변경전 : 로그인 에코 메시지를 보낸다.
+				 * ====== 변경전 코드 시작 ====
+				 * OutputMessage outObj = mainController.doLoginEcho()
+				 * ====== 변경전 코드 종료 ====
+				 * 변경후 : 로그인 에코 메시지를 보내지 않는다.
+				 * 변경 사유 : 로그인 에코 메시지는 동기 방식으로 메시지를 보내고 받기때문에 파일 다운로드시 서버쪽 네트워크 용량 문제로 응답이 지연되어 결국 타임아웃 발생한다.
+				 * 변경후 영향 : 서버가 살아 있는지 검사하는 루틴 제거되므로 서버가 죽어 있어도 자동 감지를 못하게 된다.
+				 */
+				/*OutputMessage outObj = mainController.doLoginEcho();
+				if (null == outObj) break;*/
 				/**
 				 * this.wait(intervalOfTimeoutCheck); 는 잘 동작하지 않아 sleep 로 대체함
 				 */

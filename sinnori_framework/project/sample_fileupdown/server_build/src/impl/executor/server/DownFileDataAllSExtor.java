@@ -78,11 +78,13 @@ public class DownFileDataAllSExtor extends AbstractAuthServerExecutor {
 		}
 		
 		// boolean isCompletedReadingFile = false; 
-		int startFileBlockNo = 0;
+		int startFileBlockNo = localSourceFileResource.getStartFileBlockNo();
 		int endFileBlockNo = localSourceFileResource.getEndFileBlockNo();
+		int i=startFileBlockNo;
 		try {
-			for (; startFileBlockNo <= endFileBlockNo; startFileBlockNo++) {
-				if (clientResource.isLogin()) {
+			for (; i <= endFileBlockNo; i++) {
+				if (!clientResource.isLogin()) {
+					log.info("not login so loop break");
 					break;
 				}
 				if (localSourceFileResource.isCanceled()) {
@@ -104,8 +106,8 @@ public class DownFileDataAllSExtor extends AbstractAuthServerExecutor {
 				}
 				
 				byte[] fileData = null;
-				fileData = localSourceFileResource.getByteArrayOfFileBlockNo(startFileBlockNo);
-				localSourceFileResource.readSourceFileData(startFileBlockNo, fileData, true);
+				fileData = localSourceFileResource.getByteArrayOfFileBlockNo(i);
+				localSourceFileResource.readSourceFileData(i, fileData, true);
 				
 				OutputMessage outObj = messageManger.createOutputMessage("DownFileDataResult");
 				// outObj.messageHeaderInfo.mailboxID = CommonStaticFinal.SERVER_MAILBOX_ID;		
@@ -115,7 +117,7 @@ public class DownFileDataAllSExtor extends AbstractAuthServerExecutor {
 				outObj.setAttribute("resultMessage", "서버에서 요청한 파일 조각을 성공적으로 읽었습니다.");
 				outObj.setAttribute("serverSourceFileID", serverSourceFileID);
 				outObj.setAttribute("clientTargetFileID", clientTargetFileID);
-				outObj.setAttribute("fileBlockNo", startFileBlockNo);
+				outObj.setAttribute("fileBlockNo", i);
 				outObj.setAttribute("fileData", fileData);
 				
 				letterSender.sendAsyn(outObj);
@@ -141,7 +143,7 @@ public class DownFileDataAllSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("resultMessage", new StringBuilder("서버 에러 메시지\n").append(e.getMessage()).toString());
 			outObj.setAttribute("serverSourceFileID", serverSourceFileID);
 			outObj.setAttribute("clientTargetFileID", clientTargetFileID);
-			outObj.setAttribute("fileBlockNo", startFileBlockNo);
+			outObj.setAttribute("fileBlockNo", i);
 			outObj.setAttribute("fileData", new byte[0]);
 			
 			letterSender.sendAsyn(outObj);
@@ -158,7 +160,7 @@ public class DownFileDataAllSExtor extends AbstractAuthServerExecutor {
 			outObj.setAttribute("resultMessage", new StringBuilder("서버 에러 메시지\n").append(e.getMessage()).toString());
 			outObj.setAttribute("serverSourceFileID", serverSourceFileID);
 			outObj.setAttribute("clientTargetFileID", clientTargetFileID);
-			outObj.setAttribute("fileBlockNo", startFileBlockNo);
+			outObj.setAttribute("fileBlockNo", i);
 			outObj.setAttribute("fileData", new byte[0]);
 			
 			letterSender.sendAsyn(outObj);

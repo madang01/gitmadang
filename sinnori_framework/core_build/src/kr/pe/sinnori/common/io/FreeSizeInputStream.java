@@ -140,8 +140,8 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 	}
 	
 	public void setLimitedSizeToRead(long newLimitedWorkSize) {
-		if (newLimitedWorkSize <= 0) {
-			String errorMessage = "the parameter newLimitedWorkSize is less than or equals to zero";
+		if (newLimitedWorkSize < 0) {
+			String errorMessage = "the parameter newLimitedWorkSize is less than zero";
 			throw new IllegalArgumentException(errorMessage);
 		}
 		

@@ -790,6 +790,9 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 		}
 		
 		try {
+			if (append) inObj.setAttribute("append", (byte)0x01);
+			else inObj.setAttribute("append", (byte)0x00);
+			
 			inObj.setAttribute("clientSourceFileID", localSourceFileResource.getSourceFileID());
 			inObj.setAttribute("localFilePathName", localFilePathName);
 			inObj.setAttribute("localFileName", localFileName);

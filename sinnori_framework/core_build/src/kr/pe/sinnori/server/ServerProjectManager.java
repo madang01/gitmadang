@@ -23,6 +23,8 @@ import java.util.StringTokenizer;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 
+
+
 /**
  * 서버 프로젝트 관리자
  * 
@@ -76,7 +78,7 @@ public final class ServerProjectManager implements CommonRootIF {
 	public ServerProject getServerProject(String projectName) {
 		ServerProject serverProject =  serverProjectHash.get(projectName);
 		if (null == serverProject) {
-			log.fatal(String.format("신놀이 프레임 워크 환경설정 파일에 프로젝트[%s]가 정의되지 않았습니다."));
+			log.fatal(String.format("신놀이 프레임 워크 환경설정 파일에 프로젝트가 정의되지 않았습니다."));
 			System.exit(1);
 		}
 		

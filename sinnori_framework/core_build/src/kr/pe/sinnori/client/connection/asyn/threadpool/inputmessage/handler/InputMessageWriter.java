@@ -99,7 +99,7 @@ public class InputMessageWriter extends Thread implements CommonRootIF {
 				// log.info("1. In InputMessageWriter, letter=[%s]",
 				// letterToServer.toString());
 	
-				AbstractAsynConnection noneBlockConnection = letterToServer
+				AbstractAsynConnection asynConnection = letterToServer
 						.getServerConnection();
 				InputMessage inObj = letterToServer.getInputMessage();
 	
@@ -116,9 +116,9 @@ public class InputMessageWriter extends Thread implements CommonRootIF {
 				
 				try {
 					inObjWrapBufferList = messageProtocol.M2S(inObj, clientCharset);
-					noneBlockConnection.write(inObjWrapBufferList);
+					asynConnection.write(inObjWrapBufferList);
 				} catch (NoMoreDataPacketBufferException e) {
-					log.warn(String.format("%s InputMessageWriter[%d] NoMoreDataPacketBufferException::%s, inObj=[%s]", noneBlockConnection.getSimpleConnectionInfo(), index, e.getMessage(), inObj.toString()), e);
+					log.warn(String.format("%s InputMessageWriter[%d] NoMoreDataPacketBufferException::%s, inObj=[%s]", asynConnection.getSimpleConnectionInfo(), index, e.getMessage(), inObj.toString()), e);
 					
 					OutputMessage errorOutObj = null;
 					try {
@@ -139,10 +139,10 @@ public class InputMessageWriter extends Thread implements CommonRootIF {
 					// LetterFromServer letterFromServer = new
 					// LetterFromServer(errorOutObj);
 	
-					noneBlockConnection
+					asynConnection
 							.putToOutputMessageQueue(errorOutObj);
 				} catch (BodyFormatException e) {
-					log.warn(String.format("%s InputMessageWriter[%d] BodyFormatException::%s, inObj=[%s]", noneBlockConnection.getSimpleConnectionInfo(), index, e.getMessage(), inObj.toString()), e);
+					log.warn(String.format("%s InputMessageWriter[%d] BodyFormatException::%s, inObj=[%s]", asynConnection.getSimpleConnectionInfo(), index, e.getMessage(), inObj.toString()), e);
 					// log.warn("BodyFormatException", e);
 					
 					/**
@@ -178,22 +178,22 @@ public class InputMessageWriter extends Thread implements CommonRootIF {
 					// LetterFromServer letterFromServer = new
 					// LetterFromServer(errorOutObj);
 	
-					noneBlockConnection
+					asynConnection
 							.putToOutputMessageQueue(errorOutObj);
 				
 				} catch (NotYetConnectedException e) {
-					log.warn(String.format("%s InputMessageWriter[%d] NotYetConnectedException::%s, inObj=[%s]", noneBlockConnection.getSimpleConnectionInfo(), index, e.getMessage(), inObj.toString()), e);
+					log.warn(String.format("%s InputMessageWriter[%d] NotYetConnectedException::%s, inObj=[%s]", asynConnection.getSimpleConnectionInfo(), index, e.getMessage(), inObj.toString()), e);
 					
-					noneBlockConnection.serverClose();
+					asynConnection.serverClose();
 					
 				} catch(ClosedByInterruptException e) {
-					log.warn(String.format("%s InputMessageWriter[%d] ClosedByInterruptException::%s, inObj=[%s]", noneBlockConnection.getSimpleConnectionInfo(), index, e.getMessage(), inObj.toString()), e);
+					log.warn(String.format("%s InputMessageWriter[%d] ClosedByInterruptException::%s, inObj=[%s]", asynConnection.getSimpleConnectionInfo(), index, e.getMessage(), inObj.toString()), e);
 					
-					noneBlockConnection.serverClose();
+					asynConnection.serverClose();
 				} catch (IOException e) {
-					log.warn(String.format("%s InputMessageWriter[%d] IOException::%s, inObj=[%s]", noneBlockConnection.getSimpleConnectionInfo(), index, e.getMessage(), inObj.toString()), e);
+					log.warn(String.format("%s InputMessageWriter[%d] IOException::%s, inObj=[%s]", asynConnection.getSimpleConnectionInfo(), index, e.getMessage(), inObj.toString()), e);
 					
-					noneBlockConnection.serverClose();
+					asynConnection.serverClose();
 				} finally {
 					if (null != inObjWrapBufferList) {
 						int bodyWrapBufferListSiz = inObjWrapBufferList.size();

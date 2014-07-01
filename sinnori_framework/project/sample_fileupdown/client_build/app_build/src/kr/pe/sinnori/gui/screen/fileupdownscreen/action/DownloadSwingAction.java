@@ -113,17 +113,25 @@ public class DownloadSwingAction extends AbstractAction implements CommonRootIF 
 		return yesNoCancelOption;
 	}
 	
+	private class LocalTreeNodeAndYesNoCancel {
+		public LocalFileTreeNode localTreeNode = null;
+		int yesNoCancel = JOptionPane.NO_OPTION;
+	}
+	
 	/**
+	 * <pre>
 	 * 로컬에 원격지에서 선택한 파일과 같은 파일 이름이 있고 파일 크기가 0 보다 크다면,
 	 * 사용자에게 이어받기/덮어쓰기/취소 여부를 묻는다.
 	 * 단, 로컬에 원격지에서 선택한 파일과 같은 이름이 없거나 있어도 파일 크기가 0일 경우에는 덮어쓰기값으로 설정된다. 
+	 * </pre>
 	 *   
 	 * @param remoteFileName 사용자가 다운로드 하겠다고 선택한 원격지 파일 이름
 	 * @param localWorkPathName 로컬 파일 작업 경로
 	 * @return 사용자의 이어받기/덮어쓰기/취소 선택값, 디폴트 이어받기, 단 로컬에 원격지에서 선택한 파일과 같은 이름이 없거나 있어도 파일 크기가 0일 경우에는 덮어쓰기값으로 설정된다.
 	 * 참고) 이어받기:JOptionPane.YES_OPTION, 덮어쓰기:JOptionPane.NO_OPTION, 취소:JOptionPane.CANCEL_OPTION
 	 */
-	private int getYesNoCancelOfLocalRootNode(String remoteFileName,  String localWorkPathName) {
+	private LocalTreeNodeAndYesNoCancel getLocalTreeNodeAndYesNoCancel(String remoteFileName,  String localWorkPathName) {
+		LocalTreeNodeAndYesNoCancel localTreeNodeAndYesNoCancel = new LocalTreeNodeAndYesNoCancel();
 		int cntOfChild = localRootNode.getChildCount();
 		for (int i=0;i < cntOfChild; i++) {
 			LocalFileTreeNode localFileTreeNode = (LocalFileTreeNode)localRootNode.getChildAt(i);
@@ -138,12 +146,14 @@ public class DownloadSwingAction extends AbstractAction implements CommonRootIF 
 				break;*/
 				if (localTempFileSize > 0) {
 					int yesNoCancel = getYesNoCancel(remoteFileName, localWorkPathName);
-					return yesNoCancel;
+					localTreeNodeAndYesNoCancel.localTreeNode = localFileTreeNode;
+					localTreeNodeAndYesNoCancel.yesNoCancel = yesNoCancel;
 				}
 				break;
 			}
 		}
-		return JOptionPane.NO_OPTION;
+		// return JOptionPane.NO_OPTION;
+		return localTreeNodeAndYesNoCancel;
 	}
 
 	@Override
@@ -205,16 +215,31 @@ public class DownloadSwingAction extends AbstractAction implements CommonRootIF 
 						break;
 					}
 				}*/
-				int yesNoCancelOption = getYesNoCancelOfLocalRootNode(remoteFileName, localFilePathName);
-				/** 취소 */
+				/*int yesNoCancelOption = getYesNoCancelOfLocalRootNode(remoteFileName, localFilePathName);
+				*//** 취소 *//*
 				if (JOptionPane.CANCEL_OPTION == yesNoCancelOption) return;
 				
 				if (JOptionPane.NO_OPTION == yesNoCancelOption) {
+					*//** 덮어쓰기 *//*
+					append = false;
+				} else {
+					*//** 이어 받기 *//*
+					append = true;
+				}*/
+				
+				LocalTreeNodeAndYesNoCancel localTreeNodeAndYesNoCancel = getLocalTreeNodeAndYesNoCancel(remoteFileName, localFilePathName);
+				/** 취소 */
+				if (JOptionPane.CANCEL_OPTION == localTreeNodeAndYesNoCancel.yesNoCancel) return;
+				
+				if (JOptionPane.NO_OPTION == localTreeNodeAndYesNoCancel.yesNoCancel) {
 					/** 덮어쓰기 */
 					append = false;
 				} else {
 					/** 이어 받기 */
 					append = true;
+					
+					localFileName = localTreeNodeAndYesNoCancel.localTreeNode.getFileName();
+					localFileSize = localTreeNodeAndYesNoCancel.localTreeNode.getFileSize();
 				}
 			} else {
 				if (AbstractFileTreeNode.FileType.File == localSelectedNode
@@ -235,7 +260,19 @@ public class DownloadSwingAction extends AbstractAction implements CommonRootIF 
 						/** 덮어쓰기 */
 						append = false;
 					} else {
-						int yesNoCancelOption = getYesNoCancelOfLocalRootNode(remoteFileName, localFilePathName);
+						/*int yesNoCancelOption = getYesNoCancelOfLocalRootNode(remoteFileName, localFilePathName);
+						*//** 취소 *//*
+						if (JOptionPane.CANCEL_OPTION == yesNoCancelOption) return;
+						
+						if (JOptionPane.NO_OPTION == yesNoCancelOption) {
+							*//** 덮어쓰기 *//*
+							append = false;
+						} else {
+							*//** 이어 받기 *//*
+							append = true;
+						}*/
+						
+						int yesNoCancelOption = getYesNoCancel(remoteFileName, localFilePathName);
 						/** 취소 */
 						if (JOptionPane.CANCEL_OPTION == yesNoCancelOption) return;
 						
@@ -268,16 +305,30 @@ public class DownloadSwingAction extends AbstractAction implements CommonRootIF 
 					break;
 				}
 			}*/
-			int yesNoCancelOption = getYesNoCancelOfLocalRootNode(remoteFileName, localFilePathName);
-			/** 취소 */
+			/*int yesNoCancelOption = getYesNoCancelOfLocalRootNode(remoteFileName, localFilePathName);
+			*//** 취소 *//*
 			if (JOptionPane.CANCEL_OPTION == yesNoCancelOption) return;
 			
 			if (JOptionPane.NO_OPTION == yesNoCancelOption) {
+				*//** 덮어쓰기 *//*
+				append = false;
+			} else {
+				*//** 이어 받기 *//*
+				append = true;
+			}*/
+			
+			LocalTreeNodeAndYesNoCancel localTreeNodeAndYesNoCancel = getLocalTreeNodeAndYesNoCancel(remoteFileName, localFilePathName);
+			/** 취소 */
+			if (JOptionPane.CANCEL_OPTION == localTreeNodeAndYesNoCancel.yesNoCancel) return;
+			
+			if (JOptionPane.NO_OPTION == localTreeNodeAndYesNoCancel.yesNoCancel) {
 				/** 덮어쓰기 */
 				append = false;
 			} else {
 				/** 이어 받기 */
 				append = true;
+				localFileName = localTreeNodeAndYesNoCancel.localTreeNode.getFileName();
+				localFileSize = localTreeNodeAndYesNoCancel.localTreeNode.getFileSize();
 			}
 		}
 		

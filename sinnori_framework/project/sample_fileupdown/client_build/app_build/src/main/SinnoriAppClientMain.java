@@ -129,9 +129,10 @@ public class SinnoriAppClientMain implements CommonRootIF {
 			
 			
 			// SinnoriWorker.getInstance().start(projectName, "FileUpDownClientV1");
+			SinnoriWorker.getInstance().start(projectName, "FileUpDownClientV2");
 			// SinnoriWorker.getInstance().start(projectName, "TestLoginService");
 			
-			SinnoriWorker.getInstance().start(projectName, "TestFileUpDown");
+			// SinnoriWorker.getInstance().start(projectName, "TestFileUpDown");
 		} catch (Exception e) {			
 			e.printStackTrace();
 		}

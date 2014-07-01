@@ -110,18 +110,26 @@ public class UploadSwingAction2 extends AbstractAction implements CommonRootIF {
 		return yesNoCancelOption;
 	}
 	
+	private class RemoteTreeNodeAndYesNoCancel {
+		public RemoteFileTreeNode remoteTreeNode = null;
+		int yesNoCancel = JOptionPane.NO_OPTION;
+	}
+	
 	/**
+	 * <pre>
 	 * 원격지에 로컬에서 선택한 파일과 같은 파일 이름이 있고 파일 크기가 0 보다 크다면,
 	 * 사용자에게 업로드 이어받기/덮어쓰기/취소 여부를 물어 그 결과 값을 반환한다.
 	 * 단 원격지에 로컬에서 선택한 파일과 같은 이름이 없거나 있어도 파일 크기가 0일 경우에는 덮어쓰기(JOptionPane.NO_OPTION)로 반환한다.
 	 * 참고) 이어받기:JOptionPane.YES_OPTION, 덮어쓰기:JOptionPane.NO_OPTION, 취소:JOptionPane.CANCEL_OPTION,
+	 * </pre>
 	 *   
 	 * @param localFileName 사용자가 업로드 하겠다고 선택한 로컬 파일 이름
 	 * @param remoteWorkPathName 원격지 파일 작업 경로
 	 * @return 사용자의 이어받기/덮어쓰기/취소 선택값, 단 원격지에 로컬에서 선택한 파일과 같은 이름이 없거나 있어도 파일 크기가 0일 경우에는 덮어쓰기값으로 설정된다.
 	 * 참고) 이어받기:JOptionPane.YES_OPTION, 덮어쓰기:JOptionPane.NO_OPTION, 취소:JOptionPane.CANCEL_OPTION
 	 */
-	private int getYesNoCancelOfRemoteRootNode(String localFileName,  String remoteWorkPathName) {
+	private RemoteTreeNodeAndYesNoCancel getRemoteTreeNodeAndYesNoCancel(String localFileName,  String remoteWorkPathName) {
+		RemoteTreeNodeAndYesNoCancel remoteTreeNodeAndYesNoCancel = new RemoteTreeNodeAndYesNoCancel();
 		int cntOfChild = remoteRootNode.getChildCount();
 		for (int i=0;i < cntOfChild; i++) {
 			RemoteFileTreeNode remoteFileTreeNode = (RemoteFileTreeNode)remoteRootNode.getChildAt(i);
@@ -132,12 +140,15 @@ public class UploadSwingAction2 extends AbstractAction implements CommonRootIF {
 			if (remoteTempFileName.equals(localFileName)) {
 				if (remoteTempFileSize > 0) {
 					int yesNoCancelOption = getYesNoCancel(localFileName, remoteWorkPathName);
-					return yesNoCancelOption;
+					remoteTreeNodeAndYesNoCancel.remoteTreeNode = remoteFileTreeNode;
+					remoteTreeNodeAndYesNoCancel.yesNoCancel = yesNoCancelOption;
+					//  return yesNoCancelOption;
 				}
 				break;
 			}
 		}
-		return JOptionPane.NO_OPTION;
+		// return JOptionPane.NO_OPTION;
+		return remoteTreeNodeAndYesNoCancel;
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -183,17 +194,31 @@ public class UploadSwingAction2 extends AbstractAction implements CommonRootIF {
 			RemoteFileTreeNode remoteSelectedNode = (RemoteFileTreeNode) remoteSelectedPath
 					.getLastPathComponent();
 			if (remoteSelectedNode.isRoot()) {
-				int yesNoCancelOption = getYesNoCancelOfRemoteRootNode(localFileName, remoteFilePathName);
-				/** 취소 */
+				/*int yesNoCancelOption = getRemoteTreeNodeAndYesNoCancel(localFileName, remoteFilePathName);
+				*//** 취소 *//*
 				if (JOptionPane.CANCEL_OPTION == yesNoCancelOption) return;
 				
 				if (JOptionPane.NO_OPTION == yesNoCancelOption) {
+					*//** 덮어쓰기 *//*
+					append = false;
+				} else {
+					*//** 이어 받기 *//*
+					append = true;
+				}*/
+				
+				RemoteTreeNodeAndYesNoCancel remoteTreeNodeAndYesNoCancel = getRemoteTreeNodeAndYesNoCancel(localFileName, remoteFilePathName);
+				/** 취소 */
+				if (JOptionPane.CANCEL_OPTION == remoteTreeNodeAndYesNoCancel.yesNoCancel) return;
+				
+				if (JOptionPane.NO_OPTION == remoteTreeNodeAndYesNoCancel.yesNoCancel) {
 					/** 덮어쓰기 */
 					append = false;
 				} else {
 					/** 이어 받기 */
 					append = true;
-				}				
+					remoteFileName = remoteTreeNodeAndYesNoCancel.remoteTreeNode.getFileName();
+					remoteFileSize = remoteTreeNodeAndYesNoCancel.remoteTreeNode.getFileSize();
+				}
 			} else {				
 				if (RemoteFileTreeNode.FileType.File == remoteSelectedNode
 						.getFileType()) {
@@ -239,16 +264,31 @@ public class UploadSwingAction2 extends AbstractAction implements CommonRootIF {
 				}
 			}
 		} else {
-			int yesNoCancelOption = getYesNoCancelOfRemoteRootNode(localFileName, remoteFilePathName);
-			/** 취소 */
+			/*int yesNoCancelOption = getRemoteTreeNodeAndYesNoCancel(localFileName, remoteFilePathName);
+			*//** 취소 *//*
 			if (JOptionPane.CANCEL_OPTION == yesNoCancelOption) return;
 			
 			if (JOptionPane.NO_OPTION == yesNoCancelOption) {
+				*//** 덮어쓰기 *//*
+				append = false;
+			} else {
+				*//** 이어 받기 *//*
+				append = true;
+			}*/
+			
+			RemoteTreeNodeAndYesNoCancel remoteTreeNodeAndYesNoCancel = getRemoteTreeNodeAndYesNoCancel(localFileName, remoteFilePathName);
+			/** 취소 */
+			if (JOptionPane.CANCEL_OPTION == remoteTreeNodeAndYesNoCancel.yesNoCancel) return;
+			
+			if (JOptionPane.NO_OPTION == remoteTreeNodeAndYesNoCancel.yesNoCancel) {
 				/** 덮어쓰기 */
 				append = false;
 			} else {
 				/** 이어 받기 */
 				append = true;
+				
+				remoteFileName = remoteTreeNodeAndYesNoCancel.remoteTreeNode.getFileName();
+				remoteFileSize = remoteTreeNodeAndYesNoCancel.remoteTreeNode.getFileSize();
 			}
 		}
 

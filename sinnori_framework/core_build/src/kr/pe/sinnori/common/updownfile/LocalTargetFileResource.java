@@ -323,7 +323,7 @@ public class LocalTargetFileResource implements CommonRootIF {
 			
 			/** 이어 받기를 시작하는 위치 전까지 데이터 쓰기 여부를 참으로 설정한다. */
 			for (int i=0; i < startFileBlockNo; i++ ) {
-				workedFileBlockBitSet.set(i);
+				workedFileBlockBitSet.set(i, true);
 			}
 		} else {
 			/** 덮어 쓰기 */
@@ -374,8 +374,8 @@ public class LocalTargetFileResource implements CommonRootIF {
 		
 
 		// FIXME!
-/*		log.info(String.format("startFileBlockNo=[%d], endFileBlockNo=[%d], firstFileDataLength=[%d], lastFileDataLength=[%d]",
-				startFileBlockNo, endFileBlockNo, firstFileDataLength, lastFileDataLength));*/
+		log.info(String.format("startFileBlockNo=[%d], endFileBlockNo=[%d], firstFileDataLength=[%d], lastFileDataLength=[%d]",
+				startFileBlockNo, endFileBlockNo, firstFileDataLength, lastFileDataLength));
 				
 		File targetFilePath = new File(targetFilePathName);
 
@@ -469,11 +469,11 @@ public class LocalTargetFileResource implements CommonRootIF {
 			throw new UpDownFileException(errorMessage);
 		}
 		
-		long realTargetFileSize = -1;
+		/*long realTargetFileSize = -1;
 		try {
 			realTargetFileSize = targetFileChannel.size();
 		} catch (IOException e) {
-			/** 입출력 에러 발생으로 파일 크기 얻기 실패 */
+			*//** 입출력 에러 발생으로 파일 크기 얻기 실패 *//*
 			releaseFileLock();
 			String errorMessage = String.format(
 					"targetFileID[%d]::입출력 에러 발생으로 목적지 파일[%s] 크기 얻기 실패",
@@ -492,7 +492,7 @@ public class LocalTargetFileResource implements CommonRootIF {
 				log.warn(errorMessage);
 				throw new UpDownFileException(errorMessage);
 			}
-		}
+		}*/
 		
 		
 		// FIXME!
@@ -762,6 +762,10 @@ public class LocalTargetFileResource implements CommonRootIF {
 
 			boolean isFinished = (workedFileBlockBitSet
 					.cardinality() == (endFileBlockNo + 1));
+			
+			// FIXME!
+			// log.info(String.format("workedFileBlockBitSet.cardinality=[%d], endFileBlockNo=[%d]", workedFileBlockBitSet.cardinality(), endFileBlockNo));
+			
 			return isFinished;
 		}
 	}
