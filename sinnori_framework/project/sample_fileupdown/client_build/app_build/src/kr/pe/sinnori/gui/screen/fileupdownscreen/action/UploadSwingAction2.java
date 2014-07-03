@@ -109,47 +109,31 @@ public class UploadSwingAction2 extends AbstractAction implements CommonRootIF {
 		
 		return yesNoCancelOption;
 	}
-	
-	private class RemoteTreeNodeAndYesNoCancel {
-		public RemoteFileTreeNode remoteTreeNode = null;
-		int yesNoCancel = JOptionPane.NO_OPTION;
-	}
-	
+		
 	/**
 	 * <pre>
-	 * 원격지에 로컬에서 선택한 파일과 같은 파일 이름이 있고 파일 크기가 0 보다 크다면,
-	 * 사용자에게 업로드 이어받기/덮어쓰기/취소 여부를 물어 그 결과 값을 반환한다.
-	 * 단 원격지에 로컬에서 선택한 파일과 같은 이름이 없거나 있어도 파일 크기가 0일 경우에는 덮어쓰기(JOptionPane.NO_OPTION)로 반환한다.
-	 * 참고) 이어받기:JOptionPane.YES_OPTION, 덮어쓰기:JOptionPane.NO_OPTION, 취소:JOptionPane.CANCEL_OPTION,
+	 * 업로드할 파일과 같은 이름을 갖는 원격지 트리 노드를 얻는다.
+	 * 만약 없다면 null 를 반환한다.
 	 * </pre>
 	 *   
-	 * @param localFileName 사용자가 업로드 하겠다고 선택한 로컬 파일 이름
-	 * @param remoteWorkPathName 원격지 파일 작업 경로
-	 * @return 사용자의 이어받기/덮어쓰기/취소 선택값, 단 원격지에 로컬에서 선택한 파일과 같은 이름이 없거나 있어도 파일 크기가 0일 경우에는 덮어쓰기값으로 설정된다.
-	 * 참고) 이어받기:JOptionPane.YES_OPTION, 덮어쓰기:JOptionPane.NO_OPTION, 취소:JOptionPane.CANCEL_OPTION
+	 * @param localFileName 사용자가 다운로드 하겠다고 선택한 로컬 파일 이름
+	 * @return 업로드할 파일과 같은 이름을 갖는 원격지 트리 노드, 만약 업로드할 파일과 같은 이름 같은 원격지 트리 노드가 없다면 null 를 리턴한다.
 	 */
-	private RemoteTreeNodeAndYesNoCancel getRemoteTreeNodeAndYesNoCancel(String localFileName,  String remoteWorkPathName) {
-		RemoteTreeNodeAndYesNoCancel remoteTreeNodeAndYesNoCancel = new RemoteTreeNodeAndYesNoCancel();
+	private RemoteFileTreeNode getRemoteTreeNodeHavingSameFileName(String localFileName) {
+		
 		int cntOfChild = remoteRootNode.getChildCount();
 		for (int i=0;i < cntOfChild; i++) {
 			RemoteFileTreeNode remoteFileTreeNode = (RemoteFileTreeNode)remoteRootNode.getChildAt(i);
-			if (remoteFileTreeNode.getFileType() == FileType.Directory) continue;
-			
 			String remoteTempFileName = remoteFileTreeNode.getFileName();
-			long remoteTempFileSize = remoteFileTreeNode.getFileSize();
-			if (remoteTempFileName.equals(localFileName)) {
-				if (remoteTempFileSize > 0) {
-					int yesNoCancelOption = getYesNoCancel(localFileName, remoteWorkPathName);
-					remoteTreeNodeAndYesNoCancel.remoteTreeNode = remoteFileTreeNode;
-					remoteTreeNodeAndYesNoCancel.yesNoCancel = yesNoCancelOption;
-					//  return yesNoCancelOption;
-				}
-				break;
-			}
+			
+			if (remoteTempFileName.equals(localFileName)) {	
+				return remoteFileTreeNode;
+			}	
 		}
-		// return JOptionPane.NO_OPTION;
-		return remoteTreeNodeAndYesNoCancel;
+		return null;
 	}
+	
+	private enum UserSelectableMode {NON_USER_SELECTABLE, USER_SELECTABLE};
 
 	public void actionPerformed(ActionEvent e) {
 		log.info(String.format("e.getID=[%d]", e.getID()));
@@ -189,107 +173,74 @@ public class UploadSwingAction2 extends AbstractAction implements CommonRootIF {
 		long remoteFileSize = 0L;
 		int fileBlockSize = mainController.getFileBlockSize();
 
+		RemoteFileTreeNode remoteFileTreeNode = null;
+		UserSelectableMode userSelectableMode = UserSelectableMode.NON_USER_SELECTABLE;
+		
 		TreePath remoteSelectedPath = remoteTree.getSelectionPath();
 		if (null != remoteSelectedPath) {
 			RemoteFileTreeNode remoteSelectedNode = (RemoteFileTreeNode) remoteSelectedPath
 					.getLastPathComponent();
-			if (remoteSelectedNode.isRoot()) {
-				/*int yesNoCancelOption = getRemoteTreeNodeAndYesNoCancel(localFileName, remoteFilePathName);
-				*//** 취소 *//*
-				if (JOptionPane.CANCEL_OPTION == yesNoCancelOption) return;
+
+			if (remoteSelectedNode.isRoot()) {				
+				remoteFileTreeNode = getRemoteTreeNodeHavingSameFileName(localFileName);
 				
-				if (JOptionPane.NO_OPTION == yesNoCancelOption) {
-					*//** 덮어쓰기 *//*
-					append = false;
+			} else {
+				userSelectableMode = UserSelectableMode.USER_SELECTABLE;
+				remoteFileTreeNode = remoteSelectedNode;	
+			}
+		} else {
+			remoteFileTreeNode = getRemoteTreeNodeHavingSameFileName(localFileName);
+		}
+		
+		if (null == remoteFileTreeNode) {
+			/** 중복된 이름을 갖는 원격지 트리 노드가 없다면 덮어쓰기로 설정 */
+			append = false;
+		} else {
+			remoteFileName = remoteFileTreeNode.getFileName();
+			remoteFileSize = remoteFileTreeNode.getFileSize();
+			 
+			if (remoteFileTreeNode.getFileType() == FileType.Directory) {
+				if (userSelectableMode == UserSelectableMode.NON_USER_SELECTABLE) {
+					/**
+					 * <pre> 
+					 * 사용자가 직접 업로드 파일이 위치할 경로를 지정 하지 않았을 경우
+					 * 업로드 하고자 하는 파일과 동일한 이름의 경로가 존재하므로
+					 * 수행 불가 메시지를 보여주고 처리 종료.
+					 * </pre>
+					 */
+					JOptionPane.showMessageDialog(mainFrame, "업로드 하고자 하는 파일과 동일한 이름의 경로로는 업로드를 수행할 수 없습니다.");
+					return;
 				} else {
-					*//** 이어 받기 *//*
-					append = true;
-				}*/
-				
-				RemoteTreeNodeAndYesNoCancel remoteTreeNodeAndYesNoCancel = getRemoteTreeNodeAndYesNoCancel(localFileName, remoteFilePathName);
-				/** 취소 */
-				if (JOptionPane.CANCEL_OPTION == remoteTreeNodeAndYesNoCancel.yesNoCancel) return;
-				
-				if (JOptionPane.NO_OPTION == remoteTreeNodeAndYesNoCancel.yesNoCancel) {
+					/** 사용자가 직접 업로드 파일이 위치할 경로를 지정 했을 경우 경로명과 파일명 재 조정후 덮어쓰기로 설정 */
+					StringBuilder targetPathBuilder = new StringBuilder(remoteFilePathName);
+					targetPathBuilder.append(remotePathSeperator);
+					targetPathBuilder.append(remoteFileName);
+					remoteFilePathName = targetPathBuilder.toString();
+					remoteFileName = "";
+					
 					/** 덮어쓰기 */
 					append = false;
-				} else {
-					/** 이어 받기 */
-					append = true;
-					remoteFileName = remoteTreeNodeAndYesNoCancel.remoteTreeNode.getFileName();
-					remoteFileSize = remoteTreeNodeAndYesNoCancel.remoteTreeNode.getFileSize();
 				}
-			} else {				
-				if (RemoteFileTreeNode.FileType.File == remoteSelectedNode
-						.getFileType()) {
-					/*int yesOption = JOptionPane.showConfirmDialog(mainFrame,
-							String.format("로컬 파일[%s]을 원격지 파일[%s]에 덮어 쓰시겠습니까?",
-									localFileName,
-									remoteSelectedNode.getFileName()),
-							"덮어쓰기 확인창", JOptionPane.YES_NO_OPTION);
-	
-					if (JOptionPane.NO_OPTION == yesOption)
-						return;*/
+				
+			} else {
+				if (localFileSize > 0) {
+					/** 업로드 하고자 하는 파일과 동일한 이름의 파일의 크기가 0보다 큰 경우 이어붙이기/덮어쓰기/취소 여부 묻기 */
+					int yesNoCancel = getYesNoCancel(localFileName, remoteFilePathName);
+					/** 취소 */
+					if (JOptionPane.CANCEL_OPTION == yesNoCancel) return;
 					
-					remoteFileSize = remoteSelectedNode.getFileSize();
-					remoteFileName = remoteSelectedNode.getFileName();
-					
-					if(0 == remoteFileSize) {
+					if (JOptionPane.NO_OPTION == yesNoCancel) {
 						/** 덮어쓰기 */
 						append = false;
 					} else {
-						int yesNoCancelOption = getYesNoCancel(localFileName, remoteFilePathName);
-						
-						/** 취소 */
-						if (JOptionPane.CANCEL_OPTION == yesNoCancelOption) return;
-						
-						if (JOptionPane.NO_OPTION == yesNoCancelOption) {
-							/** 덮어쓰기 */
-							append = false;
-						} else {
-							/** 이어 받기 */
-							append = true;
-						}
+						/** 이어 받기 */
+						append = true;
 					}
-	
 				} else {
-					/** 업로드한 파일의 위치로 원격지 자식 디렉토리를 선택한 경우 */
-					StringBuilder targetPathBuilder = new StringBuilder(remoteFilePathName);
-					targetPathBuilder.append(remotePathSeperator);
-					targetPathBuilder.append(remoteSelectedNode.getFileName());
-					remoteFilePathName = targetPathBuilder.toString();
-					
-					/** 덮어쓰기 */
+					/** 업로드 하고자 하는 파일과 동일한 이름의 파일의 크기가 0인 경우 덮어쓰기로 설정 */
 					append = false;
 				}
-			}
-		} else {
-			/*int yesNoCancelOption = getRemoteTreeNodeAndYesNoCancel(localFileName, remoteFilePathName);
-			*//** 취소 *//*
-			if (JOptionPane.CANCEL_OPTION == yesNoCancelOption) return;
-			
-			if (JOptionPane.NO_OPTION == yesNoCancelOption) {
-				*//** 덮어쓰기 *//*
-				append = false;
-			} else {
-				*//** 이어 받기 *//*
-				append = true;
-			}*/
-			
-			RemoteTreeNodeAndYesNoCancel remoteTreeNodeAndYesNoCancel = getRemoteTreeNodeAndYesNoCancel(localFileName, remoteFilePathName);
-			/** 취소 */
-			if (JOptionPane.CANCEL_OPTION == remoteTreeNodeAndYesNoCancel.yesNoCancel) return;
-			
-			if (JOptionPane.NO_OPTION == remoteTreeNodeAndYesNoCancel.yesNoCancel) {
-				/** 덮어쓰기 */
-				append = false;
-			} else {
-				/** 이어 받기 */
-				append = true;
-				
-				remoteFileName = remoteTreeNodeAndYesNoCancel.remoteTreeNode.getFileName();
-				remoteFileSize = remoteTreeNodeAndYesNoCancel.remoteTreeNode.getFileSize();
-			}
+			}					
 		}
 
 		// FIXME!

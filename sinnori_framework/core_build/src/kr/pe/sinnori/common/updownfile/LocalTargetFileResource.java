@@ -408,6 +408,14 @@ public class LocalTargetFileResource implements CommonRootIF {
 				log.warn(errorMessage);
 				throw new UpDownFileException(errorMessage);
 			}
+		} else {		
+			if (targetFileObj.isDirectory()) {
+				String errorMessage = String.format(
+						"targetFileID[%d]::송수신할 목적지 파일의 경로[%s]에는 \n이미 파일명[%s]과 \n일치하는 디렉토리 경로가 존재하여 목적지 파일를 생성할 수 없습니다.",
+						targetFileID, targetFilePathName, targetFileName);
+				log.warn(errorMessage);
+				throw new UpDownFileException(errorMessage);
+			}
 		}
 
 		if (!targetFileObj.canWrite()) {
