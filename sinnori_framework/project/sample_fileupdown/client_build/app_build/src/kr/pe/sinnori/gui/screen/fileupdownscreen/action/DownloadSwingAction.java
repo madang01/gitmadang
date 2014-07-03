@@ -217,7 +217,8 @@ public class DownloadSwingAction extends AbstractAction implements CommonRootIF 
 					 * </pre>
 					 */
 					
-					JOptionPane.showMessageDialog(mainFrame, "다운로드 하고자 하는 파일과 동일한 이름의 경로로는 다운로드를 수행할 수 없습니다.");
+					JOptionPane.showMessageDialog(mainFrame, "다운로드 하고자 하는 원격지 파일과 동일한 이름을 갖는 로컬 경로가 존재합니다.");
+					localTree.setSelectionPath(new TreePath(localFileTreeNode.getPath()));
 					return;			
 				} else {				
 					/** 사용자가 직접 다운로드 파일이 위치할 경로를 지정 했을 경우 경로명과 파일명 재 조정후 덮어쓰기로 설정 */

@@ -209,7 +209,8 @@ public class UploadSwingAction2 extends AbstractAction implements CommonRootIF {
 					 * 수행 불가 메시지를 보여주고 처리 종료.
 					 * </pre>
 					 */
-					JOptionPane.showMessageDialog(mainFrame, "업로드 하고자 하는 파일과 동일한 이름의 경로로는 업로드를 수행할 수 없습니다.");
+					JOptionPane.showMessageDialog(mainFrame, "업로드 하고자 하는 로컬 파일과 동일한 이름을 갖는 원격지 경로가 존재합니다.");
+					remoteTree.setSelectionPath(new TreePath(remoteFileTreeNode.getPath()));
 					return;
 				} else {
 					/** 사용자가 직접 업로드 파일이 위치할 경로를 지정 했을 경우 경로명과 파일명 재 조정후 덮어쓰기로 설정 */
