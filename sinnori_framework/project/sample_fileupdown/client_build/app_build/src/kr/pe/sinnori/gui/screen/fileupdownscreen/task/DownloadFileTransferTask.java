@@ -76,7 +76,7 @@ public class DownloadFileTransferTask implements CommonRootIF, FileTransferTaskI
 	@Override
 	public void doTask() {
 		int endFileBlockNo =  localTargetFileResource.getEndFileBlockNo();
-		int startFileBlockNo = 0;
+		int startFileBlockNo = localTargetFileResource.getStartFileBlockNo();
 		try {
 			for (; startFileBlockNo <= endFileBlockNo; startFileBlockNo++) {
 				// boolean isCanceled = fileUpDownScreen.getIsCancelFileTransfer();

@@ -145,9 +145,10 @@ public interface MainControllerIF {
 	 * 파일 업로드 진행 상태 모달 윈도우를 띄운다. 내부적으로 "파일 업로드 진행 작업 쓰레드" 를 수행한다. 
 	 * @param serverTargetFileID 서버 목적지 파일 식별자
 	 * @param mesg 메시지
-	 * @param fileSize 파일 크기
+	 * @param fileSize 파일 크기 
+	 * @param totalReceivedDataSize 이미 받은 데이터 크기
 	 */
-	public void openUploadProcessDialog(int serverTargetFileID, String mesg, long fileSize);
+	public void openUploadProcessDialog(int serverTargetFileID, String mesg, long fileSize, long totalReceivedDataSize);
 	
 	/**
 	 * 파일 업로드 진행 작업 쓰레드 종료후 호출 되는 메소드이다.
@@ -159,8 +160,9 @@ public interface MainControllerIF {
 	 * @param serverSourceFileID
 	 * @param mesg 메시지
 	 * @param fileSize 전송할 파일 크기
+	 * @param totalReceivedDataSize 이미 받은 데이터 크기
 	 */
-	public void openDownloadProcessDialog(int serverSourceFileID, String mesg, long fileSize);
+	public void openDownloadProcessDialog(int serverSourceFileID, String mesg, long fileSize, long totalReceivedDataSize);
 
 	/**
 	 * 파일 다운로드 진행 작업 쓰레드 종료후 호출 되는 메소드이다.

@@ -763,7 +763,7 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 		
 		
 		try {
-			localSourceFileResource = localSourceFileResourceManager.pollLocalSourceFileResource(false, 
+			localSourceFileResource = localSourceFileResourceManager.pollLocalSourceFileResource(append, 
 					localFilePathName, localFileName, localFileSize, 
 					remoteFilePathName, remoteFileName, remoteFileSize, 
 					fileBlockSize);
@@ -865,14 +865,14 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 	}
 	
 	@Override
-	public void openUploadProcessDialog(int serverTargetFileID, String mesg, long fileSize) {
+	public void openUploadProcessDialog(int serverTargetFileID, String mesg, long fileSize, long totalReceivedDataSize) {
 		localSourceFileResource.setTargetFileID(serverTargetFileID);
 		
 		
 		UploadFileTransferTask2 uploadFileTransferTask = new UploadFileTransferTask2(mainFrame, this, serverTargetFileID, localSourceFileResource);
 		
 		// fileUpDownScreen.setIsCanceledUpDownFileTransfer(false);
-		fileProcessDialog = new FileTranferProcessDialog(this, mainFrame, mesg, fileSize, uploadFileTransferTask);
+		fileProcessDialog = new FileTranferProcessDialog(this, mainFrame, mesg, fileSize, totalReceivedDataSize, uploadFileTransferTask);
 		fileProcessDialog.setVisible(true);
 		fileProcessDialog.setDefaultCloseOperation(
 			    JDialog.DO_NOTHING_ON_CLOSE);
@@ -957,7 +957,7 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 		
 		try {
 			localTargetFileResource = 
-					localTargetFileResourceManager.pollLocalTargetFileResource(false, 
+					localTargetFileResourceManager.pollLocalTargetFileResource(append, 
 							remoteFilePathName, remoteFileName, remoteFileSize, 
 							localFilePathName, localFileName, localFileSize, fileBlockSize);
 		} catch (IllegalArgumentException e1) {
@@ -1068,12 +1068,12 @@ public class FileUpDownClientV2CExtor extends AbstractClientExecutor implements 
 	}
 	
 	@Override
-	public void openDownloadProcessDialog(int serverSourceFileID, String mesg, long fileSize) {
+	public void openDownloadProcessDialog(int serverSourceFileID, String mesg, long fileSize, long totalReceivedDataSize) {
 		localTargetFileResource.setSourceFileID(serverSourceFileID);
 		
 		DownloadFileTransferTask2 downloadFileTransferTask = new DownloadFileTransferTask2(this, localTargetFileResource, 5000L);
 		
-		fileProcessDialog = new FileTranferProcessDialog(this, mainFrame, mesg, fileSize, downloadFileTransferTask);
+		fileProcessDialog = new FileTranferProcessDialog(this, mainFrame, mesg, fileSize, totalReceivedDataSize, downloadFileTransferTask);
 		fileProcessDialog.setVisible(true);
 		fileProcessDialog.setDefaultCloseOperation(
 			    JDialog.DO_NOTHING_ON_CLOSE);

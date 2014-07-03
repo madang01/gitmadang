@@ -368,8 +368,8 @@ public class LocalSourceFileResource implements CommonRootIF {
 		
 		
 		// FIXME!
-		/*log.info(String.format("startFileBlockNo=[%d], endFileBlockNo=[%d], firstFileDataLength=[%d], lastFileDataLength=[%d]",
-				startFileBlockNo, endFileBlockNo, firstFileDataLength, lastFileDataLength));*/
+		log.info(String.format("startFileBlockNo=[%d], endFileBlockNo=[%d], firstFileDataLength=[%d], lastFileDataLength=[%d]",
+				startFileBlockNo, endFileBlockNo, firstFileDataLength, lastFileDataLength));
 		
 		
 		File sourceFilePath = new File(sourceFilePathName);

@@ -132,7 +132,7 @@ public class DownloadSwingAction extends AbstractAction implements CommonRootIF 
 			String localTempFileName = localFileTreeNode.getFileName();
 			if (localTempFileName.equals(remoteFileName)) {
 				return localFileTreeNode;
-			}			
+			}
 		}
 		return null;
 	}
@@ -181,6 +181,7 @@ public class DownloadSwingAction extends AbstractAction implements CommonRootIF 
 
 		LocalFileTreeNode localFileTreeNode = null;
 		UserSelectableMode userSelectableMode = UserSelectableMode.NON_USER_SELECTABLE;
+		long totalReceivedDataSize = 0L;
 		
 		TreePath localSelectedPath = localTree.getSelectionPath();
 		
@@ -242,6 +243,7 @@ public class DownloadSwingAction extends AbstractAction implements CommonRootIF 
 					} else {
 						/** 이어 받기 */
 						append = true;
+						totalReceivedDataSize = localFileSize;
 					}
 				} else {
 					/** 다운로드 하고자 하는 파일과 동일한 이름의 파일의 크기가 0인 경우 덮어쓰기로 설정 */
@@ -278,6 +280,7 @@ public class DownloadSwingAction extends AbstractAction implements CommonRootIF 
 		 */
 		if (!mainController.makeZeroToDownloadFileSize()) return;
 			
-		mainController.openDownloadProcessDialog(serverSourceFileID, new StringBuilder(remoteFileName).append(" 다운로드 중...").toString(), remoteFileSize);
+		mainController.openDownloadProcessDialog(serverSourceFileID, 
+				new StringBuilder(remoteFileName).append(" 다운로드 중...").toString(), remoteFileSize, totalReceivedDataSize);
 	}
 }

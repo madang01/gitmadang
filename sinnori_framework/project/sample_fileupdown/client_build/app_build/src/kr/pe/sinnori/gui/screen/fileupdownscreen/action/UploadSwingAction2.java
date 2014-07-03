@@ -175,6 +175,7 @@ public class UploadSwingAction2 extends AbstractAction implements CommonRootIF {
 
 		RemoteFileTreeNode remoteFileTreeNode = null;
 		UserSelectableMode userSelectableMode = UserSelectableMode.NON_USER_SELECTABLE;
+		long totalReceivedDataSize = 0L;
 		
 		TreePath remoteSelectedPath = remoteTree.getSelectionPath();
 		if (null != remoteSelectedPath) {
@@ -221,9 +222,8 @@ public class UploadSwingAction2 extends AbstractAction implements CommonRootIF {
 					/** 덮어쓰기 */
 					append = false;
 				}
-				
 			} else {
-				if (localFileSize > 0) {
+				if (remoteFileSize > 0) {
 					/** 업로드 하고자 하는 파일과 동일한 이름의 파일의 크기가 0보다 큰 경우 이어붙이기/덮어쓰기/취소 여부 묻기 */
 					int yesNoCancel = getYesNoCancel(localFileName, remoteFilePathName);
 					/** 취소 */
@@ -235,6 +235,7 @@ public class UploadSwingAction2 extends AbstractAction implements CommonRootIF {
 					} else {
 						/** 이어 받기 */
 						append = true;
+						totalReceivedDataSize = remoteFileSize;
 					}
 				} else {
 					/** 업로드 하고자 하는 파일과 동일한 이름의 파일의 크기가 0인 경우 덮어쓰기로 설정 */
@@ -275,7 +276,8 @@ public class UploadSwingAction2 extends AbstractAction implements CommonRootIF {
 			}
 			
 			
-			mainController.openUploadProcessDialog(serverTargetFileID, new StringBuilder(localFileName).append(" 업로드 중...").toString(), localFileSize);
+			mainController.openUploadProcessDialog(serverTargetFileID, 
+					new StringBuilder(localFileName).append(" 업로드 중...").toString(), localFileSize, totalReceivedDataSize);
 			
 		} catch (IllegalArgumentException e1) {
 			String errorMessage = e1.toString();

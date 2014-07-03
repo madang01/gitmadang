@@ -77,7 +77,7 @@ public class UploadFileTransferTask implements FileTransferTaskIF, CommonRootIF 
 		log.info("UploadFileTransferTask start");
 					
 		int endFileBlockNo = localSourceFileResource.getEndFileBlockNo();
-		int startFileBlockNo = 0;
+		int startFileBlockNo = localSourceFileResource.getStartFileBlockNo();
 		try {
 
 			for (; startFileBlockNo <= endFileBlockNo; startFileBlockNo++) {

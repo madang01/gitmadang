@@ -859,13 +859,13 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	}
 	
 	@Override
-	public void openUploadProcessDialog(int serverTargetFileID, String mesg, long fileSize) {
+	public void openUploadProcessDialog(int serverTargetFileID, String mesg, long fileSize, long totalReceivedDataSize) {
 		localSourceFileResource.setTargetFileID(serverTargetFileID);
 		
 		UploadFileTransferTask uploadFileTransferTask = new UploadFileTransferTask(mainFrame, this, serverTargetFileID, localSourceFileResource);
 		
 		// fileUpDownScreen.setIsCanceledUpDownFileTransfer(false);
-		fileProcessDialog = new FileTranferProcessDialog(this, mainFrame, mesg, fileSize, uploadFileTransferTask);
+		fileProcessDialog = new FileTranferProcessDialog(this, mainFrame, mesg, fileSize, totalReceivedDataSize, uploadFileTransferTask);
 		fileProcessDialog.setVisible(true);
 		fileProcessDialog.setDefaultCloseOperation(
 			    JDialog.DO_NOTHING_ON_CLOSE);
@@ -1085,13 +1085,13 @@ public class FileUpDownClientV1CExtor extends AbstractClientExecutor implements 
 	}
 	
 	@Override
-	public void openDownloadProcessDialog(int serverSourceFileID, String mesg, long fileSize) {
+	public void openDownloadProcessDialog(int serverSourceFileID, String mesg, long fileSize, long totalReceivedDataSize) {
 		localTargetFileResource.setSourceFileID(serverSourceFileID);
 		
 		
 		DownloadFileTransferTask downloadFileTransferTask = new DownloadFileTransferTask(mainFrame, this, serverSourceFileID, localTargetFileResource);
 		
-		fileProcessDialog = new FileTranferProcessDialog(this, mainFrame, mesg, fileSize, downloadFileTransferTask);
+		fileProcessDialog = new FileTranferProcessDialog(this, mainFrame, mesg, fileSize, totalReceivedDataSize, downloadFileTransferTask);
 		fileProcessDialog.setVisible(true);
 		fileProcessDialog.setDefaultCloseOperation(
 			    JDialog.DO_NOTHING_ON_CLOSE);

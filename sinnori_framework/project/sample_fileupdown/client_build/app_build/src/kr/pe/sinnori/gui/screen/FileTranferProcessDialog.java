@@ -75,7 +75,7 @@ public class FileTranferProcessDialog extends JDialog  implements CommonRootIF, 
 	 * @param fileSize 전송할 파일 크기
 	 * @param fileTransferTask 파일 송수신 전송 상태 모달 윈도우에서 호출한 사용자 정의 비지니스 로직
 	 */
-	public FileTranferProcessDialog(MainControllerIF mainController, final JFrame mainFrame, String mesg, long fileSize, FileTransferTaskIF fileTransferTask) {
+	public FileTranferProcessDialog(MainControllerIF mainController, final JFrame mainFrame, String mesg, long fileSize, long totalReceivedDataSize, FileTransferTaskIF fileTransferTask) {
 		super(mainFrame, "파일 전송 현황 보고 창" , true);
 		
 		this.mainController = mainController;
@@ -84,6 +84,8 @@ public class FileTranferProcessDialog extends JDialog  implements CommonRootIF, 
 		// this.mainController = mainController;
 		this.fileTransferTask = fileTransferTask;
 		if (null != fileTransferTask) this.fileTransferTask.setFileTranferProcessDialog(this);
+		
+		this.totalReceivedDataSize = totalReceivedDataSize;
 		
 		
 		setBounds(100, 100, 500, 156);
@@ -145,7 +147,7 @@ public class FileTranferProcessDialog extends JDialog  implements CommonRootIF, 
 			progressBar.setStringPainted(true);
 			progressBar.setMinimum(0);
 			progressBar.setMaximum(100);
-			progressBar.setValue(0);
+			progressBar.setValue((int)(totalReceivedDataSize*100L/fileSize));
 			innerContainer.add(progressBar, BorderLayout.CENTER);
 		}
 		{
