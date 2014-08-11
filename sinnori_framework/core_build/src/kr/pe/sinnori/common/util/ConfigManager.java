@@ -32,14 +32,25 @@ public final class ConfigManager {
 	private final String SINNORI_CONFIG_FILE_CHARSET = "UTF-8";
 	private Properties sinnoriConfig = null;
 
+	/**
+	 * 동기화 안쓰고 싱글턴 구현을 위한 내부 클래스
+	 */
 	private static final class ConfigManagerHolder {
 		static final ConfigManager singleton = new ConfigManager();
 	}
 
+	/**
+	 * 동기화 쓰지 않는 싱글턴 메소드
+	 * 
+	 * @return 싱글턴 객체
+	 */
 	public static ConfigManager getInstance() {
 		return ConfigManagerHolder.singleton;
 	}
 
+	/**
+	 * 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 생성자.
+	 */
 	private ConfigManager() {
 		super();
 

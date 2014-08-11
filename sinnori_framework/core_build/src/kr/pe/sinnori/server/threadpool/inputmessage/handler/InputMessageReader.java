@@ -31,16 +31,14 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import kr.pe.sinnori.common.configuration.ServerProjectConfigIF;
+import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.io.MessageProtocolIF;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.SocketInputStream;
-import kr.pe.sinnori.common.lib.MessageMangerIF;
-import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.message.InputMessage;
+import kr.pe.sinnori.common.protocol.MessageProtocolIF;
+import kr.pe.sinnori.common.protocol.ReceivedLetter;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.io.LetterFromClient;
@@ -56,9 +54,8 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 	// private final Object monitor = new Object();
 	private int index;
 	private long readSelectorWakeupInterval;
-	private ServerProjectConfigIF serverProjectConfig; 
+	private ServerProjectConfig serverProjectConfig; 
 	private MessageProtocolIF messageProtocol;
-	private MessageMangerIF messageManger = null;
 	
 	private ClientResourceManagerIF clientResourceManager;
 	private LinkedBlockingQueue<LetterFromClient> inputMessageQueue;
@@ -76,29 +73,26 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 	 * @param serverProjectConfig 프로젝트의 공통 포함한 서버 환경 변수 접근 인터페이스
 	 * @param inputMessageQueue 입력 메시지 큐
 	 * @param messageProtocol 메시지 교환 프로토콜
-	 * @param messageManger 메시지 관리자
 	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자
 	 * @param clientResourceManager 클라이언트 자원 관리자
 	 */
 	public InputMessageReader(int index, long readSelectorWakeupInterval,
-			ServerProjectConfigIF serverProjectConfig, 
+			ServerProjectConfig serverProjectConfig, 
 			LinkedBlockingQueue<LetterFromClient> inputMessageQueue,
 			MessageProtocolIF messageProtocol,
-			MessageMangerIF messageManger,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager,
 			ClientResourceManagerIF clientResourceManager) {
 		this.index = index;
 		this.readSelectorWakeupInterval = readSelectorWakeupInterval;
 		this.serverProjectConfig = serverProjectConfig;
 		this.messageProtocol = messageProtocol;
-		this.messageManger = messageManger;
 		this.clientResourceManager = clientResourceManager;
 		this.inputMessageQueue = inputMessageQueue;
 
 		try {
 			selector = Selector.open();
 		} catch (IOException ioe) {
-			log.fatal(String.format("RequetProcessor[%d] selector open fail",
+			log.error(String.format("RequetProcessor[%d] selector open fail",
 					index), ioe);
 			System.exit(1);
 		}
@@ -250,18 +244,23 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 							clientResource.setFinalReadTime();
 												
 							
-							ArrayList<AbstractMessage> inputMessageList = messageProtocol.S2MList(InputMessage.class, serverProjectConfig.getCharset(), messageInputStreamResource, messageManger);
+							ArrayList<ReceivedLetter> inputMessageList = 
+									messageProtocol.S2MList(serverProjectConfig.getCharset(), messageInputStreamResource);
 
-							int cntOfMesages = inputMessageList.size();
+							// int cntOfMesages = inputMessageList.size();
 							
 							/*log.info(String.format("%s InputMessageReader[%d] cntOfMesages=[%d]", 
 									serverProjectConfig.getProjectName(), index, cntOfMesages));*/
 							
-							for (int i = 0; i < cntOfMesages; i++) {
-								InputMessage inObj = (InputMessage)inputMessageList.get(i);
-								inputMessageQueue.put(new LetterFromClient(clientSC, inObj, clientResource));
-							}							
+							/*for (int i = 0; i < cntOfMesages; i++) {
+								AbstractMessage inObj = (AbstractMessage)inputMessageList.get(i);
+								inputMessageQueue.put(new LetterFromClient(clientSC, clientResource, inObj));
+							}		*/					
 
+							for (ReceivedLetter receivedLetter : inputMessageList) {
+								inputMessageQueue.put(new LetterFromClient(clientSC, clientResource, receivedLetter));
+							}
+						
 						} catch (NoMoreDataPacketBufferException e) {
 							log.warn(String.format("%s InputMessageReader[%d] NoMoreDataPacketBufferException::%s", 
 									serverProjectConfig.getProjectName(), index, e.getMessage()), e);

@@ -20,7 +20,7 @@ package kr.pe.sinnori.server.threadpool.accept.processor;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import kr.pe.sinnori.common.configuration.ServerProjectConfigIF;
+import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 import kr.pe.sinnori.server.threadpool.accept.processor.handler.AcceptProcessor;
 import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderPoolIF;
@@ -34,7 +34,7 @@ import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderPoolIF;
 public class AcceptProcessorPool extends AbstractThreadPool {
 	private LinkedBlockingQueue<SocketChannel> acceptQueue;
 	private int maxHandler;
-	private ServerProjectConfigIF serverProjectConfig = null;
+	private ServerProjectConfig serverProjectConfig = null;
 	private InputMessageReaderPoolIF inputMessageReaderPoolIF = null;
 	
 	/**
@@ -46,7 +46,7 @@ public class AcceptProcessorPool extends AbstractThreadPool {
 	 * @param inputMessageReaderPoolIF 서버에 접속 승인된 클라이언트(=소켓 채널) 등록 처리 쓰레드가 바라보는 입력 메시지 소켓 읽기 담당 쓰레드 폴 인터페이스
 	 */
 	public AcceptProcessorPool(int size, int max,
-			ServerProjectConfigIF serverProjectConfig,
+			ServerProjectConfig serverProjectConfig,
 			LinkedBlockingQueue<SocketChannel> acceptQueue,			
 			InputMessageReaderPoolIF inputMessageReaderPoolIF) {
 		if (size <= 0) {

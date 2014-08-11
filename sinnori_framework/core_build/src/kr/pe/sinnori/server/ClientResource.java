@@ -21,15 +21,13 @@ import java.nio.channels.SocketChannel;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
+import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.SocketInputStream;
-import kr.pe.sinnori.common.message.OutputMessage;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResource;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResourceManager;
 import kr.pe.sinnori.common.updownfile.LocalTargetFileResource;
 import kr.pe.sinnori.common.updownfile.LocalTargetFileResourceManager;
-import kr.pe.sinnori.server.io.LetterToClient;
 
 /**
  * 서버에 접속하는 클라이언트 자원 클래스.
@@ -45,7 +43,7 @@ public class ClientResource implements CommonRootIF {
 	/** 이 자원을 소유한 소켓 채널 */
 	private SocketChannel clientSC = null;
 	
-	private ClientProjectConfigIF clientProjectConfig = null;
+	private ServerProjectConfig serverProjectConfig = null;
 	
 	/**
 	 * 최종 읽기를 수행한 시간. 초기값은 클라이언트(=SocketChannel) 생성시간이다.
@@ -81,10 +79,10 @@ public class ClientResource implements CommonRootIF {
 	 * @param messageInputStreamResource 소켓 채널 전용 읽기 자원
 	 */
 	public ClientResource(SocketChannel clientSC, 
-			ClientProjectConfigIF clientProjectConfig,
+			ServerProjectConfig serverProjectConfig,
 			SocketInputStream messageInputStreamResource) {
 		this.clientSC = clientSC;
-		this.clientProjectConfig = clientProjectConfig;
+		this.serverProjectConfig = serverProjectConfig;
 		this.finalReadTime = new java.util.Date();
 		this.messageInputStreamResource = messageInputStreamResource;
 		loginID = null;
@@ -102,7 +100,7 @@ public class ClientResource implements CommonRootIF {
 	 * @return 소켓 채널이 속한 프로젝트명
 	 */
 	public String getProjectName() {
-		return clientProjectConfig.getProjectName();
+		return serverProjectConfig.getProjectName();
 	}
 	/**
 	 * 마지막으로 읽은 시간을 반환한다.
@@ -265,10 +263,21 @@ public class ClientResource implements CommonRootIF {
 		return messageInputStreamResource.isReading();
 	}
 	
-	public LetterToClient getLetterToClient(OutputMessage outObj) {
-		LetterToClient letterToClient = new LetterToClient(clientSC, outObj);
+	/*public LetterToClient getLetterToClient(AbstractMessage messageToClient, String messageID, int mailboxID, int mailID, ArrayList<WrapBuffer> wrapBufferList) {
+		
+		ArrayList<WrapBuffer> wrapBufferList = null;
+		try {
+			wrapBufferList = messageProtocol.M2S(outObj, messageEncoder, projectCharset);
+		} catch(Exception e1) {
+			log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+			System.exit(1);
+		}
+		
+		LetterToClient letterToClient = new LetterToClient(clientSC, messageToClient,
+				messageID , mailboxID, mailID, wrapBufferList);
+		
 		return letterToClient;
-	}
+	}*/
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
@@ -278,7 +287,7 @@ public class ClientResource implements CommonRootIF {
 		StringBuilder builder = new StringBuilder();
 		builder.append("ClientResource [");
 		builder.append("projectName=");
-		builder.append(clientProjectConfig.getProjectName());
+		builder.append(serverProjectConfig.getProjectName());
 		builder.append(", clientSC=");
 		builder.append(clientSC.hashCode());
 		builder.append(", monitorOfServerMailID=");

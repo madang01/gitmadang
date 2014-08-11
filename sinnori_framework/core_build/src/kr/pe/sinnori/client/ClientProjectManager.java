@@ -61,13 +61,13 @@ public final class ClientProjectManager implements CommonRootIF {
 			try {
 				clientProject = new ClientProject(projectName);
 			} catch (InterruptedException e) {
-				log.fatal("InterruptedException", e);
+				log.error("InterruptedException", e);
 				System.exit(1);
 			} catch (NoMoreDataPacketBufferException e) {				
-				log.fatal("NoMoreDataPacketBufferException", e);
+				log.error("NoMoreDataPacketBufferException", e);
 				System.exit(1);
 			} catch (NoMoreOutputMessageQueueException e) {
-				log.fatal("NoMoreOutputMessageQueueException", e);
+				log.error("NoMoreOutputMessageQueueException", e);
 				System.exit(1);
 			}
 			clientProjectHash.put(projectName, clientProject);
@@ -82,7 +82,7 @@ public final class ClientProjectManager implements CommonRootIF {
 	public ClientProject getClientProject(String projectName) {
 		ClientProject clientProject =  clientProjectHash.get(projectName);
 		if (null == clientProject) {
-			log.fatal(String.format("신놀이 프레임 워크 환경설정 파일에 프로젝트[%s]가 정의되지 않았습니다.", projectName));
+			log.error(String.format("신놀이 프레임 워크 환경설정 파일에 프로젝트[%s]가 정의되지 않았습니다.", projectName));
 			System.exit(1);
 		}
 		

@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.FreeSizeInputStream;
-import kr.pe.sinnori.common.io.MessageProtocolIF;
+import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 
 /**
  * <pre>
@@ -54,7 +54,7 @@ public class SocketInputStream implements CommonRootIF {
 	private Object userDefObject = null;
 	
 	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManager = null;
-	private ByteOrder byteOrderOfProject = null;
+	//private ByteOrder byteOrderOfProject = null;
 	
 	private int dataPacketBufferMaxCntPerMessage = -1;
 	
@@ -72,7 +72,7 @@ public class SocketInputStream implements CommonRootIF {
 	public SocketInputStream(DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
 		
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-		this.byteOrderOfProject = dataPacketBufferQueueManager.getByteOrder();
+		//this.byteOrderOfProject = dataPacketBufferQueueManager.getByteOrder();
 		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferQueueManager.getDataPacketBufferMaxCntPerMessage();
 		
 		WrapBuffer lastWrapBuffer = dataPacketBufferQueueManager.pollDataPacketBuffer();
@@ -91,7 +91,7 @@ public class SocketInputStream implements CommonRootIF {
 	public SocketInputStream(ArrayList<WrapBuffer> messageReadWrapBufferList,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-		this.byteOrderOfProject = dataPacketBufferQueueManager.getByteOrder();
+		// this.byteOrderOfProject = dataPacketBufferQueueManager.getByteOrder();
 		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferQueueManager.getDataPacketBufferMaxCntPerMessage();
 		this.dataPacketBufferList = messageReadWrapBufferList;
 		
@@ -333,7 +333,7 @@ public class SocketInputStream implements CommonRootIF {
 	 */
 	public FreeSizeInputStream getFreeSizeInputStream(CharsetDecoder charsetDecoderOfProject) {
 		
-		int dataPacketBufferListSize = dataPacketBufferList.size();
+		/*int dataPacketBufferListSize = dataPacketBufferList.size();
 		
 		ArrayList<ByteBuffer> streamBufferList = new ArrayList<ByteBuffer>(dataPacketBufferListSize);
 		
@@ -342,10 +342,10 @@ public class SocketInputStream implements CommonRootIF {
 			dupPacketBuffer.order(byteOrderOfProject);
 			dupPacketBuffer.flip();
 			streamBufferList.add(dupPacketBuffer);
-		}
+		}*/
 		
 		FreeSizeInputStream freeSizeInputStream = 
-				new FreeSizeInputStream(streamBufferList, charsetDecoderOfProject, dataPacketBufferQueueManager);
+				new FreeSizeInputStream(dataPacketBufferList, CommonType.WRAPBUFFER_RECALL_GUBUN.WRAPBUFFER_RECALL_NO, charsetDecoderOfProject, dataPacketBufferQueueManager);
 		
 		return freeSizeInputStream;
 	}

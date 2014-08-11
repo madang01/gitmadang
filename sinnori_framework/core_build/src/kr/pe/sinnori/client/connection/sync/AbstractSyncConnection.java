@@ -19,11 +19,13 @@ package kr.pe.sinnori.client.connection.sync;
 import java.io.InputStream;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.client.connection.AbstractConnection;
-import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
+import kr.pe.sinnori.common.configuration.ClientProjectConfig;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
-import kr.pe.sinnori.common.message.OutputMessage;
+import kr.pe.sinnori.common.protocol.MessageProtocolIF;
+import kr.pe.sinnori.common.protocol.ReceivedLetter;
 
 /**
  * 클라이언트 소켓 채널 블락킹 모드가 블락인 동기 연결 클래스의 부모 추상화 클래스<br/>
@@ -50,10 +52,13 @@ public abstract class AbstractSyncConnection extends AbstractConnection {
 	public AbstractSyncConnection(int index, 
 			long socketTimeOut,
 			boolean whetherToAutoConnect,
-			ClientProjectConfigIF clientProjectConfig,
+			ClientProjectConfig clientProjectConfig,
+			LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue,
+			MessageProtocolIF messageProtocol,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager,
-			LinkedBlockingQueue<OutputMessage> asynOutputMessageQueue) throws InterruptedException, NoMoreDataPacketBufferException {
-		super(index, socketTimeOut, whetherToAutoConnect, clientProjectConfig, dataPacketBufferQueueManager, asynOutputMessageQueue);
+			ClientObjectCacheManagerIF clientObjectCacheManager) throws InterruptedException, NoMoreDataPacketBufferException {
+		super(index, socketTimeOut, whetherToAutoConnect, clientProjectConfig, 
+				asynOutputMessageQueue, messageProtocol, dataPacketBufferQueueManager, clientObjectCacheManager);
 		// log.info("whether_to_auto_connect=[%s]", whether_to_auto_connect);
 	}	
 }

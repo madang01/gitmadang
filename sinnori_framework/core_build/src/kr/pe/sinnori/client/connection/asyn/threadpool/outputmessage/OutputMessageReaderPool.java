@@ -20,9 +20,8 @@ package kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage;
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReader;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReaderIF;
-import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
-import kr.pe.sinnori.common.io.MessageProtocolIF;
-import kr.pe.sinnori.common.lib.MessageMangerIF;
+import kr.pe.sinnori.common.configuration.ClientProjectConfig;
+import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 
 /**
@@ -35,9 +34,8 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements
 		OutputMessageReaderPoolIF {
 	private int maxHandler;
 	private long readSelectorWakeupInterval;
-	private ClientProjectConfigIF clientProjectConfig = null;
+	private ClientProjectConfig clientProjectConfig = null;
 	private MessageProtocolIF messageProtocol = null;
-	private MessageMangerIF messageManger = null;
 	
 	/**
 	 * 생성자
@@ -46,12 +44,10 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements
 	 * @param readSelectorWakeupInterval 출력 메시지 소켓 읽기 담당 쓰레드에서 블락된 읽기 이벤트 전용 selector 를 깨우는 주기
 	 * @param clientProjectConfig 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
 	 * @param messageProtocol 메시지 교환 프로토콜
-	 * @param messageManger 메시지 관리자
 	 */
 	public OutputMessageReaderPool(int size, int max, long readSelectorWakeupInterval, 
-			ClientProjectConfigIF clientProjectConfig,
-			MessageProtocolIF messageProtocol,
-			MessageMangerIF messageManger) {
+			ClientProjectConfig clientProjectConfig,
+			MessageProtocolIF messageProtocol) {
 		if (size <= 0) {
 			throw new IllegalArgumentException(String.format("%s 파라미터 size 는 0보다 커야 합니다.", clientProjectConfig.getProjectName()));
 		}
@@ -68,8 +64,6 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements
 		this.readSelectorWakeupInterval = readSelectorWakeupInterval;
 		this.clientProjectConfig = clientProjectConfig;
 		this.messageProtocol = messageProtocol;
-		this.messageManger = messageManger;
-		
 
 		for (int i = 0; i < size; i++) {
 			addHandler();
@@ -83,7 +77,7 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements
 
 			if (size < maxHandler) {
 				try {
-					Thread handler = new OutputMessageReader(size, readSelectorWakeupInterval, clientProjectConfig, messageProtocol, messageManger);
+					Thread handler = new OutputMessageReader(size, readSelectorWakeupInterval, clientProjectConfig, messageProtocol);
 					pool.add(handler);
 				} catch (Exception e) {
 					String errorMessage = String.format("%s OutputMessageReader[%d] 등록 실패", clientProjectConfig.getProjectName(), size); 
@@ -99,7 +93,7 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements
 	}
 
 	@Override
-	public void addNewServer(AbstractAsynConnection serverConnection) throws InterruptedException {
+	public void addNewServer(AbstractAsynConnection serverConnection) {
 		OutputMessageReaderIF minHandler = null;
 		int MIN_COUNT = Integer.MAX_VALUE;
 

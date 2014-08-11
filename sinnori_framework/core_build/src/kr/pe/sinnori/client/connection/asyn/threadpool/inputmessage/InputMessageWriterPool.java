@@ -21,10 +21,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler.InputMessageWriter;
 import kr.pe.sinnori.client.io.LetterToServer;
-import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
-import kr.pe.sinnori.common.io.MessageProtocolIF;
+import kr.pe.sinnori.common.configuration.ClientProjectConfig;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
-import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 
 /**
@@ -34,12 +32,9 @@ import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
  */
 public class InputMessageWriterPool extends AbstractThreadPool {
 	private int maxHandler;
-	private ClientProjectConfigIF clientProjectConfig = null;
+	private ClientProjectConfig clientProjectConfig = null;
 	private LinkedBlockingQueue<LetterToServer> inputMessageQueue;
-	private MessageMangerIF messageManger = null;
 	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManager;
-	// private ArrayList<WrapBuffer> ioWrapBufferList = new ArrayList<WrapBuffer>();
-	private MessageProtocolIF messageProtocol = null;
 	
 	
 	/**
@@ -49,14 +44,11 @@ public class InputMessageWriterPool extends AbstractThreadPool {
 	 * @param clientProjectConfig 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
 	 * @param inputMessageQueue 입력 메시지 큐
 	 * @param messageProtocol 메시지 교환 프로프로콜
-	 * @param messageManger 메시지 관리자
 	 * @param dataPacketBufferQueueManager 데이터 패킷 큐 관리자
 	 */
 	public InputMessageWriterPool(int size, int max,
-			ClientProjectConfigIF clientProjectConfig, 
-			LinkedBlockingQueue<LetterToServer> inputMessageQueue, 
-			MessageProtocolIF messageProtocol, 
-			MessageMangerIF messageManger,
+			ClientProjectConfig clientProjectConfig, 
+			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) {
 		if (size <= 0) {
 			throw new IllegalArgumentException(String.format("%s 파라미터 size 는 0보다 커야 합니다.", clientProjectConfig.getProjectName()));
@@ -73,8 +65,6 @@ public class InputMessageWriterPool extends AbstractThreadPool {
 		this.maxHandler = max;
 		this.clientProjectConfig = clientProjectConfig;
 		this.inputMessageQueue = inputMessageQueue;
-		this.messageProtocol = messageProtocol;
-		this.messageManger = messageManger;
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 		
 		for (int i = 0; i < size; i++) {
@@ -90,7 +80,7 @@ public class InputMessageWriterPool extends AbstractThreadPool {
 			if (size < maxHandler) {
 				try {
 					Thread handler = new InputMessageWriter(size, clientProjectConfig,
-							inputMessageQueue, messageProtocol, messageManger, dataPacketBufferQueueManager);
+							inputMessageQueue, dataPacketBufferQueueManager);
 					
 					pool.add(handler);
 				} catch (Exception e) {

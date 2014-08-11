@@ -29,7 +29,7 @@ import java.util.Arrays;
 
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.common.lib.CommonStaticFinal;
+import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.WrapBuffer;
 
@@ -123,7 +123,7 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 	 */
 	private void clearShortBuffer() {
 		shortBuffer.clear();
-		Arrays.fill(shortBytes, CommonStaticFinal.ZERO_BYTE);
+		Arrays.fill(shortBytes, CommonStaticFinalVars.ZERO_BYTE);
 	}
 
 	/**
@@ -131,7 +131,7 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 	 */
 	private void clearIntBuffer() {
 		intBuffer.clear();
-		Arrays.fill(intBytes, CommonStaticFinal.ZERO_BYTE);
+		Arrays.fill(intBytes, CommonStaticFinalVars.ZERO_BYTE);
 	}
 	
 	/**
@@ -181,7 +181,7 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 	 */
 	private void clearLongBuffer() {
 		longBuffer.clear();
-		Arrays.fill(longBytes, CommonStaticFinal.ZERO_BYTE);
+		Arrays.fill(longBytes, CommonStaticFinalVars.ZERO_BYTE);
 	}
 	
 	/**
@@ -234,10 +234,10 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 			throw new IllegalArgumentException(String.format(
 					"파라미터 값[%d]은 음수입니다.", value));
 		}
-		if (value > CommonStaticFinal.MAX_UNSIGNED_INT) {
+		if (value > CommonStaticFinalVars.MAX_UNSIGNED_INT) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 값[%d]은 unsigned int 최대값[%d]을 넘을 수 없습니다.", value,
-					CommonStaticFinal.MAX_UNSIGNED_INT));
+					CommonStaticFinalVars.MAX_UNSIGNED_INT));
 		}
 		clearLongBuffer();
 		longBuffer.putLong(value);
@@ -381,10 +381,10 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 					"파라미터 값[%d]이 음수입니다.", value));
 		}
 
-		if (value > CommonStaticFinal.MAX_UNSIGNED_BYTE) {
+		if (value > CommonStaticFinalVars.MAX_UNSIGNED_BYTE) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 값[%d]은 unsigned byte 최대값[%d]을 넘을 수 없습니다.", value,
-					CommonStaticFinal.MAX_UNSIGNED_BYTE));
+					CommonStaticFinalVars.MAX_UNSIGNED_BYTE));
 		}
 
 		/**
@@ -402,10 +402,10 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 					"파라미터 값[%d]이 음수입니다.", value));
 		}
 		
-		if (value > CommonStaticFinal.MAX_UNSIGNED_BYTE) {
+		if (value > CommonStaticFinalVars.MAX_UNSIGNED_BYTE) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 값[%d]은 unsigned byte 최대값[%d]을 넘을 수 없습니다.", value,
-					CommonStaticFinal.MAX_UNSIGNED_BYTE));
+					CommonStaticFinalVars.MAX_UNSIGNED_BYTE));
 		}
 		
 		/**
@@ -441,10 +441,10 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 					"파라미터 값[%d]이 음수입니다.", value));
 		}
 
-		if (value > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
+		if (value > CommonStaticFinalVars.MAX_UNSIGNED_SHORT) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 값[%d]은 unsigned short 최대값[%d]을 넘을 수 없습니다.", value,
-					CommonStaticFinal.MAX_UNSIGNED_SHORT));
+					CommonStaticFinalVars.MAX_UNSIGNED_SHORT));
 		}
 		
 		ByteBuffer integerBuffer = getIntegerBufferForUnsignedShort(value);
@@ -493,10 +493,10 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 					"파라미터 값[%d]이 음수입니다.", value));
 		}
 
-		if (value > CommonStaticFinal.MAX_UNSIGNED_INT) {
+		if (value > CommonStaticFinalVars.MAX_UNSIGNED_INT) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 값[%d]은 unsigned integer 최대값[%d]을 넘을 수 없습니다.", value,
-					CommonStaticFinal.MAX_UNSIGNED_INT));
+					CommonStaticFinalVars.MAX_UNSIGNED_INT));
 		}
 		
 		ByteBuffer longBuffer = getLongBufferForUnsignedInt(value);
@@ -577,7 +577,7 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 		}
 		
 		byte srcBytes[] = strByteBuffer.array(); 
-		Arrays.fill(srcBytes, CommonStaticFinal.ZERO_BYTE);
+		Arrays.fill(srcBytes, CommonStaticFinalVars.ZERO_BYTE);
 		wantedCharsetEncoder.encode(strCharBuffer, strByteBuffer, true);
 		// log.info("strBufer=[%s]", strBufer.toString());
 		
@@ -781,10 +781,10 @@ public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF 
 					"파라미터 생략할 크기[%d]는 0보다 커야 합니다.", skipBytes));
 		}
 
-		if (skipBytes >= CommonStaticFinal.MAX_UNSIGNED_BYTE) {
+		if (skipBytes >= CommonStaticFinalVars.MAX_UNSIGNED_BYTE) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 생략할 크기[%d]는 unsinged byte 최대값[%d]보다 작어야 합니다.",
-					skipBytes, CommonStaticFinal.MAX_UNSIGNED_BYTE));
+					skipBytes, CommonStaticFinalVars.MAX_UNSIGNED_BYTE));
 		}
 		
 		int dstRemainingByte = skipBytes;

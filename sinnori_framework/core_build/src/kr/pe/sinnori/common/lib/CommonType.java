@@ -52,7 +52,19 @@ public class CommonType {
 	 * 메시지 항목 구분. SINGLE_ITEM : 단일 항목, ARRAY : 배열
 	 */
 	public enum LOGICAL_ITEM_GUBUN {
-		SINGLE_ITEM, ARRAY
+		SINGLE_ITEM, ARRAY_ITEM
 	};
 
+	/**
+	 * 동작하는 곳 구분. SERVER : 서버, CLIENT : 클라이언트
+	 *
+	 */
+	public enum SERVER_CLIENT_GUBUN {
+		SERVER, CLIENT
+	};
+
+	
+	public enum WRAPBUFFER_RECALL_GUBUN {
+		WRAPBUFFER_RECALL_NO, WRAPBUFFER_RECALL_YES
+	};
 }

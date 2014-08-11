@@ -29,24 +29,26 @@ import kr.pe.sinnori.client.connection.asyn.share.ShareAsynConnectionPool;
 import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.InputMessageWriterPool;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderPool;
 import kr.pe.sinnori.client.connection.sync.noshare.NoShareSyncConnectionPool;
-import kr.pe.sinnori.client.io.LetterFromServer;
+import kr.pe.sinnori.client.io.ClientWrapOutputMessageQueue;
 import kr.pe.sinnori.client.io.LetterToServer;
-import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
+import kr.pe.sinnori.common.configuration.ClientProjectConfig;
+import kr.pe.sinnori.common.configuration.CommonProjectConfig;
 import kr.pe.sinnori.common.exception.BodyFormatException;
-import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
+import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
+import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
+import kr.pe.sinnori.common.exception.ServerExcecutorException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
-import kr.pe.sinnori.common.io.MessageProtocolIF;
 import kr.pe.sinnori.common.lib.AbstractProject;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.CommonType.CONNECTION_TYPE;
-import kr.pe.sinnori.common.lib.SyncOutputMessageQueueQueueMangerIF;
 import kr.pe.sinnori.common.lib.WrapBuffer;
-import kr.pe.sinnori.common.lib.WrapOutputMessageQueue;
-import kr.pe.sinnori.common.message.InputMessage;
-import kr.pe.sinnori.common.message.OutputMessage;
+import kr.pe.sinnori.common.message.AbstractMessage;
+import kr.pe.sinnori.common.protocol.MessageCodecIF;
+import kr.pe.sinnori.common.protocol.MessageProtocolIF;
+import kr.pe.sinnori.common.protocol.ReceivedLetter;
 
 /**
  * <pre>
@@ -66,9 +68,13 @@ import kr.pe.sinnori.common.message.OutputMessage;
  * @author Jonghoon Won
  *
  */
-public class ClientProject extends AbstractProject implements ClientProjectIF, SyncOutputMessageQueueQueueMangerIF {
+public class ClientProject extends AbstractProject implements ClientProjectIF, SyncOutputMessageQueueQueueMangerIF, ClientObjectCacheManagerIF {
 	/** 모니터 객체 */
 	private final Object outputMessageQueuerQueueMonitor = new Object();
+	
+	
+	// private String dynamicClassBinaryBasePath = null;
+	private String dynamicClassBasePackageName = null;
 	
 	// private final Object anonymousServerMessageTaskMonitor = new Object();
 
@@ -76,10 +82,10 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 	private LinkedBlockingQueue<LetterToServer> inputMessageQueue = null;
 	
 	/** 비동기 방식에서 사용되는 출력 메시지 큐를 원소로 가지는 큐 */
-	private LinkedBlockingQueue<WrapOutputMessageQueue> syncOutputMessageQueueQueue = null;
+	private LinkedBlockingQueue<ClientWrapOutputMessageQueue> syncOutputMessageQueueQueue = null;
 	
 	/** 서버에서 보내는 불특정 다수 메시지를 받는 큐 */
-	private LinkedBlockingQueue<OutputMessage> asynOutputMessageQueue = null;
+	private LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue = null;
 
 	/** 비동기 방식에서 사용되는 입력 메시지 쓰기 쓰레드 */
 	private InputMessageWriterPool inputMessageWriterPool = null;
@@ -95,6 +101,8 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 	
 	private ClientProjectMonitor clientProjectMonitor = null;
 	
+	private ClientProjectConfig clientProjectConfig = null;
+	
 	/**
 	 * 생성자
 	 * @param projectName 프로젝트 이름
@@ -102,10 +110,16 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 	 * @throws NoMoreOutputMessageQueueException 프로젝트의 연결 클래스을 만들때 바디 버퍼 부족시 던지는 예외
 	 * @throws InterruptedException 쓰레드 인터럽트
 	 */
-	public ClientProject(String projectName) throws NoMoreDataPacketBufferException, NoMoreOutputMessageQueueException, InterruptedException {		
+	public ClientProject(String projectName) throws NoMoreDataPacketBufferException, NoMoreOutputMessageQueueException, InterruptedException {
 		super(projectName);
-		 
-		ClientProjectConfigIF clientProjectConfig = (ClientProjectConfigIF)projectConfig;
+		
+		clientProjectConfig = conf.getClientProjectConfig(projectName);
+		initCommon();
+		
+		//dynamicClassBinaryBasePath = clientProjectConfig.getDynamicClassBinaryBasePath().getAbsolutePath();
+		dynamicClassBasePackageName = clientProjectConfig.getDynamicClassBasePackageName();
+		
+		// ClientProjectConfigIF clientProjectConfig = (ClientProjectConfigIF)projectConfig;
 		
 		int dataPacketBufferCnt = clientProjectConfig.getClientDataPacketBufferCnt();
 		int connectionCount = clientProjectConfig.getClientConnectionCount();		
@@ -115,23 +129,21 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 		dataPacketBufferQueue = new LinkedBlockingQueue<WrapBuffer>(dataPacketBufferCnt);
 		try {
 			for (int i = 0; i < dataPacketBufferCnt; i++) {
-				WrapBuffer buffer = new WrapBuffer(clientProjectConfig.getDataPacketBufferSize());
+				WrapBuffer buffer = new WrapBuffer(dataPacketBufferSize);
 				dataPacketBufferQueue.add(buffer);
-				buffer.getByteBuffer().order(clientProjectConfig.getByteOrder());
+				buffer.getByteBuffer().order(byteOrder);
 			}
 		} catch (OutOfMemoryError e) {
 			String errorMessage = "OutOfMemoryError";
-			log.fatal(errorMessage, e);
+			log.error(errorMessage, e);
 			throw new NoMoreDataPacketBufferException(errorMessage);
 		}
 		
 		CONNECTION_TYPE connectionType = clientProjectConfig.getConnectionType();
 		
-		
-		
 		if (CONNECTION_TYPE.NoShareSync == connectionType) {			
 			connectionPool = new NoShareSyncConnectionPool(connectionCount, 
-					socketTimeOut, whetherToAutoConnect, clientProjectConfig, messageExchangeProtocol, this, this);
+					socketTimeOut, whetherToAutoConnect, clientProjectConfig, messageProtocol, this, this);
 		} else {
 			int inputMessageQueueSize = clientProjectConfig.getClientInputMessageQueueSize();
 			int OutputMessageQueueSize = clientProjectConfig.getClientOutputMessageQueueSize();
@@ -139,7 +151,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 			long finishConnectWaittingTime = clientProjectConfig.getClientReadSelectorWakeupInterval();
 			long readSelectorWakeupInterval = clientProjectConfig.getClientReadSelectorWakeupInterval();
 		
-			asynOutputMessageQueue  = new LinkedBlockingQueue<OutputMessage>(OutputMessageQueueSize);
+			asynOutputMessageQueue  = new LinkedBlockingQueue<ReceivedLetter>(OutputMessageQueueSize);
 			
 			inputMessageQueue = new LinkedBlockingQueue<LetterToServer>(inputMessageQueueSize);
 			
@@ -147,12 +159,12 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 					clientProjectConfig.getClientInputMessageWriterSize(),
 					clientProjectConfig.getClientInputMessageWriterMaxSize(),
 					clientProjectConfig,
-					inputMessageQueue, messageExchangeProtocol, this, this);
+					inputMessageQueue,  this);
 			
 			outputMessageReaderPool = new OutputMessageReaderPool(
 					clientProjectConfig.getClientOutputMessageReaderSize(),
 					clientProjectConfig.getClientOutputMessageReaderMaxSize(), 
-					readSelectorWakeupInterval, clientProjectConfig, messageExchangeProtocol, this);
+					readSelectorWakeupInterval, clientProjectConfig, messageProtocol);
 			
 			inputMessageWriterPool.startAll();
 			outputMessageReaderPool.startAll();
@@ -162,13 +174,13 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 				int mailBoxCnt = clientProjectConfig.getClientShareAsynConnMailboxCnt();
 				
 				int  outputMessageQueueQueueSize = mailBoxCnt * connectionCount;
-				syncOutputMessageQueueQueue = new LinkedBlockingQueue<WrapOutputMessageQueue>(outputMessageQueueQueueSize);
+				syncOutputMessageQueueQueue = new LinkedBlockingQueue<ClientWrapOutputMessageQueue>(outputMessageQueueQueueSize);
 				
 				
 				for (int i=0; i < connectionCount; i++) {
 					for (int j=0; j < mailBoxCnt; j++) {
-						LinkedBlockingQueue<OutputMessage> outputMessageQueue = new LinkedBlockingQueue<OutputMessage>(OutputMessageQueueSize);
-						WrapOutputMessageQueue wrapOutputMessageQeuue = new WrapOutputMessageQueue(outputMessageQueue);
+						LinkedBlockingQueue<ReceivedLetter> outputMessageQueue = new LinkedBlockingQueue<ReceivedLetter>(OutputMessageQueueSize);
+						ClientWrapOutputMessageQueue wrapOutputMessageQeuue = new ClientWrapOutputMessageQueue(outputMessageQueue);
 						syncOutputMessageQueueQueue.add(wrapOutputMessageQeuue);
 					}
 				}
@@ -179,13 +191,14 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 						mailBoxCnt,
 						clientProjectConfig, 
 						asynOutputMessageQueue, 
-						inputMessageQueue, this, 
-						outputMessageReaderPool, this, this);
+						inputMessageQueue, 
+						messageProtocol,
+						outputMessageReaderPool, this, this, this);
 			} else {
-				syncOutputMessageQueueQueue = new LinkedBlockingQueue<WrapOutputMessageQueue>(connectionCount);
+				syncOutputMessageQueueQueue = new LinkedBlockingQueue<ClientWrapOutputMessageQueue>(connectionCount);
 				for (int i=0; i < connectionCount; i++) {
-					LinkedBlockingQueue<OutputMessage> outputMessageQueue = new LinkedBlockingQueue<OutputMessage>(OutputMessageQueueSize);
-					WrapOutputMessageQueue wrapOutputMessageQeuue = new WrapOutputMessageQueue(outputMessageQueue);
+					LinkedBlockingQueue<ReceivedLetter> outputMessageQueue = new LinkedBlockingQueue<ReceivedLetter>(OutputMessageQueueSize);
+					ClientWrapOutputMessageQueue wrapOutputMessageQeuue = new ClientWrapOutputMessageQueue(outputMessageQueue);
 					syncOutputMessageQueueQueue.add(wrapOutputMessageQeuue);
 				}
 				
@@ -194,8 +207,9 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 						finishConnectMaxCall, finishConnectWaittingTime, 
 						clientProjectConfig, 
 						asynOutputMessageQueue, 
-						inputMessageQueue, this, 
-						outputMessageReaderPool, this, this);
+						inputMessageQueue,  
+						messageProtocol,
+						outputMessageReaderPool, this, this, this);
 			}			
 
 			asynOutputMessageExecutorThreadList = new AsynOutputMessageExecutorThread[clientProjectConfig.getClientAsynOutputMessageExecutorThreadCnt()];
@@ -211,12 +225,16 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 		clientProjectMonitor.start();
 	}
 	
+	protected  CommonProjectConfig getCommonProjectConfig() {
+		return clientProjectConfig;
+	}
+	
 	
 	@Override
-	public LetterFromServer sendSyncInputMessage(
-			InputMessage inputMessage) throws ServerNotReadyException,
-			SocketTimeoutException, NoMoreDataPacketBufferException,
-			BodyFormatException, MessageInfoNotFoundException {
+	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage) 
+			throws SocketTimeoutException, ServerNotReadyException, 
+			NoMoreDataPacketBufferException, BodyFormatException, 
+			DynamicClassCallException, ServerExcecutorException, NotLoginException  {
 		return connectionPool.sendSyncInputMessage(inputMessage);
 	}
 	
@@ -237,11 +255,11 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 	 * @return 서버에서 보낸 불특정 다수로 출력 메시지
 	 * @throws InterruptedException 쓰레드 인터럽트
 	 */
-	public OutputMessage takeServerOutputMessageQueue()
+	public ReceivedLetter takeServerOutputMessageQueue()
 			throws InterruptedException {
-		OutputMessage outputMessage = null;
-		outputMessage = asynOutputMessageQueue.take();
-		return outputMessage;
+		ReceivedLetter receivedLetter = null;
+		receivedLetter = asynOutputMessageQueue.take();
+		return receivedLetter;
 	}
 	
 	/**
@@ -258,11 +276,11 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 	}
 
 	@Override
-	public WrapOutputMessageQueue pollOutputMessageQueue()
+	public ClientWrapOutputMessageQueue pollOutputMessageQueue()
 			throws NoMoreOutputMessageQueueException {
-		WrapOutputMessageQueue wrapOutputMessageQueue = syncOutputMessageQueueQueue.poll();
+		ClientWrapOutputMessageQueue wrapOutputMessageQueue = syncOutputMessageQueueQueue.poll();
 		if (null == wrapOutputMessageQueue) {
-			String errorMessage = String.format("클라이언트 프로젝트[%s]에서 랩 출력 메시지큐가 부족합니다.", projectConfig.getProjectName());
+			String errorMessage = String.format("클라이언트 프로젝트[%s]에서 랩 출력 메시지큐가 부족합니다.", projectName);
 			throw new NoMoreOutputMessageQueueException(errorMessage);
 		}
 		
@@ -273,7 +291,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 
 	@Override
 	public void putOutputMessageQueue(
-			WrapOutputMessageQueue wrapOutputMessageQueue) {
+			ClientWrapOutputMessageQueue wrapOutputMessageQueue) {
 		if (null == wrapOutputMessageQueue)
 			return;
 
@@ -297,7 +315,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 	 */
 	public ClientProjectMonitorInfo getInfo() {
 		ClientProjectMonitorInfo clientProjectMonitorInfo = new ClientProjectMonitorInfo();
-		clientProjectMonitorInfo.projectName = projectConfig.getProjectName();
+		clientProjectMonitorInfo.projectName = projectName;
 		clientProjectMonitorInfo.dataPacketBufferQueueSize = dataPacketBufferQueue.size();
 		
 		clientProjectMonitorInfo.usedMailboxCnt = connectionPool.getUsedMailboxCnt();
@@ -345,18 +363,18 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 		public void run() {
 			try {
 				while (!Thread.currentThread().isInterrupted()) {
-					OutputMessage outObj = asynOutputMessageQueue.take();
+					ReceivedLetter receivedLetter = asynOutputMessageQueue.take();
 					//synchronized (monitor) {
-						asynOutputMessageTask.doTask(projectConfig, outObj);
+						asynOutputMessageTask.doTask(clientProjectConfig, receivedLetter);
 					//}
 				}
 				
-				log.info(String.format("client project[%s] AnonymousServerMessageProcessorThread loop exit", projectConfig.getProjectName()));
+				log.info(String.format("client project[%s] AnonymousServerMessageProcessorThread loop exit", projectName));
 				log.warn("Thread loop exit");
 			} catch (InterruptedException e) {
-				log.warn(String.format("client project[%s] AnonymousServerMessageProcessorThread interrupt", projectConfig.getProjectName()), e);
+				log.warn(String.format("client project[%s] AnonymousServerMessageProcessorThread interrupt", projectName), e);
 			} catch (Exception e) {
-				log.warn(String.format("client project[%s] AnonymousServerMessageProcessorThread unknow error", projectConfig.getProjectName()), e);
+				log.warn(String.format("client project[%s] AnonymousServerMessageProcessorThread unknow error", projectName), e);
 			}
         }
 		
@@ -429,7 +447,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 						if (null == finalReadTime) continue;
 						
 						if ((finalReadTime.getTime() - currentTime) > requestTimeout) {
-							log.info(String.format("project[%s] requestTimeout[%d] over so socket close, conn[%s]", projectConfig.getProjectName(), requestTimeout, conn.toString()));
+							log.info(String.format("project[%s] requestTimeout[%d] over so socket close, conn[%s]", projectName, requestTimeout, conn.toString()));
 							conn.serverClose();
 						}
 					}
@@ -437,11 +455,11 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 					Thread.sleep(monitorInterval);
 				}
 				
-				log.warn(String.format("client project[%s] ClientProjectMonitor loop exit", projectConfig.getProjectName()));
+				log.warn(String.format("client project[%s] ClientProjectMonitor loop exit", projectName));
 			} catch (InterruptedException e) {
-				log.warn(String.format("client project[%s] ClientProjectMonitor interrupt", projectConfig.getProjectName()), e);
+				log.warn(String.format("client project[%s] ClientProjectMonitor interrupt", projectName), e);
 			} catch (Exception e) {
-				log.warn(String.format("client project[%s] ClientProjectMonitor unknow error", projectConfig.getProjectName()), e);
+				log.warn(String.format("client project[%s] ClientProjectMonitor unknow error", projectName), e);
 			}
 		}
 	}
@@ -452,7 +470,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 	
 	public void stop() {
 		// FIXME!
-		log.info(String.format("project[%s] client project stop", projectConfig.getProjectName()));
+		log.info(String.format("project[%s] client project stop", projectName));
 		
 		stopAsynPool();
 		stopAsynOutputMessageExecutorThread();
@@ -461,7 +479,53 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 	
 	@Override
 	public MessageProtocolIF getMessageProtocol() {
-		return messageExchangeProtocol;
+		return messageProtocol;
+	}
+	
+	@Override
+	public MessageCodecIF getClientCodec(ClassLoader classLoader, String messageID) throws DynamicClassCallException  {
+		String classFullName = new StringBuilder(dynamicClassBasePackageName).append(messageID).append(".").append(messageID).append("ClientCodec").toString();
+		
+		MessageCodecIF messageCodec = null;
+		
+		Object valueObj = null;
+		try {
+			try {
+				valueObj = loaderAndName2ObjectCacheManager.getObjectFromHash(classLoader, classFullName);
+			} catch (ClassNotFoundException e) {
+				String errorMessage = String.format("ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::ClassNotFoundException", classLoader.hashCode(), messageID, classFullName);					
+				log.warn(errorMessage);
+				throw new DynamicClassCallException(errorMessage);
+			} catch (InstantiationException e) {
+				String errorMessage = String.format("ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::InstantiationException", classLoader.hashCode(), messageID, classFullName);					
+				log.warn(errorMessage);
+				throw new DynamicClassCallException(errorMessage);
+			} catch (IllegalAccessException e) {
+				String errorMessage = String.format("ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::IllegalAccessException", classLoader.hashCode(), messageID, classFullName);					
+				log.warn(errorMessage);
+				throw new DynamicClassCallException(errorMessage);
+			}
+		} catch(IllegalArgumentException e) {
+			String errorMessage = String.format("ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::IllegalArgumentException::%s", classLoader.hashCode(), messageID, classFullName, e.getMessage());					
+			log.warn(errorMessage);
+			throw new DynamicClassCallException(errorMessage);
+		}
+		
+		/*if (null == valueObj) {
+			String errorMessage = String.format("ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::valueObj is null", classLoader.hashCode(), messageID, classFullName);
+			log.warn(errorMessage);
+			new DynamicClassCallException(errorMessage);
+		}
+		
+		if (!(valueObj instanceof MessageCodecIF)) {
+			String errorMessage = String.format("ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::valueObj type[%s] is not  MessageCodecIF", classLoader.hashCode(), messageID, classFullName, valueObj.getClass().getCanonicalName());
+			log.warn(errorMessage);
+			new DynamicClassCallException(errorMessage);
+		}*/
+		
+		messageCodec = (MessageCodecIF)valueObj;
+		
+		return messageCodec;
 	}
 }
 

@@ -21,15 +21,20 @@ import java.nio.channels.SocketChannel;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderPoolIF;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReader;
 import kr.pe.sinnori.client.io.LetterToServer;
-import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
+import kr.pe.sinnori.common.configuration.ClientProjectConfig;
+import kr.pe.sinnori.common.exception.BodyFormatException;
+import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
-import kr.pe.sinnori.common.message.OutputMessage;
+import kr.pe.sinnori.common.message.AbstractMessage;
+import kr.pe.sinnori.common.protocol.MessageProtocolIF;
+import kr.pe.sinnori.common.protocol.ReceivedLetter;
 
 /**
  * 클라이언트 소켓 채널 블락킹 모드가 넌블락인 비동기 연결 클래스의 부모 추상화 클래스<br/>
@@ -74,13 +79,14 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 			boolean whetherToAutoConnect,
 			int finishConnectMaxCall,
 			long finishConnectWaittingTime,
-			ClientProjectConfigIF clientProjectConfig,
-			LinkedBlockingQueue<OutputMessage> asynOutputMessageQueue,
+			ClientProjectConfig clientProjectConfig,
+			LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
+			MessageProtocolIF messageProtocol,
 			OutputMessageReaderPoolIF outputMessageReaderPool,
-			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws InterruptedException, NoMoreDataPacketBufferException {
-		super(index, socketTimeOut, whetherToAutoConnect, 
-				clientProjectConfig, dataPacketBufferQueueManager, asynOutputMessageQueue);
+			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager,
+			ClientObjectCacheManagerIF clientObjectCacheManager) throws InterruptedException, NoMoreDataPacketBufferException {
+		super(index, socketTimeOut, whetherToAutoConnect, clientProjectConfig, asynOutputMessageQueue, messageProtocol, dataPacketBufferQueueManager, clientObjectCacheManager);
 
 		this.finishConnectMaxCall = finishConnectMaxCall;
 		this.finishConnectWaittingTime = finishConnectWaittingTime;
@@ -94,9 +100,8 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 	 * 환경변수 연결 확립 최대 호출 횟수만큼 환경변수 연결 확립 간격으로 연결을 재시도한다
 	 * </pre>
 	 * @throws ServerNotReadyException
-	 * @throws InterruptedException
 	 */
-	protected void finishConnect() throws ServerNotReadyException, InterruptedException {
+	protected void finishConnect() throws ServerNotReadyException {
 		int callNumberOfFinishConnect = 0;
 		try {
 			do {
@@ -116,7 +121,11 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 				callNumberOfFinishConnect++;
 				// log.info("callNumberOfFinishConnect[%d]",
 				// callNumberOfFinishConnect);
-				Thread.sleep(finishConnectWaittingTime);
+				try {
+					Thread.sleep(finishConnectWaittingTime);
+				} catch (InterruptedException e) {
+					// ignore
+				}
 			} while (!serverSC.finishConnect());
 		} catch (IOException e) {
 			serverClose();
@@ -149,7 +158,7 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 	 * 
 	 * @param outObj 
 	 */
-	abstract public void putToOutputMessageQueue(OutputMessage outObj);
+	abstract public void putToOutputMessageQueue(ReceivedLetter receivedLetter);
 	
 	/**
 	 * {@link OutputMessageReader } 가 운영하는 소켓 읽기 전용 selector 에 등록과 운영을 위한 hash 와 set 에 connection 을 등록한다.  
@@ -159,5 +168,16 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 	public void register(Map<SocketChannel, AbstractAsynConnection> hash, LinkedBlockingQueue<SocketChannel> waitingSCQueue) {
 		hash.put(serverSC, this);
 		waitingSCQueue.add(serverSC);
+	}
+	
+	protected LetterToServer getLetterToServer(ClassLoader classLoader, AbstractMessage messageToClient) 
+			throws DynamicClassCallException, NoMoreDataPacketBufferException, BodyFormatException {
+		LetterToServer letterToServer = new LetterToServer(this, 
+				messageToClient.getMessageID()
+				, messageToClient.messageHeaderInfo.mailboxID, 
+				messageToClient.messageHeaderInfo.mailID,
+				getWrapBufferList(classLoader, messageToClient));
+		
+		return letterToServer;
 	}
 }

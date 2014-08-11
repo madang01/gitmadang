@@ -199,7 +199,7 @@ public class MessageInfoSAXParser extends DefaultHandler implements
 			}
 			*/
 
-			String itemDefaultValue = attributes.getValue("value");
+			String itemDefaultValue = attributes.getValue("itemDefaultValue");
 
 			String itemSize = attributes.getValue("size");
 
@@ -349,7 +349,7 @@ public class MessageInfoSAXParser extends DefaultHandler implements
 
 				CommonType.LOGICAL_ITEM_GUBUN refLogicalItemType = refItemInfo
 						.getLogicalItemGubun();
-				if (CommonType.LOGICAL_ITEM_GUBUN.ARRAY == refLogicalItemType) {
+				if (CommonType.LOGICAL_ITEM_GUBUN.ARRAY_ITEM == refLogicalItemType) {
 					log.warn(String.format(
 							"배열[%s]의 크기를 지정하는 참조 항목[%s]은 숫자형 단일 항목만 올 수 있습니다. 참조 항목은 배열입니다.",
 							arrayName, arrayCntValue));

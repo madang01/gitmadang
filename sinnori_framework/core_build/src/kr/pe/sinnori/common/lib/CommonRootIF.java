@@ -20,7 +20,7 @@ package kr.pe.sinnori.common.lib;
 import kr.pe.sinnori.common.configuration.SinnoriConfig;
 import kr.pe.sinnori.common.util.LogManager;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 /**
  * 로그와 신놀이 환경 변수 접근 변수를 담은 공통 인터페이스<br/>

@@ -32,15 +32,13 @@ import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
-import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
+import kr.pe.sinnori.common.configuration.ClientProjectConfig;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.io.MessageProtocolIF;
 import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.lib.SocketInputStream;
-import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.message.OutputMessage;
+import kr.pe.sinnori.common.protocol.MessageProtocolIF;
+import kr.pe.sinnori.common.protocol.ReceivedLetter;
 
 /**
  * 클라이언트 출력 메시지 소켓 읽기 담당 쓰레드.
@@ -52,9 +50,8 @@ public class OutputMessageReader extends Thread implements
 		OutputMessageReaderIF, CommonRootIF {
 	/** 출력 메시지를 읽는 쓰레드 번호 */
 	private int index;
-	private ClientProjectConfigIF clientProjectConfig = null;
+	private ClientProjectConfig clientProjectConfig = null;
 	private MessageProtocolIF messageProtocol = null;
-	private MessageMangerIF messageManger = null;
 	
 	/** 소켓 채널를 통해 연결 클래스를 얻기 위한 해쉬 */
 	private Map<SocketChannel, AbstractAsynConnection> scToConnectionHash = new Hashtable<SocketChannel, AbstractAsynConnection>();
@@ -74,22 +71,19 @@ public class OutputMessageReader extends Thread implements
 	 * @param readSelectorWakeupInterval 출력 메시지 소켓 읽기 담당 쓰레드에서 블락된 읽기 이벤트 전용 selector 를 깨우는 주기
 	 * @param clientProjectConfig 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
 	 * @param messageProtocol 메시지 교환 프로토콜
-	 * @param messageManger  메시지 관리자
 	 */
 	public OutputMessageReader(int index, long readSelectorWakeupInterval,
-			ClientProjectConfigIF clientProjectConfig,
-			MessageProtocolIF messageProtocol,
-			MessageMangerIF messageManger) {
+			ClientProjectConfig clientProjectConfig,
+			MessageProtocolIF messageProtocol) {
 		this.index = index;
 		this.readSelectorWakeupInterval = readSelectorWakeupInterval;
 		this.clientProjectConfig = clientProjectConfig;
 		this.messageProtocol = messageProtocol;
-		this.messageManger = messageManger;
 		// this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 		try {
 			selector = Selector.open();
 		} catch (IOException ioe) {
-			log.fatal("selector open fail", ioe);
+			log.error("selector open fail", ioe);
 			System.exit(1);
 		}
 	}
@@ -117,8 +111,7 @@ public class OutputMessageReader extends Thread implements
 	}
 	
 	@Override
-	public void addNewServer(AbstractAsynConnection clientConnection)
-			throws InterruptedException {
+	public void addNewServer(AbstractAsynConnection clientConnection) {
 		
 		clientConnection.register(scToConnectionHash, waitingSCQueue);
 
@@ -141,7 +134,11 @@ public class OutputMessageReader extends Thread implements
 		do {
 			selector.wakeup();
 
-			Thread.sleep(readSelectorWakeupInterval);		
+			try {
+				Thread.sleep(readSelectorWakeupInterval);
+			} catch (InterruptedException e) {
+				// ignore
+			}		
 		} while (clientConnection.isConnected() && !clientConnection.isRegistered());
 	}
 
@@ -207,14 +204,16 @@ public class OutputMessageReader extends Thread implements
 
 							asynConnection.setFinalReadTime();
 							
-							ArrayList<AbstractMessage> outputMessageList = messageProtocol.S2MList(OutputMessage.class, clientProjectConfig.getCharset(), messageInputStreamResource, messageManger);
+							ArrayList<ReceivedLetter> receivedLetterList = messageProtocol.S2MList(clientProjectConfig.getCharset(), messageInputStreamResource);
 							
-							int cntOfMesages = outputMessageList.size();
-							for (int i = 0; i < cntOfMesages; i++) {
-								OutputMessage outObj = (OutputMessage)outputMessageList.get(i);
-								asynConnection.putToOutputMessageQueue(outObj);
-							}							
 							
+							for (ReceivedLetter receivedLetter : receivedLetterList) {
+								// FIXME!
+								// log.info("receivedLetter={}", receivedLetter.toString());
+								
+								// asynConnection.putToOutputMessageQueue(new LetterFromServer(receivedLetter));
+								asynConnection.putToOutputMessageQueue(receivedLetter);
+							}
 						} catch (NotYetConnectedException e) {
 							log.warn(String.format("%s OutputMessageReader[%d]::%s", asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
 							closeServer(selectionKey, asynConnection);
@@ -238,7 +237,7 @@ public class OutputMessageReader extends Thread implements
 
 			log.warn(String.format("%s OutputMessageReader[%d] loop exit", clientProjectConfig.getProjectName(), index));
 		} catch (Exception e) {
-			log.fatal(String.format("%s OutputMessageReader[%d] unknown error", clientProjectConfig.getProjectName(),
+			log.error(String.format("%s OutputMessageReader[%d] unknown error", clientProjectConfig.getProjectName(),
 					index), e);
 			System.exit(1);
 		}

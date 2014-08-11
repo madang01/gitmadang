@@ -20,18 +20,14 @@ package kr.pe.sinnori.util;
 import java.net.SocketTimeoutException;
 
 import kr.pe.sinnori.client.ClientProjectIF;
-import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
+import kr.pe.sinnori.common.configuration.ClientProjectConfig;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
-import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
-import kr.pe.sinnori.common.exception.MessageItemException;
-import kr.pe.sinnori.common.exception.NoMatchOutputMessage;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotLoginException;
-import kr.pe.sinnori.common.exception.ServerExcecutorUnknownException;
+import kr.pe.sinnori.common.exception.ServerExcecutorException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.common.lib.MessageMangerIF;
 
 /**
  * 신놀이 기동 편의 기능 클래스({@link SinnoriWorker}) 종속 클라이언트 비지니스 로직 부모 추상화 클래스
@@ -47,11 +43,11 @@ public abstract class AbstractClientExecutor implements CommonRootIF {
 	 * @param clientProject 외부에 제공되는 프로젝트 기능 인터페이스
 	 * @throws InterruptedException 쓰레드 인터럽트 발생시 던지는 예외
 	 */
-	public void execute(ClientProjectConfigIF clientProjectConfig, MessageMangerIF messageManger, ClientProjectIF clientProject) throws InterruptedException {
+	public void execute(ClientProjectConfig clientProjectConfig, ClientProjectIF clientProject) throws InterruptedException {
 		long firstErraseTime = new java.util.Date().getTime();
 		
 		try {
-			doTask(clientProjectConfig, messageManger, clientProject);
+			doTask(clientProjectConfig, clientProject);
 		} catch (SocketTimeoutException e) {
 			e.printStackTrace();
 		} catch (ServerNotReadyException e) {
@@ -62,12 +58,6 @@ public abstract class AbstractClientExecutor implements CommonRootIF {
 			e.printStackTrace();
 		} catch (BodyFormatException e) {
 			e.printStackTrace();
-		} catch (MessageInfoNotFoundException e) {
-			e.printStackTrace();
-		} catch(MessageItemException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			throw e;
 		} catch (NotLoginException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
@@ -86,13 +76,13 @@ public abstract class AbstractClientExecutor implements CommonRootIF {
 	 * @param count 반복 횟수
 	 * @throws InterruptedException 쓰레드 인터럽트 발생시 던지는 예외
 	 */
-	public void execute(ClientProjectConfigIF clientProjectConfig, MessageMangerIF messageManger, ClientProjectIF clientProject, int count) throws InterruptedException {
+	public void execute(ClientProjectConfig clientProjectConfig, ClientProjectIF clientProject, int count) throws InterruptedException {
 		long firstErraseTime = new java.util.Date().getTime();
 		
 		try {
 			for (int i=0; i < count; i++) {
 				try {
-					doTask(clientProjectConfig, messageManger, clientProject);
+					doTask(clientProjectConfig, clientProject);
 				} catch (SocketTimeoutException e) {
 					e.printStackTrace();
 				}
@@ -105,12 +95,6 @@ public abstract class AbstractClientExecutor implements CommonRootIF {
 			e.printStackTrace();
 		} catch (BodyFormatException e) {
 			e.printStackTrace();
-		} catch (MessageInfoNotFoundException e) {
-			e.printStackTrace();
-		} catch(ServerExcecutorUnknownException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			throw e;
 		} catch (Exception e) {
 			log.warn("Exception::통제 못한 에러 발생", e);
 		}
@@ -125,22 +109,8 @@ public abstract class AbstractClientExecutor implements CommonRootIF {
 	 * @param clientProjectConfig 프로젝트의 클라이언트 환경 변수
 	 * @param messageManger 프로젝트의 메시지 관리자
 	 * @param clientProject 외부에 제공되는 프로젝트 기능 인터페이스
-	 * @throws SocketTimeoutException
-	 * @throws ServerNotReadyException
-	 * @throws DynamicClassCallException
-	 * @throws NoMoreDataPacketBufferException
-	 * @throws BodyFormatException
-	 * @throws MessageInfoNotFoundException
-	 * @throws MessageItemException
-	 * @throws NoMatchOutputMessage
-	 * @throws InterruptedException
-	 * @throws ServerExcecutorUnknownException
-	 * @throws NotLoginException
 	 */
-	abstract protected void doTask(ClientProjectConfigIF clientProjectConfig, MessageMangerIF messageManger, ClientProjectIF clientProject)
-			throws SocketTimeoutException, ServerNotReadyException, DynamicClassCallException, 
-			NoMoreDataPacketBufferException, BodyFormatException, 
-			MessageInfoNotFoundException, MessageItemException, 
-			NoMatchOutputMessage, ServerExcecutorUnknownException, 
-			InterruptedException, NotLoginException;
+	abstract protected void doTask(ClientProjectConfig clientProjectConfig, ClientProjectIF clientProject)
+			throws SocketTimeoutException, ServerNotReadyException, NoMoreDataPacketBufferException, 
+			BodyFormatException, DynamicClassCallException, ServerExcecutorException, NotLoginException;
 }

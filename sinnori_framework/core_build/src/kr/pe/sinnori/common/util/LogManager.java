@@ -18,14 +18,12 @@
 package kr.pe.sinnori.common.util;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.util.Properties;
 
-import kr.pe.sinnori.common.lib.CommonStaticFinal;
+import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 
 /**
@@ -36,14 +34,14 @@ import org.apache.log4j.PropertyConfigurator;
  * @author Jonghoon Won
  */
 public final class LogManager {
-	private final String SINNORI_CONFIG_FILE_CHARSET = "UTF-8";
+	// private final String SINNORI_CONFIG_FILE_CHARSET = "UTF-8";
 	/**
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 생성자.
 	 */
 	private LogManager() {
 		System.out.println("call LogManager::LogManager");
 
-		String propSinnoriConfigFile = System.getenv("SINNORI_PROJECT_CONFIG_FILE");
+		/*String propSinnoriConfigFile = System.getenv("SINNORI_PROJECT_CONFIG_FILE");
 		System.out.printf("SINNORI_PROJECT_CONFIG_FILE[%s]%s", propSinnoriConfigFile, CommonStaticFinal.NEWLINE);
 		
 		Properties sinnoriConfigFileProp = new Properties();
@@ -93,43 +91,47 @@ public final class LogManager {
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
-		}
+		}*/
 		
 		String propSinnoriLogPath = System.getenv("SINNORI_PROJECT_LOG_PATH");
-		System.out.printf("SINNORI_PROJECT_LOG_PATH[%s]%s", propSinnoriLogPath, CommonStaticFinal.NEWLINE);
+		
+		
+		System.out.printf("SINNORI_PROJECT_LOG_PATH[%s]%s", propSinnoriLogPath, CommonStaticFinalVars.NEWLINE);
 		
 		if (null == propSinnoriLogPath) {
-			System.out.printf("SINNORI_PROJECT_LOG_PATH is null%s", CommonStaticFinal.NEWLINE);
+			System.out.printf("SINNORI_PROJECT_LOG_PATH is null%s", CommonStaticFinalVars.NEWLINE);
 			System.exit(1);
 		}
 		
 		File sinnoriLogPath = new File(propSinnoriLogPath);
 			
 		if (!sinnoriLogPath.exists()) {
-			System.out.printf("SINNORI_PROJECT_LOG_PATH[%s] not exist%s", propSinnoriLogPath, CommonStaticFinal.NEWLINE);
+			System.out.printf("SINNORI_PROJECT_LOG_PATH[%s] not exist%s", propSinnoriLogPath, CommonStaticFinalVars.NEWLINE);
 			System.exit(1);
 		}
 		
 		if (!sinnoriLogPath.isDirectory()) {
-			System.out.printf("SINNORI_PROJECT_LOG_PATH[%s] not directory%s", sinnoriLogPath.getAbsolutePath(), CommonStaticFinal.NEWLINE);
+			System.out.printf("SINNORI_PROJECT_LOG_PATH[%s] not directory%s", sinnoriLogPath.getAbsolutePath(), CommonStaticFinalVars.NEWLINE);
 			System.exit(1);
 		}
 		
 		if (!sinnoriLogPath.canRead() ) {
-			System.out.printf("SINNORI_PROJECT_LOG_PATH[%s] can't read%s", sinnoriLogPath.getAbsolutePath(), CommonStaticFinal.NEWLINE);
+			System.out.printf("SINNORI_PROJECT_LOG_PATH[%s] can't read%s", sinnoriLogPath.getAbsolutePath(), CommonStaticFinalVars.NEWLINE);
 			System.exit(1);
 		}
 		
 		if (!sinnoriLogPath.canWrite()) {
-			System.out.printf("SINNORI_PROJECT_LOG_PATH[%s] can't write%s", sinnoriLogPath.getAbsolutePath(), CommonStaticFinal.NEWLINE);
+			System.out.printf("SINNORI_PROJECT_LOG_PATH[%s] can't write%s", sinnoriLogPath.getAbsolutePath(), CommonStaticFinalVars.NEWLINE);
 			System.exit(1);
 		}
 		
 		// sinnoriConfigFileProp.setProperty("log4j.appender.logfile.File", sinnoriLogPath.getAbsolutePath()+File.separator+"logger.log");
-		sinnoriConfigFileProp.setProperty("log4j.appender.logfile.File", new StringBuilder(sinnoriLogPath.getAbsolutePath()).append(File.separator).append("logger.log").toString());
+		// sinnoriConfigFileProp.setProperty("log4j.appender.logfile.File", new StringBuilder(sinnoriLogPath.getAbsolutePath()).append(File.separator).append("logger.log").toString());
 		
 		
-		PropertyConfigurator.configure(sinnoriConfigFileProp);
+		// PropertyConfigurator.configure(sinnoriConfigFileProp);
+		
+		System.setProperty("SINNORI_PROJECT_LOG_PATH", propSinnoriLogPath);
 	}
 
 	/**
@@ -152,6 +154,6 @@ public final class LogManager {
 	 * @return 신놀이 프레임 워크 전용 로거
 	 */
 	public Logger getLogger () {
-		return Logger.getLogger("sinnori");
+		return LoggerFactory.getLogger("kr.pe.sinnori");
 	}
 }

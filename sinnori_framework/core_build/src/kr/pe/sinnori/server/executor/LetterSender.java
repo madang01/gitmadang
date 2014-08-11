@@ -17,14 +17,12 @@
 
 package kr.pe.sinnori.server.executor;
 
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.ArrayList;
 
 import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.common.lib.CommonStaticFinal;
-import kr.pe.sinnori.common.message.InputMessage;
-import kr.pe.sinnori.common.message.OutputMessage;
+import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
+import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.server.ClientResource;
-import kr.pe.sinnori.server.io.LetterToClient;
 
 /**
  * 클라이언트로 보내는 편지 배달부. 서버 비지니스 로직 호출할때 마다 할당 된다. 
@@ -32,63 +30,303 @@ import kr.pe.sinnori.server.io.LetterToClient;
  *
  */
 public class LetterSender implements CommonRootIF {
-	private InputMessage inObj;
-	private ClientResource inObjClientResource  = null;
-	private LinkedBlockingQueue<LetterToClient> ouputMessageQueue = null;
+	private AbstractMessage messageFromClient;
+	private ClientResource clientResource  = null; 
+	private ArrayList<AbstractMessage> messageToClientList = new ArrayList<AbstractMessage>();
 	
 	/**
 	 * 생성자
 	 * @param inObjClientResource 입력 메시지 보낸 클라이언트의 자원
 	 * @param inObj 입력 메시지, 입력 메시지를 보낸 클라이언트 당사자한테 출력 메시지를 보낼때 입력 메시지의 메일박스 식별자와 메일 식별자가 필요하다.
-	 * @param ouputMessageQueue 출력 메시지를 담아 보낼 큐
 	 */
-	public LetterSender(ClientResource inObjClientResource, InputMessage inObj, LinkedBlockingQueue<LetterToClient> ouputMessageQueue) {
-		this.inObjClientResource = inObjClientResource;
-		this.inObj = inObj;
-		this.ouputMessageQueue = ouputMessageQueue;
+	public LetterSender(ClientResource clientResource, AbstractMessage messageFromClient) {
+		this.clientResource = clientResource;
+		this.messageFromClient = messageFromClient;
 	}
 	
 	/**
 	 * 출력 메시지를 비 익명으로 입력 메시지 보낸 클라이언트로 보낸다.
 	 * @param outObj 출력 메시지
 	 */
-	public void sendSync(OutputMessage outObj) {
-		outObj.messageHeaderInfo = inObj.messageHeaderInfo;
+	public void addSyncMessage(AbstractMessage messageToClient) {
+		messageToClient.messageHeaderInfo = messageFromClient.messageHeaderInfo;
+		
+		messageToClientList.add(messageToClient);
+		
+		/*ArrayList<WrapBuffer> wrapBufferList = null;
+		MessageEncoder messageEncoder = null;
 		
 		try {
-			ouputMessageQueue.put(inObjClientResource.getLetterToClient(outObj));
-		} catch (InterruptedException e) {
+			messageEncoder = serverMessageController.getServerCodec(messageToClient.getClass().getClassLoader(), messageToClient.getMessageID()).getMessageEncoder();
+		} catch (NotSupportedException e) {
+			SelfExn selfExnOutObj = new SelfExn();
+			selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
+			selfExnOutObj.setErrorWhere("S");
+			selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+			selfExnOutObj.setErrorMessageID(messageToClient.getMessageID());
+			selfExnOutObj.setErrorMessage(e.getMessage());
+			try {
+				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
+				
+				letterToClientList.add(clientResource.getLetterToClient(messageToClient, selfExnOutObj.getMessageID(), 
+						selfExnOutObj.messageHeaderInfo.mailboxID, selfExnOutObj.messageHeaderInfo.mailID, wrapBufferList));
+			} catch(Exception e1) {
+				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+			}
+			return;
+		} catch (DynamicClassCallException e) {
+			SelfExn selfExnOutObj = new SelfExn();
+			selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
+			selfExnOutObj.setErrorWhere("S");
+			selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+			selfExnOutObj.setErrorMessageID(messageToClient.getMessageID());
+			selfExnOutObj.setErrorMessage(e.getMessage());
 			
 			try {
-				ouputMessageQueue.put(inObjClientResource.getLetterToClient(outObj));
-			} catch (InterruptedException e1) {
-				log.fatal("two InterruptedException", e1);
-				System.exit(1);
+				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
+				
+				letterToClientList.add(clientResource.getLetterToClient(messageToClient, selfExnOutObj.getMessageID(), 
+						selfExnOutObj.messageHeaderInfo.mailboxID, selfExnOutObj.messageHeaderInfo.mailID, wrapBufferList));
+			} catch(Exception e1) {
+				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
 			}
-			Thread.currentThread().isInterrupted();
+			return;
+		} catch (Exception e) {
+			SelfExn selfExnOutObj = new SelfExn();
+			selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
+			selfExnOutObj.setErrorWhere("S");
+			selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+			selfExnOutObj.setErrorMessageID(messageToClient.getMessageID());
+			selfExnOutObj.setErrorMessage(e.getMessage());
+			
+			try {
+				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
+				
+				letterToClientList.add(clientResource.getLetterToClient(messageToClient, selfExnOutObj.getMessageID(), 
+						selfExnOutObj.messageHeaderInfo.mailboxID, selfExnOutObj.messageHeaderInfo.mailID, wrapBufferList));
+			} catch(Exception e1) {
+				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+			}
+			return;
 		}
+		
+		try {
+			wrapBufferList = messageProtocol.M2S(messageToClient, messageEncoder, projectCharset);
+			
+			letterToClientList.add(clientResource.getLetterToClient(messageToClient, messageToClient.getMessageID(), 
+					messageToClient.messageHeaderInfo.mailboxID, messageToClient.messageHeaderInfo.mailID, wrapBufferList));
+		} catch (NoMoreDataPacketBufferException e) {
+			SelfExn selfExnOutObj = new SelfExn();
+			selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
+			selfExnOutObj.setErrorWhere("S");
+			selfExnOutObj.setErrorGubun(NoMoreDataPacketBufferException.class);
+			selfExnOutObj.setErrorMessageID(messageToClient.getMessageID());
+			selfExnOutObj.setErrorMessage(e.getMessage());
+			
+			try {
+				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
+				
+				letterToClientList.add(clientResource.getLetterToClient(messageToClient, selfExnOutObj.getMessageID(), 
+						selfExnOutObj.messageHeaderInfo.mailboxID, selfExnOutObj.messageHeaderInfo.mailID, wrapBufferList));
+			} catch(Exception e1) {
+				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+			}
+			return;
+		} catch (DynamicClassCallException e) {
+			SelfExn selfExnOutObj = new SelfExn();
+			selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
+			selfExnOutObj.setErrorWhere("S");
+			selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+			selfExnOutObj.setErrorMessageID(messageToClient.getMessageID());
+			selfExnOutObj.setErrorMessage(e.getMessage());
+			
+			try {
+				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
+				
+				letterToClientList.add(clientResource.getLetterToClient(messageToClient, selfExnOutObj.getMessageID(), 
+						selfExnOutObj.messageHeaderInfo.mailboxID, selfExnOutObj.messageHeaderInfo.mailID, wrapBufferList));
+			} catch(Exception e1) {
+				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+			}
+			return;
+		} catch (BodyFormatException e) {
+			SelfExn selfExnOutObj = new SelfExn();
+			selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
+			selfExnOutObj.setErrorWhere("S");
+			selfExnOutObj.setErrorGubun(BodyFormatException.class);
+			selfExnOutObj.setErrorMessageID(messageToClient.getMessageID());
+			selfExnOutObj.setErrorMessage(e.getMessage());
+			
+			try {
+				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
+				
+				letterToClientList.add(clientResource.getLetterToClient(messageToClient, selfExnOutObj.getMessageID(), 
+						selfExnOutObj.messageHeaderInfo.mailboxID, selfExnOutObj.messageHeaderInfo.mailID, wrapBufferList));
+			} catch(Exception e1) {
+				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+			}
+			return;
+		} catch (Exception e) {
+			SelfExn selfExnOutObj = new SelfExn();
+			selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
+			selfExnOutObj.setErrorWhere("S");
+			selfExnOutObj.setErrorGubun(BodyFormatException.class);
+			selfExnOutObj.setErrorMessageID(messageToClient.getMessageID());
+			selfExnOutObj.setErrorMessage("unknown error::"+e.getMessage());
+			
+			try {
+				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
+				
+				letterToClientList.add(clientResource.getLetterToClient(messageToClient, selfExnOutObj.getMessageID(), 
+						selfExnOutObj.messageHeaderInfo.mailboxID, selfExnOutObj.messageHeaderInfo.mailID, wrapBufferList));
+			} catch(Exception e1) {
+				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+			}
+			return;
+		}*/
 	}
 	
 	/**
 	 * 출력 메시지를 익명으로 입력 메시지 보낸 클라이언트로 보낸다.
 	 * @param outObj
 	 */
-	public void sendAsyn(OutputMessage outObj) {
-		outObj.messageHeaderInfo.mailboxID = CommonStaticFinal.SERVER_MAILBOX_ID;
-		outObj.messageHeaderInfo.mailID = inObjClientResource.getServerMailID();
+	public void addAsynMessage(AbstractMessage messageToClient) {
+		messageToClient.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
+		messageToClient.messageHeaderInfo.mailID = clientResource.getServerMailID();
+		
+		messageToClientList.add(messageToClient);
+		
+		/*ArrayList<WrapBuffer> wrapBufferList = null;
+		MessageEncoder messageEncoder = null;
 		
 		try {
-			ouputMessageQueue.put(inObjClientResource.getLetterToClient(outObj));
-		} catch (InterruptedException e) {
+			messageEncoder = serverMessageController.getServerCodec(messageToClient.getClass().getClassLoader(), messageToClient.getMessageID()).getMessageEncoder();
+		} catch (NotSupportedException e) {
+			SelfExn selfExnOutObj = new SelfExn();
+			selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
+			selfExnOutObj.setErrorWhere("S");
+			selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+			selfExnOutObj.setErrorMessageID(messageToClient.getMessageID());
+			selfExnOutObj.setErrorMessage(e.getMessage());
+			try {
+				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
+				
+				letterToClientList.add(clientResource.getLetterToClient(messageToClient, selfExnOutObj.getMessageID(), 
+						selfExnOutObj.messageHeaderInfo.mailboxID, selfExnOutObj.messageHeaderInfo.mailID, wrapBufferList));
+			} catch(Exception e1) {
+				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+			}
+			return;
+		} catch (DynamicClassCallException e) {
+			SelfExn selfExnOutObj = new SelfExn();
+			selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
+			selfExnOutObj.setErrorWhere("S");
+			selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+			selfExnOutObj.setErrorMessageID(messageToClient.getMessageID());
+			selfExnOutObj.setErrorMessage(e.getMessage());
 			
 			try {
-				ouputMessageQueue.put(inObjClientResource.getLetterToClient(outObj));
-			} catch (InterruptedException e1) {
-				log.fatal("two InterruptedException", e1);
-				System.exit(1);
+				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
+				
+				letterToClientList.add(clientResource.getLetterToClient(messageToClient, selfExnOutObj.getMessageID(), 
+						selfExnOutObj.messageHeaderInfo.mailboxID, selfExnOutObj.messageHeaderInfo.mailID, wrapBufferList));
+			} catch(Exception e1) {
+				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
 			}
-			Thread.currentThread().isInterrupted();
+			return;
+		} catch (Exception e) {
+			SelfExn selfExnOutObj = new SelfExn();
+			selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
+			selfExnOutObj.setErrorWhere("S");
+			selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+			selfExnOutObj.setErrorMessageID(messageToClient.getMessageID());
+			selfExnOutObj.setErrorMessage(e.getMessage());
+			
+			try {
+				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
+				
+				letterToClientList.add(clientResource.getLetterToClient(messageToClient, selfExnOutObj.getMessageID(), 
+						selfExnOutObj.messageHeaderInfo.mailboxID, selfExnOutObj.messageHeaderInfo.mailID, wrapBufferList));
+			} catch(Exception e1) {
+				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+			}
+			return;
 		}
+		
+		try {
+			wrapBufferList = messageProtocol.M2S(messageToClient, messageEncoder, projectCharset);
+			
+			letterToClientList.add(clientResource.getLetterToClient(messageToClient, messageToClient.getMessageID(), 
+					messageToClient.messageHeaderInfo.mailboxID, messageToClient.messageHeaderInfo.mailID, wrapBufferList));
+		} catch (NoMoreDataPacketBufferException e) {
+			SelfExn selfExnOutObj = new SelfExn();
+			selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
+			selfExnOutObj.setErrorWhere("S");
+			selfExnOutObj.setErrorGubun(NoMoreDataPacketBufferException.class);
+			selfExnOutObj.setErrorMessageID(messageToClient.getMessageID());
+			selfExnOutObj.setErrorMessage(e.getMessage());
+			
+			try {
+				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
+				
+				letterToClientList.add(clientResource.getLetterToClient(messageToClient, selfExnOutObj.getMessageID(), 
+						selfExnOutObj.messageHeaderInfo.mailboxID, selfExnOutObj.messageHeaderInfo.mailID, wrapBufferList));
+			} catch(Exception e1) {
+				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+			}
+			return;
+		} catch (DynamicClassCallException e) {
+			SelfExn selfExnOutObj = new SelfExn();
+			selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
+			selfExnOutObj.setErrorWhere("S");
+			selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+			selfExnOutObj.setErrorMessageID(messageToClient.getMessageID());
+			selfExnOutObj.setErrorMessage(e.getMessage());
+			
+			try {
+				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
+				
+				letterToClientList.add(clientResource.getLetterToClient(messageToClient, selfExnOutObj.getMessageID(), 
+						selfExnOutObj.messageHeaderInfo.mailboxID, selfExnOutObj.messageHeaderInfo.mailID, wrapBufferList));
+			} catch(Exception e1) {
+				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+			}
+			return;
+		} catch (BodyFormatException e) {
+			SelfExn selfExnOutObj = new SelfExn();
+			selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
+			selfExnOutObj.setErrorWhere("S");
+			selfExnOutObj.setErrorGubun(BodyFormatException.class);
+			selfExnOutObj.setErrorMessageID(messageToClient.getMessageID());
+			selfExnOutObj.setErrorMessage(e.getMessage());
+			
+			try {
+				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
+				
+				letterToClientList.add(clientResource.getLetterToClient(messageToClient, selfExnOutObj.getMessageID(), 
+						selfExnOutObj.messageHeaderInfo.mailboxID, selfExnOutObj.messageHeaderInfo.mailID, wrapBufferList));
+			} catch(Exception e1) {
+				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+			}
+			return;
+		} catch (Exception e) {
+			SelfExn selfExnOutObj = new SelfExn();
+			selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
+			selfExnOutObj.setErrorWhere("S");
+			selfExnOutObj.setErrorGubun(BodyFormatException.class);
+			selfExnOutObj.setErrorMessageID(messageToClient.getMessageID());
+			selfExnOutObj.setErrorMessage("unknown error::"+e.getMessage());
+			
+			try {
+				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
+				
+				letterToClientList.add(clientResource.getLetterToClient(messageToClient, selfExnOutObj.getMessageID(), 
+						selfExnOutObj.messageHeaderInfo.mailboxID, selfExnOutObj.messageHeaderInfo.mailID, wrapBufferList));
+			} catch(Exception e1) {
+				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+			}
+			return;
+		}*/
 	}
 	
 	/**
@@ -96,7 +334,7 @@ public class LetterSender implements CommonRootIF {
 	 * @param outObjClientResource 출력 메시지를 받고자 하는 클라이언트 자원
 	 * @param outObj 출력 메시지
 	 */
-	public void sendAsyn(ClientResource outObjClientResource, OutputMessage outObj) {
+	/*public void sendAsyn(ClientResource outObjClientResource, AbstractMessage outObj) {
 		outObj.messageHeaderInfo.mailboxID = CommonStaticFinal.SERVER_MAILBOX_ID;
 		outObj.messageHeaderInfo.mailID = outObjClientResource.getServerMailID();
 		
@@ -112,12 +350,38 @@ public class LetterSender implements CommonRootIF {
 			}
 			Thread.currentThread().isInterrupted();
 		}
+	}*/
+		
+	/*public ArrayList<LetterToClient> getLetterToClientList() {
+		return letterToClientList;
+	}
+	
+	public void clearLetterToClientList() {
+		letterToClientList.clear();
+	}*/
+	
+	public ArrayList<AbstractMessage> getMessageToClientList() {
+		return messageToClientList;
+	}
+	
+	/**
+	 * 전체 목록 삭제. 주의점) 로그 없다. 만약 로그 필요시 {@link #writeLog(String) } 호출할것
+	 */
+	public void clearMessageToClientList() {
+		messageToClientList.clear();
 	}
 
 	/**
 	 * @return 입력 메시지를 보낸 클라이언트의 자원
 	 */
-	public ClientResource getInObjClientResource() {
-		return inObjClientResource;
+	public ClientResource getClientResource() {
+		return clientResource;
+	}
+	
+	public void writeLogAll(String title) {
+		int i=0;
+		for (AbstractMessage messageToClient : messageToClientList) {
+			log.info("%::전체삭제-잔존 메시지[{}]=[{}]", i++, messageToClient.toString());
+		}
 	}
 }

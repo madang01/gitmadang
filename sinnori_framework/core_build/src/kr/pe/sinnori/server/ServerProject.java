@@ -18,33 +18,29 @@
 package kr.pe.sinnori.server;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.channels.SocketChannel;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.TreeSet;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import kr.pe.sinnori.common.configuration.ServerProjectConfigIF;
+import kr.pe.sinnori.common.classload.SinnoriClassLoader;
+import kr.pe.sinnori.common.configuration.CommonProjectConfig;
+import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
-import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.io.dhb.header.DHBMessageHeader;
 import kr.pe.sinnori.common.lib.AbstractProject;
-import kr.pe.sinnori.common.lib.ClassFileFilter;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.SocketInputStream;
-import kr.pe.sinnori.common.lib.ReadFileInfo;
-import kr.pe.sinnori.common.lib.SinnoriClassLoader;
 import kr.pe.sinnori.common.lib.WrapBuffer;
-import kr.pe.sinnori.server.executor.AbstractServerExecutor;
-import kr.pe.sinnori.server.executor.SererExecutorClassLoaderManagerIF;
+import kr.pe.sinnori.common.protocol.MessageCodecIF;
+import kr.pe.sinnori.server.executor.AbstractServerTask;
 import kr.pe.sinnori.server.io.LetterFromClient;
 import kr.pe.sinnori.server.io.LetterToClient;
 import kr.pe.sinnori.server.threadpool.accept.processor.AcceptProcessorPool;
 import kr.pe.sinnori.server.threadpool.accept.selector.handler.AcceptSelector;
-import kr.pe.sinnori.server.threadpool.executor.ExecutorProcessorPool;
+import kr.pe.sinnori.server.threadpool.executor.ExecutorPool;
 import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderPool;
 import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterPool;
 
@@ -71,12 +67,18 @@ import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterPool;
  * @author Jonghoon Won
  *
  */
-public class ServerProject extends AbstractProject implements ClientResourceManagerIF, SererExecutorClassLoaderManagerIF {
+public class ServerProject extends AbstractProject implements ClientResourceManagerIF, ServerObjectCacheManagerIF {
 	/** 모니터 객체 */
 	// private final Object clientResourceMonitor = new Object();
 	
-	/** 클래스 파일 정보 해쉬, 키  클래스명, 값 동적으로 로딩한 클래스 파일 정보. */
-	private Hashtable<String, ReadFileInfo> loadedClassFileInfoHash = new Hashtable<String, ReadFileInfo>();
+	/** 동적 클래스인 서버 타스크 객체 운영에 관련된 변수 시작 */
+	private final Object monitorOfServerTaskObj = new  Object();
+	private final ClassLoader sytemClassLoader = java.lang.String.class.getClassLoader();
+	private SinnoriClassLoader workBaseClassLoader = null;
+	private HashMap<String, ServerTaskObjectInfo> className2ServerTaskObjectInfoHash = new HashMap<String, ServerTaskObjectInfo>();
+	private String dynamicClassBinaryBasePath = null;
+	private String dynamicClassBasePackageName = null;
+	/** 동적 클래스인 서버 타스크 객체 운영에 관련된 변수 종료 */
 	
 	/** 접속 승인 큐 */
 	private LinkedBlockingQueue<SocketChannel> acceptQueue = null;
@@ -92,18 +94,10 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 	/** 입력 메시지 소켓 읽기 담당 쓰레드 폴 */
 	private InputMessageReaderPool inputMessageReaderPool = null;
 	/** 비지니스 로직 처리 담당 쓰레드 폴 */
-	private ExecutorProcessorPool executorProcessorPool = null;
+	private ExecutorPool executorPool = null;
 	/** 출력 메시지 소켓 쓰기 담당 쓰레드 폴 */
 	private OutputMessageWriterPool outputMessageWriterPool = null;
 	
-	/******** 서버 비지니스 로직 시작 **********/
-	private String serverExecutorPrefix = null;
-	private String serverExecutorSuffix = null;
-	private File serverExecutorClassPath = null;
-	
-	private String classNameRegex = null;
-	private SinnoriClassLoader classLoader = null;
-	/******** 서버 비지니스 로직 종료 **********/
 	
 	// private SinnoriClassLoader classLoader = null;
 	
@@ -115,6 +109,8 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 	
 	private ServerProjectMonitor serverProjectMonitor = null;
 	
+	private ServerProjectConfig serverProjectConfig = null;
+	
 	/**
 	 * 생성자
 	 * @param projectName 프로젝트 이름
@@ -124,31 +120,13 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 		super(projectName);
 		
 		// ServerProjectConfig projectInfo = projectInfo.getServerProjectInfo();
-		ServerProjectConfigIF serverProjectConfig = (ServerProjectConfigIF)projectConfig;		
+		// ServerProjectConfig serverProjectConfig = (ServerProjectConfigIF)projectConfig;
+		serverProjectConfig = conf.getServerProjectConfig(projectName);
+		initCommon();
 		
-		serverExecutorPrefix = serverProjectConfig.getServerExecutorPrefix();
-		serverExecutorSuffix = serverProjectConfig.getServerExecutorSuffix();
-		serverExecutorClassPath = serverProjectConfig.getServerExecutorClassPath();
-		StringBuffer regexBuff = new StringBuffer(serverExecutorPrefix.replaceAll(".", "\\."));
-		regexBuff.append("[a-zA-Z][a-zA-Z0-9]*");
-		regexBuff.append(serverExecutorSuffix);
-		classNameRegex = regexBuff.toString();
-		
-		/**
-		 * <pre>
-		 * 클래스 로더는 클래스를 1번만 정의할 수 있다. 신규 일때에는 그대로 두어도 되지만 
-		 * 변경일 경우에는 클래스 중복 정의를 할 수 없어 문제가 된다.
-		 * 클래스 로더를 다시 생성하면 신규로 생성된 클래스 로더는 
-		 * 변경된 클래스를 정의한적이 없기때문에 변경된 클래스를 로딩할 수 있다.
-		 * 따라서 매번 클래스 로더를 다시 생성하면 클래스 중복 정의 문제를 피할 수 있게 된다.
-		 * 이것이 아래 처럼 매번 클래스 로더를 신규 인스턴화 시킨후 바로 클래스를 로딩하도록 코딩한 이유이다.
-		 * </pre>
-		 */
-		classLoader = new SinnoriClassLoader(
-				SinnoriClassLoader.class.getClassLoader(), classNameRegex);
-		
-		
-		loadServerExecutorClass();
+		dynamicClassBinaryBasePath = serverProjectConfig.getDynamicClassBinaryBasePath().getAbsolutePath();
+		dynamicClassBasePackageName = serverProjectConfig.getDynamicClassBasePackageName();
+		workBaseClassLoader = new SinnoriClassLoader(sytemClassLoader, dynamicClassBinaryBasePath, dynamicClassBasePackageName);
 		
 		int dataPacketBufferCnt = serverProjectConfig.getServerDataPacketBufferCnt();
 		
@@ -169,8 +147,8 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 		int outputMessageWriterSize = serverProjectConfig.getServerOutputMessageWriterSize();
 		int outputMessageWriterMaxSize = serverProjectConfig.getServerOutputMessageWriterMaxSize();
 		
-		TreeSet<String> asynInputMessageSet = serverProjectConfig.getAsynInputMessageSet();
-		/** 비동기 입력 메시지 집합에 속한 입력 메시지들 존재 여부 검사 */
+		/*TreeSet<String> asynInputMessageSet = serverProjectConfig.getAsynInputMessageSet();
+		*//** 비동기 입력 메시지 집합에 속한 입력 메시지들 존재 여부 검사 *//*
 		Iterator<String> asynInputMessageIter = asynInputMessageSet.iterator();
 		while(asynInputMessageIter.hasNext()) {
 			try {
@@ -182,20 +160,20 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 				log.fatal(String.format("projectName[%s] %s", projectName, e.getMessage()), e);
 				System.exit(1);
 			}
-		}
+		}*/
 		
 		
 		dataPacketBufferQueue = new LinkedBlockingQueue<WrapBuffer>(dataPacketBufferCnt);
 		
 		try {
 			for (int i = 0; i < dataPacketBufferCnt; i++) {
-				WrapBuffer buffer = new WrapBuffer(projectConfig.getDataPacketBufferSize());
+				WrapBuffer buffer = new WrapBuffer(dataPacketBufferSize);
 				dataPacketBufferQueue.add(buffer);
-				buffer.getByteBuffer().order(projectConfig.getByteOrder());
+				buffer.getByteBuffer().order(byteOrder);
 			}
 		} catch (OutOfMemoryError e) {
 			String errorMessage = "OutOfMemoryError";
-			log.fatal(errorMessage, e);
+			log.error(errorMessage, e);
 			throw new NoMoreDataPacketBufferException(errorMessage);
 		}
 		
@@ -207,34 +185,37 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 				serverProjectConfig.getServerOutputMessageQueueSize());
 		
 		
-		acceptSelector = new AcceptSelector(projectName, serverProjectConfig.getServerHost(), 
-				serverProjectConfig.getServerPort(), acceptSelectTimeout, maxClients, acceptQueue, this);
+		acceptSelector = new AcceptSelector(projectName, serverHost, 
+				serverPort, acceptSelectTimeout, maxClients, acceptQueue, this);
 		
 		inputMessageReaderPool = new InputMessageReaderPool(
 				inputMessageReaderSize, inputMessageReaderMaxSize,
 				readSelectorWakeupInterval,
-				serverProjectConfig, inputMessageQueue, messageExchangeProtocol, 
-				this, this, this);
+				serverProjectConfig, inputMessageQueue, messageProtocol, 
+				this, this);
 
 		acceptProcessorPool = new AcceptProcessorPool(acceptProcessorSize,
 				acceptProcessorMaxSize, serverProjectConfig, acceptQueue, inputMessageReaderPool);		
 		
-		executorProcessorPool = new ExecutorProcessorPool(
+		executorPool = new ExecutorPool(
 				executorProcessorSize, executorProcessorMaxSize,
-				asynInputMessageSet,
 				serverProjectConfig,
 				inputMessageQueue, outputMessageQueue, 
-				this, this, this);
+				messageProtocol, this);
 
 		outputMessageWriterPool = new OutputMessageWriterPool(
 				outputMessageWriterSize, outputMessageWriterMaxSize,
-				serverProjectConfig, outputMessageQueue, messageExchangeProtocol,
-				this, this);
+				serverProjectConfig, outputMessageQueue, 
+				this);
 		
 		serverProjectMonitor = new ServerProjectMonitor(serverProjectConfig.getServerMonitorTimeInterval(), serverProjectConfig.getServerRequestTimeout());
 		
 	}
 	
+	@Override
+	protected  CommonProjectConfig getCommonProjectConfig() {
+		return serverProjectConfig;
+	}
 	
 	/**
 	 * 서버 시작
@@ -242,7 +223,7 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 	synchronized public void startServer() {
 		serverProjectMonitor.start();
 		outputMessageWriterPool.startAll();
-		executorProcessorPool.startAll();
+		executorPool.startAll();
 		inputMessageReaderPool.startAll();
 		acceptProcessorPool.startAll();
 		if (!acceptSelector.isAlive()) acceptSelector.start();
@@ -282,7 +263,7 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 			}
 		}
 		
-		executorProcessorPool.stopAll();
+		executorPool.stopAll();
 		
 		while (!outputMessageQueue.isEmpty()) {
 			try {
@@ -296,218 +277,6 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 	}
 	
 	
-	private void loadServerExecutorClass() {
-		FilenameFilter classFilter = new ClassFileFilter();
-		serverExecutorClassPath.list(classFilter);
-		
-		File[] fileList = serverExecutorClassPath.listFiles();
-
-		for (int i = 0; i < fileList.length; i++) {
-			File f = fileList[i];
-			if (!f.isFile()) {
-				log.warn(String.format("warning :: not file , file name=[%s]", f.getName()));
-				continue;
-			}
-
-			if (!f.canRead()) {
-				log.warn(String.format("warning :: can't read, file name=[%s]",
-						f.getName()));
-				continue;
-			}
-
-			String messageID = null;
-			String fileName = f.getName();
-					
-			// int beginIndex = fileName.indexOf(prefix.replaceAll(".", File.separator));
-			int endIndex = fileName.lastIndexOf(serverExecutorSuffix);
-			if (-1 == endIndex) {
-				log.warn(String.format("warning :: 서버 비지니스 로직 클래스 파일명[%s]을 구성하는 접미어[%s]를 다시 확인해 주세요", 
-						f.getName(), serverExecutorSuffix));
-				continue;
-			}
-			
-			messageID = fileName.substring(0, endIndex);
-			
-			String className = getServerExecutorClassName(messageID);
-			
-			AbstractServerExecutor loadedObject = null;
-			try {
-				loadedObject = getObejctFromClassFile(className, f);
-				ReadFileInfo classResource = new ReadFileInfo(loadedObject, f.lastModified());				
-				loadedClassFileInfoHash.put(className, classResource);
-				
-				log.info(String.format("신규 서버 비지니스 로직 클래스[%s][%d] 로딩 완료", className, loadedObject.hashCode()));
-			} catch (DynamicClassCallException e) {
-				log.warn("DynamicClassCallException", e);
-				continue;
-			}
-		}
-	}
-	
-	/**
-	 * 클래스명을 가지는 클래스 파일을 읽어 인스턴스 객체를 반환한다.
-	 * @param className 클래스명
-	 * @return 클래스명을 가지는 클래스 파일을 읽어 얻은 인스턴스 객체
-	 * @throws DynamicClassCallException 동적 클래스 로딩시 생기는 에러 발생시 던지는 예외
-	 */
-	private AbstractServerExecutor getObejctFromClassFile(String className, File classFile) throws DynamicClassCallException {
-		// FIXME!
-		// log.info("className=[%s], classFile=[%s]", className, f.getAbsolutePath());
-		
-		AbstractServerExecutor loadedObject = null;
-		try {
-			Class<?> loadedClass = null;
-			try {
-				loadedClass = classLoader.loadClass(className, classFile);
-			} catch (LinkageError e) {				
-				log.info("클래스 중복 정의 문제 발생시 신규 클래스 로더를 생성하여 이를 피한다.", e);
-				
-				/**
-				 * <pre>
-				 * 클래스 로더는 클래스를 1번만 정의할 수 있다. 신규 일때에는 그대로 두어도 되지만 
-				 * 변경일 경우에는 클래스 중복 정의를 할 수 없어 문제가 된다.
-				 * 클래스 로더를 다시 생성하면 신규로 생성된 클래스 로더는 
-				 * 변경된 클래스를 정의한적이 없기때문에 변경된 클래스를 로딩할 수 있다.
-				 * 따라서 클래스가 수정 되어 재 로딩해야 한다면 클래스 로더를 다시 생성해 주어야 
-				 * 클래스 중복 정의 문제를 피할 수 있게 된다.
-				 * </pre>
-				 */
-				classLoader = new SinnoriClassLoader(
-						SinnoriClassLoader.class.getClassLoader(), classNameRegex);
-				
-				loadedClass = classLoader.loadClass(className, classFile);
-			}
-			
-			loadedObject = (AbstractServerExecutor)loadedClass.newInstance();
-			
-		
-			
-		} catch (ClassFormatError e) {
-			String errorMessage = String.format("ClassFormatError::className=[%s]",
-					className);
-			log.warn( errorMessage, e);
-
-			throw new DynamicClassCallException(errorMessage);
-		} catch (ClassNotFoundException e) {
-			String errorMessage = String.format("ClassNotFoundException::className=[%s]",
-					className);
-			log.warn( errorMessage, e);
-
-			throw new DynamicClassCallException(errorMessage);
-		} catch (InstantiationException e) {
-			String errorMessage = String.format("InstantiationException::className=[%s]",
-					className);
-			log.warn( errorMessage, e);
-
-			throw new DynamicClassCallException(errorMessage);
-		} catch (IllegalAccessException e) {
-			String errorMessage = String.format("IllegalAccessException::className=[%s]",
-					className);
-			log.warn( errorMessage, e);
-
-			throw new DynamicClassCallException(errorMessage);
-		} catch (LinkageError e) {
-			String errorMessage = String.format("LinkageError::className=[%s]",
-					className);
-			log.warn( errorMessage, e);
-
-			throw new DynamicClassCallException(errorMessage);
-		}
-		
-		return loadedObject;
-	}
-	
-	/**
-	 * 메시지 식별자에 대응하는 비지니스 로직 클래스 이름을 반환한다.
-	 * @param messageID 메시지 식별자
-	 * @return 메시지 식별자에 대응하는 비지니스 로직 클래스 이름
-	 */
-	private String getServerExecutorClassName(String messageID) {
-		StringBuffer classNameStringBuffer = new StringBuffer(serverExecutorPrefix);
-		classNameStringBuffer.append(messageID);
-		classNameStringBuffer.append(serverExecutorSuffix);
-		return classNameStringBuffer.toString();
-	}
-	
-	@Override
-	public AbstractServerExecutor getServerExecutorObject(String messageID) throws IllegalArgumentException, DynamicClassCallException {
-		// File serverExecutorClassPath = (File)conf.getResource("server.executor.impl.binary.path.value");
-		// String prefix = (String)conf.getResource("server.executor.prefix.value");
-		// String suffix = (String)conf.getResource("server.executor.suffix.value");
-		
-		if (null == messageID) {
-			String errorMessage = "파라미터 메시지 식별자가 null 입니다.";
-			throw new IllegalArgumentException(errorMessage);
-		}
-
-		if (!DHBMessageHeader.IsValidMessageID(messageID)) {
-			String errorMessage = String.format("파라미터 메시지 식별자[%s]는 메시지 식별자 이름 규칙을 위반 하였습니다.", messageID);
-			/** 중복 로그 일지라도 로그를 남겨서 원인 제거가 필요함. */
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		
-		String className = getServerExecutorClassName(messageID);
-
-		AbstractServerExecutor returnObj = null;
-		ReadFileInfo classResource = null;
-		
-		StringBuffer classFileNameStringBuffer = new StringBuffer(
-				serverExecutorClassPath.getAbsolutePath());				
-		classFileNameStringBuffer.append(File.separator);
-		classFileNameStringBuffer.append(messageID);
-		classFileNameStringBuffer.append(serverExecutorSuffix);
-		classFileNameStringBuffer.append(".class");
-		String classFileName = classFileNameStringBuffer.toString();
-
-		File classFile = new File(classFileName);
-		if (!classFile.exists()) {
-			String errorMessage = String.format("warning :: not exist file , file name=[%s]", classFileName);					
-			throw new DynamicClassCallException(errorMessage);
-		}
-
-		if (!classFile.isFile()) {
-			String errorMessage = String.format("warning :: not file , file name=[%s]", classFileName);					
-			throw new DynamicClassCallException(errorMessage);
-		}
-
-		if (!classFile.canRead()) {
-			String errorMessage = String.format("warning :: can't read , file name=[%s]", classFileName);					
-			throw new DynamicClassCallException(errorMessage);
-		}
-
-		// synchronized (loadedClassFileInfoHash) {			
-			classResource = loadedClassFileInfoHash.get(className);
-			
-			if (null == classResource) {
-
-				/** 신규 메시지 정보 파일 추가 */
-				AbstractServerExecutor loadedObject = getObejctFromClassFile(className, classFile);
-				classResource = new ReadFileInfo(loadedObject, classFile.lastModified());
-				loadedClassFileInfoHash.put(className, classResource);
-				
-				log.info(String.format("신규 서버 비지니스 로직 클래스[%s][%d] 로딩 완료", className, loadedObject.hashCode()));
-			} else {
-				/** 최근 수정되었다면 재 로딩한다. */
-				long lastModified = classFile.lastModified();
-				if (lastModified > classResource.lastModified) {
-					
-					
-					
-					AbstractServerExecutor newLoadedObject = getObejctFromClassFile(className, classFile);
-					classResource.chanageNewClassObject(newLoadedObject, lastModified);
-					
-					log.info(String.format("수정된 서버 비지니스 로직 클래스[%s][%d] 로딩 완료", className, newLoadedObject.hashCode()));
-				}
-			}
-			returnObj = (AbstractServerExecutor)classResource.resultObject;
-		// }
-
-		return returnObj;
-	}
-
-	
 	@Override
 	public void addNewClient(SocketChannel sc)
 			throws NoMoreDataPacketBufferException {
@@ -519,7 +288,7 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 			}
 
 			clientResource = new ClientResource(sc,
-					projectConfig,
+					serverProjectConfig,
 					new SocketInputStream(this));
 
 			scToClientResourceHash.put(sc, clientResource);
@@ -575,6 +344,117 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 		return scToClientResourceHash.size();
 	}
 	
+	public MessageCodecIF getServerCodec(ClassLoader classLoader, String messageID) throws DynamicClassCallException {
+		String classFullName = new StringBuilder(dynamicClassBasePackageName).append(messageID).append(".").append(messageID).append("ServerCodec").toString();
+		
+		MessageCodecIF messageCodec = null;
+		
+		Object valueObj = null;
+		try {
+			try {
+				valueObj = loaderAndName2ObjectCacheManager.getObjectFromHash(classLoader, classFullName);
+			} catch (ClassNotFoundException e) {
+				String errorMessage = String.format("ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::ClassNotFoundException", classLoader.hashCode(), messageID, classFullName);					
+				log.warn(errorMessage);
+				throw new DynamicClassCallException(errorMessage);
+			} catch (InstantiationException e) {
+				String errorMessage = String.format("ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::InstantiationException", classLoader.hashCode(), messageID, classFullName);					
+				log.warn(errorMessage);
+				throw new DynamicClassCallException(errorMessage);
+			} catch (IllegalAccessException e) {
+				String errorMessage = String.format("ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::IllegalAccessException", classLoader.hashCode(), messageID, classFullName);					
+				log.warn(errorMessage);
+				throw new DynamicClassCallException(errorMessage);
+			}
+		} catch(IllegalArgumentException e) {
+			String errorMessage = String.format("ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::IllegalArgumentException::%s", classLoader.hashCode(), messageID, classFullName, e.getMessage());					
+			log.warn(errorMessage);
+			throw new DynamicClassCallException(errorMessage);
+		}
+		
+		/*if (null == valueObj) {
+			String errorMessage = String.format("ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::valueObj is null", classLoader.hashCode(), messageID, classFullName);
+			log.warn(errorMessage);
+			new DynamicClassCallException(errorMessage);
+		}
+		
+		if (!(valueObj instanceof MessageCodecIF)) {
+			String errorMessage = String.format("ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::valueObj type[%s] is not  MessageCodecIF", classLoader.hashCode(), messageID, classFullName, valueObj.getClass().getCanonicalName());
+			log.warn(errorMessage);
+			new DynamicClassCallException(errorMessage);
+		}*/
+		
+		messageCodec = (MessageCodecIF)valueObj;
+		
+		return messageCodec;
+	}
+	
+	private ServerTaskObjectInfo getServerTaskFromWorkBaseClassload(String classFullName) throws DynamicClassCallException {
+		Class<?> retClass = null;
+		AbstractServerTask task = null;
+		try {
+			retClass = workBaseClassLoader.loadClass(classFullName);
+		} catch (ClassNotFoundException e) {
+			String errorMessage = String.format("ServerClassLoader hashCode=[%d], classFullName=[%s]::ClassNotFoundException", this.hashCode(), classFullName);
+			log.warn(errorMessage);
+			throw new DynamicClassCallException(errorMessage);
+		}
+		
+		Object retObject = null;
+		try {
+			retObject = retClass.newInstance();
+		} catch (InstantiationException e) {
+			String errorMessage = String.format("ServerClassLoader hashCode=[%d], classFullName=[%s]::InstantiationException", this.hashCode(), classFullName);
+			log.warn(errorMessage);
+			throw new DynamicClassCallException(errorMessage);
+		} catch (IllegalAccessException e) {
+			String errorMessage = String.format("ServerClassLoader hashCode=[%d], classFullName=[%s]::IllegalAccessException", this.hashCode(), classFullName);
+			log.warn(errorMessage);
+			throw new DynamicClassCallException(errorMessage);
+		}
+		
+		/*if (! (retObject instanceof AbstractServerTask)) {
+			// FIXME! 죽은 코드 이어여함, 발생시 원인 제거 필요함
+			String errorMessage = String.format("ServerClassLoader hashCode=[%d], classFullName=[%s]" +
+					"::클래스명으로 얻은 객체 타입[%s]이 AbstractServerTask 가 아닙니다.", 
+					this.hashCode(), classFullName, retObject.getClass().getCanonicalName());
+			
+			log.warn(errorMessage);
+			throw new DynamicClassCallException(errorMessage);
+		}*/
+		task = (AbstractServerTask)retObject;
+		
+		
+		String classFileName = new StringBuilder(dynamicClassBinaryBasePath).append(File.separator).append(classFullName.replace(".", File.separator)).append(".class").toString();
+		
+		// log.info("classFileName={}", classFileName);
+		
+		File classFileObj = new File(classFileName);
+		
+		return new ServerTaskObjectInfo(workBaseClassLoader, classFileObj, task);
+	}
+	
+	public AbstractServerTask getServerTask(String messageID) throws DynamicClassCallException {
+		String classFullName = new StringBuilder(dynamicClassBasePackageName).append(messageID).append(".").append(messageID).append("ServerTask").toString();
+		ServerTaskObjectInfo serverTaskObjectInfo = null;
+		synchronized(monitorOfServerTaskObj) {
+			serverTaskObjectInfo = className2ServerTaskObjectInfoHash.get(classFullName);
+			if (null == serverTaskObjectInfo) {
+				serverTaskObjectInfo = getServerTaskFromWorkBaseClassload(classFullName);
+				
+				className2ServerTaskObjectInfoHash.put(classFullName, serverTaskObjectInfo);
+			} else {
+				if (serverTaskObjectInfo.isModifed()) {
+					/** 새로운 서버 클래스 로더로 교체 */
+					workBaseClassLoader = new SinnoriClassLoader(sytemClassLoader, dynamicClassBinaryBasePath, dynamicClassBasePackageName);
+					serverTaskObjectInfo = getServerTaskFromWorkBaseClassload(classFullName);
+					className2ServerTaskObjectInfoHash.put(classFullName, serverTaskObjectInfo);
+				}	
+			}
+		}
+		return serverTaskObjectInfo.getServerTask();
+	}
+	
 	
 	/**
 	 * @return 서버 프로젝트 정보
@@ -582,7 +462,7 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 	public MonitorServerProjectInfo getInfo(long requestTimeout) {
 		MonitorServerProjectInfo projectInfo = new MonitorServerProjectInfo();
 		
-		projectInfo.projectName = projectConfig.getProjectName();
+		projectInfo.projectName = projectName;
 		projectInfo.dataPacketBufferQueueSize = dataPacketBufferQueue.size();
 		
 		projectInfo.acceptQueueSize = acceptQueue.size();
@@ -652,7 +532,7 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 						MonitorClientInfo monitorClientInfo =projectInfo.monitorClientInfoList.get(i);
 						if (-1 != monitorClientInfo.timeout) {
 							// 삭제 대상
-							log.info(String.format("server project[%s] ServerProjectMonitor 삭제 대상, %s", projectConfig.getProjectName(), monitorClientInfo.cr.toString()));
+							log.info(String.format("server project[%s] ServerProjectMonitor 삭제 대상, %s", projectName, monitorClientInfo.cr.toString()));
 							// monitorClientInfo.scHashCode
 							removeClient(monitorClientInfo.sc);
 						}
@@ -660,13 +540,12 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 					
 					Thread.sleep(monitorInterval);
 				}
-				log.warn(String.format("server project[%s] ServerProjectMonitor loop exit", projectConfig.getProjectName()));
+				log.warn(String.format("server project[%s] ServerProjectMonitor loop exit", projectName));
 			} catch (InterruptedException e) {
-				log.warn(String.format("server project[%s] ServerProjectMonitor interrupt", projectConfig.getProjectName()), e);
+				log.warn(String.format("server project[%s] ServerProjectMonitor interrupt", projectName), e);
 			} catch (Exception e) {
-				log.warn(String.format("server project[%s] ServerProjectMonitor unknow error", projectConfig.getProjectName()), e);
+				log.warn(String.format("server project[%s] ServerProjectMonitor unknow error", projectName), e);
 			}
 		}
 	}
-	
 }

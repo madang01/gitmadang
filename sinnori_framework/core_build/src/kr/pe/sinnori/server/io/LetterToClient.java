@@ -18,8 +18,10 @@
 package kr.pe.sinnori.server.io;
 
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
 
-import kr.pe.sinnori.common.message.OutputMessage;
+import kr.pe.sinnori.common.lib.WrapBuffer;
+import kr.pe.sinnori.common.message.AbstractMessage;
 
 /**
  * 클라이언트에게 보내는 편지<br/>
@@ -29,19 +31,29 @@ import kr.pe.sinnori.common.message.OutputMessage;
  * 
  */
 public class LetterToClient {
-	private SocketChannel sc;
-	private OutputMessage outputMessage;
+	private SocketChannel toSC;
+	private AbstractMessage messageToClient = null;
+	private String messageID = null;
+	int mailboxID;
+	int mailID; 
+	private ArrayList<WrapBuffer> wrapBufferList = null;
+	 
 
 	/**
 	 * 
 	 * @param sc
 	 *            수신할 client, 즉 수신자
-	 * @param outputMessage
+	 * @param outObj
 	 *            수신자가 받아 보는 메시지
 	 */
-	public LetterToClient(SocketChannel sc, OutputMessage outputMessage) {
-		this.sc = sc;
-		this.outputMessage = outputMessage;
+	public LetterToClient(SocketChannel sc, AbstractMessage messageToClient, 
+			String messageID, int mailboxID, int mailID, ArrayList<WrapBuffer> wrapBufferList) {
+		this.toSC = sc;
+		this.messageToClient = messageToClient;
+		this.messageID = messageID;
+		this.mailboxID = mailboxID;
+		this.mailID = mailID;
+		this.wrapBufferList = wrapBufferList;
 	}
 
 	/**
@@ -50,7 +62,23 @@ public class LetterToClient {
 	 * @return 수신할 client, 즉 수신자
 	 */
 	public SocketChannel getToSC() {
-		return sc;
+		return toSC;
+	}
+
+	public AbstractMessage getMessageToClient() {
+		return messageToClient;
+	}
+	
+	public String getMessageID() {
+		return messageID;
+	}
+	
+	public int getMailboxID() {
+		return mailboxID;
+	}
+	
+	public int getMailID() {
+		return mailID;
 	}
 
 	/**
@@ -58,22 +86,26 @@ public class LetterToClient {
 	 * 
 	 * @return 메시지
 	 */
-	public OutputMessage getOutputMessage() {
-		return outputMessage;
+	public ArrayList<WrapBuffer> getWrapBufferList() {
+		return wrapBufferList;
 	}
 
 	@Override
 	public String toString() {
-		StringBuffer strBuff = new StringBuffer();
-		strBuff.append("SocketChannel hash[");
-		if (sc != null) {
-			strBuff.append(sc.hashCode());
-		} else {
-			strBuff.append("sc is empty");
-		}
-		strBuff.append("], out=");
-		strBuff.append(outputMessage.toString());
-		return strBuff.toString();
+		StringBuilder builder = new StringBuilder();
+		builder.append("LetterToClient [toSC=");
+		builder.append(toSC.hashCode());
+		builder.append(", messageToClient=");
+		builder.append(messageToClient.toString());
+		builder.append(", messageID=");
+		builder.append(messageID);
+		builder.append(", mailboxID=");
+		builder.append(mailboxID);
+		builder.append(", mailID=");
+		builder.append(mailID);
+		builder.append(", wrapBufferList size=");
+		builder.append(wrapBufferList.size());
+		builder.append("]");
+		return builder.toString();
 	}
-
 }

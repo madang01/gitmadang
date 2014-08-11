@@ -35,7 +35,7 @@ public interface OutputMessageReaderIF {
 	 * @param serverConnection
 	 *            비동기 방식의 연결클래스
 	 */
-	public void addNewServer(AbstractAsynConnection serverConnection) throws InterruptedException;
+	public void addNewServer(AbstractAsynConnection serverConnection);
 
 	/**
 	 * 등록된 소켓 채널 수를 반환한다. 이는 균등 분배를 위해서 필요하다.

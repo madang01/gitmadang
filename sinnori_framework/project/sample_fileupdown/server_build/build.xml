@@ -175,7 +175,7 @@
 	
 	<target name="compile.impl" depends="libdir.init" description="오직 서버 비지니스 로직 컴파일만 수행">
 		<!-- Compile the java code from ${src} into ${build} -->
-		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}/impl" destdir="${build}">
+		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}/kr/pe/sinnori/impl" destdir="${build}">
 			<classpath>
 				<fileset dir="${corelib}/ex">
 					<include name="**/*.jar" />

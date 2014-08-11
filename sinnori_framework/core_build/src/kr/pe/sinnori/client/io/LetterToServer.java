@@ -17,8 +17,10 @@
 
 package kr.pe.sinnori.client.io;
 
+import java.util.ArrayList;
+
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
-import kr.pe.sinnori.common.message.InputMessage;
+import kr.pe.sinnori.common.lib.WrapBuffer;
 
 /**
  * 서버로 보내는 입력 메시지와 연결 클래스를 담은 클래스.
@@ -28,7 +30,10 @@ import kr.pe.sinnori.common.message.InputMessage;
  */
 public class LetterToServer {
 	private AbstractAsynConnection serverConnection;
-	private InputMessage intputMessage;
+	private String messageID = null;
+	private int mailboxID;
+	private int mailID;
+	private ArrayList<WrapBuffer> wrapBufferList = null;
 
 	/**
 	 * 생성자
@@ -38,10 +43,12 @@ public class LetterToServer {
 	 * @param intputMessage
 	 *            입력 메시지
 	 */
-	public LetterToServer(AbstractAsynConnection serverConnection,
-			InputMessage intputMessage) {
+	public LetterToServer(AbstractAsynConnection serverConnection, String messageID, int mailboxID, int mailID, ArrayList<WrapBuffer> wrapBufferList) {
 		this.serverConnection = serverConnection;
-		this.intputMessage = intputMessage;
+		this.messageID = messageID;
+		this.mailboxID = mailboxID;
+		this.mailID = mailID;
+		this.wrapBufferList = wrapBufferList;
 	}
 
 	/**
@@ -49,31 +56,46 @@ public class LetterToServer {
 	 * 
 	 * @return 비동기 방식의 소켓 채널을 갖는 연결 클래스
 	 */
+	
 	public AbstractAsynConnection getServerConnection() {
 		return serverConnection;
 	}
+	
+	public String getMessageID() {
+		return messageID;
+	}
 
-	/**
-	 * 입력 메시지를 반환한다.
-	 * 
-	 * @return 입력 메시지
-	 */
-	public InputMessage getInputMessage() {
-		return intputMessage;
+	public int getMailboxID() {
+		return mailboxID;
+	}
+	
+	public int getMailID() {
+		return mailID;
+	}
+	
+	/*public void setMailBox(int mailboxID, int mailID) {
+		this.mailboxID = mailboxID;
+		this.mailID = mailID;
+	}*/
+	
+	public ArrayList<WrapBuffer> getWrapBufferList() {
+		return wrapBufferList;
 	}
 
 	@Override
 	public String toString() {
-		StringBuffer strBuff = new StringBuffer();
-		strBuff.append("SocketChannel hash[");
-		if (serverConnection != null) {
-			strBuff.append(serverConnection.toString());
-		} else {
-			strBuff.append("serverConnection is empty");
-		}
-		strBuff.append("], out=");
-		strBuff.append(intputMessage.toString());
-		return strBuff.toString();
+		StringBuilder builder = new StringBuilder();
+		builder.append("LetterToServer [serverConnection=");
+		builder.append(serverConnection.getSimpleConnectionInfo());
+		builder.append(", messageID=");
+		builder.append(messageID);
+		builder.append(", mailboxID=");
+		builder.append(mailboxID);
+		builder.append(", mailID=");
+		builder.append(mailID);
+		builder.append(", wrapBufferList size=");
+		builder.append(wrapBufferList.size());
+		builder.append("]");
+		return builder.toString();
 	}
-
 }

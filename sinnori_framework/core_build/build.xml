@@ -43,6 +43,7 @@
 		<!-- Compile the java code from ${src} into ${build} -->
 		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" destdir="${build}/common_lib">
 			<src path="src/kr/pe/sinnori/common/" />
+			<src path="src/kr/pe/sinnori/impl/message/SelfExn/" />
 			<classpath>
 				<fileset dir="lib/in">
 					<include name="**/*.jar" />
@@ -57,7 +58,6 @@
 	<target name="make.common" depends="compile.common" description="신놀이 프레임 워크 common 패키지 jar 만들기">
 		<!-- Create the distribution directory -->
 		<jar jarfile="${dist}/sinnori_lib_common.jar" basedir="${build}/common_lib">
-			<!-- include name="kr/pe/sinnori/common/**" / -->
 			<restrict>
 				<name name="**/*.class" />
 				<archives>

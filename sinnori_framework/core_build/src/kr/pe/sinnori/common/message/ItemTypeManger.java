@@ -31,7 +31,7 @@ import java.util.LinkedHashMap;
 
 import kr.pe.sinnori.common.exception.UnknownItemTypeException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.common.lib.CommonStaticFinal;
+import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 
 /**
  * <pre>
@@ -43,7 +43,7 @@ import kr.pe.sinnori.common.lib.CommonStaticFinal;
  * 이를 잘 활용하여 새로운 데이터 타입이나 수정시 유용할것이다.
  * 단, 자바 문자열로 변환은 org.apache.commons.lang.StringEscapeUtils 를 이용하는데,
  * 한글의 경우 유니코드 문자열로 변환을 하기때문에 읽기 곤란한 점이 있다. 
- * 하지만 한글은 주석에서만 있으므로 나중 영문으로 변경하면 해결될 문제로 그대로 넘어가기로 함.
+ * 하지만 한글은 주석에서만 있으므로 나중 영문으로 변경하면 회피할 수 있는 문제이므로 그대로 넘어가기로 함.
  * </pre>
  * 
  * @author Jonghoon Won
@@ -237,7 +237,7 @@ public class ItemTypeManger implements CommonRootIF {
 		mesgXSLStringBuilder.append("\t\t\t\t\t</xs:attribute>\n");
 		mesgXSLStringBuilder.append("\n");
 		mesgXSLStringBuilder.append("\t\t\t\t\t<!-- \uAC12 -->\n");
-		mesgXSLStringBuilder.append("\t\t\t\t\t<xs:attribute name=\"value\" use=\"optional\">\n");
+		mesgXSLStringBuilder.append("\t\t\t\t\t<xs:attribute name=\"itemDefaultValue\" use=\"optional\">\n");
 		mesgXSLStringBuilder.append("\t\t\t\t\t\t<xs:simpleType>\n");
 		mesgXSLStringBuilder.append("\t\t\t\t\t\t\t<xs:restriction base=\"xs:string\">\n");
 		mesgXSLStringBuilder.append("\t\t\t\t\t\t\t\t<xs:minLength value=\"1\" />\n");
@@ -355,7 +355,7 @@ public class ItemTypeManger implements CommonRootIF {
 			 */
 			xslIS = new ByteArrayInputStream(mesgXSLStr.getBytes("UTF-8"));
 		} catch (UnsupportedEncodingException e) {
-			log.fatal("UnsupportedEncodingException", e);
+			log.error("UnsupportedEncodingException", e);
 			System.exit(1);
 		}
 		return xslIS;
@@ -409,9 +409,9 @@ public class ItemTypeManger implements CommonRootIF {
 						String.format("unsigned byte 항목의 값[%d]은 음수를 가질 수 없습니다.", value));
 			}
 			
-			if (value > CommonStaticFinal.MAX_UNSIGNED_BYTE) {
+			if (value > CommonStaticFinalVars.MAX_UNSIGNED_BYTE) {
 				throw new IllegalArgumentException(
-						String.format("unsigned byte 항목의 값[%d]은 최대 값[%d]을 넘을 수 없습니다.", value, CommonStaticFinal.MAX_UNSIGNED_BYTE));
+						String.format("unsigned byte 항목의 값[%d]은 최대 값[%d]을 넘을 수 없습니다.", value, CommonStaticFinalVars.MAX_UNSIGNED_BYTE));
 			}
 		}
 	}
@@ -430,9 +430,9 @@ public class ItemTypeManger implements CommonRootIF {
 						String.format("unsigned short 항목의 값[%d]은 음수를 가질 수 없습니다.", value));
 			}
 			
-			if (value > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
+			if (value > CommonStaticFinalVars.MAX_UNSIGNED_SHORT) {
 				throw new IllegalArgumentException(
-						String.format("unsigned short 항목의 값[%d]은 최대 값[%d]을 넘을 수 없습니다.", value, CommonStaticFinal.MAX_UNSIGNED_SHORT));
+						String.format("unsigned short 항목의 값[%d]은 최대 값[%d]을 넘을 수 없습니다.", value, CommonStaticFinalVars.MAX_UNSIGNED_SHORT));
 			}
 		}
 	}
@@ -452,9 +452,9 @@ public class ItemTypeManger implements CommonRootIF {
 						String.format("unsigned integer 항목의 값[%d]은 음수를 가질 수 없습니다.", value));
 			}
 			
-			if (value > CommonStaticFinal.MAX_UNSIGNED_INT) {
+			if (value > CommonStaticFinalVars.MAX_UNSIGNED_INT) {
 				throw new IllegalArgumentException(
-						String.format("unsigned integer 항목의 값[%d]은 최대 값[%d]을 넘을 수 없습니다.", value, CommonStaticFinal.MAX_UNSIGNED_INT));
+						String.format("unsigned integer 항목의 값[%d]은 최대 값[%d]을 넘을 수 없습니다.", value, CommonStaticFinalVars.MAX_UNSIGNED_INT));
 			}
 		}
 	}
@@ -468,9 +468,9 @@ public class ItemTypeManger implements CommonRootIF {
 	private class CheckUBPascalStringValue implements CheckItemValue {
 		public void checkValue(Charset itemCharsetForLang, int itemSizeForLang, Object itemValue) {
 			String value = (String)itemValue;
-			if (value.getBytes(itemCharsetForLang).length > CommonStaticFinal.MAX_UNSIGNED_BYTE) {
+			if (value.getBytes(itemCharsetForLang).length > CommonStaticFinalVars.MAX_UNSIGNED_BYTE) {
 				throw new IllegalArgumentException(
-						String.format("ub pascal string 항목의 값[%s]의 길이는 최대 값[%d]을 넘을 수 없습니다. 참고) 프로젝트 문자셋[%s]", value, CommonStaticFinal.MAX_UNSIGNED_BYTE, itemCharsetForLang.name()));
+						String.format("ub pascal string 항목의 값[%s]의 길이는 최대 값[%d]을 넘을 수 없습니다. 참고) 프로젝트 문자셋[%s]", value, CommonStaticFinalVars.MAX_UNSIGNED_BYTE, itemCharsetForLang.name()));
 			}
 		}
 	}
@@ -478,9 +478,9 @@ public class ItemTypeManger implements CommonRootIF {
 	private class CheckUSPascalStringValue implements CheckItemValue {
 		public void checkValue(Charset itemCharsetForLang, int itemSizeForLang, Object itemValue) {
 			String value = (String)itemValue;
-			if (value.getBytes(itemCharsetForLang).length > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
+			if (value.getBytes(itemCharsetForLang).length > CommonStaticFinalVars.MAX_UNSIGNED_SHORT) {
 				throw new IllegalArgumentException(
-						String.format("us pascal string 항목의 값[%s]의 길이는 최대 값[%d]을 넘을 수 없습니다. 참고) 프로젝트 문자셋[%s]", value, CommonStaticFinal.MAX_UNSIGNED_SHORT, itemCharsetForLang.name()));
+						String.format("us pascal string 항목의 값[%s]의 길이는 최대 값[%d]을 넘을 수 없습니다. 참고) 프로젝트 문자셋[%s]", value, CommonStaticFinalVars.MAX_UNSIGNED_SHORT, itemCharsetForLang.name()));
 			}
 		}
 	}
@@ -489,9 +489,9 @@ public class ItemTypeManger implements CommonRootIF {
 	private class CheckSIPascalStringValue implements CheckItemValue {
 		public void checkValue(Charset itemCharsetForLang, int itemSizeForLang, Object itemValue) {
 			String value = (String)itemValue;
-			if (value.getBytes(itemCharsetForLang).length > CommonStaticFinal.MAX_UNSIGNED_INT) {
+			if (value.getBytes(itemCharsetForLang).length > CommonStaticFinalVars.MAX_UNSIGNED_INT) {
 				throw new IllegalArgumentException(
-						String.format("si pascal string 항목의 값[%s]의 길이는 최대 값[%d]을 넘을 수 없습니다. 참고) 프로젝트 문자셋[%s]", value, CommonStaticFinal.MAX_UNSIGNED_INT, itemCharsetForLang.name()));
+						String.format("si pascal string 항목의 값[%s]의 길이는 최대 값[%d]을 넘을 수 없습니다. 참고) 프로젝트 문자셋[%s]", value, CommonStaticFinalVars.MAX_UNSIGNED_INT, itemCharsetForLang.name()));
 			}
 		}
 	}
@@ -506,27 +506,27 @@ public class ItemTypeManger implements CommonRootIF {
 	private class CheckUBVariableLengthBytesValue implements CheckItemValue {
 		public void checkValue(Charset itemCharsetForLang, int itemSizeForLang, Object itemValue) {
 			byte[] value = (byte[])itemValue;
-			if (value.length > CommonStaticFinal.MAX_UNSIGNED_BYTE) {
+			if (value.length > CommonStaticFinalVars.MAX_UNSIGNED_BYTE) {
 				throw new IllegalArgumentException(
-						String.format("ub variable length byte[] 항목의 길이[%d]는 최대 값[%d]을 넘을 수 없습니다.", value.length, CommonStaticFinal.MAX_UNSIGNED_BYTE));
+						String.format("ub variable length byte[] 항목의 길이[%d]는 최대 값[%d]을 넘을 수 없습니다.", value.length, CommonStaticFinalVars.MAX_UNSIGNED_BYTE));
 			}
 		}
 	}
 	private class CheckUSVariableLengthBytesValue implements CheckItemValue {
 		public void checkValue(Charset itemCharsetForLang, int itemSizeForLang, Object itemValue) {
 			byte[] value = (byte[])itemValue;
-			if (value.length > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
+			if (value.length > CommonStaticFinalVars.MAX_UNSIGNED_SHORT) {
 				throw new IllegalArgumentException(
-						String.format("us variable length byte[] 항목의 길이[%d]는 최대 값[%d]을 넘을 수 없습니다.", value.length, CommonStaticFinal.MAX_UNSIGNED_SHORT));
+						String.format("us variable length byte[] 항목의 길이[%d]는 최대 값[%d]을 넘을 수 없습니다.", value.length, CommonStaticFinalVars.MAX_UNSIGNED_SHORT));
 			}
 		}
 	}
 	private class CheckSIVariableLengthBytesValue implements CheckItemValue {
 		public void checkValue(Charset itemCharsetForLang, int itemSizeForLang, Object itemValue) {
 			byte[] value = (byte[])itemValue;
-			if (value.length > CommonStaticFinal.MAX_UNSIGNED_INT) {
+			if (value.length > CommonStaticFinalVars.MAX_UNSIGNED_INT) {
 				throw new IllegalArgumentException(
-						String.format("si variable length byte[] 항목의 길이[%d]는 최대 값[%d]을 넘을 수 없습니다.", value.length, CommonStaticFinal.MAX_UNSIGNED_INT));
+						String.format("si variable length byte[] 항목의 길이[%d]는 최대 값[%d]을 넘을 수 없습니다.", value.length, CommonStaticFinalVars.MAX_UNSIGNED_INT));
 			}
 		}
 	}

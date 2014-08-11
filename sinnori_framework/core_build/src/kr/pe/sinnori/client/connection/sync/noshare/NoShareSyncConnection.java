@@ -31,22 +31,23 @@ import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.client.connection.sync.AbstractSyncConnection;
-import kr.pe.sinnori.client.io.LetterFromServer;
-import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
+import kr.pe.sinnori.common.configuration.ClientProjectConfig;
 import kr.pe.sinnori.common.exception.BodyFormatException;
+import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
-import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
+import kr.pe.sinnori.common.exception.ServerExcecutorException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
-import kr.pe.sinnori.common.io.MessageProtocolIF;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
-import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.lib.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.message.InputMessage;
-import kr.pe.sinnori.common.message.OutputMessage;
+import kr.pe.sinnori.common.protocol.MessageProtocolIF;
+import kr.pe.sinnori.common.protocol.ReceivedLetter;
+import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
 
 /**
  * 클라이언트 비공유 방식의 동기 연결 클래스.<br/>
@@ -58,18 +59,9 @@ import kr.pe.sinnori.common.message.OutputMessage;
  */
 public class NoShareSyncConnection extends AbstractSyncConnection {
 	/** 개인 메일함 번호. 참고) 메일함을 가상으로 운영하여 전체적으로 메일함 운영의 틀을 유지한다. */
-	private final static int mailboxID = 1;
+	private final static int ONLY_ONE_MAILBOX_ID = 1;
 	/** 메일 식별자 */
-	private int mailID = 0;
-	
-	
-	private MessageMangerIF messageManger = null;
-	
-	
-	private MessageProtocolIF messageProtocol = null;
-	
-
-	
+	private int mailID = 0;	
 	
 	/** 큐 등록 상태 */
 	private boolean isQueueIn = true;
@@ -84,28 +76,26 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 	 * @param clientProjectConfig 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
 	 * @param serverOutputMessageQueue 서버에서 보내는 공지등 불특정 다수한테 보내는 출력 메시지 큐
 	 * @param messageProtocol 메시지 교환 프로토콜
-	 * @param messageManger 메시지 관리자
 	 * @param dataPacketBufferQueueManager 클라이언트 프로젝트에 종속적인 데이터 패킷 버퍼 관리자
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷 부족시 던지는 예외
 	 */
 	public NoShareSyncConnection(int index, 
 			long socketTimeOut,
 			boolean whetherToAutoConnect,
-			ClientProjectConfigIF clientProjectConfig,
-			LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue,
+			ClientProjectConfig clientProjectConfig,
+			LinkedBlockingQueue<ReceivedLetter> serverOutputMessageQueue,
 			MessageProtocolIF messageProtocol,
-			MessageMangerIF messageManger, 
-			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws InterruptedException, NoMoreDataPacketBufferException {
-		super(index, socketTimeOut, whetherToAutoConnect, clientProjectConfig, dataPacketBufferQueueManager, serverOutputMessageQueue);
+			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager,
+			ClientObjectCacheManagerIF clientObjectCacheManager) throws InterruptedException, NoMoreDataPacketBufferException {
+		super(index, socketTimeOut, whetherToAutoConnect, clientProjectConfig, serverOutputMessageQueue, messageProtocol, dataPacketBufferQueueManager, clientObjectCacheManager);
 		
 		this.messageProtocol = messageProtocol;
-		this.messageManger = messageManger;
 		
 		try {
 			reopenSocketChannel();
 		} catch (IOException e) {
 			String errorMessage = String.format("project[%s] NoShareSyncConnection[%d], fail to config a socket channel", clientProjectConfig.getProjectName(), index);
-			log.fatal(errorMessage, e);
+			log.error(errorMessage, e);
 			System.exit(1);
 		}
 		
@@ -281,43 +271,43 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 		// index);
 	}	
 
+	
 	@Override
-	public LetterFromServer sendSyncInputMessage(InputMessage inObj)
+	public AbstractMessage sendSyncInputMessage(AbstractMessage inObj)
 			throws ServerNotReadyException, SocketTimeoutException,
-			NoMoreDataPacketBufferException, BodyFormatException, MessageInfoNotFoundException {
+			NoMoreDataPacketBufferException, BodyFormatException, 
+			DynamicClassCallException, ServerExcecutorException, NotLoginException {
 		long startTime = 0;
 		long endTime = 0;
 		startTime = new java.util.Date().getTime();
 		
 		// String messageID = inObj.getMessageID();
-		LetterFromServer letterFromServer = null;
+		// LetterFromServer letterFromServer = null;
 		
 		serverOpen();
+
+		ClassLoader classLoader = inObj.getClass().getClassLoader();
+		inObj.messageHeaderInfo.mailboxID = NoShareSyncConnection.ONLY_ONE_MAILBOX_ID;
+		inObj.messageHeaderInfo.mailID = this.mailID;
 		
-
-		inObj.messageHeaderInfo.mailboxID = mailboxID;
-		inObj.messageHeaderInfo.mailID = mailID;
-		
-
-		// MessageHeader messageHeader = new MessageHeader();
-
 		boolean isInterrupted = false;
-		
-		
 		
 		ArrayList<WrapBuffer> inObjWrapBufferList = null;
 		ArrayList<WrapBuffer> inputStreamWrapBufferList = null;
+		AbstractMessage outObj = null;
 		
 		try {
-			inObjWrapBufferList = messageProtocol.M2S(inObj, clientProjectConfig.getCharset());
+			inObjWrapBufferList = getWrapBufferList(classLoader, inObj);
 			
-			int inObjWrapBufferListSize = inObjWrapBufferList.size();
+			// int inObjWrapBufferListSize = inObjWrapBufferList.size();
 			
 			/**
 			 * 2013.07.24 잔존 데이타 발생하므로 GatheringByteChannel 를 이용하는 바이트 버퍼 배열 쓰기 방식 포기.
 			 */
-			for (int i=0; i < inObjWrapBufferListSize; i++) {
-				ByteBuffer inObjBuffer = inObjWrapBufferList.get(i).getByteBuffer();
+			/*for (int i=0; i < inObjWrapBufferListSize; i++) {
+				ByteBuffer inObjBuffer = inObjWrapBufferList.get(i).getByteBuffer();*/
+			for (WrapBuffer wrapBuffer : inObjWrapBufferList) {
+				ByteBuffer inObjBuffer = wrapBuffer.getByteBuffer();
 				// log.debug(inObjBuffer.toString());
 				do {
 					try {
@@ -328,7 +318,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 						try {
 							serverSC.write(inObjBuffer);
 						} catch(ClosedByInterruptException e1) {
-							log.fatal("ClosedByInterruptException", e1);
+							log.error("ClosedByInterruptException", e1);
 							System.exit(1);
 						}
 						
@@ -352,6 +342,23 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 			serverClose();
 			
 			throw new ServerNotReadyException(errorMessage);
+		} catch (DynamicClassCallException e) {
+			String errorMessage = String.format(
+					"DynamicClassCallException::inObj=[%s]",
+					inObj.toString());
+			log.warn(errorMessage, e);
+			
+			SelfExn selfExn = new SelfExn();
+
+			selfExn.messageHeaderInfo = inObj.messageHeaderInfo;
+			
+			selfExn.setErrorWhere("C");
+			selfExn.setErrorGubun("D");
+			selfExn.setErrorMessageID(inObj.getMessageID());
+			selfExn.setErrorWhere(e.getMessage());
+			
+			//letterFromServer = new LetterFromServer(selfExn);
+			return selfExn;
 		} finally {
 			if (null != inObjWrapBufferList) {
 				int inObjWrapBufferListSize = inObjWrapBufferList.size();
@@ -383,8 +390,8 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 			
 			// log.debug(String.format("1.numRead[%d]", numRead));
 			
-			ArrayList<AbstractMessage> outputMessageList = null;
-			int outputMessageListSize = 0;
+			ArrayList<ReceivedLetter> receivedLetterList = null;
+			int receivedLetterListSize = 0;
 			while (-1 != numRead) {
 				// totalRead += numRead;
 				// if (numRead == 0) System.exit(1);
@@ -394,12 +401,13 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 				
 				setFinalReadTime();
 				
-				outputMessageList = messageProtocol.S2MList(OutputMessage.class,  
-						clientProjectConfig.getCharset(), messageInputStreamResource, messageManger);
+				
+				// outputMessageList = messageProtocol.S2MList(clientProjectConfig.getCharset(), messageInputStreamResource);
+				receivedLetterList = messageProtocol.S2MList(clientProjectConfig.getCharset(), messageInputStreamResource);
 				
 				
-				outputMessageListSize = outputMessageList.size();
-				if (outputMessageListSize != 0) break;
+				receivedLetterListSize = receivedLetterList.size();
+				if (receivedLetterListSize != 0) break;
 				
 				lastInputStreamBuffer = messageInputStreamResource.getLastDataPacketBuffer();
 				recvBytes = lastInputStreamBuffer.array();
@@ -407,21 +415,26 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 				numRead = inputStream.read(recvBytes,
 						lastInputStreamBuffer.position(),
 						lastInputStreamBuffer.remaining());
-			}
-
-			if (outputMessageListSize > 1) {
-				for (int i=0; i < outputMessageListSize; i++) {
-					log.debug(String.format("비공유+동기화 연결에서 1개 이상 출력 메시지 추출 에러, outObj[%d]=[%s]", i, outputMessageList.get(i).toString()));
+			}			
+			
+			if (receivedLetterListSize > 1) {
+				// FIXME! debug
+				int i=0;
+				for (ReceivedLetter receivedLetter : receivedLetterList) {
+					outObj = getMessageFromMiddleReadObj(classLoader, receivedLetter);
+					
+					log.debug(String.format("비공유+동기화 연결에서 1개 이상 출력 메시지 추출 에러, outObj[%d]=[%s]", i++, outObj.toString()));
 				}
 				
 				String errorMessage = "비공유 + 동기 연결 클래스는 오직 1개 입력 메시지에 1개 출력 메시지만 처리할 수 있습니다. 2개 이상 출력 메시지 검출 되었습니다.";
 				throw new HeaderFormatException(errorMessage);
 			}
 			
-			
-			OutputMessage outObj = (OutputMessage)outputMessageList.get(0);
+			ReceivedLetter  receivedLetter  = receivedLetterList.get(0);
+			outObj = getMessageFromMiddleReadObj(classLoader, receivedLetter);
+			// AbstractMessage outObj = outputMessageList.get(0);
 				// log.info(OutObj.toString());
-			letterFromServer = new LetterFromServer(outObj);
+			// letterFromServer = new LetterFromServer(outObj);
 			
 			// }
 			
@@ -443,7 +456,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 			serverClose();
 			throw e;
 		} catch (IOException e) {
-			log.fatal("IOException", e);
+			log.error("IOException", e);
 			serverClose();
 			// System.exit(1);
 		} finally {
@@ -472,24 +485,22 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 		}
 
 		// FIXME!
-		if (null == letterFromServer) {
-			log.info(String.format("letterFromServer is null, serverSC isConnected[%s]", serverSC.isConnected()));
+		if (null == outObj) {
+			log.info(String.format("outObj is null, serverSC isConnected[%s]", serverSC.isConnected()));
 		}
 		
 
-		return letterFromServer;
+		return outObj;
 	}
 	
 	
 	@Override
-	public void sendAsynInputMessage(
-			InputMessage inObj) throws ServerNotReadyException,
-			SocketTimeoutException, NoMoreDataPacketBufferException,
-			BodyFormatException, MessageInfoNotFoundException, NotSupportedException {		
+	public void sendAsynInputMessage(AbstractMessage inObj) 
+			throws ServerNotReadyException, SocketTimeoutException, 
+			NoMoreDataPacketBufferException, BodyFormatException, 
+			DynamicClassCallException, NotSupportedException {		
 		throw new NotSupportedException("비공유+동기 연결은 출력 메시지를 받지 않고 입력 메시지만 보내는 기능을 지원하지 않습니다.");
 	}
-
-
 	
 	@Override
 	public void finalize() {

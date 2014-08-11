@@ -40,7 +40,7 @@ import javax.crypto.NoSuchPaddingException;
 
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.common.lib.CommonStaticFinal;
+import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.common.lib.CommonType;
 import kr.pe.sinnori.common.util.HexUtil;
 
@@ -96,12 +96,12 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 		File RSAKeyPairPath = (File) conf.getResource("sessionkey.rsa_keypair_path.value");
 		
 		File rsaPrivateKeyFile = new File(RSAKeyPairPath.getAbsolutePath()
-				+ java.io.File.separator + CommonStaticFinal.PRIVATE_KEY_FILE_NAME);
+				+ java.io.File.separator + CommonStaticFinalVars.PRIVATE_KEY_FILE_NAME);
 		if (!rsaPrivateKeyFile.exists()) {
 			String errorMessage = String.format(
 					"sinnori.privatekey file not exist. fullpath=[%s]\n",
 					rsaPrivateKeyFile.getAbsolutePath());
-			log.fatal(errorMessage);
+			log.error(errorMessage);
 			System.exit(1);
 		}
 
@@ -109,7 +109,7 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 			String errorMessage = String.format(
 					"can not read sinnori.privatekey file. fullpath=[%s]\n",
 					rsaPrivateKeyFile.getAbsolutePath());
-			log.fatal(errorMessage);
+			log.error(errorMessage);
 			System.exit(1);
 		}
 
@@ -120,11 +120,11 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 			rsaPrivateKeyFIS = new FileInputStream(rsaPrivateKeyFile);
 
 			long size = rsaPrivateKeyFile.length();
-			if (size > CommonStaticFinal.MAX_KEY_FILE_SIZE
+			if (size > CommonStaticFinalVars.MAX_KEY_FILE_SIZE
 					|| size > Integer.MAX_VALUE) {
 				String errorMessage = String.format(
 						"check rsa private key file size[%d]", size);
-				log.fatal(errorMessage);
+				log.error(errorMessage);
 				System.exit(1);
 			}
 			privateKeyBytes = new byte[(int) size];
@@ -132,11 +132,11 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 		} catch (FileNotFoundException e) {
 			String errorMessage = String
 					.format("RSA Private Key FileNotFoundException");
-			log.fatal(errorMessage, e);
+			log.error(errorMessage, e);
 			System.exit(1);
 		} catch (IOException e) {
 			String errorMessage = String.format("RSA Private Key IOException");
-			log.fatal(errorMessage, e);
+			log.error(errorMessage, e);
 			System.exit(1);
 		} finally {
 			try {
@@ -154,7 +154,7 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 		} catch (NoSuchAlgorithmException e) {
 			String errorMessage = String
 					.format("KeyFactory.getInstance NoSuchAlgorithmException");
-			log.fatal(errorMessage, e);
+			log.error(errorMessage, e);
 			System.exit(1);
 		}
 
@@ -163,17 +163,17 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 		} catch (InvalidKeySpecException e) {
 			String errorMessage = String
 					.format("RSA Private Key InvalidKeySpecException");
-			log.fatal(errorMessage, e);
+			log.error(errorMessage, e);
 			System.exit(1);
 		}
 
 		File rsaPublicKeyFile = new File(RSAKeyPairPath.getAbsolutePath()
-				+ java.io.File.separator + CommonStaticFinal.PUBLIC_KEY_FILE_NAME);
+				+ java.io.File.separator + CommonStaticFinalVars.PUBLIC_KEY_FILE_NAME);
 		if (!rsaPublicKeyFile.exists()) {
 			String errorMessage = String.format(
 					"sinnori.publickey file not exist. fullpath=[%s]\n",
 					rsaPublicKeyFile.getAbsolutePath());
-			log.fatal(errorMessage);
+			log.error(errorMessage);
 			System.exit(1);
 		}
 
@@ -181,7 +181,7 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 			String errorMessage = String.format(
 					"can not read sinnori.publickey file. fullpath=[%s]\n",
 					rsaPublicKeyFile.getAbsolutePath());
-			log.fatal(errorMessage);
+			log.error(errorMessage);
 			System.exit(1);
 		}
 
@@ -191,11 +191,11 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 			rsaPublicKeyFIS = new FileInputStream(rsaPublicKeyFile);
 
 			long size = rsaPublicKeyFile.length();
-			if (size > CommonStaticFinal.MAX_KEY_FILE_SIZE
+			if (size > CommonStaticFinalVars.MAX_KEY_FILE_SIZE
 					|| size > Integer.MAX_VALUE) {
 				String errorMessage = String.format(
 						"check rsa public key file size[%d]", size);
-				log.fatal(errorMessage);
+				log.error(errorMessage);
 				System.exit(1);
 			}
 			publicKeyBytes = new byte[(int) size];
@@ -203,11 +203,11 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 		} catch (FileNotFoundException e) {
 			String errorMessage = String
 					.format("RSA Public Key FileNotFoundException");
-			log.fatal(errorMessage, e);
+			log.error(errorMessage, e);
 			System.exit(1);
 		} catch (IOException e) {
 			String errorMessage = String.format("RSA Public Key IOException");
-			log.fatal(errorMessage, e);
+			log.error(errorMessage, e);
 			System.exit(1);
 		} finally {
 			try {
@@ -225,7 +225,7 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 		} catch (InvalidKeySpecException e) {
 			String errorMessage = String
 					.format("RSA Public Key InvalidKeySpecException");
-			log.fatal(errorMessage, e);
+			log.error(errorMessage, e);
 			System.exit(1);
 		}
 		
@@ -233,7 +233,7 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 			rsaPrivateCrtKeySpec = rsaKeyFactory.getKeySpec(privateKey, RSAPrivateCrtKeySpec.class);
 		} catch (InvalidKeySpecException e) {
 			String errorMessage = String.format("InvalidKeySpecException");
-			log.fatal(errorMessage, e);
+			log.error(errorMessage, e);
 			System.exit(1);
 		}
 	}
@@ -253,7 +253,7 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 			rsaKeyPairGenerator = KeyPairGenerator.getInstance("RSA");
 		} catch (NoSuchAlgorithmException e) {
 			String errorMessage = "RSA NoSuchAlgorithmException";
-			log.fatal(errorMessage, e);
+			log.error(errorMessage, e);
 			System.exit(1);
 		}	
 		
@@ -270,7 +270,7 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 		} catch (NoSuchAlgorithmException e) {
 			String errorMessage = String
 					.format("KeyFactory.getInstance NoSuchAlgorithmException");
-			log.fatal(errorMessage, e);
+			log.error(errorMessage, e);
 			System.exit(1);
 		}
 		
@@ -278,7 +278,7 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 			rsaPrivateCrtKeySpec = rsaKeyFactory.getKeySpec(privateKey, RSAPrivateCrtKeySpec.class);
 		} catch (InvalidKeySpecException e) {
 			String errorMessage = String.format("InvalidKeySpecException");
-			log.fatal(errorMessage, e);
+			log.error(errorMessage, e);
 			System.exit(1);
 		}
 	}

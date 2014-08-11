@@ -32,5 +32,5 @@ public interface OutputMessageReaderPoolIF {
 	 * @param serverConnection
 	 *            등록을 원하는 신규 연결 클래스
 	 */
-	public void addNewServer(AbstractAsynConnection serverConnection) throws InterruptedException;
+	public void addNewServer(AbstractAsynConnection serverConnection);
 }

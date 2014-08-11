@@ -20,16 +20,18 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import kr.pe.sinnori.client.io.LetterFromServer;
-import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
+import kr.pe.sinnori.common.configuration.ClientProjectConfig;
 import kr.pe.sinnori.common.exception.BodyFormatException;
+import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
+import kr.pe.sinnori.common.exception.ServerExcecutorException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.common.message.InputMessage;
-import kr.pe.sinnori.common.message.OutputMessage;
+import kr.pe.sinnori.common.message.AbstractMessage;
+import kr.pe.sinnori.common.protocol.ReceivedLetter;
 
 /**
  * 클라이언트 연결 클래스 폴 관리자 부모 추상화 클래스.
@@ -42,12 +44,12 @@ public abstract class AbstractConnectionPool implements CommonRootIF {
 	protected final Object monitor = new Object();
 	
 	/** 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스 */
-	protected ClientProjectConfigIF clientProjectConfig = null;
+	protected ClientProjectConfig clientProjectConfig = null;
 
 	/**
 	 * 서버에서 공지등 불특정 다수한테 메시지를 보낼때 출력 메시지를 담은 큐
 	 */
-	protected LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue = null;
+	protected LinkedBlockingQueue< ReceivedLetter> serverOutputMessageQueue = null;
 
 	
 	/**
@@ -55,7 +57,7 @@ public abstract class AbstractConnectionPool implements CommonRootIF {
 	 * @param clientProjectConfig 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
 	 * @param serverOutputMessageQueue 서버에서 보내는 불특정 다수 메시지를 받는 큐
 	 */
-	protected AbstractConnectionPool(ClientProjectConfigIF clientProjectConfig, LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue) {
+	protected AbstractConnectionPool(ClientProjectConfig clientProjectConfig, LinkedBlockingQueue<ReceivedLetter> serverOutputMessageQueue) {
 		this.clientProjectConfig = clientProjectConfig;
 		this.serverOutputMessageQueue = serverOutputMessageQueue;
 	}
@@ -76,10 +78,10 @@ public abstract class AbstractConnectionPool implements CommonRootIF {
 	 *             스트림에서 메시지로, 메시지에서 스트림으로 바꿀때 바디 부분 구성 실패시 발생
 	 * @throws MessageInfoNotFoundException 메시지 정보가 없을때 던지는 예외
 	 */
-	abstract public LetterFromServer sendSyncInputMessage(
-			InputMessage inputMessage) throws ServerNotReadyException,
-			SocketTimeoutException, NoMoreDataPacketBufferException,
-			BodyFormatException, MessageInfoNotFoundException;
+	abstract public AbstractMessage sendSyncInputMessage(
+			AbstractMessage inputMessage) throws SocketTimeoutException, ServerNotReadyException, 
+			NoMoreDataPacketBufferException, BodyFormatException, 
+			DynamicClassCallException, ServerExcecutorException, NotLoginException;
 	
 	
 	/**

@@ -20,15 +20,14 @@ import java.net.SocketTimeoutException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import kr.pe.sinnori.client.SyncOutputMessageQueueQueueMangerIF;
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.client.connection.asyn.share.ShareAsynConnection;
+import kr.pe.sinnori.client.io.ClientWrapOutputMessageQueue;
 import kr.pe.sinnori.client.io.LetterToServer;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.common.lib.SyncOutputMessageQueueQueueMangerIF;
-import kr.pe.sinnori.common.lib.WrapOutputMessageQueue;
-import kr.pe.sinnori.common.message.InputMessage;
-import kr.pe.sinnori.common.message.OutputMessage;
+import kr.pe.sinnori.common.protocol.ReceivedLetter;
 
 /**
  * <pre>
@@ -60,8 +59,8 @@ public class PrivateMailbox implements CommonRootIF {
 	private LinkedBlockingQueue<LetterToServer> inputMessageQueue = null;
 	private SyncOutputMessageQueueQueueMangerIF syncOutputMessageQueueQueueManager = null;
 	/** 출력 메시지 큐 */
-	private WrapOutputMessageQueue wrapOutputMessageQueue = null;
-	private LinkedBlockingQueue<OutputMessage> syncOutputMessageQueue = null;
+	private ClientWrapOutputMessageQueue wrapOutputMessageQueue = null;
+	private LinkedBlockingQueue<ReceivedLetter> syncOutputMessageQueue = null;
 	/** 메일함이 속한 비동기 연결 방식의 소켓 채널을 쓰레드간에 공유할려는 연결 클래스 */
 	private AbstractAsynConnection serverConnection = null;
 	/** 메일함 사용 여부 */
@@ -113,6 +112,10 @@ public class PrivateMailbox implements CommonRootIF {
 	public int getMailboxID() {
 		return mailboxID;
 	}
+	
+	public int getMailID() {
+		return mailID;
+	}
 
 	/**
 	 * 입력 메시지를 메일함의 식별자와 메일 식별자를 갖도록 한후 메일함이 가진 입력 메시지 큐에 넣는다.
@@ -121,24 +124,40 @@ public class PrivateMailbox implements CommonRootIF {
 	 *            입력 메시지와 연결 클래스를 담은 편지
 	 * @throws InterruptedException 인터럽트가 발생하여 던지는 예외
 	 */
-	public void putInputMessage(LetterToServer letterToServer)
+	public void putSyncInputMessage(LetterToServer letterToServer)
 			throws InterruptedException, SocketTimeoutException {
-		InputMessage inObj = letterToServer.getInputMessage();
+		/*AbstractMessage inObj = letterToServer.getInputMessage();
 		inObj.messageHeaderInfo.mailboxID = this.mailboxID;
-		inObj.messageHeaderInfo.mailID = this.mailID;
-		inputMessageQueue.put(letterToServer);
-		/*
+		inObj.messageHeaderInfo.mailID = this.mailID;*/
+		
+		
+		// letterToServer.setMailBox(mailboxID, mailID);
+		// inputMessageQueue.put(letterToServer);
+		
 		boolean result = inputMessageQueue.offer(letterToServer, socketTimeOut, TimeUnit.MILLISECONDS);
 		if (!result) {
 			String errorMsg = String
-					.format("입력 메시지 큐 응답 시간[%d]이 초과되었습니다. serverConnection=[%s], inObj=[%s]",
-							socketTimeOut, serverConnection.getSimpleConnectionInfo(),
-							inObj.toString());
+					.format("메일 박스[%d]에서 입력 메시지 큐 응답 시간[%d]이 초과되었습니다. serverConnection=[%s], letterToServer=[%s]",
+							mailboxID, socketTimeOut, serverConnection.getSimpleConnectionInfo(),
+							letterToServer.toString());
 			log.warn(errorMsg);
 			throw new SocketTimeoutException(errorMsg);
 		}
-		*/
 	}
+	
+	public void putAsynInputMessage(LetterToServer letterToServer) throws InterruptedException, SocketTimeoutException {
+		// letterToServer.setMailBox(CommonStaticFinalVars.ASYN_MAILBOX_ID, mailID);
+		boolean result = inputMessageQueue.offer(letterToServer, socketTimeOut, TimeUnit.MILLISECONDS);
+		if (!result) {
+			String errorMsg = String
+					.format("메일 박스[%d]에서 입력 메시지 큐 응답 시간[%d]이 초과되었습니다. serverConnection=[%s], letterToServer=[%s]",
+							mailboxID, socketTimeOut, serverConnection.getSimpleConnectionInfo(),
+							letterToServer.toString());
+			log.warn(errorMsg);
+			throw new SocketTimeoutException(errorMsg);
+		}
+	}
+	
 
 	/**
 	 * <pre>
@@ -154,36 +173,36 @@ public class PrivateMailbox implements CommonRootIF {
 	 * @param outObj
 	 *            출력 메시지
 	 */
-	public void putToSyncOutputMessageQueue(OutputMessage outObj) {
+	public void putToSyncOutputMessageQueue(ReceivedLetter receivedLetter) {
 		if (!isActive) {
 			String errorMessage = String
-					.format("메일함이 사용중이 아닙니다. 출력 메시지를 버립니다. %s, outObj=[%s]",
+					.format("메일함이 사용중이 아닙니다. 출력 메시지를 버립니다. %s, receivedLetter=[%s]",
 							serverConnection.getSimpleConnectionInfo(),
-							outObj.toString());
+							receivedLetter.toString());
 
 			log.warn(errorMessage);
 			return;
 		}
 		
-		int fromMailID = outObj.messageHeaderInfo.mailID;
+		int fromMailID = receivedLetter.getMailID();
 
 		if (mailID != fromMailID) {
 			String errorMessage = String
-					.format("메일식별자 불일치 에러. 출력 메시지를 버립니다. %s, mailbox'mailID=[%d], outObj=[%s]",
+					.format("메일식별자 불일치 에러. 출력 메시지를 버립니다. %s, mailbox'mailID=[%d], receivedLetter=[%s]",
 							serverConnection.getSimpleConnectionInfo(), this.mailID,
-							outObj.toString());
+							receivedLetter.toString());
 			log.warn(errorMessage);
 			return;
 		}
 
 		boolean result = false;
 		
-		result = syncOutputMessageQueue.offer(outObj);
+		result = syncOutputMessageQueue.offer(receivedLetter);
 		
 		
 		if (!result) {
 			StringBuilder errorMessageStringBuilder = new StringBuilder("출력 메시지 큐가 꽉 차 있어 출력 메시지[");
-			errorMessageStringBuilder.append(outObj.toString());
+			errorMessageStringBuilder.append(receivedLetter.toString());
 			errorMessageStringBuilder.append("] 를 버립니다. ");
 			errorMessageStringBuilder.append(serverConnection.getSimpleConnectionInfo());
 			
@@ -201,13 +220,13 @@ public class PrivateMailbox implements CommonRootIF {
 	 *             못했을때 발생
 	 * @throws InterruptedException 인터럽트 발생시 던지는 예외
 	 */
-	public OutputMessage takeSyncOutputMessage() throws SocketTimeoutException, InterruptedException {
-		OutputMessage workOutObj = null;
+	public ReceivedLetter takeSyncOutputMessage() throws SocketTimeoutException, InterruptedException {
+		ReceivedLetter receivedLetter = null;
 		
 		do {
-			workOutObj = syncOutputMessageQueue.poll(socketTimeOut,
+			receivedLetter = syncOutputMessageQueue.poll(socketTimeOut,
 					TimeUnit.MILLISECONDS);
-			if (null == workOutObj) {
+			if (null == receivedLetter) {
 				String errorMsg = String
 						.format("서버 응답 시간[%d]이 초과되었습니다. %s, mailboxID=[%d], mailID=[%d]",
 								socketTimeOut, serverConnection.getSimpleConnectionInfo(),
@@ -216,13 +235,13 @@ public class PrivateMailbox implements CommonRootIF {
 				throw new SocketTimeoutException(errorMsg);
 			}
 			
-			if (workOutObj.messageHeaderInfo.mailID == mailID) return workOutObj;				
+			if (receivedLetter.getMailID() == mailID) return receivedLetter;				
 			
 			log.warn(String.format(
 					"%s 연결 객체의 메일 박스[%d]를 통해 보낸 입력 메시지의 메일 식별자[%d]와 전달 받은 출력 메시지[%s]의 메일 식별자가 다릅니다.",
 					serverConnection.getSimpleConnectionInfo(), mailboxID,
 					mailID,
-					workOutObj.toString()));
+					receivedLetter.toString()));
 			
 		} while (true);		
 	}

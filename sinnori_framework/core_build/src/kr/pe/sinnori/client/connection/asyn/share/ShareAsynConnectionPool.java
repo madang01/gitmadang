@@ -20,23 +20,25 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
+import kr.pe.sinnori.client.SyncOutputMessageQueueQueueMangerIF;
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.AbstractConnectionPool;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderPoolIF;
-import kr.pe.sinnori.client.io.LetterFromServer;
 import kr.pe.sinnori.client.io.LetterToServer;
-import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
+import kr.pe.sinnori.common.configuration.ClientProjectConfig;
 import kr.pe.sinnori.common.exception.BodyFormatException;
-import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
+import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
+import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
+import kr.pe.sinnori.common.exception.ServerExcecutorException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
-import kr.pe.sinnori.common.lib.MessageMangerIF;
-import kr.pe.sinnori.common.lib.SyncOutputMessageQueueQueueMangerIF;
-import kr.pe.sinnori.common.message.InputMessage;
-import kr.pe.sinnori.common.message.OutputMessage;
+import kr.pe.sinnori.common.message.AbstractMessage;
+import kr.pe.sinnori.common.protocol.MessageProtocolIF;
+import kr.pe.sinnori.common.protocol.ReceivedLetter;
 
 /**
  * 클라이언트 공유 방식의 비동기 연결 클래스 {@link ShareAsynConnection} 를 원소로 가지는 폴 관리자 클래스<br/>
@@ -68,7 +70,6 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 	 * @param inputMessageQueue 입력 메시지 큐
 	 * @param syncOutputMessageQueueQueueManger 출력 메시지 큐를 원소로 가지는 큐 관리자
 	 * @param outputMessageReaderPool 서버에 접속한 소켓 채널을 균등하게 소켓 읽기 담당 쓰레드에 등록하기 위한 인터페이스
-	 * @param messageManger 메시지 관리자
 	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷 버퍼를 할당 받지 못했을 경우 던지는 예외
 	 * @throws InterruptedException 쓰레드 인터럽트
@@ -81,13 +82,14 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 			int finishConnectMaxCall,
 			long finishConnectWaittingTime,
 			int mailBoxCnt,			
-			ClientProjectConfigIF clientProjectConfig,
-			LinkedBlockingQueue<OutputMessage> asynOutputMessageQueue,
+			ClientProjectConfig clientProjectConfig,
+			LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
-			SyncOutputMessageQueueQueueMangerIF syncOutputMessageQueueQueueManger, 
+			MessageProtocolIF messageProtocol,
 			OutputMessageReaderPoolIF outputMessageReaderPool,
-			MessageMangerIF messageManger,
-			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager)
+			SyncOutputMessageQueueQueueMangerIF syncOutputMessageQueueQueueManger,
+			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager,
+			ClientObjectCacheManagerIF clientObjectCacheManager)
 			throws NoMoreDataPacketBufferException, InterruptedException, NoMoreOutputMessageQueueException {
 		super(clientProjectConfig, asynOutputMessageQueue);
 		// log.info("create new MultiNoneBlockConnectionPool");
@@ -109,10 +111,11 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 					finishConnectWaittingTime,
 					mailBoxCnt,
 					clientProjectConfig, 
-					asynOutputMessageQueue, inputMessageQueue,					 
+					asynOutputMessageQueue, inputMessageQueue,
+					messageProtocol,
+					outputMessageReaderPool,
 					syncOutputMessageQueueQueueManger,
-					outputMessageReaderPool, messageManger,
-					dataPacketBufferQueueManager);
+					dataPacketBufferQueueManager, clientObjectCacheManager);
 
 			connectionList.add(serverConnection);
 
@@ -144,9 +147,10 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 	}
 	
 	@Override
-	public LetterFromServer sendSyncInputMessage(InputMessage inputMessage)
+	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
 			throws ServerNotReadyException, SocketTimeoutException,
-			NoMoreDataPacketBufferException, BodyFormatException, MessageInfoNotFoundException {
+			NoMoreDataPacketBufferException, BodyFormatException, 
+			DynamicClassCallException, ServerExcecutorException, NotLoginException {
 		ShareAsynConnection conn = null;
 
 		synchronized (monitor) {

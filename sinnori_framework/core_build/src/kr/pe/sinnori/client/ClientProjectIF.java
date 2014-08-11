@@ -20,14 +20,16 @@ package kr.pe.sinnori.client;
 import java.net.SocketTimeoutException;
 
 import kr.pe.sinnori.client.connection.AbstractConnection;
-import kr.pe.sinnori.client.io.LetterFromServer;
 import kr.pe.sinnori.common.exception.BodyFormatException;
+import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
+import kr.pe.sinnori.common.exception.ServerExcecutorException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
-import kr.pe.sinnori.common.io.MessageProtocolIF;
-import kr.pe.sinnori.common.message.InputMessage;
+import kr.pe.sinnori.common.message.AbstractMessage;
+import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 
 /**
  * 클라이언트 프로젝트 개발자 시선의 클라이언트용 서버 접속 API 인터페이스
@@ -51,10 +53,10 @@ public interface ClientProjectIF {
 	 *             스트림에서 메시지로, 메시지에서 스트림으로 바꿀때 바디 부분 구성 실패시 발생
 	 * @throws MessageInfoNotFoundException 메시지 정보가 없을때 던지는 예외
 	 */
-	public LetterFromServer sendSyncInputMessage(
-			InputMessage inputMessage) throws ServerNotReadyException,
-			SocketTimeoutException, NoMoreDataPacketBufferException,
-			BodyFormatException, MessageInfoNotFoundException;
+	public AbstractMessage sendSyncInputMessage(
+			AbstractMessage inputMessage) throws SocketTimeoutException, ServerNotReadyException, 
+			NoMoreDataPacketBufferException, BodyFormatException, 
+			DynamicClassCallException, ServerExcecutorException, NotLoginException;
 		
 	/**
 	 * @return 연결 객체

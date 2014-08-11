@@ -25,20 +25,27 @@ import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import kr.pe.sinnori.client.io.LetterFromServer;
-import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
+import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
+import kr.pe.sinnori.common.configuration.ClientProjectConfig;
 import kr.pe.sinnori.common.exception.BodyFormatException;
+import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
+import kr.pe.sinnori.common.exception.ServerExcecutorException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.common.lib.CommonStaticFinal;
+import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.SocketInputStream;
 import kr.pe.sinnori.common.lib.WrapBuffer;
-import kr.pe.sinnori.common.message.InputMessage;
-import kr.pe.sinnori.common.message.OutputMessage;
+import kr.pe.sinnori.common.message.AbstractMessage;
+import kr.pe.sinnori.common.message.codec.MessageDecoder;
+import kr.pe.sinnori.common.message.codec.MessageEncoder;
+import kr.pe.sinnori.common.protocol.MessageCodecIF;
+import kr.pe.sinnori.common.protocol.MessageProtocolIF;
+import kr.pe.sinnori.common.protocol.ReceivedLetter;
 
 /**
  * 클라이언트 연결 클래스의 부모 추상화 클래스<br/>
@@ -55,9 +62,11 @@ public abstract class AbstractConnection implements CommonRootIF {
 	/** 연결 클래스 번호 */
 	protected int index;
 	/** 프로젝트의 클라이언트 환경 변수 */
-	protected ClientProjectConfigIF clientProjectConfig = null;
+	protected ClientProjectConfig clientProjectConfig = null;
 	/** 데이터 패킷 버퍼 관리자 */
 	protected DataPacketBufferQueueManagerIF dataPacketBufferQueueManager = null;
+	/** */
+	protected MessageProtocolIF messageProtocol = null;
 	
 	
 	/** 소켓 채널 */
@@ -82,7 +91,9 @@ public abstract class AbstractConnection implements CommonRootIF {
 	/**
 	 * 서버에서 공지등 불특정 다수한테 메시지를 보낼때 출력 메시지를 담은 큐
 	 */
-	protected LinkedBlockingQueue<OutputMessage> asynOutputMessageQueue = null;
+	protected LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue = null;
+	
+	protected ClientObjectCacheManagerIF clientObjectCacheManager = null;
 	
 	/**
 	 * 생성자
@@ -91,25 +102,30 @@ public abstract class AbstractConnection implements CommonRootIF {
 	 * @param whetherToAutoConnect 자동 접속 여부
 	 * @param clientProjectConfig 프로젝트의 클라이언트 환경 변수
 	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자
-	 * @param asynOutputMessageQueue  서버에서 보내는 불특정 출력 메시지를 받는 큐
+	 * @param asynOutputMessageQueue 서버에서 보내는 불특정 출력 메시지를 받는 큐
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷 버퍼를 할당 받지 못했을 경우 던지는 예외
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public AbstractConnection(int index, 
 			long socketTimeOut,
 			boolean whetherToAutoConnect,
-			ClientProjectConfigIF clientProjectConfig,
+			ClientProjectConfig clientProjectConfig,
+			LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue,
+			MessageProtocolIF messageProtocol,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager,
-			LinkedBlockingQueue<OutputMessage> asynOutputMessageQueue) throws NoMoreDataPacketBufferException, InterruptedException {
+			ClientObjectCacheManagerIF clientObjectCacheManager) throws NoMoreDataPacketBufferException, InterruptedException {
 		this.index = index;
 		this.socketTimeOut = socketTimeOut;
 		this.whetherToAutoConnect = whetherToAutoConnect;
 		this.clientProjectConfig = clientProjectConfig;
-		
+		this.messageProtocol = messageProtocol;
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 		messageInputStreamResource = new SocketInputStream(dataPacketBufferQueueManager);
 		
 		this.asynOutputMessageQueue = asynOutputMessageQueue;
+		this.clientObjectCacheManager = clientObjectCacheManager;
+		
+		
 	
 		/*
 		try {
@@ -122,6 +138,8 @@ public abstract class AbstractConnection implements CommonRootIF {
 		*/
 	}
 	
+
+
 
 	/**
 	 * 소켓에 종속적인 자원 초기화.
@@ -189,17 +207,24 @@ public abstract class AbstractConnection implements CommonRootIF {
 		
 		 
 		
-		int inObjWrapBufferListSize = inObjWrapBufferList.size();
+		// int inObjWrapBufferListSize = inObjWrapBufferList.size();
 		
 		// long startTime = System.currentTimeMillis();
 		synchronized (serverSC) {
 			/**
 			 * 2013.07.24 잔존 데이타 발생하므로 GatheringByteChannel 를 이용하는 바이트 버퍼 배열 쓰기 방식 포기.
 			 */			
-			for (int i=0; i < inObjWrapBufferListSize; i++) {
+			/*for (int i=0; i < inObjWrapBufferListSize; i++) {
 				WrapBuffer wrapBuffer = inObjWrapBufferList.get(i);
 				ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
 				
+				do {
+					serverSC.write(byteBuffer);
+				} while(byteBuffer.hasRemaining());
+			}*/
+			
+			for (WrapBuffer wrapBuffer : inObjWrapBufferList) {
+				ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
 				do {
 					serverSC.write(byteBuffer);
 				} while(byteBuffer.hasRemaining());
@@ -216,7 +241,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 	 * @throws ServerNotReadyException
 	 *             서버와의 연결 실패시 발생한다.
 	 */
-	abstract public void serverOpen() throws ServerNotReadyException, InterruptedException;
+	abstract public void serverOpen() throws ServerNotReadyException;
 
 	
 
@@ -311,12 +336,11 @@ public abstract class AbstractConnection implements CommonRootIF {
 	 *             래퍼 메시지를 만들때 데이터 패킷 버퍼 큐에서 버퍼를 확보하는데 실패할때 발생
 	 * @throws BodyFormatException
 	 *             스트림에서 메시지로, 메시지에서 스트림으로 바꿀때 바디 부분 구성 실패시 발생
-	 * @throws MessageInfoNotFoundException 메시지 정보가 없을때 던지는 예외
 	 */
-	abstract public LetterFromServer sendSyncInputMessage(
-			InputMessage inputMessage) throws ServerNotReadyException,
-			SocketTimeoutException, NoMoreDataPacketBufferException,
-			BodyFormatException, MessageInfoNotFoundException;
+	abstract public AbstractMessage sendSyncInputMessage(
+			AbstractMessage inputMessage) throws ServerNotReadyException, SocketTimeoutException,
+			NoMoreDataPacketBufferException, BodyFormatException, 
+			DynamicClassCallException, ServerExcecutorException, NotLoginException;
 	
 	
 	/**
@@ -330,9 +354,100 @@ public abstract class AbstractConnection implements CommonRootIF {
 	 * @throws NotSupportedException 공유+비동기 연결 객체에서 이 메소드 호출시 던지는 예외, 공유+비동기 연결 폴은 직접적으로 연결 객체를 받을 수 없음.
 	 */
 	abstract public void sendAsynInputMessage(
-			InputMessage inputMessage) throws ServerNotReadyException,
-			SocketTimeoutException, NoMoreDataPacketBufferException,
-			BodyFormatException, MessageInfoNotFoundException, NotSupportedException;
+			AbstractMessage inputMessage) throws ServerNotReadyException, SocketTimeoutException, 
+			NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException, NotSupportedException;
+	
+	protected AbstractMessage getMessageFromMiddleReadObj(ClassLoader classLoader, ReceivedLetter receivedLetter) throws DynamicClassCallException, BodyFormatException {
+		String messageID = receivedLetter.getMessageID();
+		int mailboxID = receivedLetter.getMailboxID();
+		int mailID = receivedLetter.getMailID();
+		Object middleReadObj = receivedLetter.getMiddleReadObj();
+		
+		MessageCodecIF messageCodec = clientObjectCacheManager.getClientCodec(classLoader, messageID);
+		
+		MessageDecoder  messageDecoder  = null;
+		try {
+			messageDecoder = messageCodec.getMessageDecoder();
+		} catch (NotSupportedException e) {
+			String errorMessage = String.format("클라이언트에서 메시지 식별자[%s]에 해당하는 디코더를 얻는데 실패하였습니다.", messageID);
+			log.warn("{}, mailboxID=[{}], mailID=[{}]", errorMessage, mailboxID, mailID);
+			throw new DynamicClassCallException(errorMessage);
+		} catch (Exception e) {
+			String errorMessage = String.format("알 수 없는 원인으로 클라이언트에서 메시지 식별자[%s]에 해당하는 디코더를 얻는데 실패하였습니다.", messageID);
+			log.warn("{}, mailboxID=[{}], mailID=[{}]", errorMessage, mailboxID, mailID);
+			throw new DynamicClassCallException(errorMessage);
+		}
+		
+		AbstractMessage messageObj = null;
+		try {
+			messageObj = messageDecoder.decode(messageProtocol.getSingleItemDecoder(), clientProjectConfig.getCharset(), middleReadObj);
+			messageObj.messageHeaderInfo.mailboxID = mailboxID;
+			messageObj.messageHeaderInfo.mailID = mailID;
+		} catch (BodyFormatException e) {
+			String errorMessage = String.format("클라이언트에서 메시지[messageID=[%s], mailboxID=[%d], mailID=[%d]] 바디 디코딩 실패, %s", messageID, mailboxID, mailID, e.getMessage());
+			log.warn(errorMessage);
+			throw new BodyFormatException(errorMessage);
+		} catch (OutOfMemoryError e) {
+			String errorMessage = String.format("메모리 부족으로 클라이언트에서 메시지[messageID=[%s], mailboxID=[%d], mailID=[%d]] 바디 디코딩 실패, %s", messageID, mailboxID, mailID, e.getMessage());
+			log.warn(errorMessage);
+			throw new BodyFormatException(errorMessage);
+		} catch (Exception e) {
+			String errorMessage = String.format("알 수 없는 원인으로 클라이언트에서 메시지[messageID=[%s], mailboxID=[%d], mailID=[%d]] 바디 디코딩 실패, %s", messageID, mailboxID, mailID, e.getMessage());
+			log.warn(errorMessage);
+			throw new BodyFormatException(errorMessage);
+		}
+		
+		return messageObj;
+	}
+	
+	
+	
+	
+	protected ArrayList<WrapBuffer> getWrapBufferList(ClassLoader classLoader, AbstractMessage messageToClient) throws DynamicClassCallException, NoMoreDataPacketBufferException, BodyFormatException {
+		MessageCodecIF messageCodec = null;
+		
+		try {
+			messageCodec = clientObjectCacheManager.getClientCodec(classLoader, messageToClient.getMessageID());
+		} catch (DynamicClassCallException e) {
+			log.warn(e.getMessage());
+			
+			throw e;
+		} catch(Exception e) {
+			log.warn(e.getMessage(), e);
+			
+			throw new DynamicClassCallException("unkown error::"+e.getMessage());
+		}
+		
+		MessageEncoder  messageEncoder  = null;
+		
+		try {
+			messageEncoder = messageCodec.getMessageEncoder();
+		} catch(NotSupportedException e) {
+			// log.warn(e.getMessage());
+			
+			throw new DynamicClassCallException(e.getMessage());
+		} catch(Exception e) {
+			log.warn(e.getMessage());
+			throw new DynamicClassCallException("unkown error::"+e.getMessage());
+		}
+		
+		ArrayList<WrapBuffer> wrapBufferList = null;		
+		try {
+			wrapBufferList = messageProtocol.M2S(messageToClient, messageEncoder, clientProjectConfig.getCharset());
+		} catch(NoMoreDataPacketBufferException e) {
+			throw e;
+		} catch(DynamicClassCallException e) {
+			throw e;
+		} catch(BodyFormatException e) {
+			throw e;
+		} catch(Exception e) {
+			log.warn("unkown error", e);
+			throw new BodyFormatException("unkown error::"+e.getMessage());
+		}
+		
+		return wrapBufferList;
+	}
+	
 	
 	
 	@Override
@@ -348,9 +463,9 @@ public abstract class AbstractConnection implements CommonRootIF {
 			strBuffer.append("null");
 		}
 		strBuffer.append("]");
-		strBuffer.append(CommonStaticFinal.NEWLINE);
+		strBuffer.append(CommonStaticFinalVars.NEWLINE);
 		strBuffer.append(clientProjectConfig.toString());
-		strBuffer.append(CommonStaticFinal.NEWLINE);
+		strBuffer.append(CommonStaticFinalVars.NEWLINE);
 		strBuffer.append("], finalReadTime=[");
 		strBuffer.append(finalReadTime);
 		strBuffer.append("], echoMesgCount=[");

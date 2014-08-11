@@ -138,7 +138,7 @@ public class ArrayInfo extends AbstractItemInfo implements
 		return strBuff.toString();
 	}
 
-	/******************* AbstractMultiItemInfo start ***********************/
+	/******************* ItemGroupInfoIF start ***********************/
 	@Override
 	public ArrayList<AbstractItemInfo> getItemInfoList() {
 		// return itemInfoHash.values().iterator();
@@ -162,7 +162,7 @@ public class ArrayInfo extends AbstractItemInfo implements
 		return itemInfoHash.get(itemName);
 	}
 
-	/******************* AbstractMultiItemInfo end ***********************/
+	/******************* ItemGroupInfoIF end ***********************/
 
 	/******************* AbstractItemInfo start ***********************/
 	@Override
@@ -174,7 +174,7 @@ public class ArrayInfo extends AbstractItemInfo implements
 	@Override
 	public CommonType.LOGICAL_ITEM_GUBUN getLogicalItemGubun() {
 		// TODO Auto-generated method stub
-		return CommonType.LOGICAL_ITEM_GUBUN.ARRAY;
+		return CommonType.LOGICAL_ITEM_GUBUN.ARRAY_ITEM;
 	}
 	/******************* AbstractItemInfo end ***********************/
 

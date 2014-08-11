@@ -20,11 +20,10 @@ package kr.pe.sinnori.server.threadpool.inputmessage;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import kr.pe.sinnori.common.configuration.ServerProjectConfigIF;
+import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.io.MessageProtocolIF;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
-import kr.pe.sinnori.common.lib.MessageMangerIF;
+import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.io.LetterFromClient;
@@ -41,10 +40,9 @@ public class InputMessageReaderPool extends AbstractThreadPool implements
 		InputMessageReaderPoolIF {
 	private int maxHandler;
 	private long readSelectorWakeupInterval;
-	private ServerProjectConfigIF serverProjectConfig;
+	private ServerProjectConfig serverProjectConfig;
 	private LinkedBlockingQueue<LetterFromClient> inputMessageQueue;
 	private MessageProtocolIF messageProtocol;
-	private MessageMangerIF messageManger;
 	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManager;
 	private ClientResourceManagerIF clientResourceManager;
 	
@@ -63,10 +61,9 @@ public class InputMessageReaderPool extends AbstractThreadPool implements
 	 */
 	public InputMessageReaderPool(int size, int max,
 			long readSelectorWakeupInterval,  
-			ServerProjectConfigIF serverProjectConfig, 
+			ServerProjectConfig serverProjectConfig, 
 			LinkedBlockingQueue<LetterFromClient> inputMessageQueue,
 			MessageProtocolIF messageProtocol,
-			MessageMangerIF messageManger,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager,
 			ClientResourceManagerIF clientResourceManager) {
 		if (size <= 0) {
@@ -86,7 +83,6 @@ public class InputMessageReaderPool extends AbstractThreadPool implements
 		this.serverProjectConfig = serverProjectConfig;
 		this.inputMessageQueue = inputMessageQueue;
 		this.messageProtocol = messageProtocol;
-		this.messageManger = messageManger;
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 		this.clientResourceManager = clientResourceManager;
 		
@@ -104,7 +100,7 @@ public class InputMessageReaderPool extends AbstractThreadPool implements
 			if (size < maxHandler) {
 				try {
 					Thread handler = new InputMessageReader(size, readSelectorWakeupInterval, serverProjectConfig,
-							inputMessageQueue, messageProtocol, messageManger, 
+							inputMessageQueue, messageProtocol, 
 							dataPacketBufferQueueManager, clientResourceManager);
 					pool.add(handler);
 				} catch (Exception e) {

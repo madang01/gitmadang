@@ -12,7 +12,7 @@
 <desc>고정 크기 스트림에서 모든 데이터 타입을 테스트 하기 위한 메시지</desc>
 <singleitem name="byteVar1" type="byte" />
 <singleitem name="byteVar2" type="byte" />	
-<singleitem name="byteVar3" type="byte" value="123" />
+<singleitem name="byteVar3" type="byte" itemDefaultValue="123" />
 <singleitem name="unsignedByteVar1" type="unsigned byte" />
 <singleitem name="unsignedByteVar2" type="unsigned byte" />
 <singleitem name="unsignedByteVar3" type="unsigned byte" />

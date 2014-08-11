@@ -22,7 +22,7 @@ import java.net.StandardSocketOptions;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import kr.pe.sinnori.common.configuration.ServerProjectConfigIF;
+import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderPoolIF;
@@ -35,7 +35,7 @@ import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderPoolIF;
  */
 public class AcceptProcessor extends Thread implements CommonRootIF {
 	private int index; // AcceptSelectorPool에서 생성한 순서
-	ServerProjectConfigIF serverProjectConfig;
+	ServerProjectConfig serverProjectConfig;
 	private LinkedBlockingQueue<SocketChannel> acceptQueue;
 	private InputMessageReaderPoolIF inputMessageReaderPoolIF = null;
 
@@ -47,7 +47,7 @@ public class AcceptProcessor extends Thread implements CommonRootIF {
 	 * @param inputMessageReaderPoolIF 접속 요청 소켓 채널 등록 처리할 입력 메시지 읽기 폴 인터페이스
 	 */
 	public AcceptProcessor(int index,
-			ServerProjectConfigIF serverProjectConfig,
+			ServerProjectConfig serverProjectConfig,
 			LinkedBlockingQueue<SocketChannel> acceptQueue,
 			InputMessageReaderPoolIF inputMessageReaderPoolIF) {
 		this.index = index;

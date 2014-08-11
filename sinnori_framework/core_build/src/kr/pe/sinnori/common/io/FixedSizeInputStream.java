@@ -446,4 +446,9 @@ public class FixedSizeInputStream implements CommonRootIF, InputStreamIF {
 		
 		return -1;
 	}
+	
+	@Override
+	public void close() {
+		streamBuffer.position(streamBuffer.limit());
+	}
 }

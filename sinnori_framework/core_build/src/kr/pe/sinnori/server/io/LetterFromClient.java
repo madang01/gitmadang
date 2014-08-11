@@ -19,7 +19,7 @@ package kr.pe.sinnori.server.io;
 
 import java.nio.channels.SocketChannel;
 
-import kr.pe.sinnori.common.message.InputMessage;
+import kr.pe.sinnori.common.protocol.ReceivedLetter;
 import kr.pe.sinnori.server.ClientResource;
 
 /**
@@ -30,13 +30,13 @@ import kr.pe.sinnori.server.ClientResource;
  */
 public class LetterFromClient {
 	private SocketChannel clientSC;
-	private InputMessage inObj;
+	private ReceivedLetter receivedLetter;
 	private ClientResource clientResource  = null;
 
-	public LetterFromClient(SocketChannel clientSC, InputMessage inObj, ClientResource clientResource) {
+	public LetterFromClient(SocketChannel clientSC, ClientResource clientResource, ReceivedLetter receivedLetter) {
 		this.clientSC = clientSC;
-		this.inObj = inObj;
 		this.clientResource = clientResource;
+		this.receivedLetter = receivedLetter;
 	}
 	
 	/**
@@ -44,8 +44,8 @@ public class LetterFromClient {
 	 * 
 	 * @return 메세지
 	 */
-	public InputMessage getInputMessage() {
-		return inObj;
+	public ReceivedLetter getWrapMiddleReadObj() {
+		return receivedLetter;
 	}
 	
 	/**
@@ -53,27 +53,12 @@ public class LetterFromClient {
 	 * 
 	 * @return 송신할 client, 즉 송신자
 	 */
-	/*
 	public SocketChannel getFromSC() {
 		return clientSC;
 	}
-	*/
+	
 	
 	public ClientResource getClientResource() {
 		return clientResource;
-	}
-
-	@Override
-	public String toString() {
-		StringBuffer strBuff = new StringBuffer();
-		strBuff.append("clientSC=[");
-		if (clientSC != null) {
-			strBuff.append(clientSC.hashCode());
-		} else {
-			strBuff.append("clientSC is empty");
-		}
-		strBuff.append("], inObj=");
-		strBuff.append(inObj.toString());
-		return strBuff.toString();
 	}	
 }

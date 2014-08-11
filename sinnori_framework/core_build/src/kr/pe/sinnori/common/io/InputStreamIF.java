@@ -279,7 +279,9 @@ public interface InputStreamIF {
 	/**
 	 * 현재 작업 커서 이후로 검색할 바이트 배열과 일치하는 위치를 반환한다.
 	 * @param searchBytes 검색할 바이트 배열
-	 * @return 현재 작업 커서 이후의 검색할 바이트 배열과 일치하는 첫번째 위치
+	 * @return 현재 작업 커서 이후의 검색할 바이트 배열과 일치하는 첫번째 위치, 못찾았거나 혹은 스트림이 닫혔다면 -1을 반환한다.
 	 */
 	public long indexOf(byte[] searchBytes);
+	
+	public void close();
 }

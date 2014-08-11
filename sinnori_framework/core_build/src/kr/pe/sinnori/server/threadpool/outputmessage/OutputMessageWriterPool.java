@@ -21,10 +21,8 @@ package kr.pe.sinnori.server.threadpool.outputmessage;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
-import kr.pe.sinnori.common.configuration.ServerProjectConfigIF;
-import kr.pe.sinnori.common.io.MessageProtocolIF;
+import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
-import kr.pe.sinnori.common.lib.MessageMangerIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 import kr.pe.sinnori.server.io.LetterToClient;
 import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriter;
@@ -36,9 +34,7 @@ import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriter
  */
 public class OutputMessageWriterPool extends AbstractThreadPool {
 	private int maxHandler;
-	private ServerProjectConfigIF serverProjectConfig;
-	private MessageProtocolIF messageProtocol;
-	private MessageMangerIF messageManger;
+	private ServerProjectConfig serverProjectConfig;
 	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManger;
 	private LinkedBlockingQueue<LetterToClient> outputMessageQueue = null;
 	
@@ -48,15 +44,11 @@ public class OutputMessageWriterPool extends AbstractThreadPool {
 	 * @param max 출력 메시지 쓰기 쓰레드 최대 갯수
 	 * @param serverProjectConfig 프로젝트의 공통 포함한 서버 환경 변수 접근 인터페이스
 	 * @param outputMessageQueue 출력 메시지 큐
-	 * @param messageProtocol 메시지 교환 프로토콜
-	 * @param messageManger 메시지 관리자
 	 * @param dataPacketBufferQueueManger 데이터 패킷 버퍼 큐 관리자
 	 */
 	public OutputMessageWriterPool(int size, int max,
-			ServerProjectConfigIF serverProjectConfig,
+			ServerProjectConfig serverProjectConfig,
 			LinkedBlockingQueue<LetterToClient> outputMessageQueue,
-			MessageProtocolIF messageProtocol,
-			MessageMangerIF messageManger,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManger) {
 		if (size <= 0) {
 			throw new IllegalArgumentException(String.format("%s 파라미터 size 는 0보다 커야 합니다.", serverProjectConfig.getProjectName()));
@@ -73,8 +65,6 @@ public class OutputMessageWriterPool extends AbstractThreadPool {
 		this.maxHandler = max;
 		this.serverProjectConfig = serverProjectConfig;
 		this.outputMessageQueue = outputMessageQueue;
-		this.messageProtocol = messageProtocol;
-		this.messageManger = messageManger;
 		this.dataPacketBufferQueueManger = dataPacketBufferQueueManger;
 
 		for (int i = 0; i < size; i++) {
@@ -90,7 +80,7 @@ public class OutputMessageWriterPool extends AbstractThreadPool {
 			if (size < maxHandler) {
 				try {
 					Thread handler = new OutputMessageWriter(size, serverProjectConfig, 
-							outputMessageQueue, messageProtocol, messageManger, 
+							outputMessageQueue,   
 							dataPacketBufferQueueManger);
 					
 					pool.add(handler);

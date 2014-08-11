@@ -76,7 +76,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 		try {
 			itemTypeID = itemTypeIDManger.getItemTypeID(itemType);
 		} catch (UnknownItemTypeException e) {
-			log.fatal("UnknownItemTypeException", e);
+			log.error("UnknownItemTypeException", e);
 			System.exit(1);
 		}
 				

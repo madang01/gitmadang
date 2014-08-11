@@ -97,7 +97,7 @@ public class AcceptSelector extends Thread implements CommonRootIF {
 
 			ssc.register(selector, SelectionKey.OP_ACCEPT);
 		} catch (IOException ioe) {
-			log.fatal("IOException", ioe);
+			log.error("IOException", ioe);
 			System.exit(1);
 		}
 
@@ -123,7 +123,11 @@ public class AcceptSelector extends Thread implements CommonRootIF {
 
 						ServerSocketChannel readyChannel = (ServerSocketChannel) key
 								.channel();
+						
+						
 						SocketChannel sc = readyChannel.accept();
+						
+						
 						// 최대 등록 가능한 client만 허용
 						if (clientResourceManager.getCntOfAllClients() < maxClients) {
 							log.info(String.format("new sc[%d]", sc.hashCode()));

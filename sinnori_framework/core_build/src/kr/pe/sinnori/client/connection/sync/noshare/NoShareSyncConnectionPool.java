@@ -20,19 +20,20 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.AbstractConnectionPool;
-import kr.pe.sinnori.client.io.LetterFromServer;
-import kr.pe.sinnori.common.configuration.ClientProjectConfigIF;
+import kr.pe.sinnori.common.configuration.ClientProjectConfig;
 import kr.pe.sinnori.common.exception.BodyFormatException;
-import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
+import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
+import kr.pe.sinnori.common.exception.ServerExcecutorException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
-import kr.pe.sinnori.common.io.MessageProtocolIF;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
-import kr.pe.sinnori.common.lib.MessageMangerIF;
-import kr.pe.sinnori.common.message.InputMessage;
+import kr.pe.sinnori.common.message.AbstractMessage;
+import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 
 /**
  * 클라이언트 비공유 방식의 동기 연결 클래스 {@link NoShareSyncConnection} 를 원소로 가지는 폴 관리자 클래스<br/>
@@ -55,7 +56,6 @@ public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 	 * @param whetherToAutoConnect 자동 연결 여부
 	 * @param clientProjectConfig 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
 	 * @param messageProtocol 메시지 교환 프로토콜
-	 * @param messageManger 메시지 관리자
 	 * @param dataPacketBufferQueueManager 데이터 패킷 큐 관리자
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷을 할당 받지 못할을 경우 던지는 예외
 	 * @throws InterruptedException 쓰레드 인터럽트
@@ -63,10 +63,10 @@ public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 	public NoShareSyncConnectionPool(int connectionPoolSize, 
 			long socketTimeOut,
 			boolean whetherToAutoConnect,
-			ClientProjectConfigIF clientProjectConfig,
+			ClientProjectConfig clientProjectConfig,
 			MessageProtocolIF messageProtocol,
-			MessageMangerIF messageManger, 
-			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager)
+			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager,
+			ClientObjectCacheManagerIF clientObjectCacheManager)
 			throws NoMoreDataPacketBufferException, InterruptedException {
 		super(clientProjectConfig, null);
 
@@ -81,12 +81,11 @@ public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 		for (int i = 0; i < connectionPoolSize; i++) {
 			NoShareSyncConnection serverConnection = new NoShareSyncConnection(
 					i, socketTimeOut, whetherToAutoConnect, clientProjectConfig, 
-					serverOutputMessageQueue, messageProtocol, messageManger, 
-					dataPacketBufferQueueManager);
+					serverOutputMessageQueue, messageProtocol, 
+					dataPacketBufferQueueManager, clientObjectCacheManager);
 			connectionQueue.add(serverConnection);
 			connectionList.add(serverConnection);
 		}
-		
 	}
 	
 	@Override
@@ -100,9 +99,10 @@ public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 	}
 
 	@Override
-	public LetterFromServer sendSyncInputMessage(InputMessage inputMessage)
+	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
 			throws ServerNotReadyException, SocketTimeoutException,
-			NoMoreDataPacketBufferException, BodyFormatException, MessageInfoNotFoundException {
+			NoMoreDataPacketBufferException, BodyFormatException, 
+			DynamicClassCallException, ServerExcecutorException, NotLoginException {
 		NoShareSyncConnection conn = null;
 		// synchronized (monitor) {
 		try {
@@ -121,26 +121,26 @@ public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 				conn = connectionQueue.take();
 				conn.queueOut();
 			} catch (InterruptedException e1) {
-				log.fatal("인터럽트 받아 후속 처리중 발생", e1);
+				log.error("인터럽트 받아 후속 처리중 발생", e1);
 				System.exit(1);
 			}
 		}
 		// }
 
-		LetterFromServer retLetterList = null;
+		AbstractMessage retMessage = null;
 		try {
-			retLetterList = conn.sendSyncInputMessage(inputMessage);
+			retMessage = conn.sendSyncInputMessage(inputMessage);
 		} finally {
 			// synchronized (monitor) {
 			try {
 				conn.queueIn();
 				connectionQueue.put(conn);
 			} catch (InterruptedException e) {
-				log.fatal("발생할 이유 없음 원인 제거 필요함", e);
+				log.error("발생할 이유 없음 원인 제거 필요함", e);
 			}
 			// }
 		}
-		return retLetterList;
+		return retMessage;
 	}
 	
 	@Override

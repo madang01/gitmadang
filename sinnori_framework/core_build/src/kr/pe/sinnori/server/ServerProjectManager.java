@@ -63,7 +63,7 @@ public final class ServerProjectManager implements CommonRootIF {
 			try {
 				serverProject = new ServerProject(projectName);
 			} catch (NoMoreDataPacketBufferException e) {
-				log.fatal("NoMoreDataPacketBufferException", e);
+				log.error("NoMoreDataPacketBufferException", e);
 				System.exit(1);
 			}
 			serverProjectHash.put(projectName, serverProject);
@@ -78,7 +78,7 @@ public final class ServerProjectManager implements CommonRootIF {
 	public ServerProject getServerProject(String projectName) {
 		ServerProject serverProject =  serverProjectHash.get(projectName);
 		if (null == serverProject) {
-			log.fatal(String.format("신놀이 프레임 워크 환경설정 파일에 프로젝트가 정의되지 않았습니다."));
+			log.error("신놀이 프레임 워크 환경설정 파일에 프로젝트가 정의되지 않았습니다.");
 			System.exit(1);
 		}
 		

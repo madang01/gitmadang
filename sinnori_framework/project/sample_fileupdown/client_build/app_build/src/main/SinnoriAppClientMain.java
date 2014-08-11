@@ -25,14 +25,16 @@ public class SinnoriAppClientMain implements CommonRootIF {
 	public static void main(String[] args) {
 		String projectName = System.getenv("SINNORI_PROJECT_NAME");
 		if (null == projectName) {
-			log.fatal("환경변수 SINNORI_PROJECT_NAME 가 정의되지 않았습니다.");
+			log.error("환경변수 SINNORI_PROJECT_NAME 가 정의되지 않았습니다.");
 			System.exit(1);
 		}
 		
 		if (projectName.trim().length() == 0) {
-			log.fatal("환경변수 SINNORI_PROJECT_NAME 값이 지정되지 않았습니다. 환경변수 SINNORI_PROJECT_NAME 에 프로젝트 이름을 정해주세요.");
+			log.error("환경변수 SINNORI_PROJECT_NAME 값이 지정되지 않았습니다. 환경변수 SINNORI_PROJECT_NAME 에 프로젝트 이름을 정해주세요.");
 			System.exit(1);
 		}
+		
+		log.info(projectName);
 		
 		/** 강제적인 클라이언트 모드로 변경 */
 		try {
@@ -62,7 +64,9 @@ public class SinnoriAppClientMain implements CommonRootIF {
 			 * 2013.07.24 TestNetEco
 			 * INFO  kr.pe.sinnori.util.AbstractClientExecutor.execute(AbstractClientExecutor.java:105) - [1000]회 실행 평균 수행 시간=[2.208000] ms
 			 */
-			// SinnoriWorker.getInstance().start(projectName, "TestNetEco", 1000);
+			// SinnoriWorker.getInstance().start(projectName, "TestNetEco", 100);
+			SinnoriWorker.getInstance().start(projectName, "TestNetEco", 10000);
+			
 			
 			/**
 			 * 2013.07.09 TestNetAllDataType
@@ -129,7 +133,7 @@ public class SinnoriAppClientMain implements CommonRootIF {
 			
 			
 			// SinnoriWorker.getInstance().start(projectName, "FileUpDownClientV1");
-			SinnoriWorker.getInstance().start(projectName, "FileUpDownClientV2");
+			// SinnoriWorker.getInstance().start(projectName, "FileUpDownClientV2");
 			// SinnoriWorker.getInstance().start(projectName, "TestLoginService");
 			
 			// SinnoriWorker.getInstance().start(projectName, "TestFileUpDown");
