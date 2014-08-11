@@ -491,7 +491,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 		Object valueObj = null;
 		try {
 			try {
-				valueObj = loaderAndName2ObjectCacheManager.getObjectFromHash(classLoader, classFullName);
+				valueObj = objectCacheManager.getObjectFromHash(classLoader, classFullName);
 			} catch (ClassNotFoundException e) {
 				String errorMessage = String.format("ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::ClassNotFoundException", classLoader.hashCode(), messageID, classFullName);					
 				log.warn(errorMessage);

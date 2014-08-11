@@ -23,6 +23,8 @@ public class CachedObject implements CommonRootIF {
 	public String classFullName = null;
 	public int seq;
 	public Object cachedObj = null;
+	public long createDate;
+	public long updateDate;
 	
 	/**
 	 * 캐쉬된 객체
@@ -36,10 +38,12 @@ public class CachedObject implements CommonRootIF {
 		this.classFullName = classFullName;
 		this.seq = seq;
 		this.cachedObj = cachedObj;
+		this.createDate = this.updateDate = new java.util.Date().getTime();
 	}
 	
 	public void updateSeq(int newSeq) {
 		this.seq = newSeq;
+		this.updateDate = new java.util.Date().getTime();
 	}
 	
 	@Override

@@ -37,20 +37,22 @@ import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
  * @author "Jonghoon Won"
  * 
  */
-public class LoaderAndName2ObjectManager implements CommonRootIF {
+public class ObjectCacheManager implements CommonRootIF {
 	private final Object monitor = new Object();
 	private int cachedObjectSeq = Integer.MIN_VALUE;
 	private HashMap<ClassLoader, HashMap<String, CachedObject>> loaderHash = null;
 	TreeSet<CachedObject> treeSet = null;
 	private int maxSize = 10;
+	private long maxUpdateSeqInterval=5000;
 	// private int objectValueCnt = 0;
 	
 
 	/**
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 생성자.
 	 */
-	private LoaderAndName2ObjectManager() {
-		maxSize = 10;
+	private ObjectCacheManager() {
+		maxSize = (Integer)conf.getResource("common.cached_object.max_size.value");
+		maxUpdateSeqInterval = (Long)conf.getResource("common.cached_object.max_update_seq_interval.value");
 		// objectValueCnt = 0;
 		loaderHash = new HashMap<ClassLoader, HashMap<String, CachedObject>>(maxSize);
 		treeSet = new TreeSet<CachedObject>(new LoaderAndClassNameComparator());
@@ -60,7 +62,7 @@ public class LoaderAndName2ObjectManager implements CommonRootIF {
 	 * 동기화 안쓰고 싱글턴 구현을 위한 내부 클래스
 	 */
 	private static final class SystemClassManagerHolder {
-		static final LoaderAndName2ObjectManager singleton = new LoaderAndName2ObjectManager();
+		static final ObjectCacheManager singleton = new ObjectCacheManager();
 	}
 
 	/**
@@ -68,7 +70,7 @@ public class LoaderAndName2ObjectManager implements CommonRootIF {
 	 * 
 	 * @return 싱글턴 객체
 	 */
-	public static LoaderAndName2ObjectManager getInstance() {
+	public static ObjectCacheManager getInstance() {
 		return SystemClassManagerHolder.singleton;
 	}
 
@@ -137,89 +139,100 @@ public class LoaderAndName2ObjectManager implements CommonRootIF {
 		}
 		
 		Object returnObj = null;
-		
-		synchronized (monitor) {
-			CachedObject cachedObject = null;
-			HashMap<String, CachedObject> classNameHash = loaderHash.get(classLoader);
-			int objectValueCnt = treeSet.size();
-			
-			if (null == classNameHash) {
-				/** classLoader 미 등재 */
-				Class<?> objClass = classLoader.loadClass(classFullName);
-				returnObj = objClass.newInstance();
-				if (Integer.MAX_VALUE == cachedObjectSeq) {
-					log.warn("classLoader 미 등재::사용된 시간 개념의 순번 소진으로 해쉬및 트리에 저장하지 않음");
-					return returnObj;
-				}
+		if (maxSize == 0) {
+			Class<?> objClass = classLoader.loadClass(classFullName);
+			returnObj = objClass.newInstance();
+			return returnObj;
+		} else {
+			synchronized (monitor) {
+				CachedObject cachedObject = null;
+				HashMap<String, CachedObject> classNameHash = loaderHash.get(classLoader);
+				int objectValueCnt = treeSet.size();
 				
-				/** 해쉬및 트리에 추가 */				
-				if (objectValueCnt == maxSize && !treeSet.isEmpty()) {
-					/** 최대 갯수를 유지하기 위한 가장 오래동안 사용하지 않는 각체 삭제 수행 */					
-					CachedObject firstCachedObject = treeSet.first();
-					treeSet.remove(firstCachedObject);
-					HashMap<String, CachedObject> firstClassNameHash = loaderHash.get(firstCachedObject.classLoader);
-					firstClassNameHash.remove(firstCachedObject.classFullName);
-					if (firstClassNameHash.isEmpty()) {
-						loaderHash.remove(firstCachedObject.classLoader);
-					}
-					log.warn("classLoader 미 등재::가장 오래동안 사용하지 않는 객체[{}] 삭제", firstCachedObject.toString());
-				}
-				
-				classNameHash = new LinkedHashMap<String, CachedObject>();
-				cachedObject = new CachedObject(classLoader, classFullName, cachedObjectSeq, returnObj);
-				cachedObjectSeq++;
-				classNameHash.put(classFullName, cachedObject);
-				loaderHash.put(classLoader, classNameHash);
-				treeSet.add(cachedObject);
-				log.warn("classLoader 미 등재::신규 객체[{}] 추가", cachedObject.toString());
-			} else {
-				cachedObject = classNameHash.get(classFullName);
-				if (null == cachedObject) {
-					/** classFullName 미 등재 */
+				if (null == classNameHash) {
+					/** classLoader 미 등재 */
 					Class<?> objClass = classLoader.loadClass(classFullName);
 					returnObj = objClass.newInstance();
-					
 					if (Integer.MAX_VALUE == cachedObjectSeq) {
-						log.warn("classFullName 미 등재::사용된 시간 개념의 순번 소진으로 해쉬및 트리에 저장하지 않음");
+						log.warn("classLoader 미 등재::사용된 시간 개념의 순번 소진으로 해쉬및 트리에 저장하지 않음");
 						return returnObj;
 					}
 					
-					/** 해쉬및 트리에 추가 */					
+					/** 해쉬및 트리에 추가 */				
 					if (objectValueCnt == maxSize && !treeSet.isEmpty()) {
-						/** 최대 갯수를 유지하기 위한 가장 오래동안 사용하지 않는 각체 삭제 수행 */
-						CachedObject firstCachedObject = treeSet.first();
-						treeSet.remove(firstCachedObject);
-						HashMap<String, CachedObject> firstClassNameHash = loaderHash.get(firstCachedObject.classLoader);
-						firstClassNameHash.remove(firstCachedObject.classFullName);
-						if (firstClassNameHash.isEmpty()) {
-							loaderHash.remove(firstCachedObject.classLoader);
-						}
-						log.warn("classFullName 미 등재::가장 오래동안 사용하지 않는 객체[{}] 삭제", firstCachedObject.toString());
+						/** 최대 갯수를 유지하기 위한 가장 오래동안 사용하지 않는 객체 삭제 수행 */					
+						deleteFirst();
 					}
 					
+					classNameHash = new LinkedHashMap<String, CachedObject>();
 					cachedObject = new CachedObject(classLoader, classFullName, cachedObjectSeq, returnObj);
-					cachedObjectSeq++;						
-					classNameHash.put(classFullName, cachedObject);
-					treeSet.add(cachedObject);
-					log.warn("classFullName 미 등재::신규 객체[{}] 추가", cachedObject.toString());
-				} else {
-					/**
-					 * 캐쉬에 있는 객체를 반환하기전 사용된 시간 개념의 순번을 갱신한후
-					 * 가장 오래동안 사용하지 않는 객체를 첫번째로 얻을 수 있는 트리에 반영하다. 
-					 */
-					// log.info("사용된 시간 개념의 순번 갱신전 객체[{}]", cachedObject.toString());
-					
-					returnObj = cachedObject.cachedObj;
-					treeSet.remove(cachedObject);
-					cachedObject.updateSeq(cachedObjectSeq);
 					cachedObjectSeq++;
+					classNameHash.put(classFullName, cachedObject);
+					loaderHash.put(classLoader, classNameHash);
 					treeSet.add(cachedObject);
-					
-					// log.info("사용된 시간 개념의 순번 갱신후 객체[{}]", cachedObject.toString());
+					log.warn("classLoader 미 등재::신규 객체[{}] 추가", cachedObject.toString());
+				} else {
+					cachedObject = classNameHash.get(classFullName);
+					if (null == cachedObject) {
+						/** classFullName 미 등재 */
+						Class<?> objClass = classLoader.loadClass(classFullName);
+						returnObj = objClass.newInstance();
+						
+						if (Integer.MAX_VALUE == cachedObjectSeq) {
+							log.warn("classFullName 미 등재::사용된 시간 개념의 순번 소진으로 해쉬및 트리에 저장하지 않음");
+							return returnObj;
+						}
+						
+						/** 해쉬및 트리에 추가 */					
+						if (objectValueCnt == maxSize) {
+							/** 최대 갯수를 유지하기 위한 가장 오래동안 사용하지 않는 객체 삭제 수행 */
+							deleteFirst();
+						}
+						
+						cachedObject = new CachedObject(classLoader, classFullName, cachedObjectSeq, returnObj);
+						cachedObjectSeq++;						
+						classNameHash.put(classFullName, cachedObject);
+						loaderHash.put(classLoader, classNameHash);
+						treeSet.add(cachedObject);
+						log.warn("classFullName 미 등재::신규 객체[{}] 추가", cachedObject.toString());
+					} else {
+						// log.info("사용된 시간 개념의 순번 갱신전 객체[{}]", cachedObject.toString());
+						
+						returnObj = cachedObject.cachedObj;
+						 
+						if ((new java.util.Date().getTime() - cachedObject.updateDate) >= maxUpdateSeqInterval) {
+							/**
+							 * 검색된 객체의 마지막으로 사용한 시간과 현재 시간의 차이가 지정된 시간 간격을 벗어났을 경우
+							 * 검색된 객체의 사용된 시간 개념의 순번 갱신
+							 */
+							treeSet.remove(cachedObject);
+							cachedObject.updateSeq(cachedObjectSeq);
+							cachedObjectSeq++;
+							treeSet.add(cachedObject);
+							
+							log.info("사용된 시간 개념의 순서 갱신후 객체[{}]", cachedObject.toString());
+						}
+					}
 				}
 			}
 		}
+		
+		
 
 		return returnObj;
+	}
+	
+	private void deleteFirst() {
+		if (!treeSet.isEmpty()) {
+			CachedObject firstCachedObject = treeSet.first();
+			treeSet.remove(firstCachedObject);
+			HashMap<String, CachedObject> firstClassNameHash = loaderHash.get(firstCachedObject.classLoader);
+			firstClassNameHash.remove(firstCachedObject.classFullName);
+			if (firstClassNameHash.isEmpty()) {
+				loaderHash.remove(firstCachedObject.classLoader);
+			}
+			
+			log.warn("classLoader 미 등재::가장 오래동안 사용하지 않는 객체[{}] 삭제, 생존 시간={} ms", firstCachedObject.toString(), new java.util.Date().getTime() - firstCachedObject.createDate);
+		}
 	}
 }

@@ -65,8 +65,7 @@ public class SinnoriAppClientMain implements CommonRootIF {
 			 * INFO  kr.pe.sinnori.util.AbstractClientExecutor.execute(AbstractClientExecutor.java:105) - [1000]회 실행 평균 수행 시간=[2.208000] ms
 			 */
 			// SinnoriWorker.getInstance().start(projectName, "TestNetEco", 100);
-			SinnoriWorker.getInstance().start(projectName, "TestNetEco", 10000);
-			
+			SinnoriWorker.getInstance().start(projectName, "TestNetEco", 1);
 			
 			/**
 			 * 2013.07.09 TestNetAllDataType

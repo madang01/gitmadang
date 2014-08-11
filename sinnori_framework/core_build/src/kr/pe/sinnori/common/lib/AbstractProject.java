@@ -20,7 +20,7 @@ package kr.pe.sinnori.common.lib;
 import java.nio.ByteOrder;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import kr.pe.sinnori.common.classload.LoaderAndName2ObjectManager;
+import kr.pe.sinnori.common.classload.ObjectCacheManager;
 import kr.pe.sinnori.common.configuration.CommonProjectConfig;
 import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
@@ -38,7 +38,7 @@ public abstract class AbstractProject implements CommonRootIF, DataPacketBufferQ
 	/** 모니터 객체 */
 	private final Object dataPacketBufferQueueMonitor = new Object();
 	
-	protected LoaderAndName2ObjectManager loaderAndName2ObjectCacheManager = LoaderAndName2ObjectManager.getInstance();
+	protected ObjectCacheManager objectCacheManager = ObjectCacheManager.getInstance();
 	
 	/** 프로젝트 공통 정보 */
 	protected  String projectName = null;

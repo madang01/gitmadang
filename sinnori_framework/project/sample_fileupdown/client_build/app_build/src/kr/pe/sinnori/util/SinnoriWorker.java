@@ -19,7 +19,7 @@ package kr.pe.sinnori.util;
 
 import kr.pe.sinnori.client.ClientProject;
 import kr.pe.sinnori.client.ClientProjectManager;
-import kr.pe.sinnori.common.classload.LoaderAndName2ObjectManager;
+import kr.pe.sinnori.common.classload.ObjectCacheManager;
 import kr.pe.sinnori.common.configuration.ClientProjectConfig;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.server.ServerProject;
@@ -32,7 +32,7 @@ import kr.pe.sinnori.server.ServerProjectManager;
  */
 public class SinnoriWorker implements CommonRootIF {
 	
-	private LoaderAndName2ObjectManager loaderAndName2ObjectManager = LoaderAndName2ObjectManager.getInstance();
+	private ObjectCacheManager objectCacheManager = ObjectCacheManager.getInstance();
 	private ClassLoader systemClassLoader = SinnoriWorker.class.getClassLoader();
 	
 	/**
@@ -95,7 +95,7 @@ public class SinnoriWorker implements CommonRootIF {
 			ClientProject clientProject = ClientProjectManager.getInstance().getClientProject(projectName);
 			
 			try {
-				AbstractClientExecutor clientExecutorObj = (AbstractClientExecutor) loaderAndName2ObjectManager.getObjectFromHash(systemClassLoader, clientExecetorClassName);
+				AbstractClientExecutor clientExecutorObj = (AbstractClientExecutor) objectCacheManager.getObjectFromHash(systemClassLoader, clientExecetorClassName);
 				clientExecutorObj.execute(clientProjectConfig, clientProject);
 			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
 				e.printStackTrace();
@@ -116,7 +116,7 @@ public class SinnoriWorker implements CommonRootIF {
 			
 			ClientProject clientProject = ClientProjectManager.getInstance().getClientProject(projectName);
 			try {
-				AbstractClientExecutor clientExecutorObj = (AbstractClientExecutor) loaderAndName2ObjectManager.getObjectFromHash(systemClassLoader, clientExecetorClassName);
+				AbstractClientExecutor clientExecutorObj = (AbstractClientExecutor) objectCacheManager.getObjectFromHash(systemClassLoader, clientExecetorClassName);
 				clientExecutorObj.execute(clientProjectConfig, clientProject);
 			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
 				e.printStackTrace();
@@ -148,7 +148,7 @@ public class SinnoriWorker implements CommonRootIF {
 			ClientProject clientProject = ClientProjectManager.getInstance().getClientProject(projectName);
 			
 			try {
-				AbstractClientExecutor clientExecutorObj = (AbstractClientExecutor) loaderAndName2ObjectManager.getObjectFromHash(systemClassLoader, clientExecetorClassName);
+				AbstractClientExecutor clientExecutorObj = (AbstractClientExecutor) objectCacheManager.getObjectFromHash(systemClassLoader, clientExecetorClassName);
 				clientExecutorObj.execute(clientProjectConfig, clientProject, count);
 			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
 				e.printStackTrace();
@@ -170,7 +170,7 @@ public class SinnoriWorker implements CommonRootIF {
 			ClientProject clientProject = ClientProjectManager.getInstance().getClientProject(projectName);
 			
 			try {
-				AbstractClientExecutor clientExecutorObj = (AbstractClientExecutor) loaderAndName2ObjectManager.getObjectFromHash(systemClassLoader, clientExecetorClassName);
+				AbstractClientExecutor clientExecutorObj = (AbstractClientExecutor) objectCacheManager.getObjectFromHash(systemClassLoader, clientExecetorClassName);
 				clientExecutorObj.execute(clientProjectConfig, clientProject, count);
 			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
 				e.printStackTrace();

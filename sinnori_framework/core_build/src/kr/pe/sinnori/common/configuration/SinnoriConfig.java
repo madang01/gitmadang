@@ -493,6 +493,48 @@ public final class SinnoriConfig {
 		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, (Long)resourceHash.get(propKey));
 		/******** 프로젝트 모니터 종료 **********/
 		
+		/******** 싱글턴 클래스 객체 캐쉬 관리자 시작 **********/
+		propKey = "common.cached_object.max_size.value";
+		propValue = configFileProperties.getProperty(propKey);
+		int cachedObjectMaxSize=10;
+		if (null != propValue) {
+			try {
+				cachedObjectMaxSize = Integer.parseInt(propValue);
+				
+				if (cachedObjectMaxSize < 0) {
+					log.error("warning:: key[{}] minimum value 0 but value[{}]", propKey, propValue);
+					System.exit(1);
+				}
+				
+			} catch(NumberFormatException e) {
+				log.error("warning:: key[{}] integer but value[{}]", propKey, propValue);
+				System.exit(1);
+			}
+		}
+		resourceHash.put(propKey, cachedObjectMaxSize);		
+		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, (Integer)resourceHash.get(propKey));
+		
+		propKey = "common.cached_object.max_update_seq_interval.value";
+		propValue = configFileProperties.getProperty(propKey);
+		long maxUpdateSeqInterva=5000;
+		if (null != propValue) {
+			try {
+				maxUpdateSeqInterva = Long.parseLong(propValue);
+				
+				if (maxUpdateSeqInterva < 1000) {
+					log.error("warning:: key[{}] minimum value 1000 but value[{}]", propKey, propValue);
+					System.exit(1);
+				}
+				
+			} catch(NumberFormatException e) {
+				log.error("warning:: key[{}] integer but value[{}]", propKey, propValue);
+				System.exit(1);
+			}
+		}
+		resourceHash.put(propKey, maxUpdateSeqInterva);		
+		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, (Long)resourceHash.get(propKey));
+		/******** 싱글턴 클래스 객체 캐쉬 관리자 종료 **********/
+		
 		
 		propKey = "common.projectlist.value";
 		propValue = configFileProperties.getProperty(propKey);
