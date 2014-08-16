@@ -34,6 +34,9 @@ import kr.pe.sinnori.common.lib.CommonRootIF;
  */
 public class SinnoriClassLoader extends ClassLoader implements CommonRootIF {
 	private final Object monitor = new  Object();
+	// private ClassLoader parent = null;
+	private final ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
+	
 	
 	private String dynamicClassBinaryBasePath = null;
 	private String dynamicClassBasePackageName = null;
@@ -46,6 +49,7 @@ public class SinnoriClassLoader extends ClassLoader implements CommonRootIF {
 	public SinnoriClassLoader(ClassLoader parent, String dynamicClassBinaryBasePath, String dynamicClassBasePackageName) {
 		super(parent);
 		
+		// this.parent = parent;
 		this.dynamicClassBinaryBasePath = dynamicClassBinaryBasePath;
 		this.dynamicClassBasePackageName = dynamicClassBasePackageName; 
 	
@@ -73,7 +77,9 @@ public class SinnoriClassLoader extends ClassLoader implements CommonRootIF {
 						/** 서버 동적 클래스 비 대상 클래스 */
 						// log.info("SinnoriClassLoader hashCode=[{}], classFullName=[{}]::주어진 서버 동적 클래스명은 서버 동적 클래스 비 대상", this.hashCode(), classFullName);
 						//return super.loadClass(classFullName);
-						return Class.forName(classFullName);
+						// return Class.forName(classFullName);
+						// return super.findSystemClass(classFullName);
+						return systemClassLoader.loadClass(classFullName);
 					}
 	
 					String messageID = null;

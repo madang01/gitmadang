@@ -19,6 +19,7 @@ package kr.pe.sinnori.client.connection.asyn;
 import java.io.IOException;
 import java.nio.channels.SocketChannel;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
@@ -163,11 +164,12 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 	/**
 	 * {@link OutputMessageReader } 가 운영하는 소켓 읽기 전용 selector 에 등록과 운영을 위한 hash 와 set 에 connection 을 등록한다.  
 	 * @param hash 소켓 읽기 전용 selector 에 등록된 소켓에 대응하는 connection 객체 정보를 가지고 있는 해쉬 
-	 * @param waitingSCQueue 소켓 읽기 전용 selector 신규 등록 소켓이 들어가야할 변수
+	 * @param newClients 소켓 읽기 전용 selector 에 등록되어야할 신규 클라이언트들
 	 */
-	public void register(Map<SocketChannel, AbstractAsynConnection> hash, LinkedBlockingQueue<SocketChannel> waitingSCQueue) {
+	public void register(Map<SocketChannel, AbstractAsynConnection> hash, Set<SocketChannel> newClients) {
+		// waitingSCQueue.put(serverSC);
+		newClients.add(serverSC);
 		hash.put(serverSC, this);
-		waitingSCQueue.add(serverSC);
 	}
 	
 	protected LetterToServer getLetterToServer(ClassLoader classLoader, AbstractMessage messageToClient) 

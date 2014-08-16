@@ -53,42 +53,42 @@ public final class SelfExnEncoder extends MessageEncoder {
 	 * @param middleWriteObj 중간 다리 역활 쓰기 객체
 	 * @throws Exception "입력/출력 메시지"의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장할때 에러 발생시 던지는 예외
 	 */
-	private void encodeBody(SelfExn SelfExn, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj) 
+	private void encodeBody(SelfExn selfExn, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj) 
 			throws Exception {
 		
-		singleItemEncoder.putValueToMiddleWriteObj(SelfExn.getMessageID(), "whereError" 
+		singleItemEncoder.putValueToMiddleWriteObj(selfExn.getMessageID(), "errorWhere" 
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
-					, SelfExn.getErrorWhere() // itemValue 
+					, selfExn.getErrorWhere() // itemValue 
 					, -1 // itemSizeForLang 
 					, null // itemCharsetForLang, 
 					, charsetOfProject
 					, middleWriteObj
 					);
-		singleItemEncoder.putValueToMiddleWriteObj(SelfExn.getMessageID(), "errorGubun" 
+		singleItemEncoder.putValueToMiddleWriteObj(selfExn.getMessageID(), "errorGubun" 
 				, 7 // itemTypeID
 				, "ub pascal string" // itemTypeName
-				, SelfExn.getErrorWhere() // itemValue 
+				, selfExn.getErrorWhere() // itemValue 
 				, -1 // itemSizeForLang 
 				, null // itemCharsetForLang, 
 				, charsetOfProject
 				, middleWriteObj
 				);
 		
-		singleItemEncoder.putValueToMiddleWriteObj(SelfExn.getMessageID(), "errorMessageID" 
+		singleItemEncoder.putValueToMiddleWriteObj(selfExn.getMessageID(), "errorMessageID" 
 				, 7 // itemTypeID
 				, "ub pascal string" // itemTypeName
-				, SelfExn.getErrorWhere() // itemValue 
+				, selfExn.getErrorMessageID() // itemValue 
 				, -1 // itemSizeForLang 
 				, null // itemCharsetForLang, 
 				, charsetOfProject
 				, middleWriteObj
 				);
 		
-		singleItemEncoder.putValueToMiddleWriteObj(SelfExn.getMessageID(), "errorMessage" 
+		singleItemEncoder.putValueToMiddleWriteObj(selfExn.getMessageID(), "errorMessage" 
 				, 8 // itemTypeID
 				, "us pascal string" // itemTypeName
-				, SelfExn.getErrorWhere() // itemValue 
+				, selfExn.getErrorMessage() // itemValue 
 				, -1 // itemSizeForLang 
 				, null // itemCharsetForLang, 
 				, charsetOfProject

@@ -261,6 +261,18 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 				serverPartTextBuilder.append(NEWLINE);
 				serverPartTextBuilder.append("export JAVA_OPTS=\"-d64 -server -Xmx1024m -Xms1024m\"");
 				
+				// FIXME!
+				serverPartTextBuilder.append(NEWLINE);
+				serverPartTextBuilder.append("set LOGBACK_CONFIG_FILE=$SINNORI_FRAMEWORK_LOC");
+				serverPartTextBuilder.append(File.separator);
+				serverPartTextBuilder.append("project");
+				serverPartTextBuilder.append(File.separator);
+				serverPartTextBuilder.append("$SINNORI_PROJECT_NAME");
+				serverPartTextBuilder.append(File.separator);
+				serverPartTextBuilder.append("config");
+				serverPartTextBuilder.append(File.separator);
+				serverPartTextBuilder.append("logback.xml");
+				
 				serverPartTextBuilder.append(NEWLINE);
 				serverPartTextBuilder.append("export SERVER_BUILD_LOC=$SINNORI_FRAMEWORK_LOC");
 				serverPartTextBuilder.append(File.separator);
@@ -293,7 +305,9 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 				serverPartTextBuilder.append("project_config.properties");
 				
 				serverPartTextBuilder.append(NEWLINE);
-				serverPartTextBuilder.append("java -jar $SERVER_BUILD_LOC");
+				serverPartTextBuilder.append("java -Dlogback.configurationFile=%LOGBACK_CONFIG_FILE% ");
+				serverPartTextBuilder.append(" -jar $SERVER_BUILD_LOC");
+				
 				serverPartTextBuilder.append(File.separator);
 				serverPartTextBuilder.append("dist");
 				serverPartTextBuilder.append(File.separator);
@@ -313,6 +327,17 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 				
 				clientPartTextBuilder.append(NEWLINE);
 				clientPartTextBuilder.append("export JAVA_OPTS=\"-Xmx1024m -Xms1024m\"");
+				
+				clientPartTextBuilder.append(NEWLINE);
+				clientPartTextBuilder.append("set LOGBACK_CONFIG_FILE=$SINNORI_FRAMEWORK_LOC");
+				clientPartTextBuilder.append(File.separator);
+				clientPartTextBuilder.append("project");
+				clientPartTextBuilder.append(File.separator);
+				clientPartTextBuilder.append("$SINNORI_PROJECT_NAME");
+				clientPartTextBuilder.append(File.separator);
+				clientPartTextBuilder.append("config");
+				clientPartTextBuilder.append(File.separator);
+				clientPartTextBuilder.append("logback.xml");
 				
 				clientPartTextBuilder.append(NEWLINE);
 				clientPartTextBuilder.append("export APPCLIENT_BUILD_LOC=$SINNORI_FRAMEWORK_LOC");
@@ -348,7 +373,8 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 				clientPartTextBuilder.append("project_config.properties");
 				
 				clientPartTextBuilder.append(NEWLINE);
-				clientPartTextBuilder.append("java -jar $APPCLIENT_BUILD_LOC");
+				clientPartTextBuilder.append("java -Dlogback.configurationFile=%LOGBACK_CONFIG_FILE% ");
+				clientPartTextBuilder.append(" -jar $APPCLIENT_BUILD_LOC");
 				clientPartTextBuilder.append(File.separator);
 				clientPartTextBuilder.append("dist");
 				clientPartTextBuilder.append(File.separator);
@@ -369,6 +395,17 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 				
 				serverPartTextBuilder.append(NEWLINE);
 				serverPartTextBuilder.append("set JAVA_OPTS=\"-d64 -server -Xmx1024m -Xms1024m\"");
+				
+				serverPartTextBuilder.append(NEWLINE);
+				serverPartTextBuilder.append("set LOGBACK_CONFIG_FILE=%SINNORI_FRAMEWORK_LOC%");
+				serverPartTextBuilder.append(File.separator);
+				serverPartTextBuilder.append("project");
+				serverPartTextBuilder.append(File.separator);
+				serverPartTextBuilder.append("%SINNORI_PROJECT_NAME%");
+				serverPartTextBuilder.append(File.separator);
+				serverPartTextBuilder.append("config");
+				serverPartTextBuilder.append(File.separator);
+				serverPartTextBuilder.append("logback.xml");
 				
 				serverPartTextBuilder.append(NEWLINE);
 				serverPartTextBuilder.append("set SERVER_BUILD_LOC=%SINNORI_FRAMEWORK_LOC%");
@@ -401,8 +438,10 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 				serverPartTextBuilder.append(File.separator);
 				serverPartTextBuilder.append("project_config.properties");
 				
-				serverPartTextBuilder.append(NEWLINE);
-				serverPartTextBuilder.append("java -jar %SERVER_BUILD_LOC%");
+				serverPartTextBuilder.append(NEWLINE);				
+				serverPartTextBuilder.append("java -Dlogback.configurationFile=%LOGBACK_CONFIG_FILE% ");
+				serverPartTextBuilder.append(" -jar %SERVER_BUILD_LOC%");
+				
 				serverPartTextBuilder.append(File.separator);
 				serverPartTextBuilder.append("dist");
 				serverPartTextBuilder.append(File.separator);
@@ -420,6 +459,17 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 				
 				clientPartTextBuilder.append(NEWLINE);
 				clientPartTextBuilder.append("set JAVA_OPTS=\"-Xmx1024m -Xms1024m\"");
+				
+				clientPartTextBuilder.append(NEWLINE);
+				clientPartTextBuilder.append("set LOGBACK_CONFIG_FILE=%SINNORI_FRAMEWORK_LOC%");
+				clientPartTextBuilder.append(File.separator);
+				clientPartTextBuilder.append("project");
+				clientPartTextBuilder.append(File.separator);
+				clientPartTextBuilder.append("%SINNORI_PROJECT_NAME%");
+				clientPartTextBuilder.append(File.separator);
+				clientPartTextBuilder.append("config");
+				clientPartTextBuilder.append(File.separator);
+				clientPartTextBuilder.append("logback.xml");
 				
 				clientPartTextBuilder.append(NEWLINE);
 				clientPartTextBuilder.append("set APPCLIENT_BUILD_LOC=%SINNORI_FRAMEWORK_LOC%");
@@ -455,7 +505,8 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 				clientPartTextBuilder.append("project_config.properties");
 				
 				clientPartTextBuilder.append(NEWLINE);
-				clientPartTextBuilder.append("java -jar %APPCLIENT_BUILD_LOC%");
+				clientPartTextBuilder.append("java -Dlogback.configurationFile=%LOGBACK_CONFIG_FILE% ");
+				clientPartTextBuilder.append(" -jar %APPCLIENT_BUILD_LOC%");
 				clientPartTextBuilder.append(File.separator);
 				clientPartTextBuilder.append("dist");
 				clientPartTextBuilder.append(File.separator);

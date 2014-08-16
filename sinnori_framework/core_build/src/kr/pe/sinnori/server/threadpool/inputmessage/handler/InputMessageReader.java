@@ -27,6 +27,8 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -60,11 +62,10 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 	private ClientResourceManagerIF clientResourceManager;
 	private LinkedBlockingQueue<LetterFromClient> inputMessageQueue;
 	
-	private LinkedBlockingQueue<SocketChannel> waitingSCQueue = new LinkedBlockingQueue<SocketChannel>();
+	// private final Set<SocketChannel> newClients = new HashSet<SocketChannel>();
+	private final Set<SocketChannel> newClients = Collections.synchronizedSet(new HashSet<SocketChannel>());
+	// private LinkedBlockingQueue<SocketChannel> waitingSCQueue = new LinkedBlockingQueue<SocketChannel>();
 	private Selector selector = null;
-	
-
-
 
 	/**
 	 * 생성자
@@ -101,11 +102,10 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 	}
 
 	@Override
-	public void addClient(SocketChannel sc) throws InterruptedException,
-	NoMoreDataPacketBufferException {
+	public void addClient(SocketChannel sc) throws NoMoreDataPacketBufferException {
 		clientResourceManager.addNewClient(sc);		
-		// newClients.put(sc, sc);
-		waitingSCQueue.put(sc);
+		newClients.add(sc);
+		// waitingSCQueue.put(sc);
 
 		if (getState().equals(Thread.State.NEW))
 			return;
@@ -125,20 +125,31 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 		 */
 		do {
 			selector.wakeup();
-			Thread.sleep(readSelectorWakeupInterval);
+			try {
+				Thread.sleep(readSelectorWakeupInterval);
+			} catch (InterruptedException e) {
+			}
 		} while (sc.isConnected() && !sc.isRegistered());
 	}
 
 	@Override
 	public int getCntOfClients() {
-		return (waitingSCQueue.size() + selector.keys().size());
+		return (newClients.size() + selector.keys().size());
 	}
 
 	/**
 	 * 신규 client들을 selector에 등록한다.
 	 */
-	private void processNewConnection() {		
-		while(!waitingSCQueue.isEmpty()) {
+	private void processNewConnection() {
+		for (SocketChannel sc : newClients) {
+			try {
+				sc.register(selector, SelectionKey.OP_READ);
+			} catch (ClosedChannelException e) {
+				log.warn(String.format("%s InputMessageReader[%d] socket channel[%d] fail to register selector", serverProjectConfig.getProjectName(), index, sc.hashCode()), e);
+			}
+			newClients.remove(sc);
+		}
+		/*while(!waitingSCQueue.isEmpty()) {
 			SocketChannel sc = waitingSCQueue.poll();
 			// if (null != sc) {
 				try {
@@ -147,7 +158,7 @@ public class InputMessageReader extends Thread implements CommonRootIF,
 					log.warn(String.format("%s InputMessageReader[%d] socket channel[%d] fail to register selector", serverProjectConfig.getProjectName(), index, sc.hashCode()), e);
 				}
 			// }
-		}
+		}*/
 	}
 
 	@Override

@@ -5,6 +5,11 @@ import kr.pe.sinnori.common.message.codec.MessageDecoder;
 import kr.pe.sinnori.common.message.codec.MessageEncoder;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
 
+/**
+ * Echo 클라이언트 코덱
+ * @author "Jonghoon Won"
+ *
+ */
 public final class EchoClientCodec implements MessageCodecIF {
 
 	@Override

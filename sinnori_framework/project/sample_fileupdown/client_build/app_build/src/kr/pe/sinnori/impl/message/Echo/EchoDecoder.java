@@ -47,7 +47,8 @@ public final class EchoDecoder extends MessageDecoder {
 	 * @param charsetOfProject 프로젝트 문자셋
 	 * @param middleReadObj  중간 다리 역활 읽기 객체
 	 * @return "단일항목 디코더"를 이용하여 "중간 다리 역활 읽기 객체" 에서 추출된 Echo 메시지
-	 * @throws Exception "단일항목 디코더"를 이용하여 "중간 다리 역활 읽기 객체" 에서 추출할때 에러 발생시 던지는 예외
+	 * @throws OutOfMemoryError 메모리 확보 실패시 던지는 예외
+	 * @throws BodyFormatException 바디 디코딩 실패시 던지는 예외
 	 */
 	@Override
 	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Charset charsetOfProject, Object  middleReadObj) throws OutOfMemoryError, BodyFormatException {

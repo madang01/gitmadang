@@ -35,7 +35,7 @@ public class SinnoriAppClientMain implements CommonRootIF {
 		}
 		
 		log.info(projectName);
-		
+
 		/** 강제적인 클라이언트 모드로 변경 */
 		try {
 			/**
@@ -52,7 +52,7 @@ public class SinnoriAppClientMain implements CommonRootIF {
 			 * INFO  kr.pe.sinnori.util.AbstractClientExecutor.execute(AbstractClientExecutor.java:105) - [1000]회 실행 평균 수행 시간=[0.912000] ms
 			 */
 			// SinnoriWorker.getInstance().start(projectName, "TestLocalAllDataType", 1);
-			//SinnoriWorker.getInstance().start(projectName, "TestLocalAllDataType", 10000);
+			//SinnoriWorker.getInstance().start(projectName, "TestLocalAllDataType", 1000);
 			
 			/**
 			 * 2013.07.09 TestNetEco
@@ -64,8 +64,8 @@ public class SinnoriAppClientMain implements CommonRootIF {
 			 * 2013.07.24 TestNetEco
 			 * INFO  kr.pe.sinnori.util.AbstractClientExecutor.execute(AbstractClientExecutor.java:105) - [1000]회 실행 평균 수행 시간=[2.208000] ms
 			 */
-			// SinnoriWorker.getInstance().start(projectName, "TestNetEco", 100);
-			SinnoriWorker.getInstance().start(projectName, "TestNetEco", 1);
+			//SinnoriWorker.getInstance().start(projectName, "TestNetEco", 1);
+			SinnoriWorker.getInstance().start(projectName, "TestNetEco", 1000);
 			
 			/**
 			 * 2013.07.09 TestNetAllDataType

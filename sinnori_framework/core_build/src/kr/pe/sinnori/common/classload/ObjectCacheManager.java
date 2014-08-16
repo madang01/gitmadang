@@ -37,14 +37,15 @@ import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
  * @author "Jonghoon Won"
  * 
  */
-public class ObjectCacheManager implements CommonRootIF {
+public final class ObjectCacheManager implements CommonRootIF {
 	private final Object monitor = new Object();
 	private int cachedObjectSeq = Integer.MIN_VALUE;
 	private HashMap<ClassLoader, HashMap<String, CachedObject>> loaderHash = null;
-	TreeSet<CachedObject> treeSet = null;
+	private TreeSet<CachedObject> treeSet = null;
 	private int maxSize = 10;
 	private long maxUpdateSeqInterval=5000;
 	// private int objectValueCnt = 0;
+	private HashMap<String, Object> systemObjHash = null;
 	
 
 	/**
@@ -56,6 +57,9 @@ public class ObjectCacheManager implements CommonRootIF {
 		// objectValueCnt = 0;
 		loaderHash = new HashMap<ClassLoader, HashMap<String, CachedObject>>(maxSize);
 		treeSet = new TreeSet<CachedObject>(new LoaderAndClassNameComparator());
+		systemObjHash = new HashMap<String, Object>(2);
+		systemObjHash.put("kr.pe.sinnori.impl.message.SelfExn.SelfExnClientCodec", CommonStaticFinalVars.SELFEXN_CLIENT_CODEC);
+		systemObjHash.put("kr.pe.sinnori.impl.message.SelfExn.SelfExnServerCodec", CommonStaticFinalVars.SELFEXN_SERVER_CODEC);
 	}	
 	
 	/**
@@ -122,7 +126,14 @@ public class ObjectCacheManager implements CommonRootIF {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		if (classFullName.indexOf("kr.pe.sinnori.impl.message.SelfExn") == 0) {
+		Object returnObj = null;
+		
+		returnObj =  systemObjHash.get(classFullName);
+		if (null != returnObj) {
+			return returnObj;
+		}
+		
+		/*if (classFullName.indexOf("kr.pe.sinnori.impl.message.SelfExn") == 0) {
 			if (classFullName
 					.equals("kr.pe.sinnori.impl.message.SelfExn.SelfExnClientCodec")) {
 				return CommonStaticFinalVars.SELFEXN_CLIENT_CODEC;
@@ -130,15 +141,15 @@ public class ObjectCacheManager implements CommonRootIF {
 					.equals("kr.pe.sinnori.impl.message.SelfExn.SelfExnServerCodec")) {
 				return CommonStaticFinalVars.SELFEXN_SERVER_CODEC;
 			} else {
-				/** FIXME! 코덱과 관련 없는 SelfExn 메시지 관련 객체에 대해서 접근 방지 처리 */
+				*//** FIXME! 코덱과 관련 없는 SelfExn 메시지 관련 객체에 대해서 접근 방지 처리 *//*
 				String errorMessage = "SelfExn 메시지 접근";
 				IllegalAccessException e = new IllegalAccessException(errorMessage);
 				log.warn(errorMessage, e);
 				throw e;
 			}
-		}
+		}*/
 		
-		Object returnObj = null;
+		
 		if (maxSize == 0) {
 			Class<?> objClass = classLoader.loadClass(classFullName);
 			returnObj = objClass.newInstance();
@@ -147,7 +158,7 @@ public class ObjectCacheManager implements CommonRootIF {
 			synchronized (monitor) {
 				CachedObject cachedObject = null;
 				HashMap<String, CachedObject> classNameHash = loaderHash.get(classLoader);
-				int objectValueCnt = treeSet.size();
+				// int objectValueCnt = treeSet.size();
 				
 				if (null == classNameHash) {
 					/** classLoader 미 등재 */
@@ -159,7 +170,7 @@ public class ObjectCacheManager implements CommonRootIF {
 					}
 					
 					/** 해쉬및 트리에 추가 */				
-					if (objectValueCnt == maxSize && !treeSet.isEmpty()) {
+					if (treeSet.size() == maxSize) {
 						/** 최대 갯수를 유지하기 위한 가장 오래동안 사용하지 않는 객체 삭제 수행 */					
 						deleteFirst();
 					}
@@ -184,7 +195,7 @@ public class ObjectCacheManager implements CommonRootIF {
 						}
 						
 						/** 해쉬및 트리에 추가 */					
-						if (objectValueCnt == maxSize) {
+						if (treeSet.size() == maxSize) {
 							/** 최대 갯수를 유지하기 위한 가장 오래동안 사용하지 않는 객체 삭제 수행 */
 							deleteFirst();
 						}
@@ -223,7 +234,7 @@ public class ObjectCacheManager implements CommonRootIF {
 	}
 	
 	private void deleteFirst() {
-		if (!treeSet.isEmpty()) {
+		//if (!treeSet.isEmpty()) {
 			CachedObject firstCachedObject = treeSet.first();
 			treeSet.remove(firstCachedObject);
 			HashMap<String, CachedObject> firstClassNameHash = loaderHash.get(firstCachedObject.classLoader);
@@ -233,6 +244,6 @@ public class ObjectCacheManager implements CommonRootIF {
 			}
 			
 			log.warn("classLoader 미 등재::가장 오래동안 사용하지 않는 객체[{}] 삭제, 생존 시간={} ms", firstCachedObject.toString(), new java.util.Date().getTime() - firstCachedObject.createDate);
-		}
+		//}
 	}
 }

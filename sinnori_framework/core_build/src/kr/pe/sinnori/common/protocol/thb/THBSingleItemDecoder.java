@@ -313,14 +313,13 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF {
 
 	@Override
 	public Object getArrayObjFromMiddleReadObj(String path, String arrayName,
-			String arrayCntType, String arrayCntValue, Object middleReadObj)
+			int arrayCntValue, Object middleReadObj)
 			throws BodyFormatException {
 		return middleReadObj;
 	}
 
 	@Override
-	public Object getMiddleReadObjFromArrayObj(String path, int inx,
-			Object arrayObj) throws BodyFormatException {
+	public Object getMiddleReadObjFromArrayObj(String path, Object arrayObj, int inx	) throws BodyFormatException {
 		return arrayObj;
 	}	
 	

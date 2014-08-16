@@ -327,7 +327,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 	@Override
 	public void putValueToMiddleWriteObj(String path, String itemName,
 			int itemTypeID, String itemTypeName, Object itemValue,
-			int itemSizeForLang, Charset itemCharsetForLang,
+			int itemSizeForLang, String itemCharset,
 			Charset charsetOfProject, Object middleWriteObj) throws Exception {
 		if (!(middleWriteObj instanceof OutputStreamIF)) {
 			String errorMessage = String.format(
@@ -336,14 +336,20 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
+		Charset itemCharsetForLang = null;
+		if (null == itemCharset) {
+			itemCharsetForLang = charsetOfProject;
+		} else {
+			itemCharsetForLang = Charset.forName(itemCharset);
+		}
+		
 		OutputStreamIF sw = (OutputStreamIF)middleWriteObj;		
 		try {
 			dhbTypeSingleItemEncoderList[itemTypeID].putValue(itemName, itemValue, itemSizeForLang, itemCharsetForLang, sw);
 		} catch(IllegalArgumentException e) {
 			StringBuffer errorMessageBuilder = new StringBuffer("잘못된 파라미티터 에러::");
-			errorMessageBuilder.append("{ path=[");
 			errorMessageBuilder.append(path);
-			errorMessageBuilder.append("], itemName=[");
+			errorMessageBuilder.append("={itemName=[");
 			errorMessageBuilder.append(itemName);
 			errorMessageBuilder.append("], itemType=[");
 			errorMessageBuilder.append(itemTypeName);
@@ -362,9 +368,8 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 			throw new BodyFormatException(errorMessage);
 		} catch(BufferOverflowException e) {
 			StringBuffer errorMessageBuilder = new StringBuffer("BufferOverflowException::");
-			errorMessageBuilder.append("{ path=[");
 			errorMessageBuilder.append(path);
-			errorMessageBuilder.append("], itemName=[");
+			errorMessageBuilder.append("={itemName=[");
 			errorMessageBuilder.append(itemName);
 			errorMessageBuilder.append("], itemType=[");
 			errorMessageBuilder.append(itemTypeName);
@@ -383,9 +388,8 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 			throw new BodyFormatException(errorMessage);
 		} catch(NoMoreDataPacketBufferException e) {
 			StringBuffer errorMessageBuilder = new StringBuffer("NoMoreDataPacketBufferException::");
-			errorMessageBuilder.append("{ path=[");
 			errorMessageBuilder.append(path);
-			errorMessageBuilder.append("], itemName=[");
+			errorMessageBuilder.append("={itemName=[");
 			errorMessageBuilder.append(itemName);
 			errorMessageBuilder.append("], itemType=[");
 			errorMessageBuilder.append(itemTypeName);
@@ -406,9 +410,8 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 			throw e;
 		} catch(Exception e) {
 			StringBuffer errorMessageBuilder = new StringBuffer("알수없는에러::");
-			errorMessageBuilder.append("{ path=[");
 			errorMessageBuilder.append(path);
-			errorMessageBuilder.append("], itemName=[");
+			errorMessageBuilder.append("={itemName=[");
 			errorMessageBuilder.append(itemName);
 			errorMessageBuilder.append("], itemType=[");
 			errorMessageBuilder.append(itemTypeName);
@@ -429,14 +432,13 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 	}
 
 	@Override
+	public Object getMiddleWriteObjFromArrayObj(String path, Object arrayObj, int inx) throws BodyFormatException {
+		return arrayObj;
+	}
+	
+	@Override
 	public Object getArrayObjFromMiddleWriteObj(String path, String arrayName,
-			String arrayCntType, String arrayCntValue, Object middleWriteObj)
-			throws Exception {
+			int arrayCntValue, Object middleWriteObj) throws BodyFormatException {
 		return middleWriteObj;
 	}
-
-	@Override
-	public Object addMiddleWriteObjToArrayObj(String path,  Object arrayObj) throws Exception {
-		return arrayObj;
-	}	
 }

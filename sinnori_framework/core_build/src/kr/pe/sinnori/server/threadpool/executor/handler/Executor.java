@@ -18,12 +18,18 @@
 package kr.pe.sinnori.server.threadpool.executor.handler;
 
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.common.configuration.ServerProjectConfig;
+import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
+import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
+import kr.pe.sinnori.common.lib.WrapBuffer;
+import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
+import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
@@ -82,7 +88,54 @@ public class Executor extends Thread implements CommonRootIF {
 				String messageID = receivedLetter.getMessageID();
 				// ServerSession serverSession = serverSessionManager.openServerSessionID(messageID, inObj);
 				// serverSession.setAttribute("ouputMessageQueue", ouputMessageQueue);
-				AbstractServerTask  serverTask = serverObjectCacheManager.getServerTask(messageID);
+				AbstractServerTask  serverTask = null;
+				
+				try {
+					serverTask = serverObjectCacheManager.getServerTask(messageID);
+				} catch (DynamicClassCallException e) {
+					//log.warn(e.getMessage());
+					
+					SelfExn selfExnOutObj = new SelfExn();
+					selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
+					selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
+					
+					selfExnOutObj.setErrorWhere("S");
+					selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+					selfExnOutObj.setErrorMessageID(messageID);
+					selfExnOutObj.setErrorMessage(e.getMessage());
+					
+					ArrayList<WrapBuffer> wrapBufferList = null;
+					try {
+						wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, serverProjectConfig.getCharset());
+					} catch(Exception e1) {
+						log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+						System.exit(1);
+					}
+					
+					putToOutputMessageQueue(clientSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
+					continue;
+				} catch(Exception e) {
+					log.warn("unknown error", e);
+					
+					SelfExn selfExnOutObj = new SelfExn();
+					selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
+					selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
+					// selfExnOutObj.setError("S", messageID, new DynamicClassCallException("알수 없는 에러 발생::"+e.getMessage()));
+					selfExnOutObj.setErrorWhere("S");
+					selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+					selfExnOutObj.setErrorMessageID(messageID);
+					selfExnOutObj.setErrorMessage("메시지 서버 타스크를 얻을때 알수 없는 에러 발생::"+e.getMessage());
+					
+					ArrayList<WrapBuffer> wrapBufferList = null;
+					try {
+						wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, serverProjectConfig.getCharset());
+						
+						putToOutputMessageQueue(clientSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
+					} catch(Exception e1) {
+						log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+					}
+					continue;
+				}
 				
 				serverTask.execute(index, serverProjectConfig, serverProjectConfig.getCharset(), ouputMessageQueue, messageProtocol,
 						clientSC, clientResource, receivedLetter, serverObjectCacheManager);
@@ -95,5 +148,29 @@ public class Executor extends Thread implements CommonRootIF {
 			log.warn(String.format("%s ExecutorProcessor[%d] unknown error", serverProjectConfig.getProjectName(), index), e);
 		}
 
+	}
+	
+	private void putToOutputMessageQueue(SocketChannel clientSC, 
+			ReceivedLetter  receivedLetter,
+			AbstractMessage wrapBufferMessage, ArrayList<WrapBuffer> wrapBufferList, 
+			LinkedBlockingQueue<LetterToClient> ouputMessageQueue) {
+		
+		LetterToClient letterToClient = new LetterToClient(clientSC,
+				wrapBufferMessage,
+				wrapBufferMessage.getMessageID()
+				, wrapBufferMessage.messageHeaderInfo.mailboxID, 
+				wrapBufferMessage.messageHeaderInfo.mailID,
+				wrapBufferList);  
+		try {
+			ouputMessageQueue.put(letterToClient);
+		} catch (InterruptedException e) {
+			try {
+				ouputMessageQueue.put(letterToClient);
+			} catch (InterruptedException e1) {
+				log.error("재시도 과정에서 인터럽트 발생하여 종료, clientSC hashCode=[{}], 입력 메시지[{}] 추출 실패, 전달 못한 송신 메시지=[{}]", 
+					clientSC.hashCode(), receivedLetter.toString(), wrapBufferMessage.toString());
+				Thread.interrupted();
+			}
+		}
 	}
 }

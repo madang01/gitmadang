@@ -18,6 +18,8 @@ package kr.pe.sinnori.common.protocol;
 
 import java.nio.charset.Charset;
 
+import kr.pe.sinnori.common.exception.BodyFormatException;
+
 /**
  * 단일 항목 인코더 인터페이스. 프로토콜별로 구현된다.
  * @author "Jonghoon Won"
@@ -32,36 +34,28 @@ public interface SingleItemEncoderIF {
 	 * @param itemTypeName
 	 * @param itemValue
 	 * @param itemSizeForLang
-	 * @param itemCharsetForLang
+	 * @param itemCharset
 	 * @param charsetOfProject
 	 * @param middleWriteObj
 	 * @throws Exception
 	 */
 	public void putValueToMiddleWriteObj(String path, String itemName, int itemTypeID, String itemTypeName, 
-			Object itemValue, int itemSizeForLang, Charset itemCharsetForLang,  Charset charsetOfProject, Object middleWriteObj)
+			Object itemValue, int itemSizeForLang, String itemCharset,  Charset charsetOfProject, Object middleWriteObj)
 			throws Exception;
 	
+	public Object getArrayObjFromMiddleWriteObj(String path, String arrayName,
+			int arrayCntValue, Object middleWriteObj)
+			throws BodyFormatException;
+			
 	/**
-	 * 
-	 * @param path
-	 * @param arrayName
-	 * @param arrayCntType
-	 * @param arrayCntValue
-	 * @param middleWriteObj
-	 * @return
-	 * @throws Exception
+	 * "배열 객체" 로 부터 지정된 인덱스에 있는 객체를 반환한다.
+	 * @param path 메시지 항목의 경로, ex) AllDataType.memberList[1]
+	 * @param arrayObj 배열 객체
+	 * @param inx 배열 인덱스
+	 * @return "배열 객체" 로 부터 지정된 인덱스에 있는 객체
+	 * @throws Exception "배열 객체" 로 부터 지정된 인덱스에 있는 객체를 반환할때 에러 발생시 던지는 예외
 	 */
-	public Object getArrayObjFromMiddleWriteObj(String path, String arrayName, String arrayCntType, String arrayCntValue, Object middleWriteObj)
-			throws Exception;
-	
-	/**
-	 * 
-	 * @param path
-	 * @param arrayObj
-	 * @return
-	 * @throws Exception
-	 */
-	public Object addMiddleWriteObjToArrayObj(String path, Object arrayObj) throws Exception;
+	public Object getMiddleWriteObjFromArrayObj(String path, Object arrayObj, int inx) throws BodyFormatException;
 }
 
 

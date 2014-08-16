@@ -53,7 +53,7 @@ public final class SelfExnDecoder extends MessageDecoder {
 		SelfExn SelfExn = new SelfExn();
 		SelfExn.setErrorWhere((String)
 				singleItemDecoder.getValueFromMiddleReadObj(SelfExn.getMessageID()
-				, "whereError" // itemName
+				, "errorWhere" // itemName
 				, 7 // itemType
 				, "ub pascal string" // itemTypeName
 				, -1 // itemSizeForLang

@@ -3,7 +3,7 @@
   <appender name="logfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <file>${SINNORI_PROJECT_LOG_PATH}/logFile.log</file>
     <encoder>
-      <pattern>ccc %-4relative [%thread] %-5level %msg %n</pattern>
+      <pattern>ccc %-4relative [%thread] %-5level %logger{35} - %msg%n</pattern>
     </encoder>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
        <fileNamePattern>logFile.%d{yyyy-MM-dd}.log</fileNamePattern>
@@ -12,7 +12,7 @@
   </appender>
   <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>aaa %d %-5level [%thread] %msg \(%F:%L\)%n</pattern>
+      <pattern>aaa %d %-5level [%thread] %logger{35}: %msg\(%F:%L\)%n</pattern>
     </encoder>
   </appender>
   <logger name="kr.pe.sinnori" level="INFO">

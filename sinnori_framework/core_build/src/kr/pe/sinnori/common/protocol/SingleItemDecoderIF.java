@@ -53,25 +53,24 @@ public interface SingleItemDecoderIF {
 	 * 마지막 두번째 참조(reference)은  "배열 크기 값"에 간접 참조하는 변수명의 값으로 배열 크기를 지정하는 방식이다.
 	 * </pre>  
 	 * @param path 메시지 항목의 경로, ex) AllDataType.memberList[1]
-	 * @param arrayName 배열 이름
-	 * @param arrayCntType 배열 크기를 지정하는 방식 
+	 * @param arrayName 배열 이름 
 	 * @param arrayCntValue 배열 크기 값
 	 * @param middleReadObj 중간 다리 역활 읽기 객체
 	 * @return  "중간 다리 역활 읽기 객체" 로 부터 배열 정보를 가지고 배열 객체
 	 * @throws Exception  "중간 다리 역활 읽기 객체" 로 부터 배열 정보를 가지고 배열 객체를 얻을때 에러 발생시 던지는 예외
 	 */
-	public Object getArrayObjFromMiddleReadObj(String path, String arrayName, String arrayCntType, String arrayCntValue, Object middleReadObj)
+	public Object getArrayObjFromMiddleReadObj(String path, String arrayName, int arrayCntValue, Object middleReadObj)
 			throws BodyFormatException;
 	
 	/**
 	 * "배열 객체" 로 부터 지정된 인덱스에 있는 객체를 반환한다.
 	 * @param path 메시지 항목의 경로, ex) AllDataType.memberList[1]
-	 * @param inx 배열 인덱스
 	 * @param arrayObj 배열 객체
+	 * @param inx 배열 인덱스
 	 * @return "배열 객체" 로 부터 지정된 인덱스에 있는 객체
 	 * @throws Exception "배열 객체" 로 부터 지정된 인덱스에 있는 객체를 반환할때 에러 발생시 던지는 예외
 	 */
-	public Object getMiddleReadObjFromArrayObj(String path, int inx, Object arrayObj) throws BodyFormatException;
+	public Object getMiddleReadObjFromArrayObj(String path, Object arrayObj, int inx) throws BodyFormatException;
 	
 	public void finish(Object middleReadObj) throws BodyFormatException;
 }

@@ -58,8 +58,6 @@ import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
  * 
  */
 public class NoShareAsynConnection extends AbstractAsynConnection {
-	// private MessageMangerIF messageManger = null;
-	
 	/** 개인 메일함 번호. 참고) 메일함을 가상으로 운영하여 전체적으로 메일함 운영의 틀을 유지한다. */
 	// private static final int mailboxID = 1;
 		

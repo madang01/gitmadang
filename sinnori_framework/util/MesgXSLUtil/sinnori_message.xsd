@@ -68,7 +68,7 @@
 					</xs:attribute>
 
 					<!-- 값 -->
-					<xs:attribute name="value" use="optional">
+					<xs:attribute name="defaultValue" use="optional">
 						<xs:simpleType>
 							<xs:restriction base="xs:string">
 								<xs:minLength value="1" />

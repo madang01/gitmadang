@@ -106,7 +106,7 @@ public class MesgXSLUtil {
 	}
 	
 	public static void toXSL() {
-		StringBuilder xslStringBuilder = new StringBuilder();
+	  StringBuilder xslStringBuilder = new StringBuilder();
 		xslStringBuilder.append("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
 		xslStringBuilder.append("<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n");
 		xslStringBuilder.append("\n");
@@ -177,7 +177,7 @@ public class MesgXSLUtil {
 		xslStringBuilder.append("\t\t\t\t\t</xs:attribute>\n");
 		xslStringBuilder.append("\n");
 		xslStringBuilder.append("\t\t\t\t\t<!-- \uAC12 -->\n");
-		xslStringBuilder.append("\t\t\t\t\t<xs:attribute name=\"value\" use=\"optional\">\n");
+		xslStringBuilder.append("\t\t\t\t\t<xs:attribute name=\"defaultValue\" use=\"optional\">\n");
 		xslStringBuilder.append("\t\t\t\t\t\t<xs:simpleType>\n");
 		xslStringBuilder.append("\t\t\t\t\t\t\t<xs:restriction base=\"xs:string\">\n");
 		xslStringBuilder.append("\t\t\t\t\t\t\t\t<xs:minLength value=\"1\" />\n");
@@ -250,6 +250,8 @@ public class MesgXSLUtil {
 		xslStringBuilder.append("\t\t</xs:complexType>\n");
 		xslStringBuilder.append("\t</xs:element>\n");
 		xslStringBuilder.append("</xs:schema>\n");
+		
+		
 
 		
 		FileWriter fw = null;

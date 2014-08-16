@@ -39,38 +39,38 @@ public final class EchoEncoder extends MessageEncoder {
 		}
 		
 
-		Echo echo = (Echo) messageObj;
-		encodeBody(echo, singleItemEncoder, charsetOfProject, middleWriteObj);
+		Echo echoInObj = (Echo) messageObj;
+		encodeBody(echoInObj, singleItemEncoder, charsetOfProject, middleWriteObj);
 	}
 
 	/**
 	 * <pre>
 	 * Echo 메시지의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장한다.
 	 * </pre>
-	 * @param echo Echo 메시지
+	 * @param echoInObj Echo 입력 메시지
 	 * @param singleItemEncoder 단일항목 인코더
 	 * @param charsetOfProject 프로젝트 문자셋
 	 * @param middleWriteObj 중간 다리 역활 쓰기 객체
 	 * @throws Exception "입력/출력 메시지"의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장할때 에러 발생시 던지는 예외
 	 */
-	private void encodeBody(Echo echo, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj) 
+	private void encodeBody(Echo echoInObj, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj) 
 			throws Exception {
 		
-		singleItemEncoder.putValueToMiddleWriteObj(echo.getMessageID(), "randomInt" 
+		singleItemEncoder.putValueToMiddleWriteObj(echoInObj.getMessageID(), "randomInt" 
 					, 4 // itemTypeID
 					, "integer" // itemTypeName
-					, echo.getRandomInt() // itemValue 
+					, echoInObj.getRandomInt() // itemValue 
 					, -1 // itemSizeForLang 
-					, null // itemCharsetForLang, 
+					, "UTF-8" // itemCharset, 
 					, charsetOfProject
 					, middleWriteObj
 					);
-		singleItemEncoder.putValueToMiddleWriteObj(echo.getMessageID(), "randomInt", 
+		singleItemEncoder.putValueToMiddleWriteObj(echoInObj.getMessageID(), "randomInt", 
 				6 // itemTypeID
 				, "long" // itemTypeName
-				, echo.getStartTime() // itemValue 
+				, echoInObj.getStartTime() // itemValue 
 				, -1 // itemSizeForLang 
-				, null // itemCharsetForLang, 
+				, "UTF-8" // itemCharsetForLang, 
 				, charsetOfProject // 
 				, middleWriteObj
 				);

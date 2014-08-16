@@ -15,25 +15,35 @@
  * limitations under the License.
  */
 
-package kr.pe.sinnori.common.exception;
+package message;
+
+import lib.CommonType;
+
 
 /**
- * 입/출력 메시지를 생성할때 XML로 작성된 메시지 정보 파일이 존재하지 않을때 던지는 예외
+ * 메시지 단일 항목과 배열의 부모 추상화 클래스, 단일 항목과 배열을 단일 개념으로 접근하는데 그 목적이 있다.
  * 
  * @author Jonghoon Won
  * 
  */
-
-@SuppressWarnings("serial")
-public class MessageInfoNotFoundException extends Exception {
+public abstract class AbstractItemInfo {
+	/**
+	 * 항목 이름을 반환한다.
+	 * 
+	 * @return 항목 이름
+	 */
+	abstract public String getItemName();
+	
+	abstract public String getFirstUpperItemName();
 
 	/**
-	 * 생성자
+	 * <pre>
+	 * 논리적인 항목 구분을 반환한다. 논리적인 항목 구분은 2가지로 구분된다.
+	 * (1) 단일 항목 : 컴퓨터 언어가 지원하는 변수와 1:1 매치되어 이진 데이터로 변환을 할 수 있는 항목
+	 * (2) 배열 : 반복성을 가지는 항목 그룹을 가지는 항목
+	 * </pre>
 	 * 
-	 * @param errorMessage 에러 내용
+	 * @return 논리적인 항목 구분
 	 */
-	public MessageInfoNotFoundException(String errorMessage) {
-		super(errorMessage);
-	}
-
+	abstract public CommonType.LOGICAL_ITEM_GUBUN getLogicalItemGubun();
 }

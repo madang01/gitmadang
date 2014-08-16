@@ -222,6 +222,7 @@ public class Step2SinnoriConfigScreen extends JPanel {
 			rsaKeypairSourceGroup.add(apiRadioButton[i]);
 			rsaKeypairSourceGroup.add(fileButton[i]);
 			
+			
 			propKey = "sessionkey.rsa_keypair_path.value";
 			String rsaKeyPairPath = configOfProject.getProperty(propKey);
 			
@@ -547,7 +548,7 @@ public class Step2SinnoriConfigScreen extends JPanel {
 			SequencedProperties configOfProject = project2ConfigHash.get(projectName);
 			
 			String propKey = null;
-			
+						
 			propKey = "sessionkey.rsa_keypair_path.value";
 			String rsaKeyPairPath = rsaKeyPairPathTextField[i].getText();
 			

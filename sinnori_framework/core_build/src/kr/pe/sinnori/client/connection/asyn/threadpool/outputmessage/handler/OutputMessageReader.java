@@ -25,11 +25,12 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.common.configuration.ClientProjectConfig;
@@ -56,8 +57,9 @@ public class OutputMessageReader extends Thread implements
 	/** 소켓 채널를 통해 연결 클래스를 얻기 위한 해쉬 */
 	private Map<SocketChannel, AbstractAsynConnection> scToConnectionHash = new Hashtable<SocketChannel, AbstractAsynConnection>();
 	/** selector 에 등록할 신규 소켓 채널을 담고 있는 그릇 */
-	// private final HashSet<SocketChannel> newClients = new HashSet<SocketChannel>();
-	private LinkedBlockingQueue<SocketChannel> waitingSCQueue = new LinkedBlockingQueue<SocketChannel>();
+	// private final Set<SocketChannel> newClients = new HashSet<SocketChannel>();
+	private final Set<SocketChannel> newClients = Collections.synchronizedSet(new HashSet<SocketChannel>());
+	//private LinkedBlockingQueue<SocketChannel> waitingSCQueue = new LinkedBlockingQueue<SocketChannel>();
 	/** 읽기 전용 selecotr */
 	private Selector selector = null;
 
@@ -90,14 +92,14 @@ public class OutputMessageReader extends Thread implements
 
 	@Override
 	public int getCntOfClients() {
-		return (waitingSCQueue.size() + selector.keys().size());
+		return (newClients.size() + selector.keys().size());
 	}
 
 	/**
 	 * 신규 채널를 selector 에 읽기 이벤트 등록한다.
 	 */
 	private void processNewConnection() {
-		while(!waitingSCQueue.isEmpty()) {
+		/*while(!waitingSCQueue.isEmpty()) {
 			SocketChannel sc = waitingSCQueue.poll();
 			// if (null != sc) {
 				try {
@@ -107,13 +109,21 @@ public class OutputMessageReader extends Thread implements
 					scToConnectionHash.remove(sc);
 				}
 			// }
+		}*/
+		for (SocketChannel sc : newClients) {
+			try {
+				sc.register(selector, SelectionKey.OP_READ);
+			} catch (ClosedChannelException e) {
+				log.warn(String.format("%s index[%d] socket channel[%d] fail to register selector", clientProjectConfig.getProjectName(), index, sc.hashCode()));
+				scToConnectionHash.remove(sc);
+			}
+			newClients.remove(sc);
 		}
 	}
 	
 	@Override
 	public void addNewServer(AbstractAsynConnection clientConnection) {
-		
-		clientConnection.register(scToConnectionHash, waitingSCQueue);
+		clientConnection.register(scToConnectionHash, newClients);
 
 		if (getState().equals(Thread.State.NEW))
 			return;
@@ -155,7 +165,7 @@ public class OutputMessageReader extends Thread implements
 				
 				int keyReady = selector.select();
 
-				if (keyReady > 0) {					
+				if (keyReady > 0) {
 					Set<SelectionKey> selectionKeySet = selector
 							.selectedKeys();
 					Iterator<SelectionKey> selectionKeyIter = selectionKeySet

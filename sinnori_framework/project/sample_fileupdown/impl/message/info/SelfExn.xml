@@ -9,7 +9,7 @@
 <sinnori_message>
 <messageID>SelfExn</messageID>
 <desc>클라이언트에서 최종 메시지를 받아보는 지점에서 메시지 내용을 주고 받는 과정에서 발생한 예외를 발생하기 위한 메시지.</desc>
-<singleitem name="whereError" type="ub pascal string">
+<singleitem name="errorWhere" type="ub pascal string">
 	<desc>에러 발생 장소 S : server C : client</desc>
 </singleitem>
 <singleitem name="errorGubun" type="ub pascal string">

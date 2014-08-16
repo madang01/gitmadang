@@ -237,7 +237,7 @@ public class ItemTypeManger implements CommonRootIF {
 		mesgXSLStringBuilder.append("\t\t\t\t\t</xs:attribute>\n");
 		mesgXSLStringBuilder.append("\n");
 		mesgXSLStringBuilder.append("\t\t\t\t\t<!-- \uAC12 -->\n");
-		mesgXSLStringBuilder.append("\t\t\t\t\t<xs:attribute name=\"itemDefaultValue\" use=\"optional\">\n");
+		mesgXSLStringBuilder.append("\t\t\t\t\t<xs:attribute name=\"defaultValue\" use=\"optional\">\n");
 		mesgXSLStringBuilder.append("\t\t\t\t\t\t<xs:simpleType>\n");
 		mesgXSLStringBuilder.append("\t\t\t\t\t\t\t<xs:restriction base=\"xs:string\">\n");
 		mesgXSLStringBuilder.append("\t\t\t\t\t\t\t\t<xs:minLength value=\"1\" />\n");

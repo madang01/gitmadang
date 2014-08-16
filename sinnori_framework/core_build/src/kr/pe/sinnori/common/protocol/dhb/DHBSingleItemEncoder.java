@@ -326,8 +326,8 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 	}
 	
 	@Override
-	public void putValueToMiddleWriteObj(String messageID, String itemName, int itemTypeID, String itemTypeName, Object itemValue,
-			int itemSizeForLang, Charset itemCharsetForLang, Charset charsetOfProject, Object middleObjToStream)
+	public void putValueToMiddleWriteObj(String path, String itemName, int itemTypeID, String itemTypeName, Object itemValue,
+			int itemSizeForLang, String itemCharset, Charset charsetOfProject, Object middleObjToStream)
 			throws BodyFormatException, NoMoreDataPacketBufferException {		
 		
 		if (!(middleObjToStream instanceof OutputStreamIF)) {
@@ -337,15 +337,21 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
+		Charset itemCharsetForLang = null;
+		if (null == itemCharset) {
+			itemCharsetForLang = charsetOfProject;
+		} else {
+			itemCharsetForLang = Charset.forName(itemCharset);
+		}
+		
 		OutputStreamIF sw = (OutputStreamIF)middleObjToStream;
 				
 		try {
 			dhbTypeSingleItemEncoderList[itemTypeID].putValue(itemName, itemValue, itemSizeForLang, itemCharsetForLang, sw);
 		} catch(IllegalArgumentException e) {
 			StringBuffer errorMessageBuilder = new StringBuffer("잘못된 파라미티터 에러::");
-			errorMessageBuilder.append("{ messageID=[");
-			errorMessageBuilder.append(messageID);
-			errorMessageBuilder.append("], itemName=[");
+			errorMessageBuilder.append(path);
+			errorMessageBuilder.append("={itemName=[");
 			errorMessageBuilder.append(itemName);
 			errorMessageBuilder.append("], itemType=[");
 			errorMessageBuilder.append(itemTypeName);
@@ -364,9 +370,8 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 			throw new BodyFormatException(errorMessage);
 		} catch(BufferOverflowException e) {
 			StringBuffer errorMessageBuilder = new StringBuffer("BufferOverflowException::");
-			errorMessageBuilder.append("{ messageID=[");
-			errorMessageBuilder.append(messageID);
-			errorMessageBuilder.append("], itemName=[");
+			errorMessageBuilder.append(path);
+			errorMessageBuilder.append("={itemName=[");
 			errorMessageBuilder.append(itemName);
 			errorMessageBuilder.append("], itemType=[");
 			errorMessageBuilder.append(itemTypeName);
@@ -385,9 +390,8 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 			throw new BodyFormatException(errorMessage);
 		} catch(NoMoreDataPacketBufferException e) {
 			StringBuffer errorMessageBuilder = new StringBuffer("NoMoreDataPacketBufferException::");
-			errorMessageBuilder.append("{ messageID=[");
-			errorMessageBuilder.append(messageID);
-			errorMessageBuilder.append("], itemName=[");
+			errorMessageBuilder.append(path);
+			errorMessageBuilder.append("={itemName=[");
 			errorMessageBuilder.append(itemName);
 			errorMessageBuilder.append("], itemType=[");
 			errorMessageBuilder.append(itemTypeName);
@@ -408,8 +412,8 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 			throw e;
 		} catch(Exception e) {
 			StringBuffer errorMessageBuilder = new StringBuffer("알수없는에러::");
-			errorMessageBuilder.append("{ messageID=[");
-			errorMessageBuilder.append(messageID);
+			errorMessageBuilder.append(path);
+			errorMessageBuilder.append("={itemName=[");
 			errorMessageBuilder.append("], itemName=[");
 			errorMessageBuilder.append(itemName);
 			errorMessageBuilder.append("], itemType=[");
@@ -431,14 +435,13 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 	}
 
 	@Override
-	public Object getArrayObjFromMiddleWriteObj(String path, String arrayName,
-			String arrayCntType, String arrayCntValue, Object middleWriteObj)
-			throws Exception {
-		return middleWriteObj;
+	public Object getMiddleWriteObjFromArrayObj(String path, Object arrayObj, int inx) throws BodyFormatException {
+		return arrayObj;
 	}
 
 	@Override
-	public Object addMiddleWriteObjToArrayObj(String path, Object arrayObj) throws Exception {
-		return arrayObj;
+	public Object getArrayObjFromMiddleWriteObj(String path, String arrayName,
+			int arrayCntValue, Object middleWriteObj) throws BodyFormatException {
+		return middleWriteObj;
 	}	
 }

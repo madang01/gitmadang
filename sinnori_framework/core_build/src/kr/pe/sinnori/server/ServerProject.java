@@ -147,22 +147,6 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 		int outputMessageWriterSize = serverProjectConfig.getServerOutputMessageWriterSize();
 		int outputMessageWriterMaxSize = serverProjectConfig.getServerOutputMessageWriterMaxSize();
 		
-		/*TreeSet<String> asynInputMessageSet = serverProjectConfig.getAsynInputMessageSet();
-		*//** 비동기 입력 메시지 집합에 속한 입력 메시지들 존재 여부 검사 *//*
-		Iterator<String> asynInputMessageIter = asynInputMessageSet.iterator();
-		while(asynInputMessageIter.hasNext()) {
-			try {
-				this.createInputMessage(asynInputMessageIter.next());
-			} catch (IllegalArgumentException e) {
-				log.fatal(String.format("projectName[%s] %s", projectName, e.getMessage()), e);
-				System.exit(1);
-			} catch (MessageInfoNotFoundException e) {
-				log.fatal(String.format("projectName[%s] %s", projectName, e.getMessage()), e);
-				System.exit(1);
-			}
-		}*/
-		
-		
 		dataPacketBufferQueue = new LinkedBlockingQueue<WrapBuffer>(dataPacketBufferCnt);
 		
 		try {
@@ -395,9 +379,9 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 		try {
 			retClass = workBaseClassLoader.loadClass(classFullName);
 		} catch (ClassNotFoundException e) {
-			String errorMessage = String.format("ServerClassLoader hashCode=[%d], classFullName=[%s]::ClassNotFoundException", this.hashCode(), classFullName);
-			log.warn(errorMessage);
-			throw new DynamicClassCallException(errorMessage);
+			// String errorMessage = String.format("ServerClassLoader hashCode=[%d], classFullName=[%s]::ClassNotFoundException", this.hashCode(), classFullName);
+			// log.warn("ClassNotFoundException", e);
+			throw new DynamicClassCallException(e.getMessage());
 		}
 		
 		Object retObject = null;

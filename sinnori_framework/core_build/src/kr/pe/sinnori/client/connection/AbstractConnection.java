@@ -29,7 +29,6 @@ import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.common.configuration.ClientProjectConfig;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
-import kr.pe.sinnori.common.exception.MessageInfoNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
@@ -350,7 +349,6 @@ public abstract class AbstractConnection implements CommonRootIF {
 	 * @throws SocketTimeoutException 서버 응답 시간 초과시 발생
 	 * @throws NoMoreDataPacketBufferException 래퍼 메시지를 만들때 데이터 패킷 버퍼 큐에서 버퍼를 확보하는데 실패할때 발생
 	 * @throws BodyFormatException 스트림에서 메시지로, 메시지에서 스트림으로 바꿀때 바디 부분 구성 실패시 발생
-	 * @throws MessageInfoNotFoundException 메시지 정보가 없을때 던지는 예외
 	 * @throws NotSupportedException 공유+비동기 연결 객체에서 이 메소드 호출시 던지는 예외, 공유+비동기 연결 폴은 직접적으로 연결 객체를 받을 수 없음.
 	 */
 	abstract public void sendAsynInputMessage(

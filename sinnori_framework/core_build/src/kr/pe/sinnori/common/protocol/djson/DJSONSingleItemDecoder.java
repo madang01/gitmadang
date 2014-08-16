@@ -744,15 +744,22 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF
 		}
 		return retObj;
 	}
-
+	
 	@Override
 	public Object getArrayObjFromMiddleReadObj(String path, String arrayName,
-			String arrayCntType, String arrayCntValue, Object middleReadObj)
+			int arrayCntValue, Object middleReadObj)
 			throws BodyFormatException {
 		if (!(middleReadObj instanceof JSONObject)) {
 			String errorMessage = String.format(
-					"%s 경로에 대응하는 존슨 객체로 부터 배열[%s]를 얻는 과정에서  파라미터 middleReadObj[%s]의 데이터 타입이 JSONObject 이 아닙니다.",
+					"%s 경로에 대응하는 존슨 객체에서 존슨 배열[%s]를 얻는 과정에서  파라미터 middleReadObj[%s]의 데이터 타입이 JSONObject 이 아닙니다.",
 					path, arrayName, middleReadObj.getClass().getCanonicalName());
+			throw new BodyFormatException(errorMessage);
+		}
+		
+		if (arrayCntValue < 0) {
+			String errorMessage = String.format(
+					"%s 경로에 대응하는 존슨 객체에서 존슨 배열[%s] 생성후 얻기::parameter arrayCntValue is less than zero",
+					path, arrayName);
 			throw new BodyFormatException(errorMessage);
 		}
 		
@@ -761,23 +768,33 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF
 
 		if (null == valueObj) {
 			String errorMessage = String.format(
-					"%s 경로에 대응하는 존슨 객체의 배열[%s]이 존재하지 않습니다.",
+					"%s 경로에 대응하는 존슨 객체에서 존슨 배열[%s]이 존재하지 않습니다.",
 					path, arrayName);
 			throw new BodyFormatException(errorMessage);
 		}
 
 		if (!(valueObj instanceof JSONArray)) {
 			String errorMessage = String.format(
-					"%s 경로에 대응하는 존슨 객체의 배열[%s]의 값의 타입[%s]이 JSONArray 이 아닙니다.",
+					"%s 경로에 대응하는 존슨 객체에서 존슨 배열[%s]의 값의 타입[%s]이 JSONArray 이 아닙니다.",
 					path, arrayName, valueObj.getClass().getCanonicalName());
 			throw new BodyFormatException(errorMessage);
 		}
-		return valueObj;
+		
+		
+		JSONArray jsonArray = (JSONArray)valueObj;
+		
+		if (jsonArray.size() !=  arrayCntValue) {
+			String errorMessage = String.format(
+					"%s 경로에 대응하는 존슨 객체에서 존슨 배열[%s]의 크기[%s]가 파라미터 arrayCntValue[%d]와 다릅니다.",
+					path, arrayName, jsonArray.size(), arrayCntValue);
+			throw new BodyFormatException(errorMessage);
+		}
+		
+		return jsonArray;
 	}
 
 	@Override
-	public Object getMiddleReadObjFromArrayObj(String path, int inx,
-			Object arrayObj) throws BodyFormatException {
+	public Object getMiddleReadObjFromArrayObj(String path, Object arrayObj, int inx) throws BodyFormatException {
 		if (null == path) {
 			String errorMessage = String.format(
 					"%s 경로에 대응하는 존슨 배열의 항목 값을 얻어오는 과정에서 파라미터 path 의 값[%d] 이 null 입니다.",
@@ -818,6 +835,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF
 		
 		return valueObj;
 	}
+	
 	
 	@Override
 	public void finish(Object middleReadObj) throws BodyFormatException {

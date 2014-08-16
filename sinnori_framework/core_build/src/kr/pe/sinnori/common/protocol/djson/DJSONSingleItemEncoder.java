@@ -472,7 +472,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF
 	@Override
 	public void putValueToMiddleWriteObj(String path, String itemName,
 			int itemTypeID, String itemTypeName, Object itemValue,
-			int itemSizeForLang, Charset itemCharsetForLang,
+			int itemSizeForLang, String itemCharset,
 			Charset charsetOfProject, Object middleWriteObj) throws Exception {
 		
 		if (!(middleWriteObj instanceof JSONObject)) {
@@ -482,14 +482,21 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
+		Charset itemCharsetForLang = null;
+		if (null == itemCharset) {
+			itemCharsetForLang = charsetOfProject;
+		} else {
+			itemCharsetForLang = Charset.forName(itemCharset);
+		}
+		
+		
 		JSONObject jsonWriteObj = (JSONObject)middleWriteObj;
 		try {
 			dhbTypeSingleItemEncoderList[itemTypeID].putValue(itemName, itemValue, itemSizeForLang, itemCharsetForLang, charsetOfProject, jsonWriteObj);
 		} catch(IllegalArgumentException e) {
 			StringBuffer errorMessageBuilder = new StringBuffer("잘못된 파라미티터 에러::");
-			errorMessageBuilder.append("{ path=[");
 			errorMessageBuilder.append(path);
-			errorMessageBuilder.append("], itemName=[");
+			errorMessageBuilder.append("={itemName=[");
 			errorMessageBuilder.append(itemName);
 			errorMessageBuilder.append("], itemType=[");
 			errorMessageBuilder.append(itemTypeName);
@@ -510,8 +517,8 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF
 			throw e;
 		} catch(Exception e) {
 			StringBuffer errorMessageBuilder = new StringBuffer("알수없는에러::");
-			errorMessageBuilder.append("{ path=[");
 			errorMessageBuilder.append(path);
+			errorMessageBuilder.append("={itemName=[");
 			errorMessageBuilder.append("], itemName=[");
 			errorMessageBuilder.append(itemName);
 			errorMessageBuilder.append("], itemType=[");
@@ -531,58 +538,95 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF
 			throw new BodyFormatException(errorMessage);
 		}
 	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public Object getArrayObjFromMiddleWriteObj(String path, String arrayName,
-			String arrayCntType, String arrayCntValue, Object middleWriteObj)
-			throws Exception {
-		if (!(middleWriteObj instanceof JSONObject)) {
-			String errorMessage = String.format(
-					"%s 경로에 대응하는 존슨 객체로부터 배열[%s]을 얻는 과정에서 파라미터 middleWriteObj[%s]의 데이터 타입이 JSONObject 이 아닙니다.",
-					path, arrayName, middleWriteObj.getClass().getCanonicalName());
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		JSONObject jsonWriteObj = (JSONObject)middleWriteObj;
-		JSONArray jsonArray = new JSONArray();
-		jsonWriteObj.put(arrayName, jsonArray);
-		return jsonArray;
-	}
-
 	
-	@SuppressWarnings("unchecked")
 	@Override
-	public Object addMiddleWriteObjToArrayObj(String path, Object arrayObj) throws Exception {
+	public Object getMiddleWriteObjFromArrayObj(String path, Object arrayObj, int inx) throws BodyFormatException {
 		if (null == path) {
 			String errorMessage = String.format(
-					"파라미터 path 의 값[%d] 이 null 입니다.",
-					path);
-			throw new IllegalArgumentException(errorMessage);
+					"%s 경로에 대응하는 존슨 객체에서 존슨 배열의 항목 값을 얻어오는 과정에서 파라미터 path 의 값[%d] 이 null 입니다.",
+					path, inx);
+			throw new BodyFormatException(errorMessage);
+		}
+		
+		if (inx < 0) {
+			String errorMessage = String.format(
+					"%s 경로에 대응하는 존슨 객체에서 존슨 배열의 항목 값을 얻어오는 과정에서 파라미터 inx 의 값[%d] 이 음수입니다.",
+					path, inx);
+			throw new BodyFormatException(errorMessage);
 		}
 		
 		if (!(arrayObj instanceof JSONArray)) {
 			String errorMessage = String.format(
-					"%s 경로에 대응하는 존슨 배열의 항목 값을 얻어오는 과정에서 파라미터 arrayObj의 데이터 타입[%s]이 JSONArray 이 아닙니다.",
+					"%s 경로에 대응하는 존슨 객체에서 존슨 배열의 항목 값을 얻는 과정에서 파라미터 arrayObj[%s]의 데이터 타입이 JSONArray 이 아닙니다.",
 					path, arrayObj.getClass().getCanonicalName());
-			throw new IllegalArgumentException(errorMessage);
+			throw new BodyFormatException(errorMessage);
 		}
 		
-		JSONArray jsonArray = (JSONArray)arrayObj;		
-		
-		log.info(String.format("%s 경로에 대응하는 배열의 추가전 크기[%d]", path, jsonArray.size()));
-		
-		JSONObject innerJsonObj = new JSONObject();
-
-		jsonArray.add(innerJsonObj);
-		
-		/*try {
-			jsonArray.add(innerJsonObj);
+		JSONArray jsonArray = (JSONArray)arrayObj;
+		Object valueObj = null;
+		try {
+			valueObj = jsonArray.get(inx);
 		} catch(IndexOutOfBoundsException  e) {
 			String errorMessage = String.format(
-					"%s 경로에 대응하는 존슨 배열의 항목 값은 배열 크기를 벗어난 요청입니다.", path);
+					"%s 경로에 대응하는 존슨 객체에서 존슨 배열의 항목 값은 배열 크기를 벗어난 요청입니다.", path);
 			throw new BodyFormatException(errorMessage);
-		}*/
-		return innerJsonObj;
-	}	
+		}		
+		
+		if (!(valueObj instanceof JSONObject)) {
+			String errorMessage = String.format(
+					"%s 경로에 대응하는 존슨 객체에서 존슨 배열의 항목의 값의 타입[%s]이 JSONObject 이 아닙니다.",
+					path, valueObj.getClass().getCanonicalName());
+			throw new BodyFormatException(errorMessage);
+		}
+		
+		return valueObj;
+	}
+	
+	@Override
+	public Object getArrayObjFromMiddleWriteObj(String path, String arrayName,
+			int arrayCntValue, Object middleWriteObj)
+			throws BodyFormatException {
+		if (!(middleWriteObj instanceof JSONObject)) {
+			String errorMessage = String.format(
+					"%s 경로에 대응하는 존슨 객체에서 존슨 배열[%s]를 얻는 과정에서  파라미터 middleWriteObj[%s]의 데이터 타입이 JSONObject 이 아닙니다.",
+					path, arrayName, middleWriteObj.getClass().getCanonicalName());
+			throw new BodyFormatException(errorMessage);
+		}
+		
+		if (arrayCntValue < 0) {
+			String errorMessage = String.format(
+					"%s 경로에 대응하는 존슨 객체에서 존슨 배열[%s] 생성후 얻기::parameter arrayCntValue is less than zero",
+					path, arrayName);
+			throw new BodyFormatException(errorMessage);
+		}
+		
+		JSONObject jsonReadObj = (JSONObject)middleWriteObj;
+		Object valueObj = jsonReadObj.get(arrayName);
+
+		if (null == valueObj) {
+			String errorMessage = String.format(
+					"%s 경로에 대응하는 존슨 객체에서 존슨 배열[%s]이 존재하지 않습니다.",
+					path, arrayName);
+			throw new BodyFormatException(errorMessage);
+		}
+
+		if (!(valueObj instanceof JSONArray)) {
+			String errorMessage = String.format(
+					"%s 경로에 대응하는 존슨 객체에서 존슨 배열[%s]의 값의 타입[%s]이 JSONArray 이 아닙니다.",
+					path, arrayName, valueObj.getClass().getCanonicalName());
+			throw new BodyFormatException(errorMessage);
+		}
+		
+		
+		JSONArray jsonArray = (JSONArray)valueObj;
+		
+		if (jsonArray.size() !=  arrayCntValue) {
+			String errorMessage = String.format(
+					"%s 경로에 대응하는 존슨 객체에서 존슨 배열[%s]의 크기[%s]가 파라미터 arrayCntValue[%d]와 다릅니다.",
+					path, arrayName, jsonArray.size(), arrayCntValue);
+			throw new BodyFormatException(errorMessage);
+		}
+		
+		return jsonArray;
+	}
 }

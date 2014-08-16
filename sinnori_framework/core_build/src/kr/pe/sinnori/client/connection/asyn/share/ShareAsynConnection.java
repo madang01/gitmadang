@@ -64,8 +64,6 @@ import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
  * 
  */
 public class ShareAsynConnection extends AbstractAsynConnection {
-	// private MessageMangerIF messageManger = null;
-	
 	/** 개인 메일함 큐 */
 	private LinkedBlockingQueue<PrivateMailbox> PrivateMailboxWaitingQueue = null;
 	/** 메일 식별자를 키로 활성화된 메일함을 값으로 가지는 해쉬 */

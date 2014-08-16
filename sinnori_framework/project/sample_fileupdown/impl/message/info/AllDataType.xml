@@ -12,7 +12,7 @@
 <desc>고정 크기 스트림에서 모든 데이터 타입을 테스트 하기 위한 메시지</desc>
 <singleitem name="byteVar1" type="byte" />
 <singleitem name="byteVar2" type="byte" />	
-<singleitem name="byteVar3" type="byte" itemDefaultValue="123" />
+<singleitem name="byteVar3" type="byte" defaultValue="123" />
 <singleitem name="unsignedByteVar1" type="unsigned byte" />
 <singleitem name="unsignedByteVar2" type="unsigned byte" />
 <singleitem name="unsignedByteVar3" type="unsigned byte" />
@@ -37,15 +37,14 @@
 <singleitem name="bytesVar1" type="fixed length byte[]" size="2" />
 <singleitem name="bytesVar2" type="si variable length byte[]" />
 <singleitem name="cnt" type="integer" />
-<array name="memberList" cnttype="reference" cntvalue="cnt">
-	<singleitem name="memberID" type="fixed length string" size="30" value="king" />
+<array name="member" cnttype="reference" cntvalue="cnt">
+	<singleitem name="memberID" type="fixed length string" size="30" defaultValue="king" />
 	<singleitem name="memberName" type="fixed length string" size="30" />
-	<singleitem name="cnt" type="integer" value="10" />
-	<array name="itemList" cnttype="reference" cntvalue="cnt">
+	<singleitem name="cnt" type="integer" defaultValue="10" />
+	<array name="item" cnttype="reference" cntvalue="cnt">
 		<singleitem name="itemID" type="fixed length string" size="30" />		
 		<singleitem name="itemName" type="fixed length string" size="30" />
 		<singleitem name="itemCnt" type="integer" />		
 	</array>
 </array>
-
 </sinnori_message>
