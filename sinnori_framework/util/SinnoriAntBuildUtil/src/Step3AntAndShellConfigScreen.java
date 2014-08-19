@@ -149,7 +149,7 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 			projectPanel.add(projectTabbedPane, "2, 2, fill, fill");
 			
 			JPanel antPartPanel = new JPanel();
-			projectTabbedPane.addTab("ant.properties", null, antPartPanel, null);
+			projectTabbedPane.addTab(MainControllerIF.ANT_CONFIG_FILE_NAME, null, antPartPanel, null);
 			antPartPanel.setLayout(new FormLayout(new ColumnSpec[] {
 					FormFactory.LABEL_COMPONENT_GAP_COLSPEC,
 					FormFactory.MIN_COLSPEC,
@@ -245,8 +245,8 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 			String clientPartText = null;
 			
 			if (isUnix) {
-				serverPartTitle = "sinnori_server.sh";
-				clientPartTitle = "sinnori_appclient.sh";
+				serverPartTitle = MainControllerIF.SINNORI_SERVER_SHELL_NAME;
+				clientPartTitle = MainControllerIF.SINNORI_CLIENT_SHELL_NAME;
 				
 				StringBuilder serverPartTextBuilder = new StringBuilder("#!/bin/sh");
 				
@@ -302,7 +302,7 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 				serverPartTextBuilder.append(File.separator);
 				serverPartTextBuilder.append("config");
 				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("project_config.properties");
+				serverPartTextBuilder.append(MainControllerIF.SINNORI_CONFIG_FILE_NAME);
 				
 				serverPartTextBuilder.append(NEWLINE);
 				serverPartTextBuilder.append("java -Dlogback.configurationFile=%LOGBACK_CONFIG_FILE% ");
@@ -370,7 +370,7 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 				clientPartTextBuilder.append(File.separator);
 				clientPartTextBuilder.append("config");
 				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("project_config.properties");
+				clientPartTextBuilder.append(MainControllerIF.SINNORI_CONFIG_FILE_NAME);
 				
 				clientPartTextBuilder.append(NEWLINE);
 				clientPartTextBuilder.append("java -Dlogback.configurationFile=%LOGBACK_CONFIG_FILE% ");
@@ -382,8 +382,8 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 
 				clientPartText = clientPartTextBuilder.toString();
 			} else {
-				serverPartTitle = "sinnori_server.bat";
-				clientPartTitle = "sinnori_appclient.bat";
+				serverPartTitle = MainControllerIF.SINNORI_SERVER_SHELL_NAME;
+				clientPartTitle = MainControllerIF.SINNORI_CLIENT_SHELL_NAME;
 				
 				
 				StringBuilder serverPartTextBuilder = new StringBuilder("set SINNORI_FRAMEWORK_LOC=");
@@ -436,7 +436,7 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 				serverPartTextBuilder.append(File.separator);
 				serverPartTextBuilder.append("config");
 				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("project_config.properties");
+				serverPartTextBuilder.append(MainControllerIF.SINNORI_CONFIG_FILE_NAME);
 				
 				serverPartTextBuilder.append(NEWLINE);				
 				serverPartTextBuilder.append("java -Dlogback.configurationFile=%LOGBACK_CONFIG_FILE% ");
@@ -502,7 +502,7 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 				clientPartTextBuilder.append(File.separator);
 				clientPartTextBuilder.append("config");
 				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("project_config.properties");
+				clientPartTextBuilder.append(MainControllerIF.SINNORI_CONFIG_FILE_NAME);
 				
 				clientPartTextBuilder.append(NEWLINE);
 				clientPartTextBuilder.append("java -Dlogback.configurationFile=%LOGBACK_CONFIG_FILE% ");
@@ -640,7 +640,7 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 		antPropertiesFileNameBuilder.append(File.separator);
 		antPropertiesFileNameBuilder.append(projectName);
 		antPropertiesFileNameBuilder.append(File.separator);
-		antPropertiesFileNameBuilder.append("ant.properties");
+		antPropertiesFileNameBuilder.append(MainControllerIF.ANT_CONFIG_FILE_NAME);
 		
 		SequencedProperties antProperties = new SequencedProperties();
 		
@@ -688,7 +688,6 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 	 * @return
 	 */
 	private boolean saveAntProperties(String projectName, boolean isTomcat, String tomcatLibPath) {
-		// FIXME!
 		antProperties.setProperty("is.tomcat", String.valueOf(isTomcat));
 		antProperties.setProperty("tomcat.servletlib", tomcatLibPath);
 		
@@ -699,7 +698,7 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 		antPropertiesFileNameBuilder.append(File.separator);
 		antPropertiesFileNameBuilder.append(projectName);
 		antPropertiesFileNameBuilder.append(File.separator);
-		antPropertiesFileNameBuilder.append("ant.properties");
+		antPropertiesFileNameBuilder.append(MainControllerIF.ANT_CONFIG_FILE_NAME);
 		
 		String antPropertiesFileName = antPropertiesFileNameBuilder.toString();
 		File antPropertiesFileObj = new File(antPropertiesFileName);
@@ -764,10 +763,12 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 		serverShellFileNameBuilder.append("server_build");
 		serverShellFileNameBuilder.append(File.separator);
 		
+		serverShellFileNameBuilder.append(projectName);
+		serverShellFileNameBuilder.append(MainControllerIF.SINNORI_SERVER_SHELL_NAME);
 		if (isUnix) {
-			serverShellFileNameBuilder.append("sinnori_server.sh");
+			serverShellFileNameBuilder.append(".sh");
 		} else {
-			serverShellFileNameBuilder.append("sinnori_server.bat");
+			serverShellFileNameBuilder.append(".bat");
 		}
 		
 		
@@ -826,11 +827,12 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 		appClientShellFileNameBuilder.append("app_build");
 		appClientShellFileNameBuilder.append(File.separator);
 		
-		// D:\sinnori_framework\project\sample_simple_ftp\client_build\app_build
+		appClientShellFileNameBuilder.append(projectName);
+		appClientShellFileNameBuilder.append(MainControllerIF.SINNORI_CLIENT_SHELL_NAME);
 		if (isUnix) {
-			appClientShellFileNameBuilder.append("sinnori_appclient.sh");
+			appClientShellFileNameBuilder.append(".sh");
 		} else {
-			appClientShellFileNameBuilder.append("sinnori_appclient.bat");
+			appClientShellFileNameBuilder.append(".bat");
 		}
 		
 		String appClientShellFileName = appClientShellFileNameBuilder.toString();

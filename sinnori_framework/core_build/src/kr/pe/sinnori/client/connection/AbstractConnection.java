@@ -349,7 +349,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 	 * @throws SocketTimeoutException 서버 응답 시간 초과시 발생
 	 * @throws NoMoreDataPacketBufferException 래퍼 메시지를 만들때 데이터 패킷 버퍼 큐에서 버퍼를 확보하는데 실패할때 발생
 	 * @throws BodyFormatException 스트림에서 메시지로, 메시지에서 스트림으로 바꿀때 바디 부분 구성 실패시 발생
-	 * @throws NotSupportedException 공유+비동기 연결 객체에서 이 메소드 호출시 던지는 예외, 공유+비동기 연결 폴은 직접적으로 연결 객체를 받을 수 없음.
+	 * @throws NotSupportedException 
 	 */
 	abstract public void sendAsynInputMessage(
 			AbstractMessage inputMessage) throws ServerNotReadyException, SocketTimeoutException, 
@@ -366,7 +366,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 		MessageDecoder  messageDecoder  = null;
 		try {
 			messageDecoder = messageCodec.getMessageDecoder();
-		} catch (NotSupportedException e) {
+		} catch (DynamicClassCallException e) {
 			String errorMessage = String.format("클라이언트에서 메시지 식별자[%s]에 해당하는 디코더를 얻는데 실패하였습니다.", messageID);
 			log.warn("{}, mailboxID=[{}], mailID=[{}]", errorMessage, mailboxID, mailID);
 			throw new DynamicClassCallException(errorMessage);
@@ -420,10 +420,11 @@ public abstract class AbstractConnection implements CommonRootIF {
 		
 		try {
 			messageEncoder = messageCodec.getMessageEncoder();
-		} catch(NotSupportedException e) {
+		} catch(DynamicClassCallException e) {
 			// log.warn(e.getMessage());
 			
-			throw new DynamicClassCallException(e.getMessage());
+			// throw new DynamicClassCallException(e.getMessage());
+			throw e;
 		} catch(Exception e) {
 			log.warn(e.getMessage());
 			throw new DynamicClassCallException("unkown error::"+e.getMessage());

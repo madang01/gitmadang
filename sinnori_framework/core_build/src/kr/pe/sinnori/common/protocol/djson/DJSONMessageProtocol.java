@@ -95,22 +95,7 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageProtocolIF {
 		jsonWriteObj.put("mailboxID", messageObj.messageHeaderInfo.mailboxID);
 		jsonWriteObj.put("mailID", messageObj.messageHeaderInfo.mailID);
 		
-		/*MessageEncoder messageEncoder = null;
 		
-		try {
-			if (serverClientGubun == CommonType.SERVER_CLIENT_GUBUN.CLIENT) {
-				messageEncoder = clientMessageController.getClientCodec(messageObj.getClass().getClassLoader(), messageObj.getMessageID()).getMessageEncoder();
-			} else {
-				messageEncoder = serverMessageController.getServerCodec(messageObj.getClass().getClassLoader(), messageObj.getMessageID()).getMessageEncoder();
-			}
-		} catch (NotSupportedException e) {
-			String errorMessage = String.format(
-					"NotSupportedException::messageObj=[%s]",
-					messageObj.toString());
-			log.warn(errorMessage, e);
-			
-			throw new DynamicClassCallException(errorMessage);
-		}*/
 		
 		try {
 			messageEncoder.encode(messageObj, jsonSingleItemEncoder, charsetOfProject, jsonWriteObj);
@@ -381,121 +366,6 @@ public class DJSONMessageProtocol implements CommonRootIF, MessageProtocolIF {
 						
 						int mailboxID = jsonMailboxID.intValue();
 						int mailID = jsonMailID.intValue();
-						
-						/*AbstractMessage resultMessageObj = null;
-						MessageDecoder messageDecoder = null;
-						try {
-							if (serverClientGubun == CommonType.SERVER_CLIENT_GUBUN.CLIENT) {
-								messageDecoder = clientMessageController.getClientCodec(null, messageID).getMessageDecoder();
-							} else {
-								messageDecoder = serverMessageController.getServerCodec(null, messageID).getMessageDecoder();
-							}
-							resultMessageObj = messageDecoder.decode(jsonSingleItemDecoder, charsetOfProject, jsonObj);
-						} catch(NotSupportedException e) {
-							String errorMessage = String.format(
-									"NotSupportedException::jsonStr=[%s]",
-									jsonStr);
-							log.warn(errorMessage, e);
-							
-							SelfExn selfExn = new SelfExn();							
-
-							selfExn.messageHeaderInfo.mailboxID = mailboxID;
-							selfExn.messageHeaderInfo.mailID = mailID;
-							
-							selfExn.setErrorWhere("S");
-							selfExn.setErrorGubun("D");
-							selfExn.setErrorMessageID(messageID);
-							selfExn.setErrorWhere(e.getMessage());
-
-							resultMessageObj = selfExn;
-						} catch (ClassNotFoundException e) {
-							String errorMessage = String.format(
-									"ClassNotFoundException::jsonStr=[%s]",
-									jsonStr);
-							log.warn(errorMessage, e);
-							
-							SelfExn selfExn = new SelfExn();							
-
-							selfExn.messageHeaderInfo.mailboxID = mailboxID;
-							selfExn.messageHeaderInfo.mailID = mailID;
-							
-							selfExn.setErrorWhere("S");
-							selfExn.setErrorGubun("D");
-							selfExn.setErrorMessageID(messageID);
-							selfExn.setErrorWhere(e.getMessage());
-
-							resultMessageObj = selfExn;
-						} catch (InstantiationException e) {
-							String errorMessage = String.format(
-									"InstantiationException::jsonStr=[%s]",
-									jsonStr);
-							log.warn(errorMessage, e);
-							
-							SelfExn selfExn = new SelfExn();							
-
-							selfExn.messageHeaderInfo.mailboxID = mailboxID;
-							selfExn.messageHeaderInfo.mailID = mailID;
-							
-							selfExn.setErrorWhere("S");
-							selfExn.setErrorGubun("D");
-							selfExn.setErrorMessageID(messageID);
-							selfExn.setErrorWhere(e.getMessage());
-
-							resultMessageObj = selfExn;						
-						} catch (IllegalAccessException e) {
-							log.info(String.format(
-									"IllegalAccessException::header=[%s]",
-									messageHeader.toString()), e);
-
-							SelfExn selfExn = new SelfExn();
-						
-
-							selfExn.messageHeaderInfo.mailboxID = mailboxID;
-							selfExn.messageHeaderInfo.mailID = mailID;
-							
-							selfExn.setErrorWhere("S");
-							selfExn.setErrorGubun("D");
-							selfExn.setErrorMessageID(messageID);
-							selfExn.setErrorWhere(e.getMessage());
-
-							resultMessageObj = selfExn;
-						} catch (BodyFormatException e) {
-							log.info(String.format(
-									"BodyFormatException::header=[%s]",
-									messageHeader.toString()), e);
-
-							SelfExn selfExn = new SelfExn();
-
-							selfExn.messageHeaderInfo.mailboxID = mailboxID;
-							selfExn.messageHeaderInfo.mailID = mailID;
-							
-							selfExn.setErrorWhere("S");
-							selfExn.setErrorGubun("B");
-							selfExn.setErrorMessageID(messageID);
-							selfExn.setErrorWhere(e.getMessage());
-
-							resultMessageObj = selfExn;
-						} catch(OutOfMemoryError e) {
-							throw e;
-						} catch (Exception e) {
-							log.warn(String.format(
-									"unknown error::header=[%s]",
-									messageHeader.toString()), e);
-
-							SelfExn selfExn = new SelfExn();
-
-							selfExn.messageHeaderInfo.mailboxID = mailboxID;
-							selfExn.messageHeaderInfo.mailID = mailID;
-							
-							selfExn.setErrorWhere("S");
-							selfExn.setErrorGubun("B");
-							selfExn.setErrorMessageID(messageID);
-							selfExn.setErrorWhere(e.getMessage());
-
-							resultMessageObj = selfExn;
-						}
-						
-						receivedLetterList.add(resultMessageObj);*/
 						
 						ReceivedLetter receivedLetter = 
 								new ReceivedLetter(messageID, 

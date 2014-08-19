@@ -35,6 +35,13 @@ public abstract class CommonStaticFinalVars {
 	public static final short ZERO_SHORT = 0;
 	public static final int ZERO_INTEGER = 0;
 	public static final long ZERO_LONG = 0L;
+	
+	public static final String SINNORI_ROOT_LOGGER_NAME = "kr.pe.sinnori";
+	
+	public static final String SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME = "sinnori.projectName";
+	public static final String SINNORI_LOG_PATH_JAVA_SYSTEM_VAR_NAME = "sinnori.logPath";
+	public static final String SINNORI_CONFIG_FILE_JAVA_SYSTEM_VAR_NAME = "sinnori.configurationFile";
+	public static final String SINNORI_CONFIG_FILE_CHARSET = "UTF-8";
 		
 	/************* network binary stream start *************/
 	public static final short MAX_UNSIGNED_BYTE = 0xff;
@@ -54,10 +61,7 @@ public abstract class CommonStaticFinalVars {
 	
 	public static final String EMPTY_STRING = "";
 	
-	/****** 파일 송수신 start ****/
-	// public static final long UP_DOWN_SOURCE_FILE_MAX_SIZE = Long.MAX_VALUE - Integer.MAX_VALUE + 1;
-	/****** 파일 송수신 end ****/
-	
+		
 	public static final SelfExnEncoder SELFEXN_ENCODER = new SelfExnEncoder();
 	public static final SelfExnDecoder SELFEXN_DECODER= new SelfExnDecoder();
 	

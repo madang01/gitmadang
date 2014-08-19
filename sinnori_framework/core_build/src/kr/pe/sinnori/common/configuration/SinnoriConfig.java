@@ -17,21 +17,26 @@
 
 package kr.pe.sinnori.common.configuration;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.common.lib.CommonType;
-import kr.pe.sinnori.common.util.LogManager;
 import kr.pe.sinnori.common.util.SequencedProperties;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 신놀이 환경 변수에 대응하는 값에 접근하기 위한 클래스
@@ -40,8 +45,7 @@ import org.slf4j.Logger;
  * 
  */
 public final class SinnoriConfig {
-	private final String SINNORI_PROJECT_CONFIG_FILE_CHARSET = "UTF-8";
-	private Logger log = LogManager.getInstance().getLogger();
+	private Logger log = LoggerFactory.getLogger(CommonStaticFinalVars.SINNORI_ROOT_LOGGER_NAME);
 	private Map<String, Object> resourceHash = null;
 	
 	private SequencedProperties configFileProperties = new SequencedProperties();
@@ -64,60 +68,197 @@ public final class SinnoriConfig {
 	 */
 	private SinnoriConfig() {
 		resourceHash = new HashMap<String, Object>();
-
-		String propSinnoriConfigFile = System.getenv("SINNORI_PROJECT_CONFIG_FILE");
-		// System.out.printf("=sinnori_config_file[{}]",
-		// prop_sinnori_config_file);
-		// System.out.println();
-		log.info("1.SINNORI_PROJECT_CONFIG_FILE[{}]", propSinnoriConfigFile);
-
-		if (null == propSinnoriConfigFile) {
-			propSinnoriConfigFile = "config.xml";
-
-			log.info("2.prop_sinnori_config_file[{}]", propSinnoriConfigFile);
-		}
-
 		
-		File sinnoriConfigFile = new File(propSinnoriConfigFile);
+		String sinnoriConfigurationFileName = System.getProperty(CommonStaticFinalVars.SINNORI_CONFIG_FILE_JAVA_SYSTEM_VAR_NAME);
+		log.info("자바 시스템 환경 변수 '신놀이 환경 설정 파일'[{}]의 값[{}]", CommonStaticFinalVars.SINNORI_CONFIG_FILE_JAVA_SYSTEM_VAR_NAME, sinnoriConfigurationFileName);
 		
-		if (!sinnoriConfigFile.exists()) {
-			log.error("sinnori config file[{}] not exist", propSinnoriConfigFile);
-			System.exit(1);
-		}
 		
-		if (!sinnoriConfigFile.isFile()) {
-			log.error("sinnori config file[{}] not file", sinnoriConfigFile.getAbsolutePath());
-			System.exit(1);
-		}
-		
-		if (!sinnoriConfigFile.canRead()) {
-			log.error("sinnori config file[{}] can't read", sinnoriConfigFile.getAbsolutePath());
-			System.exit(1);
-		}
-
-		
-		FileInputStream sinnoriConfigFIS = null;
-		InputStreamReader sinnoriConfigISR = null;
-		try {
-
-			sinnoriConfigFIS = new FileInputStream(sinnoriConfigFile);
-
-			sinnoriConfigISR = new InputStreamReader(
-					sinnoriConfigFIS, SINNORI_PROJECT_CONFIG_FILE_CHARSET);
-
-			configFileProperties.load(sinnoriConfigISR);
-
-			// System.out.println(this.toString());
-		} catch (Exception e) {
-			System.out.println("설정파일 읽기 실패");
-			System.out.println(e.toString());
-			System.exit(1);
-		} finally {
+		if (sinnoriConfigurationFileName == null) {
+			StringBuilder stringBuilder = new StringBuilder();
+			stringBuilder.append("#No Project Config File");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("#Mon Aug 18 00:07:34 KST 2014");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("servlet_jsp.jdf_error_message_page.desc=JDF framework에서 에러 발생시 에러 내용을 보여주는 사용자 친화적인 화면을 전담할 jsp, 미 지정시 /errorMessagePage.jsp.");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("servlet_jsp.jdf_error_message_page.value=/errorMessagePage.jsp");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("servlet_jsp.jdf_login_page.desc=로그인 전용 처리 jsp, 미 지정시 /login.jsp.");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("servlet_jsp.jdf_login_page.value=/login.jsp");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("servlet_jsp.jdf_servlet_trace.desc=JDF framework에서 서블릿 경과시간 추적 여부, 미 지정시 true.");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("servlet_jsp.jdf_servlet_trace.set=true, false");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("servlet_jsp.jdf_servlet_trace.value=true");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("servlet_jsp.web_layout_control_page.desc=신놀이 웹의 레이아웃 컨트롤러 jsp, /PageJump.jsp.");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("servlet_jsp.web_layout_control_page.value=/PageJump.jsp");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("sessionkey.rsa_keypair_source.desc=세션키에 사용되는 공개키 키쌍 생성 방법(\\=원천)로써 2가지가 있다. 미지정시 API, (1) API \\: 자체 암호 lib 이용하여 RSA 키쌍 생성, (2) File \\: 외부 파일를 읽어와서 RSA  키쌍을 생성");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("sessionkey.rsa_keypair_source.set=API, File");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("sessionkey.rsa_keypair_source.value=API");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("sessionkey.rsa_keypair_path.desc=세션키에 사용되는 공개키 키쌍 파일 경로,  세션키에 사용되는 공개키 키쌍 생성 방법이 File 일 경우에는 필수 항목.");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("sessionkey.rsa_keypair_path.value=./");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("sessionkey.rsa_keysize.desc=세션키에 사용하는 공개키 크기, 단위 byte. 디폴트 1024");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("sessionkey.rsa_keysize.value=1024");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("sessionkey.symmetric_key_algorithm.desc=세션키에 사용되는 대칭키 알고리즘, 미 지정시 AES.");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("sessionkey.symmetric_key_algorithm.set=ASE, DESede, DES");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("sessionkey.symmetric_key_algorithm.value=AES");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("sessionkey.symmetric_key_size.desc=세션키에 사용되는 대칭키 크기, 단위 byte, 암호 강도 때문에 최소 8 byte 이상 요구, 미 지정시 16.");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("sessionkey.symmetric_key_size.value=16");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("sessionkey.iv_size.desc=세션키에 사용되는 대칭키와 같이 사용되는 IV 크기, 단위 byte, 최소 8 byte 이상 갖도록 함. 미 지정시 16.");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("sessionkey.iv_size.value=16");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("sessionkey.private_key.encoding.desc=개인키를 인코딩 방법, 미 지정시 NONE. 웹의 경우 이진데이터는 폼 전송이 불가하므로 base64 인코딩하여 전송한다.");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("sessionkey.private_key.encoding.set=NONE, BASE64");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("sessionkey.private_key.encoding.value=BASE64");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("sinnori_worker.running_mode.desc=신놀이 작업자 동작 모드");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("sinnori_worker.running_mode.set=client, server, all");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("sinnori_worker.running_mode.value=client");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("sinnori_worker.client.executor.prefix.value=impl.executor.client.");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("sinnori_worker.client.executor.suffix.value=CExtor");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("common.updownfile.local_source_file_resource_cnt.desc=로컬 원본 파일 자원 갯수, 미 지정시 10, 최소 5");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("common.updownfile.local_source_file_resource_cnt.value=10");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("common.updownfile.local_target_file_resource_cnt.desc=로컬 목적지 파일 자원 갯수, 미 지정시 10, 최소 5");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("common.updownfile.local_target_file_resource_cnt.value=10");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("common.updownfile.file_block_max_size.desc=파일 송수신 파일 블락 최대 크기, 최소값 1024, 1024의 배수, 기본값 1 Mbytes \\= 1024*1024(\\=1048576), 단위 byte.");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("common.updownfile.file_block_max_size.value=1048576");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("common.cached_object.max_size.desc=싱글턴 클래스 '객체 캐쉬 관리자'(LoaderAndName2ObjectManager) 에서 캐쉬로 관리할 객체의 최대 갯수. 주로 캐쉬되는 대상 객체는 xxxServerCodec, xxxClientCodec 이다.");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("common.cached_object.max_size.value=1");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("common.cached_object.max_update_seq_interval.desc=시간 개념의 객체 생성 순서를 갱신하는 최소 간격, 단위 ms.");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("common.cached_object.max_update_seq_interval.value=5000");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("common.projectlist.desc=프로젝트와 프로젝트 구분은 공백 없이 콤마로 한다.");
+			stringBuilder.append(System.getProperty("line.separator"));
+			stringBuilder.append("common.projectlist.value=");
+			stringBuilder.append(System.getProperty("line.separator"));
+			ByteArrayInputStream bais = null;
+			InputStreamReader sinnoriConfigISR = null;
 			try {
-				if (sinnoriConfigISR != null)
-					sinnoriConfigISR.close();
-			} catch (Exception e1) {
-				e1.printStackTrace();
+				bais = new ByteArrayInputStream(stringBuilder.toString().getBytes(CommonStaticFinalVars.SINNORI_CONFIG_FILE_CHARSET));
+				
+				sinnoriConfigISR = new InputStreamReader(bais, CommonStaticFinalVars.SINNORI_CONFIG_FILE_CHARSET);
+
+				configFileProperties.load(sinnoriConfigISR);
+				
+			} catch (UnsupportedEncodingException e) {
+				String errorMessage = String.format("신놀이 환경 설정 실패::설정파일의 문자셋[%s] 이름이 잘못되었습니다.", CommonStaticFinalVars.SINNORI_CONFIG_FILE_CHARSET);
+				log.error(errorMessage, e);
+				throw new RuntimeException(errorMessage);
+			} catch (IOException e) {
+				String errorMessage = String.format("신놀이 환경 설정 실패::설정 파일[%s] 읽을때 에러 발생", sinnoriConfigurationFileName);
+				log.error(errorMessage, e);
+				throw new RuntimeException(errorMessage);
+			} catch (Exception e) {
+				String errorMessage = String.format("신놀이 환경 설정 실패::알 수 없는 에러::%s", e.getMessage());
+				log.error(errorMessage, e);
+				throw new RuntimeException(errorMessage);
+			} finally {
+				try {
+					if (sinnoriConfigISR != null)
+						sinnoriConfigISR.close();
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				
+				try {
+					if (bais != null)
+						bais.close();
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		} else {
+			File sinnoriConfigFile = new File(sinnoriConfigurationFileName);
+			
+			if (!sinnoriConfigFile.exists()) {
+				String errorMessage = String.format("신놀이 환경 설정 실패::설정 파일[%s]이 존재하지 않습니다.", sinnoriConfigurationFileName);
+				log.error(errorMessage);
+				throw new RuntimeException(errorMessage);
+			}
+			
+			if (!sinnoriConfigFile.isFile()) {
+				String errorMessage = String.format("신놀이 환경 설정 실패::설정 파일[%s]이 일반 파일이 아닙니다.", sinnoriConfigurationFileName);
+				log.error(errorMessage);
+				throw new RuntimeException(errorMessage);
+			}
+			
+			if (!sinnoriConfigFile.canRead()) {
+				String errorMessage = String.format("신놀이 환경 설정 실패::설정 파일[%s]을 읽을 수 없습니다.", sinnoriConfigurationFileName);
+				log.error(errorMessage);
+				throw new RuntimeException(errorMessage);
+			}
+			
+			FileInputStream sinnoriConfigFIS = null;
+			InputStreamReader sinnoriConfigISR = null;
+			try {
+
+				sinnoriConfigFIS = new FileInputStream(sinnoriConfigFile);
+
+				sinnoriConfigISR = new InputStreamReader(
+						sinnoriConfigFIS, CommonStaticFinalVars.SINNORI_CONFIG_FILE_CHARSET);
+
+				configFileProperties.load(sinnoriConfigISR);
+
+				// System.out.println(this.toString());
+			} catch(FileNotFoundException  e) {
+				String errorMessage = String.format("신놀이 환경 설정 실패::설정 파일[%s]이 존재하지 않습니다.", sinnoriConfigurationFileName);
+				log.error(errorMessage, e);
+				throw new RuntimeException(errorMessage);
+			} catch (IOException e) {
+				String errorMessage = String.format("신놀이 환경 설정 실패::설정 파일[%s] 읽을때 에러 발생", sinnoriConfigurationFileName);
+				log.error(errorMessage, e);
+				throw new RuntimeException(errorMessage);
+			} catch (Exception e) {
+				String errorMessage = String.format("신놀이 환경 설정 실패::알 수 없는 에러::%s", e.getMessage());
+				log.error(errorMessage, e);
+				throw new RuntimeException(errorMessage);
+			} finally {
+				try {
+					if (sinnoriConfigISR != null)
+						sinnoriConfigISR.close();
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				try {
+					if (sinnoriConfigFIS != null)
+						sinnoriConfigFIS.close();
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
 			}
 		}
 
@@ -314,8 +455,6 @@ public final class SinnoriConfig {
 		/******** servlet_jsp 종료 **********/
 		
 		
-		
-		
 		/******** 신놀이 작업자 시작 **********/
 		propKey = "sinnori_worker.running_mode.value";
 		propValue = configFileProperties.getProperty(propKey);		
@@ -330,33 +469,6 @@ public final class SinnoriConfig {
 		resourceHash.put(propKey, sinnori_worker_running_mode);
 		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, resourceHash.get(propKey));
 		
-		propKey = "sinnori_worker.client.executor.impl.source.path.value";
-		propValue = configFileProperties.getProperty(propKey);		
-		File sinnori_worker_client_executor_impl_source_path = new File(propValue);
-		if (!sinnori_worker_client_executor_impl_source_path.exists()) {
-			log.error("key[{}]::value[{}] 신놀이 프레임 워크 클라이언트 비지니스 로직 소스 경로가 존재하지 않습니다.", propKey, propValue);
-			System.exit(1);
-		}
-		if (!sinnori_worker_client_executor_impl_source_path.isDirectory() || !sinnori_worker_client_executor_impl_source_path.canRead()) {
-			log.error("key[{}]::value[{}] 신놀이 프레임 워크 클라이언트 비지니스 로직 소스 경로[{}]가 잘못되었습니다.", propKey, propValue, sinnori_worker_client_executor_impl_source_path.getAbsolutePath());
-			System.exit(1);
-		}
-		resourceHash.put(propKey, sinnori_worker_client_executor_impl_source_path);
-		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, resourceHash.get(propKey));
-		
-		propKey = "sinnori_worker.client.executor.impl.binary.path.value";
-		propValue = configFileProperties.getProperty(propKey);		
-		File sinnori_worker_client_executor_impl_bianry_path = new File(propValue);
-		if (!sinnori_worker_client_executor_impl_bianry_path.exists()) {
-			log.error("key[{}]::value[{}] 신놀이 프레임 워크 클라이언트 비지니스 로직 이진 파일 경로가 존재하지 않습니다.", propKey, propValue);
-			System.exit(1);
-		}
-		if (!sinnori_worker_client_executor_impl_bianry_path.isDirectory() || !sinnori_worker_client_executor_impl_bianry_path.canRead()) {
-			log.error("key[{}]::value[{}] 신놀이 프레임 워크 클라이언트 비지니스 로직 이진 파일 경로[{}]가 잘못되었습니다.", propKey, propValue, sinnori_worker_client_executor_impl_bianry_path.getAbsolutePath());
-			System.exit(1);
-		}
-		resourceHash.put(propKey, sinnori_worker_client_executor_impl_bianry_path);
-		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, resourceHash.get(propKey));
 		
 		propKey = "sinnori_worker.client.executor.prefix.value";
 		propValue = configFileProperties.getProperty(propKey);
@@ -632,18 +744,6 @@ public final class SinnoriConfig {
 		return serverProjectConfig;
 	}
 	
-	/*
-	public String getServerHost(String projectName) {
-		ProjectConfig projectInfo = (ProjectConfig)resourceHash.get(projectName);
-		return projectInfo.getServerHost();
-	}
-	
-	public int getServerPort(String projectName) {
-		ProjectConfig projectInfo = (ProjectConfig)resourceHash.get(projectName);
-		return projectInfo.getServerPort();
-	}
-	*/
-
 	
 	/**
 	 * 신놀이 환경 변수 이름을 갖는 값을 반환한다. 
@@ -699,7 +799,7 @@ public final class SinnoriConfig {
 		OutputStreamWriter osw_sinnoriConfig_file = null;
 		try {
 			fos_sinnoriConfig_file = new FileOutputStream(sinnoriConfigFile);
-			osw_sinnoriConfig_file = new OutputStreamWriter(fos_sinnoriConfig_file, SINNORI_PROJECT_CONFIG_FILE_CHARSET);
+			osw_sinnoriConfig_file = new OutputStreamWriter(fos_sinnoriConfig_file, CommonStaticFinalVars.SINNORI_CONFIG_FILE_CHARSET);
 			configFileProperties.store(osw_sinnoriConfig_file, String.format("# Sinnori Project[{}] Config File", projectName));
 			// System.out.println(this.toString());
 		} catch (Exception e) {

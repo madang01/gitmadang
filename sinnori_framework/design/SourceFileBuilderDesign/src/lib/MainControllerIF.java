@@ -14,27 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package lib;
+
+import java.io.File;
 
 /**
- * 메일 제어기 인터페이스
+ * 메인 제어기 인터페이스
  * @author Jonghoon Won
  *
  */
 public interface MainControllerIF {
-	public static final String SINNORI_CONFIG_FILE_NAME = "sinnori.properties";
-	public static final String ANT_CONFIG_FILE_NAME="ant.properties";
-	public static final String SINNORI_SERVER_SHELL_NAME = "Server";
-	public static final String SINNORI_CLIENT_SHELL_NAME = "AppClient";
+	
+	public boolean setSinnoriProperteies(String configFileFullPathName);
+	
 	
 	/**
-	 * 2단계 화면 이동
-	 * @param sinnoriInstalledPathName 신놀이 프레임 워크 설치 경로
+	 * 설정 화면
+	 * @param configFileFullPathName 신놀이 프레임 워크 설치 경로
 	 */
-	public void nextStep2Screen(String sinnoriInstalledPathName);
-	/**
-	 * 3단계 화면 이동
-	 */
-	public void nextStep3Screen();
+	public void showSetupScreen(File configFile);
+	
 	/**
 	 * 완료 처리
 	 */

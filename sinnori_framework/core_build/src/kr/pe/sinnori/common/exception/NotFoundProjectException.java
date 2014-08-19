@@ -14,25 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package kr.pe.sinnori.common.exception;
 
 /**
- * 서버 타스크 준비가 안되었을때 던지는 예외
- * 
- * @author Jonghoon Won
- * 
+ * 서버 프로젝트 혹은 클라이언트 프로젝트 미 발견시 던지는 예외
+ * @author "Jonghoon Won"
+ *
  */
-
 @SuppressWarnings("serial")
-public class ServerTaskNotReadyException extends Exception {
-	/**
-	 * 생성자
-	 * 
-	 * @param errorMessage
-	 *            에러 내용
-	 */
-	public ServerTaskNotReadyException(String errorMessage) {
+public class NotFoundProjectException extends Exception {
+	public NotFoundProjectException(String errorMessage) {
 		super(errorMessage);
 	}
 }

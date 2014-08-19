@@ -26,7 +26,6 @@ import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerExcecutorException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
@@ -147,7 +146,7 @@ public abstract class AbstractServerTask implements CommonRootIF {
 			
 			try {
 				messageDecoder = messageCodec.getMessageDecoder();
-			} catch(NotSupportedException e) {
+			} catch(DynamicClassCallException e) {
 				log.warn(e.getMessage());
 				
 				SelfExn selfExnOutObj = new SelfExn();
@@ -353,7 +352,7 @@ public abstract class AbstractServerTask implements CommonRootIF {
 				
 				try {
 					messageEncoder = messageCodec.getMessageEncoder();
-				} catch (NotSupportedException e) {
+				} catch (DynamicClassCallException e) {
 					SelfExn selfExnOutObj = new SelfExn();
 					selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
 					selfExnOutObj.setErrorWhere("S");

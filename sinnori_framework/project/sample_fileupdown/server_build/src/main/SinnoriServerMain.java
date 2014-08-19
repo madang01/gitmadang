@@ -1,20 +1,23 @@
 package main;
 
+import kr.pe.sinnori.common.exception.NotFoundProjectException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
+import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.server.ServerProject;
 import kr.pe.sinnori.server.ServerProjectManager;
 
 public class SinnoriServerMain implements CommonRootIF {
-
-	public static void main(String argv[]) {
-		String projectName = System.getenv("SINNORI_PROJECT_NAME");
+	public static void main(String argv[]) throws NotFoundProjectException {
+		
+		
+		String projectName = System.getProperty(CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);
 		if (null == projectName) {
-			log.error("환경변수 SINNORI_PROJECT_NAME 가 정의되지 않았습니다.");
+			log.error("자바 시스템 환경 변수[{}] 가 정의되지 않았습니다.", CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);
 			System.exit(1);
 		}
 		
 		if (projectName.trim().length() == 0) {
-			log.error("환경변수 SINNORI_PROJECT_NAME 값이 지정되지 않았습니다. 환경변수 SINNORI_PROJECT_NAME 에 프로젝트 이름을 정해주세요.");
+			log.error("자바 시스템 환경 변수[{}] 값[{}]이 빈 문자열 있습니다.", CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME, projectName);
 			System.exit(1);
 		}
 		

@@ -22,6 +22,7 @@ import java.util.StringTokenizer;
 
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
+import kr.pe.sinnori.common.exception.NotFoundProjectException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 
 /**
@@ -78,12 +79,17 @@ public final class ClientProjectManager implements CommonRootIF {
 	 * 프로젝트 이름에 해당하는 외부에서 바라보는 시각을 가지는 클라이언트 프로젝트를 얻는다. 
 	 * @param projectName 프로젝트 이름
 	 * @return 프로젝트 이름에 해당하는 외부 시각 클라이언트 프로젝트
+	 * @throws NotFoundProjectException 
 	 */
-	public ClientProject getClientProject(String projectName) {
+	public ClientProject getClientProject(String projectName) throws NotFoundProjectException {
 		ClientProject clientProject =  clientProjectHash.get(projectName);
 		if (null == clientProject) {
-			log.error(String.format("신놀이 프레임 워크 환경설정 파일에 프로젝트[%s]가 정의되지 않았습니다.", projectName));
-			System.exit(1);
+			StringBuilder errorBuilder = new StringBuilder("신놀이 프레임 워크 환경설정 파일에 찾고자 하는 클라이언트 프로젝트[");
+			errorBuilder.append(projectName);
+			errorBuilder.append("] 가 존재하지 않습니다.");
+			log.error(errorBuilder.toString());
+			throw new NotFoundProjectException(errorBuilder.toString());
+			// System.exit(1);
 		}
 		
 		return clientProjectHash.get(projectName);

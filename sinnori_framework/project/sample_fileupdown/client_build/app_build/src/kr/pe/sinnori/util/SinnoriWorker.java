@@ -21,6 +21,7 @@ import kr.pe.sinnori.client.ClientProject;
 import kr.pe.sinnori.client.ClientProjectManager;
 import kr.pe.sinnori.common.classload.ObjectCacheManager;
 import kr.pe.sinnori.common.configuration.ClientProjectConfig;
+import kr.pe.sinnori.common.exception.NotFoundProjectException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.server.ServerProject;
 import kr.pe.sinnori.server.ServerProjectManager;
@@ -84,7 +85,7 @@ public class SinnoriWorker implements CommonRootIF {
 	 * @param clinetExecutorName 클라이언트 비지니스 로직 이름
 	 * @throws InterruptedException 쓰레드 인터럽트
 	 */
-	public void start(String projectName, String clinetExecutorName) throws InterruptedException {
+	public void start(String projectName, String clinetExecutorName) throws InterruptedException, NotFoundProjectException {
 		ClientProjectConfig clientProjectConfig = conf.getClientProjectConfig(projectName);
 		if (null == clientProjectConfig) throw new RuntimeException(String.format("projectName[%s] not exist", projectName));
 		
@@ -136,8 +137,9 @@ public class SinnoriWorker implements CommonRootIF {
 	 * @param clinetExecutorName 클라이언트 비지니스 로직 이름
 	 * @param count 클라이언트 비지니스 로직 반복 횟수
 	 * @throws InterruptedException 쓰레드 인터럽트
+	 * @throws NotFoundException 
 	 */
-	public void start(String projectName, String clinetExecutorName, int count) throws InterruptedException {
+	public void start(String projectName, String clinetExecutorName, int count) throws InterruptedException, NotFoundProjectException {
 		ClientProjectConfig clientProjectConfig = conf.getClientProjectConfig(projectName);
 		if (null == clientProjectConfig) throw new RuntimeException(String.format("projectName[%s] not exist", projectName));
 		

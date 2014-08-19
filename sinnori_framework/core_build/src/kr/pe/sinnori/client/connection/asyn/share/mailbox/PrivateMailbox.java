@@ -93,13 +93,14 @@ public class PrivateMailbox implements CommonRootIF {
 	public PrivateMailbox(AbstractAsynConnection serverConnection,
 			int mailboxID,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
-			SyncOutputMessageQueueQueueMangerIF outputMessageQueueQueueManager) throws NoMoreOutputMessageQueueException {
+			SyncOutputMessageQueueQueueMangerIF syncOutputMessageQueueQueueManger
+			) throws NoMoreOutputMessageQueueException {
 		// this.mailboxMonitor = mailboxMonitor;
 		this.serverConnection = serverConnection;
 		this.mailboxID = mailboxID;
 		this.inputMessageQueue = inputMessageQueue;
-		this.syncOutputMessageQueueQueueManager = outputMessageQueueQueueManager;
-		this.wrapOutputMessageQueue = outputMessageQueueQueueManager.pollOutputMessageQueue();
+		this.syncOutputMessageQueueQueueManager = syncOutputMessageQueueQueueManger;
+		this.wrapOutputMessageQueue = syncOutputMessageQueueQueueManger.pollOutputMessageQueue();
 		this.syncOutputMessageQueue = wrapOutputMessageQueue.getOutputMessageQueue();
 		socketTimeOut = serverConnection.getSocketTimeOut();
 	}

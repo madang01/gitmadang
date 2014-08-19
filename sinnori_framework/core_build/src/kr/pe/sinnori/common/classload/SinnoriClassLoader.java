@@ -58,6 +58,16 @@ public class SinnoriClassLoader extends ClassLoader implements CommonRootIF {
 	}
 	
 	/**
+	 * 동적으로 로딩할 주어진 클래스 이름을 가지는 클래스 파일 경로를 반환한다. 
+	 * @param classFullName 클래스 파일 경로를 얻고자 하는 클래스 이름
+	 * @return 주어진 클래스 이름을 가지는 클래스 파일 경로
+	 */
+	public String getClassFileName(String classFullName) {
+		String classFileName = new StringBuilder(dynamicClassBinaryBasePath).append(File.separator).append(classFullName.replace(".", File.separator)).append(".class").toString();
+		return classFileName;
+	}
+	
+	/**
 	 * 직접적으로 Class<?> loadClass(String classFullName) 를 호출 지향할것.
 	 */
 	@Override
@@ -127,7 +137,7 @@ public class SinnoriClassLoader extends ClassLoader implements CommonRootIF {
 					// log.info("classFullName 파일 경로 변환 문자열={}", classFullName.replace(".", File.separator));
 					
 						
-					String classFileName = new StringBuilder(dynamicClassBinaryBasePath).append(File.separator).append(classFullName.replace(".", File.separator)).append(".class").toString();
+					String classFileName = getClassFileName(classFullName);
 					
 					// log.info("classFileName={}", classFileName);
 					

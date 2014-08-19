@@ -18,9 +18,9 @@
 package kr.pe.sinnori.common.lib;
 
 import kr.pe.sinnori.common.configuration.SinnoriConfig;
-import kr.pe.sinnori.common.util.LogManager;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 로그와 신놀이 환경 변수 접근 변수를 담은 공통 인터페이스<br/>
@@ -36,5 +36,5 @@ public interface CommonRootIF {
 	/**
 	 * 로그 변수
 	 */
-	public static final Logger log = LogManager.getInstance().getLogger();
+	public static final Logger log = LoggerFactory.getLogger(CommonStaticFinalVars.SINNORI_ROOT_LOGGER_NAME);
 }

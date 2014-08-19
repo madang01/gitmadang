@@ -66,8 +66,8 @@ public class Step2SinnoriConfigScreen extends JPanel {
 	private JRadioButton apiRadioButton[] = null;
 	private JRadioButton fileButton[] = null;
 	private JTextField rsaKeyPairPathTextField[] = null;
-	private JTextField workerBinaryPathTextField[] = null;
-	private JTextField workerSourcePathTextField[] = null;
+	// private JTextField workerBinaryPathTextField[] = null;
+	// private JTextField workerSourcePathTextField[] = null;
 	
 	private String innerProjectList[][] = null;
 	private JTextField innerProjectMessagePathTextField[][] = null;
@@ -119,8 +119,8 @@ public class Step2SinnoriConfigScreen extends JPanel {
 		apiRadioButton = new JRadioButton[projectCnt];
 		fileButton = new JRadioButton[projectCnt];
 		rsaKeyPairPathTextField = new JTextField[projectCnt];
-		workerBinaryPathTextField = new JTextField[projectCnt];
-		workerSourcePathTextField = new JTextField[projectCnt];
+		// workerBinaryPathTextField = new JTextField[projectCnt];
+		// workerSourcePathTextField = new JTextField[projectCnt];
 		
 		
 		innerProjectList = new String[projectCnt][];
@@ -181,11 +181,7 @@ public class Step2SinnoriConfigScreen extends JPanel {
 					FormFactory.LINE_GAP_ROWSPEC,
 					FormFactory.MIN_ROWSPEC,
 					FormFactory.LINE_GAP_ROWSPEC,
-					FormFactory.MIN_ROWSPEC,
-					FormFactory.LINE_GAP_ROWSPEC,
-					FormFactory.MIN_ROWSPEC,
-					FormFactory.LINE_GAP_ROWSPEC,
-					FormFactory.MIN_ROWSPEC,
+					FormFactory.MIN_ROWSPEC,					
 					FormFactory.LINE_GAP_ROWSPEC,}));
 			
 			JLabel keyLabel = new JLabel("변수명");
@@ -296,7 +292,7 @@ public class Step2SinnoriConfigScreen extends JPanel {
 			// rsaKeyPairPathValuePanel.add(rsaKeyPairPathButton);
 			
 			
-			JLabel workerBinaryPathLabel = new JLabel("sinnori_worker.client.executor.impl.binary.path.value");
+			/*JLabel workerBinaryPathLabel = new JLabel("sinnori_worker.client.executor.impl.binary.path.value");
 			commonItemsPanel.add(workerBinaryPathLabel, "2, 8");
 			
 			StringBuilder workerBinaryPathTextBuilder = new StringBuilder(sinnoriInstallAbsPathName);
@@ -346,7 +342,7 @@ public class Step2SinnoriConfigScreen extends JPanel {
 			workerSourcePathTextField[i] = new JTextField(workerSourcePathTextBuilder.toString());
 			workerSourcePathTextField[i].setEditable(false);
 			workerSourcePathTextField[i].setColumns(30);
-			commonItemsPanel.add(workerSourcePathTextField[i], "4, 10");
+			commonItemsPanel.add(workerSourcePathTextField[i], "4, 10");*/
 			
 			innerProjectList[i] = new String[projectCntOfConfig];
 			innerProjectMessagePathTextField[i] = new JTextField[projectCntOfConfig];
@@ -579,7 +575,7 @@ public class Step2SinnoriConfigScreen extends JPanel {
 				configOfProject.setProperty(propKey, rsaKeyPairPath);
 			}
 			
-			propKey = "sinnori_worker.client.executor.impl.binary.path.value";
+			/*propKey = "sinnori_worker.client.executor.impl.binary.path.value";
 			String workerBinaryPath = workerBinaryPathTextField[i].getText();
 			configOfProject.setProperty(propKey, workerBinaryPath);
 			
@@ -606,7 +602,7 @@ public class Step2SinnoriConfigScreen extends JPanel {
 				
 				if (! isCreatedDir) System.exit(1);
 			}
-			
+			*/
 			
 			for (int j=0; j < innerProjectList.length; j++) {
 
@@ -697,7 +693,7 @@ public class Step2SinnoriConfigScreen extends JPanel {
 			configFileBuilder.append(File.separator);
 			configFileBuilder.append("config");
 			configFileBuilder.append(File.separator);
-			configFileBuilder.append("project_config.properties");
+			configFileBuilder.append(MainControllerIF.SINNORI_CONFIG_FILE_NAME);
 			
 			File configFileObjOfProject = new File(configFileBuilder.toString());
 			

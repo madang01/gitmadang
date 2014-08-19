@@ -89,8 +89,8 @@ public class SinnoriConfigUtilMain implements MainControllerIF {
 	}
 	
 	@Override
-	public void nextStep2Screen(String sinnoriInstallPathName) {
-		sinnoriInstallPathFileObj = new File(sinnoriInstallPathName);
+	public void nextStep2Screen(String sinnoriInstalledPathName) {
+		sinnoriInstallPathFileObj = new File(sinnoriInstalledPathName);
 		if (!sinnoriInstallPathFileObj.exists()) {
 			JOptionPane.showMessageDialog(mainFrame, "신놀이 설치 경로가 존재하지 않습니다.");
 			return;
@@ -133,7 +133,7 @@ public class SinnoriConfigUtilMain implements MainControllerIF {
 				configFileBuilder.append(File.separator);
 				configFileBuilder.append("config");
 				configFileBuilder.append(File.separator);
-				configFileBuilder.append("project_config.properties");
+				configFileBuilder.append(MainControllerIF.SINNORI_CONFIG_FILE_NAME);
 				
 				File configFileObjOfProject = new File(configFileBuilder.toString());
 				if (configFileObjOfProject.exists() && configFileObjOfProject.isFile()) {

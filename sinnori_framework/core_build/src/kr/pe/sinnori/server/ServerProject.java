@@ -73,7 +73,7 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 	
 	/** 동적 클래스인 서버 타스크 객체 운영에 관련된 변수 시작 */
 	private final Object monitorOfServerTaskObj = new  Object();
-	private final ClassLoader sytemClassLoader = java.lang.String.class.getClassLoader();
+	private final ClassLoader sytemClassLoader = ClassLoader.getSystemClassLoader();
 	private SinnoriClassLoader workBaseClassLoader = null;
 	private HashMap<String, ServerTaskObjectInfo> className2ServerTaskObjectInfoHash = new HashMap<String, ServerTaskObjectInfo>();
 	private String dynamicClassBinaryBasePath = null;
@@ -409,7 +409,7 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 		task = (AbstractServerTask)retObject;
 		
 		
-		String classFileName = new StringBuilder(dynamicClassBinaryBasePath).append(File.separator).append(classFullName.replace(".", File.separator)).append(".class").toString();
+		String classFileName = workBaseClassLoader.getClassFileName(classFullName);
 		
 		// log.info("classFileName={}", classFileName);
 		

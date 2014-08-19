@@ -1,21 +1,14 @@
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 
 import message.MessageInfoSAXParser;
-
-import org.apache.commons.lang.StringEscapeUtils;
-
 import source_file_builder.DecoderSourceFileBuilder;
 
-public class SinnoriMessageUtilMain {
+public class SinnoriSourceFileBuilderMain {
 	private String messageInfoBasePath = "D:\\gitsinnori\\sinnori_framework\\project\\sample_fileupdown\\impl\\message\\info";
 	// private Charset charsetOfProject = Charset.defaultCharset();
-	private String dynamicClassBasePackageName = "kr.pe.sinnori.impl.message.";
+	/*private String dynamicClassBasePackageName = "kr.pe.sinnori.impl.message.";
 	private String dynamicClassSourceBasePath = "D:\\gitsinnori\\sinnori_framework\\project\\sample_fileupdown\\server_build\\src";
-	private String lineSeparator = System.getProperty("line.separator");
+	private String lineSeparator = System.getProperty("line.separator");*/
 
 
 	// sample_fileupdown.common.dynamic_class_base_package_name.value
@@ -29,7 +22,7 @@ public class SinnoriMessageUtilMain {
 		return messageInfo;
 	}
 
-	public void toFile(String messageID, String suffix) {
+	/*public void toFile(String messageID, String suffix) {
 		String classFullName = new StringBuilder(dynamicClassBasePackageName).append(messageID).append(".").append(messageID).append(suffix).toString();
 		String sourceFileName = new StringBuilder(dynamicClassSourceBasePath).append(File.separator).append(classFullName.replace(".", File.separator)).append(".java").toString();
 		
@@ -75,13 +68,13 @@ public class SinnoriMessageUtilMain {
 		}
 		
 		System.out.println(fileBuilder.toString());
-	}
+	}*/
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		SinnoriMessageUtilMain sinnoriMessageUtilMain = new SinnoriMessageUtilMain();
+		SinnoriSourceFileBuilderMain sinnoriMessageUtilMain = new SinnoriSourceFileBuilderMain();
 
 		String messageID = "SelfExn";
 		

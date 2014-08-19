@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.StringTokenizer;
 
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.exception.NotFoundProjectException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 
 
@@ -74,12 +75,17 @@ public final class ServerProjectManager implements CommonRootIF {
 	 * 프로젝터 이름에 1:1 대응하는 서버 프로젝트를 반환한다.
 	 * @param projectName 프로젝트 이름
 	 * @return 프로젝터 이름에 1:1 대응하는 서버 프로젝트 {@link ServerProject}
+	 * @throws NotFoundProjectException 
 	 */
-	public ServerProject getServerProject(String projectName) {
+	public ServerProject getServerProject(String projectName) throws NotFoundProjectException {
 		ServerProject serverProject =  serverProjectHash.get(projectName);
 		if (null == serverProject) {
-			log.error("신놀이 프레임 워크 환경설정 파일에 프로젝트가 정의되지 않았습니다.");
-			System.exit(1);
+			StringBuilder errorBuilder = new StringBuilder("신놀이 프레임 워크 환경설정 파일에 찾고자 하는 서버 프로젝트[");
+			errorBuilder.append(projectName);
+			errorBuilder.append("] 가 존재하지 않습니다.");
+			log.error(errorBuilder.toString());
+			throw new NotFoundProjectException(errorBuilder.toString());
+			// System.exit(1);
 		}
 		
 		return serverProject;
