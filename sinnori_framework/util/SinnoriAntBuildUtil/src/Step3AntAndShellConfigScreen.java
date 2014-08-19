@@ -91,11 +91,17 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 		System.out.printf("OSName : %s", OSName);
 		System.out.println("");
 		
+		
+		String shellLineSeparator = null;
+		
 		if (OSName.contains("win")) {
 			isUnix = false;
+			shellLineSeparator = "^";
 		} else {
 			isUnix = true;
+			shellLineSeparator = "\\";
 		}
+		
 		
 		UIManager.put("FileChooser.readOnly", Boolean.TRUE); 
 		chooser = new JFileChooser();
@@ -244,276 +250,131 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 			String clientPartTitle = null;
 			String clientPartText = null;
 			
-			if (isUnix) {
-				serverPartTitle = MainControllerIF.SINNORI_SERVER_SHELL_NAME;
-				clientPartTitle = MainControllerIF.SINNORI_CLIENT_SHELL_NAME;
+			serverPartTitle = MainControllerIF.SINNORI_SERVER_SHELL_NAME;
+			clientPartTitle = MainControllerIF.SINNORI_CLIENT_SHELL_NAME;
+			
+			String projectHomePath = new StringBuilder(sinnoriInstallAbsPathName)
+			.append(File.separator)
+			.append("project")
+			.append(File.separator)
+			.append(projectName)
+			.toString();
+			
+			// -Dlogback.configurationFile=D:\gitsinnori\sinnori_framework\project\sample_fileupdown\config\logback.xml
+			String logbackConfigurationFile = new StringBuilder("-Dlogback.configurationFile=")
+			.append(projectHomePath)
+			.append(File.separator)
+			.append("config")
+			.append(File.separator)
+			.append(MainControllerIF.SINNORI_LOGBACK_LOG_FILE_NAME)
+			.toString();
+			
+			// -Dsinnori.logPath=D:\gitsinnori\sinnori_framework\project\sample_fileupdown\log\server
+			String sinnoriLogBasePath = new StringBuilder("-Dsinnori.logPath=")
+			.append(projectHomePath)
+			.append(File.separator)
+			.append("log").toString();
+			
+			// -Dsinnori.configurationFile=D:\gitsinnori\sinnori_framework\project\sample_fileupdown\config\sinnori.properties
+			String sinnoriConfigurationFile = new StringBuilder("-Dsinnori.configurationFile=")
+			.append(projectHomePath)
+			.append(File.separator)
+			.append("config")
+			.append(File.separator)
+			.append(MainControllerIF.SINNORI_CONFIG_FILE_NAME)
+			.toString();
+			
+			
+			StringBuilder serverPartTextBuilder = new StringBuilder("java -d64 -server -Xmx1024m -Xms1024m");
 				
-				StringBuilder serverPartTextBuilder = new StringBuilder("#!/bin/sh");
+			// -Dlogback.configurationFile=D:\gitsinnori\sinnori_framework\project\sample_fileupdown\config\logback.xml
+			serverPartTextBuilder.append(" ");
+			serverPartTextBuilder.append(shellLineSeparator);
+			serverPartTextBuilder.append(NEWLINE);
+			serverPartTextBuilder.append(logbackConfigurationFile);
 				
-				serverPartTextBuilder.append(NEWLINE);
-				serverPartTextBuilder.append("export SINNORI_FRAMEWORK_LOC=");
-				serverPartTextBuilder.append(this.sinnoriInstallAbsPathName);
+			// -Dsinnori.logPath=D:\gitsinnori\sinnori_framework\project\sample_fileupdown\log\server
+			serverPartTextBuilder.append(" ");
+			serverPartTextBuilder.append(shellLineSeparator);
+			serverPartTextBuilder.append(NEWLINE);
+			serverPartTextBuilder.append(sinnoriLogBasePath);
+			serverPartTextBuilder.append(File.separator);
+			serverPartTextBuilder.append("server");
 				
-				serverPartTextBuilder.append(NEWLINE);
-				serverPartTextBuilder.append("export SINNORI_PROJECT_NAME=");
-				serverPartTextBuilder.append(projectName);
-				
-				serverPartTextBuilder.append(NEWLINE);
-				serverPartTextBuilder.append("export JAVA_OPTS=\"-d64 -server -Xmx1024m -Xms1024m\"");
-				
-				// FIXME!
-				serverPartTextBuilder.append(NEWLINE);
-				serverPartTextBuilder.append("set LOGBACK_CONFIG_FILE=$SINNORI_FRAMEWORK_LOC");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("project");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("$SINNORI_PROJECT_NAME");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("config");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("logback.xml");
-				
-				serverPartTextBuilder.append(NEWLINE);
-				serverPartTextBuilder.append("export SERVER_BUILD_LOC=$SINNORI_FRAMEWORK_LOC");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("project");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("$SINNORI_PROJECT_NAME");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("server_build");
-				
-				serverPartTextBuilder.append(NEWLINE);
-				serverPartTextBuilder.append("export SINNORI_PROJECT_LOG_PATH=$SINNORI_FRAMEWORK_LOC");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("project");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("$SINNORI_PROJECT_NAME");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("log");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("server");
-				
-				serverPartTextBuilder.append(NEWLINE);
-				serverPartTextBuilder.append("export SINNORI_PROJECT_CONFIG_FILE=$SINNORI_FRAMEWORK_LOC");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("project");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("$SINNORI_PROJECT_NAME");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("config");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append(MainControllerIF.SINNORI_CONFIG_FILE_NAME);
-				
-				serverPartTextBuilder.append(NEWLINE);
-				serverPartTextBuilder.append("java -Dlogback.configurationFile=%LOGBACK_CONFIG_FILE% ");
-				serverPartTextBuilder.append(" -jar $SERVER_BUILD_LOC");
-				
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("dist");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("SinnoriServerMain.jar");
-				
-				serverPartText = serverPartTextBuilder.toString();
-				
-				StringBuilder clientPartTextBuilder = new StringBuilder("#!/bin/sh");
-				
-				clientPartTextBuilder.append(NEWLINE);
-				clientPartTextBuilder.append("export SINNORI_FRAMEWORK_LOC=");
-				clientPartTextBuilder.append(sinnoriInstallAbsPathName);
-				
-				clientPartTextBuilder.append(NEWLINE);
-				clientPartTextBuilder.append("export SINNORI_PROJECT_NAME=");
-				clientPartTextBuilder.append(projectName);
-				
-				clientPartTextBuilder.append(NEWLINE);
-				clientPartTextBuilder.append("export JAVA_OPTS=\"-Xmx1024m -Xms1024m\"");
-				
-				clientPartTextBuilder.append(NEWLINE);
-				clientPartTextBuilder.append("set LOGBACK_CONFIG_FILE=$SINNORI_FRAMEWORK_LOC");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("project");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("$SINNORI_PROJECT_NAME");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("config");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("logback.xml");
-				
-				clientPartTextBuilder.append(NEWLINE);
-				clientPartTextBuilder.append("export APPCLIENT_BUILD_LOC=$SINNORI_FRAMEWORK_LOC");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("project");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("$SINNORI_PROJECT_NAME");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("client_build");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("app_build");
-				
-				clientPartTextBuilder.append(NEWLINE);
-				clientPartTextBuilder.append("export SINNORI_PROJECT_LOG_PATH=$SINNORI_FRAMEWORK_LOC");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("project");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("$SINNORI_PROJECT_NAME");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("log");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("client");
-				
-				clientPartTextBuilder.append(NEWLINE);
-				clientPartTextBuilder.append("export SINNORI_PROJECT_CONFIG_FILE=$SINNORI_FRAMEWORK_LOC");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("project");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("$SINNORI_PROJECT_NAME");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("config");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append(MainControllerIF.SINNORI_CONFIG_FILE_NAME);
-				
-				clientPartTextBuilder.append(NEWLINE);
-				clientPartTextBuilder.append("java -Dlogback.configurationFile=%LOGBACK_CONFIG_FILE% ");
-				clientPartTextBuilder.append(" -jar $APPCLIENT_BUILD_LOC");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("dist");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("SinnoriAppClientMain.jar");
+			// -Dsinnori.configurationFile=D:\gitsinnori\sinnori_framework\project\sample_fileupdown\config\sinnori.properties
+			serverPartTextBuilder.append(" ");
+			serverPartTextBuilder.append(shellLineSeparator);
+			serverPartTextBuilder.append(NEWLINE);
+			serverPartTextBuilder.append(sinnoriConfigurationFile);
+			
+			// -Dsinnori.projectName=sample_fileupdown
+			serverPartTextBuilder.append(" ");
+			serverPartTextBuilder.append(shellLineSeparator);
+			serverPartTextBuilder.append(NEWLINE);
+			serverPartTextBuilder.append("-Dsinnori.projectName=");
+			serverPartTextBuilder.append(projectName);
+			
+			// -jar D:\gitsinnori\sinnori_framework\project\sample_fileupdown\server_build\dist\SinnoriServerMain.jar
+			serverPartTextBuilder.append(" ");
+			serverPartTextBuilder.append(shellLineSeparator);
+			serverPartTextBuilder.append(NEWLINE);
+			serverPartTextBuilder.append("-jar ");
+			serverPartTextBuilder.append(projectHomePath);
+			serverPartTextBuilder.append(File.separator);
+			serverPartTextBuilder.append("server_build");
+			serverPartTextBuilder.append(File.separator);
+			serverPartTextBuilder.append("dist");
+			serverPartTextBuilder.append(File.separator);
+			serverPartTextBuilder.append("SinnoriServerMain.jar");
+			
+			serverPartText = serverPartTextBuilder.toString();
+			
+			StringBuilder clientPartTextBuilder = new StringBuilder("java -Xmx1024m -Xms1024m");
+			
+			// -Dlogback.configurationFile=D:\gitsinnori\sinnori_framework\project\sample_fileupdown\config\logback.xml
+			clientPartTextBuilder.append(" ");
+			clientPartTextBuilder.append(shellLineSeparator);
+			clientPartTextBuilder.append(NEWLINE);
+			clientPartTextBuilder.append(logbackConfigurationFile);
+			
+			// -Dsinnori.logPath=D:\gitsinnori\sinnori_framework\project\sample_fileupdown\log\server
+			clientPartTextBuilder.append(" ");
+			clientPartTextBuilder.append(shellLineSeparator);
+			clientPartTextBuilder.append(NEWLINE);
+			clientPartTextBuilder.append(sinnoriLogBasePath);
+			clientPartTextBuilder.append(File.separator);
+			clientPartTextBuilder.append("client");
+			
+			// -Dsinnori.configurationFile=D:\gitsinnori\sinnori_framework\project\sample_fileupdown\config\sinnori.properties
+			clientPartTextBuilder.append(" ");
+			clientPartTextBuilder.append(shellLineSeparator);
+			clientPartTextBuilder.append(NEWLINE);
+			clientPartTextBuilder.append(sinnoriConfigurationFile);
+			
+			// -Dsinnori.projectName=sample_fileupdown
+			clientPartTextBuilder.append(" ");
+			clientPartTextBuilder.append(shellLineSeparator);
+			clientPartTextBuilder.append(NEWLINE);
+			clientPartTextBuilder.append("-Dsinnori.projectName=");
+			clientPartTextBuilder.append(projectName);
+			
+			// -jar D:\gitsinnori\sinnori_framework\project\sample_fileupdown\client_build\app_build\dist\SinnoriServerMain.jar
+			clientPartTextBuilder.append(" ");
+			clientPartTextBuilder.append(shellLineSeparator);
+			clientPartTextBuilder.append(NEWLINE);
+			clientPartTextBuilder.append("-jar ");
+			clientPartTextBuilder.append(projectHomePath);
+			clientPartTextBuilder.append(File.separator);
+			clientPartTextBuilder.append("client_build");
+			clientPartTextBuilder.append(File.separator);
+			clientPartTextBuilder.append("app_build");
+			clientPartTextBuilder.append(File.separator);
+			clientPartTextBuilder.append("dist");
+			clientPartTextBuilder.append(File.separator);
+			clientPartTextBuilder.append("SinnoriAppClientMain.jar");
 
-				clientPartText = clientPartTextBuilder.toString();
-			} else {
-				serverPartTitle = MainControllerIF.SINNORI_SERVER_SHELL_NAME;
-				clientPartTitle = MainControllerIF.SINNORI_CLIENT_SHELL_NAME;
-				
-				
-				StringBuilder serverPartTextBuilder = new StringBuilder("set SINNORI_FRAMEWORK_LOC=");
-				serverPartTextBuilder.append(this.sinnoriInstallAbsPathName);
-				
-				serverPartTextBuilder.append(NEWLINE);
-				serverPartTextBuilder.append("set SINNORI_PROJECT_NAME=");
-				serverPartTextBuilder.append(projectName);
-				
-				serverPartTextBuilder.append(NEWLINE);
-				serverPartTextBuilder.append("set JAVA_OPTS=\"-d64 -server -Xmx1024m -Xms1024m\"");
-				
-				serverPartTextBuilder.append(NEWLINE);
-				serverPartTextBuilder.append("set LOGBACK_CONFIG_FILE=%SINNORI_FRAMEWORK_LOC%");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("project");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("%SINNORI_PROJECT_NAME%");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("config");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("logback.xml");
-				
-				serverPartTextBuilder.append(NEWLINE);
-				serverPartTextBuilder.append("set SERVER_BUILD_LOC=%SINNORI_FRAMEWORK_LOC%");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("project");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("%SINNORI_PROJECT_NAME%");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("server_build");
-				
-				serverPartTextBuilder.append(NEWLINE);
-				serverPartTextBuilder.append("set SINNORI_PROJECT_LOG_PATH=%SINNORI_FRAMEWORK_LOC%");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("project");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("%SINNORI_PROJECT_NAME%");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("log");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("server");
-				
-				serverPartTextBuilder.append(NEWLINE);
-				serverPartTextBuilder.append("set SINNORI_PROJECT_CONFIG_FILE=%SINNORI_FRAMEWORK_LOC%");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("project");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("%SINNORI_PROJECT_NAME%");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("config");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append(MainControllerIF.SINNORI_CONFIG_FILE_NAME);
-				
-				serverPartTextBuilder.append(NEWLINE);				
-				serverPartTextBuilder.append("java -Dlogback.configurationFile=%LOGBACK_CONFIG_FILE% ");
-				serverPartTextBuilder.append(" -jar %SERVER_BUILD_LOC%");
-				
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("dist");
-				serverPartTextBuilder.append(File.separator);
-				serverPartTextBuilder.append("SinnoriServerMain.jar");
-				
-				serverPartText = serverPartTextBuilder.toString();
-				
-				
-				StringBuilder clientPartTextBuilder = new StringBuilder("set SINNORI_FRAMEWORK_LOC=");
-				clientPartTextBuilder.append(sinnoriInstallAbsPathName);
-				
-				clientPartTextBuilder.append(NEWLINE);
-				clientPartTextBuilder.append("set SINNORI_PROJECT_NAME=");
-				clientPartTextBuilder.append(projectName);
-				
-				clientPartTextBuilder.append(NEWLINE);
-				clientPartTextBuilder.append("set JAVA_OPTS=\"-Xmx1024m -Xms1024m\"");
-				
-				clientPartTextBuilder.append(NEWLINE);
-				clientPartTextBuilder.append("set LOGBACK_CONFIG_FILE=%SINNORI_FRAMEWORK_LOC%");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("project");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("%SINNORI_PROJECT_NAME%");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("config");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("logback.xml");
-				
-				clientPartTextBuilder.append(NEWLINE);
-				clientPartTextBuilder.append("set APPCLIENT_BUILD_LOC=%SINNORI_FRAMEWORK_LOC%");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("project");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("%SINNORI_PROJECT_NAME%");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("client_build");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("app_build");
-				
-				clientPartTextBuilder.append(NEWLINE);
-				clientPartTextBuilder.append("set SINNORI_PROJECT_LOG_PATH=%SINNORI_FRAMEWORK_LOC%");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("project");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("%SINNORI_PROJECT_NAME%");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("log");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("client");
-				
-				clientPartTextBuilder.append(NEWLINE);
-				clientPartTextBuilder.append("set SINNORI_PROJECT_CONFIG_FILE=%SINNORI_FRAMEWORK_LOC%");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("project");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("%SINNORI_PROJECT_NAME%");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("config");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append(MainControllerIF.SINNORI_CONFIG_FILE_NAME);
-				
-				clientPartTextBuilder.append(NEWLINE);
-				clientPartTextBuilder.append("java -Dlogback.configurationFile=%LOGBACK_CONFIG_FILE% ");
-				clientPartTextBuilder.append(" -jar %APPCLIENT_BUILD_LOC%");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("dist");
-				clientPartTextBuilder.append(File.separator);
-				clientPartTextBuilder.append("SinnoriAppClientMain.jar");
-				
-				clientPartText = clientPartTextBuilder.toString();
-			}
+			clientPartText = clientPartTextBuilder.toString();
+			
 			
 			JPanel serverPartPanel = new JPanel();
 			projectTabbedPane.addTab(serverPartTitle, null, serverPartPanel, null);

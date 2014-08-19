@@ -25,6 +25,7 @@ public interface MainControllerIF {
 	public static final String ANT_CONFIG_FILE_NAME="ant.properties";
 	public static final String SINNORI_SERVER_SHELL_NAME = "Server";
 	public static final String SINNORI_CLIENT_SHELL_NAME = "AppClient";
+	public static final String SINNORI_LOGBACK_LOG_FILE_NAME = "logback.xml";
 	
 	/**
 	 * 2단계 화면 이동

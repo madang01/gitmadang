@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
   <appender name="logfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>${sinnori.logPath}/logFile.log</file>
+    <file>${sinnori.logPath}/logger.log</file>
     <encoder>
       <pattern>ccc %-4relative [%thread] %-5level %logger{35} - %msg%n</pattern>
     </encoder>

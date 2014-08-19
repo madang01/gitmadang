@@ -169,6 +169,8 @@ public class Step2SinnoriConfigScreen extends JPanel {
 			
 			JPanel commonItemsPanel = new JPanel();
 			projectTabbedPane.addTab("공통 항목", null, commonItemsPanel, null);
+			
+			
 			commonItemsPanel.setLayout(new FormLayout(new ColumnSpec[] {
 					FormFactory.LABEL_COMPONENT_GAP_COLSPEC,
 					FormFactory.MIN_COLSPEC,
@@ -191,48 +193,35 @@ public class Step2SinnoriConfigScreen extends JPanel {
 			commonItemsPanel.add(valueLabel, "4, 2, center, default");
 			
 			propKey = "sessionkey.rsa_keypair_source.value";
-			
 			String rsaKeypairSource = configOfProject.getProperty(propKey);
-			
-			
 			JLabel sessionKeySourceLabel = new JLabel(propKey);
 			commonItemsPanel.add(sessionKeySourceLabel, "2, 4");
 			
 			JPanel sessionKeySourceValuePanel = new JPanel();
-			commonItemsPanel.add(sessionKeySourceValuePanel, "4, 4, left, default");
 			sessionKeySourceValuePanel.setLayout(new BoxLayout(sessionKeySourceValuePanel, BoxLayout.X_AXIS));
-			
 			apiRadioButton[i] = new JRadioButton("API");
 			apiRadioButton[i].setMnemonic(KeyEvent.VK_C);
 			apiRadioButton[i].setActionCommand("api::"+i);
-	        
 			fileButton[i] = new JRadioButton("File");
 			fileButton[i].setMnemonic(KeyEvent.VK_C);
 			fileButton[i].setActionCommand("file::"+i);
-			
-			
-			sessionKeySourceValuePanel.add(apiRadioButton[i]);
-			sessionKeySourceValuePanel.add(fileButton[i]);
-			
 			ButtonGroup rsaKeypairSourceGroup = new ButtonGroup();
 			rsaKeypairSourceGroup.add(apiRadioButton[i]);
 			rsaKeypairSourceGroup.add(fileButton[i]);
-			
+			sessionKeySourceValuePanel.add(apiRadioButton[i]);
+			sessionKeySourceValuePanel.add(fileButton[i]);			
+			commonItemsPanel.add(sessionKeySourceValuePanel, "4, 4, left, default");
 			
 			propKey = "sessionkey.rsa_keypair_path.value";
 			String rsaKeyPairPath = configOfProject.getProperty(propKey);
-			
 			JLabel rsaKeyPairPathLabel = new JLabel(propKey);
 			commonItemsPanel.add(rsaKeyPairPathLabel, "2, 6");
 			
 			JPanel rsaKeyPairPathValuePanel = new JPanel();
-			rsaKeyPairPathValuePanel.setLayout(new BoxLayout(rsaKeyPairPathValuePanel, BoxLayout.X_AXIS));
-			
+			rsaKeyPairPathValuePanel.setLayout(new BoxLayout(rsaKeyPairPathValuePanel, BoxLayout.X_AXIS));			
 			rsaKeyPairPathTextField[i] = new JTextField();
-			rsaKeyPairPathTextField[i].setColumns(30);
-			
-			File rsaKeyPairPathFileObj = new File(rsaKeyPairPath);
-			
+			rsaKeyPairPathTextField[i].setColumns(30);			
+			File rsaKeyPairPathFileObj = new File(rsaKeyPairPath);			
 			if (!rsaKeyPairPathFileObj.exists() || !rsaKeyPairPathFileObj.isDirectory()) {
 				StringBuilder rsaKeyPairPathBuilder = new StringBuilder(this.sinnoriInstallAbsPathName);
 				rsaKeyPairPathBuilder.append(File.separator);
@@ -255,19 +244,14 @@ public class Step2SinnoriConfigScreen extends JPanel {
 					System.exit(1);
 				}
 			}
-			
 			rsaKeyPairPathTextField[i].setText(rsaKeyPairPath);
-			
-			
 			rsaKeyPairPathValuePanel.add(rsaKeyPairPathTextField[i]);
-			
 			JButton rsaKeyPairPathButton = new JButton("경로선택");
 			PathSwingAction rsaKeyPairPathAction = new PathSwingAction(this.mainFrame, chooser, rsaKeyPairPathTextField[i]);
 			rsaKeyPairPathButton.setAction(rsaKeyPairPathAction);
 			rsaKeyPairPathValuePanel.add(rsaKeyPairPathButton);
-			
 			commonItemsPanel.add(rsaKeyPairPathValuePanel, "4, 6, default, center");
-			// commonItemsPanel.add(rsaKeyPairPathTextField[i], "4, 6, default, center");
+			
 			
 			FileOnSwingAction fileOnSwingAction = new FileOnSwingAction(rsaKeyPairPathTextField[i], rsaKeyPairPathButton);
 			fileButton[i].setAction(fileOnSwingAction);
@@ -288,68 +272,11 @@ public class Step2SinnoriConfigScreen extends JPanel {
 				rsaKeyPairPathButton.setEnabled(false);
 			}
 			
-			// JButton rsaKeyPairPathButton = new JButton("경로선택");
-			// rsaKeyPairPathValuePanel.add(rsaKeyPairPathButton);
-			
-			
-			/*JLabel workerBinaryPathLabel = new JLabel("sinnori_worker.client.executor.impl.binary.path.value");
-			commonItemsPanel.add(workerBinaryPathLabel, "2, 8");
-			
-			StringBuilder workerBinaryPathTextBuilder = new StringBuilder(sinnoriInstallAbsPathName);
-			workerBinaryPathTextBuilder.append(File.separator);
-			workerBinaryPathTextBuilder.append("project");
-			workerBinaryPathTextBuilder.append(File.separator);
-			workerBinaryPathTextBuilder.append(projectName);
-			workerBinaryPathTextBuilder.append(File.separator);
-			workerBinaryPathTextBuilder.append("client_build");
-			workerBinaryPathTextBuilder.append(File.separator);
-			workerBinaryPathTextBuilder.append("app_build");
-			workerBinaryPathTextBuilder.append(File.separator);
-			workerBinaryPathTextBuilder.append("build");
-			workerBinaryPathTextBuilder.append(File.separator);
-			workerBinaryPathTextBuilder.append("impl");
-			workerBinaryPathTextBuilder.append(File.separator);
-			workerBinaryPathTextBuilder.append("executor");
-			workerBinaryPathTextBuilder.append(File.separator);
-			workerBinaryPathTextBuilder.append("client");
-			
-			workerBinaryPathTextField[i] = new JTextField(workerBinaryPathTextBuilder.toString());
-			workerBinaryPathTextField[i].setEditable(false);
-			workerBinaryPathTextField[i].setColumns(30);
-			commonItemsPanel.add(workerBinaryPathTextField[i], "4, 8");
-			
-			JLabel workerSourcePathLabel = new JLabel("sinnori_worker.client.executor.impl.source.path.value");
-			commonItemsPanel.add(workerSourcePathLabel, "2, 10");
-			
-			StringBuilder workerSourcePathTextBuilder = new StringBuilder(sinnoriInstallAbsPathName);
-			workerSourcePathTextBuilder.append(File.separator);
-			workerSourcePathTextBuilder.append("project");
-			workerSourcePathTextBuilder.append(File.separator);
-			workerSourcePathTextBuilder.append(projectName);
-			workerSourcePathTextBuilder.append(File.separator);
-			workerSourcePathTextBuilder.append("client_build");
-			workerSourcePathTextBuilder.append(File.separator);
-			workerSourcePathTextBuilder.append("app_build");
-			workerSourcePathTextBuilder.append(File.separator);
-			workerSourcePathTextBuilder.append("src");
-			workerSourcePathTextBuilder.append(File.separator);
-			workerSourcePathTextBuilder.append("impl");
-			workerSourcePathTextBuilder.append(File.separator);
-			workerSourcePathTextBuilder.append("executor");
-			workerSourcePathTextBuilder.append(File.separator);
-			workerSourcePathTextBuilder.append("client");
-			
-			workerSourcePathTextField[i] = new JTextField(workerSourcePathTextBuilder.toString());
-			workerSourcePathTextField[i].setEditable(false);
-			workerSourcePathTextField[i].setColumns(30);
-			commonItemsPanel.add(workerSourcePathTextField[i], "4, 10");*/
-			
 			innerProjectList[i] = new String[projectCntOfConfig];
 			innerProjectMessagePathTextField[i] = new JTextField[projectCntOfConfig];
 			innerProjectDynamicClassBinaryBasePathTextField[i] = new JTextField[projectCntOfConfig];
 			innerProjectDynamicClassSourceBasePathTextField[i] = new JTextField[projectCntOfConfig];
 			
-			// int j = 0;
 			
 			for (int j=0; j < projectCntOfConfig; j++) {
 				String projectNameOfConfig = projectListTokens.nextToken();

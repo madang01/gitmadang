@@ -58,7 +58,7 @@ public class NoConfigFileScreen extends JPanel {
 		JPanel labelPanel = new JPanel();
 		bodyPanel.add(labelPanel, "1, 1, fill, center");
 		
-		JLabel configFileLabel = new JLabel("설정 파일");
+		JLabel configFileLabel = new JLabel("메시지 정보 파일들 위치");
 		labelPanel.add(configFileLabel);
 		
 		JPanel itemPanel = new JPanel();
@@ -76,14 +76,14 @@ public class NoConfigFileScreen extends JPanel {
 		JPanel bottomPanel = new JPanel();
 		add(bottomPanel, "2, 2, fill, center");
 		
-		JButton okButton = new JButton("확인");
+		JButton okButton = new JButton("다음");
 		okButton.setAction(okAction);
 		bottomPanel.add(okButton);
 	}
 
 	private class OKButtonAction extends AbstractAction {
 		public OKButtonAction() {
-			putValue(NAME, "확인");
+			putValue(NAME, "Next");
 			putValue(SHORT_DESCRIPTION, "확인 버튼 액션");
 		}
 		public void actionPerformed(ActionEvent e) {
