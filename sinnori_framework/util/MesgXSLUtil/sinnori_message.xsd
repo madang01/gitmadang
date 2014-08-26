@@ -133,9 +133,16 @@
 						</xs:restriction>
 					</xs:simpleType>
 				</xs:element>
+				<!-- 메시지 통신 방향 -->
+				<xs:element name="direction" minOccurs="1" maxOccurs="1">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:pattern value="[a-zA-Z][a-zA-Z1-9]+" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
 				<!-- 항목 그룹 -->
-				<xs:element name="desc" type="xs:string" minOccurs="0"
-					maxOccurs="1" />
+				<xs:element name="desc" type="xs:string" minOccurs="0" maxOccurs="1" />
 				<xs:group minOccurs="0" maxOccurs="unbounded" ref="itemgroup" />
 			</xs:sequence>
 		</xs:complexType>

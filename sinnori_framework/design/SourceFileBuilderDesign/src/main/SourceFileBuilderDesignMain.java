@@ -1,16 +1,11 @@
 package main;
 
 import java.awt.EventQueue;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 
-import lib.MainControllerIF;
-import lib.SequencedProperties;
-import screen.NoConfigFileScreen;
+import kr.pe.sinnori.screen.NoConfigFileScreen;
+
 
 /**
  * <pre>
@@ -22,12 +17,12 @@ import screen.NoConfigFileScreen;
  * @author "Jonghoon Won"
  *
  */
-public class SourceFileBuilderDesignMain implements MainControllerIF {
+public class SourceFileBuilderDesignMain {
 	private JFrame mainFrame;
 	private NoConfigFileScreen noConfigFileScreen= null;
-	private final String SINNORI_CONFIG_FILE_VAR_NAME = "sinnori.configurationFile";
-	private final String SINNORI_CONFIG_FILE_CHARSET = "UTF-8";
-	private SequencedProperties configFileProperties = new SequencedProperties();
+	// private final String SINNORI_CONFIG_FILE_VAR_NAME = "sinnori.configurationFile";
+	// private final String SINNORI_CONFIG_FILE_CHARSET = "UTF-8";
+	// private SequencedProperties configFileProperties = new SequencedProperties();
 
 	/**
 	 * Launch the application.
@@ -61,118 +56,12 @@ public class SourceFileBuilderDesignMain implements MainControllerIF {
 		// mainFrame.setBounds(100, 100, 450, 300);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		String sinnoriConfigurationFileName = System.getProperty(SINNORI_CONFIG_FILE_VAR_NAME);
-		if (null == sinnoriConfigurationFileName) {
-			noConfigFileScreen = new NoConfigFileScreen(mainFrame);
-			mainFrame.add(noConfigFileScreen);
-			mainFrame.pack();
-			noConfigFileScreen.setVisible(true);
-		} else {
-			if (setSinnoriProperteies(sinnoriConfigurationFileName)) {
-				System.exit(1);
-			}
-		}
-	}
-	
-	
-	public boolean setSinnoriProperteies(String sinnoriConfigurationFileName) {
-		System.out.printf("sinnoriConfigurationFileName width=%s", sinnoriConfigurationFileName);
-		System.out.println();
+		// String sinnoriConfigurationFileName = System.getProperty(SINNORI_CONFIG_FILE_VAR_NAME);
 		
-		
-		File configFile = new File(sinnoriConfigurationFileName);
-		if (!configFile.exists()) {
-			String errorMessage = String.format("신놀이 환경 설정 파일 변수명[%s]의 값[%s]에서 지정한 파일이 존재하지 않습니다.", SINNORI_CONFIG_FILE_VAR_NAME, sinnoriConfigurationFileName);
-			System.out.println(errorMessage);
-			
-			JOptionPane.showMessageDialog(mainFrame, errorMessage);
-			
-			//System.exit(1);
-			return false;
-		}
-		
-		if (!configFile.isFile()) {
-			String errorMessage = String.format("신놀이 환경 설정 파일 변수명[%s]의 값[%s]에서 지정한 파일이 일반 파일이 아닙니다.", SINNORI_CONFIG_FILE_VAR_NAME, sinnoriConfigurationFileName);
-			System.out.println(errorMessage);
-			
-			JOptionPane.showMessageDialog(mainFrame, errorMessage);
-			return false;
-		}
-		
-		if (!configFile.canRead()) {
-			String errorMessage = String.format("신놀이 환경 설정 파일 변수명[%s]의 값[%s]에서 지정한 파일을 읽을 수 없습니다.", SINNORI_CONFIG_FILE_VAR_NAME, sinnoriConfigurationFileName);
-			// System.out.printf();
-			System.out.println(errorMessage);
-			
-			JOptionPane.showMessageDialog(mainFrame, errorMessage);
-			return false;
-		}
-		
-		if (!configFile.canWrite()) {
-			String errorMessage = String.format("신놀이 환경 설정 파일 변수명[%s]의 값[%s]에서 지정한 파일을 저장할 수 없습니다.", SINNORI_CONFIG_FILE_VAR_NAME, sinnoriConfigurationFileName);
-			System.out.println(errorMessage);
-			
-			JOptionPane.showMessageDialog(mainFrame, errorMessage);
-			return false;
-		}
-		
-		FileInputStream sinnoriConfigFIS = null;
-		InputStreamReader sinnoriConfigISR = null;
-		try {
-
-			sinnoriConfigFIS = new FileInputStream(configFile);
-
-			sinnoriConfigISR = new InputStreamReader(
-					sinnoriConfigFIS, SINNORI_CONFIG_FILE_CHARSET);
-
-			configFileProperties.load(sinnoriConfigISR);
-
-			// System.out.println(this.toString());
-			return true;
-		} catch (Exception e) {
-			String errorMessage = e.getMessage();
-			if (null == errorMessage) {
-				errorMessage = "설정 파일 읽기 시도시 알 수 없는 에러 발생";
-			} else {
-				errorMessage = "설정 파일 읽기 시도시 알 수 없는 에러 발생::" + errorMessage;
-			}
-			System.out.println(errorMessage);
-			
-			JOptionPane.showMessageDialog(mainFrame, errorMessage);
-			return false;
-		} finally {
-			try {
-				if (sinnoriConfigISR != null)
-					sinnoriConfigISR.close();
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
-		}
-	}
-	
-	/*private void setAllInVisible() {
-		// mainFrame.setVisible(false);
-		noConfigFileScreen.setVisible(false);
-		// mainFrame.remove(noConfigFileScreen);
-	}*/
-
-	@Override
-	public void showSetupScreen(File configFile) {
-		System.out.printf("noConfigFileScreen width=%d, height=%d", noConfigFileScreen.getWidth(), noConfigFileScreen.getHeight());
-		System.out.println();
-		
-		// mainFrame.add(noConfigFileScreen);
-		// mainFrame.pack();
+		noConfigFileScreen = new NoConfigFileScreen(mainFrame);
+		mainFrame.add(noConfigFileScreen);
+		mainFrame.pack();
 		noConfigFileScreen.setVisible(true);
-		// mainFrame.setVisible(true);
-		
-		// mainFrame.setSize(noConfigFileScreen.getSize());
-	}
-
-	@Override
-	public void finish() {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

@@ -6,9 +6,15 @@
 					fixed length byte[], ub variable length byte[], 
 					us variable length byte[], si variable length byte[]   
 	array counter type : reference 변수참조, direct 직접입력
+	direction : FROM_NONE_TO_NONE, FROM_SERVER_TO_CLINET, FROM_CLIENT_TO_SERVER, FROM_ALL_TO_ALL
+	(1) FROM_NONE_TO_NONE : 메시지는 서버에서 클라이언트로 혹은 클라이언트에서 서버로 양쪽 모두에서 전송되지 않는다.
+	(2) FROM_SERVER_TO_CLINET : 메시지는 서버에서 클라이언트로만 전송된다.
+	(3) FROM_CLIENT_TO_SERVER : 메시지는 클라이언트에서 서버로만 전송된다.
+	(4) FROM_ALL_TO_ALL : 메시지는 서버에서 클라이언트로도 혹은 클라이언트에서 서버로 양쪽 모두에서 전송된다.
 -->
 <sinnori_message>
 <messageID>AllDataType</messageID>
+<direction>FROM_ALL_TO_ALL</direction>
 <desc>고정 크기 스트림에서 모든 데이터 타입을 테스트 하기 위한 메시지</desc>
 <singleitem name="byteVar1" type="byte" />
 <singleitem name="byteVar2" type="byte" />	
