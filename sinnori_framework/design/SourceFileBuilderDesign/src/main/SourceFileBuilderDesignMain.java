@@ -63,7 +63,7 @@ public class SourceFileBuilderDesignMain implements MainControllerIF {
 		
 		String sinnoriConfigurationFileName = System.getProperty(SINNORI_CONFIG_FILE_VAR_NAME);
 		if (null == sinnoriConfigurationFileName) {
-			noConfigFileScreen = new NoConfigFileScreen(mainFrame, this);
+			noConfigFileScreen = new NoConfigFileScreen(mainFrame);
 			mainFrame.add(noConfigFileScreen);
 			mainFrame.pack();
 			noConfigFileScreen.setVisible(true);
@@ -150,11 +150,11 @@ public class SourceFileBuilderDesignMain implements MainControllerIF {
 		}
 	}
 	
-	private void setAllInVisible() {
+	/*private void setAllInVisible() {
 		// mainFrame.setVisible(false);
 		noConfigFileScreen.setVisible(false);
 		// mainFrame.remove(noConfigFileScreen);
-	}
+	}*/
 
 	@Override
 	public void showSetupScreen(File configFile) {
