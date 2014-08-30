@@ -269,12 +269,12 @@ public class DHBMessageHeader implements CommonRootIF {
 		headerInfo.append("]");
 		if (null != bodyMD5) {
 			headerInfo.append(", data MD5=[");
-			headerInfo.append(HexUtil.byteArrayAllToHex(bodyMD5));
+			headerInfo.append(HexUtil.getHexStringFromByteArray(bodyMD5));
 			headerInfo.append("]");
 		}
 		if (null != headerMD5) {
 			headerInfo.append(", header MD5=[");
-			headerInfo.append(HexUtil.byteArrayAllToHex(headerMD5));
+			headerInfo.append(HexUtil.getHexStringFromByteArray(headerMD5));
 			headerInfo.append("]");
 		}		
 		headerInfo.append("}");

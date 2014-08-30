@@ -18,6 +18,8 @@
 
 package kr.pe.sinnori.gui.screen;
 
+import static kr.pe.sinnori.common.lib.CommonRootIF.log;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
@@ -36,11 +38,8 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
 
 import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.common.message.OutputMessage;
 import kr.pe.sinnori.gui.lib.MainControllerIF;
 import kr.pe.sinnori.gui.screen.fileupdownscreen.task.DownloadFileTransferTask;
-import kr.pe.sinnori.gui.screen.fileupdownscreen.task.DownloadFileTransferTask2;
-import kr.pe.sinnori.gui.screen.fileupdownscreen.task.FileTransferTaskIF;
 import kr.pe.sinnori.gui.screen.fileupdownscreen.task.UploadFileTransferTask;
 import kr.pe.sinnori.gui.screen.fileupdownscreen.task.UploadFileTransferTask2;
 

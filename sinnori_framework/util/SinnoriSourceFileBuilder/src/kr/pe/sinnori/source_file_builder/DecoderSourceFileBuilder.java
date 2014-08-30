@@ -147,7 +147,7 @@ public class DecoderSourceFileBuilder extends AbstractSourceFileBuildre {
 				stringBuilder.append("MiddleReadArray = singleItemDecoder.getArrayObjFromMiddleReadObj(sigleItemPath");
 				stringBuilder.append(depth);
 				stringBuilder.append(", \"");
-				stringBuilder.append(arrayInfoOfChild.getFirstUpperItemName());
+				stringBuilder.append(arrayInfoOfChild.getItemName());
 				stringBuilder.append("\", ");
 				/** 배열 크기 지정 방식에 따른 배열 크기 지정 */
 				if (arrayInfoOfChild.getArrayCntType().equals("reference")) {
@@ -236,11 +236,38 @@ public class DecoderSourceFileBuilder extends AbstractSourceFileBuildre {
 				stringBuilder.append(getCountVarName(depth));
 				stringBuilder.append(");");
 				
+				// memberList[i] = allDataType.new Member();
+				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+				for (int i=0; i < depth; i++) {
+					stringBuilder.append("\t");
+				}
+				stringBuilder.append("\t\t\t");
+				stringBuilder.append(arrayInfoOfChild.getItemName());
+				stringBuilder.append("List[");
+				stringBuilder.append(getCountVarName(depth));
+				stringBuilder.append("] = ");
+				stringBuilder.append(varName);
+				stringBuilder.append(". new ");
+				stringBuilder.append(arrayInfoOfChild.getFirstUpperItemName());
+				stringBuilder.append("();");
+				
 				stringBuilder.append(toBody(depth+1, path+"."+arrayInfoOfChild.getFirstUpperItemName(), 
 						arrayInfoOfChild.getItemName()+"List["+getCountVarName(depth)+"]", 
 						arrayInfoOfChild, arrayInfoOfChild.getItemName()+ "MiddleReadObj"));
-				// FIXME!
 				
+				// allDataType.setMemberList(memberList);
+				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+				for (int i=0; i < depth; i++) {
+					stringBuilder.append("\t");
+				}
+				stringBuilder.append(varName);
+				stringBuilder.append(".set");
+				stringBuilder.append(arrayInfoOfChild.getFirstUpperItemName());
+				stringBuilder.append("List(");
+				stringBuilder.append(arrayInfoOfChild.getItemName());
+				stringBuilder.append("List);");				
+				
+				// FIXME!
 				// }
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				for (int i=0; i < depth; i++) {
@@ -347,13 +374,16 @@ public class DecoderSourceFileBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(messageID);
 		stringBuilder.append("();");
 		
-		// String sigleItemPath0 = "AllDataType";
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t\tString sigleItemPath0 = \"");
-		stringBuilder.append(messageID);
-		stringBuilder.append("\";");
+		if (messageInfo.getItemInfoList().size() > 0) {
+			// String sigleItemPath0 = "AllDataType";
+			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+			stringBuilder.append("\t\tString sigleItemPath0 = \"");
+			stringBuilder.append(messageID);
+			stringBuilder.append("\";");
+			
+			stringBuilder.append(toBody(0, messageID, firstLowerMessageID, messageInfo, "middleReadObj"));
+		}
 		
-		stringBuilder.append(toBody(0, messageID, firstLowerMessageID, messageInfo, "middleReadObj"));
 		
 		// return allDataType;
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);

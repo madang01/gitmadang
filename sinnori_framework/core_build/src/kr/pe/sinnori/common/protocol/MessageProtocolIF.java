@@ -56,15 +56,17 @@ public interface MessageProtocolIF {
 	 * 
 	 * @param serverClientGubun 서버 클라이언트 구분
 	 * @param clientCharset 문자셋
-	 * @param messageInputStreamResource 메시지 입력 스트림 자원
+	 * @param socketInputStream 메시지 입력 스트림 자원
 	 * @return 읽기 전용 버퍼 목록으로 부터 추출한 메시지 목록, IOMode 가 true이면 입력 메시지 목록, false 이면 출력 메시지 목록이 된다.
 	 * @throws HeaderFormatException 헤더 포맷 구성시 에러 발생시 던지는 예외
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷 버퍼가 없을때 던지는 예외
 	 */
 	public ArrayList<ReceivedLetter> S2MList(Charset clientCharset,
-			SocketInputStream messageInputStreamResource) 
+			SocketInputStream socketInputStream) 
 					throws HeaderFormatException, NoMoreDataPacketBufferException;
 	
 	public SingleItemDecoderIF getSingleItemDecoder();
+	
+	public int getMessageHeaderSize();
 }
 

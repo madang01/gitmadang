@@ -184,7 +184,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 	 */
 	private void nextBuffer() throws SinnoriBufferUnderflowException {
 		// FIXME!
-		log.info("indexOfWorkBuffer=[{}], streamBufferList size=[{}]", indexOfWorkBuffer, streamBufferList.size());
+		// log.info("indexOfWorkBuffer=[{}], streamBufferList size=[{}]", indexOfWorkBuffer, streamBufferList.size());
 
 		if (indexOfWorkBuffer + 1 >= streamBufferList.size()) {
 			throw new SinnoriBufferUnderflowException("no more data packet buffer");
@@ -608,7 +608,7 @@ public class FreeSizeInputStream implements CommonRootIF, InputStreamIF {
 		try {			
 			dstCharBuffer = wantedCharsetDecoder.decode(dstBuffer);
 		} catch(CharacterCodingException e) {
-			String errorMessage = String.format("read data hex[%s], charset[%s]", HexUtil.byteBufferAllToHex(dstBuffer), wantedCharsetDecoder.charset().name());
+			String errorMessage = String.format("read data hex[%s], charset[%s]", HexUtil.getAllHexStringFromByteBuffer(dstBuffer), wantedCharsetDecoder.charset().name());
 			// log.warn(errorMessage, e);
 			throw new SinnoriCharsetCodingException(errorMessage);
 		}
@@ -1127,6 +1127,7 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 		ArrayList<WrapBuffer> dstDataPacketBufferList = new ArrayList<WrapBuffer>();
 		
 		if (0 == wantedInputStreamSize) {
+			log.info("wantedInputStreamSize is zero, so return empty FreeSizeInputStream");
 			return new FreeSizeInputStream(dstDataPacketBufferList, CommonType.WRAPBUFFER_RECALL_GUBUN.WRAPBUFFER_RECALL_YES, streamCharsetDecoder, dataPacketBufferQueueManager); 
 		}
 		
@@ -1134,6 +1135,8 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 		if (wantedInputStreamSize > remainingBytes) {
 			/** 참고) 스트림이 닫혔을 경우에도 이곳 로직으로 들어온다. */
 			String errorMessage = String.format("the parameter oneMessageInputStreamSize[%d] is greater than the remaining bytes[%d]", wantedInputStreamSize, remainingBytes);
+			log.warn(errorMessage);
+			
 			throw new SinnoriBufferUnderflowException(errorMessage);
 		}
 		
@@ -1174,7 +1177,7 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 					dstByteBuffer = dstWrapBuffer.getByteBuffer();
 					
 					// FIXME!
-					log.info("1. new dstByteBuffer=[{}], workBuffer=[{}]", dstByteBuffer.toString(), workBuffer.toString());
+					// log.info("1. new dstByteBuffer=[{}], workBuffer=[{}]", dstByteBuffer.toString(), workBuffer.toString());
 					
 					dstByteBuffer.put(workBuffer);
 				}
@@ -1188,6 +1191,7 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 					System.exit(1);
 				}
 			} else {
+				int backupLimit = workBuffer.limit();
 				workBuffer.limit(workBuffer.position()+(int)remainingBytesOfOneMesssageStream);
 				try {
 					dstByteBuffer.put(workBuffer);
@@ -1204,9 +1208,11 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 					dstByteBuffer = dstWrapBuffer.getByteBuffer();
 					
 					// FIXME!
-					log.info("2. new dstByteBuffer=[{}], workBuffer=[{}]", dstByteBuffer.toString(), workBuffer.toString());
+					// log.info("2. new dstByteBuffer=[{}], workBuffer=[{}]", dstByteBuffer.toString(), workBuffer.toString());
 					
 					dstByteBuffer.put(workBuffer);
+				} finally {
+					workBuffer.limit(backupLimit);
 				}
 				remainingBytesOfOneMesssageStream = 0;
 				break;

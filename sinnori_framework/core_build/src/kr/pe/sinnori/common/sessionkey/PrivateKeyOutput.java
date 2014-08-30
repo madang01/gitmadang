@@ -50,97 +50,97 @@ public class PrivateKeyOutput {
 	public String toString() {
 		StringBuffer strBuffer = new StringBuffer();
 		strBuffer.append("privateKeyHeader=[");
-		strBuffer.append(HexUtil.byteArrayAllToHex(privateKeyHeader));
+		strBuffer.append(HexUtil.getHexStringFromByteArray(privateKeyHeader));
 		strBuffer.append("]");
 		strBuffer.append(System.getProperty("line.separator"));
 
 		strBuffer.append("separator1=[");
-		strBuffer.append(HexUtil.byteArrayAllToHex(separator1));
+		strBuffer.append(HexUtil.getHexStringFromByteArray(separator1));
 		strBuffer.append("]");
 		strBuffer.append(System.getProperty("line.separator"));
 
 		strBuffer.append("algorithmVersion=[");
-		strBuffer.append(HexUtil.byteArrayAllToHex(algorithmVersion));
+		strBuffer.append(HexUtil.getHexStringFromByteArray(algorithmVersion));
 		strBuffer.append("]");
 		strBuffer.append(System.getProperty("line.separator"));
 
 		strBuffer.append("separator2=[");
-		strBuffer.append(HexUtil.byteArrayAllToHex(separator2));
+		strBuffer.append(HexUtil.getHexStringFromByteArray(separator2));
 		strBuffer.append("]");
 		strBuffer.append(System.getProperty("line.separator"));
 
 		strBuffer.append("modulus=[");
-		strBuffer.append(HexUtil.byteArrayAllToHex(modulus));
+		strBuffer.append(HexUtil.getHexStringFromByteArray(modulus));
 		strBuffer.append("]");
 		strBuffer.append(System.getProperty("line.separator"));
 
 		strBuffer.append("separator3=[");
-		strBuffer.append(HexUtil.byteArrayAllToHex(separator3));
+		strBuffer.append(HexUtil.getHexStringFromByteArray(separator3));
 		strBuffer.append("]");
 		strBuffer.append(System.getProperty("line.separator"));
 
 		strBuffer.append("publicExponent=[");
-		strBuffer.append(HexUtil.byteArrayAllToHex(publicExponent));
+		strBuffer.append(HexUtil.getHexStringFromByteArray(publicExponent));
 		strBuffer.append("]");
 		strBuffer.append(System.getProperty("line.separator"));
 
 		strBuffer.append("separator4=[");
-		strBuffer.append(HexUtil.byteArrayAllToHex(separator4));
+		strBuffer.append(HexUtil.getHexStringFromByteArray(separator4));
 		strBuffer.append("]");
 		strBuffer.append(System.getProperty("line.separator"));
 
 		strBuffer.append("privateExponent=[");
-		strBuffer.append(HexUtil.byteArrayAllToHex(privateExponent));
+		strBuffer.append(HexUtil.getHexStringFromByteArray(privateExponent));
 		strBuffer.append("]");
 		strBuffer.append(System.getProperty("line.separator"));
 
 		strBuffer.append("separator5=[");
-		strBuffer.append(HexUtil.byteArrayAllToHex(separator5));
+		strBuffer.append(HexUtil.getHexStringFromByteArray(separator5));
 		strBuffer.append("]");
 		strBuffer.append(System.getProperty("line.separator"));
 
 		strBuffer.append("prime1=[");
-		strBuffer.append(HexUtil.byteArrayAllToHex(prime1));
+		strBuffer.append(HexUtil.getHexStringFromByteArray(prime1));
 		strBuffer.append("]");
 		strBuffer.append(System.getProperty("line.separator"));
 
 		strBuffer.append("separator6=[");
-		strBuffer.append(HexUtil.byteArrayAllToHex(separator6));
+		strBuffer.append(HexUtil.getHexStringFromByteArray(separator6));
 		strBuffer.append("]");
 		strBuffer.append(System.getProperty("line.separator"));
 
 		strBuffer.append("prime2=[");
-		strBuffer.append(HexUtil.byteArrayAllToHex(prime2));
+		strBuffer.append(HexUtil.getHexStringFromByteArray(prime2));
 		strBuffer.append("]");
 		strBuffer.append(System.getProperty("line.separator"));
 
 		strBuffer.append("separator7=[");
-		strBuffer.append(HexUtil.byteArrayAllToHex(separator7));
+		strBuffer.append(HexUtil.getHexStringFromByteArray(separator7));
 		strBuffer.append("]");
 		strBuffer.append(System.getProperty("line.separator"));
 
 		strBuffer.append("exponent1=[");
-		strBuffer.append(HexUtil.byteArrayAllToHex(exponent1));
+		strBuffer.append(HexUtil.getHexStringFromByteArray(exponent1));
 		strBuffer.append("]");
 		strBuffer.append(System.getProperty("line.separator"));
 
 		strBuffer.append("separator8=[");
-		strBuffer.append(HexUtil.byteArrayAllToHex(separator8));
+		strBuffer.append(HexUtil.getHexStringFromByteArray(separator8));
 		strBuffer.append("]");
 		strBuffer.append(System.getProperty("line.separator"));
 
 		strBuffer.append("exponent2=[");
-		strBuffer.append(HexUtil.byteArrayAllToHex(exponent2));
+		strBuffer.append(HexUtil.getHexStringFromByteArray(exponent2));
 		strBuffer.append("]");
 		strBuffer.append(System.getProperty("line.separator"));
 
 		strBuffer.append("separator9=[");
-		strBuffer.append(HexUtil.byteArrayAllToHex(separator9));
+		strBuffer.append(HexUtil.getHexStringFromByteArray(separator9));
 		strBuffer.append("]");
 		strBuffer.append(System.getProperty("line.separator"));
 
 		strBuffer.append("coefficient=[");
-		strBuffer.append(HexUtil.byteArrayAllToHex(coefficient));
+		strBuffer.append(HexUtil.getHexStringFromByteArray(coefficient));
 		strBuffer.append("]");
 		// strBuffer.append(System.getProperty("line.separator"));
 

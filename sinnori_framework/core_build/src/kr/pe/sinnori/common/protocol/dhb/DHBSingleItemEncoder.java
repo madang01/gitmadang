@@ -360,7 +360,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 			errorMessageBuilder.append("], itemSize=[");
 			errorMessageBuilder.append(itemSizeForLang);
 			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(itemCharsetForLang.name());
+			errorMessageBuilder.append(itemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
 			errorMessageBuilder.append(e.getMessage());
 			errorMessageBuilder.append("]");
@@ -380,7 +380,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 			errorMessageBuilder.append("], itemSize=[");
 			errorMessageBuilder.append(itemSizeForLang);
 			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(itemCharsetForLang.name());
+			errorMessageBuilder.append(itemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
 			errorMessageBuilder.append(e.getMessage());
 			errorMessageBuilder.append("]");
@@ -400,7 +400,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 			errorMessageBuilder.append("], itemSize=[");
 			errorMessageBuilder.append(itemSizeForLang);
 			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(itemCharsetForLang.name());
+			errorMessageBuilder.append(itemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
 			errorMessageBuilder.append(e.getMessage());
 			errorMessageBuilder.append("]");
@@ -423,7 +423,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 			errorMessageBuilder.append("], itemSize=[");
 			errorMessageBuilder.append(itemSizeForLang);
 			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(itemCharsetForLang.name());
+			errorMessageBuilder.append(itemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
 			errorMessageBuilder.append(e.getMessage());
 			errorMessageBuilder.append("]");

@@ -430,7 +430,7 @@ public abstract class AbstractConnection implements CommonRootIF {
 			throw new DynamicClassCallException("unkown error::"+e.getMessage());
 		}
 		
-		ArrayList<WrapBuffer> wrapBufferList = null;		
+		ArrayList<WrapBuffer> wrapBufferList = null;	
 		try {
 			wrapBufferList = messageProtocol.M2S(messageToClient, messageEncoder, clientProjectConfig.getCharset());
 		} catch(NoMoreDataPacketBufferException e) {

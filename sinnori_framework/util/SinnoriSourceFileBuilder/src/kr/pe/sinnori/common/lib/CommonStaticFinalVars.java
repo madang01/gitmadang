@@ -59,6 +59,12 @@ public abstract class CommonStaticFinalVars {
 	
 	public static final String EMPTY_STRING = "";
 	
+	/*public static final SelfExnEncoder SELFEXN_ENCODER = new SelfExnEncoder();
+	public static final SelfExnDecoder SELFEXN_DECODER= new SelfExnDecoder();
+	
+	public static final SelfExnClientCodec SELFEXN_CLIENT_CODEC = new SelfExnClientCodec();
+	public static final SelfExnServerCodec SELFEXN_SERVER_CODEC= new SelfExnServerCodec();*/
+	
 	public static final Charset SINNORI_SOURCE_FILE_CHARSET = Charset.forName("UTF-8");
 	
 

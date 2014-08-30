@@ -10,13 +10,14 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import kr.pe.sinnori.message.MessageInfoSAXParser;
+import kr.pe.sinnori.screen.MessageInfoManagerIF;
 
 @SuppressWarnings("serial")
 public class MessageInfoFileCellValue extends JPanel {
+	private int row;
 	private File messageInfoFile = null;
 	private kr.pe.sinnori.message.MessageInfo messageInfo = null;
-	private SourceBuilderTableModel sourceBuilderTableModel = null;
-	private int row;
+	private MessageInfoManagerIF messageInfoManager = null;
 	private Component parentComponent = null;
 	
 	private JButton viewButton;
@@ -44,18 +45,21 @@ public class MessageInfoFileCellValue extends JPanel {
 				return;
 			}
 			messageInfo = oneMessageInfo;
-			sourceBuilderTableModel.setValueAt(oneMessageInfo.getDirection().toString(), row, 1);
-			SourceFileCellValue sourceFileCellValue = (SourceFileCellValue)sourceBuilderTableModel.getValueAt(row, 3);
-			sourceFileCellValue.setMessageInfo(oneMessageInfo);
 			
+			
+			// sourceBuilderTableModel.setValueAt(oneMessageInfo.getDirection().toString(), row, 1);
+			// SourceFileCellValue sourceFileCellValue = (SourceFileCellValue)sourceBuilderTableModel.getValueAt(row, 3);
+			// sourceFileCellValue.setMessageInfo(oneMessageInfo);
+			
+			messageInfoManager.retry(row, messageInfo);
 		}
 	}
 	
-	public MessageInfoFileCellValue(File messageInfoFile, kr.pe.sinnori.message.MessageInfo messageInfo, SourceBuilderTableModel sourceBuilderTableModel, int row, Component parentComponent) {
+	public MessageInfoFileCellValue(int row, File messageInfoFile, kr.pe.sinnori.message.MessageInfo messageInfo, MessageInfoManagerIF messageInfoManager, Component parentComponent) {
+		this.row = row;
 		this.messageInfoFile = messageInfoFile;
 		this.messageInfo = messageInfo;
-		this.sourceBuilderTableModel = sourceBuilderTableModel;
-		this.row = row;
+		this.messageInfoManager = messageInfoManager;
 		this.parentComponent = parentComponent;
 		
 		viewButton = new JButton("보기");

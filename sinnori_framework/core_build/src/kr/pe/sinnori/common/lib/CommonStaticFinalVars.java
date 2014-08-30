@@ -17,6 +17,8 @@
 
 package kr.pe.sinnori.common.lib;
 
+import java.nio.charset.Charset;
+
 import kr.pe.sinnori.impl.message.SelfExn.SelfExnClientCodec;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExnDecoder;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExnEncoder;
@@ -59,8 +61,7 @@ public abstract class CommonStaticFinalVars {
 	public static final String PUBLIC_KEY_FILE_NAME = "sinnori.publickey";
 	public static final long MAX_KEY_FILE_SIZE = 1024 * 4L;
 	
-	public static final String EMPTY_STRING = "";
-	
+	public static final String EMPTY_STRING = "";	
 		
 	public static final SelfExnEncoder SELFEXN_ENCODER = new SelfExnEncoder();
 	public static final SelfExnDecoder SELFEXN_DECODER= new SelfExnDecoder();
@@ -68,4 +69,5 @@ public abstract class CommonStaticFinalVars {
 	public static final SelfExnClientCodec SELFEXN_CLIENT_CODEC = new SelfExnClientCodec();
 	public static final SelfExnServerCodec SELFEXN_SERVER_CODEC= new SelfExnServerCodec();
 
+	public static final Charset SINNORI_SOURCE_FILE_CHARSET = Charset.forName("UTF-8");
 }

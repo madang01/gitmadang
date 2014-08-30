@@ -185,7 +185,7 @@ public final class SymmetricKeyManager implements CommonRootIF {
 				String errorMessage = String
 						.format("%s Cipher with IV[%s] InvalidAlgorithmParameterException",
 								symmetricKeyAlgorithm,
-								HexUtil.byteArrayAllToHex(ivBytes));
+								HexUtil.getHexStringFromByteArray(ivBytes));
 				log.warn(errorMessage, e);
 				throw new SymmetricException(errorMessage);
 			}
@@ -305,7 +305,7 @@ public final class SymmetricKeyManager implements CommonRootIF {
 				String errorMessage = String
 						.format("%s Cipher with IV[%s] InvalidAlgorithmParameterException",
 								symmetricKeyAlgorithm,
-								HexUtil.byteArrayAllToHex(ivBytes));
+								HexUtil.getHexStringFromByteArray(ivBytes));
 				log.warn(errorMessage, e);
 				throw new SymmetricException(errorMessage);
 			}

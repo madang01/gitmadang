@@ -219,7 +219,7 @@ public class EncoderSourceFileBuilder extends AbstractSourceFileBuildre {
 					for (int i=0; i < depth; i++) {
 						stringBuilder.append("\t");
 					}
-					stringBuilder.append("\t\t\t\tthrow new BodyFormatException(errorMessage);");
+					stringBuilder.append("\t\t\t\tthrow new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);");
 					
 					// }
 					stringBuilder.append(CommonStaticFinalVars.NEWLINE);
@@ -273,7 +273,7 @@ public class EncoderSourceFileBuilder extends AbstractSourceFileBuildre {
 					for (int i=0; i < depth; i++) {
 						stringBuilder.append("\t");
 					}
-					stringBuilder.append("\t\tthrow new BodyFormatException(errorMessage);");
+					stringBuilder.append("\t\tthrow new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);");
 				}
 				
 				// } else {
@@ -396,7 +396,7 @@ public class EncoderSourceFileBuilder extends AbstractSourceFileBuildre {
 				for (int i=0; i < depth; i++) {
 					stringBuilder.append("\t");
 				}
-				stringBuilder.append("\t\t\t\tthrow new BodyFormatException(errorMessage);");
+				stringBuilder.append("\t\t\t\tthrow new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);");
 				
 				// }
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
@@ -405,7 +405,7 @@ public class EncoderSourceFileBuilder extends AbstractSourceFileBuildre {
 				}
 				stringBuilder.append("\t\t\t}");
 				
-				// Object memberMiddleWriteArray = singleItemEncoder.createArrayObjFromMiddleWriteObj(allDataTypeInObjSingleItemPath, "member", memberList.length, middleWriteObj);
+				// Object memberMiddleWriteArray = singleItemEncoder.getArrayObjFromMiddleWriteObj(allDataTypeInObjSingleItemPath, "member", memberList.length, middleWriteObj);
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				for (int i=0; i < depth; i++) {
@@ -413,7 +413,7 @@ public class EncoderSourceFileBuilder extends AbstractSourceFileBuildre {
 				}
 				stringBuilder.append("\t\t\tObject ");
 				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("MiddleWriteArray = singleItemEncoder.createArrayObjFromMiddleWriteObj(");
+				stringBuilder.append("MiddleWriteArray = singleItemEncoder.getArrayObjFromMiddleWriteObj(");
 				stringBuilder.append(varName);
 				stringBuilder.append("SingleItemPath, \"");
 				stringBuilder.append(arrayInfoOfChild.getItemName());
@@ -540,8 +540,8 @@ public class EncoderSourceFileBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append("import java.nio.charset.Charset;");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("import java.util.LinkedList;");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("import kr.pe.sinnori.common.exception.BodyFormatException;");
+		// stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		// stringBuilder.append("import kr.pe.sinnori.common.exception.BodyFormatException;");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("import kr.pe.sinnori.common.message.AbstractMessage;");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);

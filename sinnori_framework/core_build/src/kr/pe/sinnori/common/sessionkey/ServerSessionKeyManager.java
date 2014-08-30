@@ -310,7 +310,7 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 	public String getModulusHexStrForWeb() {
 
 		
-		return HexUtil.byteArrayAllToHex(rsaPrivateCrtKeySpec.getModulus().toByteArray());
+		return HexUtil.getHexStringFromByteArray(rsaPrivateCrtKeySpec.getModulus().toByteArray());
 	}
 
 	/**
@@ -421,7 +421,7 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 				
 				if (!Base64.isBase64(drcryptedBytes)) {
 					String errorMessage = String.format(
-							"In BASE64 mode, 파라미터 Base64 인코딩된 세션키를 서버 비밀키로 풀어 얻은 값[%s] not base64", HexUtil.byteArrayAllToHex(drcryptedBytes));
+							"In BASE64 mode, 파라미터 Base64 인코딩된 세션키를 서버 비밀키로 풀어 얻은 값[%s] not base64", HexUtil.getHexStringFromByteArray(drcryptedBytes));
 					
 					throw new SymmetricException(errorMessage);
 				}

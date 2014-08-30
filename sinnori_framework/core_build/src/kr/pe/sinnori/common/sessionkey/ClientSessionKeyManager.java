@@ -89,7 +89,7 @@ public final class ClientSessionKeyManager implements CommonRootIF {
 					"parameter public key bytes is null");
 
 		log.info(String.format("publicKeyBytes=[%s]",
-				HexUtil.byteArrayAllToHex(publicKeyBytes)));
+				HexUtil.getHexStringFromByteArray(publicKeyBytes)));
 
 		KeyFactory rsaKeyFactory = null;
 		try {

@@ -33,14 +33,14 @@ public interface SingleItemDecoderIF {
 	 * @param itemTypeID 항목 타입 식별자
 	 * @param itemTypeName 항목 타입명
 	 * @param itemSizeForLang 항목 부가정보 - 데이터 크기
-	 * @param itemCharsetForLang 항목 부가정보 - 문자셋
+	 * @param itemCharset 항목 부가정보 - 문자셋
 	 * @param charsetOfProject 프로젝트 문자셋
 	 * @param middleReadObj 중간 다리 역활 읽기 객체
 	 * @return 항목 정보를 바탕으로 "중간 다리 역활 읽기 객체" 로 부터 얻은 값
 	 * @throws Exception 항목 정보를 바탕으로 "중간 다리 역활 읽기 객체" 로 부터 값을 얻을때 에러 발생시 던지는 예외
 	 */
 	public Object getValueFromMiddleReadObj(String path, String itemName, int itemTypeID, String itemTypeName, 
-			int itemSizeForLang, Charset itemCharsetForLang, 
+			int itemSizeForLang, String itemCharset, 
 			Charset charsetOfProject,
 			Object middleReadObj)
 			throws BodyFormatException;

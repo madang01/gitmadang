@@ -70,6 +70,8 @@ public class SocketInputStream implements CommonRootIF {
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷 버퍼 확보 실패시 던지는 예외
 	 */
 	public SocketInputStream(DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
+		// FIXME!
+		// log.info("call");
 		
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 		//this.byteOrderOfProject = dataPacketBufferQueueManager.getByteOrder();
@@ -79,6 +81,9 @@ public class SocketInputStream implements CommonRootIF {
 		dataPacketBufferList.add(lastWrapBuffer);
 		
 		lastByteBuffer = firstByteBuffer = lastWrapBuffer.getByteBuffer();
+		
+		// FIXME!
+		// if (null == lastByteBuffer) log.info("lastByteBuffer is null");
 	}
 	
 	
@@ -185,6 +190,9 @@ public class SocketInputStream implements CommonRootIF {
 	 * @param startPosition 메시지 삭제후 최종 시작 버퍼의 위치
 	 */
 	public void truncate(int startIndex, int startPosition) {
+		// FIXME!
+		// log.info("call truncate, startIndex=[{}], startPosition=[{}]", startIndex, startPosition);
+		
 		int dataPacketBufferListSize = dataPacketBufferList.size();
 		
 		if (startIndex < 0) {
@@ -287,6 +295,9 @@ public class SocketInputStream implements CommonRootIF {
 		/*long endTime = System.currentTimeMillis();		
 		log.info(String.format("elapsed time=[%s]", endTime - startTime));
 		startTime = endTime;*/
+		
+		// log.warn("dataPacketBufferListSize=[{}] to dataPacketBufferList.size[{}]", dataPacketBufferListSize, dataPacketBufferList.size());
+				
 	}
 	
 	public ByteBuffer getLastDataPacketBuffer() {

@@ -20,8 +20,8 @@ import java.nio.ByteBuffer;
 
 /**
  * Hex 출력을 도와주는 유틸<br/>
- * 출력 형식은 hex 코드를 대괄호로 묶어 출력함<br/>
- * 예제1) [0x10 0x20]<br/>
+ * 출력 형식은 파싱을 고려하 hex 코드를 나열하여 출력함<br/>
+ * 예제) 107f<br/>
  * 
  * @author Jonghoon Won
  */
@@ -52,7 +52,7 @@ public class HexUtil {
 			"ed", "ee", "ef", "f0", "f1", "f2", "f3", "f4", "f5", "f6", "f7",
 			"f8", "f9", "fa", "fb", "fc", "fd", "fe", "ff" };
 
-	public static byte[] hexToByteArray(String hexStr)
+	public static byte[] getByteArrayFromHexString(String hexStr)
 			throws NumberFormatException {
 		if (hexStr == null || hexStr.length() == 0) {
 			return null;
@@ -66,63 +66,26 @@ public class HexUtil {
 		return retBytes;
 	}
 	
-	
-	public static void hexToByteArray(String hexStr, byte[] dst, int offset)
-			throws NumberFormatException {
-		if (hexStr == null || hexStr.length() == 0) {
-			throw new IllegalArgumentException("param hexStr is null or empty");
-		}
-		
-		if (dst == null) {
-			throw new IllegalArgumentException("param dst is null");
-		}
-		
-		if (offset < 0) {
-			throw new IllegalArgumentException("param offset less than zero");
-		}
-		
-		int hexStrLen = hexStr.length();
-		
-		if (0 != hexStrLen % 2) {
-			String errorMessage = String.format("파라미터 핵사 문자열의 크기[%d]가 짝수가 아닙니다.", hexStrLen);
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		int dataLen = hexStrLen / 2;
-		
-		if ((dst.length - offset) < dataLen) {
-			String errorMessage = String.format("목적지 버퍼[%d]의 오프셋[%d] 이후 남은 크기가 핵사 문자열[%d]을 담을 수 없을 만큼 작습니다.", dst.length, offset, dataLen);
-			throw new IllegalArgumentException(errorMessage);
-		}
-
-		
-		for (int i = 0; i < dataLen; i++) {
-			dst[offset+i] = (byte) Integer.parseInt(
-					hexStr.substring(2 * i, 2 * i + 2), 16);
-		}
-		
-	}
-
-	public static String byteBufferAllToHex(ByteBuffer buffer) throws IllegalArgumentException {
+	public static String getAllHexStringFromByteBuffer(ByteBuffer buffer) throws IllegalArgumentException {
 		if (null == buffer) {
 			throw new IllegalArgumentException("parm buffer is null");
 		}
 		
 		int capacity = buffer.capacity();
-		return byteBufferToHex(buffer, 0, capacity);
+		return getHexStringFromByteBuffer(buffer, 0, capacity);
 	}
 
-	public static String byteBufferAvailableToHex(ByteBuffer buffer) throws IllegalArgumentException {
+	public static String getHexStringFromByteBuffer(ByteBuffer buffer) throws IllegalArgumentException {
 		if (null == buffer) {
 			throw new IllegalArgumentException("parm buffer is null");
 		}
 		
 		int position = buffer.position();
 		int limit = buffer.limit();
-		return byteBufferToHex(buffer, position, limit);
+		return getHexStringFromByteBuffer(buffer, position, limit);
 	}
 
-	public static String byteBufferToHex(ByteBuffer buffer, int offset,
+	public static String getHexStringFromByteBuffer(ByteBuffer buffer, int offset,
 			int length) throws IllegalArgumentException {
 		if (null == buffer) {
 			throw new IllegalArgumentException("parm buffer is null");
@@ -164,11 +127,11 @@ public class HexUtil {
 		return strbuff.toString();
 	}
 
-	public static String byteArrayAllToHex(byte[] buffer) throws IllegalArgumentException {
-		return byteArrayToHex(buffer, 0, buffer.length);
+	public static String getHexStringFromByteArray(byte[] buffer) throws IllegalArgumentException {
+		return getHexStringFromByteArray(buffer, 0, buffer.length);
 	}
 
-	public static String byteArrayToHex(byte[] buffer, int offset, int length) throws IllegalArgumentException {
+	public static String getHexStringFromByteArray(byte[] buffer, int offset, int length) throws IllegalArgumentException {
 		if (null == buffer) {
 			throw new IllegalArgumentException("parm buffer is null");
 		}

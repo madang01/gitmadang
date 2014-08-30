@@ -40,8 +40,8 @@ import kr.pe.sinnori.common.lib.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.MessageEncoder;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
-import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
+import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 import kr.pe.sinnori.common.protocol.dhb.header.DHBMessageHeader;
 import kr.pe.sinnori.common.util.HexUtil;
 
@@ -268,14 +268,17 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 			
 			
 			
-			/*log.info(String.format("1. messageHeaderSize=[%d], inputStramSizeBeforeMessageWork[%d]",
-					messageHeaderSize, inputStramSizeBeforeMessageWork));*/
+			/*log.info("1. messageHeaderSize=[{}], inputStramSizeBeforeMessageWork[{}]",
+					messageHeaderSize, inputStramSizeBeforeMessageWork);*/
+			
+			int lastPostionOfWorkBuffer = 0;
+			int lastIndexOfWorkBuffer = 0;
 
 			do {
 				
-				/*log.info(String.format("1. isMoreMessage=[%s], messageHeaderSize=[%d], inputStramSizeBeforeMessageWork[%d]",
-						isMoreMessage, messageHeaderSize, inputStramSizeBeforeMessageWork));*/
-				
+				// log.info("2. isMoreMessage=[{}], inputStramSizeBeforeMessageWork[{}]", isMoreMessage,  inputStramSizeBeforeMessageWork);
+				// FIMXE!
+				// log.info("111111111122222222222::{}, {}", (messageHeader == null), inputStramSizeBeforeMessageWork);
 				
 				isMoreMessage = false;
 
@@ -293,6 +296,9 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 						// startIndex = 0;
 						// startPosition = 0;
 					}
+					
+					// FIXME!
+					// log.info("freeSizeInputStream.remaining()={}", freeSizeInputStream.remaining());
 
 					md5.reset();
 					byte[] headerMD5 = null;
@@ -379,7 +385,15 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 								log.error(errorMessage, e);
 								System.exit(1);
 							}
-						}
+							
+							// FIXME!
+							// log.info("444::freeSizeInputStream.remaining={}, messageHeader.bodySize={}, messageFrameSize={}", freeSizeInputStream.remaining(), messageHeader.bodySize, messageFrameSize);
+						}/* else {
+							// FIXME!
+							log.info("555::freeSizeInputStream.remaining={}, messageHeader.bodySize={}, header.size={}, messageFrameSize={}", freeSizeInputStream.remaining(), messageHeader.bodySize, messageHeader.messageHeaderSize, messageFrameSize);
+						}*/
+						
+						
 						
 						// long postionBeforeReadingBody = freeSizeInputStream.position();
 						
@@ -406,6 +420,9 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 							log.error(errorMessage, e);
 							System.exit(1);
 						}
+						
+						
+						
 						/*long spaceBytesOfBodyMD5 = messageHeader.bodySize;
 						// md5.reset();
 						for (int i = startBodyIndex; i < streamBufferListSize; i++) {
@@ -436,10 +453,10 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 							String errorMessage = String
 									.format("different body MD5, header[%s], body md5[%s]",
 											messageHeader.toString(),
-											HexUtil.byteArrayAllToHex(bodyMD5));
+											HexUtil.getHexStringFromByteArray(bodyMD5));
 
 							throw new HeaderFormatException(errorMessage);
-						}						
+						}
 						
 						FreeSizeInputStream bodyInputStream = null;
 						try {
@@ -453,6 +470,12 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 							log.error(errorMessage, e);
 							System.exit(1);
 						}
+						
+						lastPostionOfWorkBuffer = freeSizeInputStream.getPositionOfWorkBuffer();
+						lastIndexOfWorkBuffer = freeSizeInputStream.getIndexOfWorkBuffer();
+						// FIXME!
+						// log.info("666::freeSizeInputStream.remaining={}", freeSizeInputStream.remaining());
+						
 
 						ReceivedLetter receivedLetter = 
 								new ReceivedLetter(messageHeader.messageID, 
@@ -479,7 +502,8 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 			
 			if (receivedLetterList.size() > 0) {
 				// socketInputStream.truncate(startIndex, startPosition);
-				socketInputStream.truncate(freeSizeInputStream.getIndexOfWorkBuffer(), freeSizeInputStream.getPositionOfWorkBuffer());
+				// socketInputStream.truncate(freeSizeInputStream.getIndexOfWorkBuffer(), freeSizeInputStream.getPositionOfWorkBuffer());
+				socketInputStream.truncate(lastIndexOfWorkBuffer, lastPostionOfWorkBuffer);
 			} else if (!lastInputStreamBuffer.hasRemaining()) {
 				/**
 				 * <pre>
@@ -496,5 +520,9 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 		}
 
 		return receivedLetterList;
-	}	
+	}
+	
+	public int getMessageHeaderSize() {
+		return messageHeaderSize;
+	}
 }

@@ -85,7 +85,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF
 		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
 				Charset itemCharsetForLang,  Charset charsetOfProject, JSONObject jsonWriteObj)
 				throws IllegalArgumentException {
-			if (!(itemValue instanceof Byte)) {
+			if (!(itemValue instanceof Short)) {
 				String errorMessage = 
 						String.format("항목의 값의 타입[%s]이 Short 가 아닙니다.", 
 								itemValue.getClass().getCanonicalName());
@@ -375,7 +375,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF
 				}
 			}
 			
-			jsonWriteObj.put(itemName, HexUtil.byteArrayAllToHex(tValue));
+			jsonWriteObj.put(itemName, HexUtil.getHexStringFromByteArray(tValue));
 		}
 	}
 
@@ -407,7 +407,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF
 				}
 			}
 			
-			jsonWriteObj.put(itemName, HexUtil.byteArrayAllToHex(tValue));
+			jsonWriteObj.put(itemName, HexUtil.getHexStringFromByteArray(tValue));
 		}
 	}
 	
@@ -433,7 +433,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF
 				tValue = (byte[]) itemValue;
 			}
 			
-			jsonWriteObj.put(itemName, HexUtil.byteArrayAllToHex(tValue));
+			jsonWriteObj.put(itemName, HexUtil.getHexStringFromByteArray(tValue));
 		}
 	}
 	
@@ -465,7 +465,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF
 									tValue.length, itemSizeForLang));
 				}
 			}
-			jsonWriteObj.put(itemName, HexUtil.byteArrayAllToHex(tValue));
+			jsonWriteObj.put(itemName, HexUtil.getHexStringFromByteArray(tValue));
 		}
 	}
 
@@ -505,7 +505,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF
 			errorMessageBuilder.append("], itemSize=[");
 			errorMessageBuilder.append(itemSizeForLang);
 			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(itemCharsetForLang.name());
+			errorMessageBuilder.append(itemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
 			errorMessageBuilder.append(e.getMessage());
 			errorMessageBuilder.append("]");
@@ -528,7 +528,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF
 			errorMessageBuilder.append("], itemSize=[");
 			errorMessageBuilder.append(itemSizeForLang);
 			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(itemCharsetForLang.name());
+			errorMessageBuilder.append(itemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
 			errorMessageBuilder.append(e.getMessage());
 			errorMessageBuilder.append("]");
@@ -582,6 +582,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF
 		return valueObj;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object getArrayObjFromMiddleWriteObj(String path, String arrayName,
 			int arrayCntValue, Object middleWriteObj)
@@ -604,10 +605,16 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF
 		Object valueObj = jsonReadObj.get(arrayName);
 
 		if (null == valueObj) {
-			String errorMessage = String.format(
+			/*String errorMessage = String.format(
 					"%s 경로에 대응하는 존슨 객체에서 존슨 배열[%s]이 존재하지 않습니다.",
 					path, arrayName);
-			throw new BodyFormatException(errorMessage);
+			throw new BodyFormatException(errorMessage);*/
+			JSONArray jsonArray = new JSONArray();
+			for (int i=0; i < arrayCntValue; i++) {
+				jsonArray.add(new JSONObject());
+			}
+			jsonReadObj.put(arrayName, jsonArray);
+			return jsonArray;
 		}
 
 		if (!(valueObj instanceof JSONArray)) {

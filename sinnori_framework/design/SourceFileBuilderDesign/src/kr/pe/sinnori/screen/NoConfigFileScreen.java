@@ -35,6 +35,7 @@ import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
+import java.awt.Font;
 
 @SuppressWarnings("serial")
 public class NoConfigFileScreen extends JPanel implements AllMessageInfoManagerIF {

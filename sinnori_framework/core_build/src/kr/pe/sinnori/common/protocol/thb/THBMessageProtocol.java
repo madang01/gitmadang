@@ -174,12 +174,12 @@ public class THBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 		 * 매번 새로운 스트림이 만들어지는 단점이 있다. <br/>
 		 */
 		FreeSizeInputStream freeSizeInputStream = null;
-		// int startIndex = -1;
-		// int startPosition = -1;
 		
 		try {
 			// long inputStramSizeBeforeMessageWork = freeSizeInputStream.remaining();
 			long inputStramSizeBeforeMessageWork = socketInputStream.position();
+			int lastPostionOfWorkBuffer = 0;
+			int lastIndexOfWorkBuffer = 0;
 			
 			do {
 				isMoreMessage = false;
@@ -190,11 +190,6 @@ public class THBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 					if (null == freeSizeInputStream) {
 						freeSizeInputStream = socketInputStream
 								.getFreeSizeInputStream(charsetOfProjectDecoder);
-						/*startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
-						startPosition = freeSizeInputStream.getPositionOfWorkBuffer();*/
-						
-						// startIndex = 0;
-						// startPosition = 0;
 					}
 					
 					THBMessageHeader  workMessageHeader = new THBMessageHeader(messageIDFixedSize);
@@ -222,12 +217,6 @@ public class THBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 						if (null == freeSizeInputStream) {
 							freeSizeInputStream = socketInputStream
 									.getFreeSizeInputStream(charsetOfProjectDecoder);
-							/*startIndex = freeSizeInputStream.getIndexOfWorkBuffer();
-							startPosition = freeSizeInputStream.getPositionOfWorkBuffer();
-							long skipBytes = startIndex*lastInputStreamBuffer.capacity()+startPosition+messageHeaderSize;*/
-							
-							// startIndex = 0;
-							// startPosition = 0;
 							long skipBytes = messageHeaderSize;
 							
 							try {
@@ -259,6 +248,9 @@ public class THBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 							log.error(errorMessage, e);
 							System.exit(1);
 						}
+						
+						lastPostionOfWorkBuffer = freeSizeInputStream.getPositionOfWorkBuffer();
+						lastIndexOfWorkBuffer = freeSizeInputStream.getIndexOfWorkBuffer();
 
 						ReceivedLetter receivedLetter = 
 								new ReceivedLetter(messageHeader.messageID, 
@@ -279,7 +271,8 @@ public class THBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 			
 			if (receivedLetterList.size() > 0) {
 				// socketInputStream.truncate(startIndex, startPosition);
-				socketInputStream.truncate(freeSizeInputStream.getIndexOfWorkBuffer(), freeSizeInputStream.getPositionOfWorkBuffer());
+				// socketInputStream.truncate(freeSizeInputStream.getIndexOfWorkBuffer(), freeSizeInputStream.getPositionOfWorkBuffer());
+				socketInputStream.truncate(lastIndexOfWorkBuffer, lastPostionOfWorkBuffer);
 			} else if (!lastInputStreamBuffer.hasRemaining()) {
 				/** 메시지 추출 실패했는데도 마지막 버퍼가 꽉차있다면 스트림 크기를 증가시킨다. 단 설정파일 환경변수 "메시지당 최대 데이터 패킷 갯수" 만큼만 증가될수있다. */
 				lastInputStreamBuffer = socketInputStream.nextDataPacketBuffer();
@@ -290,5 +283,9 @@ public class THBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 		
 		
 		return receivedLetterList;
+	}
+	
+	public int getMessageHeaderSize() {
+		return messageHeaderSize;
 	}
 }

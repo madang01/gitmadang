@@ -20,6 +20,7 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
@@ -375,37 +376,61 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 
 			clientPartText = clientPartTextBuilder.toString();
 			
+			/** server shell start */
+			StringBuilder serverShellFileNameBuilder = new StringBuilder(sinnoriInstallAbsPathName);
+			serverShellFileNameBuilder.append(File.separator);
+			serverShellFileNameBuilder.append("project");
+			serverShellFileNameBuilder.append(File.separator);
+			serverShellFileNameBuilder.append(projectName);
+			serverShellFileNameBuilder.append(File.separator);
+			serverShellFileNameBuilder.append("server_build");
 			
-			JPanel serverPartPanel = new JPanel();
-			projectTabbedPane.addTab(serverPartTitle, null, serverPartPanel, null);
-			serverPartPanel.setLayout(new FormLayout(new ColumnSpec[] {
-					ColumnSpec.decode("636px:grow"),},
-				new RowSpec[] {
-					FormFactory.LINE_GAP_ROWSPEC,
-					RowSpec.decode("max(120dlu;min):grow"),}));
+			File serverPath = new File(serverShellFileNameBuilder.toString());
+			if (serverPath.exists()) {
+				JPanel serverPartPanel = new JPanel();
+				projectTabbedPane.addTab(serverPartTitle, null, serverPartPanel, null);
+				serverPartPanel.setLayout(new FormLayout(new ColumnSpec[] {
+						ColumnSpec.decode("636px:grow"),},
+					new RowSpec[] {
+						FormFactory.LINE_GAP_ROWSPEC,
+						RowSpec.decode("max(120dlu;min):grow"),}));
+				
+				serverShellTextArea[i] = new JTextArea(10, 20);
+				serverShellTextArea[i].setEditable(false);
+				serverShellTextArea[i].setText(serverPartText);
+				
+				JScrollPane serverPartScrollPane = new JScrollPane(serverShellTextArea[i]);
+				serverPartPanel.add(serverPartScrollPane, "1, 2, fill, fill");
+			}			
 			
-			serverShellTextArea[i] = new JTextArea(10, 20);
-			serverShellTextArea[i].setEditable(false);
-			serverShellTextArea[i].setText(serverPartText);
-			
-			JScrollPane serverPartScrollPane = new JScrollPane(serverShellTextArea[i]);
-			serverPartPanel.add(serverPartScrollPane, "1, 2, fill, fill");
-			
-			JPanel appClientPartPanel = new JPanel();
-			projectTabbedPane.addTab(clientPartTitle, null, appClientPartPanel, null);
-			appClientPartPanel.setLayout(new FormLayout(new ColumnSpec[] {
-					ColumnSpec.decode("633px:grow"),},
-				new RowSpec[] {
-					FormFactory.LINE_GAP_ROWSPEC,
-					RowSpec.decode("min:grow"),}));
-			
-			JScrollPane appClientPartScrollPane = new JScrollPane();
-			appClientPartPanel.add(appClientPartScrollPane, "1, 2, fill, fill");
-			
-			appClientShellTextArea[i] = new JTextArea();
-			appClientShellTextArea[i].setEditable(false);
-			appClientShellTextArea[i].setText(clientPartText);
-			appClientPartScrollPane.setViewportView(appClientShellTextArea[i]);
+			/** client shell start */
+			StringBuilder appClientShellFileNameBuilder = new StringBuilder(sinnoriInstallAbsPathName);
+			appClientShellFileNameBuilder.append(File.separator);
+			appClientShellFileNameBuilder.append("project");
+			appClientShellFileNameBuilder.append(File.separator);
+			appClientShellFileNameBuilder.append(projectName);
+			appClientShellFileNameBuilder.append(File.separator);
+			appClientShellFileNameBuilder.append("client_build");
+			appClientShellFileNameBuilder.append(File.separator);
+			appClientShellFileNameBuilder.append("app_build");
+			File appClientPath = new File(appClientShellFileNameBuilder.toString());
+			if (appClientPath.exists()) {
+				JPanel appClientPartPanel = new JPanel();
+				projectTabbedPane.addTab(clientPartTitle, null, appClientPartPanel, null);
+				appClientPartPanel.setLayout(new FormLayout(new ColumnSpec[] {
+						ColumnSpec.decode("633px:grow"),},
+					new RowSpec[] {
+						FormFactory.LINE_GAP_ROWSPEC,
+						RowSpec.decode("min:grow"),}));
+				
+				JScrollPane appClientPartScrollPane = new JScrollPane();
+				appClientPartPanel.add(appClientPartScrollPane, "1, 2, fill, fill");
+				
+				appClientShellTextArea[i] = new JTextArea();
+				appClientShellTextArea[i].setEditable(false);
+				appClientShellTextArea[i].setText(clientPartText);
+				appClientPartScrollPane.setViewportView(appClientShellTextArea[i]);
+			}
 		}
 		
 		JPanel bottomPanel = new JPanel();
@@ -471,22 +496,50 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 				
 				if (! saveAntProperties(projectName, isTomcat, tomcatLibPath)) return;
 				
+				StringBuilder serverShellFileNameBuilder = new StringBuilder(sinnoriInstallAbsPathName);
+				serverShellFileNameBuilder.append(File.separator);
+				serverShellFileNameBuilder.append("project");
+				serverShellFileNameBuilder.append(File.separator);
+				serverShellFileNameBuilder.append(projectName);
+				serverShellFileNameBuilder.append(File.separator);
+				serverShellFileNameBuilder.append("server_build");
+				serverShellFileNameBuilder.append(File.separator);
 				
-				String serverShellText = serverShellTextArea[i].getText();
-				if (null == serverShellText) serverShellText = "";
-				serverShellText = serverShellText.trim();
-								
-				if (! saveServerShell(projectName, serverShellText)) return;
+				File serverPath = new File(serverShellFileNameBuilder.toString());
+				if (serverPath.exists()) {
+					String serverShellText = serverShellTextArea[i].getText();
+					if (null == serverShellText) serverShellText = "";
+					serverShellText = serverShellText.trim();
+									
+					if (! saveServerShell(projectName, serverShellText)) return;
+				}
 				
-				String appClientShellText = appClientShellTextArea[i].getText();
-				if (null == appClientShellText) appClientShellText = "";
-				appClientShellText = appClientShellText.trim();
+				StringBuilder appClientShellFileNameBuilder = new StringBuilder(sinnoriInstallAbsPathName);
+				appClientShellFileNameBuilder.append(File.separator);
+				appClientShellFileNameBuilder.append("project");
+				appClientShellFileNameBuilder.append(File.separator);
+				appClientShellFileNameBuilder.append(projectName);
+				appClientShellFileNameBuilder.append(File.separator);
+				appClientShellFileNameBuilder.append("client_build");
+				appClientShellFileNameBuilder.append(File.separator);
+				appClientShellFileNameBuilder.append("app_build");
 				
-				if (! saveAppClientShell(projectName, appClientShellText)) return;
-				
+				File appClientPath = new File(appClientShellFileNameBuilder.toString());
+				if (appClientPath.exists()) {
+					String appClientShellText = appClientShellTextArea[i].getText();
+					if (null == appClientShellText) appClientShellText = "";
+					appClientShellText = appClientShellText.trim();
+					
+					if (! saveAppClientShell(projectName, appClientShellText)) return;
+				}
 			}
 			mainController.finish();
 		}
+	}
+	
+	private void setupDefaultAntProperteis(SequencedProperties antProperties) {
+		antProperties.setProperty("is.tomcat", "false");
+		antProperties.setProperty("tomcat.servletlib", ".");
 	}
 	
 	/**
@@ -507,6 +560,21 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 		
 		String antPropertiesFileName = antPropertiesFileNameBuilder.toString();
 		File antPropertiesFileObj = new File(antPropertiesFileName);
+		if (!antPropertiesFileObj.exists()) {
+			try {
+				antPropertiesFileObj.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+				
+				String errorMessage = String.format("프로젝트[%s] ant 환경 설정 프로퍼티 파일[%s] unknown error", projectName, antPropertiesFileObj.getAbsolutePath());
+				JOptionPane.showMessageDialog(mainFrame, errorMessage);
+				
+				// is.tomcat=false
+				// tomcat.servletlib=/usr/share/tomcat7/lib
+				setupDefaultAntProperteis(antProperties);
+				return antProperties;
+			}
+		}
 		
 		FileInputStream antPropertiesFIS = null;
 		InputStreamReader antPropertiesISR = null;
@@ -517,11 +585,13 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 			antProperties.load(antPropertiesISR);
 			
 			
-		} catch (Exception e1) {
-			e1.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 			
 			String errorMessage = String.format("프로젝트[%s] ant 환경 설정 프로퍼티 파일[%s] unknown error", projectName, antPropertiesFileObj.getAbsolutePath());
 			JOptionPane.showMessageDialog(mainFrame, errorMessage);
+			
+			setupDefaultAntProperteis(antProperties);
 		} finally {
 			try {
 				if (antPropertiesISR != null)
@@ -583,8 +653,8 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 			*/
 			antProperties.store(antPropertiesOSW, String.format("Project[%s]'s ant properties file", projectName));
 			
-		} catch (Exception e1) {
-			e1.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 			
 			String errorMessage = String.format("프로젝트[%s] ant 환경 설정 프로퍼티 파일[%s] unknown error", projectName, antPropertiesFileObj.getAbsolutePath());
 			JOptionPane.showMessageDialog(mainFrame, errorMessage);
@@ -623,7 +693,6 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 		serverShellFileNameBuilder.append(File.separator);
 		serverShellFileNameBuilder.append("server_build");
 		serverShellFileNameBuilder.append(File.separator);
-		
 		serverShellFileNameBuilder.append(projectName);
 		serverShellFileNameBuilder.append(MainControllerIF.SINNORI_SERVER_SHELL_NAME);
 		if (isUnix) {
@@ -645,8 +714,8 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 			serverShellOSW = new OutputStreamWriter(serverShellFOS, "UTF-8");
 			
 			serverShellOSW.write(serverShellText);
-		} catch (Exception e1) {
-			e1.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 			
 			String errorMessage = String.format("프로젝트[%s] 서버 셀 파일[%s] unknown error", projectName, serverShellFileName);
 			JOptionPane.showMessageDialog(mainFrame, errorMessage);
@@ -699,8 +768,6 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 		String appClientShellFileName = appClientShellFileNameBuilder.toString();
 		File appClientShellFileObj = new File(appClientShellFileName);
 		
-		
-		
 		FileOutputStream appClientShellFOS = null;
 		OutputStreamWriter appClinetShellOSW = null;
 		try {
@@ -710,8 +777,8 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 			appClinetShellOSW = new OutputStreamWriter(appClientShellFOS, "UTF-8");
 			
 			appClinetShellOSW.write(appClientShellText);
-		} catch (Exception e1) {
-			e1.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 			
 			String errorMessage = String.format("프로젝트[%s] 일반 어플리케이션 클라리언트 셀 파일[%s] unknown error", projectName, appClientShellFileName);
 			JOptionPane.showMessageDialog(mainFrame, errorMessage);

@@ -256,7 +256,19 @@ public class MessageSourceFileBuilder extends AbstractSourceFileBuildre {
 					stringBuilder.append("\t");
 				}
 				stringBuilder.append("\t\tbuilder.append(");
-				stringBuilder.append(singleItemInfo.getItemName());
+				
+				if (singleItemInfo.getItemType().indexOf("length byte[]") >= 0) {
+					// builder.append(kr.pe.sinnori.common.util.HexUtil.getHexStringFromByteArray(bytesVar1, 0, Math.max(bytesVar1.length, 7)));
+					stringBuilder.append("kr.pe.sinnori.common.util.HexUtil.getHexStringFromByteArray(");
+					stringBuilder.append(singleItemInfo.getItemName());
+					stringBuilder.append(", 0, Math.min(");
+					stringBuilder.append(singleItemInfo.getItemName());
+					stringBuilder.append(".length, 7))");
+				} else {
+					// builder.append(longVar1);
+					stringBuilder.append(singleItemInfo.getItemName());
+				}
+				
 				stringBuilder.append(");");
 				
 			} else {

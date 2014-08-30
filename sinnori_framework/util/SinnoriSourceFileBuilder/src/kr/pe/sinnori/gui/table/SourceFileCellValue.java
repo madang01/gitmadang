@@ -40,16 +40,12 @@ public class SourceFileCellValue extends JPanel {
 	}*/
 	
 	class SourceFileCreateButtonAction implements ActionListener {
-		
-		
-
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			System.out.println("SourceFileCreateButtonAction::"+e.toString()+"::"+messageInfo.getMessageID());
 			
 			sourceManager.createSourceFile(ioCheckBox.isSelected(), directionCheckBox.isSelected(), messageInfo);
 		}
-		
 	}
 	
 	public SourceFileCellValue(kr.pe.sinnori.message.MessageInfo messageInfo, 
@@ -58,8 +54,8 @@ public class SourceFileCellValue extends JPanel {
 		this.sourceManager = sourceManager;
 		// this.parentComponent = parentComponent;
 		
-		ioCheckBox = new JCheckBox("IO");
-		directionCheckBox = new JCheckBox("방향성");
+		ioCheckBox = new JCheckBox("IO", true);
+		directionCheckBox = new JCheckBox("방향성", true);
 		sourceCreateButton = new JButton("생성");
 		
 		ioCheckBox.setOpaque(true);
@@ -95,6 +91,9 @@ public class SourceFileCellValue extends JPanel {
 		this.messageInfo = messageInfo;
 	}
 	
+	public void createSourceFile() {
+		sourceManager.createSourceFile(ioCheckBox.isSelected(), directionCheckBox.isSelected(), messageInfo);
+	}
 
 	@Override
 	public String toString() {

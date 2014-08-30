@@ -24,14 +24,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
 import kr.pe.sinnori.common.exception.UnknownItemTypeException;
-import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
+
 
 /**
  * <pre>
@@ -49,14 +47,14 @@ import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
  * @author Jonghoon Won
  *
  */
-public class ItemTypeManger implements CommonRootIF {
+public class ItemTypeManger {
 	
 	private String mesgXSLStr = null;
 	
 	private LinkedHashMap<String, Integer> itemTypeToIDHash  = new LinkedHashMap<String, Integer>();
 	private HashMap<Integer, String> idToItemTypeHash  = new HashMap<Integer, String>();
-	
-	private CheckItemValue checkItemValueList[] = {
+		
+	/*private CheckItemValue checkItemValueList[] = {
 			new CheckByteValue(), new CheckUnsigendByteValue(),
 			new CheckShortValue(), new CheckUnsigendShortValue(),
 			new CheckIntValue(), new CheckUnsigendIntValue(),
@@ -65,7 +63,7 @@ public class ItemTypeManger implements CommonRootIF {
 			new CheckFixedLengthStringValue(), new CheckUBVariableLengthBytesValue(),
 			new CheckUSVariableLengthBytesValue(), new CheckSIVariableLengthBytesValue(),
 			new CheckFixedLengthBytesValue()
-	};
+	};*/
 	
 	/**
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스
@@ -290,11 +288,12 @@ public class ItemTypeManger implements CommonRootIF {
 		mesgXSLStringBuilder.append("\t\t</xs:choice>\n");
 		mesgXSLStringBuilder.append("\t</xs:group>\n");
 		mesgXSLStringBuilder.append("\n");
-		mesgXSLStringBuilder.append("\t<!-- \uBA54\uC2DC\uC9C0 -->\n");
+		mesgXSLStringBuilder.append("\t<!-- 메시지 -->\n");
 		mesgXSLStringBuilder.append("\t<xs:element name=\"sinnori_message\">\n");
 		mesgXSLStringBuilder.append("\t\t<xs:complexType>\n");
 		mesgXSLStringBuilder.append("\t\t\t<xs:sequence>\n");
-		mesgXSLStringBuilder.append("\t\t\t\t<!-- \uBA54\uC2DC\uC9C0 \uC2DD\uBCC4\uC790 -->\n");
+		
+		mesgXSLStringBuilder.append("\t\t\t\t<!-- 메시지 식별자 -->\n");
 		mesgXSLStringBuilder.append("\t\t\t\t<xs:element name=\"messageID\" minOccurs=\"1\" maxOccurs=\"1\">\n");
 		mesgXSLStringBuilder.append("\t\t\t\t\t<xs:simpleType>\n");
 		mesgXSLStringBuilder.append("\t\t\t\t\t\t<xs:restriction base=\"xs:string\">\n");
@@ -302,7 +301,17 @@ public class ItemTypeManger implements CommonRootIF {
 		mesgXSLStringBuilder.append("\t\t\t\t\t\t</xs:restriction>\n");
 		mesgXSLStringBuilder.append("\t\t\t\t\t</xs:simpleType>\n");
 		mesgXSLStringBuilder.append("\t\t\t\t</xs:element>\n");
-		mesgXSLStringBuilder.append("\t\t\t\t<!-- \uD56D\uBAA9 \uADF8\uB8F9 -->\n");
+		
+		mesgXSLStringBuilder.append("\t\t\t\t<!-- 메시지 통신 방향 -->\n");
+		mesgXSLStringBuilder.append("\t\t\t\t<xs:element name=\"direction\" minOccurs=\"1\" maxOccurs=\"1\">\n");
+		mesgXSLStringBuilder.append("\t\t\t\t\t<xs:simpleType>\n");
+		mesgXSLStringBuilder.append("\t\t\t\t\t\t<xs:restriction base=\"xs:string\">\n");
+		mesgXSLStringBuilder.append("\t\t\t\t\t\t\t<xs:pattern value=\"[a-zA-Z][a-zA-Z1-9_]+\" />\n");
+		mesgXSLStringBuilder.append("\t\t\t\t\t\t</xs:restriction>\n");
+		mesgXSLStringBuilder.append("\t\t\t\t\t</xs:simpleType>\n");
+		mesgXSLStringBuilder.append("\t\t\t\t</xs:element>\n");
+		
+		mesgXSLStringBuilder.append("\t\t\t\t<!-- 항목 그룹 -->\n");
 		mesgXSLStringBuilder.append("\t\t\t\t<xs:element name=\"desc\" type=\"xs:string\" minOccurs=\"0\"\n");
 		mesgXSLStringBuilder.append("\t\t\t\t\tmaxOccurs=\"1\" />\n");
 		mesgXSLStringBuilder.append("\t\t\t\t<xs:group minOccurs=\"0\" maxOccurs=\"unbounded\" ref=\"itemgroup\" />\n");
@@ -324,7 +333,9 @@ public class ItemTypeManger implements CommonRootIF {
 			bw.write(mesgXSLStr);
 			
 			
-			log.info(String.format("메시지 구조를 정의한 XSL 내용이 담긴 임시 파일=[%s]", f.getAbsolutePath()));
+			// log.info(String.format("메시지 구조를 정의한 XSL 내용이 담긴 임시 파일=[%s]", f.getAbsolutePath()));
+			System.out.printf("메시지 구조를 정의한 XSL 내용이 담긴 임시 파일=[%s]", f.getAbsolutePath());
+			System.out.println();
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -355,7 +366,8 @@ public class ItemTypeManger implements CommonRootIF {
 			 */
 			xslIS = new ByteArrayInputStream(mesgXSLStr.getBytes("UTF-8"));
 		} catch (UnsupportedEncodingException e) {
-			log.error("UnsupportedEncodingException", e);
+			// log.error("UnsupportedEncodingException", e);
+			e.printStackTrace();
 			System.exit(1);
 		}
 		return xslIS;
@@ -366,7 +378,8 @@ public class ItemTypeManger implements CommonRootIF {
 		if (null == itemTypeID) {
 			String errorMessage = String.format("알수 없는 항목 타입명[%s]", itemType);
 			UnknownItemTypeException e = new UnknownItemTypeException(errorMessage);
-			log.warn(errorMessage, e);
+			// log.warn(errorMessage, e);
+			e.printStackTrace();
 			throw e;
 		}		
 		return itemTypeID.intValue();
@@ -377,7 +390,8 @@ public class ItemTypeManger implements CommonRootIF {
 		if (null == itemType) {
 			String errorMessage = String.format("알수 없는 항목 타입 식별자[%d]", itemTypeID);
 			UnknownItemTypeException e = new UnknownItemTypeException(errorMessage);
-			log.warn(errorMessage, e);
+			// log.warn(errorMessage, e);
+			e.printStackTrace();
 			throw e;
 		}		
 		return itemType;
@@ -387,7 +401,7 @@ public class ItemTypeManger implements CommonRootIF {
 		return itemTypeToIDHash.size();
 	}
 	
-	public void checkValue(int itemTypeID, Charset itemCharsetForLang, int itemSizeForLang, Object itemValue) {
+	/*public void checkValue(int itemTypeID, Charset itemCharsetForLang, int itemSizeForLang, Object itemValue) {
 		checkItemValueList[itemTypeID].checkValue(itemCharsetForLang, itemSizeForLang, itemValue);
 	}
 	
@@ -538,5 +552,5 @@ public class ItemTypeManger implements CommonRootIF {
 						String.format("fixed length byte[] 항목의 길이[%d]와 고정 크기 값[%d]이 일치하지 않습니다.", value.length, itemSizeForLang));
 			}
 		}
-	}
+	}*/
 }

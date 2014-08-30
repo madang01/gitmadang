@@ -45,8 +45,8 @@ public abstract class MessageDecoder implements CommonRootIF {
 		} catch(BodyFormatException e) {
 			throw e;
 		} catch(Exception e) {
-			String errorMessage = "";
-			log.warn(errorMessage);
+			String errorMessage = "unknown error::"+e.getMessage();
+			log.warn(errorMessage, e);
 			new BodyFormatException(errorMessage);
 		}
 		

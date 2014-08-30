@@ -37,6 +37,7 @@ import kr.pe.sinnori.gui.table.SourceBuilderTableModel;
 import kr.pe.sinnori.gui.table.SourceFileCellEditor;
 import kr.pe.sinnori.gui.table.SourceFileCellRenderer;
 import kr.pe.sinnori.gui.table.SourceFileCellValue;
+import kr.pe.sinnori.message.MessageInfo;
 import kr.pe.sinnori.message.MessageInfoSAXParser;
 import kr.pe.sinnori.source_file_builder.SourceFileBuilderManager;
 
@@ -46,7 +47,7 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
 @SuppressWarnings("serial")
-public class NoConfigFileScreen extends JPanel implements AllMessageInfoManagerIF, SourceManagerIF {
+public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, SourceManagerIF {
 	private JFrame mainFrame = null;
 	// private MainControllerIF mainController = null;
 	private JFileChooser chooser = null;
@@ -54,13 +55,16 @@ public class NoConfigFileScreen extends JPanel implements AllMessageInfoManagerI
 	private JTextField sourceBasePath1TextField;
 	private JTextField sourceBasePath2TextField;
 	private JTextField sourceBasePath3TextField;
-	private JTextField messageNameTextField;
+	private JTextField authorTextField;
+	private JTextField searchKeywordTextField;
 	private JTable table;
 	
 	private SourceFileBuilderManager sourceFileBuilderManager = SourceFileBuilderManager.getInstance();
-	// private final Action okAction = new OKButtonAction();
+	
 	
 	/** DefaultTableModel start */
+	private SourceBuilderTableModel sourceBuilderTableModel = null;
+	
 	private String titles[] = {
 			"메시지 이름", "메시지 통신 방향", "메시지 정보 파일 기능", "소스 파일 기능"
 		};
@@ -69,9 +73,9 @@ public class NoConfigFileScreen extends JPanel implements AllMessageInfoManagerI
 		String.class, String.class, Object.class, SourceFileCellValue.class
 	};
 	
-	// private DefaultTableModel dtm = null;
 	private JScrollPane scrollPane = new JScrollPane();
 	/** DefaultTableModel end */
+	
 	
 	/**
 	 * Create the panel.
@@ -132,7 +136,8 @@ public class NoConfigFileScreen extends JPanel implements AllMessageInfoManagerI
 				FormFactory.MIN_ROWSPEC,}));
 		
 		JLabel messageInfoPathLabel = new JLabel("메시지 정보  파일 위치");
-		messageInfoPathLabel.setFont(UIManager.getFont("Label.font"));
+		// messageInfoPathLabel.setFont(UIManager.getFont("Label.font"));
+		messageInfoPathLabel.setFont(UIManager.getFont("Table.font"));
 		line01Panel.add(messageInfoPathLabel, "3, 1");
 		
 		messageInfoPathTextField = new JTextField();
@@ -222,44 +227,82 @@ public class NoConfigFileScreen extends JPanel implements AllMessageInfoManagerI
 		sourceBasePath3Button.setAction(new PathSwingAction(mainFrame, chooser, sourceBasePath3TextField));
 		line04Panel.add(sourceBasePath3Button, "8, 1");
 		
+		//////////////////////////
 		JPanel line05Panel = new JPanel();
-		FlowLayout flowLayout = (FlowLayout) line05Panel.getLayout();
+		add(line05Panel, "2, 10, fill, center");
+		line05Panel.setLayout(new FormLayout(new ColumnSpec[] {
+				FormFactory.UNRELATED_GAP_COLSPEC,
+				FormFactory.RELATED_GAP_COLSPEC,
+				FormFactory.DEFAULT_COLSPEC,
+				FormFactory.LABEL_COMPONENT_GAP_COLSPEC,
+				FormFactory.UNRELATED_GAP_COLSPEC,
+				FormFactory.BUTTON_COLSPEC,
+				FormFactory.UNRELATED_GAP_COLSPEC,},
+			new RowSpec[] {
+				FormFactory.MIN_ROWSPEC,}));
+		
+		JLabel authorLabel = new JLabel("작           성           자");
+		line05Panel.add(authorLabel, "3, 1");
+		
+		authorTextField = new JTextField();
+		line05Panel.add(authorTextField, "6, 1, fill, default");
+		authorTextField.setColumns(20);
+		
+		//////////////////////////
+		
+		JPanel line06Panel = new JPanel();
+		FlowLayout flowLayout = (FlowLayout) line06Panel.getLayout();
 		flowLayout.setAlignment(FlowLayout.LEFT);
-		add(line05Panel, "2, 12, fill, center");
+		add(line06Panel, "2, 12, fill, center");
 		
 		JButton allMessageInfoPathButton = new JButton("메시지 정보 전체 다시 읽기");
 		class AllMessageInfoPathButtonAction implements ActionListener {
-			private AllMessageInfoManagerIF allMessageInfoManager = null;
+			private MessageInfoManagerIF messageInfoManager = null;
 			
-			public AllMessageInfoPathButtonAction(AllMessageInfoManagerIF allMessageInfoManager) {
-				this.allMessageInfoManager = allMessageInfoManager;
+			public AllMessageInfoPathButtonAction(MessageInfoManagerIF messageInfoManager) {
+				this.messageInfoManager = messageInfoManager;
 			}
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("AllMessageInfoPathReadButtonAction::"+e.toString());
 				// JOptionPane.showMessageDialog(parentComponent, "IOCheckboxAction::call::"+messageInfoPathTextField.getText());
-				allMessageInfoManager.readAllMessageInfo();
+				messageInfoManager.readAllMessageInfo();
 			}
 		}
 		
 		allMessageInfoPathButton.addActionListener(new AllMessageInfoPathButtonAction(this));
-		line05Panel.add(allMessageInfoPathButton);
+		line06Panel.add(allMessageInfoPathButton);
 		
-		JButton allSourceFileCreateButton = new JButton("소스 전체 생성");
-		line05Panel.add(allSourceFileCreateButton);
-		
-		JPanel line06Panel = new JPanel();
-		FlowLayout flowLayout_1 = (FlowLayout) line06Panel.getLayout();
-		flowLayout_1.setAlignment(FlowLayout.LEFT);
-		add(line06Panel, "2, 16, fill, center");
-		
-		JLabel messageSearchLabel = new JLabel(">> 메시지 검색");
-		line06Panel.add(messageSearchLabel);
+		JButton allSourceFileCreateButton = new JButton("사용자 옵션 영향 받는 소스 전체 생성");
+		class AllSourceFileCreateAction implements ActionListener {
+			private SourceManagerIF sourceManager = null;
+			
+			public AllSourceFileCreateAction(SourceManagerIF sourceManager) {
+				this.sourceManager = sourceManager;
+			}
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("AllMessageInfoPathReadButtonAction::"+e.toString());
+				// JOptionPane.showMessageDialog(parentComponent, "IOCheckboxAction::call::"+messageInfoPathTextField.getText());
+				sourceManager.createAllSourceFiles();
+			}
+		}
+		allSourceFileCreateButton.addActionListener(new AllSourceFileCreateAction(this));
+		line06Panel.add(allSourceFileCreateButton);
 		
 		JPanel line07Panel = new JPanel();
-		add(line07Panel, "2, 18, fill, center");
-		line07Panel.setLayout(new FormLayout(new ColumnSpec[] {
+		FlowLayout flowLayout_1 = (FlowLayout) line07Panel.getLayout();
+		flowLayout_1.setAlignment(FlowLayout.LEFT);
+		add(line07Panel, "2, 16, fill, center");
+		
+		JLabel messageSearchLabel = new JLabel(">> 메시지 검색");
+		line07Panel.add(messageSearchLabel);
+		
+		JPanel line08Panel = new JPanel();
+		add(line08Panel, "2, 18, fill, center");
+		line08Panel.setLayout(new FormLayout(new ColumnSpec[] {
 				FormFactory.RELATED_GAP_COLSPEC,
 				FormFactory.RELATED_GAP_COLSPEC,
 				FormFactory.DEFAULT_COLSPEC,
@@ -273,14 +316,29 @@ public class NoConfigFileScreen extends JPanel implements AllMessageInfoManagerI
 				FormFactory.MIN_ROWSPEC,}));
 		
 		JLabel messageNameLabel = new JLabel("메시지 이름");
-		line07Panel.add(messageNameLabel, "3, 1");
+		line08Panel.add(messageNameLabel, "3, 1");
 		
-		messageNameTextField = new JTextField();
-		line07Panel.add(messageNameTextField, "6, 1, fill, default");
-		messageNameTextField.setColumns(10);
+		searchKeywordTextField = new JTextField();
+		line08Panel.add(searchKeywordTextField, "6, 1, fill, default");
+		searchKeywordTextField.setColumns(10);
 		
-		JButton messageNameButton = new JButton("검색");
-		line07Panel.add(messageNameButton, "8, 1");
+		JButton searchKeywordButton = new JButton("검색");
+		class SearchKeyWordAction implements ActionListener {
+			private MessageInfoManagerIF messageInfoManager = null;
+			
+			public SearchKeyWordAction(MessageInfoManagerIF messageInfoManager) {
+				this.messageInfoManager = messageInfoManager;
+			}
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("AllMessageInfoPathReadButtonAction::"+e.toString());
+				// JOptionPane.showMessageDialog(parentComponent, "IOCheckboxAction::call::"+messageInfoPathTextField.getText());
+				messageInfoManager.readMessageInfoWithSearchKeyword();
+			}
+		}
+		searchKeywordButton.addActionListener(new SearchKeyWordAction(this));
+		line08Panel.add(searchKeywordButton, "8, 1");
 		
 		
 		add(scrollPane, "2, 22, fill, fill");
@@ -307,7 +365,17 @@ public class NoConfigFileScreen extends JPanel implements AllMessageInfoManagerI
 	
 	private ProgressMonitor progressMonitor = null;
 	
+	public enum MESSAGE_INFO_SEARCH_GUBUN {
+		NO_SEARCH_KEYWORD, SEARCH_KEYWORD
+	};
 	class AllMessageInfoTask extends SwingWorker<Void, Void> {
+		
+		private MESSAGE_INFO_SEARCH_GUBUN messageInfoSearchGubun;
+		
+		public AllMessageInfoTask(MESSAGE_INFO_SEARCH_GUBUN messageInfoSearchGubun) {
+			this.messageInfoSearchGubun = messageInfoSearchGubun;
+		}
+		
         @Override
         public Void doInBackground() {
         	// FIXME!
@@ -394,13 +462,21 @@ public class NoConfigFileScreen extends JPanel implements AllMessageInfoManagerI
     			MessageInfoSAXParser messageInfoSAXParser = new MessageInfoSAXParser(messageInfoFile);
     			kr.pe.sinnori.message.MessageInfo messageInfo = messageInfoSAXParser.parse();
     			if (null != messageInfo) {
-    				messageInfoFileList.add(messageInfoFile);
-    				messageInfoList.add(messageInfo);
+    				if (MESSAGE_INFO_SEARCH_GUBUN.SEARCH_KEYWORD == messageInfoSearchGubun) {
+    					String fileName = messageInfoFile.getName();
+    					if (fileName.indexOf(searchKeywordTextField.getText()) >= 0) {
+    						messageInfoFileList.add(messageInfoFile);
+            				messageInfoList.add(messageInfo);
+    					}
+    				} else {
+    					messageInfoFileList.add(messageInfoFile);
+        				messageInfoList.add(messageInfo);
+    				}
     			}
     		}
     		
             Object values[][] = new Object[messageInfoList.size()][titles.length];
-            SourceBuilderTableModel sourceBuilderTableModel = new SourceBuilderTableModel(values, titles, columnTypes);
+            // SourceBuilderTableModel sourceBuilderTableModel = new SourceBuilderTableModel(values, titles, columnTypes);
             
             for (int i=0; i < values.length; i++) {
             	kr.pe.sinnori.message.MessageInfo messageInfo = messageInfoList.get(i);
@@ -409,7 +485,7 @@ public class NoConfigFileScreen extends JPanel implements AllMessageInfoManagerI
     			String messageID = messageInfo.getMessageID();
     			values[i][0] = messageID;
     			values[i][1] = messageInfo.getDirection().toString();
-    			values[i][2] = new MessageInfoFileCellValue(messageInfoFile, messageInfo, sourceBuilderTableModel, i, mainFrame);
+    			values[i][2] = new MessageInfoFileCellValue(i, messageInfoFile, messageInfo, NoConfigFileScreen.this, mainFrame);
     			values[i][3] = new SourceFileCellValue(messageInfo, NoConfigFileScreen.this);
     			if (progressMonitor.isCanceled())  {
     				return null;
@@ -417,12 +493,14 @@ public class NoConfigFileScreen extends JPanel implements AllMessageInfoManagerI
     			progressMonitor.setNote(i+"/"+values.length);
     			progressMonitor.setProgress(i*100/values.length);
     			
-    			sourceBuilderTableModel.setValueAt(values[i][0], i, 0);
+    			/*sourceBuilderTableModel.setValueAt(values[i][0], i, 0);
     			sourceBuilderTableModel.setValueAt(values[i][1], i, 1);
     			sourceBuilderTableModel.setValueAt(values[i][2], i, 2);
-    			sourceBuilderTableModel.setValueAt(values[i][3], i, 3);
+    			sourceBuilderTableModel.setValueAt(values[i][3], i, 3);*/
     		}
     		// dtm.setDataVector(values, columnTypes);
+            sourceBuilderTableModel = new SourceBuilderTableModel(values, titles, columnTypes);
+            
     		
     		table.setModel(sourceBuilderTableModel);
     		
@@ -493,11 +571,20 @@ public class NoConfigFileScreen extends JPanel implements AllMessageInfoManagerI
 		
 		progressMonitor = new ProgressMonitor(mainFrame, "Running a Task reading message info files", "", 0, 100);
 		
-		AllMessageInfoTask allMessageInfoTask = new AllMessageInfoTask();
+		AllMessageInfoTask allMessageInfoTask = new AllMessageInfoTask(MESSAGE_INFO_SEARCH_GUBUN.NO_SEARCH_KEYWORD);
         // task.addPropertyChangeListener(mainFrame);
 		allMessageInfoTask.execute();
 		
 			
+	}
+	
+	@Override
+	public void readMessageInfoWithSearchKeyword() {
+		Toolkit.getDefaultToolkit().beep();
+		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		progressMonitor = new ProgressMonitor(mainFrame, "Running a Task reading message info files", "", 0, 100);
+		AllMessageInfoTask allMessageInfoTask = new AllMessageInfoTask(MESSAGE_INFO_SEARCH_GUBUN.SEARCH_KEYWORD);
+		allMessageInfoTask.execute();
 	}
 	
 	private File getPathFile(String pathText) {
@@ -521,14 +608,29 @@ public class NoConfigFileScreen extends JPanel implements AllMessageInfoManagerI
 		return sourcePath;
 	}
 	
+	@Override
 	public void createSourceFile(boolean isSelectedIO, boolean isSelectedDirection, kr.pe.sinnori.message.MessageInfo messageInfo) {
 		String sourcePath1Text = sourceBasePath1TextField.getText();
 		String sourcePath2Text = sourceBasePath2TextField.getText();
 		String sourcePath3Text = sourceBasePath3TextField.getText();
+		String author = authorTextField.getText();
 		
-		if (null == sourcePath1Text) sourcePath1Text="";
-		if (null == sourcePath2Text) sourcePath2Text="";
-		if (null == sourcePath3Text) sourcePath3Text="";
+		if (null == sourcePath1Text) {
+			sourcePath1Text="";
+			sourceBasePath1TextField.setText(sourcePath1Text);
+		}
+		if (null == sourcePath2Text) {
+			sourcePath2Text="";
+			sourceBasePath2TextField.setText(sourcePath2Text);
+		}
+		if (null == sourcePath3Text) {
+			sourcePath3Text="";
+			sourceBasePath3TextField.setText(sourcePath3Text);
+		}
+		if (null == author) {
+			author = "";
+			authorTextField.setText(author);
+		}
 		
 		ArrayList<File> sourceBasePathList = new ArrayList<File>();
 		if (!sourcePath1Text.equals("")) {
@@ -570,19 +672,22 @@ public class NoConfigFileScreen extends JPanel implements AllMessageInfoManagerI
 			return;
 		}
 		
+		if (author.equals("")) {
+			JOptionPane.showMessageDialog(mainFrame, "저자 이름을 넣어 주세요.");
+			authorTextField.requestFocusInWindow();
+			return;
+		}
+		
 		FileOutputStream fos = null;
-		String author = "Jonghoon Won";
 		
 		for (File sourceBasePath : sourceBasePathList) {
 			String messageID = messageInfo.getMessageID();
 			String sourcePathText = sourceBasePath.getAbsolutePath()+File.separator+messageID;
 			File oneSourcePath = new File(sourcePathText);
 			if (! oneSourcePath.exists()) {
-				try {
-					oneSourcePath.createNewFile();
-				} catch (IOException e) {
-					// e.printStackTrace();
-					String errorMessage = String.format("소스 경로[%s] 신규 생성이 실패했습니다.", sourcePathText);
+				boolean result = oneSourcePath.mkdir();
+				if (!result) {
+					String errorMessage = String.format("소스 경로[%s] 생성 실패", sourcePathText);
 					System.out.println(errorMessage);
 					JOptionPane.showMessageDialog(mainFrame, errorMessage);
 					continue;
@@ -776,7 +881,7 @@ public class NoConfigFileScreen extends JPanel implements AllMessageInfoManagerI
 				
 				if (!messageClientCodecFile.exists()) {
 					try {
-						messageServerCodecFile.createNewFile();
+						messageClientCodecFile.createNewFile();
 					} catch (IOException e) {
 						String errorMessage = String.format("메시지 클라이언트 코덱 파일[%s] 신규 생성 실패", messageClientCodecFile.getAbsolutePath());
 						System.out.println(errorMessage);
@@ -819,6 +924,98 @@ public class NoConfigFileScreen extends JPanel implements AllMessageInfoManagerI
 		}
 	}
  
+	// FIXME!
+	@Override
+	public void createAllSourceFiles() {
+		String sourcePath1Text = sourceBasePath1TextField.getText();
+		String sourcePath2Text = sourceBasePath2TextField.getText();
+		String sourcePath3Text = sourceBasePath3TextField.getText();
+		String author = authorTextField.getText();
+		
+		if (null == sourcePath1Text) {
+			sourcePath1Text="";
+			sourceBasePath1TextField.setText(sourcePath1Text);
+		}
+		if (null == sourcePath2Text) {
+			sourcePath2Text="";
+			sourceBasePath2TextField.setText(sourcePath2Text);
+		}
+		if (null == sourcePath3Text) {
+			sourcePath3Text="";
+			sourceBasePath3TextField.setText(sourcePath3Text);
+		}
+		if (null == author) {
+			author = "";
+			authorTextField.setText(author);
+		}
+		
+		ArrayList<File> sourceBasePathList = new ArrayList<File>();
+		if (!sourcePath1Text.equals("")) {
+			File oneSourcePath = getPathFile(sourcePath1Text);
+			
+			if (null == oneSourcePath) {
+				sourceBasePath1TextField.requestFocusInWindow();
+				return;
+			}
+			sourceBasePathList.add(oneSourcePath);
+		}
+		
+		if (!sourcePath2Text.equals("")) {
+			File oneSourcePath = getPathFile(sourcePath2Text);
+			
+			if (null == oneSourcePath) {
+				sourceBasePath2TextField.requestFocusInWindow();
+				return;
+			}
+			
+			sourceBasePathList.add(oneSourcePath);
+		}
+		
+		if (!sourcePath3Text.equals("")) {
+			File oneSourcePath = getPathFile(sourcePath3Text);
+			
+			if (null == oneSourcePath) {
+				sourceBasePath3TextField.requestFocusInWindow();
+				return;
+			}
+			
+			sourceBasePathList.add(oneSourcePath);
+		}
+		
+		if (0 == sourceBasePathList.size()) {
+			JOptionPane.showMessageDialog(mainFrame, "소스 저장 위치 3개중 최소 1개에 값이 있어야 합니다.");
+			
+			sourceBasePath1TextField.requestFocusInWindow();
+			return;
+		}
+		
+		if (author.equals("")) {
+			JOptionPane.showMessageDialog(mainFrame, "저자 이름을 넣어 주세요.");
+			authorTextField.requestFocusInWindow();
+			return;
+		}
+		
+		if (null == sourceBuilderTableModel) {
+			JOptionPane.showMessageDialog(mainFrame, "메시지 정보가 없습니다. 메시지 정보 전체 다시 읽기를 수행해 주세요.");
+			authorTextField.requestFocusInWindow();
+			return;
+		}
+		
+		int rowCount = sourceBuilderTableModel.getRowCount();
+		
+		for (int i=0; i < rowCount; i++) {
+			SourceFileCellValue sourceFileCellValue = (SourceFileCellValue)sourceBuilderTableModel.getValueAt(i, 3);
+			sourceFileCellValue.createSourceFile();
+		}	
+	}
+
+	@Override
+	public void retry(int row, MessageInfo messageInfo) {
+		sourceBuilderTableModel.setValueAt(messageInfo.getDirection().toString(), row, 1);
+		SourceFileCellValue sourceFileCellValue = (SourceFileCellValue)sourceBuilderTableModel.getValueAt(row, 3);
+		sourceFileCellValue.setMessageInfo(messageInfo);
+		scrollPane.repaint();
+	}
 
 
 	/*private class OKButtonAction extends AbstractAction {

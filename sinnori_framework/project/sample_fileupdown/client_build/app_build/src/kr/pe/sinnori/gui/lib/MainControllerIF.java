@@ -17,7 +17,6 @@
 
 package kr.pe.sinnori.gui.lib;
 
-import kr.pe.sinnori.common.message.OutputMessage;
 
 /**
  * 연결 성공일 경우 인터페이스

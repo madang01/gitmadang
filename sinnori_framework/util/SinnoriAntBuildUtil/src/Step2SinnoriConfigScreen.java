@@ -464,7 +464,12 @@ public class Step2SinnoriConfigScreen extends JPanel {
 	 * @return
 	 */
 	public boolean saveConfig() {
-		for (int i=0; i < apiRadioButton.length; i++) {
+		System.out.printf("innerProjectList.length=[%d]", innerProjectList.length);
+		System.out.println();
+		System.out.printf("apiRadioButton.length=[%d]", apiRadioButton.length);
+		System.out.println();
+		
+		for (int i=0; i < innerProjectList.length; i++) {
 			
 			// sinnoriInstallAbsPathName
 			String projectName = mainProjectList.get(i);
@@ -531,7 +536,10 @@ public class Step2SinnoriConfigScreen extends JPanel {
 			}
 			*/
 			
-			for (int j=0; j < innerProjectList.length; j++) {
+			System.out.printf("innerProjectList[%d].length=[%d]", i, innerProjectList[i].length);
+			System.out.println();
+			
+			for (int j=0; j < innerProjectList[i].length; j++) {
 
 				propKey = new StringBuilder(innerProjectList[i][j]).append(".common.message_info.xmlpath.value").toString();
 				String innerProjectMessagePath = innerProjectMessagePathTextField[i][j].getText();

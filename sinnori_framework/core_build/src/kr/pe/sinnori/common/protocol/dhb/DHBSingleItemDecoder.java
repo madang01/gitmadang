@@ -214,7 +214,7 @@ public class DHBSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF {
 	@Override
 	public Object getValueFromMiddleReadObj(String path, String itemName,
 			int itemTypeID, String itemTypeName, int itemSizeForLang,
-			Charset itemCharsetForLang, Charset charsetOfProject,
+			String itemCharset, Charset charsetOfProject,
 			Object middleReadObj) throws BodyFormatException {
 		if (!(middleReadObj instanceof InputStreamIF)) {
 			String errorMessage = String.format(
@@ -222,6 +222,15 @@ public class DHBSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF {
 					middleReadObj.getClass().getCanonicalName());
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		Charset itemCharsetForLang = null;
+		if (null != itemCharset) {
+			try {
+				itemCharsetForLang = Charset.forName(itemCharset);
+			} catch(Exception e) {
+				log.warn("문자셋[{}] 이름이 잘못되었습니다.", itemCharset);
+			}
 		}
 		
 		InputStreamIF sr = (InputStreamIF)middleReadObj;
@@ -239,7 +248,7 @@ public class DHBSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF {
 			errorMessageBuilder.append("], itemSize=[");
 			errorMessageBuilder.append(itemSizeForLang);
 			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(itemCharsetForLang.name());
+			errorMessageBuilder.append(itemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
 			errorMessageBuilder.append(e.getMessage());
 			errorMessageBuilder.append("]");
@@ -258,7 +267,7 @@ public class DHBSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF {
 			errorMessageBuilder.append("], itemSize=[");
 			errorMessageBuilder.append(itemSizeForLang);
 			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(itemCharsetForLang.name());
+			errorMessageBuilder.append(itemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
 			errorMessageBuilder.append(e.getMessage());
 			errorMessageBuilder.append("]");
@@ -277,7 +286,7 @@ public class DHBSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF {
 			errorMessageBuilder.append("], itemSize=[");
 			errorMessageBuilder.append(itemSizeForLang);
 			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(itemCharsetForLang.name());
+			errorMessageBuilder.append(itemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
 			errorMessageBuilder.append(e.getMessage());
 			errorMessageBuilder.append("]");
@@ -298,7 +307,7 @@ public class DHBSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF {
 			errorMessageBuilder.append("], itemSize=[");
 			errorMessageBuilder.append(itemSizeForLang);
 			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(itemCharsetForLang.name());
+			errorMessageBuilder.append(itemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
 			errorMessageBuilder.append(e.getMessage());
 			errorMessageBuilder.append("]");

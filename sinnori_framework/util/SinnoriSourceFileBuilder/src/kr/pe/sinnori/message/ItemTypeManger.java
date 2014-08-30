@@ -24,12 +24,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
-import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.exception.UnknownItemTypeException;
 
 
@@ -56,7 +54,7 @@ public class ItemTypeManger {
 	private LinkedHashMap<String, Integer> itemTypeToIDHash  = new LinkedHashMap<String, Integer>();
 	private HashMap<Integer, String> idToItemTypeHash  = new HashMap<Integer, String>();
 		
-	private CheckItemValue checkItemValueList[] = {
+	/*private CheckItemValue checkItemValueList[] = {
 			new CheckByteValue(), new CheckUnsigendByteValue(),
 			new CheckShortValue(), new CheckUnsigendShortValue(),
 			new CheckIntValue(), new CheckUnsigendIntValue(),
@@ -65,7 +63,7 @@ public class ItemTypeManger {
 			new CheckFixedLengthStringValue(), new CheckUBVariableLengthBytesValue(),
 			new CheckUSVariableLengthBytesValue(), new CheckSIVariableLengthBytesValue(),
 			new CheckFixedLengthBytesValue()
-	};
+	};*/
 	
 	/**
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스
@@ -403,7 +401,7 @@ public class ItemTypeManger {
 		return itemTypeToIDHash.size();
 	}
 	
-	public void checkValue(int itemTypeID, Charset itemCharsetForLang, int itemSizeForLang, Object itemValue) {
+	/*public void checkValue(int itemTypeID, Charset itemCharsetForLang, int itemSizeForLang, Object itemValue) {
 		checkItemValueList[itemTypeID].checkValue(itemCharsetForLang, itemSizeForLang, itemValue);
 	}
 	
@@ -554,5 +552,5 @@ public class ItemTypeManger {
 						String.format("fixed length byte[] 항목의 길이[%d]와 고정 크기 값[%d]이 일치하지 않습니다.", value.length, itemSizeForLang));
 			}
 		}
-	}
+	}*/
 }

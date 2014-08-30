@@ -416,30 +416,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF
 				throw new BodyFormatException(errorMessage);
 			}
 			
-			byte[] value = null;
-			String tValue = (String)jsonValue;
-			
-			if (tValue.isEmpty()) {
-				value = new byte[0];
-			} else {
-				try {
-					value = HexUtil.hexToByteArray(tValue);
-					
-					if (value.length != itemSizeForLang) {
-						throw new IllegalArgumentException(
-								String.format(
-										"파라미터로 넘어온 바이트 배열의 크기[%d]가 메시지 정보에서 지정한 크기[%d]와 다릅니다. 고정 크기 바이트 배열에서는 일치해야 합니다.",
-										value.length, itemSizeForLang));
-					}
-				} catch(NumberFormatException e) {
-					String errorMessage = 
-							String.format("JSON Object 로 부터 얻은 FixedLengthBytes 타입 항목[%s]의 값[%s]이 hex 문자열이 아닙니다.", 
-									itemName, tValue);
-					throw new BodyFormatException(errorMessage);
-				}
-			}
-			
-			return value;
+			return jsonValue;
 		}		
 	}
 
@@ -472,7 +449,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF
 				value = new byte[0];
 			} else {
 				try {
-					value = HexUtil.hexToByteArray(tValue);
+					value = HexUtil.getByteArrayFromHexString(tValue);
 					
 					if (value.length > CommonStaticFinalVars.MAX_UNSIGNED_BYTE) {
 						String errorMessage = 
@@ -519,7 +496,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF
 				value = new byte[0];
 			} else {
 				try {
-					value = HexUtil.hexToByteArray(tValue);
+					value = HexUtil.getByteArrayFromHexString(tValue);
 					
 					if (value.length > CommonStaticFinalVars.MAX_UNSIGNED_SHORT) {
 						String errorMessage = 
@@ -566,7 +543,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF
 				value = new byte[0];
 			} else {
 				try {
-					value = HexUtil.hexToByteArray(tValue);
+					value = HexUtil.getByteArrayFromHexString(tValue);
 				} catch(NumberFormatException e) {
 					String errorMessage = 
 							String.format("JSON Object 로 부터 얻은 SIVariableLengthBytes 타입 항목[%s]의 값[%s]이 hex 문자열이 아닙니다.", 
@@ -606,7 +583,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF
 				value = new byte[0];
 			} else {
 				try {
-					value = HexUtil.hexToByteArray(tValue);
+					value = HexUtil.getByteArrayFromHexString(tValue);
 					
 					if (value.length != itemSizeForLang) {
 						throw new IllegalArgumentException(
@@ -629,7 +606,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF
 	@Override
 	public Object getValueFromMiddleReadObj(String path, String itemName,
 			int itemTypeID, String itemTypeName, int itemSizeForLang,
-			Charset itemCharsetForLang, Charset charsetOfProject,
+			String itemCharset, Charset charsetOfProject,
 			Object middleReadObj) throws BodyFormatException {
 		
 		if (!(middleReadObj instanceof JSONObject)) {
@@ -637,6 +614,15 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF
 					"스트림으로 부터 생성된 중간 다리역활 객체[%s]의 데이터 타입이 JSONObject 이 아닙니다.",
 					middleReadObj.getClass().getCanonicalName());
 			throw new BodyFormatException(errorMessage);
+		}
+		
+		Charset itemCharsetForLang = null;
+		if (null != itemCharset) {
+			try {
+				itemCharsetForLang = Charset.forName(itemCharset);
+			} catch(Exception e) {
+				log.warn("문자셋[{}] 이름이 잘못되었습니다.", itemCharset);
+			}
 		}
 		
 		JSONObject jsonReadObj = (JSONObject)middleReadObj;
@@ -655,7 +641,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF
 			errorMessageBuilder.append("], itemSize=[");
 			errorMessageBuilder.append(itemSizeForLang);
 			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(itemCharsetForLang.name());
+			errorMessageBuilder.append(itemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
 			errorMessageBuilder.append(e.getMessage());
 			errorMessageBuilder.append("]");
@@ -674,7 +660,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF
 			errorMessageBuilder.append("], itemSize=[");
 			errorMessageBuilder.append(itemSizeForLang);
 			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(itemCharsetForLang.name());
+			errorMessageBuilder.append(itemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
 			errorMessageBuilder.append(e.getMessage());
 			errorMessageBuilder.append("]");
@@ -693,7 +679,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF
 			errorMessageBuilder.append("], itemSize=[");
 			errorMessageBuilder.append(itemSizeForLang);
 			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(itemCharsetForLang.name());
+			errorMessageBuilder.append(itemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
 			errorMessageBuilder.append(e.getMessage());
 			errorMessageBuilder.append("]");
@@ -712,13 +698,13 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF
 			errorMessageBuilder.append("], itemSize=[");
 			errorMessageBuilder.append(itemSizeForLang);
 			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(itemCharsetForLang.name());
+			errorMessageBuilder.append(itemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
 			errorMessageBuilder.append(e.getMessage());
 			errorMessageBuilder.append("]");
 			
 			String errorMessage = errorMessageBuilder.toString();
-			log.info(errorMessage);
+			log.info(errorMessage, e);
 			throw new BodyFormatException(errorMessage);
 		} catch(OutOfMemoryError e) {
 			throw e;
@@ -733,7 +719,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF
 			errorMessageBuilder.append("], itemSize=[");
 			errorMessageBuilder.append(itemSizeForLang);
 			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(itemCharsetForLang.name());
+			errorMessageBuilder.append(itemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
 			errorMessageBuilder.append(e.getMessage());
 			errorMessageBuilder.append("]");
@@ -744,6 +730,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF
 		}
 		return retObj;
 	}
+	
 	
 	@Override
 	public Object getArrayObjFromMiddleReadObj(String path, String arrayName,

@@ -244,7 +244,7 @@ public class FixedSizeInputStream implements CommonRootIF, InputStreamIF {
 			dstCharBuffer = wantedCharsetDecoder.decode(dstBuffer);
 		} catch(CharacterCodingException e) {
 			
-			String errorMessage = String.format("read data hex[%s], charset[%s]", HexUtil.byteBufferAllToHex(dstBuffer), wantedCharsetDecoder.charset().name());
+			String errorMessage = String.format("read data hex[%s], charset[%s]", HexUtil.getAllHexStringFromByteBuffer(dstBuffer), wantedCharsetDecoder.charset().name());
 			// log.warn(errorMessage, e);
 			throw new SinnoriCharsetCodingException(errorMessage);
 		}

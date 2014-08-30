@@ -119,13 +119,35 @@ public class SinnoriClassLoader extends ClassLoader implements CommonRootIF {
 					} 
 					
 					String dynamicClassNameRegex = dynamicClassBasePackageName+messageID+"."+messageID+"(|ServerTask|ClientCodec|ServerCodec|Encoder|Decoder){1}";
-					if (!classFullName.matches(dynamicClassNameRegex)) {
+					
+					/*if (!classFullName.matches(dynamicClassNameRegex)) {
 						String errorMessage = String.format("SinnoriClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]" +
 								"::3.서버 동적 클래스 대상이지만 클래스 명명 규칙이 맞지 않습니다.", 
 								this.hashCode(), messageID, classFullName);
 						log.warn(errorMessage);
 						throw new ClassNotFoundException(errorMessage);
-					}
+					}*/
+					
+					int inxOfInnderClass = classFullName.indexOf('$');
+					if (-1 == inxOfInnderClass ) {
+						if (!classFullName.matches(dynamicClassNameRegex)) {
+							String errorMessage = String.format("SinnoriClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]" +
+									"::3.서버 동적 클래스 대상이지만 클래스 명명 규칙이 맞지 않습니다.", 
+									this.hashCode(), messageID, classFullName);
+							log.warn(errorMessage);
+							throw new ClassNotFoundException(errorMessage);
+						}
+					} else {
+						String compClassName = classFullName.substring(0, inxOfInnderClass);
+						if (!compClassName.matches(dynamicClassNameRegex)) {
+							String errorMessage = String.format("SinnoriClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]" +
+									"::3.서버 동적 클래스 대상이지만 클래스 명명 규칙이 맞지 않습니다.", 
+									this.hashCode(), messageID, classFullName);
+							log.warn(errorMessage);
+							throw new ClassNotFoundException(errorMessage);
+						}
+					}					
+					
 					
 					if (messageID.equals("SelfExn")) {
 						/** 서버 동적 클래스 비 대상 클래스 */
