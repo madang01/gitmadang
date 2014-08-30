@@ -1,0 +1,222 @@
+<project name="sample_test_webclient" default="compile_webclass" basedir=".">
+	<description>
+		샘플 파일 송수신 웹 클라이언트
+	</description>
+	<!-- set global properties for this build -->
+	<property name="src" location="src" />
+	<property name="build" location="build" />
+	<property name="dist" location="dist" />
+	<property name="corelib" location="corelib" />
+	<property name="lib" location="lib" />
+	<property name="framework.build" location="../../../../core_build" />
+	<property name="webclass" location="../../web_app_base/ROOT/WEB-INF/classes" />
+	<property name="weblib" location="../../web_app_base/ROOT/WEB-INF/lib" />
+	<property file="../../ant.properties" />
+	
+	<condition property="is.windows.yes">
+		<os family="windows" />
+	</condition>
+	<condition property="is.unix.yes">
+		<os family="unix" />
+	</condition>
+		
+	<condition property="is.web.yes">
+		<istrue value="${is.tomcat}" />
+	</condition>
+	
+	<condition property="java.debug.yes">
+		<istrue value="${java.debug}" />
+	</condition>
+	
+	<target name="java.debug.yes.init" if="java.debug.yes" description="framework with debug info">
+		<property name="core.java.debug" value="debug" />
+	</target>
+	
+	<target name="java.debug.no.init" unless="java.debug.yes" description="framework with no debug info">
+		<property name="core.java.debug" value="nodebug" />
+	</target>
+	
+	<target name="libdir.init">
+		<mkdir dir="${corelib}/ex" />
+		<mkdir dir="${corelib}/in" />
+		<mkdir dir="${lib}/ex" />
+		<mkdir dir="${lib}/in" />
+	</target>
+	
+	<target name="var.init" depends="libdir.init, java.debug.no.init, java.debug.yes.init" description="var init">
+		<echo message="is.tomcat=${is.tomcat}" />
+		<property name="servletlib" location="${tomcat.servletlib}" />
+	</target>
+	
+	<target name="unix.make.core" if="is.unix.yes">
+		<echo message="유니스 신놀이 프레임 워크 컴파일후 jar 만들기" />
+		<exec dir="${framework.build}" executable="ant">
+			<arg value="${core.java.debug}" />
+		</exec>
+	</target>
+	
+	<target name="dos.make.core" if="is.windows.yes">
+		<echo message="도스 신놀이 프레임 워크 컴파일후 jar 만들기" />
+		<exec dir="${framework.build}" executable="cmd">
+			<arg value="/c" />
+			<arg value="ant.bat" />
+			<arg value="${core.java.debug}" />
+		</exec>
+	</target>
+	
+	<target name="make.sinnori" depends="var.init, dos.make.core, unix.make.core" description="신놀이 프레임 워크 컴파일 하여 jar 라이브러리 만들기" />
+	
+	<target name="corelib.clean" depends="var.init">
+		<delete dir="${corelib}" />
+	</target>
+	
+	<target name="corelib.init" depends="corelib.clean">
+		<!-- Create the time stamp -->
+		<tstamp />
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${corelib}/ex" />
+		<mkdir dir="${corelib}/in" />
+	</target>
+	
+	<target name="copy" description="신놀이 프레임 워크 core copy" depends="corelib.init">
+		<copy todir="${corelib}/ex" verbose="true" overwrite="true">
+			<fileset file="${framework.build}/dist/sinnori_framework.jar" />
+		</copy>
+		<copy todir="${corelib}/ex" verbose="true" overwrite="true">
+			<fileset dir="${framework.build}/lib/ex/" />
+		</copy>
+	</target>
+
+	<target name="sinnori" depends="make.sinnori, copy" description="신놀이 프레임 워크 컴파일후 jar 만들어 가져오기">
+		<echo message="신놀이 프레임 워크 컴파일 하여  jar 라이브러리 만들어 가져오기" />
+	</target>
+
+
+	<target name="clean" depends="var.init" description="clean up">	
+			
+		<!-- Delete the ${build} and ${dist} directory trees -->
+		<delete dir="${build}/weblib" />
+		<delete dir="${dist}" />
+		<!-- delete dir="${webclass}/kr/pe/sinnori" / -->
+		<delete dir="${webclass}" />
+	</target>
+
+	<target name="init" depends="clean">
+	
+		<!-- Create the time stamp -->
+		<tstamp />
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}/weblib" />
+		<mkdir dir="${webclass}" />
+	</target>
+
+	<target name="compile.webbeans" if="is.web.yes" depends="var.init" description="자바빈즈 컴파일, 자바빈즈는 WEB-IF/classes 디렉토리에 위치해야 한다.">
+		<echo message="자바빈즈 컴파일 수행" />
+		<echo message="webclass=${webclass}" />
+		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}" destdir="${webclass}">
+			<include name="kr/pe/sinnori/common/javabeans/**" />
+			<classpath>
+				<fileset dir="${servletlib}">
+					<include name="**/servlet-api.jar" />
+				</fileset>
+				<fileset dir="${corelib}\in">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${corelib}\ex">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+	
+	<target name="compile.weblib" if="is.web.yes" depends="init, compile.webbeans" description="웹 라이브러리 컴파일">
+	
+		<!-- Compile the java code from ${src} into ${build} -->
+		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" destdir="${build}/weblib">
+			<src path="src/kr/pe/sinnori/common/servlet" />
+			<classpath>			    
+				<pathelement location="${webclass}" />
+				<fileset dir="${servletlib}">
+					<include name="**/servlet-api.jar" />
+				</fileset>
+				<fileset dir="${corelib}\in">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${corelib}\ex">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+	
+	<target name="make.weblib" depends="compile.weblib" description="웹 라이브러리 jar 만들기">
+		<!-- Create the distribution directory -->
+		<jar jarfile="${dist}/sinnori_weblib.jar" basedir="${build}/weblib">
+			<restrict>
+				<name name="**/*.class" />
+				<archives>
+					<zips>
+						<fileset dir="corelib/in" includes="**/*.jar" />
+					</zips>
+				</archives>
+			</restrict>
+		</jar>
+	</target>
+	
+	<!--
+	신놀이 프레임 워크 라이브러리를 포함하는 웹 라이브러리(=sinnori_weblib.jar)는 servlet/jsp 엔진이 권장하는 공통 라이브러리 위치에 있어야 합니다. 
+	이는 클래스 로더를 servlet/jsp 엔진의 자체 제작한 클래스 로더가 아닌 순수 자바 클래스 로더가 되기 위해서입니다.
+	만약 tomcat7 의 경우 WEB-INF/lib 에 신놀이 프레임 워크 라이브러리를 넣어 두게 되면 싱글턴이 무력화 되어 오동작 하게 됩니다.	
+	테스트 결과 tomcat7 자체 제작한 클래스 로더는 서블릿 변경시 재 로딩이 일어나면 동시에 WEB-INF/lib 에 적재된 라이브러리(.jar)도 재 로딩됩니다.
+	싱글턴은 인스턴스를 1개만 가지고자 할때 사용하는 디자인 패턴인데 
+	싱글턴 패턴 구현 클래스가 동적 클래스 로딩 대상이 되면 
+	재 로딩이라는 과정이 클래스 컨테이너를 달리하여 클래스를 로딩 하는것이기때문에 결론적으로 싱글턴 패턴은 무력화 됩니다.
+	
+	우분투 + tomcat7 의  경우 /usr/share/tomcat7/lib 로 위치 해야 합니다.
+	우분투의 경우 자바 공통 라이브러리는 /usr/share/java 에 위치하고 있으며,
+	tomcat7 은 /usr/share/java 의 심볼릭 링크로 필요한 것을 걸고 있습니다.
+	
+	이점은 나중 신놀이 프레임 워크를 정식 .deb 로 배포할때 고민해야 할 것이지만,
+	지금은 /usr/share/tomcat7/lib 에 바로 복사를 합시다.
+	-->
+	<target name="dist" if="is.web.yes" depends="make.weblib" description="웹 라이브러리 웹 어플리케이션에 배포">
+		<echo message="웹 라이브러리 ${dist}/sinnori_weblib.jar 를 서블릿 엔진 라이브리러 위치 ${servletlib} 로  배포 할려면 관리자 권한이 필요합니다. 그래서 수동 배포합니다." />
+		<!-- Create the distribution directory -->
+		<copy todir="${weblib}" verbose="true" overwrite="true">
+			<fileset file="${dist}/sinnori_weblib.jar" />
+		</copy>
+	</target>
+	
+	<target name="mydist" if="is.web.yes" depends="var.init" description="웹 라이브러리 웹 어플리케이션에 배포">
+		<echo message="웹 라이브러리를 서블릿 엔진 라이브리러 위치로 배포합니다. 관리자 권한으로 수행 하시기 바랍니다." />
+		<!-- Create the distribution directory -->
+		<copy todir="${servletlib}" verbose="true" overwrite="true">
+			<fileset file="${corelib}/ex/sinnori_framework.jar" />
+		</copy>
+	</target>
+	
+	
+	<target name="compile_webclass" if="is.web.yes" depends="var.init" description="서블릿 컴파일">
+		<echo message="compile_webclass" />
+		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" 
+		includeantruntime="false" srcdir="${src}" destdir="${webclass}"
+		excludes="kr/pe/sinnori/common/**" >
+			<classpath>
+				<fileset dir="${dist}">
+					<include name="sinnori_weblib.jar" />
+				</fileset>
+				<fileset dir="${servletlib}/">
+					<include name="servlet-api.jar" />
+				</fileset>
+				<fileset dir="${corelib}\ex">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+	
+
+	<target name="all" depends="sinnori, dist, compile_webclass" description="신놀이 프레임 워크 컴파일후 복사 그리고 웹 라이브러리 컴파일후 jar 만들어 배포 그리고 서블릿 컴파일">
+		<echo message="is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}, java.debug=${java.debug}" />
+	</target>
+</project>
