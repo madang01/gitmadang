@@ -33,7 +33,7 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
 import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
-import kr.pe.sinnori.common.exception.ServerExcecutorException;
+import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.message.AbstractMessage;
@@ -128,7 +128,7 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
 			throws ServerNotReadyException, SocketTimeoutException,
 			NoMoreDataPacketBufferException, BodyFormatException, 
-			DynamicClassCallException, ServerExcecutorException, NotLoginException {
+			DynamicClassCallException, ServerTaskException, NotLoginException {
 		NoShareAsynConnection conn = null;
 
 		/** 쓰레드 간에 공유를 막기 위해 queueOut 사용*/

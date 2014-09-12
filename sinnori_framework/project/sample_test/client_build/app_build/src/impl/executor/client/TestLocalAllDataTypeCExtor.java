@@ -12,8 +12,8 @@ import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotLoginException;
-import kr.pe.sinnori.common.exception.ServerExcecutorException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
+import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.SocketInputStream;
 import kr.pe.sinnori.common.lib.WrapBuffer;
@@ -33,7 +33,7 @@ public class TestLocalAllDataTypeCExtor extends AbstractClientExecutor {
 			ClientProjectIF clientProject) throws SocketTimeoutException,
 			ServerNotReadyException, NoMoreDataPacketBufferException,
 			BodyFormatException, DynamicClassCallException,
-			ServerExcecutorException, NotLoginException {
+			ServerTaskException, NotLoginException {
 		AllDataType allDataTypeInObj = new AllDataType();
 
 		allDataTypeInObj.setByteVar1(Byte.MAX_VALUE);

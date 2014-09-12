@@ -22,7 +22,7 @@ public class SourceFileCellRenderer extends JPanel implements TableCellRenderer 
 
 	public Component getTableCellRendererComponent(JTable table, Object value,
 			boolean isSelected, boolean hasFocus, int row, int column) {
-		System.out.printf("SourceFileCellRenderer::row=[%d], column=[%d], isSelected=[%s]", row, column, isSelected);
+		/*System.out.printf("SourceFileCellRenderer::row=[%d], column=[%d], isSelected=[%s]", row, column, isSelected);
 		System.out.println();
 		
 		if (null != value) {
@@ -30,7 +30,7 @@ public class SourceFileCellRenderer extends JPanel implements TableCellRenderer 
 			System.out.println();
 		} else {
 			System.out.println("SourceFileCellRenderer::value is null");
-		}
+		}*/
 		
 		SourceFileCellValue sourceFileCellValue = (SourceFileCellValue)value;
 		

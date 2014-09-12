@@ -9,8 +9,8 @@ import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotLoginException;
-import kr.pe.sinnori.common.exception.ServerExcecutorException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
+import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.AllDataType.AllDataType;
 import kr.pe.sinnori.util.AbstractClientExecutor;
@@ -22,7 +22,7 @@ public class TestNetAllDataTypeCExtor extends AbstractClientExecutor {
 			ClientProjectIF clientProject) throws SocketTimeoutException,
 			ServerNotReadyException, NoMoreDataPacketBufferException,
 			BodyFormatException, DynamicClassCallException,
-			ServerExcecutorException, NotLoginException {
+			ServerTaskException, NotLoginException {
 		AllDataType allDataTypeInObj = new AllDataType();
 
 		allDataTypeInObj.setByteVar1(Byte.MAX_VALUE);

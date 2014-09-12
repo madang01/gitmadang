@@ -31,6 +31,7 @@ import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
 import kr.pe.sinnori.server.ClientResource;
+import kr.pe.sinnori.server.LoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
 import kr.pe.sinnori.server.io.LetterFromClient;
@@ -44,6 +45,7 @@ import kr.pe.sinnori.server.io.LetterToClient;
  */
 public class Executor extends Thread implements CommonRootIF {
 	private int index;
+	private LoginManagerIF loginManager = null;
 	private ServerProjectConfig serverProjectConfig = null;
 	private LinkedBlockingQueue<LetterFromClient> inputMessageQueue;
 	private LinkedBlockingQueue<LetterToClient> ouputMessageQueue;
@@ -60,13 +62,15 @@ public class Executor extends Thread implements CommonRootIF {
 	 * @param ouputMessageQueue 출력 메시지 큐
 	 * 
 	 */
-	public Executor(int index, 
+	public Executor(int index,
 			ServerProjectConfig serverProjectConfig,
+			LoginManagerIF loginManager,
 			LinkedBlockingQueue<LetterFromClient> inputMessageQueue,
 			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
 			MessageProtocolIF messageProtocol, ServerObjectCacheManagerIF serverObjectCacheManager) {
-		this.index = index;
-		this.serverProjectConfig = serverProjectConfig;		
+		this.index = index;		
+		this.serverProjectConfig = serverProjectConfig;
+		this.loginManager = loginManager;
 		this.inputMessageQueue = inputMessageQueue;
 		this.ouputMessageQueue = ouputMessageQueue;
 		this.messageProtocol = messageProtocol;
@@ -137,7 +141,7 @@ public class Executor extends Thread implements CommonRootIF {
 					continue;
 				}
 				
-				serverTask.execute(index, serverProjectConfig, serverProjectConfig.getCharset(), ouputMessageQueue, messageProtocol,
+				serverTask.execute(index, serverProjectConfig, loginManager, serverProjectConfig.getCharset(), ouputMessageQueue, messageProtocol,
 						clientSC, clientResource, receivedLetter, serverObjectCacheManager);
 				
 			}
@@ -157,9 +161,6 @@ public class Executor extends Thread implements CommonRootIF {
 		
 		LetterToClient letterToClient = new LetterToClient(clientSC,
 				wrapBufferMessage,
-				wrapBufferMessage.getMessageID()
-				, wrapBufferMessage.messageHeaderInfo.mailboxID, 
-				wrapBufferMessage.messageHeaderInfo.mailID,
 				wrapBufferList);  
 		try {
 			ouputMessageQueue.put(letterToClient);

@@ -1043,8 +1043,8 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 	 * @throws SinnoriBufferUnderflowException
 	 */
 	public byte[] getMD5FromDupStream(long size, java.security.MessageDigest md5) throws IllegalArgumentException, SinnoriBufferUnderflowException {
-		if (size <= 0) {
-			String errorMessage = new StringBuilder("parameter size[").append(size).append("] is less than or equal to zero").toString();
+		if (size < 0) {
+			String errorMessage = new StringBuilder("parameter size[").append(size).append("] is less than zero").toString();
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
@@ -1057,7 +1057,7 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 		
 		int streamBufferListSize = streamBufferList.size();
 
-		byte headerMD5[] = null;
+		byte md5Bytes[] = null;
 		
 		for (int i = indexOfWorkBuffer; i < streamBufferListSize; i++) {
 			ByteBuffer dupByteBuffer = streamBufferList.get(i)
@@ -1078,7 +1078,7 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 				//log.info(String.format("%s", HexUtil.byteBufferAvailableToHex(dupByteBuffer)));
 				
 				md5.update(dupByteBuffer);
-				headerMD5 = md5.digest();
+				md5Bytes = md5.digest();
 				
 				//log.info(String.format("3.%s", HexUtil.byteArrayAllToHex(headerMD5)));
 				break;
@@ -1090,7 +1090,7 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 				size -= remainingBytesOfDupBuffer;
 			}
 		}
-		return headerMD5;
+		return md5Bytes;
 	}
 	
 	public void setLimitedRemainingBytes(long newLimitedRemainingBytes) throws SinnoriBufferUnderflowException {
@@ -1127,7 +1127,7 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 		ArrayList<WrapBuffer> dstDataPacketBufferList = new ArrayList<WrapBuffer>();
 		
 		if (0 == wantedInputStreamSize) {
-			log.info("wantedInputStreamSize is zero, so return empty FreeSizeInputStream");
+			// log.info("wantedInputStreamSize is zero, so return empty FreeSizeInputStream");
 			return new FreeSizeInputStream(dstDataPacketBufferList, CommonType.WRAPBUFFER_RECALL_GUBUN.WRAPBUFFER_RECALL_YES, streamCharsetDecoder, dataPacketBufferQueueManager); 
 		}
 		

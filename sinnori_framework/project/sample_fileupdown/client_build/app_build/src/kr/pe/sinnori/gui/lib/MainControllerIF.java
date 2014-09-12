@@ -17,6 +17,12 @@
 
 package kr.pe.sinnori.gui.lib;
 
+import kr.pe.sinnori.impl.message.CancelDownloadFileResult.CancelDownloadFileResult;
+import kr.pe.sinnori.impl.message.CancelUploadFileResult.CancelUploadFileResult;
+import kr.pe.sinnori.impl.message.DownFileInfoResult.DownFileInfoResult;
+import kr.pe.sinnori.impl.message.FileListResult.FileListResult;
+import kr.pe.sinnori.impl.message.UpFileInfoResult.UpFileInfoResult;
+
 
 /**
  * 연결 성공일 경우 인터페이스
@@ -29,37 +35,30 @@ public interface MainControllerIF {
 	 */
 	public int getFileBlockSize();
 	
-	/**
-	 * 로그인 성공, 연결 화면에서 파일 송수신 화면으로 전환한다.
-	 */
-	public void loginOK();
-	/**
-	 * 지정된 호스트, 포트로 접속하여 공개키 데이터를 받는다.
-	 * @param host 호스트명
-	 * @param port 포트
-	 * @return 공개키
-	 */
-	public byte[] connectServer(String host, int port);
 	
 	/**
-	 * @return 이진 공개키 출력 메시지
+	 * 지정된 호스트, 포트로 접속하여 공개키 데이터를 받는다. 공개키를 요구하여 성공시에는 공개키를 실패시 null 을 반환한다.
+	 * @param host 호스트명
+	 * @param port 포트
+	 * @return 공개키를 요구하여 성공시에는 공개키를 실패시 null 을 반환한다.
 	 */
-	public OutputMessage getBinaryPublicKey();
+	public byte[] getBinaryPublicKey(String host, int port);
 	
 	/**
 	 * 로그인하여 성공여부를 반환한다.
 	 * @param id 아이디
 	 * @param pwd 비밀번호
-	 * @return 로그인 성공 여부
 	 */
-	public boolean login(String id, String pwd);
+	public void login(String id, String pwd);
+	
+	
 	
 	/**
 	 * 지정된 서버쪽 디렉토리의 파일 목록이 담긴 출력 메시지를 반환한다. 
 	 * @param requestDirectory 파일 목록을 가져올 디렉토리
 	 * @return 파일 목록(=FileListResult) 출력 메시지
 	 */
-	public OutputMessage getRemoteFileList(String requestDirectory);
+	public FileListResult getRemoteFileList(String requestDirectory);
 	
 	/**
 	 * 서버에 업로드 파일 준비하라는 메시지를 보낸다.
@@ -73,7 +72,7 @@ public interface MainControllerIF {
 	 * @param fileBlockSize 송수신 파일 조각 크기
 	 * @return 업로드 준비 출력 메시지
 	 */
-	public OutputMessage readyUploadFile(boolean append, 
+	public UpFileInfoResult readyUploadFile(boolean append, 
 			String localFilePathName, String localFileName, long localFileSize, 
 			String remoteFilePathName, String remoteFileName, long remoteFileSize,
 			int fileBlockSize);
@@ -83,14 +82,7 @@ public interface MainControllerIF {
 	 */
 	public void freeLocalSourceFileResource();
 	
-	/**
-	 * 업로드 준비된 서버측에 업로드할 로컬 파일 조각을 담음 메시지를 보낸다. 
-	 * @param serverTargetFileID 서버 송수신 자원 파일 식별자 
-	 * @param fileBlockNo 파일 조각 번호
-	 * @param fileData 파일 조각 데이터
-	 * @return 업로드 조각 전송 출력 메시지
-	 */
-	public OutputMessage doUploadFile(int serverTargetFileID, int fileBlockNo, byte[] fileData);
+	
 	
 	/**
 	 * 서버에 다운로드 파일 준비를 하라는 메시지를 보낸다.
@@ -104,7 +96,7 @@ public interface MainControllerIF {
 	 * @param fileBlockSize 송수신 파일 조각 크기
 	 * @return 파일 다운로드 준비 출력 메시지
 	 */
-	public OutputMessage readyDownloadFile(boolean append, 
+	public DownFileInfoResult readyDownloadFile(boolean append, 
 			String localFilePathName, String localFileName, long localFileSize, 
 			String remoteFilePathName, String remoteFileName, long remoteFileSize, 
 			int fileBlockSize);
@@ -119,26 +111,7 @@ public interface MainControllerIF {
 	 */
 	public void freeLocalTargetFileResource();
 	
-	/**
-	 * 다운로드 준비된 서버측에 다운로드하고자 하는 개별 파일 조각을 요구하는 메시지를 보낸다.
-	 * @param serverSourceFileID 클라이언트 송수신 자원 파일 식별자
-	 * @param fileBlockNo 파일 조각 번호
-	 * @return 파일 다운로드 요청 출력 메시지 
-	 */
-	public OutputMessage doDownloadFile(int serverSourceFileID, int fileBlockNo);
 	
-	
-	/**
-	 * 파일 다운로드 준비된 서버측에 다운로드하고자 하는 파일 전체를 요구하는 메시지를 보낸다. 파일 송수신 버전2 전용 메소드.
-	 * @return 가상적으로 만들어진 파일 다운로드 요청 출력 메시지 
-	 */
-	public OutputMessage doDownloadFileAll();
-	
-	/**
-	 * 서버가 살아 있는지 확인하기 위해 로그인 서비스를 위한 에코 메시지를 보내고 받는다.   
-	 * @return 로그인 서비스를 위한 에코 출력 메시지
-	 */
-	public OutputMessage doLoginEcho();
 	
 	/**
 	 * 파일 업로드 진행 상태 모달 윈도우를 띄운다. 내부적으로 "파일 업로드 진행 작업 쓰레드" 를 수행한다. 
@@ -172,17 +145,13 @@ public interface MainControllerIF {
 	 * 서버에 업로드 취소를 알린다.
 	 * @return 서버에 업로드 취소 결과 출력 메시지
 	 */
-	public OutputMessage cancelUploadFile();
+	public CancelUploadFileResult cancelUploadFile();
 	
 	/**
 	 * 서버에 다운로드 취소를 알린다.
 	 * @return 서버에 다운로드 취소 결과 출력 메시지
 	 */
-	public OutputMessage cancelDownloadFile();
+	public CancelDownloadFileResult cancelDownloadFile();
 	
-	/**
-	 * 서버에서 보내는 비동기 출력 메시지 처리
-	 * @param outObj 서버에서 보내는 비동기 출력 메시지
-	 */
-	public void doAsynOutputMessageTask(OutputMessage outObj);
+	
 }

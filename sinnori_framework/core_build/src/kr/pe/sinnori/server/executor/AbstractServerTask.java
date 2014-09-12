@@ -26,7 +26,7 @@ import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.exception.ServerExcecutorException;
+import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.common.lib.WrapBuffer;
@@ -38,6 +38,7 @@ import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
 import kr.pe.sinnori.server.ClientResource;
+import kr.pe.sinnori.server.LoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.io.LetterToClient;
 
@@ -56,7 +57,7 @@ public abstract class AbstractServerTask implements CommonRootIF {
 	private final ClassLoader classLoader = this.getClass().getClassLoader();
 	private java.util.Hashtable<String, MessageEncoder> encoderHash = new java.util.Hashtable<String, MessageEncoder>(); 
 	private java.util.Hashtable<String, MessageDecoder> decoderHash = new java.util.Hashtable<String, MessageDecoder>(1);
-
+	
 	
 	/**
 	 * <pre>
@@ -76,12 +77,14 @@ public abstract class AbstractServerTask implements CommonRootIF {
 	
 	public void execute(int index, 
 			ServerProjectConfig serverProjectConfig,
+			LoginManagerIF loginManager,
 			Charset projectCharset,
 			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
 			MessageProtocolIF messageProtocol,
-			SocketChannel clientSC,
+			SocketChannel fromSC,
 			ClientResource clientResource,
-			ReceivedLetter receivedLetter, ServerObjectCacheManagerIF serverObjectCacheManager) {
+			ReceivedLetter receivedLetter, 
+			ServerObjectCacheManagerIF serverObjectCacheManager) {
 		// FIXME!
 		// log.info("inputMessage=[%s]", inputMessage.toString());
 		
@@ -114,11 +117,11 @@ public abstract class AbstractServerTask implements CommonRootIF {
 				try {
 					wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
 				} catch(Exception e1) {
-					log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+					log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, fromSC={}, SelfExn={}", fromSC.hashCode(), selfExnOutObj.toString());
 					System.exit(1);
 				}
 				
-				putToOutputMessageQueue(clientSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
+				putToOutputMessageQueue(fromSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
 				return;
 			} catch(Exception e) {
 				log.warn(e.getMessage(), e);
@@ -136,9 +139,9 @@ public abstract class AbstractServerTask implements CommonRootIF {
 				try {
 					wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
 					
-					putToOutputMessageQueue(clientSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
+					putToOutputMessageQueue(fromSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
 				} catch(Exception e1) {
-					log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+					log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, fromSC={}, SelfExn={}", fromSC.hashCode(), selfExnOutObj.toString());
 				}
 				return;
 			}
@@ -161,9 +164,9 @@ public abstract class AbstractServerTask implements CommonRootIF {
 				ArrayList<WrapBuffer> wrapBufferList = null;
 				try {
 					wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
-					putToOutputMessageQueue(clientSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
+					putToOutputMessageQueue(fromSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
 				} catch(Exception e1) {
-					log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+					log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, fromSC={}, SelfExn={}", fromSC.hashCode(), selfExnOutObj.toString());
 				}
 				return;
 			} catch(Exception e) {
@@ -180,9 +183,9 @@ public abstract class AbstractServerTask implements CommonRootIF {
 				ArrayList<WrapBuffer> wrapBufferList = null;
 				try {
 					wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
-					putToOutputMessageQueue(clientSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
+					putToOutputMessageQueue(fromSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
 				} catch(Exception e1) {
-					log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+					log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, fromSC={}, SelfExn={}", fromSC.hashCode(), selfExnOutObj.toString());
 				}
 				return;
 			}
@@ -211,9 +214,9 @@ public abstract class AbstractServerTask implements CommonRootIF {
 			try {
 				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
 				
-				putToOutputMessageQueue(clientSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
+				putToOutputMessageQueue(fromSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
 			} catch(Exception e1) {
-				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, fromSC={}, SelfExn={}", fromSC.hashCode(), selfExnOutObj.toString());
 			}
 			return;
 		} catch (OutOfMemoryError e) {
@@ -231,9 +234,9 @@ public abstract class AbstractServerTask implements CommonRootIF {
 			try {
 				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
 				
-				putToOutputMessageQueue(clientSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
+				putToOutputMessageQueue(fromSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
 			} catch(Exception e1) {
-				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, fromSC={}, SelfExn={}", fromSC.hashCode(), selfExnOutObj.toString());
 			}			
 			return;
 		} catch (Exception e) {
@@ -251,18 +254,18 @@ public abstract class AbstractServerTask implements CommonRootIF {
 			try {
 				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
 				
-				putToOutputMessageQueue(clientSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
+				putToOutputMessageQueue(fromSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
 			} catch(Exception e1) {
-				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, fromSC={}, SelfExn={}", fromSC.hashCode(), selfExnOutObj.toString());
 			}
 			return;
 		}
 					
 		// messageProtocol, projectCharset
-		LetterSender letterSender = new LetterSender(clientResource, messageFromClient);
+		LetterSender letterSender = new LetterSender(this, clientResource, messageFromClient, projectCharset, ouputMessageQueue, messageProtocol, serverObjectCacheManager);
 		
 		try {
-			doTask(serverProjectConfig, letterSender, messageFromClient);
+			doTask(serverProjectConfig, loginManager, letterSender, messageFromClient);
 		} catch (Exception e) {
 			// FIXME!
 			log.warn("unknown error", e);
@@ -274,14 +277,15 @@ public abstract class AbstractServerTask implements CommonRootIF {
 				errorMessgae = new StringBuilder("서비 비지니스 로직 실행시 에러 발생::").append(errorMessgae).toString();
 			}
 			
-			log.warn(String.format("%s Executor[%d], clientSC[%d], messgaeID[%s], messageFromClient[%s], %s", 
+			log.warn(String.format("%s Executor[%d], fromSC[%d], messageFromClient[%s], %s", 
 					serverProjectConfig.getProjectName(), index, 
-					clientSC.hashCode(), messageIDFromClient, messageFromClient.toString(), errorMessgae), e);
+					fromSC.hashCode(), messageFromClient.toString(), errorMessgae), e);
 			
 			
 			SelfExn selfExnOutObj = new SelfExn();
+			selfExnOutObj.messageHeaderInfo = messageFromClient.messageHeaderInfo;
 			selfExnOutObj.setErrorWhere("S");
-			selfExnOutObj.setErrorGubun(ServerExcecutorException.class);
+			selfExnOutObj.setErrorGubun(ServerTaskException.class);
 			selfExnOutObj.setErrorMessageID(messageIDFromClient);
 			selfExnOutObj.setErrorMessage(errorMessgae);
 			
@@ -289,9 +293,9 @@ public abstract class AbstractServerTask implements CommonRootIF {
 			try {
 				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
 				
-				putToOutputMessageQueue(clientSC, messageFromClient, selfExnOutObj, wrapBufferList, ouputMessageQueue);
+				putToOutputMessageQueue(fromSC, messageFromClient, selfExnOutObj, wrapBufferList, ouputMessageQueue);
 			} catch(Exception e1) {
-				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, fromSC={}, SelfExn={}", fromSC.hashCode(), selfExnOutObj.toString());
 			}
 			
 			/**
@@ -301,113 +305,25 @@ public abstract class AbstractServerTask implements CommonRootIF {
 			return;
 		}
 		
-		ArrayList<AbstractMessage> messageToClientList = letterSender.getMessageToClientList();
-		for (AbstractMessage messageToClient : messageToClientList) {
-			
-			String messageIDToClient = messageToClient.getMessageID();
-			
-			ArrayList<WrapBuffer> wrapBufferList = null;
-			
-			
-			MessageEncoder messageEncoder = encoderHash.get(messageIDToClient);
-			
-			
-			if (null == messageEncoder) {
-				MessageCodecIF messageCodec = null;
-				try {
-					messageCodec = serverObjectCacheManager.getServerCodec(classLoader, messageIDToClient);				
-				} catch (DynamicClassCallException e) {
-					SelfExn selfExnOutObj = new SelfExn();
-					selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
-					selfExnOutObj.setErrorWhere("S");
-					selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
-					selfExnOutObj.setErrorMessageID(messageIDToClient);
-					selfExnOutObj.setErrorMessage(e.getMessage());
-					
-					try {
-						wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
-						
-						putToOutputMessageQueue(clientSC, messageFromClient, selfExnOutObj, wrapBufferList, ouputMessageQueue);
-					} catch(Exception e1) {
-						log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
-					}
-					continue;
-				} catch (Exception e) {
-					SelfExn selfExnOutObj = new SelfExn();
-					selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
-					selfExnOutObj.setErrorWhere("S");
-					selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
-					selfExnOutObj.setErrorMessageID(messageIDToClient);
-					selfExnOutObj.setErrorMessage(e.getMessage());
-					
-					try {
-						wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
-						
-						putToOutputMessageQueue(clientSC, messageFromClient, selfExnOutObj, wrapBufferList, ouputMessageQueue);
-					} catch(Exception e1) {
-						log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
-					}
-					continue;
-				}
-				
-				try {
-					messageEncoder = messageCodec.getMessageEncoder();
-				} catch (DynamicClassCallException e) {
-					SelfExn selfExnOutObj = new SelfExn();
-					selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
-					selfExnOutObj.setErrorWhere("S");
-					selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
-					selfExnOutObj.setErrorMessageID(messageIDToClient);
-					selfExnOutObj.setErrorMessage(e.getMessage());
-					try {
-						wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
-						
-						putToOutputMessageQueue(clientSC, messageFromClient, selfExnOutObj, wrapBufferList, ouputMessageQueue);
-						
-					} catch(Exception e1) {
-						log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
-					}
-					continue;
-				} catch (Exception e) {
-					SelfExn selfExnOutObj = new SelfExn();
-					selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
-					selfExnOutObj.setErrorWhere("S");
-					selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
-					selfExnOutObj.setErrorMessageID(messageIDToClient);
-					selfExnOutObj.setErrorMessage(e.getMessage());
-					
-					try {
-						wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
-						
-						putToOutputMessageQueue(clientSC, messageFromClient, selfExnOutObj, wrapBufferList, ouputMessageQueue);
-					} catch(Exception e1) {
-						log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
-					}
-					continue;
-				}
-				
-				encoderHash.put(messageIDToClient, messageEncoder);
-				
-				log.info("classLoader[{}], serverTask[{}], create new messageEncoder of messageIDToClient={}", classLoader.hashCode(), messageIDFromClient, messageIDToClient);
-			}
-			
+		letterSender.directSendLetterToClientList();
+	}
+	
+	public ArrayList<WrapBuffer> getMessageStream(String messageIDFromClient, 
+			SocketChannel toSC, 
+			AbstractMessage  messageToClient,
+			Charset projectCharset,
+			MessageProtocolIF messageProtocol,			
+			ServerObjectCacheManagerIF serverObjectCacheManager) {
+		String messageIDToClient = messageToClient.getMessageID();
+		
+		ArrayList<WrapBuffer> wrapBufferList = null;		
+		
+		MessageEncoder messageEncoder = encoderHash.get(messageIDToClient);
+
+		if (null == messageEncoder) {
+			MessageCodecIF messageCodec = null;
 			try {
-				wrapBufferList = messageProtocol.M2S(messageToClient, messageEncoder, projectCharset);
-				putToOutputMessageQueue(clientSC, messageFromClient, messageToClient, wrapBufferList, ouputMessageQueue);
-			} catch (NoMoreDataPacketBufferException e) {
-				SelfExn selfExnOutObj = new SelfExn();
-				selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
-				selfExnOutObj.setErrorWhere("S");
-				selfExnOutObj.setErrorGubun(NoMoreDataPacketBufferException.class);
-				selfExnOutObj.setErrorMessageID(messageIDToClient);
-				selfExnOutObj.setErrorMessage(e.getMessage());
-				try {
-					wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
-					
-					putToOutputMessageQueue(clientSC, messageFromClient, selfExnOutObj, wrapBufferList, ouputMessageQueue);
-				} catch(Exception e1) {
-					log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
-				}
+				messageCodec = serverObjectCacheManager.getServerCodec(classLoader, messageIDToClient);				
 			} catch (DynamicClassCallException e) {
 				SelfExn selfExnOutObj = new SelfExn();
 				selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
@@ -418,40 +334,130 @@ public abstract class AbstractServerTask implements CommonRootIF {
 				
 				try {
 					wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
-					putToOutputMessageQueue(clientSC, messageFromClient, selfExnOutObj, wrapBufferList, ouputMessageQueue);
 				} catch(Exception e1) {
-					log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+					log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, toSC={}, SelfExn={}", toSC.hashCode(), selfExnOutObj.toString());
+					return null;
 				}
-			} catch (BodyFormatException e) {
+				return wrapBufferList;
+			} catch (Exception e) {
 				SelfExn selfExnOutObj = new SelfExn();
 				selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
 				selfExnOutObj.setErrorWhere("S");
-				selfExnOutObj.setErrorGubun(BodyFormatException.class);
+				selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
 				selfExnOutObj.setErrorMessageID(messageIDToClient);
 				selfExnOutObj.setErrorMessage(e.getMessage());
 				
 				try {
 					wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
-					putToOutputMessageQueue(clientSC, messageFromClient, selfExnOutObj, wrapBufferList, ouputMessageQueue);
 				} catch(Exception e1) {
-					log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+					log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, toSC={}, SelfExn={}", toSC.hashCode(), selfExnOutObj.toString());
+					return null;
 				}
+				return wrapBufferList;
+			}
+			
+			try {
+				messageEncoder = messageCodec.getMessageEncoder();
+			} catch (DynamicClassCallException e) {
+				SelfExn selfExnOutObj = new SelfExn();
+				selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
+				selfExnOutObj.setErrorWhere("S");
+				selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+				selfExnOutObj.setErrorMessageID(messageIDToClient);
+				selfExnOutObj.setErrorMessage(e.getMessage());
+				try {
+					wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
+				} catch(Exception e1) {
+					log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, toSC={}, SelfExn={}", toSC.hashCode(), selfExnOutObj.toString());
+					return null;
+				}
+				return wrapBufferList;
 			} catch (Exception e) {
 				SelfExn selfExnOutObj = new SelfExn();
 				selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
 				selfExnOutObj.setErrorWhere("S");
-				selfExnOutObj.setErrorGubun(BodyFormatException.class);
+				selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
 				selfExnOutObj.setErrorMessageID(messageIDToClient);
-				selfExnOutObj.setErrorMessage("unknown error::"+e.getMessage());
+				selfExnOutObj.setErrorMessage(e.getMessage());
 				
 				try {
 					wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
-					putToOutputMessageQueue(clientSC, messageFromClient, selfExnOutObj, wrapBufferList, ouputMessageQueue);
 				} catch(Exception e1) {
-					log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+					log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, toSC={}, SelfExn={}", toSC.hashCode(), selfExnOutObj.toString());
+					return null;
 				}
+				return wrapBufferList;
 			}
+			
+			encoderHash.put(messageIDToClient, messageEncoder);
+			
+			log.info("classLoader[{}], serverTask[{}], create new messageEncoder of messageIDToClient={}", classLoader.hashCode(), messageIDFromClient, messageIDToClient);
 		}
+		
+		try {
+			wrapBufferList = messageProtocol.M2S(messageToClient, messageEncoder, projectCharset);
+		} catch (NoMoreDataPacketBufferException e) {
+			SelfExn selfExnOutObj = new SelfExn();
+			selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
+			selfExnOutObj.setErrorWhere("S");
+			selfExnOutObj.setErrorGubun(NoMoreDataPacketBufferException.class);
+			selfExnOutObj.setErrorMessageID(messageIDToClient);
+			selfExnOutObj.setErrorMessage(e.getMessage());
+			try {
+				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
+			} catch(Exception e1) {
+				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, toSC={}, SelfExn={}", toSC.hashCode(), selfExnOutObj.toString());
+				return null;
+			}
+			return wrapBufferList;
+		} catch (DynamicClassCallException e) {
+			SelfExn selfExnOutObj = new SelfExn();
+			selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
+			selfExnOutObj.setErrorWhere("S");
+			selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+			selfExnOutObj.setErrorMessageID(messageIDToClient);
+			selfExnOutObj.setErrorMessage(e.getMessage());
+			
+			try {
+				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
+			} catch(Exception e1) {
+				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, toSC={}, SelfExn={}", toSC.hashCode(), selfExnOutObj.toString());
+				return null;
+			}
+			return wrapBufferList;
+		} catch (BodyFormatException e) {
+			SelfExn selfExnOutObj = new SelfExn();
+			selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
+			selfExnOutObj.setErrorWhere("S");
+			selfExnOutObj.setErrorGubun(BodyFormatException.class);
+			selfExnOutObj.setErrorMessageID(messageIDToClient);
+			selfExnOutObj.setErrorMessage(e.getMessage());
+			
+			try {
+				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);				
+			} catch(Exception e1) {
+				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, toSC={}, SelfExn={}", toSC.hashCode(), selfExnOutObj.toString());
+				return null;
+			}
+			return wrapBufferList;
+		} catch (Exception e) {
+			SelfExn selfExnOutObj = new SelfExn();
+			selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
+			selfExnOutObj.setErrorWhere("S");
+			selfExnOutObj.setErrorGubun(BodyFormatException.class);
+			selfExnOutObj.setErrorMessageID(messageIDToClient);
+			selfExnOutObj.setErrorMessage("unknown error::"+e.getMessage());
+			
+			try {
+				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
+			} catch(Exception e1) {
+				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, toSC={}, SelfExn={}", toSC.hashCode(), selfExnOutObj.toString());
+				return null;
+			}
+			return wrapBufferList;
+		}
+		
+		return wrapBufferList;
 	}
 	
 	
@@ -460,11 +466,10 @@ public abstract class AbstractServerTask implements CommonRootIF {
 			AbstractMessage wrapBufferMessage, ArrayList<WrapBuffer> wrapBufferList, 
 			LinkedBlockingQueue<LetterToClient> ouputMessageQueue) {
 		
+		// wrapBufferMessage.messageHeaderInfo = messageFromClient.messageHeaderInfo;
+		
 		LetterToClient letterToClient = new LetterToClient(clientSC,
 				wrapBufferMessage,
-				wrapBufferMessage.getMessageID()
-				, wrapBufferMessage.messageHeaderInfo.mailboxID, 
-				wrapBufferMessage.messageHeaderInfo.mailID,
 				wrapBufferList);  
 		try {
 			ouputMessageQueue.put(letterToClient);
@@ -484,11 +489,11 @@ public abstract class AbstractServerTask implements CommonRootIF {
 			AbstractMessage wrapBufferMessage, ArrayList<WrapBuffer> wrapBufferList, 
 			LinkedBlockingQueue<LetterToClient> ouputMessageQueue) {
 		
+		/*wrapBufferMessage.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
+		wrapBufferMessage.messageHeaderInfo.mailID = receivedLetter.getMailID();*/
+		
 		LetterToClient letterToClient = new LetterToClient(clientSC,
 				wrapBufferMessage,
-				wrapBufferMessage.getMessageID()
-				, wrapBufferMessage.messageHeaderInfo.mailboxID, 
-				wrapBufferMessage.messageHeaderInfo.mailID,
 				wrapBufferList);  
 		try {
 			ouputMessageQueue.put(letterToClient);
@@ -505,14 +510,16 @@ public abstract class AbstractServerTask implements CommonRootIF {
 	
 	
 	/**
-	 * 출력메시지 직접 전송하는 개발자가 직접 작성해야할 비지니스 로직
+	 * 출력메시지 직접 전송하는 개발자가 직접 작성해야할 비지니스 로직 
 	 * @param serverProjectConfig 프로젝트의 서버 환경 변수
+	 * @param loginManager 로그인 관리자
 	 * @param letterSender 클라이언트로 보내는 편지 배달부
 	 * @param messageFromClient 입력 메시지	  
 	 * @param clientResourceManager 클라이언트 자원 관리자
 	 * @throws Exception 에러 발생시 던지는 예외
 	 */
 	abstract public void doTask(ServerProjectConfig serverProjectConfig,
+			LoginManagerIF loginManager,
 			LetterSender letterSender,
 			AbstractMessage messageFromClient) throws Exception;
 }

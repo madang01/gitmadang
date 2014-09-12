@@ -22,6 +22,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
+import kr.pe.sinnori.server.LoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.io.LetterFromClient;
 import kr.pe.sinnori.server.io.LetterToClient;
@@ -37,6 +38,7 @@ public class ExecutorPool extends AbstractThreadPool {
 	
 	private int maxHandler;
 	private ServerProjectConfig serverProjectConfig;
+	private LoginManagerIF loginManager;
 	private LinkedBlockingQueue<LetterFromClient> inputMessageQueue;
 	private LinkedBlockingQueue<LetterToClient> ouputMessageQueue;
 	private MessageProtocolIF messageProtocol= null;
@@ -54,6 +56,7 @@ public class ExecutorPool extends AbstractThreadPool {
 	 */
 	public ExecutorPool(int size, int max,
 			ServerProjectConfig serverProjectConfig,
+			LoginManagerIF loginManager,
 			LinkedBlockingQueue<LetterFromClient> inputMessageQueue,
 			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
 			MessageProtocolIF messageProtocol,
@@ -72,6 +75,7 @@ public class ExecutorPool extends AbstractThreadPool {
 		
 		this.maxHandler = max;
 		this.serverProjectConfig = serverProjectConfig;
+		this.loginManager = loginManager;
 		this.inputMessageQueue = inputMessageQueue;
 		this.ouputMessageQueue = ouputMessageQueue;
 		this.messageProtocol = messageProtocol;
@@ -89,7 +93,7 @@ public class ExecutorPool extends AbstractThreadPool {
 
 			if (size < maxHandler) {
 				try {
-					Thread handler = new Executor(size, serverProjectConfig,
+					Thread handler = new Executor(size, serverProjectConfig, loginManager,
 							inputMessageQueue, ouputMessageQueue, messageProtocol, serverObjectCacheManager);
 					pool.add(handler);
 				} catch (Exception e) {

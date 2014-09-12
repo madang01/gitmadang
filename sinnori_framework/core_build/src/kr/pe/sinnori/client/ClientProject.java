@@ -39,13 +39,14 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
 import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
-import kr.pe.sinnori.common.exception.ServerExcecutorException;
+import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.lib.AbstractProject;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.CommonType.CONNECTION_TYPE;
 import kr.pe.sinnori.common.lib.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
+import kr.pe.sinnori.common.message.codec.MessageDecoder;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
@@ -215,7 +216,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 			asynOutputMessageExecutorThreadList = new AsynOutputMessageExecutorThread[clientProjectConfig.getClientAsynOutputMessageExecutorThreadCnt()];
 			
 			for (int i=0; i < asynOutputMessageExecutorThreadList.length; i++) {
-				asynOutputMessageExecutorThreadList[i] = new AsynOutputMessageExecutorThread();
+				asynOutputMessageExecutorThreadList[i] = new AsynOutputMessageExecutorThread(this);
 				asynOutputMessageExecutorThreadList[i].start();
 			}
 			
@@ -234,7 +235,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage) 
 			throws SocketTimeoutException, ServerNotReadyException, 
 			NoMoreDataPacketBufferException, BodyFormatException, 
-			DynamicClassCallException, ServerExcecutorException, NotLoginException  {
+			DynamicClassCallException, ServerTaskException, NotLoginException  {
 		return connectionPool.sendSyncInputMessage(inputMessage);
 	}
 	
@@ -348,25 +349,81 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 		
 		// private LinkedBlockingQueue<OutputMessage> serverOutputMessageQueue = null;
 		private AsynOutputMessageTaskIF asynOutputMessageTask = null;
-		
+		private ClientObjectCacheManagerIF clientObjectCacheManager = null;
+		private ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
 		
 		/**
 		 * 생성자
 		 * @param projectName 프로젝트 이름
 		 * @param asynOutputMessageQueue 서버 익명 출력 메시지 큐
 		 */
-		public AsynOutputMessageExecutorThread() {
+		public AsynOutputMessageExecutorThread(ClientObjectCacheManagerIF clientObjectCacheManager) {
 			// this.serverOutputMessageQueue= serverOutputMessageQueue;			
 			this.asynOutputMessageTask = new DefaultAsynOutputMessageTask();
+			this.clientObjectCacheManager = clientObjectCacheManager;
+		}
+		
+		private AbstractMessage getMessageFromMiddleReadObj(ClassLoader classLoader, ReceivedLetter receivedLetter) throws DynamicClassCallException, BodyFormatException {
+			String messageID = receivedLetter.getMessageID();
+			int mailboxID = receivedLetter.getMailboxID();
+			int mailID = receivedLetter.getMailID();
+			Object middleReadObj = receivedLetter.getMiddleReadObj();
+			
+			MessageCodecIF messageCodec = clientObjectCacheManager.getClientCodec(classLoader, messageID);
+			
+			MessageDecoder  messageDecoder  = null;
+			try {
+				messageDecoder = messageCodec.getMessageDecoder();
+			} catch (DynamicClassCallException e) {
+				String errorMessage = String.format("클라이언트에서 메시지 식별자[%s]에 해당하는 디코더를 얻는데 실패하였습니다.", messageID);
+				log.warn("{}, mailboxID=[{}], mailID=[{}]", errorMessage, mailboxID, mailID);
+				throw new DynamicClassCallException(errorMessage);
+			} catch (Exception e) {
+				String errorMessage = String.format("알 수 없는 원인으로 클라이언트에서 메시지 식별자[%s]에 해당하는 디코더를 얻는데 실패하였습니다.", messageID);
+				log.warn("{}, mailboxID=[{}], mailID=[{}]", errorMessage, mailboxID, mailID);
+				throw new DynamicClassCallException(errorMessage);
+			}
+			
+			AbstractMessage messageObj = null;
+			try {
+				messageObj = messageDecoder.decode(messageProtocol.getSingleItemDecoder(), clientProjectConfig.getCharset(), middleReadObj);
+				messageObj.messageHeaderInfo.mailboxID = mailboxID;
+				messageObj.messageHeaderInfo.mailID = mailID;
+			} catch (BodyFormatException e) {
+				String errorMessage = String.format("클라이언트에서 메시지[messageID=[%s], mailboxID=[%d], mailID=[%d]] 바디 디코딩 실패, %s", messageID, mailboxID, mailID, e.getMessage());
+				log.warn(errorMessage);
+				throw new BodyFormatException(errorMessage);
+			} catch (OutOfMemoryError e) {
+				String errorMessage = String.format("메모리 부족으로 클라이언트에서 메시지[messageID=[%s], mailboxID=[%d], mailID=[%d]] 바디 디코딩 실패, %s", messageID, mailboxID, mailID, e.getMessage());
+				log.warn(errorMessage);
+				throw new BodyFormatException(errorMessage);
+			} catch (Exception e) {
+				String errorMessage = String.format("알 수 없는 원인으로 클라이언트에서 메시지[messageID=[%s], mailboxID=[%d], mailID=[%d]] 바디 디코딩 실패, %s", messageID, mailboxID, mailID, e.getMessage());
+				log.warn(errorMessage);
+				throw new BodyFormatException(errorMessage);
+			}
+			
+			return messageObj;
 		}
 
 		public void run() {
 			try {
 				while (!Thread.currentThread().isInterrupted()) {
 					ReceivedLetter receivedLetter = asynOutputMessageQueue.take();
-					//synchronized (monitor) {
-						asynOutputMessageTask.doTask(clientProjectConfig, receivedLetter);
-					//}
+					AbstractMessage outObj;
+					try {
+						outObj = getMessageFromMiddleReadObj(systemClassLoader, receivedLetter);
+					} catch (DynamicClassCallException e) {
+						continue;
+					} catch (BodyFormatException e) {
+						continue;
+					}
+
+					try {
+						asynOutputMessageTask.doTask(clientProjectConfig, outObj);					
+					} catch (Exception e) {
+						log.warn("unkonwo error in asynOutputMessageTask", e);
+					}
 				}
 				
 				log.info(String.format("client project[%s] AnonymousServerMessageProcessorThread loop exit", projectName));
@@ -374,7 +431,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 			} catch (InterruptedException e) {
 				log.warn(String.format("client project[%s] AnonymousServerMessageProcessorThread interrupt", projectName), e);
 			} catch (Exception e) {
-				log.warn(String.format("client project[%s] AnonymousServerMessageProcessorThread unknow error", projectName), e);
+				log.warn(String.format("client project[%s] AnonymousServerMessageProcessorThread unknown error", projectName), e);
 			}
         }
 		

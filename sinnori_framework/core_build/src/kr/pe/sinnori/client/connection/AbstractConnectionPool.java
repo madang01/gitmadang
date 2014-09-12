@@ -26,7 +26,7 @@ import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
-import kr.pe.sinnori.common.exception.ServerExcecutorException;
+import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.message.AbstractMessage;
@@ -79,7 +79,7 @@ public abstract class AbstractConnectionPool implements CommonRootIF {
 	abstract public AbstractMessage sendSyncInputMessage(
 			AbstractMessage inputMessage) throws SocketTimeoutException, ServerNotReadyException, 
 			NoMoreDataPacketBufferException, BodyFormatException, 
-			DynamicClassCallException, ServerExcecutorException, NotLoginException;
+			DynamicClassCallException, ServerTaskException, NotLoginException;
 	
 	
 	/**

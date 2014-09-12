@@ -35,8 +35,8 @@ import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotLoginException;
-import kr.pe.sinnori.common.exception.ServerExcecutorException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
+import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.SocketInputStream;
@@ -53,7 +53,7 @@ import kr.pe.sinnori.impl.message.Echo.EchoEncoder;
 import kr.pe.sinnori.util.AbstractClientExecutor;
 
 public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
-	private ArrayList<AbstractMessage> orgInputMessageList = new ArrayList<AbstractMessage>();
+	private ArrayList<AbstractMessage> inputMessageList = new ArrayList<AbstractMessage>();
 	private ByteBuffer baseBuffer = ByteBuffer.allocate(1 * 1024 * 1024);
 	private int mailID = 1;
 
@@ -62,7 +62,7 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 			ClientProjectIF clientProject) throws SocketTimeoutException,
 			ServerNotReadyException, NoMoreDataPacketBufferException,
 			BodyFormatException, DynamicClassCallException,
-			ServerExcecutorException, NotLoginException {
+			ServerTaskException, NotLoginException {
 
 		ClientObjectCacheManagerIF clientObjectCacheManager = (ClientObjectCacheManagerIF) clientProject;
 		DataPacketBufferQueueManagerIF dataPacketBufferQueueManager = (DataPacketBufferQueueManagerIF) clientProject;
@@ -158,6 +158,9 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		 */
 		SocketInputStream socketInputStream = new SocketInputStream(
 				dataPacketBufferQueueManager);
+		
+
+		int inxOfInputMessage = 0;
 		try {
 			while (baseBuffer.hasRemaining()) {
 				int len = random.nextInt(3000) + 30;
@@ -200,8 +203,32 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 							TestVirtualInputStreamCExtor.class.getClassLoader(),
 							clientProjectConfig, clientObjectCacheManager,
 							messageProtocol, receivedLetter);
-
-					log.info(outObj.toString());
+					String outObjStr= outObj.toString();
+					
+					AbstractMessage inObj = inputMessageList.get(inxOfInputMessage);
+					String inObjStr = inObj.toString();
+					
+					
+					if (inObjStr.equals(outObjStr)) {
+						if (inObj instanceof AllDataType) {
+							AllDataType allDataTypeInObj = (AllDataType)inObj;
+							AllDataType allDataTypeOutObj = (AllDataType)outObj;
+							
+							if (! java.util.Arrays.equals(allDataTypeInObj.getBytesVar1(), allDataTypeOutObj.getBytesVar1()) 
+									|| ! java.util.Arrays.equals(allDataTypeInObj.getBytesVar2(), allDataTypeOutObj.getBytesVar2())) { 
+								log.warn("2.입력 메시지[{}/{}]와 출력 메시지 비교 결과 다름", inxOfInputMessage+1, inputMessageList.size());
+							} else {
+								log.info("입력 메시지[{}/{}]와 출력 메시지 같음", inxOfInputMessage+1, inputMessageList.size());
+							}
+						} else {
+							log.info("입력 메시지[{}/{}]와 출력 메시지 같음", inxOfInputMessage+1, inputMessageList.size());
+						}
+					} else {
+						log.warn("1.입력 메시지[{}/{}]와 출력 메시지 비교 결과 다름", inxOfInputMessage+1, inputMessageList.size());
+						System.exit(1);
+					}
+					
+					inxOfInputMessage++;
 				}
 				
 			}
@@ -304,7 +331,7 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		echoInObj.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
 		echoInObj.messageHeaderInfo.mailID = mailID++;
 
-		orgInputMessageList.add(echoInObj);
+		inputMessageList.add(echoInObj);
 
 		ArrayList<WrapBuffer> wrapBufferList = messageProtocol.M2S(echoInObj,
 				new EchoEncoder(), clientProjectConfig.getCharset());
@@ -405,7 +432,7 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 			memberList[1].setItemList(itemList);
 		}
 
-		orgInputMessageList.add(allDataTypeInObj);
+		inputMessageList.add(allDataTypeInObj);
 
 		ArrayList<WrapBuffer> wrapBufferList = messageProtocol.M2S(
 				allDataTypeInObj, new AllDataTypeEncoder(),

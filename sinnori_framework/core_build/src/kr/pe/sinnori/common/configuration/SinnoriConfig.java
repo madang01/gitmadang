@@ -764,8 +764,8 @@ public final class SinnoriConfig {
 	 * 설정파일 저장
 	 */
 	public void save() {
-		String propSinnoriConfigFile = System.getenv("SINNORI_PROJECT_CONFIG_FILE");
-		String projectName = System.getenv("SINNORI_PROJECT_NAME");
+		String propSinnoriConfigFile = System.getProperty(CommonStaticFinalVars.SINNORI_CONFIG_FILE_JAVA_SYSTEM_VAR_NAME);
+		String projectName = System.getProperty(CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);
 		// System.out.printf("=sinnori_config_file[{}]",
 		// prop_sinnori_config_file);
 		// System.out.println();

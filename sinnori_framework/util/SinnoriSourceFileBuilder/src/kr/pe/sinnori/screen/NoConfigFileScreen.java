@@ -2,6 +2,7 @@ package kr.pe.sinnori.screen;
 
 
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -25,11 +26,12 @@ import javax.swing.JTextField;
 import javax.swing.ProgressMonitor;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
-import javax.swing.table.DefaultTableModel;
 
 import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
+import kr.pe.sinnori.common.lib.CommonType;
 import kr.pe.sinnori.common.lib.XMLFileFilter;
 import kr.pe.sinnori.gui.PathSwingAction;
+import kr.pe.sinnori.gui.lib.MessageInfoManagerIF;
 import kr.pe.sinnori.gui.table.MessageInfoFileCellEditor;
 import kr.pe.sinnori.gui.table.MessageInfoFileCellRenderer;
 import kr.pe.sinnori.gui.table.MessageInfoFileCellValue;
@@ -37,6 +39,7 @@ import kr.pe.sinnori.gui.table.SourceBuilderTableModel;
 import kr.pe.sinnori.gui.table.SourceFileCellEditor;
 import kr.pe.sinnori.gui.table.SourceFileCellRenderer;
 import kr.pe.sinnori.gui.table.SourceFileCellValue;
+import kr.pe.sinnori.gui.util.RegexLimitPlainDocume;
 import kr.pe.sinnori.message.MessageInfo;
 import kr.pe.sinnori.message.MessageInfoSAXParser;
 import kr.pe.sinnori.source_file_builder.SourceFileBuilderManager;
@@ -66,11 +69,11 @@ public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, 
 	private SourceBuilderTableModel sourceBuilderTableModel = null;
 	
 	private String titles[] = {
-			"메시지 이름", "메시지 통신 방향", "메시지 정보 파일 기능", "소스 파일 기능"
+			"메시지 이름", "최근작업일시", "메시지 통신 방향", "메시지 정보 파일 기능", "소스 파일 기능"
 		};
 	
 	private Class<?>[] columnTypes = new Class[] {
-		String.class, String.class, Object.class, SourceFileCellValue.class
+		String.class, String.class, String.class, MessageInfoFileCellEditor.class, SourceFileCellEditor.class
 	};
 	
 	private JScrollPane scrollPane = new JScrollPane();
@@ -136,13 +139,14 @@ public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, 
 				FormFactory.MIN_ROWSPEC,}));
 		
 		JLabel messageInfoPathLabel = new JLabel("메시지 정보  파일 위치");
-		// messageInfoPathLabel.setFont(UIManager.getFont("Label.font"));
-		messageInfoPathLabel.setFont(UIManager.getFont("Table.font"));
+		messageInfoPathLabel.setFont(UIManager.getFont("Label.font"));
+		// messageInfoPathLabel.setFont(UIManager.getFont("Table.font"));
 		line01Panel.add(messageInfoPathLabel, "3, 1");
 		
 		messageInfoPathTextField = new JTextField();
+		messageInfoPathTextField.setDocument(new RegexLimitPlainDocume(null, 250, null));
 		line01Panel.add(messageInfoPathTextField, "6, 1, fill, default");
-		messageInfoPathTextField.setColumns(10);
+		// messageInfoPathTextField.setColumns(10);
 		
 		JButton messageInfoPathButton = new JButton("경로 찾기");
 		messageInfoPathButton.setAction(new PathSwingAction(mainFrame, chooser, messageInfoPathTextField));
@@ -168,6 +172,7 @@ public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, 
 		line02Panel.add(sourceBasePath1Label, "3, 1");
 		
 		sourceBasePath1TextField = new JTextField();
+		sourceBasePath1TextField.setDocument(new RegexLimitPlainDocume(null, 250, null));
 		line02Panel.add(sourceBasePath1TextField, "6, 1, fill, default");
 		sourceBasePath1TextField.setColumns(10);
 		
@@ -194,6 +199,7 @@ public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, 
 		line03Panel.add(sourceBasePath2Label, "3, 1");
 		
 		sourceBasePath2TextField = new JTextField();
+		sourceBasePath2TextField.setDocument(new RegexLimitPlainDocume(null, 250, null));
 		line03Panel.add(sourceBasePath2TextField, "6, 1, fill, default");
 		sourceBasePath2TextField.setColumns(10);
 		
@@ -220,6 +226,7 @@ public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, 
 		line04Panel.add(sourceBasePath3Label, "3, 1");
 		
 		sourceBasePath3TextField = new JTextField();
+		sourceBasePath3TextField.setDocument(new RegexLimitPlainDocume(null, 250, null));
 		line04Panel.add(sourceBasePath3TextField, "6, 1, fill, default");
 		sourceBasePath3TextField.setColumns(10);
 		
@@ -245,6 +252,7 @@ public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, 
 		line05Panel.add(authorLabel, "3, 1");
 		
 		authorTextField = new JTextField();
+		authorTextField.setDocument(new RegexLimitPlainDocume(null, 20, null));
 		line05Panel.add(authorTextField, "6, 1, fill, default");
 		authorTextField.setColumns(20);
 		
@@ -274,7 +282,7 @@ public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, 
 		allMessageInfoPathButton.addActionListener(new AllMessageInfoPathButtonAction(this));
 		line06Panel.add(allMessageInfoPathButton);
 		
-		JButton allSourceFileCreateButton = new JButton("사용자 옵션 영향 받는 소스 전체 생성");
+		JButton allSourceFileCreateButton = new JButton("IO와 방향성 옵션에 영향 받는 소스 전체 생성");
 		class AllSourceFileCreateAction implements ActionListener {
 			private SourceManagerIF sourceManager = null;
 			
@@ -353,14 +361,15 @@ public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, 
 			
 		table = new JTable();
 		table.setRowSelectionAllowed(false);
-		// table.setModel(dtm);
-		table.setRowHeight(40);
-		
-		readAllMessageInfo();
-		
-		//initColumnSizes(table);
+		table.setFillsViewportHeight(true);
+		table.setPreferredScrollableViewportSize(new Dimension(800, 300));
+		table.setAutoCreateRowSorter(true);
+		table.setRowHeight(38);
 		
 		scrollPane.setViewportView(table);
+		
+		readAllMessageInfo();		
+		//initColumnSizes(table);
 	}
 	
 	private ProgressMonitor progressMonitor = null;
@@ -476,7 +485,11 @@ public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, 
     		}
     		
             Object values[][] = new Object[messageInfoList.size()][titles.length];
+            /*System.out.printf("titles.length=%d", titles.length);
+            System.out.println();*/
+            
             // SourceBuilderTableModel sourceBuilderTableModel = new SourceBuilderTableModel(values, titles, columnTypes);
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
             
             for (int i=0; i < values.length; i++) {
             	kr.pe.sinnori.message.MessageInfo messageInfo = messageInfoList.get(i);
@@ -484,41 +497,27 @@ public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, 
             	
     			String messageID = messageInfo.getMessageID();
     			values[i][0] = messageID;
-    			values[i][1] = messageInfo.getDirection().toString();
-    			values[i][2] = new MessageInfoFileCellValue(i, messageInfoFile, messageInfo, NoConfigFileScreen.this, mainFrame);
-    			values[i][3] = new SourceFileCellValue(messageInfo, NoConfigFileScreen.this);
+    			values[i][1] = sdf.format(messageInfo.getLastModified());
+    			if (messageInfo.getDirection() == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL) {
+    				values[i][2] = "양방향";
+    			} else if (messageInfo.getDirection() == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_CLIENT_TO_SERVER) {
+    				values[i][2] = "client -> server";
+    			} else if (messageInfo.getDirection() == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_SERVER_TO_CLINET) {
+    				values[i][2] = "server -> client";
+    			} else {
+    				values[i][2] = "무방향";
+    			}
+    			    			
+    			values[i][3] = new MessageInfoFileCellValue(i, messageInfoFile, messageInfo, NoConfigFileScreen.this, mainFrame);
+    			values[i][4] = new SourceFileCellValue(messageInfo, NoConfigFileScreen.this);
     			if (progressMonitor.isCanceled())  {
     				return null;
     			}
     			progressMonitor.setNote(i+"/"+values.length);
     			progressMonitor.setProgress(i*100/values.length);
-    			
-    			/*sourceBuilderTableModel.setValueAt(values[i][0], i, 0);
-    			sourceBuilderTableModel.setValueAt(values[i][1], i, 1);
-    			sourceBuilderTableModel.setValueAt(values[i][2], i, 2);
-    			sourceBuilderTableModel.setValueAt(values[i][3], i, 3);*/
     		}
-    		// dtm.setDataVector(values, columnTypes);
-            sourceBuilderTableModel = new SourceBuilderTableModel(values, titles, columnTypes);
             
-    		
-    		table.setModel(sourceBuilderTableModel);
-    		
-    		table.getColumnModel().getColumn(0).setPreferredWidth(153);
-    		table.getColumnModel().getColumn(1).setResizable(false);
-    		table.getColumnModel().getColumn(1).setPreferredWidth(147);
-    		table.getColumnModel().getColumn(2).setResizable(false);
-    		table.getColumnModel().getColumn(2).setPreferredWidth(154);
-    		table.getColumnModel().getColumn(3).setResizable(false);
-    		table.getColumnModel().getColumn(3).setPreferredWidth(175);
-    		
-    		table.getColumnModel().getColumn(2).setCellRenderer(new MessageInfoFileCellRenderer());
-    		table.getColumnModel().getColumn(2).setCellEditor(new MessageInfoFileCellEditor(new JCheckBox()));
-    		
-    		table.getColumnModel().getColumn(3).setCellRenderer(new SourceFileCellRenderer());
-    		table.getColumnModel().getColumn(3).setCellEditor(new SourceFileCellEditor(new JCheckBox()));
-    		//table.repaint();
-    		scrollPane.repaint();
+    		createTable(values);
             
             return null;
         }
@@ -528,24 +527,35 @@ public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, 
         }
         private void createTable(Object values[][]) {
         	// Object values[][] = new Object[0][titles.length];
-            DefaultTableModel dtm = new SourceBuilderTableModel(values, titles, columnTypes);
+            // DefaultTableModel dtm = new SourceBuilderTableModel(values, titles, columnTypes);
+        	sourceBuilderTableModel = new SourceBuilderTableModel(values, titles, columnTypes);
             
-            table.setModel(dtm);
+            /** 모델  교체중 repaint event 를 막기 위해서 잠시 visable 속성을 끔 */
+            table.setVisible(false);
+            table.setModel(sourceBuilderTableModel);            
     		
-    		table.getColumnModel().getColumn(0).setPreferredWidth(193);
-    		table.getColumnModel().getColumn(1).setResizable(false);
-    		table.getColumnModel().getColumn(1).setPreferredWidth(107);
-    		table.getColumnModel().getColumn(2).setResizable(false);
-    		table.getColumnModel().getColumn(2).setPreferredWidth(154);
+    		table.getColumnModel().getColumn(0).setPreferredWidth(170);
+    		
+    		// table.getColumnModel().getColumn(1).setResizable(false);    		
+    		table.getColumnModel().getColumn(1).setPreferredWidth(95);
+    		
+    		// table.getColumnModel().getColumn(2).setResizable(false);
+    		table.getColumnModel().getColumn(2).setPreferredWidth(85);
+    		
     		table.getColumnModel().getColumn(3).setResizable(false);
-    		table.getColumnModel().getColumn(3).setPreferredWidth(175);
+    		table.getColumnModel().getColumn(3).setPreferredWidth(150);
     		
-    		table.getColumnModel().getColumn(2).setCellRenderer(new MessageInfoFileCellRenderer());
-    		table.getColumnModel().getColumn(2).setCellEditor(new MessageInfoFileCellEditor(new JCheckBox()));
+    		table.getColumnModel().getColumn(4).setResizable(false);
+    		table.getColumnModel().getColumn(4).setPreferredWidth(175);
     		
-    		table.getColumnModel().getColumn(3).setCellRenderer(new SourceFileCellRenderer());
-    		table.getColumnModel().getColumn(3).setCellEditor(new SourceFileCellEditor(new JCheckBox()));
+    		table.getColumnModel().getColumn(3).setCellRenderer(new MessageInfoFileCellRenderer());
+    		table.getColumnModel().getColumn(3).setCellEditor(new MessageInfoFileCellEditor(new JCheckBox()));
     		
+    		table.getColumnModel().getColumn(4).setCellRenderer(new SourceFileCellRenderer());
+    		table.getColumnModel().getColumn(4).setCellEditor(new SourceFileCellEditor(new JCheckBox()));
+    		
+    		/** 모델  교체중 repaint event 를 막기 위해서 잠시 visable 속성 복귀 */
+    		table.setVisible(true);
     		scrollPane.repaint();
         }
  
@@ -1004,7 +1014,7 @@ public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, 
 		int rowCount = sourceBuilderTableModel.getRowCount();
 		
 		for (int i=0; i < rowCount; i++) {
-			SourceFileCellValue sourceFileCellValue = (SourceFileCellValue)sourceBuilderTableModel.getValueAt(i, 3);
+			SourceFileCellValue sourceFileCellValue = (SourceFileCellValue)sourceBuilderTableModel.getValueAt(i, 4);
 			sourceFileCellValue.createSourceFile();
 		}	
 	}
@@ -1012,7 +1022,7 @@ public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, 
 	@Override
 	public void retry(int row, MessageInfo messageInfo) {
 		sourceBuilderTableModel.setValueAt(messageInfo.getDirection().toString(), row, 1);
-		SourceFileCellValue sourceFileCellValue = (SourceFileCellValue)sourceBuilderTableModel.getValueAt(row, 3);
+		SourceFileCellValue sourceFileCellValue = (SourceFileCellValue)sourceBuilderTableModel.getValueAt(row, 4);
 		sourceFileCellValue.setMessageInfo(messageInfo);
 		scrollPane.repaint();
 	}

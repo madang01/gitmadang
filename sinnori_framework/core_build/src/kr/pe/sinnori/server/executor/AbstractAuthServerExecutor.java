@@ -31,6 +31,7 @@ import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
 import kr.pe.sinnori.server.ClientResource;
+import kr.pe.sinnori.server.LoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.io.LetterToClient;
 
@@ -50,6 +51,7 @@ public abstract class AbstractAuthServerExecutor extends AbstractServerTask {
 	@Override
 	public void execute(int index, 
 			ServerProjectConfig serverProjectConfig, 
+			LoginManagerIF loginManager,
 			Charset projectCharset,
 			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
 			MessageProtocolIF messageProtocol,
@@ -82,9 +84,6 @@ public abstract class AbstractAuthServerExecutor extends AbstractServerTask {
 				
 				LetterToClient letterToClient = new LetterToClient(clientSC,
 						selfExnOutObj,
-						selfExnOutObj.getMessageID()
-						, selfExnOutObj.messageHeaderInfo.mailboxID, 
-						selfExnOutObj.messageHeaderInfo.mailID,
 						wrapBufferList);
 				try {
 					ouputMessageQueue.put(letterToClient);
@@ -102,6 +101,6 @@ public abstract class AbstractAuthServerExecutor extends AbstractServerTask {
 			}
 			return;
 		}
-		super.execute(index, serverProjectConfig, projectCharset, ouputMessageQueue, messageProtocol, clientSC, clientResource, receivedLetter, serverObjectCacheManager);
+		super.execute(index, serverProjectConfig, loginManager, projectCharset, ouputMessageQueue, messageProtocol, clientSC, clientResource, receivedLetter, serverObjectCacheManager);
 	}
 }

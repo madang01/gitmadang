@@ -43,6 +43,7 @@ import kr.pe.sinnori.common.lib.CommonType;
  */
 public class MessageInfo implements ItemGroupInfoIF {
 	private String messageID = null;
+	private java.util.Date lastModfied;
 	private String firstUpperMessageID = null;
 	private CommonType.MESSAGE_TRANSFER_DIRECTION direction = null;
 	
@@ -50,13 +51,18 @@ public class MessageInfo implements ItemGroupInfoIF {
 	private HashMap<String, AbstractItemInfo> itemInfoHash = new HashMap<String, AbstractItemInfo>();
 		
 
-	public MessageInfo(String messageID) {
+	public MessageInfo(String messageID, long lastModfied) {
 		this.messageID = messageID;
+		this.lastModfied = new java.util.Date(lastModfied);
 		this.firstUpperMessageID = messageID.substring(0,1)+messageID.substring(1);
 	}
 
 	public String getMessageID() {
 		return messageID;
+	}
+	
+	public java.util.Date getLastModified() {
+		return lastModfied;
 	}
 	
 	public void setDirection(CommonType.MESSAGE_TRANSFER_DIRECTION direction) {

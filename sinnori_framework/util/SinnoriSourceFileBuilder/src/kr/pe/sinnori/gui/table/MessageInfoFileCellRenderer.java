@@ -22,15 +22,15 @@ public class MessageInfoFileCellRenderer extends JPanel implements TableCellRend
 
 	public Component getTableCellRendererComponent(JTable table, Object value,
 			boolean isSelected, boolean hasFocus, int row, int column) {
-		System.out.printf("MessageInfoFileCellRenderer::row=[%d], column=[%d], isSelected=[%s]", row, column, isSelected);
-		System.out.println();
+		/*System.out.printf("MessageInfoFileCellRenderer::row=[%d], column=[%d], isSelected=[%s]", row, column, isSelected);
+		System.out.println();*/
 		
-		if (null != value) {
+		/*if (null != value) {
 			System.out.printf("MessageInfoFileCellRenderer::value=[%s]", value.toString());
 			System.out.println();
 		} else {
 			System.out.println("MessageInfoFileCellRenderer::value is null");
-		}
+		}*/
 		
 		
 		MessageInfoFileCellValue messageInfoFileCellValue = (MessageInfoFileCellValue)value;

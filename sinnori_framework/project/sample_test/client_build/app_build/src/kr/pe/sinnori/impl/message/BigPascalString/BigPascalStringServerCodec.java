@@ -35,6 +35,6 @@ public final class BigPascalStringServerCodec implements MessageCodecIF {
 
 	@Override
 	public MessageEncoder getMessageEncoder() throws DynamicClassCallException {
-		throw new DynamicClassCallException("BigPascalString메시지는 서버에서 클라이언트로 전달하지 않는 메시지 입니다.");
+		throw new DynamicClassCallException("BigPascalString 메시지는 서버에서 클라이언트로 전달하지 않는 메시지 입니다.");
 	}
 }

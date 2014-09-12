@@ -28,13 +28,13 @@
 	<desc>실패시 실패 사유, 성공시 축하 메시지</desc>
 </singleitem>
 <singleitem name="cntOfDriver" type="integer" />
-<array name="driverList" cnttype="reference" cntvalue="cntOfDriver">
+<array name="driver" cnttype="reference" cntvalue="cntOfDriver">
 	<singleitem name="driverName" type="ub pascal string">
 		<desc>드라이브명, Microsoft OS 인 경우만 유효하다.</desc>
 	</singleitem>
 </array>
 <singleitem name="cntOfFile" type="integer" />
-<array name="fileList" cnttype="reference" cntvalue="cntOfFile">
+<array name="file" cnttype="reference" cntvalue="cntOfFile">
 	<singleitem name="fileName" type="si pascal string" />
 	<singleitem name="fileSize" type="long" />
 	<singleitem name="fileType" type="byte">

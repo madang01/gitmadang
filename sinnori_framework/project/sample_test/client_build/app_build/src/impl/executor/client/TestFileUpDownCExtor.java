@@ -36,8 +36,8 @@ import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotLoginException;
-import kr.pe.sinnori.common.exception.ServerExcecutorException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
+import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.exception.UpDownFileException;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResource;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResourceManager;
@@ -80,7 +80,7 @@ public class TestFileUpDownCExtor extends AbstractClientExecutor {
 			ClientProjectIF clientProject) throws SocketTimeoutException,
 			ServerNotReadyException, NoMoreDataPacketBufferException,
 			BodyFormatException, DynamicClassCallException,
-			ServerExcecutorException, NotLoginException {
+			ServerTaskException, NotLoginException {
 
 		int dataBufferSize = clientProjectConfig.getDataPacketBufferSize();
 

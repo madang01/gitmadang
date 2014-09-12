@@ -18,16 +18,24 @@
 package kr.pe.sinnori.server;
 
 import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 
 import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.SocketInputStream;
+import kr.pe.sinnori.common.lib.WrapBuffer;
+import kr.pe.sinnori.common.message.AbstractMessage;
+import kr.pe.sinnori.common.protocol.MessageProtocolIF;
+import kr.pe.sinnori.common.sessionkey.ClientSessionKeyManager;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResource;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResourceManager;
 import kr.pe.sinnori.common.updownfile.LocalTargetFileResource;
 import kr.pe.sinnori.common.updownfile.LocalTargetFileResourceManager;
+import kr.pe.sinnori.server.executor.AbstractServerTask;
+import kr.pe.sinnori.server.io.LetterToClient;
 
 /**
  * 서버에 접속하는 클라이언트 자원 클래스.
@@ -65,6 +73,7 @@ public class ClientResource implements CommonRootIF {
 	/** 로그인 아이디 */
 	private String loginID = null;
 	
+	private ClientSessionKeyManager clientSessionKeyManager = null; 
 	
 	private HashSet<Integer> localSourceFileIDSet = new HashSet<Integer>(); 
 	private HashSet<Integer> localTargetFileIDSet = new HashSet<Integer>();
@@ -205,6 +214,15 @@ public class ClientResource implements CommonRootIF {
 		loginID = null;
 	}
 	
+	public ClientSessionKeyManager getClientSessionKeyManager() {
+		return clientSessionKeyManager;
+	}
+
+	public void setClientSessionKeyManager(
+			ClientSessionKeyManager clientSessionKeyManager) {
+		this.clientSessionKeyManager = clientSessionKeyManager;
+	}
+	
 	
 	public void addLocalSourceFileID(int localSourceFileID) {
 		log.info(String.format("clientSC[%d] add localSourceFileID=[%d]", clientSC.hashCode(), localSourceFileID));
@@ -263,21 +281,19 @@ public class ClientResource implements CommonRootIF {
 		return messageInputStreamResource.isReading();
 	}
 	
-	/*public LetterToClient getLetterToClient(AbstractMessage messageToClient, String messageID, int mailboxID, int mailID, ArrayList<WrapBuffer> wrapBufferList) {
-		
-		ArrayList<WrapBuffer> wrapBufferList = null;
-		try {
-			wrapBufferList = messageProtocol.M2S(outObj, messageEncoder, projectCharset);
-		} catch(Exception e1) {
-			log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
-			System.exit(1);
-		}
-		
-		LetterToClient letterToClient = new LetterToClient(clientSC, messageToClient,
-				messageID , mailboxID, mailID, wrapBufferList);
-		
+	public LetterToClient getLetterToClient(AbstractMessage messageToClient, ArrayList<WrapBuffer> wrapBufferList) {		
+		LetterToClient letterToClient = new LetterToClient(clientSC, messageToClient, wrapBufferList);		
 		return letterToClient;
-	}*/
+	}
+	
+	public ArrayList<WrapBuffer> getMessageStream(AbstractServerTask serverTask, String messageIDFromClient, 
+			AbstractMessage  messageToClient,
+			Charset projectCharset,
+			MessageProtocolIF messageProtocol,			
+			ServerObjectCacheManagerIF serverObjectCacheManager) {
+		return serverTask.getMessageStream(messageIDFromClient, clientSC, messageToClient, projectCharset, messageProtocol, serverObjectCacheManager);
+	}
+	
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
@@ -302,6 +318,12 @@ public class ClientResource implements CommonRootIF {
 		builder.append(serverMailID);
 		builder.append(", loginID=");
 		builder.append(loginID);
+		builder.append(", clientSessionKeyManager=");
+		if (null != clientSessionKeyManager) {
+			builder.append(clientSessionKeyManager.toString());
+		} else {
+			builder.append("null");
+		}
 		builder.append(", localSourceFileIDSet=");
 		builder.append(localSourceFileIDSet.toString());
 		builder.append(", localTargetFileIDSet=");
@@ -312,6 +334,14 @@ public class ClientResource implements CommonRootIF {
 		return builder.toString();
 	}
 	
-	
-	
+	public String toSimpleString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("ClientResource [");
+		builder.append("projectName=");
+		builder.append(serverProjectConfig.getProjectName());
+		builder.append(", clientSC=");
+		builder.append(clientSC.hashCode());
+		builder.append("]");
+		return builder.toString();
+	}
 }

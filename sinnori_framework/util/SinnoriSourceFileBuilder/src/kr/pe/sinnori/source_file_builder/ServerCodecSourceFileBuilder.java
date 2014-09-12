@@ -121,7 +121,7 @@ public class ServerCodecSourceFileBuilder extends AbstractSourceFileBuildre {
 			// throw new DynamicClassCallException("SelfExn 메시지는 클라이언트에서 서버로 전달하지 않는 메시지 입니다.");
 			stringBuilder.append("\t\tthrow new DynamicClassCallException(\"");
 			stringBuilder.append(messageID);
-			stringBuilder.append("메시지는 서버에서 클라이언트로 전달하지 않는 메시지 입니다.\");");
+			stringBuilder.append(" 메시지는 서버에서 클라이언트로 전달하지 않는 메시지 입니다.\");");
 		}
 		
 		// }

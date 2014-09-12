@@ -64,8 +64,5 @@ public class ReceivedLetter {
 		builder.append(middleReadObj.hashCode());
 		builder.append("]");
 		return builder.toString();
-	}
-
-	
-	
+	}	
 }

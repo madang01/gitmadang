@@ -495,8 +495,8 @@ public class MessageInfoSAXParser extends DefaultHandler {
 			}
 			
 			// messageID = tagValue;
-
-			MessageInfo messageInfo = new MessageInfo(tagValue);
+			
+			MessageInfo messageInfo = new MessageInfo(tagValue, xmlFile.lastModified());
 
 			multiItemInfoStack.push(messageInfo);
 			

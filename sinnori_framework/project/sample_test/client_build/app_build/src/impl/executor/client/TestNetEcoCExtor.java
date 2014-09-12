@@ -8,8 +8,8 @@ import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotLoginException;
-import kr.pe.sinnori.common.exception.ServerExcecutorException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
+import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.Echo.Echo;
 import kr.pe.sinnori.util.AbstractClientExecutor;
@@ -20,7 +20,7 @@ public class TestNetEcoCExtor extends AbstractClientExecutor {
 	protected void doTask(ClientProjectConfig clientProjectConfig,
 			ClientProjectIF clientProject) throws 
 			SocketTimeoutException, ServerNotReadyException, NoMoreDataPacketBufferException, 
-			BodyFormatException, DynamicClassCallException, ServerExcecutorException, NotLoginException {
+			BodyFormatException, DynamicClassCallException, ServerTaskException, NotLoginException {
 		java.util.Random random = new java.util.Random();
 		
 		Echo echoInObj = new Echo();

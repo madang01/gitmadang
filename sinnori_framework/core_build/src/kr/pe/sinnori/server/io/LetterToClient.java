@@ -40,21 +40,35 @@ public class LetterToClient {
 	 
 
 	/**
+	 * 생성자
+	 * @param toSC
+	 * @param messageToClient
+	 */
+	public LetterToClient(SocketChannel toSC, AbstractMessage messageToClient, ArrayList<WrapBuffer> wrapBufferList) {
+		this.toSC = toSC;
+		this.messageToClient = messageToClient;
+		this.messageID = messageToClient.getMessageID();
+		this.mailboxID = messageToClient.messageHeaderInfo.mailboxID;
+		this.mailID = messageToClient.messageHeaderInfo.mailID;
+		this.wrapBufferList = wrapBufferList;
+	}
+	
+	/**
 	 * 
 	 * @param sc
 	 *            수신할 client, 즉 수신자
 	 * @param outObj
 	 *            수신자가 받아 보는 메시지
 	 */
-	public LetterToClient(SocketChannel sc, AbstractMessage messageToClient, 
+	/*public LetterToClient(SocketChannel toSC, AbstractMessage messageToClient, 
 			String messageID, int mailboxID, int mailID, ArrayList<WrapBuffer> wrapBufferList) {
-		this.toSC = sc;
+		this.toSC = toSC;
 		this.messageToClient = messageToClient;
 		this.messageID = messageID;
 		this.mailboxID = mailboxID;
 		this.mailID = mailID;
 		this.wrapBufferList = wrapBufferList;
-	}
+	}*/
 
 	/**
 	 * 수신할 client, 즉 수신자를 반환한다.
@@ -81,14 +95,20 @@ public class LetterToClient {
 		return mailID;
 	}
 
-	/**
-	 * 메시지를 반환한다.
-	 * 
-	 * @return 메시지
+	/** 
+	 * @return 메시지 내용이 담긴 스트림 버퍼
 	 */
 	public ArrayList<WrapBuffer> getWrapBufferList() {
 		return wrapBufferList;
 	}
+	
+	/**
+	 * 메시지 내용이 담긴 스트림 버퍼를 저장한다.
+	 * @param wrapBufferList 메시지 내용이 담긴 스트림 버퍼
+	 */
+	/*public void setWrapBufferList(ArrayList<WrapBuffer> wrapBufferList) {
+		this.wrapBufferList =wrapBufferList;
+	}*/
 
 	@Override
 	public String toString() {

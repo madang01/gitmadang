@@ -42,7 +42,7 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
 import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
-import kr.pe.sinnori.common.exception.ServerExcecutorException;
+import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
@@ -330,7 +330,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inObj)
 			throws ServerNotReadyException, SocketTimeoutException,
 			NoMoreDataPacketBufferException, BodyFormatException, 
-			DynamicClassCallException, ServerExcecutorException, NotLoginException {
+			DynamicClassCallException, ServerTaskException, NotLoginException {
 		long startTime = 0;
 		long endTime = 0;
 		startTime = new java.util.Date().getTime();
@@ -443,7 +443,6 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 			selfExnOutObj.toException();
 		}
 		
-		// log.info("end");
 		return outObj;
 	}
 	

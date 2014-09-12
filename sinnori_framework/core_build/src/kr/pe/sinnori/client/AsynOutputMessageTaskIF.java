@@ -18,7 +18,7 @@
 package kr.pe.sinnori.client;
 
 import kr.pe.sinnori.common.configuration.ClientProjectConfig;
-import kr.pe.sinnori.common.protocol.ReceivedLetter;
+import kr.pe.sinnori.common.message.AbstractMessage;
 
 /**
  * 익명 서버 메시지 처리 작업 인터페이스
@@ -31,5 +31,5 @@ public interface AsynOutputMessageTaskIF {
 	 * @param clientProjectConfig 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스  
 	 * @param outObj 출력 메시지
 	 */
-	public void doTask(ClientProjectConfig clientProjectConfig, ReceivedLetter receivedLetter);
+	public void doTask(ClientProjectConfig clientProjectConfig, AbstractMessage outObj);
 }

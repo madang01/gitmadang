@@ -25,8 +25,8 @@ import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotLoginException;
-import kr.pe.sinnori.common.exception.ServerExcecutorException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
+import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 
 /**
@@ -112,5 +112,5 @@ public abstract class AbstractClientExecutor implements CommonRootIF {
 	 */
 	abstract protected void doTask(ClientProjectConfig clientProjectConfig, ClientProjectIF clientProject)
 			throws SocketTimeoutException, ServerNotReadyException, NoMoreDataPacketBufferException, 
-			BodyFormatException, DynamicClassCallException, ServerExcecutorException, NotLoginException;
+			BodyFormatException, DynamicClassCallException, ServerTaskException, NotLoginException;
 }

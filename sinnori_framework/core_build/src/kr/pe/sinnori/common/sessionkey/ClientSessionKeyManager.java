@@ -23,6 +23,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
 import java.util.Random;
 
 import javax.crypto.BadPaddingException;
@@ -44,7 +45,8 @@ import org.apache.commons.codec.binary.Base64;
  * 
  */
 public final class ClientSessionKeyManager implements CommonRootIF {
-	private PublicKey publicKey = null;
+	private byte[] publicKeyBytes = null;
+	// private PublicKey publicKey = null;
 	private byte[] symmetricKeyBytes = null;
 	private String symmetricKeyAlgorithm = null;
 	private CommonType.SymmetricKeyEncoding symmetricKeyEncoding = null;
@@ -60,6 +62,7 @@ public final class ClientSessionKeyManager implements CommonRootIF {
 	 * @throws IllegalArgumentException 
 	 */
 	public ClientSessionKeyManager(byte[] publicKeyBytes) throws IllegalArgumentException, SymmetricException {
+		this.publicKeyBytes = publicKeyBytes;
 		symmetricKeyAlgorithm = (String) conf
 				.getResource("sessionkey.symmetric_key_algorithm.value");
 		symmetricKeyEncoding = (CommonType.SymmetricKeyEncoding) conf
@@ -91,6 +94,7 @@ public final class ClientSessionKeyManager implements CommonRootIF {
 		log.info(String.format("publicKeyBytes=[%s]",
 				HexUtil.getHexStringFromByteArray(publicKeyBytes)));
 
+		
 		KeyFactory rsaKeyFactory = null;
 		try {
 			rsaKeyFactory = KeyFactory.getInstance("RSA");
@@ -103,8 +107,9 @@ public final class ClientSessionKeyManager implements CommonRootIF {
 		X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(
 				publicKeyBytes);
 
+		PublicKey publicKey = null;
 		try {
-			this.publicKey = rsaKeyFactory.generatePublic(publicKeySpec);
+			publicKey = rsaKeyFactory.generatePublic(publicKeySpec);
 		} catch (InvalidKeySpecException e) {
 			String errorMessage = String
 					.format("RSA Public Key InvalidKeySpecException");
@@ -230,4 +235,22 @@ public final class ClientSessionKeyManager implements CommonRootIF {
 		return symmetricKey;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("ClientSessionKeyManager [publicKeyBytes=");
+		builder.append(HexUtil.getHexStringFromByteArray(publicKeyBytes));
+		builder.append(", symmetricKeyBytes=");
+		builder.append(HexUtil.getHexStringFromByteArray(symmetricKeyBytes));
+		builder.append(", symmetricKeyAlgorithm=");
+		builder.append(symmetricKeyAlgorithm);
+		builder.append(", symmetricKeyEncoding=");
+		builder.append(symmetricKeyEncoding);
+		builder.append(", sessionKeyBytes=");
+		builder.append(Arrays.toString(sessionKeyBytes));
+		builder.append("]");
+		return builder.toString();
+	}
+
+	
 }

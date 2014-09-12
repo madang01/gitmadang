@@ -67,7 +67,7 @@ import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterPool;
  * @author Jonghoon Won
  *
  */
-public class ServerProject extends AbstractProject implements ClientResourceManagerIF, ServerObjectCacheManagerIF {
+public class ServerProject extends AbstractProject implements ClientResourceManagerIF, ServerObjectCacheManagerIF, LoginManagerIF {
 	/** 모니터 객체 */
 	// private final Object clientResourceMonitor = new Object();
 	
@@ -184,6 +184,7 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 		executorPool = new ExecutorPool(
 				executorProcessorSize, executorProcessorMaxSize,
 				serverProjectConfig,
+				this,
 				inputMessageQueue, outputMessageQueue, 
 				messageProtocol, this);
 
@@ -307,7 +308,7 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 	}
 	
 	// FIXME!
-	public void loginOK(String loginID, ClientResource clientResource) {
+	public void login(String loginID, ClientResource clientResource) {
 		clientResource.setLoginID(loginID);
 		
 		loginIDToSCHash.put(loginID, clientResource);

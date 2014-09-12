@@ -35,6 +35,6 @@ public final class BigByteServerCodec implements MessageCodecIF {
 
 	@Override
 	public MessageEncoder getMessageEncoder() throws DynamicClassCallException {
-		throw new DynamicClassCallException("BigByte메시지는 서버에서 클라이언트로 전달하지 않는 메시지 입니다.");
+		throw new DynamicClassCallException("BigByte 메시지는 서버에서 클라이언트로 전달하지 않는 메시지 입니다.");
 	}
 }

@@ -18,7 +18,7 @@
 
 package kr.pe.sinnori.gui.screen;
 
-import static kr.pe.sinnori.common.lib.CommonRootIF.log;
+// import static kr.pe.sinnori.common.lib.CommonRootIF.log;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -39,9 +39,12 @@ import javax.swing.SwingConstants;
 
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.gui.lib.MainControllerIF;
-import kr.pe.sinnori.gui.screen.fileupdownscreen.task.DownloadFileTransferTask;
-import kr.pe.sinnori.gui.screen.fileupdownscreen.task.UploadFileTransferTask;
-import kr.pe.sinnori.gui.screen.fileupdownscreen.task.UploadFileTransferTask2;
+import kr.pe.sinnori.gui.screen.asynfileupdownscreen.task.AsynDownloadFileTransferTask;
+import kr.pe.sinnori.gui.screen.asynfileupdownscreen.task.AsynUploadFileTransferTask;
+import kr.pe.sinnori.gui.screen.commonfileupdown.task.FileTransferTaskIF;
+import kr.pe.sinnori.gui.screen.syncfileupdownscreen.task.SyncDownloadFileTransferTask;
+import kr.pe.sinnori.gui.screen.syncfileupdownscreen.task.SyncUploadFileTransferTask;
+import kr.pe.sinnori.impl.message.CancelUploadFileResult.CancelUploadFileResult;
 
 /**
  * 파일 송수신 전송 상태 모달 윈도우
@@ -200,23 +203,23 @@ public class FileTranferProcessDialog extends JDialog  implements CommonRootIF, 
 	 * 사용자 취소 버튼 혹은 윈도우 닫기 이벤트 처리 메소드
 	 */
 	public void cancelEvent() {		
-		if (fileTransferTask instanceof UploadFileTransferTask) {			
+		if (fileTransferTask instanceof SyncUploadFileTransferTask) {			
 			fileTransferTask.cancelTask();
-		} else if (fileTransferTask instanceof DownloadFileTransferTask) {
+		} else if (fileTransferTask instanceof SyncDownloadFileTransferTask) {
 				fileTransferTask.cancelTask();
-		} else if (fileTransferTask instanceof UploadFileTransferTask2) {
+		} else if (fileTransferTask instanceof AsynUploadFileTransferTask) {
 			// FIXME!
 			// log.info("UploadFileTransferTask2'cancelEvent start");
 			
 			fileTransferTask.cancelTask();
 						
 			@SuppressWarnings("unused")
-			OutputMessage cancelUploadFileResultOutObj = mainController.cancelUploadFile();
+			CancelUploadFileResult cancelUploadFileResultOutObj = mainController.cancelUploadFile();
 			// if (null == cancelUploadFileResultOutObj) return;
 			
 			// FIXME!
-			// log.info("UploadFileTransferTask2'cancelEvent end");
-		} else if (fileTransferTask instanceof DownloadFileTransferTask2) {
+			log.info("UploadFileTransferTask2'cancelEvent end");
+		} else if (fileTransferTask instanceof AsynDownloadFileTransferTask) {
 			mainController.cancelDownloadFile();
 		} else {
 			Throwable t = new Throwable();
@@ -228,10 +231,10 @@ public class FileTranferProcessDialog extends JDialog  implements CommonRootIF, 
 	 * 중지 요청, 다운 로드를 모두 받았을 경우 혹은 다운 로드 취소 완료시에 호출된다.
 	 */
 	public void stopTask() {
-		if (fileTransferTask instanceof DownloadFileTransferTask2) {
+		if (fileTransferTask instanceof AsynDownloadFileTransferTask) {
 			fileTransferTask.cancelTask();
 			fileTransferTaskThread.interrupt();
-		} else if (fileTransferTask instanceof UploadFileTransferTask2) {
+		} else if (fileTransferTask instanceof AsynUploadFileTransferTask) {
 			fileTransferTask.cancelTask();
 			fileTransferTaskThread.notify();
 				//fileTransferTaskThread.interrupt();

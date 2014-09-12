@@ -40,7 +40,7 @@ import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
-import kr.pe.sinnori.common.exception.ServerExcecutorException;
+import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.lib.WrapBuffer;
@@ -276,7 +276,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inObj)
 			throws ServerNotReadyException, SocketTimeoutException,
 			NoMoreDataPacketBufferException, BodyFormatException, 
-			DynamicClassCallException, ServerExcecutorException, NotLoginException {
+			DynamicClassCallException, ServerTaskException, NotLoginException {
 		long startTime = 0;
 		long endTime = 0;
 		startTime = new java.util.Date().getTime();

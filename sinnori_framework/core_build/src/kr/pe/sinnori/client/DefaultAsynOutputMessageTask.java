@@ -20,7 +20,7 @@ package kr.pe.sinnori.client;
 
 import kr.pe.sinnori.common.configuration.ClientProjectConfig;
 import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.common.protocol.ReceivedLetter;
+import kr.pe.sinnori.common.message.AbstractMessage;
 
 /**
  * {@link ClientProject} 에서 지정하는 디폴트 익명 메시지 처리자로 단순 로그만 찍는다. 
@@ -30,7 +30,7 @@ import kr.pe.sinnori.common.protocol.ReceivedLetter;
 public class DefaultAsynOutputMessageTask implements CommonRootIF, AsynOutputMessageTaskIF {
 	
 	@Override
-	public void doTask(ClientProjectConfig clientProjectConfig, ReceivedLetter receivedLetter) {
-		log.info(String.format("projectName[%s] %s", clientProjectConfig.getProjectName(), receivedLetter.toString()));
+	public void doTask(ClientProjectConfig clientProjectConfig, AbstractMessage outObj) {
+		log.info(String.format("projectName[%s] %s", clientProjectConfig.getProjectName(), outObj.toString()));
 	}
 }

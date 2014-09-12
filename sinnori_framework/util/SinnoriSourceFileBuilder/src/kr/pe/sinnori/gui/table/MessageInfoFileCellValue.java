@@ -9,8 +9,8 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import kr.pe.sinnori.gui.lib.MessageInfoManagerIF;
 import kr.pe.sinnori.message.MessageInfoSAXParser;
-import kr.pe.sinnori.screen.MessageInfoManagerIF;
 
 @SuppressWarnings("serial")
 public class MessageInfoFileCellValue extends JPanel {
@@ -36,7 +36,7 @@ public class MessageInfoFileCellValue extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("RetryButtonAction::"+e.toString());
+			//System.out.println("RetryButtonAction::"+e.toString());
 			
 			MessageInfoSAXParser messageInfoSAXParser = new MessageInfoSAXParser(messageInfoFile);
 			kr.pe.sinnori.message.MessageInfo oneMessageInfo = messageInfoSAXParser.parse();

@@ -17,12 +17,19 @@
 
 package kr.pe.sinnori.server.executor;
 
+import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
+import kr.pe.sinnori.common.lib.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
+import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.server.ClientResource;
+import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
+import kr.pe.sinnori.server.io.LetterToClient;
 
 /**
  * 클라이언트로 보내는 편지 배달부. 서버 비지니스 로직 호출할때 마다 할당 된다. 
@@ -30,18 +37,36 @@ import kr.pe.sinnori.server.ClientResource;
  *
  */
 public class LetterSender implements CommonRootIF {
+	private AbstractServerTask serverTask = null;
 	private AbstractMessage messageFromClient;
+	private String messageIDFromClient = null;
 	private ClientResource clientResource  = null; 
-	private ArrayList<AbstractMessage> messageToClientList = new ArrayList<AbstractMessage>();
+	private Charset projectCharset = null;
+	private LinkedBlockingQueue<LetterToClient> ouputMessageQueue = null;
+	private MessageProtocolIF messageProtocol= null;
+	private ServerObjectCacheManagerIF serverObjectCacheManager = null;
+	private ArrayList<LetterToClient> letterToClientList = new ArrayList<LetterToClient>();
 	
 	/**
 	 * 생성자
 	 * @param inObjClientResource 입력 메시지 보낸 클라이언트의 자원
 	 * @param inObj 입력 메시지, 입력 메시지를 보낸 클라이언트 당사자한테 출력 메시지를 보낼때 입력 메시지의 메일박스 식별자와 메일 식별자가 필요하다.
 	 */
-	public LetterSender(ClientResource clientResource, AbstractMessage messageFromClient) {
+	public LetterSender(AbstractServerTask serverTask, 
+			ClientResource clientResource, 
+			AbstractMessage messageFromClient,
+			Charset projectCharset,
+			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
+			MessageProtocolIF messageProtocol,
+			ServerObjectCacheManagerIF serverObjectCacheManager) {
+		this.serverTask = serverTask;
 		this.clientResource = clientResource;
 		this.messageFromClient = messageFromClient;
+		this.messageIDFromClient = messageFromClient.getMessageID();
+		this.projectCharset = projectCharset;
+		this.ouputMessageQueue = ouputMessageQueue;
+		this.messageProtocol = messageProtocol;
+		this.serverObjectCacheManager = serverObjectCacheManager;
 	}
 	
 	/**
@@ -51,8 +76,18 @@ public class LetterSender implements CommonRootIF {
 	public void addSyncMessage(AbstractMessage messageToClient) {
 		messageToClient.messageHeaderInfo = messageFromClient.messageHeaderInfo;
 		
-		messageToClientList.add(messageToClient);
+		if (letterToClientList.size() > 0) {
+			log.warn("동기 메시지는 1개만 가질 수 있습니다.  추가 취소된 메시지={}", messageToClient.toString());
+			return;
+		}
+		
+		ArrayList<WrapBuffer> wrapBufferList = clientResource.getMessageStream(serverTask, messageIDFromClient, messageToClient, projectCharset, messageProtocol, serverObjectCacheManager);
+		if (null != wrapBufferList) {
+			LetterToClient letterToClient = clientResource.getLetterToClient(messageToClient, wrapBufferList);
+			letterToClientList.add(letterToClient);
+		}
 	}
+	
 	
 	/**
 	 * 출력 메시지를 익명으로 입력 메시지 보낸 클라이언트로 보낸다.
@@ -62,18 +97,92 @@ public class LetterSender implements CommonRootIF {
 		messageToClient.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
 		messageToClient.messageHeaderInfo.mailID = clientResource.getServerMailID();
 		
-		messageToClientList.add(messageToClient);
+		ArrayList<WrapBuffer> wrapBufferList = clientResource.getMessageStream(serverTask, messageIDFromClient, messageToClient, projectCharset, messageProtocol, serverObjectCacheManager);
+		if (null != wrapBufferList) {
+			LetterToClient letterToClient = clientResource.getLetterToClient(messageToClient, wrapBufferList);
+			letterToClientList.add(letterToClient);
+		}
 	}
 	
-	public ArrayList<AbstractMessage> getMessageToClientList() {
-		return messageToClientList;
+	public void addAsynMessage(AbstractMessage messageToClient, SocketChannel toSC) {
+		messageToClient.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
+		messageToClient.messageHeaderInfo.mailID = clientResource.getServerMailID();
+		
+		ArrayList<WrapBuffer> wrapBufferList = serverTask.getMessageStream(messageIDFromClient, toSC, messageToClient, projectCharset, messageProtocol, serverObjectCacheManager);
+		if (null != wrapBufferList) {
+			LetterToClient letterToClient = new LetterToClient(toSC, messageToClient, wrapBufferList);
+			letterToClientList.add(letterToClient);
+		}
 	}
+	
+	public void directSendAsynMessage(AbstractMessage messageToClient, SocketChannel toSC) {
+		messageToClient.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
+		messageToClient.messageHeaderInfo.mailID = clientResource.getServerMailID();
+		
+		ArrayList<WrapBuffer> wrapBufferList = serverTask.getMessageStream(messageIDFromClient, toSC, messageToClient, projectCharset, messageProtocol, serverObjectCacheManager);
+		if (null != wrapBufferList) {
+			LetterToClient letterToClient = new LetterToClient(toSC, messageToClient, wrapBufferList);
+			try {
+				ouputMessageQueue.put(letterToClient);
+			} catch (InterruptedException e) {
+				try {
+					ouputMessageQueue.put(letterToClient);
+				} catch (InterruptedException e1) {
+					log.error("재시도 과정에서 인터럽트 발생하여 종료, clientResource=[{}], messageFromClient=[{}], 전달 못한 송신 메시지=[{}]", 
+							clientResource.toSimpleString(), messageFromClient.toString(), letterToClient.toString());
+					Thread.interrupted();
+				}
+			}
+		}
+	}
+	
+	public void directSendAsynMessage(AbstractMessage messageToClient) {
+		messageToClient.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
+		messageToClient.messageHeaderInfo.mailID = clientResource.getServerMailID();
+		
+		ArrayList<WrapBuffer> wrapBufferList = clientResource.getMessageStream(serverTask, messageIDFromClient, messageToClient, projectCharset, messageProtocol, serverObjectCacheManager);
+		if (null != wrapBufferList) {
+			LetterToClient letterToClient = clientResource.getLetterToClient(messageToClient, wrapBufferList);
+			try {
+				ouputMessageQueue.put(letterToClient);
+			} catch (InterruptedException e) {
+				try {
+					ouputMessageQueue.put(letterToClient);
+				} catch (InterruptedException e1) {
+					log.error("재시도 과정에서 인터럽트 발생하여 종료, clientResource=[{}], messageFromClient=[{}], 전달 못한 송신 메시지=[{}]", 
+							clientResource.toSimpleString(), messageFromClient.toString(), letterToClient.toString());
+					Thread.interrupted();
+				}
+			}
+		}
+	}
+	
+	public void directSendLetterToClientList() {
+		for (LetterToClient letterToClient : letterToClientList) {
+			try {
+				ouputMessageQueue.put(letterToClient);
+			} catch (InterruptedException e) {
+				try {
+					ouputMessageQueue.put(letterToClient);
+				} catch (InterruptedException e1) {
+					log.error("재시도 과정에서 인터럽트 발생하여 종료, clientResource=[{}], messageFromClient=[{}], 전달 못한 송신 메시지=[{}]", 
+							clientResource.toSimpleString(), messageFromClient.toString(), letterToClient.toString());
+					Thread.interrupted();
+				}
+			}
+		}
+	}
+	
+	
+	/*public ArrayList<LetterToClient> getMessageToClientList() {
+		return letterToClientList;
+	}*/
 	
 	/**
 	 * 전체 목록 삭제. 주의점) 로그 없다. 만약 로그 필요시 {@link #writeLog(String) } 호출할것
 	 */
 	public void clearMessageToClientList() {
-		messageToClientList.clear();
+		letterToClientList.clear();
 	}
 
 	/**
@@ -85,8 +194,10 @@ public class LetterSender implements CommonRootIF {
 	
 	public void writeLogAll(String title) {
 		int i=0;
-		for (AbstractMessage messageToClient : messageToClientList) {
-			log.info("%::전체삭제-잔존 메시지[{}]=[{}]", i++, messageToClient.toString());
+		for (LetterToClient letterToClient : letterToClientList) {
+			log.info("%::전체삭제-잔존 메시지[{}]=[{}]", i++, letterToClient.toString());
 		}
 	}
+	
+	
 }

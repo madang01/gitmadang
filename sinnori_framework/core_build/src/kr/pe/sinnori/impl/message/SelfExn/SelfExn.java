@@ -20,7 +20,7 @@ import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotLoginException;
-import kr.pe.sinnori.common.exception.ServerExcecutorException;
+import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.AbstractMessage;
 
@@ -95,7 +95,7 @@ public final class SelfExn extends AbstractMessage {
 			errorGubun = "D";
 		} else if (wantedExceptionClass.equals(NoMoreDataPacketBufferException.class)) {
 			errorGubun = "N";
-		} else if (wantedExceptionClass.equals(ServerExcecutorException.class)) {
+		} else if (wantedExceptionClass.equals(ServerTaskException.class)) {
 			errorGubun = "S";
 		} else if (wantedExceptionClass.equals(NotLoginException.class)) {
 			errorGubun = "A";
@@ -204,7 +204,7 @@ public final class SelfExn extends AbstractMessage {
 	}
 	
 	public void toException() throws BodyFormatException, DynamicClassCallException, 
-		NoMoreDataPacketBufferException, ServerExcecutorException,
+		NoMoreDataPacketBufferException, ServerTaskException,
 		NotLoginException {
 		
 		String errorWhereMsg = null;
@@ -228,7 +228,7 @@ public final class SelfExn extends AbstractMessage {
 			throw new NoMoreDataPacketBufferException(errorMessageMsg);
 		} else if (errorGubun.equals("S")) {
 			String errorMessageMsg = errorWhereMsg+"::메시지["+errorMessageID+"]::"+errorMessage;
-			throw new ServerExcecutorException(errorMessageMsg);
+			throw new ServerTaskException(errorMessageMsg);
 		} else if (errorGubun.equals("A")) {
 			String errorMessageMsg = errorWhereMsg+"::메시지["+errorMessageID+"]::"+errorMessage;
 			throw new NotLoginException(errorMessageMsg);

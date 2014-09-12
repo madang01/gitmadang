@@ -62,7 +62,4 @@ public interface ClientResourceManagerIF {
 	 * @return ClientManger가 관리하는 client 총수
 	 */
 	public int getCntOfAllClients();
-	
-	public void loginOK(String loginID, ClientResource clientResource);
-	public boolean isLogin(String loginID);
 }
