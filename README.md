@@ -1,12 +1,12 @@
-I don't speak English very well.
+I don't speak English very well.<br/>
 
-Sinnori framework is a program that helps to make a message oriented server / client application.
+Sinnori framework is a program that helps to make a message oriented server / client application.<br/><br/>
 
-&gt;&gt; model
+&gt;&gt; model<br/><br/>
 
-Function(request message) {
-  do business logic
-  return response message
+Function(request message) {<br/>
+  do business logic<br/>
+  return response message<br/>
 }<br/>
 
 clinet : send a request message to server<br/> 
