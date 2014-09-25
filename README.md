@@ -16,16 +16,16 @@ server : (1) receive a request message from client
 client : receive a response message from server
 
 
-&gt;&gt; 3 part
-(1) Sinnori Server
-(2) server connection API
-(3) utility
-(3-1) utility to make ANT build environment.
-(3-2) utility to create a source associated with the message
+&gt;&gt; 3 part<br/>
+(1) Sinnori Server<br/>
+(2) server connection API<br/>
+(3) utility<br/>
+(3-1) utility to make ANT build environment.<br/>
+(3-2) utility to create a source associated with the message<br/>
 
-&gt;&gt; sample project list
-(1) sample_test
-(2) sample_fileupdown
-(2-1) sync file uploading/downloading
-(2-2) asyn file uploading/downloading
-(3) sample_db
+&gt;&gt; sample project list<br/>
+(1) sample_test<br/>
+(2) sample_fileupdown<br/>
+(2-1) sync file uploading/downloading<br/>
+(2-2) asyn file uploading/downloading<br/>
+(3) sample_db<br/>
