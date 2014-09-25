@@ -2,8 +2,7 @@ I don't speak English very well.<br/>
 
 Sinnori framework is a program that helps to make a message oriented server / client application.<br/><br/>
 
-&gt;&gt; model<br/><br/>
-
+&gt;&gt; model<br/>
 Function(request message) {<br/>
   do business logic<br/>
   return response message<br/>
