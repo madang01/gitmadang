@@ -3,10 +3,16 @@ I don't speak English very well.<br/>
 Sinnori framework is a program that helps to make a message oriented server / client application.<br/><br/>
 
 &gt;&gt; model<br/>
-Function(a request message) {<br/>
+Function(a request sync message) {<br/>
   do business logic<br/>
-  return a response message<br/>
+  return a response sync message<br/>
 }<br/>
+
+Function(a request asyn message) {<br/>
+  do business logic<br/>
+  return response asyn message(s)<br/>
+}<br/>
+
 
 clinet : send a request message to server<br/> 
 server : (1) receive a request message from client<br/>
