@@ -671,6 +671,10 @@ public class ASynFileUpDownClientCExtor extends AbstractClientExecutor implement
 			return;
 		}
 		
+		if (fileProcessDialog.isFinished()) {
+			JOptionPane.showMessageDialog(mainFrame, "업로드 성공");
+		}
+		
 		
 		/** localSourceFileResource 를 null 만들기 전에 파일 업로드 진행 모달 윈도우를 가장 먼저 닫아야 한다. */
 		fileProcessDialog.dispose();
@@ -837,7 +841,12 @@ public class ASynFileUpDownClientCExtor extends AbstractClientExecutor implement
 			return;
 		}
 		
-		log.info("call endDownloadTask");
+		// log.info("call endDownloadTask");
+		
+		if (fileProcessDialog.isFinished()) {
+			JOptionPane.showMessageDialog(mainFrame, "다운로드 성공");
+		}
+		
 		
 		/** localTargetFileResource 를 null 만들기 전에 파일 다운로드 진행 모달 윈도우를 가장 먼저 닫아야 한다. */
 		fileProcessDialog.dispose();

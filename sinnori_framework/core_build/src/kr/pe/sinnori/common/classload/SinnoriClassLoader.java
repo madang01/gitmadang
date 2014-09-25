@@ -18,7 +18,9 @@ package kr.pe.sinnori.common.classload;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
@@ -36,6 +38,7 @@ public class SinnoriClassLoader extends ClassLoader implements CommonRootIF {
 	private final Object monitor = new  Object();
 	// private ClassLoader parent = null;
 	private final ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
+	// private final static String mybatisPackageName = "kr.pe.sinnori.impl.mybatis.";
 	
 	
 	private String dynamicClassBinaryBasePath = null;
@@ -296,9 +299,44 @@ public class SinnoriClassLoader extends ClassLoader implements CommonRootIF {
 		return retClass;
 	}
 	
+	/**
+	 * <pre>
+	 * kr/pe/sinnori/impl/mybatis/memberMapper.xml 로 시작되는 mybatis 리소스 파일의 InputStream 을 반환한다.
+	 * </pre>
+	 */
+	@Override
+	public InputStream getResourceAsStream(String name) {
+		FileInputStream fis = null;
+		
+		/*int inx = name.indexOf(mybatisPackageName);
+		if (0 != inx) {
+			log.info("not mybatis resource, name={}", name);
+			
+			return super.getResourceAsStream(name);
+		}*/
+
+		/*String fileName = name.substring(mybatisPackageName.length());
+		
+		String resourceFileName = new StringBuilder(dynamicClassBinaryBasePath).append(File.separator).append(mybatisPackageName.replace("/", File.separator)).append(fileName).toString();*/
+		
+		String resourceFileName = new StringBuilder(dynamicClassBinaryBasePath).append(File.separator).append(name.replace("/", File.separator)).toString();
+		
+		// FIXME!
+		// log.info("name={}, packageName={}, fileName={}", name, mybatisPackageName, fileName);
+		log.info("name={}, resourceFileName={}", name, resourceFileName);
+		
+		try {
+			fis = new FileInputStream(resourceFileName);
+		} catch (FileNotFoundException e) {
+			return null;
+		}
+		return fis;
+	}
+	
 	@Override
     protected void finalize() throws Throwable{
 		// FIXME! 메모리 회수 확인용으로 삭제하지 마세요!
 		log.info("SinnoriClassLoader hashCode=[{}] destroy", this.hashCode());
     }
 }
+

@@ -33,6 +33,8 @@ public class ServerProjectConfig extends CommonProjectConfig {
 	private long serverRequestTimeout = 0L;
 	/***** 모니터 환경 변수 종료 *****/
 	
+	private String mybatisConfigFileName = null;
+	
 	public ServerProjectConfig(String projectName,
 			Properties configFileProperties, Logger log) {
 		super(projectName, configFileProperties, log);
@@ -417,6 +419,15 @@ public class ServerProjectConfig extends CommonProjectConfig {
 		}
 		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, serverRequestTimeout);
 		/******** 서버 프로젝트 모니터 종료 **********/
+		
+		propKey = getServerKeyName("mybatis.config_file_name");
+		propValue = configFileProperties.getProperty(propKey);
+		if (null == propValue) {
+			mybatisConfigFileName = "kr/pe/sinnori/impl/mybatis.mybatisConfig.xml";
+		} else {
+			mybatisConfigFileName = propValue;
+		}
+		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, mybatisConfigFileName);
 	}
 	
 	
@@ -501,6 +512,11 @@ public class ServerProjectConfig extends CommonProjectConfig {
 		return serverMonitorTimeInterval;
 	}
 	
+	public String getMybatisConfigFileName() {
+		return mybatisConfigFileName;
+	}
+	
+	
 	public String toServerString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("ServerProjectConfig [");
@@ -538,6 +554,8 @@ public class ServerProjectConfig extends CommonProjectConfig {
 		builder.append(serverMonitorTimeInterval);
 		builder.append(", serverRequestTimeout=");
 		builder.append(serverRequestTimeout);
+		builder.append(", mybatisConfigFileName=");
+		builder.append(mybatisConfigFileName);
 		builder.append("]");
 		return builder.toString();
 	}

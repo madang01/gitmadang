@@ -24,7 +24,7 @@ import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
 
 /**
  * AllDataType 메시지 인코더
- * @author Jonghoon won
+ * @author Won Jonghoon
  *
  */
 public final class AllDataTypeEncoder extends MessageEncoder {
@@ -259,6 +259,22 @@ public final class AllDataTypeEncoder extends MessageEncoder {
 					, 13 // itemTypeID
 					, "si variable length byte[]" // itemTypeName
 					, allDataType.getBytesVar2() // itemValue
+					, -1 // itemSizeForLang
+					, null // itemCharset,
+					, charsetOfProject
+					, middleWriteObj);
+		singleItemEncoder.putValueToMiddleWriteObj(allDataTypeSingleItemPath, "sqldate"
+					, 15 // itemTypeID
+					, "java sql date" // itemTypeName
+					, allDataType.getSqldate() // itemValue
+					, -1 // itemSizeForLang
+					, null // itemCharset,
+					, charsetOfProject
+					, middleWriteObj);
+		singleItemEncoder.putValueToMiddleWriteObj(allDataTypeSingleItemPath, "sqltimestamp"
+					, 16 // itemTypeID
+					, "java sql timestamp" // itemTypeName
+					, allDataType.getSqltimestamp() // itemValue
 					, -1 // itemSizeForLang
 					, null // itemCharset,
 					, charsetOfProject

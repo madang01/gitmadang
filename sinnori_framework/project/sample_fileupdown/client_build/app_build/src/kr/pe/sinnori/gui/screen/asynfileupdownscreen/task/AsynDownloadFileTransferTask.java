@@ -60,7 +60,7 @@ public class AsynDownloadFileTransferTask implements CommonRootIF, FileTransferT
 	@Override
 	public void doTask() {
 		// FIXME!
-		log.info("doTask start");
+		// log.info("doTask start");
 		
 		MessageResult downloadFileAllOutObj = mainController.doDownloadFileAll();
 		

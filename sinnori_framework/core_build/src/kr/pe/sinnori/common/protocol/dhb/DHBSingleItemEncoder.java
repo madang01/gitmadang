@@ -36,7 +36,7 @@ import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
 public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 	
 	private interface DHBTypeSingleItemEncoderIF {
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
 				Charset itemCharsetForLang, OutputStreamIF sw)
 				throws Exception;
 	}
@@ -49,7 +49,8 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 			new DHBUSPascalStringSingleItemEncoder(), new DHBSIPascalStringSingleItemEncoder(), 
 			new DHBFixedLengthStringSingleItemEncoder(), new DHBUBVariableLengthBytesSingleItemEncoder(), 
 			new DHBUSVariableLengthBytesSingleItemEncoder(), new DHBSIVariableLengthBytesSingleItemEncoder(), 
-			new DHBFixedLengthBytesSingleItemEncoder()
+			new DHBFixedLengthBytesSingleItemEncoder(), 
+			new DHBJavaSqlDateSingleItemEncoder(), new DHBJavaSqlTimestampSingleItemEncoder()
 	};
 
 	
@@ -58,7 +59,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 	/** DHB 프로토콜의 byte 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DHBByteSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
 				Charset itemCharsetForLang, OutputStreamIF sw)
 				throws BufferOverflowException, NoMoreDataPacketBufferException {
 			
@@ -66,7 +67,8 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 				
 			if (null != itemValue) {
 				value = (Byte) itemValue;
-			}	
+			}
+			sw.putUnsignedByte(itemTypeID);
 			sw.putByte(value);
 		}
 	}
@@ -75,7 +77,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 	private final class DHBUnsignedByteSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
 				Charset itemCharsetForLang, OutputStreamIF sw)
 				throws BufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
 			short value = 0;
@@ -84,6 +86,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 				value = (Short) itemValue;
 			}
 			
+			sw.putUnsignedByte(itemTypeID);
 			sw.putUnsignedByte(value);
 		}
 	}
@@ -91,7 +94,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 	/** DHB 프로토콜의 short 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DHBShortSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
 				Charset itemCharsetForLang, OutputStreamIF sw)
 				throws BufferOverflowException, NoMoreDataPacketBufferException {
 			short value = 0;
@@ -100,6 +103,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 				value = (Short) itemValue;
 			}
 			
+			sw.putUnsignedByte(itemTypeID);
 			sw.putShort(value);
 		}
 	}
@@ -108,7 +112,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 	private final class DHBUnsignedShortSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 		
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
 				Charset itemCharsetForLang, OutputStreamIF sw)
 				throws BufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
 			int value = 0;	
@@ -117,6 +121,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 				value = (Integer) itemValue;
 			}
 
+			sw.putUnsignedByte(itemTypeID);
 			sw.putUnsignedShort(value);
 		}
 	}
@@ -125,7 +130,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 	private final class DHBIntSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 		
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
 				Charset itemCharsetForLang, OutputStreamIF sw)
 				throws BufferOverflowException, NoMoreDataPacketBufferException {
 			int value = 0;
@@ -134,6 +139,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 				value = (Integer) itemValue;
 			}
 			
+			sw.putUnsignedByte(itemTypeID);
 			sw.putInt(value);
 		}
 	}
@@ -142,7 +148,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 	private final class DHBUnsignedIntSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 		
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
 				Charset itemCharsetForLang, OutputStreamIF sw)
 				throws BufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
 			long value = 0;
@@ -151,6 +157,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 				value = (Long) itemValue;
 			}
 			
+			sw.putUnsignedByte(itemTypeID);
 			sw.putUnsignedInt(value);
 		}
 	}
@@ -158,7 +165,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 	/** DHB 프로토콜의 long 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DHBLongSingleItemEncoder implements DHBTypeSingleItemEncoderIF {		
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
 				Charset itemCharsetForLang, OutputStreamIF sw)
 				throws BufferOverflowException, NoMoreDataPacketBufferException {
 			long value = 0;
@@ -167,6 +174,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 				value = (Long) itemValue;
 			}
 			
+			sw.putUnsignedByte(itemTypeID);
 			sw.putLong(value);
 		}
 	}
@@ -174,7 +182,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 	/** DHB 프로토콜의 ub pascal string 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DHBUBPascalStringSingleItemEncoder implements DHBTypeSingleItemEncoderIF {		
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
 				Charset itemCharsetForLang, OutputStreamIF sw)
 				throws BufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
 			String value = CommonStaticFinalVars.EMPTY_STRING;
@@ -183,6 +191,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 				value = (String) itemValue;
 			}
 			
+			sw.putUnsignedByte(itemTypeID);
 			sw.putUBPascalString(value);
 		}
 	}
@@ -190,7 +199,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 	/** DHB 프로토콜의 us pascal string 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DHBUSPascalStringSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
 				Charset itemCharsetForLang, OutputStreamIF sw)
 				throws BufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
 			String value = CommonStaticFinalVars.EMPTY_STRING;;
@@ -199,6 +208,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 				value = (String) itemValue;
 			}
 			
+			sw.putUnsignedByte(itemTypeID);
 			sw.putUSPascalString(value);
 		}
 	}
@@ -206,7 +216,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 	/** DHB 프로토콜의 si pascal string 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DHBSIPascalStringSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
 				Charset itemCharsetForLang, OutputStreamIF sw)
 				throws BufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
 			String value = CommonStaticFinalVars.EMPTY_STRING;;
@@ -215,6 +225,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 				value = (String) itemValue;
 			}
 			
+			sw.putUnsignedByte(itemTypeID);
 			sw.putSIPascalString(value);
 		}
 	}
@@ -222,7 +233,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 	/** DHB 프로토콜의 fixed length string 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DHBFixedLengthStringSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
 				Charset itemCharsetForLang, OutputStreamIF sw)
 				throws BufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
 			String value = CommonStaticFinalVars.EMPTY_STRING;;
@@ -230,6 +241,8 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 			if (null != itemValue) {
 				value = (String) itemValue;
 			}
+			
+			sw.putUnsignedByte(itemTypeID);
 			
 			if (null == itemCharsetForLang) {
 				sw.putString(itemSizeForLang, value);
@@ -246,9 +259,11 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 	/** DHB 프로토콜의 ub variable length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DHBUBVariableLengthBytesSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
 				Charset itemCharsetForLang, OutputStreamIF sw)
 				throws BufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
+			sw.putUnsignedByte(itemTypeID);
+			
 			if (null == itemValue) {
 				sw.putUnsignedByte((short)0);
 			} else {
@@ -268,9 +283,11 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 	/** DHB 프로토콜의 us variable length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DHBUSVariableLengthBytesSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
 				Charset itemCharsetForLang, OutputStreamIF sw)
 				throws BufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
+			sw.putUnsignedByte(itemTypeID);
+			
 			if (null == itemValue) {
 				sw.putUnsignedShort(0);
 			} else {
@@ -284,9 +301,12 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 	/** DHB 프로토콜의 si variable length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DHBSIVariableLengthBytesSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
 				Charset itemCharsetForLang, OutputStreamIF sw)
 				throws BufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
+			
+			sw.putUnsignedByte(itemTypeID);
+			
 			if (null == itemValue) {
 				sw.putInt(0);
 			} else {
@@ -301,9 +321,11 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 	/** DHB 프로토콜의 fixed length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DHBFixedLengthBytesSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
 				Charset itemCharsetForLang, OutputStreamIF sw)
 				throws BufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
+			sw.putUnsignedByte(itemTypeID);
+			
 			if (null == itemValue) {
 
 				byte value[] = new byte[itemSizeForLang];
@@ -322,6 +344,59 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 				
 				sw.putBytes(value);
 			}
+		}
+	}
+	
+	/** DHB 프로토콜의 java sql date 타입 단일 항목 스트림 변환기 구현 클래스 */
+	private final class  DHBJavaSqlDateSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
+		@Override
+		public void putValue(int itemTypeID, String itemName, Object itemValue,
+				int itemSizeForLang, Charset itemCharsetForLang,
+				OutputStreamIF sw) throws Exception {
+			if (null == itemValue) {
+				String errorMessage = "항목의 값이 null 입니다.";
+				throw new IllegalArgumentException(errorMessage);
+			}
+			
+			if (!(itemValue instanceof java.sql.Date)) {
+				String errorMessage = 
+						String.format("항목의 값의 타입[%s]이 java.sql.Date 가 아닙니다.", 
+								itemValue.getClass().getCanonicalName());
+				throw new IllegalArgumentException(errorMessage);
+			}
+			
+			java.sql.Date javaSqlDateValue = (java.sql.Date)itemValue;
+			long javaSqlDateLongValue = javaSqlDateValue.getTime();
+			
+			sw.putUnsignedByte(itemTypeID);
+			sw.putLong(javaSqlDateLongValue);
+			
+		}
+	}
+	
+	/** DHB 프로토콜의 java sql date 타입 단일 항목 스트림 변환기 구현 클래스 */
+	private final class  DHBJavaSqlTimestampSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
+		@Override
+		public void putValue(int itemTypeID, String itemName, Object itemValue,
+				int itemSizeForLang, Charset itemCharsetForLang,
+				OutputStreamIF sw) throws Exception {
+			if (null == itemValue) {
+				String errorMessage = "항목의 값이 null 입니다.";
+				throw new IllegalArgumentException(errorMessage);
+			}
+			
+			if (!(itemValue instanceof java.sql.Timestamp)) {
+				String errorMessage = 
+						String.format("항목의 값의 타입[%s]이 java.sql.Timestamp 가 아닙니다.", 
+								itemValue.getClass().getCanonicalName());
+				throw new IllegalArgumentException(errorMessage);
+			}
+			
+			java.sql.Timestamp javaSqlTimestampValue = (java.sql.Timestamp)itemValue;
+			long javaSqlTimestampLongValue = javaSqlTimestampValue.getTime();
+			
+			sw.putUnsignedByte(itemTypeID);
+			sw.putLong(javaSqlTimestampLongValue);			
 		}
 	}
 	
@@ -347,7 +422,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 		OutputStreamIF sw = (OutputStreamIF)middleObjToStream;
 				
 		try {
-			dhbTypeSingleItemEncoderList[itemTypeID].putValue(itemName, itemValue, itemSizeForLang, itemCharsetForLang, sw);
+			dhbTypeSingleItemEncoderList[itemTypeID].putValue(itemTypeID, itemName, itemValue, itemSizeForLang, itemCharsetForLang, sw);
 		} catch(IllegalArgumentException e) {
 			StringBuffer errorMessageBuilder = new StringBuffer("잘못된 파라미티터 에러::");
 			errorMessageBuilder.append(path);

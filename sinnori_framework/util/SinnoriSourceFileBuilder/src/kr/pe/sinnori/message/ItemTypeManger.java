@@ -170,6 +170,18 @@ public class ItemTypeManger {
 		idToItemTypeHash.put(id, itemType);
 		id++;
 		
+		itemType = "java sql date";
+		itemTypeToIDHash.put(itemType, id);
+		idToItemTypeHash.put(id, itemType);
+		id++;
+		
+		itemType = "java sql timestamp";
+		itemTypeToIDHash.put(itemType, id);
+		idToItemTypeHash.put(id, itemType);
+		id++;
+		
+		/** 신규 타입 추가시 구현 언어인 자바 타입등을 정의한 SingleItemInfo 에도 추가를 해 주어야 한다. */
+		
 		StringBuilder mesgXSLStringBuilder = new StringBuilder();
 		mesgXSLStringBuilder.append("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
 		mesgXSLStringBuilder.append("<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n");

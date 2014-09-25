@@ -19,7 +19,7 @@ package kr.pe.sinnori.impl.message.AllDataType;
 import kr.pe.sinnori.common.message.AbstractMessage;
 /**
  * AllDataType 메시지
- * @author Jonghoon won
+ * @author Won Jonghoon
  *
  */
 public final class AllDataType extends AbstractMessage {
@@ -49,6 +49,8 @@ public final class AllDataType extends AbstractMessage {
 	private String strVar3;
 	private byte[] bytesVar1;
 	private byte[] bytesVar2;
+	private java.sql.Date sqldate;
+	private java.sql.Timestamp sqltimestamp;
 	private int cnt;
 	public class Member {
 		private String memberID;
@@ -348,6 +350,20 @@ public final class AllDataType extends AbstractMessage {
 	public void setBytesVar2(byte[] bytesVar2) {
 		this.bytesVar2 = bytesVar2;
 	}
+	public java.sql.Date getSqldate() {
+		return sqldate;
+	}
+
+	public void setSqldate(java.sql.Date sqldate) {
+		this.sqldate = sqldate;
+	}
+	public java.sql.Timestamp getSqltimestamp() {
+		return sqltimestamp;
+	}
+
+	public void setSqltimestamp(java.sql.Timestamp sqltimestamp) {
+		this.sqltimestamp = sqltimestamp;
+	}
 	public int getCnt() {
 		return cnt;
 	}
@@ -420,6 +436,10 @@ public final class AllDataType extends AbstractMessage {
 		builder.append(kr.pe.sinnori.common.util.HexUtil.getHexStringFromByteArray(bytesVar1, 0, Math.min(bytesVar1.length, 7)));
 		builder.append(", bytesVar2=");
 		builder.append(kr.pe.sinnori.common.util.HexUtil.getHexStringFromByteArray(bytesVar2, 0, Math.min(bytesVar2.length, 7)));
+		builder.append(", sqldate=");
+		builder.append(sqldate);
+		builder.append(", sqltimestamp=");
+		builder.append(sqltimestamp);
 		builder.append(", cnt=");
 		builder.append(cnt);
 		builder.append(", memberList=");

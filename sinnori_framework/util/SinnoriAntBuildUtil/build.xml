@@ -74,7 +74,7 @@
 				</archives>
 			</restrict>
 			<manifest>
-				<attribute name="Main-Class" value="SinnoriConfigUtilMain" />
+				<attribute name="Main-Class" value="main.SinnoriConfigUtilMain" />
 				<attribute name="Class-Path" value="${manifest.classpath}" />
 			</manifest>
 		</jar>

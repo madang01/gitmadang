@@ -260,6 +260,18 @@ public class SingleItemInfo extends AbstractItemInfo {
 				throw new IllegalArgumentException(errorMessage);
 				
 			}
+		} else if (itemType.equals("java sql date")) {
+			itemTypeForJavaLang = "java.sql.Date";
+			itemTypeForJavaLangClassCasting = "java.sql.Date";
+			
+			/*if (null != itemDefaultValue) {
+				String errorMessage = "타입 java.sql.date 는  디폴트 값을 지정할 수 없습니다.";
+				throw new IllegalArgumentException(errorMessage);
+				
+			}*/
+		} else if (itemType.equals("java sql timestamp")) {
+			itemTypeForJavaLang = "java.sql.Timestamp";
+			itemTypeForJavaLangClassCasting = "java.sql.Timestamp";
 		} else {
 			/** XSD 에서 항목 타입을 제약한다. 따라서 이곳 로직은 들어 올 수 없다. */
 			String errorMessage = String.format("unkown type[%s]", itemType);

@@ -49,7 +49,8 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF
 			new DJSONUSPascalStringSingleItemDecoder(), new DJSONSIPascalStringSingleItemDecoder(), 
 			new DJSONFixedLengthStringSingleItemDecoder(), new DJSONUBVariableLengthBytesSingleItemDecoder(), 
 			new DJSONUSVariableLengthBytesSingleItemDecoder(), new DJSONSIVariableLengthBytesSingleItemDecoder(), 
-			new DJSONFixedLengthBytesSingleItemDecoder()
+			new DJSONFixedLengthBytesSingleItemDecoder(), 
+			new DJSONJavaSqlDateSingleItemDecoder(), new DJSONJavaSqlTimestampSingleItemDecoder()
 	};
 	
 
@@ -603,6 +604,60 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF
 		}		
 	}
 
+	/** DJSON 프로토콜의 java sql date 타입 단일 항목 스트림 변환기 구현 클래스 */
+	private final class DJSONJavaSqlDateSingleItemDecoder implements DJSONTypeSingleItemDecoderIF {
+
+		@Override
+		public Object getValue(String itemName, int itemSizeForLang,
+				Charset itemCharsetForLang, Charset charsetOfProject,
+				JSONObject jsonObjFromStream) throws Exception {			
+			Object jsonValue = jsonObjFromStream.get(itemName);
+			if (null == jsonValue) {
+				String errorMessage = 
+						String.format("JSON Object[%s]에 long 타입 항목[%s]이 존재하지 않습니다.", 
+								jsonObjFromStream.toJSONString(), itemName);
+				throw new BodyFormatException(errorMessage);
+			}
+			
+			if (!(jsonValue instanceof Long)) {
+				String errorMessage = 
+						String.format("JSON Object 로 부터 얻은 long 타입 항목[%s]의 값의 타입[%s]이 Long 이 아닙니다.", 
+								itemName, jsonValue.getClass().getName());
+				throw new BodyFormatException(errorMessage);
+			}
+			
+			long javaSqlDateLongValue = (long)jsonValue;
+			return new java.sql.Date(javaSqlDateLongValue);
+		}
+	}
+	
+	/** DJSON 프로토콜의 java sql timestamp 타입 단일 항목 스트림 변환기 구현 클래스 */
+	private final class DJSONJavaSqlTimestampSingleItemDecoder implements DJSONTypeSingleItemDecoderIF {
+
+		@Override
+		public Object getValue(String itemName, int itemSizeForLang,
+				Charset itemCharsetForLang, Charset charsetOfProject,
+				JSONObject jsonObjFromStream) throws Exception {			
+			Object jsonValue = jsonObjFromStream.get(itemName);
+			if (null == jsonValue) {
+				String errorMessage = 
+						String.format("JSON Object[%s]에 long 타입 항목[%s]이 존재하지 않습니다.", 
+								jsonObjFromStream.toJSONString(), itemName);
+				throw new BodyFormatException(errorMessage);
+			}
+			
+			if (!(jsonValue instanceof Long)) {
+				String errorMessage = 
+						String.format("JSON Object 로 부터 얻은 long 타입 항목[%s]의 값의 타입[%s]이 Long 이 아닙니다.", 
+								itemName, jsonValue.getClass().getName());
+				throw new BodyFormatException(errorMessage);
+			}
+			
+			long javaSqlTimestampLongValue = (long)jsonValue;
+			return new java.sql.Timestamp(javaSqlTimestampLongValue);
+		}
+	}
+	
 	@Override
 	public Object getValueFromMiddleReadObj(String path, String itemName,
 			int itemTypeID, String itemTypeName, int itemSizeForLang,

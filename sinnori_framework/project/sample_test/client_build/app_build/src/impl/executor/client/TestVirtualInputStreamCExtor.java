@@ -384,6 +384,8 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		allDataTypeInObj.setBytesVar1(new byte[] { (byte) 0x77, (byte) 0x88,
 				-128, -127, 126, 127, -1 });
 		allDataTypeInObj.setBytesVar2(ByteBuffer.allocate(lenOfBytesVar2).array());
+		allDataTypeInObj.setSqldate(new java.sql.Date(new java.util.Date().getTime()));
+		allDataTypeInObj.setSqltimestamp(new java.sql.Timestamp(new java.util.Date().getTime()));
 		allDataTypeInObj.setCnt(2);
 
 		AllDataType.Member[] memberList = new AllDataType.Member[allDataTypeInObj

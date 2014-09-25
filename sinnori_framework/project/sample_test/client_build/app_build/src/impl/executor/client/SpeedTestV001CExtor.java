@@ -84,6 +84,8 @@ public class SpeedTestV001CExtor extends AbstractClientExecutor {
 		allDataTypeInObj.setStrVar3("uiop");
 		allDataTypeInObj.setBytesVar1(new byte[] { (byte) 0x77, (byte) 0x88, -128, -127, 126, 127, -1});
 		allDataTypeInObj.setBytesVar2(ByteBuffer.allocate(30000).array());
+		allDataTypeInObj.setSqldate(new java.sql.Date(new java.util.Date().getTime()));
+		allDataTypeInObj.setSqltimestamp(new java.sql.Timestamp(new java.util.Date().getTime()));
 		allDataTypeInObj.setCnt(2);
 		
 		AllDataType.Member[] memberList = new AllDataType.Member[allDataTypeInObj.getCnt()];

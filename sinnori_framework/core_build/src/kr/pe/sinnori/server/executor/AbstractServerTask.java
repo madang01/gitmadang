@@ -54,7 +54,7 @@ import kr.pe.sinnori.server.io.LetterToClient;
  * 
  */
 public abstract class AbstractServerTask implements CommonRootIF {
-	private final ClassLoader classLoader = this.getClass().getClassLoader();
+	protected final ClassLoader classLoader = this.getClass().getClassLoader();
 	private java.util.Hashtable<String, MessageEncoder> encoderHash = new java.util.Hashtable<String, MessageEncoder>(); 
 	private java.util.Hashtable<String, MessageDecoder> decoderHash = new java.util.Hashtable<String, MessageDecoder>(1);
 	
@@ -263,9 +263,9 @@ public abstract class AbstractServerTask implements CommonRootIF {
 					
 		// messageProtocol, projectCharset
 		LetterSender letterSender = new LetterSender(this, clientResource, messageFromClient, projectCharset, ouputMessageQueue, messageProtocol, serverObjectCacheManager);
-		
-		try {
-			doTask(serverProjectConfig, loginManager, letterSender, messageFromClient);
+		long firstErraseTime = new java.util.Date().getTime();
+		try {			
+			doTask(serverProjectConfig, loginManager, letterSender, messageFromClient);			
 		} catch (Exception e) {
 			// FIXME!
 			log.warn("unknown error", e);
@@ -304,6 +304,9 @@ public abstract class AbstractServerTask implements CommonRootIF {
 			letterSender.writeLogAll("서버 타스크 수행중 에러");
 			return;
 		}
+		
+		long lastErraseTime = new java.util.Date().getTime() - firstErraseTime;
+		log.info(String.format("수행 시간=[%f] ms", (float) lastErraseTime));
 		
 		letterSender.directSendLetterToClientList();
 	}

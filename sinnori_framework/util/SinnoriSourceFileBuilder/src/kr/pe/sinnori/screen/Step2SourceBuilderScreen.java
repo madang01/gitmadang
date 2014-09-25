@@ -12,9 +12,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -30,6 +32,7 @@ import javax.swing.UIManager;
 import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.common.lib.CommonType;
 import kr.pe.sinnori.common.lib.XMLFileFilter;
+import kr.pe.sinnori.common.util.SequencedProperties;
 import kr.pe.sinnori.gui.PathSwingAction;
 import kr.pe.sinnori.gui.lib.MessageInfoManagerIF;
 import kr.pe.sinnori.gui.table.MessageInfoFileCellEditor;
@@ -50,9 +53,11 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
 @SuppressWarnings("serial")
-public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, SourceManagerIF {
+public class Step2SourceBuilderScreen extends JPanel implements MessageInfoManagerIF, SourceManagerIF {
 	private JFrame mainFrame = null;
 	// private MainControllerIF mainController = null;
+	
+	private JComboBox<String> projectComboBox = null;  
 	private JFileChooser chooser = null;
 	private JTextField messageInfoPathTextField;
 	private JTextField sourceBasePath1TextField;
@@ -83,9 +88,57 @@ public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, 
 	/**
 	 * Create the panel.
 	 */
-	public NoConfigFileScreen(JFrame mainFrame) {
+	public Step2SourceBuilderScreen(final JFrame mainFrame, MainControllerIF mainController,
+			String sinnoriInstallAbsPathName, 
+			ArrayList<String> mainProjectList, HashMap<String, SequencedProperties> project2ConfigHash) {
 		this.mainFrame = mainFrame;
 		// this.mainController = mainController;
+		
+		String projectList[] = new String[mainProjectList.size()+1];
+		projectList[0] = "- 선택 -";
+		for (int i=1; i < projectList.length; i++) {
+			projectList[i] = mainProjectList.get(i-1);
+		}
+		
+		projectComboBox = new JComboBox<String>(projectList);
+		class ProjectComboBoxAction implements ActionListener {
+			private String sinnoriInstallAbsPathName = null;
+			
+			public ProjectComboBoxAction(String sinnoriInstallAbsPathName) {
+				this.sinnoriInstallAbsPathName = sinnoriInstallAbsPathName;
+			}
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				@SuppressWarnings("unchecked")
+				JComboBox<String> jcmbType = (JComboBox<String>) e.getSource();
+				String projectName = (String) jcmbType.getSelectedItem();
+				
+				// JOptionPane.showMessageDialog(mainFrame, projectName);
+				
+				int inx = jcmbType.getSelectedIndex();
+				if (inx > 0) {
+					StringBuilder baseStrBuilder = new StringBuilder(sinnoriInstallAbsPathName).append(File.separator).append("project")
+							.append(File.separator).append(projectName);
+					StringBuilder messageInfoStrBuilder = new StringBuilder(baseStrBuilder.toString()).append(File.separator).append("impl")
+							.append(File.separator).append("message").append(File.separator).append("info");
+					
+					StringBuilder serverStrBuilder = new StringBuilder(baseStrBuilder.toString()).append(File.separator).append("server_build")
+							.append(File.separator).append("src").append(File.separator).append("kr").append(File.separator).append("pe")
+							.append(File.separator).append("sinnori").append(File.separator).append("impl").append(File.separator).append("message");
+					
+					StringBuilder clientStrBuilder = new StringBuilder(baseStrBuilder.toString()).append(File.separator).append("client_build")
+							.append(File.separator).append("app_build").append(File.separator).append("src")
+							.append(File.separator).append("kr").append(File.separator).append("pe")
+							.append(File.separator).append("sinnori").append(File.separator).append("impl").append(File.separator).append("message");
+
+					messageInfoPathTextField.setText(messageInfoStrBuilder.toString());
+					sourceBasePath1TextField.setText(serverStrBuilder.toString());
+					sourceBasePath2TextField.setText(clientStrBuilder.toString());
+				}
+			}
+		}
+		projectComboBox.addActionListener(new ProjectComboBoxAction(sinnoriInstallAbsPathName));
 		
 		chooser = new JFileChooser();
 		chooser.setMultiSelectionEnabled(true);
@@ -97,6 +150,8 @@ public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, 
 				ColumnSpec.decode("max(297dlu;pref):grow"),
 				FormFactory.UNRELATED_GAP_COLSPEC,},
 			new RowSpec[] {
+				FormFactory.LINE_GAP_ROWSPEC,
+				RowSpec.decode("min:grow"),
 				FormFactory.LINE_GAP_ROWSPEC,
 				RowSpec.decode("min:grow"),
 				FormFactory.LINE_GAP_ROWSPEC,
@@ -124,8 +179,26 @@ public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, 
 				FormFactory.LINE_GAP_ROWSPEC,}));
 		
 		JPanel line01Panel = new JPanel();
-		add(line01Panel, "2, 2, fill, center");
 		line01Panel.setLayout(new FormLayout(new ColumnSpec[] {
+				FormFactory.UNRELATED_GAP_COLSPEC,
+				FormFactory.RELATED_GAP_COLSPEC,
+				FormFactory.DEFAULT_COLSPEC,
+				FormFactory.LABEL_COMPONENT_GAP_COLSPEC,
+				FormFactory.UNRELATED_GAP_COLSPEC,
+				FormFactory.BUTTON_COLSPEC,
+				FormFactory.UNRELATED_GAP_COLSPEC,},
+			new RowSpec[] {
+				FormFactory.MIN_ROWSPEC,}));
+		
+		JLabel projectListLabel = new JLabel("프로젝트 선택");
+		projectListLabel.setFont(UIManager.getFont("Label.font"));
+		line01Panel.add(projectListLabel, "3, 1");
+		line01Panel.add(projectComboBox, "6, 1");
+		add(line01Panel, "2, 2, fill, center");		
+		
+		JPanel line02Panel = new JPanel();
+		add(line02Panel, "2, 4, fill, center");
+		line02Panel.setLayout(new FormLayout(new ColumnSpec[] {
 				FormFactory.UNRELATED_GAP_COLSPEC,
 				FormFactory.RELATED_GAP_COLSPEC,
 				FormFactory.DEFAULT_COLSPEC,
@@ -141,20 +214,20 @@ public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, 
 		JLabel messageInfoPathLabel = new JLabel("메시지 정보  파일 위치");
 		messageInfoPathLabel.setFont(UIManager.getFont("Label.font"));
 		// messageInfoPathLabel.setFont(UIManager.getFont("Table.font"));
-		line01Panel.add(messageInfoPathLabel, "3, 1");
+		line02Panel.add(messageInfoPathLabel, "3, 1");
 		
 		messageInfoPathTextField = new JTextField();
 		messageInfoPathTextField.setDocument(new RegexLimitPlainDocume(null, 250, null));
-		line01Panel.add(messageInfoPathTextField, "6, 1, fill, default");
+		line02Panel.add(messageInfoPathTextField, "6, 1, fill, default");
 		// messageInfoPathTextField.setColumns(10);
 		
 		JButton messageInfoPathButton = new JButton("경로 찾기");
 		messageInfoPathButton.setAction(new PathSwingAction(mainFrame, chooser, messageInfoPathTextField));
-		line01Panel.add(messageInfoPathButton, "8, 1");
+		line02Panel.add(messageInfoPathButton, "8, 1");
 		
-		JPanel line02Panel = new JPanel();
-		add(line02Panel, "2, 4, fill, center");
-		line02Panel.setLayout(new FormLayout(new ColumnSpec[] {
+		JPanel line03Panel = new JPanel();
+		add(line03Panel, "2, 6, fill, center");
+		line03Panel.setLayout(new FormLayout(new ColumnSpec[] {
 				FormFactory.UNRELATED_GAP_COLSPEC,
 				FormFactory.RELATED_GAP_COLSPEC,
 				FormFactory.DEFAULT_COLSPEC,
@@ -169,43 +242,16 @@ public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, 
 		
 		JLabel sourceBasePath1Label = new JLabel("1차 소스 저장 위치");
 		sourceBasePath1Label.setFont(UIManager.getFont("Label.font"));
-		line02Panel.add(sourceBasePath1Label, "3, 1");
+		line03Panel.add(sourceBasePath1Label, "3, 1");
 		
 		sourceBasePath1TextField = new JTextField();
 		sourceBasePath1TextField.setDocument(new RegexLimitPlainDocume(null, 250, null));
-		line02Panel.add(sourceBasePath1TextField, "6, 1, fill, default");
+		line03Panel.add(sourceBasePath1TextField, "6, 1, fill, default");
 		sourceBasePath1TextField.setColumns(10);
 		
 		JButton sourceBasePath1Button = new JButton("경로 찾기");
 		sourceBasePath1Button.setAction(new PathSwingAction(mainFrame, chooser, sourceBasePath1TextField));
-		line02Panel.add(sourceBasePath1Button, "8, 1");
-		
-		JPanel line03Panel = new JPanel();
-		add(line03Panel, "2, 6, fill, center");
-		line03Panel.setLayout(new FormLayout(new ColumnSpec[] {
-				FormFactory.UNRELATED_GAP_COLSPEC,
-				FormFactory.RELATED_GAP_COLSPEC,
-				FormFactory.DEFAULT_COLSPEC,
-				FormFactory.LABEL_COMPONENT_GAP_COLSPEC,
-				FormFactory.UNRELATED_GAP_COLSPEC,
-				FormFactory.GROWING_BUTTON_COLSPEC,
-				FormFactory.UNRELATED_GAP_COLSPEC,
-				FormFactory.BUTTON_COLSPEC,
-				FormFactory.UNRELATED_GAP_COLSPEC,},
-			new RowSpec[] {
-				FormFactory.MIN_ROWSPEC,}));
-		
-		JLabel sourceBasePath2Label = new JLabel("2차 소스 저장 위치");
-		line03Panel.add(sourceBasePath2Label, "3, 1");
-		
-		sourceBasePath2TextField = new JTextField();
-		sourceBasePath2TextField.setDocument(new RegexLimitPlainDocume(null, 250, null));
-		line03Panel.add(sourceBasePath2TextField, "6, 1, fill, default");
-		sourceBasePath2TextField.setColumns(10);
-		
-		JButton sourceBasePath2Button = new JButton("경로 찾기");
-		sourceBasePath2Button.setAction(new PathSwingAction(mainFrame, chooser, sourceBasePath2TextField));
-		line03Panel.add(sourceBasePath2Button, "8, 1");
+		line03Panel.add(sourceBasePath1Button, "8, 1");
 		
 		JPanel line04Panel = new JPanel();
 		add(line04Panel, "2, 8, fill, center");
@@ -222,22 +268,49 @@ public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, 
 			new RowSpec[] {
 				FormFactory.MIN_ROWSPEC,}));
 		
+		JLabel sourceBasePath2Label = new JLabel("2차 소스 저장 위치");
+		line04Panel.add(sourceBasePath2Label, "3, 1");
+		
+		sourceBasePath2TextField = new JTextField();
+		sourceBasePath2TextField.setDocument(new RegexLimitPlainDocume(null, 250, null));
+		line04Panel.add(sourceBasePath2TextField, "6, 1, fill, default");
+		sourceBasePath2TextField.setColumns(10);
+		
+		JButton sourceBasePath2Button = new JButton("경로 찾기");
+		sourceBasePath2Button.setAction(new PathSwingAction(mainFrame, chooser, sourceBasePath2TextField));
+		line04Panel.add(sourceBasePath2Button, "8, 1");
+		
+		JPanel line05Panel = new JPanel();
+		add(line05Panel, "2, 10, fill, center");
+		line05Panel.setLayout(new FormLayout(new ColumnSpec[] {
+				FormFactory.UNRELATED_GAP_COLSPEC,
+				FormFactory.RELATED_GAP_COLSPEC,
+				FormFactory.DEFAULT_COLSPEC,
+				FormFactory.LABEL_COMPONENT_GAP_COLSPEC,
+				FormFactory.UNRELATED_GAP_COLSPEC,
+				FormFactory.GROWING_BUTTON_COLSPEC,
+				FormFactory.UNRELATED_GAP_COLSPEC,
+				FormFactory.BUTTON_COLSPEC,
+				FormFactory.UNRELATED_GAP_COLSPEC,},
+			new RowSpec[] {
+				FormFactory.MIN_ROWSPEC,}));
+		
 		JLabel sourceBasePath3Label = new JLabel("3차 소스 저장 위치");
-		line04Panel.add(sourceBasePath3Label, "3, 1");
+		line05Panel.add(sourceBasePath3Label, "3, 1");
 		
 		sourceBasePath3TextField = new JTextField();
 		sourceBasePath3TextField.setDocument(new RegexLimitPlainDocume(null, 250, null));
-		line04Panel.add(sourceBasePath3TextField, "6, 1, fill, default");
+		line05Panel.add(sourceBasePath3TextField, "6, 1, fill, default");
 		sourceBasePath3TextField.setColumns(10);
 		
 		JButton sourceBasePath3Button = new JButton("경로 찾기");
 		sourceBasePath3Button.setAction(new PathSwingAction(mainFrame, chooser, sourceBasePath3TextField));
-		line04Panel.add(sourceBasePath3Button, "8, 1");
+		line05Panel.add(sourceBasePath3Button, "8, 1");
 		
 		//////////////////////////
-		JPanel line05Panel = new JPanel();
-		add(line05Panel, "2, 10, fill, center");
-		line05Panel.setLayout(new FormLayout(new ColumnSpec[] {
+		JPanel line06Panel = new JPanel();
+		add(line06Panel, "2, 14, fill, center");
+		line06Panel.setLayout(new FormLayout(new ColumnSpec[] {
 				FormFactory.UNRELATED_GAP_COLSPEC,
 				FormFactory.RELATED_GAP_COLSPEC,
 				FormFactory.DEFAULT_COLSPEC,
@@ -249,19 +322,19 @@ public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, 
 				FormFactory.MIN_ROWSPEC,}));
 		
 		JLabel authorLabel = new JLabel("작           성           자");
-		line05Panel.add(authorLabel, "3, 1");
+		line06Panel.add(authorLabel, "3, 1");
 		
 		authorTextField = new JTextField();
 		authorTextField.setDocument(new RegexLimitPlainDocume(null, 20, null));
-		line05Panel.add(authorTextField, "6, 1, fill, default");
+		line06Panel.add(authorTextField, "6, 1, fill, default");
 		authorTextField.setColumns(20);
 		
 		//////////////////////////
 		
-		JPanel line06Panel = new JPanel();
-		FlowLayout flowLayout = (FlowLayout) line06Panel.getLayout();
-		flowLayout.setAlignment(FlowLayout.LEFT);
-		add(line06Panel, "2, 12, fill, center");
+		JPanel line07Panel = new JPanel();
+		FlowLayout flowLayoutOfLine07Panel = (FlowLayout) line07Panel.getLayout();
+		flowLayoutOfLine07Panel.setAlignment(FlowLayout.LEFT);
+		add(line07Panel, "2, 16, fill, center");
 		
 		JButton allMessageInfoPathButton = new JButton("메시지 정보 전체 다시 읽기");
 		class AllMessageInfoPathButtonAction implements ActionListener {
@@ -280,7 +353,7 @@ public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, 
 		}
 		
 		allMessageInfoPathButton.addActionListener(new AllMessageInfoPathButtonAction(this));
-		line06Panel.add(allMessageInfoPathButton);
+		line07Panel.add(allMessageInfoPathButton);
 		
 		JButton allSourceFileCreateButton = new JButton("IO와 방향성 옵션에 영향 받는 소스 전체 생성");
 		class AllSourceFileCreateAction implements ActionListener {
@@ -298,19 +371,19 @@ public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, 
 			}
 		}
 		allSourceFileCreateButton.addActionListener(new AllSourceFileCreateAction(this));
-		line06Panel.add(allSourceFileCreateButton);
-		
-		JPanel line07Panel = new JPanel();
-		FlowLayout flowLayout_1 = (FlowLayout) line07Panel.getLayout();
-		flowLayout_1.setAlignment(FlowLayout.LEFT);
-		add(line07Panel, "2, 16, fill, center");
-		
-		JLabel messageSearchLabel = new JLabel(">> 메시지 검색");
-		line07Panel.add(messageSearchLabel);
+		line07Panel.add(allSourceFileCreateButton);
 		
 		JPanel line08Panel = new JPanel();
+		FlowLayout flowLayout_1 = (FlowLayout) line08Panel.getLayout();
+		flowLayout_1.setAlignment(FlowLayout.LEFT);
 		add(line08Panel, "2, 18, fill, center");
-		line08Panel.setLayout(new FormLayout(new ColumnSpec[] {
+		
+		JLabel messageSearchLabel = new JLabel(">> 메시지 검색");
+		line08Panel.add(messageSearchLabel);
+		
+		JPanel line09Panel = new JPanel();
+		add(line09Panel, "2, 20, fill, center");
+		line09Panel.setLayout(new FormLayout(new ColumnSpec[] {
 				FormFactory.RELATED_GAP_COLSPEC,
 				FormFactory.RELATED_GAP_COLSPEC,
 				FormFactory.DEFAULT_COLSPEC,
@@ -324,10 +397,10 @@ public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, 
 				FormFactory.MIN_ROWSPEC,}));
 		
 		JLabel messageNameLabel = new JLabel("메시지 이름");
-		line08Panel.add(messageNameLabel, "3, 1");
+		line09Panel.add(messageNameLabel, "3, 1");
 		
 		searchKeywordTextField = new JTextField();
-		line08Panel.add(searchKeywordTextField, "6, 1, fill, default");
+		line09Panel.add(searchKeywordTextField, "6, 1, fill, default");
 		searchKeywordTextField.setColumns(10);
 		
 		JButton searchKeywordButton = new JButton("검색");
@@ -346,10 +419,10 @@ public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, 
 			}
 		}
 		searchKeywordButton.addActionListener(new SearchKeyWordAction(this));
-		line08Panel.add(searchKeywordButton, "8, 1");
+		line09Panel.add(searchKeywordButton, "8, 1");
 		
 		
-		add(scrollPane, "2, 22, fill, fill");
+		add(scrollPane, "2, 24, fill, fill");
 		
 		/*Object values[][] = {
 				{"Echo", "양방향", new MessageInfoFileCellValue("Echo", mainFrame), new SourceFileCellValue("Echo", this.mainFrame)},
@@ -358,6 +431,8 @@ public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, 
 		
 		
 		DefaultTableModel dtm  = new SourceBuilderTableModel(values, titles, columnTypes);*/
+		
+		
 			
 		table = new JTable();
 		table.setRowSelectionAllowed(false);
@@ -508,8 +583,8 @@ public class NoConfigFileScreen extends JPanel implements MessageInfoManagerIF, 
     				values[i][2] = "무방향";
     			}
     			    			
-    			values[i][3] = new MessageInfoFileCellValue(i, messageInfoFile, messageInfo, NoConfigFileScreen.this, mainFrame);
-    			values[i][4] = new SourceFileCellValue(messageInfo, NoConfigFileScreen.this);
+    			values[i][3] = new MessageInfoFileCellValue(i, messageInfoFile, messageInfo, Step2SourceBuilderScreen.this, mainFrame);
+    			values[i][4] = new SourceFileCellValue(messageInfo, Step2SourceBuilderScreen.this);
     			if (progressMonitor.isCanceled())  {
     				return null;
     			}

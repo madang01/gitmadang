@@ -505,7 +505,7 @@ public class LocalSourceFileResource implements CommonRootIF {
 		isCanceled = false;
 		// mappedByteBufferList.clear();
 	}
-
+	
 	/**
 	 * 큐에서 나올때 상태 변화를 주는 클래스
 	 */

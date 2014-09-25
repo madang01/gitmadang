@@ -170,6 +170,16 @@ public class ItemTypeManger {
 		idToItemTypeHash.put(id, itemType);
 		id++;
 		
+		itemType = "java sql date";
+		itemTypeToIDHash.put(itemType, id);
+		idToItemTypeHash.put(id, itemType);
+		id++;
+		
+		itemType = "java sql timestamp";
+		itemTypeToIDHash.put(itemType, id);
+		idToItemTypeHash.put(id, itemType);
+		id++;
+		
 		StringBuilder mesgXSLStringBuilder = new StringBuilder();
 		mesgXSLStringBuilder.append("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
 		mesgXSLStringBuilder.append("<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n");

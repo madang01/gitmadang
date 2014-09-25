@@ -24,7 +24,7 @@ import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 
 /**
  * AllDataType 메시지 디코더
- * @author Jonghoon won
+ * @author Won Jonghoon
  *
  */
 public final class AllDataTypeDecoder extends MessageDecoder {
@@ -300,6 +300,26 @@ public final class AllDataTypeDecoder extends MessageDecoder {
 		, "bytesVar2" // itemName
 		, 13 // itemTypeID
 		, "si variable length byte[]" // itemTypeName
+		, -1 // itemSizeForLang
+		, null // itemCharset,
+		, charsetOfProject
+		, middleReadObj));
+
+		allDataType.setSqldate((java.sql.Date)
+		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
+		, "sqldate" // itemName
+		, 15 // itemTypeID
+		, "java sql date" // itemTypeName
+		, -1 // itemSizeForLang
+		, null // itemCharset,
+		, charsetOfProject
+		, middleReadObj));
+
+		allDataType.setSqltimestamp((java.sql.Timestamp)
+		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
+		, "sqltimestamp" // itemName
+		, 16 // itemTypeID
+		, "java sql timestamp" // itemTypeName
 		, -1 // itemSizeForLang
 		, null // itemCharset,
 		, charsetOfProject

@@ -81,7 +81,7 @@ public class LocalTargetFileResource implements CommonRootIF {
 	public boolean isCanceled() {
 		return isCanceled;
 	}
-
+	
 	/**
 	 * 
 	 */
