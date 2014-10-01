@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.common.lib.CommonStaticFinal;
+import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 
 /**
  * <pre>
@@ -207,7 +207,7 @@ public abstract class JDFBaseServlet extends HttpServlet implements CommonRootIF
 			
 			// String errString = "Programmer's Exception: " +logMsg +  CommonStaticFinal.NEWLINE + bos.toString();			
 			// Logger.err.println(this, errString);
-			String errString = new StringBuilder("Programmer's Exception: ").append(logMsg).append(CommonStaticFinal.NEWLINE).append(userMessgae).toString(); 
+			String errString = new StringBuilder("Programmer's Exception: ").append(logMsg).append(CommonStaticFinalVars.NEWLINE).append(userMessgae).toString(); 
 			
 			log.warn(String.format("1. userMessgae=[%s]", userMessgae), e);
 			
@@ -217,7 +217,7 @@ public abstract class JDFBaseServlet extends HttpServlet implements CommonRootIF
 		if ( jdf_servlet_trace ) {
 			end = System.currentTimeMillis();
 			// Logger.sys.println(this, logMsg + ":end(elapsed=" + (end-start) + ")" + CommonStaticFinal.NEWLINE);
-			log.info(new StringBuilder(logMsg).append(":end(elapsed=").append((end-start)).append(")").append(CommonStaticFinal.NEWLINE).toString());
+			log.info(new StringBuilder(logMsg).append(":end(elapsed=").append((end-start)).append(")").append(CommonStaticFinalVars.NEWLINE).toString());
 		}
 	}
 

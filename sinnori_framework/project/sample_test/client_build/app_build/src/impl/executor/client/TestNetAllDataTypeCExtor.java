@@ -117,7 +117,7 @@ public class TestNetAllDataTypeCExtor extends AbstractClientExecutor {
 						|| ! java.util.Arrays.equals(allDataTypeInObj.getBytesVar2(), allDataTypeOutObj.getBytesVar2())) { 
 					log.warn("2.입력과 출력 대조 결과 틀림");
 				} else {
-					log.info("입력과 출력 같음");
+					//log.info("입력과 출력 같음");
 				}
 			}
 		} else {

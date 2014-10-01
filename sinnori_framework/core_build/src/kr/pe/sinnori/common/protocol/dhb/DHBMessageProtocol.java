@@ -45,8 +45,6 @@ import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 import kr.pe.sinnori.common.protocol.dhb.header.DHBMessageHeader;
 import kr.pe.sinnori.common.util.HexUtil;
 
-import org.apache.commons.codec.binary.Hex;
-
 /**
  * DHB 메시지 교환 프로토콜
  * 
@@ -332,7 +330,7 @@ public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {
 					if (!isValidHeaderMD5) {
 						String errorMessage = String.format(
 								"dhb header::different header MD5, %s, headerMD5[%s]",
-								workMessageHeader.toString(), Hex.encodeHexString(headerMD5));
+								workMessageHeader.toString(), HexUtil.getHexStringFromByteArray(headerMD5));
 
 						throw new HeaderFormatException(errorMessage);
 					}

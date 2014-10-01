@@ -1,8 +1,8 @@
 <%@ page language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %><%
-	kr.pe.sinnori.common.message.InputMessage allDataTypeInObj = (kr.pe.sinnori.common.message.InputMessage)request.getAttribute("allDataTypeInObj");
+	kr.pe.sinnori.impl.message.AllDataType.AllDataType allDataTypeInObj = (kr.pe.sinnori.impl.message.AllDataType.AllDataType)request.getAttribute("allDataTypeInObj");
 
-	kr.pe.sinnori.common.message.OutputMessage allDataTypeOutObj = (kr.pe.sinnori.common.message.OutputMessage)request.getAttribute("allDataTypeOutObj");
+	kr.pe.sinnori.impl.message.AllDataType.AllDataType allDataTypeOutObj = (kr.pe.sinnori.impl.message.AllDataType.AllDataType)request.getAttribute("allDataTypeOutObj");
 	
 	Boolean isSame = (Boolean) request.getAttribute("isSame");
 	

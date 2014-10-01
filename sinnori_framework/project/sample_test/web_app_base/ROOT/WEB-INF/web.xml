@@ -22,7 +22,7 @@
 	
 	<servlet>
 		<servlet-name>SessionKeyTest</servlet-name>
-		<servlet-class>SessionKeyTestSvl</servlet-class>
+		<servlet-class>kr.pe.sinnori.servlet.SessionKeyTestSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>SessionKeyTest</servlet-name>
@@ -31,7 +31,7 @@
 	
 	<servlet>
 		<servlet-name>RequestHeaderExample</servlet-name>
-		<servlet-class>RequestHeaderExample</servlet-class>
+		<servlet-class>kr.pe.sinnori.servlet.RequestHeaderExampleSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>RequestHeaderExample</servlet-name>
@@ -40,7 +40,7 @@
 
 	<servlet>
 		<servlet-name>MadangsoeMember</servlet-name>
-		<servlet-class>MadangsoeMemberSvl</servlet-class>
+		<servlet-class>kr.pe.sinnori.servlet.MadangsoeMemberSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>MadangsoeMember</servlet-name>
@@ -49,7 +49,7 @@
 
 	<servlet>
 		<servlet-name>JDFNotLoginTest</servlet-name>
-		<servlet-class>JDFNotLoginTestSvl</servlet-class>
+		<servlet-class>kr.pe.sinnori.servlet.JDFNotLoginTestSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>JDFNotLoginTest</servlet-name>
@@ -58,7 +58,7 @@
 
 	<servlet>
 		<servlet-name>JSBNTest</servlet-name>
-		<servlet-class>JSBNTestSvl</servlet-class>
+		<servlet-class>kr.pe.sinnori.servlet.JSBNTestSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>JSBNTest</servlet-name>
@@ -67,7 +67,7 @@
 
 	<servlet>
 		<servlet-name>CryptoJSMDTest</servlet-name>
-		<servlet-class>CryptoJSMDTestSvl</servlet-class>
+		<servlet-class>kr.pe.sinnori.servlet.CryptoJSMDTestSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>CryptoJSMDTest</servlet-name>
@@ -76,7 +76,7 @@
 
 	<servlet>
 		<servlet-name>CryptoJSSKTest</servlet-name>
-		<servlet-class>CryptoJSSKTestSvl</servlet-class>
+		<servlet-class>kr.pe.sinnori.servlet.CryptoJSSKTestSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>CryptoJSSKTest</servlet-name>
@@ -85,7 +85,7 @@
 
 	<servlet>
 		<servlet-name>EchoTest</servlet-name>
-		<servlet-class>EchoTestSvl</servlet-class>
+		<servlet-class>kr.pe.sinnori.servlet.EchoTestSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>EchoTest</servlet-name>
@@ -94,11 +94,20 @@
 
 	<servlet>
 		<servlet-name>AllDataTypeTest</servlet-name>
-		<servlet-class>AllDataTypeTestSvl</servlet-class>
+		<servlet-class>kr.pe.sinnori.servlet.AllDataTypeTestSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>AllDataTypeTest</servlet-name>
 		<url-pattern>/servlet/AllDataTypeTest</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>SimpleCounterSvl</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.SimpleCounterSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>SimpleCounterSvl</servlet-name>
+		<url-pattern>/servlet/SimpleCounter</url-pattern>
 	</servlet-mapping>
 
 </web-app>

@@ -1,15 +1,16 @@
 <%@ page language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="org.apache.commons.lang.StringEscapeUtils" %><%
+<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
+<jsp:useBean id="echoInObj" class="kr.pe.sinnori.impl.message.Echo.Echo" scope="request" /><%
 
-	kr.pe.sinnori.common.message.InputMessage echoInObj = 
-		(kr.pe.sinnori.common.message.InputMessage)request.getAttribute("echoInObj");
+	// kr.pe.sinnori.impl.message.Echo.Echo echoInObj = (kr.pe.sinnori.impl.message.Echo.Echo)request.getAttribute("echoInObj");
 		
 	String erraseTime = (String)request.getAttribute("erraseTime");
 	Boolean isSame = (Boolean)request.getAttribute("isSame");
+	if (null == isSame) isSame = false;
 	
 	
-	Integer randomInt = (Integer)echoInObj.getAttribute("randomInt");
-	Long startTime = (Long)echoInObj.getAttribute("startTime");
+	Integer randomInt = echoInObj.getRandomInt();
+	Long startTime = echoInObj.getStartTime();
 	
 	String errorMessage = (String) request.getAttribute("errorMessage");
 	

@@ -1,5 +1,5 @@
 <%@ page language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<jsp:useBean id="reqHeaderInfo" class="kr.pe.sinnori.common.javabeans.ReqHeaderInfoBean" scope="request" />
+<jsp:useBean id="reqHeaderInfo" class="kr.pe.sinnori.impl.javabeans.ReqHeaderInfoBean" scope="request" />
 <%
 	// ReqHeaderInfoOutputMessage reqHeaderInfo = (ReqHeaderInfoOutputMessage)session.getAttribute("ReqHeaderInfoOutputMessage");
 	if (null == reqHeaderInfo) {

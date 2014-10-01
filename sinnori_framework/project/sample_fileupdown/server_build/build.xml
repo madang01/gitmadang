@@ -75,7 +75,7 @@
 	
 	<target name="copy" description="신놀이 프레임 워크 core copy" depends="corelib.init">
 		<copy todir="${corelib}/in" verbose="true" overwrite="true">
-			<fileset file="${framework.build}/dist/sinnori_framework.jar" />
+			<fileset file="${framework.build}/dist/sinnori-core.jar" />
 		</copy>
 		<copy todir="${corelib}/ex" verbose="true" overwrite="true">
 			<fileset dir="${framework.build}/lib/ex/" />

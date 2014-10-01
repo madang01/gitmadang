@@ -1,4 +1,4 @@
-<project name="sinnori_framework_core" default="debug" basedir=".">
+<project name="sinnori_core" default="debug" basedir=".">
 	<description>
 		Sinnori Framework Core Library
 	</description>
@@ -57,7 +57,7 @@
 
 	<target name="make.common" depends="compile.common" description="신놀이 프레임 워크 common 패키지 jar 만들기">
 		<!-- Create the distribution directory -->
-		<jar jarfile="${dist}/sinnori_lib_common.jar" basedir="${build}/common_lib">
+		<jar jarfile="${dist}/sinnori-common.jar" basedir="${build}/common_lib">
 			<restrict>
 				<name name="**/*.class" />
 				<archives>
@@ -75,7 +75,7 @@
 		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" destdir="${build}/server_lib">
 			<src path="src/kr/pe/sinnori/server/" />
 			<classpath>
-				<fileset file="${dist}/sinnori_lib_common.jar" />
+				<fileset file="${dist}/sinnori-common.jar" />
 				<fileset dir="lib/ex">
 					<include name="**/*.jar" />
 				</fileset>
@@ -89,7 +89,7 @@
 		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" destdir="${build}/client_lib">
 			<src path="src/kr/pe/sinnori/client/" />
 			<classpath>
-				<fileset file="${dist}/sinnori_lib_common.jar" />
+				<fileset file="${dist}/sinnori-common.jar" />
 				<fileset dir="lib/ex">
 					<include name="**/*.jar" />
 				</fileset>
@@ -100,7 +100,7 @@
 	
 	<target name="make.all" depends="compile.client" description="신놀이 프레임 워크 jar 만들기">
 		<!-- Create the distribution directory -->		
-		<jar jarfile="${dist}/sinnori_framework.jar">
+		<jar jarfile="${dist}/sinnori-core.jar">
 			<fileset dir="${build}/common_lib" />
 			<fileset dir="${build}/server_lib" />
 			<fileset dir="${build}/client_lib" />
@@ -115,7 +115,7 @@
 			</restrict>
 		</jar>
 		
-		<jar jarfile="${dist}/sinnori_lib_client.jar">
+		<jar jarfile="${dist}/sinnori-client.jar">
 			<fileset dir="${build}/common_lib" />
 			<fileset dir="${build}/client_lib" />
 			
@@ -129,7 +129,7 @@
 			</restrict>
 		</jar>
 		
-		<jar jarfile="${dist}/sinnori_lib_server.jar">
+		<jar jarfile="${dist}/sinnori-server.jar">
 			<fileset dir="${build}/common_lib" />
 			<fileset dir="${build}/server_lib" />
 			<restrict>
