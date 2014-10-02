@@ -14,11 +14,13 @@ Function(a request asyn message) {<br/>
 }<br/>
 
 
-clinet : (1/2) send a request message to server<br/> 
-server : (1/3) receive a request message from client<br/>
-(2/3) do business logic<br/>
-(3/3) send response message to client<br/>
-client : (2/2) receive a response message from server<br/><br/>
+clinet : (1) send a request message to server<br/> 
+(2) receive a response message from server<br/><br/>
+
+server : (1) receive a request message from client<br/>
+(2) do business logic<br/>
+(3) send response message to client<br/>
+
 
 
 &gt;&gt; 3 part<br/>
