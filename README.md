@@ -27,12 +27,12 @@ client : receive a response message from server<br/><br/>
 (3) utility<br/>
 (3-1) "SinnoriAntBuildUtil" is a utility making ANT build environment.<br/>
 (3-2) "SinnoriSourceBuilderUtil" is a utility creating 5 type sources using a message infomation file.<br/>
-(3-2-1) 5 type source
+(3-2-1) 5 type source<br/>
 1. Message : a message is a value object and is similar to a POJO.<br/>
-2. Encoder : transfer a message to binary stream
-3. Decoder : transfer a binary stream to a message
-4. ServerCodec : define whether the message can be sent to client and can receive from client 
-5. ClientCodec : define whether the message can be sent to server and can receive from server<br/>
+2. Encoder : transfer a message to binary stream<br/>
+3. Decoder : transfer a binary stream to a message<br/>
+4. ServerCodec : define whether the message can be sent to client and can receive from client<br/>
+5. ClientCodec : define whether the message can be sent to server and can receive from server<br/><br/>
 
 &gt;&gt; sample project list<br/>
 (1) sample_test<br/>
