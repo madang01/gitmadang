@@ -29,7 +29,7 @@ server : (1) receive a request message from client<br/>
 (3) utility<br/>
 (3-1) "SinnoriAntBuildUtil" is a utility making ANT build environment.<br/>
 (3-2) "SinnoriSourceBuilderUtil" is a utility creating 5 type sources using a message infomation file.<br/>
-(3-2-1) 5 type source<br/>
+(3-2-1) 5 type sources<br/>
 1. Message : a message is a value object and is similar to a POJO.<br/>
 2. Encoder : transfer a message to binary stream<br/>
 3. Decoder : transfer a binary stream to a message<br/>
