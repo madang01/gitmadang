@@ -25,8 +25,8 @@ client : receive a response message from server<br/><br/>
 (1) Sinnori Server<br/>
 (2) server connection API<br/>
 (3) utility<br/>
-(3-1) utility to make ANT build environment.<br/>
-(3-2) utility to create a source associated with the message<br/><br/>
+(3-1) utility making ANT build environment.<br/>
+(3-2) utility creating a source associated with the message<br/><br/>
 
 &gt;&gt; sample project list<br/>
 (1) sample_test<br/>
