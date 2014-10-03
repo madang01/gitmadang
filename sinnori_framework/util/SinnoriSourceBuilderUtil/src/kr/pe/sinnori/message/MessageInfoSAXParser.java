@@ -44,6 +44,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * 
  */
 public class MessageInfoSAXParser extends DefaultHandler {
+	private boolean isFileNameCheck = true;
 	private SAXParserFactory parserFact;
 	private SAXParser parser;
 	private File xmlFile = null;
@@ -65,9 +66,9 @@ public class MessageInfoSAXParser extends DefaultHandler {
 	 * @param xmlFile
 	 *            XML로 작성된 메시지 정보 파일
 	 */
-	public MessageInfoSAXParser(File xmlFile) {
+	public MessageInfoSAXParser(File xmlFile,  boolean isFileNameCheck) {
 		// File messageInfoXSDFile = (File)conf.getResource("common.message_info.xsdfile.value");
-
+		this.isFileNameCheck = isFileNameCheck;
 		try {
 			parserFact = SAXParserFactory.newInstance();
 			parserFact.setValidating(false);
@@ -105,6 +106,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 		 * 환경 변수에 등재된 루트 태그와 현재 XML 파일의 루트 태그가 일치하는지 검사하여 일치하지 않으면 에러 처리한다.
 		 */
 		if (null == rootTag) {
+			
 			if (!startTag.equals(ROOT_TAG)) {
 				// log.warn(String.format("환경변수 등재된 루트 태그[%s] 와 읽어 온 XML 파일의 루트 태그[%s]가 일치하지 않습니다.",ROOT_TAG, startTag));
 				String errorMessage = String.format(
@@ -486,7 +488,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 				messageID = t1;
 			}
 			
-			if (!messageID.equals(tagValue)) {
+			if (isFileNameCheck && !messageID.equals(tagValue)) {
 				String errorMessage = String.format("17.error ::메시지 정보 파일 이름으로 추출된 메시지 식별자[%s]와 메시지 정보 파일에서 지정한 메시지 식별자[%s]가 다릅니다.", t1, tagValue);
 				System.out.println(errorMessage);
 				

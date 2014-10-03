@@ -1,6 +1,6 @@
-<project name="MesgXSDUtil" default="all" basedir=".">
+<project name="SinnoriSourceBuilderUtil" default="dist" basedir=".">
 	<description>
-		메시지 구조를 정의하는 XSL 를 자바 소스로 포함시키는데 이와 관련된 편의성 제공 유틸
+		신놀이 메시지 정보 파일로 부터 소스를 만들어 주는 유틸.
 	</description>
 	<!-- set global properties for this build -->
 	<property name="src" location="src" />
@@ -21,8 +21,8 @@
 		<!-- Create the build directory structure used by compile -->
 		<mkdir dir="${build}" />
 		<mkdir dir="${dist}" />
-		<mkdir dir="lib/in" />
 		<mkdir dir="lib/ex" />
+		<mkdir dir="lib/in" />
 	</target>
 
 	<target name="compile" depends="init" description="컴파일">
@@ -63,7 +63,7 @@
 			<fileset dir="${lib}/ex" />
 		</copy>
 		
-		<jar jarfile="${dist}/MesgXSLUtil.jar" basedir="${build}">
+		<jar jarfile="${dist}/SinnoriSourceBuilderUtil.jar" basedir="${build}">
 			<restrict>
 				<name name="**/*.class" />
 				<archives>
@@ -73,15 +73,21 @@
 				</archives>
 			</restrict>
 			<manifest>
-				<attribute name="Main-Class" value="MesgXSLUtil" />
+				<attribute name="Main-Class" value="main.SinnoriSourceFileBuilderMain" />
 				<attribute name="Class-Path" value="${manifest.classpath}" />
 			</manifest>
 		</jar>
 	</target>
 
 
-	<target name="all" depends="make" description="">
+	<target name="all" depends="make" description="전체 만들기">
 		<echo message="java.debug=${java.debug}" />
+	</target>
+
+	<target name="dist" depends="make" description="배포">
+        <copy todir="../.." verbose="true" overwrite="true">
+            <fileset file="${dist}/SinnoriSourceBuilderUtil.jar" />
+        </copy> 
 	</target>
 	
 </project>

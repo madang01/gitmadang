@@ -1,3 +1,4 @@
+package main;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -5,14 +6,16 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.UnsupportedCharsetException;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
 public class SinnoriTxtFileToJavaStringMain {
-	private String lineSeparator = System.getProperty("line.separator");
+	public static final String lineSeparator = System.getProperty("line.separator");
 
-	public String getFileName(String messageID, String suffix) {
+	/*public String getFileName(String messageID, String suffix) {
 		String dynamicClassBasePackageName = "kr.pe.sinnori.impl.message.";
 		String dynamicClassSourceBasePath = "D:\\gitsinnori\\sinnori_framework\\project\\sample_fileupdown\\server_build\\src";
 		
@@ -20,11 +23,50 @@ public class SinnoriTxtFileToJavaStringMain {
 		String sourceFileName = new StringBuilder(dynamicClassSourceBasePath).append(File.separator).append(classFullName.replace(".", File.separator)).append(".java").toString();
 
 		return sourceFileName;
-	}
+	}*/
 	
 	
-	public String toJavaString(String sourceFileName, String charsetName) {
-		File f = new File(sourceFileName);
+	public String toJavaString(String textFileName, String charsetName) {
+		if (null == textFileName) {
+			String errorMessage = 
+					"parameter sourceFileName is null";
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+				
+		File f = new File(textFileName);
+		if (!f.exists()) {
+			String errorMessage = 
+					String.format("file[%s] is not exist", textFileName);
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (! f.canRead()) {
+			String errorMessage = 
+					String.format("can't read file[%s]", textFileName);
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (null == charsetName) {
+			System.out.println("parameter charsetName is null, so change to a default charset UTF-8");
+			charsetName = "UTF-8";
+		}
+		
+		Charset wantedCharset = null;
+		try {
+			wantedCharset = Charset.forName(charsetName);
+		} catch(IllegalCharsetNameException  e) {
+			String errorMessage = 
+					String.format("the given charset name[%s] is illegal", charsetName);
+			throw new IllegalArgumentException(errorMessage);
+		} catch(UnsupportedCharsetException e) {
+			String errorMessage = 
+					String.format("no support for the named charset[%s] is available in this instance of the Java virtual machine", charsetName);
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		
+		
 		BufferedReader br = null;
 		InputStream is = null;
 		InputStreamReader isr = null;
@@ -35,12 +77,9 @@ public class SinnoriTxtFileToJavaStringMain {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		try {
-			isr = new InputStreamReader(is, charsetName);
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
+		
+		isr = new InputStreamReader(is, wantedCharset);
+		
 
 		StringBuilder fileBuilder = new StringBuilder();
 		
@@ -101,7 +140,7 @@ public class SinnoriTxtFileToJavaStringMain {
 		return fileBuilder.toString();
 	}
 	
-	public String getResultString() {
+	/*public String getResultString() {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("#Project[sample_fileupdown]'s Config File");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -194,17 +233,38 @@ public class SinnoriTxtFileToJavaStringMain {
 		stringBuilder.append("common.projectlist.value=");
 		stringBuilder.append(System.getProperty("line.separator"));
 		return stringBuilder.toString();
-	}
+	}*/
 
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) {		
+		String textFileName = null;
+		String charsetName = null;
 		SinnoriTxtFileToJavaStringMain sinnoriTxtFileToJavaStringMain = new SinnoriTxtFileToJavaStringMain();
 
+		if (0 == args.length) {
+			String explainText = String.format("2개의 파라미터를 요구합니다.%s문서 파일 이름은 필수이며 문자셋은 생략시 UTF-8 로 지정됩니다.%s ex) java -jar dist%sSinnoriTxtFileToJavaString.jar <a text file name> [<the charset name of file>]", lineSeparator, lineSeparator, File.separator);
+			System.out.println(explainText);
+			System.exit(1);
+		} else if (2 < args.length) {
+			String errorMessage = String.format("3개 이상의 파라미터[%d]를 입력하였습니다.", args.length);
+			System.out.println(errorMessage);
+			String explainText = String.format("2개의 파라미터를 요구합니다.%s문서 파일 이름은 필수이며 문자셋은 생략시 UTF-8 로 지정됩니다.%s ex) java -jar dist%sSinnoriTxtFileToJavaString.jar <a text file name> [<the charset name of file>]", lineSeparator, lineSeparator, File.separator);
+			System.out.println(explainText);
+			System.exit(1);
+		}
+		
+		textFileName = args[0];
+		
+		if (2 == args.length) {
+			System.out.println("parameter charsetName is null, so change to a default charset UTF-8");
+			charsetName = args[1];
+		}
+		
 		String retStr = null;
 		
-		retStr = sinnoriTxtFileToJavaStringMain.toJavaString("D:\\gitsinnori\\sinnori_framework\\util\\SinnoriTxtFileToJavaString\\sinnori.properties", "UTF-8");
+		retStr = sinnoriTxtFileToJavaStringMain.toJavaString(textFileName, charsetName);
 		
 		// retStr = sinnoriTxtFileToJavaStringMain.getResultString();
 		

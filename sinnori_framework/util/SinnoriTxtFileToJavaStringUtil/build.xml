@@ -1,6 +1,6 @@
-<project name="SinnoriMessageUtil" default="dist" basedir=".">
+<project name="SinnoriTxtFileToJavaStringUtil" default="all" basedir=".">
 	<description>
-		신놀이 메시지 정보 파일로 부터 소스를 만들어 주는 유틸.
+		문서 타입의 파일 내용을 자바 문자열로 만들어 주는 유틸
 	</description>
 	<!-- set global properties for this build -->
 	<property name="src" location="src" />
@@ -63,7 +63,7 @@
 			<fileset dir="${lib}/ex" />
 		</copy>
 		
-		<jar jarfile="${dist}/SinnoriSourceBuilderUtil.jar" basedir="${build}">
+		<jar jarfile="${dist}/SinnoriTxtFileToJavaStringUtil.jar" basedir="${build}">
 			<restrict>
 				<name name="**/*.class" />
 				<archives>
@@ -73,7 +73,7 @@
 				</archives>
 			</restrict>
 			<manifest>
-				<attribute name="Main-Class" value="main.SinnoriSourceFileBuilderMain" />
+				<attribute name="Main-Class" value="main.SinnoriTxtFileToJavaStringMain" />
 				<attribute name="Class-Path" value="${manifest.classpath}" />
 			</manifest>
 		</jar>
@@ -84,10 +84,5 @@
 		<echo message="java.debug=${java.debug}" />
 	</target>
 
-	<target name="dist" depends="make" description="배포">
-        <copy todir="../.." verbose="true" overwrite="true">
-            <fileset file="${dist}/SinnoriSourceBuilderUtil.jar" />
-        </copy> 
-	</target>
 	
 </project>

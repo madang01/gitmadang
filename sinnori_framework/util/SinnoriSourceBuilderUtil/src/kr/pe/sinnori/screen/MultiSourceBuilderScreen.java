@@ -1,6 +1,5 @@
 package kr.pe.sinnori.screen;
 
-
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -53,7 +52,7 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
 @SuppressWarnings("serial")
-public class Step2SourceBuilderScreen extends JPanel implements MessageInfoManagerIF, SourceManagerIF {
+public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManagerIF, SourceManagerIF {
 	private JFrame mainFrame = null;
 	// private MainControllerIF mainController = null;
 	
@@ -88,7 +87,7 @@ public class Step2SourceBuilderScreen extends JPanel implements MessageInfoManag
 	/**
 	 * Create the panel.
 	 */
-	public Step2SourceBuilderScreen(final JFrame mainFrame, MainControllerIF mainController,
+	public MultiSourceBuilderScreen(final JFrame mainFrame, MainControllerIF mainController,
 			String sinnoriInstallAbsPathName, 
 			ArrayList<String> mainProjectList, HashMap<String, SequencedProperties> project2ConfigHash) {
 		this.mainFrame = mainFrame;
@@ -543,7 +542,7 @@ public class Step2SourceBuilderScreen extends JPanel implements MessageInfoManag
     				continue;
     			}
     			
-    			MessageInfoSAXParser messageInfoSAXParser = new MessageInfoSAXParser(messageInfoFile);
+    			MessageInfoSAXParser messageInfoSAXParser = new MessageInfoSAXParser(messageInfoFile, true);
     			kr.pe.sinnori.message.MessageInfo messageInfo = messageInfoSAXParser.parse();
     			if (null != messageInfo) {
     				if (MESSAGE_INFO_SEARCH_GUBUN.SEARCH_KEYWORD == messageInfoSearchGubun) {
@@ -583,8 +582,8 @@ public class Step2SourceBuilderScreen extends JPanel implements MessageInfoManag
     				values[i][2] = "무방향";
     			}
     			    			
-    			values[i][3] = new MessageInfoFileCellValue(i, messageInfoFile, messageInfo, Step2SourceBuilderScreen.this, mainFrame);
-    			values[i][4] = new SourceFileCellValue(messageInfo, Step2SourceBuilderScreen.this);
+    			values[i][3] = new MessageInfoFileCellValue(i, messageInfoFile, messageInfo, MultiSourceBuilderScreen.this, mainFrame);
+    			values[i][4] = new SourceFileCellValue(messageInfo, MultiSourceBuilderScreen.this);
     			if (progressMonitor.isCanceled())  {
     				return null;
     			}

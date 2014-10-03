@@ -38,7 +38,7 @@ public class MessageInfoFileCellValue extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			//System.out.println("RetryButtonAction::"+e.toString());
 			
-			MessageInfoSAXParser messageInfoSAXParser = new MessageInfoSAXParser(messageInfoFile);
+			MessageInfoSAXParser messageInfoSAXParser = new MessageInfoSAXParser(messageInfoFile, true);
 			kr.pe.sinnori.message.MessageInfo oneMessageInfo = messageInfoSAXParser.parse();
 			if (null == oneMessageInfo) {
 				JOptionPane.showMessageDialog(parentComponent, "메시지 식별자["+messageInfo.getMessageID()+"]의 메시지 정보 파일 다시 읽기 실패");
