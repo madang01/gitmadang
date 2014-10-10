@@ -1,4 +1,4 @@
-package kr.pe.sinnori.message;
+package kr.pe.sinnori.common.message;
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,8 +18,8 @@ package kr.pe.sinnori.message;
 
 
 
+import kr.pe.sinnori.common.exception.UnknownItemTypeException;
 import kr.pe.sinnori.common.lib.CommonType;
-import kr.pe.sinnori.exception.UnknownItemTypeException;
 
 /**
  * 단일 항목 정보 클래스

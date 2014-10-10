@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package kr.pe.sinnori.message;
+package kr.pe.sinnori.common.message;
 
 /**
  * 메시지 정보중 배열 정보가 가져야할 메소드들을 정의한 인터페이스

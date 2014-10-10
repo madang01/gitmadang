@@ -16,7 +16,7 @@
  */
 
 
-package kr.pe.sinnori.message;
+package kr.pe.sinnori.common.message;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
-import kr.pe.sinnori.exception.UnknownItemTypeException;
+import kr.pe.sinnori.common.exception.UnknownItemTypeException;
 
 
 /**
@@ -49,7 +49,7 @@ import kr.pe.sinnori.exception.UnknownItemTypeException;
  */
 public class ItemTypeManger {
 	
-	private String mesgXSLStr = null;
+	private String messageXSLStr = null;
 	
 	private LinkedHashMap<String, Integer> itemTypeToIDHash  = new LinkedHashMap<String, Integer>();
 	private HashMap<Integer, String> idToItemTypeHash  = new HashMap<Integer, String>();
@@ -332,7 +332,7 @@ public class ItemTypeManger {
 		mesgXSLStringBuilder.append("\t</xs:element>\n");
 		mesgXSLStringBuilder.append("</xs:schema>\n");
 		
-		mesgXSLStr = mesgXSLStringBuilder.toString();
+		messageXSLStr = mesgXSLStringBuilder.toString();
 		
 		FileWriter fw = null;
 		BufferedWriter bw  = null;
@@ -342,7 +342,7 @@ public class ItemTypeManger {
 			fw = new FileWriter(f);
 			bw = new BufferedWriter(fw);
 			
-			bw.write(mesgXSLStr);
+			bw.write(messageXSLStr);
 			
 			
 			// log.info(String.format("메시지 구조를 정의한 XSL 내용이 담긴 임시 파일=[%s]", f.getAbsolutePath()));
@@ -370,13 +370,17 @@ public class ItemTypeManger {
 		}
 	}
 	
+	public String getMessageXSLStr() {
+		return messageXSLStr;
+	}
+	
 	public ByteArrayInputStream getMesgXSLInputSream() {
 		ByteArrayInputStream xslIS = null;
 		try {
 			/**
 			 * 2013.10.30 운영하는 OS 의 기본 문자셋은 제각각이라 XSD 안에서 정의한 문자셋 UTF-8 로 맞추어 주어야 한다. 
 			 */
-			xslIS = new ByteArrayInputStream(mesgXSLStr.getBytes("UTF-8"));
+			xslIS = new ByteArrayInputStream(messageXSLStr.getBytes("UTF-8"));
 		} catch (UnsupportedEncodingException e) {
 			// log.error("UnsupportedEncodingException", e);
 			e.printStackTrace();

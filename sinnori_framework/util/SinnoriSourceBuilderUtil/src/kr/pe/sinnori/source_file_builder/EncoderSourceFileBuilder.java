@@ -4,10 +4,10 @@ import java.util.ArrayList;
 
 import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.common.lib.CommonType;
-import kr.pe.sinnori.message.AbstractItemInfo;
-import kr.pe.sinnori.message.ArrayInfo;
-import kr.pe.sinnori.message.ItemGroupInfoIF;
-import kr.pe.sinnori.message.SingleItemInfo;
+import kr.pe.sinnori.common.message.AbstractItemInfo;
+import kr.pe.sinnori.common.message.ArrayInfo;
+import kr.pe.sinnori.common.message.ItemGroupInfoIF;
+import kr.pe.sinnori.common.message.SingleItemInfo;
 
 
 public class EncoderSourceFileBuilder extends AbstractSourceFileBuildre {
@@ -522,7 +522,7 @@ public class EncoderSourceFileBuilder extends AbstractSourceFileBuildre {
 	
 	public String toString(String messageID,
 			String author,
-			kr.pe.sinnori.message.MessageInfo messageInfo) {
+			kr.pe.sinnori.common.message.MessageInfo messageInfo) {
 		
 		String firstLowerMessageID =  messageID.substring(0, 1).toLowerCase() + messageID.substring(1);
 		

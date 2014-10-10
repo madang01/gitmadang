@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package kr.pe.sinnori.message;
+package kr.pe.sinnori.common.message;
 
 import kr.pe.sinnori.common.lib.CommonType;
 

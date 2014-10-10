@@ -4,10 +4,10 @@ import java.util.ArrayList;
 
 import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.common.lib.CommonType;
-import kr.pe.sinnori.message.AbstractItemInfo;
-import kr.pe.sinnori.message.ArrayInfo;
-import kr.pe.sinnori.message.ItemGroupInfoIF;
-import kr.pe.sinnori.message.SingleItemInfo;
+import kr.pe.sinnori.common.message.AbstractItemInfo;
+import kr.pe.sinnori.common.message.ArrayInfo;
+import kr.pe.sinnori.common.message.ItemGroupInfoIF;
+import kr.pe.sinnori.common.message.SingleItemInfo;
 
 
 public class MessageSourceFileBuilder extends AbstractSourceFileBuildre {
@@ -475,7 +475,7 @@ public class MessageSourceFileBuilder extends AbstractSourceFileBuildre {
 		return stringBuilder.toString();
 	}
 	
-	public String toString(String messageID, String author, kr.pe.sinnori.message.MessageInfo messageInfo) {
+	public String toString(String messageID, String author, kr.pe.sinnori.common.message.MessageInfo messageInfo) {
 		StringBuilder stringBuilder = new StringBuilder();
 		
 		stringBuilder.append(getLincenseString());

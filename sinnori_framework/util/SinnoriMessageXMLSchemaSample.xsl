@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<!-- 항목 그룹 -->
+	<xs:group name="itemgroup">
+		<xs:choice>
+			<!-- 단일 항목 -->
+			<xs:element name="singleitem">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="desc" type="xs:string" minOccurs="0" maxOccurs="1" />
+					</xs:sequence>
+					<!-- 이름 -->
+					<xs:attribute name="name" use="required">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:minLength value="1" />
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+
+					<!-- 항목 타입, 항목 타입은 크게 2가지로 나뉘는데 숫자형과 문자형이 있다. 숫자형 같은 경우 정수만 지원하며 부호 
+						있음과 부호 없음으로 나뉘며 비 부호(= 부호 없음)만 앞에 표시한다. 단 특정 언어의 경우 예를 들면 자바의 경우 부호 없음을 지원하지 
+						않으므로 이를 소프트웨어로 구현한다. 소프트웨어 구현에는 한계가 있다 예를 들면 unsigned long 같은 경우 자바로 구현할려고 
+						하면 불가능에 가까운 매우 힘든 일이다. 따라서 반듯이 신놀이를 구현하는 언어 특성으로 기인하는 타입 제한을 숙지해야 한다. 타입 
+						제한을 극복 하는 방법으로 문자열 그 자체로 보내고 클라이언트 혹은 비지니스 측에서 이를 적절하게 변환하여 사용하는것을 추천한다. 
+						실수형 데이터의 경우 이렇게 해결하기를 바란다. 예제) unsigned byte, 배열은 byte 만 지원한다. 예제) byte[] 
+						숫자형 타입 목록 : byte, short, integer, long 문자형 타입 목록 : string -->
+					<xs:attribute name="type" use="required">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:enumeration value="byte" />
+								<xs:enumeration value="unsigned byte" />
+								<xs:enumeration value="short" />
+								<xs:enumeration value="unsigned short" />
+								<xs:enumeration value="integer" />
+								<xs:enumeration value="unsigned integer" />
+								<xs:enumeration value="long" />
+								<xs:enumeration value="ub pascal string" />
+								<xs:enumeration value="us pascal string" />
+								<xs:enumeration value="si pascal string" />
+								<xs:enumeration value="fixed length string" />
+								<xs:enumeration value="ub variable length byte[]" />
+								<xs:enumeration value="us variable length byte[]" />
+								<xs:enumeration value="si variable length byte[]" />
+								<xs:enumeration value="fixed length byte[]" />
+								<xs:enumeration value="java sql date" />
+								<xs:enumeration value="java sql timestamp" />
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+
+					<!-- 타입 부가 정보인 크기는 2가지 타입에서만 유용하다. (1) 고정 크기 바이트 배열(fixed length byte[]) 
+						(2) 고정 크기 문자열(fixed length string) -->
+					<xs:attribute name="size" use="optional">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:minLength value="1" />
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+
+					<!-- 타입 부가 정보인인 문자셋은 오직 고정 크기 문자열(fixed length string)에서만 유효하다. -->
+					<xs:attribute name="charset" use="optional">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:minLength value="1" />
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+
+					<!-- 값 -->
+					<xs:attribute name="defaultValue" use="optional">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:minLength value="1" />
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+
+			<!-- 배열 -->
+			<xs:element name="array">
+				<xs:complexType>
+					<!-- 항목 그룹 -->
+					<xs:sequence>
+						<xs:group minOccurs="0" maxOccurs="unbounded" ref="itemgroup" />
+					</xs:sequence>
+
+					<!-- 이름 -->
+					<xs:attribute name="name" use="required">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:minLength value="1" />
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+					<!-- 배열의 반복 횟수 지정 방식(cnttype)은 2가지가 있다. (1) 직접(direct) : 고정 크기 지정방식으로 
+						배열 반복 횟수에는 배열의 반복 횟수 값이 저장되며, (2) 참조(reference) : 가변 크기 지정방식으로 배열 반복 횟수는 
+						참조하는 항목의 값이다. -->
+					<xs:attribute name="cnttype" use="required">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:enumeration value="reference" />
+								<xs:enumeration value="direct" />
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+					<!-- 배열의 반복 횟수(cntvalue) "배열의 반복 횟수 지정 방식"이 직접(direct) 이면 배열 반복 횟수를 
+						반환하며, 참조(reference)일 경우에는 참조하는 항목 이름을 반환한다. 참조하는 항목은 숫자형으로 배열과 같은 단계로 반듯이 
+						앞에 나와야 한다. 이렇게 앞에 나와야 하는 이유는 배열 정보를 읽어와서 배열 정보를 저장하기 전에 참조 변수가 같은 레벨에서 존재하며 
+						숫자형인지 판단을 하기 위해서이다. 메시지 정보 파일을 순차적으로 읽기 때문에 배열 뒤에 위치하면 알 수가 없다. -->
+					<xs:attribute name="cntvalue" use="required">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:minLength value="1" />
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+		</xs:choice>
+	</xs:group>
+
+	<!-- 메시지 -->
+	<xs:element name="sinnori_message">
+		<xs:complexType>
+			<xs:sequence>
+				<!-- 메시지 식별자 -->
+				<xs:element name="messageID" minOccurs="1" maxOccurs="1">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:pattern value="[a-zA-Z][a-zA-Z1-9]+" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<!-- 메시지 통신 방향 -->
+				<xs:element name="direction" minOccurs="1" maxOccurs="1">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:pattern value="[a-zA-Z][a-zA-Z1-9_]+" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<!-- 항목 그룹 -->
+				<xs:element name="desc" type="xs:string" minOccurs="0"
+					maxOccurs="1" />
+				<xs:group minOccurs="0" maxOccurs="unbounded" ref="itemgroup" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

@@ -1,4 +1,4 @@
-package kr.pe.sinnori.exception;
+package kr.pe.sinnori.common.exception;
 
 @SuppressWarnings("serial")
 public class UnknownItemTypeException extends Exception {

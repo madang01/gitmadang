@@ -31,6 +31,8 @@ import javax.swing.UIManager;
 import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.common.lib.CommonType;
 import kr.pe.sinnori.common.lib.XMLFileFilter;
+import kr.pe.sinnori.common.message.MessageInfo;
+import kr.pe.sinnori.common.message.MessageInfoSAXParser;
 import kr.pe.sinnori.common.util.SequencedProperties;
 import kr.pe.sinnori.gui.PathSwingAction;
 import kr.pe.sinnori.gui.lib.MessageInfoManagerIF;
@@ -42,8 +44,6 @@ import kr.pe.sinnori.gui.table.SourceFileCellEditor;
 import kr.pe.sinnori.gui.table.SourceFileCellRenderer;
 import kr.pe.sinnori.gui.table.SourceFileCellValue;
 import kr.pe.sinnori.gui.util.RegexLimitPlainDocume;
-import kr.pe.sinnori.message.MessageInfo;
-import kr.pe.sinnori.message.MessageInfoSAXParser;
 import kr.pe.sinnori.source_file_builder.SourceFileBuilderManager;
 
 import com.jgoodies.forms.factories.FormFactory;
@@ -526,7 +526,7 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
     		}*/
     		
     		ArrayList<File> messageInfoFileList = new ArrayList<File>();
-    		ArrayList<kr.pe.sinnori.message.MessageInfo> messageInfoList = new ArrayList<kr.pe.sinnori.message.MessageInfo>();
+    		ArrayList<kr.pe.sinnori.common.message.MessageInfo> messageInfoList = new ArrayList<kr.pe.sinnori.common.message.MessageInfo>();
     		
     		File messageInfoFiles[] = messgaeInfoPath.listFiles(new XMLFileFilter());
     		for (File messageInfoFile : messageInfoFiles) {
@@ -543,7 +543,7 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
     			}
     			
     			MessageInfoSAXParser messageInfoSAXParser = new MessageInfoSAXParser(messageInfoFile, true);
-    			kr.pe.sinnori.message.MessageInfo messageInfo = messageInfoSAXParser.parse();
+    			kr.pe.sinnori.common.message.MessageInfo messageInfo = messageInfoSAXParser.parse();
     			if (null != messageInfo) {
     				if (MESSAGE_INFO_SEARCH_GUBUN.SEARCH_KEYWORD == messageInfoSearchGubun) {
     					String fileName = messageInfoFile.getName();
@@ -566,7 +566,7 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
             java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
             
             for (int i=0; i < values.length; i++) {
-            	kr.pe.sinnori.message.MessageInfo messageInfo = messageInfoList.get(i);
+            	kr.pe.sinnori.common.message.MessageInfo messageInfo = messageInfoList.get(i);
             	File messageInfoFile = messageInfoFileList.get(i);
             	
     			String messageID = messageInfo.getMessageID();
@@ -693,7 +693,7 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 	}
 	
 	@Override
-	public void createSourceFile(boolean isSelectedIO, boolean isSelectedDirection, kr.pe.sinnori.message.MessageInfo messageInfo) {
+	public void createSourceFile(boolean isSelectedIO, boolean isSelectedDirection, kr.pe.sinnori.common.message.MessageInfo messageInfo) {
 		String sourcePath1Text = sourceBasePath1TextField.getText();
 		String sourcePath2Text = sourceBasePath2TextField.getText();
 		String sourcePath3Text = sourceBasePath3TextField.getText();

@@ -19,7 +19,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
-import kr.pe.sinnori.message.MessageInfoSAXParser;
+import kr.pe.sinnori.common.message.MessageInfoSAXParser;
 import kr.pe.sinnori.source_file_builder.SourceFileBuilderManager;
 
 import com.jgoodies.forms.factories.FormFactory;
@@ -148,7 +148,7 @@ public class SingleSourceBuilderPanel extends JPanel {
 				}
 
 				MessageInfoSAXParser messageInfoSAXParser = new MessageInfoSAXParser(messageInfoFile, false);
-    			kr.pe.sinnori.message.MessageInfo messageInfo = messageInfoSAXParser.parse();
+    			kr.pe.sinnori.common.message.MessageInfo messageInfo = messageInfoSAXParser.parse();
 			
     			// ButtonModel selectedObject = sourceTypeRadioGroup.getSelection();
     			// String actionCommand = selectedObject.getActionCommand();

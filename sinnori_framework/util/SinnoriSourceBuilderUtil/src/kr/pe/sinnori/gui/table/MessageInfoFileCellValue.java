@@ -9,14 +9,14 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import kr.pe.sinnori.common.message.MessageInfoSAXParser;
 import kr.pe.sinnori.gui.lib.MessageInfoManagerIF;
-import kr.pe.sinnori.message.MessageInfoSAXParser;
 
 @SuppressWarnings("serial")
 public class MessageInfoFileCellValue extends JPanel {
 	private int row;
 	private File messageInfoFile = null;
-	private kr.pe.sinnori.message.MessageInfo messageInfo = null;
+	private kr.pe.sinnori.common.message.MessageInfo messageInfo = null;
 	private MessageInfoManagerIF messageInfoManager = null;
 	private Component parentComponent = null;
 	
@@ -39,7 +39,7 @@ public class MessageInfoFileCellValue extends JPanel {
 			//System.out.println("RetryButtonAction::"+e.toString());
 			
 			MessageInfoSAXParser messageInfoSAXParser = new MessageInfoSAXParser(messageInfoFile, true);
-			kr.pe.sinnori.message.MessageInfo oneMessageInfo = messageInfoSAXParser.parse();
+			kr.pe.sinnori.common.message.MessageInfo oneMessageInfo = messageInfoSAXParser.parse();
 			if (null == oneMessageInfo) {
 				JOptionPane.showMessageDialog(parentComponent, "메시지 식별자["+messageInfo.getMessageID()+"]의 메시지 정보 파일 다시 읽기 실패");
 				return;
@@ -55,7 +55,7 @@ public class MessageInfoFileCellValue extends JPanel {
 		}
 	}
 	
-	public MessageInfoFileCellValue(int row, File messageInfoFile, kr.pe.sinnori.message.MessageInfo messageInfo, MessageInfoManagerIF messageInfoManager, Component parentComponent) {
+	public MessageInfoFileCellValue(int row, File messageInfoFile, kr.pe.sinnori.common.message.MessageInfo messageInfo, MessageInfoManagerIF messageInfoManager, Component parentComponent) {
 		this.row = row;
 		this.messageInfoFile = messageInfoFile;
 		this.messageInfo = messageInfo;
