@@ -1,6 +1,10 @@
 <%@ page language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <jsp:useBean id="reqHeaderInfo" class="kr.pe.sinnori.impl.javabeans.ReqHeaderInfoBean" scope="request" />
-<h3>JDF 테스트 - 비 로그인</h3>
+<h1>JDF 테스트 - 비 로그인</h1>
+<ul>
+<li>이 페이지는 AbstractServlet 를 상속 받은 페이지입니다.<br/>
+모든 서블릿이 상속 받는 AbstractServlet 는 JDF 기본 상속 서블릿입니다.</li>
+<li>
 <%
 	
 	if (null == reqHeaderInfo) {
@@ -19,3 +23,5 @@ index[<%=i%>].headerValue=[<%=headerValue%>]<br/><br/><%
 		}
 	}
 %>
+</li>
+</ul>

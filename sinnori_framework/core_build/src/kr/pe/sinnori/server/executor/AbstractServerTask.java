@@ -40,6 +40,7 @@ import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.LoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
+import kr.pe.sinnori.server.SinnoriSqlSessionFactoryIF;
 import kr.pe.sinnori.server.io.LetterToClient;
 
 /**
@@ -57,34 +58,32 @@ public abstract class AbstractServerTask implements CommonRootIF {
 	protected final ClassLoader classLoader = this.getClass().getClassLoader();
 	private java.util.Hashtable<String, MessageEncoder> encoderHash = new java.util.Hashtable<String, MessageEncoder>(); 
 	private java.util.Hashtable<String, MessageDecoder> decoderHash = new java.util.Hashtable<String, MessageDecoder>(1);
-	
-	
+		
 	/**
-	 * <pre>
-	 * 파일 관련 2개의 메시지 UpFileInfo, DownFileInfo 들을 제외한 메시지에 호출되는 메소드로,
-	 * 클라이언트에서 보낸 입력 메시지 내용에 따라 비지니스 로직을 수행 후 
-	 * 결과로 생긴 출력 메시지들을 편지에 넣어 반환한다.
-	 * 참고) 서버가 다루는 편지는 메시지와 소켓 채널 묶음이다. 
-	 *       이렇게 소켓 채널과 메시지를 묶은 이유는 
-	 *       소켓 채널을 통해서만 서버와의 데이터 교환을 할 수 있기때문이다. 
-	 * </pre>
-	 *       
-	 * @param serverProjectConfig 프로젝트의 서버 환경 변수
-	 * @param serverSession 서버 비지니스 로직 섹션
-	 * @param clientResourceManager 클라이언트 자원 관리자
-	 * @throws MessageItemException 메시지 항목 값을 얻을때 혹은 항목 값을 설정할때 항목 관련 에러 발생시 던지는 예외
+	 * Executor 에서 호출되는 메소드로 비지니스 로직 수행을 포함한 비지니스 로직 전후 작업을 수행한다.
+	 * @param index 순번
+	 * @param serverProjectConfig 프로젝트의 공통 포함한 서버 환경 변수
+	 * @param projectCharset 프로젝트 문자셋
+	 * @param ouputMessageQueue 출력 메시지  큐
+	 * @param messageProtocol 서버 프로젝트의 메시지 프로토콜
+	 * @param fromSC 입력 메시지를 보낸 클라이언트
+	 * @param clientResource 클라이언트 자원
+	 * @param receivedLetter 수신 편지
+	 * @param loginManager 로그인 관리자
+	 * @param serverObjectCacheManager 서버 객체 캐쉬 관리자
+	 * @param sqlSessionFactory 서버 프로젝트의 Mybatis SqlSessionFactory
 	 */
-	
 	public void execute(int index, 
-			ServerProjectConfig serverProjectConfig,
-			LoginManagerIF loginManager,
+			ServerProjectConfig serverProjectConfig,			
 			Charset projectCharset,
 			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
 			MessageProtocolIF messageProtocol,
 			SocketChannel fromSC,
 			ClientResource clientResource,
 			ReceivedLetter receivedLetter, 
-			ServerObjectCacheManagerIF serverObjectCacheManager) {
+			LoginManagerIF loginManager,
+			ServerObjectCacheManagerIF serverObjectCacheManager,
+			SinnoriSqlSessionFactoryIF sqlSessionFactory) {
 		// FIXME!
 		// log.info("inputMessage=[%s]", inputMessage.toString());
 		
@@ -265,7 +264,7 @@ public abstract class AbstractServerTask implements CommonRootIF {
 		LetterSender letterSender = new LetterSender(this, clientResource, messageFromClient, projectCharset, ouputMessageQueue, messageProtocol, serverObjectCacheManager);
 		long firstErraseTime = new java.util.Date().getTime();
 		try {			
-			doTask(serverProjectConfig, loginManager, letterSender, messageFromClient);			
+			doTask(serverProjectConfig, loginManager, sqlSessionFactory, letterSender, messageFromClient);			
 		} catch (Exception e) {
 			// FIXME!
 			log.warn("unknown error", e);
@@ -516,13 +515,14 @@ public abstract class AbstractServerTask implements CommonRootIF {
 	 * 출력메시지 직접 전송하는 개발자가 직접 작성해야할 비지니스 로직 
 	 * @param serverProjectConfig 프로젝트의 서버 환경 변수
 	 * @param loginManager 로그인 관리자
+	 * @param sqlSessionFactory 서버 프로젝트의 Mybatis SqlSessionFactory
 	 * @param letterSender 클라이언트로 보내는 편지 배달부
-	 * @param messageFromClient 입력 메시지	  
-	 * @param clientResourceManager 클라이언트 자원 관리자
+	 * @param messageFromClient 입력 메시지	
 	 * @throws Exception 에러 발생시 던지는 예외
 	 */
 	abstract public void doTask(ServerProjectConfig serverProjectConfig,
 			LoginManagerIF loginManager,
+			SinnoriSqlSessionFactoryIF sqlSessionFactory,
 			LetterSender letterSender,
 			AbstractMessage messageFromClient) throws Exception;
 }

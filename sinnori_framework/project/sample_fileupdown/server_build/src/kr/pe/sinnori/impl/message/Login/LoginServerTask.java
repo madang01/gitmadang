@@ -25,6 +25,7 @@ import kr.pe.sinnori.common.sessionkey.SymmetricKey;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.LoginManagerIF;
+import kr.pe.sinnori.server.SinnoriSqlSessionFactoryIF;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
 import kr.pe.sinnori.server.executor.LetterSender;
 
@@ -38,6 +39,7 @@ public class LoginServerTask extends AbstractServerTask {
 	@Override
 	public void doTask(ServerProjectConfig serverProjectConfig,
 			LoginManagerIF loginManager,
+			SinnoriSqlSessionFactoryIF sqlSessionFactory,
 			LetterSender letterSender, AbstractMessage messageFromClient)
 			throws Exception {
 		// FIXME!

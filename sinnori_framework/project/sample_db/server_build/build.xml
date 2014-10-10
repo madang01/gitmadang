@@ -146,7 +146,7 @@
 			<fileset dir="${lib}/ex" />
 		</copy>
 		
-	  <mkdir dir="${build}/kr/pe/sinnori/impl/mybatis" />
+		<mkdir dir="${build}/kr/pe/sinnori/impl/mybatis" />
 		<copy todir="${build}/kr/pe/sinnori/impl/mybatis" verbose="true" overwrite="true">
 			<fileset dir="${src}/kr/pe/sinnori/impl/mybatis" />
 		</copy>

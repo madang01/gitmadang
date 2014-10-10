@@ -55,8 +55,8 @@ public class JDFNotLoginTestSvl extends AbstractServlet {
 		
 		for (int i=0; i < reqHeaderInfo.headerInfoSize; i++) {
 			reqHeaderInfo.headerInfoList[i] = reqHeaderInfo.new HeaderInfoList();
-			reqHeaderInfo.headerInfoList[i].headerKey = headerList.get(i);
-			reqHeaderInfo.headerInfoList[i].headerValue = headerList.get(i+1);
+			reqHeaderInfo.headerInfoList[i].headerKey = headerList.get(i*2);
+			reqHeaderInfo.headerInfoList[i].headerValue = headerList.get(i*2+1);
 		}
 	
 		req.setAttribute("reqHeaderInfo", reqHeaderInfo);		

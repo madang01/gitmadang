@@ -1,58 +1,31 @@
 package kr.pe.sinnori.impl.message.MemberList;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 import kr.pe.sinnori.common.configuration.ServerProjectConfig;
-import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.MemberListResult.MemberListResult;
 import kr.pe.sinnori.server.LoginManagerIF;
+import kr.pe.sinnori.server.SinnoriSqlSessionFactoryIF;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
 import kr.pe.sinnori.server.executor.LetterSender;
 
-import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
 public class MemberListServerTask extends AbstractServerTask {
-	// private 
-	private SqlSessionFactory factory = null;
+	
 	
 	@Override
 	public void doTask(ServerProjectConfig serverProjectConfig,
-			LoginManagerIF loginManager, LetterSender letterSender,
+			LoginManagerIF loginManager,
+			SinnoriSqlSessionFactoryIF sqlSessionFactory,
+			LetterSender letterSender,
 			AbstractMessage messageFromClient) throws Exception {
 		// FIXME!
 		// log.info(messageFromClient.toString());
-		log.info("serverProjectConfig.getMybatisConfigFileName={}", serverProjectConfig.getMybatisConfigFileName());
-			
-		if (null == factory) {			
-			// String res="orm/mybatis/config.xml";
-			
-			// Resources.setDefaultClassLoader(classLoader);
-			
-			InputStream is;
-			
-			/*is = Resources.getResourceAsStream(mybatisConfigFile.getAbsolutePath());
-			if (null == is) {
-				throw new ServerTaskException("mybatis 설정 파일이 존재하지 않습니다. :: "+serverProjectConfig.getMybatisConfigFileName());
-			}*/
-			//synchronized (org.apache.ibatis.io.Resources.class) {
-				Resources.setDefaultClassLoader(classLoader);
-				try {
-					is = Resources.getResourceAsStream(serverProjectConfig.getMybatisConfigFileName());
-				} catch(IOException e) {
-					throw new ServerTaskException("mybatis 설정 파일이 존재하지 않습니다. :: "+serverProjectConfig.getMybatisConfigFileName());
-				}						
-					
-				factory = new SqlSessionFactoryBuilder().build(is); 
-			//}
-		}
+		log.info("serverProjectConfig.getMybatisConfigFileName={}", serverProjectConfig.getMybatisConfigFileName());		
 		
-		SqlSession session = factory.openSession();
+		SqlSession session = sqlSessionFactory.openSession();
 		List<java.util.HashMap<String, Object>> list = null;
         try {
         	list = session.selectList("getHashList");

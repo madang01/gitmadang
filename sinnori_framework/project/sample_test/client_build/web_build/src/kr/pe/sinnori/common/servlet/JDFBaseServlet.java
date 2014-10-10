@@ -188,6 +188,15 @@ public abstract class JDFBaseServlet extends HttpServlet implements CommonRootIF
 			log.info(String.format("%s:calling", logMsg));
 		}
 		
+		String topmenu = req.getParameter("topmenu");
+		//if (null ==  topmenu) topmenu="";
+		
+		String leftmenu = req.getRequestURI();
+		//if (null ==  leftmenu) leftmenu = req.getRequestURI();
+		
+		req.setAttribute("topmenu", topmenu);
+		req.setAttribute("leftmenu", leftmenu);
+		
 		try {		
 			performPreTask(req, res);
 		}

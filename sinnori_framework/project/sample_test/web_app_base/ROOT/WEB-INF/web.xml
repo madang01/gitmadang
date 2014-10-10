@@ -39,12 +39,12 @@
 	</servlet-mapping>
 
 	<servlet>
-		<servlet-name>MadangsoeMember</servlet-name>
-		<servlet-class>kr.pe.sinnori.servlet.MadangsoeMemberSvl</servlet-class>
+		<servlet-name>Member</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.MemberSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>MadangsoeMember</servlet-name>
-		<url-pattern>/servlet/MadangsoeMember</url-pattern>
+		<servlet-name>Member</servlet-name>
+		<url-pattern>/servlet/Member</url-pattern>
 	</servlet-mapping>
 
 	<servlet>
@@ -102,12 +102,31 @@
 	</servlet-mapping>
 
 	<servlet>
-		<servlet-name>SimpleCounterSvl</servlet-name>
+		<servlet-name>SimpleCounter</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.SimpleCounterSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>SimpleCounterSvl</servlet-name>
+		<servlet-name>SimpleCounter</servlet-name>
 		<url-pattern>/servlet/SimpleCounter</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>JDFLoginTest</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.JDFLoginTestSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>JDFLoginTest</servlet-name>
+		<url-pattern>/servlet/JDFLoginTest</url-pattern>
+	</servlet-mapping>
+
+	<!-- 로그인 -->
+	<servlet>
+		<servlet-name>Login</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.LoginSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Login</servlet-name>
+		<url-pattern>/servlet/Login</url-pattern>
 	</servlet-mapping>
 
 </web-app>

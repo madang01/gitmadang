@@ -1,1 +1,1 @@
-java -jar dist/SinnoriTxtFileToJavaStringUtil.jar %CmdCmdLine%
+java -jar dist/SinnoriTxtFileToJavaStringUtil.jar %*

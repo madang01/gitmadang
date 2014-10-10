@@ -24,6 +24,7 @@ import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 import kr.pe.sinnori.server.LoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
+import kr.pe.sinnori.server.SinnoriSqlSessionFactoryIF;
 import kr.pe.sinnori.server.io.LetterFromClient;
 import kr.pe.sinnori.server.io.LetterToClient;
 import kr.pe.sinnori.server.threadpool.executor.handler.Executor;
@@ -43,24 +44,28 @@ public class ExecutorPool extends AbstractThreadPool {
 	private LinkedBlockingQueue<LetterToClient> ouputMessageQueue;
 	private MessageProtocolIF messageProtocol= null;
 	private ServerObjectCacheManagerIF serverObjectCacheManager = null;
+	private SinnoriSqlSessionFactoryIF sqlSessionFactory = null;
 	
 	/**
 	 * 생성자
 	 * @param size 서버 비지니스 로직 수행자 쓰레드 갯수
 	 * @param max 서버 비지니스 로직 수행자 쓰레드 최대 갯수
-	 * @param serverProjectConfig 프로젝트의 공통 포함한 서버 환경 변수 접근 인터페이스
+	 * @param serverProjectConfig 프로젝트의 공통 포함한 서버 환경 변수
 	 * @param inputMessageQueue 입력 메시지 큐
 	 * @param ouputMessageQueue 출력 메시지 큐
-	 * @param sererExecutorClassLoaderManager 서버 비지니스 로직 클래스 로더 관리자
-	 * @param clientResourceManager 클라이언트 자원 관리자
+	 * @param messageProtocol 서버 프로젝트의 메시지 프로토콜
+	 * @param loginManager 로그인 관리자
+	 * @param serverObjectCacheManager 서버 객체 캐쉬 관리자
+	 * @param sqlSessionFactory 서버 프로젝트의 Mybatis SqlSessionFactory
 	 */
 	public ExecutorPool(int size, int max,
-			ServerProjectConfig serverProjectConfig,
-			LoginManagerIF loginManager,
+			ServerProjectConfig serverProjectConfig,			
 			LinkedBlockingQueue<LetterFromClient> inputMessageQueue,
 			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
 			MessageProtocolIF messageProtocol,
-			ServerObjectCacheManagerIF serverObjectCacheManager) {
+			LoginManagerIF loginManager,
+			ServerObjectCacheManagerIF serverObjectCacheManager,
+			SinnoriSqlSessionFactoryIF sqlSessionFactory) {
 		if (size <= 0) {
 			throw new IllegalArgumentException(String.format("%s 파라미터 size 는 0보다 커야 합니다.", serverProjectConfig.getProjectName()));
 		}
@@ -80,6 +85,7 @@ public class ExecutorPool extends AbstractThreadPool {
 		this.ouputMessageQueue = ouputMessageQueue;
 		this.messageProtocol = messageProtocol;
 		this.serverObjectCacheManager = serverObjectCacheManager;
+		this.sqlSessionFactory = sqlSessionFactory;
 
 		for (int i = 0; i < size; i++) {
 			addHandler();
@@ -93,8 +99,9 @@ public class ExecutorPool extends AbstractThreadPool {
 
 			if (size < maxHandler) {
 				try {
-					Thread handler = new Executor(size, serverProjectConfig, loginManager,
-							inputMessageQueue, ouputMessageQueue, messageProtocol, serverObjectCacheManager);
+					Thread handler = new Executor(size, serverProjectConfig, 
+							inputMessageQueue, ouputMessageQueue, messageProtocol, 
+							loginManager, serverObjectCacheManager, sqlSessionFactory);
 					pool.add(handler);
 				} catch (Exception e) {
 					String errorMessage = String.format("%s ExecutorProcessor[%d] 등록 실패", serverProjectConfig.getProjectName(), size); 

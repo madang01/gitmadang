@@ -19,6 +19,7 @@ package kr.pe.sinnori.server;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -28,6 +29,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import kr.pe.sinnori.common.classload.SinnoriClassLoader;
 import kr.pe.sinnori.common.configuration.CommonProjectConfig;
 import kr.pe.sinnori.common.configuration.ServerProjectConfig;
+import kr.pe.sinnori.common.exception.DBNotReadyException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.lib.AbstractProject;
@@ -43,6 +45,12 @@ import kr.pe.sinnori.server.threadpool.accept.selector.handler.AcceptSelector;
 import kr.pe.sinnori.server.threadpool.executor.ExecutorPool;
 import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderPool;
 import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterPool;
+
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
 /**
  * <pre> 
@@ -67,7 +75,8 @@ import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterPool;
  * @author Jonghoon Won
  *
  */
-public class ServerProject extends AbstractProject implements ClientResourceManagerIF, ServerObjectCacheManagerIF, LoginManagerIF {
+public class ServerProject extends AbstractProject 
+	implements ClientResourceManagerIF, ServerObjectCacheManagerIF, LoginManagerIF, SinnoriSqlSessionFactoryIF {
 	/** 모니터 객체 */
 	// private final Object clientResourceMonitor = new Object();
 	
@@ -110,6 +119,10 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 	private ServerProjectMonitor serverProjectMonitor = null;
 	
 	private ServerProjectConfig serverProjectConfig = null;
+	
+	
+	private SinnoriClassLoader mybatisConfigClassLoader = null;
+	private SqlSessionFactory factory = null;
 	
 	/**
 	 * 생성자
@@ -183,10 +196,9 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 		
 		executorPool = new ExecutorPool(
 				executorProcessorSize, executorProcessorMaxSize,
-				serverProjectConfig,
-				this,
+				serverProjectConfig,				
 				inputMessageQueue, outputMessageQueue, 
-				messageProtocol, this);
+				messageProtocol, this, this, this);
 
 		outputMessageWriterPool = new OutputMessageWriterPool(
 				outputMessageWriterSize, outputMessageWriterMaxSize,
@@ -195,6 +207,17 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 		
 		serverProjectMonitor = new ServerProjectMonitor(serverProjectConfig.getServerMonitorTimeInterval(), serverProjectConfig.getServerRequestTimeout());
 		
+		
+		mybatisConfigClassLoader = new SinnoriClassLoader(sytemClassLoader, dynamicClassBinaryBasePath, dynamicClassBasePackageName);
+				
+		Resources.setDefaultClassLoader(mybatisConfigClassLoader);
+		try {
+			InputStream is = Resources.getResourceAsStream(serverProjectConfig.getMybatisConfigFileName());
+			
+			factory = new SqlSessionFactoryBuilder().build(is); 
+		} catch(IOException e) {
+			log.warn("mybatis 환경 설정 파일[{}] 읽기 오류", serverProjectConfig.getMybatisConfigFileName());
+		}
 	}
 	
 	@Override
@@ -294,14 +317,18 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 				log.warn(String.format("클라이언트 자원에서 이미 삭제된 소켓 채널[%d]입니다.", sc.hashCode()));
 				return;
 			}
-			
-			// clientResout.getMessageInputStreamResource().destory();
-			if (clientResource.isLogin()) {
-				String loginID = clientResource.getLoginID();
+					
+			/**
+			 * <pre>
+			 * 소켓이 끊어진 상태이기때문에 소켓 연결 여부와 로그인 아이디 null 여부 를 판단하는 
+			 * ClientResource::isLogin() 메소드를 호출할 수 없다.
+			 * </pre>
+			 */
+			String loginID = clientResource.getLoginID();
+			if (null != loginID) {
 				loginIDToSCHash.remove(loginID);
-			}
-			clientResource.logout();
-			
+				clientResource.logout();
+			}			
 
 			scToClientResourceHash.remove(sc);			
 		// }
@@ -315,6 +342,12 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 	}
 	
 	public boolean isLogin(String loginID) {
+		ClientResource clientResource = loginIDToSCHash.get(loginID);
+		if (null != clientResource) {
+			// FIXME! 소켓 상태 디버깅
+			log.info(clientResource.toString());
+		}
+		
 		return loginIDToSCHash.containsKey(loginID);
 	}
 
@@ -532,5 +565,23 @@ public class ServerProject extends AbstractProject implements ClientResourceMana
 				log.warn(String.format("server project[%s] ServerProjectMonitor unknow error", projectName), e);
 			}
 		}
+	}
+	
+	@Override
+	public SqlSession openSession() throws DBNotReadyException {
+		if (null == factory) {
+			throw new DBNotReadyException("mybatis 환경 설정 파일["+serverProjectConfig.getMybatisConfigFileName()+"] 읽기 오류");
+		}
+		
+		return factory.openSession();
+	}
+	
+	@Override
+	public SqlSession openSession(ExecutorType execType) throws DBNotReadyException {
+		if (null == factory) {
+			throw new DBNotReadyException("mybatis 환경 설정 파일["+serverProjectConfig.getMybatisConfigFileName()+"] 읽기 오류");
+		}
+		
+		return factory.openSession(execType);
 	}
 }

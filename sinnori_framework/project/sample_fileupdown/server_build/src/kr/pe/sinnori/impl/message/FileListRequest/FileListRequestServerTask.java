@@ -27,6 +27,7 @@ import kr.pe.sinnori.common.util.DirectoryFirstComparator;
 import kr.pe.sinnori.common.util.NameFirstComparator;
 import kr.pe.sinnori.impl.message.FileListResult.FileListResult;
 import kr.pe.sinnori.server.LoginManagerIF;
+import kr.pe.sinnori.server.SinnoriSqlSessionFactoryIF;
 import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;
 import kr.pe.sinnori.server.executor.LetterSender;
 
@@ -40,6 +41,7 @@ public class FileListRequestServerTask extends AbstractAuthServerExecutor {
 	@Override
 	public void doTask(ServerProjectConfig serverProjectConfig,
 			LoginManagerIF loginManager,
+			SinnoriSqlSessionFactoryIF sqlSessionFactory,
 			LetterSender letterSender, AbstractMessage messageFromClient)
 			throws Exception {
 		// FIXME!

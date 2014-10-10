@@ -24,11 +24,11 @@
 </tr>
 <tr>
 	<td colspan=2 style="text-align:left">
-	클라이언트에서 생성한 랜덤수를 갖는 에코 입력 메세지를<br/>
+	클라이언트에서 생성한 랜덤수를 갖는 에코 입력 메세지를
 	그대로 출력 메세지로 받게 되는지를 검사한다.<br/>
 	서버에서는 에코 입력 메세지를 그대로 출력 메세지로 복사한다.<br/>
 	이 테스트를 얻게 되는 효과는 쓰레드 세이프 검증이다.<br/>
-	만약 서버에서 입력메세지 처리시 쓰레드 세이프하지 않다면<br/>
+	만약 서버에서 입력메세지 처리시 쓰레드 세이프하지 않다면
 	클라이언트로 보내는 값은 원래 보낸 데이터와 다르게 된다.
 	</td>
 </tr>
@@ -44,7 +44,7 @@
 	<td style="text-align:right"><%= randomInt %></td>
 </tr>
 <tr>
-	<td style="text-align:left">the number of milliseconds<br/>since January 1, 1970, 00:00:00<br/>GMT represented</td>
+	<td style="text-align:left">the number of milliseconds since January 1, 1970, 00:00:00<br/>GMT represented</td>
 	<td style="text-align:right"><%= startTime %></td>
 </tr><%
 	if (null != errorMessage && !errorMessage.equals("")) {
@@ -70,4 +70,6 @@
 	}
 %>
 </table>
+&nbsp;<br/>&nbsp;<br/>&nbsp;<br/>&nbsp;<br/>
+
 

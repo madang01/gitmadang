@@ -33,6 +33,7 @@ import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.LoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
+import kr.pe.sinnori.server.SinnoriSqlSessionFactoryIF;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
 import kr.pe.sinnori.server.io.LetterFromClient;
 import kr.pe.sinnori.server.io.LetterToClient;
@@ -52,22 +53,25 @@ public class Executor extends Thread implements CommonRootIF {
 	private MessageProtocolIF messageProtocol = null;
 	
 	private ServerObjectCacheManagerIF serverObjectCacheManager = null;
-	
+	private SinnoriSqlSessionFactoryIF sqlSessionFactory = null;
 	
 	/**
 	 * 생성자
 	 * @param index 순번
-	 * @param serverProjectConfig 프로젝트의 공통 포함한 서버 환경 변수 접근 인터페이스
+	 * @param serverProjectConfig 프로젝트의 공통 포함한 서버 환경 변수
 	 * @param inputMessageQueue 입력 메시지 큐
 	 * @param ouputMessageQueue 출력 메시지 큐
-	 * 
+	 * @param messageProtocol 서버 프로젝트의 메시지 프로토콜
+	 * @param loginManager 로그인 관리자
+	 * @param serverObjectCacheManager 서버 객체 캐쉬 관리자
+	 * @param sqlSessionFactory 서버 프로젝트의 Mybatis SqlSessionFactory
 	 */
 	public Executor(int index,
-			ServerProjectConfig serverProjectConfig,
-			LoginManagerIF loginManager,
+			ServerProjectConfig serverProjectConfig,			
 			LinkedBlockingQueue<LetterFromClient> inputMessageQueue,
 			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
-			MessageProtocolIF messageProtocol, ServerObjectCacheManagerIF serverObjectCacheManager) {
+			MessageProtocolIF messageProtocol, LoginManagerIF loginManager,
+			ServerObjectCacheManagerIF serverObjectCacheManager, SinnoriSqlSessionFactoryIF sqlSessionFactory) {
 		this.index = index;		
 		this.serverProjectConfig = serverProjectConfig;
 		this.loginManager = loginManager;
@@ -75,6 +79,7 @@ public class Executor extends Thread implements CommonRootIF {
 		this.ouputMessageQueue = ouputMessageQueue;
 		this.messageProtocol = messageProtocol;
 		this.serverObjectCacheManager = serverObjectCacheManager;
+		this.sqlSessionFactory = sqlSessionFactory;
 	}
 	
 
@@ -141,8 +146,8 @@ public class Executor extends Thread implements CommonRootIF {
 					continue;
 				}
 				
-				serverTask.execute(index, serverProjectConfig, loginManager, serverProjectConfig.getCharset(), ouputMessageQueue, messageProtocol,
-						clientSC, clientResource, receivedLetter, serverObjectCacheManager);
+				serverTask.execute(index, serverProjectConfig, serverProjectConfig.getCharset(), ouputMessageQueue, messageProtocol,
+						clientSC, clientResource, receivedLetter, loginManager, serverObjectCacheManager, sqlSessionFactory);
 				
 			}
 			log.warn(String.format("%s ExecutorProcessor[%d] loop exit", serverProjectConfig.getProjectName(), index));

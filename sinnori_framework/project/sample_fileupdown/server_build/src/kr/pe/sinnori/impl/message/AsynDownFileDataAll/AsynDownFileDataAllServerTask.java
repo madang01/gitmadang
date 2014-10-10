@@ -25,6 +25,7 @@ import kr.pe.sinnori.impl.message.CancelDownloadFileResult.CancelDownloadFileRes
 import kr.pe.sinnori.impl.message.DownFileDataResult.DownFileDataResult;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.LoginManagerIF;
+import kr.pe.sinnori.server.SinnoriSqlSessionFactoryIF;
 import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;
 import kr.pe.sinnori.server.executor.LetterSender;
 
@@ -39,6 +40,7 @@ public class AsynDownFileDataAllServerTask extends AbstractAuthServerExecutor {
 	@Override
 	public void doTask(ServerProjectConfig serverProjectConfig,
 			LoginManagerIF loginManager,
+			SinnoriSqlSessionFactoryIF sqlSessionFactory,
 			LetterSender letterSender, AbstractMessage messageFromClient)
 			throws Exception {
 		// FIXME!

@@ -36,15 +36,7 @@ public abstract class AbstractServlet extends JDFBaseServlet {
 
 	
 	@Override
-	protected void performPreTask(HttpServletRequest req, HttpServletResponse res) throws Exception  {
-		String topmenu = req.getParameter("topmenu");
-		if (null ==  topmenu) topmenu="";
-		
-		String leftmenu = req.getParameter("leftmenu");
-		if (null ==  leftmenu) leftmenu="";
-		
-		req.setAttribute("topmenu", topmenu);
-		req.setAttribute("leftmenu", leftmenu);
+	protected void performPreTask(HttpServletRequest req, HttpServletResponse res) throws Exception  {	
 		
 		performTask(req,res);	
 	}

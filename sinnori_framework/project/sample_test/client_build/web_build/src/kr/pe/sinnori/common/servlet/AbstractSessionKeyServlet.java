@@ -46,26 +46,28 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 	protected void performPreTask(HttpServletRequest req, HttpServletResponse res) throws Exception  {
 		// HttpSession session = req.getSession();
 		
-		String parmSessionKey = req.getParameter("sessionkey");
-		String parmIV = req.getParameter("iv");
+		String parmSessionKeyBase64 = req.getParameter("sessionkeyBase64");
+		String parmIVBase64 = req.getParameter("ivBase64");
 		
 		
-		log.info(String.format("parm SessionKey=[%s]", parmSessionKey));
-		log.info(String.format("parm IV=[%s]", parmIV));
+		log.info(String.format("parm parmSessionKeyBase64=[%s]", parmSessionKeyBase64));
+		log.info(String.format("parm parmIVBase64=[%s]", parmIVBase64));
 		
-		if (null == parmSessionKey || null == parmIV) {
+		if (null == parmSessionKeyBase64 || null == parmIVBase64) {
 			ServerSessionKeyManager sessionKeyServerManger = ServerSessionKeyManager
 					.getInstance();
 			String modulusHex = sessionKeyServerManger.getModulusHexStrForWeb();
 			
 			
-			String requestURL = req.getRequestURL().toString();
+			String requestURI = req.getRequestURI();
 			
 			StringBuilder pageStrBuilder = new StringBuilder("<!DOCTYPE html><html><head>");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			pageStrBuilder.append("<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			pageStrBuilder.append("<title>Sinnori Development Framework</title>");
+			pageStrBuilder.append("<title>");
+			pageStrBuilder.append(WebCommonStaticFinalVars.WEBSITE_TITLE);
+			pageStrBuilder.append("</title>");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
 			pageStrBuilder.append("<script type=\"text/javascript\" src=\"/js/jsbn/jsbn.js\"></script>");
@@ -107,24 +109,30 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 			pageStrBuilder.append("\t\t}");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
-			pageStrBuilder.append("\t\tvar sinnoriPrivateKey = sessionStorage.getItem('sinnori.privatekey');");
+			pageStrBuilder.append("\t\tvar webUserPrivateKeyBase64 = sessionStorage.getItem('");
+			pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_PRIVATEKEY_NAME);
+			pageStrBuilder.append("');");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
 			// FIXME! 웹 유저 비밀키(=대칭키)
 			// pageStrBuilder.append("\t\talert(sinnoriPrivateKey);");
 			// pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
-			pageStrBuilder.append("\t\tif (null == sinnoriPrivateKey || '' == sinnoriPrivateKey) {");
+			pageStrBuilder.append("\t\tif (null == webUserPrivateKeyBase64 || '' == webUserPrivateKeyBase64) {");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
 			pageStrBuilder.append("\t\t\ttry {");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
-			pageStrBuilder.append("\t\t\t\tsinnoriPrivateKey = CryptoJS.lib.WordArray.random(16);");
+			pageStrBuilder.append("\t\t\t\tvar webUserPrivateKey = CryptoJS.lib.WordArray.random(");
+			pageStrBuilder.append(WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE);
+			pageStrBuilder.append(");");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
 			
-			pageStrBuilder.append("\t\t\t\tsessionStorage.setItem('sinnori.privatekey', sinnoriPrivateKey); // key-value 형식으로 저장");
+			pageStrBuilder.append("\t\t\t\tsessionStorage.setItem('");
+			pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_PRIVATEKEY_NAME);
+			pageStrBuilder.append("', CryptoJS.enc.Base64.stringify(webUserPrivateKey)); // key-value 형식으로 저장");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
 			
@@ -137,10 +145,12 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 			pageStrBuilder.append("\", \"10001\");");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
-			pageStrBuilder.append("\t\t\t\tvar sessionKeyHex = rsa.encrypt(CryptoJS.enc.Base64.stringify(sinnoriPrivateKey));");
+			pageStrBuilder.append("\t\t\t\tvar sessionKeyHex = rsa.encrypt(CryptoJS.enc.Base64.stringify(webUserPrivateKey));");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
-			pageStrBuilder.append("\t\t\t\tsessionStorage.setItem('sinnori.sessionkey', CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex))); // key-value 형식으로 저장");
+			pageStrBuilder.append("\t\t\t\tsessionStorage.setItem('");
+			pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_SESSIONKEY_NAME);
+			pageStrBuilder.append("', CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex))); // key-value 형식으로 저장");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
 			pageStrBuilder.append("\t\t\t} catch (e) {");
@@ -148,10 +158,14 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 			
 			
 			
-			pageStrBuilder.append("\t\t\t\t\tsessionStorage.removeItem('sinnori.privatekey');");
+			pageStrBuilder.append("\t\t\t\t\tsessionStorage.removeItem('");
+			pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_PRIVATEKEY_NAME);
+			pageStrBuilder.append("');");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
-			pageStrBuilder.append("\t\t\t\t\tsessionStorage.removeItem('sinnori.sessionkey');");
+			pageStrBuilder.append("\t\t\t\t\tsessionStorage.removeItem('");
+			pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_SESSIONKEY_NAME);
+			pageStrBuilder.append("');");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
 			pageStrBuilder.append("\t\t\t\t\talert(e);");
@@ -173,16 +187,20 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 			pageStrBuilder.append("\t\tg.action = targeturl;");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 
-			pageStrBuilder.append("\t\tg.sessionkey.value = sessionStorage.getItem('sinnori.sessionkey');");
+			pageStrBuilder.append("\t\tg.sessionkeyBase64.value = sessionStorage.getItem('");
+			pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_SESSIONKEY_NAME);
+			pageStrBuilder.append("');");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
-			pageStrBuilder.append("\t\tvar iv = CryptoJS.lib.WordArray.random(16);");
+			pageStrBuilder.append("\t\tvar iv = CryptoJS.lib.WordArray.random(");
+			pageStrBuilder.append(WebCommonStaticFinalVars.WEBSITE_IV_SIZE);
+			pageStrBuilder.append(");");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
-			pageStrBuilder.append("\t\tg.iv.value = CryptoJS.enc.Base64.stringify(iv);");
+			pageStrBuilder.append("\t\tg.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
-			
+			// FIXME!
 			pageStrBuilder.append("\t\tg.submit();");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			pageStrBuilder.append("\t}");
@@ -194,7 +212,7 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
 			pageStrBuilder.append("<body onload=\"goURL('");
-			pageStrBuilder.append(requestURL);
+			pageStrBuilder.append(requestURI);
 			pageStrBuilder.append("')\">");
 			
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
@@ -202,10 +220,10 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 			pageStrBuilder.append("<form name=gofrm method='post'>");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
-			pageStrBuilder.append("<input type=hidden name=\"sessionkey\" />");
+			pageStrBuilder.append("<input type=hidden name=\"sessionkeyBase64\" />");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
-			pageStrBuilder.append("<input type=hidden name=\"iv\" />");
+			pageStrBuilder.append("<input type=hidden name=\"ivBase64\" />");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
 			
@@ -226,7 +244,7 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 			pageStrBuilder.append("</body>");
 			pageStrBuilder.append("</html>");
 
-			log.debug(pageStrBuilder.toString());
+			// log.info(pageStrBuilder.toString());
 			
 			
 			java.io.PrintWriter out = res.getWriter();
@@ -238,7 +256,7 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		SymmetricKey  webUserSymmetricKey = null;
 		try {
 			ServerSessionKeyManager sessionKeyServerManger = ServerSessionKeyManager.getInstance();
-			webUserSymmetricKey = sessionKeyServerManger.getSymmetricKey("AES", CommonType.SymmetricKeyEncoding.BASE64, parmSessionKey, parmIV);
+			webUserSymmetricKey = sessionKeyServerManger.getSymmetricKey("AES", CommonType.SymmetricKeyEncoding.BASE64, parmSessionKeyBase64, parmIVBase64);
 		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			log.warn(errorMessage);
@@ -250,9 +268,9 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 			log.warn(errorMessage);
 			printMessagePage(req, res, errorMessage, errorMessage);
 			return;
-		}
+		}			
 		
-		req.setAttribute("pageIV", parmIV);
+		req.setAttribute("ivBase64", parmIVBase64);
 		req.setAttribute("webUserSymmetricKey", webUserSymmetricKey);
 		performTask(req,res);
 	}

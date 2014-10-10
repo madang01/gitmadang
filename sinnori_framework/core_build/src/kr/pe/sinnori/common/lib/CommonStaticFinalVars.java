@@ -70,4 +70,7 @@ public abstract class CommonStaticFinalVars {
 	public static final SelfExnServerCodec SELFEXN_SERVER_CODEC= new SelfExnServerCodec();
 
 	public static final Charset SINNORI_SOURCE_FILE_CHARSET = Charset.forName("UTF-8");
+	
+	public static final Charset SINNORI_PASSWORD_CHARSET = Charset.forName("UTF-8");
+	public static final String SINNORI_PASSWORD_ALGORITHM_NAME = "SHA-512";
 }

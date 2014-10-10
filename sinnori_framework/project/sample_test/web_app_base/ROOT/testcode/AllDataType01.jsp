@@ -1,12 +1,11 @@
-<%@ page language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="org.apache.commons.lang.StringEscapeUtils" %><%
-	kr.pe.sinnori.impl.message.AllDataType.AllDataType allDataTypeInObj = (kr.pe.sinnori.impl.message.AllDataType.AllDataType)request.getAttribute("allDataTypeInObj");
-
-	kr.pe.sinnori.impl.message.AllDataType.AllDataType allDataTypeOutObj = (kr.pe.sinnori.impl.message.AllDataType.AllDataType)request.getAttribute("allDataTypeOutObj");
-	
+<%@ page language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+%><%@ page import="org.apache.commons.lang.StringEscapeUtils" %><%
+%><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
+%><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
+%><jsp:useBean id="allDataTypeInObj" class="kr.pe.sinnori.impl.message.AllDataType.AllDataType" scope="request" /><%
+%><jsp:useBean id="allDataTypeOutObj" class="kr.pe.sinnori.impl.message.AllDataType.AllDataType" scope="request" /><%
+%><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%	
 	Boolean isSame = (Boolean) request.getAttribute("isSame");
-	
-	String errorMessage = (String) request.getAttribute("errorMessage");
 	
 	// errorMessage = "test error message";
 	
