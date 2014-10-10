@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.pr.sinnori.testweb">
+	<!--  아이디와 일치하는 회원 검색  -->
+    <select id="getMemberByID" parameterType="String" resultType="hashmap">
+        select * from member where userid=#{userid}
+    </select>
+    
+    <!-- 별명과 일치하는 회원 검색,  -->
+    <select id="getMemeberByNickname" parameterType="String" resultType="hashmap">
+        select * from member where nickname=#{nickname}
+    </select>
+    
+	<!--  일반 회원 가입, status 0:정상, 1:탈퇴, member_gubun 0:관리자, 1:일반회원, 2:불량회원 -->
+	<insert id="insertMember" parameterType="hashmap">
+        insert into member values(#{userid}, #{nickname}, #{password}, #{pwd_salt}, 1, 0, #{pwd_question}, #{pwd_answer}, 0, sysdate(), insert_date)
+    </insert>
+
+	<!--  일반 회원 혹은 불량 회원만 삭제, 관리자 제외. member_gubun 0:관리자, 1:일반회원, 2:불량회원 -->
+    <!--  >delete id="deleteMember" parameterType="java.lang.String">
+        delete from member where userid=#{userid} and (member_gubun=1 or member_gubun=2)
+    </delete -->
+
+	   
+    <!--  아이디와 일치하는 레코드에 읽기/쓰기 락을 거는 회원 검색, 로그인시 비밀번호 틀린 횟수를 1 증가시킬때 트랜잰션 처리를 위해 읽기/쓰기 락이 필요하다.  -->
+    <select id="getMemberByIDInLock" parameterType="String" resultType="hashmap">
+        select * from member where userid=#{userid} for update
+    </select>
+    
+    <!--  정상 상태인 일반 회원 로그인시 비밀번호 실패 카운터 설정, status 0:정상, 1:탈퇴, member_gubun 0:관리자, 1:일반회원, 2:불량회원  -->
+    <update id="updatePwdFailCnt" parameterType="hashmap">
+        update member set pwd_fail_cnt=#{pwd_fail_cnt}, last_modified_date=sysdate() where userid=#{userid} and member_gubun=1 and status=0
+    </update>
+    
+    <!--  정상 상태인 일반 혹은 관리자 회원 정보(비밀번호, 질문, 답변) 변경, status 0:정상, 1:탈퇴, member_gubun 0:관리자, 1:일반회원, 2:불량회원  -->
+    <update id="updateMemberInfo" parameterType="hashmap">
+        update member set password=#{password}, pwd_question=#{pwd_question}, pwd_answer=#{pwd_answer}, last_modified_date=sysdate() where userid=#{userid} and (member_gubun=0 or member_gubun=1) and status=0
+    </update>
+</mapper>
