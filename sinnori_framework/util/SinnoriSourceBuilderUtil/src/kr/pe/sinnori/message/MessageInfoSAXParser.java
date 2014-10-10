@@ -339,7 +339,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 
 			if (null != workItemGroupInfo.getItemInfo(arrayName)) {
 				// log.warn(String.format("11.error :: 배열 항목[%s] 필수 속성인 '배열 이름' 중복", startTag));
-				String errorMessage = String.format("11.error :: 배열 항목[%s] 필수 속성인 '배열 이름' 중복", startTag);
+				String errorMessage = String.format("배열 항목[%s] 필수 속성인 '배열 이름' 중복", startTag);
 				System.out.println(errorMessage);
 				isBadXML = true;
 				return;
@@ -467,7 +467,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 		if (endTag.equals("messageid")) {
 			if (tagValueStack.empty()) {
 				// log.warn("16.error :: 메시지 식별자는 필수 항목");
-				String errorMessage = "16.error :: 메시지 식별자는 필수 항목";
+				String errorMessage = "메시지 식별자는 필수 항목";
 				System.out.println(errorMessage);
 				
 				isBadXML = true;
@@ -489,7 +489,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 			}
 			
 			if (isFileNameCheck && !messageID.equals(tagValue)) {
-				String errorMessage = String.format("17.error ::메시지 정보 파일 이름으로 추출된 메시지 식별자[%s]와 메시지 정보 파일에서 지정한 메시지 식별자[%s]가 다릅니다.", t1, tagValue);
+				String errorMessage = String.format("메시지 정보 파일 이름으로 추출된 메시지 식별자[%s]와 메시지 정보 파일에서 지정한 메시지 식별자[%s]가 다릅니다.", messageID, tagValue);
 				System.out.println(errorMessage);
 				
 				isBadXML = true;
@@ -497,6 +497,15 @@ public class MessageInfoSAXParser extends DefaultHandler {
 			}
 			
 			// messageID = tagValue;
+			String regexMessageID = "[A-Z][a-zA-Z0-9]+";
+			boolean isValid = messageID.matches(regexMessageID);
+			if (!isValid) {
+				String errorMessage = String.format("메시지 식별자[%s]는 첫번째 글자는 대문자이어야 하고 두번째 문자부터는 영문과 숫자로 구성됩니다.", messageID);
+				System.out.println(errorMessage);
+				
+				isBadXML = true;
+				return;
+			}
 			
 			MessageInfo messageInfo = new MessageInfo(tagValue, xmlFile.lastModified());
 
@@ -504,7 +513,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 			
 		} else if (endTag.equals("direction")) {
 			if (tagValueStack.empty()) {
-				String errorMessage = "18.error :: 메시지 통신 방향은 필수 항목";
+				String errorMessage = "메시지 통신 방향은 필수 항목";
 				System.out.println(errorMessage);
 				
 				isBadXML = true;
@@ -526,7 +535,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 			} else if (tagValue.equals("FROM_ALL_TO_ALL")) {
 				messageInfo.setDirection(CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL);
 			} else {
-				String errorMessage = "19.error :: 알수 없는 메시지 통신 방향 값::"+tagValue;
+				String errorMessage = "알수 없는 메시지 통신 방향 값::"+tagValue;
 				System.out.println(errorMessage);
 				
 				isBadXML = true;

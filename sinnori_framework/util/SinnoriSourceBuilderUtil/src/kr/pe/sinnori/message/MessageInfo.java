@@ -51,7 +51,7 @@ public class MessageInfo implements ItemGroupInfoIF {
 	private HashMap<String, AbstractItemInfo> itemInfoHash = new HashMap<String, AbstractItemInfo>();
 		
 
-	public MessageInfo(String messageID, long lastModfied) {
+	public MessageInfo(String messageID, long lastModfied) {		
 		this.messageID = messageID;
 		this.lastModfied = new java.util.Date(lastModfied);
 		this.firstUpperMessageID = messageID.substring(0,1)+messageID.substring(1);

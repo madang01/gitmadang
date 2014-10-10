@@ -3,5 +3,5 @@
 %>
 회원 - body part
 <script>
-goURL("/PageJump.jsp?topmenu=<%=topmenu%>&targeturl=/member/login.jsp");
+goURL("/servlet/Login");
 </script>

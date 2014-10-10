@@ -270,7 +270,7 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 			return;
 		}			
 		
-		req.setAttribute("ivBase64", parmIVBase64);
+		req.setAttribute("parmIVBase64", parmIVBase64);
 		req.setAttribute("webUserSymmetricKey", webUserSymmetricKey);
 		performTask(req,res);
 	}

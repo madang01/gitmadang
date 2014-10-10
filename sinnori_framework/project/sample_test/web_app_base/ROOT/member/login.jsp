@@ -1,10 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
 %><%@ page import="kr.pe.sinnori.common.servlet.WebCommonStaticFinalVars" %><%
-	String topmenu = request.getParameter("topmenu");
-	String leftmenu = request.getParameter("leftmenu");
+%><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
+%><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
+%><jsp:useBean id="modulusHex" class="java.lang.String" scope="request" /><%
+	
 
-	kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager sessionKeyServerManger = kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager.getInstance();
-	String modulusHex = sessionKeyServerManger.getModulusHexStrForWeb();
+	
 %><script type="text/javascript" src="/js/jsbn/jsbn.js"></script>
 <script type="text/javascript" src="/js/jsbn/jsbn2.js"></script>
 <script type="text/javascript" src="/js/jsbn/prng4.js"></script>
@@ -130,7 +131,7 @@
 </script>
 <form method="post" name="gofrm" action="/servlet/Login">
 <input type="hidden" name="topmenu" value="<%=topmenu%>" />
-<input type="hidden" name="pagegubun" value="step2" />
+<input type="hidden" name="pageGubun" value="step2" />
 <input type="hidden" name="sessionkeyBase64" />
 <input type="hidden" name="ivBase64" />
 <input type="hidden" name="id" />

@@ -22,7 +22,6 @@ import java.lang.reflect.Field;
 
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
-import kr.pe.sinnori.common.protocol.dhb.header.DHBMessageHeader;
 
 /**
  * 입출력 메시지 클래스의 부모 추상화 클래스.<br/>
@@ -34,13 +33,28 @@ import kr.pe.sinnori.common.protocol.dhb.header.DHBMessageHeader;
 public abstract class AbstractMessage implements CommonRootIF {
 	protected String messageID = null;
 	
+	/**
+	 * 입력 받은 메세지 식별자의 유효성을 판별해 준다. 단 크기에 대해서는 검사하지 않는다.
+	 * 
+	 * @param messageID
+	 *            메세지 식별자
+	 * @return 입력 받은 "메세지 식별자"의 유효성 여부
+	 */
+	public static boolean IsValidMessageID(String messageID) {
+		// 첫자는 영문으로 시작하며 이후 문자는 영문과 숫자로 구성되는 문자열임을 검사한다.
+		// 특수 문자 제거를 위해서임
+		String regexMessageID = "[A-Z][a-zA-Z0-9]+";
+		boolean isValid = messageID.matches(regexMessageID);
+		return isValid;
+	}
+	
 
 	/** 메시지 운용에 필요한 메시지 헤더 정보 */
 	public MessageHeaderInfo messageHeaderInfo = new MessageHeaderInfo();
 
 	public AbstractMessage() {
 		messageID = this.getClass().getSimpleName();
-		if (!DHBMessageHeader.IsValidMessageID(messageID)) {
+		if (!AbstractMessage.IsValidMessageID(messageID)) {
 			String errorMessage = String.format("messageID[%s] is not valid", messageID);
 			log.error(errorMessage);
 			System.exit(1);

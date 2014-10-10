@@ -84,6 +84,21 @@ public class LoginServerTask extends AbstractServerTask {
 		
 		log.info(String.format("id=[%s], password=[%s]", id, password));
 		
+		/*String regexID = "^[A-Za-z][A-Za-z0-9]{3,14}$";
+		if (!id.matches(regexID)) {
+			outObj.setResultMessage("아이디["+id+"]는 첫 문자가 영문자 그리고 영문과 숫자로 구성되며 최소 4자, 최대 15자로 구성됩니다.");	
+			letterSender.addSyncMessage(outObj);
+			return;
+		}*/
+		
+		/*
+		 * var regexp_pwd = /^[A-Za-z0-9\`~!@\#$%<>\^&*\(\)\-=+_\'\[\]\{\}\\\|\:\;\"<>\?,\.\/]{8,15}$/;
+		var regexp_pwd_alphabet = /[A-Za-z]{1,}/;
+		var regexp_pwd_digit = /[0-9]{1,}/;
+		var regexp_pwd_special = /[\`~!@\#$%<>\^&*\(\)\-=+_\'\[\]\{\}\\\|\:\;\"<>\?,\.\/]{1,}/;
+		 */
+		//String regexPwd = "^[A-Za-z0-9`~!@#$%<>^&*\\(\\)-=+_'\\[\\]\\{\\}|:;\"<>?,./]{8,15}$";
+		
 		SqlSession session = sqlSessionFactory.openSession();
 		try {
 			HashMap<String, Object> memberHash = session.selectOne("getMemberByIDInLock", id);

@@ -1,7 +1,7 @@
 <%@ page language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><%@ page import="org.apache.commons.lang.StringEscapeUtils" %><%
 %><%@ page import="kr.pe.sinnori.common.servlet.WebCommonStaticFinalVars" %><%
-%><jsp:useBean id="ivBase64" class="java.lang.String" scope="request" /><%
+%><jsp:useBean id="parmIVBase64" class="java.lang.String" scope="request" /><%
 	
 	kr.pe.sinnori.common.sessionkey.SymmetricKey webUserSymmetricKey = 
 (kr.pe.sinnori.common.sessionkey.SymmetricKey)request.getAttribute("webUserSymmetricKey");
@@ -33,7 +33,7 @@ AbstractSessionKeyServlet 는  세션키 운영에 필요한 파라미터를 요
 </ul>
 <script type="text/javascript">
 <!--
-	var pageIV = CryptoJS.enc.Base64.parse("<%=ivBase64%>");	
+	var pageIV = CryptoJS.enc.Base64.parse("<%=parmIVBase64%>");	
 	
 	var privateKey = CryptoJS.enc.Base64.parse(sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_PRIVATEKEY_NAME%>'));
 	

@@ -210,7 +210,7 @@ public class MemberSvl extends AbstractServlet {
 			req.setAttribute("messageResultOutObj", messageResultOutObj);
 			req.setAttribute("webUserSymmetricKey", webUserSymmetricKey);
 			// req.setAttribute("errorMessage", errorMessage);
-			req.setAttribute("ivBase64", parmIVBase64);
+			req.setAttribute("parmIVBase64", parmIVBase64);
 		}
 
 		log.info(String.format("goPage[%s]", goPage));

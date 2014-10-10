@@ -22,7 +22,6 @@ import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
-import java.util.regex.Pattern;
 
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
@@ -116,20 +115,7 @@ public class DHBMessageHeader implements CommonRootIF {
 		return (messageIDFixedSize+ 2 + 4 + 8 + MD5_BYTESIZE);
 	}
 	
-	/**
-	 * 입력 받은 메세지 식별자의 유효성을 판별해 준다. 단 크기에 대해서는 검사하지 않는다.
-	 * 
-	 * @param messageID
-	 *            메세지 식별자
-	 * @return 입력 받은 "메세지 식별자"의 유효성 여부
-	 */
-	public static boolean IsValidMessageID(String messageID) {
-		// 첫자는 영문으로 시작하며 이후 문자는 영문과 숫자로 구성되는 문자열임을 검사한다.
-		// 특수 문자 제거를 위해서임
-		Pattern p = Pattern.compile("[[a-zA-Z][a-zA-Z0-9]]+");
-		boolean isValid = p.matcher(messageID).matches();
-		return isValid;
-	}
+	
 	
 	/**
 	 * 메시지 헤더의 내용을 목적지 버퍼에 저장한다. <br/>

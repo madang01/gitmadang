@@ -3,7 +3,7 @@
 %><%@ page import="org.apache.commons.lang.StringEscapeUtils" %><%
 %><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="ivBase64" class="java.lang.String" scope="request" /><%
+%><jsp:useBean id="parmIVBase64" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="messageResultOutObj" class="kr.pe.sinnori.impl.message.MessageResult.MessageResult" scope="request" /><%
 
 	kr.pe.sinnori.common.sessionkey.SymmetricKey webUserSymmetricKey = (kr.pe.sinnori.common.sessionkey.SymmetricKey)request.getAttribute("webUserSymmetricKey");
@@ -35,7 +35,7 @@ if (taskResult.equals("Y")) {
 <script type="text/javascript">
 <!--
 	function init() {
-		var pageIV = CryptoJS.enc.Base64.parse("<%=ivBase64%>");
+		var pageIV = CryptoJS.enc.Base64.parse("<%=parmIVBase64%>");
 		var privateKey = CryptoJS.enc.Base64.parse(sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_PRIVATEKEY_NAME%>'));
 
 		var resultMessage = CryptoJS.AES.decrypt("<%=webUserSymmetricKey.encryptStringBase64(StringEscapeUtils.escapeHtml(messageResultOutObj.toString()))%>", privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: pageIV });
