@@ -23,7 +23,7 @@ import kr.pe.sinnori.common.protocol.MessageCodecIF;
 
 /**
  * Echo 서버 코덱
- * @author Jonghoon won
+ * @author Won Jonghoon
  *
  */
 public final class EchoServerCodec implements MessageCodecIF {

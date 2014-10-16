@@ -348,6 +348,8 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 				System.out.println("AllMessageInfoPathReadButtonAction::"+e.toString());
 				// JOptionPane.showMessageDialog(parentComponent, "IOCheckboxAction::call::"+messageInfoPathTextField.getText());
 				messageInfoManager.readAllMessageInfo();
+				
+				JOptionPane.showMessageDialog(mainFrame, "메시지 정보 전체 다시 읽기가 완료 되었습니다.");
 			}
 		}
 		
@@ -415,6 +417,8 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 				System.out.println("AllMessageInfoPathReadButtonAction::"+e.toString());
 				// JOptionPane.showMessageDialog(parentComponent, "IOCheckboxAction::call::"+messageInfoPathTextField.getText());
 				messageInfoManager.readMessageInfoWithSearchKeyword();
+				
+				JOptionPane.showMessageDialog(mainFrame, "검색 완료 되었습니다.");
 			}
 		}
 		searchKeywordButton.addActionListener(new SearchKeyWordAction(this));
@@ -583,7 +587,7 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
     			}
     			    			
     			values[i][3] = new MessageInfoFileCellValue(i, messageInfoFile, messageInfo, MultiSourceBuilderScreen.this, mainFrame);
-    			values[i][4] = new SourceFileCellValue(messageInfo, MultiSourceBuilderScreen.this);
+    			values[i][4] = new SourceFileCellValue(messageInfo, MultiSourceBuilderScreen.this, mainFrame);
     			if (progressMonitor.isCanceled())  {
     				return null;
     			}
@@ -658,8 +662,6 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 		AllMessageInfoTask allMessageInfoTask = new AllMessageInfoTask(MESSAGE_INFO_SEARCH_GUBUN.NO_SEARCH_KEYWORD);
         // task.addPropertyChangeListener(mainFrame);
 		allMessageInfoTask.execute();
-		
-			
 	}
 	
 	@Override
@@ -693,7 +695,7 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 	}
 	
 	@Override
-	public void createSourceFile(boolean isSelectedIO, boolean isSelectedDirection, kr.pe.sinnori.common.message.MessageInfo messageInfo) {
+	public boolean createSourceFile(boolean isSelectedIO, boolean isSelectedDirection, kr.pe.sinnori.common.message.MessageInfo messageInfo) {
 		String sourcePath1Text = sourceBasePath1TextField.getText();
 		String sourcePath2Text = sourceBasePath2TextField.getText();
 		String sourcePath3Text = sourceBasePath3TextField.getText();
@@ -722,7 +724,7 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 			
 			if (null == oneSourcePath) {
 				sourceBasePath1TextField.requestFocusInWindow();
-				return;
+				return false;
 			}
 			sourceBasePathList.add(oneSourcePath);
 		}
@@ -732,7 +734,7 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 			
 			if (null == oneSourcePath) {
 				sourceBasePath2TextField.requestFocusInWindow();
-				return;
+				return false;
 			}
 			
 			sourceBasePathList.add(oneSourcePath);
@@ -743,7 +745,7 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 			
 			if (null == oneSourcePath) {
 				sourceBasePath3TextField.requestFocusInWindow();
-				return;
+				return false;
 			}
 			
 			sourceBasePathList.add(oneSourcePath);
@@ -753,13 +755,13 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 			JOptionPane.showMessageDialog(mainFrame, "소스 저장 위치 3개중 최소 1개에 값이 있어야 합니다.");
 			
 			sourceBasePath1TextField.requestFocusInWindow();
-			return;
+			return false;
 		}
 		
 		if (author.equals("")) {
 			JOptionPane.showMessageDialog(mainFrame, "저자 이름을 넣어 주세요.");
 			authorTextField.requestFocusInWindow();
-			return;
+			return false;
 		}
 		
 		FileOutputStream fos = null;
@@ -797,7 +799,7 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 						String errorMessage = String.format("메시지 파일[%s] 신규 생성 실패", messageFile.getAbsolutePath());
 						System.out.println(errorMessage);
 						JOptionPane.showMessageDialog(mainFrame, errorMessage);
-						return;
+						return false;
 					}
 				}
 				
@@ -805,7 +807,7 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 					String errorMessage = String.format("메시지 파일[%s] 쓰기 권한이 없습니다.", messageFile.getAbsolutePath());
 					System.out.println(errorMessage);
 					JOptionPane.showMessageDialog(mainFrame, errorMessage);
-					return;
+					return false;
 				}
 				
 				try {
@@ -818,12 +820,12 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 					String errorMessage = String.format("메시지 파일[%s] 이 존재하지 않습니다.", messageFile.getAbsolutePath());
 					System.out.println(errorMessage);
 					JOptionPane.showMessageDialog(mainFrame, errorMessage);
-					return;
+					return false;
 				} catch (IOException e) {
 					String errorMessage = String.format("메시지 파일[%s] 쓰기 에러, %s", messageFile.getAbsolutePath(), e.getMessage());
 					System.out.println(errorMessage);
 					JOptionPane.showMessageDialog(mainFrame, errorMessage);
-					return;
+					return false;
 				} finally {
 					try {
 						fos.close();
@@ -839,7 +841,7 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 						String errorMessage = String.format("메시지 인코더 파일[%s] 신규 생성 실패", messageEncoderFile.getAbsolutePath());
 						System.out.println(errorMessage);
 						JOptionPane.showMessageDialog(mainFrame, errorMessage);
-						return;
+						return false;
 					}
 				}
 				
@@ -847,7 +849,7 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 					String errorMessage = String.format("메시지 인코더 파일[%s] 쓰기 권한이 없습니다.", messageEncoderFile.getAbsolutePath());
 					System.out.println(errorMessage);
 					JOptionPane.showMessageDialog(mainFrame, errorMessage);
-					return;
+					return false;
 				}
 				
 				try {
@@ -860,12 +862,12 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 					String errorMessage = String.format("메시지 인코더 파일[%s] 이 존재하지 않습니다.", messageEncoderFile.getAbsolutePath());
 					System.out.println(errorMessage);
 					JOptionPane.showMessageDialog(mainFrame, errorMessage);
-					return;
+					return false;
 				} catch (IOException e) {
 					String errorMessage = String.format("메시지 인코더 파일[%s] 쓰기 에러, %s", messageEncoderFile.getAbsolutePath(), e.getMessage());
 					System.out.println(errorMessage);
 					JOptionPane.showMessageDialog(mainFrame, errorMessage);
-					return;
+					return false;
 				} finally {
 					try {
 						fos.close();
@@ -881,7 +883,7 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 						String errorMessage = String.format("메시지 디코더 파일[%s] 신규 생성 실패", messageDecoderFile.getAbsolutePath());
 						System.out.println(errorMessage);
 						JOptionPane.showMessageDialog(mainFrame, errorMessage);
-						return;
+						return false;
 					}
 				}
 				
@@ -889,7 +891,7 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 					String errorMessage = String.format("메시지 디코더 파일[%s] 쓰기 권한이 없습니다.", messageDecoderFile.getAbsolutePath());
 					System.out.println(errorMessage);
 					JOptionPane.showMessageDialog(mainFrame, errorMessage);
-					return;
+					return false;
 				}
 				
 				try {
@@ -902,12 +904,12 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 					String errorMessage = String.format("메시지 디코더 파일[%s] 이 존재하지 않습니다.", messageDecoderFile.getAbsolutePath());
 					System.out.println(errorMessage);
 					JOptionPane.showMessageDialog(mainFrame, errorMessage);
-					return;
+					return false;
 				} catch (IOException e) {
 					String errorMessage = String.format("메시지 디코더 파일[%s] 쓰기 에러, %s", messageDecoderFile.getAbsolutePath(), e.getMessage());
 					System.out.println(errorMessage);
 					JOptionPane.showMessageDialog(mainFrame, errorMessage);
-					return;
+					return false;
 				} finally {
 					try {
 						fos.close();
@@ -928,7 +930,7 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 						String errorMessage = String.format("메시지 서버 코덱 파일[%s] 신규 생성 실패", messageServerCodecFile.getAbsolutePath());
 						System.out.println(errorMessage);
 						JOptionPane.showMessageDialog(mainFrame, errorMessage);
-						return;
+						return false;
 					}
 				}
 				
@@ -936,7 +938,7 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 					String errorMessage = String.format("메시지 서버 코덱 파일[%s] 쓰기 권한이 없습니다.", messageServerCodecFile.getAbsolutePath());
 					System.out.println(errorMessage);
 					JOptionPane.showMessageDialog(mainFrame, errorMessage);
-					return;
+					return false;
 				}
 				
 				try {
@@ -949,12 +951,12 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 					String errorMessage = String.format("메시지 서버 코덱 파일[%s] 이 존재하지 않습니다.", messageServerCodecFile.getAbsolutePath());
 					System.out.println(errorMessage);
 					JOptionPane.showMessageDialog(mainFrame, errorMessage);
-					return;
+					return false;
 				} catch (IOException e) {
 					String errorMessage = String.format("메시지 서버 코덱 파일[%s] 쓰기 에러, %s", messageServerCodecFile.getAbsolutePath(), e.getMessage());
 					System.out.println(errorMessage);
 					JOptionPane.showMessageDialog(mainFrame, errorMessage);
-					return;
+					return false;
 				} finally {
 					try {
 						fos.close();
@@ -970,7 +972,7 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 						String errorMessage = String.format("메시지 클라이언트 코덱 파일[%s] 신규 생성 실패", messageClientCodecFile.getAbsolutePath());
 						System.out.println(errorMessage);
 						JOptionPane.showMessageDialog(mainFrame, errorMessage);
-						return;
+						return false;
 					}
 				}
 				
@@ -978,7 +980,7 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 					String errorMessage = String.format("메시지 클라이언트 코덱 파일[%s] 쓰기 권한이 없습니다.", messageClientCodecFile.getAbsolutePath());
 					System.out.println(errorMessage);
 					JOptionPane.showMessageDialog(mainFrame, errorMessage);
-					return;
+					return false;
 				}
 				
 				try {
@@ -991,12 +993,12 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 					String errorMessage = String.format("메시지 클라이언트 코덱 파일[%s] 이 존재하지 않습니다.", messageClientCodecFile.getAbsolutePath());
 					System.out.println(errorMessage);
 					JOptionPane.showMessageDialog(mainFrame, errorMessage);
-					return;
+					return false;
 				} catch (IOException e) {
 					String errorMessage = String.format("메시지 클라이언트 코덱 파일[%s] 쓰기 에러, %s", messageClientCodecFile.getAbsolutePath(), e.getMessage());
 					System.out.println(errorMessage);
 					JOptionPane.showMessageDialog(mainFrame, errorMessage);
-					return;
+					return false;
 				} finally {
 					try {
 						fos.close();
@@ -1006,6 +1008,7 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 				}
 			}
 		}
+		return true;
 	}
  
 	// FIXME!
@@ -1090,12 +1093,24 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 		for (int i=0; i < rowCount; i++) {
 			SourceFileCellValue sourceFileCellValue = (SourceFileCellValue)sourceBuilderTableModel.getValueAt(i, 4);
 			sourceFileCellValue.createSourceFile();
-		}	
+		}
+		
+		JOptionPane.showMessageDialog(mainFrame, "IO와 방향성 옵션에 영향 받는 소스 전체 생성이 완료 되었습니다.");
 	}
 
 	@Override
 	public void retry(int row, MessageInfo messageInfo) {
-		sourceBuilderTableModel.setValueAt(messageInfo.getDirection().toString(), row, 1);
+		String directionStr = null;
+		if (messageInfo.getDirection() == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL) {
+			directionStr = "양방향";
+		} else if (messageInfo.getDirection() == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_CLIENT_TO_SERVER) {
+			directionStr = "client -> server";
+		} else if (messageInfo.getDirection() == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_SERVER_TO_CLINET) {
+			directionStr = "server -> client";
+		} else {
+			directionStr = "무방향";
+		}
+		sourceBuilderTableModel.setValueAt(directionStr, row, 2);
 		SourceFileCellValue sourceFileCellValue = (SourceFileCellValue)sourceBuilderTableModel.getValueAt(row, 4);
 		sourceFileCellValue.setMessageInfo(messageInfo);
 		scrollPane.repaint();

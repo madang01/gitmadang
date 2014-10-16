@@ -23,7 +23,7 @@ import kr.pe.sinnori.common.protocol.MessageCodecIF;
 
 /**
  * BigUInt 서버 코덱
- * @author Jonghoon won
+ * @author Won Jonghoon
  *
  */
 public final class BigUIntServerCodec implements MessageCodecIF {

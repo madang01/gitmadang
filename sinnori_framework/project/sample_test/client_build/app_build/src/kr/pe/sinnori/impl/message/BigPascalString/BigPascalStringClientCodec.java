@@ -23,7 +23,7 @@ import kr.pe.sinnori.common.protocol.MessageCodecIF;
 
 /**
  * BigPascalString 클라이언트 코덱
- * @author Jonghoon won
+ * @author Won Jonghoon
  *
  */
 public final class BigPascalStringClientCodec implements MessageCodecIF {

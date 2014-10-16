@@ -24,7 +24,7 @@ import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
 
 /**
  * BigUByte 메시지 인코더
- * @author Jonghoon won
+ * @author Won Jonghoon
  *
  */
 public final class BigUByteEncoder extends MessageEncoder {

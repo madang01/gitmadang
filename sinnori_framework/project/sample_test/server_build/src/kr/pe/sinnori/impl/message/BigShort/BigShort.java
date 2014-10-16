@@ -19,7 +19,7 @@ package kr.pe.sinnori.impl.message.BigShort;
 import kr.pe.sinnori.common.message.AbstractMessage;
 /**
  * BigShort 메시지
- * @author Jonghoon won
+ * @author Won Jonghoon
  *
  */
 public final class BigShort extends AbstractMessage {

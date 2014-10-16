@@ -23,7 +23,7 @@ import kr.pe.sinnori.common.protocol.MessageCodecIF;
 
 /**
  * BigByte 클라이언트 코덱
- * @author Jonghoon won
+ * @author Won Jonghoon
  *
  */
 public final class BigByteClientCodec implements MessageCodecIF {

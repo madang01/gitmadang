@@ -57,13 +57,13 @@ public class ValueChecker {
 			throw new RuntimeException("비밀번호는 영문, 숫자 그리고 문장부호 조합으로 최소 8자 최대 15자로 구성됩니다.");
 		}
 		
-		String regexPwdAlpha = "\\p{Alpha}{1,}";
+		String regexPwdAlpha = ".*\\p{Alpha}{1,}.*";
 		isValid = password.matches(regexPwdAlpha);
 		if (!isValid) {
 			throw new RuntimeException("비밀번호는 영문을 최소 1문자 포함해야 합니다.");
 		}
 		
-		String regexPwdDigit = "\\p{Digit}{1,}";
+		String regexPwdDigit = ".*\\p{Digit}{1,}.*";
 		isValid = password.matches(regexPwdDigit);
 		if (!isValid) {
 			throw new RuntimeException("비밀번호는 숫자를 최소 1문자 포함해야 합니다.");
@@ -72,7 +72,7 @@ public class ValueChecker {
 		/**
 		 * \p{Punct} : !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
 		 */
-		String regexPwdPunct = "\\p{Punct}{1,}";
+		String regexPwdPunct = ".*\\p{Punct}{1,}.*";
 		isValid = password.matches(regexPwdPunct);
 		if (!isValid) {
 			throw new RuntimeException("비밀번호는 문장부호를 최소 1문자 포함해야 합니다.");

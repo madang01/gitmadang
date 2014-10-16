@@ -24,7 +24,7 @@ import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
 
 /**
  * BigShort 메시지 인코더
- * @author Jonghoon won
+ * @author Won Jonghoon
  *
  */
 public final class BigShortEncoder extends MessageEncoder {

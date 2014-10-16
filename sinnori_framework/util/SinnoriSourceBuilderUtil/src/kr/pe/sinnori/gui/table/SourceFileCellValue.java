@@ -1,10 +1,12 @@
 package kr.pe.sinnori.gui.table;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import kr.pe.sinnori.screen.SourceManagerIF;
@@ -15,7 +17,7 @@ import kr.pe.sinnori.screen.SourceManagerIF;
 public class SourceFileCellValue extends JPanel {	
 	private kr.pe.sinnori.common.message.MessageInfo messageInfo = null;
 	private SourceManagerIF sourceManager = null;;
-	// private Component parentComponent = null;
+	private Component parentComponent = null;
 	
 	private JCheckBox ioCheckBox = null;
 	private JCheckBox directionCheckBox = null;
@@ -44,15 +46,30 @@ public class SourceFileCellValue extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			System.out.println("SourceFileCreateButtonAction::"+e.toString()+"::"+messageInfo.getMessageID());
 			
-			sourceManager.createSourceFile(ioCheckBox.isSelected(), directionCheckBox.isSelected(), messageInfo);
+			boolean isSuccess = sourceManager.createSourceFile(ioCheckBox.isSelected(), directionCheckBox.isSelected(), messageInfo);
+			if (isSuccess) {
+				StringBuilder messageBuilder = new StringBuilder("메시지[");
+				messageBuilder.append(messageInfo.getMessageID());
+				messageBuilder.append("] ");
+				if (ioCheckBox.isSelected()) {
+					messageBuilder.append("IO 소스 ");
+				}
+				if (directionCheckBox.isSelected()) {
+					messageBuilder.append("방향성 소스 ");
+				}
+				
+				messageBuilder.append("생성이 완료 되었습니다.");
+				
+				JOptionPane.showMessageDialog(parentComponent, messageBuilder.toString());
+			}			
 		}
 	}
 	
 	public SourceFileCellValue(kr.pe.sinnori.common.message.MessageInfo messageInfo, 
-			SourceManagerIF sourceManager) {
+			SourceManagerIF sourceManager, Component parentComponent) {
 		this.messageInfo = messageInfo;
 		this.sourceManager = sourceManager;
-		// this.parentComponent = parentComponent;
+		this.parentComponent = parentComponent;
 		
 		ioCheckBox = new JCheckBox("IO", true);
 		directionCheckBox = new JCheckBox("방향성", true);

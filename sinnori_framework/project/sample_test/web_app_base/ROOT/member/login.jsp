@@ -22,6 +22,7 @@
 		var f = document.frm;
 		f.id.value =  "test00";
 		f.pwd.value =  "test1234$";
+		// f.pwd.value =  "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~$";
 	}
 
 	window.onload = init;
@@ -30,12 +31,14 @@
 		var f = document.frm;
 		var g = document.gofrm;
 		
-		var regexp_id = /^[A-Za-z][A-Za-z0-9]{3,14}$/;
-		var regexp_pwd = /^[A-Za-z0-9\`~!@\#$%<>\^&*\(\)\-=+_\'\[\]\{\}\\\|\:\;\"<>\?,\.\/]{8,15}$/;
-		var regexp_pwd_alphabet = /[A-Za-z]{1,}/;
-		var regexp_pwd_digit = /[0-9]{1,}/;
-		var regexp_pwd_special = /[\`~!@\#$%<>\^&*\(\)\-=+_\'\[\]\{\}\\\|\:\;\"<>\?,\.\/]{1,}/;
- 			
+		var regexID = /^[A-Za-z][A-Za-z0-9]{3,14}$/;
+		var regexPwd = /^[A-Za-z0-9\`~!@\#$%<>\^&*\(\)\-=+_\'\[\]\{\}\\\|\:\;\"<>\?,\.\/]{8,50}$/;
+		var regexPwdAlpha = /.*[A-Za-z]{1,}.*/;
+		var regexPwdDigit = /.*[0-9]{1,}.*/;
+		//var regexPwdPunct = /.*[\`~!@\#$%<>\^&*\(\)\-=+_\'\[\]\{\}\\\|\:\;\"<>\?,\.\/]{1,}.*/;
+		var regexPwdPunct = /.*[\!\"#$%&'()*+,\-\.\/:;<=>\?@\[\\\]^_`\{\|\}~]{1,}.*/;
+
+		 			
 		if(typeof(Storage) == "undefined") {
 		    alert("Sorry! No web storage support..");
 		    return;
@@ -47,7 +50,7 @@
 		    return;
 		}
 		
-		if (!regexp_id.test(f.id.value)) {
+		if (!regexID.test(f.id.value)) {
 		    alert("아이디는 첫 문자가 영문자 그리고 영문과 숫자로만 최소 4자, 최대 15자로 구성됩니다. 다시 입력해 주세요.");
 		    f.id.value = '';
 		    f.id.focus();
@@ -61,13 +64,6 @@
 		}
 		
 		
-		if (!regexp_pwd.test(f.pwd.value)) {
-		    alert("비밀번호는 영문, 숫자 그리고 특수문자 조합으로 최소 8자, 최대 15자로 구성됩니다. 다시 입력해 주세요.");
-		    f.pwd.value = '';
-		    f.pwd.focus();
-		    return;
-		}
-
 		/*
 		for( var i=0; i< f.pwd.value.length; i++){
 			if(regexp_pwd.test(f.pwd.value.charAt(i)) == false ){
@@ -77,21 +73,28 @@
 		}
 		*/	
 
-		if (!regexp_pwd_alphabet.test(f.pwd.value)) {
+		if (!regexPwd.test(f.pwd.value)) {
+		    alert("비밀번호는 영문, 숫자 그리고 특수문자 조합으로 최소 8자, 최대 15자로 구성됩니다. 다시 입력해 주세요.");
+		    f.pwd.value = '';
+		    f.pwd.focus();
+		    return;
+		}
+		
+		if (!regexPwdAlpha.test(f.pwd.value)) {
 		    alert("비밀번호는 최소 영문 1자가 포함되어야 합니다. 다시 입력해 주세요.");
 		    f.pwd.value = '';
 		    f.pwd.focus();
 		    return;
 		}
 
-		if (!regexp_pwd_digit.test(f.pwd.value)) {
+		if (!regexPwdDigit.test(f.pwd.value)) {
 		    alert("비밀번호는 최소 숫자 1자가 포함되어야 합니다. 다시 입력해 주세요.");
 		    f.pwd.value = '';
 		    f.pwd.focus();
 		    return;
 		}
 
-		if (!regexp_pwd_special.test(f.pwd.value)) {
+		if (!regexPwdPunct.test(f.pwd.value)) {
 		    alert("비밀번호는 최소 특수문자 1자가 포함되어야 합니다. 다시 입력해 주세요.");
 		    f.pwd.value = '';
 		    f.pwd.focus();

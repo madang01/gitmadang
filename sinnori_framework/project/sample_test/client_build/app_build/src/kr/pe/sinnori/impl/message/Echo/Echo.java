@@ -19,7 +19,7 @@ package kr.pe.sinnori.impl.message.Echo;
 import kr.pe.sinnori.common.message.AbstractMessage;
 /**
  * Echo 메시지
- * @author Jonghoon won
+ * @author Won Jonghoon
  *
  */
 public final class Echo extends AbstractMessage {

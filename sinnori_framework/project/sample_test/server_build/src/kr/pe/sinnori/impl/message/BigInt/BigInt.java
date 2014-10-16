@@ -19,7 +19,7 @@ package kr.pe.sinnori.impl.message.BigInt;
 import kr.pe.sinnori.common.message.AbstractMessage;
 /**
  * BigInt 메시지
- * @author Jonghoon won
+ * @author Won Jonghoon
  *
  */
 public final class BigInt extends AbstractMessage {

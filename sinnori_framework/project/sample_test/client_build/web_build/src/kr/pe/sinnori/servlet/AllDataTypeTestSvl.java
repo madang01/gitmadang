@@ -28,6 +28,7 @@ import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.servlet.AbstractServlet;
 import kr.pe.sinnori.impl.message.AllDataType.AllDataType;
+import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
 
 /**
  * 모든 데이터 타입을 갖는 AllDataType 메시지 교환 테스트
@@ -149,8 +150,13 @@ public class AllDataTypeTestSvl extends AbstractServlet {
 			
 			req.setAttribute("allDataTypeOutObj", allDataTypeOutObj);			
 		} else {
-			errorMessage = messageFromServer.toString();
-			log.warn(errorMessage);
+			errorMessage = "모든 데이터 타입 응답 메시지를 얻는데 실패하였습니다.";
+			
+			if (!(messageFromServer instanceof SelfExn)) {
+				log.warn("입력 메시지[{}]의 응답 메시지로 알 수 없는 메시지 도착, 응답 메시지=[{}]", allDataTypeInObj.toString(), messageFromServer.toString());
+			} else {
+				log.warn("입력 메시지[{}]의 응답 메시지로 SelfExn 메시지 도착, 응답 메시지=[{}]", allDataTypeInObj.toString(), messageFromServer.toString());
+			}
 		}		
 		
 		req.setAttribute("isSame", isSame);

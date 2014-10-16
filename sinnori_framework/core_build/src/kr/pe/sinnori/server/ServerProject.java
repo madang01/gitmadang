@@ -121,7 +121,7 @@ public class ServerProject extends AbstractProject
 	private ServerProjectConfig serverProjectConfig = null;
 	
 	
-	private SinnoriClassLoader mybatisConfigClassLoader = null;
+	// private SinnoriClassLoader mybatisConfigClassLoader = null;
 	private SqlSessionFactory factory = null;
 	
 	/**
@@ -208,9 +208,12 @@ public class ServerProject extends AbstractProject
 		serverProjectMonitor = new ServerProjectMonitor(serverProjectConfig.getServerMonitorTimeInterval(), serverProjectConfig.getServerRequestTimeout());
 		
 		
-		mybatisConfigClassLoader = new SinnoriClassLoader(sytemClassLoader, dynamicClassBinaryBasePath, dynamicClassBasePackageName);
+		SinnoriClassLoader mybatisConfigClassLoader = new SinnoriClassLoader(sytemClassLoader, dynamicClassBinaryBasePath, dynamicClassBasePackageName);
 				
 		Resources.setDefaultClassLoader(mybatisConfigClassLoader);
+		// Resources.
+		// Resources.getResourceAsSt
+		
 		try {
 			InputStream is = Resources.getResourceAsStream(serverProjectConfig.getMybatisConfigFileName());
 			

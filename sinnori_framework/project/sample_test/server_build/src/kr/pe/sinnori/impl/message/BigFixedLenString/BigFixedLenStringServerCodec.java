@@ -23,7 +23,7 @@ import kr.pe.sinnori.common.protocol.MessageCodecIF;
 
 /**
  * BigFixedLenString 서버 코덱
- * @author Jonghoon won
+ * @author Won Jonghoon
  *
  */
 public final class BigFixedLenStringServerCodec implements MessageCodecIF {

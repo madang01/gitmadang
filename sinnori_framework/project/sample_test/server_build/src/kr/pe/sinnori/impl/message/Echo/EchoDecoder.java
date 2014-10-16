@@ -24,7 +24,7 @@ import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 
 /**
  * Echo 메시지 디코더
- * @author Jonghoon won
+ * @author Won Jonghoon
  *
  */
 public final class EchoDecoder extends MessageDecoder {

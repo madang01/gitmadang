@@ -19,7 +19,7 @@ package kr.pe.sinnori.impl.message.BigUByte;
 import kr.pe.sinnori.common.message.AbstractMessage;
 /**
  * BigUByte 메시지
- * @author Jonghoon won
+ * @author Won Jonghoon
  *
  */
 public final class BigUByte extends AbstractMessage {
