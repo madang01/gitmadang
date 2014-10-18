@@ -55,14 +55,16 @@ public final class BoardListResponseDecoder extends MessageDecoder {
 		, charsetOfProject
 		, middleReadObj));
 
-		Object boardMiddleReadArray = singleItemDecoder.getArrayObjFromMiddleReadObj(sigleItemPath0, "board", boardListResponse.getCnt(), middleReadObj);
-		BoardListResponse.Board[] boardList = new BoardListResponse.Board[boardListResponse.getCnt()];
-		for (int i=0; i < boardList.length; i++) {
+		int boardListSize = boardListResponse.getCnt();
+		Object boardMiddleReadArray = singleItemDecoder.getArrayObjFromMiddleReadObj(sigleItemPath0, "board", boardListSize, middleReadObj);
+		java.util.List<BoardListResponse.Board> boardList = new java.util.ArrayList<BoardListResponse.Board>();
+		for (int i=0; i < boardListSize; i++) {
 			String sigleItemPath1 = new StringBuilder(sigleItemPath0).append(".").append("Board[").append(i).append("]").toString();
 			Object boardMiddleReadObj = singleItemDecoder.getMiddleReadObjFromArrayObj(sigleItemPath1, boardMiddleReadArray, i);
-			boardList[i] = boardListResponse. new Board();
+			BoardListResponse.Board board = new BoardListResponse.Board();
+			boardList.add(board);
 
-			boardList[i].setBoardNO((Long)
+			board.setBoardNO((Long)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
 			, "boardNO" // itemName
 			, 6 // itemTypeID
@@ -72,7 +74,7 @@ public final class BoardListResponseDecoder extends MessageDecoder {
 			, charsetOfProject
 			, boardMiddleReadObj));
 
-			boardList[i].setGroupNO((Long)
+			board.setGroupNO((Long)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
 			, "groupNO" // itemName
 			, 6 // itemTypeID
@@ -82,7 +84,7 @@ public final class BoardListResponseDecoder extends MessageDecoder {
 			, charsetOfProject
 			, boardMiddleReadObj));
 
-			boardList[i].setParentNO((Long)
+			board.setParentNO((Long)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
 			, "parentNO" // itemName
 			, 6 // itemTypeID
@@ -92,7 +94,7 @@ public final class BoardListResponseDecoder extends MessageDecoder {
 			, charsetOfProject
 			, boardMiddleReadObj));
 
-			boardList[i].setGroupSeq((Long)
+			board.setGroupSeq((Long)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
 			, "groupSeq" // itemName
 			, 6 // itemTypeID
@@ -102,7 +104,7 @@ public final class BoardListResponseDecoder extends MessageDecoder {
 			, charsetOfProject
 			, boardMiddleReadObj));
 
-			boardList[i].setDepth((Integer)
+			board.setDepth((Integer)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
 			, "depth" // itemName
 			, 4 // itemTypeID
@@ -112,7 +114,7 @@ public final class BoardListResponseDecoder extends MessageDecoder {
 			, charsetOfProject
 			, boardMiddleReadObj));
 
-			boardList[i].setBoardTypeID((Long)
+			board.setBoardTypeID((Long)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
 			, "boardTypeID" // itemName
 			, 6 // itemTypeID
@@ -122,7 +124,7 @@ public final class BoardListResponseDecoder extends MessageDecoder {
 			, charsetOfProject
 			, boardMiddleReadObj));
 
-			boardList[i].setTitle((String)
+			board.setTitle((String)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
 			, "title" // itemName
 			, 7 // itemTypeID
@@ -132,7 +134,7 @@ public final class BoardListResponseDecoder extends MessageDecoder {
 			, charsetOfProject
 			, boardMiddleReadObj));
 
-			boardList[i].setContents((String)
+			board.setContents((String)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
 			, "contents" // itemName
 			, 9 // itemTypeID
@@ -142,7 +144,7 @@ public final class BoardListResponseDecoder extends MessageDecoder {
 			, charsetOfProject
 			, boardMiddleReadObj));
 
-			boardList[i].setUserID((String)
+			board.setUserID((String)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
 			, "userID" // itemName
 			, 7 // itemTypeID
@@ -152,7 +154,7 @@ public final class BoardListResponseDecoder extends MessageDecoder {
 			, charsetOfProject
 			, boardMiddleReadObj));
 
-			boardList[i].setViewCnt((Integer)
+			board.setViewCnt((Integer)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
 			, "viewCnt" // itemName
 			, 4 // itemTypeID
@@ -162,7 +164,7 @@ public final class BoardListResponseDecoder extends MessageDecoder {
 			, charsetOfProject
 			, boardMiddleReadObj));
 
-			boardList[i].setVotes((Integer)
+			board.setVotes((Integer)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
 			, "votes" // itemName
 			, 4 // itemTypeID
@@ -172,7 +174,7 @@ public final class BoardListResponseDecoder extends MessageDecoder {
 			, charsetOfProject
 			, boardMiddleReadObj));
 
-			boardList[i].setIsDeleted((String)
+			board.setIsDeleted((String)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
 			, "isDeleted" // itemName
 			, 7 // itemTypeID
@@ -182,7 +184,7 @@ public final class BoardListResponseDecoder extends MessageDecoder {
 			, charsetOfProject
 			, boardMiddleReadObj));
 
-			boardList[i].setCreateDate((java.sql.Timestamp)
+			board.setCreateDate((java.sql.Timestamp)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
 			, "createDate" // itemName
 			, 16 // itemTypeID
@@ -192,7 +194,7 @@ public final class BoardListResponseDecoder extends MessageDecoder {
 			, charsetOfProject
 			, boardMiddleReadObj));
 
-			boardList[i].setLastModifiedDate((java.sql.Timestamp)
+			board.setLastModifiedDate((java.sql.Timestamp)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
 			, "lastModifiedDate" // itemName
 			, 16 // itemTypeID
@@ -202,7 +204,7 @@ public final class BoardListResponseDecoder extends MessageDecoder {
 			, charsetOfProject
 			, boardMiddleReadObj));
 
-			boardList[i].setMemberGubun((Integer)
+			board.setMemberGubun((Integer)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
 			, "memberGubun" // itemName
 			, 4 // itemTypeID

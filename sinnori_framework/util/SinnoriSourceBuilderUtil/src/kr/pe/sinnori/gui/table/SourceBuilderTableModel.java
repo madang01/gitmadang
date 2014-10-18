@@ -35,10 +35,7 @@ public class SourceBuilderTableModel extends DefaultTableModel {
 		return values[row][column];
 	}
 	
-	public boolean isCellEditable(int rowIndex, int columnIndex) {
-		/*System.out.printf("SourceBuilderTableModel::columnIndex=[%d], rowIndex=[%d]", columnIndex, rowIndex);
-		System.out.println();*/
-		
+	public boolean isCellEditable(int rowIndex, int columnIndex) {		
 		if (columnIndex >= 3) return true;
 		else return false; 
 	}

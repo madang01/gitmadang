@@ -250,11 +250,7 @@ public class SinnoriClassLoader extends ClassLoader implements CommonRootIF {
 				try {
 					fis = new FileInputStream(classFile);
 					FileChannel fc = fis.getChannel();
-					/*
-					 * MappedByteBuffer m = fc.map(FileChannel.MapMode.READ_ONLY, 0,
-					 * fileSize); System.out.printf("m.hasArray=[%s]",
-					 * m.hasArray()); System.out.println();
-					 */
+					
 
 					fc.read(fileBuffer);
 				} finally {

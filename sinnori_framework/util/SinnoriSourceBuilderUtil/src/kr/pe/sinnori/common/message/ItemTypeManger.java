@@ -27,6 +27,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import kr.pe.sinnori.common.exception.UnknownItemTypeException;
 
@@ -48,6 +50,7 @@ import kr.pe.sinnori.common.exception.UnknownItemTypeException;
  *
  */
 public class ItemTypeManger {
+	private Logger logger =  Logger.getGlobal();
 	
 	private String messageXSLStr = null;
 	
@@ -346,8 +349,7 @@ public class ItemTypeManger {
 			
 			
 			// log.info(String.format("메시지 구조를 정의한 XSL 내용이 담긴 임시 파일=[%s]", f.getAbsolutePath()));
-			System.out.printf("메시지 구조를 정의한 XSL 내용이 담긴 임시 파일=[%s]", f.getAbsolutePath());
-			System.out.println();
+			logger.log(Level.INFO, String.format("메시지 구조를 정의한 XSL 내용이 담긴 임시 파일=[%s]", f.getAbsolutePath()));
 			
 		} catch (IOException e) {
 			e.printStackTrace();

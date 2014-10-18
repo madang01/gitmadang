@@ -64,25 +64,29 @@ public final class BoardListResponseEncoder extends MessageEncoder {
 					, charsetOfProject
 					, middleWriteObj);
 
-		BoardListResponse.Board[] boardList = boardListResponse.getBoardList();
+		java.util.List<BoardListResponse.Board> boardList = boardListResponse.getBoardList();
 
 		/** 배열 정보와 배열 크기 일치 검사 */
 		if (null == boardList) {
 			/** 배열 크기 지정 방식이 간접일 경우 참조하는 변수값이 0 일 경우만 배열 값으로 null 을 허용한다. */
 			if (0 != boardListResponse.getCnt()) {
-				String errorMessage = new StringBuilder(boardListResponseSingleItemPath)
+				String errorMessage = new StringBuilder("간접 참조 회수[")
+				.append(boardListResponse.getCnt())
+				.append("] is not zero but ")
+				.append(boardListResponseSingleItemPath)
 				.append(".")
 				.append("boardList")
 				.append("is null").toString();
 				throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
 			}
 		} else {
+			int boardListSize = boardList.size();
 			/** 배열 값이 null 이 아닐때에는 배열 크기가 배열 정보에서 지정된 크기와 같은지 검사 */
-			if (boardList.length != boardListResponse.getCnt()) {
+			if (boardListSize != boardListResponse.getCnt()) {
 				String errorMessage = new StringBuilder(boardListResponseSingleItemPath)
 				.append(".")
 				.append("boardList.length[")
-				.append(boardList.length)
+				.append(boardListSize)
 				.append("] is not same to ")
 				.append(boardListResponseSingleItemPath)
 				.append(".")
@@ -92,12 +96,12 @@ public final class BoardListResponseEncoder extends MessageEncoder {
 				throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
 			}
 
-			Object boardMiddleWriteArray = singleItemEncoder.getArrayObjFromMiddleWriteObj(boardListResponseSingleItemPath, "board", boardList.length, middleWriteObj);
-			for (int i=0; i < boardList.length; i++) {
+			Object boardMiddleWriteArray = singleItemEncoder.getArrayObjFromMiddleWriteObj(boardListResponseSingleItemPath, "board", boardListSize, middleWriteObj);
+			for (int i=0; i < boardListSize; i++) {
 				singleItemPathStatck.push(new StringBuilder(singleItemPathStatck.getLast()).append(".").append("Board").append("[").append(i).append("]").toString());
 				String boardSingleItemPath = singleItemPathStatck.getLast();
 				Object boardMiddleWriteObj = singleItemEncoder.getMiddleWriteObjFromArrayObj(boardSingleItemPath, boardMiddleWriteArray, i);
-				BoardListResponse.Board board = boardList[i];
+				BoardListResponse.Board board = boardList.get(i);
 				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "boardNO"
 							, 6 // itemTypeID
 							, "long" // itemTypeName

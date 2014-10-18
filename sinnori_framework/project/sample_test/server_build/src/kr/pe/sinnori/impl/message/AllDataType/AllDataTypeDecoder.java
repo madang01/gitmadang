@@ -335,14 +335,16 @@ public final class AllDataTypeDecoder extends MessageDecoder {
 		, charsetOfProject
 		, middleReadObj));
 
-		Object memberMiddleReadArray = singleItemDecoder.getArrayObjFromMiddleReadObj(sigleItemPath0, "member", allDataType.getCnt(), middleReadObj);
-		AllDataType.Member[] memberList = new AllDataType.Member[allDataType.getCnt()];
-		for (int i=0; i < memberList.length; i++) {
+		int memberListSize = allDataType.getCnt();
+		Object memberMiddleReadArray = singleItemDecoder.getArrayObjFromMiddleReadObj(sigleItemPath0, "member", memberListSize, middleReadObj);
+		java.util.List<AllDataType.Member> memberList = new java.util.ArrayList<AllDataType.Member>();
+		for (int i=0; i < memberListSize; i++) {
 			String sigleItemPath1 = new StringBuilder(sigleItemPath0).append(".").append("Member[").append(i).append("]").toString();
 			Object memberMiddleReadObj = singleItemDecoder.getMiddleReadObjFromArrayObj(sigleItemPath1, memberMiddleReadArray, i);
-			memberList[i] = allDataType. new Member();
+			AllDataType.Member member = new AllDataType.Member();
+			memberList.add(member);
 
-			memberList[i].setMemberID((String)
+			member.setMemberID((String)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
 			, "memberID" // itemName
 			, 10 // itemTypeID
@@ -352,7 +354,7 @@ public final class AllDataTypeDecoder extends MessageDecoder {
 			, charsetOfProject
 			, memberMiddleReadObj));
 
-			memberList[i].setMemberName((String)
+			member.setMemberName((String)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
 			, "memberName" // itemName
 			, 10 // itemTypeID
@@ -362,7 +364,7 @@ public final class AllDataTypeDecoder extends MessageDecoder {
 			, charsetOfProject
 			, memberMiddleReadObj));
 
-			memberList[i].setCnt((Integer)
+			member.setCnt((Integer)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
 			, "cnt" // itemName
 			, 4 // itemTypeID
@@ -372,14 +374,16 @@ public final class AllDataTypeDecoder extends MessageDecoder {
 			, charsetOfProject
 			, memberMiddleReadObj));
 
-			Object itemMiddleReadArray = singleItemDecoder.getArrayObjFromMiddleReadObj(sigleItemPath1, "item", memberList[i].getCnt(), memberMiddleReadObj);
-			AllDataType.Member.Item[] itemList = new AllDataType.Member.Item[memberList[i].getCnt()];
-			for (int ii=0; ii < itemList.length; ii++) {
+			int itemListSize = member.getCnt();
+			Object itemMiddleReadArray = singleItemDecoder.getArrayObjFromMiddleReadObj(sigleItemPath1, "item", itemListSize, memberMiddleReadObj);
+			java.util.List<AllDataType.Member.Item> itemList = new java.util.ArrayList<AllDataType.Member.Item>();
+			for (int ii=0; ii < itemListSize; ii++) {
 				String sigleItemPath2 = new StringBuilder(sigleItemPath1).append(".").append("Item[").append(ii).append("]").toString();
 				Object itemMiddleReadObj = singleItemDecoder.getMiddleReadObjFromArrayObj(sigleItemPath2, itemMiddleReadArray, ii);
-				itemList[ii] = memberList[i]. new Item();
+				AllDataType.Member.Item item = new AllDataType.Member.Item();
+			itemList.add(item);
 
-				itemList[ii].setItemID((String)
+				item.setItemID((String)
 				singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath2
 				, "itemID" // itemName
 				, 10 // itemTypeID
@@ -389,7 +393,7 @@ public final class AllDataTypeDecoder extends MessageDecoder {
 				, charsetOfProject
 				, itemMiddleReadObj));
 
-				itemList[ii].setItemName((String)
+				item.setItemName((String)
 				singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath2
 				, "itemName" // itemName
 				, 10 // itemTypeID
@@ -399,7 +403,7 @@ public final class AllDataTypeDecoder extends MessageDecoder {
 				, charsetOfProject
 				, itemMiddleReadObj));
 
-				itemList[ii].setItemCnt((Integer)
+				item.setItemCnt((Integer)
 				singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath2
 				, "itemCnt" // itemName
 				, 4 // itemTypeID
@@ -408,7 +412,7 @@ public final class AllDataTypeDecoder extends MessageDecoder {
 				, null // itemCharset,
 				, charsetOfProject
 				, itemMiddleReadObj));
-	memberList[i].setItemList(itemList);
+	member.setItemList(itemList);
 			}
 allDataType.setMemberList(memberList);
 		}

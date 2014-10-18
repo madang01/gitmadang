@@ -7,6 +7,7 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-config.dtd">
 
 <configuration>
+	<typeAliases><typeAlias type="kr.pe.sinnori.common.lib.DBCPDataSourceFactory" alias="DBCP" /></typeAliases>
 
 	<environments default="development">
 
@@ -14,10 +15,10 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 
 			<transactionManager type="JDBC" />
 
-			<dataSource type="POOLED">
+			<!-- dataSource type="POOLED">
 
 				<property name="driver" value="org.mariadb.jdbc.Driver" />
-				<property name="url" value="jdbc:mysql://172.30.1.15/sinnoridb" />
+				<property name="url" value="jdbc:mysql://172.30.1.15/SINNORIDB" />
 				<property name="username" value="madangsoe01" />
 				<property name="password" value="zx#$ui09" />
 				
@@ -25,7 +26,8 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 				<property name="poolPingQuery" value="SELECT 1" />
 				<property name="poolPingEnabled" value="true" />
 				
-			</dataSource>
+			</dataSource -->
+			<dataSource type="DBCP"></dataSource>
 
 		</environment>
 

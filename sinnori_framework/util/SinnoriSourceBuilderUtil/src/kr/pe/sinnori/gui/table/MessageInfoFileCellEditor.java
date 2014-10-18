@@ -16,17 +16,7 @@ public class MessageInfoFileCellEditor extends DefaultCellEditor {
 	}
 
 	public Component getTableCellEditorComponent(JTable table,
-			Object value, boolean isSelected, int row, int column) {
-		/*System.out.println();
-		System.out.printf("MessageInfoFileCellEditor::row=[%d], column=[%d], isSelected=[%s]", row, column, isSelected);
-		System.out.println();
-		
-		if (null != value) {
-			System.out.printf("MessageInfoFileCellEditor::value=[%s]", value.toString());
-			System.out.println();
-		} else {
-			System.out.println("MessageInfoFileCellEditor::value is null");
-		}*/
+			Object value, boolean isSelected, int row, int column) {		
 		
 		MessageInfoFileCellValue messageInfoFileCellValue = (MessageInfoFileCellValue)value;
 		
@@ -42,7 +32,6 @@ public class MessageInfoFileCellEditor extends DefaultCellEditor {
 	}
 	
 	public Object getCellEditorValue() {
-		// System.out.println("call getCellEditorValue in MessageInfoFileCellEditor");
 	    return null;
 	}
 }

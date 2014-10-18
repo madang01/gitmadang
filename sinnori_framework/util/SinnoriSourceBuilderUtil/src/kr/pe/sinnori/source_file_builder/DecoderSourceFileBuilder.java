@@ -136,8 +136,29 @@ public class DecoderSourceFileBuilder extends AbstractSourceFileBuildre {
 			} else {
 				ArrayInfo arrayInfoOfChild = (ArrayInfo) itemInfo;
 				
-				// Object memberMiddlerReadArray = singleItemDecoder.getArrayObjFromMiddleReadObj(sigleItemPath0, "Member", allDataType.getCnt(), middleReadObj);
+				// int memberListSize=allDataType.getCnt();
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+				for (int i=0; i < depth; i++) {
+					stringBuilder.append("\t");
+				}
+				stringBuilder.append("\t\tint ");
+				stringBuilder.append(arrayInfoOfChild.getItemName());
+				stringBuilder.append("ListSize = ");
+				
+				/** 배열 크기 지정 방식에 따른 배열 크기 지정 */
+				if (arrayInfoOfChild.getArrayCntType().equals("reference")) {
+					stringBuilder.append(varName);
+					stringBuilder.append(".get");
+					stringBuilder.append(arrayInfoOfChild.getArrayCntValue().substring(0, 1).toUpperCase());
+					stringBuilder.append(arrayInfoOfChild.getArrayCntValue().substring(1));
+					stringBuilder.append("();");
+				} else {
+					stringBuilder.append(arrayInfoOfChild.getArrayCntValue());
+					stringBuilder.append(";");
+				}
+								
+				// Object memberMiddleReadArray = singleItemDecoder.getArrayObjFromMiddleReadObj(sigleItemPath0, "member", memberListSize, middleReadObj);
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				for (int i=0; i < depth; i++) {
 					stringBuilder.append("\t");
@@ -149,49 +170,29 @@ public class DecoderSourceFileBuilder extends AbstractSourceFileBuildre {
 				stringBuilder.append(", \"");
 				stringBuilder.append(arrayInfoOfChild.getItemName());
 				stringBuilder.append("\", ");
-				/** 배열 크기 지정 방식에 따른 배열 크기 지정 */
-				if (arrayInfoOfChild.getArrayCntType().equals("reference")) {
-					stringBuilder.append(varName);
-					stringBuilder.append(".get");
-					stringBuilder.append(arrayInfoOfChild.getArrayCntValue().substring(0, 1).toUpperCase());
-					stringBuilder.append(arrayInfoOfChild.getArrayCntValue().substring(1));
-					stringBuilder.append("()");
-				} else {
-					stringBuilder.append(arrayInfoOfChild.getArrayCntValue());
-				}
-				stringBuilder.append(", ");
+				stringBuilder.append(arrayInfoOfChild.getItemName());				
+				stringBuilder.append("ListSize, ");
 				stringBuilder.append(middleObjVarName);
 				stringBuilder.append(");");
 				
-				// AllDataType.Member[] memberList = new AllDataType.Member[allDataType.getCnt()];
+				// List<AllDataType.Member> memberList = new ArrayList<AllDataType.Member>();
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				for (int i=0; i < depth; i++) {
 					stringBuilder.append("\t");
 				}
-				stringBuilder.append("\t\t");
+				stringBuilder.append("\t\tjava.util.List<");
 				stringBuilder.append(path);
 				stringBuilder.append(".");
 				stringBuilder.append(arrayInfoOfChild.getFirstUpperItemName());
-				stringBuilder.append("[] ");
+				stringBuilder.append("> ");
 				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("List = new ");
+				stringBuilder.append("List = new java.util.ArrayList<");
 				stringBuilder.append(path);
 				stringBuilder.append(".");
 				stringBuilder.append(arrayInfoOfChild.getFirstUpperItemName());
-				stringBuilder.append("[");
-				/** 배열 크기 지정 방식에 따른 배열 크기 지정 */
-				if (arrayInfoOfChild.getArrayCntType().equals("reference")) {
-					stringBuilder.append(varName);
-					stringBuilder.append(".get");
-					stringBuilder.append(arrayInfoOfChild.getArrayCntValue().substring(0, 1).toUpperCase());
-					stringBuilder.append(arrayInfoOfChild.getArrayCntValue().substring(1));
-					stringBuilder.append("()");
-				} else {
-					stringBuilder.append(arrayInfoOfChild.getArrayCntValue());
-				}
-				stringBuilder.append("];");
+				stringBuilder.append(">();");
 				
-				// for (int i=0; i < memberList.length; i++) {
+				// for (int i=0; i < memberListSize; i++) {
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				for (int i=0; i < depth; i++) {
 					stringBuilder.append("\t");
@@ -202,7 +203,7 @@ public class DecoderSourceFileBuilder extends AbstractSourceFileBuildre {
 				stringBuilder.append(getCountVarName(depth));
 				stringBuilder.append(" < ");
 				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("List.length; ");
+				stringBuilder.append("ListSize; ");
 				stringBuilder.append(getCountVarName(depth));
 				stringBuilder.append("++) {");
 				
@@ -236,23 +237,34 @@ public class DecoderSourceFileBuilder extends AbstractSourceFileBuildre {
 				stringBuilder.append(getCountVarName(depth));
 				stringBuilder.append(");");
 				
-				// memberList[i] = allDataType.new Member();
+				// AllDataType.Member member = new AllDataType.Member();
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				for (int i=0; i < depth; i++) {
 					stringBuilder.append("\t");
 				}
 				stringBuilder.append("\t\t\t");
+				stringBuilder.append(path);
+				stringBuilder.append(".");
+				stringBuilder.append(arrayInfoOfChild.getFirstUpperItemName());
+				stringBuilder.append(" ");
 				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("List[");
-				stringBuilder.append(getCountVarName(depth));
-				stringBuilder.append("] = ");
-				stringBuilder.append(varName);
-				stringBuilder.append(". new ");
+				stringBuilder.append(" = new ");
+				stringBuilder.append(path);
+				stringBuilder.append(".");
 				stringBuilder.append(arrayInfoOfChild.getFirstUpperItemName());
 				stringBuilder.append("();");
 				
+				// memberList.add(member);
+				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+				stringBuilder.append("\t\t\t");
+				stringBuilder.append(arrayInfoOfChild.getItemName());
+				stringBuilder.append("List.add(");
+				stringBuilder.append(arrayInfoOfChild.getItemName());
+				stringBuilder.append(");");				
+				
+				
 				stringBuilder.append(toBody(depth+1, path+"."+arrayInfoOfChild.getFirstUpperItemName(), 
-						arrayInfoOfChild.getItemName()+"List["+getCountVarName(depth)+"]", 
+						arrayInfoOfChild.getItemName(), 
 						arrayInfoOfChild, arrayInfoOfChild.getItemName()+ "MiddleReadObj"));
 				
 				// allDataType.setMemberList(memberList);

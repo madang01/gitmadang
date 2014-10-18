@@ -21,7 +21,7 @@
 		f.pwd.value =  "test1234$";
 		f.pwdconfirm.value =  f.pwd.value;
 		f.nickname.value = "별명";
-		f.question.value = "질문";
+		f.hint.value = "질문";
 		f.answer.value = "답변";
 	}
 
@@ -120,7 +120,7 @@
 		    return false;
 		}
 		
-		if (f.question.value == '') {
+		if (f.hint.value == '') {
 		    alert("질문을 넣어주세요.");
 		    f.question.focus();
 		    return false;
@@ -188,7 +188,7 @@
 		g.id.value = symmetricKeyObj.encrypt(f.id.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
 		g.pwd.value = symmetricKeyObj.encrypt(f.pwd.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
 		g.nickname.value = symmetricKeyObj.encrypt(f.nickname.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
-		g.question.value = symmetricKeyObj.encrypt(f.question.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
+		g.hint.value = symmetricKeyObj.encrypt(f.hint.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
 		g.answer.value = symmetricKeyObj.encrypt(f.answer.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
 		
 		// alert(g.id.value);
@@ -207,7 +207,7 @@
 <input type="hidden" name="id" />
 <input type="hidden" name="pwd" />
 <input type="hidden" name="nickname" />
-<input type="hidden" name="question" />
+<input type="hidden" name="hint" />
 <input type="hidden" name="answer" />
 </form>
 <form method="post" name="frm" onsubmit="return chkform();">
@@ -231,11 +231,11 @@
 	    <td><input type="text" name="nickname" size="20" maxlength="20" /></td>
 	</tr>
 	<tr>
-	    <td>질문</td>
-	    <td><input type="text" name="question" size="30" maxlength="30" /></td>
+	    <td>비밀 번호 분실시 답변 힌트</td>
+	    <td><input type="text" name="hint" size="30" maxlength="30" /></td>
 	</tr>
 	<tr> 
-	    <td>답변</td>
+	    <td>비밀 번호 분실시 답변</td>
 	    <td><textarea name="answer" rows="5" cols="30"></textarea></td>
 	</tr>
 	<tr> 

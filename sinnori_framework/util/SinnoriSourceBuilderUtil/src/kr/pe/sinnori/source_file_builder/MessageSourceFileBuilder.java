@@ -12,14 +12,23 @@ import kr.pe.sinnori.common.message.SingleItemInfo;
 
 public class MessageSourceFileBuilder extends AbstractSourceFileBuildre {
 	
-	
+	/**
+	 * 내부 클래스가 있는 경우에 호출
+	 * @param depth 깊이
+	 * @param arrayInfo 배열 정보
+	 * @return 배열 정보를 바탕으로만들어진 내부 클래스
+	 */
 	private String getClassPart(int depth, ItemGroupInfoIF arrayInfo) {
 		StringBuilder stringBuilder = new StringBuilder();
 		
 		for (int i=0; i < depth; i++) {
 			stringBuilder.append("\t");
 		}
-		stringBuilder.append("public class ");
+		
+		
+		stringBuilder.append("public static class ");
+		
+		
 		stringBuilder.append(arrayInfo.getFirstUpperItemName());
 		stringBuilder.append(" {");
 		
@@ -38,6 +47,12 @@ public class MessageSourceFileBuilder extends AbstractSourceFileBuildre {
 		return stringBuilder.toString();
 	}
 	
+	/**
+	 * 선언부
+	 * @param depth
+	 * @param arrayInfo
+	 * @return
+	 */
 	private String getVariableDeclarationPart(int depth, ItemGroupInfoIF arrayInfo) {
 		StringBuilder stringBuilder = new StringBuilder();
 		
@@ -64,9 +79,9 @@ public class MessageSourceFileBuilder extends AbstractSourceFileBuildre {
 				for (int i=0; i < depth; i++) {
 					stringBuilder.append("\t");
 				}
-				stringBuilder.append("\tprivate ");
+				stringBuilder.append("\tprivate java.util.List<");
 				stringBuilder.append(arrayInfoOfChild.getFirstUpperItemName());
-				stringBuilder.append("[] ");
+				stringBuilder.append("> ");
 				stringBuilder.append(arrayInfoOfChild.getItemName());
 				stringBuilder.append("List;");
 			}
@@ -149,9 +164,9 @@ public class MessageSourceFileBuilder extends AbstractSourceFileBuildre {
 				for (int i=0; i < depth; i++) {
 					stringBuilder.append("\t");
 				}
-				stringBuilder.append("\tpublic ");
+				stringBuilder.append("\tpublic java.util.List<");
 				stringBuilder.append(arrayInfoOfChild.getFirstUpperItemName());
-				stringBuilder.append("[] get");				
+				stringBuilder.append("> get");				
 				stringBuilder.append(arrayInfoOfChild.getFirstUpperItemName());
 				stringBuilder.append("List() {");
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
@@ -175,9 +190,9 @@ public class MessageSourceFileBuilder extends AbstractSourceFileBuildre {
 				}
 				stringBuilder.append("\tpublic void set");
 				stringBuilder.append(arrayInfoOfChild.getFirstUpperItemName());
-				stringBuilder.append("List(");
+				stringBuilder.append("List(java.util.List<");
 				stringBuilder.append(arrayInfoOfChild.getFirstUpperItemName());
-				stringBuilder.append("[] ");
+				stringBuilder.append("> ");
 				stringBuilder.append(arrayInfoOfChild.getItemName());
 				stringBuilder.append("List) {");
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
@@ -302,10 +317,18 @@ public class MessageSourceFileBuilder extends AbstractSourceFileBuildre {
 					stringBuilder.append("\t");
 				}
 				
-				// if (0 == memberList.length) {
+				// int memberListSize = memberList.size();
+				stringBuilder.append("\t\t\tint ");
+				stringBuilder.append(arrayInfoOfChild.getItemName());
+				stringBuilder.append("ListSize = ");
+				stringBuilder.append(arrayInfoOfChild.getItemName());
+				stringBuilder.append("List.size();");
+				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+				
+				// if (0 == memberListSize) {				
 				stringBuilder.append("\t\t\tif (0 == ");
 				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("List.length) {");
+				stringBuilder.append("ListSize) {");
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				for (int i=0; i < depth; i++) {
 					stringBuilder.append("\t");
@@ -329,22 +352,22 @@ public class MessageSourceFileBuilder extends AbstractSourceFileBuildre {
 					stringBuilder.append("\t");
 				}
 				
-				// for (int i=0; i < memberList.length; i++) {
+				// for (int i=0; i < memberListSize; i++) {
 				stringBuilder.append("\t\t\t\tfor (int i=0; i < ");
 				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("List.length; i++) {");
+				stringBuilder.append("ListSize; i++) {");
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				for (int i=0; i < depth; i++) {
 					stringBuilder.append("\t");
 				}
-				// Member member = memberList[i];
+				// Member member = memberList.get(i);
 				stringBuilder.append("\t\t\t\t\t");
 				stringBuilder.append(arrayInfoOfChild.getFirstUpperItemName());
 				stringBuilder.append(" ");
 				stringBuilder.append(arrayInfoOfChild.getItemName());
 				stringBuilder.append(" = ");
 				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("List[i];");
+				stringBuilder.append("List.get(i);");
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				for (int i=0; i < depth; i++) {
 					stringBuilder.append("\t");
@@ -484,11 +507,9 @@ public class MessageSourceFileBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(dynamicClassBasePackageName);
 		stringBuilder.append(messageID);
 		stringBuilder.append(";");
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);		
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		
-
 		stringBuilder.append("import kr.pe.sinnori.common.message.AbstractMessage;");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("/**");
@@ -519,7 +540,6 @@ public class MessageSourceFileBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("}");
 		
-		// System.out.println(stringBuilder.toString());
 		return stringBuilder.toString();
 	}
 

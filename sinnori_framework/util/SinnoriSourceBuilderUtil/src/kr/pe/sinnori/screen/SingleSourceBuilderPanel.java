@@ -8,6 +8,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -30,6 +32,7 @@ import com.jgoodies.forms.layout.RowSpec;
 
 @SuppressWarnings("serial")
 public class SingleSourceBuilderPanel extends JPanel {
+	private Logger logger =  Logger.getGlobal();
 	// private JFrame mainFrame = null;
 	
 	
@@ -116,8 +119,20 @@ public class SingleSourceBuilderPanel extends JPanel {
 			
 			
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				System.out.println("CreateButtonAction::"+e.toString());
+			public void actionPerformed(ActionEvent e) {				
+				String messageInfoText = messageInfoTextPane.getText();
+				if (null == messageInfoText) {
+					JOptionPane.showMessageDialog(mainFrame, "메시지 정보 파일 내용을 넣어주세요.");
+					messageInfoTextPane.requestFocusInWindow();
+					return;
+				}
+				messageInfoText = messageInfoText.trim();
+				messageInfoTextPane.setText(messageInfoText);
+				if (messageInfoText.equals("")) {
+					JOptionPane.showMessageDialog(mainFrame, "메시지 정보 파일 내용을 넣어주세요.");
+					messageInfoTextPane.requestFocusInWindow();
+					return;
+				}
 				
 				File messageInfoFile = null;
 				FileOutputStream fos = null;
@@ -126,7 +141,9 @@ public class SingleSourceBuilderPanel extends JPanel {
 					messageInfoFile = File.createTempFile("sinnoriMessageInfo", null);
 					
 					fos = new FileOutputStream(messageInfoFile);
-					fos.write(messageInfoTextPane.getText().getBytes("UTF-8"));
+					fos.write(messageInfoText.getBytes("UTF-8"));
+					
+					logger.log(Level.INFO, String.format("사용자가 입력한 메시지 정보 파일 내용을 저장할 임시 파일=[%s]", messageInfoFile.getAbsolutePath()));
 				} catch (FileNotFoundException e1) {
 					e1.printStackTrace();
 					JOptionPane.showMessageDialog(mainFrame, "FileNotFoundException");

@@ -52,11 +52,11 @@ public final class AllDataType extends AbstractMessage {
 	private java.sql.Date sqldate;
 	private java.sql.Timestamp sqltimestamp;
 	private int cnt;
-	public class Member {
+	public static class Member {
 		private String memberID;
 		private String memberName;
 		private int cnt;
-		public class Item {
+		public static class Item {
 			private String itemID;
 			private String itemName;
 			private int itemCnt;
@@ -97,7 +97,7 @@ public final class AllDataType extends AbstractMessage {
 				return builder.toString();
 			}
 		};
-		private Item[] itemList;
+		private java.util.List<Item> itemList;
 
 		public String getMemberID() {
 			return memberID;
@@ -121,11 +121,11 @@ public final class AllDataType extends AbstractMessage {
 			this.cnt = cnt;
 		}
 
-		public Item[] getItemList() {
+		public java.util.List<Item> getItemList() {
 			return itemList;
 		}
 
-		public void setItemList(Item[] itemList) {
+		public void setItemList(java.util.List<Item> itemList) {
 			this.itemList = itemList;
 		}
 
@@ -143,12 +143,13 @@ public final class AllDataType extends AbstractMessage {
 			if (null == itemList) {
 				builder.append("null");
 			} else {
-				if (0 == itemList.length) {
+				int itemListSize = itemList.size();
+			if (0 == itemListSize) {
 					builder.append("empty");
 				} else {
 					builder.append("[");
-					for (int i=0; i < itemList.length; i++) {
-						Item item = itemList[i];
+					for (int i=0; i < itemListSize; i++) {
+						Item item = itemList.get(i);
 						if (0 == i) {
 							builder.append("item[");
 						} else {
@@ -166,7 +167,7 @@ public final class AllDataType extends AbstractMessage {
 			return builder.toString();
 		}
 	};
-	private Member[] memberList;
+	private java.util.List<Member> memberList;
 
 	public byte getByteVar1() {
 		return byteVar1;
@@ -372,11 +373,11 @@ public final class AllDataType extends AbstractMessage {
 		this.cnt = cnt;
 	}
 
-	public Member[] getMemberList() {
+	public java.util.List<Member> getMemberList() {
 		return memberList;
 	}
 
-	public void setMemberList(Member[] memberList) {
+	public void setMemberList(java.util.List<Member> memberList) {
 		this.memberList = memberList;
 	}
 
@@ -446,12 +447,13 @@ public final class AllDataType extends AbstractMessage {
 		if (null == memberList) {
 			builder.append("null");
 		} else {
-			if (0 == memberList.length) {
+			int memberListSize = memberList.size();
+			if (0 == memberListSize) {
 				builder.append("empty");
 			} else {
 				builder.append("[");
-				for (int i=0; i < memberList.length; i++) {
-					Member member = memberList[i];
+				for (int i=0; i < memberListSize; i++) {
+					Member member = memberList.get(i);
 					if (0 == i) {
 						builder.append("member[");
 					} else {

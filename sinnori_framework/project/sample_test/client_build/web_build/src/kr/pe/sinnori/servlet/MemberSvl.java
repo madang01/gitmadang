@@ -31,7 +31,7 @@ import kr.pe.sinnori.common.sessionkey.ClientSessionKeyManager;
 import kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager;
 import kr.pe.sinnori.common.sessionkey.SymmetricKey;
 import kr.pe.sinnori.impl.message.BinaryPublicKey.BinaryPublicKey;
-import kr.pe.sinnori.impl.message.MemberSessionKey.MemberSessionKey;
+import kr.pe.sinnori.impl.message.MemberRegisterWithSessionKey.MemberRegisterWithSessionKey;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
 
 import org.apache.commons.codec.binary.Base64;
@@ -74,10 +74,10 @@ public class MemberSvl extends AbstractServlet {
 			String parmSessionKeyBase64 = req.getParameter("sessionkeyBase64");
 			String parmIVBase64 = req.getParameter("ivBase64");
 
-			String parmID = req.getParameter("id");
-			String parmPWD = req.getParameter("pwd");
+			String parmId = req.getParameter("id");
+			String parmPwd = req.getParameter("pwd");
 			String parmNickname = req.getParameter("nickname");
-			String parmQuestion = req.getParameter("question");
+			String parmHint = req.getParameter("hint");
 			String parmAnswer = req.getParameter("answer");
 
 			// FIXME!
@@ -96,10 +96,10 @@ public class MemberSvl extends AbstractServlet {
 			log.info(String.format("parm sessionkeyBase64=[%s]", parmSessionKeyBase64));
 			log.info(String.format("parm ivBase64=[%s]", parmIVBase64));
 
-			log.info(String.format("parm id=[%s]", parmID));
-			log.info(String.format("parm pwd=[%s]", parmPWD));
+			log.info(String.format("parm id=[%s]", parmId));
+			log.info(String.format("parm pwd=[%s]", parmPwd));
 			log.info(String.format("parm nickname=[%s]", parmNickname));
-			log.info(String.format("parm question=[%s]", parmQuestion));
+			log.info(String.format("parm hint=[%s]", parmHint));
 			log.info(String.format("parm answer=[%s]", parmAnswer));
 			
 			MessageResult messageResultOutObj = new MessageResult();
@@ -127,15 +127,15 @@ public class MemberSvl extends AbstractServlet {
 
 			// String errorMessage = "";
 			
-			String id = webUserSymmetricKey.decryptStringBase64(parmID);
-			String pwd = webUserSymmetricKey.decryptStringBase64(parmPWD);
+			String userId = webUserSymmetricKey.decryptStringBase64(parmId);
+			String password = webUserSymmetricKey.decryptStringBase64(parmPwd);
 			String nickname = webUserSymmetricKey
 					.decryptStringBase64(parmNickname);
-			String question = webUserSymmetricKey
-					.decryptStringBase64(parmQuestion);
-			String answer = webUserSymmetricKey.decryptStringBase64(parmAnswer);
+			String pwdHint = webUserSymmetricKey
+					.decryptStringBase64(parmHint);
+			String pwdAnswer = webUserSymmetricKey.decryptStringBase64(parmAnswer);
 
-			log.info(String.format("id=[%s]", id));
+			log.info(String.format("userId=[%s]", userId));
 
 			// HttpSession session = req.getSession();
 
@@ -168,17 +168,17 @@ public class MemberSvl extends AbstractServlet {
 				SymmetricKey serverSymmetricKey = clientSessionKeyManage.getSymmetricKey();				
 				byte ivBytes[] = serverSymmetricKey.getIV();
 
-				MemberSessionKey memberSessionKeyInObj = new MemberSessionKey();
+				MemberRegisterWithSessionKey memberRegisterWithSessionKeyInObj = new MemberRegisterWithSessionKey();
 				
-				memberSessionKeyInObj.setIdCipherBase64(serverSymmetricKey.encryptStringBase64(id));
-				memberSessionKeyInObj.setPwdCipherBase64(serverSymmetricKey.encryptStringBase64(pwd));
-				memberSessionKeyInObj.setNicknameCipherBase64(serverSymmetricKey.encryptStringBase64(nickname));
-				memberSessionKeyInObj.setQuestionCipherBase64(serverSymmetricKey.encryptStringBase64(question));
-				memberSessionKeyInObj.setAnswerCipherBase64(serverSymmetricKey.encryptStringBase64(answer));
-				memberSessionKeyInObj.setSessionKeyBase64(Base64.encodeBase64String(sessionKeyBytes));
-				memberSessionKeyInObj.setIvBase64(Base64.encodeBase64String(ivBytes));				
+				memberRegisterWithSessionKeyInObj.setIdCipherBase64(serverSymmetricKey.encryptStringBase64(userId));
+				memberRegisterWithSessionKeyInObj.setPwdCipherBase64(serverSymmetricKey.encryptStringBase64(password));
+				memberRegisterWithSessionKeyInObj.setNicknameCipherBase64(serverSymmetricKey.encryptStringBase64(nickname));
+				memberRegisterWithSessionKeyInObj.setHintCipherBase64(serverSymmetricKey.encryptStringBase64(pwdHint));
+				memberRegisterWithSessionKeyInObj.setAnswerCipherBase64(serverSymmetricKey.encryptStringBase64(pwdAnswer));
+				memberRegisterWithSessionKeyInObj.setSessionKeyBase64(Base64.encodeBase64String(sessionKeyBytes));
+				memberRegisterWithSessionKeyInObj.setIvBase64(Base64.encodeBase64String(ivBytes));				
 
-				messageFromServer = clientProject.sendSyncInputMessage(memberSessionKeyInObj);					
+				messageFromServer = clientProject.sendSyncInputMessage(memberRegisterWithSessionKeyInObj);					
 				if (messageFromServer instanceof MessageResult) {
 					messageResultOutObj = (MessageResult)messageFromServer;
 					/*if (outObj.getTaskResult().equals("N")) {

@@ -233,7 +233,6 @@ public final class SinnoriConfig {
 
 				configFileProperties.load(sinnoriConfigISR);
 
-				// System.out.println(this.toString());
 			} catch(FileNotFoundException  e) {
 				String errorMessage = String.format("신놀이 환경 설정 실패::설정 파일[%s]이 존재하지 않습니다.", sinnoriConfigurationFileName);
 				log.error(errorMessage, e);
@@ -765,10 +764,7 @@ public final class SinnoriConfig {
 	 */
 	public void save() {
 		String propSinnoriConfigFile = System.getProperty(CommonStaticFinalVars.SINNORI_CONFIG_FILE_JAVA_SYSTEM_VAR_NAME);
-		String projectName = System.getProperty(CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);
-		// System.out.printf("=sinnori_config_file[{}]",
-		// prop_sinnori_config_file);
-		// System.out.println();
+		String projectName = System.getProperty(CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);		
 		log.info("1.Project[{}] SINNORI_PROJECT_CONFIG_FILE[{}]", projectName, propSinnoriConfigFile);
 
 		if (null == propSinnoriConfigFile) {
@@ -801,7 +797,6 @@ public final class SinnoriConfig {
 			fos_sinnoriConfig_file = new FileOutputStream(sinnoriConfigFile);
 			osw_sinnoriConfig_file = new OutputStreamWriter(fos_sinnoriConfig_file, CommonStaticFinalVars.SINNORI_CONFIG_FILE_CHARSET);
 			configFileProperties.store(osw_sinnoriConfig_file, String.format("# Sinnori Project[{}] Config File", projectName));
-			// System.out.println(this.toString());
 		} catch (Exception e) {
 			log.error("Project[{}] sinnori config file[{}] unknown error", projectName, sinnoriConfigFile.getAbsolutePath(), e);
 			System.exit(1);

@@ -24,7 +24,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  */
 public final class BoardListResponse extends AbstractMessage {
 	private int cnt;
-	public class Board {
+	public static class Board {
 		private long boardNO;
 		private long groupNO;
 		private long parentNO;
@@ -185,7 +185,7 @@ public final class BoardListResponse extends AbstractMessage {
 			return builder.toString();
 		}
 	};
-	private Board[] boardList;
+	private java.util.List<Board> boardList;
 
 	public int getCnt() {
 		return cnt;
@@ -195,11 +195,11 @@ public final class BoardListResponse extends AbstractMessage {
 		this.cnt = cnt;
 	}
 
-	public Board[] getBoardList() {
+	public java.util.List<Board> getBoardList() {
 		return boardList;
 	}
 
-	public void setBoardList(Board[] boardList) {
+	public void setBoardList(java.util.List<Board> boardList) {
 		this.boardList = boardList;
 	}
 
@@ -213,12 +213,13 @@ public final class BoardListResponse extends AbstractMessage {
 		if (null == boardList) {
 			builder.append("null");
 		} else {
-			if (0 == boardList.length) {
+			int boardListSize = boardList.size();
+			if (0 == boardListSize) {
 				builder.append("empty");
 			} else {
 				builder.append("[");
-				for (int i=0; i < boardList.length; i++) {
-					Board board = boardList[i];
+				for (int i=0; i < boardListSize; i++) {
+					Board board = boardList.get(i);
 					if (0 == i) {
 						builder.append("board[");
 					} else {

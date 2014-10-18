@@ -15,18 +15,7 @@ public class SourceFileCellEditor extends DefaultCellEditor {
 	}
 
 	public Component getTableCellEditorComponent(JTable table,
-			Object value, boolean isSelected, int row, int column) {
-		/*System.out.println();
-		System.out.printf("SourceFileCellEditor::row=[%d], column=[%d], isSelected=[%s]", row, column, isSelected);
-		System.out.println();*/
-		
-		/*if (null != value) {
-			System.out.printf("SourceFileCellEditor::value=[%s]", value.toString());
-			System.out.println();
-		} else {
-			System.out.println("SourceFileCellEditor::value is null");
-		}*/
-		
+			Object value, boolean isSelected, int row, int column) {		
 		SourceFileCellValue sourceFileCellValue = (SourceFileCellValue)value;
 		
 		if (isSelected) {
@@ -41,7 +30,6 @@ public class SourceFileCellEditor extends DefaultCellEditor {
 	}
 	
 	public Object getCellEditorValue() {
-		// System.out.println("call getCellEditorValue in SourceFileCellEditor");
 	    return null;
 	}
 

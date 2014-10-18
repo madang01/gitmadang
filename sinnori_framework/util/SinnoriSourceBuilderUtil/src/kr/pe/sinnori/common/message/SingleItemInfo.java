@@ -18,6 +18,9 @@ package kr.pe.sinnori.common.message;
 
 
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import kr.pe.sinnori.common.exception.UnknownItemTypeException;
 import kr.pe.sinnori.common.lib.CommonType;
 
@@ -28,6 +31,8 @@ import kr.pe.sinnori.common.lib.CommonType;
  * 
  */
 public class SingleItemInfo extends AbstractItemInfo {
+	private Logger logger =  Logger.getGlobal();
+	
 	private String itemName;
 	private String firstUpperItemName;
 	private String itemType;
@@ -93,7 +98,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 					String errorMessage = String.format("타입 byte 항목[%s]의 디폴트 값[%s] 지정이 잘못되었습니다.", itemName, itemDefaultValue);
 					
 					// log.warn(errorMessage, nfe);
-					System.out.println(errorMessage);
+					logger.log(Level.WARNING, errorMessage);
 					nfe.printStackTrace();
 					
 					throw new IllegalArgumentException(errorMessage);
@@ -110,7 +115,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 					String errorMessage = String.format("타입 unsigned byte 항목[%s]의 디폴트 값[%s] 지정이 잘못되었습니다.", itemName, itemDefaultValue);
 					
 					// log.warn(errorMessage, nfe);
-					System.out.println(errorMessage);
+					logger.log(Level.WARNING, errorMessage);
 					nfe.printStackTrace();
 					throw new IllegalArgumentException(errorMessage);
 				}
@@ -126,7 +131,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 					String errorMessage = String.format("타입 short 항목[%s]의 디폴트 값[%s] 지정이 잘못되었습니다.", itemName, itemDefaultValue);
 					
 					// log.warn(errorMessage, nfe);
-					System.out.println(errorMessage);
+					logger.log(Level.WARNING, errorMessage);
 					nfe.printStackTrace();
 					throw new IllegalArgumentException(errorMessage);
 				}
@@ -142,7 +147,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 					String errorMessage = String.format("타입 unsigned short 항목[%s]의 디폴트 값[%s] 지정이 잘못되었습니다.", itemName, itemDefaultValue);
 					
 					// log.warn(errorMessage, nfe);
-					System.out.println(errorMessage);
+					logger.log(Level.WARNING, errorMessage);
 					nfe.printStackTrace();
 					throw new IllegalArgumentException(errorMessage);
 				}
@@ -158,7 +163,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 					String errorMessage = String.format("타입 integer 항목[%s]의 디폴트 값[%s] 지정이 잘못되었습니다.", itemName, itemDefaultValue);
 					
 					// log.warn(errorMessage, nfe);
-					System.out.println(errorMessage);
+					logger.log(Level.WARNING, errorMessage);
 					nfe.printStackTrace();
 					throw new IllegalArgumentException(errorMessage);
 				}
@@ -174,7 +179,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 					String errorMessage = String.format("타입 unsigned integer 항목[%s]의 디폴트 값[%s] 지정이 잘못되었습니다.", itemName, itemDefaultValue);
 					
 					// log.warn(errorMessage, nfe);
-					System.out.println(errorMessage);
+					logger.log(Level.WARNING, errorMessage);
 					nfe.printStackTrace();
 					throw new IllegalArgumentException(errorMessage);
 				}
@@ -190,7 +195,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 					String errorMessage = String.format("타입 long 항목[%s]의 디폴트 값[%s] 지정이 잘못되었습니다.", itemName, itemDefaultValue);
 					
 					// log.warn(errorMessage, nfe);
-					System.out.println(errorMessage);
+					logger.log(Level.WARNING, errorMessage);
 					nfe.printStackTrace();
 					throw new IllegalArgumentException(errorMessage);
 				}
@@ -276,7 +281,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 			/** XSD 에서 항목 타입을 제약한다. 따라서 이곳 로직은 들어 올 수 없다. */
 			String errorMessage = String.format("unkown type[%s]", itemType);
 			// log.warn(errorMessage);
-			System.out.println(errorMessage);
+			logger.log(Level.WARNING, errorMessage);
 			
 			// System.exit(1);
 			throw new IllegalArgumentException(errorMessage);
@@ -290,7 +295,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 				String errorMessage = String.format(
 						"타입 부가 정보인 크기[%s]가 숫자가 아닙니다.", itemSize);
 				// log.warn(errorMessage);
-				System.out.println(errorMessage);
+				logger.log(Level.WARNING, errorMessage);
 				num_e.printStackTrace();
 				throw new IllegalArgumentException(errorMessage);
 			}

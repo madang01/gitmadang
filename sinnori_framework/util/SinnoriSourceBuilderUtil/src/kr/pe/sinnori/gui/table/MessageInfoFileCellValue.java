@@ -27,7 +27,6 @@ public class MessageInfoFileCellValue extends JPanel {
 	class ViewButtonAction implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("ViewButtonAction::"+e.toString());
 			JOptionPane.showMessageDialog(parentComponent, messageInfo.toString());
 		}
 	}
@@ -35,9 +34,7 @@ public class MessageInfoFileCellValue extends JPanel {
 	class RetryButtonAction implements ActionListener {
 
 		@Override
-		public void actionPerformed(ActionEvent e) {
-			//System.out.println("RetryButtonAction::"+e.toString());
-			
+		public void actionPerformed(ActionEvent e) {			
 			MessageInfoSAXParser messageInfoSAXParser = new MessageInfoSAXParser(messageInfoFile, true);
 			kr.pe.sinnori.common.message.MessageInfo oneMessageInfo = messageInfoSAXParser.parse();
 			if (null == oneMessageInfo) {

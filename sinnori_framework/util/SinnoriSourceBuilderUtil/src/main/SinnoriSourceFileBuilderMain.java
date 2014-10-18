@@ -53,30 +53,7 @@ public class SinnoriSourceFileBuilderMain implements MainControllerIF {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
-		// SinnoriSourceFileBuilderMain sinnoriMessageUtilMain = new SinnoriSourceFileBuilderMain();
-
-		// String messageID = "SelfExn";
-		
-		/*kr.pe.sinnori.message.MessageInfo messageInfo = sinnoriMessageUtilMain.getMessageInfo(messageID);
-
-		// System.out.println(messageInfo.toString());
-		
-		
-		*//**
-		 * ClinetCodec
-		 * ServerCodec
-		 * Encoder
-		 * Decoder
-		 * ServerTask
-		 *//*
-		// System.out.println(new MessageSourceFileBuilder().toString(messageID, "Jonghoon Won", messageInfo));
-		// System.out.println(new EncoderSourceFileBuilder().toString(messageID, "Jonghoon Won", messageInfo));
-		System.out.println(new DecoderSourceFileBuilder().toString(messageID, "Jonghoon Won", messageInfo));
-		// System.out.println(new ClientCodecSourceFileBuilder().toString(CommonType.CONNECTION_DIRECTION_MODE.FROM_ALL_TO_ALL, messageID, "Jonghoon Won"));
-		// System.out.println(new ServerCodecSourceFileBuilder().toString(CommonType.CONNECTION_DIRECTION_MODE.FROM_ALL_TO_ALL, messageID, "Jonghoon Won"));
-*/		
-		
+	public static void main(String[] args) {		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -226,6 +203,5 @@ public class SinnoriSourceFileBuilderMain implements MainControllerIF {
 	@Override
 	public void finish() {
 		mainFrame.dispose();
-		System.out.println("작업 완료");
 	}
 }

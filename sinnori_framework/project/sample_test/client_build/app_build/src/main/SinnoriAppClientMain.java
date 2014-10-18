@@ -106,7 +106,7 @@ public class SinnoriAppClientMain implements CommonRootIF {
 			 * 
 			 */
 			// SinnoriWorker.getInstance().start(projectName, "TestNetAllDataType", 1);
-			SinnoriWorker.getInstance().start(projectName, "TestNetAllDataType", 1000);
+			// SinnoriWorker.getInstance().start(projectName, "TestNetAllDataType", 1000);
 			// SinnoriWorker.getInstance().start(projectName, "TestNetAllDataType2", 10000);
 			
 			
@@ -134,6 +134,9 @@ public class SinnoriAppClientMain implements CommonRootIF {
 			// SinnoriWorker.getInstance().start(projectName, "TestLoginService");
 			
 			// SinnoriWorker.getInstance().start(projectName, "TestFileUpDown");
+			
+			// IDPwdRegexTest
+			SinnoriWorker.getInstance().start(projectName, "IDPwdRegexTest");
 		} catch (Exception e) {			
 			e.printStackTrace();
 		}

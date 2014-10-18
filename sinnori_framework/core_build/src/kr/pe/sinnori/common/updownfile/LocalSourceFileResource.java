@@ -587,14 +587,6 @@ public class LocalSourceFileResource implements CommonRootIF {
 	 * <pre>
 	 * 원본 파일에서 파일 조각 번호에 대응하는 데이터를 담을 바이트 배열을 반환한다. 
 	 * 마지막 전까지는 지정한 파일 조각 크기, 마지막은 남은 파일 데이터 크기가 된다.
-	 * 
-	 * 주의점) 이 메소드는 아래와 같은 자바언어의 제한 때문에 만들었다.
-	 * 자바는 파라미터가 객체인 경우 call by referfence 이지만 C 언어와 다르게 직접적으로 참조의 참조를 넘길 수가 없다.
-	 * 예를 드면 void chgBytes(byte[] parmBytes) { parmBytes = new byte[10]; } 
-	 * void test() { byte srcBytes[] = null; chgBytes(srcBytes); if (null == srcBytes) System.out.println("srcBytes is null"); else  System.out.println("srcBytes is not null"); }   
-	 * 라고 할때 test 메소드 호출 결과로 "srcBytes is null" 이다. 
-	 * 이 문제를 극복할 방법은 여러가지가 있을 수 있지만,
-	 * 아래 메소드를 통해서 이를 해결하는 방법을 선택하였다.
 	 * </pre>
 	 * 
 	 * @param fileBlockNo

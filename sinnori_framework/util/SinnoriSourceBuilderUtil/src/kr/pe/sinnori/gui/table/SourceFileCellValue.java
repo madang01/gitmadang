@@ -23,29 +23,10 @@ public class SourceFileCellValue extends JPanel {
 	private JCheckBox directionCheckBox = null;
 	private JButton sourceCreateButton = null;	
 	
-	/*class IOCheckboxAction implements ActionListener {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			System.out.println("IOCheckboxAction::"+e.toString());
-			JOptionPane.showMessageDialog(parentComponent, "IOCheckboxAction::call::"+messageInfo.getMessageID());
-		}
-		
-	}
-	
-	class DirectionCheckboxAction implements ActionListener {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			System.out.println("DirectionCheckboxAction::"+e.toString());
-			JOptionPane.showMessageDialog(parentComponent, "DirectionCheckboxAction::call::"+messageInfo.getMessageID());
-		}
-		
-	}*/
 	
 	class SourceFileCreateButtonAction implements ActionListener {
 		@Override
-		public void actionPerformed(ActionEvent e) {
-			System.out.println("SourceFileCreateButtonAction::"+e.toString()+"::"+messageInfo.getMessageID());
-			
+		public void actionPerformed(ActionEvent e) {			
 			boolean isSuccess = sourceManager.createSourceFile(ioCheckBox.isSelected(), directionCheckBox.isSelected(), messageInfo);
 			if (isSuccess) {
 				StringBuilder messageBuilder = new StringBuilder("메시지[");
@@ -91,10 +72,6 @@ public class SourceFileCellValue extends JPanel {
 	public String getMessageID() {
 		return messageInfo.getMessageID();
 	}
-
-	/*public void setMessageID(String messageID) {
-		this.messageID = messageID;
-	}*/
 
 	public boolean isSelectedIO() {
 		return ioCheckBox.isSelected();

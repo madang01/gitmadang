@@ -32,7 +32,7 @@ import kr.pe.sinnori.common.sessionkey.ClientSessionKeyManager;
 import kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager;
 import kr.pe.sinnori.common.sessionkey.SymmetricKey;
 import kr.pe.sinnori.impl.message.BinaryPublicKey.BinaryPublicKey;
-import kr.pe.sinnori.impl.message.Login.Login;
+import kr.pe.sinnori.impl.message.LoginWithSessionKey.LoginWithSessionKey;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
 
 import org.apache.commons.codec.binary.Base64;
@@ -61,14 +61,14 @@ public class LoginSvl extends AbstractServlet {
 			String parmSessionKeyBase64 = req.getParameter("sessionkeyBase64");
 			String parmIVBase64 = req.getParameter("ivBase64");
 
-			String parmID = req.getParameter("id");
-			String parmPWD = req.getParameter("pwd");
+			String parmId = req.getParameter("id");
+			String parmPwd = req.getParameter("pwd");
 			
 			log.info(String.format("parm sessionkeyBase64=[%s]", parmSessionKeyBase64));
 			log.info(String.format("parm ivBase64=[%s]", parmIVBase64));
 
-			log.info(String.format("parm id=[%s]", parmID));
-			log.info(String.format("parm pwd=[%s]", parmPWD));
+			log.info(String.format("parm id=[%s]", parmId));
+			log.info(String.format("parm pwd=[%s]", parmPwd));
 			
 			// req.setAttribute("isSuccess", Boolean.FALSE);
 			
@@ -90,10 +90,10 @@ public class LoginSvl extends AbstractServlet {
 				return;
 			}
 			
-			String id = webUserSymmetricKey.decryptStringBase64(parmID);
-			String pwd = webUserSymmetricKey.decryptStringBase64(parmPWD);
+			String userId = webUserSymmetricKey.decryptStringBase64(parmId);
+			String password = webUserSymmetricKey.decryptStringBase64(parmPwd);
 			
-			log.info("id=[{}], pwd=[{}]", id, pwd);
+			log.info("id=[{}], password=[{}]", userId, password);
 			
 			MessageResult messageResultOutObj = new MessageResult();
 			messageResultOutObj.setTaskMessageID("");
@@ -117,10 +117,10 @@ public class LoginSvl extends AbstractServlet {
 				SymmetricKey serverSymmetricKey = clientSessionKeyManage.getSymmetricKey();				
 				byte ivBytes[] = serverSymmetricKey.getIV();
 
-				Login loginInObj = new Login();
+				LoginWithSessionKey loginInObj = new LoginWithSessionKey();
 				
-				loginInObj.setIdCipherBase64(serverSymmetricKey.encryptStringBase64(id));
-				loginInObj.setPwdCipherBase64(serverSymmetricKey.encryptStringBase64(pwd));
+				loginInObj.setIdCipherBase64(serverSymmetricKey.encryptStringBase64(userId));
+				loginInObj.setPwdCipherBase64(serverSymmetricKey.encryptStringBase64(password));
 				loginInObj.setSessionKeyBase64(Base64.encodeBase64String(sessionKeyBytes));
 				loginInObj.setIvBase64(Base64.encodeBase64String(ivBytes));				
 
@@ -129,7 +129,7 @@ public class LoginSvl extends AbstractServlet {
 					messageResultOutObj = (MessageResult)messageFromServer;
 					if (messageResultOutObj.getTaskResult().equals("Y")){
 						HttpSession httpSession = req.getSession();
-						httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_USERID_NAME, id);
+						httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_USERID_NAME, userId);
 					}
 					
 				} else {

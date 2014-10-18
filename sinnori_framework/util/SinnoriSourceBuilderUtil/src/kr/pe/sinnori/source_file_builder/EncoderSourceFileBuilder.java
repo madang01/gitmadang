@@ -126,17 +126,17 @@ public class EncoderSourceFileBuilder extends AbstractSourceFileBuildre {
 			} else {
 				ArrayInfo arrayInfoOfChild = (ArrayInfo) itemInfo;
 				
-				// AllDataType.Member[] memberList = allDataTypeInObj.getMemberList();
+				// List<AllDataType.Member> memberList = allDataType.getMemberList();	
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				for (int i=0; i < depth; i++) {
 					stringBuilder.append("\t");
 				}
-				stringBuilder.append("\t\t");
+				stringBuilder.append("\t\tjava.util.List<");
 				stringBuilder.append(path);
 				stringBuilder.append(".");
 				stringBuilder.append(arrayInfoOfChild.getFirstUpperItemName());
-				stringBuilder.append("[] ");
+				stringBuilder.append("> ");
 				stringBuilder.append(arrayInfoOfChild.getItemName());
 				stringBuilder.append("List = ");
 				stringBuilder.append(varName);
@@ -182,14 +182,32 @@ public class EncoderSourceFileBuilder extends AbstractSourceFileBuildre {
 					stringBuilder.append(arrayInfoOfChild.getArrayCntValue().substring(1));
 					stringBuilder.append("()) {");
 					
-					// String errorMessage = new StringBuilder(allDataTypeInObjSingleItemPath)
+					// String errorMessage = new StringBuilder(allDataTypeSingleItemPath)
 					stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 					for (int i=0; i < depth; i++) {
 						stringBuilder.append("\t");
 					}
-					stringBuilder.append("\t\t\t\tString errorMessage = new StringBuilder(");
+					stringBuilder.append("\t\t\t\tString errorMessage = new StringBuilder(\"간접 참조 회수[\"");
+					stringBuilder.append(")");
+					
+					stringBuilder.append(CommonStaticFinalVars.NEWLINE);	
+					stringBuilder.append("\t\t\t\t.append(");
 					stringBuilder.append(varName);
-					stringBuilder.append("SingleItemPath)");
+					stringBuilder.append(".get");
+					stringBuilder.append(arrayInfoOfChild.getArrayCntValue().substring(0, 1).toUpperCase());
+					stringBuilder.append(arrayInfoOfChild.getArrayCntValue().substring(1));
+					stringBuilder.append("()");
+					stringBuilder.append(")");
+					
+					stringBuilder.append(CommonStaticFinalVars.NEWLINE);	
+					stringBuilder.append("\t\t\t\t.append(");
+					stringBuilder.append("\"] is not zero but \")");
+					
+					stringBuilder.append(CommonStaticFinalVars.NEWLINE);	
+					stringBuilder.append("\t\t\t\t.append(");
+					stringBuilder.append(varName);
+					stringBuilder.append("SingleItemPath");
+					stringBuilder.append(")");
 					
 					// .append(".")
 					stringBuilder.append(CommonStaticFinalVars.NEWLINE);
@@ -283,6 +301,17 @@ public class EncoderSourceFileBuilder extends AbstractSourceFileBuildre {
 				}
 				stringBuilder.append("\t\t} else {");
 				
+				// int memberListSize = memberList.size();
+				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+				for (int i=0; i < depth; i++) {
+					stringBuilder.append("\t");
+				}
+				stringBuilder.append("\t\t\tint ");
+				stringBuilder.append(arrayInfoOfChild.getItemName());
+				stringBuilder.append("ListSize = ");
+				stringBuilder.append(arrayInfoOfChild.getItemName());
+				stringBuilder.append("List.size();");
+				
 				// /** 배열 값이 null 이 아닐때에는 배열 크기가 배열 정보에서 지정된 크기와 같은지 검사 */
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				for (int i=0; i < depth; i++) {
@@ -291,19 +320,26 @@ public class EncoderSourceFileBuilder extends AbstractSourceFileBuildre {
 				stringBuilder.append("\t\t\t/** 배열 값이 null 이 아닐때에는 배열 크기가 배열 정보에서 지정된 크기와 같은지 검사 */");
 				
 				
-				// if (memberList.length != allDataTypeInObj.getCnt()) {
+				// if (memberListSize != allDataTypeInObj.getCnt()) {
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				for (int i=0; i < depth; i++) {
 					stringBuilder.append("\t");
 				}
 				stringBuilder.append("\t\t\tif (");
 				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("List.length != ");
-				stringBuilder.append(varName);
-				stringBuilder.append(".get");
-				stringBuilder.append(arrayInfoOfChild.getArrayCntValue().substring(0, 1).toUpperCase());
-				stringBuilder.append(arrayInfoOfChild.getArrayCntValue().substring(1));
-				stringBuilder.append("()) {");
+				stringBuilder.append("ListSize != ");
+				
+				if (arrayInfoOfChild.getArrayCntType().equals("reference")) {
+					stringBuilder.append(varName);
+					stringBuilder.append(".get");
+					stringBuilder.append(arrayInfoOfChild.getArrayCntValue().substring(0, 1).toUpperCase());
+					stringBuilder.append(arrayInfoOfChild.getArrayCntValue().substring(1));
+					stringBuilder.append("()");
+				} else {
+					stringBuilder.append(arrayInfoOfChild.getArrayCntValue());
+				}				
+				
+				stringBuilder.append(") {");
 				
 				// String errorMessage = new StringBuilder(allDataTypeInObjSingleItemPath)
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
@@ -331,14 +367,14 @@ public class EncoderSourceFileBuilder extends AbstractSourceFileBuildre {
 				stringBuilder.append(arrayInfoOfChild.getItemName());
 				stringBuilder.append("List.length[\")");
 				
-				// .append(memberList.length)
+				// .append(memberListSize)
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				for (int i=0; i < depth; i++) {
 					stringBuilder.append("\t");
 				}
 				stringBuilder.append("\t\t\t\t.append(");
 				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("List.length)");
+				stringBuilder.append("ListSize)");
 				
 				// .append("] is not same to ")
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
@@ -419,11 +455,11 @@ public class EncoderSourceFileBuilder extends AbstractSourceFileBuildre {
 				stringBuilder.append(arrayInfoOfChild.getItemName());
 				stringBuilder.append("\", ");
 				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("List.length, ");
+				stringBuilder.append("ListSize, ");
 				stringBuilder.append(middleObjVarName);
 				stringBuilder.append(");");
 				
-				// for (int i=0; i < memberList.length; i++) {
+				// for (int i=0; i < memberListSize; i++) {
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				for (int i=0; i < depth; i++) {
 					stringBuilder.append("\t");
@@ -434,7 +470,7 @@ public class EncoderSourceFileBuilder extends AbstractSourceFileBuildre {
 				stringBuilder.append(getCountVarName(depth));
 				stringBuilder.append(" < ");
 				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("List.length; ");
+				stringBuilder.append("ListSize; ");
 				stringBuilder.append(getCountVarName(depth));
 				stringBuilder.append("++) {");
 				
@@ -473,7 +509,7 @@ public class EncoderSourceFileBuilder extends AbstractSourceFileBuildre {
 				stringBuilder.append(getCountVarName(depth));
 				stringBuilder.append(");");
 				
-				// AllDataType.Member member = memberList[i];
+				// AllDataType.Member member = memberList.get(i);
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				for (int i=0; i < depth; i++) {
 					stringBuilder.append("\t");
@@ -486,9 +522,9 @@ public class EncoderSourceFileBuilder extends AbstractSourceFileBuildre {
 				stringBuilder.append(arrayInfoOfChild.getItemName());
 				stringBuilder.append(" = ");
 				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("List[");
+				stringBuilder.append("List.get(");
 				stringBuilder.append(getCountVarName(depth));
-				stringBuilder.append("];");
+				stringBuilder.append(");");
 				
 				// FIXME!
 				stringBuilder.append(toBody(depth+2, path+"."+arrayInfoOfChild.getFirstUpperItemName(), 
@@ -662,7 +698,6 @@ public class EncoderSourceFileBuilder extends AbstractSourceFileBuildre {
 		
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("}");
-		// System.out.println(stringBuilder.toString());
 		return stringBuilder.toString();
 	}
 }

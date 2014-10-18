@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -44,6 +46,8 @@ import org.xml.sax.helpers.DefaultHandler;
  * 
  */
 public class MessageInfoSAXParser extends DefaultHandler {
+	private Logger logger =  Logger.getGlobal();
+	
 	private boolean isFileNameCheck = true;
 	private SAXParserFactory parserFact;
 	private SAXParser parser;
@@ -112,7 +116,8 @@ public class MessageInfoSAXParser extends DefaultHandler {
 				String errorMessage = String.format(
 						"환경변수 등재된 루트 태그[%s] 와 읽어 온 XML 파일의 루트 태그[%s]가 일치하지 않습니다.",
 						ROOT_TAG, startTag);
-				System.out.println(errorMessage);
+				
+				logger.log(Level.WARNING, errorMessage);
 				
 				isBadXML = true;
 				return;
@@ -136,7 +141,8 @@ public class MessageInfoSAXParser extends DefaultHandler {
 			if (null == itemName) {
 				// log.warn(String.format("단일 항목[%s] 필수 속성인 '항목 이름' 없음", startTag));
 				String errorMessage = String.format("단일 항목[%s] 필수 속성인 '항목 이름' 없음", startTag);
-				System.out.println(errorMessage);
+				
+				logger.log(Level.WARNING, errorMessage);
 				isBadXML = true;
 				return;
 			}
@@ -144,7 +150,8 @@ public class MessageInfoSAXParser extends DefaultHandler {
 			if (null != workItemGroupInfo.getItemInfo(itemName)) {
 				// log.warn(String.format("단일 항목[%s] 필수 속성인 '항목 이름' 중복", startTag));
 				String errorMessage = String.format("단일 항목[%s] 필수 속성인 '항목 이름' 중복", startTag);
-				System.out.println(errorMessage);
+				
+				logger.log(Level.WARNING, errorMessage);
 				
 				isBadXML = true;
 				return;
@@ -174,7 +181,8 @@ public class MessageInfoSAXParser extends DefaultHandler {
 			if (!itemName.matches(regularStr.toString())) {
 				// log.warn(String.format("bad item name[%s], 항목 이름은 XML 이름 규칙을 따른다.", itemName));
 				String errorMessage = String.format("bad item name[%s], 항목 이름은 XML 이름 규칙을 따른다.", itemName);
-				System.out.println(errorMessage);
+				
+				logger.log(Level.WARNING, errorMessage);
 				isBadXML = true;
 				return;
 			}
@@ -188,7 +196,8 @@ public class MessageInfoSAXParser extends DefaultHandler {
 				 */
 				// log.warn(String.format("bad item name[%s], 항목 이름은 대소 문자 구분없이 XML 로 시작되는 문자열을 가질 수 없습니다.", itemName));
 				String errorMessage = String.format("bad item name[%s], 항목 이름은 대소 문자 구분없이 XML 로 시작되는 문자열을 가질 수 없습니다.", itemName);
-				System.out.println(errorMessage);
+				
+				logger.log(Level.WARNING, errorMessage);
 				isBadXML = true;
 				return;
 			}
@@ -199,7 +208,8 @@ public class MessageInfoSAXParser extends DefaultHandler {
 			if (null == itemType) {
 				// log.warn(String.format("단일 항목[%s] 필수 속성인 '항목 타입' 없음", startTag));
 				String errorMessage = String.format("단일 항목[%s] 필수 속성인 '항목 타입' 없음", startTag);
-				System.out.println(errorMessage);
+				
+				logger.log(Level.WARNING, errorMessage);
 				isBadXML = true;
 				return;
 			}
@@ -226,7 +236,8 @@ public class MessageInfoSAXParser extends DefaultHandler {
 				} catch (NumberFormatException num_e) {
 					// log.warn(String.format("단일 항목[%s] 타입 부가 정보인 크기[%s]가 숫자가 아닙니다.", itemName, itemSize));
 					String errorMessage = String.format("단일 항목[%s] 타입 부가 정보인 크기[%s]가 숫자가 아닙니다.", itemName, itemSize);
-					System.out.println(errorMessage);
+					
+					logger.log(Level.WARNING, errorMessage);
 					isBadXML = true;
 					return;
 				}
@@ -250,7 +261,8 @@ public class MessageInfoSAXParser extends DefaultHandler {
 				} catch (Exception e) {
 					// log.warn(String.format("단일 항목[%s] 타입 부가 정보인 문자셋[%s]이 옳바르지 않습니다.", itemName, itemCharset));
 					String errorMessage = String.format("단일 항목[%s] 타입 부가 정보인 문자셋[%s]이 옳바르지 않습니다.", itemName, itemCharset);
-					System.out.println(errorMessage);
+					
+					logger.log(Level.WARNING, errorMessage);
 					isBadXML = true;
 					return;
 				}
@@ -265,7 +277,8 @@ public class MessageInfoSAXParser extends DefaultHandler {
 				if (null == itemSize) {
 					// log.warn(String.format("고정 크기 바이트 배열형 타입 단일 항목[%s]은 크기 지정이 필 수 입니다.", itemName));
 					String errorMessage = String.format("고정 크기 바이트 배열형 타입 단일 항목[%s]은 크기 지정이 필 수 입니다.", itemName);
-					System.out.println(errorMessage);
+					
+					logger.log(Level.WARNING, errorMessage);
 					isBadXML = true;
 					return;
 				}
@@ -273,7 +286,8 @@ public class MessageInfoSAXParser extends DefaultHandler {
 				if (itemSizeForLang <= 0) {
 					//log.warn(String.format("고정 크기 바이트 배열형 타입 단일 항목[%s]의 크기[%d]는 0보다 커야 합니다.",  itemName, itemSizeForLang));
 					String errorMessage = String.format("고정 크기 바이트 배열형 타입 단일 항목[%s]의 크기[%d]는 0보다 커야 합니다.",  itemName, itemSizeForLang);
-					System.out.println(errorMessage);
+					
+					logger.log(Level.WARNING, errorMessage);
 					isBadXML = true;
 					return;
 				}
@@ -282,7 +296,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 				if (null == itemSize) {
 					// log.warn(String.format("[%s]은 크기 지정이 필 수 입니다.", itemName));
 					String errorMessage = String.format("[%s]은 크기 지정이 필 수 입니다.", itemName);
-					System.out.println(errorMessage);
+					logger.log(Level.WARNING, errorMessage);
 					isBadXML = true;
 					return;
 				}
@@ -290,7 +304,8 @@ public class MessageInfoSAXParser extends DefaultHandler {
 				if (itemSizeForLang <= 0) {
 					// log.warn(String.format("고정 크기 문자열 타입 단일 항목[%s]의 크기[%s]는 0보다 커야 합니다.", itemName, itemSize));
 					String errorMessage = String.format("고정 크기 문자열 타입 단일 항목[%s]의 크기[%s]는 0보다 커야 합니다.", itemName, itemSize);
-					System.out.println(errorMessage);
+					
+					logger.log(Level.WARNING, errorMessage);
 					isBadXML = true;
 					return;
 				}
@@ -318,7 +333,8 @@ public class MessageInfoSAXParser extends DefaultHandler {
 			} catch (IllegalArgumentException e) {
 				// log.warn(String.format("파일[%s] 단일 항목[%s] 클래스 인스턴스 생성 실패::%s", xmlFile.getName(), startTag, e.getMessage()));
 				String errorMessage = String.format("파일[%s] 단일 항목[%s] 클래스 인스턴스 생성 실패::%s", xmlFile.getName(), startTag, e.getMessage());
-				System.out.println(errorMessage);
+				
+				logger.log(Level.WARNING, errorMessage);
 				isBadXML = true;
 				return;
 			}
@@ -332,7 +348,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 			if (null == arrayName) {
 				// log.warn(String.format("배열 항목[%s] 필수 속성인 '배열 이름' 없음", startTag));
 				String errorMessage = String.format("배열 항목[%s] 필수 속성인 '배열 이름' 없음", startTag);
-				System.out.println(errorMessage);
+				logger.log(Level.WARNING, errorMessage);
 				isBadXML = true;
 				return;
 			}
@@ -340,7 +356,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 			if (null != workItemGroupInfo.getItemInfo(arrayName)) {
 				// log.warn(String.format("11.error :: 배열 항목[%s] 필수 속성인 '배열 이름' 중복", startTag));
 				String errorMessage = String.format("배열 항목[%s] 필수 속성인 '배열 이름' 중복", startTag);
-				System.out.println(errorMessage);
+				logger.log(Level.WARNING, errorMessage);
 				isBadXML = true;
 				return;
 			}
@@ -355,7 +371,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 				if (null == refItemInfo) {
 					// log.warn(String.format("배열[%s]의 크기를 지정하는 참조 항목[%s]이 존재하지 않습니다", arrayName, arrayCntValue));
 					String errorMessage = String.format("배열[%s]의 크기를 지정하는 참조 항목[%s]이 존재하지 않습니다", arrayName, arrayCntValue);
-					System.out.println(errorMessage);
+					logger.log(Level.WARNING, errorMessage);
 					isBadXML = true;
 					return;
 				}
@@ -365,7 +381,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 				if (CommonType.LOGICAL_ITEM_GUBUN.ARRAY_ITEM == refLogicalItemType) {
 					// log.warn(String.format("배열[%s]의 크기를 지정하는 참조 항목[%s]은 숫자형 단일 항목만 올 수 있습니다. 참조 항목은 배열입니다.", arrayName, arrayCntValue));
 					String errorMessage = String.format("배열[%s]의 크기를 지정하는 참조 항목[%s]은 숫자형 단일 항목만 올 수 있습니다. 참조 항목은 배열입니다.", arrayName, arrayCntValue);
-					System.out.println(errorMessage);
+					logger.log(Level.WARNING, errorMessage);
 					isBadXML = true;
 					return;
 				}
@@ -377,7 +393,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 						|| -1 != refItemType.lastIndexOf("string")) {
 					// log.warn(String.format("배열[%s]의 크기를 지정하는 참조 항목[%s]은 숫자형 단일 항목만 올 수 있습니다. 참조 항목 타입[%s]", arrayName, arrayCntValue, refItemType));
 					String errorMessage = String.format("배열[%s]의 크기를 지정하는 참조 항목[%s]은 숫자형 단일 항목만 올 수 있습니다. 참조 항목 타입[%s]", arrayName, arrayCntValue, refItemType);
-					System.out.println(errorMessage);
+					logger.log(Level.WARNING, errorMessage);
 					
 					// System.exit(1);
 					isBadXML = true;
@@ -387,7 +403,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 				if (null == arrayCntValue) {
 					// log.warn(String.format("배열[%s]은 크기 지정은 필 수 입니다.", arrayName));
 					String errorMessage = String.format("배열[%s]은 크기 지정은 필 수 입니다.", arrayName);
-					System.out.println(errorMessage);
+					logger.log(Level.WARNING, errorMessage);
 					
 					isBadXML = true;
 					return;
@@ -401,7 +417,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 					} catch (NumberFormatException num_e) {
 						// log.warn(String.format("배열[%s]의 크기[%s]가 숫자가 아닙니다.", arrayName, arrayCntValue));
 						String errorMessage = String.format("배열[%s]의 크기[%s]가 숫자가 아닙니다.", arrayName, arrayCntValue);
-						System.out.println(errorMessage);
+						logger.log(Level.WARNING, errorMessage);
 						isBadXML = true;
 						return;
 					}
@@ -410,7 +426,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 				if (itemSizeForLang > 0) {
 					// log.warn(String.format("배열[%s]의 크기[%s]는 0보다 커야 합니다.", arrayName, arrayCntValue));
 					String errorMessage = String.format("배열[%s]의 크기[%s]는 0보다 커야 합니다.", arrayName, arrayCntValue);
-					System.out.println(errorMessage);
+					logger.log(Level.WARNING, errorMessage);
 					isBadXML = true;
 					return;
 				}
@@ -433,7 +449,6 @@ public class MessageInfoSAXParser extends DefaultHandler {
 		// tagValue.append(ch, start, length);
 		String tagValue = new String(ch, start, length);
 
-		// System.out.println(String.format("tagValue=[%s]", tagValue));
 
 		/**
 		 * 메시지 식별자에 대한 설명을 하는 태그(=desc)는 무시한다. 따라서 desc 태그의 값은 저장하지 않는다.
@@ -453,7 +468,6 @@ public class MessageInfoSAXParser extends DefaultHandler {
 			return;
 
 		String endTag = qName.toLowerCase();
-		// System.out.println(String.format("endTag=[%s]", endTag));
 
 		startTagStack.pop();
 
@@ -468,44 +482,46 @@ public class MessageInfoSAXParser extends DefaultHandler {
 			if (tagValueStack.empty()) {
 				// log.warn("16.error :: 메시지 식별자는 필수 항목");
 				String errorMessage = "메시지 식별자는 필수 항목";
-				System.out.println(errorMessage);
+				logger.log(Level.WARNING, errorMessage);
 				
 				isBadXML = true;
 				return;
 			}
 
-			String tagValue = tagValueStack.pop();
+			String tagValue = tagValueStack.pop();			
 			
-			String fileName = xmlFile.getName();
-			int lastIndex = fileName.lastIndexOf('.');
-			String t1 = fileName.substring(0, lastIndex);
-			int firstIndex = t1.lastIndexOf('.');
-			
-			String messageID = null;
-			if (firstIndex != -1) {
-				messageID = t1.substring(firstIndex+1);
-			} else {
-				messageID = t1;
-			}
-			
-			if (isFileNameCheck && !messageID.equals(tagValue)) {
-				String errorMessage = String.format("메시지 정보 파일 이름으로 추출된 메시지 식별자[%s]와 메시지 정보 파일에서 지정한 메시지 식별자[%s]가 다릅니다.", messageID, tagValue);
-				System.out.println(errorMessage);
+			if (isFileNameCheck) {
+				String fileName = xmlFile.getName();
+				int lastIndex = fileName.lastIndexOf('.');
+				String t1 = fileName.substring(0, lastIndex);
+				int firstIndex = t1.lastIndexOf('.');
 				
-				isBadXML = true;
-				return;
+				String messageID = null;
+				if (firstIndex != -1) {
+					messageID = t1.substring(firstIndex+1);
+				} else {
+					messageID = t1;
+				}
+				
+				if (!messageID.equals(tagValue)) {
+					String errorMessage = String.format("메시지 정보 파일 이름으로 추출된 메시지 식별자[%s]와 메시지 정보 파일에서 지정한 메시지 식별자[%s]가 다릅니다.", messageID, tagValue);
+					logger.log(Level.WARNING, errorMessage);
+					
+					isBadXML = true;
+					return;
+				}
+				
+				String regexMessageID = "[A-Z][a-zA-Z0-9]+";
+				boolean isValid = messageID.matches(regexMessageID);
+				if (!isValid) {
+					String errorMessage = String.format("메시지 식별자[%s]는 첫번째 글자는 대문자이어야 하고 두번째 문자부터는 영문과 숫자로 구성됩니다.", messageID);
+					logger.log(Level.WARNING, errorMessage);
+					
+					isBadXML = true;
+					return;
+				}
 			}
 			
-			// messageID = tagValue;
-			String regexMessageID = "[A-Z][a-zA-Z0-9]+";
-			boolean isValid = messageID.matches(regexMessageID);
-			if (!isValid) {
-				String errorMessage = String.format("메시지 식별자[%s]는 첫번째 글자는 대문자이어야 하고 두번째 문자부터는 영문과 숫자로 구성됩니다.", messageID);
-				System.out.println(errorMessage);
-				
-				isBadXML = true;
-				return;
-			}
 			
 			MessageInfo messageInfo = new MessageInfo(tagValue, xmlFile.lastModified());
 
@@ -514,7 +530,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 		} else if (endTag.equals("direction")) {
 			if (tagValueStack.empty()) {
 				String errorMessage = "메시지 통신 방향은 필수 항목";
-				System.out.println(errorMessage);
+				logger.log(Level.WARNING, errorMessage);
 				
 				isBadXML = true;
 				return;
@@ -536,7 +552,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 				messageInfo.setDirection(CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL);
 			} else {
 				String errorMessage = "알수 없는 메시지 통신 방향 값::"+tagValue;
-				System.out.println(errorMessage);
+				logger.log(Level.WARNING, errorMessage);
 				
 				isBadXML = true;
 				return;

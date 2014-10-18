@@ -56,7 +56,7 @@ public class BoardListRequestServerTask extends AbstractServerTask {
 				HashMap<String, Object> boardHash = boardHashList.get(i);
 				boardList[i].setBoardNO((Long)boardHash.get("board_no"));
 			}
-			outObj.setBoardList(boardList);
+			//outObj.setBoardList(boardList);
 			
 		}
 		letterSender.addSyncMessage(outObj);

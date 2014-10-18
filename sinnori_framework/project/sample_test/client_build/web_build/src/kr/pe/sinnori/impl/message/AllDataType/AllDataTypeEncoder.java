@@ -288,25 +288,29 @@ public final class AllDataTypeEncoder extends MessageEncoder {
 					, charsetOfProject
 					, middleWriteObj);
 
-		AllDataType.Member[] memberList = allDataType.getMemberList();
+		java.util.List<AllDataType.Member> memberList = allDataType.getMemberList();
 
 		/** 배열 정보와 배열 크기 일치 검사 */
 		if (null == memberList) {
 			/** 배열 크기 지정 방식이 간접일 경우 참조하는 변수값이 0 일 경우만 배열 값으로 null 을 허용한다. */
 			if (0 != allDataType.getCnt()) {
-				String errorMessage = new StringBuilder(allDataTypeSingleItemPath)
+				String errorMessage = new StringBuilder("간접 참조 회수[")
+				.append(allDataType.getCnt())
+				.append("] is not zero but ")
+				.append(allDataTypeSingleItemPath)
 				.append(".")
 				.append("memberList")
 				.append("is null").toString();
 				throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
 			}
 		} else {
+			int memberListSize = memberList.size();
 			/** 배열 값이 null 이 아닐때에는 배열 크기가 배열 정보에서 지정된 크기와 같은지 검사 */
-			if (memberList.length != allDataType.getCnt()) {
+			if (memberListSize != allDataType.getCnt()) {
 				String errorMessage = new StringBuilder(allDataTypeSingleItemPath)
 				.append(".")
 				.append("memberList.length[")
-				.append(memberList.length)
+				.append(memberListSize)
 				.append("] is not same to ")
 				.append(allDataTypeSingleItemPath)
 				.append(".")
@@ -316,12 +320,12 @@ public final class AllDataTypeEncoder extends MessageEncoder {
 				throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
 			}
 
-			Object memberMiddleWriteArray = singleItemEncoder.getArrayObjFromMiddleWriteObj(allDataTypeSingleItemPath, "member", memberList.length, middleWriteObj);
-			for (int i=0; i < memberList.length; i++) {
+			Object memberMiddleWriteArray = singleItemEncoder.getArrayObjFromMiddleWriteObj(allDataTypeSingleItemPath, "member", memberListSize, middleWriteObj);
+			for (int i=0; i < memberListSize; i++) {
 				singleItemPathStatck.push(new StringBuilder(singleItemPathStatck.getLast()).append(".").append("Member").append("[").append(i).append("]").toString());
 				String memberSingleItemPath = singleItemPathStatck.getLast();
 				Object memberMiddleWriteObj = singleItemEncoder.getMiddleWriteObjFromArrayObj(memberSingleItemPath, memberMiddleWriteArray, i);
-				AllDataType.Member member = memberList[i];
+				AllDataType.Member member = memberList.get(i);
 				singleItemEncoder.putValueToMiddleWriteObj(memberSingleItemPath, "memberID"
 							, 10 // itemTypeID
 							, "fixed length string" // itemTypeName
@@ -347,25 +351,29 @@ public final class AllDataTypeEncoder extends MessageEncoder {
 							, charsetOfProject
 							, memberMiddleWriteObj);
 
-				AllDataType.Member.Item[] itemList = member.getItemList();
+				java.util.List<AllDataType.Member.Item> itemList = member.getItemList();
 
 				/** 배열 정보와 배열 크기 일치 검사 */
 				if (null == itemList) {
 					/** 배열 크기 지정 방식이 간접일 경우 참조하는 변수값이 0 일 경우만 배열 값으로 null 을 허용한다. */
 					if (0 != member.getCnt()) {
-						String errorMessage = new StringBuilder(memberSingleItemPath)
+						String errorMessage = new StringBuilder("간접 참조 회수[")
+				.append(member.getCnt())
+				.append("] is not zero but ")
+				.append(memberSingleItemPath)
 						.append(".")
 						.append("itemList")
 						.append("is null").toString();
 						throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
 					}
 				} else {
+					int itemListSize = itemList.size();
 					/** 배열 값이 null 이 아닐때에는 배열 크기가 배열 정보에서 지정된 크기와 같은지 검사 */
-					if (itemList.length != member.getCnt()) {
+					if (itemListSize != member.getCnt()) {
 						String errorMessage = new StringBuilder(memberSingleItemPath)
 						.append(".")
 						.append("itemList.length[")
-						.append(itemList.length)
+						.append(itemListSize)
 						.append("] is not same to ")
 						.append(memberSingleItemPath)
 						.append(".")
@@ -375,12 +383,12 @@ public final class AllDataTypeEncoder extends MessageEncoder {
 						throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
 					}
 
-					Object itemMiddleWriteArray = singleItemEncoder.getArrayObjFromMiddleWriteObj(memberSingleItemPath, "item", itemList.length, memberMiddleWriteObj);
-					for (int ii=0; ii < itemList.length; ii++) {
+					Object itemMiddleWriteArray = singleItemEncoder.getArrayObjFromMiddleWriteObj(memberSingleItemPath, "item", itemListSize, memberMiddleWriteObj);
+					for (int ii=0; ii < itemListSize; ii++) {
 						singleItemPathStatck.push(new StringBuilder(singleItemPathStatck.getLast()).append(".").append("Item").append("[").append(ii).append("]").toString());
 						String itemSingleItemPath = singleItemPathStatck.getLast();
 						Object itemMiddleWriteObj = singleItemEncoder.getMiddleWriteObjFromArrayObj(itemSingleItemPath, itemMiddleWriteArray, ii);
-						AllDataType.Member.Item item = itemList[ii];
+						AllDataType.Member.Item item = itemList.get(ii);
 						singleItemEncoder.putValueToMiddleWriteObj(itemSingleItemPath, "itemID"
 									, 10 // itemTypeID
 									, "fixed length string" // itemTypeName
