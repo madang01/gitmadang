@@ -18,18 +18,16 @@
 package kr.pe.sinnori.server;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import kr.pe.sinnori.common.classload.SinnoriClassLoader;
 import kr.pe.sinnori.common.configuration.CommonProjectConfig;
 import kr.pe.sinnori.common.configuration.ServerProjectConfig;
-import kr.pe.sinnori.common.exception.DBNotReadyException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.lib.AbstractProject;
@@ -37,6 +35,9 @@ import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.SocketInputStream;
 import kr.pe.sinnori.common.lib.WrapBuffer;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
+import kr.pe.sinnori.server.classloader.JarClassInfo;
+import kr.pe.sinnori.server.classloader.JarUtil;
+import kr.pe.sinnori.server.classloader.ServerClassLoader;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
 import kr.pe.sinnori.server.io.LetterFromClient;
 import kr.pe.sinnori.server.io.LetterToClient;
@@ -46,11 +47,7 @@ import kr.pe.sinnori.server.threadpool.executor.ExecutorPool;
 import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderPool;
 import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterPool;
 
-import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+
 
 /**
  * <pre> 
@@ -76,17 +73,17 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
  *
  */
 public class ServerProject extends AbstractProject 
-	implements ClientResourceManagerIF, ServerObjectCacheManagerIF, LoginManagerIF, SinnoriSqlSessionFactoryIF {
+	implements ClientResourceManagerIF, ServerObjectCacheManagerIF, LoginManagerIF {
 	/** 모니터 객체 */
 	// private final Object clientResourceMonitor = new Object();
 	
 	/** 동적 클래스인 서버 타스크 객체 운영에 관련된 변수 시작 */
 	private final Object monitorOfServerTaskObj = new  Object();
 	private final ClassLoader sytemClassLoader = ClassLoader.getSystemClassLoader();
-	private SinnoriClassLoader workBaseClassLoader = null;
+	private ServerClassLoader workBaseClassLoader = null;
 	private HashMap<String, ServerTaskObjectInfo> className2ServerTaskObjectInfoHash = new HashMap<String, ServerTaskObjectInfo>();
-	private String dynamicClassBinaryBasePath = null;
-	private String dynamicClassBasePackageName = null;
+	private String classLoaderAPPINFPathName = null;
+	private String classLoaderClassPackagePrefixName = null;
 	/** 동적 클래스인 서버 타스크 객체 운영에 관련된 변수 종료 */
 	
 	/** 접속 승인 큐 */
@@ -121,8 +118,8 @@ public class ServerProject extends AbstractProject
 	private ServerProjectConfig serverProjectConfig = null;
 	
 	
-	// private SinnoriClassLoader mybatisConfigClassLoader = null;
-	private SqlSessionFactory factory = null;
+	private Hashtable<String, JarClassInfo> jarClassInfoHash = null;
+	
 	
 	/**
 	 * 생성자
@@ -137,9 +134,15 @@ public class ServerProject extends AbstractProject
 		serverProjectConfig = conf.getServerProjectConfig(projectName);
 		initCommon();
 		
-		dynamicClassBinaryBasePath = serverProjectConfig.getDynamicClassBinaryBasePath().getAbsolutePath();
-		dynamicClassBasePackageName = serverProjectConfig.getDynamicClassBasePackageName();
-		workBaseClassLoader = new SinnoriClassLoader(sytemClassLoader, dynamicClassBinaryBasePath, dynamicClassBasePackageName);
+		classLoaderAPPINFPathName = serverProjectConfig.getClassLoaderAPPINFPath().getAbsolutePath();
+		classLoaderClassPackagePrefixName = serverProjectConfig.getClassLoaderClassPackagePrefixName();
+		try {
+			jarClassInfoHash = JarUtil.getJarClassInfoHash(classLoaderAPPINFPathName+File.separator+"lib");
+		} catch (FileNotFoundException e) {
+			log.error("FileNotFoundException", e);
+			System.exit(1);
+		}
+		workBaseClassLoader = new ServerClassLoader(sytemClassLoader, classLoaderAPPINFPathName, classLoaderClassPackagePrefixName, jarClassInfoHash);
 		
 		int dataPacketBufferCnt = serverProjectConfig.getServerDataPacketBufferCnt();
 		
@@ -198,7 +201,7 @@ public class ServerProject extends AbstractProject
 				executorProcessorSize, executorProcessorMaxSize,
 				serverProjectConfig,				
 				inputMessageQueue, outputMessageQueue, 
-				messageProtocol, this, this, this);
+				messageProtocol, this, this);
 
 		outputMessageWriterPool = new OutputMessageWriterPool(
 				outputMessageWriterSize, outputMessageWriterMaxSize,
@@ -208,19 +211,6 @@ public class ServerProject extends AbstractProject
 		serverProjectMonitor = new ServerProjectMonitor(serverProjectConfig.getServerMonitorTimeInterval(), serverProjectConfig.getServerRequestTimeout());
 		
 		
-		SinnoriClassLoader mybatisConfigClassLoader = new SinnoriClassLoader(sytemClassLoader, dynamicClassBinaryBasePath, dynamicClassBasePackageName);
-				
-		Resources.setDefaultClassLoader(mybatisConfigClassLoader);
-		// Resources.
-		// Resources.getResourceAsSt
-		
-		try {
-			InputStream is = Resources.getResourceAsStream(serverProjectConfig.getMybatisConfigFileName());
-			
-			factory = new SqlSessionFactoryBuilder().build(is); 
-		} catch(IOException e) {
-			log.warn("mybatis 환경 설정 파일[{}] 읽기 오류", serverProjectConfig.getMybatisConfigFileName());
-		}
 	}
 	
 	@Override
@@ -366,7 +356,7 @@ public class ServerProject extends AbstractProject
 	}
 	
 	public MessageCodecIF getServerCodec(ClassLoader classLoader, String messageID) throws DynamicClassCallException {
-		String classFullName = new StringBuilder(dynamicClassBasePackageName).append(messageID).append(".").append(messageID).append("ServerCodec").toString();
+		String classFullName = new StringBuilder(classLoaderClassPackagePrefixName).append("message.").append(messageID).append(".").append(messageID).append("ServerCodec").toString();
 		
 		MessageCodecIF messageCodec = null;
 		
@@ -456,7 +446,7 @@ public class ServerProject extends AbstractProject
 	}
 	
 	public AbstractServerTask getServerTask(String messageID) throws DynamicClassCallException {
-		String classFullName = new StringBuilder(dynamicClassBasePackageName).append(messageID).append(".").append(messageID).append("ServerTask").toString();
+		String classFullName = new StringBuilder(classLoaderClassPackagePrefixName).append("message.").append(messageID).append(".").append(messageID).append("ServerTask").toString();
 		ServerTaskObjectInfo serverTaskObjectInfo = null;
 		synchronized(monitorOfServerTaskObj) {
 			serverTaskObjectInfo = className2ServerTaskObjectInfoHash.get(classFullName);
@@ -467,7 +457,7 @@ public class ServerProject extends AbstractProject
 			} else {
 				if (serverTaskObjectInfo.isModifed()) {
 					/** 새로운 서버 클래스 로더로 교체 */
-					workBaseClassLoader = new SinnoriClassLoader(sytemClassLoader, dynamicClassBinaryBasePath, dynamicClassBasePackageName);
+					workBaseClassLoader = new ServerClassLoader(sytemClassLoader, classLoaderAPPINFPathName, classLoaderClassPackagePrefixName, jarClassInfoHash);
 					serverTaskObjectInfo = getServerTaskFromWorkBaseClassload(classFullName);
 					className2ServerTaskObjectInfoHash.put(classFullName, serverTaskObjectInfo);
 				}	
@@ -570,21 +560,4 @@ public class ServerProject extends AbstractProject
 		}
 	}
 	
-	@Override
-	public SqlSession openSession() throws DBNotReadyException {
-		if (null == factory) {
-			throw new DBNotReadyException("mybatis 환경 설정 파일["+serverProjectConfig.getMybatisConfigFileName()+"] 읽기 오류");
-		}
-		
-		return factory.openSession();
-	}
-	
-	@Override
-	public SqlSession openSession(ExecutorType execType) throws DBNotReadyException {
-		if (null == factory) {
-			throw new DBNotReadyException("mybatis 환경 설정 파일["+serverProjectConfig.getMybatisConfigFileName()+"] 읽기 오류");
-		}
-		
-		return factory.openSession(execType);
-	}
 }

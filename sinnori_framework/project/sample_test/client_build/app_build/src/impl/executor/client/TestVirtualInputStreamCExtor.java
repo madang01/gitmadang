@@ -388,51 +388,61 @@ public final class TestVirtualInputStreamCExtor extends AbstractClientExecutor {
 		allDataTypeInObj.setSqltimestamp(new java.sql.Timestamp(new java.util.Date().getTime()));
 		allDataTypeInObj.setCnt(2);
 
-		AllDataType.Member[] memberList = new AllDataType.Member[allDataTypeInObj
-				.getCnt()];
-		for (int i = 0; i < memberList.length; i++) {
-			memberList[i] = allDataTypeInObj.new Member();
+		java.util.List<AllDataType.Member> memberList = new java.util.ArrayList<AllDataType.Member>();
+		
+		{	
+			/** memberList[0] */
+			AllDataType.Member member = new AllDataType.Member();			
+			member.setMemberID("test01ID");
+			member.setMemberName("test01Name");
+			member.setCnt(1);
+			
+			// int itemListSize = member.getCnt();
+			java.util.List<AllDataType.Member.Item> itemList = new java.util.ArrayList<AllDataType.Member.Item>();
+			member.setItemList(itemList);
+			{
+				/** memberList[0].itemList[0] */
+				AllDataType.Member.Item item = new AllDataType.Member.Item();			
+				item.setItemID("1");
+				item.setItemName("최강의검");
+				item.setItemCnt(1);
+				itemList.add(item);
+			}
+			
+			memberList.add(member);
 		}
+		{
+			/** memberList[1] */
+			AllDataType.Member member = new AllDataType.Member();			
+			member.setMemberID("test01ID");
+			member.setMemberName("test01Name");
+			member.setCnt(2);
+			
+			// int itemListSize = member.getCnt();
+			java.util.List<AllDataType.Member.Item> itemList = new java.util.ArrayList<AllDataType.Member.Item>();
+			member.setItemList(itemList);
+			{
+				/** memberList[1].itemList[0] */
+				AllDataType.Member.Item item = new AllDataType.Member.Item();							
+				item.setItemID("2");
+				item.setItemName("살살검");
+				item.setItemCnt(5);
+				
+				itemList.add(item);
+			}
+			{
+				/** memberList[1].itemList[1] */
+				AllDataType.Member.Item item = new AllDataType.Member.Item();			
+				item.setItemID("3");
+				item.setItemName("안좋은검");
+				item.setItemCnt(100);
+				
+				itemList.add(item);
+			}
+			memberList.add(member);
+		}
+		
 		allDataTypeInObj.setMemberList(memberList);
-		{
-			memberList[0].setMemberID("test01ID");
-			memberList[0].setMemberName("test01Name");
-			memberList[0].setCnt(1);
-
-			AllDataType.Member.Item[] itemList = new AllDataType.Member.Item[memberList[0]
-					.getCnt()];
-			for (int i = 0; i < itemList.length; i++) {
-				itemList[i] = memberList[0].new Item();
-			}
-			{
-				itemList[0].setItemID("1");
-				itemList[0].setItemName("최강의검");
-				itemList[0].setItemCnt(1);
-			}
-			memberList[0].setItemList(itemList);
-		}
-		{
-			memberList[1].setMemberID("test01ID");
-			memberList[1].setMemberName("test01Name");
-			memberList[1].setCnt(2);
-
-			AllDataType.Member.Item[] itemList = new AllDataType.Member.Item[memberList[1]
-					.getCnt()];
-			for (int i = 0; i < itemList.length; i++) {
-				itemList[i] = memberList[0].new Item();
-			}
-			{
-				itemList[0].setItemID("2");
-				itemList[0].setItemName("살살검");
-				itemList[0].setItemCnt(5);
-			}
-			{
-				itemList[1].setItemID("3");
-				itemList[1].setItemName("안좋은검");
-				itemList[1].setItemCnt(100);
-			}
-			memberList[1].setItemList(itemList);
-		}
 
 		inputMessageList.add(allDataTypeInObj);
 

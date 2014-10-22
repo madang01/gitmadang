@@ -33,7 +33,6 @@ import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.LoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
-import kr.pe.sinnori.server.SinnoriSqlSessionFactoryIF;
 import kr.pe.sinnori.server.io.LetterToClient;
 
 /**
@@ -58,8 +57,7 @@ public abstract class AbstractAuthServerExecutor extends AbstractServerTask {
 			SocketChannel clientSC,
 			ClientResource clientResource,
 			ReceivedLetter receivedLetter, LoginManagerIF loginManager,
-			ServerObjectCacheManagerIF serverObjectCacheManager, 
-			SinnoriSqlSessionFactoryIF sqlSessionFactory) {
+			ServerObjectCacheManagerIF serverObjectCacheManager) {
 		if (!clientResource.isLogin()) {
 			String messageID = receivedLetter.getMessageID();
 			
@@ -105,6 +103,6 @@ public abstract class AbstractAuthServerExecutor extends AbstractServerTask {
 		}
 		super.execute(index, serverProjectConfig, projectCharset, ouputMessageQueue, 
 				messageProtocol, clientSC, clientResource, receivedLetter, 
-				loginManager, serverObjectCacheManager, sqlSessionFactory);
+				loginManager, serverObjectCacheManager);
 	}
 }

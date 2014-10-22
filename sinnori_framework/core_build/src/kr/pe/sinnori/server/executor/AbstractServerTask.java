@@ -40,7 +40,6 @@ import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.LoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
-import kr.pe.sinnori.server.SinnoriSqlSessionFactoryIF;
 import kr.pe.sinnori.server.io.LetterToClient;
 
 /**
@@ -59,6 +58,7 @@ public abstract class AbstractServerTask implements CommonRootIF {
 	private java.util.Hashtable<String, MessageEncoder> encoderHash = new java.util.Hashtable<String, MessageEncoder>(); 
 	private java.util.Hashtable<String, MessageDecoder> decoderHash = new java.util.Hashtable<String, MessageDecoder>(1);
 		
+		
 	/**
 	 * Executor 에서 호출되는 메소드로 비지니스 로직 수행을 포함한 비지니스 로직 전후 작업을 수행한다.
 	 * @param index 순번
@@ -71,7 +71,6 @@ public abstract class AbstractServerTask implements CommonRootIF {
 	 * @param receivedLetter 수신 편지
 	 * @param loginManager 로그인 관리자
 	 * @param serverObjectCacheManager 서버 객체 캐쉬 관리자
-	 * @param sqlSessionFactory 서버 프로젝트의 Mybatis SqlSessionFactory
 	 */
 	public void execute(int index, 
 			ServerProjectConfig serverProjectConfig,			
@@ -82,17 +81,14 @@ public abstract class AbstractServerTask implements CommonRootIF {
 			ClientResource clientResource,
 			ReceivedLetter receivedLetter, 
 			LoginManagerIF loginManager,
-			ServerObjectCacheManagerIF serverObjectCacheManager,
-			SinnoriSqlSessionFactoryIF sqlSessionFactory) {
+			ServerObjectCacheManagerIF serverObjectCacheManager) {
 		// FIXME!
 		// log.info("inputMessage=[%s]", inputMessage.toString());
 		
 		String messageIDFromClient = receivedLetter.getMessageID();
 		
 		// Charset projectCharset = serverProjectConfig.getCharset();
-		
-		
-		
+				
 		MessageDecoder  messageDecoder  = decoderHash.get(messageIDFromClient);
 		
 		if (null == messageDecoder) {
@@ -264,7 +260,7 @@ public abstract class AbstractServerTask implements CommonRootIF {
 		LetterSender letterSender = new LetterSender(this, clientResource, messageFromClient, projectCharset, ouputMessageQueue, messageProtocol, serverObjectCacheManager);
 		long firstErraseTime = new java.util.Date().getTime();
 		try {			
-			doTask(serverProjectConfig, loginManager, sqlSessionFactory, letterSender, messageFromClient);			
+			doTask(serverProjectConfig, loginManager, letterSender, messageFromClient);			
 		} catch (Exception e) {
 			// FIXME!
 			log.warn("unknown error", e);
@@ -511,18 +507,17 @@ public abstract class AbstractServerTask implements CommonRootIF {
 	}
 	
 	
+	
 	/**
 	 * 출력메시지 직접 전송하는 개발자가 직접 작성해야할 비지니스 로직 
 	 * @param serverProjectConfig 프로젝트의 서버 환경 변수
 	 * @param loginManager 로그인 관리자
-	 * @param sqlSessionFactory 서버 프로젝트의 Mybatis SqlSessionFactory
 	 * @param letterSender 클라이언트로 보내는 편지 배달부
 	 * @param messageFromClient 입력 메시지	
 	 * @throws Exception 에러 발생시 던지는 예외
 	 */
 	abstract public void doTask(ServerProjectConfig serverProjectConfig,
 			LoginManagerIF loginManager,
-			SinnoriSqlSessionFactoryIF sqlSessionFactory,
 			LetterSender letterSender,
 			AbstractMessage messageFromClient) throws Exception;
 }

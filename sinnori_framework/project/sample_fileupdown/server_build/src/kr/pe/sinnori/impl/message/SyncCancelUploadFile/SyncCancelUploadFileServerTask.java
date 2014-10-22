@@ -26,7 +26,6 @@ import kr.pe.sinnori.common.updownfile.LocalTargetFileResourceManager;
 import kr.pe.sinnori.impl.message.CancelUploadFileResult.CancelUploadFileResult;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.LoginManagerIF;
-import kr.pe.sinnori.server.SinnoriSqlSessionFactoryIF;
 import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;
 import kr.pe.sinnori.server.executor.LetterSender;
 
@@ -40,7 +39,6 @@ public final class SyncCancelUploadFileServerTask extends AbstractAuthServerExec
 	@Override
 	public void doTask(ServerProjectConfig serverProjectConfig,
 			LoginManagerIF loginManager,
-			SinnoriSqlSessionFactoryIF sqlSessionFactory,
 			LetterSender letterSender, AbstractMessage messageFromClient)
 			throws Exception {
 		// FIXME!

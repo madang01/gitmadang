@@ -6,27 +6,33 @@ import java.util.List;
 import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.BoardListResponse.BoardListResponse;
+import kr.pe.sinnori.impl.mybatis.SqlSessionFactoryManger;
 import kr.pe.sinnori.server.LoginManagerIF;
-import kr.pe.sinnori.server.SinnoriSqlSessionFactoryIF;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
 import kr.pe.sinnori.server.executor.LetterSender;
 
 import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 
 public class BoardListRequestServerTask extends AbstractServerTask {
+	private SqlSessionFactory sqlSessionFactory = null;
 
 	@Override
 	public void doTask(ServerProjectConfig serverProjectConfig,
 			LoginManagerIF loginManager,
-			SinnoriSqlSessionFactoryIF sqlSessionFactory,
 			LetterSender letterSender, AbstractMessage messageFromClient)
 			throws Exception {
 		// FIXME!
 		log.info(messageFromClient.toString());
+
+		if (null == sqlSessionFactory) {
+			sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory(serverProjectConfig);
+		}
 		
 		BoardListRequest inObj = (BoardListRequest)messageFromClient;
 		long boardTypeID = inObj.getBoardTypeID();
 		BoardListResponse outObj = new BoardListResponse();
+		
 		
 		SqlSession session = sqlSessionFactory.openSession();
 		int total;

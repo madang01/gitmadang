@@ -33,7 +33,6 @@ import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.LoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
-import kr.pe.sinnori.server.SinnoriSqlSessionFactoryIF;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
 import kr.pe.sinnori.server.io.LetterFromClient;
 import kr.pe.sinnori.server.io.LetterToClient;
@@ -53,7 +52,6 @@ public class Executor extends Thread implements CommonRootIF {
 	private MessageProtocolIF messageProtocol = null;
 	
 	private ServerObjectCacheManagerIF serverObjectCacheManager = null;
-	private SinnoriSqlSessionFactoryIF sqlSessionFactory = null;
 	
 	/**
 	 * 생성자
@@ -71,7 +69,7 @@ public class Executor extends Thread implements CommonRootIF {
 			LinkedBlockingQueue<LetterFromClient> inputMessageQueue,
 			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
 			MessageProtocolIF messageProtocol, LoginManagerIF loginManager,
-			ServerObjectCacheManagerIF serverObjectCacheManager, SinnoriSqlSessionFactoryIF sqlSessionFactory) {
+			ServerObjectCacheManagerIF serverObjectCacheManager) {
 		this.index = index;		
 		this.serverProjectConfig = serverProjectConfig;
 		this.loginManager = loginManager;
@@ -79,7 +77,6 @@ public class Executor extends Thread implements CommonRootIF {
 		this.ouputMessageQueue = ouputMessageQueue;
 		this.messageProtocol = messageProtocol;
 		this.serverObjectCacheManager = serverObjectCacheManager;
-		this.sqlSessionFactory = sqlSessionFactory;
 	}
 	
 
@@ -147,7 +144,7 @@ public class Executor extends Thread implements CommonRootIF {
 				}
 				
 				serverTask.execute(index, serverProjectConfig, serverProjectConfig.getCharset(), ouputMessageQueue, messageProtocol,
-						clientSC, clientResource, receivedLetter, loginManager, serverObjectCacheManager, sqlSessionFactory);
+						clientSC, clientResource, receivedLetter, loginManager, serverObjectCacheManager);
 				
 			}
 			log.warn(String.format("%s ExecutorProcessor[%d] loop exit", serverProjectConfig.getProjectName(), index));

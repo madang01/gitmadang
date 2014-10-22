@@ -75,7 +75,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 	
 	
 	// private String dynamicClassBinaryBasePath = null;
-	private String dynamicClassBasePackageName = null;
+	private String classLoaderPackagePrefixName = null;
 	
 	// private final Object anonymousServerMessageTaskMonitor = new Object();
 
@@ -118,7 +118,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 		initCommon();
 		
 		//dynamicClassBinaryBasePath = clientProjectConfig.getDynamicClassBinaryBasePath().getAbsolutePath();
-		dynamicClassBasePackageName = clientProjectConfig.getDynamicClassBasePackageName();
+		classLoaderPackagePrefixName = clientProjectConfig.getClassLoaderClassPackagePrefixName();
 		
 		// ClientProjectConfigIF clientProjectConfig = (ClientProjectConfigIF)projectConfig;
 		
@@ -541,7 +541,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 	
 	@Override
 	public MessageCodecIF getClientCodec(ClassLoader classLoader, String messageID) throws DynamicClassCallException  {
-		String classFullName = new StringBuilder(dynamicClassBasePackageName).append(messageID).append(".").append(messageID).append("ClientCodec").toString();
+		String classFullName = new StringBuilder(classLoaderPackagePrefixName).append("message.").append(messageID).append(".").append(messageID).append("ClientCodec").toString();
 		
 		MessageCodecIF messageCodec = null;
 		

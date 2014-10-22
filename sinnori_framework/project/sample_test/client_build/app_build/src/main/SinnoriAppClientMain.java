@@ -63,7 +63,7 @@ public class SinnoriAppClientMain implements CommonRootIF {
 			 * 2013.07.24 TestNetEco
 			 * INFO  kr.pe.sinnori.util.AbstractClientExecutor.execute(AbstractClientExecutor.java:105) - [1000]회 실행 평균 수행 시간=[2.208000] ms
 			 */
-			// SinnoriWorker.getInstance().start(projectName, "TestNetEco", 1);
+			SinnoriWorker.getInstance().start(projectName, "TestNetEco", 1);
 			//SinnoriWorker.getInstance().start(projectName, "TestNetEco", 1000);
 			
 			/**
@@ -136,7 +136,7 @@ public class SinnoriAppClientMain implements CommonRootIF {
 			// SinnoriWorker.getInstance().start(projectName, "TestFileUpDown");
 			
 			// IDPwdRegexTest
-			SinnoriWorker.getInstance().start(projectName, "IDPwdRegexTest");
+			// SinnoriWorker.getInstance().start(projectName, "IDPwdRegexTest");
 		} catch (Exception e) {			
 			e.printStackTrace();
 		}

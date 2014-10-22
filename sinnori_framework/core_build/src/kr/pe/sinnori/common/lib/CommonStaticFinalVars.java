@@ -73,4 +73,8 @@ public abstract class CommonStaticFinalVars {
 	
 	public static final Charset SINNORI_PASSWORD_CHARSET = Charset.forName("UTF-8");
 	public static final String SINNORI_PASSWORD_ALGORITHM_NAME = "SHA-512";
+	
+	
+	/** 속도를 위해서 jar 파일 내의 클래스 파일들은 메모리에 적재시키기때문에 너무 큰 파일들은 시스템에 무리를 주기때문에 크기 제한을 건다. */
+	public static final int MAX_FILE_SIZE_IN_JAR_FILE = 1024 * 1024;
 }

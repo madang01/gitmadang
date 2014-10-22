@@ -19,10 +19,6 @@
 	<condition property="is.unix.yes">
 		<os family="unix" />
 	</condition>
-		
-	<condition property="is.web.yes">
-		<istrue value="${is.tomcat}" />
-	</condition>
 	
 	<condition property="java.debug.yes">
 		<istrue value="${java.debug}" />
@@ -36,17 +32,18 @@
 		<property name="core.java.debug" value="nodebug" />
 	</target>
 	
-	<target name="libdir.init">
-		<mkdir dir="${corelib}/ex" />
-		<mkdir dir="${corelib}/in" />
-		<mkdir dir="${lib}/ex" />
-		<mkdir dir="${lib}/in" />
+	<target name="dos.init" if="is.windows.yes">
+		<property name="weblib" location="${dos.weblib}" />
+	</target>
+	<target name="unix.init" if="is.unix.yes">
+		<property name="weblib" location="${unix.weblib}" />
 	</target>
 	
-	<target name="var.init" depends="libdir.init, java.debug.no.init, java.debug.yes.init" description="var init">
-		<echo message="is.tomcat=${is.tomcat}" />
-		<property name="servletlib" location="${tomcat.servletlib}" />
+	<target name="var.init" depends="java.debug.no.init, java.debug.yes.init, dos.init, unix.init" description="var init">
+		<echo message="java.debug=${java.debug}, core.java.debug=${core.java.debug}" />
+		<echo message="java.debug.yes=${java.debug.yes}" />
 	</target>
+
 	
 	<target name="unix.make.core" if="is.unix.yes">
 		<echo message="유니스 신놀이 프레임 워크 컴파일후 jar 만들기" />
@@ -63,36 +60,36 @@
 			<arg value="${core.java.debug}" />
 		</exec>
 	</target>
-	
-	<target name="make.sinnori" depends="var.init, dos.make.core, unix.make.core" description="신놀이 프레임 워크 컴파일 하여 jar 라이브러리 만들기" />
+
+	<target name="make.core" depends="var.init, dos.make.core, unix.make.core" description="신놀이 프레임 워크 컴파일 하여 jar 라이브러리 만들기" />
 	
 	<target name="corelib.clean" depends="var.init">
 		<delete dir="${corelib}" />
 	</target>
-	
+
 	<target name="corelib.init" depends="corelib.clean">
 		<!-- Create the time stamp -->
 		<tstamp />
 		<!-- Create the build directory structure used by compile -->
 		<mkdir dir="${corelib}/ex" />
-		<mkdir dir="${corelib}/in" />
+		<mkdir dir="${corelib}/in" />	
 	</target>
 	
-	<target name="copy" description="신놀이 프레임 워크 core copy" depends="corelib.init">
-		<copy todir="${corelib}/ex" verbose="true" overwrite="true">
+	<target name="copy.core" description="sinnori framework core copy" depends="corelib.init">
+		<copy todir="${corelib}/in" verbose="true" overwrite="true">
 			<fileset file="${framework.build}/dist/sinnori-core.jar" />
 		</copy>
 		<copy todir="${corelib}/ex" verbose="true" overwrite="true">
 			<fileset dir="${framework.build}/lib/ex/" />
-		</copy>
+		</copy>		
 	</target>
-
-	<target name="sinnori" depends="make.sinnori, copy" description="신놀이 프레임 워크 컴파일후 jar 만들어 가져오기">
+	
+	<target name="sinnori" depends="make.core, copy.core" description="신놀이 프레임 워크 컴파일후 jar 만들어 가져오기">
 		<echo message="신놀이 프레임 워크 컴파일 하여  jar 라이브러리 만들어 가져오기" />
 	</target>
 
 
-	<target name="clean" depends="var.init" description="필요 경로 전체 삭제">	
+	<target name="clean.weblib" depends="var.init" description="필요 경로 전체 삭제">	
 			
 		<!-- Delete the ${build} and ${dist} directory trees -->
 		<delete dir="${build}/weblib" />
@@ -102,7 +99,7 @@
 		<delete dir="${weblib}" />
 	</target>
 
-	<target name="init" depends="clean" description="필요 경로 전체 생성">
+	<target name="init.weblib" depends="clean.weblib" description="필요 경로 전체 생성">
 	
 		<!-- Create the time stamp -->
 		<tstamp />
@@ -114,7 +111,7 @@
 	</target>
 
 		
-	<target name="compile.weblib" if="is.web.yes" depends="init" description="웹 라이브러리 컴파일">	
+	<target name="compile.weblib" if="is.web.yes" depends="init.weblib" description="웹 라이브러리 컴파일">	
 		<echo message="compile.weblib" />
 		<!-- Compile the java code from ${src} into ${build}/weblib -->
 		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}" destdir="${build}/weblib" excludes="kr/pe/sinnori/common/javabeans/**">

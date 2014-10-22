@@ -75,8 +75,8 @@ public class Step2SinnoriConfigScreen extends JPanel {
 	
 	private String innerProjectList[][] = null;
 	private JTextField innerProjectMessagePathTextField[][] = null;
-	private JTextField innerProjectDynamicClassBinaryBasePathTextField[][] = null;
-	private JTextField innerProjectDynamicClassSourceBasePathTextField[][] = null;
+	private JTextField innerProjectClassLoaderAPPINFPathTextField[][] = null;
+	private JTextField innerProjectClassLoaderSourcePathTextField[][] = null;
 
 	// private ButtonGroup rsaKeypairSourceGroup = null;
 	
@@ -129,8 +129,8 @@ public class Step2SinnoriConfigScreen extends JPanel {
 		
 		innerProjectList = new String[projectCnt][];
 		innerProjectMessagePathTextField = new JTextField[projectCnt][];
-		innerProjectDynamicClassBinaryBasePathTextField = new JTextField[projectCnt][];
-		innerProjectDynamicClassSourceBasePathTextField = new JTextField[projectCnt][];
+		innerProjectClassLoaderAPPINFPathTextField = new JTextField[projectCnt][];
+		innerProjectClassLoaderSourcePathTextField = new JTextField[projectCnt][];
 		
 		for (int i=0; i < projectCnt; i++) {
 			String projectName = this.mainProjectList.get(i);
@@ -278,8 +278,8 @@ public class Step2SinnoriConfigScreen extends JPanel {
 			
 			innerProjectList[i] = new String[projectCntOfConfig];
 			innerProjectMessagePathTextField[i] = new JTextField[projectCntOfConfig];
-			innerProjectDynamicClassBinaryBasePathTextField[i] = new JTextField[projectCntOfConfig];
-			innerProjectDynamicClassSourceBasePathTextField[i] = new JTextField[projectCntOfConfig];
+			innerProjectClassLoaderAPPINFPathTextField[i] = new JTextField[projectCntOfConfig];
+			innerProjectClassLoaderSourcePathTextField[i] = new JTextField[projectCntOfConfig];
 			
 			
 			for (int j=0; j < projectCntOfConfig; j++) {
@@ -328,29 +328,29 @@ public class Step2SinnoriConfigScreen extends JPanel {
 				
 				innerProjectPanel.add(innerProjectMessagePathValuePanel, "4, 4");
 				// "sample_simple_ftp.server.executor.impl.binary.path.value"
-				JLabel innerProjectDynamicClassBinaryBasePathLabel = new JLabel(new StringBuilder(innerProjectList[i][j]).append(".common.dynamic_class.binary.base_path.value").toString());
+				JLabel innerProjectDynamicClassBinaryBasePathLabel = new JLabel(new StringBuilder(innerProjectList[i][j]).append(".server.classloader.appinf.path.value").toString());
 				innerProjectDynamicClassBinaryBasePathLabel.setHorizontalAlignment(SwingConstants.LEFT);
 				innerProjectPanel.add(innerProjectDynamicClassBinaryBasePathLabel, "2, 6");
 				
-				innerProjectDynamicClassBinaryBasePathTextField[i][j] = new JTextField();
-				innerProjectDynamicClassBinaryBasePathTextField[i][j].setColumns(30);
+				innerProjectClassLoaderAPPINFPathTextField[i][j] = new JTextField();
+				innerProjectClassLoaderAPPINFPathTextField[i][j].setColumns(30);
 				
 				JPanel innerProjectExecutorBinaryPathValuePanel = new JPanel();
 				innerProjectExecutorBinaryPathValuePanel.setLayout(new BoxLayout(innerProjectExecutorBinaryPathValuePanel, BoxLayout.X_AXIS));
-				innerProjectExecutorBinaryPathValuePanel.add(innerProjectDynamicClassBinaryBasePathTextField[i][j]);
+				innerProjectExecutorBinaryPathValuePanel.add(innerProjectClassLoaderAPPINFPathTextField[i][j]);
 				
 				innerProjectPanel.add(innerProjectExecutorBinaryPathValuePanel, "4, 6, fill, default");
 				// "sample_simple_ftp.server.executor.impl.source.path.value"
-				JLabel innerProjectDynamicClassSourceBasePathLabel = new JLabel(new StringBuilder(innerProjectList[i][j]).append(".common.dynamic_class.source.base_path.value").toString());
+				JLabel innerProjectDynamicClassSourceBasePathLabel = new JLabel(new StringBuilder(innerProjectList[i][j]).append(".server.classloader.class.source.path.value").toString());
 				innerProjectDynamicClassSourceBasePathLabel.setHorizontalAlignment(SwingConstants.LEFT);
 				innerProjectPanel.add(innerProjectDynamicClassSourceBasePathLabel, "2, 8");
 				
-				innerProjectDynamicClassSourceBasePathTextField[i][j] = new JTextField();
-				innerProjectDynamicClassSourceBasePathTextField[i][j].setColumns(30);
+				innerProjectClassLoaderSourcePathTextField[i][j] = new JTextField();
+				innerProjectClassLoaderSourcePathTextField[i][j].setColumns(30);
 				
 				JPanel innerProjectExecutorSourcePathValuePanel = new JPanel();
 				innerProjectExecutorSourcePathValuePanel.setLayout(new BoxLayout(innerProjectExecutorSourcePathValuePanel, BoxLayout.X_AXIS));
-				innerProjectExecutorSourcePathValuePanel.add(innerProjectDynamicClassSourceBasePathTextField[i][j]);
+				innerProjectExecutorSourcePathValuePanel.add(innerProjectClassLoaderSourcePathTextField[i][j]);
 				
 				innerProjectPanel.add(innerProjectExecutorSourcePathValuePanel, "4, 8, fill, default");
 				
@@ -374,31 +374,31 @@ public class Step2SinnoriConfigScreen extends JPanel {
 					innerProjectMessagePathTextField[i][j].setText(innerProjectMessagePathBuilder.toString());
 					innerProjectMessagePathTextField[i][j].setEditable(false);
 					
-					StringBuilder innerProjectExecutorBinaryPathBuilder = new StringBuilder(sinnoriInstallAbsPathName);
-					innerProjectExecutorBinaryPathBuilder.append(File.separator);
-					innerProjectExecutorBinaryPathBuilder.append("project");
-					innerProjectExecutorBinaryPathBuilder.append(File.separator);
-					innerProjectExecutorBinaryPathBuilder.append(projectName);
-					innerProjectExecutorBinaryPathBuilder.append(File.separator);
-					innerProjectExecutorBinaryPathBuilder.append("server_build");
-					innerProjectExecutorBinaryPathBuilder.append(File.separator);
-					innerProjectExecutorBinaryPathBuilder.append("build");
+					StringBuilder innerProjectClassLoaderAPPINFPathBuilder = new StringBuilder(sinnoriInstallAbsPathName);
+					innerProjectClassLoaderAPPINFPathBuilder.append(File.separator);
+					innerProjectClassLoaderAPPINFPathBuilder.append("project");
+					innerProjectClassLoaderAPPINFPathBuilder.append(File.separator);
+					innerProjectClassLoaderAPPINFPathBuilder.append(projectName);
+					innerProjectClassLoaderAPPINFPathBuilder.append(File.separator);
+					innerProjectClassLoaderAPPINFPathBuilder.append("server_build");
+					innerProjectClassLoaderAPPINFPathBuilder.append(File.separator);
+					innerProjectClassLoaderAPPINFPathBuilder.append("APP-INF");
 					
-					innerProjectDynamicClassBinaryBasePathTextField[i][j].setText(innerProjectExecutorBinaryPathBuilder.toString());
-					innerProjectDynamicClassBinaryBasePathTextField[i][j].setEditable(false);
+					innerProjectClassLoaderAPPINFPathTextField[i][j].setText(innerProjectClassLoaderAPPINFPathBuilder.toString());
+					innerProjectClassLoaderAPPINFPathTextField[i][j].setEditable(false);
 					
-					StringBuilder innerProjectExecutorSourcePathBuilder = new StringBuilder(sinnoriInstallAbsPathName);
-					innerProjectExecutorSourcePathBuilder.append(File.separator);
-					innerProjectExecutorSourcePathBuilder.append("project");
-					innerProjectExecutorSourcePathBuilder.append(File.separator);
-					innerProjectExecutorSourcePathBuilder.append(projectName);
-					innerProjectExecutorSourcePathBuilder.append(File.separator);
-					innerProjectExecutorSourcePathBuilder.append("server_build");
-					innerProjectExecutorSourcePathBuilder.append(File.separator);
-					innerProjectExecutorSourcePathBuilder.append("src");
+					StringBuilder innerProjectClassLoaderSourcePathBuilder = new StringBuilder(sinnoriInstallAbsPathName);
+					innerProjectClassLoaderSourcePathBuilder.append(File.separator);
+					innerProjectClassLoaderSourcePathBuilder.append("project");
+					innerProjectClassLoaderSourcePathBuilder.append(File.separator);
+					innerProjectClassLoaderSourcePathBuilder.append(projectName);
+					innerProjectClassLoaderSourcePathBuilder.append(File.separator);
+					innerProjectClassLoaderSourcePathBuilder.append("server_build");
+					innerProjectClassLoaderSourcePathBuilder.append(File.separator);
+					innerProjectClassLoaderSourcePathBuilder.append("src");
 					
-					innerProjectDynamicClassSourceBasePathTextField[i][j].setText(innerProjectExecutorSourcePathBuilder.toString());
-					innerProjectDynamicClassSourceBasePathTextField[i][j].setEditable(false);
+					innerProjectClassLoaderSourcePathTextField[i][j].setText(innerProjectClassLoaderSourcePathBuilder.toString());
+					innerProjectClassLoaderSourcePathTextField[i][j].setEditable(false);
 				} else {
 					/** <신놀이설치경로>/project/<프로젝트명> 에서 사용된 프로젝트명과 설정파일에서의 프로젝트명이 일치될 되지 않았을 경우 */
 					projectTabbedPane.addTab("서브 프로젝트", null, innerProjectPanel, null);
@@ -421,27 +421,27 @@ public class Step2SinnoriConfigScreen extends JPanel {
 					innerProjectMessagePathValuePanel.add(innerProjectMessageButton);
 					
 					propKeyBuilder = new StringBuilder(projectNameOfConfig);
-					propKeyBuilder.append(".common.dynamic_class.binary.base_path.value");
+					propKeyBuilder.append(".server.classloader.appinf.path.value");
 					String innerProjectExecutorBinaryPath = configOfProject.getProperty(propKeyBuilder.toString());
 					if (null == innerProjectExecutorBinaryPath) innerProjectExecutorBinaryPath= "'";
 					
-					innerProjectDynamicClassBinaryBasePathTextField[i][j].setText(innerProjectExecutorBinaryPath);
-					innerProjectDynamicClassBinaryBasePathTextField[i][j].setEditable(true);
+					innerProjectClassLoaderAPPINFPathTextField[i][j].setText(innerProjectExecutorBinaryPath);
+					innerProjectClassLoaderAPPINFPathTextField[i][j].setEditable(true);
 					JButton innerProjectExecutorBinaryPathButton = new JButton("경로선택");
-					PathSwingAction innerProjectDynamicClassBinaryBasePathAction = new PathSwingAction(this.mainFrame, chooser, innerProjectDynamicClassBinaryBasePathTextField[i][j]);
+					PathSwingAction innerProjectDynamicClassBinaryBasePathAction = new PathSwingAction(this.mainFrame, chooser, innerProjectClassLoaderAPPINFPathTextField[i][j]);
 					innerProjectExecutorBinaryPathButton.setAction(innerProjectDynamicClassBinaryBasePathAction);
 					
 					innerProjectExecutorBinaryPathValuePanel.add(innerProjectExecutorBinaryPathButton);
 					
 					propKeyBuilder = new StringBuilder(projectNameOfConfig);
-					propKeyBuilder.append(".common.dynamic_class.source.base_path.value");
+					propKeyBuilder.append(".server.classloader.class.source.path.value");
 					String innerProjectExecutorSourcePath = configOfProject.getProperty(propKeyBuilder.toString());
 					if (null == innerProjectExecutorSourcePath) innerProjectExecutorSourcePath= "'";
 					
-					innerProjectDynamicClassSourceBasePathTextField[i][j].setText(innerProjectExecutorSourcePath);
-					innerProjectDynamicClassSourceBasePathTextField[i][j].setEditable(true);
+					innerProjectClassLoaderSourcePathTextField[i][j].setText(innerProjectExecutorSourcePath);
+					innerProjectClassLoaderSourcePathTextField[i][j].setEditable(true);
 					JButton innerProjectExecutorSourcePathButton = new JButton("경로선택");
-					PathSwingAction innerProjectDynamicClassSourceBasePathAction = new PathSwingAction(this.mainFrame, chooser, innerProjectDynamicClassSourceBasePathTextField[i][j]);
+					PathSwingAction innerProjectDynamicClassSourceBasePathAction = new PathSwingAction(this.mainFrame, chooser, innerProjectClassLoaderSourcePathTextField[i][j]);
 					innerProjectExecutorSourcePathButton.setAction(innerProjectDynamicClassSourceBasePathAction);
 					
 					innerProjectExecutorSourcePathValuePanel.add(innerProjectExecutorSourcePathButton);
@@ -572,8 +572,8 @@ public class Step2SinnoriConfigScreen extends JPanel {
 				
 				configOfProject.setProperty(propKey, innerProjectMessagePath);
 				
-				propKey = new StringBuilder(innerProjectList[i][j]).append(".common.dynamic_class.binary.base_path.value").toString();
-				String innerProjectDynamicClassBinaryBasePath = innerProjectDynamicClassBinaryBasePathTextField[i][j].getText();
+				propKey = new StringBuilder(innerProjectList[i][j]).append(".server.classloader.appinf.path.value").toString();
+				String innerProjectDynamicClassBinaryBasePath = innerProjectClassLoaderAPPINFPathTextField[i][j].getText();
 				
 				fileObj = new File(innerProjectDynamicClassBinaryBasePath);
 				if (!fileObj.exists()) {
@@ -588,9 +588,9 @@ public class Step2SinnoriConfigScreen extends JPanel {
 					String errorMessage = String.format("환경변수[%s]에 입력한 경로 값[%s]은 디렉토리가 아닙니다.", propKey, innerProjectDynamicClassBinaryBasePath);
 					JOptionPane.showMessageDialog(mainFrame, errorMessage);
 					
-					if (innerProjectDynamicClassBinaryBasePathTextField[i][j].isEditable()) {
-						innerProjectDynamicClassBinaryBasePathTextField[i][j].requestFocus();
-						innerProjectDynamicClassBinaryBasePathTextField[i][j].grabFocus();
+					if (innerProjectClassLoaderAPPINFPathTextField[i][j].isEditable()) {
+						innerProjectClassLoaderAPPINFPathTextField[i][j].requestFocus();
+						innerProjectClassLoaderAPPINFPathTextField[i][j].grabFocus();
 					}
 					return false;
 				}
@@ -598,8 +598,8 @@ public class Step2SinnoriConfigScreen extends JPanel {
 				configOfProject.setProperty(propKey, innerProjectDynamicClassBinaryBasePath);
 				
 				
-				propKey = new StringBuilder(innerProjectList[i][j]).append(".common.dynamic_class.source.base_path.value").toString();
-				String innerProjectDynamicClassSourceBasePath = innerProjectDynamicClassSourceBasePathTextField[i][j].getText();
+				propKey = new StringBuilder(innerProjectList[i][j]).append(".server.classloader.class.source.path.value").toString();
+				String innerProjectDynamicClassSourceBasePath = innerProjectClassLoaderSourcePathTextField[i][j].getText();
 				
 				fileObj = new File(innerProjectDynamicClassSourceBasePath);
 				if (!fileObj.exists()) {
@@ -614,9 +614,9 @@ public class Step2SinnoriConfigScreen extends JPanel {
 				if (!fileObj.isDirectory()) {
 					String errorMessage = String.format("환경변수[%s]에 입력한 경로 값[%s]은 디렉토리가 아닙니다.", propKey, innerProjectDynamicClassSourceBasePath);
 					JOptionPane.showMessageDialog(mainFrame, errorMessage);
-					if (innerProjectDynamicClassSourceBasePathTextField[i][j].isEditable()) {
-						innerProjectDynamicClassSourceBasePathTextField[i][j].requestFocus();
-						innerProjectDynamicClassSourceBasePathTextField[i][j].grabFocus();
+					if (innerProjectClassLoaderSourcePathTextField[i][j].isEditable()) {
+						innerProjectClassLoaderSourcePathTextField[i][j].requestFocus();
+						innerProjectClassLoaderSourcePathTextField[i][j].grabFocus();
 					}
 					return false;
 				}

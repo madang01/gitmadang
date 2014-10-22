@@ -1,5 +1,6 @@
 package kr.pe.sinnori.common.configuration;
 
+import java.io.File;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -34,6 +35,13 @@ public class ServerProjectConfig extends CommonProjectConfig {
 	/***** 모니터 환경 변수 종료 *****/
 	
 	private String mybatisConfigFileName = null;
+	
+	
+	/***** 서버 동적 클래스 변수 시작 *****/
+	private File classLoaderAPPINFPath = null;
+	private File classLoaderSourcePath = null;
+	/***** 서버 동적 클래스 변수 종료 *****/
+	
 	
 	public ServerProjectConfig(String projectName,
 			Properties configFileProperties, Logger log) {
@@ -428,6 +436,55 @@ public class ServerProjectConfig extends CommonProjectConfig {
 			mybatisConfigFileName = propValue;
 		}
 		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, mybatisConfigFileName);
+		
+		
+		/******** 동적 클래스 관련 공통 환경 변수 시작 **********/
+		// FIXME!
+		propKey = getServerKeyName("classloader.appinf.path");
+		propValue = configFileProperties.getProperty(propKey);
+		if (null == propValue) {
+			log.error("warning:: 서버 동적 클래스 APP-INF 경로[{}][{}]를 지정해 주세요", propKey, propValue);
+			System.exit(1);
+		} else {
+			classLoaderAPPINFPath = new File(propValue);
+		}
+		
+		if (!classLoaderAPPINFPath.exists()) {
+			log.error("서버 동적 클래스 APP-INF 경로[{}][{}]가 존재하지 않습니다.", propKey, propValue);
+			System.exit(1);
+		}
+		if (!classLoaderAPPINFPath.isDirectory() || !classLoaderAPPINFPath.canRead()) {
+			log.error("서버 동적 클래스 APP-INF 경로[{}][{}][{}]가 잘못 되었습니다.", 
+					propKey, propValue, classLoaderAPPINFPath.getAbsolutePath());
+			System.exit(1);
+		}		
+		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, classLoaderAPPINFPath.getAbsolutePath());
+		
+		
+		propKey = getServerKeyName("classloader.class.source.path");
+		propValue = configFileProperties.getProperty(propKey);
+		if (null == propValue) {
+			log.error("warning:: 서버 동적 클래스 소스 파일들이 위치하는 기본 경로[{}][{}]를 지정해 주세요", propKey, propValue);
+			System.exit(1);
+		} else {
+			classLoaderSourcePath = new File(propValue);
+		}
+		
+		if (!classLoaderSourcePath.exists()) {
+			log.error("서버 동적 클래스 소스 파일들이 위치하는 기본 경로[{}][{}]가 존재하지 않습니다.", propKey, propValue);
+			System.exit(1);
+		}
+		if (!classLoaderSourcePath.isDirectory() || !classLoaderSourcePath.canRead()) {
+			log.error("서버 동적 클래스 소스 파일들이 위치하는 기본 경로[{}][{}][{}]가 잘못 되었습니다.", 
+					propKey, propValue, classLoaderSourcePath.getAbsolutePath());
+			System.exit(1);
+		}		
+		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, classLoaderSourcePath.getAbsolutePath());
+		
+		// dynamicClassBasePackageName
+		
+		
+		/******** 동적 클래스 관련 공통 환경 변수 종료 **********/
 	}
 	
 	
@@ -517,6 +574,17 @@ public class ServerProjectConfig extends CommonProjectConfig {
 	}
 	
 	
+	
+	public File getClassLoaderAPPINFPath() {
+		return classLoaderAPPINFPath;
+	}
+
+	public File getClassLoaderClassPath() {
+		return classLoaderSourcePath;
+	}
+
+	
+
 	public String toServerString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("ServerProjectConfig [");
@@ -556,6 +624,10 @@ public class ServerProjectConfig extends CommonProjectConfig {
 		builder.append(serverRequestTimeout);
 		builder.append(", mybatisConfigFileName=");
 		builder.append(mybatisConfigFileName);
+		builder.append(", classLoaderAPPINFPath=");
+		builder.append(classLoaderAPPINFPath);
+		builder.append(", classLoaderSourcePath=");
+		builder.append(classLoaderSourcePath);		
 		builder.append("]");
 		return builder.toString();
 	}

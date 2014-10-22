@@ -37,10 +37,12 @@ public class CommonProjectConfig {
 	/********* 가공 데이터 종료 *********/
 		
 	private CommonType.MESSAGE_PROTOCOL messageProtocol;
+	
+	/***** 서버 동적 클래스 변수 시작 *****/
+	private String classLoaderClassPackagePrefixName = null;
+	/***** 서버 동적 클래스 변수 종료 *****/
 		
-	private File dynamicClassBinaryBasePath = null;
-	private File dynamicClassSourceBasePath = null;
-	private String dynamicClassBasePackageName = null;
+	
 	/************* common 변수 종료 ******************/
 	
 	public CommonProjectConfig(String projectName, Properties configFileProperties, Logger log) {
@@ -73,110 +75,110 @@ public class CommonProjectConfig {
 	 */
 	private void configCommon(Properties configFileProperties) {
 		String propKey = null;
-		String proValue = null;
+		String propValue = null;
 		
 		/******** 메시지 정보 파일이 위치한 경로 시작 **********/
 		propKey = getCommonKeyName("message_info.xmlpath");
-		proValue = configFileProperties.getProperty(propKey);
-		if (null == proValue) {
-			log.error("warning:: 메시지 정보 파일 경로[{}][{}]를 지정해 주세요", propKey, proValue);
+		propValue = configFileProperties.getProperty(propKey);
+		if (null == propValue) {
+			log.error("warning:: 메시지 정보 파일 경로[{}][{}]를 지정해 주세요", propKey, propValue);
 			System.exit(1);
 		} else {
-			messageInfoPath = new File(proValue);
+			messageInfoPath = new File(propValue);
 		}
 		
 		if (!messageInfoPath.exists()) {
-			log.error("메시지 정보 파일 경로[{}][{}]가 존재하지 않습니다.", propKey, proValue);
+			log.error("메시지 정보 파일 경로[{}][{}]가 존재하지 않습니다.", propKey, propValue);
 			System.exit(1);
 		}
 		if (!messageInfoPath.isDirectory() || !messageInfoPath.canRead()) {
 			log.error("메시지 정보 파일 경로[{}][{}][{}]가 잘못 되었습니다.", 
-					propKey, proValue, messageInfoPath.getAbsolutePath());
+					propKey, propValue, messageInfoPath.getAbsolutePath());
 			System.exit(1);
 		}		
-		log.info("{}::prop value[{}], new value[{}]", propKey, proValue, messageInfoPath.getAbsolutePath());
+		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, messageInfoPath.getAbsolutePath());
 		/******** 메시지 정보 파일이 위치한 경로 종료 **********/
 		
 		propKey = getCommonKeyName("host");
-		proValue = configFileProperties.getProperty(propKey);
-		if (null == proValue) {
+		propValue = configFileProperties.getProperty(propKey);
+		if (null == propValue) {
 			serverHost = "localhost";
 		} else {
-			serverHost = proValue;
+			serverHost = propValue;
 		}
-		log.info("{}::prop value[{}], new value[{}]", propKey, proValue, serverHost);
+		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, serverHost);
 		
 		propKey = getCommonKeyName("port");
-		proValue = configFileProperties.getProperty(propKey);
-		if (null == proValue) {
+		propValue = configFileProperties.getProperty(propKey);
+		if (null == propValue) {
 			serverPort = 9090;
 		} else {
 			try {
-				serverPort = Integer.parseInt(proValue);
+				serverPort = Integer.parseInt(propValue);
 			} catch(NumberFormatException e) {
-				log.error("warning:: key[{}] integer but value[{}]", propKey, proValue);
+				log.error("warning:: key[{}] integer but value[{}]", propKey, propValue);
 				System.exit(1);
 			}
 		}
-		log.info("{}::prop value[{}], new value[{}]", propKey, proValue, serverPort);
+		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, serverPort);
 		
 		propKey = getCommonKeyName("byteorder");
-		proValue = configFileProperties.getProperty(propKey);
-		if (null == proValue) {
+		propValue = configFileProperties.getProperty(propKey);
+		if (null == propValue) {
 			byteOrder = ByteOrder.LITTLE_ENDIAN;
 		} else {
-			if (proValue.equals("LITTLE_ENDIAN")) {
+			if (propValue.equals("LITTLE_ENDIAN")) {
 				byteOrder = ByteOrder.LITTLE_ENDIAN;
-			} else if (proValue.equals("BIG_ENDIAN")) {
+			} else if (propValue.equals("BIG_ENDIAN")) {
 				byteOrder = ByteOrder.BIG_ENDIAN;
 			} else {
 				byteOrder = ByteOrder.LITTLE_ENDIAN;
 			}
 		}
-		log.info("{}::prop value[{}], new value[{}]", propKey, proValue, byteOrder.toString());
+		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, byteOrder.toString());
 		
 		propKey = getCommonKeyName("charset");
-		proValue = configFileProperties.getProperty(propKey);
-		if (null == proValue) {
+		propValue = configFileProperties.getProperty(propKey);
+		if (null == propValue) {
 			charset = Charset.forName("UTF-8");
 		} else {
 			try {
-				charset = Charset.forName(proValue);
+				charset = Charset.forName(propValue);
 			} catch(IllegalCharsetNameException e) {
 				charset = Charset.forName("UTF-8");
 			} catch(UnsupportedCharsetException e) {
 				charset = Charset.forName("UTF-8");
 			}
 		}		
-		log.info("{}::prop value[{}], new value[{}]", propKey, proValue, charset.name());
+		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, charset.name());
 		
 		// body_buffer_max_cnt_per_message
 		propKey = getCommonKeyName("data_packet_buffer_max_cnt_per_message");
-		proValue = configFileProperties.getProperty(propKey);
-		if (null == proValue) {
+		propValue = configFileProperties.getProperty(propKey);
+		if (null == propValue) {
 			dataPacketBufferMaxCntPerMessage = 10;
 		} else {
 			try {
-				dataPacketBufferMaxCntPerMessage = Integer.parseInt(proValue);
+				dataPacketBufferMaxCntPerMessage = Integer.parseInt(propValue);
 				if (dataPacketBufferMaxCntPerMessage < 2) dataPacketBufferMaxCntPerMessage = 10;
 			} catch(NumberFormatException nfe) {
 				dataPacketBufferMaxCntPerMessage = 10;
 			}
 		}
 		
-		this.log.info("{}::prop value[{}], new value[{}]", propKey, proValue, dataPacketBufferMaxCntPerMessage);
+		this.log.info("{}::prop value[{}], new value[{}]", propKey, propValue, dataPacketBufferMaxCntPerMessage);
 		
 		
 		propKey = getCommonKeyName("data_packet_buffer_size");
-		proValue = configFileProperties.getProperty(propKey);
-		if (null == proValue) {
+		propValue = configFileProperties.getProperty(propKey);
+		if (null == propValue) {
 			dataPacketBufferSize = 4096;
 		} else {
 			try {
-				dataPacketBufferSize = Integer.parseInt(proValue);
+				dataPacketBufferSize = Integer.parseInt(propValue);
 				/** 1024byte 의 배수 아니면 종료 */
 				if ((dataPacketBufferSize % 1024) != 0) {
-					log.error("{}::prop value[{}], 데이터 패킷 크기는 1024byte 의 배수이어야 합니다.", propKey, proValue);
+					log.error("{}::prop value[{}], 데이터 패킷 크기는 1024byte 의 배수이어야 합니다.", propKey, propValue);
 					System.exit(1);
 				}
 				if (dataPacketBufferSize < 1024) dataPacketBufferSize = 1024;
@@ -184,99 +186,53 @@ public class CommonProjectConfig {
 				dataPacketBufferSize = 4096;
 			}
 		}
-		log.info("{}::prop value[{}], new value[{}]", propKey, proValue, dataPacketBufferSize);
+		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, dataPacketBufferSize);
 		
 		
 		propKey = getCommonKeyName("message_id_fixed_size");
-		proValue = configFileProperties.getProperty(propKey);
-		if (null == proValue) {
+		propValue = configFileProperties.getProperty(propKey);
+		if (null == propValue) {
 			messageIDFixedSize = 24;
 		} else {
 			try {
-				messageIDFixedSize = Integer.parseInt(proValue);
+				messageIDFixedSize = Integer.parseInt(propValue);
 				if (messageIDFixedSize < 2) messageIDFixedSize = 2;
 			} catch(NumberFormatException nfe) {
 				messageIDFixedSize = 24;
 			}
 		}		
-		log.info("{}::prop value[{}], new value[{}]", propKey, proValue, messageIDFixedSize);
+		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, messageIDFixedSize);
 		
 		/** 가공 데이터 시작 */
 		messageHeaderSize = DHBMessageHeader.getMessageHeaderSize(messageIDFixedSize);
 		/** 가공 데이터 종료 */	
 		
 		propKey = getCommonKeyName("message_protocol");
-		proValue = configFileProperties.getProperty(propKey);
-		if (null == proValue) {
+		propValue = configFileProperties.getProperty(propKey);
+		if (null == propValue) {
 			messageProtocol = CommonType.MESSAGE_PROTOCOL.DHB;
 		} else {
-			if (proValue.equals("DHB")) {
+			if (propValue.equals("DHB")) {
 				messageProtocol = CommonType.MESSAGE_PROTOCOL.DHB;
-			} else if (proValue.equals("DJSON")) {
+			} else if (propValue.equals("DJSON")) {
 				messageProtocol = CommonType.MESSAGE_PROTOCOL.DJSON;
-			} else if (proValue.equals("THB")) {
+			} else if (propValue.equals("THB")) {
 				messageProtocol = CommonType.MESSAGE_PROTOCOL.THB;
 			} else {
-				log.error("지원하지 않는 이진형식[{}] 입니다.", proValue);
+				log.error("지원하지 않는 이진형식[{}] 입니다.", propValue);
 				System.exit(1);
 			}
 		}
-		log.info("{}::prop value[{}], new value[{}]", propKey, proValue, messageProtocol.toString());
+		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, messageProtocol.toString());
 		
-		
-		/******** 동적 클래스 관련 공통 환경 변수 시작 **********/
-		// FIXME!
-		propKey = getCommonKeyName("dynamic_class.binary.base_path");
-		proValue = configFileProperties.getProperty(propKey);
-		if (null == proValue) {
-			log.error("warning:: 동적 클래스 이진 기본 경로[{}][{}]를 지정해 주세요", propKey, proValue);
-			System.exit(1);
+		propKey = getCommonKeyName("classloader.class.package_prefix_name");
+		propValue = configFileProperties.getProperty(propKey);
+		if (null == propValue) {
+			classLoaderClassPackagePrefixName = "kr.pe.sinnori.impl.message.";
 		} else {
-			dynamicClassBinaryBasePath = new File(proValue);
+			classLoaderClassPackagePrefixName = propValue;
 		}
-		
-		if (!dynamicClassBinaryBasePath.exists()) {
-			log.error("동적 클래스 이진 기본 경로[{}][{}]가 존재하지 않습니다.", propKey, proValue);
-			System.exit(1);
-		}
-		if (!dynamicClassBinaryBasePath.isDirectory() || !dynamicClassBinaryBasePath.canRead()) {
-			log.error("동적 클래스 이진 기본 경로[{}][{}][{}]가 잘못 되었습니다.", 
-					propKey, proValue, dynamicClassBinaryBasePath.getAbsolutePath());
-			System.exit(1);
-		}		
-		log.info("{}::prop value[{}], new value[{}]", propKey, proValue, dynamicClassBinaryBasePath.getAbsolutePath());
-		
-		
-		propKey = getCommonKeyName("dynamic_class.source.base_path");
-		proValue = configFileProperties.getProperty(propKey);
-		if (null == proValue) {
-			log.error("warning:: 동적 클래스 소스 기본 경로[{}][{}]를 지정해 주세요", propKey, proValue);
-			System.exit(1);
-		} else {
-			dynamicClassSourceBasePath = new File(proValue);
-		}
-		
-		if (!dynamicClassSourceBasePath.exists()) {
-			log.error("동적 클래스 소스 기본 경로[{}][{}]가 존재하지 않습니다.", propKey, proValue);
-			System.exit(1);
-		}
-		if (!dynamicClassSourceBasePath.isDirectory() || !dynamicClassSourceBasePath.canRead()) {
-			log.error("동적 클래스 소스 기본 경로[{}][{}][{}]가 잘못 되었습니다.", 
-					propKey, proValue, dynamicClassSourceBasePath.getAbsolutePath());
-			System.exit(1);
-		}		
-		log.info("{}::prop value[{}], new value[{}]", propKey, proValue, dynamicClassSourceBasePath.getAbsolutePath());
-		
-		// dynamicClassBasePackageName
-		
-		propKey = getCommonKeyName("dynamic_class_base_package_name");
-		proValue = configFileProperties.getProperty(propKey);
-		if (null == proValue) {
-			dynamicClassBasePackageName = "kr.pe.sinnori.impl.message.";
-		} else {
-			dynamicClassBasePackageName = proValue;
-		}
-		/******** 동적 클래스 관련 공통 환경 변수 종료 **********/
+		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, classLoaderClassPackagePrefixName);
 	}
 	
 	public String getProjectName() {
@@ -361,16 +317,8 @@ public class CommonProjectConfig {
 		return messageProtocol;
 	}	
 	
-	public File getDynamicClassBinaryBasePath() {
-		return dynamicClassBinaryBasePath;
-	}
-	
-	public File getDynamicClassSourceBasePath() {
-		return dynamicClassSourceBasePath;
-	}
-	
-	public String getDynamicClassBasePackageName() {
-		return dynamicClassBasePackageName;
+	public String getClassLoaderClassPackagePrefixName() {
+		return classLoaderClassPackagePrefixName;
 	}
 
 	public String toCommonString() {
@@ -397,13 +345,8 @@ public class CommonProjectConfig {
 		builder.append(messageHeaderSize);
 		builder.append(", messageProtocol=");
 		builder.append(messageProtocol);
-		builder.append(", dynamicClassBinaryBasePath=");
-		builder.append(dynamicClassBinaryBasePath.getAbsolutePath());
-		builder.append(", dynamicClassSourceBasePath=");
-		builder.append(dynamicClassSourceBasePath.getAbsolutePath());
-		builder.append(", dynamicClassBasePackageName=");
-		builder.append(dynamicClassBasePackageName);
-		
+		builder.append(", classLoaderClassPackagePrefixName=");
+		builder.append(classLoaderClassPackagePrefixName);
 		builder.append("]");
 		return builder.toString();
 	}

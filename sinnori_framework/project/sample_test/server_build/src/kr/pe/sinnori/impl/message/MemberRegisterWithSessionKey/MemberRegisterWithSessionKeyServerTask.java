@@ -12,23 +12,30 @@ import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager;
 import kr.pe.sinnori.common.sessionkey.SymmetricKey;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
+import kr.pe.sinnori.impl.mybatis.SqlSessionFactoryManger;
 import kr.pe.sinnori.server.LoginManagerIF;
-import kr.pe.sinnori.server.SinnoriSqlSessionFactoryIF;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
 import kr.pe.sinnori.server.executor.LetterSender;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 
 
 public class MemberRegisterWithSessionKeyServerTask extends AbstractServerTask {
+	private SqlSessionFactory sqlSessionFactory = null;
 
 	@Override
 	public void doTask(ServerProjectConfig serverProjectConfig,
-			LoginManagerIF loginManager, SinnoriSqlSessionFactoryIF sqlSessionFactory,
+			LoginManagerIF loginManager,
 			LetterSender letterSender,
 			AbstractMessage messageFromClient) throws Exception {
 		MemberRegisterWithSessionKey inObj = (MemberRegisterWithSessionKey)messageFromClient;
+		
+		if (null == sqlSessionFactory) {
+			sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory(serverProjectConfig);
+		}
+		
 		String idCipherBase64 = inObj.getIdCipherBase64();
 		String sessionKeyBase64 = inObj.getSessionKeyBase64();
 		String ivBase64 = inObj.getIvBase64();

@@ -38,8 +38,8 @@
 		var regexPwdDigit = /.*[0-9]{1,}.*/;
 		var regexPwdPunct = /.*[\`~!@\#$%<>\^&*\(\)\-=+_\'\[\]\{\}\\\|\:\;\"<>\?,\.\/]{1,}.*/;
 	
-		if(typeof(Storage) == "undefined") {
-		    alert("Sorry! No web storage support..");
+		if(typeof(sessionStorage) == "undefined") {
+		    alert("Sorry! No HTML5 sessionStorage support..");
 		    return false;
 		}
 	
