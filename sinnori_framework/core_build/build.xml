@@ -21,6 +21,7 @@
 		<!-- Delete the ${build} and ${dist} directory trees -->
 		<delete dir="${build}" />
 		<delete dir="${dist}" />
+		<delete dir="${APP-INF}/classes" />
 	</target>
 
 
@@ -151,9 +152,6 @@
 		</jar>
 	</target>
 
-	<target name="clean.appinf">
-		<delete dir="${APP-INF}/classes" />
-	</target>
 
 	<target name="init.appinf">
 		<mkdir dir="${APP-INF}/classes" />
@@ -180,6 +178,6 @@
 	</target>
 	
 	<target name="nodebug" depends="java.debug.no.init, compile.appinf" description="신놀이 프레임 워크 컴파일후 jar 만들기">
-		<echo message="3.java.debug=${java.debug}" />
+		<echo message="java.debug=${java.debug}" />
 	</target>
 </project>

@@ -12,13 +12,18 @@
 	<property name="webclass" location="../../web_app_base/ROOT/WEB-INF/classes" />
 	<property name="weblib" location="../../web_app_base/ROOT/WEB-INF/lib" />
 	<property file="../../ant.properties" />
+	<property name="servletlib" location="${tomcat.servletlib}" />
 	
+	<condition property="is.web.yes">
+		<istrue value="${is.tomcat}" />
+	</condition>
+
 	<condition property="is.windows.yes">
 		<os family="windows" />
 	</condition>
 	<condition property="is.unix.yes">
 		<os family="unix" />
-	</condition>
+	</condition>	
 	
 	<condition property="java.debug.yes">
 		<istrue value="${java.debug}" />
@@ -41,7 +46,7 @@
 	
 	<target name="var.init" depends="java.debug.no.init, java.debug.yes.init, dos.init, unix.init" description="var init">
 		<echo message="java.debug=${java.debug}, core.java.debug=${core.java.debug}" />
-		<echo message="java.debug.yes=${java.debug.yes}" />
+		<echo message="is.web.yes=${is.web.yes}, servletlib=${servletlib}" />		
 	</target>
 
 	
