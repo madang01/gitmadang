@@ -28,7 +28,7 @@ public final class FileListResult extends AbstractMessage {
 	private String taskResult;
 	private String resultMessage;
 	private int cntOfDriver;
-	public class Driver {
+	public static class Driver {
 		private String driverName;
 
 		public String getDriverName() {
@@ -49,9 +49,9 @@ public final class FileListResult extends AbstractMessage {
 			return builder.toString();
 		}
 	};
-	private Driver[] driverList;
+	private java.util.List<Driver> driverList;
 	private int cntOfFile;
-	public class File {
+	public static class File {
 		private String fileName;
 		private long fileSize;
 		private byte fileType;
@@ -92,7 +92,7 @@ public final class FileListResult extends AbstractMessage {
 			return builder.toString();
 		}
 	};
-	private File[] fileList;
+	private java.util.List<File> fileList;
 
 	public String getRequestDirectory() {
 		return requestDirectory;
@@ -130,11 +130,11 @@ public final class FileListResult extends AbstractMessage {
 		this.cntOfDriver = cntOfDriver;
 	}
 
-	public Driver[] getDriverList() {
+	public java.util.List<Driver> getDriverList() {
 		return driverList;
 	}
 
-	public void setDriverList(Driver[] driverList) {
+	public void setDriverList(java.util.List<Driver> driverList) {
 		this.driverList = driverList;
 	}
 	public int getCntOfFile() {
@@ -145,11 +145,11 @@ public final class FileListResult extends AbstractMessage {
 		this.cntOfFile = cntOfFile;
 	}
 
-	public File[] getFileList() {
+	public java.util.List<File> getFileList() {
 		return fileList;
 	}
 
-	public void setFileList(File[] fileList) {
+	public void setFileList(java.util.List<File> fileList) {
 		this.fileList = fileList;
 	}
 
@@ -171,12 +171,13 @@ public final class FileListResult extends AbstractMessage {
 		if (null == driverList) {
 			builder.append("null");
 		} else {
-			if (0 == driverList.length) {
+			int driverListSize = driverList.size();
+			if (0 == driverListSize) {
 				builder.append("empty");
 			} else {
 				builder.append("[");
-				for (int i=0; i < driverList.length; i++) {
-					Driver driver = driverList[i];
+				for (int i=0; i < driverListSize; i++) {
+					Driver driver = driverList.get(i);
 					if (0 == i) {
 						builder.append("driver[");
 					} else {
@@ -196,12 +197,13 @@ public final class FileListResult extends AbstractMessage {
 		if (null == fileList) {
 			builder.append("null");
 		} else {
-			if (0 == fileList.length) {
+			int fileListSize = fileList.size();
+			if (0 == fileListSize) {
 				builder.append("empty");
 			} else {
 				builder.append("[");
-				for (int i=0; i < fileList.length; i++) {
-					File file = fileList[i];
+				for (int i=0; i < fileListSize; i++) {
+					File file = fileList.get(i);
 					if (0 == i) {
 						builder.append("file[");
 					} else {

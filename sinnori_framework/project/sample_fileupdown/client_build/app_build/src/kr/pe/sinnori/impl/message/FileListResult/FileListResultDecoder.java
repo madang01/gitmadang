@@ -95,14 +95,16 @@ public final class FileListResultDecoder extends MessageDecoder {
 		, charsetOfProject
 		, middleReadObj));
 
-		Object driverMiddleReadArray = singleItemDecoder.getArrayObjFromMiddleReadObj(sigleItemPath0, "driver", fileListResult.getCntOfDriver(), middleReadObj);
-		FileListResult.Driver[] driverList = new FileListResult.Driver[fileListResult.getCntOfDriver()];
-		for (int i=0; i < driverList.length; i++) {
+		int driverListSize = fileListResult.getCntOfDriver();
+		Object driverMiddleReadArray = singleItemDecoder.getArrayObjFromMiddleReadObj(sigleItemPath0, "driver", driverListSize, middleReadObj);
+		java.util.List<FileListResult.Driver> driverList = new java.util.ArrayList<FileListResult.Driver>();
+		for (int i=0; i < driverListSize; i++) {
 			String sigleItemPath1 = new StringBuilder(sigleItemPath0).append(".").append("Driver[").append(i).append("]").toString();
 			Object driverMiddleReadObj = singleItemDecoder.getMiddleReadObjFromArrayObj(sigleItemPath1, driverMiddleReadArray, i);
-			driverList[i] = fileListResult. new Driver();
+			FileListResult.Driver driver = new FileListResult.Driver();
+			driverList.add(driver);
 
-			driverList[i].setDriverName((String)
+			driver.setDriverName((String)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
 			, "driverName" // itemName
 			, 7 // itemTypeID
@@ -124,14 +126,16 @@ fileListResult.setDriverList(driverList);
 		, charsetOfProject
 		, middleReadObj));
 
-		Object fileMiddleReadArray = singleItemDecoder.getArrayObjFromMiddleReadObj(sigleItemPath0, "file", fileListResult.getCntOfFile(), middleReadObj);
-		FileListResult.File[] fileList = new FileListResult.File[fileListResult.getCntOfFile()];
-		for (int i=0; i < fileList.length; i++) {
+		int fileListSize = fileListResult.getCntOfFile();
+		Object fileMiddleReadArray = singleItemDecoder.getArrayObjFromMiddleReadObj(sigleItemPath0, "file", fileListSize, middleReadObj);
+		java.util.List<FileListResult.File> fileList = new java.util.ArrayList<FileListResult.File>();
+		for (int i=0; i < fileListSize; i++) {
 			String sigleItemPath1 = new StringBuilder(sigleItemPath0).append(".").append("File[").append(i).append("]").toString();
 			Object fileMiddleReadObj = singleItemDecoder.getMiddleReadObjFromArrayObj(sigleItemPath1, fileMiddleReadArray, i);
-			fileList[i] = fileListResult. new File();
+			FileListResult.File file = new FileListResult.File();
+			fileList.add(file);
 
-			fileList[i].setFileName((String)
+			file.setFileName((String)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
 			, "fileName" // itemName
 			, 9 // itemTypeID
@@ -141,7 +145,7 @@ fileListResult.setDriverList(driverList);
 			, charsetOfProject
 			, fileMiddleReadObj));
 
-			fileList[i].setFileSize((Long)
+			file.setFileSize((Long)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
 			, "fileSize" // itemName
 			, 6 // itemTypeID
@@ -151,7 +155,7 @@ fileListResult.setDriverList(driverList);
 			, charsetOfProject
 			, fileMiddleReadObj));
 
-			fileList[i].setFileType((Byte)
+			file.setFileType((Byte)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
 			, "fileType" // itemName
 			, 0 // itemTypeID

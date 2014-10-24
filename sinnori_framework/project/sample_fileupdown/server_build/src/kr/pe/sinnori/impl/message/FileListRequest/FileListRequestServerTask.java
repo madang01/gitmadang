@@ -18,12 +18,13 @@ package kr.pe.sinnori.impl.message.FileListRequest;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.util.DirectoryFirstComparator;
 import kr.pe.sinnori.common.util.NameFirstComparator;
 import kr.pe.sinnori.impl.message.FileListResult.FileListResult;
 import kr.pe.sinnori.server.LoginManagerIF;
@@ -166,23 +167,17 @@ public class FileListRequestServerTask extends AbstractAuthServerExecutor {
 		String OSName = System.getProperty("os.name").toLowerCase();
 		if (OSName.contains("win")) {
 			File[] realDriverList = File.listRoots();
-			// outObj.setAttribute("cntOfDriver", driverList.length);
 			outObj.setCntOfDriver(realDriverList.length);
-			FileListResult.Driver driverList[] = new FileListResult.Driver[outObj.getCntOfDriver()];
+			List<FileListResult.Driver> driverList = new ArrayList<FileListResult.Driver>();
 			outObj.setDriverList(driverList);
 			// ArrayData driverListOfOutObj = (ArrayData) outObj.getAttribute("driverList");
 			
-			for (int i=0; i <  driverList.length; i++) {
+			for (int i=0; i <  realDriverList.length; i++) {
 				File driverFile = realDriverList[i];
 				String driverName = driverFile.getAbsolutePath();
-				driverList[i] = outObj. new Driver();				
-				driverList[i].setDriverName(driverName);
-				
-				/*ItemGroupDataIF driverOfOutObj = driverListOfOutObj.get(i);
-				
-				String driveName = driverFile.getAbsolutePath();
-				
-				driverOfOutObj.setAttribute("driverName", driveName);*/
+				FileListResult.Driver driver = new FileListResult.Driver();
+				driver.setDriverName(driverName);
+				driverList.add(driver);
 			}
 		} else {
 			// outObj.setAttribute("cntOfDriver", 0);
@@ -196,61 +191,45 @@ public class FileListRequestServerTask extends AbstractAuthServerExecutor {
 			outObj.setCntOfFile(0);
 		} else {
 			Arrays.sort(subFiles, new NameFirstComparator());
-			Arrays.sort(subFiles, new DirectoryFirstComparator());
-			
-			/*
-			int gap = 1;
-			for (int i = 0; i < subFiles.length; i++) {
-				// log.info(String.format("1. i=[%d] fileName=[%s]", i, subFiles[i].getName()));
-				if (subFiles[i].isDirectory()) continue;
-				for (int j = i+gap; j < subFiles.length; j++) {
-					// log.info(String.format("2. i=[%d], j=[%d] fileName=[%s]", i, j, subFiles[j].getName()));
-					if (subFiles[j].isDirectory()) {
-						gap = j - i;
-						File tmp = subFiles[j];
-						int k=j;
-						for (; k > i; k--) {
-							// log.info(String.format("3. move %d to %d", k-1, k));
-							subFiles[k] = subFiles[k-1]; 
-						}
-						subFiles[i] = tmp;
-						// log.info(String.format("4. i=[%d], j=[%d], k=[%d]", i, j, k));
-						break;
-					}
+			List<File> fileList = new ArrayList<File>();
+			List<File> directoryList = new ArrayList<File>();
+			for (File subFile : subFiles) {
+				if (workFile.isFile()) {
+					fileList.add(subFile);
+				} else {
+					directoryList.add(subFile);
 				}
-				// log.info(String.format("5. i=[%d] fileName=[%s]", i, subFiles[i].getName()));
 			}
-			*/
-			
+					
 			outObj.setCntOfFile(subFiles.length);
 			// outObj.setAttribute("cntOfFile", subFiles.length);
 			
 			// ArrayData fileListOfOutObj = (ArrayData) outObj.getAttribute("fileList");
-			FileListResult.File fileList[] = new FileListResult.File[outObj.getCntOfFile()];
-			outObj.setFileList(fileList);
 			
-			for (int i=0; i <  subFiles.length; i++) {
-				fileList[i] = outObj.new File();
-				fileList[i].setFileName(subFiles[i].getName());
-				fileList[i].setFileSize(subFiles[i].length());
+			List<FileListResult.File> allFileList = new ArrayList<FileListResult.File>();
+			outObj.setFileList(allFileList);
+			
+			for (File subFile : directoryList) {
+				FileListResult.File fileOfFileListResult = new FileListResult.File();
+				
+				fileOfFileListResult.setFileName(subFile.getName());
+				fileOfFileListResult.setFileSize(0L);
 				/** 파일 종류, 1:디렉토리, 0:파일 */
-				if (subFiles[i].isDirectory()) {
-					fileList[i].setFileType((byte)1);					
-				} else {
-					fileList[i].setFileType((byte)0);
-				}
+				fileOfFileListResult.setFileType((byte)1);
 				
-				/*ItemGroupDataIF fileOfOutObj = fileListOfOutObj.get(i);
-				
-				fileOfOutObj.setAttribute("fileName", subFiles[i].getName());
-				fileOfOutObj.setAttribute("fileSize", subFiles[i].length());
-				*//** 파일 종류, 1:디렉토리, 0:파일 *//*
-				if (subFiles[i].isDirectory()) {
-					fileOfOutObj.setAttribute("fileType", (byte)1);
-				} else {
-					fileOfOutObj.setAttribute("fileType", (byte)0);
-				}*/
+				allFileList.add(fileOfFileListResult);
 			}
+			
+			for (File subFile : fileList) {
+				FileListResult.File fileOfFileListResult = new FileListResult.File();
+				
+				fileOfFileListResult.setFileName(subFile.getName());
+				fileOfFileListResult.setFileSize(subFile.length());
+				/** 파일 종류, 1:디렉토리, 0:파일 */
+				fileOfFileListResult.setFileType((byte)0);
+				
+				allFileList.add(fileOfFileListResult);
+			}			
 		}
 		
 		// FIXME!

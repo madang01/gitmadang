@@ -96,25 +96,29 @@ public final class FileListResultEncoder extends MessageEncoder {
 					, charsetOfProject
 					, middleWriteObj);
 
-		FileListResult.Driver[] driverList = fileListResult.getDriverList();
+		java.util.List<FileListResult.Driver> driverList = fileListResult.getDriverList();
 
 		/** 배열 정보와 배열 크기 일치 검사 */
 		if (null == driverList) {
 			/** 배열 크기 지정 방식이 간접일 경우 참조하는 변수값이 0 일 경우만 배열 값으로 null 을 허용한다. */
 			if (0 != fileListResult.getCntOfDriver()) {
-				String errorMessage = new StringBuilder(fileListResultSingleItemPath)
+				String errorMessage = new StringBuilder("간접 참조 회수[")
+				.append(fileListResult.getCntOfDriver())
+				.append("] is not zero but ")
+				.append(fileListResultSingleItemPath)
 				.append(".")
 				.append("driverList")
 				.append("is null").toString();
 				throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
 			}
 		} else {
+			int driverListSize = driverList.size();
 			/** 배열 값이 null 이 아닐때에는 배열 크기가 배열 정보에서 지정된 크기와 같은지 검사 */
-			if (driverList.length != fileListResult.getCntOfDriver()) {
+			if (driverListSize != fileListResult.getCntOfDriver()) {
 				String errorMessage = new StringBuilder(fileListResultSingleItemPath)
 				.append(".")
 				.append("driverList.length[")
-				.append(driverList.length)
+				.append(driverListSize)
 				.append("] is not same to ")
 				.append(fileListResultSingleItemPath)
 				.append(".")
@@ -124,12 +128,12 @@ public final class FileListResultEncoder extends MessageEncoder {
 				throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
 			}
 
-			Object driverMiddleWriteArray = singleItemEncoder.getArrayObjFromMiddleWriteObj(fileListResultSingleItemPath, "driver", driverList.length, middleWriteObj);
-			for (int i=0; i < driverList.length; i++) {
+			Object driverMiddleWriteArray = singleItemEncoder.getArrayObjFromMiddleWriteObj(fileListResultSingleItemPath, "driver", driverListSize, middleWriteObj);
+			for (int i=0; i < driverListSize; i++) {
 				singleItemPathStatck.push(new StringBuilder(singleItemPathStatck.getLast()).append(".").append("Driver").append("[").append(i).append("]").toString());
 				String driverSingleItemPath = singleItemPathStatck.getLast();
 				Object driverMiddleWriteObj = singleItemEncoder.getMiddleWriteObjFromArrayObj(driverSingleItemPath, driverMiddleWriteArray, i);
-				FileListResult.Driver driver = driverList[i];
+				FileListResult.Driver driver = driverList.get(i);
 				singleItemEncoder.putValueToMiddleWriteObj(driverSingleItemPath, "driverName"
 							, 7 // itemTypeID
 							, "ub pascal string" // itemTypeName
@@ -150,25 +154,29 @@ public final class FileListResultEncoder extends MessageEncoder {
 					, charsetOfProject
 					, middleWriteObj);
 
-		FileListResult.File[] fileList = fileListResult.getFileList();
+		java.util.List<FileListResult.File> fileList = fileListResult.getFileList();
 
 		/** 배열 정보와 배열 크기 일치 검사 */
 		if (null == fileList) {
 			/** 배열 크기 지정 방식이 간접일 경우 참조하는 변수값이 0 일 경우만 배열 값으로 null 을 허용한다. */
 			if (0 != fileListResult.getCntOfFile()) {
-				String errorMessage = new StringBuilder(fileListResultSingleItemPath)
+				String errorMessage = new StringBuilder("간접 참조 회수[")
+				.append(fileListResult.getCntOfFile())
+				.append("] is not zero but ")
+				.append(fileListResultSingleItemPath)
 				.append(".")
 				.append("fileList")
 				.append("is null").toString();
 				throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
 			}
 		} else {
+			int fileListSize = fileList.size();
 			/** 배열 값이 null 이 아닐때에는 배열 크기가 배열 정보에서 지정된 크기와 같은지 검사 */
-			if (fileList.length != fileListResult.getCntOfFile()) {
+			if (fileListSize != fileListResult.getCntOfFile()) {
 				String errorMessage = new StringBuilder(fileListResultSingleItemPath)
 				.append(".")
 				.append("fileList.length[")
-				.append(fileList.length)
+				.append(fileListSize)
 				.append("] is not same to ")
 				.append(fileListResultSingleItemPath)
 				.append(".")
@@ -178,12 +186,12 @@ public final class FileListResultEncoder extends MessageEncoder {
 				throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
 			}
 
-			Object fileMiddleWriteArray = singleItemEncoder.getArrayObjFromMiddleWriteObj(fileListResultSingleItemPath, "file", fileList.length, middleWriteObj);
-			for (int i=0; i < fileList.length; i++) {
+			Object fileMiddleWriteArray = singleItemEncoder.getArrayObjFromMiddleWriteObj(fileListResultSingleItemPath, "file", fileListSize, middleWriteObj);
+			for (int i=0; i < fileListSize; i++) {
 				singleItemPathStatck.push(new StringBuilder(singleItemPathStatck.getLast()).append(".").append("File").append("[").append(i).append("]").toString());
 				String fileSingleItemPath = singleItemPathStatck.getLast();
 				Object fileMiddleWriteObj = singleItemEncoder.getMiddleWriteObjFromArrayObj(fileSingleItemPath, fileMiddleWriteArray, i);
-				FileListResult.File file = fileList[i];
+				FileListResult.File file = fileList.get(i);
 				singleItemEncoder.putValueToMiddleWriteObj(fileSingleItemPath, "fileName"
 							, 9 // itemTypeID
 							, "si pascal string" // itemTypeName

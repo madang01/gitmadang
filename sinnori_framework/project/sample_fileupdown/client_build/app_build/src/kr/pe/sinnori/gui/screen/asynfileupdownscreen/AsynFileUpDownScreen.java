@@ -23,7 +23,9 @@ import static kr.pe.sinnori.common.lib.CommonRootIF.log;
 import java.awt.FlowLayout;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
@@ -39,7 +41,6 @@ import javax.swing.ToolTipManager;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
-import kr.pe.sinnori.common.util.DirectoryFirstComparator;
 import kr.pe.sinnori.common.util.NameFirstComparator;
 import kr.pe.sinnori.gui.lib.LocalFileTreeNode;
 import kr.pe.sinnori.gui.lib.MainControllerIF;
@@ -344,68 +345,45 @@ public class AsynFileUpDownScreen extends JPanel implements FileUpDownScreenIF {
 		if (null == subFiles)
 			return;
 		
-		Arrays.sort(subFiles, new NameFirstComparator());
-		Arrays.sort(subFiles, new DirectoryFirstComparator());
+		Arrays.<File>sort(subFiles, new NameFirstComparator());
 		
-		/*
-		int gap = 1;
-		for (int i = 0; i < subFiles.length; i++) {
-			// log.info(String.format("1. i=[%d] fileName=[%s]", i, subFiles[i].getName()));
-			if (subFiles[i].isDirectory()) continue;
-			for (int j = i+gap; j < subFiles.length; j++) {
-				// log.info(String.format("2. i=[%d], j=[%d] fileName=[%s]", i, j, subFiles[j].getName()));
-				if (subFiles[j].isDirectory()) {
-					gap = j - i;
-					File tmp = subFiles[j];
-					int k=j;
-					for (; k > i; k--) {
-						// log.info(String.format("3. move %d to %d", k-1, k));
-						subFiles[k] = subFiles[k-1]; 
-					}
-					subFiles[i] = tmp;
-					// log.info(String.format("4. i=[%d], j=[%d], k=[%d]", i, j, k));
-					break;
-				}
-			}
-			// log.info(String.format("5. i=[%d] fileName=[%s]", i, subFiles[i].getName()));
-		}
-		*/
-
-		for (int i = 0; i < subFiles.length; i++) {
-			File workFile = subFiles[i];
-
-			// String fileName = workFile.getName();
-			// System.out.printf("In makeLocalDirectoryTreeNode, fileName[%d]=[%s]",
-			// i, fileName);
-			// System.out.println("");
-
-			LocalFileTreeNode localChildNode = null;
-			
-			if (workFile.isDirectory()) {
-				localChildNode = new LocalFileTreeNode(workFile,
-						0L, RemoteFileTreeNode.DIRECTORY);
-
-				/**
-				 * <pre>
-				 * 2013.09.01
-				 * (1) 경로 문자열로 넘기는 경우
-				 *     - 메소드 getAbsolutePath 와 getCanonicalPath 속도 비교 결과
-				 *       getAbsolutePath : 1035 ms
-				 *       getCanonicalPath : 201x ms
-				 *       DirectoryTreeNode 를 통한 자체적으로 경로 만들기 : 1098 ms
-				 * 
-				 * %% 결론적으로 getAbsolutePath 가 속도 좋음.
-				 * 
-				 * (2)  파일 객체 넘기는 경우
-				 *    테스트 결과 985 ms, 1010 ms
-				 *    
-				 *  %% 결론적으로 파일 객체가 경로 문자열 보다 속도 좋음.
-				 * </pre>
-				 */
+		List<File> fileList = new ArrayList<File>();
+		List<File> directoryList = new ArrayList<File>();
+		for (File workFile : subFiles) {
+			if (workFile.isFile()) {
+				fileList.add(workFile);
 			} else {
-				localChildNode = new LocalFileTreeNode(workFile,
-						workFile.length(), RemoteFileTreeNode.FILE);
+				directoryList.add(workFile);
 			}
+		}
+		for (File workFile : directoryList) {
+			/**
+			 * <pre>
+			 * 2013.09.01
+			 * (1) 경로 문자열로 넘기는 경우
+			 *     - 메소드 getAbsolutePath 와 getCanonicalPath 속도 비교 결과
+			 *       getAbsolutePath : 1035 ms
+			 *       getCanonicalPath : 201x ms
+			 *       DirectoryTreeNode 를 통한 자체적으로 경로 만들기 : 1098 ms
+			 * 
+			 * %% 결론적으로 getAbsolutePath 가 속도 좋음.
+			 * 
+			 * (2)  파일 객체 넘기는 경우
+			 *    테스트 결과 985 ms, 1010 ms
+			 *    
+			 *  %% 결론적으로 파일 객체가 경로 문자열 보다 속도 좋음.
+			 * </pre>
+			 */
+			
+			LocalFileTreeNode localChildNode = new LocalFileTreeNode(workFile,
+					0L, RemoteFileTreeNode.DIRECTORY);
+			
+			localParentNode.add(localChildNode);
+		}
+		
+		for (File workFile : fileList) {
+			LocalFileTreeNode localChildNode = new LocalFileTreeNode(workFile,
+					workFile.length(), RemoteFileTreeNode.FILE);
 			
 			localParentNode.add(localChildNode);
 		}
@@ -436,26 +414,26 @@ public class AsynFileUpDownScreen extends JPanel implements FileUpDownScreenIF {
 			remoteDriverComboBox.addItem("선택");
 			
 			// ArrayData driverListOfOutObj = (ArrayData) fileListOutObj.getAttribute("driverList");
-			FileListResult.Driver driverList[] = fileListOutObj.getDriverList();
-			for (int i = 0; i < cntOfDriver; i++) {
+			List<FileListResult.Driver> driverList = fileListOutObj.getDriverList();
+			for (FileListResult.Driver driver : driverList) {
 				// ItemGroupDataIF driverOfOutObj = driverListOfOutObj.get(i);
 				// String driverName = (String)driverOfOutObj.getAttribute("driverName");
-				String driverName = driverList[i].getDriverName();
+				String driverName = driver.getDriverName();
 				remoteDriverComboBox.addItem(driverName);
 			}
 		}
 		
 
 		// int cntOfFile = (Integer) fileListOutObj.getAttribute("cntOfFile");
-		int cntOfFile = fileListOutObj.getCntOfFile();
+		// int cntOfFile = fileListOutObj.getCntOfFile();
 
 		remoteParentNode.chageFileName(requestDirectory);
 
 		// ArrayData fileListOfOutObj = (ArrayData) fileListOutObj.getAttribute("fileList");
 		
-		FileListResult.File fileList[] = fileListOutObj.getFileList();
+		List<FileListResult.File> fileList = fileListOutObj.getFileList();
 
-		for (int i = 0; i < cntOfFile; i++) {
+		for (FileListResult.File workFile : fileList) {
 
 			// ItemGroupDataIF fileOfOutObj = fileListOfOutObj.get(i);
 			
@@ -465,9 +443,9 @@ public class AsynFileUpDownScreen extends JPanel implements FileUpDownScreenIF {
 
 			/** 파일 종류, 1:디렉토리, 0:파일 */
 			// byte fileType = (Byte) fileOfOutObj.getAttribute("fileType");
-			String fileName = fileList[i].getFileName();
-			long fileSize = fileList[i].getFileSize();
-			byte fileType = fileList[i].getFileType();
+			String fileName = workFile.getFileName();
+			long fileSize = workFile.getFileSize();
+			byte fileType = workFile.getFileType();
 
 			RemoteFileTreeNode remoteChildNode = new RemoteFileTreeNode(fileName, fileSize,
 					fileType);
