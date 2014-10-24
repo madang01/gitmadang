@@ -129,4 +129,14 @@
 		<url-pattern>/servlet/Login</url-pattern>
 	</servlet-mapping>
 
+	<servlet>
+		<servlet-name>BoardList</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.BoardListSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BoardList</servlet-name>
+		<url-pattern>/servlet/BoardList</url-pattern>
+	</servlet-mapping>
+
+
 </web-app>

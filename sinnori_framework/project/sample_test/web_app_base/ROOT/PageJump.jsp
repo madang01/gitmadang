@@ -5,6 +5,7 @@
 		{ "소개", null, "/about.jsp"},
 		{ "시작하기", null, "/stepbystep/main.jsp"},
 		{ "다운로드", null, "/download/main.jsp"},
+		{ "사랑방", "/board/leftmenu.jsp", "/board/body.jsp"},
 		{ "문서", "/techdoc/leftmenu.jsp", "/techdoc/body.jsp"},
 		{ "회원", "/member/leftmenu.jsp", "/member/body.jsp"}, 
 		{ "실험과 검증", "/testcode/leftmenu.jsp" , "/testcode/body.jsp"}

@@ -108,7 +108,7 @@ public class LoginWithSessionKeyServerTask extends AbstractServerTask {
 		 */
 		//String regexPwd = "^[A-Za-z0-9`~!@#$%<>^&*\\(\\)-=+_'\\[\\]\\{\\}|:;\"<>?,./]{8,15}$";
 		
-		SqlSession session = sqlSessionFactory.openSession();
+		SqlSession session = sqlSessionFactory.openSession(false);
 		try {
 			HashMap<String, Object> memberHash = session.selectOne("getMemberByIDInLock", userId);
 			if (null == memberHash) {

@@ -170,7 +170,7 @@ public class MemberRegisterWithSessionKeyServerTask extends AbstractServerTask {
 		inserMemberHashMap.put("pwdHint", pwdHint);
 		inserMemberHashMap.put("pwdAnswer", pwdAnswer);		
 		
-		SqlSession session = sqlSessionFactory.openSession();
+		SqlSession session = sqlSessionFactory.openSession(false);
 		try {
 			HashMap<String, Object> memberByIDHash = session.selectOne("getMemberByID", userId);
 			if (null != memberByIDHash) {

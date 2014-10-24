@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kr.pe.sinnori.impl.message.BoardListRequest;
+package kr.pe.sinnori.impl.message.BoardListInDTO;
 
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.message.codec.MessageDecoder;
@@ -22,19 +22,19 @@ import kr.pe.sinnori.common.message.codec.MessageEncoder;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
 
 /**
- * BoardListRequest 클라이언트 코덱
+ * BoardListInDTO 클라이언트 코덱
  * @author Won Jonghoon
  *
  */
-public final class BoardListRequestClientCodec implements MessageCodecIF {
+public final class BoardListInDTOClientCodec implements MessageCodecIF {
 
 	@Override
 	public MessageDecoder getMessageDecoder() throws DynamicClassCallException {
-		throw new DynamicClassCallException("BoardListRequest 메시지는 서버에서 클라이언트로 전달하지 않는 메시지 입니다.");
+		throw new DynamicClassCallException("BoardListInDTO 메시지는 서버에서 클라이언트로 전달하지 않는 메시지 입니다.");
 	}
 
 	@Override
 	public MessageEncoder getMessageEncoder() throws DynamicClassCallException {
-		return new BoardListRequestEncoder();
+		return new BoardListInDTOEncoder();
 	}
 }

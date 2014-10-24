@@ -14,8 +14,10 @@
 	(4) FROM_ALL_TO_ALL : 메시지는 서버에서 클라이언트로도 혹은 클라이언트에서 서버로 양쪽 모두에서 전송된다.
 -->
 <sinnori_message>
-<messageID>BoardListRequest</messageID>
+<messageID>BoardListInDTO</messageID>
 <direction>FROM_CLIENT_TO_SERVER</direction>
-<desc>게시판 목록 요청 메시지</desc>
-<singleitem name="boardTypeID" type="long" />
+<desc>게시판 목록 요청 메시지, Mybatis DTO</desc>
+<singleitem name="boardId" type="long" />
+<singleitem name="startNo" type="integer" />
+<singleitem name="pageSize" type="integer" />
 </sinnori_message>

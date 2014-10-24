@@ -14,34 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kr.pe.sinnori.impl.message.BoardListRequest;
+package kr.pe.sinnori.impl.message.BoardListInDTO;
 
-import kr.pe.sinnori.common.message.AbstractMessage;
+import kr.pe.sinnori.common.exception.DynamicClassCallException;
+import kr.pe.sinnori.common.message.codec.MessageDecoder;
+import kr.pe.sinnori.common.message.codec.MessageEncoder;
+import kr.pe.sinnori.common.protocol.MessageCodecIF;
+
 /**
- * BoardListRequest 메시지
+ * BoardListInDTO 클라이언트 코덱
  * @author Won Jonghoon
  *
  */
-public final class BoardListRequest extends AbstractMessage {
-	private long boardTypeID;
+public final class BoardListInDTOClientCodec implements MessageCodecIF {
 
-	public long getBoardTypeID() {
-		return boardTypeID;
-	}
-
-	public void setBoardTypeID(long boardTypeID) {
-		this.boardTypeID = boardTypeID;
+	@Override
+	public MessageDecoder getMessageDecoder() throws DynamicClassCallException {
+		throw new DynamicClassCallException("BoardListInDTO 메시지는 서버에서 클라이언트로 전달하지 않는 메시지 입니다.");
 	}
 
 	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("class BoardListRequest[");
-		builder.append("boardTypeID=");
-		builder.append(boardTypeID);
-		builder.append(", messageHeaderInfo=");
-		builder.append(messageHeaderInfo.toString());
-		builder.append("]");
-		return builder.toString();
+	public MessageEncoder getMessageEncoder() throws DynamicClassCallException {
+		return new BoardListInDTOEncoder();
 	}
 }

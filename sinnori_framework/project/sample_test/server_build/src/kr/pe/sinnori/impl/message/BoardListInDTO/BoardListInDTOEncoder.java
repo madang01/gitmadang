@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kr.pe.sinnori.impl.message.BoardListRequest;
+package kr.pe.sinnori.impl.message.BoardListInDTO;
 
 import java.nio.charset.Charset;
 import java.util.LinkedList;
@@ -23,42 +23,58 @@ import kr.pe.sinnori.common.message.codec.MessageEncoder;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
 
 /**
- * BoardListRequest 메시지 인코더
+ * BoardListInDTO 메시지 인코더
  * @author Won Jonghoon
  *
  */
-public final class BoardListRequestEncoder extends MessageEncoder {
+public final class BoardListInDTOEncoder extends MessageEncoder {
 	@Override
 	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj)
 			throws Exception {
-		if (!(messageObj instanceof BoardListRequest)) {
-			String errorMessage = String.format("메시지 객체 타입[%s]이 BoardListRequest 이(가) 아닙니다.", messageObj.getClass().getCanonicalName());
+		if (!(messageObj instanceof BoardListInDTO)) {
+			String errorMessage = String.format("메시지 객체 타입[%s]이 BoardListInDTO 이(가) 아닙니다.", messageObj.getClass().getCanonicalName());
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		BoardListRequest boardListRequest = (BoardListRequest) messageObj;
-		encodeBody(boardListRequest, singleItemEncoder, charsetOfProject, middleWriteObj);
+		BoardListInDTO boardListInDTO = (BoardListInDTO) messageObj;
+		encodeBody(boardListInDTO, singleItemEncoder, charsetOfProject, middleWriteObj);
 	}
 
 	/**
 	 * <pre>
-	 * BoardListRequest 입력 메시지의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장한다.
+	 * BoardListInDTO 입력 메시지의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장한다.
 	 * </pre>
-	 * @param boardListRequest BoardListRequest 입력 메시지
+	 * @param boardListInDTO BoardListInDTO 입력 메시지
 	 * @param singleItemEncoder 단일항목 인코더
 	 * @param charsetOfProject 프로젝트 문자셋
 	 * @param middleWriteObj 중간 다리 역활 쓰기 객체
 	 * @throws Exception "입력/출력 메시지"의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장할때 에러 발생시 던지는 예외
 	 */
-	private void encodeBody(BoardListRequest boardListRequest, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj) throws Exception {
-		String boardListRequestSingleItemPath = "BoardListRequest";
+	private void encodeBody(BoardListInDTO boardListInDTO, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj) throws Exception {
+		String boardListInDTOSingleItemPath = "BoardListInDTO";
 		LinkedList<String> singleItemPathStatck = new LinkedList<String>();
-		singleItemPathStatck.push(boardListRequestSingleItemPath);
+		singleItemPathStatck.push(boardListInDTOSingleItemPath);
 
-		singleItemEncoder.putValueToMiddleWriteObj(boardListRequestSingleItemPath, "boardTypeID"
+		singleItemEncoder.putValueToMiddleWriteObj(boardListInDTOSingleItemPath, "boardId"
 					, 6 // itemTypeID
 					, "long" // itemTypeName
-					, boardListRequest.getBoardTypeID() // itemValue
+					, boardListInDTO.getBoardId() // itemValue
+					, -1 // itemSizeForLang
+					, null // itemCharset,
+					, charsetOfProject
+					, middleWriteObj);
+		singleItemEncoder.putValueToMiddleWriteObj(boardListInDTOSingleItemPath, "startNo"
+					, 4 // itemTypeID
+					, "integer" // itemTypeName
+					, boardListInDTO.getStartNo() // itemValue
+					, -1 // itemSizeForLang
+					, null // itemCharset,
+					, charsetOfProject
+					, middleWriteObj);
+		singleItemEncoder.putValueToMiddleWriteObj(boardListInDTOSingleItemPath, "pageSize"
+					, 4 // itemTypeID
+					, "integer" // itemTypeName
+					, boardListInDTO.getPageSize() // itemValue
 					, -1 // itemSizeForLang
 					, null // itemCharset,
 					, charsetOfProject

@@ -14,25 +14,30 @@
 	(4) FROM_ALL_TO_ALL : 메시지는 서버에서 클라이언트로도 혹은 클라이언트에서 서버로 양쪽 모두에서 전송된다.
 -->
 <sinnori_message>
-<messageID>BoardListResponse</messageID>
+<messageID>BoardListOutDTO</messageID>
 <direction>FROM_SERVER_TO_CLINET</direction>
-<desc>게시판 목록 응답 메시지</desc>
+<desc>게시판 목록 응답 메시지, Mybatis DTO</desc>
+<singleitem name="boardId" type="long" />
+<singleitem name="startNo" type="integer" />
+<singleitem name="pageSize" type="integer" />
+<singleitem name="total" type="integer" />
 <singleitem name="cnt" type="integer" />
 <array name="board" cnttype="reference" cntvalue="cnt">
-	<singleitem name="boardNO" type="long" />
-	<singleitem name="groupNO" type="long" />
-	<singleitem name="parentNO" type="long" />
+	<singleitem name="boardNo" type="long" />
+	<singleitem name="groupNo" type="long" />
+	<singleitem name="parentNo" type="long" />
 	<singleitem name="groupSeq" type="long" />
 	<singleitem name="depth" type="integer" />
-	<singleitem name="boardTypeID" type="long" />
+	<singleitem name="boardId" type="long" />
 	<singleitem name="title" type="ub pascal string" />
 	<singleitem name="contents" type="si pascal string" />
-	<singleitem name="userID" type="ub pascal string" />
-	<singleitem name="viewCnt" type="integer" />
+	<singleitem name="regId" type="ub pascal string" />
+	<singleitem name="nickname" type="ub pascal string" />
+	<singleitem name="viewCount" type="integer" />
 	<singleitem name="votes" type="integer" />
-	<singleitem name="isDeleted" type="ub pascal string" />
-	<singleitem name="createDate" type="java sql timestamp" />
-	<singleitem name="lastModifiedDate" type="java sql timestamp" />
-	<singleitem name="memberGubun" type="integer" />
+	<singleitem name="deleteFlag" type="ub pascal string" />
+	<singleitem name="registerDate" type="java sql timestamp" />
+	<singleitem name="modifiedDate" type="java sql timestamp" />
+	<singleitem name="memberGubunName" type="ub pascal string" />
 </array>
 </sinnori_message>
