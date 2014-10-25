@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
+<%@ page import="org.apache.commons.lang3.StringEscapeUtils" %>
 <jsp:useBean id="plainText" class="java.lang.String" scope="request" />
 <jsp:useBean id="algorithm" class="java.lang.String" scope="request" />
 <jsp:useBean id="privateKey" class="java.lang.String" scope="request" />
@@ -12,11 +12,11 @@
 	<tr><td colspan="2"><h3>CryptoJS 대칭키 테스트 결과 페이지</h3></td></tr>
 	<tr>
 	    <td>원문</td>
-	    <td><%=StringEscapeUtils.escapeHtml(plainText)%></td> 
+	    <td><%=StringEscapeUtils.escapeHtml4(plainText)%></td> 
 	</tr>
 	<tr>
 	    <td>선택한 대칭키 알고리즘</td>
-	    <td><%=StringEscapeUtils.escapeHtml(algorithm)%></td> 
+	    <td><%=StringEscapeUtils.escapeHtml4(algorithm)%></td> 
 	</tr>
 	<tr>
 	    <td>개인키</td>
@@ -40,6 +40,6 @@
 	</tr>
 	<tr>
 	    <td>비교결과</td>
-	    <td><%=StringEscapeUtils.escapeHtml(resultMessage)%></td> 
+	    <td><%=StringEscapeUtils.escapeHtml4(resultMessage)%></td> 
 	</tr>
 </table>

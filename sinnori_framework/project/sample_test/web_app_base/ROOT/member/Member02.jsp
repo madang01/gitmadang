@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
 %><%@ page import="kr.pe.sinnori.common.servlet.WebCommonStaticFinalVars" %><%
-%><%@ page import="org.apache.commons.lang.StringEscapeUtils" %><%
+%><%@ page import="org.apache.commons.lang3.StringEscapeUtils" %><%
 %><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="parmIVBase64" class="java.lang.String" scope="request" /><%
@@ -11,7 +11,7 @@
 	String resultMessage = messageResultOutObj.getResultMessage();
 	String taskResult = messageResultOutObj.getTaskResult();
 
-	String orignalResultMessage = StringEscapeUtils.escapeHtml(resultMessage);
+	String orignalResultMessage = StringEscapeUtils.escapeHtml4(resultMessage);
 %>
 <script type="text/javascript" src="/js/cryptoJS/rollups/aes.js"></script>
 <script type="text/javascript" src="/js/cryptoJS/components/core-min.js"></script>

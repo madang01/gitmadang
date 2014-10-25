@@ -27,7 +27,7 @@ import kr.pe.sinnori.common.lib.CommonType;
 import kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager;
 import kr.pe.sinnori.common.sessionkey.SymmetricKey;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 /**
  * <pre>
@@ -233,10 +233,10 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 				String parmValue = req.getParameter(parmName);
 				
 				pageStrBuilder.append("<input type=hidden name=\"");
-				pageStrBuilder.append(StringEscapeUtils.escapeHtml(parmName));
+				pageStrBuilder.append(StringEscapeUtils.escapeHtml4(parmName));
 				
 				pageStrBuilder.append("\" value=\"");
-				pageStrBuilder.append(StringEscapeUtils.escapeHtml(parmValue));
+				pageStrBuilder.append(StringEscapeUtils.escapeHtml4(parmValue));
 				pageStrBuilder.append("\" />");
 				pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			}

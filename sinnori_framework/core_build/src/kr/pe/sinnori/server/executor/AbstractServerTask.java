@@ -90,45 +90,159 @@ public abstract class AbstractServerTask implements CommonRootIF {
 		// Charset projectCharset = serverProjectConfig.getCharset();
 				
 		MessageDecoder  messageDecoder  = decoderHash.get(messageIDFromClient);
-		
-		if (null == messageDecoder) {
-			MessageCodecIF messageCodec = null;
+		AbstractMessage  messageFromClient = null;
+		try {
+			if (null == messageDecoder) {
+				MessageCodecIF messageCodec = null;
+				
+				try {
+					messageCodec = serverObjectCacheManager.getServerCodec(classLoader, messageIDFromClient);
+				} catch (DynamicClassCallException e) {
+					log.warn(e.getMessage());
+					
+					SelfExn selfExnOutObj = new SelfExn();
+					selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
+					selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
+					
+					selfExnOutObj.setErrorWhere("S");
+					selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+					selfExnOutObj.setErrorMessageID(messageIDFromClient);
+					selfExnOutObj.setErrorMessage(e.getMessage());
+					
+					ArrayList<WrapBuffer> wrapBufferList = null;
+					try {
+						wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
+					} catch(Exception e1) {
+						log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, fromSC={}, SelfExn={}", fromSC.hashCode(), selfExnOutObj.toString());
+						System.exit(1);
+					}
+					
+					putToOutputMessageQueue(fromSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
+					return;
+				} catch(Exception e) {
+					log.warn(e.getMessage(), e);
+					
+					SelfExn selfExnOutObj = new SelfExn();
+					selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
+					selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
+					// selfExnOutObj.setError("S", messageID, new DynamicClassCallException("알수 없는 에러 발생::"+e.getMessage()));
+					selfExnOutObj.setErrorWhere("S");
+					selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+					selfExnOutObj.setErrorMessageID(messageIDFromClient);
+					selfExnOutObj.setErrorMessage("메시지 서버 코덱을 얻을때 알수 없는 에러 발생::"+e.getMessage());
+					
+					ArrayList<WrapBuffer> wrapBufferList = null;
+					try {
+						wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
+						
+						putToOutputMessageQueue(fromSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
+					} catch(Exception e1) {
+						log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, fromSC={}, SelfExn={}", fromSC.hashCode(), selfExnOutObj.toString());
+					}
+					return;
+				}
+				
+				
+				try {
+					messageDecoder = messageCodec.getMessageDecoder();
+				} catch(DynamicClassCallException e) {
+					log.warn(e.getMessage());
+					
+					SelfExn selfExnOutObj = new SelfExn();
+					selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
+					selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
+					// selfExnOutObj.setError("S", messageID, new DynamicClassCallException(e.getMessage()));
+					selfExnOutObj.setErrorWhere("S");
+					selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+					selfExnOutObj.setErrorMessageID(messageIDFromClient);
+					selfExnOutObj.setErrorMessage(e.getMessage());
+					
+					ArrayList<WrapBuffer> wrapBufferList = null;
+					try {
+						wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
+						putToOutputMessageQueue(fromSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
+					} catch(Exception e1) {
+						log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, fromSC={}, SelfExn={}", fromSC.hashCode(), selfExnOutObj.toString());
+					}
+					return;
+				} catch(Exception e) {
+					log.warn(e.getMessage());
+					
+					SelfExn selfExnOutObj = new SelfExn();
+					selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
+					selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
+					selfExnOutObj.setErrorWhere("S");
+					selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+					selfExnOutObj.setErrorMessageID(messageIDFromClient);
+					selfExnOutObj.setErrorMessage("메시지 디코더를 얻을때 알수 없는 에러 발생::"+e.getMessage());
+					
+					ArrayList<WrapBuffer> wrapBufferList = null;
+					try {
+						wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
+						putToOutputMessageQueue(fromSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
+					} catch(Exception e1) {
+						log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, fromSC={}, SelfExn={}", fromSC.hashCode(), selfExnOutObj.toString());
+					}
+					return;
+				}
+				
+				decoderHash.put(messageIDFromClient, messageDecoder);
+				
+				log.info("classLoader[{}], serverTask[{}], create new messageDecoder", classLoader.hashCode(), messageIDFromClient);
+			}		
 			
 			try {
-				messageCodec = serverObjectCacheManager.getServerCodec(classLoader, messageIDFromClient);
-			} catch (DynamicClassCallException e) {
-				log.warn(e.getMessage());
-				
+				messageFromClient = messageDecoder.decode(messageProtocol.getSingleItemDecoder(), projectCharset, receivedLetter.getMiddleReadObj());
+				messageFromClient.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
+				messageFromClient.messageHeaderInfo.mailID = receivedLetter.getMailID();
+			} catch (BodyFormatException e) {
 				SelfExn selfExnOutObj = new SelfExn();
 				selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
 				selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
-				
 				selfExnOutObj.setErrorWhere("S");
-				selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+				selfExnOutObj.setErrorGubun(BodyFormatException.class);
 				selfExnOutObj.setErrorMessageID(messageIDFromClient);
 				selfExnOutObj.setErrorMessage(e.getMessage());
 				
 				ArrayList<WrapBuffer> wrapBufferList = null;
 				try {
 					wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
+					
+					putToOutputMessageQueue(fromSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
 				} catch(Exception e1) {
 					log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, fromSC={}, SelfExn={}", fromSC.hashCode(), selfExnOutObj.toString());
-					System.exit(1);
 				}
-				
-				putToOutputMessageQueue(fromSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
 				return;
-			} catch(Exception e) {
-				log.warn(e.getMessage(), e);
+			} catch (OutOfMemoryError e) {
+				log.warn(e.getMessage());
 				
 				SelfExn selfExnOutObj = new SelfExn();
 				selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
 				selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
-				// selfExnOutObj.setError("S", messageID, new DynamicClassCallException("알수 없는 에러 발생::"+e.getMessage()));
 				selfExnOutObj.setErrorWhere("S");
-				selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+				selfExnOutObj.setErrorGubun(BodyFormatException.class);
 				selfExnOutObj.setErrorMessageID(messageIDFromClient);
-				selfExnOutObj.setErrorMessage("메시지 서버 코덱을 얻을때 알수 없는 에러 발생::"+e.getMessage());
+				selfExnOutObj.setErrorMessage(new StringBuilder("OutOfMemoryError::").append(e.getMessage()).toString());
+				
+				ArrayList<WrapBuffer> wrapBufferList = null;
+				try {
+					wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
+					
+					putToOutputMessageQueue(fromSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
+				} catch(Exception e1) {
+					log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, fromSC={}, SelfExn={}", fromSC.hashCode(), selfExnOutObj.toString());
+				}			
+				return;
+			} catch (Exception e) {
+				log.warn(e.getMessage());
+				
+				SelfExn selfExnOutObj = new SelfExn();
+				selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
+				selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
+				selfExnOutObj.setErrorWhere("S");
+				selfExnOutObj.setErrorGubun(BodyFormatException.class);
+				selfExnOutObj.setErrorMessageID(messageIDFromClient);
+				selfExnOutObj.setErrorMessage(new StringBuilder("메시지를 디코딩하여 추출할때 알수 없는 에러 발생::").append(e.getMessage()).toString());
 				
 				ArrayList<WrapBuffer> wrapBufferList = null;
 				try {
@@ -140,120 +254,9 @@ public abstract class AbstractServerTask implements CommonRootIF {
 				}
 				return;
 			}
-			
-			
-			try {
-				messageDecoder = messageCodec.getMessageDecoder();
-			} catch(DynamicClassCallException e) {
-				log.warn(e.getMessage());
-				
-				SelfExn selfExnOutObj = new SelfExn();
-				selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
-				selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
-				// selfExnOutObj.setError("S", messageID, new DynamicClassCallException(e.getMessage()));
-				selfExnOutObj.setErrorWhere("S");
-				selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
-				selfExnOutObj.setErrorMessageID(messageIDFromClient);
-				selfExnOutObj.setErrorMessage(e.getMessage());
-				
-				ArrayList<WrapBuffer> wrapBufferList = null;
-				try {
-					wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
-					putToOutputMessageQueue(fromSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
-				} catch(Exception e1) {
-					log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, fromSC={}, SelfExn={}", fromSC.hashCode(), selfExnOutObj.toString());
-				}
-				return;
-			} catch(Exception e) {
-				log.warn(e.getMessage());
-				
-				SelfExn selfExnOutObj = new SelfExn();
-				selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
-				selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
-				selfExnOutObj.setErrorWhere("S");
-				selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
-				selfExnOutObj.setErrorMessageID(messageIDFromClient);
-				selfExnOutObj.setErrorMessage("메시지 디코더를 얻을때 알수 없는 에러 발생::"+e.getMessage());
-				
-				ArrayList<WrapBuffer> wrapBufferList = null;
-				try {
-					wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
-					putToOutputMessageQueue(fromSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
-				} catch(Exception e1) {
-					log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, fromSC={}, SelfExn={}", fromSC.hashCode(), selfExnOutObj.toString());
-				}
-				return;
-			}
-			
-			decoderHash.put(messageIDFromClient, messageDecoder);
-			
-			log.info("classLoader[{}], serverTask[{}], create new messageDecoder", classLoader.hashCode(), messageIDFromClient);
-		}
 		
-		AbstractMessage  messageFromClient = null;
-		
-		try {
-			messageFromClient = messageDecoder.decode(messageProtocol.getSingleItemDecoder(), projectCharset, receivedLetter.getMiddleReadObj());
-			messageFromClient.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
-			messageFromClient.messageHeaderInfo.mailID = receivedLetter.getMailID();
-		} catch (BodyFormatException e) {
-			SelfExn selfExnOutObj = new SelfExn();
-			selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
-			selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
-			selfExnOutObj.setErrorWhere("S");
-			selfExnOutObj.setErrorGubun(BodyFormatException.class);
-			selfExnOutObj.setErrorMessageID(messageIDFromClient);
-			selfExnOutObj.setErrorMessage(e.getMessage());
-			
-			ArrayList<WrapBuffer> wrapBufferList = null;
-			try {
-				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
-				
-				putToOutputMessageQueue(fromSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
-			} catch(Exception e1) {
-				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, fromSC={}, SelfExn={}", fromSC.hashCode(), selfExnOutObj.toString());
-			}
-			return;
-		} catch (OutOfMemoryError e) {
-			log.warn(e.getMessage());
-			
-			SelfExn selfExnOutObj = new SelfExn();
-			selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
-			selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
-			selfExnOutObj.setErrorWhere("S");
-			selfExnOutObj.setErrorGubun(BodyFormatException.class);
-			selfExnOutObj.setErrorMessageID(messageIDFromClient);
-			selfExnOutObj.setErrorMessage(new StringBuilder("OutOfMemoryError::").append(e.getMessage()).toString());
-			
-			ArrayList<WrapBuffer> wrapBufferList = null;
-			try {
-				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
-				
-				putToOutputMessageQueue(fromSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
-			} catch(Exception e1) {
-				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, fromSC={}, SelfExn={}", fromSC.hashCode(), selfExnOutObj.toString());
-			}			
-			return;
-		} catch (Exception e) {
-			log.warn(e.getMessage());
-			
-			SelfExn selfExnOutObj = new SelfExn();
-			selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
-			selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
-			selfExnOutObj.setErrorWhere("S");
-			selfExnOutObj.setErrorGubun(BodyFormatException.class);
-			selfExnOutObj.setErrorMessageID(messageIDFromClient);
-			selfExnOutObj.setErrorMessage(new StringBuilder("메시지를 디코딩하여 추출할때 알수 없는 에러 발생::").append(e.getMessage()).toString());
-			
-			ArrayList<WrapBuffer> wrapBufferList = null;
-			try {
-				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
-				
-				putToOutputMessageQueue(fromSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
-			} catch(Exception e1) {
-				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, fromSC={}, SelfExn={}", fromSC.hashCode(), selfExnOutObj.toString());
-			}
-			return;
+		} finally {
+			receivedLetter.closeMiddleReadObj();
 		}
 					
 		// messageProtocol, projectCharset

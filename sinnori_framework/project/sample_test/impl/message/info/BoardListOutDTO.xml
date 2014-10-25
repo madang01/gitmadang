@@ -28,9 +28,7 @@
 	<singleitem name="parentNo" type="long" />
 	<singleitem name="groupSeq" type="long" />
 	<singleitem name="depth" type="integer" />
-	<singleitem name="boardId" type="long" />
 	<singleitem name="title" type="ub pascal string" />
-	<singleitem name="contents" type="si pascal string" />
 	<singleitem name="regId" type="ub pascal string" />
 	<singleitem name="nickname" type="ub pascal string" />
 	<singleitem name="viewCount" type="integer" />

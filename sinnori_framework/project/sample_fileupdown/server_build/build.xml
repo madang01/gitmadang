@@ -87,12 +87,8 @@
 		<echo message="신놀이 프레임 워크 컴파일 하여  jar 라이브러리 만들어 가져오기" />
 	</target>
 
-	<target name="copy.appinf" description="copy from sinnori framework APP-INF/">		
-		<delete dir="${APP-INF}/resources" />
+	<target name="copy.appinf" description="copy from sinnori framework APP-INF/">
 		<mkdir dir="${APP-INF}/resources" />
-		<copy todir="${APP-INF}/resources" verbose="true" overwrite="true">
-			<fileset dir="${framework.build}/APP-INF/resources/" />
-		</copy>
 		
 		<delete dir="${APP-INF}/lib" />
 		<mkdir dir="${APP-INF}/lib" />

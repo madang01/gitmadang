@@ -37,8 +37,8 @@ public class SinnoriAppClientMain implements CommonRootIF {
 
 		/** 강제적인 클라이언트 모드로 변경 */
 		try {
-			// SinnoriWorker.getInstance().start(projectName, "SyncFileUpDownClient");
-			SinnoriWorker.getInstance().start(projectName, "ASynFileUpDownClient");
+			SinnoriWorker.getInstance().start(projectName, "SyncFileUpDownClient");
+			//SinnoriWorker.getInstance().start(projectName, "ASynFileUpDownClient");
 		} catch (Exception e) {			
 			e.printStackTrace();
 		}

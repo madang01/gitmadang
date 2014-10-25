@@ -1,5 +1,5 @@
 <%@ page language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
+<%@ page import="org.apache.commons.lang3.StringEscapeUtils" %>
 <jsp:useBean id="echoInObj" class="kr.pe.sinnori.impl.message.Echo.Echo" scope="request" /><%
 
 	// kr.pe.sinnori.impl.message.Echo.Echo echoInObj = (kr.pe.sinnori.impl.message.Echo.Echo)request.getAttribute("echoInObj");

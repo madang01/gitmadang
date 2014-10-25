@@ -1,6 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
-	
-	
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%	
 	String topmenu = request.getParameter("topmenu");
 	if (null ==  topmenu) topmenu="";
 %>
@@ -8,9 +6,6 @@
 <script type="text/javascript" src="/js/cryptoJS/rollups/tripledes.js"></script>
 <script type="text/javascript" src="/js/cryptoJS/components/core-min.js"></script>
 <script type="text/javascript" src="/js/cryptoJS/components/cipher-core-min.js"></script>
-
-
-
 <script type="text/javascript">
 <!--
 	function chkform() {

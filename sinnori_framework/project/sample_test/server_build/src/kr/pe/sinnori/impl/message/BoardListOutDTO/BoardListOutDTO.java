@@ -34,9 +34,7 @@ public final class BoardListOutDTO extends AbstractMessage {
 		private long parentNo;
 		private long groupSeq;
 		private int depth;
-		private long boardId;
 		private String title;
-		private String contents;
 		private String regId;
 		private String nickname;
 		private int viewCount;
@@ -81,26 +79,12 @@ public final class BoardListOutDTO extends AbstractMessage {
 		public void setDepth(int depth) {
 			this.depth = depth;
 		}
-		public long getBoardId() {
-			return boardId;
-		}
-
-		public void setBoardId(long boardId) {
-			this.boardId = boardId;
-		}
 		public String getTitle() {
 			return title;
 		}
 
 		public void setTitle(String title) {
 			this.title = title;
-		}
-		public String getContents() {
-			return contents;
-		}
-
-		public void setContents(String contents) {
-			this.contents = contents;
 		}
 		public String getRegId() {
 			return regId;
@@ -173,12 +157,8 @@ public final class BoardListOutDTO extends AbstractMessage {
 			builder.append(groupSeq);
 			builder.append(", depth=");
 			builder.append(depth);
-			builder.append(", boardId=");
-			builder.append(boardId);
 			builder.append(", title=");
 			builder.append(title);
-			builder.append(", contents=");
-			builder.append(contents);
 			builder.append(", regId=");
 			builder.append(regId);
 			builder.append(", nickname=");

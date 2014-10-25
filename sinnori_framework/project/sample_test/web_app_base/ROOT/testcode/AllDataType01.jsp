@@ -1,5 +1,5 @@
 <%@ page language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><%@ page import="org.apache.commons.lang.StringEscapeUtils" %><%
+%><%@ page import="org.apache.commons.lang3.StringEscapeUtils" %><%
 %><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="allDataTypeInObj" class="kr.pe.sinnori.impl.message.AllDataType.AllDataType" scope="request" /><%
@@ -24,7 +24,7 @@
 	<td colspan=2 style="text-align:center">AllDataType 입력메세지</td>
 </tr>
 <tr>
-	<td colspan=2 style="text-align:left"><%=StringEscapeUtils.escapeHtml(allDataTypeInObj.toString()).replaceAll("\n","<br/>\n") %></td>
+	<td colspan=2 style="text-align:left"><%=StringEscapeUtils.escapeHtml4(allDataTypeInObj.toString()).replaceAll("\n","<br/>\n") %></td>
 </tr><%
 	if (null != errorMessage && !errorMessage.equals("")) {
 %>
@@ -47,7 +47,7 @@
 	<td colspan=2 style="text-align:center">AllDataType 출력메세지</td>
 </tr>
 <tr>
-	<td colspan=2 style="text-align:left"><%=StringEscapeUtils.escapeHtml(allDataTypeOutObj.toString()).replaceAll("\n","<br/>\n") %></td>
+	<td colspan=2 style="text-align:left"><%=StringEscapeUtils.escapeHtml4(allDataTypeOutObj.toString()).replaceAll("\n","<br/>\n") %></td>
 </tr><%
 	}
 %>

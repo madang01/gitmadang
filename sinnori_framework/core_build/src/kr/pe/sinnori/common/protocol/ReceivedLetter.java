@@ -16,13 +16,16 @@
  */
 package kr.pe.sinnori.common.protocol;
 
+import kr.pe.sinnori.common.io.FreeSizeInputStream;
+import kr.pe.sinnori.common.lib.CommonRootIF;
+
 
 /**
  * 프로토콜 단에서 추출된 메시지 내용을 담는 클래스. 메시지 식별자, 메일 박스 식별자, 메일 식별자, 중간 다리 역활 읽기 객체를 담고 있다.
  * @author "Jonghoon Won"
  *
  */
-public class ReceivedLetter {
+public class ReceivedLetter implements CommonRootIF {
 	private String messageID = null;
 	private int mailboxID;
 	private int mailID;
@@ -49,6 +52,17 @@ public class ReceivedLetter {
 
 	public Object getMiddleReadObj() {
 		return middleReadObj;
+	}
+	
+	public void closeMiddleReadObj() {
+		if (middleReadObj instanceof FreeSizeInputStream) {
+			FreeSizeInputStream fis = (FreeSizeInputStream)middleReadObj;
+			try {
+				fis.close();
+			} catch(Exception e) {
+				log.warn("fail to close a middle read object", e);
+			}
+		}
 	}
 
 	@Override

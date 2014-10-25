@@ -154,31 +154,11 @@ public final class BoardListOutDTODecoder extends MessageDecoder {
 			, charsetOfProject
 			, boardMiddleReadObj));
 
-			board.setBoardId((Long)
-			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
-			, "boardId" // itemName
-			, 6 // itemTypeID
-			, "long" // itemTypeName
-			, -1 // itemSizeForLang
-			, null // itemCharset,
-			, charsetOfProject
-			, boardMiddleReadObj));
-
 			board.setTitle((String)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
 			, "title" // itemName
 			, 7 // itemTypeID
 			, "ub pascal string" // itemTypeName
-			, -1 // itemSizeForLang
-			, null // itemCharset,
-			, charsetOfProject
-			, boardMiddleReadObj));
-
-			board.setContents((String)
-			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
-			, "contents" // itemName
-			, 9 // itemTypeID
-			, "si pascal string" // itemTypeName
 			, -1 // itemSizeForLang
 			, null // itemCharset,
 			, charsetOfProject

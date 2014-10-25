@@ -174,26 +174,10 @@ public final class BoardListOutDTOEncoder extends MessageEncoder {
 							, null // itemCharset,
 							, charsetOfProject
 							, boardMiddleWriteObj);
-				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "boardId"
-							, 6 // itemTypeID
-							, "long" // itemTypeName
-							, board.getBoardId() // itemValue
-							, -1 // itemSizeForLang
-							, null // itemCharset,
-							, charsetOfProject
-							, boardMiddleWriteObj);
 				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "title"
 							, 7 // itemTypeID
 							, "ub pascal string" // itemTypeName
 							, board.getTitle() // itemValue
-							, -1 // itemSizeForLang
-							, null // itemCharset,
-							, charsetOfProject
-							, boardMiddleWriteObj);
-				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "contents"
-							, 9 // itemTypeID
-							, "si pascal string" // itemTypeName
-							, board.getContents() // itemValue
 							, -1 // itemSizeForLang
 							, null // itemCharset,
 							, charsetOfProject
