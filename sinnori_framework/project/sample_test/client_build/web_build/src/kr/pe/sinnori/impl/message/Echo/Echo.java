@@ -22,7 +22,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  * @author Won Jonghoon
  *
  */
-public final class Echo extends AbstractMessage {
+public class Echo extends AbstractMessage {
 	private int randomInt;
 	private long startTime;
 

@@ -1,10 +1,11 @@
-package kr.pe.sinnori.impl.message.SyncUpFileInfo;
+package kr.pe.sinnori.impl.servertask;
 
 import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.exception.UpDownFileException;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.updownfile.LocalTargetFileResource;
 import kr.pe.sinnori.common.updownfile.LocalTargetFileResourceManager;
+import kr.pe.sinnori.impl.message.SyncUpFileInfo.SyncUpFileInfo;
 import kr.pe.sinnori.impl.message.UpFileInfoResult.UpFileInfoResult;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.LoginManagerIF;

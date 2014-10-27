@@ -6,12 +6,12 @@ import javax.servlet.http.HttpServletResponse;
 import kr.pe.sinnori.common.weblib.AbstractServlet;
 
 @SuppressWarnings("serial")
-public class FreeBoardWriteSvl extends AbstractServlet {
+public class BoardWriteSvl extends AbstractServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
-		String goPage = "/board/FreeBoardWrite01.jsp";
+		String goPage = "/board/BoardWrite01.jsp";
 		printJspPage(req, res, goPage);	
 		
 	}

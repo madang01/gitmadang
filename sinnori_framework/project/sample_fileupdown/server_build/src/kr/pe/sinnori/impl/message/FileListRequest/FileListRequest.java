@@ -22,7 +22,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  * @author Won Jonghoon
  *
  */
-public final class FileListRequest extends AbstractMessage {
+public class FileListRequest extends AbstractMessage {
 	private String requestDirectory;
 
 	public String getRequestDirectory() {

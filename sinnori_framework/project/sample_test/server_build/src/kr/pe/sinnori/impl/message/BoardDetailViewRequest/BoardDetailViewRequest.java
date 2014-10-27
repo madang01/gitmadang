@@ -22,7 +22,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  * @author Won Jonghoon
  *
  */
-public final class BoardDetailViewRequest extends AbstractMessage {
+public class BoardDetailViewRequest extends AbstractMessage {
 	private long boardTypeID;
 
 	public long getBoardTypeID() {

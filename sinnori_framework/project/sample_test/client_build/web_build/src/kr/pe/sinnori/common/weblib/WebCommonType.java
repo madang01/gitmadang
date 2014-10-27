@@ -5,12 +5,12 @@ public class WebCommonType {
 	public enum BOARD_TYPE {
 		NOTICE_BOARD(1L), FREE_BOARD(2L);
 		
-		private long boardTypeID;
+		private long boardId;
 		private BOARD_TYPE(long boardTypeID) {
-			this.boardTypeID = boardTypeID;
+			this.boardId = boardTypeID;
 		}
-		public long getBoardTypeID() {
-			return boardTypeID;
+		public long getBoardId() {
+			return boardId;
 		}
 	};
 }

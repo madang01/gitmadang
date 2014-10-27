@@ -22,7 +22,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  * @author Won Jonghoon
  *
  */
-public final class MessageResult extends AbstractMessage {
+public class MessageResult extends AbstractMessage {
 	private String taskMessageID;
 	private String taskResult;
 	private String resultMessage;

@@ -446,7 +446,7 @@ public class ServerProject extends AbstractProject
 	}
 	
 	public AbstractServerTask getServerTask(String messageID) throws DynamicClassCallException {
-		String classFullName = new StringBuilder(classLoaderClassPackagePrefixName).append("message.").append(messageID).append(".").append(messageID).append("ServerTask").toString();
+		String classFullName = new StringBuilder(classLoaderClassPackagePrefixName).append("servertask.").append(messageID).append("ServerTask").toString();
 		ServerTaskObjectInfo serverTaskObjectInfo = null;
 		synchronized(monitorOfServerTaskObj) {
 			serverTaskObjectInfo = className2ServerTaskObjectInfoHash.get(classFullName);

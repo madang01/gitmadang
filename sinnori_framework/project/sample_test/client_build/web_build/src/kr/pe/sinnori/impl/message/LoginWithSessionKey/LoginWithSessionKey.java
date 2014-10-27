@@ -22,7 +22,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  * @author Won Jonghoon
  *
  */
-public final class LoginWithSessionKey extends AbstractMessage {
+public class LoginWithSessionKey extends AbstractMessage {
 	private String idCipherBase64;
 	private String pwdCipherBase64;
 	private String sessionKeyBase64;

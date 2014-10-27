@@ -22,7 +22,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  * @author Won Jonghoon
  *
  */
-public final class CancelDownloadFileResult extends AbstractMessage {
+public class CancelDownloadFileResult extends AbstractMessage {
 	private String taskResult;
 	private String resultMessage;
 	private int serverSourceFileID;

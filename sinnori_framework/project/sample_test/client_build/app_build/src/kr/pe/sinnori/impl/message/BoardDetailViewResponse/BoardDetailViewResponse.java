@@ -22,7 +22,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  * @author Won Jonghoon
  *
  */
-public final class BoardDetailViewResponse extends AbstractMessage {
+public class BoardDetailViewResponse extends AbstractMessage {
 	private long boardNO;
 	private long groupNO;
 	private long parentNO;

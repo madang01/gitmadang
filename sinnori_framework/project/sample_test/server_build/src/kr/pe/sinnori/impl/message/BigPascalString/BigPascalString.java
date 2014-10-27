@@ -22,7 +22,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  * @author Won Jonghoon
  *
  */
-public final class BigPascalString extends AbstractMessage {
+public class BigPascalString extends AbstractMessage {
 	private byte[] filler1;
 	private String value1;
 

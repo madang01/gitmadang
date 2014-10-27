@@ -22,7 +22,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  * @author Won Jonghoon
  *
  */
-public final class AsynUpFileData extends AbstractMessage {
+public class AsynUpFileData extends AbstractMessage {
 	private int clientSourceFileID;
 	private int serverTargetFileID;
 	private int fileBlockNo;

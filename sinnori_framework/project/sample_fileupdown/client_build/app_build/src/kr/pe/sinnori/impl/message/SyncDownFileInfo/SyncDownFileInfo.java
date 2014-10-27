@@ -22,7 +22,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  * @author Won Jonghoon
  *
  */
-public final class SyncDownFileInfo extends AbstractMessage {
+public class SyncDownFileInfo extends AbstractMessage {
 	private byte append;
 	private String localFilePathName;
 	private String localFileName;

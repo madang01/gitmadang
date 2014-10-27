@@ -526,7 +526,7 @@ public class MessageSourceFileBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(" */");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		
-		stringBuilder.append("public final class ");
+		stringBuilder.append("public class ");
 		stringBuilder.append(messageID);
 		stringBuilder.append(" extends AbstractMessage {");
 		

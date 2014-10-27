@@ -22,7 +22,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  * @author Won Jonghoon
  *
  */
-public final class Command extends AbstractMessage {
+public class Command extends AbstractMessage {
 	private String commandString;
 
 	public String getCommandString() {

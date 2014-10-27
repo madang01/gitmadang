@@ -22,7 +22,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  * @author Won Jonghoon
  *
  */
-public final class DownFileInfoResult extends AbstractMessage {
+public class DownFileInfoResult extends AbstractMessage {
 	private int serverSourceFileID;
 	private int clientTargetFileID;
 	private String taskResult;

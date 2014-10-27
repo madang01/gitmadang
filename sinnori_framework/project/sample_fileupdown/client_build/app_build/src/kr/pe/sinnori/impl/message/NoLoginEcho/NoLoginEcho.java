@@ -22,7 +22,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  * @author Won Jonghoon
  *
  */
-public final class NoLoginEcho extends AbstractMessage {
+public class NoLoginEcho extends AbstractMessage {
 
 
 	@Override

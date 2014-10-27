@@ -22,7 +22,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  * @author Won Jonghoon
  *
  */
-public final class BigInt extends AbstractMessage {
+public class BigInt extends AbstractMessage {
 	private byte[] filler1;
 	private int value1;
 	private int value2;

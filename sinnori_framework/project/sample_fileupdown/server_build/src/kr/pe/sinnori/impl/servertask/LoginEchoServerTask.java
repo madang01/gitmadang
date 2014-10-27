@@ -1,4 +1,4 @@
-package kr.pe.sinnori.impl.message.LoginEcho;
+package kr.pe.sinnori.impl.servertask;
 
 import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.message.AbstractMessage;

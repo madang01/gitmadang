@@ -22,7 +22,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  * @author Won Jonghoon
  *
  */
-public final class BoardListOutDTO extends AbstractMessage {
+public class BoardListOutDTO extends AbstractMessage {
 	private long boardId;
 	private int startNo;
 	private int pageSize;

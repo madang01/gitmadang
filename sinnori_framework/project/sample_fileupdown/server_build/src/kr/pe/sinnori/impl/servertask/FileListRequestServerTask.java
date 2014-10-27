@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kr.pe.sinnori.impl.message.FileListRequest;
+package kr.pe.sinnori.impl.servertask;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +26,7 @@ import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.util.NameFirstComparator;
+import kr.pe.sinnori.impl.message.FileListRequest.FileListRequest;
 import kr.pe.sinnori.impl.message.FileListResult.FileListResult;
 import kr.pe.sinnori.server.LoginManagerIF;
 import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;

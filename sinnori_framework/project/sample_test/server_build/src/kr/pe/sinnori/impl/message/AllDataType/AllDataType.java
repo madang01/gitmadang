@@ -22,7 +22,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  * @author Won Jonghoon
  *
  */
-public final class AllDataType extends AbstractMessage {
+public class AllDataType extends AbstractMessage {
 	private byte byteVar1;
 	private byte byteVar2;
 	private byte byteVar3;

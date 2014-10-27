@@ -22,7 +22,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  * @author Won Jonghoon
  *
  */
-public final class BinaryPublicKey extends AbstractMessage {
+public class BinaryPublicKey extends AbstractMessage {
 	private byte[] publicKeyBytes;
 
 	public byte[] getPublicKeyBytes() {

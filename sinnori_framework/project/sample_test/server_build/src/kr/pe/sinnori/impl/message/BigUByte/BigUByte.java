@@ -22,7 +22,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  * @author Won Jonghoon
  *
  */
-public final class BigUByte extends AbstractMessage {
+public class BigUByte extends AbstractMessage {
 	private byte[] filler1;
 	private short value1;
 	private short value2;

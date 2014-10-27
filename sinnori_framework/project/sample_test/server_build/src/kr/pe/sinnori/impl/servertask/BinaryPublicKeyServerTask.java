@@ -1,8 +1,9 @@
-package kr.pe.sinnori.impl.message.BinaryPublicKey;
+package kr.pe.sinnori.impl.servertask;
 
 import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager;
+import kr.pe.sinnori.impl.message.BinaryPublicKey.BinaryPublicKey;
 import kr.pe.sinnori.server.LoginManagerIF;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
 import kr.pe.sinnori.server.executor.LetterSender;

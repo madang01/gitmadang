@@ -1,7 +1,8 @@
-package kr.pe.sinnori.impl.message.BoardListInDTO;
+package kr.pe.sinnori.impl.servertask;
 
 import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.message.AbstractMessage;
+import kr.pe.sinnori.impl.message.BoardListInDTO.BoardListInDTO;
 import kr.pe.sinnori.impl.message.BoardListOutDTO.BoardListOutDTO;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
 import kr.pe.sinnori.impl.mybatis.SqlSessionFactoryManger;

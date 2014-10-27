@@ -22,7 +22,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  * @author Won Jonghoon
  *
  */
-public final class BoardDetailInsertRequest extends AbstractMessage {
+public class BoardDetailInsertRequest extends AbstractMessage {
 	private long groupNO;
 	private long parentNO;
 	private long groupSeq;

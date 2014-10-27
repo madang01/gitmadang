@@ -1,7 +1,8 @@
-package kr.pe.sinnori.impl.message.AllDataType;
+package kr.pe.sinnori.impl.servertask;
 
 import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.message.AbstractMessage;
+import kr.pe.sinnori.impl.message.AllDataType.AllDataType;
 import kr.pe.sinnori.server.LoginManagerIF;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
 import kr.pe.sinnori.server.executor.LetterSender;

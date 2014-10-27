@@ -22,7 +22,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  * @author Won Jonghoon
  *
  */
-public final class SyncCancelDownloadFile extends AbstractMessage {
+public class SyncCancelDownloadFile extends AbstractMessage {
 	private int serverSourceFileID;
 	private int clientTargetFileID;
 

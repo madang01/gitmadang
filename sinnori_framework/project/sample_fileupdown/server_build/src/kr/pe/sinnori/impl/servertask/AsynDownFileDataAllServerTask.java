@@ -14,19 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kr.pe.sinnori.impl.message.AsynDownFileDataAll;
+package kr.pe.sinnori.impl.servertask;
 
 import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.exception.UpDownFileException;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResource;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResourceManager;
+import kr.pe.sinnori.impl.message.AsynDownFileDataAll.AsynDownFileDataAll;
 import kr.pe.sinnori.impl.message.CancelDownloadFileResult.CancelDownloadFileResult;
 import kr.pe.sinnori.impl.message.DownFileDataResult.DownFileDataResult;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.LoginManagerIF;
 import kr.pe.sinnori.server.executor.AbstractAuthServerExecutor;
 import kr.pe.sinnori.server.executor.LetterSender;
+
 
 /**
  * 비동기 메시지 방식의 파일 다운로드 서버 비지니스 로직 클래스

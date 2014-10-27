@@ -1,4 +1,4 @@
-package kr.pe.sinnori.impl.message.MemberRegisterWithSessionKey;
+package kr.pe.sinnori.impl.servertask;
 
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
@@ -11,6 +11,7 @@ import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager;
 import kr.pe.sinnori.common.sessionkey.SymmetricKey;
+import kr.pe.sinnori.impl.message.MemberRegisterWithSessionKey.MemberRegisterWithSessionKey;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
 import kr.pe.sinnori.impl.mybatis.SqlSessionFactoryManger;
 import kr.pe.sinnori.server.LoginManagerIF;
