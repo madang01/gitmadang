@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package kr.pe.sinnori.common.lib;
+package kr.pe.sinnori.common.util;
 
 import java.io.File;
 import java.io.FilenameFilter;

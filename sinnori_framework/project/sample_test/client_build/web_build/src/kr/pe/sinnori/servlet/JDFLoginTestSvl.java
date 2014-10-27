@@ -3,7 +3,7 @@ package kr.pe.sinnori.servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import kr.pe.sinnori.common.servlet.AbstractAuthServlet;
+import kr.pe.sinnori.common.weblib.AbstractAuthServlet;
 
 @SuppressWarnings("serial")
 public class JDFLoginTestSvl extends AbstractAuthServlet {

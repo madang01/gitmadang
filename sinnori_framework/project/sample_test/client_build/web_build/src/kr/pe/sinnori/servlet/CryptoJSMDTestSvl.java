@@ -23,8 +23,8 @@ import java.util.Arrays;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import kr.pe.sinnori.common.servlet.AbstractServlet;
 import kr.pe.sinnori.common.util.HexUtil;
+import kr.pe.sinnori.common.weblib.AbstractServlet;
 
 /**
  * 자바 스크립트 CryptoJS 라이브러리에서 제공하는 해쉬(=메시지 다이제스트) 함수와 자바 결과 일치 테스트<br/>

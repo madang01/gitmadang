@@ -54,13 +54,21 @@ public class ReceivedLetter implements CommonRootIF {
 		return middleReadObj;
 	}
 	
+	
 	public void closeMiddleReadObj() {
 		if (middleReadObj instanceof FreeSizeInputStream) {
-			FreeSizeInputStream fis = (FreeSizeInputStream)middleReadObj;
+			FreeSizeInputStream bodyFreeSizeInputStream = (FreeSizeInputStream)middleReadObj;
 			try {
-				fis.close();
+				bodyFreeSizeInputStream.close();
+				
+				// FIXME!
+				log.info("messageID[{}], mailboxID[{}], mailID[{}] 메시지 바디 스트림 정상 닫힘", messageID, mailboxID, mailID);
 			} catch(Exception e) {
-				log.warn("fail to close a middle read object", e);
+				String errorMessage = 
+						String.format("messageID[%s], mailboxID[%d], mailID[%d] 메시지 바디 스트림 닫을때 알 수 없는 에러 발생", 
+								messageID, mailboxID, mailID);
+				log.warn(errorMessage, e);
+				
 			}
 		}
 	}
@@ -68,7 +76,7 @@ public class ReceivedLetter implements CommonRootIF {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("WrapMiddleReadObj [messageID=");
+		builder.append("ReceivedLetter [messageID=");
 		builder.append(messageID);
 		builder.append(", mailboxID=");
 		builder.append(mailboxID);

@@ -18,7 +18,7 @@ package kr.pe.sinnori.common.lib;
 
 
 public class CachedObject implements CommonRootIF {
-	public ClassLoader classLoader = null;
+	public int classLoaderHashCode = 0;
 	public String classFullName = null;
 	public int seq;
 	public Object cachedObj = null;
@@ -33,7 +33,7 @@ public class CachedObject implements CommonRootIF {
 	 * @param cachedObj 지정된 클래스 로더에서 지정된 클래스 이름으로 생성된 객체
 	 */
 	public CachedObject(ClassLoader classLoader, String classFullName, int seq, Object cachedObj) {
-		this.classLoader = classLoader;
+		this.classLoaderHashCode = classLoader.hashCode();
 		this.classFullName = classFullName;
 		this.seq = seq;
 		this.cachedObj = cachedObj;
@@ -66,7 +66,7 @@ public class CachedObject implements CommonRootIF {
 		log.info("not same object", t);*/
 	
 		CachedObject dstObj = (CachedObject) compObj;
-		return (dstObj.classLoader.equals(classLoader) && dstObj.classFullName.equals(classFullName));
+		return (dstObj.classLoaderHashCode == this.classLoaderHashCode && dstObj.classFullName.equals(classFullName));
 	}
 	
 	@Override
@@ -74,7 +74,7 @@ public class CachedObject implements CommonRootIF {
 	 * 주의) 삭제하지 말것.  Hashmap 의 키로 동작 시키기 위해  {@link #equals} 와 {@link #hashCode} 이 필요하다.
 	 */
 	public int hashCode() {
-		return (classLoader.hashCode() | classFullName.hashCode());
+		return (classLoaderHashCode | classFullName.hashCode());
 		//return (classFullName.hashCode());
 	}
 
@@ -82,7 +82,7 @@ public class CachedObject implements CommonRootIF {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("KeyObject [classLoader hashCode=");
-		builder.append(classLoader.hashCode());
+		builder.append(classLoaderHashCode);
 		builder.append(", classFullName=");
 		builder.append(classFullName);
 		builder.append(", seq=");

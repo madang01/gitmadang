@@ -298,7 +298,7 @@ public class ServerClassLoader extends ClassLoader implements CommonRootIF {
 	@Override
     protected void finalize() throws Throwable{
 		// FIXME! 메모리 회수 확인용으로 삭제하지 마세요!
-		log.info("클래스 로더[{}] 소멸", this.hashCode());
+		log.info("서버 클래스 로더[{}] 소멸", this.hashCode());
     }
 }
 

@@ -26,7 +26,7 @@ import kr.pe.sinnori.client.ClientProject;
 import kr.pe.sinnori.client.ClientProjectManager;
 import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.servlet.AbstractServlet;
+import kr.pe.sinnori.common.weblib.AbstractServlet;
 import kr.pe.sinnori.impl.message.AllDataType.AllDataType;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
 

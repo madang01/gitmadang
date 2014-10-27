@@ -1,4 +1,4 @@
-package kr.pe.sinnori.common.servlet;
+package kr.pe.sinnori.common.weblib;
 
 public abstract class WebCommonStaticFinalVars {
 	public static final String WEBSITE_TITLE = "Sinnori Development Framework";

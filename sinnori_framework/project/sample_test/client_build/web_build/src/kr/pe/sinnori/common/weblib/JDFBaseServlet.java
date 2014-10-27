@@ -14,7 +14,7 @@
  * @author  WonYoung Lee, wyounglee@lgeds.lg.co.kr.
  */
 
-package kr.pe.sinnori.common.servlet;
+package kr.pe.sinnori.common.weblib;
 
 
 import java.io.IOException;

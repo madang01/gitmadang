@@ -1,14 +1,14 @@
 <%@ page language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><%@ page import="org.apache.commons.lang3.StringEscapeUtils" %><%
-%><%@ page import="kr.pe.sinnori.impl.message.BoardListOutDTO.BoardListOutDTO" %><%!
-	public String escapeHtml(String str) {
-		return StringEscapeUtils.escapeHtml4(str);
-	}
-%><%
+%><%@ page import="kr.pe.sinnori.impl.message.BoardListOutDTO.BoardListOutDTO" %><%
 %><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="boardListOutDTO" class="kr.pe.sinnori.impl.message.BoardListOutDTO.BoardListOutDTO" scope="request" /><%
-%><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" />
+%><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%!
+	public String escapeHtml(String str) {
+		return StringEscapeUtils.escapeHtml4(str);
+	}
+%>
 <style>
 <!--
 table {

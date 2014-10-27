@@ -25,7 +25,7 @@ import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import kr.pe.sinnori.common.servlet.AbstractServlet;
+import kr.pe.sinnori.common.weblib.AbstractServlet;
 import kr.pe.sinnori.impl.javabeans.ReqHeaderInfoBean;
 
 /**

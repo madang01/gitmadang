@@ -1,4 +1,4 @@
-package kr.pe.sinnori.common.servlet;
+package kr.pe.sinnori.common.weblib;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

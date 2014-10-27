@@ -38,7 +38,7 @@ import java.util.TreeSet;
 public final class ObjectCacheManager implements CommonRootIF {
 	private final Object monitor = new Object();
 	private int cachedObjectSeq = Integer.MIN_VALUE;
-	private HashMap<ClassLoader, HashMap<String, CachedObject>> loaderHash = null;
+	private HashMap<Integer, HashMap<String, CachedObject>> loaderHash = null;
 	private TreeSet<CachedObject> treeSet = null;
 	private int maxSize = 10;
 	private long maxUpdateSeqInterval=5000;
@@ -53,7 +53,7 @@ public final class ObjectCacheManager implements CommonRootIF {
 		maxSize = (Integer)conf.getResource("common.cached_object.max_size.value");
 		maxUpdateSeqInterval = (Long)conf.getResource("common.cached_object.max_update_seq_interval.value");
 		// objectValueCnt = 0;
-		loaderHash = new HashMap<ClassLoader, HashMap<String, CachedObject>>(maxSize);
+		loaderHash = new HashMap<Integer, HashMap<String, CachedObject>>(maxSize);
 		treeSet = new TreeSet<CachedObject>(new LoaderAndClassNameComparator());
 		systemObjHash = new HashMap<String, Object>(2);
 		systemObjHash.put("kr.pe.sinnori.impl.message.SelfExn.SelfExnClientCodec", CommonStaticFinalVars.SELFEXN_CLIENT_CODEC);
@@ -98,10 +98,10 @@ public final class ObjectCacheManager implements CommonRootIF {
 			while (treeSet.size() > newMaxSize) {
 				CachedObject firstCachedObject = treeSet.first();
 				treeSet.remove(firstCachedObject);
-				HashMap<String, CachedObject> classNameHash = loaderHash.get(firstCachedObject.classLoader);
+				HashMap<String, CachedObject> classNameHash = loaderHash.get(firstCachedObject.classLoaderHashCode);
 				classNameHash.remove(firstCachedObject.classFullName);
 				if (classNameHash.isEmpty()) {
-					loaderHash.remove(firstCachedObject.classLoader);
+					loaderHash.remove(firstCachedObject.classLoaderHashCode);
 				}
 			}
 			
@@ -155,7 +155,8 @@ public final class ObjectCacheManager implements CommonRootIF {
 		} else {
 			synchronized (monitor) {
 				CachedObject cachedObject = null;
-				HashMap<String, CachedObject> classNameHash = loaderHash.get(classLoader);
+				HashMap<String, CachedObject> classNameHash = loaderHash.get(classLoader.hashCode());
+				
 				// int objectValueCnt = treeSet.size();
 				
 				if (null == classNameHash) {
@@ -177,7 +178,7 @@ public final class ObjectCacheManager implements CommonRootIF {
 					cachedObject = new CachedObject(classLoader, classFullName, cachedObjectSeq, returnObj);
 					cachedObjectSeq++;
 					classNameHash.put(classFullName, cachedObject);
-					loaderHash.put(classLoader, classNameHash);
+					loaderHash.put(classLoader.hashCode(), classNameHash);
 					treeSet.add(cachedObject);
 					log.warn("classLoader 미 등재::신규 객체[{}] 추가", cachedObject.toString());
 				} else {
@@ -201,7 +202,7 @@ public final class ObjectCacheManager implements CommonRootIF {
 						cachedObject = new CachedObject(classLoader, classFullName, cachedObjectSeq, returnObj);
 						cachedObjectSeq++;						
 						classNameHash.put(classFullName, cachedObject);
-						loaderHash.put(classLoader, classNameHash);
+						loaderHash.put(classLoader.hashCode(), classNameHash);
 						treeSet.add(cachedObject);
 						log.warn("classFullName 미 등재::신규 객체[{}] 추가", cachedObject.toString());
 					} else {
@@ -235,10 +236,10 @@ public final class ObjectCacheManager implements CommonRootIF {
 		//if (!treeSet.isEmpty()) {
 			CachedObject firstCachedObject = treeSet.first();
 			treeSet.remove(firstCachedObject);
-			HashMap<String, CachedObject> firstClassNameHash = loaderHash.get(firstCachedObject.classLoader);
+			HashMap<String, CachedObject> firstClassNameHash = loaderHash.get(firstCachedObject.classLoaderHashCode);
 			firstClassNameHash.remove(firstCachedObject.classFullName);
 			if (firstClassNameHash.isEmpty()) {
-				loaderHash.remove(firstCachedObject.classLoader);
+				loaderHash.remove(firstCachedObject.classLoaderHashCode);
 			}
 			
 			log.warn("classLoader 미 등재::가장 오래동안 사용하지 않는 객체[{}] 삭제, 생존 시간={} ms", firstCachedObject.toString(), new java.util.Date().getTime() - firstCachedObject.createDate);

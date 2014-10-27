@@ -81,7 +81,9 @@
 	</target>
 	
 	<target name="copy.core" description="sinnori framework core copy" depends="corelib.init">
-		<copy todir="${corelib}/in" verbose="true" overwrite="true">
+		<!-- 웹은 어떠한 jar 도 포함하지 않고 참조만 할 뿐이다. 
+			따라서 sinnori-core.jar 는 corelib/in 이 아닌 corelib/ex 에 넣는다. -->
+		<copy todir="${corelib}/ex" verbose="true" overwrite="true">
 			<fileset file="${framework.build}/dist/sinnori-core.jar" />
 		</copy>
 		<copy todir="${corelib}/ex" verbose="true" overwrite="true">
@@ -119,9 +121,9 @@
 	<target name="compile.weblib" if="is.web.yes" depends="init.weblib" description="웹 라이브러리 컴파일">	
 		<echo message="compile.weblib" />
 		<!-- Compile the java code from ${src} into ${build}/weblib -->
-		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}" destdir="${build}/weblib" excludes="kr/pe/sinnori/common/javabeans/**">
-			<include name="kr/pe/sinnori/common/servlet/**" />
-			<classpath>			    
+		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}" destdir="${build}/weblib">
+			<include name="kr/pe/sinnori/common/weblib/**" />
+			<classpath>		    
 				<pathelement location="${webclass}" />
 				<fileset dir="${servletlib}">
 					<include name="**/servlet-api.jar" />
@@ -139,14 +141,16 @@
 		</javac>
 	</target>
 	
-	<target name="make.weblib" depends="compile.weblib" description="웹 라이브러리 jar 만들기">		
+	<target name="make.weblib" depends="compile.weblib" description="웹 라이브러리 jar 만들기">
+		<echo message="${build}/weblib" />	
 		<jar jarfile="${dist}/sinnori-weblib.jar" basedir="${build}/weblib">
 			<restrict>
 				<name name="**/*.class" />
 				<archives>
-					<zips>
-						<fileset dir="corelib/in" includes="**/*.jar" />
-					</zips>
+					<!-- 웹은 어떠한 jar 도 포함하지 않고 참조만 할 뿐이다.
+						신놀이를 운영에 필요한 sinnori-core.jar 와 외부 jar 라이브러리들은 corelib/ex 로 복사되며,
+						CATALINA_BASE/bin/setenv.sh 에서 corelib/ex 경로에 있는 
+						모든 jar 파일들은 classpath 로 잡는다. -->
 				</archives>
 			</restrict>
 		</jar>
