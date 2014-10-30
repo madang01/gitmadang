@@ -1,5 +1,5 @@
 <%@ page language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><%@ page import="kr.pe.sinnori.common.servlet.WebCommonStaticFinalVars" %><%
+%><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
 
 	final String arryTopMenuPage[][] =	{ 
 		{ "소개", null, "/about.jsp"},
@@ -79,7 +79,7 @@
 <div id="header">
 	<div id="pagedescription"><h1>Sinnori Framework::공사중</h1><br /><h2> Sinnori Framework is an open software<br/> that help to create a server/client application.</h2><%
 	if (null == userID) {
-%><a href="/servlet/Login?topmenu=4">login</a><%		
+%><a href="/servlet/Login?topmenu=<%=topMenu%>">login</a><%		
 	} else {
 %><a href="/PageJump.jsp?topmenu=4&targeturl=/member/logout.jsp">logout</a><%
 	}

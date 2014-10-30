@@ -50,7 +50,8 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 			new DHBFixedLengthStringSingleItemEncoder(), new DHBUBVariableLengthBytesSingleItemEncoder(), 
 			new DHBUSVariableLengthBytesSingleItemEncoder(), new DHBSIVariableLengthBytesSingleItemEncoder(), 
 			new DHBFixedLengthBytesSingleItemEncoder(), 
-			new DHBJavaSqlDateSingleItemEncoder(), new DHBJavaSqlTimestampSingleItemEncoder()
+			new DHBJavaSqlDateSingleItemEncoder(), new DHBJavaSqlTimestampSingleItemEncoder(),
+			new DHBBooleanSingleItemEncoder()
 	};
 
 	
@@ -397,6 +398,39 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {
 			
 			sw.putUnsignedByte(itemTypeID);
 			sw.putLong(javaSqlTimestampLongValue);			
+		}
+	}
+	
+	/** DHB 프로토콜의 boolean 타입 단일 항목 스트림 변환기 구현 클래스 */
+	private final class  DHBBooleanSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
+		@Override
+		public void putValue(int itemTypeID, String itemName, Object itemValue,
+				int itemSizeForLang, Charset itemCharsetForLang,
+				OutputStreamIF sw) throws Exception {
+			if (null == itemValue) {
+				String errorMessage = "항목의 값이 null 입니다.";
+				throw new IllegalArgumentException(errorMessage);
+			}
+			
+			if (!(itemValue instanceof java.lang.Boolean)) {
+				String errorMessage = 
+						String.format("항목의 값의 타입[%s]이 java.lang.Boolean 가 아닙니다.", 
+								itemValue.getClass().getCanonicalName());
+				throw new IllegalArgumentException(errorMessage);
+			}
+			
+			boolean booleanValue = (Boolean)itemValue;
+			
+			byte booleanByte;
+			
+			if (booleanValue) {
+				booleanByte = 1;
+			} else {
+				booleanByte = 0;
+			}
+						
+			sw.putUnsignedByte(itemTypeID);
+			sw.putByte(booleanByte);			
 		}
 	}
 	

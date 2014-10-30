@@ -55,11 +55,11 @@ public final class MessageResultDecoder extends MessageDecoder {
 		, charsetOfProject
 		, middleReadObj));
 
-		messageResult.setTaskResult((String)
+		messageResult.setIsSuccess((java.lang.Boolean)
 		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "taskResult" // itemName
-		, 7 // itemTypeID
-		, "ub pascal string" // itemTypeName
+		, "isSuccess" // itemName
+		, 17 // itemTypeID
+		, "boolean" // itemTypeName
 		, -1 // itemSizeForLang
 		, null // itemCharset,
 		, charsetOfProject

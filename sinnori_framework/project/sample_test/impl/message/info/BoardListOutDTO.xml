@@ -5,7 +5,7 @@
 					ub pascal string, us pascal string, si pascal string, 
 					fixed length byte[], ub variable length byte[], 
 					us variable length byte[], si variable length byte[]
-					java sql date, java sql timestamp
+					java sql date, java sql timestamp, boolean
 	array counter type : reference 변수참조, direct 직접입력
 	direction : FROM_NONE_TO_NONE, FROM_SERVER_TO_CLINET, FROM_CLIENT_TO_SERVER, FROM_ALL_TO_ALL
 	(1) FROM_NONE_TO_NONE : 메시지는 서버에서 클라이언트로 혹은 클라이언트에서 서버로 양쪽 모두에서 전송되지 않는다.
@@ -17,19 +17,19 @@
 <messageID>BoardListOutDTO</messageID>
 <direction>FROM_SERVER_TO_CLINET</direction>
 <desc>게시판 목록 응답 메시지, Mybatis DTO</desc>
-<singleitem name="boardId" type="long" />
-<singleitem name="startNo" type="integer" />
-<singleitem name="pageSize" type="integer" />
-<singleitem name="total" type="integer" />
+<singleitem name="boardId" type="unsigned integer" />
+<singleitem name="startNo" type="unsigned integer" />
+<singleitem name="pageSize" type="unsigned short" />
+<singleitem name="total" type="unsigned integer" />
 <singleitem name="cnt" type="integer" />
 <array name="board" cnttype="reference" cntvalue="cnt">
-	<singleitem name="boardNo" type="long" />
-	<singleitem name="groupNo" type="long" />
-	<singleitem name="parentNo" type="long" />
-	<singleitem name="groupSeq" type="long" />
-	<singleitem name="depth" type="integer" />
-	<singleitem name="title" type="ub pascal string" />
-	<singleitem name="regId" type="ub pascal string" />
+	<singleitem name="boardNo" type="unsigned integer" />
+	<singleitem name="groupNo" type="unsigned integer" />	
+	<singleitem name="groupSeq" type="unsigned short" />
+	<singleitem name="parentNo" type="unsigned integer" />
+	<singleitem name="depth" type="unsigned byte" />
+	<singleitem name="subject" type="ub pascal string" />
+	<singleitem name="writerId" type="ub pascal string" />
 	<singleitem name="nickname" type="ub pascal string" />
 	<singleitem name="viewCount" type="integer" />
 	<singleitem name="votes" type="integer" />

@@ -256,7 +256,7 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		SymmetricKey  webUserSymmetricKey = null;
 		try {
 			ServerSessionKeyManager sessionKeyServerManger = ServerSessionKeyManager.getInstance();
-			webUserSymmetricKey = sessionKeyServerManger.getSymmetricKey("AES", CommonType.SymmetricKeyEncoding.BASE64, parmSessionKeyBase64, parmIVBase64);
+			webUserSymmetricKey = sessionKeyServerManger.getSymmetricKey(WebCommonStaticFinalVars.WEBSITE_JAVA_SYMMETRIC_KEY_ALGORITHM_NAME, CommonType.SymmetricKeyEncoding.BASE64, parmSessionKeyBase64, parmIVBase64);
 		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			log.warn(errorMessage);

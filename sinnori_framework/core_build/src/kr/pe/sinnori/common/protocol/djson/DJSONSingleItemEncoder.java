@@ -56,7 +56,8 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF
 			new DJSONFixedLengthStringSingleItemEncoder(), new DJSONUBVariableLengthBytesSingleItemEncoder(), 
 			new DJSONUSVariableLengthBytesSingleItemEncoder(), new DJSONSIVariableLengthBytesSingleItemEncoder(), 
 			new DJSONFixedLengthBytesSingleItemEncoder(), 
-			new DJSONJavaSqlDateSingleItemEncoder(), new DJSONJavaSqlTimestampSingleItemEncoder()
+			new DJSONJavaSqlDateSingleItemEncoder(), new DJSONJavaSqlTimestampSingleItemEncoder(),
+			new DJSONBooleanSingleItemEncoder()
 	};
 
 	
@@ -509,9 +510,9 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF
 				throw new IllegalArgumentException(errorMessage);
 			}
 			
-			if (!(itemValue instanceof java.sql.Date)) {
+			if (!(itemValue instanceof java.sql.Timestamp)) {
 				String errorMessage = 
-						String.format("항목의 값의 타입[%s]이 java.sql.Date 가 아닙니다.", 
+						String.format("항목의 값의 타입[%s]이 java.sql.Timestamp 가 아닙니다.", 
 								itemValue.getClass().getCanonicalName());
 				throw new IllegalArgumentException(errorMessage);
 			}
@@ -519,6 +520,35 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF
 			java.sql.Timestamp javaSqlTimestampValue = (java.sql.Timestamp)itemValue;
 			long javaSqlTimestampLongValue = javaSqlTimestampValue.getTime();			
 			jsonWriteObj.put(itemName, javaSqlTimestampLongValue);
+		}		
+	}
+	
+	/** DJSON 프로토콜의 boolean 타입 단일 항목 스트림 변환기 구현 클래스 */
+	private final class  DJSONBooleanSingleItemEncoder implements DJSONTypeSingleItemEncoderIF {
+		@SuppressWarnings("unchecked")
+		@Override
+		public void putValue(String itemName, Object itemValue,
+				int itemSizeForLang, Charset itemCharsetForLang,
+				Charset charsetOfProject, JSONObject jsonWriteObj)
+				throws Exception {
+			if (null == itemValue) {
+				String errorMessage = "항목의 값이 null 입니다.";
+				throw new IllegalArgumentException(errorMessage);
+			}
+			
+			if (!(itemValue instanceof java.lang.Boolean)) {
+				String errorMessage = 
+						String.format("항목의 값의 타입[%s]이 java.lang.Boolean 가 아닙니다.", 
+								itemValue.getClass().getCanonicalName());
+				throw new IllegalArgumentException(errorMessage);
+			}
+			
+			java.lang.Boolean booleanValue = (java.lang.Boolean)itemValue;
+			if (booleanValue) {
+				jsonWriteObj.put(itemName, "true");
+			} else {
+				jsonWriteObj.put(itemName, "false");
+			}
 		}		
 	}
 

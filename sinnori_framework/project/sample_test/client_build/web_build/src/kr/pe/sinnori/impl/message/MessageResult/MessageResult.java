@@ -24,7 +24,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  */
 public class MessageResult extends AbstractMessage {
 	private String taskMessageID;
-	private String taskResult;
+	private boolean isSuccess;
 	private String resultMessage;
 
 	public String getTaskMessageID() {
@@ -34,12 +34,12 @@ public class MessageResult extends AbstractMessage {
 	public void setTaskMessageID(String taskMessageID) {
 		this.taskMessageID = taskMessageID;
 	}
-	public String getTaskResult() {
-		return taskResult;
+	public boolean getIsSuccess() {
+		return isSuccess;
 	}
 
-	public void setTaskResult(String taskResult) {
-		this.taskResult = taskResult;
+	public void setIsSuccess(boolean isSuccess) {
+		this.isSuccess = isSuccess;
 	}
 	public String getResultMessage() {
 		return resultMessage;
@@ -55,8 +55,8 @@ public class MessageResult extends AbstractMessage {
 		builder.append("class MessageResult[");
 		builder.append("taskMessageID=");
 		builder.append(taskMessageID);
-		builder.append(", taskResult=");
-		builder.append(taskResult);
+		builder.append(", isSuccess=");
+		builder.append(isSuccess);
 		builder.append(", resultMessage=");
 		builder.append(resultMessage);
 		builder.append(", messageHeaderInfo=");

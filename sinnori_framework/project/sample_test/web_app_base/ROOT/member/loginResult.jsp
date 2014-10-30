@@ -1,15 +1,16 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
-%><%@ page import="kr.pe.sinnori.common.servlet.WebCommonStaticFinalVars" %><%
+%><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
 %><%@ page import="org.apache.commons.lang3.StringEscapeUtils" %><%
 %><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="parmIVBase64" class="java.lang.String" scope="request" /><%
+%><jsp:useBean id="modulusHex" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="messageResultOutObj" class="kr.pe.sinnori.impl.message.MessageResult.MessageResult" scope="request" /><%
 
 	kr.pe.sinnori.common.sessionkey.SymmetricKey webUserSymmetricKey = (kr.pe.sinnori.common.sessionkey.SymmetricKey)request.getAttribute("webUserSymmetricKey");
 
 	// String resultMessage = messageResultOutObj.getResultMessage();
-	String taskResult = messageResultOutObj.getTaskResult();
+	boolean isSuccess = messageResultOutObj.getIsSuccess();
 
 	
 %>
@@ -23,7 +24,7 @@
 	</tr>
 	<tr>
 		<td><%
-if (taskResult.equals("Y")) {
+if (isSuccess) {
 %><a href="/">home</a><%
 	} else {
 %><a href="#" onclick="window.history.back()">back</a><%
@@ -41,9 +42,17 @@ if (taskResult.equals("Y")) {
 		var resultMessage = CryptoJS.AES.decrypt("<%=webUserSymmetricKey.encryptStringBase64(StringEscapeUtils.escapeHtml4(messageResultOutObj.toString()))%>", privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: pageIV });
 		document.getElementById('idTxtResultMessage').innerHTML = resultMessage.toString(CryptoJS.enc.Utf8);
 
-		<!-- 보안을 위해서 로그인시 생성한 비밀키와 세션키 삭제 -->
-		sessionStorage.removeItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_PRIVATEKEY_NAME%>');
-		sessionStorage.removeItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_SESSIONKEY_NAME%>');
+		<!-- 보안을 위해서 로그인시 생성한 비밀키와 세션키 덮어쓰기 -->
+		var privateKey = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE%>);
+		
+		var rsa = new RSAKey();
+		rsa.setPublic("<%=modulusHex%>", "10001");
+			
+		var sessionKeyHex = rsa.encrypt(CryptoJS.enc.Base64.stringify(privateKey));		
+		var sessionkeyBase64 = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex));
+
+		sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_PRIVATEKEY_NAME%>', CryptoJS.enc.Base64.stringify(privateKey));
+		sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_SESSIONKEY_NAME%>', sessionkeyBase64);
 	}
 
 	window.onload = init;

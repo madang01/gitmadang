@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
-%><%@ page import="kr.pe.sinnori.common.servlet.WebCommonStaticFinalVars" %><%
+%><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
 %><%@ page import="org.apache.commons.lang3.StringEscapeUtils" %><%
 %><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
@@ -9,7 +9,7 @@
 	kr.pe.sinnori.common.sessionkey.SymmetricKey webUserSymmetricKey = (kr.pe.sinnori.common.sessionkey.SymmetricKey)request.getAttribute("webUserSymmetricKey");
 
 	String resultMessage = messageResultOutObj.getResultMessage();
-	String taskResult = messageResultOutObj.getTaskResult();
+	boolean isSuccess = messageResultOutObj.getIsSuccess();
 
 	String orignalResultMessage = StringEscapeUtils.escapeHtml4(resultMessage);
 %>

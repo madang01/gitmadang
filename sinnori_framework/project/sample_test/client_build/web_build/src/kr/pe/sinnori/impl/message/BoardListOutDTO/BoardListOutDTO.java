@@ -24,18 +24,18 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  */
 public class BoardListOutDTO extends AbstractMessage {
 	private long boardId;
-	private int startNo;
+	private long startNo;
 	private int pageSize;
-	private int total;
+	private long total;
 	private int cnt;
 	public static class Board {
 		private long boardNo;
 		private long groupNo;
+		private int groupSeq;
 		private long parentNo;
-		private long groupSeq;
-		private int depth;
-		private String title;
-		private String regId;
+		private short depth;
+		private String subject;
+		private String writerId;
 		private String nickname;
 		private int viewCount;
 		private int votes;
@@ -58,6 +58,13 @@ public class BoardListOutDTO extends AbstractMessage {
 		public void setGroupNo(long groupNo) {
 			this.groupNo = groupNo;
 		}
+		public int getGroupSeq() {
+			return groupSeq;
+		}
+
+		public void setGroupSeq(int groupSeq) {
+			this.groupSeq = groupSeq;
+		}
 		public long getParentNo() {
 			return parentNo;
 		}
@@ -65,33 +72,26 @@ public class BoardListOutDTO extends AbstractMessage {
 		public void setParentNo(long parentNo) {
 			this.parentNo = parentNo;
 		}
-		public long getGroupSeq() {
-			return groupSeq;
-		}
-
-		public void setGroupSeq(long groupSeq) {
-			this.groupSeq = groupSeq;
-		}
-		public int getDepth() {
+		public short getDepth() {
 			return depth;
 		}
 
-		public void setDepth(int depth) {
+		public void setDepth(short depth) {
 			this.depth = depth;
 		}
-		public String getTitle() {
-			return title;
+		public String getSubject() {
+			return subject;
 		}
 
-		public void setTitle(String title) {
-			this.title = title;
+		public void setSubject(String subject) {
+			this.subject = subject;
 		}
-		public String getRegId() {
-			return regId;
+		public String getWriterId() {
+			return writerId;
 		}
 
-		public void setRegId(String regId) {
-			this.regId = regId;
+		public void setWriterId(String writerId) {
+			this.writerId = writerId;
 		}
 		public String getNickname() {
 			return nickname;
@@ -151,16 +151,16 @@ public class BoardListOutDTO extends AbstractMessage {
 			builder.append(boardNo);
 			builder.append(", groupNo=");
 			builder.append(groupNo);
-			builder.append(", parentNo=");
-			builder.append(parentNo);
 			builder.append(", groupSeq=");
 			builder.append(groupSeq);
+			builder.append(", parentNo=");
+			builder.append(parentNo);
 			builder.append(", depth=");
 			builder.append(depth);
-			builder.append(", title=");
-			builder.append(title);
-			builder.append(", regId=");
-			builder.append(regId);
+			builder.append(", subject=");
+			builder.append(subject);
+			builder.append(", writerId=");
+			builder.append(writerId);
 			builder.append(", nickname=");
 			builder.append(nickname);
 			builder.append(", viewCount=");
@@ -188,11 +188,11 @@ public class BoardListOutDTO extends AbstractMessage {
 	public void setBoardId(long boardId) {
 		this.boardId = boardId;
 	}
-	public int getStartNo() {
+	public long getStartNo() {
 		return startNo;
 	}
 
-	public void setStartNo(int startNo) {
+	public void setStartNo(long startNo) {
 		this.startNo = startNo;
 	}
 	public int getPageSize() {
@@ -202,11 +202,11 @@ public class BoardListOutDTO extends AbstractMessage {
 	public void setPageSize(int pageSize) {
 		this.pageSize = pageSize;
 	}
-	public int getTotal() {
+	public long getTotal() {
 		return total;
 	}
 
-	public void setTotal(int total) {
+	public void setTotal(long total) {
 		this.total = total;
 	}
 	public int getCnt() {

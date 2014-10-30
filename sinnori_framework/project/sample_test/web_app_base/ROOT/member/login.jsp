@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
-%><%@ page import="kr.pe.sinnori.common.servlet.WebCommonStaticFinalVars" %><%
+%><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
 %><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="modulusHex" class="java.lang.String" scope="request" /><%

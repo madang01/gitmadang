@@ -104,7 +104,7 @@ public class MemberSvl extends AbstractServlet {
 			
 			MessageResult messageResultOutObj = new MessageResult();
 			messageResultOutObj.setTaskMessageID("");
-			messageResultOutObj.setTaskResult("N");
+			messageResultOutObj.setIsSuccess(false);
 			messageResultOutObj.setResultMessage("회원 가입이 실패하였습니다.");
 
 			SymmetricKey  webUserSymmetricKey = null;

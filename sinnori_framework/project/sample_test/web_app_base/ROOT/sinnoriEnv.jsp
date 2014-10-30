@@ -9,6 +9,7 @@
 <title>Insert title here</title>
 </head>
 <body>
-projectName=<%=projectName%>
+projectName=<%=projectName%><br/>
+request.getRemoteAddr()=<%=request.getRemoteAddr()%>
 </body>
 </html>

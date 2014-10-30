@@ -27,14 +27,14 @@ public class ValueChecker {
 	 * @param id 아이디
 	 * @throws RuntimeException 아이디 값으로 적당하지 않으면 던진는 예외
 	 */
-	public static void checkValidID(String id) throws RuntimeException {
-		if (null == id) {
+	public static void checkValidUserId(String userId) throws RuntimeException {
+		if (null == userId) {
 			throw new RuntimeException("파라미터 아이디 값이 null 입니다.");
 		}
-		String regexID = "^\\p{Alpha}\\p{Alnum}{3,14}$";
-		boolean isValid = id.matches(regexID);
+		String regexId = "^\\p{Alpha}\\p{Alnum}{3,14}$";
+		boolean isValid = userId.matches(regexId);
 		if (!isValid) {
-			throw new RuntimeException(String.format("아이디[%s]는 첫글자는 영문자 두번째 글자부터는 영문과 숫자 조합으로 최소 4글자 최대 15자로 구성됩니다.", id));
+			throw new RuntimeException(String.format("아이디[%s]는 첫글자는 영문자 두번째 글자부터는 영문과 숫자 조합으로 최소 4글자 최대 15자를 요구합니다.", userId));
 		}
 	}
 	
@@ -43,7 +43,7 @@ public class ValueChecker {
 	 * @param password 비밀번호
 	 * @throws RuntimeException 비밀번호 값으로 적당하지 않으면 던진는 예외
 	 */
-	public static void checkValidPWD(String password) throws RuntimeException {
+	public static void checkValidPwd(String password) throws RuntimeException {
 		if (null == password) {
 			throw new RuntimeException("파라미터 비밀번호 값이 null 입니다.");
 		}
@@ -54,7 +54,7 @@ public class ValueChecker {
 		String regexPwd = "^\\p{Graph}{8,15}$";
 		boolean isValid = password.matches(regexPwd);
 		if (!isValid) {
-			throw new RuntimeException("비밀번호는 영문, 숫자 그리고 문장부호 조합으로 최소 8자 최대 15자로 구성됩니다.");
+			throw new RuntimeException("비밀번호는 영문, 숫자 그리고 문장부호 조합으로 최소 8자 최대 15자를 요구합니다.");
 		}
 		
 		String regexPwdAlpha = ".*\\p{Alpha}{1,}.*";
@@ -79,16 +79,37 @@ public class ValueChecker {
 		}		
 	}
 	
-	public static void checkValidPwdQuestion(String pwdQuestion) throws RuntimeException {
-		if (null == pwdQuestion) {
-			throw new RuntimeException("파라미터 비밀번호 분실시 답변을 유도 할 수 있는 질문 값이 null 입니다.");
+	public static void checkValidNickname(String nickname) throws RuntimeException {
+		if (null == nickname) {
+			throw new RuntimeException("파라미터 별명 값이 null 입니다.");
 		}
+		
+		String regexNickname = "^[a-zA-Z0-9가-힣]{4,20}$";
+		boolean isValid = nickname.matches(regexNickname);
+		if (!isValid) {
+			throw new RuntimeException("별명은 한글, 영문, 숫자 조합으로 최소 4자 최대 20자를 요구합니다.");
+		}
+		
+	}
+	
+	public static void checkValidPwdHint(String pwdHint) throws RuntimeException {
+		if (null == pwdHint) {
+			throw new RuntimeException("파라미터 비밀번호 분실시 힌트 값이 null 입니다.");
+		}
+		
+		if (pwdHint.length() < 2) {
+			throw new RuntimeException("비밀번호 분실시 힌트 값은 최소 2글자를 요구합니다.");
+		}
+		
 	}
 	
 	public static void checkValidPwdAnswer(String pwdAnswer) throws RuntimeException {
 		if (null == pwdAnswer) {
 			throw new RuntimeException("파라미터 비밀번호 분실시 답변 값이 null 입니다.");
 		}
-	}
-	
+		
+		if (pwdAnswer.length() < 2) {
+			throw new RuntimeException("비밀번호 분실시 답변 값은 최소 2글자를 요구합니다.");
+		}
+	}	
 }

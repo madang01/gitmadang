@@ -21,4 +21,5 @@
   <root level="INFO">
     <appender-ref ref="console"/>
   </root>
+	<logger name="kr.pr.sinnori.testweb" level="DEBUG" />
 </configuration>

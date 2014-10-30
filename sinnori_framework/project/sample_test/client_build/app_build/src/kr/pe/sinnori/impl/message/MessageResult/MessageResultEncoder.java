@@ -63,10 +63,10 @@ public final class MessageResultEncoder extends MessageEncoder {
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(messageResultSingleItemPath, "taskResult"
-					, 7 // itemTypeID
-					, "ub pascal string" // itemTypeName
-					, messageResult.getTaskResult() // itemValue
+		singleItemEncoder.putValueToMiddleWriteObj(messageResultSingleItemPath, "isSuccess"
+					, 17 // itemTypeID
+					, "boolean" // itemTypeName
+					, messageResult.getIsSuccess() // itemValue
 					, -1 // itemSizeForLang
 					, null // itemCharset,
 					, charsetOfProject

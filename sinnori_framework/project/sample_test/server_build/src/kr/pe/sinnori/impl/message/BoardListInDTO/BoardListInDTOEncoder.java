@@ -56,24 +56,24 @@ public final class BoardListInDTOEncoder extends MessageEncoder {
 		singleItemPathStatck.push(boardListInDTOSingleItemPath);
 
 		singleItemEncoder.putValueToMiddleWriteObj(boardListInDTOSingleItemPath, "boardId"
-					, 6 // itemTypeID
-					, "long" // itemTypeName
+					, 5 // itemTypeID
+					, "unsigned integer" // itemTypeName
 					, boardListInDTO.getBoardId() // itemValue
 					, -1 // itemSizeForLang
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
 		singleItemEncoder.putValueToMiddleWriteObj(boardListInDTOSingleItemPath, "startNo"
-					, 4 // itemTypeID
-					, "integer" // itemTypeName
+					, 5 // itemTypeID
+					, "unsigned integer" // itemTypeName
 					, boardListInDTO.getStartNo() // itemValue
 					, -1 // itemSizeForLang
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
 		singleItemEncoder.putValueToMiddleWriteObj(boardListInDTOSingleItemPath, "pageSize"
-					, 4 // itemTypeID
-					, "integer" // itemTypeName
+					, 3 // itemTypeID
+					, "unsigned short" // itemTypeName
 					, boardListInDTO.getPageSize() // itemValue
 					, -1 // itemSizeForLang
 					, null // itemCharset,

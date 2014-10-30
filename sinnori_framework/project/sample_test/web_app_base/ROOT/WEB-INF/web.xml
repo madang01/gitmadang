@@ -129,6 +129,7 @@
 		<url-pattern>/servlet/Login</url-pattern>
 	</servlet-mapping>
 
+	<!-- 게시판 목록 조회 : 디폴트 자유 게시판 -->
 	<servlet>
 		<servlet-name>BoardList</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.BoardListSvl</servlet-class>
@@ -138,5 +139,35 @@
 		<url-pattern>/servlet/BoardList</url-pattern>
 	</servlet-mapping>
 
+
+	<!-- 게시판 최상의 글 등록 처리 -->
+	<servlet>
+		<servlet-name>BoardWrite</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.BoardWriteSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BoardWrite</servlet-name>
+		<url-pattern>/servlet/BoardWrite</url-pattern>
+	</servlet-mapping>
+
+	<!-- 게시판 댓글 등록 처리 -->
+	<servlet>
+		<servlet-name>BoardReply</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.BoardReplySvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BoardReply</servlet-name>
+		<url-pattern>/servlet/BoardReply</url-pattern>
+	</servlet-mapping>
+
+	<!-- 게시판 수정 처리 -->
+	<servlet>
+		<servlet-name>BoardModify</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.BoardModifySvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BoardModify</servlet-name>
+		<url-pattern>/servlet/BoardModify</url-pattern>
+	</servlet-mapping>
 
 </web-app>

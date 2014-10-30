@@ -29,66 +29,54 @@ public class BoardListInDTOServerTask extends AbstractServerTask {
 		}
 		
 		BoardListInDTO inObj = (BoardListInDTO)messageFromClient;
-		// long boardTypeID = inObj.getBoardId();
-		// BoardListOutDTO outObj = new BoardListOutDTO();
 		
+		/*long boardID = inObj.getBoardId();
+		
+		if (boardID <=0) {
+			String errorMessage = new StringBuilder("게시판 식별자(boardId) 값[")
+			.append(boardID).append("]은 0 보다 커야합니다.").toString();
+			MessageResult messageResultOutObj = new MessageResult();
+			messageResultOutObj.setTaskMessageID(inObj.getMessageID());
+			messageResultOutObj.setIsSuccess(false);
+			messageResultOutObj.setResultMessage(errorMessage);
+			letterSender.addSyncMessage(messageResultOutObj);
+			return;
+		}		*/
 		
 		SqlSession session = sqlSessionFactory.openSession(false);		
 		// session.commit(false);
 		
 		// log.info("", session.);
 		
+		BoardListOutDTO outObj = null;
 		
-		try {
-			/*java.util.List<BoardListOutDTO.Board> boardList = session.selectList("getBoardList", inObj);			
-			BoardListOutDTO outObj = new BoardListOutDTO();
-			outObj.setBoardId(inObj.getBoardId());
-			outObj.setStartNo(inObj.getStartNo());
-			outObj.setPageSize(inObj.getPageSize());
-			outObj.setCnt(boardList.size());
-			outObj.setBoardList(boardList);
-
-			int total = session.selectOne("getTotalOfBoard", inObj);			
-			outObj.setTotal(total);*/
-			
-			BoardListOutDTO outObj = session.selectOne("getBoardListMap", inObj);
+		try {			
+			outObj = session.selectOne("getBoardListMap", inObj);
 			session.commit();
-			
-			java.util.List<BoardListOutDTO.Board> boardList = outObj.getBoardList();
-			
-			if (null == boardList) {
-				outObj.setCnt(0);				
-			} else {
-				outObj.setCnt(boardList.size());
-			}
-			
-			log.info(outObj.toString());
-			
-			
-			
-			// outObj.setCnt(0);
-			
-			/*BoardListOutDTO outObj = new BoardListOutDTO();
-			int total = session.selectOne("getboardListMap", inObj);	
-			outObj.setTotal(total);
-			outObj.setCnt(0);*/
-			
-			letterSender.addSyncMessage(outObj);
-			//session.commit();
 		} catch(Exception e) {
 			session.rollback();
-			// e.printStackTrace();
-			//session.rollback();
 			log.warn("unknown error", e);
 			
 			MessageResult messageResultOutObj = new MessageResult();
 			messageResultOutObj.setTaskMessageID(inObj.getMessageID());
-			messageResultOutObj.setTaskResult("N");
-			messageResultOutObj.setResultMessage("게시판 전체 갯수 가져오기 실패");
+			messageResultOutObj.setIsSuccess(false);
+			messageResultOutObj.setResultMessage("알 수 없는 이유로 게시판 조회가 실패하였습니다.");
 			letterSender.addSyncMessage(messageResultOutObj);
 			return;
 		} finally {
 			session.close();
 		}
+		
+		java.util.List<BoardListOutDTO.Board> boardList = outObj.getBoardList();
+		
+		if (null == boardList) {
+			outObj.setCnt(0);				
+		} else {
+			outObj.setCnt(boardList.size());
+		}
+		
+		log.info(outObj.toString());
+		
+		letterSender.addSyncMessage(outObj);
 	}
 }

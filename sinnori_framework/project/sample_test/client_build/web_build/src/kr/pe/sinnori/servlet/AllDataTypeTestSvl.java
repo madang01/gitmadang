@@ -134,7 +134,7 @@ public class AllDataTypeTestSvl extends AbstractServlet {
 		
 		allDataTypeInObj.setMemberList(memberList);
 		
-		String projectName = System.getProperty(CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);		
+		String projectName = System.getProperty(CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);	
 		ClientProject clientProject = ClientProjectManager.getInstance().getClientProject(projectName);
 		AbstractMessage messageFromServer = clientProject.sendSyncInputMessage(allDataTypeInObj);
 

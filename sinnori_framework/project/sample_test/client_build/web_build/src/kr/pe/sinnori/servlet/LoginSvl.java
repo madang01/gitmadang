@@ -50,11 +50,12 @@ public class LoginSvl extends AbstractServlet {
 			throws Exception {
 		String pageGubun = req.getParameter("pageGubun");
 		
+		kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager sessionKeyServerManger = kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager.getInstance();
+		String modulusHex = sessionKeyServerManger.getModulusHexStrForWeb();
+		req.setAttribute("modulusHex", modulusHex);
 		
 		if (null == pageGubun || !pageGubun.equals("step2")) {
-			kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager sessionKeyServerManger = kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager.getInstance();
-			String modulusHex = sessionKeyServerManger.getModulusHexStrForWeb();
-			req.setAttribute("modulusHex", modulusHex);
+			
 			printJspPage(req, res, "/member/login.jsp");
 			return;
 		} else {
@@ -73,10 +74,10 @@ public class LoginSvl extends AbstractServlet {
 			// req.setAttribute("isSuccess", Boolean.FALSE);
 			
 			SymmetricKey  webUserSymmetricKey = null;
-			ServerSessionKeyManager sessionKeyServerManger = ServerSessionKeyManager.getInstance();
+			ServerSessionKeyManager serverSessionKeyManger = ServerSessionKeyManager.getInstance();
 			try {
 				
-				webUserSymmetricKey = sessionKeyServerManger.getSymmetricKey(WebCommonStaticFinalVars.WEBSITE_JAVA_SYMMETRIC_KEY_ALGORITHM_NAME, CommonType.SymmetricKeyEncoding.BASE64, parmSessionKeyBase64, parmIVBase64);
+				webUserSymmetricKey = serverSessionKeyManger.getSymmetricKey(WebCommonStaticFinalVars.WEBSITE_JAVA_SYMMETRIC_KEY_ALGORITHM_NAME, CommonType.SymmetricKeyEncoding.BASE64, parmSessionKeyBase64, parmIVBase64);
 			} catch(IllegalArgumentException e) {
 				String errorMessage = e.getMessage();
 				log.warn(errorMessage);
@@ -97,7 +98,7 @@ public class LoginSvl extends AbstractServlet {
 			
 			MessageResult messageResultOutObj = new MessageResult();
 			messageResultOutObj.setTaskMessageID("");
-			messageResultOutObj.setTaskResult("N");
+			messageResultOutObj.setIsSuccess(false);
 			messageResultOutObj.setResultMessage("로그인 실패하였습니다.");
 			
 			String projectName = System.getProperty(CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);		
@@ -105,7 +106,7 @@ public class LoginSvl extends AbstractServlet {
 			
 			
 			BinaryPublicKey binaryPublicKeyInObj = new BinaryPublicKey();			
-			binaryPublicKeyInObj.setPublicKeyBytes(sessionKeyServerManger.getPublicKeyBytes());
+			binaryPublicKeyInObj.setPublicKeyBytes(serverSessionKeyManger.getPublicKeyBytes());
 			
 			AbstractMessage messageFromServer = clientProject.sendSyncInputMessage(binaryPublicKeyInObj);					
 			if (messageFromServer instanceof BinaryPublicKey) {
@@ -127,7 +128,7 @@ public class LoginSvl extends AbstractServlet {
 				messageFromServer = clientProject.sendSyncInputMessage(loginInObj);					
 				if (messageFromServer instanceof MessageResult) {
 					messageResultOutObj = (MessageResult)messageFromServer;
-					if (messageResultOutObj.getTaskResult().equals("Y")){
+					if (messageResultOutObj.getIsSuccess()){
 						HttpSession httpSession = req.getSession();
 						httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_USERID_NAME, userId);
 					}

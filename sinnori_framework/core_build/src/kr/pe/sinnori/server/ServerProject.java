@@ -537,7 +537,7 @@ public class ServerProject extends AbstractProject
 					
 					log.info(projectInfo.toString());
 					
-					int size = projectInfo.monitorClientInfoList.size();
+					/*int size = projectInfo.monitorClientInfoList.size();
 					
 					for (int i=0; i < size; i++) {
 						MonitorClientInfo monitorClientInfo =projectInfo.monitorClientInfoList.get(i);
@@ -547,7 +547,7 @@ public class ServerProject extends AbstractProject
 							// monitorClientInfo.scHashCode
 							removeClient(monitorClientInfo.sc);
 						}
-					}
+					}*/
 					
 					Thread.sleep(monitorInterval);
 				}

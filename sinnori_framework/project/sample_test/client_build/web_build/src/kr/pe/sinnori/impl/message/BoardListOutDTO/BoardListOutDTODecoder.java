@@ -48,18 +48,18 @@ public final class BoardListOutDTODecoder extends MessageDecoder {
 		boardListOutDTO.setBoardId((Long)
 		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
 		, "boardId" // itemName
-		, 6 // itemTypeID
-		, "long" // itemTypeName
+		, 5 // itemTypeID
+		, "unsigned integer" // itemTypeName
 		, -1 // itemSizeForLang
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
 
-		boardListOutDTO.setStartNo((Integer)
+		boardListOutDTO.setStartNo((Long)
 		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
 		, "startNo" // itemName
-		, 4 // itemTypeID
-		, "integer" // itemTypeName
+		, 5 // itemTypeID
+		, "unsigned integer" // itemTypeName
 		, -1 // itemSizeForLang
 		, null // itemCharset,
 		, charsetOfProject
@@ -68,18 +68,18 @@ public final class BoardListOutDTODecoder extends MessageDecoder {
 		boardListOutDTO.setPageSize((Integer)
 		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
 		, "pageSize" // itemName
-		, 4 // itemTypeID
-		, "integer" // itemTypeName
+		, 3 // itemTypeID
+		, "unsigned short" // itemTypeName
 		, -1 // itemSizeForLang
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
 
-		boardListOutDTO.setTotal((Integer)
+		boardListOutDTO.setTotal((Long)
 		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
 		, "total" // itemName
-		, 4 // itemTypeID
-		, "integer" // itemTypeName
+		, 5 // itemTypeID
+		, "unsigned integer" // itemTypeName
 		, -1 // itemSizeForLang
 		, null // itemCharset,
 		, charsetOfProject
@@ -107,8 +107,8 @@ public final class BoardListOutDTODecoder extends MessageDecoder {
 			board.setBoardNo((Long)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
 			, "boardNo" // itemName
-			, 6 // itemTypeID
-			, "long" // itemTypeName
+			, 5 // itemTypeID
+			, "unsigned integer" // itemTypeName
 			, -1 // itemSizeForLang
 			, null // itemCharset,
 			, charsetOfProject
@@ -117,8 +117,18 @@ public final class BoardListOutDTODecoder extends MessageDecoder {
 			board.setGroupNo((Long)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
 			, "groupNo" // itemName
-			, 6 // itemTypeID
-			, "long" // itemTypeName
+			, 5 // itemTypeID
+			, "unsigned integer" // itemTypeName
+			, -1 // itemSizeForLang
+			, null // itemCharset,
+			, charsetOfProject
+			, boardMiddleReadObj));
+
+			board.setGroupSeq((Integer)
+			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
+			, "groupSeq" // itemName
+			, 3 // itemTypeID
+			, "unsigned short" // itemTypeName
 			, -1 // itemSizeForLang
 			, null // itemCharset,
 			, charsetOfProject
@@ -127,36 +137,26 @@ public final class BoardListOutDTODecoder extends MessageDecoder {
 			board.setParentNo((Long)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
 			, "parentNo" // itemName
-			, 6 // itemTypeID
-			, "long" // itemTypeName
+			, 5 // itemTypeID
+			, "unsigned integer" // itemTypeName
 			, -1 // itemSizeForLang
 			, null // itemCharset,
 			, charsetOfProject
 			, boardMiddleReadObj));
 
-			board.setGroupSeq((Long)
-			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
-			, "groupSeq" // itemName
-			, 6 // itemTypeID
-			, "long" // itemTypeName
-			, -1 // itemSizeForLang
-			, null // itemCharset,
-			, charsetOfProject
-			, boardMiddleReadObj));
-
-			board.setDepth((Integer)
+			board.setDepth((Short)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
 			, "depth" // itemName
-			, 4 // itemTypeID
-			, "integer" // itemTypeName
+			, 1 // itemTypeID
+			, "unsigned byte" // itemTypeName
 			, -1 // itemSizeForLang
 			, null // itemCharset,
 			, charsetOfProject
 			, boardMiddleReadObj));
 
-			board.setTitle((String)
+			board.setSubject((String)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
-			, "title" // itemName
+			, "subject" // itemName
 			, 7 // itemTypeID
 			, "ub pascal string" // itemTypeName
 			, -1 // itemSizeForLang
@@ -164,9 +164,9 @@ public final class BoardListOutDTODecoder extends MessageDecoder {
 			, charsetOfProject
 			, boardMiddleReadObj));
 
-			board.setRegId((String)
+			board.setWriterId((String)
 			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
-			, "regId" // itemName
+			, "writerId" // itemName
 			, 7 // itemTypeID
 			, "ub pascal string" // itemTypeName
 			, -1 // itemSizeForLang

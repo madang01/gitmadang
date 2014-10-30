@@ -56,32 +56,32 @@ public final class BoardListOutDTOEncoder extends MessageEncoder {
 		singleItemPathStatck.push(boardListOutDTOSingleItemPath);
 
 		singleItemEncoder.putValueToMiddleWriteObj(boardListOutDTOSingleItemPath, "boardId"
-					, 6 // itemTypeID
-					, "long" // itemTypeName
+					, 5 // itemTypeID
+					, "unsigned integer" // itemTypeName
 					, boardListOutDTO.getBoardId() // itemValue
 					, -1 // itemSizeForLang
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
 		singleItemEncoder.putValueToMiddleWriteObj(boardListOutDTOSingleItemPath, "startNo"
-					, 4 // itemTypeID
-					, "integer" // itemTypeName
+					, 5 // itemTypeID
+					, "unsigned integer" // itemTypeName
 					, boardListOutDTO.getStartNo() // itemValue
 					, -1 // itemSizeForLang
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
 		singleItemEncoder.putValueToMiddleWriteObj(boardListOutDTOSingleItemPath, "pageSize"
-					, 4 // itemTypeID
-					, "integer" // itemTypeName
+					, 3 // itemTypeID
+					, "unsigned short" // itemTypeName
 					, boardListOutDTO.getPageSize() // itemValue
 					, -1 // itemSizeForLang
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
 		singleItemEncoder.putValueToMiddleWriteObj(boardListOutDTOSingleItemPath, "total"
-					, 4 // itemTypeID
-					, "integer" // itemTypeName
+					, 5 // itemTypeID
+					, "unsigned integer" // itemTypeName
 					, boardListOutDTO.getTotal() // itemValue
 					, -1 // itemSizeForLang
 					, null // itemCharset,
@@ -135,57 +135,57 @@ public final class BoardListOutDTOEncoder extends MessageEncoder {
 				Object boardMiddleWriteObj = singleItemEncoder.getMiddleWriteObjFromArrayObj(boardSingleItemPath, boardMiddleWriteArray, i);
 				BoardListOutDTO.Board board = boardList.get(i);
 				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "boardNo"
-							, 6 // itemTypeID
-							, "long" // itemTypeName
+							, 5 // itemTypeID
+							, "unsigned integer" // itemTypeName
 							, board.getBoardNo() // itemValue
 							, -1 // itemSizeForLang
 							, null // itemCharset,
 							, charsetOfProject
 							, boardMiddleWriteObj);
 				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "groupNo"
-							, 6 // itemTypeID
-							, "long" // itemTypeName
+							, 5 // itemTypeID
+							, "unsigned integer" // itemTypeName
 							, board.getGroupNo() // itemValue
 							, -1 // itemSizeForLang
 							, null // itemCharset,
 							, charsetOfProject
 							, boardMiddleWriteObj);
-				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "parentNo"
-							, 6 // itemTypeID
-							, "long" // itemTypeName
-							, board.getParentNo() // itemValue
-							, -1 // itemSizeForLang
-							, null // itemCharset,
-							, charsetOfProject
-							, boardMiddleWriteObj);
 				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "groupSeq"
-							, 6 // itemTypeID
-							, "long" // itemTypeName
+							, 3 // itemTypeID
+							, "unsigned short" // itemTypeName
 							, board.getGroupSeq() // itemValue
 							, -1 // itemSizeForLang
 							, null // itemCharset,
 							, charsetOfProject
 							, boardMiddleWriteObj);
+				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "parentNo"
+							, 5 // itemTypeID
+							, "unsigned integer" // itemTypeName
+							, board.getParentNo() // itemValue
+							, -1 // itemSizeForLang
+							, null // itemCharset,
+							, charsetOfProject
+							, boardMiddleWriteObj);
 				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "depth"
-							, 4 // itemTypeID
-							, "integer" // itemTypeName
+							, 1 // itemTypeID
+							, "unsigned byte" // itemTypeName
 							, board.getDepth() // itemValue
 							, -1 // itemSizeForLang
 							, null // itemCharset,
 							, charsetOfProject
 							, boardMiddleWriteObj);
-				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "title"
+				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "subject"
 							, 7 // itemTypeID
 							, "ub pascal string" // itemTypeName
-							, board.getTitle() // itemValue
+							, board.getSubject() // itemValue
 							, -1 // itemSizeForLang
 							, null // itemCharset,
 							, charsetOfProject
 							, boardMiddleWriteObj);
-				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "regId"
+				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "writerId"
 							, 7 // itemTypeID
 							, "ub pascal string" // itemTypeName
-							, board.getRegId() // itemValue
+							, board.getWriterId() // itemValue
 							, -1 // itemSizeForLang
 							, null // itemCharset,
 							, charsetOfProject

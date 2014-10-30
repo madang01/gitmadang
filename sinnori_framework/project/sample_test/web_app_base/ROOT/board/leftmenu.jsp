@@ -21,17 +21,26 @@
 		leftmenu = targeturl;
 	}
 
+	
+
 	int leftMenuNo = -1;
-    final String arryLeftTopMenuPage[][] =      {
-                { "자유 게시판", 
-"/servlet/BoardList",
-"/servlet/BoardList"},
+	
 
-    };
+	/** 0:좌측 메뉴명, 1:주 좌측 메뉴 링크 */
+	final String[][] leftMenuInfoList = {
+		{"자유 게시판", "/servlet/BoardList"}
+	};
 
-	for (int i=0; i < arryLeftTopMenuPage.length; i++) {
-		if (arryLeftTopMenuPage[i][2].equals(leftmenu)) {
-			leftMenuNo = i;
+	/** 0:좌측 메뉴키, 1:좌측 메뉴 번호 */
+	final Object[][] leftMenuLinkInfoList = {
+		{"/servlet/BoardList",  0},
+		{"/servlet/BoardWrite",  0}
+	};
+
+
+	for (int i=0; i < leftMenuLinkInfoList.length; i++) {
+		if (leftMenuLinkInfoList[i][0].equals(leftmenu)) {
+			leftMenuNo = (Integer)leftMenuLinkInfoList[i][1];
 			break;
 		}
 	}
@@ -41,14 +50,14 @@
 <div id="sidemenu"><div id="smtop">&nbsp;</div>
 <div id="smtitle"><h1><%
 	if (-1 == leftMenuNo) out.print("외부 링크");
-	else out.print(arryLeftTopMenuPage[leftMenuNo][0]);
+	else out.print(leftMenuInfoList[leftMenuNo][0]);
 %></h1></div> <!-- side menu current page title -->
 	<ul class="normal"><%
-	for (int i=0; i < arryLeftTopMenuPage.length; i++) {
+	for (int i=0; i < leftMenuInfoList.length; i++) {
 %>
-		<li><a href="#" onClick="goURL('<%=arryLeftTopMenuPage[i][1]%>');"<%
+		<li><a href="#" onClick="goURL('<%=leftMenuInfoList[i][1]%>');"<%
 	if (i == leftMenuNo) out.print(" class=\"currentpage\"");
-%>><%=arryLeftTopMenuPage[i][0]%></a></li><%
+%>><%=leftMenuInfoList[i][0]%></a></li><%
 	}
 %>
 	</ul>

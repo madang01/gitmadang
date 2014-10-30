@@ -50,7 +50,8 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF
 			new DJSONFixedLengthStringSingleItemDecoder(), new DJSONUBVariableLengthBytesSingleItemDecoder(), 
 			new DJSONUSVariableLengthBytesSingleItemDecoder(), new DJSONSIVariableLengthBytesSingleItemDecoder(), 
 			new DJSONFixedLengthBytesSingleItemDecoder(), 
-			new DJSONJavaSqlDateSingleItemDecoder(), new DJSONJavaSqlTimestampSingleItemDecoder()
+			new DJSONJavaSqlDateSingleItemDecoder(), new DJSONJavaSqlTimestampSingleItemDecoder(),
+			new DJSONBooleanSingleItemDecoder()
 	};
 	
 
@@ -614,14 +615,14 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF
 			Object jsonValue = jsonObjFromStream.get(itemName);
 			if (null == jsonValue) {
 				String errorMessage = 
-						String.format("JSON Object[%s]에 long 타입 항목[%s]이 존재하지 않습니다.", 
+						String.format("JSON Object[%s]에 java sql date 타입 항목[%s]이 존재하지 않습니다.", 
 								jsonObjFromStream.toJSONString(), itemName);
 				throw new BodyFormatException(errorMessage);
 			}
 			
 			if (!(jsonValue instanceof Long)) {
 				String errorMessage = 
-						String.format("JSON Object 로 부터 얻은 long 타입 항목[%s]의 값의 타입[%s]이 Long 이 아닙니다.", 
+						String.format("JSON Object 로 부터 얻은 java sql date 타입 항목[%s]의 값의 타입[%s]이 Long 이 아닙니다.", 
 								itemName, jsonValue.getClass().getName());
 				throw new BodyFormatException(errorMessage);
 			}
@@ -641,20 +642,60 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF
 			Object jsonValue = jsonObjFromStream.get(itemName);
 			if (null == jsonValue) {
 				String errorMessage = 
-						String.format("JSON Object[%s]에 long 타입 항목[%s]이 존재하지 않습니다.", 
+						String.format("JSON Object[%s]에 java sql timestamp 타입 항목[%s]이 존재하지 않습니다.", 
 								jsonObjFromStream.toJSONString(), itemName);
 				throw new BodyFormatException(errorMessage);
 			}
 			
 			if (!(jsonValue instanceof Long)) {
 				String errorMessage = 
-						String.format("JSON Object 로 부터 얻은 long 타입 항목[%s]의 값의 타입[%s]이 Long 이 아닙니다.", 
+						String.format("JSON Object 로 부터 얻은 java sql timestamp 타입 항목[%s]의 값의 타입[%s]이 Long 이 아닙니다.", 
 								itemName, jsonValue.getClass().getName());
 				throw new BodyFormatException(errorMessage);
 			}
 			
 			long javaSqlTimestampLongValue = (long)jsonValue;
 			return new java.sql.Timestamp(javaSqlTimestampLongValue);
+		}
+	}
+	
+	/** DJSON 프로토콜의 boolean 타입 단일 항목 스트림 변환기 구현 클래스 */
+	private final class DJSONBooleanSingleItemDecoder implements DJSONTypeSingleItemDecoderIF {
+
+		@Override
+		public Object getValue(String itemName, int itemSizeForLang,
+				Charset itemCharsetForLang, Charset charsetOfProject,
+				JSONObject jsonObjFromStream) throws Exception {			
+			Object jsonValue = jsonObjFromStream.get(itemName);
+			if (null == jsonValue) {
+				String errorMessage = 
+						String.format("JSON Object[%s]에 boolean 타입 항목[%s]이 존재하지 않습니다.", 
+								jsonObjFromStream.toJSONString(), itemName);
+				throw new BodyFormatException(errorMessage);
+			}
+			
+			if (!(jsonValue instanceof String)) {
+				String errorMessage = 
+						String.format("JSON Object 로 부터 얻은 boolean 타입 항목[%s]의 값의 타입[%s]이 String 이 아닙니다.", 
+								itemName, jsonValue.getClass().getName());
+				throw new BodyFormatException(errorMessage);
+			}
+			
+			
+			
+			String tValue = (String)jsonValue;
+			
+			if (tValue.equals("true")) {
+				return true;
+			} else if (tValue.equals("false")) {
+				return false;
+			} else {
+				String errorMessage = 
+						String.format("JSON Object 에서 boolean 타입의 값은  문자열 true, false 를 갖습니다." +
+								"%sJSON Object 로 부터 얻은 boolean 타입 항목[%s]의 값[%s]이 잘못되었습니다.", 
+								CommonStaticFinalVars.NEWLINE, itemName, tValue);
+				throw new BodyFormatException(errorMessage);
+			}			
 		}
 	}
 	

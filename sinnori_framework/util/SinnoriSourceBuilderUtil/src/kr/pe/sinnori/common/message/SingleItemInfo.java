@@ -277,6 +277,10 @@ public class SingleItemInfo extends AbstractItemInfo {
 		} else if (itemType.equals("java sql timestamp")) {
 			itemTypeForJavaLang = "java.sql.Timestamp";
 			itemTypeForJavaLangClassCasting = "java.sql.Timestamp";
+		} else if (itemType.equals("boolean")) {
+			itemTypeForJavaLang = "boolean";
+			itemTypeForJavaLangClassCasting = "java.lang.Boolean";
+			
 		} else {
 			/** XSD 에서 항목 타입을 제약한다. 따라서 이곳 로직은 들어 올 수 없다. */
 			String errorMessage = String.format("unkown type[%s]", itemType);

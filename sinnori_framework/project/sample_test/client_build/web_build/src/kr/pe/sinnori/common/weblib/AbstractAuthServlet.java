@@ -5,7 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 @SuppressWarnings("serial")
-public abstract class AbstractAuthServlet extends AbstractSessionKeyServlet {
+public abstract class AbstractAuthServlet extends AbstractSessionKeyServlet {	
 
 	protected void performPreTask(HttpServletRequest req, HttpServletResponse res) throws Exception  {
 		HttpSession session = req.getSession();

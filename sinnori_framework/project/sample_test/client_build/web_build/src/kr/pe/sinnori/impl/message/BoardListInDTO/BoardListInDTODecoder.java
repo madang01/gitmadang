@@ -48,18 +48,18 @@ public final class BoardListInDTODecoder extends MessageDecoder {
 		boardListInDTO.setBoardId((Long)
 		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
 		, "boardId" // itemName
-		, 6 // itemTypeID
-		, "long" // itemTypeName
+		, 5 // itemTypeID
+		, "unsigned integer" // itemTypeName
 		, -1 // itemSizeForLang
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
 
-		boardListInDTO.setStartNo((Integer)
+		boardListInDTO.setStartNo((Long)
 		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
 		, "startNo" // itemName
-		, 4 // itemTypeID
-		, "integer" // itemTypeName
+		, 5 // itemTypeID
+		, "unsigned integer" // itemTypeName
 		, -1 // itemSizeForLang
 		, null // itemCharset,
 		, charsetOfProject
@@ -68,8 +68,8 @@ public final class BoardListInDTODecoder extends MessageDecoder {
 		boardListInDTO.setPageSize((Integer)
 		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
 		, "pageSize" // itemName
-		, 4 // itemTypeID
-		, "integer" // itemTypeName
+		, 3 // itemTypeID
+		, "unsigned short" // itemTypeName
 		, -1 // itemSizeForLang
 		, null // itemCharset,
 		, charsetOfProject

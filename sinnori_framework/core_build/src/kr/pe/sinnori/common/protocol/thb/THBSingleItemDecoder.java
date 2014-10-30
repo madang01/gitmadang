@@ -25,6 +25,7 @@ import kr.pe.sinnori.common.exception.UnknownItemTypeException;
 import kr.pe.sinnori.common.io.InputStreamIF;
 import kr.pe.sinnori.common.lib.CharsetUtil;
 import kr.pe.sinnori.common.lib.CommonRootIF;
+import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.ItemTypeManger;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 
@@ -48,7 +49,8 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF {
 			new THBFixedLengthStringSingleItemDecoder(), new THBUBVariableLengthBytesSingleItemDecoder(), 
 			new THBUSVariableLengthBytesSingleItemDecoder(), new THBSIVariableLengthBytesSingleItemDecoder(), 
 			new THBFixedLengthBytesSingleItemDecoder(), 
-			new THBJavaSqlDateSingleItemDecoder(), new THBJavaSqlTimestampSingleItemDecoder()
+			new THBJavaSqlDateSingleItemDecoder(), new THBJavaSqlTimestampSingleItemDecoder(),
+			new THBBooleanSingleItemDecoder()
 	};
 
 	
@@ -485,6 +487,39 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF {
 			
 			long javaSqlDateLongValue = sr.getLong();			
 			return new java.sql.Timestamp(javaSqlDateLongValue);
+		}
+	}
+	
+	/** THB 프로토콜의 boolean 타입 단일 항목 스트림 변환기 구현 클래스 */
+	private final class THBBooleanSingleItemDecoder implements THBTypeSingleItemDecoderIF {
+		@Override
+		public Object getValue(int itemTypeID, String itemName, int itemSizeForLang,
+				Charset itemCharsetForLang, InputStreamIF sr) throws BodyFormatException, SinnoriBufferUnderflowException {
+			int receivedItemTypeID = sr.getUnsignedByte();
+			if (itemTypeID != receivedItemTypeID) {
+				ItemTypeManger itemTypeManger = ItemTypeManger.getInstance();
+				String receivedItemTypeName = null;
+				try {
+					receivedItemTypeName = itemTypeManger.getItemType(receivedItemTypeID);
+				} catch (UnknownItemTypeException e) {
+					String errorMesssage = String.format("항목 타입[%d][%s] 과 다른 알수 없는 수신받은 항목 타입[%d] 을 수신했습니다.", itemTypeID, itemName, receivedItemTypeID);
+					throw new BodyFormatException(errorMesssage);
+				}
+				
+				String errorMesssage = String.format("항목 타입[%d][%s]이 수신 받은 항목 타입[%d][%s] 과 다릅니다.", itemTypeID, itemName, receivedItemTypeID, receivedItemTypeName);
+				throw new BodyFormatException(errorMesssage);
+			}
+			
+			byte booleanByte = sr.getByte();
+			
+			if (booleanByte != 0 && booleanByte != 1) {
+				String errorMesssage = String.format("boolean 타입의 항목 값은 참을 뜻하는 1과 거짓을 뜻하는 0 을 갖습니다." +
+						"%sboolean 타입의 항목[%s] 값[%d]이 잘못되었습니다. ", 
+						CommonStaticFinalVars.NEWLINE, itemName, booleanByte);
+				throw new BodyFormatException(errorMesssage);
+			}
+				
+			return new java.lang.Boolean(0 != booleanByte);
 		}
 	}
 
