@@ -129,6 +129,7 @@
 				</fileset>
 			</classpath>
 		</javac>
+		<echo message="compile.main" />
 	</target>
 
 
@@ -159,11 +160,9 @@
 		</copy>
 	</target>
 
-	<target name="make.main" depends="copy.lib" description="서버 어플리케이션 메인 클래스 jar 만들기">				
+	<target name="make.main" depends="make.serverlib, copy.lib" description="서버 어플리케이션 메인 클래스 jar 만들기">				
 		<jar destfile="${dist}/SinnoriServerMain.jar" basedir="${build}">
-
 			<include name="main/**" />
-
 			<restrict>
 				<name name="**/*.class" />
 				<archives>
@@ -179,6 +178,51 @@
 			</manifest>
 		</jar>
 	</target>
+
+
+	<target name="clean.serverlib" depends="var.init">
+		<!-- Delete the ${build} and ${dist} directory trees -->
+		<delete dir="${build}/serverlib" />
+	</target>
+	
+	<target name="init.serverlib" depends="clean.main">
+		<!-- Create the time stamp -->
+		<tstamp />
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}/serverlib" />
+	</target>
+
+	<target name="compile.serverlib" depends="init.serverlib" description="서버 전용 라이브러리 컴파일">
+		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}" destdir="${build}/serverlib" >		
+			<include name="kr/pe/sinnori/common/serverlib/**" />	
+			<classpath>
+				<fileset dir="${corelib}/ex">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${corelib}/in">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${lib}/ex">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${lib}/in">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="make.serverlib" depends="compile.serverlib" description="서버 전용 라이브러리 jar 만들기">
+		<echo message="${build}/serverlib" />	
+		<jar jarfile="${lib}/in/sinnori-serverlib.jar" basedir="${build}/serverlib">
+			<restrict>
+				<name name="**/*.class" />
+				<archives>
+					<!-- 서버 라이브러리는 단독으로 존재하므로 외부 라이브러리 포함등 없음 -->
+				</archives>
+			</restrict>
+		</jar>
+	</target>
 	
 	<target name="clean.appinf">
 		<!-- Delete the ${build} and ${dist} directory trees -->
@@ -191,7 +235,7 @@
 	
 	
 	<target name="compile.appinf" depends="var.init" description="오직 서버 비지니스 로직 컴파일만 수행">
-		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}" destdir="${APP-INF}/classes">
+		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}" destdir="${APP-INF}/classes" >
 			<include name="kr/pe/sinnori/impl/**" />
 			<classpath>
 				<fileset dir="${corelib}/ex">
@@ -212,7 +256,7 @@
 				<pathelement path="${APP-INF}/classes" />
 			</classpath>
 		</javac>
-		<echo message="is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}, java.debug=${java.debug}" />
+		<echo message="compile.appinf, is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}, java.debug=${java.debug}" />
 	</target>
 	
 	

@@ -35,6 +35,6 @@ public final class BoardReplyDTOClientCodec implements MessageCodecIF {
 
 	@Override
 	public MessageEncoder getMessageEncoder() throws DynamicClassCallException {
-		return new BoardReplyDTOEncoder();
+		throw new DynamicClassCallException("BoardReplyDTO메시지는 클라이언트에서 서버로 전달하지 않는 메시지 입니다.");
 	}
 }

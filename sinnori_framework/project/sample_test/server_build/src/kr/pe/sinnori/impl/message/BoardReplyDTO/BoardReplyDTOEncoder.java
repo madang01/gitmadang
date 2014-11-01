@@ -79,10 +79,10 @@ public final class BoardReplyDTOEncoder extends MessageEncoder {
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(boardReplyDTOSingleItemPath, "parentNo"
+		singleItemEncoder.putValueToMiddleWriteObj(boardReplyDTOSingleItemPath, "parentBoardNo"
 					, 5 // itemTypeID
 					, "unsigned integer" // itemTypeName
-					, boardReplyDTO.getParentNo() // itemValue
+					, boardReplyDTO.getParentBoardNo() // itemValue
 					, -1 // itemSizeForLang
 					, null // itemCharset,
 					, charsetOfProject

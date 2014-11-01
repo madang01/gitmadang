@@ -26,7 +26,7 @@ public class BoardReplyDTO extends AbstractMessage {
 	private long boardId;
 	private long groupNo;
 	private int groupSeq;
-	private long parentNo;
+	private long parentBoardNo;
 	private short depth;
 	private String subject;
 	private String content;
@@ -54,12 +54,12 @@ public class BoardReplyDTO extends AbstractMessage {
 	public void setGroupSeq(int groupSeq) {
 		this.groupSeq = groupSeq;
 	}
-	public long getParentNo() {
-		return parentNo;
+	public long getParentBoardNo() {
+		return parentBoardNo;
 	}
 
-	public void setParentNo(long parentNo) {
-		this.parentNo = parentNo;
+	public void setParentBoardNo(long parentBoardNo) {
+		this.parentBoardNo = parentBoardNo;
 	}
 	public short getDepth() {
 		return depth;
@@ -107,8 +107,8 @@ public class BoardReplyDTO extends AbstractMessage {
 		builder.append(groupNo);
 		builder.append(", groupSeq=");
 		builder.append(groupSeq);
-		builder.append(", parentNo=");
-		builder.append(parentNo);
+		builder.append(", parentBoardNo=");
+		builder.append(parentBoardNo);
 		builder.append(", depth=");
 		builder.append(depth);
 		builder.append(", subject=");

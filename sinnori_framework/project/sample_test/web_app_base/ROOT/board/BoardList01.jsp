@@ -122,18 +122,16 @@ tbody {
 		if (totalPage > 1) {
 
 			long pageNo = boardListOutDTO.getStartNo() / pageSize+1;
-		
-
-
 			int pageListSize = 2;
-			long startPageNo = (pageNo + pageListSize -1) / pageListSize;
+
+			long startPageNo = 1 + pageListSize*(long)((pageNo -1 ) / pageListSize);
 %><div style="text-align:right; float:right; width:400px;">페이지 이동 : <%
 
 			if (startPageNo > 1) {
-%><a href="#" onClick="goPage('<%=startPageNo-1%>')">prev</a><%
+%><a href="#" onClick="goPage('<%=startPageNo-1%>')">prev</a> &nbsp;<%
 			}
 
-			for (int i=0; i < pageSize; i++) {
+			for (int i=0; i < pageListSize; i++) {
 				long workPageNo = startPageNo + i;
 				if (workPageNo > totalPage) break;
 
@@ -146,23 +144,23 @@ tbody {
 			}
 
 			if (startPageNo+pageListSize <= totalPage) {
-%><a href="#" onClick="goPage('<%=startPageNo+pageListSize%>')">next</a><%
+%>&nbsp;<a href="#" onClick="goPage('<%=startPageNo+pageListSize%>')">next</a><%
 			}
 %></div><%
 		}
 	}
 %>
 	</div>
-	<div style="clear:both; height:200px;">
+	<div style="clear:both; height:100%">
 <table border="1">
 <thead>
-<tr>
-	<th width="30">번호</th>
-	<th width="260">제목</th>
-	<th width="90">작성자</th>
-	<th width="40">조회수</th>
-	<th width="40">추천수</th>
-	<th width="70">마지막<br/>수정일</th>
+<tr style="text-align=center;">
+	<th style="width:30px;">번호</th>
+	<th style="width:260px;">제목</th>
+	<th style="width:90px;">작성자</th>
+	<th style="width:40px;">조회수</th>
+	<th style="width:40px;">추천수</th>
+	<th style="width:70px;">마지막<br/>수정일</th>
 	<!-- th>회원구분</th -->
 	<th>기능</th>
 </tr>
@@ -182,10 +180,18 @@ tbody {
 		} else {
 
 			for (BoardListOutDTO.Board board : boardList) {
+				int depth = board.getDepth();
 %>
 <tr>
 	<td><%=board.getBoardNo() %></td>
-	<td align="left"><%=escapeHtml(board.getSubject()) %></td>
+	<td align="left">&nbsp;&nbsp;<%
+	if (depth > 0) {
+		for (int i=0; i < depth; i++) {
+			out.print("&nbsp;&nbsp;&nbsp;&nbsp;");
+		}
+		out.print("ㄴ");
+	}
+%><%=escapeHtml(board.getSubject()) %></td>
 	<td><%=escapeHtml(board.getNickname()) %></td>
 	<td><%=board.getViewCount() %></td>
 	<td><%=board.getVotes() %></td>
@@ -200,6 +206,7 @@ tbody {
 </tbody>
 </table>
 	</div>
+<br/>
 	<div style="clear:both; height:30px;">
 		<div style="float:left; width:200px;">
 		<input type=button onClick="goWrite()" value="글 작성하기" />
@@ -212,14 +219,14 @@ tbody {
 		if (totalPage > 1) {
 			long pageNo = boardListOutDTO.getStartNo() / pageSize+1;
 			int pageListSize = 2;
-			long startPageNo = (pageNo + pageListSize -1) / pageListSize;
+			long startPageNo = 1 + pageListSize*(long)((pageNo -1 ) / pageListSize);
 %><div style="text-align:right; float:right; width:400px;">페이지 이동 : <%
 
 			if (startPageNo > 1) {
-%><a href="#" onClick="goPage('<%=startPageNo-1%>')">prev</a><%
+%><a href="#" onClick="goPage('<%=startPageNo-1%>')">prev</a>&nbsp;<%
 			}
 
-			for (int i=0; i < pageSize; i++) {
+			for (int i=0; i < pageListSize; i++) {
 				long workPageNo = startPageNo + i;
 				if (workPageNo > totalPage) break;
 
@@ -232,7 +239,7 @@ tbody {
 			}
 
 			if (startPageNo+pageListSize <= totalPage) {
-%><a href="#" onClick="goPage('<%=startPageNo+pageListSize%>')">next</a><%
+%>&nbsp;<a href="#" onClick="goPage('<%=startPageNo+pageListSize%>')">next</a><%
 			}
 %></div><%
 		}

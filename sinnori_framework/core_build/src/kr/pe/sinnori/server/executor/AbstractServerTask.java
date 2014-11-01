@@ -263,19 +263,19 @@ public abstract class AbstractServerTask implements CommonRootIF {
 		LetterSender letterSender = new LetterSender(this, clientResource, messageFromClient, projectCharset, ouputMessageQueue, messageProtocol, serverObjectCacheManager);
 		long firstErraseTime = new java.util.Date().getTime();
 		try {			
-			doTask(serverProjectConfig, loginManager, letterSender, messageFromClient);			
-		} catch (Exception e) {
+			doTask(serverProjectConfig, loginManager, letterSender, messageFromClient);
+		} catch (java.lang.Error e) {
 			// FIXME!
-			log.warn("unknown error", e);
+			log.warn("1.unknown error", e);
 			
 			String errorMessgae = e.getMessage();
 			if (null == errorMessgae) {
-				errorMessgae = "서비 비지니스 로직 실행시 에러 발생";
+				errorMessgae = "1.서비 비지니스 로직 실행시 에러 발생";
 			} else {
-				errorMessgae = new StringBuilder("서비 비지니스 로직 실행시 에러 발생::").append(errorMessgae).toString();
+				errorMessgae = new StringBuilder("1.서비 비지니스 로직 실행시 에러 발생::").append(errorMessgae).toString();
 			}
 			
-			log.warn(String.format("%s Executor[%d], fromSC[%d], messageFromClient[%s], %s", 
+			log.warn(String.format("1.%s Executor[%d], fromSC[%d], messageFromClient[%s], %s", 
 					serverProjectConfig.getProjectName(), index, 
 					fromSC.hashCode(), messageFromClient.toString(), errorMessgae), e);
 			
@@ -293,13 +293,50 @@ public abstract class AbstractServerTask implements CommonRootIF {
 				
 				putToOutputMessageQueue(fromSC, messageFromClient, selfExnOutObj, wrapBufferList, ouputMessageQueue);
 			} catch(Exception e1) {
-				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, fromSC={}, SelfExn={}", fromSC.hashCode(), selfExnOutObj.toString());
+				log.error("1.시스템 내부 메시지 SelfExn 스트림 만들기 실패, fromSC={}, SelfExn={}", fromSC.hashCode(), selfExnOutObj.toString());
 			}
 			
 			/**
 			 * FIXME! 서버 타스크 수행중 받은 편지들 로그 남기기, 삭제할 필요는 없어 삭제는 하지 않음. 
 			 */
-			letterSender.writeLogAll("서버 타스크 수행중 에러");
+			letterSender.writeLogAll("1.서버 타스크 수행중 에러");
+			return;
+		} catch (Exception e) {
+			// FIXME!
+			log.warn("2.unknown error", e);
+			
+			String errorMessgae = e.getMessage();
+			if (null == errorMessgae) {
+				errorMessgae = "2.서비 비지니스 로직 실행시 에러 발생";
+			} else {
+				errorMessgae = new StringBuilder("2.서비 비지니스 로직 실행시 에러 발생::").append(errorMessgae).toString();
+			}
+			
+			log.warn(String.format("2.%s Executor[%d], fromSC[%d], messageFromClient[%s], %s", 
+					serverProjectConfig.getProjectName(), index, 
+					fromSC.hashCode(), messageFromClient.toString(), errorMessgae), e);
+			
+			
+			SelfExn selfExnOutObj = new SelfExn();
+			selfExnOutObj.messageHeaderInfo = messageFromClient.messageHeaderInfo;
+			selfExnOutObj.setErrorWhere("S");
+			selfExnOutObj.setErrorGubun(ServerTaskException.class);
+			selfExnOutObj.setErrorMessageID(messageIDFromClient);
+			selfExnOutObj.setErrorMessage(errorMessgae);
+			
+			ArrayList<WrapBuffer> wrapBufferList = null;
+			try {
+				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, projectCharset);
+				
+				putToOutputMessageQueue(fromSC, messageFromClient, selfExnOutObj, wrapBufferList, ouputMessageQueue);
+			} catch(Exception e1) {
+				log.error("2.시스템 내부 메시지 SelfExn 스트림 만들기 실패, fromSC={}, SelfExn={}", fromSC.hashCode(), selfExnOutObj.toString());
+			}
+			
+			/**
+			 * FIXME! 서버 타스크 수행중 받은 편지들 로그 남기기, 삭제할 필요는 없어 삭제는 하지 않음. 
+			 */
+			letterSender.writeLogAll("2.서버 타스크 수행중 에러");
 			return;
 		}
 		

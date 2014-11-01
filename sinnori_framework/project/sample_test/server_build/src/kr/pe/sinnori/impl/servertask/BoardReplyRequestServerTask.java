@@ -5,6 +5,7 @@ import java.util.List;
 
 import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.message.AbstractMessage;
+import kr.pe.sinnori.common.serverlib.ValueChecker;
 import kr.pe.sinnori.impl.message.BoardReplyDTO.BoardReplyDTO;
 import kr.pe.sinnori.impl.message.BoardReplyRequest.BoardReplyRequest;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
@@ -30,11 +31,64 @@ public class BoardReplyRequestServerTask extends AbstractServerTask {
 			sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory(serverProjectConfig);
 		}
 		
-		BoardReplyRequest inObj = (BoardReplyRequest)messageFromClient;
+		BoardReplyRequest inObj = (BoardReplyRequest)messageFromClient;		
 		
 		MessageResult messageResultOutObj = new MessageResult();
 		messageResultOutObj.setIsSuccess(false);
 		messageResultOutObj.setTaskMessageID(inObj.getMessageID());
+		
+		/*try {
+			ValueChecker.checkValidBoardId(inObj.getBoardId());
+		} catch(RuntimeException e) {
+			log.warn(e.getMessage(), e);
+			messageResultOutObj.setResultMessage(e.getMessage());
+		}
+		
+		try {
+			ValueChecker.checkValidParentBoardNo(inObj.getParentBoardNo());
+		} catch(RuntimeException e) {
+			log.warn(e.getMessage(), e);
+			messageResultOutObj.setResultMessage(e.getMessage());
+		}*/
+		/**
+		 * 게시판 식별자, 게시판 부모 번호 모두 unsigned integer 이므로 조건 검사 필요 없다.
+		 */
+		try {
+			ValueChecker.checkValidSubject(inObj.getSubject());
+		} catch(RuntimeException e) {
+			log.warn(e.getMessage(), e);
+			messageResultOutObj.setResultMessage(e.getMessage());
+			letterSender.addSyncMessage(messageResultOutObj);
+			return;
+		}
+		
+		try {
+			ValueChecker.checkValidContent(inObj.getContent());
+		} catch(RuntimeException e) {
+			log.warn(e.getMessage(), e);
+			messageResultOutObj.setResultMessage(e.getMessage());
+			letterSender.addSyncMessage(messageResultOutObj);
+			return;
+		}
+		
+		try {
+			ValueChecker.checkValidWriterId(inObj.getWriterId());
+		} catch(RuntimeException e) {
+			log.warn(e.getMessage(), e);
+			messageResultOutObj.setResultMessage(e.getMessage());
+			letterSender.addSyncMessage(messageResultOutObj);
+			return;
+		}
+		
+		
+		try {
+			ValueChecker.checkValidIP(inObj.getIp());
+		} catch(RuntimeException e) {
+			log.warn(e.getMessage(), e);
+			messageResultOutObj.setResultMessage(e.getMessage());
+			letterSender.addSyncMessage(messageResultOutObj);
+			return;
+		}
 		
 		SqlSession session = sqlSessionFactory.openSession(false);	
 		try {		
@@ -45,36 +99,43 @@ public class BoardReplyRequestServerTask extends AbstractServerTask {
 						inObj.getBoardId(), inObj.getParentBoardNo());
 				messageResultOutObj.setResultMessage(errorMessage);
 			} else {
-				boardReplyDTO.setSubject(inObj.getSubject());
-				boardReplyDTO.setContent(inObj.getContent());
-				boardReplyDTO.setWriterId(inObj.getWriterId());
-				boardReplyDTO.setIp(inObj.getIp());
-				
 				// FIXME!
 				log.info("boardReplyDTO={}", boardReplyDTO.toString());
 				
-				List<HashMap<String, Object>> replyGroupHashList = session.selectList("getBoardListByGroupAndSeqInLock", boardReplyDTO);
-				if (null == replyGroupHashList) {
-					session.rollback();
-					String errorMessage = String.format("게시판[%d]에서 게시글 그룹[%d]내 삽입할 위치[%d] 이후 락 획득 실패", 
-							boardReplyDTO.getBoardId(), boardReplyDTO.getGroupNo(), boardReplyDTO.getGroupSeq());
+				if (inObj.getBoardId() != boardReplyDTO.getBoardId()) {
+					session.commit();
+					String errorMessage = String.format("부모글의 게시판 식별자[%d]와 파라미터로 넘어온 게시판 식별자[%d]가 상이합니다.", 
+							boardReplyDTO.getBoardId(), inObj.getParentBoardNo());
 					messageResultOutObj.setResultMessage(errorMessage);
 				} else {
-					int resultOfUpdate = session.update("updateReplyBoard", boardReplyDTO);
+					boardReplyDTO.setSubject(inObj.getSubject());
+					boardReplyDTO.setContent(inObj.getContent());
+					boardReplyDTO.setWriterId(inObj.getWriterId());
+					boardReplyDTO.setIp(inObj.getIp());				
 					
-					// FIXME!
-					log.info("resultOfUpdate={}", resultOfUpdate);
-					
-					int resultOfInsert = session.insert("insertReplyBoard", boardReplyDTO);
-					if (resultOfInsert > 0) {
-						session.commit();
-						messageResultOutObj.setIsSuccess(true);
-						messageResultOutObj.setResultMessage("게시판 댓글 등록이 성공하였습니다.");
-					} else {
+					List<HashMap<String, Object>> replyGroupHashList = session.selectList("getBoardListByGroupAndSeqInLock", boardReplyDTO);
+					if (null == replyGroupHashList) {
 						session.rollback();
-						messageResultOutObj.setResultMessage("1.게시판 댓글 등록이 실패하였습니다.");
-					}
-				}				
+						String errorMessage = String.format("게시판[%d]에서 게시글 그룹[%d]내 삽입할 위치[%d] 이후 락 획득 실패", 
+								boardReplyDTO.getBoardId(), boardReplyDTO.getGroupNo(), boardReplyDTO.getGroupSeq());
+						messageResultOutObj.setResultMessage(errorMessage);
+					} else {
+						int resultOfUpdate = session.update("updateReplyBoard", boardReplyDTO);
+						
+						// FIXME!
+						log.info("resultOfUpdate={}", resultOfUpdate);
+						
+						int resultOfInsert = session.insert("insertReplyBoard", boardReplyDTO);
+						if (resultOfInsert > 0) {
+							session.commit();
+							messageResultOutObj.setIsSuccess(true);
+							messageResultOutObj.setResultMessage("게시판 댓글 등록이 성공하였습니다.");
+						} else {
+							session.rollback();
+							messageResultOutObj.setResultMessage("1.게시판 댓글 등록이 실패하였습니다.");
+						}
+					}	
+				}			
 			}			
 			
 		} catch(Exception e) {

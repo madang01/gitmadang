@@ -120,7 +120,7 @@ public class ServerClassLoader extends ClassLoader implements CommonRootIF {
 					
 					if (classFullName.startsWith("kr.pe.sinnori.impl.message.SelfExn.")) {
 						/** 시스템 클래스 */
-						return super.loadClass(classFullName);
+						return systemClassLoader.loadClass(classFullName);
 					}
 					
 					// log.info("SinnoriClassLoader hashCode=[{}], messageID=[{}], classFullName=[{}]::주어진 클래스명은 서버 동적 클래스 대상", this.hashCode(), messageID, classFullName);

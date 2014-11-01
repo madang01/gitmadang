@@ -2,6 +2,7 @@ package kr.pe.sinnori.impl.servertask;
 
 import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.message.AbstractMessage;
+import kr.pe.sinnori.common.serverlib.ValueChecker;
 import kr.pe.sinnori.impl.message.BoardWriteInDTO.BoardWriteInDTO;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
 import kr.pe.sinnori.impl.mybatis.SqlSessionFactoryManger;
@@ -31,6 +32,43 @@ public class BoardWriteInDTOServerTask extends AbstractServerTask {
 		MessageResult messageResultOutObj = new MessageResult();
 		messageResultOutObj.setIsSuccess(false);
 		messageResultOutObj.setTaskMessageID(inObj.getMessageID());
+		
+		try {
+			ValueChecker.checkValidSubject(inObj.getSubject());
+		} catch(RuntimeException e) {
+			log.warn(e.getMessage(), e);
+			messageResultOutObj.setResultMessage(e.getMessage());
+			letterSender.addSyncMessage(messageResultOutObj);
+			return;
+		}
+		
+		try {
+			ValueChecker.checkValidContent(inObj.getContent());
+		} catch(RuntimeException e) {
+			log.warn(e.getMessage(), e);
+			messageResultOutObj.setResultMessage(e.getMessage());
+			letterSender.addSyncMessage(messageResultOutObj);
+			return;
+		}
+		
+		try {
+			ValueChecker.checkValidWriterId(inObj.getWriterId());
+		} catch(RuntimeException e) {
+			log.warn(e.getMessage(), e);
+			messageResultOutObj.setResultMessage(e.getMessage());
+			letterSender.addSyncMessage(messageResultOutObj);
+			return;
+		}
+		
+		
+		try {
+			ValueChecker.checkValidIP(inObj.getIp());
+		} catch(RuntimeException e) {
+			log.warn(e.getMessage(), e);
+			messageResultOutObj.setResultMessage(e.getMessage());
+			letterSender.addSyncMessage(messageResultOutObj);
+			return;
+		}
 				
 		SqlSession session = sqlSessionFactory.openSession(false);	
 		try {			

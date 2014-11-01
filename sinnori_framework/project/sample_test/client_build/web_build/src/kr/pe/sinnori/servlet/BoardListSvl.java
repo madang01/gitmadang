@@ -70,7 +70,7 @@ public class BoardListSvl extends AbstractServlet {
 			return;
 		}
 		
-		int pageSize = 5;
+		int pageSize = 20;
 		String errorMessage = "";
 		
 		BoardListInDTO inObj = new BoardListInDTO();

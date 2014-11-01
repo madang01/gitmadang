@@ -75,9 +75,9 @@ public final class BoardReplyDTODecoder extends MessageDecoder {
 		, charsetOfProject
 		, middleReadObj));
 
-		boardReplyDTO.setParentNo((Long)
+		boardReplyDTO.setParentBoardNo((Long)
 		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "parentNo" // itemName
+		, "parentBoardNo" // itemName
 		, 5 // itemTypeID
 		, "unsigned integer" // itemTypeName
 		, -1 // itemSizeForLang

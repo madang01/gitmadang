@@ -62,7 +62,9 @@ public final class EchoServerTask extends AbstractServerTask {
 	private void doWork(ServerProjectConfig serverProjectConfig,
 			LetterSender letterSender, Echo echoInObj)
 			throws Exception {
-		//log.info("echoInObj={}", echoInObj.toString());		
+		// FIXME!
+		// log.info("echoInObj={}", echoInObj.toString());	
+		
 		Echo echoOutObj = new Echo();
 
 		echoOutObj.setRandomInt(echoInObj.getRandomInt());

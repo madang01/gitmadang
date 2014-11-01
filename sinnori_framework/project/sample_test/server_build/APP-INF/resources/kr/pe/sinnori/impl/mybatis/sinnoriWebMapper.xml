@@ -271,7 +271,7 @@ update TW_BOARD_TB set group_no=board_no where board_no=LAST_INSERT_ID()
 	<resultMap id="boardReplyMap" type="kr.pe.sinnori.impl.message.BoardReplyDTO.BoardReplyDTO">
 		<result  property="groupNo" column="group_no" />
 		<result  property="groupSeq" column="group_sq" />		
-		<result  property="parentNo" column="board_no" />
+		<result  property="parentBoardNo" column="board_no" />
 		<result  property="depth" column="depth" />
 		<result  property="boardId" column="board_id" />
 		<!-- result  property="subject" column="subject" />
@@ -336,7 +336,7 @@ VALUES
 (0,
 #{groupNo},
 #{groupSeq},
-#{parentNo},
+#{parentBoardNo},
 #{depth},
 #{boardId},
 #{subject},
@@ -346,7 +346,7 @@ VALUES
 0,
 'N',
 #{ip},
-curdate(),
+sysdate(),
 reg_dt)
 	</insert>
     

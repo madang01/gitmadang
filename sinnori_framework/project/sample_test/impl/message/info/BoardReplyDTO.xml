@@ -15,12 +15,12 @@
 -->
 <sinnori_message>
 <messageID>BoardReplyDTO</messageID>
-<direction>FROM_CLIENT_TO_SERVER</direction>
+<direction>FROM_NONE_TO_NONE</direction>
 <desc>게시판 댓글 등록 요청 Mybatis DTO 메시지</desc>
 <singleitem name="boardId" type="unsigned integer" />
 <singleitem name="groupNo" type="unsigned integer" />	
 <singleitem name="groupSeq" type="unsigned short" />
-<singleitem name="parentNo" type="unsigned integer" />
+<singleitem name="parentBoardNo" type="unsigned integer" />
 <singleitem name="depth" type="unsigned byte" />
 <singleitem name="subject" type="us pascal string" />
 <singleitem name="content" type="si pascal string" />
