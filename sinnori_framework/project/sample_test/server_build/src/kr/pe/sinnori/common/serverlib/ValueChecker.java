@@ -16,6 +16,9 @@
  */
 package kr.pe.sinnori.common.serverlib;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * 항목 검사기, 예를 들면 아이디, 비밀번호 같은 공통 항목에 대한 입력값 검사기
  * @author Jonghoon Won
@@ -143,17 +146,25 @@ public class ValueChecker {
 			throw new RuntimeException("비밀번호 분실시 답변 값은 최소 2글자를 요구합니다.");
 		}
 	}
-	
-	/** 게시판 식별자 검사 */
+
+	/**
+	 * 게시판 식별자 검사
+	 * @param boardId 게시판 식별자
+	 * @throws RuntimeException 값이 적당하지 않으면 던진는 예외
+	 */
 	public static void checkValidBoardId(long boardId) throws RuntimeException {		
 		if (boardId <= 0) {
 			String errorMessage = new StringBuilder("게시판 식별자 번호 값[")
 			.append(boardId).append("]은 0 보다 커야합니다.").toString();
 			throw new RuntimeException(errorMessage);
 		}	
-	}
+	}	
 	
-	/** 게시판 번호 검사 */
+	/**
+	 * 게시판 번호 검사
+	 * @param boardNo 게시판 번호
+	 * @throws RuntimeException 값이 적당하지 않으면 던진는 예외
+	 */
 	public static void checkValidBoardNo(long boardNo) throws RuntimeException {		
 		if (boardNo <= 0) {
 			String errorMessage = new StringBuilder("게시판 번호 값[")
@@ -162,7 +173,12 @@ public class ValueChecker {
 		}	
 	}
 	
-	/** 부모 게시판 번호 검사 */
+	
+	/**
+	 * 부모 게시판 번호 검사
+	 * @param parentBoardNo 부모 게시판 번호
+	 * @throws RuntimeException 값이 적당하지 않으면 던진는 예외
+	 */
 	public static void checkValidParentBoardNo(long parentBoardNo) throws RuntimeException {		
 		if (parentBoardNo <= 0) {
 			String errorMessage = new StringBuilder("부모 게시판 번호 값[")
@@ -183,6 +199,14 @@ public class ValueChecker {
 		
 		if (subject.length() < 2) {
 			throw new RuntimeException("게시판 제목 값은 최소 2글자를 요구합니다.");
+		}
+
+		Pattern r = Pattern.compile("\n|\r");
+		
+		Matcher match = r.matcher(subject);
+		
+		if (match.find()) {
+			throw new RuntimeException("게시판 제목에는 개행 문자를 넣을 수 없습니다.");
 		}
 	}
 	

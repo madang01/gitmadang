@@ -139,6 +139,16 @@
 		<url-pattern>/servlet/BoardList</url-pattern>
 	</servlet-mapping>
 
+	<!-- 게시판 상세 조회 -->
+	<servlet>
+		<servlet-name>BoardDetail</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.BoardDetailSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BoardDetail</servlet-name>
+		<url-pattern>/servlet/BoardDetail</url-pattern>
+	</servlet-mapping>
+
 
 	<!-- 게시판 최상의 글 등록 처리 -->
 	<servlet>
@@ -169,5 +179,28 @@
 		<servlet-name>BoardModify</servlet-name>
 		<url-pattern>/servlet/BoardModify</url-pattern>
 	</servlet-mapping>
+
+	<!-- Simple Captcha start -->
+	<servlet>
+        <servlet-name>StickyCaptcha</servlet-name>
+        <servlet-class>nl.captcha.servlet.StickyCaptchaServlet</servlet-class>
+        <!-- The width and height params are optional; 
+        if unspecified they default to 200 and 50 respectively. -->
+        <init-param>
+            <param-name>width</param-name>
+            <param-value>250</param-value>
+        </init-param>
+        <init-param>
+            <param-name>height</param-name>
+            <param-value>75</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>StickyCaptcha</servlet-name>
+        <url-pattern>/servlet/stickyImg</url-pattern>
+    </servlet-mapping>
+	<!-- Simple Captcha end -->
+
 
 </web-app>

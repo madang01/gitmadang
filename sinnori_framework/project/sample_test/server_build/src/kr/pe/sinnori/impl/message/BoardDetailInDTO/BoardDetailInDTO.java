@@ -24,6 +24,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  */
 public class BoardDetailInDTO extends AbstractMessage {
 	private long boardId;
+	private long boardNo;
 	private String writerId;
 	private String ip;
 
@@ -33,6 +34,13 @@ public class BoardDetailInDTO extends AbstractMessage {
 
 	public void setBoardId(long boardId) {
 		this.boardId = boardId;
+	}
+	public long getBoardNo() {
+		return boardNo;
+	}
+
+	public void setBoardNo(long boardNo) {
+		this.boardNo = boardNo;
 	}
 	public String getWriterId() {
 		return writerId;
@@ -55,6 +63,8 @@ public class BoardDetailInDTO extends AbstractMessage {
 		builder.append("class BoardDetailInDTO[");
 		builder.append("boardId=");
 		builder.append(boardId);
+		builder.append(", boardNo=");
+		builder.append(boardNo);
 		builder.append(", writerId=");
 		builder.append(writerId);
 		builder.append(", ip=");

@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
-%><%@ page import="kr.pe.sinnori.common.servlet.WebCommonStaticFinalVars" %><%
+%><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
 %><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="modulusHex" class="java.lang.String" scope="request" /><%
@@ -20,9 +20,9 @@
 		f.id.value =  "test00";
 		f.pwd.value =  "test1234$";
 		f.pwdconfirm.value =  f.pwd.value;
-		f.nickname.value = "별명";
-		f.hint.value = "질문";
-		f.answer.value = "답변";
+		f.nickname.value = "별명00";
+		f.pwdHint.value = "질문";
+		f.pwdAnswer.value = "답변";
 	}
 
 	window.onload = init;
@@ -40,14 +40,14 @@
 	
 		if(typeof(sessionStorage) == "undefined") {
 		    alert("Sorry! No HTML5 sessionStorage support..");
-		    return false;
+		    return;
 		}
 	
-		/*
+		
 		if (f.id.value == '') {
 		    alert("아이디를 넣어주세요.");
 		    f.id.focus();
-		    return false;
+		    return;
 		}
 		
 		if (!regexID.test(f.id.value)) {
@@ -60,7 +60,7 @@
 		if (f.pwd.value == '') {
 		    alert("비밀번호를 넣어주세요.");
 		    f.pwd.focus();
-		    return false;
+		    return;
 		}
 		
 		
@@ -95,7 +95,7 @@
 		if (f.pwdconfirm.value == '') {
 		    alert("비밀번호 확인을 넣어주세요.");
 		    f.pwdconfirm.focus();
-		    return false;
+		    return;
 		}
 		
 		if (f.pwdconfirm.value != f.pwd.value) {
@@ -103,52 +103,36 @@
 		    f.pwd.value='';	    
 		    f.pwdconfirm.value='';
 		    f.pwd.focus();	    
-		    return false;
+		    return;
 		}
 		
+		
+
 		if (f.nickname.value == '') {
 		    alert("별명을 넣어주세요.");
 		    f.nickname.focus();
-		    return false;
+		    return;
 		}
 	
+				
+		if (f.pwdHint.value == '') {
+		    alert("비밀번호 분실시 질문을 넣어주세요.");
+		    f.pwdHint.focus();
+		    return;
+		}		
 		
-		if (trimcheck(f.nickname.value)) {
-		    alert("별명의 앞뒤 공백을 제거 합니다.");
-		    f.nickname.value = trim(f.nickname.value);
-		    f.nickname.focus();
-		    return false;
-		}
-		
-		if (f.hint.value == '') {
-		    alert("질문을 넣어주세요.");
-		    f.question.focus();
-		    return false;
-		}
-		
-		if (trimcheck(f.question.value)) {
-		    alert("질문의 앞뒤 공백을 제거 합니다.");
-		    f.question.value = trim(f.question.value);
-		    f.question.focus();
-		    return false;
-		}
-			
+		if (f.pwdAnswer.value == '') {
+		    alert("비밀번호 분실시 답변을 넣어주세요.");
+		    f.pwdAnswer.focus();
+		    return;
+		}		
 		
 		if (f.answer.value == '') {
-		    alert("답변을 넣어주세요.");
+		    alert("Captcha 답변을 넣어주세요.");
 		    f.answer.focus();
-		    return false;
-		}	
-		
-		if (trimcheck(f.answer.value)) {
-		    alert("답변의 앞뒤 공백을 제거 합니다.");
-		    f.answer.value = trim(f.answer.value);
-		    f.answer.focus();
-		    return false;
+		    return;
 		}
-		*/
-		
-		
+			
 		
 		// FIXME!
 		var privateKey = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE%>);		
@@ -188,14 +172,16 @@
 		g.id.value = symmetricKeyObj.encrypt(f.id.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
 		g.pwd.value = symmetricKeyObj.encrypt(f.pwd.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
 		g.nickname.value = symmetricKeyObj.encrypt(f.nickname.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
-		g.hint.value = symmetricKeyObj.encrypt(f.hint.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
+		g.pwdHint.value = symmetricKeyObj.encrypt(f.pwdHint.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
+		g.pwdAnswer.value = symmetricKeyObj.encrypt(f.pwdAnswer.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
+
 		g.answer.value = symmetricKeyObj.encrypt(f.answer.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
 		
 		// alert(g.id.value);
 		
 		g.submit();
 		
-		return false;
+		return;
 	}
 //-->
 </script>
@@ -207,10 +193,11 @@
 <input type="hidden" name="id" />
 <input type="hidden" name="pwd" />
 <input type="hidden" name="nickname" />
-<input type="hidden" name="hint" />
+<input type="hidden" name="pwdHint" />
+<input type="hidden" name="pwdAnswer" />
 <input type="hidden" name="answer" />
 </form>
-<form method="post" name="frm" onsubmit="return chkform();">
+<form method="post" name="frm" onsubmit="return;">
 	<table border="0">
 	<tr>
 		<td colspan="2" align="center" style="font-size:24px">신놀이 회원 가입</td></tr>
@@ -232,14 +219,23 @@
 	</tr>
 	<tr>
 	    <td>비밀 번호 분실시 답변 힌트</td>
-	    <td><input type="text" name="hint" size="30" maxlength="30" /></td>
+	    <td><input type="text" name="pwdHint" size="30" maxlength="30" /></td>
 	</tr>
 	<tr> 
 	    <td>비밀 번호 분실시 답변</td>
-	    <td><textarea name="answer" rows="5" cols="30"></textarea></td>
+	    <td><textarea name="pwdAnswer" rows="5" cols="30"></textarea></td>
 	</tr>
 	<tr> 
-	    <td colspan="2" align="center"><input type="submit" value="확인" /></td>
+		<td>Captcha 이미지</td>
+	    <td align="left"><img src="/servlet/stickyImg" width="100%" height="75px" /></td>	    
+	</tr>
+	<tr> 
+	    <td>Captcha 답변</td>
+	    <td><input type="text" name="answer" size="20" maxlength="20" /></td>
+	</tr>
+
+	<tr> 
+	    <td colspan="2" align="center"><input type="button" onClick="chkform()" value="확인" /></td>
 	</tr>
 	</table>
 </form>

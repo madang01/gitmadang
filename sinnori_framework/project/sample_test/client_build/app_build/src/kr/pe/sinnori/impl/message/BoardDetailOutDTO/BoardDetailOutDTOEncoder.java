@@ -63,6 +63,14 @@ public final class BoardDetailOutDTOEncoder extends MessageEncoder {
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
+		singleItemEncoder.putValueToMiddleWriteObj(boardDetailOutDTOSingleItemPath, "boardId"
+					, 5 // itemTypeID
+					, "unsigned integer" // itemTypeName
+					, boardDetailOutDTO.getBoardId() // itemValue
+					, -1 // itemSizeForLang
+					, null // itemCharset,
+					, charsetOfProject
+					, middleWriteObj);
 		singleItemEncoder.putValueToMiddleWriteObj(boardDetailOutDTOSingleItemPath, "groupNo"
 					, 5 // itemTypeID
 					, "unsigned integer" // itemTypeName

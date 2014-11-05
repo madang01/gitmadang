@@ -126,7 +126,7 @@
 			<classpath>		    
 				<pathelement location="${webclass}" />
 				<fileset dir="${servletlib}">
-					<include name="**/servlet-api.jar" />
+					<include name="**/*-api.jar" />
 				</fileset>
 				<fileset dir="${corelib}\in">
 					<include name="**/*.jar" />
@@ -176,9 +176,12 @@
 					<include name="sinnori-weblib.jar" />
 				</fileset>
 				<fileset dir="${servletlib}/">
-					<include name="servlet-api.jar" />
+					<include name="*-api.jar" />
 				</fileset>
 				<fileset dir="${corelib}\ex">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${lib}\ex">
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>

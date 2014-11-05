@@ -14,7 +14,7 @@
      * 따라서 leftmenu 가 null 이면 사용자가 PageJump.jsp 를 직접 호출한 경우로 
 	 * targeturl 로 지정된 페이지가 본문 즉 좌측 메뉴가 된다.
 	 */
-
+	String topmenu = request.getParameter("topmenu");
 	String targeturl = request.getParameter("targeturl");
 	String leftmenu = (String)request.getAttribute("leftmenu");
 	if (null == leftmenu) {
@@ -22,54 +22,46 @@
 	}
 
 	int leftMenuNo = -1;
-    final String arryLeftTopMenuPage[][] =      {
-                { "신놀이 Ant Build 기술 문서", 
-"/PageJump.jsp?topmenu=3&targeturl=/techdoc/sinnori_ant_buil_techdoc.html",
-"/techdoc/sinnori_ant_buil_techdoc.html"},
 
-                { "신놀이 서버 기술 문서", 
-"/PageJump.jsp?topmenu=3&targeturl=/techdoc/sinnori_server_techdoc.html",
-"/techdoc/sinnori_server_techdoc.html"
-},
+	/** 0:좌측 메뉴명, 1:주 좌측 메뉴 링크 */
+	final String[][] leftMenuInfoList = {
+		{"신놀이 Ant Build 기술 문서", "/PageJump.jsp?topmenu="+topmenu+"&targeturl=/techdoc/sinnori_ant_buil_techdoc.html"},
+		{"신놀이 서버 기술 문서", "/PageJump.jsp?topmenu="+topmenu+"&targeturl=/techdoc/sinnori_server_techdoc.html"},
+		{"자바 클라이언트 API 기술 문서", "/PageJump.jsp?topmenu="+topmenu+"&targeturl=/techdoc/sinnori_client_api_techdoc.html"},
+		{"동기 파일 송수신 기술 문서", "/PageJump.jsp?topmenu="+topmenu+"&targeturl=/techdoc/sinnori_fileupdown_v1_techdoc.html"},
+		{"비동기 파일송수신 기술 문서", "/PageJump.jsp?topmenu="+topmenu+"&targeturl=/techdoc/sinnori_fileupdown_v2_techdoc.html"},
+		{"파일 송수신 클라이언트 기능 명세", "/PageJump.jsp?topmenu="+topmenu+"&targeturl=http://www.3rabbitz.com/c0b9eb893bd99490"},
+	};
 
-                { "자바 클라이언트 API 기술 문서", 
-"/PageJump.jsp?topmenu=3&targeturl=/techdoc/sinnori_client_api_techdoc.html",
-"/techdoc/sinnori_client_api_techdoc.html"},
+	/** 0:좌측 메뉴키, 1:좌측 메뉴 번호 */
+	final Object[][] leftMenuLinkInfoList = {
+		{"/techdoc/sinnori_ant_buil_techdoc.html",  0},
+		{"/techdoc/sinnori_server_techdoc.html",  1},
+		{"/techdoc/sinnori_client_api_techdoc.html",  2},
+		{"/techdoc/sinnori_fileupdown_v1_techdoc.html",  3},
+		{"/techdoc/sinnori_fileupdown_v2_techdoc.html",  4},
+		{"http://www.3rabbitz.com/c0b9eb893bd99490",  5},
+	};
 
-{ "동기 파일 송수신 기술 문서", 
-"/PageJump.jsp?topmenu=3&targeturl=/techdoc/sinnori_fileupdown_v1_techdoc.html",
-"/techdoc/sinnori_fileupdown_v1_techdoc.html"},
-
-{ "비동기 파일송수신 기술 문서", 
-"/PageJump.jsp?topmenu=3&targeturl=/techdoc/sinnori_fileupdown_v2_techdoc.html",
-"/techdoc/sinnori_fileupdown_v2_techdoc.html"},
-
-{ "파일 송수신 클라이언트 기능 명세", 
-"/PageJump.jsp?topmenu=3&targeturl=http://www.3rabbitz.com/c0b9eb893bd99490",
-"http://www.3rabbitz.com/c0b9eb893bd99490"},
-
-    };
-
-	for (int i=0; i < arryLeftTopMenuPage.length; i++) {
-		if (arryLeftTopMenuPage[i][2].equals(leftmenu)) {
-			leftMenuNo = i;
+	for (int i=0; i < leftMenuLinkInfoList.length; i++) {
+		if (leftMenuLinkInfoList[i][0].equals(leftmenu)) {
+			leftMenuNo = (Integer)leftMenuLinkInfoList[i][1];
 			break;
 		}
 	}
-
 
 %>
 <div id="sidemenu"><div id="smtop">&nbsp;</div>
 <div id="smtitle"><h1><%
 	if (-1 == leftMenuNo) out.print("외부 링크");
-	else out.print(arryLeftTopMenuPage[leftMenuNo][0]);
+	else out.print(leftMenuInfoList[leftMenuNo][0]);
 %></h1></div> <!-- side menu current page title -->
 	<ul class="normal"><%
-	for (int i=0; i < arryLeftTopMenuPage.length; i++) {
+	for (int i=0; i < leftMenuInfoList.length; i++) {
 %>
-		<li><a href="#" onClick="goURL('<%=arryLeftTopMenuPage[i][1]%>');"<%
+		<li><a href="#" onClick="goURL('<%=leftMenuInfoList[i][1]%>');"<%
 	if (i == leftMenuNo) out.print(" class=\"currentpage\"");
-%>><%=arryLeftTopMenuPage[i][0]%></a></li><%
+%>><%=leftMenuInfoList[i][0]%></a></li><%
 	}
 %>
 	</ul>

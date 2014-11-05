@@ -55,6 +55,16 @@ public final class BoardDetailInDTODecoder extends MessageDecoder {
 		, charsetOfProject
 		, middleReadObj));
 
+		boardDetailInDTO.setBoardNo((Long)
+		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
+		, "boardNo" // itemName
+		, 5 // itemTypeID
+		, "unsigned integer" // itemTypeName
+		, -1 // itemSizeForLang
+		, null // itemCharset,
+		, charsetOfProject
+		, middleReadObj));
+
 		boardDetailInDTO.setWriterId((String)
 		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
 		, "writerId" // itemName

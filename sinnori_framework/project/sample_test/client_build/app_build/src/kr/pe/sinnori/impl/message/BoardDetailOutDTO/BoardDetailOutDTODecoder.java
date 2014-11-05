@@ -55,6 +55,16 @@ public final class BoardDetailOutDTODecoder extends MessageDecoder {
 		, charsetOfProject
 		, middleReadObj));
 
+		boardDetailOutDTO.setBoardId((Long)
+		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
+		, "boardId" // itemName
+		, 5 // itemTypeID
+		, "unsigned integer" // itemTypeName
+		, -1 // itemSizeForLang
+		, null // itemCharset,
+		, charsetOfProject
+		, middleReadObj));
+
 		boardDetailOutDTO.setGroupNo((Long)
 		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
 		, "groupNo" // itemName

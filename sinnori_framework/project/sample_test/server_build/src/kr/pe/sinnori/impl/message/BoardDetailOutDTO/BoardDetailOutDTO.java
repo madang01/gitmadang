@@ -24,6 +24,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  */
 public class BoardDetailOutDTO extends AbstractMessage {
 	private long boardNo;
+	private long boardId;
 	private long groupNo;
 	private int groupSeq;
 	private long parentNo;
@@ -47,6 +48,13 @@ public class BoardDetailOutDTO extends AbstractMessage {
 
 	public void setBoardNo(long boardNo) {
 		this.boardNo = boardNo;
+	}
+	public long getBoardId() {
+		return boardId;
+	}
+
+	public void setBoardId(long boardId) {
+		this.boardId = boardId;
 	}
 	public long getGroupNo() {
 		return groupNo;
@@ -167,6 +175,8 @@ public class BoardDetailOutDTO extends AbstractMessage {
 		builder.append("class BoardDetailOutDTO[");
 		builder.append("boardNo=");
 		builder.append(boardNo);
+		builder.append(", boardId=");
+		builder.append(boardId);
 		builder.append(", groupNo=");
 		builder.append(groupNo);
 		builder.append(", groupSeq=");

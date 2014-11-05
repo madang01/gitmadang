@@ -18,6 +18,7 @@ package kr.pe.sinnori.servlet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import kr.pe.sinnori.client.ClientProject;
 import kr.pe.sinnori.client.ClientProjectManager;
@@ -33,6 +34,7 @@ import kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars;
 import kr.pe.sinnori.impl.message.BinaryPublicKey.BinaryPublicKey;
 import kr.pe.sinnori.impl.message.MemberRegisterWithSessionKey.MemberRegisterWithSessionKey;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
+import nl.captcha.Captcha;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -77,30 +79,84 @@ public class MemberSvl extends AbstractServlet {
 			String parmId = req.getParameter("id");
 			String parmPwd = req.getParameter("pwd");
 			String parmNickname = req.getParameter("nickname");
-			String parmHint = req.getParameter("hint");
+			String parmPwdHint = req.getParameter("pwdHint");
+			String parmPwdAnswer = req.getParameter("pwdAnswer");
 			String parmAnswer = req.getParameter("answer");
-
-			// FIXME!
-			// parmSessionKey
-			// ="54f5499e2f6c40ec9a35361c4348d798acc3c31310ae949ae2f4e468ab9275aa34fe2452b194c0994d351d6124dd00eb6fdab614add4e661603e56dcccedf8704328f8ae907d4e8529d6457a628402bee0eb641860b10a0c31ceb6c535aeb86c7afa8534d2b486fb383f448394a8630b3620c8938c6b69d410e1d8f7f3ed1d62";
-			String parmPrivateKey = req.getParameter("privateKey");
-			// String parmSessionKeyHex = req.getParameter("sessionKeyHex");
-			// byte[] tmpBytes =
-			// sessionKeyManger.encryptUsingPublicKey(HexUtil.hexToByteArray(parmPrivateKey));
-			// parmSessionKey = Base64.encodeBytes(tmpBytes);
-			log.info(String.format("parm privateKey=[%s]", parmPrivateKey));
-			// log.info("parm sessionKeyHex=[%s]",parmSessionKeyHex);
-			// log.info("enc sessionKeyHex=[%s]",
-			// HexUtil.byteArrayAllToHex(tmpBytes));
-
+			
 			log.info(String.format("parm sessionkeyBase64=[%s]", parmSessionKeyBase64));
 			log.info(String.format("parm ivBase64=[%s]", parmIVBase64));
-
 			log.info(String.format("parm id=[%s]", parmId));
 			log.info(String.format("parm pwd=[%s]", parmPwd));
 			log.info(String.format("parm nickname=[%s]", parmNickname));
-			log.info(String.format("parm hint=[%s]", parmHint));
+			log.info(String.format("parm pwdHint=[%s]", parmPwdHint));
+			log.info(String.format("parm pwdAnswer=[%s]", parmPwdAnswer));
 			log.info(String.format("parm answer=[%s]", parmAnswer));
+			
+			if (null == parmSessionKeyBase64) {
+				String errorMessage = "세션키 값을 입력해 주세요.";
+				log.warn(errorMessage);
+				
+				printMessagePage(req, res, errorMessage, errorMessage);
+				return;
+			}
+			
+			if (null == parmIVBase64) {
+				String errorMessage = "IV 값을 입력해 주세요.";
+				log.warn(errorMessage);
+				
+				printMessagePage(req, res, errorMessage, errorMessage);
+				return;
+			}
+			
+			if (null == parmId) {
+				String errorMessage = "아이디 값을 입력해 주세요.";
+				log.warn(errorMessage);
+				
+				printMessagePage(req, res, errorMessage, errorMessage);
+				return;
+			}
+			
+			if (null == parmPwd) {
+				String errorMessage = "비밀번호 값을 입력해 주세요.";
+				log.warn(errorMessage);
+				
+				printMessagePage(req, res, errorMessage, errorMessage);
+				return;
+			}
+			
+			if (null == parmNickname) {
+				String errorMessage = "별명 값을 입력해 주세요.";
+				log.warn(errorMessage);
+				
+				printMessagePage(req, res, errorMessage, errorMessage);
+				return;
+			}
+			
+			if (null == parmPwdHint) {
+				String errorMessage = "비밀번호 분실시 힌트 값을 입력해 주세요.";
+				log.warn(errorMessage);
+				
+				printMessagePage(req, res, errorMessage, errorMessage);
+				return;
+			}
+			
+			if (null == parmPwdAnswer) {
+				String errorMessage = "비밀번호 분실시 답변 값을 입력해 주세요.";
+				log.warn(errorMessage);
+				
+				printMessagePage(req, res, errorMessage, errorMessage);
+				return;
+			}
+			
+			if (null == parmAnswer) {
+				String errorMessage = "Captcha 값을 입력해 주세요.";
+				log.warn(errorMessage);
+				
+				printMessagePage(req, res, errorMessage, errorMessage);
+				return;
+			}
+			
+			
 			
 			MessageResult messageResultOutObj = new MessageResult();
 			messageResultOutObj.setTaskMessageID("");
@@ -132,8 +188,72 @@ public class MemberSvl extends AbstractServlet {
 			String nickname = webUserSymmetricKey
 					.decryptStringBase64(parmNickname);
 			String pwdHint = webUserSymmetricKey
-					.decryptStringBase64(parmHint);
-			String pwdAnswer = webUserSymmetricKey.decryptStringBase64(parmAnswer);
+					.decryptStringBase64(parmPwdHint);
+			String pwdAnswer = webUserSymmetricKey.decryptStringBase64(parmPwdAnswer);
+			
+			String answer = webUserSymmetricKey.decryptStringBase64(parmAnswer);
+			
+			
+			
+			
+			if (userId.equals("")) {
+				String errorMessage = "아이디 값을 입력해 주세요.";
+				log.warn(errorMessage);
+				
+				printMessagePage(req, res, errorMessage, errorMessage);
+				return;
+			}
+			
+			if (password.equals("")) {
+				String errorMessage = "비밀번호 값을 입력해 주세요.";
+				log.warn(errorMessage);
+				
+				printMessagePage(req, res, errorMessage, errorMessage);
+				return;
+			}
+			
+			if (nickname.equals("")) {
+				String errorMessage = "별명 값을 입력해 주세요.";
+				log.warn(errorMessage);
+				
+				printMessagePage(req, res, errorMessage, errorMessage);
+				return;
+			}
+			
+			if (pwdHint.equals("")) {
+				String errorMessage = "비밀번호 분실시 힌트 값을 입력해 주세요.";
+				log.warn(errorMessage);
+				
+				printMessagePage(req, res, errorMessage, errorMessage);
+				return;
+			}
+			
+			if (pwdAnswer.equals("")) {
+				String errorMessage = "비밀번호 분실시 답변 값을 입력해 주세요.";
+				log.warn(errorMessage);
+				
+				printMessagePage(req, res, errorMessage, errorMessage);
+				return;
+			}
+			
+			if (answer.equals("")) {
+				String errorMessage = "Captcha 값을 입력해 주세요.";
+				log.warn(errorMessage);
+				
+				printMessagePage(req, res, errorMessage, errorMessage);
+				return;
+			}
+			
+			HttpSession httpSession = req.getSession();
+			Captcha captcha = (Captcha) httpSession.getAttribute(Captcha.NAME);
+			if (!captcha.isCorrect(answer)) {
+				
+				String errorMessage = String.format("사용자가 입력한 Captcha 값[%s]과 내부 Captcha 값[%s]이 다릅니다.", answer, captcha.getAnswer());
+				log.warn(errorMessage);
+				
+				printMessagePage(req, res, "입력한 Captcha 값이 틀렸습니다.", errorMessage);
+				return;
+			}
 
 			log.info(String.format("userId=[%s]", userId));
 

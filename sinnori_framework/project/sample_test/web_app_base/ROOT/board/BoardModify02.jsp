@@ -2,10 +2,12 @@
 %><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
 %><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
+%><jsp:useBean id="parmIVBase64" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="parmBoardId" class="java.lang.String" scope="request" /><%
+%><jsp:useBean id="parmBoardNo" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="messageResultOutObj" class="kr.pe.sinnori.impl.message.MessageResult.MessageResult" scope="request" />
-<h1>자유 게시판 - 댓글 저장 결과</h1>
+<h1>자유 게시판 - 글 수정 결과</h1>
 <br/><%
 	if (null != errorMessage && !errorMessage.equals("")) {
 %>
@@ -33,11 +35,11 @@
 <script type="text/javascript" src="/js/cryptoJS/components/cipher-core-min.js"></script>
 <script type="text/javascript">
 	function goList() {
-		var g = document.listfrm;
+		var g = document.gofrm;		
 		g.submit();
 	}
 </script>
-<form name=listfrm method="post" action="/servlet/BoardList">
+<form name=gofrm method="post" action="/servlet/BoardList">
 <input type="hidden" name="topmenu" value="<%=topmenu%>" />
 <input type="hidden" name="boardId" value="<%=parmBoardId%>" />
 </form>
@@ -52,7 +54,7 @@
 		</li>
 		<li>
 			<dl>
-				<dt>처리 결과 내용</dt>
+				<dt>글 번호(<%=parmBoardNo%>) 수정 처리 결과 내용</dt>
 				<dd><%=escapeHtml(messageResultOutObj.getResultMessage(), true)%></dd>
 			</dl>
 		</li>

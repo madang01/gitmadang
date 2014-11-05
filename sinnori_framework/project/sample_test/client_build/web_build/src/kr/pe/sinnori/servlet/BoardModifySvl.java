@@ -26,6 +26,8 @@ import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.weblib.AbstractAuthServlet;
 import kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars;
+import kr.pe.sinnori.impl.message.BoardDetailInDTO.BoardDetailInDTO;
+import kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO;
 import kr.pe.sinnori.impl.message.BoardModifyInDTO.BoardModifyInDTO;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
@@ -56,12 +58,106 @@ public class BoardModifySvl extends AbstractAuthServlet {
 			req.setAttribute("errorMessage", errorMessage);
 			printJspPage(req, res, goPage);
 			return;
-		}
-		
+		}		
 		
 		if (parmPageMode.equals("view")) {
 			goPage = "/board/BoardModify01.jsp";
-			req.setAttribute("errorMessage", "");
+			
+			String parmBoardId = req.getParameter("boardId");
+			if (null == parmBoardId) {
+				String errorMessage = "게시판 식별자를 넣어주세요.";
+				req.setAttribute("errorMessage", errorMessage);
+				printJspPage(req, res, goPage);
+				return;
+			}
+			
+			long boardId = 0L;
+			try {
+				boardId = Long.parseLong(parmBoardId);
+			}catch (NumberFormatException nfe) {
+				String errorMessage = new StringBuilder("자바 long 타입 변수인 게시판 식별자 값[")
+				.append(parmBoardId).append("]이 잘못되었습니다.").toString();
+				req.setAttribute("errorMessage", errorMessage);
+				printJspPage(req, res, goPage);
+				return;
+			}
+			
+			if (boardId <= 0) {
+				String errorMessage = new StringBuilder("게시판 식별자 값[")
+				.append(parmBoardId).append("]은 0 보다 커야합니다.").toString();
+				req.setAttribute("errorMessage", errorMessage);
+				printJspPage(req, res, goPage);
+				return;
+			}
+			
+			String parmBoardNo = req.getParameter("boardNo");
+			if (null == parmBoardNo) {
+				String errorMessage = "게시판 번호를 넣어주세요.";
+				req.setAttribute("errorMessage", errorMessage);
+				printJspPage(req, res, goPage);
+				return;
+			}
+			
+			
+			long boardNo = 0L;
+			try {
+				boardNo = Long.parseLong(parmBoardNo);
+			}catch (NumberFormatException nfe) {
+				String errorMessage = new StringBuilder("자바 long 타입 변수인 게시판 번호 값[")
+				.append(parmBoardId).append("]이 잘못되었습니다.").toString();
+				req.setAttribute("errorMessage", errorMessage);
+				printJspPage(req, res, goPage);
+				return;
+			}
+			
+			if (boardNo <= 0) {
+				String errorMessage = new StringBuilder("게시판 번호 값[")
+				.append(parmBoardId).append("]은 0 보다 커야합니다.").toString();
+				req.setAttribute("errorMessage", errorMessage);
+				printJspPage(req, res, goPage);
+				return;
+			}
+			
+			HttpSession httpSession = req.getSession();
+			String userId = (String) httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_USERID_NAME);
+			String projectName = System.getProperty(CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);
+			
+			BoardDetailInDTO inObj = new BoardDetailInDTO();
+			inObj.setBoardId(boardId);
+			inObj.setBoardNo(boardNo);
+			inObj.setWriterId(userId);
+			inObj.setIp(req.getRemoteAddr());
+			
+			String errorMessage = "";
+			ClientProject clientProject = ClientProjectManager.getInstance().getClientProject(projectName);
+			AbstractMessage messageFromServer = clientProject.sendSyncInputMessage(inObj);
+			if (messageFromServer instanceof BoardDetailOutDTO) {
+				BoardDetailOutDTO outObj = (BoardDetailOutDTO)messageFromServer;				
+				
+				req.setAttribute("boardDetailOutDTO", outObj);
+			} else {				
+				if (messageFromServer instanceof MessageResult) {
+					MessageResult messageResultOutObj = (MessageResult)messageFromServer;
+					errorMessage = messageResultOutObj.getResultMessage();
+					
+					log.warn("입력 메시지[{}]의 응답 메시지로 MessageResult 메시지 도착, 응답 메시지=[{}]", inObj.toString(), messageFromServer.toString());
+				} else {
+					errorMessage = "게시판 상세 조회가 실패하였습니다.";
+					
+					if (messageFromServer instanceof SelfExn) {
+						log.warn("입력 메시지[{}]의 응답 메시지로 SelfExn 메시지 도착, 응답 메시지=[{}]", inObj.toString(), messageFromServer.toString());
+					} else {
+						log.warn("입력 메시지[{}]의 응답 메시지로 알 수 없는 메시지 도착, 응답 메시지=[{}]", inObj.toString(), messageFromServer.toString());
+					}
+				}				
+			}
+			
+			// FIXME!
+			log.info("parmBoardNo={}", parmBoardNo);
+			
+			req.setAttribute("parmBoardId", parmBoardId);
+			req.setAttribute("parmBoardNo", parmBoardNo);
+			req.setAttribute("errorMessage", errorMessage);
 			printJspPage(req, res, goPage);
 			return;
 		} else {			
@@ -161,9 +257,9 @@ public class BoardModifySvl extends AbstractAuthServlet {
 			AbstractMessage messageFromServer = clientProject.sendSyncInputMessage(inObj);
 			if (messageFromServer instanceof MessageResult) {
 				MessageResult outObj = (MessageResult)messageFromServer;					
-				req.setAttribute("messageResult", outObj);
+				req.setAttribute("messageResultOutObj", outObj);
 			} else {				
-				errorMessage = "게시판 댓글 등록이 실패하였습니다.";
+				errorMessage = "게시판 글 수정 처리가 실패하였습니다.";
 				
 				if (messageFromServer instanceof SelfExn) {
 					log.warn("입력 메시지[{}]의 응답 메시지로 SelfExn 메시지 도착, 응답 메시지=[{}]", inObj.toString(), messageFromServer.toString());
@@ -172,6 +268,8 @@ public class BoardModifySvl extends AbstractAuthServlet {
 				}
 			}			
 			
+			req.setAttribute("parmBoardId", parmBoardId);	
+			req.setAttribute("parmBoardNo", parmBoardNo);
 			req.setAttribute("errorMessage", errorMessage);
 			printJspPage(req, res, goPage);
 		}

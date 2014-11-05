@@ -1,16 +1,10 @@
-<%@ page language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><%@ page import="org.apache.commons.lang3.StringEscapeUtils" %><%
+<%@ page extends="kr.pe.sinnori.common.weblib.AbstractJSPBase" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
 %><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="parmBoardId" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="messageResultOutObj" class="kr.pe.sinnori.impl.message.MessageResult.MessageResult" scope="request" /><%!
-	public String escapeHtml(String str) {
-		if (null == str) return "";
-		return StringEscapeUtils.escapeHtml4(str).replaceAll("\r\n|\n", "<br/>");
-	}
-%>
+%><jsp:useBean id="messageResultOutObj" class="kr.pe.sinnori.impl.message.MessageResult.MessageResult" scope="request" />
 <h1>자유 게시판 - 글 저장 결과</h1>
 <br/><%
 	if (null != errorMessage && !errorMessage.equals("")) {
@@ -20,7 +14,7 @@
 		<li>
 			<dl>
 				<dt>에러</dt>
-				<dd><%=escapeHtml(errorMessage)%></dd>
+				<dd><%=escapeHtml(errorMessage, true)%></dd>
 			</dl>
 		</li>
 		</ul>		
@@ -39,18 +33,13 @@
 <script type="text/javascript" src="/js/cryptoJS/components/cipher-core-min.js"></script>
 <script type="text/javascript">
 	function goList() {
-		var g = document.gofrm;
-		g.sessionkeyBase64.value = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_SESSIONKEY_NAME%>');
-		var iv = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_IV_SIZE%>);
-		g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);
+		var g = document.listfrm;
 		g.submit();
 	}
 </script>
-<form name=gofrm method="post" action="/servlet/BoardList">
+<form name=listfrm method="post" action="/servlet/BoardList">
 <input type="hidden" name="topmenu" value="<%=topmenu%>" />
 <input type="hidden" name="boardId" value="<%=parmBoardId%>" />
-<input type="hidden" name="sessionkeyBase64" />
-<input type="hidden" name="ivBase64" />
 </form>
 <form name=frm onsubmit="return false">
 	<div>
@@ -64,7 +53,7 @@
 		<li>
 			<dl>
 				<dt>처리 결과 내용</dt>
-				<dd><%=escapeHtml(messageResultOutObj.getResultMessage())%></dd>
+				<dd><%=escapeHtml(messageResultOutObj.getResultMessage(), true)%></dd>
 			</dl>
 		</li>
 		<li>

@@ -10,7 +10,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 public class SinnoriTxtFileToJavaStringMain {
 	public static final String lineSeparator = System.getProperty("line.separator");

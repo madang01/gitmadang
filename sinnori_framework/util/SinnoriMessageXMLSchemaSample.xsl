@@ -46,6 +46,7 @@
 								<xs:enumeration value="fixed length byte[]" />
 								<xs:enumeration value="java sql date" />
 								<xs:enumeration value="java sql timestamp" />
+								<xs:enumeration value="boolean" />
 							</xs:restriction>
 						</xs:simpleType>
 					</xs:attribute>

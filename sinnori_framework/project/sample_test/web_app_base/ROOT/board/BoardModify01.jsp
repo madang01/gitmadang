@@ -2,8 +2,11 @@
 %><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
 %><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
+%><jsp:useBean id="parmIVBase64" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="parmBoardId" class="java.lang.String" scope="request" />
+%><jsp:useBean id="parmBoardId" class="java.lang.String" scope="request" /><%
+%><jsp:useBean id="parmBoardNo" class="java.lang.String" scope="request" /><%
+%><jsp:useBean id="boardDetailOutDTO" class="kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO" scope="request" />
 <script type="text/javascript" src="/js/jsbn/jsbn.js"></script>
 <script type="text/javascript" src="/js/jsbn/jsbn2.js"></script>
 <script type="text/javascript" src="/js/jsbn/prng4.js"></script>
@@ -14,7 +17,7 @@
 <script type="text/javascript" src="/js/cryptoJS/rollups/aes.js"></script>
 <script type="text/javascript" src="/js/cryptoJS/components/core-min.js"></script>
 <script type="text/javascript" src="/js/cryptoJS/components/cipher-core-min.js"></script>
-<h1>자유 게시판 - 글 작성하기</h1>
+<h1>자유 게시판 - 수정 하기</h1>
 <br/><%
 	if (null != errorMessage && !errorMessage.equals("")) {
 %>
@@ -32,6 +35,11 @@
 %>
 <script type="text/javascript">
 	function save() {
+		if(typeof(sessionStorage) == "undefined") {
+		    alert("Sorry! No HTML5 sessionStorage support..");
+		    return;
+		}
+
 		var f = document.frm;
 		
 		if ('' == f.subject.value) {
@@ -57,14 +65,20 @@
 	}
 
 	function goList() {
+		if(typeof(sessionStorage) == "undefined") {
+		    alert("Sorry! No HTML5 sessionStorage support..");
+		    return;
+		}
+
 		var g = document.listfrm;
 		g.submit();
 	}
 </script>
-<form name=gofrm method="post" action="/servlet/BoardWrite">
+<form name=gofrm method="post" action="/servlet/BoardModify">
 <input type="hidden" name="topmenu" value="<%=topmenu%>" />
 <input type="hidden" name="pageMode" value="proc" />
 <input type="hidden" name="boardId" value="<%=parmBoardId%>" />
+<input type="hidden" name="boardNo" value="<%=parmBoardNo%>" />
 <input type="hidden" name="subject" />
 <input type="hidden" name="content" />
 <input type="hidden" name="sessionkeyBase64" />
@@ -81,13 +95,13 @@
 		<li>
 			<dl>
 				<dt>제목</dt>
-				<dd><input type="text" name="subject" size="50" /></dd>
+				<dd><input type="text" name="subject" size="50" value="<%=escapeHtml(boardDetailOutDTO.getSubject(), false)%>" /></dd>
 			</dl>
 		</li>
 		<li>
 			<dl>
 				<dt>내용</dt>
-				<dd><textarea name="content" style="width: 500px; height: 220px;"></textarea></dd>
+				<dd><textarea name="content" style="width: 500px; height: 220px;"><%=escapeHtml(boardDetailOutDTO.getContent(), false)%></textarea></dd>
 			</dl>
 		</li>
 		<li>

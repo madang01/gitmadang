@@ -14,14 +14,12 @@
      * 따라서 leftmenu 가 null 이면 사용자가 PageJump.jsp 를 직접 호출한 경우로 
 	 * targeturl 로 지정된 페이지가 본문 즉 좌측 메뉴가 된다.
 	 */
-
+	String topmenu = request.getParameter("topmenu");
 	String targeturl = request.getParameter("targeturl");
 	String leftmenu = (String)request.getAttribute("leftmenu");
 	if (null == leftmenu) {
 		leftmenu = targeturl;
 	}
-
-	
 
 	int leftMenuNo = -1;
 	

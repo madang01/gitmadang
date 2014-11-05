@@ -1,25 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-  <appender name="logfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>${sinnori.logPath}/logger.log</file>
-    <encoder>
-      <pattern>%-4relative [%thread] %-5level %logger{35} - %msg%n</pattern>
-    </encoder>
-    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-       <fileNamePattern>logFile.%d{yyyy-MM-dd}.log</fileNamePattern>
-      <maxHistory>15</maxHistory>
-    </rollingPolicy>
-  </appender>
-  <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder>
-      <pattern>aaa %d %-5level [%thread] %logger{35}: %msg\(%F:%L\)%n</pattern>
-    </encoder>
-  </appender>
-  <logger name="kr.pe.sinnori" level="INFO">
-    <appender-ref ref="logfile"/>
-  </logger>
-  <root level="INFO">
-    <appender-ref ref="console"/>
-  </root>
-	<logger name="kr.pr.sinnori.testweb" level="DEBUG" />
+	<appender name="logfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${sinnori.logPath}/logger.log</file>
+		<encoder>
+			<pattern>%-4relative [%thread] %-5level %logger{35} - %msg%n</pattern>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${sinnori.logPath}/logFile.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<maxHistory>15</maxHistory>
+		</rollingPolicy>
+	</appender>
+	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d %-5level [%thread] %logger{35}: %msg\(%F:%L\)%n</pattern>
+		</encoder>
+	</appender>	
+	
+	<root level="INFO">
+		<appender-ref ref="console"/>
+	</root>
+
+	<logger name="kr.pe.sinnori" level="INFO">
+		<appender-ref ref="logfile"/>
+	</logger>
+
+	<!-- mybatis mapper xml file 에서 tag "mapper" attribte namespace 에서 지정하는 이름 -->
+	<logger name="kr.pr.sinnori.testweb" level="DEBUG">
+		<appender-ref ref="logfile"/>
+	</logger>
 </configuration>

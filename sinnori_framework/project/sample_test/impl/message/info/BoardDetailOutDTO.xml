@@ -18,7 +18,8 @@
 <direction>FROM_SERVER_TO_CLINET</direction>
 <desc>게시판 상세 조회 응답 메시지, Mybatis DTO</desc>
 <singleitem name="boardNo" type="unsigned integer" />
-<singleitem name="groupNo" type="unsigned integer" />	
+<singleitem name="boardId" type="unsigned integer" />
+<singleitem name="groupNo" type="unsigned integer" />
 <singleitem name="groupSeq" type="unsigned short" />
 <singleitem name="parentNo" type="unsigned integer" />
 <singleitem name="depth" type="unsigned byte" />
