@@ -21,7 +21,7 @@ import kr.pe.sinnori.common.lib.CommonType;
 
 /**
  * 서버 코덱 자바 소스 파일 빌더
- * @author "Jonghoon Won"
+ * @author "Won Jonghoon"
  *
  */
 public class ServerCodecSourceFileBuilder extends AbstractSourceFileBuildre {

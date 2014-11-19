@@ -33,7 +33,7 @@ import kr.pe.sinnori.server.io.LetterToClient;
 
 /**
  * 클라이언트로 보내는 편지 배달부. 서버 비지니스 로직 호출할때 마다 할당 된다. 
- * @author Jonghoon won
+ * @author Won Jonghoon
  *
  */
 public class LetterSender implements CommonRootIF {

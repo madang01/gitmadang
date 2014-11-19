@@ -21,6 +21,6 @@
 <singleitem name="boardNo" type="unsigned integer" />
 <singleitem name="subject" type="us pascal string" />
 <singleitem name="content" type="si pascal string" />
-<singleitem name="writerId" type="ub pascal string" />
+<singleitem name="userId" type="ub pascal string" />
 <singleitem name="ip" type="ub pascal string" />
 </sinnori_message>

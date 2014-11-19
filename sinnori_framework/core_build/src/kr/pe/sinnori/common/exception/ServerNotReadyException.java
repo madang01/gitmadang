@@ -20,7 +20,7 @@ package kr.pe.sinnori.common.exception;
 /**
  * 서버 접속 실패시 던지는 예외
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 

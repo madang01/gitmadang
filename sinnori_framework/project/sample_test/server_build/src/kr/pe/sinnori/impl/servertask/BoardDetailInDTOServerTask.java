@@ -2,9 +2,9 @@ package kr.pe.sinnori.impl.servertask;
 
 import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.serverlib.ValueChecker;
 import kr.pe.sinnori.impl.message.BoardDetailInDTO.BoardDetailInDTO;
 import kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO;
+import kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO.AttachFile;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
 import kr.pe.sinnori.impl.mybatis.SqlSessionFactoryManger;
 import kr.pe.sinnori.server.LoginManagerIF;
@@ -28,34 +28,7 @@ public class BoardDetailInDTOServerTask extends AbstractServerTask {
 			sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory(serverProjectConfig);
 		}
 		
-		BoardDetailInDTO inObj = (BoardDetailInDTO)messageFromClient;
-		
-		try {
-			ValueChecker.checkValidWriterId(inObj.getWriterId());
-		} catch(RuntimeException e) {
-			log.warn(e.getMessage(), e);
-			
-			MessageResult messageResultOutObj = new MessageResult();
-			messageResultOutObj.setIsSuccess(false);
-			messageResultOutObj.setTaskMessageID(inObj.getMessageID());
-			messageResultOutObj.setResultMessage(e.getMessage());
-			letterSender.addSyncMessage(messageResultOutObj);
-			return;
-		}
-		
-		
-		try {
-			ValueChecker.checkValidIP(inObj.getIp());
-		} catch(RuntimeException e) {
-			log.warn(e.getMessage(), e);
-			
-			MessageResult messageResultOutObj = new MessageResult();
-			messageResultOutObj.setIsSuccess(false);
-			messageResultOutObj.setTaskMessageID(inObj.getMessageID());
-			messageResultOutObj.setResultMessage(e.getMessage());
-			letterSender.addSyncMessage(messageResultOutObj);
-			return;
-		}
+		BoardDetailInDTO inObj = (BoardDetailInDTO)messageFromClient;		
 		
 		BoardDetailOutDTO outObj = null;
 		
@@ -76,35 +49,45 @@ public class BoardDetailInDTOServerTask extends AbstractServerTask {
 				
 				letterSender.addSyncMessage(messageResultOutObj);
 			} else {
+				java.util.List<AttachFile> attachFileList = outObj.getAttachFileList();
+				if (null != attachFileList) {
+					outObj.setAttachFileCnt(attachFileList.size());
+				} else {
+					outObj.setAttachFileCnt(0);
+				}
+				
 				if (outObj.getBoardId() != inObj.getBoardId()) {
 					session.commit();
 					
-					String errorMessage = String.format("게시판 상세 조회 결과로 얻은 게시판 식별자와 입력으로 받은 게시판 식별자가 상이합니다. inObj=[%s]", 
-							inObj.toString());
-					log.warn(errorMessage);
+					String errorMessage = "게시판 상세 조회 결과로 얻은 게시판 식별자와 입력으로 받은 게시판 식별자가 상이합니다.";
+					log.warn("{}, inObj=", errorMessage, inObj.toString());
 					
 					MessageResult messageResultOutObj = new MessageResult();
 					messageResultOutObj.setIsSuccess(false);
 					messageResultOutObj.setTaskMessageID(inObj.getMessageID());
-					messageResultOutObj.setResultMessage("게시판 상세 조회 결과로 얻은 게시판 식별자와 입력으로 받은 게시판 식별자가 상이합니다.");
+					messageResultOutObj.setResultMessage(errorMessage);
 					
 					letterSender.addSyncMessage(messageResultOutObj);
 				} else {
-					int resultOfUpdate = session.update("kr.pr.sinnori.testweb.updateBoardDetail", inObj);
+					
+					int resultOfUpdate = session.update("kr.pr.sinnori.testweb.updateBoardViewCnt", inObj);
 					if (resultOfUpdate > 0) {						
-						session.commit();
+						session.commit();					
+						
+						/** 조회수 증가 성공후 조회수 보정 */
+						outObj.setViewCount(outObj.getViewCount()+1);
 						
 						letterSender.addSyncMessage(outObj);
 					} else {
 						session.rollback();
 						
-						String errorMessage = String.format("게시판 상세 조회후 조회수 증가 실패, inObj=[%s]", inObj.toString());
-						log.warn(errorMessage);
+						String errorMessage = "게시판 상세 조회후 조회수 증가 실패";
+						log.warn("{}, inObj=", errorMessage, inObj.toString());
 						
 						MessageResult messageResultOutObj = new MessageResult();
 						messageResultOutObj.setIsSuccess(false);
 						messageResultOutObj.setTaskMessageID(inObj.getMessageID());
-						messageResultOutObj.setResultMessage("게시판 상세 조회후 조회수 증가 실패");
+						messageResultOutObj.setResultMessage(errorMessage);
 						
 						letterSender.addSyncMessage(messageResultOutObj);
 					}

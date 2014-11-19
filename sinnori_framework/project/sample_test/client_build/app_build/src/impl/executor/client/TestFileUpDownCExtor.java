@@ -63,7 +63,7 @@ import kr.pe.sinnori.util.AbstractClientExecutor;
  * (2) 원본 파일 크기가 파일 전송 버퍼 크기의 3배인 경우
  * (3) 원본 파일 크기가 파일 전송 버퍼 크기의 3배를 약간 넘는 크기인 경우
  *  </pre>
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public class TestFileUpDownCExtor extends AbstractClientExecutor {

@@ -49,7 +49,7 @@ import kr.pe.sinnori.common.protocol.ReceivedLetter;
  * </pre>
  * 
  * @see ShareAsynConnection
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class PrivateMailbox implements CommonRootIF {

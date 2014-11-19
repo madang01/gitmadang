@@ -26,7 +26,7 @@ import kr.pe.sinnori.common.lib.CommonRootIF;
 
 /**
  * 파일 목록을 보여주는 트리 노드의 렌더러 클래스
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 @SuppressWarnings("serial")

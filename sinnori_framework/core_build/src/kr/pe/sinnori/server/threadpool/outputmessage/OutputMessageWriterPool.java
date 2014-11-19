@@ -30,7 +30,7 @@ import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriter
 /**
  * 서버 출력 메시지 소켓 쓰기 담당 쓰레드 폴
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  */
 public class OutputMessageWriterPool extends AbstractThreadPool {
 	private int maxHandler;

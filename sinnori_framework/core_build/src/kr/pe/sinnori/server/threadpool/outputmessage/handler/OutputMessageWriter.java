@@ -34,7 +34,7 @@ import kr.pe.sinnori.server.io.LetterToClient;
 /**
  * 서버 출력 메시지 소켓 쓰기 담당 쓰레드
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class OutputMessageWriter extends Thread implements CommonRootIF {

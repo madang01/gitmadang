@@ -26,7 +26,7 @@ import javax.swing.JTextField;
 
 /**
  * 경로 선택 이벤트 처리 클래스
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 @SuppressWarnings("serial")

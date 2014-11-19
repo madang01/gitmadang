@@ -52,7 +52,7 @@ public class BoardWriteInDTOServerTask extends AbstractServerTask {
 		}
 		
 		try {
-			ValueChecker.checkValidWriterId(inObj.getWriterId());
+			ValueChecker.checkValidWriterId(inObj.getUserId());
 		} catch(RuntimeException e) {
 			log.warn(e.getMessage(), e);
 			messageResultOutObj.setResultMessage(e.getMessage());

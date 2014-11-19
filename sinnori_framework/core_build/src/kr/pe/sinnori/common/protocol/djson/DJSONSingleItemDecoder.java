@@ -32,7 +32,7 @@ import org.json.simple.JSONObject;
 /**
  * DJSON 단일 항목 디코더
  * 
- * @author "Jonghoon Won"
+ * @author "Won Jonghoon"
  *
  */
 public class DJSONSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF {

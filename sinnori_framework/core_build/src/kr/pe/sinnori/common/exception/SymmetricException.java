@@ -19,7 +19,7 @@ package kr.pe.sinnori.common.exception;
 /**
  * 암호화 관련 여러가지 에러 발생시 던지는 에러
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 @SuppressWarnings("serial")

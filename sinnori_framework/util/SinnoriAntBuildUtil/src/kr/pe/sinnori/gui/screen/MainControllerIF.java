@@ -18,7 +18,7 @@ package kr.pe.sinnori.gui.screen;
 
 /**
  * 메일 제어기 인터페이스
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public interface MainControllerIF {

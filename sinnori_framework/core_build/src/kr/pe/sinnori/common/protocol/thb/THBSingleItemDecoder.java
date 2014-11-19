@@ -31,7 +31,7 @@ import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 
 /**
  * THB 단일 항목 디코더
- * @author "Jonghoon Won"
+ * @author "Won Jonghoon"
  *
  */
 public class THBSingleItemDecoder implements SingleItemDecoderIF, CommonRootIF {

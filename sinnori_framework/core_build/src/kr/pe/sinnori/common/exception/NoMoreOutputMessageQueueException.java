@@ -20,7 +20,7 @@ package kr.pe.sinnori.common.exception;
 
 /**
  * 출력 메시지 큐를 부족시 던지는 예외
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 

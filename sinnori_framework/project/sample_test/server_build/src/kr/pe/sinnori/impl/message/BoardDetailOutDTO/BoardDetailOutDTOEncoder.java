@@ -183,6 +183,80 @@ public final class BoardDetailOutDTOEncoder extends MessageEncoder {
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
+		singleItemEncoder.putValueToMiddleWriteObj(boardDetailOutDTOSingleItemPath, "attachId"
+					, 5 // itemTypeID
+					, "unsigned integer" // itemTypeName
+					, boardDetailOutDTO.getAttachId() // itemValue
+					, -1 // itemSizeForLang
+					, null // itemCharset,
+					, charsetOfProject
+					, middleWriteObj);
+		singleItemEncoder.putValueToMiddleWriteObj(boardDetailOutDTOSingleItemPath, "attachFileCnt"
+					, 4 // itemTypeID
+					, "integer" // itemTypeName
+					, boardDetailOutDTO.getAttachFileCnt() // itemValue
+					, -1 // itemSizeForLang
+					, null // itemCharset,
+					, charsetOfProject
+					, middleWriteObj);
+
+		java.util.List<BoardDetailOutDTO.AttachFile> attachFileList = boardDetailOutDTO.getAttachFileList();
+
+		/** 배열 정보와 배열 크기 일치 검사 */
+		if (null == attachFileList) {
+			/** 배열 크기 지정 방식이 간접일 경우 참조하는 변수값이 0 일 경우만 배열 값으로 null 을 허용한다. */
+			if (0 != boardDetailOutDTO.getAttachFileCnt()) {
+				String errorMessage = new StringBuilder("간접 참조 회수[")
+				.append(boardDetailOutDTO.getAttachFileCnt())
+				.append("] is not zero but ")
+				.append(boardDetailOutDTOSingleItemPath)
+				.append(".")
+				.append("attachFileList")
+				.append("is null").toString();
+				throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
+			}
+		} else {
+			int attachFileListSize = attachFileList.size();
+			/** 배열 값이 null 이 아닐때에는 배열 크기가 배열 정보에서 지정된 크기와 같은지 검사 */
+			if (attachFileListSize != boardDetailOutDTO.getAttachFileCnt()) {
+				String errorMessage = new StringBuilder(boardDetailOutDTOSingleItemPath)
+				.append(".")
+				.append("attachFileList.length[")
+				.append(attachFileListSize)
+				.append("] is not same to ")
+				.append(boardDetailOutDTOSingleItemPath)
+				.append(".")
+				.append("attachFileCnt[")
+				.append(boardDetailOutDTO.getAttachFileCnt())
+				.append("]").toString();
+				throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
+			}
+
+			Object attachFileMiddleWriteArray = singleItemEncoder.getArrayObjFromMiddleWriteObj(boardDetailOutDTOSingleItemPath, "attachFile", attachFileListSize, middleWriteObj);
+			for (int i=0; i < attachFileListSize; i++) {
+				singleItemPathStatck.push(new StringBuilder(singleItemPathStatck.getLast()).append(".").append("AttachFile").append("[").append(i).append("]").toString());
+				String attachFileSingleItemPath = singleItemPathStatck.getLast();
+				Object attachFileMiddleWriteObj = singleItemEncoder.getMiddleWriteObjFromArrayObj(attachFileSingleItemPath, attachFileMiddleWriteArray, i);
+				BoardDetailOutDTO.AttachFile attachFile = attachFileList.get(i);
+				singleItemEncoder.putValueToMiddleWriteObj(attachFileSingleItemPath, "attachSeq"
+							, 1 // itemTypeID
+							, "unsigned byte" // itemTypeName
+							, attachFile.getAttachSeq() // itemValue
+							, -1 // itemSizeForLang
+							, null // itemCharset,
+							, charsetOfProject
+							, attachFileMiddleWriteObj);
+				singleItemEncoder.putValueToMiddleWriteObj(attachFileSingleItemPath, "attachFileName"
+							, 8 // itemTypeID
+							, "us pascal string" // itemTypeName
+							, attachFile.getAttachFileName() // itemValue
+							, -1 // itemSizeForLang
+							, null // itemCharset,
+							, charsetOfProject
+							, attachFileMiddleWriteObj);
+				singleItemPathStatck.pop();
+			}
+		}
 		singleItemEncoder.putValueToMiddleWriteObj(boardDetailOutDTOSingleItemPath, "memberGubunName"
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName

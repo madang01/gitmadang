@@ -21,7 +21,7 @@ import java.io.File;
 
 /**
  * 로컬 파일 트리 노드
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 @SuppressWarnings("serial")

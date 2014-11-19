@@ -33,7 +33,7 @@ import kr.pe.sinnori.common.lib.WrapBuffer;
 /**
  * 클라이언트 입력 메시지 소켓 쓰기 담당 쓰레드(=핸들러)
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class InputMessageWriter extends Thread implements CommonRootIF {

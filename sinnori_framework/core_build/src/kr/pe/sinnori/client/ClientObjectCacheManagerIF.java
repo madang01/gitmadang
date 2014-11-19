@@ -21,7 +21,7 @@ import kr.pe.sinnori.common.protocol.MessageCodecIF;
 
 /**
  * 클라이언트 운영에 필요한 동적 클래스 객체들에 대한 캐쉬 관리자 인터페이스
- * @author "Jonghoon Won"
+ * @author "Won Jonghoon"
  *
  */
 public interface ClientObjectCacheManagerIF {

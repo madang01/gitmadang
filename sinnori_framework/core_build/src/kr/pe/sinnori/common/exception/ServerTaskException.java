@@ -19,7 +19,7 @@ package kr.pe.sinnori.common.exception;
 
 /**
  * 서버쪽 비지니스 로직 수행중 에러 발생시 던지는 예외
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 @SuppressWarnings("serial")

@@ -26,7 +26,7 @@ import kr.pe.sinnori.common.weblib.AbstractServlet;
 
 /**
  * 로그인 테스트, 아직 구현 못 했음
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 

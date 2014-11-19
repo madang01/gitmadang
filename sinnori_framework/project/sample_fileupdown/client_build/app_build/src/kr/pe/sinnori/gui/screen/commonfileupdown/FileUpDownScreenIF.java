@@ -25,7 +25,7 @@ import kr.pe.sinnori.impl.message.FileListResult.FileListResult;
 
 /**
  * 파일 송수신 화면을 제어하는 기능 제공 인터페이스. 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public interface FileUpDownScreenIF {

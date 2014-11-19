@@ -87,10 +87,18 @@ public final class BoardReplyRequestEncoder extends MessageEncoder {
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(boardReplyRequestSingleItemPath, "writerId"
+		singleItemEncoder.putValueToMiddleWriteObj(boardReplyRequestSingleItemPath, "attachId"
+					, 5 // itemTypeID
+					, "unsigned integer" // itemTypeName
+					, boardReplyRequest.getAttachId() // itemValue
+					, -1 // itemSizeForLang
+					, null // itemCharset,
+					, charsetOfProject
+					, middleWriteObj);
+		singleItemEncoder.putValueToMiddleWriteObj(boardReplyRequestSingleItemPath, "userId"
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
-					, boardReplyRequest.getWriterId() // itemValue
+					, boardReplyRequest.getUserId() // itemValue
 					, -1 // itemSizeForLang
 					, null // itemCharset,
 					, charsetOfProject

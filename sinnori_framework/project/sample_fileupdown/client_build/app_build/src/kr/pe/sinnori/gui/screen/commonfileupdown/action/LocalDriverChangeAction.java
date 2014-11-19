@@ -32,7 +32,7 @@ import kr.pe.sinnori.gui.screen.commonfileupdown.FileUpDownScreenIF;
 
 /**
  * MS사 윈도우 OS 류에서 사용하는 로컬 드라이브 목록 변경 이벤트 처리 클래스.
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 @SuppressWarnings("serial")

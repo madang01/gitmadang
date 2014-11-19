@@ -31,7 +31,7 @@ import kr.pe.sinnori.server.threadpool.executor.handler.Executor;
 /**
  * 서버 비지니스 로직 수행자 쓰레드 폴
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  */
 public class ExecutorPool extends AbstractThreadPool {
 	// execuate_processor_pool_max_size

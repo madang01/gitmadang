@@ -42,14 +42,13 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
 import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
-import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
+import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.common.lib.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
-import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
 
 /**
  * 클라이언트 공유 방식의 비동기 연결 클래스.<br/>
@@ -60,7 +59,7 @@ import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
  * 참고) 소켓 채널을 감싸아 소켓 채널관련 서비스를 구현하는 클래스, 즉 소켓 채널 랩 클래스를 연결 클래스로 명명한다.
  * 
  * @see PrivateMailbox
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class ShareAsynConnection extends AbstractAsynConnection {
@@ -437,11 +436,11 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 		endTime = new java.util.Date().getTime();
 		log.info(String.format("시간차=[%d]", (endTime - startTime)));
 		
-		if (outObj instanceof SelfExn) {
+		/*if (outObj instanceof SelfExn) {
 			SelfExn selfExnOutObj = (SelfExn)outObj;
 			log.warn(selfExnOutObj.getReport());
 			selfExnOutObj.toException();
-		}
+		}*/
 		
 		return outObj;
 	}

@@ -8,6 +8,7 @@ import kr.pe.sinnori.client.ClientProjectManager;
 import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.weblib.AbstractServlet;
+import kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars;
 import kr.pe.sinnori.impl.message.BoardListInDTO.BoardListInDTO;
 import kr.pe.sinnori.impl.message.BoardListOutDTO.BoardListOutDTO;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
@@ -70,13 +71,13 @@ public class BoardListSvl extends AbstractServlet {
 			return;
 		}
 		
-		int pageSize = 20;
+		// int pageSize = 20;
 		String errorMessage = "";
 		
 		BoardListInDTO inObj = new BoardListInDTO();
 		inObj.setBoardId(boardId);
-		inObj.setStartNo((pageNo - 1) * pageSize);
-		inObj.setPageSize(pageSize);
+		inObj.setStartNo((pageNo - 1) * WebCommonStaticFinalVars.WEBSITE_BOARD_PAGESIZE);
+		inObj.setPageSize(WebCommonStaticFinalVars.WEBSITE_BOARD_PAGESIZE);
 		
 		String projectName = System.getProperty(CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);		
 		ClientProject clientProject = ClientProjectManager.getInstance().getClientProject(projectName);
@@ -86,9 +87,11 @@ public class BoardListSvl extends AbstractServlet {
 			BoardListOutDTO boardListOutDTO = (BoardListOutDTO)messageFromServer;
 			req.setAttribute("boardListOutDTO", boardListOutDTO);
 		} else {			
-			if (messageFromServer instanceof MessageResult) {
-				log.warn("입력 메시지[{}]의 응답 메시지로 MessageResult 메시지 도착, 응답 메시지=[{}]", inObj.toString(), messageFromServer.toString());
+			if (messageFromServer instanceof MessageResult) {				
 				errorMessage = ((MessageResult)messageFromServer).getResultMessage();
+				
+				log.warn("입력 메시지[{}]의 응답 메시지로 MessageResult 메시지 도착, 응답 메시지=[{}], userId={}, ip={}", 
+						inObj.toString(), messageFromServer.toString(), getUserId(req), req.getRemoteAddr());
 			} else {
 				errorMessage = "게시판 목록 메시지를 얻는데 실패하였습니다.";
 				

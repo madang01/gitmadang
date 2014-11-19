@@ -19,7 +19,7 @@ package kr.pe.sinnori.common.lib;
 /**
  * 공통 타입 정의 클래스.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class CommonType {
@@ -33,7 +33,7 @@ public class CommonType {
 
 	/**
 	 * 연결 종류, NoShareAsyn(비공유+비동기), ShareAsyn(공유+비동기), NoShareSync(비공유+동기)
-	 * @author Jonghoon won
+	 * @author Won Jonghoon
 	 *
 	 */
 	public enum CONNECTION_TYPE {

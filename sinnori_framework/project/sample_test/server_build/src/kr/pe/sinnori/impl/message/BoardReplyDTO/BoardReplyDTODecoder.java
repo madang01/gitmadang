@@ -115,6 +115,16 @@ public final class BoardReplyDTODecoder extends MessageDecoder {
 		, charsetOfProject
 		, middleReadObj));
 
+		boardReplyDTO.setAttachId((Long)
+		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
+		, "attachId" // itemName
+		, 5 // itemTypeID
+		, "unsigned integer" // itemTypeName
+		, -1 // itemSizeForLang
+		, null // itemCharset,
+		, charsetOfProject
+		, middleReadObj));
+
 		boardReplyDTO.setWriterId((String)
 		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
 		, "writerId" // itemName

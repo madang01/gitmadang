@@ -54,7 +54,7 @@ public class BoardModifyInDTOServerTask extends AbstractServerTask {
 		}
 		
 		try {
-			ValueChecker.checkValidWriterId(inObj.getWriterId());
+			ValueChecker.checkValidWriterId(inObj.getUserId());
 		} catch(RuntimeException e) {
 			log.warn(e.getMessage(), e);
 			messageResultOutObj.setResultMessage(e.getMessage());
@@ -80,6 +80,8 @@ public class BoardModifyInDTOServerTask extends AbstractServerTask {
 				String errorMessage = String.format("게시판[%d]에서 글[%d]이 존재하지 않습니다.", 
 						inObj.getBoardId(), inObj.getBoardNo());
 				messageResultOutObj.setResultMessage(errorMessage);
+				
+				log.warn("{}, userId={}, ip={}", errorMessage, inObj.getUserId(), inObj.getUserId());
 			} else {
 				// FIXME!
 				log.info("boardModifyHash={}", boardModifyHash.toString());
@@ -89,9 +91,11 @@ public class BoardModifyInDTOServerTask extends AbstractServerTask {
 					String errorMessage = String.format("게시판 식별자[%d]와 파라미터로 넘어온 게시판 식별자[%d]가 상이합니다.", 
 							(Long)boardModifyHash.get("boardId"), inObj.getBoardId());
 					messageResultOutObj.setResultMessage(errorMessage);
+					
+					log.warn("{}, userId={}, ip={}", errorMessage, inObj.getUserId(), inObj.getUserId());
 				} else {
 						
-					if (inObj.getWriterId().equals((String)boardModifyHash.get("writerId"))) {
+					if (inObj.getUserId().equals((String)boardModifyHash.get("writerId"))) {
 						int resultOfUpdate = session.update("updateBoard", inObj);						
 						if (resultOfUpdate > 0) {
 							session.commit();
@@ -104,9 +108,11 @@ public class BoardModifyInDTOServerTask extends AbstractServerTask {
 					} else {
 						session.commit();
 						
-						String errorMessage = String.format("게시판 작성자[%s]와 파라미터로 넘어온 게시판 작성자[%s]가 상이합니다.", 
-								(String)boardModifyHash.get("writerId"), inObj.getWriterId());
+						String errorMessage = String.format("게시판 작성자[%s]와 로그인 아이디[%s]가 상이합니다.", 
+								(String)boardModifyHash.get("writerId"), inObj.getUserId());
 						messageResultOutObj.setResultMessage(errorMessage);
+						
+						log.warn("{}, ip={}", errorMessage, inObj.getUserId());
 					}
 				}			
 			}			

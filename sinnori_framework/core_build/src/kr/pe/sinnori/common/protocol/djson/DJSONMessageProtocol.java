@@ -54,7 +54,7 @@ import org.json.simple.parser.ParseException;
  * 신놀이 메시지의 전달 개념도는 신놀이 메시지 -> 존슨 객체 -> 4byte 존슨 문자열 크기 + 존슨 문자열 전송<br/> 
  *   ==> 4byte 존슨 문자열 크기 + 존슨 문자열 수신 -> 존슨 객체 -> 신놀이 메시지 와 같다.<br/>
  *   
- * @author Jonghoon won
+ * @author Won Jonghoon
  *
  */
 public class DJSONMessageProtocol implements CommonRootIF, MessageProtocolIF {

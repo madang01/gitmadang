@@ -24,7 +24,7 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 
 /**
  * 데이터 패킷 버퍼 관리자 인터페이스
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public interface DataPacketBufferQueueManagerIF {

@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 /**
  * 신놀이 환경 변수에 대응하는 값에 접근하기 위한 클래스
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public final class SinnoriConfig {

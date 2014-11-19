@@ -24,7 +24,7 @@ import kr.pe.sinnori.common.protocol.ReceivedLetter;
 
 /**
  * 랩 출력 메시지큐. 출력 메시지를 알맹이로 감싼 랩 클래스.
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public class ClientWrapOutputMessageQueue implements CommonRootIF {

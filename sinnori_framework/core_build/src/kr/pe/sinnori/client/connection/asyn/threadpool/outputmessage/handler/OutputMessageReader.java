@@ -44,7 +44,7 @@ import kr.pe.sinnori.common.protocol.ReceivedLetter;
 /**
  * 클라이언트 출력 메시지 소켓 읽기 담당 쓰레드.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class OutputMessageReader extends Thread implements

@@ -26,7 +26,7 @@ import kr.pe.sinnori.common.lib.CommonRootIF;
 /**
  * 쓰레드 폴 부모 추상화 클래스
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public abstract class AbstractThreadPool implements ThreadPoolIF, CommonRootIF {

@@ -71,21 +71,5 @@ public final class BoardDetailInDTOEncoder extends MessageEncoder {
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(boardDetailInDTOSingleItemPath, "writerId"
-					, 7 // itemTypeID
-					, "ub pascal string" // itemTypeName
-					, boardDetailInDTO.getWriterId() // itemValue
-					, -1 // itemSizeForLang
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(boardDetailInDTOSingleItemPath, "ip"
-					, 7 // itemTypeID
-					, "ub pascal string" // itemTypeName
-					, boardDetailInDTO.getIp() // itemValue
-					, -1 // itemSizeForLang
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
 	}
 }

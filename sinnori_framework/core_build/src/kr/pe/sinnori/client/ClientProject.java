@@ -66,7 +66,7 @@ import kr.pe.sinnori.common.protocol.ReceivedLetter;
  * (4) 메시지 정보 해쉬
  * </pre>
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public class ClientProject extends AbstractProject implements ClientProjectIF, SyncOutputMessageQueueQueueMangerIF, ClientObjectCacheManagerIF {
@@ -341,7 +341,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 	 * 처음 지정되는 익명 메시지 처리자는 디폴트 처리자({@link DefaultAsynOutputMessageTask }) 로 익명 메시지 로그만 찍는다. 
 	 * 주) 비동기에서만 동작한다.
 	 * </pre>
-	 * @author Jonghoon Won
+	 * @author Won Jonghoon
 	 *
 	 */
 	private class AsynOutputMessageExecutorThread extends Thread {

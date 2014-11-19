@@ -30,6 +30,7 @@ public class BoardReplyDTO extends AbstractMessage {
 	private short depth;
 	private String subject;
 	private String content;
+	private long attachId;
 	private String writerId;
 	private String ip;
 
@@ -82,6 +83,13 @@ public class BoardReplyDTO extends AbstractMessage {
 	public void setContent(String content) {
 		this.content = content;
 	}
+	public long getAttachId() {
+		return attachId;
+	}
+
+	public void setAttachId(long attachId) {
+		this.attachId = attachId;
+	}
 	public String getWriterId() {
 		return writerId;
 	}
@@ -115,6 +123,8 @@ public class BoardReplyDTO extends AbstractMessage {
 		builder.append(subject);
 		builder.append(", content=");
 		builder.append(content);
+		builder.append(", attachId=");
+		builder.append(attachId);
 		builder.append(", writerId=");
 		builder.append(writerId);
 		builder.append(", ip=");

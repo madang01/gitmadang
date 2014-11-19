@@ -33,7 +33,7 @@ import kr.pe.sinnori.server.threadpool.inputmessage.handler.InputMessageReaderIF
 /**
  * 입력 메시지 소켓 읽기 담당 쓰레드 폴
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class InputMessageReaderPool extends AbstractThreadPool implements

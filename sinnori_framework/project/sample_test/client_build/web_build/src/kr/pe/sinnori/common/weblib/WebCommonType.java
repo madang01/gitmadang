@@ -13,4 +13,6 @@ public class WebCommonType {
 			return boardId;
 		}
 	};
+	
+	
 }

@@ -51,7 +51,7 @@ import kr.pe.sinnori.common.protocol.ReceivedLetter;
  * 참고) 소켓 채널을 감싸아 소켓 채널관련 서비스를 구현하는 클래스, 즉 소켓 채널 랩 클래스를 연결 클래스로 명명한다.
  * 참고) 연결 클래스는 블락킹 모드에 따라서 그리고 공유 여부에 따라서 종류가 나뉘어 진다.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public abstract class AbstractConnection implements CommonRootIF {

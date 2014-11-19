@@ -20,7 +20,7 @@ package kr.pe.sinnori.server;
 import java.util.ArrayList;
 
 /**
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public class MonitorServerProjectInfo {

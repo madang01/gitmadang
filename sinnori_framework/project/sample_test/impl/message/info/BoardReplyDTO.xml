@@ -24,6 +24,7 @@
 <singleitem name="depth" type="unsigned byte" />
 <singleitem name="subject" type="us pascal string" />
 <singleitem name="content" type="si pascal string" />
+<singleitem name="attachId" type="unsigned integer" />
 <singleitem name="writerId" type="ub pascal string" />
 <singleitem name="ip" type="ub pascal string" />
 </sinnori_message>

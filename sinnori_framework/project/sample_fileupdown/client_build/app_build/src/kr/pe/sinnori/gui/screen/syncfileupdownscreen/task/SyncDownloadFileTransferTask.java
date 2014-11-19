@@ -39,7 +39,7 @@ import kr.pe.sinnori.impl.message.DownFileDataResult.DownFileDataResult;
  * 파일 다운로드 수신 상태 모달 윈도우에서 사용자가 취소를 누르면 다운로드 동작은 중지된다.
  * 다운로드 파일을 모두 전송 받았거나 중간에 취소시 로컬 파일 목록을 재 갱신한다. 
  * </pre> 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public class SyncDownloadFileTransferTask implements CommonRootIF, FileTransferTaskIF {

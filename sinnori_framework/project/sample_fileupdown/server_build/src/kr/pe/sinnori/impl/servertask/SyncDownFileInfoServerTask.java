@@ -30,7 +30,7 @@ import kr.pe.sinnori.server.executor.LetterSender;
 
 /**
  * 다운 로드 파일 정보 서버 비지니스 로직
- * @author "Jonghoon Won"
+ * @author "Won Jonghoon"
  *
  */
 public class SyncDownFileInfoServerTask extends AbstractAuthServerExecutor {

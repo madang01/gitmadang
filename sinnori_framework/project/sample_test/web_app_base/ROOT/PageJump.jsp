@@ -119,7 +119,7 @@
 
 <!-- content here 
 ============================================================ -->
-<a name="content"></a><jsp:include page="<%=targeturl%>"  flush="false">
+<jsp:include page="<%=targeturl%>"  flush="false">
 	<jsp:param name="topmenu" value="<%=topMenu%>" />
 	<jsp:param name="targeturl" value="<%=targeturl%>" />
 </jsp:include><%

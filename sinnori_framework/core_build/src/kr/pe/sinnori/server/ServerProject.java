@@ -69,7 +69,7 @@ import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterPool;
  *      비지니스 로직 처리 담당 쓰레드와 출력 메시지 소켓 쓰기 담당 쓰레드 사이의 큐
  * (12) 메시지 정보 해쉬
  * </pre> 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public class ServerProject extends AbstractProject 
@@ -515,7 +515,7 @@ public class ServerProject extends AbstractProject
 	
 	/**
 	 * 서버 프로젝트 모니터
-	 * @author Jonghoon won
+	 * @author Won Jonghoon
 	 *
 	 */
 	private class ServerProjectMonitor extends Thread implements CommonRootIF {

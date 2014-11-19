@@ -72,7 +72,7 @@ public class BoardReplyRequestServerTask extends AbstractServerTask {
 		}
 		
 		try {
-			ValueChecker.checkValidWriterId(inObj.getWriterId());
+			ValueChecker.checkValidUserId(inObj.getUserId());
 		} catch(RuntimeException e) {
 			log.warn(e.getMessage(), e);
 			messageResultOutObj.setResultMessage(e.getMessage());
@@ -100,17 +100,19 @@ public class BoardReplyRequestServerTask extends AbstractServerTask {
 				messageResultOutObj.setResultMessage(errorMessage);
 			} else {
 				// FIXME!
-				log.info("boardReplyDTO={}", boardReplyDTO.toString());
+				//log.info("boardReplyDTO={}", boardReplyDTO.toString());
 				
 				if (inObj.getBoardId() != boardReplyDTO.getBoardId()) {
 					session.commit();
 					String errorMessage = String.format("부모글의 게시판 식별자[%d]와 파라미터로 넘어온 게시판 식별자[%d]가 상이합니다.", 
 							boardReplyDTO.getBoardId(), inObj.getBoardId());
 					messageResultOutObj.setResultMessage(errorMessage);
+					
+					log.warn("{}, userId={}, ip={}", errorMessage, inObj.getUserId(), inObj.getUserId());
 				} else {
 					boardReplyDTO.setSubject(inObj.getSubject());
 					boardReplyDTO.setContent(inObj.getContent());
-					boardReplyDTO.setWriterId(inObj.getWriterId());
+					boardReplyDTO.setWriterId(inObj.getUserId());
 					boardReplyDTO.setIp(inObj.getIp());				
 					
 					List<HashMap<String, Object>> replyGroupHashList = session.selectList("getBoardListByGroupAndSeqInLock", boardReplyDTO);
@@ -118,7 +120,8 @@ public class BoardReplyRequestServerTask extends AbstractServerTask {
 						session.rollback();
 						String errorMessage = String.format("게시판[%d]에서 게시글 그룹[%d]내 삽입할 위치[%d] 이후 락 획득 실패", 
 								boardReplyDTO.getBoardId(), boardReplyDTO.getGroupNo(), boardReplyDTO.getGroupSeq());
-						messageResultOutObj.setResultMessage(errorMessage);
+						messageResultOutObj.setResultMessage(errorMessage);		
+						
 					} else {
 						int resultOfUpdate = session.update("updateReplyBoard", boardReplyDTO);
 						
@@ -149,9 +152,9 @@ public class BoardReplyRequestServerTask extends AbstractServerTask {
 			session.close();
 		}
 		
-		log.info("입력 메시지[{}] 게시판 최상의 글 등록 성공여부[{}]", inObj.toString(), messageResultOutObj.getIsSuccess());
+		//log.info("입력 메시지[{}] 게시판 최상의 글 등록 성공여부[{}]", inObj.toString(), messageResultOutObj.getIsSuccess());
 		
-		log.info("messageResultOutObj[{}]", messageResultOutObj.toString());
+		//log.info("messageResultOutObj[{}]", messageResultOutObj.toString());
 		
 		letterSender.addSyncMessage(messageResultOutObj);
 	}

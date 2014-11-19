@@ -22,7 +22,7 @@ import kr.pe.sinnori.common.lib.CommonRootIF;
 
 /**
  * 프로토콜 단에서 추출된 메시지 내용을 담는 클래스. 메시지 식별자, 메일 박스 식별자, 메일 식별자, 중간 다리 역활 읽기 객체를 담고 있다.
- * @author "Jonghoon Won"
+ * @author "Won Jonghoon"
  *
  */
 public class ReceivedLetter implements CommonRootIF {
@@ -62,7 +62,7 @@ public class ReceivedLetter implements CommonRootIF {
 				bodyFreeSizeInputStream.close();
 				
 				// FIXME!
-				log.info("messageID[{}], mailboxID[{}], mailID[{}] 메시지 바디 스트림 정상 닫힘", messageID, mailboxID, mailID);
+				//log.info("messageID[{}], mailboxID[{}], mailID[{}] 메시지 바디 스트림 정상 닫힘", messageID, mailboxID, mailID);
 			} catch(Exception e) {
 				String errorMessage = 
 						String.format("messageID[%s], mailboxID[%d], mailID[%d] 메시지 바디 스트림 닫을때 알 수 없는 에러 발생", 

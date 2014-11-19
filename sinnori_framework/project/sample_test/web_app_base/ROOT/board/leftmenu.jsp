@@ -32,7 +32,11 @@
 	/** 0:좌측 메뉴키, 1:좌측 메뉴 번호 */
 	final Object[][] leftMenuLinkInfoList = {
 		{"/servlet/BoardList",  0},
-		{"/servlet/BoardWrite",  0}
+		{"/servlet/BoardWrite",  0},
+		{"/servlet/BoardDetail",  0},
+		{"/servlet/BoardModify",  0},
+		{"/servlet/BoardReply",  0},
+		{"/servlet/BoardVote",  0},		
 	};
 
 

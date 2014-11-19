@@ -48,7 +48,7 @@ import kr.pe.sinnori.common.util.HexUtil;
 /**
  * DHB 메시지 교환 프로토콜
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class DHBMessageProtocol implements CommonRootIF, MessageProtocolIF {

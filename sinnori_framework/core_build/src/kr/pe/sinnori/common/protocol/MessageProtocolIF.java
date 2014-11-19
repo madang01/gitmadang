@@ -31,7 +31,7 @@ import kr.pe.sinnori.common.message.codec.MessageEncoder;
 /**
  * 메시지 프로토콜 인터페이스.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public interface MessageProtocolIF {

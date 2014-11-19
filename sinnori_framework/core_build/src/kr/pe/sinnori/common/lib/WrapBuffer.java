@@ -26,7 +26,7 @@ import java.nio.ByteBuffer;
  * 추적을 위해서 가장 좋은 해결 방법은 큐에서 랩버퍼를 꺼내는 시점의 Throwable 를 기억하는 것이다.
  * 하지만 이 방법은 비용이 많이 든다. 따라서 큐에 반환되지 않고 랩 버퍼 소멸시에만 사용하기를 권한다.
  * </pre> 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class WrapBuffer implements CommonRootIF {

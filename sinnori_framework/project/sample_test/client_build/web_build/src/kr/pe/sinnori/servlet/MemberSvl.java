@@ -42,37 +42,42 @@ import org.apache.commons.codec.binary.Base64;
  * 회원 가입<br/>
  * 회원 가입은 총 2개 페이지로 구성된다.<br/> 
  * 첫번째페이지는 입력 화면 페이지, 마지막 두번째 페이지는 회원 가입 결과 페이지이다.
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 
 @SuppressWarnings("serial")
 public class MemberSvl extends AbstractServlet {
-	final String arryPageURL[] = { "/member/Member01.jsp",
-			"/member/Member02.jsp" };
-	
-	
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
-		// TODO Auto-generated method stub
-		String pageGubun = req.getParameter("pagegubun");
-		log.info(String.format("pageGubun[%s]", pageGubun));
-
 		String goPage = null;
+		
+		String parmPageMode = req.getParameter("pageMode");
+		if (null == parmPageMode) {
+			parmPageMode = "view";
+		}
+		
+		if (!parmPageMode.equals("view") && !parmPageMode.equals("proc")) {
+			goPage = "/member/Member01.jsp";
+			String errorMessage = new StringBuilder("페이지 모드는 2가지(view, proc) 입니다.")
+			.append(CommonStaticFinalVars.NEWLINE)
+			.append("페이지 모드 값[").append(parmPageMode).append("]이 잘못 되었습니다.").toString();
+			req.setAttribute("errorMessage", errorMessage);
+			printJspPage(req, res, goPage);
+			return;
+		}		
 
-		if (null == pageGubun || !pageGubun.equals("step2")) {
-			goPage = arryPageURL[0];
-
-			ServerSessionKeyManager sessionKeyServerManger = ServerSessionKeyManager
-					.getInstance();
-			String modulusHex = sessionKeyServerManger.getModulusHexStrForWeb();
-			req.setAttribute("modulusHex", modulusHex);
-
+		ServerSessionKeyManager sessionKeyServerManger = ServerSessionKeyManager
+				.getInstance();
+		String modulusHex = sessionKeyServerManger.getModulusHexStrForWeb();
+		req.setAttribute("modulusHex", modulusHex);
+		
+		if (parmPageMode.equals("view")) {
+			goPage = "/member/Member01.jsp";			
 		} else {
-			goPage = arryPageURL[1];
+			goPage = "/member/Member02.jsp";
 			
-
 			String parmSessionKeyBase64 = req.getParameter("sessionkeyBase64");
 			String parmIVBase64 = req.getParameter("ivBase64");
 
@@ -96,7 +101,8 @@ public class MemberSvl extends AbstractServlet {
 				String errorMessage = "세션키 값을 입력해 주세요.";
 				log.warn(errorMessage);
 				
-				printMessagePage(req, res, errorMessage, errorMessage);
+				req.setAttribute("errorMessage", errorMessage);
+				printJspPage(req, res, goPage);
 				return;
 			}
 			
@@ -164,7 +170,6 @@ public class MemberSvl extends AbstractServlet {
 			messageResultOutObj.setResultMessage("회원 가입이 실패하였습니다.");
 
 			SymmetricKey  webUserSymmetricKey = null;
-			ServerSessionKeyManager sessionKeyServerManger = ServerSessionKeyManager.getInstance();
 			try {
 				
 				webUserSymmetricKey = sessionKeyServerManger.getSymmetricKey(WebCommonStaticFinalVars.WEBSITE_JAVA_SYMMETRIC_KEY_ALGORITHM_NAME, CommonType.SymmetricKeyEncoding.BASE64, parmSessionKeyBase64, parmIVBase64);
@@ -254,16 +259,15 @@ public class MemberSvl extends AbstractServlet {
 				printMessagePage(req, res, "입력한 Captcha 값이 틀렸습니다.", errorMessage);
 				return;
 			}
+			
+			httpSession.removeAttribute(Captcha.NAME);
 
 			log.info(String.format("userId=[%s]", userId));
 
 			// HttpSession session = req.getSession();
 
 			// ClientSessionKeyManager sessionKeyClientManager =
-			// ClientSessionKeyManager.getInstance();
-			
-
-			
+			// ClientSessionKeyManager.getInstance();		
 
 			// String defaultServerName =
 			// (String)conf.getResource("default_server_name");
@@ -331,10 +335,8 @@ public class MemberSvl extends AbstractServlet {
 			req.setAttribute("webUserSymmetricKey", webUserSymmetricKey);
 			// req.setAttribute("errorMessage", errorMessage);
 			req.setAttribute("parmIVBase64", parmIVBase64);
-		}
-
-		log.info(String.format("goPage[%s]", goPage));
-
+		}		
+		
 		printJspPage(req, res, goPage);
 	}
 }

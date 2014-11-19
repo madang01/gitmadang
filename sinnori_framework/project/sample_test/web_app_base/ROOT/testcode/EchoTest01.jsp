@@ -1,6 +1,6 @@
-<%@ page language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="org.apache.commons.lang3.StringEscapeUtils" %>
-<jsp:useBean id="echoInObj" class="kr.pe.sinnori.impl.message.Echo.Echo" scope="request" /><%
+<%@ page extends="kr.pe.sinnori.common.weblib.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+%><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
+%><jsp:useBean id="echoInObj" class="kr.pe.sinnori.impl.message.Echo.Echo" scope="request" /><%
 
 	// kr.pe.sinnori.impl.message.Echo.Echo echoInObj = (kr.pe.sinnori.impl.message.Echo.Echo)request.getAttribute("echoInObj");
 		
@@ -50,7 +50,7 @@
 	if (null != errorMessage && !errorMessage.equals("")) {
 %>
 <tr>
-	<td colspan=2><%= errorMessage %></td>
+	<td colspan=2><%= escapeHtml(errorMessage, WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER) %></td>
 </tr><%	
 	} else {
 %>

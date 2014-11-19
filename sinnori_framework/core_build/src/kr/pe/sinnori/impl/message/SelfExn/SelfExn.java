@@ -26,7 +26,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
 
 /**
  * SelfExn 메시지, 시스템 메시지로 필수 메시지.
- * @author "Jonghoon Won"
+ * @author "Won Jonghoon"
  *
  */
 public final class SelfExn extends AbstractMessage {

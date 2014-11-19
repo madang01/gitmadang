@@ -28,7 +28,7 @@ import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderPoolIF;
 /**
  * 서버에 접속 승인된 클라이언트(=소켓 채널) 등록 처리 쓰레드 폴.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class AcceptProcessorPool extends AbstractThreadPool {

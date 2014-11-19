@@ -30,7 +30,7 @@ import kr.pe.sinnori.common.protocol.thb.THBMessageProtocol;
 
 /**
  * 프로젝트 부모 추상화 클래스. 서버/클라이언트 프로젝트 공통 분모를 모은 추상화 클래스이다.
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public abstract class AbstractProject implements CommonRootIF, DataPacketBufferQueueManagerIF {

@@ -27,7 +27,8 @@ public class BoardReplyRequest extends AbstractMessage {
 	private long parentBoardNo;
 	private String subject;
 	private String content;
-	private String writerId;
+	private long attachId;
+	private String userId;
 	private String ip;
 
 	public long getBoardId() {
@@ -58,12 +59,19 @@ public class BoardReplyRequest extends AbstractMessage {
 	public void setContent(String content) {
 		this.content = content;
 	}
-	public String getWriterId() {
-		return writerId;
+	public long getAttachId() {
+		return attachId;
 	}
 
-	public void setWriterId(String writerId) {
-		this.writerId = writerId;
+	public void setAttachId(long attachId) {
+		this.attachId = attachId;
+	}
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 	public String getIp() {
 		return ip;
@@ -85,8 +93,10 @@ public class BoardReplyRequest extends AbstractMessage {
 		builder.append(subject);
 		builder.append(", content=");
 		builder.append(content);
-		builder.append(", writerId=");
-		builder.append(writerId);
+		builder.append(", attachId=");
+		builder.append(attachId);
+		builder.append(", userId=");
+		builder.append(userId);
 		builder.append(", ip=");
 		builder.append(ip);
 		builder.append(", messageHeaderInfo=");

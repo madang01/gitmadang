@@ -27,7 +27,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  * 클라이언트에게 보내는 편지<br/>
  * 클라이언트에게 보내는 편지는 받을 대상(=소켓 채널)과 출력 메시지로 구성된다.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class LetterToClient {

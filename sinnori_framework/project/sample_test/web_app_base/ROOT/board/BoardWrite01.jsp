@@ -1,4 +1,4 @@
-<%@ page extends="kr.pe.sinnori.common.weblib.AbstractJSPBase" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+<%@ page extends="kr.pe.sinnori.common.weblib.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
 %><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
@@ -23,7 +23,7 @@
 		<li>
 			<dl>
 				<dt>에러</dt>
-				<dd><%=escapeHtml(errorMessage, true)%></dd>
+				<dd><%=escapeHtml(errorMessage, WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER)%></dd>
 			</dl>
 		</li>
 		</ul>		
@@ -57,8 +57,64 @@
 	}
 
 	function goList() {
-		var g = document.listfrm;
+		var g = document.listForm;
 		g.submit();
+	}
+
+	function addElement() {		
+		var uploadFileMaxCnt = <%=WebCommonStaticFinalVars.WEBSITE_FILEUPLOAD_MAX_COUNT%>;
+		var prefixOfChildDiv = 'childDiv';
+		var maxIndex = -1;		
+		var uploadFileCnt = 0;
+
+		var newFileListDiv = document.getElementById('newFileListDiv');
+		for (var i=0;i < newFileListDiv.childNodes.length; i++) {
+			var childNode = newFileListDiv.childNodes[i];
+			
+			if (childNode.id.indexOf(prefixOfChildDiv) == 0) {
+				uploadFileCnt++;
+				var numStr = childNode.id.substring(prefixOfChildDiv.length);
+
+				var num = parseInt(numStr);
+
+				if (maxIndex < num) {
+					maxIndex = num;
+				}	
+			}						
+		}
+	
+		if (uploadFileCnt >= uploadFileMaxCnt) {
+			alert("업로드 할 수 있는 파일 갯수는 최대["+uploadFileMaxCnt+"] 까지 입니다.");
+			return;
+		}
+		
+
+		var inx = maxIndex+1;
+
+		var newdiv = document.createElement('div');
+
+		var divIdName = prefixOfChildDiv+inx;		
+
+		newdiv.setAttribute('id',divIdName);
+
+		
+		newdiv.innerHTML = "<input type=\"file\" name=\"attachFile\" size=\"70\" />&nbsp;<a href=\'#\' onclick=\'removeElement(\""+divIdName+"\")\'>삭제</a>";
+
+
+		newFileListDiv.appendChild(newdiv);
+
+	}
+
+	function removeElement(divIdName) {
+		var d = document.getElementById('newFileListDiv');		
+		var olddiv = document.getElementById(divIdName);
+		d.removeChild(olddiv);
+	}
+
+	function checkForm() {
+		var f = document.attachForm;
+
+		alert(f.attachFile.length);
 	}
 </script>
 <form name=gofrm method="post" action="/servlet/BoardWrite">
@@ -67,11 +123,12 @@
 <input type="hidden" name="boardId" value="<%=parmBoardId%>" />
 <input type="hidden" name="subject" />
 <input type="hidden" name="content" />
+<input type="hidden" name="attachId" value="0" />
 <input type="hidden" name="sessionkeyBase64" />
 <input type="hidden" name="ivBase64" />
 </form>
 
-<form name=listfrm method="post" action="/servlet/BoardList">
+<form name=listForm method="post" action="/servlet/BoardList">
 <input type="hidden" name="topmenu" value="<%=topmenu%>" />
 <input type="hidden" name="boardId" value="<%=parmBoardId%>" />
 </form>
@@ -98,6 +155,25 @@
 		</li>
 		</ul>	
 	</div>
-</form><%
+</form>
+<form name="attachForm" target="uploadResult" action="/servlet/BoardUpload" method="post" enctype="multipart/form-data" target="uploadResult">
+	<input type="hidden" name="attachId" value="0" />
+
+	<input type="hidden" name="attachSeq" value="0" />
+	<input type="hidden" name="attachSeq" value="1" />
+	
+	<p><a href="#" onclick="addElement();">첨부 파일 추가</a></p>
+	<!-- 주의점 myDiv 시작 태그와 종료 태그 사이에는 공백을 포함한 어떠한 것도 넣지 말것, 자식 노드로 인식됨 -->
+	<div id="newFileListDiv"></div><br/>
+
+	<input type="submit" value="파일 올리기..." />
+	<a href="#" onClick="checkForm()">폼 자식 객체로 들어가있는지 검사</a>
+</form>
+
+<iframe name="uploadResult" width="400" height="300" >
+</iframe>
+
+
+<%
 	}
 %>

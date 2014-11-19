@@ -1,5 +1,6 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<jsp:useBean id="modulusHex" class="java.lang.String" scope="request" /><%
+<%@ page extends="kr.pe.sinnori.common.weblib.AbstractJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
+%><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
+%><jsp:useBean id="modulusHex" class="java.lang.String" scope="request" /><%
 	String topmenu = request.getParameter("topmenu");
 	if (null ==  topmenu) topmenu="";
 %>
@@ -38,7 +39,7 @@
 	<tr><td colspan="2"><h3>RSA 암/복호화 테스트</h3></td></tr>
 	<tr>
 	    <td>평문</td>
-	    <td><input type="text" name="plainText" size="15" maxlength="15" /></td> 
+	    <td><textarea name="plainText" size="15" maxlength="15"></textarea></td> 
 	</tr>
 	<tr> 
 	    <td colspan="2"><input type="submit" value="확인" /></td>

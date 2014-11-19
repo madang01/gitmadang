@@ -26,7 +26,7 @@ import kr.pe.sinnori.gui.screen.FileTranferProcessDialog;
  * 단 사용자 정의 비지니스 로직은 파일 송수신 로직을 직접 수행후 
  * 파일 송수신 상태를 보여주는 모달 윈도우에도 이를 알려 파일 진행상태를 보여주는것으로 제한한다.
  * </pre>
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public interface FileTransferTaskIF {

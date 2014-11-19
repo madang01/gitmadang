@@ -36,7 +36,7 @@ import kr.pe.sinnori.common.util.HexUtil;
 /**
  * 대칭키 관리자. 신놀이가 지원하는 대칭키에 대한 관리를 위한 클래스.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public final class SymmetricKeyManager implements CommonRootIF {

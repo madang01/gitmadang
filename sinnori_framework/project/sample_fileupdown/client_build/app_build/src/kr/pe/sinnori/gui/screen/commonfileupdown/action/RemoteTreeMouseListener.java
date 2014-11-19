@@ -33,7 +33,7 @@ import kr.pe.sinnori.impl.message.FileListResult.FileListResult;
 
 /**
  * 원격지 트리 노드 마우스 이벤트 처리 클래스
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public class RemoteTreeMouseListener extends MouseAdapter implements CommonRootIF {

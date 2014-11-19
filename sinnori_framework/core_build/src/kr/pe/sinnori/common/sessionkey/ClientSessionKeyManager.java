@@ -41,7 +41,7 @@ import org.apache.commons.codec.binary.Base64;
 /**
  * 클라이언트 관점의 세션키 관리자
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public final class ClientSessionKeyManager implements CommonRootIF {

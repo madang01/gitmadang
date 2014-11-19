@@ -54,7 +54,7 @@ import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
  * 참고) 비공유 방식은 큐로 관리 되기에 비공유 방식의 비동기 연결 클래스는 큐 인터페이스를 구현하고 있다<br/>
  * 참고)  소켓 채널을 감싸아 소켓 채널관련 서비스를 구현하는 클래스, 즉 소켓 채널 랩 클래스를 연결 클래스로 명명한다.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class NoShareSyncConnection extends AbstractSyncConnection {

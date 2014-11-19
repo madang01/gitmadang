@@ -24,7 +24,7 @@ import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
  * 
  * @see OutputMessageReader#addNewServer(AbstractAsynConnection)
  * @see OutputMessageReader#getCntOfClients()
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public interface OutputMessageReaderIF {

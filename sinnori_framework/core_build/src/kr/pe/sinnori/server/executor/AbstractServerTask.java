@@ -50,7 +50,7 @@ import kr.pe.sinnori.server.io.LetterToClient;
  * 이렇게 개발된 비지니스 로직 모듈은 동적으로 로딩된다.
  * </pre> 
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public abstract class AbstractServerTask implements CommonRootIF {
@@ -84,6 +84,7 @@ public abstract class AbstractServerTask implements CommonRootIF {
 			ServerObjectCacheManagerIF serverObjectCacheManager) {
 		// FIXME!
 		// log.info("inputMessage=[%s]", inputMessage.toString());
+		// long firstErraseTime = new java.util.Date().getTime();
 		
 		String messageIDFromClient = receivedLetter.getMessageID();
 		
@@ -261,7 +262,7 @@ public abstract class AbstractServerTask implements CommonRootIF {
 					
 		// messageProtocol, projectCharset
 		LetterSender letterSender = new LetterSender(this, clientResource, messageFromClient, projectCharset, ouputMessageQueue, messageProtocol, serverObjectCacheManager);
-		long firstErraseTime = new java.util.Date().getTime();
+		
 		try {			
 			doTask(serverProjectConfig, loginManager, letterSender, messageFromClient);
 		} catch (java.lang.Error e) {
@@ -339,11 +340,11 @@ public abstract class AbstractServerTask implements CommonRootIF {
 			letterSender.writeLogAll("2.서버 타스크 수행중 에러");
 			return;
 		}
-		
-		long lastErraseTime = new java.util.Date().getTime() - firstErraseTime;
-		log.info(String.format("수행 시간=[%f] ms", (float) lastErraseTime));
-		
+
 		letterSender.directSendLetterToClientList();
+		
+		// long lastErraseTime = new java.util.Date().getTime() - firstErraseTime;
+		// log.info(String.format("수행 시간=[%f] ms", (float) lastErraseTime));
 	}
 	
 	public ArrayList<WrapBuffer> getMessageStream(String messageIDFromClient, 

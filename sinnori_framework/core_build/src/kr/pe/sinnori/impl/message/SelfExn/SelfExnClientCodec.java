@@ -24,7 +24,7 @@ import kr.pe.sinnori.common.protocol.MessageCodecIF;
 
 /**
  * SelfExn 클라이언트 코덱
- * @author "Jonghoon Won"
+ * @author "Won Jonghoon"
  *
  */
 public final class SelfExnClientCodec implements MessageCodecIF {

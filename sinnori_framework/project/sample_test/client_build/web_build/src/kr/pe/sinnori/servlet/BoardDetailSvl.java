@@ -2,14 +2,12 @@ package kr.pe.sinnori.servlet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import kr.pe.sinnori.client.ClientProject;
 import kr.pe.sinnori.client.ClientProjectManager;
 import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.weblib.AbstractServlet;
-import kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars;
 import kr.pe.sinnori.impl.message.BoardDetailInDTO.BoardDetailInDTO;
 import kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
@@ -78,18 +76,18 @@ public class BoardDetailSvl extends AbstractServlet {
 			return;
 		}
 		
-		HttpSession httpSession = req.getSession();
-		String userId = (String) httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_USERID_NAME);
-		if (null == userId || userId.equals("")) {
-			userId = "guest";
-		}
+		
+		// String userId = getUserId(req);
+		
+		
 		String projectName = System.getProperty(CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);
 		
 		BoardDetailInDTO inObj = new BoardDetailInDTO();
 		inObj.setBoardId(boardId);
 		inObj.setBoardNo(boardNo);
-		inObj.setWriterId(userId);
-		inObj.setIp(req.getRemoteAddr());
+		
+		// FIXME!
+		//log.info("inObj={}, userId={}, ip={}", inObj.toString(), userId, req.getRemoteAddr());
 		
 		String errorMessage = "";
 		ClientProject clientProject = ClientProjectManager.getInstance().getClientProject(projectName);
@@ -103,7 +101,8 @@ public class BoardDetailSvl extends AbstractServlet {
 				MessageResult messageResultOutObj = (MessageResult)messageFromServer;
 				errorMessage = messageResultOutObj.getResultMessage();
 				
-				log.warn("입력 메시지[{}]의 응답 메시지로 MessageResult 메시지 도착, 응답 메시지=[{}]", inObj.toString(), messageFromServer.toString());
+				log.warn("입력 메시지[{}]의 응답 메시지로 MessageResult 메시지 도착, 응답 메시지=[{}], userId={}, ip={}", 
+						inObj.toString(), messageFromServer.toString(), getUserId(req), req.getRemoteAddr());
 			} else {
 				errorMessage = "게시판 상세 조회가 실패하였습니다.";
 				
@@ -115,8 +114,9 @@ public class BoardDetailSvl extends AbstractServlet {
 			}				
 		}
 		
+		
 		// FIXME!
-		log.info("parmBoardNo={}", parmBoardNo);
+		//log.info("parmBoardNo={}", parmBoardNo);
 		
 		req.setAttribute("parmBoardId", parmBoardId);
 		req.setAttribute("parmBoardNo", parmBoardNo);

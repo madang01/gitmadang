@@ -19,7 +19,7 @@ package kr.pe.sinnori.common.threadpool;
 /**
  * 쓰레드 폴 인터페이스
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  */
 public interface ThreadPoolIF {
 	/**

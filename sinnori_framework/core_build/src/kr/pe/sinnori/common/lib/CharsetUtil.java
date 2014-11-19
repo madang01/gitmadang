@@ -28,7 +28,7 @@ import java.nio.charset.CharsetEncoder;
  * 단 지정한것이 없을시에는 서버설정파일에서 지정한 문자셋을 따르며 <br/>
  * 그거 마자 실패시에는 UTF-8로 세팅된다.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  */
 public class CharsetUtil implements CommonRootIF {
 

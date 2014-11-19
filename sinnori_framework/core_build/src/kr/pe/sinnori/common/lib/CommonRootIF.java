@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * 로그와 신놀이 환경 변수 접근 변수를 담은 공통 인터페이스<br/>
  * * 로그를 남기는 변수명과 신놀이 환경 변수 값에 대한 변수명을 강제하기위한 수단이다.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  */
 public interface CommonRootIF {
 	/**

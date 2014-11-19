@@ -32,7 +32,7 @@ import kr.pe.sinnori.server.executor.LetterSender;
 
 /**
  * 동기 메시지 방식의 파일 업로드 취소 서버 비지니스 로직 클래스
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public final class SyncCancelUploadFileServerTask extends AbstractAuthServerExecutor {

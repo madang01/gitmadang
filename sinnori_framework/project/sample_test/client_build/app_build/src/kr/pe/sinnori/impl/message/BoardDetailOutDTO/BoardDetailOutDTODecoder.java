@@ -205,6 +205,57 @@ public final class BoardDetailOutDTODecoder extends MessageDecoder {
 		, charsetOfProject
 		, middleReadObj));
 
+		boardDetailOutDTO.setAttachId((Long)
+		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
+		, "attachId" // itemName
+		, 5 // itemTypeID
+		, "unsigned integer" // itemTypeName
+		, -1 // itemSizeForLang
+		, null // itemCharset,
+		, charsetOfProject
+		, middleReadObj));
+
+		boardDetailOutDTO.setAttachFileCnt((Integer)
+		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
+		, "attachFileCnt" // itemName
+		, 4 // itemTypeID
+		, "integer" // itemTypeName
+		, -1 // itemSizeForLang
+		, null // itemCharset,
+		, charsetOfProject
+		, middleReadObj));
+
+		int attachFileListSize = boardDetailOutDTO.getAttachFileCnt();
+		Object attachFileMiddleReadArray = singleItemDecoder.getArrayObjFromMiddleReadObj(sigleItemPath0, "attachFile", attachFileListSize, middleReadObj);
+		java.util.List<BoardDetailOutDTO.AttachFile> attachFileList = new java.util.ArrayList<BoardDetailOutDTO.AttachFile>();
+		for (int i=0; i < attachFileListSize; i++) {
+			String sigleItemPath1 = new StringBuilder(sigleItemPath0).append(".").append("AttachFile[").append(i).append("]").toString();
+			Object attachFileMiddleReadObj = singleItemDecoder.getMiddleReadObjFromArrayObj(sigleItemPath1, attachFileMiddleReadArray, i);
+			BoardDetailOutDTO.AttachFile attachFile = new BoardDetailOutDTO.AttachFile();
+			attachFileList.add(attachFile);
+
+			attachFile.setAttachSeq((Short)
+			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
+			, "attachSeq" // itemName
+			, 1 // itemTypeID
+			, "unsigned byte" // itemTypeName
+			, -1 // itemSizeForLang
+			, null // itemCharset,
+			, charsetOfProject
+			, attachFileMiddleReadObj));
+
+			attachFile.setAttachFileName((String)
+			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
+			, "attachFileName" // itemName
+			, 8 // itemTypeID
+			, "us pascal string" // itemTypeName
+			, -1 // itemSizeForLang
+			, null // itemCharset,
+			, charsetOfProject
+			, attachFileMiddleReadObj));
+boardDetailOutDTO.setAttachFileList(attachFileList);
+		}
+
 		boardDetailOutDTO.setMemberGubunName((String)
 		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
 		, "memberGubunName" // itemName

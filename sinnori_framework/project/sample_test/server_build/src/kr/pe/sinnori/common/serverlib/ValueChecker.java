@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 
 /**
  * 항목 검사기, 예를 들면 아이디, 비밀번호 같은 공통 항목에 대한 입력값 검사기
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public class ValueChecker {
@@ -201,7 +201,7 @@ public class ValueChecker {
 			throw new RuntimeException("게시판 제목 값은 최소 2글자를 요구합니다.");
 		}
 
-		Pattern r = Pattern.compile("\n|\r");
+		Pattern r = Pattern.compile("\r\n|\n|\r|\u0085|\u2028|\u2029");
 		
 		Matcher match = r.matcher(subject);
 		

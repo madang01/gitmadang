@@ -26,7 +26,7 @@ import kr.pe.sinnori.impl.message.LoginEcho.LoginEcho;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
 
 /**
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public class AsynDownloadFileTransferTask implements CommonRootIF, FileTransferTaskIF {

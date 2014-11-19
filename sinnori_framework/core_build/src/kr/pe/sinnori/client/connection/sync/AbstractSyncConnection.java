@@ -31,7 +31,7 @@ import kr.pe.sinnori.common.protocol.ReceivedLetter;
  * 클라이언트 소켓 채널 블락킹 모드가 블락인 동기 연결 클래스의 부모 추상화 클래스<br/>
  * 참고)  소켓 채널을 감싸아 소켓 채널관련 서비스를 구현하는 클래스, 즉 소켓 채널 랩 클래스를 연결 클래스로 명명한다.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public abstract class AbstractSyncConnection extends AbstractConnection {

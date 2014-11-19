@@ -20,7 +20,7 @@ package kr.pe.sinnori.common.exception;
 
 /**
  * DB 가 사용 준비 되지 않았을 경우 던지는 예외
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 

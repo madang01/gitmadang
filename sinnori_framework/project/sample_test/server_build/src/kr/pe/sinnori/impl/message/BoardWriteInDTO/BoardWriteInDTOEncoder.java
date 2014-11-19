@@ -79,10 +79,18 @@ public final class BoardWriteInDTOEncoder extends MessageEncoder {
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(boardWriteInDTOSingleItemPath, "writerId"
+		singleItemEncoder.putValueToMiddleWriteObj(boardWriteInDTOSingleItemPath, "attachId"
+					, 5 // itemTypeID
+					, "unsigned integer" // itemTypeName
+					, boardWriteInDTO.getAttachId() // itemValue
+					, -1 // itemSizeForLang
+					, null // itemCharset,
+					, charsetOfProject
+					, middleWriteObj);
+		singleItemEncoder.putValueToMiddleWriteObj(boardWriteInDTOSingleItemPath, "userId"
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
-					, boardWriteInDTO.getWriterId() // itemValue
+					, boardWriteInDTO.getUserId() // itemValue
 					, -1 // itemSizeForLang
 					, null // itemCharset,
 					, charsetOfProject

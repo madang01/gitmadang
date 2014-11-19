@@ -39,6 +39,40 @@ public class BoardDetailOutDTO extends AbstractMessage {
 	private String ip;
 	private java.sql.Timestamp registerDate;
 	private java.sql.Timestamp modifiedDate;
+	private long attachId;
+	private int attachFileCnt;
+	public static class AttachFile {
+		private short attachSeq;
+		private String attachFileName;
+
+		public short getAttachSeq() {
+			return attachSeq;
+		}
+
+		public void setAttachSeq(short attachSeq) {
+			this.attachSeq = attachSeq;
+		}
+		public String getAttachFileName() {
+			return attachFileName;
+		}
+
+		public void setAttachFileName(String attachFileName) {
+			this.attachFileName = attachFileName;
+		}
+
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("AttachFile[");
+			builder.append("attachSeq=");
+			builder.append(attachSeq);
+			builder.append(", attachFileName=");
+			builder.append(attachFileName);
+			builder.append("]");
+			return builder.toString();
+		}
+	};
+	private java.util.List<AttachFile> attachFileList;
 	private String memberGubunName;
 	private byte memberState;
 
@@ -154,6 +188,28 @@ public class BoardDetailOutDTO extends AbstractMessage {
 	public void setModifiedDate(java.sql.Timestamp modifiedDate) {
 		this.modifiedDate = modifiedDate;
 	}
+	public long getAttachId() {
+		return attachId;
+	}
+
+	public void setAttachId(long attachId) {
+		this.attachId = attachId;
+	}
+	public int getAttachFileCnt() {
+		return attachFileCnt;
+	}
+
+	public void setAttachFileCnt(int attachFileCnt) {
+		this.attachFileCnt = attachFileCnt;
+	}
+
+	public java.util.List<AttachFile> getAttachFileList() {
+		return attachFileList;
+	}
+
+	public void setAttachFileList(java.util.List<AttachFile> attachFileList) {
+		this.attachFileList = attachFileList;
+	}
 	public String getMemberGubunName() {
 		return memberGubunName;
 	}
@@ -205,6 +261,34 @@ public class BoardDetailOutDTO extends AbstractMessage {
 		builder.append(registerDate);
 		builder.append(", modifiedDate=");
 		builder.append(modifiedDate);
+		builder.append(", attachId=");
+		builder.append(attachId);
+		builder.append(", attachFileCnt=");
+		builder.append(attachFileCnt);
+		builder.append(", attachFileList=");
+		if (null == attachFileList) {
+			builder.append("null");
+		} else {
+			int attachFileListSize = attachFileList.size();
+			if (0 == attachFileListSize) {
+				builder.append("empty");
+			} else {
+				builder.append("[");
+				for (int i=0; i < attachFileListSize; i++) {
+					AttachFile attachFile = attachFileList.get(i);
+					if (0 == i) {
+						builder.append("attachFile[");
+					} else {
+						builder.append(", attachFile[");
+					}
+					builder.append(i);
+					builder.append("]=");
+					builder.append(attachFile.toString());
+				}
+				builder.append("]");
+			}
+		}
+
 		builder.append(", memberGubunName=");
 		builder.append(memberGubunName);
 		builder.append(", memberState=");

@@ -1,4 +1,4 @@
-<%@ page extends="kr.pe.sinnori.common.weblib.AbstractJSPBase" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+<%@ page extends="kr.pe.sinnori.common.weblib.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
 %><%@ page import="kr.pe.sinnori.impl.message.BoardListOutDTO.BoardListOutDTO" %><%
 %><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
@@ -16,6 +16,7 @@ table {
 }
 thead {
 	height : 30px;
+	text-align:center;
 }
 tbody {
 	height : 20px;
@@ -47,19 +48,6 @@ tbody {
 		g.submit();
 	}
 
-	function goReply(parentBoardNo) {
-		if(typeof(sessionStorage) == "undefined") {
-		    alert("Sorry! No HTML5 sessionStorage support..");
-		    return;
-		}
-
-		var g = document.goReplyForm;
-		g.parentBoardNo.value = parentBoardNo;
-		g.sessionkeyBase64.value = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_SESSIONKEY_NAME%>');
-		var iv = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_IV_SIZE%>);
-		g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);
-		g.submit();
-	}
 
 	function goDetail(boardNo) {
 		if(typeof(sessionStorage) == "undefined") {
@@ -74,6 +62,7 @@ tbody {
 		g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);		
 		g.submit();
 	}
+
 
 	function goPage(pageNo) {
 		if(typeof(sessionStorage) == "undefined") {
@@ -97,14 +86,6 @@ tbody {
 <input type="hidden" name="ivBase64" />
 </form>
 
-<form name=goReplyForm method="post" action="/servlet/BoardReply">
-<input type="hidden" name="topmenu" value="<%=topmenu%>" />
-<input type="hidden" name="pageMode" value="view" />
-<input type="hidden" name="boardId" value="<%=parmBoardId%>" />
-<input type="hidden" name="parentBoardNo" />
-<input type="hidden" name="sessionkeyBase64" />
-<input type="hidden" name="ivBase64" />
-</form>
 
 <form name=goDetailForm method="post" action="/servlet/BoardDetail">
 <input type="hidden" name="topmenu" value="<%=topmenu%>" />
@@ -171,15 +152,13 @@ tbody {
 	<div style="clear:both; height:100%">
 <table border="1">
 <thead>
-<tr style="text-align=center;">
+<tr>
 	<th style="width:30px;">번호</th>
-	<th style="width:260px;">제목</th>
+	<th style="width:300px;">제목</th>
 	<th style="width:90px;">작성자</th>
 	<th style="width:40px;">조회수</th>
 	<th style="width:40px;">추천수</th>
-	<th style="width:70px;">마지막<br/>수정일</th>
-	<!-- th>회원구분</th -->
-	<th>기능</th>
+	<th>마지막<br/>수정일</th>
 </tr>
 </thead>
 <tbody><%
@@ -208,13 +187,11 @@ tbody {
 		}
 		out.print("ㄴ");
 	}
-%><a href="#" onClick="goDetail('<%=board.getBoardNo() %>')"><%=escapeHtml(board.getSubject(), false) %></a></td>
-	<td><%=escapeHtml(board.getNickname(), false) %></td>
+%><a href="#" onClick="goDetail('<%=board.getBoardNo() %>')"><%=escapeHtml(board.getSubject(), WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER) %></a></td>
+	<td><%=escapeHtml(board.getNickname(), WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER) %></td>
 	<td><%=board.getViewCount() %></td>
 	<td><%=board.getVotes() %></td>
 	<td><%=board.getModifiedDate().toString() %></td>
-	<!-- td><%=board.getMemberGubunName() %></td -->
-	<td><input type=button onClick="goReply(<%=board.getBoardNo()%>)" value="댓글" /></td>
 </tr><%
 			}
 		}

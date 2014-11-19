@@ -40,7 +40,7 @@ import kr.pe.sinnori.server.io.LetterToClient;
 /**
  * 서버에 접속하는 클라이언트 자원 클래스.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class ClientResource implements CommonRootIF {

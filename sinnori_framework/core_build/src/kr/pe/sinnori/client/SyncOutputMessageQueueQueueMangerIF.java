@@ -22,7 +22,7 @@ import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
 
 /**
  * 비동기 입출력 지원용 랩 출력 메시지 큐를 원소로 하는 큐 관리자 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public interface SyncOutputMessageQueueQueueMangerIF {

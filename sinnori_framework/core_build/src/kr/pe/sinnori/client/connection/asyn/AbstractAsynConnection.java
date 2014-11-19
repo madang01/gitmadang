@@ -41,7 +41,7 @@ import kr.pe.sinnori.common.protocol.ReceivedLetter;
  * 클라이언트 소켓 채널 블락킹 모드가 넌블락인 비동기 연결 클래스의 부모 추상화 클래스<br/>
  * 참고) 소켓 채널관련 서비스관련 구현을 하는 클래스를 연결 클래스로 명명한다.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  */
 public abstract class AbstractAsynConnection extends AbstractConnection {
 	/** 입력 메시지 큐 */

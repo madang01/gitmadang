@@ -44,7 +44,7 @@ import kr.pe.sinnori.common.protocol.ReceivedLetter;
  * 클라이언트 비공유 방식의 비동기 연결 클래스 {@link NoShareAsynConnection} 를 원소로 가지는 폴 관리자 클래스<br/>
  * 다른 쓰레드간에 연결 클래스를 공유 시키지 않기 위해서 폴 원소는 큐로 관리한다.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class NoShareAsynConnectionPool extends AbstractConnectionPool {

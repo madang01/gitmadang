@@ -32,7 +32,7 @@ import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
 
 /**
  * 모든 데이터 타입을 갖는 AllDataType 메시지 교환 테스트
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 @SuppressWarnings("serial")

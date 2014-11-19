@@ -29,7 +29,7 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
  * 
  * @see FixedSizeOutputStream
  * @see FreeSizeOutputStream
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public interface OutputStreamIF {

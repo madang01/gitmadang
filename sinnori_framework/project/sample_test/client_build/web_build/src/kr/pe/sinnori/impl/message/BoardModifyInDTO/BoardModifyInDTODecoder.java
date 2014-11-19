@@ -85,9 +85,9 @@ public final class BoardModifyInDTODecoder extends MessageDecoder {
 		, charsetOfProject
 		, middleReadObj));
 
-		boardModifyInDTO.setWriterId((String)
+		boardModifyInDTO.setUserId((String)
 		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "writerId" // itemName
+		, "userId" // itemName
 		, 7 // itemTypeID
 		, "ub pascal string" // itemTypeName
 		, -1 // itemSizeForLang

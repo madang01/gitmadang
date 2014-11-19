@@ -16,10 +16,6 @@
 
 package kr.pe.sinnori.common.weblib;
 
-import java.io.IOException;
-
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -27,7 +23,7 @@ import javax.servlet.http.HttpServletResponse;
  * <pre>
  *  공통적인 전 작업과 개별 프로그래머가 작성할 작업을 분리해 주는 추상화 클래스.
  *  
- * 복사자&수정자 : Jonghoon Won
+ * 복사자&수정자 : Won Jonghoon
  * 복사&수정 내용 : 응용에 따라 약간 수정
  * </pre>
  */
@@ -36,8 +32,7 @@ public abstract class AbstractServlet extends JDFBaseServlet {
 
 	
 	@Override
-	protected void performPreTask(HttpServletRequest req, HttpServletResponse res) throws Exception  {	
-		
+	protected void performPreTask(HttpServletRequest req, HttpServletResponse res) throws Exception  {		
 		performTask(req,res);	
 	}
 
@@ -49,30 +44,20 @@ public abstract class AbstractServlet extends JDFBaseServlet {
 	protected abstract void performTask (HttpServletRequest req, HttpServletResponse res) throws Exception;	
 	
 	@Override
-	protected void printMessagePage (HttpServletRequest req, HttpServletResponse res, String user_msg, String debug_msg) {		
-		
-		
-		if (null == user_msg) {
-			user_msg = "user messsage is null";
+	protected void printMessagePage (HttpServletRequest req, HttpServletResponse res, String userMessage, String debugMessage) {		
+				
+		if (null == userMessage) {
+			userMessage = "user messsage is null";
 		}
 		
 		
-		if (null == debug_msg) {
-			debug_msg = "debug messsage is null";
+		if (null == debugMessage) {
+			debugMessage = "debug messsage is null";
 		}
 		
-		req.setAttribute("debug_msg", debug_msg);
-		req.setAttribute("user_msg", user_msg);
-		req.setAttribute("targeturl", jdf_error_message_page);
+		req.setAttribute("debugMessage", debugMessage);
+		req.setAttribute("userMessage", userMessage);
 		
-		RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(web_layout_control_page);
-		
-		try {
-			dispatcher.forward(req, res);
-		} catch (ServletException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		printJspPage(req, res, JDF_ERROR_MESSAGE_PAGE);
 	}
 }

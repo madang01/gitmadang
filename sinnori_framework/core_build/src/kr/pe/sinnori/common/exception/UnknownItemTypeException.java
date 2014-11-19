@@ -20,7 +20,7 @@ package kr.pe.sinnori.common.exception;
 
 /**
  * 알수 없는 메시지 항목 타입명을 받았을때 던지는 예외 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 @SuppressWarnings("serial")

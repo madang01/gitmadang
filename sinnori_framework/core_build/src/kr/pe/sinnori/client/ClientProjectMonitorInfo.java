@@ -20,7 +20,7 @@ package kr.pe.sinnori.client;
 
 /**
  * 클라리언트 프로젝트 모니터링 정보
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public class ClientProjectMonitorInfo {

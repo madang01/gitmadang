@@ -32,7 +32,7 @@ import kr.pe.sinnori.common.lib.CommonRootIF;
 /**
  * 서버용 동적 클래스들 로딩및 관리를 담당하는 "동적 클래스 로더". @{link ServerObjectManager } 에 종속 된다.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class ServerClassLoader extends ClassLoader implements CommonRootIF {

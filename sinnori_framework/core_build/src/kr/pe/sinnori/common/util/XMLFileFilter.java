@@ -23,7 +23,7 @@ import java.io.FilenameFilter;
 /**
  * 파일의 확장자를 .xml 로 제한 하기 위한 파일명 필터링 클래스
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class XMLFileFilter implements FilenameFilter {

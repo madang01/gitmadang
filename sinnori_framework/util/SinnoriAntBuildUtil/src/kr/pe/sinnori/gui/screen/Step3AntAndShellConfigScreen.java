@@ -55,7 +55,7 @@ import com.jgoodies.forms.layout.RowSpec;
 
 /**
  * 3단계 Ant및 셀 담당 화면
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 @SuppressWarnings("serial")
@@ -451,7 +451,7 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 
 	/**
 	 * 완료 이벤트 처리 클래스
-	 * @author Jonghoon Won
+	 * @author Won Jonghoon
 	 *
 	 */
 	private class FinishSwingAction extends AbstractAction {
@@ -809,7 +809,7 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 	
 	/**
 	 * 톰켓 미설치 라디오 버튼 이벤트 처리 클래스
-	 * @author Jonghoon Won
+	 * @author Won Jonghoon
 	 *
 	 */
 	private class TomcatOffSwingAction extends AbstractAction {
@@ -840,7 +840,7 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 	
 	/**
 	 * 톰켓 설치 라디오 버튼 이벤트 처리 클래스
-	 * @author Jonghoon Won
+	 * @author Won Jonghoon
 	 *
 	 */
 	private class TomcatOnSwingAction extends AbstractAction {

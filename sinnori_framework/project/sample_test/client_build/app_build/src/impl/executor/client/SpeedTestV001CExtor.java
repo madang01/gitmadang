@@ -44,7 +44,7 @@ import kr.pe.sinnori.util.AbstractClientExecutor;
  * toString 메소드를 이클립스를 통해서 쉽게 만들 수 있지만 <br/>
  * 이 방법은 개발자에게 짐을 지우기 때문에 신놀이 프레임 워크 목적에 부합하지 않는다.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public class SpeedTestV001CExtor extends AbstractClientExecutor {

@@ -19,7 +19,7 @@ package kr.pe.sinnori.gui.lib;
 
 /**
  * 원격지 파일 트리 노드
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 @SuppressWarnings("serial")

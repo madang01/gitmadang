@@ -28,7 +28,7 @@ import kr.pe.sinnori.common.lib.CommonRootIF;
  * 로컬 목적지 파일을 원할하게 수신하기 위한 로컬 목적지 파일 자원 큐 관리자 클래스. 
  * 주) 느슷한 구조의 큐 자원 관리자로 통제된 사용 방법외 방법으로 사용시 비 정상 동작한다.
  * </pre>
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public class LocalTargetFileResourceManager implements CommonRootIF {

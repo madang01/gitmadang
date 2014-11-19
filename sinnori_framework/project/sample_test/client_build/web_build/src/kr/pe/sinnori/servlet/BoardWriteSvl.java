@@ -32,7 +32,7 @@ import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
 
 /**
  * 게시판 최상의 글 등록 처리
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 @SuppressWarnings("serial")
@@ -144,6 +144,43 @@ public class BoardWriteSvl extends AbstractAuthServlet {
 				printJspPage(req, res, goPage);
 				return;
 			}
+			
+			String parmAttachId = req.getParameter("attachId");
+			if (null == parmAttachId) {
+				String errorMessage = "업로드 식별자를 넣어주세요.";
+				req.setAttribute("errorMessage", errorMessage);
+				printJspPage(req, res, goPage);
+				return;
+			}
+			
+			long attachId = 0L;
+			try {
+				attachId = Long.parseLong(parmAttachId);
+			}catch (NumberFormatException nfe) {
+				String errorMessage = new StringBuilder("자바 long 타입 변수인 업로드 식별자 값[")
+				.append(parmAttachId).append("]이 잘못되었습니다.").toString();
+				req.setAttribute("errorMessage", errorMessage);
+				printJspPage(req, res, goPage);
+				return;
+			}
+			
+			if (attachId < 0) {
+				String errorMessage = new StringBuilder("업로드 파일 식별자 값[")
+				.append(parmAttachId).append("]은 0 보다 작거나 커야합니다.").toString();
+				req.setAttribute("errorMessage", errorMessage);
+				printJspPage(req, res, goPage);
+				return;
+			}
+			
+			if (CommonStaticFinalVars.MAX_UNSIGNED_INT < attachId) {
+				String errorMessage = new StringBuilder("업로드 파일 식별자 값[")
+				.append(parmAttachId).append("]은 ")
+				.append(CommonStaticFinalVars.MAX_UNSIGNED_INT)
+				.append(" 값 보다 작거나 같아야합니다.").toString();
+				req.setAttribute("errorMessage", errorMessage);
+				printJspPage(req, res, goPage);
+				return;
+			}
 				
 			
 			String errorMessage = "";
@@ -155,8 +192,12 @@ public class BoardWriteSvl extends AbstractAuthServlet {
 			inObj.setBoardId(boardId);
 			inObj.setSubject(parmSubject);
 			inObj.setContent(parmContent);
-			inObj.setWriterId(userId);
+			inObj.setAttachId(attachId);
+			inObj.setUserId(userId);
 			inObj.setIp(req.getRemoteAddr());
+			
+			// FIXME!
+			log.info("inObj={}", inObj.toString());
 			
 			ClientProject clientProject = ClientProjectManager.getInstance().getClientProject(projectName);
 			AbstractMessage messageFromServer = clientProject.sendSyncInputMessage(inObj);

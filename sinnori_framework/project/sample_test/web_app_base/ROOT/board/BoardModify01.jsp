@@ -1,4 +1,4 @@
-<%@ page extends="kr.pe.sinnori.common.weblib.AbstractJSPBase" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+<%@ page extends="kr.pe.sinnori.common.weblib.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
 %><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
@@ -26,7 +26,7 @@
 		<li>
 			<dl>
 				<dt>에러</dt>
-				<dd><%=escapeHtml(errorMessage, true)%></dd>
+				<dd><%=escapeHtml(errorMessage, WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER)%></dd>
 			</dl>
 		</li>
 		</ul>		
@@ -95,13 +95,13 @@
 		<li>
 			<dl>
 				<dt>제목</dt>
-				<dd><input type="text" name="subject" size="50" value="<%=escapeHtml(boardDetailOutDTO.getSubject(), false)%>" /></dd>
+				<dd><input type="text" name="subject" size="50" value="<%=escapeHtml(boardDetailOutDTO.getSubject())%>" /></dd>
 			</dl>
 		</li>
 		<li>
 			<dl>
 				<dt>내용</dt>
-				<dd><textarea name="content" style="width: 500px; height: 220px;"><%=escapeHtml(boardDetailOutDTO.getContent(), false)%></textarea></dd>
+				<dd><textarea name="content" style="width: 500px; height: 220px;"><%=escapeHtml(boardDetailOutDTO.getContent(), WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER)%></textarea></dd>
 			</dl>
 		</li>
 		<li>

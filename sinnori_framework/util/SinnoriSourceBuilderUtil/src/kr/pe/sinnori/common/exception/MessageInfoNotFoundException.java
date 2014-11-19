@@ -21,7 +21,7 @@ package kr.pe.sinnori.common.exception;
 /**
  * 입/출력 메시지를 생성할때 XML로 작성된 메시지 정보 파일이 존재하지 않을때 던지는 예외
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 

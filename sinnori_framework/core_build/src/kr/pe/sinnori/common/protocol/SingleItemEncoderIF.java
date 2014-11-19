@@ -22,7 +22,7 @@ import kr.pe.sinnori.common.exception.BodyFormatException;
 
 /**
  * 단일 항목 인코더 인터페이스. 프로토콜별로 구현된다.
- * @author "Jonghoon Won"
+ * @author "Won Jonghoon"
  *
  */
 public interface SingleItemEncoderIF {

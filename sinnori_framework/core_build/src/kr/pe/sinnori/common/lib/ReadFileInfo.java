@@ -27,7 +27,7 @@ package kr.pe.sinnori.common.lib;
  * (1) XML 로 작성되는 메시지 식별자 정보 파일을 다룰때에는 파일 엔트리 클래스(File) 객체
  * (2) 서버 비지니스 로직 클래스 파일을 다룰때에는 서비 비지니스 로직 클래스의 인스턴스 객체
  * </pre> 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class ReadFileInfo {

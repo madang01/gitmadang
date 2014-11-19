@@ -40,7 +40,7 @@ import com.jgoodies.forms.layout.RowSpec;
 
 /**
  * 1단계 신놀이 설치 경로를 지정하는 화면 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 @SuppressWarnings("serial")
@@ -115,7 +115,7 @@ public class Step1DirectoryConfirmScreen extends JPanel {
 
 	/**
 	 * 2단계 화면 이동 이벤트 처리 클래스
-	 * @author Jonghoon Won
+	 * @author Won Jonghoon
 	 *
 	 */
 	private class NextSwingAction extends AbstractAction {

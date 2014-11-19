@@ -35,7 +35,7 @@ import kr.pe.sinnori.common.protocol.ReceivedLetter;
 /**
  * 클라이언트 연결 클래스 폴 관리자 부모 추상화 클래스.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public abstract class AbstractConnectionPool implements CommonRootIF {

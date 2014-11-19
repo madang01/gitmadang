@@ -1,13 +1,12 @@
-<%@ page language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><%@ page import="org.apache.commons.lang3.StringEscapeUtils" %><%
-%><%@ page import="kr.pe.sinnori.common.servlet.WebCommonStaticFinalVars" %><%
+<%@ page extends="kr.pe.sinnori.common.weblib.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+%><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
 %><jsp:useBean id="parmIVBase64" class="java.lang.String" scope="request" /><%
 	
 	kr.pe.sinnori.common.sessionkey.SymmetricKey webUserSymmetricKey = 
 (kr.pe.sinnori.common.sessionkey.SymmetricKey)request.getAttribute("webUserSymmetricKey");
 	
 	String orignalMessage = "원문에 있는 이 문구가 복호문에서 잘 보시이면 " 
-+ "AbstractSessionKeyServlet 모듈 테스트 통과 안보이면 실패";
++ "AbstractSessionKeyServlet 모듈 테스트 통과 안보이면 실패\n<script type=\"text/javascript\">alert(\"hello\");</script>";
 %>
 <script type="text/javascript" src="/js/cryptoJS/rollups/aes.js"></script>
 <script type="text/javascript" src="/js/cryptoJS/components/core-min.js"></script>
@@ -26,7 +25,7 @@ AbstractSessionKeyServlet 는  세션키 운영에 필요한 파라미터를 요
 			<td>원문</td><td>복호문</td>
 		</tr>
 		<tr>
-			<td><%=orignalMessage%></td><td id="idTxtResultMessage"></td>
+			<td><%=escapeHtml(orignalMessage, WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER)%></td><td id="idTxtResultMessage"></td>
 		</tr>
 		</table>
 	</li>
@@ -37,7 +36,7 @@ AbstractSessionKeyServlet 는  세션키 운영에 필요한 파라미터를 요
 	
 	var privateKey = CryptoJS.enc.Base64.parse(sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_PRIVATEKEY_NAME%>'));
 	
-	var messageTxt = CryptoJS.AES.decrypt("<%= webUserSymmetricKey.encryptStringBase64(orignalMessage) %>", privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: pageIV });
+	var messageTxt = CryptoJS.AES.decrypt("<%= webUserSymmetricKey.encryptStringBase64(escapeHtml(orignalMessage, WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER)) %>", privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: pageIV });
 		
 	document.getElementById('idTxtResultMessage').innerHTML = messageTxt.toString(CryptoJS.enc.Utf8);
 //-->

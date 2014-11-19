@@ -27,7 +27,7 @@ public class BoardModifyInDTO extends AbstractMessage {
 	private long boardNo;
 	private String subject;
 	private String content;
-	private String writerId;
+	private String userId;
 	private String ip;
 
 	public long getBoardId() {
@@ -58,12 +58,12 @@ public class BoardModifyInDTO extends AbstractMessage {
 	public void setContent(String content) {
 		this.content = content;
 	}
-	public String getWriterId() {
-		return writerId;
+	public String getUserId() {
+		return userId;
 	}
 
-	public void setWriterId(String writerId) {
-		this.writerId = writerId;
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 	public String getIp() {
 		return ip;
@@ -85,8 +85,8 @@ public class BoardModifyInDTO extends AbstractMessage {
 		builder.append(subject);
 		builder.append(", content=");
 		builder.append(content);
-		builder.append(", writerId=");
-		builder.append(writerId);
+		builder.append(", userId=");
+		builder.append(userId);
 		builder.append(", ip=");
 		builder.append(ip);
 		builder.append(", messageHeaderInfo=");

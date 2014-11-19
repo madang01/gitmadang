@@ -27,7 +27,7 @@ import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
  * 입출력 메시지 클래스의 부모 추상화 클래스.<br/>
  * 메시지 구현 추상화 클래스를 상속 받으며 메시지 운용에 필요한 메시지 헤더 정보를 갖고 있다.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public abstract class AbstractMessage implements CommonRootIF {

@@ -20,7 +20,6 @@ package kr.pe.sinnori.servlet;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.Hashtable;
 
 import javax.crypto.BadPaddingException;
@@ -38,7 +37,7 @@ import kr.pe.sinnori.common.weblib.AbstractServlet;
 /**
  * 자바 스크립트 CryptoJS 라이브러리에서 제공하는 대칭키 함수와 자바 결과 일치 테스트<br/>
  * 대칭키 함수 목록 (1) AES (2) DES (3)  DESede(=Triple DES)
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 @SuppressWarnings("serial")
@@ -125,19 +124,23 @@ public class CryptoJSSKTestSvl extends AbstractServlet {
 				throw new RuntimeException("BadPaddingException");
 			}
 			
+			String plainTextHex = HexUtil.getHexStringFromByteArray(plainText.getBytes());
 			String decryptedBytesHex = HexUtil.getHexStringFromByteArray(decryptedBytes);
-			log.info(String.format("decryptedBytes[%s]", decryptedBytesHex));
+			log.info("plainTextHex[{}], decryptedBytes[{}]", plainTextHex, decryptedBytesHex);
 			
-			String resultMessage = String.format("%s", Arrays.equals(plainText.getBytes(), decryptedBytes));			
+			
+			String decryptedPlainText = new String(decryptedBytes);
+			String resultMessage = String.format("%s", decryptedPlainText.equals(plainText));			
 			goPage = arryPageURL[1];
 			
 			req.setAttribute("plainText", plainText);
 			req.setAttribute("algorithm", algorithm);
 			req.setAttribute("privateKey", privateKeyHex);
 			req.setAttribute("iv", ivHex);
-			req.setAttribute("encryptedBytes", encryptedBytesHex);
-			req.setAttribute("decryptedBytes", decryptedBytesHex);
-			req.setAttribute("decryptedPlainText", new String(decryptedBytes));
+			req.setAttribute("encryptedBytesHex", encryptedBytesHex);
+			req.setAttribute("plainTextHex", plainTextHex);
+			req.setAttribute("decryptedBytesHex", decryptedBytesHex);
+			req.setAttribute("decryptedPlainText", decryptedPlainText);
 			req.setAttribute("resultMessage", resultMessage);
 		}
 		

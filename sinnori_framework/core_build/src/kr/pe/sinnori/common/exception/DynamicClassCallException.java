@@ -20,7 +20,7 @@ package kr.pe.sinnori.common.exception;
 /**
  * 동적 클래스 호출 실패시 던지는 예외. 참고) 이진스트림과 메시지간에 변환기 클래스 동적 호출 과정에서 발생함
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 

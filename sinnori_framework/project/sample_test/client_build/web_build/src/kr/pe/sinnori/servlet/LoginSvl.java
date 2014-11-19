@@ -39,7 +39,7 @@ import org.apache.commons.codec.binary.Base64;
 
 /**
  * 로그인
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 @SuppressWarnings("serial")

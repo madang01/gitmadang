@@ -22,7 +22,7 @@ import java.nio.channels.SocketChannel;
 
 /**
  * 모니터링용 클라이언트 정보
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public class MonitorClientInfo {

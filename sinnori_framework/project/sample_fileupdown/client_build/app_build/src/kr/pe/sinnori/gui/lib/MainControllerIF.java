@@ -26,7 +26,7 @@ import kr.pe.sinnori.impl.message.UpFileInfoResult.UpFileInfoResult;
 
 /**
  * 연결 성공일 경우 인터페이스
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public interface MainControllerIF {

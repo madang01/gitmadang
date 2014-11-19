@@ -38,7 +38,7 @@ import kr.pe.sinnori.gui.screen.commonfileupdown.task.FileTransferTaskIF;
  * 업로드 파일을 모두 전송 받았거나 중간에 취소시 원격지 파일 목록을 재 갱신한다.
  * </pre> 
  *  
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public class AsynUploadFileTransferTask implements FileTransferTaskIF, CommonRootIF {

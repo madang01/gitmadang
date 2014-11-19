@@ -19,7 +19,7 @@ package kr.pe.sinnori.common.exception;
 
 /**
  * 데이터 패킷 버퍼 부족시 던지는 예외
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 

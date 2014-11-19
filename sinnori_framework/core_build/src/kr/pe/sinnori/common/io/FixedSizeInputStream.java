@@ -33,7 +33,7 @@ import kr.pe.sinnori.common.util.HexUtil;
  * 고정 크기를 갖는 입력 이진 스트림.<br/>
  * 1개의 고정 바이트 버퍼로 구성된다.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class FixedSizeInputStream implements CommonRootIF, InputStreamIF {

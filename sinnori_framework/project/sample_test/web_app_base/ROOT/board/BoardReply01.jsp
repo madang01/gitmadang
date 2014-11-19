@@ -1,4 +1,4 @@
-<%@ page extends="kr.pe.sinnori.common.weblib.AbstractJSPBase" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+<%@ page extends="kr.pe.sinnori.common.weblib.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
 %><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
@@ -25,7 +25,7 @@
 		<li>
 			<dl>
 				<dt>에러</dt>
-				<dd><%=escapeHtml(errorMessage, true)%></dd>
+				<dd><%=escapeHtml(errorMessage, WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER)%></dd>
 			</dl>
 		</li>
 		</ul>		
@@ -80,6 +80,7 @@
 <input type="hidden" name="parentBoardNo" value="<%=parmParentBoardNo%>" />
 <input type="hidden" name="subject" />
 <input type="hidden" name="content" />
+<input type="hidden" name="attachId" value="0" />
 <input type="hidden" name="sessionkeyBase64" />
 <input type="hidden" name="ivBase64" />
 </form>

@@ -20,7 +20,7 @@ package impl.executor.client;
 /**
  * 가상적으로 입력 메시지들을 넣은 거대 스트림으로부터 랜덤하게 데이터를 순차적으로 읽으면서 출력 메시지를 바르게 추출하는지 검사하기 위한 로직이다.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 import java.net.SocketTimeoutException;

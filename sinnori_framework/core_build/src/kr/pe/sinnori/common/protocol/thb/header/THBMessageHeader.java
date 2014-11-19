@@ -35,7 +35,7 @@ import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.protocol.dhb.header.DHBMessageHeader;
 
 /**
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public class THBMessageHeader implements CommonRootIF {

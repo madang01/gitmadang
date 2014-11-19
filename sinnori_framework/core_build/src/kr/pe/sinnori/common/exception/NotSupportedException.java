@@ -23,7 +23,7 @@ package kr.pe.sinnori.common.exception;
  * (1) 동기+비공유 연결에서 비동기 메시지를 보내고자 할때, 참고) 동기 소켓을 갖고서 비동기식으로 메시지를 주고 받을 수 없다.
  * (2) 비동기+공유 연결인데 비 공유 연결을 얻고자 할때 혹은 비동기+공유 연결인데 비 공유 연결을 반환하고자 할때,  
  * </pre>
- * @author "Jonghoon Won"
+ * @author "Won Jonghoon"
  *
  */
 @SuppressWarnings("serial")

@@ -26,7 +26,7 @@ import kr.pe.sinnori.gui.lib.AsynMainControllerIF;
 
 /**
  * 비동기 파일 송수신의 비동기 메시지 처리자
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public class AsynFileUpDownOutputMessageTask implements CommonRootIF, AsynOutputMessageTaskIF {

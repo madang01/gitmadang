@@ -14,7 +14,7 @@ import kr.pe.sinnori.screen.NoConfigFileScreen;
  * 신놀이 운영에 필요한 소스들(메시지, 인코더, 디코더, 서버 코덱, 클라이언트 코덱)을 
  * 자동 생성해 주는 작성기의 화면 디자인 겸용 스토리 보드입니다. 
  * </pre>
- * @author "Jonghoon Won"
+ * @author "Won Jonghoon"
  *
  */
 public class SourceFileBuilderDesignMain {

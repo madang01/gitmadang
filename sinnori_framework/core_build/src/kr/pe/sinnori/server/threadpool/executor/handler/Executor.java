@@ -41,7 +41,7 @@ import kr.pe.sinnori.server.io.LetterToClient;
  * 서버 비지니스 로직 수행자 쓰레드<br/>
  * 입력 메시지 대응 비지니스 로직 수행후 결과로 얻은 출력 메시지가 담긴 편지 묶음을 출력 메시지 큐에 넣는다.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  */
 public class Executor extends Thread implements CommonRootIF {
 	private int index;

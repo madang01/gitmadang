@@ -24,7 +24,7 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 /**
  * 서버에 접속 승인된 클라이언트(=소켓 채널) 등록 처리 쓰레드가 바라보는 입력 메시지 소켓 읽기 담당 쓰레드 폴 인터페이스.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  */
 
 public interface InputMessageReaderPoolIF {

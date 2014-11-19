@@ -49,7 +49,7 @@ import org.apache.commons.codec.binary.Base64;
 /**
  * 서버 관점의 세션키 관리자
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public final class ServerSessionKeyManager implements CommonRootIF {

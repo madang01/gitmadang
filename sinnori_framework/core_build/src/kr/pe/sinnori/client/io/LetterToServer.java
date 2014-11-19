@@ -25,7 +25,7 @@ import kr.pe.sinnori.common.lib.WrapBuffer;
 /**
  * 서버로 보내는 입력 메시지와 연결 클래스를 담은 클래스.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class LetterToServer {

@@ -31,7 +31,7 @@ import kr.pe.sinnori.gui.screen.commonfileupdown.FileUpDownScreenIF;
 
 /**
  * 로컬 부모 경로로 이동 이벤트 처리 클래스
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 @SuppressWarnings("serial")

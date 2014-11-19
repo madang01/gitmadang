@@ -22,7 +22,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
 
 /**
  * 익명 서버 메시지 처리 작업 인터페이스
- * @author Jonghoon won
+ * @author Won Jonghoon
  *
  */
 public interface AsynOutputMessageTaskIF {

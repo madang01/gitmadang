@@ -12,7 +12,7 @@ import org.apache.commons.dbcp2.BasicDataSource;
  * 지정한 DB 관련 환경 변수값에 맞쳐 설정하여 이용하는 클래스.
  * </pre>
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public final class DBCPManager implements CommonRootIF {

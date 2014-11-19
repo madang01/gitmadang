@@ -64,26 +64,6 @@ public final class BoardDetailInDTODecoder extends MessageDecoder {
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
-
-		boardDetailInDTO.setWriterId((String)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "writerId" // itemName
-		, 7 // itemTypeID
-		, "ub pascal string" // itemTypeName
-		, -1 // itemSizeForLang
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
-
-		boardDetailInDTO.setIp((String)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "ip" // itemName
-		, 7 // itemTypeID
-		, "ub pascal string" // itemTypeName
-		, -1 // itemSizeForLang
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
 		return boardDetailInDTO;
 	}
 }

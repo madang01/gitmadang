@@ -36,7 +36,7 @@ import kr.pe.sinnori.common.lib.WrapBuffer;
 /**
  * 가변 크기를 갖는 출력 이진 스트림<br/>
  * 참고) 스트림은 데이터 패킷 버퍼 큐 관리자가 관리하는 랩 버퍼들로 구현된다. 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public final class FreeSizeOutputStream implements CommonRootIF, OutputStreamIF {

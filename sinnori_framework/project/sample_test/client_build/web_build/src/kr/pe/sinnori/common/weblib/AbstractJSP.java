@@ -4,17 +4,13 @@ import java.io.IOException;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.HttpJspPage;
-
-import org.apache.commons.lang3.StringEscapeUtils;
 
 
 @SuppressWarnings("serial")
-public abstract class AbstractJSPBase extends HttpServlet implements HttpJspPage {
+public abstract class AbstractJSP extends AbstractBaseServlet implements HttpJspPage {
 	private ServletConfig config;
 
 	// Initialise global variables
@@ -23,7 +19,6 @@ public abstract class AbstractJSPBase extends HttpServlet implements HttpJspPage
 
 		this.config = config;
 		jspInit();
-
 	}
 
 	// provide accessor to the ServletConfig object
@@ -79,22 +74,5 @@ public abstract class AbstractJSPBase extends HttpServlet implements HttpJspPage
 	public void jspInit() {		
 	}
 	
-	public String escapeHtml(String str, boolean isLine2Br) {
-		if (null == str)
-			return "";
-		String ret = StringEscapeUtils.escapeHtml4(str);
-		if (isLine2Br)
-			ret.replaceAll("\r\n|\n", "<br/>");
-		return ret;
-	}
-
-	public boolean isLogin(HttpSession session) {
-		String userId = (String) session
-				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_USERID_NAME);
-		if (null == userId || userId.equals("")) {
-			return false;
-		}
-		return true;
-	}
-
+	
 }

@@ -27,7 +27,7 @@ import kr.pe.sinnori.common.lib.CommonType;
 /**
  * 단일 항목 정보 클래스
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class SingleItemInfo extends AbstractItemInfo {

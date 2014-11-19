@@ -32,7 +32,7 @@ import kr.pe.sinnori.impl.javabeans.ReqHeaderInfoBean;
  * Example servlet showing request headers
  *
  * @author James Duncan Davidson <duncan@eng.sun.com>
- * 복사자&수정자 : Jonghoon Won
+ * 복사자&수정자 : Won Jonghoon
  */
 
 @SuppressWarnings("serial")

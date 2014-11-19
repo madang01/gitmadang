@@ -19,6 +19,4 @@
 <desc>게시판 상세 보기 요청 메시지</desc>
 <singleitem name="boardId" type="unsigned integer" />
 <singleitem name="boardNo" type="unsigned integer" />
-<singleitem name="writerId" type="ub pascal string" />
-<singleitem name="ip" type="ub pascal string" />
 </sinnori_message>

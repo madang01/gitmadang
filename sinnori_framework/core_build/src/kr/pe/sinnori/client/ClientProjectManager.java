@@ -28,7 +28,7 @@ import kr.pe.sinnori.common.lib.CommonRootIF;
 /**
  * 클라이언트 프로젝트 관리자
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public final class ClientProjectManager implements CommonRootIF {

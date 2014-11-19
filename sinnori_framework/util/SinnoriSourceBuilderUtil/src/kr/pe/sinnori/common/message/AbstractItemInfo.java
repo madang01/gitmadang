@@ -23,7 +23,7 @@ import kr.pe.sinnori.common.lib.CommonType;
 /**
  * 메시지 단일 항목과 배열의 부모 추상화 클래스, 단일 항목과 배열을 단일 개념으로 접근하는데 그 목적이 있다.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public abstract class AbstractItemInfo {

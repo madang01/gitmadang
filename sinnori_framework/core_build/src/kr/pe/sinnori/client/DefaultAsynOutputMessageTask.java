@@ -24,7 +24,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
 
 /**
  * {@link ClientProject} 에서 지정하는 디폴트 익명 메시지 처리자로 단순 로그만 찍는다. 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public class DefaultAsynOutputMessageTask implements CommonRootIF, AsynOutputMessageTaskIF {

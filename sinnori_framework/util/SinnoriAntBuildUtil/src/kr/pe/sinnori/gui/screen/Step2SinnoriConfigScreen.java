@@ -52,7 +52,7 @@ import com.jgoodies.forms.layout.RowSpec;
 
 /**
  * 2단계 프로젝트 귀속 설정 파일 화면
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 @SuppressWarnings("serial")
@@ -669,7 +669,7 @@ public class Step2SinnoriConfigScreen extends JPanel {
 	
 	/**
 	 * 다음 화면 이동 이벤트 처리 클래스
-	 * @author Jonghoon Won
+	 * @author Won Jonghoon
 	 *
 	 */
 	private class NextSwingAction extends AbstractAction {
@@ -694,7 +694,7 @@ public class Step2SinnoriConfigScreen extends JPanel {
 
 	/**
 	 * 공개키 생성 주체가 API(=프로그램)인 라디오 버튼 이벤트 처리 클래스
-	 * @author Jonghoon Won
+	 * @author Won Jonghoon
 	 *
 	 */
 	private class APIOnSwingAction extends AbstractAction {
@@ -724,7 +724,7 @@ public class Step2SinnoriConfigScreen extends JPanel {
 	
 	/**
 	 * 공개키 생성 주체가 파일인 라디오 버튼 이벤트 처리 클래스
-	 * @author Jonghoon Won
+	 * @author Won Jonghoon
 	 *
 	 */
 	private class FileOnSwingAction extends AbstractAction {

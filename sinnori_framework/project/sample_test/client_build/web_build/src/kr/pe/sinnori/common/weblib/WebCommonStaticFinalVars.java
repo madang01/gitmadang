@@ -1,5 +1,7 @@
 package kr.pe.sinnori.common.weblib;
 
+import java.io.File;
+
 public abstract class WebCommonStaticFinalVars {
 	public static final String WEBSITE_TITLE = "Sinnori Development Framework";
 	
@@ -22,4 +24,31 @@ public abstract class WebCommonStaticFinalVars {
 	// public static final Long FREE_BOARD_TYPE_ID = 2L;
 	// public static final Long NOTICE_BOARD_TYPE_ID = 1L;
 	
+	/** 게시판 목록 갯수 */
+	public static final int WEBSITE_BOARD_PAGESIZE = 20;
+	
+	/** 아파치 파일 업로드에서 메모리에서 직접 처리할 수 있는 최대 파일 크기, 단위 byte */
+	public static int APACHE_FILEUPLOAD_MAX_MEMORY_SIZE = 1024*1024;
+
+	/** 업로드 되는 파일들이 저장되는 임시 디렉토리 */
+	public static File WEBSITE_FILEUPLOAD_TEMP_DIR = new File("/home/madang01/gitsinnori/sinnori_framework/project/sample_test/web_app_base/temp");
+	
+	/** 업로드 파일의 최대 크기 */
+	public static long WEBSITE_FILEUPLOAD_MAX_SIZE = 10*1024*1024;
+	
+	/** 업로드 되는 파일들이 저장되는 디렉토리 */
+	public static File WEBSITE_FILEUPLOAD_DIR = new File("/home/madang01/gitsinnori/sinnori_framework/project/sample_test/web_app_base/upload");
+	
+	/** 업로드 되는 파일의 시스템 파일명의 접두어 */
+	public static String WEBSITE_FILEUPLOAD_PREFIX = "attach";
+	
+	/** 업로드 되는 파일의 시스템 파일명의 접미어 */
+	public static String WEBSITE_FILEUPLOAD_SUFFIX = ".dat";
+	
+	/** 업로드 되는 파일의 최대 갯수, unsinged byte 이내의 값이어야 한다. */
+	public static int WEBSITE_FILEUPLOAD_MAX_COUNT = 2;
+	
+	public static final short UPLOAD_FILENAME_SEQ_TYPE_ID = 1;
+	
+	public static final Line2BrStringReplacer LINE2BR_STRING_REPLACER = new Line2BrStringReplacer();
 }

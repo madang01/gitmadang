@@ -32,7 +32,7 @@ import java.util.TreeSet;
  * 참고) 이글 쓰는 2014.08.10 기준으로 신놀이에서는 메시지 입출력과 관련된 메시지 서버/클라이언트 코덱 객체만 다룬다.
  * </pre>
  *  
- * @author "Jonghoon Won"
+ * @author "Won Jonghoon"
  * 
  */
 public final class ObjectCacheManager implements CommonRootIF {

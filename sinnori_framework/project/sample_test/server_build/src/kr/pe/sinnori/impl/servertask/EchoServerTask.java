@@ -25,7 +25,7 @@ import kr.pe.sinnori.server.executor.LetterSender;
 
 /**
  * Echo 서버 타스크
- * @author "Jonghoon Won"
+ * @author "Won Jonghoon"
  *
  */
 public final class EchoServerTask extends AbstractServerTask {

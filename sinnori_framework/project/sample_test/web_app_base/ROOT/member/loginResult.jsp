@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
+<%@ page extends="kr.pe.sinnori.common.weblib.AbstractJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
 %><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
 %><%@ page import="org.apache.commons.lang3.StringEscapeUtils" %><%
 %><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
@@ -39,7 +39,10 @@ if (isSuccess) {
 		var pageIV = CryptoJS.enc.Base64.parse("<%=parmIVBase64%>");
 		var privateKey = CryptoJS.enc.Base64.parse(sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_PRIVATEKEY_NAME%>'));
 
-		var resultMessage = CryptoJS.AES.decrypt("<%=webUserSymmetricKey.encryptStringBase64(StringEscapeUtils.escapeHtml4(messageResultOutObj.toString()))%>", privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: pageIV });
+		var resultMessage = CryptoJS.AES.decrypt("<%=
+webUserSymmetricKey.encryptStringBase64(escapeHtml(messageResultOutObj.toString(), 
+	WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER))
+%>", privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: pageIV });
 		document.getElementById('idTxtResultMessage').innerHTML = resultMessage.toString(CryptoJS.enc.Utf8);
 
 		<!-- 보안을 위해서 로그인시 생성한 비밀키와 세션키 덮어쓰기 -->

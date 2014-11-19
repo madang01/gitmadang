@@ -52,7 +52,7 @@ import kr.pe.sinnori.impl.message.BigUShort.BigUShortEncoder;
 import kr.pe.sinnori.util.AbstractClientExecutor;
 
 /**
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public class TestBigSizeMessagesCExtor extends AbstractClientExecutor {

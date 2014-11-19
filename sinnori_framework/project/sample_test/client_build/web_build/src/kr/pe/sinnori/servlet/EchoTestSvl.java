@@ -29,7 +29,7 @@ import kr.pe.sinnori.impl.message.Echo.Echo;
 
 /**
  * Echo 메시지 교환 테스트
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 

@@ -22,7 +22,7 @@ import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
  * 클라이언트 연결 클래스가 바라보는 출력 메시지 소켓 읽기 담당 쓰레드 폴 인터페이스.
  * 
  * @see OutputMessageReaderPool#addNewServer(AbstractAsynConnection)
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public interface OutputMessageReaderPoolIF {

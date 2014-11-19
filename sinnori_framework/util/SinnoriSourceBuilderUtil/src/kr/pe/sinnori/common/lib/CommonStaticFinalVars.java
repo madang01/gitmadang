@@ -24,7 +24,7 @@ import java.nio.charset.Charset;
 /**
  * 공통 상수와 환경 변수 미 설정시 디폴트 값을 갖는 클래스
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public abstract class CommonStaticFinalVars {

@@ -18,7 +18,7 @@ package kr.pe.sinnori.common.exception;
 
 /**
  * 서버 프로젝트 혹은 클라이언트 프로젝트 미 발견시 던지는 예외
- * @author "Jonghoon Won"
+ * @author "Won Jonghoon"
  *
  */
 @SuppressWarnings("serial")

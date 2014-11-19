@@ -39,7 +39,7 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
  * DB 연결 폴을 서버 동적 클래스 로더가 아닌 System ClassLoader 에서 싱글턴으로 생성하여 이 문제를 해결한다.
  * </pre>
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public class SqlSessionFactoryManger implements CommonRootIF {

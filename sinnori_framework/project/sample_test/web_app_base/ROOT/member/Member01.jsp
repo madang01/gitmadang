@@ -1,7 +1,8 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
+<%@ page extends="kr.pe.sinnori.common.weblib.AbstractJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
 %><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
 %><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
+%><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="modulusHex" class="java.lang.String" scope="request" /><%
 %><script type="text/javascript" src="/js/jsbn/jsbn.js"></script>
 <script type="text/javascript" src="/js/jsbn/jsbn2.js"></script>
@@ -183,11 +184,16 @@
 		
 		return;
 	}
+
+	function reloadCaptcha() {
+		var img = document.getElementById("captchaImage");
+		img.src="/servlet/stickyImg?" + new Date().getTime();
+	}
 //-->
 </script>
 <form method="post" name="gofrm" action="/servlet/Member">
 <input type="hidden" name="topmenu" value="<%=topmenu%>" />
-<input type="hidden" name="pagegubun" value="step2" />
+<input type="hidden" name="pageMode" value="proc" />
 <input type="hidden" name="sessionkeyBase64" />
 <input type="hidden" name="ivBase64" />
 <input type="hidden" name="id" />
@@ -200,7 +206,15 @@
 <form method="post" name="frm" onsubmit="return;">
 	<table border="0">
 	<tr>
-		<td colspan="2" align="center" style="font-size:24px">신놀이 회원 가입</td></tr>
+		<td colspan="2" align="center" style="font-size:24px">신놀이 회원 가입</td>
+	</tr><%
+	if (null != errorMessage && !errorMessage.equals("")) {
+%>
+	<tr>
+		<td colspan="2"><%=escapeHtml(errorMessage, WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER)%></td>
+	</tr><%
+	} else {
+%>
 	<tr>
 	    <td>아이디</td>
 	    <td><input type="text" name="id" size="15" maxlength="15" /></td> 
@@ -227,7 +241,7 @@
 	</tr>
 	<tr> 
 		<td>Captcha 이미지</td>
-	    <td align="left"><img src="/servlet/stickyImg" width="100%" height="75px" /></td>	    
+	    <td><table border="0"><tr><td width="80%"><img id="captchaImage" src="/servlet/stickyImg" alt="Captcha Image" width="100%" /></td><td><a href="#" onClick="reloadCaptcha()" id="refresh" style="curso:pointer"><img src="/images/gtk_refresh.png" width="100%" /></a></td></tr></table></td>	    
 	</tr>
 	<tr> 
 	    <td>Captcha 답변</td>
@@ -236,7 +250,10 @@
 
 	<tr> 
 	    <td colspan="2" align="center"><input type="button" onClick="chkform()" value="확인" /></td>
-	</tr>
+	</tr><%
+	}
+%>
+	
 	</table>
 </form>
 

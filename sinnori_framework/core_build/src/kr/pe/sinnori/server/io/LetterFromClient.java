@@ -25,7 +25,7 @@ import kr.pe.sinnori.server.ClientResource;
 /**
  * 클라이언트로부터 받은 편지(=수신편지). 클라이언트로부터 받은 편지는 송신자와 송신자가 보낸 입력 메세지로 구성된다.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class LetterFromClient {

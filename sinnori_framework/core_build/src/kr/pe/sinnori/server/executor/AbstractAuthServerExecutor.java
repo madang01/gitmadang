@@ -42,7 +42,7 @@ import kr.pe.sinnori.server.io.LetterToClient;
  * 개발자는 이 클래스를 상속 받은 메시지별 비지니스 로직을 개발하며, 
  * 이렇게 개발된 비지니스 로직 모듈은 동적으로 로딩된다.
  * </pre>
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public abstract class AbstractAuthServerExecutor extends AbstractServerTask {

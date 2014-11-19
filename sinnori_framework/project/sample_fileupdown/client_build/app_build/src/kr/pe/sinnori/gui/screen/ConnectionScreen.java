@@ -41,7 +41,7 @@ import com.jgoodies.forms.layout.RowSpec;
 
 /**
  * 파일 송수신 서버 접속 화면
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 @SuppressWarnings("serial")
@@ -161,7 +161,7 @@ public class ConnectionScreen extends JPanel implements CommonRootIF {
 	
 	/**
 	 * 파일 송수신 서버 접속 이벤트 처리 클래스
-	 * @author Jonghoon Won
+	 * @author Won Jonghoon
 	 *
 	 */
 	private class ConnectionButtonAction extends AbstractAction {

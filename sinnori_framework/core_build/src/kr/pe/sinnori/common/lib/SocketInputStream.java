@@ -44,7 +44,7 @@ import kr.pe.sinnori.common.protocol.MessageProtocolIF;
  *       메시지 교환 프로토콜을 구현하는 스트림 변환기 {@link MessageProtocolIF} 에서 한다. 
  * </pre>
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public class SocketInputStream implements CommonRootIF {

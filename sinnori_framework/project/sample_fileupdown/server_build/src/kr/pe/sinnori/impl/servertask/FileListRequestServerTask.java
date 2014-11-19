@@ -34,7 +34,7 @@ import kr.pe.sinnori.server.executor.LetterSender;
 
 /**
  * 
- * @author "Jonghoon Won"
+ * @author "Won Jonghoon"
  *
  */
 public class FileListRequestServerTask extends AbstractAuthServerExecutor {

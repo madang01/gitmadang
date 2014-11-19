@@ -35,7 +35,7 @@ import kr.pe.sinnori.impl.message.UpFileInfoResult.UpFileInfoResult;
 
 /**
  * 업로드 이벤트 처리 클래스
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 @SuppressWarnings("serial")

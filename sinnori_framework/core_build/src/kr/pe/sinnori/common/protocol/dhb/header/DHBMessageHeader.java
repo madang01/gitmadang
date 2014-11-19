@@ -51,7 +51,7 @@ import kr.pe.sinnori.common.util.HexUtil;
  * 래퍼 메시지 그룹을 관리하며 래퍼 메시지 그룹 완성시 덩치 큰 메시지로 복원 시킨다.
  * </pre>
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class DHBMessageHeader implements CommonRootIF {

@@ -75,9 +75,19 @@ public final class BoardWriteInDTODecoder extends MessageDecoder {
 		, charsetOfProject
 		, middleReadObj));
 
-		boardWriteInDTO.setWriterId((String)
+		boardWriteInDTO.setAttachId((Long)
 		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "writerId" // itemName
+		, "attachId" // itemName
+		, 5 // itemTypeID
+		, "unsigned integer" // itemTypeName
+		, -1 // itemSizeForLang
+		, null // itemCharset,
+		, charsetOfProject
+		, middleReadObj));
+
+		boardWriteInDTO.setUserId((String)
+		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
+		, "userId" // itemName
 		, 7 // itemTypeID
 		, "ub pascal string" // itemTypeName
 		, -1 // itemSizeForLang

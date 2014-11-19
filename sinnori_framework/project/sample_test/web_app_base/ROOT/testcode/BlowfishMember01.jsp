@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
+%><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
 	kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager serverSessionKeyManager = kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager.getInstance();
 
 
@@ -20,11 +21,11 @@
 <script type="text/javascript" src="/js/cryptoJS/crypto-sha1-hmac-pbkdf2-blockmodes-aes.js"></script>
 <script type="text/javascript">
 <!--
-   function trim(str) {
-		return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
-    }
+	function trim(str) {
+		return str.replace(/^\s+|\s+$/gm,'');
+	}
 
-   function trimcheck(str) {
+	function trimcheck(str) {
 		var r_first = /^\s\s*/;
 		var r_last = /\s\s*$/;
 		
@@ -33,7 +34,7 @@
 		} else {
 		    return false;
 		}
-    }
+	}
 
 	function chkform() {
 		var f = document.frm;

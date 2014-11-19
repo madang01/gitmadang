@@ -22,7 +22,7 @@ import kr.pe.sinnori.common.util.HexUtil;
 /**
  * 공개키 알고리즘에서 개인키에 대한 출력 객체
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class PrivateKeyOutput {

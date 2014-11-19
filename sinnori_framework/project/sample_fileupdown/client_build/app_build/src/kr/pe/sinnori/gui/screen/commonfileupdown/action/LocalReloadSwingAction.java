@@ -26,7 +26,7 @@ import kr.pe.sinnori.gui.screen.commonfileupdown.FileUpDownScreenIF;
 
 /**
  * 로컬 경로 재 갱신 이벤트 처리 클래스
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 @SuppressWarnings("serial")

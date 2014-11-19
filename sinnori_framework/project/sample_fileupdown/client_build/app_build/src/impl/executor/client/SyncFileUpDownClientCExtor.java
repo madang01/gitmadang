@@ -76,7 +76,7 @@ import org.apache.commons.codec.binary.Base64;
 
 /**
  * 샘플 파일 송수신 클라이언트 버전1
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public class SyncFileUpDownClientCExtor extends AbstractClientExecutor implements SyncMainControllerIF {

@@ -22,7 +22,7 @@ import java.util.ArrayList;
 /**
  * 메시지 항목 그룹 정보가 가져야할 메소드들을 정의하는 인터페이스
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public interface ItemGroupInfoIF {

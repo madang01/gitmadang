@@ -19,7 +19,7 @@ package kr.pe.sinnori.common.exception;
 
 /**
  * {@link java.nio.charset.CharacterCodingException } 예외를 받아 사용자 정의 에러 내용을 가지고 CharacterCodingException 대신 던지는 예외
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 

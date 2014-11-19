@@ -1,4 +1,5 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
+<%@ page extends="kr.pe.sinnori.common.weblib.AbstractJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
+%><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
 	String topmenu = request.getParameter("topmenu");
 	if (null ==  topmenu) topmenu="";
 %>
@@ -62,7 +63,7 @@
 	</tr>
 	<tr>
 	    <td>평문</td>
-	    <td><input type="text" name="plainText" size="15" maxlength="15" /></td> 
+	    <td><textarea name="plainText" size="15" maxlength="15" ></textarea></td> 
 	</tr>
 	<tr> 
 	    <td colspan="2"><input type="submit" value="확인" /></td>

@@ -26,7 +26,7 @@ import kr.pe.sinnori.common.lib.CommonType;
 /**
  * 배열 정보 클래스. 배열 이름, 배열 크기, 배열에 속한 항목 그룹 정보를 가지고 있다.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class ArrayInfo extends AbstractItemInfo implements

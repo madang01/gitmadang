@@ -31,7 +31,7 @@ import kr.pe.sinnori.server.executor.LetterSender;
 
 /**
  * 로그인 서버 비지니스 로직
- * @author "Jonghoon Won"
+ * @author "Won Jonghoon"
  *
  */
 public class LoginServerTask extends AbstractServerTask {

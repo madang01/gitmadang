@@ -48,7 +48,7 @@ import kr.pe.sinnori.server.io.LetterFromClient;
 /**
  * 서버 입력 메시지 소켓 읽기 담당 쓰레드
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class InputMessageReader extends Thread implements CommonRootIF,

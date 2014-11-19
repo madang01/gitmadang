@@ -30,7 +30,7 @@ import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
 
 /**
  * DHB 프로톨 단일 항목 인코더
- * @author "Jonghoon Won"
+ * @author "Won Jonghoon"
  *
  */
 public class DHBSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {

@@ -139,6 +139,16 @@
 		<url-pattern>/servlet/BoardList</url-pattern>
 	</servlet-mapping>
 
+	<!-- 게시판 글 추천 처리 -->
+	<servlet>
+		<servlet-name>BoardVote</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.BoardVoteSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BoardVote</servlet-name>
+		<url-pattern>/servlet/BoardVote</url-pattern>
+	</servlet-mapping>
+
 	<!-- 게시판 상세 조회 -->
 	<servlet>
 		<servlet-name>BoardDetail</servlet-name>
@@ -180,10 +190,20 @@
 		<url-pattern>/servlet/BoardModify</url-pattern>
 	</servlet-mapping>
 
+	<!-- 게시판 첨부 파일 처리 -->
+	<servlet>
+		<servlet-name>BoardUpload</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.BoardUploadSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BoardUpload</servlet-name>
+		<url-pattern>/servlet/BoardUpload</url-pattern>
+	</servlet-mapping>
+
 	<!-- Simple Captcha start -->
 	<servlet>
         <servlet-name>StickyCaptcha</servlet-name>
-        <servlet-class>nl.captcha.servlet.StickyCaptchaServlet</servlet-class>
+        <servlet-class>nl.captcha.servlet.SimpleCaptchaServlet</servlet-class>
         <!-- The width and height params are optional; 
         if unspecified they default to 200 and 50 respectively. -->
         <init-param>
@@ -201,6 +221,8 @@
         <url-pattern>/servlet/stickyImg</url-pattern>
     </servlet-mapping>
 	<!-- Simple Captcha end -->
+
+	
 
 
 </web-app>

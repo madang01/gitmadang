@@ -32,7 +32,7 @@ import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 
 /**
  * 클라이언트 프로젝트 개발자 시선의 클라이언트용 서버 접속 API 인터페이스
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public interface ClientProjectIF {

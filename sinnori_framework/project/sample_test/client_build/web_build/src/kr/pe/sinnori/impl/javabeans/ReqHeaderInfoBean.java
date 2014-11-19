@@ -24,7 +24,7 @@ import kr.pe.sinnori.common.lib.CommonRootIF;
 
 /**
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public class ReqHeaderInfoBean implements CommonRootIF, Serializable {

@@ -66,7 +66,7 @@ import com.jgoodies.forms.layout.RowSpec;
 
 /**
  * 파일 송수신 화면
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 @SuppressWarnings("serial")

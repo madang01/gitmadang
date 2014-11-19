@@ -37,7 +37,7 @@ import kr.pe.sinnori.impl.message.DownFileInfoResult.DownFileInfoResult;
 
 /**
  * 다운로드 이벤트 처리 클래스
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 @SuppressWarnings("serial")

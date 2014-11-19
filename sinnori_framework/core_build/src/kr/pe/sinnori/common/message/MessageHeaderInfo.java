@@ -21,7 +21,7 @@ import kr.pe.sinnori.common.lib.CommonRootIF;
 /**
  * 메시지 운영에 필요한 메시지 헤더 정보.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class MessageHeaderInfo implements CommonRootIF {

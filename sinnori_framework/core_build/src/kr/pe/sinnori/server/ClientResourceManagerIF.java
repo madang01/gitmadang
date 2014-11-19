@@ -24,7 +24,7 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 
 /**
  * 서버에 접속하는 클라이언트 자원 관라자 인터페이스
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public interface ClientResourceManagerIF {

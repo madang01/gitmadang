@@ -34,7 +34,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
  * 암호화 페이지를 보여주고자 할때 상속 받아야할 추상화 클래스로 암호화에 필요한 사용자 session key 와 iv 를 요구한다.
  * iv 값은 대칭키 특성상 동일 원문에 대한 암호문이 같지 않도록 도와주는 랜덤 값이다.
  * 
- * 복사자&수정자 : Jonghoon Won
+ * 복사자&수정자 : Won Jonghoon
  * 복사&수정 내용 : 응용에 따라 약간 수정
  * </pre>
  *
@@ -259,15 +259,19 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 			ServerSessionKeyManager sessionKeyServerManger = ServerSessionKeyManager.getInstance();
 			webUserSymmetricKey = sessionKeyServerManger.getSymmetricKey(WebCommonStaticFinalVars.WEBSITE_JAVA_SYMMETRIC_KEY_ALGORITHM_NAME, CommonType.SymmetricKeyEncoding.BASE64, parmSessionKeyBase64, parmIVBase64);
 		} catch(IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			log.warn(errorMessage);
+			log.warn("IllegalArgumentException", e);
 			
-			printMessagePage(req, res, errorMessage, errorMessage);
+			String errorMessage = e.getMessage();
+			
+			
+			printMessagePage(req, res, errorMessage, null);
 			return;
 		} catch(SymmetricException e) {
+			log.warn("SymmetricException", e);
+			
 			String errorMessage = e.getMessage();
-			log.warn(errorMessage);
-			printMessagePage(req, res, errorMessage, errorMessage);
+			
+			printMessagePage(req, res, errorMessage, null);
 			return;
 		}			
 		

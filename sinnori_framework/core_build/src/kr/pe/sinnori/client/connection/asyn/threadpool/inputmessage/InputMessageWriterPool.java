@@ -28,7 +28,7 @@ import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 /**
  * 클라이언트 입력 메시지 소켓 쓰기 담당 쓰레드 폴.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  */
 public class InputMessageWriterPool extends AbstractThreadPool {
 	private int maxHandler;

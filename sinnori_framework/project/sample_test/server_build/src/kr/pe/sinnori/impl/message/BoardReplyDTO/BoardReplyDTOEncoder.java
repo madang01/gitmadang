@@ -111,6 +111,14 @@ public final class BoardReplyDTOEncoder extends MessageEncoder {
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
+		singleItemEncoder.putValueToMiddleWriteObj(boardReplyDTOSingleItemPath, "attachId"
+					, 5 // itemTypeID
+					, "unsigned integer" // itemTypeName
+					, boardReplyDTO.getAttachId() // itemValue
+					, -1 // itemSizeForLang
+					, null // itemCharset,
+					, charsetOfProject
+					, middleWriteObj);
 		singleItemEncoder.putValueToMiddleWriteObj(boardReplyDTOSingleItemPath, "writerId"
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName

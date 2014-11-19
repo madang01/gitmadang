@@ -29,7 +29,7 @@ import kr.pe.sinnori.impl.javabeans.ReqHeaderInfoBean;
 
 /**
  * 로그인 하지 않는 경우 테스트
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 @SuppressWarnings("serial")

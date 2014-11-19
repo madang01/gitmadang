@@ -36,7 +36,7 @@ import org.json.simple.JSONObject;
 /**
  * DJSON 단일 항목 인코더
  * 
- * @author "Jonghoon Won"
+ * @author "Won Jonghoon"
  *
  */
 public class DJSONSingleItemEncoder implements SingleItemEncoderIF, CommonRootIF {

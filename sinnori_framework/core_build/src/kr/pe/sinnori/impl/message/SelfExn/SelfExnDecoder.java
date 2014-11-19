@@ -25,7 +25,7 @@ import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 
 /**
  * SelfExn 메시지 THB 프로토콜 디코더
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public final class SelfExnDecoder extends MessageDecoder {

@@ -28,7 +28,7 @@ import kr.pe.sinnori.server.ServerProjectManager;
 
 /**
  * 신놀이 기동을 위한 편의 기능 제공 클래스, 간단히 "신놀이 워커" 라 불린다.
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public class SinnoriWorker implements CommonRootIF {

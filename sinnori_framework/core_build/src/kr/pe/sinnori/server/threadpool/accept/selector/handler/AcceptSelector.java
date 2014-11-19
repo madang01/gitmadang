@@ -35,7 +35,7 @@ import kr.pe.sinnori.server.ClientResourceManagerIF;
  * 총 소켓 채널 수 만큼만 접속을 허용하게한다.<br/>
  * 총 소켓 채널수를 넘었다면 해당 소켓 채널을 닫는다.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class AcceptSelector extends Thread implements CommonRootIF {

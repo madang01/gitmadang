@@ -46,7 +46,7 @@ import kr.pe.sinnori.common.exception.UnknownItemTypeException;
  * 하지만 한글은 주석에서만 있으므로 나중 영문으로 변경하면 회피할 수 있는 문제이므로 그대로 넘어가기로 함.
  * </pre>
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public class ItemTypeManger {

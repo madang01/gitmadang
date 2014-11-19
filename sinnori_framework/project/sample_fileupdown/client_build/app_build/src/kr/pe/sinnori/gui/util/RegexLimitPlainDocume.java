@@ -27,7 +27,7 @@ import javax.swing.text.PlainDocument;
 /**
  * 문자 갯수 혹은 특정 문자셋에서의 길이와 원하는 정규식을 갖는 문자열만 입력 받도록 하는 입력 박스 콤포넌트.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 @SuppressWarnings("serial")

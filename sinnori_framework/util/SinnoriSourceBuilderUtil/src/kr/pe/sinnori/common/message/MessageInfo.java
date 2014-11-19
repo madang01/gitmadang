@@ -38,7 +38,7 @@ import kr.pe.sinnori.common.lib.CommonType;
  * 배열 = 이름, 반복 횟수, (항목 그룹)
  * </pre>
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class MessageInfo implements ItemGroupInfoIF {

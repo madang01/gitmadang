@@ -29,7 +29,7 @@ import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
  * 
  * @see FixedSizeInputStream
  * @see FreeSizeInputStream
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public interface InputStreamIF {

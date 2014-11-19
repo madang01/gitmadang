@@ -42,7 +42,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * XML로 작성된 메시지 정보 파일을 SAX 파싱하여 메시지 정보를 작성하는 클래스.<br/>
  * XML로 작성된 메시지 정보 파일의 구조를 정의하는 XSD 파일과 연계하여 신놀이 메시지 구조 적합성을 검증한다.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class MessageInfoSAXParser extends DefaultHandler {

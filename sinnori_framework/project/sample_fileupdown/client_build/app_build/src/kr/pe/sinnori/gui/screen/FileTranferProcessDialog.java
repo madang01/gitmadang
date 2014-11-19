@@ -48,7 +48,7 @@ import kr.pe.sinnori.impl.message.CancelUploadFileResult.CancelUploadFileResult;
 
 /**
  * 파일 송수신 전송 상태 모달 윈도우
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 @SuppressWarnings("serial")
@@ -247,7 +247,7 @@ public class FileTranferProcessDialog extends JDialog  implements CommonRootIF, 
 	/**
 	 * 파일 송수신 전송 상태 모달 윈도우에서 기동하는 쓰레드로 사용자 정의 비지니스 로직을 호출한다.
 	 * 비지니스 로직이 끝나면 파일 송수신 전송 상태 모달 윈도우를 닫는다.
-	 * @author Jonghoon Won
+	 * @author Won Jonghoon
 	 *
 	 */
 	class FileTransferTaskThread extends Thread {

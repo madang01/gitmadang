@@ -20,7 +20,7 @@ package kr.pe.sinnori.common.message;
 /**
  * 메시지 정보중 배열 정보가 가져야할 메소드들을 정의한 인터페이스
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public interface ArrayInfoIF {

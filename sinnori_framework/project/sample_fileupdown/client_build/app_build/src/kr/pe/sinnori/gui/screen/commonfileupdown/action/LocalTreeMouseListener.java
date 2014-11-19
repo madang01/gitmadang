@@ -32,7 +32,7 @@ import kr.pe.sinnori.gui.screen.commonfileupdown.FileUpDownScreenIF;
 
 /**
  * 로컬 트리 노드 마우스 이벤트 처리 클래스
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public class LocalTreeMouseListener extends MouseAdapter implements CommonRootIF {

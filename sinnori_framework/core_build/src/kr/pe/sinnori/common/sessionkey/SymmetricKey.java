@@ -29,7 +29,7 @@ import org.apache.commons.codec.binary.Base64;
 /**
  * 대칭키와 씨앗값을 입력 파라미터로 받는 대칭키 편의 클래스.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class SymmetricKey implements CommonRootIF, Serializable {

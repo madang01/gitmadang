@@ -29,7 +29,7 @@ import kr.pe.sinnori.server.executor.LetterSender;
 
 /**
  * 동기식 메시지 방식의 다운로드 취소 서버 비지니스 로직
- * @author "Jonghoon Won"
+ * @author "Won Jonghoon"
  *
  */
 public class CancelDownloadFileServerTask extends AbstractAuthServerExecutor {

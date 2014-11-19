@@ -28,7 +28,7 @@ import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
  * 클라이언트 출력 메시지 소켓 읽기 담당 쓰레드 폴
  * 
  * @see OutputMessageReader
- * @author Jonghoon Won
+ * @author Won Jonghoon
  */
 public class OutputMessageReaderPool extends AbstractThreadPool implements
 		OutputMessageReaderPoolIF {

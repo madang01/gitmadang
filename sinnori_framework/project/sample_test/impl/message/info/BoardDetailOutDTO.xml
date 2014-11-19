@@ -33,6 +33,12 @@
 <singleitem name="ip" type="ub pascal string" />
 <singleitem name="registerDate" type="java sql timestamp" />
 <singleitem name="modifiedDate" type="java sql timestamp" />
+<singleitem name="attachId" type="unsigned integer" />
+<singleitem name="attachFileCnt" type="integer" />
+<array name="attachFile" cnttype="reference" cntvalue="attachFileCnt">
+	<singleitem name="attachSeq" type="unsigned byte" />
+	<singleitem name="attachFileName" type="us pascal string" />
+</array>
 <singleitem name="memberGubunName" type="ub pascal string" />
 <singleitem name="memberState" type="byte" />
 </sinnori_message>

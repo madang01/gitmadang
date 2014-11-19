@@ -23,7 +23,7 @@ import kr.pe.sinnori.common.lib.CommonRootIF;
 
 /**
  * 트리 노드 부모 클래스. 로컬이나 원격지 트리 노드들의 공통 부분.
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 @SuppressWarnings("serial")

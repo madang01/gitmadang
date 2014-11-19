@@ -35,7 +35,7 @@ import kr.pe.sinnori.gui.screen.Step3AntAndShellConfigScreen;
 
 /**
  * 신놀이 설치 경로 기준 Ant 개발 환경 제공 도우미 메인
- * @author Jonghoon Won
+ * @author Won Jonghoon
  *
  */
 public class SinnoriConfigUtilMain implements MainControllerIF {

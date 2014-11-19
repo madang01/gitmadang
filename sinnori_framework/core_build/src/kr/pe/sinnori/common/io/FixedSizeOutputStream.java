@@ -31,7 +31,7 @@ import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 /**
  * 고정 크기를 갖는 이진 출력 스트림.
  * 
- * @author Jonghoon Won
+ * @author Won Jonghoon
  * 
  */
 public class FixedSizeOutputStream implements CommonRootIF, OutputStreamIF {
