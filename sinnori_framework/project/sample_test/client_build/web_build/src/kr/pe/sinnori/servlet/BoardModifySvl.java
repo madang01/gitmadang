@@ -176,14 +176,13 @@ public class BoardModifySvl extends AbstractAuthServlet {
 			req.setAttribute("errorMessage", errorMessage);
 			printJspPage(req, res, goPage);
 			return;
-		} else {			
-			String errorMessage = "";
+		} else {		
 			goPage = "/board/BoardModify02.jsp";
 			
 						
 			String parmBoardId = req.getParameter("boardId");			
 			if (null == parmBoardId) {
-				errorMessage = "게시판 식별자 값을 넣어 주세요.";
+				String errorMessage = "게시판 식별자 값을 넣어 주세요.";
 				req.setAttribute("errorMessage", errorMessage);
 				printJspPage(req, res, goPage);
 				return;
@@ -193,7 +192,7 @@ public class BoardModifySvl extends AbstractAuthServlet {
 			try {
 				boardId = Long.parseLong(parmBoardId);
 			}catch (NumberFormatException nfe) {
-				errorMessage = new StringBuilder("자바 long 타입 변수인 게시판 식별자 값[")
+				String errorMessage = new StringBuilder("자바 long 타입 변수인 게시판 식별자 값[")
 				.append(parmBoardId).append("]이 잘못되었습니다.").toString();
 				req.setAttribute("errorMessage", errorMessage);
 				printJspPage(req, res, goPage);
@@ -202,7 +201,7 @@ public class BoardModifySvl extends AbstractAuthServlet {
 			
 			
 			if (boardId <= 0) {
-				errorMessage = new StringBuilder("게시판 식별자 값[")
+				String errorMessage = new StringBuilder("게시판 식별자 값[")
 				.append(parmBoardId).append("]은 0 보다 커야합니다.").toString();
 				req.setAttribute("errorMessage", errorMessage);
 				printJspPage(req, res, goPage);
@@ -213,7 +212,7 @@ public class BoardModifySvl extends AbstractAuthServlet {
 			String parmBoardNo = req.getParameter("boardNo");
 			
 			if (null == parmBoardNo) {
-				errorMessage = "게시판 번호 값을 넣어 주세요.";
+				String errorMessage = "게시판 번호 값을 넣어 주세요.";
 				req.setAttribute("errorMessage", errorMessage);
 				printJspPage(req, res, goPage);
 				return;
@@ -224,7 +223,7 @@ public class BoardModifySvl extends AbstractAuthServlet {
 			try {
 				boardNo = Long.parseLong(parmBoardNo);
 			}catch (NumberFormatException nfe) {
-				errorMessage = new StringBuilder("자바 long 타입 변수인 게시판 식별자 값[")
+				String errorMessage = new StringBuilder("자바 long 타입 변수인 게시판 식별자 값[")
 				.append(parmBoardNo).append("]이 잘못되었습니다.").toString();
 				req.setAttribute("errorMessage", errorMessage);
 				printJspPage(req, res, goPage);
@@ -232,7 +231,7 @@ public class BoardModifySvl extends AbstractAuthServlet {
 			}			
 			
 			if (boardNo <= 0) {
-				errorMessage = new StringBuilder("게시판 식별자 값[")
+				String errorMessage = new StringBuilder("게시판 식별자 값[")
 				.append(parmBoardNo).append("]은 0 보다 커야합니다.").toString();
 				req.setAttribute("errorMessage", errorMessage);
 				printJspPage(req, res, goPage);
@@ -241,7 +240,7 @@ public class BoardModifySvl extends AbstractAuthServlet {
 			
 			String parmSubject = req.getParameter("subject");
 			if (null == parmSubject) {
-				errorMessage = "제목 값을 넣어주세요.";
+				String errorMessage = "제목 값을 넣어주세요.";
 				req.setAttribute("errorMessage", errorMessage);
 				printJspPage(req, res, goPage);
 				return;
@@ -250,14 +249,51 @@ public class BoardModifySvl extends AbstractAuthServlet {
 			
 			String parmContent = req.getParameter("content");		
 			if (null == parmContent) {
-				errorMessage = "글 내용 값을 넣어주세요.";
+				String errorMessage = "글 내용 값을 넣어주세요.";
 				req.setAttribute("errorMessage", errorMessage);
 				printJspPage(req, res, goPage);
 				return;
-			}			
+			}
+			
+			String parmAttachId = req.getParameter("attachId");
+			if (null == parmAttachId) {
+				String errorMessage = "업로드 식별자를 넣어주세요.";
+				req.setAttribute("errorMessage", errorMessage);
+				printJspPage(req, res, goPage);
+				return;
+			}
+			
+			long attachId = 0L;
+			try {
+				attachId = Long.parseLong(parmAttachId);
+			}catch (NumberFormatException nfe) {
+				String errorMessage = new StringBuilder("자바 long 타입 변수인 업로드 식별자 값[")
+				.append(parmAttachId).append("]이 잘못되었습니다.").toString();
+				req.setAttribute("errorMessage", errorMessage);
+				printJspPage(req, res, goPage);
+				return;
+			}
+			
+			if (attachId < 0) {
+				String errorMessage = new StringBuilder("업로드 식별자 값[")
+				.append(parmAttachId).append("]은 0 보다 작거나 커야합니다.").toString();
+				req.setAttribute("errorMessage", errorMessage);
+				printJspPage(req, res, goPage);
+				return;
+			}
+			
+			if (attachId > CommonStaticFinalVars.MAX_UNSIGNED_INT) {
+				String errorMessage = new StringBuilder("업로드 식별자 값[")
+				.append(parmAttachId).append("]은 ")
+				.append(CommonStaticFinalVars.MAX_UNSIGNED_INT)
+				.append(" 값 보다 작거나 같아야합니다.").toString();
+				req.setAttribute("errorMessage", errorMessage);
+				printJspPage(req, res, goPage);
+				return;
+			}
 			
 			
-			
+			String errorMessage = "";
 			String projectName = System.getProperty(CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);
 			
 			BoardModifyInDTO inObj = new BoardModifyInDTO();
@@ -265,6 +301,7 @@ public class BoardModifySvl extends AbstractAuthServlet {
 			inObj.setBoardNo(boardNo);
 			inObj.setSubject(parmSubject);
 			inObj.setContent(parmContent);
+			inObj.setAttachId(attachId);
 			inObj.setUserId(getUserId(req));
 			inObj.setIp(req.getRemoteAddr());
 			

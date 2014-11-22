@@ -180,7 +180,7 @@ tbody {
 					<div><%
 		for (kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO.AttachFile attachFile : attachFileList) {
 			if (isLogin(request)) {
-%><a href=# onClick="goDownload(<%=boardDetailOutDTO.getAttachId()%>, <%=attachFile.getAttachSeq()%>)"><%=escapeHtml(attachFile.getAttachFileName())%></a>&nbsp;<%
+%><a href=# onClick="goDownload(<%=boardDetailOutDTO.getAttachId()%>, <%=attachFile.getAttachSeq()%>)"><%=escapeHtml(attachFile.getAttachFileName())%></a><br/><%
 			} else {
 %><%=escapeHtml(attachFile.getAttachFileName())%>&nbsp;<%
 			}
@@ -216,8 +216,8 @@ tbody {
 	}
 %><input type="button" onClick="goList()" value="목록으로" />
 	</div>
-</form><%
+</form>
+<iframe name="downloadResultFrame" width="0" height="0" >
+</iframe><%
 	}
 %>
-<iframe name="downloadResultFrame" width="400" height="300" >
-</iframe>

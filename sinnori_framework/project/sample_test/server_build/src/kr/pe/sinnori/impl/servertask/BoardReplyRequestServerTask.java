@@ -113,6 +113,7 @@ public class BoardReplyRequestServerTask extends AbstractServerTask {
 					boardReplyDTO.setSubject(inObj.getSubject());
 					boardReplyDTO.setContent(inObj.getContent());
 					boardReplyDTO.setWriterId(inObj.getUserId());
+					boardReplyDTO.setAttachId(inObj.getAttachId());
 					boardReplyDTO.setIp(inObj.getIp());				
 					
 					List<HashMap<String, Object>> replyGroupHashList = session.selectList("getBoardListByGroupAndSeqInLock", boardReplyDTO);

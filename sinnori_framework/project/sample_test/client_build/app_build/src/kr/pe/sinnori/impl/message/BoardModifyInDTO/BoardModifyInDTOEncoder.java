@@ -87,6 +87,14 @@ public final class BoardModifyInDTOEncoder extends MessageEncoder {
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
+		singleItemEncoder.putValueToMiddleWriteObj(boardModifyInDTOSingleItemPath, "attachId"
+					, 5 // itemTypeID
+					, "unsigned integer" // itemTypeName
+					, boardModifyInDTO.getAttachId() // itemValue
+					, -1 // itemSizeForLang
+					, null // itemCharset,
+					, charsetOfProject
+					, middleWriteObj);
 		singleItemEncoder.putValueToMiddleWriteObj(boardModifyInDTOSingleItemPath, "userId"
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName

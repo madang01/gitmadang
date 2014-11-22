@@ -27,6 +27,7 @@ public class BoardModifyInDTO extends AbstractMessage {
 	private long boardNo;
 	private String subject;
 	private String content;
+	private long attachId;
 	private String userId;
 	private String ip;
 
@@ -58,6 +59,13 @@ public class BoardModifyInDTO extends AbstractMessage {
 	public void setContent(String content) {
 		this.content = content;
 	}
+	public long getAttachId() {
+		return attachId;
+	}
+
+	public void setAttachId(long attachId) {
+		this.attachId = attachId;
+	}
 	public String getUserId() {
 		return userId;
 	}
@@ -85,6 +93,8 @@ public class BoardModifyInDTO extends AbstractMessage {
 		builder.append(subject);
 		builder.append(", content=");
 		builder.append(content);
+		builder.append(", attachId=");
+		builder.append(attachId);
 		builder.append(", userId=");
 		builder.append(userId);
 		builder.append(", ip=");

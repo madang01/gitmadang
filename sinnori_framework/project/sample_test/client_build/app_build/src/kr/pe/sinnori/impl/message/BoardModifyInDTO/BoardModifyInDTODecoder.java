@@ -85,6 +85,16 @@ public final class BoardModifyInDTODecoder extends MessageDecoder {
 		, charsetOfProject
 		, middleReadObj));
 
+		boardModifyInDTO.setAttachId((Long)
+		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
+		, "attachId" // itemName
+		, 5 // itemTypeID
+		, "unsigned integer" // itemTypeName
+		, -1 // itemSizeForLang
+		, null // itemCharset,
+		, charsetOfProject
+		, middleReadObj));
+
 		boardModifyInDTO.setUserId((String)
 		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
 		, "userId" // itemName

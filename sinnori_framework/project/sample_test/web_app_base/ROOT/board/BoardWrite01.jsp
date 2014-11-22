@@ -46,14 +46,10 @@
 			return;
 		}
 
-		// FIXME!
-		alert(document.attachForm.attachId.value);
-
-
-		var g = document.gofrm;
-		g.attachId.value = document.attachForm.attachId.value;
+		var g = document.gofrm;		
 		g.subject.value = f.subject.value;
 		g.content.value = f.content.value;
+		g.attachId.value = document.attachForm.attachId.value;
 		g.sessionkeyBase64.value = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_SESSIONKEY_NAME%>');
 		var iv = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_IV_SIZE%>);
 		g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);
@@ -67,17 +63,27 @@
 
 	function addNewAttachFile() {		
 		var uploadFileMaxCnt = <%=WebCommonStaticFinalVars.WEBSITE_FILEUPLOAD_MAX_COUNT%>;
-		var prefixOfChildDiv = 'newChildDiv';
+		var prefixOfOldChildDiv = 'oldChildDiv';
+		var prefixOfNewChildDiv = 'newChildDiv';
 		var maxIndex = -1;		
 		var uploadFileCnt = 0;
+
+		var oldFileListDiv = document.getElementById('oldFileListDiv');
+		for (var i=0;i < oldFileListDiv.childNodes.length; i++) {
+			var childNode = oldFileListDiv.childNodes[i];
+			
+			if (childNode.id.indexOf(prefixOfOldChildDiv) == 0) {
+				uploadFileCnt++;				
+			}
+		}
 
 		var newFileListDiv = document.getElementById('newFileListDiv');
 		for (var i=0;i < newFileListDiv.childNodes.length; i++) {
 			var childNode = newFileListDiv.childNodes[i];
 			
-			if (childNode.id.indexOf(prefixOfChildDiv) == 0) {
+			if (childNode.id.indexOf(prefixOfNewChildDiv) == 0) {
 				uploadFileCnt++;
-				var numStr = childNode.id.substring(prefixOfChildDiv.length);
+				var numStr = childNode.id.substring(prefixOfNewChildDiv.length);
 
 				var num = parseInt(numStr);
 
@@ -87,7 +93,7 @@
 			}						
 		}
 	
-		if (uploadFileCnt >= uploadFileMaxCnt) {
+		if (uploadFileCnt > uploadFileMaxCnt) {
 			alert("업로드 할 수 있는 파일 갯수는 최대["+uploadFileMaxCnt+"] 까지 입니다.");
 			return;
 		}
@@ -97,10 +103,9 @@
 
 		var newChilddiv = document.createElement('div');
 
-		var divIdName = prefixOfChildDiv+inx;		
+		var divIdName = prefixOfNewChildDiv+inx;		
 
 		newChilddiv.setAttribute('id',divIdName);
-
 		
 		newChilddiv.innerHTML = "<input type=\"file\" name=\"newAttachFile\" id=\"newAttachFile"+inx+"\" size=\"70\" />&nbsp;<a href=\'#\' id=newAttachFileDeleteLink"+inx+" style=\"visibility:hidden\" onclick=\'removeNewAttachFile(\""+divIdName+"\")\'>삭제</a>";
 
@@ -108,6 +113,13 @@
 		newFileListDiv.appendChild(newChilddiv);
 
 		fixVisibleOfNewAttachFileDeleteLinks();
+	}
+
+	function removeAllNewAttachFiles() {
+		var d = document.getElementById('newFileListDiv');
+		for(var i=0; i < d.childNodes.length; i++) {
+			d.removeChild(d.childNodes[i]);
+		}
 	}
 
 	function removeAllNewAttachFiles() {
@@ -139,12 +151,6 @@
 		}
 	}
 
-	function checkForm() {
-		var f = document.attachForm;
-
-		alert(f.newAttachFile.length);
-	}
-
 	var boardUploadFileOutDTO;
 
 	function restoreOldFiles() {
@@ -172,7 +178,9 @@
 	}
 
 	function callbackUpload(parmBoardUploadFileOutDTO) {
-		init();
+		removeAllOldAttachFiles();
+		removeAllNewAttachFiles();
+		addNewAttachFile();
 
 		if (parmBoardUploadFileOutDTO.isError) {
 			alert(parmBoardUploadFileOutDTO.errorMessage);
@@ -215,7 +223,7 @@
 <input type="hidden" name="boardId" value="<%=parmBoardId%>" />
 <input type="hidden" name="subject" />
 <input type="hidden" name="content" />
-<input type="hidden" name="attachId" value="0" />
+<input type="hidden" name="attachId" />
 <input type="hidden" name="sessionkeyBase64" />
 <input type="hidden" name="ivBase64" />
 </form>
@@ -250,9 +258,6 @@
 </form>
 <form name="attachForm" target="uploadResultFrame" action="/servlet/BoardUpload" method="post" enctype="multipart/form-data">
 	<input type="hidden" name="attachId" value="0" />
-
-	<!-- input type="hidden" name="attachSeq" value="0" />
-	<input type="hidden" name="attachSeq" value="1" / -->
 	
 	<div id="oldFileMenuDiv" style="visibility:hidden"><p><a href="#" onclick="restoreOldFiles();">첨부한 파일 복원</a></p></div>
 	<div id="oldFileListDiv"></div><br/>
@@ -262,10 +267,9 @@
 	<div id="newFileListDiv"></div><br/>
 
 	<input type="submit" value="파일 올리기..." />
-	<a href="#" onClick="checkForm()">폼 자식 객체로 들어가있는지 검사</a>
 </form>
 
-<iframe name="uploadResultFrame" width="400" height="300" >
+<iframe name="uploadResultFrame" width="0" height="0" >
 </iframe><%
 	}
 %>

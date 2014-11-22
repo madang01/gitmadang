@@ -92,27 +92,38 @@ public class BoardModifyInDTOServerTask extends AbstractServerTask {
 							(Long)boardModifyHash.get("boardId"), inObj.getBoardId());
 					messageResultOutObj.setResultMessage(errorMessage);
 					
-					log.warn("{}, userId={}, ip={}", errorMessage, inObj.getUserId(), inObj.getUserId());
+					log.warn("{}, userId={}, ip={}", errorMessage, inObj.getUserId(), inObj.getIp());
 				} else {
 						
 					if (inObj.getUserId().equals((String)boardModifyHash.get("writerId"))) {
-						int resultOfUpdate = session.update("updateBoard", inObj);						
-						if (resultOfUpdate > 0) {
+						Long attachId = (Long)boardModifyHash.get("attachId");
+						if (null != attachId && attachId != inObj.getAttachId()) {
 							session.commit();
-							messageResultOutObj.setIsSuccess(true);
-							messageResultOutObj.setResultMessage("게시판 글 수정이 성공하였습니다.");
+							String errorMessage = String.format("기 등록된 게시판 업로드 식별자[%d]와 파라미터 게시판 업로드 식별자가[%s]가 상이합니다.", 
+									attachId, inObj.getAttachId());
+							log.warn("{}, userId={}, ip={}", errorMessage, inObj.getUserId(), inObj.getIp());
+							
+							messageResultOutObj.setResultMessage(errorMessage);
 						} else {
-							session.rollback();
-							messageResultOutObj.setResultMessage("1.게시판 글 수정이 실패하였습니다.");
-						}
+							int resultOfUpdate = session.update("updateBoard", inObj);						
+							if (resultOfUpdate > 0) {
+								session.commit();
+								messageResultOutObj.setIsSuccess(true);
+								messageResultOutObj.setResultMessage("게시판 글 수정이 성공하였습니다.");
+							} else {
+								session.rollback();
+								messageResultOutObj.setResultMessage("1.게시판 글 수정이 실패하였습니다.");
+							}
+						}					
+						
 					} else {
 						session.commit();
 						
 						String errorMessage = String.format("게시판 작성자[%s]와 로그인 아이디[%s]가 상이합니다.", 
 								(String)boardModifyHash.get("writerId"), inObj.getUserId());
-						messageResultOutObj.setResultMessage(errorMessage);
+						log.warn("{}, ip={}", errorMessage, inObj.getIp());
 						
-						log.warn("{}, ip={}", errorMessage, inObj.getUserId());
+						messageResultOutObj.setResultMessage(errorMessage);					
 					}
 				}			
 			}			

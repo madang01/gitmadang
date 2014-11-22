@@ -234,14 +234,14 @@ update TW_BOARD_TB set view_cnt = view_cnt + 1 where board_no=#{boardNo}
 	<!-- 게시글 수정전 게시글 작성자 본인 확인을 위한 조회 -->
 	<select id="getBoardModifyInLock" parameterType="kr.pe.sinnori.impl.message.BoardModifyInDTO.BoardModifyInDTO" resultType="hashmap">
 select 
-	writer_id as writerId, board_id as boardId
+	writer_id as writerId, board_id as boardId, attach_id as attachId
 from TW_BOARD_TB 
 where board_no=#{boardNo} for update
     </select>
 
 	<!-- 게시글 수정 -->
 	<update id="updateBoard" parameterType="kr.pe.sinnori.impl.message.BoardModifyInDTO.BoardModifyInDTO">
-update TW_BOARD_TB set subject=#{subject}, content=#{content}, ip=#{ip}, mod_dt=sysdate() where board_no=#{boardNo}
+update TW_BOARD_TB set subject=#{subject}, content=#{content}, attach_id=#{attachId}, ip=#{ip}, mod_dt=sysdate() where board_no=#{boardNo}
 	</update>
 
 	    
@@ -343,6 +343,7 @@ from TW_BOARD_TB where group_no=#{groupNo} and group_sq >= #{groupSeq} for updat
 `writer_id`,
 `subject`,
 `content`,
+`attach_id`,
 `view_cnt`,
 `del_fl`,
 `ip`,
@@ -358,7 +359,7 @@ VALUES
 #{writerId},
 #{subject},
 #{content},
-if (#{attachId} = 0, null, #{attachId})
+if (#{attachId} = 0, null, #{attachId}),
 0,
 'N',
 #{ip},
