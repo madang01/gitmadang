@@ -74,10 +74,7 @@ public class BoardUploadSvl extends AbstractServlet {
 		// Parse the request
 		List<FileItem> fileItemList = upload.parseRequest(req);
 		try {
-			// int fileItemListSize = fileItemList.size();
-			
-			
-			
+			// int fileItemListSize = fileItemList.size();		
 			
 			int newAttachFileListSize = 0;	
 			List<BoardUploadFileInDTO.NewAttachFile> newAttachFileList = new ArrayList<BoardUploadFileInDTO.NewAttachFile>();
@@ -99,7 +96,7 @@ public class BoardUploadSvl extends AbstractServlet {
 					// FIXME!, 업로드는 업로드에만 집중하기때문에 파라미터 받을 이유 없지만 디버깅용으로 남김
 					log.info("폼 타입이 필드, name={}, value={}", name, value);
 					
-					if (name.equals("attachSeq")) {
+					if (name.equals("oldAttachSeq")) {
 						short selectedOldAttachSeq = 0;
 						try {
 							selectedOldAttachSeq = Short.parseShort(value);
@@ -141,20 +138,21 @@ public class BoardUploadSvl extends AbstractServlet {
 						continue;
 					}
 					
-					if (!fileName.endsWith(".jpg")
-							&& !fileName.endsWith(".gif") 
-							&& !fileName.endsWith(".png")) {
+					String lowerCaseFileName = fileName.toLowerCase();
+					
+					if (!lowerCaseFileName.endsWith(".jpg")
+							&& !lowerCaseFileName.endsWith(".gif") 
+							&& !lowerCaseFileName.endsWith(".png")) {
 						
 						String errorMessage = new StringBuilder("업로드 파일[")
 						.append(fileName)
-						.append("]의 확장자는 jpg, gif, png 만 올 수 있습니다. 참고) 확장자는 모두 소문자입니다.").toString();
+						.append("]의 확장자는 jpg, gif, png 만 올 수 있습니다.").toString();
 						log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
 						
 						req.setAttribute("errorMessage", errorMessage);
 						printJspPage(req, res, goPage);
 						return;
-					}
-					
+					}					
 					
 					if (!contentType.equals("image/jpeg") 
 							&& !contentType.equals("image/png")
@@ -163,7 +161,7 @@ public class BoardUploadSvl extends AbstractServlet {
 						.append(fileName)
 						.append("][")
 						.append(contentType)
-						.append("]는 이미지 jpg, gif, png 만 올 수 있습니다. 참고) 확장자는 모두 소문자입니다.").toString();
+						.append("]는 이미지 jpg, gif, png 만 올 수 있습니다.").toString();
 						log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
 						
 						req.setAttribute("errorMessage", errorMessage);
@@ -229,6 +227,18 @@ public class BoardUploadSvl extends AbstractServlet {
 			
 			if (0 == attachId) {
 				/** 신규 추가 */
+				selectedOldAttachFileListSize = selectedOldAttachFileList.size();
+				
+				if (selectedOldAttachFileListSize > 0) {
+					String errorMessage = new StringBuilder("신규 추가중에는 기존 업로드 파일들에 대한 사용자 선택을 할 수 없습니다.")
+					.append("기존 업로드 파일들에 대한 사용자 선택 갯수=")
+					.append(selectedOldAttachFileListSize).toString();
+					log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
+					
+					req.setAttribute("errorMessage", errorMessage);
+					printJspPage(req, res, goPage);
+					return;
+				}			
 				
 				if (newAttachFileListSize == 0) {
 					String errorMessage = new StringBuilder("1.업로드 파일이 없습니다. 1개 이상 요구됩니다.").toString();
@@ -251,7 +261,7 @@ public class BoardUploadSvl extends AbstractServlet {
 					printJspPage(req, res, goPage);
 					return;
 				}
-				selectedOldAttachFileListSize = 0;
+				
 				
 			} else {
 				/** 수정 */
@@ -293,69 +303,79 @@ public class BoardUploadSvl extends AbstractServlet {
 			bardUploadFileInDTO.setSelectedOldAttachFileList(selectedOldAttachFileList);
 						
 			// FIXME!
-			log.info("1.{}", bardUploadFileInDTO.toString());
+			log.info("1.{}", bardUploadFileInDTO.toString());			
 					
 			String projectName = System.getProperty(CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);
 			ClientProject clientProject = ClientProjectManager.getInstance().getClientProject(projectName);
-			
-			SeqValueInDTO seqValueInDTO = new SeqValueInDTO();
-			seqValueInDTO.setSeqTypeId(WebCommonStaticFinalVars.UPLOAD_FILENAME_SEQ_TYPE_ID);
-			seqValueInDTO.setWantedSize((short)newAttachFileListSize);
-			
 			String errorMessage = "";
-			AbstractMessage messageFromServer = clientProject.sendSyncInputMessage(seqValueInDTO);
+			AbstractMessage messageFromServer = null;
 			
-			if (messageFromServer instanceof SeqValueOutDTO) {
-				SeqValueOutDTO seqValueOutDTO = (SeqValueOutDTO)messageFromServer;
-				long uploadFileNameSeqValue = seqValueOutDTO.getSeqValue();				
-				// for (FileItem fileItem : avaiableFileItemList) {
+			if (newAttachFileListSize > 0) {
+				SeqValueInDTO seqValueInDTO = new SeqValueInDTO();
+				seqValueInDTO.setSeqTypeId(WebCommonStaticFinalVars.UPLOAD_FILENAME_SEQ_TYPE_ID);
+				seqValueInDTO.setWantedSize((short)newAttachFileListSize);
 				
-				for (int i=0; i < newAttachFileListSize; i++) {
-					BoardUploadFileInDTO.NewAttachFile newAttachFile = newAttachFileList.get(i);
-					FileItem newAttachFileItem = newAttachFileItemList.get(i);
+				// FIXME!
+				log.info("seqValueInDTO={}, bardUploadFileInDTO={}", seqValueInDTO.toString(), bardUploadFileInDTO.toString());
+				
+				messageFromServer = clientProject.sendSyncInputMessage(seqValueInDTO);			
 							
-					String attachSystemFullFileName = getAttachSystemFullFileName(uploadFileNameSeqValue);
-					File uploadFile = new File(attachSystemFullFileName);
-					try {
-						newAttachFileItem.write(uploadFile);
-					} catch(Exception e) {
-						errorMessage = "게시판 업로드 파일 저장 처리가 실패하였습니다.";
+				if (messageFromServer instanceof SeqValueOutDTO) {
+					SeqValueOutDTO seqValueOutDTO = (SeqValueOutDTO)messageFromServer;
+					long uploadFileNameSeqValue = seqValueOutDTO.getSeqValue();				
+					// for (FileItem fileItem : avaiableFileItemList) {
+					
+					for (int i=0; i < newAttachFileListSize; i++) {
+						BoardUploadFileInDTO.NewAttachFile newAttachFile = newAttachFileList.get(i);
+						FileItem newAttachFileItem = newAttachFileItemList.get(i);
+								
+						String attachSystemFullFileName = getAttachSystemFullFileName(uploadFileNameSeqValue);
+						File uploadFile = new File(attachSystemFullFileName);
+						try {
+							newAttachFileItem.write(uploadFile);
+						} catch(Exception e) {
+							errorMessage = "게시판 업로드 파일 저장 처리가 실패하였습니다.";
+							
+							log.warn("{} 번째 게시판 개별 업로드 파일[attachSystemFullFileName={}][{}] 저장 실패, userId={}, ip={}", 
+									i, attachSystemFullFileName, newAttachFileItem.toString(), 
+									getUserId(req), req.getRemoteAddr());
+							req.setAttribute("errorMessage", errorMessage);
+							printJspPage(req, res, goPage);
+							return;
+						}
 						
-						log.warn("{} 번째 게시판 개별 업로드 파일[attachSystemFullFileName={}][{}] 저장 실패, userId={}, ip={}", 
-								i, attachSystemFullFileName, newAttachFileItem.toString(), 
+						newAttachFile.setSystemFileName(attachSystemFullFileName);
+						
+						log.debug("{}/{} 번째 게시판 개별 업로드 파일[attachSystemFullFileName={}][{}] 저장 성공, userId={}, ip={}", 
+								i, newAttachFileListSize, attachSystemFullFileName, newAttachFileItem.toString(), 
 								getUserId(req), req.getRemoteAddr());
-						req.setAttribute("errorMessage", errorMessage);
-						printJspPage(req, res, goPage);
-						return;
+						
+						uploadFileNameSeqValue++;
+					}	
+					
+					// FIXME!
+					log.info("2.bardUploadFileInDTO={}", bardUploadFileInDTO.toString());
+				} else {
+					errorMessage = "파일명 시퀀스 조회가 실패하였습니다.";
+					
+					if (messageFromServer instanceof SelfExn) {
+						log.warn("입력 메시지[{}]의 응답 메시지로 SelfExn 메시지 도착, 응답 메시지=[{}]", bardUploadFileInDTO.toString(), messageFromServer.toString());
+					} else {
+						log.warn("입력 메시지[{}]의 응답 메시지로 알 수 없는 메시지 도착, 응답 메시지=[{}]", bardUploadFileInDTO.toString(), messageFromServer.toString());
 					}
 					
-					newAttachFile.setSystemFileName(attachSystemFullFileName);
-					
-					log.debug("{}/{} 번째 게시판 개별 업로드 파일[attachSystemFullFileName={}][{}] 저장 성공, userId={}, ip={}", 
-							i, newAttachFileListSize, attachSystemFullFileName, newAttachFileItem.toString(), 
-							getUserId(req), req.getRemoteAddr());
-					
-					uploadFileNameSeqValue++;
-				}				
-			}
-			
-			// FIXME!
-			log.info("2.{}", bardUploadFileInDTO.toString());
-			
-					
-			messageFromServer = clientProject.sendSyncInputMessage(bardUploadFileInDTO);
-			
+					req.setAttribute("errorMessage", errorMessage);
+					printJspPage(req, res, goPage);
+					return;
+				}
+			}			
+						
+			messageFromServer = clientProject.sendSyncInputMessage(bardUploadFileInDTO);		
 			
 			if (messageFromServer instanceof BoardUploadFileOutDTO) {
 				BoardUploadFileOutDTO boardUploadFileOutDTO = (BoardUploadFileOutDTO)messageFromServer;
-				req.setAttribute("boardUploadFileOutDTO", boardUploadFileOutDTO);
-				
-				//long attachId = boardFileOutDTO.getAttachId();
-				//short attachSeq = 0;
-				
-				
-			} else {
-				
+				req.setAttribute("boardUploadFileOutDTO", boardUploadFileOutDTO);				
+			} else {				
 				// log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
 				if (messageFromServer instanceof MessageResult) {
 					MessageResult messageResultOutObj = (MessageResult)messageFromServer;
@@ -369,9 +389,9 @@ public class BoardUploadSvl extends AbstractServlet {
 					} else {
 						log.warn("입력 메시지[{}]의 응답 메시지로 알 수 없는 메시지 도착, 응답 메시지=[{}]", bardUploadFileInDTO.toString(), messageFromServer.toString());
 					}
-				}
-							
-			}
+				}							
+			}		
+			
 			req.setAttribute("errorMessage", errorMessage);
 			printJspPage(req, res, goPage);
 		} finally {			

@@ -100,6 +100,13 @@ tbody {
 		var g = document.goListForm;		
 		g.submit();
 	}
+
+	function goDownload(attachId, attachSeq) {
+		var g = document.goDownloadForm;
+		g.attachId.value = attachId;
+		g.attachSeq.value = attachSeq;
+		g.submit();
+	}
 </script>
 <form name=goModofyForm method="post" action="/servlet/BoardModify">
 <input type="hidden" name="topmenu" value="<%=topmenu%>" />
@@ -130,6 +137,12 @@ tbody {
 <form name=goListForm method="post" action="/servlet/BoardList">
 <input type="hidden" name="topmenu" value="<%=topmenu%>" />
 <input type="hidden" name="boardId" value="<%=parmBoardId%>" />
+</form>
+
+<form name=goDownloadForm target="downloadResultFrame" method="post" action="/servlet/BoardDownload">
+<input type="hidden" name="topmenu" value="<%=topmenu%>" />
+<input type="hidden" name="attachId" />
+<input type="hidden" name="attachSeq" />
 </form>
 <form name=frm onSubmit="return false">
 	<div><%
@@ -166,7 +179,11 @@ tbody {
 				<td colspan="7" style="text-align:left;">
 					<div><%
 		for (kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO.AttachFile attachFile : attachFileList) {
-%><%=boardDetailOutDTO.getAttachId()%>::<%=attachFile.getAttachSeq()%>::<%=attachFile.getAttachFileName()%>&nbsp;<%
+			if (isLogin(request)) {
+%><a href=# onClick="goDownload(<%=boardDetailOutDTO.getAttachId()%>, <%=attachFile.getAttachSeq()%>)"><%=escapeHtml(attachFile.getAttachFileName())%></a>&nbsp;<%
+			} else {
+%><%=escapeHtml(attachFile.getAttachFileName())%>&nbsp;<%
+			}
 		}
 %>
 					</div>
@@ -202,3 +219,5 @@ tbody {
 </form><%
 	}
 %>
+<iframe name="downloadResultFrame" width="400" height="300" >
+</iframe>

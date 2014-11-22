@@ -335,11 +335,11 @@ public class ServerProject extends AbstractProject
 	}
 	
 	public boolean isLogin(String loginID) {
-		ClientResource clientResource = loginIDToSCHash.get(loginID);
+		/*ClientResource clientResource = loginIDToSCHash.get(loginID);
 		if (null != clientResource) {
 			// FIXME! 소켓 상태 디버깅
 			log.info(clientResource.toString());
-		}
+		}*/
 		
 		return loginIDToSCHash.containsKey(loginID);
 	}
@@ -521,11 +521,11 @@ public class ServerProject extends AbstractProject
 	private class ServerProjectMonitor extends Thread implements CommonRootIF {
 		
 		private long monitorInterval;
-		private long requestTimeout;
+		// private long requestTimeout;
 		
 		public ServerProjectMonitor(long monitorInterval, long requestTimeout) {
 			this.monitorInterval = monitorInterval;
-			this.requestTimeout = requestTimeout;
+			// this.requestTimeout = requestTimeout;
 		}
 		
 		@Override
@@ -533,9 +533,9 @@ public class ServerProject extends AbstractProject
 			try {
 				while (!Thread.currentThread().isInterrupted()) {
 					
-					MonitorServerProjectInfo projectInfo = getInfo(requestTimeout);
+					/*MonitorServerProjectInfo projectInfo = getInfo(requestTimeout);
 					
-					log.info(projectInfo.toString());
+					log.info(projectInfo.toString());*/
 					
 					/*int size = projectInfo.monitorClientInfoList.size();
 					

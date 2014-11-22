@@ -434,7 +434,7 @@ select last_insert_id() as attachId
     </select>
 
 	<!-- 업로드 파일 목록 추가 -->
-	<insert id="insertBoardFile" parameterType="kr.pe.sinnori.impl.message.AttachFileDTO.AttachFileDTO">
+	<insert id="insertBoardFile" parameterType="kr.pe.sinnori.impl.message.BoardFileDTO.BoardFileDTO">
 insert into `SINNORIDB`.`TW_BOARD_FILELIST_TB` 
 (`attach_id`,
 `attach_sq`,
@@ -456,13 +456,10 @@ VALUES
 	<!-- 업로드 처리후 업로드 파일 조회 -->
 	<select id="getUploadFileListResult" resultMap="uploadFileListResultMap">
 select 
-	attach_id as attachId, 
-	owner_id as ownerId, 
-	ip, 
-	reg_dt as registerDate, 
-	mod_dt as modifiedDate
+	*
 from TW_BOARD_FILELIST_TB
 where attach_id = #{attachId}
+order by attach_sq asc
     </select>
 
 	<resultMap id="boardUploadFileOutDTOMap" type="kr.pe.sinnori.impl.message.BoardUploadFileOutDTO.BoardUploadFileOutDTO">
@@ -504,7 +501,7 @@ where attach_id = #{attachId} for update
 update TW_BOARD_FILEINFO_TB set ip=#{ip}, mod_dt=sysdate() where attach_id = #{attachId}
 	</update>
 
-	<resultMap id="attachFileDTOMap" type="kr.pe.sinnori.impl.message.AttachFileDTO.AttachFileDTO">
+	<resultMap id="boardFileDTOMap" type="kr.pe.sinnori.impl.message.BoardFileDTO.BoardFileDTO">
 		<result  property="attachId" column="attach_id" />	
 		<result  property="attachSeq" column="attach_sq" />	
 		<result  property="attachFileName" column="attach_fname" />
@@ -512,7 +509,7 @@ update TW_BOARD_FILEINFO_TB set ip=#{ip}, mod_dt=sysdate() where attach_id = #{a
 	</resultMap>
 
 	<!-- 업로드 수정처리를 위한 사용자한테 선택을 받은 업로드 파일 조회 -->
-	<select id="getAttachFileDTO" parameterType="kr.pe.sinnori.impl.message.AttachFileDTO.AttachFileDTO" resultMap="attachFileDTOMap">
+	<select id="getBoardFileDTO" parameterType="kr.pe.sinnori.impl.message.BoardFileDTO.BoardFileDTO" resultMap="boardFileDTOMap">
 select 
 	*
 from TW_BOARD_FILELIST_TB

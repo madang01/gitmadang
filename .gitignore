@@ -7,6 +7,8 @@
 *.zip
 *.tar.gz
 *.jar
+sinnori_framework/project/sample_test/web_app_base/upload/*
+sinnori_framework/project/sample_test/web_app_base/temp/*
 !sinnori_framework/SinnoriAntBuildUtil.jar
 !sinnori_framework/SinnoriSourceBuilderUtil.jar
 !sinnori_framework/core_build/lib/ex/*.jar

@@ -493,7 +493,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 			int listSize = list.size();
 			try {
 				while (!Thread.currentThread().isInterrupted()) {	
-					log.info(getInfo().toString());
+					// log.info(getInfo().toString());
 					
 					long currentTime = System.currentTimeMillis();
 					

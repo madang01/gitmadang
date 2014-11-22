@@ -119,7 +119,7 @@ public class BoardUploadFileInDTOServerTask extends AbstractServerTask {
 				return;
 			}
 			
-			if (newAttachFileCnt >= ServerCommonStaticFinalVars.WEBSITE_FILEUPLOAD_MAX_COUNT) {
+			if (newAttachFileCnt > ServerCommonStaticFinalVars.WEBSITE_FILEUPLOAD_MAX_COUNT) {
 				String errorMessage = new StringBuilder("업로드 신규 등록:신규 업로드 파일 갯수[")
 				.append(newAttachFileCnt)
 				.append("]가 최대 업로드 파일 갯수[")
@@ -229,23 +229,23 @@ public class BoardUploadFileInDTOServerTask extends AbstractServerTask {
 					letterSender.addSyncMessage(messageResultOutObj);
 					return;
 				} else {					
-					java.util.List<BoardFileDTO>  attachFileDTOList = new java.util.ArrayList<BoardFileDTO>();
+					// java.util.List<BoardFileDTO>  attachFileDTOList = new java.util.ArrayList<BoardFileDTO>();
 					
+					short attachSeq = 0;
 					for (NewAttachFile newAttachFile : newAttachFileList) {						
-						BoardFileDTO attachFileDTO = new BoardFileDTO();
-						attachFileDTO.setAttachId(retAttachId);
-						attachFileDTO.setAttachSeq((short)attachFileDTOList.size());
-						attachFileDTO.setAttachFileName(newAttachFile.getAttachFileName());
-						attachFileDTO.setSystemFileName(newAttachFile.getSystemFileName());
+						BoardFileDTO newBoardFileDTO = new BoardFileDTO();
+						newBoardFileDTO.setAttachId(retAttachId);
+						newBoardFileDTO.setAttachSeq(attachSeq++);
+						newBoardFileDTO.setAttachFileName(newAttachFile.getAttachFileName());
+						newBoardFileDTO.setSystemFileName(newAttachFile.getSystemFileName());
 						
-						
-						int cntOfInsertBoardFile = session.insert("insertBoardFile", attachFileDTO);
+						int cntOfInsertBoardFile = session.insert("insertBoardFile", newBoardFileDTO);
 						
 						if (cntOfInsertBoardFile == 0) {
 							session.rollback();
 							
 							String errorMessage = "업로드 신규 등록:개별 업로드 파일 추가 처리가 실패하였습니다.";
-							log.warn("{}, 실패한 개별 업로드 파일={}, inObj={}", errorMessage, attachFileDTO.toString(), inObj.toString());
+							log.warn("{}, 실패한 개별 업로드 파일={}, inObj={}", errorMessage, newBoardFileDTO.toString(), inObj.toString());
 							
 							MessageResult messageResultOutObj = new MessageResult();
 							messageResultOutObj.setIsSuccess(false);
@@ -255,31 +255,41 @@ public class BoardUploadFileInDTOServerTask extends AbstractServerTask {
 							return;
 						}
 						
-						outObj = session.selectOne("getBoardUploadFileOutDTO");
-						if (null == outObj) {
-							session.rollback();
-							
-							String errorMessage = "업로드 신규 등록:업로드 신규 등록 처리 결과 조회가 실패하였습니다.";
-							log.warn("{}, inObj={}, attachFile={}", errorMessage, inObj.toString(), attachFileDTO.toString());
-							
-							MessageResult messageResultOutObj = new MessageResult();
-							messageResultOutObj.setIsSuccess(false);
-							messageResultOutObj.setTaskMessageID(inObj.getMessageID());
-							messageResultOutObj.setResultMessage(errorMessage);
-							letterSender.addSyncMessage(messageResultOutObj);
-							return;
-						}
+						log.debug("attachFileDTOList add newAttachFile={}", newBoardFileDTO.toString());
+					}
+					
+					// session.commit();
+					
+					outObj = session.selectOne("getBoardUploadFileOutDTO", retAttachId);
+					if (null == outObj) {
+						session.rollback();
 						
-						session.commit();
+						String errorMessage = "업로드 신규 등록:업로드 신규 등록 처리 결과 조회가 실패하였습니다.";
+						log.warn("{}, inObj={}", errorMessage, inObj.toString());
 						
-						letterSender.addSyncMessage(outObj);
+						MessageResult messageResultOutObj = new MessageResult();
+						messageResultOutObj.setIsSuccess(false);
+						messageResultOutObj.setTaskMessageID(inObj.getMessageID());
+						messageResultOutObj.setResultMessage(errorMessage);
+						letterSender.addSyncMessage(messageResultOutObj);
 						return;
 					}
+					
+					outObj.setAttachFileCnt(outObj.getAttachFileList().size());
+					
+					// FIXME!
+					log.debug("outObj={}", outObj.toString());
+					
+					session.commit();
+					
+					letterSender.addSyncMessage(outObj);
+					return;
 				}			
 			} catch(Exception e) {
 				session.rollback();
 				
-				String errorMessage = "업로드 신규 등록:알수 없는 이유로 업로드 신규 등록 처리가 실패하였습니다.";
+				String errorMessage = new StringBuilder("업로드 신규 등록:알수 없는 이유로 업로드 신규 등록 처리가 실패하였습니다. inObj=")
+				.append(inObj.toString().toString()).toString();				
 				log.warn(errorMessage, e);
 				
 				MessageResult messageResultOutObj = new MessageResult();
@@ -329,61 +339,63 @@ public class BoardUploadFileInDTOServerTask extends AbstractServerTask {
 			
 					
 			java.util.List<NewAttachFile> newAttachFileList = inObj.getNewAttachFileList();
-			for (NewAttachFile newAttachFile : newAttachFileList) {
-				String attachFileName = newAttachFile.getAttachFileName();
-				
-				if (attachFileName.equals("")) {
-					String errorMessage = "업로드 수정:업로드 파일명을 넣어주세요.";
-					log.warn("{}, inObj=", errorMessage, inObj.toString());
+			if (0 < newAttachFileCnt) {
+				for (NewAttachFile newAttachFile : newAttachFileList) {
+					String attachFileName = newAttachFile.getAttachFileName();
 					
-					MessageResult messageResultOutObj = new MessageResult();
-					messageResultOutObj.setIsSuccess(false);
-					messageResultOutObj.setTaskMessageID(inObj.getMessageID());
-					messageResultOutObj.setResultMessage(errorMessage);
-					letterSender.addSyncMessage(messageResultOutObj);
-					return;
+					if (attachFileName.equals("")) {
+						String errorMessage = "업로드 수정:업로드 파일명을 넣어주세요.";
+						log.warn("{}, inObj=", errorMessage, inObj.toString());
+						
+						MessageResult messageResultOutObj = new MessageResult();
+						messageResultOutObj.setIsSuccess(false);
+						messageResultOutObj.setTaskMessageID(inObj.getMessageID());
+						messageResultOutObj.setResultMessage(errorMessage);
+						letterSender.addSyncMessage(messageResultOutObj);
+						return;
+					}
+					
+					String trimAttachFileName = attachFileName.trim();
+					if (!trimAttachFileName.equals(attachFileName)) {
+						String errorMessage = "업로드 수정:업로드 파일명을 다시 넣어주세요.";
+						log.warn("{}, inObj=", errorMessage, inObj.toString());
+						
+						MessageResult messageResultOutObj = new MessageResult();
+						messageResultOutObj.setIsSuccess(false);
+						messageResultOutObj.setTaskMessageID(inObj.getMessageID());
+						messageResultOutObj.setResultMessage(errorMessage);
+						letterSender.addSyncMessage(messageResultOutObj);
+						return;
+					}
+					
+					String systemFileName = newAttachFile.getSystemFileName();		
+					
+					if (systemFileName.equals("")) {
+						String errorMessage = "업로드 수정:업로드 시스템 절대 경로 파일명을 넣어주세요.";
+						log.warn("{}, inObj=", errorMessage, inObj.toString());
+						
+						MessageResult messageResultOutObj = new MessageResult();
+						messageResultOutObj.setIsSuccess(false);
+						messageResultOutObj.setTaskMessageID(inObj.getMessageID());
+						messageResultOutObj.setResultMessage(errorMessage);
+						letterSender.addSyncMessage(messageResultOutObj);
+						return;
+					}
+					
+					String trimSystemFileName = systemFileName.trim();
+					if (!trimSystemFileName.equals(systemFileName)) {
+						String errorMessage = "업로드 수정:업로드 시스템 절대 경로 파일명을 다시 넣어주세요.";
+						log.warn("{}, inObj=", errorMessage, inObj.toString());
+						
+						MessageResult messageResultOutObj = new MessageResult();
+						messageResultOutObj.setIsSuccess(false);
+						messageResultOutObj.setTaskMessageID(inObj.getMessageID());
+						messageResultOutObj.setResultMessage(errorMessage);
+						letterSender.addSyncMessage(messageResultOutObj);
+						return;
+					}				
 				}
-				
-				String trimAttachFileName = attachFileName.trim();
-				if (!trimAttachFileName.equals(attachFileName)) {
-					String errorMessage = "업로드 수정:업로드 파일명을 다시 넣어주세요.";
-					log.warn("{}, inObj=", errorMessage, inObj.toString());
-					
-					MessageResult messageResultOutObj = new MessageResult();
-					messageResultOutObj.setIsSuccess(false);
-					messageResultOutObj.setTaskMessageID(inObj.getMessageID());
-					messageResultOutObj.setResultMessage(errorMessage);
-					letterSender.addSyncMessage(messageResultOutObj);
-					return;
-				}
-				
-				String systemFileName = newAttachFile.getSystemFileName();		
-				
-				if (systemFileName.equals("")) {
-					String errorMessage = "업로드 수정:업로드 시스템 절대 경로 파일명을 넣어주세요.";
-					log.warn("{}, inObj=", errorMessage, inObj.toString());
-					
-					MessageResult messageResultOutObj = new MessageResult();
-					messageResultOutObj.setIsSuccess(false);
-					messageResultOutObj.setTaskMessageID(inObj.getMessageID());
-					messageResultOutObj.setResultMessage(errorMessage);
-					letterSender.addSyncMessage(messageResultOutObj);
-					return;
-				}
-				
-				String trimSystemFileName = systemFileName.trim();
-				if (!trimSystemFileName.equals(systemFileName)) {
-					String errorMessage = "업로드 수정:업로드 시스템 절대 경로 파일명을 다시 넣어주세요.";
-					log.warn("{}, inObj=", errorMessage, inObj.toString());
-					
-					MessageResult messageResultOutObj = new MessageResult();
-					messageResultOutObj.setIsSuccess(false);
-					messageResultOutObj.setTaskMessageID(inObj.getMessageID());
-					messageResultOutObj.setResultMessage(errorMessage);
-					letterSender.addSyncMessage(messageResultOutObj);
-					return;
-				}				
-			}
+			}			
 			
 			java.util.List<SelectedOldAttachFile> selectedOldAttachFileList = inObj.getSelectedOldAttachFileList();			
 			java.util.List<BoardFileDTO> attachFileDTOList = new ArrayList<BoardFileDTO>();			
@@ -444,41 +456,54 @@ public class BoardUploadFileInDTOServerTask extends AbstractServerTask {
 					letterSender.addSyncMessage(messageResultOutObj);
 					return;
 				}
-						
 				
-				for (SelectedOldAttachFile selectedOldAttachFile : selectedOldAttachFileList) {
-					BoardFileDTO userSelectedBoardFileDTO = new BoardFileDTO();
-					userSelectedBoardFileDTO.setAttachId(attachId);
-					userSelectedBoardFileDTO.setAttachSeq(selectedOldAttachFile.getAttachSeq());
-					
-					BoardFileDTO  retBoardFileDTO = session.selectOne("getBoardFileDTO", userSelectedBoardFileDTO);
-					if (null == retBoardFileDTO) {
-						session.rollback();
+				if (0 < selectedOldAttachFileCnt) {
+					for (SelectedOldAttachFile selectedOldAttachFile : selectedOldAttachFileList) {
+						BoardFileDTO userSelectedBoardFileDTO = new BoardFileDTO();
+						userSelectedBoardFileDTO.setAttachId(attachId);
+						userSelectedBoardFileDTO.setAttachSeq(selectedOldAttachFile.getAttachSeq());
 						
-						String errorMessage = "업로드 수정:사용자가 선택한 업로드 파일이 존재하지 않습니다.";
-						log.warn("{}, 사용자가 선택한 업로드 파일={}, inObj=", errorMessage, selectedOldAttachFile.toString(), inObj.toString());
+						BoardFileDTO  oldBoardFileDTO = session.selectOne("getBoardFileDTO", userSelectedBoardFileDTO);
+						if (null == oldBoardFileDTO) {
+							session.rollback();
+							
+							String errorMessage = "업로드 수정:사용자가 선택한 업로드 파일이 존재하지 않습니다.";
+							log.warn("{}, 사용자가 선택한 업로드 파일={}, inObj=", errorMessage, selectedOldAttachFile.toString(), inObj.toString());
+							
+							MessageResult messageResultOutObj = new MessageResult();
+							messageResultOutObj.setIsSuccess(false);
+							messageResultOutObj.setTaskMessageID(inObj.getMessageID());
+							messageResultOutObj.setResultMessage(errorMessage);
+							letterSender.addSyncMessage(messageResultOutObj);
+							return;
+						}
 						
-						MessageResult messageResultOutObj = new MessageResult();
-						messageResultOutObj.setIsSuccess(false);
-						messageResultOutObj.setTaskMessageID(inObj.getMessageID());
-						messageResultOutObj.setResultMessage(errorMessage);
-						letterSender.addSyncMessage(messageResultOutObj);
-						return;
+						oldBoardFileDTO.setAttachSeq((short)attachFileDTOList.size());
+						
+						
+						log.debug("attachFileDTOList add oldAttachFile={}", oldBoardFileDTO.toString());
+						
+						attachFileDTOList.add(oldBoardFileDTO);					
 					}
-					
-					retBoardFileDTO.setAttachSeq((short)attachFileDTOList.size());
-					attachFileDTOList.add(retBoardFileDTO);					
 				}
 				
-				for (NewAttachFile newAttachFile : newAttachFileList) {
-					BoardFileDTO boardFileDTO = new BoardFileDTO();
-					boardFileDTO.setAttachId(attachId);
-					boardFileDTO.setAttachSeq((short)attachFileDTOList.size());
-					boardFileDTO.setAttachFileName(newAttachFile.getAttachFileName());
-					boardFileDTO.setSystemFileName(newAttachFile.getSystemFileName());
-					
-					attachFileDTOList.add(boardFileDTO);	
+				if (0 < newAttachFileCnt) {
+					for (NewAttachFile newAttachFile : newAttachFileList) {
+						BoardFileDTO newBoardFileDTO = new BoardFileDTO();
+						newBoardFileDTO.setAttachId(attachId);
+						newBoardFileDTO.setAttachSeq((short)attachFileDTOList.size());
+						newBoardFileDTO.setAttachFileName(newAttachFile.getAttachFileName());
+						newBoardFileDTO.setSystemFileName(newAttachFile.getSystemFileName());
+						
+						log.debug("attachFileDTOList add newAttachFile={}", newBoardFileDTO.toString());
+						
+						attachFileDTOList.add(newBoardFileDTO);	
+					}
 				}
+							
+				
+				// FIXME!
+				// log.info("attachFileDTOList size={}", attachFileDTOList.size());
 				
 				session.delete("deleteAllUploadFiles", inObj);
 				
@@ -497,9 +522,14 @@ public class BoardUploadFileInDTOServerTask extends AbstractServerTask {
 						letterSender.addSyncMessage(messageResultOutObj);
 						return;
 					}
+					
+					// FIXME!
+					log.info("insertBoardFile, boardFileDTO={}", boardFileDTO.toString());
 				}
 				
-				outObj = session.selectOne("getBoardUploadFileOutDTO");
+				
+				
+				outObj = session.selectOne("getBoardUploadFileOutDTO", inObj.getAttachId());
 				if (null == outObj) {
 					session.rollback();
 					
@@ -514,6 +544,11 @@ public class BoardUploadFileInDTOServerTask extends AbstractServerTask {
 					return;
 				}
 				
+				outObj.setAttachFileCnt(outObj.getAttachFileList().size());
+				
+				// FIXME!
+				log.debug("outObj={}", outObj.toString());
+				
 				session.commit();
 				
 				letterSender.addSyncMessage(outObj);
@@ -521,7 +556,8 @@ public class BoardUploadFileInDTOServerTask extends AbstractServerTask {
 			} catch(Exception e) {
 				session.rollback();
 				
-				String errorMessage = "업로드 수정:알수 없는 이유로 업로드 수정 처리가 실패하였습니다.";
+				String errorMessage = new StringBuilder("업로드 수정:알수 없는 이유로 업로드 수정 처리가 실패하였습니다. inObj=")
+				.append(inObj.toString().toString()).toString();				
 				log.warn(errorMessage, e);
 				
 				MessageResult messageResultOutObj = new MessageResult();

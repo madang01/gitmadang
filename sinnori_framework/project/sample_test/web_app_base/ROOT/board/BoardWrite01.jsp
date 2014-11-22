@@ -46,8 +46,12 @@
 			return;
 		}
 
+		// FIXME!
+		alert(document.attachForm.attachId.value);
+
 
 		var g = document.gofrm;
+		g.attachId.value = document.attachForm.attachId.value;
 		g.subject.value = f.subject.value;
 		g.content.value = f.content.value;
 		g.sessionkeyBase64.value = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_SESSIONKEY_NAME%>');
@@ -61,9 +65,9 @@
 		g.submit();
 	}
 
-	function addElement() {		
+	function addNewAttachFile() {		
 		var uploadFileMaxCnt = <%=WebCommonStaticFinalVars.WEBSITE_FILEUPLOAD_MAX_COUNT%>;
-		var prefixOfChildDiv = 'childDiv';
+		var prefixOfChildDiv = 'newChildDiv';
 		var maxIndex = -1;		
 		var uploadFileCnt = 0;
 
@@ -91,31 +95,119 @@
 
 		var inx = maxIndex+1;
 
-		var newdiv = document.createElement('div');
+		var newChilddiv = document.createElement('div');
 
 		var divIdName = prefixOfChildDiv+inx;		
 
-		newdiv.setAttribute('id',divIdName);
+		newChilddiv.setAttribute('id',divIdName);
 
 		
-		newdiv.innerHTML = "<input type=\"file\" name=\"attachFile\" size=\"70\" />&nbsp;<a href=\'#\' onclick=\'removeElement(\""+divIdName+"\")\'>삭제</a>";
+		newChilddiv.innerHTML = "<input type=\"file\" name=\"newAttachFile\" id=\"newAttachFile"+inx+"\" size=\"70\" />&nbsp;<a href=\'#\' id=newAttachFileDeleteLink"+inx+" style=\"visibility:hidden\" onclick=\'removeNewAttachFile(\""+divIdName+"\")\'>삭제</a>";
 
 
-		newFileListDiv.appendChild(newdiv);
+		newFileListDiv.appendChild(newChilddiv);
 
+		fixVisibleOfNewAttachFileDeleteLinks();
 	}
 
-	function removeElement(divIdName) {
+	function removeAllNewAttachFiles() {
+		var d = document.getElementById('newFileListDiv');
+		for(var i=0; i < d.childNodes.length; i++) {
+			d.removeChild(d.childNodes[i]);
+		}
+	}
+
+	function removeNewAttachFile(divIdName) {
 		var d = document.getElementById('newFileListDiv');		
 		var olddiv = document.getElementById(divIdName);
 		d.removeChild(olddiv);
 	}
 
+	function fixVisibleOfNewAttachFileDeleteLinks() {
+		var f = document.attachForm;
+
+		if (f.newAttachFile.length != undefined) {
+			for (var i=0;i < f.newAttachFile.length; i++) {
+				var newAttachFile = f.newAttachFile[i];
+				var inx = newAttachFile.id.substring("newAttachFile".length);				
+
+				var newAttachFileDeleteLink = document.getElementById('newAttachFileDeleteLink'+inx);
+
+				if (i+1 < f.newAttachFile.length ) newAttachFileDeleteLink.style.visibility = "visible";
+				else newAttachFileDeleteLink.style.visibility = "hidden";				
+			}
+		}
+	}
+
 	function checkForm() {
 		var f = document.attachForm;
 
-		alert(f.attachFile.length);
+		alert(f.newAttachFile.length);
 	}
+
+	var boardUploadFileOutDTO;
+
+	function restoreOldFiles() {
+		var f = document.attachForm;		
+
+		f.attachId.value = boardUploadFileOutDTO.attachId;		
+
+		var prefixOfChildDiv = 'oldChildDiv';
+		var oldFileListDiv = document.getElementById('oldFileListDiv');
+
+		for (var i=0; i < boardUploadFileOutDTO.oldAttachFileList.length; i++) {
+			var divIdName = prefixOfChildDiv+i;
+			
+			removeOldAttachFile(divIdName);
+
+			var oldChilddiv = document.createElement('div');			
+
+			oldChilddiv.setAttribute('id',divIdName);		
+
+			oldChilddiv.innerHTML = "<input type=\"hidden\" name=\"oldAttachSeq\" value=\""+boardUploadFileOutDTO.oldAttachFileList[i].attachSeq+"\" /><input type=\"text\" name=\"oldAttachFileName\" disabled=\"disabled\" size=\"70\" value=\""+boardUploadFileOutDTO.oldAttachFileList[i].attachFileName+"\" />&nbsp;<a href=\'#\' onclick=\'removeOldAttachFile(\""+divIdName+"\")\'>삭제</a>";
+
+			oldFileListDiv.appendChild(oldChilddiv);
+			
+		}
+	}
+
+	function callbackUpload(parmBoardUploadFileOutDTO) {
+		init();
+
+		if (parmBoardUploadFileOutDTO.isError) {
+			alert(parmBoardUploadFileOutDTO.errorMessage);
+		} else {
+			boardUploadFileOutDTO = parmBoardUploadFileOutDTO;
+
+			var d = document.getElementById('oldFileMenuDiv');
+			d.style.visibility = "visible";
+
+			restoreOldFiles();
+		}		
+	}
+
+	function removeAllOldAttachFiles() {
+		var d = document.getElementById('oldFileListDiv');		
+		for(var i=0; i < d.childNodes.length; i++) {
+			d.removeChild(d.childNodes[i]);
+		}	
+	}
+
+	function removeOldAttachFile(divIdName) {
+		var d = document.getElementById('oldFileListDiv');		
+		var olddiv = document.getElementById(divIdName);
+		if (olddiv != undefined) {
+			d.removeChild(olddiv);
+		}		
+	}
+
+	function init() {
+		removeAllOldAttachFiles();
+		removeAllNewAttachFiles();
+		addNewAttachFile();
+	}
+
+	window.onload=init;
 </script>
 <form name=gofrm method="post" action="/servlet/BoardWrite">
 <input type="hidden" name="topmenu" value="<%=topmenu%>" />
@@ -156,13 +248,16 @@
 		</ul>	
 	</div>
 </form>
-<form name="attachForm" target="uploadResult" action="/servlet/BoardUpload" method="post" enctype="multipart/form-data" target="uploadResult">
+<form name="attachForm" target="uploadResultFrame" action="/servlet/BoardUpload" method="post" enctype="multipart/form-data">
 	<input type="hidden" name="attachId" value="0" />
 
-	<input type="hidden" name="attachSeq" value="0" />
-	<input type="hidden" name="attachSeq" value="1" />
+	<!-- input type="hidden" name="attachSeq" value="0" />
+	<input type="hidden" name="attachSeq" value="1" / -->
 	
-	<p><a href="#" onclick="addElement();">첨부 파일 추가</a></p>
+	<div id="oldFileMenuDiv" style="visibility:hidden"><p><a href="#" onclick="restoreOldFiles();">첨부한 파일 복원</a></p></div>
+	<div id="oldFileListDiv"></div><br/>
+	
+	<p><a href="#" onclick="addNewAttachFile();">첨부 파일 추가</a></p>
 	<!-- 주의점 myDiv 시작 태그와 종료 태그 사이에는 공백을 포함한 어떠한 것도 넣지 말것, 자식 노드로 인식됨 -->
 	<div id="newFileListDiv"></div><br/>
 
@@ -170,10 +265,7 @@
 	<a href="#" onClick="checkForm()">폼 자식 객체로 들어가있는지 검사</a>
 </form>
 
-<iframe name="uploadResult" width="400" height="300" >
-</iframe>
-
-
-<%
+<iframe name="uploadResultFrame" width="400" height="300" >
+</iframe><%
 	}
 %>

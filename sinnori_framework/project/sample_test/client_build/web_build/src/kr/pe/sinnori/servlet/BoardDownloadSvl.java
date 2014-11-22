@@ -3,6 +3,7 @@ package kr.pe.sinnori.servlet;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 
@@ -84,7 +85,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 			attachSeq = Short.parseShort(parmAttachSeq);
 		}catch (NumberFormatException nfe) {
 			String errorMessage = new StringBuilder("자바 short 타입 변수인 업로드 파일 순번 값[")
-			.append(parmAttachId).append("]이 잘못되었습니다.").toString();
+			.append(parmAttachSeq).append("]이 잘못되었습니다.").toString();
 			log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
 			
 			req.setAttribute("errorMessage", errorMessage);
@@ -92,9 +93,9 @@ public class BoardDownloadSvl extends AbstractServlet {
 			return;
 		}
 		
-		if (attachSeq <= 0) {
+		if (attachSeq < 0) {
 			String errorMessage = new StringBuilder("업로드 파일 순번 값[")
-			.append(parmAttachId).append("]은 0 보다 커야합니다.").toString();
+			.append(parmAttachSeq).append("]은 0 보다 작거나 커야합니다.").toString();
 			log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
 			
 			req.setAttribute("errorMessage", errorMessage);
@@ -104,7 +105,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 		
 		if (attachSeq > CommonStaticFinalVars.MAX_UNSIGNED_BYTE) {
 			String errorMessage = new StringBuilder("업로드 파일 순번 값[")
-			.append(parmAttachId).append("]은 ")
+			.append(parmAttachSeq).append("]은 ")
 			.append(CommonStaticFinalVars.MAX_UNSIGNED_BYTE)
 			.append(" 값 보다 작거나 같아야 합니다.").toString();
 			log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
@@ -210,18 +211,28 @@ public class BoardDownloadSvl extends AbstractServlet {
 			byte[] bytes = new byte[1024];
 			FileInputStream fis = null;
 			BufferedInputStream bis = null;
-			fis = new FileInputStream(downloadFile);
-			bis = new BufferedInputStream(fis);
-			OutputStream os = res.getOutputStream();
-			int i = bis.read(bytes);
-			while (i != -1) {
-				os.write(bytes, 0, i);
-				i = bis.read(bytes);
-			}
-			bis.close();
-			fis.close();
+			try {
+				fis = new FileInputStream(downloadFile);
+				bis = new BufferedInputStream(fis);
+				OutputStream os = res.getOutputStream();
+				int i = bis.read(bytes);
+				while (i != -1) {
+					os.write(bytes, 0, i);
+					i = bis.read(bytes);
+				}
+			} catch(IOException e) {
+				log.warn("다운로드 파일[{}] 처리중 입출력 에러 발생", bardDownloadFileInDTO.toString());
+			} finally {
+				try {
+					bis.close();
+				} catch(Exception e) {					
+				}
+				try {
+					fis.close();
+				} catch(Exception e) {					
+				}
+			}	
 		}
-
 	}
 
 	// HTTP/1.1 헤더로부터 브라우저를 가져온다.

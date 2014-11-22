@@ -28,30 +28,15 @@ public class SeqValueInDTOServerTask extends AbstractServerTask {
 		}
 		SeqValueInDTO inObj = (SeqValueInDTO)messageFromClient;
 		
-		SqlSession session = sqlSessionFactory.openSession(false);
-		
 		SeqValueOutDTO outObj = null;
 		
-		outObj = session.selectOne("getSeqValueInLock", inObj);
-		if (null == outObj) {
-			session.rollback();
-			
-			String errorMessage = "업로드 파일명 시퀀스 조회가 실패하였습니다.";
-			
-			log.warn("{}, inObj={}", errorMessage, inObj.toString());
-			
-			MessageResult messageResultOutObj = new MessageResult();
-			messageResultOutObj.setIsSuccess(false);
-			messageResultOutObj.setTaskMessageID(inObj.getMessageID());
-			messageResultOutObj.setResultMessage(errorMessage);
-			letterSender.addSyncMessage(messageResultOutObj);
-			return;
-		} else {
-			int cntOfUpdateSeqValue = session.update("updateSeqValue", inObj);
-			if (0 == cntOfUpdateSeqValue) {
+		SqlSession session = sqlSessionFactory.openSession(false);
+		try {
+			outObj = session.selectOne("getSeqValueInLock", inObj);
+			if (null == outObj) {
 				session.rollback();
 				
-				String errorMessage = "업로드 파일명 시퀀스 +1 증가 수정이 실패하였습니다";
+				String errorMessage = "업로드 파일명 시퀀스 조회가 실패하였습니다.";
 				
 				log.warn("{}, inObj={}", errorMessage, inObj.toString());
 				
@@ -61,10 +46,43 @@ public class SeqValueInDTOServerTask extends AbstractServerTask {
 				messageResultOutObj.setResultMessage(errorMessage);
 				letterSender.addSyncMessage(messageResultOutObj);
 				return;
+			} else {
+				int cntOfUpdateSeqValue = session.update("updateSeqValue", inObj);
+				if (0 == cntOfUpdateSeqValue) {
+					session.rollback();
+					
+					String errorMessage = "업로드 파일명 시퀀스 +1 증가 수정이 실패하였습니다";
+					
+					log.warn("{}, inObj={}", errorMessage, inObj.toString());
+					
+					MessageResult messageResultOutObj = new MessageResult();
+					messageResultOutObj.setIsSuccess(false);
+					messageResultOutObj.setTaskMessageID(inObj.getMessageID());
+					messageResultOutObj.setResultMessage(errorMessage);
+					letterSender.addSyncMessage(messageResultOutObj);
+					return;
+				}
+				
+				session.commit();
+				
+				letterSender.addSyncMessage(outObj);
+				return;
 			}
+		} catch(Exception e) {
+			session.rollback();
 			
-			letterSender.addSyncMessage(outObj);
+			String errorMessage = new StringBuilder("알수 없는 이유로 시퀀스 조회가 실패하였습니다. inObj=")
+			.append(inObj.toString().toString()).toString();
+			log.warn(errorMessage, e);
+			
+			MessageResult messageResultOutObj = new MessageResult();
+			messageResultOutObj.setTaskMessageID(inObj.getMessageID());
+			messageResultOutObj.setIsSuccess(false);
+			messageResultOutObj.setResultMessage(errorMessage);
+			letterSender.addSyncMessage(messageResultOutObj);
 			return;
+		} finally {
+			session.close();
 		}
 	}
 }
