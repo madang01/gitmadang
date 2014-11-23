@@ -265,27 +265,27 @@ public class DecoderSourceFileBuilder extends AbstractSourceFileBuildre {
 				
 				stringBuilder.append(toBody(depth+1, path+"."+arrayInfoOfChild.getFirstUpperItemName(), 
 						arrayInfoOfChild.getItemName(), 
-						arrayInfoOfChild, arrayInfoOfChild.getItemName()+ "MiddleReadObj"));
-				
-				// allDataType.setMemberList(memberList);
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append(varName);
-				stringBuilder.append(".set");
-				stringBuilder.append(arrayInfoOfChild.getFirstUpperItemName());
-				stringBuilder.append("List(");
-				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("List);");				
-				
-				// FIXME!
+						arrayInfoOfChild, arrayInfoOfChild.getItemName()+ "MiddleReadObj"));						
+								
 				// }
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				for (int i=0; i < depth; i++) {
 					stringBuilder.append("\t");
 				}
 				stringBuilder.append("\t\t}");
+				
+				// allDataType.setMemberList(memberList);
+				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+				for (int i=0; i < depth; i++) {
+					stringBuilder.append("\t");
+				}
+				stringBuilder.append("\t\t");
+				stringBuilder.append(varName);
+				stringBuilder.append(".set");
+				stringBuilder.append(arrayInfoOfChild.getFirstUpperItemName());
+				stringBuilder.append("List(");
+				stringBuilder.append(arrayInfoOfChild.getItemName());
+				stringBuilder.append("List);");	
 			}
 		}
 		

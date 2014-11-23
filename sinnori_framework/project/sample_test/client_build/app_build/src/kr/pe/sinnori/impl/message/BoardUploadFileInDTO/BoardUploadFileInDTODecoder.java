@@ -103,8 +103,8 @@ public final class BoardUploadFileInDTODecoder extends MessageDecoder {
 			, null // itemCharset,
 			, charsetOfProject
 			, selectedOldAttachFileMiddleReadObj));
-boardUploadFileInDTO.setSelectedOldAttachFileList(selectedOldAttachFileList);
 		}
+		boardUploadFileInDTO.setSelectedOldAttachFileList(selectedOldAttachFileList);
 
 		boardUploadFileInDTO.setNewAttachFileCnt((Integer)
 		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
@@ -144,8 +144,8 @@ boardUploadFileInDTO.setSelectedOldAttachFileList(selectedOldAttachFileList);
 			, null // itemCharset,
 			, charsetOfProject
 			, newAttachFileMiddleReadObj));
-boardUploadFileInDTO.setNewAttachFileList(newAttachFileList);
 		}
+		boardUploadFileInDTO.setNewAttachFileList(newAttachFileList);
 		return boardUploadFileInDTO;
 	}
 }

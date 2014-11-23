@@ -243,8 +243,8 @@ public final class BoardListOutDTODecoder extends MessageDecoder {
 			, null // itemCharset,
 			, charsetOfProject
 			, boardMiddleReadObj));
-boardListOutDTO.setBoardList(boardList);
 		}
+		boardListOutDTO.setBoardList(boardList);
 		return boardListOutDTO;
 	}
 }

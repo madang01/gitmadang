@@ -253,8 +253,8 @@ public final class BoardDetailOutDTODecoder extends MessageDecoder {
 			, null // itemCharset,
 			, charsetOfProject
 			, attachFileMiddleReadObj));
-boardDetailOutDTO.setAttachFileList(attachFileList);
 		}
+		boardDetailOutDTO.setAttachFileList(attachFileList);
 
 		boardDetailOutDTO.setMemberGubunName((String)
 		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0

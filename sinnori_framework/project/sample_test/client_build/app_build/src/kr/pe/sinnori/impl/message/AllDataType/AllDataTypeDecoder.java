@@ -412,10 +412,10 @@ public final class AllDataTypeDecoder extends MessageDecoder {
 				, null // itemCharset,
 				, charsetOfProject
 				, itemMiddleReadObj));
-	member.setItemList(itemList);
 			}
-allDataType.setMemberList(memberList);
+			member.setItemList(itemList);
 		}
+		allDataType.setMemberList(memberList);
 		return allDataType;
 	}
 }

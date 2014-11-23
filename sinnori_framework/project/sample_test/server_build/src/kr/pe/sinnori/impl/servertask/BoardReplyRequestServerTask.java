@@ -91,12 +91,15 @@ public class BoardReplyRequestServerTask extends AbstractServerTask {
 		}
 		
 		SqlSession session = sqlSessionFactory.openSession(false);	
-		try {		
-			BoardReplyDTO boardReplyDTO = session.selectOne("getBoardReplyInLock", inObj);
+		try {
+			/** 부모 게시글의 계층형 게시판 정보를 바탕으로 댓글 게시판 트리 정보를 가져온다 */
+			BoardReplyDTO boardReplyDTO = session.selectOne("getBoardTreeInfoFromParent", inObj);
 			if (null == boardReplyDTO) {
 				session.rollback();
 				String errorMessage = String.format("게시판[%d]에서 부모 글[%d]이 존재하지 않습니다.", 
 						inObj.getBoardId(), inObj.getParentBoardNo());
+				log.warn("{}, inObj={}", errorMessage, inObj.toString());
+				
 				messageResultOutObj.setResultMessage(errorMessage);
 			} else {
 				// FIXME!
@@ -106,10 +109,12 @@ public class BoardReplyRequestServerTask extends AbstractServerTask {
 					session.commit();
 					String errorMessage = String.format("부모글의 게시판 식별자[%d]와 파라미터로 넘어온 게시판 식별자[%d]가 상이합니다.", 
 							boardReplyDTO.getBoardId(), inObj.getBoardId());
+					log.warn("{}, inObj={}", errorMessage, inObj.toString());
+					
 					messageResultOutObj.setResultMessage(errorMessage);
 					
-					log.warn("{}, userId={}, ip={}", errorMessage, inObj.getUserId(), inObj.getUserId());
 				} else {
+					/** 입력 받은 댓글 내용으로 채움 */
 					boardReplyDTO.setSubject(inObj.getSubject());
 					boardReplyDTO.setContent(inObj.getContent());
 					boardReplyDTO.setWriterId(inObj.getUserId());
@@ -121,13 +126,16 @@ public class BoardReplyRequestServerTask extends AbstractServerTask {
 						session.rollback();
 						String errorMessage = String.format("게시판[%d]에서 게시글 그룹[%d]내 삽입할 위치[%d] 이후 락 획득 실패", 
 								boardReplyDTO.getBoardId(), boardReplyDTO.getGroupNo(), boardReplyDTO.getGroupSeq());
+						log.warn("{}, inObj={}", errorMessage, inObj.toString());
+						
 						messageResultOutObj.setResultMessage(errorMessage);		
 						
 					} else {
+						@SuppressWarnings("unused")
 						int resultOfUpdate = session.update("updateReplyBoard", boardReplyDTO);
 						
 						// FIXME!
-						log.info("resultOfUpdate={}", resultOfUpdate);
+						// log.info("resultOfUpdate={}", resultOfUpdate);
 						
 						int resultOfInsert = session.insert("insertReplyBoard", boardReplyDTO);
 						if (resultOfInsert > 0) {
@@ -136,6 +144,10 @@ public class BoardReplyRequestServerTask extends AbstractServerTask {
 							messageResultOutObj.setResultMessage("게시판 댓글 등록이 성공하였습니다.");
 						} else {
 							session.rollback();
+							
+							String errorMessage = "1.게시판 댓글 등록이 실패하였습니다.";
+							log.warn("{}, inObj={}", errorMessage, inObj.toString());
+							
 							messageResultOutObj.setResultMessage("1.게시판 댓글 등록이 실패하였습니다.");
 						}
 					}	

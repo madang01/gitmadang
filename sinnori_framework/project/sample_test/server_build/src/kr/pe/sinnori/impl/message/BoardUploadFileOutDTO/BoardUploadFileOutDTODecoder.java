@@ -143,8 +143,8 @@ public final class BoardUploadFileOutDTODecoder extends MessageDecoder {
 			, null // itemCharset,
 			, charsetOfProject
 			, attachFileMiddleReadObj));
-boardUploadFileOutDTO.setAttachFileList(attachFileList);
 		}
+		boardUploadFileOutDTO.setAttachFileList(attachFileList);
 		return boardUploadFileOutDTO;
 	}
 }
