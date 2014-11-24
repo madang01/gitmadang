@@ -51,12 +51,12 @@ public class Step2SourceBuilderScreen extends JPanel {
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		add(tabbedPane, "2, 4, fill, fill");
 		
-		MultiSourceBuilderScreen multiSourceBuilderPanel = 
+		MultiSourceBuilderScreen multiSourceBuilderScreen = 
 				new MultiSourceBuilderScreen(mainFrame, mainController, sinnoriInstallAbsPathName, mainProjectList, project2ConfigHash);
-		tabbedPane.addTab("다중 파일 소스빌더", null, multiSourceBuilderPanel, null);
+		tabbedPane.addTab("다중 파일 소스빌더", null, multiSourceBuilderScreen, null);
 		
-		SingleSourceBuilderPanel singleSourceBuilderPanel = new SingleSourceBuilderPanel(mainFrame);
-		tabbedPane.addTab("단일 파일 소스빌더", null, singleSourceBuilderPanel, null);
+		SingleSourceBuilderScreen singleSourceBuilderScreen = new SingleSourceBuilderScreen(mainFrame);
+		tabbedPane.addTab("단일 파일 소스빌더", null, singleSourceBuilderScreen, null);
 	}
 	
 }

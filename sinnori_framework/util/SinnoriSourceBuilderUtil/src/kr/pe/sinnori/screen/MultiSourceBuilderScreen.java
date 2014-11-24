@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,6 +36,7 @@ import kr.pe.sinnori.common.lib.CommonType;
 import kr.pe.sinnori.common.lib.XMLFileFilter;
 import kr.pe.sinnori.common.message.MessageInfo;
 import kr.pe.sinnori.common.message.MessageInfoSAXParser;
+import kr.pe.sinnori.common.util.FileLastModifiedComparator;
 import kr.pe.sinnori.common.util.SequencedProperties;
 import kr.pe.sinnori.gui.PathSwingAction;
 import kr.pe.sinnori.gui.lib.MessageInfoManagerIF;
@@ -64,8 +66,11 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 	private JFileChooser chooser = null;
 	private JTextField messageInfoPathTextField;
 	private JTextField sourceBasePath1TextField;
+	private JCheckBox sourceBasePath1CheckBox;
 	private JTextField sourceBasePath2TextField;
+	private JCheckBox sourceBasePath2CheckBox;
 	private JTextField sourceBasePath3TextField;
+	private JCheckBox sourceBasePath3CheckBox;
 	private JTextField authorTextField;
 	private JTextField searchKeywordTextField;
 	private JTable table;
@@ -130,14 +135,24 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 							.append(File.separator).append("src").append(File.separator).append("kr").append(File.separator).append("pe")
 							.append(File.separator).append("sinnori").append(File.separator).append("impl").append(File.separator).append("message");
 					
-					StringBuilder clientStrBuilder = new StringBuilder(baseStrBuilder.toString()).append(File.separator).append("client_build")
+					StringBuilder clientAppStrBuilder = new StringBuilder(baseStrBuilder.toString()).append(File.separator).append("client_build")
 							.append(File.separator).append("app_build").append(File.separator).append("src")
 							.append(File.separator).append("kr").append(File.separator).append("pe")
 							.append(File.separator).append("sinnori").append(File.separator).append("impl").append(File.separator).append("message");
 
+					StringBuilder clientWebStrBuilder = new StringBuilder(baseStrBuilder.toString()).append(File.separator).append("client_build")
+							.append(File.separator).append("web_build").append(File.separator).append("src")
+							.append(File.separator).append("kr").append(File.separator).append("pe")
+							.append(File.separator).append("sinnori").append(File.separator).append("impl").append(File.separator).append("message");
+					
 					messageInfoPathTextField.setText(messageInfoStrBuilder.toString());
 					sourceBasePath1TextField.setText(serverStrBuilder.toString());
-					sourceBasePath2TextField.setText(clientStrBuilder.toString());
+					sourceBasePath2TextField.setText(clientAppStrBuilder.toString());
+					sourceBasePath3TextField.setText(clientWebStrBuilder.toString());
+					
+					sourceBasePath1CheckBox.setSelected(true);
+					sourceBasePath2CheckBox.setSelected(true);
+					sourceBasePath3CheckBox.setSelected(false);
 				}
 			}
 		}
@@ -199,9 +214,9 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 		line01Panel.add(projectComboBox, "6, 1");
 		add(line01Panel, "2, 2, fill, center");		
 		
-		JPanel line02Panel = new JPanel();
-		add(line02Panel, "2, 4, fill, center");
-		line02Panel.setLayout(new FormLayout(new ColumnSpec[] {
+		JPanel messageInfoPathLinePanel = new JPanel();
+		add(messageInfoPathLinePanel, "2, 4, fill, center");
+		messageInfoPathLinePanel.setLayout(new FormLayout(new ColumnSpec[] {
 				FormFactory.UNRELATED_GAP_COLSPEC,
 				FormFactory.RELATED_GAP_COLSPEC,
 				FormFactory.DEFAULT_COLSPEC,
@@ -217,22 +232,24 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 		JLabel messageInfoPathLabel = new JLabel("메시지 정보  파일 위치");
 		messageInfoPathLabel.setFont(UIManager.getFont("Label.font"));
 		// messageInfoPathLabel.setFont(UIManager.getFont("Table.font"));
-		line02Panel.add(messageInfoPathLabel, "3, 1");
+		messageInfoPathLinePanel.add(messageInfoPathLabel, "3, 1");
 		
 		messageInfoPathTextField = new JTextField();
 		messageInfoPathTextField.setDocument(new RegexLimitPlainDocume(null, 250, null));
-		line02Panel.add(messageInfoPathTextField, "6, 1, fill, default");
+		messageInfoPathLinePanel.add(messageInfoPathTextField, "6, 1, fill, default");
 		// messageInfoPathTextField.setColumns(10);
 		
 		JButton messageInfoPathButton = new JButton("경로 찾기");
 		messageInfoPathButton.setAction(new PathSwingAction(mainFrame, chooser, messageInfoPathTextField));
-		line02Panel.add(messageInfoPathButton, "8, 1");
+		messageInfoPathLinePanel.add(messageInfoPathButton, "8, 1");
 		
-		JPanel line03Panel = new JPanel();
-		add(line03Panel, "2, 6, fill, center");
-		line03Panel.setLayout(new FormLayout(new ColumnSpec[] {
+		JPanel sourceBasePath1LinePanel = new JPanel();
+		add(sourceBasePath1LinePanel, "2, 6, fill, center");
+		sourceBasePath1LinePanel.setLayout(new FormLayout(new ColumnSpec[] {
 				FormFactory.UNRELATED_GAP_COLSPEC,
 				FormFactory.RELATED_GAP_COLSPEC,
+				FormFactory.DEFAULT_COLSPEC,
+				FormFactory.UNRELATED_GAP_COLSPEC,
 				FormFactory.DEFAULT_COLSPEC,
 				FormFactory.LABEL_COMPONENT_GAP_COLSPEC,
 				FormFactory.UNRELATED_GAP_COLSPEC,
@@ -245,22 +262,28 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 		
 		JLabel sourceBasePath1Label = new JLabel("1차 소스 저장 위치");
 		sourceBasePath1Label.setFont(UIManager.getFont("Label.font"));
-		line03Panel.add(sourceBasePath1Label, "3, 1");
+		sourceBasePath1LinePanel.add(sourceBasePath1Label, "3, 1");
+		
+		sourceBasePath1CheckBox = new JCheckBox();
+		sourceBasePath1CheckBox.setSelected(true);
+		sourceBasePath1LinePanel.add(sourceBasePath1CheckBox, "5, 1");
 		
 		sourceBasePath1TextField = new JTextField();
 		sourceBasePath1TextField.setDocument(new RegexLimitPlainDocume(null, 250, null));
-		line03Panel.add(sourceBasePath1TextField, "6, 1, fill, default");
-		sourceBasePath1TextField.setColumns(10);
+		sourceBasePath1LinePanel.add(sourceBasePath1TextField, "8, 1, fill, default");
+		sourceBasePath1TextField.setColumns(10);	
 		
 		JButton sourceBasePath1Button = new JButton("경로 찾기");
 		sourceBasePath1Button.setAction(new PathSwingAction(mainFrame, chooser, sourceBasePath1TextField));
-		line03Panel.add(sourceBasePath1Button, "8, 1");
+		sourceBasePath1LinePanel.add(sourceBasePath1Button, "10, 1");
 		
-		JPanel line04Panel = new JPanel();
-		add(line04Panel, "2, 8, fill, center");
-		line04Panel.setLayout(new FormLayout(new ColumnSpec[] {
+		JPanel sourceBasePath2LinePanel = new JPanel();
+		add(sourceBasePath2LinePanel, "2, 8, fill, center");
+		sourceBasePath2LinePanel.setLayout(new FormLayout(new ColumnSpec[] {
 				FormFactory.UNRELATED_GAP_COLSPEC,
 				FormFactory.RELATED_GAP_COLSPEC,
+				FormFactory.DEFAULT_COLSPEC,
+				FormFactory.UNRELATED_GAP_COLSPEC,
 				FormFactory.DEFAULT_COLSPEC,
 				FormFactory.LABEL_COMPONENT_GAP_COLSPEC,
 				FormFactory.UNRELATED_GAP_COLSPEC,
@@ -272,22 +295,28 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 				FormFactory.MIN_ROWSPEC,}));
 		
 		JLabel sourceBasePath2Label = new JLabel("2차 소스 저장 위치");
-		line04Panel.add(sourceBasePath2Label, "3, 1");
+		sourceBasePath2LinePanel.add(sourceBasePath2Label, "3, 1");
 		
+		sourceBasePath2CheckBox = new JCheckBox();
+		sourceBasePath2CheckBox.setSelected(true);
+		sourceBasePath2LinePanel.add(sourceBasePath2CheckBox, "5, 1");
+				
 		sourceBasePath2TextField = new JTextField();
 		sourceBasePath2TextField.setDocument(new RegexLimitPlainDocume(null, 250, null));
-		line04Panel.add(sourceBasePath2TextField, "6, 1, fill, default");
+		sourceBasePath2LinePanel.add(sourceBasePath2TextField, "8, 1, fill, default");
 		sourceBasePath2TextField.setColumns(10);
 		
 		JButton sourceBasePath2Button = new JButton("경로 찾기");
 		sourceBasePath2Button.setAction(new PathSwingAction(mainFrame, chooser, sourceBasePath2TextField));
-		line04Panel.add(sourceBasePath2Button, "8, 1");
+		sourceBasePath2LinePanel.add(sourceBasePath2Button, "10, 1");
 		
-		JPanel line05Panel = new JPanel();
-		add(line05Panel, "2, 10, fill, center");
-		line05Panel.setLayout(new FormLayout(new ColumnSpec[] {
+		JPanel sourceBasePath3LinePanel = new JPanel();
+		add(sourceBasePath3LinePanel, "2, 10, fill, center");
+		sourceBasePath3LinePanel.setLayout(new FormLayout(new ColumnSpec[] {
 				FormFactory.UNRELATED_GAP_COLSPEC,
 				FormFactory.RELATED_GAP_COLSPEC,
+				FormFactory.DEFAULT_COLSPEC,
+				FormFactory.UNRELATED_GAP_COLSPEC,
 				FormFactory.DEFAULT_COLSPEC,
 				FormFactory.LABEL_COMPONENT_GAP_COLSPEC,
 				FormFactory.UNRELATED_GAP_COLSPEC,
@@ -299,16 +328,20 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 				FormFactory.MIN_ROWSPEC,}));
 		
 		JLabel sourceBasePath3Label = new JLabel("3차 소스 저장 위치");
-		line05Panel.add(sourceBasePath3Label, "3, 1");
+		sourceBasePath3LinePanel.add(sourceBasePath3Label, "3, 1");
+		
+		sourceBasePath3CheckBox = new JCheckBox();
+		sourceBasePath3CheckBox.setSelected(false);
+		sourceBasePath3LinePanel.add(sourceBasePath3CheckBox, "5, 1");
 		
 		sourceBasePath3TextField = new JTextField();
 		sourceBasePath3TextField.setDocument(new RegexLimitPlainDocume(null, 250, null));
-		line05Panel.add(sourceBasePath3TextField, "6, 1, fill, default");
+		sourceBasePath3LinePanel.add(sourceBasePath3TextField, "8, 1, fill, default");
 		sourceBasePath3TextField.setColumns(10);
 		
 		JButton sourceBasePath3Button = new JButton("경로 찾기");
 		sourceBasePath3Button.setAction(new PathSwingAction(mainFrame, chooser, sourceBasePath3TextField));
-		line05Panel.add(sourceBasePath3Button, "8, 1");
+		sourceBasePath3LinePanel.add(sourceBasePath3Button, "10, 1");
 		
 		//////////////////////////
 		JPanel line06Panel = new JPanel();
@@ -534,6 +567,11 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
     		ArrayList<kr.pe.sinnori.common.message.MessageInfo> messageInfoList = new ArrayList<kr.pe.sinnori.common.message.MessageInfo>();
     		
     		File messageInfoFiles[] = messgaeInfoPath.listFiles(new XMLFileFilter());
+    		
+    		
+    		Arrays.sort(messageInfoFiles, new FileLastModifiedComparator());
+    		
+    		
     		for (File messageInfoFile : messageInfoFiles) {
     			if (!messageInfoFile.isFile()) {
     				String errorMessage = String.format("warning :: not file , file name=[%s]", messageInfoFile.getName());
@@ -702,55 +740,69 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 		String author = authorTextField.getText();
 		
 		if (null == sourcePath1Text) {
-			sourcePath1Text="";
-			sourceBasePath1TextField.setText(sourcePath1Text);
+			sourcePath1Text="";			
+		} else {
+			sourcePath1Text = sourcePath1Text.trim();
 		}
+		sourceBasePath1TextField.setText(sourcePath1Text);
+		
 		if (null == sourcePath2Text) {
-			sourcePath2Text="";
-			sourceBasePath2TextField.setText(sourcePath2Text);
-		}
+			sourcePath2Text="";			
+		} else {
+			sourcePath2Text = sourcePath2Text.trim();
+		}		
+		sourceBasePath2TextField.setText(sourcePath2Text);
+		
+		
 		if (null == sourcePath3Text) {
-			sourcePath3Text="";
-			sourceBasePath3TextField.setText(sourcePath3Text);
+			sourcePath3Text="";			
+		} else {
+			sourcePath3Text = sourcePath3Text.trim();
 		}
+		sourceBasePath3TextField.setText(sourcePath3Text);
+		
 		if (null == author) {
-			author = "";
-			authorTextField.setText(author);
+			author = "";			
+		} else {
+			author = author.trim();
 		}
+		authorTextField.setText(author);
 		
 		ArrayList<File> sourceBasePathList = new ArrayList<File>();
-		if (!sourcePath1Text.equals("")) {
-			File oneSourcePath = getPathFile(sourcePath1Text);
-			
-			if (null == oneSourcePath) {
+		
+		if (sourceBasePath1CheckBox.isSelected()) {
+			if (sourcePath1Text.equals("")) {
+				JOptionPane.showMessageDialog(mainFrame, "선택한 1차 소스 저장 위치 값을 넣어 주세요.");
 				sourceBasePath1TextField.requestFocusInWindow();
 				return false;
 			}
+			
+			File oneSourcePath = getPathFile(sourcePath1Text);
 			sourceBasePathList.add(oneSourcePath);
 		}
 		
-		if (!sourcePath2Text.equals("")) {
-			File oneSourcePath = getPathFile(sourcePath2Text);
-			
-			if (null == oneSourcePath) {
+		if (sourceBasePath2CheckBox.isSelected()) {
+			if (sourcePath2Text.equals("")) {
+				JOptionPane.showMessageDialog(mainFrame, "선택한 2차 소스 저장 위치 값을 넣어 주세요.");
 				sourceBasePath2TextField.requestFocusInWindow();
 				return false;
 			}
 			
+			File oneSourcePath = getPathFile(sourcePath2Text);
 			sourceBasePathList.add(oneSourcePath);
 		}
 		
-		if (!sourcePath3Text.equals("")) {
-			File oneSourcePath = getPathFile(sourcePath3Text);
-			
-			if (null == oneSourcePath) {
+		if (sourceBasePath3CheckBox.isSelected()) {
+			if (sourcePath3Text.equals("")) {
+				JOptionPane.showMessageDialog(mainFrame, "선택한 3차 소스 저장 위치 값을 넣어 주세요.");
 				sourceBasePath3TextField.requestFocusInWindow();
 				return false;
 			}
 			
+			File oneSourcePath = getPathFile(sourcePath3Text);
 			sourceBasePathList.add(oneSourcePath);
 		}
-		
+				
 		if (0 == sourceBasePathList.size()) {
 			JOptionPane.showMessageDialog(mainFrame, "소스 저장 위치 3개중 최소 1개에 값이 있어야 합니다.");
 			
@@ -764,6 +816,13 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 			return false;
 		}
 		
+		boolean result = doCreateSourceFile(sourceBasePathList, author, isSelectedIO, isSelectedDirection, messageInfo);
+		
+		return result;
+	}
+	
+	public boolean doCreateSourceFile(ArrayList<File> sourceBasePathList, String author, 
+			boolean isSelectedIO, boolean isSelectedDirection, kr.pe.sinnori.common.message.MessageInfo messageInfo) {
 		FileOutputStream fos = null;
 		
 		for (File sourceBasePath : sourceBasePathList) {
@@ -1008,9 +1067,11 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 				}
 			}
 		}
+		
 		return true;
 	}
- 
+	
+	
 	// FIXME!
 	@Override
 	public void createAllSourceFiles() {
@@ -1020,55 +1081,69 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 		String author = authorTextField.getText();
 		
 		if (null == sourcePath1Text) {
-			sourcePath1Text="";
-			sourceBasePath1TextField.setText(sourcePath1Text);
+			sourcePath1Text="";			
+		} else {
+			sourcePath1Text = sourcePath1Text.trim();
 		}
+		sourceBasePath1TextField.setText(sourcePath1Text);
+		
 		if (null == sourcePath2Text) {
-			sourcePath2Text="";
-			sourceBasePath2TextField.setText(sourcePath2Text);
-		}
+			sourcePath2Text="";			
+		} else {
+			sourcePath2Text = sourcePath2Text.trim();
+		}		
+		sourceBasePath2TextField.setText(sourcePath2Text);
+		
+		
 		if (null == sourcePath3Text) {
-			sourcePath3Text="";
-			sourceBasePath3TextField.setText(sourcePath3Text);
+			sourcePath3Text="";			
+		} else {
+			sourcePath3Text = sourcePath3Text.trim();
 		}
+		sourceBasePath3TextField.setText(sourcePath3Text);
+		
 		if (null == author) {
-			author = "";
-			authorTextField.setText(author);
+			author = "";			
+		} else {
+			author = author.trim();
 		}
+		authorTextField.setText(author);
 		
 		ArrayList<File> sourceBasePathList = new ArrayList<File>();
-		if (!sourcePath1Text.equals("")) {
-			File oneSourcePath = getPathFile(sourcePath1Text);
-			
-			if (null == oneSourcePath) {
+		
+		if (sourceBasePath1CheckBox.isSelected()) {
+			if (sourcePath1Text.equals("")) {
+				JOptionPane.showMessageDialog(mainFrame, "선택한 1차 소스 저장 위치 값을 넣어 주세요.");
 				sourceBasePath1TextField.requestFocusInWindow();
 				return;
 			}
+			
+			File oneSourcePath = getPathFile(sourcePath1Text);
 			sourceBasePathList.add(oneSourcePath);
 		}
 		
-		if (!sourcePath2Text.equals("")) {
-			File oneSourcePath = getPathFile(sourcePath2Text);
-			
-			if (null == oneSourcePath) {
+		if (sourceBasePath2CheckBox.isSelected()) {
+			if (sourcePath2Text.equals("")) {
+				JOptionPane.showMessageDialog(mainFrame, "선택한 2차 소스 저장 위치 값을 넣어 주세요.");
 				sourceBasePath2TextField.requestFocusInWindow();
 				return;
 			}
 			
+			File oneSourcePath = getPathFile(sourcePath2Text);
 			sourceBasePathList.add(oneSourcePath);
 		}
 		
-		if (!sourcePath3Text.equals("")) {
-			File oneSourcePath = getPathFile(sourcePath3Text);
-			
-			if (null == oneSourcePath) {
+		if (sourceBasePath3CheckBox.isSelected()) {
+			if (sourcePath3Text.equals("")) {
+				JOptionPane.showMessageDialog(mainFrame, "선택한 3차 소스 저장 위치 값을 넣어 주세요.");
 				sourceBasePath3TextField.requestFocusInWindow();
 				return;
 			}
 			
+			File oneSourcePath = getPathFile(sourcePath3Text);
 			sourceBasePathList.add(oneSourcePath);
 		}
-		
+				
 		if (0 == sourceBasePathList.size()) {
 			JOptionPane.showMessageDialog(mainFrame, "소스 저장 위치 3개중 최소 1개에 값이 있어야 합니다.");
 			
@@ -1090,12 +1165,20 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 		
 		int rowCount = sourceBuilderTableModel.getRowCount();
 		
+		boolean result = true;
+		
 		for (int i=0; i < rowCount; i++) {
 			SourceFileCellValue sourceFileCellValue = (SourceFileCellValue)sourceBuilderTableModel.getValueAt(i, 4);
-			sourceFileCellValue.createSourceFile();
+						
+			result = doCreateSourceFile(sourceBasePathList, author, 
+					sourceFileCellValue.isSelectedIO(), 
+					sourceFileCellValue.isSelectedDirection(), 
+					sourceFileCellValue.getMessageInfo());
+			
+			if (!result) break;
 		}
 		
-		JOptionPane.showMessageDialog(mainFrame, "IO와 방향성 옵션에 영향 받는 소스 전체 생성이 완료 되었습니다.");
+		if (result) JOptionPane.showMessageDialog(mainFrame, "IO와 방향성 옵션에 영향 받는 소스 전체 생성이 완료 되었습니다.");
 	}
 
 	@Override

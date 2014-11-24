@@ -85,9 +85,10 @@ public class SourceFileCellValue extends JPanel {
 		this.messageInfo = messageInfo;
 	}
 	
-	public void createSourceFile() {
-		sourceManager.createSourceFile(ioCheckBox.isSelected(), directionCheckBox.isSelected(), messageInfo);
+	public kr.pe.sinnori.common.message.MessageInfo getMessageInfo() {
+		return messageInfo;
 	}
+	
 
 	@Override
 	public String toString() {

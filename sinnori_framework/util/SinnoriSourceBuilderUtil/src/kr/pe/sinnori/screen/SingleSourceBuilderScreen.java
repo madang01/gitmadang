@@ -31,7 +31,7 @@ import com.jgoodies.forms.layout.RowSpec;
 
 
 @SuppressWarnings("serial")
-public class SingleSourceBuilderPanel extends JPanel {
+public class SingleSourceBuilderScreen extends JPanel {
 	private Logger logger =  Logger.getGlobal();
 	// private JFrame mainFrame = null;
 	
@@ -39,7 +39,7 @@ public class SingleSourceBuilderPanel extends JPanel {
 	/**
 	 * Create the panel.
 	 */
-	public SingleSourceBuilderPanel(final JFrame mainFrame) {
+	public SingleSourceBuilderScreen(final JFrame mainFrame) {
 		// this.mainFrame = mainFrame;
 		
 		setLayout(new FormLayout(new ColumnSpec[] {
