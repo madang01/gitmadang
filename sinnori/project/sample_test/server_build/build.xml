@@ -9,7 +9,7 @@
 	<property name="dist" location="dist" />
 	<property name="corelib" location="corelib" />
 	<property name="lib" location="lib" />
-	<property name="framework.build" location="../../../core_build" />
+	<property name="core.build" location="../../../core_build" />
 	<property file="../ant.properties" />
 	
 	<condition property="is.windows.yes">
@@ -46,14 +46,14 @@
 	
 	<target name="unix.make.core" if="is.unix.yes">
 		<echo message="유니스 신놀이 프레임 워크 컴파일후 jar 만들기" />
-		<exec dir="${framework.build}" executable="ant">
+		<exec dir="${core.build}" executable="ant">
 			<arg value="${core.java.debug}" />
 		</exec>
 	</target>
 	
 	<target name="dos.make.core" if="is.windows.yes">
 		<echo message="도스 신놀이 프레임 워크 컴파일후 jar 만들기" />
-		<exec dir="${framework.build}" executable="cmd">
+		<exec dir="${core.build}" executable="cmd">
 			<arg value="/c" />
 			<arg value="ant.bat" />
 			<arg value="${core.java.debug}" />
@@ -76,10 +76,10 @@
 	
 	<target name="copy.core" description="sinnori framework core copy" depends="corelib.init">
 		<copy todir="${corelib}/in" verbose="true" overwrite="true">
-			<fileset file="${framework.build}/dist/sinnori-core.jar" />
+			<fileset file="${core.build}/dist/sinnori-core.jar" />
 		</copy>
 		<copy todir="${corelib}/ex" verbose="true" overwrite="true">
-			<fileset dir="${framework.build}/lib/ex/" />
+			<fileset dir="${core.build}/lib/ex/" />
 		</copy>		
 	</target>
 	
@@ -93,13 +93,13 @@
 		<delete dir="${APP-INF}/lib" />
 		<mkdir dir="${APP-INF}/lib" />
 		<copy todir="${APP-INF}/lib" verbose="true" overwrite="true">
-			<fileset dir="${framework.build}/APP-INF/lib/" />
+			<fileset dir="${core.build}/APP-INF/lib/" />
 		</copy>
 
 		<delete dir="${APP-INF}/classes" />
 		<mkdir dir="${APP-INF}/classes" />
 		<copy todir="${APP-INF}/classes" verbose="true" overwrite="true">
-			<fileset dir="${framework.build}/APP-INF/classes/" />
+			<fileset dir="${core.build}/APP-INF/classes/" />
 		</copy>
 	</target>
 	
@@ -153,7 +153,8 @@
 	<target name="copy.lib" depends="compile.main" description="서버 어플리 케이션 jar 라이브러리 복사">
 		<delete dir="${dist}" />
 		<mkdir dir="${dist}/lib" />
-		<mkdir dir="${lib}/ex" />	
+		<mkdir dir="${lib}/ex" />
+		<mkdir dir="${lib}/in" />
 
 		<copy todir="${dist}/lib" verbose="true" overwrite="true">
 			<fileset dir="${corelib}/ex" />
@@ -230,7 +231,7 @@
 		<delete dir="${APP-INF}/classes" />
 		<mkdir dir="${APP-INF}/classes" />
 		<copy todir="${APP-INF}/classes" verbose="true" overwrite="true">
-			<fileset dir="${framework.build}/APP-INF/classes/" />
+			<fileset dir="${core.build}/APP-INF/classes/" />
 		</copy>
 	</target>
 	

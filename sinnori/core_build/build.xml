@@ -32,6 +32,8 @@
 		<mkdir dir="${build}/common_lib" />
 		<mkdir dir="${build}/server_lib" />
 		<mkdir dir="${build}/client_lib" />
+		<mkdir dir="lib/in" />
+		<mkdir dir="lib/ex" />
 		<mkdir dir="${dist}" />
 	</target>
 
