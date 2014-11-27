@@ -39,8 +39,8 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
 import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
-import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
+import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.lib.AbstractProject;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.CommonType.CONNECTION_TYPE;
@@ -548,7 +548,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 		Object valueObj = null;
 		try {
 			try {
-				valueObj = objectCacheManager.getObjectFromHash(classLoader, classFullName);
+				valueObj = objectCacheManager.getCachedObject(classLoader, classFullName);
 			} catch (ClassNotFoundException e) {
 				String errorMessage = String.format("ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::ClassNotFoundException", classLoader.hashCode(), messageID, classFullName);					
 				log.warn(errorMessage);

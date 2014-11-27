@@ -18,61 +18,20 @@
 <script type="text/javascript" src="/js/cryptoJS/components/core-min.js"></script>
 <script type="text/javascript" src="/js/cryptoJS/components/cipher-core-min.js"></script>
 <h1>자유 게시판 - 추천 하기 결과</h1>
-<br/><%
+<script type="text/javascript">
+<!--
+	function init() {<%
 	if (null != errorMessage && !errorMessage.equals("")) {
 %>
-	<div>
-		<ul>
-		<li>
-			<dl>
-				<dt>에러</dt>
-				<dd><%=escapeHtml(errorMessage, WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER)%></dd>
-			</dl>
-		</li>
-		</ul>		
-	</div><%
+		var voteResponse = {isError:true, message:"<%=escapeScript(errorMessage)%>"};<%
 	} else {
 %>
-<script type="text/javascript">
-	
-	function goList() {
-		if(typeof(sessionStorage) == "undefined") {
-		    alert("Sorry! No HTML5 sessionStorage support..");
-		    return;
-		}
-
-		var g = document.listfrm;		
-		g.submit();
-	}
-</script>
-
-<form name=listfrm method="post" action="/servlet/BoardList">
-<input type="hidden" name="topmenu" value="<%=topmenu%>" />
-<input type="hidden" name="boardId" value="<%=parmBoardId%>" />
-</form>
-<form name=frm onSubmit="return false">	
-	<div>
-		<ul>
-		<li>
-			<dl>
-				<dt>성공 여부</dt>
-				<dd><%=messageResultOutObj.getIsSuccess()%></dd>
-			</dl>
-		</li>
-		<li>
-			<dl>
-				<dt>글 번호(<%=parmBoardNo%>) 추천 결과 내용</dt>
-				<dd><%=escapeHtml(messageResultOutObj.getResultMessage(), WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER)%></dd>
-			</dl>
-		</li>
-		<li>
-			<dl>
-				<dt>기능</dt>
-				<dd><input type="button" onClick="goList()" value="목록으로..." /></dd>
-			</dl>
-		</li>
-		</ul>	
-	</div>
-</form><%
+		var voteResponse = {isError:<%=messageResultOutObj.getIsSuccess()%>, message:"<%=escapeScript(messageResultOutObj.getResultMessage())%>"};<%
 	}
 %>
+		parent.callbackVote(voteResponse);
+	}
+	window.onload = init;	
+//-->
+</script>
+

@@ -18,6 +18,7 @@ package kr.pe.sinnori.impl.message.BigShort;
 
 import java.nio.charset.Charset;
 import java.util.LinkedList;
+
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.MessageEncoder;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;

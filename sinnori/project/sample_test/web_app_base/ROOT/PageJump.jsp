@@ -31,11 +31,11 @@
 	}
 	if (nTopMenu < 0 || nTopMenu >= arryTopMenuPage.length) nTopMenu=0;
 	
-	String targeturl = request.getParameter("targeturl");
-	if (null == targeturl) {
-		targeturl = (String)request.getAttribute("targeturl");
-		if (null == targeturl) {		
-			targeturl = arryTopMenuPage[nTopMenu][2];
+	String bodyurl = request.getParameter("bodyurl");
+	if (null == bodyurl) {
+		bodyurl = (String)request.getAttribute("bodyurl");
+		if (null == bodyurl) {		
+			bodyurl = arryTopMenuPage[nTopMenu][2];
 		}
 	}
 
@@ -55,14 +55,14 @@
 <link rel="shortcut icon" href="favicon.ico"/> <!-- see favicon.com -->
 <link rel="stylesheet" type="text/css" href="/css/style.css" />
 <script type="text/javascript">
-    function goURL(targeturl) {
-	var inx = targeturl.indexOf("/servlet/");	
+    function goURL(bodyurl) {
+	var inx = bodyurl.indexOf("/servlet/");	
 	if (0 == inx) {
 		var f = document.directgofrm;
-		f.action = targeturl;
+		f.action = bodyurl;
 		f.submit();		
 	} else {
-		top.document.location.href = targeturl;
+		top.document.location.href = bodyurl;
 	}
 		
     }
@@ -81,7 +81,7 @@
 	if (null == userID) {
 %><a href="/servlet/Login?topmenu=<%=topMenu%>">login</a><%		
 	} else {
-%><a href="/PageJump.jsp?topmenu=4&targeturl=/member/logout.jsp">logout</a><%
+%><a href="/PageJump.jsp?topmenu=4&bodyurl=/member/logout.jsp">logout</a><%
 	}
 %>
 	
@@ -107,7 +107,7 @@
 		boolean isSinnoriSite = true;
 
 		for (int i=0; i < arryOfOutSite.length; i++) {
-			int startInx = targeturl.indexOf(arryOfOutSite[i]);
+			int startInx = bodyurl.indexOf(arryOfOutSite[i]);
 			if (startInx ==0 ) {
 				isSinnoriSite = false;
 				break;
@@ -119,12 +119,12 @@
 
 <!-- content here 
 ============================================================ -->
-<jsp:include page="<%=targeturl%>"  flush="false">
+<jsp:include page="<%=bodyurl%>"  flush="false">
 	<jsp:param name="topmenu" value="<%=topMenu%>" />
-	<jsp:param name="targeturl" value="<%=targeturl%>" />
+	<jsp:param name="bodyurl" value="<%=bodyurl%>" />
 </jsp:include><%
 		} else {
-%><iframe src="<%=targeturl%>" width="600" height="600"></iframe><%
+%><iframe src="<%=bodyurl%>" width="600" height="600"></iframe><%
 		}
 %>
 	</div>
@@ -145,7 +145,7 @@
 	if (null != arryTopMenuPage[nTopMenu][1]) {
 %><jsp:include page="<%=arryTopMenuPage[nTopMenu][1]%>" flush="false">
 	<jsp:param name="topmenu" value="<%=topMenu%>" />
-	<jsp:param name="targeturl" value="<%=targeturl%>" />
+	<jsp:param name="bodyurl" value="<%=bodyurl%>" />
 </jsp:include><%
 	}
 %> <!-- end side menu -->

@@ -44,6 +44,9 @@
 								<xs:enumeration value="us variable length byte[]" />
 								<xs:enumeration value="si variable length byte[]" />
 								<xs:enumeration value="fixed length byte[]" />
+								<xs:enumeration value="java sql date" />
+								<xs:enumeration value="java sql timestamp" />
+								<xs:enumeration value="boolean" />
 							</xs:restriction>
 						</xs:simpleType>
 					</xs:attribute>
@@ -68,7 +71,7 @@
 					</xs:attribute>
 
 					<!-- 값 -->
-					<xs:attribute name="value" use="optional">
+					<xs:attribute name="defaultValue" use="optional">
 						<xs:simpleType>
 							<xs:restriction base="xs:string">
 								<xs:minLength value="1" />
@@ -130,6 +133,14 @@
 					<xs:simpleType>
 						<xs:restriction base="xs:string">
 							<xs:pattern value="[a-zA-Z][a-zA-Z1-9]+" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<!-- 메시지 통신 방향 -->
+				<xs:element name="direction" minOccurs="1" maxOccurs="1">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:pattern value="[a-zA-Z][a-zA-Z1-9_]+" />
 						</xs:restriction>
 					</xs:simpleType>
 				</xs:element>

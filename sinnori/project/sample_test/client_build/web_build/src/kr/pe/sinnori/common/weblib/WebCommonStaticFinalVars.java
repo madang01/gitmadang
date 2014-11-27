@@ -31,13 +31,13 @@ public abstract class WebCommonStaticFinalVars {
 	public static int APACHE_FILEUPLOAD_MAX_MEMORY_SIZE = 1024*1024;
 
 	/** 업로드 되는 파일들이 저장되는 임시 디렉토리 */
-	public static File WEBSITE_FILEUPLOAD_TEMP_DIR = new File("/home/madang01/gitsinnori/sinnori_framework/project/sample_test/web_app_base/temp");
+	public static File WEBSITE_FILEUPLOAD_TEMP_DIR = new File("/home/madang01/gitsinnori/sinnori/project/sample_test/web_app_base/temp");
 	
 	/** 업로드 파일의 최대 크기 */
 	public static long WEBSITE_FILEUPLOAD_MAX_SIZE = 10*1024*1024;
 	
 	/** 업로드 되는 파일들이 저장되는 디렉토리 */
-	public static File WEBSITE_FILEUPLOAD_DIR = new File("/home/madang01/gitsinnori/sinnori_framework/project/sample_test/web_app_base/upload");
+	public static File WEBSITE_FILEUPLOAD_DIR = new File("/home/madang01/gitsinnori/sinnori/project/sample_test/web_app_base/upload");
 	
 	/** 업로드 되는 파일의 시스템 파일명의 접두어 */
 	public static String WEBSITE_FILEUPLOAD_PREFIX = "attach";

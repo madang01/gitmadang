@@ -50,13 +50,11 @@ public class LoginSvl extends AbstractServlet {
 			throws Exception {
 		String pageGubun = req.getParameter("pageGubun");
 		
-		kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager sessionKeyServerManger = kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager.getInstance();
-		String modulusHex = sessionKeyServerManger.getModulusHexStrForWeb();
-		req.setAttribute("modulusHex", modulusHex);
+		
 		
 		if (null == pageGubun || !pageGubun.equals("step2")) {
 			
-			printJspPage(req, res, "/member/login.jsp");
+			printWebLayoutControlJspPage(req, res, "/member/login.jsp");
 			return;
 		} else {
 			String parmSessionKeyBase64 = req.getParameter("sessionkeyBase64");
@@ -152,7 +150,7 @@ public class LoginSvl extends AbstractServlet {
 			req.setAttribute("webUserSymmetricKey", webUserSymmetricKey);
 			req.setAttribute("parmIVBase64", parmIVBase64);
 			
-			printJspPage(req, res, "/member/loginResult.jsp");
+			printWebLayoutControlJspPage(req, res, "/member/loginResult.jsp");
 		}
 		
 		

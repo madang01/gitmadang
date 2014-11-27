@@ -146,7 +146,7 @@ public class CryptoJSSKTestSvl extends AbstractServlet {
 		
 		log.info(String.format("goPage[%s]", goPage));
 		
-		printJspPage(req, res, goPage);	
+		printWebLayoutControlJspPage(req, res, goPage);	
 		
 	}
 

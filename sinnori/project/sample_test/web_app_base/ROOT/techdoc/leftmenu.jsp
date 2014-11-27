@@ -12,25 +12,25 @@
 
 	 * PageJump.jsp 에서는 leftmenu 에 대해서 어떠한 설정도 하지 않는다.
      * 따라서 leftmenu 가 null 이면 사용자가 PageJump.jsp 를 직접 호출한 경우로 
-	 * targeturl 로 지정된 페이지가 본문 즉 좌측 메뉴가 된다.
+	 * bodyurl 로 지정된 페이지가 본문 즉 좌측 메뉴가 된다.
 	 */
 	String topmenu = request.getParameter("topmenu");
-	String targeturl = request.getParameter("targeturl");
+	String bodyurl = request.getParameter("bodyurl");
 	String leftmenu = (String)request.getAttribute("leftmenu");
 	if (null == leftmenu) {
-		leftmenu = targeturl;
+		leftmenu = bodyurl;
 	}
 
 	int leftMenuNo = -1;
 
 	/** 0:좌측 메뉴명, 1:주 좌측 메뉴 링크 */
 	final String[][] leftMenuInfoList = {
-		{"신놀이 Ant Build 기술 문서", "/PageJump.jsp?topmenu="+topmenu+"&targeturl=/techdoc/sinnori_ant_buil_techdoc.html"},
-		{"신놀이 서버 기술 문서", "/PageJump.jsp?topmenu="+topmenu+"&targeturl=/techdoc/sinnori_server_techdoc.html"},
-		{"자바 클라이언트 API 기술 문서", "/PageJump.jsp?topmenu="+topmenu+"&targeturl=/techdoc/sinnori_client_api_techdoc.html"},
-		{"동기 파일 송수신 기술 문서", "/PageJump.jsp?topmenu="+topmenu+"&targeturl=/techdoc/sinnori_fileupdown_v1_techdoc.html"},
-		{"비동기 파일송수신 기술 문서", "/PageJump.jsp?topmenu="+topmenu+"&targeturl=/techdoc/sinnori_fileupdown_v2_techdoc.html"},
-		{"파일 송수신 클라이언트 기능 명세", "/PageJump.jsp?topmenu="+topmenu+"&targeturl=http://www.3rabbitz.com/c0b9eb893bd99490"},
+		{"신놀이 Ant Build 기술 문서", "/PageJump.jsp?topmenu="+topmenu+"&bodyurl=/techdoc/sinnori_ant_buil_techdoc.html"},
+		{"신놀이 서버 기술 문서", "/PageJump.jsp?topmenu="+topmenu+"&bodyurl=/techdoc/sinnori_server_techdoc.html"},
+		{"자바 클라이언트 API 기술 문서", "/PageJump.jsp?topmenu="+topmenu+"&bodyurl=/techdoc/sinnori_client_api_techdoc.html"},
+		{"동기 파일 송수신 기술 문서", "/PageJump.jsp?topmenu="+topmenu+"&bodyurl=/techdoc/sinnori_fileupdown_v1_techdoc.html"},
+		{"비동기 파일송수신 기술 문서", "/PageJump.jsp?topmenu="+topmenu+"&bodyurl=/techdoc/sinnori_fileupdown_v2_techdoc.html"},
+		{"파일 송수신 클라이언트 기능 명세", "/PageJump.jsp?topmenu="+topmenu+"&bodyurl=http://www.3rabbitz.com/c0b9eb893bd99490"},
 	};
 
 	/** 0:좌측 메뉴키, 1:좌측 메뉴 번호 */

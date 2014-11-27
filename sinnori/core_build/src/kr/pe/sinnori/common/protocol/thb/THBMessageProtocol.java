@@ -38,8 +38,8 @@ import kr.pe.sinnori.common.lib.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.MessageEncoder;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
-import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
+import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 import kr.pe.sinnori.common.protocol.thb.header.THBMessageHeader;
 
 /**

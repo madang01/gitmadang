@@ -363,7 +363,7 @@ public class ServerProject extends AbstractProject
 		Object valueObj = null;
 		try {
 			try {
-				valueObj = objectCacheManager.getObjectFromHash(classLoader, classFullName);
+				valueObj = objectCacheManager.getCachedObject(classLoader, classFullName);
 			} catch (ClassNotFoundException e) {
 				String errorMessage = String.format("ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::ClassNotFoundException", classLoader.hashCode(), messageID, classFullName);					
 				log.warn(errorMessage);

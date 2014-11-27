@@ -207,6 +207,10 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 
 		req.setAttribute("topmenu", topmenu);
 		req.setAttribute("leftmenu", leftmenu);
+		
+		kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager sessionKeyServerManger = kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager.getInstance();
+		String modulusHex = sessionKeyServerManger.getModulusHexStrForWeb();
+		req.setAttribute("modulusHex", modulusHex);
 
 		try {
 			performPreTask(req, res);
@@ -305,8 +309,82 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 	protected void printJspPage(HttpServletRequest req,
 			HttpServletResponse res, String jspfile) {
 		try {
+			RequestDispatcher dispatcher = getServletContext()
+					.getRequestDispatcher(jspfile);
 
-			req.setAttribute("targeturl", jspfile);
+			dispatcher.forward(req, res);
+		} catch (Exception |  Error e) {
+			log.warn("서블릿 동적 페이지 이동 에러", e);
+
+			try {
+				java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+				java.io.PrintWriter writer = new java.io.PrintWriter(bos);
+				writer.print("JSP Call Error: ");
+				writer.println(this.getClass().getName());
+
+				writer.print("Request URI: ");
+				writer.println(req.getRequestURI());
+
+				String user = req.getRemoteUser();
+				if (user != null) {
+					writer.print("User : ");
+					writer.println(user);
+
+				}
+				writer.print("User Location  : ");
+				writer.print(req.getRemoteHost());
+				writer.print("(");
+				writer.print(req.getRemoteAddr());
+				writer.println(")");
+
+				e.printStackTrace(writer);
+				writer.flush();
+
+				String debugMessage = bos.toString();
+				
+				
+				try {
+					writer.close();
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				
+				res.setContentType("text/html;charset=UTF-8");
+				java.io.PrintWriter out = null;
+				try {
+					out = res.getWriter();
+					out.print("<html><head><meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />");
+					out.print("<title>");
+					out.print(WebCommonStaticFinalVars.WEBSITE_TITLE);
+					out.print("</title>");
+					out.println("</head><body bgcolor=white>");
+					out.println(escapeHtml(debugMessage, WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER));
+					out.println("</body></html>");				
+				} finally {
+					try {
+						if (null != out) out.close();
+					} catch(Exception e1) {
+						log.warn("서블릿 동적 페이지 이동 PrintWriter 닫기 실패", e1);
+					}
+				}
+			} catch (Exception ex) {
+				log.warn("서블릿 동적 페이지 이동 에러 처리 실패", ex);
+			}
+		}
+	}
+	
+	/**
+	 * 웹사이트 레이아웃을 가지며 지정한 본문 jsp 파일을 출력한다.
+	 * 
+	 * @param req javax.servlet.http.HttpServletRequest
+	 * @param res javax.servlet.http.HttpServletResponse
+	 * @param bodyJspfile
+	 */
+	protected void printWebLayoutControlJspPage(HttpServletRequest req,
+			HttpServletResponse res, String bodyJspfile) {
+		try {
+
+			req.setAttribute("bodyurl", bodyJspfile);
 
 			RequestDispatcher dispatcher = getServletContext()
 					.getRequestDispatcher(WEB_LAYOUT_CONTROL_PAGE);

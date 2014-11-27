@@ -307,7 +307,7 @@ public class BoardUploadFileInDTOServerTask extends AbstractServerTask {
 			
 			int totalAttachFile = newAttachFileCnt + selectedOldAttachFileCnt;
 			
-			if (0 == totalAttachFile) {
+			/*if (0 == totalAttachFile) {
 				String errorMessage = new StringBuilder("업로드 수정:업로드 파일이 존재하지 않습니다.").toString();
 				log.warn("{}, inObj={}", errorMessage, inObj.toString());
 				
@@ -317,7 +317,7 @@ public class BoardUploadFileInDTOServerTask extends AbstractServerTask {
 				messageResultOutObj.setResultMessage(errorMessage);
 				letterSender.addSyncMessage(messageResultOutObj);
 				return;
-			}			
+			}*/	
 			
 			if (ServerCommonStaticFinalVars.WEBSITE_FILEUPLOAD_MAX_COUNT < totalAttachFile) {
 				String errorMessage = new StringBuilder("업로드 수정:기존 업로드 파일등중 사용자가 선택한 갯수[")
@@ -335,67 +335,65 @@ public class BoardUploadFileInDTOServerTask extends AbstractServerTask {
 				messageResultOutObj.setResultMessage(errorMessage);
 				letterSender.addSyncMessage(messageResultOutObj);
 				return;
-			}
-			
+			}			
 					
 			java.util.List<NewAttachFile> newAttachFileList = inObj.getNewAttachFileList();
-			if (0 < newAttachFileCnt) {
-				for (NewAttachFile newAttachFile : newAttachFileList) {
-					String attachFileName = newAttachFile.getAttachFileName();
+			
+			for (NewAttachFile newAttachFile : newAttachFileList) {
+				String attachFileName = newAttachFile.getAttachFileName();
+				
+				if (attachFileName.equals("")) {
+					String errorMessage = "업로드 수정:업로드 파일명을 넣어주세요.";
+					log.warn("{}, inObj=", errorMessage, inObj.toString());
 					
-					if (attachFileName.equals("")) {
-						String errorMessage = "업로드 수정:업로드 파일명을 넣어주세요.";
-						log.warn("{}, inObj=", errorMessage, inObj.toString());
-						
-						MessageResult messageResultOutObj = new MessageResult();
-						messageResultOutObj.setIsSuccess(false);
-						messageResultOutObj.setTaskMessageID(inObj.getMessageID());
-						messageResultOutObj.setResultMessage(errorMessage);
-						letterSender.addSyncMessage(messageResultOutObj);
-						return;
-					}
-					
-					String trimAttachFileName = attachFileName.trim();
-					if (!trimAttachFileName.equals(attachFileName)) {
-						String errorMessage = "업로드 수정:업로드 파일명을 다시 넣어주세요.";
-						log.warn("{}, inObj=", errorMessage, inObj.toString());
-						
-						MessageResult messageResultOutObj = new MessageResult();
-						messageResultOutObj.setIsSuccess(false);
-						messageResultOutObj.setTaskMessageID(inObj.getMessageID());
-						messageResultOutObj.setResultMessage(errorMessage);
-						letterSender.addSyncMessage(messageResultOutObj);
-						return;
-					}
-					
-					String systemFileName = newAttachFile.getSystemFileName();		
-					
-					if (systemFileName.equals("")) {
-						String errorMessage = "업로드 수정:업로드 시스템 절대 경로 파일명을 넣어주세요.";
-						log.warn("{}, inObj=", errorMessage, inObj.toString());
-						
-						MessageResult messageResultOutObj = new MessageResult();
-						messageResultOutObj.setIsSuccess(false);
-						messageResultOutObj.setTaskMessageID(inObj.getMessageID());
-						messageResultOutObj.setResultMessage(errorMessage);
-						letterSender.addSyncMessage(messageResultOutObj);
-						return;
-					}
-					
-					String trimSystemFileName = systemFileName.trim();
-					if (!trimSystemFileName.equals(systemFileName)) {
-						String errorMessage = "업로드 수정:업로드 시스템 절대 경로 파일명을 다시 넣어주세요.";
-						log.warn("{}, inObj=", errorMessage, inObj.toString());
-						
-						MessageResult messageResultOutObj = new MessageResult();
-						messageResultOutObj.setIsSuccess(false);
-						messageResultOutObj.setTaskMessageID(inObj.getMessageID());
-						messageResultOutObj.setResultMessage(errorMessage);
-						letterSender.addSyncMessage(messageResultOutObj);
-						return;
-					}				
+					MessageResult messageResultOutObj = new MessageResult();
+					messageResultOutObj.setIsSuccess(false);
+					messageResultOutObj.setTaskMessageID(inObj.getMessageID());
+					messageResultOutObj.setResultMessage(errorMessage);
+					letterSender.addSyncMessage(messageResultOutObj);
+					return;
 				}
-			}			
+				
+				String trimAttachFileName = attachFileName.trim();
+				if (!trimAttachFileName.equals(attachFileName)) {
+					String errorMessage = "업로드 수정:업로드 파일명을 다시 넣어주세요.";
+					log.warn("{}, inObj=", errorMessage, inObj.toString());
+					
+					MessageResult messageResultOutObj = new MessageResult();
+					messageResultOutObj.setIsSuccess(false);
+					messageResultOutObj.setTaskMessageID(inObj.getMessageID());
+					messageResultOutObj.setResultMessage(errorMessage);
+					letterSender.addSyncMessage(messageResultOutObj);
+					return;
+				}
+				
+				String systemFileName = newAttachFile.getSystemFileName();		
+				
+				if (systemFileName.equals("")) {
+					String errorMessage = "업로드 수정:업로드 시스템 절대 경로 파일명을 넣어주세요.";
+					log.warn("{}, inObj=", errorMessage, inObj.toString());
+					
+					MessageResult messageResultOutObj = new MessageResult();
+					messageResultOutObj.setIsSuccess(false);
+					messageResultOutObj.setTaskMessageID(inObj.getMessageID());
+					messageResultOutObj.setResultMessage(errorMessage);
+					letterSender.addSyncMessage(messageResultOutObj);
+					return;
+				}
+				
+				String trimSystemFileName = systemFileName.trim();
+				if (!trimSystemFileName.equals(systemFileName)) {
+					String errorMessage = "업로드 수정:업로드 시스템 절대 경로 파일명을 다시 넣어주세요.";
+					log.warn("{}, inObj=", errorMessage, inObj.toString());
+					
+					MessageResult messageResultOutObj = new MessageResult();
+					messageResultOutObj.setIsSuccess(false);
+					messageResultOutObj.setTaskMessageID(inObj.getMessageID());
+					messageResultOutObj.setResultMessage(errorMessage);
+					letterSender.addSyncMessage(messageResultOutObj);
+					return;
+				}				
+			}		
 			
 			java.util.List<SelectedOldAttachFile> selectedOldAttachFileList = inObj.getSelectedOldAttachFileList();			
 			java.util.List<BoardFileDTO> attachFileDTOList = new ArrayList<BoardFileDTO>();			
@@ -457,48 +455,46 @@ public class BoardUploadFileInDTOServerTask extends AbstractServerTask {
 					return;
 				}
 				
-				if (0 < selectedOldAttachFileCnt) {
-					for (SelectedOldAttachFile selectedOldAttachFile : selectedOldAttachFileList) {
-						BoardFileDTO userSelectedBoardFileDTO = new BoardFileDTO();
-						userSelectedBoardFileDTO.setAttachId(attachId);
-						userSelectedBoardFileDTO.setAttachSeq(selectedOldAttachFile.getAttachSeq());
+				
+				for (SelectedOldAttachFile selectedOldAttachFile : selectedOldAttachFileList) {
+					BoardFileDTO userSelectedBoardFileDTO = new BoardFileDTO();
+					userSelectedBoardFileDTO.setAttachId(attachId);
+					userSelectedBoardFileDTO.setAttachSeq(selectedOldAttachFile.getAttachSeq());
+					
+					BoardFileDTO  oldBoardFileDTO = session.selectOne("getBoardFileDTO", userSelectedBoardFileDTO);
+					if (null == oldBoardFileDTO) {
+						session.rollback();
 						
-						BoardFileDTO  oldBoardFileDTO = session.selectOne("getBoardFileDTO", userSelectedBoardFileDTO);
-						if (null == oldBoardFileDTO) {
-							session.rollback();
-							
-							String errorMessage = "업로드 수정:사용자가 선택한 업로드 파일이 존재하지 않습니다.";
-							log.warn("{}, 사용자가 선택한 업로드 파일={}, inObj=", errorMessage, selectedOldAttachFile.toString(), inObj.toString());
-							
-							MessageResult messageResultOutObj = new MessageResult();
-							messageResultOutObj.setIsSuccess(false);
-							messageResultOutObj.setTaskMessageID(inObj.getMessageID());
-							messageResultOutObj.setResultMessage(errorMessage);
-							letterSender.addSyncMessage(messageResultOutObj);
-							return;
-						}
+						String errorMessage = "업로드 수정:사용자가 선택한 업로드 파일이 존재하지 않습니다.";
+						log.warn("{}, 사용자가 선택한 업로드 파일={}, inObj=", errorMessage, selectedOldAttachFile.toString(), inObj.toString());
 						
-						oldBoardFileDTO.setAttachSeq((short)attachFileDTOList.size());
-						
-						
-						log.debug("attachFileDTOList add oldAttachFile={}", oldBoardFileDTO.toString());
-						
-						attachFileDTOList.add(oldBoardFileDTO);					
+						MessageResult messageResultOutObj = new MessageResult();
+						messageResultOutObj.setIsSuccess(false);
+						messageResultOutObj.setTaskMessageID(inObj.getMessageID());
+						messageResultOutObj.setResultMessage(errorMessage);
+						letterSender.addSyncMessage(messageResultOutObj);
+						return;
 					}
+					
+					oldBoardFileDTO.setAttachSeq((short)attachFileDTOList.size());
+					
+					
+					log.debug("attachFileDTOList add oldAttachFile={}", oldBoardFileDTO.toString());
+					
+					attachFileDTOList.add(oldBoardFileDTO);					
 				}
 				
-				if (0 < newAttachFileCnt) {
-					for (NewAttachFile newAttachFile : newAttachFileList) {
-						BoardFileDTO newBoardFileDTO = new BoardFileDTO();
-						newBoardFileDTO.setAttachId(attachId);
-						newBoardFileDTO.setAttachSeq((short)attachFileDTOList.size());
-						newBoardFileDTO.setAttachFileName(newAttachFile.getAttachFileName());
-						newBoardFileDTO.setSystemFileName(newAttachFile.getSystemFileName());
-						
-						log.debug("attachFileDTOList add newAttachFile={}", newBoardFileDTO.toString());
-						
-						attachFileDTOList.add(newBoardFileDTO);	
-					}
+				
+				for (NewAttachFile newAttachFile : newAttachFileList) {
+					BoardFileDTO newBoardFileDTO = new BoardFileDTO();
+					newBoardFileDTO.setAttachId(attachId);
+					newBoardFileDTO.setAttachSeq((short)attachFileDTOList.size());
+					newBoardFileDTO.setAttachFileName(newAttachFile.getAttachFileName());
+					newBoardFileDTO.setSystemFileName(newAttachFile.getSystemFileName());
+					
+					log.debug("attachFileDTOList add newAttachFile={}", newBoardFileDTO.toString());
+					
+					attachFileDTOList.add(newBoardFileDTO);	
 				}
 							
 				

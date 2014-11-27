@@ -75,7 +75,7 @@ public class BoardListInDTOServerTask extends AbstractServerTask {
 			outObj.setCnt(boardList.size());
 		}
 		
-		log.info(outObj.toString());
+		//  log.info(outObj.toString());
 		
 		letterSender.addSyncMessage(outObj);
 	}

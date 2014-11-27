@@ -37,7 +37,7 @@ public class JDFLoginTestSvl extends AbstractAuthServlet {
 		req.setAttribute("webUserSymmetricKey", webUserSymmetricKey);
 		req.setAttribute("pageIV", parmIV);*/
 		
-		printJspPage(req, res, goPage);			
+		printWebLayoutControlJspPage(req, res, goPage);			
 	}
 
 }

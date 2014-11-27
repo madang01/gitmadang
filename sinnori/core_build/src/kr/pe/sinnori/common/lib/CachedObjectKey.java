@@ -17,34 +17,21 @@
 package kr.pe.sinnori.common.lib;
 
 
-public class CachedObject implements CommonRootIF {
+public class CachedObjectKey implements CommonRootIF {
 	public int classLoaderHashCode = 0;
 	public String classFullName = null;
-	public int seq;
-	public Object cachedObj = null;
-	public long createDate;
-	public long updateDate;
+	
 	
 	/**
 	 * 캐쉬된 객체
 	 * @param classLoader 클래스 로더
 	 * @param classFullName 클래스 이름
-	 * @param seq 사용된 시간 개념의 순번
-	 * @param cachedObj 지정된 클래스 로더에서 지정된 클래스 이름으로 생성된 객체
 	 */
-	public CachedObject(ClassLoader classLoader, String classFullName, int seq, Object cachedObj) {
-		this.classLoaderHashCode = classLoader.hashCode();
+	public CachedObjectKey(int classLoaderHashCode, String classFullName) {
+		this.classLoaderHashCode = classLoaderHashCode;
 		this.classFullName = classFullName;
-		this.seq = seq;
-		this.cachedObj = cachedObj;
-		this.createDate = this.updateDate = new java.util.Date().getTime();
 	}
-	
-	public void updateSeq(int newSeq) {
-		this.seq = newSeq;
-		this.updateDate = new java.util.Date().getTime();
-	}
-	
+		
 	@Override
 	/**
 	 * 주의) 삭제하지 말것.  Hashmap 의 키로 동작 시키기 위해  {@link #equals} 와 {@link #hashCode} 이 필요하다. 
@@ -52,7 +39,7 @@ public class CachedObject implements CommonRootIF {
 	public boolean equals(Object compObj) {
 		if (null == compObj) return false;
 		
-		if (!(compObj instanceof CachedObject)) {
+		if (!(compObj instanceof CachedObjectKey)) {
 			return false;
 		}
 		
@@ -65,7 +52,7 @@ public class CachedObject implements CommonRootIF {
 		/*Throwable t = new Throwable();
 		log.info("not same object", t);*/
 	
-		CachedObject dstObj = (CachedObject) compObj;
+		CachedObjectKey dstObj = (CachedObjectKey) compObj;
 		return (dstObj.classLoaderHashCode == this.classLoaderHashCode && dstObj.classFullName.equals(classFullName));
 	}
 	
@@ -85,10 +72,6 @@ public class CachedObject implements CommonRootIF {
 		builder.append(classLoaderHashCode);
 		builder.append(", classFullName=");
 		builder.append(classFullName);
-		builder.append(", seq=");
-		builder.append(seq);
-		builder.append(", cachedObj hashCode=");
-		builder.append(cachedObj.hashCode());
 		builder.append("]");
 		return builder.toString();
 	}

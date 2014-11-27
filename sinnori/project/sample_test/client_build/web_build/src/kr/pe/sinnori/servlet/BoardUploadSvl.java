@@ -268,14 +268,14 @@ public class BoardUploadSvl extends AbstractServlet {
 				selectedOldAttachFileListSize = selectedOldAttachFileList.size();
 				int totalAttachFile = newAttachFileListSize + selectedOldAttachFileListSize;
 				
-				if (0 == totalAttachFile) {
+				/*if (0 == totalAttachFile) {
 					String errorMessage = new StringBuilder("2.업로드 파일이 없습니다. 1개 이상 요구됩니다.").toString();
 					log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
 					
 					req.setAttribute("errorMessage", errorMessage);
 					printJspPage(req, res, goPage);
 					return;
-				}
+				}*/
 				
 				if (WebCommonStaticFinalVars.WEBSITE_FILEUPLOAD_MAX_COUNT < totalAttachFile) {
 					String errorMessage = new StringBuilder("선택한 기존 업로드 파일 갯수[")

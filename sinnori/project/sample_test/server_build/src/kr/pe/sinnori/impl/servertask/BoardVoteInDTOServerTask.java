@@ -78,7 +78,10 @@ public class BoardVoteInDTOServerTask extends AbstractServerTask {
 							session.commit();
 							messageResultOutObj.setIsSuccess(true);
 							
-							messageResultOutObj.setResultMessage(new StringBuilder("게시글[").append(inObj.getBoardNo()).append("]이 추천 되었습니다.").toString());
+							messageResultOutObj.setResultMessage(new StringBuilder("게시글[")
+							.append(inObj.getBoardId())
+							.append(":")
+							.append(inObj.getBoardNo()).append("]이 추천 되었습니다.").toString());
 						} else {
 							session.rollback();
 							messageResultOutObj.setResultMessage(new StringBuilder("1.게시글[").append(inObj.getBoardNo()).append("] 추천이 실패하였습니다.").toString());

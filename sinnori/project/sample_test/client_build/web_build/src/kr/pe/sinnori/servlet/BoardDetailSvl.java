@@ -25,7 +25,7 @@ public class BoardDetailSvl extends AbstractServlet {
 		if (null == parmBoardId) {
 			String errorMessage = "게시판 식별자를 넣어주세요.";
 			req.setAttribute("errorMessage", errorMessage);
-			printJspPage(req, res, goPage);
+			printWebLayoutControlJspPage(req, res, goPage);
 			return;
 		}
 		
@@ -36,7 +36,7 @@ public class BoardDetailSvl extends AbstractServlet {
 			String errorMessage = new StringBuilder("자바 long 타입 변수인 게시판 식별자 값[")
 			.append(parmBoardId).append("]이 잘못되었습니다.").toString();
 			req.setAttribute("errorMessage", errorMessage);
-			printJspPage(req, res, goPage);
+			printWebLayoutControlJspPage(req, res, goPage);
 			return;
 		}
 		
@@ -44,7 +44,7 @@ public class BoardDetailSvl extends AbstractServlet {
 			String errorMessage = new StringBuilder("게시판 식별자 값[")
 			.append(parmBoardId).append("]은 0 보다 커야합니다.").toString();
 			req.setAttribute("errorMessage", errorMessage);
-			printJspPage(req, res, goPage);
+			printWebLayoutControlJspPage(req, res, goPage);
 			return;
 		}
 		
@@ -52,7 +52,7 @@ public class BoardDetailSvl extends AbstractServlet {
 		if (null == parmBoardNo) {
 			String errorMessage = "게시판 번호를 넣어주세요.";
 			req.setAttribute("errorMessage", errorMessage);
-			printJspPage(req, res, goPage);
+			printWebLayoutControlJspPage(req, res, goPage);
 			return;
 		}
 		
@@ -64,7 +64,7 @@ public class BoardDetailSvl extends AbstractServlet {
 			String errorMessage = new StringBuilder("자바 long 타입 변수인 게시판 번호 값[")
 			.append(parmBoardId).append("]이 잘못되었습니다.").toString();
 			req.setAttribute("errorMessage", errorMessage);
-			printJspPage(req, res, goPage);
+			printWebLayoutControlJspPage(req, res, goPage);
 			return;
 		}
 		
@@ -72,7 +72,7 @@ public class BoardDetailSvl extends AbstractServlet {
 			String errorMessage = new StringBuilder("게시판 번호 값[")
 			.append(parmBoardId).append("]은 0 보다 커야합니다.").toString();
 			req.setAttribute("errorMessage", errorMessage);
-			printJspPage(req, res, goPage);
+			printWebLayoutControlJspPage(req, res, goPage);
 			return;
 		}
 		
@@ -121,7 +121,7 @@ public class BoardDetailSvl extends AbstractServlet {
 		req.setAttribute("parmBoardId", parmBoardId);
 		req.setAttribute("parmBoardNo", parmBoardNo);
 		req.setAttribute("errorMessage", errorMessage);
-		printJspPage(req, res, goPage);
+		printWebLayoutControlJspPage(req, res, goPage);
 		
 	}
 }

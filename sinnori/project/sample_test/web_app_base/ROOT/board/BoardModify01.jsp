@@ -2,22 +2,16 @@
 %><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
 %><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
+%><jsp:useBean id="modulusHex" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="parmIVBase64" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="parmBoardId" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="parmBoardNo" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="boardDetailOutDTO" class="kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO" scope="request" />
-<script type="text/javascript" src="/js/jsbn/jsbn.js"></script>
-<script type="text/javascript" src="/js/jsbn/jsbn2.js"></script>
-<script type="text/javascript" src="/js/jsbn/prng4.js"></script>
-<script type="text/javascript" src="/js/jsbn/rng.js"></script>
-<script type="text/javascript" src="/js/jsbn/rsa.js"></script>
-<script type="text/javascript" src="/js/jsbn/rsa2.js"></script>
-<script type="text/javascript" src="/js/cryptoJS/rollups/sha256.js"></script>
-<script type="text/javascript" src="/js/cryptoJS/rollups/aes.js"></script>
-<script type="text/javascript" src="/js/cryptoJS/components/core-min.js"></script>
-<script type="text/javascript" src="/js/cryptoJS/components/cipher-core-min.js"></script>
-<h1>자유 게시판 - 수정 하기</h1>
+%><jsp:useBean id="boardDetailOutDTO" class="kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO" scope="request" /><%
+%><jsp:include page="/common/crypto_common.jsp" flush="false">
+	<jsp:param name="modulusHex" value="<%=modulusHex%>" />
+</jsp:include><%
+%><h1>자유 게시판 - 수정 하기</h1>
 <br/><%
 	if (null != errorMessage && !errorMessage.equals("")) {
 %>
@@ -59,7 +53,7 @@
 		g.subject.value = f.subject.value;
 		g.content.value = f.content.value;
 		g.attachId.value = document.attachForm.attachId.value;
-		g.sessionkeyBase64.value = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_SESSIONKEY_NAME%>');
+		g.sessionkeyBase64.value = getSessionkeyBase64();
 		var iv = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_IV_SIZE%>);
 		g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);
 		g.submit();
@@ -121,7 +115,7 @@
 
 		newChilddiv.setAttribute('id',divIdName);
 		
-		newChilddiv.innerHTML = "<input type=\"file\" name=\"newAttachFile\" id=\"newAttachFile"+inx+"\" size=\"70\" />&nbsp;<a href=\'#\' id=newAttachFileDeleteLink"+inx+" style=\"visibility:hidden\" onclick=\'removeNewAttachFile(\""+divIdName+"\")\'>삭제</a>";
+		newChilddiv.innerHTML = "<input type=\"file\" name=\"newAttachFile\" id=\"newAttachFile"+inx+"\" style=\"width:600px\" />&nbsp;<a href=\'#\' id=newAttachFileDeleteLink"+inx+" style=\"visibility:hidden\" onclick=\'removeNewAttachFile(\""+divIdName+"\")\'>삭제</a>";
 
 
 		newFileListDiv.appendChild(newChilddiv);
@@ -177,7 +171,7 @@
 
 			oldChilddiv.setAttribute('id',divIdName);		
 
-			oldChilddiv.innerHTML = "<input type=\"hidden\" name=\"oldAttachSeq\" value=\""+boardUploadFileOutDTO.oldAttachFileList[i].attachSeq+"\" /><input type=\"text\" name=\"oldAttachFileName\" disabled=\"disabled\" size=\"70\" value=\""+boardUploadFileOutDTO.oldAttachFileList[i].attachFileName+"\" />&nbsp;<a href=\'#\' onclick=\'removeOldAttachFile(\""+divIdName+"\")\'>삭제</a>";
+			oldChilddiv.innerHTML = "<input type=\"hidden\" name=\"oldAttachSeq\" value=\""+boardUploadFileOutDTO.oldAttachFileList[i].attachSeq+"\" /><input type=\"text\" name=\"oldAttachFileName\" disabled=\"disabled\" style=\"width:550px\" value=\""+boardUploadFileOutDTO.oldAttachFileList[i].attachFileName+"\" />&nbsp;<a href=\'#\' onclick=\'removeOldAttachFile(\""+divIdName+"\")\'>삭제</a>";
 
 			oldFileListDiv.appendChild(oldChilddiv);
 			
@@ -198,6 +192,8 @@
 			d.style.visibility = "visible";
 
 			restoreOldFiles();
+
+			alert("서버 첨부 파일 반영 처리가 완료되었습니다.");
 		}		
 	}
 
@@ -218,9 +214,9 @@
 	
 	function init() {<%
 		java.util.List<kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO.AttachFile> attachFileList = boardDetailOutDTO.getAttachFileList();
-		if (null != attachFileList) {
+		if (attachFileList.size() > 0) {
 %>
-		var boardUploadFileOutDTO = {isError:false, attachId:<%= boardDetailOutDTO.getAttachId() %>, oldAttachFileList : [<%
+		boardUploadFileOutDTO = {isError:false, attachId:<%= boardDetailOutDTO.getAttachId() %>, oldAttachFileList : [<%
 			for (kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO.AttachFile attachFile : attachFileList) {
 				out.print("{");
 				out.print("attachSeq:");
@@ -232,7 +228,12 @@
 				out.print("}, ");
 			}
 %>]};
-		callbackUpload(boardUploadFileOutDTO);<%
+		removeAllOldAttachFiles();
+		removeAllNewAttachFiles();
+		addNewAttachFile();
+		var d = document.getElementById('oldFileMenuDiv');
+		d.style.visibility = "visible";
+		restoreOldFiles();<%
 		} else {
 %>
 	removeAllOldAttachFiles();
@@ -272,7 +273,7 @@
 		<li>
 			<dl>
 				<dt>내용</dt>
-				<dd><textarea name="content" style="width: 500px; height: 220px;"><%=escapeHtml(boardDetailOutDTO.getContent(), WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER)%></textarea></dd>
+				<dd><textarea name="content" style="width: 500px; height: 220px;"><%=escapeHtml(boardDetailOutDTO.getContent())%></textarea></dd>
 			</dl>
 		</li>
 		<li>
@@ -294,10 +295,8 @@
 	<!-- 주의점 myDiv 시작 태그와 종료 태그 사이에는 공백을 포함한 어떠한 것도 넣지 말것, 자식 노드로 인식됨 -->
 	<div id="newFileListDiv"></div><br/>
 
-	<input type="submit" value="파일 올리기..." />
+	<input type="submit" value="서버에 첨부 파일 변경 내역 반영" />
 </form>
-
-<iframe name="uploadResultFrame" width="0" height="0" >
-</iframe><%
+<iframe name="uploadResultFrame" width="0" height="0"></iframe><%
 	}
 %>

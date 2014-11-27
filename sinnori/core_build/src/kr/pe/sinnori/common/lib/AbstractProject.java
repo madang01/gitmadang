@@ -20,6 +20,7 @@ package kr.pe.sinnori.common.lib;
 import java.nio.ByteOrder;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import kr.pe.sinnori.common.configuration.ClientProjectConfig;
 import kr.pe.sinnori.common.configuration.CommonProjectConfig;
 import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;

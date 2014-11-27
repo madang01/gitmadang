@@ -32,7 +32,7 @@ public abstract class AbstractServlet extends JDFBaseServlet {
 
 	
 	@Override
-	protected void performPreTask(HttpServletRequest req, HttpServletResponse res) throws Exception  {		
+	protected void performPreTask(HttpServletRequest req, HttpServletResponse res) throws Exception  {	
 		performTask(req,res);	
 	}
 
@@ -58,6 +58,6 @@ public abstract class AbstractServlet extends JDFBaseServlet {
 		req.setAttribute("debugMessage", debugMessage);
 		req.setAttribute("userMessage", userMessage);
 		
-		printJspPage(req, res, JDF_ERROR_MESSAGE_PAGE);
+		printWebLayoutControlJspPage(req, res, JDF_ERROR_MESSAGE_PAGE);
 	}
 }

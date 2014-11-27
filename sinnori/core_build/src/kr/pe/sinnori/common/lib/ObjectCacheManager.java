@@ -16,10 +16,8 @@
  */
 package kr.pe.sinnori.common.lib;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.TreeSet;
+import org.apache.commons.collections4.map.LRUMap;
+import org.apache.commons.collections4.map.MultiKeyMap;
 
 
 /**
@@ -37,27 +35,23 @@ import java.util.TreeSet;
  */
 public final class ObjectCacheManager implements CommonRootIF {
 	private final Object monitor = new Object();
-	private int cachedObjectSeq = Integer.MIN_VALUE;
-	private HashMap<Integer, HashMap<String, CachedObject>> loaderHash = null;
-	private TreeSet<CachedObject> treeSet = null;
-	private int maxSize = 10;
-	private long maxUpdateSeqInterval=5000;
-	// private int objectValueCnt = 0;
-	private HashMap<String, Object> systemObjHash = null;
+	@SuppressWarnings("rawtypes")
+	private MultiKeyMap objectCache = null;
 	
-
+	private int maxSize = 10;
+	// private long maxUpdateSeqInterval=5000;
+	
 	/**
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 생성자.
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private ObjectCacheManager() {
 		maxSize = (Integer)conf.getResource("common.cached_object.max_size.value");
-		maxUpdateSeqInterval = (Long)conf.getResource("common.cached_object.max_update_seq_interval.value");
+		// maxUpdateSeqInterval = (Long)conf.getResource("common.cached_object.max_update_seq_interval.value");
 		// objectValueCnt = 0;
-		loaderHash = new HashMap<Integer, HashMap<String, CachedObject>>(maxSize);
-		treeSet = new TreeSet<CachedObject>(new LoaderAndClassNameComparator());
-		systemObjHash = new HashMap<String, Object>(2);
-		systemObjHash.put("kr.pe.sinnori.impl.message.SelfExn.SelfExnClientCodec", CommonStaticFinalVars.SELFEXN_CLIENT_CODEC);
-		systemObjHash.put("kr.pe.sinnori.impl.message.SelfExn.SelfExnServerCodec", CommonStaticFinalVars.SELFEXN_SERVER_CODEC);
+		
+		// cachedObjectLRUMap = Collections.synchronizedMap(new LRUMap<CachedObjectKey, Object>(maxSize));
+		objectCache = MultiKeyMap.multiKeyMap(new LRUMap(maxSize));
 	}	
 	
 	/**
@@ -75,41 +69,10 @@ public final class ObjectCacheManager implements CommonRootIF {
 	public static ObjectCacheManager getInstance() {
 		return SystemClassManagerHolder.singleton;
 	}
-
-	class LoaderAndClassNameComparator implements Comparator<CachedObject> {
-		@Override
-		public int compare(CachedObject o1, CachedObject o2) {
-			if (o1.seq > o2.seq) return 1;
-			else if (o1.seq == o2.seq) return 0;
-			else return -1;
-		}
-	}
 	
-	public void setMaxSize(int newMaxSize) throws IllegalArgumentException {
-		if (newMaxSize < 1) {
-			String errorMessage = "parameter newMaxSize[" + newMaxSize
-					+ "] is less than one";
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-		synchronized (monitor) {
-			maxSize = newMaxSize;
 
-			while (treeSet.size() > newMaxSize) {
-				CachedObject firstCachedObject = treeSet.first();
-				treeSet.remove(firstCachedObject);
-				HashMap<String, CachedObject> classNameHash = loaderHash.get(firstCachedObject.classLoaderHashCode);
-				classNameHash.remove(firstCachedObject.classFullName);
-				if (classNameHash.isEmpty()) {
-					loaderHash.remove(firstCachedObject.classLoaderHashCode);
-				}
-			}
-			
-			log.info("새로 조정된 최대 크기[{}", maxSize);
-		}
-	}
-
-	public Object getObjectFromHash(ClassLoader classLoader,
+	@SuppressWarnings("unchecked")
+	public Object getCachedObject(ClassLoader classLoader,
 			String classFullName) throws ClassNotFoundException,
 			InstantiationException, IllegalAccessException {
 		if (null == classLoader) {
@@ -123,126 +86,20 @@ public final class ObjectCacheManager implements CommonRootIF {
 			log.debug(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
-
-		Object returnObj = null;
 		
-		returnObj =  systemObjHash.get(classFullName);
-		if (null != returnObj) {
-			return returnObj;
-		}
+		int classLoaderHashCode = classLoader.hashCode();
 		
-		/*if (classFullName.indexOf("kr.pe.sinnori.impl.message.SelfExn") == 0) {
-			if (classFullName
-					.equals("kr.pe.sinnori.impl.message.SelfExn.SelfExnClientCodec")) {
-				return CommonStaticFinalVars.SELFEXN_CLIENT_CODEC;
-			} else if (classFullName
-					.equals("kr.pe.sinnori.impl.message.SelfExn.SelfExnServerCodec")) {
-				return CommonStaticFinalVars.SELFEXN_SERVER_CODEC;
-			} else {
-				*//** FIXME! 코덱과 관련 없는 SelfExn 메시지 관련 객체에 대해서 접근 방지 처리 *//*
-				String errorMessage = "SelfExn 메시지 접근";
-				IllegalAccessException e = new IllegalAccessException(errorMessage);
-				log.warn(errorMessage, e);
-				throw e;
+		Object cachedObj = null;
+		synchronized (monitor) {
+			cachedObj = objectCache.get(classLoaderHashCode, classFullName);
+			if (null == cachedObj) {
+				/** classLoader 미 등재 */
+				Class<?> cachedObjClass = classLoader.loadClass(classFullName);
+				cachedObj = cachedObjClass.newInstance();	
+				objectCache.put(classLoaderHashCode, classFullName, cachedObj);
 			}
-		}*/
+		}		
 		
-		
-		if (maxSize == 0) {
-			Class<?> objClass = classLoader.loadClass(classFullName);
-			returnObj = objClass.newInstance();
-			return returnObj;
-		} else {
-			synchronized (monitor) {
-				CachedObject cachedObject = null;
-				HashMap<String, CachedObject> classNameHash = loaderHash.get(classLoader.hashCode());
-				
-				// int objectValueCnt = treeSet.size();
-				
-				if (null == classNameHash) {
-					/** classLoader 미 등재 */
-					Class<?> objClass = classLoader.loadClass(classFullName);
-					returnObj = objClass.newInstance();
-					if (Integer.MAX_VALUE == cachedObjectSeq) {
-						log.warn("classLoader 미 등재::사용된 시간 개념의 순번 소진으로 해쉬및 트리에 저장하지 않음");
-						return returnObj;
-					}
-					
-					/** 해쉬및 트리에 추가 */				
-					if (treeSet.size() == maxSize) {
-						/** 최대 갯수를 유지하기 위한 가장 오래동안 사용하지 않는 객체 삭제 수행 */					
-						deleteFirst();
-					}
-					
-					classNameHash = new LinkedHashMap<String, CachedObject>();
-					cachedObject = new CachedObject(classLoader, classFullName, cachedObjectSeq, returnObj);
-					cachedObjectSeq++;
-					classNameHash.put(classFullName, cachedObject);
-					loaderHash.put(classLoader.hashCode(), classNameHash);
-					treeSet.add(cachedObject);
-					log.warn("classLoader 미 등재::신규 객체[{}] 추가", cachedObject.toString());
-				} else {
-					cachedObject = classNameHash.get(classFullName);
-					if (null == cachedObject) {
-						/** classFullName 미 등재 */
-						Class<?> objClass = classLoader.loadClass(classFullName);
-						returnObj = objClass.newInstance();
-						
-						if (Integer.MAX_VALUE == cachedObjectSeq) {
-							log.warn("classFullName 미 등재::사용된 시간 개념의 순번 소진으로 해쉬및 트리에 저장하지 않음");
-							return returnObj;
-						}
-						
-						/** 해쉬및 트리에 추가 */					
-						if (treeSet.size() == maxSize) {
-							/** 최대 갯수를 유지하기 위한 가장 오래동안 사용하지 않는 객체 삭제 수행 */
-							deleteFirst();
-						}
-						
-						cachedObject = new CachedObject(classLoader, classFullName, cachedObjectSeq, returnObj);
-						cachedObjectSeq++;						
-						classNameHash.put(classFullName, cachedObject);
-						loaderHash.put(classLoader.hashCode(), classNameHash);
-						treeSet.add(cachedObject);
-						log.warn("classFullName 미 등재::신규 객체[{}] 추가", cachedObject.toString());
-					} else {
-						// log.info("사용된 시간 개념의 순번 갱신전 객체[{}]", cachedObject.toString());
-						
-						returnObj = cachedObject.cachedObj;
-						 
-						if ((new java.util.Date().getTime() - cachedObject.updateDate) >= maxUpdateSeqInterval) {
-							/**
-							 * 검색된 객체의 마지막으로 사용한 시간과 현재 시간의 차이가 지정된 시간 간격을 벗어났을 경우
-							 * 검색된 객체의 사용된 시간 개념의 순번 갱신
-							 */
-							treeSet.remove(cachedObject);
-							cachedObject.updateSeq(cachedObjectSeq);
-							cachedObjectSeq++;
-							treeSet.add(cachedObject);
-							
-							log.info("사용된 시간 개념의 순서 갱신후 객체[{}]", cachedObject.toString());
-						}
-					}
-				}
-			}
-		}
-		
-		
-
-		return returnObj;
-	}
-	
-	private void deleteFirst() {
-		//if (!treeSet.isEmpty()) {
-			CachedObject firstCachedObject = treeSet.first();
-			treeSet.remove(firstCachedObject);
-			HashMap<String, CachedObject> firstClassNameHash = loaderHash.get(firstCachedObject.classLoaderHashCode);
-			firstClassNameHash.remove(firstCachedObject.classFullName);
-			if (firstClassNameHash.isEmpty()) {
-				loaderHash.remove(firstCachedObject.classLoaderHashCode);
-			}
-			
-			log.warn("classLoader 미 등재::가장 오래동안 사용하지 않는 객체[{}] 삭제, 생존 시간={} ms", firstCachedObject.toString(), new java.util.Date().getTime() - firstCachedObject.createDate);
-		//}
-	}
+		return cachedObj;		
+	}	
 }

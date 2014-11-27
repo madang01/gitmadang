@@ -3,10 +3,14 @@
 %><%@ page import="kr.pe.sinnori.impl.message.BoardListOutDTO.BoardListOutDTO" %><%
 %><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="parmIVBase64" class="java.lang.String" scope="request" /><%
+%><jsp:useBean id="modulusHex" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="parmBoardId" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="boardListOutDTO" class="kr.pe.sinnori.impl.message.BoardListOutDTO.BoardListOutDTO" scope="request" /><%
-%><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" />
+%><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%
+%><jsp:include page="/common/crypto_common.jsp" flush="false">
+	<jsp:param name="modulusHex" value="<%=modulusHex%>" />
+</jsp:include><%
+%>
 <style>
 <!--
 table {
@@ -24,16 +28,6 @@ tbody {
 }
 -->
 </style>
-<script type="text/javascript" src="/js/jsbn/jsbn.js"></script>
-<script type="text/javascript" src="/js/jsbn/jsbn2.js"></script>
-<script type="text/javascript" src="/js/jsbn/prng4.js"></script>
-<script type="text/javascript" src="/js/jsbn/rng.js"></script>
-<script type="text/javascript" src="/js/jsbn/rsa.js"></script>
-<script type="text/javascript" src="/js/jsbn/rsa2.js"></script>
-<script type="text/javascript" src="/js/cryptoJS/rollups/sha256.js"></script>
-<script type="text/javascript" src="/js/cryptoJS/rollups/aes.js"></script>
-<script type="text/javascript" src="/js/cryptoJS/components/core-min.js"></script>
-<script type="text/javascript" src="/js/cryptoJS/components/cipher-core-min.js"></script>
 <script type="text/javascript">
 	function goWrite() {
 		if(typeof(sessionStorage) == "undefined") {
@@ -42,7 +36,7 @@ tbody {
 		}
 
 		var g = document.goWriteForm;
-		g.sessionkeyBase64.value = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_SESSIONKEY_NAME%>');
+		g.sessionkeyBase64.value = getSessionkeyBase64();
 		var iv = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_IV_SIZE%>);
 		g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);		
 		g.submit();
@@ -57,7 +51,7 @@ tbody {
 
 		var g = document.goDetailForm;
 		g.boardNo.value = boardNo;
-		g.sessionkeyBase64.value = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_SESSIONKEY_NAME%>');
+		g.sessionkeyBase64.value = getSessionkeyBase64();
 		var iv = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_IV_SIZE%>);
 		g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);		
 		g.submit();
@@ -72,7 +66,7 @@ tbody {
 
 		var g = document.gofrm;
 		g.pageNo.value = pageNo;
-		g.sessionkeyBase64.value = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_SESSIONKEY_NAME%>');
+		g.sessionkeyBase64.value = getSessionkeyBase64();
 		var iv = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_IV_SIZE%>);
 		g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);
 		g.submit();

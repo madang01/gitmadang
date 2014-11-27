@@ -34,7 +34,7 @@ public class BoardListSvl extends AbstractServlet {
 			String errorMessage = new StringBuilder("자바 long 타입 변수인 게시판 식별자(boardId) 값[")
 			.append(parmBoardId).append("]이 잘못되었습니다.").toString();
 			req.setAttribute("errorMessage", errorMessage);
-			printJspPage(req, res, goPage);
+			printWebLayoutControlJspPage(req, res, goPage);
 			return;
 		}
 		
@@ -43,7 +43,7 @@ public class BoardListSvl extends AbstractServlet {
 			String errorMessage = new StringBuilder("게시판 식별자(boardId) 값[")
 			.append(parmBoardId).append("]은 0 보다 커야합니다.").toString();
 			req.setAttribute("errorMessage", errorMessage);
-			printJspPage(req, res, goPage);
+			printWebLayoutControlJspPage(req, res, goPage);
 			return;
 		}
 		
@@ -59,7 +59,7 @@ public class BoardListSvl extends AbstractServlet {
 		}catch (NumberFormatException nfe) {
 			String errorMessage = "parameter pageNo type is a not integer";
 			req.setAttribute("errorMessage", errorMessage);
-			printJspPage(req, res, goPage);
+			printWebLayoutControlJspPage(req, res, goPage);
 			return;
 		}	
 		
@@ -67,7 +67,7 @@ public class BoardListSvl extends AbstractServlet {
 		if (pageNo <= 0) {
 			String errorMessage = "parameter pageNo is less than or equal to zero";
 			req.setAttribute("errorMessage", errorMessage);
-			printJspPage(req, res, goPage);
+			printWebLayoutControlJspPage(req, res, goPage);
 			return;
 		}
 		
@@ -106,7 +106,7 @@ public class BoardListSvl extends AbstractServlet {
 		
 		req.setAttribute("parmBoardId", parmBoardId);
 		req.setAttribute("errorMessage", errorMessage);	
-		printJspPage(req, res, goPage);
+		printWebLayoutControlJspPage(req, res, goPage);
 	}
 
 }

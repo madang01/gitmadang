@@ -319,12 +319,12 @@ view_cnt,
 del_fl,
 reg_dt,
 mod_dt
-from TW_BOARD_TB where group_no=#{groupNo} and group_sq >= #{groupSeq} - 1 for update
+from TW_BOARD_TB where group_no=#{groupNo} and group_sq <![CDATA[>=]]> #{groupSeq} - 1 for update
     </select>
     
     <!--  댓글 등록시 삽입하고자 하는 위치 이후 seq 모두 업데이트 -->
 	<update id="updateReplyBoard" parameterType="kr.pe.sinnori.impl.message.BoardReplyDTO.BoardReplyDTO">
-        update TW_BOARD_TB set group_sq=group_sq+1 where group_no=#{groupNo} and group_sq >= #{groupSeq}
+        update TW_BOARD_TB set group_sq=group_sq+1 where group_no=#{groupNo} and group_sq <![CDATA[>=]]> #{groupSeq}
     </update>
     
 	<!--  댓글 등록 -->

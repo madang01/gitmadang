@@ -107,6 +107,18 @@ tbody {
 		g.attachSeq.value = attachSeq;
 		g.submit();
 	}
+
+	function callbackVote(parmVoteResponse) {
+		if (parmVoteResponse.isError) {
+			alert("성공! "+ parmVoteResponse.message);
+
+			var d = document.getElementById('voteTxt');
+			var voteStr = d.innerText;
+			d.innerText = ""+(parseInt(voteStr) + 1);
+		} else {
+			alert("실패! "+parmVoteResponse.message);
+		}	
+	}
 </script>
 <form name=goModofyForm method="post" action="/servlet/BoardModify">
 <input type="hidden" name="topmenu" value="<%=topmenu%>" />
@@ -126,7 +138,7 @@ tbody {
 <input type="hidden" name="ivBase64" />
 </form>
 
-<form name=goVoteForm method="post" action="/servlet/BoardVote">
+<form name=goVoteForm target=voteResultFrame method="post" action="/servlet/BoardVote">
 <input type="hidden" name="topmenu" value="<%=topmenu%>" />
 <input type="hidden" name="boardId" value="<%=parmBoardId%>" />
 <input type="hidden" name="boardNo" value="<%=parmBoardNo%>" />
@@ -162,21 +174,27 @@ tbody {
 		<table border="1">
 			<tbody>
 			<tr>
+				<td style="width:90px">글번호</td>
+				<td style="width:70px"><%=boardDetailOutDTO.getBoardNo()%></td>
 				<td style="width:90px">작성자</td>
-				<td style="width:90px"><%=boardDetailOutDTO.getNickname()%></td>
+				<td colspan=3 style="width:350px"><%=escapeHtml(boardDetailOutDTO.getNickname())%></td></td>				
+			</tr>
+			<tr>
 				<td style="width:70px">조회수</td>
-				<td style="width:50px"><%=boardDetailOutDTO.getViewCount()%></td>
+				<td><%=boardDetailOutDTO.getViewCount()%></td>		
 				<td style="width:70px">추천수</td>
-				<td style="width:50px"><%=boardDetailOutDTO.getVotes()%></td>
+				<td style="width:70px" id="voteTxt"><%=boardDetailOutDTO.getVotes()%></td>
 				<td style="width:90px">최근 수정일</td>
 				<td><%=boardDetailOutDTO.getModifiedDate()%></td>
-			</tr><%
+			</tr>
+
+				<%
 	java.util.List<kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO.AttachFile> attachFileList = boardDetailOutDTO.getAttachFileList();
 	if (null != attachFileList) {
 %>
 			<tr>
 				<td style="width:90px">첨부 파일</td>
-				<td colspan="7" style="text-align:left;">
+				<td colspan="5" style="text-align:left;">
 					<div><%
 		for (kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO.AttachFile attachFile : attachFileList) {
 			if (isLogin(request)) {
@@ -196,10 +214,10 @@ tbody {
 					
 
 			<tr>
-				<td>제목</td><td colspan="7" style="text-align:left;"><%=escapeHtml(boardDetailOutDTO.getSubject())%></td>
+				<td>제목</td><td colspan="5" style="text-align:left;"><%=escapeHtml(boardDetailOutDTO.getSubject())%></td>
 			</tr>
 			<tr>
-				<td>내용</td><td colspan="7" style="text-align:left;"><%=escapeHtml(boardDetailOutDTO.getContent(), WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER)%></td>
+				<td>내용</td><td colspan="5" style="text-align:left;"><%=escapeHtml(boardDetailOutDTO.getContent(), WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER)%></td>
 			</tr>
 			</tbody>
 		</table>
@@ -217,7 +235,7 @@ tbody {
 %><input type="button" onClick="goList()" value="목록으로" />
 	</div>
 </form>
-<iframe name="downloadResultFrame" width="0" height="0" >
-</iframe><%
+<iframe name="voteResultFrame" width="0" height="0"></iframe>
+<iframe name="downloadResultFrame" width="0" height="0"></iframe><%
 	}
 %>

@@ -178,7 +178,7 @@ public class AllDataTypeTestSvl extends AbstractServlet {
 		req.setAttribute("allDataTypeInObj", allDataTypeInObj);
 		
 		
-		printJspPage(req, res, goPage);
+		printWebLayoutControlJspPage(req, res, goPage);
 		
 	}
 	
