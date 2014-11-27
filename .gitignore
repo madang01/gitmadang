@@ -7,6 +7,8 @@
 *.zip
 *.tar.gz
 *.jar
+sinnori/project/sample_test/web_app_base/download/gitsinnori-1.0.tar.gz
+sinnori/project/sample_test/web_app_base/download/gitsinnori-1.0.zip
 sinnori/project/sample_test/web_app_base/upload/*
 sinnori/project/sample_test/web_app_base/temp/*
 !sinnori/SinnoriAntBuildUtil.jar
