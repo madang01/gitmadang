@@ -151,8 +151,9 @@
 	</pathconvert>
 
 	<target name="copy.lib" depends="compile.main" description="서버 어플리 케이션 jar 라이브러리 복사">
-		<delete dir="${dist}" />		
+		<delete dir="${dist}" />
 		<mkdir dir="${dist}/lib" />
+		<mkdir dir="${lib}/ex" />	
 
 		<copy todir="${dist}/lib" verbose="true" overwrite="true">
 			<fileset dir="${corelib}/ex" />
@@ -160,7 +161,7 @@
 		</copy>
 	</target>
 
-	<target name="make.main" depends="make.serverlib, copy.lib" description="서버 어플리케이션 메인 클래스 jar 만들기">				
+	<target name="make.main" depends="copy.lib, make.serverlib" description="서버 어플리케이션 메인 클래스 jar 만들기">				
 		<jar destfile="${dist}/SinnoriServerMain.jar" basedir="${build}">
 			<include name="main/**" />
 			<restrict>
