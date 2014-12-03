@@ -25,7 +25,7 @@
 
 	/** 0:좌측 메뉴명, 1:주 좌측 메뉴 링크 */
 	final String[][] leftMenuInfoList = {
-		{"신놀이 환경 구축 문서", "/PageJump.jsp?topmenu="+topmenu+"&bodyurl=/techdoc/sinnori_environment_build.html"},
+		{"신놀이 개발 환경 구축 문서", "/PageJump.jsp?topmenu="+topmenu+"&bodyurl=/techdoc/sinnori_environment_build.html"},
 		{"신놀이 Ant Build 기술 문서", "/PageJump.jsp?topmenu="+topmenu+"&bodyurl=/techdoc/sinnori_ant_buil_techdoc.html"},
 		{"신놀이 서버 기술 문서", "/PageJump.jsp?topmenu="+topmenu+"&bodyurl=/techdoc/sinnori_server_techdoc.html"},
 		{"자바 클라이언트 API 기술 문서", "/PageJump.jsp?topmenu="+topmenu+"&bodyurl=/techdoc/sinnori_client_api_techdoc.html"},

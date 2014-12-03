@@ -1,4 +1,9 @@
 <pre>
+<h1>신놀이 개발 환경 구축</h1>
+<h2>주) 신놀이는 역동적으로 변하고 있습니다. 
+이 문서는 git 를 이용한 최신 버전을 기준으로 설명하기때문에 
+다운로드하여 받은 배포 버전과 차이가 있을 수 있습니다.</h2>
+
 1. 신놀이 개발 프레임워크 시작하기
 	
 	1.다운로드
@@ -43,9 +48,9 @@ http://forum.falinux.com/zbxe/index.php?document_srl=588283&mid=lecture_tip
 					  
 
 		3.파일 링크 통한 다운로드
-			압축 파일은 "gitsinnori-1.0" 디렉토리로 압축되어 있습니다.
-			따라서 압축을 푼후 "gitsinnori-1.0" 디렉토리 밑에 
-			파일들 전체를 앞으로 작업할 gitsinnori 로 복사를 하시면 됩니다.
+			다운로드 메뉴를 통해서 압축 파일을 받운 받으셔서 압축을 푼신후			
+			3개 파일(.gitignore, LICENSE, README.md)과 1개 폴더(sinnori) 를
+			작업할 gitsinnori 로 복사를 하시면 됩니다.		
 			  
 
 	2.ant build 환경 만들기
@@ -74,36 +79,33 @@ http://forum.falinux.com/zbxe/index.php?document_srl=588283&mid=lecture_tip
 			  
 
 	3.예제로 제공된 파일 송수신 서버/클라이언트 실행 하기
-		신놀이 프레임워크를 이용하여 파일 송수신 서버/클라이언트를 구현한것을 예제로 제공하고 있습니다.
+		신놀이 프레임워크를 이용하여 파일 송수신 서버/클라이언트를 구현한것을 
+		예제로 제공하고 있습니다.
 		로컬에서 도는 서버와 클라이언트로 동작하는것을 확인해 보세요. 
 
 		1.우분투
-				첫번째 터미널에서
-				파일 송수신 서버 실행
-					(1) cd ~/gitsinnori/sinnori/project/sample_simple_ftp/server_build/
-					(2) ant all
-					(3) ./sinnori_server.sh
-				두번째 터미널에서
-				파일 송수신 클라이언트 실행
-					(1) cd ~/gitsinnori/sinnori/project/sample_simple_ftp/client_build/app_build/
-					(2) ant all
-					(3) ./sinnori_appclient.sh
+			첫번째 터미널에서 파일 송수신 서버 실행
+	(1) cd ~/gitsinnori/sinnori/project/sample_simple_ftp/server_build/
+	(2) ant all
+	(3) ./sinnori_server.sh
+			두번째 터미널에서 파일 송수신 클라이언트 실행
+	(1) cd ~/gitsinnori/sinnori/project/sample_simple_ftp/client_build/app_build/
+	(2) ant all
+	(3) ./sinnori_appclient.sh
 		2.윈도7
-				첫번째 명령 프롬프트에서
-				파일 송수신 서버 실행
-					(1) d: (2) cd d:\gitsinnori\sinnori\project\sample_simple_ftp\server_build
-					(3) ant all
-					(4) sinnori_server.bat
-				두번째 명령 프롬프트에서
-				파일 송수신 클라이언트 실행
-					(1) d: (2) cd d:\/gitsinnori/sinnori/project/sample_simple_ftp/client_build/app_build
-					(3) ant all
-					(4) sinnori_appclient.bat
-
-Copyright (c) 2010-2014 The Sinnori Framework Team
-
-
+			첫번째 명령 프롬프트에서 파일 송수신 서버 실행
+(1) cd /D d:\gitsinnori\sinnori\project\sample_simple_ftp\server_build
+	(3) ant all
+	(4) sinnori_server.bat
+			두번째 명령 프롬프트에서 파일 송수신 클라이언트 실행
+	(1) d: 
+(2) cd d:\gitsinnori\sinnori\project\sample_simple_ftp\client_build\app_build
+	(3) ant all
+	(4) sinnori_appclient.bat
+</pre>
 ==============================
+<h2>웹과 신놀이 서버 인터넷 통한 접근을 하기위한 작업</h2><br/>
+<textarea name="content" wrap="soft" style="width:580px; height:220px;" readonly="readonly">
 0. 웹과 신놀이 서버 인터넷 통한 접근을 하기위한 작업
 	1. 유동 IP에 도메인 할당및 호스트 madang 추가
 		HOWTO_유동IP에도메인할당.odt 문서 참고
@@ -223,6 +225,6 @@ export JAVA_OPTS="$JAVA_OPTS \
 
 	2. 윈도7
 	생략
+</textarea>
 
-</pre>
 

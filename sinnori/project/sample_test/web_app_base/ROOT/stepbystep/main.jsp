@@ -74,7 +74,9 @@
 			<dd>
 			이것은 따로 설명 안드려도 되지요.<br/>  
 			압축 파일은 "gitsinnori-1.0" 디렉토리로 압축되어 있습니다.<br/>  
-			따라서 압축을 푼후 "gitsinnori-1.0" 디렉토리 밑에 파일들 전체를 앞으로 작업할 gitsinnori 로 복사를 하시면 됩니다.<br/>&nbsp;
+			따라서 압축을 푼시면 "gitsinnori-1.0" 디렉토리 밑에 
+			3개 파일(.gitignore, LICENSE, README.md)과 1개 폴더(sinnori_framework)을 보실 수 있습니다.
+			"gitsinnori-1.0" 디렉토리 밑에 파일들과 폴더 전체를 앞으로 작업할 gitsinnori 로 복사를 하시면 됩니다.<br/>&nbsp;
 			</dd>
 		</dl>
 	</li>
