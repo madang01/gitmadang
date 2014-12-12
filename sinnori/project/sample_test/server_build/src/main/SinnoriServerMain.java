@@ -16,11 +16,29 @@ public class SinnoriServerMain implements CommonRootIF {
 			System.exit(1);
 		}
 		
-		if (projectName.trim().length() == 0) {
+		String trimProjectName = projectName.trim();
+		
+		if (trimProjectName.length() == 0) {
 			log.error("자바 시스템 환경 변수[{}] 값[{}]이 빈 문자열 있습니다.", CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME, projectName);
 			System.exit(1);
 		}
 		
+		if (! projectName.equals(trimProjectName)) {
+			log.error("자바 시스템 환경 변수[{}] 값[{}] 앞뒤로 공백 문자열이 존재합니다.", 
+					CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME, projectName);
+			System.exit(1);
+		}
+		
+		/*try {
+			SqlSessionFactory sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory("tw_sinnoridb");
+			
+			sqlSessionFactory.openSession();
+		} catch (DBNotReadyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
+		
+		/** FIXME! */
 		ServerProject serverProject = ServerProjectManager.getInstance().getServerProject(projectName);
 			
 		serverProject.startServer();

@@ -18,7 +18,7 @@
 package kr.pe.sinnori.client;
 
 import java.util.HashMap;
-import java.util.StringTokenizer;
+import java.util.List;
 
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
@@ -52,12 +52,9 @@ public final class ClientProjectManager implements CommonRootIF {
 	 * @throws NoMoreDataPacketBufferException 
 	 */
 	private ClientProjectManager() {
-		String projectlist = (String)conf.getResource("common.projectlist.value");
-		
-		StringTokenizer tokenProject = new StringTokenizer(projectlist, ",");
-		while(tokenProject.hasMoreElements()) {
-			String projectName = tokenProject.nextToken().trim();
-			
+		@SuppressWarnings("unchecked")
+		List<String> projectNamelist = (List<String>)conf.getResource("common.projectlist.value");
+		for (String projectName : projectNamelist) {
 			ClientProject clientProject=null;
 			try {
 				clientProject = new ClientProject(projectName);

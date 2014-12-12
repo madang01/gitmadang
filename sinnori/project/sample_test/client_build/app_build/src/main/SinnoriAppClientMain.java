@@ -19,7 +19,7 @@ package main;
 
 import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
-import kr.pe.sinnori.util.SinnoriWorker;
+import kr.pe.sinnori.util.SinnoriClientWorker;
 
 public class SinnoriAppClientMain implements CommonRootIF {
 	
@@ -63,7 +63,7 @@ public class SinnoriAppClientMain implements CommonRootIF {
 			 * 2013.07.24 TestNetEco
 			 * INFO  kr.pe.sinnori.util.AbstractClientExecutor.execute(AbstractClientExecutor.java:105) - [1000]회 실행 평균 수행 시간=[2.208000] ms
 			 */
-			SinnoriWorker.getInstance().start(projectName, "TestNetEco", 1);
+			SinnoriClientWorker.getInstance().start(projectName, "TestNetEco", 1);
 			//SinnoriWorker.getInstance().start(projectName, "TestNetEco", 1000);
 			
 			/**

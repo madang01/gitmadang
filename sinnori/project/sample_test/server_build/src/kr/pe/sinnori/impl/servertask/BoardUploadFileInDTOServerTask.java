@@ -13,7 +13,7 @@ import kr.pe.sinnori.impl.message.BoardUploadFileInDTO.BoardUploadFileInDTO.NewA
 import kr.pe.sinnori.impl.message.BoardUploadFileInDTO.BoardUploadFileInDTO.SelectedOldAttachFile;
 import kr.pe.sinnori.impl.message.BoardUploadFileOutDTO.BoardUploadFileOutDTO;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
-import kr.pe.sinnori.impl.mybatis.SqlSessionFactoryManger;
+import kr.pe.sinnori.impl.server.mybatis.SqlSessionFactoryManger;
 import kr.pe.sinnori.server.LoginManagerIF;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
 import kr.pe.sinnori.server.executor.LetterSender;
@@ -32,7 +32,8 @@ public class BoardUploadFileInDTOServerTask extends AbstractServerTask {
 		log.info(messageFromClient.toString());
 		
 		if (null == sqlSessionFactory) {
-			sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory(serverProjectConfig);
+			sqlSessionFactory = SqlSessionFactoryManger.getInstance()
+					.getSqlSessionFactory("tw_sinnoridb");
 		}
 		BoardUploadFileInDTO inObj = (BoardUploadFileInDTO)messageFromClient;
 		

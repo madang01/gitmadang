@@ -129,6 +129,10 @@
 				<fileset dir="${corelib}/in">
 					<include name="**/*.jar" />
 				</fileset>
+				<fileset dir="${APP-INF}/lib">
+					<include name="**/*.jar" />
+				</fileset>
+				<pathelement path="${APP-INF}/classes" />
 			</classpath>
 		</javac>
 		<echo message="compile.main" />
@@ -210,6 +214,10 @@
 				<fileset dir="${lib}/in">
 					<include name="**/*.jar" />
 				</fileset>
+				<fileset dir="${APP-INF}/lib">
+					<include name="**/*.jar" />
+				</fileset>
+				<pathelement path="${APP-INF}/classes" />
 			</classpath>
 		</javac>
 	</target>

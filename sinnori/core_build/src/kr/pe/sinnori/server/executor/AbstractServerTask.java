@@ -261,7 +261,8 @@ public abstract class AbstractServerTask implements CommonRootIF {
 		}
 					
 		// messageProtocol, projectCharset
-		LetterSender letterSender = new LetterSender(this, clientResource, messageFromClient, projectCharset, ouputMessageQueue, messageProtocol, serverObjectCacheManager);
+		LetterSender letterSender = new LetterSender(this, clientResource, messageFromClient, 
+				projectCharset, ouputMessageQueue, messageProtocol, serverObjectCacheManager);
 		
 		try {			
 			doTask(serverProjectConfig, loginManager, letterSender, messageFromClient);

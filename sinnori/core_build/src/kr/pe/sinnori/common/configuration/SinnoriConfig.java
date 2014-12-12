@@ -26,8 +26,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -262,7 +264,95 @@ public final class SinnoriConfig {
 		}
 
 		String propKey = null;
-		String propValue = null;		
+		String propValue = null;
+		
+		/******** dbcp 시작 **********/
+		// dbcp.connection_pool_name_list.value
+		propKey = "dbcp.connection_pool_name_list.value";
+		propValue = configFileProperties.getProperty(propKey);
+		
+		List<String> dbcpConnectionPoolNameList = new ArrayList<String>();
+		StringTokenizer dbcpConnectionPoolNameTokens = new StringTokenizer(propValue, ",");
+		while (dbcpConnectionPoolNameTokens.hasMoreElements()) {
+			String dbcpConnectionPoolName = dbcpConnectionPoolNameTokens.nextToken().trim();
+			dbcpConnectionPoolNameList.add(dbcpConnectionPoolName);
+		}
+		
+		resourceHash.put(propKey, dbcpConnectionPoolNameList);
+		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, resourceHash.get(propKey));
+		
+		for (String dbcpConnectionPoolName : dbcpConnectionPoolNameList) {
+			propKey = new StringBuilder("dbcp.")
+			.append(dbcpConnectionPoolName).append(".confige_file.value").toString();
+			
+			String configeFilePathName = configFileProperties.getProperty(propKey);
+			
+			File configeFile = new File(configeFilePathName);
+			if (! configeFile.exists()) {
+				log.warn("key[{}] dbcp connection pool name[{}]'s config file[{}] is not found", propKey, dbcpConnectionPoolName, configeFilePathName);
+				continue;
+			}
+			if (! configeFile.canRead()) {
+				log.warn("key[{}] dbcp connection pool name[{}]'s config file[{}] cannot be read", propKey, dbcpConnectionPoolName, configeFilePathName);
+				continue;
+			}
+			
+			if (! configeFile.canWrite()) {
+				log.warn("key[{}] dbcp connection pool name[{}]'s config file[{}] cannot be written", propKey, dbcpConnectionPoolName, configeFilePathName);
+				continue;
+			}
+			
+			resourceHash.put(propKey, configeFile);
+			log.info("{}::prop value[{}], new value[{}]", propKey, propValue, resourceHash.get(propKey));			
+		}
+		
+		/******** dbcp 종료 **********/
+		
+		/******** mybatis 시작 **********/
+		propKey = "mybatis.config_file.value";
+		propValue = configFileProperties.getProperty(propKey);		
+		
+		for (int i=0; i < 1; i++) {
+			if (null == propValue) {
+				log.warn("key[{}] is not found", propKey);
+				continue;
+			}
+			
+			String trimPropValue = propValue.trim();
+			
+			if (trimPropValue.equals("")) {
+				log.warn("key[{}]'s value is empty", propKey);
+				continue;
+			}
+			
+			if (!trimPropValue.equals(propValue)) {
+				log.warn("key[{}]'s value is not same to the copy of the string, with leading and trailing whitespace omitted", propKey);
+				continue;
+			}
+			
+			// String mybatisConfigeFilePathName = propValue;
+			
+			/*File mybatisConfigeFile = new File(propValue);
+			if (! mybatisConfigeFile.exists()) {
+				log.warn("key[{}] mybatis config file[{}] is not found", propKey, propValue);
+				continue;
+			}
+			if (! mybatisConfigeFile.canRead()) {
+				log.warn("key[{}] mybatis config file[{}] cannot be read", propKey, propValue);
+				continue;
+			}
+			
+			if (! mybatisConfigeFile.canWrite()) {
+				log.warn("key[{}] mybatis config file[{}] cannot be written", propKey, propValue);
+				continue;
+			}*/
+			
+			resourceHash.put(propKey, propValue);
+			log.info("{}::prop value[{}], new value[{}]", propKey, propValue, resourceHash.get(propKey));
+		}
+		
+		/******** mybatis 종료 **********/
+		
 		
 		/******** sessionkey 시작 **********/
 		propKey = "sessionkey.rsa_keysize.value";
@@ -454,44 +544,7 @@ public final class SinnoriConfig {
 		/******** servlet_jsp 종료 **********/
 		
 		
-		/******** 신놀이 작업자 시작 **********/
-		propKey = "sinnori_worker.running_mode.value";
-		propValue = configFileProperties.getProperty(propKey);		
-		String sinnori_worker_running_mode = "client";
-		if (propValue.toLowerCase().equals("server")) {
-			sinnori_worker_running_mode = "server";
-		} else if (propValue.toLowerCase().equals("client")) {
-			sinnori_worker_running_mode = "client";
-		} else if (propValue.toLowerCase().equals("all")) {
-			sinnori_worker_running_mode = "all";
-		} 		
-		resourceHash.put(propKey, sinnori_worker_running_mode);
-		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, resourceHash.get(propKey));
-		
-		
-		propKey = "sinnori_worker.client.executor.prefix.value";
-		propValue = configFileProperties.getProperty(propKey);
-		String sinnori_worker_client_executor_prefix = null;
-		if (null == propValue || 0 == propValue.trim().length()) {
-			sinnori_worker_client_executor_prefix = "impl.executor.client.";
-		} else {
-			sinnori_worker_client_executor_prefix = propValue;
-		}
-		resourceHash.put(propKey, sinnori_worker_client_executor_prefix);
-		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, resourceHash.get(propKey));
-		
-		propKey = "sinnori_worker.client.executor.suffix.value";
-		propValue = configFileProperties.getProperty(propKey);
-		String sinnori_worker_client_executor_suffix = null;
-		if (null == propValue || 0 == propValue.trim().length()) {
-			sinnori_worker_client_executor_suffix = "CExtor";
-		} else {
-			sinnori_worker_client_executor_suffix = propValue;
-		}
-		resourceHash.put(propKey, sinnori_worker_client_executor_suffix);
-		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, resourceHash.get(propKey));
-		/******** 신놀이 작업자 종료 **********/
-		
+				
 		/******** 파일 송수신 시작 **********/
 		propKey = "common.updownfile.local_source_file_resource_cnt.value";
 		propValue = configFileProperties.getProperty(propKey);
@@ -649,28 +702,27 @@ public final class SinnoriConfig {
 		
 		propKey = "common.projectlist.value";
 		propValue = configFileProperties.getProperty(propKey);
-		String projectlist = null;
+		List<String> projectNamelist = new ArrayList<String>();
 		if (null == propValue || 0 == propValue.trim().length()) {
 			// projectlist = "sample_simple_chat";
 			log.error("필수 항목 프로젝트목록[{}]의 값이 설정되지 않았습니다.", propKey);
 			System.exit(1);
-		} else {
-			projectlist = propValue;
 		}
-		resourceHash.put(propKey, projectlist);
+		resourceHash.put(propKey, projectNamelist);
 		
-		StringTokenizer tokenProject = new StringTokenizer(projectlist, ",");
-		while(tokenProject.hasMoreElements()) {
+		StringTokenizer tokenProject = new StringTokenizer(propValue, ",");
+		while(tokenProject.hasMoreElements()) {			
 			String projectName = tokenProject.nextToken().trim();
+			projectNamelist.add(projectName);
 			Hashtable<String, Object> projectHash = new Hashtable<String, Object>();
 			
-			resourceHash.put(projectName, projectHash);
-			// int inputMessageWriterMaxSize = clientAsynIOThreadPoolInfo.getInputMessageWriterMaxSize();
-			/*ProjectConfig projectInfo = new ProjectConfig(projectName, configFileProperties, log);			
-			resourceHash.put(projectName, projectInfo);
-			log.info("[{}] 프로젝트 정보를 신놀이 환경 변수에 저장합니다.", projectName));
-			log.info(projectInfo.toString());*/
-		}		
+			resourceHash.put(projectName, projectHash);			
+		}
+		
+		if (0 == projectNamelist.size()) {
+			log.error("필수 항목 프로젝트목록[{}]의 값이 설정되지 않았습니다.", propKey);
+			System.exit(1);
+		}
 		
 		//resourceHash.put(propKey, projectSet);
 		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, resourceHash.get(propKey));
@@ -735,10 +787,10 @@ public final class SinnoriConfig {
 			return null;
 		}
 		
-		ServerProjectConfig serverProjectConfig = (ServerProjectConfig)projectHash.get("ClientProjectConfig");
+		ServerProjectConfig serverProjectConfig = (ServerProjectConfig)projectHash.get("ServerProjectConfig");
 		if (null == serverProjectConfig) {
 			serverProjectConfig = new ServerProjectConfig(projectName, configFileProperties, log);
-			projectHash.put("ClientProjectConfig", serverProjectConfig);
+			projectHash.put("ServerProjectConfig", serverProjectConfig);
 		}
 		return serverProjectConfig;
 	}

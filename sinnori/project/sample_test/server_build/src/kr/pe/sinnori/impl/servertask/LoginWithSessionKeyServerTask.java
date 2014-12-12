@@ -13,7 +13,7 @@ import kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager;
 import kr.pe.sinnori.common.sessionkey.SymmetricKey;
 import kr.pe.sinnori.impl.message.LoginWithSessionKey.LoginWithSessionKey;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
-import kr.pe.sinnori.impl.mybatis.SqlSessionFactoryManger;
+import kr.pe.sinnori.impl.server.mybatis.SqlSessionFactoryManger;
 import kr.pe.sinnori.server.LoginManagerIF;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
 import kr.pe.sinnori.server.executor.LetterSender;
@@ -36,7 +36,8 @@ public class LoginWithSessionKeyServerTask extends AbstractServerTask {
 		log.info(inObj.toString());		
 		
 		if (null == sqlSessionFactory) {
-			sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory(serverProjectConfig);
+			sqlSessionFactory = SqlSessionFactoryManger.getInstance()
+					.getSqlSessionFactory("tw_sinnoridb");
 		}		
 		
 		MessageResult messageResultOutObj = new MessageResult();

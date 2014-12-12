@@ -170,6 +170,7 @@
 				<fileset dir="${APP-INF}/lib">
 					<include name="**/*.jar" />
 				</fileset>
+				<pathelement path="${APP-INF}/classes" />
 			</classpath>
 		</javac>
 	</target>

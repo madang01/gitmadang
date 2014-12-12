@@ -18,9 +18,9 @@ package kr.pe.sinnori.server.classloader;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Hashtable;
@@ -57,8 +57,8 @@ public class ServerClassLoader extends ClassLoader implements CommonRootIF {
 	 * @param parent 부모 클래스 로더
 	 * @param classNameRegex 동적 클래스 로딩 대상 클래스 이름 검사용 클래스 이름 정규식
 	 */
-	public ServerClassLoader(ClassLoader parent, String appInfBasePath, String classLoaderClassPackagePrefixName, Hashtable<String, JarClassInfo> jarClassInfoHash) {
-		super(parent);
+	public ServerClassLoader(String appInfBasePath, String classLoaderClassPackagePrefixName, Hashtable<String, JarClassInfo> jarClassInfoHash) {
+		super(ClassLoader.getSystemClassLoader());
 		
 		// this.parent = parent;
 		this.appInfBasePath = appInfBasePath;
@@ -268,37 +268,57 @@ public class ServerClassLoader extends ClassLoader implements CommonRootIF {
 	 */
 	@Override
 	public InputStream getResourceAsStream(String name) {
-		FileInputStream fis = null;
+		InputStream is = null;
 		
-		/*int inx = name.indexOf(mybatisPackageName);
-		if (0 != inx) {
-			log.info("not mybatis resource, name={}", name);
+		is = super.getResourceAsStream(name);
+		
+		if  (null == is) {
+			String resourceFilePathString = new StringBuilder(resourcesPath).append(File.separator).append(name.replace("/", File.separator)).toString();
+					
+			try {
+				is = new FileInputStream(resourceFilePathString);
+			} catch (Exception e) {
+				log.warn(new StringBuilder("the resource[")
+				.append(name).append("] file[")
+				.append(resourceFilePathString)
+				.append("] fail to get a object of FileInputStream").toString(), e);
+				return null;
+			}
+		}		
+		
+		return is;
+	}
+	
+	public URL getResource(String name) {
+		URL url = null;
+		url = super.getResource(name);
+		if (null == url) {
+			String resourceFilePathString = new StringBuilder(resourcesPath).append(File.separator).append(name.replace("/", File.separator)).toString();
 			
-			return super.getResourceAsStream(name);
-		}*/
-
-		/*String fileName = name.substring(mybatisPackageName.length());
-		
-		String resourceFileName = new StringBuilder(dynamicClassBinaryBasePath).append(File.separator).append(mybatisPackageName.replace("/", File.separator)).append(fileName).toString();*/
-		
-		String resourceFileName = new StringBuilder(resourcesPath).append(File.separator).append(name.replace("/", File.separator)).toString();
-		
-		// FIXME!
-		// log.info("name={}, packageName={}, fileName={}", name, mybatisPackageName, fileName);
-		log.info("name={}, resourceFileName={}", name, resourceFileName);
-		
-		try {
-			fis = new FileInputStream(resourceFileName);
-		} catch (FileNotFoundException e) {
-			return null;
+			File resourceFile = new File(resourceFilePathString);
+			if (!resourceFile.exists()) {
+				/** resource file not found */
+				return null;
+			}
+						
+			try {
+				url = resourceFile.toURI().toURL();
+			} catch (Exception e) {
+				log.warn(new StringBuilder("the resource[")
+				.append(name).append("] file[")
+				.append(resourceFilePathString)
+				.append("] fail to convert to url").toString(), e);
+				return null;
+			}
 		}
-		return fis;
+		
+		return url;
 	}
 	
 	@Override
     protected void finalize() throws Throwable{
 		// FIXME! 메모리 회수 확인용으로 삭제하지 마세요!
-		log.info("서버 클래스 로더[{}] 소멸", this.hashCode());
+		log.info("ServerClassLoader[{}] destroy", this.hashCode());
     }
 }
 

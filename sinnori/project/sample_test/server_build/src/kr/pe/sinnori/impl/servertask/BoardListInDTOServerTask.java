@@ -5,7 +5,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.BoardListInDTO.BoardListInDTO;
 import kr.pe.sinnori.impl.message.BoardListOutDTO.BoardListOutDTO;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
-import kr.pe.sinnori.impl.mybatis.SqlSessionFactoryManger;
+import kr.pe.sinnori.impl.server.mybatis.SqlSessionFactoryManger;
 import kr.pe.sinnori.server.LoginManagerIF;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
 import kr.pe.sinnori.server.executor.LetterSender;
@@ -25,7 +25,8 @@ public class BoardListInDTOServerTask extends AbstractServerTask {
 		log.info(messageFromClient.toString());		
 		
 		if (null == sqlSessionFactory) {
-			sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory(serverProjectConfig);
+			sqlSessionFactory = SqlSessionFactoryManger.getInstance()
+					.getSqlSessionFactory("tw_sinnoridb");
 		}
 		
 		BoardListInDTO inObj = (BoardListInDTO)messageFromClient;

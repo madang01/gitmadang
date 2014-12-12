@@ -1,10 +1,19 @@
 package kr.pe.sinnori.common.lib;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.sql.SQLException;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Properties;
+
+import javax.sql.DataSource;
 
 import kr.pe.sinnori.common.exception.DBNotReadyException;
 
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSourceFactory;
 
 /**
  * <pre>
@@ -16,7 +25,10 @@ import org.apache.commons.dbcp2.BasicDataSource;
  * 
  */
 public final class DBCPManager implements CommonRootIF {
-	private BasicDataSource dataSource = null;
+	// private BasicDataSource dataSource = null;
+	// private final String connectURIBaseString = "jdbc:apache:commons:dbcp:";
+	private Hashtable<String, BasicDataSource> dbcpConnectionPoolName2BasicDataSourceHash = new Hashtable<String, BasicDataSource>();
+	private Hashtable<BasicDataSource, String> basicDataSource2dbcpConnectionPoolNameHash = new Hashtable<BasicDataSource, String>();
 
 	/**
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스
@@ -38,72 +50,249 @@ public final class DBCPManager implements CommonRootIF {
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 생성자
 	 */
 	private DBCPManager() {
-		
-		/*String driverClassName = (String) conf
-				.getResource("jdbc.driver_class_name.value");
-		String dbUserName = (String) conf
-				.getResource("jdbc.db_user_name.value");
-		String dbUserPasswordHex = (String) conf
-				.getResource("jdbc.db_user_password_hex.value");
-		String dbConnectURI = (String) conf
-				.getResource("jdbc.connection_uri.value");*/
-		
-		String driverClassName = "org.mariadb.jdbc.Driver";
-		String dbUserName = "madangsoe01";
-		String dbUserPassword = "zx#$ui09";
-		String dbConnectURI = "jdbc:mysql://172.30.1.15/SINNORIDB";
+		@SuppressWarnings("unchecked")
+		List<String> dbcpConnectionPoolNameList = (List<String>) conf
+				.getResource("dbcp.connection_pool_name_list.value");
 
-		try {
-			Class.forName(driverClassName);
-		} catch (ClassNotFoundException e) {
-			log.warn("JDBC Driver not exist", e);
-			return;
-			// throw new RuntimeException("JDBC Driver not exist");
+		/*
+		 * String driverClassName = (String) conf
+		 * .getResource("jdbc.driver_class_name.value"); String dbUserName =
+		 * (String) conf .getResource("jdbc.db_user_name.value"); String
+		 * dbUserPasswordHex = (String) conf
+		 * .getResource("jdbc.db_user_password_hex.value"); String dbConnectURI
+		 * = (String) conf .getResource("jdbc.connection_uri.value");
+		 */
+
+		for (String dbcpConnectionPoolName : dbcpConnectionPoolNameList) {
+			String propKey = new StringBuilder("dbcp.")
+					.append(dbcpConnectionPoolName)
+					.append(".confige_file.value").toString();
+			File configeFile = (File) conf.getResource(propKey);
+
+			Properties dbcpConnectionPoolConfig = new Properties();
+			FileInputStream fis = null;
+			try {
+				fis = new FileInputStream(configeFile);
+				dbcpConnectionPoolConfig.load(fis);				
+			} catch (Exception e) {
+				log.warn(
+						"when dbcp connection pool[{}]'s config file[{}] io error, errormessage=",
+						dbcpConnectionPoolName, configeFile.getAbsolutePath(), e.getMessage());
+				continue;
+			} finally {
+				if (null != fis) {
+					try {
+						fis.close();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			
+			
+
+			String driverClassName = dbcpConnectionPoolConfig.getProperty("driver");
+			if(null == driverClassName) {
+				log.warn(
+						"dbcp connection pool[{}]'s JDBC Driver name is null, dbcpConnectionPoolConfig={}",
+						dbcpConnectionPoolName, dbcpConnectionPoolConfig.toString());
+				continue;
+			}
+			
+			try {
+				Class.forName(driverClassName);
+			} catch (ClassNotFoundException e) {
+				log.warn(
+						"dbcp connection pool[{}]'s JDBC Driver[{}] not exist, dbcpConnectionPoolConfig={}",
+						dbcpConnectionPoolName, driverClassName, dbcpConnectionPoolConfig.toString());
+				continue;
+			}
+			
+			BasicDataSource basicDataSource = null;
+			try {
+				basicDataSource = BasicDataSourceFactory.createDataSource(dbcpConnectionPoolConfig);
+			} catch (Exception e) {
+				log.warn(
+						"dbcp connection pool[{}] fail to create data source, dbcpConnectionPoolConfig={}",
+						dbcpConnectionPoolName, dbcpConnectionPoolConfig.toString());
+				continue;
+			}
+			
+			dbcpConnectionPoolName2BasicDataSourceHash.put(dbcpConnectionPoolName, basicDataSource);
+			basicDataSource2dbcpConnectionPoolNameHash.put(basicDataSource, dbcpConnectionPoolName);
+
+			/*setupDataSource(dbcpConnectionPoolName,
+					dbcpConnectionPoolConfig);*/
+			
 		}
-		
-		
-		// FIXME!, 보안을 위해 제거 필요하지만 냅두자.
-		log.debug(String.format("dbUserPassword=", dbUserPassword));
-
-		BasicDataSource ds = new BasicDataSource();
-		ds.setDriverClassName(driverClassName);
-		ds.setUsername(dbUserName);
-		ds.setPassword(dbUserPassword);
-		ds.setUrl(dbConnectURI);
-		ds.setInitialSize(3);
-		ds.setMaxTotal(3);
-		ds.setMaxIdle(3);
-		ds.setMinIdle(0);
-		ds.setMaxWaitMillis(1000);
-		ds.setDefaultAutoCommit(false);
-		ds.setValidationQuery("select 1");
-		ds.setValidationQueryTimeout(1000);
-
-		dataSource = ds;
+		/*
+		 * String driverClassName = "org.mariadb.jdbc.Driver"; String dbUserName
+		 * = "madangsoe01"; String dbUserPassword = "zx#$ui09"; String
+		 * dbConnectURI = "jdbc:mysql://172.30.1.15/SINNORIDB";
+		 * 
+		 * try { Class.forName(driverClassName); } catch (ClassNotFoundException
+		 * e) { log.warn("JDBC Driver not exist", e); return; // throw new
+		 * RuntimeException("JDBC Driver not exist"); }
+		 * 
+		 * 
+		 * // FIXME!, 보안을 위해 제거 필요하지만 냅두자.
+		 * log.debug(String.format("dbUserPassword=", dbUserPassword));
+		 * 
+		 * BasicDataSource ds = new BasicDataSource();
+		 * ds.setDriverClassName(driverClassName); ds.setUsername(dbUserName);
+		 * ds.setPassword(dbUserPassword); ds.setUrl(dbConnectURI);
+		 * ds.setInitialSize(3); ds.setMaxTotal(3); ds.setMaxIdle(3);
+		 * ds.setMinIdle(0); ds.setMaxWaitMillis(1000);
+		 * ds.setDefaultAutoCommit(false); ds.setValidationQuery("select 1");
+		 * ds.setValidationQueryTimeout(1000);
+		 * 
+		 * dataSource = ds;
+		 */
 
 	}
+	
+	public String getDBCPConnectionPoolName(DataSource dataSource) {
+		if (!(dataSource instanceof BasicDataSource)) {
+			// FIXME!
+			log.info("parameter dataSouce is not a BasicDataSource class instance");
+			return null;
+		}
+		
+		return basicDataSource2dbcpConnectionPoolNameHash.get(dataSource);
+	}
+
+	/*private void setupDataSource(String dbcpConnectionPoolName,
+			Properties dbcpConnectionPoolConfig) {
+		String connectURI = new StringBuilder(connectURIBaseString).append(
+				dbcpConnectionPoolName).toString();
+		//
+		// First, we'll create a ConnectionFactory that the
+		// pool will use to create Connections.
+		// We'll use the DriverManagerConnectionFactory,
+		// using the connect string passed in the command line
+		// arguments.
+		//
+		ConnectionFactory connectionFactory = new DriverManagerConnectionFactory(
+				connectURI, dbcpConnectionPoolConfig);
+
+		//
+		// Next we'll create the PoolableConnectionFactory, which wraps
+		// the "real" Connections created by the ConnectionFactory with
+		// the classes that implement the pooling functionality.
+		//
+		PoolableConnectionFactory poolableConnectionFactory = new PoolableConnectionFactory(
+				connectionFactory, null);
+
+		//
+		// Now we'll need a ObjectPool that serves as the
+		// actual pool of connections.
+		//
+		// We'll use a GenericObjectPool instance, although
+		// any ObjectPool implementation will suffice.
+		//
+		ObjectPool<PoolableConnection> connectionPool = new GenericObjectPool<>(
+				poolableConnectionFactory);
+
+		// Set the factory's pool property to the owning pool
+		poolableConnectionFactory.setPool(connectionPool);
+
+		//
+		// Finally, we create the PoolingDriver itself,
+		// passing in the object pool we created.
+		//
+		PoolingDataSource<PoolableConnection> dataSource = new PoolingDataSource<>(
+				connectionPool);
+
+		dbcpConnectionPoolHash.put(dbcpConnectionPoolName, dataSource);
+	}
+*/
+	/*public void setupDriver(String dbcpConnectionPoolName,
+			Properties dbcpConnectionPoolConfig) throws Exception {
+		String connectURI = new StringBuilder(connectURIBaseString).append(
+				dbcpConnectionPoolName).toString();
+        //
+        // First, we'll create a ConnectionFactory that the
+        // pool will use to create Connections.
+        // We'll use the DriverManagerConnectionFactory,
+        // using the connect string passed in the command line
+        // arguments.
+        //
+        ConnectionFactory connectionFactory =
+            new DriverManagerConnectionFactory(connectURI,dbcpConnectionPoolConfig);
+
+        //
+        // Next, we'll create the PoolableConnectionFactory, which wraps
+        // the "real" Connections created by the ConnectionFactory with
+        // the classes that implement the pooling functionality.
+        //
+        PoolableConnectionFactory poolableConnectionFactory =
+            new PoolableConnectionFactory(connectionFactory, null);
+
+        //
+        // Now we'll need a ObjectPool that serves as the
+        // actual pool of connections.
+        //
+        // We'll use a GenericObjectPool instance, although
+        // any ObjectPool implementation will suffice.
+        //
+        ObjectPool<PoolableConnection> connectionPool =
+            new GenericObjectPool<>(poolableConnectionFactory);
+
+        //
+        // Finally, we create the PoolingDriver itself...
+        //
+        Class.forName("org.apache.commons.dbcp2.PoolingDriver");
+        PoolingDriver driver = (PoolingDriver) DriverManager.getDriver("jdbc:apache:commons:dbcp:");
+
+        //
+        // ...and register our pool with it.
+        //
+        driver.registerPool(dbcpConnectionPoolName,connectionPool);
+
+        //
+        // Now we can just use the connect string "jdbc:apache:commons:dbcp:example"
+        // to access our pool of Connections.
+        //
+        
+    }*/
 
 	/**
 	 * JDBC 연결 자원 반환한다.
 	 * 
 	 * @return JDBC 연결 자원
 	 * @throws SQLException
-	 * @throws DBNotReadyException DB 사용 준비가 안되었을 경우 던지는 예외
+	 * @throws DBNotReadyException
+	 *             DB 사용 준비가 안되었을 경우 던지는 예외
 	 */
-	public BasicDataSource getBasicDataSource() throws DBNotReadyException {
-		if (null == dataSource)
-			throw new DBNotReadyException("JDBC Driver not ready");
+	public BasicDataSource getBasicDataSource(String dbcpConnectionPoolName)
+			throws DBNotReadyException {
+		BasicDataSource basicDataSource = dbcpConnectionPoolName2BasicDataSourceHash
+				.get(dbcpConnectionPoolName);
+		if (null == basicDataSource) {
+			throw new DBNotReadyException(new StringBuilder(
+					"dbcp connection pool[").append(dbcpConnectionPoolName)
+					.append("] not ready").toString());
+		}
 		
-
-		return dataSource;
+		// FIXME! 추적용
+		// log.info("dbcp connection pool name={}", dbcpConnectionPoolName, new Throwable());
+		
+		return basicDataSource;
 	}
-	
+
 	protected void finalize() throws Throwable {
 		super.finalize();
-		try {
-			if (null != dataSource) dataSource.close();
-		} catch(Exception e) {
-			log.warn("unknown error", e);
+		Enumeration<BasicDataSource> basicDataSourceEnum = dbcpConnectionPoolName2BasicDataSourceHash
+				.elements();
+		while (basicDataSourceEnum.hasMoreElements()) {
+			BasicDataSource basicDataSource = basicDataSourceEnum.nextElement();
+			try {
+				if (null != basicDataSource) {
+					basicDataSource.close();
+				}
+			} catch (Exception e) {
+				log.warn("unknown error", e);
+			}
 		}
 	}
 }

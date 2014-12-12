@@ -6,7 +6,7 @@ import kr.pe.sinnori.impl.message.BoardDetailInDTO.BoardDetailInDTO;
 import kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO;
 import kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO.AttachFile;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
-import kr.pe.sinnori.impl.mybatis.SqlSessionFactoryManger;
+import kr.pe.sinnori.impl.server.mybatis.SqlSessionFactoryManger;
 import kr.pe.sinnori.server.LoginManagerIF;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
 import kr.pe.sinnori.server.executor.LetterSender;
@@ -25,7 +25,7 @@ public class BoardDetailInDTOServerTask extends AbstractServerTask {
 		log.info(messageFromClient.toString());
 		
 		if (null == sqlSessionFactory) {
-			sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory(serverProjectConfig);
+			sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory("tw_sinnoridb");
 		}
 		
 		BoardDetailInDTO inObj = (BoardDetailInDTO)messageFromClient;		
@@ -34,7 +34,7 @@ public class BoardDetailInDTOServerTask extends AbstractServerTask {
 		
 		SqlSession session = sqlSessionFactory.openSession(false);
 		try {			
-			outObj = session.selectOne("getBoardDetail", inObj);
+			outObj = session.selectOne("kr.pe.sinnori.impl.mybatis.sinnoriWebMapper.getBoardDetail", inObj);
 			
 			if (null == outObj) {				
 				session.commit();

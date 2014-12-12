@@ -30,7 +30,7 @@ import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.lib.CommonRootIF;
 
 /**
- * 신놀이 기동 편의 기능 클래스({@link SinnoriWorker}) 종속 클라이언트 비지니스 로직 부모 추상화 클래스
+ * 신놀이 기동 편의 기능 클래스({@link SinnoriClientWorker}) 종속 클라이언트 비지니스 로직 부모 추상화 클래스
  * @author Won Jonghoon
  *
  */

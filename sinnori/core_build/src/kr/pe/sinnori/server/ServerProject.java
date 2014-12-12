@@ -79,7 +79,7 @@ public class ServerProject extends AbstractProject
 	
 	/** 동적 클래스인 서버 타스크 객체 운영에 관련된 변수 시작 */
 	private final Object monitorOfServerTaskObj = new  Object();
-	private final ClassLoader sytemClassLoader = ClassLoader.getSystemClassLoader();
+	// private final ClassLoader sytemClassLoader = ClassLoader.getSystemClassLoader();
 	private ServerClassLoader workBaseClassLoader = null;
 	private HashMap<String, ServerTaskObjectInfo> className2ServerTaskObjectInfoHash = new HashMap<String, ServerTaskObjectInfo>();
 	private String classLoaderAPPINFPathName = null;
@@ -142,7 +142,7 @@ public class ServerProject extends AbstractProject
 			log.error("FileNotFoundException", e);
 			System.exit(1);
 		}
-		workBaseClassLoader = new ServerClassLoader(sytemClassLoader, classLoaderAPPINFPathName, classLoaderClassPackagePrefixName, jarClassInfoHash);
+		workBaseClassLoader = new ServerClassLoader(classLoaderAPPINFPathName, classLoaderClassPackagePrefixName, jarClassInfoHash);
 		
 		int dataPacketBufferCnt = serverProjectConfig.getServerDataPacketBufferCnt();
 		
@@ -457,7 +457,7 @@ public class ServerProject extends AbstractProject
 			} else {
 				if (serverTaskObjectInfo.isModifed()) {
 					/** 새로운 서버 클래스 로더로 교체 */
-					workBaseClassLoader = new ServerClassLoader(sytemClassLoader, classLoaderAPPINFPathName, classLoaderClassPackagePrefixName, jarClassInfoHash);
+					workBaseClassLoader = new ServerClassLoader(classLoaderAPPINFPathName, classLoaderClassPackagePrefixName, jarClassInfoHash);
 					serverTaskObjectInfo = getServerTaskFromWorkBaseClassload(classFullName);
 					className2ServerTaskObjectInfoHash.put(classFullName, serverTaskObjectInfo);
 				}	

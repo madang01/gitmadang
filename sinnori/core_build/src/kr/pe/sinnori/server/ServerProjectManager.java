@@ -18,7 +18,7 @@
 package kr.pe.sinnori.server;
 
 import java.util.HashMap;
-import java.util.StringTokenizer;
+import java.util.List;
 
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotFoundProjectException;
@@ -53,13 +53,27 @@ public final class ServerProjectManager implements CommonRootIF {
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 생성자
 	 * @throws NoMoreDataPacketBufferException 
 	 */
+	@SuppressWarnings("unchecked")
 	private ServerProjectManager() {
-		String projectlist = (String)conf.getResource("common.projectlist.value");
+		List<String> projectNamelist = (List<String>)conf.getResource("common.projectlist.value");
+		
+		/*
 		
 		StringTokenizer tokenProject = new StringTokenizer(projectlist, ",");
 		while(tokenProject.hasMoreElements()) {
 			String projectName = tokenProject.nextToken().trim();
 			
+			ServerProject serverProject=null;
+			try {
+				serverProject = new ServerProject(projectName);
+			} catch (NoMoreDataPacketBufferException e) {
+				log.error("NoMoreDataPacketBufferException", e);
+				System.exit(1);
+			}
+			serverProjectHash.put(projectName, serverProject);
+		}*/
+		
+		for (String projectName : projectNamelist) {
 			ServerProject serverProject=null;
 			try {
 				serverProject = new ServerProject(projectName);

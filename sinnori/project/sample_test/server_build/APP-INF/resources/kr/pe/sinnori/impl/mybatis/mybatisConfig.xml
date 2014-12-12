@@ -7,14 +7,20 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-config.dtd">
 
 <configuration>
-	<typeAliases><typeAlias type="kr.pe.sinnori.impl.mybatis.DBCPDataSourceFactory" alias="DBCP" /></typeAliases>
+	<typeAliases><typeAlias type="kr.pe.sinnori.impl.server.mybatis.TWSinnoriDBDataSourceFactory" alias="DBCP" /></typeAliases>
 
-	<environments default="development">
+	<environments default="tw_sinnoridb">
 
-		<environment id="development">
-
+		<environment id="tw_sinnoridb">
+			<!--
+			UnpooledDataSourceFactory 를 상속 받아 외부 연결 폴인 DBCP 연결 폴을 지정한다.
+			강제 사항으로 UnpooledDataSourceFactory 에서 DBCP 연결 폴을 얻을 때 
+			지정한 DBCP 연결 폴 이름과 environment 의 id 는 반듯이 일치해야 한다.
+			
+			참고1) DBCP 연결 폴은 javax.sql.DataSource 인터페이스를 구현한 org.apache.commons.dbcp2.BasicDataSource 이다.
+			참고2) DBCP 연결 폴의 환경 설정은 자바 properties 이며 신놀이 설정 파일에서 지정된다.				
+			-->
 			<transactionManager type="JDBC" />
-
 			<!-- dataSource type="POOLED">
 
 				<property name="driver" value="org.mariadb.jdbc.Driver" />
@@ -34,7 +40,10 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 	</environments>
 
 	<mappers>
-
+		<!-- 
+		classpath relative resource 방식으로 지정된 상대 경로는 
+		메인 프로젝트에서 지정한 동적  클래스 로딩 APP-INF 의 리소스를 따른다.
+		-->
 		<mapper resource="kr/pe/sinnori/impl/mybatis/sinnoriWebMapper.xml" />
 
 	</mappers>

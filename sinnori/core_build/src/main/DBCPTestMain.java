@@ -17,13 +17,12 @@ public class DBCPTestMain implements CommonRootIF {
 		kr.pe.sinnori.common.lib.DBCPManager sinnoriDBManager = DBCPManager.getInstance();
 		BasicDataSource basicDataSource = null;
 		try {
-			basicDataSource = sinnoriDBManager.getBasicDataSource();
-			
-			
+			basicDataSource = sinnoriDBManager.getBasicDataSource("tw_sinnoridb");			
 		} catch (DBNotReadyException e) {
 			e.printStackTrace();
 			return;
 		}
+		
 
 		java.sql.Connection conn = null;
 		java.sql.PreparedStatement pstmt = null;
