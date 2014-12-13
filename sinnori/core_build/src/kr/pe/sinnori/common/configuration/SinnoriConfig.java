@@ -308,50 +308,7 @@ public final class SinnoriConfig {
 		
 		/******** dbcp 종료 **********/
 		
-		/******** mybatis 시작 **********/
-		propKey = "mybatis.config_file.value";
-		propValue = configFileProperties.getProperty(propKey);		
 		
-		for (int i=0; i < 1; i++) {
-			if (null == propValue) {
-				log.warn("key[{}] is not found", propKey);
-				continue;
-			}
-			
-			String trimPropValue = propValue.trim();
-			
-			if (trimPropValue.equals("")) {
-				log.warn("key[{}]'s value is empty", propKey);
-				continue;
-			}
-			
-			if (!trimPropValue.equals(propValue)) {
-				log.warn("key[{}]'s value is not same to the copy of the string, with leading and trailing whitespace omitted", propKey);
-				continue;
-			}
-			
-			// String mybatisConfigeFilePathName = propValue;
-			
-			/*File mybatisConfigeFile = new File(propValue);
-			if (! mybatisConfigeFile.exists()) {
-				log.warn("key[{}] mybatis config file[{}] is not found", propKey, propValue);
-				continue;
-			}
-			if (! mybatisConfigeFile.canRead()) {
-				log.warn("key[{}] mybatis config file[{}] cannot be read", propKey, propValue);
-				continue;
-			}
-			
-			if (! mybatisConfigeFile.canWrite()) {
-				log.warn("key[{}] mybatis config file[{}] cannot be written", propKey, propValue);
-				continue;
-			}*/
-			
-			resourceHash.put(propKey, propValue);
-			log.info("{}::prop value[{}], new value[{}]", propKey, propValue, resourceHash.get(propKey));
-		}
-		
-		/******** mybatis 종료 **********/
 		
 		
 		/******** sessionkey 시작 **********/

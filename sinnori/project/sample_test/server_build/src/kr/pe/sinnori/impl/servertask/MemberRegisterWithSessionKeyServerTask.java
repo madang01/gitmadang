@@ -25,8 +25,6 @@ import org.apache.ibatis.session.SqlSessionFactory;
 
 
 public class MemberRegisterWithSessionKeyServerTask extends AbstractServerTask {
-	private SqlSessionFactory sqlSessionFactory = null;
-
 	@Override
 	public void doTask(ServerProjectConfig serverProjectConfig,
 			LoginManagerIF loginManager,
@@ -34,10 +32,7 @@ public class MemberRegisterWithSessionKeyServerTask extends AbstractServerTask {
 			AbstractMessage messageFromClient) throws Exception {
 		MemberRegisterWithSessionKey inObj = (MemberRegisterWithSessionKey)messageFromClient;
 		
-		if (null == sqlSessionFactory) {
-			sqlSessionFactory = SqlSessionFactoryManger.getInstance()
-					.getSqlSessionFactory("tw_sinnoridb");
-		}
+		SqlSessionFactory sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory("tw_sinnoridb");
 		
 		String idCipherBase64 = inObj.getIdCipherBase64();
 		String sessionKeyBase64 = inObj.getSessionKeyBase64();

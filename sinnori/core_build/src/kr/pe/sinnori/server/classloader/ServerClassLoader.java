@@ -41,7 +41,7 @@ public class ServerClassLoader extends ClassLoader implements CommonRootIF {
 	private final ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
 	// private final static String mybatisPackageName = "kr.pe.sinnori.impl.mybatis.";
 	
-	
+	private String projectName = null;
 	
 	private String appInfBasePath = null;
 	private String classLoaderClassPackagePrefixName = null;
@@ -57,10 +57,11 @@ public class ServerClassLoader extends ClassLoader implements CommonRootIF {
 	 * @param parent 부모 클래스 로더
 	 * @param classNameRegex 동적 클래스 로딩 대상 클래스 이름 검사용 클래스 이름 정규식
 	 */
-	public ServerClassLoader(String appInfBasePath, String classLoaderClassPackagePrefixName, Hashtable<String, JarClassInfo> jarClassInfoHash) {
+	public ServerClassLoader(String projectName, String appInfBasePath, String classLoaderClassPackagePrefixName, Hashtable<String, JarClassInfo> jarClassInfoHash) {
 		super(ClassLoader.getSystemClassLoader());
 		
 		// this.parent = parent;
+		this.projectName = projectName;
 		this.appInfBasePath = appInfBasePath;
 		this.classLoaderClassPackagePrefixName = classLoaderClassPackagePrefixName;		
 		this.jarClassInfoHash = jarClassInfoHash;
@@ -266,51 +267,67 @@ public class ServerClassLoader extends ClassLoader implements CommonRootIF {
 	 * kr/pe/sinnori/impl/mybatis/memberMapper.xml 로 시작되는 mybatis 리소스 파일의 InputStream 을 반환한다.
 	 * </pre>
 	 */
+	@SuppressWarnings("resource")
 	@Override
 	public InputStream getResourceAsStream(String name) {
 		InputStream is = null;
 		
-		is = super.getResourceAsStream(name);
+		String realResourceFilePathString = getRealResourceFilePathStringFromRelativePath(name);
+		File realResourceFile = new File(realResourceFilePathString);
 		
-		if  (null == is) {
-			String resourceFilePathString = new StringBuilder(resourcesPath).append(File.separator).append(name.replace("/", File.separator)).toString();
-					
+		if (realResourceFile.exists()) {
 			try {
-				is = new FileInputStream(resourceFilePathString);
+				is = new FileInputStream(realResourceFile);
 			} catch (Exception e) {
 				log.warn(new StringBuilder("the resource[")
 				.append(name).append("] file[")
-				.append(resourceFilePathString)
+				.append(realResourceFilePathString)
 				.append("] fail to get a object of FileInputStream").toString(), e);
 				return null;
 			}
+		} else {
+			is = super.getResourceAsStream(name);
 		}		
 		
 		return is;
 	}
 	
+	private String getRealResourceFilePathStringFromRelativePath(String relativePath) {
+		String realResourceFilePathString = null;
+		
+		String subRealPathString = relativePath.replaceAll("/", File.separator);
+		
+		if (relativePath.startsWith("/")) {
+			realResourceFilePathString = new StringBuilder(resourcesPath)
+			.append(subRealPathString).toString();
+		} else {
+			realResourceFilePathString = new StringBuilder(resourcesPath)
+			.append(File.separator).append(subRealPathString).toString();
+		}
+		
+		return realResourceFilePathString;
+	}
+	
 	public URL getResource(String name) {
 		URL url = null;
-		url = super.getResource(name);
-		if (null == url) {
-			String resourceFilePathString = new StringBuilder(resourcesPath).append(File.separator).append(name.replace("/", File.separator)).toString();
-			
-			File resourceFile = new File(resourceFilePathString);
-			if (!resourceFile.exists()) {
-				/** resource file not found */
-				return null;
-			}
-						
+		
+		String realResourceFilePathString = getRealResourceFilePathStringFromRelativePath(name);
+		File realResourceFile = new File(realResourceFilePathString);
+		
+		if (realResourceFile.exists()) {						
 			try {
-				url = resourceFile.toURI().toURL();
+				url = realResourceFile.toURI().toURL();
 			} catch (Exception e) {
 				log.warn(new StringBuilder("the resource[")
 				.append(name).append("] file[")
-				.append(resourceFilePathString)
+				.append(realResourceFilePathString)
 				.append("] fail to convert to url").toString(), e);
 				return null;
 			}
+		} else {
+			url = super.getResource(name);
 		}
+		
 		
 		return url;
 	}
@@ -320,5 +337,9 @@ public class ServerClassLoader extends ClassLoader implements CommonRootIF {
 		// FIXME! 메모리 회수 확인용으로 삭제하지 마세요!
 		log.info("ServerClassLoader[{}] destroy", this.hashCode());
     }
+	
+	public String getProjectName() {
+		return projectName;
+	}
 }
 

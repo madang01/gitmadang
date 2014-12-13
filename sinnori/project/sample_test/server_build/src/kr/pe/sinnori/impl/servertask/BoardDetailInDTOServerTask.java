@@ -15,7 +15,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
 public class BoardDetailInDTOServerTask extends AbstractServerTask {
-	private SqlSessionFactory sqlSessionFactory = null;
+	// private SqlSessionFactory sqlSessionFactory = null;
 	
 	@Override
 	public void doTask(ServerProjectConfig serverProjectConfig,
@@ -24,9 +24,8 @@ public class BoardDetailInDTOServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(messageFromClient.toString());
 		
-		if (null == sqlSessionFactory) {
-			sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory("tw_sinnoridb");
-		}
+		SqlSessionFactory sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory("tw_sinnoridb");
+		
 		
 		BoardDetailInDTO inObj = (BoardDetailInDTO)messageFromClient;		
 		

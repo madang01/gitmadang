@@ -13,9 +13,7 @@ import kr.pe.sinnori.server.executor.LetterSender;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
-public class BoardWriteInDTOServerTask extends AbstractServerTask {
-	private SqlSessionFactory sqlSessionFactory = null;
-	
+public class BoardWriteInDTOServerTask extends AbstractServerTask {	
 	@Override
 	public void doTask(ServerProjectConfig serverProjectConfig,
 			LoginManagerIF loginManager, LetterSender letterSender,
@@ -23,10 +21,7 @@ public class BoardWriteInDTOServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(messageFromClient.toString());		
 		
-		if (null == sqlSessionFactory) {
-			sqlSessionFactory = SqlSessionFactoryManger.getInstance()
-					.getSqlSessionFactory("tw_sinnoridb");
-		}
+		SqlSessionFactory sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory("tw_sinnoridb");
 		
 		BoardWriteInDTO inObj = (BoardWriteInDTO)messageFromClient;
 		

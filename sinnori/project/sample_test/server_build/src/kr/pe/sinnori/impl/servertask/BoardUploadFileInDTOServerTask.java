@@ -22,8 +22,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
 public class BoardUploadFileInDTOServerTask extends AbstractServerTask {
-	private SqlSessionFactory sqlSessionFactory = null;
-
 	@Override
 	public void doTask(ServerProjectConfig serverProjectConfig,
 			LoginManagerIF loginManager, LetterSender letterSender,
@@ -31,10 +29,7 @@ public class BoardUploadFileInDTOServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(messageFromClient.toString());
 		
-		if (null == sqlSessionFactory) {
-			sqlSessionFactory = SqlSessionFactoryManger.getInstance()
-					.getSqlSessionFactory("tw_sinnoridb");
-		}
+		SqlSessionFactory sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory("tw_sinnoridb");
 		BoardUploadFileInDTO inObj = (BoardUploadFileInDTO)messageFromClient;
 		
 		try {

@@ -16,8 +16,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
 public class BoardModifyInDTOServerTask extends AbstractServerTask {
-	private SqlSessionFactory sqlSessionFactory = null;
-
 	@Override
 	public void doTask(ServerProjectConfig serverProjectConfig,
 			LoginManagerIF loginManager, LetterSender letterSender,
@@ -25,10 +23,7 @@ public class BoardModifyInDTOServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(messageFromClient.toString());		
 		
-		if (null == sqlSessionFactory) {
-			sqlSessionFactory = SqlSessionFactoryManger.getInstance()
-					.getSqlSessionFactory("tw_sinnoridb");
-		}
+		SqlSessionFactory sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory("tw_sinnoridb");
 		
 		BoardModifyInDTO inObj = (BoardModifyInDTO)messageFromClient;
 		

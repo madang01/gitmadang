@@ -23,8 +23,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
 public class LoginWithSessionKeyServerTask extends AbstractServerTask {
-	private SqlSessionFactory sqlSessionFactory = null;
-
 	@Override
 	public void doTask(ServerProjectConfig serverProjectConfig,
 			LoginManagerIF loginManager,
@@ -35,10 +33,7 @@ public class LoginWithSessionKeyServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(inObj.toString());		
 		
-		if (null == sqlSessionFactory) {
-			sqlSessionFactory = SqlSessionFactoryManger.getInstance()
-					.getSqlSessionFactory("tw_sinnoridb");
-		}		
+		SqlSessionFactory sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory("tw_sinnoridb");	
 		
 		MessageResult messageResultOutObj = new MessageResult();
 		messageResultOutObj.setIsSuccess(false);

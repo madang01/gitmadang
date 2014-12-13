@@ -142,7 +142,7 @@ public class ServerProject extends AbstractProject
 			log.error("FileNotFoundException", e);
 			System.exit(1);
 		}
-		workBaseClassLoader = new ServerClassLoader(classLoaderAPPINFPathName, classLoaderClassPackagePrefixName, jarClassInfoHash);
+		workBaseClassLoader = new ServerClassLoader(projectName, classLoaderAPPINFPathName, classLoaderClassPackagePrefixName, jarClassInfoHash);
 		
 		int dataPacketBufferCnt = serverProjectConfig.getServerDataPacketBufferCnt();
 		
@@ -457,7 +457,7 @@ public class ServerProject extends AbstractProject
 			} else {
 				if (serverTaskObjectInfo.isModifed()) {
 					/** 새로운 서버 클래스 로더로 교체 */
-					workBaseClassLoader = new ServerClassLoader(classLoaderAPPINFPathName, classLoaderClassPackagePrefixName, jarClassInfoHash);
+					workBaseClassLoader = new ServerClassLoader(projectName, classLoaderAPPINFPathName, classLoaderClassPackagePrefixName, jarClassInfoHash);
 					serverTaskObjectInfo = getServerTaskFromWorkBaseClassload(classFullName);
 					className2ServerTaskObjectInfoHash.put(classFullName, serverTaskObjectInfo);
 				}	

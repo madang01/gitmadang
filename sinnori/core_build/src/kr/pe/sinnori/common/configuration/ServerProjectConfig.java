@@ -33,15 +33,17 @@ public class ServerProjectConfig extends CommonProjectConfig {
 	private long serverMonitorTimeInterval = 0L;
 	private long serverRequestTimeout = 0L;
 	/***** 모니터 환경 변수 종료 *****/
-	
-	private String mybatisConfigFileName = null;
-	
+		
 	
 	/***** 서버 동적 클래스 변수 시작 *****/
 	private File classLoaderAPPINFPath = null;
 	private File classLoaderSourcePath = null;
 	/***** 서버 동적 클래스 변수 종료 *****/
 	
+	
+	/******** MyBatis 시작 **********/
+	private File mybatisConfigFile = null;
+	/******** MyBatis 종료 **********/
 	
 	public ServerProjectConfig(String projectName,
 			Properties configFileProperties, Logger log) {
@@ -428,14 +430,6 @@ public class ServerProjectConfig extends CommonProjectConfig {
 		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, serverRequestTimeout);
 		/******** 서버 프로젝트 모니터 종료 **********/
 		
-		propKey = getServerKeyName("mybatis.config_file_name");
-		propValue = configFileProperties.getProperty(propKey);
-		if (null == propValue) {
-			mybatisConfigFileName = "kr/pe/sinnori/impl/mybatis.mybatisConfig.xml";
-		} else {
-			mybatisConfigFileName = propValue;
-		}
-		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, mybatisConfigFileName);
 		
 		
 		/******** 동적 클래스 관련 공통 환경 변수 시작 **********/
@@ -485,6 +479,51 @@ public class ServerProjectConfig extends CommonProjectConfig {
 		
 		
 		/******** 동적 클래스 관련 공통 환경 변수 종료 **********/
+		
+		/******** MyBatis 시작 **********/
+		propKey = getServerKeyName("mybatis.config_file");
+		propValue = configFileProperties.getProperty(propKey);
+		
+		if (null == propValue) {
+			log.warn("key[{}]'s value is empty", propKey);
+		} else {
+			String trimPropValue = propValue.trim();
+			
+			if (trimPropValue.equals("")) {
+				log.warn("key[{}]'s value is empty", propKey);
+			} else {
+				if (!trimPropValue.equals(propValue)) {
+					log.warn("key[{}]'s value is not same to the copy of the string, with leading and trailing whitespace omitted", propKey);					
+				} else {
+					String mybatisConfigFilePathString = null;
+					String subRealPath = propValue.replaceAll("/", File.separator);
+					if (propValue.startsWith("/")) {
+						mybatisConfigFilePathString = new StringBuilder(classLoaderAPPINFPath.getAbsolutePath())
+						.append(File.separator).append("resources")
+						.append(subRealPath).toString();
+					} else {
+						mybatisConfigFilePathString = new StringBuilder(classLoaderAPPINFPath.getAbsolutePath())
+						.append(File.separator).append("resources")
+						.append(File.separator).append(subRealPath).toString();
+					}
+					
+					mybatisConfigFile = new File(mybatisConfigFilePathString);
+					
+					if (!mybatisConfigFile.exists()) {
+						log.error("MyBatis 환경 설정 파일[{}][{}]이 존재하지 않습니다.", propKey, propValue);
+						System.exit(1);
+					}
+					
+					if (!mybatisConfigFile.canRead()) {
+						log.error("MyBatis 환경 설정 파일[{}][{}]에 대한 읽기 권한이 없습니다.", propKey, propValue);
+						System.exit(1);
+					}					
+					// mybatisConfigFile
+					log.info("{}::prop value[{}], new value[{}]", propKey, propValue, mybatisConfigFile.getAbsolutePath());
+				}
+			}
+		}		
+		/******** MyBatis 종료 **********/
 	}
 	
 	
@@ -569,9 +608,6 @@ public class ServerProjectConfig extends CommonProjectConfig {
 		return serverMonitorTimeInterval;
 	}
 	
-	public String getMybatisConfigFileName() {
-		return mybatisConfigFileName;
-	}
 	
 	
 	
@@ -583,7 +619,9 @@ public class ServerProjectConfig extends CommonProjectConfig {
 		return classLoaderSourcePath;
 	}
 
-	
+	public File getMybatisFile() {
+		return mybatisConfigFile;
+	}
 
 	public String toServerString() {
 		StringBuilder builder = new StringBuilder();
@@ -622,8 +660,8 @@ public class ServerProjectConfig extends CommonProjectConfig {
 		builder.append(serverMonitorTimeInterval);
 		builder.append(", serverRequestTimeout=");
 		builder.append(serverRequestTimeout);
-		builder.append(", mybatisConfigFileName=");
-		builder.append(mybatisConfigFileName);
+		builder.append(", mybatisConfigFile=");
+		builder.append(mybatisConfigFile.getAbsolutePath());
 		builder.append(", classLoaderAPPINFPath=");
 		builder.append(classLoaderAPPINFPath);
 		builder.append(", classLoaderSourcePath=");

@@ -14,7 +14,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
 public class BoardDownloadFileInDTOServerTask extends AbstractServerTask {
-	private SqlSessionFactory sqlSessionFactory = null;
+	// private SqlSessionFactory sqlSessionFactory = null;
 
 	@Override
 	public void doTask(ServerProjectConfig serverProjectConfig,
@@ -23,10 +23,11 @@ public class BoardDownloadFileInDTOServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(messageFromClient.toString());
 
-		if (null == sqlSessionFactory) {
+		/*if (null == sqlSessionFactory) {
 			sqlSessionFactory = SqlSessionFactoryManger.getInstance()
 					.getSqlSessionFactory("tw_sinnoridb");
-		}
+		}*/
+		SqlSessionFactory sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory("tw_sinnoridb");
 
 		BoardDownloadFileInDTO inObj = (BoardDownloadFileInDTO) messageFromClient;
 

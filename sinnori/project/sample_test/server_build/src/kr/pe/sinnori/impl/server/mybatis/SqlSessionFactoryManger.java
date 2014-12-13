@@ -16,10 +16,13 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.configuration.SinnoriConfig;
 import kr.pe.sinnori.common.exception.DBNotReadyException;
+import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.common.lib.DBCPManager;
 import kr.pe.sinnori.common.lib.LastModifiedFileInfo;
+import kr.pe.sinnori.server.classloader.ServerClassLoader;
 
 import org.apache.ibatis.datasource.unpooled.UnpooledDataSourceFactory;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -31,6 +34,16 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+/**
+ * <pre>
+ * MyBatis SqlSessionFactory 관리자
+ * 신놀이는 MyBatis 매핑 클래스들을 동적 클래스를 통해 적재 되어야 하는 대상으로 정의했다.
+ * 이를 만족 시키기 위해서 MyBatis 라이브러리를 동적 클래스 클래스를 통해 적재해야 한다.
+ * 이런 제약  조건때문에 "MyBatis SqlSessionFactory 관리자" 역시 동적 클래스로 적재되어야 한다.
+ * </pre>
+ * @author Won Jonghoon
+ *
+ */
 public class SqlSessionFactoryManger {
 	private final Logger log = LoggerFactory
 			.getLogger(SqlSessionFactoryManger.class);
@@ -70,15 +83,26 @@ public class SqlSessionFactoryManger {
 
 	@SuppressWarnings("unchecked")
 	private void rebuild() {
-		SinnoriConfig conf = SinnoriConfig.getInstance();
+		
+		
+		SinnoriConfig conf = SinnoriConfig.getInstance();	
 
 		List<String> dbcpConnectionPoolNameList = (List<String>) conf
 				.getResource("dbcp.connection_pool_name_list.value");
 
-		String mybatisConfigeFilePathString = (String) conf
-				.getResource("mybatis.config_file.value");
+		
+		
+		String workProjectName = null;
+		if (serverClassLoader instanceof ServerClassLoader) {
+			workProjectName = ((ServerClassLoader)serverClassLoader).getProjectName();
+		} else {
+			workProjectName = System.getProperty(CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);
+		}
+		
+		ServerProjectConfig serverProjectConfig = conf.getServerProjectConfig(workProjectName);
 
-		File mybatisConfigeFile = null;
+		File mybatisConfigeFile = serverProjectConfig.getMybatisFile();
+		/*String mybatisConfigeFilePathString = (String) conf.getResource("mybatis.config_file.value");
 		try {
 			URL mybatisConfigResourceURL = serverClassLoader
 					.getResource(mybatisConfigeFilePathString);
@@ -99,7 +123,7 @@ public class SqlSessionFactoryManger {
 							.append(mybatisConfigeFilePathString)
 							.append("] fail to convert to file").toString(), e);
 			return;
-		}
+		}*/
 
 		connectionPoolName2SqlSessionFactoryHash.clear();
 		alias2typeHash.clear();
