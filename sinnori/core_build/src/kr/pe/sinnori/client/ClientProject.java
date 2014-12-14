@@ -222,7 +222,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF, S
 			
 		}
 		
-		clientProjectMonitor = new ClientProjectMonitor(clientProjectConfig.getClientMonitorTimeInterval(), clientProjectConfig.getClientRequestTimeout());
+		clientProjectMonitor = new ClientProjectMonitor(clientProjectConfig.getClientMonitorTimeInterval(), clientProjectConfig.getClientReceptionTimeout());
 		clientProjectMonitor.start();
 	}
 	

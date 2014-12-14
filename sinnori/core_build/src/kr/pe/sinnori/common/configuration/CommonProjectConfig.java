@@ -225,7 +225,7 @@ public class CommonProjectConfig {
 		}
 		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, messageProtocol.toString());
 		
-		propKey = getCommonKeyName("classloader.class.package_prefix_name");
+		propKey = getCommonKeyName("classloader.class_package_prefix_name");
 		propValue = configFileProperties.getProperty(propKey);
 		if (null == propValue) {
 			classLoaderClassPackagePrefixName = "kr.pe.sinnori.impl.message.";

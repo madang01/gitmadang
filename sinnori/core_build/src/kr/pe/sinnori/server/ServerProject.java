@@ -208,7 +208,7 @@ public class ServerProject extends AbstractProject
 				serverProjectConfig, outputMessageQueue, 
 				this);
 		
-		serverProjectMonitor = new ServerProjectMonitor(serverProjectConfig.getServerMonitorTimeInterval(), serverProjectConfig.getServerRequestTimeout());
+		serverProjectMonitor = new ServerProjectMonitor(serverProjectConfig.getServerMonitorTimeInterval(), serverProjectConfig.getServerReceptionTimeout());
 		
 		
 	}

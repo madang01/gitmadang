@@ -31,7 +31,7 @@ public class ServerProjectConfig extends CommonProjectConfig {
 	
 	/***** 모니터 환경 변수 시작 *****/
 	private long serverMonitorTimeInterval = 0L;
-	private long serverRequestTimeout = 0L;
+	private long serverReceptionTimeout = 0L;
 	/***** 모니터 환경 변수 종료 *****/
 		
 	
@@ -411,14 +411,14 @@ public class ServerProjectConfig extends CommonProjectConfig {
 		
 		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, serverMonitorTimeInterval);
 		
-		propKey = getServerKeyName("monitor.request_timeout");
+		propKey = getServerKeyName("monitor.reception_timeout");
 		propValue = configFileProperties.getProperty(propKey);
 		if (null == propValue) {
-			serverRequestTimeout = 10000L;
+			serverReceptionTimeout = 10000L;
 		} else {
 			try {
-				serverRequestTimeout = Long.parseLong(propValue);
-				if (serverRequestTimeout < 1000L) {
+				serverReceptionTimeout = Long.parseLong(propValue);
+				if (serverReceptionTimeout < 1000L) {
 					log.error("warning:: key[{}] minimum value 1000 but value[{}]", propKey, propValue);
 					System.exit(1);
 				}
@@ -427,7 +427,7 @@ public class ServerProjectConfig extends CommonProjectConfig {
 				System.exit(1);
 			}
 		}
-		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, serverRequestTimeout);
+		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, serverReceptionTimeout);
 		/******** 서버 프로젝트 모니터 종료 **********/
 		
 		
@@ -599,8 +599,8 @@ public class ServerProjectConfig extends CommonProjectConfig {
 	}
 
 	
-	public long getServerRequestTimeout() {
-		return serverRequestTimeout;
+	public long getServerReceptionTimeout() {
+		return serverReceptionTimeout;
 	}
 
 	
@@ -659,7 +659,7 @@ public class ServerProjectConfig extends CommonProjectConfig {
 		builder.append(", serverMonitorTimeInterval=");
 		builder.append(serverMonitorTimeInterval);
 		builder.append(", serverRequestTimeout=");
-		builder.append(serverRequestTimeout);
+		builder.append(serverReceptionTimeout);
 		builder.append(", mybatisConfigFile=");
 		builder.append(mybatisConfigFile.getAbsolutePath());
 		builder.append(", classLoaderAPPINFPath=");

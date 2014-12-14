@@ -51,7 +51,7 @@ public class ClientProjectConfig extends CommonProjectConfig {
 	
 	/***** 모니터 환경 변수 시작 *****/
 	private long clientMonitorTimeInterval = 0L;
-	private long clientRequestTimeout = 0L;
+	private long clientReceptionTimeout = 0L;
 	/***** 모니터 환경 변수 종료 *****/
 	/************* client 변수 종료 ******************/
 	
@@ -432,13 +432,13 @@ public class ClientProjectConfig extends CommonProjectConfig {
 		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, clientMonitorTimeInterval);
 		
 		
-		propKey = getClientKeyName("monitor.request_timeout");		
+		propKey = getClientKeyName("monitor.receiption_timeout");		
 		propValue = configFileProperties.getProperty(propKey);		
-		clientRequestTimeout = clientSocketTimeout*2;
+		clientReceptionTimeout = clientSocketTimeout*2;
 		if (null != propValue) {
 			try {
-				clientRequestTimeout = Long.parseLong(propValue);
-				if (clientRequestTimeout < clientSocketTimeout) {
+				clientReceptionTimeout = Long.parseLong(propValue);
+				if (clientReceptionTimeout < clientSocketTimeout) {
 					log.error("warning:: key[{}] minimum value[{}] but value[{}]", propKey, clientSocketTimeout, propValue);
 					System.exit(1);
 				}
@@ -447,7 +447,7 @@ public class ClientProjectConfig extends CommonProjectConfig {
 				System.exit(1);
 			}
 		}
-		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, clientRequestTimeout);
+		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, clientReceptionTimeout);
 		/***** 모니터 종료 *****/
 	}
 	
@@ -521,8 +521,8 @@ public class ClientProjectConfig extends CommonProjectConfig {
 		return clientMonitorTimeInterval;
 	}
 	
-	public long getClientRequestTimeout() {
-		return clientRequestTimeout;
+	public long getClientReceptionTimeout() {
+		return clientReceptionTimeout;
 	}
 	
 }
