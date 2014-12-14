@@ -37,8 +37,9 @@ import org.xml.sax.SAXException;
 /**
  * <pre>
  * MyBatis SqlSessionFactory 관리자
+ * 
  * 신놀이는 MyBatis 매핑 클래스들을 동적 클래스를 통해 적재 되어야 하는 대상으로 정의했다.
- * 이를 만족 시키기 위해서 MyBatis 라이브러리를 동적 클래스 클래스를 통해 적재해야 한다.
+ * 이를 만족 시키기 위해서 MyBatis 라이브러리를 동적 클래스 클래스를 통해 적재해야 했다.
  * 이런 제약  조건때문에 "MyBatis SqlSessionFactory 관리자" 역시 동적 클래스로 적재되어야 한다.
  * </pre>
  * @author Won Jonghoon
