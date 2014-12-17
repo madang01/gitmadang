@@ -71,7 +71,8 @@
 		<tstamp />
 		<!-- Create the build directory structure used by compile -->
 		<mkdir dir="${corelib}/ex" />
-		<mkdir dir="${corelib}/in" />	
+		<mkdir dir="${corelib}/in" />
+		<mkdir dir="${APP-INF}/lib" />
 	</target>
 	
 	<target name="copy.core" description="sinnori framework core copy" depends="corelib.init">
@@ -88,8 +89,7 @@
 	</target>
 
 	<target name="copy.appinf" description="copy from sinnori framework APP-INF/">		
-		<mkdir dir="${APP-INF}/resources" />
-		
+		<mkdir dir="${APP-INF}/resources" />		
 		<delete dir="${APP-INF}/lib" />
 		<mkdir dir="${APP-INF}/lib" />
 		<copy todir="${APP-INF}/lib" verbose="true" overwrite="true">

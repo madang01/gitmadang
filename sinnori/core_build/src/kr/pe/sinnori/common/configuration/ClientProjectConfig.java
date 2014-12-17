@@ -70,7 +70,8 @@ public class ClientProjectConfig extends CommonProjectConfig {
 	 * @return 프로젝트에 속한 클라이언트 환경 변수의 부분 키에 1:1 대응하는 클라이언트 환경 변수 이름
 	 */
 	private String getClientKeyName(String subkey) {
-		StringBuffer strBuff = new StringBuffer(projectName);
+		StringBuffer strBuff = new StringBuffer("project.");
+		strBuff.append(projectName);
 		strBuff.append(".client.");
 		strBuff.append(subkey);
 		strBuff.append(".value");		

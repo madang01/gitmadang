@@ -61,7 +61,8 @@ public class CommonProjectConfig {
 	 * @return 프로젝트에 속한 공통 환경 변수의 부분 키에 1:1 대응하는 공통 환경 변수 이름
 	 */
 	private String getCommonKeyName(String subkey) {
-		StringBuffer strBuff = new StringBuffer(projectName);
+		StringBuffer strBuff = new StringBuffer("project.");
+		strBuff.append(projectName);
 		strBuff.append(".common.");
 		strBuff.append(subkey);
 		strBuff.append(".value");

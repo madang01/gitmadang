@@ -55,7 +55,7 @@ public final class ServerProjectManager implements CommonRootIF {
 	 */
 	@SuppressWarnings("unchecked")
 	private ServerProjectManager() {
-		List<String> projectNamelist = (List<String>)conf.getResource("common.projectlist.value");
+		List<String> projectNamelist = (List<String>)conf.getResource("project.name_list.value");
 		
 		/*
 		

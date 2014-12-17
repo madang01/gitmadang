@@ -53,7 +53,7 @@ public final class ClientProjectManager implements CommonRootIF {
 	 */
 	private ClientProjectManager() {
 		@SuppressWarnings("unchecked")
-		List<String> projectNamelist = (List<String>)conf.getResource("common.projectlist.value");
+		List<String> projectNamelist = (List<String>)conf.getResource("project.name_list.value");
 		for (String projectName : projectNamelist) {
 			ClientProject clientProject=null;
 			try {

@@ -657,7 +657,7 @@ public final class SinnoriConfig {
 		/******** 싱글턴 클래스 객체 캐쉬 관리자 종료 **********/
 		
 		
-		propKey = "common.projectlist.value";
+		propKey = "project.name_list.value";
 		propValue = configFileProperties.getProperty(propKey);
 		List<String> projectNamelist = new ArrayList<String>();
 		if (null == propValue || 0 == propValue.trim().length()) {

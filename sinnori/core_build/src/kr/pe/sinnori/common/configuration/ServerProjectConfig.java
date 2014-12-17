@@ -60,7 +60,8 @@ public class ServerProjectConfig extends CommonProjectConfig {
 	 * @return 프로젝트에 속한 서버 환경 변수의 부분 키에 1:1 대응하는 서버 환경 변수 이름
 	 */
 	private String getServerKeyName(String subkey) {
-		StringBuffer strBuff = new StringBuffer(projectName);
+		StringBuffer strBuff = new StringBuffer("project.");
+		strBuff.append(projectName);
 		strBuff.append(".server.");
 		strBuff.append(subkey);
 		strBuff.append(".value");		
@@ -481,7 +482,7 @@ public class ServerProjectConfig extends CommonProjectConfig {
 		/******** 동적 클래스 관련 공통 환경 변수 종료 **********/
 		
 		/******** MyBatis 시작 **********/
-		propKey = getServerKeyName("mybatis.config_file");
+		/*propKey = getServerKeyName("mybatis.config_file");
 		propValue = configFileProperties.getProperty(propKey);
 		
 		if (null == propValue) {
@@ -522,7 +523,7 @@ public class ServerProjectConfig extends CommonProjectConfig {
 					log.info("{}::prop value[{}], new value[{}]", propKey, propValue, mybatisConfigFile.getAbsolutePath());
 				}
 			}
-		}		
+		}		*/
 		/******** MyBatis 종료 **********/
 	}
 	
