@@ -1,6 +1,6 @@
 <project name="sample_test_server" default="compile.appinf" basedir=".">
 	<description>
-		샘플 파일 송수신 서버
+		신놀이 샘플 기본 서버
 	</description>
 	<!-- set global properties for this build -->
 	<property name="src" location="src" />
@@ -43,6 +43,16 @@
 		<echo message="java.debug.yes=${java.debug.yes}" />
 	</target>
 
+  <target name="init.directory" depends="var.init" description="directory init for ant compile envoroment">
+		<echo message="directory init for ant compile envoroment" />
+		<mkdir dir="${corelib}/ex" />
+		<mkdir dir="${corelib}/in" />
+		<mkdir dir="${lib}/ex" />
+		<mkdir dir="${lib}/in" />
+		<mkdir dir="${APP-INF}/classes" />
+		<mkdir dir="${APP-INF}/lib" />
+		<mkdir dir="${APP-INF}/resources" />
+	</target>
 	
 	<target name="unix.make.core" if="is.unix.yes">
 		<echo message="유니스 신놀이 프레임 워크 컴파일후 jar 만들기" />
@@ -60,22 +70,20 @@
 		</exec>
 	</target>
 
-	<target name="make.core" depends="var.init, dos.make.core, unix.make.core" description="신놀이 프레임 워크 컴파일 하여 jar 라이브러리 만들기" />
+	<target name="make.core" depends="init.directory, dos.make.core, unix.make.core" description="신놀이 프레임 워크 컴파일 하여 jar 라이브러리 만들기" />
 	
-	<target name="corelib.clean" depends="var.init">
+	<target name="clean.corelib" depends="make.core">
 		<delete dir="${corelib}" />
 	</target>
 
-	<target name="corelib.init" depends="corelib.clean">
+	<target name="init.corelib" depends="clean.corelib">
 		<!-- Create the time stamp -->
 		<tstamp />
-		<!-- Create the build directory structure used by compile -->
 		<mkdir dir="${corelib}/ex" />
 		<mkdir dir="${corelib}/in" />
-		<mkdir dir="${APP-INF}/lib" />
 	</target>
 	
-	<target name="copy.core" description="sinnori framework core copy" depends="corelib.init">
+	<target name="copy.core" description="sinnori framework core copy" depends="init.corelib">
 		<copy todir="${corelib}/in" verbose="true" overwrite="true">
 			<fileset file="${core.build}/dist/sinnori-core.jar" />
 		</copy>
@@ -84,11 +92,7 @@
 		</copy>		
 	</target>
 	
-	<target name="sinnori" depends="make.core, copy.core" description="신놀이 프레임 워크 컴파일후 jar 만들어 가져오기">
-		<echo message="신놀이 프레임 워크 컴파일 하여  jar 라이브러리 만들어 가져오기" />
-	</target>
-
-	<target name="copy.appinf" description="copy from sinnori framework APP-INF/">		
+	<target name="copy.appinf" depends="copy.core" description="copy from sinnori framework APP-INF/">		
 		<mkdir dir="${APP-INF}/resources" />		
 		<delete dir="${APP-INF}/lib" />
 		<mkdir dir="${APP-INF}/lib" />
@@ -98,13 +102,20 @@
 
 		<delete dir="${APP-INF}/classes" />
 		<mkdir dir="${APP-INF}/classes" />
-		<copy todir="${APP-INF}/classes" verbose="true" overwrite="true">
+		<!-- copy todir="${APP-INF}/classes" verbose="true" overwrite="true">
 			<fileset dir="${core.build}/APP-INF/classes/" />
+		</copy -->
+
+		<copy todir="${src}/kr/pe/sinnori/impl/server/mybatis/" verbose="true" overwrite="true">
+			<fileset file="${core.build}/APP-INF/src/kr/pe/sinnori/impl/server/mybatis/SqlSessionFactoryManger.java" />
 		</copy>
 	</target>
 	
-	
-	<target name="clean.main" depends="var.init">
+	<target name="sinnori" depends="copy.appinf" description="신놀이 프레임 워크 컴파일후 jar 만들어 가져오기">
+		<echo message="신놀이 프레임 워크 컴파일 하여  jar 라이브러리 만들어 가져오기" />
+	</target>
+
+	<target name="clean.main" depends="sinnori">
 		<!-- Delete the ${build} and ${dist} directory trees -->
 		<delete dir="${build}" />
 	</target>
@@ -114,8 +125,6 @@
 		<tstamp />
 		<!-- Create the build directory structure used by compile -->
 		<mkdir dir="${build}" />
-		<mkdir dir="${lib}/ex" />
-		<mkdir dir="${lib}/in" />
 	</target>
 
 	<target name="compile.main" depends="init.main" description="서버 어플리케이션 메인 클래스 컴파일">
@@ -132,7 +141,7 @@
 				<fileset dir="${APP-INF}/lib">
 					<include name="**/*.jar" />
 				</fileset>
-				<pathelement path="${APP-INF}/classes" />
+				<!-- pathelement path="${APP-INF}/classes" / -->
 			</classpath>
 		</javac>
 		<echo message="compile.main" />
@@ -166,27 +175,7 @@
 		</copy>
 	</target>
 
-	<target name="make.main" depends="copy.lib, make.serverlib" description="서버 어플리케이션 메인 클래스 jar 만들기">				
-		<jar destfile="${dist}/SinnoriServerMain.jar" basedir="${build}">
-			<include name="main/**" />
-			<restrict>
-				<name name="**/*.class" />
-				<archives>
-					<zips>
-						<fileset dir="${corelib}/in" includes="**/*.jar" />
-						<fileset dir="${lib}/in" includes="**/*.jar" />
-					</zips>
-				</archives>
-			</restrict>
-			<manifest>
-				<attribute name="Main-Class" value="main.SinnoriServerMain" />
-				<attribute name="Class-Path" value="${manifest.classpath}" />
-			</manifest>
-		</jar>
-	</target>
-
-
-	<target name="clean.serverlib" depends="var.init">
+<target name="clean.serverlib" depends="copy.lib">
 		<!-- Delete the ${build} and ${dist} directory trees -->
 		<delete dir="${build}/serverlib" />
 	</target>
@@ -217,7 +206,7 @@
 				<fileset dir="${APP-INF}/lib">
 					<include name="**/*.jar" />
 				</fileset>
-				<pathelement path="${APP-INF}/classes" />
+				<!-- pathelement path="${APP-INF}/classes" / -->
 			</classpath>
 		</javac>
 	</target>
@@ -234,17 +223,26 @@
 		</jar>
 	</target>
 	
-	<target name="clean.appinf">
-		<!-- Delete the ${build} and ${dist} directory trees -->
-		<delete dir="${APP-INF}/classes" />
-		<mkdir dir="${APP-INF}/classes" />
-		<copy todir="${APP-INF}/classes" verbose="true" overwrite="true">
-			<fileset dir="${core.build}/APP-INF/classes/" />
-		</copy>
+	<target name="make.main" depends="make.serverlib" description="서버 어플리케이션 메인 클래스 jar 만들기">				
+		<jar destfile="${dist}/SinnoriServerMain.jar" basedir="${build}">
+			<include name="main/**" />
+			<restrict>
+				<name name="**/*.class" />
+				<archives>
+					<zips>
+						<fileset dir="${corelib}/in" includes="**/*.jar" />
+						<fileset dir="${lib}/in" includes="**/*.jar" />
+					</zips>
+				</archives>
+			</restrict>
+			<manifest>
+				<attribute name="Main-Class" value="main.SinnoriServerMain" />
+				<attribute name="Class-Path" value="${manifest.classpath}" />
+			</manifest>
+		</jar>
 	</target>
-	
-	
-	<target name="compile.appinf" depends="var.init" description="오직 서버 비지니스 로직 컴파일만 수행">
+
+	<target name="compile.appinf" depends="init.directory" description="오직 서버 비지니스 로직 컴파일만 수행">
 		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}" destdir="${APP-INF}/classes" >
 			<include name="kr/pe/sinnori/impl/**" />
 			<classpath>
@@ -263,15 +261,13 @@
 				<fileset dir="${APP-INF}/lib">
 					<include name="**/*.jar" />
 				</fileset>
-				<pathelement path="${APP-INF}/classes" />
+				<!-- pathelement path="${APP-INF}/classes" / -->
 			</classpath>
 		</javac>
 		<echo message="compile.appinf, is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}, java.debug=${java.debug}" />
 	</target>
 	
-	
-	
-	<target name="all" depends="sinnori, make.main, copy.appinf, compile.appinf" description="only compile and then make jar">
+	<target name="all" depends="make.main, compile.appinf" description="only compile and then make jar">
 		<echo message="is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}, java.debug=${java.debug}, core.java.debug=${core.java.debug}" />
 	</target>
 

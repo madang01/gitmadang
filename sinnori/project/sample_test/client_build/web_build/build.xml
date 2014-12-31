@@ -1,6 +1,6 @@
 <project name="sample_test_webclient" default="compile.webclass" basedir=".">
 	<description>
-		샘플 파일 송수신 웹 클라이언트
+		신놀이 샘플 기본 웹 클라이언트
 	</description>
 	<!-- set global properties for this build -->
 	<property name="src" location="src" />
@@ -49,6 +49,11 @@
 		<echo message="is.web.yes=${is.web.yes}, servletlib=${servletlib}" />		
 	</target>
 
+  <target name="init.directory" depends="var.init" description="directory init for ant compile envoroment">
+		<echo message="directory init for ant compile envoroment" />
+		<mkdir dir="${corelib}/ex" />
+		<mkdir dir="${lib}/ex" />
+	</target>
 	
 	<target name="unix.make.core" if="is.unix.yes">
 		<echo message="유니스 신놀이 프레임 워크 컴파일후 jar 만들기" />
@@ -66,21 +71,19 @@
 		</exec>
 	</target>
 
-	<target name="make.core" depends="var.init, dos.make.core, unix.make.core" description="신놀이 프레임 워크 컴파일 하여 jar 라이브러리 만들기" />
+	<target name="make.core" depends="init.directory, dos.make.core, unix.make.core" description="신놀이 프레임 워크 컴파일 하여 jar 라이브러리 만들기" />
 	
-	<target name="corelib.clean" depends="var.init">
-		<delete dir="${corelib}" />
+	<target name="corelib.clean" depends="make.core">
+		<delete dir="${corelib}" />		
 	</target>
 
 	<target name="corelib.init" depends="corelib.clean">
 		<!-- Create the time stamp -->
 		<tstamp />
-		<!-- Create the build directory structure used by compile -->
 		<mkdir dir="${corelib}/ex" />
-		<mkdir dir="${corelib}/in" />	
 	</target>
 	
-	<target name="copy.core" description="sinnori framework core copy" depends="corelib.init">
+	<target name="copy.core" depends="corelib.init" description="sinnori framework core copy">
 		<!-- 웹은 어떠한 jar 도 포함하지 않고 참조만 할 뿐이다. 
 			따라서 sinnori-core.jar 는 corelib/in 이 아닌 corelib/ex 에 넣는다. -->
 		<copy todir="${corelib}/ex" verbose="true" overwrite="true">
@@ -91,12 +94,12 @@
 		</copy>		
 	</target>
 	
-	<target name="sinnori" depends="make.core, copy.core" description="신놀이 프레임 워크 컴파일후 jar 만들어 가져오기">
+	<target name="sinnori" depends="copy.core" description="신놀이 프레임 워크 컴파일후 jar 만들어 가져오기">
 		<echo message="신놀이 프레임 워크 컴파일 하여  jar 라이브러리 만들어 가져오기" />
 	</target>
 
 
-	<target name="clean.weblib" depends="var.init" description="필요 경로 전체 삭제">	
+	<target name="clean.weblib" depends="sinnori" description="필요 경로 전체 삭제">	
 			
 		<!-- Delete the ${build} and ${dist} directory trees -->
 		<delete dir="${build}/weblib" />
@@ -127,9 +130,6 @@
 				<pathelement location="${webclass}" />
 				<fileset dir="${servletlib}">
 					<include name="**/*-api.jar" />
-				</fileset>
-				<fileset dir="${corelib}\in">
-					<include name="**/*.jar" />
 				</fileset>
 				<fileset dir="${corelib}\ex">
 					<include name="**/*.jar" />
@@ -165,7 +165,7 @@
 	</target>
 	
 		
-	<target name="compile.webclass" if="is.web.yes" depends="var.init" description="impl 밑에 있는 서블릿및 자바빈즈 컴파일">
+	<target name="compile.webclass" if="is.web.yes" depends="init.directory" description="impl 밑에 있는 서블릿및 자바빈즈 컴파일">
 		<echo message="compile.webclass" />
 		<!-- Compile the java code from ${src}/impl/** into ${webclass} -->
 		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" 
@@ -189,7 +189,7 @@
 	</target>
 	
 
-	<target name="all" depends="sinnori, dist.weblib, compile.webclass" description="신놀이 프레임 워크 컴파일후 복사 그리고 웹 라이브러리 컴파일후 jar 만들어 배포 그리고 서블릿 컴파일">
+	<target name="all" depends="dist.weblib, compile.webclass" description="신놀이 프레임 워크 컴파일후 복사 그리고 웹 라이브러리 컴파일후 jar 만들어 배포 그리고 서블릿 컴파일">
 		<echo message="is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}, java.debug=${java.debug}" />
 	</target>
 </project>

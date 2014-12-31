@@ -1,6 +1,6 @@
-<project name="sample_test_appclient" default="make.main" basedir=".">
+<project name="sample_test_appclient" default="make.main.only" basedir=".">
 	<description>
-		샘플 파일 송수신 자바 스윙 클라이언트
+		신놀이 샘플 기본 클라이언트
 	</description>
 	<!-- set global properties for this build -->
 	<property name="src" location="src" />
@@ -42,6 +42,13 @@
 		<echo message="java.debug.yes=${java.debug.yes}" />
 	</target>
 
+  <target name="init.directory" depends="var.init" description="directory init for ant compile envoroment">
+		<echo message="directory init for ant compile envoroment" />
+		<mkdir dir="${corelib}/ex" />
+		<mkdir dir="${corelib}/in" />
+		<mkdir dir="${lib}/ex" />
+		<mkdir dir="${lib}/in" />
+	</target>
 	
 	<target name="unix.make.core" if="is.unix.yes">
 		<echo message="유니스 신놀이 프레임 워크 컴파일후 jar 만들기" />
@@ -59,21 +66,20 @@
 		</exec>
 	</target>
 
-	<target name="make.core" depends="var.init, dos.make.core, unix.make.core" description="신놀이 프레임 워크 컴파일 하여 jar 라이브러리 만들기" />
+	<target name="make.core" depends="init.directory, dos.make.core, unix.make.core" description="신놀이 프레임 워크 컴파일 하여 jar 라이브러리 만들기" />
 	
-	<target name="corelib.clean" depends="var.init">
+	<target name="corelib.clean" depends="make.core">
 		<delete dir="${corelib}" />
 	</target>
 
 	<target name="corelib.init" depends="corelib.clean">
 		<!-- Create the time stamp -->
 		<tstamp />
-		<!-- Create the build directory structure used by compile -->
 		<mkdir dir="${corelib}/ex" />
-		<mkdir dir="${corelib}/in" />	
+		<mkdir dir="${corelib}/in" />
 	</target>
 	
-	<target name="copy.core" description="sinnori framework core copy" depends="corelib.init">
+	<target name="copy.core" depends="corelib.init" description="sinnori framework core copy">
 		<copy todir="${corelib}/in" verbose="true" overwrite="true">
 			<fileset file="${framework.build}/dist/sinnori-core.jar" />
 		</copy>
@@ -82,22 +88,20 @@
 		</copy>		
 	</target>
 
-	<target name="sinnori" depends="make.core, copy.core" description="신놀이 프레임 워크 컴파일후 jar 만들어 가져오기">
+	<target name="sinnori" depends="copy.core" description="신놀이 프레임 워크 컴파일후 jar 만들어 가져오기">
 		<echo message="신놀이 프레임 워크 컴파일 하여  jar 라이브러리 만들어 가져오기" />
 	</target>
 		
-	<target name="clean.main" depends="var.init">
+	<target name="clean.main" depends="sinnori">
 		<!-- Delete the ${build} and ${dist} directory trees -->
 		<delete dir="${build}" />
 	</target>
 	
-	<target name="init.main" depends="var.init">
+	<target name="init.main" depends="clean.main">
 		<!-- Create the time stamp -->
 		<tstamp />
 		<!-- Create the build directory structure used by compile -->
 		<mkdir dir="${build}" />
-		<mkdir dir="${lib}/ex" />
-		<mkdir dir="${lib}/in" />
 	</target>
 	
 	
@@ -166,8 +170,44 @@
 		</jar>
 	</target>
 	
+	<target name="compile.main.only" depends="init.directory" description="클라이언트 어플리 케이션 컴파일">
+		<!-- Compile the java code from ${src} into ${build} -->
+		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}" destdir="${build}">
+			<classpath>
+				<fileset dir="${corelib}/ex">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${corelib}/in">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${lib}/ex">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${lib}/in">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+	<target name="make.main.only" depends="compile.main.only" description="클라이언트 어플리 케이션 jar 만들기">		
+		<jar destfile="${dist}/SinnoriAppClientMain.jar" basedir="${build}">
+			<restrict>
+				<name name="**/*.class" />
+				<archives>
+					<zips>
+						<fileset dir="${corelib}/in" includes="**/*.jar" />
+						<fileset dir="${lib}/in" includes="**/*.jar" />
+					</zips>
+				</archives>
+			</restrict>
+			<manifest>
+				<attribute name="Main-Class" value="main.SinnoriAppClientMain" />
+				<attribute name="Class-Path" value="${manifest.classpath}" />
+			</manifest>
+		</jar>
+	</target>
 	
-	<target name="all" depends="sinnori, clean.main, make.main" description="신놀이 프레임 워크 컴파일후 jar 가져와서 클라이언트 어플리케이션 컴파일후 jar 만들기">
+	<target name="all" depends="make.main" description="신놀이 프레임 워크 컴파일후 jar 가져와서 클라이언트 어플리케이션 컴파일후 jar 만들기">
 		<echo message="is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}, java.debug=${java.debug}, core.java.debug=${core.java.debug}" />
 	</target>
 
