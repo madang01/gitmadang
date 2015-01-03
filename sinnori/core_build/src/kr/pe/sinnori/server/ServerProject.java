@@ -402,7 +402,7 @@ public class ServerProject extends AbstractProject
 	
 	private ServerTaskObjectInfo getServerTaskFromWorkBaseClassload(String classFullName) throws DynamicClassCallException {
 		Class<?> retClass = null;
-		AbstractServerTask task = null;
+		AbstractServerTask serverTask = null;
 		try {
 			retClass = workBaseClassLoader.loadClass(classFullName);
 		} catch (ClassNotFoundException e) {
@@ -433,16 +433,16 @@ public class ServerProject extends AbstractProject
 			log.warn(errorMessage);
 			throw new DynamicClassCallException(errorMessage);
 		}*/
-		task = (AbstractServerTask)retObject;
+		serverTask = (AbstractServerTask)retObject;
 		
 		
 		String classFileName = workBaseClassLoader.getClassFileName(classFullName);
 		
 		// log.info("classFileName={}", classFileName);
 		
-		File classFileObj = new File(classFileName);
+		File serverTaskClassFile = new File(classFileName);
 		
-		return new ServerTaskObjectInfo(workBaseClassLoader, classFileObj, task);
+		return new ServerTaskObjectInfo(serverTaskClassFile, serverTask);
 	}
 	
 	public AbstractServerTask getServerTask(String messageID) throws DynamicClassCallException {

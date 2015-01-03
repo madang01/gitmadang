@@ -1,7 +1,4 @@
 <project name="sample_test_server" default="compile.appinf" basedir=".">
-	<description>
-		신놀이 샘플 기본 서버
-	</description>
 	<!-- set global properties for this build -->
 	<property name="src" location="src" />
 	<property name="build" location="build" />
@@ -23,11 +20,11 @@
 		<istrue value="${java.debug}" />
 	</condition>
 	
-	<target name="java.debug.yes.init" if="java.debug.yes" description="framework with debug info">
+	<target name="java.debug.yes.init" if="java.debug.yes" description="the sinnori core compile including debug info">
 		<property name="core.java.debug" value="debug" />
 	</target>
 	
-	<target name="java.debug.no.init" unless="java.debug.yes" description="framework with no debug info">
+	<target name="java.debug.no.init" unless="java.debug.yes" description="the sinnori core compile without debug info">
 		<property name="core.java.debug" value="nodebug" />
 	</target>
 	
@@ -55,14 +52,14 @@
 	</target>
 	
 	<target name="unix.make.core" if="is.unix.yes">
-		<echo message="유니스 신놀이 프레임 워크 컴파일후 jar 만들기" />
+		<echo message="make sinnori core jar file in Unix OS" />
 		<exec dir="${core.build}" executable="ant">
 			<arg value="${core.java.debug}" />
 		</exec>
 	</target>
 	
 	<target name="dos.make.core" if="is.windows.yes">
-		<echo message="도스 신놀이 프레임 워크 컴파일후 jar 만들기" />
+		<echo message="make sinnori core jar file in Microsoft Windows OS" />
 		<exec dir="${core.build}" executable="cmd">
 			<arg value="/c" />
 			<arg value="ant.bat" />
@@ -70,7 +67,7 @@
 		</exec>
 	</target>
 
-	<target name="make.core" depends="init.directory, dos.make.core, unix.make.core" description="신놀이 프레임 워크 컴파일 하여 jar 라이브러리 만들기" />
+	<target name="make.core" depends="init.directory, dos.make.core, unix.make.core" description="make sinnori core jar file" />
 	
 	<target name="clean.corelib" depends="make.core">
 		<delete dir="${corelib}" />
@@ -92,27 +89,29 @@
 		</copy>		
 	</target>
 	
-	<target name="copy.appinf" depends="copy.core" description="copy from sinnori framework APP-INF/">		
-		<mkdir dir="${APP-INF}/resources" />		
+	<target name="copy.appinf" depends="copy.core" description="copy server APP-INF's library, common source files and resources">
+	  <!-- core resoruces only sample so no copy -->
+		<mkdir dir="${APP-INF}/resources" />
+		
 		<delete dir="${APP-INF}/lib" />
 		<mkdir dir="${APP-INF}/lib" />
 		<copy todir="${APP-INF}/lib" verbose="true" overwrite="true">
 			<fileset dir="${core.build}/APP-INF/lib/" />
 		</copy>
 
+    <!-- APP-INF/classes init, this direcotry has the server dynamic classes -->
 		<delete dir="${APP-INF}/classes" />
 		<mkdir dir="${APP-INF}/classes" />
-		<!-- copy todir="${APP-INF}/classes" verbose="true" overwrite="true">
-			<fileset dir="${core.build}/APP-INF/classes/" />
-		</copy -->
 
+    <!-- Except for the sample class file that inherits the UnpooledDataSourceFactory class and gets a db connection pool from the DBCPManager class -->
 		<copy todir="${src}/kr/pe/sinnori/impl/server/mybatis/" verbose="true" overwrite="true">
+		  <!-- the SqlSessionFactoryManger class depends on the server dynimic class loader -->
 			<fileset file="${core.build}/APP-INF/src/kr/pe/sinnori/impl/server/mybatis/SqlSessionFactoryManger.java" />
 		</copy>
 	</target>
 	
-	<target name="sinnori" depends="copy.appinf" description="신놀이 프레임 워크 컴파일후 jar 만들어 가져오기">
-		<echo message="신놀이 프레임 워크 컴파일 하여  jar 라이브러리 만들어 가져오기" />
+	<target name="sinnori" depends="copy.appinf" description="copy sinnori core after making the sinnori core jar file">
+		<echo message="copy the sinnori core jar file after making the sinnori core jar file" />
 	</target>
 
 	<target name="clean.main" depends="sinnori">
@@ -127,7 +126,7 @@
 		<mkdir dir="${build}" />
 	</target>
 
-	<target name="compile.main" depends="init.main" description="서버 어플리케이션 메인 클래스 컴파일">
+	<target name="compile.main" depends="init.main" description="compile server main class">
 		<!-- Compile the java code from ${src} into ${build} -->
 		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}" destdir="${build}">
 			<include name="main/**" />
@@ -165,7 +164,7 @@
 	  </mapper>
 	</pathconvert>
 
-	<target name="copy.lib" depends="compile.main" description="서버 어플리 케이션 jar 라이브러리 복사">
+	<target name="copy.lib" depends="compile.main" description="copy jar library">
 		<delete dir="${dist}" />
 		<mkdir dir="${dist}/lib" />		
 
@@ -187,7 +186,7 @@
 		<mkdir dir="${build}/serverlib" />
 	</target>
 
-	<target name="compile.serverlib" depends="init.serverlib" description="서버 전용 라이브러리 컴파일">
+	<target name="compile.serverlib" depends="init.serverlib" description="compile the server library">
 		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}" destdir="${build}/serverlib" >		
 			<include name="kr/pe/sinnori/common/serverlib/**" />	
 			<classpath>
@@ -211,7 +210,7 @@
 		</javac>
 	</target>
 
-	<target name="make.serverlib" depends="compile.serverlib" description="서버 전용 라이브러리 jar 만들기">
+	<target name="make.serverlib" depends="compile.serverlib" description="make the server library jar file">
 		<echo message="${build}/serverlib" />	
 		<jar jarfile="${lib}/in/sinnori-serverlib.jar" basedir="${build}/serverlib">
 			<restrict>
@@ -223,7 +222,7 @@
 		</jar>
 	</target>
 	
-	<target name="make.main" depends="make.serverlib" description="서버 어플리케이션 메인 클래스 jar 만들기">				
+	<target name="make.main" depends="make.serverlib" description="make the server executable jar file">
 		<jar destfile="${dist}/SinnoriServerMain.jar" basedir="${build}">
 			<include name="main/**" />
 			<restrict>
@@ -242,7 +241,7 @@
 		</jar>
 	</target>
 
-	<target name="compile.appinf" depends="init.directory" description="오직 서버 비지니스 로직 컴파일만 수행">
+	<target name="compile.appinf" depends="init.directory" description="only compile the server business logic classes">
 		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}" destdir="${APP-INF}/classes" >
 			<include name="kr/pe/sinnori/impl/**" />
 			<classpath>
@@ -267,7 +266,7 @@
 		<echo message="compile.appinf, is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}, java.debug=${java.debug}" />
 	</target>
 	
-	<target name="all" depends="make.main, compile.appinf" description="only compile and then make jar">
+	<target name="all" depends="make.main, compile.appinf" description="all work">
 		<echo message="is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}, java.debug=${java.debug}, core.java.debug=${core.java.debug}" />
 	</target>
 

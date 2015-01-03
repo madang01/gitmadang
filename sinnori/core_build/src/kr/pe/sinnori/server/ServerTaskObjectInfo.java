@@ -5,20 +5,18 @@ import java.io.File;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
 
 public class ServerTaskObjectInfo {
-	private ClassLoader loader = null;
-	private File classFile = null;
+	private File serverTaskClassFile = null;
 	private long loadedTime = 0;
 	private AbstractServerTask serverTask = null;
 	
-	public ServerTaskObjectInfo(ClassLoader loader, File classFile, AbstractServerTask serverTask) {
-		this.loader = loader;
-		this.classFile = classFile;
+	public ServerTaskObjectInfo(File serverTaskClassFile, AbstractServerTask serverTask) {
+		this.serverTaskClassFile = serverTaskClassFile;
 		this.serverTask = serverTask;
-		this.loadedTime = classFile.lastModified();
+		this.loadedTime = serverTaskClassFile.lastModified();
 	}
 	
 	public boolean isModifed() {
-		long lastModifedTime = classFile.lastModified();
+		long lastModifedTime = serverTaskClassFile.lastModified();
 		return (loadedTime != lastModifedTime);
 	}
 
@@ -29,12 +27,10 @@ public class ServerTaskObjectInfo {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("ServerTaskObjectInfo [classFile=");
-		builder.append(classFile.getAbsolutePath());
+		builder.append("ServerTaskObjectInfo [serverTaskClassFile=");
+		builder.append(serverTaskClassFile.getAbsolutePath());
 		builder.append(", loadedTime=");
 		builder.append(loadedTime);
-		builder.append(", loader hashCode=");
-		builder.append(loader.hashCode());
 		builder.append(", serverTask hashCode=");
 		builder.append(serverTask.hashCode());
 		builder.append("]");

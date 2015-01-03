@@ -482,7 +482,7 @@ public class ServerProjectConfig extends CommonProjectConfig {
 		/******** 동적 클래스 관련 공통 환경 변수 종료 **********/
 		
 		/******** MyBatis 시작 **********/
-		/*propKey = getServerKeyName("mybatis.config_file");
+		propKey = getServerKeyName("classloader.mybatis_config_file_relative_path");
 		propValue = configFileProperties.getProperty(propKey);
 		
 		if (null == propValue) {
@@ -497,15 +497,15 @@ public class ServerProjectConfig extends CommonProjectConfig {
 					log.warn("key[{}]'s value is not same to the copy of the string, with leading and trailing whitespace omitted", propKey);					
 				} else {
 					String mybatisConfigFilePathString = null;
-					String subRealPath = propValue.replaceAll("/", File.separator);
+					String subRealPathOfMybatisConfigFile = propValue.replaceAll("/", File.separator);
 					if (propValue.startsWith("/")) {
 						mybatisConfigFilePathString = new StringBuilder(classLoaderAPPINFPath.getAbsolutePath())
 						.append(File.separator).append("resources")
-						.append(subRealPath).toString();
+						.append(subRealPathOfMybatisConfigFile).toString();
 					} else {
 						mybatisConfigFilePathString = new StringBuilder(classLoaderAPPINFPath.getAbsolutePath())
 						.append(File.separator).append("resources")
-						.append(File.separator).append(subRealPath).toString();
+						.append(File.separator).append(subRealPathOfMybatisConfigFile).toString();
 					}
 					
 					mybatisConfigFile = new File(mybatisConfigFilePathString);
@@ -523,7 +523,7 @@ public class ServerProjectConfig extends CommonProjectConfig {
 					log.info("{}::prop value[{}], new value[{}]", propKey, propValue, mybatisConfigFile.getAbsolutePath());
 				}
 			}
-		}		*/
+		}		
 		/******** MyBatis 종료 **********/
 	}
 	
