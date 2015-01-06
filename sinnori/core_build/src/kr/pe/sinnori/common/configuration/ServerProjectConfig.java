@@ -497,7 +497,15 @@ public class ServerProjectConfig extends CommonProjectConfig {
 					log.warn("key[{}]'s value is not same to the copy of the string, with leading and trailing whitespace omitted", propKey);					
 				} else {
 					String mybatisConfigFilePathString = null;
-					String subRealPathOfMybatisConfigFile = propValue.replaceAll("/", File.separator);
+					String subRealPathOfMybatisConfigFile = null;
+					
+					if (File.separator.equals("/")) {
+						subRealPathOfMybatisConfigFile = propValue;
+					} else {
+						subRealPathOfMybatisConfigFile = propValue.replaceAll("/", "\\\\");
+					}
+					
+					
 					if (propValue.startsWith("/")) {
 						mybatisConfigFilePathString = new StringBuilder(classLoaderAPPINFPath.getAbsolutePath())
 						.append(File.separator).append("resources")

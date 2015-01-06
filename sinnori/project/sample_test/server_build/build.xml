@@ -16,49 +16,40 @@
 		<os family="unix" />
 	</condition>
 	
-	<condition property="java.debug.yes">
+	<condition property="is.debug.yes">
 		<istrue value="${java.debug}" />
 	</condition>
 	
-	<target name="java.debug.yes.init" if="java.debug.yes" description="the sinnori core compile including debug info">
+	<target name="init.debug" if="is.debug.yes" description="it sets the value of the variable 'core.java.debug' to 'debug' in order that the sinnori core compile including debug info">
 		<property name="core.java.debug" value="debug" />
 	</target>
 	
-	<target name="java.debug.no.init" unless="java.debug.yes" description="the sinnori core compile without debug info">
+	<target name="init.nodebug" unless="is.debug.yes" description="it sets the value of the variable 'core.java.debug' to 'nodebug' in order that the sinnori core compile excluding debug info">
 		<property name="core.java.debug" value="nodebug" />
 	</target>
 	
-	<target name="dos.init" if="is.windows.yes">
+	<target name="init.dos" if="is.windows.yes">
 		<property name="weblib" location="${dos.weblib}" />
 	</target>
-	<target name="unix.init" if="is.unix.yes">
+	<target name="init.unix" if="is.unix.yes">
 		<property name="weblib" location="${unix.weblib}" />
 	</target>
 	
-	<target name="var.init" depends="java.debug.no.init, java.debug.yes.init, dos.init, unix.init" description="var init">
+	<target name="init.var" depends="init.nodebug, init.debug, init.dos, init.unix">
 		<echo message="java.debug=${java.debug}, core.java.debug=${core.java.debug}" />
-		<echo message="java.debug.yes=${java.debug.yes}" />
+		<echo message="is.debug.yes=${is.debug.yes}" />
+		<!-- Create the time stamp -->
+		<tstamp />
 	</target>
 
-  <target name="init.directory" depends="var.init" description="directory init for ant compile envoroment">
-		<echo message="directory init for ant compile envoroment" />
-		<mkdir dir="${corelib}/ex" />
-		<mkdir dir="${corelib}/in" />
-		<mkdir dir="${lib}/ex" />
-		<mkdir dir="${lib}/in" />
-		<mkdir dir="${APP-INF}/classes" />
-		<mkdir dir="${APP-INF}/lib" />
-		<mkdir dir="${APP-INF}/resources" />
-	</target>
-	
-	<target name="unix.make.core" if="is.unix.yes">
+	<target name="make.unixcore" if="is.unix.yes" depends="init.var">
 		<echo message="make sinnori core jar file in Unix OS" />
 		<exec dir="${core.build}" executable="ant">
 			<arg value="${core.java.debug}" />
 		</exec>
 	</target>
 	
-	<target name="dos.make.core" if="is.windows.yes">
+	<target name="make.doscore" if="is.windows.yes" depends="init.var">
 		<echo message="make sinnori core jar file in Microsoft Windows OS" />
 		<exec dir="${core.build}" executable="cmd">
 			<arg value="/c" />
@@ -67,20 +58,30 @@
 		</exec>
 	</target>
 
-	<target name="make.core" depends="init.directory, dos.make.core, unix.make.core" description="make sinnori core jar file" />
+	<target name="make.core" depends="make.doscore, make.unixcore" description="make sinnori core jar file" />	
 	
-	<target name="clean.corelib" depends="make.core">
-		<delete dir="${corelib}" />
-	</target>
-
-	<target name="init.corelib" depends="clean.corelib">
-		<!-- Create the time stamp -->
-		<tstamp />
+	<target name="init.directory" depends="make.core" description="directory init for ant compile envoroment">
+		<echo message="directory init for ant compile envoroment" />
+		<!-- core directory -->
+		<delete dir="${corelib}" />		
 		<mkdir dir="${corelib}/ex" />
 		<mkdir dir="${corelib}/in" />
+		<!-- lib directory is a user define directory -->
+		<mkdir dir="${lib}/ex" />
+		<mkdir dir="${lib}/in" />
+		
+		<!-- APP-INF/classes directory is a user define directory that has the server dynamic classes -->
+		<delete dir="${APP-INF}/classes" />
+		<mkdir dir="${APP-INF}/classes" />
+		
+		<!-- core APP-INF/lib direcotry -->
+		<delete dir="${APP-INF}/lib" />
+		<mkdir dir="${APP-INF}/lib" />
+		<!-- APP-INF/resoruces directory is a user define directory -->
+		<mkdir dir="${APP-INF}/resources" />
 	</target>
 	
-	<target name="copy.core" description="sinnori framework core copy" depends="init.corelib">
+	<target name="copy.core" description="sinnori core copy" depends="init.directory">
 		<copy todir="${corelib}/in" verbose="true" overwrite="true">
 			<fileset file="${core.build}/dist/sinnori-core.jar" />
 		</copy>
@@ -90,18 +91,9 @@
 	</target>
 	
 	<target name="copy.appinf" depends="copy.core" description="copy server APP-INF's library, common source files and resources">
-	  <!-- core resoruces only sample so no copy -->
-		<mkdir dir="${APP-INF}/resources" />
-		
-		<delete dir="${APP-INF}/lib" />
-		<mkdir dir="${APP-INF}/lib" />
 		<copy todir="${APP-INF}/lib" verbose="true" overwrite="true">
 			<fileset dir="${core.build}/APP-INF/lib/" />
 		</copy>
-
-    <!-- APP-INF/classes init, this direcotry has the server dynamic classes -->
-		<delete dir="${APP-INF}/classes" />
-		<mkdir dir="${APP-INF}/classes" />
 
     <!-- Except for the sample class file that inherits the UnpooledDataSourceFactory class and gets a db connection pool from the DBCPManager class -->
 		<copy todir="${src}/kr/pe/sinnori/impl/server/mybatis/" verbose="true" overwrite="true">
@@ -140,7 +132,6 @@
 				<fileset dir="${APP-INF}/lib">
 					<include name="**/*.jar" />
 				</fileset>
-				<!-- pathelement path="${APP-INF}/classes" / -->
 			</classpath>
 		</javac>
 		<echo message="compile.main" />
@@ -164,7 +155,7 @@
 	  </mapper>
 	</pathconvert>
 
-	<target name="copy.lib" depends="compile.main" description="copy jar library">
+	<target name="copy.jarlib" depends="compile.main" description="copy jar library">
 		<delete dir="${dist}" />
 		<mkdir dir="${dist}/lib" />		
 
@@ -174,14 +165,12 @@
 		</copy>
 	</target>
 
-<target name="clean.serverlib" depends="copy.lib">
+<target name="clean.serverlib" depends="copy.jarlib">
 		<!-- Delete the ${build} and ${dist} directory trees -->
 		<delete dir="${build}/serverlib" />
 	</target>
 	
-	<target name="init.serverlib" depends="clean.main">
-		<!-- Create the time stamp -->
-		<tstamp />
+	<target name="init.serverlib" depends="clean.main">		
 		<!-- Create the build directory structure used by compile -->
 		<mkdir dir="${build}/serverlib" />
 	</target>
@@ -216,7 +205,7 @@
 			<restrict>
 				<name name="**/*.class" />
 				<archives>
-					<!-- 서버 라이브러리는 단독으로 존재하므로 외부 라이브러리 포함등 없음 -->
+					<!-- the server library does not need a extern jar library because the server library is indenpent -->
 				</archives>
 			</restrict>
 		</jar>
@@ -240,8 +229,18 @@
 			</manifest>
 		</jar>
 	</target>
+	
+	<target name="clear.appinf" if="is.web.yes" depends="init.var">
+	  <echo message="delete ${APP-INF}/classes" />	
+		<delete dir="${APP-INF}/classes" />
+	</target>
+	
+	<target name="init.appinf" if="is.web.yes" depends="clear.appinf">
+	  <echo message="mkdir ${APP-INF}/classes" />
+		<mkdir dir="${APP-INF}/classes" />
+	</target>
 
-	<target name="compile.appinf" depends="init.directory" description="only compile the server business logic classes">
+	<target name="compile.appinf" depends="init.var" description="only compile the server business logic classes">
 		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}" destdir="${APP-INF}/classes" >
 			<include name="kr/pe/sinnori/impl/**" />
 			<classpath>
@@ -260,13 +259,12 @@
 				<fileset dir="${APP-INF}/lib">
 					<include name="**/*.jar" />
 				</fileset>
-				<!-- pathelement path="${APP-INF}/classes" / -->
 			</classpath>
 		</javac>
 		<echo message="compile.appinf, is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}, java.debug=${java.debug}" />
 	</target>
 	
-	<target name="all" depends="make.main, compile.appinf" description="all work">
+	<target name="all" depends="make.main, compile.appinf">
 		<echo message="is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}, java.debug=${java.debug}, core.java.debug=${core.java.debug}" />
 	</target>
 

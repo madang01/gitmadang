@@ -9,11 +9,11 @@
 	<property name="lib" location="lib" />
 	<property name="APP-INF" location="APP-INF" />
 	
-	<target name="java.debug.yes.init" description="컴파일시 디버깅 정보를 가지도록 디버깅 지정 변수 초기화">
+	<target name="init.debug">
 		<property name="java.debug" value="true" />
 	</target>
 	
-	<target name="java.debug.no.init" description="컴파일시 디버깅 정보가 없도록 디버깅 지정 변수 초기화">
+	<target name="init.nodebug">
 		<property name="java.debug" value="false" />
 	</target>
 
@@ -21,7 +21,6 @@
 		<!-- Delete the ${build} and ${dist} directory trees -->
 		<delete dir="${build}" />
 		<delete dir="${dist}" />
-		<delete dir="${APP-INF}/classes" />
 	</target>
 
 
@@ -39,7 +38,7 @@
 
 	
 
-	<target name="compile.common" depends="init.core" description="신놀이 프레임워크 공통 라이브러리 컴파일">
+	<target name="compile.common" depends="init.core">
 		<!-- Compile the java code from ${src} into ${build} -->
 		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}" destdir="${build}/common_lib">
 			<include name="kr/pe/sinnori/common/**" />
@@ -55,7 +54,7 @@
 		</javac>
 	</target>
 
-	<target name="make.common" depends="compile.common" description="신놀이 프레임워크 공통 라이브러리 jar 만들기">
+	<target name="make.common" depends="compile.common">
 		<!-- Create the distribution directory -->
 		<jar jarfile="${dist}/sinnori-common.jar" basedir="${build}/common_lib">
 			<restrict>
@@ -69,9 +68,9 @@
 		</jar>
 	</target>
 
-	<!-- common + server 패키지 컴파일, server 패키지와 client 패키지 의존성 없어야 한다. -->
-	<target name="compile.server.nodepend" description="make.common 작업에 의존하지만 그 의존성이 생략된 신놀이 프레임워크 서버용 라이브러리 컴파일">
-		<echo message="make.common 작업에 의존하지만 그 의존성이 생략된 신놀이 프레임워크 서버용 라이브러리 컴파일 작업으로 단독 호출하지 말것" />
+	<!-- server package compile that depends on common package -->
+	<target name="compile.server.nodepend" description="server package compile that depends on common package">
+		<echo message="server package compile that depends on common package" />
 		<!-- Compile the java code from ${src} into ${build} -->
 		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}" destdir="${build}/server_lib">
 			<include name="kr/pe/sinnori/server/**" />
@@ -84,14 +83,9 @@
 		</javac>
 	</target>
 
-	<target name="compile.server" depends="java.debug.yes.init, make.common, compile.server.nodepend" description="신놀이 프레임워크 서버용 라이브러리 컴파일">
-		<echo message="디버깅 모드로 신놀이 프레임워크 서버용 라이브러리 컴파일 수행" />
-	</target>
-
-
-	<!-- common + client 패키지 컴파일, server 패키지와 client 패키지 의존성 없어야 한다. -->
-	<target name="compile.client.nodepend" description="make.common 작업에 의존하지만 그 의존성이 생략된 신놀이 프레임워크 클라이언트용 라이브러리 컴파일">
-		<echo message="make.common 작업에 의존하지만 그 의존성이 생략된 신놀이 프레임워크 클라이언트용 라이브러리 컴파일 작업으로 단독 호출하지 말것" />
+	<!-- client package compile that depends on common package -->
+	<target name="compile.client.nodepend" description="client package compile that depends on common package">
+		<echo message="client package compile that depends on common package" />
 		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}" destdir="${build}/client_lib">
 			<include name="kr/pe/sinnori/client/**" />
 			<classpath>
@@ -103,13 +97,7 @@
 		</javac>
 	</target>
 
-	<target name="compile.client" depends="java.debug.yes.init, make.common, compile.client.nodepend" description="신놀이 프레임워크 클라이언트 라이브러리 컴파일">
-		<echo message="디버깅 모드로 신놀이 프레임워크 클라이언트용 라이브러리 컴파일 수행" />
-	</target>
-
-	
-	
-	<target name="make.all" depends="make.common, compile.client.nodepend, compile.server.nodepend" description="신놀이 프레임 워크 jar 만들기">
+	<target name="make.all" depends="make.common, compile.client.nodepend, compile.server.nodepend" description="make sinnori core jar files">
 		<!-- Create the distribution directory -->		
 		<jar jarfile="${dist}/sinnori-core.jar">
 			<fileset dir="${build}/common_lib" />
@@ -154,33 +142,11 @@
 		</jar>
 	</target>
 
-
-	<target name="init.appinf">
-		<mkdir dir="${APP-INF}/classes" />
+	<target name="debug" depends="init.debug, make.all">
+		<echo message="in debug mode, java.debug=${java.debug}" />
 	</target>
 	
-	<target name="compile.appinf" depends="make.all, init.appinf" description="서버 클래스 로더에 로딩되는 서버 공통 라이브러리인 APP-INF/classes 컴파일">
-		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}" destdir="${APP-INF}/classes">
-			<include name="kr/pe/sinnori/impl/mybatis/**" />
-			<classpath>
-				<fileset file="${dist}/sinnori-server.jar" />
-				<fileset dir="lib/ex">
-					<include name="**/*.jar" />
-				</fileset>
-				<fileset dir="${APP-INF}/lib">
-					<include name="**/*.jar" />
-				</fileset>
-				<pathelement path="${APP-INF}/classes" />
-			</classpath>
-		</javac>
-	</target>
-
-
-	<target name="debug" depends="java.debug.yes.init, compile.appinf" description="신놀이 프레임 워크 컴파일후 jar 만들기">
-		<echo message="java.debug=${java.debug}" />
-	</target>
-	
-	<target name="nodebug" depends="java.debug.no.init, compile.appinf" description="신놀이 프레임 워크 컴파일후 jar 만들기">
-		<echo message="java.debug=${java.debug}" />
+	<target name="nodebug" depends="init.nodebug, make.all">
+		<echo message="in nodebug mode, java.debug=${java.debug}" />
 	</target>
 </project>

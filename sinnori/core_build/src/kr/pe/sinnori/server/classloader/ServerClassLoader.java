@@ -295,7 +295,13 @@ public class ServerClassLoader extends ClassLoader implements CommonRootIF {
 	private String getRealResourceFilePathStringFromRelativePath(String relativePath) {
 		String realResourceFilePathString = null;
 		
-		String subRealPathString = relativePath.replaceAll("/", File.separator);
+		String subRealPathString = null;		
+		if (File.separator.equals("/")) {
+			subRealPathString = relativePath;
+		} else {
+			subRealPathString = relativePath.replaceAll("/", "\\\\");
+		}
+		
 		
 		if (relativePath.startsWith("/")) {
 			realResourceFilePathString = new StringBuilder(resourcesPath)
