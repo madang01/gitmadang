@@ -24,7 +24,7 @@
 		<appender-ref ref="logfile"/>
 	</logger>
 
-	<!-- mybatis mapper xml file 에서 tag "mapper" attribte namespace 에서 지정하는 이름 -->
+	<!-- "mapper" tag's attribute namespace in the mybatis mapper xml file -->
 	<logger name="kr.pr.sinnori.testweb" level="DEBUG">
 		<appender-ref ref="logfile"/>
 	</logger>

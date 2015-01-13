@@ -57,6 +57,7 @@
 		
 	<target name="init.directory" depends="make.core" description="directory init for ant compile envoroment">
 		<echo message="directory init for ant compile envoroment" />
+		<delete dir="${corelib}" />
 		<mkdir dir="${corelib}/ex" />
 		<mkdir dir="${corelib}/in" />
 		<mkdir dir="${lib}/ex" />
@@ -148,7 +149,7 @@
 				</archives>
 			</restrict>
 			<manifest>
-				<attribute name="Main-Class" value="main.SinnoriAppClientMain" />
+				<attribute name="Main-Class" value="${client.main.class}" />
 				<attribute name="Class-Path" value="${manifest.classpath}" />
 			</manifest>
 		</jar>

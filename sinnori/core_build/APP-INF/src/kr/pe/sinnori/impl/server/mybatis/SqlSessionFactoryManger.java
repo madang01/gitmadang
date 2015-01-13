@@ -104,6 +104,12 @@ public class SqlSessionFactoryManger {
 		ServerProjectConfig serverProjectConfig = conf.getServerProjectConfig(workProjectName);
 
 		File mybatisConfigeFile = serverProjectConfig.getMybatisFile();
+		if (null == mybatisConfigeFile) {
+		  // project.<projectName>.server.classloader.mybatis_config_file_relative_path.value
+		  log.error("mybatisConfigeFile is null, config key[project.{}.server.classloader.mybatis_config_file_relative_path.value]'s value is not defined", workProjectName);
+		  System.exit(1);
+		}
+		
 		/*String mybatisConfigeFilePathString = (String) conf.getResource("mybatis.config_file.value");
 		try {
 			URL mybatisConfigResourceURL = serverClassLoader

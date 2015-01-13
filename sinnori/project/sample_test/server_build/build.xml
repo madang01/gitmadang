@@ -224,7 +224,7 @@
 				</archives>
 			</restrict>
 			<manifest>
-				<attribute name="Main-Class" value="main.SinnoriServerMain" />
+				<attribute name="Main-Class" value="${server.main.class}" />
 				<attribute name="Class-Path" value="${manifest.classpath}" />
 			</manifest>
 		</jar>

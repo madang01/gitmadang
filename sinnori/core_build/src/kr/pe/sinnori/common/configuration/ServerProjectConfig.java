@@ -37,7 +37,6 @@ public class ServerProjectConfig extends CommonProjectConfig {
 	
 	/***** 서버 동적 클래스 변수 시작 *****/
 	private File classLoaderAPPINFPath = null;
-	private File classLoaderSourcePath = null;
 	/***** 서버 동적 클래스 변수 종료 *****/
 	
 	
@@ -453,32 +452,7 @@ public class ServerProjectConfig extends CommonProjectConfig {
 					propKey, propValue, classLoaderAPPINFPath.getAbsolutePath());
 			System.exit(1);
 		}		
-		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, classLoaderAPPINFPath.getAbsolutePath());
-		
-		
-		propKey = getServerKeyName("classloader.class.source.path");
-		propValue = configFileProperties.getProperty(propKey);
-		if (null == propValue) {
-			log.error("warning:: 서버 동적 클래스 소스 파일들이 위치하는 기본 경로[{}][{}]를 지정해 주세요", propKey, propValue);
-			System.exit(1);
-		} else {
-			classLoaderSourcePath = new File(propValue);
-		}
-		
-		if (!classLoaderSourcePath.exists()) {
-			log.error("서버 동적 클래스 소스 파일들이 위치하는 기본 경로[{}][{}]가 존재하지 않습니다.", propKey, propValue);
-			System.exit(1);
-		}
-		if (!classLoaderSourcePath.isDirectory() || !classLoaderSourcePath.canRead()) {
-			log.error("서버 동적 클래스 소스 파일들이 위치하는 기본 경로[{}][{}][{}]가 잘못 되었습니다.", 
-					propKey, propValue, classLoaderSourcePath.getAbsolutePath());
-			System.exit(1);
-		}		
-		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, classLoaderSourcePath.getAbsolutePath());
-		
-		// dynamicClassBasePackageName
-		
-		
+		log.info("{}::prop value[{}], new value[{}]", propKey, propValue, classLoaderAPPINFPath.getAbsolutePath());		
 		/******** 동적 클래스 관련 공통 환경 변수 종료 **********/
 		
 		/******** MyBatis 시작 **********/
@@ -624,9 +598,6 @@ public class ServerProjectConfig extends CommonProjectConfig {
 		return classLoaderAPPINFPath;
 	}
 
-	public File getClassLoaderClassPath() {
-		return classLoaderSourcePath;
-	}
 
 	public File getMybatisFile() {
 		return mybatisConfigFile;
@@ -672,9 +643,7 @@ public class ServerProjectConfig extends CommonProjectConfig {
 		builder.append(", mybatisConfigFile=");
 		builder.append(mybatisConfigFile.getAbsolutePath());
 		builder.append(", classLoaderAPPINFPath=");
-		builder.append(classLoaderAPPINFPath);
-		builder.append(", classLoaderSourcePath=");
-		builder.append(classLoaderSourcePath);		
+		builder.append(classLoaderAPPINFPath);	
 		builder.append("]");
 		return builder.toString();
 	}

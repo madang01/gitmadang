@@ -232,17 +232,6 @@ public class SqlSessionFactoryManger {
 							}
 						} else {
 							/** classpath relative resource */
-							/*
-							 * String mapperFilePathString = new StringBuilder(
-							 * classLoaderAPPINFPathString)
-							 * .append(File.separator) .append("resources")
-							 * .append(File.separator)
-							 * .append(mapperResourceValue.replaceAll("/",
-							 * File.separator)).toString();
-							 * 
-							 * mapperFile = new File(mapperFilePathString);
-							 */
-
 							try {
 								URL mapperFileURL  = serverClassLoader.getResource(mapperResourceValue);
 								
