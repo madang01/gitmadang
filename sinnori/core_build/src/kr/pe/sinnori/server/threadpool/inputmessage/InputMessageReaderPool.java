@@ -67,15 +67,23 @@ public class InputMessageReaderPool extends AbstractThreadPool implements
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager,
 			ClientResourceManagerIF clientResourceManager) {
 		if (size <= 0) {
-			throw new IllegalArgumentException(String.format("%s 파라미터 size 는 0보다 커야 합니다.", serverProjectConfig.getProjectName()));
+			String errorMessage = String.format("%s 파라미터 size 는 0보다 커야 합니다.", serverProjectConfig.getProjectName());
+			log.warn(errorMessage);
+			
+			throw new IllegalArgumentException(errorMessage);
 		}
+
 		if (max <= 0) {
-			throw new IllegalArgumentException(String.format("%s 파라미터 max 는 0보다 커야 합니다.", serverProjectConfig.getProjectName()));
+			String errorMessage = String.format("%s 파라미터 max 는 0보다 커야 합니다.", serverProjectConfig.getProjectName());
+			log.warn(errorMessage);
+			throw new IllegalArgumentException(errorMessage);
 		}
 
 		if (size > max) {
-			throw new IllegalArgumentException(String.format(
-					"%s 파라미터 size[%d]는 파라미터 max[%d]보다 작거나 같아야 합니다.", serverProjectConfig.getProjectName(), size, max));
+			String errorMessage = String.format("%s 파라미터 size[%d]는 파라미터 max[%d]보다 작거나 같아야 합니다.", 
+					serverProjectConfig.getProjectName(), size, max);
+			log.warn(errorMessage);
+			throw new IllegalArgumentException(errorMessage);
 		}
 
 		this.maxHandler = max;
@@ -84,8 +92,7 @@ public class InputMessageReaderPool extends AbstractThreadPool implements
 		this.inputMessageQueue = inputMessageQueue;
 		this.messageProtocol = messageProtocol;
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-		this.clientResourceManager = clientResourceManager;
-		
+		this.clientResourceManager = clientResourceManager;		
 
 		for (int i = 0; i < size; i++) {
 			addHandler();

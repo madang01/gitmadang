@@ -35,7 +35,7 @@ import kr.pe.sinnori.common.weblib.AbstractServlet;
 @SuppressWarnings("serial")
 public class CryptoJSMDTestSvl extends AbstractServlet {
 	final String arryPageURL[] = {
-			"/testcode/CryptoJSMDTest01.jsp", "/testcode/CryptoJSMDTest02.jsp"
+			"/menu/testcode/CryptoJSMDTest01.jsp", "/menu/testcode/CryptoJSMDTest02.jsp"
 	};
 
 	@Override

@@ -59,7 +59,7 @@ public class MemberSvl extends AbstractServlet {
 		}
 		
 		if (!parmPageMode.equals("view") && !parmPageMode.equals("proc")) {
-			goPage = "/member/Member01.jsp";
+			goPage = "/menu/member/Member01.jsp";
 			String errorMessage = new StringBuilder("페이지 모드는 2가지(view, proc) 입니다.")
 			.append(CommonStaticFinalVars.NEWLINE)
 			.append("페이지 모드 값[").append(parmPageMode).append("]이 잘못 되었습니다.").toString();
@@ -74,9 +74,9 @@ public class MemberSvl extends AbstractServlet {
 		req.setAttribute("modulusHex", modulusHex);
 		
 		if (parmPageMode.equals("view")) {
-			goPage = "/member/Member01.jsp";			
+			goPage = "/menu/member/Member01.jsp";			
 		} else {
-			goPage = "/member/Member02.jsp";
+			goPage = "/menu/member/Member02.jsp";
 			
 			String parmSessionKeyBase64 = req.getParameter("sessionkeyBase64");
 			String parmIVBase64 = req.getParameter("ivBase64");

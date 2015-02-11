@@ -113,7 +113,9 @@ public class SymmetricKey implements CommonRootIF, Serializable {
 		try {
 			plainBytes = plainText.getBytes(charsetName);
 		} catch (UnsupportedEncodingException e) {
-			throw new SinnoriUnsupportedEncodingException(String.format("bad charset name, check parameter charsetName[%s]",charsetName));
+			String errorMessage = String.format("bad charset name, check parameter charsetName[%s]",charsetName);
+			log.warn(errorMessage);
+			throw new SinnoriUnsupportedEncodingException(errorMessage);
 		}
 
 		byte[] retBytes = symmetricKeyManager.encryptDirect(
@@ -246,7 +248,7 @@ public class SymmetricKey implements CommonRootIF, Serializable {
 			retStr = encryptStringBase64(plainText, "UTF-8");
 		} catch (SinnoriUnsupportedEncodingException e) {
 			/** 문자셋 이름의 경우 사용자 지정이 아닌 값(UTF-8)으로 지정되어 있기에 이곳 로직으로 올 수 없다. */
-			log.error("UnsupportedEncodingException", e);
+			log.error(e.getMessage(), e);
 			System.exit(1);
 		}
 		return retStr;
@@ -276,7 +278,9 @@ public class SymmetricKey implements CommonRootIF, Serializable {
 					symmetricKeyAlgorithm, symmetricKeyBytes, plainText.getBytes(charsetName),
 					ivBytes);
 		} catch (UnsupportedEncodingException e) {
-			throw new SinnoriUnsupportedEncodingException(String.format("bad charset name, check parameter charsetName[%s]",charsetName));
+			String errorMessage = String.format("bad charset name, check parameter charsetName[%s]",charsetName);
+			log.warn(errorMessage);
+			throw new SinnoriUnsupportedEncodingException(errorMessage);
 		}
 		// return Base64.encodeBytes(retBytes);
 
@@ -312,7 +316,7 @@ public class SymmetricKey implements CommonRootIF, Serializable {
 			retStr = decryptStringBase64(cipherTextBase64, "UTF-8");
 		} catch (SinnoriUnsupportedEncodingException e) {
 			/** 문자셋 이름의 경우 사용자 지정이 아닌 값(UTF-8)으로 지정되어 있기에 이곳 로직으로 올 수 없다. */
-			log.error("UnsupportedEncodingException", e);
+			log.error(e.getMessage(), e);
 			System.exit(1);
 		}
 		return retStr;
@@ -356,7 +360,9 @@ public class SymmetricKey implements CommonRootIF, Serializable {
 		try {
 			retValue = new String(retBytes, charsetName);
 		} catch (UnsupportedEncodingException e) {
-			throw new SinnoriUnsupportedEncodingException(String.format("bad charset name, check parameter charsetName[%s]",charsetName));
+			String errorMessage = String.format("bad charset name, check parameter charsetName[%s]",charsetName);
+			log.warn(errorMessage);
+			throw new SinnoriUnsupportedEncodingException(errorMessage);
 		}
 		/**
 		log.info(String.format(

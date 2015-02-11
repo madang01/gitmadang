@@ -10,7 +10,14 @@ public abstract class WebCommonStaticFinalVars {
 	public static final String SESSIONSTORAGE_SESSIONKEY_NAME = "kr.pe.sinnori.sessionkey";
 	public static final String SESSIONSTORAGE_PRIVATEKEY_NAME = "kr.pe.sinnori.privatekey";
 	
-	public static final int WEBSITE_PRIVATEKEY_SIZE = 24;
+	/**
+	 * <pre>
+	 * AES 의 경우 키와 소금값(=iv)의 크기로 16 이 무난하다.
+	 * - OS별로 다른 경우 -
+	 * (1) 윈도7 32 bit 자바7 1.7.0_71 버전의 경우 키크기 16까지 확인, 우분투에서는 키크기 24까지 확인
+	 * </pre>
+	 */
+	public static final int WEBSITE_PRIVATEKEY_SIZE = 16;
 	public static final int WEBSITE_IV_SIZE = 16;
 	/**
 	 * WEBSITE_SYMMETRIC_KEY_ALGORITHM_NAME 는 로그인/회원가입시 사용하는 대칭키 알고리즘 이름이다.

@@ -152,7 +152,8 @@ public final class SymmetricKeyManager implements CommonRootIF {
 			throw new SymmetricException(errorMessage);
 		} catch (NoSuchPaddingException e) {
 			String errorMessage = String.format(
-					"%s Cipher NoSuchPaddingException", symmetricKeyAlgorithm);
+					"%s Cipher NoSuchPaddingException, errormessage=%s", 
+					symmetricKeyAlgorithm, e.getMessage());
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		}
@@ -165,7 +166,8 @@ public final class SymmetricKeyManager implements CommonRootIF {
 				symmetricKeyCipher.init(Cipher.DECRYPT_MODE, symmetricKey);
 			} catch (InvalidKeyException e) {
 				String errorMessage = String.format(
-						"%s Cipher InvalidKeyException", symmetricKeyAlgorithm);
+						"%s Cipher InvalidKeyException, errormessage=%s", 
+						symmetricKeyAlgorithm, e.getMessage());
 				log.warn(errorMessage, e);
 				throw new SymmetricException(errorMessage);
 			}
@@ -177,15 +179,16 @@ public final class SymmetricKeyManager implements CommonRootIF {
 				symmetricKeyCipher.init(Cipher.DECRYPT_MODE, symmetricKey, iv);
 			} catch (InvalidKeyException e) {
 				String errorMessage = String.format(
-						"%s Cipher with IV InvalidKeyException",
-						symmetricKeyAlgorithm);
+						"%s Cipher with IV InvalidKeyException, errormessage=%s",
+						symmetricKeyAlgorithm, e.getMessage());
 				log.warn(errorMessage, e);
 				throw new SymmetricException(errorMessage);
 			} catch (InvalidAlgorithmParameterException e) {
 				String errorMessage = String
-						.format("%s Cipher with IV[%s] InvalidAlgorithmParameterException",
+						.format("%s Cipher with IV[%s] InvalidAlgorithmParameterException, errormessage=%s",
 								symmetricKeyAlgorithm,
-								HexUtil.getHexStringFromByteArray(ivBytes));
+								HexUtil.getHexStringFromByteArray(ivBytes),
+								e.getMessage());
 				log.warn(errorMessage, e);
 				throw new SymmetricException(errorMessage);
 			}
@@ -198,13 +201,14 @@ public final class SymmetricKeyManager implements CommonRootIF {
 			decryptedBytes = symmetricKeyCipher.doFinal(encryptedBytes);
 		} catch (IllegalBlockSizeException e) {
 			String errorMessage = String.format(
-					"%s Cipher IllegalBlockSizeException",
-					symmetricKeyAlgorithm);
+					"%s Cipher IllegalBlockSizeException, errormessage=%s",
+					symmetricKeyAlgorithm, e.getMessage());
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		} catch (BadPaddingException e) {
 			String errorMessage = String.format(
-					"%s Cipher BadPaddingException", symmetricKeyAlgorithm);
+					"%s Cipher BadPaddingException, errormessage=%s", 
+					symmetricKeyAlgorithm, e.getMessage());
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		}
@@ -270,11 +274,13 @@ public final class SymmetricKeyManager implements CommonRootIF {
 			throw new SymmetricException(errorMessage);
 		} catch (NoSuchPaddingException e) {
 			String errorMessage = String.format(
-					"%s Cipher NoSuchPaddingException", symmetricKeyAlgorithm);
+					"%s Cipher NoSuchPaddingException, errormessage=%s", 
+					symmetricKeyAlgorithm, e.getMessage());
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		}
 
+		// FIXME!
 		log.info("Successful symmetric key cipher class creation");
 
 		SecretKeySpec symmetricKey = new SecretKeySpec(symmetricKeyBytes,
@@ -285,7 +291,8 @@ public final class SymmetricKeyManager implements CommonRootIF {
 				symmetricKeyCipher.init(Cipher.ENCRYPT_MODE, symmetricKey);
 			} catch (InvalidKeyException e) {
 				String errorMessage = String.format(
-						"%s Cipher InvalidKeyException", symmetricKeyAlgorithm);
+						"%s Cipher InvalidKeyException, errormessage=%s", 
+						symmetricKeyAlgorithm, e.getMessage());
 				log.warn(errorMessage, e);
 				throw new SymmetricException(errorMessage);
 			}
@@ -297,15 +304,16 @@ public final class SymmetricKeyManager implements CommonRootIF {
 				symmetricKeyCipher.init(Cipher.ENCRYPT_MODE, symmetricKey, iv);
 			} catch (InvalidKeyException e) {
 				String errorMessage = String.format(
-						"%s Cipher with IV InvalidKeyException",
-						symmetricKeyAlgorithm);
+						"%s Cipher with IV InvalidKeyException, errormessage=%s",
+						symmetricKeyAlgorithm, e.getMessage());
 				log.warn(errorMessage, e);
 				throw new SymmetricException(errorMessage);
 			} catch (InvalidAlgorithmParameterException e) {
 				String errorMessage = String
-						.format("%s Cipher with IV[%s] InvalidAlgorithmParameterException",
+						.format("%s Cipher with IV[%s] InvalidAlgorithmParameterException, errormessage=%s",
 								symmetricKeyAlgorithm,
-								HexUtil.getHexStringFromByteArray(ivBytes));
+								HexUtil.getHexStringFromByteArray(ivBytes),
+								e.getMessage());
 				log.warn(errorMessage, e);
 				throw new SymmetricException(errorMessage);
 			}
@@ -317,13 +325,14 @@ public final class SymmetricKeyManager implements CommonRootIF {
 			encryptedBytes = symmetricKeyCipher.doFinal(plainTextBytes);
 		} catch (IllegalBlockSizeException e) {
 			String errorMessage = String.format(
-					"%s Cipher IllegalBlockSizeException",
-					symmetricKeyAlgorithm);
+					"%s Cipher IllegalBlockSizeException, errormessage=%s",
+					symmetricKeyAlgorithm, e.getMessage());
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		} catch (BadPaddingException e) {
 			String errorMessage = String.format(
-					"%s Cipher BadPaddingException", symmetricKeyAlgorithm);
+					"%s Cipher BadPaddingException, errormessage=%s", 
+					symmetricKeyAlgorithm, e.getMessage());
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		}

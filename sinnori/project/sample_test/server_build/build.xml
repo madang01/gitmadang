@@ -106,56 +106,7 @@
 		<echo message="copy the sinnori core jar file after making the sinnori core jar file" />
 	</target>
 
-	<target name="clean.main" depends="sinnori">
-		<!-- Delete the ${build} and ${dist} directory trees -->
-		<delete dir="${build}" />
-	</target>
-	
-	<target name="init.main" depends="clean.main">
-		<!-- Create the time stamp -->
-		<tstamp />
-		<!-- Create the build directory structure used by compile -->
-		<mkdir dir="${build}" />
-	</target>
-
-	<target name="compile.main" depends="init.main" description="compile server main class">
-		<!-- Compile the java code from ${src} into ${build} -->
-		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}" destdir="${build}">
-			<include name="main/**" />
-			<classpath>
-				<fileset dir="${corelib}/ex">
-					<include name="**/*.jar" />
-				</fileset>
-				<fileset dir="${corelib}/in">
-					<include name="**/*.jar" />
-				</fileset>
-				<fileset dir="${APP-INF}/lib">
-					<include name="**/*.jar" />
-				</fileset>
-			</classpath>
-		</javac>
-		<echo message="compile.main" />
-	</target>
-
-
-	<path id="build.classpath">
-		<fileset dir="${basedir}">
-			<include name="corelib/ex/*.jar"/>
-			<include name="lib/ex/*.jar"/>
-		</fileset>
-	</path>
-
-	<pathconvert property="manifest.classpath" pathsep=" ">
-	  <path refid="build.classpath"/>
-	  <mapper>
-		<chainedmapper>
-		   <flattenmapper/>
-		   <globmapper from="*.jar" to="lib/*.jar"/>
-		</chainedmapper>
-	  </mapper>
-	</pathconvert>
-
-	<target name="copy.jarlib" depends="compile.main" description="copy jar library">
+	<target name="copy.jarlib" depends="sinnori" description="copy jar library">
 		<delete dir="${dist}" />
 		<mkdir dir="${dist}/lib" />		
 
@@ -164,20 +115,20 @@
 			<fileset dir="${lib}/ex" />
 		</copy>
 	</target>
-
-<target name="clean.serverlib" depends="copy.jarlib">
+	
+	<target name="clean.main" depends="copy.jarlib">
 		<!-- Delete the ${build} and ${dist} directory trees -->
-		<delete dir="${build}/serverlib" />
+		<delete dir="${build}" />
 	</target>
 	
-	<target name="init.serverlib" depends="clean.main">		
+	<target name="init.main" depends="clean.main">		
 		<!-- Create the build directory structure used by compile -->
-		<mkdir dir="${build}/serverlib" />
+		<mkdir dir="${build}" />
 	</target>
-
-	<target name="compile.serverlib" depends="init.serverlib" description="compile the server library">
-		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}" destdir="${build}/serverlib" >		
-			<include name="kr/pe/sinnori/common/serverlib/**" />	
+	
+	<target name="compile.main" depends="init.main" description="compile the server library">
+		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}" destdir="${build}" >
+			<exclude name="kr/pe/sinnori/impl/**" />
 			<classpath>
 				<fileset dir="${corelib}/ex">
 					<include name="**/*.jar" />
@@ -194,26 +145,29 @@
 				<fileset dir="${APP-INF}/lib">
 					<include name="**/*.jar" />
 				</fileset>
-				<!-- pathelement path="${APP-INF}/classes" / -->
 			</classpath>
 		</javac>
 	</target>
-
-	<target name="make.serverlib" depends="compile.serverlib" description="make the server library jar file">
-		<echo message="${build}/serverlib" />	
-		<jar jarfile="${lib}/in/sinnori-serverlib.jar" basedir="${build}/serverlib">
-			<restrict>
-				<name name="**/*.class" />
-				<archives>
-					<!-- the server library does not need a extern jar library because the server library is indenpent -->
-				</archives>
-			</restrict>
-		</jar>
-	</target>
 	
-	<target name="make.main" depends="make.serverlib" description="make the server executable jar file">
-		<jar destfile="${dist}/SinnoriServerMain.jar" basedir="${build}">
-			<include name="main/**" />
+	<path id="build.classpath">
+		<fileset dir="${basedir}">
+			<include name="corelib/ex/*.jar"/>
+			<include name="lib/ex/*.jar"/>
+		</fileset>
+	</path>
+	
+	<pathconvert property="manifest.classpath" pathsep=" ">
+	  <path refid="build.classpath"/>
+	  <mapper>
+		<chainedmapper>
+		   <flattenmapper/>
+		   <globmapper from="*.jar" to="lib/*.jar"/>
+		</chainedmapper>
+	  </mapper>
+	</pathconvert>
+	
+	<target name="make.main" depends="compile.main" description="make the server executable jar file">
+		<jar destfile="${dist}/SinnoriServerRun.jar" basedir="${build}">
 			<restrict>
 				<name name="**/*.class" />
 				<archives>
@@ -269,4 +223,3 @@
 	</target>
 
 </project>
-

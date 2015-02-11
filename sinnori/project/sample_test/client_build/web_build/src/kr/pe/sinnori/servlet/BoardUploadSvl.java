@@ -31,7 +31,7 @@ public class BoardUploadSvl extends AbstractServlet {
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
-		String goPage = "/board/BoardUpload01.jsp";
+		String goPage = "/menu/board/BoardUpload01.jsp";
 		
 		if (! isLogin(req)) {
 			String errorMessage = new StringBuilder("파일 업로드는 로그인 서비스 입니다. 로그인 하시기 바랍니다.").toString();		

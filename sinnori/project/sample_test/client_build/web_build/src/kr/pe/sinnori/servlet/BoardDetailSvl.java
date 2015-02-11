@@ -19,7 +19,7 @@ public class BoardDetailSvl extends AbstractServlet {
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
-		String goPage = "/board/BoardDetail01.jsp";
+		String goPage = "/menu/board/BoardDetail01.jsp";
 		
 		String parmBoardId = req.getParameter("boardId");
 		if (null == parmBoardId) {

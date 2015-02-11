@@ -11,7 +11,7 @@ public class JDFLoginTestSvl extends AbstractAuthServlet {
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
-		String goPage="/testcode/JDFLoginTest01.jsp";
+		String goPage="/menu/testcode/JDFLoginTest01.jsp";
 		
 		/*String parmSessionKey = req.getParameter("sessionkey");
 		String parmIV = req.getParameter("iv");

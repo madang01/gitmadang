@@ -54,7 +54,7 @@ public class LoginSvl extends AbstractServlet {
 		
 		if (null == pageGubun || !pageGubun.equals("step2")) {
 			
-			printWebLayoutControlJspPage(req, res, "/member/login.jsp");
+			printWebLayoutControlJspPage(req, res, "/menu/member/login.jsp");
 			return;
 		} else {
 			String parmSessionKeyBase64 = req.getParameter("sessionkeyBase64");
@@ -150,7 +150,7 @@ public class LoginSvl extends AbstractServlet {
 			req.setAttribute("webUserSymmetricKey", webUserSymmetricKey);
 			req.setAttribute("parmIVBase64", parmIVBase64);
 			
-			printWebLayoutControlJspPage(req, res, "/member/loginResult.jsp");
+			printWebLayoutControlJspPage(req, res, "/menu/member/loginResult.jsp");
 		}
 		
 		

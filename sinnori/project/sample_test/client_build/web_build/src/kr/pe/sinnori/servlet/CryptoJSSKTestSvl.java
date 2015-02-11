@@ -43,7 +43,7 @@ import kr.pe.sinnori.common.weblib.AbstractServlet;
 @SuppressWarnings("serial")
 public class CryptoJSSKTestSvl extends AbstractServlet {
 	final String arryPageURL[] = {
-			"/testcode/CryptoJSSKTest01.jsp", "/testcode/CryptoJSSKTest02.jsp"
+			"/menu/testcode/CryptoJSSKTest01.jsp", "/menu/testcode/CryptoJSSKTest02.jsp"
 	};
 
 	@Override

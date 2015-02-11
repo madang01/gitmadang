@@ -2,13 +2,13 @@
 %><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
 
 	final String arryTopMenuPage[][] =	{ 
-		{ "소개", null, "/about.jsp"},
-		{ "시작하기", null, "/stepbystep/main.jsp"},
-		{ "다운로드", null, "/download/main.jsp"},
-		{ "사랑방", "/board/leftmenu.jsp", "/board/body.jsp"},
-		{ "문서", "/techdoc/leftmenu.jsp", "/techdoc/body.jsp"},
-		{ "회원", "/member/leftmenu.jsp", "/member/body.jsp"}, 
-		{ "실험과 검증", "/testcode/leftmenu.jsp" , "/testcode/body.jsp"}
+		{ "소개", null, "/menu/about.jsp"},
+		{ "시작하기", null, "/menu/stepbystep/main.jsp"},
+		{ "다운로드", null, "/menu/download/main.jsp"},
+		{ "사랑방", "/menu/board/leftmenu.jsp", "/menu/board/body.jsp"},
+		{ "문서", "/menu/techdoc/leftmenu.jsp", "/menu/techdoc/body.jsp"},
+		{ "회원", "/menu/member/leftmenu.jsp", "/menu/member/body.jsp"}, 
+		{ "실험과 검증", "/menu/testcode/leftmenu.jsp" , "/menu/testcode/body.jsp"}
 	};
 
 

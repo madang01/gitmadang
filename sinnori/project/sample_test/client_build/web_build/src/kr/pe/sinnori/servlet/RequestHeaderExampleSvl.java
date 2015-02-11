@@ -69,7 +69,7 @@ public class RequestHeaderExampleSvl extends AbstractServlet {
 		}
 		
 		req.setAttribute("reqHeaderInfo", reqHeaderInfo);		
-		printWebLayoutControlJspPage(req, res, "/testcode/reqheaderinfo.jsp");
+		printWebLayoutControlJspPage(req, res, "/menu/testcode/reqheaderinfo.jsp");
 	}
 
 }

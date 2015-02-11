@@ -267,7 +267,6 @@ public final class SinnoriConfig {
 		String propValue = null;
 		
 		/******** dbcp 시작 **********/
-		// dbcp.connection_pool_name_list.value
 		propKey = "dbcp.connection_pool_name_list.value";
 		propValue = configFileProperties.getProperty(propKey);
 		
@@ -761,7 +760,7 @@ public final class SinnoriConfig {
 	public Object getResource(String key) {
 		Object value = resourceHash.get(key);
 		if (null == value) {
-			String errorMessage = String.format("key[{}] not found", key);
+			String errorMessage = String.format("key[%s] not found", key);
 			log.warn(errorMessage);
 			throw new RuntimeException(errorMessage);
 		}

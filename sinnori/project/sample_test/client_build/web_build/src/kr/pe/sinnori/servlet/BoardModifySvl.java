@@ -49,7 +49,7 @@ public class BoardModifySvl extends AbstractAuthServlet {
 		}
 		
 		if (!parmPageMode.equals("view") && !parmPageMode.equals("proc")) {
-			goPage = "/board/BoardModify01.jsp";
+			goPage = "/menu/board/BoardModify01.jsp";
 			String errorMessage = new StringBuilder("페이지 모드는 2가지(view, proc) 입니다.")
 			.append(CommonStaticFinalVars.NEWLINE)
 			.append("페이지 모드 값[").append(parmPageMode).append("]이 잘못 되었습니다.").toString();
@@ -62,7 +62,7 @@ public class BoardModifySvl extends AbstractAuthServlet {
 		}		
 		
 		if (parmPageMode.equals("view")) {
-			goPage = "/board/BoardModify01.jsp";
+			goPage = "/menu/board/BoardModify01.jsp";
 			
 			String parmBoardId = req.getParameter("boardId");
 			if (null == parmBoardId) {
@@ -177,7 +177,7 @@ public class BoardModifySvl extends AbstractAuthServlet {
 			printWebLayoutControlJspPage(req, res, goPage);
 			return;
 		} else {		
-			goPage = "/board/BoardModify02.jsp";
+			goPage = "/menu/board/BoardModify02.jsp";
 			
 						
 			String parmBoardId = req.getParameter("boardId");			

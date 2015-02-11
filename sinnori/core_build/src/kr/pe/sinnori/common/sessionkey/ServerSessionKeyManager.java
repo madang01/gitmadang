@@ -131,11 +131,12 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 			rsaPrivateKeyFIS.read(privateKeyBytes);
 		} catch (FileNotFoundException e) {
 			String errorMessage = String
-					.format("RSA Private Key FileNotFoundException");
+					.format("the RSA private key File[%s] is not found", rsaPrivateKeyFile.getAbsolutePath());
 			log.error(errorMessage, e);
 			System.exit(1);
 		} catch (IOException e) {
-			String errorMessage = String.format("RSA Private Key IOException");
+			String errorMessage = String.format("the RSA private key File[%s] IOException, errmessage=%s", 
+					rsaPrivateKeyFile.getAbsolutePath(), e.getMessage());
 			log.error(errorMessage, e);
 			System.exit(1);
 		} finally {
@@ -153,7 +154,7 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 			rsaKeyFactory = KeyFactory.getInstance("RSA");
 		} catch (NoSuchAlgorithmException e) {
 			String errorMessage = String
-					.format("KeyFactory.getInstance NoSuchAlgorithmException");
+					.format("fail to get the RSA KeyFactory, errmessage=%s", e.getMessage());
 			log.error(errorMessage, e);
 			System.exit(1);
 		}
@@ -162,7 +163,9 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 			privateKey = rsaKeyFactory.generatePrivate(privateKeySpec);
 		} catch (InvalidKeySpecException e) {
 			String errorMessage = String
-					.format("RSA Private Key InvalidKeySpecException");
+					.format("fail to get the RSA private key(=PKCS8EncodedKeySpec)[%s]::errmessage=%s", 
+							HexUtil.getHexStringFromByteArray(privateKeyBytes), 
+							e.getMessage());
 			log.error(errorMessage, e);
 			System.exit(1);
 		}
@@ -202,11 +205,13 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 			rsaPublicKeyFIS.read(publicKeyBytes);
 		} catch (FileNotFoundException e) {
 			String errorMessage = String
-					.format("RSA Public Key FileNotFoundException");
+					.format("the RSA public key file[%s] is not found", 
+							rsaPublicKeyFile.getAbsolutePath());
 			log.error(errorMessage, e);
 			System.exit(1);
 		} catch (IOException e) {
-			String errorMessage = String.format("RSA Public Key IOException");
+			String errorMessage = String.format("the RSA public key file[%s] IOException, errormessage=%s",
+					rsaPublicKeyFile.getAbsolutePath(), e.getMessage());
 			log.error(errorMessage, e);
 			System.exit(1);
 		} finally {
@@ -224,7 +229,9 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 			publicKey = rsaKeyFactory.generatePublic(publicKeySpec);
 		} catch (InvalidKeySpecException e) {
 			String errorMessage = String
-					.format("RSA Public Key InvalidKeySpecException");
+					.format("fail to get the RSA public key(=X509EncodedKeySpec)[%s], errormessage=%s",
+							HexUtil.getHexStringFromByteArray(publicKeyBytes), 
+							e.getMessage());
 			log.error(errorMessage, e);
 			System.exit(1);
 		}
@@ -232,7 +239,9 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 		try {
 			rsaPrivateCrtKeySpec = rsaKeyFactory.getKeySpec(privateKey, RSAPrivateCrtKeySpec.class);
 		} catch (InvalidKeySpecException e) {
-			String errorMessage = String.format("InvalidKeySpecException");
+			String errorMessage = 
+					String.format("fail to get the RSA private key spec(=RSAPrivateCrtKeySpec), errormessage=%s", 
+					e.getMessage());
 			log.error(errorMessage, e);
 			System.exit(1);
 		}
@@ -252,7 +261,8 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 		try {
 			rsaKeyPairGenerator = KeyPairGenerator.getInstance("RSA");
 		} catch (NoSuchAlgorithmException e) {
-			String errorMessage = "RSA NoSuchAlgorithmException";
+			String errorMessage = String
+					.format("fail to get the RSA KeyPairGenerator, errmessage=%s", e.getMessage());
 			log.error(errorMessage, e);
 			System.exit(1);
 		}	
@@ -269,7 +279,7 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 			rsaKeyFactory = KeyFactory.getInstance("RSA");
 		} catch (NoSuchAlgorithmException e) {
 			String errorMessage = String
-					.format("KeyFactory.getInstance NoSuchAlgorithmException");
+					.format("fail to get the RSA KeyFactory, errmessage=%s", e.getMessage());
 			log.error(errorMessage, e);
 			System.exit(1);
 		}
@@ -277,7 +287,9 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 		try {
 			rsaPrivateCrtKeySpec = rsaKeyFactory.getKeySpec(privateKey, RSAPrivateCrtKeySpec.class);
 		} catch (InvalidKeySpecException e) {
-			String errorMessage = String.format("InvalidKeySpecException");
+			String errorMessage = 
+					String.format("fail to get the RSA private key spec(=RSAPrivateCrtKeySpec), errormessage=%s", 
+					e.getMessage());
 			log.error(errorMessage, e);
 			System.exit(1);
 		}
@@ -459,12 +471,12 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 			// rsaDecModeCipher = Cipher.getInstance("RSA/ECB/NoPadding");
 		} catch (NoSuchAlgorithmException e) {
 			String errorMessage = String
-					.format("Cipher.getInstance NoSuchAlgorithmException");
+					.format("Cipher.getInstance NoSuchAlgorithmException, errormessage=%s", e.getMessage());
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		} catch (NoSuchPaddingException e) {
 			String errorMessage = String
-					.format("Cipher.getInstance NoSuchPaddingException");
+					.format("Cipher.getInstance NoSuchPaddingException, errormessage=%s", e.getMessage());
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		}
@@ -473,7 +485,7 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 			rsaEncModeCipher.init(Cipher.ENCRYPT_MODE, publicKey);
 		} catch (InvalidKeyException e) {
 			String errorMessage = String
-					.format("RSA Cipher InvalidKeyException");
+					.format("RSA Cipher InvalidKeyException, errormessage=%s", e.getMessage());
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		}
@@ -484,12 +496,12 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 					.doFinal(plainTextBytes);
 		} catch (IllegalBlockSizeException e) {
 			String errorMessage = String
-					.format("RSA Cipher IllegalBlockSizeException");
+					.format("RSA Cipher IllegalBlockSizeException, errormessage=%s", e.getMessage());
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		} catch (BadPaddingException e) {
 			String errorMessage = String
-					.format("RSA Cipher BadPaddingException");
+					.format("RSA Cipher BadPaddingException, errormessage=%s", e.getMessage());
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		}
@@ -516,11 +528,11 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 			// rsaDecModeCipher = Cipher.getInstance("RSA/ECB/NoPadding");
 		} catch (NoSuchAlgorithmException e) {
 			String errorMessage = String
-					.format("Cipher.getInstance NoSuchAlgorithmException");
+					.format("Cipher.getInstance NoSuchAlgorithmException, errormessage=%s", e.getMessage());
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		} catch (NoSuchPaddingException e) {
-			String errorMessage = String.format("NoSuchPaddingException");
+			String errorMessage = String.format("NoSuchPaddingException, errormessage=%s", e.getMessage());
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		}
@@ -528,7 +540,7 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 		try {
 			rsaDecModeCipher.init(Cipher.DECRYPT_MODE, privateKey);
 		} catch (InvalidKeyException e) {
-			String errorMessage = String.format("InvalidKeyException");
+			String errorMessage = String.format("InvalidKeyException, errormessage=%s", e.getMessage());
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		}
@@ -539,12 +551,12 @@ public final class ServerSessionKeyManager implements CommonRootIF {
 					.doFinal(encryptedBytesWithPublicKey);
 		} catch (IllegalBlockSizeException e) {
 			String errorMessage = String
-					.format("RSA Cipher IllegalBlockSizeException");
+					.format("RSA Cipher IllegalBlockSizeException, errormessage=%s", e.getMessage());
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		} catch (BadPaddingException e) {
 			String errorMessage = String
-					.format("RSA Cipher BadPaddingException");
+					.format("RSA Cipher BadPaddingException, errormessage=%s", e.getMessage());
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		}

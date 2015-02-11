@@ -45,7 +45,7 @@ public class BoardWriteSvl extends AbstractAuthServlet {
 		
 		String parmPageMode = req.getParameter("pageMode");
 		if (null == parmPageMode) {
-			goPage = "/board/BoardWrite01.jsp";
+			goPage = "/menu/board/BoardWrite01.jsp";
 			String errorMessage = "페이지 모드를 넣어주세요.";
 			req.setAttribute("errorMessage", errorMessage);
 			printWebLayoutControlJspPage(req, res, goPage);
@@ -53,7 +53,7 @@ public class BoardWriteSvl extends AbstractAuthServlet {
 		}		
 		
 		if (!parmPageMode.equals("view") && !parmPageMode.equals("proc")) {
-			goPage = "/board/BoardWrite01.jsp";
+			goPage = "/menu/board/BoardWrite01.jsp";
 			String errorMessage = new StringBuilder("페이지 모드는 2가지(view, proc) 입니다.")
 			.append(CommonStaticFinalVars.NEWLINE)
 			.append("페이지 모드 값[").append(parmPageMode).append("]이 잘못 되었습니다.").toString();
@@ -63,7 +63,7 @@ public class BoardWriteSvl extends AbstractAuthServlet {
 		}		
 		
 		if (parmPageMode.equals("view")) {
-			goPage = "/board/BoardWrite01.jsp";
+			goPage = "/menu/board/BoardWrite01.jsp";
 			
 			String parmBoardId = req.getParameter("boardId");
 			if (null == parmBoardId) {
@@ -98,7 +98,7 @@ public class BoardWriteSvl extends AbstractAuthServlet {
 			printWebLayoutControlJspPage(req, res, goPage);
 			return;
 		} else {
-			goPage = "/board/BoardWrite02.jsp";
+			goPage = "/menu/board/BoardWrite02.jsp";
 			
 			String parmBoardId = req.getParameter("boardId");
 			if (null == parmBoardId) {

@@ -99,7 +99,7 @@ public final class ClientSessionKeyManager implements CommonRootIF {
 		try {
 			rsaKeyFactory = KeyFactory.getInstance("RSA");
 		} catch (NoSuchAlgorithmException e) {
-			String errorMessage = String.format("NoSuchAlgorithmException");
+			String errorMessage = String.format("NoSuchAlgorithmException, errormessage=%s", e.getMessage());
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		}
@@ -112,7 +112,7 @@ public final class ClientSessionKeyManager implements CommonRootIF {
 			publicKey = rsaKeyFactory.generatePublic(publicKeySpec);
 		} catch (InvalidKeySpecException e) {
 			String errorMessage = String
-					.format("RSA Public Key InvalidKeySpecException");
+					.format("RSA Public Key InvalidKeySpecException, errormessage=%s", e.getMessage());
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		}
@@ -124,12 +124,12 @@ public final class ClientSessionKeyManager implements CommonRootIF {
 			// rsaDecModeCipher = Cipher.getInstance("RSA/ECB/NoPadding");
 		} catch (NoSuchAlgorithmException e) {
 			String errorMessage = String
-					.format("RSA Cipher.getInstance NoSuchAlgorithmException");
+					.format("RSA Cipher.getInstance NoSuchAlgorithmException, errormessage=%s", e.getMessage());
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		} catch (NoSuchPaddingException e) {
 			String errorMessage = String
-					.format("RSA Cipher NoSuchPaddingException");
+					.format("RSA Cipher NoSuchPaddingException, errormessage=%s", e.getMessage());
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		}
@@ -138,7 +138,7 @@ public final class ClientSessionKeyManager implements CommonRootIF {
 			rsaEncModeCipher.init(Cipher.ENCRYPT_MODE, publicKey);
 		} catch (InvalidKeyException e) {
 			String errorMessage = String
-					.format("RSA Cipher InvalidKeyException");
+					.format("RSA Cipher InvalidKeyException, errormessage=%s", e.getMessage());
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		}
@@ -147,6 +147,7 @@ public final class ClientSessionKeyManager implements CommonRootIF {
 				.getResource("sessionkey.symmetric_key_size.value")];
 		random.nextBytes(symmetricKeyBytes);
 
+		// FIXME!
 		log.info(String.format("symmetricKeyBytes length=[%d]", symmetricKeyBytes.length));
 
 		byte[] rsaPrivateKeyBytes = null;
@@ -168,14 +169,14 @@ public final class ClientSessionKeyManager implements CommonRootIF {
 					.doFinal(rsaPrivateKeyBytes);
 		} catch (IllegalBlockSizeException e) {
 			String errorMessage = String
-					.format("RSA Cipher IllegalBlockSizeException");
+					.format("RSA Cipher IllegalBlockSizeException, errormessage=%s", e.getMessage());
 			log.warn(errorMessage, e);
-			throw new SymmetricException("IllegalBlockSizeException");
+			throw new SymmetricException(errorMessage);
 		} catch (BadPaddingException e) {
 			String errorMessage = String
-					.format("RSA Cipher BadPaddingException");
+					.format("RSA Cipher BadPaddingException, errormessage=%s", e.getMessage());
 			log.warn(errorMessage, e);
-			throw new SymmetricException("BadPaddingException");
+			throw new SymmetricException(errorMessage);
 		}
 
 		sessionKeyBytes = encryptedBytesUsingPublickKey;
@@ -227,6 +228,7 @@ public final class ClientSessionKeyManager implements CommonRootIF {
 				.getResource("sessionkey.iv_size.value")];
 		random.nextBytes(ivBytes);
 
+		// FIXME!
 		log.info(String.format("ivBytes length=[%d]", ivBytes.length));
 
 		SymmetricKey symmetricKey = new SymmetricKey(symmetricKeyAlgorithm,

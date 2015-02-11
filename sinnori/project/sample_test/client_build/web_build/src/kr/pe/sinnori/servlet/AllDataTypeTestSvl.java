@@ -40,7 +40,7 @@ public class AllDataTypeTestSvl extends AbstractServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
-		String goPage = "/testcode/AllDataType01.jsp";
+		String goPage = "/menu/testcode/AllDataType01.jsp";
 
 		java.util.Random random = new java.util.Random();
 		

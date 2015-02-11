@@ -21,7 +21,7 @@ public class BoardListSvl extends AbstractServlet {
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
 		
-		String goPage = "/board/BoardList01.jsp";
+		String goPage = "/menu/board/BoardList01.jsp";
 		
 		String parmBoardId = req.getParameter("boardId");
 		if (null == parmBoardId) parmBoardId = "2";

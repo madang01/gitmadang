@@ -11,7 +11,7 @@ public class SessionKeyTestSvl extends AbstractSessionKeyServlet {
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
-		String goPage = "/testcode/SessionKeyTest01.jsp";
+		String goPage = "/menu/testcode/SessionKeyTest01.jsp";
 		
 		
 		printWebLayoutControlJspPage(req, res, goPage);	

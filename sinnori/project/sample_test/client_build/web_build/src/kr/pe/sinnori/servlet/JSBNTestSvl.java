@@ -33,7 +33,7 @@ import kr.pe.sinnori.common.weblib.AbstractServlet;
 @SuppressWarnings("serial")
 public class JSBNTestSvl extends AbstractServlet {
 	final String arryPageURL[] = {
-			"/testcode/JSBNTest01.jsp", "/testcode/JSBNTest02.jsp"
+			"/menu/testcode/JSBNTest01.jsp", "/menu/testcode/JSBNTest02.jsp"
 	};
 
 	@Override

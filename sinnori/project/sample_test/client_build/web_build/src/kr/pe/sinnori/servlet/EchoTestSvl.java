@@ -38,7 +38,7 @@ public class EchoTestSvl extends AbstractServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
-		String goPage = "/testcode/EchoTest01.jsp";
+		String goPage = "/menu/testcode/EchoTest01.jsp";
 
 		java.util.Random random = new java.util.Random();
 			

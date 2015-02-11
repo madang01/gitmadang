@@ -26,7 +26,7 @@ public class BoardVoteSvl extends AbstractAuthServlet {
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
 		
-		String goPage = "/board/BoardVote01.jsp";
+		String goPage = "/menu/board/BoardVote01.jsp";
 		
 		/*int pageNo = 1;
 		
