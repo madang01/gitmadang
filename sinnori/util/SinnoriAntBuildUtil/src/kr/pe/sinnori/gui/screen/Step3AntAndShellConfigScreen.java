@@ -331,7 +331,7 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 			serverPartTextBuilder.append(File.separator);
 			serverPartTextBuilder.append("dist");
 			serverPartTextBuilder.append(File.separator);
-			serverPartTextBuilder.append("SinnoriServerMain.jar");
+			serverPartTextBuilder.append("SinnoriServerRun.jar");
 			
 			serverPartText = serverPartTextBuilder.toString();
 			
@@ -377,7 +377,7 @@ public class Step3AntAndShellConfigScreen extends JPanel {
 			clientPartTextBuilder.append(File.separator);
 			clientPartTextBuilder.append("dist");
 			clientPartTextBuilder.append(File.separator);
-			clientPartTextBuilder.append("SinnoriAppClientMain.jar");
+			clientPartTextBuilder.append("SinnoriAppClientRun.jar");
 
 			clientPartText = clientPartTextBuilder.toString();
 			

@@ -25,6 +25,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
+import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
@@ -132,10 +133,13 @@ public class Step2SinnoriConfigScreen extends JPanel {
 		innerProjectClassLoaderAPPINFPathTextField = new JTextField[projectCnt][];
 		innerProjectClassLoaderSourcePathTextField = new JTextField[projectCnt][];
 		
+		
+		
 		for (int i=0; i < projectCnt; i++) {
 			String projectName = this.mainProjectList.get(i);
 			SequencedProperties configOfProject = this.project2ConfigHash.get(projectName);
-			String propKey = "common.projectlist.value";
+			String propKey = "project.name_list.value";
+			
 			
 			String propProjectList = configOfProject.getProperty(propKey);
 			if (null == propProjectList) {
@@ -283,8 +287,11 @@ public class Step2SinnoriConfigScreen extends JPanel {
 			
 			
 			for (int j=0; j < projectCntOfConfig; j++) {
-				String projectNameOfConfig = projectListTokens.nextToken();
+				String projectNameOfConfig = projectListTokens.nextToken().trim();
 				innerProjectList[i][j] = projectNameOfConfig;
+				
+				// FIXME!
+				Logger.getGlobal().info(String.format("innerProjectList[%d][%d]=[%s]", i, j, projectNameOfConfig));
 				
 				// projectListOfConfig.add(projectListTokens.nextToken());
 				
@@ -409,7 +416,7 @@ public class Step2SinnoriConfigScreen extends JPanel {
 					propKeyBuilder = new StringBuilder(projectNameOfConfig);
 					propKeyBuilder.append(".common.message_info.xmlpath.value");
 					String innerProjectMessagePathText = configOfProject.getProperty(propKeyBuilder.toString());
-					if (null == innerProjectMessagePathText) innerProjectMessagePathText= "'";
+					if (null == innerProjectMessagePathText) innerProjectMessagePathText= ".";
 					// else innerProjectMessagePathText = innerProjectMessagePathText.trim();
 					
 					innerProjectMessagePathTextField[i][j].setText(innerProjectMessagePathText);
@@ -423,7 +430,7 @@ public class Step2SinnoriConfigScreen extends JPanel {
 					propKeyBuilder = new StringBuilder(projectNameOfConfig);
 					propKeyBuilder.append(".server.classloader.appinf.path.value");
 					String innerProjectExecutorBinaryPath = configOfProject.getProperty(propKeyBuilder.toString());
-					if (null == innerProjectExecutorBinaryPath) innerProjectExecutorBinaryPath= "'";
+					if (null == innerProjectExecutorBinaryPath) innerProjectExecutorBinaryPath= ".";
 					
 					innerProjectClassLoaderAPPINFPathTextField[i][j].setText(innerProjectExecutorBinaryPath);
 					innerProjectClassLoaderAPPINFPathTextField[i][j].setEditable(true);
@@ -436,7 +443,7 @@ public class Step2SinnoriConfigScreen extends JPanel {
 					propKeyBuilder = new StringBuilder(projectNameOfConfig);
 					propKeyBuilder.append(".server.classloader.class.source.path.value");
 					String innerProjectExecutorSourcePath = configOfProject.getProperty(propKeyBuilder.toString());
-					if (null == innerProjectExecutorSourcePath) innerProjectExecutorSourcePath= "'";
+					if (null == innerProjectExecutorSourcePath) innerProjectExecutorSourcePath= ".";
 					
 					innerProjectClassLoaderSourcePathTextField[i][j].setText(innerProjectExecutorSourcePath);
 					innerProjectClassLoaderSourcePathTextField[i][j].setEditable(true);
@@ -473,13 +480,15 @@ public class Step2SinnoriConfigScreen extends JPanel {
 		System.out.printf("apiRadioButton.length=[%d]", apiRadioButton.length);
 		System.out.println();
 		
+		String propKey = null;
+		
 		for (int i=0; i < innerProjectList.length; i++) {
 			
 			// sinnoriInstallAbsPathName
 			String projectName = mainProjectList.get(i);
 			SequencedProperties configOfProject = project2ConfigHash.get(projectName);
 			
-			String propKey = null;
+			
 						
 			propKey = "sessionkey.rsa_keypair_path.value";
 			String rsaKeyPairPath = rsaKeyPairPathTextField[i].getText();
@@ -545,7 +554,7 @@ public class Step2SinnoriConfigScreen extends JPanel {
 			
 			for (int j=0; j < innerProjectList[i].length; j++) {
 
-				propKey = new StringBuilder(innerProjectList[i][j]).append(".common.message_info.xmlpath.value").toString();
+				propKey = new StringBuilder("project.").append(innerProjectList[i][j]).append(".common.message_info.xmlpath.value").toString();
 				String innerProjectMessagePath = innerProjectMessagePathTextField[i][j].getText();
 				
 				fileObj = new File(innerProjectMessagePath);
@@ -572,7 +581,10 @@ public class Step2SinnoriConfigScreen extends JPanel {
 				
 				configOfProject.setProperty(propKey, innerProjectMessagePath);
 				
-				propKey = new StringBuilder(innerProjectList[i][j]).append(".server.classloader.appinf.path.value").toString();
+				// FIXME!
+				Logger.getGlobal().info(String.format("propKey=[%s], value=[%s]", propKey, innerProjectMessagePath));
+				
+				propKey = new StringBuilder("project.").append(innerProjectList[i][j]).append(".server.classloader.appinf.path.value").toString();
 				String innerProjectDynamicClassBinaryBasePath = innerProjectClassLoaderAPPINFPathTextField[i][j].getText();
 				
 				fileObj = new File(innerProjectDynamicClassBinaryBasePath);
@@ -597,8 +609,11 @@ public class Step2SinnoriConfigScreen extends JPanel {
 				
 				configOfProject.setProperty(propKey, innerProjectDynamicClassBinaryBasePath);
 				
+				// FIXME!
+				Logger.getGlobal().info(String.format("propKey=[%s], value=[%s]", propKey, innerProjectDynamicClassBinaryBasePath));
 				
-				propKey = new StringBuilder(innerProjectList[i][j]).append(".server.classloader.class.source.path.value").toString();
+				
+				propKey = new StringBuilder("project.").append(innerProjectList[i][j]).append(".server.classloader.class.source.path.value").toString();
 				String innerProjectDynamicClassSourceBasePath = innerProjectClassLoaderSourcePathTextField[i][j].getText();
 				
 				fileObj = new File(innerProjectDynamicClassSourceBasePath);
@@ -622,6 +637,9 @@ public class Step2SinnoriConfigScreen extends JPanel {
 				}
 				
 				configOfProject.setProperty(propKey, innerProjectDynamicClassSourceBasePath);
+				
+				// FIXME!
+				Logger.getGlobal().info(String.format("propKey=[%s], value=[%s]", propKey, innerProjectDynamicClassSourceBasePath));
 			}
 			
 			StringBuilder configFileBuilder = new StringBuilder(sinnoriInstallAbsPathName);
@@ -633,6 +651,9 @@ public class Step2SinnoriConfigScreen extends JPanel {
 			configFileBuilder.append("config");
 			configFileBuilder.append(File.separator);
 			configFileBuilder.append(MainControllerIF.SINNORI_CONFIG_FILE_NAME);
+			
+			// FIXME!
+			Logger.getGlobal().info(String.format("configFileBuilder=[%s]", configFileBuilder.toString()));
 			
 			File configFileObjOfProject = new File(configFileBuilder.toString());
 			

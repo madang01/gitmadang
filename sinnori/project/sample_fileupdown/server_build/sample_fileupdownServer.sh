@@ -3,4 +3,4 @@ java -d64 -server -Xmx1024m -Xms1024m \
 -Dsinnori.logPath=/home/madang01/gitsinnori/sinnori/project/sample_fileupdown/log/server \
 -Dsinnori.configurationFile=/home/madang01/gitsinnori/sinnori/project/sample_fileupdown/config/sinnori.properties \
 -Dsinnori.projectName=sample_fileupdown \
--jar /home/madang01/gitsinnori/sinnori/project/sample_fileupdown/server_build/dist/SinnoriServerMain.jar
+-jar /home/madang01/gitsinnori/sinnori/project/sample_fileupdown/server_build/dist/SinnoriServerRun.jar
