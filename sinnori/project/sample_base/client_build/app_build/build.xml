@@ -59,6 +59,8 @@
 	  <!-- this appclient project build directory -->
 		<delete dir="${dir.build}" />
 		<mkdir dir="${dir.build}" />
+		<mkdir dir="${dir.lib}/ex" />
+		<mkdir dir="${dir.lib}/in" />
 		
 		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}">
 			<classpath>
