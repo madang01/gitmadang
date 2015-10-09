@@ -2,7 +2,6 @@ package kr.pe.sinnori.impl.servertask;
 
 import java.util.ArrayList;
 
-import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.serverlib.ServerCommonStaticFinalVars;
 import kr.pe.sinnori.common.serverlib.ValueChecker;
@@ -23,7 +22,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 
 public class BoardUploadFileInDTOServerTask extends AbstractServerTask {
 	@Override
-	public void doTask(ServerProjectConfig serverProjectConfig,
+	public void doTask(String projectName,
 			LoginManagerIF loginManager, LetterSender letterSender,
 			AbstractMessage messageFromClient) throws Exception {
 		// FIXME!

@@ -1,6 +1,5 @@
 package kr.pe.sinnori.impl.servertask;
 
-import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager;
 import kr.pe.sinnori.impl.message.BinaryPublicKey.BinaryPublicKey;
@@ -11,7 +10,7 @@ import kr.pe.sinnori.server.executor.LetterSender;
 public class BinaryPublicKeyServerTask extends AbstractServerTask {
 
 	@Override
-	public void doTask(ServerProjectConfig serverProjectConfig,
+	public void doTask(String projectName,
 			LoginManagerIF loginManager,
 			LetterSender letterSender, AbstractMessage messageFromClient)
 			throws Exception {

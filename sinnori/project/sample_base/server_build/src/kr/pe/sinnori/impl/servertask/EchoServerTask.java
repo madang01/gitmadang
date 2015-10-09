@@ -16,7 +16,6 @@
  */
 package kr.pe.sinnori.impl.servertask;
 
-import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.Echo.Echo;
 import kr.pe.sinnori.server.LoginManagerIF;
@@ -31,14 +30,14 @@ import kr.pe.sinnori.server.executor.LetterSender;
 public final class EchoServerTask extends AbstractServerTask {	
 	
 	@Override
-	public void doTask(ServerProjectConfig serverProjectConfig,
+	public void doTask(String projectName,
 			LoginManagerIF loginManager,
 			LetterSender letterSender, AbstractMessage messageFromClient)
 			throws Exception {
-		doWork(serverProjectConfig, letterSender, (Echo)messageFromClient);
+		doWork(projectName, letterSender, (Echo)messageFromClient);
 	}
 	
-	private void doWork(ServerProjectConfig serverProjectConfig,
+	private void doWork(String projectName,
 			LetterSender letterSender, Echo echoInObj)
 			throws Exception {
 		// FIXME!

@@ -24,7 +24,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import kr.pe.sinnori.client.ClientProject;
 import kr.pe.sinnori.client.ClientProjectManager;
-import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.weblib.AbstractServlet;
 import kr.pe.sinnori.impl.message.AllDataType.AllDataType;
@@ -133,9 +132,8 @@ public class AllDataTypeTestSvl extends AbstractServlet {
 		}
 		
 		allDataTypeInObj.setMemberList(memberList);
-		
-		String projectName = System.getProperty(CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);	
-		ClientProject clientProject = ClientProjectManager.getInstance().getClientProject(projectName);
+			
+		ClientProject clientProject = ClientProjectManager.getInstance().getMainClientProject();
 		AbstractMessage messageFromServer = clientProject.sendSyncInputMessage(allDataTypeInObj);
 
 		String errorMessage = "";

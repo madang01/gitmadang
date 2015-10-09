@@ -29,16 +29,7 @@ public class SinnoriServerMain implements CommonRootIF {
 			System.exit(1);
 		}
 		
-		/*try {
-			SqlSessionFactory sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory("tw_sinnoridb");
-			
-			sqlSessionFactory.openSession();
-		} catch (DBNotReadyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
 		
-		/** FIXME! */
 		ServerProject serverProject = ServerProjectManager.getInstance().getServerProject(projectName);
 			
 		serverProject.startServer();

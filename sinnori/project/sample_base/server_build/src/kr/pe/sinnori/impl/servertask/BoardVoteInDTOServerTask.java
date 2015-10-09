@@ -2,7 +2,6 @@ package kr.pe.sinnori.impl.servertask;
 
 import java.util.HashMap;
 
-import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.serverlib.ValueChecker;
 import kr.pe.sinnori.impl.message.BoardVoteInDTO.BoardVoteInDTO;
@@ -17,7 +16,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 
 public class BoardVoteInDTOServerTask extends AbstractServerTask {
 	@Override
-	public void doTask(ServerProjectConfig serverProjectConfig,
+	public void doTask(String projectName,
 			LoginManagerIF loginManager, LetterSender letterSender,
 			AbstractMessage messageFromClient) throws Exception {
 		// FIXME!

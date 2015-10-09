@@ -2,7 +2,7 @@
 <!--
 	singleitem type : (unsigned) byte, (unsigned) short, (unsigned) integer, long,
 					fixed length string, 
-					ub pascal string, us pascal string, si pascal string, 
+					ub pascal string, us pascal string, si pascal string,
 					fixed length byte[], variable length byte[],
 					java sql date, java sql timestamp, boolean
 	array cnttype : reference 변수참조, direct 직접입력

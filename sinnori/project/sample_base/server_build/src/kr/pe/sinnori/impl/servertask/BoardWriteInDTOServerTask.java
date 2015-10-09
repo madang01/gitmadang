@@ -1,6 +1,5 @@
 package kr.pe.sinnori.impl.servertask;
 
-import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.serverlib.ValueChecker;
 import kr.pe.sinnori.impl.message.BoardWriteInDTO.BoardWriteInDTO;
@@ -15,7 +14,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 
 public class BoardWriteInDTOServerTask extends AbstractServerTask {	
 	@Override
-	public void doTask(ServerProjectConfig serverProjectConfig,
+	public void doTask(String projectName,
 			LoginManagerIF loginManager, LetterSender letterSender,
 			AbstractMessage messageFromClient) throws Exception {
 		// FIXME!

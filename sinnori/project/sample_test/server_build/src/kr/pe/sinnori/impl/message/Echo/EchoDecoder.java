@@ -17,7 +17,6 @@
 package kr.pe.sinnori.impl.message.Echo;
 
 import java.nio.charset.Charset;
-
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.MessageDecoder;

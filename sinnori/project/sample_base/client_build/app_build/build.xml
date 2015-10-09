@@ -1,12 +1,15 @@
 <project name="sample_base_appclient" default="make.main.only" basedir=".">
 	<!-- set global properties for this build -->
-	<property name="src" location="src" />
-	<property name="build" location="build" />
-	<property name="dist" location="dist" />
-	<property name="corelib" location="corelib" />
-	<property name="lib" location="lib" />
-	<property name="framework.build" location="../../../../core_build" />
+	<property name="dir.src" location="src" />
+	<property name="dir.build" location="build" />
+	<property name="dir.dist" location="dist" />
+	<property name="dir.corelib" location="corelib" />
+	<property name="dir.lib" location="lib" />
+	<property name="dir.core.build" location="../../../../core_build" />
 	<property file="../../ant.properties" />
+	<property name="appclient.main.class" value="main.SinnoriAppClientMain" />
+	<property name="appclient.main.jar" value="SinnoriAppClientRun.jar" />
+	<property name="java.complile.option.debug" value="on" />
 	
 	<condition property="is.windows.yes">
 		<os family="windows" />
@@ -15,99 +18,75 @@
 		<os family="unix" />
 	</condition>
 	
-	<condition property="is.debug.yes">
-		<istrue value="${java.debug}" />
-	</condition>
 	
-	<target name="init.debug" if="is.debug.yes" description="framework with debug info">
-		<property name="core.java.debug" value="debug" />
-	</target>
-	
-	<target name="init.nodebug" unless="is.debug.yes" description="framework with no debug info">
-		<property name="core.java.debug" value="nodebug" />
-	</target>
-	
-	<target name="init.dos" if="is.windows.yes">
-		<property name="weblib" location="${dos.weblib}" />
-	</target>
-	<target name="init.unix" if="is.unix.yes">
-		<property name="weblib" location="${unix.weblib}" />
-	</target>
-	
-	<target name="init.var" depends="init.nodebug, init.debug, init.dos, init.unix" description="var init">
-		<echo message="java.debug=${java.debug}, core.java.debug=${core.java.debug}" />
-		<echo message="is.debug.yes=${is.debug.yes}" />
+	<target name="init.var">
+		<!-- Create the time stamp -->
+		<tstamp />
+	  <echo message="java.complile.option.debug=${java.complile.option.debug}" />
+	  <echo message="is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}" />
 	</target>
 	
 	<target name="make.unixcore" if="is.unix.yes" depends="init.var">
-		<exec dir="${framework.build}" executable="ant">
-			<arg value="${core.java.debug}" />
-		</exec>
+		<exec dir="${dir.core.build}" executable="ant" />
 	</target>
 	
 	<target name="make.doscore" if="is.windows.yes" depends="init.var">
-		<exec dir="${framework.build}" executable="cmd">
+		<exec dir="${dir.core.build}" executable="cmd">
 			<arg value="/c" />
 			<arg value="ant.bat" />
-			<arg value="${core.java.debug}" />
 		</exec>
 	</target>
 
-	<target name="make.core" depends="make.doscore, make.unixcore" description="make sinnori core jar file" />
+	<target name="make.core" depends="make.doscore, make.unixcore" />
+
+	<target name="copy.core" depends="make.core">
+	  <!-- core directory -->
+		<delete dir="${dir.corelib}" />
+		<mkdir dir="${dir.corelib}/ex" />
+		<mkdir dir="${dir.corelib}/in" />
 		
-	<target name="init.directory" depends="make.core" description="directory init for ant compile envoroment">
-		<echo message="directory init for ant compile envoroment" />
-		<delete dir="${corelib}" />
-		<mkdir dir="${corelib}/ex" />
-		<mkdir dir="${corelib}/in" />
-		<mkdir dir="${lib}/ex" />
-		<mkdir dir="${lib}/in" />
-	</target>
-	
-	<target name="copy.core" depends="init.directory" description="sinnori core copy">
-		<copy todir="${corelib}/in" verbose="true" overwrite="true">
-			<fileset file="${framework.build}/dist/sinnori-core.jar" />
+		<copy todir="${dir.corelib}/in" verbose="true" overwrite="true">
+			<fileset file="${dir.core.build}/dist/sinnori-core.jar" />
 		</copy>
-		<copy todir="${corelib}/ex" verbose="true" overwrite="true">
-			<fileset dir="${framework.build}/lib/ex/" />
+		<copy todir="${dir.corelib}/ex" verbose="true" overwrite="true">
+			<fileset dir="${dir.core.build}/lib/ex/" />
 		</copy>		
 	</target>
-
-	<target name="sinnori" depends="copy.core" description="copy sinnori core after making the sinnori core jar file">
-		<echo message="copy the sinnori core jar file after making the sinnori core jar file" />
-	</target>
 		
-	<target name="clean.main" depends="sinnori">
-		<!-- Delete the ${build} and ${dist} directory trees -->
-		<delete dir="${build}" />
-	</target>
-	
-	<target name="init.main" depends="clean.main">
-		<!-- Create the time stamp -->
-		<tstamp />
-		<!-- Create the build directory structure used by compile -->
-		<mkdir dir="${build}" />
-	</target>
 	
 	
-	<target name="compile.main" depends="init.main" description="compile application main class">
-		<!-- Compile the java code from ${src} into ${build} -->
-		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}" destdir="${build}">
+	<target name="compile.main" depends="copy.core">
+	  <!-- this appclient project build directory -->
+		<delete dir="${dir.build}" />
+		<mkdir dir="${dir.build}" />
+		
+		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}">
 			<classpath>
-				<fileset dir="${corelib}/ex">
+				<fileset dir="${dir.corelib}/ex">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${corelib}/in">
+				<fileset dir="${dir.corelib}/in">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${lib}/ex">
+				<fileset dir="${dir.lib}/ex">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${lib}/in">
+				<fileset dir="${dir.lib}/in">
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>
 		</javac>
+	</target>
+	
+	<target name="copy.distlib" depends="compile.main">
+	  <!-- this appclient project dist directory -->
+		<delete dir="${dir.dist}" />
+		<mkdir dir="${dir.dist}/lib" />	
+		
+		<copy todir="${dir.dist}/lib" verbose="true" overwrite="true">
+			<fileset dir="${dir.corelib}/ex" />
+			<fileset dir="${dir.lib}/ex" />
+		</copy>
 	</target>
 	
 	<path id="build.classpath">
@@ -127,24 +106,14 @@
 	  </mapper>
 	</pathconvert>
 
-	<target name="copy.jarlib" depends="compile.main">
-		<delete dir="${dist}" />		
-		<mkdir dir="${dist}/lib" />
-
-		<copy todir="${dist}/lib" verbose="true" overwrite="true">
-			<fileset dir="${corelib}/ex" />
-			<fileset dir="${lib}/ex" />
-		</copy>
-	</target>
-	
-	<target name="make.main" depends="copy.jarlib">		
-		<jar destfile="${dist}/SinnoriAppClientRun.jar" basedir="${build}">
+	<target name="make.main" depends="copy.distlib">		
+		<jar destfile="${dir.dist}/SinnoriAppClientRun.jar" basedir="${dir.build}">
 			<restrict>
 				<name name="**/*.class" />
 				<archives>
 					<zips>
-						<fileset dir="${corelib}/in" includes="**/*.jar" />
-						<fileset dir="${lib}/in" includes="**/*.jar" />
+						<fileset dir="${dir.corelib}/in" includes="**/*.jar" />
+						<fileset dir="${dir.lib}/in" includes="**/*.jar" />
 					</zips>
 				</archives>
 			</restrict>
@@ -155,44 +124,36 @@
 		</jar>
 	</target>
 	
-	<target name="compile.main.only" depends="init.var" description="complie client sources without sinnori core work">
-		<!-- Compile the java code from ${src} into ${build} -->
-		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}" destdir="${build}">
+	<target name="all" depends="make.main" />
+		
+	<target name="compile.main.only" depends="init.var">
+		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}">
 			<classpath>
-				<fileset dir="${corelib}/ex">
+				<fileset dir="${dir.corelib}/ex">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${corelib}/in">
+				<fileset dir="${dir.corelib}/in">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${lib}/ex">
+				<fileset dir="${dir.lib}/ex">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${lib}/in">
+				<fileset dir="${dir.lib}/in">
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>
 		</javac>
 	</target>
 	
-	<target name="copy.jarlib.only" depends="compile.main.only">
-		<delete dir="${dist}" />		
-		<mkdir dir="${dist}/lib" />
-
-		<copy todir="${dist}/lib" verbose="true" overwrite="true">
-			<fileset dir="${corelib}/ex" />
-			<fileset dir="${lib}/ex" />
-		</copy>
-	</target>
 	
-	<target name="make.main.only" depends="copy.jarlib.only" description="make executable jar file without sinnori core work">		
-		<jar destfile="${dist}/SinnoriAppClientRun.jar" basedir="${build}">
+	<target name="make.main.only" depends="compile.main.only">		
+		<jar destfile="${dir.dist}/SinnoriAppClientRun.jar" basedir="${dir.build}">
 			<restrict>
 				<name name="**/*.class" />
 				<archives>
 					<zips>
-						<fileset dir="${corelib}/in" includes="**/*.jar" />
-						<fileset dir="${lib}/in" includes="**/*.jar" />
+						<fileset dir="${dir.corelib}/in" includes="**/*.jar" />
+						<fileset dir="${dir.lib}/in" includes="**/*.jar" />
 					</zips>
 				</archives>
 			</restrict>
@@ -202,10 +163,5 @@
 			</manifest>
 		</jar>
 	</target>
-	
-	<target name="all" depends="make.main">
-		<echo message="is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}, java.debug=${java.debug}, core.java.debug=${core.java.debug}" />
-	</target>
-
 </project>
 

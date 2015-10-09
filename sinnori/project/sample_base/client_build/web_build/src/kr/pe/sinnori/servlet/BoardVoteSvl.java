@@ -6,7 +6,6 @@ import javax.servlet.http.HttpSession;
 
 import kr.pe.sinnori.client.ClientProject;
 import kr.pe.sinnori.client.ClientProjectManager;
-import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.weblib.AbstractAuthServlet;
 import kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars;
@@ -109,7 +108,7 @@ public class BoardVoteSvl extends AbstractAuthServlet {
 		
 		HttpSession httpSession = req.getSession();
 		String userId = (String) httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_USERID_NAME);
-		String projectName = System.getProperty(CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);
+		
 		
 		BoardVoteInDTO inObj =  new BoardVoteInDTO();
 		inObj.setBoardId(boardId);
@@ -118,7 +117,7 @@ public class BoardVoteSvl extends AbstractAuthServlet {
 		inObj.setIp(req.getRemoteAddr());
 		
 		String errorMessage = "";
-		ClientProject clientProject = ClientProjectManager.getInstance().getClientProject(projectName);
+		ClientProject clientProject = ClientProjectManager.getInstance().getMainClientProject();
 		AbstractMessage messageFromServer = clientProject.sendSyncInputMessage(inObj);
 		
 		if (messageFromServer instanceof MessageResult) {

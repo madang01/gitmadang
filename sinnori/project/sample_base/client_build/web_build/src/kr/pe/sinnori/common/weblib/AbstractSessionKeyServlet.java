@@ -21,9 +21,9 @@ import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.SymmetricException;
-import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
-import kr.pe.sinnori.common.lib.CommonType;
 import kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager;
 import kr.pe.sinnori.common.sessionkey.SymmetricKey;
 
@@ -257,7 +257,7 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		SymmetricKey  webUserSymmetricKey = null;
 		try {
 			ServerSessionKeyManager sessionKeyServerManger = ServerSessionKeyManager.getInstance();
-			webUserSymmetricKey = sessionKeyServerManger.getSymmetricKey(WebCommonStaticFinalVars.WEBSITE_JAVA_SYMMETRIC_KEY_ALGORITHM_NAME, CommonType.SymmetricKeyEncoding.BASE64, parmSessionKeyBase64, parmIVBase64);
+			webUserSymmetricKey = sessionKeyServerManger.getSymmetricKey(WebCommonStaticFinalVars.WEBSITE_JAVA_SYMMETRIC_KEY_ALGORITHM_NAME, CommonType.SYMMETRIC_KEY_ENCODING.BASE64, parmSessionKeyBase64, parmIVBase64);
 		} catch(IllegalArgumentException e) {
 			log.warn("IllegalArgumentException", e);
 			

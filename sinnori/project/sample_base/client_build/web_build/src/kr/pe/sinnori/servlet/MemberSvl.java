@@ -22,9 +22,9 @@ import javax.servlet.http.HttpSession;
 
 import kr.pe.sinnori.client.ClientProject;
 import kr.pe.sinnori.client.ClientProjectManager;
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.SymmetricException;
-import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
-import kr.pe.sinnori.common.lib.CommonType;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.sessionkey.ClientSessionKeyManager;
 import kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager;
@@ -86,16 +86,14 @@ public class MemberSvl extends AbstractServlet {
 			String parmNickname = req.getParameter("nickname");
 			String parmPwdHint = req.getParameter("pwdHint");
 			String parmPwdAnswer = req.getParameter("pwdAnswer");
-			String parmAnswer = req.getParameter("answer");
+			String parmCaptchaAnswer = req.getParameter("answer");
 			
-			log.info(String.format("parm sessionkeyBase64=[%s]", parmSessionKeyBase64));
-			log.info(String.format("parm ivBase64=[%s]", parmIVBase64));
-			log.info(String.format("parm id=[%s]", parmId));
-			log.info(String.format("parm pwd=[%s]", parmPwd));
-			log.info(String.format("parm nickname=[%s]", parmNickname));
-			log.info(String.format("parm pwdHint=[%s]", parmPwdHint));
-			log.info(String.format("parm pwdAnswer=[%s]", parmPwdAnswer));
-			log.info(String.format("parm answer=[%s]", parmAnswer));
+			log.info("parm sessionkeyBase64=[{}], parm ivBase64=[{}], " +
+					"parm id=[{}], parm pwd=[{}], parm nickname=[{}], " +
+					"parm pwdHint=[{}], parm pwdAnswer=[{}], parm answer=[{}]", 
+					parmSessionKeyBase64, parmIVBase64, 
+					parmId, parmPwd, parmNickname, 
+					parmPwdHint, parmPwdAnswer, parmCaptchaAnswer);
 			
 			if (null == parmSessionKeyBase64) {
 				String errorMessage = "세션키 값을 입력해 주세요.";
@@ -154,7 +152,7 @@ public class MemberSvl extends AbstractServlet {
 				return;
 			}
 			
-			if (null == parmAnswer) {
+			if (null == parmCaptchaAnswer) {
 				String errorMessage = "Captcha 값을 입력해 주세요.";
 				log.warn(errorMessage);
 				
@@ -172,7 +170,7 @@ public class MemberSvl extends AbstractServlet {
 			SymmetricKey  webUserSymmetricKey = null;
 			try {
 				
-				webUserSymmetricKey = sessionKeyServerManger.getSymmetricKey(WebCommonStaticFinalVars.WEBSITE_JAVA_SYMMETRIC_KEY_ALGORITHM_NAME, CommonType.SymmetricKeyEncoding.BASE64, parmSessionKeyBase64, parmIVBase64);
+				webUserSymmetricKey = sessionKeyServerManger.getSymmetricKey(WebCommonStaticFinalVars.WEBSITE_JAVA_SYMMETRIC_KEY_ALGORITHM_NAME, CommonType.SYMMETRIC_KEY_ENCODING.BASE64, parmSessionKeyBase64, parmIVBase64);
 			} catch(IllegalArgumentException e) {
 				String errorMessage = e.getMessage();
 				log.warn(errorMessage);
@@ -196,7 +194,7 @@ public class MemberSvl extends AbstractServlet {
 					.decryptStringBase64(parmPwdHint);
 			String pwdAnswer = webUserSymmetricKey.decryptStringBase64(parmPwdAnswer);
 			
-			String answer = webUserSymmetricKey.decryptStringBase64(parmAnswer);
+			String answer = webUserSymmetricKey.decryptStringBase64(parmCaptchaAnswer);
 			
 			
 			
@@ -275,8 +273,7 @@ public class MemberSvl extends AbstractServlet {
 			// ServerResource defaultServerResource =
 			// SinnoriClientManager.getInstance().getServerResource(defaultServerName);
 
-			String projectName = System.getProperty(CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);		
-			ClientProject clientProject = ClientProjectManager.getInstance().getClientProject(projectName);
+			ClientProject clientProject = ClientProjectManager.getInstance().getMainClientProject();
 			
 			
 			BinaryPublicKey binaryPublicKeyInObj = new BinaryPublicKey();			

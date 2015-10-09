@@ -16,12 +16,16 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import kr.pe.sinnori.common.configuration.ServerProjectConfig;
-import kr.pe.sinnori.common.configuration.SinnoriConfig;
+import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
+import kr.pe.sinnori.common.config.itemidinfo.ItemID;
+import kr.pe.sinnori.common.config.valueobject.AllDBCPPart;
+import kr.pe.sinnori.common.config.valueobject.AllSubProjectPart;
+import kr.pe.sinnori.common.config.valueobject.ProjectPart;
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.common.etc.DBCPManager;
+import kr.pe.sinnori.common.etc.LastModifiedFileInfo;
 import kr.pe.sinnori.common.exception.DBNotReadyException;
-import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
-import kr.pe.sinnori.common.lib.DBCPManager;
-import kr.pe.sinnori.common.lib.LastModifiedFileInfo;
+import kr.pe.sinnori.common.util.CommonStaticUtil;
 import kr.pe.sinnori.server.classloader.ServerClassLoader;
 
 import org.apache.ibatis.datasource.unpooled.UnpooledDataSourceFactory;
@@ -38,13 +42,18 @@ import org.xml.sax.SAXException;
  * <pre>
  * MyBatis SqlSessionFactory 관리자
  * 
- * 신놀이는 MyBatis 매핑 클래스들을 동적 클래스를 통해 적재 되어야 하는 대상으로 정의했다.
- * 이를 만족 시키기 위해서 MyBatis 라이브러리를 동적 클래스 클래스를 통해 적재해야 했다.
- * MyBatis 는 매핑 파일들을 클래스 로더로 찾는것은 시스템과 자신을 호출한 classpath 이다.
- * 이런 제약  조건때문에 "MyBatis SqlSessionFactory 관리자" 역시 동적 클래스로 적재되어야 한다.
+ * MyBatis 에서 매핑 클래스란 동적 클래스 로딩된 자바 빈즈이다.
+ * MyBatis 는 매핑 클래스를 인스턴스화 할때 필요한 클래스 로더를 자신을 인스턴스한 클래스 로더부터 시스템 클래스 로더까지 훝어서 찾는다.
+ * 
+ * MyBatis 매핑 클래스들을 개발시 빈번하게 수정되어야 하므로 신놀이 동적 클래스 로더를 통해 적재 되어야 하는 대상으로 정의했다.
+ * 따라서 이 요건을 만족하기 위해서는 신놀이 동적 클래스 로더안에서 MyBatis SqlSessionFactory 를 인스턴스해서 사용해야
+ * 자신을 인스턴스한 클래스로더로 신놀이 동적 클래스 로더가 지정된다.
+ * 이렇게 해야 신놀이 동적 클래스 로더에 적재된 매핑 클래스를 MyBatis 에서 사용하므로 
+ * "MyBatis SqlSessionFactory 관리자" 는  반듯이 신놀이 동적 클래스 로더에 적재되어야 한다.
  * </pre>
+ * 
  * @author Won Jonghoon
- *
+ * 
  */
 public class SqlSessionFactoryManger {
 	private final Logger log = LoggerFactory
@@ -53,9 +62,7 @@ public class SqlSessionFactoryManger {
 	private ClassLoader serverClassLoader = this.getClass().getClassLoader();
 
 	private Hashtable<String, SqlSessionFactory> connectionPoolName2SqlSessionFactoryHash = new Hashtable<String, SqlSessionFactory>();
-
 	private Hashtable<String, String> alias2typeHash = new Hashtable<String, String>();
-
 	private List<LastModifiedFileInfo> lastModifiedFileInfoList = new ArrayList<LastModifiedFileInfo>();
 
 	/**
@@ -83,55 +90,88 @@ public class SqlSessionFactoryManger {
 		return SqlSessionFactoryMangerHolder.singleton;
 	}
 
-	@SuppressWarnings("unchecked")
 	private void rebuild() {
-		
-		
-		SinnoriConfig conf = SinnoriConfig.getInstance();	
+		kr.pe.sinnori.common.config.SinnoriConfigurationManager sinnoriConfigurationManager = SinnoriConfigurationManager
+				.getInstance();
+		AllDBCPPart allDBCPPart = sinnoriConfigurationManager.getAllDBCPPart();
+		AllSubProjectPart allSubProjectPart = sinnoriConfigurationManager
+				.getAllSubProjectPart();
+		ProjectPart mainProjetPart = sinnoriConfigurationManager
+				.getMainProjectPart();
 
-		List<String> dbcpConnectionPoolNameList = (List<String>) conf
-				.getResource("dbcp.connection_pool_name_list.value");
+		// List<String> dbcpConnectionPoolNameList = (List<String>)
+		// conf.getResource("dbcp.connection_pool_name_list.value");
+		List<String> dbcpConnectionPoolNameList = allDBCPPart.getDBCPNameList();
 
-		
-		
-		String workProjectName = null;
+		String workingProjectName = null;
 		if (serverClassLoader instanceof ServerClassLoader) {
-			workProjectName = ((ServerClassLoader)serverClassLoader).getProjectName();
+			workingProjectName = ((ServerClassLoader) serverClassLoader)
+					.getProjectName();
 		} else {
-			workProjectName = System.getProperty(CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);
+			workingProjectName = System
+					.getProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME);
 		}
-		
-		ServerProjectConfig serverProjectConfig = conf.getServerProjectConfig(workProjectName);
 
-		File mybatisConfigeFile = serverProjectConfig.getMybatisFile();
-		if (null == mybatisConfigeFile) {
-		  // project.<projectName>.server.classloader.mybatis_config_file_relative_path.value
-		  log.error("mybatisConfigeFile is null, config key[project.{}.server.classloader.mybatis_config_file_relative_path.value]'s value is not defined", workProjectName);
-		  System.exit(1);
-		}
+		ProjectPart workingProjetPart = null;
 		
-		/*String mybatisConfigeFilePathString = (String) conf.getResource("mybatis.config_file.value");
-		try {
-			URL mybatisConfigResourceURL = serverClassLoader
-					.getResource(mybatisConfigeFilePathString);
-
-			if (null ==  mybatisConfigResourceURL) {
-				log.warn(
-						new StringBuilder("the mybatis config file resource value[")
-								.append(mybatisConfigeFilePathString)
-								.append("] cannot be found").toString());
-				return;
+		
+		
+		if (workingProjectName
+				.equals(mainProjetPart.getProjectName())) {
+			workingProjetPart = mainProjetPart;
+		} else {
+			workingProjetPart = allSubProjectPart
+					.getSubProjectPart(workingProjectName);
+			if (null == workingProjetPart) {
+				log.error("unknown main prject[{}]'s sub project[{}]", 
+						CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME, 
+						workingProjectName);
+				System.exit(1);
 			}
+		}
+
+		File serverClassLoaderAPPINFPath = workingProjetPart
+				.getServerClassLoaderAPPINFPath();
+		String serverMybatisConfigFileRelativePath = workingProjetPart
+				.getServerMybatisConfigFileRelativePath();
+
+		if (serverMybatisConfigFileRelativePath.equals("")) {
+			connectionPoolName2SqlSessionFactoryHash.clear();
+			alias2typeHash.clear();
+			lastModifiedFileInfoList.clear();
 			
-						
-			mybatisConfigeFile = new File(mybatisConfigResourceURL.toURI());
-		} catch (Exception e) {
+			String itemKey = null;
+			if (workingProjectName.equals(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME)) {
+				itemKey = new StringBuilder("mainproject.")
+				.append(ItemID.ProjectPartItemID.SERVER_CLASSLOADER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_ITEMID).toString();
+			} else {
+				itemKey = new StringBuilder("subproject.")
+				.append(workingProjectName)
+				.append(".")
+				.append(ItemID.ProjectPartItemID.SERVER_CLASSLOADER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_ITEMID).toString();
+			}
 			log.warn(
-					new StringBuilder("the mybatis config file resource value[")
-							.append(mybatisConfigeFilePathString)
-							.append("] fail to convert to file").toString(), e);
+					"sinnori properties key[{}]'s value is a empty string. that means this project[{}] declared that Mybatis is not used",
+					itemKey, workingProjectName
+					);
 			return;
-		}*/
+		}
+
+		String resourcesPathString = new StringBuilder(
+				serverClassLoaderAPPINFPath.getAbsolutePath())
+				.append(File.separator).append("resources").toString();
+
+		// resources
+		String mybatisConfigeFilePathString = CommonStaticUtil
+				.getFilePathStringFromResourcePathAndRelativePathOfFile(
+						resourcesPathString,
+						serverMybatisConfigFileRelativePath);
+
+		File mybatisConfigeFile = new File(mybatisConfigeFilePathString);
+		if (!mybatisConfigeFile.exists()) {
+			log.error("mybatis config file[{}] does not exist", mybatisConfigeFilePathString);
+			System.exit(1);
+		}
 
 		connectionPoolName2SqlSessionFactoryHash.clear();
 		alias2typeHash.clear();
@@ -250,18 +290,18 @@ public class SqlSessionFactoryManger {
 							 */
 
 							try {
-								URL mapperFileURL  = serverClassLoader.getResource(mapperResourceValue);
-								
+								URL mapperFileURL = serverClassLoader
+										.getResource(mapperResourceValue);
+
 								if (null == mapperFileURL) {
-									log.warn(
-											new StringBuilder(
-													"the mapper file resource value[")
-													.append(mapperResourceValue)
-													.append("] cannot be found")
-													.toString());
+									log.warn(new StringBuilder(
+											"the mapper file resource value[")
+											.append(mapperResourceValue)
+											.append("] cannot be found")
+											.toString());
 									return;
 								}
-																
+
 								mapperFile = new File(mapperFileURL.toURI());
 							} catch (Exception e) {
 								log.warn(
@@ -488,6 +528,7 @@ public class SqlSessionFactoryManger {
 		} catch (IOException e) {
 			log.warn("IOException::mybatis config file[{}]",
 					mybatisConfigeFile.getAbsolutePath());
+			log.warn("IOException", e);
 		}
 	}
 

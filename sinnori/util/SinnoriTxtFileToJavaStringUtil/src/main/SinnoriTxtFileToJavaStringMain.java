@@ -49,7 +49,7 @@ public class SinnoriTxtFileToJavaStringMain {
 		
 		if (null == charsetName) {
 			System.out.println("parameter charsetName is null, so change to a default charset UTF-8");
-			charsetName = "UTF-8";
+			charsetName = "UTF8";
 		}
 		
 		Charset wantedCharset = null;

@@ -5,7 +5,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import kr.pe.sinnori.client.ClientProject;
 import kr.pe.sinnori.client.ClientProjectManager;
-import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.weblib.AbstractServlet;
 import kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars;
@@ -78,9 +77,8 @@ public class BoardListSvl extends AbstractServlet {
 		inObj.setBoardId(boardId);
 		inObj.setStartNo((pageNo - 1) * WebCommonStaticFinalVars.WEBSITE_BOARD_PAGESIZE);
 		inObj.setPageSize(WebCommonStaticFinalVars.WEBSITE_BOARD_PAGESIZE);
-		
-		String projectName = System.getProperty(CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);		
-		ClientProject clientProject = ClientProjectManager.getInstance().getClientProject(projectName);
+				
+		ClientProject clientProject = ClientProjectManager.getInstance().getMainClientProject();
 		AbstractMessage messageFromServer = clientProject.sendSyncInputMessage(inObj);
 		
 		if (messageFromServer instanceof BoardListOutDTO) {

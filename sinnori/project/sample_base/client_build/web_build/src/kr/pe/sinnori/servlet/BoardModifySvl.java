@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import kr.pe.sinnori.client.ClientProject;
 import kr.pe.sinnori.client.ClientProjectManager;
-import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.weblib.AbstractAuthServlet;
 import kr.pe.sinnori.impl.message.BoardDetailInDTO.BoardDetailInDTO;
@@ -130,8 +130,6 @@ public class BoardModifySvl extends AbstractAuthServlet {
 				printWebLayoutControlJspPage(req, res, goPage);
 				return;
 			}
-						
-			String projectName = System.getProperty(CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);
 			
 			BoardDetailInDTO inObj = new BoardDetailInDTO();
 			inObj.setBoardId(boardId);
@@ -141,7 +139,7 @@ public class BoardModifySvl extends AbstractAuthServlet {
 			log.debug("inObj={}, userId={}, ip={}", inObj.toString(), getUserId(req), req.getRemoteAddr());
 			
 			String errorMessage = "";
-			ClientProject clientProject = ClientProjectManager.getInstance().getClientProject(projectName);
+			ClientProject clientProject = ClientProjectManager.getInstance().getMainClientProject();
 			AbstractMessage messageFromServer = clientProject.sendSyncInputMessage(inObj);
 			
 			// FIXME!
@@ -293,9 +291,7 @@ public class BoardModifySvl extends AbstractAuthServlet {
 			}
 			
 			
-			String errorMessage = "";
-			String projectName = System.getProperty(CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);
-			
+			String errorMessage = "";			
 			BoardModifyInDTO inObj = new BoardModifyInDTO();
 			inObj.setBoardId(boardId);
 			inObj.setBoardNo(boardNo);
@@ -308,7 +304,7 @@ public class BoardModifySvl extends AbstractAuthServlet {
 			// FIXME!
 			log.debug("inObj={}");
 			
-			ClientProject clientProject = ClientProjectManager.getInstance().getClientProject(projectName);
+			ClientProject clientProject = ClientProjectManager.getInstance().getMainClientProject();
 			AbstractMessage messageFromServer = clientProject.sendSyncInputMessage(inObj);
 			if (messageFromServer instanceof MessageResult) {
 				MessageResult outObj = (MessageResult)messageFromServer;					

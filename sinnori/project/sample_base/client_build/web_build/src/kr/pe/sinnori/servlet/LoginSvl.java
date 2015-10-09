@@ -22,9 +22,8 @@ import javax.servlet.http.HttpSession;
 
 import kr.pe.sinnori.client.ClientProject;
 import kr.pe.sinnori.client.ClientProjectManager;
+import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.SymmetricException;
-import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
-import kr.pe.sinnori.common.lib.CommonType;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.sessionkey.ClientSessionKeyManager;
 import kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager;
@@ -75,7 +74,7 @@ public class LoginSvl extends AbstractServlet {
 			ServerSessionKeyManager serverSessionKeyManger = ServerSessionKeyManager.getInstance();
 			try {
 				
-				webUserSymmetricKey = serverSessionKeyManger.getSymmetricKey(WebCommonStaticFinalVars.WEBSITE_JAVA_SYMMETRIC_KEY_ALGORITHM_NAME, CommonType.SymmetricKeyEncoding.BASE64, parmSessionKeyBase64, parmIVBase64);
+				webUserSymmetricKey = serverSessionKeyManger.getSymmetricKey(WebCommonStaticFinalVars.WEBSITE_JAVA_SYMMETRIC_KEY_ALGORITHM_NAME, CommonType.SYMMETRIC_KEY_ENCODING.BASE64, parmSessionKeyBase64, parmIVBase64);
 			} catch(IllegalArgumentException e) {
 				String errorMessage = e.getMessage();
 				log.warn(errorMessage);
@@ -99,8 +98,7 @@ public class LoginSvl extends AbstractServlet {
 			messageResultOutObj.setIsSuccess(false);
 			messageResultOutObj.setResultMessage("로그인 실패하였습니다.");
 			
-			String projectName = System.getProperty(CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);		
-			ClientProject clientProject = ClientProjectManager.getInstance().getClientProject(projectName);
+			ClientProject clientProject = ClientProjectManager.getInstance().getMainClientProject();
 			
 			
 			BinaryPublicKey binaryPublicKeyInObj = new BinaryPublicKey();			

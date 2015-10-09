@@ -23,7 +23,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
+import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
+import kr.pe.sinnori.common.config.valueobject.CommonPart;
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 
 /**
  * <pre>
@@ -34,20 +36,23 @@ import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
  */
 @SuppressWarnings("serial")
 public abstract class JDFBaseServlet extends AbstractBaseServlet {
-	protected final String WEB_LAYOUT_CONTROL_PAGE = (String) conf
-			.getResource("servlet_jsp.web_layout_control_page.value");
-	protected final String JDF_LOGIN_PAGE = (String) conf
-			.getResource("servlet_jsp.jdf_login_page.value");
-	protected final String JDF_ERROR_MESSAGE_PAGE = (String) conf
-			.getResource("servlet_jsp.jdf_error_message_page.value");
-	protected final boolean JDF_SERVLET_TRACE = (Boolean) conf
-			.getResource("servlet_jsp.jdf_servlet_trace.value");
+	protected String WEB_LAYOUT_CONTROL_PAGE = null;
+	protected String JDF_LOGIN_PAGE = null;
+	protected String JDF_ERROR_MESSAGE_PAGE = null;
+	protected boolean JDF_SERVLET_TRACE = true;
 
 	/**
 	 * BaseServlet constructor comment.
 	 */
 	public JDFBaseServlet() {
 		super();
+		
+		SinnoriConfigurationManager sinnoriConfigurationManager = SinnoriConfigurationManager.getInstance();
+		CommonPart commonPart = sinnoriConfigurationManager.getCommonPart();
+		WEB_LAYOUT_CONTROL_PAGE = commonPart.getWebLayoutControlPage();
+		JDF_LOGIN_PAGE = commonPart.getJdfLoginPage();
+		JDF_ERROR_MESSAGE_PAGE = commonPart.getJdfErrorMessagePage();
+		JDF_SERVLET_TRACE = commonPart.getJdfServletTrace();
 	}
 
 	/**

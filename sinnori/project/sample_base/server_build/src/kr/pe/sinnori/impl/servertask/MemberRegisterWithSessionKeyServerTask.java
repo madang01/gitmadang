@@ -5,9 +5,8 @@ import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Random;
 
-import kr.pe.sinnori.common.configuration.ServerProjectConfig;
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.SymmetricException;
-import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.serverlib.ValueChecker;
 import kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager;
@@ -26,7 +25,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 
 public class MemberRegisterWithSessionKeyServerTask extends AbstractServerTask {
 	@Override
-	public void doTask(ServerProjectConfig serverProjectConfig,
+	public void doTask(String projectName,
 			LoginManagerIF loginManager,
 			LetterSender letterSender,
 			AbstractMessage messageFromClient) throws Exception {

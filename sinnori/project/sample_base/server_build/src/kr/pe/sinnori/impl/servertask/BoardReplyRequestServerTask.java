@@ -3,7 +3,6 @@ package kr.pe.sinnori.impl.servertask;
 import java.util.HashMap;
 import java.util.List;
 
-import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.serverlib.ValueChecker;
 import kr.pe.sinnori.impl.message.BoardReplyDTO.BoardReplyDTO;
@@ -19,7 +18,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 
 public class BoardReplyRequestServerTask extends AbstractServerTask {	
 	@Override
-	public void doTask(ServerProjectConfig serverProjectConfig,
+	public void doTask(String projectName,
 			LoginManagerIF loginManager, LetterSender letterSender,
 			AbstractMessage messageFromClient) throws Exception {
 		// FIXME!

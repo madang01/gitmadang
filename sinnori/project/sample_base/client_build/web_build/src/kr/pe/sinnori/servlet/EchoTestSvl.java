@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import kr.pe.sinnori.client.ClientProject;
 import kr.pe.sinnori.client.ClientProjectManager;
-import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.weblib.AbstractServlet;
 import kr.pe.sinnori.impl.message.Echo.Echo;
@@ -47,8 +46,7 @@ public class EchoTestSvl extends AbstractServlet {
 		echoInObj.setRandomInt(random.nextInt());
 		echoInObj.setStartTime(new java.util.Date().getTime());
 
-		String projectName = System.getProperty(CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);		
-		ClientProject clientProject = ClientProjectManager.getInstance().getClientProject(projectName);
+		ClientProject clientProject = ClientProjectManager.getInstance().getMainClientProject();
 		AbstractMessage messageFromServer = clientProject.sendSyncInputMessage(echoInObj);
 		
 		boolean isSame = false;

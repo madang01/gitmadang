@@ -1,6 +1,5 @@
 package kr.pe.sinnori.impl.servertask;
 
-import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.BoardListInDTO.BoardListInDTO;
 import kr.pe.sinnori.impl.message.BoardListOutDTO.BoardListOutDTO;
@@ -17,7 +16,7 @@ public class BoardListInDTOServerTask extends AbstractServerTask {
 	
 
 	@Override
-	public void doTask(ServerProjectConfig serverProjectConfig,
+	public void doTask(String projectName,
 			LoginManagerIF loginManager,
 			LetterSender letterSender, AbstractMessage messageFromClient)
 			throws Exception {

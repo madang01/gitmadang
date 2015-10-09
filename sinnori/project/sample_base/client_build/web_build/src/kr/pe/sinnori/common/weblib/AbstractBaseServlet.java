@@ -6,12 +6,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import kr.pe.sinnori.common.lib.CommonRootIF;
-
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("serial")
-public abstract class AbstractBaseServlet extends HttpServlet implements CommonRootIF {
+public abstract class AbstractBaseServlet extends HttpServlet {
+	protected Logger log = LoggerFactory
+			.getLogger(AbstractBaseServlet.class);
 	
 	/**
 	 * 문자열을 HTML4 기준 이스케이프 문자로 변환한다. 단 변환후 사용자가 지정하는 문자열 치환기들을 차례로 적용한다.

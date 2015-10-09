@@ -1,53 +1,43 @@
-<project name="sinnori_core" default="debug" basedir=".">
-	<description>
-		Sinnori Framework Core Library
-	</description>
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<project name="sinnori_core" default="compile.server.appinf" basedir=".">
+	<description>Sinnori Core Library</description>
 	<!-- set global properties for this build -->
-	<property name="src" location="src" />
-	<property name="build" location="build" />
-	<property name="dist" location="dist" />
-	<property name="lib" location="lib" />
-	<property name="APP-INF" location="APP-INF" />
+	<property name="dir.src" location="src/main/java" />
+	<property name="dir.build" location="build" />
+	<property name="dir.dist" location="dist" />
+	<property name="dir.lib" location="lib" />
+	<property name="dir.APP-INF" location="APP-INF" />
+	<property name="java.complile.option.debug" value="on" />
 	
-	<target name="init.debug">
-		<property name="java.debug" value="true" />
-	</target>
-	
-	<target name="init.nodebug">
-		<property name="java.debug" value="false" />
-	</target>
-
-	<target name="clean.core" description="clean up">
-		<!-- Delete the ${build} and ${dist} directory trees -->
-		<delete dir="${build}" />
-		<delete dir="${dist}" />
+	<target name="clean.core">
+		<!-- Delete the ${dir.build} and ${dir.dist} directory trees -->
+		<delete dir="${dir.build}" />
+		<delete dir="${dir.dist}" />
 	</target>
 
 
 	<target name="init.core">
 		<!-- Create the time stamp -->
 		<tstamp />
-		<!-- Create the build directory structure used by compile -->
-		<mkdir dir="${build}/common_lib" />
-		<mkdir dir="${build}/server_lib" />
-		<mkdir dir="${build}/client_lib" />
-		<mkdir dir="lib/in" />
-		<mkdir dir="lib/ex" />
-		<mkdir dir="${dist}" />
+		<mkdir dir="${dir.lib}/in" />
+		<mkdir dir="${dir.lib}/ex" />		
+		<echo message="java.complile.option.debug=${java.complile.option.debug}" />
 	</target>
 
 	
 
-	<target name="compile.common" depends="init.core">
-		<!-- Compile the java code from ${src} into ${build} -->
-		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}" destdir="${build}/common_lib">
+	<target name="compile.common" depends="init.core">	  
+		<mkdir dir="${dir.build}/common_lib" />
+		
+		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}/common_lib">
 			<include name="kr/pe/sinnori/common/**" />
-			<include name="kr/pe/sinnori/impl/message/SelfExn/**" />
+      <include name="kr/pe/sinnori/impl/message/SelfExn/**" />
+     
 			<classpath>
-				<fileset dir="lib/in">
+				<fileset dir="${dir.lib}/in">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="lib/ex">
+				<fileset dir="${dir.lib}/ex">
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>
@@ -55,98 +45,108 @@
 	</target>
 
 	<target name="make.common" depends="compile.common">
-		<!-- Create the distribution directory -->
-		<jar jarfile="${dist}/sinnori-common.jar" basedir="${build}/common_lib">
+	  <mkdir dir="${dir.dist}" />
+	  
+		<jar jarfile="${dir.dist}/sinnori-common.jar" basedir="${dir.build}/common_lib">
 			<restrict>
 				<name name="**/*.class" />
 				<archives>
 					<zips>
-						<fileset dir="lib/in" includes="**/*.jar" />
+						<fileset dir="${dir.lib}/in" includes="**/*.jar" />
 					</zips>
 				</archives>
 			</restrict>
 		</jar>
 	</target>
 
-	<!-- server package compile that depends on common package -->
-	<target name="compile.server.nodepend" description="server package compile that depends on common package">
-		<echo message="server package compile that depends on common package" />
-		<!-- Compile the java code from ${src} into ${build} -->
-		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}" destdir="${build}/server_lib">
+	<target name="compile.server.nodepend">
+		<echo message="this task depends on make.common task" />
+		
+		<mkdir dir="${dir.build}/server_lib" />
+		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}/server_lib">
 			<include name="kr/pe/sinnori/server/**" />
 			<classpath>
-				<fileset file="${dist}/sinnori-common.jar" />
-				<fileset dir="lib/ex">
+				<fileset file="${dir.dist}/sinnori-common.jar" />
+				<fileset dir="${dir.lib}/ex">
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>
 		</javac>
-	</target>
-
-	<!-- client package compile that depends on common package -->
-	<target name="compile.client.nodepend" description="client package compile that depends on common package">
-		<echo message="client package compile that depends on common package" />
-		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}" destdir="${build}/client_lib">
-			<include name="kr/pe/sinnori/client/**" />
-			<classpath>
-				<fileset file="${dist}/sinnori-common.jar" />
-				<fileset dir="lib/ex">
-					<include name="**/*.jar" />
-				</fileset>
-			</classpath>
-		</javac>
-	</target>
-
-	<target name="make.all" depends="make.common, compile.client.nodepend, compile.server.nodepend" description="make sinnori core jar files">
-		<!-- Create the distribution directory -->		
-		<jar jarfile="${dist}/sinnori-core.jar">
-			<fileset dir="${build}/common_lib" />
-			<fileset dir="${build}/server_lib" />
-			<fileset dir="${build}/client_lib" />
-			
-			<restrict>
-				<name name="**/*.class" />
-				<archives>
-					<zips>
-						<fileset dir="lib/in" includes="**/*.jar" />
-					</zips>
-				</archives>
-			</restrict>
-		</jar>
-		
-		<jar jarfile="${dist}/sinnori-client.jar">
-			<fileset dir="${build}/common_lib" />
-			<fileset dir="${build}/client_lib" />
-			
-			<restrict>
-				<name name="**/*.class" />
-				<archives>
-					<zips>
-						<fileset dir="lib/in" includes="**/*.jar" />
-					</zips>
-				</archives>
-			</restrict>
-		</jar>
-		
-		<jar jarfile="${dist}/sinnori-server.jar">
-			<fileset dir="${build}/common_lib" />
-			<fileset dir="${build}/server_lib" />
-			<restrict>
-				<name name="**/*.class" />
-				<archives>
-					<zips>
-						<fileset dir="lib/in" includes="**/*.jar" />
-					</zips>
-				</archives>
-			</restrict>
-		</jar>
-	</target>
-
-	<target name="debug" depends="init.debug, make.all">
-		<echo message="in debug mode, java.debug=${java.debug}" />
 	</target>
 	
-	<target name="nodebug" depends="init.nodebug, make.all">
-		<echo message="in nodebug mode, java.debug=${java.debug}" />
+	
+	<target name="compile.client.nodepend">
+		<echo message="this task depends on make.common task" />	
+		
+		<mkdir dir="${dir.build}/client_lib" />
+		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}/client_lib">
+			<include name="kr/pe/sinnori/client/**" />
+			<classpath>
+				<fileset file="${dir.dist}/sinnori-common.jar" />
+				<fileset dir="${dir.lib}/ex">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="make.all" depends="make.common, compile.client.nodepend, compile.server.nodepend">
+		<jar jarfile="${dir.dist}/sinnori-core.jar">
+			<fileset dir="${dir.build}/common_lib" />
+			<fileset dir="${dir.build}/server_lib" />
+			<fileset dir="${dir.build}/client_lib" />
+			
+			<restrict>
+				<name name="**/*.class" />
+				<archives>
+					<zips>
+						<fileset dir="lib/in" includes="**/*.jar" />
+					</zips>
+				</archives>
+			</restrict>
+		</jar>
+		
+		<jar jarfile="${dir.dist}/sinnori-client.jar">
+			<fileset dir="${dir.build}/common_lib" />
+			<fileset dir="${dir.build}/client_lib" />
+			
+			<restrict>
+				<name name="**/*.class" />
+				<archives>
+					<zips>
+						<fileset dir="lib/in" includes="**/*.jar" />
+					</zips>
+				</archives>
+			</restrict>
+		</jar>
+		
+		<jar jarfile="${dir.dist}/sinnori-server.jar">
+			<fileset dir="${dir.build}/common_lib" />
+			<fileset dir="${dir.build}/server_lib" />
+			<restrict>
+				<name name="**/*.class" />
+				<archives>
+					<zips>
+						<fileset dir="lib/in" includes="**/*.jar" />
+					</zips>
+				</archives>
+			</restrict>
+		</jar>
+	</target>
+	
+	
+	<target name="compile.server.appinf" depends="make.all">
+	  <mkdir dir="${dir.build}/appinf" />
+		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.APP-INF}/src" destdir="${dir.build}/appinf">
+			<classpath>
+				<fileset file="${dir.dist}/sinnori-server.jar" />
+				<fileset dir="${dir.lib}/ex">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${dir.APP-INF}/lib">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
 	</target>
 </project>

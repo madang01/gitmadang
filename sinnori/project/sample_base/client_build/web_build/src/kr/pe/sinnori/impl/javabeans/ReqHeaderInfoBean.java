@@ -19,15 +19,13 @@ package kr.pe.sinnori.impl.javabeans;
 
 import java.io.Serializable;
 
-import kr.pe.sinnori.common.lib.CommonRootIF;
-
 
 /**
  * 
  * @author Won Jonghoon
  *
  */
-public class ReqHeaderInfoBean implements CommonRootIF, Serializable {
+public class ReqHeaderInfoBean implements Serializable {
 	/**
 	 * 
 	 */
