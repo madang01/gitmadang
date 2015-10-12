@@ -38,9 +38,9 @@ public class GeneralConverterReturningPath extends AbstractNativeValueConverter<
 		}
 		
 		if (!returnValue.canRead()) {
-			String errorMessage = new StringBuilder("the path that is the parameter itemValue[")
+			String errorMessage = new StringBuilder("the path(=the parameter itemValue[")
 			.append(itemValue)
-			.append("] doesn't hava permission to read").toString();
+			.append("]) doesn't hava permission to read").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 		

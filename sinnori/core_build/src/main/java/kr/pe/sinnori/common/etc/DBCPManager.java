@@ -137,8 +137,7 @@ public final class DBCPManager {
 			/*setupDataSource(dbcpConnectionPoolName,
 					dbcpConnectionPoolConfig);*/
 			// FIXME!
-			log.info("dbcp[{}] register success", dbcpName);
-			
+			log.info("dbcp[{}] was registed successfully", dbcpName);			
 		}
 		/*
 		 * String driverClassName = "org.mariadb.jdbc.Driver"; String dbUserName

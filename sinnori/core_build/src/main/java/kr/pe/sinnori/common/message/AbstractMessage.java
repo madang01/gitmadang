@@ -38,15 +38,15 @@ public abstract class AbstractMessage {
 	protected String messageID = null;
 	
 	/**
-	 * 입력 받은 메세지 식별자의 유효성을 판별해 준다. 단 크기에 대해서는 검사하지 않는다.
+	 * 입력 받은 메세지 식별자의 유효성을 반환한다.
 	 * 
-	 * @param messageID
-	 *            메세지 식별자
+	 * @param messageID 메세지 식별자
 	 * @return 입력 받은 "메세지 식별자"의 유효성 여부
 	 */
 	public static boolean IsValidMessageID(String messageID) {
-		// 첫자는 영문으로 시작하며 이후 문자는 영문과 숫자로 구성되는 문자열임을 검사한다.
-		// 특수 문자 제거를 위해서임
+		/**
+		 * 첫문자는 대문자로 시작하는 이유는 IO 관련 클래스 파일들 생성시 메시지 식별자가 파일명 접두어로 사용되기때문이다.
+		 */
 		String regexMessageID = "[A-Z][a-zA-Z0-9]+";
 		boolean isValid = messageID.matches(regexMessageID);
 		return isValid;

@@ -104,6 +104,21 @@ public abstract class BuildSystemPathSupporter {
 		strBuilder.append(CommonStaticFinalVars.SINNORI_LOGBACK_LOG_FILE_NAME);
 		return strBuilder.toString();
 	}
+	
+	/**
+	 * DBCP configuration file path : <project path>/dbcp.<dbcp name>.properties
+	 */
+	public static String getDBCPConfigFilePathString(String projectName,
+			String sinnoriInstalledPathString, String dbcpName) {
+		StringBuilder strBuilder = new StringBuilder(getSinnoriConfigPathString(
+				projectName, sinnoriInstalledPathString));
+		strBuilder.append(File.separator);
+		strBuilder.append("dbcp.");
+		strBuilder.append(dbcpName);
+		strBuilder.append(".properties");
+
+		return strBuilder.toString();
+	}
 
 	/** message info path : <project path>/impl/message/info */
 	public static String getMessageInfoPathString(String projectName,
@@ -165,31 +180,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 
-	/**
-	 * DBCP config file path : <server build
-	 * path>/APP-INF/resources/kr/pe/sinnori/mybatis/<dbcp connection pool
-	 * name>.properties
-	 */
-	public static String getDBCPConfigFilePathString(String projectName,
-			String sinnoriInstalledPathString, String dbcpName) {
-		StringBuilder strBuilder = new StringBuilder(getAPPINFPathString(
-				projectName, sinnoriInstalledPathString));
-		strBuilder.append(File.separator);
-		strBuilder.append("resources");
-		strBuilder.append(File.separator);
-		strBuilder.append("kr");
-		strBuilder.append(File.separator);
-		strBuilder.append("pe");
-		strBuilder.append(File.separator);
-		strBuilder.append("sinnori");
-		strBuilder.append(File.separator);
-		strBuilder.append("mybatis");
-		strBuilder.append(File.separator);
-		strBuilder.append(dbcpName);
-		strBuilder.append(".properties");
-
-		return strBuilder.toString();
-	}
+	
 
 	/** client build base path : <project path>/client_build */
 	public static String getClientBuildBasePathString(String projectName,

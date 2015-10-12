@@ -586,7 +586,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 					isDefaultValueCheck, new GeneralConverterReturningPath());
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.SERVER_CLASSLOADER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_ITEMID;
+			itemID = ItemID.ProjectPartItemID.SERVER_CLASSLOADER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_STRING_ITEMID;
 			isDefaultValueCheck = false;
 			itemIDInfo = new ItemIDInfo<String>(
 					ItemIDInfo.ConfigurationPart.PROJECT,

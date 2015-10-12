@@ -64,6 +64,49 @@ public class ArrayInfo extends AbstractItemInfo implements
 	 *            배열 반복 횟수
 	 */
 	public ArrayInfo(String arrayName, String arrayCntType, String arrayCntValue) {
+		if (null == arrayName) {
+			throw new IllegalArgumentException("the parmamter arrayName is null");
+		}
+		if (null == arrayCntType) {
+			throw new IllegalArgumentException("the parmamter arrayCntType is null");
+		}
+		if (null == arrayCntValue) {
+			throw new IllegalArgumentException("the parmamter arrayCntValue is null");
+		}
+		
+		
+		if (arrayCntType.equals("direct")) {
+			int itemSizeForLang = -1;
+			if (null != arrayCntValue) {
+				try {
+					itemSizeForLang = Integer.parseInt(arrayCntValue);
+
+				} catch (NumberFormatException num_e) {
+					String errorMessage = new StringBuilder("fail to parses the string argument(=this array item[")
+					.append(arrayName).append("]'s size[")
+					.append(arrayCntValue).append("]) as a signed decimal integer")
+					.append("").toString();
+					throw new IllegalArgumentException(errorMessage);
+				}
+			}
+
+			if (itemSizeForLang <= 0) {				
+				String errorMessage = new StringBuilder("this array item[")
+				.append(arrayName).append("]'s size[")
+				.append(arrayCntValue).append("] is less than or equals to zero")
+				.append("").toString();
+				throw new IllegalArgumentException(errorMessage);
+			}
+		} else if (arrayCntType.equals("reference")) {
+			/** nothing */
+		} else {
+			String errorMessage = new StringBuilder("this array item[")
+			.append(arrayName).append("]'s size[")
+			.append(arrayCntValue).append("] is less than or equals to zero")
+			.append("").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
 		this.arrayName = arrayName;
 		this.arrayFirstUpperName = arrayName.substring(0, 1).toUpperCase() + arrayName.substring(1);
 		this.arrayCntType = arrayCntType;
@@ -114,24 +157,19 @@ public class ArrayInfo extends AbstractItemInfo implements
 		strBuff.append("], arrayCntValue=[");
 		strBuff.append(arrayCntValue);
 		strBuff.append("], {\n");
-
-		// Iterator<AbstractItemInfo> itemInfoIter = getItemInfoList();
 		
 		int itemInfoSize = itemGroupInfoOfArray.size();
 		for (int i = 0; i < itemInfoSize; i++) {
-		// for (int i = 0; itemInfoIter.hasNext(); i++) {
 			if (i > 0) {
 				strBuff.append(",");
 				strBuff.append("\n");
 			}
-			// arrayName
 			strBuff.append(arrayName);
 			strBuff.append("[");
 			strBuff.append(i);
 			strBuff.append("]=");
 			
 			AbstractItemInfo itemInfo = itemGroupInfoOfArray.get(i);
-			// AbstractItemInfo itemInfo = itemInfoIter.next();
 			CommonType.LOGICAL_ITEM_GUBUN logicalItemGubun = itemInfo.getLogicalItemGubun();
 			if (CommonType.LOGICAL_ITEM_GUBUN.SINGLE_ITEM == logicalItemGubun) {
 				SingleItemInfo singleItemInfo = (SingleItemInfo) itemInfo;
@@ -150,13 +188,6 @@ public class ArrayInfo extends AbstractItemInfo implements
 	/******************* ItemGroupInfoIF start ***********************/
 	@Override
 	public ArrayList<AbstractItemInfo> getItemInfoList() {
-		// return itemInfoHash.values().iterator();
-		// Throwable t = new Throwable();
-		// Iterator<AbstractItemInfo> retIter = itemInfoHash.values().iterator();
-		//log.info(String.format("itemInfoHash size=[%d], hasNext=[%s]", itemInfoHash.values().size(), retIter.hasNext()), t);
-		
-		// return retIter;
-		
 		return itemGroupInfoOfArray;
 	}
 
@@ -176,17 +207,12 @@ public class ArrayInfo extends AbstractItemInfo implements
 	/******************* AbstractItemInfo start ***********************/
 	@Override
 	public String getItemName() {
-		// TODO Auto-generated method stub
 		return arrayName;
 	}
 
 	@Override
 	public CommonType.LOGICAL_ITEM_GUBUN getLogicalItemGubun() {
-		// TODO Auto-generated method stub
 		return CommonType.LOGICAL_ITEM_GUBUN.ARRAY_ITEM;
 	}
 	/******************* AbstractItemInfo end ***********************/
-
-	
-
 }

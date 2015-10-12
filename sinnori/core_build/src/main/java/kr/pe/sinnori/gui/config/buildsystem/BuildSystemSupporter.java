@@ -24,13 +24,14 @@ import kr.pe.sinnori.gui.message.builder.MessageProcessFileContentsManager;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 public abstract class BuildSystemSupporter {
 	private static Logger log = LoggerFactory
 			.getLogger(BuildSystemSupporter.class);
 
 	public static void applyAppClientStatus(String mainProjectName,
-			String sinnoriInstalledPathString, boolean isAppClient)
+			String sinnoriInstalledPathString, boolean isAppClient, MessageInfoSAXParser messageInfoSAXParser)
 			throws ConfigErrorException {
 		String appClientBuildPathString = BuildSystemPathSupporter.getAppClientBuildPathString(
 				mainProjectName, sinnoriInstalledPathString);
@@ -42,7 +43,7 @@ public abstract class BuildSystemSupporter {
 				return;
 			}
 			createAppClientBuildSystem(mainProjectName,
-					sinnoriInstalledPathString);
+					sinnoriInstalledPathString, messageInfoSAXParser);
 		} else {
 			if (!appClientBuildPath.exists()) {
 				/** nothing */
@@ -420,7 +421,7 @@ public abstract class BuildSystemSupporter {
 	}
 
 	public static void createNewMainProjectBuildSystem(
-			String newMainProjectName, String sinnoriInstalledPathString)
+			String newMainProjectName, String sinnoriInstalledPathString, MessageInfoSAXParser messageInfoSAXParser)
 			throws IllegalArgumentException, ConfigErrorException {		
 		boolean isServer = true;
 		boolean isAppClient = true;
@@ -428,14 +429,14 @@ public abstract class BuildSystemSupporter {
 		String servletSystemLibrayPathString = "";
 		
 		createNewMainProjectBuildSystem(newMainProjectName, sinnoriInstalledPathString,
-				isServer, isAppClient, isWebClient, servletSystemLibrayPathString);
+				isServer, isAppClient, isWebClient, servletSystemLibrayPathString, messageInfoSAXParser);
 	}
 	
 	public static void createNewMainProjectBuildSystem(
 			String newMainProjectName, String sinnoriInstalledPathString,
 			boolean isServer,
 			boolean isAppClient, 
-			boolean isWebClient, String servletSystemLibrayPathString)
+			boolean isWebClient, String servletSystemLibrayPathString, MessageInfoSAXParser messageInfoSAXParser)
 			throws IllegalArgumentException, ConfigErrorException {
 		
 		String childDirectories[] = { "config", "impl/message/info",
@@ -539,11 +540,11 @@ public abstract class BuildSystemSupporter {
 
 		if (isServer) {
 			createSeverBuildSystem(newMainProjectName,
-					sinnoriInstalledPathString);
+					sinnoriInstalledPathString, messageInfoSAXParser);
 		}
 		if (isAppClient) {
 			createAppClientBuildSystem(newMainProjectName,
-					sinnoriInstalledPathString);
+					sinnoriInstalledPathString, messageInfoSAXParser);
 		}
 		
 		if (isWebClient) {
@@ -662,7 +663,7 @@ public abstract class BuildSystemSupporter {
 	}
 
 	private static void createSeverBuildSystem(String newProjectName,
-			String sinnoriInstalledPathString) throws ConfigErrorException {
+			String sinnoriInstalledPathString, MessageInfoSAXParser messageInfoSAXParser) throws ConfigErrorException {
 		
 		String serverBuildPathString = BuildSystemPathSupporter.getServerBuildPathString(newProjectName,
 				sinnoriInstalledPathString);
@@ -810,8 +811,17 @@ public abstract class BuildSystemSupporter {
 		.append(messageID).append(".xml").toString();
 		File echoMessageInfoFile = new File(echoMessageInfoFilePathString);
 		
-		MessageInfoSAXParser messageInfoSAXParser = new MessageInfoSAXParser(true);
-		MessageInfo echoMessageInfo = messageInfoSAXParser.parse(echoMessageInfoFile);
+		
+		MessageInfo echoMessageInfo = null;
+		try {
+			echoMessageInfo = messageInfoSAXParser.parse(echoMessageInfoFile, true);
+		} catch (IllegalArgumentException | SAXException | IOException e) {
+			String errorMessage = new StringBuilder("fail to parse sinnori message information xml file[")
+			.append(echoMessageInfoFile.getAbsolutePath()).append("]").toString();
+			log.warn(errorMessage, e);
+			throw new ConfigErrorException(new StringBuilder(errorMessage)
+			.append(", errormessage=").append(e.getMessage()).toString());
+		}
 		
 		String serverImplBasePath = new StringBuilder(
 				serverBuildPathString).append(File.separator).append("src")
@@ -999,7 +1009,7 @@ public abstract class BuildSystemSupporter {
 	
 
 	private static void createAppClientBuildSystem(String newMainProjectName,
-			String sinnoriInstalledPathString) throws ConfigErrorException {
+			String sinnoriInstalledPathString, MessageInfoSAXParser messageInfoSAXParser) throws ConfigErrorException {
 		
 		String appClientBuildPathString = BuildSystemPathSupporter.getAppClientBuildPathString(
 				newMainProjectName, sinnoriInstalledPathString);
@@ -1146,8 +1156,17 @@ public abstract class BuildSystemSupporter {
 		.append(messageID).append(".xml").toString();
 		File echoMessageInfoFile = new File(echoMessageInfoFilePathString);
 		
-		MessageInfoSAXParser messageInfoSAXParser = new MessageInfoSAXParser(true);
-		MessageInfo echoMessageInfo = messageInfoSAXParser.parse(echoMessageInfoFile);
+		
+		MessageInfo echoMessageInfo = null;
+		try {
+			echoMessageInfo = messageInfoSAXParser.parse(echoMessageInfoFile, true);
+		} catch (IllegalArgumentException | SAXException | IOException e) {
+			String errorMessage = new StringBuilder("fail to parse sinnori message information xml file[")
+			.append(echoMessageInfoFile.getAbsolutePath()).append("]").toString();
+			log.warn(errorMessage, e);
+			throw new ConfigErrorException(new StringBuilder(errorMessage)
+			.append(", errormessage=").append(e.getMessage()).toString());
+		}
 		
 		String appClientImplBasePath = new StringBuilder(
 				appClientBuildPathString).append(File.separator).append("src")

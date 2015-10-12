@@ -272,7 +272,7 @@ public class MessageFileContensBuilder extends AbstractSourceFileBuildre {
 				}
 				stringBuilder.append("\t\tbuilder.append(");
 				
-				if (singleItemInfo.getItemType().indexOf("length byte[]") >= 0) {
+				if (singleItemInfo.getItemValueType().indexOf("length byte[]") >= 0) {
 					// builder.append(kr.pe.sinnori.common.util.HexUtil.getHexStringFromByteArray(bytesVar1, 0, Math.max(bytesVar1.length, 7)));
 					stringBuilder.append("kr.pe.sinnori.common.util.HexUtil.getHexStringFromByteArray(");
 					stringBuilder.append(singleItemInfo.getItemName());

@@ -7,6 +7,8 @@ import java.io.File;
 import kr.pe.sinnori.common.config.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
 import kr.pe.sinnori.common.exception.ConfigErrorException;
+import kr.pe.sinnori.common.exception.MessageInfoSAXParserException;
+import kr.pe.sinnori.common.message.info.MessageInfoSAXParser;
 import kr.pe.sinnori.gui.config.buildsystem.BuildSystemSupporter;
 import kr.pe.sinnori.gui.config.buildsystem.MainProjectInformation;
 
@@ -23,6 +25,8 @@ public class BuildSystemSupporterTest {
 	
 	private final String projectNameForTest = "sample_test";
 	private final String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
+	private MessageInfoSAXParser messageInfoSAXParser = null;
+	
 		
 	@Before
 	public void setup() {
@@ -42,6 +46,15 @@ public class BuildSystemSupporterTest {
 		if (!sinnoriInstalledPath.isDirectory()) {
 			String errorMessage = new StringBuilder("Sinnori software installed path[")
 			.append(sinnoriInstalledPathString).append("] is not a directory").toString();
+			fail(errorMessage);
+		}
+		
+		
+		try {
+			messageInfoSAXParser = new MessageInfoSAXParser();
+		} catch (MessageInfoSAXParserException e) {
+			String errorMessage = "fail to create instance of MessageInfoSAXParser class";
+			// log.warn(errorMessage, e);
 			fail(errorMessage);
 		}
 	}
@@ -68,26 +81,26 @@ public class BuildSystemSupporterTest {
 		}
 		
 		
-		boolean isServer = true;
+		/*boolean isServer = true;
 		boolean isAppClient = true;
 		boolean isWebClient = false;
 		String servletSystemLibrayPathString = "";
 		
 		try {
 			BuildSystemSupporter.createNewMainProjectBuildSystem(projectNameForTest, sinnoriInstalledPathString,
-					isServer, isAppClient, isWebClient, servletSystemLibrayPathString);
+					isServer, isAppClient, isWebClient, servletSystemLibrayPathString, messageInfoSAXParser);
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 			fail(e.getMessage());
 		} catch (ConfigErrorException e) {
 			e.printStackTrace();
 			fail(e.getMessage());
-		}
+		}*/
 		
 		MainProjectInformation mainProjectInformation = null;
 		try {
 			mainProjectInformation = 
-					new MainProjectInformation(projectNameForTest, sinnoriInstalledPathString);
+					new MainProjectInformation(true, projectNameForTest, sinnoriInstalledPathString, messageInfoSAXParser);
 		} catch (ConfigErrorException e) {
 			e.printStackTrace();
 			fail(e.getMessage());

@@ -137,10 +137,10 @@ public class FixedSizeOutputStream implements OutputStreamIF {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 값[%d]은 음수입니다.", value));
 		}
-		if (value > CommonStaticFinalVars.MAX_UNSIGNED_INT) {
+		if (value > CommonStaticFinalVars.MAX_UNSIGNED_INTEGER) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 값[%d]은 unsigned int 최대값[%d]을 넘을 수 없습니다.", value,
-					CommonStaticFinalVars.MAX_UNSIGNED_INT));
+					CommonStaticFinalVars.MAX_UNSIGNED_INTEGER));
 		}
 
 		longBuffer.clear();

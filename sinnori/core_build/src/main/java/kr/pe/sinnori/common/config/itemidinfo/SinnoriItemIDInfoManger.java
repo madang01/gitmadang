@@ -428,7 +428,7 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 				throw new ConfigErrorException(errorMessage);
 			}
 
-			String dependentSourceItemID = ItemID.ProjectPartItemID.SERVER_CLASSLOADER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_ITEMID;
+			String dependentSourceItemID = ItemID.ProjectPartItemID.SERVER_CLASSLOADER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_STRING_ITEMID;
 			ItemIDInfo<?> dependentSourceitemIDConfigInfo = getItemIDInfo(dependentSourceItemID);
 			if (null == dependentSourceitemIDConfigInfo) {
 				String errorMessage = new StringBuilder(

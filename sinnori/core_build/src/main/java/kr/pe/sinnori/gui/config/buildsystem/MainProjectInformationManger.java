@@ -7,6 +7,8 @@ import java.util.List;
 
 import kr.pe.sinnori.common.config.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.exception.ConfigErrorException;
+import kr.pe.sinnori.common.exception.MessageInfoSAXParserException;
+import kr.pe.sinnori.common.message.info.MessageInfoSAXParser;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +21,7 @@ public class MainProjectInformationManger {
 	= new ArrayList<>();
 	private HashMap<String, MainProjectInformation> mainProjectInformationHash =
 			new HashMap<>();
+	private MessageInfoSAXParser messageInfoSAXParser = null;		
 	
 	private static MainProjectInformationManger instance = null;
 		
@@ -88,11 +91,20 @@ public class MainProjectInformationManger {
 			}
 		}
 		
-		
+		boolean isCreation = false;
 		for (String mainProjectName : tempProjectNameList) {
-			MainProjectInformation mainProjectInformation = new MainProjectInformation(mainProjectName, sinnoriInstalledPathString);
+			MainProjectInformation mainProjectInformation = new MainProjectInformation(isCreation, mainProjectName, sinnoriInstalledPathString, messageInfoSAXParser);
 			mainProjectInformationList.add(mainProjectInformation);
 			mainProjectInformationHash.put(mainProjectName, mainProjectInformation);
+		}
+		
+		try {
+			messageInfoSAXParser = new MessageInfoSAXParser();
+		} catch (MessageInfoSAXParserException e) {
+			String errorMessage = "fail to create instance of MessageInfoSAXParser class";
+			log.warn(errorMessage, e);
+			throw new ConfigErrorException(new StringBuilder(errorMessage)
+			.append(", errormessage=").append(e.getMessage()).toString());
 		}
 	}
 	
@@ -119,8 +131,8 @@ public class MainProjectInformationManger {
 	// FIXME!
 	public void addNewMainProject(String newMainProjectName) 
 			throws IllegalArgumentException, ConfigErrorException {
-		BuildSystemSupporter.createNewMainProjectBuildSystem(newMainProjectName, sinnoriInstalledPathString);
-		MainProjectInformation newMainProjectInformation = new MainProjectInformation(newMainProjectName, newMainProjectName);
+		boolean isCreation = true;
+		MainProjectInformation newMainProjectInformation = new MainProjectInformation(isCreation, newMainProjectName, newMainProjectName, messageInfoSAXParser);
 		mainProjectInformationList.add(newMainProjectInformation);
 		mainProjectInformationHash.put(newMainProjectName, newMainProjectInformation);
 	}

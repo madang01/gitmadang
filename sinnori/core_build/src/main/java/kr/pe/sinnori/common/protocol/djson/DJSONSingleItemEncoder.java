@@ -188,7 +188,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 			}
 			
 			Long tValue = (Long) itemValue;
-			if (tValue < 0 || tValue > CommonStaticFinalVars.MAX_UNSIGNED_INT) {
+			if (tValue < 0 || tValue > CommonStaticFinalVars.MAX_UNSIGNED_INTEGER) {
 				String errorMessage = 
 						String.format("항목의 값[%d]이 Unsigned Integer 범위가 아닙니다.", 
 								tValue);

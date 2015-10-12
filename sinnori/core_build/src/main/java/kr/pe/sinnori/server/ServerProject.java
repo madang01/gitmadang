@@ -130,7 +130,7 @@ public class ServerProject extends AbstractProject implements
 		super(projectPart);
 
 		serverClassLoaderAPPINFPathString = projectPart
-				.getServerClassLoaderAPPINFPath().getAbsolutePath();
+				.getServerClassloaderAPPINFPath().getAbsolutePath();
 
 		long acceptSelectTimeout = projectPart.getServerAcceptSelectorTimeout();
 		int maxClients = projectPart.getServerMaxClients();

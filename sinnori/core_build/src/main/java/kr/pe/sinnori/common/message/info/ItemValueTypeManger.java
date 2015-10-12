@@ -23,14 +23,15 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.UnknownItemTypeException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -49,30 +50,20 @@ import kr.pe.sinnori.common.exception.UnknownItemTypeException;
  * @author Won Jonghoon
  *
  */
-public class ItemTypeManger {
-	private Logger logger =  Logger.getGlobal();
+public class ItemValueTypeManger {
+	private final Logger log = LoggerFactory.getLogger(ItemValueTypeManger.class);
 	
 	private String messageXSLStr = null;
 	
-	private LinkedHashMap<String, Integer> itemTypeToIDHash  = new LinkedHashMap<String, Integer>();
-	private HashMap<Integer, String> idToItemTypeHash  = new HashMap<Integer, String>();
+	private LinkedHashMap<String, Integer> itemValueTypeToIDHash  = new LinkedHashMap<String, Integer>();
+	private HashMap<Integer, String> itemIDToItemValueTypeHash  = new HashMap<Integer, String>();
 		
-	/*private CheckItemValue checkItemValueList[] = {
-			new CheckByteValue(), new CheckUnsigendByteValue(),
-			new CheckShortValue(), new CheckUnsigendShortValue(),
-			new CheckIntValue(), new CheckUnsigendIntValue(),
-			new CheckLongValue(), new CheckUBPascalStringValue(), 
-			new CheckUSPascalStringValue(), new CheckSIPascalStringValue(),
-			new CheckFixedLengthStringValue(), new CheckUBVariableLengthBytesValue(),
-			new CheckUSVariableLengthBytesValue(), new CheckSIVariableLengthBytesValue(),
-			new CheckFixedLengthBytesValue()
-	};*/
 	
 	/**
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스
 	 */
-	private static final class IDOfItemTypeMangerHolder {
-		static final ItemTypeManger singleton = new ItemTypeManger();
+	private static final class ItemValueTypeMangerHolder {
+		static final ItemValueTypeManger singleton = new ItemValueTypeManger();
 	}
 
 	/**
@@ -80,112 +71,112 @@ public class ItemTypeManger {
 	 * 
 	 * @return 싱글턴 객체
 	 */
-	public static ItemTypeManger getInstance() {
-		return IDOfItemTypeMangerHolder.singleton;
+	public static ItemValueTypeManger getInstance() {
+		return ItemValueTypeMangerHolder.singleton;
 	}
 	
 	/**
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 생성자
 	 */
-	private ItemTypeManger() {
+	private ItemValueTypeManger() {
 		
 		int id=0;
-		String itemType = "byte";
-		itemTypeToIDHash.put(itemType, id);
-		idToItemTypeHash.put(id, itemType);
+		String itemValueType = "byte";
+		itemValueTypeToIDHash.put(itemValueType, id);
+		itemIDToItemValueTypeHash.put(id, itemValueType);
 		id++;
 		
 		
-		itemType = "unsigned byte";
-		itemTypeToIDHash.put(itemType, id);
-		idToItemTypeHash.put(id, itemType);
+		itemValueType = "unsigned byte";
+		itemValueTypeToIDHash.put(itemValueType, id);
+		itemIDToItemValueTypeHash.put(id, itemValueType);
 		id++;
 		
 		
-		itemType = "short";
-		itemTypeToIDHash.put(itemType, id);
-		idToItemTypeHash.put(id, itemType);
+		itemValueType = "short";
+		itemValueTypeToIDHash.put(itemValueType, id);
+		itemIDToItemValueTypeHash.put(id, itemValueType);
 		id++;
 		
 		
-		itemType = "unsigned short";
-		itemTypeToIDHash.put(itemType, id);
-		idToItemTypeHash.put(id, itemType);
+		itemValueType = "unsigned short";
+		itemValueTypeToIDHash.put(itemValueType, id);
+		itemIDToItemValueTypeHash.put(id, itemValueType);
 		id++;
 		
 		
-		itemType = "integer";
-		itemTypeToIDHash.put(itemType, id);
-		idToItemTypeHash.put(id, itemType);
+		itemValueType = "integer";
+		itemValueTypeToIDHash.put(itemValueType, id);
+		itemIDToItemValueTypeHash.put(id, itemValueType);
 		id++;
 		
 		
-		itemType = "unsigned integer";
-		itemTypeToIDHash.put(itemType, id);
-		idToItemTypeHash.put(id, itemType);
+		itemValueType = "unsigned integer";
+		itemValueTypeToIDHash.put(itemValueType, id);
+		itemIDToItemValueTypeHash.put(id, itemValueType);
 		id++;
 		
 		
-		itemType = "long";
-		itemTypeToIDHash.put(itemType, id);
-		idToItemTypeHash.put(id, itemType);
+		itemValueType = "long";
+		itemValueTypeToIDHash.put(itemValueType, id);
+		itemIDToItemValueTypeHash.put(id, itemValueType);
 		id++;
 		
 		
-		itemType = "ub pascal string";
-		itemTypeToIDHash.put(itemType, id);
-		idToItemTypeHash.put(id, itemType);
+		itemValueType = "ub pascal string";
+		itemValueTypeToIDHash.put(itemValueType, id);
+		itemIDToItemValueTypeHash.put(id, itemValueType);
 		id++;
 		
-		itemType = "us pascal string";
-		itemTypeToIDHash.put(itemType, id);
-		idToItemTypeHash.put(id, itemType);
+		itemValueType = "us pascal string";
+		itemValueTypeToIDHash.put(itemValueType, id);
+		itemIDToItemValueTypeHash.put(id, itemValueType);
 		id++;
 		
-		itemType = "si pascal string";
-		itemTypeToIDHash.put(itemType, id);
-		idToItemTypeHash.put(id, itemType);
+		itemValueType = "si pascal string";
+		itemValueTypeToIDHash.put(itemValueType, id);
+		itemIDToItemValueTypeHash.put(id, itemValueType);
 		id++;
 		
-		itemType = "fixed length string";
-		itemTypeToIDHash.put(itemType, id);
-		idToItemTypeHash.put(id, itemType);
+		itemValueType = "fixed length string";
+		itemValueTypeToIDHash.put(itemValueType, id);
+		itemIDToItemValueTypeHash.put(id, itemValueType);
 		id++;
 		
 		
-		itemType = "ub variable length byte[]";
-		itemTypeToIDHash.put(itemType, id);
-		idToItemTypeHash.put(id, itemType);
+		itemValueType = "ub variable length byte[]";
+		itemValueTypeToIDHash.put(itemValueType, id);
+		itemIDToItemValueTypeHash.put(id, itemValueType);
 		id++;
 		
-		itemType = "us variable length byte[]";
-		itemTypeToIDHash.put(itemType, id);
-		idToItemTypeHash.put(id, itemType);
+		itemValueType = "us variable length byte[]";
+		itemValueTypeToIDHash.put(itemValueType, id);
+		itemIDToItemValueTypeHash.put(id, itemValueType);
 		id++;
 		
-		itemType = "si variable length byte[]";
-		itemTypeToIDHash.put(itemType, id);
-		idToItemTypeHash.put(id, itemType);
+		itemValueType = "si variable length byte[]";
+		itemValueTypeToIDHash.put(itemValueType, id);
+		itemIDToItemValueTypeHash.put(id, itemValueType);
 		id++;
 		
-		itemType = "fixed length byte[]";
-		itemTypeToIDHash.put(itemType, id);
-		idToItemTypeHash.put(id, itemType);
+		itemValueType = "fixed length byte[]";
+		itemValueTypeToIDHash.put(itemValueType, id);
+		itemIDToItemValueTypeHash.put(id, itemValueType);
 		id++;
 		
-		itemType = "java sql date";
-		itemTypeToIDHash.put(itemType, id);
-		idToItemTypeHash.put(id, itemType);
+		itemValueType = "java sql date";
+		itemValueTypeToIDHash.put(itemValueType, id);
+		itemIDToItemValueTypeHash.put(id, itemValueType);
 		id++;
 		
-		itemType = "java sql timestamp";
-		itemTypeToIDHash.put(itemType, id);
-		idToItemTypeHash.put(id, itemType);
+		itemValueType = "java sql timestamp";
+		itemValueTypeToIDHash.put(itemValueType, id);
+		itemIDToItemValueTypeHash.put(id, itemValueType);
 		id++;
 		
-		itemType = "boolean";
-		itemTypeToIDHash.put(itemType, id);
-		idToItemTypeHash.put(id, itemType);
+		itemValueType = "boolean";
+		itemValueTypeToIDHash.put(itemValueType, id);
+		itemIDToItemValueTypeHash.put(id, itemValueType);
 		id++;
 		
 		
@@ -224,11 +215,11 @@ public class ItemTypeManger {
 		mesgXSLStringBuilder.append("\t\t\t\t\t\t<xs:simpleType>\n");
 		mesgXSLStringBuilder.append("\t\t\t\t\t\t\t<xs:restriction base=\"xs:string\">\n");
 		
-		Iterator<String> itemTypeIter = itemTypeToIDHash.keySet().iterator();
+		Iterator<String> itemValueTypeIter = itemValueTypeToIDHash.keySet().iterator();
 
-		while (itemTypeIter.hasNext()) {
+		while (itemValueTypeIter.hasNext()) {
 			mesgXSLStringBuilder.append("\t\t\t\t\t\t\t\t<xs:enumeration value=\"");
-			mesgXSLStringBuilder.append(itemTypeIter.next());
+			mesgXSLStringBuilder.append(itemValueTypeIter.next());
 			mesgXSLStringBuilder.append("\" />\n");
 		}
 		
@@ -354,8 +345,7 @@ public class ItemTypeManger {
 			bw.write(messageXSLStr);
 			
 			
-			// log.info(String.format("메시지 구조를 정의한 XSL 내용이 담긴 임시 파일=[%s]", f.getAbsolutePath()));
-			logger.log(Level.INFO, String.format("메시지 구조를 정의한 XSL 내용이 담긴 임시 파일=[%s]", f.getAbsolutePath()));
+			log.info("the sinnori message information .xsl temporary file[{}] was created successfully", f.getAbsolutePath());
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -383,198 +373,35 @@ public class ItemTypeManger {
 	}
 	
 	public ByteArrayInputStream getMesgXSLInputSream() {
-		ByteArrayInputStream xslIS = null;
-		try {
-			/**
-			 * 2013.10.30 운영하는 OS 의 기본 문자셋은 제각각이라 XSD 안에서 정의한 문자셋 UTF-8 로 맞추어 주어야 한다. 
-			 */
-			xslIS = new ByteArrayInputStream(messageXSLStr.getBytes("UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			// log.error("UnsupportedEncodingException", e);
-			e.printStackTrace();
-			System.exit(1);
-		}
-		return xslIS;
+		ByteArrayInputStream xslByteArrayInputStream = new ByteArrayInputStream(messageXSLStr.getBytes(CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET));
+		return xslByteArrayInputStream;
 	}
 	
-	public int getItemTypeID(String itemType) throws UnknownItemTypeException {
-		Integer itemTypeID = itemTypeToIDHash.get(itemType);
-		if (null == itemTypeID) {
-			String errorMessage = String.format("알수 없는 항목 타입명[%s]", itemType);
+	public int getItemValueTypeID(String itemValueType) throws UnknownItemTypeException {
+		Integer itemValueTypeID = itemValueTypeToIDHash.get(itemValueType);
+		if (null == itemValueTypeID) {
+			String errorMessage = String.format("unknown message item type[%s]", itemValueType);
 			UnknownItemTypeException e = new UnknownItemTypeException(errorMessage);
 			// log.warn(errorMessage, e);
 			e.printStackTrace();
 			throw e;
 		}		
-		return itemTypeID.intValue();
+		return itemValueTypeID.intValue();
 	}
 	
-	public String getItemType(int itemTypeID) throws UnknownItemTypeException {
-		String itemType = idToItemTypeHash.get(itemTypeID);
-		if (null == itemType) {
-			String errorMessage = String.format("알수 없는 항목 타입 식별자[%d]", itemTypeID);
+	public String getItemValueType(int itemValueTypeID) throws UnknownItemTypeException {
+		String itemValueType = itemIDToItemValueTypeHash.get(itemValueTypeID);
+		if (null == itemValueType) {
+			String errorMessage = String.format("unknown message item type id[%d]", itemValueTypeID);
 			UnknownItemTypeException e = new UnknownItemTypeException(errorMessage);
 			// log.warn(errorMessage, e);
 			e.printStackTrace();
 			throw e;
 		}		
-		return itemType;
+		return itemValueType;
 	}
 	
-	public int getItemTypeCnt() {
-		return itemTypeToIDHash.size();
+	public int getItemValueTypeCnt() {
+		return itemValueTypeToIDHash.size();
 	}
-	
-	/*public void checkValue(int itemTypeID, Charset itemCharsetForLang, int itemSizeForLang, Object itemValue) {
-		checkItemValueList[itemTypeID].checkValue(itemCharsetForLang, itemSizeForLang, itemValue);
-	}
-	
-	public interface CheckItemValue {
-		public void checkValue(Charset itemCharsetForLang, int itemSizeForLang, Object value);
-	}
-	
-	private class CheckByteValue implements CheckItemValue {
-		public void checkValue(Charset itemCharsetForLang, int itemSizeForLang, Object value) {
-			// nothing
-		}
-	}
-	
-	private class CheckUnsigendByteValue implements CheckItemValue {
-		public void checkValue(Charset itemCharsetForLang, int itemSizeForLang, Object itemValue) {
-			short value = (Short)itemValue;
-			if (value < 0) {
-				throw new IllegalArgumentException(
-						String.format("unsigned byte 항목의 값[%d]은 음수를 가질 수 없습니다.", value));
-			}
-			
-			if (value > CommonStaticFinalVars.MAX_UNSIGNED_BYTE) {
-				throw new IllegalArgumentException(
-						String.format("unsigned byte 항목의 값[%d]은 최대 값[%d]을 넘을 수 없습니다.", value, CommonStaticFinalVars.MAX_UNSIGNED_BYTE));
-			}
-		}
-	}
-	
-	private class CheckShortValue implements CheckItemValue {
-		public void checkValue(Charset itemCharsetForLang, int itemSizeForLang, Object value) {
-			// nothing
-		}
-	}
-	
-	private class CheckUnsigendShortValue implements CheckItemValue {
-		public void checkValue(Charset itemCharsetForLang, int itemSizeForLang, Object itemValue) {
-			int value = (Integer)itemValue;
-			if (value < 0) {
-				throw new IllegalArgumentException(
-						String.format("unsigned short 항목의 값[%d]은 음수를 가질 수 없습니다.", value));
-			}
-			
-			if (value > CommonStaticFinalVars.MAX_UNSIGNED_SHORT) {
-				throw new IllegalArgumentException(
-						String.format("unsigned short 항목의 값[%d]은 최대 값[%d]을 넘을 수 없습니다.", value, CommonStaticFinalVars.MAX_UNSIGNED_SHORT));
-			}
-		}
-	}
-	
-	private class CheckIntValue implements CheckItemValue {
-		public void checkValue(Charset itemCharsetForLang, int itemSizeForLang, Object value) {
-			// nothing
-		}
-	}
-	
-	private class CheckUnsigendIntValue implements CheckItemValue {
-		public void checkValue(Charset itemCharsetForLang, int itemSizeForLang, Object itemValue) {
-			long value = (Long)itemValue;
-			
-			if (value < 0) {
-				throw new IllegalArgumentException(
-						String.format("unsigned integer 항목의 값[%d]은 음수를 가질 수 없습니다.", value));
-			}
-			
-			if (value > CommonStaticFinalVars.MAX_UNSIGNED_INT) {
-				throw new IllegalArgumentException(
-						String.format("unsigned integer 항목의 값[%d]은 최대 값[%d]을 넘을 수 없습니다.", value, CommonStaticFinalVars.MAX_UNSIGNED_INT));
-			}
-		}
-	}
-	
-	private class CheckLongValue implements CheckItemValue {
-		public void checkValue(Charset itemCharsetForLang, int itemSizeForLang, Object itemValue) {
-			// nothing
-		}
-	}
-	
-	private class CheckUBPascalStringValue implements CheckItemValue {
-		public void checkValue(Charset itemCharsetForLang, int itemSizeForLang, Object itemValue) {
-			String value = (String)itemValue;
-			if (value.getBytes(itemCharsetForLang).length > CommonStaticFinalVars.MAX_UNSIGNED_BYTE) {
-				throw new IllegalArgumentException(
-						String.format("ub pascal string 항목의 값[%s]의 길이는 최대 값[%d]을 넘을 수 없습니다. 참고) 프로젝트 문자셋[%s]", value, CommonStaticFinalVars.MAX_UNSIGNED_BYTE, itemCharsetForLang.name()));
-			}
-		}
-	}
-	
-	private class CheckUSPascalStringValue implements CheckItemValue {
-		public void checkValue(Charset itemCharsetForLang, int itemSizeForLang, Object itemValue) {
-			String value = (String)itemValue;
-			if (value.getBytes(itemCharsetForLang).length > CommonStaticFinalVars.MAX_UNSIGNED_SHORT) {
-				throw new IllegalArgumentException(
-						String.format("us pascal string 항목의 값[%s]의 길이는 최대 값[%d]을 넘을 수 없습니다. 참고) 프로젝트 문자셋[%s]", value, CommonStaticFinalVars.MAX_UNSIGNED_SHORT, itemCharsetForLang.name()));
-			}
-		}
-	}
-	
-	
-	private class CheckSIPascalStringValue implements CheckItemValue {
-		public void checkValue(Charset itemCharsetForLang, int itemSizeForLang, Object itemValue) {
-			String value = (String)itemValue;
-			if (value.getBytes(itemCharsetForLang).length > CommonStaticFinalVars.MAX_UNSIGNED_INT) {
-				throw new IllegalArgumentException(
-						String.format("si pascal string 항목의 값[%s]의 길이는 최대 값[%d]을 넘을 수 없습니다. 참고) 프로젝트 문자셋[%s]", value, CommonStaticFinalVars.MAX_UNSIGNED_INT, itemCharsetForLang.name()));
-			}
-		}
-	}
-	
-	
-	private class CheckFixedLengthStringValue implements CheckItemValue {
-		public void checkValue(Charset itemCharsetForLang, int itemSizeForLang, Object itemValue) {
-			// nothing
-		}
-	}
-
-	private class CheckUBVariableLengthBytesValue implements CheckItemValue {
-		public void checkValue(Charset itemCharsetForLang, int itemSizeForLang, Object itemValue) {
-			byte[] value = (byte[])itemValue;
-			if (value.length > CommonStaticFinalVars.MAX_UNSIGNED_BYTE) {
-				throw new IllegalArgumentException(
-						String.format("ub variable length byte[] 항목의 길이[%d]는 최대 값[%d]을 넘을 수 없습니다.", value.length, CommonStaticFinalVars.MAX_UNSIGNED_BYTE));
-			}
-		}
-	}
-	private class CheckUSVariableLengthBytesValue implements CheckItemValue {
-		public void checkValue(Charset itemCharsetForLang, int itemSizeForLang, Object itemValue) {
-			byte[] value = (byte[])itemValue;
-			if (value.length > CommonStaticFinalVars.MAX_UNSIGNED_SHORT) {
-				throw new IllegalArgumentException(
-						String.format("us variable length byte[] 항목의 길이[%d]는 최대 값[%d]을 넘을 수 없습니다.", value.length, CommonStaticFinalVars.MAX_UNSIGNED_SHORT));
-			}
-		}
-	}
-	private class CheckSIVariableLengthBytesValue implements CheckItemValue {
-		public void checkValue(Charset itemCharsetForLang, int itemSizeForLang, Object itemValue) {
-			byte[] value = (byte[])itemValue;
-			if (value.length > CommonStaticFinalVars.MAX_UNSIGNED_INT) {
-				throw new IllegalArgumentException(
-						String.format("si variable length byte[] 항목의 길이[%d]는 최대 값[%d]을 넘을 수 없습니다.", value.length, CommonStaticFinalVars.MAX_UNSIGNED_INT));
-			}
-		}
-	}
-	private class CheckFixedLengthBytesValue implements CheckItemValue {
-		public void checkValue(Charset itemCharsetForLang, int itemSizeForLang, Object itemValue) {
-			byte[] value = (byte[])itemValue;
-			if (value.length != itemSizeForLang) {
-				throw new IllegalArgumentException(
-						String.format("fixed length byte[] 항목의 길이[%d]와 고정 크기 값[%d]이 일치하지 않습니다.", value.length, itemSizeForLang));
-			}
-		}
-	}*/
 }

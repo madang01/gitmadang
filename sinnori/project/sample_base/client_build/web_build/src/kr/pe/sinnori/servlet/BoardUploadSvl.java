@@ -211,10 +211,10 @@ public class BoardUploadSvl extends AbstractServlet {
 				return;
 			}
 			
-			if (CommonStaticFinalVars.MAX_UNSIGNED_INT < attachId) {
+			if (CommonStaticFinalVars.MAX_UNSIGNED_INTEGER < attachId) {
 				String errorMessage = new StringBuilder("업로드 파일 식별자 값[")
 				.append(parmAttachId).append("]은 ")
-				.append(CommonStaticFinalVars.MAX_UNSIGNED_INT)
+				.append(CommonStaticFinalVars.MAX_UNSIGNED_INTEGER)
 				.append(" 값 보다 작거나 같아야합니다.").toString();
 				log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
 				

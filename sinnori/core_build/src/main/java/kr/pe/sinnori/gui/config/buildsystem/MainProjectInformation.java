@@ -10,6 +10,7 @@ import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.config.itemidinfo.SinnoriItemIDInfoManger;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.ConfigErrorException;
+import kr.pe.sinnori.common.message.info.MessageInfoSAXParser;
 import kr.pe.sinnori.common.util.SequencedProperties;
 import kr.pe.sinnori.common.util.SequencedPropertiesUtil;
 
@@ -24,7 +25,6 @@ public class MainProjectInformation {
 
 	private boolean isAppClient = false;
 	private boolean isWebClient = false;
-	// private String servletSystemLibrayPathString = null;
 
 	private List<String> subProjectNameList = null;
 	private List<String> dbcpNameList = null;
@@ -32,14 +32,21 @@ public class MainProjectInformation {
 	private SequencedProperties antProperties = null;
 	private SequencedProperties sinnoriConfigSequencedProperties = null;
 
+	private MessageInfoSAXParser messageInfoSAXParser = null;
 	private SinnoriItemIDInfoManger sinnoriItemIDInfoManger = SinnoriItemIDInfoManger
 			.getInstance();
 
-	public MainProjectInformation(String mainProjectName,
-			String sinnoriInstalledPathString) throws ConfigErrorException {
+	public MainProjectInformation(boolean isCreation, String mainProjectName,
+			String sinnoriInstalledPathString, MessageInfoSAXParser messageInfoSAXParser) throws ConfigErrorException {
 		this.mainProjectName = mainProjectName;
 		this.sinnoriInstalledPathString = sinnoriInstalledPathString;
-		updateInformationBasedOnBuildSystem();
+		this.messageInfoSAXParser = messageInfoSAXParser;
+		
+		if (isCreation) {
+			BuildSystemSupporter.createNewMainProjectBuildSystem(mainProjectName, sinnoriInstalledPathString, messageInfoSAXParser);
+		} else {
+			updateInformationBasedOnBuildSystem();
+		}		
 	}
 
 	public void updateInformationBasedOnBuildSystem()
@@ -383,7 +390,7 @@ public class MainProjectInformation {
 		}
 
 		BuildSystemSupporter.applyAppClientStatus(mainProjectName,
-				sinnoriInstalledPathString, isAppClient);
+				sinnoriInstalledPathString, isAppClient, messageInfoSAXParser);
 		BuildSystemSupporter.applyWebClientStatus(mainProjectName,
 				sinnoriInstalledPathString, isWebClient);
 	}

@@ -52,7 +52,7 @@ public abstract class CommonStaticFinalVars {
 	/************* network binary stream start *************/
 	public static final short MAX_UNSIGNED_BYTE = 0xff;
 	public static final int MAX_UNSIGNED_SHORT = 0xffff;
-	public static final long MAX_UNSIGNED_INT = 0xffffffffL;
+	public static final long MAX_UNSIGNED_INTEGER = 0xffffffffL;
 	/************* network binary stream end *************/
 	
 		
@@ -116,4 +116,7 @@ public abstract class CommonStaticFinalVars {
 	public static final String WEBCLIENT_CORE_JAR_SHORT_FILE_NAME_VALUE = "SinnoriWebLib.jar";
 	/** webclient build system end */
 	/*********** Sinnori Build System end **********/
+	
+	/** sinnori message information xml file's root tag */
+	public static final String MESSAGE_INFO_XML_FILE_ROOT_TAG = "sinnori_message";
 }

@@ -74,7 +74,7 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 					stringBuilder.append("\t");
 				}
 				stringBuilder.append("\t\t, \"");
-				stringBuilder.append(singleItemInfo.getItemType());
+				stringBuilder.append(singleItemInfo.getItemValueType());
 				stringBuilder.append("\" // itemTypeName");
 				
 				// itemSizeForLang
@@ -103,7 +103,7 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 				 * </pre>
 				 */
 				
-				if (singleItemInfo.getItemType().equals("fixed length string")) {
+				if (singleItemInfo.getItemValueType().equals("fixed length string")) {
 					String itemCharset = singleItemInfo.getItemCharset();
 					if (null == itemCharset) {
 						stringBuilder.append("null");

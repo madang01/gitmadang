@@ -121,12 +121,12 @@ public class ProjectPart {
 	/***** 서버 비동기 입출력 지원용 자원 종료 *****/
 
 	/***** 서버 동적 클래스 변수 시작 *****/
-	private File serverClassLoaderAPPINFPath = null;
+	private File serverClassloaderAPPINFPath = null;
 	/***** 서버 동적 클래스 변수 종료 *****/
 	
 	
 	/******** MyBatis 시작 **********/
-	private String serverMybatisConfigFileRelativePath = null;
+	private String serverClassloaderMybatisConfigFileRelativePathString = null;
 	/******** MyBatis 종료 **********/
 	/************* server 변수 종료 ******************/
 	
@@ -725,8 +725,8 @@ public class ProjectPart {
 				throw new ConfigErrorException(errorMessage);
 			}
 			
-			this.serverClassLoaderAPPINFPath = (File) nativeValue;
-		} else if (itemID.equals(ItemID.ProjectPartItemID.SERVER_CLASSLOADER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_ITEMID)) {
+			this.serverClassloaderAPPINFPath = (File) nativeValue;
+		} else if (itemID.equals(ItemID.ProjectPartItemID.SERVER_CLASSLOADER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_STRING_ITEMID)) {
 			if (!(nativeValue instanceof String)) {
 				String errorMessage = new StringBuilder("the generic type[")
 				.append(nativeValueConverterTypeName)
@@ -737,7 +737,7 @@ public class ProjectPart {
 				throw new ConfigErrorException(errorMessage);
 			}
 			
-			this.serverMybatisConfigFileRelativePath = (String) nativeValue;
+			this.serverClassloaderMybatisConfigFileRelativePathString = (String) nativeValue;
 		} else {
 			String errorMessage = new StringBuilder("unknown porject's part item id(=the parameter itemIDInfo[")
 			.append(itemID)
@@ -923,12 +923,12 @@ public class ProjectPart {
 		return serverMonitorReceptionTimeout;
 	}
 
-	public File getServerClassLoaderAPPINFPath() {
-		return serverClassLoaderAPPINFPath;
+	public File getServerClassloaderAPPINFPath() {
+		return serverClassloaderAPPINFPath;
 	}
 
-	public String getServerMybatisConfigFileRelativePath() {
-		return serverMybatisConfigFileRelativePath;
+	public String getServerClassloaderMybatisConfigFileRelativePathString() {
+		return serverClassloaderMybatisConfigFileRelativePathString;
 	}
 
 	public Boolean getClientWhetherAutoConnection() {
@@ -1037,9 +1037,9 @@ public class ProjectPart {
 		builder.append(", serverOutputMessageWriterSize=");
 		builder.append(serverOutputMessageWriterSize);
 		builder.append(", serverClassLoaderAPPINFPath=");
-		builder.append(serverClassLoaderAPPINFPath);
+		builder.append(serverClassloaderAPPINFPath);
 		builder.append(", serverMybatisConfigFileRelativePath=");
-		builder.append(serverMybatisConfigFileRelativePath);
+		builder.append(serverClassloaderMybatisConfigFileRelativePathString);
 		builder.append("]");
 		return builder.toString();
 	}	

@@ -266,7 +266,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 			}
 			
 			long tValue = (long)jsonValue; 
-			if (tValue < 0 || tValue > CommonStaticFinalVars.MAX_UNSIGNED_INT) {
+			if (tValue < 0 || tValue > CommonStaticFinalVars.MAX_UNSIGNED_INTEGER) {
 				String errorMessage = 
 						String.format("JSON Object 로 부터 얻은 unsigned integer 타입 항목[%s]의 값[%d]이 unsigned integer 값 범위를 벗어났습니다.", 
 								itemName, tValue);

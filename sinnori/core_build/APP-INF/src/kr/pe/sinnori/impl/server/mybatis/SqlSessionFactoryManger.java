@@ -131,11 +131,11 @@ public class SqlSessionFactoryManger {
 		}
 
 		File serverClassLoaderAPPINFPath = workingProjetPart
-				.getServerClassLoaderAPPINFPath();
-		String serverMybatisConfigFileRelativePath = workingProjetPart
-				.getServerMybatisConfigFileRelativePath();
+				.getServerClassloaderAPPINFPath();
+		String serverClassloaderMybatisConfigFileRelativePathString = workingProjetPart
+				.getServerClassloaderMybatisConfigFileRelativePathString();
 
-		if (serverMybatisConfigFileRelativePath.equals("")) {
+		if (serverClassloaderMybatisConfigFileRelativePathString.equals("")) {
 			connectionPoolName2SqlSessionFactoryHash.clear();
 			alias2typeHash.clear();
 			lastModifiedFileInfoList.clear();
@@ -143,12 +143,12 @@ public class SqlSessionFactoryManger {
 			String itemKey = null;
 			if (workingProjectName.equals(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME)) {
 				itemKey = new StringBuilder("mainproject.")
-				.append(ItemID.ProjectPartItemID.SERVER_CLASSLOADER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_ITEMID).toString();
+				.append(ItemID.ProjectPartItemID.SERVER_CLASSLOADER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_STRING_ITEMID).toString();
 			} else {
 				itemKey = new StringBuilder("subproject.")
 				.append(workingProjectName)
 				.append(".")
-				.append(ItemID.ProjectPartItemID.SERVER_CLASSLOADER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_ITEMID).toString();
+				.append(ItemID.ProjectPartItemID.SERVER_CLASSLOADER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_STRING_ITEMID).toString();
 			}
 			log.warn(
 					"sinnori properties key[{}]'s value is a empty string. that means this project[{}] declared that Mybatis is not used",
@@ -165,7 +165,7 @@ public class SqlSessionFactoryManger {
 		String mybatisConfigeFilePathString = CommonStaticUtil
 				.getFilePathStringFromResourcePathAndRelativePathOfFile(
 						resourcesPathString,
-						serverMybatisConfigFileRelativePath);
+						serverClassloaderMybatisConfigFileRelativePathString);
 
 		File mybatisConfigeFile = new File(mybatisConfigeFilePathString);
 		if (!mybatisConfigeFile.exists()) {
