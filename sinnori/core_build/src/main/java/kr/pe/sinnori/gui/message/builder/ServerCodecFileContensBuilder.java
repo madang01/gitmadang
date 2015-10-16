@@ -42,9 +42,9 @@ public class ServerCodecFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("import kr.pe.sinnori.common.exception.DynamicClassCallException;");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("import kr.pe.sinnori.common.message.codec.MessageDecoder;");
+		stringBuilder.append("import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("import kr.pe.sinnori.common.message.codec.MessageEncoder;");
+		stringBuilder.append("import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("import kr.pe.sinnori.common.protocol.MessageCodecIF;");
 		
@@ -76,7 +76,7 @@ public class ServerCodecFileContensBuilder extends AbstractSourceFileBuildre {
 		
 		// public MessageDecoder getMessageDecoder() throws DynamicClassCallException {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\tpublic MessageDecoder getMessageDecoder() throws DynamicClassCallException {");
+		stringBuilder.append("\tpublic AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {");
 		
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		if ((connectionDirectionMode == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL) ||
@@ -106,7 +106,7 @@ public class ServerCodecFileContensBuilder extends AbstractSourceFileBuildre {
 		
 		// public MessageEncoder getMessageEncoder() throws DynamicClassCallException {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\tpublic MessageEncoder getMessageEncoder() throws DynamicClassCallException {");
+		stringBuilder.append("\tpublic AbstractMessageEncoder getMessageEncoder() throws DynamicClassCallException {");
 		
 		
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);

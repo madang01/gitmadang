@@ -19,7 +19,7 @@ package kr.pe.sinnori.impl.message.SeqValueOutDTO;
 import java.nio.charset.Charset;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.message.codec.MessageDecoder;
+import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 
 /**
@@ -27,7 +27,7 @@ import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
  * @author Won Jonghoon
  *
  */
-public final class SeqValueOutDTODecoder extends MessageDecoder {
+public final class SeqValueOutDTODecoder extends AbstractMessageDecoder {
 
 	/**
 	 * <pre>

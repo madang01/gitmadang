@@ -20,7 +20,7 @@ import java.nio.charset.Charset;
 
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.message.codec.MessageDecoder;
+import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 
 /**
@@ -28,7 +28,7 @@ import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
  * @author Won Jonghoon
  *
  */
-public final class SelfExnDecoder extends MessageDecoder {
+public final class SelfExnDecoder extends AbstractMessageDecoder {
 	/**
 	 * <pre>
 	 * "단일항목 디코더"를 이용하여 "중간 다리 역활 읽기 객체" 에서 추출된 SelfExn 메시지를 반환한다.

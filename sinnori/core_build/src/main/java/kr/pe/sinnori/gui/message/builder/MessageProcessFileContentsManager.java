@@ -33,19 +33,19 @@ public class MessageProcessFileContentsManager {
 		serverCodecFileContensBuilder = new ServerCodecFileContensBuilder();
 	}
 
-	public String getMessageSourceFileContents(String messageID, String author, kr.pe.sinnori.common.message.info.MessageInfo messageInfo) {
+	public String getMessageSourceFileContents(String messageID, String author, kr.pe.sinnori.gui.message.builder.info.MessageInfo messageInfo) {
 		return messageFileContensBuilder.getFileContents(messageID, author, messageInfo);
 	}
 	
 	public String getDecoderSourceFileContents(String messageID,
 			String author,
-			kr.pe.sinnori.common.message.info.MessageInfo messageInfo) {		
+			kr.pe.sinnori.gui.message.builder.info.MessageInfo messageInfo) {		
 		return decoderFileContensBuilder.getFileContents(messageID, author, messageInfo);
 	}
 
 	public String getEncoderSourceFileContents(String messageID,
 			String author,
-			kr.pe.sinnori.common.message.info.MessageInfo messageInfo) {
+			kr.pe.sinnori.gui.message.builder.info.MessageInfo messageInfo) {
 		return encoderFileContensBuilder.getFileContents(messageID, author, messageInfo);
 	}
 	

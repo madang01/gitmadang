@@ -97,7 +97,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 			}
 			
 			Short tValue = (Short) itemValue;
-			if (tValue < 0 || tValue > CommonStaticFinalVars.MAX_UNSIGNED_BYTE) {
+			if (tValue < 0 || tValue > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 				String errorMessage = 
 						String.format("항목의 값[%d]이 Unsigned Byte 범위가 아닙니다.", 
 								tValue);
@@ -142,7 +142,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 			}
 			
 			Integer tValue = (Integer) itemValue;
-			if (tValue < 0 || tValue > CommonStaticFinalVars.MAX_UNSIGNED_SHORT) {
+			if (tValue < 0 || tValue > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
 				String errorMessage = 
 						String.format("항목의 값[%d]이 Unsigned Short 범위가 아닙니다.", 
 								tValue);
@@ -188,7 +188,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 			}
 			
 			Long tValue = (Long) itemValue;
-			if (tValue < 0 || tValue > CommonStaticFinalVars.MAX_UNSIGNED_INTEGER) {
+			if (tValue < 0 || tValue > CommonStaticFinalVars.UNSIGNED_INTEGER_MAX) {
 				String errorMessage = 
 						String.format("항목의 값[%d]이 Unsigned Integer 범위가 아닙니다.", 
 								tValue);
@@ -234,10 +234,10 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 			String tValue = (String) itemValue;
 			
 			byte[] valueBytes = tValue.getBytes(charsetOfProject);
-			if (valueBytes.length > CommonStaticFinalVars.MAX_UNSIGNED_BYTE) {
+			if (valueBytes.length > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 				String errorMessage = 
 						String.format("UBPascalString 타입 항목의 값을 %s 문자셋으로 변환된 바이트 길이[%d]가 unsigned byte 최대값[%d]을 넘었습니다.", 
-								DJSONHeader.JSON_STRING_CHARSET_NAME, valueBytes.length, CommonStaticFinalVars.MAX_UNSIGNED_BYTE);
+								DJSONHeader.JSON_STRING_CHARSET_NAME, valueBytes.length, CommonStaticFinalVars.UNSIGNED_BYTE_MAX);
 				throw new IllegalArgumentException(errorMessage);
 			}
 			
@@ -262,10 +262,10 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 			String tValue = (String) itemValue;
 			
 			byte[] valueBytes = tValue.getBytes(charsetOfProject);
-			if (valueBytes.length > CommonStaticFinalVars.MAX_UNSIGNED_SHORT) {
+			if (valueBytes.length > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
 				String errorMessage = 
 						String.format("UBPascalString 타입 항목의 값을 %s 문자셋으로 변환된 바이트 길이[%d]가 unsigned short 최대값[%d]을 넘었습니다.", 
-								DJSONHeader.JSON_STRING_CHARSET_NAME, valueBytes.length, CommonStaticFinalVars.MAX_UNSIGNED_SHORT);
+								DJSONHeader.JSON_STRING_CHARSET_NAME, valueBytes.length, CommonStaticFinalVars.UNSIGNED_SHORT_MAX);
 				throw new IllegalArgumentException(errorMessage);
 			}
 			
@@ -372,7 +372,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 				
 				tValue = (byte[]) itemValue;
 				
-				if (tValue.length > CommonStaticFinalVars.MAX_UNSIGNED_BYTE) {
+				if (tValue.length > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 					String errorMessage = 
 							String.format("ub variable length byte[] 타입 항목의 길이[%d]가 unsigned byte 최대값을 넘었습니다.",  tValue.length);
 					throw new IllegalArgumentException(errorMessage);
@@ -404,7 +404,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 				
 				tValue = (byte[]) itemValue;
 				
-				if (tValue.length > CommonStaticFinalVars.MAX_UNSIGNED_SHORT) {
+				if (tValue.length > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
 					String errorMessage = 
 							String.format("ub variable length byte[] 타입 항목의 길이[%d]가 unsigned short 최대값을 넘었습니다.",  tValue.length);
 					throw new IllegalArgumentException(errorMessage);

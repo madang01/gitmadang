@@ -45,7 +45,7 @@ extends AbstractSetTypeNativeValueConverter<CommonType.RSA_KEYPAIR_SOURCE_OF_SES
 		} catch(IllegalArgumentException e) {
 			String errorMessage = new StringBuilder("parameter itemValue[")
 			.append(itemValue)
-			.append("] is not a element of the set ")
+			.append("] is not an element of the set ")
 			.append(getSetName())
 			.append(getStringFromSet())
 			.toString();

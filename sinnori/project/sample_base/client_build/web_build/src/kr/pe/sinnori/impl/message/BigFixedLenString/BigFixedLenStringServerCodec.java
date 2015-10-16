@@ -17,8 +17,8 @@
 package kr.pe.sinnori.impl.message.BigFixedLenString;
 
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
-import kr.pe.sinnori.common.message.codec.MessageDecoder;
-import kr.pe.sinnori.common.message.codec.MessageEncoder;
+import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
+import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
 
 /**
@@ -29,12 +29,12 @@ import kr.pe.sinnori.common.protocol.MessageCodecIF;
 public final class BigFixedLenStringServerCodec implements MessageCodecIF {
 
 	@Override
-	public MessageDecoder getMessageDecoder() throws DynamicClassCallException {
+	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
 		return new BigFixedLenStringDecoder();
 	}
 
 	@Override
-	public MessageEncoder getMessageEncoder() throws DynamicClassCallException {
+	public AbstractMessageEncoder getMessageEncoder() throws DynamicClassCallException {
 		return new BigFixedLenStringEncoder();
 	}
 }

@@ -1,0 +1,44 @@
+<!--
+  single item value type : (unsigned) byte, (unsigned) short, (unsigned) integer, long,
+					              fixed length string, ub|us|si pascal string, 
+				              	fixed length byte[], ub|us|si variable length byte[], 
+		              			java sql date, java sql timestamp, boolean
+	defaultValue :  Warning! 파스칼 문자열 타입에 디폴트 값을 지정할때 
+                송수신 에러가 발생할 수 있기때문에 주의가 필요하다.
+                이는 송수신시 파스칼 문자열 길이에 제약이 있는데 
+                이 제약을 어긴 디폴트 값을 지정했기때문이다. 
+                이 제약을 검사하지 않고 디폴트 값을 허용하는 이유는 
+                검사 수행 시점을 송수신 할때로 보류 했기때문이다.
+                검사 수행 시점을 송수신 할때로 보류한 이유는 다음과 같다. 
+                비지니스 로직 수행 과정에서 파스칼 문자열 타입 항목은 
+                송수신시 제약사항과 상관없는 값을 가질 수 있기때문이다. 
+                또한 부가적인 이유중 하나는 파스칼 문자열 길이는 
+                지정한 문자셋을 갖는 바이트 배열의 크기인데, 
+                파스칼 문자열 항목의 문자셋은 옵션이고, 
+                미 지정시 갖게 되는 문자셋은 
+                작업중인 프로젝트의 환경변수 '문자셋' 인데 
+                작업중인 프로젝트는 송수신때 결정되기때문이다.
+	array counter type : reference 변수참조, direct 직접입력
+	direction : FROM_NONE_TO_NONE, FROM_SERVER_TO_CLINET, FROM_CLIENT_TO_SERVER, FROM_ALL_TO_ALL
+	(1) FROM_NONE_TO_NONE : 메시지는 서버에서 클라이언트로 혹은 클라이언트에서 서버로 양쪽 모두에서 전송되지 않는다.
+	(2) FROM_SERVER_TO_CLINET : 메시지는 서버에서 클라이언트로만 전송된다.
+	(3) FROM_CLIENT_TO_SERVER : 메시지는 클라이언트에서 서버로만 전송된다.
+	(4) FROM_ALL_TO_ALL : 메시지는 서버에서 클라이언트로도 혹은 클라이언트에서 서버로 양쪽 모두에서 전송된다.
+-->
+<?xml version="1.0" encoding="utf-8" ?>
+<sinnori_message>
+<messageID>ArrayItemNoCntValueAttribute</messageID>
+<direction>FROM_ALL_TO_ALL</direction>
+<desc>배열 태그에서 '반복 횟수 값' 속성이 빠진 경우 메시지</desc>
+<singleitem name="sizeOfmember" type="integer" />
+<array name="member" cnttype="reference">
+	<singleitem name="memberID" type="fixed length string" size="30" defaultValue="king" />
+	<singleitem name="memberName" type="fixed length string" size="30" />
+	<singleitem name="cnt" type="integer" defaultValue="10" />
+	<array name="item" cnttype="reference" cntvalue="cnt">
+		<singleitem name="itemID" type="fixed length string" size="30" />		
+		<singleitem name="itemName" type="fixed length string" size="30" />
+		<singleitem name="itemCnt" type="integer" />		
+	</array>
+</array>
+</sinnori_message>

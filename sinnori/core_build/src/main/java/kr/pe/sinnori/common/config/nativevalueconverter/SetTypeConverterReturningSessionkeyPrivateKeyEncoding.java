@@ -40,7 +40,7 @@ extends AbstractSetTypeNativeValueConverter<CommonType.SYMMETRIC_KEY_ENCODING> {
 		} catch(IllegalArgumentException e) {
 			String errorMessage = new StringBuilder("parameter itemValue[")
 			.append(itemValue)
-			.append("] is not a element of ")
+			.append("] is not an element of ")
 			.append(getSetName())
 			.append(getStringFromSet())
 			.toString();

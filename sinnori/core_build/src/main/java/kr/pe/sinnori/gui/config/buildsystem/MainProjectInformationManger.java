@@ -8,7 +8,7 @@ import java.util.List;
 import kr.pe.sinnori.common.config.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.exception.ConfigErrorException;
 import kr.pe.sinnori.common.exception.MessageInfoSAXParserException;
-import kr.pe.sinnori.common.message.info.MessageInfoSAXParser;
+import kr.pe.sinnori.gui.message.builder.info.MessageInfoSAXParser;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

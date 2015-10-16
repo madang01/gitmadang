@@ -26,7 +26,7 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.SocketInputStream;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.message.codec.MessageEncoder;
+import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 
 /**
  * 메시지 프로토콜 인터페이스.
@@ -44,7 +44,7 @@ public interface MessageProtocolIF {
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷 버퍼가 없을때 던지는 예외
 	 * @throws BodyFormatException 바디 구성할때 에러 발생시 던지는 예외
 	 */
-	public ArrayList<WrapBuffer> M2S(AbstractMessage messageObj, MessageEncoder messageEncoder, Charset clientCharset) 
+	public ArrayList<WrapBuffer> M2S(AbstractMessage messageObj, AbstractMessageEncoder messageEncoder, Charset clientCharset) 
 			throws NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException;
 	
 	

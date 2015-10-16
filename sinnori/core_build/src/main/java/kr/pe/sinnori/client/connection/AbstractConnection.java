@@ -38,8 +38,8 @@ import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.io.SocketInputStream;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.message.codec.MessageDecoder;
-import kr.pe.sinnori.common.message.codec.MessageEncoder;
+import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
+import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.project.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
@@ -378,7 +378,7 @@ public abstract class AbstractConnection {
 		
 		MessageCodecIF messageCodec = clientObjectCacheManager.getClientCodec(classLoader, messageID);
 		
-		MessageDecoder  messageDecoder  = null;
+		AbstractMessageDecoder  messageDecoder  = null;
 		try {
 			messageDecoder = messageCodec.getMessageDecoder();
 		} catch (DynamicClassCallException e) {
@@ -431,7 +431,7 @@ public abstract class AbstractConnection {
 			throw new DynamicClassCallException("unkown error::"+e.getMessage());
 		}
 		
-		MessageEncoder  messageEncoder  = null;
+		AbstractMessageEncoder  messageEncoder  = null;
 		
 		try {
 			messageEncoder = messageCodec.getMessageEncoder();

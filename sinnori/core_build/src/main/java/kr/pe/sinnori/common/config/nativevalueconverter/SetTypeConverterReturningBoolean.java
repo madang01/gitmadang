@@ -34,7 +34,7 @@ public class SetTypeConverterReturningBoolean extends
 
 		if (!itemValueSet.contains(itemValue)) {
 			String errorMessage = new StringBuilder("parameter itemValue[")
-					.append(itemValue).append("] is not a element of ")
+					.append(itemValue).append("] is not an element of ")
 					.append(getSetName()).append(getStringFromSet())
 					.append("]").toString();
 			throw new IllegalArgumentException(errorMessage);

@@ -49,7 +49,7 @@ public class SetTypeConverterReturningConnectionType extends
 			returnValue = CommonType.CONNECTION_TYPE.valueOf(itemValue);
 		} catch (IllegalArgumentException e) {
 			String errorMessage = new StringBuilder("parameter itemValue[")
-					.append(itemValue).append("] is not a element of ")
+					.append(itemValue).append("] is not an element of ")
 					.append(getSetName()).append(getStringFromSet()).toString();
 			throw new IllegalArgumentException(errorMessage);
 		}

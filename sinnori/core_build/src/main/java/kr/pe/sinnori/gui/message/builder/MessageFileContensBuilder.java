@@ -4,10 +4,10 @@ import java.util.ArrayList;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
-import kr.pe.sinnori.common.message.info.AbstractItemInfo;
-import kr.pe.sinnori.common.message.info.ArrayInfo;
-import kr.pe.sinnori.common.message.info.ItemGroupInfoIF;
-import kr.pe.sinnori.common.message.info.SingleItemInfo;
+import kr.pe.sinnori.gui.message.builder.info.AbstractItemInfo;
+import kr.pe.sinnori.gui.message.builder.info.ArrayInfo;
+import kr.pe.sinnori.gui.message.builder.info.ItemGroupInfoIF;
+import kr.pe.sinnori.gui.message.builder.info.SingleItemInfo;
 
 
 public class MessageFileContensBuilder extends AbstractSourceFileBuildre {
@@ -66,10 +66,16 @@ public class MessageFileContensBuilder extends AbstractSourceFileBuildre {
 					stringBuilder.append("\t");
 				}
 				stringBuilder.append("\tprivate ");
-				stringBuilder.append(singleItemInfo.getItemTypeForJavaLang());
+				stringBuilder.append(singleItemInfo.getJavaLangTypeOfItemValueType());
 				
 				stringBuilder.append(" ");
 				stringBuilder.append(singleItemInfo.getItemName());
+				
+				String defaultValueRightValueString = singleItemInfo.getDefaultValueRightValueString();
+				if (null != defaultValueRightValueString) {
+					stringBuilder.append(" = ");
+					stringBuilder.append(defaultValueRightValueString);
+				}
 				stringBuilder.append(";");
 			} else {
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
@@ -109,7 +115,7 @@ public class MessageFileContensBuilder extends AbstractSourceFileBuildre {
 					stringBuilder.append("\t");
 				}
 				stringBuilder.append("\tpublic ");
-				stringBuilder.append(singleItemInfo.getItemTypeForJavaLang());
+				stringBuilder.append(singleItemInfo.getJavaLangTypeOfItemValueType());
 				stringBuilder.append(" get");
 				
 				stringBuilder.append(singleItemInfo.getFirstUpperItemName());
@@ -136,7 +142,7 @@ public class MessageFileContensBuilder extends AbstractSourceFileBuildre {
 				stringBuilder.append("\tpublic void set");
 				stringBuilder.append(singleItemInfo.getFirstUpperItemName());
 				stringBuilder.append("(");
-				stringBuilder.append(singleItemInfo.getItemTypeForJavaLang());
+				stringBuilder.append(singleItemInfo.getJavaLangTypeOfItemValueType());
 				stringBuilder.append(" ");
 				stringBuilder.append(singleItemInfo.getItemName());
 				stringBuilder.append(") {");
@@ -498,7 +504,7 @@ public class MessageFileContensBuilder extends AbstractSourceFileBuildre {
 		return stringBuilder.toString();
 	}
 	
-	public String getFileContents(String messageID, String author, kr.pe.sinnori.common.message.info.MessageInfo messageInfo) {
+	public String getFileContents(String messageID, String author, kr.pe.sinnori.gui.message.builder.info.MessageInfo messageInfo) {
 		StringBuilder stringBuilder = new StringBuilder();
 		
 		stringBuilder.append(getLincenseString());

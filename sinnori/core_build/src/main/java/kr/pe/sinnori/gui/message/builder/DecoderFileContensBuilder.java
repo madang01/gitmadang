@@ -4,10 +4,10 @@ import java.util.ArrayList;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
-import kr.pe.sinnori.common.message.info.AbstractItemInfo;
-import kr.pe.sinnori.common.message.info.ArrayInfo;
-import kr.pe.sinnori.common.message.info.ItemGroupInfoIF;
-import kr.pe.sinnori.common.message.info.SingleItemInfo;
+import kr.pe.sinnori.gui.message.builder.info.AbstractItemInfo;
+import kr.pe.sinnori.gui.message.builder.info.ArrayInfo;
+import kr.pe.sinnori.gui.message.builder.info.ItemGroupInfoIF;
+import kr.pe.sinnori.gui.message.builder.info.SingleItemInfo;
 
 
 public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
@@ -39,7 +39,7 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 				stringBuilder.append(".set");
 				stringBuilder.append(singleItemInfo.getFirstUpperItemName());
 				stringBuilder.append("((");
-				stringBuilder.append(singleItemInfo.getItemTypeForJavaLangClassCasting());
+				stringBuilder.append(singleItemInfo.getJavaLangClassCastingTypeOfItemValueType());
 				stringBuilder.append(")");
 				
 				// singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
@@ -77,16 +77,16 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 				stringBuilder.append(singleItemInfo.getItemValueType());
 				stringBuilder.append("\" // itemTypeName");
 				
-				// itemSizeForLang
+				// itemSize
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				for (int i=0; i < depth; i++) {
 					stringBuilder.append("\t");
 				}
 				stringBuilder.append("\t\t, ");
-				stringBuilder.append(singleItemInfo.getItemSizeForLang());
-				stringBuilder.append(" // itemSizeForLang");
+				stringBuilder.append(singleItemInfo.getItemSize());
+				stringBuilder.append(" // itemSize");
 				
-				// itemCharsetForLang
+				// itemCharset
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				for (int i=0; i < depth; i++) {
 					stringBuilder.append("\t");
@@ -294,7 +294,7 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 	
 	public String getFileContents(String messageID,
 			String author,
-			kr.pe.sinnori.common.message.info.MessageInfo messageInfo) {
+			kr.pe.sinnori.gui.message.builder.info.MessageInfo messageInfo) {
 		String firstLowerMessageID =  messageID.substring(0, 1).toLowerCase() + messageID.substring(1);
 		
 		StringBuilder stringBuilder = new StringBuilder();
@@ -318,7 +318,7 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("import kr.pe.sinnori.common.message.AbstractMessage;");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("import kr.pe.sinnori.common.message.codec.MessageDecoder;");
+		stringBuilder.append("import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;");
 		
@@ -340,7 +340,7 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("public final class ");
 		stringBuilder.append(messageID);
-		stringBuilder.append("Decoder extends MessageDecoder {");
+		stringBuilder.append("Decoder extends AbstractMessageDecoder {");
 		
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);

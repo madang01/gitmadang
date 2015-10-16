@@ -42,7 +42,7 @@ import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.message.codec.MessageDecoder;
+import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
 import kr.pe.sinnori.common.project.AbstractProject;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
@@ -401,7 +401,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF,
 			MessageCodecIF messageCodec = clientObjectCacheManager
 					.getClientCodec(classLoader, messageID);
 
-			MessageDecoder messageDecoder = null;
+			AbstractMessageDecoder messageDecoder = null;
 			try {
 				messageDecoder = messageCodec.getMessageDecoder();
 			} catch (DynamicClassCallException e) {

@@ -119,7 +119,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 			}
 			
 			long tValue = (long)jsonValue; 
-			if (tValue < 0 || tValue > CommonStaticFinalVars.MAX_UNSIGNED_BYTE) {
+			if (tValue < 0 || tValue > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 				String errorMessage = 
 						String.format("JSON Object 로 부터 얻은 unsigned byte 타입 항목[%s]의 값[%d]이 unsigned byte 값 범위를 벗어났습니다.", 
 								itemName, tValue);
@@ -192,7 +192,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 			}
 			
 			long tValue = (long)jsonValue; 
-			if (tValue < 0 || tValue > CommonStaticFinalVars.MAX_UNSIGNED_SHORT) {
+			if (tValue < 0 || tValue > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
 				String errorMessage = 
 						String.format("JSON Object 로 부터 얻은 unsigned short 타입 항목[%s]의 값[%d]이 unsigned short 값 범위를 벗어났습니다.", 
 								itemName, tValue);
@@ -266,7 +266,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 			}
 			
 			long tValue = (long)jsonValue; 
-			if (tValue < 0 || tValue > CommonStaticFinalVars.MAX_UNSIGNED_INTEGER) {
+			if (tValue < 0 || tValue > CommonStaticFinalVars.UNSIGNED_INTEGER_MAX) {
 				String errorMessage = 
 						String.format("JSON Object 로 부터 얻은 unsigned integer 타입 항목[%s]의 값[%d]이 unsigned integer 값 범위를 벗어났습니다.", 
 								itemName, tValue);
@@ -329,7 +329,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 			String tValue = (String)jsonValue;
 			int tSize = tValue.getBytes(charsetOfProject).length;
 			
-			if (tSize > CommonStaticFinalVars.MAX_UNSIGNED_BYTE) {
+			if (tSize > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 				String errorMessage = 
 						String.format("JSON Object 로 부터 얻은 UBPascalString 타입 항목[%s]의 문자열 크기[%d]가 unsinged byte 범위를 넘어섰습니다. 참고) 프로젝트 문자셋[%s]", 
 								itemName, tSize, charsetOfProject.name());
@@ -364,7 +364,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 			String tValue = (String)jsonValue;
 			int tSize = tValue.getBytes(charsetOfProject).length;
 			
-			if (tSize > CommonStaticFinalVars.MAX_UNSIGNED_SHORT) {
+			if (tSize > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
 				String errorMessage = 
 						String.format("JSON Object 로 부터 얻은 USPascalString 타입 항목[%s]의 문자열 크기[%d]가 unsinged short 범위를 넘어섰습니다. 참고) 프로젝트 문자셋[%s]", 
 								itemName, tSize, charsetOfProject.name());
@@ -456,7 +456,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 				try {
 					value = HexUtil.getByteArrayFromHexString(tValue);
 					
-					if (value.length > CommonStaticFinalVars.MAX_UNSIGNED_BYTE) {
+					if (value.length > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 						String errorMessage = 
 								String.format("UBVariableLengthBytes 타입 항목[%s]의 길이[%d]가 unsigned byte 최대값을 넘었습니다.", 
 										itemName, value.length);
@@ -503,7 +503,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 				try {
 					value = HexUtil.getByteArrayFromHexString(tValue);
 					
-					if (value.length > CommonStaticFinalVars.MAX_UNSIGNED_SHORT) {
+					if (value.length > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
 						String errorMessage = 
 								String.format("USVariableLengthBytes 타입 항목[%s]의 길이[%d]가 unsigned short 최대값을 넘었습니다.", 
 										itemName, value.length);

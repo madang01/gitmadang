@@ -237,10 +237,10 @@ public final class FreeSizeOutputStream implements OutputStreamIF {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 값[%d]은 음수입니다.", value));
 		}
-		if (value > CommonStaticFinalVars.MAX_UNSIGNED_INTEGER) {
+		if (value > CommonStaticFinalVars.UNSIGNED_INTEGER_MAX) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 값[%d]은 unsigned int 최대값[%d]을 넘을 수 없습니다.", value,
-					CommonStaticFinalVars.MAX_UNSIGNED_INTEGER));
+					CommonStaticFinalVars.UNSIGNED_INTEGER_MAX));
 		}
 		clearLongBuffer();
 		longBuffer.putLong(value);
@@ -384,10 +384,10 @@ public final class FreeSizeOutputStream implements OutputStreamIF {
 					"파라미터 값[%d]이 음수입니다.", value));
 		}
 
-		if (value > CommonStaticFinalVars.MAX_UNSIGNED_BYTE) {
+		if (value > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 값[%d]은 unsigned byte 최대값[%d]을 넘을 수 없습니다.", value,
-					CommonStaticFinalVars.MAX_UNSIGNED_BYTE));
+					CommonStaticFinalVars.UNSIGNED_BYTE_MAX));
 		}
 
 		/**
@@ -405,10 +405,10 @@ public final class FreeSizeOutputStream implements OutputStreamIF {
 					"파라미터 값[%d]이 음수입니다.", value));
 		}
 		
-		if (value > CommonStaticFinalVars.MAX_UNSIGNED_BYTE) {
+		if (value > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 값[%d]은 unsigned byte 최대값[%d]을 넘을 수 없습니다.", value,
-					CommonStaticFinalVars.MAX_UNSIGNED_BYTE));
+					CommonStaticFinalVars.UNSIGNED_BYTE_MAX));
 		}
 		
 		/**
@@ -444,10 +444,10 @@ public final class FreeSizeOutputStream implements OutputStreamIF {
 					"파라미터 값[%d]이 음수입니다.", value));
 		}
 
-		if (value > CommonStaticFinalVars.MAX_UNSIGNED_SHORT) {
+		if (value > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 값[%d]은 unsigned short 최대값[%d]을 넘을 수 없습니다.", value,
-					CommonStaticFinalVars.MAX_UNSIGNED_SHORT));
+					CommonStaticFinalVars.UNSIGNED_SHORT_MAX));
 		}
 		
 		ByteBuffer integerBuffer = getIntegerBufferForUnsignedShort(value);
@@ -496,10 +496,10 @@ public final class FreeSizeOutputStream implements OutputStreamIF {
 					"파라미터 값[%d]이 음수입니다.", value));
 		}
 
-		if (value > CommonStaticFinalVars.MAX_UNSIGNED_INTEGER) {
+		if (value > CommonStaticFinalVars.UNSIGNED_INTEGER_MAX) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 값[%d]은 unsigned integer 최대값[%d]을 넘을 수 없습니다.", value,
-					CommonStaticFinalVars.MAX_UNSIGNED_INTEGER));
+					CommonStaticFinalVars.UNSIGNED_INTEGER_MAX));
 		}
 		
 		ByteBuffer longBuffer = getLongBufferForUnsignedInt(value);
@@ -784,10 +784,10 @@ public final class FreeSizeOutputStream implements OutputStreamIF {
 					"파라미터 생략할 크기[%d]는 0보다 커야 합니다.", skipBytes));
 		}
 
-		if (skipBytes >= CommonStaticFinalVars.MAX_UNSIGNED_BYTE) {
+		if (skipBytes >= CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 생략할 크기[%d]는 unsinged byte 최대값[%d]보다 작어야 합니다.",
-					skipBytes, CommonStaticFinalVars.MAX_UNSIGNED_BYTE));
+					skipBytes, CommonStaticFinalVars.UNSIGNED_BYTE_MAX));
 		}
 		
 		int dstRemainingByte = skipBytes;

@@ -15,7 +15,7 @@ import kr.pe.sinnori.screen.SourceManagerIF;
 
 @SuppressWarnings("serial")
 public class SourceFileCellValue extends JPanel {	
-	private kr.pe.sinnori.common.message.MessageInfo messageInfo = null;
+	private kr.pe.sinnori.gui.message.builder.info.MessageInfo messageInfo = null;
 	private SourceManagerIF sourceManager = null;;
 	private Component parentComponent = null;
 	
@@ -46,7 +46,7 @@ public class SourceFileCellValue extends JPanel {
 		}
 	}
 	
-	public SourceFileCellValue(kr.pe.sinnori.common.message.MessageInfo messageInfo, 
+	public SourceFileCellValue(kr.pe.sinnori.gui.message.builder.info.MessageInfo messageInfo, 
 			SourceManagerIF sourceManager, Component parentComponent) {
 		this.messageInfo = messageInfo;
 		this.sourceManager = sourceManager;
@@ -81,11 +81,11 @@ public class SourceFileCellValue extends JPanel {
 		return directionCheckBox.isSelected();
 	}
 
-	public void setMessageInfo(kr.pe.sinnori.common.message.MessageInfo messageInfo) {
+	public void setMessageInfo(kr.pe.sinnori.gui.message.builder.info.MessageInfo messageInfo) {
 		this.messageInfo = messageInfo;
 	}
 	
-	public kr.pe.sinnori.common.message.MessageInfo getMessageInfo() {
+	public kr.pe.sinnori.gui.message.builder.info.MessageInfo getMessageInfo() {
 		return messageInfo;
 	}
 	

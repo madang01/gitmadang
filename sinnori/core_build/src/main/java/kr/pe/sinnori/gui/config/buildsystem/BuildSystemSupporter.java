@@ -15,11 +15,11 @@ import kr.pe.sinnori.common.config.itemidinfo.SinnoriItemIDInfoManger;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.ConfigErrorException;
-import kr.pe.sinnori.common.message.info.MessageInfo;
-import kr.pe.sinnori.common.message.info.MessageInfoSAXParser;
 import kr.pe.sinnori.common.util.SequencedProperties;
 import kr.pe.sinnori.common.util.SequencedPropertiesUtil;
 import kr.pe.sinnori.gui.message.builder.MessageProcessFileContentsManager;
+import kr.pe.sinnori.gui.message.builder.info.MessageInfo;
+import kr.pe.sinnori.gui.message.builder.info.MessageInfoSAXParser;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;

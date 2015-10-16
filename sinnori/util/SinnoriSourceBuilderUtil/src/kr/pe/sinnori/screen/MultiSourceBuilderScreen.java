@@ -34,12 +34,13 @@ import javax.swing.UIManager;
 import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.common.lib.CommonType;
 import kr.pe.sinnori.common.lib.XMLFileFilter;
-import kr.pe.sinnori.common.message.MessageInfo;
-import kr.pe.sinnori.common.message.MessageInfoSAXParser;
 import kr.pe.sinnori.common.util.FileLastModifiedComparator;
 import kr.pe.sinnori.common.util.SequencedProperties;
 import kr.pe.sinnori.gui.PathSwingAction;
 import kr.pe.sinnori.gui.lib.MessageInfoManagerIF;
+import kr.pe.sinnori.gui.message.builder.SourceFileBuilderManager;
+import kr.pe.sinnori.gui.message.builder.info.MessageInfo;
+import kr.pe.sinnori.gui.message.builder.info.MessageInfoSAXParser;
 import kr.pe.sinnori.gui.table.MessageInfoFileCellEditor;
 import kr.pe.sinnori.gui.table.MessageInfoFileCellRenderer;
 import kr.pe.sinnori.gui.table.MessageInfoFileCellValue;
@@ -48,7 +49,6 @@ import kr.pe.sinnori.gui.table.SourceFileCellEditor;
 import kr.pe.sinnori.gui.table.SourceFileCellRenderer;
 import kr.pe.sinnori.gui.table.SourceFileCellValue;
 import kr.pe.sinnori.gui.util.RegexLimitPlainDocume;
-import kr.pe.sinnori.source_file_builder.SourceFileBuilderManager;
 
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.ColumnSpec;
@@ -564,7 +564,7 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
     		}*/
     		
     		ArrayList<File> messageInfoFileList = new ArrayList<File>();
-    		ArrayList<kr.pe.sinnori.common.message.MessageInfo> messageInfoList = new ArrayList<kr.pe.sinnori.common.message.MessageInfo>();
+    		ArrayList<kr.pe.sinnori.gui.message.builder.info.MessageInfo> messageInfoList = new ArrayList<kr.pe.sinnori.gui.message.builder.info.MessageInfo>();
     		
     		File messageInfoFiles[] = messgaeInfoPath.listFiles(new XMLFileFilter());
     		
@@ -586,7 +586,7 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
     			}
     			
     			MessageInfoSAXParser messageInfoSAXParser = new MessageInfoSAXParser(messageInfoFile, true);
-    			kr.pe.sinnori.common.message.MessageInfo messageInfo = messageInfoSAXParser.parse();
+    			kr.pe.sinnori.gui.message.builder.info.MessageInfo messageInfo = messageInfoSAXParser.parse();
     			if (null != messageInfo) {
     				if (MESSAGE_INFO_SEARCH_GUBUN.SEARCH_KEYWORD == messageInfoSearchGubun) {
     					String fileName = messageInfoFile.getName();
@@ -608,7 +608,7 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
             java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
             
             for (int i=0; i < values.length; i++) {
-            	kr.pe.sinnori.common.message.MessageInfo messageInfo = messageInfoList.get(i);
+            	kr.pe.sinnori.gui.message.builder.info.MessageInfo messageInfo = messageInfoList.get(i);
             	File messageInfoFile = messageInfoFileList.get(i);
             	
     			String messageID = messageInfo.getMessageID();
@@ -733,7 +733,7 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 	}
 	
 	@Override
-	public boolean createSourceFile(boolean isSelectedIO, boolean isSelectedDirection, kr.pe.sinnori.common.message.MessageInfo messageInfo) {
+	public boolean createSourceFile(boolean isSelectedIO, boolean isSelectedDirection, kr.pe.sinnori.gui.message.builder.info.MessageInfo messageInfo) {
 		String sourcePath1Text = sourceBasePath1TextField.getText();
 		String sourcePath2Text = sourceBasePath2TextField.getText();
 		String sourcePath3Text = sourceBasePath3TextField.getText();
@@ -822,7 +822,7 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
 	}
 	
 	public boolean doCreateSourceFile(ArrayList<File> sourceBasePathList, String author, 
-			boolean isSelectedIO, boolean isSelectedDirection, kr.pe.sinnori.common.message.MessageInfo messageInfo) {
+			boolean isSelectedIO, boolean isSelectedDirection, kr.pe.sinnori.gui.message.builder.info.MessageInfo messageInfo) {
 		FileOutputStream fos = null;
 		
 		for (File sourceBasePath : sourceBasePathList) {

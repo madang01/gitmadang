@@ -29,8 +29,8 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.message.codec.MessageDecoder;
-import kr.pe.sinnori.common.message.codec.MessageEncoder;
+import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
+import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
@@ -57,8 +57,8 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractServerTask {
 	protected Logger log = LoggerFactory.getLogger(AbstractServerTask.class);
 	protected final ClassLoader classLoader = this.getClass().getClassLoader();
-	private java.util.Hashtable<String, MessageEncoder> encoderHash = new java.util.Hashtable<String, MessageEncoder>(); 
-	private java.util.Hashtable<String, MessageDecoder> decoderHash = new java.util.Hashtable<String, MessageDecoder>(1);
+	private java.util.Hashtable<String, AbstractMessageEncoder> encoderHash = new java.util.Hashtable<String, AbstractMessageEncoder>(); 
+	private java.util.Hashtable<String, AbstractMessageDecoder> decoderHash = new java.util.Hashtable<String, AbstractMessageDecoder>(1);
 		
 		
 	/**
@@ -90,7 +90,7 @@ public abstract class AbstractServerTask {
 		
 		// Charset projectCharset = serverProjectConfig.getCharset();
 				
-		MessageDecoder  messageDecoder  = decoderHash.get(messageIDFromClient);
+		AbstractMessageDecoder  messageDecoder  = decoderHash.get(messageIDFromClient);
 		AbstractMessage  messageFromClient = null;
 		try {
 			if (null == messageDecoder) {
@@ -358,7 +358,7 @@ public abstract class AbstractServerTask {
 		
 		ArrayList<WrapBuffer> wrapBufferList = null;		
 		
-		MessageEncoder messageEncoder = encoderHash.get(messageIDToClient);
+		AbstractMessageEncoder messageEncoder = encoderHash.get(messageIDToClient);
 
 		if (null == messageEncoder) {
 			MessageCodecIF messageCodec = null;

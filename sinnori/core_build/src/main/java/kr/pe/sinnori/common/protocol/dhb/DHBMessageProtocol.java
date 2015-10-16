@@ -36,7 +36,7 @@ import kr.pe.sinnori.common.io.FreeSizeOutputStream;
 import kr.pe.sinnori.common.io.SocketInputStream;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.message.codec.MessageEncoder;
+import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.project.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
@@ -101,7 +101,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 	
 	
 	@Override
-	public ArrayList<WrapBuffer> M2S(AbstractMessage messageObj, MessageEncoder messageEncoder, Charset charsetOfProject) 
+	public ArrayList<WrapBuffer> M2S(AbstractMessage messageObj, AbstractMessageEncoder messageEncoder, Charset charsetOfProject) 
 			throws NoMoreDataPacketBufferException, BodyFormatException {
 		CharsetEncoder charsetOfProjectEncoder = CharsetUtil
 				.createCharsetEncoder(charsetOfProject);

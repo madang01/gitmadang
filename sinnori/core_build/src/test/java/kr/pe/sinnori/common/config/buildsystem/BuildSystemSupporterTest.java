@@ -8,9 +8,9 @@ import kr.pe.sinnori.common.config.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
 import kr.pe.sinnori.common.exception.ConfigErrorException;
 import kr.pe.sinnori.common.exception.MessageInfoSAXParserException;
-import kr.pe.sinnori.common.message.info.MessageInfoSAXParser;
 import kr.pe.sinnori.gui.config.buildsystem.BuildSystemSupporter;
 import kr.pe.sinnori.gui.config.buildsystem.MainProjectInformation;
+import kr.pe.sinnori.gui.message.builder.info.MessageInfoSAXParser;
 
 import org.junit.After;
 import org.junit.Before;

@@ -50,9 +50,9 @@ public abstract class CommonStaticFinalVars {
 	
 		
 	/************* network binary stream start *************/
-	public static final short MAX_UNSIGNED_BYTE = 0xff;
-	public static final int MAX_UNSIGNED_SHORT = 0xffff;
-	public static final long MAX_UNSIGNED_INTEGER = 0xffffffffL;
+	public static final short UNSIGNED_BYTE_MAX = 0xff;
+	public static final int UNSIGNED_SHORT_MAX = 0xffff;
+	public static final long UNSIGNED_INTEGER_MAX = 0xffffffffL;
 	/************* network binary stream end *************/
 	
 		

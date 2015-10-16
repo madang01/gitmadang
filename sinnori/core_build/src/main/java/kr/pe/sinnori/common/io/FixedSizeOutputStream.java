@@ -103,10 +103,10 @@ public class FixedSizeOutputStream implements OutputStreamIF {
 					"파라미터 값[%d]은 음수입니다.", value));
 		}
 
-		if (value > CommonStaticFinalVars.MAX_UNSIGNED_SHORT) {
+		if (value > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 값[%d]은 unsigned short 최대값[%d]을 넘을 수 없습니다.", value,
-					CommonStaticFinalVars.MAX_UNSIGNED_SHORT));
+					CommonStaticFinalVars.UNSIGNED_SHORT_MAX));
 		}
 
 		intBuffer.clear();
@@ -137,10 +137,10 @@ public class FixedSizeOutputStream implements OutputStreamIF {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 값[%d]은 음수입니다.", value));
 		}
-		if (value > CommonStaticFinalVars.MAX_UNSIGNED_INTEGER) {
+		if (value > CommonStaticFinalVars.UNSIGNED_INTEGER_MAX) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 값[%d]은 unsigned int 최대값[%d]을 넘을 수 없습니다.", value,
-					CommonStaticFinalVars.MAX_UNSIGNED_INTEGER));
+					CommonStaticFinalVars.UNSIGNED_INTEGER_MAX));
 		}
 
 		longBuffer.clear();
@@ -174,10 +174,10 @@ public class FixedSizeOutputStream implements OutputStreamIF {
 					"파라미터 값[%d]이 음수입니다.", value));
 		}
 
-		if (value > CommonStaticFinalVars.MAX_UNSIGNED_BYTE) {
+		if (value > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 값[%d]이 unsigned byte 최대값[%d]을 넘었습니다.", value,
-					CommonStaticFinalVars.MAX_UNSIGNED_BYTE));
+					CommonStaticFinalVars.UNSIGNED_BYTE_MAX));
 		}
 		/*ByteBuffer int_buffer = ByteBuffer.allocate(2);
 		int_buffer.order(bufferByteOrder);
@@ -206,10 +206,10 @@ public class FixedSizeOutputStream implements OutputStreamIF {
 					"파라미터 값[%d]이 음수입니다.", value));
 		}
 		
-		if (value > CommonStaticFinalVars.MAX_UNSIGNED_BYTE) {
+		if (value > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 값[%d]이 unsigned byte 최대값[%d]을 넘었습니다.", value,
-					CommonStaticFinalVars.MAX_UNSIGNED_BYTE));
+					CommonStaticFinalVars.UNSIGNED_BYTE_MAX));
 		}
 
 		/*ByteBuffer int_buffer = ByteBuffer.allocate(2);
@@ -270,11 +270,11 @@ public class FixedSizeOutputStream implements OutputStreamIF {
 					"파리미터 문자열 길이(=len)의 값[%d]은  0 보다 크거나 같아야 합니다.", len));
 		}
 
-		if (len > CommonStaticFinalVars.MAX_UNSIGNED_SHORT) {
+		if (len > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
 			throw new IllegalArgumentException(
 					String.format(
 							"파리미터 문자열 길이(=len)의 값[%d]은  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.",
-							len, CommonStaticFinalVars.MAX_UNSIGNED_SHORT));
+							len, CommonStaticFinalVars.UNSIGNED_SHORT_MAX));
 		}
 
 		if (str == null) {
@@ -345,11 +345,11 @@ public class FixedSizeOutputStream implements OutputStreamIF {
 		}
 
 		int len = str.getBytes(streamCharset).length;
-		if (len > CommonStaticFinalVars.MAX_UNSIGNED_SHORT) {
+		if (len > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
 			throw new IllegalArgumentException(
 					String.format(
 							"파리미터 문자열 길이(=len)의 값[%d]은  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.",
-							len, CommonStaticFinalVars.MAX_UNSIGNED_SHORT));
+							len, CommonStaticFinalVars.UNSIGNED_SHORT_MAX));
 		}
 
 		int numOfBytes = str.getBytes(streamCharset).length;
@@ -371,12 +371,12 @@ public class FixedSizeOutputStream implements OutputStreamIF {
 
 		byte strBytes[] = str.getBytes(streamCharset);
 
-		if (strBytes.length > CommonStaticFinalVars.MAX_UNSIGNED_SHORT) {
+		if (strBytes.length > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
 			throw new IllegalArgumentException(
 					String.format(
 							"파리미터 문자열 길이(=len)의 값[%d]은  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.",
 							strBytes.length,
-							CommonStaticFinalVars.MAX_UNSIGNED_SHORT));
+							CommonStaticFinalVars.UNSIGNED_SHORT_MAX));
 		}
 
 		putInt(strBytes.length);
@@ -432,11 +432,11 @@ public class FixedSizeOutputStream implements OutputStreamIF {
 					"파라미터 길이[%d]는  0 보다 커야 합니다.", length));
 		}
 
-		if (length > CommonStaticFinalVars.MAX_UNSIGNED_SHORT) {
+		if (length > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
 			throw new IllegalArgumentException(
 					String.format(
 							"파리미터 목적지 바이트 배열 길이[%d]는  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.",
-							length, CommonStaticFinalVars.MAX_UNSIGNED_SHORT));
+							length, CommonStaticFinalVars.UNSIGNED_SHORT_MAX));
 		}
 
 		long remainingBytes = remaining();
@@ -469,12 +469,12 @@ public class FixedSizeOutputStream implements OutputStreamIF {
 					"파리미터 목적지 바이트 배열(=dstBuffer)의 값이 null 입니다.");
 		}
 
-		if (dstBuffer.length > CommonStaticFinalVars.MAX_UNSIGNED_SHORT) {
+		if (dstBuffer.length > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
 			throw new IllegalArgumentException(
 					String.format(
 							"파리미터 목적지 바이트 배열 길이[%d]는  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.",
 							dstBuffer.length,
-							CommonStaticFinalVars.MAX_UNSIGNED_SHORT));
+							CommonStaticFinalVars.UNSIGNED_SHORT_MAX));
 		}
 
 		// if (dstBuffer.length == 0) return;
@@ -490,12 +490,12 @@ public class FixedSizeOutputStream implements OutputStreamIF {
 		}
 
 		long remainingBytes = dstBuffer.remaining();
-		if (remainingBytes > CommonStaticFinalVars.MAX_UNSIGNED_SHORT) {
+		if (remainingBytes > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
 			throw new IllegalArgumentException(
 					String.format(
 							"파리미터 바이트 버퍼의 길이[%d]는 unsigned short 최대값[%d] 보다 작거나 같아야 합니다.",
 							remainingBytes,
-							CommonStaticFinalVars.MAX_UNSIGNED_SHORT));
+							CommonStaticFinalVars.UNSIGNED_SHORT_MAX));
 		}
 
 		outputStreamBuffer.put(dstBuffer);
@@ -509,10 +509,10 @@ public class FixedSizeOutputStream implements OutputStreamIF {
 					"파라미터 생략할 쓰기 크기[%d]는 0보다 커야 합니다.", skipBytes));
 		}
 
-		if (skipBytes >= CommonStaticFinalVars.MAX_UNSIGNED_BYTE) {
+		if (skipBytes >= CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 생략할 쓰기 크기[%d]는 unsinged byte 최대값[%d]보다 작어야 합니다.",
-					skipBytes, CommonStaticFinalVars.MAX_UNSIGNED_BYTE));
+					skipBytes, CommonStaticFinalVars.UNSIGNED_BYTE_MAX));
 		}
 		
 		if (skipBytes > outputStreamBuffer.remaining()) {
