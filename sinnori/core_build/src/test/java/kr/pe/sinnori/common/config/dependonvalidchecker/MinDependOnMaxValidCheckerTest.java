@@ -11,7 +11,7 @@ import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningCharset;
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningIntegerBetweenMinAndMax;
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningLongBetweenMinAndMax;
-import kr.pe.sinnori.common.exception.ConfigErrorException;
+import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -56,7 +56,7 @@ public class MinDependOnMaxValidCheckerTest {
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			e.printStackTrace();
 			fail(e.getMessage());
 		}
@@ -67,7 +67,7 @@ public class MinDependOnMaxValidCheckerTest {
 					Long.class);
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 	}
@@ -165,7 +165,7 @@ public class MinDependOnMaxValidCheckerTest {
 
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 
@@ -207,7 +207,7 @@ public class MinDependOnMaxValidCheckerTest {
 
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 
@@ -250,7 +250,7 @@ public class MinDependOnMaxValidCheckerTest {
 
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 
@@ -293,7 +293,7 @@ public class MinDependOnMaxValidCheckerTest {
 
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 
@@ -322,7 +322,7 @@ public class MinDependOnMaxValidCheckerTest {
 					"'the parameter dependentSourceItemIDInfo is null' test ok, errormessage={}",
 					e.getMessage());
 			throw e;
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 	}
@@ -339,7 +339,7 @@ public class MinDependOnMaxValidCheckerTest {
 					"'the parameter dependentTargetItemIDInfo is null' test ok, errormessage={}",
 					e.getMessage());
 			throw e;
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 	}
@@ -357,7 +357,7 @@ public class MinDependOnMaxValidCheckerTest {
 					"'the parameter genericTypeClass is null' test ok, errormessage={}",
 					e.getMessage());
 			throw e;
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 	}

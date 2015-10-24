@@ -14,7 +14,8 @@ import kr.pe.sinnori.common.config.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.config.itemidinfo.SinnoriItemIDInfoManger;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
-import kr.pe.sinnori.common.exception.ConfigErrorException;
+import kr.pe.sinnori.common.exception.BuildSystemException;
+import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.util.SequencedProperties;
 import kr.pe.sinnori.common.util.SequencedPropertiesUtil;
 import kr.pe.sinnori.gui.message.builder.MessageProcessFileContentsManager;
@@ -30,98 +31,10 @@ public abstract class BuildSystemSupporter {
 	private static Logger log = LoggerFactory
 			.getLogger(BuildSystemSupporter.class);
 
-	public static void applyAppClientStatus(String mainProjectName,
-			String sinnoriInstalledPathString, boolean isAppClient, MessageInfoSAXParser messageInfoSAXParser)
-			throws ConfigErrorException {
-		String appClientBuildPathString = BuildSystemPathSupporter.getAppClientBuildPathString(
-				mainProjectName, sinnoriInstalledPathString);
-		File appClientBuildPath = new File(appClientBuildPathString);
-
-		if (isAppClient) {
-			if (appClientBuildPath.exists()) {
-				/** nothing */
-				return;
-			}
-			createAppClientBuildSystem(mainProjectName,
-					sinnoriInstalledPathString, messageInfoSAXParser);
-		} else {
-			if (!appClientBuildPath.exists()) {
-				/** nothing */
-				return;
-			}
-			
-			try {
-				FileUtils.forceDelete(appClientBuildPath);
-			} catch (IOException e) {
-				String errorMessage = String
-						.format("fail to delete app client build path[%s], errormessage=%s",
-								appClientBuildPathString, e.getMessage());
-				log.warn(errorMessage);
-				throw new ConfigErrorException(errorMessage);
-			}
-
-			log.info("app client build path[{}] was deleted successfully",
-					appClientBuildPathString);
-		}
-	}
-
-	public static void applyWebClientStatus(String mainProjectName,
-			String sinnoriInstalledPathString, boolean isWebClient) throws ConfigErrorException {
-		String webClientBuildPathString = BuildSystemPathSupporter.getWebClientBuildPathString(
-				mainProjectName, sinnoriInstalledPathString);
-		File webClientBuildPath = new File(webClientBuildPathString);
-		
-		String webRootPathString = BuildSystemPathSupporter.getWebRootPathString(mainProjectName, sinnoriInstalledPathString);
-		File webRootPath = new File(webRootPathString);
-
-		if (isWebClient) {
-			if (!webClientBuildPath.exists()) {
-				createWebClientBuildSystem(mainProjectName,
-						sinnoriInstalledPathString);
-			}
-			
-			if (!webRootPath.exists()) {
-				createWebRootEnvironment(mainProjectName,
-						sinnoriInstalledPathString);
-			}
-
-		} else {
-			if (webClientBuildPath.exists()) {
-				try {
-					FileUtils.forceDelete(webClientBuildPath);
-				} catch (IOException e) {
-					String errorMessage = String
-							.format("fail to delete web client build path[%s], errormessage=%s",
-									webClientBuildPathString, e.getMessage());
-					log.warn(errorMessage);
-					throw new ConfigErrorException(errorMessage);
-				}
-
-				log.info("web client build path[{}] was deleted successfully",
-						webClientBuildPathString);
-			}
-
-			if (webRootPath.exists()) {
-				try {
-					FileUtils.forceDelete(webRootPath);
-				} catch (IOException e) {
-					String errorMessage = String
-							.format("fail to delete web root path[%s], errormessage=%s",
-									webRootPathString, e.getMessage());
-					log.warn(errorMessage);
-					throw new ConfigErrorException(errorMessage);
-				}
-
-				log.info("web root path[{}] was deleted successfully",
-						webRootPathString);
-			}			
-		}
-	}
-
 	public static List<String> getSubProjectNameListFromSinnoriConfigSequencedProperties(
 			String mainProjectName, String sinnoriInstalledPathString,
 			SequencedProperties sinnoriConfigSequencedProperties)
-			throws ConfigErrorException {
+			throws SinnoriConfigurationException {
 
 		
 		final String sinnoriConfigFilePathString = BuildSystemPathSupporter.getSinnoriConfigFilePathString(
@@ -135,7 +48,7 @@ public abstract class BuildSystemSupporter {
 			String errorMessage = new StringBuilder("project config file[")
 					.append(sinnoriConfigFilePathString)
 					.append("] has no a sub project list key").toString();
-			throw new ConfigErrorException(errorMessage);
+			throw new SinnoriConfigurationException(errorMessage);
 		}
 		
 		subProjectNameListValue = subProjectNameListValue.trim();
@@ -166,7 +79,7 @@ public abstract class BuildSystemSupporter {
 						.toString();
 
 				// log.warn(errorMessage);
-				throw new ConfigErrorException(errorMessage);
+				throw new SinnoriConfigurationException(errorMessage);
 			}
 			
 			subProjectNameList.add(subProjectName);
@@ -181,7 +94,7 @@ public abstract class BuildSystemSupporter {
 	public static List<String> getDBCPNameListFromSinnoriConfigSequencedProperties(
 			String projectName, String sinnoriInstalledPathString,
 			SequencedProperties sinnoriConfigSequencedProperties)
-			throws ConfigErrorException {
+			throws SinnoriConfigurationException {
 		List<String> dbcpNameList = new ArrayList<>();
 		final String sinnoriConfigFilePathString = BuildSystemPathSupporter.getSinnoriConfigFilePathString(
 				projectName, sinnoriInstalledPathString);
@@ -195,7 +108,7 @@ public abstract class BuildSystemSupporter {
 					.append(sinnoriConfigFilePathString)
 					.append("] has no a dbcp connection pool name list")
 					.toString();
-			throw new ConfigErrorException(errorMessage);
+			throw new SinnoriConfigurationException(errorMessage);
 		}
 
 		String[] dbcpConnectionPoolNameArrray = dbcpNameListValue
@@ -224,99 +137,82 @@ public abstract class BuildSystemSupporter {
 
 			// log.warn(errorMessage);
 
-			throw new ConfigErrorException(errorMessage);
+			throw new SinnoriConfigurationException(errorMessage);
 		}
 		return dbcpNameList;
 	}
 
-	public static SequencedProperties getAntSequencedPropertiesAfterValidCheck(String antPropertiesFilePathString) throws ConfigErrorException {
-		SequencedProperties antProperties= null;
+	public static void checkAntBuiltInPropertiesFile(String mainProjectName, String sinnoriInstalledPathString) throws BuildSystemException {
+		
+		String antPropertiesFilePathString = BuildSystemPathSupporter
+				.getAntBuiltInPropertiesFilePath(mainProjectName,
+						sinnoriInstalledPathString);
+
+		SequencedProperties antBuiltInProperties = null;
 		
 		try {
-			antProperties = SequencedPropertiesUtil.getSequencedPropertiesFromFile(antPropertiesFilePathString);
+			antBuiltInProperties = SequencedPropertiesUtil.getSequencedPropertiesFromFile(antPropertiesFilePathString);
 		} catch(IOException e) {
-			String errorMessage = new StringBuilder("fail to read ant properties file[")
+			String errorMessage = new StringBuilder("fail to read ant built-in properties file[")
 			.append(antPropertiesFilePathString).append("]").toString();
 			log.warn(errorMessage, e);
-			throw new ConfigErrorException(new StringBuilder(errorMessage)
+			throw new BuildSystemException(new StringBuilder(errorMessage)
 			.append(", errormessage=").append(e.getMessage()).toString());
 		}
 		
-		
-		final String[] keyArray = {CommonStaticFinalVars.IS_WEB_CLIENT_KEY,
-				CommonStaticFinalVars.SERVLET_SYSTEM_LIBIARY_PATH_KEY
-		};
-		
-		
-		for (int i=0; i < keyArray.length; i++) {
-			String itemKey = keyArray[i];
-			String itemValue = antProperties.getProperty(itemKey);
-			
-			if (null == itemValue) {
-				String errorMessage = String.format(
-						"ant.properties[%s]'s key[%s] is not found",
-						antPropertiesFilePathString, itemKey);
-				// log.warn(errorMessage);
-				throw new ConfigErrorException(errorMessage);
-			}
-
-			itemValue = itemValue.trim();
-
-			if (itemValue.equals("")) {
-				String errorMessage = String.format(
-						"ant.properties[%s]'s key[%s] is a empty string",
-						antPropertiesFilePathString, itemValue);
-				// log.warn(errorMessage);
-				throw new ConfigErrorException(errorMessage);
-			}
-		}		
-		
-		return antProperties;
+		String servletSystemLibiaryPathString = antBuiltInProperties.getProperty(CommonStaticFinalVars.SERVLET_SYSTEM_LIBIARY_PATH_KEY);
+		if (null == servletSystemLibiaryPathString) {
+			String errorMessage = new StringBuilder("ant built-in properties file[")
+			.append(antPropertiesFilePathString).append("]'s key[")
+			.append(CommonStaticFinalVars.SERVLET_SYSTEM_LIBIARY_PATH_KEY)
+			.append("] is not found").toString();
+			throw new BuildSystemException(errorMessage);
+		}
 	}
 
-	public static void checkSeverAntEnvironment(String mainProjectName,
-			String sinnoriInstalledPathString) throws ConfigErrorException {
+	public static void checkServerBuildSystemConfigFile(String mainProjectName,
+			String sinnoriInstalledPathString) throws BuildSystemException {
 		
-		String serverBuildFilePathString = BuildSystemPathSupporter.getServerBuildSystemConfigFilePathString(
+		String serverBuildSystemConfigFilePathString = BuildSystemPathSupporter.getServerBuildSystemConfigFilePathString(
 				mainProjectName, sinnoriInstalledPathString);
 
-		File serverBuildFile = new File(serverBuildFilePathString);
+		File serverBuildFile = new File(serverBuildSystemConfigFilePathString);
 		if (!serverBuildFile.exists()) {
 			String errorMessage = String.format(
 					"server build.xml[%s] is not found",
-					serverBuildFilePathString);
+					serverBuildSystemConfigFilePathString);
 			// log.warn(errorMessage);
-			throw new ConfigErrorException(errorMessage);
+			throw new BuildSystemException(errorMessage);
 		}
 
 		if (!serverBuildFile.isFile()) {
 			String errorMessage = String.format(
 					"server build.xml[%s]  is not a normal file",
-					serverBuildFilePathString);
+					serverBuildSystemConfigFilePathString);
 			// log.warn(errorMessage);
-			throw new ConfigErrorException(errorMessage);
+			throw new BuildSystemException(errorMessage);
 		}
 
 		if (!serverBuildFile.canRead()) {
 			String errorMessage = String.format(
 					"server build.xml[%s]  doesn't hava permission to read",
-					serverBuildFilePathString);
+					serverBuildSystemConfigFilePathString);
 			// log.warn(errorMessage);
-			throw new ConfigErrorException(errorMessage);
+			throw new BuildSystemException(errorMessage);
 		}
 
 		if (!serverBuildFile.canWrite()) {
 			String errorMessage = String.format(
 					"server build.xml[%s]  doesn't hava permission to write",
-					serverBuildFilePathString);
+					serverBuildSystemConfigFilePathString);
 			// log.warn(errorMessage);
-			throw new ConfigErrorException(errorMessage);
+			throw new BuildSystemException(errorMessage);
 		}
 
 	}
-
+	/*
 	public static void checkBaseClientAntEnvironment(String mainProjectName,
-			String sinnoriInstalledPathString) throws ConfigErrorException {
+			String sinnoriInstalledPathString) throws SinnoriConfigurationException {
 		String clientBuildBasePathString = BuildSystemPathSupporter.getClientBuildBasePathString(
 				mainProjectName, sinnoriInstalledPathString);
 
@@ -326,7 +222,7 @@ public abstract class BuildSystemSupporter {
 					"client build base path[%s] is not found",
 					clientBuildBasePathString);
 			// log.warn(errorMessage);
-			throw new ConfigErrorException(errorMessage);
+			throw new SinnoriConfigurationException(errorMessage);
 		}
 
 		if (!clientBuildBasePath.isDirectory()) {
@@ -334,7 +230,7 @@ public abstract class BuildSystemSupporter {
 					"client build base path[%s] is not directory",
 					clientBuildBasePathString);
 			// log.warn(errorMessage);
-			throw new ConfigErrorException(errorMessage);
+			throw new SinnoriConfigurationException(errorMessage);
 		}
 
 		if (!clientBuildBasePath.canRead()) {
@@ -342,7 +238,7 @@ public abstract class BuildSystemSupporter {
 					"client build base path[%s] doesn't hava permission to read",
 					clientBuildBasePathString);
 			// log.warn(errorMessage);
-			throw new ConfigErrorException(errorMessage);
+			throw new SinnoriConfigurationException(errorMessage);
 		}
 
 		if (!clientBuildBasePath.canWrite()) {
@@ -350,12 +246,21 @@ public abstract class BuildSystemSupporter {
 					"client build base path[%s] doesn't hava permission to write",
 					clientBuildBasePathString);
 			// log.warn(errorMessage);
-			throw new ConfigErrorException(errorMessage);
+			throw new SinnoriConfigurationException(errorMessage);
 		}
 	}
+	*/
 
-	public static boolean getIsAppClient(String mainProjectName,
-			String sinnoriInstalledPathString) throws ConfigErrorException {
+	/**
+	 * 클라이언트용 응용 프로그램을 만들기 위한 읽기/쓰기 가능한 build.xml 존재여부를 반환한다.
+	 * 
+	 * @param mainProjectName
+	 * @param sinnoriInstalledPathString
+	 * @return
+	 * @throws BuildSystemException
+	 */
+	public static boolean getIsAppClientAfterCheckingAppClientBuildSystemConfigFile(String mainProjectName,
+			String sinnoriInstalledPathString) throws BuildSystemException {
 
 		boolean isAppClient;
 
@@ -363,12 +268,20 @@ public abstract class BuildSystemSupporter {
 				mainProjectName, sinnoriInstalledPathString);
 		File appClientBuildFile = new File(appClientBuildSystemConfigFilePathString);
 		if (appClientBuildFile.exists()) {
+			if (!appClientBuildFile.isFile()) {
+				String errorMessage = String.format(
+						"app client build.xml[%s]  is not a normal file",
+						appClientBuildSystemConfigFilePathString);
+				// log.warn(errorMessage);
+				throw new BuildSystemException(errorMessage);
+			}
+			
 			if (!appClientBuildFile.canRead()) {
 				String errorMessage = String.format(
 						"app client build.xml[%s]  doesn't hava permission to read",
 						appClientBuildSystemConfigFilePathString);
 				// log.warn(errorMessage);
-				throw new ConfigErrorException(errorMessage);
+				throw new BuildSystemException(errorMessage);
 			}
 
 			if (!appClientBuildFile.canWrite()) {
@@ -376,7 +289,7 @@ public abstract class BuildSystemSupporter {
 						"app client build.xml[%s]  doesn't hava permission to write",
 						appClientBuildSystemConfigFilePathString);
 				// log.warn(errorMessage);
-				throw new ConfigErrorException(errorMessage);
+				throw new BuildSystemException(errorMessage);
 			}
 
 			isAppClient = true;
@@ -387,8 +300,8 @@ public abstract class BuildSystemSupporter {
 		return isAppClient;
 	}
 
-	public static boolean getIsWebClient(String mainProjectName,
-			String sinnoriInstalledPathString) throws ConfigErrorException {
+	public static boolean getIsWebClientAfterCheckingWebClientBuildSystemConfigFile(String mainProjectName,
+			String sinnoriInstalledPathString) throws BuildSystemException {
 
 		boolean isWebClient;
 
@@ -396,12 +309,20 @@ public abstract class BuildSystemSupporter {
 				mainProjectName, sinnoriInstalledPathString);
 		File webClientBuildFile = new File(webClientBuildXMLFilePathString);
 		if (webClientBuildFile.exists()) {
+			if (!webClientBuildFile.isFile()) {
+				String errorMessage = String.format(
+						"web client build.xml[%s]  is not a normal file",
+						webClientBuildXMLFilePathString);
+				// log.warn(errorMessage);
+				throw new BuildSystemException(errorMessage);
+			}
+			
 			if (!webClientBuildFile.canRead()) {
 				String errorMessage = String.format(
 						"web client build.xml[%s]  doesn't hava permission to read",
 						webClientBuildXMLFilePathString);
 				// log.warn(errorMessage);
-				throw new ConfigErrorException(errorMessage);
+				throw new BuildSystemException(errorMessage);
 			}
 
 			if (!webClientBuildFile.canWrite()) {
@@ -409,7 +330,7 @@ public abstract class BuildSystemSupporter {
 						"web client build.xml[%s]  doesn't hava permission to write",
 						webClientBuildXMLFilePathString);
 				// log.warn(errorMessage);
-				throw new ConfigErrorException(errorMessage);
+				throw new BuildSystemException(errorMessage);
 			}
 
 			isWebClient = true;
@@ -420,24 +341,98 @@ public abstract class BuildSystemSupporter {
 		return isWebClient;
 	}
 
-	public static void createNewMainProjectBuildSystem(
-			String newMainProjectName, String sinnoriInstalledPathString, MessageInfoSAXParser messageInfoSAXParser)
-			throws IllegalArgumentException, ConfigErrorException {		
-		boolean isServer = true;
-		boolean isAppClient = true;
-		boolean isWebClient = false;
-		String servletSystemLibrayPathString = "";
+	
+	/**
+	 * 웹 루트 존재 여부는 읽기/쓰기 가능한 web.xml 파일 여부로 판단
+	 * 
+	 * @param mainProjectName
+	 * @param sinnoriInstalledPathString
+	 * @return
+	 * @throws BuildSystemException
+	 */
+	public static boolean getIsWebRootAfterCheckingWebClientBuildSystemConfigFile(String mainProjectName,
+			String sinnoriInstalledPathString) throws BuildSystemException {
+
+		boolean isWebRoot;
+
+		String webXmlFilePathString = BuildSystemPathSupporter.getWebXmlFilePathString(
+				mainProjectName, sinnoriInstalledPathString);
 		
-		createNewMainProjectBuildSystem(newMainProjectName, sinnoriInstalledPathString,
-				isServer, isAppClient, isWebClient, servletSystemLibrayPathString, messageInfoSAXParser);
+		File webXmlFile = new File(webXmlFilePathString);
+		if (webXmlFile.exists()) {
+			if (!webXmlFile.isFile()) {
+				String errorMessage = String.format(
+						"web.xml[%s] is not a normal file",
+						webXmlFilePathString);
+				// log.warn(errorMessage);
+				throw new BuildSystemException(errorMessage);
+			}
+			
+			if (!webXmlFile.canRead()) {
+				String errorMessage = String.format(
+						"web.xml[%s]  doesn't hava permission to read",
+						webXmlFilePathString);
+				// log.warn(errorMessage);
+				throw new BuildSystemException(errorMessage);
+			}
+
+			if (!webXmlFile.canWrite()) {
+				String errorMessage = String.format(
+						"web.xml[%s]  doesn't hava permission to write",
+						webXmlFilePathString);
+				// log.warn(errorMessage);
+				throw new BuildSystemException(errorMessage);
+			}
+
+			isWebRoot = true;
+		} else {
+			isWebRoot = false;
+		}
+
+		return isWebRoot;
 	}
 	
+	public static void saveAntBuiltInProperties(String mainProjectName, 
+			String sinnoriInstalledPathString, String servletSystemLibraryPathString) throws BuildSystemException {
+		SequencedProperties antBuiltInProperties = new SequencedProperties();
+		antBuiltInProperties.setProperty(CommonStaticFinalVars.SERVLET_SYSTEM_LIBIARY_PATH_KEY, 
+				servletSystemLibraryPathString);
+		
+		String antPropertiesFilePathString = BuildSystemPathSupporter.getAntBuiltInPropertiesFilePath(
+				mainProjectName, sinnoriInstalledPathString);
+		try {
+			SequencedPropertiesUtil.saveSequencedPropertiesToFile(
+					antBuiltInProperties, getAntPropertiesTitle(mainProjectName),
+					antPropertiesFilePathString,
+					CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
+		} catch (FileNotFoundException e) {
+			String errorMessage = new StringBuilder("fail to save the main project[")
+			.append(mainProjectName)
+			.append("]'s ant built-in properties file").toString();
+			
+			log.warn(errorMessage, e);
+			
+			throw new BuildSystemException(new StringBuilder(errorMessage)
+			.append(", errormessage=").append(e.toString()).toString());	
+		} catch (IOException e) {
+			String errorMessage = new StringBuilder("fail to save the main project[")
+			.append(mainProjectName)
+			.append("]'s ant built-in properties file[")
+			.append(antPropertiesFilePathString)
+			.append("]").toString();
+			
+			log.warn(errorMessage, e);
+			
+			throw new BuildSystemException(new StringBuilder(errorMessage)
+			.append(", errormessage=").append(e.toString()).toString());
+		}
+	}
 	public static void createNewMainProjectBuildSystem(
 			String newMainProjectName, String sinnoriInstalledPathString,
 			boolean isServer,
 			boolean isAppClient, 
-			boolean isWebClient, String servletSystemLibrayPathString, MessageInfoSAXParser messageInfoSAXParser)
-			throws IllegalArgumentException, ConfigErrorException {
+			boolean isWebClient, String servletSystemLibraryPathString, MessageInfoSAXParser messageInfoSAXParser)
+			throws IllegalArgumentException, BuildSystemException {
 		
 		String childDirectories[] = { "config", "impl/message/info",
 				"rsa_keypair", "log/apache", "log/client", "log/server",
@@ -449,51 +444,13 @@ public abstract class BuildSystemSupporter {
 				childDirectories);
 
 		/** <project home>/ant.properties */
-		SequencedProperties antProperties = AntPropertiesUtilOfBuildSystem
-				.getNewBuildSystemProperties(isWebClient, 
-						servletSystemLibrayPathString);
-				
-
-		String antPropertiesFilePathString = BuildSystemPathSupporter.getAntPropertiesFilePath(
-				newMainProjectName, sinnoriInstalledPathString);
-		try {
-			SequencedPropertiesUtil.saveSequencedPropertiesToFile(
-					antProperties, getAntPropertiesTitle(newMainProjectName),
-					antPropertiesFilePathString,
-					CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
-		} catch (FileNotFoundException e) {
-			String errorMessage = new StringBuilder("fail to save the main project[")
-			.append(newMainProjectName)
-			.append("]'s ant.properties file[")
-			.append(antPropertiesFilePathString)
-			.append("]").toString();
-			
-			log.warn(errorMessage, e);
-			
-			throw new ConfigErrorException(errorMessage);			
-		} catch (IOException e) {
-			String errorMessage = new StringBuilder("fail to save the main project[")
-			.append(newMainProjectName)
-			.append("]'s ant.properties file[")
-			.append(antPropertiesFilePathString)
-			.append("]").toString();
-			
-			log.warn(errorMessage, e);
-			
-			throw new ConfigErrorException(errorMessage);
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
+		saveAntBuiltInProperties(newMainProjectName, sinnoriInstalledPathString, servletSystemLibraryPathString);
 		
 		/** <project home>/config/sinnori.properties */
 		SinnoriItemIDInfoManger mainProjectItemIDInfo = SinnoriItemIDInfoManger.getInstance();
 		
 		SequencedProperties newSinnoriConfigSequencedProperties = mainProjectItemIDInfo
 				.getNewSinnoriConfigSequencedProperties(newMainProjectName, sinnoriInstalledPathString);
-		
-		
-		
 
 		String sinnoriConfigFilePathString = BuildSystemPathSupporter.getSinnoriConfigFilePathString(
 				newMainProjectName, sinnoriInstalledPathString);
@@ -505,20 +462,25 @@ public abstract class BuildSystemSupporter {
 					sinnoriConfigFilePathString,
 					CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 		} catch (FileNotFoundException e) {
-			String errorMessage = String
-					.format("the main project[%s]'s sinnori.properties file[%s] not exist",
-							newMainProjectName, antPropertiesFilePathString);
-			throw new ConfigErrorException(errorMessage);
+			String errorMessage = new StringBuilder("fail to save the main project[")
+			.append(newMainProjectName)
+			.append("]'s sinnori configuration file").toString();
+			
+			log.warn(errorMessage, e);
+			
+			throw new BuildSystemException(new StringBuilder(errorMessage)
+			.append(", errormessage=").append(e.toString()).toString());
 		} catch (IOException e) {
-			String errorMessage = String
-					.format("fail to save the main project[%s]'s sinnori.properties file[%s]",
-							newMainProjectName, antPropertiesFilePathString);
-			log.warn(
-					new StringBuilder("fail to save the main project[")
-							.append(newMainProjectName)
-							.append("]'s sinnori.properties file").toString(),
-					e);
-			throw new ConfigErrorException(errorMessage);
+			String errorMessage = new StringBuilder("fail to save the main project[")
+			.append(newMainProjectName)
+			.append("]'s sinnori configuration file[")
+			.append(sinnoriConfigFilePathString)
+			.append("]").toString();
+			
+			log.warn(errorMessage, e);
+			
+			throw new BuildSystemException(new StringBuilder(errorMessage)
+			.append(", errormessage=").append(e.toString()).toString());
 		}
 
 		/** <project home>/config/logback.xml */
@@ -558,7 +520,7 @@ public abstract class BuildSystemSupporter {
 	}
 
 	private static void createChildDirectoriesOfBasePath(String basePathStrig,
-			String[] childDirectories) throws ConfigErrorException {
+			String[] childDirectories) throws BuildSystemException {
 		for (int i = 0; i < childDirectories.length; i++) {
 			String relativeDir = childDirectories[i];
 
@@ -582,7 +544,7 @@ public abstract class BuildSystemSupporter {
 					String errorMessage = String.format(
 							"fail to create a new path[%s]", childPathString);
 					log.info(errorMessage, e);
-					throw new ConfigErrorException(errorMessage);
+					throw new BuildSystemException(errorMessage);
 				}
 
 				log.info("child direcotry[{}] was created successfully",
@@ -595,28 +557,28 @@ public abstract class BuildSystemSupporter {
 				String errorMessage = String.format(
 						"path[%s] is not directory", childPathString);
 				// log.warn(errorMessage);
-				throw new ConfigErrorException(errorMessage);
+				throw new BuildSystemException(errorMessage);
 			}
 
 			if (!childPath.canRead()) {
 				String errorMessage = String.format("path[%s] doesn't hava permission to read",
 						childPathString);
 				// log.warn(errorMessage);
-				throw new ConfigErrorException(errorMessage);
+				throw new BuildSystemException(errorMessage);
 			}
 
 			if (!childPath.canWrite()) {
 				String errorMessage = String.format(
 						"path[%s] doesn't hava permission to write", childPathString);
 				// log.warn(errorMessage);
-				throw new ConfigErrorException(errorMessage);
+				throw new BuildSystemException(errorMessage);
 			}
 
 		}
 	}
 
 	private static void createUTF8File(String title, String contents,
-			String filePathString) throws ConfigErrorException {
+			String filePathString) throws BuildSystemException {
 		File serverBuildXMLFile = new File(filePathString);
 		FileOutputStream fos = null;
 		try {
@@ -634,7 +596,7 @@ public abstract class BuildSystemSupporter {
 
 			// log.warn(errorMessage);
 
-			throw new ConfigErrorException(errorMessage);
+			throw new BuildSystemException(errorMessage);
 		} catch (IOException e) {
 			String errorMessage = new StringBuilder("서버 build.xml 파일[")
 					.append(filePathString).append("] 생성중 IO 에러::")
@@ -642,7 +604,7 @@ public abstract class BuildSystemSupporter {
 
 			// log.warn(errorMessage);
 
-			throw new ConfigErrorException(errorMessage);
+			throw new BuildSystemException(errorMessage);
 		} finally {
 			if (null != fos) {
 				try {
@@ -663,7 +625,7 @@ public abstract class BuildSystemSupporter {
 	}
 
 	private static void createSeverBuildSystem(String newProjectName,
-			String sinnoriInstalledPathString, MessageInfoSAXParser messageInfoSAXParser) throws ConfigErrorException {
+			String sinnoriInstalledPathString, MessageInfoSAXParser messageInfoSAXParser) throws BuildSystemException {
 		
 		String serverBuildPathString = BuildSystemPathSupporter.getServerBuildPathString(newProjectName,
 				sinnoriInstalledPathString);
@@ -676,7 +638,7 @@ public abstract class BuildSystemSupporter {
 						"fail to make a new server build path[%s]",
 						serverBuildPathString);
 				// log.warn(errorMessage);
-				throw new ConfigErrorException(errorMessage);
+				throw new BuildSystemException(errorMessage);
 			}
 		}
 
@@ -685,7 +647,7 @@ public abstract class BuildSystemSupporter {
 					"server build path[%s] is not directory",
 					serverBuildPathString);
 			// log.warn(errorMessage);
-			throw new ConfigErrorException(errorMessage);
+			throw new BuildSystemException(errorMessage);
 		}
 
 		if (!serverBuildPath.canRead()) {
@@ -693,7 +655,7 @@ public abstract class BuildSystemSupporter {
 					"server build path[%s] doesn't hava permission to read",
 					serverBuildPathString);
 			// log.warn(errorMessage);
-			throw new ConfigErrorException(errorMessage);
+			throw new BuildSystemException(errorMessage);
 		}
 
 		if (!serverBuildPath.canWrite()) {
@@ -701,7 +663,7 @@ public abstract class BuildSystemSupporter {
 					"server build path[%s] doesn't hava permission to write",
 					serverBuildPathString);
 			// log.warn(errorMessage);
-			throw new ConfigErrorException(errorMessage);
+			throw new BuildSystemException(errorMessage);
 		}
 		
 		String childDirectories[] = { "src", "src/main",
@@ -819,7 +781,7 @@ public abstract class BuildSystemSupporter {
 			String errorMessage = new StringBuilder("fail to parse sinnori message information xml file[")
 			.append(echoMessageInfoFile.getAbsolutePath()).append("]").toString();
 			log.warn(errorMessage, e);
-			throw new ConfigErrorException(new StringBuilder(errorMessage)
+			throw new BuildSystemException(new StringBuilder(errorMessage)
 			.append(", errormessage=").append(e.getMessage()).toString());
 		}
 		
@@ -912,8 +874,8 @@ public abstract class BuildSystemSupporter {
 	}
 
 	// FIXME!
-	private static void createWebClientBuildSystem(String newMainProjectName,
-			String sinnoriInstalledPathString) throws ConfigErrorException {
+	public static void createWebClientBuildSystem(String newMainProjectName,
+			String sinnoriInstalledPathString) throws BuildSystemException {
 		String webClientBuildPathString = BuildSystemPathSupporter.getWebClientBuildPathString(
 				newMainProjectName, sinnoriInstalledPathString);
 		File webClientBuildPath = new File(webClientBuildPathString);
@@ -924,7 +886,7 @@ public abstract class BuildSystemSupporter {
 					"fail to create a new web client build path[%s]",
 					webClientBuildPathString);
 			log.warn(errorMessage);
-			throw new ConfigErrorException(errorMessage);
+			throw new BuildSystemException(errorMessage);
 		}
 
 		if (!webClientBuildPath.isDirectory()) {
@@ -932,7 +894,7 @@ public abstract class BuildSystemSupporter {
 					"web client build path[%s] is not directory",
 					webClientBuildPathString);
 			log.warn(errorMessage);
-			throw new ConfigErrorException(errorMessage);
+			throw new BuildSystemException(errorMessage);
 		}
 
 		if (!webClientBuildPath.canRead()) {
@@ -940,7 +902,7 @@ public abstract class BuildSystemSupporter {
 					"web client build path[%s] doesn't hava permission to read",
 					webClientBuildPathString);
 			log.warn(errorMessage);
-			throw new ConfigErrorException(errorMessage);
+			throw new BuildSystemException(errorMessage);
 		}
 
 		if (!webClientBuildPath.canWrite()) {
@@ -948,7 +910,7 @@ public abstract class BuildSystemSupporter {
 					"web client build path[%s] doesn't hava permission to write",
 					webClientBuildPathString);
 			log.warn(errorMessage);
-			throw new ConfigErrorException(errorMessage);
+			throw new BuildSystemException(errorMessage);
 		}
 
 		String webClientBuildSystemFilePathString = BuildSystemPathSupporter.getWebClientBuildSystemConfigFilePathString(
@@ -965,8 +927,8 @@ public abstract class BuildSystemSupporter {
 				childDirectories);
 	}
 	
-	private static void createWebRootEnvironment(String newMainProjectName,
-			String sinnoriInstalledPathString) throws ConfigErrorException {
+	public static void createWebRootEnvironment(String newMainProjectName,
+			String sinnoriInstalledPathString) throws BuildSystemException {
 		// getWebAppBasePathString
 		String webRootPathString = BuildSystemPathSupporter.getWebRootPathString(
 				newMainProjectName, sinnoriInstalledPathString);
@@ -977,7 +939,7 @@ public abstract class BuildSystemSupporter {
 					"fail to create a new web root path[%s]",
 					webRootPathString);
 			log.warn(errorMessage);
-			throw new ConfigErrorException(errorMessage);
+			throw new BuildSystemException(errorMessage);
 		}
 		
 		// FIXME!		
@@ -985,21 +947,21 @@ public abstract class BuildSystemSupporter {
 			String errorMessage = String.format(
 					"the new web root path[%s] is not directory", webRootPathString);
 			// log.warn(errorMessage);
-			throw new ConfigErrorException(errorMessage);
+			throw new BuildSystemException(errorMessage);
 		}
 
 		if (!webRootPath.canRead()) {
 			String errorMessage = String.format("the new web root path[%s] doesn't hava permission to read",
 					webRootPathString);
 			// log.warn(errorMessage);
-			throw new ConfigErrorException(errorMessage);
+			throw new BuildSystemException(errorMessage);
 		}
 
 		if (!webRootPath.canWrite()) {
 			String errorMessage = String.format(
 					"the new web root path[%s] doesn't hava permission to write", webRootPathString);
 			// log.warn(errorMessage);
-			throw new ConfigErrorException(errorMessage);
+			throw new BuildSystemException(errorMessage);
 		}
 		
 		String childDirectories[] = { "WEB-INF" };
@@ -1008,8 +970,8 @@ public abstract class BuildSystemSupporter {
 	}
 	
 
-	private static void createAppClientBuildSystem(String newMainProjectName,
-			String sinnoriInstalledPathString, MessageInfoSAXParser messageInfoSAXParser) throws ConfigErrorException {
+	public static void createAppClientBuildSystem(String newMainProjectName,
+			String sinnoriInstalledPathString, MessageInfoSAXParser messageInfoSAXParser) throws BuildSystemException {
 		
 		String appClientBuildPathString = BuildSystemPathSupporter.getAppClientBuildPathString(
 				newMainProjectName, sinnoriInstalledPathString);
@@ -1022,7 +984,7 @@ public abstract class BuildSystemSupporter {
 						"fail to make a new app client build path[%s]",
 						appClientBuildPathString);
 				// log.warn(errorMessage);
-				throw new ConfigErrorException(errorMessage);
+				throw new BuildSystemException(errorMessage);
 			}
 		}
 
@@ -1031,7 +993,7 @@ public abstract class BuildSystemSupporter {
 					"app client build path[%s] is not directory",
 					appClientBuildPath);
 			// log.warn(errorMessage);
-			throw new ConfigErrorException(errorMessage);
+			throw new BuildSystemException(errorMessage);
 		}
 
 		if (!appClientBuildPath.canRead()) {
@@ -1039,7 +1001,7 @@ public abstract class BuildSystemSupporter {
 					"app client build path[%s] doesn't hava permission to read",
 					appClientBuildPathString);
 			// log.warn(errorMessage);
-			throw new ConfigErrorException(errorMessage);
+			throw new BuildSystemException(errorMessage);
 		}
 
 		if (!appClientBuildPath.canWrite()) {
@@ -1047,7 +1009,7 @@ public abstract class BuildSystemSupporter {
 					"app client build path[%s] doesn't hava permission to write",
 					appClientBuildPathString);
 			// log.warn(errorMessage);
-			throw new ConfigErrorException(errorMessage);
+			throw new BuildSystemException(errorMessage);
 		}	
 		
 		////////////////////////////////////////////////
@@ -1164,7 +1126,7 @@ public abstract class BuildSystemSupporter {
 			String errorMessage = new StringBuilder("fail to parse sinnori message information xml file[")
 			.append(echoMessageInfoFile.getAbsolutePath()).append("]").toString();
 			log.warn(errorMessage, e);
-			throw new ConfigErrorException(new StringBuilder(errorMessage)
+			throw new BuildSystemException(new StringBuilder(errorMessage)
 			.append(", errormessage=").append(e.getMessage()).toString());
 		}
 		
@@ -1245,10 +1207,8 @@ public abstract class BuildSystemSupporter {
 				clientCodecFilePathString);
 	}
 
-	
-
 	public static void removeProjectDirectory(String projectName,
-			String sinnoriInstalledPathString) throws ConfigErrorException {
+			String sinnoriInstalledPathString) throws BuildSystemException {
 		String projectPathString = BuildSystemPathSupporter.getProjectPathString(projectName,
 				sinnoriInstalledPathString);
 		File projectPath = new File(projectPathString);
@@ -1256,13 +1216,13 @@ public abstract class BuildSystemSupporter {
 		if (!projectPath.exists()) {
 			String errorMessage = new StringBuilder("the project path[")
 			.append(projectPathString).append("] does not exist").toString();
-			throw new ConfigErrorException(errorMessage);
+			throw new BuildSystemException(errorMessage);
 		}
 		
 		if (!projectPath.isDirectory()) {
 			String errorMessage = new StringBuilder("the project path[")
 			.append(projectPathString).append("] is not a directory").toString();
-			throw new ConfigErrorException(errorMessage);
+			throw new BuildSystemException(errorMessage);
 		}
 		
 		try {
@@ -1272,9 +1232,9 @@ public abstract class BuildSystemSupporter {
 			.append(projectPathString).append("]").toString();
 			/** 상세 에러 추적용 */
 			log.warn(errorMessage, e);
-			throw new ConfigErrorException(new StringBuilder(errorMessage)
+			throw new BuildSystemException(new StringBuilder(errorMessage)
 			.append(", errormessage=")
-			.append(e.getMessage()).toString());
+			.append(e.toString()).toString());
 		}
 	}
 	

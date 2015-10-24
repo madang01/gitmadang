@@ -16,11 +16,12 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.itemidinfo.ItemID;
-import kr.pe.sinnori.common.config.valueobject.AllDBCPPart;
-import kr.pe.sinnori.common.config.valueobject.AllSubProjectPart;
-import kr.pe.sinnori.common.config.valueobject.ProjectPart;
+import kr.pe.sinnori.common.config.itemidinfo.ItemIDDefiner;
+import kr.pe.sinnori.common.config.part.AllDBCPPartConfiguration;
+import kr.pe.sinnori.common.config.part.AllSubProjectPartConfiguration;
+import kr.pe.sinnori.common.config.part.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.DBCPManager;
 import kr.pe.sinnori.common.etc.LastModifiedFileInfo;
@@ -91,12 +92,14 @@ public class SqlSessionFactoryManger {
 	}
 
 	private void rebuild() {
-		kr.pe.sinnori.common.config.SinnoriConfigurationManager sinnoriConfigurationManager = SinnoriConfigurationManager
-				.getInstance();
-		AllDBCPPart allDBCPPart = sinnoriConfigurationManager.getAllDBCPPart();
-		AllSubProjectPart allSubProjectPart = sinnoriConfigurationManager
+		SinnoriConfiguration sinnoriRunningProjectConfiguration = 
+				SinnoriConfigurationManager.getInstance()
+				.getSinnoriRunningProjectConfiguration();
+		
+		AllDBCPPartConfiguration allDBCPPart = sinnoriRunningProjectConfiguration.getAllDBCPPart();
+		AllSubProjectPartConfiguration allSubProjectPart = sinnoriRunningProjectConfiguration
 				.getAllSubProjectPart();
-		ProjectPart mainProjetPart = sinnoriConfigurationManager
+		ProjectPartConfiguration mainProjetPart = sinnoriRunningProjectConfiguration
 				.getMainProjectPart();
 
 		// List<String> dbcpConnectionPoolNameList = (List<String>)
@@ -112,7 +115,7 @@ public class SqlSessionFactoryManger {
 					.getProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME);
 		}
 
-		ProjectPart workingProjetPart = null;
+		ProjectPartConfiguration workingProjetPart = null;
 		
 		
 		
@@ -143,12 +146,12 @@ public class SqlSessionFactoryManger {
 			String itemKey = null;
 			if (workingProjectName.equals(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME)) {
 				itemKey = new StringBuilder("mainproject.")
-				.append(ItemID.ProjectPartItemID.SERVER_CLASSLOADER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_STRING_ITEMID).toString();
+				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_CLASSLOADER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_STRING_ITEMID).toString();
 			} else {
 				itemKey = new StringBuilder("subproject.")
 				.append(workingProjectName)
 				.append(".")
-				.append(ItemID.ProjectPartItemID.SERVER_CLASSLOADER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_STRING_ITEMID).toString();
+				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_CLASSLOADER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_STRING_ITEMID).toString();
 			}
 			log.warn(
 					"sinnori properties key[{}]'s value is a empty string. that means this project[{}] declared that Mybatis is not used",

@@ -16,12 +16,12 @@ package kr.pe.sinnori.gui.util;
  * limitations under the License.
  */
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.io.File;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JTextField;
 
 /**
@@ -31,7 +31,7 @@ import javax.swing.JTextField;
  */
 @SuppressWarnings("serial")
 public class PathSwingAction extends AbstractAction {
-	private JFrame mainFrame = null;
+	private Component parentComponent = null;
 	private JTextField targetTextField = null;
 	private JFileChooser chooser = null;
 	
@@ -41,8 +41,8 @@ public class PathSwingAction extends AbstractAction {
 	 * @param chooser 파일 상자 콤포넌트
 	 * @param targetTextField 경로 선택시 그 값이 들어갈 입력 박스 컴포넌트
 	 */
-	public PathSwingAction(JFrame mainFrame, JFileChooser chooser, JTextField targetTextField) {
-		this.mainFrame= mainFrame;
+	public PathSwingAction(Component parentComponent, JFileChooser chooser, JTextField targetTextField) {
+		this.parentComponent= parentComponent;
 		this.chooser = chooser;
 		this.targetTextField = targetTextField;
 		putValue(NAME, "경로선택");
@@ -51,7 +51,7 @@ public class PathSwingAction extends AbstractAction {
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		int returnVal = chooser.showOpenDialog(mainFrame);
+		int returnVal = chooser.showOpenDialog(parentComponent);
 		if (JFileChooser.APPROVE_OPTION == returnVal) {
 			File selectedFile = chooser.getSelectedFile();
 			targetTextField.setText(selectedFile.getAbsolutePath());

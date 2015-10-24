@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.valueobject.CommonPart;
+import kr.pe.sinnori.common.config.part.CommonPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 
 /**
@@ -48,7 +48,7 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 		super();
 		
 		SinnoriConfigurationManager sinnoriConfigurationManager = SinnoriConfigurationManager.getInstance();
-		CommonPart commonPart = sinnoriConfigurationManager.getCommonPart();
+		CommonPartConfiguration commonPart = sinnoriConfigurationManager.getSinnoriRunningProjectConfiguration().getCommonPart();
 		WEB_LAYOUT_CONTROL_PAGE = commonPart.getWebLayoutControlPage();
 		JDF_LOGIN_PAGE = commonPart.getJdfLoginPage();
 		JDF_ERROR_MESSAGE_PAGE = commonPart.getJdfErrorMessagePage();

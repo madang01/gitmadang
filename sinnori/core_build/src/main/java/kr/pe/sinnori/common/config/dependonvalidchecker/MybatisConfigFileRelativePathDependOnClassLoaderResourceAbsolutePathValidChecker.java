@@ -8,7 +8,7 @@ import kr.pe.sinnori.common.config.AbstractNativeValueConverter;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningEmptyOrNoTrimString;
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningPath;
-import kr.pe.sinnori.common.exception.ConfigErrorException;
+import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 
 public class MybatisConfigFileRelativePathDependOnClassLoaderResourceAbsolutePathValidChecker extends AbstractDependOnValidChecker {
@@ -19,7 +19,7 @@ public class MybatisConfigFileRelativePathDependOnClassLoaderResourceAbsolutePat
 	
 	public MybatisConfigFileRelativePathDependOnClassLoaderResourceAbsolutePathValidChecker(
 			ItemIDInfo<String> dependentSourceItemIDInfo, ItemIDInfo<File> dependentTargetItemIDInfo)
-			throws IllegalArgumentException, ConfigErrorException {
+			throws IllegalArgumentException, SinnoriConfigurationException {
 		super(dependentSourceItemIDInfo, dependentTargetItemIDInfo);
 		
 		AbstractNativeValueConverter<?> dependentSourceItemValueConverter = dependentSourceItemIDInfo.getItemValueConverter();
@@ -56,7 +56,7 @@ public class MybatisConfigFileRelativePathDependOnClassLoaderResourceAbsolutePat
 			.append("] to GeneralConverterReturningEmptyOrNoTrimString")
 					.append(", errormessage=").append(e.getMessage())
 					.toString();
-			throw new ConfigErrorException(errorMessage);
+			throw new SinnoriConfigurationException(errorMessage);
 		}
 		try {
 			serverClassLoaderAPPINFPathConverter = (GeneralConverterReturningPath)dependentTargetItemIDInfo.getItemValueConverter();
@@ -70,7 +70,7 @@ public class MybatisConfigFileRelativePathDependOnClassLoaderResourceAbsolutePat
 			.append("] to GeneralConverterReturningPath")
 					.append(", errormessage=").append(e.getMessage())
 					.toString();
-			throw new ConfigErrorException(errorMessage);
+			throw new SinnoriConfigurationException(errorMessage);
 		}
 	}
 

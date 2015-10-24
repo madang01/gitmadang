@@ -2,6 +2,9 @@ package kr.pe.sinnori.common.util;
 
 import java.io.File;
 
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.common.etc.CommonType;
+
 
 public abstract class CommonStaticUtil {	
 	/**
@@ -41,5 +44,58 @@ public abstract class CommonStaticUtil {
 		.append(headSeparator).append(subRealPathString).toString();
 		
 		return realResourceFilePathString;
+	}
+	
+	/**
+	 * 지정한 칼럼수 단위로 개행문자를 추가한 문자열 즉 지정한 칼럼수를 갖는 문자열을 반환한다.
+	 * @param sourceString 변환을 원하는 문자열
+	 * @param wantedColumnSize 지정한 칼럼수
+	 * @return 지정한 칼럼수 단위로 개행문자를 추가한 문자열, 즉 지정한 칼럼수를 갖는 문자열
+	 */
+	public static String convertToNewLineSplitString(String sourceString, CommonType.SPLIT_STRING_GUBUN sliptStringGubun, int wantedColumnSize) {
+		if (null == sourceString) {
+			throw new IllegalArgumentException("the paramter sourceString is null");
+		}
+		
+		if (sourceString.equals("")) {
+			throw new IllegalArgumentException("the paramter sourceString is a empty string");
+		}
+		
+		if (hasLeadingOrTailingWhiteSpace(sourceString)) {
+			throw new IllegalArgumentException("the paramter sourceString has leading or tailing white space");
+		}
+		
+		if (null == sliptStringGubun) {
+			throw new IllegalArgumentException("the paramter sliptStringGubun is null");
+		}
+		
+		
+		if (wantedColumnSize <= 0) {
+			throw new IllegalArgumentException("the paramter wantedColumnSize is less or equals to zero");
+		}		
+		
+		String sliptString = null;
+		if (sliptStringGubun == CommonType.SPLIT_STRING_GUBUN.BR) {
+			sliptString ="<br/>";
+		} else {
+			sliptString = CommonStaticFinalVars.NEWLINE;
+		}
+		
+		int size = sourceString.length();
+		StringBuilder result = new StringBuilder();
+		int i=0;
+		for (; i+wantedColumnSize < size; i+=wantedColumnSize) {
+			result.append(sourceString.substring(i, i+wantedColumnSize));
+			result.append(sliptString);
+		}
+		result.append(sourceString.substring(i));
+		return result.toString();
+	}
+	
+	public static String getMultiLineToolTip(String message, int colSize) {
+		String tooltip = new StringBuilder("<html>")
+		.append(CommonStaticUtil.convertToNewLineSplitString(message, CommonType.SPLIT_STRING_GUBUN.BR, colSize))
+		.append("</html>").toString();
+		return tooltip;
 	}
 }

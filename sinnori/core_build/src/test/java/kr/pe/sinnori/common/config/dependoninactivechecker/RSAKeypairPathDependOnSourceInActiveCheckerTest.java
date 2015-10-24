@@ -8,7 +8,7 @@ import java.util.Properties;
 
 import kr.pe.sinnori.common.config.AbstractDependOnInactiveChecker;
 import kr.pe.sinnori.common.config.BuildSystemPathSupporter;
-import kr.pe.sinnori.common.config.itemidinfo.ItemID;
+import kr.pe.sinnori.common.config.itemidinfo.ItemIDDefiner;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningCharset;
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningEmptyOrNoTrimString;
@@ -17,7 +17,7 @@ import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterOfSessio
 import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningInteger;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
-import kr.pe.sinnori.common.exception.ConfigErrorException;
+import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -55,7 +55,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 					new SetTypeConverterOfSessionKeyRSAKeypairSource());
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 		
@@ -74,7 +74,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 					new GeneralConverterReturningPath());
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 		
@@ -111,7 +111,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 					new SetTypeConverterOfSessionKeyRSAKeypairSource());
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 		
@@ -152,7 +152,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 		String sinnoriInstalledPathString = ".";
 		
 		// String dependentTargetItemID = ItemID.CommonPart.SESSIONKEY_RSA_KEYPAIR_SOURCE_ITEMID;		
-		String dependentSourceItemID = ItemID.CommonPartItemID.SESSIONKEY_RSA_KEYPAIR_PATH_ITEMID;		
+		String dependentSourceItemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_PATH_ITEMID;		
 		boolean isDefaultValueCheck = false;
 		
 		ItemIDInfo<CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY> dependentTargetItemIDInfo = null;		
@@ -186,7 +186,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 					new GeneralConverterReturningPath());
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 		
@@ -223,7 +223,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 					new SetTypeConverterOfSessionKeyRSAKeypairSource());
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 		
@@ -242,7 +242,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 					new GeneralConverterReturningPath());
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 		
@@ -280,7 +280,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 					new SetTypeConverterOfSessionKeyRSAKeypairSource());
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 		
@@ -299,7 +299,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 					new GeneralConverterReturningPath());
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 		
@@ -337,7 +337,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 					new SetTypeConverterOfSessionKeyRSAKeypairSource());
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 		
@@ -356,7 +356,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 					new GeneralConverterReturningEmptyOrNoTrimString());
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 		
@@ -395,7 +395,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 					new GeneralConverterReturningCharset());
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 		
@@ -414,7 +414,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 					new GeneralConverterReturningPath());
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 		
@@ -450,7 +450,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 					new SetTypeConverterReturningInteger("10", "20", "30"));
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 		
@@ -469,7 +469,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 					new GeneralConverterReturningPath());
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 		
@@ -507,7 +507,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 					new SetTypeConverterOfSessionKeyRSAKeypairSource());
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 		
@@ -526,7 +526,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 					new GeneralConverterReturningPath());
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 		

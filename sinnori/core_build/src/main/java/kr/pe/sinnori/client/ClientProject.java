@@ -31,7 +31,7 @@ import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessa
 import kr.pe.sinnori.client.connection.sync.noshare.NoShareSyncConnectionPool;
 import kr.pe.sinnori.client.io.ClientWrapOutputMessageQueue;
 import kr.pe.sinnori.client.io.LetterToServer;
-import kr.pe.sinnori.common.config.valueobject.ProjectPart;
+import kr.pe.sinnori.common.config.part.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonType.CONNECTION_TYPE;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
@@ -107,7 +107,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF,
 	 * @throws InterruptedException
 	 *             쓰레드 인터럽트
 	 */
-	public ClientProject(ProjectPart projectPart)
+	public ClientProject(ProjectPartConfiguration projectPart)
 			throws NoMoreDataPacketBufferException,
 			NoMoreOutputMessageQueueException, InterruptedException {
 		super(projectPart);

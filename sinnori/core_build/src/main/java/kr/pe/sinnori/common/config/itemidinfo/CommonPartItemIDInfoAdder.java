@@ -12,7 +12,7 @@ import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturnin
 import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningSessionkeyPrivateKeyEncoding;
 import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningString;
 import kr.pe.sinnori.common.etc.CommonType;
-import kr.pe.sinnori.common.exception.ConfigErrorException;
+import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 public abstract class CommonPartItemIDInfoAdder {
 	public static void addAllCommonPartItemIDInfo(
 			CommonPartItemIDInfoMangerIF commonPartItemIDInfoManger)
-			throws IllegalArgumentException, ConfigErrorException {
+			throws IllegalArgumentException, SinnoriConfigurationException {
 		Logger log = LoggerFactory.getLogger(CommonPartItemIDInfoAdder.class);
 
 		ItemIDInfo<?> itemIDInfo = null;
@@ -29,7 +29,7 @@ public abstract class CommonPartItemIDInfoAdder {
 
 		/** Common start */
 		try {
-			itemID = ItemID.CommonPartItemID.SERVLET_JSP_JDF_ERROR_MESSAGE_PAGE_ITEMID;
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SERVLET_JSP_JDF_ERROR_MESSAGE_PAGE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<String>(
 					ItemIDInfo.ConfigurationPart.COMMON,
@@ -40,7 +40,7 @@ public abstract class CommonPartItemIDInfoAdder {
 					new GeneralConverterReturningNoTrimString());
 			commonPartItemIDInfoManger.addCommonPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.CommonPartItemID.SERVLET_JSP_JDF_LOGIN_PAGE_ITEMID;
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SERVLET_JSP_JDF_LOGIN_PAGE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<String>(
 					ItemIDInfo.ConfigurationPart.COMMON,
@@ -49,7 +49,7 @@ public abstract class CommonPartItemIDInfoAdder {
 					new GeneralConverterReturningNoTrimString());
 			commonPartItemIDInfoManger.addCommonPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.CommonPartItemID.SERVLET_JSP_JDF_SERVLET_TRACE_ITEMID;
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SERVLET_JSP_JDF_SERVLET_TRACE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Boolean>(
 					ItemIDInfo.ConfigurationPart.COMMON,
@@ -59,7 +59,7 @@ public abstract class CommonPartItemIDInfoAdder {
 					new SetTypeConverterReturningBoolean());
 			commonPartItemIDInfoManger.addCommonPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.CommonPartItemID.SERVLET_JSP_WEB_LAYOUT_CONTROL_PAGE_ITEMID;
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SERVLET_JSP_WEB_LAYOUT_CONTROL_PAGE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<String>(
 					ItemIDInfo.ConfigurationPart.COMMON,
@@ -69,7 +69,7 @@ public abstract class CommonPartItemIDInfoAdder {
 					new GeneralConverterReturningNoTrimString());
 			commonPartItemIDInfoManger.addCommonPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.CommonPartItemID.SESSIONKEY_RSA_KEYPAIR_SOURCE_ITEMID;
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_SOURCE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY>(
 					ItemIDInfo.ConfigurationPart.COMMON,
@@ -80,7 +80,7 @@ public abstract class CommonPartItemIDInfoAdder {
 					new SetTypeConverterOfSessionKeyRSAKeypairSource());
 			commonPartItemIDInfoManger.addCommonPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.CommonPartItemID.SESSIONKEY_RSA_KEYPAIR_PATH_ITEMID;
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_PATH_ITEMID;
 			isDefaultValueCheck = false;
 			itemIDInfo = new ItemIDInfo<File>(
 					ItemIDInfo.ConfigurationPart.COMMON,
@@ -92,7 +92,7 @@ public abstract class CommonPartItemIDInfoAdder {
 					new GeneralConverterReturningPath());
 			commonPartItemIDInfoManger.addCommonPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.CommonPartItemID.SESSIONKEY_RSA_KEYSIZE_ITEMID;
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYSIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.COMMON,
@@ -103,7 +103,7 @@ public abstract class CommonPartItemIDInfoAdder {
 							"2048"));
 			commonPartItemIDInfoManger.addCommonPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.CommonPartItemID.SESSIONKEY_SYMMETRIC_KEY_ALGORITHM_ITEMID;
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_SYMMETRIC_KEY_ALGORITHM_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<String>(
 					ItemIDInfo.ConfigurationPart.COMMON,
@@ -113,7 +113,7 @@ public abstract class CommonPartItemIDInfoAdder {
 							"DES"));
 			commonPartItemIDInfoManger.addCommonPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.CommonPartItemID.SESSIONKEY_SYMMETRIC_KEY_SIZE_ITEMID;
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_SYMMETRIC_KEY_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.COMMON,
@@ -122,7 +122,7 @@ public abstract class CommonPartItemIDInfoAdder {
 					new SetTypeConverterReturningInteger("8", "16", "24"));
 			commonPartItemIDInfoManger.addCommonPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.CommonPartItemID.SESSIONKEY_IV_SIZE_ITEMID;
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_IV_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.COMMON,
@@ -132,7 +132,7 @@ public abstract class CommonPartItemIDInfoAdder {
 					new SetTypeConverterReturningInteger("8", "16", "24"));
 			commonPartItemIDInfoManger.addCommonPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.CommonPartItemID.SESSIONKEY_PRIVATE_KEY_ENCODING_ITEMID;
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_PRIVATE_KEY_ENCODING_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<CommonType.SYMMETRIC_KEY_ENCODING>(
 					ItemIDInfo.ConfigurationPart.COMMON,
@@ -144,7 +144,7 @@ public abstract class CommonPartItemIDInfoAdder {
 					new SetTypeConverterReturningSessionkeyPrivateKeyEncoding());
 			commonPartItemIDInfoManger.addCommonPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.CommonPartItemID.COMMON_UPDOWNFILE_LOCAL_SOURCE_FILE_RESOURCE_CNT_ITEMID;
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.COMMON_UPDOWNFILE_LOCAL_SOURCE_FILE_RESOURCE_CNT_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.COMMON,
@@ -157,7 +157,7 @@ public abstract class CommonPartItemIDInfoAdder {
 							1, Integer.MAX_VALUE));
 			commonPartItemIDInfoManger.addCommonPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.CommonPartItemID.COMMON_UPDOWNFILE_LOCAL_TARGET_FILE_RESOURCE_CNT_ITEMID;
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.COMMON_UPDOWNFILE_LOCAL_TARGET_FILE_RESOURCE_CNT_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.COMMON,
@@ -170,7 +170,7 @@ public abstract class CommonPartItemIDInfoAdder {
 							1, Integer.MAX_VALUE));
 			commonPartItemIDInfoManger.addCommonPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.CommonPartItemID.COMMON_UPDOWNFILE_FILE_BLOCK_MAX_SIZE_ITEMID;
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.COMMON_UPDOWNFILE_FILE_BLOCK_MAX_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.COMMON,
@@ -183,7 +183,7 @@ public abstract class CommonPartItemIDInfoAdder {
 							1024, Integer.MAX_VALUE));
 			commonPartItemIDInfoManger.addCommonPartItemIDInfo(itemIDInfo);
 			
-			itemID = ItemID.CommonPartItemID.COMMON_CACHED_OBJECT_MAX_SIZE_ITEMID;
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.COMMON_CACHED_OBJECT_MAX_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.COMMON,
@@ -195,14 +195,14 @@ public abstract class CommonPartItemIDInfoAdder {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1, Integer.MAX_VALUE));
 			commonPartItemIDInfoManger.addCommonPartItemIDInfo(itemIDInfo);
-		} catch (ConfigErrorException | IllegalArgumentException e) {
+		} catch (SinnoriConfigurationException | IllegalArgumentException e) {
 			String errorMessage = new StringBuilder(
 					"fail to add common part item identification[")
 					.append(itemID).append("] information").toString();
 
 			log.info(errorMessage, e);
 
-			throw new ConfigErrorException(new StringBuilder(errorMessage)
+			throw new SinnoriConfigurationException(new StringBuilder(errorMessage)
 			.append(", errrorMessage=").append(e.getMessage()).toString());
 		}
 		/** Common end */

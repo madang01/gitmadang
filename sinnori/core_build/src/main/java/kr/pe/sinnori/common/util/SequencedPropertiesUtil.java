@@ -22,14 +22,14 @@ public abstract class SequencedPropertiesUtil {
 		try {
 			fis = new FileInputStream(sourcePropertiesFilePathString);
 			sourceSequencedProperties.load(fis);
-		} catch (FileNotFoundException e) {
+		/*} catch (FileNotFoundException e) {
 			String errorMessage = String.format("the source properties file(=the parameter sourcePropertiesFilePathString[%s]) is not found",
 					sourcePropertiesFilePathString);
 			throw new FileNotFoundException(errorMessage);
 		} catch (IOException e) {
 			String errorMessage = String.format("fail to load the source properties file(=the parameter sourcePropertiesFilePathString[%s]), errormessage=%s",
 					sourcePropertiesFilePathString, e.getMessage());
-			throw new IOException(errorMessage);
+			throw new IOException(errorMessage);*/
 		} finally {
 			if (null != fis) {
 				try {

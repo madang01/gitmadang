@@ -13,7 +13,7 @@ import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturnin
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningNoTrimString;
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningPath;
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningRegularFile;
-import kr.pe.sinnori.common.exception.ConfigErrorException;
+import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -51,7 +51,7 @@ public class MybatisConfigFileRelativePathDependOnClassLoaderResourceAbsolutePat
 					new GeneralConverterReturningPath());
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 		
@@ -66,7 +66,7 @@ public class MybatisConfigFileRelativePathDependOnClassLoaderResourceAbsolutePat
 					new GeneralConverterReturningEmptyOrNoTrimString());
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 		
@@ -74,7 +74,7 @@ public class MybatisConfigFileRelativePathDependOnClassLoaderResourceAbsolutePat
 			validChecker = new MybatisConfigFileRelativePathDependOnClassLoaderResourceAbsolutePathValidChecker(dependentSourceItemIDInfo, dependentTargetItemIDInfo);
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}		
 	}
@@ -104,7 +104,7 @@ public class MybatisConfigFileRelativePathDependOnClassLoaderResourceAbsolutePat
 					new GeneralConverterReturningPath());
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 				
@@ -113,7 +113,7 @@ public class MybatisConfigFileRelativePathDependOnClassLoaderResourceAbsolutePat
 		} catch (IllegalArgumentException e) {
 			log.info("the parameter dependentSourceConfigItem is null, errormessage={}", e.getMessage());
 			throw e;
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}	
 	}
@@ -142,7 +142,7 @@ public class MybatisConfigFileRelativePathDependOnClassLoaderResourceAbsolutePat
 					new GeneralConverterReturningEmptyOrNoTrimString());
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 		
@@ -151,7 +151,7 @@ public class MybatisConfigFileRelativePathDependOnClassLoaderResourceAbsolutePat
 		} catch (IllegalArgumentException e) {
 			log.info("the parameter dependentTargetItemIDInfo is null, errormessage={}", e.getMessage());
 			throw e;
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}	
 	}
@@ -180,7 +180,7 @@ public class MybatisConfigFileRelativePathDependOnClassLoaderResourceAbsolutePat
 					new GeneralConverterReturningPath());
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 		
@@ -195,7 +195,7 @@ public class MybatisConfigFileRelativePathDependOnClassLoaderResourceAbsolutePat
 					new GeneralConverterReturningNoTrimString());
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 		
@@ -204,7 +204,7 @@ public class MybatisConfigFileRelativePathDependOnClassLoaderResourceAbsolutePat
 		} catch (IllegalArgumentException e) {
 			log.info("the parameter dependentSourceItemIDInfo's itemValueConverter type is not GeneralConverterReturningEmptyOrNoTrimString, errormessage={}", e.getMessage());
 			throw e;
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}		
 	}
@@ -233,7 +233,7 @@ public class MybatisConfigFileRelativePathDependOnClassLoaderResourceAbsolutePat
 					new GeneralConverterReturningRegularFile(false));
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 		
@@ -248,7 +248,7 @@ public class MybatisConfigFileRelativePathDependOnClassLoaderResourceAbsolutePat
 					new GeneralConverterReturningEmptyOrNoTrimString());
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}
 		
@@ -257,7 +257,7 @@ public class MybatisConfigFileRelativePathDependOnClassLoaderResourceAbsolutePat
 		} catch (IllegalArgumentException e) {
 			log.info("the parameter dependentTargetItemIDInfo's itemValueConverter type is not GeneralConverterReturningPath, errormessage={}", e.getMessage());
 			throw e;
-		} catch (ConfigErrorException e) {
+		} catch (SinnoriConfigurationException e) {
 			fail(e.getMessage());
 		}		
 	}

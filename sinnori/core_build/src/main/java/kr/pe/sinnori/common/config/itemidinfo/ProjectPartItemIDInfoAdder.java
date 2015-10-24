@@ -15,7 +15,7 @@ import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturnin
 import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningConnectionType;
 import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningMessageProtocol;
 import kr.pe.sinnori.common.etc.CommonType;
-import kr.pe.sinnori.common.exception.ConfigErrorException;
+import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 public abstract class ProjectPartItemIDInfoAdder {
 	public static void addAllProjectPartItemIDInfo(
 			ProjectPartItemIDInfoMangerIF projectPartItemIDInfoManger)
-			throws IllegalArgumentException, ConfigErrorException {
+			throws IllegalArgumentException, SinnoriConfigurationException {
 		Logger log = LoggerFactory.getLogger(ProjectPartItemIDInfoAdder.class);
 		ItemIDInfo<?> itemIDInfo = null;
 		String itemID = null;
@@ -31,7 +31,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 
 		try {
 			/** 프로젝트 공통 설정 부분 */
-			itemID = ItemID.ProjectPartItemID.COMMON_MESSAGE_INFO_XMLPATH_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_MESSAGE_INFO_XMLPATH_ITEMID;
 			isDefaultValueCheck = false;
 			itemIDInfo = new ItemIDInfo<File>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -42,7 +42,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 					isDefaultValueCheck, new GeneralConverterReturningPath());
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.COMMON_HOST_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_HOST_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<String>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -51,7 +51,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 					new GeneralConverterReturningNoTrimString());
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.COMMON_PORT_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_PORT_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -64,7 +64,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1024, Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.COMMON_BYTEORDER_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_BYTEORDER_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<ByteOrder>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -74,7 +74,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 					new SetTypeConverterReturningByteOrder());
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.COMMON_CHARSET_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_CHARSET_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Charset>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -82,7 +82,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 					isDefaultValueCheck, new GeneralConverterReturningCharset());
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.COMMON_DATA_PACKET_BUFFER_MAX_CNT_PER_MESSAGE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_DATA_PACKET_BUFFER_MAX_CNT_PER_MESSAGE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -95,7 +95,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1, Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.COMMON_DATA_PACKET_BUFFER_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_DATA_PACKET_BUFFER_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -109,7 +109,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
 			/** 메시지 식별자 크기의 최소 크기는 내부적으로 사용하는 SelfExn 메시지를 기준으로 정했음. */
-			itemID = ItemID.ProjectPartItemID.COMMON_MESSAGE_ID_FIXED_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_MESSAGE_ID_FIXED_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -122,7 +122,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							7, Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.COMMON_MESSAGE_PROTOCOL_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_MESSAGE_PROTOCOL_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<CommonType.MESSAGE_PROTOCOL_GUBUN>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -132,7 +132,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 					new SetTypeConverterReturningMessageProtocol());
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.COMMON_CLASSLOADER_CLASS_PACKAGE_PREFIX_NAME_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_CLASSLOADER_CLASS_PACKAGE_PREFIX_NAME_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<String>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -143,7 +143,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
 			/** 프로젝트 클라이언트 설정 부분 */
-			itemID = ItemID.ProjectPartItemID.CLIENT_MONITOR_TIME_INTERVAL_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_MONITOR_TIME_INTERVAL_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Long>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -153,7 +153,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1000L, (long) Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.CLIENT_MONITOR_RECEPTION_TIMEOUT_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_MONITOR_RECEPTION_TIMEOUT_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Long>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -165,7 +165,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1000L, (long) Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.CLIENT_CONNECTION_TYPE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_TYPE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<CommonType.CONNECTION_TYPE>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -176,7 +176,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 					new SetTypeConverterReturningConnectionType());
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.CLIENT_CONNECTION_SOCKET_TIMEOUT_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_SOCKET_TIMEOUT_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Long>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -186,7 +186,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1000L, (long) Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.CLIENT_CONNECTION_WHETHER_AUTO_CONNECTION_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_WHETHER_AUTO_CONNECTION_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Boolean>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -195,7 +195,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 					new SetTypeConverterReturningBoolean());
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.CLIENT_CONNECTION_COUNT_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_COUNT_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -208,7 +208,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1, Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.CLIENT_DATA_PACKET_BUFFER_CNT_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_DATA_PACKET_BUFFER_CNT_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -221,7 +221,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1, Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.CLIENT_ASYN_FINISH_CONNECT_MAX_CALL_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_FINISH_CONNECT_MAX_CALL_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -234,7 +234,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1, Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.CLIENT_ASYN_FINISH_CONNECT_WAITTING_TIME_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_FINISH_CONNECT_WAITTING_TIME_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Long>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -245,7 +245,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							0L, (long) Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.CLIENT_ASYN_OUTPUT_MESSAGE_EXECUTOR_THREAD_CNT_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_EXECUTOR_THREAD_CNT_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -258,7 +258,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1, Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.CLIENT_ASYN_SHARE_MAILBOX_CNT_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_SHARE_MAILBOX_CNT_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -271,7 +271,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1, Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.CLIENT_ASYN_INPUT_MESSAGE_QUEUE_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_INPUT_MESSAGE_QUEUE_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -284,7 +284,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1, Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.CLIENT_ASYN_INPUT_MESSAGE_WRITER_MAX_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_INPUT_MESSAGE_WRITER_MAX_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -297,7 +297,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1, Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.CLIENT_ASYN_INPUT_MESSAGE_WRITER_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_INPUT_MESSAGE_WRITER_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -310,7 +310,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1, Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.CLIENT_ASYN_OUTPUT_MESSAGE_QUEUE_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_QUEUE_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -323,7 +323,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1, Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.CLIENT_ASYN_OUTPUT_MESSAGE_READER_MAX_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_READER_MAX_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -336,7 +336,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1, Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.CLIENT_ASYN_OUTPUT_MESSAGE_READER_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_READER_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -349,7 +349,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1, Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.CLIENT_ASYN_READ_SELECTOR_WAKEUP_INTERVAL_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_READ_SELECTOR_WAKEUP_INTERVAL_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Long>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -362,7 +362,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
 			/** 프로젝트 서버 설정 부분 */
-			itemID = ItemID.ProjectPartItemID.SERVER_MONITOR_TIME_INTERVAL_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_MONITOR_TIME_INTERVAL_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Long>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -372,7 +372,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1000L, (long) Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.SERVER_MONITOR_RECEPTION_TIMEOUT_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_MONITOR_RECEPTION_TIMEOUT_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Long>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -383,7 +383,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1000L, (long) Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.SERVER_MAX_CLIENTS_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_MAX_CLIENTS_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -396,7 +396,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1, Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.SERVER_DATA_PACKET_BUFFER_CNT_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_DATA_PACKET_BUFFER_CNT_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -409,7 +409,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1, Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.SERVER_POOL_ACCEPT_QUEUE_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_ACCEPT_QUEUE_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -422,7 +422,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							10, Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.SERVER_POOL_INPUT_MESSAGE_QUEUE_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_QUEUE_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -435,7 +435,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							10, Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.SERVER_POOL_OUTPUT_MESSAGE_QUEUE_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_QUEUE_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -448,7 +448,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							10, Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.SERVER_ACCEPT_SELECTOR_TIMEOUT_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_ACCEPT_SELECTOR_TIMEOUT_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Long>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -459,7 +459,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							10L, (long) Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.SERVER_POOL_READ_SELECTOR_WAKEUP_INTERVAL_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_READ_SELECTOR_WAKEUP_INTERVAL_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Long>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -471,7 +471,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							10L, (long) Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.SERVER_POOL_ACCEPT_PROCESSOR_MAX_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_ACCEPT_PROCESSOR_MAX_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -484,7 +484,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1, Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.SERVER_POOL_ACCEPT_PROCESSOR_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_ACCEPT_PROCESSOR_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -497,7 +497,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1, Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.SERVER_POOL_INPUT_MESSAGE_READER_MAX_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_READER_MAX_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -510,7 +510,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1, Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.SERVER_POOL_INPUT_MESSAGE_READER_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_READER_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -523,7 +523,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1, Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.SERVER_POOL_EXECUTOR_PROCESSOR_MAX_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_PROCESSOR_MAX_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -536,7 +536,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1, Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.SERVER_POOL_EXECUTOR_PROCESSOR_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_PROCESSOR_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -549,7 +549,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1, Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.SERVER_POOL_OUTPUT_MESSAGE_WRITER_MAX_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_WRITER_MAX_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -562,7 +562,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1, Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.SERVER_POOL_OUTPUT_MESSAGE_WRITER_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_WRITER_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -575,7 +575,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 							1, Integer.MAX_VALUE));
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.SERVER_CLASSLOADER_APPINF_PATH_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_CLASSLOADER_APPINF_PATH_ITEMID;
 			isDefaultValueCheck = false;
 			itemIDInfo = new ItemIDInfo<File>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -586,7 +586,7 @@ public abstract class ProjectPartItemIDInfoAdder {
 					isDefaultValueCheck, new GeneralConverterReturningPath());
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemID.ProjectPartItemID.SERVER_CLASSLOADER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_STRING_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_CLASSLOADER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_STRING_ITEMID;
 			isDefaultValueCheck = false;
 			itemIDInfo = new ItemIDInfo<String>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -597,14 +597,14 @@ public abstract class ProjectPartItemIDInfoAdder {
 					new GeneralConverterReturningEmptyOrNoTrimString());
 			projectPartItemIDInfoManger.addProjectPartItemIDInfo(itemIDInfo);
 
-		} catch (ConfigErrorException | IllegalArgumentException e) {
+		} catch (SinnoriConfigurationException | IllegalArgumentException e) {
 			String errorMessage = new StringBuilder(
 					"fail to add project part item identification[")
 					.append(itemID).append("] information").toString();
 
 			log.info(errorMessage, e);
 
-			throw new ConfigErrorException(new StringBuilder(errorMessage)
+			throw new SinnoriConfigurationException(new StringBuilder(errorMessage)
 					.append(", errrorMessage=").append(e.getMessage())
 					.toString());
 		}

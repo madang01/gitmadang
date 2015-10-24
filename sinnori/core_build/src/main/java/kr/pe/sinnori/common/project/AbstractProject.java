@@ -21,7 +21,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import kr.pe.sinnori.common.config.valueobject.ProjectPart;
+import kr.pe.sinnori.common.config.part.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.etc.ObjectCacheManager;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
@@ -71,7 +71,7 @@ public abstract class AbstractProject implements DataPacketBufferQueueManagerIF 
 	 *            프로젝트 이름
 	 * @throws NoMoreDataPacketBufferException 
 	 */
-	public AbstractProject(ProjectPart projectPart) throws NoMoreDataPacketBufferException {
+	public AbstractProject(ProjectPartConfiguration projectPart) throws NoMoreDataPacketBufferException {
 		//this.projectPart = projectPart;		
 		projectName = projectPart.getProjectName();
 		hostOfProject = projectPart.getServerHost();

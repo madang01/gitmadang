@@ -10,9 +10,10 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
+import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.valueobject.AllDBCPPart;
-import kr.pe.sinnori.common.config.valueobject.DBCPPart;
+import kr.pe.sinnori.common.config.part.AllDBCPPartConfiguration;
+import kr.pe.sinnori.common.config.part.DBCPParConfiguration;
 import kr.pe.sinnori.common.exception.DBNotReadyException;
 
 import org.apache.commons.dbcp2.BasicDataSource;
@@ -54,8 +55,11 @@ public final class DBCPManager {
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 생성자
 	 */
 	private DBCPManager() {
-		SinnoriConfigurationManager conf = SinnoriConfigurationManager.getInstance();
-		AllDBCPPart allDBCPPart =  conf.getAllDBCPPart();
+		SinnoriConfiguration sinnoriRunningProjectConfiguration = 
+				SinnoriConfigurationManager.getInstance()
+				.getSinnoriRunningProjectConfiguration();
+		
+		AllDBCPPartConfiguration allDBCPPart =  sinnoriRunningProjectConfiguration.getAllDBCPPart();
 		
 		List<String> dbcpNameList = allDBCPPart.getDBCPNameList();
 		//HashMap<String, File> dbcpConfigFileHash = commonPart.getDbcpConfigFileHash();
@@ -75,7 +79,7 @@ public final class DBCPManager {
 					.append(dbcpConnectionPoolName)
 					.append(".confige_file.value").toString();
 			File configeFile = (File) conf.getResource(propKey);*/
-			DBCPPart dbcpPart = allDBCPPart.getDBCPPart(dbcpName);
+			DBCPParConfiguration dbcpPart = allDBCPPart.getDBCPPartValueObject(dbcpName);
 			if (null == dbcpPart) {
 				log.warn("the dbcp name[{}] is bad, check dbcp part of config file", dbcpName);
 				continue;

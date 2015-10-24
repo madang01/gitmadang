@@ -38,11 +38,12 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
+import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.valueobject.CommonPart;
+import kr.pe.sinnori.common.config.part.CommonPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
-import kr.pe.sinnori.common.exception.ConfigErrorException;
+import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.util.HexUtil;
 
@@ -302,8 +303,11 @@ public final class ServerSessionKeyManager {
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 생성자
 	 */
 	private ServerSessionKeyManager() {
-		SinnoriConfigurationManager conf = SinnoriConfigurationManager.getInstance();		
-		CommonPart commonPart = conf.getCommonPart();	
+		SinnoriConfiguration sinnoriRunningProjectConfiguration = 
+				SinnoriConfigurationManager.getInstance()
+				.getSinnoriRunningProjectConfiguration();
+		
+		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPart();	
 		symmetricKeyAlgorithm = commonPart.getSymmetricKeyAlgorithmOfSessionKey();
 		symmetricKeyEncoding = commonPart.getSymmetricKeyEncodingOfSessionKey();
 		rsaKeySize = commonPart.getRsaKeySizeOfSessionKey();;
@@ -314,7 +318,7 @@ public final class ServerSessionKeyManager {
 			File resKeyPairPath = null;
 			try {
 				resKeyPairPath = commonPart.getRsaKeyPairPathOfSessionKey();
-			} catch (ConfigErrorException e) {
+			} catch (SinnoriConfigurationException e) {
 				log.error("this exception expects that key pair source is API but File", e);
 				System.exit(1);
 			}

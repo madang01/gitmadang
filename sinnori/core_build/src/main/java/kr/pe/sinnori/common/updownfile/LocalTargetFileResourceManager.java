@@ -20,8 +20,9 @@ package kr.pe.sinnori.common.updownfile;
 import java.util.Hashtable;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.valueobject.CommonPart;
+import kr.pe.sinnori.common.config.part.CommonPartConfiguration;
 import kr.pe.sinnori.common.exception.UpDownFileException;
 
 import org.slf4j.Logger;
@@ -64,8 +65,10 @@ public class LocalTargetFileResourceManager {
 	 */
 	private LocalTargetFileResourceManager() {
 		//int localTargetFileResourceCnt = (Integer)conf.getResource("common.updownfile.local_target_file_resource_cnt.value");
-		SinnoriConfigurationManager conf = SinnoriConfigurationManager.getInstance();		
-		CommonPart commonPart = conf.getCommonPart();
+		SinnoriConfiguration sinnoriRunningProjectConfiguration = 
+				SinnoriConfigurationManager.getInstance()
+				.getSinnoriRunningProjectConfiguration();		
+		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPart();
 		int localTargetFileResourceCnt = commonPart.getLocalTargetFileResourceCnt();
 		
 		localTargetFileResourceQueue = new LinkedBlockingQueue<LocalTargetFileResource>(localTargetFileResourceCnt);

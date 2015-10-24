@@ -209,10 +209,10 @@ public class BoardReplySvl extends AbstractAuthServlet {
 				return;
 			}
 			
-			if (attachId > CommonStaticFinalVars.MAX_UNSIGNED_INTEGER) {
+			if (attachId > CommonStaticFinalVars.UNSIGNED_INTEGER_MAX) {
 				String errorMessage = new StringBuilder("업로드 식별자 값[")
 				.append(parmAttachId).append("]은 ")
-				.append(CommonStaticFinalVars.MAX_UNSIGNED_INTEGER)
+				.append(CommonStaticFinalVars.UNSIGNED_INTEGER_MAX)
 				.append(" 값 보다 작거나 같아야합니다.").toString();
 				req.setAttribute("errorMessage", errorMessage);
 				printWebLayoutControlJspPage(req, res, goPage);

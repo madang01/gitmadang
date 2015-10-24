@@ -7,7 +7,7 @@ import kr.pe.sinnori.common.config.AbstractDependOnValidChecker;
 import kr.pe.sinnori.common.config.AbstractMinMaxConverter;
 import kr.pe.sinnori.common.config.AbstractNativeValueConverter;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
-import kr.pe.sinnori.common.exception.ConfigErrorException;
+import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 
 public class MinDependOnMaxValidChecker<T extends Number> extends
 		AbstractDependOnValidChecker {
@@ -20,7 +20,7 @@ public class MinDependOnMaxValidChecker<T extends Number> extends
 	public MinDependOnMaxValidChecker(ItemIDInfo<T> dependentSourceConfigItem,
 			ItemIDInfo<T> dependentTargetConfigItem, 
 			Class<T> genericTypeClass)
-			throws IllegalArgumentException, ConfigErrorException {
+			throws IllegalArgumentException, SinnoriConfigurationException {
 		super(dependentSourceConfigItem, dependentTargetConfigItem);
 		
 		// Comparator<T> minMaxComparator, 
@@ -120,7 +120,7 @@ public class MinDependOnMaxValidChecker<T extends Number> extends
 			
 			//log.error(errorMessage);
 			//System.exit(1);
-			throw new ConfigErrorException(errorMessage);
+			throw new SinnoriConfigurationException(errorMessage);
 		}
 
 		try {
@@ -135,7 +135,7 @@ public class MinDependOnMaxValidChecker<T extends Number> extends
 			.append("] to GeneralConverterReturningGenericBetweenMinAndMax<T>")
 					.append(", errormessage=").append(e.getMessage())
 					.toString();
-			throw new ConfigErrorException(errorMessage);
+			throw new SinnoriConfigurationException(errorMessage);
 		}
 		
 		minMaxComparator = maxConverter.getTypeComparator();

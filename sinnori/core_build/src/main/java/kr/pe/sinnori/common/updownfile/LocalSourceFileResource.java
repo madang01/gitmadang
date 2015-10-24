@@ -26,8 +26,9 @@ import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 import java.util.BitSet;
 
+import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.valueobject.CommonPart;
+import kr.pe.sinnori.common.config.part.CommonPartConfiguration;
 import kr.pe.sinnori.common.exception.UpDownFileException;
 
 import org.slf4j.Logger;
@@ -84,8 +85,10 @@ public class LocalSourceFileResource {
 		// FIXME!
 		
 		// (Integer)conf.getResource("common.updownfile.file_block_max_size.value")
-		SinnoriConfigurationManager conf = SinnoriConfigurationManager.getInstance();		
-		CommonPart commonPart = conf.getCommonPart();
+		SinnoriConfiguration sinnoriRunningProjectConfiguration = 
+				SinnoriConfigurationManager.getInstance()
+				.getSinnoriRunningProjectConfiguration();		
+		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPart();
 		fileBlockMaxSize = commonPart.getFileBlockMaxSize();
 	}
 

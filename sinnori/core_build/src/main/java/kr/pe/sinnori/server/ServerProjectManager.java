@@ -20,9 +20,10 @@ package kr.pe.sinnori.server;
 import java.util.HashMap;
 import java.util.List;
 
+import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.valueobject.AllSubProjectPart;
-import kr.pe.sinnori.common.config.valueobject.ProjectPart;
+import kr.pe.sinnori.common.config.part.AllSubProjectPartConfiguration;
+import kr.pe.sinnori.common.config.part.ProjectPartConfiguration;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotFoundProjectException;
 
@@ -61,9 +62,11 @@ public final class ServerProjectManager {
 	 * @throws NoMoreDataPacketBufferException 
 	 */
 	private ServerProjectManager() {
-		SinnoriConfigurationManager sinnoriConfigurationManager = SinnoriConfigurationManager.getInstance();
-		ProjectPart mainProjectPart = sinnoriConfigurationManager.getMainProjectPart();
-		AllSubProjectPart allSubProjectPart = sinnoriConfigurationManager.getAllSubProjectPart();
+		SinnoriConfiguration sinnoriRunningProjectConfiguration = 
+				SinnoriConfigurationManager.getInstance()
+				.getSinnoriRunningProjectConfiguration();
+		ProjectPartConfiguration mainProjectPart = sinnoriRunningProjectConfiguration.getMainProjectPart();
+		AllSubProjectPartConfiguration allSubProjectPart = sinnoriRunningProjectConfiguration.getAllSubProjectPart();
 		
 		try {
 			mainServerProject = new ServerProject(mainProjectPart);

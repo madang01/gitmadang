@@ -97,4 +97,11 @@ public class CommonType {
 		LITTLE_ENDIAN, BIG_ENDIAN
 	};*/
 	
+	public enum PROJECT_GUBUN {
+		MAIN_PROJECT, SUB_PROJECT
+	};
+	
+	public enum SPLIT_STRING_GUBUN {
+		BR, NEWLINE
+	};
 }

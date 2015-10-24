@@ -103,10 +103,10 @@ public class BoardDownloadSvl extends AbstractServlet {
 			return;
 		}
 		
-		if (attachSeq > CommonStaticFinalVars.MAX_UNSIGNED_BYTE) {
+		if (attachSeq > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 			String errorMessage = new StringBuilder("업로드 파일 순번 값[")
 			.append(parmAttachSeq).append("]은 ")
-			.append(CommonStaticFinalVars.MAX_UNSIGNED_BYTE)
+			.append(CommonStaticFinalVars.UNSIGNED_BYTE_MAX)
 			.append(" 값 보다 작거나 같아야 합니다.").toString();
 			log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
 			

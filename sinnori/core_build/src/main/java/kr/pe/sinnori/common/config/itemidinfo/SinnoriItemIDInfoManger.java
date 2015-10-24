@@ -3,7 +3,6 @@ package kr.pe.sinnori.common.config.itemidinfo;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,14 +12,18 @@ import java.util.StringTokenizer;
 
 import kr.pe.sinnori.common.config.AbstractDependOnInactiveChecker;
 import kr.pe.sinnori.common.config.AbstractDependOnValidChecker;
-import kr.pe.sinnori.common.config.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.config.dependoninactivechecker.RSAKeypairPathDependOnSourceInActiveChecker;
 import kr.pe.sinnori.common.config.dependonvalidchecker.MinDependOnMaxValidChecker;
 import kr.pe.sinnori.common.config.dependonvalidchecker.MybatisConfigFileRelativePathDependOnClassLoaderResourceAbsolutePathValidChecker;
+import kr.pe.sinnori.common.config.fileorpathstringgetter.AbstractFileOrPathStringGetter;
+import kr.pe.sinnori.common.config.fileorpathstringgetter.CommonMessageInfoXMLPathStringGetter;
+import kr.pe.sinnori.common.config.fileorpathstringgetter.DBCPConfigFilePathStringGetter;
+import kr.pe.sinnori.common.config.fileorpathstringgetter.ServerClassloaderAPPINFPathStringGetter;
+import kr.pe.sinnori.common.config.fileorpathstringgetter.SessionkeyRSAKeypairPathStringGetter;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo.ConfigurationPart;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
-import kr.pe.sinnori.common.exception.ConfigErrorException;
+import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.util.SequencedProperties;
 
 import org.slf4j.Logger;
@@ -44,7 +47,10 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 
 	private Map<String, AbstractDependOnInactiveChecker> inactiveCheckerHash = new HashMap<String, AbstractDependOnInactiveChecker>();
 	private Map<String, AbstractDependOnValidChecker> validCheckerHash = new HashMap<String, AbstractDependOnValidChecker>();
-
+	private Map<String, AbstractFileOrPathStringGetter> fileOrPathStringGetterHash =
+			new HashMap<String, AbstractFileOrPathStringGetter>();
+	
+	
 	private List<ItemIDInfo<?>> dbcpPartItemIDInfoList = new ArrayList<ItemIDInfo<?>>();
 	private List<ItemIDInfo<?>> commonPartItemIDInfoList = new ArrayList<ItemIDInfo<?>>();
 	private List<ItemIDInfo<?>> projectPartItemIDInfoList = new ArrayList<ItemIDInfo<?>>();
@@ -69,7 +75,7 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 	private SinnoriItemIDInfoManger() {
 		try {
 			DBCPPartItemIDInfoAdder.addAllDBCPPartItemIDInfo(this);
-		} catch (IllegalArgumentException | ConfigErrorException e) {
+		} catch (IllegalArgumentException | SinnoriConfigurationException e) {
 			log.error(
 					"fail to add all of dbcp part item identification informtion",
 					e);
@@ -77,7 +83,7 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 		}
 		try {
 			CommonPartItemIDInfoAdder.addAllCommonPartItemIDInfo(this);
-		} catch (IllegalArgumentException | ConfigErrorException e) {
+		} catch (IllegalArgumentException | SinnoriConfigurationException e) {
 			log.error(
 					"fail to add all of common part item identification informtion",
 					e);
@@ -85,7 +91,7 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 		}
 		try {
 			ProjectPartItemIDInfoAdder.addAllProjectPartItemIDInfo(this);
-		} catch (IllegalArgumentException | ConfigErrorException e) {
+		} catch (IllegalArgumentException | SinnoriConfigurationException e) {
 			log.error(
 					"fail to add all of project part item identification informtion",
 					e);
@@ -94,13 +100,20 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 
 		try {
 			addValidChecker();
-		} catch (IllegalArgumentException | ConfigErrorException e) {
+		} catch (IllegalArgumentException | SinnoriConfigurationException e) {
 			log.error("fail to add valid checker", e);
 			System.exit(1);
 		}
 		try {
 			addInactiveChecker();
-		} catch (IllegalArgumentException | ConfigErrorException e) {
+		} catch (IllegalArgumentException | SinnoriConfigurationException e) {
+			log.error("fail to add inactive checker", e);
+			System.exit(1);
+		}
+		
+		try {
+			addFileOrPathStringGetter();			
+		} catch (IllegalArgumentException | SinnoriConfigurationException e) {
 			log.error("fail to add inactive checker", e);
 			System.exit(1);
 		}
@@ -218,26 +231,26 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 
 	@SuppressWarnings("unchecked")
 	private void addValidChecker() throws IllegalArgumentException,
-			ConfigErrorException {
+			SinnoriConfigurationException {
 		{
-			String dependentTargetItemID = ItemID.ProjectPartItemID.CLIENT_MONITOR_RECEPTION_TIMEOUT_ITEMID;
+			String dependentTargetItemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_MONITOR_RECEPTION_TIMEOUT_ITEMID;
 			ItemIDInfo<?> dependentTargetItemIDInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentTargetItemIDInfo) {
 				String errorMessage = new StringBuilder(
 						"dependentTargetItemID[").append(dependentTargetItemID)
 						.append("]'s itemIDConfigInfo not ready").toString();
 				// log.error(errorMessage);
-				throw new ConfigErrorException(errorMessage);
+				throw new SinnoriConfigurationException(errorMessage);
 			}
 
-			String dependentSourceItemID = ItemID.ProjectPartItemID.CLIENT_CONNECTION_SOCKET_TIMEOUT_ITEMID;
+			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_SOCKET_TIMEOUT_ITEMID;
 			ItemIDInfo<?> dependentSourceitemIDConfigInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentSourceitemIDConfigInfo) {
 				String errorMessage = new StringBuilder(
 						"dependentSourceItemID[").append(dependentSourceItemID)
 						.append("]'s itemIDConfigInfo not ready").toString();
 				// log.error(errorMessage);
-				throw new ConfigErrorException(errorMessage);
+				throw new SinnoriConfigurationException(errorMessage);
 			}
 
 			
@@ -249,24 +262,24 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 							Long.class));
 		}
 		{
-			String dependentTargetItemID = ItemID.ProjectPartItemID.CLIENT_ASYN_OUTPUT_MESSAGE_READER_MAX_SIZE_ITEMID;
+			String dependentTargetItemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_READER_MAX_SIZE_ITEMID;
 			ItemIDInfo<?> dependentTargetItemIDInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentTargetItemIDInfo) {
 				String errorMessage = new StringBuilder(
 						"dependentTargetItemID[").append(dependentTargetItemID)
 						.append("]'s itemIDConfigInfo not ready").toString();
 				// log.error(errorMessage);
-				throw new ConfigErrorException(errorMessage);
+				throw new SinnoriConfigurationException(errorMessage);
 			}
 
-			String dependentSourceItemID = ItemID.ProjectPartItemID.CLIENT_ASYN_OUTPUT_MESSAGE_READER_SIZE_ITEMID;
+			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_READER_SIZE_ITEMID;
 			ItemIDInfo<?> dependentSourceitemIDConfigInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentSourceitemIDConfigInfo) {
 				String errorMessage = new StringBuilder(
 						"dependentSourceItemID[").append(dependentSourceItemID)
 						.append("]'s itemIDConfigInfo not ready").toString();
 				// log.error(errorMessage);
-				throw new ConfigErrorException(errorMessage);
+				throw new SinnoriConfigurationException(errorMessage);
 			}
 
 			validCheckerHash
@@ -277,24 +290,24 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 									Integer.class));
 		}
 		{
-			String dependentTargetItemID = ItemID.ProjectPartItemID.CLIENT_ASYN_INPUT_MESSAGE_WRITER_MAX_SIZE_ITEMID;
+			String dependentTargetItemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_INPUT_MESSAGE_WRITER_MAX_SIZE_ITEMID;
 			ItemIDInfo<?> dependentTargetItemIDInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentTargetItemIDInfo) {
 				String errorMessage = new StringBuilder(
 						"dependentTargetItemID[").append(dependentTargetItemID)
 						.append("]'s itemIDConfigInfo not ready").toString();
 				// log.error(errorMessage);
-				throw new ConfigErrorException(errorMessage);
+				throw new SinnoriConfigurationException(errorMessage);
 			}
 
-			String dependentSourceItemID = ItemID.ProjectPartItemID.CLIENT_ASYN_INPUT_MESSAGE_WRITER_SIZE_ITEMID;
+			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_INPUT_MESSAGE_WRITER_SIZE_ITEMID;
 			ItemIDInfo<?> dependentSourceitemIDConfigInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentSourceitemIDConfigInfo) {
 				String errorMessage = new StringBuilder(
 						"dependentSourceItemID[").append(dependentSourceItemID)
 						.append("]'s itemIDConfigInfo not ready").toString();
 				// log.error(errorMessage);
-				throw new ConfigErrorException(errorMessage);
+				throw new SinnoriConfigurationException(errorMessage);
 			}
 
 			validCheckerHash
@@ -306,24 +319,24 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 		}
 
 		{
-			String dependentTargetItemID = ItemID.ProjectPartItemID.SERVER_POOL_ACCEPT_PROCESSOR_MAX_SIZE_ITEMID;
+			String dependentTargetItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_ACCEPT_PROCESSOR_MAX_SIZE_ITEMID;
 			ItemIDInfo<?> dependentTargetItemIDInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentTargetItemIDInfo) {
 				String errorMessage = new StringBuilder(
 						"dependentTargetItemID[").append(dependentTargetItemID)
 						.append("]'s itemIDConfigInfo not ready").toString();
 				// log.error(errorMessage);
-				throw new ConfigErrorException(errorMessage);
+				throw new SinnoriConfigurationException(errorMessage);
 			}
 
-			String dependentSourceItemID = ItemID.ProjectPartItemID.SERVER_POOL_ACCEPT_PROCESSOR_SIZE_ITEMID;
+			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_ACCEPT_PROCESSOR_SIZE_ITEMID;
 			ItemIDInfo<?> dependentSourceitemIDConfigInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentSourceitemIDConfigInfo) {
 				String errorMessage = new StringBuilder(
 						"dependentSourceItemID[").append(dependentSourceItemID)
 						.append("]'s itemIDConfigInfo not ready").toString();
 				// log.error(errorMessage);
-				throw new ConfigErrorException(errorMessage);
+				throw new SinnoriConfigurationException(errorMessage);
 			}
 
 			validCheckerHash
@@ -334,24 +347,24 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 									Integer.class));
 		}
 		{
-			String dependentTargetItemID = ItemID.ProjectPartItemID.SERVER_POOL_INPUT_MESSAGE_READER_MAX_SIZE_ITEMID;
+			String dependentTargetItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_READER_MAX_SIZE_ITEMID;
 			ItemIDInfo<?> dependentTargetItemIDInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentTargetItemIDInfo) {
 				String errorMessage = new StringBuilder(
 						"dependentTargetItemID[").append(dependentTargetItemID)
 						.append("]'s itemIDConfigInfo not ready").toString();
 				// log.error(errorMessage);
-				throw new ConfigErrorException(errorMessage);
+				throw new SinnoriConfigurationException(errorMessage);
 			}
 
-			String dependentSourceItemID = ItemID.ProjectPartItemID.SERVER_POOL_INPUT_MESSAGE_READER_SIZE_ITEMID;
+			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_READER_SIZE_ITEMID;
 			ItemIDInfo<?> dependentSourceitemIDConfigInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentSourceitemIDConfigInfo) {
 				String errorMessage = new StringBuilder(
 						"dependentSourceItemID[").append(dependentSourceItemID)
 						.append("]'s itemIDConfigInfo not ready").toString();
 				// log.error(errorMessage);
-				throw new ConfigErrorException(errorMessage);
+				throw new SinnoriConfigurationException(errorMessage);
 			}
 
 			validCheckerHash
@@ -362,24 +375,24 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 									Integer.class));
 		}
 		{
-			String dependentTargetItemID = ItemID.ProjectPartItemID.SERVER_POOL_EXECUTOR_PROCESSOR_MAX_SIZE_ITEMID;
+			String dependentTargetItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_PROCESSOR_MAX_SIZE_ITEMID;
 			ItemIDInfo<?> dependentTargetItemIDInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentTargetItemIDInfo) {
 				String errorMessage = new StringBuilder(
 						"dependentTargetItemID[").append(dependentTargetItemID)
 						.append("]'s itemIDConfigInfo not ready").toString();
 				// log.error(errorMessage);
-				throw new ConfigErrorException(errorMessage);
+				throw new SinnoriConfigurationException(errorMessage);
 			}
 
-			String dependentSourceItemID = ItemID.ProjectPartItemID.SERVER_POOL_EXECUTOR_PROCESSOR_SIZE_ITEMID;
+			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_PROCESSOR_SIZE_ITEMID;
 			ItemIDInfo<?> dependentSourceitemIDConfigInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentSourceitemIDConfigInfo) {
 				String errorMessage = new StringBuilder(
 						"dependentSourceItemID[").append(dependentSourceItemID)
 						.append("]'s itemIDConfigInfo not ready").toString();
 				// log.error(errorMessage);
-				throw new ConfigErrorException(errorMessage);
+				throw new SinnoriConfigurationException(errorMessage);
 			}
 
 			validCheckerHash
@@ -390,24 +403,24 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 									Integer.class));
 		}
 		{
-			String dependentTargetItemID = ItemID.ProjectPartItemID.SERVER_POOL_OUTPUT_MESSAGE_WRITER_MAX_SIZE_ITEMID;
+			String dependentTargetItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_WRITER_MAX_SIZE_ITEMID;
 			ItemIDInfo<?> dependentTargetItemIDInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentTargetItemIDInfo) {
 				String errorMessage = new StringBuilder(
 						"dependentTargetItemID[").append(dependentTargetItemID)
 						.append("]'s itemIDConfigInfo not ready").toString();
 				// log.error(errorMessage);
-				throw new ConfigErrorException(errorMessage);
+				throw new SinnoriConfigurationException(errorMessage);
 			}
 
-			String dependentSourceItemID = ItemID.ProjectPartItemID.SERVER_POOL_OUTPUT_MESSAGE_WRITER_SIZE_ITEMID;
+			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_WRITER_SIZE_ITEMID;
 			ItemIDInfo<?> dependentSourceitemIDConfigInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentSourceitemIDConfigInfo) {
 				String errorMessage = new StringBuilder(
 						"dependentSourceItemID[").append(dependentSourceItemID)
 						.append("]'s itemIDConfigInfo not ready").toString();
 				// log.error(errorMessage);
-				throw new ConfigErrorException(errorMessage);
+				throw new SinnoriConfigurationException(errorMessage);
 			}
 
 			validCheckerHash
@@ -418,24 +431,24 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 									Integer.class));
 		}
 		{
-			String dependentTargetItemID = ItemID.ProjectPartItemID.SERVER_CLASSLOADER_APPINF_PATH_ITEMID;
+			String dependentTargetItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_CLASSLOADER_APPINF_PATH_ITEMID;
 			ItemIDInfo<?> dependentTargetItemIDInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentTargetItemIDInfo) {
 				String errorMessage = new StringBuilder(
 						"dependentTargetItemID[").append(dependentTargetItemID)
 						.append("]'s itemIDConfigInfo not ready").toString();
 				// log.error(errorMessage);
-				throw new ConfigErrorException(errorMessage);
+				throw new SinnoriConfigurationException(errorMessage);
 			}
 
-			String dependentSourceItemID = ItemID.ProjectPartItemID.SERVER_CLASSLOADER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_STRING_ITEMID;
+			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_CLASSLOADER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_STRING_ITEMID;
 			ItemIDInfo<?> dependentSourceitemIDConfigInfo = getItemIDInfo(dependentSourceItemID);
 			if (null == dependentSourceitemIDConfigInfo) {
 				String errorMessage = new StringBuilder(
 						"dependentSourceItemID[").append(dependentSourceItemID)
 						.append("]'s itemIDConfigInfo not ready").toString();
 				// log.error(errorMessage);
-				throw new ConfigErrorException(errorMessage);
+				throw new SinnoriConfigurationException(errorMessage);
 			}
 
 			validCheckerHash
@@ -447,10 +460,10 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 	}
 
 	private void addInactiveChecker() throws IllegalArgumentException,
-			ConfigErrorException {
+			SinnoriConfigurationException {
 		{
-			String dependentSourceItemID = ItemID.CommonPartItemID.SESSIONKEY_RSA_KEYPAIR_PATH_ITEMID;
-			String dependentTargetItemID = ItemID.CommonPartItemID.SESSIONKEY_RSA_KEYPAIR_SOURCE_ITEMID;
+			String dependentSourceItemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_PATH_ITEMID;
+			String dependentTargetItemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_SOURCE_ITEMID;
 
 			ItemIDInfo<?> dependentSourceItemIDInfo = getItemIDInfo(dependentSourceItemID);
 			if (null == dependentSourceItemIDInfo) {
@@ -458,7 +471,7 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 						"the dependent source item identification[")
 						.append(dependentSourceItemID)
 						.append("] information is not ready").toString();
-				throw new ConfigErrorException(errorMessage);
+				throw new SinnoriConfigurationException(errorMessage);
 			}
 
 			ItemIDInfo<?> dependentTargetItemIDInfo = getItemIDInfo(dependentTargetItemID);
@@ -468,7 +481,7 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 						.append(dependentTargetItemID)
 						.append("] information is not ready").toString();
 				// log.error(errorMessage);
-				throw new ConfigErrorException(errorMessage);
+				throw new SinnoriConfigurationException(errorMessage);
 			}
 
 			inactiveCheckerHash
@@ -482,6 +495,22 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 
 	}
 
+	
+	private void addFileOrPathStringGetter() throws IllegalArgumentException,
+	SinnoriConfigurationException {
+		String itemID = null;
+		itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_MESSAGE_INFO_XMLPATH_ITEMID;
+		fileOrPathStringGetterHash.put(itemID, new CommonMessageInfoXMLPathStringGetter(itemID));
+		
+		itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_CLASSLOADER_APPINF_PATH_ITEMID;
+		fileOrPathStringGetterHash.put(itemID, new ServerClassloaderAPPINFPathStringGetter(itemID));
+	
+		itemID = ItemIDDefiner.DBCPPartItemIDDefiner.DBCP_CONFIGE_FILE_ITEMID;
+		fileOrPathStringGetterHash.put(itemID, new DBCPConfigFilePathStringGetter(itemID));
+	
+		itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_PATH_ITEMID;
+		fileOrPathStringGetterHash.put(itemID, new SessionkeyRSAKeypairPathStringGetter(itemID));
+	}
 	/**
 	 * 구축한 항목 식별자 정보를 바탕으로 주어진 메인 프로젝트 이름과 설치 경로에 맞도록 신규 생성된 신놀이 설정 시퀀스 프로퍼티를
 	 * 반환한다.
@@ -495,41 +524,42 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 	 */
 	public SequencedProperties getNewSinnoriConfigSequencedProperties(
 			String mainProjectName, String sinnoriInstalledPathString) {
-		SequencedProperties sinnoriConfigSequencedProperties = getNewSinnoriConfigSequencedProperties(mainProjectName);
+		
+		SequencedProperties sinnoriConfigSequencedProperties = new SequencedProperties();		
 
-		updateAllOfDefalutValueDependingOnSinnoriInstalledPath(mainProjectName,
-				sinnoriInstalledPathString, sinnoriConfigSequencedProperties, null);
+		/** common */
+		{
+			String prefixOfItemID = "";
+			for (ItemIDInfo<?> itemIDConfigInfo : commonPartItemIDInfoList) {
+				String itemID = itemIDConfigInfo.getItemID();
+				String itemKey = itemID;
 
-		return sinnoriConfigSequencedProperties;
-	}
+				String itemDescKey = itemIDConfigInfo
+						.getItemDescKey(prefixOfItemID);
 
-	private SequencedProperties getNewSinnoriConfigSequencedProperties(
-			String mainProjectName) {
-		SequencedProperties sinnoriConfigSequencedProperties = new SequencedProperties();
+				String itemValue = itemIDConfigInfo.getDefaultValue();
+				
+				AbstractFileOrPathStringGetter fileOrPathStringGetter = 
+						fileOrPathStringGetterHash.get(itemID);
+				
+				if (null != fileOrPathStringGetter) {
+					itemValue = fileOrPathStringGetter
+							.getFileOrPathStringDependingOnBuildSystem(mainProjectName, 
+									sinnoriInstalledPathString);
+				}
+				
+				sinnoriConfigSequencedProperties.put(itemDescKey,
+						itemIDConfigInfo.getDescription());
+				sinnoriConfigSequencedProperties.put(itemKey,
+						itemValue);
+			}
+		}
+		
 		/** DBCP */
 		{
 			sinnoriConfigSequencedProperties.setProperty(
 					CommonStaticFinalVars.DBCP_NAME_LIST_KEY_STRING,
 					"");
-		}
-
-		/** common */
-		{
-			String prefixOfItemID = "";
-			for (ItemIDInfo<?> itemIDConfigInfo : commonPartItemIDInfoList) {				
-				String itemKey = itemIDConfigInfo.getItemID();
-
-				String itemDescKey = itemIDConfigInfo
-						.getItemDescKey(prefixOfItemID);
-
-				// FIXME!
-				// log.info("itemKey=[{}], itemDescKey=[{}]", itemKey, itemDescKey);
-
-				sinnoriConfigSequencedProperties.put(itemDescKey,
-						itemIDConfigInfo.getDescription());
-				sinnoriConfigSequencedProperties.put(itemKey,
-						itemIDConfigInfo.getDefaultValue());
-			}
 		}
 		
 
@@ -538,21 +568,28 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 			String prefixOfItemID = new StringBuilder("mainproject.").toString();
 			for (ItemIDInfo<?> itemIDConfigInfo : projectPartItemIDInfoList) {
 				
-
+				String itemID = itemIDConfigInfo.getItemID();
 				String itemKey = new StringBuilder(prefixOfItemID).append(
-						itemIDConfigInfo.getItemID()).toString();
+						itemID).toString();
 
 				String itemDescKey = itemIDConfigInfo
 						.getItemDescKey(prefixOfItemID);
-
-				// FIXME!
-				// log.info("itemKey=[{}], itemDescKey=[{}]", itemKey,
-				// itemDescKey);
-
+				
+				String itemValue = itemIDConfigInfo.getDefaultValue();
+				
+				AbstractFileOrPathStringGetter fileOrPathStringGetter = 
+						fileOrPathStringGetterHash.get(itemID);
+				
+				if (null != fileOrPathStringGetter) {
+					itemValue = fileOrPathStringGetter
+							.getFileOrPathStringDependingOnBuildSystem(mainProjectName, 
+									sinnoriInstalledPathString);
+				}
+				
 				sinnoriConfigSequencedProperties.put(itemDescKey,
 						itemIDConfigInfo.getDescription());
 				sinnoriConfigSequencedProperties.put(itemKey,
-						itemIDConfigInfo.getDefaultValue());
+						itemValue);
 			}
 		}
 		
@@ -567,78 +604,6 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 		}
 
 		return sinnoriConfigSequencedProperties;
-	}
-
-	public void updateAllOfDefalutValueDependingOnSinnoriInstalledPath(
-			String mainProjectName, String sinnoriInstalledPathString,
-			SequencedProperties sinnoriConfigSequencedProperties, String prefixOfItemID)
-			throws IllegalArgumentException {
-
-		@SuppressWarnings("unchecked")
-		Enumeration<String> itemKeys = sinnoriConfigSequencedProperties.keys();
-		while (itemKeys.hasMoreElements()) {
-			String itemKey = itemKeys.nextElement();
-			String oldItemValue = sinnoriConfigSequencedProperties
-					.getProperty(itemKey);
-			/**
-			 * 신규 추가된 DBCP 혹은 부 프로젝트 파트로 한정하기 위한 로직
-			 */
-			if (null != prefixOfItemID) {
-				if (itemKey.indexOf(prefixOfItemID) != 0) continue;
-			}
-			
-			ItemIDInfo<?> itemIDInfo = getItemIDInfoFromKey(itemKey, null, null);
-
-			if (null != itemIDInfo) {
-				String itemID = itemIDInfo.getItemID();
-
-				if (itemID
-						.equals(ItemID.ProjectPartItemID.COMMON_MESSAGE_INFO_XMLPATH_ITEMID)) {
-					String newItemValue = BuildSystemPathSupporter
-							.getMessageInfoPathString(mainProjectName,
-									sinnoriInstalledPathString);
-					log.info("itemKey[{}] old value[{}] to new value[{}]",
-							itemKey, oldItemValue, newItemValue);
-					sinnoriConfigSequencedProperties.put(itemKey, newItemValue);
-				} else if (itemID
-						.equals(ItemID.ProjectPartItemID.SERVER_CLASSLOADER_APPINF_PATH_ITEMID)) {
-					String newItemValue = BuildSystemPathSupporter
-							.getAPPINFPathString(mainProjectName,
-									sinnoriInstalledPathString);
-					log.info("itemKey[{}] old value[{}] to new value[{}]",
-							itemKey, oldItemValue, newItemValue);
-					sinnoriConfigSequencedProperties.put(itemKey, newItemValue);
-				} else if (itemID
-						.equals(ItemID.DBCPPartItemID.DBCP_CONFIGE_FILE_ITEMID)) {
-					int startIndex = itemKey.indexOf("dbcp.");
-					int endIndex = itemKey.lastIndexOf(itemID);
-					String dbcpName = null;
-
-					try {
-						dbcpName = itemKey.substring(startIndex, endIndex - 1);
-					} catch (Exception e) {
-						log.error("itemKey=[{}], startIndex={}, endIndex={}");
-						System.exit(1);
-					}
-
-					String newItemValue = BuildSystemPathSupporter
-							.getDBCPConfigFilePathString(mainProjectName,
-									sinnoriInstalledPathString, dbcpName);
-					log.info("itemKey[{}] old value[{}] to new value[{}]",
-							itemKey, oldItemValue, newItemValue);
-					sinnoriConfigSequencedProperties.put(itemKey, newItemValue);
-				} else if (itemID
-						.equals(ItemID.CommonPartItemID.SESSIONKEY_RSA_KEYPAIR_PATH_ITEMID)) {
-
-					String newItemValue = BuildSystemPathSupporter
-							.getSessionKeyRSAKeypairPathString(mainProjectName,
-									sinnoriInstalledPathString);
-					log.info("itemKey[{}] old value[{}] to new value[{}]",
-							itemKey, oldItemValue, newItemValue);
-					sinnoriConfigSequencedProperties.put(itemKey, newItemValue);
-				}
-			}
-		}
 	}
 
 	public boolean isInactive(String dependentSourceItemKey,
@@ -672,8 +637,17 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 		return isInactive;
 	}
 
+	public boolean isFileOrPathStringGetter(String itemID) {
+		boolean result = (null == fileOrPathStringGetterHash.get(itemID)) ? false : true;
+		return result;
+	}
+	
+	public AbstractFileOrPathStringGetter getFileOrPathStringGetter(String itemID) {
+		return fileOrPathStringGetterHash.get(itemID);
+	}
+	
 	public ItemIDInfo<?> getItemIDInfoFromKey(String itemKey,
-			Set<String> dbcpNameList, Set<String> projectNameList)
+			Set<String> dbcpNameSet, Set<String> subProjectNameSet)
 			throws IllegalArgumentException {
 		if (null == itemKey) {
 			String errorMessage = "the parameter itemKey is null";
@@ -686,7 +660,7 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 			return null;
 		}
 
-		if (itemKey.lastIndexOf(".desc") + ".desc".length() == itemKey.length()) {
+		if (! itemKey.endsWith(".value")) {
 			return null;
 		}
 
@@ -784,12 +758,12 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 				throw new IllegalArgumentException(errorMessage);
 			}
 
-			if (null != projectNameList) {
-				if (!projectNameList.contains(projectName)) {
+			if (null != subProjectNameSet) {
+				if (!subProjectNameSet.contains(projectName)) {
 					String errorMessage = new StringBuilder("the item key[")
 							.append(itemKey)
 							.append("] has a wrong project name not existing in the parameter projectNameList[")
-							.append(projectNameList.toString()).append("]")
+							.append(subProjectNameSet.toString()).append("]")
 							.toString();
 					throw new IllegalArgumentException(errorMessage);
 				}
@@ -878,12 +852,12 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 
 			String dbcpName = stringTokenizer.nextToken();
 
-			if (null != dbcpNameList) {
-				if (!dbcpNameList.contains(dbcpName)) {
+			if (null != dbcpNameSet) {
+				if (!dbcpNameSet.contains(dbcpName)) {
 					String errorMessage = new StringBuilder("the item key[")
 							.append(itemKey)
 							.append("] has a wrong dbcp name not existing in the parameter dbcpNameList[")
-							.append(dbcpNameList.toString()).append("]")
+							.append(dbcpNameSet.toString()).append("]")
 							.toString();
 					throw new IllegalArgumentException(errorMessage);
 				}
@@ -985,32 +959,32 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 		return itemIDInfo;
 	}
 
-	public Object getNativeValueAfterValidChecker(String itemValueKey,
+	public Object getNativeValueAfterValidChecker(String itemKey,
 			Properties sourceProperties) throws IllegalArgumentException,
-			ConfigErrorException {
-		if (null == itemValueKey) {
-			throw new IllegalArgumentException("parameter itemValueKey is null");
+			SinnoriConfigurationException {
+		if (null == itemKey) {
+			throw new IllegalArgumentException("the parameter itemKey is null");
 		}
 		if (null == sourceProperties) {
 			throw new IllegalArgumentException(
-					"parameter sourceProperties is null");
+					"the parameter sourceProperties is null");
 		}
 
-		ItemIDInfo<?> itemIDInfo = getItemIDInfoFromKey(itemValueKey, null,
+		ItemIDInfo<?> itemIDInfo = getItemIDInfoFromKey(itemKey, null,
 				null);
 		if (null == itemIDInfo) {
 			String errorMessage = new StringBuilder(
-					"parameter dependentSourceKey[").append(itemValueKey)
-					.append("] is bad, itemID is null").toString();
+					"the parameter itemValueKey[").append(itemKey)
+					.append("](=dependentSourceKey) is bad, itemID is null").toString();
 
 			log.warn(errorMessage);
 
-			throw new ConfigErrorException(errorMessage);
+			throw new SinnoriConfigurationException(errorMessage);
 		}
 
 		String itemID = itemIDInfo.getItemID();
-		int inx = itemValueKey.indexOf(itemID);
-		String prefixOfItemID = itemValueKey.substring(0, inx);
+		int inx = itemKey.indexOf(itemID);
+		String prefixOfItemID = itemKey.substring(0, inx);
 
 		AbstractDependOnValidChecker dependOnValidCheck = validCheckerHash
 				.get(itemID);
@@ -1034,36 +1008,37 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 
 					// log.warn(errorMessage);
 
-					throw new ConfigErrorException(errorMessage);
+					throw new SinnoriConfigurationException(errorMessage);
 				}
 			} catch (IllegalArgumentException e) {
 				String errorMessage = new StringBuilder(
-						"the parameter itemValueKey[").append(itemValueKey)
+						"the parameter itemValueKey[").append(itemKey)
 						.append("]'s invalid check fails errrorMessage=")
 						.append(e.getMessage()).toString();
 				/** 다른 예외로 변환 되므로 이력 남긴다. */
 				log.debug(errorMessage, e);
 
-				throw new ConfigErrorException(errorMessage);
+				throw new SinnoriConfigurationException(errorMessage);
 			}
 		}
 
 		Object itemNativeValue = null;
-		String itemValue = sourceProperties.getProperty(itemValueKey);
+		String itemValue = sourceProperties.getProperty(itemKey);
 		try {
 			itemNativeValue = itemIDInfo.getItemValueConverter().valueOf(
 					itemValue);
 		} catch (IllegalArgumentException e) {
 			String errorMessage = new StringBuilder(
 					"fail to convert the parameter itemValueKey[")
-					.append(itemValueKey).append("]'s value[")
-					.append(sourceProperties.getProperty(itemValueKey))
-					.append("] to a native value errrorMessage=")
-					.append(e.getMessage()).toString();
+					.append(itemKey).append("]'s value[")
+					.append(sourceProperties.getProperty(itemKey))
+					.append("] to a native value").toString();
 			/** 다른 예외로 변환 되므로 이력 남긴다. */
-			log.debug(errorMessage, e);
+			log.warn(errorMessage, e);
 
-			throw new ConfigErrorException(e.getMessage());
+			throw new SinnoriConfigurationException(
+					new StringBuilder(errorMessage).append(", errormessage=")
+					.append(e.getMessage()).toString());
 		}
 
 		return itemNativeValue;

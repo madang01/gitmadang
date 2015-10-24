@@ -131,7 +131,7 @@ public abstract class BuildSystemPathSupporter {
 	}
 
 	/** ant.properties : <project path>/ant.properties */
-	public static String getAntPropertiesFilePath(String projectName,
+	public static String getAntBuiltInPropertiesFilePath(String projectName,
 			String sinnoriInstalledPathString) {
 		StringBuilder strBuilder = new StringBuilder(getProjectPathString(
 				projectName, sinnoriInstalledPathString));
@@ -236,6 +236,9 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 
+	/**
+	 * <project path>/web_app_base/ROOT
+	 */
 	public static String getWebRootPathString(String projectName,
 			String sinnoriInstalledPathString) {
 		StringBuilder strBuilder = new StringBuilder(getWebRootBasePathString(
@@ -244,6 +247,31 @@ public abstract class BuildSystemPathSupporter {
 		strBuilder.append("ROOT");
 		return strBuilder.toString();
 	}
+	
+	/**
+	 * <project path>/web_app_base/ROOT/WEB-INF
+	 */
+	public static String getWEBINFPathString(String projectName,
+			String sinnoriInstalledPathString) {
+		StringBuilder strBuilder = new StringBuilder(getWebRootPathString(
+				projectName, sinnoriInstalledPathString));
+		strBuilder.append(File.separator);
+		strBuilder.append("WEB-INF");
+		return strBuilder.toString();
+	}
+	
+	/**
+	 * <project path>/web_app_base/ROOT/WEB-INF/web.xml
+	 */
+	public static String getWebXmlFilePathString(String projectName,
+			String sinnoriInstalledPathString) {
+		StringBuilder strBuilder = new StringBuilder(getWEBINFPathString(
+				projectName, sinnoriInstalledPathString));
+		strBuilder.append(File.separator);
+		strBuilder.append("web.xml");
+		return strBuilder.toString();
+	}
+
 
 	/** web client build.xml : <web client build path>/build.xml */
 	public static String getWebClientBuildSystemConfigFilePathString(

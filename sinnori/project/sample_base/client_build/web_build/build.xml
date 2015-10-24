@@ -11,11 +11,6 @@
 	<property file="../../ant.properties" />
 	<property name="webclient.core.jar" value="SinnoriWebLib.jar" />
 	<property name="java.complile.option.debug" value="on" />
-	
-	
-	<condition property="is.web.yes">
-		<istrue value="${is.webclient}" />
-	</condition>
 
 	<condition property="is.windows.yes">
 		<os family="windows" />
@@ -69,13 +64,13 @@
 		</copy>		
 	</target>
 
-	<target name="compile.weblib" if="is.web.yes" depends="copy.core">	
+	<target name="compile.weblib" depends="copy.core">	
 		<delete dir="${dir.build}/weblib" />		
 		<mkdir dir="${dir.build}/weblib" />
 				
 		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}/weblib">
 			<include name="kr/pe/sinnori/common/weblib/**" />
-			<classpath>		    
+			<classpath>		  
 				<pathelement location="${dir.webclass}" />
 				<fileset dir="${servlet.systemlib.path}">
 					<include name="**/*-api.jar" />
@@ -91,7 +86,7 @@
 	</target>
 	
 	<target name="make.weblib" depends="compile.weblib">
-	  <delete dir="${dir.dist}" />
+	 <delete dir="${dir.dist}" />
 		<mkdir dir="${dir.dist}" />
 		
 		<jar jarfile="${dir.dist}/${webclient.core.jar}" basedir="${dir.build}/weblib">
@@ -109,18 +104,17 @@
 		</jar>
 	</target>
 
-	<target name="dist.weblib" if="is.web.yes" depends="make.weblib">
-	  <delete dir="${dir.weblib}" />
-	  <mkdir dir="${dir.weblib}" />
-	  
+	<target name="dist.weblib" depends="make.weblib">
+	 <mkdir dir="${dir.weblib}" />
+	 
 		<copy todir="${dir.weblib}" verbose="true" overwrite="true">
 			<fileset file="${dir.dist}/${webclient.core.jar}" />
 			<fileset file="${dir.lib}/ex/*.jar" />
 		</copy>
 	</target>
 	
-	<target name="compile.webclass" if="is.web.yes" depends="dist.weblib">
-	  <!-- webclass directory is a user define directory that has the web-application dynamic classes -->
+	<target name="compile.webclass" depends="dist.weblib">
+	 <!-- webclass directory is a user define directory that has the web-application dynamic classes -->
 		<delete dir="${dir.webclass}" />
 		<mkdir dir="${dir.webclass}" />
 		
@@ -148,12 +142,12 @@
 		<echo message="is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}, java.debug=${java.complile.option.debug}" />
 	</target>
 	
-	<target name="clean.webclass" if="is.web.yes" depends="init.var">
+	<target name="clean.webclass" depends="init.var">
 		<delete dir="${dir.webclass}" />
 		<mkdir dir="${dir.webclass}" />
 	</target>
 	
-<target name="compile.webclass.only" if="is.web.yes" depends="init.var">
+<target name="compile.webclass.only" depends="init.var">
 		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" 
 		includeantruntime="false" srcdir="${dir.src}" destdir="${dir.webclass}"
 		excludes="kr/pe/sinnori/common/**" >

@@ -1,29 +1,17 @@
 package main;
 
-import kr.pe.sinnori.gui.config.lib.WindowManger;
+import javax.swing.JFrame;
+import javax.swing.ToolTipManager;
+
+import kr.pe.sinnori.gui.config.screen.MainWindow;
 
 
 public class SinnoriProjectMangerMain {
-	
-
-	/**
-	 * @param args
-	 */
 	public static void main(String[] args) {
-		/*LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-        PatternLayoutEncoder ple = new PatternLayoutEncoder();
-
-        ple.setPattern("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
-        ple.setContext(lc);
-        ple.start();
-        ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<ILoggingEvent>();
-        // fileAppender.setFile(file);
-        consoleAppender.setEncoder(ple);
-        consoleAppender.setContext(lc);
-        consoleAppender.start();        */
-
-	    
-		WindowManger.getInstance().startMainWindow();
+		ToolTipManager.sharedInstance().setDismissDelay(10000);
+		
+		MainWindow mainWindow = new MainWindow();
+		mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		mainWindow.setVisible(true);		
 	}
-
 }

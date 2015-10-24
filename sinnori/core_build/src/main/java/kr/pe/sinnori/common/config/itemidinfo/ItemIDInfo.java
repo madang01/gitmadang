@@ -1,10 +1,12 @@
 package kr.pe.sinnori.common.config.itemidinfo;
 
 
+import java.util.Set;
+
 import kr.pe.sinnori.common.config.AbstractMinMaxConverter;
 import kr.pe.sinnori.common.config.AbstractNativeValueConverter;
 import kr.pe.sinnori.common.config.AbstractSetTypeNativeValueConverter;
-import kr.pe.sinnori.common.exception.ConfigErrorException;
+import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +42,7 @@ public class ItemIDInfo<T> {
 	 * 
 	 * @param configPart
 	 *            환경 설정 항목들이 속한 파트
-	 * @param configItemViewType
+	 * @param itemViewType
 	 *            환경 설정 도구에서 항목 값 표현 방식
 	 * @param itemID
 	 *            항목 식별자
@@ -55,21 +57,21 @@ public class ItemIDInfo<T> {
 	 *            문자열인 환경 설정 파일의 값을 언어 종속적 값으로 바꾸어 주는 변환기
 	 * @throws IllegalArgumentException
 	 *             잘못된 파라미터 입력시 던지는 예외
-	 * @throws ConfigErrorException
+	 * @throws SinnoriConfigurationException
 	 *             디폴트 값 검사 수행시 디폴트 값이 잘못된 경우 던지는 예외
 	 */
 	public ItemIDInfo(ConfigurationPart configPart,
-			ViewType configItemViewType, String itemID,
+			ViewType itemViewType, String itemID,
 			String description, String defaultValue,
 			boolean isDefaultValueCheck,
 			AbstractNativeValueConverter<T> nativeValueConverter)
-			throws IllegalArgumentException, ConfigErrorException {
+			throws IllegalArgumentException, SinnoriConfigurationException {
 		if (null == configPart) {
 			String errorMessage = "the parameter configPart is null";
 			throw new IllegalArgumentException(errorMessage);
 		}
-		if (null == configItemViewType) {
-			String errorMessage = "the parameter configItemViewType is null";
+		if (null == itemViewType) {
+			String errorMessage = "the parameter itemViewType is null";
 			throw new IllegalArgumentException(errorMessage);
 		}
 
@@ -141,7 +143,7 @@ public class ItemIDInfo<T> {
 			}
 		}
 
-		if (configItemViewType == ViewType.SINGLE_SET) {
+		if (itemViewType == ViewType.SINGLE_SET) {
 			if (!(nativeValueConverter instanceof AbstractSetTypeNativeValueConverter)) {
 				String errorMessage = "parameter configItemViewType is a signle view type  "
 						+ "but parameter itemValidator object is not a instance of  a SingleSetValueGetterIF type";
@@ -150,7 +152,7 @@ public class ItemIDInfo<T> {
 		}	
 
 		this.configurationPart = configPart;
-		this.viewType = configItemViewType;
+		this.viewType = itemViewType;
 		this.itemID = itemID;
 		this.description = description;
 		this.defaultValue = defaultValue;
@@ -193,6 +195,22 @@ public class ItemIDInfo<T> {
 
 	public boolean isDefaultValueCheck() {
 		return isDefaultValueCheck;
+	}
+	
+	/**
+	 * 항목의 값으로 가질수있는 집합을 반환한다. 
+	 * 단 집합이 없으면 즉 집합형 항목이 아니면 널을 반환한다.
+	 * 
+	 * @return
+	 */
+	public Set<String> getItemSet() {
+		Set<String> itemSet = null;
+		if (viewType.equals(ItemIDInfo.ViewType.SINGLE_SET)) {
+			AbstractSetTypeNativeValueConverter<?> setTypeNativeConvter = 
+					(AbstractSetTypeNativeValueConverter<?>)itemValueConverter;
+			itemSet = setTypeNativeConvter.getItemValueSet();
+		}
+		return itemSet;
 	}
 
 	public String getDescription() {

@@ -93,7 +93,6 @@ public abstract class CommonStaticFinalVars {
 	/** configuration end */
 	
 	/** ant.properties key start */
-	public static final String IS_WEB_CLIENT_KEY = "is.webclient";
 	public static final String SERVLET_SYSTEM_LIBIARY_PATH_KEY = "servlet.systemlib.path";
 	/** ant.properties key end */
 	

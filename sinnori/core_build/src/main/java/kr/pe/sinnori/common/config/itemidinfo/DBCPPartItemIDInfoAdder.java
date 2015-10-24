@@ -6,12 +6,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningRegularFile;
-import kr.pe.sinnori.common.exception.ConfigErrorException;
+import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 
 public abstract class DBCPPartItemIDInfoAdder {
 	public static void addAllDBCPPartItemIDInfo(
 			DBCPPartItemIDInfoMangerIF dbcpPartItemIDInfoManger)
-			throws IllegalArgumentException, ConfigErrorException {
+			throws IllegalArgumentException, SinnoriConfigurationException {
 		Logger log = LoggerFactory.getLogger(DBCPPartItemIDInfoAdder.class);
 		
 		ItemIDInfo<?> itemIDInfo = null;
@@ -21,7 +21,7 @@ public abstract class DBCPPartItemIDInfoAdder {
 
 		/** DBCP start */
 		try {
-			itemID = ItemID.DBCPPartItemID.DBCP_CONFIGE_FILE_ITEMID;
+			itemID = ItemIDDefiner.DBCPPartItemIDDefiner.DBCP_CONFIGE_FILE_ITEMID;
 			isDefaultValueCheck = false;
 			{
 				boolean isWritePermissionChecking = false;
@@ -37,14 +37,14 @@ public abstract class DBCPPartItemIDInfoAdder {
 			}
 
 			dbcpPartItemIDInfoManger.addDBCPPartItemIDInfo(itemIDInfo);
-		} catch (ConfigErrorException | IllegalArgumentException e) {
+		} catch (SinnoriConfigurationException | IllegalArgumentException e) {
 			String errorMessage = new StringBuilder(
 					"fail to add dbcp part item identification[")
 					.append(itemID).append("] information").toString();
 
 			log.info(errorMessage, e);
 
-			throw new ConfigErrorException(new StringBuilder(errorMessage)
+			throw new SinnoriConfigurationException(new StringBuilder(errorMessage)
 			.append(", errrorMessage=").append(e.getMessage()).toString());
 		}
 

@@ -31,8 +31,9 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
+import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.valueobject.CommonPart;
+import kr.pe.sinnori.common.config.part.CommonPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.util.HexUtil;
@@ -90,8 +91,10 @@ public final class ClientSessionKeyManager {
 		log.info(String.format("publicKeyBytes=[%s]",
 				HexUtil.getHexStringFromByteArray(publicKeyBytes)));
 		
-		SinnoriConfigurationManager conf = SinnoriConfigurationManager.getInstance();		
-		CommonPart commonPart = conf.getCommonPart();
+		SinnoriConfiguration sinnoriRunningProjectConfiguration = 
+				SinnoriConfigurationManager.getInstance()
+				.getSinnoriRunningProjectConfiguration();		
+		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPart();
 		symmetricIVSize = commonPart.getSymmetricIVSizeOfSessionKey();		
 		symmetricKeyAlgorithm = commonPart.getSymmetricKeyAlgorithmOfSessionKey();
 		symmetricKeyEncoding = commonPart.getSymmetricKeyEncodingOfSessionKey();
