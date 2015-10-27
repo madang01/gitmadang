@@ -38,8 +38,9 @@ public class ItemValuePanel extends JPanel {
 	private JButton pathButton = null;
 	private boolean isSelected = false;
 	
-	public ItemValuePanel(int indexOfTableModel, String itemKey, 
 	public ItemValuePanel(int indexOfTableModel, String itemID, 
+			String prefixOfItemID,
+			String itemKey, 
 			String itemValue, 
 			ItemIDInfo.ViewType itemViewType, 
 			Set<String> itemSet, Frame mainFrame) {
