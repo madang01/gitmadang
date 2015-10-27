@@ -200,16 +200,18 @@ public class SinnoriConfiguration {
 				.append(sinnoriConfigFilePathString).append("] is wrong").toString();
 				throw new SinnoriConfigurationException(errorMessage);
 			}
-		}		
-		
-		
+		}	
 		
 		List<ItemIDInfo<?>> dbcpItemIDInfoList = sinnoriItemIDInfoManger.getUnmodifiableDBCPPartItemIDInfoList();
 		for (String dbcpName : dbcpNameList) {
+			String prefixOfItemID = new StringBuilder("dbcp.").append(dbcpName)
+					.append(".").toString();
+			
 			DBCPParConfiguration dbcpPartValueObject = new DBCPParConfiguration(dbcpName);
 			for (ItemIDInfo<?> itemIDInfo : dbcpItemIDInfoList) {
-				String itemKey = new StringBuilder("dbcp.").append(dbcpName)
-						.append(".").append(itemIDInfo.getItemID()).toString();
+				String itemID = itemIDInfo.getItemID();
+				String itemKey = new StringBuilder(prefixOfItemID)
+				.append(itemID).toString();
 				String itemValue = sinnoriConfigSequencedProperties.getProperty(itemKey);
 				if (null == itemValue) {
 					String errorMessage = new StringBuilder("the item key[")
@@ -224,7 +226,7 @@ public class SinnoriConfiguration {
 						.getNativeValueAfterValidChecker(itemKey, 
 								sinnoriConfigSequencedProperties);
 				
-				boolean isInactive = sinnoriItemIDInfoManger.isInactive(itemKey, sinnoriConfigSequencedProperties);
+				boolean isInactive = sinnoriItemIDInfoManger.isInactive(itemID, prefixOfItemID, sinnoriConfigSequencedProperties);
 				if (!isInactive) {
 					try {
 						dbcpPartValueObject.mapping(itemKey, nativeValue);
@@ -252,7 +254,8 @@ public class SinnoriConfiguration {
 				
 		List<ItemIDInfo<?>> commonItemIDInfoList = sinnoriItemIDInfoManger.getUnmodifiableCommonPartItemIDInfoList();
 		for (ItemIDInfo<?> itemIDInfo : commonItemIDInfoList) {
-			String itemKey = itemIDInfo.getItemID();
+			String itemID = itemIDInfo.getItemID();
+			String itemKey = itemID;
 			String itemValue = sinnoriConfigSequencedProperties.getProperty(itemKey);
 			if (null == itemValue) {
 				String errorMessage = new StringBuilder(
@@ -283,7 +286,7 @@ public class SinnoriConfiguration {
 				.append(", errormessage=").append(e.getMessage()).toString());
 			}
 						
-			boolean isInactive = sinnoriItemIDInfoManger.isInactive(itemKey, sinnoriConfigSequencedProperties);
+			boolean isInactive = sinnoriItemIDInfoManger.isInactive(itemID, "", sinnoriConfigSequencedProperties);
 			if (!isInactive) {
 				try {
 					commonPart.mapping(itemKey, nativeValue);
@@ -311,8 +314,9 @@ public class SinnoriConfiguration {
 		
 		/** main project part */
 		for (ItemIDInfo<?> itemIDInfo : projectItemIDInfoList) {
+			String itemID = itemIDInfo.getItemID();
 			String itemKey = new StringBuilder("mainproject.")
-			.append(itemIDInfo.getItemID()).toString();
+			.append(itemID).toString();
 			String itemValue = sinnoriConfigSequencedProperties.getProperty(itemKey);
 			if (null == itemValue) {
 				String errorMessage = new StringBuilder(
@@ -328,7 +332,7 @@ public class SinnoriConfiguration {
 					.getNativeValueAfterValidChecker(itemKey, 
 							sinnoriConfigSequencedProperties);
 			
-			boolean isInactive = sinnoriItemIDInfoManger.isInactive(itemKey, sinnoriConfigSequencedProperties);
+			boolean isInactive = sinnoriItemIDInfoManger.isInactive(itemID, "mainproject.", sinnoriConfigSequencedProperties);
 			if (!isInactive) {
 				try {
 					mainProjectPart.mapping(itemKey, nativeValue);
@@ -352,11 +356,15 @@ public class SinnoriConfiguration {
 		
 		
 		for (String subProjectName : subProjectNameList) {
+			String prefixOfItemID = new StringBuilder("subproject.").append(subProjectName)
+					.append(".").toString();
+			
 			ProjectPartConfiguration subProjectPartValueObject = 
 					new ProjectPartConfiguration(CommonType.PROJECT_GUBUN.SUB_PROJECT, subProjectName);
 			for (ItemIDInfo<?> itemIDInfo : projectItemIDInfoList) {
-				String itemKey = new StringBuilder("subproject.").append(subProjectName)
-						.append(".").append(itemIDInfo.getItemID()).toString();
+				String itemID = itemIDInfo.getItemID();
+				String itemKey = new StringBuilder(prefixOfItemID)
+				.append(itemID).toString();
 				String itemValue = sinnoriConfigSequencedProperties.getProperty(itemKey);
 				if (null == itemValue) {
 					String errorMessage = new StringBuilder(
@@ -372,7 +380,7 @@ public class SinnoriConfiguration {
 						.getNativeValueAfterValidChecker(itemKey, 
 								sinnoriConfigSequencedProperties);
 				
-				boolean isInactive = sinnoriItemIDInfoManger.isInactive(itemKey, sinnoriConfigSequencedProperties);
+				boolean isInactive = sinnoriItemIDInfoManger.isInactive(itemID, prefixOfItemID, sinnoriConfigSequencedProperties);
 				if (!isInactive) {
 					try {
 						subProjectPartValueObject.mapping(itemKey, nativeValue);

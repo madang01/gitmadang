@@ -605,28 +605,9 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 
 		return sinnoriConfigSequencedProperties;
 	}
-
-	public boolean isInactive(String dependentSourceItemKey,
-			Properties sourceProperties) throws IllegalArgumentException {
+	
+	public boolean isInactive(String itemID, String prefixOfItemID, Properties sourceProperties) {
 		boolean isInactive = false;
-		ItemIDInfo<?> itemIDInfo = getItemIDInfoFromKey(dependentSourceItemKey,
-				null, null);
-
-		if (null == itemIDInfo) {
-			String errorMessage = new StringBuilder(
-					"fail to get itemID from itemKey because parameter dependentSourceItemKey[")
-					.append(dependentSourceItemKey).append("] is bad")
-					.toString();
-
-			// log.warn(errorMessage);
-
-			throw new IllegalArgumentException(errorMessage);
-		}
-
-		String itemID = itemIDInfo.getItemID();
-		int inx = dependentSourceItemKey.indexOf(itemID);
-		String prefixOfItemID = dependentSourceItemKey.substring(0, inx);
-
 		AbstractDependOnInactiveChecker inactiveChecker = inactiveCheckerHash
 				.get(itemID);
 
@@ -970,8 +951,19 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 					"the parameter sourceProperties is null");
 		}
 
-		ItemIDInfo<?> itemIDInfo = getItemIDInfoFromKey(itemKey, null,
-				null);
+		
+		ItemIDInfo<?> itemIDInfo = null;
+		
+		try {
+			itemIDInfo = getItemIDInfoFromKey(itemKey, null, null);
+		} catch(IllegalArgumentException e) {
+			/**
+			 * same parameter name 'itemKey' so error message is same
+			 */
+			throw e;
+		}				
+				
+		
 		if (null == itemIDInfo) {
 			String errorMessage = new StringBuilder(
 					"the parameter itemValueKey[").append(itemKey)

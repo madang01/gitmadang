@@ -26,6 +26,8 @@ import kr.pe.sinnori.gui.util.PathSwingAction;
 public class ItemValuePanel extends JPanel {
 	// private Logger log = LoggerFactory.getLogger(ItemValuePanel.class);
 	private int indexOfTableModel;
+	private String itemID;
+	private String prefixOfItemID;
 	private String itemKey;
 	private ItemIDInfo.ViewType itemViewType = null;
 	private Set<String> itemSet = null;
@@ -37,10 +39,13 @@ public class ItemValuePanel extends JPanel {
 	private boolean isSelected = false;
 	
 	public ItemValuePanel(int indexOfTableModel, String itemKey, 
+	public ItemValuePanel(int indexOfTableModel, String itemID, 
 			String itemValue, 
 			ItemIDInfo.ViewType itemViewType, 
 			Set<String> itemSet, Frame mainFrame) {
 		this.indexOfTableModel = indexOfTableModel;
+		this.itemID = itemID;
+		this.prefixOfItemID = prefixOfItemID;
 		this.itemKey = itemKey;
 		this.itemSet = itemSet;
 		this.mainFrame = mainFrame;
@@ -168,6 +173,14 @@ public class ItemValuePanel extends JPanel {
 		return itemKey;
 	}
 	
+
+	public String getItemID() {
+		return itemID;
+	}
+
+	public String getPrefixOfItemID() {
+		return prefixOfItemID;
+	}
 
 	public String getItemValue() {
 		if (itemViewType == ViewType.SINGLE_SET) {

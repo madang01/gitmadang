@@ -156,14 +156,15 @@ public class MainProjectEditPanel extends JPanel {
 
 		for (String dbcpName : dbcpNameList) {
 			this.dbcpNameList.add(dbcpName);
+			String prefixOfItemID = new StringBuilder("dbcp.").append(dbcpName)
+					.append(".").toString();
 
 			Object[][] valuesOfDBCPPropertiesTableModel = new Object[dbcpItemIDInfoListSize][titlesOfPropertiesTableModel.length];
 
 			for (int i = 0; i < dbcpItemIDInfoListSize; i++) {
 				ItemIDInfo<?> itemIDInfo = dbcpItemIDInfoList.get(i);
 				String itemID = itemIDInfo.getItemID();
-				String itemKey = new StringBuilder("dbcp.").append(dbcpName)
-						.append(".").append(itemID).toString();
+				String itemKey = new StringBuilder(prefixOfItemID).append(itemID).toString();
 				String itemValue = sinnoriConfigSequencedProperties
 						.getProperty(itemKey);
 
@@ -172,7 +173,8 @@ public class MainProjectEditPanel extends JPanel {
 
 				ItemKeyLabel itemKeyLabel = new ItemKeyLabel(itemKey,
 						itemIDInfo.getDescription());
-				ItemValuePanel itemValuePanel = new ItemValuePanel(i, itemKey,
+				ItemValuePanel itemValuePanel = new ItemValuePanel(i, 
+						itemID, prefixOfItemID, itemKey,
 						itemValue, itemViewType, itemSet, mainFrame);
 
 				valuesOfDBCPPropertiesTableModel[i][0] = itemKeyLabel;
@@ -198,7 +200,8 @@ public class MainProjectEditPanel extends JPanel {
 
 			for (int i = 0; i < commonPartConfigItemListSize; i++) {
 				ItemIDInfo<?> itemIDInfo = commonPartItemIDInfoList.get(i);
-				String itemKey = itemIDInfo.getItemID();
+				String itemID = itemIDInfo.getItemID();
+				String itemKey = itemID;
 				String itemValue = sinnoriConfigSequencedProperties
 						.getProperty(itemKey);
 
@@ -208,7 +211,8 @@ public class MainProjectEditPanel extends JPanel {
 				ItemIDInfo.ViewType itemViewType = itemIDInfo.getViewType();
 				Set<String> itemSet = itemIDInfo.getItemSet();
 
-				ItemValuePanel itemValuePanel = new ItemValuePanel(i, itemKey,
+				ItemValuePanel itemValuePanel = new ItemValuePanel(i, 
+						itemID, "", itemKey,
 						itemValue, itemViewType, itemSet, mainFrame);
 
 				maxRowHeightOfCommonPartItemValuePanel = Math.max(
@@ -249,7 +253,8 @@ public class MainProjectEditPanel extends JPanel {
 				ItemIDInfo.ViewType itemViewType = itemIDInfo.getViewType();
 				Set<String> itemSet = itemIDInfo.getItemSet();
 
-				ItemValuePanel itemValuePanel = new ItemValuePanel(i, itemKey,
+				ItemValuePanel itemValuePanel = new ItemValuePanel(i, 
+						itemID, "mainproject.", itemKey,
 						itemValue, itemViewType, itemSet, mainFrame);
 
 				valuesOfMainProjectPartPropertiesTableModel[i][0] = itemKeyLabel;
@@ -266,14 +271,16 @@ public class MainProjectEditPanel extends JPanel {
 
 		for (String subProjectName : subProjectNameList) {
 			this.subProjectNameList.add(subProjectName);
+			
+			String prefixOfItemID = new StringBuilder("subproject.")
+			.append(subProjectName).append(".").toString();
 
 			Object[][] valuesOfSubProjectPropertiesTableModel = new Object[subProjectPartItemIDInfoListSize][titlesOfPropertiesTableModel.length];
 
 			for (int i = 0; i < subProjectPartItemIDInfoListSize; i++) {
 				ItemIDInfo<?> itemIDInfo = subProjectPartItemIDInfoList.get(i);
 				String itemID = itemIDInfo.getItemID();
-				String itemKey = new StringBuilder("subproject.")
-						.append(subProjectName).append(".").append(itemID)
+				String itemKey = new StringBuilder(prefixOfItemID).append(itemID)
 						.toString();
 				String itemValue = sinnoriConfigSequencedProperties
 						.getProperty(itemKey);
@@ -283,7 +290,8 @@ public class MainProjectEditPanel extends JPanel {
 
 				ItemKeyLabel itemKeyLabel = new ItemKeyLabel(itemKey,
 						itemIDInfo.getDescription());
-				ItemValuePanel itemValuePanel = new ItemValuePanel(i, itemKey,
+				ItemValuePanel itemValuePanel = new ItemValuePanel(i, 
+						itemID, prefixOfItemID, itemKey,
 						itemValue, itemViewType, itemSet, mainFrame);
 
 				valuesOfSubProjectPropertiesTableModel[i][0] = itemKeyLabel;
@@ -372,146 +380,76 @@ public class MainProjectEditPanel extends JPanel {
 		mainProjectPartEditorTable.setVisible(true);
 	}
 
-	/**
-	 * @return 공통 파트 항목들로 이루어진 순서 프로퍼티를 반환한다. 단 공통 파트 항목들중 유효하지 않는 값을 가진 항목이 있다면 널을 반환한다.
-	 */
-	public SequencedProperties getNewSequencedPropertiesHavingCommonPartIems() {
-		SequencedProperties newCommonPartSequencedProperties = new SequencedProperties();
-		boolean result = addCommonPartItemsToSequencedProperties(newCommonPartSequencedProperties);
-		if (!result) {
-			return null;
-		}
-		return newCommonPartSequencedProperties;
-	}
-	
-	/**
-	 * 공통 파트 항목들을 지정한 시퀀스 프로퍼티에 추가한다.
-	 * 
-	 * @param sourceSequencedProperties
-	 *            공통 파트 항목들 추가를 원하는 시퀀스 프로퍼티
-	 * @return 성공 여부, true : 이상무, false :  공통 파트에서 유효하지 않은 값을 가진 항목이 있는 경우
-	 */
-	private boolean addCommonPartItemsToSequencedProperties(SequencedProperties sourceSequencedProperties) {
-		int rowCount = commonPartTableModel.getRowCount();
-		for (int i = 0; i < rowCount; i++) {
-			ItemValuePanel itemValuePanel = (ItemValuePanel) commonPartTableModel
-					.getValueAt(i, 1);
-			itemValuePanel.setSelected(false);
-			itemValuePanel.setToolTipText(null);
+	private class SinnoriConfigurationSequencedProperties extends
+			SequencedProperties {
+		/**
+		 * 주어진 신놀이 시퀀스 프로퍼티에 지정한 dbcp 이름 목록을 갖는 'dbcp 이름 목록' 항목을 추가한다.
+		 * 
+		 * @param dbcpNameList
+		 *            dbcp 이름 목록
+		 */
+		public void addDBCPNameListItem(List<String> dbcpNameList) {
+			StringBuilder dbcpNameListTokens = new StringBuilder();
+			for (String dbcpName : dbcpNameList) {
+				if (dbcpNameListTokens.length() > 0) {
+					dbcpNameListTokens.append(",");
+				}
 
-			String itemKey = itemValuePanel.getItemKey();
-			String itemValue = itemValuePanel.getItemValue();
-			int indexOfTableModel = itemValuePanel.getIndexOfTableModel();
-
-			sourceSequencedProperties.put(itemKey, itemValue);
-
-			boolean isInactive = sinnoriItemIDInfoManger.isInactive(
-					itemKey, sourceSequencedProperties);
-			if (isInactive)
-				continue;
-
-			try {
-				sinnoriItemIDInfoManger.getNativeValueAfterValidChecker(
-						itemKey, sourceSequencedProperties);
-			} catch (IllegalArgumentException
-					| SinnoriConfigurationException e1) {
-				log.warn("fail to get native value", e1);
-				showMessageDialog(e1.getMessage());
-				itemValuePanel.setSelected(true);
-				itemValuePanel.setToolTipText(CommonStaticUtil
-						.getMultiLineToolTip(e1.getMessage(), 100));
-				commonPartEditorTable.changeSelection(indexOfTableModel, 1,
-						false, false);
-				commonPartEditorTable.editCellAt(indexOfTableModel, 1);
-				return false;
+				dbcpNameListTokens.append(dbcpName);
 			}
+			this.setProperty(CommonStaticFinalVars.DBCP_NAME_LIST_KEY_STRING,
+					dbcpNameListTokens.toString());
 		}
-		
-		return true;
-	}
-	
-	
 
-	/**
-	 * 주어진 신놀이 시퀀스 프로퍼티에 지정한 dbcp 이름 목록을 갖는 'dbcp 이름 목록' 항목을 추가한다.
-	 * 
-	 * @param dbcpNameList
-	 *            dbcp 이름 목록
-	 * @param sourceSequencedProperties
-	 *            'dbcp 이름 목록' 항목을 넣을 신놀이 시퀀스 프로퍼티
-	 */
-	private void addDBCPNameListItemToSequencedProperties(
-			List<String> dbcpNameList,
-			SequencedProperties sourceSequencedProperties) {
-		StringBuilder dbcpNameListTokens = new StringBuilder();
-		for (String dbcpName : dbcpNameList) {
-			if (dbcpNameListTokens.length() > 0) {
-				dbcpNameListTokens.append(",");
+		/**
+		 * 주어진 신놀이 시퀀스 프로퍼티에 지정한 서브 프로젝트 이름 목록을 갖는 '서브 프로젝트 이름 목록' 항목을 생성한다.
+		 * 
+		 * @param subProjectNameList
+		 *            서브 프로젝트 이름 목록
+		 */
+		public void addSubProjectNameListItem(List<String> subProjectNameList) {
+			StringBuilder subProjectNameListTokens = new StringBuilder();
+			for (String subProjectName : subProjectNameList) {
+				if (subProjectNameListTokens.length() > 0) {
+					subProjectNameListTokens.append(",");
+				}
+
+				subProjectNameListTokens.append(subProjectName);
 			}
-
-			dbcpNameListTokens.append(dbcpName);
+			this.setProperty(
+					CommonStaticFinalVars.SUBPROJECT_NAME_LIST_KEY_STRING,
+					subProjectNameListTokens.toString());
 		}
-		sourceSequencedProperties.setProperty(
-				CommonStaticFinalVars.DBCP_NAME_LIST_KEY_STRING,
-				dbcpNameListTokens.toString());
-	}
 
-	/**
-	 * 주어진 신놀이 시퀀스 프로퍼티에 지정한 서브 프로젝트 이름 목록을 갖는 '서브 프로젝트 이름 목록' 항목을 생성한다.
-	 * 
-	 * @param subProjectNameList
-	 *            서브 프로젝트 이름 목록
-	 * @param sourceSequencedProperties
-	 *            '서브 프로젝트 이름 목록' 항목을 넣을 신놀이 시퀀스 프로퍼티
-	 */
-	private void addSubProjectNameListItemToSequenceProperties(
-			List<String> subProjectNameList,
-			SequencedProperties sourceSequencedProperties) {
-		StringBuilder subProjectNameListTokens = new StringBuilder();
-		for (String subProjectName : subProjectNameList) {
-			if (subProjectNameListTokens.length() > 0) {
-				subProjectNameListTokens.append(",");
-			}
-
-			subProjectNameListTokens.append(subProjectName);
-		}
-		sourceSequencedProperties.setProperty(
-				CommonStaticFinalVars.SUBPROJECT_NAME_LIST_KEY_STRING,
-				subProjectNameListTokens.toString());
-	}
-
-	/**
-	 * 각 dbcp 별 dbcp 파트 항목들을 지정한 시퀀스 프로퍼티에 추가한다.
-	 * 
-	 * @param sourceSequencedProperties
-	 *            각 dbcp 별 dbcp 파트 항목들 추가를 원하는 시퀀스 프로퍼티
-	 * @return 성공 여부, true : 이상무, false :  각 dbcp 별 dbcp 파트에서 유효하지 않은 값을 가진 항목이 있는 경우
-	 */
-	private boolean addAllDBCPPartItemsToSequencedProperties(
-			SequencedProperties sourceSequencedProperties) {		
-		for (String dbcpName : dbcpNameList) {
-			ConfigurationPartTableModel dbcpPartTableModel = dbcpName2dbcpPartTableModelHash
-					.get(dbcpName);
-			int rowCount = dbcpPartTableModel.getRowCount();
+		/**
+		 * 공통 파트 항목들을 지정한 시퀀스 프로퍼티에 추가한다.
+		 * 
+		 * @return 성공 여부, true : 이상무, false : 공통 파트에서 유효하지 않은 값을 가진 항목이 있는 경우
+		 */
+		public boolean addCommonPartItems() {
+			int rowCount = commonPartTableModel.getRowCount();
 			for (int i = 0; i < rowCount; i++) {
-				ItemValuePanel itemValuePanel = (ItemValuePanel) dbcpPartTableModel
+				ItemValuePanel itemValuePanel = (ItemValuePanel) commonPartTableModel
 						.getValueAt(i, 1);
 				itemValuePanel.setSelected(false);
 				itemValuePanel.setToolTipText(null);
 
+				String itemID = itemValuePanel.getItemID();
+				String prefixOfItemID = itemValuePanel.getPrefixOfItemID();
 				String itemKey = itemValuePanel.getItemKey();
 				String itemValue = itemValuePanel.getItemValue();
+				int indexOfTableModel = itemValuePanel.getIndexOfTableModel();
 
-				sourceSequencedProperties.put(itemKey, itemValue);
+				this.put(itemKey, itemValue);
 
 				boolean isInactive = sinnoriItemIDInfoManger.isInactive(
-						itemKey, sourceSequencedProperties);
+						itemID, prefixOfItemID, this);
 				if (isInactive)
 					continue;
 
 				try {
 					sinnoriItemIDInfoManger.getNativeValueAfterValidChecker(
-							itemKey, sourceSequencedProperties);
+							itemKey, this);
 				} catch (IllegalArgumentException
 						| SinnoriConfigurationException e1) {
 					log.warn("fail to get native value", e1);
@@ -519,94 +457,95 @@ public class MainProjectEditPanel extends JPanel {
 					itemValuePanel.setSelected(true);
 					itemValuePanel.setToolTipText(CommonStaticUtil
 							.getMultiLineToolTip(e1.getMessage(), 100));
-					openDBCPPartEditor(dbcpName,
-							itemValuePanel.getIndexOfTableModel(), itemKey);
+					commonPartEditorTable.changeSelection(indexOfTableModel, 1,
+							false, false);
+					commonPartEditorTable.editCellAt(indexOfTableModel, 1);
 					return false;
 				}
 			}
+
+			return true;
 		}
-		return true;
-	}
 
-	/**
-	 * 메인 프로젝트 파트 항목들을 지정한 시퀀스 프로퍼티에 추가한다.
-	 * 
-	 * @param sourceSequencedProperties
-	 *            메인 프로젝트 항목들 추가를 원하는 시퀀스 프로퍼티
-	 * @return 성공 여부, true : 이상무, false :  메인 프로젝트 파트에서 유효하지 않은 값을 가진 항목이 있는 경우
-	 */
-	private boolean addMainProjectPartItemsToSequencedProperties(
-			SequencedProperties sourceSequencedProperties) {
+		/**
+		 * 각 dbcp 별 dbcp 파트 항목들을 지정한 시퀀스 프로퍼티에 추가한다.
+		 * 
+		 * @return 성공 여부, true : 이상무, false : 각 dbcp 별 dbcp 파트에서 유효하지 않은 값을 가진
+		 *         항목이 있는 경우
+		 */
+		public boolean addAllDBCPPartItems() {
+			for (String dbcpName : dbcpNameList) {
+				ConfigurationPartTableModel dbcpPartTableModel = dbcpName2dbcpPartTableModelHash
+						.get(dbcpName);
+				int rowCount = dbcpPartTableModel.getRowCount();
+				for (int i = 0; i < rowCount; i++) {
+					ItemValuePanel itemValuePanel = (ItemValuePanel) dbcpPartTableModel
+							.getValueAt(i, 1);
+					itemValuePanel.setSelected(false);
+					itemValuePanel.setToolTipText(null);
 
-		int rowCount = mainProjectPartTableModel.getRowCount();
-		for (int i = 0; i < rowCount; i++) {
-			ItemValuePanel itemValuePanel = (ItemValuePanel) mainProjectPartTableModel
-					.getValueAt(i, 1);
-			itemValuePanel.setSelected(false);
-			itemValuePanel.setToolTipText(null);
+					String itemID = itemValuePanel.getItemID();
+					String prefixOfItemID = itemValuePanel.getPrefixOfItemID();
+					String itemKey = itemValuePanel.getItemKey();
+					String itemValue = itemValuePanel.getItemValue();
 
-			String itemKey = itemValuePanel.getItemKey();
-			String itemValue = itemValuePanel.getItemValue();
-			int indexOfTableModel = itemValuePanel.getIndexOfTableModel();
+					this.put(itemKey, itemValue);
 
-			sourceSequencedProperties.put(itemKey, itemValue);
+					boolean isInactive = sinnoriItemIDInfoManger.isInactive(
+							itemID, prefixOfItemID, this);
+					if (isInactive)
+						continue;
 
-			boolean isInactive = sinnoriItemIDInfoManger.isInactive(itemKey,
-					sourceSequencedProperties);
-			if (isInactive)
-				continue;
-
-			try {
-				sinnoriItemIDInfoManger.getNativeValueAfterValidChecker(
-						itemKey, sourceSequencedProperties);
-			} catch (IllegalArgumentException | SinnoriConfigurationException e1) {
-				log.warn("fail to get native value", e1);
-				showMessageDialog(e1.getMessage());
-				itemValuePanel.setSelected(true);
-				itemValuePanel.setToolTipText(CommonStaticUtil
-						.getMultiLineToolTip(e1.getMessage(), 100));
-				mainProjectPartEditorTable.changeSelection(indexOfTableModel,
-						1, false, false);
-				mainProjectPartEditorTable.editCellAt(indexOfTableModel, 1);
-				return false;
+					try {
+						sinnoriItemIDInfoManger
+								.getNativeValueAfterValidChecker(itemKey, this);
+					} catch (IllegalArgumentException
+							| SinnoriConfigurationException e1) {
+						log.warn("fail to get native value", e1);
+						showMessageDialog(e1.getMessage());
+						itemValuePanel.setSelected(true);
+						itemValuePanel.setToolTipText(CommonStaticUtil
+								.getMultiLineToolTip(e1.getMessage(), 100));
+						openDBCPPartEditor(dbcpName,
+								itemValuePanel.getIndexOfTableModel(), itemKey);
+						return false;
+					}
+				}
 			}
+			return true;
 		}
 
-		return true;
-	}
+		/**
+		 * 메인 프로젝트 파트 항목들을 지정한 시퀀스 프로퍼티에 추가한다.
+		 * 
+		 * @return 성공 여부, true : 이상무, false : 메인 프로젝트 파트에서 유효하지 않은 값을 가진 항목이 있는
+		 *         경우
+		 */
+		public boolean addMainProjectPartItems() {
 
-	/**
-	 * 각 서브 프로젝트별 서브 프로젝트 파트 항목들을 지정한 시퀀스 프로퍼티에 추가한다.
-	 * 
-	 * @param sourceSequencedProperties
-	 *            각 서브 프로젝트별 서브 프로젝트 파트 항목들 추가를 원하는 시퀀스 프로퍼티
-	 * @return 성공 여부, true : 이상무, false :  각 서브 프로젝트별 서브 프로젝트 파트에서 유효하지 않은 값을 가진 항목이 있는 경우
-	 */
-	private boolean addAllSubProjectPartItemsToSequencedProperties(
-			SequencedProperties sourceSequencedProperties) {
-		for (String subProjectName : subProjectNameList) {
-			ConfigurationPartTableModel subProjectPartTableModel = subProjectName2subProjectPartTableModelHash
-					.get(subProjectName);
-			int rowCount = subProjectPartTableModel.getRowCount();
+			int rowCount = mainProjectPartTableModel.getRowCount();
 			for (int i = 0; i < rowCount; i++) {
-				ItemValuePanel itemValuePanel = (ItemValuePanel) subProjectPartTableModel
+				ItemValuePanel itemValuePanel = (ItemValuePanel) mainProjectPartTableModel
 						.getValueAt(i, 1);
 				itemValuePanel.setSelected(false);
 				itemValuePanel.setToolTipText(null);
 
+				String itemID = itemValuePanel.getItemID();
+				String prefixOfItemID = itemValuePanel.getPrefixOfItemID();
 				String itemKey = itemValuePanel.getItemKey();
 				String itemValue = itemValuePanel.getItemValue();
+				int indexOfTableModel = itemValuePanel.getIndexOfTableModel();
 
-				sourceSequencedProperties.put(itemKey, itemValue);
+				this.put(itemKey, itemValue);
 
 				boolean isInactive = sinnoriItemIDInfoManger.isInactive(
-						itemKey, sourceSequencedProperties);
+						itemID, prefixOfItemID, this);
 				if (isInactive)
 					continue;
 
 				try {
 					sinnoriItemIDInfoManger.getNativeValueAfterValidChecker(
-							itemKey, sourceSequencedProperties);
+							itemKey, this);
 				} catch (IllegalArgumentException
 						| SinnoriConfigurationException e1) {
 					log.warn("fail to get native value", e1);
@@ -614,13 +553,63 @@ public class MainProjectEditPanel extends JPanel {
 					itemValuePanel.setSelected(true);
 					itemValuePanel.setToolTipText(CommonStaticUtil
 							.getMultiLineToolTip(e1.getMessage(), 100));
-					openSubProjectPopup(subProjectName,
-							itemValuePanel.getIndexOfTableModel(), itemKey);
+					mainProjectPartEditorTable.changeSelection(
+							indexOfTableModel, 1, false, false);
+					mainProjectPartEditorTable.editCellAt(indexOfTableModel, 1);
 					return false;
 				}
 			}
+
+			return true;
 		}
-		return true;
+
+		/**
+		 * 각 서브 프로젝트별 서브 프로젝트 파트 항목들을 지정한 시퀀스 프로퍼티에 추가한다.
+		 * 
+		 * @return 성공 여부, true : 이상무, false : 각 서브 프로젝트별 서브 프로젝트 파트에서 유효하지 않은 값을
+		 *         가진 항목이 있는 경우
+		 */
+		public boolean addAllSubProjectPartItems() {
+			for (String subProjectName : subProjectNameList) {
+				ConfigurationPartTableModel subProjectPartTableModel = subProjectName2subProjectPartTableModelHash
+						.get(subProjectName);
+				int rowCount = subProjectPartTableModel.getRowCount();
+				for (int i = 0; i < rowCount; i++) {
+					ItemValuePanel itemValuePanel = (ItemValuePanel) subProjectPartTableModel
+							.getValueAt(i, 1);
+					itemValuePanel.setSelected(false);
+					itemValuePanel.setToolTipText(null);
+
+					String itemID = itemValuePanel.getItemID();
+					String prefixOfItemID = itemValuePanel.getPrefixOfItemID();
+					String itemKey = itemValuePanel.getItemKey();
+					String itemValue = itemValuePanel.getItemValue();
+
+					this.put(itemKey, itemValue);				
+
+					boolean isInactive = sinnoriItemIDInfoManger.isInactive(
+							itemID, prefixOfItemID, this);
+					if (isInactive)
+						continue;
+
+					try {
+						sinnoriItemIDInfoManger
+								.getNativeValueAfterValidChecker(itemKey, this);
+					} catch (IllegalArgumentException
+							| SinnoriConfigurationException e1) {
+						log.warn("fail to get native value", e1);
+						showMessageDialog(e1.getMessage());
+						itemValuePanel.setSelected(true);
+						itemValuePanel.setToolTipText(CommonStaticUtil
+								.getMultiLineToolTip(e1.getMessage(), 100));
+						openSubProjectPopup(subProjectName,
+								itemValuePanel.getIndexOfTableModel(), itemKey);
+						return false;
+					}
+				}
+			}
+			return true;
+		}
 	}
 
 	/**
@@ -630,33 +619,38 @@ public class MainProjectEditPanel extends JPanel {
 	 * @return 모든 파트 테이블 모델로부터 만들어진 신놀이 설정 순서 프로퍼티
 	 */
 	private SequencedProperties makeConfigurationSequencedPropertiesFromAllPartTableModel() {
-		SequencedProperties configurationSequencedProperties = getNewSequencedPropertiesHavingCommonPartIems();
-		if (null == configurationSequencedProperties) {
-			return null;
-		}
+		SinnoriConfigurationSequencedProperties sinnoriConfigurationSequencedProperties = new SinnoriConfigurationSequencedProperties();
 
-		addDBCPNameListItemToSequencedProperties(dbcpNameList,
-				configurationSequencedProperties);
-
-		boolean result = addAllDBCPPartItemsToSequencedProperties(configurationSequencedProperties);
+		boolean result = sinnoriConfigurationSequencedProperties
+				.addCommonPartItems();
 		if (!result) {
 			return null;
 		}
 
-		result = addMainProjectPartItemsToSequencedProperties(configurationSequencedProperties);
+		sinnoriConfigurationSequencedProperties
+				.addDBCPNameListItem(dbcpNameList);
+
+		result = sinnoriConfigurationSequencedProperties.addAllDBCPPartItems();
 		if (!result) {
 			return null;
 		}
 
-		addSubProjectNameListItemToSequenceProperties(
-				subProjectNameList, configurationSequencedProperties);
-
-		result = addAllSubProjectPartItemsToSequencedProperties(configurationSequencedProperties);
+		result = sinnoriConfigurationSequencedProperties
+				.addMainProjectPartItems();
 		if (!result) {
 			return null;
 		}
 
-		return configurationSequencedProperties;
+		sinnoriConfigurationSequencedProperties
+				.addSubProjectNameListItem(subProjectNameList);
+
+		result = sinnoriConfigurationSequencedProperties
+				.addAllSubProjectPartItems();
+		if (!result) {
+			return null;
+		}
+
+		return sinnoriConfigurationSequencedProperties;
 	}
 
 	private void applyAppClientStatus(boolean isAppClient) {
@@ -714,14 +708,17 @@ public class MainProjectEditPanel extends JPanel {
 					BuildSystemSupporter.createWebClientBuildSystem(
 							mainProjectName, sinnoriInstalledPathString);
 				} catch (BuildSystemException e1) {
-					String errorMessage = "fail to create web client build system";							
+					String errorMessage = "fail to create web client build system";
 					log.warn(errorMessage, e1);
 					showMessageDialog(new StringBuilder(errorMessage)
-					.append(", errormessage=").append(e1.getMessage()).toString());
+							.append(", errormessage=").append(e1.getMessage())
+							.toString());
 					return;
 				}
-				
-				log.info("main project[{}] web client build system creation success", mainProjectName);
+
+				log.info(
+						"main project[{}] web client build system creation success",
+						mainProjectName);
 			}
 
 			if (webRootPath.exists()) {
@@ -731,14 +728,16 @@ public class MainProjectEditPanel extends JPanel {
 					BuildSystemSupporter.createWebRootEnvironment(
 							mainProjectName, sinnoriInstalledPathString);
 				} catch (BuildSystemException e1) {
-					String errorMessage = "fail to delete web root";							
+					String errorMessage = "fail to delete web root";
 					log.warn(errorMessage, e1);
 					showMessageDialog(new StringBuilder(errorMessage)
-					.append(", errormessage=").append(e1.getMessage()).toString());
+							.append(", errormessage=").append(e1.getMessage())
+							.toString());
 					return;
 				}
-				
-				log.info("main project[{}] web root creation success", mainProjectName);
+
+				log.info("main project[{}] web root creation success",
+						mainProjectName);
 			}
 
 		} else {
@@ -748,13 +747,15 @@ public class MainProjectEditPanel extends JPanel {
 				try {
 					FileUtils.forceDelete(webClientBuildPath);
 				} catch (IOException e1) {
-					String errorMessage = "fail to delete web client";							
+					String errorMessage = "fail to delete web client";
 					log.warn(errorMessage, e1);
 					showMessageDialog(new StringBuilder(errorMessage)
-					.append(", errormessage=").append(e1.toString()).toString());
+							.append(", errormessage=").append(e1.toString())
+							.toString());
 					return;
 				}
-				log.info("main project[{}] web client deletion success", mainProjectName);
+				log.info("main project[{}] web client deletion success",
+						mainProjectName);
 			}
 
 			if (!webRootPath.exists()) {
@@ -763,29 +764,32 @@ public class MainProjectEditPanel extends JPanel {
 				try {
 					FileUtils.forceDelete(webRootPath);
 				} catch (IOException e1) {
-					String errorMessage = "fail to delete web root";							
+					String errorMessage = "fail to delete web root";
 					log.warn(errorMessage, e1);
 					showMessageDialog(new StringBuilder(errorMessage)
-					.append(", errormessage=").append(e1.toString()).toString());
+							.append(", errormessage=").append(e1.toString())
+							.toString());
 					return;
 				}
-				log.info("main project[{}] web root deletion success", mainProjectName);
+				log.info("main project[{}] web root deletion success",
+						mainProjectName);
 			}
 		}
 	}
 
 	// FIXME!
 	private void saveMainProjectState(ActionEvent e) {
-		String message = new StringBuilder("Do you wnat to save the main project[")
-		.append(mainProjectName).append("] state?").toString();
+		String message = new StringBuilder(
+				"Do you wnat to save the main project[")
+				.append(mainProjectName).append("] state?").toString();
 		String title = "main project state storage choice";
-		int answer = JOptionPane.showConfirmDialog(mainFrame, message, title, 
+		int answer = JOptionPane.showConfirmDialog(mainFrame, message, title,
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-		
+
 		if (answer == JOptionPane.CANCEL_OPTION) {
 			return;
 		}
-		
+
 		boolean isAppClient = appClientCheckBox.isSelected();
 		boolean isWebClient = webClientCheckBox.isSelected();
 		String servletSystemLibraryPathString = servletSystemLibraryPathTextField
@@ -838,14 +842,18 @@ public class MainProjectEditPanel extends JPanel {
 		String newSubProjectName = newSubProjectNameTextField.getText();
 		if (subProjectNameList.contains(newSubProjectName)) {
 			String errorMesssage = new StringBuilder(
-					"the new sub proejct name[")
-					.append(newSubProjectName)
+					"the new sub proejct name[").append(newSubProjectName)
 					.append("] exists in the sub project name list").toString();
 			showMessageDialog(errorMesssage);
 			newSubProjectNameTextField.requestFocus();
 			return;
 		}
 		subProjectNameList.add(newSubProjectName);
+		
+		
+		String prefixOfItemID = new StringBuilder("subproject.")
+		.append(newSubProjectName).append(".").toString();
+		
 		Object[][] valuesOfSubProjectPropertiesTableModel = new Object[subProjectPartItemIDInfoListSize][titlesOfPropertiesTableModel.length];
 		for (int i = 0; i < subProjectPartItemIDInfoListSize; i++) {
 			ItemIDInfo<?> itemIDInfo = subProjectPartItemIDInfoList.get(i);
@@ -866,7 +874,8 @@ public class MainProjectEditPanel extends JPanel {
 
 			ItemKeyLabel itemKeyLabel = new ItemKeyLabel(itemKey,
 					itemIDInfo.getDescription());
-			ItemValuePanel itemValuePanel = new ItemValuePanel(i, itemKey,
+			ItemValuePanel itemValuePanel = new ItemValuePanel(i, 
+					itemID, prefixOfItemID, itemKey,
 					itemValue, itemViewType, itemSet, mainFrame);
 
 			valuesOfSubProjectPropertiesTableModel[i][0] = itemKeyLabel;
@@ -904,48 +913,52 @@ public class MainProjectEditPanel extends JPanel {
 			int tableModelIndexOfItemHavingBadValue,
 			String itemKeyHavingBadValue) {
 		if (null == subProjectName) {
-			throw new IllegalArgumentException("the paramter subProjectName is null");
+			throw new IllegalArgumentException(
+					"the paramter subProjectName is null");
 		}
 		ConfigurationPartTableModel subProjectPartTableModel = subProjectName2subProjectPartTableModelHash
 				.get(subProjectName);
-		
+
 		if (null == subProjectPartTableModel) {
-			String errorMessage = new StringBuilder("the paramter subProjectName[")
-					.append(subProjectName)
+			String errorMessage = new StringBuilder(
+					"the paramter subProjectName[").append(subProjectName)
 					.append("]'s ConfigurationPartTableModel doesn't exist")
 					.toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
-		
+
 		if (tableModelIndexOfItemHavingBadValue >= 0) {
 			int maxRow = subProjectPartTableModel.getRowCount();
 			if (tableModelIndexOfItemHavingBadValue >= maxRow) {
-				String errorMessage = new StringBuilder("the parameter tableModelIndexOfItemHavingBadValue[")
-				.append(tableModelIndexOfItemHavingBadValue).append("] is greater than or equals to max row[")
-				.append(maxRow).append(" of the variabe subProjectPartConfigTableModel[")
-				.append(subProjectName).append("]").toString();
+				String errorMessage = new StringBuilder(
+						"the parameter tableModelIndexOfItemHavingBadValue[")
+						.append(tableModelIndexOfItemHavingBadValue)
+						.append("] is greater than or equals to max row[")
+						.append(maxRow)
+						.append(" of the variabe subProjectPartConfigTableModel[")
+						.append(subProjectName).append("]").toString();
 				throw new IllegalArgumentException(errorMessage);
 			}
-			
+
 			if (null == itemKeyHavingBadValue) {
 				throw new IllegalArgumentException(
-		"Any sub project part item value is not valid but the paramter itemKeyHavingBadValue is null");
+						"Any sub project part item value is not valid but the paramter itemKeyHavingBadValue is null");
 			}
 		}
-		
+
 		/**
 		 * 공통 파트 항목들은 모든 서브 파트 항목들이 의존하므로 반듯이 먼저 유효성 검사를 수행해야 한다.
 		 */
-		SequencedProperties commonPartSequencedProperties = getNewSequencedPropertiesHavingCommonPartIems();
-		if (null == commonPartSequencedProperties) {
+		SinnoriConfigurationSequencedProperties commonPartSequencedProperties = new SinnoriConfigurationSequencedProperties();
+		boolean result = commonPartSequencedProperties.addCommonPartItems();
+		if (!result) {
 			return;
 		}
 
 		SubProjectPartEditorPopup popup = new SubProjectPartEditorPopup(
 				mainFrame, mainProjectName, subProjectName,
-				subProjectPartTableModel,
-				tableModelIndexOfItemHavingBadValue, itemKeyHavingBadValue,
-				commonPartSequencedProperties);
+				subProjectPartTableModel, tableModelIndexOfItemHavingBadValue,
+				itemKeyHavingBadValue, commonPartSequencedProperties);
 		popup.setTitle("Sub Project Part Editor");
 		popup.setSize(740, 380);
 		popup.setVisible(true);
@@ -970,13 +983,15 @@ public class MainProjectEditPanel extends JPanel {
 				JOptionPane.showMessageDialog(mainFrame, errorMessage);
 				return;
 			}
-			
-			String message = new StringBuilder("Do you wnat to delete the sub project[")
-			.append(selectedSubProjectName).append("]?").toString();
+
+			String message = new StringBuilder(
+					"Do you wnat to delete the sub project[")
+					.append(selectedSubProjectName).append("]?").toString();
 			String title = "sub project name deletion choice";
-			int answer = JOptionPane.showConfirmDialog(mainFrame, message, title, 
-					JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-			
+			int answer = JOptionPane.showConfirmDialog(mainFrame, message,
+					title, JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.WARNING_MESSAGE);
+
 			if (answer == JOptionPane.OK_OPTION) {
 				subProjectNameList.remove(selectedSubProjectName);
 				subProjectName2subProjectPartTableModelHash
@@ -986,21 +1001,22 @@ public class MainProjectEditPanel extends JPanel {
 			}
 		}
 	}
-	
+
 	private void addNewDBCP(ActionEvent e) {
 		String newDBCPName = newDBCPNameTextField.getText();
 
 		if (dbcpNameList.contains(newDBCPName)) {
-			String errorMesssage = new StringBuilder(
-					"the new dbcp name[").append(newDBCPName)
-					.append("] exist in the dbcp name list")
-					.toString();
+			String errorMesssage = new StringBuilder("the new dbcp name[")
+					.append(newDBCPName)
+					.append("] exist in the dbcp name list").toString();
 			showMessageDialog(errorMesssage);
 			newDBCPNameTextField.requestFocusInWindow();
 			return;
 		}
 
 		dbcpNameList.add(newDBCPName);
+		String prefixOfItemID = new StringBuilder("dbcp.")
+		.append(newDBCPName).append(".").toString();
 
 		Object[][] valuesOfDBCPPropertiesTableModel = new Object[dbcpItemIDInfoListSize][titlesOfPropertiesTableModel.length];
 
@@ -1023,7 +1039,8 @@ public class MainProjectEditPanel extends JPanel {
 
 			ItemKeyLabel itemKeyLabel = new ItemKeyLabel(itemKey,
 					itemIDInfo.getDescription());
-			ItemValuePanel itemValuePanel = new ItemValuePanel(i, itemKey,
+			ItemValuePanel itemValuePanel = new ItemValuePanel(i, 
+					itemID, prefixOfItemID, itemKey,
 					itemValue, itemViewType, itemSet, mainFrame);
 
 			valuesOfDBCPPropertiesTableModel[i][0] = itemKeyLabel;
@@ -1049,7 +1066,6 @@ public class MainProjectEditPanel extends JPanel {
 			dbcpNameListComboBox.requestFocusInWindow();
 			JOptionPane.showMessageDialog(mainFrame, errorMessage);
 		} else {
-			
 
 			String selectedDBCPName = dbcpNameListComboBox
 					.getItemAt(selectedInx);
@@ -1065,10 +1081,10 @@ public class MainProjectEditPanel extends JPanel {
 		if (null == dbcpName) {
 			throw new IllegalArgumentException("the paramter dbcpName is null");
 		}
-		
+
 		ConfigurationPartTableModel dbcpPartTableModel = dbcpName2dbcpPartTableModelHash
 				.get(dbcpName);
-		
+
 		if (null == dbcpPartTableModel) {
 			String errorMessage = new StringBuilder("the paramter dbcpName[")
 					.append(dbcpName)
@@ -1076,42 +1092,43 @@ public class MainProjectEditPanel extends JPanel {
 					.toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
-		
+
 		if (tableModelIndexOfItemHavingBadValue >= 0) {
 			int maxRow = dbcpPartTableModel.getRowCount();
 			if (tableModelIndexOfItemHavingBadValue >= maxRow) {
-				String errorMessage = new StringBuilder("the parameter tableModelIndexOfItemHavingBadValue[")
-				.append(tableModelIndexOfItemHavingBadValue).append("] is greater than or equals to max row[")
-				.append(maxRow).append(" of the variabe dbcpPartTableModel[")
-				.append(dbcpName).append("]").toString();
+				String errorMessage = new StringBuilder(
+						"the parameter tableModelIndexOfItemHavingBadValue[")
+						.append(tableModelIndexOfItemHavingBadValue)
+						.append("] is greater than or equals to max row[")
+						.append(maxRow)
+						.append(" of the variabe dbcpPartTableModel[")
+						.append(dbcpName).append("]").toString();
 				throw new IllegalArgumentException(errorMessage);
 			}
-			
+
 			if (null == itemKeyHavingBadValue) {
 				throw new IllegalArgumentException(
-		"Any dbcp part item value is not valid but the paramter itemKeyHavingBadValue is null");
+						"Any dbcp part item value is not valid but the paramter itemKeyHavingBadValue is null");
 			}
 		}
-		
+
 		/**
 		 * 공통 파트 항목들은 모든 서브 파트 항목들이 의존하므로 반듯이 먼저 유효성 검사를 수행해야 한다.
 		 */
-		SequencedProperties commonPartSequencedProperties = getNewSequencedPropertiesHavingCommonPartIems();
-		if (null == commonPartSequencedProperties) {
+		SinnoriConfigurationSequencedProperties commonPartSequencedProperties = new SinnoriConfigurationSequencedProperties();
+		boolean result = commonPartSequencedProperties.addCommonPartItems();
+		if (!result) {
 			return;
 		}
 
 		DBCPPartEditorPopup popup = new DBCPPartEditorPopup(mainFrame,
 				mainProjectName, dbcpName, dbcpPartTableModel,
-				tableModelIndexOfItemHavingBadValue, 
-				itemKeyHavingBadValue,
+				tableModelIndexOfItemHavingBadValue, itemKeyHavingBadValue,
 				commonPartSequencedProperties);
 		popup.setTitle("DBCP Part Editor");
 		popup.setSize(740, 220);
 		popup.setVisible(true);
 	}
-
-	
 
 	private void deleteDBCP(ActionEvent e) {
 		int selectedInx = dbcpNameListComboBox.getSelectedIndex();
@@ -1132,13 +1149,15 @@ public class MainProjectEditPanel extends JPanel {
 				showMessageDialog(errorMessage);
 				return;
 			}
-			
-			String message = new StringBuilder("Do you wnat to delete the dbcp[")
-			.append(selectedDBCPName).append("]?").toString();
+
+			String message = new StringBuilder(
+					"Do you wnat to delete the dbcp[").append(selectedDBCPName)
+					.append("]?").toString();
 			String title = "dbcp deletion choice";
-			int answer = JOptionPane.showConfirmDialog(mainFrame, message, title, 
-					JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-			
+			int answer = JOptionPane.showConfirmDialog(mainFrame, message,
+					title, JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.WARNING_MESSAGE);
+
 			if (answer == JOptionPane.OK_OPTION) {
 				dbcpNameList.remove(selectedDBCPName);
 				dbcpName2dbcpPartTableModelHash.remove(selectedDBCPName);
