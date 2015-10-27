@@ -146,6 +146,8 @@ public class DBCPPartEditorPopup extends JDialog {
 			itemValuePanel.setSelected(false);
 			itemValuePanel.setToolTipText(null);
 			
+			String itemID = itemValuePanel.getItemID();
+			String prefixOfItemID = itemValuePanel.getPrefixOfItemID();
 			String itemKey = itemValuePanel.getItemKey();
 			String itemValue = itemValuePanel.getItemValue();
 			
@@ -156,7 +158,7 @@ public class DBCPPartEditorPopup extends JDialog {
 			
 			boolean isInactive = true;
 			try {
-				isInactive = sinnoriItemIDInfoManger.isInactive(itemKey, dbcpPartSequencedProperties);
+				isInactive = sinnoriItemIDInfoManger.isInactive(itemID, prefixOfItemID, dbcpPartSequencedProperties);
 				
 				if (isInactive) {
 					sinnoriItemIDInfoManger.getNativeValueAfterValidChecker(itemKey, dbcpPartSequencedProperties);

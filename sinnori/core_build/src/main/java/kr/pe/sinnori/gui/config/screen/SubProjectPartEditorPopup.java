@@ -143,6 +143,8 @@ public class SubProjectPartEditorPopup extends JDialog {
 			itemValuePanel.setSelected(false);
 			itemValuePanel.setToolTipText(null);
 			
+			String itemID = itemValuePanel.getItemID();
+			String prefixOfItemID = itemValuePanel.getPrefixOfItemID();
 			String itemKey = itemValuePanel.getItemKey();
 			String itemValue = itemValuePanel.getItemValue();
 			
@@ -153,7 +155,7 @@ public class SubProjectPartEditorPopup extends JDialog {
 			
 			boolean isInactive = true;
 			try {
-				isInactive = sinnoriItemIDInfoManger.isInactive(itemKey, subProjectPartSequencedProperties);
+				isInactive = sinnoriItemIDInfoManger.isInactive(itemID, prefixOfItemID, subProjectPartSequencedProperties);
 				
 				if (isInactive) {
 					sinnoriItemIDInfoManger.getNativeValueAfterValidChecker(itemKey, subProjectPartSequencedProperties);
