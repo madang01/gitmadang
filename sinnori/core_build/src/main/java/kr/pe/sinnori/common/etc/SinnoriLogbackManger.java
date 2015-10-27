@@ -34,7 +34,7 @@ public class SinnoriLogbackManger {
 	}
 	
 	public void setup() {
-		String logbackConfigFilePathString = System.getProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_LOGBACK_CONFIG_PATH);
+		String logbackConfigFilePathString = System.getProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_LOGBACK_CONFIG_FILE);
 		String sinnoriLogPathString = System.getProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_LOG_PATH);
 		
 		/**

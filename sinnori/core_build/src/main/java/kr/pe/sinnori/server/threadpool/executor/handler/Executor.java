@@ -107,7 +107,9 @@ public class Executor extends Thread {
 				try {
 					serverTask = serverObjectCacheManager.getServerTask(messageID);
 				} catch (DynamicClassCallException e) {
-					//log.warn(e.getMessage());
+					log.warn("DynamicClassCallException", e);
+					
+					String errorMessage = new StringBuilder("1.fail to load server task class that is dynamic class::").append(e.toString()).toString();
 					
 					SelfExn selfExnOutObj = new SelfExn();
 					selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
@@ -116,13 +118,13 @@ public class Executor extends Thread {
 					selfExnOutObj.setErrorWhere("S");
 					selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
 					selfExnOutObj.setErrorMessageID(messageID);
-					selfExnOutObj.setErrorMessage(e.getMessage());
+					selfExnOutObj.setErrorMessage(errorMessage);
 					
 					ArrayList<WrapBuffer> wrapBufferList = null;
 					try {
 						wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, charsetOfProject);
-					} catch(Exception e1) {
-						log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+					} catch(Throwable e1) {
+						log.error("fail to convert 'SelfExn' message to stream", e1);
 						System.exit(1);
 					}
 					
@@ -131,6 +133,8 @@ public class Executor extends Thread {
 				} catch(Exception e) {
 					log.warn("unknown error", e);
 					
+					String errorMessage = new StringBuilder("2.fail to load server task class that is dynamic class::").append(e.toString()).toString();
+					
 					SelfExn selfExnOutObj = new SelfExn();
 					selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
 					selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
@@ -138,15 +142,40 @@ public class Executor extends Thread {
 					selfExnOutObj.setErrorWhere("S");
 					selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
 					selfExnOutObj.setErrorMessageID(messageID);
-					selfExnOutObj.setErrorMessage("메시지 서버 타스크를 얻을때 알수 없는 에러 발생::"+e.getMessage());
+					selfExnOutObj.setErrorMessage(errorMessage);
 					
 					ArrayList<WrapBuffer> wrapBufferList = null;
 					try {
 						wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, charsetOfProject);
 						
 						putToOutputMessageQueue(clientSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
-					} catch(Exception e1) {
-						log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패", e1);
+					} catch(Throwable e1) {
+						log.error("fail to convert 'SelfExn' message to stream", e1);
+						System.exit(1);
+					}
+					continue;
+				} catch (Error e) {
+					log.warn("unknown error", e);
+					
+					String errorMessage = new StringBuilder("3.fail to load server task class that is dynamic class::").append(e.toString()).toString();
+					
+					SelfExn selfExnOutObj = new SelfExn();
+					selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
+					selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
+					// selfExnOutObj.setError("S", messageID, new DynamicClassCallException("알수 없는 에러 발생::"+e.getMessage()));
+					selfExnOutObj.setErrorWhere("S");
+					selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+					selfExnOutObj.setErrorMessageID(messageID);
+					selfExnOutObj.setErrorMessage(errorMessage);
+					
+					ArrayList<WrapBuffer> wrapBufferList = null;
+					try {
+						wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, charsetOfProject);
+						
+						putToOutputMessageQueue(clientSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
+					} catch(Throwable e1) {
+						log.error("fail to convert 'SelfExn' message to stream", e1);
+						System.exit(1);
 					}
 					continue;
 				}

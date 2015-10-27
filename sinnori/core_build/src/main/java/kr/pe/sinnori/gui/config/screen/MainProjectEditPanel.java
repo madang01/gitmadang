@@ -70,7 +70,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * @author Jonghoon Won
  */
 @SuppressWarnings("serial")
-public class MainProjectEditPanel extends JPanel implements PopupManagerIF {
+public class MainProjectEditPanel extends JPanel {
 	private Logger log = LoggerFactory.getLogger(MainProjectEditPanel.class);
 
 	private final String titlesOfPropertiesTableModel[] = { "key", "value" };
@@ -903,14 +903,49 @@ public class MainProjectEditPanel extends JPanel implements PopupManagerIF {
 	private void openSubProjectPopup(String subProjectName,
 			int tableModelIndexOfItemHavingBadValue,
 			String itemKeyHavingBadValue) {
-		ConfigurationPartTableModel subProjectPartConfigTableModel = subProjectName2subProjectPartTableModelHash
+		if (null == subProjectName) {
+			throw new IllegalArgumentException("the paramter subProjectName is null");
+		}
+		ConfigurationPartTableModel subProjectPartTableModel = subProjectName2subProjectPartTableModelHash
 				.get(subProjectName);
+		
+		if (null == subProjectPartTableModel) {
+			String errorMessage = new StringBuilder("the paramter subProjectName[")
+					.append(subProjectName)
+					.append("]'s ConfigurationPartTableModel doesn't exist")
+					.toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (tableModelIndexOfItemHavingBadValue >= 0) {
+			int maxRow = subProjectPartTableModel.getRowCount();
+			if (tableModelIndexOfItemHavingBadValue >= maxRow) {
+				String errorMessage = new StringBuilder("the parameter tableModelIndexOfItemHavingBadValue[")
+				.append(tableModelIndexOfItemHavingBadValue).append("] is greater than or equals to max row[")
+				.append(maxRow).append(" of the variabe subProjectPartConfigTableModel[")
+				.append(subProjectName).append("]").toString();
+				throw new IllegalArgumentException(errorMessage);
+			}
+			
+			if (null == itemKeyHavingBadValue) {
+				throw new IllegalArgumentException(
+		"Any sub project part item value is not valid but the paramter itemKeyHavingBadValue is null");
+			}
+		}
+		
+		/**
+		 * 공통 파트 항목들은 모든 서브 파트 항목들이 의존하므로 반듯이 먼저 유효성 검사를 수행해야 한다.
+		 */
+		SequencedProperties commonPartSequencedProperties = getNewSequencedPropertiesHavingCommonPartIems();
+		if (null == commonPartSequencedProperties) {
+			return;
+		}
 
 		SubProjectPartEditorPopup popup = new SubProjectPartEditorPopup(
 				mainFrame, mainProjectName, subProjectName,
-				subProjectPartConfigTableModel,
+				subProjectPartTableModel,
 				tableModelIndexOfItemHavingBadValue, itemKeyHavingBadValue,
-				this);
+				commonPartSequencedProperties);
 		popup.setTitle("Sub Project Part Editor");
 		popup.setSize(740, 380);
 		popup.setVisible(true);
@@ -1014,12 +1049,7 @@ public class MainProjectEditPanel extends JPanel implements PopupManagerIF {
 			dbcpNameListComboBox.requestFocusInWindow();
 			JOptionPane.showMessageDialog(mainFrame, errorMessage);
 		} else {
-			/**
-			 * 공통 파트 항목들은 모든 서브 파트 항목들이 의존하므로 반듯이 먼저 유효성 검사를 수행해야 한다.
-			 */
-			SequencedProperties commonPartSequencedProperties = getNewSequencedPropertiesHavingCommonPartIems();
-			if (null == commonPartSequencedProperties)
-				return;
+			
 
 			String selectedDBCPName = dbcpNameListComboBox
 					.getItemAt(selectedInx);
@@ -1035,21 +1065,47 @@ public class MainProjectEditPanel extends JPanel implements PopupManagerIF {
 		if (null == dbcpName) {
 			throw new IllegalArgumentException("the paramter dbcpName is null");
 		}
-		ConfigurationPartTableModel dbcpConfigItemTableModel = dbcpName2dbcpPartTableModelHash
+		
+		ConfigurationPartTableModel dbcpPartTableModel = dbcpName2dbcpPartTableModelHash
 				.get(dbcpName);
-
-		if (null == dbcpConfigItemTableModel) {
+		
+		if (null == dbcpPartTableModel) {
 			String errorMessage = new StringBuilder("the paramter dbcpName[")
 					.append(dbcpName)
 					.append("]'s ConfigurationPartTableModel doesn't exist")
 					.toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
+		
+		if (tableModelIndexOfItemHavingBadValue >= 0) {
+			int maxRow = dbcpPartTableModel.getRowCount();
+			if (tableModelIndexOfItemHavingBadValue >= maxRow) {
+				String errorMessage = new StringBuilder("the parameter tableModelIndexOfItemHavingBadValue[")
+				.append(tableModelIndexOfItemHavingBadValue).append("] is greater than or equals to max row[")
+				.append(maxRow).append(" of the variabe dbcpPartTableModel[")
+				.append(dbcpName).append("]").toString();
+				throw new IllegalArgumentException(errorMessage);
+			}
+			
+			if (null == itemKeyHavingBadValue) {
+				throw new IllegalArgumentException(
+		"Any dbcp part item value is not valid but the paramter itemKeyHavingBadValue is null");
+			}
+		}
+		
+		/**
+		 * 공통 파트 항목들은 모든 서브 파트 항목들이 의존하므로 반듯이 먼저 유효성 검사를 수행해야 한다.
+		 */
+		SequencedProperties commonPartSequencedProperties = getNewSequencedPropertiesHavingCommonPartIems();
+		if (null == commonPartSequencedProperties) {
+			return;
+		}
 
 		DBCPPartEditorPopup popup = new DBCPPartEditorPopup(mainFrame,
-				mainProjectName, dbcpName, dbcpConfigItemTableModel,
-				tableModelIndexOfItemHavingBadValue, itemKeyHavingBadValue,
-				this);
+				mainProjectName, dbcpName, dbcpPartTableModel,
+				tableModelIndexOfItemHavingBadValue, 
+				itemKeyHavingBadValue,
+				commonPartSequencedProperties);
 		popup.setTitle("DBCP Part Editor");
 		popup.setSize(740, 220);
 		popup.setVisible(true);

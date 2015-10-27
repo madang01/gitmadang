@@ -29,46 +29,80 @@ public abstract class BuildSystemPathSupporter {
 	}
 
 	/**
-	 * @param projectName
+	 * @param mainProjectName
 	 *            프로젝트 이름
 	 * @param sinnoriInstalledPathString
 	 *            신놀이 설치 경로
 	 * @return "project path" that is "{@link #getProjectBasePathString(String)}
 	 *         /[project name]"
 	 */
-	public static String getProjectPathString(String projectName,
+	public static String getProjectPathString(String mainProjectName,
 			String sinnoriInstalledPathString) {
-		if (null == projectName) {
+		if (null == mainProjectName) {
 			throw new IllegalArgumentException(
-					"the parameter projectName is null");
+					"the parameter mainProjectName is null");
 		}
+		
+		if (mainProjectName.equals("")) {
+			throw new IllegalArgumentException(
+					"the parameter mainProjectName is a empty string");
+		}
+		
 
 		StringBuilder strBuilder = new StringBuilder(
 				getProjectBasePathString(sinnoriInstalledPathString));
 		strBuilder.append(File.separator);
-		strBuilder.append(projectName);
+		strBuilder.append(mainProjectName);
+		return strBuilder.toString();
+	}
+	
+	/**
+	 * 지정한 로그 이름을 가진 로그 경로를 반환한다.
+	 * @param mainProjectName
+	 * @param sinnoriInstalledPathString
+	 * @param logName
+	 * @return [project path]/log
+	 */
+	public static String getLogPathString(String mainProjectName,
+			String sinnoriInstalledPathString, String logName) {		
+		if (null == logName) {
+			throw new IllegalArgumentException(
+					"the parameter logName is null");
+		}
+		
+		if (logName.equals("")) {
+			throw new IllegalArgumentException(
+					"the parameter logName is a empty string");
+		}
+
+		StringBuilder strBuilder = new StringBuilder(
+				getProjectPathString(mainProjectName, sinnoriInstalledPathString));
+		strBuilder.append(File.separator);
+		strBuilder.append("log");
+		strBuilder.append(File.separator);
+		strBuilder.append(logName);
 		return strBuilder.toString();
 	}
 
 	/**
-	 * @param projectName
+	 * @param mainProjectName
 	 *            프로젝트 이름
 	 * @param sinnoriInstalledPathString
 	 *            신놀이 설치 경로
 	 * @return "sinnori config path" that is "
 	 *         {@link #getProjectPathString(String, String)}/config"
 	 */
-	public static String getSinnoriConfigPathString(String projectName,
+	public static String getSinnoriConfigPathString(String mainProjectName,
 			String sinnoriInstalledPathString) {
 		StringBuilder strBuilder = new StringBuilder(getProjectPathString(
-				projectName, sinnoriInstalledPathString));
+				mainProjectName, sinnoriInstalledPathString));
 		strBuilder.append(File.separator);
 		strBuilder.append("config");
 		return strBuilder.toString();
 	}
 
 	/**
-	 * @param projectName
+	 * @param mainProjectName
 	 *            프로젝트 이름
 	 * @param sinnoriInstalledPathString
 	 *            신놀이 설치 경로
@@ -76,10 +110,10 @@ public abstract class BuildSystemPathSupporter {
 	 *         {@link #getSinnoriConfigPathString(String, String)}
 	 *         /sinnori.properties"
 	 */
-	public static String getSinnoriConfigFilePathString(String projectName,
+	public static String getSinnoriConfigFilePathString(String mainProjectName,
 			String sinnoriInstalledPathString) {
 		StringBuilder strBuilder = new StringBuilder(
-				getSinnoriConfigPathString(projectName,
+				getSinnoriConfigPathString(mainProjectName,
 						sinnoriInstalledPathString));
 		strBuilder.append(File.separator);
 		strBuilder.append(CommonStaticFinalVars.SINNORI_CONFIG_FILE_NAME);
@@ -87,7 +121,7 @@ public abstract class BuildSystemPathSupporter {
 	}
 
 	/**
-	 * @param projectName
+	 * @param mainProjectName
 	 *            프로젝트 이름
 	 * @param sinnoriInstalledPathString
 	 *            신놀이 설치 경로
@@ -95,10 +129,10 @@ public abstract class BuildSystemPathSupporter {
 	 *         {@link #getSinnoriConfigPathString(String, String)}
 	 *         /locakback.xml"
 	 */
-	public static String getLogbackConfigFilePathString(String projectName,
+	public static String getLogbackConfigFilePathString(String mainProjectName,
 			String sinnoriInstalledPathString) {
 		StringBuilder strBuilder = new StringBuilder(
-				getSinnoriConfigPathString(projectName,
+				getSinnoriConfigPathString(mainProjectName,
 						sinnoriInstalledPathString));
 		strBuilder.append(File.separator);
 		strBuilder.append(CommonStaticFinalVars.SINNORI_LOGBACK_LOG_FILE_NAME);
@@ -108,10 +142,10 @@ public abstract class BuildSystemPathSupporter {
 	/**
 	 * DBCP configuration file path : <project path>/dbcp.<dbcp name>.properties
 	 */
-	public static String getDBCPConfigFilePathString(String projectName,
+	public static String getDBCPConfigFilePathString(String mainProjectName,
 			String sinnoriInstalledPathString, String dbcpName) {
 		StringBuilder strBuilder = new StringBuilder(getSinnoriConfigPathString(
-				projectName, sinnoriInstalledPathString));
+				mainProjectName, sinnoriInstalledPathString));
 		strBuilder.append(File.separator);
 		strBuilder.append("dbcp.");
 		strBuilder.append(dbcpName);
@@ -121,40 +155,40 @@ public abstract class BuildSystemPathSupporter {
 	}
 
 	/** message info path : <project path>/impl/message/info */
-	public static String getMessageInfoPathString(String projectName,
+	public static String getMessageInfoPathString(String mainProjectName,
 			String sinnoriInstalledPathString) {
 		StringBuilder strBuilder = new StringBuilder(getProjectPathString(
-				projectName, sinnoriInstalledPathString))
+				mainProjectName, sinnoriInstalledPathString))
 				.append(File.separator).append("impl").append(File.separator)
 				.append("message").append(File.separator).append("info");
 		return strBuilder.toString();
 	}
 
 	/** ant.properties : <project path>/ant.properties */
-	public static String getAntBuiltInPropertiesFilePath(String projectName,
+	public static String getAntBuiltInPropertiesFilePath(String mainProjectName,
 			String sinnoriInstalledPathString) {
 		StringBuilder strBuilder = new StringBuilder(getProjectPathString(
-				projectName, sinnoriInstalledPathString));
+				mainProjectName, sinnoriInstalledPathString));
 		strBuilder.append(File.separator);
 		strBuilder.append("ant.properties");
 		return strBuilder.toString();
 	}
 
 	/** RSA keypair path : <project path>/rsa_keypair */
-	public static String getSessionKeyRSAKeypairPathString(String projectName,
+	public static String getSessionKeyRSAKeypairPathString(String mainProjectName,
 			String sinnoriInstalledPathString) {
 		StringBuilder strBuilder = new StringBuilder(getProjectPathString(
-				projectName, sinnoriInstalledPathString));
+				mainProjectName, sinnoriInstalledPathString));
 		strBuilder.append(File.separator);
 		strBuilder.append("rsa_keypair");
 		return strBuilder.toString();
 	}
 
 	/** server build path : <project path>/server_build */
-	public static String getServerBuildPathString(String projectName,
+	public static String getServerBuildPathString(String mainProjectName,
 			String sinnoriInstalledPathString) {
 		StringBuilder strBuilder = new StringBuilder(getProjectPathString(
-				projectName, sinnoriInstalledPathString));
+				mainProjectName, sinnoriInstalledPathString));
 		strBuilder.append(File.separator);
 		strBuilder.append("server_build");
 		return strBuilder.toString();
@@ -162,19 +196,19 @@ public abstract class BuildSystemPathSupporter {
 
 	/** server build.xml : <project path>/server_build/build.xml */
 	public static String getServerBuildSystemConfigFilePathString(
-			String projectName, String sinnoriInstalledPathString) {
+			String mainProjectName, String sinnoriInstalledPathString) {
 		StringBuilder strBuilder = new StringBuilder(getServerBuildPathString(
-				projectName, sinnoriInstalledPathString));
+				mainProjectName, sinnoriInstalledPathString));
 		strBuilder.append(File.separator);
 		strBuilder.append("build.xml");
 		return strBuilder.toString();
 	}
 
 	/** APP-INF path : <server build path>/APP-INF */
-	public static String getAPPINFPathString(String projectName,
+	public static String getAPPINFPathString(String mainProjectName,
 			String sinnoriInstalledPathString) {
 		StringBuilder strBuilder = new StringBuilder(getServerBuildPathString(
-				projectName, sinnoriInstalledPathString));
+				mainProjectName, sinnoriInstalledPathString));
 		strBuilder.append(File.separator);
 		strBuilder.append("APP-INF");
 		return strBuilder.toString();
@@ -183,10 +217,10 @@ public abstract class BuildSystemPathSupporter {
 	
 
 	/** client build base path : <project path>/client_build */
-	public static String getClientBuildBasePathString(String projectName,
+	public static String getClientBuildBasePathString(String mainProjectName,
 			String sinnoriInstalledPathString) {
 		StringBuilder strBuilder = new StringBuilder(getProjectPathString(
-				projectName, sinnoriInstalledPathString));
+				mainProjectName, sinnoriInstalledPathString));
 		strBuilder.append(File.separator);
 		strBuilder.append("client_build");
 
@@ -194,10 +228,10 @@ public abstract class BuildSystemPathSupporter {
 	}
 
 	/** application client build path : <project path>/client_build/app_build */
-	public static String getAppClientBuildPathString(String projectName,
+	public static String getAppClientBuildPathString(String mainProjectName,
 			String sinnoriInstalledPathString) {
 		StringBuilder strBuilder = new StringBuilder(
-				getClientBuildBasePathString(projectName,
+				getClientBuildBasePathString(mainProjectName,
 						sinnoriInstalledPathString));
 		strBuilder.append(File.separator);
 		strBuilder.append("app_build");
@@ -206,9 +240,9 @@ public abstract class BuildSystemPathSupporter {
 
 	/** application client build.xml : <application client build path>/build.xml */
 	public static String getAppClientBuildSystemConfigFilePathString(
-			String projectName, String sinnoriInstalledPathString) {
+			String mainProjectName, String sinnoriInstalledPathString) {
 		StringBuilder strBuilder = new StringBuilder(
-				getAppClientBuildPathString(projectName,
+				getAppClientBuildPathString(mainProjectName,
 						sinnoriInstalledPathString));
 		strBuilder.append(File.separator);
 		strBuilder.append("build.xml");
@@ -216,10 +250,10 @@ public abstract class BuildSystemPathSupporter {
 	}
 
 	/** web client build path : <project path>/client_build/web_build */
-	public static String getWebClientBuildPathString(String projectName,
+	public static String getWebClientBuildPathString(String mainProjectName,
 			String sinnoriInstalledPathString) {
 		StringBuilder strBuilder = new StringBuilder(
-				getClientBuildBasePathString(projectName,
+				getClientBuildBasePathString(mainProjectName,
 						sinnoriInstalledPathString));
 		strBuilder.append(File.separator);
 		strBuilder.append("web_build");
@@ -227,10 +261,10 @@ public abstract class BuildSystemPathSupporter {
 	}
 
 	/** <project path>/web_app_base */
-	public static String getWebRootBasePathString(String projectName,
+	public static String getWebRootBasePathString(String mainProjectName,
 			String sinnoriInstalledPathString) {
 		StringBuilder strBuilder = new StringBuilder(getProjectPathString(
-				projectName, sinnoriInstalledPathString));
+				mainProjectName, sinnoriInstalledPathString));
 		strBuilder.append(File.separator);
 		strBuilder.append("web_app_base");
 		return strBuilder.toString();
@@ -239,10 +273,10 @@ public abstract class BuildSystemPathSupporter {
 	/**
 	 * <project path>/web_app_base/ROOT
 	 */
-	public static String getWebRootPathString(String projectName,
+	public static String getWebRootPathString(String mainProjectName,
 			String sinnoriInstalledPathString) {
 		StringBuilder strBuilder = new StringBuilder(getWebRootBasePathString(
-				projectName, sinnoriInstalledPathString));
+				mainProjectName, sinnoriInstalledPathString));
 		strBuilder.append(File.separator);
 		strBuilder.append("ROOT");
 		return strBuilder.toString();
@@ -251,10 +285,10 @@ public abstract class BuildSystemPathSupporter {
 	/**
 	 * <project path>/web_app_base/ROOT/WEB-INF
 	 */
-	public static String getWEBINFPathString(String projectName,
+	public static String getWEBINFPathString(String mainProjectName,
 			String sinnoriInstalledPathString) {
 		StringBuilder strBuilder = new StringBuilder(getWebRootPathString(
-				projectName, sinnoriInstalledPathString));
+				mainProjectName, sinnoriInstalledPathString));
 		strBuilder.append(File.separator);
 		strBuilder.append("WEB-INF");
 		return strBuilder.toString();
@@ -263,10 +297,10 @@ public abstract class BuildSystemPathSupporter {
 	/**
 	 * <project path>/web_app_base/ROOT/WEB-INF/web.xml
 	 */
-	public static String getWebXmlFilePathString(String projectName,
+	public static String getWebXmlFilePathString(String mainProjectName,
 			String sinnoriInstalledPathString) {
 		StringBuilder strBuilder = new StringBuilder(getWEBINFPathString(
-				projectName, sinnoriInstalledPathString));
+				mainProjectName, sinnoriInstalledPathString));
 		strBuilder.append(File.separator);
 		strBuilder.append("web.xml");
 		return strBuilder.toString();
@@ -275,9 +309,9 @@ public abstract class BuildSystemPathSupporter {
 
 	/** web client build.xml : <web client build path>/build.xml */
 	public static String getWebClientBuildSystemConfigFilePathString(
-			String projectName, String sinnoriInstalledPathString) {
+			String mainProjectName, String sinnoriInstalledPathString) {
 		StringBuilder strBuilder = new StringBuilder(
-				getWebClientBuildPathString(projectName,
+				getWebClientBuildPathString(mainProjectName,
 						sinnoriInstalledPathString));
 		strBuilder.append(File.separator);
 		strBuilder.append("build.xml");

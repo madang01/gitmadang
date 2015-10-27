@@ -48,39 +48,56 @@ public class SubProjectPartEditorPopup extends JDialog {
 	private String mainProjectName;
 	private String selectedSubProjectName;	
 	private ConfigurationPartTableModel subProjectPartTableModel;
-	private PopupManagerIF popupManager = null;
+	private SequencedProperties commonPartSequencedProperties = null;
 	
 	public SubProjectPartEditorPopup(Frame owner,
 			String mainProjectName, 
 			String selectedSubProjectName,
 			ConfigurationPartTableModel subProjectPartTableModel, 
 			int tableModelIndexOfItemHavingBadValue, String itemKeyHavingBadValue,
-			PopupManagerIF popupManager) {
+			SequencedProperties commonPartSequencedProperties) {
 		super(owner, true);
 		
-		this.popupManager = popupManager;
+		if (null == mainProjectName) {
+			throw new IllegalArgumentException("the paramter mainProjectName is null");
+		}
+		if (null == selectedSubProjectName) {
+			throw new IllegalArgumentException("the paramter selectedSubProjectName is null");
+		}
+		if (null == subProjectPartTableModel) {
+			throw new IllegalArgumentException("the paramter subProjectPartTableModel is null");
+		}		
 		
-		int maxRow = subProjectPartTableModel.getRowCount();
-		if (tableModelIndexOfItemHavingBadValue >= maxRow) {			
-			String errorMessage = new StringBuilder("the parameter tableModelIndexOfItemHavingBadValue[")
-			.append(tableModelIndexOfItemHavingBadValue).append("] is greater than or equals to max row[")
-			.append(maxRow).append(" of the paramter dbcpPartTableModel").toString();
-			showMessageDialog(errorMessage);	
-			this.dispose();
-			return;
+		if (tableModelIndexOfItemHavingBadValue >= 0) {
+			int maxRow = subProjectPartTableModel.getRowCount();
+			if (tableModelIndexOfItemHavingBadValue >= maxRow) {
+				String errorMessage = new StringBuilder("the parameter tableModelIndexOfItemHavingBadValue[")
+				.append(tableModelIndexOfItemHavingBadValue).append("] is greater than or equals to max row[")
+				.append(maxRow).append(" of the variabe subProjectPartConfigTableModel[")
+				.append(selectedSubProjectName).append("]").toString();
+				throw new IllegalArgumentException(errorMessage);
+			}
+			
+			if (null == itemKeyHavingBadValue) {
+				throw new IllegalArgumentException(
+		"Any sub project part item value is not valid but the paramter itemKeyHavingBadValue is null");
+			}
 		}
 		
-		
-		initComponents();
+		if (null == commonPartSequencedProperties) {
+			throw new IllegalArgumentException("the paramter commonPartSequencedProperties is null");
+		}
 		
 		this.mainProjectName = mainProjectName;
 		this.selectedSubProjectName = selectedSubProjectName;
 		this.subProjectPartTableModel = subProjectPartTableModel;
+		this.commonPartSequencedProperties = commonPartSequencedProperties;
 		
+		initComponents();
 		
-		mainProjectNameValueLabel.setText(this.mainProjectName);
-		subProjectNameValueLabel.setText(this.selectedSubProjectName);
-		subProjectPartTable.setModel(this.subProjectPartTableModel);
+		mainProjectNameValueLabel.setText(mainProjectName);
+		subProjectNameValueLabel.setText(selectedSubProjectName);
+		subProjectPartTable.setModel(subProjectPartTableModel);
 				
 		subProjectPartTable.getColumnModel().getColumn(0).setCellRenderer(new ItemKeyRenderer());
 		
@@ -107,15 +124,11 @@ public class SubProjectPartEditorPopup extends JDialog {
 	private void okButtonActionPerformed(ActionEvent e) {
 		SinnoriItemIDInfoManger sinnoriItemIDInfoManger = SinnoriItemIDInfoManger.getInstance();
 		
-		SequencedProperties subProjectPartSequencedProperties = popupManager.getNewSequencedPropertiesHavingCommonPartIems();
-		if (null == subProjectPartSequencedProperties) {
-			showMessageDialog("공통 항목에서 값 오류가 발생하여 더 이상 서브 프로젝트 항목을 수정할 수 없습니다. 자동으로 창이 닫히게 됩니다.");
-			this.dispose();
-			return;
-		}
+		SequencedProperties subProjectPartSequencedProperties = new SequencedProperties();
+		subProjectPartSequencedProperties.putAll(commonPartSequencedProperties);
 		
 		int maxRow = subProjectPartTableModel.getRowCount();
-		log.info("selectedSubProjectName={}, maxRow={}", selectedSubProjectName, maxRow);
+		//log.info("selectedSubProjectName={}, maxRow={}", selectedSubProjectName, maxRow);
 						
 		for (int i=0; i < maxRow; i++) {
 			Object tableModelValue = subProjectPartTableModel.getValueAt(i, 1);
@@ -126,9 +139,12 @@ public class SubProjectPartEditorPopup extends JDialog {
 				System.exit(1);
 			}
 			 
-			ItemValuePanel configItemCellValue = (ItemValuePanel)tableModelValue;
-			String itemKey = configItemCellValue.getItemKey();
-			String itemValue = configItemCellValue.getItemValue();
+			ItemValuePanel itemValuePanel = (ItemValuePanel)tableModelValue;
+			itemValuePanel.setSelected(false);
+			itemValuePanel.setToolTipText(null);
+			
+			String itemKey = itemValuePanel.getItemKey();
+			String itemValue = itemValuePanel.getItemValue();
 			
 			/*log.info("selectedSubProjectName={}, row index={}, itemKey={}, itemValue={}", 
 					selectedSubProjectName, i, itemKey, itemValue);
@@ -144,10 +160,22 @@ public class SubProjectPartEditorPopup extends JDialog {
 				}
 				
 			} catch (IllegalArgumentException | SinnoriConfigurationException e1) {
-				log.warn("fail to check validation of item value", e1);
+				String errorMessage = new StringBuilder("fail to check validation of item[")
+				.append(itemKey)
+				.append("] value in main project[")
+				.append(mainProjectName).append("]'s sub project[")
+				.append(selectedSubProjectName)
+				.append("] part").toString();
 				
-				String errorMessage = e1.getMessage();
-				showMessageDialog(errorMessage);				
+				log.warn(errorMessage, e1);
+				
+				errorMessage = new StringBuilder(errorMessage)
+				.append(", errormessage=").append(e1.getMessage()).toString();
+				
+				showMessageDialog(errorMessage);
+				
+				itemValuePanel.setSelected(true);
+				itemValuePanel.setToolTipText(errorMessage);
 				subProjectPartTable.changeSelection(i, 1, false, false);
 				subProjectPartTable.editCellAt(i, 1);
 				return;

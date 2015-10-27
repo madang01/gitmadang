@@ -50,38 +50,57 @@ public class DBCPPartEditorPopup extends JDialog {
 	private String mainProjectName;
 	private String selectedDBCPName;
 	private ConfigurationPartTableModel dbcpPartTableModel;
-	private PopupManagerIF popupManager = null;
+	private SequencedProperties commonPartSequencedProperties = null;
 	
 	public DBCPPartEditorPopup(Frame owner,
 			String mainProjectName, 
 			String selectedDBCPName,
 			ConfigurationPartTableModel dbcpPartTableModel,
 			int tableModelIndexOfItemHavingBadValue,
-			String itemKeyHavingBadValue, PopupManagerIF popupManager) {
+			String itemKeyHavingBadValue, 
+			SequencedProperties commonPartSequencedProperties) {
 		super(owner);
 		
-		this.popupManager = popupManager;
-		
-		int maxRow = dbcpPartTableModel.getRowCount();
-		if (tableModelIndexOfItemHavingBadValue >= maxRow) {
-			String errorMessage = new StringBuilder("the parameter tableModelIndexOfItemHavingBadValue[")
-			.append(tableModelIndexOfItemHavingBadValue).append("] is greater than or equals to max row[")
-			.append(maxRow).append(" of the paramter dbcpPartTableModel").toString();
-			showMessageDialog(errorMessage);	
-			this.dispose();
-			return;
+		if (null == mainProjectName) {
+			throw new IllegalArgumentException("the paramter mainProjectName is null");
+		}
+		if (null == selectedDBCPName) {
+			throw new IllegalArgumentException("the paramter selectedDBCPName is null");
+		}
+		if (null == dbcpPartTableModel) {
+			throw new IllegalArgumentException("the paramter dbcpPartTableModel is null");
 		}
 		
-		initComponents();
+		if (tableModelIndexOfItemHavingBadValue >= 0) {
+			int maxRow = dbcpPartTableModel.getRowCount();
+			if (tableModelIndexOfItemHavingBadValue >= maxRow) {
+				String errorMessage = new StringBuilder("the parameter tableModelIndexOfItemHavingBadValue[")
+				.append(tableModelIndexOfItemHavingBadValue).append("] is greater than or equals to max row[")
+				.append(maxRow).append(" of the variabe dbcpPartTableModel[")
+				.append(selectedDBCPName).append("]").toString();
+				throw new IllegalArgumentException(errorMessage);
+			}
+			
+			if (null == itemKeyHavingBadValue) {
+				throw new IllegalArgumentException(
+		"Any dbcp part item value is not valid but the paramter itemKeyHavingBadValue is null");
+			}
+		}
+		
+		if (null == commonPartSequencedProperties) {
+			throw new IllegalArgumentException("the paramter commonPartSequencedProperties is null");
+		}
 		
 		this.mainProjectName = mainProjectName;
 		this.selectedDBCPName = selectedDBCPName;
 		this.dbcpPartTableModel = dbcpPartTableModel;
+		this.commonPartSequencedProperties = commonPartSequencedProperties;
 		
+		initComponents();		
 		
-		mainProjectNameValueLabel.setText(this.mainProjectName);
-		dbcpNameValueLabel.setText(this.selectedDBCPName);
-		dbcpPartTable.setModel(this.dbcpPartTableModel);
+		mainProjectNameValueLabel.setText(mainProjectName);
+		dbcpNameValueLabel.setText(selectedDBCPName);
+		dbcpPartTable.setModel(dbcpPartTableModel);
 		
 		dbcpPartTable.getColumnModel().getColumn(0).setCellRenderer(new ItemKeyRenderer());
 		
@@ -108,15 +127,11 @@ public class DBCPPartEditorPopup extends JDialog {
 	private void okButtonActionPerformed(ActionEvent e) {
 		SinnoriItemIDInfoManger sinnoriItemIDInfoManger = SinnoriItemIDInfoManger.getInstance();
 
-		SequencedProperties dbcpPartSequencedProperties = popupManager.getNewSequencedPropertiesHavingCommonPartIems();
-		if (null == dbcpPartSequencedProperties) {
-			showMessageDialog("공통 항목에서 값 오류가 발생하여 더 이상 서브 프로젝트 항목을 수정할 수 없습니다. 자동으로 창이 닫히게 됩니다.");
-			this.dispose();
-			return;
-		}
+		SequencedProperties dbcpPartSequencedProperties = new SequencedProperties();
+		dbcpPartSequencedProperties.putAll(commonPartSequencedProperties);
 		
 		int maxRow = dbcpPartTableModel.getRowCount();
-		log.info("selectedDBCPName={}, maxRow={}", selectedDBCPName, maxRow);
+		//log.info("selectedDBCPName={}, maxRow={}", selectedDBCPName, maxRow);
 						
 		for (int i=0; i < maxRow; i++) {
 			Object tableModelSecondColValue = dbcpPartTableModel.getValueAt(i, 1);
@@ -127,9 +142,12 @@ public class DBCPPartEditorPopup extends JDialog {
 				System.exit(1);
 			}
 			 
-			ItemValuePanel configItemCellValue = (ItemValuePanel)tableModelSecondColValue;
-			String itemKey = configItemCellValue.getItemKey();
-			String itemValue = configItemCellValue.getItemValue();
+			ItemValuePanel itemValuePanel = (ItemValuePanel)tableModelSecondColValue;
+			itemValuePanel.setSelected(false);
+			itemValuePanel.setToolTipText(null);
+			
+			String itemKey = itemValuePanel.getItemKey();
+			String itemValue = itemValuePanel.getItemValue();
 			
 			/*log.info("selectedDBCPName={}, row index={}, itemKey={}, itemValue={}", 
 					selectedDBCPName, i, itemKey, itemValue);*/
@@ -145,9 +163,23 @@ public class DBCPPartEditorPopup extends JDialog {
 				}
 				
 			} catch (IllegalArgumentException | SinnoriConfigurationException e1) {
-				log.warn("fail to check validation of item value", e1);
-				String errorMessage = e1.getMessage();				
-				showMessageDialog(errorMessage);				
+				String errorMessage = new StringBuilder("fail to check validation of item[")
+				.append(itemKey)
+				.append("] value in main project[")
+				.append(mainProjectName).append("]'s dbcp[")
+				.append(selectedDBCPName)
+				.append("] part").toString();
+				
+				log.warn(errorMessage, e1);
+				
+				errorMessage = new StringBuilder(errorMessage)
+				.append(", errormessage=").append(e1.getMessage()).toString();
+				
+				showMessageDialog(errorMessage);
+				
+				itemValuePanel.setSelected(true);
+				itemValuePanel.setToolTipText(errorMessage);
+				
 				dbcpPartTable.changeSelection(i, 1, false, false);
 				dbcpPartTable.editCellAt(i, 1);
 				return;

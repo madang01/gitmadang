@@ -74,7 +74,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 					stringBuilder.append("\t");
 				}
 				stringBuilder.append("\t\t\t\t\t, ");
-				stringBuilder.append(singleItemInfo.getItemSize());
+				stringBuilder.append(singleItemInfo.getItemSizeForLang());
 				stringBuilder.append(" // itemSize");
 				
 				// itemCharset

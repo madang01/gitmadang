@@ -19,7 +19,7 @@ package kr.pe.sinnori.impl.message.Echo;
 import java.nio.charset.Charset;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.message.codec.MessageDecoder;
+import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 
 /**
@@ -27,7 +27,7 @@ import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
  * @author Won Jonghoon
  *
  */
-public final class EchoDecoder extends MessageDecoder {
+public final class EchoDecoder extends AbstractMessageDecoder {
 
 	/**
 	 * <pre>
@@ -48,9 +48,9 @@ public final class EchoDecoder extends MessageDecoder {
 		echo.setRandomInt((Integer)
 		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
 		, "randomInt" // itemName
-		, 4 // itemTypeID
+		, -1 // itemTypeID
 		, "integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -58,9 +58,9 @@ public final class EchoDecoder extends MessageDecoder {
 		echo.setStartTime((Long)
 		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
 		, "startTime" // itemName
-		, 6 // itemTypeID
+		, -1 // itemTypeID
 		, "long" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));

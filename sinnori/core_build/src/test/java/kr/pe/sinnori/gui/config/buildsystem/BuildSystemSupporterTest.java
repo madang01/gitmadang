@@ -81,8 +81,8 @@ public class BuildSystemSupporterTest {
 		
 		boolean isServer = true;
 		boolean isAppClient = true;
-		boolean isWebClient = false;
-		String servletSystemLibrayPathString = "";
+		boolean isWebClient = true;
+		String servletSystemLibrayPathString = "D:\\apache-tomcat-7.0.57\\lib";
 		
 		try {
 			BuildSystemSupporter.createNewMainProjectBuildSystem(projectNameForTest, sinnoriInstalledPathString,

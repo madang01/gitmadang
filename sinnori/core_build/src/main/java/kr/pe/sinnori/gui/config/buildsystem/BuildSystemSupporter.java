@@ -624,10 +624,10 @@ public abstract class BuildSystemSupporter {
 		log.info("{} file[{}] was created successfully", title, filePathString);
 	}
 
-	private static void createSeverBuildSystem(String newProjectName,
+	private static void createSeverBuildSystem(String newMainProjectName,
 			String sinnoriInstalledPathString, MessageInfoSAXParser messageInfoSAXParser) throws BuildSystemException {
 		
-		String serverBuildPathString = BuildSystemPathSupporter.getServerBuildPathString(newProjectName,
+		String serverBuildPathString = BuildSystemPathSupporter.getServerBuildPathString(newMainProjectName,
 				sinnoriInstalledPathString);
 		File serverBuildPath = new File(serverBuildPathString);
 
@@ -677,12 +677,12 @@ public abstract class BuildSystemSupporter {
 
 		/** build.xml */
 		String serverBuildXMLFilePathString = BuildSystemPathSupporter.getServerBuildSystemConfigFilePathString(
-				newProjectName, sinnoriInstalledPathString);
+				newMainProjectName, sinnoriInstalledPathString);
 		createUTF8File(
 				"server build.xml",
 				BuildSystemFileContents
 						.getServerAntBuildXMLFileContent(
-								newProjectName,
+								newMainProjectName,
 								CommonStaticFinalVars.SERVER_MAIN_CLASS_FULL_NAME_VALUE,
 								CommonStaticFinalVars.SERVER_EXECUTABLE_JAR_SHORT_FILE_NAME_VALUE),
 				serverBuildXMLFilePathString);
@@ -694,14 +694,13 @@ public abstract class BuildSystemSupporter {
 
 		/** Server.bat */
 		String dosShellFilePathString = new StringBuilder(serverBuildPathString)
-				.append(File.separator).append(newProjectName)
+				.append(File.separator).append(newMainProjectName)
 				.append("Server.bat").toString();
 
 		createUTF8File("dos shell of server",
 				BuildSystemFileContents.getDosShellContents(
-						newProjectName,
-						BuildSystemPathSupporter.getProjectPathString(newProjectName,
-								sinnoriInstalledPathString),
+						newMainProjectName,
+						sinnoriInstalledPathString,
 
 						"-Xmx1024m -Xms1024m", "server", serverBuildPathString,
 						relativeExecutabeJarFileName,
@@ -713,18 +712,14 @@ public abstract class BuildSystemSupporter {
 		/** Server.sh */
 		String unixShellFilePathString = new StringBuilder(
 				serverBuildPathString).append(File.separator)
-				.append(newProjectName).append("Server.sh").toString();
+				.append(newMainProjectName).append("Server.sh").toString();
 		createUTF8File("unix shell of server",
 				BuildSystemFileContents.getUnixShellContents(
-						newProjectName,
-						BuildSystemPathSupporter.getProjectPathString(newProjectName,
-								sinnoriInstalledPathString),
+						newMainProjectName,
+						sinnoriInstalledPathString,
 
 						"-Xmx1024m -Xms1024m", "server", serverBuildPathString,
-						relativeExecutabeJarFileName,
-
-						CommonStaticFinalVars.SINNORI_LOGBACK_LOG_FILE_NAME,
-						CommonStaticFinalVars.SINNORI_CONFIG_FILE_NAME),
+						relativeExecutabeJarFileName),
 				unixShellFilePathString);
 
 		
@@ -767,7 +762,7 @@ public abstract class BuildSystemSupporter {
 		String messageID = "Echo";
 		String author = "Won Jonghoon";
 		String echoMessageInfoFilePathString = new StringBuilder(
-				BuildSystemPathSupporter.getMessageInfoPathString(newProjectName,
+				BuildSystemPathSupporter.getMessageInfoPathString(newMainProjectName,
 						sinnoriInstalledPathString))
 		.append(File.separator)
 		.append(messageID).append(".xml").toString();
@@ -1044,8 +1039,7 @@ public abstract class BuildSystemSupporter {
 		createUTF8File("dos shell of client",
 				BuildSystemFileContents.getDosShellContents(
 						newMainProjectName,
-						BuildSystemPathSupporter.getProjectPathString(newMainProjectName,
-								sinnoriInstalledPathString),
+						sinnoriInstalledPathString,
 
 						"-Xmx1024m -Xms1024m", "client", appClientBuildPathString,
 						relativeExecutabeJarFileName,
@@ -1061,14 +1055,10 @@ public abstract class BuildSystemSupporter {
 		createUTF8File("unix shell of client",
 				BuildSystemFileContents.getUnixShellContents(
 						newMainProjectName,
-						BuildSystemPathSupporter.getProjectPathString(newMainProjectName,
-								sinnoriInstalledPathString),
+						sinnoriInstalledPathString,
 
 						"-Xmx1024m -Xms1024m", "client", appClientBuildPathString,
-						relativeExecutabeJarFileName,
-
-						CommonStaticFinalVars.SINNORI_LOGBACK_LOG_FILE_NAME,
-						CommonStaticFinalVars.SINNORI_CONFIG_FILE_NAME),
+						relativeExecutabeJarFileName),
 				unixShellFilePathString);
 
 		

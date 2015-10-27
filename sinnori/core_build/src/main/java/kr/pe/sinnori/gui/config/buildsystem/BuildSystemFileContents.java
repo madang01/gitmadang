@@ -1,6 +1,7 @@
 package kr.pe.sinnori.gui.config.buildsystem;
 
-import java.io.File;
+import kr.pe.sinnori.common.config.BuildSystemPathSupporter;
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -154,8 +155,6 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append("\t<property file=\"../ant.properties\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<property name=\"server.main.class\" value=\"");
-		// stringBuilder.append("main.SinnoriServerMain");
-		// FIXME!
 		stringBuilder.append(serverMainClassFullName);
 		stringBuilder.append("\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -555,8 +554,6 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("import kr.pe.sinnori.common.configuration.ServerProjectConfig;");
-		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("import kr.pe.sinnori.common.message.AbstractMessage;");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("import kr.pe.sinnori.impl.message.Echo.Echo;");
@@ -585,7 +582,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t@Override");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\tpublic void doTask(ServerProjectConfig serverProjectConfig,");
+		stringBuilder.append("\tpublic void doTask(String projectName,");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\tLoginManagerIF loginManager,");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -593,24 +590,18 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\tthrows Exception {");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\tdoWork(serverProjectConfig, letterSender, (Echo)messageFromClient);");
+		stringBuilder.append("\t\tdoWork(projectName, letterSender, (Echo)messageFromClient);");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t}");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\tprivate void doWork(ServerProjectConfig serverProjectConfig,");
+		stringBuilder.append("\tprivate void doWork(String projectName,");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\tLetterSender letterSender, Echo echoInObj)");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\tthrows Exception {");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t// FIXME!");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t// log.info(\"echoInObj={}\", echoInObj.toString());\t");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t");
-		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append(System.getProperty("line.separator"));		
 		stringBuilder.append("\t\tEcho echoOutObj = new Echo();");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("");
@@ -654,21 +645,13 @@ public abstract class BuildSystemFileContents {
 		}
 		
 		StringBuilder stringBuilder = new StringBuilder();
-		
-		// stringBuilder.append("package main;");
 		stringBuilder.append("package ");
 		stringBuilder.append(packageName);
 		stringBuilder.append(";");
-		
-		
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("import kr.pe.sinnori.common.exception.NotFoundProjectException;");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("import kr.pe.sinnori.common.lib.CommonRootIF;");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("import kr.pe.sinnori.common.lib.CommonStaticFinalVars;");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("import kr.pe.sinnori.server.ServerProject;");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -676,66 +659,15 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("");
 		stringBuilder.append(System.getProperty("line.separator"));
-		
-		//stringBuilder.append("public class SinnoriServerMain implements CommonRootIF {");
 		stringBuilder.append("public class ");
 		stringBuilder.append(classShortName);
-		stringBuilder.append(" implements CommonRootIF {");
-		
+		stringBuilder.append(" {\t");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\tpublic static void main(String argv[]) throws NotFoundProjectException {");
+		stringBuilder.append("\tpublic static void main(String argv[]) throws NotFoundProjectException {\t\t");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t");
+		stringBuilder.append("\t\tServerProject mainServerProject = ServerProjectManager.getInstance().getMainServerProject();\t\t\t");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\tString projectName = System.getProperty(CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\tif (null == projectName) {");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\tlog.error(\"\uC790\uBC14 \uC2DC\uC2A4\uD15C \uD658\uACBD \uBCC0\uC218[{}] \uAC00 \uC815\uC758\uB418\uC9C0 \uC54A\uC558\uC2B5\uB2C8\uB2E4.\", CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\tSystem.exit(1);");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t}");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\tString trimProjectName = projectName.trim();");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\tif (trimProjectName.length() == 0) {");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\tlog.error(\"\uC790\uBC14 \uC2DC\uC2A4\uD15C \uD658\uACBD \uBCC0\uC218[{}] \uAC12[{}]\uC774 \uBE48 \uBB38\uC790\uC5F4 \uC788\uC2B5\uB2C8\uB2E4.\", CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME, projectName);");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\tSystem.exit(1);");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t}");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\tif (! projectName.equals(trimProjectName)) {");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\tlog.error(\"\uC790\uBC14 \uC2DC\uC2A4\uD15C \uD658\uACBD \uBCC0\uC218[{}] \uAC12[{}] \uC55E\uB4A4\uB85C \uACF5\uBC31 \uBB38\uC790\uC5F4\uC774 \uC874\uC7AC\uD569\uB2C8\uB2E4.\", ");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\t\tCommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME, projectName);");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\tSystem.exit(1);");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t}");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t");
-		stringBuilder.append(System.getProperty("line.separator"));		
-		stringBuilder.append("\t\t");		
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\tServerProject serverProject = ServerProjectManager.getInstance().getServerProject(projectName);");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\tserverProject.startServer();");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("");
+		stringBuilder.append("\t\tmainServerProject.startServer();");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t}");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -1665,7 +1597,7 @@ public abstract class BuildSystemFileContents {
 	/** server_build/<main project name>.sh or client_build/app_build/<main project name>Client.sh */
 	public static String getDosShellContents(
 			String mainProjectName,
-			String projectPathString,
+			String sinnoriInstalledPathString,
 			
 			String jvmOptions, 
 			String logName, 
@@ -1676,13 +1608,10 @@ public abstract class BuildSystemFileContents {
 			String sinnoriConfigFileName) {
 		String commonPartOfShellContents = getCommonPartOfShellContents(
 				mainProjectName,
-				projectPathString,
+				sinnoriInstalledPathString,
 				
 				jvmOptions, "^", 
-				logName, relativeExecutabeJarFileName,
-				
-				sinnoriLogbackLogFileName,
-				sinnoriConfigFileName);
+				logName, relativeExecutabeJarFileName);
 		
 		StringBuilder shellContentsBuilder = new StringBuilder();
 		shellContentsBuilder.append("set OLDPWD=%CD%");
@@ -1702,22 +1631,16 @@ public abstract class BuildSystemFileContents {
 	/** server_build/<main project name>Server.bat or client_build/app_build/<main project name>Client.bat */
 	public static String getUnixShellContents(
 			String mainProjectName,
-			String projectPathString,
+			String sinnoriInstalledPathString,
 			
 			String jvmOptions, String logName, 
-			String workingPathString, String relativeExecutabeJarFileName,
-			
-			String sinnoriLogbackLogFileName,
-			String sinnoriConfigFileName) {
+			String workingPathString, String relativeExecutabeJarFileName) {
+		
 		String commonPartOfShellContents = getCommonPartOfShellContents(
 				mainProjectName,
-				projectPathString,
-				
+				sinnoriInstalledPathString,				
 				jvmOptions, 
-				"\\", logName, relativeExecutabeJarFileName,
-				
-				sinnoriLogbackLogFileName,
-				sinnoriConfigFileName);
+				"\\", logName, relativeExecutabeJarFileName);
 		
 		StringBuilder shellContentsBuilder = new StringBuilder();
 		shellContentsBuilder.append("cd ");
@@ -1731,16 +1654,13 @@ public abstract class BuildSystemFileContents {
 		return shellContentsBuilder.toString();
 	}
 	
+	// FIXME!
 	private static String getCommonPartOfShellContents(
 			String mainProjectName,
-			String projectPathString,
-			
+			String sinnoriInstalledPathString,
 			String jvmOptions, 
 			String shellLineSeparator, 
-			String logName, String relativeExecutabeJarFileName, 			
-			
-			String sinnoriLogbackLogFileName,
-			String sinnoriConfigFileName) {
+			String logName, String relativeExecutabeJarFileName) {		
 		StringBuilder commandPartBuilder = new StringBuilder();
 		
 		commandPartBuilder.append("java ");
@@ -1748,28 +1668,36 @@ public abstract class BuildSystemFileContents {
 		commandPartBuilder.append(jvmOptions);
 		commandPartBuilder.append(" ").append(shellLineSeparator).append(System.getProperty("line.separator"));		
 		
-		commandPartBuilder.append("-Dlogback.configurationFile=").append(projectPathString)
-		.append(File.separator)
-		.append("config")
-		.append(File.separator)
-		.append(sinnoriLogbackLogFileName);
+		commandPartBuilder.append("-D");		
+		commandPartBuilder.append(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_LOGBACK_CONFIG_FILE);
+		commandPartBuilder.append("=")
+		.append(BuildSystemPathSupporter
+				.getLogbackConfigFilePathString(mainProjectName, 
+						sinnoriInstalledPathString));
+		
+		commandPartBuilder.append(" ")
+		.append(shellLineSeparator)
+		.append(System.getProperty("line.separator"));
+		
+		commandPartBuilder.append("-D");
+		commandPartBuilder.append(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_LOG_PATH);
+		commandPartBuilder.append("=")
+		.append(BuildSystemPathSupporter.getLogPathString(mainProjectName, 
+						sinnoriInstalledPathString, logName));
+		
 		commandPartBuilder.append(" ").append(shellLineSeparator).append(System.getProperty("line.separator"));
 		
-		commandPartBuilder.append("-Dsinnori.logPath=")
-		.append(projectPathString)
-		.append(File.separator).append("log")
-		.append(File.separator).append(logName);
+		commandPartBuilder.append("-D");
+		commandPartBuilder.append(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH);
+		commandPartBuilder.append("=")
+		.append(sinnoriInstalledPathString);
+		
+		
 		commandPartBuilder.append(" ").append(shellLineSeparator).append(System.getProperty("line.separator"));
 		
-		commandPartBuilder.append("-Dsinnori.configurationFile=")
-		.append(projectPathString)
-		.append(File.separator)
-		.append("config")
-		.append(File.separator)
-		.append(sinnoriConfigFileName);
-		commandPartBuilder.append(" ").append(shellLineSeparator).append(System.getProperty("line.separator"));
-		
-		commandPartBuilder.append("-Dsinnori.projectName=")
+		commandPartBuilder.append("-D");
+		commandPartBuilder.append(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME);
+		commandPartBuilder.append("=")
 		.append(mainProjectName);
 		commandPartBuilder.append(" ").append(shellLineSeparator).append(System.getProperty("line.separator"));
 		

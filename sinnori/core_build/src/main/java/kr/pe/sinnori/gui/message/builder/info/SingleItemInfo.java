@@ -45,6 +45,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 	
 	private String firstUpperItemName;
 	private int itemTypeID;
+	private int itemSizeForLang;
 	private String defaultValueRightValueString = null;	
 	private String javaLangTypeOfItemValueType;
 	private String JavaLangClassCastingTypeOfItemValueType;
@@ -200,9 +201,9 @@ public class SingleItemInfo extends AbstractItemInfo {
 	 * 
 	 * @return 정수형 항목 크기
 	 */
-	/*public int getItemSizeForLang() {
+	public int getItemSizeForLang() {
 		return itemSizeForLang;
-	}*/
+	}
 
 	/**
 	 * 타입 부과 정보인 문자셋을 반환한다.
@@ -360,6 +361,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
+		itemSizeForLang = -1;
 		defaultValueRightValueString = itemDefaultValue;
 		javaLangTypeOfItemValueType = "byte";
 		JavaLangClassCastingTypeOfItemValueType = "Byte";
@@ -417,6 +419,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
+		itemSizeForLang = -1;
 		defaultValueRightValueString = itemDefaultValue;
 		javaLangTypeOfItemValueType = "short";
 		JavaLangClassCastingTypeOfItemValueType = "Short";
@@ -454,6 +457,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
+		itemSizeForLang = -1;
 		defaultValueRightValueString = itemDefaultValue;
 		javaLangTypeOfItemValueType = "short";
 		JavaLangClassCastingTypeOfItemValueType = "Short";
@@ -510,6 +514,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
+		itemSizeForLang = -1;
 		defaultValueRightValueString = itemDefaultValue;
 		javaLangTypeOfItemValueType = "int";
 		JavaLangClassCastingTypeOfItemValueType = "Integer";
@@ -547,6 +552,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
+		itemSizeForLang = -1;
 		defaultValueRightValueString = itemDefaultValue;
 		javaLangTypeOfItemValueType = "int";
 		JavaLangClassCastingTypeOfItemValueType = "Integer";
@@ -605,6 +611,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
+		itemSizeForLang = -1;
 		defaultValueRightValueString = itemDefaultValue;
 		javaLangTypeOfItemValueType = "long";
 		JavaLangClassCastingTypeOfItemValueType = "Long";
@@ -642,6 +649,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
+		itemSizeForLang = -1;
 		defaultValueRightValueString = itemDefaultValue;
 		javaLangTypeOfItemValueType = "long";
 		JavaLangClassCastingTypeOfItemValueType = "Long";
@@ -707,6 +715,8 @@ public class SingleItemInfo extends AbstractItemInfo {
 			defaultValueRightValueString = new StringBuilder("\"")
 					.append(itemDefaultValue).append("\"").toString();
 		}
+		
+		itemSizeForLang = -1;
 		javaLangTypeOfItemValueType = "String";
 		JavaLangClassCastingTypeOfItemValueType = "String";
 	}
@@ -782,6 +792,8 @@ public class SingleItemInfo extends AbstractItemInfo {
 			defaultValueRightValueString = new StringBuilder("\"")
 					.append(itemDefaultValue).append("\"").toString();
 		}
+		
+		this.itemSizeForLang = itemSizeForLang;
 		javaLangTypeOfItemValueType = "String";
 		JavaLangClassCastingTypeOfItemValueType = "String";
 	}
@@ -832,6 +844,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
+		this.itemSizeForLang = -1;
 		defaultValueRightValueString = null;
 		javaLangTypeOfItemValueType = "byte[]";
 		JavaLangClassCastingTypeOfItemValueType = "byte[]";
@@ -883,6 +896,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
+		this.itemSizeForLang = itemSizeForLang;
 		defaultValueRightValueString = null;
 		javaLangTypeOfItemValueType = "byte[]";
 		JavaLangClassCastingTypeOfItemValueType = "byte[]";
@@ -914,6 +928,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
+		this.itemSizeForLang = -1;
 		defaultValueRightValueString = null;
 		javaLangTypeOfItemValueType = "java.sql.Date";
 		JavaLangClassCastingTypeOfItemValueType = "java.sql.Date";
@@ -945,6 +960,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
+		this.itemSizeForLang = -1;
 		defaultValueRightValueString = null;
 		javaLangTypeOfItemValueType = "java.sql.Timestamp";
 		JavaLangClassCastingTypeOfItemValueType = "java.sql.Timestamp";
@@ -981,6 +997,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
+		this.itemSizeForLang = -1;
 		defaultValueRightValueString = itemDefaultValue;
 		javaLangTypeOfItemValueType = "boolean";
 		JavaLangClassCastingTypeOfItemValueType = "java.lang.Boolean";

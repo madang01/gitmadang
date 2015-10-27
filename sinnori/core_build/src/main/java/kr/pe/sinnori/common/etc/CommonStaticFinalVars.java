@@ -42,7 +42,7 @@ public abstract class CommonStaticFinalVars {
 	
 	public static final String JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME = "sinnori.projectName";
 	public static final String JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH = "sinnori.installedPath";
-	public static final String JAVA_SYSTEM_PROPERTIES_KEY_LOGBACK_CONFIG_PATH = "logback.configurationFile";
+	public static final String JAVA_SYSTEM_PROPERTIES_KEY_LOGBACK_CONFIG_FILE = "logback.configurationFile";
 	public static final String JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_LOG_PATH = "sinnori.logPath";
 	
 			
