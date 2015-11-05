@@ -1,4 +1,4 @@
-package kr.pe.sinnori.common.weblib;
+package kr.pe.sinnori.weblib.jdf;
 
 import java.io.File;
 
@@ -6,7 +6,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,44 +16,6 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 	protected Logger log = LoggerFactory
 			.getLogger(AbstractBaseServlet.class);
 	
-	/**
-	 * 문자열을 HTML4 기준 이스케이프 문자로 변환한다. 단 변환후 사용자가 지정하는 문자열 치환기들을 차례로 적용한다.
-	 * @param str 변환을 원하는 원본 문자열
-	 * @param afterStringReplacerList 변환후 사용자가 지정하는 문자열 치환 가변 변수들을 담는 그릇
-	 * @return HTML4 기준 이스케이스 문자열로 변환된후 지정한 문자열 치환들을 거친 문자열
-	 */
-	public String escapeHtml(String str, AbstractStringReplacer ... afterStringReplacerList) {
-		if (null == str)
-			return "";
-		String ret = StringEscapeUtils.escapeHtml4(str);
-		
-		// if (null != stringReplacerList) {
-			for (AbstractStringReplacer afterStringReplacer : afterStringReplacerList) {
-				ret = afterStringReplacer.replace(ret);
-			}
-		// }
-		
-		return ret;
-	}
-	
-	/**
-	 * 문자열을 Javascript 기준 이스케이프 문자로 변환한다.
-	 * @param str 변환을 원하는 원본 문자열
-	 * @param afterStringReplacerList 변환후 사용자가 지정하는 문자열 치환 가변 변수들을 담는 그릇
-	 * @return Javascript 기준 이스케이프 문자열로 변환된후 지정한 문자열 치환들을 거친 문자열
-	 */
-	public String escapeScript(String str, AbstractStringReplacer ... afterStringReplacerList) {
-		if (null == str)
-			return "";
-		String ret = StringEscapeUtils.escapeEcmaScript(str);
-		
-		
-		for (AbstractStringReplacer afterStringReplacer : afterStringReplacerList) {
-			ret = afterStringReplacer.replace(ret);
-		}
-		
-		return ret;
-	}
 
 	/**
 	 * 로그인 여부를 반환한다.
@@ -62,7 +25,7 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 	public boolean isLogin(HttpServletRequest req) {
 		HttpSession httpSession = req.getSession();
 		String userId = (String) httpSession
-				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_USERID_NAME);
+				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_USERID_NAME);
 		if (null == userId || userId.equals("")) {
 			return false;
 		}
@@ -76,7 +39,7 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 	 */		
 	public boolean isLogin(HttpSession httpSession) {
 		String userId = (String) httpSession
-				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_USERID_NAME);
+				.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_USERID_NAME);
 		if (null == userId || userId.equals("")) {
 			return false;
 		}
@@ -90,7 +53,7 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 	 */
 	public String getUserId(HttpServletRequest req) {
 		HttpSession httpSession = req.getSession();
-		String userId = (String) httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_USERID_NAME);
+		String userId = (String) httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_USERID_NAME);
 		if (null == userId || userId.equals("")) {
 			userId = "guest";
 		}

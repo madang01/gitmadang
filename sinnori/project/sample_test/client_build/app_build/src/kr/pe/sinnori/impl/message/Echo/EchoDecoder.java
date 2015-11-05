@@ -48,7 +48,7 @@ public final class EchoDecoder extends AbstractMessageDecoder {
 		echo.setRandomInt((Integer)
 		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
 		, "randomInt" // itemName
-		, -1 // itemTypeID
+		, 4 // itemTypeID
 		, "integer" // itemTypeName
 		, -1 // itemSize
 		, null // itemCharset,
@@ -58,7 +58,7 @@ public final class EchoDecoder extends AbstractMessageDecoder {
 		echo.setStartTime((Long)
 		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
 		, "startTime" // itemName
-		, -1 // itemTypeID
+		, 6 // itemTypeID
 		, "long" // itemTypeName
 		, -1 // itemSize
 		, null // itemCharset,

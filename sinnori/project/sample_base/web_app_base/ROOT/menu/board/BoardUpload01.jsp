@@ -1,5 +1,6 @@
-<%@ page extends="kr.pe.sinnori.common.weblib.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
+<%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+%><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
+%><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
 %><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%
@@ -10,21 +11,21 @@
 	function init() {<%
 	if (null != errorMessage && !errorMessage.equals("")) {
 %>
-		var boardUploadFileOutDTO = {isError:true, errorMessage:"<%=escapeScript(errorMessage)%>"};<%
+		var boardUploadFileOutDTO = {isError:true, errorMessage:"<%=HtmlStringUtil.toScriptString(errorMessage)%>"};<%
 	} else {
 %>
 		var boardUploadFileOutDTO = {isError:false, attachId:<%= boardUploadFileOutDTO.getAttachId() %>, oldAttachFileList : [<%
-	java.util.List<kr.pe.sinnori.impl.message.BoardUploadFileOutDTO.BoardUploadFileOutDTO.AttachFile> attachFileList = boardUploadFileOutDTO.getAttachFileList();
-	for (kr.pe.sinnori.impl.message.BoardUploadFileOutDTO.BoardUploadFileOutDTO.AttachFile attachFile : attachFileList) {
-		out.print("{");
-		out.print("attachSeq:");
-		out.print(attachFile.getAttachSeq());
-		out.print(", attachFileName:");
-		out.print("\"");
-		out.print(escapeScript(attachFile.getAttachFileName()));
-		out.print("\"");
-		out.print("}, ");
-	}	
+		java.util.List<kr.pe.sinnori.impl.message.BoardUploadFileOutDTO.BoardUploadFileOutDTO.AttachFile> attachFileList = boardUploadFileOutDTO.getAttachFileList();
+		for (kr.pe.sinnori.impl.message.BoardUploadFileOutDTO.BoardUploadFileOutDTO.AttachFile attachFile : attachFileList) {
+			out.print("{");
+			out.print("attachSeq:");
+			out.print(attachFile.getAttachSeq());
+			out.print(", attachFileName:");
+			out.print("\"");
+			out.print(HtmlStringUtil.toScriptString(attachFile.getAttachFileName()));
+			out.print("\"");
+			out.print("}, ");
+		}	
 %>]};<%
 	}
 %>

@@ -1,6 +1,6 @@
 <project name="sample_base_server" default="compile.appinf" basedir=".">
 	<!-- set global properties for this build -->
-	<property name="dir.src" location="src" />
+	<property name="dir.src" location="src/main/java" />
 	<property name="dir.build" location="build" />
 	<property name="dir.appinf" location="APP-INF" />
 	<property name="dir.dist" location="dist" />

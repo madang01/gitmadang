@@ -24,11 +24,11 @@ import kr.pe.sinnori.client.ClientProject;
 import kr.pe.sinnori.client.ClientProjectManager;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.weblib.AbstractAuthServlet;
-import kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars;
 import kr.pe.sinnori.impl.message.BoardWriteInDTO.BoardWriteInDTO;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
+import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
+import kr.pe.sinnori.weblib.jdf.AbstractAuthServlet;
 
 /**
  * 게시판 최상의 글 등록 처리
@@ -185,7 +185,7 @@ public class BoardWriteSvl extends AbstractAuthServlet {
 			
 			String errorMessage = "";
 			HttpSession httpSession = req.getSession();
-			String userId = (String) httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_USERID_NAME);
+			String userId = (String) httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_USERID_NAME);
 			BoardWriteInDTO inObj = new BoardWriteInDTO();
 			inObj.setBoardId(boardId);
 			inObj.setSubject(parmSubject);

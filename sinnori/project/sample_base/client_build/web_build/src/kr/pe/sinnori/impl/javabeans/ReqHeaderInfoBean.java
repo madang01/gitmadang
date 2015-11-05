@@ -26,18 +26,15 @@ import java.io.Serializable;
  *
  */
 public class ReqHeaderInfoBean implements Serializable {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 8322800532312639723L;
-	public String title;
-	public int headerInfoSize;
+	public String title="Not Login Test:this jsp page is called directly";
+	public int headerInfoSize=0;
 	public class HeaderInfoList {
 		public String headerKey;
 		public String headerValue;
 	}
 	
-	public HeaderInfoList headerInfoList[];
+	public HeaderInfoList headerInfoList[] = new HeaderInfoList[0];
 
 	/**
 	 * @return the title

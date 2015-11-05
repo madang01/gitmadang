@@ -56,7 +56,7 @@ public final class EchoEncoder extends AbstractMessageEncoder {
 		singleItemPathStatck.push(echoSingleItemPath);
 
 		singleItemEncoder.putValueToMiddleWriteObj(echoSingleItemPath, "randomInt"
-					, -1 // itemTypeID
+					, 4 // itemTypeID
 					, "integer" // itemTypeName
 					, echo.getRandomInt() // itemValue
 					, -1 // itemSize
@@ -64,7 +64,7 @@ public final class EchoEncoder extends AbstractMessageEncoder {
 					, charsetOfProject
 					, middleWriteObj);
 		singleItemEncoder.putValueToMiddleWriteObj(echoSingleItemPath, "startTime"
-					, -1 // itemTypeID
+					, 6 // itemTypeID
 					, "long" // itemTypeName
 					, echo.getStartTime() // itemValue
 					, -1 // itemSize

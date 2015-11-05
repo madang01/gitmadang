@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<?xml-stylesheet type="text/xsl" href="/message/xsl/BoardListInDTO.xsl"?>
 <!--
 	item type : (unsigned) byte, (unsigned) short, (unsigned) integer, long,
 					fixed length string, 

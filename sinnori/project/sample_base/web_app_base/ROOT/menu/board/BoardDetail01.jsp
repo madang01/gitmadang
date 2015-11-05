@@ -1,26 +1,33 @@
-<%@ page extends="kr.pe.sinnori.common.weblib.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
-%><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="parmIVBase64" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="parmBoardId" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="parmBoardNo" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="boardDetailOutDTO" class="kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO" scope="request" />
+<%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java"
+	session="true" autoFlush="true" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%><%	
+%><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars"%><%
+%><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
+%><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%	
+%><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%	
+%><jsp:useBean id="parmIVBase64" class="java.lang.String" scope="request" /><%	
+%><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%	
+%><jsp:useBean id="parmBoardId" class="java.lang.String" scope="request" /><%	
+%><jsp:useBean id="parmBoardNo" class="java.lang.String" scope="request" /><%	
+%><jsp:useBean id="boardDetailOutDTO"
+	class="kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO"
+	scope="request" />
 <style>
 <!--
 table {
-	border:solid 1px;
-	border-color:black;
-	border-collapse:collapse;
+	border: solid 1px;
+	border-color: black;
+	border-collapse: collapse;
 }
+
 thead {
-	height : 30px;
-	text-align:center;
+	height: 30px;
+	text-align: center;
 }
+
 tbody {
-	height : 20px;
-	text-align:center;
+	height: 20px;
+	text-align: center;
 }
 -->
 </style>
@@ -33,21 +40,24 @@ tbody {
 <script type="text/javascript" src="/js/cryptoJS/rollups/sha256.js"></script>
 <script type="text/javascript" src="/js/cryptoJS/rollups/aes.js"></script>
 <script type="text/javascript" src="/js/cryptoJS/components/core-min.js"></script>
-<script type="text/javascript" src="/js/cryptoJS/components/cipher-core-min.js"></script>
+<script type="text/javascript"
+	src="/js/cryptoJS/components/cipher-core-min.js"></script>
 <h1>자유 게시판 - 상세 보기</h1>
-<br/><%
+<br />
+<%
 	if (null != errorMessage && !errorMessage.equals("")) {
 %>
-	<div>
-		<ul>
+<div>
+	<ul>
 		<li>
 			<dl>
 				<dt>에러</dt>
-				<dd><%=escapeHtml(errorMessage, WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER)%></dd>
+				<dd><%=HtmlStringUtil.toHtml4BRString(errorMessage)%></dd>
 			</dl>
 		</li>
-		</ul>		
-	</div><%
+	</ul>
+</div>
+<%
 	} else {
 %>
 <script type="text/javascript">
@@ -58,7 +68,7 @@ tbody {
 		}
 
 		var g = document.goModofyForm;
-		g.sessionkeyBase64.value = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_SESSIONKEY_NAME%>');
+		g.sessionkeyBase64.value = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_SESSIONKEY_NAME%>');
 		var iv = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_IV_SIZE%>);
 		g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);
 		g.submit();
@@ -71,7 +81,7 @@ tbody {
 		}
 
 		var g = document.goReplyForm;
-		g.sessionkeyBase64.value = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_SESSIONKEY_NAME%>');
+		g.sessionkeyBase64.value = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_SESSIONKEY_NAME%>');
 		var iv = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_IV_SIZE%>);
 		g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);
 		g.submit();
@@ -84,7 +94,7 @@ tbody {
 		}
 
 		var g = document.goVoteForm;
-		g.sessionkeyBase64.value = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_SESSIONKEY_NAME%>');
+		g.sessionkeyBase64.value = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_SESSIONKEY_NAME%>');
 		var iv = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_IV_SIZE%>);
 		g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);		
 		g.submit();
@@ -121,121 +131,126 @@ tbody {
 	}
 </script>
 <form name=goModofyForm method="post" action="/servlet/BoardModify">
-<input type="hidden" name="topmenu" value="<%=topmenu%>" />
-<input type="hidden" name="pageMode" value="view" />
-<input type="hidden" name="boardId" value="<%=parmBoardId%>" />
-<input type="hidden" name="boardNo" value="<%=parmBoardNo%>" />
-<input type="hidden" name="sessionkeyBase64" />
-<input type="hidden" name="ivBase64" />
+	<input type="hidden" name="topmenu" value="<%=topmenu%>" /> <input
+		type="hidden" name="pageMode" value="view" /> <input type="hidden"
+		name="boardId" value="<%=parmBoardId%>" /> <input type="hidden"
+		name="boardNo" value="<%=parmBoardNo%>" /> <input type="hidden"
+		name="sessionkeyBase64" /> <input type="hidden" name="ivBase64" />
 </form>
 
 <form name=goReplyForm method="post" action="/servlet/BoardReply">
-<input type="hidden" name="topmenu" value="<%=topmenu%>" />
-<input type="hidden" name="pageMode" value="view" />
-<input type="hidden" name="boardId" value="<%=parmBoardId%>" />
-<input type="hidden" name="parentBoardNo" value="<%=parmBoardNo%>" />
-<input type="hidden" name="sessionkeyBase64" />
-<input type="hidden" name="ivBase64" />
+	<input type="hidden" name="topmenu" value="<%=topmenu%>" /> <input
+		type="hidden" name="pageMode" value="view" /> <input type="hidden"
+		name="boardId" value="<%=parmBoardId%>" /> <input type="hidden"
+		name="parentBoardNo" value="<%=parmBoardNo%>" /> <input type="hidden"
+		name="sessionkeyBase64" /> <input type="hidden" name="ivBase64" />
 </form>
 
-<form name=goVoteForm target=voteResultFrame method="post" action="/servlet/BoardVote">
-<input type="hidden" name="topmenu" value="<%=topmenu%>" />
-<input type="hidden" name="boardId" value="<%=parmBoardId%>" />
-<input type="hidden" name="boardNo" value="<%=parmBoardNo%>" />
-<input type="hidden" name="sessionkeyBase64" />
-<input type="hidden" name="ivBase64" />
+<form name=goVoteForm target=voteResultFrame method="post"
+	action="/servlet/BoardVote">
+	<input type="hidden" name="topmenu" value="<%=topmenu%>" /> <input
+		type="hidden" name="boardId" value="<%=parmBoardId%>" /> <input
+		type="hidden" name="boardNo" value="<%=parmBoardNo%>" /> <input
+		type="hidden" name="sessionkeyBase64" /> <input type="hidden"
+		name="ivBase64" />
 </form>
 
 <form name=goListForm method="post" action="/servlet/BoardList">
-<input type="hidden" name="topmenu" value="<%=topmenu%>" />
-<input type="hidden" name="boardId" value="<%=parmBoardId%>" />
+	<input type="hidden" name="topmenu" value="<%=topmenu%>" /> <input
+		type="hidden" name="boardId" value="<%=parmBoardId%>" />
 </form>
 
-<form name=goDownloadForm target="downloadResultFrame" method="post" action="/servlet/BoardDownload">
-<input type="hidden" name="topmenu" value="<%=topmenu%>" />
-<input type="hidden" name="attachId" />
-<input type="hidden" name="attachSeq" />
+<form name=goDownloadForm target="downloadResultFrame" method="post"
+	action="/servlet/BoardDownload">
+	<input type="hidden" name="topmenu" value="<%=topmenu%>" /> <input
+		type="hidden" name="attachId" /> <input type="hidden"
+		name="attachSeq" />
 </form>
 <form name=frm onSubmit="return false">
-	<div><%
-	if (isLogin(request)) {
-		String userId = getUserId(request);
-%><input type=button onClick="goReply()" value="댓글" />&nbsp;<%
-		if (userId.equals(boardDetailOutDTO.getWriterId())) {
-%><input type="button" onClick="goModify()" value="편집" />&nbsp;<%
-		} else {
-%><input type=button onClick="goVote()" value="추천" />&nbsp;<%
-		}
-	}
-%><input type="button" onClick="goList()" value="목록으로" />
+	<div>
+		<%
+			if (isLogin(request)) {
+				String userId = getUserId(request);
+		%><input type=button onClick="goReply()" value="댓글" />&nbsp;<%
+			if (userId.equals(boardDetailOutDTO.getWriterId())) {
+		%><input type="button" onClick="goModify()" value="편집" />&nbsp;<%
+			} else {
+		%><input type=button onClick="goVote()" value="추천" />&nbsp;<%
+			}
+			}
+		%><input type="button" onClick="goList()" value="목록으로" />
 	</div>
-	<br/>
-	<div style="height:100%">
+	<br />
+	<div style="height: 100%">
 		<table border="1">
 			<tbody>
-			<tr>
-				<td style="width:90px">글번호</td>
-				<td style="width:70px"><%=boardDetailOutDTO.getBoardNo()%></td>
-				<td style="width:90px">작성자</td>
-				<td colspan=3 style="width:350px"><%=escapeHtml(boardDetailOutDTO.getNickname())%></td></td>				
-			</tr>
-			<tr>
-				<td style="width:70px">조회수</td>
-				<td><%=boardDetailOutDTO.getViewCount()%></td>		
-				<td style="width:70px">추천수</td>
-				<td style="width:70px" id="voteTxt"><%=boardDetailOutDTO.getVotes()%></td>
-				<td style="width:90px">최근 수정일</td>
-				<td><%=boardDetailOutDTO.getModifiedDate()%></td>
-			</tr>
+				<tr>
+					<td style="width: 90px">글번호</td>
+					<td style="width: 70px"><%=boardDetailOutDTO.getBoardNo()%></td>
+					<td style="width: 90px">작성자</td>
+					<td colspan=3 style="width: 350px"><%=HtmlStringUtil.toHtml4BRString( boardDetailOutDTO.getNickname())%></td>					
+				</tr>
+				<tr>
+					<td style="width: 70px">조회수</td>
+					<td><%=boardDetailOutDTO.getViewCount()%></td>
+					<td style="width: 70px">추천수</td>
+					<td style="width: 70px" id="voteTxt"><%=boardDetailOutDTO.getVotes()%></td>
+					<td style="width: 90px">최근 수정일</td>
+					<td><%=boardDetailOutDTO.getModifiedDate()%></td>
+				</tr>
 
 				<%
-	java.util.List<kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO.AttachFile> attachFileList = boardDetailOutDTO.getAttachFileList();
-	if (null != attachFileList) {
-%>
-			<tr>
-				<td style="width:90px">첨부 파일</td>
-				<td colspan="5" style="text-align:left;">
-					<div><%
-		for (kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO.AttachFile attachFile : attachFileList) {
-			if (isLogin(request)) {
-%><a href=# onClick="goDownload(<%=boardDetailOutDTO.getAttachId()%>, <%=attachFile.getAttachSeq()%>)"><%=escapeHtml(attachFile.getAttachFileName())%></a><br/><%
-			} else {
-%><%=escapeHtml(attachFile.getAttachFileName())%>&nbsp;<%
-			}
-		}
-%>
-					</div>
-				</td>
-			</tr><%
-
-	}
-%>
-						
-					
-
-			<tr>
-				<td>제목</td><td colspan="5" style="text-align:left;"><%=escapeHtml(boardDetailOutDTO.getSubject())%></td>
-			</tr>
-			<tr>
-				<td>내용</td><td colspan="5" style="text-align:left;"><%=escapeHtml(boardDetailOutDTO.getContent(), WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER)%></td>
-			</tr>
+					java.util.List<kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO.AttachFile> attachFileList = boardDetailOutDTO
+														.getAttachFileList();
+												if (null != attachFileList) {
+				%>
+				<tr>
+					<td style="width: 90px">첨부 파일</td>
+					<td colspan="5" style="text-align: left;">
+						<div>
+							<%
+								for (kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO.AttachFile attachFile : attachFileList) {
+																								if (isLogin(request)) {
+							%><a href="#" onClick="goDownload(<%=boardDetailOutDTO.getAttachId()%>, <%=attachFile.getAttachSeq()%>)"><%=HtmlStringUtil.toHtml4BRString(attachFile.getAttachFileName())%></a><br /><%
+								} else {
+							%><%=HtmlStringUtil.toHtml4BRString(attachFile.getAttachFileName())%>&nbsp;<%
+								}
+																							}
+							%>
+						</div>
+					</td>
+				</tr>
+				<%
+					}
+				%>
+				<tr>
+					<td>제목</td>
+					<td colspan="5" style="text-align: left;"><%=HtmlStringUtil.toHtml4BRString(boardDetailOutDTO.getSubject())%></td>
+				</tr>
+				<tr>
+					<td>내용</td>
+					<td colspan="5" style="text-align: left;"><%=HtmlStringUtil.toHtml4BRString(boardDetailOutDTO.getContent())%></td>
+				</tr>
 			</tbody>
 		</table>
-	</div><br/>
-	<div><%
-	if (isLogin(request)) {
-		String userId = getUserId(request);
-%><input type=button onClick="goReply()" value="댓글" />&nbsp;<%
-		if (userId.equals(boardDetailOutDTO.getWriterId())) {
-%><input type="button" onClick="goModify()" value="편집" />&nbsp;<%
-		} else {
-%><input type=button onClick="goVote()" value="추천" />&nbsp;<%
-		}
-	}
-%><input type="button" onClick="goList()" value="목록으로" />
+	</div>
+	<br />
+	<div>
+		<%
+			if (isLogin(request)) {
+					String userId = getUserId(request);
+		%><input type=button onClick="goReply()" value="댓글" />&nbsp;<%
+			if (userId.equals(boardDetailOutDTO.getWriterId())) {
+		%><input type="button" onClick="goModify()" value="편집" />&nbsp;<%
+			} else {
+		%><input type=button onClick="goVote()" value="추천" />&nbsp;<%
+			}
+				}
+		%><input type="button" onClick="goList()" value="목록으로" />
 	</div>
 </form>
 <iframe name="voteResultFrame" width="0" height="0"></iframe>
-<iframe name="downloadResultFrame" width="0" height="0"></iframe><%
+<iframe name="downloadResultFrame" width="0" height="0"></iframe>
+<%
 	}
 %>

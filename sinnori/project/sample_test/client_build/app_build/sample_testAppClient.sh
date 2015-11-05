@@ -1,5 +1,5 @@
 cd D:\gitsinnori\sinnori\project\sample_test\client_build\app_build
-java -Xmx1024m -Xms1024m \
+java  \
 -Dlogback.configurationFile=D:\gitsinnori\sinnori\project\sample_test\config\logback.xml \
 -Dsinnori.logPath=D:\gitsinnori\sinnori\project\sample_test\log\client \
 -Dsinnori.installedPath=D:\gitsinnori\sinnori \

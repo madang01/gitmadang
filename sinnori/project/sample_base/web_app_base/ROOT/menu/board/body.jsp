@@ -1,5 +1,5 @@
-<%@ page extends="kr.pe.sinnori.common.weblib.AbstractJSP" language="java" contentType="text/html; charset=UTF-8"   pageEncoding="UTF-8"%><%
-%><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
+<%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" contentType="text/html; charset=UTF-8"   pageEncoding="UTF-8"%><%
+%><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
 	String topmenu = request.getParameter("topmenu");
 %>
 <script type="text/javascript">

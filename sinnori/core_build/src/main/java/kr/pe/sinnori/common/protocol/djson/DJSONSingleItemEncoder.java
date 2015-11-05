@@ -596,7 +596,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 			errorMessageBuilder.append("]");
 			
 			String errorMessage = errorMessageBuilder.toString();
-			log.info(errorMessage);
+			log.warn(errorMessage, e);
 			throw new BodyFormatException(errorMessage);
 		} catch(OutOfMemoryError e) {
 			throw e;
@@ -619,7 +619,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 			errorMessageBuilder.append("]");
 			
 			String errorMessage = errorMessageBuilder.toString();
-			log.warn(errorMessage);
+			log.warn(errorMessage, e);
 			throw new BodyFormatException(errorMessage);
 		}
 	}

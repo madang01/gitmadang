@@ -1,5 +1,6 @@
-<%@ page extends="kr.pe.sinnori.common.weblib.AbstractJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
-%><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
+<%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
+%><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
+%><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
 %><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%
@@ -160,8 +161,8 @@
 		// alert(g.sessionKey.value);
 		// alert((ttmp == sessionKeyHex));
 
-		sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_PRIVATEKEY_NAME%>', CryptoJS.enc.Base64.stringify(privateKey));
-		sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_SESSIONKEY_NAME%>', g.sessionkeyBase64.value);
+		sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME%>', CryptoJS.enc.Base64.stringify(privateKey));
+		sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_SESSIONKEY_NAME%>', g.sessionkeyBase64.value);
 		
 	
 		var iv = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_IV_SIZE%>);
@@ -205,14 +206,14 @@
 <input type="hidden" name="answer" />
 </form>
 <form method="post" name="frm" onsubmit="return;">
-	<table border="0">
+	<table style="border:0">
 	<tr>
 		<td colspan="2" align="center" style="font-size:24px">신놀이 회원 가입</td>
 	</tr><%
 	if (null != errorMessage && !errorMessage.equals("")) {
 %>
 	<tr>
-		<td colspan="2"><%=escapeHtml(errorMessage, WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER)%></td>
+		<td colspan="2"><%=HtmlStringUtil.toHtml4BRString(errorMessage)%></td>
 	</tr><%
 	} else {
 %>

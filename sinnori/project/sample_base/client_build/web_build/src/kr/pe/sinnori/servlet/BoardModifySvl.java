@@ -23,12 +23,12 @@ import kr.pe.sinnori.client.ClientProject;
 import kr.pe.sinnori.client.ClientProjectManager;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.weblib.AbstractAuthServlet;
 import kr.pe.sinnori.impl.message.BoardDetailInDTO.BoardDetailInDTO;
 import kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO;
 import kr.pe.sinnori.impl.message.BoardModifyInDTO.BoardModifyInDTO;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
+import kr.pe.sinnori.weblib.jdf.AbstractAuthServlet;
 
 /**
  * 게시판 글 수정 처리

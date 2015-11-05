@@ -69,7 +69,7 @@
 		<mkdir dir="${dir.build}/weblib" />
 				
 		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}/weblib">
-			<include name="kr/pe/sinnori/common/weblib/**" />
+			<include name="kr/pe/sinnori/weblib/**" />
 			<classpath>		  
 				<pathelement location="${dir.webclass}" />
 				<fileset dir="${servlet.systemlib.path}">
@@ -120,7 +120,7 @@
 		
 		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" 
 		includeantruntime="false" srcdir="${dir.src}" destdir="${dir.webclass}"
-		excludes="kr/pe/sinnori/common/**" >
+		excludes="kr/pe/sinnori/weblib/**" >
 			<classpath>
 				<fileset dir="${dir.dist}">
 					<include name="${webclient.core.jar}" />

@@ -23,8 +23,8 @@ import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import kr.pe.sinnori.common.weblib.AbstractServlet;
 import kr.pe.sinnori.impl.javabeans.ReqHeaderInfoBean;
+import kr.pe.sinnori.weblib.jdf.AbstractServlet;
 
 
 /**
@@ -36,7 +36,7 @@ import kr.pe.sinnori.impl.javabeans.ReqHeaderInfoBean;
 public class JDFNotLoginTestSvl extends AbstractServlet {
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {		
-		String title = "한글 테스트";
+		String title = "Not Login Test:MVC2 model ok";
 		Enumeration<?> e = req.getHeaderNames();
 		
 		ArrayList<String> headerList = new ArrayList<String>(); 

@@ -1,11 +1,10 @@
-<%@ page extends="kr.pe.sinnori.common.weblib.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
+<%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+%><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
 %><jsp:useBean id="parmIVBase64" class="java.lang.String" scope="request" /><%
 	
 	kr.pe.sinnori.common.sessionkey.SymmetricKey webUserSymmetricKey = (kr.pe.sinnori.common.sessionkey.SymmetricKey)request.getAttribute("webUserSymmetricKey");
 
-	String orignalMessage = "원문에 있는 이 문구가 복호문에서 잘 보시이면 " 
-+ "AbstractSessionKeyServlet 모듈 테스트 통과 안보이면 실패";
+	String orignalMessage = "원문에 있는 이 문구가 복호문에서 잘 보시이면 AbstractSessionKeyServlet 모듈 테스트 통과 안보이면 실패";
 %>
 <script type="text/javascript" src="/js/cryptoJS/rollups/aes.js"></script>
 <script type="text/javascript" src="/js/cryptoJS/components/core-min.js"></script>
@@ -36,7 +35,7 @@ AbstractSessionKeyServlet 는  세션키 운영에 필요한 파라미터를 요
 <!--
 	function init() {
 		var pageIV = CryptoJS.enc.Base64.parse("<%=parmIVBase64%>");
-		var privateKey = CryptoJS.enc.Base64.parse(sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_PRIVATEKEY_NAME%>'));
+		var privateKey = CryptoJS.enc.Base64.parse(sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME%>'));
 
 		var resultMessage = CryptoJS.AES.decrypt("<%=webUserSymmetricKey.encryptStringBase64(orignalMessage)%>", privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: pageIV });
 

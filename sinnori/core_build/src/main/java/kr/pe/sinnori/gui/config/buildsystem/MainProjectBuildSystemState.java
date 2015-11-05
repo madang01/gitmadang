@@ -11,7 +11,6 @@ import kr.pe.sinnori.common.config.part.AllSubProjectPartConfiguration;
 import kr.pe.sinnori.common.exception.BuildSystemException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.util.SequencedProperties;
-import kr.pe.sinnori.gui.message.builder.info.MessageInfoSAXParser;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,40 +37,27 @@ public class MainProjectBuildSystemState {
 
 		updateInformationBasedOnBuildSystem();
 	}
-	
-	public MainProjectBuildSystemState(String newMainProjectName,
-			String sinnoriInstalledPathString, boolean isServer,
-			boolean isAppClient, 
-			boolean isWebClient, String servletSystemLibrayPathString, 
-			MessageInfoSAXParser messageInfoSAXParser)
+
+	private void updateInformationBasedOnBuildSystem()
 			throws BuildSystemException {
-		this.mainProjectName = newMainProjectName;
-		this.sinnoriInstalledPathString = sinnoriInstalledPathString;
-		
-		BuildSystemSupporter.createNewMainProjectBuildSystem(
-				newMainProjectName, sinnoriInstalledPathString,
-				isServer, isAppClient, isWebClient, 
-				servletSystemLibrayPathString,
-				messageInfoSAXParser);
-
-		updateInformationBasedOnBuildSystem();
-	}
-
-	public void updateInformationBasedOnBuildSystem()
-			throws BuildSystemException {		
+		/** Is 'ant built-in properties'(=ant.properties) file valid? */
 		BuildSystemSupporter.checkAntBuiltInPropertiesFile(mainProjectName, sinnoriInstalledPathString);
 
+		/** check validation of server build system */
 		BuildSystemSupporter.checkServerBuildSystemConfigFile(mainProjectName,
 				sinnoriInstalledPathString);
 
+		/** if application client exist then check validation of application client build system */
 		boolean isAppClientOfProjectBuildSystem = BuildSystemSupporter
 				.getIsAppClientAfterCheckingAppClientBuildSystemConfigFile(
 						mainProjectName, sinnoriInstalledPathString);
 		
+		/** if web application client exist then check validation of web application client build system */
 		boolean isWebClientOfProjectBuildSystem = BuildSystemSupporter
 				.getIsWebClientAfterCheckingWebClientBuildSystemConfigFile(
 						mainProjectName, sinnoriInstalledPathString);
 		
+		/** if web root exist then check validation of web root */
 		boolean isWebRootOfProjectBuildSystem = BuildSystemSupporter
 				.getIsWebRootAfterCheckingWebClientBuildSystemConfigFile(mainProjectName, sinnoriInstalledPathString);
 
@@ -113,12 +99,10 @@ public class MainProjectBuildSystemState {
 		}
 		
 		AllDBCPPartConfiguration allDBCPPartConfiguration = sinnoriConfiguration.getAllDBCPPart();
-		// CommonPartConfiguration commonPartConfiguration = sinnoriConfiguration.getCommonPart();
 		AllSubProjectPartConfiguration allSubProjectPartConfiguration = sinnoriConfiguration.getAllSubProjectPart();
 		
 		dbcpNameList = allDBCPPartConfiguration.getDBCPNameList();
-		subProjectNameList = allSubProjectPartConfiguration.getSubProjectNamelist();
-	
+		subProjectNameList = allSubProjectPartConfiguration.getSubProjectNamelist();	
 		
 		sinnoriConfigurationSequencedPropties =
 		sinnoriConfiguration.getSinnoriConfigurationSequencedPropties();		

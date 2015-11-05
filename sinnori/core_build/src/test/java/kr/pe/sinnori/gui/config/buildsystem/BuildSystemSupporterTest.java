@@ -80,13 +80,20 @@ public class BuildSystemSupporterTest {
 		
 		
 		boolean isServer = true;
+		String jvmOptionsOfServer = "";
+		
 		boolean isAppClient = true;
+		String jvmOptionsOfAppClient = "";
+		
 		boolean isWebClient = true;
 		String servletSystemLibrayPathString = "D:\\apache-tomcat-7.0.57\\lib";
 		
 		try {
-			BuildSystemSupporter.createNewMainProjectBuildSystem(projectNameForTest, sinnoriInstalledPathString,
-					isServer, isAppClient, isWebClient, servletSystemLibrayPathString, messageInfoSAXParser);
+			BuildSystemSupporter.createNewMainProjectBuildSystem(projectNameForTest, 
+					sinnoriInstalledPathString,
+					isServer, jvmOptionsOfServer,
+					isAppClient, jvmOptionsOfAppClient,
+					isWebClient, servletSystemLibrayPathString, messageInfoSAXParser);
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 			fail(e.getMessage());

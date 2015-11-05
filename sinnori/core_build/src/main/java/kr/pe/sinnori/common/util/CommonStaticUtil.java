@@ -47,12 +47,13 @@ public abstract class CommonStaticUtil {
 	}
 	
 	/**
-	 * 지정한 칼럼수 단위로 개행문자를 추가한 문자열 즉 지정한 칼럼수를 갖는 문자열을 반환한다.
+	 * 지정한 칼럼수 단위로 지정한 방식에 맞는 구분 문자열을 추가한 문자열을 반환한다.
 	 * @param sourceString 변환을 원하는 문자열
-	 * @param wantedColumnSize 지정한 칼럼수
-	 * @return 지정한 칼럼수 단위로 개행문자를 추가한 문자열, 즉 지정한 칼럼수를 갖는 문자열
+	 * @param sliptStringGubun 지정한 칼럼 마다 삽입을 원하는 문자열 구분, BR: <br/>, NEWLINE: newline
+	 * @param wantedColumnSize 원하는 문자열 가로 칼럼수
+	 * @return 지정한 칼럼수 단위로 지정한 방식에 맞는 구분 문자열을 추가한 문자열
 	 */
-	public static String convertToNewLineSplitString(String sourceString, CommonType.SPLIT_STRING_GUBUN sliptStringGubun, int wantedColumnSize) {
+	public static String splitString(String sourceString, CommonType.SPLIT_STRING_GUBUN sliptStringGubun, int wantedColumnSize) {
 		if (null == sourceString) {
 			throw new IllegalArgumentException("the paramter sourceString is null");
 		}
@@ -94,7 +95,7 @@ public abstract class CommonStaticUtil {
 	
 	public static String getMultiLineToolTip(String message, int colSize) {
 		String tooltip = new StringBuilder("<html>")
-		.append(CommonStaticUtil.convertToNewLineSplitString(message, CommonType.SPLIT_STRING_GUBUN.BR, colSize))
+		.append(CommonStaticUtil.splitString(message, CommonType.SPLIT_STRING_GUBUN.BR, colSize))
 		.append("</html>").toString();
 		return tooltip;
 	}

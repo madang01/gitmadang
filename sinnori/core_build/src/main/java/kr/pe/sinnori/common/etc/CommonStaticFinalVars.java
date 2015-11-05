@@ -114,6 +114,9 @@ public abstract class CommonStaticFinalVars {
 	public static final String WEBCLIENT_CORE_JAR_SHORT_FILE_NAME_KEY = "webclient.core.jar";
 	public static final String WEBCLIENT_CORE_JAR_SHORT_FILE_NAME_VALUE = "SinnoriWebLib.jar";
 	/** webclient build system end */
+	
+	public static final String JVM_OPTIONS_OF_SERVER = "";
+	public static final String JVM_OPTIONS_OF_APP_CLIENT = "";
 	/*********** Sinnori Build System end **********/
 	
 	/** sinnori message information xml file's root tag */

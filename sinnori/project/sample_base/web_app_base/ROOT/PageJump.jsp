@@ -1,7 +1,6 @@
 <%@ page language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
-
-	final String arryTopMenuPage[][] =	{ 
+%><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
+final String arryTopMenuPage[][] =	{ 
 		{ "소개", null, "/menu/about.jsp"},
 		{ "시작하기", null, "/menu/stepbystep/main.jsp"},
 		{ "다운로드", null, "/menu/download/main.jsp"},
@@ -39,9 +38,7 @@
 		}
 	}
 
-	String userID = (String)session.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_USERID_NAME);
-	
-%><!DOCTYPE html>
+	String userID = (String)session.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_USERID_NAME);%><!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />

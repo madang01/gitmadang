@@ -478,7 +478,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 			errorMessageBuilder.append("]");
 			
 			String errorMessage = errorMessageBuilder.toString();
-			log.info(errorMessage);
+			log.info(errorMessage, e);
 			throw new BodyFormatException(errorMessage);
 		} catch(BufferOverflowException e) {
 			StringBuffer errorMessageBuilder = new StringBuffer("BufferOverflowException::");
@@ -498,7 +498,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 			errorMessageBuilder.append("]");
 			
 			String errorMessage = errorMessageBuilder.toString();
-			log.info(errorMessage);
+			log.info(errorMessage, e);
 			throw new BodyFormatException(errorMessage);
 		} catch(NoMoreDataPacketBufferException e) {
 			StringBuffer errorMessageBuilder = new StringBuffer("NoMoreDataPacketBufferException::");
@@ -518,7 +518,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 			errorMessageBuilder.append("]");
 			
 			String errorMessage = errorMessageBuilder.toString();
-			log.warn(errorMessage);
+			log.warn(errorMessage, e);
 			throw new NoMoreDataPacketBufferException(errorMessage);
 		} catch(OutOfMemoryError e) {
 			throw e;
@@ -526,7 +526,6 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 			StringBuffer errorMessageBuilder = new StringBuffer("알수없는에러::");
 			errorMessageBuilder.append(path);
 			errorMessageBuilder.append("={itemName=[");
-			errorMessageBuilder.append("], itemName=[");
 			errorMessageBuilder.append(itemName);
 			errorMessageBuilder.append("], itemType=[");
 			errorMessageBuilder.append(itemTypeName);
@@ -541,7 +540,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 			errorMessageBuilder.append("]");
 			
 			String errorMessage = errorMessageBuilder.toString();
-			log.warn(errorMessage);
+			log.warn(errorMessage, e);
 			throw new BodyFormatException(errorMessage);
 		}
 	}

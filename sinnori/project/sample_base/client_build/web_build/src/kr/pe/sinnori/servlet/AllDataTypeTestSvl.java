@@ -25,9 +25,9 @@ import javax.servlet.http.HttpServletResponse;
 import kr.pe.sinnori.client.ClientProject;
 import kr.pe.sinnori.client.ClientProjectManager;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.weblib.AbstractServlet;
 import kr.pe.sinnori.impl.message.AllDataType.AllDataType;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
+import kr.pe.sinnori.weblib.jdf.AbstractServlet;
 
 /**
  * 모든 데이터 타입을 갖는 AllDataType 메시지 교환 테스트

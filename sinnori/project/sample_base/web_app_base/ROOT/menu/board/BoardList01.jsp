@@ -1,5 +1,6 @@
-<%@ page extends="kr.pe.sinnori.common.weblib.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
+<%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+%><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
+%><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
 %><%@ page import="kr.pe.sinnori.impl.message.BoardListOutDTO.BoardListOutDTO" %><%
 %><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
@@ -9,8 +10,7 @@
 %><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%
 %><jsp:include page="/common/crypto_common.jsp" flush="false">
 	<jsp:param name="modulusHex" value="<%=modulusHex%>" />
-</jsp:include><%
-%>
+</jsp:include>
 <style>
 <!--
 table {
@@ -159,30 +159,32 @@ tbody {
 	if (null != errorMessage && !errorMessage.equals("")) {
 %>
 <tr>
-	<td colspan="8"><%= errorMessage %></td>
+	<td colspan="8"><%=HtmlStringUtil.toHtml4BRString(errorMessage)%></td>
 </tr><%
 	} else {
 		java.util.List<BoardListOutDTO.Board> boardList = boardListOutDTO.getBoardList();
 
 		if (null == boardList) {
 %>
-	<td colspan="8">&nbsp;</td><%
+	<tr>
+	<td colspan="8">&nbsp;</td>
+	</tr><%
 		} else {
 
-			for (BoardListOutDTO.Board board : boardList) {
-				int depth = board.getDepth();
-%>
+		for (BoardListOutDTO.Board board : boardList) {
+			int depth = board.getDepth();
+	%>
 <tr>
-	<td><%=board.getBoardNo() %></td>
+	<td><%=board.getBoardNo()%></td>
 	<td align="left">&nbsp;&nbsp;<%
-	if (depth > 0) {
-		for (int i=0; i < depth; i++) {
-			out.print("&nbsp;&nbsp;&nbsp;&nbsp;");
+		if (depth > 0) {
+			for (int i=0; i < depth; i++) {
+		out.print("&nbsp;&nbsp;&nbsp;&nbsp;");
+			}
+			out.print("ㄴ");
 		}
-		out.print("ㄴ");
-	}
-%><a href="#" onClick="goDetail('<%=board.getBoardNo() %>')"><%=escapeHtml(board.getSubject(), WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER) %></a></td>
-	<td><%=escapeHtml(board.getNickname(), WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER) %></td>
+	%><a href="#" onClick="goDetail('<%=board.getBoardNo()%>')"><%=HtmlStringUtil.toHtml4BRString(board.getSubject())%></a></td>
+	<td><%=HtmlStringUtil.toHtml4BRString(board.getNickname())%></td>
 	<td><%=board.getViewCount() %></td>
 	<td><%=board.getVotes() %></td>
 	<td><%=board.getModifiedDate().toString() %></td>

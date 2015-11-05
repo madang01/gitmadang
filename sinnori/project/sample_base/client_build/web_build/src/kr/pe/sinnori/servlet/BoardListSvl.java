@@ -6,12 +6,12 @@ import javax.servlet.http.HttpServletResponse;
 import kr.pe.sinnori.client.ClientProject;
 import kr.pe.sinnori.client.ClientProjectManager;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.weblib.AbstractServlet;
-import kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars;
 import kr.pe.sinnori.impl.message.BoardListInDTO.BoardListInDTO;
 import kr.pe.sinnori.impl.message.BoardListOutDTO.BoardListOutDTO;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
+import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
+import kr.pe.sinnori.weblib.jdf.AbstractServlet;
 
 @SuppressWarnings("serial")
 public class BoardListSvl extends AbstractServlet {

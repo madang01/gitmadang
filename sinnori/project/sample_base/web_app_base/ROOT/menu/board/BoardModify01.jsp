@@ -1,5 +1,6 @@
-<%@ page extends="kr.pe.sinnori.common.weblib.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
+<%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+%><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%	
+%><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
 %><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="modulusHex" class="java.lang.String" scope="request" /><%
@@ -20,13 +21,13 @@
 		<li>
 			<dl>
 				<dt>에러</dt>
-				<dd><%=escapeHtml(errorMessage, WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER)%></dd>
+				<dd><%=HtmlStringUtil.toHtml4BRString(errorMessage)%></dd>
 			</dl>
 		</li>
 		</ul>		
 	</div><%
-	} else {
-%>
+				} else {
+			%>
 <script type="text/javascript">
 	function save() {
 		if(typeof(sessionStorage) == "undefined") {
@@ -212,35 +213,27 @@
 		}		
 	}
 	
-	function init() {<%
-		java.util.List<kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO.AttachFile> attachFileList = boardDetailOutDTO.getAttachFileList();
-		if (attachFileList.size() > 0) {
-%>
-		boardUploadFileOutDTO = {isError:false, attachId:<%= boardDetailOutDTO.getAttachId() %>, oldAttachFileList : [<%
-			for (kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO.AttachFile attachFile : attachFileList) {
+	function init() {<%java.util.List<kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO.AttachFile> attachFileList = boardDetailOutDTO.getAttachFileList();
+		if (attachFileList.size() > 0) {%>
+		boardUploadFileOutDTO = {isError:false, attachId:<%=boardDetailOutDTO.getAttachId()%>, oldAttachFileList : [<%for (kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO.AttachFile attachFile : attachFileList) {
 				out.print("{");
 				out.print("attachSeq:");
 				out.print(attachFile.getAttachSeq());
 				out.print(", attachFileName:");
 				out.print("\"");
-				out.print(escapeScript(attachFile.getAttachFileName()));
+				out.print(HtmlStringUtil.toScriptString(attachFile.getAttachFileName()));
 				out.print("\"");
 				out.print("}, ");
-			}
-%>]};
+			}%>]};
 		removeAllOldAttachFiles();
 		removeAllNewAttachFiles();
 		addNewAttachFile();
 		var d = document.getElementById('oldFileMenuDiv');
 		d.style.visibility = "visible";
-		restoreOldFiles();<%
-		} else {
-%>
+		restoreOldFiles();<%} else {%>
 	removeAllOldAttachFiles();
 	removeAllNewAttachFiles();
-	addNewAttachFile();<%
-		}
-%>
+	addNewAttachFile();<%}%>
 	}
 
 	window.onload=init;
@@ -267,13 +260,13 @@
 		<li>
 			<dl>
 				<dt>제목</dt>
-				<dd><input type="text" name="subject" size="50" value="<%=escapeHtml(boardDetailOutDTO.getSubject())%>" /></dd>
+				<dd><input type="text" name="subject" size="50" value="<%=HtmlStringUtil.toHtml4BRString(boardDetailOutDTO.getSubject())%>" /></dd>
 			</dl>
 		</li>
 		<li>
 			<dl>
 				<dt>내용</dt>
-				<dd><textarea name="content" style="width: 500px; height: 220px;"><%=escapeHtml(boardDetailOutDTO.getContent())%></textarea></dd>
+				<dd><textarea name="content" style="width: 500px; height: 220px;"><%=HtmlStringUtil.toHtml4String(boardDetailOutDTO.getContent())%></textarea></dd>
 			</dl>
 		</li>
 		<li>

@@ -1,4 +1,4 @@
-package kr.pe.sinnori.common.weblib;
+package kr.pe.sinnori.weblib.common;
 
 public class WebCommonType {
 	

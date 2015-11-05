@@ -14,7 +14,7 @@
  * @author  WonYoung Lee, wyounglee@lgeds.lg.co.kr.
  */
 
-package kr.pe.sinnori.common.weblib;
+package kr.pe.sinnori.weblib.jdf;
 
 import java.io.IOException;
 
@@ -26,6 +26,8 @@ import javax.servlet.http.HttpServletResponse;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.part.CommonPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
+import kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil;
 
 /**
  * <pre>
@@ -363,7 +365,7 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 					out.print(WebCommonStaticFinalVars.WEBSITE_TITLE);
 					out.print("</title>");
 					out.println("</head><body bgcolor=white>");
-					out.println(escapeHtml(debugMessage, WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER));
+					out.println(HtmlStringUtil.toHtml4BRString(debugMessage));
 					out.println("</body></html>");				
 				} finally {
 					try {
@@ -440,7 +442,7 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 					out.print(WebCommonStaticFinalVars.WEBSITE_TITLE);
 					out.print("</title>");
 					out.println("</head><body bgcolor=white>");
-					out.println(escapeHtml(debugMessage, WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER));
+					out.println(HtmlStringUtil.toHtml4BRString(debugMessage));
 					out.println("</body></html>");				
 				} finally {
 					try {

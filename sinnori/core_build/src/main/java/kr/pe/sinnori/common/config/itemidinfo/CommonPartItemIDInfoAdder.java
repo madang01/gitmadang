@@ -45,7 +45,7 @@ public abstract class CommonPartItemIDInfoAdder {
 			itemIDInfo = new ItemIDInfo<String>(
 					ItemIDInfo.ConfigurationPart.COMMON,
 					ItemIDInfo.ViewType.TEXT, itemID, "로그인 처리 jsp",
-					"/login.jsp", isDefaultValueCheck,
+					"/menu/member/login.jsp", isDefaultValueCheck,
 					new GeneralConverterReturningNoTrimString());
 			commonPartItemIDInfoManger.addCommonPartItemIDInfo(itemIDInfo);
 

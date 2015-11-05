@@ -430,8 +430,11 @@ public abstract class BuildSystemSupporter {
 	public static void createNewMainProjectBuildSystem(
 			String newMainProjectName, String sinnoriInstalledPathString,
 			boolean isServer,
+			String jvmOptionsOfServer,
 			boolean isAppClient, 
-			boolean isWebClient, String servletSystemLibraryPathString, MessageInfoSAXParser messageInfoSAXParser)
+			String jvmOptionsOfAppClient,
+			boolean isWebClient, String servletSystemLibraryPathString, 
+			MessageInfoSAXParser messageInfoSAXParser)
 			throws IllegalArgumentException, BuildSystemException {
 		
 		String childDirectories[] = { "config", "impl/message/info",
@@ -502,16 +505,16 @@ public abstract class BuildSystemSupporter {
 
 		if (isServer) {
 			createSeverBuildSystem(newMainProjectName,
-					sinnoriInstalledPathString, messageInfoSAXParser);
+					sinnoriInstalledPathString, jvmOptionsOfServer, messageInfoSAXParser);
 		}
 		if (isAppClient) {
 			createAppClientBuildSystem(newMainProjectName,
-					sinnoriInstalledPathString, messageInfoSAXParser);
+					sinnoriInstalledPathString, jvmOptionsOfAppClient, messageInfoSAXParser);
 		}
 		
 		if (isWebClient) {
 			createWebClientBuildSystem(newMainProjectName,
-					sinnoriInstalledPathString);
+					sinnoriInstalledPathString, messageInfoSAXParser);
 			
 			createWebRootEnvironment(newMainProjectName,
 					sinnoriInstalledPathString);
@@ -623,9 +626,117 @@ public abstract class BuildSystemSupporter {
 		
 		log.info("{} file[{}] was created successfully", title, filePathString);
 	}
+	
+	private static MessageInfo getEchoMessageInfo(String mainProjectName,
+			String sinnoriInstalledPathString,
+			MessageInfoSAXParser messageInfoSAXParser) throws BuildSystemException {
+		String messageID = "Echo";
+		
+		String echoMessageInfoFilePathString = new StringBuilder(
+				BuildSystemPathSupporter.getMessageInfoPathString(mainProjectName,
+						sinnoriInstalledPathString))
+		.append(File.separator)
+		.append(messageID).append(".xml").toString();
+		File echoMessageInfoFile = new File(echoMessageInfoFilePathString);
+		
+		
+		MessageInfo echoMessageInfo = null;
+		try {
+			messageInfoSAXParser.parse(echoMessageInfoFile, true);
+		} catch (IllegalArgumentException | SAXException | IOException e) {
+			String errorMessage = new StringBuilder("fail to parse sinnori message information xml file[")
+			.append(echoMessageInfoFile.getAbsolutePath()).append("]").toString();
+			log.warn(errorMessage, e);
+			throw new BuildSystemException(new StringBuilder(errorMessage)
+			.append(", errormessage=").append(e.getMessage()).toString());
+		}
+		return echoMessageInfo;
+	}
+	
+	private static void createEchoMessageProcessFiles(
+			String buildPathString,
+			String mainProjectName,
+			String sinnoriInstalledPathString,			
+			MessageInfoSAXParser messageInfoSAXParser) throws BuildSystemException {
+		String messageID = "Echo";
+		String author = "Won Jonghoon";
+		
+		String sourceFileBasePathString = new StringBuilder(
+				buildPathString).append(File.separator).append("src")
+				.append(File.separator).append("main")
+				.append(File.separator).append("java").toString();		
+		
+		String implBasePath = new StringBuilder(sourceFileBasePathString)
+				.append(File.separator).append("kr").append(File.separator)
+				.append("pe").append(File.separator).append("sinnori")
+				.append(File.separator).append("impl").toString();
+		
+		String messagePathString = new StringBuilder(implBasePath).append(File.separator)
+				.append("message").toString();
+		
+		MessageInfo echoMessageInfo = getEchoMessageInfo(mainProjectName, sinnoriInstalledPathString, messageInfoSAXParser);
+		
+		MessageProcessFileContentsManager messageProcessFileContentsManager 
+		= MessageProcessFileContentsManager.getInstance();		
+			
+	/** kr/pe/sinnori/message/Echo/Echo.java */
+	String echoMessageFileContnets = messageProcessFileContentsManager.getMessageSourceFileContents(messageID, author, echoMessageInfo);
+	String echoMessageFilePathString = new StringBuilder(messagePathString)		
+			.append(File.separator).append(messageID).append(File.separator)
+			.append(messageID)
+			.append(".java").toString();		
+	createUTF8File("echo message file",
+			echoMessageFileContnets,
+			echoMessageFilePathString);
+	
+	/** kr/pe/sinnori/impl/message/Echo/EchoDecoder.java */
+	String echoDecoderFileContnets = messageProcessFileContentsManager.getDecoderSourceFileContents(messageID, author, echoMessageInfo);
+	String echoDecoderFilePathString = new StringBuilder(messagePathString)		
+			.append(File.separator).append(messageID).append(File.separator)
+			.append(messageID)
+			.append("Decoder.java").toString();		
+	createUTF8File("echo decoder file", echoDecoderFileContnets, echoDecoderFilePathString);
+	
+	/** kr/pe/sinnori/impl/message/Echo/EchoEncoder.java */
+	String echoEncoderFileContnets = messageProcessFileContentsManager.getEncoderSourceFileContents(messageID, author, echoMessageInfo);
+	String echoEncoderFilePathString = new StringBuilder(messagePathString)		
+			.append(File.separator).append(messageID).append(File.separator)
+			.append(messageID)
+			.append("Encoder.java").toString();		
+	createUTF8File("echo encoder file",  echoEncoderFileContnets, echoEncoderFilePathString);
+	
+	/** kr/pe/sinnori/impl/message/Echo/EchoServerCodec.java */
+	String echoServerCodecFileContnets = messageProcessFileContentsManager
+			.getServerCodecSourceFileContents(CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL
+					, messageID, author);		
+	String echoServerCodecFilePathString = new StringBuilder(messagePathString)
+	.append(File.separator).append(messageID).append(File.separator)
+			.append(messageID)
+			.append("ServerCodec.java").toString();
+	
+	createUTF8File("echo server codec file",
+			echoServerCodecFileContnets,
+			echoServerCodecFilePathString);
+	
+	/** kr/pe/sinnori/impl/message/Echo/EchoClientCodec.java */
+	String clientCodecFileContnets = messageProcessFileContentsManager
+			.getClientCodecSourceFileContents(CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL
+					, messageID, author);
+	
+	String clientCodecFilePathString = new StringBuilder(messagePathString)
+	.append(File.separator).append(messageID).append(File.separator)				
+			.append(messageID)
+			.append("ClientCodec.java").toString();
+	
+	createUTF8File("echo client codec file",
+			clientCodecFileContnets,
+			clientCodecFilePathString);
+	}
 
+	
 	private static void createSeverBuildSystem(String newMainProjectName,
-			String sinnoriInstalledPathString, MessageInfoSAXParser messageInfoSAXParser) throws BuildSystemException {
+			String sinnoriInstalledPathString, String jvmOptions, 
+			MessageInfoSAXParser messageInfoSAXParser) throws BuildSystemException {
 		
 		String serverBuildPathString = BuildSystemPathSupporter.getServerBuildPathString(newMainProjectName,
 				sinnoriInstalledPathString);
@@ -666,11 +777,11 @@ public abstract class BuildSystemSupporter {
 			throw new BuildSystemException(errorMessage);
 		}
 		
-		String childDirectories[] = { "src", "src/main",
-				"src/kr/pe/sinnori/common/serverlib",
-				"src/kr/pe/sinnori/impl/message",
-				"src/kr/pe/sinnori/impl/server/mybatis",
-				"src/kr/pe/sinnori/impl/servertask", "APP-INF/lib",
+		String childDirectories[] = { "src/test/java",
+				"src/main/java/kr/pe/sinnori/common/serverlib",
+				"src/main/java/kr/pe/sinnori/impl/message",
+				"src/main/java/kr/pe/sinnori/impl/server/mybatis",
+				"src/main/java/kr/pe/sinnori/impl/servertask", "APP-INF/lib",
 				"APP-INF/resources", "APP-INF/classes" };
 		createChildDirectoriesOfBasePath(serverBuildPathString,
 				childDirectories);
@@ -692,7 +803,9 @@ public abstract class BuildSystemSupporter {
 				.append(CommonStaticFinalVars.SERVER_EXECUTABLE_JAR_SHORT_FILE_NAME_VALUE)
 				.toString();
 
-		/** Server.bat */
+		
+		
+		/** Server.bat */		
 		String dosShellFilePathString = new StringBuilder(serverBuildPathString)
 				.append(File.separator).append(newMainProjectName)
 				.append("Server.bat").toString();
@@ -702,14 +815,14 @@ public abstract class BuildSystemSupporter {
 						newMainProjectName,
 						sinnoriInstalledPathString,
 
-						"-Xmx1024m -Xms1024m", "server", serverBuildPathString,
+						jvmOptions, "server", serverBuildPathString,
 						relativeExecutabeJarFileName,
 
 						CommonStaticFinalVars.SINNORI_LOGBACK_LOG_FILE_NAME,
 						CommonStaticFinalVars.SINNORI_CONFIG_FILE_NAME),
 				dosShellFilePathString);
 
-		/** Server.sh */
+		/** Server.sh, jvmOptions -Xmx1024m -Xms1024m  */
 		String unixShellFilePathString = new StringBuilder(
 				serverBuildPathString).append(File.separator)
 				.append(newMainProjectName).append("Server.sh").toString();
@@ -718,22 +831,25 @@ public abstract class BuildSystemSupporter {
 						newMainProjectName,
 						sinnoriInstalledPathString,
 
-						"-Xmx1024m -Xms1024m", "server", serverBuildPathString,
+						jvmOptions, "server", serverBuildPathString,
 						relativeExecutabeJarFileName),
 				unixShellFilePathString);
-
 		
-
+		/** source file base path : server_build/src/main/java */
+		String sourceFileBasePathString = new StringBuilder(
+				serverBuildPathString).append(File.separator).append("src")
+				.append(File.separator).append("main")
+				.append(File.separator).append("java").toString();
+		
 		/**
-		 * create source file having DEFAULT_SERVER_MAIN_CLASS_NAME ex)
-		 * server_build/src/main/SinnoriServerMain.java
+		 * create java source file running server. 
+		 * server_build/src/main/java/main/SinnoriServerMain.java
 		 */
-		String serverMainSrcFilePathString = null;
+		String serverMainSrcFilePathString = null;		
 		if (File.separator.equals("/")) {
 			String subStr = CommonStaticFinalVars.SERVER_MAIN_CLASS_FULL_NAME_VALUE
 					.replaceAll("\\.", "/");
-			serverMainSrcFilePathString = new StringBuilder(
-					serverBuildPathString).append(File.separator).append("src")
+			serverMainSrcFilePathString = new StringBuilder(sourceFileBasePathString)
 					.append(File.separator).append(subStr).append(".java")
 					.toString();
 
@@ -743,134 +859,45 @@ public abstract class BuildSystemSupporter {
 			String subStr = CommonStaticFinalVars.SERVER_MAIN_CLASS_FULL_NAME_VALUE
 					.replaceAll("\\.", "\\\\");
 
-			serverMainSrcFilePathString = new StringBuilder(
-					serverBuildPathString).append(File.separator).append("src")
+			serverMainSrcFilePathString = new StringBuilder(sourceFileBasePathString)
 					.append(File.separator).append(subStr).append(".java")
 					.toString();
 
 			// log.info("subStr=[{}], serverMainSrcFilePathString=[{}]", subStr,
 			// serverMainSrcFilePathString);
 		}
-
-		/** server_build/src/main/SinnoriServerMain.java */
 		createUTF8File(
-				"main class source of server",
+				"java source file running server",
 				BuildSystemFileContents
 						.getDefaultServerMainClassContents(CommonStaticFinalVars.SERVER_MAIN_CLASS_FULL_NAME_VALUE),
 				serverMainSrcFilePathString);
 
-		String messageID = "Echo";
-		String author = "Won Jonghoon";
-		String echoMessageInfoFilePathString = new StringBuilder(
-				BuildSystemPathSupporter.getMessageInfoPathString(newMainProjectName,
-						sinnoriInstalledPathString))
-		.append(File.separator)
-		.append(messageID).append(".xml").toString();
-		File echoMessageInfoFile = new File(echoMessageInfoFilePathString);
+		/** create Echo message process files */
+		createEchoMessageProcessFiles(serverBuildPathString,
+				newMainProjectName,
+				sinnoriInstalledPathString, 
+				messageInfoSAXParser);
 		
-		
-		MessageInfo echoMessageInfo = null;
-		try {
-			echoMessageInfo = messageInfoSAXParser.parse(echoMessageInfoFile, true);
-		} catch (IllegalArgumentException | SAXException | IOException e) {
-			String errorMessage = new StringBuilder("fail to parse sinnori message information xml file[")
-			.append(echoMessageInfoFile.getAbsolutePath()).append("]").toString();
-			log.warn(errorMessage, e);
-			throw new BuildSystemException(new StringBuilder(errorMessage)
-			.append(", errormessage=").append(e.getMessage()).toString());
-		}
-		
-		String serverImplBasePath = new StringBuilder(
-				serverBuildPathString).append(File.separator).append("src")
-				.append(File.separator).append("kr").append(File.separator)
-				.append("pe").append(File.separator).append("sinnori")
-				.append(File.separator).append("impl").toString();
-		
-		String serverMessagePathString = new StringBuilder(serverImplBasePath).append(File.separator)
-				.append("message").toString();
-		
-		MessageProcessFileContentsManager messageProcessFileContentsManager 
-			= MessageProcessFileContentsManager.getInstance();		
-		
-		/** server_build/src/kr/pe/sinnori/impl/message/Echo/Echo.java */		
-		String echoMessageFileContnets = messageProcessFileContentsManager.getMessageSourceFileContents(messageID, author, echoMessageInfo);
-		
-		String echoMessageFilePathString = new StringBuilder(serverMessagePathString)		
-				.append(File.separator).append(messageID).append(File.separator)
-				.append(messageID)
-				.append(".java").toString();
-		
-		createUTF8File("echo message file",
-				echoMessageFileContnets,
-				echoMessageFilePathString);
-		
-		/** server_build/src/kr/pe/sinnori/impl/message/Echo/EchoDecoder.java */
-		String decoderFileContnets = messageProcessFileContentsManager.getDecoderSourceFileContents(messageID, author, echoMessageInfo);
-		
-		String decoderFilePathString = new StringBuilder(serverMessagePathString)		
-				.append(File.separator).append(messageID).append(File.separator)
-				.append(messageID)
-				.append("Decoder.java").toString();
-		
-		createUTF8File("echo decoder file",
-				decoderFileContnets,
-				decoderFilePathString);
-		
-		/** server_build/src/kr/pe/sinnori/impl/message/Echo/EchoEncoder.java */
-		String encoderFileContnets = messageProcessFileContentsManager.getEncoderSourceFileContents(messageID, author, echoMessageInfo);
-		
-		String encoderFilePathString = new StringBuilder(serverMessagePathString)		
-				.append(File.separator).append(messageID).append(File.separator)
-				.append(messageID)
-				.append("Encoder.java").toString();
-		
-		createUTF8File("echo encoder file",
-				encoderFileContnets,
-				encoderFilePathString);
-		
-		/** server_build/src/kr/pe/sinnori/impl/message/Echo/EchoServerCodec.java */
-		String serverCodecFileContnets = messageProcessFileContentsManager
-				.getServerCodecSourceFileContents(CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL
-						, messageID, author);
-		
-		String serverCodecFilePathString = new StringBuilder(serverMessagePathString)
-		.append(File.separator).append(messageID).append(File.separator)
-				.append(messageID)
-				.append("ServerCodec.java").toString();
-		
-		createUTF8File("echo encoder file",
-				serverCodecFileContnets,
-				serverCodecFilePathString);
-		
-		/** server_build/src/kr/pe/sinnori/impl/message/Echo/EchoClientCodec.java */
-		String clientCodecFileContnets = messageProcessFileContentsManager
-				.getClientCodecSourceFileContents(CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL
-						, messageID, author);
-		
-		String clientCodecFilePathString = new StringBuilder(serverMessagePathString)
-		.append(File.separator).append(messageID).append(File.separator)				
-				.append(messageID)
-				.append("ClientCodec.java").toString();
-		
-		createUTF8File("echo encoder file",
-				clientCodecFileContnets,
-				clientCodecFilePathString);
-		
-		/** server_build/src/kr/pe/sinnori/impl/servertask/EchoServerTask.java */
-		String echoServerTaskSrcFilePathString = new StringBuilder(serverImplBasePath)
+		/** server_build/src/main/java/kr/pe/sinnori/impl/servertask/EchoServerTask.java */			
+		String echoServerTaskSrcFilePathString = new StringBuilder(sourceFileBasePathString)
+		.append(File.separator).append("kr").append(File.separator)
+		.append("pe").append(File.separator).append("sinnori")
+		.append(File.separator).append("impl")
 			.append(File.separator)
 				.append("servertask").append(File.separator)
-				.append(messageID)
+				.append("Echo")
 				.append("ServerTask.java").toString();
 
 		createUTF8File("echo server task source file",
 				BuildSystemFileContents.getEchoServerTaskContents(),
 				echoServerTaskSrcFilePathString);
 	}
+	
+	
 
 	// FIXME!
 	public static void createWebClientBuildSystem(String newMainProjectName,
-			String sinnoriInstalledPathString) throws BuildSystemException {
+			String sinnoriInstalledPathString, MessageInfoSAXParser messageInfoSAXParser) throws BuildSystemException {
 		String webClientBuildPathString = BuildSystemPathSupporter.getWebClientBuildPathString(
 				newMainProjectName, sinnoriInstalledPathString);
 		File webClientBuildPath = new File(webClientBuildPathString);
@@ -908,20 +935,49 @@ public abstract class BuildSystemSupporter {
 			throw new BuildSystemException(errorMessage);
 		}
 
+		String childDirectories[] = { "src/test/java", 
+				"src/main/java/kr/pe/sinnori/impl/javabeans",
+				"src/main/java/kr/pe/sinnori/impl/message", 
+				"src/main/java/kr/pe/sinnori/servlet",
+				"src/main/java/kr/pe/sinnori/weblib/common",
+				"src/main/java/kr/pe/sinnori/weblib/jdf",
+				"src/main/java/kr/pe/sinnori/weblib/htmlstring"};
+		createChildDirectoriesOfBasePath(webClientBuildPathString,
+				childDirectories);
+		
+		/** build.xml */
 		String webClientBuildSystemFilePathString = BuildSystemPathSupporter.getWebClientBuildSystemConfigFilePathString(
 				newMainProjectName, sinnoriInstalledPathString);
-
 		String webClientBuildXMLFileConents = BuildSystemFileContents
 				.getWebClientAntBuildXMLFileContents(newMainProjectName);
 		createUTF8File("web client build.xml",
 				webClientBuildXMLFileConents,
 				webClientBuildSystemFilePathString);
+		
+		/** create Echo message process files */
+		createEchoMessageProcessFiles(webClientBuildPathString,
+				newMainProjectName, sinnoriInstalledPathString, 
+				messageInfoSAXParser);
+		
+		String sourceFileBasePathString = new StringBuilder(
+				webClientBuildPathString).append(File.separator).append("src")
+				.append(File.separator).append("main")
+				.append(File.separator).append("java").toString();	
+		
+		/** kr/pe/sinnori/servlet/EchoTestSvl.java */
+		String echoServletSrcFilePathString = new StringBuilder(sourceFileBasePathString)
+		.append(File.separator).append("kr").append(File.separator)
+		.append("pe").append(File.separator).append("sinnori")
+		.append(File.separator).append("servlet")
+		.append(File.separator)
+				.append("EchoTestSvl.java").toString();
 
-		String childDirectories[] = { "src" };
-		createChildDirectoriesOfBasePath(webClientBuildPathString,
-				childDirectories);
+		createUTF8File("echo server task source file",
+				BuildSystemFileContents.getEchoServerTaskContents555(),
+				echoServletSrcFilePathString);
 	}
 	
+	// FIXME!
 	public static void createWebRootEnvironment(String newMainProjectName,
 			String sinnoriInstalledPathString) throws BuildSystemException {
 		// getWebAppBasePathString
@@ -937,7 +993,7 @@ public abstract class BuildSystemSupporter {
 			throw new BuildSystemException(errorMessage);
 		}
 		
-		// FIXME!		
+		
 		if (!webRootPath.isDirectory()) {
 			String errorMessage = String.format(
 					"the new web root path[%s] is not directory", webRootPathString);
@@ -966,7 +1022,8 @@ public abstract class BuildSystemSupporter {
 	
 
 	public static void createAppClientBuildSystem(String newMainProjectName,
-			String sinnoriInstalledPathString, MessageInfoSAXParser messageInfoSAXParser) throws BuildSystemException {
+			String sinnoriInstalledPathString, String jvmOptions, 
+			MessageInfoSAXParser messageInfoSAXParser) throws BuildSystemException {
 		
 		String appClientBuildPathString = BuildSystemPathSupporter.getAppClientBuildPathString(
 				newMainProjectName, sinnoriInstalledPathString);
@@ -1008,9 +1065,9 @@ public abstract class BuildSystemSupporter {
 		}	
 		
 		////////////////////////////////////////////////
-		String childDirectories[] = { "src", "src/main",
-				"src/kr/pe/sinnori/common/clientlib",
-				"src/kr/pe/sinnori/impl/message" };
+		String childDirectories[] = { "src/test/java", 
+				"src/main/java/kr/pe/sinnori/common/clientlib",
+				"src/main/java/kr/pe/sinnori/impl/message" };
 		createChildDirectoriesOfBasePath(appClientBuildPathString,
 				childDirectories);
 
@@ -1020,7 +1077,7 @@ public abstract class BuildSystemSupporter {
 		createUTF8File(
 				"client build.xml",
 				BuildSystemFileContents
-						.getServerAntBuildXMLFileContent(
+						.getAppClientAntBuildXMLFileContents(
 								newMainProjectName,
 								CommonStaticFinalVars.APPCLIENT_MAIN_CLASS_FULL_NAME_VALUE,
 								CommonStaticFinalVars.APPCLIENT_EXECUTABLE_JAR_SHORT_FILE_NAME_VALUE),
@@ -1041,7 +1098,7 @@ public abstract class BuildSystemSupporter {
 						newMainProjectName,
 						sinnoriInstalledPathString,
 
-						"-Xmx1024m -Xms1024m", "client", appClientBuildPathString,
+						jvmOptions, "client", appClientBuildPathString,
 						relativeExecutabeJarFileName,
 
 						CommonStaticFinalVars.SINNORI_LOGBACK_LOG_FILE_NAME,
@@ -1057,7 +1114,7 @@ public abstract class BuildSystemSupporter {
 						newMainProjectName,
 						sinnoriInstalledPathString,
 
-						"-Xmx1024m -Xms1024m", "client", appClientBuildPathString,
+						jvmOptions, "client", appClientBuildPathString,
 						relativeExecutabeJarFileName),
 				unixShellFilePathString);
 
@@ -1065,14 +1122,18 @@ public abstract class BuildSystemSupporter {
 
 		/**
 		 * create source file having DEFAULT_APPCLIENT_MAIN_CLASS_NAME ex)
-		 * clinet_build/src/main/SinnoriAppClientMain.java
+		 * clinet_build/src/main/java/main/SinnoriAppClientMain.java
 		 */
 		String appClientMainSrcFilePathString = null;
+		String sourceFileBasePathString = new StringBuilder(
+				appClientBuildPathString).append(File.separator).append("src")
+				.append(File.separator).append("main")
+				.append(File.separator).append("java").toString();
+		
 		if (File.separator.equals("/")) {
 			String subStr = CommonStaticFinalVars.APPCLIENT_MAIN_CLASS_FULL_NAME_VALUE
 					.replaceAll("\\.", "/");
-			appClientMainSrcFilePathString = new StringBuilder(
-					appClientBuildPathString).append(File.separator).append("src")
+			appClientMainSrcFilePathString = new StringBuilder(sourceFileBasePathString)
 					.append(File.separator).append(subStr).append(".java")
 					.toString();
 
@@ -1082,8 +1143,7 @@ public abstract class BuildSystemSupporter {
 			String subStr = CommonStaticFinalVars.APPCLIENT_MAIN_CLASS_FULL_NAME_VALUE
 					.replaceAll("\\.", "\\\\");
 
-			appClientMainSrcFilePathString = new StringBuilder(
-					appClientBuildPathString).append(File.separator).append("src")
+			appClientMainSrcFilePathString = new StringBuilder(sourceFileBasePathString)
 					.append(File.separator).append(subStr).append(".java")
 					.toString();
 
@@ -1095,106 +1155,14 @@ public abstract class BuildSystemSupporter {
 		createUTF8File(
 				"main class source of client",
 				BuildSystemFileContents
-						.getDefaultServerMainClassContents(CommonStaticFinalVars.APPCLIENT_MAIN_CLASS_FULL_NAME_VALUE),
+						.getDefaultAppClientMainClassContents(CommonStaticFinalVars.APPCLIENT_MAIN_CLASS_FULL_NAME_VALUE),
 				appClientMainSrcFilePathString);
 		
-		/////////////////////////////////////////////////
-		String messageID = "Echo";
-		String author = "Won Jonghoon";
-		String echoMessageInfoFilePathString = new StringBuilder(
-				BuildSystemPathSupporter.getMessageInfoPathString(newMainProjectName,
-						sinnoriInstalledPathString))
-		.append(File.separator)
-		.append(messageID).append(".xml").toString();
-		File echoMessageInfoFile = new File(echoMessageInfoFilePathString);
+		/** create Echo message process files */
+		createEchoMessageProcessFiles(appClientBuildPathString,
+				newMainProjectName, sinnoriInstalledPathString, 
+				messageInfoSAXParser);
 		
-		
-		MessageInfo echoMessageInfo = null;
-		try {
-			echoMessageInfo = messageInfoSAXParser.parse(echoMessageInfoFile, true);
-		} catch (IllegalArgumentException | SAXException | IOException e) {
-			String errorMessage = new StringBuilder("fail to parse sinnori message information xml file[")
-			.append(echoMessageInfoFile.getAbsolutePath()).append("]").toString();
-			log.warn(errorMessage, e);
-			throw new BuildSystemException(new StringBuilder(errorMessage)
-			.append(", errormessage=").append(e.getMessage()).toString());
-		}
-		
-		String appClientImplBasePath = new StringBuilder(
-				appClientBuildPathString).append(File.separator).append("src")
-				.append(File.separator).append("kr").append(File.separator)
-				.append("pe").append(File.separator).append("sinnori")
-				.append(File.separator).append("impl").toString();
-		
-		String appClientMessagePath = new StringBuilder(appClientImplBasePath).append(File.separator)
-				.append("message").toString();
-			
-		MessageProcessFileContentsManager messageProcessFileContentsManager 
-			= MessageProcessFileContentsManager.getInstance();		
-		
-		/** app_build/src/kr/pe/sinnori/impl/message/Echo/Echo.java */		
-		String echoMessageFileContnets = messageProcessFileContentsManager.getMessageSourceFileContents(messageID, author, echoMessageInfo);
-		
-		String echoMessageFilePathString = new StringBuilder(appClientMessagePath)
-		.append(File.separator).append(messageID).append(File.separator)
-				.append(messageID)
-				.append(".java").toString();
-		
-		createUTF8File("echo message file",
-				echoMessageFileContnets,
-				echoMessageFilePathString);
-		
-		/** app_build/src/kr/pe/sinnori/impl/message/Echo/EchoDecoder.java */
-		String decoderFileContnets = messageProcessFileContentsManager.getDecoderSourceFileContents(messageID, author, echoMessageInfo);
-		
-		String decoderFilePathString = new StringBuilder(appClientMessagePath)
-		.append(File.separator).append(messageID).append(File.separator)
-				.append(messageID)
-				.append("Decoder.java").toString();
-		
-		createUTF8File("echo decoder file",
-				decoderFileContnets,
-				decoderFilePathString);
-		
-		/** app_build/src/kr/pe/sinnori/impl/message/Echo/EchoEncoder.java */
-		String encoderFileContnets = messageProcessFileContentsManager.getEncoderSourceFileContents(messageID, author, echoMessageInfo);
-		
-		String encoderFilePathString = new StringBuilder(appClientMessagePath)
-		.append(File.separator).append(messageID).append(File.separator)
-				.append(messageID)
-				.append("Encoder.java").toString();
-		
-		createUTF8File("echo encoder file",
-				encoderFileContnets,
-				encoderFilePathString);
-		
-		/** app_build/src/kr/pe/sinnori/impl/message/Echo/EchoServerCodec.java */
-		String serverCodecFileContnets = messageProcessFileContentsManager
-				.getServerCodecSourceFileContents(CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL
-						, messageID, author);
-		
-		String serverCodecFilePathString = new StringBuilder(appClientMessagePath)
-		.append(File.separator).append(messageID).append(File.separator)
-				.append(messageID)
-				.append("ServerCodec.java").toString();
-		
-		createUTF8File("echo encoder file",
-				serverCodecFileContnets,
-				serverCodecFilePathString);
-		
-		/** app_build/src/kr/pe/sinnori/impl/message/Echo/EchoClientCodec.java */
-		String clientCodecFileContnets = messageProcessFileContentsManager
-				.getClientCodecSourceFileContents(CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL
-						, messageID, author);
-		
-		String clientCodecFilePathString = new StringBuilder(appClientMessagePath)
-		.append(File.separator).append(messageID).append(File.separator)
-				.append(messageID)
-				.append("ClientCodec.java").toString();
-		
-		createUTF8File("echo encoder file",
-				clientCodecFileContnets,
-				clientCodecFilePathString);
 	}
 
 	public static void removeProjectDirectory(String projectName,

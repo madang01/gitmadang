@@ -14,7 +14,7 @@
  * @author  WonYoung Lee, wyounglee@lgeds.lg.co.kr.
  */
 
-package kr.pe.sinnori.common.weblib;
+package kr.pe.sinnori.weblib.jdf;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

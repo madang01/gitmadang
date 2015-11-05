@@ -23,10 +23,10 @@ import kr.pe.sinnori.client.ClientProject;
 import kr.pe.sinnori.client.ClientProjectManager;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.weblib.AbstractAuthServlet;
 import kr.pe.sinnori.impl.message.BoardReplyRequest.BoardReplyRequest;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
+import kr.pe.sinnori.weblib.jdf.AbstractAuthServlet;
 
 /**
  * 게시판 댓글 등록 처리

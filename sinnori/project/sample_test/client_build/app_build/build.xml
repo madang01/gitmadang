@@ -1,35 +1,31 @@
-<project name="sample_test_server" default="compile.appinf" basedir=".">
+<project name="sample_test_appclient" default="make.main.only" basedir=".">
 	<!-- set global properties for this build -->
 	<property name="dir.src" location="src" />
 	<property name="dir.build" location="build" />
-	<property name="dir.appinf" location="APP-INF" />
 	<property name="dir.dist" location="dist" />
 	<property name="dir.corelib" location="corelib" />
 	<property name="dir.lib" location="lib" />
-	<property name="dir.core.build" location="../../../core_build" />
-	<property file="../ant.properties" />
-	<property name="server.main.class" value="main.SinnoriAppClientMain" />
-	<property name="server.main.jar" value="SinnoriAppClientRun.jar" />	
+	<property name="dir.core.build" location="../../../../core_build" />
+	<property file="../../ant.properties" />
+	<property name="appclient.main.class" value="main.SinnoriAppClientMain" />
+	<property name="appclient.main.jar" value="SinnoriAppClientRun.jar" />
 	<property name="java.complile.option.debug" value="on" />
-		
+	
 	<condition property="is.windows.yes">
 		<os family="windows" />
 	</condition>
 	<condition property="is.unix.yes">
 		<os family="unix" />
 	</condition>
-			
+	
+	
 	<target name="init.var">
-	  <!-- Create the time stamp -->
+		<!-- Create the time stamp -->
 		<tstamp />
 	  <echo message="java.complile.option.debug=${java.complile.option.debug}" />
 	  <echo message="is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}" />
-	  
-	  <!-- this server project lib directory -->
-		<mkdir dir="${dir.lib}/ex" />
-		<mkdir dir="${dir.lib}/in" />
 	</target>
-
+	
 	<target name="make.unixcore" if="is.unix.yes" depends="init.var">
 		<exec dir="${dir.core.build}" executable="ant" />
 	</target>
@@ -41,12 +37,11 @@
 		</exec>
 	</target>
 
-	<target name="make.core" depends="make.doscore, make.unixcore" />	
-	
-	
+	<target name="make.core" depends="make.doscore, make.unixcore" />
+
 	<target name="copy.core" depends="make.core">
 	  <!-- core directory -->
-		<delete dir="${dir.corelib}" />		
+		<delete dir="${dir.corelib}" />
 		<mkdir dir="${dir.corelib}/ex" />
 		<mkdir dir="${dir.corelib}/in" />
 		
@@ -57,37 +52,17 @@
 			<fileset dir="${dir.core.build}/lib/ex/" />
 		</copy>		
 	</target>
-	
-	<target name="copy.appinf" depends="copy.core">
-	  <!-- this server project dynamic classloader's resource directory -->
-		<delete dir="${dir.appinf}/classes" />
-		<mkdir dir="${dir.appinf}/classes" />
-		<mkdir dir="${dir.appinf}/lib" />
-		<mkdir dir="${dir.appinf}/resources" />
 		
-		<copy todir="${dir.appinf}/lib" verbose="true" overwrite="false">
-			<fileset dir="${dir.core.build}/APP-INF/lib/" />
-		</copy>
-
-    <!-- Except for the sample class file that inherits the UnpooledDataSourceFactory class and gets a db connection pool from the DBCPManager class -->
-		<copy todir="${dir.src}/kr/pe/sinnori/impl/server/mybatis/" verbose="true" overwrite="false">
-		  <!-- the SqlSessionFactoryManger class depends on the server dynimic class loader -->
-			<fileset file="${dir.core.build}/APP-INF/src/kr/pe/sinnori/impl/server/mybatis/SampleBaseDBSourceFactory.java.txt" />
-		</copy>
-		
-		<copy todir="${dir.appinf}/classes" verbose="true" overwrite="false">
-		  <!-- the SqlSessionFactoryManger class depends on the server dynimic class loader -->
-			<fileset dir="${dir.core.build}/build/appinf/" />
-		</copy>		
-	</target>
 	
-	<target name="compile.main" depends="copy.appinf">
-	  <!-- this server project build directory -->
+	
+	<target name="compile.main" depends="copy.core">
+	  <!-- this appclient project build directory -->
 		<delete dir="${dir.build}" />
 		<mkdir dir="${dir.build}" />
+		<mkdir dir="${dir.lib}/ex" />
+		<mkdir dir="${dir.lib}/in" />
 		
-		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}" >
-			<exclude name="kr/pe/sinnori/impl/**" />
+		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}">
 			<classpath>
 				<fileset dir="${dir.corelib}/ex">
 					<include name="**/*.jar" />
@@ -101,17 +76,14 @@
 				<fileset dir="${dir.lib}/in">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${dir.appinf}/lib">
-					<include name="**/*.jar" />
-				</fileset>
 			</classpath>
 		</javac>
 	</target>
 	
 	<target name="copy.distlib" depends="compile.main">
-	  <!-- this server project dist directory -->
+	  <!-- this appclient project dist directory -->
 		<delete dir="${dir.dist}" />
-		<mkdir dir="${dir.dist}/lib" />
+		<mkdir dir="${dir.dist}/lib" />	
 		
 		<copy todir="${dir.dist}/lib" verbose="true" overwrite="true">
 			<fileset dir="${dir.corelib}/ex" />
@@ -125,7 +97,7 @@
 			<include name="lib/ex/*.jar"/>
 		</fileset>
 	</path>
-	
+
 	<pathconvert property="manifest.classpath" pathsep=" ">
 	  <path refid="build.classpath"/>
 	  <mapper>
@@ -135,33 +107,29 @@
 		</chainedmapper>
 	  </mapper>
 	</pathconvert>
-	
-	<target name="make.main" depends="copy.distlib">
-		<jar destfile="${dir.dist}/${server.main.jar}" basedir="${dir.build}">
+
+	<target name="make.main" depends="copy.distlib">		
+		<jar destfile="${dir.dist}/SinnoriAppClientRun.jar" basedir="${dir.build}">
 			<restrict>
 				<name name="**/*.class" />
 				<archives>
 					<zips>
-						<fileset dir="corelib/in" includes="**/*.jar" />
-						<fileset dir="lib/in" includes="**/*.jar" />
+						<fileset dir="${dir.corelib}/in" includes="**/*.jar" />
+						<fileset dir="${dir.lib}/in" includes="**/*.jar" />
 					</zips>
 				</archives>
 			</restrict>
 			<manifest>
-				<attribute name="Main-Class" value="${server.main.class}" />
+				<attribute name="Main-Class" value="${appclient.main.class}" />
 				<attribute name="Class-Path" value="${manifest.classpath}" />
 			</manifest>
 		</jar>
 	</target>
 	
-	<target name="clean.appinf" depends="init.var">
-		<delete dir="${dir.appinf}/classes" />
-		<mkdir dir="${dir.appinf}/classes" />
-	</target>
-	
-	<target name="compile.appinf" depends="init.var">
-		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.appinf}/classes" >
-			<include name="kr/pe/sinnori/impl/**" />
+	<target name="all" depends="make.main" />
+		
+	<target name="compile.main.only" depends="init.var">
+		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}">
 			<classpath>
 				<fileset dir="${dir.corelib}/ex">
 					<include name="**/*.jar" />
@@ -175,13 +143,27 @@
 				<fileset dir="${dir.lib}/in">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${dir.appinf}/lib">
-					<include name="**/*.jar" />
-				</fileset>
 			</classpath>
 		</javac>
 	</target>
 	
-	<target name="all" depends="make.main, compile.appinf" />
-
+	
+	<target name="make.main.only" depends="compile.main.only">		
+		<jar destfile="${dir.dist}/SinnoriAppClientRun.jar" basedir="${dir.build}">
+			<restrict>
+				<name name="**/*.class" />
+				<archives>
+					<zips>
+						<fileset dir="${dir.corelib}/in" includes="**/*.jar" />
+						<fileset dir="${dir.lib}/in" includes="**/*.jar" />
+					</zips>
+				</archives>
+			</restrict>
+			<manifest>
+				<attribute name="Main-Class" value="${appclient.main.class}" />
+				<attribute name="Class-Path" value="${manifest.classpath}" />
+			</manifest>
+		</jar>
+	</target>
 </project>
+

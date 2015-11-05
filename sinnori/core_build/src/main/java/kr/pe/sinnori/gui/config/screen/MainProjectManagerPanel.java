@@ -25,6 +25,7 @@ import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 
 import kr.pe.sinnori.common.config.BuildSystemPathSupporter;
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.BuildSystemException;
 import kr.pe.sinnori.common.exception.MessageInfoSAXParserException;
@@ -142,7 +143,7 @@ public class MainProjectManagerPanel extends JPanel {
 	
 	private void showMessageDialog(String message) {
 		JOptionPane.showMessageDialog(mainFrame, 
-				CommonStaticUtil.convertToNewLineSplitString(message,
+				CommonStaticUtil.splitString(message,
 						CommonType.SPLIT_STRING_GUBUN.NEWLINE, 100));
 	}
 
@@ -172,13 +173,15 @@ public class MainProjectManagerPanel extends JPanel {
 		
 		String sinnoriInstalledPathString = sinnoriInstalledPathInfoValueLabel.getText();
 		boolean isServer = true;
-		boolean isAppClient = true;
+		boolean isAppClient = true;		
 		boolean isWebClient = false;
 		String servletSystemLibrayPathString = "";
 		
 		try {
 			BuildSystemSupporter.createNewMainProjectBuildSystem(newMainProjectName, 
-					sinnoriInstalledPathString, isServer, isAppClient, 
+					sinnoriInstalledPathString, 
+					isServer, CommonStaticFinalVars.JVM_OPTIONS_OF_SERVER,
+					isAppClient, CommonStaticFinalVars.JVM_OPTIONS_OF_APP_CLIENT,					
 					isWebClient, servletSystemLibrayPathString, messageInfoSAXParser);
 		} catch (IllegalArgumentException | BuildSystemException e1) {
 			String errorMessage = "fail to create new main project build system";

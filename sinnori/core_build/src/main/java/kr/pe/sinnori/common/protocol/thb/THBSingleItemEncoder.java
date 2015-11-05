@@ -475,7 +475,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 			errorMessageBuilder.append("]");
 			
 			String errorMessage = errorMessageBuilder.toString();
-			log.info(errorMessage);
+			log.warn(errorMessage, e);
 			throw new BodyFormatException(errorMessage);
 		} catch(BufferOverflowException e) {
 			StringBuffer errorMessageBuilder = new StringBuffer("BufferOverflowException::");
@@ -495,7 +495,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 			errorMessageBuilder.append("]");
 			
 			String errorMessage = errorMessageBuilder.toString();
-			log.info(errorMessage);
+			log.warn(errorMessage, e);
 			throw new BodyFormatException(errorMessage);
 		} catch(NoMoreDataPacketBufferException e) {
 			StringBuffer errorMessageBuilder = new StringBuffer("NoMoreDataPacketBufferException::");
@@ -515,7 +515,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 			errorMessageBuilder.append("]");
 			
 			String errorMessage = errorMessageBuilder.toString();
-			log.warn(errorMessage);
+			log.warn(errorMessage, e);
 			throw new NoMoreDataPacketBufferException(errorMessage);
 		} catch(OutOfMemoryError e) {
 			throw e;
@@ -537,7 +537,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 			errorMessageBuilder.append("]");
 			
 			String errorMessage = errorMessageBuilder.toString();
-			log.warn(errorMessage);
+			log.warn(errorMessage, e);
 			throw new BodyFormatException(errorMessage);
 		}
 	}

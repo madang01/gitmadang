@@ -138,7 +138,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<!-- set global properties for this build -->");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t<property name=\"dir.src\" location=\"src\" />");
+		stringBuilder.append("\t<property name=\"dir.src\" location=\"src/main/java\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<property name=\"dir.build\" location=\"build\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -688,7 +688,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<!-- set global properties for this build -->");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t<property name=\"dir.src\" location=\"src\" />");
+		stringBuilder.append("\t<property name=\"dir.src\" location=\"src/main/java\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<property name=\"dir.build\" location=\"build\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -1037,11 +1037,11 @@ public abstract class BuildSystemFileContents {
 		int len = classFullName.length();
 		int lastInx = classFullName.lastIndexOf(".");
 		String packageName = null;
-		String classShortName = null;
+		String onlyClassNameWithoutQualifiedPackageName = null;
 		
 		if (lastInx < 0) {
 			packageName = "";
-			classShortName = classFullName;
+			onlyClassNameWithoutQualifiedPackageName = classFullName;
 		} else {
 			if (lastInx + 1 >= len) {
 				String errorMessage = String.format("classFullName[%s] is a bad class full name", classFullName);
@@ -1050,15 +1050,13 @@ public abstract class BuildSystemFileContents {
 			}
 			
 			packageName = classFullName.substring(0, lastInx);
-			classShortName = classFullName.substring(lastInx + 1);
+			onlyClassNameWithoutQualifiedPackageName = classFullName.substring(lastInx + 1);
 		}
 		
 		StringBuilder stringBuilder = new StringBuilder();
-		// stringBuilder.append("package main;");
 		stringBuilder.append("package ");
 		stringBuilder.append(packageName);
 		stringBuilder.append(";");
-		
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("import java.net.SocketTimeoutException;");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -1074,15 +1072,11 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("import kr.pe.sinnori.common.exception.NotFoundProjectException;");
-		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("import kr.pe.sinnori.common.exception.NotLoginException;");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("import kr.pe.sinnori.common.exception.ServerNotReadyException;");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("import kr.pe.sinnori.common.exception.ServerTaskException;");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("import kr.pe.sinnori.common.lib.CommonStaticFinalVars;");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("import kr.pe.sinnori.common.message.AbstractMessage;");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -1098,12 +1092,9 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("");
 		stringBuilder.append(System.getProperty("line.separator"));
-		
-		// stringBuilder.append("public class SinnoriAppClientMain {");
 		stringBuilder.append("public class ");
-		stringBuilder.append(classShortName);
+		stringBuilder.append(onlyClassNameWithoutQualifiedPackageName);
 		stringBuilder.append(" {");
-		
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -1111,61 +1102,17 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\tLogger log = LoggerFactory.getLogger(\"kr.pe.sinnori\");");
 		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t");
+		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\tlog.info(\"start\");");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\tString projectName = System.getProperty(CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);");
+		stringBuilder.append("\t\tClientProjectManager clientProjectManager = ClientProjectManager.getInstance();");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\tif (null == projectName) {");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\tlog.error(\"\uC790\uBC14 \uC2DC\uC2A4\uD15C \uD658\uACBD \uBCC0\uC218[{}] \uAC00 \uC815\uC758\uB418\uC9C0 \uC54A\uC558\uC2B5\uB2C8\uB2E4.\", CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\tSystem.exit(1);");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t}");
+		stringBuilder.append("\t\tClientProject mainClientProject = clientProjectManager.getMainClientProject();");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\tString trimProjectName = projectName.trim();");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\tif (trimProjectName.length() == 0) {");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\tlog.error(\"\uC790\uBC14 \uC2DC\uC2A4\uD15C \uD658\uACBD \uBCC0\uC218[{}] \uAC12[{}]\uC774 \uBE48 \uBB38\uC790\uC5F4 \uC788\uC2B5\uB2C8\uB2E4.\", CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME, projectName);");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\tSystem.exit(1);");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t}");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\tif (! projectName.equals(trimProjectName)) {");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\tlog.error(\"\uC790\uBC14 \uC2DC\uC2A4\uD15C \uD658\uACBD \uBCC0\uC218[{}] \uAC12[{}] \uC55E\uB4A4\uB85C \uACF5\uBC31 \uBB38\uC790\uC5F4\uC774 \uC874\uC7AC\uD569\uB2C8\uB2E4.\", ");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\t\tCommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME, projectName);");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\tSystem.exit(1);");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t}");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\tClientProject clientProject = null;");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\ttry {");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\tclientProject = ClientProjectManager.getInstance().getClientProject(projectName);");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t} catch (NotFoundProjectException e) {");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\tlog.error(\"NotFoundProjectException\", e);");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\tSystem.exit(1);");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t}");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -1185,7 +1132,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\ttry {");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\tmessageFromServer = clientProject.sendSyncInputMessage(echoInObj);");
+		stringBuilder.append("\t\t\tmessageFromServer = mainClientProject.sendSyncInputMessage(echoInObj);");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -1255,7 +1202,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<!-- set global properties for this build -->");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t<property name=\"dir.src\" location=\"src\" />");
+		stringBuilder.append("\t<property name=\"dir.src\" location=\"src/main/java\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<property name=\"dir.build\" location=\"build\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -1664,7 +1611,6 @@ public abstract class BuildSystemFileContents {
 		StringBuilder commandPartBuilder = new StringBuilder();
 		
 		commandPartBuilder.append("java ");
-		// -Xmx1024m -Xms1024m
 		commandPartBuilder.append(jvmOptions);
 		commandPartBuilder.append(" ").append(shellLineSeparator).append(System.getProperty("line.separator"));		
 		

@@ -1,17 +1,41 @@
+package kr.pe.sinnori.applet;
 // Shayne Steele  steele AT cs DOT fsu DOT edu
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.BoxLayout;
+import javax.swing.JApplet;
+import javax.swing.JButton;
+import javax.swing.JColorChooser;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.JToolBar;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public class Sample extends JApplet
 {
-    // assign default values to the font fields
+	private static final long serialVersionUID = -6571354788561057744L;
+	// assign default values to the font fields
     private int fontSize = 12;
     private int fontStyle = Font.BOLD;
     private String fontName = "Monospaced";
 
-    public Sample()
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	public Sample()
     {
         // create the label and assign default values to its font
         final JLabel label = new JLabel("Java Test");

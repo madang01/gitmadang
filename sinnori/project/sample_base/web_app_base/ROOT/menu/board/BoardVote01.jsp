@@ -1,5 +1,6 @@
-<%@ page extends="kr.pe.sinnori.common.weblib.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
+<%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+%><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
+%><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
 %><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="parmIVBase64" class="java.lang.String" scope="request" /><%
@@ -23,10 +24,10 @@
 	function init() {<%
 	if (null != errorMessage && !errorMessage.equals("")) {
 %>
-		var voteResponse = {isError:true, message:"<%=escapeScript(errorMessage)%>"};<%
+		var voteResponse = {isError:true, message:"<%=HtmlStringUtil.toScriptString(errorMessage)%>"};<%
 	} else {
 %>
-		var voteResponse = {isError:<%=messageResultOutObj.getIsSuccess()%>, message:"<%=escapeScript(messageResultOutObj.getResultMessage())%>"};<%
+		var voteResponse = {isError:<%=messageResultOutObj.getIsSuccess()%>, message:"<%=HtmlStringUtil.toScriptString(messageResultOutObj.getResultMessage())%>"};<%
 	}
 %>
 		parent.callbackVote(voteResponse);

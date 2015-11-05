@@ -12,14 +12,14 @@ import kr.pe.sinnori.client.ClientProject;
 import kr.pe.sinnori.client.ClientProjectManager;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.weblib.AbstractServlet;
-import kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars;
 import kr.pe.sinnori.impl.message.BoardUploadFileInDTO.BoardUploadFileInDTO;
 import kr.pe.sinnori.impl.message.BoardUploadFileOutDTO.BoardUploadFileOutDTO;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
 import kr.pe.sinnori.impl.message.SeqValueInDTO.SeqValueInDTO;
 import kr.pe.sinnori.impl.message.SeqValueOutDTO.SeqValueOutDTO;
+import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
+import kr.pe.sinnori.weblib.jdf.AbstractServlet;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;

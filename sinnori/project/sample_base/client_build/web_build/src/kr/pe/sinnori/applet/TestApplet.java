@@ -1,9 +1,15 @@
+package kr.pe.sinnori.applet;
 import java.applet.*;
 import java.awt.*;
 
 public class TestApplet extends Applet {
  
-  TextField tf=new TextField(30);
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8976160365849814146L;
+	
+	TextField tf=new TextField(30);
 
   public void init() {
     this.setLayout(new BorderLayout());

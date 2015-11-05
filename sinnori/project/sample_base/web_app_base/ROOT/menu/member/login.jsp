@@ -1,5 +1,5 @@
-<%@ page extends="kr.pe.sinnori.common.weblib.AbstractJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
-%><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
+<%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
+%><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
 %><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="modulusHex" class="java.lang.String" scope="request" /><%
@@ -107,8 +107,8 @@
 		var sessionKeyHex = rsa.encrypt(CryptoJS.enc.Base64.stringify(privateKey));		
 		g.sessionkeyBase64.value = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex));
 
-		sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_PRIVATEKEY_NAME%>', CryptoJS.enc.Base64.stringify(privateKey));
-		sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_SESSIONKEY_NAME%>', g.sessionkeyBase64.value);
+		sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME%>', CryptoJS.enc.Base64.stringify(privateKey));
+		sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_SESSIONKEY_NAME%>', g.sessionkeyBase64.value);
 
 		var iv = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_IV_SIZE%>);
 		g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);
@@ -138,7 +138,7 @@
 <input type="hidden" name="pwd" />
 </form>
 <form method="post" name="frm" onsubmit="return false;">
-<table border="0">
+<table style="board:0">
 	<tr>
 		<td colspan="2" align="center" style="font-size:24px">로그인</td></tr>
 	<tr>

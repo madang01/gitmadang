@@ -92,7 +92,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 		int itemTypeID = -1;
 		
 		try {
-			getItemValueTypeIDAfterCheckingParmItemValueType(itemValueType);
+			itemTypeID = getItemValueTypeIDAfterCheckingParmItemValueType(itemValueType);
 		} catch(UnknownItemTypeException e) {
 			log.warn(e.toString(), e);
 			String errorMessage = new StringBuilder(

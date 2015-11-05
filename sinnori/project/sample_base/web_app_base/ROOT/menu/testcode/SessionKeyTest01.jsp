@@ -1,5 +1,6 @@
-<%@ page extends="kr.pe.sinnori.common.weblib.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
+<%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+%><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
+%><%@page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
 %><jsp:useBean id="parmIVBase64" class="java.lang.String" scope="request" /><%
 	
 	kr.pe.sinnori.common.sessionkey.SymmetricKey webUserSymmetricKey = 
@@ -25,7 +26,7 @@ AbstractSessionKeyServlet 는  세션키 운영에 필요한 파라미터를 요
 			<td>원문</td><td>복호문</td>
 		</tr>
 		<tr>
-			<td><%=escapeHtml(orignalMessage, WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER)%></td><td id="idTxtResultMessage"></td>
+			<td><%=HtmlStringUtil.toHtml4BRString(orignalMessage)%></td><td id="idTxtResultMessage"></td>
 		</tr>
 		</table>
 	</li>
@@ -34,9 +35,9 @@ AbstractSessionKeyServlet 는  세션키 운영에 필요한 파라미터를 요
 <!--
 	var pageIV = CryptoJS.enc.Base64.parse("<%=parmIVBase64%>");	
 	
-	var privateKey = CryptoJS.enc.Base64.parse(sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_PRIVATEKEY_NAME%>'));
+	var privateKey = CryptoJS.enc.Base64.parse(sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME%>'));
 	
-	var messageTxt = CryptoJS.AES.decrypt("<%= webUserSymmetricKey.encryptStringBase64(escapeHtml(orignalMessage, WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER)) %>", privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: pageIV });
+	var messageTxt = CryptoJS.AES.decrypt("<%= webUserSymmetricKey.encryptStringBase64(HtmlStringUtil.toScriptString(orignalMessage)) %>", privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: pageIV });
 		
 	document.getElementById('idTxtResultMessage').innerHTML = messageTxt.toString(CryptoJS.enc.Utf8);
 //-->

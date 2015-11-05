@@ -746,7 +746,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 			errorMessageBuilder.append("]");
 			
 			String errorMessage = errorMessageBuilder.toString();
-			log.info(errorMessage);
+			log.warn(errorMessage, e);
 			throw new BodyFormatException(errorMessage);
 		} catch(SinnoriBufferUnderflowException e) {
 			StringBuffer errorMessageBuilder = new StringBuffer("SinnoriBufferUnderflowException::");
@@ -765,7 +765,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 			errorMessageBuilder.append("]");
 			
 			String errorMessage = errorMessageBuilder.toString();
-			log.info(errorMessage);
+			log.warn(errorMessage, e);
 			throw new BodyFormatException(errorMessage);
 		} catch(SinnoriCharsetCodingException e) {
 			StringBuffer errorMessageBuilder = new StringBuffer("SinnoriCharsetCodingException::");
@@ -784,7 +784,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 			errorMessageBuilder.append("]");
 			
 			String errorMessage = errorMessageBuilder.toString();
-			log.info(errorMessage);
+			log.warn(errorMessage, e);
 			throw new BodyFormatException(errorMessage);
 		} catch(BodyFormatException e) {
 			StringBuffer errorMessageBuilder = new StringBuffer("BodyFormatException::");
@@ -803,7 +803,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 			errorMessageBuilder.append("]");
 			
 			String errorMessage = errorMessageBuilder.toString();
-			log.info(errorMessage, e);
+			log.warn(errorMessage, e);
 			throw new BodyFormatException(errorMessage);
 		} catch(OutOfMemoryError e) {
 			throw e;
@@ -824,7 +824,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 			errorMessageBuilder.append("]");
 			
 			String errorMessage = errorMessageBuilder.toString();
-			log.warn(errorMessage);
+			log.warn(errorMessage, e);
 			throw new BodyFormatException(errorMessage);
 		}
 		return retObj;

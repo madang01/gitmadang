@@ -118,7 +118,7 @@ public class SubProjectPartEditorPopup extends JDialog {
 
 	private void showMessageDialog(String message) {
 		JOptionPane.showMessageDialog(this, 
-				CommonStaticUtil.convertToNewLineSplitString(message, 
+				CommonStaticUtil.splitString(message, 
 						CommonType.SPLIT_STRING_GUBUN.NEWLINE, 100));
 	}
 	private void okButtonActionPerformed(ActionEvent e) {

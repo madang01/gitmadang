@@ -72,6 +72,7 @@ import com.jgoodies.forms.layout.FormLayout;
 @SuppressWarnings("serial")
 public class MainProjectEditPanel extends JPanel {
 	private Logger log = LoggerFactory.getLogger(MainProjectEditPanel.class);
+	
 
 	private final String titlesOfPropertiesTableModel[] = { "key", "value" };
 	private final Class<?>[] columnTypesOfPropertiesTableModel = new Class[] {
@@ -664,9 +665,10 @@ public class MainProjectEditPanel extends JPanel {
 				showMessageDialog("app client exist, so skip creation of app client build system");
 			} else {
 				try {
+					
 					BuildSystemSupporter.createAppClientBuildSystem(
 							mainProjectName, sinnoriInstalledPathString,
-							messageInfoSAXParser);
+							CommonStaticFinalVars.JVM_OPTIONS_OF_APP_CLIENT, messageInfoSAXParser);
 				} catch (BuildSystemException e1) {
 					log.warn("fail to create app client build system", e1);
 					showMessageDialog("app client exist, so skip creation of app client build system");
@@ -706,7 +708,7 @@ public class MainProjectEditPanel extends JPanel {
 			} else {
 				try {
 					BuildSystemSupporter.createWebClientBuildSystem(
-							mainProjectName, sinnoriInstalledPathString);
+							mainProjectName, sinnoriInstalledPathString, messageInfoSAXParser);
 				} catch (BuildSystemException e1) {
 					String errorMessage = "fail to create web client build system";
 					log.warn(errorMessage, e1);
@@ -1174,7 +1176,7 @@ public class MainProjectEditPanel extends JPanel {
 
 	private void showMessageDialog(String message) {
 		JOptionPane.showMessageDialog(mainFrame, CommonStaticUtil
-				.convertToNewLineSplitString(message,
+				.splitString(message,
 						CommonType.SPLIT_STRING_GUBUN.NEWLINE, 100));
 	}
 

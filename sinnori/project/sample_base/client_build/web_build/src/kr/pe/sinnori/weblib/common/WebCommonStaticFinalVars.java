@@ -1,14 +1,14 @@
-package kr.pe.sinnori.common.weblib;
+package kr.pe.sinnori.weblib.common;
 
 import java.io.File;
 
 public abstract class WebCommonStaticFinalVars {
 	public static final String WEBSITE_TITLE = "Sinnori Development Framework";
 	
-	public static final String HTTPSESSION_USERID_NAME = "userID";
+	public static final String HTTPSESSION_KEY_USERID_NAME = "userID";
 	// public static final String HTTPSESSION_USERGUBUN_NAME = "userGubun";
-	public static final String SESSIONSTORAGE_SESSIONKEY_NAME = "kr.pe.sinnori.sessionkey";
-	public static final String SESSIONSTORAGE_PRIVATEKEY_NAME = "kr.pe.sinnori.privatekey";
+	public static final String SESSIONSTORAGE_KEY_SESSIONKEY_NAME = "kr.pe.sinnori.sessionkey";
+	public static final String SESSIONSTORAGE_KEY_PRIVATEKEY_NAME = "kr.pe.sinnori.privatekey";
 	
 	/**
 	 * <pre>
@@ -56,6 +56,4 @@ public abstract class WebCommonStaticFinalVars {
 	public static int WEBSITE_FILEUPLOAD_MAX_COUNT = 2;
 	
 	public static final short UPLOAD_FILENAME_SEQ_TYPE_ID = 1;
-	
-	public static final Line2BrStringReplacer LINE2BR_STRING_REPLACER = new Line2BrStringReplacer();
 }

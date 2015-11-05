@@ -1,6 +1,7 @@
-package kr.pe.sinnori.common.weblib;
+package kr.pe.sinnori.weblib.htmlstring;
 
-public class Line2BrStringReplacer implements AbstractStringReplacer {
+
+public class Line2BrStringReplacementActor implements AbstractStringReplacementActor {
 
 	@Override
 	public String replace(String str) {

@@ -14,7 +14,7 @@
  * @author  WonYoung Lee, wyounglee@lgeds.lg.co.kr.
  */
 
-package kr.pe.sinnori.common.weblib;
+package kr.pe.sinnori.weblib.jdf;
 
 import java.util.Enumeration;
 
@@ -26,6 +26,7 @@ import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager;
 import kr.pe.sinnori.common.sessionkey.SymmetricKey;
+import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -110,7 +111,7 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
 			pageStrBuilder.append("\t\tvar webUserPrivateKeyBase64 = sessionStorage.getItem('");
-			pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_PRIVATEKEY_NAME);
+			pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME);
 			pageStrBuilder.append("');");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
@@ -131,7 +132,7 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 			
 			
 			pageStrBuilder.append("\t\t\t\tsessionStorage.setItem('");
-			pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_PRIVATEKEY_NAME);
+			pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME);
 			pageStrBuilder.append("', CryptoJS.enc.Base64.stringify(webUserPrivateKey)); // key-value 형식으로 저장");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
@@ -149,7 +150,7 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
 			pageStrBuilder.append("\t\t\t\tsessionStorage.setItem('");
-			pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_SESSIONKEY_NAME);
+			pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_SESSIONKEY_NAME);
 			pageStrBuilder.append("', CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex))); // key-value 형식으로 저장");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
@@ -159,12 +160,12 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 			
 			
 			pageStrBuilder.append("\t\t\t\t\tsessionStorage.removeItem('");
-			pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_PRIVATEKEY_NAME);
+			pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME);
 			pageStrBuilder.append("');");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
 			pageStrBuilder.append("\t\t\t\t\tsessionStorage.removeItem('");
-			pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_SESSIONKEY_NAME);
+			pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_SESSIONKEY_NAME);
 			pageStrBuilder.append("');");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
@@ -188,7 +189,7 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 
 			pageStrBuilder.append("\t\tg.sessionkeyBase64.value = sessionStorage.getItem('");
-			pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_SESSIONKEY_NAME);
+			pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_SESSIONKEY_NAME);
 			pageStrBuilder.append("');");
 			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 			

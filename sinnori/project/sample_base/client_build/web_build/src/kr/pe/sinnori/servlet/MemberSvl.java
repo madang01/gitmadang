@@ -29,11 +29,11 @@ import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.sessionkey.ClientSessionKeyManager;
 import kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager;
 import kr.pe.sinnori.common.sessionkey.SymmetricKey;
-import kr.pe.sinnori.common.weblib.AbstractServlet;
-import kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars;
 import kr.pe.sinnori.impl.message.BinaryPublicKey.BinaryPublicKey;
 import kr.pe.sinnori.impl.message.MemberRegisterWithSessionKey.MemberRegisterWithSessionKey;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
+import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
+import kr.pe.sinnori.weblib.jdf.AbstractServlet;
 import nl.captcha.Captcha;
 
 import org.apache.commons.codec.binary.Base64;

@@ -2,7 +2,7 @@ package kr.pe.sinnori.servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import kr.pe.sinnori.common.weblib.AbstractSessionKeyServlet;
+import kr.pe.sinnori.weblib.jdf.AbstractSessionKeyServlet;
 
 
 @SuppressWarnings("serial")

@@ -1,5 +1,6 @@
-<%@ page extends="kr.pe.sinnori.common.weblib.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><%@ page import="kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars" %><%
+<%@page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%>
+<%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+%><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
 %><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="allDataTypeInObj" class="kr.pe.sinnori.impl.message.AllDataType.AllDataType" scope="request" /><%
@@ -24,30 +25,30 @@
 	<td colspan=2 style="text-align:center">AllDataType 입력메세지</td>
 </tr>
 <tr>
-	<td colspan=2 style="text-align:left"><%=escapeHtml(allDataTypeInObj.toString(), WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER)%></td>
+	<td colspan=2 style="text-align:left"><%=HtmlStringUtil.toHtml4BRString(allDataTypeInObj.toString())%></td>
 </tr><%
 	if (null != errorMessage && !errorMessage.equals("")) {
 %>
 <tr>
-	<td colspan="2"><%= errorMessage %></td>
-</tr><%	
+	<td colspan="2"><%=errorMessage%></td>
+</tr><%
 	} else {
 %>
 <tr>
 	<td style="text-align:center">출력 비교 결과</td><%
 		if (isSame) {
-%><td style="color:blue;text-align:center">성공</td><%
+	%><td style="color:blue;text-align:center">성공</td><%
 		} else {
-%><td style="color:red;text-align:center">실패</td><%
+	%><td style="color:red;text-align:center">실패</td><%
 		}
-%>
+	%>
 </tr>
 
 <tr>
 	<td colspan=2 style="text-align:center">AllDataType 출력메세지</td>
 </tr>
 <tr>
-	<td colspan=2 style="text-align:left"><%=escapeHtml(allDataTypeOutObj.toString(), WebCommonStaticFinalVars.LINE2BR_STRING_REPLACER) %></td>
+	<td colspan=2 style="text-align:left"><%=HtmlStringUtil.toHtml4BRString(allDataTypeOutObj.toString())%></td>
 </tr><%
 	}
 %>

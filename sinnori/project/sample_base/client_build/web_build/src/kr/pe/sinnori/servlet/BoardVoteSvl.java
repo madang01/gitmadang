@@ -7,11 +7,11 @@ import javax.servlet.http.HttpSession;
 import kr.pe.sinnori.client.ClientProject;
 import kr.pe.sinnori.client.ClientProjectManager;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.weblib.AbstractAuthServlet;
-import kr.pe.sinnori.common.weblib.WebCommonStaticFinalVars;
 import kr.pe.sinnori.impl.message.BoardVoteInDTO.BoardVoteInDTO;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
+import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
+import kr.pe.sinnori.weblib.jdf.AbstractAuthServlet;
 
 /**
  * 
@@ -107,7 +107,7 @@ public class BoardVoteSvl extends AbstractAuthServlet {
 		}
 		
 		HttpSession httpSession = req.getSession();
-		String userId = (String) httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_USERID_NAME);
+		String userId = (String) httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_USERID_NAME);
 		
 		
 		BoardVoteInDTO inObj =  new BoardVoteInDTO();

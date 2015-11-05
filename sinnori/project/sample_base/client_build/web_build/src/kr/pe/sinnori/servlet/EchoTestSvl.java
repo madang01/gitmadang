@@ -23,8 +23,8 @@ import javax.servlet.http.HttpServletResponse;
 import kr.pe.sinnori.client.ClientProject;
 import kr.pe.sinnori.client.ClientProjectManager;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.weblib.AbstractServlet;
 import kr.pe.sinnori.impl.message.Echo.Echo;
+import kr.pe.sinnori.weblib.jdf.AbstractServlet;
 
 /**
  * Echo 메시지 교환 테스트

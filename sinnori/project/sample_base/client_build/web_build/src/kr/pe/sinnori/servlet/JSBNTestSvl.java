@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager;
 import kr.pe.sinnori.common.util.HexUtil;
-import kr.pe.sinnori.common.weblib.AbstractServlet;
+import kr.pe.sinnori.weblib.jdf.AbstractServlet;
 
 /**
  * 로그인 테스트, 아직 구현 못 했음

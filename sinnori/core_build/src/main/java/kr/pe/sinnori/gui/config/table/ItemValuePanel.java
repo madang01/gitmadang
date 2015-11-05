@@ -121,7 +121,7 @@ public class ItemValuePanel extends JPanel {
 	
 	private void showMessageDialog(String message) {
 		JOptionPane.showMessageDialog(mainFrame, 
-				CommonStaticUtil.convertToNewLineSplitString(message, 
+				CommonStaticUtil.splitString(message, 
 						CommonType.SPLIT_STRING_GUBUN.NEWLINE, 100));
 	}
 	
