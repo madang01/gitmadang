@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "5.2.2.0.199" Java: "1.8.0_60" encoding: "UTF-8"
+JFDML JFormDesigner: "5.2.2.2.228" Java: "1.7.0_85" encoding: "UTF-8"
 
 new FormModel {
 	contentType: "form/swing"
@@ -32,7 +32,10 @@ new FormModel {
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1
 			} )
-			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) ) {
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+				"$columnSpecs": "default, unrelgap, default"
+				"$rowSpecs": "default:grow"
+			} ) {
 				name: "allProjectWorkSaveLinePanel"
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "mainProjecNameListUpdatetButton"
@@ -40,6 +43,17 @@ new FormModel {
 					"enabled": false
 					"toolTipText": "This button updates main project name list that is child direcotris of project base path"
 					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "mainProjectNameListUpdateButtonActionPerformed", true ) )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 1
+					"gridY": 1
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "applySinnoriInstalledPathButton"
+					"text": "apply Sinnori installed path to Sinnori development enviroment"
+					"enabled": false
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "applySinnoriInstalledPathToSinnoriDevelopmentEnviroment", true ) )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 3
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridY": 3

@@ -8,6 +8,7 @@ import java.util.Set;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
+import kr.pe.sinnori.common.message.builder.info.SingleItemInfo;
 
 import org.junit.Before;
 import org.junit.Test;

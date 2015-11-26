@@ -2,6 +2,7 @@ package kr.pe.sinnori.gui.message.builder.info;
 
 import static org.junit.Assert.fail;
 import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
+import kr.pe.sinnori.common.message.builder.info.ArrayInfo;
 
 import org.junit.Before;
 import org.junit.Test;

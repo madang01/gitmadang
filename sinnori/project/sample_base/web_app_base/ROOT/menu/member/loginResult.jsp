@@ -39,7 +39,7 @@ if (isSuccess) {
 		var pageIV = CryptoJS.enc.Base64.parse("<%=parmIVBase64%>");
 		var privateKey = CryptoJS.enc.Base64.parse(sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME%>'));
 
-		var resultMessage = CryptoJS.AES.decrypt("<%=webUserSymmetricKey.encryptStringBase64(HtmlStringUtil.toScriptString(messageResultOutObj.toString()))%>", privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: pageIV });
+		var resultMessage = CryptoJS.AES.decrypt("<%=webUserSymmetricKey.encryptStringBase64(messageResultOutObj.toString())%>", privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: pageIV });
 		document.getElementById('idTxtResultMessage').innerHTML = resultMessage.toString(CryptoJS.enc.Utf8);
 
 		<!-- 보안을 위해서 로그인시 생성한 비밀키와 세션키 덮어쓰기 -->

@@ -47,6 +47,7 @@ public class BoardDetailInDTOServerTask extends AbstractServerTask {
 				messageResultOutObj.setTaskMessageID(boardDetailInObj.getMessageID());
 				messageResultOutObj.setResultMessage("게시판 상세 조회 얻기 실패");
 				
+				
 				letterSender.addSyncMessage(messageResultOutObj);
 			} else {
 				java.util.List<AttachFile> attachFileList = boardDetailOutObj.getAttachFileList();

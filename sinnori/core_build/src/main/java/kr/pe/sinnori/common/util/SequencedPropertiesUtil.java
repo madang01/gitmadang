@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 
@@ -16,12 +17,15 @@ public abstract class SequencedPropertiesUtil {
 	
 	
 	public static SequencedProperties getSequencedPropertiesFromFile(
-			String sourcePropertiesFilePathString) throws FileNotFoundException,  IOException {
+			String sourcePropertiesFilePathString, Charset sourcePropertiesFileCharset) throws FileNotFoundException,  IOException {
 		SequencedProperties sourceSequencedProperties = new SequencedProperties();
 		FileInputStream fis = null;
+		InputStreamReader isr = null;
 		try {
 			fis = new FileInputStream(sourcePropertiesFilePathString);
-			sourceSequencedProperties.load(fis);
+			isr = new InputStreamReader(fis, sourcePropertiesFileCharset);
+			
+			sourceSequencedProperties.load(isr);
 		/*} catch (FileNotFoundException e) {
 			String errorMessage = String.format("the source properties file(=the parameter sourcePropertiesFilePathString[%s]) is not found",
 					sourcePropertiesFilePathString);
@@ -31,6 +35,14 @@ public abstract class SequencedPropertiesUtil {
 					sourcePropertiesFilePathString, e.getMessage());
 			throw new IOException(errorMessage);*/
 		} finally {
+			if (null != isr) {
+				try {
+					isr.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			
 			if (null != fis) {
 				try {
 					fis.close();
@@ -86,8 +98,8 @@ public abstract class SequencedPropertiesUtil {
 			fos = new FileOutputStream(sourcePropertiesFile);
 			osw = new OutputStreamWriter(fos, sourcePropertiesFileCharset);
 			sourceProperties.store(osw, sourcePropertiesTitle);
-		} catch (FileNotFoundException e) {
-			/** expected dead code */
+		/*} catch (FileNotFoundException e) {
+			*//** expected dead code *//*
 			String errorMessage = String.format("the source properties file(=the parameter sourcePropertiesFilePathString[%s]) doesn't exist",
 					sourcePropertiesFilePathString);
 			
@@ -97,7 +109,7 @@ public abstract class SequencedPropertiesUtil {
 			String errorMessage = String.format("fail to write the source properties file(=the parameter sourcePropertiesFilePathString[%s])",
 					sourcePropertiesFilePathString);
 			log.warn(errorMessage, e);			
-			throw new IOException(errorMessage);
+			throw new IOException(errorMessage);*/
 		} finally {
 			if (osw != null) {
 				try {

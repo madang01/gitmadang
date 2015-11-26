@@ -78,7 +78,7 @@ final String arryTopMenuPage[][] =	{
 	if (null == userID) {
 %><a href="/servlet/Login?topmenu=<%=topMenu%>">login</a><%		
 	} else {
-%><a href="/PageJump.jsp?topmenu=4&bodyurl=/member/logout.jsp">logout</a><%
+%><a href="/PageJump.jsp?topmenu=4&bodyurl=/menu/member/logout.jsp">logout</a><%
 	}
 %>
 	

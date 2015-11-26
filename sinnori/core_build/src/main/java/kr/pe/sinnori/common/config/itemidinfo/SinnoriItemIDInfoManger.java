@@ -511,6 +511,9 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 		itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_PATH_ITEMID;
 		fileOrPathStringGetterHash.put(itemID, new SessionkeyRSAKeypairPathStringGetter(itemID));
 	}
+	
+	
+	
 	/**
 	 * 구축한 항목 식별자 정보를 바탕으로 주어진 메인 프로젝트 이름과 설치 경로에 맞도록 신규 생성된 신놀이 설정 시퀀스 프로퍼티를
 	 * 반환한다.
@@ -544,7 +547,7 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 				
 				if (null != fileOrPathStringGetter) {
 					itemValue = fileOrPathStringGetter
-							.getFileOrPathStringDependingOnBuildSystem(mainProjectName, 
+							.getFileOrPathStringDependingOnSinnoriInstalledPath(mainProjectName, 
 									sinnoriInstalledPathString);
 				}
 				
@@ -582,7 +585,7 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 				
 				if (null != fileOrPathStringGetter) {
 					itemValue = fileOrPathStringGetter
-							.getFileOrPathStringDependingOnBuildSystem(mainProjectName, 
+							.getFileOrPathStringDependingOnSinnoriInstalledPath(mainProjectName, 
 									sinnoriInstalledPathString);
 				}
 				
@@ -623,7 +626,15 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 		return result;
 	}
 	
+	/**
+	 * 
+	 * @param itemID
+	 * @return
+	 */
 	public AbstractFileOrPathStringGetter getFileOrPathStringGetter(String itemID) {
+		if (null == itemID) {
+			throw new IllegalArgumentException("the paramter itemID is null");
+		}
 		return fileOrPathStringGetterHash.get(itemID);
 	}
 	
@@ -1037,14 +1048,15 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 	}
 
 	public List<ItemIDInfo<?>> getUnmodifiableDBCPPartItemIDInfoList() {		
-		return dbcpPartItemIDInfoList;
+		return Collections.unmodifiableList(dbcpPartItemIDInfoList);
 	}
 
 	public List<ItemIDInfo<?>> getUnmodifiableCommonPartItemIDInfoList() {		
-		return commonPartItemIDInfoList;
+		return Collections.unmodifiableList(commonPartItemIDInfoList);
 	}
 
 	public List<ItemIDInfo<?>> getUnmodifiableProjectPartItemIDInfoList() {		
-		return projectPartItemIDInfoList;
+		return Collections.unmodifiableList(projectPartItemIDInfoList);
 	}
+			
 }

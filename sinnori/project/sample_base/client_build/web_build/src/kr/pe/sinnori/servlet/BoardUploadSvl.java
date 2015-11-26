@@ -333,6 +333,8 @@ public class BoardUploadSvl extends AbstractServlet {
 						try {
 							newAttachFileItem.write(uploadFile);
 						} catch(Exception e) {
+							log.warn(e.toString(), e);
+							
 							errorMessage = "게시판 업로드 파일 저장 처리가 실패하였습니다.";
 							
 							log.warn("{} 번째 게시판 개별 업로드 파일[attachSystemFullFileName={}][{}] 저장 실패, userId={}, ip={}", 

@@ -5,10 +5,11 @@ import static org.junit.Assert.fail;
 import java.io.File;
 
 import kr.pe.sinnori.common.config.BuildSystemPathSupporter;
+import kr.pe.sinnori.common.config.buildsystem.BuildSystemSupporter;
 import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
 import kr.pe.sinnori.common.exception.BuildSystemException;
 import kr.pe.sinnori.common.exception.MessageInfoSAXParserException;
-import kr.pe.sinnori.gui.message.builder.info.MessageInfoSAXParser;
+import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
 
 import org.junit.After;
 import org.junit.Before;

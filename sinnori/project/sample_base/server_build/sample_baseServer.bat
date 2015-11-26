@@ -1,6 +1,9 @@
-java -server -Xmx1024m -Xms1024m ^
--Dlogback.configurationFile=D:\gitsinnori\sinnori\project\sample_base\config\logback.xml ^
--Dsinnori.logPath=D:\gitsinnori\sinnori\project\sample_base\log\server ^
--Dsinnori.installedPath=D:\gitsinnori\sinnori ^
+set OLDPWD=%CD%
+cd /D /home/madang01/gitsinnori/sinnori/project/sample_base/server_build
+java -Xmx1024m -Xms1024m ^
+-Dlogback.configurationFile=/home/madang01/gitsinnori/sinnori/project/sample_base/config/logback.xml ^
+-Dsinnori.logPath=/home/madang01/gitsinnori/sinnori/project/sample_base/log/server ^
+-Dsinnori.installedPath=/home/madang01/gitsinnori/sinnori ^
 -Dsinnori.projectName=sample_base ^
--jar D:\gitsinnori\sinnori\project\sample_base\server_build\dist\SinnoriServerRun.jar
+-jar dist/SinnoriServerRun.jar
+cd /D %OLDPWD%

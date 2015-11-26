@@ -8,8 +8,8 @@ import java.util.Locale;
 
 import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
 import kr.pe.sinnori.common.exception.MessageInfoSAXParserException;
-import kr.pe.sinnori.gui.message.builder.info.MessageInfo;
-import kr.pe.sinnori.gui.message.builder.info.MessageInfoSAXParser;
+import kr.pe.sinnori.common.message.builder.info.MessageInfo;
+import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
 
 import org.junit.Before;
 import org.junit.Ignore;

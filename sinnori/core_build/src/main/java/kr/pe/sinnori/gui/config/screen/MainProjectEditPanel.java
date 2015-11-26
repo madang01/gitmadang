@@ -37,6 +37,8 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
 import kr.pe.sinnori.common.config.BuildSystemPathSupporter;
+import kr.pe.sinnori.common.config.buildsystem.BuildSystemSupporter;
+import kr.pe.sinnori.common.config.buildsystem.MainProjectBuildSystemState;
 import kr.pe.sinnori.common.config.fileorpathstringgetter.AbstractFileOrPathStringGetter;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.config.itemidinfo.SinnoriItemIDInfoManger;
@@ -45,18 +47,16 @@ import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.BuildSystemException;
 import kr.pe.sinnori.common.exception.MessageInfoSAXParserException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
+import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 import kr.pe.sinnori.common.util.SequencedProperties;
 import kr.pe.sinnori.common.util.SequencedPropertiesUtil;
-import kr.pe.sinnori.gui.config.buildsystem.BuildSystemSupporter;
-import kr.pe.sinnori.gui.config.buildsystem.MainProjectBuildSystemState;
 import kr.pe.sinnori.gui.config.table.ConfigurationPartTableModel;
 import kr.pe.sinnori.gui.config.table.ItemKeyLabel;
 import kr.pe.sinnori.gui.config.table.ItemKeyRenderer;
 import kr.pe.sinnori.gui.config.table.ItemValueEditor;
 import kr.pe.sinnori.gui.config.table.ItemValuePanel;
 import kr.pe.sinnori.gui.config.table.ItemValueRenderer;
-import kr.pe.sinnori.gui.message.builder.info.MessageInfoSAXParser;
 import kr.pe.sinnori.gui.util.PathSwingAction;
 
 import org.apache.commons.io.FileUtils;
@@ -868,7 +868,7 @@ public class MainProjectEditPanel extends JPanel {
 					.getFileOrPathStringGetter(itemID);
 			if (null != fileOrPathStringGetter) {
 				fileOrPathStringGetter
-						.getFileOrPathStringDependingOnBuildSystem(
+						.getFileOrPathStringDependingOnSinnoriInstalledPath(
 								mainProjectName, sinnoriInstalledPathString);
 			}
 			ItemIDInfo.ViewType itemViewType = itemIDInfo.getViewType();
@@ -1032,7 +1032,7 @@ public class MainProjectEditPanel extends JPanel {
 					.getFileOrPathStringGetter(itemID);
 			if (null != fileOrPathStringGetter) {
 				fileOrPathStringGetter
-						.getFileOrPathStringDependingOnBuildSystem(
+						.getFileOrPathStringDependingOnSinnoriInstalledPath(
 								mainProjectName, sinnoriInstalledPathString,
 								newDBCPName);
 			}

@@ -5,7 +5,6 @@ import static org.junit.Assert.fail;
 import java.nio.charset.Charset;
 import java.util.Properties;
 
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import kr.pe.sinnori.common.config.AbstractDependOnValidChecker;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningCharset;
@@ -14,6 +13,7 @@ import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturnin
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -434,7 +434,8 @@ public class MinDependOnMaxValidCheckerTest {
 		}
 	}
 	
-	@Ignore @Test
+	@Ignore 
+	@Test
 	public void testIsValid_ValidButBadParameter_prefixOfPart() throws Exception {
 		/**
 		 * ValidButBadParameter 테스트는 파라미터 값이 유효하지만 잘못된 값을 가지는 경우에 대한 테스트로

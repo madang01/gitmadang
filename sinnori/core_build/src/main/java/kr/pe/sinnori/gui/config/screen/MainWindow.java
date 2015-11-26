@@ -12,7 +12,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import kr.pe.sinnori.gui.config.buildsystem.MainProjectBuildSystemState;
+import kr.pe.sinnori.common.config.buildsystem.MainProjectBuildSystemState;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
