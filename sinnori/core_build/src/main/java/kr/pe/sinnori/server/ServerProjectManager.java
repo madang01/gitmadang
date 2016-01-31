@@ -22,8 +22,8 @@ import java.util.List;
 
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.part.AllSubProjectPartConfiguration;
-import kr.pe.sinnori.common.config.part.ProjectPartConfiguration;
+import kr.pe.sinnori.common.config.configvo.AllSubProjectPartConfigurationVO;
+import kr.pe.sinnori.common.config.configvo.ProjectPartConfigurationVO;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotFoundProjectException;
 
@@ -62,31 +62,36 @@ public final class ServerProjectManager {
 	 * @throws NoMoreDataPacketBufferException 
 	 */
 	private ServerProjectManager() {
-		SinnoriConfiguration sinnoriRunningProjectConfiguration = 
-				SinnoriConfigurationManager.getInstance()
-				.getSinnoriRunningProjectConfiguration();
-		ProjectPartConfiguration mainProjectPart = sinnoriRunningProjectConfiguration.getMainProjectPart();
-		AllSubProjectPartConfiguration allSubProjectPart = sinnoriRunningProjectConfiguration.getAllSubProjectPart();
-		
-		try {
-			mainServerProject = new ServerProject(mainProjectPart);
-		} catch (NoMoreDataPacketBufferException e) {
-			log.error("NoMoreDataPacketBufferException", e);
-			System.exit(1);
-		}
-		
-		List<String> subProjectNamelist = allSubProjectPart.getSubProjectNamelist();
-				
-		for (String subProjectName : subProjectNamelist) {
-			ServerProject subServerProject=null;
+		// try {
+			SinnoriConfiguration sinnoriRunningProjectConfiguration = 
+					SinnoriConfigurationManager.getInstance()
+					.getSinnoriRunningProjectConfiguration();
+			ProjectPartConfigurationVO mainProjectPart = sinnoriRunningProjectConfiguration.getMainProjectPart();
+			AllSubProjectPartConfigurationVO allSubProjectPart = sinnoriRunningProjectConfiguration.getAllSubProjectPart();
+			
 			try {
-				subServerProject = new ServerProject(allSubProjectPart.getSubProjectPart(subProjectName));
+				mainServerProject = new ServerProject(mainProjectPart);
 			} catch (NoMoreDataPacketBufferException e) {
 				log.error("NoMoreDataPacketBufferException", e);
 				System.exit(1);
 			}
-			subServerProjectHash.put(subProjectName, subServerProject);
-		}
+			
+			List<String> subProjectNamelist = allSubProjectPart.getSubProjectNamelist();
+					
+			for (String subProjectName : subProjectNamelist) {
+				ServerProject subServerProject=null;
+				try {
+					subServerProject = new ServerProject(allSubProjectPart.getSubProjectPart(subProjectName));
+				} catch (NoMoreDataPacketBufferException e) {
+					log.error("NoMoreDataPacketBufferException", e);
+					System.exit(1);
+				}
+				subServerProjectHash.put(subProjectName, subServerProject);
+			}
+		/*} catch(Throwable e) {
+			log.warn("unknown error", e);
+		}*/
+		
 	}
 	
 	/**

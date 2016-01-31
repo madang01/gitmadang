@@ -18,10 +18,10 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
+import kr.pe.sinnori.common.config.configvo.AllDBCPPartConfigurationVO;
+import kr.pe.sinnori.common.config.configvo.AllSubProjectPartConfigurationVO;
+import kr.pe.sinnori.common.config.configvo.ProjectPartConfigurationVO;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDDefiner;
-import kr.pe.sinnori.common.config.part.AllDBCPPartConfiguration;
-import kr.pe.sinnori.common.config.part.AllSubProjectPartConfiguration;
-import kr.pe.sinnori.common.config.part.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.DBCPManager;
 import kr.pe.sinnori.common.etc.LastModifiedFileInfo;
@@ -96,10 +96,10 @@ public class SqlSessionFactoryManger {
 				SinnoriConfigurationManager.getInstance()
 				.getSinnoriRunningProjectConfiguration();
 		
-		AllDBCPPartConfiguration allDBCPPart = sinnoriRunningProjectConfiguration.getAllDBCPPart();
-		AllSubProjectPartConfiguration allSubProjectPart = sinnoriRunningProjectConfiguration
+		AllDBCPPartConfigurationVO allDBCPPart = sinnoriRunningProjectConfiguration.getAllDBCPPart();
+		AllSubProjectPartConfigurationVO allSubProjectPart = sinnoriRunningProjectConfiguration
 				.getAllSubProjectPart();
-		ProjectPartConfiguration mainProjetPart = sinnoriRunningProjectConfiguration
+		ProjectPartConfigurationVO mainProjetPart = sinnoriRunningProjectConfiguration
 				.getMainProjectPart();
 
 		// List<String> dbcpConnectionPoolNameList = (List<String>)
@@ -115,7 +115,7 @@ public class SqlSessionFactoryManger {
 					.getProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME);
 		}
 
-		ProjectPartConfiguration workingProjetPart = null;
+		ProjectPartConfigurationVO workingProjetPart = null;
 		
 		
 		

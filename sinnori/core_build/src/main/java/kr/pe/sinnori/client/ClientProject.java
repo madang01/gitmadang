@@ -31,7 +31,7 @@ import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessa
 import kr.pe.sinnori.client.connection.sync.noshare.NoShareSyncConnectionPool;
 import kr.pe.sinnori.client.io.ClientWrapOutputMessageQueue;
 import kr.pe.sinnori.client.io.LetterToServer;
-import kr.pe.sinnori.common.config.part.ProjectPartConfiguration;
+import kr.pe.sinnori.common.config.configvo.ProjectPartConfigurationVO;
 import kr.pe.sinnori.common.etc.CommonType.CONNECTION_TYPE;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
@@ -98,8 +98,8 @@ public class ClientProject extends AbstractProject implements ClientProjectIF,
 	/**
 	 * 생성자
 	 * 
-	 * @param projectName
-	 *            프로젝트 이름
+	 * @param projectPartConfigurationVO
+	 *            프로젝트 파트 설정 내용
 	 * @throws NoMoreDataPacketBufferException
 	 *             프로젝트의 연결 클래스을 만들때 데이터 패킷 버퍼 부족시 던지는 예외
 	 * @throws NoMoreOutputMessageQueueException
@@ -107,41 +107,41 @@ public class ClientProject extends AbstractProject implements ClientProjectIF,
 	 * @throws InterruptedException
 	 *             쓰레드 인터럽트
 	 */
-	public ClientProject(ProjectPartConfiguration projectPart)
+	public ClientProject(ProjectPartConfigurationVO projectPartConfigurationVO)
 			throws NoMoreDataPacketBufferException,
 			NoMoreOutputMessageQueueException, InterruptedException {
-		super(projectPart);
+		super(projectPartConfigurationVO);
 
-		int connectionCount = projectPart.getClientConnectionCount();
-		long socketTimeOut = projectPart.getClientSocketTimeout();
-		boolean whetherToAutoConnect = projectPart
+		int connectionCount = projectPartConfigurationVO.getClientConnectionCount();
+		long socketTimeOut = projectPartConfigurationVO.getClientSocketTimeout();
+		boolean whetherToAutoConnect = projectPartConfigurationVO
 				.getClientWhetherAutoConnection();
-		CONNECTION_TYPE connectionType = projectPart.getConnectionType();
-		long clientMonitorTimeInterval = projectPart
+		CONNECTION_TYPE connectionType = projectPartConfigurationVO.getConnectionType();
+		long clientMonitorTimeInterval = projectPartConfigurationVO
 				.getClientMonitorTimeInterval();
-		long clientMonitorReceptionTimeout = projectPart
+		long clientMonitorReceptionTimeout = projectPartConfigurationVO
 				.getClientMonitorReceptionTimeout();
-		int inputMessageQueueSize = projectPart
+		int inputMessageQueueSize = projectPartConfigurationVO
 				.getClientAsynInputMessageQueueSize();
-		int OutputMessageQueueSize = projectPart
+		int OutputMessageQueueSize = projectPartConfigurationVO
 				.getClientAsynOutputMessageQueueSize();
-		int finishConnectMaxCall = projectPart
+		int finishConnectMaxCall = projectPartConfigurationVO
 				.getClientAsynFinishConnectMaxCall();
-		long finishConnectWaittingTime = projectPart
+		long finishConnectWaittingTime = projectPartConfigurationVO
 				.getClientFinishConnectWaittingTime();
-		long readSelectorWakeupInterval = projectPart
+		long readSelectorWakeupInterval = projectPartConfigurationVO
 				.getClientReadSelectorWakeupInterval();
-		int clientAsynInputMessageWriterSize = projectPart
+		int clientAsynInputMessageWriterSize = projectPartConfigurationVO
 				.getClientAsynInputMessageWriterSize();
-		int clientAsynInputMessageWriterMaxSize = projectPart
+		int clientAsynInputMessageWriterMaxSize = projectPartConfigurationVO
 				.getClientAsynInputMessageWriterMaxSize();
-		int clientAsynOutputMessageReaderSize = projectPart
+		int clientAsynOutputMessageReaderSize = projectPartConfigurationVO
 				.getClientAsynOutputMessageReaderSize();
-		int clientAsynOutputMessageReaderMaxSize = projectPart
+		int clientAsynOutputMessageReaderMaxSize = projectPartConfigurationVO
 				.getClientAsynOutputMessageReaderMaxSize();
-		int clientAsynOutputMessageExecutorThreadCnt = projectPart
+		int clientAsynOutputMessageExecutorThreadCnt = projectPartConfigurationVO
 				.getClientAsynOutputMessageExecutorThreadCnt();
-		int mailBoxCnt = projectPart.getClientAsynShareMailboxCnt();
+		int mailBoxCnt = projectPartConfigurationVO.getClientAsynShareMailboxCnt();
 
 		if (CONNECTION_TYPE.NoShareSync == connectionType) {
 			connectionPool = new NoShareSyncConnectionPool(projectName, hostOfProject,
@@ -192,7 +192,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF,
 						connectionCount,
 						socketTimeOut, whetherToAutoConnect,
 						finishConnectMaxCall, finishConnectWaittingTime,
-						mailBoxCnt, projectPart, asynOutputMessageQueue,
+						mailBoxCnt, projectPartConfigurationVO, asynOutputMessageQueue,
 						inputMessageQueue, messageProtocol,
 						outputMessageReaderPool, this, this, this);
 			} else {

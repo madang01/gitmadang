@@ -3,7 +3,7 @@
 <!-- DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" -->
 <!DOCTYPE mapper SYSTEM "/home/madang01/gitsinnori/sinnori/project/sample_base/config/mybatis-3-mapper.dtd">
 
-<mapper namespace="kr.pe.sinnori.impl.server.mybatis">
+<mapper namespace="kr.pr.sinnori.testweb">
 	<!--  아이디와 일치하는 회원 검색  -->
     <select id="getMemberByID" parameterType="String" resultType="hashmap">
 select 
@@ -18,7 +18,7 @@ pwd_answer as pwdAnswer,
 pwd_fail_cnt as pwdFailCount,
 reg_dt as registerDate,
 mod_dt as modifiedDate
-from TW_MEMBER_TB where user_id=#{userId}
+from SB_MEMBER_TB where user_id=#{userId}
     </select>
     
     <!-- 별명과 일치하는 회원 검색,  -->
@@ -35,12 +35,12 @@ pwd_answer as pwdAnswer,
 pwd_fail_cnt as pwdFailCount,
 reg_dt as registerDate,
 mod_dt as modifiedDate
-from TW_MEMBER_TB where nickname=#{nickname}
+from SB_MEMBER_TB where nickname=#{nickname}
     </select>
     
 	<!--  일반 회원 가입, status 0:정상, 1:탈퇴, member_gb 0:관리자, 1:일반회원, 2:불량회원 -->
 	<insert id="insertMember" parameterType="hashmap">
-        insert into TW_MEMBER_TB  
+        insert into SB_MEMBER_TB  
 (`user_id`,
 `nickname`,
 `pwd_base64`,
@@ -75,17 +75,17 @@ pwd_answer as pwdAnswer,
 pwd_fail_cnt as pwdFailCount,
 reg_dt as registerDate,
 mod_dt as modifiedDate
-from TW_MEMBER_TB where user_id=#{userId} for update
+from SB_MEMBER_TB where user_id=#{userId} for update
     </select>
     
     <!--  정상 상태인 일반 회원 로그인시 비밀번호 실패 카운터 설정, status 0:정상, 1:탈퇴, member_gb 0:관리자, 1:일반회원, 2:불량회원  -->
     <update id="updatePwdFailCnt" parameterType="hashmap">
-        update TW_MEMBER_TB set pwd_fail_cnt=#{pwdFailCount}, mod_dt=sysdate() where user_id=#{userId} and member_gb=1 and member_st=0
+        update SB_MEMBER_TB set pwd_fail_cnt=#{pwdFailCount}, mod_dt=sysdate() where user_id=#{userId} and member_gb=1 and member_st=0
     </update>
     
     <!--  정상 상태인 일반 혹은 관리자 회원 정보(비밀번호, 질문, 답변) 변경, status 0:정상, 1:탈퇴, member_gb 0:관리자, 1:일반회원, 2:불량회원  -->
     <update id="updateMemberInfo" parameterType="hashmap">
-        update TW_MEMBER_TB set password=#{password}, pwd_question=#{pwdHint}, pwd_answer=#{pwdAnswer}, mod_dt=sysdate() where user_id=#{userId} and (member_gb=0 or member_gb=1) and member_st=0
+        update SB_MEMBER_TB set password=#{password}, pwd_question=#{pwdHint}, pwd_answer=#{pwdAnswer}, mod_dt=sysdate() where user_id=#{userId} and (member_gb=0 or member_gb=1) and member_st=0
     </update>
        
 	    
@@ -95,9 +95,9 @@ from TW_MEMBER_TB where user_id=#{userId} for update
     회원상태(memberState) 0:정상, 1:블락, 2:탈퇴
     -->
     <select id="getTotalOfBoard" parameterType="kr.pe.sinnori.impl.message.BoardListInDTO.BoardListInDTO" resultType="int">
-		select count(*) as total from TW_MEMBER_TB, TW_BOARD_TB where TW_BOARD_TB.board_id = #{boardId} 
-and TW_MEMBER_TB.user_id = TW_BOARD_TB.writer_id and TW_MEMBER_TB.member_st = 0 
-and TW_BOARD_TB.del_fl = 'N'
+		select count(*) as total from SB_MEMBER_TB, SB_BOARD_TB where SB_BOARD_TB.board_id = #{boardId} 
+and SB_MEMBER_TB.user_id = SB_BOARD_TB.writer_id and SB_MEMBER_TB.member_st = 0 
+and SB_BOARD_TB.del_fl = 'N'
     </select>
 
 	<resultMap id="boardMap" type="kr.pe.sinnori.impl.message.BoardListOutDTO.BoardListOutDTO$Board">
@@ -122,19 +122,19 @@ and TW_BOARD_TB.del_fl = 'N'
 			로직에서는 RowBounds rowBounds = new RowBounds(offset, limt) 생성후
 			selectList("getBoardList", "hashmap", rowBounds) 로 호출 -->
     <select id="getBoardList" parameterType="kr.pe.sinnori.impl.message.BoardListInDTO.BoardListInDTO" resultMap="boardMap">
-select t.*, count(TW_BOARD_VOTE_TB.user_id) as votes from TW_BOARD_VOTE_TB right join (
+select t.*, count(SB_BOARD_VOTE_TB.user_id) as votes from SB_BOARD_VOTE_TB right join (
 	select t.*
-	from TW_BOARD_TB join  (
+	from SB_BOARD_TB join  (
 		select
-			TW_BOARD_TB.*, 
-			TW_MEMBER_TB.nickname, 		
-			if (TW_MEMBER_TB.member_gb = 1, '일반회원', if (TW_MEMBER_TB.member_gb = 0, '관리자', '알수없음')) as member_gb_nm
-		from TW_BOARD_TB, TW_MEMBER_TB
-		where TW_BOARD_TB.board_id = #{boardId}
-		and TW_BOARD_TB.writer_id = TW_MEMBER_TB.user_id
-		and TW_MEMBER_TB.member_st=0 and TW_BOARD_TB.del_fl = 'N'
-	) as t on TW_BOARD_TB.board_no=t.board_no	
-) as t on TW_BOARD_VOTE_TB.board_no = t.board_no
+			SB_BOARD_TB.*, 
+			SB_MEMBER_TB.nickname, 		
+			if (SB_MEMBER_TB.member_gb = 1, '일반회원', if (SB_MEMBER_TB.member_gb = 0, '관리자', '알수없음')) as member_gb_nm
+		from SB_BOARD_TB, SB_MEMBER_TB
+		where SB_BOARD_TB.board_id = #{boardId}
+		and SB_BOARD_TB.writer_id = SB_MEMBER_TB.user_id
+		and SB_MEMBER_TB.member_st=0 and SB_BOARD_TB.del_fl = 'N'
+	) as t on SB_BOARD_TB.board_no=t.board_no	
+) as t on SB_BOARD_VOTE_TB.board_no = t.board_no
 group by t.board_no
 order by t.group_no desc, t.group_sq asc
 limit #{startNo}, #{pageSize}
@@ -154,9 +154,9 @@ limit #{startNo}, #{pageSize}
 #{startNo} as startNo,
 #{pageSize} as pageSize,
 count(*) as total
-from TW_MEMBER_TB, TW_BOARD_TB where TW_BOARD_TB.board_id = #{boardId} 
-	and TW_MEMBER_TB.user_id = TW_BOARD_TB.writer_id and TW_MEMBER_TB.member_st = 0 
-	and TW_BOARD_TB.del_fl = 'N'
+from SB_MEMBER_TB, SB_BOARD_TB where SB_BOARD_TB.board_id = #{boardId} 
+	and SB_MEMBER_TB.user_id = SB_BOARD_TB.writer_id and SB_MEMBER_TB.member_st = 0 
+	and SB_BOARD_TB.del_fl = 'N'
     </select>
 
 	<resultMap id="boardFileForDetailMap" type="kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO$AttachFile">
@@ -168,7 +168,7 @@ from TW_MEMBER_TB, TW_BOARD_TB where TW_BOARD_TB.board_id = #{boardId}
 	<select id="getBoardFileListForDetail" resultMap="boardFileForDetailMap">
 select
 	attach_sq, attach_fname
-from TW_BOARD_FILELIST_TB where attach_id = #{attachId}
+from SB_BOARD_FILELIST_TB where attach_id = #{attachId}
     </select>
 		
 	<resultMap id="boardDetailMap" type="kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO">
@@ -191,13 +191,13 @@ from TW_BOARD_FILELIST_TB where attach_id = #{attachId}
 		<result  property="attachId" column="attach_id" />
 		<result  property="memberGubunName" column="member_gb_nm" />
 		<result  property="memberState" column="member_st" />
-<!-- collection property="attachFileList" column="{attachId=ATTACH_ID}" ofType="kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO$AttachFile" select="getBoardFileListForDetail"  / -->		
+<collection property="attachFileList" column="{attachId=ATTACH_ID}" ofType="kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO$AttachFile" select="getBoardFileListForDetail"  />		
 	</resultMap>
 	    
     <!-- 게시글 상세 보기, 회원상태(memberState) 0:정상, 1:블락, 2:탈퇴 -->
     <select id="getBoardDetail" parameterType="kr.pe.sinnori.impl.message.BoardDetailInDTO.BoardDetailInDTO" resultMap="boardDetailMap">
 select 
-	TW_BOARD_TB.board_no,
+	SB_BOARD_TB.board_no,
 	board_id,
 	group_no,	
 	group_sq,
@@ -206,44 +206,44 @@ select
 	subject,
 	content,
 	writer_id,
-	TW_MEMBER_TB.nickname,
+	SB_MEMBER_TB.nickname,
 	view_cnt,
-	(select count(TW_BOARD_VOTE_TB.user_id) from TW_BOARD_VOTE_TB where TW_BOARD_VOTE_TB.board_no = TW_BOARD_TB.board_no) as votes,
+	(select count(SB_BOARD_VOTE_TB.user_id) from SB_BOARD_VOTE_TB where SB_BOARD_VOTE_TB.board_no = SB_BOARD_TB.board_no) as votes,
 	del_fl, 
 	ip,
-	TW_BOARD_TB.reg_dt,
-	TW_BOARD_TB.mod_dt,
-	TW_BOARD_TB.attach_id,
-	if (TW_MEMBER_TB.member_gb = 1, '일반회원', if (TW_MEMBER_TB.member_gb = 0, '관리자', '알수없음')) as member_gb_nm,
-	TW_MEMBER_TB.member_st
-from TW_BOARD_TB, TW_MEMBER_TB
-where TW_BOARD_TB.board_no = #{boardNo} and TW_MEMBER_TB.user_id = TW_BOARD_TB.writer_id
+	SB_BOARD_TB.reg_dt,
+	SB_BOARD_TB.mod_dt,
+	SB_BOARD_TB.attach_id,
+	if (SB_MEMBER_TB.member_gb = 1, '일반회원', if (SB_MEMBER_TB.member_gb = 0, '관리자', '알수없음')) as member_gb_nm,
+	SB_MEMBER_TB.member_st
+from SB_BOARD_TB, SB_MEMBER_TB
+where SB_BOARD_TB.board_no = #{boardNo} and SB_MEMBER_TB.user_id = SB_BOARD_TB.writer_id
     </select>
 
 	
 
 	<!-- 게시글 상세 보기시 조회수 증가 -->
 	<update id="updateBoardViewCnt" parameterType="kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO">
-update TW_BOARD_TB set view_cnt = view_cnt + 1 where board_no=#{boardNo}
+update SB_BOARD_TB set view_cnt = view_cnt + 1 where board_no=#{boardNo}
 	</update>
 
 	<!-- 게시글 수정전 게시글 작성자 본인 확인을 위한 조회 -->
 	<select id="getBoardModifyInLock" parameterType="kr.pe.sinnori.impl.message.BoardModifyInDTO.BoardModifyInDTO" resultType="hashmap">
 select 
 	writer_id as writerId, board_id as boardId, attach_id as attachId
-from TW_BOARD_TB 
+from SB_BOARD_TB 
 where board_no=#{boardNo} for update
     </select>
 
 	<!-- 게시글 수정 -->
 	<update id="updateBoard" parameterType="kr.pe.sinnori.impl.message.BoardModifyInDTO.BoardModifyInDTO">
-update TW_BOARD_TB set subject=#{subject}, content=#{content}, attach_id=#{attachId}, ip=#{ip}, mod_dt=sysdate() where board_no=#{boardNo}
+update SB_BOARD_TB set subject=#{subject}, content=#{content}, attach_id=#{attachId}, ip=#{ip}, mod_dt=sysdate() where board_no=#{boardNo}
 	</update>
 
 	    
     <!--  부모글 없는 최상위 글 등록 -->
     <insert id="insertRootBoard" parameterType="kr.pe.sinnori.impl.message.BoardWriteInDTO.BoardWriteInDTO">
- INSERT INTO `SINNORIDB`.`TW_BOARD_TB`
+ INSERT INTO `SINNORIDB`.`SB_BOARD_TB`
 (`board_no`,
 `group_no`,
 `group_sq`,
@@ -279,7 +279,7 @@ reg_dt)
 
 	<!-- 부모글 없는 최상위 글 등록후 자동 증가값인 board_no 값을 얻어 group_no 값 수정 -->
 	<update id="updateBoardGropNo" parameterType="kr.pe.sinnori.impl.message.BoardWriteInDTO.BoardWriteInDTO">
-update TW_BOARD_TB set group_no=board_no where board_no=LAST_INSERT_ID()
+update SB_BOARD_TB set group_no=board_no where board_no=LAST_INSERT_ID()
 	</update>
 
 	<resultMap id="boardTreeInfoMap" type="kr.pe.sinnori.impl.message.BoardReplyDTO.BoardReplyDTO">
@@ -295,7 +295,7 @@ update TW_BOARD_TB set group_no=board_no where board_no=LAST_INSERT_ID()
 	<select id="getBoardTreeInfoFromParent" parameterType="kr.pe.sinnori.impl.message.BoardReplyRequest.BoardReplyRequest" resultMap="boardTreeInfoMap">
 select 
 	board_no, group_no, (group_sq+1) as group_sq, (depth+1) as depth, board_id	
-from TW_BOARD_TB 
+from SB_BOARD_TB 
 where board_no=#{parentBoardNo}
     </select>
 
@@ -315,17 +315,17 @@ view_cnt,
 del_fl,
 reg_dt,
 mod_dt
-from TW_BOARD_TB where group_no=#{groupNo} and group_sq <![CDATA[>=]]> #{groupSeq} - 1 for update
+from SB_BOARD_TB where group_no=#{groupNo} and group_sq <![CDATA[>=]]> #{groupSeq} - 1 for update
     </select>
     
     <!--  댓글 등록시 삽입하고자 하는 위치 이후 seq 모두 업데이트 -->
 	<update id="updateReplyBoard" parameterType="kr.pe.sinnori.impl.message.BoardReplyDTO.BoardReplyDTO">
-        update TW_BOARD_TB set group_sq=group_sq+1 where group_no=#{groupNo} and group_sq <![CDATA[>=]]> #{groupSeq}
+        update SB_BOARD_TB set group_sq=group_sq+1 where group_no=#{groupNo} and group_sq <![CDATA[>=]]> #{groupSeq}
     </update>
     
 	<!--  댓글 등록 -->
     <insert id="insertReplyBoard" parameterType="kr.pe.sinnori.impl.message.BoardReplyDTO.BoardReplyDTO">    
- INSERT INTO `SINNORIDB`.`TW_BOARD_TB`
+ INSERT INTO `SINNORIDB`.`SB_BOARD_TB`
 (`board_no`,
 `group_no`,
 `group_sq`,
@@ -365,7 +365,7 @@ reg_dt)
 	<select id="getBoardWriter" parameterType="kr.pe.sinnori.impl.message.BoardVoteInDTO.BoardVoteInDTO" resultType="String">
 select 
 	writer_id as writerId
-from TW_BOARD_TB 
+from SB_BOARD_TB 
 where board_no=#{boardNo}
     </select>
 
@@ -373,13 +373,13 @@ where board_no=#{boardNo}
 	<select id="getBoardVote" parameterType="kr.pe.sinnori.impl.message.BoardVoteInDTO.BoardVoteInDTO" resultType="hashmap">
 select 
 	*
-from TW_BOARD_VOTE_TB 
+from SB_BOARD_VOTE_TB 
 where board_no=#{boardNo} and user_id = #{userId}
     </select>
 
 	<!-- 게시글 추천 -->
 	<insert id="insertBoardVote" parameterType="kr.pe.sinnori.impl.message.BoardVoteInDTO.BoardVoteInDTO">
-insert into `SINNORIDB`.`TW_BOARD_VOTE_TB` 
+insert into `SINNORIDB`.`SB_BOARD_VOTE_TB` 
 (`board_no`,
 `user_id`,
 `ip`,
@@ -396,18 +396,18 @@ sysdate())
 	<select id="getSeqValueInLock" parameterType="kr.pe.sinnori.impl.message.SeqValueInDTO.SeqValueInDTO" resultType="kr.pe.sinnori.impl.message.SeqValueOutDTO.SeqValueOutDTO">
 select 
 	sq_value as seqValue, #{wantedSize}
-from TW_SEQ_MANAGER_TB
+from SB_SEQ_MANAGER_TB
 where sq_type_id = #{seqTypeId} for update
     </select>
 
 	<!-- 락을 건 상태로 시퀀스 값 조회후 시퀀스 값 +1 증가 -->
 	<update id="updateSeqValue" parameterType="kr.pe.sinnori.impl.message.SeqValueInDTO.SeqValueInDTO">
-update TW_SEQ_MANAGER_TB set sq_value = sq_value + #{wantedSize} where sq_type_id = #{seqTypeId}
+update SB_SEQ_MANAGER_TB set sq_value = sq_value + #{wantedSize} where sq_type_id = #{seqTypeId}
 	</update>
     
 	<!-- 업로드 파일 정보 추가 -->
 	<insert id="insertBoardFileInfo" parameterType="kr.pe.sinnori.impl.message.BoardUploadFileInDTO.BoardUploadFileInDTO">
-insert into `SINNORIDB`.`TW_BOARD_FILEINFO_TB` 
+insert into `SINNORIDB`.`SB_BOARD_FILEINFO_TB` 
 (`attach_id`,
 `owner_id`,
 `ip`,
@@ -428,7 +428,7 @@ select last_insert_id() as attachId
 
 	<!-- 업로드 파일 목록 추가 -->
 	<insert id="insertBoardFile" parameterType="kr.pe.sinnori.impl.message.BoardFileDTO.BoardFileDTO">
-insert into `SINNORIDB`.`TW_BOARD_FILELIST_TB` 
+insert into `SINNORIDB`.`SB_BOARD_FILELIST_TB` 
 (`attach_id`,
 `attach_sq`,
 `attach_fname`,
@@ -450,7 +450,7 @@ VALUES
 	<select id="getUploadFileListResult" resultMap="uploadFileListResultMap">
 select 
 	*
-from TW_BOARD_FILELIST_TB
+from SB_BOARD_FILELIST_TB
 where attach_id = #{attachId}
 order by attach_sq asc
     </select>
@@ -469,7 +469,7 @@ order by attach_sq asc
 	<select id="getBoardUploadFileOutDTO" parameterType="java.lang.Long" resultMap="boardUploadFileOutDTOMap">
 select 
 	*
-from TW_BOARD_FILEINFO_TB
+from SB_BOARD_FILEINFO_TB
 where attach_id = #{attachId}
     </select>
 
@@ -485,13 +485,13 @@ where attach_id = #{attachId}
 	<!-- 업로드 수정처리를 위한 락을 건 상태로 업로드 파일 정보 조회 -->
 	<select id="getBoardFileInfoDTOInLock" parameterType="kr.pe.sinnori.impl.message.BoardUploadFileInDTO.BoardUploadFileInDTO" resultMap="boardFileInfoDTOMap">
 select *
-from TW_BOARD_FILEINFO_TB
+from SB_BOARD_FILEINFO_TB
 where attach_id = #{attachId} for update
     </select>
 
 	<!-- 업로드 수정처리를 위한 업로드 파일 정보 수정 -->
 	<update id="updateUploadFileInfo" parameterType="kr.pe.sinnori.impl.message.BoardUploadFileInDTO.BoardUploadFileInDTO">
-update TW_BOARD_FILEINFO_TB set ip=#{ip}, mod_dt=sysdate() where attach_id = #{attachId}
+update SB_BOARD_FILEINFO_TB set ip=#{ip}, mod_dt=sysdate() where attach_id = #{attachId}
 	</update>
 
 	<resultMap id="boardFileDTOMap" type="kr.pe.sinnori.impl.message.BoardFileDTO.BoardFileDTO">
@@ -505,13 +505,13 @@ update TW_BOARD_FILEINFO_TB set ip=#{ip}, mod_dt=sysdate() where attach_id = #{a
 	<select id="getBoardFileDTO" parameterType="kr.pe.sinnori.impl.message.BoardFileDTO.BoardFileDTO" resultMap="boardFileDTOMap">
 select 
 	*
-from TW_BOARD_FILELIST_TB
+from SB_BOARD_FILELIST_TB
 where attach_id = #{attachId} and attach_sq = #{attachSeq}
     </select>
 
 	<!-- 업로드 수정처리를 위한 기존 업로드 파일들 모두 삭제 -->
 	<delete id="deleteAllUploadFiles" parameterType="kr.pe.sinnori.impl.message.BoardUploadFileInDTO.BoardUploadFileInDTO">
-delete from TW_BOARD_FILELIST_TB where attach_id = #{attachId}
+delete from SB_BOARD_FILELIST_TB where attach_id = #{attachId}
 	</delete>
 	
 	<!-- 다운로드 하기전 업로드 파일의 소유자임을 검사하기위한 업로드 파일 정보 조회 -->
@@ -526,9 +526,9 @@ delete from TW_BOARD_FILELIST_TB where attach_id = #{attachId}
 	<!-- 다운로드 하기 위한 정보 조회 -->
 	<select id="getDownloadFileInfo" parameterType="kr.pe.sinnori.impl.message.BoardDownloadFileInDTO.BoardDownloadFileInDTO" resultMap="boardFileInfoMap">
 select
-	TW_BOARD_FILEINFO_TB.owner_id, TW_BOARD_FILELIST_TB.*
-from TW_BOARD_FILEINFO_TB, TW_BOARD_FILELIST_TB 
-where TW_BOARD_FILELIST_TB.attach_id = #{attachId} and TW_BOARD_FILELIST_TB.attach_sq = #{attachSeq}
-and TW_BOARD_FILEINFO_TB.attach_id = TW_BOARD_FILELIST_TB.attach_id
+	SB_BOARD_FILEINFO_TB.owner_id, SB_BOARD_FILELIST_TB.*
+from SB_BOARD_FILEINFO_TB, SB_BOARD_FILELIST_TB 
+where SB_BOARD_FILELIST_TB.attach_id = #{attachId} and SB_BOARD_FILELIST_TB.attach_sq = #{attachSeq}
+and SB_BOARD_FILEINFO_TB.attach_id = SB_BOARD_FILELIST_TB.attach_id
     </select>
 </mapper>

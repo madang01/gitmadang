@@ -3,7 +3,7 @@ package kr.pe.sinnori.weblib.common;
 import java.io.File;
 
 public abstract class WebCommonStaticFinalVars {
-	public static final String WEBSITE_TITLE = "Sinnori Development Framework";
+	public static final String WEBSITE_TITLE = "Sinnori Home";
 	
 	public static final String HTTPSESSION_KEY_USERID_NAME = "userID";
 	// public static final String HTTPSESSION_USERGUBUN_NAME = "userGubun";

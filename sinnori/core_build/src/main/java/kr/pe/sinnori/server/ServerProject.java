@@ -26,11 +26,12 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import kr.pe.sinnori.common.config.part.ProjectPartConfiguration;
+import kr.pe.sinnori.common.config.configvo.ProjectPartConfigurationVO;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.SocketInputStream;
 import kr.pe.sinnori.common.project.AbstractProject;
+import kr.pe.sinnori.common.project.ProjectWorkerIF;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
 import kr.pe.sinnori.server.classloader.JarClassInfo;
 import kr.pe.sinnori.server.classloader.JarUtil;
@@ -120,52 +121,52 @@ public class ServerProject extends AbstractProject implements
 	/**
 	 * 생성자
 	 * 
-	 * @param projectName
-	 *            프로젝트 이름
+	 * @param projectPartConfigurationVO
+	 *            프로젝트 파트 설정 내용
 	 * @throws NoMoreDataPacketBufferException
 	 *             데이터 패킷 버퍼 부족시 던지는 예외
 	 */
-	public ServerProject(ProjectPartConfiguration projectPart)
+	public ServerProject(ProjectPartConfigurationVO projectPartConfigurationVO)
 			throws NoMoreDataPacketBufferException {
-		super(projectPart);
+		super(projectPartConfigurationVO);
 
-		serverClassLoaderAPPINFPathString = projectPart
+		serverClassLoaderAPPINFPathString = projectPartConfigurationVO
 				.getServerClassloaderAPPINFPath().getAbsolutePath();
 
-		long acceptSelectTimeout = projectPart.getServerAcceptSelectorTimeout();
-		int maxClients = projectPart.getServerMaxClients();
-		int acceptProcessorSize = projectPart.getServerAcceptProcessorSize();
-		int acceptProcessorMaxSize = projectPart
+		long acceptSelectTimeout = projectPartConfigurationVO.getServerAcceptSelectorTimeout();
+		int maxClients = projectPartConfigurationVO.getServerMaxClients();
+		int acceptProcessorSize = projectPartConfigurationVO.getServerAcceptProcessorSize();
+		int acceptProcessorMaxSize = projectPartConfigurationVO
 				.getServerAcceptProcessorMaxSize();
 
-		int inputMessageReaderSize = projectPart
+		int inputMessageReaderSize = projectPartConfigurationVO
 				.getServerInputMessageReaderSize();
-		int inputMessageReaderMaxSize = projectPart
+		int inputMessageReaderMaxSize = projectPartConfigurationVO
 				.getServerInputMessageReaderMaxSize();
-		long readSelectorWakeupInterval = projectPart
+		long readSelectorWakeupInterval = projectPartConfigurationVO
 				.getServerReadSelectorWakeupInterval();
 
-		int executorProcessorSize = projectPart
+		int executorProcessorSize = projectPartConfigurationVO
 				.getServerExecutorProcessorSize();
-		int executorProcessorMaxSize = projectPart
+		int executorProcessorMaxSize = projectPartConfigurationVO
 				.getServerExecutorProcessorMaxSize();
 
-		int outputMessageWriterSize = projectPart
+		int outputMessageWriterSize = projectPartConfigurationVO
 				.getServerOutputMessageWriterSize();
-		int outputMessageWriterMaxSize = projectPart
+		int outputMessageWriterMaxSize = projectPartConfigurationVO
 				.getServerOutputMessageWriterMaxSize();
 
 		
 
-		int serverAcceptQueueSize = projectPart.getServerAcceptQueueSize();
-		int serverInputMessageQueueSize = projectPart
+		int serverAcceptQueueSize = projectPartConfigurationVO.getServerAcceptQueueSize();
+		int serverInputMessageQueueSize = projectPartConfigurationVO
 				.getServerInputMessageQueueSize();
-		int serverOutputMessageQueueSize = projectPart
+		int serverOutputMessageQueueSize = projectPartConfigurationVO
 				.getServerOutputMessageQueueSize();
 
-		long serverMonitorTimeInterval = projectPart
+		long serverMonitorTimeInterval = projectPartConfigurationVO
 				.getServerMonitorTimeInterval();
-		long serverMonitorReceptionTimeout = projectPart
+		long serverMonitorReceptionTimeout = projectPartConfigurationVO
 				.getServerMonitorReceptionTimeout();
 
 		try {
@@ -216,14 +217,17 @@ public class ServerProject extends AbstractProject implements
 	/**
 	 * 서버 시작
 	 */
-	synchronized public void startServer() {
+	synchronized public void startServer(ProjectWorkerIF serverProjectWorker) {
+		serverProjectWorker.doStartingWork(projectPartConfigurationVO);
+		
 		serverProjectMonitor.start();
 		outputMessageWriterPool.startAll();
 		executorPool.startAll();
 		inputMessageReaderPool.startAll();
 		acceptProcessorPool.startAll();
-		if (!acceptSelector.isAlive())
+		if (!acceptSelector.isAlive()) {
 			acceptSelector.start();
+		}
 		/*
 		 * while (!acceptSelector.isAlive()) { try { Thread.sleep(100); } catch
 		 * (InterruptedException e) { e.printStackTrace(); } }

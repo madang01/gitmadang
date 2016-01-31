@@ -34,7 +34,7 @@ public class BoardDetailInDTOServerTask extends AbstractServerTask {
 		
 		SqlSession session = sqlSessionFactory.openSession(false);
 		try {			
-			boardDetailOutObj = session.selectOne("kr.pe.sinnori.impl.mybatis.sinnoriWebMapper.getBoardDetail", boardDetailInObj);
+			boardDetailOutObj = session.selectOne("kr.pr.sinnori.testweb.getBoardDetail", boardDetailInObj);
 			
 			if (null == boardDetailOutObj) {				
 				session.commit();

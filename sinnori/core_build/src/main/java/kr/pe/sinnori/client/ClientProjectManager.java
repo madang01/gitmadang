@@ -22,8 +22,8 @@ import java.util.List;
 
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.part.AllSubProjectPartConfiguration;
-import kr.pe.sinnori.common.config.part.ProjectPartConfiguration;
+import kr.pe.sinnori.common.config.configvo.AllSubProjectPartConfigurationVO;
+import kr.pe.sinnori.common.config.configvo.ProjectPartConfigurationVO;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
 import kr.pe.sinnori.common.exception.NotFoundProjectException;
@@ -65,8 +65,8 @@ public final class ClientProjectManager {
 		SinnoriConfiguration sinnoriRunningProjectConfiguration = 
 				SinnoriConfigurationManager.getInstance()
 				.getSinnoriRunningProjectConfiguration();
-		ProjectPartConfiguration mainProjectPart = sinnoriRunningProjectConfiguration.getMainProjectPart();
-		AllSubProjectPartConfiguration allSubProjectPart = sinnoriRunningProjectConfiguration.getAllSubProjectPart();
+		ProjectPartConfigurationVO mainProjectPart = sinnoriRunningProjectConfiguration.getMainProjectPart();
+		AllSubProjectPartConfigurationVO allSubProjectPart = sinnoriRunningProjectConfiguration.getAllSubProjectPart();
 		
 		try {
 			mainClientProject = new ClientProject(mainProjectPart);
