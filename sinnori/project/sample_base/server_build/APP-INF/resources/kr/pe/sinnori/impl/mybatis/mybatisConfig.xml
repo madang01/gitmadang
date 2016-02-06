@@ -4,11 +4,11 @@
 <!DOCTYPE configuration SYSTEM "/home/madang01/gitsinnori/sinnori/project/sample_base/config/mybatis-3-config.dtd">
 
 <configuration>
-	<typeAliases><typeAlias type="kr.pe.sinnori.impl.server.mybatis.TWSinnoriDBDataSourceFactory" alias="DBCP" /></typeAliases>
+	<typeAliases><typeAlias type="kr.pe.sinnori.impl.server.mybatis.SampleBaseDBDataSourceFactory" alias="DBCP" /></typeAliases>
 
-	<environments default="tw_sinnoridb">
+	<environments default="sample_base_db">
 
-		<environment id="tw_sinnoridb">
+		<environment id="sample_base_db">
 			<!--
 			UnpooledDataSourceFactory 를 상속 받아 외부 연결 폴인 DBCP 연결 폴을 지정한다.
 			강제 사항으로 UnpooledDataSourceFactory 에서 DBCP 연결 폴을 얻을 때 

@@ -7,12 +7,12 @@ import org.apache.ibatis.datasource.unpooled.UnpooledDataSourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TWSinnoriDBDataSourceFactory extends UnpooledDataSourceFactory {
-	private Logger log = LoggerFactory.getLogger(TWSinnoriDBDataSourceFactory.class);
+public class SampleBaseDBDataSourceFactory extends UnpooledDataSourceFactory {
+	private Logger log = LoggerFactory.getLogger(SampleBaseDBDataSourceFactory.class);
 	
-	public TWSinnoriDBDataSourceFactory() {
+	public SampleBaseDBDataSourceFactory() {
 		DBCPManager dbcpManager = DBCPManager.getInstance();
-		String dbcpConnectionPoolName = "tw_sinnoridb";
+		String dbcpConnectionPoolName = "sample_base_db";
 		try {
 			this.dataSource = dbcpManager.getBasicDataSource(dbcpConnectionPoolName);
 		} catch (DBNotReadyException e) {

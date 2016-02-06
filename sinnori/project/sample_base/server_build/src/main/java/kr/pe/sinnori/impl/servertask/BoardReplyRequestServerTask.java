@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
+import kr.pe.sinnori.common.serverlib.ServerCommonStaticFinalVars;
 import kr.pe.sinnori.common.serverlib.ValueChecker;
 import kr.pe.sinnori.impl.message.BoardReplyDTO.BoardReplyDTO;
 import kr.pe.sinnori.impl.message.BoardReplyRequest.BoardReplyRequest;
@@ -24,7 +25,7 @@ public class BoardReplyRequestServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(messageFromClient.toString());		
 		
-		SqlSessionFactory sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory("tw_sinnoridb");
+		SqlSessionFactory sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
 		
 		BoardReplyRequest inObj = (BoardReplyRequest)messageFromClient;		
 		

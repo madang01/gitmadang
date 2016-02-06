@@ -28,8 +28,7 @@ public abstract class WebCommonStaticFinalVars {
 	public static final String WEBSITE_JAVA_SYMMETRIC_KEY_ALGORITHM_NAME = "AES";
 	public static final String WEBSITE_JAVASCRIPT_SYMMETRIC_KEY_ALGORITHM_NAME = "AES";
 	
-	// public static final Long FREE_BOARD_TYPE_ID = 2L;
-	// public static final Long NOTICE_BOARD_TYPE_ID = 1L;
+	
 	
 	/** 게시판 목록 갯수 */
 	public static final int WEBSITE_BOARD_PAGESIZE = 20;
@@ -55,5 +54,8 @@ public abstract class WebCommonStaticFinalVars {
 	/** 업로드 되는 파일의 최대 갯수, unsinged byte 이내의 값이어야 한다. */
 	public static int WEBSITE_FILEUPLOAD_MAX_COUNT = 2;
 	
+	
+	public static final Long GENERAL_BOARD_TYPE_ID = 2L;
+	public static final Long NOTICE_BOARD_TYPE_ID = 1L;
 	public static final short UPLOAD_FILENAME_SEQ_TYPE_ID = 1;
 }

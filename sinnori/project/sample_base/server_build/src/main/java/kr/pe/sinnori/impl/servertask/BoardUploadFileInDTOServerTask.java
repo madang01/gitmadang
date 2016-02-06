@@ -28,7 +28,7 @@ public class BoardUploadFileInDTOServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(messageFromClient.toString());
 		
-		SqlSessionFactory sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory("tw_sinnoridb");
+		SqlSessionFactory sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
 		BoardUploadFileInDTO inObj = (BoardUploadFileInDTO)messageFromClient;
 		
 		try {

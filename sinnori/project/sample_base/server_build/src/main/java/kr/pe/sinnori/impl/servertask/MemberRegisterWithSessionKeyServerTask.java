@@ -8,6 +8,7 @@ import java.util.Random;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.message.AbstractMessage;
+import kr.pe.sinnori.common.serverlib.ServerCommonStaticFinalVars;
 import kr.pe.sinnori.common.serverlib.ValueChecker;
 import kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager;
 import kr.pe.sinnori.common.sessionkey.SymmetricKey;
@@ -31,7 +32,7 @@ public class MemberRegisterWithSessionKeyServerTask extends AbstractServerTask {
 			AbstractMessage messageFromClient) throws Exception {
 		MemberRegisterWithSessionKey inObj = (MemberRegisterWithSessionKey)messageFromClient;
 		
-		SqlSessionFactory sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory("tw_sinnoridb");
+		SqlSessionFactory sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
 		
 		String idCipherBase64 = inObj.getIdCipherBase64();
 		String sessionKeyBase64 = inObj.getSessionKeyBase64();

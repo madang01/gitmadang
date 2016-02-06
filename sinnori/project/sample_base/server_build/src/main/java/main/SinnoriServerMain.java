@@ -17,9 +17,7 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SinnoriServerMain implements ProjectWorkerIF {
-	static final String headerOfTableCreationSql = "CREATE TABLE IF NOT EXISTS `SB_DB`.`";
-	
+public class SinnoriServerMain implements ProjectWorkerIF {	
 	public static void main(String argv[]) throws NotFoundProjectException {
 		Logger log = LoggerFactory.getLogger("kr.pe.sinnori.main");
 
@@ -32,6 +30,20 @@ public class SinnoriServerMain implements ProjectWorkerIF {
 		}
 	}
 
+	/**
+	 * Warning! 테이블 의존성을 반영한 순서에 맞지 않으면 생성 실패함, mysql 기준 "Can't create table '#테이블명>' (errno: 150)"
+	 */
+	private String arrySqlCreatingTable[][] = {
+			{"OA_MEMBER_TB", getCreatingTableSqlForOA_MEMBER_TB()},				
+			{"SB_SEQ_MANAGER_TB", getCreatingTableSqlForSB_SEQ_MANAGER_TB()},
+			{"SB_MEMBER_TB", getCreatingTableSqlForSB_MEMBER_TB()},				
+			{"SB_BOARD_INFO_TB", getCreatingTableSqlForSB_BOARD_INFO_TB()},					
+			{"SB_BOARD_FILEINFO_TB", getCreatingTableSqlForSB_BOARD_FILEINFO_TB()},
+			{"SB_BOARD_FILELIST_TB", getCreatingTableSqlForSB_BOARD_FILELIST_TB()},
+			{"SB_BOARD_TB", getCreatingTableSqlForSB_BOARD_TB()},
+			{"SB_BOARD_VOTE_TB", getCreatingTableSqlForSB_BOARD_VOTE_TB()}							
+	};
+	
 	public void checkConnectionValidation(java.sql.Connection conn) {
 		Logger log = LoggerFactory.getLogger("kr.pe.sinnori.main");
 
@@ -47,19 +59,16 @@ public class SinnoriServerMain implements ProjectWorkerIF {
 
 			rs = pstmt.executeQuery();
 
-			while (rs.next()) {
-
-				@SuppressWarnings("unused")
-				int result = rs.getInt(1);
-
-				log.info("checking db connection validation is success");
-
+			if (!rs.next()) {
+				log.error("db connectin validation check sql execution fail");
+				System.exit(1);
 			}
+			
+			log.info("db connectin validation check sql execution success");
 
 			// conn.commit();
 
 		} catch (SQLException e) {
-
 			log.error("SQLException", e);
 			System.exit(1);
 		} finally {
@@ -129,28 +138,119 @@ public class SinnoriServerMain implements ProjectWorkerIF {
 	}
 	
 	public void createAllTables(java.sql.Connection conn) {
-		Logger log = LoggerFactory.getLogger("kr.pe.sinnori.main");	
-		
-		
-		
-		/**
-		 * Warning! 테이블 의존성을 반영한 순서에 맞지 않으면 생성 실패함, mysql 기준 "Can't create table '#테이블명>' (errno: 150)"
-		 */
-		String arrySqlCreatingTable[][] = {
-				{"OA_MEMBER_TB", getCreatingTableSqlForOA_MEMBER_TB()},				
-				{"SB_SEQ_MANAGER_TB", getCreatingTableSqlForSB_SEQ_MANAGER_TB()},
-				{"SB_MEMBER_TB", getCreatingTableSqlForSB_MEMBER_TB()},				
-				{"SB_BOARD_INFO_TB", getCreatingTableSqlForSB_BOARD_INFO_TB()},					
-				{"SB_BOARD_FILEINFO_TB", getCreatingTableSqlForSB_BOARD_FILEINFO_TB()},
-				{"SB_BOARD_FILELIST_TB", getCreatingTableSqlForSB_BOARD_FILELIST_TB()},
-				{"SB_BOARD_TB", getCreatingTableSqlForSB_BOARD_TB()},
-				{"SB_BOARD_VOTE_TB", getCreatingTableSqlForSB_BOARD_VOTE_TB()}							
-		};
+		Logger log = LoggerFactory.getLogger("kr.pe.sinnori.main");			
 		
 		for (int i=0; i < arrySqlCreatingTable.length; i++) {
-			String sqlCreatingTable = arrySqlCreatingTable[i][1];			
+			String tableName = arrySqlCreatingTable[i][0];
+			String creatingTableSql = arrySqlCreatingTable[i][1];			
 			try {
-				createTable(conn, sqlCreatingTable);
+				createTable(conn, tableName, creatingTableSql);
+			} catch (SQLException e) {
+				log.error("1.creating table sql["+creatingTableSql+"] execution fail", e);
+				try {
+					conn.rollback();
+				} catch (SQLException e1) {
+					log.warn("rollback fail when creating all table", e1);
+				}
+				System.exit(1);
+			} catch (Exception e) {
+				log.error("2.creating table sql["+creatingTableSql+"] execution fail", e);
+				try {
+					conn.rollback();
+				} catch (SQLException e1) {
+					log.warn("rollback fail when creating all table", e1);
+				}
+				System.exit(1);
+			}
+		}
+		/*
+		try {
+			conn.commit();
+		} catch (SQLException e) {
+			log.error(e.getMessage(), e);
+			try {
+				conn.rollback();
+			} catch (SQLException e1) {
+				log.warn("rollback fail when creating all table", e1);
+			}
+			System.exit(1);
+		}*/
+	}
+	public void createTable(java.sql.Connection conn, String tableName, String sql)
+			throws SQLException {
+		Logger log = LoggerFactory.getLogger("kr.pe.sinnori.main");		
+		
+		log.info("1.{} table creattion sql=[{}]", tableName, sql);
+
+		Statement stmt = null;
+
+		stmt = conn.createStatement();
+
+		stmt.executeUpdate(sql);
+		
+		log.info("2.{} table creattion sql success", tableName);
+	}
+	
+	public void dropAllTables(java.sql.Connection conn) {
+		Logger log = LoggerFactory.getLogger("kr.pe.sinnori.main");	
+		
+		/**
+		 * 테이블 생성 순서 반대로 테이블 삭제
+		 */
+		for (int i=arrySqlCreatingTable.length-1; i >= 0; i--) {
+			String tableName = arrySqlCreatingTable[i][0];
+						
+			try {
+				dropTable(conn, tableName);
+			} catch (SQLException e) {
+				log.error("1.dropping table sql["+tableName+"] execution fail", e);
+				try {
+					conn.rollback();
+				} catch (SQLException e1) {
+					log.warn("rollback fail when creating all table", e1);
+				}
+				System.exit(1);
+			} catch (Exception e) {
+				log.error("2.dropping table sql["+tableName+"] execution fail", e);
+				try {
+					conn.rollback();
+				} catch (SQLException e1) {
+					log.warn("rollback fail when creating all table", e1);
+				}
+				System.exit(1);
+			}
+		}
+	}
+	public void dropTable(java.sql.Connection conn, String tableName)
+			throws SQLException {
+		Logger log = LoggerFactory.getLogger("kr.pe.sinnori.main");		
+		
+		String sql = new StringBuilder("DROP TABLE IF EXISTS `").append(tableName).append("`").toString();
+		
+		log.info("1.{} table drop sql=[{}]", tableName, sql);
+
+		Statement stmt = null;
+
+		stmt = conn.createStatement();
+
+		stmt.executeUpdate(sql);
+		
+		log.info("2.{} table drop sql success", tableName);
+	}
+	
+	public void executeUpdateAllSql(java.sql.Connection conn) {
+		Logger log = LoggerFactory.getLogger("kr.pe.sinnori.main");	
+		
+		String arrySql[] = {
+				getInsertingSqlForNoticeBoardInfo(),				
+				getInsertingSqlForGeneralBoardInfo(),
+				getInsertingSqlForUploadFileNameSequence()						
+		};
+		
+		for (int i=0; i < arrySql.length; i++) {
+						
+			try {
+				executeUpdateSql(conn, arrySql[i]);
 			} catch (SQLException e) {
 				log.error(e.getMessage(), e);
 				try {
@@ -169,29 +269,13 @@ public class SinnoriServerMain implements ProjectWorkerIF {
 				System.exit(1);
 			}
 		}
-		
-		try {
-			conn.commit();
-		} catch (SQLException e) {
-			log.error(e.getMessage(), e);
-			try {
-				conn.rollback();
-			} catch (SQLException e1) {
-				log.warn("rollback fail when creating all table", e1);
-			}
-			System.exit(1);
-		}
 	}
-	public void createTable(java.sql.Connection conn, String sql)
+	
+	public void executeUpdateSql(java.sql.Connection conn, String sql)
 			throws SQLException {
-		Logger log = LoggerFactory.getLogger("kr.pe.sinnori.main");
+		Logger log = LoggerFactory.getLogger("kr.pe.sinnori.main");		
 		
-		int firstIndex = headerOfTableCreationSql.length();
-		int lastIndex = sql.indexOf("`", firstIndex);
-		String tableName = sql.substring(firstIndex, lastIndex);
-		
-		
-		log.info("1.{} table creattion sql=[{}]", tableName, sql);
+		log.info("1.sql=[{}]", sql);
 
 		Statement stmt = null;
 
@@ -199,7 +283,7 @@ public class SinnoriServerMain implements ProjectWorkerIF {
 
 		stmt.executeUpdate(sql);
 		
-		log.info("2.{} table creattion sql success", tableName);
+		log.info("2. sql success");
 	}
 
 	@Override
@@ -255,14 +339,17 @@ public class SinnoriServerMain implements ProjectWorkerIF {
 
 			checkConnectionValidation(conn);
 			
-			if (isBoardTable(conn)) {
+			if (isBoardTable(conn)) {				
 				if (isDropAllTable) {
-					
+					dropAllTables(conn);
 				}
+				
+				// FIXME!
+				// dropAllTables(conn);
 			} else  {
 				createAllTables(conn);
+				executeUpdateAllSql(conn);
 			}
-			
 			
 
 			conn.commit();
@@ -277,26 +364,87 @@ public class SinnoriServerMain implements ProjectWorkerIF {
 			if (null != conn) {
 				try {
 					conn.close();
-				} catch (Exception e) {
-					log.warn("when conn close, unknown error", e);
-				}
-			}
-
-			if (null != basicDataSource) {
-				try {
-					basicDataSource.close();
 				} catch (SQLException e) {
 					log.warn("when basicDataSource close, unknown error", e);
 				}
 			}
-
 		}
+	}
+	
+	/**
+	 * 
+	 * @return 공지 게시판 정보 생성  쿼리문
+	 */
+	public String getInsertingSqlForNoticeBoardInfo() {
+		StringBuffer stringBuilder = new StringBuffer();
+		stringBuilder.append("INSERT INTO `SB_BOARD_INFO_TB`");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("(`board_id`,");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("`board_name`,");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("`board_type_id`,");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("`board_info`)");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("VALUES");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("(1, '공지 게시판',");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("1,");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("'공지를 목적으로 하는 관리자 전용 게시판');");
+		return stringBuilder.toString();
+	}
+	
+	/**
+	 * 
+	 * @return 일반 게시판 정보 생성 쿼리
+	 */
+	public String getInsertingSqlForGeneralBoardInfo() {
+		StringBuffer stringBuilder = new StringBuffer();
+		stringBuilder.append("INSERT INTO `SB_BOARD_INFO_TB`");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("(`board_id`,");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("`board_name`,");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("`board_type_id`,");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("`board_info`)");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("VALUES");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("(2, '자유 게시판',");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("2,");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("'일반 회원 게시판');");
+		return stringBuilder.toString();
+	}
 
+	/**	 * 
+	 * @return 업로드 파일 이름에 쓰이는 시퀀스 생성 쿼리문
+	 */
+	public String getInsertingSqlForUploadFileNameSequence() {
+		StringBuffer stringBuilder = new StringBuffer();
+		stringBuilder.append("INSERT INTO `SB_SEQ_MANAGER_TB`");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("(`sq_type_id`,");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("`sq_value`)");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("VALUES");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("(1,");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("1);");
+		return stringBuilder.toString();
 	}
 	
 	public String getCreatingTableSqlForOA_MEMBER_TB() {
 		StringBuffer stringBuilder = new StringBuffer();
-	stringBuilder.append("CREATE TABLE IF NOT EXISTS `SB_DB`.`OA_MEMBER_TB` (");
+	stringBuilder.append("CREATE TABLE IF NOT EXISTS `OA_MEMBER_TB` (");
 	stringBuilder.append(System.getProperty("line.separator"));
 	stringBuilder.append("  `id` VARCHAR(30) NOT NULL,");
 	stringBuilder.append(System.getProperty("line.separator"));
@@ -321,9 +469,9 @@ public class SinnoriServerMain implements ProjectWorkerIF {
 	
 	public String getCreatingTableSqlForSB_SEQ_MANAGER_TB() {
 		StringBuffer stringBuilder = new StringBuffer();
-	stringBuilder.append("CREATE TABLE IF NOT EXISTS `SB_DB`.`SB_SEQ_MANAGER_TB` (");
+	stringBuilder.append("CREATE TABLE IF NOT EXISTS `SB_SEQ_MANAGER_TB` (");
 	stringBuilder.append(System.getProperty("line.separator"));
-	stringBuilder.append("  `sq_type_id` TINYINT UNSIGNED NOT NULL COMMENT '시퀀스 타입 식별자, 1:업로드 파일 이름 시퀀스',");
+	stringBuilder.append("  `sq_type_id` TINYINT UNSIGNED NOT NULL COMMENT '시퀀스 종류 식별자, 1:업로드 파일 이름 시퀀스',");
 	stringBuilder.append(System.getProperty("line.separator"));
 	stringBuilder.append("  `sq_value` INT UNSIGNED NULL,");
 	stringBuilder.append(System.getProperty("line.separator"));
@@ -342,7 +490,7 @@ public class SinnoriServerMain implements ProjectWorkerIF {
 	
 	public String getCreatingTableSqlForSB_MEMBER_TB() {
 		StringBuffer stringBuilder = new StringBuffer();
-	stringBuilder.append("CREATE TABLE IF NOT EXISTS `SB_DB`.`SB_MEMBER_TB` (");
+	stringBuilder.append("CREATE TABLE IF NOT EXISTS `SB_MEMBER_TB` (");
 	stringBuilder.append(System.getProperty("line.separator"));
 	stringBuilder.append("  `user_id` VARCHAR(20) NOT NULL COMMENT '사용자 아이디',");
 	stringBuilder.append(System.getProperty("line.separator"));
@@ -383,13 +531,13 @@ public class SinnoriServerMain implements ProjectWorkerIF {
 	
 	public String getCreatingTableSqlForSB_BOARD_INFO_TB() {
 		StringBuffer stringBuilder = new StringBuffer();
-	stringBuilder.append("CREATE TABLE IF NOT EXISTS `SB_DB`.`SB_BOARD_INFO_TB` (");
+	stringBuilder.append("CREATE TABLE IF NOT EXISTS `SB_BOARD_INFO_TB` (");
 	stringBuilder.append(System.getProperty("line.separator"));
 	stringBuilder.append("  `board_id` INT(11) UNSIGNED NOT NULL COMMENT '게시판 종류 식별자',");
 	stringBuilder.append(System.getProperty("line.separator"));
 	stringBuilder.append("  `board_name` VARCHAR(30) NULL COMMENT '게시판 이름',");
 	stringBuilder.append(System.getProperty("line.separator"));
-	stringBuilder.append("  `board_gubun` INT(11) UNSIGNED NULL COMMENT '게시판 구분, 1:공지, 2:일반',");
+	stringBuilder.append("  `board_type_id` INT(11) UNSIGNED NOT NULL COMMENT '게시판 종류 식별자, 1:공지, 2:일반',");
 	stringBuilder.append(System.getProperty("line.separator"));
 	stringBuilder.append("  `board_info` TEXT NULL COMMENT '게시판 설명',");
 	stringBuilder.append(System.getProperty("line.separator"));
@@ -408,7 +556,7 @@ public class SinnoriServerMain implements ProjectWorkerIF {
 	
 	public String getCreatingTableSqlForSB_BOARD_FILEINFO_TB() {
 		StringBuffer stringBuilder = new StringBuffer();
-	stringBuilder.append("CREATE TABLE IF NOT EXISTS `SB_DB`.`SB_BOARD_FILEINFO_TB` (");
+	stringBuilder.append("CREATE TABLE IF NOT EXISTS `SB_BOARD_FILEINFO_TB` (");
 	stringBuilder.append(System.getProperty("line.separator"));
 	stringBuilder.append("  `attach_id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '업로드 식별자, 자동증가',");
 	stringBuilder.append(System.getProperty("line.separator"));
@@ -428,7 +576,7 @@ public class SinnoriServerMain implements ProjectWorkerIF {
 	stringBuilder.append(System.getProperty("line.separator"));
 	stringBuilder.append("    FOREIGN KEY (`owner_id`)");
 	stringBuilder.append(System.getProperty("line.separator"));
-	stringBuilder.append("    REFERENCES `SB_DB`.`SB_MEMBER_TB` (`user_id`)");
+	stringBuilder.append("    REFERENCES `SB_MEMBER_TB` (`user_id`)");
 	stringBuilder.append(System.getProperty("line.separator"));
 	stringBuilder.append("    ON DELETE NO ACTION");
 	stringBuilder.append(System.getProperty("line.separator"));
@@ -445,7 +593,7 @@ public class SinnoriServerMain implements ProjectWorkerIF {
 	
 	public String getCreatingTableSqlForSB_BOARD_FILELIST_TB() {
 		StringBuffer stringBuilder = new StringBuffer();
-	stringBuilder.append("CREATE TABLE IF NOT EXISTS `SB_DB`.`SB_BOARD_FILELIST_TB` (");
+	stringBuilder.append("CREATE TABLE IF NOT EXISTS `SB_BOARD_FILELIST_TB` (");
 	stringBuilder.append(System.getProperty("line.separator"));
 	stringBuilder.append("  `attach_id` INT UNSIGNED NOT NULL COMMENT '업로드 식별자',");
 	stringBuilder.append(System.getProperty("line.separator"));
@@ -463,7 +611,7 @@ public class SinnoriServerMain implements ProjectWorkerIF {
 	stringBuilder.append(System.getProperty("line.separator"));
 	stringBuilder.append("    FOREIGN KEY (`attach_id`)");
 	stringBuilder.append(System.getProperty("line.separator"));
-	stringBuilder.append("    REFERENCES `SB_DB`.`SB_BOARD_FILEINFO_TB` (`attach_id`)");
+	stringBuilder.append("    REFERENCES `SB_BOARD_FILEINFO_TB` (`attach_id`)");
 	stringBuilder.append(System.getProperty("line.separator"));
 	stringBuilder.append("    ON DELETE NO ACTION");
 	stringBuilder.append(System.getProperty("line.separator"));
@@ -480,7 +628,7 @@ public class SinnoriServerMain implements ProjectWorkerIF {
 	
 	public String getCreatingTableSqlForSB_BOARD_TB() {
 		StringBuffer stringBuilder = new StringBuffer();
-	stringBuilder.append("CREATE TABLE IF NOT EXISTS `SB_DB`.`SB_BOARD_TB` (");
+	stringBuilder.append("CREATE TABLE IF NOT EXISTS `SB_BOARD_TB` (");
 	stringBuilder.append(System.getProperty("line.separator"));
 	stringBuilder.append("  `board_no` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '글 번호',");
 	stringBuilder.append(System.getProperty("line.separator"));
@@ -526,7 +674,7 @@ public class SinnoriServerMain implements ProjectWorkerIF {
 	stringBuilder.append(System.getProperty("line.separator"));
 	stringBuilder.append("    FOREIGN KEY (`writer_id`)");
 	stringBuilder.append(System.getProperty("line.separator"));
-	stringBuilder.append("    REFERENCES `SB_DB`.`SB_MEMBER_TB` (`user_id`)");
+	stringBuilder.append("    REFERENCES `SB_MEMBER_TB` (`user_id`)");
 	stringBuilder.append(System.getProperty("line.separator"));
 	stringBuilder.append("    ON DELETE NO ACTION");
 	stringBuilder.append(System.getProperty("line.separator"));
@@ -536,7 +684,7 @@ public class SinnoriServerMain implements ProjectWorkerIF {
 	stringBuilder.append(System.getProperty("line.separator"));
 	stringBuilder.append("    FOREIGN KEY (`board_id`)");
 	stringBuilder.append(System.getProperty("line.separator"));
-	stringBuilder.append("    REFERENCES `SB_DB`.`SB_BOARD_INFO_TB` (`board_id`)");
+	stringBuilder.append("    REFERENCES `SB_BOARD_INFO_TB` (`board_id`)");
 	stringBuilder.append(System.getProperty("line.separator"));
 	stringBuilder.append("    ON DELETE NO ACTION");
 	stringBuilder.append(System.getProperty("line.separator"));
@@ -546,7 +694,7 @@ public class SinnoriServerMain implements ProjectWorkerIF {
 	stringBuilder.append(System.getProperty("line.separator"));
 	stringBuilder.append("    FOREIGN KEY (`attach_id`)");
 	stringBuilder.append(System.getProperty("line.separator"));
-	stringBuilder.append("    REFERENCES `SB_DB`.`SB_BOARD_FILEINFO_TB` (`attach_id`)");
+	stringBuilder.append("    REFERENCES `SB_BOARD_FILEINFO_TB` (`attach_id`)");
 	stringBuilder.append(System.getProperty("line.separator"));
 	stringBuilder.append("    ON DELETE NO ACTION");
 	stringBuilder.append(System.getProperty("line.separator"));
@@ -563,7 +711,7 @@ public class SinnoriServerMain implements ProjectWorkerIF {
 	
 	public String getCreatingTableSqlForSB_BOARD_VOTE_TB() {
 		StringBuffer stringBuilder = new StringBuffer();
-	stringBuilder.append("CREATE TABLE IF NOT EXISTS `SB_DB`.`SB_BOARD_VOTE_TB` (");
+	stringBuilder.append("CREATE TABLE IF NOT EXISTS `SB_BOARD_VOTE_TB` (");
 	stringBuilder.append(System.getProperty("line.separator"));
 	stringBuilder.append("  `board_no` INT UNSIGNED NOT NULL,");
 	stringBuilder.append(System.getProperty("line.separator"));
@@ -581,7 +729,7 @@ public class SinnoriServerMain implements ProjectWorkerIF {
 	stringBuilder.append(System.getProperty("line.separator"));
 	stringBuilder.append("    FOREIGN KEY (`board_no`)");
 	stringBuilder.append(System.getProperty("line.separator"));
-	stringBuilder.append("    REFERENCES `SB_DB`.`SB_BOARD_TB` (`board_no`)");
+	stringBuilder.append("    REFERENCES `SB_BOARD_TB` (`board_no`)");
 	stringBuilder.append(System.getProperty("line.separator"));
 	stringBuilder.append("    ON DELETE NO ACTION");
 	stringBuilder.append(System.getProperty("line.separator"));
@@ -591,7 +739,7 @@ public class SinnoriServerMain implements ProjectWorkerIF {
 	stringBuilder.append(System.getProperty("line.separator"));
 	stringBuilder.append("    FOREIGN KEY (`user_id`)");
 	stringBuilder.append(System.getProperty("line.separator"));
-	stringBuilder.append("    REFERENCES `SB_DB`.`SB_MEMBER_TB` (`user_id`)");
+	stringBuilder.append("    REFERENCES `SB_MEMBER_TB` (`user_id`)");
 	stringBuilder.append(System.getProperty("line.separator"));
 	stringBuilder.append("    ON DELETE NO ACTION");
 	stringBuilder.append(System.getProperty("line.separator"));

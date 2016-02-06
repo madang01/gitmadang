@@ -3,6 +3,7 @@ package kr.pe.sinnori.impl.servertask;
 import java.util.HashMap;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
+import kr.pe.sinnori.common.serverlib.ServerCommonStaticFinalVars;
 import kr.pe.sinnori.common.serverlib.ValueChecker;
 import kr.pe.sinnori.impl.message.BoardVoteInDTO.BoardVoteInDTO;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
@@ -22,7 +23,7 @@ public class BoardVoteInDTOServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(messageFromClient.toString());		
 		
-		SqlSessionFactory sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory("tw_sinnoridb");
+		SqlSessionFactory sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
 		
 		BoardVoteInDTO inObj = (BoardVoteInDTO)messageFromClient;
 		

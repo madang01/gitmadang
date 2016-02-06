@@ -1,6 +1,7 @@
 package kr.pe.sinnori.impl.servertask;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
+import kr.pe.sinnori.common.serverlib.ServerCommonStaticFinalVars;
 import kr.pe.sinnori.impl.message.BoardDetailInDTO.BoardDetailInDTO;
 import kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO;
 import kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO.AttachFile;
@@ -28,7 +29,7 @@ public class BoardDetailInDTOServerTask extends AbstractServerTask {
 	private void doWork(String projectName,
 			LetterSender letterSender, BoardDetailInDTO boardDetailInObj)
 			throws Exception {		
-		SqlSessionFactory sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory("tw_sinnoridb");
+		SqlSessionFactory sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
 
 		BoardDetailOutDTO boardDetailOutObj = null;
 		

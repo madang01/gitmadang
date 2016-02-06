@@ -37,7 +37,7 @@ AbstractSessionKeyServlet 는  세션키 운영에 필요한 파라미터를 요
 	
 	var privateKey = CryptoJS.enc.Base64.parse(sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME%>'));
 	
-	var messageTxt = CryptoJS.AES.decrypt("<%= webUserSymmetricKey.encryptStringBase64(HtmlStringUtil.toScriptString(orignalMessage)) %>", privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: pageIV });
+	var messageTxt = CryptoJS.AES.decrypt("<%= webUserSymmetricKey.encryptStringBase64(HtmlStringUtil.toHtml4BRString(orignalMessage)) %>", privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: pageIV });
 		
 	document.getElementById('idTxtResultMessage').innerHTML = messageTxt.toString(CryptoJS.enc.Utf8);
 //-->

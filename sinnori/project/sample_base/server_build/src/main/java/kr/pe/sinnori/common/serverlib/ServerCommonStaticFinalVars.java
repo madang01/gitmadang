@@ -6,5 +6,7 @@ public class ServerCommonStaticFinalVars {
 	
 	/** 서버 테이블 존재시 테이블 전체 삭제여부, 미 지정시 false,  */	
 	public static final String JAVA_SYSTEM_PROPERTIES_KEY_IS_DROP_ALL_TABLE = "is.dropAllTable";
-
+	
+	
+	public static final String SB_CONNECTION_POOL_NAME = "sample_base_db";
 }

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.message.AbstractMessage;
+import kr.pe.sinnori.common.serverlib.ServerCommonStaticFinalVars;
 import kr.pe.sinnori.common.serverlib.ValueChecker;
 import kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager;
 import kr.pe.sinnori.common.sessionkey.SymmetricKey;
@@ -32,7 +33,7 @@ public class LoginWithSessionKeyServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(inObj.toString());		
 		
-		SqlSessionFactory sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory("tw_sinnoridb");	
+		SqlSessionFactory sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);	
 		
 		MessageResult messageResultOutObj = new MessageResult();
 		messageResultOutObj.setIsSuccess(false);
