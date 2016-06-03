@@ -26,7 +26,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.BoardReplyRequest.BoardReplyRequest;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
-import kr.pe.sinnori.weblib.jdf.AbstractAuthServlet;
+import kr.pe.sinnori.weblib.jdf.AbstractLoginServlet;
 
 /**
  * 게시판 댓글 등록 처리
@@ -34,7 +34,7 @@ import kr.pe.sinnori.weblib.jdf.AbstractAuthServlet;
  *
  */
 @SuppressWarnings("serial")
-public class BoardReplySvl extends AbstractAuthServlet {
+public class BoardReplySvl extends AbstractLoginServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)

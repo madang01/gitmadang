@@ -1,17 +1,45 @@
-JFDML JFormDesigner: "5.2.2.0.199" Java: "1.8.0_60" encoding: "UTF-8"
+JFDML JFormDesigner: "5.2.2.2.228" Java: "1.7.0_101" encoding: "UTF-8"
 
 new FormModel {
 	contentType: "form/swing"
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-			"$columnSpecs": "max(pref;443dlu):grow"
 			"$rowSpecs": "default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, 104dlu, linegap, default, linegap, 104dlu, linegap, default"
+			"$columnSpecs": "max(pref;451dlu):grow"
 		} ) {
 			name: "this"
 			auxiliary() {
 				"JavaCodeGenerator.customCreate": true
 				"JavaCodeGenerator.postInitCode": "/** Post-initialization Code start */\nUIManager.put(\"FileChooser.readOnly\", Boolean.TRUE);\nonlyPathChooser = new JFileChooser();\nonlyPathChooser.setMultiSelectionEnabled(true);\nonlyPathChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);\t\t\nonlyFileChooser = new JFileChooser();\nonlyFileChooser.setMultiSelectionEnabled(true);\nonlyFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);\nPathSwingAction pathAction = new PathSwingAction(mainFrame, onlyPathChooser, servletSystemLibraryPathTextField);\nservletSystemLibraryPathButton.setAction(pathAction);\n/** Post-initialization Code end */"
 			}
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+				"$columnSpecs": "default, relgap, default, relgap, default"
+				"$rowSpecs": "default:grow"
+			} ) {
+				name: "functionPanel"
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "functionLabel"
+					"text": "Function : "
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 1
+					"gridY": 1
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "mainProjectStateSaveButton"
+					"text": "save"
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "saveMainProjectState", true ) )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 3
+					"gridY": 1
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "prevButton"
+					"text": "go back to 'project manager screen'"
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "goBack", true ) )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 5
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "default, labelcompgap, default:grow"
 				"$rowSpecs": "default"
@@ -32,8 +60,7 @@ new FormModel {
 					"gridY": 1
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 1
-				"gridY": 1
+				"gridY": 3
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "default, labelcompgap, default:grow"
@@ -55,7 +82,7 @@ new FormModel {
 					"gridY": 1
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridY": 3
+				"gridY": 5
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "default, labelcompgap, max(pref;364dlu):grow"
@@ -95,7 +122,7 @@ new FormModel {
 					"gridY": 1
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridY": 5
+				"gridY": 7
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "default, labelcompgap, growbutton, labelcompgap, default"
@@ -126,30 +153,11 @@ new FormModel {
 					"gridY": 1
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridY": 7
+				"gridY": 9
 			} )
 			add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
 				name: "hSpacer1"
 				"border": new javax.swing.border.LineBorder( sfield java.awt.Color black, 1, false )
-			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridY": 9
-			} )
-			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
-				"alignment": 0
-				"vgap": 2
-			} ) {
-				name: "projectWorkSaveLinePanel"
-				"alignmentX": 1.0f
-				add( new FormComponent( "javax.swing.JButton" ) {
-					name: "mainProjectStateSaveButton"
-					"text": "save"
-					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "saveMainProjectState", true ) )
-				} )
-				add( new FormComponent( "javax.swing.JButton" ) {
-					name: "prevButton"
-					"text": "go back to 'project manager screen'"
-					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "goBack", true ) )
-				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridY": 11
 			} )
@@ -313,7 +321,6 @@ new FormModel {
 				name: "commonPartTilteLabel"
 				"text": "Common Part Editor"
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 1
 				"gridY": 21
 			} )
 			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
@@ -350,14 +357,12 @@ new FormModel {
 					"autoCreateColumnsFromModel": false
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 1
 				"gridY": 23
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "mainProjectPartTitleLabel"
 				"text": "Main Project Editor"
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 1
 				"gridY": 25
 			} )
 			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
@@ -389,12 +394,11 @@ new FormModel {
 					"selectionMode": 0
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 1
 				"gridY": 27
 			} )
 		}, new FormLayoutConstraints( null ) {
-			"location": new java.awt.Point( 90, 70 )
-			"size": new java.awt.Dimension( 800, 655 )
+			"location": new java.awt.Point( 15, 0 )
+			"size": new java.awt.Dimension( 875, 630 )
 		} )
 	}
 }

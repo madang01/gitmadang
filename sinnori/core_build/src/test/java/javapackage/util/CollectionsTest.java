@@ -32,4 +32,11 @@ public class CollectionsTest {
 		
 		unmodifiableNameList.remove("testStr02");
 	}
+	/*
+	@Test
+	public void testTemp() {
+		MEMBER_GUBUN memberGubun = MEMBER_GUBUN.valueOf((short)0);
+		Logger log = LoggerFactory.getLogger("kr.pe.sinnori");
+		log.info("memberGubun=[{}]", memberGubun);
+	}*/
 }

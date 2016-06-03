@@ -4,7 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @SuppressWarnings("serial")
-public abstract class AbstractAuthServlet extends AbstractSessionKeyServlet {	
+public abstract class AbstractLoginServlet extends AbstractSessionKeyServlet {	
 
 	protected void performPreTask(HttpServletRequest req, HttpServletResponse res) throws Exception  {		
 		if (!isLogin(req)) {			

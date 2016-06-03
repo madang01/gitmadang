@@ -4,6 +4,7 @@
 
 package kr.pe.sinnori.gui.config.screen;
 
+import java.awt.*;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import javax.swing.*;
 
 import javax.swing.BoxLayout;
 import javax.swing.ComboBoxModel;
@@ -35,6 +37,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
+import com.jgoodies.forms.layout.*;
 
 import kr.pe.sinnori.common.config.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.config.buildsystem.BuildSystemSupporter;
@@ -67,7 +70,7 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
 /**
- * @author Jonghoon Won
+ * @author Won Jonghoon
  */
 @SuppressWarnings("serial")
 public class MainProjectEditPanel extends JPanel {
@@ -1184,6 +1187,10 @@ public class MainProjectEditPanel extends JPanel {
 		// JFormDesigner - Component initialization - DO NOT MODIFY
 		// //GEN-BEGIN:initComponents
 		// Generated using JFormDesigner non-commercial license
+		functionPanel = new JPanel();
+		functionLabel = new JLabel();
+		mainProjectStateSaveButton = new JButton();
+		prevButton = new JButton();
 		sinnoriInstalledPathLinePanel = new JPanel();
 		sinnoriInstalledPathTitleLabel = new JLabel();
 		sinnoriInstalledPathValueLabel = new JLabel();
@@ -1201,9 +1208,6 @@ public class MainProjectEditPanel extends JPanel {
 		servletSystemLibraryPathTextField = new JTextField();
 		servletSystemLibraryPathButton = new JButton();
 		hSpacer1 = new JPanel(null);
-		projectWorkSaveLinePanel = new JPanel();
-		mainProjectStateSaveButton = new JButton();
-		prevButton = new JButton();
 		subProjectNameInputLinePanel = new JPanel();
 		newSubProjectNameInputLabel = new JLabel();
 		newSubProjectNameTextField = new JTextField();
@@ -1231,82 +1235,112 @@ public class MainProjectEditPanel extends JPanel {
 		mainProjectPartEditorScrollPane = new JScrollPane();
 		mainProjectPartEditorTable = new JTable();
 
-		// ======== this ========
-		setLayout(new FormLayout("[443dlu,pref]:grow",
-				"11*(default, $lgap), 104dlu, $lgap, default, $lgap, 104dlu, $lgap, default"));
+		//======== this ========
+		setLayout(new FormLayout(
+			"[451dlu,pref]:grow",
+			"11*(default, $lgap), 104dlu, $lgap, default, $lgap, 104dlu, $lgap, default"));
 		/** Post-initialization Code start */
 		UIManager.put("FileChooser.readOnly", Boolean.TRUE);
 		onlyPathChooser = new JFileChooser();
 		onlyPathChooser.setMultiSelectionEnabled(true);
-		onlyPathChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		onlyPathChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);		
 		onlyFileChooser = new JFileChooser();
 		onlyFileChooser.setMultiSelectionEnabled(true);
 		onlyFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		PathSwingAction pathAction = new PathSwingAction(mainFrame,
-				onlyPathChooser, servletSystemLibraryPathTextField);
+		PathSwingAction pathAction = new PathSwingAction(mainFrame, onlyPathChooser, servletSystemLibraryPathTextField);
 		servletSystemLibraryPathButton.setAction(pathAction);
 		/** Post-initialization Code end */
 
-		// ======== sinnoriInstalledPathLinePanel ========
+		//======== functionPanel ========
+		{
+			functionPanel.setLayout(new FormLayout(
+				"2*(default, $rgap), default",
+				"default:grow"));
+
+			//---- functionLabel ----
+			functionLabel.setText("Function : ");
+			functionPanel.add(functionLabel, CC.xy(1, 1));
+
+			//---- mainProjectStateSaveButton ----
+			mainProjectStateSaveButton.setText("save");
+			mainProjectStateSaveButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					saveMainProjectState(e);
+				}
+			});
+			functionPanel.add(mainProjectStateSaveButton, CC.xy(3, 1));
+
+			//---- prevButton ----
+			prevButton.setText("go back to 'project manager screen'");
+			prevButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					goBack(e);
+				}
+			});
+			functionPanel.add(prevButton, CC.xy(5, 1));
+		}
+		add(functionPanel, CC.xy(1, 1));
+
+		//======== sinnoriInstalledPathLinePanel ========
 		{
 			sinnoriInstalledPathLinePanel.setLayout(new FormLayout(
-					"default, $lcgap, default:grow", "default"));
+				"default, $lcgap, default:grow",
+				"default"));
 
-			// ---- sinnoriInstalledPathTitleLabel ----
+			//---- sinnoriInstalledPathTitleLabel ----
 			sinnoriInstalledPathTitleLabel.setText("Sinnori installed path :");
-			sinnoriInstalledPathLinePanel.add(sinnoriInstalledPathTitleLabel,
-					CC.xy(1, 1));
+			sinnoriInstalledPathLinePanel.add(sinnoriInstalledPathTitleLabel, CC.xy(1, 1));
 
-			// ---- sinnoriInstalledPathValueLabel ----
+			//---- sinnoriInstalledPathValueLabel ----
 			sinnoriInstalledPathValueLabel.setText("d:\\gitsinnori\\sinnori");
-			sinnoriInstalledPathLinePanel.add(sinnoriInstalledPathValueLabel,
-					CC.xy(3, 1));
+			sinnoriInstalledPathLinePanel.add(sinnoriInstalledPathValueLabel, CC.xy(3, 1));
 		}
-		add(sinnoriInstalledPathLinePanel, CC.xy(1, 1));
+		add(sinnoriInstalledPathLinePanel, CC.xy(1, 3));
 
-		// ======== mainProjectNameLinePanel ========
+		//======== mainProjectNameLinePanel ========
 		{
 			mainProjectNameLinePanel.setLayout(new FormLayout(
-					"default, $lcgap, default:grow", "default"));
+				"default, $lcgap, default:grow",
+				"default"));
 
-			// ---- mainProjectNameTitleLabel ----
+			//---- mainProjectNameTitleLabel ----
 			mainProjectNameTitleLabel.setText("main project name :");
-			mainProjectNameLinePanel
-					.add(mainProjectNameTitleLabel, CC.xy(1, 1));
+			mainProjectNameLinePanel.add(mainProjectNameTitleLabel, CC.xy(1, 1));
 
-			// ---- mainProjectNameValueLabel ----
+			//---- mainProjectNameValueLabel ----
 			mainProjectNameValueLabel.setText("sample_test");
-			mainProjectNameLinePanel
-					.add(mainProjectNameValueLabel, CC.xy(3, 1));
+			mainProjectNameLinePanel.add(mainProjectNameValueLabel, CC.xy(3, 1));
 		}
-		add(mainProjectNameLinePanel, CC.xy(1, 3));
+		add(mainProjectNameLinePanel, CC.xy(1, 5));
 
-		// ======== projectTypeChoiceLinePanel ========
+		//======== projectTypeChoiceLinePanel ========
 		{
 			projectTypeChoiceLinePanel.setLayout(new FormLayout(
-					"default, $lcgap, [364dlu,pref]:grow", "default"));
+				"default, $lcgap, [364dlu,pref]:grow",
+				"default"));
 
-			// ---- projectTypeChoiceLabel ----
+			//---- projectTypeChoiceLabel ----
 			projectTypeChoiceLabel.setText("project type :");
 			projectTypeChoiceLinePanel.add(projectTypeChoiceLabel, CC.xy(1, 1));
 
-			// ======== projectTypeChoicePanel ========
+			//======== projectTypeChoicePanel ========
 			{
-				projectTypeChoicePanel.setLayout(new BoxLayout(
-						projectTypeChoicePanel, BoxLayout.X_AXIS));
+				projectTypeChoicePanel.setLayout(new BoxLayout(projectTypeChoicePanel, BoxLayout.X_AXIS));
 
-				// ---- serverCheckBox ----
+				//---- serverCheckBox ----
 				serverCheckBox.setText("server");
 				serverCheckBox.setSelected(true);
 				serverCheckBox.setEnabled(false);
 				projectTypeChoicePanel.add(serverCheckBox);
 
-				// ---- appClientCheckBox ----
+				//---- appClientCheckBox ----
 				appClientCheckBox.setText("application client");
 				appClientCheckBox.setSelected(true);
 				projectTypeChoicePanel.add(appClientCheckBox);
 
-				// ---- webClientCheckBox ----
+				//---- webClientCheckBox ----
 				webClientCheckBox.setText("web client");
 				webClientCheckBox.setSelected(true);
 				webClientCheckBox.addChangeListener(new ChangeListener() {
@@ -1319,74 +1353,41 @@ public class MainProjectEditPanel extends JPanel {
 			}
 			projectTypeChoiceLinePanel.add(projectTypeChoicePanel, CC.xy(3, 1));
 		}
-		add(projectTypeChoiceLinePanel, CC.xy(1, 5));
+		add(projectTypeChoiceLinePanel, CC.xy(1, 7));
 
-		// ======== servletEnginLibinaryPathLinePanel ========
+		//======== servletEnginLibinaryPathLinePanel ========
 		{
 			servletEnginLibinaryPathLinePanel.setLayout(new FormLayout(
-					"default, $lcgap, ${growing-button}, $lcgap, default",
-					"default"));
+				"default, $lcgap, ${growing-button}, $lcgap, default",
+				"default"));
 
-			// ---- servletSystemLibinaryPathLabel ----
+			//---- servletSystemLibinaryPathLabel ----
 			servletSystemLibinaryPathLabel.setText("servlet system library :");
-			servletEnginLibinaryPathLinePanel.add(
-					servletSystemLibinaryPathLabel, CC.xy(1, 1));
-			servletEnginLibinaryPathLinePanel.add(
-					servletSystemLibraryPathTextField, CC.xy(3, 1));
+			servletEnginLibinaryPathLinePanel.add(servletSystemLibinaryPathLabel, CC.xy(1, 1));
+			servletEnginLibinaryPathLinePanel.add(servletSystemLibraryPathTextField, CC.xy(3, 1));
 
-			// ---- servletSystemLibraryPathButton ----
+			//---- servletSystemLibraryPathButton ----
 			servletSystemLibraryPathButton.setText("\uacbd\ub85c \uc120\ud0dd");
-			servletEnginLibinaryPathLinePanel.add(
-					servletSystemLibraryPathButton, CC.xy(5, 1));
+			servletEnginLibinaryPathLinePanel.add(servletSystemLibraryPathButton, CC.xy(5, 1));
 		}
-		add(servletEnginLibinaryPathLinePanel, CC.xy(1, 7));
+		add(servletEnginLibinaryPathLinePanel, CC.xy(1, 9));
 
-		// ---- hSpacer1 ----
+		//---- hSpacer1 ----
 		hSpacer1.setBorder(LineBorder.createBlackLineBorder());
-		add(hSpacer1, CC.xy(1, 9));
+		add(hSpacer1, CC.xy(1, 11));
 
-		// ======== projectWorkSaveLinePanel ========
-		{
-			projectWorkSaveLinePanel.setAlignmentX(1.0F);
-			projectWorkSaveLinePanel.setLayout(new FlowLayout(FlowLayout.LEFT,
-					5, 2));
-
-			// ---- mainProjectStateSaveButton ----
-			mainProjectStateSaveButton.setText("save");
-			mainProjectStateSaveButton.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					saveMainProjectState(e);
-				}
-			});
-			projectWorkSaveLinePanel.add(mainProjectStateSaveButton);
-
-			// ---- prevButton ----
-			prevButton.setText("go back to 'project manager screen'");
-			prevButton.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					goBack(e);
-				}
-			});
-			projectWorkSaveLinePanel.add(prevButton);
-		}
-		add(projectWorkSaveLinePanel, CC.xy(1, 11));
-
-		// ======== subProjectNameInputLinePanel ========
+		//======== subProjectNameInputLinePanel ========
 		{
 			subProjectNameInputLinePanel.setLayout(new FormLayout(
-					"default, $lcgap, ${growing-button}, $lcgap, 37dlu",
-					"default"));
+				"default, $lcgap, ${growing-button}, $lcgap, 37dlu",
+				"default"));
 
-			// ---- newSubProjectNameInputLabel ----
+			//---- newSubProjectNameInputLabel ----
 			newSubProjectNameInputLabel.setText("New Sub Project Name :");
-			subProjectNameInputLinePanel.add(newSubProjectNameInputLabel,
-					CC.xy(1, 1));
-			subProjectNameInputLinePanel.add(newSubProjectNameTextField,
-					CC.xy(3, 1));
+			subProjectNameInputLinePanel.add(newSubProjectNameInputLabel, CC.xy(1, 1));
+			subProjectNameInputLinePanel.add(newSubProjectNameTextField, CC.xy(3, 1));
 
-			// ---- newSubProjectAddButton ----
+			//---- newSubProjectAddButton ----
 			newSubProjectAddButton.setText("add");
 			newSubProjectAddButton.addActionListener(new ActionListener() {
 				@Override
@@ -1394,33 +1395,33 @@ public class MainProjectEditPanel extends JPanel {
 					addNewSubProject(e);
 				}
 			});
-			subProjectNameInputLinePanel.add(newSubProjectAddButton,
-					CC.xy(5, 1));
+			subProjectNameInputLinePanel.add(newSubProjectAddButton, CC.xy(5, 1));
 		}
 		add(subProjectNameInputLinePanel, CC.xy(1, 13));
 
-		// ======== subProjectListLinePanel ========
+		//======== subProjectListLinePanel ========
 		{
 			subProjectListLinePanel.setLayout(new FormLayout(
-					"2*(default, $lcgap), default", "default"));
+				"2*(default, $lcgap), default",
+				"default"));
 
-			// ---- subProjectNameListLabel ----
+			//---- subProjectNameListLabel ----
 			subProjectNameListLabel.setText("Sub Project Name Choose");
 			subProjectListLinePanel.add(subProjectNameListLabel, CC.xy(1, 1));
 
-			// ---- subProjectNameListComboBox ----
-			subProjectNameListComboBox.setModel(new DefaultComboBoxModel<>(
-					new String[] { "- Sub Project Name -", "sample_test_sub1",
-							"sample_test_sub2" }));
-			subProjectListLinePanel
-					.add(subProjectNameListComboBox, CC.xy(3, 1));
+			//---- subProjectNameListComboBox ----
+			subProjectNameListComboBox.setModel(new DefaultComboBoxModel<>(new String[] {
+				"- Sub Project Name -",
+				"sample_test_sub1",
+				"sample_test_sub2"
+			}));
+			subProjectListLinePanel.add(subProjectNameListComboBox, CC.xy(3, 1));
 
-			// ======== subProjectNameListFuncPanel ========
+			//======== subProjectNameListFuncPanel ========
 			{
-				subProjectNameListFuncPanel.setLayout(new FlowLayout(
-						FlowLayout.LEFT, 5, 2));
+				subProjectNameListFuncPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 2));
 
-				// ---- subProjectEditButton ----
+				//---- subProjectEditButton ----
 				subProjectEditButton.setText("edit");
 				subProjectEditButton.addActionListener(new ActionListener() {
 					@Override
@@ -1430,34 +1431,32 @@ public class MainProjectEditPanel extends JPanel {
 				});
 				subProjectNameListFuncPanel.add(subProjectEditButton);
 
-				// ---- subProjectNameDeleteButton ----
+				//---- subProjectNameDeleteButton ----
 				subProjectNameDeleteButton.setText("remove");
-				subProjectNameDeleteButton
-						.addActionListener(new ActionListener() {
-							@Override
-							public void actionPerformed(ActionEvent e) {
-								deleteSubProject(e);
-							}
-						});
+				subProjectNameDeleteButton.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						deleteSubProject(e);
+					}
+				});
 				subProjectNameListFuncPanel.add(subProjectNameDeleteButton);
 			}
-			subProjectListLinePanel.add(subProjectNameListFuncPanel,
-					CC.xy(5, 1));
+			subProjectListLinePanel.add(subProjectNameListFuncPanel, CC.xy(5, 1));
 		}
 		add(subProjectListLinePanel, CC.xy(1, 15));
 
-		// ======== dbcpNameInputLinePanel ========
+		//======== dbcpNameInputLinePanel ========
 		{
 			dbcpNameInputLinePanel.setLayout(new FormLayout(
-					"default, $lcgap, ${growing-button}, $lcgap, 37dlu",
-					"default"));
+				"default, $lcgap, ${growing-button}, $lcgap, 37dlu",
+				"default"));
 
-			// ---- newDBCPNameInputLabel ----
+			//---- newDBCPNameInputLabel ----
 			newDBCPNameInputLabel.setText("New DBCP Name :");
 			dbcpNameInputLinePanel.add(newDBCPNameInputLabel, CC.xy(1, 1));
 			dbcpNameInputLinePanel.add(newDBCPNameTextField, CC.xy(3, 1));
 
-			// ---- newDBCPAddButton ----
+			//---- newDBCPAddButton ----
 			newDBCPAddButton.setText("add");
 			newDBCPAddButton.addActionListener(new ActionListener() {
 				@Override
@@ -1469,26 +1468,28 @@ public class MainProjectEditPanel extends JPanel {
 		}
 		add(dbcpNameInputLinePanel, CC.xy(1, 17));
 
-		// ======== dbcpNameListLinePanel ========
+		//======== dbcpNameListLinePanel ========
 		{
 			dbcpNameListLinePanel.setLayout(new FormLayout(
-					"2*(default, $lcgap), default", "default"));
+				"2*(default, $lcgap), default",
+				"default"));
 
-			// ---- dbcpNameListLabel ----
+			//---- dbcpNameListLabel ----
 			dbcpNameListLabel.setText("DBCP Name Choose");
 			dbcpNameListLinePanel.add(dbcpNameListLabel, CC.xy(1, 1));
 
-			// ---- dbcpNameListComboBox ----
-			dbcpNameListComboBox.setModel(new DefaultComboBoxModel<>(
-					new String[] { "- DBCP Name -", "tw_sinnoridb" }));
+			//---- dbcpNameListComboBox ----
+			dbcpNameListComboBox.setModel(new DefaultComboBoxModel<>(new String[] {
+				"- DBCP Name -",
+				"tw_sinnoridb"
+			}));
 			dbcpNameListLinePanel.add(dbcpNameListComboBox, CC.xy(3, 1));
 
-			// ======== dbcpNameListFuncPanel ========
+			//======== dbcpNameListFuncPanel ========
 			{
-				dbcpNameListFuncPanel.setLayout(new FlowLayout(FlowLayout.LEFT,
-						5, 2));
+				dbcpNameListFuncPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 2));
 
-				// ---- dbcpNameEditButton ----
+				//---- dbcpNameEditButton ----
 				dbcpNameEditButton.setText("edit");
 				dbcpNameEditButton.addActionListener(new ActionListener() {
 					@Override
@@ -1498,7 +1499,7 @@ public class MainProjectEditPanel extends JPanel {
 				});
 				dbcpNameListFuncPanel.add(dbcpNameEditButton);
 
-				// ---- dbcpNameDeleteButton ----
+				//---- dbcpNameDeleteButton ----
 				dbcpNameDeleteButton.setText("remove");
 				dbcpNameDeleteButton.addActionListener(new ActionListener() {
 					@Override
@@ -1512,67 +1513,76 @@ public class MainProjectEditPanel extends JPanel {
 		}
 		add(dbcpNameListLinePanel, CC.xy(1, 19));
 
-		// ---- commonPartTilteLabel ----
+		//---- commonPartTilteLabel ----
 		commonPartTilteLabel.setText("Common Part Editor");
 		add(commonPartTilteLabel, CC.xy(1, 21));
 
-		// ======== commonPartEditorScrollPane ========
+		//======== commonPartEditorScrollPane ========
 		{
 
-			// ---- commonPartEditorTable ----
-			commonPartEditorTable
-					.setModel(new DefaultTableModel(new Object[][] {
-							{ null, null }, { null, null }, { null, null }, },
-							new String[] { "key", "value" }) {
-						Class<?>[] columnTypes = new Class<?>[] { String.class,
-								Object.class };
-						boolean[] columnEditable = new boolean[] { false, false };
-
-						@Override
-						public Class<?> getColumnClass(int columnIndex) {
-							return columnTypes[columnIndex];
-						}
-
-						@Override
-						public boolean isCellEditable(int rowIndex,
-								int columnIndex) {
-							return columnEditable[columnIndex];
-						}
-					});
+			//---- commonPartEditorTable ----
+			commonPartEditorTable.setModel(new DefaultTableModel(
+				new Object[][] {
+					{null, null},
+					{null, null},
+					{null, null},
+				},
+				new String[] {
+					"key", "value"
+				}
+			) {
+				Class<?>[] columnTypes = new Class<?>[] {
+					String.class, Object.class
+				};
+				boolean[] columnEditable = new boolean[] {
+					false, false
+				};
+				@Override
+				public Class<?> getColumnClass(int columnIndex) {
+					return columnTypes[columnIndex];
+				}
+				@Override
+				public boolean isCellEditable(int rowIndex, int columnIndex) {
+					return columnEditable[columnIndex];
+				}
+			});
 			{
 				TableColumnModel cm = commonPartEditorTable.getColumnModel();
 				cm.getColumn(1).setMinWidth(150);
 			}
-			commonPartEditorTable
-					.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			commonPartEditorTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			commonPartEditorTable.setAutoCreateColumnsFromModel(false);
 			commonPartEditorScrollPane.setViewportView(commonPartEditorTable);
 		}
 		add(commonPartEditorScrollPane, CC.xy(1, 23));
 
-		// ---- mainProjectPartTitleLabel ----
+		//---- mainProjectPartTitleLabel ----
 		mainProjectPartTitleLabel.setText("Main Project Editor");
 		add(mainProjectPartTitleLabel, CC.xy(1, 25));
 
-		// ======== mainProjectPartEditorScrollPane ========
+		//======== mainProjectPartEditorScrollPane ========
 		{
 
-			// ---- mainProjectPartEditorTable ----
+			//---- mainProjectPartEditorTable ----
 			mainProjectPartEditorTable.setModel(new DefaultTableModel(
-					new Object[][] { { null, null }, { null, null }, },
-					new String[] { "key", "value" }) {
-				Class<?>[] columnTypes = new Class<?>[] { String.class,
-						Object.class };
-
+				new Object[][] {
+					{null, null},
+					{null, null},
+				},
+				new String[] {
+					"key", "value"
+				}
+			) {
+				Class<?>[] columnTypes = new Class<?>[] {
+					String.class, Object.class
+				};
 				@Override
 				public Class<?> getColumnClass(int columnIndex) {
 					return columnTypes[columnIndex];
 				}
 			});
-			mainProjectPartEditorTable
-					.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-			mainProjectPartEditorScrollPane
-					.setViewportView(mainProjectPartEditorTable);
+			mainProjectPartEditorTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			mainProjectPartEditorScrollPane.setViewportView(mainProjectPartEditorTable);
 		}
 		add(mainProjectPartEditorScrollPane, CC.xy(1, 27));
 		// //GEN-END:initComponents
@@ -1581,6 +1591,10 @@ public class MainProjectEditPanel extends JPanel {
 	// JFormDesigner - Variables declaration - DO NOT MODIFY
 	// //GEN-BEGIN:variables
 	// Generated using JFormDesigner non-commercial license
+	private JPanel functionPanel;
+	private JLabel functionLabel;
+	private JButton mainProjectStateSaveButton;
+	private JButton prevButton;
 	private JPanel sinnoriInstalledPathLinePanel;
 	private JLabel sinnoriInstalledPathTitleLabel;
 	private JLabel sinnoriInstalledPathValueLabel;
@@ -1598,9 +1612,6 @@ public class MainProjectEditPanel extends JPanel {
 	private JTextField servletSystemLibraryPathTextField;
 	private JButton servletSystemLibraryPathButton;
 	private JPanel hSpacer1;
-	private JPanel projectWorkSaveLinePanel;
-	private JButton mainProjectStateSaveButton;
-	private JButton prevButton;
 	private JPanel subProjectNameInputLinePanel;
 	private JLabel newSubProjectNameInputLabel;
 	private JTextField newSubProjectNameTextField;

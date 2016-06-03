@@ -26,7 +26,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import kr.pe.sinnori.common.config.configvo.ProjectPartConfigurationVO;
+import kr.pe.sinnori.common.config.vo.ProjectPartValueObject;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.SocketInputStream;
@@ -126,7 +126,7 @@ public class ServerProject extends AbstractProject implements
 	 * @throws NoMoreDataPacketBufferException
 	 *             데이터 패킷 버퍼 부족시 던지는 예외
 	 */
-	public ServerProject(ProjectPartConfigurationVO projectPartConfigurationVO)
+	public ServerProject(ProjectPartValueObject projectPartConfigurationVO)
 			throws NoMoreDataPacketBufferException {
 		super(projectPartConfigurationVO);
 

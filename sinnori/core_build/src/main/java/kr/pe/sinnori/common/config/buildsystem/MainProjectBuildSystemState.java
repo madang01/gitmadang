@@ -6,8 +6,8 @@ import java.util.List;
 
 import kr.pe.sinnori.common.config.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
-import kr.pe.sinnori.common.config.configvo.AllDBCPPartConfigurationVO;
-import kr.pe.sinnori.common.config.configvo.AllSubProjectPartConfigurationVO;
+import kr.pe.sinnori.common.config.vo.AllDBCPPartValueObject;
+import kr.pe.sinnori.common.config.vo.AllSubProjectPartValueObject;
 import kr.pe.sinnori.common.exception.BuildSystemException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.util.SequencedProperties;
@@ -98,8 +98,8 @@ public class MainProjectBuildSystemState {
 			throw new BuildSystemException(e.getMessage());
 		}
 		
-		AllDBCPPartConfigurationVO allDBCPPartConfiguration = sinnoriConfiguration.getAllDBCPPart();
-		AllSubProjectPartConfigurationVO allSubProjectPartConfiguration = sinnoriConfiguration.getAllSubProjectPart();
+		AllDBCPPartValueObject allDBCPPartConfiguration = sinnoriConfiguration.getAllDBCPPart();
+		AllSubProjectPartValueObject allSubProjectPartConfiguration = sinnoriConfiguration.getAllSubProjectPart();
 		
 		dbcpNameList = allDBCPPartConfiguration.getDBCPNameList();
 		subProjectNameList = allSubProjectPartConfiguration.getSubProjectNamelist();	

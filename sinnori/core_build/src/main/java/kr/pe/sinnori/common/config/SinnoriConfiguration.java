@@ -11,14 +11,14 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import kr.pe.sinnori.common.config.buildsystem.BuildSystemSupporter;
-import kr.pe.sinnori.common.config.configvo.AllDBCPPartConfigurationVO;
-import kr.pe.sinnori.common.config.configvo.AllSubProjectPartConfigurationVO;
-import kr.pe.sinnori.common.config.configvo.CommonPartConfigurationVO;
-import kr.pe.sinnori.common.config.configvo.DBCPParConfigurationVO;
-import kr.pe.sinnori.common.config.configvo.ProjectPartConfigurationVO;
 import kr.pe.sinnori.common.config.fileorpathstringgetter.AbstractFileOrPathStringGetter;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.config.itemidinfo.SinnoriItemIDInfoManger;
+import kr.pe.sinnori.common.config.vo.AllDBCPPartValueObject;
+import kr.pe.sinnori.common.config.vo.AllSubProjectPartValueObject;
+import kr.pe.sinnori.common.config.vo.CommonPartValueObject;
+import kr.pe.sinnori.common.config.vo.DBCPParValueObject;
+import kr.pe.sinnori.common.config.vo.ProjectPartValueObject;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
@@ -36,10 +36,10 @@ public class SinnoriConfiguration {
 	private String sinnoriInstalledPathString = null;
 
 	// private String sinnoriConfigFilePathString = null;
-	private AllDBCPPartConfigurationVO allDBCPPart = null;
-	private CommonPartConfigurationVO commonPart = null;
-	private ProjectPartConfigurationVO mainProjectPart = null;
-	private AllSubProjectPartConfigurationVO allSubProjectPart = null;
+	private AllDBCPPartValueObject allDBCPPartVO = null;
+	private CommonPartValueObject commonPartVO = null;
+	private ProjectPartValueObject mainProjectPartVO = null;
+	private AllSubProjectPartValueObject allSubProjectPartVO = null;
 	private SequencedProperties sinnoriConfigSequencedProperties = null;
 
 	public SinnoriConfiguration(String mainProjectName,
@@ -91,11 +91,11 @@ public class SinnoriConfiguration {
 		this.mainProjectName = mainProjectName;
 		this.sinnoriInstalledPathString = sinnoriInstalledPathString;
 
-		this.allDBCPPart = new AllDBCPPartConfigurationVO();
-		this.commonPart = new CommonPartConfigurationVO();
-		this.mainProjectPart = new ProjectPartConfigurationVO(
+		this.allDBCPPartVO = new AllDBCPPartValueObject();
+		this.commonPartVO = new CommonPartValueObject();
+		this.mainProjectPartVO = new ProjectPartValueObject(
 				CommonType.PROJECT_GUBUN.MAIN_PROJECT, mainProjectName);
-		this.allSubProjectPart = new AllSubProjectPartConfigurationVO();
+		this.allSubProjectPartVO = new AllSubProjectPartValueObject();
 
 		load();
 	}
@@ -229,7 +229,7 @@ public class SinnoriConfiguration {
 			String prefixOfItemID = new StringBuilder("dbcp.").append(dbcpName)
 					.append(".").toString();
 
-			DBCPParConfigurationVO dbcpPartValueObject = new DBCPParConfigurationVO(
+			DBCPParValueObject dbcpPartValueObject = new DBCPParValueObject(
 					dbcpName);
 			for (ItemIDInfo<?> itemIDInfo : dbcpItemIDInfoList) {
 				String itemID = itemIDInfo.getItemID();
@@ -276,7 +276,7 @@ public class SinnoriConfiguration {
 				}
 
 			}
-			allDBCPPart.addDBCPPartValueObject(dbcpPartValueObject);
+			allDBCPPartVO.addDBCPPartValueObject(dbcpPartValueObject);
 		}
 
 		List<ItemIDInfo<?>> commonItemIDInfoList = sinnoriItemIDInfoManger
@@ -305,7 +305,7 @@ public class SinnoriConfiguration {
 									sinnoriConfigSequencedProperties);				
 				
 				try {
-					commonPart.mapping(itemKey, nativeValue);
+					commonPartVO.mapping(itemKey, nativeValue);
 				} catch (IllegalArgumentException | ClassCastException
 						| SinnoriConfigurationException e) {
 					String errorMessage = new StringBuilder(
@@ -355,7 +355,7 @@ public class SinnoriConfiguration {
 								sinnoriConfigSequencedProperties);
 				
 				try {
-					mainProjectPart.mapping(itemKey, nativeValue);
+					mainProjectPartVO.mapping(itemKey, nativeValue);
 				} catch (IllegalArgumentException | ClassCastException
 						| SinnoriConfigurationException e) {
 					String errorMessage = new StringBuilder(
@@ -379,7 +379,7 @@ public class SinnoriConfiguration {
 			String prefixOfItemID = new StringBuilder("subproject.")
 					.append(subProjectName).append(".").toString();
 
-			ProjectPartConfigurationVO subProjectPartValueObject = new ProjectPartConfigurationVO(
+			ProjectPartValueObject subProjectPartValueObject = new ProjectPartValueObject(
 					CommonType.PROJECT_GUBUN.SUB_PROJECT, subProjectName);
 			for (ItemIDInfo<?> itemIDInfo : projectItemIDInfoList) {
 				String itemID = itemIDInfo.getItemID();
@@ -424,7 +424,7 @@ public class SinnoriConfiguration {
 				}
 			}
 
-			allSubProjectPart
+			allSubProjectPartVO
 					.addSubProjectPartValueObject(subProjectPartValueObject);
 		}
 	}
@@ -666,20 +666,20 @@ public class SinnoriConfiguration {
 	
 	
 
-	public CommonPartConfigurationVO getCommonPart() {
-		return commonPart;
+	public CommonPartValueObject getCommonPart() {
+		return commonPartVO;
 	}
 
-	public ProjectPartConfigurationVO getMainProjectPart() {
-		return mainProjectPart;
+	public ProjectPartValueObject getMainProjectPart() {
+		return mainProjectPartVO;
 	}
 
-	public AllSubProjectPartConfigurationVO getAllSubProjectPart() {
-		return allSubProjectPart;
+	public AllSubProjectPartValueObject getAllSubProjectPart() {
+		return allSubProjectPartVO;
 	}
 
-	public AllDBCPPartConfigurationVO getAllDBCPPart() {
-		return allDBCPPart;
+	public AllDBCPPartValueObject getAllDBCPPart() {
+		return allDBCPPartVO;
 	}
 
 	public String getMainProjectName() {

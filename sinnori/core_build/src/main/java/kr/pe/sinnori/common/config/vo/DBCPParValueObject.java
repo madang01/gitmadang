@@ -1,4 +1,4 @@
-package kr.pe.sinnori.common.config.configvo;
+package kr.pe.sinnori.common.config.vo;
 
 import java.io.File;
 
@@ -14,7 +14,7 @@ import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
  * @author Won Jonghoon
  *
  */
-public class DBCPParConfigurationVO {
+public class DBCPParValueObject {
 	// private Logger log = LoggerFactory.getLogger(DBCPPartValueObject.class);
 	
 	private String dbcpName = null;
@@ -22,7 +22,7 @@ public class DBCPParConfigurationVO {
 	
 	private String prefexOfItemID = null;
 	
-	public DBCPParConfigurationVO(String dbcpName) {
+	public DBCPParValueObject(String dbcpName) {
 		this.dbcpName = dbcpName;
 		
 		prefexOfItemID = new StringBuilder("dbcp.").append(dbcpName)

@@ -149,7 +149,9 @@ public class LoginWithSessionKeyServerTask extends AbstractServerTask {
 			if (null == memberHash) {
 				messageResultOutObj.setResultMessage("아이디["+userId+"] 가 존재하지 않습니다.");				
 			} else {			
+				/** memberGubun :: 회원 구분, 0:관리자, 1:일반회원 */
 				int memberGubun = (Integer)memberHash.get("memberGubun");
+				/** memberState :: 회원 상태, 0:정상, 1:블락, 2:탈퇴 */
 				int memberState = (Integer)memberHash.get("memberState");
 				int pwdFailCount = (Integer)memberHash.get("pwdFailCount");
 				
@@ -157,16 +159,15 @@ public class LoginWithSessionKeyServerTask extends AbstractServerTask {
 					messageResultOutObj.setResultMessage("비밀번호 5회 이상 틀렸습니다. 비밀번호 초기화를 수행하시기 바랍니다.");
 				} else {
 					String pwdMDBase64 = (String)memberHash.get("pwdBase64");
-					String pwdSaltBase64 = (String)memberHash.get("pwdSaltBase64");
+					String pwdSaltBase64 = (String)memberHash.get("pwdSaltBase64");					
 					
-					
-					if (2 == memberGubun) {
-						messageResultOutObj.setResultMessage("블락된 회원["+userId+"] 입니다.");
-					} else if (0 != memberGubun && 1 != memberGubun) {
+					if (0 != memberGubun && 1 != memberGubun) {
 						messageResultOutObj.setResultMessage("알수없는 회원 구분["+memberGubun+"] 을 가진 회원["+userId+"] 입니다.");
 					} else {						
 						if (1 == memberState) {
-							messageResultOutObj.setResultMessage("탈퇴한 회원["+userId+"] 입니다.");					
+							messageResultOutObj.setResultMessage("블락된 회원["+userId+"] 입니다.");
+						} else if (2 == memberState) {
+							messageResultOutObj.setResultMessage("탈퇴한 회원["+userId+"] 입니다.");
 						} else if (0 != memberState) {
 							messageResultOutObj.setResultMessage("알수없는 상태["+memberState+"] 을 가진 회원["+userId+"] 입니다.");
 						} else {							

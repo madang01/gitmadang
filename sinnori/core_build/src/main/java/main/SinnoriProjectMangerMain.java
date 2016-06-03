@@ -12,6 +12,6 @@ public class SinnoriProjectMangerMain {
 		
 		MainWindow mainWindow = new MainWindow();
 		mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		mainWindow.setVisible(true);		
+		mainWindow.setVisible(true);
 	}
 }

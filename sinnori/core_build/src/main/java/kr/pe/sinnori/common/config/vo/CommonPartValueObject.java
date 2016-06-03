@@ -1,4 +1,4 @@
-package kr.pe.sinnori.common.config.configvo;
+package kr.pe.sinnori.common.config.vo;
 
 import java.io.File;
 
@@ -13,7 +13,7 @@ import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
  * @author Won Jonghoon
  *
  */
-public class CommonPartConfigurationVO {
+public class CommonPartValueObject {
 	// private Logger log = LoggerFactory.getLogger(CommonPartValueObject.class);
 	
 	
@@ -38,7 +38,7 @@ public class CommonPartConfigurationVO {
 	private Integer cachedObjectMaxSize=null;
 	//private Long maxUpdateSeqInterva=5000;	
 	
-	public CommonPartConfigurationVO() {
+	public CommonPartValueObject() {
 				
 	}
 	

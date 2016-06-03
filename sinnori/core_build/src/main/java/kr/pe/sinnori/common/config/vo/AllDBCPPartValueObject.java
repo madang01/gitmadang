@@ -1,12 +1,12 @@
-package kr.pe.sinnori.common.config.configvo;
+package kr.pe.sinnori.common.config.vo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class AllDBCPPartConfigurationVO {	
+public class AllDBCPPartValueObject {	
 	private List<String> dbcpNameList = new ArrayList<String>();
-	private HashMap<String, DBCPParConfigurationVO> dbcpPartValueObjectHash = new HashMap<String, DBCPParConfigurationVO>();
+	private HashMap<String, DBCPParValueObject> dbcpPartValueObjectHash = new HashMap<String, DBCPParValueObject>();
 	
 	
 	public void clear() {
@@ -14,7 +14,7 @@ public class AllDBCPPartConfigurationVO {
 		dbcpPartValueObjectHash.clear();
 	}
 	
-	public void addDBCPPartValueObject(DBCPParConfigurationVO dbcpPartValueObject) {		
+	public void addDBCPPartValueObject(DBCPParValueObject dbcpPartValueObject) {		
 		if (null == dbcpPartValueObject) {
 			throw new IllegalArgumentException("the paramter dbcpPartValueObject is null");
 		}
@@ -37,7 +37,7 @@ public class AllDBCPPartConfigurationVO {
 	}
 	
 
-	public DBCPParConfigurationVO getDBCPPartValueObject(String dbcpName) {
+	public DBCPParValueObject getDBCPPartValueObject(String dbcpName) {
 		return dbcpPartValueObjectHash.get(dbcpName);
 	}
 

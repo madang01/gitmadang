@@ -11,7 +11,7 @@ import kr.pe.sinnori.impl.message.BoardVoteInDTO.BoardVoteInDTO;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
 import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
-import kr.pe.sinnori.weblib.jdf.AbstractAuthServlet;
+import kr.pe.sinnori.weblib.jdf.AbstractLoginServlet;
 
 /**
  * 
@@ -19,7 +19,7 @@ import kr.pe.sinnori.weblib.jdf.AbstractAuthServlet;
  *
  */
 @SuppressWarnings("serial")
-public class BoardVoteSvl extends AbstractAuthServlet {
+public class BoardVoteSvl extends AbstractLoginServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)

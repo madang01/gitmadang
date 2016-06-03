@@ -104,4 +104,70 @@ public class CommonType {
 	public enum SPLIT_STRING_GUBUN {
 		BR, NEWLINE
 	};
+	
+	// 게시판 식별자, 0 : 공지, 1:자유, 2:FAQ
+	public enum BOARD_ID {
+		NOTICE, FREE, FAQ;
+		
+		
+		public static BOARD_ID valueOf(int boardID) {
+			if (NOTICE.ordinal() == boardID) {
+				return BOARD_ID.NOTICE;
+			} else if (FREE.ordinal() == boardID) {
+				return BOARD_ID.FREE;
+			} else if (FAQ.ordinal() == boardID) {
+				return BOARD_ID.FAQ;
+			} else {
+				throw new IllegalArgumentException("bad parameter boardID["+boardID+"]");
+			}
+		}
+	};
+	
+	// 시퀀스 종류 식별자, 1:업로드 파일 이름 시퀀스
+	public enum SEQ_TYPE_ID {
+		UPLOAD_FILE_NAME;		
+		
+		public static SEQ_TYPE_ID valueOf(int seqTypeID) {
+			if (UPLOAD_FILE_NAME.ordinal() == seqTypeID) {
+				return SEQ_TYPE_ID.UPLOAD_FILE_NAME;
+			} else {
+				throw new IllegalArgumentException("bad parameter seqTypeID["+seqTypeID+"]");
+			}
+		}
+	};
+	
+	// 회원 구분, 0:관리자, 1:일반회원
+	public enum MEMBER_GUBUN {
+		ADMIN, USER;
+		
+		
+		public static MEMBER_GUBUN valueOf(int memberGubun) {
+			if (ADMIN.ordinal() == memberGubun) {
+				return MEMBER_GUBUN.ADMIN;
+			} else if (USER.ordinal() == memberGubun) {
+				return MEMBER_GUBUN.USER;
+			} else {
+				throw new IllegalArgumentException("bad parameter memberGubun["+memberGubun+"]");
+			}
+		}
+	};
+	
+	// 회원 상태, 0:정상, 1:블락, 2:탈퇴
+	public enum MEMBER_STATE {
+		OK, BLOCK, MEMBER_LEAVE;
+		
+		
+		public static MEMBER_STATE valueOf(int memberState) {
+			if (OK.ordinal() == memberState) {
+				return MEMBER_STATE.OK;
+			} else if (BLOCK.ordinal() == memberState) {
+				return MEMBER_STATE.BLOCK;
+			} else if (MEMBER_LEAVE.ordinal() == memberState) {
+				return MEMBER_STATE.MEMBER_LEAVE;
+			} else {
+				throw new IllegalArgumentException("bad parameter memberState["+memberState+"]");
+			}
+		}
+	};
+	
 }

@@ -3,10 +3,10 @@ package kr.pe.sinnori.servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import kr.pe.sinnori.weblib.jdf.AbstractAuthServlet;
+import kr.pe.sinnori.weblib.jdf.AbstractLoginServlet;
 
 @SuppressWarnings("serial")
-public class JDFLoginTestSvl extends AbstractAuthServlet {
+public class JDFLoginTestSvl extends AbstractLoginServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)

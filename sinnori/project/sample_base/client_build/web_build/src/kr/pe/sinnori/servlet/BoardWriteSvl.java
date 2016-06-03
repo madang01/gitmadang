@@ -28,7 +28,7 @@ import kr.pe.sinnori.impl.message.BoardWriteInDTO.BoardWriteInDTO;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
 import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
-import kr.pe.sinnori.weblib.jdf.AbstractAuthServlet;
+import kr.pe.sinnori.weblib.jdf.AbstractLoginServlet;
 
 /**
  * 게시판 최상의 글 등록 처리
@@ -36,7 +36,7 @@ import kr.pe.sinnori.weblib.jdf.AbstractAuthServlet;
  *
  */
 @SuppressWarnings("serial")
-public class BoardWriteSvl extends AbstractAuthServlet {
+public class BoardWriteSvl extends AbstractLoginServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)

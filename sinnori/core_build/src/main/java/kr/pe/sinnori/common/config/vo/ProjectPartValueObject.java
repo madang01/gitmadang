@@ -1,4 +1,4 @@
-package kr.pe.sinnori.common.config.configvo;
+package kr.pe.sinnori.common.config.vo;
 
 import java.io.File;
 import java.nio.ByteOrder;
@@ -16,7 +16,7 @@ import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
  * @author Won Jonghoon
  *
  */
-public class ProjectPartConfigurationVO {	
+public class ProjectPartValueObject {	
 	// private Logger log = LoggerFactory.getLogger(ProjectPartValueObject.class);
 	private String projectName = null;
 	private CommonType.PROJECT_GUBUN projectGubun = null;
@@ -128,7 +128,7 @@ public class ProjectPartConfigurationVO {
 	/************* server 변수 종료 ******************/
 	
 	
-	public ProjectPartConfigurationVO(CommonType.PROJECT_GUBUN projectGubun, String projectName) {
+	public ProjectPartValueObject(CommonType.PROJECT_GUBUN projectGubun, String projectName) {
 		this.projectName = projectName;
 		this.projectGubun = projectGubun;
 		if (this.projectGubun.equals(CommonType.PROJECT_GUBUN.MAIN_PROJECT)) {

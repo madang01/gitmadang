@@ -12,8 +12,8 @@ import javax.sql.DataSource;
 
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.configvo.AllDBCPPartConfigurationVO;
-import kr.pe.sinnori.common.config.configvo.DBCPParConfigurationVO;
+import kr.pe.sinnori.common.config.vo.AllDBCPPartValueObject;
+import kr.pe.sinnori.common.config.vo.DBCPParValueObject;
 import kr.pe.sinnori.common.exception.DBNotReadyException;
 
 import org.apache.commons.dbcp2.BasicDataSource;
@@ -59,7 +59,7 @@ public final class DBCPManager {
 				SinnoriConfigurationManager.getInstance()
 				.getSinnoriRunningProjectConfiguration();
 		
-		AllDBCPPartConfigurationVO allDBCPPart =  sinnoriRunningProjectConfiguration.getAllDBCPPart();
+		AllDBCPPartValueObject allDBCPPart =  sinnoriRunningProjectConfiguration.getAllDBCPPart();
 		
 		List<String> dbcpNameList = allDBCPPart.getDBCPNameList();
 		//HashMap<String, File> dbcpConfigFileHash = commonPart.getDbcpConfigFileHash();
@@ -81,7 +81,7 @@ public final class DBCPManager {
 					.append(dbcpConnectionPoolName)
 					.append(".confige_file.value").toString();
 			File configeFile = (File) conf.getResource(propKey);*/
-			DBCPParConfigurationVO dbcpPart = allDBCPPart.getDBCPPartValueObject(dbcpName);
+			DBCPParValueObject dbcpPart = allDBCPPart.getDBCPPartValueObject(dbcpName);
 			if (null == dbcpPart) {
 				log.warn("the dbcp name[{}] is bad, check dbcp part of config file", dbcpName);
 				continue;
