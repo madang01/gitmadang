@@ -1,0 +1,52 @@
+JFDML JFormDesigner: "5.2.5.0.333" Java: "1.8.0_121" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+			"$columnSpecs": "relgap, growbutton, relgap"
+			"$rowSpecs": "narrowlinegap, default:grow, narrowlinegap"
+		} ) {
+			name: "this"
+			auxiliary() {
+				"JavaCodeGenerator.variableGetter": true
+			}
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+				"axis": 0
+			} ) {
+				name: "mainPanel"
+				auxiliary() {
+					"JavaCodeGenerator.customCreate": true
+				}
+				add( new FormComponent( "kr.pe.sinnori.gui.helper.screen.projectmanager.SinnoriInstalledPathPanel" ) {
+					name: "sinnoriInstalledPathPanel"
+					auxiliary() {
+						"JavaCodeGenerator.customCreateCode": "new SinnoriInstalledPathPanel(this, this);"
+					}
+				} )
+				add( new FormComponent( "kr.pe.sinnori.gui.helper.screen.projectmanager.AllMainProjectManagerPanel" ) {
+					name: "allMainProjectManagerPanel"
+					"visible": false
+					auxiliary() {
+						"JavaCodeGenerator.customCreateCode": "new AllMainProjectManagerPanel(this, this);"
+						"JavaCodeGenerator.variableName": "allMainProjectManagerPanel"
+					}
+				} )
+				add( new FormComponent( "kr.pe.sinnori.gui.helper.screen.projectmanager.MainProjectEditorPanel" ) {
+					name: "mainProjectEditorPanel"
+					"visible": false
+					auxiliary() {
+						"JavaCodeGenerator.customCreateCode": "new MainProjectEditorPanel(this, this);"
+						"JavaCodeGenerator.variableName": "mainProjectMangerPanel"
+					}
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 2
+				"gridY": 2
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 580, 210 )
+		} )
+	}
+}

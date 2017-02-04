@@ -1,0 +1,300 @@
+JFDML JFormDesigner: "5.2.5.0.333" Java: "1.8.0_121" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+			"$columnSpecs": "unrelgap, 432dlu, unrelgap"
+			"$rowSpecs": "8dlu, 242dlu, 8dlu"
+		} ) {
+			name: "this"
+			add( new FormContainer( "javax.swing.JTabbedPane", new FormLayoutManager( class javax.swing.JTabbedPane ) ) {
+				name: "sourceBuilderTabbedPane"
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+					"$columnSpecs": "unrelgap, growbutton, unrelgap"
+					"$rowSpecs": "linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, 50dlu, linegap"
+				} ) {
+					name: "ioFileSetPanel"
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+						"$columnSpecs": "132dlu, unrelgap, max(pref;236dlu):grow, unrelgap, default"
+						"$rowSpecs": "default"
+					} ) {
+						name: "messageInfoFilePathPanel"
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "messageInfoFilePathLabel"
+							"text": "Message info file path"
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 1
+							"gridY": 1
+						} )
+						add( new FormComponent( "javax.swing.JTextField" ) {
+							name: "messageInfoFilePathTextField"
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 3
+						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "messageInfoFilePathButton"
+							"text": "Path"
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 5
+							"gridY": 1
+						} )
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 2
+						"gridY": 2
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+						"$columnSpecs": "98dlu, unrelgap, default, unrelgap, growbutton, unrelgap, default"
+						"$rowSpecs": "default"
+					} ) {
+						name: "firstPathSavingIOFileSetPanel"
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "firstPathSavingIOFileSetTitleLabel"
+							"text": "First path saving IO file set"
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 1
+							"gridY": 1
+						} )
+						add( new FormComponent( "javax.swing.JCheckBox" ) {
+							name: "firstPathSavingIOFileSetCheckBox"
+							"text": "text"
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 3
+							"gridY": 1
+						} )
+						add( new FormComponent( "javax.swing.JTextField" ) {
+							name: "firstPathSavingIOFileSetTextField"
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 5
+							"gridY": 1
+						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "firstPathSavingIOFileSetButton"
+							"text": "Path"
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 7
+							"gridY": 1
+						} )
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 2
+						"gridY": 4
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+						"$columnSpecs": "default, unrelgap, default, unrelgap, growbutton, unrelgap, default"
+						"$rowSpecs": "default"
+					} ) {
+						name: "secoundPathSavingIOFileSetPanel"
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "secoundPathSavingIOFileSetLabel"
+							"text": "Secound path saving IO file set"
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 1
+							"gridY": 1
+						} )
+						add( new FormComponent( "javax.swing.JCheckBox" ) {
+							name: "secoundPathSavingIOFileSetCheckBox"
+							"text": "text"
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 3
+							"gridY": 1
+						} )
+						add( new FormComponent( "javax.swing.JTextField" ) {
+							name: "secoundPathSavingIOFileSetTextField"
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 5
+							"gridY": 1
+						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "secoundPathSavingIOFileSetButton"
+							"text": "Path"
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 7
+							"gridY": 1
+						} )
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 2
+						"gridY": 6
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+						"$columnSpecs": "98dlu, unrelgap, default, unrelgap, growbutton, unrelgap, default"
+						"$rowSpecs": "default"
+					} ) {
+						name: "thirdIPathSavingIOFileSetPanel"
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "thirdPathSavingIOFileSetLabel"
+							"text": "Third path saving IO file set"
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) )
+						add( new FormComponent( "javax.swing.JCheckBox" ) {
+							name: "thirdPathSavingIOFileSetCheckBox"
+							"text": "text"
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 3
+						} )
+						add( new FormComponent( "javax.swing.JTextField" ) {
+							name: "thirdPathSavingIOFileSetTextField"
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 5
+						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "thirdPathSavingIOFileSetButton"
+							"text": "Path"
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 7
+						} )
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 2
+						"gridY": 8
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+						"$columnSpecs": "default, unrelgap, growbutton"
+						"$rowSpecs": "default"
+					} ) {
+						name: "writerPanel"
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "writerLabel"
+							"text": "Writer"
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 1
+							"gridY": 1
+						} )
+						add( new FormComponent( "javax.swing.JTextField" ) {
+							name: "writerTextField"
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 3
+							"gridY": 1
+						} )
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 2
+						"gridY": 10
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+						"$columnSpecs": "default, unrelgap, default"
+						"$rowSpecs": "default"
+					} ) {
+						name: "menuPanel"
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "rereadingAllMessageInfoFileButton"
+							"text": "Reread all message info file"
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 1
+							"gridY": 1
+						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "buildingIOSourceFileSetButton"
+							"text": "Build IO source file set"
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 3
+							"gridY": 1
+						} )
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 2
+						"gridY": 12
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "resultLabel"
+						"text": ">> result rereading all message info file"
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 2
+						"gridY": 14
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+						"$columnSpecs": "default, unrelgap, growbutton, unrelgap, default"
+						"$rowSpecs": "default"
+					} ) {
+						name: "messageIDSearchPanel"
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "messageIDSearchLabel"
+							"text": "message ID"
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 1
+							"gridY": 1
+						} )
+						add( new FormComponent( "javax.swing.JTextField" ) {
+							name: "messageIDSearchTextField"
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 3
+							"gridY": 1
+						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "messageIDSearchButton"
+							"text": "text"
+						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+							"gridX": 5
+							"gridY": 1
+						} )
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 2
+						"gridY": 16
+					} )
+					add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+						name: "messageInfoScrollPane"
+						add( new FormComponent( "javax.swing.JTable" ) {
+							name: "messageInfoTable"
+							"model": new com.jformdesigner.model.SwingTableModel( new java.util.Vector {
+								add( new java.util.Vector {
+									add( null )
+									add( null )
+									add( "" )
+									add( null )
+									add( null )
+								} )
+								add( new java.util.Vector {
+									add( null )
+									add( null )
+									add( null )
+									add( null )
+									add( null )
+								} )
+							}, new java.util.Vector {
+								add( "message id" )
+								add( "recently modified date" )
+								add( "direction" )
+								add( "file function" )
+								add( "build function" )
+							}, new java.util.Vector {
+								add( class java.lang.String )
+								add( class java.lang.String )
+								add( class java.lang.String )
+								add( null )
+								add( null )
+							}, new java.util.Vector {
+								add( null )
+								add( null )
+								add( null )
+								add( null )
+								add( null )
+							}, new java.util.Vector {
+								add( null )
+								add( null )
+								add( null )
+								add( null )
+								add( null )
+							} )
+						} )
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 2
+						"gridY": 18
+					} )
+				}, new FormLayoutConstraints( null ) {
+					"title": "source builder for IO file set"
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+					"$columnSpecs": "default, default, default"
+					"$rowSpecs": "default, default, default, default, default, default"
+				} ) {
+					name: "eachIOFileTypePanel"
+				}, new FormLayoutConstraints( null ) {
+					"title": "source builder for each IO file type"
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 2
+				"gridY": 2
+				"gridWidth": 2
+				"gridHeight": 2
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 855, 605 )
+		} )
+	}
+}
