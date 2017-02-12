@@ -76,7 +76,8 @@
 	
 	
 	<target name="compile.client.nodepend">
-		<echo message="this task depends on make.common task" />	
+		<echo message="this task depends on make.common task" />
+		<echo message="echo dir.lib =[${dir.lib}/ex]" />	
 		
 		<mkdir dir="${dir.build}/client_lib" />
 		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}/client_lib">

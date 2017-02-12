@@ -3,7 +3,7 @@ package main;
 import javax.swing.JFrame;
 import javax.swing.ToolTipManager;
 
-import kr.pe.sinnori.gui.helper.screen.HelperMainWindow;
+import kr.pe.sinnori.gui.helper.HelperMainWindow;
 
 
 public class SinnoriHelperMain {

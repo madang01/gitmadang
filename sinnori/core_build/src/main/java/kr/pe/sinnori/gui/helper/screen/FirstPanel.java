@@ -14,14 +14,17 @@ import org.slf4j.LoggerFactory;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 
-import kr.pe.sinnori.gui.helper.screen.projectmanager.SinnoriInstalledPathPanel;
+import kr.pe.sinnori.gui.helper.ScreenManagerIF;
+import kr.pe.sinnori.gui.helper.projectmanager.screen.SinnoriInstalledPathPanel;
 
 /**
  * @author Jonghoon Won
  */
 @SuppressWarnings("serial")
 public class FirstPanel extends JPanel {
+	@SuppressWarnings("unused")
 	private Logger log = LoggerFactory.getLogger(SinnoriInstalledPathPanel.class);
+	@SuppressWarnings("unused")
 	private Frame mainFrame = null;
 	private ScreenManagerIF screenManagerIF = null;
 	
@@ -30,11 +33,16 @@ public class FirstPanel extends JPanel {
 		this.mainFrame = mainFrame;
 		this.screenManagerIF = screenManagerIF;
 		
+		mainFrame.setTitle("First Screen");
 		initComponents();
 	}
 
 	private void AllMainProjectManagerScreenButtonActionPerformed(ActionEvent e) {
-		screenManagerIF.moveToSinnoriInstalledPathScreen();
+		if (null != screenManagerIF) 	screenManagerIF.moveToSinnoriInstalledPathScreen();
+	}
+
+	private void IOBuilderScreenButtonActionPerformed(ActionEvent e) {
+		if (null != screenManagerIF) screenManagerIF.moveToIOManagerScreen();
 	}
 
 	private void initComponents() {
@@ -55,11 +63,15 @@ public class FirstPanel extends JPanel {
 
 		//---- AllMainProjectManagerScreenButton ----
 		AllMainProjectManagerScreenButton.setText("All Main Project Manager");
-		AllMainProjectManagerScreenButton.addActionListener(e -> AllMainProjectManagerScreenButtonActionPerformed(e));
+		AllMainProjectManagerScreenButton.addActionListener(e -> {
+			AllMainProjectManagerScreenButtonActionPerformed(e);
+			AllMainProjectManagerScreenButtonActionPerformed(e);
+		});
 		add(AllMainProjectManagerScreenButton, CC.xy(2, 4));
 
 		//---- IOBuilderScreenButton ----
 		IOBuilderScreenButton.setText("IO Builder");
+		IOBuilderScreenButton.addActionListener(e -> IOBuilderScreenButtonActionPerformed(e));
 		add(IOBuilderScreenButton, CC.xy(2, 6));
 		// JFormDesigner - End of component initialization  //GEN-END:initComponents
 	}

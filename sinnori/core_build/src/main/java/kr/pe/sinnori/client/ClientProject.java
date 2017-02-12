@@ -22,6 +22,9 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.AbstractConnectionPool;
 import kr.pe.sinnori.client.connection.asyn.noshare.NoShareAsynConnectionPool;
@@ -306,8 +309,8 @@ public class ClientProject extends AbstractProject implements ClientProjectIF,
 		 * 2번 연속 반환 막기
 		 */
 		synchronized (outputMessageQueuerQueueMonitor) {
-			if (wrapOutputMessageQueue.isInQueue()) {
-				log.warn(String.format("출력 메시지 큐 2번 연속 반환 시도"));
+			if (wrapOutputMessageQueue.isInQueue()) {				
+				log.warn("출력 메시지 큐 2번 연속 반환 시도");
 				return;
 			}
 			wrapOutputMessageQueue.queueIn();

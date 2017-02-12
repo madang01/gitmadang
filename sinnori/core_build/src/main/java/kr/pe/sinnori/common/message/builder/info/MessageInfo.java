@@ -18,6 +18,7 @@
 package kr.pe.sinnori.common.message.builder.info;
 
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -49,11 +50,18 @@ public class MessageInfo implements ItemGroupInfoIF {
 	
 	private ArrayList<AbstractItemInfo> itemInfoList = new ArrayList<AbstractItemInfo>();
 	private HashMap<String, AbstractItemInfo> itemInfoHash = new HashMap<String, AbstractItemInfo>();
+	
+	private File messageInfoXMLFile = null;
 		
 
-	public MessageInfo(String messageID, long lastModfied) {		
+	public File getMessageInfoXMLFile() {
+		return messageInfoXMLFile;
+	}
+
+	public MessageInfo(String messageID, File messageInfoXMLFile) {		
 		this.messageID = messageID;
-		this.lastModfied = new java.util.Date(lastModfied);
+		this.messageInfoXMLFile = messageInfoXMLFile;
+		this.lastModfied = new java.util.Date(messageInfoXMLFile.lastModified());
 		this.firstUpperMessageID = messageID.substring(0,1)+messageID.substring(1);
 	}
 

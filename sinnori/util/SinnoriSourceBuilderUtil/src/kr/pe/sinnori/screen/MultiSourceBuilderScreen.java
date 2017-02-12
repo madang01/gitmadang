@@ -647,6 +647,7 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
         	sourceBuilderTableModel = new SourceBuilderTableModel(values, titles, columnTypes);
             
             /** 모델  교체중 repaint event 를 막기 위해서 잠시 visable 속성을 끔 */
+        	table.setEnabled(false);
             table.setVisible(false);
             table.setModel(sourceBuilderTableModel);            
     		
@@ -671,6 +672,7 @@ public class MultiSourceBuilderScreen extends JPanel implements MessageInfoManag
     		table.getColumnModel().getColumn(4).setCellEditor(new SourceFileCellEditor(new JCheckBox()));
     		
     		/** 모델  교체중 repaint event 를 막기 위해서 잠시 visable 속성 복귀 */
+    		table.setEnabled(true);
     		table.setVisible(true);
     		scrollPane.repaint();
         }

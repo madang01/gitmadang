@@ -16,7 +16,7 @@ import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.BuildSystemException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
-import kr.pe.sinnori.common.message.builder.MessageProcessFileContentsManager;
+import kr.pe.sinnori.common.message.builder.IOFileSetContentsBuilderManager;
 import kr.pe.sinnori.common.message.builder.info.MessageInfo;
 import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
 import kr.pe.sinnori.common.util.SequencedProperties;
@@ -693,7 +693,7 @@ public abstract class BuildSystemSupporter {
 		MessageInfo echoMessageInfo = getEchoMessageInfo(mainProjectName,
 				sinnoriInstalledPathString, messageInfoSAXParser);
 
-		MessageProcessFileContentsManager messageProcessFileContentsManager = MessageProcessFileContentsManager
+		IOFileSetContentsBuilderManager messageProcessFileContentsManager = IOFileSetContentsBuilderManager
 				.getInstance();
 
 		/** kr/pe/sinnori/message/Echo/Echo.java */

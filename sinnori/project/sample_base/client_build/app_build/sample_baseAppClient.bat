@@ -1,9 +1,9 @@
 set OLDPWD=%CD%
-cd /D /home/madang01/gitsinnori/sinnori/project/sample_base/client_build/app_build
+cd /D D:\gitsinnori\sinnori\project\sample_base\client_build\app_build
 java  ^
--Dlogback.configurationFile=/home/madang01/gitsinnori/sinnori/project/sample_base/config/logback.xml ^
--Dsinnori.logPath=/home/madang01/gitsinnori/sinnori/project/sample_base/log/client ^
--Dsinnori.installedPath=/home/madang01/gitsinnori/sinnori ^
+-Dlogback.configurationFile=D:\gitsinnori\sinnori\project\sample_base\config\logback.xml ^
+-Dsinnori.logPath=D:\gitsinnori\sinnori\project\sample_base\log\client ^
+-Dsinnori.installedPath=D:\gitsinnori\sinnori ^
 -Dsinnori.projectName=sample_base ^
--jar dist/SinnoriAppClientRun.jar
+-jar dist\SinnoriAppClientRun.jar
 cd /D %OLDPWD%

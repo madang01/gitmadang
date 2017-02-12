@@ -20,6 +20,7 @@ new FormModel {
 				name: "AllMainProjectManagerScreenButton"
 				"text": "All Main Project Manager"
 				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "AllMainProjectManagerScreenButtonActionPerformed", true ) )
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "AllMainProjectManagerScreenButtonActionPerformed", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 2
 				"gridY": 4
@@ -27,6 +28,7 @@ new FormModel {
 			add( new FormComponent( "javax.swing.JButton" ) {
 				name: "IOBuilderScreenButton"
 				"text": "IO Builder"
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "IOBuilderScreenButtonActionPerformed", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 2
 				"gridY": 6

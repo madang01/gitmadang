@@ -342,7 +342,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 			}
 			
 			
-			MessageInfo messageInfo = new MessageInfo(messageID, messageInformationXMLFile.lastModified());
+			MessageInfo messageInfo = new MessageInfo(messageID, messageInformationXMLFile);
 
 			itemGroupInfoStack.push(messageInfo);
 			

@@ -274,7 +274,6 @@ public class ServerClassLoader extends ClassLoader {
 	 * kr/pe/sinnori/impl/mybatis/memberMapper.xml 로 시작되는 mybatis 리소스 파일의 InputStream 을 반환한다.
 	 * </pre>
 	 */
-	@SuppressWarnings("resource")
 	@Override
 	public InputStream getResourceAsStream(String name) {
 		InputStream is = null;

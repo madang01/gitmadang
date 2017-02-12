@@ -56,13 +56,13 @@ import kr.pe.sinnori.common.util.FileLastModifiedComparator;
 import kr.pe.sinnori.common.util.XMLFileFilter;
 import kr.pe.sinnori.gui.helper.iobuilder.screen.BuildFunctionManagerIF;
 import kr.pe.sinnori.gui.helper.iobuilder.screen.FileFunctionManagerIF;
-import kr.pe.sinnori.gui.helper.projectmanager.table.messageinfo.BuildFunctionCellEditor;
-import kr.pe.sinnori.gui.helper.projectmanager.table.messageinfo.BuildFunctionCellRenderer;
-import kr.pe.sinnori.gui.helper.projectmanager.table.messageinfo.BuildFunctionCellValue;
-import kr.pe.sinnori.gui.helper.projectmanager.table.messageinfo.FileFunctionCellEditor;
-import kr.pe.sinnori.gui.helper.projectmanager.table.messageinfo.FileFunctionCellRenderer;
-import kr.pe.sinnori.gui.helper.projectmanager.table.messageinfo.FileFunctionCellValue;
-import kr.pe.sinnori.gui.helper.projectmanager.table.messageinfo.MessageInfoTableModel;
+import kr.pe.sinnori.gui.helper.projectmanager.table.messageinfo.BuildFunctionCellEditorForProject;
+import kr.pe.sinnori.gui.helper.projectmanager.table.messageinfo.BuildFunctionCellRendererForProject;
+import kr.pe.sinnori.gui.helper.projectmanager.table.messageinfo.BuildFunctionCellValueForProject;
+import kr.pe.sinnori.gui.helper.projectmanager.table.messageinfo.FileFunctionCellEditorForProject;
+import kr.pe.sinnori.gui.helper.projectmanager.table.messageinfo.FileFunctionCellRendererForProject;
+import kr.pe.sinnori.gui.helper.projectmanager.table.messageinfo.FileFunctionCellValueForProject;
+import kr.pe.sinnori.gui.helper.projectmanager.table.messageinfo.MessageInfoTableModelForProject;
 
 /**
  * @author Jonghoon Won
@@ -77,14 +77,14 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 	private ArrayList<String> otherMainProjectNameList;
 	
 	/** MessageInfo Table Model start */
-	private MessageInfoTableModel messageInfoTableModel = null;
+	private MessageInfoTableModelForProject messageInfoTableModel = null;
 	
 	private String titles[] = {
 			"message id", "recently modified date", "direction", "mesg info file function", "io source build function"
 		};	
 	
 	private Class<?>[] columnTypes = new Class[] {
-		String.class, String.class, String.class, FileFunctionCellEditor.class, BuildFunctionCellEditor.class
+		String.class, String.class, String.class, FileFunctionCellEditorForProject.class, BuildFunctionCellEditorForProject.class
 	};	
 	/** MessageInfo Table Model end */
 	
@@ -144,8 +144,8 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 				values[i][2] = "no direction";
 			}
 			    			
-			values[i][3] = new FileFunctionCellValue(i, messageInfo, ProjectIOFileSetBuilderPopup.this, ownerFrame);
-			values[i][4] = new BuildFunctionCellValue(messageInfo, ProjectIOFileSetBuilderPopup.this, ownerFrame);
+			values[i][3] = new FileFunctionCellValueForProject(i, messageInfo, ProjectIOFileSetBuilderPopup.this, ownerFrame);
+			values[i][4] = new BuildFunctionCellValueForProject(messageInfo, ProjectIOFileSetBuilderPopup.this, ownerFrame);
 		}
         
 		createTable(values);
@@ -157,7 +157,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
     }
     
 	private void createTable(Object values[][]) {
-    	messageInfoTableModel = new MessageInfoTableModel(values, titles, columnTypes);
+    	messageInfoTableModel = new MessageInfoTableModelForProject(values, titles, columnTypes);
         
         /** 모델  교체중 repaint event 를 막기 위해서 잠시 visable 속성을 끔 */
     	messageInfoTable.setEnabled(false);
@@ -178,11 +178,11 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
     	messageInfoTable.getColumnModel().getColumn(4).setResizable(false);
     	messageInfoTable.getColumnModel().getColumn(4).setPreferredWidth(175);
 		
-    	messageInfoTable.getColumnModel().getColumn(3).setCellRenderer(new FileFunctionCellRenderer());
-    	messageInfoTable.getColumnModel().getColumn(3).setCellEditor(new FileFunctionCellEditor(new JCheckBox()));
+    	messageInfoTable.getColumnModel().getColumn(3).setCellRenderer(new FileFunctionCellRendererForProject());
+    	messageInfoTable.getColumnModel().getColumn(3).setCellEditor(new FileFunctionCellEditorForProject(new JCheckBox()));
 		
-    	messageInfoTable.getColumnModel().getColumn(4).setCellRenderer(new BuildFunctionCellRenderer());
-    	messageInfoTable.getColumnModel().getColumn(4).setCellEditor(new BuildFunctionCellEditor(new JCheckBox()));
+    	messageInfoTable.getColumnModel().getColumn(4).setCellRenderer(new BuildFunctionCellRendererForProject());
+    	messageInfoTable.getColumnModel().getColumn(4).setCellEditor(new BuildFunctionCellEditorForProject(new JCheckBox()));
     	
     	// messageInfoTable.repaint();
 		
@@ -391,14 +391,9 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 		return true;
 	}
     
-    // FIXME!
+
     private ArrayList<File> getListOfPathSavingIOFileSet() {
 		ArrayList<File> listOfPathSavingIOFileSet = new ArrayList<File>();
-		// serverCheckBox
-		// appClientCheckBox
-		// webClientCheckBox
-		// isOtherMainProjectCheckBox
-		// otherMainProjectComboBox
 		
 		if (!serverCheckBox.isSelected() && !appClientCheckBox.isSelected() && !webClientCheckBox.isSelected()) {
 			showMessageDialog( "you need to select one between server or application client or web client");
@@ -997,7 +992,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 		java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
 		messageInfoTableModel.setValueAt(sdf.format(newMessageInfo.getLastModified()), row, 2);
 		
-		BuildFunctionCellValue sourceFileCellValue = (BuildFunctionCellValue)messageInfoTableModel.getValueAt(row, 4);
+		BuildFunctionCellValueForProject sourceFileCellValue = (BuildFunctionCellValueForProject)messageInfoTableModel.getValueAt(row, 4);
 		sourceFileCellValue.setMessageInfo(newMessageInfo);
 		messageInfoScrollPane.repaint();
 	}
@@ -1048,7 +1043,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 		// copyTransferToFile
 		
 		for (int i=0; i < rowCount; i++) {
-			BuildFunctionCellValue buildFunctionCellValue = (BuildFunctionCellValue)messageInfoTableModel.getValueAt(i, 4);
+			BuildFunctionCellValueForProject buildFunctionCellValue = (BuildFunctionCellValueForProject)messageInfoTableModel.getValueAt(i, 4);
 						
 			resultSavingFile = saveIOFileSetToTargetPath(listOfTargetPathSavingIOFileSet, writer, 
 					buildFunctionCellValue.isSelectedIO(), 

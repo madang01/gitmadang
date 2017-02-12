@@ -123,7 +123,7 @@ public class CommonType {
 		}
 	};
 	
-	// 시퀀스 종류 식별자, 1:업로드 파일 이름 시퀀스
+	// 시퀀스 종류 식별자, 0:업로드 파일 이름 시퀀스
 	public enum SEQ_TYPE_ID {
 		UPLOAD_FILE_NAME;		
 		

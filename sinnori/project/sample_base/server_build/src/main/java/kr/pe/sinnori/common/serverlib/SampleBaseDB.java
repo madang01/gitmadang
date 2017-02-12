@@ -92,16 +92,17 @@ public class SampleBaseDB extends AbstractDBCommand {
 	 * @return 업로드 파일 이름에 쓰이는 시퀀스 생성 쿼리문
 	 */
 	public String getInsertingSqlForUploadFileNameSequence() {
+		// INSERT INTO `SB_DB`.`SB_SEQ_MANAGER_TB` (`sq_type_id`, `sq_value`, `sq_type_name`) VALUES (0, 1,  'upload file name sequence');
 		StringBuffer stringBuilder = new StringBuffer();
 		stringBuilder.append("INSERT INTO `SB_SEQ_MANAGER_TB`");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("(`sq_type_id`, `sq_value`)");
+		stringBuilder.append("(`sq_type_id`, `sq_value`, `sq_type_name`)");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("VALUES");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("(");
 		stringBuilder.append(CommonType.SEQ_TYPE_ID.UPLOAD_FILE_NAME.ordinal());
-		stringBuilder.append(", 1);");
+		stringBuilder.append(", 1, 'upload file name sequence');");
 		return stringBuilder.toString();
 	}
 	

@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public abstract class AbstractThreadPool implements ThreadPoolIF {
-	protected Logger log = LoggerFactory.getLogger(AbstractThreadPool.class);
+	public Logger log = LoggerFactory.getLogger(AbstractThreadPool.class);
 	protected final List<Thread> pool = new ArrayList<Thread>();
 	protected final Object monitor = new Object();
 

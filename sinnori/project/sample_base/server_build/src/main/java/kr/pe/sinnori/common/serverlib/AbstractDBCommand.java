@@ -252,8 +252,8 @@ public abstract class AbstractDBCommand {
 	}
 	
 	/**
-	 * 테이블 생성 쿼리문을 목록에 추가한다. 단 생성할 테이블 중복시 종료된다.
-	 * @param creatingTableSql 테이블 생성 쿼리문
+	 * �뀒�씠釉� �깮�꽦 荑쇰━臾몄쓣 紐⑸줉�뿉 異붽��븳�떎. �떒 �깮�꽦�븷 �뀒�씠釉� 以묐났�떆 醫낅즺�맂�떎.
+	 * @param creatingTableSql �뀒�씠釉� �깮�꽦 荑쇰━臾�
 	 */
 	public void addCreatingTableSql(String creatingTableSql) throws IllegalArgumentException {
 		if (null == schemaName) {
@@ -530,7 +530,7 @@ public abstract class AbstractDBCommand {
 		int creatingTableSqlListSize = creatingTableSqlList.size();
 		
 		/**
-		 * 테이블 생성 순서 반대로 테이블 삭제
+		 * �뀒�씠釉� �깮�꽦 �닚�꽌 諛섎�濡� �뀒�씠釉� �궘�젣
 		 */
 		for (int i=creatingTableSqlListSize-1; i >= 0; i--) {
 			String tableName = tableNameList.get(i);
