@@ -262,9 +262,9 @@ public class MessageInfoSAXParser extends DefaultHandler {
 				}
 
 				SingleItemInfo singleItemInfoForArraySizeReference = (SingleItemInfo) itemInfoForArraySizeReference;
-				String itemValueTypeOfSingleItemInfoForArraySizeReference = singleItemInfoForArraySizeReference.getItemValueType();				
+				String itemValueTypeOfArraySizeReference = singleItemInfoForArraySizeReference.getItemValueType();				
 				
-				if (!possibleItemValueTypeSetForArraySizeReference.contains(itemValueTypeOfSingleItemInfoForArraySizeReference)) {
+				if (!possibleItemValueTypeSetForArraySizeReference.contains(itemValueTypeOfArraySizeReference)) {
 					String errorMessage = new StringBuilder("the value of single item that specifies this array item[")
 					.append(arrayName).append("]'s size must be number, possible item type set={")
 					.append(possibleItemValueTypeSetForArraySizeReference.toString())
@@ -462,10 +462,12 @@ public class MessageInfoSAXParser extends DefaultHandler {
 		String xmlFilePathString = xmlFile.getAbsolutePath();
 				
 		synchronized (possibleItemValueTypeSetForArraySizeReference) {
-			this.messageInformationXMLFile = xmlFile;			
-			this.messageIDOfXMLFile = getMessageIDFromXMLFilePathString(xmlFilePathString);			
+			this.messageInformationXMLFile = xmlFile;
 			this.isFileNameCheck = isFileNameCheck;
-
+			if (isFileNameCheck) {
+				this.messageIDOfXMLFile = getMessageIDFromXMLFilePathString(xmlFilePathString);
+			}
+			
 			try {
 				saxParser.parse(xmlFile, this);
 				

@@ -885,7 +885,7 @@ public class IOBuilderPanel extends JPanel implements FileFunctionManagerIF, Bui
 				{
 					eachIOFileTypeBuildPanel.setLayout(new FormLayout(
 						"$ugap, 308dlu:grow, $ugap",
-						"2*($lgap, default), $lgap, fill:81dlu:grow, $lgap, default, $lgap, fill:81dlu"));
+						"2*($lgap, default), $lgap, fill:90dlu:grow, $lgap, default, $lgap, fill:81dlu:grow"));
 
 					//======== ioFileTypBuildMenuPanel ========
 					{
@@ -893,6 +893,7 @@ public class IOBuilderPanel extends JPanel implements FileFunctionManagerIF, Bui
 
 						//---- messageRadioButton ----
 						messageRadioButton.setText("Message");
+						messageRadioButton.setSelected(true);
 						ioFileTypBuildMenuPanel.add(messageRadioButton);
 
 						//---- encoderRadioButton ----
@@ -1165,7 +1166,7 @@ public class IOBuilderPanel extends JPanel implements FileFunctionManagerIF, Bui
 			messageInfoSAXParser = new MessageInfoSAXParser();
 		} catch (MessageInfoSAXParserException e1) {
 			String errorMessage = e1.toString();
-			log.warn(errorMessage);
+			log.warn(errorMessage, e1);
 			showMessageDialog(errorMessage);
 			return;
 		}
@@ -1173,7 +1174,7 @@ public class IOBuilderPanel extends JPanel implements FileFunctionManagerIF, Bui
 		try {
 			messageInfo = messageInfoSAXParser.parse(tempMessageInfoFile, false);
 		} catch (IllegalArgumentException | SAXException | IOException e1) {
-			String errorMessage = e.toString();
+			String errorMessage = e1.toString();
 			log.warn(errorMessage, e1);
 			showMessageDialog(errorMessage);
 			return;

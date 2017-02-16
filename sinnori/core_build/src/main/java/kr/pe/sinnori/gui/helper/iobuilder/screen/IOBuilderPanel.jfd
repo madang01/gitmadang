@@ -311,7 +311,7 @@ new FormModel {
 					} )
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 						"$columnSpecs": "unrelgap, 308dlu:grow, unrelgap"
-						"$rowSpecs": "linegap, default, linegap, default, linegap, fill:81dlu:grow, linegap, default, linegap, fill:81dlu"
+						"$rowSpecs": "linegap, default, linegap, default, linegap, fill:90dlu:grow, linegap, default, linegap, fill:81dlu:grow"
 					} ) {
 						name: "eachIOFileTypeBuildPanel"
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
@@ -322,6 +322,7 @@ new FormModel {
 								name: "messageRadioButton"
 								"text": "Message"
 								"$buttonGroup": new FormReference( "ioFileTypeButtonGroup" )
+								"selected": true
 							} )
 							add( new FormComponent( "javax.swing.JRadioButton" ) {
 								name: "encoderRadioButton"
