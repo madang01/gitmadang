@@ -28,7 +28,7 @@ public class BuildFunctionCellValueForProject extends JPanel {
 	class SourceFileCreateButtonAction implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {			
-			boolean isSuccess = buildFunctionManager.saveIOFileSet(ioCheckBox.isSelected(), directionCheckBox.isSelected(), messageInfo);
+			boolean isSuccess = buildFunctionManager.saveIOFileSetOfSelectedMessageInfo(ioCheckBox.isSelected(), directionCheckBox.isSelected(), messageInfo);
 			if (isSuccess) {
 				StringBuilder messageBuilder = new StringBuilder("메시지[");
 				messageBuilder.append(messageInfo.getMessageID());

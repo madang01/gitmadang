@@ -9,7 +9,7 @@ new FormModel {
 		} ) {
 			name: "this"
 			auxiliary() {
-				"JavaCodeGenerator.postInitCode": "/** Post-initialization Code start */\nUIManager.put(\"FileChooser.readOnly\", Boolean.TRUE); \nsinnoriInstalledPathChooser = new JFileChooser();\nsinnoriInstalledPathChooser.setMultiSelectionEnabled(true);\nsinnoriInstalledPathChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);\nPathSwingAction pathAction = new PathSwingAction(mainFrame, sinnoriInstalledPathChooser, sinnoriInstalledPathTextField);\nsinnoriInstalledPathButton.setAction(pathAction);\nnextStepButton.setToolTipText(\n\t\"<html>update all project'config and overwrite all project'shells based on installed path</html>\");\n/** Post-initialization Code end */"
+				"JavaCodeGenerator.postInitCode": "/** Post-initialization Code start */\npostInitComponents();\n/** Post-initialization Code end */"
 			}
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "78dlu, labelcompgap, max(pref;156dlu):grow, labelcompgap, default"
@@ -32,6 +32,7 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "sinnoriInstalledPathButton"
 					"text": "path"
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "sinnoriInstalledPathButtonActionPerformed", true ) )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 5
 					"gridY": 1

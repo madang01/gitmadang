@@ -223,7 +223,7 @@ public class AllMainProjectManagerPanel extends JPanel {
 
 	private void showMessageDialog(String message) {
 		JOptionPane.showMessageDialog(mainFrame, CommonStaticUtil.splitString(
-				message, CommonType.SPLIT_STRING_GUBUN.NEWLINE, 100));
+				message, CommonType.LINE_SEPARATOR_GUBUN.NEWLINE, 100));
 	}
 
 	private void projectNameAddButtonActionPerformed(ActionEvent e) {

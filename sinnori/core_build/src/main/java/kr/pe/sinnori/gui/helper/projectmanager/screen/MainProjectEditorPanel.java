@@ -838,7 +838,7 @@ public class MainProjectEditorPanel extends JPanel {
 		screenManagerIF.moveToAllMainProjectManagerScreen(sinnoriInstalledPathString);
 	}
 
-	private void addNewSubProject(ActionEvent e) {
+	private void newSubProjectAddButtonActionPerformed(ActionEvent e) {
 		String newSubProjectName = newSubProjectNameTextField.getText();
 		if (subProjectNameList.contains(newSubProjectName)) {
 			String errorMesssage = new StringBuilder(
@@ -896,7 +896,7 @@ public class MainProjectEditorPanel extends JPanel {
 				newSubProjectName));
 	}
 
-	private void editSubProject(ActionEvent e) {
+	private void subProjectNameEditButtonActionPerformed(ActionEvent e) {
 		int selectedInx = subProjectNameListComboBox.getSelectedIndex();
 		if (selectedInx <= 0) {
 			String errorMessage = "Please, choose Sub Project Name";
@@ -965,7 +965,7 @@ public class MainProjectEditorPanel extends JPanel {
 		popup.setVisible(true);
 	}
 
-	private void deleteSubProject(ActionEvent e) {
+	private void subProjectNameDeleteButtonActionPerformed(ActionEvent e) {
 		int selectedInx = subProjectNameListComboBox.getSelectedIndex();
 		if (selectedInx <= 0) {
 			String errorMessage = "Please, choose Sub Project Name";
@@ -1176,11 +1176,85 @@ public class MainProjectEditorPanel extends JPanel {
 	private void showMessageDialog(String message) {
 		JOptionPane.showMessageDialog(mainFrame, CommonStaticUtil
 				.splitString(message,
-						CommonType.SPLIT_STRING_GUBUN.NEWLINE, 100));
+						CommonType.LINE_SEPARATOR_GUBUN.NEWLINE, 100));
 	}
 
-	private void projectIOManagerButtonActionPerformed(ActionEvent e) {
-		// TODO add your code here
+	private void popupProjectIOManagerScreenActionPerformed(ActionEvent e) {		
+		String projectBasePathString = BuildSystemPathSupporter.getProjectBasePathString(sinnoriInstalledPathString);
+		
+		File projectBasePath = new File(projectBasePathString);
+		if (! projectBasePath.exists()) {
+			String errorMessage = String.format("the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] doesn't exist", 
+					sinnoriInstalledPathString, projectBasePathString);
+			
+			log.warn(errorMessage);
+			
+			showMessageDialog(errorMessage);
+			return;
+		}
+		
+		if (!projectBasePath.isDirectory()) {
+			String errorMessage = String.format("the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] is not a direcotry", 
+					sinnoriInstalledPathString, projectBasePathString);
+			log.warn(errorMessage);
+			
+			showMessageDialog(errorMessage);
+			return;
+		}
+		
+		if (!projectBasePath.canRead()) {
+			String errorMessage = String.format("the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] doesn't hava permission to read", 
+					sinnoriInstalledPathString, projectBasePathString);
+			log.warn(errorMessage);
+			
+			showMessageDialog(errorMessage);
+			return;
+		}
+		
+		ArrayList<String> otherProjectNameList = new ArrayList<String>();
+		
+		for (File fileOfList : projectBasePath.listFiles()) {
+			if (fileOfList.isDirectory()) {
+				if (!fileOfList.canRead()) {
+					String errorMessage = String.format("the sinnori project base path[%s] doesn't hava permission to read", fileOfList.getAbsolutePath());
+					log.warn(errorMessage);
+					
+					showMessageDialog(errorMessage);
+					return;
+				}
+				
+				if (!fileOfList.canWrite()) {
+					String errorMessage = String.format("the sinnori project base path[%s] doesn't hava permission to write", fileOfList.getAbsolutePath());
+					log.warn(errorMessage);
+					
+					showMessageDialog(errorMessage);
+					return;
+				}
+				String theProjectName = fileOfList.getName();
+				if (!theProjectName.equals(mainProjectName)) {
+					otherProjectNameList.add(theProjectName);
+				}
+				
+			}
+		}		
+		
+		ProjectIOFileSetBuilderPopup popup = new ProjectIOFileSetBuilderPopup(
+				mainFrame, sinnoriInstalledPathString, mainProjectName, otherProjectNameList);
+		popup.setTitle("Sub Project Part Editor");
+		popup.setSize(740, 380);
+		popup.setVisible(true);
+	}
+
+	private void postInitComponents() {
+		UIManager.put("FileChooser.readOnly", Boolean.TRUE);
+		onlyPathChooser = new JFileChooser();
+		onlyPathChooser.setMultiSelectionEnabled(true);
+		onlyPathChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);		
+		onlyFileChooser = new JFileChooser();
+		onlyFileChooser.setMultiSelectionEnabled(true);
+		onlyFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		PathSwingAction pathAction = new PathSwingAction(mainFrame, onlyPathChooser, servletSystemLibraryPathTextField);
+		servletSystemLibraryPathButton.setAction(pathAction);
 	}
 
 	private void initComponents() {
@@ -1190,7 +1264,7 @@ public class MainProjectEditorPanel extends JPanel {
 		functionPanel = new JPanel();
 		functionLabel = new JLabel();
 		mainProjectStateSaveButton = new JButton();
-		projectIOManagerButton = new JButton();
+		popupProjectIOManagerScreenButton = new JButton();
 		prevButton = new JButton();
 		sinnoriInstalledPathLinePanel = new JPanel();
 		sinnoriInstalledPathTitleLabel = new JLabel();
@@ -1241,15 +1315,7 @@ public class MainProjectEditorPanel extends JPanel {
 			"[451dlu,pref]:grow",
 			"11*(default, $lgap), 104dlu, $lgap, default, $lgap, 104dlu, $lgap, default"));
 		/** Post-initialization Code start */
-		UIManager.put("FileChooser.readOnly", Boolean.TRUE);
-		onlyPathChooser = new JFileChooser();
-		onlyPathChooser.setMultiSelectionEnabled(true);
-		onlyPathChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);		
-		onlyFileChooser = new JFileChooser();
-		onlyFileChooser.setMultiSelectionEnabled(true);
-		onlyFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		PathSwingAction pathAction = new PathSwingAction(mainFrame, onlyPathChooser, servletSystemLibraryPathTextField);
-		servletSystemLibraryPathButton.setAction(pathAction);
+		postInitComponents();
 		/** Post-initialization Code end */
 
 		//======== functionPanel ========
@@ -1267,10 +1333,10 @@ public class MainProjectEditorPanel extends JPanel {
 			mainProjectStateSaveButton.addActionListener(e -> saveMainProjectState(e));
 			functionPanel.add(mainProjectStateSaveButton, CC.xy(3, 1));
 
-			//---- projectIOManagerButton ----
-			projectIOManagerButton.setText("go to 'project IO manager screen'");
-			projectIOManagerButton.addActionListener(e -> projectIOManagerButtonActionPerformed(e));
-			functionPanel.add(projectIOManagerButton, CC.xy(5, 1));
+			//---- popupProjectIOManagerScreenButton ----
+			popupProjectIOManagerScreenButton.setText("popup 'project IO manager screen'");
+			popupProjectIOManagerScreenButton.addActionListener(e -> popupProjectIOManagerScreenActionPerformed(e));
+			functionPanel.add(popupProjectIOManagerScreenButton, CC.xy(5, 1));
 
 			//---- prevButton ----
 			prevButton.setText("go back to 'all project manager screen'");
@@ -1380,7 +1446,7 @@ public class MainProjectEditorPanel extends JPanel {
 
 			//---- newSubProjectAddButton ----
 			newSubProjectAddButton.setText("add");
-			newSubProjectAddButton.addActionListener(e -> addNewSubProject(e));
+			newSubProjectAddButton.addActionListener(e -> newSubProjectAddButtonActionPerformed(e));
 			subProjectNameInputLinePanel.add(newSubProjectAddButton, CC.xy(5, 1));
 		}
 		add(subProjectNameInputLinePanel, CC.xy(1, 13));
@@ -1409,12 +1475,12 @@ public class MainProjectEditorPanel extends JPanel {
 
 				//---- subProjectEditButton ----
 				subProjectEditButton.setText("edit");
-				subProjectEditButton.addActionListener(e -> editSubProject(e));
+				subProjectEditButton.addActionListener(e -> subProjectNameEditButtonActionPerformed(e));
 				subProjectNameListFuncPanel.add(subProjectEditButton);
 
 				//---- subProjectNameDeleteButton ----
 				subProjectNameDeleteButton.setText("remove");
-				subProjectNameDeleteButton.addActionListener(e -> deleteSubProject(e));
+				subProjectNameDeleteButton.addActionListener(e -> subProjectNameDeleteButtonActionPerformed(e));
 				subProjectNameListFuncPanel.add(subProjectNameDeleteButton);
 			}
 			subProjectListLinePanel.add(subProjectNameListFuncPanel, CC.xy(5, 1));
@@ -1555,7 +1621,7 @@ public class MainProjectEditorPanel extends JPanel {
 	private JPanel functionPanel;
 	private JLabel functionLabel;
 	private JButton mainProjectStateSaveButton;
-	private JButton projectIOManagerButton;
+	private JButton popupProjectIOManagerScreenButton;
 	private JButton prevButton;
 	private JPanel sinnoriInstalledPathLinePanel;
 	private JLabel sinnoriInstalledPathTitleLabel;

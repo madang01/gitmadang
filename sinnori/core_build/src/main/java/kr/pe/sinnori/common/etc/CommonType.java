@@ -101,7 +101,7 @@ public class CommonType {
 		MAIN_PROJECT, SUB_PROJECT
 	};
 	
-	public enum SPLIT_STRING_GUBUN {
+	public enum LINE_SEPARATOR_GUBUN {
 		BR, NEWLINE
 	};
 	

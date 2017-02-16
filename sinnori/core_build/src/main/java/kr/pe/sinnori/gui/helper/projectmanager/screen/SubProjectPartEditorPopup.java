@@ -119,7 +119,7 @@ public class SubProjectPartEditorPopup extends JDialog {
 	private void showMessageDialog(String message) {
 		JOptionPane.showMessageDialog(this, 
 				CommonStaticUtil.splitString(message, 
-						CommonType.SPLIT_STRING_GUBUN.NEWLINE, 100));
+						CommonType.LINE_SEPARATOR_GUBUN.NEWLINE, 100));
 	}
 	private void okButtonActionPerformed(ActionEvent e) {
 		SinnoriItemIDInfoManger sinnoriItemIDInfoManger = SinnoriItemIDInfoManger.getInstance();

@@ -10,7 +10,7 @@ new FormModel {
 			name: "this"
 			auxiliary() {
 				"JavaCodeGenerator.customCreate": true
-				"JavaCodeGenerator.postInitCode": "/** Post-initialization Code start */\nUIManager.put(\"FileChooser.readOnly\", Boolean.TRUE);\nonlyPathChooser = new JFileChooser();\nonlyPathChooser.setMultiSelectionEnabled(true);\nonlyPathChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);\t\t\nonlyFileChooser = new JFileChooser();\nonlyFileChooser.setMultiSelectionEnabled(true);\nonlyFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);\nPathSwingAction pathAction = new PathSwingAction(mainFrame, onlyPathChooser, servletSystemLibraryPathTextField);\nservletSystemLibraryPathButton.setAction(pathAction);\n/** Post-initialization Code end */"
+				"JavaCodeGenerator.postInitCode": "/** Post-initialization Code start */\npostInitComponents();\n/** Post-initialization Code end */"
 			}
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "default, relgap, default, relgap, default, labelcompgap, default, labelcompgap, default"
@@ -33,9 +33,9 @@ new FormModel {
 					"gridY": 1
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
-					name: "projectIOManagerButton"
-					"text": "go to 'project IO manager screen'"
-					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "projectIOManagerButtonActionPerformed", true ) )
+					name: "popupProjectIOManagerScreenButton"
+					"text": "popup 'project IO manager screen'"
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "popupProjectIOManagerScreenActionPerformed", true ) )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 5
 				} )
@@ -188,10 +188,9 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "newSubProjectAddButton"
 					"text": "add"
-					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "addNewSubProject", true ) )
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "newSubProjectAddButtonActionPerformed", true ) )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 5
-					"gridY": 1
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridY": 13
@@ -231,12 +230,12 @@ new FormModel {
 						auxiliary() {
 							"JavaCodeGenerator.variableName": "subProjectEditButton"
 						}
-						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "editSubProject", true ) )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "subProjectNameEditButtonActionPerformed", true ) )
 					} )
 					add( new FormComponent( "javax.swing.JButton" ) {
 						name: "subProjectNameDeleteButton"
 						"text": "remove"
-						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "deleteSubProject", true ) )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "subProjectNameDeleteButtonActionPerformed", true ) )
 					} )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 5

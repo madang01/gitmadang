@@ -5,6 +5,7 @@ new FormModel {
 	root: new FormRoot {
 		add( new FormWindow( "javax.swing.JDialog", new FormLayoutManager( class javax.swing.BoxLayout ) ) {
 			name: "this"
+			"modal": true
 			auxiliary() {
 				"JavaCodeGenerator.postInitCode": "/** Post-initialization Code start */\npostInitComponents();\n/** Post-initialization Code end */"
 			}
@@ -83,7 +84,7 @@ new FormModel {
 					"gridY": 6
 				} )
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-					"$columnSpecs": "78dlu, unrelgap, default, unrelgap, default, unrelgap, default, unrelgap, default, unrelgap, default"
+					"$columnSpecs": "78dlu, unrelgap, default, unrelgap, default"
 					"$rowSpecs": "default"
 				} ) {
 					name: "targetPanel"
@@ -95,34 +96,12 @@ new FormModel {
 						"gridY": 1
 					} )
 					add( new FormComponent( "javax.swing.JCheckBox" ) {
-						name: "serverCheckBox"
-						"text": "server"
-					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-						"gridX": 3
-						"gridY": 1
-					} )
-					add( new FormComponent( "javax.swing.JCheckBox" ) {
-						name: "appClientCheckBox"
-						"text": "application client"
-					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-						"gridX": 5
-						"gridY": 1
-					} )
-					add( new FormComponent( "javax.swing.JCheckBox" ) {
-						name: "webClientCheckBox"
-						"text": "web client"
-					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-						"gridX": 7
-						"gridY": 1
-					} )
-					add( new FormComponent( "javax.swing.JCheckBox" ) {
 						name: "isOtherMainProjectCheckBox"
 						"text": "other project"
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "isOtherProjectCheckBoxActionPerformed", true ) )
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "isOtherProjectCheckBoxActionPerformed", true ) )
 					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-						"gridX": 9
-						"gridY": 1
+						"gridX": 3
 					} )
 					add( new FormComponent( "javax.swing.JComboBox" ) {
 						name: "otherMainProjectComboBox"
@@ -130,9 +109,9 @@ new FormModel {
 							selectedItem: "- select other main project -"
 							addElement( "- select other main project -" )
 						}
+						"enabled": false
 					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-						"gridX": 11
-						"gridY": 1
+						"gridX": 5
 					} )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 2
@@ -168,6 +147,7 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JButton" ) {
 						name: "allMessageInfoCreationButton"
 						"text": "Reread all message infomation file"
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "allMessageInfoCreationButtonActionPerformed", true ) )
 					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 						"gridX": 1
 						"gridY": 1
@@ -269,7 +249,7 @@ new FormModel {
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 800, 370 )
+			"size": new java.awt.Dimension( 800, 415 )
 		} )
 	}
 }

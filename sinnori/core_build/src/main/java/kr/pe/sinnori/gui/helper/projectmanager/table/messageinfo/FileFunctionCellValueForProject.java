@@ -36,7 +36,7 @@ public class FileFunctionCellValueForProject extends JPanel {
 	private void showMessageDialog(String message) {
 		JOptionPane.showMessageDialog(parentComponent, 
 				CommonStaticUtil.splitString(message,
-						CommonType.SPLIT_STRING_GUBUN.NEWLINE, 100));
+						CommonType.LINE_SEPARATOR_GUBUN.NEWLINE, 100));
 	}
 	
 	class ViewButtonAction implements ActionListener {

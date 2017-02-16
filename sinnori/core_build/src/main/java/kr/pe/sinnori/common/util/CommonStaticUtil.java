@@ -49,11 +49,11 @@ public abstract class CommonStaticUtil {
 	/**
 	 * 지정한 칼럼수 단위로 지정한 방식에 맞는 구분 문자열을 추가한 문자열을 반환한다.
 	 * @param sourceString 변환을 원하는 문자열
-	 * @param sliptStringGubun 지정한 칼럼 마다 삽입을 원하는 문자열 구분, BR: <br/>, NEWLINE: newline
+	 * @param lineSeparatorGubun 지정한 칼럼 마다 삽입을 원하는 문자열 구분, BR: <br/>, NEWLINE: newline
 	 * @param wantedColumnSize 원하는 문자열 가로 칼럼수
 	 * @return 지정한 칼럼수 단위로 지정한 방식에 맞는 구분 문자열을 추가한 문자열
 	 */
-	public static String splitString(String sourceString, CommonType.SPLIT_STRING_GUBUN sliptStringGubun, int wantedColumnSize) {
+	public static String splitString(String sourceString, CommonType.LINE_SEPARATOR_GUBUN lineSeparatorGubun, int wantedColumnSize) {
 		if (null == sourceString) {
 			throw new IllegalArgumentException("the paramter sourceString is null");
 		}
@@ -66,8 +66,8 @@ public abstract class CommonStaticUtil {
 			throw new IllegalArgumentException("the paramter sourceString has leading or tailing white space");
 		}
 		
-		if (null == sliptStringGubun) {
-			throw new IllegalArgumentException("the paramter sliptStringGubun is null");
+		if (null == lineSeparatorGubun) {
+			throw new IllegalArgumentException("the paramter lineSeparatorGubun is null");
 		}
 		
 		
@@ -75,27 +75,27 @@ public abstract class CommonStaticUtil {
 			throw new IllegalArgumentException("the paramter wantedColumnSize is less or equals to zero");
 		}		
 		
-		String sliptString = null;
-		if (sliptStringGubun == CommonType.SPLIT_STRING_GUBUN.BR) {
-			sliptString ="<br/>";
+		String lineSeparator = null;
+		if (lineSeparatorGubun == CommonType.LINE_SEPARATOR_GUBUN.BR) {
+			lineSeparator ="<br/>";
 		} else {
-			sliptString = CommonStaticFinalVars.NEWLINE;
+			lineSeparator = CommonStaticFinalVars.NEWLINE;
 		}
 		
 		int size = sourceString.length();
-		StringBuilder result = new StringBuilder();
+		StringBuilder resultStringBuilder = new StringBuilder();
 		int i=0;
 		for (; i+wantedColumnSize < size; i+=wantedColumnSize) {
-			result.append(sourceString.substring(i, i+wantedColumnSize));
-			result.append(sliptString);
+			resultStringBuilder.append(sourceString.substring(i, i+wantedColumnSize));
+			resultStringBuilder.append(lineSeparator);
 		}
-		result.append(sourceString.substring(i));
-		return result.toString();
+		resultStringBuilder.append(sourceString.substring(i));
+		return resultStringBuilder.toString();
 	}
 	
 	public static String getMultiLineToolTip(String message, int colSize) {
 		String tooltip = new StringBuilder("<html>")
-		.append(CommonStaticUtil.splitString(message, CommonType.SPLIT_STRING_GUBUN.BR, colSize))
+		.append(CommonStaticUtil.splitString(message, CommonType.LINE_SEPARATOR_GUBUN.BR, colSize))
 		.append("</html>").toString();
 		return tooltip;
 	}

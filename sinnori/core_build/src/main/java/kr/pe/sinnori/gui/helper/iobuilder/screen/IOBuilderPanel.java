@@ -6,6 +6,7 @@ package kr.pe.sinnori.gui.helper.iobuilder.screen;
 
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -14,7 +15,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
@@ -83,7 +83,7 @@ public class IOBuilderPanel extends JPanel implements FileFunctionManagerIF, Bui
 		};	
 	
 	private Class<?>[] columnTypes = new Class[] {
-		String.class, String.class, String.class, FileFunctionCellEditor.class, BuildFunctionCellEditor.class
+		String.class, String.class, String.class, FileFunctionCellValue.class, BuildFunctionCellValue.class
 	};	
 	/** MessageInfo Table Model end */
 	
@@ -92,45 +92,77 @@ public class IOBuilderPanel extends JPanel implements FileFunctionManagerIF, Bui
 	private enum SEARCH_MODE {
 		ALL, SEARCH
 	};
-	
 		
-	public IOBuilderPanel(Frame mainFrame, ScreenManagerIF screenManagerIF) {
-		this.mainFrame = mainFrame;
-		this.screenManagerIF = screenManagerIF;
-		
-		initComponents();
-	}
-	
-	private void postInitComponents() {
-		UIManager.put("FileChooser.readOnly", Boolean.TRUE); 
-		pathChooser = new JFileChooser();
-		pathChooser.setMultiSelectionEnabled(true);
-		pathChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		messageInfoFilePathButton.setAction(new PathSwingAction(mainFrame, pathChooser, messageInfoFilePathTextField));
-		firstPathSavingIOFileSetButton.setAction(new PathSwingAction(mainFrame, pathChooser, firstPathSavingIOFileSetTextField));
-		secondPathSavingIOFileSetButton.setAction(new PathSwingAction(mainFrame, pathChooser, secondPathSavingIOFileSetTextField));
-		thirdPathSavingIOFileSetButton.setAction(new PathSwingAction(mainFrame, pathChooser, thirdPathSavingIOFileSetTextField));
-		
-		// readAllMessageInfo();
-		messageInfoTable.setRowSelectionAllowed(false);
-		messageInfoTable.setFillsViewportHeight(true);
-		// messageInfoTable.setPreferredScrollableViewportSize(new Dimension(800, 300));
-		messageInfoTable.setAutoCreateRowSorter(true);
-		// messageInfoTable.setRowHeight(38);
-		// messageInfoTable.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
-		// messageInfoTable.setMaximumSize(new Dimension(700, 600));
-		
-	}
 
 	private void showMessageDialog(String message) {
 		JOptionPane.showMessageDialog(mainFrame, 
 				CommonStaticUtil.splitString(message,
-						CommonType.SPLIT_STRING_GUBUN.NEWLINE, 100));
+						CommonType.LINE_SEPARATOR_GUBUN.NEWLINE, 100));
 	}
 	
-	
+	/**
+	 * @param sourcePathTextField TextField whose value is path   
+	 * @param sourcePathTextFieldName parameter sourcePathTextField's name
+	 * @return the writable and readable path, but if parameter sourceTextField's value is not a useful path then return null.
+	 */
+	private File getWitableAndReadablePathFromTextField(JTextField sourcePathTextField, String sourcePathTextFieldName) {
+		String sourcePathString = sourcePathTextField.getText();
+		if ( null == sourcePathString) {
+			String errorMessage = String.format("parameter sourcePathTextField[%s]'s value is nul", sourcePathTextFieldName);
+			showMessageDialog(errorMessage);
+			sourcePathTextField.requestFocusInWindow();
+			return null;
+		}
+		sourcePathString = sourcePathString.trim();
+		sourcePathTextField.setText(sourcePathString);
 		
-	
+		if (sourcePathString.equals("")) {
+			String errorMessage = String.format("parameter sourcePathTextField[%s]'s value is empty", sourcePathTextFieldName);
+			showMessageDialog(errorMessage);
+			sourcePathTextField.requestFocusInWindow();
+			return null;
+		}
+		
+		File sourcePath = new File(sourcePathString);
+		if (!sourcePath.exists()) {
+			String errorMessage = String.format("The path[%s][%s] doesn't exist", sourcePathTextFieldName, sourcePathString);
+			log.warn(errorMessage);
+			
+			showMessageDialog(errorMessage);
+			sourcePathTextField.requestFocusInWindow();
+			return null;
+		}
+		
+		if (!sourcePath.isDirectory()) {
+			String errorMessage = String.format("The path[%s][%s] is not a directory", sourcePathTextFieldName, sourcePathString);
+			log.warn(errorMessage);
+			
+			showMessageDialog(errorMessage);
+			sourcePathTextField.requestFocusInWindow();
+			return null;
+		}
+		
+		if (!sourcePath.canRead()) {
+			String errorMessage = String.format("The path[%s][%s] has a permission to read", sourcePathTextFieldName, sourcePathString);
+			log.warn(errorMessage);
+			
+			showMessageDialog(errorMessage);
+			sourcePathTextField.requestFocusInWindow();
+			return null;
+		}
+		
+		if (!sourcePath.canWrite()) {
+			String errorMessage = String.format("The path[%s][%s] has a permission to write", sourcePathTextFieldName, sourcePathString);
+			log.warn(errorMessage);
+			
+			showMessageDialog(errorMessage);
+			sourcePathTextField.requestFocusInWindow();
+			return null;
+		}
+		
+		
+		return sourcePath;
+	}
 	
 	class MessageInfoListSwingWorker extends SwingWorker<ArrayList<MessageInfo>, Void> {
 		
@@ -145,61 +177,12 @@ public class IOBuilderPanel extends JPanel implements FileFunctionManagerIF, Bui
         public ArrayList<MessageInfo> doInBackground() {
         	ArrayList<MessageInfo> messageInfoList = new ArrayList<MessageInfo>();
         	ProgressMonitor progressMonitor = new ProgressMonitor(mainFrame, "Running a Task reading message info files", "", 0, 100);
-        
-        	String messgaeInfoPathText = messageInfoFilePathTextField.getText();
-    		if (null == messgaeInfoPathText) {
-    			String errorMessage = String.format("Please insert path of message info file(s)", messgaeInfoPathText);
-    			log.warn(errorMessage);
-    			showMessageDialog(errorMessage);
-    			
-    			createEmptyTable();
-    			messageInfoFilePathTextField.requestFocusInWindow();
+        	
+        	File messageInfoPath = getWitableAndReadablePathFromTextField(messageInfoPathTextField, "the path to the message information files");
+    		if (null == messageInfoPath) {
     			return messageInfoList;
     		}
-    		messgaeInfoPathText = messgaeInfoPathText.trim();
-    		if (messgaeInfoPathText.equals("")) {
-    			messageInfoFilePathTextField.setText(messgaeInfoPathText);
-    			String errorMessage = String.format("Please insert path of message info file(s) again", messgaeInfoPathText);
-    			log.warn(errorMessage);
-    			showMessageDialog(errorMessage);
-    			
-    			createEmptyTable();
-    			messageInfoFilePathTextField.requestFocusInWindow();
-    			return messageInfoList;
-    		}
-    		
-    		File messgaeInfoPath = new File(messgaeInfoPathText);
-    		if (!messgaeInfoPath.exists()) {
-    			String errorMessage = String.format("The message info file(s)'s path[%s] doesn't exist", messgaeInfoPathText);
-    			log.warn(errorMessage);
-    			showMessageDialog(errorMessage);
-    			
-    			createEmptyTable();
-    			messageInfoFilePathTextField.requestFocusInWindow();
-    			return messageInfoList;
-    		}
-    		
-    		if (!messgaeInfoPath.isDirectory()) {
-    			String errorMessage = String.format("The message info file(s)'s path[%s] is not a directory", messgaeInfoPath.getAbsolutePath());    			
-    			log.warn(errorMessage);
-    			showMessageDialog(errorMessage);
-    			
-    			createEmptyTable();
-    			messageInfoFilePathTextField.requestFocusInWindow();
-    			return messageInfoList;
-    		}
-    		
-    		if (!messgaeInfoPath.canRead()) {
-    			String errorMessage = String.format("Please check read permission of the message info file(s)'s path[%s]", messgaeInfoPath.getAbsolutePath());
-    			log.warn(errorMessage);
-    			showMessageDialog(errorMessage);
-    			
-    			createEmptyTable();
-    			messageInfoFilePathTextField.requestFocusInWindow();
-    			return messageInfoList;
-    		}
-    		
-    		File messageInfoXMLFiles[] = messgaeInfoPath.listFiles(new XMLFileFilter());
+    		File messageInfoXMLFiles[] = messageInfoPath.listFiles(new XMLFileFilter());
     		
     		
     		Arrays.sort(messageInfoXMLFiles, new FileLastModifiedComparator());
@@ -280,9 +263,11 @@ public class IOBuilderPanel extends JPanel implements FileFunctionManagerIF, Bui
             return messageInfoList;
         }
 	}
+
 	private void createEmptyTable() {
     	createTable(new Object[0][titles.length]);
     }
+	
     private void createTable(Object values[][]) {
     	messageInfoTableModel = new MessageInfoTableModel(values, titles, columnTypes);
         
@@ -313,10 +298,11 @@ public class IOBuilderPanel extends JPanel implements FileFunctionManagerIF, Bui
     	
     	// messageInfoTable.repaint();
 		
-    	if (values.length > 0) {
-    		/**
-    		 * 한줄 이상일 경우 첫번째 줄의 각 칼럼들에 쓰인 렌더러의 높이와 줄 높이중 가장 큰수를 줄의 높이로 정한다. 
-    		 */
+    	
+		/**
+		 * 한줄 이상일 경우 첫번째 줄의 각 칼럼들에 쓰인 렌더러의 높이와 줄 높이중 가장 큰수를 줄의 높이로 정한다. 
+		 */
+    	if (messageInfoTable.getRowCount() > 0) {
     		int rowHeight = messageInfoTable.getRowHeight();
             for (int column = 0; column < messageInfoTable.getColumnCount(); column++)
             {
@@ -324,7 +310,8 @@ public class IOBuilderPanel extends JPanel implements FileFunctionManagerIF, Bui
                 rowHeight = Math.max(rowHeight, comp.getPreferredSize().height);
             }
             messageInfoTable.setRowHeight(rowHeight);
-    	}
+    	}		
+    	
 
     	/** 모델  교체중 repaint event 를 막기 위해서 잠시 visible 속성 복귀 */
     	messageInfoTable.setEnabled(true);
@@ -332,29 +319,7 @@ public class IOBuilderPanel extends JPanel implements FileFunctionManagerIF, Bui
     	messageInfoScrollPane.repaint();
     }
     
-    private File getPathFile(String pathText) throws FileNotFoundException, AccessDeniedException {
-		java.io.File sourcePath = new java.io.File(pathText);
-		if (!sourcePath.exists()) {
-			/*String errorMessage = String.format("directory 소스 경로[%s]가 존재하지 않습니다.", pathText);
-			log.warn(errorMessage);*/
-			
-			// showMessageDialog(errorMessage);
-			
-			// return null;
-			throw new FileNotFoundException();
-		}
-		
-		if (!sourcePath.canWrite()) {
-			/*String errorMessage = String.format("소스 경로[%s] 쓰기 권한이 없습니다.", pathText);
-			log.warn(errorMessage);
-			showMessageDialog(errorMessage);
-			
-			return null;*/
-			throw new AccessDeniedException(pathText, null, "no write permission");
-		}
-		
-		return sourcePath;
-	}
+   
     
     private void saveFile(String title, File targetFile, String contents) throws IOException {
     	if (null == title) throw new IllegalArgumentException("the parameter 'title' is null");
@@ -366,7 +331,7 @@ public class IOBuilderPanel extends JPanel implements FileFunctionManagerIF, Bui
 		}
 		
 		if (!targetFile.canWrite()) {
-			String errorMessage = "the file can't write";
+			String errorMessage = "the file can't be written";
 			throw new IOException(errorMessage);
 		}
 		FileOutputStream fos = null;
@@ -401,7 +366,7 @@ public class IOBuilderPanel extends JPanel implements FileFunctionManagerIF, Bui
 			}
 			
 			if (! messageTargetPath.canWrite()) {
-				String errorMessage = String.format("the message[%s] target path[%s] can't write", messageID, messageTargetPath.getAbsolutePath());
+				String errorMessage = String.format("the message[%s] target path[%s] can't be written", messageID, messageTargetPath.getAbsolutePath());
 				log.warn(errorMessage);
 				showMessageDialog(errorMessage);
 				continue;
@@ -475,91 +440,30 @@ public class IOBuilderPanel extends JPanel implements FileFunctionManagerIF, Bui
 	}
     
     private ArrayList<File> getListOfPathSavingIOFileSet() {
-    	String firstPathStringSavingIOFileSet = firstPathSavingIOFileSetTextField.getText();
-		String secondPathStringSavingIOFileSet = secondPathSavingIOFileSetTextField.getText();
-		String thirdPathStringSavingIOFileSet = thirdPathSavingIOFileSetTextField.getText();
-		if (null == firstPathStringSavingIOFileSet) {
-			firstPathStringSavingIOFileSet="";			
-		} else {
-			firstPathStringSavingIOFileSet = firstPathStringSavingIOFileSet.trim();
-		}
-		firstPathSavingIOFileSetTextField.setText(firstPathStringSavingIOFileSet);
-		
-		if (null == secondPathStringSavingIOFileSet) {
-			secondPathStringSavingIOFileSet="";			
-		} else {
-			secondPathStringSavingIOFileSet = secondPathStringSavingIOFileSet.trim();
-		}		
-		secondPathSavingIOFileSetTextField.setText(secondPathStringSavingIOFileSet);
-		
-		
-		if (null == thirdPathStringSavingIOFileSet) {
-			thirdPathStringSavingIOFileSet="";			
-		} else {
-			thirdPathStringSavingIOFileSet = thirdPathStringSavingIOFileSet.trim();
-		}
-		thirdPathSavingIOFileSetTextField.setText(thirdPathStringSavingIOFileSet);
-		
 		ArrayList<File> listOfPathSavingIOFileSet = new ArrayList<File>();
 		
 		if (firstPathSavingIOFileSetCheckBox.isSelected()) {
-			if (firstPathStringSavingIOFileSet.equals("")) {
-				showMessageDialog( "The first path checkbox is cheked, please insert first path saving io file set");
-				firstPathSavingIOFileSetTextField.requestFocusInWindow();
-				return null;
-			}
-			
-			File firstPathSavingIOFileSet = null;
-			try {
-				firstPathSavingIOFileSet = getPathFile(firstPathStringSavingIOFileSet);
-			} catch(FileNotFoundException | AccessDeniedException  e) {
-				String errorMessage =e.toString(); 
-				log.warn(errorMessage);
-				showMessageDialog(errorMessage);
-				firstPathSavingIOFileSetTextField.requestFocusInWindow();
+			File firstPathSavingIOFileSet = getWitableAndReadablePathFromTextField(firstPathSavingIOFileSetTextField, "the first path saving io file set");
+			if (null == firstPathSavingIOFileSet) {
 				return null;
 			}
 			listOfPathSavingIOFileSet.add(firstPathSavingIOFileSet);
 		}
 		
-		if (secondPathSavingIOFileSetCheckBox.isSelected()) {
-			if (secondPathStringSavingIOFileSet.equals("")) {
-				showMessageDialog( "The second path checkbox is cheked, please insert second path saving io file set");
-				secondPathSavingIOFileSetTextField.requestFocusInWindow();
+		if (secondPathSavingIOFileSetCheckBox.isSelected()) {			
+			File secondPathSavingIOFileSet = getWitableAndReadablePathFromTextField(secondPathSavingIOFileSetTextField, "the second path saving io file set");
+			if (null == secondPathSavingIOFileSet) {
 				return null;
 			}
-			
-			File oneSourcePath=null;
-			try {
-				oneSourcePath = getPathFile(secondPathStringSavingIOFileSet);
-			} catch (AccessDeniedException | FileNotFoundException e) {
-				String errorMessage =e.toString(); 
-				log.warn(errorMessage);
-				showMessageDialog(errorMessage);
-				secondPathSavingIOFileSetTextField.requestFocusInWindow();
-				return null;
-			}
-			listOfPathSavingIOFileSet.add(oneSourcePath);
+			listOfPathSavingIOFileSet.add(secondPathSavingIOFileSet);
 		}
 		
 		if (thirdPathSavingIOFileSetCheckBox.isSelected()) {
-			if (thirdPathStringSavingIOFileSet.equals("")) {
-				showMessageDialog("The third path checkbox is cheked, please insert third path saving io file set");
-				thirdPathSavingIOFileSetTextField.requestFocusInWindow();
+			File thirdPathSavingIOFileSet = getWitableAndReadablePathFromTextField(thirdPathSavingIOFileSetTextField, "the third path saving io file set");
+			if (null == thirdPathSavingIOFileSet) {
 				return null;
 			}
-			
-			File oneSourcePath=null;
-			try {
-				oneSourcePath = getPathFile(thirdPathStringSavingIOFileSet);
-			} catch (AccessDeniedException | FileNotFoundException e) {
-				String errorMessage =e.toString(); 
-				log.warn(errorMessage);
-				showMessageDialog(errorMessage);
-				thirdPathSavingIOFileSetTextField.requestFocusInWindow();
-				return null;
-			}
-			listOfPathSavingIOFileSet.add(oneSourcePath);
+			listOfPathSavingIOFileSet.add(thirdPathSavingIOFileSet);
 		}
 				
 		if (0 == listOfPathSavingIOFileSet.size()) {
@@ -623,381 +527,9 @@ public class IOBuilderPanel extends JPanel implements FileFunctionManagerIF, Bui
 		setCursor(oldCursor);
 	}
 
-	
-
-	private void initComponents() {
-		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
-		// Generated using JFormDesigner non-commercial license
-		topMenuPanel = new JPanel();
-		prevButton = new JButton();
-		sourceBuilderTabbedPane = new JTabbedPane();
-		ioFileSetBuildPanel = new JPanel();
-		messageInfoFilePathPanel = new JPanel();
-		messageInfoFilePathLabel = new JLabel();
-		messageInfoFilePathTextField = new JTextField();
-		messageInfoFilePathButton = new JButton();
-		firstPathSavingIOFileSetPanel = new JPanel();
-		firstPathSavingIOFileSetTitleLabel = new JLabel();
-		firstPathSavingIOFileSetCheckBox = new JCheckBox();
-		firstPathSavingIOFileSetTextField = new JTextField();
-		firstPathSavingIOFileSetButton = new JButton();
-		secondPathSavingIOFileSetPanel = new JPanel();
-		secondPathSavingIOFileSetLabel = new JLabel();
-		secondPathSavingIOFileSetCheckBox = new JCheckBox();
-		secondPathSavingIOFileSetTextField = new JTextField();
-		secondPathSavingIOFileSetButton = new JButton();
-		thirdIPathSavingIOFileSetPanel = new JPanel();
-		thirdPathSavingIOFileSetLabel = new JLabel();
-		thirdPathSavingIOFileSetCheckBox = new JCheckBox();
-		thirdPathSavingIOFileSetTextField = new JTextField();
-		thirdPathSavingIOFileSetButton = new JButton();
-		writerPanel = new JPanel();
-		writerLabel = new JLabel();
-		writerTextField = new JTextField();
-		menuPanel = new JPanel();
-		allMessageInfoCreationButton = new JButton();
-		allMessageIOFileSetCreationButton = new JButton();
-		resultLabel = new JLabel();
-		messageIDSearchPanel = new JPanel();
-		messageIDSearchLabel = new JLabel();
-		fileNameSearchTextField = new JTextField();
-		fileNameSearchButton = new JButton();
-		messageInfoScrollPane = new JScrollPane();
-		messageInfoTable = new JTable();
-		eachIOFileTypeBuildPanel = new JPanel();
-		ioFileTypBuildMenuPanel = new JPanel();
-		messageRadioButton = new JRadioButton();
-		encoderRadioButton = new JRadioButton();
-		decoderRadioButton = new JRadioButton();
-		serverCodecRadioButton = new JRadioButton();
-		clientCodecRadioButton = new JRadioButton();
-		eachIOFileTypeBuildButton = new JButton();
-		messageInfoXMLInputTitleLabel = new JLabel();
-		messageInfoXMLScrollPane = new JScrollPane();
-		messageInfoXMLTextArea = new JTextArea();
-		eachIOFileTypeResultLabel = new JLabel();
-		eachIOFileTypeResultScrollPane = new JScrollPane();
-		eachIOFileTypeResulTextArea = new JTextArea();
-
-		//======== this ========
-		setLayout(new FormLayout(
-			"$ugap, 430dlu:grow, 7dlu",
-			"$lgap, default, fill:242dlu:grow, 8dlu"));
-		/** Post-initialization Code start */
-		postInitComponents();
-		/** Post-initialization Code end */
-
-		//======== topMenuPanel ========
-		{
-			topMenuPanel.setLayout(new FormLayout(
-				"default",
-				"$lgap, default, $lgap"));
-
-			//---- prevButton ----
-			prevButton.setText("go back to first screen");
-			prevButton.addActionListener(e -> {
-			prevButtonActionPerformed(e);
-			prevButtonActionPerformed(e);
-		});
-			topMenuPanel.add(prevButton, CC.xy(1, 2));
-		}
-		add(topMenuPanel, CC.xy(2, 2));
-
-		//======== sourceBuilderTabbedPane ========
-		{
-
-			//======== ioFileSetBuildPanel ========
-			{
-				ioFileSetBuildPanel.setLayout(new FormLayout(
-					"$ugap, ${growing-button}, $ugap",
-					"8*($lgap, default), $lgap, fill:70dlu:grow, $lgap"));
-
-				//======== messageInfoFilePathPanel ========
-				{
-					messageInfoFilePathPanel.setLayout(new FormLayout(
-						"116dlu, $ugap, [236dlu,pref]:grow, $ugap, default",
-						"default"));
-
-					//---- messageInfoFilePathLabel ----
-					messageInfoFilePathLabel.setText("Message info file path");
-					messageInfoFilePathPanel.add(messageInfoFilePathLabel, CC.xy(1, 1));
-					messageInfoFilePathPanel.add(messageInfoFilePathTextField, CC.xy(3, 1));
-
-					//---- messageInfoFilePathButton ----
-					messageInfoFilePathButton.setText("Path");
-					messageInfoFilePathPanel.add(messageInfoFilePathButton, CC.xy(5, 1));
-				}
-				ioFileSetBuildPanel.add(messageInfoFilePathPanel, CC.xy(2, 2));
-
-				//======== firstPathSavingIOFileSetPanel ========
-				{
-					firstPathSavingIOFileSetPanel.setLayout(new FormLayout(
-						"98dlu, $ugap, default, $ugap, ${growing-button}, $ugap, default",
-						"default"));
-
-					//---- firstPathSavingIOFileSetTitleLabel ----
-					firstPathSavingIOFileSetTitleLabel.setText("First path saving IO file set");
-					firstPathSavingIOFileSetPanel.add(firstPathSavingIOFileSetTitleLabel, CC.xy(1, 1));
-					firstPathSavingIOFileSetPanel.add(firstPathSavingIOFileSetCheckBox, CC.xy(3, 1));
-					firstPathSavingIOFileSetPanel.add(firstPathSavingIOFileSetTextField, CC.xy(5, 1));
-
-					//---- firstPathSavingIOFileSetButton ----
-					firstPathSavingIOFileSetButton.setText("Path");
-					firstPathSavingIOFileSetPanel.add(firstPathSavingIOFileSetButton, CC.xy(7, 1));
-				}
-				ioFileSetBuildPanel.add(firstPathSavingIOFileSetPanel, CC.xy(2, 4));
-
-				//======== secondPathSavingIOFileSetPanel ========
-				{
-					secondPathSavingIOFileSetPanel.setLayout(new FormLayout(
-						"2*(default, $ugap), ${growing-button}, $ugap, default",
-						"default"));
-
-					//---- secondPathSavingIOFileSetLabel ----
-					secondPathSavingIOFileSetLabel.setText("Secound path saving IO file set");
-					secondPathSavingIOFileSetPanel.add(secondPathSavingIOFileSetLabel, CC.xy(1, 1));
-					secondPathSavingIOFileSetPanel.add(secondPathSavingIOFileSetCheckBox, CC.xy(3, 1));
-					secondPathSavingIOFileSetPanel.add(secondPathSavingIOFileSetTextField, CC.xy(5, 1));
-
-					//---- secondPathSavingIOFileSetButton ----
-					secondPathSavingIOFileSetButton.setText("Path");
-					secondPathSavingIOFileSetPanel.add(secondPathSavingIOFileSetButton, CC.xy(7, 1));
-				}
-				ioFileSetBuildPanel.add(secondPathSavingIOFileSetPanel, CC.xy(2, 6));
-
-				//======== thirdIPathSavingIOFileSetPanel ========
-				{
-					thirdIPathSavingIOFileSetPanel.setLayout(new FormLayout(
-						"98dlu, $ugap, default, $ugap, ${growing-button}, $ugap, default",
-						"default"));
-
-					//---- thirdPathSavingIOFileSetLabel ----
-					thirdPathSavingIOFileSetLabel.setText("Third path saving IO file set");
-					thirdIPathSavingIOFileSetPanel.add(thirdPathSavingIOFileSetLabel, CC.xy(1, 1));
-					thirdIPathSavingIOFileSetPanel.add(thirdPathSavingIOFileSetCheckBox, CC.xy(3, 1));
-					thirdIPathSavingIOFileSetPanel.add(thirdPathSavingIOFileSetTextField, CC.xy(5, 1));
-
-					//---- thirdPathSavingIOFileSetButton ----
-					thirdPathSavingIOFileSetButton.setText("Path");
-					thirdIPathSavingIOFileSetPanel.add(thirdPathSavingIOFileSetButton, CC.xy(7, 1));
-				}
-				ioFileSetBuildPanel.add(thirdIPathSavingIOFileSetPanel, CC.xy(2, 8));
-
-				//======== writerPanel ========
-				{
-					writerPanel.setLayout(new FormLayout(
-						"116dlu, $ugap, ${growing-button}",
-						"default"));
-
-					//---- writerLabel ----
-					writerLabel.setText("Writer");
-					writerPanel.add(writerLabel, CC.xy(1, 1));
-					writerPanel.add(writerTextField, CC.xy(3, 1));
-				}
-				ioFileSetBuildPanel.add(writerPanel, CC.xy(2, 10));
-
-				//======== menuPanel ========
-				{
-					menuPanel.setLayout(new FormLayout(
-						"default, $ugap, default",
-						"default"));
-
-					//---- allMessageInfoCreationButton ----
-					allMessageInfoCreationButton.setText("Reread all message infomation file");
-					allMessageInfoCreationButton.addActionListener(e -> {
-			allMessageInfoCreationButtonActionPerformed(e);
-			allMessageInfoCreationButtonActionPerformed(e);
-		});
-					menuPanel.add(allMessageInfoCreationButton, CC.xy(1, 1));
-
-					//---- allMessageIOFileSetCreationButton ----
-					allMessageIOFileSetCreationButton.setText("Build All IO source file set");
-					allMessageIOFileSetCreationButton.addActionListener(e -> allMessageIOFileSetCreationButtonActionPerformed(e));
-					menuPanel.add(allMessageIOFileSetCreationButton, CC.xy(3, 1));
-				}
-				ioFileSetBuildPanel.add(menuPanel, CC.xy(2, 12));
-
-				//---- resultLabel ----
-				resultLabel.setText(">> result rereading all message infomation file");
-				ioFileSetBuildPanel.add(resultLabel, CC.xy(2, 14));
-
-				//======== messageIDSearchPanel ========
-				{
-					messageIDSearchPanel.setLayout(new FormLayout(
-						"default, $ugap, ${growing-button}, $ugap, default",
-						"default"));
-
-					//---- messageIDSearchLabel ----
-					messageIDSearchLabel.setText("message ID");
-					messageIDSearchPanel.add(messageIDSearchLabel, CC.xy(1, 1));
-					messageIDSearchPanel.add(fileNameSearchTextField, CC.xy(3, 1));
-
-					//---- fileNameSearchButton ----
-					fileNameSearchButton.setText("Search");
-					fileNameSearchButton.addActionListener(e -> fileNameSearchButtonActionPerformed(e));
-					messageIDSearchPanel.add(fileNameSearchButton, CC.xy(5, 1));
-				}
-				ioFileSetBuildPanel.add(messageIDSearchPanel, CC.xy(2, 16));
-
-				//======== messageInfoScrollPane ========
-				{
-
-					//---- messageInfoTable ----
-					messageInfoTable.setModel(new DefaultTableModel(
-						new Object[][] {
-							{null, null, "", null, null},
-							{null, null, null, null, null},
-						},
-						new String[] {
-							"message id", "recently modified date", "direction", "mesg info file function", "io source build function"
-						}
-					) {
-						Class<?>[] columnTypes = new Class<?>[] {
-							String.class, String.class, String.class, Object.class, Object.class
-						};
-						@Override
-						public Class<?> getColumnClass(int columnIndex) {
-							return columnTypes[columnIndex];
-						}
-					});
-					messageInfoTable.setFillsViewportHeight(true);
-					messageInfoScrollPane.setViewportView(messageInfoTable);
-				}
-				ioFileSetBuildPanel.add(messageInfoScrollPane, CC.xy(2, 18));
-			}
-			sourceBuilderTabbedPane.addTab("source builder for IO file set", ioFileSetBuildPanel);
-
-			//======== eachIOFileTypeBuildPanel ========
-			{
-				eachIOFileTypeBuildPanel.setLayout(new FormLayout(
-					"$ugap, 308dlu:grow, $ugap",
-					"2*($lgap, default), $lgap, fill:81dlu:grow, $lgap, default, $lgap, fill:81dlu"));
-
-				//======== ioFileTypBuildMenuPanel ========
-				{
-					ioFileTypBuildMenuPanel.setLayout(new BoxLayout(ioFileTypBuildMenuPanel, BoxLayout.X_AXIS));
-
-					//---- messageRadioButton ----
-					messageRadioButton.setText("Message");
-					ioFileTypBuildMenuPanel.add(messageRadioButton);
-
-					//---- encoderRadioButton ----
-					encoderRadioButton.setText("Encoder");
-					ioFileTypBuildMenuPanel.add(encoderRadioButton);
-
-					//---- decoderRadioButton ----
-					decoderRadioButton.setText("Decoder");
-					ioFileTypBuildMenuPanel.add(decoderRadioButton);
-
-					//---- serverCodecRadioButton ----
-					serverCodecRadioButton.setText("ServerCodec");
-					ioFileTypBuildMenuPanel.add(serverCodecRadioButton);
-
-					//---- clientCodecRadioButton ----
-					clientCodecRadioButton.setText("ClientCodec");
-					ioFileTypBuildMenuPanel.add(clientCodecRadioButton);
-
-					//---- eachIOFileTypeBuildButton ----
-					eachIOFileTypeBuildButton.setText("Build");
-					eachIOFileTypeBuildButton.addActionListener(e -> eachIOFileTypeBuildButtonActionPerformed(e));
-					ioFileTypBuildMenuPanel.add(eachIOFileTypeBuildButton);
-				}
-				eachIOFileTypeBuildPanel.add(ioFileTypBuildMenuPanel, CC.xy(2, 2));
-
-				//---- messageInfoXMLInputTitleLabel ----
-				messageInfoXMLInputTitleLabel.setText(">> Message Infomation XML Input");
-				eachIOFileTypeBuildPanel.add(messageInfoXMLInputTitleLabel, CC.xy(2, 4));
-
-				//======== messageInfoXMLScrollPane ========
-				{
-					messageInfoXMLScrollPane.setViewportView(messageInfoXMLTextArea);
-				}
-				eachIOFileTypeBuildPanel.add(messageInfoXMLScrollPane, CC.xy(2, 6));
-
-				//---- eachIOFileTypeResultLabel ----
-				eachIOFileTypeResultLabel.setText(">> Result");
-				eachIOFileTypeBuildPanel.add(eachIOFileTypeResultLabel, CC.xy(2, 8));
-
-				//======== eachIOFileTypeResultScrollPane ========
-				{
-
-					//---- eachIOFileTypeResulTextArea ----
-					eachIOFileTypeResulTextArea.setEditable(false);
-					eachIOFileTypeResultScrollPane.setViewportView(eachIOFileTypeResulTextArea);
-				}
-				eachIOFileTypeBuildPanel.add(eachIOFileTypeResultScrollPane, CC.xy(2, 10));
-			}
-			sourceBuilderTabbedPane.addTab("source builder for each IO file type", eachIOFileTypeBuildPanel);
-		}
-		add(sourceBuilderTabbedPane, CC.xy(2, 3));
-
-		//---- ioFileTypeButtonGroup ----
-		ButtonGroup ioFileTypeButtonGroup = new ButtonGroup();
-		ioFileTypeButtonGroup.add(messageRadioButton);
-		ioFileTypeButtonGroup.add(encoderRadioButton);
-		ioFileTypeButtonGroup.add(decoderRadioButton);
-		ioFileTypeButtonGroup.add(serverCodecRadioButton);
-		ioFileTypeButtonGroup.add(clientCodecRadioButton);
-		// JFormDesigner - End of component initialization  //GEN-END:initComponents
-	}
-
-	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
-	// Generated using JFormDesigner non-commercial license
-	private JPanel topMenuPanel;
-	private JButton prevButton;
-	private JTabbedPane sourceBuilderTabbedPane;
-	private JPanel ioFileSetBuildPanel;
-	private JPanel messageInfoFilePathPanel;
-	private JLabel messageInfoFilePathLabel;
-	private JTextField messageInfoFilePathTextField;
-	private JButton messageInfoFilePathButton;
-	private JPanel firstPathSavingIOFileSetPanel;
-	private JLabel firstPathSavingIOFileSetTitleLabel;
-	private JCheckBox firstPathSavingIOFileSetCheckBox;
-	private JTextField firstPathSavingIOFileSetTextField;
-	private JButton firstPathSavingIOFileSetButton;
-	private JPanel secondPathSavingIOFileSetPanel;
-	private JLabel secondPathSavingIOFileSetLabel;
-	private JCheckBox secondPathSavingIOFileSetCheckBox;
-	private JTextField secondPathSavingIOFileSetTextField;
-	private JButton secondPathSavingIOFileSetButton;
-	private JPanel thirdIPathSavingIOFileSetPanel;
-	private JLabel thirdPathSavingIOFileSetLabel;
-	private JCheckBox thirdPathSavingIOFileSetCheckBox;
-	private JTextField thirdPathSavingIOFileSetTextField;
-	private JButton thirdPathSavingIOFileSetButton;
-	private JPanel writerPanel;
-	private JLabel writerLabel;
-	private JTextField writerTextField;
-	private JPanel menuPanel;
-	private JButton allMessageInfoCreationButton;
-	private JButton allMessageIOFileSetCreationButton;
-	private JLabel resultLabel;
-	private JPanel messageIDSearchPanel;
-	private JLabel messageIDSearchLabel;
-	private JTextField fileNameSearchTextField;
-	private JButton fileNameSearchButton;
-	private JScrollPane messageInfoScrollPane;
-	private JTable messageInfoTable;
-	private JPanel eachIOFileTypeBuildPanel;
-	private JPanel ioFileTypBuildMenuPanel;
-	private JRadioButton messageRadioButton;
-	private JRadioButton encoderRadioButton;
-	private JRadioButton decoderRadioButton;
-	private JRadioButton serverCodecRadioButton;
-	private JRadioButton clientCodecRadioButton;
-	private JButton eachIOFileTypeBuildButton;
-	private JLabel messageInfoXMLInputTitleLabel;
-	private JScrollPane messageInfoXMLScrollPane;
-	private JTextArea messageInfoXMLTextArea;
-	private JLabel eachIOFileTypeResultLabel;
-	private JScrollPane eachIOFileTypeResultScrollPane;
-	private JTextArea eachIOFileTypeResulTextArea;
-	// JFormDesigner - End of variables declaration  //GEN-END:variables	
-
 
     @Override
-	public boolean saveIOFileSet(boolean isSelectedIO, boolean isSelectedDirection, MessageInfo messageInfo) {		
+	public boolean saveIOFileSetOfSelectedMessageInfo(boolean isSelectedIO, boolean isSelectedDirection, MessageInfo messageInfo) {		
 		ArrayList<File> listOfTargetPathSavingIOFileSet = getListOfPathSavingIOFileSet();	
 		if (null == listOfTargetPathSavingIOFileSet) return false;
 		
@@ -1043,7 +575,461 @@ public class IOBuilderPanel extends JPanel implements FileFunctionManagerIF, Bui
 		messageInfoScrollPane.repaint();
 		
 	}
+	
+
+	private void postInitComponents() {
+		UIManager.put("FileChooser.readOnly", Boolean.TRUE); 
+		pathChooser = new JFileChooser();
+		pathChooser.setMultiSelectionEnabled(true);
+		pathChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		messageInfoPathTextField.setAction(new PathSwingAction(mainFrame, pathChooser, messageInfoPathTextField));
+		firstPathSavingIOFileSetButton.setAction(new PathSwingAction(mainFrame, pathChooser, firstPathSavingIOFileSetTextField));
+		secondPathSavingIOFileSetButton.setAction(new PathSwingAction(mainFrame, pathChooser, secondPathSavingIOFileSetTextField));
+		thirdPathSavingIOFileSetButton.setAction(new PathSwingAction(mainFrame, pathChooser, thirdPathSavingIOFileSetTextField));
 		
+		// readAllMessageInfo();
+		messageInfoTable.setRowSelectionAllowed(false);
+		messageInfoTable.setFillsViewportHeight(true);
+		// messageInfoTable.setPreferredScrollableViewportSize(new Dimension(800, 300));
+		messageInfoTable.setAutoCreateRowSorter(true);
+		// messageInfoTable.setRowHeight(38);
+		// messageInfoTable.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+		// messageInfoTable.setMaximumSize(new Dimension(700, 600));
+		
+	}
+	
+	public IOBuilderPanel(Frame mainFrame, ScreenManagerIF screenManagerIF) {
+		this.mainFrame = mainFrame;
+		this.screenManagerIF = screenManagerIF;
+		
+		initComponents();
+	}
+
+	private void initComponents() {
+		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
+		// Generated using JFormDesigner non-commercial license
+		IOBuilderPanel = new JPanel();
+		topMenuPanel = new JPanel();
+		prevButton = new JButton();
+		sourceBuilderTabbedPane = new JTabbedPane();
+		ioFileSetBuildPanel = new JPanel();
+		messageInfoFilePathPanel = new JPanel();
+		messageInfoFilePathLabel = new JLabel();
+		messageInfoPathTextField = new JTextField();
+		messageInfoPathButton = new JButton();
+		firstPathSavingIOFileSetPanel = new JPanel();
+		firstPathSavingIOFileSetTitleLabel = new JLabel();
+		firstPathSavingIOFileSetCheckBox = new JCheckBox();
+		firstPathSavingIOFileSetTextField = new JTextField();
+		firstPathSavingIOFileSetButton = new JButton();
+		secondPathSavingIOFileSetPanel = new JPanel();
+		secondPathSavingIOFileSetLabel = new JLabel();
+		secondPathSavingIOFileSetCheckBox = new JCheckBox();
+		secondPathSavingIOFileSetTextField = new JTextField();
+		secondPathSavingIOFileSetButton = new JButton();
+		thirdIPathSavingIOFileSetPanel = new JPanel();
+		thirdPathSavingIOFileSetLabel = new JLabel();
+		thirdPathSavingIOFileSetCheckBox = new JCheckBox();
+		thirdPathSavingIOFileSetTextField = new JTextField();
+		thirdPathSavingIOFileSetButton = new JButton();
+		writerPanel = new JPanel();
+		writerLabel = new JLabel();
+		writerTextField = new JTextField();
+		menuPanel = new JPanel();
+		allMessageInfoCreationButton = new JButton();
+		allMessageIOFileSetCreationButton = new JButton();
+		resultLabel = new JLabel();
+		messageIDSearchPanel = new JPanel();
+		messageIDSearchLabel = new JLabel();
+		fileNameSearchTextField = new JTextField();
+		fileNameSearchButton = new JButton();
+		messageInfoScrollPane = new JScrollPane();
+		messageInfoTable = new JTable();
+		eachIOFileTypeBuildPanel = new JPanel();
+		ioFileTypBuildMenuPanel = new JPanel();
+		messageRadioButton = new JRadioButton();
+		encoderRadioButton = new JRadioButton();
+		decoderRadioButton = new JRadioButton();
+		serverCodecRadioButton = new JRadioButton();
+		clientCodecRadioButton = new JRadioButton();
+		eachIOFileTypeBuildButton = new JButton();
+		messageInfoXMLInputTitleLabel = new JLabel();
+		messageInfoXMLScrollPane = new JScrollPane();
+		messageInfoXMLTextArea = new JTextArea();
+		eachIOFileTypeResultLabel = new JLabel();
+		eachIOFileTypeResultScrollPane = new JScrollPane();
+		eachIOFileTypeResulTextArea = new JTextArea();
+
+		//======== this ========
+		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+
+		//======== IOBuilderPanel ========
+		{
+			IOBuilderPanel.setLayout(new FormLayout(
+				"$ugap, 430dlu:grow, 7dlu",
+				"$ugap, default, fill:320dlu:grow, $ugap"));
+			/** Post-initialization Code start */
+			postInitComponents();
+			/** Post-initialization Code end */
+
+			//======== topMenuPanel ========
+			{
+				topMenuPanel.setLayout(new FormLayout(
+					"default",
+					"$lgap, default, $lgap"));
+
+				//---- prevButton ----
+				prevButton.setText("go back to first screen");
+				prevButton.addActionListener(e -> {
+			prevButtonActionPerformed(e);
+			prevButtonActionPerformed(e);
+		});
+				topMenuPanel.add(prevButton, CC.xy(1, 2));
+			}
+			IOBuilderPanel.add(topMenuPanel, CC.xy(2, 2));
+
+			//======== sourceBuilderTabbedPane ========
+			{
+				sourceBuilderTabbedPane.setPreferredSize(new Dimension(740, 400));
+				sourceBuilderTabbedPane.setMinimumSize(new Dimension(740, 400));
+
+				//======== ioFileSetBuildPanel ========
+				{
+					ioFileSetBuildPanel.setLayout(new FormLayout(
+						"$ugap, ${growing-button}, $ugap",
+						"8*($lgap, default), $lgap, fill:70dlu:grow, $lgap"));
+
+					//======== messageInfoFilePathPanel ========
+					{
+						messageInfoFilePathPanel.setLayout(new FormLayout(
+							"116dlu, $ugap, [236dlu,pref]:grow, $ugap, default",
+							"default"));
+
+						//---- messageInfoFilePathLabel ----
+						messageInfoFilePathLabel.setText("Message info file path");
+						messageInfoFilePathPanel.add(messageInfoFilePathLabel, CC.xy(1, 1));
+						messageInfoFilePathPanel.add(messageInfoPathTextField, CC.xy(3, 1));
+
+						//---- messageInfoPathButton ----
+						messageInfoPathButton.setText("Path");
+						messageInfoPathButton.addActionListener(e -> messageInfoPathButtonActionPerformed(e));
+						messageInfoFilePathPanel.add(messageInfoPathButton, CC.xy(5, 1));
+					}
+					ioFileSetBuildPanel.add(messageInfoFilePathPanel, CC.xy(2, 2));
+
+					//======== firstPathSavingIOFileSetPanel ========
+					{
+						firstPathSavingIOFileSetPanel.setLayout(new FormLayout(
+							"98dlu, $ugap, default, $ugap, ${growing-button}, $ugap, default",
+							"default"));
+
+						//---- firstPathSavingIOFileSetTitleLabel ----
+						firstPathSavingIOFileSetTitleLabel.setText("First path saving IO file set");
+						firstPathSavingIOFileSetPanel.add(firstPathSavingIOFileSetTitleLabel, CC.xy(1, 1));
+						firstPathSavingIOFileSetPanel.add(firstPathSavingIOFileSetCheckBox, CC.xy(3, 1));
+
+						//---- firstPathSavingIOFileSetTextField ----
+						firstPathSavingIOFileSetTextField.addActionListener(e -> firstPathSavingIOFileSetTextFieldActionPerformed(e));
+						firstPathSavingIOFileSetPanel.add(firstPathSavingIOFileSetTextField, CC.xy(5, 1));
+
+						//---- firstPathSavingIOFileSetButton ----
+						firstPathSavingIOFileSetButton.setText("Path");
+						firstPathSavingIOFileSetPanel.add(firstPathSavingIOFileSetButton, CC.xy(7, 1));
+					}
+					ioFileSetBuildPanel.add(firstPathSavingIOFileSetPanel, CC.xy(2, 4));
+
+					//======== secondPathSavingIOFileSetPanel ========
+					{
+						secondPathSavingIOFileSetPanel.setLayout(new FormLayout(
+							"2*(default, $ugap), ${growing-button}, $ugap, default",
+							"default"));
+
+						//---- secondPathSavingIOFileSetLabel ----
+						secondPathSavingIOFileSetLabel.setText("Secound path saving IO file set");
+						secondPathSavingIOFileSetPanel.add(secondPathSavingIOFileSetLabel, CC.xy(1, 1));
+						secondPathSavingIOFileSetPanel.add(secondPathSavingIOFileSetCheckBox, CC.xy(3, 1));
+
+						//---- secondPathSavingIOFileSetTextField ----
+						secondPathSavingIOFileSetTextField.addActionListener(e -> secondPathSavingIOFileSetTextFieldActionPerformed(e));
+						secondPathSavingIOFileSetPanel.add(secondPathSavingIOFileSetTextField, CC.xy(5, 1));
+
+						//---- secondPathSavingIOFileSetButton ----
+						secondPathSavingIOFileSetButton.setText("Path");
+						secondPathSavingIOFileSetPanel.add(secondPathSavingIOFileSetButton, CC.xy(7, 1));
+					}
+					ioFileSetBuildPanel.add(secondPathSavingIOFileSetPanel, CC.xy(2, 6));
+
+					//======== thirdIPathSavingIOFileSetPanel ========
+					{
+						thirdIPathSavingIOFileSetPanel.setLayout(new FormLayout(
+							"98dlu, $ugap, default, $ugap, ${growing-button}, $ugap, default",
+							"default"));
+
+						//---- thirdPathSavingIOFileSetLabel ----
+						thirdPathSavingIOFileSetLabel.setText("Third path saving IO file set");
+						thirdIPathSavingIOFileSetPanel.add(thirdPathSavingIOFileSetLabel, CC.xy(1, 1));
+						thirdIPathSavingIOFileSetPanel.add(thirdPathSavingIOFileSetCheckBox, CC.xy(3, 1));
+						thirdIPathSavingIOFileSetPanel.add(thirdPathSavingIOFileSetTextField, CC.xy(5, 1));
+
+						//---- thirdPathSavingIOFileSetButton ----
+						thirdPathSavingIOFileSetButton.setText("Path");
+						thirdPathSavingIOFileSetButton.addActionListener(e -> thirdPathSavingIOFileSetButtonActionPerformed(e));
+						thirdIPathSavingIOFileSetPanel.add(thirdPathSavingIOFileSetButton, CC.xy(7, 1));
+					}
+					ioFileSetBuildPanel.add(thirdIPathSavingIOFileSetPanel, CC.xy(2, 8));
+
+					//======== writerPanel ========
+					{
+						writerPanel.setLayout(new FormLayout(
+							"116dlu, $ugap, ${growing-button}",
+							"default"));
+
+						//---- writerLabel ----
+						writerLabel.setText("Writer");
+						writerPanel.add(writerLabel, CC.xy(1, 1));
+						writerPanel.add(writerTextField, CC.xy(3, 1));
+					}
+					ioFileSetBuildPanel.add(writerPanel, CC.xy(2, 10));
+
+					//======== menuPanel ========
+					{
+						menuPanel.setLayout(new FormLayout(
+							"default, $ugap, default",
+							"default"));
+
+						//---- allMessageInfoCreationButton ----
+						allMessageInfoCreationButton.setText("Reread all message infomation file");
+						allMessageInfoCreationButton.addActionListener(e -> {
+			allMessageInfoCreationButtonActionPerformed(e);
+			allMessageInfoCreationButtonActionPerformed(e);
+		});
+						menuPanel.add(allMessageInfoCreationButton, CC.xy(1, 1));
+
+						//---- allMessageIOFileSetCreationButton ----
+						allMessageIOFileSetCreationButton.setText("Build All IO source file set");
+						allMessageIOFileSetCreationButton.addActionListener(e -> allMessageIOFileSetCreationButtonActionPerformed(e));
+						menuPanel.add(allMessageIOFileSetCreationButton, CC.xy(3, 1));
+					}
+					ioFileSetBuildPanel.add(menuPanel, CC.xy(2, 12));
+
+					//---- resultLabel ----
+					resultLabel.setText(">> result rereading all message infomation file");
+					ioFileSetBuildPanel.add(resultLabel, CC.xy(2, 14));
+
+					//======== messageIDSearchPanel ========
+					{
+						messageIDSearchPanel.setLayout(new FormLayout(
+							"default, $ugap, ${growing-button}, $ugap, default",
+							"default"));
+
+						//---- messageIDSearchLabel ----
+						messageIDSearchLabel.setText("message ID");
+						messageIDSearchPanel.add(messageIDSearchLabel, CC.xy(1, 1));
+						messageIDSearchPanel.add(fileNameSearchTextField, CC.xy(3, 1));
+
+						//---- fileNameSearchButton ----
+						fileNameSearchButton.setText("Search");
+						fileNameSearchButton.addActionListener(e -> fileNameSearchButtonActionPerformed(e));
+						messageIDSearchPanel.add(fileNameSearchButton, CC.xy(5, 1));
+					}
+					ioFileSetBuildPanel.add(messageIDSearchPanel, CC.xy(2, 16));
+
+					//======== messageInfoScrollPane ========
+					{
+
+						//---- messageInfoTable ----
+						messageInfoTable.setModel(new DefaultTableModel(
+							new Object[][] {
+								{null, null, "", null, null},
+								{null, null, null, null, null},
+							},
+							new String[] {
+								"message id", "recently modified date", "direction", "mesg info file function", "io source build function"
+							}
+						) {
+							Class<?>[] columnTypes = new Class<?>[] {
+								String.class, String.class, String.class, Object.class, Object.class
+							};
+							@Override
+							public Class<?> getColumnClass(int columnIndex) {
+								return columnTypes[columnIndex];
+							}
+						});
+						messageInfoTable.setFillsViewportHeight(true);
+						messageInfoScrollPane.setViewportView(messageInfoTable);
+					}
+					ioFileSetBuildPanel.add(messageInfoScrollPane, CC.xy(2, 18));
+				}
+				sourceBuilderTabbedPane.addTab("source builder for IO file set", ioFileSetBuildPanel);
+
+				//======== eachIOFileTypeBuildPanel ========
+				{
+					eachIOFileTypeBuildPanel.setLayout(new FormLayout(
+						"$ugap, 308dlu:grow, $ugap",
+						"2*($lgap, default), $lgap, fill:81dlu:grow, $lgap, default, $lgap, fill:81dlu"));
+
+					//======== ioFileTypBuildMenuPanel ========
+					{
+						ioFileTypBuildMenuPanel.setLayout(new BoxLayout(ioFileTypBuildMenuPanel, BoxLayout.X_AXIS));
+
+						//---- messageRadioButton ----
+						messageRadioButton.setText("Message");
+						ioFileTypBuildMenuPanel.add(messageRadioButton);
+
+						//---- encoderRadioButton ----
+						encoderRadioButton.setText("Encoder");
+						ioFileTypBuildMenuPanel.add(encoderRadioButton);
+
+						//---- decoderRadioButton ----
+						decoderRadioButton.setText("Decoder");
+						ioFileTypBuildMenuPanel.add(decoderRadioButton);
+
+						//---- serverCodecRadioButton ----
+						serverCodecRadioButton.setText("ServerCodec");
+						ioFileTypBuildMenuPanel.add(serverCodecRadioButton);
+
+						//---- clientCodecRadioButton ----
+						clientCodecRadioButton.setText("ClientCodec");
+						ioFileTypBuildMenuPanel.add(clientCodecRadioButton);
+
+						//---- eachIOFileTypeBuildButton ----
+						eachIOFileTypeBuildButton.setText("Build");
+						eachIOFileTypeBuildButton.addActionListener(e -> eachIOFileTypeBuildButtonActionPerformed(e));
+						ioFileTypBuildMenuPanel.add(eachIOFileTypeBuildButton);
+					}
+					eachIOFileTypeBuildPanel.add(ioFileTypBuildMenuPanel, CC.xy(2, 2));
+
+					//---- messageInfoXMLInputTitleLabel ----
+					messageInfoXMLInputTitleLabel.setText(">> Message Infomation XML Input");
+					eachIOFileTypeBuildPanel.add(messageInfoXMLInputTitleLabel, CC.xy(2, 4));
+
+					//======== messageInfoXMLScrollPane ========
+					{
+						messageInfoXMLScrollPane.setViewportView(messageInfoXMLTextArea);
+					}
+					eachIOFileTypeBuildPanel.add(messageInfoXMLScrollPane, CC.xy(2, 6));
+
+					//---- eachIOFileTypeResultLabel ----
+					eachIOFileTypeResultLabel.setText(">> Result");
+					eachIOFileTypeBuildPanel.add(eachIOFileTypeResultLabel, CC.xy(2, 8));
+
+					//======== eachIOFileTypeResultScrollPane ========
+					{
+
+						//---- eachIOFileTypeResulTextArea ----
+						eachIOFileTypeResulTextArea.setEditable(false);
+						eachIOFileTypeResultScrollPane.setViewportView(eachIOFileTypeResulTextArea);
+					}
+					eachIOFileTypeBuildPanel.add(eachIOFileTypeResultScrollPane, CC.xy(2, 10));
+				}
+				sourceBuilderTabbedPane.addTab("source builder for each IO file type", eachIOFileTypeBuildPanel);
+			}
+			IOBuilderPanel.add(sourceBuilderTabbedPane, CC.xy(2, 3, CC.FILL, CC.FILL));
+		}
+		add(IOBuilderPanel);
+
+		//---- ioFileTypeButtonGroup ----
+		ButtonGroup ioFileTypeButtonGroup = new ButtonGroup();
+		ioFileTypeButtonGroup.add(messageRadioButton);
+		ioFileTypeButtonGroup.add(encoderRadioButton);
+		ioFileTypeButtonGroup.add(decoderRadioButton);
+		ioFileTypeButtonGroup.add(serverCodecRadioButton);
+		ioFileTypeButtonGroup.add(clientCodecRadioButton);
+		// JFormDesigner - End of component initialization  //GEN-END:initComponents
+	}
+
+	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
+	// Generated using JFormDesigner non-commercial license
+	private JPanel IOBuilderPanel;
+	private JPanel topMenuPanel;
+	private JButton prevButton;
+	private JTabbedPane sourceBuilderTabbedPane;
+	private JPanel ioFileSetBuildPanel;
+	private JPanel messageInfoFilePathPanel;
+	private JLabel messageInfoFilePathLabel;
+	private JTextField messageInfoPathTextField;
+	private JButton messageInfoPathButton;
+	private JPanel firstPathSavingIOFileSetPanel;
+	private JLabel firstPathSavingIOFileSetTitleLabel;
+	private JCheckBox firstPathSavingIOFileSetCheckBox;
+	private JTextField firstPathSavingIOFileSetTextField;
+	private JButton firstPathSavingIOFileSetButton;
+	private JPanel secondPathSavingIOFileSetPanel;
+	private JLabel secondPathSavingIOFileSetLabel;
+	private JCheckBox secondPathSavingIOFileSetCheckBox;
+	private JTextField secondPathSavingIOFileSetTextField;
+	private JButton secondPathSavingIOFileSetButton;
+	private JPanel thirdIPathSavingIOFileSetPanel;
+	private JLabel thirdPathSavingIOFileSetLabel;
+	private JCheckBox thirdPathSavingIOFileSetCheckBox;
+	private JTextField thirdPathSavingIOFileSetTextField;
+	private JButton thirdPathSavingIOFileSetButton;
+	private JPanel writerPanel;
+	private JLabel writerLabel;
+	private JTextField writerTextField;
+	private JPanel menuPanel;
+	private JButton allMessageInfoCreationButton;
+	private JButton allMessageIOFileSetCreationButton;
+	private JLabel resultLabel;
+	private JPanel messageIDSearchPanel;
+	private JLabel messageIDSearchLabel;
+	private JTextField fileNameSearchTextField;
+	private JButton fileNameSearchButton;
+	private JScrollPane messageInfoScrollPane;
+	private JTable messageInfoTable;
+	private JPanel eachIOFileTypeBuildPanel;
+	private JPanel ioFileTypBuildMenuPanel;
+	private JRadioButton messageRadioButton;
+	private JRadioButton encoderRadioButton;
+	private JRadioButton decoderRadioButton;
+	private JRadioButton serverCodecRadioButton;
+	private JRadioButton clientCodecRadioButton;
+	private JButton eachIOFileTypeBuildButton;
+	private JLabel messageInfoXMLInputTitleLabel;
+	private JScrollPane messageInfoXMLScrollPane;
+	private JTextArea messageInfoXMLTextArea;
+	private JLabel eachIOFileTypeResultLabel;
+	private JScrollPane eachIOFileTypeResultScrollPane;
+	private JTextArea eachIOFileTypeResulTextArea;
+	// JFormDesigner - End of variables declaration  //GEN-END:variables	
+
+
+	
+	private void messageInfoPathButtonActionPerformed(ActionEvent e) {
+		File messageInfoPath = getWitableAndReadablePathFromTextField(messageInfoPathTextField, "the path to the message information files");
+		if (null == messageInfoPath) {
+			return;
+		}
+		
+		pathChooser.setCurrentDirectory(messageInfoPath);
+	}
+
+	private void firstPathSavingIOFileSetTextFieldActionPerformed(ActionEvent e) {
+		File firstPathSavingIOFileSet = getWitableAndReadablePathFromTextField(firstPathSavingIOFileSetTextField, "the first path saving io file set");
+		if (null == firstPathSavingIOFileSet) {
+			return;
+		}
+		
+		pathChooser.setCurrentDirectory(firstPathSavingIOFileSet);
+	}
+
+	private void secondPathSavingIOFileSetTextFieldActionPerformed(ActionEvent e) {
+		File secondPathSavingIOFileSet = getWitableAndReadablePathFromTextField(secondPathSavingIOFileSetTextField, "the second path saving io file set");
+		if (null == secondPathSavingIOFileSet) {
+			return;
+		}
+		
+		pathChooser.setCurrentDirectory(secondPathSavingIOFileSet);
+	}
+
+	private void thirdPathSavingIOFileSetButtonActionPerformed(ActionEvent e) {
+		File thirdPathSavingIOFileSet = getWitableAndReadablePathFromTextField(thirdPathSavingIOFileSetTextField, "the third path saving io file set");
+		if (null == thirdPathSavingIOFileSet) {
+			return;
+		}
+		
+		pathChooser.setCurrentDirectory(thirdPathSavingIOFileSet);
+	}
 	
 	private void prevButtonActionPerformed(ActionEvent e) {
 		screenManagerIF.moveToFirstScreen();
@@ -1092,15 +1078,13 @@ public class IOBuilderPanel extends JPanel implements FileFunctionManagerIF, Bui
 		
 		boolean resultSavingFile = true;
 		
-		for (int i=0; i < rowCount; i++) {
+		for (int i=0; resultSavingFile && i < rowCount; i++) {
 			BuildFunctionCellValue buildFunctionCellValue = (BuildFunctionCellValue)messageInfoTableModel.getValueAt(i, 4);
 						
 			resultSavingFile = saveIOFileSetToTargetPath(listOfTargetPathSavingIOFileSet, writer, 
 					buildFunctionCellValue.isSelectedIO(), 
 					buildFunctionCellValue.isSelectedDirection(), 
 					buildFunctionCellValue.getMessageInfo());
-			
-			if (!resultSavingFile) break;
 		}
 		
 		if (resultSavingFile) showMessageDialog("Sucessfully all io source file set was built");
@@ -1132,16 +1116,16 @@ public class IOBuilderPanel extends JPanel implements FileFunctionManagerIF, Bui
 			
 			// logger.log(Level.INFO, String.format("사용자가 입력한 메시지 정보 파일 내용을 저장할 임시 파일=[%s]", messageInfoFile.getAbsolutePath()));
 		} catch (FileNotFoundException e1) {
-			e1.printStackTrace();
-			showMessageDialog("FileNotFoundException");
+			log.warn("1.fail to create temp file", e1);
+			showMessageDialog("1.fail to create temp file::"+e1.toString());
 			return;
 		} catch (UnsupportedEncodingException e1) {
-			e1.printStackTrace();
-			showMessageDialog("UnsupportedEncodingException");
+			log.warn("2.fail to create temp file", e1);
+			showMessageDialog("2.fail to create temp file::"+e1.toString());
 			return;
 		} catch (IOException e1) {
-			e1.printStackTrace();
-			showMessageDialog("IOException");
+			log.warn("3.fail to create temp file", e1);
+			showMessageDialog("3.fail to create temp file::"+e1.toString());
 			return;
 		} finally {
 			try {
@@ -1166,7 +1150,7 @@ public class IOBuilderPanel extends JPanel implements FileFunctionManagerIF, Bui
 			messageInfo = messageInfoSAXParser.parse(tempMessageInfoFile, false);
 		} catch (IllegalArgumentException | SAXException | IOException e1) {
 			String errorMessage = e.toString();
-			log.warn(errorMessage);
+			log.warn(errorMessage, e1);
 			showMessageDialog(errorMessage);
 			return;
 		}

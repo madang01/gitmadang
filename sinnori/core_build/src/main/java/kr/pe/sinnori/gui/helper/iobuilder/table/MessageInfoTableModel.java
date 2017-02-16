@@ -37,7 +37,7 @@ public class MessageInfoTableModel extends DefaultTableModel {
 	
 	public boolean isCellEditable(int rowIndex, int columnIndex) {		
 		if (columnIndex >= 3) return true;
-		else return false; 
+		else return false;
 	}
 	
 	public void setValueAt(Object aValue, int row, int col) {

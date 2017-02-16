@@ -38,159 +38,94 @@ public class SinnoriInstalledPathPanel extends JPanel {
 	private ScreenManagerIF screenManagerIF = null;
 	private JFileChooser sinnoriInstalledPathChooser = null;
 	
-	public SinnoriInstalledPathPanel() {
-		initComponents();		
+	private void showMessageDialog(String message) {
+		JOptionPane.showMessageDialog(mainFrame, 
+				CommonStaticUtil.splitString(message,
+						CommonType.LINE_SEPARATOR_GUBUN.NEWLINE, 100));
+	}
+	
+
+	/**
+	 * @param sourcePathTextField TextField whose value is path   
+	 * @param sourcePathTextFieldName parameter sourcePathTextField's name
+	 * @return the writable and readable path, but if parameter sourceTextField's value is not a useful path then return null.
+	 */
+	private File getWitableAndReadablePathFromTextField(JTextField sourcePathTextField, String sourcePathTextFieldName) {
+		String sourcePathString = sourcePathTextField.getText();
+		if ( null == sourcePathString) {
+			String errorMessage = String.format("parameter sourcePathTextField[%s]'s value is nul", sourcePathTextFieldName);
+			showMessageDialog(errorMessage);
+			sourcePathTextField.requestFocusInWindow();
+			return null;
+		}
+		sourcePathString = sourcePathString.trim();
+		sourcePathTextField.setText(sourcePathString);
+		
+		if (sourcePathString.equals("")) {
+			String errorMessage = String.format("parameter sourcePathTextField[%s]'s value is empty", sourcePathTextFieldName);
+			showMessageDialog(errorMessage);
+			sourcePathTextField.requestFocusInWindow();
+			return null;
+		}
+		
+		File sourcePath = new File(sourcePathString);
+		if (!sourcePath.exists()) {
+			String errorMessage = String.format("The path[%s][%s] doesn't exist", sourcePathTextFieldName, sourcePathString);
+			log.warn(errorMessage);
+			
+			showMessageDialog(errorMessage);
+			sourcePathTextField.requestFocusInWindow();
+			return null;
+		}
+		
+		if (!sourcePath.isDirectory()) {
+			String errorMessage = String.format("The path[%s][%s] is not a directory", sourcePathTextFieldName, sourcePathString);
+			log.warn(errorMessage);
+			
+			showMessageDialog(errorMessage);
+			sourcePathTextField.requestFocusInWindow();
+			return null;
+		}
+		
+		if (!sourcePath.canRead()) {
+			String errorMessage = String.format("The path[%s][%s] has a permission to read", sourcePathTextFieldName, sourcePathString);
+			log.warn(errorMessage);
+			
+			showMessageDialog(errorMessage);
+			sourcePathTextField.requestFocusInWindow();
+			return null;
+		}
+		
+		if (!sourcePath.canWrite()) {
+			String errorMessage = String.format("The path[%s][%s] has a permission to write", sourcePathTextFieldName, sourcePathString);
+			log.warn(errorMessage);
+			
+			showMessageDialog(errorMessage);
+			sourcePathTextField.requestFocusInWindow();
+			return null;
+		}
+		
+		
+		return sourcePath;
+	}
+	
+	private void postInitComponents() {
+		UIManager.put("FileChooser.readOnly", Boolean.TRUE); 
+		sinnoriInstalledPathChooser = new JFileChooser();
+		sinnoriInstalledPathChooser.setMultiSelectionEnabled(true);
+		sinnoriInstalledPathChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		PathSwingAction pathAction = new PathSwingAction(mainFrame, sinnoriInstalledPathChooser, sinnoriInstalledPathTextField);		
+		sinnoriInstalledPathButton.setAction(pathAction);
+		nextStepButton.setToolTipText(
+			"<html>update all project'config and overwrite all project'shells based on installed path</html>");
 	}
 	
 	public SinnoriInstalledPathPanel(Frame mainFrame, ScreenManagerIF screenManagerIF) {
 		this.mainFrame = mainFrame;
 		this.screenManagerIF = screenManagerIF;
-		initComponents();
-		
-		// FIXME!
-		//sinnoriInstalledPathTextField.setText("/home/madang01/gitsinnori/sinnori");
-		
-	}
+		initComponents();		
+	}	
 	
-	private void showMessageDialog(String message) {
-		JOptionPane.showMessageDialog(mainFrame, 
-				CommonStaticUtil.splitString(message,
-						CommonType.SPLIT_STRING_GUBUN.NEWLINE, 100));
-	}
-	
-	private void nextStepButtonActionPerformed(ActionEvent e) {
-		String sinnoriInstalledPathString = sinnoriInstalledPathTextField.getText();
-		if ( null == sinnoriInstalledPathString) {
-			showMessageDialog("Please insert Sinnori installed path string");
-			sinnoriInstalledPathTextField.requestFocusInWindow();
-			return;
-		}
-		sinnoriInstalledPathString = sinnoriInstalledPathString.trim();
-		sinnoriInstalledPathTextField.setText(sinnoriInstalledPathString);
-		
-		if (sinnoriInstalledPathString.equals("")) {
-			showMessageDialog("Please insert Sinnori installed path string");
-			sinnoriInstalledPathTextField.requestFocusInWindow();
-			return;
-		}
-		
-		File sinnoriInstalledPath = new File(sinnoriInstalledPathString);
-		if (!sinnoriInstalledPath.exists()) {
-			String errorMessage = String.format("The path[%s] that Sinnori installed doesn't exist", sinnoriInstalledPathString);
-			log.warn(errorMessage);
-			
-			showMessageDialog(errorMessage);
-			sinnoriInstalledPathTextField.requestFocusInWindow();
-			return;
-		}
-		
-		if (!sinnoriInstalledPath.isDirectory()) {
-			String errorMessage = String.format("The path[%s] that Sinnori installed is not a directory", sinnoriInstalledPathString);
-			log.warn(errorMessage);
-			
-			showMessageDialog(errorMessage);
-			sinnoriInstalledPathTextField.requestFocusInWindow();
-			return;
-		}
-		
-		if (!sinnoriInstalledPath.canRead()) {
-			String errorMessage = String.format("The path[%s] that Sinnori installed has a permission to read", sinnoriInstalledPathString);
-			log.warn(errorMessage);
-			
-			showMessageDialog(errorMessage);
-			sinnoriInstalledPathTextField.requestFocusInWindow();
-			return;
-		}
-		
-		if (!sinnoriInstalledPath.canWrite()) {
-			String errorMessage = String.format("The path[%s] that Sinnori installed has a permission to write", sinnoriInstalledPathString);
-			log.warn(errorMessage);
-			
-			showMessageDialog(errorMessage);
-			sinnoriInstalledPathTextField.requestFocusInWindow();
-			return;
-		}
-		
-		try {
-			sinnoriInstalledPathString = sinnoriInstalledPath.getCanonicalPath();
-		} catch (IOException e1) {
-			String errorMessage = String.format("fail to get the canonical pathname of the path[%s] that Sinnori installed", sinnoriInstalledPathString);
-			log.warn(errorMessage);
-			
-			showMessageDialog(errorMessage);
-			sinnoriInstalledPathTextField.requestFocusInWindow();
-			return;
-		}
-		
-		/*String projectBasePathString = BuildSystemPathSupporter.getProjectBasePathString(sinnoriInstalledPathString);
-		
-		File projectBasePath = new File(projectBasePathString);
-		if (! projectBasePath.exists()) {
-			String errorMessage = String.format("the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] doesn't exist", 
-					sinnoriInstalledPathString, projectBasePathString);
-			
-			log.warn(errorMessage);
-			
-			showMessageDialog(errorMessage);
-			sinnoriInstalledPathTextField.requestFocusInWindow();
-			return;
-		}
-		
-		if (!projectBasePath.isDirectory()) {
-			String errorMessage = String.format("the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] is not a direcotry", 
-					sinnoriInstalledPathString, projectBasePathString);
-			log.warn(errorMessage);
-			
-			showMessageDialog(errorMessage);
-			sinnoriInstalledPathTextField.requestFocusInWindow();
-			return;
-		}
-		
-		if (!projectBasePath.canRead()) {
-			String errorMessage = String.format("the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] doesn't hava permission to read", 
-					sinnoriInstalledPathString, projectBasePathString);
-			log.warn(errorMessage);
-			
-			showMessageDialog(errorMessage);
-			sinnoriInstalledPathTextField.requestFocusInWindow();
-			return;
-		}
-		
-		List<String> mainProjectNameList = new ArrayList<String>();
-		
-		for (File fileOfList : projectBasePath.listFiles()) {
-			if (fileOfList.isDirectory()) {
-				if (!fileOfList.canRead()) {
-					String errorMessage = String.format("the sinnori project base path[%s] doesn't hava permission to read", fileOfList.getAbsolutePath());
-					log.warn(errorMessage);
-					
-					showMessageDialog(errorMessage);
-					sinnoriInstalledPathTextField.requestFocusInWindow();
-					return;
-				}
-				
-				if (!fileOfList.canWrite()) {
-					String errorMessage = String.format("the sinnori project base path[%s] doesn't hava permission to write", fileOfList.getAbsolutePath());
-					log.warn(errorMessage);
-					
-					showMessageDialog(errorMessage);
-					sinnoriInstalledPathTextField.requestFocusInWindow();
-					return;
-				}
-				
-				mainProjectNameList.add(fileOfList.getName());
-			}
-		}
-		*/
-		sinnoriInstalledPathTextField.setText(sinnoriInstalledPathString);
-		
-		screenManagerIF.moveToAllMainProjectManagerScreen(sinnoriInstalledPathString);
-	}
-
-	private void prevStepButtonActionPerformed(ActionEvent e) {
-		screenManagerIF.moveToFirstScreen();
-	}
-
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
 		// Generated using JFormDesigner non-commercial license
@@ -207,14 +142,7 @@ public class SinnoriInstalledPathPanel extends JPanel {
 			"$ugap, [600px,pref]:grow, $ugap",
 			"2*($lgap, default), $lgap"));
 		/** Post-initialization Code start */
-		UIManager.put("FileChooser.readOnly", Boolean.TRUE); 
-		sinnoriInstalledPathChooser = new JFileChooser();
-		sinnoriInstalledPathChooser.setMultiSelectionEnabled(true);
-		sinnoriInstalledPathChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		PathSwingAction pathAction = new PathSwingAction(mainFrame, sinnoriInstalledPathChooser, sinnoriInstalledPathTextField);
-		sinnoriInstalledPathButton.setAction(pathAction);
-		nextStepButton.setToolTipText(
-			"<html>update all project'config and overwrite all project'shells based on installed path</html>");
+		postInitComponents();
 		/** Post-initialization Code end */
 
 		//======== sinnoriInstallPathLinePanel ========
@@ -230,6 +158,7 @@ public class SinnoriInstalledPathPanel extends JPanel {
 
 			//---- sinnoriInstalledPathButton ----
 			sinnoriInstalledPathButton.setText("path");
+			sinnoriInstalledPathButton.addActionListener(e -> sinnoriInstalledPathButtonActionPerformed(e));
 			sinnoriInstallPathLinePanel.add(sinnoriInstalledPathButton, CC.xy(5, 1));
 		}
 		add(sinnoriInstallPathLinePanel, CC.xy(2, 2));
@@ -264,4 +193,41 @@ public class SinnoriInstalledPathPanel extends JPanel {
 	private JButton prevStepButton;
 	private JButton nextStepButton;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
+	
+	
+	private void sinnoriInstalledPathButtonActionPerformed(ActionEvent e) {
+		File sinnoriInstalledPath = getWitableAndReadablePathFromTextField(sinnoriInstalledPathTextField, "Sinnori Installed Path");
+		if (null == sinnoriInstalledPath) {
+			return;
+		}
+		
+		sinnoriInstalledPathChooser.setCurrentDirectory(sinnoriInstalledPath);
+	}
+	
+	private void nextStepButtonActionPerformed(ActionEvent e) {
+		File sinnoriInstalledPath = getWitableAndReadablePathFromTextField(sinnoriInstalledPathTextField, "Sinnori Installed Path");
+		if (null == sinnoriInstalledPath) {
+			return;
+		}
+		
+		String sinnoriInstalledPathString= null;
+		try {
+			sinnoriInstalledPathString = sinnoriInstalledPath.getCanonicalPath();
+		} catch (IOException e1) {
+			String errorMessage = String.format("fail to get the canonical pathname of the path[%s] that Sinnori installed", sinnoriInstalledPathString);
+			log.warn(errorMessage);
+			
+			showMessageDialog(errorMessage);
+			sinnoriInstalledPathTextField.requestFocusInWindow();
+			return;
+		}
+		
+		sinnoriInstalledPathTextField.setText(sinnoriInstalledPathString);
+		
+		screenManagerIF.moveToAllMainProjectManagerScreen(sinnoriInstalledPathString);
+	}
+
+	private void prevStepButtonActionPerformed(ActionEvent e) {
+		screenManagerIF.moveToFirstScreen();
+	}
 }

@@ -154,13 +154,13 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 
-	/** message info path : <project path>/impl/message/info */
+	/** message info path : <project path>/resources/message_info */
 	public static String getMessageInfoPathString(String mainProjectName,
 			String sinnoriInstalledPathString) {
 		StringBuilder strBuilder = new StringBuilder(getProjectPathString(
 				mainProjectName, sinnoriInstalledPathString))
-				.append(File.separator).append("impl").append(File.separator)
-				.append("message").append(File.separator).append("info");
+				.append(File.separator).append("resources").append(File.separator)
+				.append("message_info");
 		return strBuilder.toString();
 	}
 
