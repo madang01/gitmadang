@@ -20,7 +20,7 @@ public class BuildFunctionCellValue extends JPanel {
 	private BuildFunctionManagerIF buildFunctionManager = null;;
 	private Component parentComponent = null;
 	
-	private JCheckBox ioCheckBox = null;
+	private JCheckBox ioCoreCheckBox = null;
 	private JCheckBox directionCheckBox = null;
 	private JButton sourceCreateButton = null;	
 	
@@ -28,19 +28,22 @@ public class BuildFunctionCellValue extends JPanel {
 	class SourceFileCreateButtonAction implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {			
-			boolean isSuccess = buildFunctionManager.saveIOFileSetOfSelectedMessageInfo(ioCheckBox.isSelected(), directionCheckBox.isSelected(), messageInfo);
+			boolean isSuccess = buildFunctionManager.saveIOFileSetOfSelectedMessageInfo(ioCoreCheckBox.isSelected(), directionCheckBox.isSelected(), messageInfo);
 			if (isSuccess) {
-				StringBuilder messageBuilder = new StringBuilder("메시지[");
+				StringBuilder messageBuilder = new StringBuilder("In the message id");
 				messageBuilder.append(messageInfo.getMessageID());
-				messageBuilder.append("] ");
-				if (ioCheckBox.isSelected()) {
-					messageBuilder.append("IO 소스 ");
+				messageBuilder.append("]'");
+				boolean whetherAndStringIsAppended = false;
+				if (ioCoreCheckBox.isSelected()) {
+					whetherAndStringIsAppended = true;
+					messageBuilder.append("io core file set build success");
 				}
 				if (directionCheckBox.isSelected()) {
-					messageBuilder.append("방향성 소스 ");
+					if (whetherAndStringIsAppended) {
+						messageBuilder.append(" and ");
+					}
+					messageBuilder.append("direction file set build success");
 				}
-				
-				messageBuilder.append("생성이 완료 되었습니다.");
 				
 				JOptionPane.showMessageDialog(parentComponent, messageBuilder.toString());
 			}			
@@ -53,11 +56,11 @@ public class BuildFunctionCellValue extends JPanel {
 		this.buildFunctionManager = sourceManager;
 		this.parentComponent = parentComponent;
 		
-		ioCheckBox = new JCheckBox("IO", true);
-		directionCheckBox = new JCheckBox("방향성", true);
-		sourceCreateButton = new JButton("생성");
+		ioCoreCheckBox = new JCheckBox("IO Core", true);
+		directionCheckBox = new JCheckBox("Direction", true);
+		sourceCreateButton = new JButton("Build");
 		
-		ioCheckBox.setOpaque(true);
+		ioCoreCheckBox.setOpaque(true);
 		directionCheckBox.setOpaque(true);
 		sourceCreateButton.setOpaque(true);
 		
@@ -65,7 +68,7 @@ public class BuildFunctionCellValue extends JPanel {
 		directionCheckBox.addActionListener(new DirectionCheckboxAction());*/
 		sourceCreateButton.addActionListener(new SourceFileCreateButtonAction());
 		
-		add(ioCheckBox);
+		add(ioCoreCheckBox);
 		add(directionCheckBox);
 		add(sourceCreateButton);
 	}
@@ -75,7 +78,7 @@ public class BuildFunctionCellValue extends JPanel {
 	}
 
 	public boolean isSelectedIO() {
-		return ioCheckBox.isSelected();
+		return ioCoreCheckBox.isSelected();
 	}
 
 	public boolean isSelectedDirection() {
@@ -97,7 +100,7 @@ public class BuildFunctionCellValue extends JPanel {
 		builder.append("SourceFileCellValue [messageID=");
 		builder.append(messageInfo.getMessageID());
 		builder.append(", isSelectedIO=");
-		builder.append(ioCheckBox.isSelected());
+		builder.append(ioCoreCheckBox.isSelected());
 		builder.append(", isSelectedDirection=");
 		builder.append(directionCheckBox.isSelected());
 		builder.append("]");

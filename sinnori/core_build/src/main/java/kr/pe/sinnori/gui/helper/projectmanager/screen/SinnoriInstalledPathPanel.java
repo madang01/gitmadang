@@ -48,7 +48,7 @@ public class SinnoriInstalledPathPanel extends JPanel {
 	/**
 	 * @param sourcePathTextField TextField whose value is path   
 	 * @param sourcePathTextFieldName parameter sourcePathTextField's name
-	 * @return the writable and readable path, but if parameter sourceTextField's value is not a useful path then return null.
+	 * @return the writable and readable path. but if parameter sourceTextField's value is not a valid path then return null.
 	 */
 	private File getWitableAndReadablePathFromTextField(JTextField sourcePathTextField, String sourcePathTextFieldName) {
 		String sourcePathString = sourcePathTextField.getText();
@@ -112,7 +112,7 @@ public class SinnoriInstalledPathPanel extends JPanel {
 	private void postInitComponents() {
 		UIManager.put("FileChooser.readOnly", Boolean.TRUE); 
 		sinnoriInstalledPathChooser = new JFileChooser();
-		sinnoriInstalledPathChooser.setMultiSelectionEnabled(true);
+		sinnoriInstalledPathChooser.setMultiSelectionEnabled(false);
 		sinnoriInstalledPathChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		PathSwingAction pathAction = new PathSwingAction(mainFrame, sinnoriInstalledPathChooser, sinnoriInstalledPathTextField);		
 		sinnoriInstalledPathButton.setAction(pathAction);
@@ -196,7 +196,7 @@ public class SinnoriInstalledPathPanel extends JPanel {
 	
 	
 	private void sinnoriInstalledPathButtonActionPerformed(ActionEvent e) {
-		File sinnoriInstalledPath = getWitableAndReadablePathFromTextField(sinnoriInstalledPathTextField, "Sinnori Installed Path");
+		File sinnoriInstalledPath = getWitableAndReadablePathFromTextField(sinnoriInstalledPathTextField, "the Sinnori installed path");
 		if (null == sinnoriInstalledPath) {
 			return;
 		}
@@ -205,7 +205,7 @@ public class SinnoriInstalledPathPanel extends JPanel {
 	}
 	
 	private void nextStepButtonActionPerformed(ActionEvent e) {
-		File sinnoriInstalledPath = getWitableAndReadablePathFromTextField(sinnoriInstalledPathTextField, "Sinnori Installed Path");
+		File sinnoriInstalledPath = getWitableAndReadablePathFromTextField(sinnoriInstalledPathTextField, "the Sinnori installed path");
 		if (null == sinnoriInstalledPath) {
 			return;
 		}
@@ -214,7 +214,7 @@ public class SinnoriInstalledPathPanel extends JPanel {
 		try {
 			sinnoriInstalledPathString = sinnoriInstalledPath.getCanonicalPath();
 		} catch (IOException e1) {
-			String errorMessage = String.format("fail to get the canonical pathname of the path[%s] that Sinnori installed", sinnoriInstalledPathString);
+			String errorMessage = String.format("fail to get the canonical pathname of the Sinnori installed path[%s]", sinnoriInstalledPathString);
 			log.warn(errorMessage);
 			
 			showMessageDialog(errorMessage);

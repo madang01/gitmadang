@@ -45,8 +45,8 @@ new FormModel {
 						} ) {
 							name: "messageInfoFilePathPanel"
 							add( new FormComponent( "javax.swing.JLabel" ) {
-								name: "messageInfoFilePathLabel"
-								"text": "Message info file path"
+								name: "messageInfoPathLabel"
+								"text": "Message information path"
 							}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 								"gridX": 1
 								"gridY": 1
@@ -88,7 +88,6 @@ new FormModel {
 							} )
 							add( new FormComponent( "javax.swing.JTextField" ) {
 								name: "firstPathSavingIOFileSetTextField"
-								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "firstPathSavingIOFileSetTextFieldActionPerformed", true ) )
 							}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 								"gridX": 5
 								"gridY": 1
@@ -96,6 +95,7 @@ new FormModel {
 							add( new FormComponent( "javax.swing.JButton" ) {
 								name: "firstPathSavingIOFileSetButton"
 								"text": "Path"
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "firstPathSavingIOFileSetButtonActionPerformed", true ) )
 							}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 								"gridX": 7
 								"gridY": 1
@@ -124,7 +124,6 @@ new FormModel {
 							} )
 							add( new FormComponent( "javax.swing.JTextField" ) {
 								name: "secondPathSavingIOFileSetTextField"
-								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "secondPathSavingIOFileSetTextFieldActionPerformed", true ) )
 							}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 								"gridX": 5
 								"gridY": 1
@@ -132,6 +131,7 @@ new FormModel {
 							add( new FormComponent( "javax.swing.JButton" ) {
 								name: "secondPathSavingIOFileSetButton"
 								"text": "Path"
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "secondPathSavingIOFileSetButtonActionPerformed", true ) )
 							}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 								"gridX": 7
 								"gridY": 1
@@ -300,6 +300,7 @@ new FormModel {
 									add( null )
 								} )
 								"fillsViewportHeight": true
+								"selectionMode": 0
 							} )
 						}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 							"gridX": 2
