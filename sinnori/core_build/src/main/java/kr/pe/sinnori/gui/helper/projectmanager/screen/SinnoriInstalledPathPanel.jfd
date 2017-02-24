@@ -8,9 +8,6 @@ new FormModel {
 			"$rowSpecs": "linegap, default, linegap, default, linegap"
 		} ) {
 			name: "this"
-			auxiliary() {
-				"JavaCodeGenerator.postInitCode": "/** Post-initialization Code start */\npostInitComponents();\n/** Post-initialization Code end */"
-			}
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "78dlu, labelcompgap, max(pref;156dlu):grow, labelcompgap, default"
 				"$rowSpecs": "default"

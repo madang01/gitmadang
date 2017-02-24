@@ -3,25 +3,11 @@ JFDML JFormDesigner: "5.2.5.0.333" Java: "1.8.0_121" encoding: "UTF-8"
 new FormModel {
 	contentType: "form/swing"
 	root: new FormRoot {
-		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-			"$columnSpecs": "relgap, growbutton, relgap"
-			"$rowSpecs": "linegap, default:grow, narrowlinegap, unrelgap"
-		} ) {
+		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class javax.swing.BoxLayout ) ) {
 			name: "this"
 			auxiliary() {
 				"JavaCodeGenerator.variableGetter": true
 			}
-			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
-				"axis": 0
-			} ) {
-				name: "mainPanel"
-				auxiliary() {
-					"JavaCodeGenerator.postInitCode": "/** Post-init Code Start */\npostInitComponets();\n/** Post-init Code End */"
-				}
-			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 2
-				"gridY": 2
-			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
 			"size": new java.awt.Dimension( 580, 210 )

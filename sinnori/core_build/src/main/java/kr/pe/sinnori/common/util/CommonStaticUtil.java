@@ -1,9 +1,18 @@
 package kr.pe.sinnori.common.util;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
+import kr.pe.sinnori.common.etc.CommonType.READ_WRITE_MODE;
 
 
 public abstract class CommonStaticUtil {	
@@ -27,6 +36,14 @@ public abstract class CommonStaticUtil {
 	}
 	
 	public static String getFilePathStringFromResourcePathAndRelativePathOfFile(String resourcesPathString, String relativePath) {
+		if (null == resourcesPathString) {
+			throw new IllegalArgumentException("the paramter resourcesPathString is null");
+		}
+		
+		if (null == relativePath) {
+			throw new IllegalArgumentException("the paramter relativePath is null");
+		}
+		
 		String realResourceFilePathString = null;
 		
 		String headSeparator = null;
@@ -68,8 +85,7 @@ public abstract class CommonStaticUtil {
 		
 		if (null == lineSeparatorGubun) {
 			throw new IllegalArgumentException("the paramter lineSeparatorGubun is null");
-		}
-		
+		}		
 		
 		if (wantedColumnSize <= 0) {
 			throw new IllegalArgumentException("the paramter wantedColumnSize is less or equals to zero");
@@ -94,9 +110,122 @@ public abstract class CommonStaticUtil {
 	}
 	
 	public static String getMultiLineToolTip(String message, int colSize) {
+		if (null == message) {
+			throw new IllegalArgumentException("the parameter 'message' is null");
+		}
+		
 		String tooltip = new StringBuilder("<html>")
 		.append(CommonStaticUtil.splitString(message, CommonType.LINE_SEPARATOR_GUBUN.BR, colSize))
 		.append("</html>").toString();
 		return tooltip;
+	}
+	
+	public static void copyTransferToFile(File sourceFile, File targetFile) throws IOException {
+		if (null == sourceFile) {
+			throw new IllegalArgumentException("the parameter 'sourceFile' is null");
+		}
+		
+		if (null == targetFile) {
+			throw new IllegalArgumentException("the parameter 'targetFile' is null");
+		}
+		
+		
+		FileInputStream fis = null;
+		FileOutputStream fos = null;
+
+		try {
+			fis = new FileInputStream(sourceFile);
+			fos = new FileOutputStream(targetFile);
+
+			FileChannel souceFileChannel = fis.getChannel();
+			FileChannel targetFileChannel = fos.getChannel();
+
+			souceFileChannel.transferTo(0, souceFileChannel.size(), targetFileChannel);
+		} finally {
+			try {
+				if (null != fis)
+					fis.close();
+			} catch (Exception e) {
+				// log.warn("fail to close source file[" + sourceFile.getAbsolutePath() + "] input stream", e);
+			}
+			try {
+				if (null != fos)
+					fos.close();
+			} catch (Exception e) {
+				Logger log = LoggerFactory.getLogger(CommonStaticUtil.class);
+				log.warn("fail to close the file[{}] output stream", targetFile.getAbsolutePath());
+			}
+		}
+	}
+	
+	public static File getValidPath(String sourcePathString, READ_WRITE_MODE	readWriteMode) throws RuntimeException {
+		if (null == sourcePathString) {
+			throw new IllegalArgumentException("the parameter 'sourcePathString' is null");
+		}
+		
+		File sourcePath = new File(sourcePathString);
+		if (!sourcePath.exists()) {
+			String errorMessage = String.format("The path[%s] doesn't exist",  sourcePathString);
+			throw new RuntimeException(errorMessage);
+		}
+
+		if (!sourcePath.isDirectory()) {
+			String errorMessage = String.format("The path[%s] is not a directory", 
+					sourcePathString);
+			throw new RuntimeException(errorMessage);
+		}
+
+		if (!sourcePath.canRead()) {
+			String errorMessage = String.format("The path[%s] has a permission to read", 
+					sourcePathString);
+			throw new RuntimeException(errorMessage);
+		}
+
+		if (!sourcePath.canWrite()) {
+			String errorMessage = String.format("The path[%s] has a permission to write", 
+					sourcePathString);
+			throw new RuntimeException(errorMessage);
+		}
+
+		return sourcePath;
+	}
+	
+	
+	public static void saveFileWithOverwriting( File targetFile, String contents, Charset targetCharset) throws IOException {		
+		if (null == targetFile) {
+			throw new IllegalArgumentException("the parameter 'targetFile' is null");
+		}
+		if (null == contents) {
+			throw new IllegalArgumentException("the parameter 'contents' is null");
+		}
+		if (null == targetCharset) {
+			throw new IllegalArgumentException("the parameter 'targetCharset' is null");
+		}
+		
+		if (!targetFile.exists()) {
+			targetFile.createNewFile();
+		}
+		
+
+		if (!targetFile.canWrite()) {
+			String errorMessage = String.format("the file[%s] can not be written", targetFile.getAbsolutePath());
+			throw new IOException(errorMessage);
+		}
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(targetFile);
+
+			fos.write(contents.getBytes(targetCharset));
+		} finally {
+			try {
+				if (null != fos)
+					fos.close();
+			} catch (IOException e) {
+				// log.warn("fail to close the file[{}][{}] output stream", fileNickname, targetFile.getAbsolutePath());
+				// e.printStackTrace();
+				Logger log = LoggerFactory.getLogger(CommonStaticUtil.class);
+				log.warn("fail to close the file[{}] output stream", targetFile.getAbsolutePath());
+			}
+		}
 	}
 }

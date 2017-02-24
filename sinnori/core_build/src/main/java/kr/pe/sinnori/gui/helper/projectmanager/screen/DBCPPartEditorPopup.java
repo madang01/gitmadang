@@ -8,7 +8,6 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -52,72 +51,6 @@ public class DBCPPartEditorPopup extends JDialog {
 	private ConfigurationPartTableModel dbcpPartTableModel;
 	private SequencedProperties commonPartSequencedProperties = null;
 	
-	public DBCPPartEditorPopup(Frame owner,
-			String mainProjectName, 
-			String selectedDBCPName,
-			ConfigurationPartTableModel dbcpPartTableModel,
-			int tableModelIndexOfItemHavingBadValue,
-			String itemKeyHavingBadValue, 
-			SequencedProperties commonPartSequencedProperties) {
-		super(owner);
-		
-		if (null == mainProjectName) {
-			throw new IllegalArgumentException("the paramter mainProjectName is null");
-		}
-		if (null == selectedDBCPName) {
-			throw new IllegalArgumentException("the paramter selectedDBCPName is null");
-		}
-		if (null == dbcpPartTableModel) {
-			throw new IllegalArgumentException("the paramter dbcpPartTableModel is null");
-		}
-		
-		if (tableModelIndexOfItemHavingBadValue >= 0) {
-			int maxRow = dbcpPartTableModel.getRowCount();
-			if (tableModelIndexOfItemHavingBadValue >= maxRow) {
-				String errorMessage = new StringBuilder("the parameter tableModelIndexOfItemHavingBadValue[")
-				.append(tableModelIndexOfItemHavingBadValue).append("] is greater than or equals to max row[")
-				.append(maxRow).append(" of the variabe dbcpPartTableModel[")
-				.append(selectedDBCPName).append("]").toString();
-				throw new IllegalArgumentException(errorMessage);
-			}
-			
-			if (null == itemKeyHavingBadValue) {
-				throw new IllegalArgumentException(
-		"Any dbcp part item value is not valid but the paramter itemKeyHavingBadValue is null");
-			}
-		}
-		
-		if (null == commonPartSequencedProperties) {
-			throw new IllegalArgumentException("the paramter commonPartSequencedProperties is null");
-		}
-		
-		this.mainProjectName = mainProjectName;
-		this.selectedDBCPName = selectedDBCPName;
-		this.dbcpPartTableModel = dbcpPartTableModel;
-		this.commonPartSequencedProperties = commonPartSequencedProperties;
-		
-		initComponents();		
-		
-		mainProjectNameValueLabel.setText(mainProjectName);
-		dbcpNameValueLabel.setText(selectedDBCPName);
-		dbcpPartTable.setModel(dbcpPartTableModel);
-		
-		dbcpPartTable.getColumnModel().getColumn(0).setCellRenderer(new ItemKeyRenderer());
-		
-		dbcpPartTable.getColumnModel().getColumn(1).setResizable(false);
-		dbcpPartTable.getColumnModel().getColumn(1).setPreferredWidth(250);
-				
-		dbcpPartTable.getColumnModel().getColumn(1).setCellRenderer(new ItemValueRenderer());
-		dbcpPartTable.getColumnModel().getColumn(1).setCellEditor(new ItemValueEditor(new JCheckBox()));
-		dbcpPartTable.setRowHeight(38);
-		dbcpPartScrollPane.repaint();
-		
-		if (tableModelIndexOfItemHavingBadValue >= 0) {			
-			dbcpPartTable.changeSelection(tableModelIndexOfItemHavingBadValue, 1, false, false);
-			dbcpPartTable.editCellAt(tableModelIndexOfItemHavingBadValue, 1);
-		}
-	}
-
 	private void showMessageDialog(String message) {
 		JOptionPane.showMessageDialog(this, 
 				CommonStaticUtil.splitString(message, 
@@ -190,6 +123,77 @@ public class DBCPPartEditorPopup extends JDialog {
 		
 		this.dispose();
 	}
+	
+	public DBCPPartEditorPopup(Frame owner,
+			String mainProjectName, 
+			String selectedDBCPName,
+			ConfigurationPartTableModel dbcpPartTableModel,
+			int tableModelIndexOfItemHavingBadValue,
+			String itemKeyHavingBadValue, 
+			SequencedProperties commonPartSequencedProperties) {
+		super(owner);
+		
+		if (null == mainProjectName) {
+			throw new IllegalArgumentException("the paramter mainProjectName is null");
+		}
+		if (null == selectedDBCPName) {
+			throw new IllegalArgumentException("the paramter selectedDBCPName is null");
+		}
+		if (null == dbcpPartTableModel) {
+			throw new IllegalArgumentException("the paramter dbcpPartTableModel is null");
+		}
+		
+		if (tableModelIndexOfItemHavingBadValue >= 0) {
+			int maxRow = dbcpPartTableModel.getRowCount();
+			if (tableModelIndexOfItemHavingBadValue >= maxRow) {
+				String errorMessage = new StringBuilder("the parameter tableModelIndexOfItemHavingBadValue[")
+				.append(tableModelIndexOfItemHavingBadValue).append("] is greater than or equals to max row[")
+				.append(maxRow).append(" of the variabe dbcpPartTableModel[")
+				.append(selectedDBCPName).append("]").toString();
+				throw new IllegalArgumentException(errorMessage);
+			}
+			
+			if (null == itemKeyHavingBadValue) {
+				throw new IllegalArgumentException(
+		"Any dbcp part item value is not valid but the paramter itemKeyHavingBadValue is null");
+			}
+		}
+		
+		if (null == commonPartSequencedProperties) {
+			throw new IllegalArgumentException("the paramter commonPartSequencedProperties is null");
+		}
+		
+		this.mainProjectName = mainProjectName;
+		this.selectedDBCPName = selectedDBCPName;
+		this.dbcpPartTableModel = dbcpPartTableModel;
+		this.commonPartSequencedProperties = commonPartSequencedProperties;
+		
+		initComponents();		
+		
+		postInitComponents(tableModelIndexOfItemHavingBadValue);
+	}
+
+	private void postInitComponents(int tableModelIndexOfItemHavingBadValue) {		
+		mainProjectNameValueLabel.setText(mainProjectName);
+		dbcpNameValueLabel.setText(selectedDBCPName);
+		dbcpPartTable.setModel(dbcpPartTableModel);
+		
+		dbcpPartTable.getColumnModel().getColumn(0).setCellRenderer(new ItemKeyRenderer());
+		
+		dbcpPartTable.getColumnModel().getColumn(1).setResizable(false);
+		dbcpPartTable.getColumnModel().getColumn(1).setPreferredWidth(250);
+				
+		dbcpPartTable.getColumnModel().getColumn(1).setCellRenderer(new ItemValueRenderer());
+		dbcpPartTable.getColumnModel().getColumn(1).setCellEditor(new ItemValueEditor(new JCheckBox()));
+		dbcpPartTable.setRowHeight(38);
+		dbcpPartScrollPane.repaint();
+		
+		if (tableModelIndexOfItemHavingBadValue >= 0) {			
+			dbcpPartTable.changeSelection(tableModelIndexOfItemHavingBadValue, 1, false, false);
+			dbcpPartTable.editCellAt(tableModelIndexOfItemHavingBadValue, 1);
+		}
+	}
+	
 
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
@@ -211,9 +215,6 @@ public class DBCPPartEditorPopup extends JDialog {
 		//======== this ========
 		Container contentPane = getContentPane();
 		contentPane.setLayout(new BorderLayout());
-		/** Post Initialization code start */
-		dbcpNameValueLabel.setText(selectedDBCPName);
-		/** Post Initialization code end */
 
 		//======== dialogPane ========
 		{
@@ -304,12 +305,7 @@ public class DBCPPartEditorPopup extends JDialog {
 
 				//---- okButton ----
 				okButton.setText("Close");
-				okButton.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						okButtonActionPerformed(e);
-					}
-				});
+				okButton.addActionListener(e -> okButtonActionPerformed(e));
 				buttonBar.add(okButton, CC.xy(2, 1));
 			}
 			dialogPane.add(buttonBar, BorderLayout.SOUTH);

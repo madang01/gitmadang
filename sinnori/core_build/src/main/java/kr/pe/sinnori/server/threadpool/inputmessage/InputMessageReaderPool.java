@@ -143,6 +143,6 @@ public class InputMessageReaderPool extends AbstractThreadPool implements
 				minHandler = handler;
 			}
 		}
-		minHandler.addClient(sc); // 마지막으로 ReqeustHandler에 등록
+		minHandler.addNewSocketChannelToRegisterWithReadOnlySelector(sc); // 마지막으로 ReqeustHandler에 등록
 	}
 }

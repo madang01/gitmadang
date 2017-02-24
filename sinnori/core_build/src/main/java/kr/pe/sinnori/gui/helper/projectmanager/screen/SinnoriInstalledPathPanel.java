@@ -123,7 +123,9 @@ public class SinnoriInstalledPathPanel extends JPanel {
 	public SinnoriInstalledPathPanel(Frame mainFrame, ScreenManagerIF screenManagerIF) {
 		this.mainFrame = mainFrame;
 		this.screenManagerIF = screenManagerIF;
-		initComponents();		
+		initComponents();
+		
+		postInitComponents();
 	}	
 	
 	private void initComponents() {
@@ -141,9 +143,6 @@ public class SinnoriInstalledPathPanel extends JPanel {
 		setLayout(new FormLayout(
 			"$ugap, [600px,pref]:grow, $ugap",
 			"2*($lgap, default), $lgap"));
-		/** Post-initialization Code start */
-		postInitComponents();
-		/** Post-initialization Code end */
 
 		//======== sinnoriInstallPathLinePanel ========
 		{

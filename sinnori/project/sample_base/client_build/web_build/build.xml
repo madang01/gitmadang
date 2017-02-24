@@ -1,6 +1,6 @@
 <project name="sample_base_webclient" default="compile.webclass.only" basedir=".">
 	<!-- set global properties for this build -->
-	<property name="dir.src" location="src" />
+	<property name="dir.src" location="src/main/java" />
 	<property name="dir.build" location="build" />
 	<property name="dir.dist" location="dist" />
 	<property name="dir.corelib" location="corelib" />

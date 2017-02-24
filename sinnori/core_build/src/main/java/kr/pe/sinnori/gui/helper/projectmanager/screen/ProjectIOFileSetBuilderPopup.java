@@ -11,12 +11,7 @@ import java.awt.Frame;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
-import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
@@ -33,6 +28,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.ProgressMonitor;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
@@ -47,6 +43,7 @@ import com.jgoodies.forms.layout.FormLayout;
 import kr.pe.sinnori.common.config.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
+import kr.pe.sinnori.common.etc.CommonType.READ_WRITE_MODE;
 import kr.pe.sinnori.common.exception.MessageInfoSAXParserException;
 import kr.pe.sinnori.common.message.builder.IOFileSetContentsBuilderManager;
 import kr.pe.sinnori.common.message.builder.info.MessageInfo;
@@ -93,6 +90,44 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 		ALL, SEARCH
 	};
 
+	private void postInitComponents() {
+
+		sinnoriInstalledPathTextField.setText(sinnoriInstalledPathString);
+		mainProjectNameTextField.setText(mainProjectName);
+		messageInfoPathTextField.setText(
+				BuildSystemPathSupporter.getMessageInfoPathString(mainProjectName, sinnoriInstalledPathString));
+
+		otherMainProjectComboBox.setEnabled(false);
+
+		for (String otherMainProjectName : otherMainProjectNameList) {
+			otherMainProjectComboBox.addItem(otherMainProjectName);
+		}
+
+		// readAllMessageInfo();
+		messageInfoTable.setRowSelectionAllowed(false);
+		messageInfoTable.setFillsViewportHeight(true);
+		// messageInfoTable.setPreferredScrollableViewportSize(new
+		// Dimension(800, 300));
+		messageInfoTable.setAutoCreateRowSorter(true);
+		// messageInfoTable.setRowHeight(38);
+		// messageInfoTable.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+		// messageInfoTable.setMaximumSize(new Dimension(700, 600));
+
+	}
+
+	public ProjectIOFileSetBuilderPopup(Frame ownerFrame, String sinnoriInstalledPathString, String mainProjectName,
+			ArrayList<String> otherMainProjectNameList) {
+		super(ownerFrame);
+		this.ownerFrame = ownerFrame;
+		this.sinnoriInstalledPathString = sinnoriInstalledPathString;
+		this.mainProjectName = mainProjectName;
+		this.otherMainProjectNameList = otherMainProjectNameList;
+
+		initComponents();
+
+		postInitComponents();
+	}
+
 	private void showMessageDialog(String message) {
 		JOptionPane.showMessageDialog(ownerFrame,
 				CommonStaticUtil.splitString(message, CommonType.LINE_SEPARATOR_GUBUN.NEWLINE, 100));
@@ -106,18 +141,24 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 		MessageInfoListSwingWorker allMessageInfoTask = new MessageInfoListSwingWorker(searchMode);
 		// task.addPropertyChangeListener(mainFrame);
 		allMessageInfoTask.execute();
+
 		ArrayList<MessageInfo> messageInfoList = null;
 		try {
 			messageInfoList = allMessageInfoTask.get();
-
 		} catch (InterruptedException e) {
 			log.warn("InterruptedException", e);
 			showMessageDialog(e.toString());
+			createEmptyTable();
+			messageInfoPathTextField.requestFocusInWindow();
 			return;
 		} catch (ExecutionException e) {
 			log.warn("ExecutionException", e);
 			showMessageDialog(e.toString());
+			createEmptyTable();
+			messageInfoPathTextField.requestFocusInWindow();
 			return;
+		} finally {
+			setCursor(oldCursor);
 		}
 
 		Object values[][] = new Object[messageInfoList.size()][titles.length];
@@ -147,7 +188,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 		}
 
 		createTable(values);
-		setCursor(oldCursor);
+
 	}
 
 	private void createEmptyTable() {
@@ -205,79 +246,41 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 		messageInfoScrollPane.repaint();
 	}
 
-	private File getWritablePathFile(String pathText) throws FileNotFoundException, AccessDeniedException {
-		java.io.File sourcePath = new java.io.File(pathText);
-		if (!sourcePath.exists()) {
-			throw new FileNotFoundException();
+	/**
+	 * return the valid path
+	 * 
+	 * @param sourcePathTextField
+	 *            the parameter sourcePathTextField is TextField component whose
+	 *            value is path
+	 * @param readWriteMode
+	 *            read/write mode
+	 * @return the valid path
+	 * @throws RuntimeException
+	 *             if the file is not a valid path. then throw it
+	 */
+	private File getWitableAndReadablePathFromTextField(JTextField sourcePathTextField, READ_WRITE_MODE readWriteMode)
+			throws RuntimeException {
+		String sourcePathString = sourcePathTextField.getText();
+		if (null == sourcePathString) {
+			String errorMessage = String.format("parameter sourcePathTextField[%s]'s value is nul",
+					sourcePathTextField.getName());
+			throw new RuntimeException(errorMessage);
 		}
+		sourcePathString = sourcePathString.trim();
+		sourcePathTextField.setText(sourcePathString);
 
-		if (!sourcePath.canWrite()) {
-			throw new AccessDeniedException(pathText, null, "not writable path");
+		File sourcePath = null;
+		try {
+			sourcePath = CommonStaticUtil.getValidPath(sourcePathString, readWriteMode);
+		} catch (RuntimeException e) {
+			String errorMessage = e.toString();
+			throw new RuntimeException(String.format("TextField[%s] is not a valid path::%s",
+					sourcePathTextField.getName(), errorMessage));
 		}
 
 		return sourcePath;
 	}
 
-	private void copyTransferToFile(File sourceFile, File targetFile) throws IOException {
-		FileInputStream fis = null;
-		FileOutputStream fos = null;
-
-		try {
-			fis = new FileInputStream(sourceFile);
-			fos = new FileOutputStream(targetFile);
-
-			FileChannel souceFileChannel = fis.getChannel();
-			FileChannel targetFileChannel = fos.getChannel();
-
-			souceFileChannel.transferTo(0, souceFileChannel.size(), targetFileChannel);
-		} finally {
-			try {
-				if (null != fis)
-					fis.close();
-			} catch (Exception e) {
-				log.warn("fail to close source file[" + sourceFile.getAbsolutePath() + "] input stream", e);
-			}
-			try {
-				if (null != fos)
-					fos.close();
-			} catch (Exception e) {
-				log.warn("fail to close target file[" + sourceFile.getAbsolutePath() + "] output stream", e);
-			}
-		}
-	}
-
-	private void saveFile(String title, File targetFile, String contents) throws IOException {
-		if (null == title)
-			throw new IllegalArgumentException("the parameter 'title' is null");
-		if (null == targetFile)
-			throw new IllegalArgumentException("the parameter 'targetFile' is null");
-		if (null == contents)
-			throw new IllegalArgumentException("the parameter 'contents' is null");
-
-		if (!targetFile.exists()) {
-			targetFile.createNewFile();
-		}
-
-		if (!targetFile.canWrite()) {
-			String errorMessage = "the file can't be written";
-			throw new IOException(errorMessage);
-		}
-		FileOutputStream fos = null;
-		try {
-			fos = new FileOutputStream(targetFile);
-
-			fos.write(contents.getBytes(CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET));
-		} finally {
-			try {
-				if (null != fos)
-					fos.close();
-			} catch (IOException e) {
-				log.warn("fail to close the file[{}][{}] output stream", title, targetFile.getAbsolutePath());
-			}
-		}
-	}
-
-	
 	private boolean saveIOFileSetToTargetPath(ArrayList<File> listOfTargetPathSavingIOFileSet, String author,
 			boolean isSelectedIO, boolean isSelectedDirection, MessageInfo messageInfo) {
 
@@ -311,37 +314,43 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 				File messageDecoderFile = new File(
 						messageTargetPath.getAbsolutePath() + File.separator + messageID + "Decoder.java");
 
-				String title = null;
-				title = "the message class";
+				String fileNickname = null;
+				fileNickname = "the message class";
 				try {
-					saveFile(title, messageFile, ioFileSetContentsBuilderManager.getMessageSourceFileContents(messageID,
-							author, messageInfo));
+					CommonStaticUtil.saveFileWithOverwriting(messageFile, ioFileSetContentsBuilderManager.getMessageSourceFileContents(
+							messageID, author, messageInfo), CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 				} catch (IOException e) {
-					String errorMessage = String.format("fail to save file[%s][%s]::%s", title,
+					String errorMessage = String.format("fail to save file[%s][%s]::%s", fileNickname,
 							messageFile.getAbsolutePath(), e.toString());
 					log.warn(errorMessage, e);
 					showMessageDialog(errorMessage);
 					return false;
 				}
 
-				title = "the message encoder class";
+				fileNickname = "the message encoder class";
 				try {
-					saveFile(title, messageEncoderFile, ioFileSetContentsBuilderManager
-							.getEncoderSourceFileContents(messageID, author, messageInfo));
+					CommonStaticUtil
+							.saveFileWithOverwriting(
+									messageEncoderFile, ioFileSetContentsBuilderManager
+											.getEncoderSourceFileContents(messageID, author, messageInfo),
+									CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 				} catch (IOException e) {
-					String errorMessage = String.format("fail to save file[%s][%s]::%s", title,
+					String errorMessage = String.format("fail to save file[%s][%s]::%s", fileNickname,
 							messageEncoderFile.getAbsolutePath(), e.toString());
 					log.warn(errorMessage, e);
 					showMessageDialog(errorMessage);
 					return false;
 				}
 
-				title = "the message decoder class";
+				fileNickname = "the message decoder class";
 				try {
-					saveFile(title, messageDecoderFile, ioFileSetContentsBuilderManager
-							.getDecoderSourceFileContents(messageID, author, messageInfo));
+					CommonStaticUtil
+							.saveFileWithOverwriting(
+									messageDecoderFile, ioFileSetContentsBuilderManager
+											.getDecoderSourceFileContents(messageID, author, messageInfo),
+									CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 				} catch (IOException e) {
-					String errorMessage = String.format("fail to save file[%s][%s]::%s", title,
+					String errorMessage = String.format("fail to save file[%s][%s]::%s", fileNickname,
 							messageDecoderFile.getAbsolutePath(), e.toString());
 					log.warn(errorMessage, e);
 					showMessageDialog(errorMessage);
@@ -356,25 +365,29 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 				File messageClientCodecFile = new File(
 						messageTargetPath.getAbsolutePath() + File.separator + messageID + "ClientCodec.java");
 
-				String title = null;
-				title = "the server codec class";
+				String fileNickname = null;
+				fileNickname = "the server codec class";
 				try {
-					saveFile(title, messageServerCodecFile, ioFileSetContentsBuilderManager
-							.getServerCodecSourceFileContents(messageInfo.getDirection(), messageID, author));
+					CommonStaticUtil.saveFileWithOverwriting(
+							messageServerCodecFile, ioFileSetContentsBuilderManager
+									.getServerCodecSourceFileContents(messageInfo.getDirection(), messageID, author),
+							CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 				} catch (IOException e) {
-					String errorMessage = String.format("fail to save file[%s][%s]::%s", title,
+					String errorMessage = String.format("fail to save file[%s][%s]::%s", fileNickname,
 							messageServerCodecFile.getAbsolutePath(), e.toString());
 					log.warn(errorMessage, e);
 					showMessageDialog(errorMessage);
 					return false;
 				}
 
-				title = "the client codec class";
+				fileNickname = "the client codec class";
 				try {
-					saveFile(title, messageClientCodecFile, ioFileSetContentsBuilderManager
-							.getClientCodecSourceFileContents(messageInfo.getDirection(), messageID, author));
+					CommonStaticUtil.saveFileWithOverwriting(
+							messageClientCodecFile, ioFileSetContentsBuilderManager
+									.getClientCodecSourceFileContents(messageInfo.getDirection(), messageID, author),
+							CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 				} catch (IOException e) {
-					String errorMessage = String.format("fail to save file[%s][%s]::%s", title,
+					String errorMessage = String.format("fail to save file[%s][%s]::%s", fileNickname,
 							messageClientCodecFile.getAbsolutePath(), e.toString());
 					log.warn(errorMessage, e);
 					showMessageDialog(errorMessage);
@@ -389,65 +402,53 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 	private ArrayList<File> getListOfWritablePathSavingIOFileSet(String selectedMainProjectName) {
 		ArrayList<File> listOfPathSavingIOFileSet = new ArrayList<File>();
 
-		/*String selectedMainProjectName = null;
-		if (isOtherMainProjectCheckBox.isSelected()) {
-			if (otherMainProjectComboBox.getItemCount() <= 1) {
-				showMessageDialog("other project list empty!");
-				isOtherMainProjectCheckBox.requestFocusInWindow();
-				return null;
-			}
-			
-			if (0 == otherMainProjectComboBox.getSelectedIndex()) {
-				showMessageDialog("you need to select one of other project list");
-				isOtherMainProjectCheckBox.requestFocusInWindow();
-				return null;
-			}
-			
-			selectedMainProjectName = (String) otherMainProjectComboBox.getSelectedItem();
-		} else {
-			selectedMainProjectName = mainProjectName;
-		}*/
+		/*
+		 * String selectedMainProjectName = null; if
+		 * (isOtherMainProjectCheckBox.isSelected()) { if
+		 * (otherMainProjectComboBox.getItemCount() <= 1) {
+		 * showMessageDialog("other project list empty!");
+		 * isOtherMainProjectCheckBox.requestFocusInWindow(); return null; }
+		 * 
+		 * if (0 == otherMainProjectComboBox.getSelectedIndex()) {
+		 * showMessageDialog("you need to select one of other project list");
+		 * isOtherMainProjectCheckBox.requestFocusInWindow(); return null; }
+		 * 
+		 * selectedMainProjectName = (String)
+		 * otherMainProjectComboBox.getSelectedItem(); } else {
+		 * selectedMainProjectName = mainProjectName; }
+		 */
 
-		String serverBuildPathString = BuildSystemPathSupporter.getServerBuildPathString(selectedMainProjectName,
+		String serverIOSourcePathString = BuildSystemPathSupporter.getServerIOSourcePath(selectedMainProjectName,
 				selectedMainProjectName);
-		File serverBuildPath = null;
+		File serverIOSourcePath = null;
 		try {
-			serverBuildPath = getWritablePathFile(serverBuildPathString);
-			listOfPathSavingIOFileSet.add(serverBuildPath);
-		} catch (FileNotFoundException e) {
-			log.info("skip add the project[{}]'s server build path saving io file set because it doesn't exist",
-					selectedMainProjectName);
-		} catch (AccessDeniedException e) {
-			log.info("skip add the project[{}]'s server build path saving io file set because it is not writable",
-					selectedMainProjectName);
+			serverIOSourcePath = CommonStaticUtil.getValidPath(serverIOSourcePathString, READ_WRITE_MODE.ONLY_WRITE);
+			listOfPathSavingIOFileSet.add(serverIOSourcePath);
+		} catch (RuntimeException e) {
+			log.info("the project[{}] has no the valid server IO source path", selectedMainProjectName);
 		}
 
-		String appClientBuildPathString = BuildSystemPathSupporter.getAppClientBuildPathString(selectedMainProjectName,
+		String appClientIOSourcePathString = BuildSystemPathSupporter.getAppClientIOSourcePath(selectedMainProjectName,
 				selectedMainProjectName);
-		File appClientBuildPath = null;
+		File appClientIOSourcePath = null;
 		try {
-			appClientBuildPath = getWritablePathFile(appClientBuildPathString);
-			listOfPathSavingIOFileSet.add(appClientBuildPath);
-		} catch (FileNotFoundException e) {
-			log.info("skip add the project[{}]'s applicaton client build path saving io file set because it doesn't exist",
-					selectedMainProjectName);
-		} catch (AccessDeniedException e) {
-			log.info("skip add the project[{}]'s applicaton client build path saving io file set because it is not writable",
-					selectedMainProjectName);
+			appClientIOSourcePath = CommonStaticUtil.getValidPath(appClientIOSourcePathString,
+					READ_WRITE_MODE.ONLY_WRITE);
+
+			listOfPathSavingIOFileSet.add(appClientIOSourcePath);
+		} catch (RuntimeException e) {
+			log.info("the project[{}] has no the valid app-client IO source path", selectedMainProjectName);
 		}
 
-		String webClientBuildPathString = BuildSystemPathSupporter.getWebClientBuildPathString(selectedMainProjectName,
-				selectedMainProjectName);
-		File webClientBuildPath = null;
+		String webClientIOSourcePathString = BuildSystemPathSupporter
+				.getWebClientBuildPathString(selectedMainProjectName, selectedMainProjectName);
+		File webClientIOSourcePath = null;
 		try {
-			webClientBuildPath = getWritablePathFile(webClientBuildPathString);
-			listOfPathSavingIOFileSet.add(webClientBuildPath);
-		} catch (FileNotFoundException e) {
-			log.info("skip add the project[{}]'s web client build path saving io file set because it doesn't exist",
-					selectedMainProjectName);
-		} catch (AccessDeniedException e) {
-			log.info("skip add the project[{}]'s web client build path saving io file set because it is not writable",
-					selectedMainProjectName);
+			webClientIOSourcePath = CommonStaticUtil.getValidPath(webClientIOSourcePathString,
+					READ_WRITE_MODE.ONLY_WRITE);
+			listOfPathSavingIOFileSet.add(webClientIOSourcePath);
+		} catch (RuntimeException e) {
+			log.info("the project[{}] has no the valid web-client IO source path", selectedMainProjectName);
 		}
 
 		return listOfPathSavingIOFileSet;
@@ -462,70 +463,18 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 		}
 
 		@Override
-		public ArrayList<MessageInfo> doInBackground() {
+		public ArrayList<MessageInfo> doInBackground() throws RuntimeException {
 			ArrayList<MessageInfo> messageInfoList = new ArrayList<MessageInfo>();
-			ProgressMonitor progressMonitor = new ProgressMonitor(ownerFrame,
-					"Running a Task reading message info files", "", 0, 100);
 
-			String messgaeInfoPathText = messageInfoFilePathTextField.getText();
-			if (null == messgaeInfoPathText) {
-				String errorMessage = String.format("Please insert path of message info file(s)", messgaeInfoPathText);
-				log.warn(errorMessage);
-				showMessageDialog(errorMessage);
+			File messageInfoPath = getWitableAndReadablePathFromTextField(messageInfoPathTextField,
+					CommonType.READ_WRITE_MODE.ONLY_READ);
 
-				createEmptyTable();
-				messageInfoFilePathTextField.requestFocusInWindow();
-				return messageInfoList;
+			File messageInfoXMLFiles[] = messageInfoPath.listFiles(new XMLFileFilter());
+			if (0 == messageInfoXMLFiles.length) {
+				String errorMessage = String.format("there is no XML file in the message information path[%s]",
+						messageInfoPath.getAbsolutePath());
+				throw new RuntimeException(errorMessage);
 			}
-			messgaeInfoPathText = messgaeInfoPathText.trim();
-			if (messgaeInfoPathText.equals("")) {
-				messageInfoFilePathTextField.setText(messgaeInfoPathText);
-				String errorMessage = String.format("Please insert path of message info file(s) again",
-						messgaeInfoPathText);
-				log.warn(errorMessage);
-				showMessageDialog(errorMessage);
-
-				createEmptyTable();
-				messageInfoFilePathTextField.requestFocusInWindow();
-				return messageInfoList;
-			}
-
-			File messgaeInfoPath = new File(messgaeInfoPathText);
-			if (!messgaeInfoPath.exists()) {
-				String errorMessage = String.format("The message info file(s)'s path[%s] doesn't exist",
-						messgaeInfoPathText);
-				log.warn(errorMessage);
-				showMessageDialog(errorMessage);
-
-				createEmptyTable();
-				messageInfoFilePathTextField.requestFocusInWindow();
-				return messageInfoList;
-			}
-
-			if (!messgaeInfoPath.isDirectory()) {
-				String errorMessage = String.format("The message info file(s)'s path[%s] is not a directory",
-						messgaeInfoPath.getAbsolutePath());
-				log.warn(errorMessage);
-				showMessageDialog(errorMessage);
-
-				createEmptyTable();
-				messageInfoFilePathTextField.requestFocusInWindow();
-				return messageInfoList;
-			}
-
-			if (!messgaeInfoPath.canRead()) {
-				String errorMessage = String.format(
-						"Please check read permission of the message info file(s)'s path[%s]",
-						messgaeInfoPath.getAbsolutePath());
-				log.warn(errorMessage);
-				showMessageDialog(errorMessage);
-
-				createEmptyTable();
-				messageInfoFilePathTextField.requestFocusInWindow();
-				return messageInfoList;
-			}
-
-			File messageInfoXMLFiles[] = messgaeInfoPath.listFiles(new XMLFileFilter());
 
 			Arrays.sort(messageInfoXMLFiles, new FileLastModifiedComparator());
 
@@ -537,15 +486,12 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 
 				if (0 == fileNameSearchKeyword.length()) {
 					String errorMessage = "Please insert search keyword again";
-					log.warn(errorMessage);
-					showMessageDialog(errorMessage);
-
-					createEmptyTable();
-					fileNameSearchTextField.requestFocusInWindow();
-					return messageInfoList;
+					throw new RuntimeException(errorMessage);
 				}
-
 			}
+
+			ProgressMonitor progressMonitor = new ProgressMonitor(ownerFrame,
+					"Running a Task reading message info files", "0% process", 0, messageInfoXMLFiles.length);
 
 			for (int i = 0; i < messageInfoXMLFiles.length; i++) {
 				File messageInfoFile = messageInfoXMLFiles[i];
@@ -553,16 +499,14 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 				if (!messageInfoFile.isFile()) {
 					String errorMessage = String.format("warning :: not file , file name=[%s]",
 							messageInfoFile.getName());
-					log.warn(errorMessage);
-					showMessageDialog(errorMessage);
+					log.info(errorMessage);
 					continue;
 				}
 
 				if (!messageInfoFile.canRead()) {
 					String errorMessage = String.format("warning :: can't read, file name=[%s]",
 							messageInfoFile.getName());
-					log.warn(errorMessage);
-					showMessageDialog(errorMessage);
+					log.info(errorMessage);
 					continue;
 				}
 
@@ -571,8 +515,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 					messageInfoSAXParser = new MessageInfoSAXParser();
 				} catch (MessageInfoSAXParserException e) {
 					String errorMessage = e.toString();
-					log.warn(errorMessage);
-					showMessageDialog(errorMessage);
+					log.warn(errorMessage, e);
 					continue;
 				}
 				MessageInfo messageInfo = null;
@@ -580,8 +523,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 					messageInfo = messageInfoSAXParser.parse(messageInfoFile, true);
 				} catch (IllegalArgumentException | SAXException | IOException e) {
 					String errorMessage = e.toString();
-					log.warn(errorMessage);
-					showMessageDialog(errorMessage);
+					log.warn(errorMessage, e);
 					continue;
 				}
 				if (null != messageInfo) {
@@ -598,49 +540,156 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 					return messageInfoList;
 				}
 
-				progressMonitor.setNote(i + "/" + messageInfoXMLFiles.length);
-				progressMonitor.setProgress(i * 100 / messageInfoXMLFiles.length);
+				progressMonitor.setNote((i + 1) + "/" + messageInfoXMLFiles.length + " process");
+				progressMonitor.setProgress(i + 1);
 			}
 
 			return messageInfoList;
 		}
 	}
 
-	private void postInitComponents() {
+	@Override
+	public boolean saveIOFileSetOfSelectedMessageInfo(boolean isSelectedIO, boolean isSelectedDirection,
+			MessageInfo sourceMessageInfo) {
+		String writer = writerTextField.getText();
 
-		sinnoriInstalledPathTextField.setText(sinnoriInstalledPathString);
-		mainProjectNameTextField.setText(mainProjectName);
-		messageInfoFilePathTextField.setText(
-				BuildSystemPathSupporter.getMessageInfoPathString(mainProjectName, sinnoriInstalledPathString));
+		if (null == writer) {
+			writer = "";
+		} else {
+			writer = writer.trim();
+		}
+		writerTextField.setText(writer);
 
-		otherMainProjectComboBox.setEnabled(false);
-		// otherMainProjectComboBox.addItem("- select other main project -");
-
-		for (String otherMainProjectName : otherMainProjectNameList) {
-			otherMainProjectComboBox.addItem(otherMainProjectName);
+		if (writer.equals("")) {
+			showMessageDialog("Please insert writer");
+			writerTextField.requestFocusInWindow();
+			return false;
 		}
 
-		// readAllMessageInfo();
-		messageInfoTable.setRowSelectionAllowed(false);
-		messageInfoTable.setFillsViewportHeight(true);
-		// messageInfoTable.setPreferredScrollableViewportSize(new
-		// Dimension(800, 300));
-		messageInfoTable.setAutoCreateRowSorter(true);
-		// messageInfoTable.setRowHeight(38);
-		// messageInfoTable.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
-		// messageInfoTable.setMaximumSize(new Dimension(700, 600));
+		String messageInfoSourcePathString = BuildSystemPathSupporter.getMessageInfoPathString(mainProjectName,
+				sinnoriInstalledPathString);
 
+		File messageInfoSourcePath = new File(messageInfoSourcePathString);
+		if (messageInfoSourcePath.exists()) {
+			String errorMessage = String.format("source project[%s]'s message info path[%s] doesn't exist",
+					mainProjectName, messageInfoSourcePathString);
+			log.warn(errorMessage);
+			showMessageDialog(errorMessage);
+			return false;
+		}
+		if (messageInfoSourcePath.canRead()) {
+			String errorMessage = String.format("source project[%s]'s message info path[%s] can't be read",
+					mainProjectName, messageInfoSourcePathString);
+			log.warn(errorMessage);
+			showMessageDialog(errorMessage);
+			return false;
+		}
+
+		String selectedMainProjectName = mainProjectName;
+
+		if (isOtherMainProjectCheckBox.isSelected()) {
+			if (otherMainProjectComboBox.getItemCount() <= 1) {
+				showMessageDialog("other project list empty!");
+				isOtherMainProjectCheckBox.requestFocusInWindow();
+				return false;
+			}
+
+			if (0 == otherMainProjectComboBox.getSelectedIndex()) {
+				showMessageDialog("you need to select one of other project list");
+				isOtherMainProjectCheckBox.requestFocusInWindow();
+				return false;
+			}
+
+			String targetProjectName = selectedMainProjectName = (String) otherMainProjectComboBox.getSelectedItem();
+			String messageInfoTargetPathString = BuildSystemPathSupporter.getMessageInfoPathString(targetProjectName,
+					sinnoriInstalledPathString);
+
+			File targetMessageInfoXMLPath = new File(messageInfoTargetPathString);
+			if (targetMessageInfoXMLPath.exists()) {
+				String errorMessage = String.format("target project[%s]'s message info path[%s] doesn't exist",
+						targetProjectName, messageInfoTargetPathString);
+				log.warn(errorMessage);
+				showMessageDialog(errorMessage);
+				return false;
+			}
+			if (targetMessageInfoXMLPath.canWrite()) {
+				String errorMessage = String.format("target project[%s]'s message info path[%s] can't be written",
+						targetProjectName, messageInfoTargetPathString);
+				log.warn(errorMessage);
+				showMessageDialog(errorMessage);
+				return false;
+			}
+
+			File sourceMessageInfoXMLFIle = sourceMessageInfo.getMessageInfoXMLFile();
+			String sourceLastFileName = sourceMessageInfoXMLFIle.getName();
+			File targetMessageInfoXMLFile = new File(new StringBuilder().append(messageInfoTargetPathString)
+					.append(File.separator).append(sourceLastFileName).toString());
+
+			if (targetMessageInfoXMLFile.exists()) {
+				String confirmDialogTitle = "message info xml file copy";
+				String confirmDialogMessage = String.format(
+						"The target project[%s]'s message information XML file[%s] exist.\nDo you want to overwrite it with the soruce proejct[%s]'s message information XML File?",
+						targetProjectName, sourceMessageInfo.getMessageID(), mainProjectName);
+
+				int answer = JOptionPane.showConfirmDialog(ownerFrame, confirmDialogMessage, confirmDialogTitle,
+						JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+
+				if (answer != JOptionPane.OK_OPTION) {
+					log.info(
+							"The source project[{}]'s message information XML file[{}] was canceled overwriting on target project[{}]",
+							mainProjectName, sourceMessageInfo.getMessageID(), targetProjectName);
+
+					return false;
+				}
+			}
+
+			try {
+				CommonStaticUtil.copyTransferToFile(sourceMessageInfoXMLFIle, targetMessageInfoXMLFile);
+			} catch (IOException e1) {
+				String errorMessage = String.format("fail to copy souce file[%s] to target file[%s]",
+						sourceMessageInfoXMLFIle.getAbsolutePath(), targetMessageInfoXMLFile.getAbsolutePath());
+				log.warn(errorMessage, e1);
+				showMessageDialog(errorMessage);
+				return false;
+			}
+		}
+
+		ArrayList<File> listOfTargetPathSavingIOFileSet = getListOfWritablePathSavingIOFileSet(selectedMainProjectName);
+		if (0 == listOfTargetPathSavingIOFileSet.size()) {
+			String errorMessage = String.format("the selected project[%s] hasn't any build paths",
+					selectedMainProjectName);
+			showMessageDialog(errorMessage);
+
+			return false;
+		}
+
+		boolean resultSavingFile = saveIOFileSetToTargetPath(listOfTargetPathSavingIOFileSet, writer, isSelectedIO,
+				isSelectedDirection, sourceMessageInfo);
+
+		return resultSavingFile;
 	}
 
-	public ProjectIOFileSetBuilderPopup(Frame ownerFrame, String sinnoriInstalledPathString, String mainProjectName,
-			ArrayList<String> otherMainProjectNameList) {
-		super(ownerFrame);
-		this.ownerFrame = ownerFrame;
-		this.sinnoriInstalledPathString = sinnoriInstalledPathString;
-		this.mainProjectName = mainProjectName;
-		this.otherMainProjectNameList = otherMainProjectNameList;
+	@Override
+	public void updateRowOfMessageInfoTableAccordingToNewMessageInfoUpdate(int row, MessageInfo newMessageInfo) {
+		String directionStr = null;
+		if (newMessageInfo.getDirection() == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL) {
+			directionStr = "client <-> server";
+		} else if (newMessageInfo.getDirection() == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_CLIENT_TO_SERVER) {
+			directionStr = "client -> server";
+		} else if (newMessageInfo.getDirection() == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_SERVER_TO_CLINET) {
+			directionStr = "server -> client";
+		} else {
+			directionStr = "no direction";
+		}
+		messageInfoTableModel.setValueAt(directionStr, row, 1);
 
-		initComponents();
+		java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
+		messageInfoTableModel.setValueAt(sdf.format(newMessageInfo.getLastModified()), row, 2);
+
+		BuildFunctionCellValueForProject sourceFileCellValue = (BuildFunctionCellValueForProject) messageInfoTableModel
+				.getValueAt(row, 4);
+		sourceFileCellValue.setMessageInfo(newMessageInfo);
+		messageInfoScrollPane.repaint();
 	}
 
 	private void initComponents() {
@@ -654,9 +703,9 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 		mainProjectNamePanel = new JPanel();
 		mainProjectNameLabel = new JLabel();
 		mainProjectNameTextField = new JTextField();
-		messageInfoXMLPathPanel = new JPanel();
-		messageInfoXMLPathLabel = new JLabel();
-		messageInfoFilePathTextField = new JTextField();
+		messageInfoPathPanel = new JPanel();
+		messageInfoPathLabel = new JLabel();
+		messageInfoPathTextField = new JTextField();
 		targetPanel = new JPanel();
 		targetLabel = new JLabel();
 		isOtherMainProjectCheckBox = new JCheckBox();
@@ -679,9 +728,6 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 		setModal(true);
 		Container contentPane = getContentPane();
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.X_AXIS));
-		/** Post-initialization Code start */
-		postInitComponents();
-		/** Post-initialization Code end */
 
 		// ======== projectIOFileSetBuilderPanel ========
 		{
@@ -716,19 +762,19 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 			}
 			projectIOFileSetBuilderPanel.add(mainProjectNamePanel, CC.xy(2, 4));
 
-			// ======== messageInfoXMLPathPanel ========
+			// ======== messageInfoPathPanel ========
 			{
-				messageInfoXMLPathPanel.setLayout(new FormLayout("78dlu, $ugap, default:grow", "default"));
+				messageInfoPathPanel.setLayout(new FormLayout("78dlu, $ugap, default:grow", "default"));
 
-				// ---- messageInfoXMLPathLabel ----
-				messageInfoXMLPathLabel.setText("Message info xml path");
-				messageInfoXMLPathPanel.add(messageInfoXMLPathLabel, CC.xy(1, 1));
+				// ---- messageInfoPathLabel ----
+				messageInfoPathLabel.setText("Message info xml path");
+				messageInfoPathPanel.add(messageInfoPathLabel, CC.xy(1, 1));
 
-				// ---- messageInfoFilePathTextField ----
-				messageInfoFilePathTextField.setEditable(false);
-				messageInfoXMLPathPanel.add(messageInfoFilePathTextField, CC.xy(3, 1));
+				// ---- messageInfoPathTextField ----
+				messageInfoPathTextField.setEditable(false);
+				messageInfoPathPanel.add(messageInfoPathTextField, CC.xy(3, 1));
 			}
-			projectIOFileSetBuilderPanel.add(messageInfoXMLPathPanel, CC.xy(2, 6));
+			projectIOFileSetBuilderPanel.add(messageInfoPathPanel, CC.xy(2, 6));
 
 			// ======== targetPanel ========
 			{
@@ -740,10 +786,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 
 				// ---- isOtherMainProjectCheckBox ----
 				isOtherMainProjectCheckBox.setText("other project");
-				isOtherMainProjectCheckBox.addActionListener(e -> {
-					isOtherProjectCheckBoxActionPerformed(e);
-					isOtherProjectCheckBoxActionPerformed(e);
-				});
+				isOtherMainProjectCheckBox.addActionListener(e -> isOtherProjectCheckBoxActionPerformed(e));
 				targetPanel.add(isOtherMainProjectCheckBox, CC.xy(3, 1));
 
 				// ---- otherMainProjectComboBox ----
@@ -820,6 +863,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 					}
 				});
 				messageInfoTable.setFillsViewportHeight(true);
+				messageInfoTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 				messageInfoScrollPane.setViewportView(messageInfoTable);
 			}
 			projectIOFileSetBuilderPanel.add(messageInfoScrollPane, CC.xy(2, 18));
@@ -840,9 +884,9 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 	private JPanel mainProjectNamePanel;
 	private JLabel mainProjectNameLabel;
 	private JTextField mainProjectNameTextField;
-	private JPanel messageInfoXMLPathPanel;
-	private JLabel messageInfoXMLPathLabel;
-	private JTextField messageInfoFilePathTextField;
+	private JPanel messageInfoPathPanel;
+	private JLabel messageInfoPathLabel;
+	private JTextField messageInfoPathTextField;
 	private JPanel targetPanel;
 	private JLabel targetLabel;
 	private JCheckBox isOtherMainProjectCheckBox;
@@ -861,155 +905,6 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 	private JScrollPane messageInfoScrollPane;
 	private JTable messageInfoTable;
 	// JFormDesigner - End of variables declaration //GEN-END:variables
-
-	@Override
-	public boolean saveIOFileSetOfSelectedMessageInfo(boolean isSelectedIO, boolean isSelectedDirection, MessageInfo sourceMessageInfo) {
-		
-
-		String writer = writerTextField.getText();
-
-		if (null == writer) {
-			writer = "";
-		} else {
-			writer = writer.trim();
-		}
-		writerTextField.setText(writer);
-
-		if (writer.equals("")) {
-			showMessageDialog("Please insert writer");
-			writerTextField.requestFocusInWindow();
-			return false;
-		}
-		
-		String messageInfoSourcePathString = BuildSystemPathSupporter.getMessageInfoPathString(mainProjectName,
-				sinnoriInstalledPathString);
-		
-		File messageInfoSourcePath = new File(messageInfoSourcePathString);
-		if (messageInfoSourcePath.exists()) {
-			String errorMessage = String.format("source project[%s]'s message info path[%s] doesn't exist",
-					mainProjectName, messageInfoSourcePathString);
-			log.warn(errorMessage);
-			showMessageDialog(errorMessage);
-			return false;
-		}
-		if (messageInfoSourcePath.canRead()) {
-			String errorMessage = String.format("source project[%s]'s message info path[%s] can't be read",
-					mainProjectName, messageInfoSourcePathString);
-			log.warn(errorMessage);
-			showMessageDialog(errorMessage);
-			return false;
-		}
-		
-		String selectedMainProjectName = mainProjectName;
-		
-		if (isOtherMainProjectCheckBox.isSelected()) {
-			if (otherMainProjectComboBox.getItemCount() <= 1) {
-				showMessageDialog("other project list empty!");
-				isOtherMainProjectCheckBox.requestFocusInWindow();
-				return false;
-			}
-			
-			if (0 == otherMainProjectComboBox.getSelectedIndex()) {
-				showMessageDialog("you need to select one of other project list");
-				isOtherMainProjectCheckBox.requestFocusInWindow();
-				return false;
-			}
-		
-			
-			String targetProjectName = selectedMainProjectName = (String) otherMainProjectComboBox.getSelectedItem();
-			String messageInfoTargetPathString = BuildSystemPathSupporter.getMessageInfoPathString(targetProjectName,
-					sinnoriInstalledPathString);
-		
-			File targetMessageInfoXMLPath = new File(messageInfoTargetPathString);
-			if (targetMessageInfoXMLPath.exists()) {
-				String errorMessage = String.format("target project[%s]'s message info path[%s] doesn't exist",
-						targetProjectName, messageInfoTargetPathString);
-				log.warn(errorMessage);
-				showMessageDialog(errorMessage);
-				return false;
-			}
-			if (targetMessageInfoXMLPath.canWrite()) {
-				String errorMessage = String.format("target project[%s]'s message info path[%s] can't be written",
-						targetProjectName, messageInfoTargetPathString);
-				log.warn(errorMessage);
-				showMessageDialog(errorMessage);
-				return false;
-			}
-			
-			File sourceMessageInfoXMLFIle = sourceMessageInfo.getMessageInfoXMLFile();
-			String sourceLastFileName = sourceMessageInfoXMLFIle.getName();
-			File targetMessageInfoXMLFile = new File(new StringBuilder().append(messageInfoTargetPathString)
-					.append(File.separator).append(sourceLastFileName).toString());
-
-			
-			
-			if (targetMessageInfoXMLFile.exists()) {
-				String confirmDialogTitle = "message info xml file copy";
-				String confirmDialogMessage = String.format(
-						"The target project[%s]'s message information XML file[%s] exist.\nDo you want to overwrite it with the soruce proejct[%s]'s message information XML File?",
-						targetProjectName, sourceMessageInfo.getMessageID(), mainProjectName);
-
-				int answer = JOptionPane.showConfirmDialog(ownerFrame, confirmDialogMessage, confirmDialogTitle,
-						JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-
-				if (answer != JOptionPane.OK_OPTION) {
-					log.info(
-							"The source project[{}]'s message information XML file[{}] was canceled overwriting on target project[{}]",
-							mainProjectName, sourceMessageInfo.getMessageID(), targetProjectName);
-					
-					return false;
-				}
-			}
-			
-			try {
-				copyTransferToFile(sourceMessageInfoXMLFIle, targetMessageInfoXMLFile);
-			} catch (IOException e1) {
-				String errorMessage = String.format("fail to copy souce file[%s] to target file[%s]",
-						sourceMessageInfoXMLFIle.getAbsolutePath(), targetMessageInfoXMLFile.getAbsolutePath());
-				log.warn(errorMessage, e1);
-				showMessageDialog(errorMessage);
-				return false;
-			}
-		}
-		
-		ArrayList<File> listOfTargetPathSavingIOFileSet = getListOfWritablePathSavingIOFileSet(selectedMainProjectName);
-		if (0 == listOfTargetPathSavingIOFileSet.size()) {
-			String errorMessage = String.format("the selected project[%s] hasn't any build paths",
-					selectedMainProjectName);
-			showMessageDialog(errorMessage);
-			
-			return false;
-		}
-		
-		boolean resultSavingFile = saveIOFileSetToTargetPath(listOfTargetPathSavingIOFileSet, writer, isSelectedIO,
-					isSelectedDirection, sourceMessageInfo);
-				
-
-		return resultSavingFile;
-	}
-
-	@Override
-	public void updateRowOfMessageInfoTableAccordingToNewMessageInfoUpdate(int row, MessageInfo newMessageInfo) {
-		String directionStr = null;
-		if (newMessageInfo.getDirection() == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL) {
-			directionStr = "client <-> server";
-		} else if (newMessageInfo.getDirection() == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_CLIENT_TO_SERVER) {
-			directionStr = "client -> server";
-		} else if (newMessageInfo.getDirection() == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_SERVER_TO_CLINET) {
-			directionStr = "server -> client";
-		} else {
-			directionStr = "no direction";
-		}
-		messageInfoTableModel.setValueAt(directionStr, row, 1);
-
-		java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
-		messageInfoTableModel.setValueAt(sdf.format(newMessageInfo.getLastModified()), row, 2);
-
-		BuildFunctionCellValueForProject sourceFileCellValue = (BuildFunctionCellValueForProject) messageInfoTableModel
-				.getValueAt(row, 4);
-		sourceFileCellValue.setMessageInfo(newMessageInfo);
-		messageInfoScrollPane.repaint();
-	}
 
 	private void isOtherProjectCheckBoxActionPerformed(ActionEvent e) {
 		if (isOtherMainProjectCheckBox.isSelected()) {
@@ -1054,10 +949,9 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 			writerTextField.requestFocusInWindow();
 			return;
 		}
-		
+
 		String messageInfoSourcePathString = BuildSystemPathSupporter.getMessageInfoPathString(mainProjectName,
 				sinnoriInstalledPathString);
-		
 
 		File messageInfoSourcePath = new File(messageInfoSourcePathString);
 		if (messageInfoSourcePath.exists()) {
@@ -1076,7 +970,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 		}
 
 		boolean resultSavingFile = true;
-		ArrayList<File> listOfTargetPathSavingIOFileSet = null;		
+		ArrayList<File> listOfTargetPathSavingIOFileSet = null;
 
 		if (isOtherMainProjectCheckBox.isSelected()) {
 			if (otherMainProjectComboBox.getItemCount() <= 1) {
@@ -1084,13 +978,13 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 				isOtherMainProjectCheckBox.requestFocusInWindow();
 				return;
 			}
-			
+
 			if (0 == otherMainProjectComboBox.getSelectedIndex()) {
 				showMessageDialog("you need to select one of other project list");
 				isOtherMainProjectCheckBox.requestFocusInWindow();
 				return;
 			}
-			
+
 			String targetProjectName = (String) otherMainProjectComboBox.getSelectedItem();
 			String messageInfoTargetPathString = BuildSystemPathSupporter.getMessageInfoPathString(targetProjectName,
 					sinnoriInstalledPathString);
@@ -1110,15 +1004,15 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 				showMessageDialog(errorMessage);
 				return;
 			}
-			
+
 			listOfTargetPathSavingIOFileSet = getListOfWritablePathSavingIOFileSet(targetProjectName);
 			if (0 == listOfTargetPathSavingIOFileSet.size()) {
 				String errorMessage = String.format("the selected project[%s] hasn't any build paths",
 						targetProjectName);
-				showMessageDialog(errorMessage);				
+				showMessageDialog(errorMessage);
 				return;
-			}	
-			
+			}
+
 			for (int i = 0; resultSavingFile && i < rowCount; i++) {
 				BuildFunctionCellValueForProject buildFunctionCellValue = (BuildFunctionCellValueForProject) messageInfoTableModel
 						.getValueAt(i, 4);
@@ -1152,7 +1046,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 				}
 
 				try {
-					copyTransferToFile(sourceMessageInfoXMLFIle, targetMessageInfoXMLFile);
+					CommonStaticUtil.copyTransferToFile(sourceMessageInfoXMLFIle, targetMessageInfoXMLFile);
 				} catch (IOException e1) {
 					String errorMessage = String.format("fail to copy souce file[%s] to target file[%s]",
 							sourceMessageInfoXMLFIle.getAbsolutePath(), targetMessageInfoXMLFile.getAbsolutePath());
@@ -1168,12 +1062,11 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 		} else {
 			listOfTargetPathSavingIOFileSet = getListOfWritablePathSavingIOFileSet(mainProjectName);
 			if (0 == listOfTargetPathSavingIOFileSet.size()) {
-				String errorMessage = String.format("the selected project[%s] hasn't any build paths",
-						mainProjectName);
+				String errorMessage = String.format("the selected project[%s] hasn't any build paths", mainProjectName);
 				showMessageDialog(errorMessage);
 				return;
-			}	
-			
+			}
+
 			for (int i = 0; resultSavingFile && i < rowCount; i++) {
 				BuildFunctionCellValueForProject buildFunctionCellValue = (BuildFunctionCellValueForProject) messageInfoTableModel
 						.getValueAt(i, 4);

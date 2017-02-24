@@ -42,7 +42,7 @@ public class FirstPanel extends JPanel {
 	}
 
 	private void IOBuilderScreenButtonActionPerformed(ActionEvent e) {
-		if (null != screenManagerIF) screenManagerIF.moveToIOManagerScreen();
+		if (null != screenManagerIF) screenManagerIF.moveToIOFileSetBuilderScreen();
 	}
 
 	private void initComponents() {

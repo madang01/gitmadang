@@ -170,4 +170,7 @@ public class CommonType {
 		}
 	};
 	
+	public enum READ_WRITE_MODE {
+		ONLY_READ, ONLY_WRITE, READ_WRITE
+	}
 }

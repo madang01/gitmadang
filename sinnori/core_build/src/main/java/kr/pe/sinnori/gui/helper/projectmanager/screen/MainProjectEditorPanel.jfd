@@ -10,7 +10,6 @@ new FormModel {
 			name: "this"
 			auxiliary() {
 				"JavaCodeGenerator.customCreate": true
-				"JavaCodeGenerator.postInitCode": "/** Post-initialization Code start */\npostInitComponents();\n/** Post-initialization Code end */"
 			}
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "default, relgap, default, relgap, default, labelcompgap, default, labelcompgap, default"

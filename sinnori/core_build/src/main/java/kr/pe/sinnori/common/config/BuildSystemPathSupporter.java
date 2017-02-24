@@ -213,8 +213,32 @@ public abstract class BuildSystemPathSupporter {
 		strBuilder.append("APP-INF");
 		return strBuilder.toString();
 	}
-
 	
+	/**
+	 * @return src/main/java/kr/pe/sinnori/impl/message, the relative path where message I / O files are located based on 'Ant build path'
+	 */
+	private static String getRelativePathWhereMessageIOSourceFilesAreLocated() {
+		return new StringBuilder("src")
+				.append(File.separator).append("main")
+				.append(File.separator).append("java")
+				.append(File.separator).append("kr")
+				.append(File.separator).append("pe")
+				.append(File.separator).append("sinnori")
+				.append(File.separator).append("impl")
+				.append(File.separator).append("message")
+				.toString();
+	}
+
+	/** <server build path>/src/main/java/kr/pe/sinnori/impl/message */
+	public static String getServerIOSourcePath(String mainProjectName,
+			String sinnoriInstalledPathString) {
+		StringBuilder strBuilder = new StringBuilder(getServerBuildPathString(
+				mainProjectName, sinnoriInstalledPathString));
+		strBuilder.append(File.separator);
+		strBuilder.append(getRelativePathWhereMessageIOSourceFilesAreLocated());
+		
+		return strBuilder.toString();
+	}
 
 	/** client build base path : <project path>/client_build */
 	public static String getClientBuildBasePathString(String mainProjectName,
@@ -248,6 +272,18 @@ public abstract class BuildSystemPathSupporter {
 		strBuilder.append("build.xml");
 		return strBuilder.toString();
 	}
+	
+	/** <app client build path>/src/main/java/kr/pe/sinnori/impl/message */
+	public static String getAppClientIOSourcePath(String mainProjectName,
+			String sinnoriInstalledPathString) {
+		StringBuilder strBuilder = new StringBuilder(getAppClientBuildPathString(
+				mainProjectName, sinnoriInstalledPathString));
+		strBuilder.append(File.separator);
+		strBuilder.append(getRelativePathWhereMessageIOSourceFilesAreLocated());
+		
+		return strBuilder.toString();
+	}
+	
 
 	/** web client build path : <project path>/client_build/web_build */
 	public static String getWebClientBuildPathString(String mainProjectName,
@@ -259,6 +295,18 @@ public abstract class BuildSystemPathSupporter {
 		strBuilder.append("web_build");
 		return strBuilder.toString();
 	}
+	
+	/** <web client build path>/src/main/java/kr/pe/sinnori/impl/message */
+	public static String getWebIOSourcePath(String mainProjectName,
+			String sinnoriInstalledPathString) {
+		StringBuilder strBuilder = new StringBuilder(getWebClientBuildPathString(
+				mainProjectName, sinnoriInstalledPathString));
+		strBuilder.append(File.separator);
+		strBuilder.append(getRelativePathWhereMessageIOSourceFilesAreLocated());
+		
+		return strBuilder.toString();
+	}
+	
 
 	/** <project path>/web_app_base */
 	public static String getWebRootBasePathString(String mainProjectName,

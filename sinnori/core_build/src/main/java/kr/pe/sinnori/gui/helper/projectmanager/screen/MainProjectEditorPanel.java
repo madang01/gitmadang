@@ -108,24 +108,6 @@ public class MainProjectEditorPanel extends JPanel {
 	private HashMap<String, ConfigurationPartTableModel> subProjectName2subProjectPartTableModelHash = new HashMap<String, ConfigurationPartTableModel>();
 	private HashMap<String, ItemValuePanel> itemKey2ItemValuePanelHash = new HashMap<String, ItemValuePanel>();
 
-	public MainProjectEditorPanel() {
-		initComponents();
-	}
-
-	public MainProjectEditorPanel(Frame mainFrame,
-			ScreenManagerIF screenManagerIF) {
-		this.mainFrame = mainFrame;
-		this.screenManagerIF = screenManagerIF;
-		try {
-			messageInfoSAXParser = new MessageInfoSAXParser();
-		} catch (MessageInfoSAXParserException e) {
-			log.error("fail to create instace of MessageInfoSAXParser class", e);
-			System.exit(1);
-		}
-
-		initComponents();
-	}
-
 	public void updateScreenWithMainProjectBuildSystemState(
 			MainProjectBuildSystemState mainProjectBuildSystemState) {
 		this.mainProjectName = mainProjectBuildSystemState.getMainProjectName();
@@ -1244,6 +1226,23 @@ public class MainProjectEditorPanel extends JPanel {
 		popup.setSize(740, 380);
 		popup.setVisible(true);
 	}
+	
+	public MainProjectEditorPanel(Frame mainFrame,
+			ScreenManagerIF screenManagerIF) {
+		this.mainFrame = mainFrame;
+		this.screenManagerIF = screenManagerIF;
+		try {
+			messageInfoSAXParser = new MessageInfoSAXParser();
+		} catch (MessageInfoSAXParserException e) {
+			log.error("fail to create instace of MessageInfoSAXParser class", e);
+			System.exit(1);
+		}
+
+		initComponents();
+		
+		postInitComponents();
+	}
+	
 
 	private void postInitComponents() {
 		UIManager.put("FileChooser.readOnly", Boolean.TRUE);
@@ -1314,9 +1313,6 @@ public class MainProjectEditorPanel extends JPanel {
 		setLayout(new FormLayout(
 			"[451dlu,pref]:grow",
 			"11*(default, $lgap), 104dlu, $lgap, default, $lgap, 104dlu, $lgap, default"));
-		/** Post-initialization Code start */
-		postInitComponents();
-		/** Post-initialization Code end */
 
 		//======== functionPanel ========
 		{

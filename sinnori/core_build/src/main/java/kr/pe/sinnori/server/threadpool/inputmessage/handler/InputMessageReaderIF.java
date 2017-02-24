@@ -53,7 +53,7 @@ public interface InputMessageReaderIF {
 	 * @throws NoMoreDataPacketBufferException
 	 *             소켓 채널당 1:1로 읽기 전용 버퍼를 할당받는다. 이 읽기 전용 버퍼 확보 실패시 발생
 	 */
-	public void addClient(SocketChannel sc) throws NoMoreDataPacketBufferException;
+	public void addNewSocketChannelToRegisterWithReadOnlySelector(SocketChannel sc) throws NoMoreDataPacketBufferException;
 
 	/**
 	 * 등록된 소켓 채널 수를 반환한다. 이는 균등 분배를 위해서 필요하다.

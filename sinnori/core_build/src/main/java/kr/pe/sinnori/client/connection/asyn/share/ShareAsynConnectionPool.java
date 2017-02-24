@@ -56,40 +56,46 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 	/** 순차적으로 할당하기 위해서 목록내에 반환할 연결 클래스를 가르키는 인덱스 */
 	private int indexOfConnection = 0;
 	private int mailBoxCnt = 0;
-	
-	
+
 	/**
 	 * 생성자
-	 * @param connectionPoolSize 연결 폴 크기
-	 * @param socketTimeOut 소켓 타임 아웃
-	 * @param whetherToAutoConnect 자동 연결 여부
-	 * @param finishConnectMaxCall 비동기 연결 확립 시도 최대 횟수
-	 * @param finishConnectWaittingTime 비동기 연결 확립 시도 간격
-	 * @param mailBoxCnt 메일함 갯수
-	 * @param projectPart 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
-	 * @param asynOutputMessageQueue 서버에서 보내는 불특정 출력 메시지를 받는 큐
-	 * @param inputMessageQueue 입력 메시지 큐
-	 * @param syncOutputMessageQueueQueueManger 출력 메시지 큐를 원소로 가지는 큐 관리자
-	 * @param outputMessageReaderPool 서버에 접속한 소켓 채널을 균등하게 소켓 읽기 담당 쓰레드에 등록하기 위한 인터페이스
-	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자
-	 * @throws NoMoreDataPacketBufferException 데이터 패킷 버퍼를 할당 받지 못했을 경우 던지는 예외
-	 * @throws InterruptedException 쓰레드 인터럽트
-	 * @throws NoMoreOutputMessageQueueException 출력 메시지 큐 부족시 실패시 던지는 예외
+	 * 
+	 * @param connectionPoolSize
+	 *            연결 폴 크기
+	 * @param socketTimeOut
+	 *            소켓 타임 아웃
+	 * @param whetherToAutoConnect
+	 *            자동 연결 여부
+	 * @param finishConnectMaxCall
+	 *            비동기 연결 확립 시도 최대 횟수
+	 * @param finishConnectWaittingTime
+	 *            비동기 연결 확립 시도 간격
+	 * @param mailBoxCnt
+	 *            메일함 갯수
+	 * @param projectPart
+	 *            프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
+	 * @param asynOutputMessageQueue
+	 *            서버에서 보내는 불특정 출력 메시지를 받는 큐
+	 * @param inputMessageQueue
+	 *            입력 메시지 큐
+	 * @param syncOutputMessageQueueQueueManger
+	 *            출력 메시지 큐를 원소로 가지는 큐 관리자
+	 * @param outputMessageReaderPool
+	 *            서버에 접속한 소켓 채널을 균등하게 소켓 읽기 담당 쓰레드에 등록하기 위한 인터페이스
+	 * @param dataPacketBufferQueueManager
+	 *            데이터 패킷 버퍼 큐 관리자
+	 * @throws NoMoreDataPacketBufferException
+	 *             데이터 패킷 버퍼를 할당 받지 못했을 경우 던지는 예외
+	 * @throws InterruptedException
+	 *             쓰레드 인터럽트
+	 * @throws NoMoreOutputMessageQueueException
+	 *             출력 메시지 큐 부족시 실패시 던지는 예외
 	 */
-	public ShareAsynConnectionPool(String projectName,
-			String hostOfProject,
-			int portOfProject,
-			Charset charsetOfProject,
-			int connectionPoolSize,
-			long socketTimeOut,
-			boolean whetherToAutoConnect,
-			int finishConnectMaxCall,
-			long finishConnectWaittingTime,
-			int mailBoxCnt,			
-			ProjectPartValueObject projectPart,
-			LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue,
-			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
-			MessageProtocolIF messageProtocol,
+	public ShareAsynConnectionPool(String projectName, String hostOfProject, int portOfProject,
+			Charset charsetOfProject, int connectionPoolSize, long socketTimeOut, boolean whetherToAutoConnect,
+			int finishConnectMaxCall, long finishConnectWaittingTime, int mailBoxCnt,
+			ProjectPartValueObject projectPart, LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue,
+			LinkedBlockingQueue<LetterToServer> inputMessageQueue, MessageProtocolIF messageProtocol,
 			OutputMessageReaderPoolIF outputMessageReaderPool,
 			SyncOutputMessageQueueQueueMangerIF syncOutputMessageQueueQueueManger,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager,
@@ -97,30 +103,18 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 			throws NoMoreDataPacketBufferException, InterruptedException, NoMoreOutputMessageQueueException {
 		super(asynOutputMessageQueue);
 		// log.info("create new MultiNoneBlockConnectionPool");
-		
-		
+
 		this.mailBoxCnt = mailBoxCnt;
-		
-		
-		connectionList = new ArrayList<ShareAsynConnection>(
-				connectionPoolSize);
+
+		connectionList = new ArrayList<ShareAsynConnection>(connectionPoolSize);
 
 		for (int i = 0; i < connectionPoolSize; i++) {
 			ShareAsynConnection serverConnection = null;
-			
-			serverConnection = new ShareAsynConnection(projectName, i, 
-					hostOfProject, portOfProject, charsetOfProject, 
-					socketTimeOut,
-					whetherToAutoConnect,
-					finishConnectMaxCall,
-					finishConnectWaittingTime,
-					mailBoxCnt,
-					projectPart, 
-					asynOutputMessageQueue, inputMessageQueue,
-					messageProtocol,
-					outputMessageReaderPool,
-					syncOutputMessageQueueQueueManger,
-					dataPacketBufferQueueManager, clientObjectCacheManager);
+
+			serverConnection = new ShareAsynConnection(projectName, i, hostOfProject, portOfProject, charsetOfProject,
+					socketTimeOut, whetherToAutoConnect, finishConnectMaxCall, finishConnectWaittingTime, mailBoxCnt,
+					projectPart, asynOutputMessageQueue, inputMessageQueue, messageProtocol, outputMessageReaderPool,
+					syncOutputMessageQueueQueueManger, dataPacketBufferQueueManager, clientObjectCacheManager);
 
 			connectionList.add(serverConnection);
 
@@ -129,12 +123,11 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 		// log.info("connectionList size=[%d]", connectionList.size());
 
 	}
-	
-	
+
 	@Override
 	public int getUsedMailboxCnt() {
 		int connectionPoolSize = connectionList.size();
-		
+
 		int usedMailboxCnt = 0;
 		for (int i = 0; i < connectionPoolSize; i++) {
 			ShareAsynConnection shareAsynConnection = connectionList.get(i);
@@ -150,12 +143,11 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 		int totalClients = mailBoxCnt * connectionPoolSize;
 		return totalClients;
 	}
-	
+
 	@Override
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
-			throws ServerNotReadyException, SocketTimeoutException,
-			NoMoreDataPacketBufferException, BodyFormatException, 
-			DynamicClassCallException, ServerTaskException, NotLoginException {
+			throws ServerNotReadyException, SocketTimeoutException, NoMoreDataPacketBufferException,
+			BodyFormatException, DynamicClassCallException, ServerTaskException, NotLoginException {
 		ShareAsynConnection conn = null;
 
 		synchronized (monitor) {
@@ -164,27 +156,27 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 		}
 		return conn.sendSyncInputMessage(inputMessage);
 	}
-	
+
 	@Override
 	public AbstractConnection getConnection() throws InterruptedException, NotSupportedException {
 		throw new NotSupportedException("공유+비동기 연결 객체는 직접적으로 받을 수 없습니다.");
 	}
-	
+
 	@Override
 	public void freeConnection(AbstractConnection conn) throws NotSupportedException {
 		throw new NotSupportedException("공유+비동기 연결 객체를 직접 받지 않으므로 반환 기능도 없습니다.");
 	}
-	
+
 	@Override
 	public ArrayList<AbstractConnection> getConnectionList() {
-		ArrayList<AbstractConnection>  list = new ArrayList<AbstractConnection>();
-		
+		ArrayList<AbstractConnection> list = new ArrayList<AbstractConnection>();
+
 		int connectionListSize = connectionList.size();
 		for (int i = 0; i < connectionListSize; i++) {
 			AbstractConnection conn = connectionList.get(i);
 			list.add(conn);
 		}
-		
+
 		return list;
 	}
 }

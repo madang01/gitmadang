@@ -67,9 +67,9 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 	private LinkedBlockingQueue<LetterFromClient> inputMessageQueue;
 	
 	// private final Set<SocketChannel> newClients = new HashSet<SocketChannel>();
-	private final Set<SocketChannel> newClients = Collections.synchronizedSet(new HashSet<SocketChannel>());
+	private final Set<SocketChannel> newSocketChannelSetToRegisterWithReadOnlySelector = Collections.synchronizedSet(new HashSet<SocketChannel>());
 	// private LinkedBlockingQueue<SocketChannel> waitingSCQueue = new LinkedBlockingQueue<SocketChannel>();
-	private Selector selector = null;
+	private Selector onlyReadableSelector = null;
 
 	/**
 	 * 생성자
@@ -99,7 +99,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 		this.inputMessageQueue = inputMessageQueue;
 
 		try {
-			selector = Selector.open();
+			onlyReadableSelector = Selector.open();
 		} catch (IOException ioe) {
 			log.error(String.format("RequetProcessor[%d] selector open fail",
 					index), ioe);
@@ -110,9 +110,9 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 	}
 
 	@Override
-	public void addClient(SocketChannel sc) throws NoMoreDataPacketBufferException {
-		clientResourceManager.addNewClient(sc);		
-		newClients.add(sc);
+	public void addNewSocketChannelToRegisterWithReadOnlySelector(SocketChannel newSocketChannelToRegisterWithReadOnlySelector) throws NoMoreDataPacketBufferException {
+		clientResourceManager.addNewClient(newSocketChannelToRegisterWithReadOnlySelector);		
+		newSocketChannelSetToRegisterWithReadOnlySelector.add(newSocketChannelToRegisterWithReadOnlySelector);
 		// waitingSCQueue.put(sc);
 
 		if (getState().equals(Thread.State.NEW))
@@ -132,31 +132,32 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 		 * </pre> 
 		 */
 		do {
-			selector.wakeup();
+			onlyReadableSelector.wakeup();
 			try {
 				Thread.sleep(readSelectorWakeupInterval);
 			} catch (InterruptedException e) {
 			}
-		} while (sc.isConnected() && !sc.isRegistered());
+		} while (newSocketChannelToRegisterWithReadOnlySelector.isConnected() && !newSocketChannelToRegisterWithReadOnlySelector.isRegistered());
 	}
 
 	@Override
 	public int getCntOfClients() {
-		return (newClients.size() + selector.keys().size());
+		return (newSocketChannelSetToRegisterWithReadOnlySelector.size() + onlyReadableSelector.keys().size());
 	}
 
 	/**
 	 * 신규 client들을 selector에 등록한다.
 	 */
 	private void processNewConnection() {
-		for (SocketChannel sc : newClients) {
+		for (SocketChannel newSocketChannelToRegisterWithReadOnlySelector : newSocketChannelSetToRegisterWithReadOnlySelector) {
 			try {
-				sc.register(selector, SelectionKey.OP_READ);
+				newSocketChannelToRegisterWithReadOnlySelector.register(onlyReadableSelector, SelectionKey.OP_READ);
 			} catch (ClosedChannelException e) {
-				log.warn(String.format("%s InputMessageReader[%d] socket channel[%d] fail to register selector", projectName, index, sc.hashCode()), e);
+				log.warn(String.format("%s InputMessageReader[%d] socket channel[%d] fail to register selector", projectName, index, newSocketChannelToRegisterWithReadOnlySelector.hashCode()), e);
 			}
-			newClients.remove(sc);
+			newSocketChannelSetToRegisterWithReadOnlySelector.remove(newSocketChannelToRegisterWithReadOnlySelector);
 		}
+		
 		/*while(!waitingSCQueue.isEmpty()) {
 			SocketChannel sc = waitingSCQueue.poll();
 			// if (null != sc) {
@@ -177,23 +178,23 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
 				processNewConnection();
-				int keyReady = selector.select();
+				int selectionKeyCount = onlyReadableSelector.select();
 
-				if (keyReady > 0) {
-					Set<SelectionKey> selectionKeySet = selector
+				if (selectionKeyCount > 0) {
+					Set<SelectionKey> readableSelectionKeySet = onlyReadableSelector
 							.selectedKeys();
-					Iterator<SelectionKey> selectionKeyIter = selectionKeySet
+					Iterator<SelectionKey> readableSelectionKeyIterator = readableSelectionKeySet
 							.iterator();
-					while (selectionKeyIter.hasNext()) {
-						SelectionKey key = selectionKeyIter.next();
-						selectionKeyIter.remove();
-						SocketChannel clientSC = (SocketChannel) key.channel();
+					while (readableSelectionKeyIterator.hasNext()) {
+						SelectionKey readableSelectionKey = readableSelectionKeyIterator.next();
+						readableSelectionKeyIterator.remove();
+						SocketChannel readableSocketChannel = (SocketChannel) readableSelectionKey.channel();
 						ByteBuffer lastInputStreamBuffer = null;
 						ClientResource clientResource = clientResourceManager
-								.getClientResource(clientSC);
+								.getClientResource(readableSocketChannel);
 						
 						if (null == clientResource) {
-							log.warn(String.format("%s InputMessageReader[%d] socket channel[%d] is no match for ClientResource", projectName, index, clientSC.hashCode()));
+							log.warn(String.format("%s InputMessageReader[%d] socket channel[%d] is no match for ClientResource", projectName, index, readableSocketChannel.hashCode()));
 							continue;
 						}
 						
@@ -202,47 +203,9 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 						
 						try {
 							lastInputStreamBuffer = messageInputStreamResource.getLastDataPacketBuffer();
-							/*log.info(String.format("1. %s InputMessageReader[%d] lastInputStreamBuffer[%s]", 
-									serverProjectConfig.getProjectName(), index, lastInputStreamBuffer.toString()));*/
-							
-							// int positionBeforeReading = lastInputStreamBuffer.position();							
-							/*
-							numRead = clientSC.read(lastInputStreamBuffer);
-							
-							if (numRead == -1) {
-								log.warn(String.format(
-										"%s InputMessageReader[%d] socket channel read -1, remove client",
-										serverProjectConfig.getProjectName(), index));
-								closeClient(key);
-								continue;
-							}
-							
-							log.info(String.format("2. %s InputMessageReader[%d] numRead=[%d] lastInputStreamBuffer[%s]", 
-									serverProjectConfig.getProjectName(), index, numRead, lastInputStreamBuffer.toString()));
-							
-							
-							// 2번 읽기로 1byte 읽기 방지
-							numRead = clientSC.read(lastInputStreamBuffer);
-
-							if (numRead == -1) {
-								log.warn(String.format(
-										"%s InputMessageReader[%d] socket channel read -1, remove client",
-										serverProjectConfig.getProjectName(), index));
-								closeClient(key);
-								continue;
-							}
-							
-							log.info(String.format("3. %s InputMessageReader[%d] numRead=[%d] lastInputStreamBuffer[%s]", 
-									serverProjectConfig.getProjectName(), index, numRead, lastInputStreamBuffer.toString()));
-														
-							
-							int positionAfterReading = lastInputStreamBuffer.position();
-
-							if (positionAfterReading == positionBeforeReading) continue;
-							*/
 							
 							do {
-								numRead = clientSC.read(lastInputStreamBuffer);
+								numRead = readableSocketChannel.read(lastInputStreamBuffer);
 								if (numRead < 1) break;
 								
 								if (!lastInputStreamBuffer.hasRemaining()) {
@@ -255,48 +218,37 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 								log.warn(String.format(
 										"%s InputMessageReader[%d] socket channel read -1, remove client",
 										projectName, index));
-								closeClient(key);
+								closeClient(readableSelectionKey);
 								continue;
 							}
 							
 							
 							clientResource.setFinalReadTime();
-												
 							
 							ArrayList<ReceivedLetter> inputMessageList = 
-									messageProtocol.S2MList(charsetOfProject, messageInputStreamResource);
-
-							// int cntOfMesages = inputMessageList.size();
-							
-							/*log.info(String.format("%s InputMessageReader[%d] cntOfMesages=[%d]", 
-									serverProjectConfig.getProjectName(), index, cntOfMesages));*/
-							
-							/*for (int i = 0; i < cntOfMesages; i++) {
-								AbstractMessage inObj = (AbstractMessage)inputMessageList.get(i);
-								inputMessageQueue.put(new LetterFromClient(clientSC, clientResource, inObj));
-							}		*/					
+									messageProtocol.S2MList(charsetOfProject, messageInputStreamResource);							
 
 							for (ReceivedLetter receivedLetter : inputMessageList) {
-								inputMessageQueue.put(new LetterFromClient(clientSC, clientResource, receivedLetter));
+								inputMessageQueue.put(new LetterFromClient(readableSocketChannel, clientResource, receivedLetter));
 							}
 						
 						} catch (NoMoreDataPacketBufferException e) {
 							log.warn(String.format("%s InputMessageReader[%d] NoMoreDataPacketBufferException::%s", 
 									projectName, index, e.getMessage()), e);
-							closeClient(key);
+							closeClient(readableSelectionKey);
 							continue;
 						} catch (HeaderFormatException e) {
 							log.warn(String.format("%s InputMessageReader[%d] HeaderFormatException::%s", 
 									projectName, index, e.getMessage()), e);
-							closeClient(key);
+							closeClient(readableSelectionKey);
 							continue;
 						} catch (NotYetConnectedException e) {
 							log.warn("io error", e);
-							closeClient(key);
+							closeClient(readableSelectionKey);
 							continue;
 						} catch (IOException e) {
 							log.warn(String.format("%s InputMessageReader[%d] error", projectName, index), e);
-							closeClient(key);
+							closeClient(readableSelectionKey);
 							continue;
 						}
 					}
@@ -314,13 +266,13 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 	/**
 	 * client 접속이 끊겼거나, socket 읽기시 IO 에러, 인코딩 에러로 client 작업대상에서 제외할때 호출
 	 * 
-	 * @param key
+	 * @param readableSelectionKey
 	 *            selector 에서 얻는 SelectionKey로 작업대상에서 제외할 client
 	 * @see ClientResouceManager#removeClient(java.nio.channels.SocketChannel)
 	 */
-	private void closeClient(SelectionKey key) {
-		key.cancel();
-		SocketChannel close_sc = (SocketChannel) key.channel();
-		clientResourceManager.removeClient(close_sc);
+	private void closeClient(SelectionKey readableSelectionKey) {
+		readableSelectionKey.cancel();
+		SocketChannel readableSocketChannel = (SocketChannel) readableSelectionKey.channel();
+		clientResourceManager.removeClient(readableSocketChannel);
 	}
 }

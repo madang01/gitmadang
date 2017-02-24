@@ -8,13 +8,10 @@ import java.awt.Container;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-
-import com.jgoodies.forms.factories.CC;
-import com.jgoodies.forms.layout.FormLayout;
 
 import kr.pe.sinnori.common.config.buildsystem.MainProjectBuildSystemState;
-import kr.pe.sinnori.gui.helper.iobuilder.screen.IOBuilderPanel;
+import kr.pe.sinnori.gui.helper.iobuilder.screen.EachIOFileTypeBuilder;
+import kr.pe.sinnori.gui.helper.iobuilder.screen.IOFIleSetBuilderPanel;
 import kr.pe.sinnori.gui.helper.projectmanager.screen.AllMainProjectManagerPanel;
 import kr.pe.sinnori.gui.helper.projectmanager.screen.MainProjectEditorPanel;
 import kr.pe.sinnori.gui.helper.projectmanager.screen.SinnoriInstalledPathPanel;
@@ -27,7 +24,11 @@ import kr.pe.sinnori.gui.helper.screen.FirstPanel;
 public class HelperMainWindow extends JFrame implements ScreenManagerIF {
 	
 	private FirstPanel firstPanel = new FirstPanel(this,  this);
-	private IOBuilderPanel ioBuilderPanel = new IOBuilderPanel(this, this);	
+	
+	// FIXME!
+	private IOFIleSetBuilderPanel ioFileSetBuilderPanel  = new IOFIleSetBuilderPanel(this, this);
+	private EachIOFileTypeBuilder eachIOFileTypeBuilder  = new EachIOFileTypeBuilder(this, this);
+	
 	private SinnoriInstalledPathPanel sinnoriInstalledPathPanel = new SinnoriInstalledPathPanel(this, this);
 	private AllMainProjectManagerPanel allMainProjectManagerPanel = new AllMainProjectManagerPanel(this, this);
 	private MainProjectEditorPanel mainProjectEditorPanel = new MainProjectEditorPanel(this, this);
@@ -35,41 +36,32 @@ public class HelperMainWindow extends JFrame implements ScreenManagerIF {
 	private void postInitComponets() {		
 		hideAllScreen();
 		
-		mainPanel.add(firstPanel);
-		mainPanel.add(ioBuilderPanel);
-		mainPanel.add(sinnoriInstalledPathPanel);
-		mainPanel.add(allMainProjectManagerPanel);
-		mainPanel.add(mainProjectEditorPanel);
+		this.add(firstPanel);
+		this.add(ioFileSetBuilderPanel);
+		this.add(eachIOFileTypeBuilder);
+		this.add(sinnoriInstalledPathPanel);
+		this.add(allMainProjectManagerPanel);
+		this.add(mainProjectEditorPanel);
 		
+		this.setTitle("Introduction");
 		firstPanel.setEnabled(true);
 		firstPanel.setVisible(true);
-		//this.pack();
+		this.pack();
 	}
 	
 	public HelperMainWindow() {
 		initComponents();
+		postInitComponets();
 	}
 
 
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
 		// Generated using JFormDesigner non-commercial license
-		mainPanel = new JPanel();
 
 		//======== this ========
 		Container contentPane = getContentPane();
-		contentPane.setLayout(new FormLayout(
-			"$rgap, ${growing-button}, $rgap",
-			"$lgap, default:grow, $nlgap, $ugap"));
-
-		//======== mainPanel ========
-		{
-			mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
-			/** Post-init Code Start */
-			postInitComponets();
-			/** Post-init Code End */
-		}
-		contentPane.add(mainPanel, CC.xy(2, 2));
+		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.X_AXIS));
 		pack();
 		setLocationRelativeTo(getOwner());
 		// JFormDesigner - End of component initialization  //GEN-END:initComponents
@@ -77,12 +69,13 @@ public class HelperMainWindow extends JFrame implements ScreenManagerIF {
 
 	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
 	// Generated using JFormDesigner non-commercial license
-	private JPanel mainPanel;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
 	
 	
 	@Override
 	public void moveToFirstScreen() {
+		this.setTitle("Introduction");
+		
 		hideAllScreen();
 		
 		firstPanel.setEnabled(true);
@@ -92,6 +85,8 @@ public class HelperMainWindow extends JFrame implements ScreenManagerIF {
 	
 	@Override
 	public void moveToSinnoriInstalledPathScreen() {
+		this.setTitle("Sinnori Installed Path");
+		
 		hideAllScreen();
 		
 		sinnoriInstalledPathPanel.setEnabled(true);
@@ -101,6 +96,8 @@ public class HelperMainWindow extends JFrame implements ScreenManagerIF {
 
 	@Override
 	public void moveToAllMainProjectManagerScreen(String sinnoriInstalledPathString) {
+		this.setTitle("All Main Project Manager");
+		
 		hideAllScreen();
 		
 		allMainProjectManagerPanel.setEnabled(true);
@@ -111,6 +108,8 @@ public class HelperMainWindow extends JFrame implements ScreenManagerIF {
 
 	@Override
 	public void moveToMainProjectEditScreen(MainProjectBuildSystemState mainProjectBuildSystemState) {
+		this.setTitle("Main Project Edit");
+		
 		hideAllScreen();
 		
 		mainProjectEditorPanel.updateScreenWithMainProjectBuildSystemState(mainProjectBuildSystemState);
@@ -123,30 +122,42 @@ public class HelperMainWindow extends JFrame implements ScreenManagerIF {
 
 	
 	@Override
-	public void moveToIOManagerScreen() {
+	public void moveToIOFileSetBuilderScreen() {
+		this.setTitle("IO File Set Builder");
+		
 		hideAllScreen();
 		
-		ioBuilderPanel.setEnabled(true);
-		ioBuilderPanel.setVisible(true);
+		ioFileSetBuilderPanel.setEnabled(true);
+		ioFileSetBuilderPanel.setVisible(true);
+		this.pack();
+		
+	}
+	
+	@Override
+	public void moveToEachIOFileTypeBuilderScreen() {
+		this.setTitle("Each IO File Type Builder");
+		
+		hideAllScreen();
+		
+		eachIOFileTypeBuilder.setEnabled(true);
+		eachIOFileTypeBuilder.setVisible(true);
 		this.pack();
 		
 	}
 	
 	private void hideAllScreen() {
 		firstPanel.setEnabled(false);
-		ioBuilderPanel.setEnabled(false);
+		ioFileSetBuilderPanel.setEnabled(false);
+		eachIOFileTypeBuilder.setEnabled(false);
 		sinnoriInstalledPathPanel.setEnabled(false);
 		allMainProjectManagerPanel.setEnabled(false);
 		mainProjectEditorPanel.setEnabled(false);
 		
 		firstPanel.setVisible(false);
-		ioBuilderPanel.setVisible(false);
+		ioFileSetBuilderPanel.setVisible(false);
+		eachIOFileTypeBuilder.setVisible(false);
 		sinnoriInstalledPathPanel.setVisible(false);
 		allMainProjectManagerPanel.setVisible(false);
 		mainProjectEditorPanel.setVisible(false);
-	}
-
-
-
-	
+	}	
 }

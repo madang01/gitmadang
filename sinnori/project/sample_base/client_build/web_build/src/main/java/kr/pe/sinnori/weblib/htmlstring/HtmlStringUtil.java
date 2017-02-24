@@ -36,7 +36,7 @@ public class HtmlStringUtil {
 	 */
 	public static String toHtml4BRString(String sourceString, int wantedColumnSize) {
 		sourceString = CommonStaticUtil.splitString(sourceString, 
-				CommonType.SPLIT_STRING_GUBUN.NEWLINE, wantedColumnSize);
+				CommonType.LINE_SEPARATOR_GUBUN.NEWLINE, wantedColumnSize);
 		
 		return StringReplacementActorUtil.replace(sourceString, 
 				STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,

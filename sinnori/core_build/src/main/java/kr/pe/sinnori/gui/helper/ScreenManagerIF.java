@@ -8,7 +8,13 @@ public interface ScreenManagerIF {
 	 *  
 	 *  >> 첫화면
 	 *  1. 신놀이 설치 경로 화면
-	 *  2. 입출력 관리자 화면
+	 *  2. 입출력 파일 셋 생성기 화면
+	 *  
+	 *  >> 입출력 파일 셋 생성기 화면
+	 *  1. 입출력 종류별 생성기 화면
+	 *  
+	 *   >> 입출력 종류별 생성기 화면
+	 *   1. 입출력 파일 셋 생성기 화면
 	 *      
 	 *  >> 신놀이 설치 경로 화면 
 	 *  1.전체 메인 프로젝트 화면
@@ -36,7 +42,11 @@ public interface ScreenManagerIF {
 	/** 개별적인 주 프로젝트 편집 화면으로 전환 */
 	public void moveToMainProjectEditScreen(MainProjectBuildSystemState mainProjectBuildSystemState);
 	
-	/** 입출력 관리자 화면으로 전환 */
-	public void moveToIOManagerScreen();
+	/** 입출력 파일 셋 생성기 화면으로 전환 */
+	public void moveToIOFileSetBuilderScreen();
+	
+	
+	/** 입출력 종류별 생성기 화면으로 전환 */
+	public void moveToEachIOFileTypeBuilderScreen();
 		
 }
