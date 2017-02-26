@@ -252,8 +252,8 @@ public class SingleItemInfo extends AbstractItemInfo {
 	}
 
 	@Override
-	public CommonType.LOGICAL_ITEM_GUBUN getLogicalItemGubun() {
-		return CommonType.LOGICAL_ITEM_GUBUN.SINGLE_ITEM;
+	public CommonType.MESSAGE_ITEM_TYPE getMessageItemType() {
+		return CommonType.MESSAGE_ITEM_TYPE.SINGLE_ITEM;
 	}
 
 	/******************* AbstractItemInfo end ***********************/

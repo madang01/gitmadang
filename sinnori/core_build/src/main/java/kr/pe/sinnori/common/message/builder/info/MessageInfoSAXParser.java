@@ -59,7 +59,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 	/** this member variables is initialized in constructor start */	
 	private SAXParser saxParser;
 	// 배열 크기로 참조하는 단일 항목이 가질 수 있는 값의 타입 집합
-	private Set<String> possibleItemValueTypeSetForArraySizeReference = new HashSet<String>();
+	private Set<String> possibleItemValueTypeSetForArraySizeReferenceVariable = new HashSet<String>();
 	/** this member variables is initialized in constructor end */
 	
 	/** this member variables is initialized in parse(File) start */
@@ -98,13 +98,13 @@ public class MessageInfoSAXParser extends DefaultHandler {
 			throw new MessageInfoSAXParserException(e.getMessage());
 		}		
 		
-		possibleItemValueTypeSetForArraySizeReference.add("byte");
-		possibleItemValueTypeSetForArraySizeReference.add("unsigned byte");
-		possibleItemValueTypeSetForArraySizeReference.add("short");
-		possibleItemValueTypeSetForArraySizeReference.add("unsigned short");
-		possibleItemValueTypeSetForArraySizeReference.add("integer");
-		possibleItemValueTypeSetForArraySizeReference.add("unsigned integer");
-		possibleItemValueTypeSetForArraySizeReference.add("long");
+		possibleItemValueTypeSetForArraySizeReferenceVariable.add("byte");
+		possibleItemValueTypeSetForArraySizeReferenceVariable.add("unsigned byte");
+		possibleItemValueTypeSetForArraySizeReferenceVariable.add("short");
+		possibleItemValueTypeSetForArraySizeReferenceVariable.add("unsigned short");
+		possibleItemValueTypeSetForArraySizeReferenceVariable.add("integer");
+		possibleItemValueTypeSetForArraySizeReferenceVariable.add("unsigned integer");
+		possibleItemValueTypeSetForArraySizeReferenceVariable.add("long");
 	}
 
 	@Override
@@ -244,30 +244,30 @@ public class MessageInfoSAXParser extends DefaultHandler {
 			}
 			
 			if (arrayCntType.equals("reference")) {
-				AbstractItemInfo itemInfoForArraySizeReference = workItemGroupInfo
+				AbstractItemInfo itemInfoForArraySizeReferenceVariable = workItemGroupInfo
 						.getItemInfo(arrayCntValue);
 
-				if (null == itemInfoForArraySizeReference) {					
+				if (null == itemInfoForArraySizeReferenceVariable) {					
 					String errorMessage = new StringBuilder("any single item that specifies this array item[")
 					.append(arrayName).append("]'s size doesn't exist").toString();
 					throw new SAXException(errorMessage);
 				}
 
-				CommonType.LOGICAL_ITEM_GUBUN logicalItemGubunForArraySizeReference = itemInfoForArraySizeReference
-						.getLogicalItemGubun();
-				if (CommonType.LOGICAL_ITEM_GUBUN.ARRAY_ITEM == logicalItemGubunForArraySizeReference) {					
+				CommonType.MESSAGE_ITEM_TYPE messageItemTypeOfArraySizeReferenceVariable = itemInfoForArraySizeReferenceVariable
+						.getMessageItemType();
+				if (CommonType.MESSAGE_ITEM_TYPE.ARRAY_ITEM == messageItemTypeOfArraySizeReferenceVariable) {					
 					String errorMessage = new StringBuilder("the logical gubun of item that specifies this array item[")
 					.append(arrayName).append("]'s size must be only single").toString();
 					throw new SAXException(errorMessage);
 				}
 
-				SingleItemInfo singleItemInfoForArraySizeReference = (SingleItemInfo) itemInfoForArraySizeReference;
-				String itemValueTypeOfArraySizeReference = singleItemInfoForArraySizeReference.getItemValueType();				
+				SingleItemInfo singleItemInfoForArraySizeReferenceVariable = (SingleItemInfo) itemInfoForArraySizeReferenceVariable;
+				String itemValueTypeOfArraySizeReferenceVariable = singleItemInfoForArraySizeReferenceVariable.getItemValueType();				
 				
-				if (!possibleItemValueTypeSetForArraySizeReference.contains(itemValueTypeOfArraySizeReference)) {
+				if (!possibleItemValueTypeSetForArraySizeReferenceVariable.contains(itemValueTypeOfArraySizeReferenceVariable)) {
 					String errorMessage = new StringBuilder("the value of single item that specifies this array item[")
 					.append(arrayName).append("]'s size must be number, possible item type set={")
-					.append(possibleItemValueTypeSetForArraySizeReference.toString())
+					.append(possibleItemValueTypeSetForArraySizeReferenceVariable.toString())
 					.append("}").toString();
 					throw new SAXException(errorMessage);
 				}
@@ -461,7 +461,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 		
 		String xmlFilePathString = xmlFile.getAbsolutePath();
 				
-		synchronized (possibleItemValueTypeSetForArraySizeReference) {
+		synchronized (possibleItemValueTypeSetForArraySizeReferenceVariable) {
 			this.messageInformationXMLFile = xmlFile;
 			this.isFileNameCheck = isFileNameCheck;
 			if (isFileNameCheck) {

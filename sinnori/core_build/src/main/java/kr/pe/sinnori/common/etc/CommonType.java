@@ -51,7 +51,7 @@ public class CommonType {
 	/**
 	 * 메시지 항목 구분. SINGLE_ITEM : 단일 항목, ARRAY : 배열
 	 */
-	public enum LOGICAL_ITEM_GUBUN {
+	public enum MESSAGE_ITEM_TYPE {
 		SINGLE_ITEM, ARRAY_ITEM
 	};
 

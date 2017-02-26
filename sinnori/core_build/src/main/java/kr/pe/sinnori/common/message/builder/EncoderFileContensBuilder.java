@@ -25,7 +25,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		
 		ArrayList<AbstractItemInfo> itemInfoList = arrayInfo.getItemInfoList();
 		for (AbstractItemInfo itemInfo:itemInfoList) {
-			if (itemInfo.getLogicalItemGubun() == CommonType.LOGICAL_ITEM_GUBUN.SINGLE_ITEM) {
+			if (itemInfo.getMessageItemType() == CommonType.MESSAGE_ITEM_TYPE.SINGLE_ITEM) {
 				SingleItemInfo singleItemInfo = (SingleItemInfo)itemInfo;
 				
 				// singleItemEncoder.putValueToMiddleWriteObj(echo.getMessageID(), "randomInt"

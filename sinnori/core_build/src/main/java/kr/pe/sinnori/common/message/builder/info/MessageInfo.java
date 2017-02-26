@@ -125,9 +125,9 @@ public class MessageInfo implements ItemGroupInfoIF {
 			AbstractItemInfo itemInfo = itemInfoList.get(i);
 			// AbstractItemInfo itemInfo = itemInfoIter.next();
 			
-			CommonType.LOGICAL_ITEM_GUBUN logicalItemGubun = itemInfo
-					.getLogicalItemGubun();
-			if (CommonType.LOGICAL_ITEM_GUBUN.SINGLE_ITEM == logicalItemGubun) {
+			CommonType.MESSAGE_ITEM_TYPE messageItemType = itemInfo
+					.getMessageItemType();
+			if (CommonType.MESSAGE_ITEM_TYPE.SINGLE_ITEM == messageItemType) {
 				SingleItemInfo singleItemInfo = (SingleItemInfo) itemInfo;
 				strBuff.append(singleItemInfo.toString());
 			} else {

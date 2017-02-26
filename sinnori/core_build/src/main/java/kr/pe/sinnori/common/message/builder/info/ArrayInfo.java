@@ -169,8 +169,8 @@ public class ArrayInfo extends AbstractItemInfo implements
 			strBuff.append("]=");
 			
 			AbstractItemInfo itemInfo = itemGroupInfoOfArray.get(i);
-			CommonType.LOGICAL_ITEM_GUBUN logicalItemGubun = itemInfo.getLogicalItemGubun();
-			if (CommonType.LOGICAL_ITEM_GUBUN.SINGLE_ITEM == logicalItemGubun) {
+			CommonType.MESSAGE_ITEM_TYPE messageItemType = itemInfo.getMessageItemType();
+			if (CommonType.MESSAGE_ITEM_TYPE.SINGLE_ITEM == messageItemType) {
 				SingleItemInfo singleItemInfo = (SingleItemInfo) itemInfo;
 				strBuff.append(singleItemInfo.toString());
 			} else {
@@ -210,8 +210,8 @@ public class ArrayInfo extends AbstractItemInfo implements
 	}
 
 	@Override
-	public CommonType.LOGICAL_ITEM_GUBUN getLogicalItemGubun() {
-		return CommonType.LOGICAL_ITEM_GUBUN.ARRAY_ITEM;
+	public CommonType.MESSAGE_ITEM_TYPE getMessageItemType() {
+		return CommonType.MESSAGE_ITEM_TYPE.ARRAY_ITEM;
 	}
 	/******************* AbstractItemInfo end ***********************/
 }

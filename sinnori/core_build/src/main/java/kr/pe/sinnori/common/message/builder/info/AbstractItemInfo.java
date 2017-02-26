@@ -38,12 +38,12 @@ public abstract class AbstractItemInfo {
 
 	/**
 	 * <pre>
-	 * 논리적인 항목 구분을 반환한다. 논리적인 항목 구분은 2가지로 구분된다.
+	 * 메시지 항목 유형 반환한다. 메시지 항목 유형은 2가지로 구분된다.
 	 * (1) 단일 항목 : 컴퓨터 언어가 지원하는 변수와 1:1 매치되어 이진 데이터로 변환을 할 수 있는 항목
 	 * (2) 배열 : 반복성을 가지는 항목 그룹을 가지는 항목
 	 * </pre>
 	 * 
 	 * @return 논리적인 항목 구분
 	 */
-	abstract public CommonType.LOGICAL_ITEM_GUBUN getLogicalItemGubun();
+	abstract public CommonType.MESSAGE_ITEM_TYPE getMessageItemType();
 }
