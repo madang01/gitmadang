@@ -19,8 +19,6 @@
 package kr.pe.sinnori.gui.screen.asynfileupdownscreen.task;
 
 import kr.pe.sinnori.client.AsynOutputMessageTaskIF;
-import kr.pe.sinnori.common.configuration.ClientProjectConfig;
-import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.gui.lib.AsynMainControllerIF;
 
@@ -29,7 +27,10 @@ import kr.pe.sinnori.gui.lib.AsynMainControllerIF;
  * @author Won Jonghoon
  *
  */
-public class AsynFileUpDownOutputMessageTask implements CommonRootIF, AsynOutputMessageTaskIF {
+public class AsynFileUpDownOutputMessageTask implements AsynOutputMessageTaskIF {
+	// private Logger log = LoggerFactory.getLogger(AsynFileUpDownOutputMessageTask.class);
+	
+	
 	private AsynMainControllerIF mainController = null;
 	
 	/**
@@ -41,7 +42,7 @@ public class AsynFileUpDownOutputMessageTask implements CommonRootIF, AsynOutput
 	}
 	
 	@Override
-	public void doTask(ClientProjectConfig clientProjectConfig, AbstractMessage outObj) {
+	public void doTask(AbstractMessage outObj) {
 		// log.info(String.format("projectName[%s] %s", clientProjectConfig.getProjectName(), outObj.toString()));
 		// FIXME!
 		// log.info("projectName={}, {}", clientProjectConfig.getProjectName(), outObj.toString());

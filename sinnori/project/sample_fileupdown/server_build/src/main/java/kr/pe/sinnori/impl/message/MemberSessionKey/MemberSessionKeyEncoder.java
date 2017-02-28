@@ -19,7 +19,7 @@ package kr.pe.sinnori.impl.message.MemberSessionKey;
 import java.nio.charset.Charset;
 import java.util.LinkedList;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.message.codec.MessageEncoder;
+import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
 
 /**
@@ -27,7 +27,7 @@ import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
  * @author Won Jonghoon
  *
  */
-public final class MemberSessionKeyEncoder extends MessageEncoder {
+public final class MemberSessionKeyEncoder extends AbstractMessageEncoder {
 	@Override
 	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj)
 			throws Exception {
@@ -59,7 +59,7 @@ public final class MemberSessionKeyEncoder extends MessageEncoder {
 					, 9 // itemTypeID
 					, "si pascal string" // itemTypeName
 					, memberSessionKey.getIdCipherBase64() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -67,7 +67,7 @@ public final class MemberSessionKeyEncoder extends MessageEncoder {
 					, 9 // itemTypeID
 					, "si pascal string" // itemTypeName
 					, memberSessionKey.getPwdCipherBase64() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -75,7 +75,7 @@ public final class MemberSessionKeyEncoder extends MessageEncoder {
 					, 9 // itemTypeID
 					, "si pascal string" // itemTypeName
 					, memberSessionKey.getNicknameCipherBase64() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -83,7 +83,7 @@ public final class MemberSessionKeyEncoder extends MessageEncoder {
 					, 9 // itemTypeID
 					, "si pascal string" // itemTypeName
 					, memberSessionKey.getQuestionCipherBase64() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -91,7 +91,7 @@ public final class MemberSessionKeyEncoder extends MessageEncoder {
 					, 9 // itemTypeID
 					, "si pascal string" // itemTypeName
 					, memberSessionKey.getAnswerCipherBase64() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -99,7 +99,7 @@ public final class MemberSessionKeyEncoder extends MessageEncoder {
 					, 9 // itemTypeID
 					, "si pascal string" // itemTypeName
 					, memberSessionKey.getSessionKeyBase64() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -107,7 +107,7 @@ public final class MemberSessionKeyEncoder extends MessageEncoder {
 					, 9 // itemTypeID
 					, "si pascal string" // itemTypeName
 					, memberSessionKey.getIvBase64() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);

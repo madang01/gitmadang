@@ -17,6 +17,7 @@
 
 package kr.pe.sinnori.gui.screen;
 import java.awt.event.ActionEvent;
+import java.io.IOException;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -28,16 +29,18 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import kr.pe.sinnori.common.configuration.ClientProjectConfig;
-import kr.pe.sinnori.common.configuration.SinnoriConfig;
-import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.gui.lib.MainControllerIF;
-import kr.pe.sinnori.gui.util.RegexLimitPlainDocume;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
+
+import kr.pe.sinnori.client.ClientProject;
+import kr.pe.sinnori.client.ClientProjectManager;
+import kr.pe.sinnori.gui.lib.MainControllerIF;
+import kr.pe.sinnori.gui.util.RegexLimitPlainDocume;
 
 /**
  * 파일 송수신 서버 접속 화면
@@ -45,8 +48,10 @@ import com.jgoodies.forms.layout.RowSpec;
  *
  */
 @SuppressWarnings("serial")
-public class ConnectionScreen extends JPanel implements CommonRootIF {
-	private ClientProjectConfig clientProjectConfig;
+public class ConnectionScreen extends JPanel {
+	protected Logger log = LoggerFactory.getLogger(ConnectionScreen.class);
+	
+	
 	private JFrame mainFrame = null;
 	private MainControllerIF mainController = null;
 	
@@ -57,8 +62,7 @@ public class ConnectionScreen extends JPanel implements CommonRootIF {
 	private final Action connectionButtonAction = new ConnectionButtonAction();
 	
 	
-	
-	private SinnoriConfig sinnoriConfig = SinnoriConfig.getInstance();
+	private ClientProject mainClientProject = ClientProjectManager.getInstance().getMainClientProject();
 	
 	
 
@@ -67,9 +71,8 @@ public class ConnectionScreen extends JPanel implements CommonRootIF {
 	 * @param mainFrame 메일 프레임
 	 * @param mainController 메인 제어자
 	 */
-	public ConnectionScreen(ClientProjectConfig clientProjectConfig, final JFrame mainFrame, MainControllerIF mainController) {
+	public ConnectionScreen(final JFrame mainFrame, MainControllerIF mainController) {
 		super();
-		this.clientProjectConfig = clientProjectConfig;
 		this.mainFrame = mainFrame;
 		this.mainController = mainController;
 		initialize();
@@ -138,8 +141,8 @@ public class ConnectionScreen extends JPanel implements CommonRootIF {
 		this.add(passwordField, "4, 10, fill, default");
 		
 		// FIXME!
-		hostTextField.setText(clientProjectConfig.getServerHost());
-		portTextField.setText(String.valueOf(clientProjectConfig.getServerPort()));
+		hostTextField.setText(mainClientProject.getHostOfProject());
+		portTextField.setText(String.valueOf(mainClientProject.getPortOfProject()));
 		idTextField.setText("test01");
 		passwordField.setText("1234");
 		
@@ -195,7 +198,12 @@ public class ConnectionScreen extends JPanel implements CommonRootIF {
 			
 			if (null == binaryPublicKeyBytes) return;
 						
-			sinnoriConfig.save();
+			try {
+				mainClientProject.saveSinnoriConfiguration();
+			} catch (IOException e1) {
+				log.warn("IOException", e1);
+				JOptionPane.showMessageDialog(mainFrame, "fail to save the Sinnori configuration");
+			}
 			
 			String id = idTextField.getText();
 			

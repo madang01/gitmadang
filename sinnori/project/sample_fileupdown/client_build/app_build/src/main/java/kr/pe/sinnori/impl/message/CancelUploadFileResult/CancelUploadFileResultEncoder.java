@@ -19,7 +19,7 @@ package kr.pe.sinnori.impl.message.CancelUploadFileResult;
 import java.nio.charset.Charset;
 import java.util.LinkedList;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.message.codec.MessageEncoder;
+import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
 
 /**
@@ -27,7 +27,7 @@ import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
  * @author Won Jonghoon
  *
  */
-public final class CancelUploadFileResultEncoder extends MessageEncoder {
+public final class CancelUploadFileResultEncoder extends AbstractMessageEncoder {
 	@Override
 	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj)
 			throws Exception {
@@ -59,7 +59,7 @@ public final class CancelUploadFileResultEncoder extends MessageEncoder {
 					, 4 // itemTypeID
 					, "integer" // itemTypeName
 					, cancelUploadFileResult.getClientSourceFileID() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -67,7 +67,7 @@ public final class CancelUploadFileResultEncoder extends MessageEncoder {
 					, 4 // itemTypeID
 					, "integer" // itemTypeName
 					, cancelUploadFileResult.getServerTargetFileID() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -75,7 +75,7 @@ public final class CancelUploadFileResultEncoder extends MessageEncoder {
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
 					, cancelUploadFileResult.getTaskResult() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -83,7 +83,7 @@ public final class CancelUploadFileResultEncoder extends MessageEncoder {
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
 					, cancelUploadFileResult.getResultMessage() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);

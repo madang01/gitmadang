@@ -19,7 +19,7 @@ package kr.pe.sinnori.impl.message.FileListRequest;
 import java.nio.charset.Charset;
 import java.util.LinkedList;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.message.codec.MessageEncoder;
+import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
 
 /**
@@ -27,7 +27,7 @@ import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
  * @author Won Jonghoon
  *
  */
-public final class FileListRequestEncoder extends MessageEncoder {
+public final class FileListRequestEncoder extends AbstractMessageEncoder {
 	@Override
 	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj)
 			throws Exception {
@@ -59,7 +59,7 @@ public final class FileListRequestEncoder extends MessageEncoder {
 					, 9 // itemTypeID
 					, "si pascal string" // itemTypeName
 					, fileListRequest.getRequestDirectory() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);

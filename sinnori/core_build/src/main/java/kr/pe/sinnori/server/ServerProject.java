@@ -219,7 +219,10 @@ public class ServerProject extends AbstractProject implements
 	 */
 	synchronized public void startServer(ProjectWorkerIF serverProjectWorker) {
 		serverProjectWorker.doStartingWork(projectPartConfigurationVO);
-		
+		this.startServer();
+	}
+	
+	synchronized public void startServer() {		
 		serverProjectMonitor.start();
 		outputMessageWriterPool.startAll();
 		executorPool.startAll();

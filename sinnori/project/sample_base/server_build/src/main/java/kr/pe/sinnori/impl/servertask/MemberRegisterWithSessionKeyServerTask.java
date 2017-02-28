@@ -5,6 +5,10 @@ import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Random;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.message.AbstractMessage;
@@ -14,14 +18,10 @@ import kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager;
 import kr.pe.sinnori.common.sessionkey.SymmetricKey;
 import kr.pe.sinnori.impl.message.MemberRegisterWithSessionKey.MemberRegisterWithSessionKey;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
-import kr.pe.sinnori.impl.server.mybatis.SqlSessionFactoryManger;
+import kr.pe.sinnori.impl.server.mybatis.MybatisSqlSessionFactoryManger;
 import kr.pe.sinnori.server.LoginManagerIF;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
 import kr.pe.sinnori.server.executor.LetterSender;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
 
 
 public class MemberRegisterWithSessionKeyServerTask extends AbstractServerTask {
@@ -32,7 +32,7 @@ public class MemberRegisterWithSessionKeyServerTask extends AbstractServerTask {
 			AbstractMessage messageFromClient) throws Exception {
 		MemberRegisterWithSessionKey inObj = (MemberRegisterWithSessionKey)messageFromClient;
 		
-		SqlSessionFactory sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
+		SqlSessionFactory sqlSessionFactory = MybatisSqlSessionFactoryManger.getInstance().getSqlSessionFactory(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
 		
 		String idCipherBase64 = inObj.getIdCipherBase64();
 		String sessionKeyBase64 = inObj.getSessionKeyBase64();

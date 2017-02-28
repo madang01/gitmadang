@@ -17,20 +17,17 @@
 
 package kr.pe.sinnori.util;
 
-import kr.pe.sinnori.client.ClientProject;
-import kr.pe.sinnori.client.ClientProjectManager;
 import kr.pe.sinnori.common.clientlib.ClientCommonStaticFinalVars;
-import kr.pe.sinnori.common.configuration.ClientProjectConfig;
+import kr.pe.sinnori.common.etc.ObjectCacheManager;
 import kr.pe.sinnori.common.exception.NotFoundProjectException;
-import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.common.lib.ObjectCacheManager;
 
 /**
  * 신놀이 기동을 위한 편의 기능 제공 클래스, 간단히 "신놀이 워커" 라 불린다.
  * @author Won Jonghoon
  *
  */
-public class SinnoriClientWorker implements CommonRootIF {
+public class SinnoriClientWorker {
+	// private Logger log = LoggerFactory.getLogger(SinnoriClientWorker.class);
 	
 	private ObjectCacheManager objectCacheManager = ObjectCacheManager.getInstance();
 	private ClassLoader systemClassLoader = SinnoriClientWorker.class.getClassLoader();
@@ -81,16 +78,13 @@ public class SinnoriClientWorker implements CommonRootIF {
 	 * @param clinetExecutorName 클라이언트 비지니스 로직 이름
 	 * @throws InterruptedException 쓰레드 인터럽트
 	 */
-	public void start(String projectName, String clinetExecutorName) throws InterruptedException, NotFoundProjectException {
-		ClientProjectConfig clientProjectConfig = conf.getClientProjectConfig(projectName);
-		if (null == clientProjectConfig) throw new RuntimeException(String.format("projectName[%s] not exist", projectName));
-		
+	public void start(String clinetExecutorName) throws InterruptedException, NotFoundProjectException {
+				
 		String clientExecetorClassName = getClientExecetorClassName(clinetExecutorName);
-		ClientProject clientProject = ClientProjectManager.getInstance().getClientProject(projectName);
 		
 		try {
 			AbstractClientExecutor clientExecutorObj = (AbstractClientExecutor) objectCacheManager.getCachedObject(systemClassLoader, clientExecetorClassName);
-			clientExecutorObj.execute(clientProjectConfig, clientProject);
+			clientExecutorObj.execute();
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -104,16 +98,14 @@ public class SinnoriClientWorker implements CommonRootIF {
 	 * @param count 클라이언트 비지니스 로직 반복 횟수
 	 * @throws InterruptedException 쓰레드 인터럽트
 	 */
-	public void start(String projectName, String clinetExecutorName, int count) throws InterruptedException, NotFoundProjectException {
-		ClientProjectConfig clientProjectConfig = conf.getClientProjectConfig(projectName);
-		if (null == clientProjectConfig) throw new RuntimeException(String.format("projectName[%s] not exist", projectName));
+	public void start(String clinetExecutorName, int count) throws InterruptedException, NotFoundProjectException {
+		
 		
 		String clientExecetorClassName = getClientExecetorClassName(clinetExecutorName);
-		ClientProject clientProject = ClientProjectManager.getInstance().getClientProject(projectName);
 		
 		try {
 			AbstractClientExecutor clientExecutorObj = (AbstractClientExecutor) objectCacheManager.getCachedObject(systemClassLoader, clientExecetorClassName);
-			clientExecutorObj.execute(clientProjectConfig, clientProject, count);
+			clientExecutorObj.execute(count);
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
 			e.printStackTrace();
 			System.exit(1);

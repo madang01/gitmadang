@@ -1,5 +1,8 @@
 package main;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.common.config.vo.ProjectPartValueObject;
 import kr.pe.sinnori.common.exception.NotFoundProjectException;
 import kr.pe.sinnori.common.project.ProjectWorkerIF;
@@ -7,9 +10,6 @@ import kr.pe.sinnori.common.serverlib.AbstractDBCommand;
 import kr.pe.sinnori.common.serverlib.SampleBaseDB;
 import kr.pe.sinnori.server.ServerProject;
 import kr.pe.sinnori.server.ServerProjectManager;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SinnoriServerMain {	
 	
@@ -60,7 +60,7 @@ public class SinnoriServerMain {
 
 		try {
 			ServerProject mainServerProject = ServerProjectManager
-					.getInstance().getMainServerProject();
+					.getInstance().getRunningMainServerProject();
 			mainServerProject.startServer(new InitSimplebaseServer());
 		} catch (Throwable e) {
 			log.warn("unknown error", e);

@@ -25,7 +25,6 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTree;
 
-import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.gui.lib.LocalFileTreeNode;
 import kr.pe.sinnori.gui.screen.commonfileupdown.FileUpDownScreenIF;
 
@@ -35,7 +34,10 @@ import kr.pe.sinnori.gui.screen.commonfileupdown.FileUpDownScreenIF;
  *
  */
 @SuppressWarnings("serial")
-public class LocalParentSwingAction extends AbstractAction implements CommonRootIF {
+public class LocalParentSwingAction extends AbstractAction {
+	// private Logger log = LoggerFactory.getLogger(LocalParentSwingAction.class);
+	
+	
 	private JFrame mainFrame = null;
 	private FileUpDownScreenIF fileUpDownScreen = null;
 	private JTree localTree = null;

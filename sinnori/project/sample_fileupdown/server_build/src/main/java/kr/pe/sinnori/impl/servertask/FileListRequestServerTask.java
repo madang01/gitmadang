@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.util.NameFirstComparator;
@@ -40,14 +39,18 @@ import kr.pe.sinnori.server.executor.LetterSender;
 public class FileListRequestServerTask extends AbstractAuthServerExecutor {
 
 	@Override
-	public void doTask(ServerProjectConfig serverProjectConfig,
+	public void doTask(String projectName,
 			LoginManagerIF loginManager,
-			LetterSender letterSender, AbstractMessage messageFromClient)
+			LetterSender letterSender, AbstractMessage inObj)
+			throws Exception {
+		doWork(projectName, letterSender, (FileListRequest)inObj);
+	}
+	
+	private void doWork(String projectName,
+			LetterSender letterSender, FileListRequest inObj)
 			throws Exception {
 		// FIXME!
-		log.info(messageFromClient.toString());
-		
-		FileListRequest inObj = (FileListRequest) messageFromClient;
+		log.info(inObj.toString());
 		
 		// String requestDirectory = (String)inObj.getAttribute("requestDirectory");
 		String requestDirectory = inObj.getRequestDirectory();

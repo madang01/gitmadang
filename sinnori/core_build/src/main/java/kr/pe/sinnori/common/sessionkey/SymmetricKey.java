@@ -19,14 +19,15 @@ package kr.pe.sinnori.common.sessionkey;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.Arrays;
-
-import kr.pe.sinnori.common.exception.SinnoriUnsupportedEncodingException;
-import kr.pe.sinnori.common.exception.SymmetricException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import kr.pe.sinnori.common.exception.SinnoriUnsupportedEncodingException;
+import kr.pe.sinnori.common.exception.SymmetricException;
 
 /**
  * 대칭키와 씨앗값을 입력 파라미터로 받는 대칭키 편의 클래스.
@@ -368,6 +369,39 @@ public class SymmetricKey implements Serializable {
 			log.warn(errorMessage);
 			throw new SinnoriUnsupportedEncodingException(errorMessage);
 		}
+		/**
+		log.info(String.format(
+				"cipherTextBase64=[%s], retValue=[%s], cipherTextBytes=[%s], retBytes=[%s]",
+				cipherTextBase64, retValue,
+				HexUtil.byteArrayAllToHex(cipherTextBytes),
+				HexUtil.byteArrayAllToHex(retBytes)));
+				*/
+
+		return retValue;
+	}
+	
+	
+	public String decryptStringBase64(String cipherTextBase64, Charset charset)
+			throws IllegalArgumentException, SymmetricException, SinnoriUnsupportedEncodingException {
+		if (null != errorMessage)
+			throw new IllegalArgumentException(errorMessage);
+
+		if (null == cipherTextBase64)
+			throw new IllegalArgumentException(
+					"'cipherTextBase64' input variable value is null.");
+
+		if (!Base64.isBase64(cipherTextBase64)) {
+			String errorMessage = String.format("not Base64 string[%s]",
+					cipherTextBase64);
+			throw new IllegalArgumentException(errorMessage);
+		}
+		byte cipherTextBytes[] = Base64.decodeBase64(cipherTextBase64);
+
+		byte[] retBytes = symmetricKeyManager.decryptDirect(
+				symmetricKeyAlgorithm, symmetricKeyBytes, cipherTextBytes,
+				ivBytes);
+		String retValue =  new String(retBytes, charset);
+		
 		/**
 		log.info(String.format(
 				"cipherTextBase64=[%s], retValue=[%s], cipherTextBytes=[%s], retBytes=[%s]",

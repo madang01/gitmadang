@@ -24,6 +24,7 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
 import kr.pe.sinnori.common.etc.CommonType;
+import kr.pe.sinnori.common.etc.CommonType.READ_WRITE_MODE;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 import kr.pe.sinnori.gui.helper.ScreenManagerIF;
 import kr.pe.sinnori.gui.util.PathSwingAction;
@@ -46,66 +47,27 @@ public class SinnoriInstalledPathPanel extends JPanel {
 	
 
 	/**
-	 * @param sourcePathTextField TextField whose value is path   
-	 * @param sourcePathTextFieldName parameter sourcePathTextField's name
+	 * @param sourcePathTextField TextField whose value is path  
 	 * @return the writable and readable path. but if parameter sourceTextField's value is not a valid path then return null.
 	 */
-	private File getWitableAndReadablePathFromTextField(JTextField sourcePathTextField, String sourcePathTextFieldName) {
+	private File getValidPathFromTextField(JTextField sourcePathTextField, READ_WRITE_MODE	readWriteMode) throws RuntimeException {
 		String sourcePathString = sourcePathTextField.getText();
-		if ( null == sourcePathString) {
-			String errorMessage = String.format("parameter sourcePathTextField[%s]'s value is nul", sourcePathTextFieldName);
-			showMessageDialog(errorMessage);
-			sourcePathTextField.requestFocusInWindow();
-			return null;
+		if (null == sourcePathString) {
+			String errorMessage = String.format("parameter sourcePathTextField[%s]'s value is nul",
+					sourcePathTextField.getName());
+			throw new RuntimeException(errorMessage);
 		}
 		sourcePathString = sourcePathString.trim();
 		sourcePathTextField.setText(sourcePathString);
-		
-		if (sourcePathString.equals("")) {
-			String errorMessage = String.format("parameter sourcePathTextField[%s]'s value is empty", sourcePathTextFieldName);
-			showMessageDialog(errorMessage);
-			sourcePathTextField.requestFocusInWindow();
-			return null;
+
+		File sourcePath = null;
+		try {
+			sourcePath =CommonStaticUtil.getValidPath(sourcePathString, readWriteMode);
+		} catch(RuntimeException e) {
+			String errorMessage = e.toString();
+			throw new RuntimeException(String.format("parameter sourcePathTextField[%s]'s value is not a valid path::%s", sourcePathTextField.getName(), errorMessage));
 		}
-		
-		File sourcePath = new File(sourcePathString);
-		if (!sourcePath.exists()) {
-			String errorMessage = String.format("The path[%s][%s] doesn't exist", sourcePathTextFieldName, sourcePathString);
-			log.warn(errorMessage);
-			
-			showMessageDialog(errorMessage);
-			sourcePathTextField.requestFocusInWindow();
-			return null;
-		}
-		
-		if (!sourcePath.isDirectory()) {
-			String errorMessage = String.format("The path[%s][%s] is not a directory", sourcePathTextFieldName, sourcePathString);
-			log.warn(errorMessage);
-			
-			showMessageDialog(errorMessage);
-			sourcePathTextField.requestFocusInWindow();
-			return null;
-		}
-		
-		if (!sourcePath.canRead()) {
-			String errorMessage = String.format("The path[%s][%s] has a permission to read", sourcePathTextFieldName, sourcePathString);
-			log.warn(errorMessage);
-			
-			showMessageDialog(errorMessage);
-			sourcePathTextField.requestFocusInWindow();
-			return null;
-		}
-		
-		if (!sourcePath.canWrite()) {
-			String errorMessage = String.format("The path[%s][%s] has a permission to write", sourcePathTextFieldName, sourcePathString);
-			log.warn(errorMessage);
-			
-			showMessageDialog(errorMessage);
-			sourcePathTextField.requestFocusInWindow();
-			return null;
-		}
-		
-		
+
 		return sourcePath;
 	}
 	
@@ -157,7 +119,6 @@ public class SinnoriInstalledPathPanel extends JPanel {
 
 			//---- sinnoriInstalledPathButton ----
 			sinnoriInstalledPathButton.setText("path");
-			sinnoriInstalledPathButton.addActionListener(e -> sinnoriInstalledPathButtonActionPerformed(e));
 			sinnoriInstallPathLinePanel.add(sinnoriInstalledPathButton, CC.xy(5, 1));
 		}
 		add(sinnoriInstallPathLinePanel, CC.xy(2, 2));
@@ -193,19 +154,14 @@ public class SinnoriInstalledPathPanel extends JPanel {
 	private JButton nextStepButton;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
 	
-	
-	private void sinnoriInstalledPathButtonActionPerformed(ActionEvent e) {
-		File sinnoriInstalledPath = getWitableAndReadablePathFromTextField(sinnoriInstalledPathTextField, "the Sinnori installed path");
-		if (null == sinnoriInstalledPath) {
-			return;
-		}
-		
-		sinnoriInstalledPathChooser.setCurrentDirectory(sinnoriInstalledPath);
-	}
-	
 	private void nextStepButtonActionPerformed(ActionEvent e) {
-		File sinnoriInstalledPath = getWitableAndReadablePathFromTextField(sinnoriInstalledPathTextField, "the Sinnori installed path");
-		if (null == sinnoriInstalledPath) {
+		File sinnoriInstalledPath = null;
+		try {
+			sinnoriInstalledPath = getValidPathFromTextField(sinnoriInstalledPathTextField, READ_WRITE_MODE.READ_WRITE);
+		} catch(RuntimeException e1) {
+			String errorMessage = String.format("fail to get the valid Sinnori installed path::%s", e1.getMessage());
+			log.warn(errorMessage);
+			showMessageDialog(errorMessage);
 			return;
 		}
 		

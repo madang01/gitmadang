@@ -93,6 +93,7 @@ public abstract class CommonStaticFinalVars {
 	/** configuration end */
 	
 	/** ant.properties key start */
+	public static final String IS_TOMCAT_KEY = "is.tomcat";
 	public static final String SERVLET_SYSTEM_LIBIARY_PATH_KEY = "servlet.systemlib.path";
 	/** ant.properties key end */
 	

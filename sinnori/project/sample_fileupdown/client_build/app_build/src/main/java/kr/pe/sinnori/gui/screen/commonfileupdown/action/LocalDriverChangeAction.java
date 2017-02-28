@@ -26,7 +26,9 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTree;
 
-import kr.pe.sinnori.common.lib.CommonRootIF;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.gui.lib.LocalFileTreeNode;
 import kr.pe.sinnori.gui.screen.commonfileupdown.FileUpDownScreenIF;
 
@@ -36,7 +38,10 @@ import kr.pe.sinnori.gui.screen.commonfileupdown.FileUpDownScreenIF;
  *
  */
 @SuppressWarnings("serial")
-public class LocalDriverChangeAction extends AbstractAction implements CommonRootIF {
+public class LocalDriverChangeAction extends AbstractAction {
+	private Logger log = LoggerFactory.getLogger(LocalDriverChangeAction.class);
+	
+	
 	private JFrame mainFrame = null;
 	private FileUpDownScreenIF fileUpDownScreen = null;
 	private JTree localTree = null;

@@ -72,6 +72,8 @@ public abstract class AbstractConnection {
 	protected Charset charsetOfProject = null;
 	
 	
+	
+	
 	/** 데이터 패킷 버퍼 관리자 */
 	protected DataPacketBufferQueueManagerIF dataPacketBufferQueueManager = null;
 	/** */
@@ -186,6 +188,9 @@ public abstract class AbstractConnection {
 	 * @return 소켓 연결 여부
 	 */
 	public boolean isConnected() {
+		if (null == serverSC) {
+			return false;
+		}
 		return serverSC.isConnected();
 	}
 	
@@ -193,6 +198,10 @@ public abstract class AbstractConnection {
 	 * @return 소캣 개방 여부
 	 */
 	public boolean isOpen() {
+		if (null == serverSC) {
+			return false;
+		}
+		
 		return serverSC.isOpen();
 	}
 	
@@ -255,7 +264,7 @@ public abstract class AbstractConnection {
 	 * @throws ServerNotReadyException
 	 *             서버와의 연결 실패시 발생한다.
 	 */
-	abstract public void serverOpen() throws ServerNotReadyException;
+	abstract public void connectServerIfNoConnection() throws ServerNotReadyException;
 
 	
 
@@ -462,6 +471,15 @@ public abstract class AbstractConnection {
 		return wrapBufferList;
 	}
 	
+	public void changeServerAddress(String newServerHost, int newServerPort) {
+		if (serverSC != null && serverSC.isOpen() && serverSC.isConnected()) {
+			String errorMessage = String.format("this client cann't change new server address[host:%s,port:%s] becase this client is connected", 
+					newServerHost, newServerPort);
+			throw new RuntimeException(errorMessage);
+		}
+		this.hostOfProject = newServerHost;
+		this.portOfProject = newServerPort;
+	}
 	
 	
 	@Override

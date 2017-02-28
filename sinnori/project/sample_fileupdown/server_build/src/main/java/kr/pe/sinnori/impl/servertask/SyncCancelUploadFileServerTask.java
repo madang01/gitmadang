@@ -19,7 +19,6 @@ package kr.pe.sinnori.impl.servertask;
 
 import java.io.File;
 
-import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.updownfile.LocalTargetFileResource;
 import kr.pe.sinnori.common.updownfile.LocalTargetFileResourceManager;
@@ -38,14 +37,19 @@ import kr.pe.sinnori.server.executor.LetterSender;
 public final class SyncCancelUploadFileServerTask extends AbstractAuthServerExecutor {
 
 	@Override
-	public void doTask(ServerProjectConfig serverProjectConfig,
+	public void doTask(String projectName,
 			LoginManagerIF loginManager,
-			LetterSender letterSender, AbstractMessage messageFromClient)
+			LetterSender letterSender, AbstractMessage inObj)
+			throws Exception {
+		doWork(projectName, letterSender, (SyncCancelUploadFile)inObj);
+	}
+	
+	private void doWork(String projectName,
+			LetterSender letterSender, SyncCancelUploadFile inObj)
 			throws Exception {
 		// FIXME!
-		log.info(messageFromClient.toString());
+		log.info(inObj.toString());
 		
-		SyncCancelUploadFile inObj = (SyncCancelUploadFile) messageFromClient;
 		int clientSourceFileID = inObj.getClientSourceFileID();
 		int serverTargetFileID = inObj.getServerTargetFileID();
 		

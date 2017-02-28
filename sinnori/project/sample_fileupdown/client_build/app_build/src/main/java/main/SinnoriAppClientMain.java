@@ -17,27 +17,18 @@
 
 package main;
 
-import kr.pe.sinnori.common.lib.CommonRootIF;
-import kr.pe.sinnori.common.lib.CommonStaticFinalVars;
 import kr.pe.sinnori.util.SinnoriClientWorker;
 
-public class SinnoriAppClientMain implements CommonRootIF {
+public class SinnoriAppClientMain {
+	// private Logger log = LoggerFactory.getLogger(SinnoriAppClientMain.class);
+	
 	
 	public static void main(String[] args) {
-		String projectName = System.getProperty(CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);
-		if (null == projectName) {
-			log.error("자바 시스템 환경 변수[{}] 가 정의되지 않았습니다.", CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME);
-			System.exit(1);
-		}
 		
-		if (projectName.trim().length() == 0) {
-			log.error("자바 시스템 환경 변수[{}] 값[{}]이 빈 문자열 있습니다.", CommonStaticFinalVars.SINNORI_PROJECT_NAME_JAVA_SYSTEM_VAR_NAME, projectName);
-			System.exit(1);
-		}
 
 		/** 강제적인 클라이언트 모드로 변경 */
 		try {
-			SinnoriClientWorker.getInstance().start(projectName, "SyncFileUpDownClient");
+			SinnoriClientWorker.getInstance().start("SyncFileUpDownClient");
 			//SinnoriWorker.getInstance().start(projectName, "ASynFileUpDownClient");
 		} catch (Exception e) {			
 			e.printStackTrace();

@@ -21,7 +21,6 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import kr.pe.sinnori.common.exception.UpDownFileException;
-import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.updownfile.LocalTargetFileResource;
 import kr.pe.sinnori.gui.lib.SyncMainControllerIF;
 import kr.pe.sinnori.gui.screen.FileTranferProcessDialog;
@@ -42,7 +41,9 @@ import kr.pe.sinnori.impl.message.DownFileDataResult.DownFileDataResult;
  * @author Won Jonghoon
  *
  */
-public class SyncDownloadFileTransferTask implements CommonRootIF, FileTransferTaskIF {
+public class SyncDownloadFileTransferTask implements FileTransferTaskIF {
+	// private Logger log = LoggerFactory.getLogger(SyncDownloadFileTransferTask.class);
+	
 	private JFrame mainFrame = null;
 	private SyncMainControllerIF mainController = null;
 	private FileTranferProcessDialog fileTranferProcessDialog = null;

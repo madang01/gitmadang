@@ -19,7 +19,7 @@ package kr.pe.sinnori.impl.message.SyncUpFileInfo;
 import java.nio.charset.Charset;
 import java.util.LinkedList;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.message.codec.MessageEncoder;
+import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
 
 /**
@@ -27,7 +27,7 @@ import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
  * @author Won Jonghoon
  *
  */
-public final class SyncUpFileInfoEncoder extends MessageEncoder {
+public final class SyncUpFileInfoEncoder extends AbstractMessageEncoder {
 	@Override
 	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj)
 			throws Exception {
@@ -59,7 +59,7 @@ public final class SyncUpFileInfoEncoder extends MessageEncoder {
 					, 0 // itemTypeID
 					, "byte" // itemTypeName
 					, syncUpFileInfo.getAppend() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -67,7 +67,7 @@ public final class SyncUpFileInfoEncoder extends MessageEncoder {
 					, 4 // itemTypeID
 					, "integer" // itemTypeName
 					, syncUpFileInfo.getClientSourceFileID() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -75,7 +75,7 @@ public final class SyncUpFileInfoEncoder extends MessageEncoder {
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
 					, syncUpFileInfo.getLocalFilePathName() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -83,7 +83,7 @@ public final class SyncUpFileInfoEncoder extends MessageEncoder {
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
 					, syncUpFileInfo.getLocalFileName() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -91,7 +91,7 @@ public final class SyncUpFileInfoEncoder extends MessageEncoder {
 					, 6 // itemTypeID
 					, "long" // itemTypeName
 					, syncUpFileInfo.getLocalFileSize() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -99,7 +99,7 @@ public final class SyncUpFileInfoEncoder extends MessageEncoder {
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
 					, syncUpFileInfo.getRemoteFilePathName() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -107,7 +107,7 @@ public final class SyncUpFileInfoEncoder extends MessageEncoder {
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
 					, syncUpFileInfo.getRemoteFileName() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -115,7 +115,7 @@ public final class SyncUpFileInfoEncoder extends MessageEncoder {
 					, 6 // itemTypeID
 					, "long" // itemTypeName
 					, syncUpFileInfo.getRemoteFileSize() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -123,7 +123,7 @@ public final class SyncUpFileInfoEncoder extends MessageEncoder {
 					, 4 // itemTypeID
 					, "integer" // itemTypeName
 					, syncUpFileInfo.getFileBlockSize() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);

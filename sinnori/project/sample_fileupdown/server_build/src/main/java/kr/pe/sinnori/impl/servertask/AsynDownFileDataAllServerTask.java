@@ -16,7 +16,6 @@
  */
 package kr.pe.sinnori.impl.servertask;
 
-import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.exception.UpDownFileException;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResource;
@@ -39,14 +38,18 @@ import kr.pe.sinnori.server.executor.LetterSender;
 public class AsynDownFileDataAllServerTask extends AbstractAuthServerExecutor {
 
 	@Override
-	public void doTask(ServerProjectConfig serverProjectConfig,
+	public void doTask(String projectName,
 			LoginManagerIF loginManager,
-			LetterSender letterSender, AbstractMessage messageFromClient)
+			LetterSender letterSender, AbstractMessage inObj)
+			throws Exception {
+		doWork(projectName, letterSender, (AsynDownFileDataAll)inObj);
+	}
+	
+	private void doWork(String projectName,
+			LetterSender letterSender, AsynDownFileDataAll inObj)
 			throws Exception {
 		// FIXME!
-		log.info(messageFromClient.toString());
-
-		AsynDownFileDataAll inObj = (AsynDownFileDataAll) messageFromClient;
+		log.info(inObj.toString());
 		int serverSourceFileID = inObj.getServerSourceFileID();
 		int clientTargetFileID = inObj.getClientTargetFileID();
 		/*

@@ -26,9 +26,13 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import kr.pe.sinnori.client.ClientProjectIF;
+import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import kr.pe.sinnori.client.ClientProject;
+import kr.pe.sinnori.client.ClientProjectManager;
 import kr.pe.sinnori.client.connection.AbstractConnection;
-import kr.pe.sinnori.common.configuration.ClientProjectConfig;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
@@ -75,14 +79,14 @@ import kr.pe.sinnori.impl.message.UpFileDataResult.UpFileDataResult;
 import kr.pe.sinnori.impl.message.UpFileInfoResult.UpFileInfoResult;
 import kr.pe.sinnori.util.AbstractClientExecutor;
 
-import org.apache.commons.codec.binary.Base64;
-
 /**
  * 샘플 파일 송수신 클라이언트 버전2
  * @author madang01
  *
  */
 public class ASynFileUpDownClientCExtor extends AbstractClientExecutor implements AsynMainControllerIF {
+	private Logger log = LoggerFactory.getLogger(ASynFileUpDownClientCExtor.class);
+	
 	// private final Object monitor = new Object();	
 	private AbstractConnection conn = null; 
 	
@@ -93,9 +97,6 @@ public class ASynFileUpDownClientCExtor extends AbstractClientExecutor implement
 	private FileTranferProcessDialog fileProcessDialog = null;
 	
 
-	private ClientProjectIF clientProject = null;
-	private ClientProjectConfig clientProjectConfig = null;
-	
 	private ClientSessionKeyManager clientSessionKeyManager = null;
 	
 	private AsynFileUpDownOutputMessageTask  fileUpDown2AsynOutputMessageTask = null;
@@ -109,6 +110,9 @@ public class ASynFileUpDownClientCExtor extends AbstractClientExecutor implement
 	private int connectionScreenWidth = -1, connectionScreenHeight = -1;
 	private int fileUpDownScreenWidth = -1, fileUpDownScreenHeight = -1;
 	
+	
+	private ClientProject mainClientProject = ClientProjectManager.getInstance().getMainClientProject();
+	
 	/**
 	 * Initialize the contents of the frame.
 	 */
@@ -116,7 +120,7 @@ public class ASynFileUpDownClientCExtor extends AbstractClientExecutor implement
 		// log.info("call");
 		
 		try {
-			conn = clientProject.getConnection();
+			conn = mainClientProject.getConnection();
 		} catch (InterruptedException e) {
 			log.error("InterruptedException", e);
 			System.exit(1);
@@ -135,7 +139,7 @@ public class ASynFileUpDownClientCExtor extends AbstractClientExecutor implement
 		});
 		// mainFrame.setBounds(100, 100, 450, 223);
 		
-		connectionScreen = new ConnectionScreen(clientProjectConfig, mainFrame, this);
+		connectionScreen = new ConnectionScreen(mainFrame, this);
 		
 		mainFrame.add(connectionScreen);
 		mainFrame.pack();
@@ -151,15 +155,15 @@ public class ASynFileUpDownClientCExtor extends AbstractClientExecutor implement
 		
 	
 	@Override
-	protected void doTask(ClientProjectConfig clientProjectConfig, ClientProjectIF clientProject)
+	protected void doTask()
 			throws SocketTimeoutException, ServerNotReadyException, NoMoreDataPacketBufferException, 
 			BodyFormatException, DynamicClassCallException, ServerTaskException, NotLoginException {
-		// connectionOK = this;
-		this.clientProject = clientProject;
-		this.clientProjectConfig = clientProjectConfig;
+		
 		
 		this.fileUpDown2AsynOutputMessageTask = new AsynFileUpDownOutputMessageTask(this);
-		clientProject.changeAsynOutputMessageTask(fileUpDown2AsynOutputMessageTask);
+		
+		
+		mainClientProject.changeAsynOutputMessageTask(fileUpDown2AsynOutputMessageTask);
 		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -205,7 +209,7 @@ public class ASynFileUpDownClientCExtor extends AbstractClientExecutor implement
 	@Override
 	public byte[] getBinaryPublicKey(String newServerHost, int newServerPort) {
 		/** 변경된 호스트와 포트로 접속할 수 있도록 클라이언트 환경 변수에 저장 */
-		clientProjectConfig.changeServerAddress(newServerHost, newServerPort);
+		mainClientProject.changeServerAddress(newServerHost, newServerPort);
 		/** 새로운 연결 전에 기존 연결 종료 */
 		if (conn.isConnected()) conn.serverClose();
 		
@@ -287,7 +291,7 @@ public class ASynFileUpDownClientCExtor extends AbstractClientExecutor implement
 		String sessionKeyBase64 = null;
 		String ivBase64 = null;
 		
-		String charsetNameOfProject = clientProjectConfig.getCharset().name();
+		String charsetNameOfProject = mainClientProject.getCharset().name();
 		
 		try {
 			idCipherBase64 = symmetricKey.encryptStringBase64(id, charsetNameOfProject);
@@ -1047,13 +1051,13 @@ public class ASynFileUpDownClientCExtor extends AbstractClientExecutor implement
 				
 				JOptionPane.showMessageDialog(mainFrame, resultMessage);
 			} else if (outObj instanceof SelfExn) {
-				log.warn(String.format("projectName[%s] SelfExn, %s", clientProjectConfig.getProjectName(), outObj.toString()));
+				log.warn(String.format("projectName[%s] SelfExn, %s", mainClientProject.getProjectName(), outObj.toString()));
 			} else {
-				log.warn(String.format("projectName[%s] unknown output message, %s", clientProjectConfig.getProjectName(), outObj.toString()));
+				log.warn(String.format("projectName[%s] unknown output message, %s", mainClientProject.getProjectName(), outObj.toString()));
 			}
 			
 		} catch (Exception e) {
-			log.warn(String.format("projectName[%s] %s", clientProjectConfig.getProjectName(), e.getMessage()), e);
+			log.warn(String.format("projectName[%s] %s", mainClientProject.getProjectName(), e.getMessage()), e);
 			JOptionPane.showMessageDialog(mainFrame, "unknown error::"+e.getMessage());
 		}
 	}

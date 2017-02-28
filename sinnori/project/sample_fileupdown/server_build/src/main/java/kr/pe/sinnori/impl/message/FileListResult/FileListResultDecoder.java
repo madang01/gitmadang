@@ -19,7 +19,7 @@ package kr.pe.sinnori.impl.message.FileListResult;
 import java.nio.charset.Charset;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.message.codec.MessageDecoder;
+import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 
 /**
@@ -27,7 +27,7 @@ import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
  * @author Won Jonghoon
  *
  */
-public final class FileListResultDecoder extends MessageDecoder {
+public final class FileListResultDecoder extends AbstractMessageDecoder {
 
 	/**
 	 * <pre>
@@ -50,7 +50,7 @@ public final class FileListResultDecoder extends MessageDecoder {
 		, "requestDirectory" // itemName
 		, 9 // itemTypeID
 		, "si pascal string" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -60,7 +60,7 @@ public final class FileListResultDecoder extends MessageDecoder {
 		, "pathSeperator" // itemName
 		, 7 // itemTypeID
 		, "ub pascal string" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -70,7 +70,7 @@ public final class FileListResultDecoder extends MessageDecoder {
 		, "taskResult" // itemName
 		, 7 // itemTypeID
 		, "ub pascal string" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -80,7 +80,7 @@ public final class FileListResultDecoder extends MessageDecoder {
 		, "resultMessage" // itemName
 		, 9 // itemTypeID
 		, "si pascal string" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -90,7 +90,7 @@ public final class FileListResultDecoder extends MessageDecoder {
 		, "cntOfDriver" // itemName
 		, 4 // itemTypeID
 		, "integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -109,19 +109,19 @@ public final class FileListResultDecoder extends MessageDecoder {
 			, "driverName" // itemName
 			, 7 // itemTypeID
 			, "ub pascal string" // itemTypeName
-			, -1 // itemSizeForLang
+			, -1 // itemSize
 			, null // itemCharset,
 			, charsetOfProject
 			, driverMiddleReadObj));
-fileListResult.setDriverList(driverList);
 		}
+		fileListResult.setDriverList(driverList);
 
 		fileListResult.setCntOfFile((Integer)
 		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
 		, "cntOfFile" // itemName
 		, 4 // itemTypeID
 		, "integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -140,7 +140,7 @@ fileListResult.setDriverList(driverList);
 			, "fileName" // itemName
 			, 9 // itemTypeID
 			, "si pascal string" // itemTypeName
-			, -1 // itemSizeForLang
+			, -1 // itemSize
 			, null // itemCharset,
 			, charsetOfProject
 			, fileMiddleReadObj));
@@ -150,7 +150,7 @@ fileListResult.setDriverList(driverList);
 			, "fileSize" // itemName
 			, 6 // itemTypeID
 			, "long" // itemTypeName
-			, -1 // itemSizeForLang
+			, -1 // itemSize
 			, null // itemCharset,
 			, charsetOfProject
 			, fileMiddleReadObj));
@@ -160,12 +160,12 @@ fileListResult.setDriverList(driverList);
 			, "fileType" // itemName
 			, 0 // itemTypeID
 			, "byte" // itemTypeName
-			, -1 // itemSizeForLang
+			, -1 // itemSize
 			, null // itemCharset,
 			, charsetOfProject
 			, fileMiddleReadObj));
-fileListResult.setFileList(fileList);
 		}
+		fileListResult.setFileList(fileList);
 		return fileListResult;
 	}
 }

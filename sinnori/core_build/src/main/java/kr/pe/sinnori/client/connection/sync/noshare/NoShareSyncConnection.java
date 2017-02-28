@@ -95,20 +95,20 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 		
 		this.messageProtocol = messageProtocol;
 		
-		try {
+		/*try {
 			reopenSocketChannel();
 		} catch (IOException e) {
 			String errorMessage = String.format("project[%s] NoShareSyncConnection[%d], fail to config a socket channel", projectName, index);
 			log.error(errorMessage, e);
 			System.exit(1);
-		}
+		}*/
 		
 		/**
 		 * 연결 종류별로 설정이 모두 다르다 따라서 설정 변수 "소켓 자동접속 여부"에 따른 서버 연결은 연결별 설정후 수행해야 한다.
 		 */
 		if (whetherToAutoConnect) {
 			try {
-				serverOpen();
+				connectServerIfNoConnection();
 			} catch (ServerNotReadyException e) {
 				log.warn(String.format("project[%s] NoShareSyncConnection[%d] fail to connect server", projectName, index), e);
 				// System.exit(1);
@@ -122,7 +122,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 	 * 비공유 + 동기 연결 전용 소켓 채널 열기
 	 * @throws IOException 소켓 채널을 개방할때 혹은 비공유 + 동기 에 맞도록 설정할때 에러 발생시 던지는 예외 
 	 */
-	private void reopenSocketChannel() throws IOException {
+	private void openSyncSocketChannel() throws IOException {
 		serverSC = SocketChannel.open();
 		serverSC.configureBlocking(true);
 		serverSC.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
@@ -175,7 +175,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 	}
 	
 	@Override
-	public void serverOpen() throws ServerNotReadyException {
+	public void connectServerIfNoConnection() throws ServerNotReadyException {
 		// log.info("projectName[%s%02d] call serverOpen start", projectName,
 		// index);
 		/**
@@ -194,6 +194,12 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 		try {
 			// log.info("open start");
 			// synchronized (monitor) {
+			
+			if (null == serverSC || !serverSC.isOpen()) {
+				openSyncSocketChannel();
+			}
+			
+			
 				// (재)연결 판단 로직, 2번이상 SocketChannel.open() 호출하는것을 막는 역활을 한다.
 				if (serverSC.isConnected()) {
 					//log.info(new StringBuilder(info).append(" connected").toString());
@@ -207,14 +213,14 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 				InetSocketAddress remoteAddr = new InetSocketAddress(
 						hostOfProject,
 						portOfProject);
+				
+				// log.info("111111 socketTimeOut=[%d]", socketTimeOut);
+				
+				
 				/**
 				 * 주의할것 : serverSC.connect(remoteAddr); 는 무조건 블락되어 사용할 수 없음.
 				 * 아래처럼 사용해야 타임아웃 걸림.
 				 */
-				// log.info("111111 socketTimeOut=[%d]", socketTimeOut);
-				if (!serverSC.isOpen()) {
-					reopenSocketChannel();
-				}
 				serverSocket.connect(remoteAddr, (int) socketTimeOut);
 	
 				initSocketResource();
@@ -288,7 +294,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 		// String messageID = inObj.getMessageID();
 		// LetterFromServer letterFromServer = null;
 		
-		serverOpen();
+		connectServerIfNoConnection();
 
 		ClassLoader classLoader = inObj.getClass().getClassLoader();
 		inObj.messageHeaderInfo.mailboxID = NoShareSyncConnection.ONLY_ONE_MAILBOX_ID;

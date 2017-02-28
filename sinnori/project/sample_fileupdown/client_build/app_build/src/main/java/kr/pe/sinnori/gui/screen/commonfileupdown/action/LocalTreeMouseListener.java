@@ -26,7 +26,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JTree;
 import javax.swing.tree.TreePath;
 
-import kr.pe.sinnori.common.lib.CommonRootIF;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.gui.lib.LocalFileTreeNode;
 import kr.pe.sinnori.gui.screen.commonfileupdown.FileUpDownScreenIF;
 
@@ -35,7 +37,9 @@ import kr.pe.sinnori.gui.screen.commonfileupdown.FileUpDownScreenIF;
  * @author Won Jonghoon
  *
  */
-public class LocalTreeMouseListener extends MouseAdapter implements CommonRootIF {
+public class LocalTreeMouseListener extends MouseAdapter {
+	private Logger log = LoggerFactory.getLogger(LocalTreeMouseListener.class);
+	
 	private JFrame mainFrame = null;
 	private FileUpDownScreenIF fileUpDownScreen = null;
 	private JTree localTree = null;

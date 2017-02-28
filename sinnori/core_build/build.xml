@@ -6,7 +6,7 @@
 	<property name="dir.build" location="build" />
 	<property name="dir.dist" location="dist" />
 	<property name="dir.lib" location="lib" />
-	<property name="dir.APP-INF" location="APP-INF" />
+	<property name="dir.appinf" location="APP-INF" />
 	<property name="java.complile.option.debug" value="on" />
 	
 	<target name="clean.core">
@@ -27,9 +27,9 @@
 	
 
 	<target name="compile.common" depends="init.core">	  
-		<mkdir dir="${dir.build}/common_lib" />
+		<mkdir dir="${dir.build}/core_common" />
 		
-		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}/common_lib">
+		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}/core_common">
 			<include name="kr/pe/sinnori/common/**" />
       <include name="kr/pe/sinnori/impl/message/SelfExn/**" />
      
@@ -47,7 +47,7 @@
 	<target name="make.common" depends="compile.common">
 	  <mkdir dir="${dir.dist}" />
 	  
-		<jar jarfile="${dir.dist}/sinnori-common.jar" basedir="${dir.build}/common_lib">
+		<jar jarfile="${dir.dist}/sinnori-core-common.jar" basedir="${dir.build}/core_common">
 			<restrict>
 				<name name="**/*.class" />
 				<archives>
@@ -59,14 +59,14 @@
 		</jar>
 	</target>
 
-	<target name="compile.server.nodepend">
-		<echo message="this task depends on make.common task" />
+	<target name="compile.server">
+		<echo message="this compile.server task doesn't have 'depends' tag so you must call make.common task before this task" />
 		
-		<mkdir dir="${dir.build}/server_lib" />
-		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}/server_lib">
+		<mkdir dir="${dir.build}/core_server" />
+		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}/core_server">
 			<include name="kr/pe/sinnori/server/**" />
 			<classpath>
-				<fileset file="${dir.dist}/sinnori-common.jar" />
+				<fileset file="${dir.dist}/sinnori-core-common.jar" />
 				<fileset dir="${dir.lib}/ex">
 					<include name="**/*.jar" />
 				</fileset>
@@ -75,15 +75,14 @@
 	</target>
 	
 	
-	<target name="compile.client.nodepend">
-		<echo message="this task depends on make.common task" />
-		<echo message="echo dir.lib =[${dir.lib}/ex]" />	
+	<target name="compile.client">
+		<echo message="this compile.client task doesn't have 'depends' tag so you must call make.common task before this task" />
 		
-		<mkdir dir="${dir.build}/client_lib" />
-		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}/client_lib">
+		<mkdir dir="${dir.build}/core_client" />
+		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}/core_client">
 			<include name="kr/pe/sinnori/client/**" />
 			<classpath>
-				<fileset file="${dir.dist}/sinnori-common.jar" />
+				<fileset file="${dir.dist}/sinnori-core-common.jar" />
 				<fileset dir="${dir.lib}/ex">
 					<include name="**/*.jar" />
 				</fileset>
@@ -91,11 +90,11 @@
 		</javac>
 	</target>
 
-	<target name="make.all" depends="make.common, compile.client.nodepend, compile.server.nodepend">
+	<target name="make.core" depends="make.common, compile.client, compile.server">
 		<jar jarfile="${dir.dist}/sinnori-core.jar">
-			<fileset dir="${dir.build}/common_lib" />
-			<fileset dir="${dir.build}/server_lib" />
-			<fileset dir="${dir.build}/client_lib" />
+			<fileset dir="${dir.build}/core_common" />
+			<fileset dir="${dir.build}/core_server" />
+			<fileset dir="${dir.build}/core_client" />
 			
 			<restrict>
 				<name name="**/*.class" />
@@ -107,9 +106,9 @@
 			</restrict>
 		</jar>
 		
-		<jar jarfile="${dir.dist}/sinnori-client.jar">
-			<fileset dir="${dir.build}/common_lib" />
-			<fileset dir="${dir.build}/client_lib" />
+		<jar jarfile="${dir.dist}/sinnori-core-client.jar">
+			<fileset dir="${dir.build}/core_common" />
+			<fileset dir="${dir.build}/core_client" />
 			
 			<restrict>
 				<name name="**/*.class" />
@@ -121,9 +120,9 @@
 			</restrict>
 		</jar>
 		
-		<jar jarfile="${dir.dist}/sinnori-server.jar">
-			<fileset dir="${dir.build}/common_lib" />
-			<fileset dir="${dir.build}/server_lib" />
+		<jar jarfile="${dir.dist}/sinnori-core-server.jar">
+			<fileset dir="${dir.build}/core_common" />
+			<fileset dir="${dir.build}/core_server" />
 			<restrict>
 				<name name="**/*.class" />
 				<archives>
@@ -136,15 +135,18 @@
 	</target>
 	
 	
-	<target name="compile.server.appinf" depends="make.all">
+	<target name="compile.server.appinf" depends="make.core">
+	<echo message="this compile.server.appinf task compile 'MyBatis SqlSessionFactory Manager' source file" />
+	
 	  <mkdir dir="${dir.build}/appinf" />
-		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.APP-INF}/src" destdir="${dir.build}/appinf">
+		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}/appinf">
+			<include name="kr/pe/sinnori/impl/server/mybatis/**" />
 			<classpath>
-				<fileset file="${dir.dist}/sinnori-server.jar" />
+				<fileset file="${dir.dist}/sinnori-core-server.jar" />
 				<fileset dir="${dir.lib}/ex">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${dir.APP-INF}/lib">
+				<fileset dir="${dir.appinf}/lib">
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>

@@ -21,7 +21,9 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
-import kr.pe.sinnori.common.lib.CommonRootIF;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.gui.screen.commonfileupdown.FileUpDownScreenIF;
 
 /**
@@ -30,7 +32,10 @@ import kr.pe.sinnori.gui.screen.commonfileupdown.FileUpDownScreenIF;
  *
  */
 @SuppressWarnings("serial")
-public class LocalReloadSwingAction extends AbstractAction implements CommonRootIF {
+public class LocalReloadSwingAction extends AbstractAction {
+	private Logger log = LoggerFactory.getLogger(LocalReloadSwingAction.class);
+	
+	
 	private FileUpDownScreenIF fileUpDownScreen = null;
 	
 	

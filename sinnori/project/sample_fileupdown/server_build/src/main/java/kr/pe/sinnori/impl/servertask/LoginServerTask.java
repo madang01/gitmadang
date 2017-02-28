@@ -16,7 +16,8 @@
  */
 package kr.pe.sinnori.impl.servertask;
 
-import kr.pe.sinnori.common.configuration.ServerProjectConfig;
+import java.nio.charset.Charset;
+
 import kr.pe.sinnori.common.exception.SinnoriUnsupportedEncodingException;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.message.AbstractMessage;
@@ -26,6 +27,8 @@ import kr.pe.sinnori.impl.message.Login.Login;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.LoginManagerIF;
+import kr.pe.sinnori.server.ServerProject;
+import kr.pe.sinnori.server.ServerProjectManager;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
 import kr.pe.sinnori.server.executor.LetterSender;
 
@@ -37,14 +40,19 @@ import kr.pe.sinnori.server.executor.LetterSender;
 public class LoginServerTask extends AbstractServerTask {
 
 	@Override
-	public void doTask(ServerProjectConfig serverProjectConfig,
+	public void doTask(String projectName,
 			LoginManagerIF loginManager,
-			LetterSender letterSender, AbstractMessage messageFromClient)
+			LetterSender letterSender, AbstractMessage inObj)
+			throws Exception {
+		doWork(projectName, letterSender, (Login)inObj);
+	}
+	
+	private void doWork(String projectName,
+			LetterSender letterSender, Login inObj)
 			throws Exception {
 		// FIXME!
-		log.info(messageFromClient.toString());
+		log.info(inObj.toString());
 		
-		Login inObj = (Login) messageFromClient;
 		String idCipherBase64 = inObj.getIdCipherBase64();
 		String pwdCipherBase64 = inObj.getPwdCipherBase64();
 		String sessionKeyBase64 = inObj.getSessionKeyBase64();
@@ -81,16 +89,17 @@ public class LoginServerTask extends AbstractServerTask {
 			return;
 		}
 		
+		ServerProject runningMainSeverProject = ServerProjectManager.getInstance().getRunningMainServerProject();
 		
 		
 // 		ClientResourceManagerIF clientResourceManager = (ClientResourceManagerIF)clientResource;
-		String clientCharsetName = serverProjectConfig.getCharset().name();
+		Charset charsetOfMainProject = runningMainSeverProject.getCharset();
 		
 		String mID =  null;
 		String mPWD =  null;
 		
 		try {
-			mID = symmetricKey.decryptStringBase64(idCipherBase64, clientCharsetName);
+			mID = symmetricKey.decryptStringBase64(idCipherBase64, charsetOfMainProject);
 		} catch (IllegalArgumentException e) {
 			log.warn("IllegalArgumentException", e);
 			
@@ -121,7 +130,7 @@ public class LoginServerTask extends AbstractServerTask {
 		}
 		
 		try {
-			mPWD =  symmetricKey.decryptStringBase64(pwdCipherBase64, clientCharsetName);
+			mPWD =  symmetricKey.decryptStringBase64(pwdCipherBase64, charsetOfMainProject);
 		} catch (IllegalArgumentException e) {
 			log.warn("IllegalArgumentException", e);
 			
@@ -173,8 +182,11 @@ public class LoginServerTask extends AbstractServerTask {
 			letterSender.addSyncMessage(outObj);
 			return;
 		}
+				
 		
-		if (loginManager.isLogin(mID)) {;
+		
+		
+		if (runningMainSeverProject.isLogin(mID)) {;
 			/*outObj.setAttribute("taskResult", "N");
 			outObj.setAttribute("resultMessage", "이미 로그인한 상태입니다.");
 
@@ -184,9 +196,10 @@ public class LoginServerTask extends AbstractServerTask {
 			letterSender.addSyncMessage(outObj);
 			return;
 		}
+		
 
 		ClientResource clientResource = letterSender.getClientResource();
-		loginManager.login(mID, clientResource);
+		runningMainSeverProject.login(mID, clientResource);
 		
 		/*outObj.setAttribute("taskResult", "Y");
 		outObj.setAttribute("resultMessage", "회원 가입을 축하드립니다.");

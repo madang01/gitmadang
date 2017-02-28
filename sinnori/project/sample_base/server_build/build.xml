@@ -72,7 +72,7 @@
     <!-- Except for the sample class file that inherits the UnpooledDataSourceFactory class and gets a db connection pool from the DBCPManager class -->
 		<copy todir="${dir.src}/kr/pe/sinnori/impl/server/mybatis/" verbose="true" overwrite="false">
 		  <!-- the SqlSessionFactoryManger class depends on the server dynimic class loader -->
-			<fileset file="${dir.core.build}/APP-INF/src/kr/pe/sinnori/impl/server/mybatis/SampleBaseDBSourceFactory.java.txt" />
+			<fileset file="${dir.core.build}/src/main/java/kr/pe/sinnori/impl/server/mybatis/SampleBaseDBSourceFactory.java.txt" />
 		</copy>
 		
 		<copy todir="${dir.appinf}/classes" verbose="true" overwrite="false">

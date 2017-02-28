@@ -100,7 +100,7 @@ public final class ServerProjectManager {
 	 * @return 프로젝터 이름에 1:1 대응하는 서버 프로젝트 {@link ServerProject}
 	 * @throws NotFoundProjectException 
 	 */
-	public ServerProject getSubServerProject(String subProjectName) throws NotFoundProjectException {
+	public ServerProject getRunningSubServerProject(String subProjectName) throws NotFoundProjectException {
 		ServerProject serverProject =  subServerProjectHash.get(subProjectName);
 		if (null == serverProject) {
 			StringBuilder errorBuilder = new StringBuilder("신놀이 프레임 워크 환경설정 파일에 찾고자 하는 서버 프로젝트[");
@@ -114,7 +114,7 @@ public final class ServerProjectManager {
 		return serverProject;
 	}
 	
-	public ServerProject getMainServerProject() {
+	public ServerProject getRunningMainServerProject() {
 		return mainServerProject;
 	}
 }

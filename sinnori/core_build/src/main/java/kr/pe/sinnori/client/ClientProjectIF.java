@@ -17,6 +17,7 @@
 
 package kr.pe.sinnori.client;
 
+import java.io.IOException;
 import java.net.SocketTimeoutException;
 
 import kr.pe.sinnori.client.connection.AbstractConnection;
@@ -85,4 +86,8 @@ public interface ClientProjectIF {
 	 * @return 메시지 스트림 변환 프로토콜
 	 */
 	public MessageProtocolIF getMessageProtocol();
+	
+	public void changeServerAddress(String newServerHost, int newServerPort);
+	
+	public void saveSinnoriConfiguration() throws IOException;
 }

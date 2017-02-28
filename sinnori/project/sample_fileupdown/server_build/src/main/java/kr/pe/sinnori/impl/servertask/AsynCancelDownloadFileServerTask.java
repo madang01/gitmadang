@@ -16,7 +16,6 @@
  */
 package kr.pe.sinnori.impl.servertask;
 
-import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResource;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResourceManager;
@@ -34,44 +33,49 @@ import kr.pe.sinnori.server.executor.LetterSender;
 public class AsynCancelDownloadFileServerTask extends AbstractAuthServerExecutor {
 
 	@Override
-	public void doTask(ServerProjectConfig serverProjectConfig,
+	public void doTask(String projectName,
 			LoginManagerIF loginManager,
-			LetterSender letterSender, AbstractMessage messageFromClient)
+			LetterSender letterSender, AbstractMessage inObj)
+			throws Exception {
+		doWork(projectName, letterSender, (AsynCancelDownloadFile)inObj);
+	}
+	
+	private void doWork(String projectName,
+			LetterSender letterSender, AsynCancelDownloadFile inObj)
 			throws Exception {
 		// FIXME!
-		log.info(messageFromClient.toString());
-		
-		AsynCancelDownloadFile inObj = (AsynCancelDownloadFile) messageFromClient;
-		int serverSourceFileID = inObj.getServerSourceFileID();
-		int clientTargetFileID = inObj.getClientTargetFileID();
-		
-		LocalSourceFileResourceManager localSourceFileResourceManager = LocalSourceFileResourceManager.getInstance();
-		CancelDownloadFileResult outObj = new CancelDownloadFileResult();
-		
-		/*int serverSourceFileID = (Integer)inObj.getAttribute("serverSourceFileID");
-		int clientTargetFileID = (Integer)inObj.getAttribute("clientTargetFileID");*/
-		
-		LocalSourceFileResource  localSourceFileResource = null;
-		
-		localSourceFileResource = localSourceFileResourceManager.getLocalSourceFileResource(serverSourceFileID);
-		
-		if (null == localSourceFileResource) {
-			/*OutputMessage outObj = messageManger.createOutputMessage("CancelDownloadFileResult");			
-			outObj.setAttribute("taskResult", "N");
-			outObj.setAttribute("resultMessage", String.format("존재하지 않는 서버 원본 파일[%d] 식별자입니다.", serverSourceFileID));
-			outObj.setAttribute("serverSourceFileID", serverSourceFileID);
-			outObj.setAttribute("clientTargetFileID", clientTargetFileID);
-			
-			letterSender.sendAsyn(outObj);*/
-			
-			outObj.setTaskResult("N");
-			outObj.setResultMessage(String.format("존재하지 않는 서버 원본 파일[%d] 식별자입니다.", serverSourceFileID));
-			outObj.setServerSourceFileID(serverSourceFileID);
-			outObj.setClientTargetFileID(clientTargetFileID);
-			letterSender.addAsynMessage(outObj);
-			return;
-		}
-		
-		localSourceFileResource.cancel();
+				log.info(inObj.toString());
+				
+				int serverSourceFileID = inObj.getServerSourceFileID();
+				int clientTargetFileID = inObj.getClientTargetFileID();
+				
+				LocalSourceFileResourceManager localSourceFileResourceManager = LocalSourceFileResourceManager.getInstance();
+				CancelDownloadFileResult outObj = new CancelDownloadFileResult();
+				
+				/*int serverSourceFileID = (Integer)inObj.getAttribute("serverSourceFileID");
+				int clientTargetFileID = (Integer)inObj.getAttribute("clientTargetFileID");*/
+				
+				LocalSourceFileResource  localSourceFileResource = null;
+				
+				localSourceFileResource = localSourceFileResourceManager.getLocalSourceFileResource(serverSourceFileID);
+				
+				if (null == localSourceFileResource) {
+					/*OutputMessage outObj = messageManger.createOutputMessage("CancelDownloadFileResult");			
+					outObj.setAttribute("taskResult", "N");
+					outObj.setAttribute("resultMessage", String.format("존재하지 않는 서버 원본 파일[%d] 식별자입니다.", serverSourceFileID));
+					outObj.setAttribute("serverSourceFileID", serverSourceFileID);
+					outObj.setAttribute("clientTargetFileID", clientTargetFileID);
+					
+					letterSender.sendAsyn(outObj);*/
+					
+					outObj.setTaskResult("N");
+					outObj.setResultMessage(String.format("존재하지 않는 서버 원본 파일[%d] 식별자입니다.", serverSourceFileID));
+					outObj.setServerSourceFileID(serverSourceFileID);
+					outObj.setClientTargetFileID(clientTargetFileID);
+					letterSender.addAsynMessage(outObj);
+					return;
+				}
+				
+				localSourceFileResource.cancel();
 	}
 }

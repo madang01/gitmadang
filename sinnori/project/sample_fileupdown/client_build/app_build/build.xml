@@ -1,15 +1,15 @@
-<project name="sample_fileupdown_appclient" default="make.main" basedir=".">
-	<description>
-		샘플 파일 송수신 자바 스윙 클라이언트
-	</description>
+<project name="sample_fileupdown_appclient" default="make.main.only" basedir=".">
 	<!-- set global properties for this build -->
-	<property name="src" location="src/main/java" />
-	<property name="build" location="build" />
-	<property name="dist" location="dist" />
-	<property name="corelib" location="corelib" />
-	<property name="lib" location="lib" />
-	<property name="framework.build" location="../../../../core_build" />
+	<property name="dir.src" location="src/main/java" />
+	<property name="dir.build" location="build" />
+	<property name="dir.dist" location="dist" />
+	<property name="dir.corelib" location="corelib" />
+	<property name="dir.lib" location="lib" />
+	<property name="dir.core.build" location="../../../../core_build" />
 	<property file="../../ant.properties" />
+	<property name="appclient.main.class" value="main.SinnoriAppClientMain" />
+	<property name="appclient.main.jar" value="SinnoriAppClientRun.jar" />
+	<property name="java.complile.option.debug" value="on" />
 	
 	<condition property="is.windows.yes">
 		<os family="windows" />
@@ -18,112 +18,84 @@
 		<os family="unix" />
 	</condition>
 	
-	<condition property="java.debug.yes">
-		<istrue value="${java.debug}" />
-	</condition>
 	
-	<target name="java.debug.yes.init" if="java.debug.yes" description="framework with debug info">
-		<property name="core.java.debug" value="debug" />
+	<target name="init.var">
+		<!-- Create the time stamp -->
+		<tstamp />
+	  <echo message="java.complile.option.debug=${java.complile.option.debug}" />
+	  <echo message="is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}" />
 	</target>
 	
-	<target name="java.debug.no.init" unless="java.debug.yes" description="framework with no debug info">
-		<property name="core.java.debug" value="nodebug" />
+	<target name="make.unixcore" if="is.unix.yes" depends="init.var">
+		<exec dir="${dir.core.build}" executable="ant" />
 	</target>
 	
-	<target name="dos.init" if="is.windows.yes">
-		<property name="weblib" location="${dos.weblib}" />
-	</target>
-	<target name="unix.init" if="is.unix.yes">
-		<property name="weblib" location="${unix.weblib}" />
-	</target>
-	
-	<target name="var.init" depends="java.debug.no.init, java.debug.yes.init, dos.init, unix.init" description="var init">
-		<echo message="java.debug=${java.debug}, core.java.debug=${core.java.debug}" />
-		<echo message="java.debug.yes=${java.debug.yes}" />
-	</target>
-
-	
-	<target name="unix.make.core" if="is.unix.yes">
-		<echo message="유니스 신놀이 프레임 워크 컴파일후 jar 만들기" />
-		<exec dir="${framework.build}" executable="ant">
-			<arg value="${core.java.debug}" />
-		</exec>
-	</target>
-	
-	<target name="dos.make.core" if="is.windows.yes">
-		<echo message="도스 신놀이 프레임 워크 컴파일후 jar 만들기" />
-		<exec dir="${framework.build}" executable="cmd">
+	<target name="make.doscore" if="is.windows.yes" depends="init.var">
+		<exec dir="${dir.core.build}" executable="cmd">
 			<arg value="/c" />
 			<arg value="ant.bat" />
-			<arg value="${core.java.debug}" />
 		</exec>
 	</target>
 
-	<target name="make.core" depends="var.init, dos.make.core, unix.make.core" description="신놀이 프레임 워크 컴파일 하여 jar 라이브러리 만들기" />
-	
-	<target name="corelib.clean" depends="var.init">
-		<delete dir="${corelib}" />
-	</target>
+	<target name="make.core" depends="make.doscore, make.unixcore" />
 
-	<target name="corelib.init" depends="corelib.clean">
-		<!-- Create the time stamp -->
-		<tstamp />
-		<!-- Create the build directory structure used by compile -->
-		<mkdir dir="${corelib}/ex" />
-		<mkdir dir="${corelib}/in" />	
-	</target>
-	
-	<target name="copy.core" description="sinnori framework core copy" depends="corelib.init">
-		<copy todir="${corelib}/in" verbose="true" overwrite="true">
-			<fileset file="${framework.build}/dist/sinnori-core.jar" />
+	<target name="copy.core" depends="make.core">
+	  <!-- core directory -->
+		<delete dir="${dir.corelib}" />
+		<mkdir dir="${dir.corelib}/ex" />
+		<mkdir dir="${dir.corelib}/in" />
+		
+		<copy todir="${dir.corelib}/in" verbose="true" overwrite="true">
+			<fileset file="${dir.core.build}/dist/sinnori-core.jar" />
 		</copy>
-		<copy todir="${corelib}/ex" verbose="true" overwrite="true">
-			<fileset dir="${framework.build}/lib/ex/" />
+		<copy todir="${dir.corelib}/ex" verbose="true" overwrite="true">
+			<fileset dir="${dir.core.build}/lib/ex/" />
 		</copy>		
 	</target>
-
-	<target name="sinnori" depends="make.core, copy.core" description="신놀이 프레임 워크 컴파일후 jar 만들어 가져오기">
-		<echo message="신놀이 프레임 워크 컴파일 하여  jar 라이브러리 만들어 가져오기" />
-	</target>
 		
-	<target name="clean.main" depends="var.init">
-		<!-- Delete the ${build} and ${dist} directory trees -->
-		<delete dir="${build}" />
-	</target>
-	
-	<target name="init.main" depends="var.init">
-		<!-- Create the time stamp -->
-		<tstamp />
-		<!-- Create the build directory structure used by compile -->
-		<mkdir dir="${build}" />
-	</target>
 	
 	
-	<target name="compile.main" depends="init.main" description="클라이언트 어플리 케이션 컴파일">
-		<!-- Compile the java code from ${src} into ${build} -->
-		<javac debug="${java.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${src}" destdir="${build}">
+	<target name="compile.main" depends="copy.core">
+	  <!-- this appclient project build directory -->
+		<delete dir="${dir.build}" />
+		<mkdir dir="${dir.build}" />
+		<mkdir dir="${dir.lib}/ex" />
+		<mkdir dir="${dir.lib}/in" />
+		
+		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}">
 			<classpath>
-				<fileset dir="${corelib}/ex">
+				<fileset dir="${dir.corelib}/ex">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${corelib}/in">
+				<fileset dir="${dir.corelib}/in">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${lib}/ex">
+				<fileset dir="${dir.lib}/ex">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${lib}/in">
+				<fileset dir="${dir.lib}/in">
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>
 		</javac>
 	</target>
 	
+	<target name="copy.distlib" depends="compile.main">
+	  <!-- this appclient project dist directory -->
+		<delete dir="${dir.dist}" />
+		<mkdir dir="${dir.dist}/lib" />	
+		
+		<copy todir="${dir.dist}/lib" verbose="true" overwrite="true">
+			<fileset dir="${dir.corelib}/ex" />
+			<fileset dir="${dir.lib}/ex" />
+		</copy>
+	</target>
+	
 	<path id="build.classpath">
 		<fileset dir="${basedir}">
 			<include name="corelib/ex/*.jar"/>
 			<include name="lib/ex/*.jar"/>
-		</fileset>		
+		</fileset>
 	</path>
 
 	<pathconvert property="manifest.classpath" pathsep=" ">
@@ -136,40 +108,62 @@
 	  </mapper>
 	</pathconvert>
 
-	<target name="copy.lib" depends="compile.main" description="클라이언트 어플리 케이션 jar 라이브러리 복사">
-		<delete dir="${dist}" />		
-		<mkdir dir="${dist}/lib" />
-
-		<copy todir="${dist}/lib" verbose="true" overwrite="true">
-			<fileset dir="${corelib}/ex" />
-			<fileset dir="${lib}/ex" />
-		</copy>
-	</target>
-	
-	<target name="make.main" depends="copy.lib" description="클라이언트 어플리 케이션 jar 만들기">
-		<!-- Compile the java code from ${src} into ${build} -->		
-		
-		<jar destfile="${dist}/SinnoriAppClientMain.jar" basedir="${build}">
+	<target name="make.main" depends="copy.distlib">		
+		<jar destfile="${dir.dist}/SinnoriAppClientRun.jar" basedir="${dir.build}">
 			<restrict>
 				<name name="**/*.class" />
 				<archives>
 					<zips>
-						<fileset dir="${corelib}/in" includes="**/*.jar" />
-						<fileset dir="${lib}/in" includes="**/*.jar" />
+						<fileset dir="${dir.corelib}/in" includes="**/*.jar" />
+						<fileset dir="${dir.lib}/in" includes="**/*.jar" />
 					</zips>
 				</archives>
 			</restrict>
 			<manifest>
-				<attribute name="Main-Class" value="main.SinnoriAppClientMain" />
+				<attribute name="Main-Class" value="${appclient.main.class}" />
 				<attribute name="Class-Path" value="${manifest.classpath}" />
 			</manifest>
 		</jar>
 	</target>
 	
-	
-	<target name="all" depends="sinnori, clean.main, make.main" description="신놀이 프레임 워크 컴파일후 jar 가져와서 클라이언트 어플리케이션 컴파일후 jar 만들기">
-		<echo message="is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}, java.debug=${java.debug}, core.java.debug=${core.java.debug}" />
+	<target name="all" depends="make.main" />
+		
+	<target name="compile.main.only" depends="init.var">
+		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}">
+			<classpath>
+				<fileset dir="${dir.corelib}/ex">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${dir.corelib}/in">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${dir.lib}/ex">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${dir.lib}/in">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
 	</target>
-
+	
+	
+	<target name="make.main.only" depends="compile.main.only">		
+		<jar destfile="${dir.dist}/SinnoriAppClientRun.jar" basedir="${dir.build}">
+			<restrict>
+				<name name="**/*.class" />
+				<archives>
+					<zips>
+						<fileset dir="${dir.corelib}/in" includes="**/*.jar" />
+						<fileset dir="${dir.lib}/in" includes="**/*.jar" />
+					</zips>
+				</archives>
+			</restrict>
+			<manifest>
+				<attribute name="Main-Class" value="${appclient.main.class}" />
+				<attribute name="Class-Path" value="${manifest.classpath}" />
+			</manifest>
+		</jar>
+	</target>
 </project>
 

@@ -19,7 +19,7 @@ package kr.pe.sinnori.impl.message.Login;
 import java.nio.charset.Charset;
 import java.util.LinkedList;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.message.codec.MessageEncoder;
+import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
 
 /**
@@ -27,7 +27,7 @@ import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
  * @author Won Jonghoon
  *
  */
-public final class LoginEncoder extends MessageEncoder {
+public final class LoginEncoder extends AbstractMessageEncoder {
 	@Override
 	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj)
 			throws Exception {
@@ -59,7 +59,7 @@ public final class LoginEncoder extends MessageEncoder {
 					, 9 // itemTypeID
 					, "si pascal string" // itemTypeName
 					, login.getIdCipherBase64() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -67,7 +67,7 @@ public final class LoginEncoder extends MessageEncoder {
 					, 9 // itemTypeID
 					, "si pascal string" // itemTypeName
 					, login.getPwdCipherBase64() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -75,7 +75,7 @@ public final class LoginEncoder extends MessageEncoder {
 					, 9 // itemTypeID
 					, "si pascal string" // itemTypeName
 					, login.getSessionKeyBase64() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -83,7 +83,7 @@ public final class LoginEncoder extends MessageEncoder {
 					, 9 // itemTypeID
 					, "si pascal string" // itemTypeName
 					, login.getIvBase64() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);

@@ -175,18 +175,22 @@ public abstract class CommonStaticUtil {
 			throw new RuntimeException(errorMessage);
 		}
 
-		if (!sourcePath.canRead()) {
-			String errorMessage = String.format("The path[%s] has a permission to read", 
-					sourcePathString);
-			throw new RuntimeException(errorMessage);
+		if (readWriteMode.equals(READ_WRITE_MODE.ONLY_READ) || readWriteMode.equals(READ_WRITE_MODE.READ_WRITE)) {
+			if (!sourcePath.canRead()) {
+				String errorMessage = String.format("The path[%s] has a permission to read", 
+						sourcePathString);
+				throw new RuntimeException(errorMessage);
+			}
 		}
-
-		if (!sourcePath.canWrite()) {
-			String errorMessage = String.format("The path[%s] has a permission to write", 
-					sourcePathString);
-			throw new RuntimeException(errorMessage);
+		
+		
+		if (readWriteMode.equals(READ_WRITE_MODE.ONLY_WRITE) || readWriteMode.equals(READ_WRITE_MODE.READ_WRITE)) {
+			if (!sourcePath.canWrite()) {
+				String errorMessage = String.format("The path[%s] has a permission to write", 
+						sourcePathString);
+				throw new RuntimeException(errorMessage);
+			}
 		}
-
 		return sourcePath;
 	}
 	

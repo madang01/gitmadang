@@ -27,6 +27,9 @@ import javax.swing.JTextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import kr.pe.sinnori.common.etc.CommonType.READ_WRITE_MODE;
+import kr.pe.sinnori.common.util.CommonStaticUtil;
+
 /**
  * 경로 선택 이벤트 처리 클래스
  * @author Won Jonghoon
@@ -40,54 +43,29 @@ public class PathSwingAction extends AbstractAction {
 	private JTextField pathTextField = null;
 	private JFileChooser pathChooser = null;
 	
-	
 	/**
 	 * 
 	 * @param sourcePathTextField the parameter sourcePathTextField is TextField component whose value is path
-	 * @param sourcePathTextFieldName parameter sourcePathTextField's name
-	 * @return the writable and readable path
-	 * @throws RuntimeException but if parameter  sourcePathTextField value is not a valid path then throw RuntimeException.
+	 * @param readWriteMode read/write mode
+	 * @return the valid path
+	 * @throws RuntimeException if the file is not a valid path. then throw it
 	 */
-	private File getWitableAndReadablePathFromTextField(JTextField sourcePathTextField,
-			String sourcePathTextFieldName) throws RuntimeException {
+	private File getValidPathFromTextField(JTextField sourcePathTextField, READ_WRITE_MODE	readWriteMode) throws RuntimeException {
 		String sourcePathString = sourcePathTextField.getText();
 		if (null == sourcePathString) {
-			String errorMessage = String.format("parameter sourcePathTextField[%s]'s value is nul",
-					sourcePathTextFieldName);
+			String errorMessage = String.format("parameter sourcePathTextField[%s]'s value is null",
+					sourcePathTextField.getName());
 			throw new RuntimeException(errorMessage);
 		}
 		sourcePathString = sourcePathString.trim();
 		sourcePathTextField.setText(sourcePathString);
 
-		if (sourcePathString.equals("")) {
-			String errorMessage = String.format("parameter sourcePathTextField[%s]'s value is empty",
-					sourcePathTextFieldName);
-			throw new RuntimeException(errorMessage);
-		}
-
-		File sourcePath = new File(sourcePathString);
-		if (!sourcePath.exists()) {
-			String errorMessage = String.format("The path[%s][%s] doesn't exist", sourcePathTextFieldName,
-					sourcePathString);
-			throw new RuntimeException(errorMessage);
-		}
-
-		if (!sourcePath.isDirectory()) {
-			String errorMessage = String.format("The path[%s][%s] is not a directory", sourcePathTextFieldName,
-					sourcePathString);
-			throw new RuntimeException(errorMessage);
-		}
-
-		if (!sourcePath.canRead()) {
-			String errorMessage = String.format("The path[%s][%s] has a permission to read", sourcePathTextFieldName,
-					sourcePathString);
-			throw new RuntimeException(errorMessage);
-		}
-
-		if (!sourcePath.canWrite()) {
-			String errorMessage = String.format("The path[%s][%s] has a permission to write", sourcePathTextFieldName,
-					sourcePathString);
-			throw new RuntimeException(errorMessage);
+		File sourcePath = null;
+		try {
+			sourcePath =CommonStaticUtil.getValidPath(sourcePathString, readWriteMode);
+		} catch(RuntimeException e) {
+			String errorMessage = e.toString();
+			throw new RuntimeException(String.format("parameter sourcePathTextField[%s]'s value is not a valid path::%s", sourcePathTextField.getName(), errorMessage));
 		}
 
 		return sourcePath;
@@ -112,10 +90,10 @@ public class PathSwingAction extends AbstractAction {
 	public void actionPerformed(ActionEvent e) {
 		File currrentWorkPath = null;
 		try {
-			currrentWorkPath = getWitableAndReadablePathFromTextField(pathTextField,  "the message information path");
+			currrentWorkPath = getValidPathFromTextField(pathTextField, READ_WRITE_MODE.ONLY_READ);
 		} catch(RuntimeException e1) {
-			String errorMessage = e1.toString();
-			log.info(errorMessage);
+			String errorMessage = e1.getMessage();
+			log.info("this JFileChooser sets the current directory to current working directory because {}", errorMessage);
 			
 			currrentWorkPath = new File(".");
 		}

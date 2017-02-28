@@ -180,6 +180,8 @@ public abstract class BuildSystemPathSupporter {
 		StringBuilder strBuilder = new StringBuilder(getProjectPathString(
 				mainProjectName, sinnoriInstalledPathString));
 		strBuilder.append(File.separator);
+		strBuilder.append("resources");
+		strBuilder.append(File.separator);
 		strBuilder.append("rsa_keypair");
 		return strBuilder.toString();
 	}

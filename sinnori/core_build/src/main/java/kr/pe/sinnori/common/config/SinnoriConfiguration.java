@@ -429,6 +429,22 @@ public class SinnoriConfiguration {
 		}
 	}
 
+	
+	public void changeServerAddress(String newServerHost, int newServerPort) {
+		mainProjectPartVO.changeServerAddress(newServerHost, newServerPort);
+	}
+	
+	
+	public void save() throws IOException {
+		String sinnoriConfigFilePathString = BuildSystemPathSupporter
+				.getSinnoriConfigFilePathString(mainProjectName,
+						sinnoriInstalledPathString);
+		
+		SequencedPropertiesUtil.saveSequencedPropertiesToFile(sinnoriConfigSequencedProperties, 
+				BuildSystemSupporter
+				.getSinnoriConfigPropertiesTitle(mainProjectName), sinnoriConfigFilePathString, CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
+	}
+	
 	// FIXME!
 	/**
 	 * 프로젝트 설정 항목들중 프로젝트 경로에 의존하는 값들을 프로젝트 경로에 맞추어 변경후 저장한다.

@@ -17,8 +17,11 @@
 package kr.pe.sinnori.client.connection;
 
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
@@ -29,9 +32,6 @@ import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 클라이언트 연결 클래스 폴 관리자 부모 추상화 클래스.
@@ -106,5 +106,5 @@ public abstract class AbstractConnectionPool {
 	 */
 	abstract public int getTotalMailbox();
 	
-	abstract public ArrayList<AbstractConnection> getConnectionList();
+	abstract public List<AbstractConnection> getConnectionList();
 }

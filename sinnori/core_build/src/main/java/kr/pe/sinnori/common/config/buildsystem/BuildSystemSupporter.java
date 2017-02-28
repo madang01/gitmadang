@@ -161,17 +161,48 @@ public abstract class BuildSystemSupporter {
 					.append(", errormessage=").append(e.getMessage())
 					.toString());
 		}
-
-		String servletSystemLibiaryPathString = antBuiltInProperties
-				.getProperty(CommonStaticFinalVars.SERVLET_SYSTEM_LIBIARY_PATH_KEY);
-		if (null == servletSystemLibiaryPathString) {
+		
+		String isTomcatString = antBuiltInProperties.getProperty(CommonStaticFinalVars.IS_TOMCAT_KEY);
+		
+		if (null == isTomcatString) {
 			String errorMessage = new StringBuilder(
 					"ant built-in properties file[")
 					.append(antPropertiesFilePathString)
 					.append("]'s key[")
-					.append(CommonStaticFinalVars.SERVLET_SYSTEM_LIBIARY_PATH_KEY)
+					.append(CommonStaticFinalVars.IS_TOMCAT_KEY)
 					.append("] is not found").toString();
 			throw new BuildSystemException(errorMessage);
+		}
+		
+		isTomcatString = isTomcatString.toLowerCase();
+		boolean isTomcat = false;
+		
+		if (isTomcatString.equals("true")) {
+			isTomcat = true;
+		} else if (isTomcatString.equals("false")) {
+			isTomcat = false;
+		} else {
+			String errorMessage = new StringBuilder(
+					"ant built-in properties file[")
+					.append(antPropertiesFilePathString)
+					.append("]'s key[")
+					.append(CommonStaticFinalVars.IS_TOMCAT_KEY)
+					.append("]' value is bad, the value must be one of true or false").toString();
+			throw new BuildSystemException(errorMessage);
+		}
+				
+		if (isTomcat) {
+			String servletSystemLibiaryPathString = antBuiltInProperties
+					.getProperty(CommonStaticFinalVars.SERVLET_SYSTEM_LIBIARY_PATH_KEY);
+			if (null == servletSystemLibiaryPathString) {
+				String errorMessage = new StringBuilder(
+						"ant built-in properties file[")
+						.append(antPropertiesFilePathString)
+						.append("]'s key[")
+						.append(CommonStaticFinalVars.SERVLET_SYSTEM_LIBIARY_PATH_KEY)
+						.append("] is not found").toString();
+				throw new BuildSystemException(errorMessage);
+			}
 		}
 	}
 

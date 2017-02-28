@@ -18,8 +18,6 @@
 
 package kr.pe.sinnori.gui.screen.syncfileupdownscreen;
 
-import static kr.pe.sinnori.common.lib.CommonRootIF.log;
-
 import java.awt.FlowLayout;
 import java.io.File;
 import java.io.IOException;
@@ -41,6 +39,14 @@ import javax.swing.ToolTipManager;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.jgoodies.forms.factories.FormFactory;
+import com.jgoodies.forms.layout.ColumnSpec;
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.RowSpec;
+
 import kr.pe.sinnori.common.util.NameFirstComparator;
 import kr.pe.sinnori.gui.lib.LocalFileTreeNode;
 import kr.pe.sinnori.gui.lib.MainControllerIF;
@@ -59,11 +65,6 @@ import kr.pe.sinnori.gui.screen.syncfileupdownscreen.action.SyncDownloadSwingAct
 import kr.pe.sinnori.gui.screen.syncfileupdownscreen.action.SyncUploadSwingAction;
 import kr.pe.sinnori.impl.message.FileListResult.FileListResult;
 
-import com.jgoodies.forms.factories.FormFactory;
-import com.jgoodies.forms.layout.ColumnSpec;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.RowSpec;
-
 /**
  * 파일 송수신 화면
  * @author Won Jonghoon
@@ -71,6 +72,9 @@ import com.jgoodies.forms.layout.RowSpec;
  */
 @SuppressWarnings("serial")
 public class SyncFileUpDownScreen extends JPanel implements FileUpDownScreenIF {
+	private Logger log = LoggerFactory.getLogger(SyncFileUpDownScreen.class);
+	
+	
 	private JFrame mainFrame = null;
 	private MainControllerIF mainController = null;
 

@@ -190,5 +190,21 @@ public abstract class AbstractProject implements DataPacketBufferQueueManagerIF 
 	public String getProjectName() {
 		return projectName;
 	}
+	
+	public Charset getCharset() {
+		return charsetOfProject;
+	}
+
+
+	public String getHostOfProject() {
+		return hostOfProject;
+	}
+
+
+	public int getPortOfProject() {
+		return portOfProject;
+	}
+	
+	
 
 }

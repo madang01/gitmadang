@@ -56,9 +56,9 @@ import org.xml.sax.SAXException;
  * @author Won Jonghoon
  * 
  */
-public class SqlSessionFactoryManger {
+public class MybatisSqlSessionFactoryManger {
 	private final Logger log = LoggerFactory
-			.getLogger(SqlSessionFactoryManger.class);
+			.getLogger(MybatisSqlSessionFactoryManger.class);
 
 	private ClassLoader serverClassLoader = this.getClass().getClassLoader();
 
@@ -71,7 +71,7 @@ public class SqlSessionFactoryManger {
 	 * 
 	 * @throws DBNotReadyException
 	 */
-	private SqlSessionFactoryManger() {
+	private MybatisSqlSessionFactoryManger() {
 		rebuild();
 	}
 
@@ -79,7 +79,7 @@ public class SqlSessionFactoryManger {
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스
 	 */
 	private static final class SqlSessionFactoryMangerHolder {
-		static final SqlSessionFactoryManger singleton = new SqlSessionFactoryManger();
+		static final MybatisSqlSessionFactoryManger singleton = new MybatisSqlSessionFactoryManger();
 	}
 
 	/**
@@ -87,7 +87,7 @@ public class SqlSessionFactoryManger {
 	 * 
 	 * @return 싱글턴 객체
 	 */
-	public static SqlSessionFactoryManger getInstance() {
+	public static MybatisSqlSessionFactoryManger getInstance() {
 		return SqlSessionFactoryMangerHolder.singleton;
 	}
 

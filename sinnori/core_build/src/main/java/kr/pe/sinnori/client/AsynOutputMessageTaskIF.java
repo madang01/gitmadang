@@ -30,5 +30,5 @@ public interface AsynOutputMessageTaskIF {
 	 * @param projectPart 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스  
 	 * @param outObj 출력 메시지
 	 */
-	public void doTask(String projectName, AbstractMessage outObj);
+	public void doTask(AbstractMessage outObj);
 }

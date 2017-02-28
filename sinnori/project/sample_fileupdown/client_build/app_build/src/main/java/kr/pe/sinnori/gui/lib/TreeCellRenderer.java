@@ -22,7 +22,8 @@ import java.text.DecimalFormat;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import kr.pe.sinnori.common.lib.CommonRootIF;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 파일 목록을 보여주는 트리 노드의 렌더러 클래스
@@ -30,7 +31,8 @@ import kr.pe.sinnori.common.lib.CommonRootIF;
  *
  */
 @SuppressWarnings("serial")
-public class TreeCellRenderer extends DefaultTreeCellRenderer  implements CommonRootIF {
+public class TreeCellRenderer extends DefaultTreeCellRenderer  {
+	private Logger log = LoggerFactory.getLogger(TreeCellRenderer.class);
 
 
 	@Override

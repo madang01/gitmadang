@@ -1,17 +1,17 @@
 package kr.pe.sinnori.impl.servertask;
 
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.serverlib.ServerCommonStaticFinalVars;
 import kr.pe.sinnori.impl.message.BoardDownloadFileInDTO.BoardDownloadFileInDTO;
 import kr.pe.sinnori.impl.message.BoardDownloadFileOutDTO.BoardDownloadFileOutDTO;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
-import kr.pe.sinnori.impl.server.mybatis.SqlSessionFactoryManger;
+import kr.pe.sinnori.impl.server.mybatis.MybatisSqlSessionFactoryManger;
 import kr.pe.sinnori.server.LoginManagerIF;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
 import kr.pe.sinnori.server.executor.LetterSender;
-
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
 
 public class BoardDownloadFileInDTOServerTask extends AbstractServerTask {
 	// private SqlSessionFactory sqlSessionFactory = null;
@@ -33,7 +33,7 @@ public class BoardDownloadFileInDTOServerTask extends AbstractServerTask {
 			sqlSessionFactory = SqlSessionFactoryManger.getInstance()
 					.getSqlSessionFactory("tw_sinnoridb");
 		}*/
-		SqlSessionFactory sqlSessionFactory = SqlSessionFactoryManger.getInstance().getSqlSessionFactory(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
+		SqlSessionFactory sqlSessionFactory = MybatisSqlSessionFactoryManger.getInstance().getSqlSessionFactory(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
 
 		BoardDownloadFileOutDTO boardDownloadFileOutObj = null;
 

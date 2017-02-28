@@ -19,7 +19,7 @@ package kr.pe.sinnori.impl.message.UpFileInfoResult;
 import java.nio.charset.Charset;
 import java.util.LinkedList;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.message.codec.MessageEncoder;
+import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
 
 /**
@@ -27,7 +27,7 @@ import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
  * @author Won Jonghoon
  *
  */
-public final class UpFileInfoResultEncoder extends MessageEncoder {
+public final class UpFileInfoResultEncoder extends AbstractMessageEncoder {
 	@Override
 	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj)
 			throws Exception {
@@ -59,7 +59,7 @@ public final class UpFileInfoResultEncoder extends MessageEncoder {
 					, 4 // itemTypeID
 					, "integer" // itemTypeName
 					, upFileInfoResult.getClientSourceFileID() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -67,7 +67,7 @@ public final class UpFileInfoResultEncoder extends MessageEncoder {
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
 					, upFileInfoResult.getTaskResult() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -75,7 +75,7 @@ public final class UpFileInfoResultEncoder extends MessageEncoder {
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
 					, upFileInfoResult.getResultMessage() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -83,7 +83,7 @@ public final class UpFileInfoResultEncoder extends MessageEncoder {
 					, 4 // itemTypeID
 					, "integer" // itemTypeName
 					, upFileInfoResult.getServerTargetFileID() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);

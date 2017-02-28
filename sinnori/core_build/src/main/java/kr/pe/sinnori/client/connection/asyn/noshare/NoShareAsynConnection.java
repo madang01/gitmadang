@@ -112,21 +112,21 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		// this.outputMessageQueue = outputMessageQueue;
 		mailbox = new PrivateMailbox(this, 1, inputMessageQueue, outputMessageQueueQueueManger);
 
-		try {
+		/*try {
 			reopenSocketChannel();
 		} catch (IOException e) {
 			String errorMessage = String.format(
 					"project[%s] NoShareAsynConnection[%d], fail to config a socket channel", projectName, index);
 			log.error(errorMessage, e);
 			System.exit(1);
-		}
+		}*/
 
 		/**
 		 * 연결 종류별로 설정이 모두 다르다 따라서 설정 변수 "소켓 자동접속 여부"에 따른 서버 연결은 연결별 설정후 수행해야 한다.
 		 */
 		if (whetherToAutoConnect) {
 			try {
-				serverOpen();
+				connectServerIfNoConnection();
 			} catch (ServerNotReadyException e) {
 				log.warn(String.format("project[%s] NoShareAsynConnection[%d] fail to connect server", projectName,
 						index), e);
@@ -167,7 +167,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 	 * @throws IOException
 	 *             소켓 채널을 개방할때 혹은 비공유 + 비동기 에 맞도록 설정할때 에러 발생시 던지는 예외
 	 */
-	private void reopenSocketChannel() throws IOException {
+	private void openAsynSocketChannel() throws IOException {
 		serverSC = SocketChannel.open();
 		serverSC.configureBlocking(false);
 		serverSC.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
@@ -190,7 +190,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 	}
 
 	@Override
-	public void serverOpen() throws ServerNotReadyException {
+	public void connectServerIfNoConnection() throws ServerNotReadyException {
 		/**
 		 * <pre>
 		 * 서버와 연결하는 시간보다 연결 이후 시간이 훨씬 길기때문에,
@@ -203,6 +203,10 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 
 		try {
 			synchronized (monitor) {
+				if (null == serverSC || !serverSC.isOpen()) {
+					openAsynSocketChannel();
+				}
+				
 				// (재)연결 판단 로직, 2번이상 SocketChannel.open() 호출하는것을 막는 역활을 한다.
 				if (serverSC.isConnected()) {
 					/*
@@ -227,11 +231,9 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 				finalReadTime = new java.util.Date();
 				InetSocketAddress remoteAddr = new InetSocketAddress(hostOfProject, portOfProject);
 
-				if (!serverSC.isOpen()) {
-					reopenSocketChannel();
-				}
+				
 				serverSC.connect(remoteAddr);
-				finishConnect();
+				tryToFinishConnectUntilConnectionIsComplete(serverSC, intervalFinishingConnect, maxCountFinishingConnect);
 				initSocketResource();
 				afterConnectionWork();
 
@@ -313,7 +315,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 
 		// log.info("inputMessage=[%s]", inputMessage.toString());
 
-		serverOpen();
+		connectServerIfNoConnection();
 
 		boolean isInterrupted = false;
 
@@ -416,7 +418,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 
 		// log.info("inputMessage=[%s]", inputMessage.toString());
 
-		serverOpen();
+		connectServerIfNoConnection();
 
 		boolean isInterrupted = false;
 

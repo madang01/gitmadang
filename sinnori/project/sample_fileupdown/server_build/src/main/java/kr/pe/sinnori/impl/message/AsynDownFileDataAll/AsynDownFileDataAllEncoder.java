@@ -19,7 +19,7 @@ package kr.pe.sinnori.impl.message.AsynDownFileDataAll;
 import java.nio.charset.Charset;
 import java.util.LinkedList;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.message.codec.MessageEncoder;
+import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
 
 /**
@@ -27,7 +27,7 @@ import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
  * @author Won Jonghoon
  *
  */
-public final class AsynDownFileDataAllEncoder extends MessageEncoder {
+public final class AsynDownFileDataAllEncoder extends AbstractMessageEncoder {
 	@Override
 	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj)
 			throws Exception {
@@ -59,7 +59,7 @@ public final class AsynDownFileDataAllEncoder extends MessageEncoder {
 					, 4 // itemTypeID
 					, "integer" // itemTypeName
 					, asynDownFileDataAll.getServerSourceFileID() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -67,7 +67,7 @@ public final class AsynDownFileDataAllEncoder extends MessageEncoder {
 					, 4 // itemTypeID
 					, "integer" // itemTypeName
 					, asynDownFileDataAll.getClientTargetFileID() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);

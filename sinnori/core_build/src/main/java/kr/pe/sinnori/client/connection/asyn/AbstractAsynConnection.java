@@ -16,7 +16,6 @@
  */
 package kr.pe.sinnori.client.connection.asyn;
 
-import java.io.IOException;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.util.Map;
@@ -53,12 +52,12 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 	/**
 	 * 비동기 방식의 소켓 채널의 연결 확립 최대 시도 횟수
 	 */
-	private int finishConnectMaxCall;
+	protected int maxCountFinishingConnect;
 	
 	/**
 	 * 비동기 방식의 소켓 채널의 연결 확립을 재 시도 간격
 	 */
-	private long finishConnectWaittingTime;
+	protected long intervalFinishingConnect;
 	
 	
 	/**
@@ -66,7 +65,7 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 	 * @param index  연결 클래스 번호
 	 * @param socketTimeOut 자동 접속 여부
 	 * @param finishConnectMaxCall 비동기 방식에서 연결 확립 시도 최대 호출 횟수
-	 * @param finishConnectWaittingTime 비동기 연결 확립 시도 간격
+	 * @param intervalFinishingConnect 비동기 연결 확립 시도 간격
 	 * @param projectPart 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
 	 * @param asynOutputMessageQueue 서버에서 보내는 공지등 불특정 다수한테 보내는 출력 메시지 큐
 	 * @param inputMessageQueue 입력 메시지 큐
@@ -81,8 +80,8 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 			Charset charsetOfProject,
 			long socketTimeOut,
 			boolean whetherToAutoConnect,
-			int finishConnectMaxCall,
-			long finishConnectWaittingTime,
+			int maxCountFinishingConnect,
+			long intervalFinishingConnect,
 			LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
 			MessageProtocolIF messageProtocol,
@@ -94,8 +93,8 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 				whetherToAutoConnect, asynOutputMessageQueue, messageProtocol, 
 				dataPacketBufferQueueManager, clientObjectCacheManager);
 
-		this.finishConnectMaxCall = finishConnectMaxCall;
-		this.finishConnectWaittingTime = finishConnectWaittingTime;
+		this.maxCountFinishingConnect = maxCountFinishingConnect;
+		this.intervalFinishingConnect = intervalFinishingConnect;
 		this.inputMessageQueue = inputMessageQueue;
 		this.outputMessageReaderPool = outputMessageReaderPool;		
 	}
@@ -107,12 +106,12 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 	 * </pre>
 	 * @throws ServerNotReadyException
 	 */
-	protected void finishConnect() throws ServerNotReadyException {
+	protected void tryToFinishConnectUntilConnectionIsComplete(SocketChannel serverSC, long intervalFinishingConnect, int maxCountFinishingConnect) throws ServerNotReadyException {
 		int callNumberOfFinishConnect = 0;
 		try {
 			do {
 				
-				if (callNumberOfFinishConnect >= finishConnectMaxCall) {
+				if (callNumberOfFinishConnect >= maxCountFinishingConnect) {
 					serverClose();
 					
 					String errorMessage = String
@@ -128,12 +127,12 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 				// log.info("callNumberOfFinishConnect[%d]",
 				// callNumberOfFinishConnect);
 				try {
-					Thread.sleep(finishConnectWaittingTime);
+					Thread.sleep(intervalFinishingConnect);
 				} catch (InterruptedException e) {
 					// ignore
 				}
 			} while (!serverSC.finishConnect());
-		} catch (IOException e) {
+		} catch (Exception e) {
 			serverClose();
 			
 			

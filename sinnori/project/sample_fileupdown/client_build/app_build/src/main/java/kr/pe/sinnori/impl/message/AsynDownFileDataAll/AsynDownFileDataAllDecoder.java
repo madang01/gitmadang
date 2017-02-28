@@ -19,7 +19,7 @@ package kr.pe.sinnori.impl.message.AsynDownFileDataAll;
 import java.nio.charset.Charset;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.message.codec.MessageDecoder;
+import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 
 /**
@@ -27,7 +27,7 @@ import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
  * @author Won Jonghoon
  *
  */
-public final class AsynDownFileDataAllDecoder extends MessageDecoder {
+public final class AsynDownFileDataAllDecoder extends AbstractMessageDecoder {
 
 	/**
 	 * <pre>
@@ -50,7 +50,7 @@ public final class AsynDownFileDataAllDecoder extends MessageDecoder {
 		, "serverSourceFileID" // itemName
 		, 4 // itemTypeID
 		, "integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -60,7 +60,7 @@ public final class AsynDownFileDataAllDecoder extends MessageDecoder {
 		, "clientTargetFileID" // itemName
 		, 4 // itemTypeID
 		, "integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));

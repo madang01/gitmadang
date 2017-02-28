@@ -19,7 +19,7 @@ package kr.pe.sinnori.impl.message.SyncDownFileInfo;
 import java.nio.charset.Charset;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.message.codec.MessageDecoder;
+import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 
 /**
@@ -27,7 +27,7 @@ import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
  * @author Won Jonghoon
  *
  */
-public final class SyncDownFileInfoDecoder extends MessageDecoder {
+public final class SyncDownFileInfoDecoder extends AbstractMessageDecoder {
 
 	/**
 	 * <pre>
@@ -50,7 +50,7 @@ public final class SyncDownFileInfoDecoder extends MessageDecoder {
 		, "append" // itemName
 		, 0 // itemTypeID
 		, "byte" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -60,7 +60,7 @@ public final class SyncDownFileInfoDecoder extends MessageDecoder {
 		, "localFilePathName" // itemName
 		, 7 // itemTypeID
 		, "ub pascal string" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -70,7 +70,7 @@ public final class SyncDownFileInfoDecoder extends MessageDecoder {
 		, "localFileName" // itemName
 		, 7 // itemTypeID
 		, "ub pascal string" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -80,7 +80,7 @@ public final class SyncDownFileInfoDecoder extends MessageDecoder {
 		, "localFileSize" // itemName
 		, 6 // itemTypeID
 		, "long" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -90,7 +90,7 @@ public final class SyncDownFileInfoDecoder extends MessageDecoder {
 		, "remoteFilePathName" // itemName
 		, 7 // itemTypeID
 		, "ub pascal string" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -100,7 +100,7 @@ public final class SyncDownFileInfoDecoder extends MessageDecoder {
 		, "remoteFileName" // itemName
 		, 7 // itemTypeID
 		, "ub pascal string" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -110,7 +110,7 @@ public final class SyncDownFileInfoDecoder extends MessageDecoder {
 		, "remoteFileSize" // itemName
 		, 6 // itemTypeID
 		, "long" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -120,7 +120,7 @@ public final class SyncDownFileInfoDecoder extends MessageDecoder {
 		, "clientTargetFileID" // itemName
 		, 4 // itemTypeID
 		, "integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -130,7 +130,7 @@ public final class SyncDownFileInfoDecoder extends MessageDecoder {
 		, "fileBlockSize" // itemName
 		, 4 // itemTypeID
 		, "integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));

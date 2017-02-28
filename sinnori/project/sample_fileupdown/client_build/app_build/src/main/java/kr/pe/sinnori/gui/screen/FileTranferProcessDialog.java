@@ -37,7 +37,9 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
 
-import kr.pe.sinnori.common.lib.CommonRootIF;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.gui.lib.MainControllerIF;
 import kr.pe.sinnori.gui.screen.asynfileupdownscreen.task.AsynDownloadFileTransferTask;
 import kr.pe.sinnori.gui.screen.asynfileupdownscreen.task.AsynUploadFileTransferTask;
@@ -52,7 +54,9 @@ import kr.pe.sinnori.impl.message.CancelUploadFileResult.CancelUploadFileResult;
  *
  */
 @SuppressWarnings("serial")
-public class FileTranferProcessDialog extends JDialog  implements CommonRootIF, ActionListener {
+public class FileTranferProcessDialog extends JDialog  implements ActionListener {
+	private Logger log = LoggerFactory.getLogger(FileTranferProcessDialog.class);
+	
 	// private final Object monitor = new Object();
 	private MainControllerIF mainController = null;
 

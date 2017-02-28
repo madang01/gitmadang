@@ -29,7 +29,6 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "sinnoriInstalledPathButton"
 					"text": "path"
-					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "sinnoriInstalledPathButtonActionPerformed", true ) )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 5
 					"gridY": 1

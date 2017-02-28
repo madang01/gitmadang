@@ -32,7 +32,7 @@ public class DefaultAsynOutputMessageTask implements AsynOutputMessageTaskIF {
 	private Logger log = LoggerFactory.getLogger(DefaultAsynOutputMessageTask.class);
 	
 	@Override
-	public void doTask(String projectName, AbstractMessage outObj) {
-		log.info(String.format("projectName[%s] %s", projectName, outObj.toString()));
+	public void doTask(AbstractMessage outObj) {
+		log.info(String.format("main projectName[%s] %s", ClientProjectManager.getInstance().getMainClientProject().getProjectName(), outObj.toString()));
 	}
 }

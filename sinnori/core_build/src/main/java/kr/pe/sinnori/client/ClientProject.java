@@ -17,9 +17,10 @@
 
 package kr.pe.sinnori.client;
 
+import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.connection.AbstractConnection;
@@ -31,6 +32,7 @@ import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessa
 import kr.pe.sinnori.client.connection.sync.noshare.NoShareSyncConnectionPool;
 import kr.pe.sinnori.client.io.ClientWrapOutputMessageQueue;
 import kr.pe.sinnori.client.io.LetterToServer;
+import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.vo.ProjectPartValueObject;
 import kr.pe.sinnori.common.etc.CommonType.CONNECTION_TYPE;
 import kr.pe.sinnori.common.exception.BodyFormatException;
@@ -466,7 +468,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF,
 					}
 
 					try {
-						asynOutputMessageTask.doTask(projectName, outObj);
+						asynOutputMessageTask.doTask(outObj);
 					} catch (Exception e) {
 						log.warn("unkonwo error in asynOutputMessageTask", e);
 					}
@@ -550,7 +552,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF,
 		@Override
 		public void run() {
 
-			ArrayList<AbstractConnection> list = connectionPool
+			List<AbstractConnection> list = connectionPool
 					.getConnectionList();
 			int listSize = list.size();
 			try {
@@ -599,7 +601,6 @@ public class ClientProject extends AbstractProject implements ClientProjectIF,
 	}
 
 	public void stop() {
-		// FIXME!
 		log.info(String.format("project[%s] client project stop", projectName));
 
 		stopAsynPool();
@@ -676,5 +677,20 @@ public class ClientProject extends AbstractProject implements ClientProjectIF,
 		messageCodec = (MessageCodecIF) valueObj;
 
 		return messageCodec;
+	}
+	
+	@Override
+	public void changeServerAddress(String newServerHost, int newServerPort) {
+		// FIXME!
+		List<AbstractConnection> connList = connectionPool.getConnectionList();
+		for (AbstractConnection conn : connList) {
+			conn.changeServerAddress(newServerHost, newServerPort);
+		}
+		
+		SinnoriConfigurationManager.getInstance().getSinnoriRunningProjectConfiguration().changeServerAddress(newServerHost, newServerPort);
+	}
+	
+	public void saveSinnoriConfiguration() throws IOException {
+		SinnoriConfigurationManager.getInstance().getSinnoriRunningProjectConfiguration().save();
 	}
 }

@@ -19,22 +19,23 @@ package kr.pe.sinnori.util;
 
 import java.net.SocketTimeoutException;
 
-import kr.pe.sinnori.client.ClientProjectIF;
-import kr.pe.sinnori.common.configuration.ClientProjectConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
-import kr.pe.sinnori.common.lib.CommonRootIF;
 
 /**
  * 신놀이 기동 편의 기능 클래스({@link SinnoriClientWorker}) 종속 클라이언트 비지니스 로직 부모 추상화 클래스
  * @author Won Jonghoon
  *
  */
-public abstract class AbstractClientExecutor implements CommonRootIF {
+public abstract class AbstractClientExecutor {
+	protected Logger log = LoggerFactory.getLogger(AbstractClientExecutor.class);
 	
 	/**
 	 * 클라이언트 비지니스 로직을 수행한다.
@@ -43,11 +44,11 @@ public abstract class AbstractClientExecutor implements CommonRootIF {
 	 * @param clientProject 외부에 제공되는 프로젝트 기능 인터페이스
 	 * @throws InterruptedException 쓰레드 인터럽트 발생시 던지는 예외
 	 */
-	public void execute(ClientProjectConfig clientProjectConfig, ClientProjectIF clientProject) throws InterruptedException {
+	public void execute() throws InterruptedException {
 		long firstErraseTime = new java.util.Date().getTime();
 		
 		try {
-			doTask(clientProjectConfig, clientProject);
+			doTask();
 		} catch (SocketTimeoutException e) {
 			e.printStackTrace();
 		} catch (ServerNotReadyException e) {
@@ -76,13 +77,13 @@ public abstract class AbstractClientExecutor implements CommonRootIF {
 	 * @param count 반복 횟수
 	 * @throws InterruptedException 쓰레드 인터럽트 발생시 던지는 예외
 	 */
-	public void execute(ClientProjectConfig clientProjectConfig, ClientProjectIF clientProject, int count) throws InterruptedException {
+	public void execute(int count) throws InterruptedException {
 		long firstErraseTime = new java.util.Date().getTime();
 		
 		try {
 			for (int i=0; i < count; i++) {
 				try {
-					doTask(clientProjectConfig, clientProject);
+					doTask();
 				} catch (SocketTimeoutException e) {
 					e.printStackTrace();
 				}
@@ -110,7 +111,7 @@ public abstract class AbstractClientExecutor implements CommonRootIF {
 	 * @param messageManger 프로젝트의 메시지 관리자
 	 * @param clientProject 외부에 제공되는 프로젝트 기능 인터페이스
 	 */
-	abstract protected void doTask(ClientProjectConfig clientProjectConfig, ClientProjectIF clientProject)
+	abstract protected void doTask()
 			throws SocketTimeoutException, ServerNotReadyException, NoMoreDataPacketBufferException, 
 			BodyFormatException, DynamicClassCallException, ServerTaskException, NotLoginException;
 }

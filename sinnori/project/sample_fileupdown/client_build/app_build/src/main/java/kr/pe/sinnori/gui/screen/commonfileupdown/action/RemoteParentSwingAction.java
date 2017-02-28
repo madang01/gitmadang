@@ -24,15 +24,18 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTree;
 
-import kr.pe.sinnori.common.lib.CommonRootIF;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.gui.lib.MainControllerIF;
 import kr.pe.sinnori.gui.lib.RemoteFileTreeNode;
 import kr.pe.sinnori.gui.screen.commonfileupdown.FileUpDownScreenIF;
 import kr.pe.sinnori.impl.message.FileListResult.FileListResult;
 
 @SuppressWarnings("serial")
-public class RemoteParentSwingAction extends AbstractAction implements
-		CommonRootIF {
+public class RemoteParentSwingAction extends AbstractAction {
+	private Logger log = LoggerFactory.getLogger(RemoteParentSwingAction.class);
+	
 	private JFrame mainFrame = null;
 	private MainControllerIF mainController = null;
 	private FileUpDownScreenIF fileUpDownScreen = null;

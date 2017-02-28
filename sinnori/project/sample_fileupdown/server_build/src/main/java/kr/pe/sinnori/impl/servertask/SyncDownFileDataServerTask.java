@@ -16,7 +16,6 @@
  */
 package kr.pe.sinnori.impl.servertask;
 
-import kr.pe.sinnori.common.configuration.ServerProjectConfig;
 import kr.pe.sinnori.common.exception.UpDownFileException;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResource;
@@ -36,14 +35,19 @@ import kr.pe.sinnori.server.executor.LetterSender;
 public class SyncDownFileDataServerTask extends AbstractAuthServerExecutor {
 
 	@Override
-	public void doTask(ServerProjectConfig serverProjectConfig,
+	public void doTask(String projectName,
 			LoginManagerIF loginManager,
-			LetterSender letterSender, AbstractMessage messageFromClient)
+			LetterSender letterSender, AbstractMessage inObj)
+			throws Exception {
+		doWork(projectName, letterSender, (SyncDownFileData)inObj);
+	}
+	
+	private void doWork(String projectName,
+			LetterSender letterSender, SyncDownFileData inObj)
 			throws Exception {
 		// FIXME!
-		log.info(messageFromClient.toString());
+		log.info(inObj.toString());
 				
-		SyncDownFileData inObj = (SyncDownFileData) messageFromClient;
 		
 		
 		int serverSourceFileID = inObj.getServerSourceFileID();

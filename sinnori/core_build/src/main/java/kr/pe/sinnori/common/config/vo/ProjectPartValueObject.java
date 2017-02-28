@@ -934,6 +934,12 @@ public class ProjectPartValueObject {
 		return projectName;
 	}
 		
+	public void changeServerAddress(String newServerHost, int newServerPort) {
+		this.serverHost = newServerHost;
+		this.serverPort = newServerPort;
+	}
+	
+	
 
 	@Override
 	public String toString() {

@@ -21,8 +21,10 @@ package kr.pe.sinnori.gui.screen.asynfileupdownscreen.task;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.common.exception.UpDownFileException;
-import kr.pe.sinnori.common.lib.CommonRootIF;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResource;
 import kr.pe.sinnori.gui.lib.AsynMainControllerIF;
 import kr.pe.sinnori.gui.screen.FileTranferProcessDialog;
@@ -41,7 +43,10 @@ import kr.pe.sinnori.gui.screen.commonfileupdown.task.FileTransferTaskIF;
  * @author Won Jonghoon
  *
  */
-public class AsynUploadFileTransferTask implements FileTransferTaskIF, CommonRootIF {
+public class AsynUploadFileTransferTask implements FileTransferTaskIF {
+	private Logger log = LoggerFactory.getLogger(AsynUploadFileTransferTask.class);
+	
+	
 	private JFrame mainFrame = null;
 	private AsynMainControllerIF asynMainController = null;
 	// private FileTranferProcessDialog fileTranferProcessDialog = null;

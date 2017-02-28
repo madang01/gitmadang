@@ -19,7 +19,7 @@ package kr.pe.sinnori.impl.message.FileListResult;
 import java.nio.charset.Charset;
 import java.util.LinkedList;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.message.codec.MessageEncoder;
+import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
 
 /**
@@ -27,7 +27,7 @@ import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
  * @author Won Jonghoon
  *
  */
-public final class FileListResultEncoder extends MessageEncoder {
+public final class FileListResultEncoder extends AbstractMessageEncoder {
 	@Override
 	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj)
 			throws Exception {
@@ -59,7 +59,7 @@ public final class FileListResultEncoder extends MessageEncoder {
 					, 9 // itemTypeID
 					, "si pascal string" // itemTypeName
 					, fileListResult.getRequestDirectory() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -67,7 +67,7 @@ public final class FileListResultEncoder extends MessageEncoder {
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
 					, fileListResult.getPathSeperator() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -75,7 +75,7 @@ public final class FileListResultEncoder extends MessageEncoder {
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
 					, fileListResult.getTaskResult() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -83,7 +83,7 @@ public final class FileListResultEncoder extends MessageEncoder {
 					, 9 // itemTypeID
 					, "si pascal string" // itemTypeName
 					, fileListResult.getResultMessage() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -91,7 +91,7 @@ public final class FileListResultEncoder extends MessageEncoder {
 					, 4 // itemTypeID
 					, "integer" // itemTypeName
 					, fileListResult.getCntOfDriver() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -138,7 +138,7 @@ public final class FileListResultEncoder extends MessageEncoder {
 							, 7 // itemTypeID
 							, "ub pascal string" // itemTypeName
 							, driver.getDriverName() // itemValue
-							, -1 // itemSizeForLang
+							, -1 // itemSize
 							, null // itemCharset,
 							, charsetOfProject
 							, driverMiddleWriteObj);
@@ -149,7 +149,7 @@ public final class FileListResultEncoder extends MessageEncoder {
 					, 4 // itemTypeID
 					, "integer" // itemTypeName
 					, fileListResult.getCntOfFile() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -196,7 +196,7 @@ public final class FileListResultEncoder extends MessageEncoder {
 							, 9 // itemTypeID
 							, "si pascal string" // itemTypeName
 							, file.getFileName() // itemValue
-							, -1 // itemSizeForLang
+							, -1 // itemSize
 							, null // itemCharset,
 							, charsetOfProject
 							, fileMiddleWriteObj);
@@ -204,7 +204,7 @@ public final class FileListResultEncoder extends MessageEncoder {
 							, 6 // itemTypeID
 							, "long" // itemTypeName
 							, file.getFileSize() // itemValue
-							, -1 // itemSizeForLang
+							, -1 // itemSize
 							, null // itemCharset,
 							, charsetOfProject
 							, fileMiddleWriteObj);
@@ -212,7 +212,7 @@ public final class FileListResultEncoder extends MessageEncoder {
 							, 0 // itemTypeID
 							, "byte" // itemTypeName
 							, file.getFileType() // itemValue
-							, -1 // itemSizeForLang
+							, -1 // itemSize
 							, null // itemCharset,
 							, charsetOfProject
 							, fileMiddleWriteObj);

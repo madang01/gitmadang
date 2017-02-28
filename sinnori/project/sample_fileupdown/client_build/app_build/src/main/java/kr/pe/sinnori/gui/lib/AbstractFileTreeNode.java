@@ -19,7 +19,8 @@ package kr.pe.sinnori.gui.lib;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import kr.pe.sinnori.common.lib.CommonRootIF;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 트리 노드 부모 클래스. 로컬이나 원격지 트리 노드들의 공통 부분.
@@ -27,7 +28,9 @@ import kr.pe.sinnori.common.lib.CommonRootIF;
  *
  */
 @SuppressWarnings("serial")
-public abstract class AbstractFileTreeNode extends DefaultMutableTreeNode implements CommonRootIF {
+public abstract class AbstractFileTreeNode extends DefaultMutableTreeNode {
+	protected Logger log = LoggerFactory.getLogger(AbstractFileTreeNode.class);
+	
 	protected String fileName = null;
 	protected long fileSize = 0;
 	public enum FileType { File, Directory };
