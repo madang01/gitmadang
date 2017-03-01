@@ -249,7 +249,14 @@ public abstract class AbstractConnection {
 			for (WrapBuffer wrapBuffer : inObjWrapBufferList) {
 				ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
 				do {
-					serverSC.write(byteBuffer);
+					int numberOfBytesWritten = serverSC.write(byteBuffer);
+					if (0 == numberOfBytesWritten) {
+						try {
+							Thread.sleep(10);
+						} catch (InterruptedException e) {
+							log.warn("when the number of bytes written is zero,  this thread must sleep. but it fails.", e);
+						}
+					}
 				} while(byteBuffer.hasRemaining());
 			}
 		}

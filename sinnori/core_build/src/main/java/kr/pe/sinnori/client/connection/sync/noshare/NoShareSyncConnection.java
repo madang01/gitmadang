@@ -321,7 +321,14 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 				// log.debug(inObjBuffer.toString());
 				do {
 					try {
-						serverSC.write(inObjBuffer);
+						int numberOfBytesWritten= serverSC.write(inObjBuffer);
+						if (0 == numberOfBytesWritten) {
+							try {
+								Thread.sleep(10);
+							} catch (InterruptedException e) {
+								log.warn("when the number of bytes written is zero,  this thread must sleep. but it fails.", e);
+							}
+						}
 					} catch(ClosedByInterruptException e) {
 						log.warn("ClosedByInterruptException", e);
 						

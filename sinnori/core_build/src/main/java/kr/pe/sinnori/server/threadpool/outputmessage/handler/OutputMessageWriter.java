@@ -104,7 +104,14 @@ public class OutputMessageWriter extends Thread {
 						for (WrapBuffer wrapBuffer : outObjWrapBufferList) {
 							ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
 							do {
-								toSC.write(byteBuffer);
+								int numberOfBytesWritten = toSC.write(byteBuffer);
+								if (0 == numberOfBytesWritten) {
+									try {
+										Thread.sleep(10);
+									} catch (InterruptedException e) {
+										log.warn("when the number of bytes written is zero,  this thread must sleep. but it fails.", e);
+									}
+								}
 							} while(byteBuffer.hasRemaining());
 						}
 					}
