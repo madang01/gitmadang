@@ -59,6 +59,7 @@ public abstract class AbstractFileTreeNode extends DefaultMutableTreeNode {
 			String errorMessage = String.format("unkown file type[%d], D:Directory, F:File", fileTypeByte);
 			throw new IllegalArgumentException(errorMessage);
 		}
+		
 	}
 	/**
 	 * @return 파일 크기

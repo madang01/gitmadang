@@ -198,10 +198,12 @@ public class FileListRequestServerTask extends AbstractAuthServerExecutor {
 			List<File> fileList = new ArrayList<File>();
 			List<File> directoryList = new ArrayList<File>();
 			for (File subFile : subFiles) {
-				if (workFile.isFile()) {
-					fileList.add(subFile);
-				} else {
+				// log.info("subFile name[{}] length[{}] isDirectory[{}]", subFile.getName(), subFile.length(), subFile.isDirectory());
+								
+				if (subFile.isDirectory()) {
 					directoryList.add(subFile);
+				} else {
+					fileList.add(subFile);
 				}
 			}
 					
@@ -238,7 +240,8 @@ public class FileListRequestServerTask extends AbstractAuthServerExecutor {
 		
 		// FIXME!
 		// log.info(String.format("out.requestDirectory=[%s]",  (String)outObj.getAttribute("requestDirectory")));
-		log.info(String.format("out.requestDirectory=[%s]",  outObj.getRequestDirectory()));
+		
+		// log.info(String.format("out=[%s]",  outObj.toString()));
 
 		// letterToClientList.addLetterToClient(fromSC, outObj);
 		// letterSender.sendSync(outObj);

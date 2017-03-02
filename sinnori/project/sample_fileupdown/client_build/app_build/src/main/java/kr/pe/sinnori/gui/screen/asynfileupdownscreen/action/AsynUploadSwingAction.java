@@ -156,8 +156,10 @@ public class AsynUploadSwingAction extends AbstractAction {
 				.getLastPathComponent();
 
 		if (localSelectedNode.isDirectory()) {
+			String errorMessage = String.format("로컬 디렉토리[%s]를 선택하였습니다. 로컬 파일을 선택해 주세요.", localSelectedNode.getFileName());
+			
 			JOptionPane.showMessageDialog(mainFrame,
-					"로컬 디렉토리를 선택하였습니다. 로컬 파일을 선택해 주세요.");
+					errorMessage);
 			return;
 		}
 
