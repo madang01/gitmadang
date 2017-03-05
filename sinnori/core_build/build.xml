@@ -7,6 +7,7 @@
 	<property name="dir.dist" location="dist" />
 	<property name="dir.lib" location="lib" />
 	<property name="dir.appinf" location="APP-INF" />
+	<property name="dir.guilib" location="guilib" />
 	<property name="java.complile.option.debug" value="on" />
 	
 	<target name="clean.core">
@@ -150,6 +151,56 @@
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>
-		</javac>
+		</javac>		
 	</target>
+	
+	
+	
+	<target name="clean.helper">
+		<delete dir="${dir.build}/helper" />
+		<mkdir dir="${dir.build}/helper" />
+		<delete file="${dir.dist}/SinnoriHelper.jar" />
+	</target>
+	
+	<target name="compile.helper">
+		<mkdir dir="${dir.build}/helper" />
+	
+		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}/helper">
+			<include name="main/SinnoriHelperMain.java" />
+			<include name="kr/pe/sinnori/gui/**" />
+			<include name="kr/pe/sinnori/common/**" />
+			<classpath>
+				<fileset file="${dir.guilib}/*.jar" />
+				<fileset dir="${dir.lib}/ex">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>		
+	</target>
+	
+		
+	<target name="make.helper" depends="compile.helper">
+		<jar jarfile="${dir.dist}/SinnoriHelper.jar" basedir="${dir.build}/helper">
+			<restrict>
+				<name name="**/*.class" />
+				<archives>
+					<zips>
+						<fileset dir="${dir.guilib}" includes="**/*.jar" />
+						<fileset dir="${dir.lib}/ex" includes="**/*.jar" />
+						<fileset dir="${dir.lib}/in" includes="**/*.jar" />
+					</zips>
+				</archives>
+			</restrict>
+			<manifest>
+				<attribute name="Main-Class" value="main.SinnoriHelperMain" />
+			</manifest>
+		</jar>
+	</target>
+	
+	<target name="dist" depends="make.helper">
+        <copy todir=".." verbose="true" overwrite="true">
+            <fileset file="${dir.dist}/SinnoriHelper.jar" />
+        </copy> 
+	</target>
+
 </project>

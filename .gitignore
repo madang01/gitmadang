@@ -11,8 +11,7 @@ sinnori/project/sample_test/web_app_base/download/gitsinnori-1.0.tar.gz
 sinnori/project/sample_test/web_app_base/download/gitsinnori-1.0.zip
 sinnori/project/sample_test/web_app_base/upload/*
 sinnori/project/sample_test/web_app_base/temp/*
-!sinnori/SinnoriAntBuildUtil.jar
-!sinnori/SinnoriSourceBuilderUtil.jar
+!sinnori/SinnoriHelper.jar
 !sinnori/core_build/lib/ex/*.jar
 !sinnori/core_build/APP-INF/lib/*.jar
 !sinnori/core_build/guilib/commons-io-2.4.jar

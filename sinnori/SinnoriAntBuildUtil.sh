@@ -1,1 +1,0 @@
-java -jar SinnoriAntBuildUtil.jar
