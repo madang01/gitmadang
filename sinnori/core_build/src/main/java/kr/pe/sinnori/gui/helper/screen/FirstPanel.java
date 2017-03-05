@@ -63,15 +63,23 @@ public class FirstPanel extends JPanel {
 
 		//---- AllMainProjectManagerScreenButton ----
 		AllMainProjectManagerScreenButton.setText("All Main Project Manager");
-		AllMainProjectManagerScreenButton.addActionListener(e -> {
-			AllMainProjectManagerScreenButtonActionPerformed(e);
-			AllMainProjectManagerScreenButtonActionPerformed(e);
+		AllMainProjectManagerScreenButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				AllMainProjectManagerScreenButtonActionPerformed(e);
+				AllMainProjectManagerScreenButtonActionPerformed(e);
+			}
 		});
 		add(AllMainProjectManagerScreenButton, CC.xy(2, 4));
 
 		//---- IOBuilderScreenButton ----
 		IOBuilderScreenButton.setText("IO Builder");
-		IOBuilderScreenButton.addActionListener(e -> IOBuilderScreenButtonActionPerformed(e));
+		IOBuilderScreenButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				IOBuilderScreenButtonActionPerformed(e);
+			}
+		});
 		add(IOBuilderScreenButton, CC.xy(2, 6));
 		// JFormDesigner - End of component initialization  //GEN-END:initComponents
 	}

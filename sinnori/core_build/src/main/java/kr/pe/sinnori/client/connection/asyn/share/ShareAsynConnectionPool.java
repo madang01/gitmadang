@@ -19,7 +19,6 @@ package kr.pe.sinnori.client.connection.asyn.share;
 import java.net.SocketTimeoutException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -171,6 +170,10 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 
 	@Override
 	public List<AbstractConnection> getConnectionList() {
-		return Collections.unmodifiableList(connectionList);
+		List<AbstractConnection> dupList = new ArrayList<AbstractConnection>();
+		for (ShareAsynConnection conn : connectionList) {
+			dupList.add(conn);
+		}
+		return dupList;
 	}
 }

@@ -6,6 +6,7 @@ package kr.pe.sinnori.gui.helper.projectmanager.screen;
 
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 
@@ -131,12 +132,22 @@ public class SinnoriInstalledPathPanel extends JPanel {
 
 			//---- prevStepButton ----
 			prevStepButton.setText("Prev");
-			prevStepButton.addActionListener(e -> prevStepButtonActionPerformed(e));
+			prevStepButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					prevStepButtonActionPerformed(e);
+				}
+			});
 			nextStepLinePanel.add(prevStepButton, CC.xy(1, 1));
 
 			//---- nextStepButton ----
 			nextStepButton.setText("Next");
-			nextStepButton.addActionListener(e -> nextStepButtonActionPerformed(e));
+			nextStepButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					nextStepButtonActionPerformed(e);
+				}
+			});
 			nextStepLinePanel.add(nextStepButton, CC.xy(3, 1));
 		}
 		add(nextStepLinePanel, CC.xy(2, 4, CC.CENTER, CC.DEFAULT));

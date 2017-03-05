@@ -10,6 +10,7 @@ import java.awt.Cursor;
 import java.awt.Frame;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -785,7 +786,12 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 
 				// ---- isOtherMainProjectCheckBox ----
 				isOtherMainProjectCheckBox.setText("other project");
-				isOtherMainProjectCheckBox.addActionListener(e -> isOtherProjectCheckBoxActionPerformed(e));
+				isOtherMainProjectCheckBox.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						isOtherProjectCheckBoxActionPerformed(e);
+					}
+				});
 				targetPanel.add(isOtherMainProjectCheckBox, CC.xy(3, 1));
 
 				// ---- otherMainProjectComboBox ----
@@ -813,13 +819,23 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 
 				// ---- allMessageInfoCreationButton ----
 				allMessageInfoCreationButton.setText("Reread all message infomation file");
-				allMessageInfoCreationButton.addActionListener(e -> allMessageInfoCreationButtonActionPerformed(e));
+				allMessageInfoCreationButton.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						allMessageInfoCreationButtonActionPerformed(e);
+					}
+				});
 				menuPanel.add(allMessageInfoCreationButton, CC.xy(1, 1));
 
 				// ---- allMessageIOFileSetCreationButton ----
 				allMessageIOFileSetCreationButton.setText("Build All IO source file set");
 				allMessageIOFileSetCreationButton
-						.addActionListener(e -> allMessageIOFileSetCreationButtonActionPerformed(e));
+						.addActionListener(new ActionListener() {
+							@Override
+							public void actionPerformed(ActionEvent e) {
+								allMessageIOFileSetCreationButtonActionPerformed(e);
+							}
+						});
 				menuPanel.add(allMessageIOFileSetCreationButton, CC.xy(3, 1));
 			}
 			projectIOFileSetBuilderPanel.add(menuPanel, CC.xy(2, 12));
@@ -840,7 +856,12 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 
 				// ---- fileNameSearchButton ----
 				fileNameSearchButton.setText("Search");
-				fileNameSearchButton.addActionListener(e -> fileNameSearchButtonActionPerformed(e));
+				fileNameSearchButton.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						fileNameSearchButtonActionPerformed(e);
+					}
+				});
 				messageIDSearchPanel.add(fileNameSearchButton, CC.xy(5, 1));
 			}
 			projectIOFileSetBuilderPanel.add(messageIDSearchPanel, CC.xy(2, 16));

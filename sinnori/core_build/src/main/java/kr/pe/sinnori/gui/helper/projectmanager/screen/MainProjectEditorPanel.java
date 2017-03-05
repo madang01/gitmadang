@@ -7,6 +7,7 @@ package kr.pe.sinnori.gui.helper.projectmanager.screen;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
@@ -1326,17 +1328,32 @@ public class MainProjectEditorPanel extends JPanel {
 
 			//---- mainProjectStateSaveButton ----
 			mainProjectStateSaveButton.setText("save");
-			mainProjectStateSaveButton.addActionListener(e -> saveMainProjectState(e));
+			mainProjectStateSaveButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					saveMainProjectState(e);
+				}
+			});
 			functionPanel.add(mainProjectStateSaveButton, CC.xy(3, 1));
 
 			//---- popupProjectIOManagerScreenButton ----
 			popupProjectIOManagerScreenButton.setText("popup 'project IO manager screen'");
-			popupProjectIOManagerScreenButton.addActionListener(e -> popupProjectIOManagerScreenActionPerformed(e));
+			popupProjectIOManagerScreenButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					popupProjectIOManagerScreenActionPerformed(e);
+				}
+			});
 			functionPanel.add(popupProjectIOManagerScreenButton, CC.xy(5, 1));
 
 			//---- prevButton ----
 			prevButton.setText("go back to 'all project manager screen'");
-			prevButton.addActionListener(e -> goBack(e));
+			prevButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					goBack(e);
+				}
+			});
 			functionPanel.add(prevButton, CC.xy(7, 1));
 		}
 		add(functionPanel, CC.xy(1, 1));
@@ -1401,7 +1418,12 @@ public class MainProjectEditorPanel extends JPanel {
 				//---- webClientCheckBox ----
 				webClientCheckBox.setText("web client");
 				webClientCheckBox.setSelected(true);
-				webClientCheckBox.addChangeListener(e -> webClientCheckBoxStateChanged(e));
+				webClientCheckBox.addChangeListener(new ChangeListener() {
+					@Override
+					public void stateChanged(ChangeEvent e) {
+						webClientCheckBoxStateChanged(e);
+					}
+				});
 				projectTypeChoicePanel.add(webClientCheckBox);
 			}
 			projectTypeChoiceLinePanel.add(projectTypeChoicePanel, CC.xy(3, 1));
@@ -1442,7 +1464,12 @@ public class MainProjectEditorPanel extends JPanel {
 
 			//---- newSubProjectAddButton ----
 			newSubProjectAddButton.setText("add");
-			newSubProjectAddButton.addActionListener(e -> newSubProjectAddButtonActionPerformed(e));
+			newSubProjectAddButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					newSubProjectAddButtonActionPerformed(e);
+				}
+			});
 			subProjectNameInputLinePanel.add(newSubProjectAddButton, CC.xy(5, 1));
 		}
 		add(subProjectNameInputLinePanel, CC.xy(1, 13));
@@ -1471,12 +1498,22 @@ public class MainProjectEditorPanel extends JPanel {
 
 				//---- subProjectEditButton ----
 				subProjectEditButton.setText("edit");
-				subProjectEditButton.addActionListener(e -> subProjectNameEditButtonActionPerformed(e));
+				subProjectEditButton.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						subProjectNameEditButtonActionPerformed(e);
+					}
+				});
 				subProjectNameListFuncPanel.add(subProjectEditButton);
 
 				//---- subProjectNameDeleteButton ----
 				subProjectNameDeleteButton.setText("remove");
-				subProjectNameDeleteButton.addActionListener(e -> subProjectNameDeleteButtonActionPerformed(e));
+				subProjectNameDeleteButton.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						subProjectNameDeleteButtonActionPerformed(e);
+					}
+				});
 				subProjectNameListFuncPanel.add(subProjectNameDeleteButton);
 			}
 			subProjectListLinePanel.add(subProjectNameListFuncPanel, CC.xy(5, 1));
@@ -1496,7 +1533,12 @@ public class MainProjectEditorPanel extends JPanel {
 
 			//---- newDBCPAddButton ----
 			newDBCPAddButton.setText("add");
-			newDBCPAddButton.addActionListener(e -> addNewDBCP(e));
+			newDBCPAddButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					addNewDBCP(e);
+				}
+			});
 			dbcpNameInputLinePanel.add(newDBCPAddButton, CC.xy(5, 1));
 		}
 		add(dbcpNameInputLinePanel, CC.xy(1, 17));
@@ -1524,12 +1566,22 @@ public class MainProjectEditorPanel extends JPanel {
 
 				//---- dbcpNameEditButton ----
 				dbcpNameEditButton.setText("edit");
-				dbcpNameEditButton.addActionListener(e -> editDBCP(e));
+				dbcpNameEditButton.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						editDBCP(e);
+					}
+				});
 				dbcpNameListFuncPanel.add(dbcpNameEditButton);
 
 				//---- dbcpNameDeleteButton ----
 				dbcpNameDeleteButton.setText("remove");
-				dbcpNameDeleteButton.addActionListener(e -> deleteDBCP(e));
+				dbcpNameDeleteButton.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						deleteDBCP(e);
+					}
+				});
 				dbcpNameListFuncPanel.add(dbcpNameDeleteButton);
 			}
 			dbcpNameListLinePanel.add(dbcpNameListFuncPanel, CC.xy(5, 1));

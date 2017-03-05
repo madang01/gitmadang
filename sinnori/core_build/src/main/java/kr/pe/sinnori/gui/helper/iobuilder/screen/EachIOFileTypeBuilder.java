@@ -186,12 +186,22 @@ public class EachIOFileTypeBuilder extends JPanel {
 
 				//---- firstScreenButton ----
 				firstScreenButton.setText("go back to 'first sreen'");
-				firstScreenButton.addActionListener(e -> firstScreenButtonActionPerformed(e));
+				firstScreenButton.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						firstScreenButtonActionPerformed(e);
+					}
+				});
 				panel1.add(firstScreenButton, CC.xy(1, 1));
 
 				//---- ioFileSetBuilderScreenButton ----
 				ioFileSetBuilderScreenButton.setText("go to 'IO file set builder screen'");
-				ioFileSetBuilderScreenButton.addActionListener(e -> ioFileSetBuilderScreenButtonActionPerformed(e));
+				ioFileSetBuilderScreenButton.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						ioFileSetBuilderScreenButtonActionPerformed(e);
+					}
+				});
 				panel1.add(ioFileSetBuilderScreenButton, CC.xy(3, 1));
 			}
 			eachIOFileTypeBuildPanel.add(panel1, CC.xy(2, 2));
@@ -223,7 +233,12 @@ public class EachIOFileTypeBuilder extends JPanel {
 
 				//---- eachIOFileTypeBuildButton ----
 				eachIOFileTypeBuildButton.setText("Build");
-				eachIOFileTypeBuildButton.addActionListener(e -> eachIOFileTypeBuildButtonActionPerformed(e));
+				eachIOFileTypeBuildButton.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						eachIOFileTypeBuildButtonActionPerformed(e);
+					}
+				});
 				ioFileTypBuildMenuPanel.add(eachIOFileTypeBuildButton);
 			}
 			eachIOFileTypeBuildPanel.add(ioFileTypBuildMenuPanel, CC.xy(2, 4));

@@ -7,7 +7,9 @@ package kr.pe.sinnori.gui.helper.projectmanager.screen;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -496,13 +498,23 @@ public class AllMainProjectManagerPanel extends JPanel {
 			mainProjecNameListUpdatetButton.setText("update main project name list");
 			mainProjecNameListUpdatetButton.setEnabled(false);
 			mainProjecNameListUpdatetButton.setToolTipText("This button updates main project name list that is child direcotris of project base path");
-			mainProjecNameListUpdatetButton.addActionListener(e -> mainProjectNameListUpdateButtonActionPerformed(e));
+			mainProjecNameListUpdatetButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					mainProjectNameListUpdateButtonActionPerformed(e);
+				}
+			});
 			allProjectWorkSaveLinePanel.add(mainProjecNameListUpdatetButton, CC.xy(1, 1));
 
 			//---- applySinnoriInstalledPathButton ----
 			applySinnoriInstalledPathButton.setText("apply Sinnori installed path to Sinnori development enviroment");
 			applySinnoriInstalledPathButton.setEnabled(false);
-			applySinnoriInstalledPathButton.addActionListener(e -> applySinnoriInstalledPathToSinnoriDevelopmentEnviroment(e));
+			applySinnoriInstalledPathButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					applySinnoriInstalledPathToSinnoriDevelopmentEnviroment(e);
+				}
+			});
 			allProjectWorkSaveLinePanel.add(applySinnoriInstalledPathButton, CC.xy(3, 1));
 		}
 		add(allProjectWorkSaveLinePanel, CC.xy(1, 3));
@@ -525,7 +537,12 @@ public class AllMainProjectManagerPanel extends JPanel {
 			//---- projectNameAddButton ----
 			projectNameAddButton.setText("add");
 			projectNameAddButton.setEnabled(false);
-			projectNameAddButton.addActionListener(e -> projectNameAddButtonActionPerformed(e));
+			projectNameAddButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					projectNameAddButtonActionPerformed(e);
+				}
+			});
 			projectNameInputLinePanel.add(projectNameAddButton, CC.xy(5, 1));
 		}
 		add(projectNameInputLinePanel, CC.xy(1, 5));
@@ -549,19 +566,34 @@ public class AllMainProjectManagerPanel extends JPanel {
 					"- project -"
 				}));
 				mainProjectNameListComboBox.setEnabled(false);
-				mainProjectNameListComboBox.addItemListener(e -> mainProjectNameListComboBoxItemStateChanged(e));
+				mainProjectNameListComboBox.addItemListener(new ItemListener() {
+					@Override
+					public void itemStateChanged(ItemEvent e) {
+						mainProjectNameListComboBoxItemStateChanged(e);
+					}
+				});
 				projectListFuncPanel.add(mainProjectNameListComboBox);
 
 				//---- mainProjectNameEditButton ----
 				mainProjectNameEditButton.setText("edit");
 				mainProjectNameEditButton.setEnabled(false);
-				mainProjectNameEditButton.addActionListener(e -> mainProjectEditButtonActionPerformed(e));
+				mainProjectNameEditButton.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						mainProjectEditButtonActionPerformed(e);
+					}
+				});
 				projectListFuncPanel.add(mainProjectNameEditButton);
 
 				//---- mainProjectNameDeleteButton ----
 				mainProjectNameDeleteButton.setText("delete");
 				mainProjectNameDeleteButton.setEnabled(false);
-				mainProjectNameDeleteButton.addActionListener(e -> mainProjectNameDeleteButtonActionPerformed(e));
+				mainProjectNameDeleteButton.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						mainProjectNameDeleteButtonActionPerformed(e);
+					}
+				});
 				projectListFuncPanel.add(mainProjectNameDeleteButton);
 			}
 			projectListLinePanel.add(projectListFuncPanel, CC.xy(3, 1));
