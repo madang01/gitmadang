@@ -14,24 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package kr.pe.sinnori.impl.message.Echo;
 
-package main;
+import kr.pe.sinnori.common.exception.DynamicClassCallException;
+import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
+import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
+import kr.pe.sinnori.common.protocol.MessageCodecIF;
 
-import kr.pe.sinnori.util.SinnoriClientWorker;
+/**
+ * Echo 클라이언트 코덱
+ * @author Won Jonghoon
+ *
+ */
+public final class EchoClientCodec implements MessageCodecIF {
 
-public class SinnoriAppClientMain {
-	// private Logger log = LoggerFactory.getLogger(SinnoriAppClientMain.class);
-	
-	
-	public static void main(String[] args) {
-		
+	@Override
+	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
+		return new EchoDecoder();
+	}
 
-		/** 강제적인 클라이언트 모드로 변경 */
-		try {
-			//SinnoriClientWorker.getInstance().start("SyncFileUpDownClient");
-			SinnoriClientWorker.getInstance().start("ASynFileUpDownClient");
-		} catch (Exception e) {			
-			e.printStackTrace();
-		}
+	@Override
+	public AbstractMessageEncoder getMessageEncoder() throws DynamicClassCallException {
+		return new EchoEncoder();
 	}
 }

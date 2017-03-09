@@ -4,8 +4,8 @@ new FormModel {
 	contentType: "form/swing"
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-			"$rowSpecs": "default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, 104dlu, linegap, default, linegap, 104dlu, linegap, default"
-			"$columnSpecs": "max(pref;451dlu):grow"
+			"$rowSpecs": "unrelgap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, 104dlu:grow, linegap, default, linegap, 104dlu:grow, linegap, default"
+			"$columnSpecs": "unrelgap, max(pref;451dlu):grow, unrelgap"
 		} ) {
 			name: "this"
 			auxiliary() {
@@ -45,7 +45,10 @@ new FormModel {
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 7
 				} )
-			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridY": 2
+				"gridX": 2
+			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "default, labelcompgap, default:grow"
 				"$rowSpecs": "default"
@@ -66,7 +69,8 @@ new FormModel {
 					"gridY": 1
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridY": 3
+				"gridY": 4
+				"gridX": 2
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "default, labelcompgap, default:grow"
@@ -88,7 +92,8 @@ new FormModel {
 					"gridY": 1
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridY": 5
+				"gridY": 6
+				"gridX": 2
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "default, labelcompgap, max(pref;364dlu):grow"
@@ -128,7 +133,8 @@ new FormModel {
 					"gridY": 1
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridY": 7
+				"gridY": 8
+				"gridX": 2
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "default, labelcompgap, growbutton, labelcompgap, default"
@@ -159,13 +165,15 @@ new FormModel {
 					"gridY": 1
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridY": 9
+				"gridY": 10
+				"gridX": 2
 			} )
 			add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
 				name: "hSpacer1"
 				"border": new javax.swing.border.LineBorder( sfield java.awt.Color black, 1, false )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridY": 11
+				"gridY": 12
+				"gridX": 2
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "default, labelcompgap, growbutton, labelcompgap, 37dlu"
@@ -192,7 +200,8 @@ new FormModel {
 					"gridX": 5
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridY": 13
+				"gridY": 14
+				"gridX": 2
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "default, labelcompgap, default, labelcompgap, default"
@@ -241,7 +250,8 @@ new FormModel {
 					"gridY": 1
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridY": 15
+				"gridY": 16
+				"gridX": 2
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "default, labelcompgap, growbutton, labelcompgap, 37dlu"
@@ -269,7 +279,8 @@ new FormModel {
 					"gridY": 1
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridY": 17
+				"gridY": 18
+				"gridX": 2
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "default, labelcompgap, default, labelcompgap, default"
@@ -320,13 +331,15 @@ new FormModel {
 					"gridY": 1
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridY": 19
+				"gridY": 20
+				"gridX": 2
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "commonPartTilteLabel"
 				"text": "Common Part Editor"
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridY": 21
+				"gridY": 22
+				"gridX": 2
 			} )
 			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 				name: "commonPartEditorScrollPane"
@@ -362,13 +375,15 @@ new FormModel {
 					"autoCreateColumnsFromModel": false
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridY": 23
+				"gridY": 24
+				"gridX": 2
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "mainProjectPartTitleLabel"
 				"text": "Main Project Editor"
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridY": 25
+				"gridY": 26
+				"gridX": 2
 			} )
 			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 				name: "mainProjectPartEditorScrollPane"
@@ -399,7 +414,8 @@ new FormModel {
 					"selectionMode": 0
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridY": 27
+				"gridY": 28
+				"gridX": 2
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 15, 0 )

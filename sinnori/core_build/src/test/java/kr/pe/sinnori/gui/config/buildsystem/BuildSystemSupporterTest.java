@@ -4,18 +4,16 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 
-import kr.pe.sinnori.common.config.BuildSystemPathSupporter;
-import kr.pe.sinnori.common.config.buildsystem.BuildSystemSupporter;
-import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
-import kr.pe.sinnori.common.exception.BuildSystemException;
-import kr.pe.sinnori.common.exception.MessageInfoSAXParserException;
-import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import kr.pe.sinnori.common.config.BuildSystemPathSupporter;
+import kr.pe.sinnori.common.config.buildsystem.BuildSystemSupporter;
+import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
+import kr.pe.sinnori.common.exception.BuildSystemException;
 
 public class BuildSystemSupporterTest {
 	
@@ -24,7 +22,7 @@ public class BuildSystemSupporterTest {
 	
 	private final String projectNameForTest = "sample_test";
 	private final String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
-	private MessageInfoSAXParser messageInfoSAXParser = null;
+	
 	
 		
 	@Before
@@ -49,13 +47,6 @@ public class BuildSystemSupporterTest {
 		}
 		
 		
-		try {
-			messageInfoSAXParser = new MessageInfoSAXParser();
-		} catch (MessageInfoSAXParserException e) {
-			String errorMessage = "fail to create instance of MessageInfoSAXParser class";
-			// log.warn(errorMessage, e);
-			fail(errorMessage);
-		}
 	}
 	
 	@After
@@ -87,14 +78,14 @@ public class BuildSystemSupporterTest {
 		String jvmOptionsOfAppClient = "";
 		
 		boolean isWebClient = true;
-		String servletSystemLibrayPathString = "D:\\apache-tomcat-7.0.57\\lib";
+		String servletSystemLibrayPathString = "D:\\apache-tomcat-8.5.11\\lib";
 		
 		try {
 			BuildSystemSupporter.createNewMainProjectBuildSystem(projectNameForTest, 
 					sinnoriInstalledPathString,
 					isServer, jvmOptionsOfServer,
 					isAppClient, jvmOptionsOfAppClient,
-					isWebClient, servletSystemLibrayPathString, messageInfoSAXParser);
+					isWebClient, servletSystemLibrayPathString);
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 			fail(e.getMessage());

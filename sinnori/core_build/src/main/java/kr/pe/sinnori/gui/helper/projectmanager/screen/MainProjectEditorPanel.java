@@ -52,9 +52,7 @@ import kr.pe.sinnori.common.config.itemidinfo.SinnoriItemIDInfoManger;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.BuildSystemException;
-import kr.pe.sinnori.common.exception.MessageInfoSAXParserException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
-import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 import kr.pe.sinnori.common.util.SequencedProperties;
 import kr.pe.sinnori.common.util.SequencedPropertiesUtil;
@@ -87,7 +85,7 @@ public class MainProjectEditorPanel extends JPanel {
 			.getUnmodifiableProjectPartItemIDInfoList();
 	private int subProjectPartItemIDInfoListSize = subProjectPartItemIDInfoList
 			.size();
-	private MessageInfoSAXParser messageInfoSAXParser = null;
+	// private MessageInfoSAXParser messageInfoSAXParser = null;
 
 	/**
 	 * 생성자 초기화에서 초기화
@@ -651,7 +649,7 @@ public class MainProjectEditorPanel extends JPanel {
 					
 					BuildSystemSupporter.createAppClientBuildSystem(
 							mainProjectName, sinnoriInstalledPathString,
-							CommonStaticFinalVars.JVM_OPTIONS_OF_APP_CLIENT, messageInfoSAXParser);
+							CommonStaticFinalVars.JVM_OPTIONS_OF_APP_CLIENT);
 				} catch (BuildSystemException e1) {
 					log.warn("fail to create app client build system", e1);
 					showMessageDialog("app client exist, so skip creation of app client build system");
@@ -691,7 +689,7 @@ public class MainProjectEditorPanel extends JPanel {
 			} else {
 				try {
 					BuildSystemSupporter.createWebClientBuildSystem(
-							mainProjectName, sinnoriInstalledPathString, messageInfoSAXParser);
+							mainProjectName, sinnoriInstalledPathString);
 				} catch (BuildSystemException e1) {
 					String errorMessage = "fail to create web client build system";
 					log.warn(errorMessage, e1);
@@ -784,7 +782,7 @@ public class MainProjectEditorPanel extends JPanel {
 
 		try {
 			BuildSystemSupporter.saveAntBuiltInProperties(mainProjectName,
-					sinnoriInstalledPathString, servletSystemLibraryPathString);
+					sinnoriInstalledPathString, isWebClient, servletSystemLibraryPathString);
 		} catch (BuildSystemException e1) {
 			log.warn("fail to sava ant built-in properties", e1);
 			showMessageDialog(e1.getMessage());
@@ -1233,12 +1231,12 @@ public class MainProjectEditorPanel extends JPanel {
 			ScreenManagerIF screenManagerIF) {
 		this.mainFrame = mainFrame;
 		this.screenManagerIF = screenManagerIF;
-		try {
+		/*try {
 			messageInfoSAXParser = new MessageInfoSAXParser();
 		} catch (MessageInfoSAXParserException e) {
 			log.error("fail to create instace of MessageInfoSAXParser class", e);
 			System.exit(1);
-		}
+		}*/
 
 		initComponents();
 		
@@ -1313,8 +1311,8 @@ public class MainProjectEditorPanel extends JPanel {
 
 		//======== this ========
 		setLayout(new FormLayout(
-			"[451dlu,pref]:grow",
-			"11*(default, $lgap), 104dlu, $lgap, default, $lgap, 104dlu, $lgap, default"));
+			"$ugap, [451dlu,pref]:grow, $ugap",
+			"$ugap, 11*(default, $lgap), 104dlu:grow, $lgap, default, $lgap, 104dlu:grow, $lgap, default"));
 
 		//======== functionPanel ========
 		{
@@ -1356,7 +1354,7 @@ public class MainProjectEditorPanel extends JPanel {
 			});
 			functionPanel.add(prevButton, CC.xy(7, 1));
 		}
-		add(functionPanel, CC.xy(1, 1));
+		add(functionPanel, CC.xy(2, 2));
 
 		//======== sinnoriInstalledPathLinePanel ========
 		{
@@ -1372,7 +1370,7 @@ public class MainProjectEditorPanel extends JPanel {
 			sinnoriInstalledPathValueLabel.setText("d:\\gitsinnori\\sinnori");
 			sinnoriInstalledPathLinePanel.add(sinnoriInstalledPathValueLabel, CC.xy(3, 1));
 		}
-		add(sinnoriInstalledPathLinePanel, CC.xy(1, 3));
+		add(sinnoriInstalledPathLinePanel, CC.xy(2, 4));
 
 		//======== mainProjectNameLinePanel ========
 		{
@@ -1388,7 +1386,7 @@ public class MainProjectEditorPanel extends JPanel {
 			mainProjectNameValueLabel.setText("sample_test");
 			mainProjectNameLinePanel.add(mainProjectNameValueLabel, CC.xy(3, 1));
 		}
-		add(mainProjectNameLinePanel, CC.xy(1, 5));
+		add(mainProjectNameLinePanel, CC.xy(2, 6));
 
 		//======== projectTypeChoiceLinePanel ========
 		{
@@ -1428,7 +1426,7 @@ public class MainProjectEditorPanel extends JPanel {
 			}
 			projectTypeChoiceLinePanel.add(projectTypeChoicePanel, CC.xy(3, 1));
 		}
-		add(projectTypeChoiceLinePanel, CC.xy(1, 7));
+		add(projectTypeChoiceLinePanel, CC.xy(2, 8));
 
 		//======== servletEnginLibinaryPathLinePanel ========
 		{
@@ -1445,11 +1443,11 @@ public class MainProjectEditorPanel extends JPanel {
 			servletSystemLibraryPathButton.setText("\uacbd\ub85c \uc120\ud0dd");
 			servletEnginLibinaryPathLinePanel.add(servletSystemLibraryPathButton, CC.xy(5, 1));
 		}
-		add(servletEnginLibinaryPathLinePanel, CC.xy(1, 9));
+		add(servletEnginLibinaryPathLinePanel, CC.xy(2, 10));
 
 		//---- hSpacer1 ----
 		hSpacer1.setBorder(LineBorder.createBlackLineBorder());
-		add(hSpacer1, CC.xy(1, 11));
+		add(hSpacer1, CC.xy(2, 12));
 
 		//======== subProjectNameInputLinePanel ========
 		{
@@ -1472,7 +1470,7 @@ public class MainProjectEditorPanel extends JPanel {
 			});
 			subProjectNameInputLinePanel.add(newSubProjectAddButton, CC.xy(5, 1));
 		}
-		add(subProjectNameInputLinePanel, CC.xy(1, 13));
+		add(subProjectNameInputLinePanel, CC.xy(2, 14));
 
 		//======== subProjectListLinePanel ========
 		{
@@ -1518,7 +1516,7 @@ public class MainProjectEditorPanel extends JPanel {
 			}
 			subProjectListLinePanel.add(subProjectNameListFuncPanel, CC.xy(5, 1));
 		}
-		add(subProjectListLinePanel, CC.xy(1, 15));
+		add(subProjectListLinePanel, CC.xy(2, 16));
 
 		//======== dbcpNameInputLinePanel ========
 		{
@@ -1541,7 +1539,7 @@ public class MainProjectEditorPanel extends JPanel {
 			});
 			dbcpNameInputLinePanel.add(newDBCPAddButton, CC.xy(5, 1));
 		}
-		add(dbcpNameInputLinePanel, CC.xy(1, 17));
+		add(dbcpNameInputLinePanel, CC.xy(2, 18));
 
 		//======== dbcpNameListLinePanel ========
 		{
@@ -1586,11 +1584,11 @@ public class MainProjectEditorPanel extends JPanel {
 			}
 			dbcpNameListLinePanel.add(dbcpNameListFuncPanel, CC.xy(5, 1));
 		}
-		add(dbcpNameListLinePanel, CC.xy(1, 19));
+		add(dbcpNameListLinePanel, CC.xy(2, 20));
 
 		//---- commonPartTilteLabel ----
 		commonPartTilteLabel.setText("Common Part Editor");
-		add(commonPartTilteLabel, CC.xy(1, 21));
+		add(commonPartTilteLabel, CC.xy(2, 22));
 
 		//======== commonPartEditorScrollPane ========
 		{
@@ -1629,11 +1627,11 @@ public class MainProjectEditorPanel extends JPanel {
 			commonPartEditorTable.setAutoCreateColumnsFromModel(false);
 			commonPartEditorScrollPane.setViewportView(commonPartEditorTable);
 		}
-		add(commonPartEditorScrollPane, CC.xy(1, 23));
+		add(commonPartEditorScrollPane, CC.xy(2, 24));
 
 		//---- mainProjectPartTitleLabel ----
 		mainProjectPartTitleLabel.setText("Main Project Editor");
-		add(mainProjectPartTitleLabel, CC.xy(1, 25));
+		add(mainProjectPartTitleLabel, CC.xy(2, 26));
 
 		//======== mainProjectPartEditorScrollPane ========
 		{
@@ -1659,7 +1657,7 @@ public class MainProjectEditorPanel extends JPanel {
 			mainProjectPartEditorTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			mainProjectPartEditorScrollPane.setViewportView(mainProjectPartEditorTable);
 		}
-		add(mainProjectPartEditorScrollPane, CC.xy(1, 27));
+		add(mainProjectPartEditorScrollPane, CC.xy(2, 28));
 		// //GEN-END:initComponents
 	}
 

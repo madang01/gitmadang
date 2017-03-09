@@ -1051,9 +1051,11 @@ public class ASynFileUpDownClientCExtor extends AbstractClientExecutor implement
 				
 				JOptionPane.showMessageDialog(mainFrame, resultMessage);
 			} else if (outObj instanceof SelfExn) {
-				log.warn(String.format("projectName[%s] SelfExn, %s", mainClientProject.getProjectName(), outObj.toString()));
+				log.warn("projectName[{}] SelfExn, {}", mainClientProject.getProjectName(), outObj.toString());
+			} else if (outObj instanceof LoginEcho) {
+				log.info("projectName[{}] LoginEcho, {}", mainClientProject.getProjectName(), outObj.toString());
 			} else {
-				log.warn(String.format("projectName[%s] unknown output message, %s", mainClientProject.getProjectName(), outObj.toString()));
+				log.warn("projectName[{}] unknown output message, {}", mainClientProject.getProjectName(), outObj.toString());
 			}
 			
 		} catch (Exception e) {

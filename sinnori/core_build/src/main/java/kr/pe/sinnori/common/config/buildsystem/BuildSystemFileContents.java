@@ -287,7 +287,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t  <!-- the SqlSessionFactoryManger class depends on the server dynimic class loader -->");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t<fileset file=\"${dir.core.build}/APP-INF/src/kr/pe/sinnori/impl/server/mybatis/SampleBaseDBSourceFactory.java.txt\" />");
+		stringBuilder.append("\t\t\t<fileset file=\"${dir.core.build}/src/main/java/kr/pe/sinnori/impl/server/mybatis/SampleBaseDBSourceFactory.java.txt\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t</copy>");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -1340,7 +1340,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"lines,vars,source\" encoding=\"UTF-8\" includeantruntime=\"false\" srcdir=\"${dir.src}\" destdir=\"${dir.build}/weblib\">");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t<include name=\"kr/pe/sinnori/common/weblib/**\" />");
+		stringBuilder.append("\t\t\t<include name=\"kr/pe/sinnori/weblib/**\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t<classpath>\t\t  ");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -1442,7 +1442,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\tincludeantruntime=\"false\" srcdir=\"${dir.src}\" destdir=\"${dir.webclass}\"");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\texcludes=\"kr/pe/sinnori/common/**\" >");
+		stringBuilder.append("\t\texcludes=\"kr/pe/sinnori/weblib/**\" >");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t<classpath>");
 		stringBuilder.append(System.getProperty("line.separator"));

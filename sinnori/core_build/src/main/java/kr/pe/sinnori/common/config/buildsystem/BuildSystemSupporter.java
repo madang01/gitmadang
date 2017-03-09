@@ -20,6 +20,7 @@ import kr.pe.sinnori.common.config.itemidinfo.SinnoriItemIDInfoManger;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.BuildSystemException;
+import kr.pe.sinnori.common.exception.MessageInfoSAXParserException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.message.builder.IOFileSetContentsBuilderManager;
 import kr.pe.sinnori.common.message.builder.info.MessageInfo;
@@ -30,6 +31,8 @@ import kr.pe.sinnori.common.util.SequencedPropertiesUtil;
 public abstract class BuildSystemSupporter {
 	private static Logger log = LoggerFactory
 			.getLogger(BuildSystemSupporter.class);
+	
+	private static String MESSAGE_SOURCE_FILE_RELATIVE_PATH = "src/main/java/kr/pe/sinnori/impl/message";
 
 	public static List<String> getSubProjectNameListFromSinnoriConfigSequencedProperties(
 			String mainProjectName, String sinnoriInstalledPathString,
@@ -428,8 +431,14 @@ public abstract class BuildSystemSupporter {
 
 	public static void saveAntBuiltInProperties(String mainProjectName,
 			String sinnoriInstalledPathString,
+			boolean isTomcat,
 			String servletSystemLibraryPathString) throws BuildSystemException {
 		SequencedProperties antBuiltInProperties = new SequencedProperties();
+		
+		antBuiltInProperties.setProperty(
+				CommonStaticFinalVars.IS_TOMCAT_KEY,
+				String.valueOf(isTomcat));
+		
 		antBuiltInProperties.setProperty(
 				CommonStaticFinalVars.SERVLET_SYSTEM_LIBIARY_PATH_KEY,
 				servletSystemLibraryPathString);
@@ -469,12 +478,12 @@ public abstract class BuildSystemSupporter {
 			String newMainProjectName, String sinnoriInstalledPathString,
 			boolean isServer, String jvmOptionsOfServer, boolean isAppClient,
 			String jvmOptionsOfAppClient, boolean isWebClient,
-			String servletSystemLibraryPathString,
-			MessageInfoSAXParser messageInfoSAXParser)
+			String servletSystemLibraryPathString)
 			throws IllegalArgumentException, BuildSystemException {
-
-		String childDirectories[] = { "config", "impl/message/info",
-				"rsa_keypair", "log/apache", "log/client", "log/server",
+		log.info("start main project task");
+		
+		String childDirectories[] = { "config", "resources/message_info",
+				"resources/rsa_keypair", "log/apache", "log/client", "log/server",
 				"log/servlet" };
 
 		String projectPathString = BuildSystemPathSupporter
@@ -485,7 +494,7 @@ public abstract class BuildSystemSupporter {
 
 		/** <project home>/ant.properties */
 		saveAntBuiltInProperties(newMainProjectName,
-				sinnoriInstalledPathString, servletSystemLibraryPathString);
+				sinnoriInstalledPathString, isWebClient, servletSystemLibraryPathString);
 
 		/** <project home>/config/sinnori.properties */
 		SinnoriItemIDInfoManger mainProjectItemIDInfo = SinnoriItemIDInfoManger
@@ -546,23 +555,23 @@ public abstract class BuildSystemSupporter {
 
 		if (isServer) {
 			createSeverBuildSystem(newMainProjectName,
-					sinnoriInstalledPathString, jvmOptionsOfServer,
-					messageInfoSAXParser);
+					sinnoriInstalledPathString, jvmOptionsOfServer);
 		}
 		if (isAppClient) {
 			createAppClientBuildSystem(newMainProjectName,
-					sinnoriInstalledPathString, jvmOptionsOfAppClient,
-					messageInfoSAXParser);
+					sinnoriInstalledPathString, jvmOptionsOfAppClient);
 		}
 
 		if (isWebClient) {
 			createWebClientBuildSystem(newMainProjectName,
-					sinnoriInstalledPathString, messageInfoSAXParser);
+					sinnoriInstalledPathString);
 
 			createWebRootEnvironment(newMainProjectName,
 					sinnoriInstalledPathString);
 
 		}
+		
+		log.info("end main project task");
 	}
 
 	private static void createChildDirectoriesOfBasePath(String basePathStrig,
@@ -673,8 +682,7 @@ public abstract class BuildSystemSupporter {
 	}
 
 	private static MessageInfo getEchoMessageInfo(String mainProjectName,
-			String sinnoriInstalledPathString,
-			MessageInfoSAXParser messageInfoSAXParser)
+			String sinnoriInstalledPathString)
 			throws BuildSystemException {
 		String messageID = "Echo";
 
@@ -685,9 +693,15 @@ public abstract class BuildSystemSupporter {
 				.toString();
 		File echoMessageInfoFile = new File(echoMessageInfoFilePathString);
 
+		MessageInfoSAXParser messageInfoSAXParser = null;
+		try {
+			messageInfoSAXParser = new MessageInfoSAXParser();
+		} catch (MessageInfoSAXParserException e) {
+			System.exit(1);
+		} 
 		MessageInfo echoMessageInfo = null;
 		try {
-			messageInfoSAXParser.parse(echoMessageInfoFile, true);
+			echoMessageInfo = messageInfoSAXParser.parse(echoMessageInfoFile, true);
 		} catch (IllegalArgumentException | SAXException | IOException e) {
 			String errorMessage = new StringBuilder(
 					"fail to parse sinnori message information xml file[")
@@ -702,8 +716,7 @@ public abstract class BuildSystemSupporter {
 	}
 
 	private static void createEchoMessageProcessFiles(String buildPathString,
-			String mainProjectName, String sinnoriInstalledPathString,
-			MessageInfoSAXParser messageInfoSAXParser)
+			String mainProjectName, String sinnoriInstalledPathString)
 			throws BuildSystemException {
 		String messageID = "Echo";
 		String author = "Won Jonghoon";
@@ -722,7 +735,7 @@ public abstract class BuildSystemSupporter {
 				.append(File.separator).append("message").toString();
 
 		MessageInfo echoMessageInfo = getEchoMessageInfo(mainProjectName,
-				sinnoriInstalledPathString, messageInfoSAXParser);
+				sinnoriInstalledPathString);
 
 		IOFileSetContentsBuilderManager messageProcessFileContentsManager = IOFileSetContentsBuilderManager
 				.getInstance();
@@ -824,9 +837,9 @@ public abstract class BuildSystemSupporter {
 	}
 
 	private static void createSeverBuildSystem(String newMainProjectName,
-			String sinnoriInstalledPathString, String jvmOptions,
-			MessageInfoSAXParser messageInfoSAXParser)
+			String sinnoriInstalledPathString, String jvmOptions)
 			throws BuildSystemException {
+		log.info("start server build task");
 
 		String serverBuildPathString = BuildSystemPathSupporter
 				.getServerBuildPathString(newMainProjectName,
@@ -870,7 +883,7 @@ public abstract class BuildSystemSupporter {
 
 		String childDirectories[] = { "src/test/java",
 				"src/main/java/kr/pe/sinnori/common/serverlib",
-				"src/main/java/kr/pe/sinnori/impl/message",
+				MESSAGE_SOURCE_FILE_RELATIVE_PATH,
 				"src/main/java/kr/pe/sinnori/impl/server/mybatis",
 				"src/main/java/kr/pe/sinnori/impl/servertask", "APP-INF/lib",
 				"APP-INF/resources", "APP-INF/classes" };
@@ -937,8 +950,7 @@ public abstract class BuildSystemSupporter {
 
 		/** create Echo message process files */
 		createEchoMessageProcessFiles(serverBuildPathString,
-				newMainProjectName, sinnoriInstalledPathString,
-				messageInfoSAXParser);
+				newMainProjectName, sinnoriInstalledPathString);
 
 		/**
 		 * server_build/src/main/java/kr/pe/sinnori/impl/servertask/
@@ -955,13 +967,17 @@ public abstract class BuildSystemSupporter {
 		createUTF8File("echo server task source file",
 				BuildSystemFileContents.getEchoServerTaskContents(),
 				echoServerTaskSrcFilePathString);
+		
+		log.info("end server build task");
 	}
 
 	// FIXME!
 	public static void createWebClientBuildSystem(String newMainProjectName,
-			String sinnoriInstalledPathString,
-			MessageInfoSAXParser messageInfoSAXParser)
+			String sinnoriInstalledPathString)
 			throws BuildSystemException {
+		log.info("start web build task");
+		
+		
 		String webClientBuildPathString = BuildSystemPathSupporter
 				.getWebClientBuildPathString(newMainProjectName,
 						sinnoriInstalledPathString);
@@ -1002,7 +1018,7 @@ public abstract class BuildSystemSupporter {
 
 		String childDirectories[] = { "src/test/java",
 				"src/main/java/kr/pe/sinnori/impl/javabeans",
-				"src/main/java/kr/pe/sinnori/impl/message",
+				MESSAGE_SOURCE_FILE_RELATIVE_PATH,
 				"src/main/java/kr/pe/sinnori/servlet",
 				"src/main/java/kr/pe/sinnori/weblib/common",
 				"src/main/java/kr/pe/sinnori/weblib/jdf",
@@ -1021,8 +1037,7 @@ public abstract class BuildSystemSupporter {
 
 		/** create Echo message process files */
 		createEchoMessageProcessFiles(webClientBuildPathString,
-				newMainProjectName, sinnoriInstalledPathString,
-				messageInfoSAXParser);
+				newMainProjectName, sinnoriInstalledPathString);
 
 		String sourceFileBasePathString = new StringBuilder(
 				webClientBuildPathString).append(File.separator).append("src")
@@ -1041,11 +1056,15 @@ public abstract class BuildSystemSupporter {
 		 * BuildSystemFileContents.getEchoServerTaskContents555(),
 		 * echoServletSrcFilePathString);
 		 */
+		
+		log.info("end web build task");
 	}
 
 	// FIXME!
 	public static void createWebRootEnvironment(String newMainProjectName,
 			String sinnoriInstalledPathString) throws BuildSystemException {
+		log.info("start web root task");
+		
 		// getWebAppBasePathString
 		String webRootPathString = BuildSystemPathSupporter
 				.getWebRootPathString(newMainProjectName,
@@ -1086,6 +1105,8 @@ public abstract class BuildSystemSupporter {
 
 		String childDirectories[] = { "WEB-INF" };
 		createChildDirectoriesOfBasePath(webRootPathString, childDirectories);
+		
+		log.info("end web root task");
 	}
 
 	public static void createAppClientShell(String mainProjectName,
@@ -1124,9 +1145,9 @@ public abstract class BuildSystemSupporter {
 	}
 
 	public static void createAppClientBuildSystem(String newMainProjectName,
-			String sinnoriInstalledPathString, String jvmOptions,
-			MessageInfoSAXParser messageInfoSAXParser)
-			throws BuildSystemException {
+			String sinnoriInstalledPathString, String jvmOptions)
+			throws BuildSystemException {		
+		log.info("start application build task");
 
 		String appClientBuildPathString = BuildSystemPathSupporter
 				.getAppClientBuildPathString(newMainProjectName,
@@ -1171,7 +1192,7 @@ public abstract class BuildSystemSupporter {
 		// //////////////////////////////////////////////
 		String childDirectories[] = { "src/test/java",
 				"src/main/java/kr/pe/sinnori/common/clientlib",
-				"src/main/java/kr/pe/sinnori/impl/message" };
+				MESSAGE_SOURCE_FILE_RELATIVE_PATH };
 		createChildDirectoriesOfBasePath(appClientBuildPathString,
 				childDirectories);
 
@@ -1226,6 +1247,8 @@ public abstract class BuildSystemSupporter {
 
 			// log.info("subStr=[{}], serverMainSrcFilePathString=[{}]", subStr,
 			// serverMainSrcFilePathString);
+			
+			log.info("end application build task");
 		}
 
 		/** clinet_build/src/main/SinnoriAppClientMain.java */
@@ -1237,8 +1260,7 @@ public abstract class BuildSystemSupporter {
 
 		/** create Echo message process files */
 		createEchoMessageProcessFiles(appClientBuildPathString,
-				newMainProjectName, sinnoriInstalledPathString,
-				messageInfoSAXParser);
+				newMainProjectName, sinnoriInstalledPathString);
 
 	}
 

@@ -40,9 +40,7 @@ import kr.pe.sinnori.common.config.buildsystem.MainProjectBuildSystemState;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.BuildSystemException;
-import kr.pe.sinnori.common.exception.MessageInfoSAXParserException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
-import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 import kr.pe.sinnori.gui.helper.ScreenManagerIF;
 
@@ -55,85 +53,82 @@ public class AllMainProjectManagerPanel extends JPanel {
 
 	private Frame mainFrame = null;
 	private ScreenManagerIF screenManagerIF = null;
-	private MessageInfoSAXParser messageInfoSAXParser = null;
-	
 
 	public AllMainProjectManagerPanel() {
 		initComponents();
 	}
 
-	public AllMainProjectManagerPanel(Frame mainFrame,
-			ScreenManagerIF screenManagerIF) {
+	public AllMainProjectManagerPanel(Frame mainFrame, ScreenManagerIF screenManagerIF) {
 		this.mainFrame = mainFrame;
 		this.screenManagerIF = screenManagerIF;
-		try {
-			messageInfoSAXParser = new MessageInfoSAXParser();
-		} catch (MessageInfoSAXParserException e) {
-			String errorMessage = "fail to create instance of MessageInfoSAXParser class";
-			log.error(errorMessage, e);
-			System.exit(1);
-		}
+		
 
 		initComponents();
 	}
 
 	public void setScreen(String sinnoriInstalledPathString) {
 		String projectBasePathString = BuildSystemPathSupporter.getProjectBasePathString(sinnoriInstalledPathString);
-		
+
 		File projectBasePath = new File(projectBasePathString);
-		if (! projectBasePath.exists()) {
-			String errorMessage = String.format("the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] doesn't exist", 
+		if (!projectBasePath.exists()) {
+			String errorMessage = String.format(
+					"the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] doesn't exist",
 					sinnoriInstalledPathString, projectBasePathString);
-			
+
 			log.warn(errorMessage);
-			
+
 			showMessageDialog(errorMessage);
 			return;
 		}
-		
+
 		if (!projectBasePath.isDirectory()) {
-			String errorMessage = String.format("the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] is not a direcotry", 
+			String errorMessage = String.format(
+					"the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] is not a direcotry",
 					sinnoriInstalledPathString, projectBasePathString);
 			log.warn(errorMessage);
-			
+
 			showMessageDialog(errorMessage);
 			return;
 		}
-		
+
 		if (!projectBasePath.canRead()) {
-			String errorMessage = String.format("the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] doesn't hava permission to read", 
+			String errorMessage = String.format(
+					"the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] doesn't hava permission to read",
 					sinnoriInstalledPathString, projectBasePathString);
 			log.warn(errorMessage);
-			
+
 			showMessageDialog(errorMessage);
 			return;
 		}
-		
+
 		List<String> mainProjectNameList = new ArrayList<String>();
-		
+
 		for (File fileOfList : projectBasePath.listFiles()) {
 			if (fileOfList.isDirectory()) {
 				if (!fileOfList.canRead()) {
-					String errorMessage = String.format("the sinnori project base path[%s] doesn't hava permission to read", fileOfList.getAbsolutePath());
+					String errorMessage = String.format(
+							"the sinnori project base path[%s] doesn't hava permission to read",
+							fileOfList.getAbsolutePath());
 					log.warn(errorMessage);
-					
+
 					showMessageDialog(errorMessage);
 					return;
 				}
-				
+
 				if (!fileOfList.canWrite()) {
-					String errorMessage = String.format("the sinnori project base path[%s] doesn't hava permission to write", fileOfList.getAbsolutePath());
+					String errorMessage = String.format(
+							"the sinnori project base path[%s] doesn't hava permission to write",
+							fileOfList.getAbsolutePath());
 					log.warn(errorMessage);
-					
+
 					showMessageDialog(errorMessage);
 					return;
 				}
-				
+
 				mainProjectNameList.add(fileOfList.getName());
 			}
 		}
-		
-				
+
 		mainProjectNameListComboBox.removeAllItems();
 		mainProjectNameListComboBox.addItem("- project -");
 
@@ -154,36 +149,26 @@ public class AllMainProjectManagerPanel extends JPanel {
 
 	private void mainProjectEditButtonActionPerformed(ActionEvent e) {
 		if (mainProjectNameListComboBox.getSelectedIndex() > 0) {
-			String mainProjectName = (String) mainProjectNameListComboBox
-					.getSelectedItem();
-			String sinnoriInstalledPathString = sinnoriInstalledPathInfoValueLabel
-					.getText();
+			String mainProjectName = (String) mainProjectNameListComboBox.getSelectedItem();
+			String sinnoriInstalledPathString = sinnoriInstalledPathInfoValueLabel.getText();
 
 			MainProjectBuildSystemState mainProjectBuildSystemState = null;
 
 			try {
-				mainProjectBuildSystemState = new MainProjectBuildSystemState(
-						mainProjectName, sinnoriInstalledPathString);
+				mainProjectBuildSystemState = new MainProjectBuildSystemState(mainProjectName,
+						sinnoriInstalledPathString);
 			} catch (BuildSystemException e2) {
 				log.warn("fail to load main project build system state", e2);
 				JOptionPane.showMessageDialog(mainFrame, e2.getMessage());
 				return;
 			}
 
-			projectNameValueLabel.setText(mainProjectBuildSystemState
-					.getMainProjectName());
-			appClientCheckBox.setSelected(mainProjectBuildSystemState
-					.isAppClient());
-			webClientCheckBox.setSelected(mainProjectBuildSystemState
-					.isWebClient());
-			servletEnginLibinaryPathTextField
-					.setText(mainProjectBuildSystemState
-							.getServletSystemLibrayPathString());
+			projectNameValueLabel.setText(mainProjectBuildSystemState.getMainProjectName());
+			appClientCheckBox.setSelected(mainProjectBuildSystemState.isAppClient());
+			webClientCheckBox.setSelected(mainProjectBuildSystemState.isWebClient());
+			servletEnginLibinaryPathTextField.setText(mainProjectBuildSystemState.getServletSystemLibrayPathString());
 
-						
-			
-			screenManagerIF
-					.moveToMainProjectEditScreen(mainProjectBuildSystemState);
+			screenManagerIF.moveToMainProjectEditScreen(mainProjectBuildSystemState);
 		}
 	}
 
@@ -192,14 +177,13 @@ public class AllMainProjectManagerPanel extends JPanel {
 
 			if (mainProjectNameListComboBox.getSelectedIndex() > 0) {
 				String mainProjectName = (String) e.getItem();
-				String sinnoriInstalledPathString = sinnoriInstalledPathInfoValueLabel
-						.getText();
+				String sinnoriInstalledPathString = sinnoriInstalledPathInfoValueLabel.getText();
 
 				MainProjectBuildSystemState mainProjectBuildSystemState = null;
 
 				try {
-					mainProjectBuildSystemState = new MainProjectBuildSystemState(
-							mainProjectName, sinnoriInstalledPathString);
+					mainProjectBuildSystemState = new MainProjectBuildSystemState(mainProjectName,
+							sinnoriInstalledPathString);
 				} catch (BuildSystemException e2) {
 					log.warn("fail to load main project build system state", e2);
 					mainProjectNameListComboBox.setSelectedIndex(0);
@@ -207,15 +191,11 @@ public class AllMainProjectManagerPanel extends JPanel {
 					return;
 				}
 
-				projectNameValueLabel.setText(mainProjectBuildSystemState
-						.getMainProjectName());
-				appClientCheckBox.setSelected(mainProjectBuildSystemState
-						.isAppClient());
-				webClientCheckBox.setSelected(mainProjectBuildSystemState
-						.isWebClient());
+				projectNameValueLabel.setText(mainProjectBuildSystemState.getMainProjectName());
+				appClientCheckBox.setSelected(mainProjectBuildSystemState.isAppClient());
+				webClientCheckBox.setSelected(mainProjectBuildSystemState.isWebClient());
 				servletEnginLibinaryPathTextField
-						.setText(mainProjectBuildSystemState
-								.getServletSystemLibrayPathString());
+						.setText(mainProjectBuildSystemState.getServletSystemLibrayPathString());
 			} else {
 				projectNameValueLabel.setText("");
 				servletEnginLibinaryPathTextField.setText("");
@@ -224,8 +204,8 @@ public class AllMainProjectManagerPanel extends JPanel {
 	}
 
 	private void showMessageDialog(String message) {
-		JOptionPane.showMessageDialog(mainFrame, CommonStaticUtil.splitString(
-				message, CommonType.LINE_SEPARATOR_GUBUN.NEWLINE, 100));
+		JOptionPane.showMessageDialog(mainFrame,
+				CommonStaticUtil.splitString(message, CommonType.LINE_SEPARATOR_GUBUN.NEWLINE, 100));
 	}
 
 	private void projectNameAddButtonActionPerformed(ActionEvent e) {
@@ -252,28 +232,23 @@ public class AllMainProjectManagerPanel extends JPanel {
 			return;
 		}
 
-		String sinnoriInstalledPathString = sinnoriInstalledPathInfoValueLabel
-				.getText();
+		String sinnoriInstalledPathString = sinnoriInstalledPathInfoValueLabel.getText();
 		boolean isServer = true;
 		boolean isAppClient = true;
 		boolean isWebClient = false;
 		String servletSystemLibrayPathString = "";
 
 		try {
-			BuildSystemSupporter.createNewMainProjectBuildSystem(
-					newMainProjectName, sinnoriInstalledPathString, isServer,
-					CommonStaticFinalVars.JVM_OPTIONS_OF_SERVER, isAppClient,
-					CommonStaticFinalVars.JVM_OPTIONS_OF_APP_CLIENT,
-					isWebClient, servletSystemLibrayPathString,
-					messageInfoSAXParser);
+			BuildSystemSupporter.createNewMainProjectBuildSystem(newMainProjectName, sinnoriInstalledPathString,
+					isServer, CommonStaticFinalVars.JVM_OPTIONS_OF_SERVER, isAppClient,
+					CommonStaticFinalVars.JVM_OPTIONS_OF_APP_CLIENT, isWebClient, servletSystemLibrayPathString);
 		} catch (IllegalArgumentException | BuildSystemException e1) {
 			String errorMessage = "fail to create new main project build system";
 			log.warn(errorMessage, e1);
 			mainProjectNameTextField.requestFocusInWindow();
 
-			showMessageDialog(new StringBuilder(errorMessage)
-					.append(", errormessage=").append(e1.getMessage())
-					.toString());
+			showMessageDialog(
+					new StringBuilder(errorMessage).append(", errormessage=").append(e1.getMessage()).toString());
 			return;
 		}
 
@@ -291,21 +266,17 @@ public class AllMainProjectManagerPanel extends JPanel {
 			JOptionPane.showMessageDialog(mainFrame, errorMessage);
 			return;
 		}
-		String selectedProjectName = (String) mainProjectNameListComboBox
-				.getSelectedItem();
+		String selectedProjectName = (String) mainProjectNameListComboBox.getSelectedItem();
 
-		String message = "Do you really delete main project["
-				+ selectedProjectName + "]";
+		String message = "Do you really delete main project[" + selectedProjectName + "]";
 		String title = "main project deletion choice";
-		int answer = JOptionPane.showConfirmDialog(mainFrame, message, title,
-				JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+		int answer = JOptionPane.showConfirmDialog(mainFrame, message, title, JOptionPane.OK_CANCEL_OPTION,
+				JOptionPane.WARNING_MESSAGE);
 
 		if (answer == JOptionPane.OK_OPTION) {
-			String sinnoriInstalledPathString = sinnoriInstalledPathInfoValueLabel
-					.getText();
+			String sinnoriInstalledPathString = sinnoriInstalledPathInfoValueLabel.getText();
 			try {
-				BuildSystemSupporter.removeProjectDirectory(
-						selectedProjectName, sinnoriInstalledPathString);
+				BuildSystemSupporter.removeProjectDirectory(selectedProjectName, sinnoriInstalledPathString);
 			} catch (BuildSystemException e1) {
 				log.warn("fail to delete main project directory", e1);
 				showMessageDialog(e1.getMessage());
@@ -319,32 +290,30 @@ public class AllMainProjectManagerPanel extends JPanel {
 	 * 프로젝트 경로에 있는 프로젝트들 목록을 재 구성한다.
 	 */
 	private void mainProjectNameListUpdateButtonActionPerformed(ActionEvent e) {
-		String sinnoriInstalledPathString = sinnoriInstalledPathInfoValueLabel
-				.getText();
-		String projectBasePathString = BuildSystemPathSupporter
-				.getProjectBasePathString(sinnoriInstalledPathString);
+		String sinnoriInstalledPathString = sinnoriInstalledPathInfoValueLabel.getText();
+		String projectBasePathString = BuildSystemPathSupporter.getProjectBasePathString(sinnoriInstalledPathString);
 
 		File projectBasePath = new File(projectBasePathString);
 		if (!projectBasePath.exists()) {
-			String errorMessage = String
-					.format("the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] doesn't exist",
-							sinnoriInstalledPathString, projectBasePathString);
+			String errorMessage = String.format(
+					"the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] doesn't exist",
+					sinnoriInstalledPathString, projectBasePathString);
 			showMessageDialog(errorMessage);
 			return;
 		}
 
 		if (!projectBasePath.isDirectory()) {
-			String errorMessage = String
-					.format("the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] is not a direcotry",
-							sinnoriInstalledPathString, projectBasePathString);
+			String errorMessage = String.format(
+					"the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] is not a direcotry",
+					sinnoriInstalledPathString, projectBasePathString);
 			showMessageDialog(errorMessage);
 			return;
 		}
 
 		if (!projectBasePath.canRead()) {
-			String errorMessage = String
-					.format("the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] doesn't hava permission to read",
-							sinnoriInstalledPathString, projectBasePathString);
+			String errorMessage = String.format(
+					"the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] doesn't hava permission to read",
+					sinnoriInstalledPathString, projectBasePathString);
 			showMessageDialog(errorMessage);
 			return;
 		}
@@ -361,33 +330,27 @@ public class AllMainProjectManagerPanel extends JPanel {
 		JOptionPane.showMessageDialog(mainFrame, "프로젝트 경로에 있는 프로젝트들 목록 갱신 완료");
 	}
 
-	private void applySinnoriInstalledPathToSinnoriDevelopmentEnviroment(ActionEvent e) {
-		// TODO add your code here
-		
+	private void applySinnoriInstalledPathToAllProject(ActionEvent e) {
 		int itemCount = mainProjectNameListComboBox.getItemCount();
 		if (itemCount <= 1) {
 			showMessageDialog("Any main project doesn't exist");
 			return;
 		}
-		
+
 		String sinnoriInstalledPathString = sinnoriInstalledPathInfoValueLabel.getText();
-		
-		String relativeExecutabeJarFileNameOfServer = new StringBuilder("dist")
-		.append(File.separator)
-		.append(CommonStaticFinalVars.SERVER_EXECUTABLE_JAR_SHORT_FILE_NAME_VALUE)
-		.toString();
-		
+
+		String relativeExecutabeJarFileNameOfServer = new StringBuilder("dist").append(File.separator)
+				.append(CommonStaticFinalVars.SERVER_EXECUTABLE_JAR_SHORT_FILE_NAME_VALUE).toString();
+
 		String jvmOptionsOfServer = "-Xmx1024m -Xms1024m";
-		
-		String relativeExecutabeJarFileNameOfAppClient = new StringBuilder("dist")
-		.append(File.separator)
-		.append(CommonStaticFinalVars.APPCLIENT_EXECUTABLE_JAR_SHORT_FILE_NAME_VALUE)
-		.toString();
+
+		String relativeExecutabeJarFileNameOfAppClient = new StringBuilder("dist").append(File.separator)
+				.append(CommonStaticFinalVars.APPCLIENT_EXECUTABLE_JAR_SHORT_FILE_NAME_VALUE).toString();
 		String jvmOptionOfAppClient = "";
-		
-		for (int i=1; i < itemCount; i++) {
+
+		for (int i = 1; i < itemCount; i++) {
 			String mainProjectName = mainProjectNameListComboBox.getItemAt(i);
-			
+
 			try {
 				SinnoriConfiguration.applyProjectPath(mainProjectName, sinnoriInstalledPathString);
 			} catch (IllegalArgumentException e1) {
@@ -407,31 +370,34 @@ public class AllMainProjectManagerPanel extends JPanel {
 				showMessageDialog(e1.getMessage());
 				return;
 			}
-			
-			
-			/** Server dos/unix shell */	
+
+			/** Server dos/unix shell */
 			try {
-				BuildSystemSupporter.createServerShell(mainProjectName, sinnoriInstalledPathString, jvmOptionsOfServer, relativeExecutabeJarFileNameOfServer);
+				BuildSystemSupporter.createServerShell(mainProjectName, sinnoriInstalledPathString, jvmOptionsOfServer,
+						relativeExecutabeJarFileNameOfServer);
 			} catch (BuildSystemException e1) {
 				log.warn(e1.getMessage(), e1);
 				showMessageDialog(e1.toString());
 				return;
 			}
-			
-			
-			
+
 			/** AppClient dos/unix shell */
 			try {
-				BuildSystemSupporter.createAppClientShell(mainProjectName, sinnoriInstalledPathString, jvmOptionOfAppClient, relativeExecutabeJarFileNameOfAppClient);
+				BuildSystemSupporter.createAppClientShell(mainProjectName, sinnoriInstalledPathString,
+						jvmOptionOfAppClient, relativeExecutabeJarFileNameOfAppClient);
 			} catch (BuildSystemException e1) {
 				log.warn(e1.getMessage(), e1);
 				showMessageDialog(e1.toString());
 				return;
 			}
-			
-			
+
 		}
-		
+
+		showMessageDialog("success to apply Sinnori installed path to all project");
+	}
+
+	private void firstScreenMoveButtonActionPerformed(ActionEvent e) {
+		screenManagerIF.moveToFirstScreen();
 	}
 
 	private void initComponents() {
@@ -444,6 +410,7 @@ public class AllMainProjectManagerPanel extends JPanel {
 		allProjectWorkSaveLinePanel = new JPanel();
 		mainProjecNameListUpdatetButton = new JButton();
 		applySinnoriInstalledPathButton = new JButton();
+		prevButton = new JButton();
 		projectNameInputLinePanel = new JPanel();
 		mainProjectNameLabel = new JLabel();
 		mainProjectNameTextField = new JTextField();
@@ -491,7 +458,7 @@ public class AllMainProjectManagerPanel extends JPanel {
 		//======== allProjectWorkSaveLinePanel ========
 		{
 			allProjectWorkSaveLinePanel.setLayout(new FormLayout(
-				"default, $ugap, default",
+				"default, $ugap, default, $lcgap, default",
 				"default:grow"));
 
 			//---- mainProjecNameListUpdatetButton ----
@@ -507,15 +474,25 @@ public class AllMainProjectManagerPanel extends JPanel {
 			allProjectWorkSaveLinePanel.add(mainProjecNameListUpdatetButton, CC.xy(1, 1));
 
 			//---- applySinnoriInstalledPathButton ----
-			applySinnoriInstalledPathButton.setText("apply Sinnori installed path to Sinnori development enviroment");
+			applySinnoriInstalledPathButton.setText("apply Sinnori installed path to all project");
 			applySinnoriInstalledPathButton.setEnabled(false);
 			applySinnoriInstalledPathButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					applySinnoriInstalledPathToSinnoriDevelopmentEnviroment(e);
+					applySinnoriInstalledPathToAllProject(e);
 				}
 			});
 			allProjectWorkSaveLinePanel.add(applySinnoriInstalledPathButton, CC.xy(3, 1));
+
+			//---- prevButton ----
+			prevButton.setText("go to first screen");
+			prevButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					firstScreenMoveButtonActionPerformed(e);
+				}
+			});
+			allProjectWorkSaveLinePanel.add(prevButton, CC.xy(5, 1));
 		}
 		add(allProjectWorkSaveLinePanel, CC.xy(1, 3));
 
@@ -694,6 +671,7 @@ public class AllMainProjectManagerPanel extends JPanel {
 	private JPanel allProjectWorkSaveLinePanel;
 	private JButton mainProjecNameListUpdatetButton;
 	private JButton applySinnoriInstalledPathButton;
+	private JButton prevButton;
 	private JPanel projectNameInputLinePanel;
 	private JLabel mainProjectNameLabel;
 	private JTextField mainProjectNameTextField;
