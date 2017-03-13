@@ -43,9 +43,10 @@ import org.slf4j.LoggerFactory;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
-import kr.pe.sinnori.common.config.BuildSystemPathSupporter;
+import kr.pe.sinnori.common.config.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.config.buildsystem.BuildSystemSupporter;
 import kr.pe.sinnori.common.config.buildsystem.MainProjectBuildSystemState;
+import kr.pe.sinnori.common.config.buildsystem.task.ProjectCreationTask;
 import kr.pe.sinnori.common.config.fileorpathstringgetter.AbstractFileOrPathStringGetter;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.config.itemidinfo.SinnoriItemIDInfoManger;
@@ -635,7 +636,7 @@ public class MainProjectEditorPanel extends JPanel {
 		return sinnoriConfigurationSequencedProperties;
 	}
 
-	private void applyAppClientStatus(boolean isAppClient) {
+	private void applyAppClientStatus(boolean isAppClient, ProjectCreationTask projectCreationTask) {
 		String appClientBuildPathString = BuildSystemPathSupporter
 				.getAppClientBuildPathString(mainProjectName,
 						sinnoriInstalledPathString);
@@ -646,10 +647,7 @@ public class MainProjectEditorPanel extends JPanel {
 				showMessageDialog("app client exist, so skip creation of app client build system");
 			} else {
 				try {
-					
-					BuildSystemSupporter.createAppClientBuildSystem(
-							mainProjectName, sinnoriInstalledPathString,
-							CommonStaticFinalVars.JVM_OPTIONS_OF_APP_CLIENT);
+					projectCreationTask.createAppClientBuildSystemFiles();					
 				} catch (BuildSystemException e1) {
 					log.warn("fail to create app client build system", e1);
 					showMessageDialog("app client exist, so skip creation of app client build system");
@@ -672,7 +670,7 @@ public class MainProjectEditorPanel extends JPanel {
 		}
 	}
 
-	public void applyWebClientStatus(boolean isWebClient) {
+	public void applyWebClientStatus(boolean isWebClient, ProjectCreationTask projectCreationTask) {
 		String webClientBuildPathString = BuildSystemPathSupporter
 				.getWebClientBuildPathString(mainProjectName,
 						sinnoriInstalledPathString);
@@ -687,9 +685,8 @@ public class MainProjectEditorPanel extends JPanel {
 			if (webClientBuildPath.exists()) {
 				showMessageDialog("web client exists, so skip creation of web client build system");
 			} else {
-				try {
-					BuildSystemSupporter.createWebClientBuildSystem(
-							mainProjectName, sinnoriInstalledPathString);
+				try {					
+					projectCreationTask.createWebClientBuildSystemFiles();
 				} catch (BuildSystemException e1) {
 					String errorMessage = "fail to create web client build system";
 					log.warn(errorMessage, e1);
@@ -708,8 +705,7 @@ public class MainProjectEditorPanel extends JPanel {
 				showMessageDialog("web root exists, so skip creation of web root system");
 			} else {
 				try {
-					BuildSystemSupporter.createWebRootEnvironment(
-							mainProjectName, sinnoriInstalledPathString);
+					projectCreationTask.createWebRootSampleFiles();
 				} catch (BuildSystemException e1) {
 					String errorMessage = "fail to delete web root";
 					log.warn(errorMessage, e1);
@@ -772,17 +768,21 @@ public class MainProjectEditorPanel extends JPanel {
 			return;
 		}
 
+		final boolean isServer = true;
 		boolean isAppClient = appClientCheckBox.isSelected();
 		boolean isWebClient = webClientCheckBox.isSelected();
 		String servletSystemLibraryPathString = servletSystemLibraryPathTextField
 				.getText();
+		
+		ProjectCreationTask projectCreationTask = new ProjectCreationTask(
+				mainProjectName, sinnoriInstalledPathString, isServer, CommonStaticFinalVars.JVM_OPTIONS_OF_SERVER, 
+				isAppClient, CommonStaticFinalVars.JVM_OPTIONS_OF_APP_CLIENT, isWebClient, servletSystemLibraryPathString);
 
-		applyAppClientStatus(isAppClient);
-		applyWebClientStatus(isWebClient);
+		applyAppClientStatus(isAppClient, projectCreationTask);
+		applyWebClientStatus(isWebClient, projectCreationTask);
 
 		try {
-			BuildSystemSupporter.saveAntBuiltInProperties(mainProjectName,
-					sinnoriInstalledPathString, isWebClient, servletSystemLibraryPathString);
+			projectCreationTask.saveAntPropertiesFile();
 		} catch (BuildSystemException e1) {
 			log.warn("fail to sava ant built-in properties", e1);
 			showMessageDialog(e1.getMessage());

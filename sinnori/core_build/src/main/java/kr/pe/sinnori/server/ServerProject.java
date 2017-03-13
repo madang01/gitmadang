@@ -26,12 +26,14 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.common.config.vo.ProjectPartValueObject;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.SocketInputStream;
 import kr.pe.sinnori.common.project.AbstractProject;
-import kr.pe.sinnori.common.project.ProjectWorkerIF;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
 import kr.pe.sinnori.server.classloader.JarClassInfo;
 import kr.pe.sinnori.server.classloader.JarUtil;
@@ -44,9 +46,6 @@ import kr.pe.sinnori.server.threadpool.accept.selector.handler.AcceptSelector;
 import kr.pe.sinnori.server.threadpool.executor.ExecutorPool;
 import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderPool;
 import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterPool;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <pre>
@@ -216,12 +215,7 @@ public class ServerProject extends AbstractProject implements
 
 	/**
 	 * 서버 시작
-	 */
-	synchronized public void startServer(ProjectWorkerIF serverProjectWorker) {
-		serverProjectWorker.doStartingWork(projectPartConfigurationVO);
-		this.startServer();
-	}
-	
+	 */	
 	synchronized public void startServer() {		
 		serverProjectMonitor.start();
 		outputMessageWriterPool.startAll();

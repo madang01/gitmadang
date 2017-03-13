@@ -6,7 +6,7 @@ import kr.pe.sinnori.server.ServerProjectManager;
 
 public class SinnoriServerMain {	
 	public static void main(String argv[]) throws NotFoundProjectException {		
-		ServerProject mainServerProject = ServerProjectManager.getInstance().getMainServerProject();			
+		ServerProject mainServerProject = ServerProjectManager.getInstance().getRunningMainServerProject();			
 		mainServerProject.startServer();
 	}
 }

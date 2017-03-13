@@ -41,7 +41,7 @@ import org.xml.sax.SAXException;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
-import kr.pe.sinnori.common.config.BuildSystemPathSupporter;
+import kr.pe.sinnori.common.config.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.etc.CommonType.READ_WRITE_MODE;
@@ -317,7 +317,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 				String fileNickname = null;
 				fileNickname = "the message class";
 				try {
-					CommonStaticUtil.saveFileWithOverwriting(messageFile, ioFileSetContentsBuilderManager.getMessageSourceFileContents(
+					CommonStaticUtil.overwriteFile(messageFile, ioFileSetContentsBuilderManager.getMessageSourceFileContents(
 							messageID, author, messageInfo), CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 				} catch (IOException e) {
 					String errorMessage = String.format("fail to save file[%s][%s]::%s", fileNickname,
@@ -330,7 +330,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 				fileNickname = "the message encoder class";
 				try {
 					CommonStaticUtil
-							.saveFileWithOverwriting(
+							.overwriteFile(
 									messageEncoderFile, ioFileSetContentsBuilderManager
 											.getEncoderSourceFileContents(messageID, author, messageInfo),
 									CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
@@ -345,7 +345,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 				fileNickname = "the message decoder class";
 				try {
 					CommonStaticUtil
-							.saveFileWithOverwriting(
+							.overwriteFile(
 									messageDecoderFile, ioFileSetContentsBuilderManager
 											.getDecoderSourceFileContents(messageID, author, messageInfo),
 									CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
@@ -368,7 +368,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 				String fileNickname = null;
 				fileNickname = "the server codec class";
 				try {
-					CommonStaticUtil.saveFileWithOverwriting(
+					CommonStaticUtil.overwriteFile(
 							messageServerCodecFile, ioFileSetContentsBuilderManager
 									.getServerCodecSourceFileContents(messageInfo.getDirection(), messageID, author),
 							CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
@@ -382,7 +382,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 
 				fileNickname = "the client codec class";
 				try {
-					CommonStaticUtil.saveFileWithOverwriting(
+					CommonStaticUtil.overwriteFile(
 							messageClientCodecFile, ioFileSetContentsBuilderManager
 									.getClientCodecSourceFileContents(messageInfo.getDirection(), messageID, author),
 							CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);

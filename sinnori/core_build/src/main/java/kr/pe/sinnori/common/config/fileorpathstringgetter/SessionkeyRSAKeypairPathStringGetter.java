@@ -1,6 +1,6 @@
 package kr.pe.sinnori.common.config.fileorpathstringgetter;
 
-import kr.pe.sinnori.common.config.BuildSystemPathSupporter;
+import kr.pe.sinnori.common.config.buildsystem.BuildSystemPathSupporter;
 
 /**
  * 세션키를 위한 공개키 암호화를 위한 공개키쌍이 위치한 경로명을 정의한 클래스. 특이사항으로 '부가정보들'가 없다.

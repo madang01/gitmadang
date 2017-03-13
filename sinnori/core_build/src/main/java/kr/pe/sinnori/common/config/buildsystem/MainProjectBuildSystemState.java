@@ -4,16 +4,16 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
-import kr.pe.sinnori.common.config.BuildSystemPathSupporter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.vo.AllDBCPPartValueObject;
 import kr.pe.sinnori.common.config.vo.AllSubProjectPartValueObject;
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BuildSystemException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.util.SequencedProperties;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MainProjectBuildSystemState {
 	private Logger log = LoggerFactory.getLogger(MainProjectBuildSystemState.class);
@@ -40,9 +40,13 @@ public class MainProjectBuildSystemState {
 
 	private void updateInformationBasedOnBuildSystem()
 			throws BuildSystemException {
+		SequencedProperties antBuiltInProperties = null;
+		
 		/** Is 'ant built-in properties'(=ant.properties) file valid? */
-		BuildSystemSupporter.checkAntBuiltInPropertiesFile(mainProjectName, sinnoriInstalledPathString);
+		antBuiltInProperties = BuildSystemSupporter.checkAntBuiltInPropertiesFile(mainProjectName, sinnoriInstalledPathString);
 
+		servletSystemLibrayPathString = antBuiltInProperties.getProperty(CommonStaticFinalVars.SERVLET_SYSTEM_LIBIARY_PATH_KEY);
+		
 		/** check validation of server build system */
 		BuildSystemSupporter.checkServerBuildSystemConfigFile(mainProjectName,
 				sinnoriInstalledPathString);

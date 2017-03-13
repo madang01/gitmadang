@@ -7,7 +7,7 @@ import java.nio.charset.Charset;
 import java.util.Properties;
 
 import kr.pe.sinnori.common.config.AbstractDependOnInactiveChecker;
-import kr.pe.sinnori.common.config.BuildSystemPathSupporter;
+import kr.pe.sinnori.common.config.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDDefiner;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningCharset;

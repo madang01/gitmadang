@@ -33,10 +33,11 @@ import org.slf4j.LoggerFactory;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
-import kr.pe.sinnori.common.config.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
+import kr.pe.sinnori.common.config.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.config.buildsystem.BuildSystemSupporter;
 import kr.pe.sinnori.common.config.buildsystem.MainProjectBuildSystemState;
+import kr.pe.sinnori.common.config.buildsystem.task.ProjectCreationTask;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.BuildSystemException;
@@ -339,14 +340,14 @@ public class AllMainProjectManagerPanel extends JPanel {
 
 		String sinnoriInstalledPathString = sinnoriInstalledPathInfoValueLabel.getText();
 
-		String relativeExecutabeJarFileNameOfServer = new StringBuilder("dist").append(File.separator)
+		/*String relativeExecutabeJarFileNameOfServer = new StringBuilder("dist").append(File.separator)
 				.append(CommonStaticFinalVars.SERVER_EXECUTABLE_JAR_SHORT_FILE_NAME_VALUE).toString();
 
 		String jvmOptionsOfServer = "-Xmx1024m -Xms1024m";
 
 		String relativeExecutabeJarFileNameOfAppClient = new StringBuilder("dist").append(File.separator)
 				.append(CommonStaticFinalVars.APPCLIENT_EXECUTABLE_JAR_SHORT_FILE_NAME_VALUE).toString();
-		String jvmOptionOfAppClient = "";
+		String jvmOptionOfAppClient = "";*/
 
 		for (int i = 1; i < itemCount; i++) {
 			String mainProjectName = mainProjectNameListComboBox.getItemAt(i);
@@ -370,11 +371,30 @@ public class AllMainProjectManagerPanel extends JPanel {
 				showMessageDialog(e1.getMessage());
 				return;
 			}
+			
+			MainProjectBuildSystemState mainProjectBuildSystemState = null;
+
+			try {
+				mainProjectBuildSystemState = new MainProjectBuildSystemState(mainProjectName,
+						sinnoriInstalledPathString);
+			} catch (BuildSystemException e2) {
+				log.warn("fail to load main project build system state", e2);
+				JOptionPane.showMessageDialog(mainFrame, e2.getMessage());
+				return;
+			}
+			
+			final boolean isServer = true;
+			
+			
+			ProjectCreationTask projectCreationTask = new ProjectCreationTask(
+					mainProjectName, sinnoriInstalledPathString, isServer, CommonStaticFinalVars.JVM_OPTIONS_OF_SERVER, 
+					mainProjectBuildSystemState.isAppClient(), CommonStaticFinalVars.JVM_OPTIONS_OF_APP_CLIENT, 
+					mainProjectBuildSystemState.isWebClient(), mainProjectBuildSystemState.getServletSystemLibrayPathString());
 
 			/** Server dos/unix shell */
 			try {
-				BuildSystemSupporter.createServerShell(mainProjectName, sinnoriInstalledPathString, jvmOptionsOfServer,
-						relativeExecutabeJarFileNameOfServer);
+				projectCreationTask.createServerDosShellFile();
+				projectCreationTask.createServerUnixShellFile();
 			} catch (BuildSystemException e1) {
 				log.warn(e1.getMessage(), e1);
 				showMessageDialog(e1.toString());
@@ -382,15 +402,16 @@ public class AllMainProjectManagerPanel extends JPanel {
 			}
 
 			/** AppClient dos/unix shell */
-			try {
-				BuildSystemSupporter.createAppClientShell(mainProjectName, sinnoriInstalledPathString,
-						jvmOptionOfAppClient, relativeExecutabeJarFileNameOfAppClient);
-			} catch (BuildSystemException e1) {
-				log.warn(e1.getMessage(), e1);
-				showMessageDialog(e1.toString());
-				return;
+			if (mainProjectBuildSystemState.isAppClient()) {
+				try {
+					projectCreationTask.createAppClientDosShellFile();
+					projectCreationTask.createAppClientUnixShellFile();
+				} catch (BuildSystemException e1) {
+					log.warn(e1.getMessage(), e1);
+					showMessageDialog(e1.toString());
+					return;
+				}
 			}
-
 		}
 
 		showMessageDialog("success to apply Sinnori installed path to all project");

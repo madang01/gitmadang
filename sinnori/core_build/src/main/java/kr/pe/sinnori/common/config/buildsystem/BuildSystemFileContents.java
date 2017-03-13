@@ -1,10 +1,6 @@
 package kr.pe.sinnori.common.config.buildsystem;
 
-import kr.pe.sinnori.common.config.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class BuildSystemFileContents {	
 	
@@ -128,7 +124,7 @@ public abstract class BuildSystemFileContents {
 	}
 	
 	/** server_build/build.xml */
-	public static String getServerAntBuildXMLFileContent(String mainProjectName, 
+	public static String getServerAntBuildFileContent(String mainProjectName, 
 			String serverMainClassFullName ,
 			String serverExecutableJarShortFileName) {
 		StringBuilder stringBuilder = new StringBuilder();
@@ -621,64 +617,9 @@ public abstract class BuildSystemFileContents {
 		return stringBuilder.toString();
 	}
 	
-	/** ex) server_build/src/main/SinnoriServerMain.java **/
-	public static String getDefaultServerMainClassContents(String classFullName) {
-		Logger log = LoggerFactory.getLogger(BuildSystemFileContents.class);
-		
-		int len = classFullName.length();
-		int lastInx = classFullName.lastIndexOf(".");
-		String packageName = null;
-		String classShortName = null;
-		
-		if (lastInx < 0) {
-			packageName = "";
-			classShortName = classFullName;
-		} else {
-			if (lastInx + 1 >= len) {
-				String errorMessage = String.format("classFullName[%s] is a bad class full name", classFullName);
-				log.warn(errorMessage);
-				throw new IllegalArgumentException(errorMessage);
-			}
-			
-			packageName = classFullName.substring(0, lastInx);
-			classShortName = classFullName.substring(lastInx + 1);
-		}
-		
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("package ");
-		stringBuilder.append(packageName);
-		stringBuilder.append(";");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("import kr.pe.sinnori.common.exception.NotFoundProjectException;");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("import kr.pe.sinnori.server.ServerProject;");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("import kr.pe.sinnori.server.ServerProjectManager;");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("public class ");
-		stringBuilder.append(classShortName);
-		stringBuilder.append(" {\t");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\tpublic static void main(String argv[]) throws NotFoundProjectException {\t\t");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\tServerProject mainServerProject = ServerProjectManager.getInstance().getMainServerProject();\t\t\t");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\tmainServerProject.startServer();");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t}");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("}");
-		stringBuilder.append(System.getProperty("line.separator"));
-		return stringBuilder.toString();
-	}
-	
 	
 	/** client_build/app_build/build.xml */
-	public static String getAppClientAntBuildXMLFileContents(String mainProjectName,
+	public static String getAppClientAntBuildFileContents(String mainProjectName,
 			String appclientMainClassFullName ,
 			String appclientExecutableJarShortFileName) {
 		StringBuilder stringBuilder = new StringBuilder();
@@ -1030,171 +971,11 @@ public abstract class BuildSystemFileContents {
 		return stringBuilder.toString();
 	}
 	
-	/** client_build/app_build/src/main/SinnoriAppClientMain.java */
-	public static String getDefaultAppClientMainClassContents(String classFullName) {
-		Logger log = LoggerFactory.getLogger(BuildSystemFileContents.class);
-		
-		int len = classFullName.length();
-		int lastInx = classFullName.lastIndexOf(".");
-		String packageName = null;
-		String onlyClassNameWithoutQualifiedPackageName = null;
-		
-		if (lastInx < 0) {
-			packageName = "";
-			onlyClassNameWithoutQualifiedPackageName = classFullName;
-		} else {
-			if (lastInx + 1 >= len) {
-				String errorMessage = String.format("classFullName[%s] is a bad class full name", classFullName);
-				log.warn(errorMessage);
-				throw new IllegalArgumentException(errorMessage);
-			}
-			
-			packageName = classFullName.substring(0, lastInx);
-			onlyClassNameWithoutQualifiedPackageName = classFullName.substring(lastInx + 1);
-		}
-		
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("package ");
-		stringBuilder.append(packageName);
-		stringBuilder.append(";");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("import java.net.SocketTimeoutException;");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("import kr.pe.sinnori.client.ClientProject;");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("import kr.pe.sinnori.client.ClientProjectManager;");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("import kr.pe.sinnori.common.exception.BodyFormatException;");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("import kr.pe.sinnori.common.exception.DynamicClassCallException;");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("import kr.pe.sinnori.common.exception.NotLoginException;");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("import kr.pe.sinnori.common.exception.ServerNotReadyException;");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("import kr.pe.sinnori.common.exception.ServerTaskException;");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("import kr.pe.sinnori.common.message.AbstractMessage;");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("import kr.pe.sinnori.impl.message.Echo.Echo;");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("import org.slf4j.Logger;");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("import org.slf4j.LoggerFactory;");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("public class ");
-		stringBuilder.append(onlyClassNameWithoutQualifiedPackageName);
-		stringBuilder.append(" {");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\tpublic static void main(String[] args) {");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\tLogger log = LoggerFactory.getLogger(\"kr.pe.sinnori\");");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\tlog.info(\"start\");");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\tClientProjectManager clientProjectManager = ClientProjectManager.getInstance();");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\tClientProject mainClientProject = clientProjectManager.getMainClientProject();");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\tjava.util.Random random = new java.util.Random();");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\tEcho echoInObj = new Echo();");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\techoInObj.setRandomInt(random.nextInt());");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\techoInObj.setStartTime(new java.util.Date().getTime());");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\t");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\tAbstractMessage messageFromServer = null;");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\ttry {");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\tmessageFromServer = mainClientProject.sendSyncInputMessage(echoInObj);");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\tif (messageFromServer instanceof Echo) {");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\tEcho echoOutObj = (Echo)messageFromServer;");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\tif ((echoInObj.getRandomInt() == echoOutObj.getRandomInt()) && (echoInObj.getStartTime() == echoOutObj.getStartTime())) {");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\t\tlog.info(\"\uC131\uACF5::echo \uBA54\uC2DC\uC9C0 \uC785\uB825/\uCD9C\uB825 \uB3D9\uC77C\uD568\");");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\t} else {");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\t\tlog.info(\"\uC2E4\uD328::echo \uBA54\uC2DC\uC9C0 \uC785\uB825/\uCD9C\uB825 \uB2E4\uB984\");");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\t}");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t} else {");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\tlog.warn(\"messageFromServer={}\", messageFromServer.toString());");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t}");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t} catch (SocketTimeoutException e) {");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\tlog.warn(\"SocketTimeoutException\", e);");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t} catch (ServerNotReadyException e) {");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\tlog.warn(\"ServerNotReadyException\", e);");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t} catch (NoMoreDataPacketBufferException e) {");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\tlog.warn(\"NoMoreDataPacketBufferException\", e);");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t} catch (BodyFormatException e) {");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\tlog.warn(\"BodyFormatException\", e);");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t} catch (DynamicClassCallException e) {");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\tlog.warn(\"DynamicClassCallException\", e);");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t} catch (ServerTaskException e) {");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\tlog.warn(\"ServerTaskException\", e);");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t} catch (NotLoginException e) {");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\tlog.warn(\"NotLoginException\", e);");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t}\t\t");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t}");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("}");
-		return stringBuilder.toString();
-	}
+	
 		
 	
 	/** client_build/web_build/build.xml */
-	public static String getWebClientAntBuildXMLFileContents(String mainProjectName) {
+	public static String getWebClientAntBuildFileContents(String mainProjectName) {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("<project name=\"");
 		stringBuilder.append(mainProjectName);
@@ -1549,10 +1330,7 @@ public abstract class BuildSystemFileContents {
 			String jvmOptions, 
 			String logName, 
 			String workingPathString, 
-			String relativeExecutabeJarFileName,
-			
-			String sinnoriLogbackLogFileName,
-			String sinnoriConfigFileName) {
+			String relativeExecutabeJarFileName) {
 		String commonPartOfShellContents = getCommonPartOfShellContents(
 				mainProjectName,
 				sinnoriInstalledPathString,

@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.common.config.BuildSystemPathSupporter;
+import kr.pe.sinnori.common.config.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.config.buildsystem.BuildSystemSupporter;
 import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
 import kr.pe.sinnori.common.exception.BuildSystemException;
@@ -312,7 +312,7 @@ public class BuildSystemSupporterTest {
 		
 		
 		String returnedValue = BuildSystemPathSupporter
-				.getServerBuildSystemConfigFilePathString(mainProjectName, sinnoriInstalledPathString);
+				.getServerAntBuildFilePathString(mainProjectName, sinnoriInstalledPathString);
 		
 		org.junit.Assert.assertThat("the expected value comparison",
 				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
@@ -421,7 +421,7 @@ public class BuildSystemSupporterTest {
 		
 		
 		String returnedValue = BuildSystemPathSupporter
-				.getAppClientBuildSystemConfigFilePathString(mainProjectName, 
+				.getAppClientAntBuildFilePathString(mainProjectName, 
 						sinnoriInstalledPathString);
 		
 		org.junit.Assert.assertThat("the expected value comparison",
@@ -468,7 +468,7 @@ public class BuildSystemSupporterTest {
 		
 		
 		String returnedValue = BuildSystemPathSupporter
-				.getWebClientBuildSystemConfigFilePathString(mainProjectName, 
+				.getWebClientAntBuildFilePathString(mainProjectName, 
 						sinnoriInstalledPathString);
 		
 		org.junit.Assert.assertThat("the expected value comparison",

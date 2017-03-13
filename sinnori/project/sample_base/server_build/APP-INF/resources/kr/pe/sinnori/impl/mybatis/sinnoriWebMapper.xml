@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <!-- DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" -->
-<!DOCTYPE mapper SYSTEM "/home/madang01/gitsinnori/sinnori/project/sample_base/config/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper SYSTEM "/home/madang01/gitsinnori/sinnori/resources/mybatis-3-mapper.dtd">
 
 <mapper namespace="kr.pr.sinnori.testweb">
 	<!--  아이디와 일치하는 회원 검색  -->

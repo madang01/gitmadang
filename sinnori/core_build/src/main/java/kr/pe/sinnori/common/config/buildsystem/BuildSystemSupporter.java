@@ -1,10 +1,7 @@
 package kr.pe.sinnori.common.config.buildsystem;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -13,18 +10,11 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
-import kr.pe.sinnori.common.config.BuildSystemPathSupporter;
-import kr.pe.sinnori.common.config.itemidinfo.SinnoriItemIDInfoManger;
+import kr.pe.sinnori.common.config.buildsystem.task.ProjectCreationTask;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.BuildSystemException;
-import kr.pe.sinnori.common.exception.MessageInfoSAXParserException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
-import kr.pe.sinnori.common.message.builder.IOFileSetContentsBuilderManager;
-import kr.pe.sinnori.common.message.builder.info.MessageInfo;
-import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
 import kr.pe.sinnori.common.util.SequencedProperties;
 import kr.pe.sinnori.common.util.SequencedPropertiesUtil;
 
@@ -32,8 +22,6 @@ public abstract class BuildSystemSupporter {
 	private static Logger log = LoggerFactory
 			.getLogger(BuildSystemSupporter.class);
 	
-	private static String MESSAGE_SOURCE_FILE_RELATIVE_PATH = "src/main/java/kr/pe/sinnori/impl/message";
-
 	public static List<String> getSubProjectNameListFromSinnoriConfigSequencedProperties(
 			String mainProjectName, String sinnoriInstalledPathString,
 			SequencedProperties sinnoriConfigSequencedProperties)
@@ -141,7 +129,7 @@ public abstract class BuildSystemSupporter {
 		return dbcpNameList;
 	}
 
-	public static void checkAntBuiltInPropertiesFile(String mainProjectName,
+	public static SequencedProperties checkAntBuiltInPropertiesFile(String mainProjectName,
 			String sinnoriInstalledPathString) throws BuildSystemException {
 
 		String antPropertiesFilePathString = BuildSystemPathSupporter
@@ -207,13 +195,15 @@ public abstract class BuildSystemSupporter {
 				throw new BuildSystemException(errorMessage);
 			}
 		}
+		
+		return antBuiltInProperties;
 	}
 
 	public static void checkServerBuildSystemConfigFile(String mainProjectName,
 			String sinnoriInstalledPathString) throws BuildSystemException {
 
 		String serverBuildSystemConfigFilePathString = BuildSystemPathSupporter
-				.getServerBuildSystemConfigFilePathString(mainProjectName,
+				.getServerAntBuildFilePathString(mainProjectName,
 						sinnoriInstalledPathString);
 
 		File serverBuildFile = new File(serverBuildSystemConfigFilePathString);
@@ -297,7 +287,7 @@ public abstract class BuildSystemSupporter {
 		boolean isAppClient;
 
 		String appClientBuildSystemConfigFilePathString = BuildSystemPathSupporter
-				.getAppClientBuildSystemConfigFilePathString(mainProjectName,
+				.getAppClientAntBuildFilePathString(mainProjectName,
 						sinnoriInstalledPathString);
 		File appClientBuildFile = new File(
 				appClientBuildSystemConfigFilePathString);
@@ -341,7 +331,7 @@ public abstract class BuildSystemSupporter {
 		boolean isWebClient;
 
 		String webClientBuildXMLFilePathString = BuildSystemPathSupporter
-				.getWebClientBuildSystemConfigFilePathString(mainProjectName,
+				.getWebClientAntBuildFilePathString(mainProjectName,
 						sinnoriInstalledPathString);
 		File webClientBuildFile = new File(webClientBuildXMLFilePathString);
 		if (webClientBuildFile.exists()) {
@@ -429,839 +419,22 @@ public abstract class BuildSystemSupporter {
 		return isWebRoot;
 	}
 
-	public static void saveAntBuiltInProperties(String mainProjectName,
-			String sinnoriInstalledPathString,
-			boolean isTomcat,
-			String servletSystemLibraryPathString) throws BuildSystemException {
-		SequencedProperties antBuiltInProperties = new SequencedProperties();
-		
-		antBuiltInProperties.setProperty(
-				CommonStaticFinalVars.IS_TOMCAT_KEY,
-				String.valueOf(isTomcat));
-		
-		antBuiltInProperties.setProperty(
-				CommonStaticFinalVars.SERVLET_SYSTEM_LIBIARY_PATH_KEY,
-				servletSystemLibraryPathString);
-
-		String antPropertiesFilePathString = BuildSystemPathSupporter
-				.getAntBuiltInPropertiesFilePath(mainProjectName,
-						sinnoriInstalledPathString);
-		try {
-			SequencedPropertiesUtil.saveSequencedPropertiesToFile(
-					antBuiltInProperties,
-					getAntPropertiesTitle(mainProjectName),
-					antPropertiesFilePathString,
-					CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
-		} catch (FileNotFoundException e) {
-			String errorMessage = new StringBuilder(
-					"fail to save the main project[").append(mainProjectName)
-					.append("]'s ant built-in properties file").toString();
-
-			log.warn(errorMessage, e);
-
-			throw new BuildSystemException(new StringBuilder(errorMessage)
-					.append(", errormessage=").append(e.toString()).toString());
-		} catch (IOException e) {
-			String errorMessage = new StringBuilder(
-					"fail to save the main project[").append(mainProjectName)
-					.append("]'s ant built-in properties file[")
-					.append(antPropertiesFilePathString).append("]").toString();
-
-			log.warn(errorMessage, e);
-
-			throw new BuildSystemException(new StringBuilder(errorMessage)
-					.append(", errormessage=").append(e.toString()).toString());
-		}
-	}
-
 	public static void createNewMainProjectBuildSystem(
 			String newMainProjectName, String sinnoriInstalledPathString,
 			boolean isServer, String jvmOptionsOfServer, boolean isAppClient,
 			String jvmOptionsOfAppClient, boolean isWebClient,
 			String servletSystemLibraryPathString)
 			throws IllegalArgumentException, BuildSystemException {
-		log.info("start main project task");
+		log.info("new main project creation task stat");
 		
-		String childDirectories[] = { "config", "resources/message_info",
-				"resources/rsa_keypair", "log/apache", "log/client", "log/server",
-				"log/servlet" };
-
-		String projectPathString = BuildSystemPathSupporter
-				.getProjectPathString(newMainProjectName,
-						sinnoriInstalledPathString);
-
-		createChildDirectoriesOfBasePath(projectPathString, childDirectories);
-
-		/** <project home>/ant.properties */
-		saveAntBuiltInProperties(newMainProjectName,
-				sinnoriInstalledPathString, isWebClient, servletSystemLibraryPathString);
-
-		/** <project home>/config/sinnori.properties */
-		SinnoriItemIDInfoManger mainProjectItemIDInfo = SinnoriItemIDInfoManger
-				.getInstance();
-
-		SequencedProperties newSinnoriConfigSequencedProperties = mainProjectItemIDInfo
-				.getNewSinnoriConfigSequencedProperties(newMainProjectName,
-						sinnoriInstalledPathString);
-
-		String sinnoriConfigFilePathString = BuildSystemPathSupporter
-				.getSinnoriConfigFilePathString(newMainProjectName,
-						sinnoriInstalledPathString);
-
-		try {
-			SequencedPropertiesUtil.saveSequencedPropertiesToFile(
-					newSinnoriConfigSequencedProperties,
-					getSinnoriConfigPropertiesTitle(newMainProjectName),
-					sinnoriConfigFilePathString,
-					CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
-		} catch (FileNotFoundException e) {
-			String errorMessage = new StringBuilder(
-					"fail to save the main project[")
-					.append(newMainProjectName)
-					.append("]'s sinnori configuration file").toString();
-
-			log.warn(errorMessage, e);
-
-			throw new BuildSystemException(new StringBuilder(errorMessage)
-					.append(", errormessage=").append(e.toString()).toString());
-		} catch (IOException e) {
-			String errorMessage = new StringBuilder(
-					"fail to save the main project[")
-					.append(newMainProjectName)
-					.append("]'s sinnori configuration file[")
-					.append(sinnoriConfigFilePathString).append("]").toString();
-
-			log.warn(errorMessage, e);
-
-			throw new BuildSystemException(new StringBuilder(errorMessage)
-					.append(", errormessage=").append(e.toString()).toString());
-		}
-
-		/** <project home>/config/logback.xml */
-		createUTF8File("logback config file",
-				BuildSystemFileContents.getContentsOfLogback(),
-				BuildSystemPathSupporter.getLogbackConfigFilePathString(
-						newMainProjectName, sinnoriInstalledPathString));
-
-		/** <project home>/impl/message/info/Echo.xml */
-		String echoMessageXMLFilePathString = new StringBuilder(
-				BuildSystemPathSupporter.getMessageInfoPathString(
-						newMainProjectName, sinnoriInstalledPathString))
-				.append(File.separator).append("Echo.xml").toString();
-
-		createUTF8File("echo message",
-				BuildSystemFileContents.getEchoMessageInfoContents(),
-				echoMessageXMLFilePathString);
-
-		if (isServer) {
-			createSeverBuildSystem(newMainProjectName,
-					sinnoriInstalledPathString, jvmOptionsOfServer);
-		}
-		if (isAppClient) {
-			createAppClientBuildSystem(newMainProjectName,
-					sinnoriInstalledPathString, jvmOptionsOfAppClient);
-		}
-
-		if (isWebClient) {
-			createWebClientBuildSystem(newMainProjectName,
-					sinnoriInstalledPathString);
-
-			createWebRootEnvironment(newMainProjectName,
-					sinnoriInstalledPathString);
-
-		}
+		ProjectCreationTask projectCreationTask = new ProjectCreationTask(
+				newMainProjectName, sinnoriInstalledPathString, isServer, jvmOptionsOfServer, 
+				isAppClient, jvmOptionsOfAppClient, isWebClient, servletSystemLibraryPathString);
 		
-		log.info("end main project task");
-	}
-
-	private static void createChildDirectoriesOfBasePath(String basePathStrig,
-			String[] childDirectories) throws BuildSystemException {
-		for (int i = 0; i < childDirectories.length; i++) {
-			String relativeDir = childDirectories[i];
-
-			// log.info("relativeDir[{}]=[{}]", i, relativeDir);
-
-			String subDir = null;
-			if (File.separator.equals("/")) {
-				subDir = relativeDir;
-			} else {
-				subDir = relativeDir.replaceAll("/", "\\\\");
-			}
-
-			String childPathString = new StringBuilder(basePathStrig)
-					.append(File.separator).append(subDir).toString();
-
-			File childPath = new File(childPathString);
-			if (!childPath.exists()) {
-				try {
-					FileUtils.forceMkdir(childPath);
-				} catch (IOException e) {
-					String errorMessage = String.format(
-							"fail to create a new path[%s]", childPathString);
-					log.info(errorMessage, e);
-					throw new BuildSystemException(errorMessage);
-				}
-
-				log.info("child direcotry[{}] was created successfully",
-						childPathString);
-			} else {
-				log.info("child direcotry[{}] exist", childPathString);
-			}
-
-			if (!childPath.isDirectory()) {
-				String errorMessage = String.format(
-						"path[%s] is not directory", childPathString);
-				// log.warn(errorMessage);
-				throw new BuildSystemException(errorMessage);
-			}
-
-			if (!childPath.canRead()) {
-				String errorMessage = String.format(
-						"path[%s] doesn't hava permission to read",
-						childPathString);
-				// log.warn(errorMessage);
-				throw new BuildSystemException(errorMessage);
-			}
-
-			if (!childPath.canWrite()) {
-				String errorMessage = String.format(
-						"path[%s] doesn't hava permission to write",
-						childPathString);
-				// log.warn(errorMessage);
-				throw new BuildSystemException(errorMessage);
-			}
-
-		}
-	}
-
-	private static void createUTF8File(String title, String contents,
-			String filePathString) throws BuildSystemException {
-		File serverBuildXMLFile = new File(filePathString);
-		FileOutputStream fos = null;
-		try {
-			fos = FileUtils.openOutputStream(serverBuildXMLFile);
-
-			fos.write(contents.getBytes("UTF-8"));
-
-			// log.info("title={}, filePathString={} UTF8 file creation success",
-			// title, filePathString);
-
-		} catch (UnsupportedEncodingException e) {
-			String errorMessage = new StringBuilder(title).append("[")
-					.append(filePathString).append("] 생성중 문자셋 에러::")
-					.append(e.getMessage()).toString();
-
-			// log.warn(errorMessage);
-
-			throw new BuildSystemException(errorMessage);
-		} catch (IOException e) {
-			String errorMessage = new StringBuilder("서버 build.xml 파일[")
-					.append(filePathString).append("] 생성중 IO 에러::")
-					.append(e.getMessage()).toString();
-
-			// log.warn(errorMessage);
-
-			throw new BuildSystemException(errorMessage);
-		} finally {
-			if (null != fos) {
-				try {
-					fos.close();
-				} catch (Exception e) {
-					/*
-					 * String errorMessage = new
-					 * StringBuilder("서버 build.xml 파일[") .append(filePathString)
-					 * .append("] 의 쓰기 쓰트림 닫기 에러::")
-					 * .append(e.getMessage()).toString();
-					 */
-					// log.warn(errorMessage);
-				}
-			}
-		}
-
-		log.info("{} file[{}] was created successfully", title, filePathString);
-	}
-
-	private static MessageInfo getEchoMessageInfo(String mainProjectName,
-			String sinnoriInstalledPathString)
-			throws BuildSystemException {
-		String messageID = "Echo";
-
-		String echoMessageInfoFilePathString = new StringBuilder(
-				BuildSystemPathSupporter.getMessageInfoPathString(
-						mainProjectName, sinnoriInstalledPathString))
-				.append(File.separator).append(messageID).append(".xml")
-				.toString();
-		File echoMessageInfoFile = new File(echoMessageInfoFilePathString);
-
-		MessageInfoSAXParser messageInfoSAXParser = null;
-		try {
-			messageInfoSAXParser = new MessageInfoSAXParser();
-		} catch (MessageInfoSAXParserException e) {
-			System.exit(1);
-		} 
-		MessageInfo echoMessageInfo = null;
-		try {
-			echoMessageInfo = messageInfoSAXParser.parse(echoMessageInfoFile, true);
-		} catch (IllegalArgumentException | SAXException | IOException e) {
-			String errorMessage = new StringBuilder(
-					"fail to parse sinnori message information xml file[")
-					.append(echoMessageInfoFile.getAbsolutePath()).append("]")
-					.toString();
-			log.warn(errorMessage, e);
-			throw new BuildSystemException(new StringBuilder(errorMessage)
-					.append(", errormessage=").append(e.getMessage())
-					.toString());
-		}
-		return echoMessageInfo;
-	}
-
-	private static void createEchoMessageProcessFiles(String buildPathString,
-			String mainProjectName, String sinnoriInstalledPathString)
-			throws BuildSystemException {
-		String messageID = "Echo";
-		String author = "Won Jonghoon";
-
-		String sourceFileBasePathString = new StringBuilder(buildPathString)
-				.append(File.separator).append("src").append(File.separator)
-				.append("main").append(File.separator).append("java")
-				.toString();
-
-		String implBasePath = new StringBuilder(sourceFileBasePathString)
-				.append(File.separator).append("kr").append(File.separator)
-				.append("pe").append(File.separator).append("sinnori")
-				.append(File.separator).append("impl").toString();
-
-		String messagePathString = new StringBuilder(implBasePath)
-				.append(File.separator).append("message").toString();
-
-		MessageInfo echoMessageInfo = getEchoMessageInfo(mainProjectName,
-				sinnoriInstalledPathString);
-
-		IOFileSetContentsBuilderManager messageProcessFileContentsManager = IOFileSetContentsBuilderManager
-				.getInstance();
-
-		/** kr/pe/sinnori/message/Echo/Echo.java */
-		String echoMessageFileContnets = messageProcessFileContentsManager
-				.getMessageSourceFileContents(messageID, author,
-						echoMessageInfo);
-		String echoMessageFilePathString = new StringBuilder(messagePathString)
-				.append(File.separator).append(messageID)
-				.append(File.separator).append(messageID).append(".java")
-				.toString();
-		createUTF8File("echo message file", echoMessageFileContnets,
-				echoMessageFilePathString);
-
-		/** kr/pe/sinnori/impl/message/Echo/EchoDecoder.java */
-		String echoDecoderFileContnets = messageProcessFileContentsManager
-				.getDecoderSourceFileContents(messageID, author,
-						echoMessageInfo);
-		String echoDecoderFilePathString = new StringBuilder(messagePathString)
-				.append(File.separator).append(messageID)
-				.append(File.separator).append(messageID)
-				.append("Decoder.java").toString();
-		createUTF8File("echo decoder file", echoDecoderFileContnets,
-				echoDecoderFilePathString);
-
-		/** kr/pe/sinnori/impl/message/Echo/EchoEncoder.java */
-		String echoEncoderFileContnets = messageProcessFileContentsManager
-				.getEncoderSourceFileContents(messageID, author,
-						echoMessageInfo);
-		String echoEncoderFilePathString = new StringBuilder(messagePathString)
-				.append(File.separator).append(messageID)
-				.append(File.separator).append(messageID)
-				.append("Encoder.java").toString();
-		createUTF8File("echo encoder file", echoEncoderFileContnets,
-				echoEncoderFilePathString);
-
-		/** kr/pe/sinnori/impl/message/Echo/EchoServerCodec.java */
-		String echoServerCodecFileContnets = messageProcessFileContentsManager
-				.getServerCodecSourceFileContents(
-						CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL,
-						messageID, author);
-		String echoServerCodecFilePathString = new StringBuilder(
-				messagePathString).append(File.separator).append(messageID)
-				.append(File.separator).append(messageID)
-				.append("ServerCodec.java").toString();
-
-		createUTF8File("echo server codec file", echoServerCodecFileContnets,
-				echoServerCodecFilePathString);
-
-		/** kr/pe/sinnori/impl/message/Echo/EchoClientCodec.java */
-		String clientCodecFileContnets = messageProcessFileContentsManager
-				.getClientCodecSourceFileContents(
-						CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL,
-						messageID, author);
-
-		String clientCodecFilePathString = new StringBuilder(messagePathString)
-				.append(File.separator).append(messageID)
-				.append(File.separator).append(messageID)
-				.append("ClientCodec.java").toString();
-
-		createUTF8File("echo client codec file", clientCodecFileContnets,
-				clientCodecFilePathString);
-	}
-
-	public static void createServerShell(String newMainProjectName,
-			String sinnoriInstalledPathString, String jvmOptions,
-			String relativeExecutabeJarFileName) throws BuildSystemException {
-		String serverBuildPathString = BuildSystemPathSupporter
-				.getServerBuildPathString(newMainProjectName,
-						sinnoriInstalledPathString);
-
-		/** Server.bat */
-		String dosShellFilePathString = new StringBuilder(serverBuildPathString)
-				.append(File.separator).append(newMainProjectName)
-				.append("Server.bat").toString();
-
-		createUTF8File("dos shell of server",
-				BuildSystemFileContents.getDosShellContents(newMainProjectName,
-						sinnoriInstalledPathString,
-
-						jvmOptions, "server", serverBuildPathString,
-						relativeExecutabeJarFileName,
-
-						CommonStaticFinalVars.SINNORI_LOGBACK_LOG_FILE_NAME,
-						CommonStaticFinalVars.SINNORI_CONFIG_FILE_NAME),
-				dosShellFilePathString);
-
-		/** Server.sh, jvmOptions -Xmx1024m -Xms1024m */
-		String unixShellFilePathString = new StringBuilder(
-				serverBuildPathString).append(File.separator)
-				.append(newMainProjectName).append("Server.sh").toString();
-		createUTF8File("unix shell of server",
-				BuildSystemFileContents.getUnixShellContents(
-						newMainProjectName, sinnoriInstalledPathString,
-
-						jvmOptions, "server", serverBuildPathString,
-						relativeExecutabeJarFileName), unixShellFilePathString);
-	}
-
-	private static void createSeverBuildSystem(String newMainProjectName,
-			String sinnoriInstalledPathString, String jvmOptions)
-			throws BuildSystemException {
-		log.info("start server build task");
-
-		String serverBuildPathString = BuildSystemPathSupporter
-				.getServerBuildPathString(newMainProjectName,
-						sinnoriInstalledPathString);
-		File serverBuildPath = new File(serverBuildPathString);
-
-		if (!serverBuildPath.exists()) {
-			boolean isSuccess = serverBuildPath.mkdir();
-			if (!isSuccess) {
-				String errorMessage = String.format(
-						"fail to make a new server build path[%s]",
-						serverBuildPathString);
-				// log.warn(errorMessage);
-				throw new BuildSystemException(errorMessage);
-			}
-		}
-
-		if (!serverBuildPath.isDirectory()) {
-			String errorMessage = String.format(
-					"server build path[%s] is not directory",
-					serverBuildPathString);
-			// log.warn(errorMessage);
-			throw new BuildSystemException(errorMessage);
-		}
-
-		if (!serverBuildPath.canRead()) {
-			String errorMessage = String.format(
-					"server build path[%s] doesn't hava permission to read",
-					serverBuildPathString);
-			// log.warn(errorMessage);
-			throw new BuildSystemException(errorMessage);
-		}
-
-		if (!serverBuildPath.canWrite()) {
-			String errorMessage = String.format(
-					"server build path[%s] doesn't hava permission to write",
-					serverBuildPathString);
-			// log.warn(errorMessage);
-			throw new BuildSystemException(errorMessage);
-		}
-
-		String childDirectories[] = { "src/test/java",
-				"src/main/java/kr/pe/sinnori/common/serverlib",
-				MESSAGE_SOURCE_FILE_RELATIVE_PATH,
-				"src/main/java/kr/pe/sinnori/impl/server/mybatis",
-				"src/main/java/kr/pe/sinnori/impl/servertask", "APP-INF/lib",
-				"APP-INF/resources", "APP-INF/classes" };
-		createChildDirectoriesOfBasePath(serverBuildPathString,
-				childDirectories);
-
-		/** build.xml */
-		String serverBuildXMLFilePathString = BuildSystemPathSupporter
-				.getServerBuildSystemConfigFilePathString(newMainProjectName,
-						sinnoriInstalledPathString);
-		createUTF8File(
-				"server build.xml",
-				BuildSystemFileContents
-						.getServerAntBuildXMLFileContent(
-								newMainProjectName,
-								CommonStaticFinalVars.SERVER_MAIN_CLASS_FULL_NAME_VALUE,
-								CommonStaticFinalVars.SERVER_EXECUTABLE_JAR_SHORT_FILE_NAME_VALUE),
-				serverBuildXMLFilePathString);
-
-		String relativeExecutabeJarFileName = new StringBuilder("dist")
-				.append(File.separator)
-				.append(CommonStaticFinalVars.SERVER_EXECUTABLE_JAR_SHORT_FILE_NAME_VALUE)
-				.toString();
-
-		createServerShell(newMainProjectName, sinnoriInstalledPathString,
-				jvmOptions, relativeExecutabeJarFileName);
-
-		/** source file base path : server_build/src/main/java */
-		String sourceFileBasePathString = new StringBuilder(
-				serverBuildPathString).append(File.separator).append("src")
-				.append(File.separator).append("main").append(File.separator)
-				.append("java").toString();
-
-		/**
-		 * create java source file running server.
-		 * server_build/src/main/java/main/SinnoriServerMain.java
-		 */
-		String serverMainSrcFilePathString = null;
-		if (File.separator.equals("/")) {
-			String subStr = CommonStaticFinalVars.SERVER_MAIN_CLASS_FULL_NAME_VALUE
-					.replaceAll("\\.", "/");
-			serverMainSrcFilePathString = new StringBuilder(
-					sourceFileBasePathString).append(File.separator)
-					.append(subStr).append(".java").toString();
-
-			// log.info("subStr=[{}], serverMainSrcFilePathString=[{}]", subStr,
-			// serverMainSrcFilePathString);
-		} else {
-			String subStr = CommonStaticFinalVars.SERVER_MAIN_CLASS_FULL_NAME_VALUE
-					.replaceAll("\\.", "\\\\");
-
-			serverMainSrcFilePathString = new StringBuilder(
-					sourceFileBasePathString).append(File.separator)
-					.append(subStr).append(".java").toString();
-
-			// log.info("subStr=[{}], serverMainSrcFilePathString=[{}]", subStr,
-			// serverMainSrcFilePathString);
-		}
-		createUTF8File(
-				"java source file running server",
-				BuildSystemFileContents
-						.getDefaultServerMainClassContents(CommonStaticFinalVars.SERVER_MAIN_CLASS_FULL_NAME_VALUE),
-				serverMainSrcFilePathString);
-
-		/** create Echo message process files */
-		createEchoMessageProcessFiles(serverBuildPathString,
-				newMainProjectName, sinnoriInstalledPathString);
-
-		/**
-		 * server_build/src/main/java/kr/pe/sinnori/impl/servertask/
-		 * EchoServerTask.java
-		 */
-		String echoServerTaskSrcFilePathString = new StringBuilder(
-				sourceFileBasePathString).append(File.separator).append("kr")
-				.append(File.separator).append("pe").append(File.separator)
-				.append("sinnori").append(File.separator).append("impl")
-				.append(File.separator).append("servertask")
-				.append(File.separator).append("Echo")
-				.append("ServerTask.java").toString();
-
-		createUTF8File("echo server task source file",
-				BuildSystemFileContents.getEchoServerTaskContents(),
-				echoServerTaskSrcFilePathString);
+		projectCreationTask.createChildDirectories();
+		projectCreationTask.createFiles();
 		
-		log.info("end server build task");
-	}
-
-	// FIXME!
-	public static void createWebClientBuildSystem(String newMainProjectName,
-			String sinnoriInstalledPathString)
-			throws BuildSystemException {
-		log.info("start web build task");
-		
-		
-		String webClientBuildPathString = BuildSystemPathSupporter
-				.getWebClientBuildPathString(newMainProjectName,
-						sinnoriInstalledPathString);
-		File webClientBuildPath = new File(webClientBuildPathString);
-
-		boolean isSuccess = webClientBuildPath.mkdir();
-		if (!isSuccess) {
-			String errorMessage = String.format(
-					"fail to create a new web client build path[%s]",
-					webClientBuildPathString);
-			log.warn(errorMessage);
-			throw new BuildSystemException(errorMessage);
-		}
-
-		if (!webClientBuildPath.isDirectory()) {
-			String errorMessage = String.format(
-					"web client build path[%s] is not directory",
-					webClientBuildPathString);
-			log.warn(errorMessage);
-			throw new BuildSystemException(errorMessage);
-		}
-
-		if (!webClientBuildPath.canRead()) {
-			String errorMessage = String
-					.format("web client build path[%s] doesn't hava permission to read",
-							webClientBuildPathString);
-			log.warn(errorMessage);
-			throw new BuildSystemException(errorMessage);
-		}
-
-		if (!webClientBuildPath.canWrite()) {
-			String errorMessage = String
-					.format("web client build path[%s] doesn't hava permission to write",
-							webClientBuildPathString);
-			log.warn(errorMessage);
-			throw new BuildSystemException(errorMessage);
-		}
-
-		String childDirectories[] = { "src/test/java",
-				"src/main/java/kr/pe/sinnori/impl/javabeans",
-				MESSAGE_SOURCE_FILE_RELATIVE_PATH,
-				"src/main/java/kr/pe/sinnori/servlet",
-				"src/main/java/kr/pe/sinnori/weblib/common",
-				"src/main/java/kr/pe/sinnori/weblib/jdf",
-				"src/main/java/kr/pe/sinnori/weblib/htmlstring" };
-		createChildDirectoriesOfBasePath(webClientBuildPathString,
-				childDirectories);
-
-		/** build.xml */
-		String webClientBuildSystemFilePathString = BuildSystemPathSupporter
-				.getWebClientBuildSystemConfigFilePathString(
-						newMainProjectName, sinnoriInstalledPathString);
-		String webClientBuildXMLFileConents = BuildSystemFileContents
-				.getWebClientAntBuildXMLFileContents(newMainProjectName);
-		createUTF8File("web client build.xml", webClientBuildXMLFileConents,
-				webClientBuildSystemFilePathString);
-
-		/** create Echo message process files */
-		createEchoMessageProcessFiles(webClientBuildPathString,
-				newMainProjectName, sinnoriInstalledPathString);
-
-		String sourceFileBasePathString = new StringBuilder(
-				webClientBuildPathString).append(File.separator).append("src")
-				.append(File.separator).append("main").append(File.separator)
-				.append("java").toString();
-
-		/** kr/pe/sinnori/servlet/EchoTestSvl.java */
-		String echoServletSrcFilePathString = new StringBuilder(
-				sourceFileBasePathString).append(File.separator).append("kr")
-				.append(File.separator).append("pe").append(File.separator)
-				.append("sinnori").append(File.separator).append("servlet")
-				.append(File.separator).append("EchoTestSvl.java").toString();
-
-		/*
-		 * createUTF8File("echo server task source file",
-		 * BuildSystemFileContents.getEchoServerTaskContents555(),
-		 * echoServletSrcFilePathString);
-		 */
-		
-		log.info("end web build task");
-	}
-
-	// FIXME!
-	public static void createWebRootEnvironment(String newMainProjectName,
-			String sinnoriInstalledPathString) throws BuildSystemException {
-		log.info("start web root task");
-		
-		// getWebAppBasePathString
-		String webRootPathString = BuildSystemPathSupporter
-				.getWebRootPathString(newMainProjectName,
-						sinnoriInstalledPathString);
-		File webRootPath = new File(webRootPathString);
-		boolean isSuccess = webRootPath.mkdirs();
-		if (!isSuccess) {
-			String errorMessage = String
-					.format("fail to create a new web root path[%s]",
-							webRootPathString);
-			log.warn(errorMessage);
-			throw new BuildSystemException(errorMessage);
-		}
-
-		if (!webRootPath.isDirectory()) {
-			String errorMessage = String.format(
-					"the new web root path[%s] is not directory",
-					webRootPathString);
-			// log.warn(errorMessage);
-			throw new BuildSystemException(errorMessage);
-		}
-
-		if (!webRootPath.canRead()) {
-			String errorMessage = String
-					.format("the new web root path[%s] doesn't hava permission to read",
-							webRootPathString);
-			// log.warn(errorMessage);
-			throw new BuildSystemException(errorMessage);
-		}
-
-		if (!webRootPath.canWrite()) {
-			String errorMessage = String
-					.format("the new web root path[%s] doesn't hava permission to write",
-							webRootPathString);
-			// log.warn(errorMessage);
-			throw new BuildSystemException(errorMessage);
-		}
-
-		String childDirectories[] = { "WEB-INF" };
-		createChildDirectoriesOfBasePath(webRootPathString, childDirectories);
-		
-		log.info("end web root task");
-	}
-
-	public static void createAppClientShell(String mainProjectName,
-			String sinnoriInstalledPathString, String jvmOptions,
-			String relativeExecutabeJarFileName) throws BuildSystemException {
-		String appClientBuildPathString = BuildSystemPathSupporter
-				.getAppClientBuildPathString(mainProjectName,
-						sinnoriInstalledPathString);
-
-		/** AppClient.bat */
-		String dosShellFilePathString = new StringBuilder(
-				appClientBuildPathString).append(File.separator)
-				.append(mainProjectName).append("AppClient.bat").toString();
-
-		createUTF8File("dos shell of client",
-				BuildSystemFileContents.getDosShellContents(mainProjectName,
-						sinnoriInstalledPathString,
-
-						jvmOptions, "client", appClientBuildPathString,
-						relativeExecutabeJarFileName,
-
-						CommonStaticFinalVars.SINNORI_LOGBACK_LOG_FILE_NAME,
-						CommonStaticFinalVars.SINNORI_CONFIG_FILE_NAME),
-				dosShellFilePathString);
-
-		/** AppClient.sh */
-		String unixShellFilePathString = new StringBuilder(
-				appClientBuildPathString).append(File.separator)
-				.append(mainProjectName).append("AppClient.sh").toString();
-		createUTF8File("unix shell of client",
-				BuildSystemFileContents.getUnixShellContents(mainProjectName,
-						sinnoriInstalledPathString,
-
-						jvmOptions, "client", appClientBuildPathString,
-						relativeExecutabeJarFileName), unixShellFilePathString);
-	}
-
-	public static void createAppClientBuildSystem(String newMainProjectName,
-			String sinnoriInstalledPathString, String jvmOptions)
-			throws BuildSystemException {		
-		log.info("start application build task");
-
-		String appClientBuildPathString = BuildSystemPathSupporter
-				.getAppClientBuildPathString(newMainProjectName,
-						sinnoriInstalledPathString);
-
-		File appClientBuildPath = new File(appClientBuildPathString);
-		if (!appClientBuildPath.exists()) {
-			boolean isSuccess = appClientBuildPath.mkdirs();
-			if (!isSuccess) {
-				String errorMessage = String.format(
-						"fail to make a new app client build path[%s]",
-						appClientBuildPathString);
-				// log.warn(errorMessage);
-				throw new BuildSystemException(errorMessage);
-			}
-		}
-
-		if (!appClientBuildPath.isDirectory()) {
-			String errorMessage = String.format(
-					"app client build path[%s] is not directory",
-					appClientBuildPath);
-			// log.warn(errorMessage);
-			throw new BuildSystemException(errorMessage);
-		}
-
-		if (!appClientBuildPath.canRead()) {
-			String errorMessage = String
-					.format("app client build path[%s] doesn't hava permission to read",
-							appClientBuildPathString);
-			// log.warn(errorMessage);
-			throw new BuildSystemException(errorMessage);
-		}
-
-		if (!appClientBuildPath.canWrite()) {
-			String errorMessage = String
-					.format("app client build path[%s] doesn't hava permission to write",
-							appClientBuildPathString);
-			// log.warn(errorMessage);
-			throw new BuildSystemException(errorMessage);
-		}
-
-		// //////////////////////////////////////////////
-		String childDirectories[] = { "src/test/java",
-				"src/main/java/kr/pe/sinnori/common/clientlib",
-				MESSAGE_SOURCE_FILE_RELATIVE_PATH };
-		createChildDirectoriesOfBasePath(appClientBuildPathString,
-				childDirectories);
-
-		/** build.xml */
-		String appClientBuildXMLFilePathString = BuildSystemPathSupporter
-				.getAppClientBuildSystemConfigFilePathString(
-						newMainProjectName, sinnoriInstalledPathString);
-		createUTF8File(
-				"client build.xml",
-				BuildSystemFileContents
-						.getAppClientAntBuildXMLFileContents(
-								newMainProjectName,
-								CommonStaticFinalVars.APPCLIENT_MAIN_CLASS_FULL_NAME_VALUE,
-								CommonStaticFinalVars.APPCLIENT_EXECUTABLE_JAR_SHORT_FILE_NAME_VALUE),
-				appClientBuildXMLFilePathString);
-
-		String relativeExecutabeJarFileName = new StringBuilder("dist")
-				.append(File.separator)
-				.append(CommonStaticFinalVars.APPCLIENT_EXECUTABLE_JAR_SHORT_FILE_NAME_VALUE)
-				.toString();
-		String jvmOptionOfAppClient = "";
-
-		createAppClientShell(newMainProjectName, sinnoriInstalledPathString,
-				jvmOptionOfAppClient, relativeExecutabeJarFileName);
-
-		/**
-		 * create source file having DEFAULT_APPCLIENT_MAIN_CLASS_NAME ex)
-		 * clinet_build/src/main/java/main/SinnoriAppClientMain.java
-		 */
-		String appClientMainSrcFilePathString = null;
-		String sourceFileBasePathString = new StringBuilder(
-				appClientBuildPathString).append(File.separator).append("src")
-				.append(File.separator).append("main").append(File.separator)
-				.append("java").toString();
-
-		if (File.separator.equals("/")) {
-			String subStr = CommonStaticFinalVars.APPCLIENT_MAIN_CLASS_FULL_NAME_VALUE
-					.replaceAll("\\.", "/");
-			appClientMainSrcFilePathString = new StringBuilder(
-					sourceFileBasePathString).append(File.separator)
-					.append(subStr).append(".java").toString();
-
-			// log.info("subStr=[{}], serverMainSrcFilePathString=[{}]", subStr,
-			// serverMainSrcFilePathString);
-		} else {
-			String subStr = CommonStaticFinalVars.APPCLIENT_MAIN_CLASS_FULL_NAME_VALUE
-					.replaceAll("\\.", "\\\\");
-
-			appClientMainSrcFilePathString = new StringBuilder(
-					sourceFileBasePathString).append(File.separator)
-					.append(subStr).append(".java").toString();
-
-			// log.info("subStr=[{}], serverMainSrcFilePathString=[{}]", subStr,
-			// serverMainSrcFilePathString);
-			
-			log.info("end application build task");
-		}
-
-		/** clinet_build/src/main/SinnoriAppClientMain.java */
-		createUTF8File(
-				"main class source of client",
-				BuildSystemFileContents
-						.getDefaultAppClientMainClassContents(CommonStaticFinalVars.APPCLIENT_MAIN_CLASS_FULL_NAME_VALUE),
-				appClientMainSrcFilePathString);
-
-		/** create Echo message process files */
-		createEchoMessageProcessFiles(appClientBuildPathString,
-				newMainProjectName, sinnoriInstalledPathString);
-
+		log.info("new main project creation task end");
 	}
 
 	public static void removeProjectDirectory(String projectName,
@@ -1299,7 +472,7 @@ public abstract class BuildSystemSupporter {
 
 	public static String getAntPropertiesTitle(String mainProjectName) {
 		return new StringBuilder("project[").append(mainProjectName)
-				.append("]'s ant config file").toString();
+				.append("]'s ant properteis file").toString();
 	}
 
 	public static String getSinnoriConfigPropertiesTitle(String mainProjectName) {

@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 import kr.pe.sinnori.common.config.AbstractDependOnValidChecker;
-import kr.pe.sinnori.common.config.BuildSystemPathSupporter;
+import kr.pe.sinnori.common.config.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningEmptyOrNoTrimString;
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningNoTrimString;
