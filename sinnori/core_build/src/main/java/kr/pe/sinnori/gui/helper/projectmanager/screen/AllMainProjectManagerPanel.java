@@ -11,8 +11,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,15 +31,12 @@ import org.slf4j.LoggerFactory;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
-import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.config.buildsystem.BuildSystemSupporter;
 import kr.pe.sinnori.common.config.buildsystem.MainProjectBuildSystemState;
-import kr.pe.sinnori.common.config.buildsystem.task.ProjectCreationTask;
-import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.common.config.buildsystem.ProjectBuilder;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.BuildSystemException;
-import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 import kr.pe.sinnori.gui.helper.ScreenManagerIF;
 
@@ -153,23 +148,23 @@ public class AllMainProjectManagerPanel extends JPanel {
 			String mainProjectName = (String) mainProjectNameListComboBox.getSelectedItem();
 			String sinnoriInstalledPathString = sinnoriInstalledPathInfoValueLabel.getText();
 
-			MainProjectBuildSystemState mainProjectBuildSystemState = null;
+			MainProjectBuildSystemState selectedMainProjectBuildSystemState = null;
 
 			try {
-				mainProjectBuildSystemState = new MainProjectBuildSystemState(mainProjectName,
+				selectedMainProjectBuildSystemState = new MainProjectBuildSystemState(mainProjectName,
 						sinnoriInstalledPathString);
-			} catch (BuildSystemException e2) {
-				log.warn("fail to load main project build system state", e2);
-				JOptionPane.showMessageDialog(mainFrame, e2.getMessage());
+			} catch (BuildSystemException e1) {
+				log.warn("fail to load main project build system state", e1);
+				JOptionPane.showMessageDialog(mainFrame, e1.getMessage());
 				return;
 			}
 
-			projectNameValueLabel.setText(mainProjectBuildSystemState.getMainProjectName());
-			appClientCheckBox.setSelected(mainProjectBuildSystemState.isAppClient());
-			webClientCheckBox.setSelected(mainProjectBuildSystemState.isWebClient());
-			servletEnginLibinaryPathTextField.setText(mainProjectBuildSystemState.getServletSystemLibrayPathString());
+			projectNameValueLabel.setText(selectedMainProjectBuildSystemState.getMainProjectName());
+			appClientCheckBox.setSelected(selectedMainProjectBuildSystemState.isAppClient());
+			webClientCheckBox.setSelected(selectedMainProjectBuildSystemState.isWebClient());			
+			servletEnginLibinaryPathTextField.setText(selectedMainProjectBuildSystemState.getServletSystemLibrayPathString());
 
-			screenManagerIF.moveToMainProjectEditScreen(mainProjectBuildSystemState);
+			screenManagerIF.moveToMainProjectEditScreen(selectedMainProjectBuildSystemState);
 		}
 	}
 
@@ -195,6 +190,7 @@ public class AllMainProjectManagerPanel extends JPanel {
 				projectNameValueLabel.setText(mainProjectBuildSystemState.getMainProjectName());
 				appClientCheckBox.setSelected(mainProjectBuildSystemState.isAppClient());
 				webClientCheckBox.setSelected(mainProjectBuildSystemState.isWebClient());
+						
 				servletEnginLibinaryPathTextField
 						.setText(mainProjectBuildSystemState.getServletSystemLibrayPathString());
 			} else {
@@ -241,8 +237,8 @@ public class AllMainProjectManagerPanel extends JPanel {
 
 		try {
 			BuildSystemSupporter.createNewMainProjectBuildSystem(newMainProjectName, sinnoriInstalledPathString,
-					isServer, CommonStaticFinalVars.JVM_OPTIONS_OF_SERVER, isAppClient,
-					CommonStaticFinalVars.JVM_OPTIONS_OF_APP_CLIENT, isWebClient, servletSystemLibrayPathString);
+					isServer,  isAppClient,
+					isWebClient, servletSystemLibrayPathString);
 		} catch (IllegalArgumentException | BuildSystemException e1) {
 			String errorMessage = "fail to create new main project build system";
 			log.warn(errorMessage, e1);
@@ -339,78 +335,22 @@ public class AllMainProjectManagerPanel extends JPanel {
 		}
 
 		String sinnoriInstalledPathString = sinnoriInstalledPathInfoValueLabel.getText();
-
-		/*String relativeExecutabeJarFileNameOfServer = new StringBuilder("dist").append(File.separator)
-				.append(CommonStaticFinalVars.SERVER_EXECUTABLE_JAR_SHORT_FILE_NAME_VALUE).toString();
-
-		String jvmOptionsOfServer = "-Xmx1024m -Xms1024m";
-
-		String relativeExecutabeJarFileNameOfAppClient = new StringBuilder("dist").append(File.separator)
-				.append(CommonStaticFinalVars.APPCLIENT_EXECUTABLE_JAR_SHORT_FILE_NAME_VALUE).toString();
-		String jvmOptionOfAppClient = "";*/
-
+		
 		for (int i = 1; i < itemCount; i++) {
-			String mainProjectName = mainProjectNameListComboBox.getItemAt(i);
-
+			String mainProjectName = mainProjectNameListComboBox.getItemAt(i);			
+			
+			
+			ProjectBuilder projectBuidler = null;
+			
 			try {
-				SinnoriConfiguration.applyProjectPath(mainProjectName, sinnoriInstalledPathString);
-			} catch (IllegalArgumentException e1) {
-				log.warn(e1.getMessage(), e1);
-				showMessageDialog(e1.getMessage());
-				return;
-			} catch (FileNotFoundException e1) {
-				log.warn(e1.getMessage(), e1);
-				showMessageDialog(e1.toString());
-				return;
-			} catch (IOException e1) {
-				log.warn(e1.getMessage(), e1);
-				showMessageDialog(e1.toString());
-				return;
-			} catch (SinnoriConfigurationException e1) {
-				log.warn(e1.getMessage(), e1);
-				showMessageDialog(e1.getMessage());
-				return;
-			}
-			
-			MainProjectBuildSystemState mainProjectBuildSystemState = null;
-
-			try {
-				mainProjectBuildSystemState = new MainProjectBuildSystemState(mainProjectName,
-						sinnoriInstalledPathString);
-			} catch (BuildSystemException e2) {
-				log.warn("fail to load main project build system state", e2);
-				JOptionPane.showMessageDialog(mainFrame, e2.getMessage());
-				return;
-			}
-			
-			final boolean isServer = true;
-			
-			
-			ProjectCreationTask projectCreationTask = new ProjectCreationTask(
-					mainProjectName, sinnoriInstalledPathString, isServer, CommonStaticFinalVars.JVM_OPTIONS_OF_SERVER, 
-					mainProjectBuildSystemState.isAppClient(), CommonStaticFinalVars.JVM_OPTIONS_OF_APP_CLIENT, 
-					mainProjectBuildSystemState.isWebClient(), mainProjectBuildSystemState.getServletSystemLibrayPathString());
-
-			/** Server dos/unix shell */
-			try {
-				projectCreationTask.createServerDosShellFile();
-				projectCreationTask.createServerUnixShellFile();
+				projectBuidler = new ProjectBuilder(
+						sinnoriInstalledPathString, mainProjectName);
+				
+				projectBuidler.applySinnoriInstalledPath();
 			} catch (BuildSystemException e1) {
 				log.warn(e1.getMessage(), e1);
-				showMessageDialog(e1.toString());
+				showMessageDialog(e1.getMessage());
 				return;
-			}
-
-			/** AppClient dos/unix shell */
-			if (mainProjectBuildSystemState.isAppClient()) {
-				try {
-					projectCreationTask.createAppClientDosShellFile();
-					projectCreationTask.createAppClientUnixShellFile();
-				} catch (BuildSystemException e1) {
-					log.warn(e1.getMessage(), e1);
-					showMessageDialog(e1.toString());
-					return;
-				}
 			}
 		}
 
@@ -460,8 +400,8 @@ public class AllMainProjectManagerPanel extends JPanel {
 
 		//======== this ========
 		setLayout(new FormLayout(
-			"${growing-button}",
-			"4*(20dlu, $lgap), min, 4*($lgap, [20dlu,default]), $lgap"));
+			"$ugap, ${growing-button}, $ugap",
+			"$ugap, 4*(20dlu, $lgap), min, 4*($lgap, [20dlu,default]), $ugap"));
 
 		//======== sinnoriInstalledPathInfoLinePanel ========
 		{
@@ -474,7 +414,7 @@ public class AllMainProjectManagerPanel extends JPanel {
 			sinnoriInstalledPathInfoLinePanel.add(sinnoriInstalledPathInfoTitleLabel, CC.xy(1, 1));
 			sinnoriInstalledPathInfoLinePanel.add(sinnoriInstalledPathInfoValueLabel, CC.xy(3, 1));
 		}
-		add(sinnoriInstalledPathInfoLinePanel, CC.xy(1, 1));
+		add(sinnoriInstalledPathInfoLinePanel, CC.xy(2, 2));
 
 		//======== allProjectWorkSaveLinePanel ========
 		{
@@ -515,7 +455,7 @@ public class AllMainProjectManagerPanel extends JPanel {
 			});
 			allProjectWorkSaveLinePanel.add(prevButton, CC.xy(5, 1));
 		}
-		add(allProjectWorkSaveLinePanel, CC.xy(1, 3));
+		add(allProjectWorkSaveLinePanel, CC.xy(2, 4));
 
 		//======== projectNameInputLinePanel ========
 		{
@@ -524,7 +464,7 @@ public class AllMainProjectManagerPanel extends JPanel {
 				"default"));
 
 			//---- mainProjectNameLabel ----
-			mainProjectNameLabel.setText("new main project name :");
+			mainProjectNameLabel.setText("New main project name :");
 			mainProjectNameLabel.setToolTipText("new main project name that you want to add");
 			projectNameInputLinePanel.add(mainProjectNameLabel, CC.xy(1, 1));
 
@@ -543,7 +483,7 @@ public class AllMainProjectManagerPanel extends JPanel {
 			});
 			projectNameInputLinePanel.add(projectNameAddButton, CC.xy(5, 1));
 		}
-		add(projectNameInputLinePanel, CC.xy(1, 5));
+		add(projectNameInputLinePanel, CC.xy(2, 6));
 
 		//======== projectListLinePanel ========
 		{
@@ -552,7 +492,7 @@ public class AllMainProjectManagerPanel extends JPanel {
 				"min"));
 
 			//---- mainProjectListLabel ----
-			mainProjectListLabel.setText("main project name list");
+			mainProjectListLabel.setText("Main project choose");
 			projectListLinePanel.add(mainProjectListLabel, CC.xy(1, 1));
 
 			//======== projectListFuncPanel ========
@@ -596,11 +536,11 @@ public class AllMainProjectManagerPanel extends JPanel {
 			}
 			projectListLinePanel.add(projectListFuncPanel, CC.xy(3, 1));
 		}
-		add(projectListLinePanel, CC.xy(1, 7));
+		add(projectListLinePanel, CC.xy(2, 8));
 
 		//---- hSpacer2 ----
 		hSpacer2.setBorder(LineBorder.createBlackLineBorder());
-		add(hSpacer2, CC.xy(1, 9));
+		add(hSpacer2, CC.xy(2, 10));
 
 		//======== projectNameLinePanel ========
 		{
@@ -609,11 +549,11 @@ public class AllMainProjectManagerPanel extends JPanel {
 				"default"));
 
 			//---- projectNameTitleLabel ----
-			projectNameTitleLabel.setText("main project name :");
+			projectNameTitleLabel.setText("Main project name :");
 			projectNameLinePanel.add(projectNameTitleLabel, CC.xy(1, 1));
 			projectNameLinePanel.add(projectNameValueLabel, CC.xy(3, 1));
 		}
-		add(projectNameLinePanel, CC.xy(1, 11));
+		add(projectNameLinePanel, CC.xy(2, 12));
 
 		//======== projectStructLinePanel ========
 		{
@@ -622,7 +562,7 @@ public class AllMainProjectManagerPanel extends JPanel {
 				"default"));
 
 			//---- projectStructLabel ----
-			projectStructLabel.setText("\ud504\ub85c\uc81d\ud2b8 \uad6c\uc131 :");
+			projectStructLabel.setText("Project build type choose :");
 			projectStructLinePanel.add(projectStructLabel, CC.xy(1, 1));
 
 			//======== projectStructFuncPanel ========
@@ -630,26 +570,26 @@ public class AllMainProjectManagerPanel extends JPanel {
 				projectStructFuncPanel.setLayout(new BoxLayout(projectStructFuncPanel, BoxLayout.X_AXIS));
 
 				//---- serverCheckBox ----
-				serverCheckBox.setText("\uc11c\ubc84");
+				serverCheckBox.setText("server");
 				serverCheckBox.setEnabled(false);
 				serverCheckBox.setSelected(true);
 				projectStructFuncPanel.add(serverCheckBox);
 
 				//---- appClientCheckBox ----
-				appClientCheckBox.setText("\uc751\uc6a9 \ud074\ub77c\uc774\uc5b8\ud2b8");
+				appClientCheckBox.setText("application client");
 				appClientCheckBox.setEnabled(false);
 				appClientCheckBox.setSelected(true);
 				projectStructFuncPanel.add(appClientCheckBox);
 
 				//---- webClientCheckBox ----
-				webClientCheckBox.setText("\uc6f9 \ud074\ub77c\uc774\uc5b8\ud2b8");
+				webClientCheckBox.setText("web client");
 				webClientCheckBox.setEnabled(false);
 				webClientCheckBox.setSelected(true);
 				projectStructFuncPanel.add(webClientCheckBox);
 			}
 			projectStructLinePanel.add(projectStructFuncPanel, CC.xy(3, 1));
 		}
-		add(projectStructLinePanel, CC.xy(1, 13));
+		add(projectStructLinePanel, CC.xy(2, 14));
 
 		//======== servletEnginLibinaryPathLinePanel ========
 		{
@@ -658,25 +598,25 @@ public class AllMainProjectManagerPanel extends JPanel {
 				"default"));
 
 			//---- servletEnginLibinaryPathLabel ----
-			servletEnginLibinaryPathLabel.setText("\uc11c\ube14\ub9bf \uc5d4\uc9c4 \ub77c\uc774\ube0c\ub7ec\ub9ac \uacbd\ub85c :");
+			servletEnginLibinaryPathLabel.setText("Servelt system library path :");
 			servletEnginLibinaryPathLinePanel.add(servletEnginLibinaryPathLabel, CC.xy(1, 1));
 
 			//---- servletEnginLibinaryPathTextField ----
 			servletEnginLibinaryPathTextField.setEditable(false);
 			servletEnginLibinaryPathLinePanel.add(servletEnginLibinaryPathTextField, CC.xy(3, 1));
 		}
-		add(servletEnginLibinaryPathLinePanel, CC.xy(1, 15));
+		add(servletEnginLibinaryPathLinePanel, CC.xy(2, 16));
 
 		//======== projectConfigVeiwLinePanel ========
 		{
 			projectConfigVeiwLinePanel.setLayout(new BoxLayout(projectConfigVeiwLinePanel, BoxLayout.X_AXIS));
 
 			//---- projectConfigVeiwButton ----
-			projectConfigVeiwButton.setText("\uc124\uc815 \ud30c\uc77c \ub0b4\uc6a9 \ubcf4\uae30");
+			projectConfigVeiwButton.setText("view config file");
 			projectConfigVeiwButton.setEnabled(false);
 			projectConfigVeiwLinePanel.add(projectConfigVeiwButton);
 		}
-		add(projectConfigVeiwLinePanel, CC.xy(1, 17));
+		add(projectConfigVeiwLinePanel, CC.xy(2, 18));
 		// //GEN-END:initComponents
 
 		// Logger.getGlobal().info("call");

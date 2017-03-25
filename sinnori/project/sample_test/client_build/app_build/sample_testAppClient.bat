@@ -1,6 +1,6 @@
 set OLDPWD=%CD%
 cd /D D:\gitsinnori\sinnori\project\sample_test\client_build\app_build
-java  ^
+java -Xmx2048m -Xms1024m ^
 -Dlogback.configurationFile=D:\gitsinnori\sinnori\project\sample_test\resources\logback.xml ^
 -Dsinnori.logPath=D:\gitsinnori\sinnori\project\sample_test\log\client ^
 -Dsinnori.installedPath=D:\gitsinnori\sinnori ^

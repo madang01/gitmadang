@@ -93,8 +93,7 @@ public abstract class CommonStaticFinalVars {
 	/** configuration end */
 	
 	/** ant.properties key start */
-	public static final String IS_TOMCAT_KEY = "is.tomcat";
-	public static final String SERVLET_SYSTEM_LIBIARY_PATH_KEY = "servlet.systemlib.path";
+	public static final String SERVLET_SYSTEM_LIBRARY_PATH_KEY = "servlet.systemlib.path";
 	/** ant.properties key end */
 	
 	/** server build.xml, appclient build.xml, webclient build.xml start */
@@ -116,8 +115,6 @@ public abstract class CommonStaticFinalVars {
 	public static final String WEBCLIENT_CORE_JAR_SHORT_FILE_NAME_VALUE = "SinnoriWebLib.jar";
 	/** webclient build system end */
 	
-	public static final String JVM_OPTIONS_OF_SERVER = "";
-	public static final String JVM_OPTIONS_OF_APP_CLIENT = "";
 	/*********** Sinnori Build System end **********/
 	
 	/** sinnori message information xml file's root tag */

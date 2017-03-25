@@ -36,7 +36,7 @@ public class SinnoriItemIDInfoMangerTest {
 		//log.info(newSinnoriProperties.toString());
 		
 		try {
-			SequencedPropertiesUtil.saveSequencedPropertiesToFile(newSinnoriProperties, "this file is the project "+mainProjectName+"'s configuration properties file", 
+			SequencedPropertiesUtil.createNewSequencedPropertiesFile(newSinnoriProperties, "this file is the project "+mainProjectName+"'s configuration properties file", 
 					"D:\\temp.properties", CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 		} catch (IOException e) {
 			e.printStackTrace();

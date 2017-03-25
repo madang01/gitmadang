@@ -7,7 +7,6 @@
 	<property name="dir.corelib" location="corelib" />
 	<property name="dir.lib" location="lib" />
 	<property name="dir.core.build" location="../../../core_build" />
-	<property file="../ant.properties" />
 	<property name="server.main.class" value="main.SinnoriServerMain" />
 	<property name="server.main.jar" value="SinnoriServerRun.jar" />	
 	<property name="java.complile.option.debug" value="on" />
@@ -185,4 +184,3 @@
 	<target name="all" depends="make.main, compile.appinf" />
 
 </project>
-

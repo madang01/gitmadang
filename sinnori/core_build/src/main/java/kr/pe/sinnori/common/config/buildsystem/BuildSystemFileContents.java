@@ -124,7 +124,7 @@ public abstract class BuildSystemFileContents {
 	}
 	
 	/** server_build/build.xml */
-	public static String getServerAntBuildFileContent(String mainProjectName, 
+	public static String getServerAntBuildXMLFileContent(String mainProjectName, 
 			String serverMainClassFullName ,
 			String serverExecutableJarShortFileName) {
 		StringBuilder stringBuilder = new StringBuilder();
@@ -147,8 +147,6 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append("\t<property name=\"dir.lib\" location=\"lib\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<property name=\"dir.core.build\" location=\"../../../core_build\" />");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t<property file=\"../ant.properties\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<property name=\"server.main.class\" value=\"");
 		stringBuilder.append(serverMainClassFullName);
@@ -619,7 +617,7 @@ public abstract class BuildSystemFileContents {
 	
 	
 	/** client_build/app_build/build.xml */
-	public static String getAppClientAntBuildFileContents(String mainProjectName,
+	public static String getAppClientAntBuildXMLFileContents(String mainProjectName,
 			String appclientMainClassFullName ,
 			String appclientExecutableJarShortFileName) {
 		StringBuilder stringBuilder = new StringBuilder();
@@ -640,8 +638,6 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append("\t<property name=\"dir.lib\" location=\"lib\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<property name=\"dir.core.build\" location=\"../../../../core_build\" />");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t<property file=\"../../ant.properties\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<property name=\"appclient.main.class\" value=\"");
 		stringBuilder.append(appclientMainClassFullName);
@@ -964,18 +960,12 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append("\t</target>");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("</project>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("");
-		stringBuilder.append(System.getProperty("line.separator"));
 		
 		return stringBuilder.toString();
 	}
 	
-	
-		
-	
 	/** client_build/web_build/build.xml */
-	public static String getWebClientAntBuildFileContents(String mainProjectName) {
+	public static String getWebClientAntBuildXMLFileContents(String mainProjectName) {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("<project name=\"");
 		stringBuilder.append(mainProjectName);
@@ -999,7 +989,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<property name=\"dir.weblib\" location=\"../../web_app_base/ROOT/WEB-INF/lib\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t<property file=\"../../ant.properties\" />");
+		stringBuilder.append("\t<property file=\"webAnt.properties\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<property name=\"webclient.core.jar\" value=\"SinnoriWebLib.jar\" />");
 		stringBuilder.append(System.getProperty("line.separator"));

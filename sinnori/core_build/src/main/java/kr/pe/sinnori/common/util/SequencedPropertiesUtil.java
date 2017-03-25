@@ -13,10 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class SequencedPropertiesUtil {
-	private static Logger log = LoggerFactory.getLogger(SequencedPropertiesUtil.class);
+	// private static Logger log = LoggerFactory.getLogger(SequencedPropertiesUtil.class);
 	
 	
-	public static SequencedProperties getSequencedPropertiesFromFile(
+	public static SequencedProperties loadSequencedPropertiesFile(
 			String sourcePropertiesFilePathString, Charset sourcePropertiesFileCharset) throws FileNotFoundException,  IOException {
 		SequencedProperties sourceSequencedProperties = new SequencedProperties();
 		FileInputStream fis = null;
@@ -26,14 +26,6 @@ public abstract class SequencedPropertiesUtil {
 			isr = new InputStreamReader(fis, sourcePropertiesFileCharset);
 			
 			sourceSequencedProperties.load(isr);
-		/*} catch (FileNotFoundException e) {
-			String errorMessage = String.format("the source properties file(=the parameter sourcePropertiesFilePathString[%s]) is not found",
-					sourcePropertiesFilePathString);
-			throw new FileNotFoundException(errorMessage);
-		} catch (IOException e) {
-			String errorMessage = String.format("fail to load the source properties file(=the parameter sourcePropertiesFilePathString[%s]), errormessage=%s",
-					sourcePropertiesFilePathString, e.getMessage());
-			throw new IOException(errorMessage);*/
 		} finally {
 			if (null != isr) {
 				try {
@@ -54,40 +46,31 @@ public abstract class SequencedPropertiesUtil {
 		return sourceSequencedProperties;
 	}
 
-	public static void saveSequencedPropertiesToFile(
+	public static void createNewSequencedPropertiesFile(
 			SequencedProperties sourceProperties, String sourcePropertiesTitle,
 			String sourcePropertiesFilePathString,
-			Charset sourcePropertiesFileCharset) throws FileNotFoundException,  IOException {
+			Charset sourcePropertiesFileCharset) throws IOException {
+		Logger log = LoggerFactory.getLogger(SequencedPropertiesUtil.class);
 		
-
 		File sourcePropertiesFile = new File(sourcePropertiesFilePathString);
-		
-		if (!sourcePropertiesFile.exists()) {
-			try {
-				boolean isSuccess = sourcePropertiesFile.createNewFile();
-				if (! isSuccess) {
-					String errorMessage = String.format("fail to create the new source properties file(=the parameter sourcePropertiesFilePathString[%s])",
-							sourcePropertiesFilePathString);
-					throw new IOException(errorMessage);
-				}
-			} catch (IOException e) {
-				String errorMessage = String.format("fail to create the new source properties file(=the parameter sourcePropertiesFilePathString[%s])",
-						sourcePropertiesFilePathString);
 				
-				log.warn(errorMessage, e);
-				throw new IOException(errorMessage);
-			}
-			
+		
+		boolean isSuccess = sourcePropertiesFile.createNewFile();
+		if (! isSuccess) {
+			String errorMessage = String.format("the sequenced properties file[%s] exist", sourcePropertiesFile.getAbsolutePath());
+			throw new IOException(errorMessage);
 		}
+		
+		log.info("the sequenced properties file[{}] was created", sourcePropertiesFilePathString);
 
 		if (!sourcePropertiesFile.isFile()) {
-			String errorMessage = String.format("the source properties file(=the parameter sourcePropertiesFilePathString[%s]) is not a regular file",
+			String errorMessage = String.format("the sequenced properties file[%s] is not a regular file",
 					sourcePropertiesFilePathString);
 			throw new IOException(errorMessage);
 		}
 
 		if (!sourcePropertiesFile.canWrite()) {
-			String errorMessage = String.format("the source properties file(=the parameter sourcePropertiesFilePathString[%s]) doesn't hava permission to write",
+			String errorMessage = String.format("the sequenced properties file[%s] can not be written",
 					sourcePropertiesFilePathString);
 			throw new IOException(errorMessage);
 		}
@@ -98,18 +81,103 @@ public abstract class SequencedPropertiesUtil {
 			fos = new FileOutputStream(sourcePropertiesFile);
 			osw = new OutputStreamWriter(fos, sourcePropertiesFileCharset);
 			sourceProperties.store(osw, sourcePropertiesTitle);
-		/*} catch (FileNotFoundException e) {
-			*//** expected dead code *//*
-			String errorMessage = String.format("the source properties file(=the parameter sourcePropertiesFilePathString[%s]) doesn't exist",
-					sourcePropertiesFilePathString);
+		} finally {
+			if (osw != null) {
+				try {
+					osw.close();
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
 			
-			log.warn(errorMessage, e);			
-			throw new FileNotFoundException(errorMessage);
-		} catch (IOException e) {
-			String errorMessage = String.format("fail to write the source properties file(=the parameter sourcePropertiesFilePathString[%s])",
+			if (fos != null) {
+				try {
+					fos.close();
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+
+		}
+	}
+	
+	public static void overwriteSequencedPropertiesFile(
+			SequencedProperties sourceProperties, String sourcePropertiesTitle,
+			String sourcePropertiesFilePathString,
+			Charset sourcePropertiesFileCharset) throws FileNotFoundException,  IOException {		
+		File sourcePropertiesFile = new File(sourcePropertiesFilePathString);
+				
+		if (!sourcePropertiesFile.exists()) {
+			String errorMessage = String.format("the sequenced properties file[%s] doesn't exist", sourcePropertiesFile.getAbsolutePath());
+			throw new IOException(errorMessage);
+		}
+
+		if (!sourcePropertiesFile.isFile()) {
+			String errorMessage = String.format("the sequenced properties file[%s] is not a regular file",
 					sourcePropertiesFilePathString);
-			log.warn(errorMessage, e);			
-			throw new IOException(errorMessage);*/
+			throw new IOException(errorMessage);
+		}
+
+		if (!sourcePropertiesFile.canWrite()) {
+			String errorMessage = String.format("the sequenced properties file[%s] can not be written",
+					sourcePropertiesFilePathString);
+			throw new IOException(errorMessage);
+		}
+
+		FileOutputStream fos = null;
+		OutputStreamWriter osw = null;
+		try {
+			fos = new FileOutputStream(sourcePropertiesFile);
+			osw = new OutputStreamWriter(fos, sourcePropertiesFileCharset);
+			sourceProperties.store(osw, sourcePropertiesTitle);
+		} finally {
+			if (osw != null) {
+				try {
+					osw.close();
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+			
+			if (fos != null) {
+				try {
+					fos.close();
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+
+		}
+	}
+	
+	public static void savePreparedRegularFile(
+			SequencedProperties sourceProperties, String sourcePropertiesTitle,
+			String sourcePropertiesFilePathString,
+			Charset sourcePropertiesFileCharset) throws FileNotFoundException,  IOException {
+		
+
+		File sourcePropertiesFile = new File(sourcePropertiesFilePathString);
+		
+		sourcePropertiesFile.createNewFile();
+
+		if (!sourcePropertiesFile.isFile()) {
+			String errorMessage = String.format("the sequenced properties file[%s] is not a regular file",
+					sourcePropertiesFilePathString);
+			throw new IOException(errorMessage);
+		}
+
+		if (!sourcePropertiesFile.canWrite()) {
+			String errorMessage = String.format("the sequenced properties file[%s] can not be written",
+					sourcePropertiesFilePathString);
+			throw new IOException(errorMessage);
+		}
+
+		FileOutputStream fos = null;
+		OutputStreamWriter osw = null;
+		try {
+			fos = new FileOutputStream(sourcePropertiesFile);
+			osw = new OutputStreamWriter(fos, sourcePropertiesFileCharset);
+			sourceProperties.store(osw, sourcePropertiesTitle);		
 		} finally {
 			if (osw != null) {
 				try {

@@ -102,7 +102,7 @@ new FormModel {
 				name: "projectTypeChoiceLinePanel"
 				add( new FormComponent( "javax.swing.JLabel" ) {
 					name: "projectTypeChoiceLabel"
-					"text": "project type :"
+					"text": "Project build type :"
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 1
 					"gridY": 1
@@ -141,9 +141,10 @@ new FormModel {
 				"$rowSpecs": "default"
 			} ) {
 				name: "servletEnginLibinaryPathLinePanel"
+				"enabled": false
 				add( new FormComponent( "javax.swing.JLabel" ) {
 					name: "servletEnginLibraryPathLabel"
-					"text": "servlet system library :"
+					"text": "Servlet system library :"
 					auxiliary() {
 						"JavaCodeGenerator.variableName": "servletSystemLibinaryPathLabel"
 					}
@@ -160,6 +161,7 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "servletSystemLibraryPathButton"
 					"text": "경로 선택"
+					"enabled": false
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 5
 					"gridY": 1
@@ -420,6 +422,11 @@ new FormModel {
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 15, 0 )
 			"size": new java.awt.Dimension( 875, 630 )
+		} )
+		add( new FormNonVisual( "javax.swing.ButtonGroup" ) {
+			name: "isTomcatButtonGroup"
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 640 )
 		} )
 	}
 }

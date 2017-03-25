@@ -72,10 +72,8 @@ public class BuildSystemSupporterTest {
 		
 		
 		boolean isServer = true;
-		String jvmOptionsOfServer = "";
 		
 		boolean isAppClient = true;
-		String jvmOptionsOfAppClient = "";
 		
 		boolean isWebClient = true;
 		String servletSystemLibrayPathString = "D:\\apache-tomcat-8.5.11\\lib";
@@ -83,8 +81,8 @@ public class BuildSystemSupporterTest {
 		try {
 			BuildSystemSupporter.createNewMainProjectBuildSystem(projectNameForTest, 
 					sinnoriInstalledPathString,
-					isServer, jvmOptionsOfServer,
-					isAppClient, jvmOptionsOfAppClient,
+					isServer, 
+					isAppClient, 
 					isWebClient, servletSystemLibrayPathString);
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
@@ -234,10 +232,10 @@ public class BuildSystemSupporterTest {
 	}
 	
 	@Test
-	public void testGetAntPropertiesFilePath() {
+	public void testGetWebClientAntPropertiesFilePath() {
 		String mainProjectName = "sample_base";
 		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
-		String expectedValue = "D:\\gitsinnori\\sinnori\\project\\sample_base\\ant.properties";
+		String expectedValue = "D:\\gitsinnori\\sinnori\\project\\sample_base\\client_build\\web_build\\webAnt.properties";
 		
 		if (!(new File(sinnoriInstalledPathString)).exists()) {
 			fail("the sinnori installed path doesn't exist");
@@ -248,7 +246,7 @@ public class BuildSystemSupporterTest {
 		
 		
 		String returnedValue = BuildSystemPathSupporter
-				.getAntBuiltInPropertiesFilePath(mainProjectName, sinnoriInstalledPathString);
+				.getWebClientAntPropertiesFilePath(mainProjectName, sinnoriInstalledPathString);
 		
 		org.junit.Assert.assertThat("the expected value comparison",
 				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
@@ -312,7 +310,7 @@ public class BuildSystemSupporterTest {
 		
 		
 		String returnedValue = BuildSystemPathSupporter
-				.getServerAntBuildFilePathString(mainProjectName, sinnoriInstalledPathString);
+				.getServerAntBuildXMLFilePathString(mainProjectName, sinnoriInstalledPathString);
 		
 		org.junit.Assert.assertThat("the expected value comparison",
 				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
@@ -421,7 +419,7 @@ public class BuildSystemSupporterTest {
 		
 		
 		String returnedValue = BuildSystemPathSupporter
-				.getAppClientAntBuildFilePathString(mainProjectName, 
+				.getAppClientAntBuildXMLFilePathString(mainProjectName, 
 						sinnoriInstalledPathString);
 		
 		org.junit.Assert.assertThat("the expected value comparison",
@@ -468,7 +466,7 @@ public class BuildSystemSupporterTest {
 		
 		
 		String returnedValue = BuildSystemPathSupporter
-				.getWebClientAntBuildFilePathString(mainProjectName, 
+				.getWebClientAntBuildXMLFilePathString(mainProjectName, 
 						sinnoriInstalledPathString);
 		
 		org.junit.Assert.assertThat("the expected value comparison",

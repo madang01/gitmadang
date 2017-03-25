@@ -33,7 +33,7 @@ import kr.pe.sinnori.client.connection.sync.noshare.NoShareSyncConnectionPool;
 import kr.pe.sinnori.client.io.ClientWrapOutputMessageQueue;
 import kr.pe.sinnori.client.io.LetterToServer;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.vo.ProjectPartValueObject;
+import kr.pe.sinnori.common.config.vo.ProjectPartItems;
 import kr.pe.sinnori.common.etc.CommonType.CONNECTION_TYPE;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
@@ -109,7 +109,7 @@ public class ClientProject extends AbstractProject implements ClientProjectIF,
 	 * @throws InterruptedException
 	 *             쓰레드 인터럽트
 	 */
-	public ClientProject(ProjectPartValueObject projectPartConfigurationVO)
+	public ClientProject(ProjectPartItems projectPartConfigurationVO)
 			throws NoMoreDataPacketBufferException,
 			NoMoreOutputMessageQueueException, InterruptedException {
 		super(projectPartConfigurationVO);
@@ -691,6 +691,6 @@ public class ClientProject extends AbstractProject implements ClientProjectIF,
 	}
 	
 	public void saveSinnoriConfiguration() throws IOException {
-		SinnoriConfigurationManager.getInstance().getSinnoriRunningProjectConfiguration().save();
+		SinnoriConfigurationManager.getInstance().getSinnoriRunningProjectConfiguration().createNewFile();
 	}
 }

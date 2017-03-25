@@ -4,8 +4,8 @@ new FormModel {
 	contentType: "form/swing"
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-			"$columnSpecs": "growbutton"
-			"$rowSpecs": "20dlu, linegap, 20dlu, linegap, 20dlu, linegap, 20dlu, linegap, min, linegap, max(default;20dlu), linegap, max(default;20dlu), linegap, max(default;20dlu), linegap, max(default;20dlu), linegap"
+			"$columnSpecs": "unrelgap, growbutton, unrelgap"
+			"$rowSpecs": "unrelgap, 20dlu, linegap, 20dlu, linegap, 20dlu, linegap, 20dlu, linegap, min, linegap, max(default;20dlu), linegap, max(default;20dlu), linegap, max(default;20dlu), linegap, max(default;20dlu), unrelgap"
 		} ) {
 			name: "this"
 			auxiliary() {
@@ -30,7 +30,8 @@ new FormModel {
 					"gridY": 1
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 1
+				"gridX": 2
+				"gridY": 2
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "default, unrelgap, default, labelcompgap, default"
@@ -67,7 +68,8 @@ new FormModel {
 					"gridY": 1
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridY": 3
+				"gridY": 4
+				"gridX": 2
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "default, labelcompgap, growbutton, labelcompgap, 37dlu"
@@ -76,7 +78,7 @@ new FormModel {
 				name: "projectNameInputLinePanel"
 				add( new FormComponent( "javax.swing.JLabel" ) {
 					name: "mainProjectNameLabel"
-					"text": "new main project name :"
+					"text": "New main project name :"
 					"toolTipText": "new main project name that you want to add"
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 1
@@ -98,7 +100,8 @@ new FormModel {
 					"gridY": 1
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridY": 5
+				"gridY": 6
+				"gridX": 2
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "default, labelcompgap, default"
@@ -107,7 +110,7 @@ new FormModel {
 				name: "projectListLinePanel"
 				add( new FormComponent( "javax.swing.JLabel" ) {
 					name: "mainProjectListLabel"
-					"text": "main project name list"
+					"text": "Main project choose"
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 1
 					"gridY": 1
@@ -142,14 +145,15 @@ new FormModel {
 					"gridX": 3
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 1
-				"gridY": 7
+				"gridX": 2
+				"gridY": 8
 			} )
 			add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
 				name: "hSpacer2"
 				"border": new javax.swing.border.LineBorder( sfield java.awt.Color black, 1, false )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridY": 9
+				"gridY": 10
+				"gridX": 2
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "default, labelcompgap, 330dlu"
@@ -158,7 +162,7 @@ new FormModel {
 				name: "projectNameLinePanel"
 				add( new FormComponent( "javax.swing.JLabel" ) {
 					name: "projectNameTitleLabel"
-					"text": "main project name :"
+					"text": "Main project name :"
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 1
 					"gridY": 1
@@ -170,8 +174,8 @@ new FormModel {
 					"gridY": 1
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 1
-				"gridY": 11
+				"gridX": 2
+				"gridY": 12
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "default, labelcompgap, 330dlu"
@@ -180,7 +184,7 @@ new FormModel {
 				name: "projectStructLinePanel"
 				add( new FormComponent( "javax.swing.JLabel" ) {
 					name: "projectStructLabel"
-					"text": "프로젝트 구성 :"
+					"text": "Project build type choose :"
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 1
 					"gridY": 1
@@ -191,19 +195,19 @@ new FormModel {
 					name: "projectStructFuncPanel"
 					add( new FormComponent( "javax.swing.JCheckBox" ) {
 						name: "serverCheckBox"
-						"text": "서버"
+						"text": "server"
 						"enabled": false
 						"selected": true
 					} )
 					add( new FormComponent( "javax.swing.JCheckBox" ) {
 						name: "appClientCheckBox"
-						"text": "응용 클라이언트"
+						"text": "application client"
 						"enabled": false
 						"selected": true
 					} )
 					add( new FormComponent( "javax.swing.JCheckBox" ) {
 						name: "webClientCheckBox"
-						"text": "웹 클라이언트"
+						"text": "web client"
 						"enabled": false
 						"selected": true
 					} )
@@ -212,8 +216,8 @@ new FormModel {
 					"gridY": 1
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 1
-				"gridY": 13
+				"gridX": 2
+				"gridY": 14
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "default, labelcompgap, growbutton"
@@ -222,7 +226,7 @@ new FormModel {
 				name: "servletEnginLibinaryPathLinePanel"
 				add( new FormComponent( "javax.swing.JLabel" ) {
 					name: "servletEnginLibinaryPathLabel"
-					"text": "서블릿 엔진 라이브러리 경로 :"
+					"text": "Servelt system library path :"
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 1
 					"gridY": 1
@@ -235,22 +239,28 @@ new FormModel {
 					"gridY": 1
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 1
-				"gridY": 15
+				"gridX": 2
+				"gridY": 16
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) ) {
 				name: "projectConfigVeiwLinePanel"
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "projectConfigVeiwButton"
-					"text": "설정 파일 내용 보기"
+					"text": "view config file"
 					"enabled": false
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridY": 17
+				"gridY": 18
+				"gridX": 2
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 700, 325 )
+			"size": new java.awt.Dimension( 765, 370 )
+		} )
+		add( new FormNonVisual( "javax.swing.ButtonGroup" ) {
+			name: "isTomcatButtonGroup"
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 380 )
 		} )
 	}
 }

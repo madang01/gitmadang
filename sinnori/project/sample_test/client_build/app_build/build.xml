@@ -6,7 +6,6 @@
 	<property name="dir.corelib" location="corelib" />
 	<property name="dir.lib" location="lib" />
 	<property name="dir.core.build" location="../../../../core_build" />
-	<property file="../../ant.properties" />
 	<property name="appclient.main.class" value="main.SinnoriAppClientMain" />
 	<property name="appclient.main.jar" value="SinnoriAppClientRun.jar" />
 	<property name="java.complile.option.debug" value="on" />
@@ -166,4 +165,3 @@
 		</jar>
 	</target>
 </project>
-

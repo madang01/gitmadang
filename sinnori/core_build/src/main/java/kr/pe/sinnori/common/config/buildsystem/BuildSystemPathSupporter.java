@@ -192,15 +192,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 
-	/** ant.properties : <project path>/ant.properties */
-	public static String getAntBuiltInPropertiesFilePath(String mainProjectName,
-			String sinnoriInstalledPathString) {
-		StringBuilder strBuilder = new StringBuilder(getProjectPathString(
-				mainProjectName, sinnoriInstalledPathString));
-		strBuilder.append(File.separator);
-		strBuilder.append("ant.properties");
-		return strBuilder.toString();
-	}
+	
 
 	/** RSA keypair path : <project path>/resources/rsa_keypair */
 	public static String getSessionKeyRSAKeypairPathString(String mainProjectName,
@@ -223,7 +215,7 @@ public abstract class BuildSystemPathSupporter {
 	}
 
 	/** server build.xml : <project path>/server_build/build.xml */
-	public static String getServerAntBuildFilePathString(
+	public static String getServerAntBuildXMLFilePathString(
 			String mainProjectName, String sinnoriInstalledPathString) {
 		StringBuilder strBuilder = new StringBuilder(getServerBuildPathString(
 				mainProjectName, sinnoriInstalledPathString));
@@ -293,7 +285,7 @@ public abstract class BuildSystemPathSupporter {
 	// getAppClientAntBuildFilePathString
 	
 	/** application client build.xml : <application client build path>/build.xml */
-	public static String getAppClientAntBuildFilePathString(
+	public static String getAppClientAntBuildXMLFilePathString(
 			String mainProjectName, String sinnoriInstalledPathString) {
 		StringBuilder strBuilder = new StringBuilder(
 				getAppClientBuildPathString(mainProjectName,
@@ -323,6 +315,29 @@ public abstract class BuildSystemPathSupporter {
 						sinnoriInstalledPathString));
 		strBuilder.append(File.separator);
 		strBuilder.append("web_build");
+		return strBuilder.toString();
+	}
+	
+	/** web client build.xml : <web client build path>/build.xml */
+	public static String getWebClientAntBuildXMLFilePathString(
+			String mainProjectName, String sinnoriInstalledPathString) {
+		StringBuilder strBuilder = new StringBuilder(
+				getWebClientBuildPathString(mainProjectName,
+						sinnoriInstalledPathString));
+		strBuilder.append(File.separator);
+		strBuilder.append("build.xml");
+
+		return strBuilder.toString();
+	}
+	
+	// FIXME!
+	/** ant.properties : <web client build path>/webAnt.properties */
+	public static String getWebClientAntPropertiesFilePath(String mainProjectName,
+			String sinnoriInstalledPathString) {
+		StringBuilder strBuilder = new StringBuilder(getWebClientBuildPathString(
+				mainProjectName, sinnoriInstalledPathString));
+		strBuilder.append(File.separator);
+		strBuilder.append("webAnt.properties");
 		return strBuilder.toString();
 	}
 	
@@ -375,7 +390,7 @@ public abstract class BuildSystemPathSupporter {
 	/**
 	 * <project path>/web_app_base/ROOT/WEB-INF/web.xml
 	 */
-	public static String getWebXmlFilePathString(String mainProjectName,
+	public static String getWebRootXMLFilePathString(String mainProjectName,
 			String sinnoriInstalledPathString) {
 		StringBuilder strBuilder = new StringBuilder(getWEBINFPathString(
 				mainProjectName, sinnoriInstalledPathString));
@@ -385,15 +400,5 @@ public abstract class BuildSystemPathSupporter {
 	}
 
 
-	/** web client build.xml : <web client build path>/build.xml */
-	public static String getWebClientAntBuildFilePathString(
-			String mainProjectName, String sinnoriInstalledPathString) {
-		StringBuilder strBuilder = new StringBuilder(
-				getWebClientBuildPathString(mainProjectName,
-						sinnoriInstalledPathString));
-		strBuilder.append(File.separator);
-		strBuilder.append("build.xml");
-
-		return strBuilder.toString();
-	}
+	
 }

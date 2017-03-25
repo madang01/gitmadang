@@ -17,8 +17,8 @@ import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.vo.AllDBCPPartValueObject;
-import kr.pe.sinnori.common.config.vo.DBCPParValueObject;
+import kr.pe.sinnori.common.config.vo.AllDBCPPartItems;
+import kr.pe.sinnori.common.config.vo.DBCPParItems;
 import kr.pe.sinnori.common.exception.DBNotReadyException;
 
 /**
@@ -59,7 +59,7 @@ public final class DBCPManager {
 				SinnoriConfigurationManager.getInstance()
 				.getSinnoriRunningProjectConfiguration();
 		
-		AllDBCPPartValueObject allDBCPPart =  sinnoriRunningProjectConfiguration.getAllDBCPPart();
+		AllDBCPPartItems allDBCPPart =  sinnoriRunningProjectConfiguration.getAllDBCPPart();
 		
 		List<String> dbcpNameList = allDBCPPart.getDBCPNameList();
 		//HashMap<String, File> dbcpConfigFileHash = commonPart.getDbcpConfigFileHash();
@@ -81,7 +81,7 @@ public final class DBCPManager {
 					.append(dbcpConnectionPoolName)
 					.append(".confige_file.value").toString();
 			File configeFile = (File) conf.getResource(propKey);*/
-			DBCPParValueObject dbcpPart = allDBCPPart.getDBCPPartValueObject(dbcpName);
+			DBCPParItems dbcpPart = allDBCPPart.getDBCPPartValueObject(dbcpName);
 			if (null == dbcpPart) {
 				log.warn("the dbcp name[{}] is bad, check dbcp part of config file", dbcpName);
 				continue;

@@ -1,28 +1,15 @@
 package kr.pe.sinnori.common.config.buildsystem;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.common.config.buildsystem.task.ProjectCreationTask;
-import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BuildSystemException;
-import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
-import kr.pe.sinnori.common.util.SequencedProperties;
-import kr.pe.sinnori.common.util.SequencedPropertiesUtil;
 
 public abstract class BuildSystemSupporter {
 	private static Logger log = LoggerFactory
 			.getLogger(BuildSystemSupporter.class);
 	
-	public static List<String> getSubProjectNameListFromSinnoriConfigSequencedProperties(
+	/*public static List<String> getSubProjectNameListFromSinnoriConfigSequencedProperties(
 			String mainProjectName, String sinnoriInstalledPathString,
 			SequencedProperties sinnoriConfigSequencedProperties)
 			throws SinnoriConfigurationException {
@@ -35,7 +22,7 @@ public abstract class BuildSystemSupporter {
 
 		List<String> subProjectNameList = new ArrayList<>();
 		if (null == subProjectNameListValue) {
-			/** 프로젝트 목록을 지정하는 키가 없을 경우 */
+			*//** 프로젝트 목록을 지정하는 키가 없을 경우 *//*
 			String errorMessage = new StringBuilder("project config file[")
 					.append(sinnoriConfigFilePathString)
 					.append("] has no a sub project list key").toString();
@@ -57,9 +44,9 @@ public abstract class BuildSystemSupporter {
 			if (subProjectName.equals(""))
 				continue;
 
-			/**
+			*//**
 			 * Waraning! 러시아 페이트공 문제를 피하기 위해서 중복 검사를 위해서 List 가 아닌 HashSet 이용.
-			 */
+			 *//*
 			if (subProjectNameHashSet.contains(subProjectName)) {
 				String errorMessage = new StringBuilder(
 						"the project config file[")
@@ -76,9 +63,9 @@ public abstract class BuildSystemSupporter {
 		}
 
 		return subProjectNameList;
-	}
+	}*/
 
-	public static List<String> getDBCPNameListFromSinnoriConfigSequencedProperties(
+	/*public static List<String> getDBCPNameListFromSinnoriConfigSequencedProperties(
 			String projectName, String sinnoriInstalledPathString,
 			SequencedProperties sinnoriConfigSequencedProperties)
 			throws SinnoriConfigurationException {
@@ -91,7 +78,7 @@ public abstract class BuildSystemSupporter {
 				.getProperty(CommonStaticFinalVars.DBCP_NAME_LIST_KEY_STRING);
 
 		if (null == dbcpNameListValue) {
-			/** DBCP 연결 폴 이름 목록을 지정하는 키가 없을 경우 */
+			*//** DBCP 연결 폴 이름 목록을 지정하는 키가 없을 경우 *//*
 			String errorMessage = new StringBuilder("project config file[")
 					.append(sinnoriConfigFilePathString)
 					.append("] has no a dbcp connection pool name list")
@@ -116,7 +103,7 @@ public abstract class BuildSystemSupporter {
 		}
 
 		if (tempNameSet.size() != dbcpNameList.size()) {
-			/** DBCP 연결 폴 이름 목록의 이름들중 중복된 것이 있는 경우 */
+			*//** DBCP 연결 폴 이름 목록의 이름들중 중복된 것이 있는 경우 *//*
 			String errorMessage = new StringBuilder("project config file[")
 					.append(sinnoriConfigFilePathString)
 					.append("]::dbcp connection pool name list has one more same thing")
@@ -128,8 +115,8 @@ public abstract class BuildSystemSupporter {
 		}
 		return dbcpNameList;
 	}
-
-	public static SequencedProperties checkAntBuiltInPropertiesFile(String mainProjectName,
+*/
+	/*public static SequencedProperties loadAntSequencedPropertiesFile(String mainProjectName,
 			String sinnoriInstalledPathString) throws BuildSystemException {
 
 		String antPropertiesFilePathString = BuildSystemPathSupporter
@@ -140,7 +127,7 @@ public abstract class BuildSystemSupporter {
 
 		try {
 			antBuiltInProperties = SequencedPropertiesUtil
-					.getSequencedPropertiesFromFile(
+					.loadSequencedPropertiesFile(
 							antPropertiesFilePathString,
 							CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 		} catch (IOException e) {
@@ -197,9 +184,9 @@ public abstract class BuildSystemSupporter {
 		}
 		
 		return antBuiltInProperties;
-	}
+	}*/
 
-	public static void checkServerBuildSystemConfigFile(String mainProjectName,
+	/*public static void checkServerBuildSystemConfigFile(String mainProjectName,
 			String sinnoriInstalledPathString) throws BuildSystemException {
 
 		String serverBuildSystemConfigFilePathString = BuildSystemPathSupporter
@@ -239,7 +226,7 @@ public abstract class BuildSystemSupporter {
 			throw new BuildSystemException(errorMessage);
 		}
 
-	}
+	}*/
 
 	/*
 	 * public static void checkBaseClientAntEnvironment(String mainProjectName,
@@ -280,7 +267,7 @@ public abstract class BuildSystemSupporter {
 	 * @return
 	 * @throws BuildSystemException
 	 */
-	public static boolean getIsAppClientAfterCheckingAppClientBuildSystemConfigFile(
+	/*public static boolean getIsAppClientAfterCheckingAppClientBuildSystemConfigFile(
 			String mainProjectName, String sinnoriInstalledPathString)
 			throws BuildSystemException {
 
@@ -322,9 +309,9 @@ public abstract class BuildSystemSupporter {
 		}
 
 		return isAppClient;
-	}
+	}*/
 
-	public static boolean getIsWebClientAfterCheckingWebClientBuildSystemConfigFile(
+	/*public static boolean getIsWebClientAfterCheckingWebClientBuildSystemConfigFile(
 			String mainProjectName, String sinnoriInstalledPathString)
 			throws BuildSystemException {
 
@@ -365,7 +352,7 @@ public abstract class BuildSystemSupporter {
 		}
 
 		return isWebClient;
-	}
+	}*/
 
 	/**
 	 * 웹 루트 존재 여부는 읽기/쓰기 가능한 web.xml 파일 여부로 판단
@@ -375,14 +362,14 @@ public abstract class BuildSystemSupporter {
 	 * @return
 	 * @throws BuildSystemException
 	 */
-	public static boolean getIsWebRootAfterCheckingWebClientBuildSystemConfigFile(
+	/*public static boolean getIsWebRootAfterCheckingWebClientBuildSystemConfigFile(
 			String mainProjectName, String sinnoriInstalledPathString)
 			throws BuildSystemException {
 
 		boolean isWebRoot;
 
 		String webXmlFilePathString = BuildSystemPathSupporter
-				.getWebXmlFilePathString(mainProjectName,
+				.getWebXMLFilePathString(mainProjectName,
 						sinnoriInstalledPathString);
 
 		File webXmlFile = new File(webXmlFilePathString);
@@ -417,60 +404,32 @@ public abstract class BuildSystemSupporter {
 		}
 
 		return isWebRoot;
-	}
+	}*/
 
 	public static void createNewMainProjectBuildSystem(
 			String newMainProjectName, String sinnoriInstalledPathString,
-			boolean isServer, String jvmOptionsOfServer, boolean isAppClient,
-			String jvmOptionsOfAppClient, boolean isWebClient,
+			boolean isServer, boolean isAppClient,
+			boolean isWebClient,
 			String servletSystemLibraryPathString)
 			throws IllegalArgumentException, BuildSystemException {
 		log.info("new main project creation task stat");
 		
-		ProjectCreationTask projectCreationTask = new ProjectCreationTask(
-				newMainProjectName, sinnoriInstalledPathString, isServer, jvmOptionsOfServer, 
-				isAppClient, jvmOptionsOfAppClient, isWebClient, servletSystemLibraryPathString);
+		ProjectBuilder projectBuilder = new ProjectBuilder(
+				sinnoriInstalledPathString, newMainProjectName);
 		
-		projectCreationTask.createChildDirectories();
-		projectCreationTask.createFiles();
+		projectBuilder.create(isServer, isAppClient, isWebClient, servletSystemLibraryPathString);
 		
 		log.info("new main project creation task end");
 	}
 
-	public static void removeProjectDirectory(String projectName,
-			String sinnoriInstalledPathString) throws BuildSystemException {
-		String projectPathString = BuildSystemPathSupporter
-				.getProjectPathString(projectName, sinnoriInstalledPathString);
-		File projectPath = new File(projectPathString);
-
-		if (!projectPath.exists()) {
-			String errorMessage = new StringBuilder("the project path[")
-					.append(projectPathString).append("] does not exist")
-					.toString();
-			throw new BuildSystemException(errorMessage);
-		}
-
-		if (!projectPath.isDirectory()) {
-			String errorMessage = new StringBuilder("the project path[")
-					.append(projectPathString).append("] is not a directory")
-					.toString();
-			throw new BuildSystemException(errorMessage);
-		}
-
-		try {
-			FileUtils.forceDelete(projectPath);
-		} catch (IOException e) {
-			String errorMessage = new StringBuilder(
-					"fail to delete the project path[")
-					.append(projectPathString).append("]").toString();
-			/** 상세 에러 추적용 */
-			log.warn(errorMessage, e);
-			throw new BuildSystemException(new StringBuilder(errorMessage)
-					.append(", errormessage=").append(e.toString()).toString());
-		}
+	public static void removeProjectDirectory(String targetProjectName, String sinnoriInstalledPathString) throws BuildSystemException {
+		ProjectBuilder projectBuilder = new ProjectBuilder(
+				sinnoriInstalledPathString, targetProjectName);
+		
+		projectBuilder.destory();
 	}
 
-	public static String getAntPropertiesTitle(String mainProjectName) {
+	/*public static String getAntPropertiesTitle(String mainProjectName) {
 		return new StringBuilder("project[").append(mainProjectName)
 				.append("]'s ant properteis file").toString();
 	}
@@ -478,6 +437,6 @@ public abstract class BuildSystemSupporter {
 	public static String getSinnoriConfigPropertiesTitle(String mainProjectName) {
 		return new StringBuilder("project[").append(mainProjectName)
 				.append("]'s sinnori config file").toString();
-	}
+	}*/
 
 }

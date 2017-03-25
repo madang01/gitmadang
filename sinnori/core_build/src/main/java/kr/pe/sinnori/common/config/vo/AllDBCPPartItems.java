@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class AllDBCPPartValueObject {	
+public class AllDBCPPartItems {	
 	private List<String> dbcpNameList = new ArrayList<String>();
-	private HashMap<String, DBCPParValueObject> dbcpPartValueObjectHash = new HashMap<String, DBCPParValueObject>();
+	private HashMap<String, DBCPParItems> dbcpPartValueObjectHash = new HashMap<String, DBCPParItems>();
 	
 	
 	public void clear() {
@@ -14,7 +14,7 @@ public class AllDBCPPartValueObject {
 		dbcpPartValueObjectHash.clear();
 	}
 	
-	public void addDBCPPartValueObject(DBCPParValueObject dbcpPartValueObject) {		
+	public void addDBCPPartValueObject(DBCPParItems dbcpPartValueObject) {		
 		if (null == dbcpPartValueObject) {
 			throw new IllegalArgumentException("the paramter dbcpPartValueObject is null");
 		}
@@ -37,7 +37,7 @@ public class AllDBCPPartValueObject {
 	}
 	
 
-	public DBCPParValueObject getDBCPPartValueObject(String dbcpName) {
+	public DBCPParItems getDBCPPartValueObject(String dbcpName) {
 		return dbcpPartValueObjectHash.get(dbcpName);
 	}
 

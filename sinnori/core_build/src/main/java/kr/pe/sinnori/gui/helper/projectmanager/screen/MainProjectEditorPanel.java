@@ -9,7 +9,6 @@ import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +35,6 @@ import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,9 +42,8 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
 import kr.pe.sinnori.common.config.buildsystem.BuildSystemPathSupporter;
-import kr.pe.sinnori.common.config.buildsystem.BuildSystemSupporter;
 import kr.pe.sinnori.common.config.buildsystem.MainProjectBuildSystemState;
-import kr.pe.sinnori.common.config.buildsystem.task.ProjectCreationTask;
+import kr.pe.sinnori.common.config.buildsystem.ProjectBuilder;
 import kr.pe.sinnori.common.config.fileorpathstringgetter.AbstractFileOrPathStringGetter;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.config.itemidinfo.SinnoriItemIDInfoManger;
@@ -56,7 +53,6 @@ import kr.pe.sinnori.common.exception.BuildSystemException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 import kr.pe.sinnori.common.util.SequencedProperties;
-import kr.pe.sinnori.common.util.SequencedPropertiesUtil;
 import kr.pe.sinnori.gui.helper.ScreenManagerIF;
 import kr.pe.sinnori.gui.helper.projectmanager.table.configurationpart.ConfigurationPartTableModel;
 import kr.pe.sinnori.gui.helper.projectmanager.table.configurationpart.ItemKeyLabel;
@@ -634,171 +630,190 @@ public class MainProjectEditorPanel extends JPanel {
 		}
 
 		return sinnoriConfigurationSequencedProperties;
-	}
-
-	private void applyAppClientStatus(boolean isAppClient, ProjectCreationTask projectCreationTask) {
-		String appClientBuildPathString = BuildSystemPathSupporter
-				.getAppClientBuildPathString(mainProjectName,
-						sinnoriInstalledPathString);
-		File appClientBuildPath = new File(appClientBuildPathString);
-
-		if (isAppClient) {
-			if (appClientBuildPath.exists()) {
-				showMessageDialog("app client exist, so skip creation of app client build system");
-			} else {
-				try {
-					projectCreationTask.createAppClientBuildSystemFiles();					
-				} catch (BuildSystemException e1) {
-					log.warn("fail to create app client build system", e1);
-					showMessageDialog("app client exist, so skip creation of app client build system");
-					return;
-				}
-			}
-		} else {
-			if (!appClientBuildPath.exists()) {
-				showMessageDialog("app client doesn't exist, so skip deletion of app client build system");
-			} else {
-				try {
-					FileUtils.forceDelete(appClientBuildPath);
-				} catch (IOException e1) {
-					log.warn("fail to delete app client build system", e1);
-
-					showMessageDialog("fail to delete app client build system");
-					return;
-				}
-			}
-		}
-	}
-
-	public void applyWebClientStatus(boolean isWebClient, ProjectCreationTask projectCreationTask) {
-		String webClientBuildPathString = BuildSystemPathSupporter
-				.getWebClientBuildPathString(mainProjectName,
-						sinnoriInstalledPathString);
-		File webClientBuildPath = new File(webClientBuildPathString);
-
-		String webRootPathString = BuildSystemPathSupporter
-				.getWebRootPathString(mainProjectName,
-						sinnoriInstalledPathString);
-		File webRootPath = new File(webRootPathString);
-
-		if (isWebClient) {
-			if (webClientBuildPath.exists()) {
-				showMessageDialog("web client exists, so skip creation of web client build system");
-			} else {
-				try {					
-					projectCreationTask.createWebClientBuildSystemFiles();
-				} catch (BuildSystemException e1) {
-					String errorMessage = "fail to create web client build system";
-					log.warn(errorMessage, e1);
-					showMessageDialog(new StringBuilder(errorMessage)
-							.append(", errormessage=").append(e1.getMessage())
-							.toString());
-					return;
-				}
-
-				log.info(
-						"main project[{}] web client build system creation success",
-						mainProjectName);
-			}
-
-			if (webRootPath.exists()) {
-				showMessageDialog("web root exists, so skip creation of web root system");
-			} else {
-				try {
-					projectCreationTask.createWebRootSampleFiles();
-				} catch (BuildSystemException e1) {
-					String errorMessage = "fail to delete web root";
-					log.warn(errorMessage, e1);
-					showMessageDialog(new StringBuilder(errorMessage)
-							.append(", errormessage=").append(e1.getMessage())
-							.toString());
-					return;
-				}
-
-				log.info("main project[{}] web root creation success",
-						mainProjectName);
-			}
-
-		} else {
-			if (!webClientBuildPath.exists()) {
-				showMessageDialog("web client doesn't exist, so skip deletion of web client build system");
-			} else {
-				try {
-					FileUtils.forceDelete(webClientBuildPath);
-				} catch (IOException e1) {
-					String errorMessage = "fail to delete web client";
-					log.warn(errorMessage, e1);
-					showMessageDialog(new StringBuilder(errorMessage)
-							.append(", errormessage=").append(e1.toString())
-							.toString());
-					return;
-				}
-				log.info("main project[{}] web client deletion success",
-						mainProjectName);
-			}
-
-			if (!webRootPath.exists()) {
-				showMessageDialog("web root doesn't exist, so skip deletion of web root");
-			} else {
-				try {
-					FileUtils.forceDelete(webRootPath);
-				} catch (IOException e1) {
-					String errorMessage = "fail to delete web root";
-					log.warn(errorMessage, e1);
-					showMessageDialog(new StringBuilder(errorMessage)
-							.append(", errormessage=").append(e1.toString())
-							.toString());
-					return;
-				}
-				log.info("main project[{}] web root deletion success",
-						mainProjectName);
-			}
-		}
-	}
+	}	
 
 	private void saveMainProjectState(ActionEvent e) {
-		String message = new StringBuilder(
+		String isSaveQuestionMessage = new StringBuilder(
 				"Do you wnat to save the main project[")
 				.append(mainProjectName).append("] state?").toString();
-		String title = "main project state storage choice";
-		int answer = JOptionPane.showConfirmDialog(mainFrame, message, title,
+		String title = "Main Project Save Dialog";
+		int answer = JOptionPane.showConfirmDialog(mainFrame, isSaveQuestionMessage, title,
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 
 		if (answer == JOptionPane.CANCEL_OPTION) {
+			/** 'cancel' choose so nothing */
 			return;
 		}
-
-		final boolean isServer = true;
+	
 		boolean isAppClient = appClientCheckBox.isSelected();
 		boolean isWebClient = webClientCheckBox.isSelected();
+		
 		String servletSystemLibraryPathString = servletSystemLibraryPathTextField
 				.getText();
+		if (isWebClient) {
+			File servletSystemLibraryPath = new File(servletSystemLibraryPathString);
+			if (!servletSystemLibraryPath.exists()) {
+				String errorMessage = "Sevlet system library path doesn't exist";
+				showMessageDialog(errorMessage);
+				servletSystemLibraryPathTextField.requestFocusInWindow();				
+				return;
+			}
+			
+			if (!servletSystemLibraryPath.isDirectory()) {
+				String errorMessage = "Sevlet system library path isn't a directory";
+				showMessageDialog(errorMessage);
+				servletSystemLibraryPathTextField.requestFocusInWindow();				
+				return;
+			}
+		}
 		
-		ProjectCreationTask projectCreationTask = new ProjectCreationTask(
-				mainProjectName, sinnoriInstalledPathString, isServer, CommonStaticFinalVars.JVM_OPTIONS_OF_SERVER, 
-				isAppClient, CommonStaticFinalVars.JVM_OPTIONS_OF_APP_CLIENT, isWebClient, servletSystemLibraryPathString);
-
-		applyAppClientStatus(isAppClient, projectCreationTask);
-		applyWebClientStatus(isWebClient, projectCreationTask);
-
+		
+		SequencedProperties sinnoriConfigSequencedProperties = makeConfigurationSequencedPropertiesFromAllPartTableModel();
+		if (null == sinnoriConfigSequencedProperties)
+			return;
+		
+		ProjectBuilder projectBuilder = null;
 		try {
-			projectCreationTask.saveAntPropertiesFile();
+			projectBuilder = new ProjectBuilder(
+					sinnoriInstalledPathString, mainProjectName);
 		} catch (BuildSystemException e1) {
-			log.warn("fail to sava ant built-in properties", e1);
+			log.warn(e1.getMessage(), e1);
 			showMessageDialog(e1.getMessage());
 			return;
 		}
 
-		SequencedProperties configurationSequencedProperties = makeConfigurationSequencedPropertiesFromAllPartTableModel();
-		if (null == configurationSequencedProperties)
-			return;
+		if (isAppClient) {
+			if (projectBuilder.isValidAppClientAntBuildXMLFile()) {
+				showMessageDialog("app client buid.xml is valid, so skip creation of app client build system");
+				return;
+			}
+			
+			try {
+				projectBuilder.createAppClientBuildSystemFiles();					
+			} catch (BuildSystemException e1) {
+				String errorMessage = "fail to create app client build system";
+				log.warn(errorMessage, e1);
+				showMessageDialog(new StringBuilder(errorMessage).append(", errormessage=").append(e1.getMessage()).toString());
+				return;
+			}
+			
+			log.info(
+					"main project[{}] app client build system creation success",
+					mainProjectName);
+		} else {
+			if (!projectBuilder.isValidAppClientAntBuildXMLFile()) {
+				showMessageDialog("app client buid.xml is bad beacse it doesn't exist or is not a file, so skip deletion of app client build system");				
+				return;
+			}
+			
+			try {
+				projectBuilder.deleteAppClientBuildPath();
+			} catch (BuildSystemException e1) {
+				String errorMessage = "fail to delete app client build path";
+				log.warn(errorMessage, e1);
+				showMessageDialog(new StringBuilder(errorMessage).append(", errormessage=").append(e1.getMessage()).toString());
+				return;
+			}
+			
+			log.info(
+					"main project[{}] app client build system deletion success",
+					mainProjectName);
+		}
+		
+		if (isWebClient) {
+			if (projectBuilder.isValidWebClientAntBuildXMLFile()) {				
+				showMessageDialog("web client buid.xml is valid, so skip creation of web client build system");
+				return;
+			} 
+			try {					
+				projectBuilder.createWebClientBuildSystemFiles(servletSystemLibraryPathString);
+			} catch (BuildSystemException e1) {
+				String errorMessage = "fail to create web client build system";
+				log.warn(errorMessage, e1);
+				showMessageDialog(new StringBuilder(errorMessage).append(", errormessage=").append(e1.getMessage()).toString());
+				return;
+			}
 
-		String sinnoriConfigFilePathString = BuildSystemPathSupporter
+			log.info(
+					"main project[{}] web client build system creation success",
+					mainProjectName);
+			
+
+			if (projectBuilder.isValidWebRootXMLFile()) {
+				showMessageDialog("the web.xml located at web root direcotry is valid, so skip creation of web root");
+				return;
+			}
+			
+			try {
+				projectBuilder.createWebRootSampleFiles();
+			} catch (BuildSystemException e1) {
+				String errorMessage = "fail to create web root";
+				log.warn(errorMessage, e1);
+				showMessageDialog(new StringBuilder(errorMessage).append(", errormessage=").append(e1.getMessage()).toString());
+				return;
+			}
+
+			log.info("main project[{}] web root creation success",
+					mainProjectName);
+			
+
+		} else {
+			if (!projectBuilder.isValidWebClientAntBuildXMLFile()) {
+				showMessageDialog("web client buid.xml is bad beacse it doesn't exist or is not a file, so skip deletion of web client build system");
+				return;
+			}
+			
+			try {
+				projectBuilder.deleteWebCientBuildPath();
+			} catch (BuildSystemException e1) {
+				String errorMessage = "fail to delete web client build path";
+				log.warn(errorMessage, e1);
+				showMessageDialog(new StringBuilder(errorMessage).append(", errormessage=").append(e1.getMessage()).toString());
+				return;
+			}
+			
+			log.info("main project[{}] web client build path deletion success",
+					mainProjectName);
+			
+
+			if (!projectBuilder.isValidWebRootXMLFile()) {
+				showMessageDialog("the web.xml located at web root direcotry is bad beacse it doesn't exist or is not a file, so skip deletion of web root system");
+				return;
+			}
+			try {
+				projectBuilder.deleteWebRoot();
+			} catch (BuildSystemException e1) {
+				String errorMessage = "fail to delete web root path";
+				log.warn(errorMessage, e1);
+				showMessageDialog(new StringBuilder(errorMessage).append(", errormessage=").append(e1.getMessage()).toString());
+				return;
+			}
+			
+			log.info("main project[{}] web root path deletion success",
+					mainProjectName);
+		}
+
+		
+		
+		try {
+			projectBuilder.overwriteSinnoriConfigFile(sinnoriConfigSequencedProperties);
+		} catch (BuildSystemException e1) {
+			String errorMessage = new StringBuilder(
+					"fail to save the main project[").append(mainProjectName)
+					.append("]'s sinnori configuration file").toString();
+
+			log.warn(errorMessage, e1);
+			showMessageDialog(new StringBuilder(errorMessage)
+					.append(", errormessage=").append(e.toString()).toString());
+			return;
+		}
+
+		/*String sinnoriConfigFilePathString = BuildSystemPathSupporter
 				.getSinnoriConfigFilePathString(mainProjectName,
 						sinnoriInstalledPathString);
 		try {
-			SequencedPropertiesUtil.saveSequencedPropertiesToFile(
-					configurationSequencedProperties, BuildSystemSupporter
+			SequencedPropertiesUtil.overwriteSequencedPropertiesFile(
+					configurationSequencedProperties, ProjectBuilder
 							.getSinnoriConfigPropertiesTitle(mainProjectName),
 					sinnoriConfigFilePathString,
 					CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
@@ -811,7 +826,7 @@ public class MainProjectEditorPanel extends JPanel {
 			showMessageDialog(new StringBuilder(errorMessage)
 					.append(", errormessage=").append(e.toString()).toString());
 			return;
-		}
+		}*/
 
 		JOptionPane.showMessageDialog(mainFrame, "save successfully");
 	}
@@ -1150,8 +1165,8 @@ public class MainProjectEditorPanel extends JPanel {
 	}
 
 	private void webClientCheckBoxStateChanged(ChangeEvent e) {
-		boolean isWebClient = webClientCheckBox.isSelected();
-		servletSystemLibraryPathTextField.setEditable(isWebClient);
+		boolean isWebClient = webClientCheckBox.isSelected();		
+		servletSystemLibraryPathTextField.setEnabled(isWebClient);
 		servletSystemLibraryPathButton.setEnabled(isWebClient);
 	}
 
@@ -1395,7 +1410,7 @@ public class MainProjectEditorPanel extends JPanel {
 				"default"));
 
 			//---- projectTypeChoiceLabel ----
-			projectTypeChoiceLabel.setText("project type :");
+			projectTypeChoiceLabel.setText("Project build type :");
 			projectTypeChoiceLinePanel.add(projectTypeChoiceLabel, CC.xy(1, 1));
 
 			//======== projectTypeChoicePanel ========
@@ -1430,17 +1445,19 @@ public class MainProjectEditorPanel extends JPanel {
 
 		//======== servletEnginLibinaryPathLinePanel ========
 		{
+			servletEnginLibinaryPathLinePanel.setEnabled(false);
 			servletEnginLibinaryPathLinePanel.setLayout(new FormLayout(
 				"default, $lcgap, ${growing-button}, $lcgap, default",
 				"default"));
 
 			//---- servletSystemLibinaryPathLabel ----
-			servletSystemLibinaryPathLabel.setText("servlet system library :");
+			servletSystemLibinaryPathLabel.setText("Servlet system library :");
 			servletEnginLibinaryPathLinePanel.add(servletSystemLibinaryPathLabel, CC.xy(1, 1));
 			servletEnginLibinaryPathLinePanel.add(servletSystemLibraryPathTextField, CC.xy(3, 1));
 
 			//---- servletSystemLibraryPathButton ----
 			servletSystemLibraryPathButton.setText("\uacbd\ub85c \uc120\ud0dd");
+			servletSystemLibraryPathButton.setEnabled(false);
 			servletEnginLibinaryPathLinePanel.add(servletSystemLibraryPathButton, CC.xy(5, 1));
 		}
 		add(servletEnginLibinaryPathLinePanel, CC.xy(2, 10));

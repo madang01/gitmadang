@@ -13,7 +13,7 @@ import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
  * @author Won Jonghoon
  *
  */
-public class CommonPartValueObject {
+public class CommonPartItems {
 	// private Logger log = LoggerFactory.getLogger(CommonPartValueObject.class);
 	
 	
@@ -38,7 +38,7 @@ public class CommonPartValueObject {
 	private Integer cachedObjectMaxSize=null;
 	//private Long maxUpdateSeqInterva=5000;	
 	
-	public CommonPartValueObject() {
+	public CommonPartItems() {
 				
 	}
 	

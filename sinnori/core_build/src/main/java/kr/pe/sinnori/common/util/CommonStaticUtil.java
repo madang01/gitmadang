@@ -2,6 +2,7 @@ package kr.pe.sinnori.common.util;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -197,6 +198,53 @@ public abstract class CommonStaticUtil {
 		return sourcePath;
 	}
 	
+	public static void createNewFile( File targetFile, String contents, Charset targetCharset) throws FileNotFoundException, IOException {		
+		if (null == targetFile) {
+			throw new IllegalArgumentException("the parameter 'targetFile' is null");
+		}
+		if (null == contents) {
+			throw new IllegalArgumentException("the parameter 'contents' is null");
+		}
+		if (null == targetCharset) {
+			throw new IllegalArgumentException("the parameter 'targetCharset' is null");
+		}
+		
+		boolean isSuccess = targetFile.createNewFile();
+		if (! isSuccess) {
+			String errorMessage = String.format("the file[%s] exist", targetFile.getAbsolutePath());
+			throw new FileNotFoundException(errorMessage);
+		}
+		
+		if (!targetFile.isFile()) {
+			String errorMessage = String.format("the file[%s] is not a regular file",
+					targetFile.getAbsolutePath());
+			throw new IOException(errorMessage);
+		}
+
+		if (!targetFile.canWrite()) {
+			String errorMessage = String.format("the file[%s] can not be written", targetFile.getAbsolutePath());
+			throw new IOException(errorMessage);
+		}
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(targetFile);
+
+			fos.write(contents.getBytes(targetCharset));
+		} finally {
+			try {
+				if (null != fos)
+					fos.close();
+			} catch (IOException e) {
+				// log.warn("fail to close the file[{}][{}] output stream", fileNickname, targetFile.getAbsolutePath());
+				// e.printStackTrace();
+				Logger log = LoggerFactory.getLogger(CommonStaticUtil.class);
+				log.warn("fail to close the file[{}] output stream", targetFile.getAbsolutePath());
+			}
+		}
+	}
+	
+	
+	
 	
 	public static void overwriteFile( File targetFile, String contents, Charset targetCharset) throws IOException {		
 		if (null == targetFile) {
@@ -210,14 +258,62 @@ public abstract class CommonStaticUtil {
 		}
 		
 		if (!targetFile.exists()) {
-			targetFile.createNewFile();
+			String errorMessage = String.format("the file[%s] doesn't exist", targetFile.getAbsolutePath());
+			throw new IOException(errorMessage);
 		}
 		
+		if (!targetFile.isFile()) {
+			String errorMessage = String.format("the file[%s] is not a regular file",
+					targetFile.getAbsolutePath());
+			throw new IOException(errorMessage);
+		}
 
 		if (!targetFile.canWrite()) {
 			String errorMessage = String.format("the file[%s] can not be written", targetFile.getAbsolutePath());
 			throw new IOException(errorMessage);
 		}
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(targetFile);
+
+			fos.write(contents.getBytes(targetCharset));
+		} finally {
+			try {
+				if (null != fos)
+					fos.close();
+			} catch (IOException e) {
+				// log.warn("fail to close the file[{}][{}] output stream", fileNickname, targetFile.getAbsolutePath());
+				// e.printStackTrace();
+				Logger log = LoggerFactory.getLogger(CommonStaticUtil.class);
+				log.warn("fail to close the file[{}] output stream", targetFile.getAbsolutePath());
+			}
+		}
+	}
+	
+	public static void savePreparedRegularFile( File targetFile, String contents, Charset targetCharset) throws IOException {		
+		if (null == targetFile) {
+			throw new IllegalArgumentException("the parameter 'targetFile' is null");
+		}
+		if (null == contents) {
+			throw new IllegalArgumentException("the parameter 'contents' is null");
+		}
+		if (null == targetCharset) {
+			throw new IllegalArgumentException("the parameter 'targetCharset' is null");
+		}
+		
+		targetFile.createNewFile();		
+		
+		if (!targetFile.isFile()) {
+			String errorMessage = String.format("the file[%s] is not a regular file",
+					targetFile.getAbsolutePath());
+			throw new IOException(errorMessage);
+		}
+
+		if (!targetFile.canWrite()) {
+			String errorMessage = String.format("the file[%s] can not be written", targetFile.getAbsolutePath());
+			throw new IOException(errorMessage);
+		}
+		
 		FileOutputStream fos = null;
 		try {
 			fos = new FileOutputStream(targetFile);

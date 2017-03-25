@@ -22,8 +22,8 @@ import java.util.List;
 
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.vo.AllSubProjectPartValueObject;
-import kr.pe.sinnori.common.config.vo.ProjectPartValueObject;
+import kr.pe.sinnori.common.config.vo.AllSubProjectPartItems;
+import kr.pe.sinnori.common.config.vo.ProjectPartItems;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotFoundProjectException;
 
@@ -66,8 +66,8 @@ public final class ServerProjectManager {
 			SinnoriConfiguration sinnoriRunningProjectConfiguration = 
 					SinnoriConfigurationManager.getInstance()
 					.getSinnoriRunningProjectConfiguration();
-			ProjectPartValueObject mainProjectPart = sinnoriRunningProjectConfiguration.getMainProjectPart();
-			AllSubProjectPartValueObject allSubProjectPart = sinnoriRunningProjectConfiguration.getAllSubProjectPart();
+			ProjectPartItems mainProjectPart = sinnoriRunningProjectConfiguration.getMainProjectPart();
+			AllSubProjectPartItems allSubProjectPart = sinnoriRunningProjectConfiguration.getAllSubProjectPart();
 			
 			try {
 				mainServerProject = new ServerProject(mainProjectPart);

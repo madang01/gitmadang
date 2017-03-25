@@ -14,7 +14,7 @@ import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
  * @author Won Jonghoon
  *
  */
-public class DBCPParValueObject {
+public class DBCPParItems {
 	// private Logger log = LoggerFactory.getLogger(DBCPPartValueObject.class);
 	
 	private String dbcpName = null;
@@ -22,7 +22,7 @@ public class DBCPParValueObject {
 	
 	private String prefexOfItemID = null;
 	
-	public DBCPParValueObject(String dbcpName) {
+	public DBCPParItems(String dbcpName) {
 		this.dbcpName = dbcpName;
 		
 		prefexOfItemID = new StringBuilder("dbcp.").append(dbcpName)

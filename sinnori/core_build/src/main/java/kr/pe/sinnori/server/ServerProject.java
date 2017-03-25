@@ -29,7 +29,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.common.config.vo.ProjectPartValueObject;
+import kr.pe.sinnori.common.config.vo.ProjectPartItems;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.SocketInputStream;
@@ -125,7 +125,7 @@ public class ServerProject extends AbstractProject implements
 	 * @throws NoMoreDataPacketBufferException
 	 *             데이터 패킷 버퍼 부족시 던지는 예외
 	 */
-	public ServerProject(ProjectPartValueObject projectPartConfigurationVO)
+	public ServerProject(ProjectPartItems projectPartConfigurationVO)
 			throws NoMoreDataPacketBufferException {
 		super(projectPartConfigurationVO);
 

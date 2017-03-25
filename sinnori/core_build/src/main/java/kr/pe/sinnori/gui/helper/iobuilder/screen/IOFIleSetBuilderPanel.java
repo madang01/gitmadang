@@ -364,7 +364,7 @@ public class IOFIleSetBuilderPanel extends JPanel implements FileFunctionManager
 				String fileNickname = null;
 				fileNickname = "the message class";
 				try {
-					CommonStaticUtil.overwriteFile(messageFile, 
+					CommonStaticUtil.savePreparedRegularFile(messageFile, 
 							ioFileSetContentsBuilderManager.getMessageSourceFileContents(messageID,	author, messageInfo),
 							CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 				} catch (IOException e) {
@@ -377,7 +377,7 @@ public class IOFIleSetBuilderPanel extends JPanel implements FileFunctionManager
 
 				fileNickname = "the message encoder class";
 				try {
-					CommonStaticUtil.overwriteFile(messageEncoderFile, ioFileSetContentsBuilderManager
+					CommonStaticUtil.savePreparedRegularFile(messageEncoderFile, ioFileSetContentsBuilderManager
 							.getEncoderSourceFileContents(messageID, author, messageInfo), CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 				} catch (IOException e) {
 					String errorMessage = String.format("fail to save file[%s][%s]::%s", fileNickname,
@@ -389,7 +389,7 @@ public class IOFIleSetBuilderPanel extends JPanel implements FileFunctionManager
 
 				fileNickname = "the message decoder class";
 				try {
-					CommonStaticUtil.overwriteFile(messageDecoderFile, ioFileSetContentsBuilderManager
+					CommonStaticUtil.savePreparedRegularFile(messageDecoderFile, ioFileSetContentsBuilderManager
 							.getDecoderSourceFileContents(messageID, author, messageInfo), CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 				} catch (IOException e) {
 					String errorMessage = String.format("fail to save file[%s][%s]::%s", fileNickname,
@@ -409,7 +409,7 @@ public class IOFIleSetBuilderPanel extends JPanel implements FileFunctionManager
 				String fileNickname = null;
 				fileNickname = "the server codec class";
 				try {
-					CommonStaticUtil.overwriteFile(messageServerCodecFile, ioFileSetContentsBuilderManager
+					CommonStaticUtil.savePreparedRegularFile(messageServerCodecFile, ioFileSetContentsBuilderManager
 							.getServerCodecSourceFileContents(messageInfo.getDirection(), messageID, author), CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 				} catch (IOException e) {
 					String errorMessage = String.format("fail to save file[%s][%s]::%s", fileNickname,
@@ -421,7 +421,7 @@ public class IOFIleSetBuilderPanel extends JPanel implements FileFunctionManager
 
 				fileNickname = "the client codec class";
 				try {
-					CommonStaticUtil.overwriteFile(messageClientCodecFile, ioFileSetContentsBuilderManager
+					CommonStaticUtil.savePreparedRegularFile(messageClientCodecFile, ioFileSetContentsBuilderManager
 							.getClientCodecSourceFileContents(messageInfo.getDirection(), messageID, author), CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 				} catch (IOException e) {
 					String errorMessage = String.format("fail to save file[%s][%s]::%s", fileNickname,

@@ -40,7 +40,7 @@ import javax.crypto.NoSuchPaddingException;
 
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.vo.CommonPartValueObject;
+import kr.pe.sinnori.common.config.vo.CommonPartItems;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
@@ -307,7 +307,7 @@ public final class ServerSessionKeyManager {
 				SinnoriConfigurationManager.getInstance()
 				.getSinnoriRunningProjectConfiguration();
 		
-		CommonPartValueObject commonPart = sinnoriRunningProjectConfiguration.getCommonPart();	
+		CommonPartItems commonPart = sinnoriRunningProjectConfiguration.getCommonPart();	
 		symmetricKeyAlgorithm = commonPart.getSymmetricKeyAlgorithmOfSessionKey();
 		symmetricKeyEncoding = commonPart.getSymmetricKeyEncodingOfSessionKey();
 		rsaKeySize = commonPart.getRsaKeySizeOfSessionKey();;

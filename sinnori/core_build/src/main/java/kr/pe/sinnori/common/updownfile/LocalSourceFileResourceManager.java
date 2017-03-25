@@ -23,7 +23,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.vo.CommonPartValueObject;
+import kr.pe.sinnori.common.config.vo.CommonPartItems;
 import kr.pe.sinnori.common.exception.UpDownFileException;
 
 import org.slf4j.Logger;
@@ -70,7 +70,7 @@ public class LocalSourceFileResourceManager {
 		SinnoriConfiguration sinnoriRunningProjectConfiguration = 
 				SinnoriConfigurationManager.getInstance()
 				.getSinnoriRunningProjectConfiguration();		
-		CommonPartValueObject commonPart = sinnoriRunningProjectConfiguration.getCommonPart();
+		CommonPartItems commonPart = sinnoriRunningProjectConfiguration.getCommonPart();
 		
 		int localSourceFileResourceCnt = commonPart.getLocalSourceFileResourceCnt();
 		

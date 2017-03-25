@@ -16,7 +16,7 @@ import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
  * @author Won Jonghoon
  *
  */
-public class ProjectPartValueObject {	
+public class ProjectPartItems {	
 	// private Logger log = LoggerFactory.getLogger(ProjectPartValueObject.class);
 	private String projectName = null;
 	private CommonType.PROJECT_GUBUN projectGubun = null;
@@ -128,7 +128,7 @@ public class ProjectPartValueObject {
 	/************* server 변수 종료 ******************/
 	
 	
-	public ProjectPartValueObject(CommonType.PROJECT_GUBUN projectGubun, String projectName) {
+	public ProjectPartItems(CommonType.PROJECT_GUBUN projectGubun, String projectName) {
 		this.projectName = projectName;
 		this.projectGubun = projectGubun;
 		if (this.projectGubun.equals(CommonType.PROJECT_GUBUN.MAIN_PROJECT)) {

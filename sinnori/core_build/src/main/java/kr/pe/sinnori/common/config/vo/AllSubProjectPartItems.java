@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class AllSubProjectPartValueObject {
+public class AllSubProjectPartItems {
 	private List<String> subProjectNamelist = new ArrayList<String>();
-	private HashMap<String, ProjectPartValueObject> subProjectPartValueObjectHash = 
-			new HashMap<String, ProjectPartValueObject>();
+	private HashMap<String, ProjectPartItems> subProjectPartValueObjectHash = 
+			new HashMap<String, ProjectPartItems>();
 
 	public void clear() {
 		subProjectNamelist.clear();
 		subProjectPartValueObjectHash.clear();
 	}
-	public void addSubProjectPartValueObject(ProjectPartValueObject subProjectPartValueObject) {
+	public void addSubProjectPartValueObject(ProjectPartItems subProjectPartValueObject) {
 		if (null == subProjectPartValueObject) {
 			throw new IllegalArgumentException("the paramter subProjectPartValueObject is null");
 		}
@@ -31,7 +31,7 @@ public class AllSubProjectPartValueObject {
 		return (null != subProjectPartValueObjectHash.get(projectName));
 	}
 
-	public ProjectPartValueObject getSubProjectPart(String projectName) {
+	public ProjectPartItems getSubProjectPart(String projectName) {
 		return subProjectPartValueObjectHash.get(projectName);
 	}
 
