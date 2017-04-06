@@ -29,17 +29,33 @@ import kr.pe.sinnori.common.util.SequencedPropertiesUtil;
 public class ProjectBuilder {
 	private Logger log = LoggerFactory.getLogger(ProjectBuilder.class);
 
-	private final String MESSAGE_SOURCE_FILE_RELATIVE_PATH = "src/main/java/kr/pe/sinnori/impl/message";
-	final String ECHO_MESSAGE_ID = "Echo";
-	final String AUTHOR = "Won Jonghoon";
-	final String JVM_OPTIONS_OF_SERVER = "-server -Xmx2048m -Xms1024m";
-	final String JVM_OPTIONS_OF_APP_CLIENT = "-Xmx2048m -Xms1024m";
+	private static final String MESSAGE_SOURCE_FILE_RELATIVE_PATH = "src/main/java/kr/pe/sinnori/impl/message";
+	public static final String ECHO_MESSAGE_ID = "Echo";
+	public static final String AUTHOR = "Won Jonghoon";
+	public static final String JVM_OPTIONS_OF_SERVER = "-server -Xmx2048m -Xms1024m";
+	public static final String JVM_OPTIONS_OF_APP_CLIENT = "-Xmx2048m -Xms1024m";
 
 	private String mainProjectName;
 	private String sinnoriInstalledPathString;
-	// private String servletSystemLibraryPathString;
 
 	private String projectPathString;
+	
+	private void checkValidPath(String title, String targetPathString) throws BuildSystemException {
+		File targetPath = new File(targetPathString);
+		if (!targetPath.exists()) {
+			String errorMessage = new StringBuilder(title).append("[")
+					.append(targetPathString).append("] does not exist")
+					.toString();
+			throw new BuildSystemException(errorMessage);
+		}
+
+		if (!targetPath.isDirectory()) {
+			String errorMessage = new StringBuilder(title).append("[")
+					.append(targetPathString).append("] isn't a directory")
+					.toString();
+			throw new BuildSystemException(errorMessage);
+		}
+	}
 
 	public ProjectBuilder(String sinnoriInstalledPathString, String mainProjectName) throws BuildSystemException {
 		if (null == sinnoriInstalledPathString) {
@@ -51,6 +67,12 @@ public class ProjectBuilder {
 		}
 		
 		checkValidPath("the Sinnori installed path", sinnoriInstalledPathString);
+		
+		
+		String projectBasePathString = BuildSystemPathSupporter.getProjectBasePathString(sinnoriInstalledPathString);
+		
+		checkValidPath("the project base path", projectBasePathString);
+				
 		
 		String projectPathString= BuildSystemPathSupporter.getProjectPathString(mainProjectName,
 				sinnoriInstalledPathString);
@@ -70,24 +92,12 @@ public class ProjectBuilder {
 		this.projectPathString = projectPathString;	
 	}
 	
-	private void checkValidPath(String title, String targetPathString) throws BuildSystemException {
-		File targetPath = new File(targetPathString);
-		if (!targetPath.exists()) {
-			String errorMessage = new StringBuilder(title).append("[")
-					.append(targetPathString).append("] does not exist")
-					.toString();
-			throw new BuildSystemException(errorMessage);
-		}
-
-		if (!targetPath.isDirectory()) {
-			String errorMessage = new StringBuilder(title).append("[")
-					.append(targetPathString).append("] isn't a directory")
-					.toString();
-			throw new BuildSystemException(errorMessage);
-		}
-	}
 	
-	public boolean whetherProjectPathExists() {
+	
+	/**
+	 * @return only whether the project path exists. Warning! this method does not care whether the project path is a directory. 
+	 */
+	public boolean whetherOnlyProjectPathExists() {
 		String projectPathString= BuildSystemPathSupporter.getProjectPathString(mainProjectName,
 				sinnoriInstalledPathString);
 		
@@ -95,7 +105,33 @@ public class ProjectBuilder {
 		
 		return projectPath.exists();
 	}
-
+	
+	public boolean whetherOnlyServerBuildPathExists() {
+		String serverBuildPathString = BuildSystemPathSupporter.getServerBuildPathString(mainProjectName, sinnoriInstalledPathString);
+		File serverBuildPath = new File(serverBuildPathString);
+		return serverBuildPath.exists();
+	}
+	
+	public boolean whetherOnlyAppClientBuildPathExists() {
+		String appClientBuildPathString = BuildSystemPathSupporter.getAppClientBuildPathString(mainProjectName, sinnoriInstalledPathString);
+		File appClientBuildPath = new File(appClientBuildPathString);
+		return appClientBuildPath.exists();
+	}
+	
+	public boolean whetherOnlyWebClientBuildPathExists() {
+		String webClientBuildPathString = BuildSystemPathSupporter.getWebClientBuildPathString(mainProjectName, sinnoriInstalledPathString);
+		File webClientBuildPath = new File(webClientBuildPathString);
+		return webClientBuildPath.exists();
+	}
+	
+	public boolean whetherOnlyWebRootPathExists() {
+		String webRootPathString = BuildSystemPathSupporter.getWebRootPathString(mainProjectName,
+				sinnoriInstalledPathString);
+		File webRootPath = new File(webRootPathString);
+		return webRootPath.exists();
+	}
+			
+	
 	public boolean isValidSeverAntBuildXMLFile() {
 		String serverAntBuildXMLFilePathString = BuildSystemPathSupporter.getServerAntBuildXMLFilePathString(mainProjectName,
 				sinnoriInstalledPathString);
@@ -110,7 +146,7 @@ public class ProjectBuilder {
 		
 		return false;
 	}
-
+	
 	public boolean isValidAppClientAntBuildXMLFile() {
 		String appClientAntBuildFilePathString = BuildSystemPathSupporter
 				.getAppClientAntBuildXMLFilePathString(mainProjectName, sinnoriInstalledPathString);
@@ -125,7 +161,7 @@ public class ProjectBuilder {
 		
 		return false;
 	}
-
+	
 	public boolean isValidWebClientAntBuildXMLFile() {
 		String webClientAntBuildFilePathString = BuildSystemPathSupporter
 				.getWebClientAntBuildXMLFilePathString(mainProjectName, sinnoriInstalledPathString);
@@ -156,21 +192,26 @@ public class ProjectBuilder {
 		return false;
 	}
 
-	public void create(boolean isServer, boolean isAppClient, boolean isWebClient, 
+	
+	
+	
+	public void createProject(boolean isServer, boolean isAppClient, boolean isWebClient, 
 			String servletSystemLibraryPathString) throws BuildSystemException {
+		
+		if (whetherOnlyProjectPathExists()) {
+			String errorMessage = String.format("Warning! this project can't be created because the project path[%s] exists", projectPathString);
+			throw new BuildSystemException(errorMessage);
+		}
+		
 		createChildDirectories(isServer, isAppClient, isWebClient);
 		createFiles(isServer, isAppClient, isWebClient, servletSystemLibraryPathString);
 	}
 	
-	public void createChildDirectories(boolean isServer, boolean isAppClient, boolean isWebClient)
-			throws BuildSystemException {
-		log.info("main project[{}]'s child direcotry creation task start", mainProjectName);
+	public void createCommonChildDirectories() throws BuildSystemException {
+		log.info("main project[{}]'s common child direcotry creation task start", mainProjectName);
 
 		List<String> childRelativeDirectoryList = new ArrayList<String>();
-
-		/**
-		 * common directory
-		 */
+		
 		childRelativeDirectoryList.add("config");
 		childRelativeDirectoryList.add("resources/message_info");
 		childRelativeDirectoryList.add("resources/rsa_keypair");
@@ -178,62 +219,117 @@ public class ProjectBuilder {
 		childRelativeDirectoryList.add("log/client");
 		childRelativeDirectoryList.add("log/server");
 		childRelativeDirectoryList.add("log/servlet");
+		
+		CommonStaticUtil.createChildDirectoriesOfBasePath(projectPathString, childRelativeDirectoryList);
+
+		log.info("main project[{}]'s common child direcotry creation task end", mainProjectName);
+	}
+	
+	public void createSeverBuildChildDirectories() throws BuildSystemException {
+		log.info("main project[{}]'s server child direcotry creation task start", mainProjectName);
+
+		List<String> childRelativeDirectoryList = new ArrayList<String>();
+		
+		childRelativeDirectoryList.add("server_build/APP-INF/classes");
+		childRelativeDirectoryList.add("server_build/APP-INF/lib");
+		childRelativeDirectoryList.add("server_build/APP-INF/resources");
+		childRelativeDirectoryList.add("server_build/corelib/ex");
+		childRelativeDirectoryList.add("server_build/corelib/in");
+		childRelativeDirectoryList.add("server_build/lib/ex");
+		childRelativeDirectoryList.add("server_build/lib/in");
+
+		childRelativeDirectoryList.add("server_build/src/main/java/kr/pe/sinnori/impl/server/mybatis");
+		childRelativeDirectoryList.add("server_build/src/main/java/kr/pe/sinnori/impl/servertask");
+		childRelativeDirectoryList.add(new StringBuilder("server_build/").append(MESSAGE_SOURCE_FILE_RELATIVE_PATH).toString());		
+		childRelativeDirectoryList.add("server_build/src/main/java/main");
+		childRelativeDirectoryList.add("server_build/src/test/java");
+		childRelativeDirectoryList.add("server_build/build");
+		childRelativeDirectoryList.add("server_build/dist");
+		
+		CommonStaticUtil.createChildDirectoriesOfBasePath(projectPathString, childRelativeDirectoryList);
+
+		log.info("main project[{}]'s server child direcotry creation task end", mainProjectName);
+	}
+	
+	public void createAppBuildChildDirectories() throws BuildSystemException {
+		log.info("main project[{}]'s application build child direcotry creation task start", mainProjectName);
+
+		List<String> childRelativeDirectoryList = new ArrayList<String>();
+		
+		childRelativeDirectoryList.add("client_build/app_build/corelib/ex");
+		childRelativeDirectoryList.add("client_build/app_build/corelib/in");
+		childRelativeDirectoryList.add("client_build/app_build/lib/ex");
+		childRelativeDirectoryList.add("client_build/app_build/lib/in");
+		childRelativeDirectoryList.add(
+				new StringBuilder("client_build/app_build/").append(MESSAGE_SOURCE_FILE_RELATIVE_PATH).toString());
+		childRelativeDirectoryList.add("client_build/app_build/src/main/java/main");
+		childRelativeDirectoryList.add("client_build/app_build/src/test/java");
+		childRelativeDirectoryList.add("client_build/app_build/build");
+		childRelativeDirectoryList.add("client_build/app_build/dist");
+		
+		CommonStaticUtil.createChildDirectoriesOfBasePath(projectPathString, childRelativeDirectoryList);
+
+		log.info("main project[{}]'s application build child direcotry creation task end", mainProjectName);
+	}
+	
+	public void createWebBuildChildDirectories() throws BuildSystemException {
+		log.info("main project[{}]'s web build child direcotry creation task start", mainProjectName);
+
+		List<String> childRelativeDirectoryList = new ArrayList<String>();
+		
+		childRelativeDirectoryList.add("client_build/web_build/corelib/ex");
+		childRelativeDirectoryList.add("client_build/web_build/corelib/in");
+		childRelativeDirectoryList.add("client_build/web_build/lib/ex");
+		childRelativeDirectoryList.add("client_build/web_build/lib/in");
+		childRelativeDirectoryList.add(
+				new StringBuilder("client_build/web_build/").append(MESSAGE_SOURCE_FILE_RELATIVE_PATH).toString());
+		childRelativeDirectoryList.add("client_build/web_build/src/main/java//kr/pe/sinnori/servlet");
+		childRelativeDirectoryList.add("client_build/web_build/src/main/java/kr/pe/sinnori/weblib/common");
+		childRelativeDirectoryList.add("client_build/web_build/src/main/java/kr/pe/sinnori/weblib/htmlstring");
+		childRelativeDirectoryList.add("client_build/web_build/src/main/java/kr/pe/sinnori/weblib/jdf");
+		childRelativeDirectoryList.add("client_build/web_build/src/test/java");
+		childRelativeDirectoryList.add("client_build/web_build/build");
+		childRelativeDirectoryList.add("client_build/web_build/dist");
+		
+		CommonStaticUtil.createChildDirectoriesOfBasePath(projectPathString, childRelativeDirectoryList);
+
+		log.info("main project[{}]'s web build child direcotry creation task end", mainProjectName);
+	}
+	
+	public void createWebRootChildDirectories() throws BuildSystemException {
+		log.info("main project[{}]'s web root child direcotry creation task start", mainProjectName);
+
+		List<String> childRelativeDirectoryList = new ArrayList<String>();
+		
+		childRelativeDirectoryList.add("web_app_base/upload");
+		childRelativeDirectoryList.add("web_app_base/ROOT/WEB-INF/classes");
+		childRelativeDirectoryList.add("web_app_base/ROOT/WEB-INF/lib");
+		
+		CommonStaticUtil.createChildDirectoriesOfBasePath(projectPathString, childRelativeDirectoryList);
+
+		log.info("main project[{}]'s web root child direcotry creation task end", mainProjectName);
+	}
+	
+	public void createChildDirectories(boolean isServer, boolean isAppClient, boolean isWebClient)
+			throws BuildSystemException {
+		log.info("main project[{}]'s child direcotry creation task start", mainProjectName);
+		createCommonChildDirectories();
 
 		if (isServer) {
-			childRelativeDirectoryList.add("server_build/APP-INF/classes");
-			childRelativeDirectoryList.add("server_build/APP-INF/lib");
-			childRelativeDirectoryList.add("server_build/APP-INF/resources");
-			childRelativeDirectoryList.add("server_build/corelib/ex");
-			childRelativeDirectoryList.add("server_build/corelib/in");
-			childRelativeDirectoryList.add("server_build/lib/ex");
-			childRelativeDirectoryList.add("server_build/lib/in");
-
-			childRelativeDirectoryList.add("server_build/src/main/java/kr/pe/sinnori/impl/server/mybatis");
-			childRelativeDirectoryList.add("server_build/src/main/java/kr/pe/sinnori/impl/servertask");
-			childRelativeDirectoryList
-					.add(new StringBuilder("server_build/").append(MESSAGE_SOURCE_FILE_RELATIVE_PATH).toString());
-			// "src/main/java/kr/pe/sinnori/impl/message";
-			childRelativeDirectoryList.add("server_build/src/main/java/main");
-			childRelativeDirectoryList.add("server_build/src/test/java");
-			childRelativeDirectoryList.add("server_build/build");
-			childRelativeDirectoryList.add("server_build/dist");
+			createSeverBuildChildDirectories();
 
 		}
 
 		if (isAppClient) {
-			childRelativeDirectoryList.add("client_build/app_build/corelib/ex");
-			childRelativeDirectoryList.add("client_build/app_build/corelib/in");
-			childRelativeDirectoryList.add("client_build/app_build/lib/ex");
-			childRelativeDirectoryList.add("client_build/app_build/lib/in");
-			childRelativeDirectoryList.add(
-					new StringBuilder("client_build/app_build/").append(MESSAGE_SOURCE_FILE_RELATIVE_PATH).toString());
-			childRelativeDirectoryList.add("client_build/app_build/src/main/java/main");
-			childRelativeDirectoryList.add("client_build/app_build/src/test/java");
-			childRelativeDirectoryList.add("client_build/app_build/build");
-			childRelativeDirectoryList.add("client_build/app_build/dist");
+			createAppBuildChildDirectories();
 		}
 
 		if (isWebClient) {
-			childRelativeDirectoryList.add("client_build/web_build/corelib/ex");
-			childRelativeDirectoryList.add("client_build/web_build/corelib/in");
-			childRelativeDirectoryList.add("client_build/web_build/lib/ex");
-			childRelativeDirectoryList.add("client_build/web_build/lib/in");
-			childRelativeDirectoryList.add(
-					new StringBuilder("client_build/web_build/").append(MESSAGE_SOURCE_FILE_RELATIVE_PATH).toString());
-			childRelativeDirectoryList.add("client_build/web_build/src/main/java//kr/pe/sinnori/servlet");
-			childRelativeDirectoryList.add("client_build/web_build/src/main/java/kr/pe/sinnori/weblib/common");
-			childRelativeDirectoryList.add("client_build/web_build/src/main/java/kr/pe/sinnori/weblib/htmlstring");
-			childRelativeDirectoryList.add("client_build/web_build/src/main/java/kr/pe/sinnori/weblib/jdf");
-			childRelativeDirectoryList.add("client_build/web_build/src/test/java");
-			childRelativeDirectoryList.add("client_build/web_build/build");
-			childRelativeDirectoryList.add("client_build/web_build/dist");
-
-			childRelativeDirectoryList.add("web_app_base/upload");
-			childRelativeDirectoryList.add("web_app_base/ROOT/WEB-INF/classes");
-			childRelativeDirectoryList.add("web_app_base/ROOT/WEB-INF/lib");
+			createWebBuildChildDirectories();
+			createWebRootChildDirectories();
 		}
 
-		CommonStaticUtil.createChildDirectoriesOfBasePath(projectPathString, childRelativeDirectoryList);
+		
 
 		log.info("main project[{}]'s child direcotry creation task end", mainProjectName);
 	}
@@ -266,7 +362,7 @@ public class ProjectBuilder {
 	}
 
 	public void createWebClientBuildSystemFiles(String servletSystemLibraryPathString) throws BuildSystemException {
-		log.info("web client build system files creation task start");
+		log.info("main project[{}]'s web client build system files creation task start", mainProjectName);
 		
 		if(null == servletSystemLibraryPathString) {
 			throw new IllegalArgumentException("the paramet servletSystemLibraryPathString is null");
@@ -277,10 +373,12 @@ public class ProjectBuilder {
 		createNewWebClientEchoIOFileSet();
 		copyWebClientSampleFiles();
 
-		log.info("web client build system files creation task end");
+		log.info("main project[{}]'s web client build system files creation task end", mainProjectName);
 	}
 	
 	public void deleteWebCientBuildPath() throws BuildSystemException {
+		log.info("main project[{}]'s web client build path deletion task start", mainProjectName);
+		
 		String webClientBuildPathString = BuildSystemPathSupporter
 				.getWebClientBuildPathString(mainProjectName,
 						sinnoriInstalledPathString);
@@ -297,18 +395,22 @@ public class ProjectBuilder {
 			throw new BuildSystemException(
 					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
 		}
+		
+		log.info("main project[{}]'s web client build path deletion task end", mainProjectName);
 	}
 
-	// FIXME!
+	
 	public void createWebRootSampleFiles() throws BuildSystemException {
-		log.info("web root sample files creation task start");
+		log.info("main project[{}]'s web root sample files creation task start", mainProjectName);
 
 		copyWebRootSampleFiles();
 
-		log.info("web root sample files creation task end");
+		log.info("main project[{}]'s web root sample files creation task end", mainProjectName);
 	}
 	
 	public void deleteWebRoot() throws BuildSystemException {
+		log.info("main project[{}]'s web root path deletion task start", mainProjectName);
+		
 		String webRootPathString = BuildSystemPathSupporter
 				.getWebRootPathString(mainProjectName,
 						sinnoriInstalledPathString);
@@ -325,31 +427,30 @@ public class ProjectBuilder {
 			throw new BuildSystemException(
 					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
 		}
+		
+		log.info("main project[{}]'s web root path deletion task end", mainProjectName);
 	}
 
 	public void copyWebRootSampleFiles() throws BuildSystemException {
-		log.info("web root sample files copy task start");
+		log.info("main project[{}]'s web root sample files copy task start", mainProjectName);
 
 		String sinnoriResourcePathString = BuildSystemPathSupporter
 				.getSinnoriResourcesPathString(sinnoriInstalledPathString);
-		String webRootPathString = BuildSystemPathSupporter.getWebRootPathString(mainProjectName,
+		String targetWebRootPathString = BuildSystemPathSupporter.getWebRootPathString(mainProjectName,
 				sinnoriInstalledPathString);
 
-		String sourceDirectoryPathString = new StringBuilder(sinnoriResourcePathString).append(File.separator)
+		String sourceWebRootPathString = new StringBuilder(sinnoriResourcePathString).append(File.separator)
 				.append("newproject").append(File.separator).append("web_root").toString();
 
-		String targetDirectoryPathString = new StringBuilder(webRootPathString).append(File.separator).append("src")
-				.toString();
-
-		File sourceDirectory = new File(sourceDirectoryPathString);
-		File targetDirectory = new File(targetDirectoryPathString);
+		File sourceWebRootPath = new File(sourceWebRootPathString);
+		File targetWebRootPath = new File(targetWebRootPathString);
 
 		try {
-			FileUtils.copyDirectory(sourceDirectory, targetDirectory);
+			FileUtils.copyDirectory(sourceWebRootPath, targetWebRootPath);
 		} catch (IOException e) {
 			String errorMessage = new StringBuilder("fail to copy the main project[").append(mainProjectName)
-					.append("]'s the source directory[").append(sourceDirectoryPathString)
-					.append("]  having sample source files to the target directory[").append(targetDirectoryPathString)
+					.append("]'s the source directory[").append(sourceWebRootPathString)
+					.append("]  having sample source files to the target directory[").append(targetWebRootPathString)
 					.append("]").toString();
 
 			log.warn(errorMessage, e);
@@ -358,7 +459,7 @@ public class ProjectBuilder {
 					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
 		}
 
-		log.info("web root sample files copy task end");
+		log.info("main project[{}]'s web root sample files copy task end", mainProjectName);
 	}
 
 	public void createNewWebClientAntBuildFile() throws BuildSystemException {
@@ -414,7 +515,7 @@ public class ProjectBuilder {
 	}
 
 	public void copyWebClientSampleFiles() throws BuildSystemException {
-		log.info("web client sample source files copy task start");
+		log.info("mainproject[{}]'s web client sample source files copy task start", mainProjectName);
 
 		String sinnoriResourcePathString = BuildSystemPathSupporter
 				.getSinnoriResourcesPathString(sinnoriInstalledPathString);
@@ -443,11 +544,11 @@ public class ProjectBuilder {
 					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
 		}
 
-		log.info("web client sample source files copy task end");
+		log.info("mainproject[{}]'s web client sample source files copy task end", mainProjectName);
 	}
 
 	public void createAppClientBuildSystemFiles() throws BuildSystemException {
-		log.info("application client build system files creation task start");
+		log.info("mainproject[{}]'s application client build system files creation task start", mainProjectName);
 
 		createNewAppClientAntBuildXMLFile();
 		createNewAppClientDosShellFile();
@@ -455,10 +556,12 @@ public class ProjectBuilder {
 		copyAppClientSampleSourceFiles();
 		createNewAppClientEchoIOFileSet();
 
-		log.info("application client build system files creation task end");
+		log.info("mainproject[{}]'s application client build system files creation task end", mainProjectName);
 	}
 	
 	public void deleteAppClientBuildPath() throws BuildSystemException {
+		log.info("mainproject[{}]'s application client build path deletion task start", mainProjectName);
+		
 		String appClientBuildPathString = BuildSystemPathSupporter
 				.getAppClientBuildPathString(mainProjectName, sinnoriInstalledPathString);
 		
@@ -474,6 +577,8 @@ public class ProjectBuilder {
 			throw new BuildSystemException(
 					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
 		}
+		
+		log.info("mainproject[{}]'s application client build path deletion task end", mainProjectName);
 	}
 
 	public void createNewAppClientAntBuildXMLFile() throws BuildSystemException {
@@ -743,7 +848,7 @@ public class ProjectBuilder {
 	}
 
 	public void createServerEchoIOFileSet() throws BuildSystemException {
-		log.info("main project[{}]'s server message[{}] io file set creation task start", mainProjectName,
+		log.info("main project[{}]'s server {} message io file set creation task start", mainProjectName,
 				ECHO_MESSAGE_ID);
 
 		String messageIOSetBasedirectoryPathString = null;
@@ -761,7 +866,7 @@ public class ProjectBuilder {
 		createNewServerCodecSourceFile(ECHO_MESSAGE_ID, AUTHOR, messageIOSetBasedirectoryPathString);
 		createNewClientCodecSourceFile(ECHO_MESSAGE_ID, AUTHOR, messageIOSetBasedirectoryPathString);
 
-		log.info("main project[{}]'s server message[{}] io file set creation task end", mainProjectName,
+		log.info("main project[{}]'s server {} message io file set creation task end", mainProjectName,
 				ECHO_MESSAGE_ID);
 	}
 
@@ -1283,7 +1388,7 @@ public class ProjectBuilder {
 		
 		SinnoriConfiguration sinnoriConfiguration = null;
 		try {
-			sinnoriConfiguration = new SinnoriConfiguration(mainProjectName, sinnoriInstalledPathString, newSinnoriConfigSequencedProperties);
+			sinnoriConfiguration = new SinnoriConfiguration(sinnoriInstalledPathString, mainProjectName, newSinnoriConfigSequencedProperties);
 			sinnoriConfiguration.createNewFile();
 		} catch (IllegalArgumentException e) {
 			String errorMessage = new StringBuilder("fail to create the main project[").append(mainProjectName)
@@ -1314,14 +1419,16 @@ public class ProjectBuilder {
 		log.info("main project[{}]'s config file creation task end", mainProjectName);
 	}
 	
-	public void overwriteSinnoriConfigFile(SequencedProperties sinnoriConfigSequencedProperties) throws BuildSystemException {
+	public void overwriteSinnoriConfigFile(SequencedProperties modifiedSinnoriConfigSequencedProperties) throws BuildSystemException {
+		log.info("main project[{}]'s config file overwrite task start", mainProjectName);
+		
 		String sinnoriConfigFilePathString = BuildSystemPathSupporter.getSinnoriConfigFilePathString(mainProjectName,
 				sinnoriInstalledPathString);
 
 		
 		SinnoriConfiguration sinnoriConfiguration = null;
 		try {
-			sinnoriConfiguration = new SinnoriConfiguration(mainProjectName, sinnoriInstalledPathString, sinnoriConfigSequencedProperties);
+			sinnoriConfiguration = new SinnoriConfiguration(sinnoriInstalledPathString, mainProjectName, modifiedSinnoriConfigSequencedProperties);
 			sinnoriConfiguration.overwriteFile();
 		} catch (IllegalArgumentException e) {
 			String errorMessage = new StringBuilder("fail to save the main project[").append(mainProjectName)
@@ -1356,6 +1463,8 @@ public class ProjectBuilder {
 			throw new BuildSystemException(
 					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
 		}
+		
+		log.info("main project[{}]'s config file overwrite task end", mainProjectName);
 	}
 	
 	public void createNewWebClientAntPropertiesFile(String servletSystemLibraryPathString)
@@ -1538,7 +1647,7 @@ public class ProjectBuilder {
 
 		SinnoriConfiguration sinnoriConfiguration = null;
 		try {
-			sinnoriConfiguration = new SinnoriConfiguration(mainProjectName, sinnoriInstalledPathString);
+			sinnoriConfiguration = new SinnoriConfiguration(sinnoriInstalledPathString, mainProjectName);
 			sinnoriConfiguration.applySinnoriInstalledPath();
 		} catch (IllegalArgumentException e) {
 			String errorMessage = new StringBuilder("fail to apply Sinnori installed path to the main project[")
@@ -1578,7 +1687,87 @@ public class ProjectBuilder {
 		}
 	}
 		
-	public void destory() throws BuildSystemException {
+	// FIXME!
+	public void changeProjectState(boolean isAppClient, 
+			boolean isWebClient, String servletSystemLibraryPathString, 
+			SequencedProperties modifiedSinnoriConfigSequencedProperties) throws BuildSystemException {
+		log.info("main project[{}] changeProjectState method start", mainProjectName);
+		
+		if (isAppClient) {
+			String appClientBuildPathString = BuildSystemPathSupporter.getAppClientBuildPathString(mainProjectName, sinnoriInstalledPathString);
+			File appClientBuildPath = new File(appClientBuildPathString);
+			
+			if (!appClientBuildPath.exists()) {
+				createAppBuildChildDirectories();
+				createAppClientBuildSystemFiles();				
+			} else {
+				log.warn("the app client build path[{}] exist, so skip creation of app client build system", appClientBuildPathString);
+			}			
+		} else {
+			
+			
+			if (isValidAppClientAntBuildXMLFile()) {
+				deleteAppClientBuildPath();				
+			} else {
+				String appClientAntBuildFilePathString = BuildSystemPathSupporter
+						.getAppClientAntBuildXMLFilePathString(mainProjectName, sinnoriInstalledPathString);
+				
+				log.warn("the app client buid.xml file[{}] is bad beacse it doesn't exist or is not a file, so skip deletion of app client build system", 
+						appClientAntBuildFilePathString);
+			}
+			
+		}
+		
+		if (isWebClient) {
+			{
+				String webClientBuildPathString = BuildSystemPathSupporter.getWebClientBuildPathString(mainProjectName, sinnoriInstalledPathString);
+				File webClientBuildPath = new File(webClientBuildPathString);
+				
+				if (!webClientBuildPath.exists()) {
+					createWebBuildChildDirectories();
+					createWebClientBuildSystemFiles(servletSystemLibraryPathString);
+				} else {				
+					log.warn("the web client build path[{}] exists, so skip creation of web client build system", webClientBuildPathString);
+				}		
+			}
+			{
+				String webRootPathString = BuildSystemPathSupporter.getWebRootPathString(mainProjectName,
+						sinnoriInstalledPathString);
+				File webRootPath = new File(webRootPathString);
+				if (!webRootPath.exists()) {
+					createWebRootChildDirectories();
+					createWebRootSampleFiles();
+				} else {
+					log.warn("the web root path[{}] exists, so skip creation of web root", webRootPathString);
+				}
+			}
+		} else {
+			if (isValidWebClientAntBuildXMLFile()) {
+				deleteWebCientBuildPath();
+			} else {
+				String webClientAntBuildFilePathString = BuildSystemPathSupporter
+						.getWebClientAntBuildXMLFilePathString(mainProjectName, sinnoriInstalledPathString);
+				log.warn("the web client buid.xml file[{}] is bad beacse it doesn't exist or is not a file, so skip deletion of web client build system",
+						webClientAntBuildFilePathString);
+			}			
+
+			if (isValidWebRootXMLFile()) {
+				deleteWebRoot();
+			} else {
+				String webRootXMLFilePathString = BuildSystemPathSupporter.getWebRootXMLFilePathString(mainProjectName,
+						sinnoriInstalledPathString);
+				log.warn("the web.xml file[{}] located at web root direcotry is bad beacse it doesn't exist or is not a file, so skip deletion of web root system", 
+						webRootXMLFilePathString);
+			}
+		}
+		
+		overwriteSinnoriConfigFile(modifiedSinnoriConfigSequencedProperties);
+		
+		log.info("main project[{}] changeProjectState method end", mainProjectName);
+	}
+	
+	
+	public void dropProject() throws BuildSystemException {
 		File projectPath = new File(projectPathString);
 
 		if (!projectPath.exists()) {

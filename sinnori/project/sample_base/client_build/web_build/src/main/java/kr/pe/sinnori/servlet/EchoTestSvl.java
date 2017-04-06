@@ -79,7 +79,7 @@ public class EchoTestSvl extends AbstractServlet {
 		req.setAttribute("errorMessage", errorMessage);
 		req.setAttribute("echoInObj", echoInObj);
 		
-		printWebLayoutControlJspPage(req, res, goPage);	
+		printJspPage(req, res, goPage);	
 		
 	}
 	

@@ -38,7 +38,7 @@ import kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil;
  */
 @SuppressWarnings("serial")
 public abstract class JDFBaseServlet extends AbstractBaseServlet {
-	protected String WEB_LAYOUT_CONTROL_PAGE = null;
+	// protected String WEB_LAYOUT_CONTROL_PAGE = null;
 	protected String JDF_LOGIN_PAGE = null;
 	protected String JDF_ERROR_MESSAGE_PAGE = null;
 	protected boolean JDF_SERVLET_TRACE = true;
@@ -51,7 +51,7 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 		
 		SinnoriConfigurationManager sinnoriConfigurationManager = SinnoriConfigurationManager.getInstance();
 		CommonPartItems commonPart = sinnoriConfigurationManager.getSinnoriRunningProjectConfiguration().getCommonPart();
-		WEB_LAYOUT_CONTROL_PAGE = commonPart.getWebLayoutControlPage();
+		// WEB_LAYOUT_CONTROL_PAGE = commonPart.getWebLayoutControlPage();
 		JDF_LOGIN_PAGE = commonPart.getJdfLoginPage();
 		JDF_ERROR_MESSAGE_PAGE = commonPart.getJdfErrorMessagePage();
 		JDF_SERVLET_TRACE = commonPart.getJdfServletTrace();
@@ -386,7 +386,7 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 	 * @param req javax.servlet.http.HttpServletRequest
 	 * @param res javax.servlet.http.HttpServletResponse
 	 * @param bodyJspfile
-	 */
+	 *//*
 	protected void printWebLayoutControlJspPage(HttpServletRequest req,
 			HttpServletResponse res, String bodyJspfile) {
 		try {
@@ -455,7 +455,7 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 				log.warn("서블릿 동적 페이지 이동 에러 처리 실패", ex);
 			}
 		}
-	}
+	}*/
 
 	/**
 	 * <pre>

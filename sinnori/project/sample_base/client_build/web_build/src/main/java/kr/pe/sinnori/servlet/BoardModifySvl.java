@@ -57,7 +57,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 			log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
 			
 			req.setAttribute("errorMessage", errorMessage);
-			printWebLayoutControlJspPage(req, res, goPage);
+			printJspPage(req, res, goPage);
 			return;
 		}		
 		
@@ -70,7 +70,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 				log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
 				
 				req.setAttribute("errorMessage", errorMessage);
-				printWebLayoutControlJspPage(req, res, goPage);
+				printJspPage(req, res, goPage);
 				return;
 			}
 			
@@ -83,7 +83,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 				log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
 				
 				req.setAttribute("errorMessage", errorMessage);
-				printWebLayoutControlJspPage(req, res, goPage);
+				printJspPage(req, res, goPage);
 				return;
 			}
 			
@@ -93,7 +93,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 				log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
 				
 				req.setAttribute("errorMessage", errorMessage);
-				printWebLayoutControlJspPage(req, res, goPage);
+				printJspPage(req, res, goPage);
 				return;
 			}
 			
@@ -103,7 +103,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 				log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
 				
 				req.setAttribute("errorMessage", errorMessage);
-				printWebLayoutControlJspPage(req, res, goPage);
+				printJspPage(req, res, goPage);
 				return;
 			}
 			
@@ -117,7 +117,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 				log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
 				
 				req.setAttribute("errorMessage", errorMessage);
-				printWebLayoutControlJspPage(req, res, goPage);
+				printJspPage(req, res, goPage);
 				return;
 			}
 			
@@ -127,7 +127,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 				log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
 				
 				req.setAttribute("errorMessage", errorMessage);
-				printWebLayoutControlJspPage(req, res, goPage);
+				printJspPage(req, res, goPage);
 				return;
 			}
 			
@@ -172,7 +172,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 			req.setAttribute("parmBoardId", parmBoardId);
 			req.setAttribute("parmBoardNo", parmBoardNo);
 			req.setAttribute("errorMessage", errorMessage);
-			printWebLayoutControlJspPage(req, res, goPage);
+			printJspPage(req, res, goPage);
 			return;
 		} else {		
 			goPage = "/menu/board/BoardModify02.jsp";
@@ -182,7 +182,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 			if (null == parmBoardId) {
 				String errorMessage = "게시판 식별자 값을 넣어 주세요.";
 				req.setAttribute("errorMessage", errorMessage);
-				printWebLayoutControlJspPage(req, res, goPage);
+				printJspPage(req, res, goPage);
 				return;
 			}
 			
@@ -193,7 +193,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 				String errorMessage = new StringBuilder("자바 long 타입 변수인 게시판 식별자 값[")
 				.append(parmBoardId).append("]이 잘못되었습니다.").toString();
 				req.setAttribute("errorMessage", errorMessage);
-				printWebLayoutControlJspPage(req, res, goPage);
+				printJspPage(req, res, goPage);
 				return;
 			}
 			
@@ -202,7 +202,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 				String errorMessage = new StringBuilder("게시판 식별자 값[")
 				.append(parmBoardId).append("]은 0 보다 커야합니다.").toString();
 				req.setAttribute("errorMessage", errorMessage);
-				printWebLayoutControlJspPage(req, res, goPage);
+				printJspPage(req, res, goPage);
 				return;
 			}	
 			
@@ -212,7 +212,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 			if (null == parmBoardNo) {
 				String errorMessage = "게시판 번호 값을 넣어 주세요.";
 				req.setAttribute("errorMessage", errorMessage);
-				printWebLayoutControlJspPage(req, res, goPage);
+				printJspPage(req, res, goPage);
 				return;
 			}
 			
@@ -224,7 +224,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 				String errorMessage = new StringBuilder("자바 long 타입 변수인 게시판 식별자 값[")
 				.append(parmBoardNo).append("]이 잘못되었습니다.").toString();
 				req.setAttribute("errorMessage", errorMessage);
-				printWebLayoutControlJspPage(req, res, goPage);
+				printJspPage(req, res, goPage);
 				return;
 			}			
 			
@@ -232,7 +232,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 				String errorMessage = new StringBuilder("게시판 식별자 값[")
 				.append(parmBoardNo).append("]은 0 보다 커야합니다.").toString();
 				req.setAttribute("errorMessage", errorMessage);
-				printWebLayoutControlJspPage(req, res, goPage);
+				printJspPage(req, res, goPage);
 				return;
 			}		
 			
@@ -240,7 +240,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 			if (null == parmSubject) {
 				String errorMessage = "제목 값을 넣어주세요.";
 				req.setAttribute("errorMessage", errorMessage);
-				printWebLayoutControlJspPage(req, res, goPage);
+				printJspPage(req, res, goPage);
 				return;
 			}
 			
@@ -249,7 +249,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 			if (null == parmContent) {
 				String errorMessage = "글 내용 값을 넣어주세요.";
 				req.setAttribute("errorMessage", errorMessage);
-				printWebLayoutControlJspPage(req, res, goPage);
+				printJspPage(req, res, goPage);
 				return;
 			}
 			
@@ -257,7 +257,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 			if (null == parmAttachId) {
 				String errorMessage = "업로드 식별자를 넣어주세요.";
 				req.setAttribute("errorMessage", errorMessage);
-				printWebLayoutControlJspPage(req, res, goPage);
+				printJspPage(req, res, goPage);
 				return;
 			}
 			
@@ -268,7 +268,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 				String errorMessage = new StringBuilder("자바 long 타입 변수인 업로드 식별자 값[")
 				.append(parmAttachId).append("]이 잘못되었습니다.").toString();
 				req.setAttribute("errorMessage", errorMessage);
-				printWebLayoutControlJspPage(req, res, goPage);
+				printJspPage(req, res, goPage);
 				return;
 			}
 			
@@ -276,7 +276,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 				String errorMessage = new StringBuilder("업로드 식별자 값[")
 				.append(parmAttachId).append("]은 0 보다 작거나 커야합니다.").toString();
 				req.setAttribute("errorMessage", errorMessage);
-				printWebLayoutControlJspPage(req, res, goPage);
+				printJspPage(req, res, goPage);
 				return;
 			}
 			
@@ -286,7 +286,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 				.append(CommonStaticFinalVars.UNSIGNED_INTEGER_MAX)
 				.append(" 값 보다 작거나 같아야합니다.").toString();
 				req.setAttribute("errorMessage", errorMessage);
-				printWebLayoutControlJspPage(req, res, goPage);
+				printJspPage(req, res, goPage);
 				return;
 			}
 			
@@ -322,7 +322,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 			req.setAttribute("parmBoardId", parmBoardId);	
 			req.setAttribute("parmBoardNo", parmBoardNo);
 			req.setAttribute("errorMessage", errorMessage);
-			printWebLayoutControlJspPage(req, res, goPage);
+			printJspPage(req, res, goPage);
 		}
 	}
 

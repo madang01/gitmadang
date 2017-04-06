@@ -18,7 +18,7 @@ package kr.pe.sinnori.common.etc;
 
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.vo.CommonPartItems;
+import kr.pe.sinnori.common.config.vo.CommonPartConfiguration;
 
 import org.apache.commons.collections4.map.LRUMap;
 import org.apache.commons.collections4.map.MultiKeyMap;
@@ -57,7 +57,7 @@ public final class ObjectCacheManager {
 				SinnoriConfigurationManager.getInstance()
 				.getSinnoriRunningProjectConfiguration();
 		
-		CommonPartItems commonPart = sinnoriRunningProjectConfiguration.getCommonPart();
+		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
 		int cachedObjectMaxSize = commonPart.getCachedObjectMaxSize();
 		
 		objectCache = MultiKeyMap.multiKeyMap(new LRUMap(cachedObjectMaxSize));

@@ -59,7 +59,7 @@ import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
  */
 public class NoShareSyncConnection extends AbstractSyncConnection {
 	/** 개인 메일함 번호. 참고) 메일함을 가상으로 운영하여 전체적으로 메일함 운영의 틀을 유지한다. */
-	private final static int ONLY_ONE_MAILBOX_ID = 1;
+	private static final int ONLY_ONE_MAILBOX_ID = 1;
 	/** 메일 식별자 */
 	private int mailID = 0;	
 	
@@ -400,10 +400,15 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 			/** FIXME! order 지정이 필요한지 몰라서 지움 */
 			//lastInputStreamBuffer.order(dataPacketBufferQueueManager.getByteOrder());
 			
-			byte recvBytes[] = lastInputStreamBuffer.array();
+			/**
+			 * Warning! ByteBuffer.array() method only no direct buffer support.
+			 */
+			byte recvBytes[] = new byte[lastInputStreamBuffer.capacity()];
+			// lastInputStreamBuffer.get(recvBytes);
+			
 			
 			numRead = inputStream.read(recvBytes,
-					lastInputStreamBuffer.position(),
+					0,
 					lastInputStreamBuffer.remaining());
 			
 			// log.debug(String.format("1.numRead[%d]", numRead));
@@ -411,13 +416,13 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 			ArrayList<ReceivedLetter> receivedLetterList = null;
 			int receivedLetterListSize = 0;
 			while (-1 != numRead) {
-				// totalRead += numRead;
-				// if (numRead == 0) System.exit(1);
-				log.debug(String.format("2.numRead[%d], lastInputStreamBuffer=[%s]", numRead, lastInputStreamBuffer.toString()));
-				
-				lastInputStreamBuffer.position(lastInputStreamBuffer.position()+numRead);
-				
 				setFinalReadTime();
+				
+				log.debug(String.format("2.numRead[%d], lastInputStreamBuffer=[%s]", numRead, lastInputStreamBuffer.toString()));				
+				
+				lastInputStreamBuffer.put(recvBytes, 0, numRead);
+				
+				log.debug(String.format("3.numRead[%d], lastInputStreamBuffer=[%s]", numRead, lastInputStreamBuffer.toString()));				
 				
 				
 				// outputMessageList = messageProtocol.S2MList(clientProjectConfig.getCharset(), messageInputStreamResource);
@@ -428,10 +433,9 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 				if (receivedLetterListSize != 0) break;
 				
 				lastInputStreamBuffer = messageInputStreamResource.getLastDataPacketBuffer();
-				recvBytes = lastInputStreamBuffer.array();
-				
+				//recvBytes = lastInputStreamBuffer.array();
 				numRead = inputStream.read(recvBytes,
-						lastInputStreamBuffer.position(),
+						0,
 						lastInputStreamBuffer.remaining());
 			}			
 			

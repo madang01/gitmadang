@@ -151,8 +151,8 @@ public class AllMainProjectManagerPanel extends JPanel {
 			MainProjectBuildSystemState selectedMainProjectBuildSystemState = null;
 
 			try {
-				selectedMainProjectBuildSystemState = new MainProjectBuildSystemState(mainProjectName,
-						sinnoriInstalledPathString);
+				selectedMainProjectBuildSystemState = new MainProjectBuildSystemState(sinnoriInstalledPathString,
+						mainProjectName);
 			} catch (BuildSystemException e1) {
 				log.warn("fail to load main project build system state", e1);
 				JOptionPane.showMessageDialog(mainFrame, e1.getMessage());
@@ -178,8 +178,8 @@ public class AllMainProjectManagerPanel extends JPanel {
 				MainProjectBuildSystemState mainProjectBuildSystemState = null;
 
 				try {
-					mainProjectBuildSystemState = new MainProjectBuildSystemState(mainProjectName,
-							sinnoriInstalledPathString);
+					mainProjectBuildSystemState = new MainProjectBuildSystemState(sinnoriInstalledPathString,
+							mainProjectName);
 				} catch (BuildSystemException e2) {
 					log.warn("fail to load main project build system state", e2);
 					mainProjectNameListComboBox.setSelectedIndex(0);
@@ -236,7 +236,7 @@ public class AllMainProjectManagerPanel extends JPanel {
 		String servletSystemLibrayPathString = "";
 
 		try {
-			BuildSystemSupporter.createNewMainProjectBuildSystem(newMainProjectName, sinnoriInstalledPathString,
+			BuildSystemSupporter.createNewMainProjectBuildSystem(sinnoriInstalledPathString, newMainProjectName,
 					isServer,  isAppClient,
 					isWebClient, servletSystemLibrayPathString);
 		} catch (IllegalArgumentException | BuildSystemException e1) {
@@ -273,7 +273,7 @@ public class AllMainProjectManagerPanel extends JPanel {
 		if (answer == JOptionPane.OK_OPTION) {
 			String sinnoriInstalledPathString = sinnoriInstalledPathInfoValueLabel.getText();
 			try {
-				BuildSystemSupporter.removeProjectDirectory(selectedProjectName, sinnoriInstalledPathString);
+				BuildSystemSupporter.dropProject(sinnoriInstalledPathString, selectedProjectName);
 			} catch (BuildSystemException e1) {
 				log.warn("fail to delete main project directory", e1);
 				showMessageDialog(e1.getMessage());

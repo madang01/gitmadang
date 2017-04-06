@@ -1,6 +1,8 @@
 package kr.pe.sinnori.common.config.itemidinfo;
 
 import java.io.File;
+import java.nio.ByteOrder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,24 +12,38 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.common.config.AbstractDependOnInactiveChecker;
-import kr.pe.sinnori.common.config.AbstractDependOnValidChecker;
+import kr.pe.sinnori.common.config.AbstractDependencyValidator;
 import kr.pe.sinnori.common.config.dependoninactivechecker.RSAKeypairPathDependOnSourceInActiveChecker;
-import kr.pe.sinnori.common.config.dependonvalidchecker.MinDependOnMaxValidChecker;
-import kr.pe.sinnori.common.config.dependonvalidchecker.MybatisConfigFileRelativePathDependOnClassLoaderResourceAbsolutePathValidChecker;
+import kr.pe.sinnori.common.config.dependonvalidchecker.MinAndMaxDependencyValidator;
 import kr.pe.sinnori.common.config.fileorpathstringgetter.AbstractFileOrPathStringGetter;
 import kr.pe.sinnori.common.config.fileorpathstringgetter.CommonMessageInfoXMLPathStringGetter;
 import kr.pe.sinnori.common.config.fileorpathstringgetter.DBCPConfigFilePathStringGetter;
-import kr.pe.sinnori.common.config.fileorpathstringgetter.ServerClassloaderAPPINFPathStringGetter;
 import kr.pe.sinnori.common.config.fileorpathstringgetter.SessionkeyRSAKeypairPathStringGetter;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo.ConfigurationPart;
+import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningCharset;
+import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningEmptyOrNoTrimString;
+import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningIntegerBetweenMinAndMax;
+import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningLongBetweenMinAndMax;
+import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningNoTrimString;
+import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningPath;
+import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningRegularFile;
+import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningUpDownFileBlockMaxSizeBetweenMinAndMax;
+import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterOfSessionKeyRSAKeypairSource;
+import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningBoolean;
+import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningByteOrder;
+import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningConnectionType;
+import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningInteger;
+import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningMessageProtocol;
+import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningSessionkeyPrivateKeyEncoding;
+import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningString;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.util.SequencedProperties;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 신놀이 환경 설정 정보 클래스. 언어 종속적인 타입으로 변환할 정보, 특정 항목의 값에 영향을 받는 의존 관계 정보, 특정 항목의 특정
@@ -36,8 +52,7 @@ import org.slf4j.LoggerFactory;
  * @author Won Jonghoon
  * 
  */
-public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
-		CommonPartItemIDInfoMangerIF, ProjectPartItemIDInfoMangerIF {
+public class SinnoriItemIDInfoManger {
 	private Logger log = LoggerFactory.getLogger(SinnoriItemIDInfoManger.class);
 	
 
@@ -46,7 +61,7 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 	private Map<String, ItemIDInfo<?>> itemIDInfoHash = new HashMap<String, ItemIDInfo<?>>();
 
 	private Map<String, AbstractDependOnInactiveChecker> inactiveCheckerHash = new HashMap<String, AbstractDependOnInactiveChecker>();
-	private Map<String, AbstractDependOnValidChecker> validCheckerHash = new HashMap<String, AbstractDependOnValidChecker>();
+	private Map<String, AbstractDependencyValidator> dependencyValidationHash = new HashMap<String, AbstractDependencyValidator>();
 	private Map<String, AbstractFileOrPathStringGetter> fileOrPathStringGetterHash =
 			new HashMap<String, AbstractFileOrPathStringGetter>();
 	
@@ -74,7 +89,7 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 	 */
 	private SinnoriItemIDInfoManger() {
 		try {
-			DBCPPartItemIDInfoAdder.addAllDBCPPartItemIDInfo(this);
+			addAllDBCPPartItemIDInfo();
 		} catch (IllegalArgumentException | SinnoriConfigurationException e) {
 			log.error(
 					"fail to add all of dbcp part item identification informtion",
@@ -82,7 +97,7 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 			System.exit(1);
 		}
 		try {
-			CommonPartItemIDInfoAdder.addAllCommonPartItemIDInfo(this);
+			addAllCommonPartItemIDInfo();
 		} catch (IllegalArgumentException | SinnoriConfigurationException e) {
 			log.error(
 					"fail to add all of common part item identification informtion",
@@ -90,7 +105,7 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 			System.exit(1);
 		}
 		try {
-			ProjectPartItemIDInfoAdder.addAllProjectPartItemIDInfo(this);
+			addAllProjectPartItemIDInfo();
 		} catch (IllegalArgumentException | SinnoriConfigurationException e) {
 			log.error(
 					"fail to add all of project part item identification informtion",
@@ -99,7 +114,7 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 		}
 
 		try {
-			addValidChecker();
+			addDependencyValidation();
 		} catch (IllegalArgumentException | SinnoriConfigurationException e) {
 			log.error("fail to add valid checker", e);
 			System.exit(1);
@@ -123,7 +138,7 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 		itemIDInfoHash = Collections.unmodifiableMap(itemIDInfoHash);
 		
 		inactiveCheckerHash = Collections.unmodifiableMap(inactiveCheckerHash);
-		validCheckerHash = Collections.unmodifiableMap(validCheckerHash);
+		dependencyValidationHash = Collections.unmodifiableMap(dependencyValidationHash);
 		
 		dbcpPartItemIDInfoList = Collections
 				.unmodifiableList(dbcpPartItemIDInfoList);
@@ -132,7 +147,811 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 		projectPartItemIDInfoList = Collections
 				.unmodifiableList(projectPartItemIDInfoList);
 	}
+	
+	private void addAllCommonPartItemIDInfo()
+			throws IllegalArgumentException, SinnoriConfigurationException {
+		
 
+		ItemIDInfo<?> itemIDInfo = null;
+		String itemID = null;
+		boolean isDefaultValueCheck = false;
+
+		/** Common start */
+		try {
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SERVLET_JSP_JDF_ERROR_MESSAGE_PAGE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<String>(
+					ItemIDInfo.ConfigurationPart.COMMON,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"JDF framework 에서 에러 발생시 에러 내용을 보여주는 사용자 친화적인 화면을 전담할 jsp",
+					"/errorMessagePage.jsp", isDefaultValueCheck,
+					new GeneralConverterReturningNoTrimString());
+			addCommonPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SERVLET_JSP_JDF_LOGIN_PAGE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<String>(
+					ItemIDInfo.ConfigurationPart.COMMON,
+					ItemIDInfo.ViewType.TEXT, itemID, "로그인 처리 jsp",
+					"/menu/member/login.jsp", isDefaultValueCheck,
+					new GeneralConverterReturningNoTrimString());
+			addCommonPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SERVLET_JSP_JDF_SERVLET_TRACE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Boolean>(
+					ItemIDInfo.ConfigurationPart.COMMON,
+					ItemIDInfo.ViewType.SINGLE_SET, itemID,
+					"JDF framework에서 서블릿 경과시간 추적 여부", "true",
+					isDefaultValueCheck,
+					new SetTypeConverterReturningBoolean());
+			addCommonPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SERVLET_JSP_WEB_LAYOUT_CONTROL_PAGE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<String>(
+					ItemIDInfo.ConfigurationPart.COMMON,
+					ItemIDInfo.ViewType.TEXT, itemID,
+					"신놀이 웹 사이트의 레이아웃 컨트롤러 jsp", "/PageJump.jsp",
+					isDefaultValueCheck,
+					new GeneralConverterReturningNoTrimString());
+			addCommonPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_SOURCE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY>(
+					ItemIDInfo.ConfigurationPart.COMMON,
+					ItemIDInfo.ViewType.SINGLE_SET,
+					itemID,
+					"세션키에 사용되는 공개키 키쌍 생성 방법, API:내부적으로 RSA 키쌍 생성, File:외부 파일를 읽어와서 RSA  키쌍을 생성",
+					"API", isDefaultValueCheck,
+					new SetTypeConverterOfSessionKeyRSAKeypairSource());
+			addCommonPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_PATH_ITEMID;
+			isDefaultValueCheck = false;
+			itemIDInfo = new ItemIDInfo<File>(
+					ItemIDInfo.ConfigurationPart.COMMON,
+					ItemIDInfo.ViewType.PATH,
+					itemID,
+					"세션키에 사용되는 공개키 키쌍 파일 경로, 세션키에 사용되는 공개키 키쌍 생성 방법이 File인 경우에 유효하다",
+					"[sinnnori installed path]/project/[main project name]/rsa_keypair",
+					isDefaultValueCheck,
+					new GeneralConverterReturningPath());
+			addCommonPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYSIZE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.COMMON,
+					ItemIDInfo.ViewType.SINGLE_SET, itemID,
+					"세션키에 사용하는 공개키 크기, 단위 byte", "1024",
+					isDefaultValueCheck,
+					new SetTypeConverterReturningInteger("512", "1024",
+							"2048"));
+			addCommonPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_SYMMETRIC_KEY_ALGORITHM_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<String>(
+					ItemIDInfo.ConfigurationPart.COMMON,
+					ItemIDInfo.ViewType.SINGLE_SET, itemID,
+					"세션키에 사용되는 대칭키 알고리즘", "AES", isDefaultValueCheck,
+					new SetTypeConverterReturningString("AES", "DESede",
+							"DES"));
+			addCommonPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_SYMMETRIC_KEY_SIZE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.COMMON,
+					ItemIDInfo.ViewType.SINGLE_SET, itemID,
+					"세션키에 사용되는 대칭키 크기", "16", true,
+					new SetTypeConverterReturningInteger("8", "16", "24"));
+			addCommonPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_IV_SIZE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.COMMON,
+					ItemIDInfo.ViewType.SINGLE_SET, itemID,
+					"세션키에 사용되는 대칭키와 같이 사용되는 IV 크기", "16",
+					isDefaultValueCheck,
+					new SetTypeConverterReturningInteger("8", "16", "24"));
+			addCommonPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_PRIVATE_KEY_ENCODING_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<CommonType.SYMMETRIC_KEY_ENCODING>(
+					ItemIDInfo.ConfigurationPart.COMMON,
+					ItemIDInfo.ViewType.SINGLE_SET,
+					itemID,
+					"개인키 인코딩 방법, NONE : 아무 인코딩 없이 이진 데이터 그대로인 개인키 값, BASE64: base64 인코딩한 개인키 값",
+					"BASE64",
+					isDefaultValueCheck,
+					new SetTypeConverterReturningSessionkeyPrivateKeyEncoding());
+			addCommonPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.COMMON_UPDOWNFILE_LOCAL_SOURCE_FILE_RESOURCE_CNT_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.COMMON,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"로컬 원본 파일 자원 갯수",
+					"10",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addCommonPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.COMMON_UPDOWNFILE_LOCAL_TARGET_FILE_RESOURCE_CNT_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.COMMON,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"로컬 목적지 파일 자원 갯수",
+					"10",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addCommonPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.COMMON_UPDOWNFILE_FILE_BLOCK_MAX_SIZE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.COMMON,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"파일 송수신 파일 블락 최대 크기, 1024 배수, 단위 byte",
+					"1048576",
+					isDefaultValueCheck,
+					new GeneralConverterReturningUpDownFileBlockMaxSizeBetweenMinAndMax(
+							1024, Integer.MAX_VALUE));
+			addCommonPartItemIDInfo(itemIDInfo);
+			
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.COMMON_CACHED_OBJECT_MAX_SIZE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.COMMON,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"싱글턴 객체 캐쉬 관리자에서 캐쉬로 관리할 객체의 최대 갯수. 주로 캐쉬되는 대상 객체는 xxxServerCodec, xxxClientCodec 이다",
+					"100",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addCommonPartItemIDInfo(itemIDInfo);
+		} catch (SinnoriConfigurationException | IllegalArgumentException e) {
+			String errorMessage = new StringBuilder(
+					"fail to add common part item identification[")
+					.append(itemID).append("] information").toString();
+
+			log.info(errorMessage, e);
+
+			throw new SinnoriConfigurationException(new StringBuilder(errorMessage)
+			.append(", errrorMessage=").append(e.getMessage()).toString());
+		}
+		/** Common end */
+	}
+	
+	private void addAllDBCPPartItemIDInfo()
+			throws IllegalArgumentException, SinnoriConfigurationException {		
+		ItemIDInfo<?> itemIDInfo = null;
+		String itemID = null;
+
+		boolean isDefaultValueCheck = false;
+
+		/** DBCP start */
+		try {
+			itemID = ItemIDDefiner.DBCPPartItemIDDefiner.DBCP_CONFIGE_FILE_ITEMID;
+			isDefaultValueCheck = false;
+			{
+				boolean isWritePermissionChecking = false;
+				itemIDInfo = new ItemIDInfo<File>(
+						ItemIDInfo.ConfigurationPart.DBCP,
+						ItemIDInfo.ViewType.FILE,
+						itemID,
+						"dbcp 설정 파일 경로명",
+						"[sinnori installed path]/project/[main project name]/config/[dbcp name].properties",
+						isDefaultValueCheck,
+						new GeneralConverterReturningRegularFile(
+								isWritePermissionChecking));
+			}
+
+			addDBCPPartItemIDInfo(itemIDInfo);
+		} catch (SinnoriConfigurationException | IllegalArgumentException e) {
+			String errorMessage = new StringBuilder(
+					"fail to add dbcp part item identification[")
+					.append(itemID).append("] information").toString();
+
+			log.info(errorMessage, e);
+
+			throw new SinnoriConfigurationException(new StringBuilder(errorMessage)
+			.append(", errrorMessage=").append(e.getMessage()).toString());
+		}
+
+		/** DBCP end */
+	}
+	
+	public void addAllProjectPartItemIDInfo()
+			throws IllegalArgumentException, SinnoriConfigurationException {
+		ItemIDInfo<?> itemIDInfo = null;
+		String itemID = null;
+		boolean isDefaultValueCheck = false;
+
+		try {
+			/** 프로젝트 공통 설정 부분 */
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_MESSAGE_INFO_XMLPATH_ITEMID;
+			isDefaultValueCheck = false;
+			itemIDInfo = new ItemIDInfo<File>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.PATH,
+					itemID,
+					"메시지 정보 파일 경로",
+					"[sinnori installed path]/project/[main project name]/impl/message/info",
+					isDefaultValueCheck, new GeneralConverterReturningPath());
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_HOST_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<String>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT, itemID, "클라이언트에서 접속할 서버 주소",
+					"localhost", isDefaultValueCheck,
+					new GeneralConverterReturningNoTrimString());
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_PORT_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"포트 번호",
+					"9090",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1024, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_BYTEORDER_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<ByteOrder>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.SINGLE_SET, itemID,
+					"바이트 오더, LITTLE_ENDIAN:리틀 엔디안, BIG_ENDIAN:빅 엔디안",
+					"LITTLE_ENDIAN", isDefaultValueCheck,
+					new SetTypeConverterReturningByteOrder());
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_CHARSET_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Charset>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT, itemID, "문자셋", "UTF-8",
+					isDefaultValueCheck, new GeneralConverterReturningCharset());
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_DATA_PACKET_BUFFER_MAX_CNT_PER_MESSAGE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"1개 메시지당 할당 받을 수 있는 데이터 패킷 버퍼 최대수",
+					"1000",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_DATA_PACKET_BUFFER_SIZE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"데이터 패킷 버퍼 크기, 단위 byte",
+					"4096",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1024, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			/** 메시지 식별자 크기의 최소 크기는 내부적으로 사용하는 SelfExn 메시지를 기준으로 정했음. */
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_MESSAGE_ID_FIXED_SIZE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"메시지 식별자 최소 크기",
+					"50",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							7, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_MESSAGE_PROTOCOL_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<CommonType.MESSAGE_PROTOCOL_GUBUN>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.SINGLE_SET, itemID,
+					"메시지 프로토콜, DHB:교차 md5 헤더+바디, DJSON:길이+존슨문자열, THB:길이+바디",
+					"DHB", isDefaultValueCheck,
+					new SetTypeConverterReturningMessageProtocol());
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_CLASSLOADER_CLASS_PACKAGE_PREFIX_NAME_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<String>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT, itemID,
+					"동적 클래스 패키지명 접두어, 동적 클래스 여부를 판단하는 기준",
+					"kr.pe.sinnori.impl.", isDefaultValueCheck,
+					new GeneralConverterReturningNoTrimString());
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			/** 프로젝트 클라이언트 설정 부분 */
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_MONITOR_TIME_INTERVAL_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Long>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT, itemID, "모니터링 주기, 단위 ms", "5000",
+					isDefaultValueCheck,
+					new GeneralConverterReturningLongBetweenMinAndMax(
+							1000L, (long) Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_MONITOR_RECEPTION_TIMEOUT_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Long>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"데이터를 수신하지 않고 기다려주는 최대 시간, 최소값은 소켓 타임아웃 시간에 종속, 권장 값은 소켓 타임 아웃 시간*2, 단위 ms",
+					"20000", isDefaultValueCheck,
+					new GeneralConverterReturningLongBetweenMinAndMax(
+							1000L, (long) Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_TYPE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<CommonType.CONNECTION_TYPE>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.SINGLE_SET,
+					itemID,
+					"소캣 랩퍼 클래스인 연결 종류, NoShareAsyn:비공유+비동기, ShareAsyn:공유+비동기, NoShareSync:비공유+동기",
+					"NoShareAsyn", isDefaultValueCheck,
+					new SetTypeConverterReturningConnectionType());
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_SOCKET_TIMEOUT_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Long>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT, itemID, "소켓 타임아웃, 단위 ms", "5000",
+					isDefaultValueCheck,
+					new GeneralConverterReturningLongBetweenMinAndMax(
+							1000L, (long) Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_WHETHER_AUTO_CONNECTION_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Boolean>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.SINGLE_SET, itemID, "연결 생성시 자동 접속 여부",
+					"false", isDefaultValueCheck,
+					new SetTypeConverterReturningBoolean());
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_COUNT_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"연결 갯수",
+					"4",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_DATA_PACKET_BUFFER_CNT_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"클라이언트 프로젝트가 가지는 데이터 패킷 버퍼 갯수",
+					"1000",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_FINISH_CONNECT_MAX_CALL_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"클라이언트 비동기 소켓 채널의 연결 확립 최대 시도 횟수",
+					"10",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_FINISH_CONNECT_WAITTING_TIME_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Long>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT, itemID,
+					"클라이언트 비동기 소켓 채널의 연결 확립을 재 시도 간격", "10",
+					isDefaultValueCheck,
+					new GeneralConverterReturningLongBetweenMinAndMax(
+							0L, (long) Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_EXECUTOR_THREAD_CNT_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"비동기 출력 메시지 처리자 쓰레드 갯수",
+					"1",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_SHARE_MAILBOX_CNT_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"비동기+공유 연결 클래스(ShareAsynConnection)의 메일함 갯수",
+					"2",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_INPUT_MESSAGE_QUEUE_SIZE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"클라이언트 비동기 입출력 지원용 입력 메시지 큐 크기",
+					"10",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_INPUT_MESSAGE_WRITER_MAX_SIZE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"클라이언트 비동기 입출력 지원용 입력 메시지 소켓 쓰기 담당 쓰레드 최대 갯수",
+					"2",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_INPUT_MESSAGE_WRITER_SIZE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"클라이언트 비동기 입출력 지원용 입력 메시지 소켓 쓰기 담당 쓰레드 갯수",
+					"2",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_QUEUE_SIZE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"출력 메시지 큐 크기",
+					"10",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_READER_MAX_SIZE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"클라이언트 비동기 입출력 지원용 입력 메시지 소켓 읽기 담당 쓰레드 최대 갯수",
+					"4",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_READER_SIZE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"클라이언트 비동기 입출력 지원용 입력 메시지 소켓 읽기 담당 쓰레드 갯수",
+					"4",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_READ_SELECTOR_WAKEUP_INTERVAL_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Long>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"클라이언트 비동기 입출력 지원용 출력 메시지 소켓 읽기 담당 쓰레드에서 블락된 읽기 이벤트 전용 selector 를 깨우는 주기. 단위 ms",
+					"10", isDefaultValueCheck,
+					new GeneralConverterReturningLongBetweenMinAndMax(
+							1L, (long) Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			/** 프로젝트 서버 설정 부분 */
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_MONITOR_TIME_INTERVAL_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Long>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT, itemID, "모니터링 주기, 단위 ms", "5000",
+					isDefaultValueCheck,
+					new GeneralConverterReturningLongBetweenMinAndMax(
+							1000L, (long) Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_MONITOR_RECEPTION_TIMEOUT_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Long>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT, itemID,
+					"데이터를 수신하지 않고 기다려주는 최대 시간, 권장 값은 소켓 타임 아웃 시간*2, 단위 ms",
+					"20000", isDefaultValueCheck,
+					new GeneralConverterReturningLongBetweenMinAndMax(
+							1000L, (long) Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_MAX_CLIENTS_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"서버로 접속할 수 있는 최대 클라이언트 수",
+					"5",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_DATA_PACKET_BUFFER_CNT_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"서버 프로젝트가 가지는 데이터 패킷 버퍼 수",
+					"1000",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_ACCEPT_QUEUE_SIZE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"접속 승인 큐 크기",
+					"10",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							10, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_QUEUE_SIZE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"입력 메시지 큐 크기",
+					"10",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							10, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_QUEUE_SIZE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"출력 메시지 큐 크기",
+					"10",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							10, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_ACCEPT_SELECTOR_TIMEOUT_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Long>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT, itemID,
+					"접속 이벤트 전용 selector 에서 접속 이벤트 최대 대기 시간, 단위 ms", "10",
+					isDefaultValueCheck,
+					new GeneralConverterReturningLongBetweenMinAndMax(
+							10L, (long) Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_READ_SELECTOR_WAKEUP_INTERVAL_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Long>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"입력 메시지 소켓 읽기 담당 쓰레드에서 블락된 읽기 이벤트 전용 selector 를 깨우는 주기. 단위 ms",
+					"10", isDefaultValueCheck,
+					new GeneralConverterReturningLongBetweenMinAndMax(
+							10L, (long) Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_ACCEPT_PROCESSOR_MAX_SIZE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"접속 요청이 승락된 클라이언트의 등록을 담당하는 쓰레드 최대 갯수",
+					"1",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_ACCEPT_PROCESSOR_SIZE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"접속 요청이 승락된 클라이언트의 등록을 담당하는 쓰레드 갯수",
+					"1",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_READER_MAX_SIZE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"입력 메시지 소켓 읽기 담당 쓰레드 최대 갯수",
+					"1",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_READER_SIZE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"입력 메시지 소켓 읽기 담당 쓰레드 갯수",
+					"1",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_PROCESSOR_MAX_SIZE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"서버 비지니스 로직 수행 담당 쓰레드 최대 갯수",
+					"1",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_PROCESSOR_SIZE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"서버 비지니스 로직 수행 담당 쓰레드 갯수",
+					"1",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_WRITER_MAX_SIZE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"출력 메시지 소켓 쓰기 담당 쓰레드 최대 갯수",
+					"1",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_WRITER_SIZE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"출력 메시지 소켓 쓰기 담당 쓰레드 갯수",
+					"1",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_CLASSLOADER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_STRING_ITEMID;
+			isDefaultValueCheck = false;
+			itemIDInfo = new ItemIDInfo<String>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"mybatis 설정 파일의 상대 경로, [서버 동적 클래스 APP-INF 경로]/resources 경로 기준으로 읽어오며 구별자가 '/' 문자로된 상대 경로로 기술되어야 한다. ex) kr/pe/sinnori/mybatis/mybatisConfig.xml",
+					"", isDefaultValueCheck,
+					new GeneralConverterReturningEmptyOrNoTrimString());
+			addProjectPartItemIDInfo(itemIDInfo);
+
+		} catch (SinnoriConfigurationException | IllegalArgumentException e) {
+			String errorMessage = new StringBuilder(
+					"fail to add project part item identification[")
+					.append(itemID).append("] information").toString();
+
+			log.info(errorMessage, e);
+
+			throw new SinnoriConfigurationException(new StringBuilder(errorMessage)
+					.append(", errrorMessage=").append(e.getMessage())
+					.toString());
+		}
+	}
+	
 	public ItemIDInfo<?> getItemIDInfo(String itemID) {
 		return itemIDInfoHash.get(itemID);
 	}
@@ -171,8 +990,8 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 		}
 	}
 
-	@Override
-	public void addDBCPPartItemIDInfo(ItemIDInfo<?> itemIDInfo)
+	
+	private void addDBCPPartItemIDInfo(ItemIDInfo<?> itemIDInfo)
 			throws IllegalArgumentException, UnsupportedOperationException {
 		if (null == itemIDInfo) {
 			String errorMessage = new StringBuilder(
@@ -189,8 +1008,8 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 		addItemIDInfo(itemIDInfo);
 	}
 
-	@Override
-	public void addCommonPartItemIDInfo(ItemIDInfo<?> itemIDInfo)
+	
+	private void addCommonPartItemIDInfo(ItemIDInfo<?> itemIDInfo)
 			throws IllegalArgumentException, UnsupportedOperationException {
 		if (null == itemIDInfo) {
 			String errorMessage = new StringBuilder(
@@ -208,8 +1027,8 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 		addItemIDInfo(itemIDInfo);
 	}
 
-	@Override
-	public void addProjectPartItemIDInfo(ItemIDInfo<?> itemIDInfo)
+	
+	private void addProjectPartItemIDInfo(ItemIDInfo<?> itemIDInfo)
 			throws IllegalArgumentException, UnsupportedOperationException {
 		if (null == itemIDInfo) {
 			String errorMessage = new StringBuilder(
@@ -230,7 +1049,7 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 	}
 
 	@SuppressWarnings("unchecked")
-	private void addValidChecker() throws IllegalArgumentException,
+	private void addDependencyValidation() throws IllegalArgumentException,
 			SinnoriConfigurationException {
 		{
 			String dependentTargetItemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_MONITOR_RECEPTION_TIMEOUT_ITEMID;
@@ -254,8 +1073,8 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 			}
 
 			
-			validCheckerHash.put(dependentSourceItemID,
-					new MinDependOnMaxValidChecker<Long>(
+			dependencyValidationHash.put(dependentSourceItemID,
+					new MinAndMaxDependencyValidator<Long>(
 							(ItemIDInfo<Long>) dependentSourceitemIDConfigInfo,
 							(ItemIDInfo<Long>) dependentTargetItemIDInfo,
 							
@@ -282,9 +1101,9 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 
-			validCheckerHash
+			dependencyValidationHash
 					.put(dependentSourceItemID,
-							new MinDependOnMaxValidChecker<Integer>(
+							new MinAndMaxDependencyValidator<Integer>(
 									(ItemIDInfo<Integer>) dependentSourceitemIDConfigInfo,
 									(ItemIDInfo<Integer>) dependentTargetItemIDInfo,
 									Integer.class));
@@ -310,9 +1129,9 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 
-			validCheckerHash
+			dependencyValidationHash
 					.put(dependentSourceItemID,
-							new MinDependOnMaxValidChecker<Integer>(
+							new MinAndMaxDependencyValidator<Integer>(
 									(ItemIDInfo<Integer>) dependentSourceitemIDConfigInfo,
 									(ItemIDInfo<Integer>) dependentTargetItemIDInfo,
 									Integer.class));
@@ -339,9 +1158,9 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 
-			validCheckerHash
+			dependencyValidationHash
 					.put(dependentSourceItemID,
-							new MinDependOnMaxValidChecker<Integer>(
+							new MinAndMaxDependencyValidator<Integer>(
 									(ItemIDInfo<Integer>) dependentSourceitemIDConfigInfo,
 									(ItemIDInfo<Integer>) dependentTargetItemIDInfo,
 									Integer.class));
@@ -367,9 +1186,9 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 
-			validCheckerHash
+			dependencyValidationHash
 					.put(dependentSourceItemID,
-							new MinDependOnMaxValidChecker<Integer>(
+							new MinAndMaxDependencyValidator<Integer>(
 									(ItemIDInfo<Integer>) dependentSourceitemIDConfigInfo,
 									(ItemIDInfo<Integer>) dependentTargetItemIDInfo,
 									Integer.class));
@@ -395,9 +1214,9 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 
-			validCheckerHash
+			dependencyValidationHash
 					.put(dependentSourceItemID,
-							new MinDependOnMaxValidChecker<Integer>(
+							new MinAndMaxDependencyValidator<Integer>(
 									(ItemIDInfo<Integer>) dependentSourceitemIDConfigInfo,
 									(ItemIDInfo<Integer>) dependentTargetItemIDInfo,
 									Integer.class));
@@ -423,39 +1242,12 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 
-			validCheckerHash
+			dependencyValidationHash
 					.put(dependentSourceItemID,
-							new MinDependOnMaxValidChecker<Integer>(
+							new MinAndMaxDependencyValidator<Integer>(
 									(ItemIDInfo<Integer>) dependentSourceitemIDConfigInfo,
 									(ItemIDInfo<Integer>) dependentTargetItemIDInfo,
 									Integer.class));
-		}
-		{
-			String dependentTargetItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_CLASSLOADER_APPINF_PATH_ITEMID;
-			ItemIDInfo<?> dependentTargetItemIDInfo = getItemIDInfo(dependentTargetItemID);
-			if (null == dependentTargetItemIDInfo) {
-				String errorMessage = new StringBuilder(
-						"dependentTargetItemID[").append(dependentTargetItemID)
-						.append("]'s itemIDConfigInfo not ready").toString();
-				// log.error(errorMessage);
-				throw new SinnoriConfigurationException(errorMessage);
-			}
-
-			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_CLASSLOADER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_STRING_ITEMID;
-			ItemIDInfo<?> dependentSourceitemIDConfigInfo = getItemIDInfo(dependentSourceItemID);
-			if (null == dependentSourceitemIDConfigInfo) {
-				String errorMessage = new StringBuilder(
-						"dependentSourceItemID[").append(dependentSourceItemID)
-						.append("]'s itemIDConfigInfo not ready").toString();
-				// log.error(errorMessage);
-				throw new SinnoriConfigurationException(errorMessage);
-			}
-
-			validCheckerHash
-					.put(dependentSourceItemID,
-							new MybatisConfigFileRelativePathDependOnClassLoaderResourceAbsolutePathValidChecker(
-									(ItemIDInfo<String>) dependentSourceitemIDConfigInfo,
-									(ItemIDInfo<File>) dependentTargetItemIDInfo));
 		}
 	}
 
@@ -502,8 +1294,8 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 		itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_MESSAGE_INFO_XMLPATH_ITEMID;
 		fileOrPathStringGetterHash.put(itemID, new CommonMessageInfoXMLPathStringGetter(itemID));
 		
-		itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_CLASSLOADER_APPINF_PATH_ITEMID;
-		fileOrPathStringGetterHash.put(itemID, new ServerClassloaderAPPINFPathStringGetter(itemID));
+		/*itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_CLASSLOADER_APPINF_PATH_ITEMID;
+		fileOrPathStringGetterHash.put(itemID, new ServerClassloaderAPPINFPathStringGetter(itemID));*/
 	
 		itemID = ItemIDDefiner.DBCPPartItemIDDefiner.DBCP_CONFIGE_FILE_ITEMID;
 		fileOrPathStringGetterHash.put(itemID, new DBCPConfigFilePathStringGetter(itemID));
@@ -989,7 +1781,7 @@ public class SinnoriItemIDInfoManger implements DBCPPartItemIDInfoMangerIF,
 		int inx = itemKey.indexOf(itemID);
 		String prefixOfItemID = itemKey.substring(0, inx);
 
-		AbstractDependOnValidChecker dependOnValidCheck = validCheckerHash
+		AbstractDependencyValidator dependOnValidCheck = dependencyValidationHash
 				.get(itemID);
 
 		if (null != dependOnValidCheck) {

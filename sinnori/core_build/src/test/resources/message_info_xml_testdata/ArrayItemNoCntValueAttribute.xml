@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8" ?>
 <!--
   single item value type : (unsigned) byte, (unsigned) short, (unsigned) integer, long,
 					              fixed length string, ub|us|si pascal string, 
@@ -25,7 +26,6 @@
 	(3) FROM_CLIENT_TO_SERVER : 메시지는 클라이언트에서 서버로만 전송된다.
 	(4) FROM_ALL_TO_ALL : 메시지는 서버에서 클라이언트로도 혹은 클라이언트에서 서버로 양쪽 모두에서 전송된다.
 -->
-<?xml version="1.0" encoding="utf-8" ?>
 <sinnori_message>
 <messageID>ArrayItemNoCntValueAttribute</messageID>
 <direction>FROM_ALL_TO_ALL</direction>

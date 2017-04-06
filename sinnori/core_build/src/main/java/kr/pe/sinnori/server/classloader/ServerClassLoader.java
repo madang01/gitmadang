@@ -44,7 +44,7 @@ public class ServerClassLoader extends ClassLoader {
 	private final Object monitor = new  Object();
 	// private ClassLoader parent = null;
 	private final ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
-	// private final static String mybatisPackageName = "kr.pe.sinnori.impl.mybatis.";
+	// private static final String mybatisPackageName = "kr.pe.sinnori.impl.mybatis.";
 	
 	private String projectName = null;
 	
@@ -55,21 +55,22 @@ public class ServerClassLoader extends ClassLoader {
 	//private String libraryPath = null;
 	private String resourcesPathString = null;
 	
-	private Hashtable<String, JarClassInfo> jarClassInfoHash = null;
+	private Hashtable<String, JarClassEntryContents> jarClassEntryContentsHash = null;
 	
 	/**
 	 * 생성자
 	 * @param parent 부모 클래스 로더
 	 * @param classNameRegex 동적 클래스 로딩 대상 클래스 이름 검사용 클래스 이름 정규식
 	 */
-	public ServerClassLoader(String projectName, String appInfBasePathString, String classLoaderClassPackagePrefixName, Hashtable<String, JarClassInfo> jarClassInfoHash) {
+	public ServerClassLoader(String projectName, String appINFBasePathString, String classLoaderClassPackagePrefixName, 
+			Hashtable<String, JarClassEntryContents> jarClassEntryContentsHash) {
 		super(ClassLoader.getSystemClassLoader());
 		
 		// this.parent = parent;
 		this.projectName = projectName;
-		this.appInfBasePathString = appInfBasePathString;
+		this.appInfBasePathString = appINFBasePathString;
 		this.classLoaderClassPackagePrefixName = classLoaderClassPackagePrefixName;		
-		this.jarClassInfoHash = jarClassInfoHash;
+		this.jarClassEntryContentsHash = jarClassEntryContentsHash;
 		
 		classPathString = new StringBuilder(this.appInfBasePathString)
 		.append(File.separator).append("classes").toString();
@@ -108,15 +109,15 @@ public class ServerClassLoader extends ClassLoader {
 					
 					
 					if (-1 == classFullName.indexOf(classLoaderClassPackagePrefixName)) {
-						JarClassInfo jarClassInfo = jarClassInfoHash.get(classFullName);
+						JarClassEntryContents jarClassEntryContents = jarClassEntryContentsHash.get(classFullName);
 						
-						if (null == jarClassInfo) {
+						if (null == jarClassEntryContents) {
 							/** 서버 동적 클래스 비 대상 클래스 */							
 							return systemClassLoader.loadClass(classFullName);
 						}
 						
 						/** class in jar libray */
-						byte[] classFileBuffer = jarClassInfo.getClassFileBuffer();
+						byte[] classFileBuffer = jarClassEntryContents.getClassFileContents();
 						retClass = defineClass(classFullName, classFileBuffer, 0,
 								classFileBuffer.length);
 						

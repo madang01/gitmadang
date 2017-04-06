@@ -4,12 +4,13 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 
-import kr.pe.sinnori.common.config.vo.AllDBCPPartItems;
-import kr.pe.sinnori.common.config.vo.AllSubProjectPartItems;
-import kr.pe.sinnori.common.config.vo.CommonPartItems;
-import kr.pe.sinnori.common.config.vo.DBCPParItems;
-import kr.pe.sinnori.common.config.vo.ProjectPartItems;
+import kr.pe.sinnori.common.config.vo.AllDBCPPartConfiguration;
+import kr.pe.sinnori.common.config.vo.AllSubProjectPartConfiguration;
+import kr.pe.sinnori.common.config.vo.CommonPartConfiguration;
+import kr.pe.sinnori.common.config.vo.DBCPParConfiguration;
+import kr.pe.sinnori.common.config.vo.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
 
 import org.junit.Before;
@@ -41,14 +42,14 @@ public class SinnoriConfigurationManagerTest {
 		SinnoriConfiguration sinnoriRunningProjectConfiguration = 
 				SinnoriConfigurationManager.getInstance()
 				.getSinnoriRunningProjectConfiguration();
-		AllDBCPPartItems allDBCPPart = sinnoriRunningProjectConfiguration.getAllDBCPPart();
-		CommonPartItems commonPart = sinnoriRunningProjectConfiguration.getCommonPart();
-		ProjectPartItems mainProjectPart = sinnoriRunningProjectConfiguration.getMainProjectPart();
-		AllSubProjectPartItems allSubProjectPart = sinnoriRunningProjectConfiguration.getAllSubProjectPart();
+		AllDBCPPartConfiguration allDBCPPart = sinnoriRunningProjectConfiguration.getAllDBCPPartConfiguration();
+		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
+		ProjectPartConfiguration mainProjectPart = sinnoriRunningProjectConfiguration.getMainProjectPartConfiguration();
+		AllSubProjectPartConfiguration allSubProjectPart = sinnoriRunningProjectConfiguration.getAllSubProjectPartConfiguration();
 		
 		List<String> dbcpNameList = allDBCPPart.getDBCPNameList();
 		for (String dbcpName : dbcpNameList) {
-			DBCPParItems dbcpPart = allDBCPPart.getDBCPPartValueObject(dbcpName);
+			DBCPParConfiguration dbcpPart = allDBCPPart.getDBCPPartConfiguration(dbcpName);
 			
 			if (null == dbcpPart) {
 				log.info("dbcpPart[{}] is null", dbcpName);
@@ -65,7 +66,15 @@ public class SinnoriConfigurationManagerTest {
 		
 		// log.info(commonPart.toString());
 		if (commonPart.toString().indexOf("null") >= 0) {
-			fail("Maybe common part's one more variables are null");
+			/** if RSA Keypair source is API, then rsaKeyPairPathOfSessionKey is null. so first null no problem. */
+			if (!commonPart.getRsaKeypairSourceOfSessionKey().equals(CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY.API)) {
+				fail("Maybe common part's one more variables are null");
+			}
+			
+			/** second null check */
+			if (commonPart.toString().indexOf("null", commonPart.toString().indexOf("null")+1) >= 0) {
+				fail("Maybe common part's two more variables are null");
+			}
 		}
 		
 		if (mainProjectPart.toString().indexOf("null") >= 0) {
@@ -74,7 +83,7 @@ public class SinnoriConfigurationManagerTest {
 		
 		List<String> subProjectNameList = allSubProjectPart.getSubProjectNamelist();
 		for (String subProjectName : subProjectNameList) {
-			ProjectPartItems projectPart = allSubProjectPart.getSubProjectPart(subProjectName);
+			ProjectPartConfiguration projectPart = allSubProjectPart.getSubProjectPartConfiguration(subProjectName);
 			
 			if (null == projectPart) {
 				log.info("sub projectPart[{}] is null", subProjectName);

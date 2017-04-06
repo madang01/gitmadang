@@ -64,7 +64,7 @@ public class MemberSvl extends AbstractServlet {
 			.append(CommonStaticFinalVars.NEWLINE)
 			.append("페이지 모드 값[").append(parmPageMode).append("]이 잘못 되었습니다.").toString();
 			req.setAttribute("errorMessage", errorMessage);
-			printWebLayoutControlJspPage(req, res, goPage);
+			printJspPage(req, res, goPage);
 			return;
 		}		
 
@@ -100,7 +100,7 @@ public class MemberSvl extends AbstractServlet {
 				log.warn(errorMessage);
 				
 				req.setAttribute("errorMessage", errorMessage);
-				printWebLayoutControlJspPage(req, res, goPage);
+				printJspPage(req, res, goPage);
 				return;
 			}
 			
@@ -334,6 +334,6 @@ public class MemberSvl extends AbstractServlet {
 			req.setAttribute("parmIVBase64", parmIVBase64);
 		}		
 		
-		printWebLayoutControlJspPage(req, res, goPage);
+		printJspPage(req, res, goPage);
 	}
 }

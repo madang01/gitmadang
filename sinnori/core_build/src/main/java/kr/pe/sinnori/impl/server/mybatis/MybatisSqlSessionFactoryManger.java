@@ -19,14 +19,16 @@ import javax.xml.parsers.ParserConfigurationException;
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDDefiner;
-import kr.pe.sinnori.common.config.vo.AllDBCPPartItems;
-import kr.pe.sinnori.common.config.vo.AllSubProjectPartItems;
-import kr.pe.sinnori.common.config.vo.ProjectPartItems;
+import kr.pe.sinnori.common.config.vo.AllDBCPPartConfiguration;
+import kr.pe.sinnori.common.config.vo.AllSubProjectPartConfiguration;
+import kr.pe.sinnori.common.config.vo.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.DBCPManager;
 import kr.pe.sinnori.common.etc.LastModifiedFileInfo;
 import kr.pe.sinnori.common.exception.DBNotReadyException;
+import kr.pe.sinnori.common.exception.NotFoundProjectException;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
+import kr.pe.sinnori.server.ServerProjectManager;
 import kr.pe.sinnori.server.classloader.ServerClassLoader;
 
 import org.apache.ibatis.datasource.unpooled.UnpooledDataSourceFactory;
@@ -96,11 +98,11 @@ public class MybatisSqlSessionFactoryManger {
 				SinnoriConfigurationManager.getInstance()
 				.getSinnoriRunningProjectConfiguration();
 		
-		AllDBCPPartItems allDBCPPart = sinnoriRunningProjectConfiguration.getAllDBCPPart();
-		AllSubProjectPartItems allSubProjectPart = sinnoriRunningProjectConfiguration
-				.getAllSubProjectPart();
-		ProjectPartItems mainProjetPart = sinnoriRunningProjectConfiguration
-				.getMainProjectPart();
+		AllDBCPPartConfiguration allDBCPPart = sinnoriRunningProjectConfiguration.getAllDBCPPartConfiguration();
+		AllSubProjectPartConfiguration allSubProjectPart = sinnoriRunningProjectConfiguration
+				.getAllSubProjectPartConfiguration();
+		ProjectPartConfiguration mainProjetPart = sinnoriRunningProjectConfiguration
+				.getMainProjectPartConfiguration();
 
 		// List<String> dbcpConnectionPoolNameList = (List<String>)
 		// conf.getResource("dbcp.connection_pool_name_list.value");
@@ -115,27 +117,31 @@ public class MybatisSqlSessionFactoryManger {
 					.getProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME);
 		}
 
-		ProjectPartItems workingProjetPart = null;
-		
-		
+		ProjectPartConfiguration workingProjetPartItems = null;		
 		
 		if (workingProjectName
 				.equals(mainProjetPart.getProjectName())) {
-			workingProjetPart = mainProjetPart;
+			workingProjetPartItems = mainProjetPart;
 		} else {
-			workingProjetPart = allSubProjectPart
-					.getSubProjectPart(workingProjectName);
-			if (null == workingProjetPart) {
+			workingProjetPartItems = allSubProjectPart
+					.getSubProjectPartConfiguration(workingProjectName);
+			if (null == workingProjetPartItems) {
 				log.error("unknown main prject[{}]'s sub project[{}]", 
 						CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME, 
 						workingProjectName);
 				System.exit(1);
 			}
+		}		
+		
+		File serverAPPINFPath = null;
+		try {
+			serverAPPINFPath = ServerProjectManager.getInstance().getRunningMainServerProject().getServerAPPINFPath();
+		} catch (NotFoundProjectException e) {
+			log.error("");
+			System.exit(1);
 		}
-
-		File serverClassLoaderAPPINFPath = workingProjetPart
-				.getServerClassloaderAPPINFPath();
-		String serverClassloaderMybatisConfigFileRelativePathString = workingProjetPart
+		
+		String serverClassloaderMybatisConfigFileRelativePathString = workingProjetPartItems
 				.getServerClassloaderMybatisConfigFileRelativePathString();
 
 		if (serverClassloaderMybatisConfigFileRelativePathString.equals("")) {
@@ -161,7 +167,7 @@ public class MybatisSqlSessionFactoryManger {
 		}
 
 		String resourcesPathString = new StringBuilder(
-				serverClassLoaderAPPINFPath.getAbsolutePath())
+				serverAPPINFPath.getAbsolutePath())
 				.append(File.separator).append("resources").toString();
 
 		// resources

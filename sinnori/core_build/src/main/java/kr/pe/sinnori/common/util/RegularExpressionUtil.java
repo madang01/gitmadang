@@ -1,10 +1,7 @@
 package kr.pe.sinnori.common.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class RegularExpressionUtil {
-	public static boolean hasLeadingOrTailingWhiteSpace(String value) {
+	/*public static boolean hasLeadingOrTailingWhiteSpace(String value) {
 		Logger log = LoggerFactory.getLogger(RegularExpressionUtil.class);
 
 		boolean expectedValue;		
@@ -30,7 +27,7 @@ public class RegularExpressionUtil {
 		}
 				
 		return returnValue;
-	}
+	}*/
 	
 	public static boolean isValidMessageID(String value) {
 		return value.matches("[a-zA-Z][a-zA-Z0-9]+");

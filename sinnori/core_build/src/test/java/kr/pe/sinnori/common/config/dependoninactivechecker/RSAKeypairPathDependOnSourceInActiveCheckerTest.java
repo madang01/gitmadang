@@ -388,7 +388,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 			dependentTargetItemIDInfo = new ItemIDInfo<Charset>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
 					ItemIDInfo.ViewType.PATH, dependentTargetItemID, "서버 동적 클래스 APP-INF 경로",
-					BuildSystemPathSupporter.getAPPINFPathString(
+					BuildSystemPathSupporter.getServerAPPINFPathString(
 							projectName,
 							sinnoriInstalledPathString),
 							isDefaultValueCheck,

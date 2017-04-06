@@ -22,10 +22,11 @@ import java.util.List;
 
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.vo.AllSubProjectPartItems;
-import kr.pe.sinnori.common.config.vo.ProjectPartItems;
+import kr.pe.sinnori.common.config.vo.AllSubProjectPartConfiguration;
+import kr.pe.sinnori.common.config.vo.ProjectPartConfiguration;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotFoundProjectException;
+import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,14 +67,15 @@ public final class ServerProjectManager {
 			SinnoriConfiguration sinnoriRunningProjectConfiguration = 
 					SinnoriConfigurationManager.getInstance()
 					.getSinnoriRunningProjectConfiguration();
-			ProjectPartItems mainProjectPart = sinnoriRunningProjectConfiguration.getMainProjectPart();
-			AllSubProjectPartItems allSubProjectPart = sinnoriRunningProjectConfiguration.getAllSubProjectPart();
+			ProjectPartConfiguration mainProjectPart = sinnoriRunningProjectConfiguration.getMainProjectPartConfiguration();
+			AllSubProjectPartConfiguration allSubProjectPart = sinnoriRunningProjectConfiguration.getAllSubProjectPartConfiguration();
 			
 			try {
 				mainServerProject = new ServerProject(mainProjectPart);
 			} catch (NoMoreDataPacketBufferException e) {
-				log.error("NoMoreDataPacketBufferException", e);
-				System.exit(1);
+				log.warn("NoMoreDataPacketBufferException", e);
+			} catch (SinnoriConfigurationException e) {
+				log.warn("SinnoriConfigurationException", e);
 			}
 			
 			List<String> subProjectNamelist = allSubProjectPart.getSubProjectNamelist();
@@ -81,17 +83,16 @@ public final class ServerProjectManager {
 			for (String subProjectName : subProjectNamelist) {
 				ServerProject subServerProject=null;
 				try {
-					subServerProject = new ServerProject(allSubProjectPart.getSubProjectPart(subProjectName));
+					subServerProject = new ServerProject(allSubProjectPart.getSubProjectPartConfiguration(subProjectName));
+					
+					subServerProjectHash.put(subProjectName, subServerProject);
 				} catch (NoMoreDataPacketBufferException e) {
-					log.error("NoMoreDataPacketBufferException", e);
-					System.exit(1);
+					log.warn("NoMoreDataPacketBufferException", e);
+				} catch (SinnoriConfigurationException e) {
+					log.warn("SinnoriConfigurationException", e);
 				}
-				subServerProjectHash.put(subProjectName, subServerProject);
+				
 			}
-		/*} catch(Throwable e) {
-			log.warn("unknown error", e);
-		}*/
-		
 	}
 	
 	/**
@@ -108,13 +109,18 @@ public final class ServerProjectManager {
 			errorBuilder.append("] 가 존재하지 않습니다.");
 			log.error(errorBuilder.toString());
 			throw new NotFoundProjectException(errorBuilder.toString());
-			// System.exit(1);
 		}
 		
 		return serverProject;
 	}
 	
-	public ServerProject getRunningMainServerProject() {
+	public ServerProject getRunningMainServerProject() throws NotFoundProjectException {
+		if (null == mainServerProject) {
+			StringBuilder errorBuilder = new StringBuilder("신놀이 프레임 워크 환경설정 파일에 찾고자 하는 메인 프로젝트가 존재하지 않습니다.");
+			log.error(errorBuilder.toString());
+			throw new NotFoundProjectException(errorBuilder.toString());
+		}
+		
 		return mainServerProject;
 	}
 }

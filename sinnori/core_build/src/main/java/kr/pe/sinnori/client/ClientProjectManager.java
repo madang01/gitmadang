@@ -22,8 +22,8 @@ import java.util.List;
 
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.vo.AllSubProjectPartItems;
-import kr.pe.sinnori.common.config.vo.ProjectPartItems;
+import kr.pe.sinnori.common.config.vo.AllSubProjectPartConfiguration;
+import kr.pe.sinnori.common.config.vo.ProjectPartConfiguration;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
 import kr.pe.sinnori.common.exception.NotFoundProjectException;
@@ -65,8 +65,8 @@ public final class ClientProjectManager {
 		SinnoriConfiguration sinnoriRunningProjectConfiguration = 
 				SinnoriConfigurationManager.getInstance()
 				.getSinnoriRunningProjectConfiguration();
-		ProjectPartItems mainProjectPart = sinnoriRunningProjectConfiguration.getMainProjectPart();
-		AllSubProjectPartItems allSubProjectPart = sinnoriRunningProjectConfiguration.getAllSubProjectPart();
+		ProjectPartConfiguration mainProjectPart = sinnoriRunningProjectConfiguration.getMainProjectPartConfiguration();
+		AllSubProjectPartConfiguration allSubProjectPart = sinnoriRunningProjectConfiguration.getAllSubProjectPartConfiguration();
 		
 		try {
 			mainClientProject = new ClientProject(mainProjectPart);
@@ -80,7 +80,7 @@ public final class ClientProjectManager {
 		for (String subProjectName : subProjectNamelist) {
 			ClientProject subClientProject=null;
 			try {
-				subClientProject = new ClientProject(allSubProjectPart.getSubProjectPart(subProjectName));
+				subClientProject = new ClientProject(allSubProjectPart.getSubProjectPartConfiguration(subProjectName));
 			} catch (NoMoreDataPacketBufferException | NoMoreOutputMessageQueueException | InterruptedException e) {
 				log.error("fail to make sub client project instance", e);
 				System.exit(1);

@@ -28,7 +28,7 @@ import java.util.BitSet;
 
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.vo.CommonPartItems;
+import kr.pe.sinnori.common.config.vo.CommonPartConfiguration;
 import kr.pe.sinnori.common.exception.UpDownFileException;
 
 import org.slf4j.Logger;
@@ -103,7 +103,7 @@ public class LocalTargetFileResource {
 		SinnoriConfiguration sinnoriRunningProjectConfiguration = 
 				SinnoriConfigurationManager.getInstance()
 				.getSinnoriRunningProjectConfiguration();		
-		CommonPartItems commonPart = sinnoriRunningProjectConfiguration.getCommonPart();
+		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
 		fileBlockMaxSize = commonPart.getFileBlockMaxSize();
 		
 		// (Integer)conf.getResource("common.updownfile.file_block_max_size.value")

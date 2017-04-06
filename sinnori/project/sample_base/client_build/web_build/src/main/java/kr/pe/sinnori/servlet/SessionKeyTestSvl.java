@@ -14,7 +14,7 @@ public class SessionKeyTestSvl extends AbstractSessionKeyServlet {
 		String goPage = "/menu/testcode/SessionKeyTest01.jsp";
 		
 		
-		printWebLayoutControlJspPage(req, res, goPage);	
+		printJspPage(req, res, goPage);	
 	}
 
 }

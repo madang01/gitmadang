@@ -21,7 +21,7 @@ public class ServerClassloaderAPPINFPathStringGetter extends AbstractFileOrPathS
 		}
 		
 		return BuildSystemPathSupporter
-				.getAPPINFPathString(mainProjectName,
+				.getServerAPPINFPathString(mainProjectName,
 						sinnoriInstalledPathString);
 	}
 }

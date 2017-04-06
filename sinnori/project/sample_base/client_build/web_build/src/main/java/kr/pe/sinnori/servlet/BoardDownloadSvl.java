@@ -33,7 +33,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 			log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
 			
 			req.setAttribute("errorMessage", errorMessage);
-			printWebLayoutControlJspPage(req, res, goPage);			
+			printJspPage(req, res, goPage);			
 			return;
 		}
 		
@@ -43,7 +43,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 			log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
 			
 			req.setAttribute("errorMessage", errorMessage);
-			printWebLayoutControlJspPage(req, res, goPage);
+			printJspPage(req, res, goPage);
 			return;
 		}
 		
@@ -56,7 +56,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 			log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
 			
 			req.setAttribute("errorMessage", errorMessage);
-			printWebLayoutControlJspPage(req, res, goPage);
+			printJspPage(req, res, goPage);
 			return;
 		}
 		
@@ -66,7 +66,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 			log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
 			
 			req.setAttribute("errorMessage", errorMessage);
-			printWebLayoutControlJspPage(req, res, goPage);
+			printJspPage(req, res, goPage);
 			return;
 		}
 		
@@ -76,7 +76,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 			log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
 			
 			req.setAttribute("errorMessage", errorMessage);
-			printWebLayoutControlJspPage(req, res, goPage);
+			printJspPage(req, res, goPage);
 			return;
 		}		
 		
@@ -89,7 +89,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 			log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
 			
 			req.setAttribute("errorMessage", errorMessage);
-			printWebLayoutControlJspPage(req, res, goPage);
+			printJspPage(req, res, goPage);
 			return;
 		}
 		
@@ -99,7 +99,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 			log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
 			
 			req.setAttribute("errorMessage", errorMessage);
-			printWebLayoutControlJspPage(req, res, goPage);
+			printJspPage(req, res, goPage);
 			return;
 		}
 		
@@ -111,7 +111,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 			log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
 			
 			req.setAttribute("errorMessage", errorMessage);
-			printWebLayoutControlJspPage(req, res, goPage);
+			printJspPage(req, res, goPage);
 			return;
 		}		
 		
@@ -146,7 +146,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 				}
 			}
 			req.setAttribute("errorMessage", errorMessage);	
-			printWebLayoutControlJspPage(req, res, goPage);
+			printJspPage(req, res, goPage);
 			return;
 		}
 				

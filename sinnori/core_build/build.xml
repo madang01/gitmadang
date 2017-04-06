@@ -5,7 +5,7 @@
 	<property name="dir.src" location="src/main/java" />
 	<property name="dir.build" location="build" />
 	<property name="dir.dist" location="dist" />
-	<property name="dir.lib" location="lib" />
+	<property name="dir.mainlib" location="lib/main" />
 	<property name="dir.appinf" location="APP-INF" />
 	<property name="dir.guilib" location="guilib" />
 	<property name="java.complile.option.debug" value="on" />
@@ -20,8 +20,8 @@
 	<target name="init.core">
 		<!-- Create the time stamp -->
 		<tstamp />
-		<mkdir dir="${dir.lib}/in" />
-		<mkdir dir="${dir.lib}/ex" />		
+		<mkdir dir="${dir.mainlib}/in" />
+		<mkdir dir="${dir.mainlib}/ex" />		
 		<echo message="java.complile.option.debug=${java.complile.option.debug}" />
 	</target>
 
@@ -35,10 +35,10 @@
       <include name="kr/pe/sinnori/impl/message/SelfExn/**" />
      
 			<classpath>
-				<fileset dir="${dir.lib}/in">
+				<fileset dir="${dir.mainlib}/in">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${dir.lib}/ex">
+				<fileset dir="${dir.mainlib}/ex">
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>
@@ -53,7 +53,7 @@
 				<name name="**/*.class" />
 				<archives>
 					<zips>
-						<fileset dir="${dir.lib}/in" includes="**/*.jar" />
+						<fileset dir="${dir.mainlib}/in" includes="**/*.jar" />
 					</zips>
 				</archives>
 			</restrict>
@@ -68,7 +68,7 @@
 			<include name="kr/pe/sinnori/server/**" />
 			<classpath>
 				<fileset file="${dir.dist}/sinnori-core-common.jar" />
-				<fileset dir="${dir.lib}/ex">
+				<fileset dir="${dir.mainlib}/ex">
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>
@@ -84,7 +84,7 @@
 			<include name="kr/pe/sinnori/client/**" />
 			<classpath>
 				<fileset file="${dir.dist}/sinnori-core-common.jar" />
-				<fileset dir="${dir.lib}/ex">
+				<fileset dir="${dir.mainlib}/ex">
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>
@@ -101,7 +101,7 @@
 				<name name="**/*.class" />
 				<archives>
 					<zips>
-						<fileset dir="lib/in" includes="**/*.jar" />
+						<fileset dir="${dir.mainlib}/in" includes="**/*.jar" />
 					</zips>
 				</archives>
 			</restrict>
@@ -115,7 +115,7 @@
 				<name name="**/*.class" />
 				<archives>
 					<zips>
-						<fileset dir="lib/in" includes="**/*.jar" />
+						<fileset dir="${dir.mainlib}/in" includes="**/*.jar" />
 					</zips>
 				</archives>
 			</restrict>
@@ -128,7 +128,7 @@
 				<name name="**/*.class" />
 				<archives>
 					<zips>
-						<fileset dir="lib/in" includes="**/*.jar" />
+						<fileset dir="${dir.mainlib}/in" includes="**/*.jar" />
 					</zips>
 				</archives>
 			</restrict>
@@ -144,7 +144,7 @@
 			<include name="kr/pe/sinnori/impl/server/mybatis/**" />
 			<classpath>
 				<fileset file="${dir.dist}/sinnori-core-server.jar" />
-				<fileset dir="${dir.lib}/ex">
+				<fileset dir="${dir.mainlib}/ex">
 					<include name="**/*.jar" />
 				</fileset>
 				<fileset dir="${dir.appinf}/lib">
@@ -171,7 +171,7 @@
 			<include name="kr/pe/sinnori/common/**" />
 			<classpath>
 				<fileset file="${dir.guilib}/*.jar" />
-				<fileset dir="${dir.lib}/ex">
+				<fileset dir="${dir.mainlib}/ex">
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>
@@ -186,8 +186,8 @@
 				<archives>
 					<zips>
 						<fileset dir="${dir.guilib}" includes="**/*.jar" />
-						<fileset dir="${dir.lib}/ex" includes="**/*.jar" />
-						<fileset dir="${dir.lib}/in" includes="**/*.jar" />
+						<fileset dir="${dir.mainlib}/ex" includes="**/*.jar" />
+						<fileset dir="${dir.mainlib}/in" includes="**/*.jar" />
 					</zips>
 				</archives>
 			</restrict>

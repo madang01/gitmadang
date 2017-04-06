@@ -68,7 +68,7 @@ public abstract class ItemIDDefiner {
 		public static final String SERVER_POOL_EXECUTOR_PROCESSOR_SIZE_ITEMID = "server.pool.executor_processor.size.value";
 		public static final String SERVER_POOL_OUTPUT_MESSAGE_WRITER_MAX_SIZE_ITEMID = "server.pool.output_message_writer.max_size.value";
 		public static final String SERVER_POOL_OUTPUT_MESSAGE_WRITER_SIZE_ITEMID = "server.pool.output_message_writer.size.value";
-		public static final String SERVER_CLASSLOADER_APPINF_PATH_ITEMID = "server.classloader.appinf.path.value";
+		// public static final String SERVER_CLASSLOADER_APPINF_PATH_ITEMID = "server.classloader.appinf.path.value";
 		public static final String SERVER_CLASSLOADER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_STRING_ITEMID = "server.classloader.mybatis_config_file_relative_path.value";
 	}
 }

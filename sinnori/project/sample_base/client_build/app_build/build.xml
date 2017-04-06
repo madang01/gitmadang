@@ -4,7 +4,7 @@
 	<property name="dir.build" location="build" />
 	<property name="dir.dist" location="dist" />
 	<property name="dir.corelib" location="corelib" />
-	<property name="dir.lib" location="lib" />
+	<property name="dir.mainlib" location="lib/main" />
 	<property name="dir.core.build" location="../../../../core_build" />
 	<property name="appclient.main.class" value="main.SinnoriAppClientMain" />
 	<property name="appclient.main.jar" value="SinnoriAppClientRun.jar" />
@@ -48,7 +48,7 @@
 			<fileset file="${dir.core.build}/dist/sinnori-core.jar" />
 		</copy>
 		<copy todir="${dir.corelib}/ex" verbose="true" overwrite="true">
-			<fileset dir="${dir.core.build}/lib/ex/" />
+			<fileset dir="${dir.core.build}/lib/main/ex/" />
 		</copy>		
 	</target>
 		
@@ -58,8 +58,8 @@
 	  <!-- this appclient project build directory -->
 		<delete dir="${dir.build}" />
 		<mkdir dir="${dir.build}" />
-		<mkdir dir="${dir.lib}/ex" />
-		<mkdir dir="${dir.lib}/in" />
+		<mkdir dir="${dir.mainlib}/ex" />
+		<mkdir dir="${dir.mainlib}/in" />
 		
 		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}">
 			<classpath>
@@ -69,10 +69,10 @@
 				<fileset dir="${dir.corelib}/in">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${dir.lib}/ex">
+				<fileset dir="${dir.mainlib}/ex">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${dir.lib}/in">
+				<fileset dir="${dir.mainlib}/in">
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>
@@ -86,14 +86,14 @@
 		
 		<copy todir="${dir.dist}/lib" verbose="true" overwrite="true">
 			<fileset dir="${dir.corelib}/ex" />
-			<fileset dir="${dir.lib}/ex" />
+			<fileset dir="${dir.mainlib}/ex" />
 		</copy>
 	</target>
 	
 	<path id="build.classpath">
 		<fileset dir="${basedir}">
 			<include name="corelib/ex/*.jar"/>
-			<include name="lib/ex/*.jar"/>
+			<include name="lib/main/ex/*.jar"/>
 		</fileset>
 	</path>
 
@@ -114,7 +114,7 @@
 				<archives>
 					<zips>
 						<fileset dir="${dir.corelib}/in" includes="**/*.jar" />
-						<fileset dir="${dir.lib}/in" includes="**/*.jar" />
+						<fileset dir="${dir.mainlib}/in" includes="**/*.jar" />
 					</zips>
 				</archives>
 			</restrict>
@@ -136,10 +136,10 @@
 				<fileset dir="${dir.corelib}/in">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${dir.lib}/ex">
+				<fileset dir="${dir.mainlib}/ex">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${dir.lib}/in">
+				<fileset dir="${dir.mainlib}/in">
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>
@@ -154,7 +154,7 @@
 				<archives>
 					<zips>
 						<fileset dir="${dir.corelib}/in" includes="**/*.jar" />
-						<fileset dir="${dir.lib}/in" includes="**/*.jar" />
+						<fileset dir="${dir.mainlib}/in" includes="**/*.jar" />
 					</zips>
 				</archives>
 			</restrict>

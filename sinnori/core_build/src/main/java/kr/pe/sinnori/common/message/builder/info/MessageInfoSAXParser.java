@@ -53,7 +53,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 	private final Logger log = LoggerFactory.getLogger(MessageInfoSAXParser.class);
 	
 	
-	private final String XML_EXTENSION_SUFFIX = ".xml";
+	public static final String XML_EXTENSION_SUFFIX = ".xml";
 	private final int XML_EXTENSION_SUFFIX_LENGTH = XML_EXTENSION_SUFFIX.length();
 	
 	/** this member variables is initialized in constructor start */	
@@ -497,29 +497,38 @@ public class MessageInfoSAXParser extends DefaultHandler {
 		this.itemGroupInfoStack.clear();
 	}
 	
-	public String getMessageIDFromXMLFilePathString(String xmlFilePathString) 
+	public String getMessageIDFromXMLFilePathString(String messageInformationXMLFilePathString) 
 			throws IllegalArgumentException {
-		if (null == xmlFilePathString) {
-			throw new IllegalArgumentException("the parameter xmlFilePathString is null");
+		if (null == messageInformationXMLFilePathString) {
+			throw new IllegalArgumentException("the parameter messageInformationXMLFilePathString is null");
 		}
 		
-		if (xmlFilePathString.equals("")) {
-			throw new IllegalArgumentException("the parameter xmlFilePathString is a empty string");
+		if (messageInformationXMLFilePathString.equals("")) {
+			throw new IllegalArgumentException("the parameter messageInformationXMLFilePathString is a empty string");
 		}
 		
-		if (! xmlFilePathString.endsWith(XML_EXTENSION_SUFFIX)) {
-			String errorMessage = new StringBuilder("the parameter xmlFilePathString[")
-			.append(xmlFilePathString)
-			.append("])'s suffix is not '.xml'").toString();
+		if (messageInformationXMLFilePathString.length() <= XML_EXTENSION_SUFFIX.length()) {
+			String errorMessage = new StringBuilder("the parameter messageInformationXMLFilePathString[")
+			.append(messageInformationXMLFilePathString)
+			.append("]'s length[")
+			.append(messageInformationXMLFilePathString.length()).append("] is too small, its length must be greater than ")
+			.append(XML_EXTENSION_SUFFIX.length()).toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (! messageInformationXMLFilePathString.endsWith(XML_EXTENSION_SUFFIX)) {
+			String errorMessage = new StringBuilder("the parameter messageInformationXMLFilePathString[")
+			.append(messageInformationXMLFilePathString)
+			.append("]'s suffix is not '.xml'").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
 		
 		String messageIDOfXMLFile = null;
-		int lengthOfXMLFilePathString = xmlFilePathString.length();		
+		int lengthOfXMLFilePathString = messageInformationXMLFilePathString.length();		
 		int startIndexOfExpectedXMLExtension = lengthOfXMLFilePathString - XML_EXTENSION_SUFFIX_LENGTH;
 		// String exptectedXMLExtension = xmlFilePathString.substring(startIndexOfExpectedXMLExtension);
-		int lastIndexOfFileSeparator = xmlFilePathString.lastIndexOf(File.separator);
+		int lastIndexOfFileSeparator = messageInformationXMLFilePathString.lastIndexOf(File.separator);
 		
 		
 		/*if (!exptectedXMLExtension.equals(XML_EXTENSION_SUFFIX)) {
@@ -530,23 +539,23 @@ public class MessageInfoSAXParser extends DefaultHandler {
 		}*/
 				
 		if (lastIndexOfFileSeparator < 0) {
-			messageIDOfXMLFile = xmlFilePathString.substring(0, startIndexOfExpectedXMLExtension);
+			messageIDOfXMLFile = messageInformationXMLFilePathString.substring(0, startIndexOfExpectedXMLExtension);
 		} else {
 			if (lastIndexOfFileSeparator >= (startIndexOfExpectedXMLExtension-1)) {
-				String errorMessage = new StringBuilder("fail to get message id from the parameter xmlFilePathString[")
-				.append(xmlFilePathString)
+				String errorMessage = new StringBuilder("fail to get message id from the parameter messageInformationXMLFilePathString[")
+				.append(messageInformationXMLFilePathString)
 				.append("] that is '<messageID>.xml' format file name").toString();
 				throw new IllegalArgumentException(errorMessage);
 			}
-			messageIDOfXMLFile = xmlFilePathString.substring(lastIndexOfFileSeparator+1, startIndexOfExpectedXMLExtension);
+			messageIDOfXMLFile = messageInformationXMLFilePathString.substring(lastIndexOfFileSeparator+1, startIndexOfExpectedXMLExtension);
 		}		
 		
 		if (! AbstractMessage.IsValidMessageID(messageIDOfXMLFile)) {
-			String errorMessage = new StringBuilder("the parameter xmlFilePathString[")
-			.append(xmlFilePathString)
-			.append("] is the '<messageID>.xml' format file name having invalid message id[")
+			String errorMessage = new StringBuilder("the parameter messageInformationXMLFilePathString[")
+			.append(messageInformationXMLFilePathString)
+			.append("] has a invalid message id[")
 			.append(messageIDOfXMLFile)
-			.append("]").toString();
+			.append("], (note) the message information XML file name format is '<messageID>.xml'").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 		

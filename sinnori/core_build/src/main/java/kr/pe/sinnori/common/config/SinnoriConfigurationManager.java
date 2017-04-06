@@ -133,7 +133,7 @@ public final class SinnoriConfigurationManager {
 						sinnoriInstalledPathString);
 		
 		try {
-			sinnoriRunningProjectConfiguration = new SinnoriConfiguration(sinnoriRunningProjectName, sinnoriInstalledPathString);
+			sinnoriRunningProjectConfiguration = new SinnoriConfiguration(sinnoriInstalledPathString, sinnoriRunningProjectName);
 		} catch (IllegalArgumentException e) {
 			log.error(
 					"check java system proprties -D{}={} -D{}={}, errormessage={}",

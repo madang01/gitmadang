@@ -225,7 +225,7 @@ public abstract class BuildSystemPathSupporter {
 	}
 
 	/** APP-INF path : <server build path>/APP-INF */
-	public static String getAPPINFPathString(String mainProjectName,
+	public static String getServerAPPINFPathString(String mainProjectName,
 			String sinnoriInstalledPathString) {
 		StringBuilder strBuilder = new StringBuilder(getServerBuildPathString(
 				mainProjectName, sinnoriInstalledPathString));

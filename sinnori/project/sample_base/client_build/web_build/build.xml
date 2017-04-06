@@ -4,7 +4,7 @@
 	<property name="dir.build" location="build" />
 	<property name="dir.dist" location="dist" />
 	<property name="dir.corelib" location="corelib" />
-	<property name="dir.lib" location="lib" />
+	<property name="dir.mainlib" location="lib/main" />
 	<property name="dir.core.build" location="../../../../core_build" />
 	<property name="dir.webclass" location="../../web_app_base/ROOT/WEB-INF/classes" />
 	<property name="dir.weblib" location="../../web_app_base/ROOT/WEB-INF/lib" />
@@ -35,7 +35,7 @@
 		<echo message="servlet.systemlib.path=${servlet.systemlib.path}" />
 		
 		<!-- lib directory is a user define directory -->
-		<mkdir dir="${dir.lib}/ex" />
+		<mkdir dir="${dir.mainlib}/ex" />
 	</target>
 
 	<target name="make.unixcore" if="is.unix.yes" depends="init.var">
@@ -60,7 +60,7 @@
 			<fileset file="${dir.core.build}/dist/sinnori-core.jar" />
 		</copy>
 		<copy todir="${dir.corelib}/ex" verbose="true" overwrite="true">
-			<fileset dir="${dir.core.build}/lib/ex/" />
+			<fileset dir="${dir.core.build}/lib/main/ex/" />
 		</copy>		
 	</target>
 
@@ -78,7 +78,7 @@
 				<fileset dir="${dir.corelib}\ex">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${dir.lib}\ex">
+				<fileset dir="${dir.mainlib}\ex">
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>
@@ -109,7 +109,7 @@
 	 
 		<copy todir="${dir.weblib}" verbose="true" overwrite="true">
 			<fileset file="${dir.dist}/${webclient.core.jar}" />
-			<fileset file="${dir.lib}/ex/*.jar" />
+			<fileset file="${dir.mainlib}/ex/*.jar" />
 		</copy>
 	</target>
 	
@@ -131,7 +131,7 @@
 				<fileset dir="${dir.corelib}\ex">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${dir.lib}\ex">
+				<fileset dir="${dir.mainlib}\ex">
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>
@@ -161,7 +161,7 @@
 				<fileset dir="${dir.corelib}\ex">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${dir.lib}\ex">
+				<fileset dir="${dir.mainlib}\ex">
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>

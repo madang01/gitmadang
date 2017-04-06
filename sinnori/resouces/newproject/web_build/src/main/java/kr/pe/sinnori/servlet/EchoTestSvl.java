@@ -37,7 +37,7 @@ public class EchoTestSvl extends AbstractServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
-		String goPage = "/menu/testcode/EchoTest01.jsp";
+		String goPage = "/EchoTest01.jsp";
 
 		java.util.Random random = new java.util.Random();
 			
@@ -79,7 +79,7 @@ public class EchoTestSvl extends AbstractServlet {
 		req.setAttribute("errorMessage", errorMessage);
 		req.setAttribute("echoInObj", echoInObj);
 		
-		printWebLayoutControlJspPage(req, res, goPage);	
+		printJspPage(req, res, goPage);	
 		
 	}
 	

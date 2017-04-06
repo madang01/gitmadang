@@ -597,7 +597,7 @@ public class MainProjectEditorPanel extends JPanel {
 	 * 
 	 * @return 모든 파트 테이블 모델로부터 만들어진 신놀이 설정 순서 프로퍼티
 	 */
-	private SequencedProperties makeConfigurationSequencedPropertiesFromAllPartTableModel() {
+	private SequencedProperties getModifiedSinnoriConfigSequencedPropertiesFromAllPartTableModel() {
 		SinnoriConfigurationSequencedProperties sinnoriConfigurationSequencedProperties = new SinnoriConfigurationSequencedProperties();
 
 		boolean result = sinnoriConfigurationSequencedProperties
@@ -668,165 +668,21 @@ public class MainProjectEditorPanel extends JPanel {
 		}
 		
 		
-		SequencedProperties sinnoriConfigSequencedProperties = makeConfigurationSequencedPropertiesFromAllPartTableModel();
-		if (null == sinnoriConfigSequencedProperties)
+		SequencedProperties modifiedSinnoriConfigSequencedProperties = getModifiedSinnoriConfigSequencedPropertiesFromAllPartTableModel();
+		if (null == modifiedSinnoriConfigSequencedProperties)
 			return;
 		
 		ProjectBuilder projectBuilder = null;
 		try {
 			projectBuilder = new ProjectBuilder(
 					sinnoriInstalledPathString, mainProjectName);
+			
+			projectBuilder.changeProjectState(isAppClient, isWebClient, servletSystemLibraryPathString, modifiedSinnoriConfigSequencedProperties);
 		} catch (BuildSystemException e1) {
 			log.warn(e1.getMessage(), e1);
 			showMessageDialog(e1.getMessage());
 			return;
-		}
-
-		if (isAppClient) {
-			if (projectBuilder.isValidAppClientAntBuildXMLFile()) {
-				showMessageDialog("app client buid.xml is valid, so skip creation of app client build system");
-				return;
-			}
-			
-			try {
-				projectBuilder.createAppClientBuildSystemFiles();					
-			} catch (BuildSystemException e1) {
-				String errorMessage = "fail to create app client build system";
-				log.warn(errorMessage, e1);
-				showMessageDialog(new StringBuilder(errorMessage).append(", errormessage=").append(e1.getMessage()).toString());
-				return;
-			}
-			
-			log.info(
-					"main project[{}] app client build system creation success",
-					mainProjectName);
-		} else {
-			if (!projectBuilder.isValidAppClientAntBuildXMLFile()) {
-				showMessageDialog("app client buid.xml is bad beacse it doesn't exist or is not a file, so skip deletion of app client build system");				
-				return;
-			}
-			
-			try {
-				projectBuilder.deleteAppClientBuildPath();
-			} catch (BuildSystemException e1) {
-				String errorMessage = "fail to delete app client build path";
-				log.warn(errorMessage, e1);
-				showMessageDialog(new StringBuilder(errorMessage).append(", errormessage=").append(e1.getMessage()).toString());
-				return;
-			}
-			
-			log.info(
-					"main project[{}] app client build system deletion success",
-					mainProjectName);
-		}
-		
-		if (isWebClient) {
-			if (projectBuilder.isValidWebClientAntBuildXMLFile()) {				
-				showMessageDialog("web client buid.xml is valid, so skip creation of web client build system");
-				return;
-			} 
-			try {					
-				projectBuilder.createWebClientBuildSystemFiles(servletSystemLibraryPathString);
-			} catch (BuildSystemException e1) {
-				String errorMessage = "fail to create web client build system";
-				log.warn(errorMessage, e1);
-				showMessageDialog(new StringBuilder(errorMessage).append(", errormessage=").append(e1.getMessage()).toString());
-				return;
-			}
-
-			log.info(
-					"main project[{}] web client build system creation success",
-					mainProjectName);
-			
-
-			if (projectBuilder.isValidWebRootXMLFile()) {
-				showMessageDialog("the web.xml located at web root direcotry is valid, so skip creation of web root");
-				return;
-			}
-			
-			try {
-				projectBuilder.createWebRootSampleFiles();
-			} catch (BuildSystemException e1) {
-				String errorMessage = "fail to create web root";
-				log.warn(errorMessage, e1);
-				showMessageDialog(new StringBuilder(errorMessage).append(", errormessage=").append(e1.getMessage()).toString());
-				return;
-			}
-
-			log.info("main project[{}] web root creation success",
-					mainProjectName);
-			
-
-		} else {
-			if (!projectBuilder.isValidWebClientAntBuildXMLFile()) {
-				showMessageDialog("web client buid.xml is bad beacse it doesn't exist or is not a file, so skip deletion of web client build system");
-				return;
-			}
-			
-			try {
-				projectBuilder.deleteWebCientBuildPath();
-			} catch (BuildSystemException e1) {
-				String errorMessage = "fail to delete web client build path";
-				log.warn(errorMessage, e1);
-				showMessageDialog(new StringBuilder(errorMessage).append(", errormessage=").append(e1.getMessage()).toString());
-				return;
-			}
-			
-			log.info("main project[{}] web client build path deletion success",
-					mainProjectName);
-			
-
-			if (!projectBuilder.isValidWebRootXMLFile()) {
-				showMessageDialog("the web.xml located at web root direcotry is bad beacse it doesn't exist or is not a file, so skip deletion of web root system");
-				return;
-			}
-			try {
-				projectBuilder.deleteWebRoot();
-			} catch (BuildSystemException e1) {
-				String errorMessage = "fail to delete web root path";
-				log.warn(errorMessage, e1);
-				showMessageDialog(new StringBuilder(errorMessage).append(", errormessage=").append(e1.getMessage()).toString());
-				return;
-			}
-			
-			log.info("main project[{}] web root path deletion success",
-					mainProjectName);
-		}
-
-		
-		
-		try {
-			projectBuilder.overwriteSinnoriConfigFile(sinnoriConfigSequencedProperties);
-		} catch (BuildSystemException e1) {
-			String errorMessage = new StringBuilder(
-					"fail to save the main project[").append(mainProjectName)
-					.append("]'s sinnori configuration file").toString();
-
-			log.warn(errorMessage, e1);
-			showMessageDialog(new StringBuilder(errorMessage)
-					.append(", errormessage=").append(e.toString()).toString());
-			return;
-		}
-
-		/*String sinnoriConfigFilePathString = BuildSystemPathSupporter
-				.getSinnoriConfigFilePathString(mainProjectName,
-						sinnoriInstalledPathString);
-		try {
-			SequencedPropertiesUtil.overwriteSequencedPropertiesFile(
-					configurationSequencedProperties, ProjectBuilder
-							.getSinnoriConfigPropertiesTitle(mainProjectName),
-					sinnoriConfigFilePathString,
-					CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
-		} catch (IOException e1) {
-			String errorMessage = new StringBuilder(
-					"fail to save the main project[").append(mainProjectName)
-					.append("]'s sinnori configuration file").toString();
-
-			log.warn(errorMessage, e1);
-			showMessageDialog(new StringBuilder(errorMessage)
-					.append(", errormessage=").append(e.toString()).toString());
-			return;
-		}*/
+		}	
 
 		JOptionPane.showMessageDialog(mainFrame, "save successfully");
 	}

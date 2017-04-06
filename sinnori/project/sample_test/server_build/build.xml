@@ -5,7 +5,7 @@
 	<property name="dir.appinf" location="APP-INF" />
 	<property name="dir.dist" location="dist" />
 	<property name="dir.corelib" location="corelib" />
-	<property name="dir.lib" location="lib" />
+	<property name="dir.mainlib" location="lib/main" />
 	<property name="dir.core.build" location="../../../core_build" />
 	<property name="server.main.class" value="main.SinnoriServerMain" />
 	<property name="server.main.jar" value="SinnoriServerRun.jar" />	
@@ -25,8 +25,8 @@
 	  <echo message="is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}" />
 	  
 	  <!-- this server project lib directory -->
-		<mkdir dir="${dir.lib}/ex" />
-		<mkdir dir="${dir.lib}/in" />
+		<mkdir dir="${dir.mainlib}/ex" />
+		<mkdir dir="${dir.mainlib}/in" />
 	</target>
 
 	<target name="make.unixcore" if="is.unix.yes" depends="init.var">
@@ -94,10 +94,10 @@
 				<fileset dir="${dir.corelib}/in">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${dir.lib}/ex">
+				<fileset dir="${dir.mainlib}/ex">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${dir.lib}/in">
+				<fileset dir="${dir.mainlib}/in">
 					<include name="**/*.jar" />
 				</fileset>
 				<fileset dir="${dir.appinf}/lib">
@@ -114,7 +114,7 @@
 		
 		<copy todir="${dir.dist}/lib" verbose="true" overwrite="true">
 			<fileset dir="${dir.corelib}/ex" />
-			<fileset dir="${dir.lib}/ex" />
+			<fileset dir="${dir.mainlib}/ex" />
 		</copy>
 	</target>
 	
@@ -168,10 +168,10 @@
 				<fileset dir="${dir.corelib}/in">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${dir.lib}/ex">
+				<fileset dir="${dir.mainlib}/ex">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${dir.lib}/in">
+				<fileset dir="${dir.mainlib}/in">
 					<include name="**/*.jar" />
 				</fileset>
 				<fileset dir="${dir.appinf}/lib">

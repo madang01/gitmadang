@@ -58,6 +58,6 @@ public abstract class AbstractServlet extends JDFBaseServlet {
 		req.setAttribute("debugMessage", debugMessage);
 		req.setAttribute("userMessage", userMessage);
 		
-		printWebLayoutControlJspPage(req, res, JDF_ERROR_MESSAGE_PAGE);
+		printJspPage(req, res, JDF_ERROR_MESSAGE_PAGE);
 	}
 }

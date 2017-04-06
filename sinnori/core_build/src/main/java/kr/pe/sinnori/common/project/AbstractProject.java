@@ -21,7 +21,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import kr.pe.sinnori.common.config.vo.ProjectPartItems;
+import kr.pe.sinnori.common.config.vo.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.etc.ObjectCacheManager;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
@@ -46,7 +46,7 @@ public abstract class AbstractProject implements DataPacketBufferQueueManagerIF 
 	/** 모니터 객체 */
 	private final Object dataPacketBufferQueueMonitor = new Object();
 	
-	protected ProjectPartItems projectPartConfigurationVO = null;
+	protected ProjectPartConfiguration projectPartItems = null;
 	
 	protected String projectName = null;
 	protected String hostOfProject = null;
@@ -69,26 +69,25 @@ public abstract class AbstractProject implements DataPacketBufferQueueManagerIF 
 	/**
 	 * 생성자
 	 * 
-	 * @param projectPartConfigurationVO
+	 * @param projectPartItems
 	 *            프로젝트 파트 설정 내용
 	 * @throws NoMoreDataPacketBufferException 
 	 */
-	public AbstractProject(ProjectPartItems projectPartConfigurationVO) throws NoMoreDataPacketBufferException {
-		this.projectPartConfigurationVO = projectPartConfigurationVO;
+	public AbstractProject(ProjectPartConfiguration projectPartItems) throws NoMoreDataPacketBufferException {
+		this.projectPartItems = projectPartItems;		
 		
+		projectName = projectPartItems.getProjectName();
+		hostOfProject = projectPartItems.getServerHost();
+		portOfProject = projectPartItems.getServerPort();
+		byteOrderOfProject = projectPartItems.getByteOrder();
+		charsetOfProject = projectPartItems.getCharset();
+		classLoaderClassPackagePrefixName = projectPartItems.getClassLoaderClassPackagePrefixName();
+		dataPacketBufferSize = projectPartItems.getDataPacketBufferSize();
+		dataPacketBufferMaxCntPerMessage = projectPartItems.getDataPacketBufferMaxCntPerMessage();
 		
-		projectName = projectPartConfigurationVO.getProjectName();
-		hostOfProject = projectPartConfigurationVO.getServerHost();
-		portOfProject = projectPartConfigurationVO.getServerPort();
-		byteOrderOfProject = projectPartConfigurationVO.getByteOrder();
-		charsetOfProject = projectPartConfigurationVO.getCharset();
-		classLoaderClassPackagePrefixName = projectPartConfigurationVO.getClassLoaderClassPackagePrefixName();
-		dataPacketBufferSize = projectPartConfigurationVO.getDataPacketBufferSize();
-		dataPacketBufferMaxCntPerMessage = projectPartConfigurationVO.getDataPacketBufferMaxCntPerMessage();
-		
-		int messageIDFixedSize = projectPartConfigurationVO.getMessageIDFixedSize();		
-		int dataPacketBufferCnt = projectPartConfigurationVO.getServerDataPacketBufferCnt();
-		CommonType.MESSAGE_PROTOCOL_GUBUN messageProtocolGubun = projectPartConfigurationVO.getMessageProtocol();
+		int messageIDFixedSize = projectPartItems.getMessageIDFixedSize();		
+		int dataPacketBufferCnt = projectPartItems.getServerDataPacketBufferCnt();
+		CommonType.MESSAGE_PROTOCOL_GUBUN messageProtocolGubun = projectPartItems.getMessageProtocol();
 		
 
 		switch (messageProtocolGubun) {
@@ -109,7 +108,7 @@ public abstract class AbstractProject implements DataPacketBufferQueueManagerIF 
 			}
 			default: {
 				log.error(String.format("project[%s] 지원하지 않는 메시지 프로토콜[%s] 입니다.",
-						projectPartConfigurationVO.getProjectName(), projectPartConfigurationVO
+						projectPartItems.getProjectName(), projectPartItems
 								.getMessageProtocol().toString()));
 				System.exit(1);
 			}

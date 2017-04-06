@@ -26,8 +26,8 @@ public class FileTest {
 	@Test(expected=FileNotFoundException.class)
 	public void testCanRead_Win7_UserWhoIsNotAdmin_ReadingYesAndReadingDenyYesFile() throws Exception {
 		String osName = System.getProperty("os.name");
-		if (!osName.equals("Windows 7")) {
-			log.warn("This Test Window7 32bit Home Premium K, if a other OS I can't ensure this test succession");
+		if (!osName.startsWith("Windows ")) {
+			log.warn("This Test Window7 32bit Home Premium K, if a other OS[{}] I can't ensure this test succession", osName);
 		}		
 		
 		File ReadingYesAndReadingDenyYesFile = new File("d:\\t1.txt");

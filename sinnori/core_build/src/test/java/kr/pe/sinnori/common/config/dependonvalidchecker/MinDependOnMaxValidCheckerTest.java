@@ -5,7 +5,7 @@ import static org.junit.Assert.fail;
 import java.nio.charset.Charset;
 import java.util.Properties;
 
-import kr.pe.sinnori.common.config.AbstractDependOnValidChecker;
+import kr.pe.sinnori.common.config.AbstractDependencyValidator;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningCharset;
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningIntegerBetweenMinAndMax;
@@ -26,7 +26,7 @@ public class MinDependOnMaxValidCheckerTest {
 
 	private ItemIDInfo<Long> longTypeDependedItemIDInfo = null;
 	private ItemIDInfo<Long> longTypeDependentItemIDInfo = null;
-	private AbstractDependOnValidChecker longTypeMinDependOnMaxValidChecker = null;
+	private AbstractDependencyValidator longTypeMinDependOnMaxValidChecker = null;
 
 	
 	@Before
@@ -62,7 +62,7 @@ public class MinDependOnMaxValidCheckerTest {
 		}
 
 		try {
-			longTypeMinDependOnMaxValidChecker = new MinDependOnMaxValidChecker<Long>(
+			longTypeMinDependOnMaxValidChecker = new MinAndMaxDependencyValidator<Long>(
 					longTypeDependentItemIDInfo, longTypeDependedItemIDInfo,
 					Long.class);
 		} catch (IllegalArgumentException e) {
@@ -93,7 +93,7 @@ public class MinDependOnMaxValidCheckerTest {
 							2, Integer.MAX_VALUE - 10));
 			
 			@SuppressWarnings({ "unused", "unchecked" })
-			AbstractDependOnValidChecker minDependOnMaxValidChecker = new MinDependOnMaxValidChecker<Integer>(
+			AbstractDependencyValidator minDependOnMaxValidChecker = new MinAndMaxDependencyValidator<Integer>(
 					(ItemIDInfo<Integer>)dependentTargetItemIDInfo,
 					(ItemIDInfo<Integer>)dependentSourceItemIDInfo,
 					Integer.class);
@@ -127,7 +127,7 @@ public class MinDependOnMaxValidCheckerTest {
 							2L, Long.MAX_VALUE - 10));
 			
 			@SuppressWarnings({ "unused", "unchecked" })
-			AbstractDependOnValidChecker minDependOnMaxValidChecker = new MinDependOnMaxValidChecker<Integer>(
+			AbstractDependencyValidator minDependOnMaxValidChecker = new MinAndMaxDependencyValidator<Integer>(
 					(ItemIDInfo<Integer>)dependentTargetItemIDInfo,
 					(ItemIDInfo<Integer>)dependentSourceItemIDInfo,
 					Integer.class);
@@ -171,7 +171,7 @@ public class MinDependOnMaxValidCheckerTest {
 
 		try {
 			@SuppressWarnings({ "unused", "unchecked" })
-			AbstractDependOnValidChecker minDependOnMaxValidChecker = new MinDependOnMaxValidChecker<Integer>(
+			AbstractDependencyValidator minDependOnMaxValidChecker = new MinAndMaxDependencyValidator<Integer>(
 					(ItemIDInfo<Integer>)integerTypeMinItemIDInfo, (ItemIDInfo<Integer>)charsetTypeMaxItemIDInfo,
 					Integer.class);			
 		} catch (IllegalArgumentException e) {
@@ -213,7 +213,7 @@ public class MinDependOnMaxValidCheckerTest {
 
 		try {
 			@SuppressWarnings({ "unused", "unchecked" })
-			AbstractDependOnValidChecker minDependOnMaxValidChecker = new MinDependOnMaxValidChecker<Integer>(
+			AbstractDependencyValidator minDependOnMaxValidChecker = new MinAndMaxDependencyValidator<Integer>(
 					(ItemIDInfo<Integer>)charsetTypeMinItemIDInfo, (ItemIDInfo<Integer>)integerTypeMaxItemIDInfo,
 					Integer.class);			
 		} catch (IllegalArgumentException e) {
@@ -256,7 +256,7 @@ public class MinDependOnMaxValidCheckerTest {
 
 		try {
 			@SuppressWarnings({ "unused", "unchecked" })
-			AbstractDependOnValidChecker minDependOnMaxValidChecker = new MinDependOnMaxValidChecker<Integer>(
+			AbstractDependencyValidator minDependOnMaxValidChecker = new MinAndMaxDependencyValidator<Integer>(
 					(ItemIDInfo<Integer>)integerTypeMinItemIDInfo, (ItemIDInfo<Integer>)longTypeMaxItemIDInfo,
 					Integer.class);
 		} catch (IllegalArgumentException e) {
@@ -299,7 +299,7 @@ public class MinDependOnMaxValidCheckerTest {
 
 		try {
 			@SuppressWarnings({ "unused", "unchecked" })
-			AbstractDependOnValidChecker minDependOnMaxValidChecker = new MinDependOnMaxValidChecker<Integer>(
+			AbstractDependencyValidator minDependOnMaxValidChecker = new MinAndMaxDependencyValidator<Integer>(
 					(ItemIDInfo<Integer>)longTypeMinItemIDInfo, integerTypeMaxItemIDInfo,
 					Integer.class);
 		} catch (IllegalArgumentException e) {
@@ -315,7 +315,7 @@ public class MinDependOnMaxValidCheckerTest {
 			throws Exception {
 		try {
 			@SuppressWarnings("unused")
-			AbstractDependOnValidChecker minDependOnMaxValidChecker = new MinDependOnMaxValidChecker<Long>(
+			AbstractDependencyValidator minDependOnMaxValidChecker = new MinAndMaxDependencyValidator<Long>(
 					null, longTypeDependedItemIDInfo, Long.class);
 		} catch (IllegalArgumentException e) {
 			log.info(
@@ -332,7 +332,7 @@ public class MinDependOnMaxValidCheckerTest {
 			throws Exception {
 		try {
 			@SuppressWarnings("unused")
-			AbstractDependOnValidChecker minDependOnMaxValidChecker = new MinDependOnMaxValidChecker<Long>(
+			AbstractDependencyValidator minDependOnMaxValidChecker = new MinAndMaxDependencyValidator<Long>(
 					longTypeDependentItemIDInfo, null, Long.class);
 		} catch (IllegalArgumentException e) {
 			log.info(
@@ -349,7 +349,7 @@ public class MinDependOnMaxValidCheckerTest {
 			throws Exception {
 		try {
 			@SuppressWarnings("unused")
-			AbstractDependOnValidChecker minDependOnMaxValidChecker = new MinDependOnMaxValidChecker<Long>(
+			AbstractDependencyValidator minDependOnMaxValidChecker = new MinAndMaxDependencyValidator<Long>(
 					longTypeDependentItemIDInfo, longTypeDependedItemIDInfo,
 					null);
 		} catch (IllegalArgumentException e) {

@@ -91,7 +91,7 @@ public class JSBNTestSvl extends AbstractServlet {
 		
 		log.info(String.format("goPage[%s]", goPage));
 		
-		printWebLayoutControlJspPage(req, res, goPage);	
+		printJspPage(req, res, goPage);	
 	}
 	
 }

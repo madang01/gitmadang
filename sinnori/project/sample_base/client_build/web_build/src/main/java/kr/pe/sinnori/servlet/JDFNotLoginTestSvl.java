@@ -60,6 +60,6 @@ public class JDFNotLoginTestSvl extends AbstractServlet {
 		}
 	
 		req.setAttribute("reqHeaderInfo", reqHeaderInfo);		
-		printWebLayoutControlJspPage(req, res, "/menu/testcode/JDFNotLoginTest01.jsp");
+		printJspPage(req, res, "/menu/testcode/JDFNotLoginTest01.jsp");
 	}
 }

@@ -28,7 +28,7 @@ import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.AbstractConnectionPool;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderPoolIF;
 import kr.pe.sinnori.client.io.LetterToServer;
-import kr.pe.sinnori.common.config.vo.ProjectPartItems;
+import kr.pe.sinnori.common.config.vo.ProjectPartConfiguration;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
@@ -95,7 +95,7 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 	public ShareAsynConnectionPool(String projectName, String hostOfProject, int portOfProject,
 			Charset charsetOfProject, int connectionPoolSize, long socketTimeOut, boolean whetherToAutoConnect,
 			int finishConnectMaxCall, long finishConnectWaittingTime, int mailBoxCnt,
-			ProjectPartItems projectPart, LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue,
+			ProjectPartConfiguration projectPart, LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue, MessageProtocolIF messageProtocol,
 			OutputMessageReaderPoolIF outputMessageReaderPool,
 			SyncOutputMessageQueueQueueMangerIF syncOutputMessageQueueQueueManger,

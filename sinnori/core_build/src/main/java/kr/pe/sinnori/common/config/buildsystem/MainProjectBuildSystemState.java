@@ -9,8 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
-import kr.pe.sinnori.common.config.vo.AllDBCPPartItems;
-import kr.pe.sinnori.common.config.vo.AllSubProjectPartItems;
+import kr.pe.sinnori.common.config.vo.AllDBCPPartConfiguration;
+import kr.pe.sinnori.common.config.vo.AllSubProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BuildSystemException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
@@ -31,8 +31,8 @@ public class MainProjectBuildSystemState {
 	private String servletSystemLibrayPathString = "";
 	private SequencedProperties sinnoriConfigurationSequencedPropties = null;
 	
-	public MainProjectBuildSystemState(String mainProjectName,
-			String sinnoriInstalledPathString)
+	public MainProjectBuildSystemState(String sinnoriInstalledPathString,
+			String mainProjectName)
 			throws BuildSystemException {
 		this.mainProjectName = mainProjectName;
 		this.sinnoriInstalledPathString = sinnoriInstalledPathString;
@@ -72,7 +72,7 @@ public class MainProjectBuildSystemState {
 		SinnoriConfiguration sinnoriConfiguration = null;
 		
 		try {
-			sinnoriConfiguration = new SinnoriConfiguration(mainProjectName, sinnoriInstalledPathString);
+			sinnoriConfiguration = new SinnoriConfiguration(sinnoriInstalledPathString, mainProjectName);
 		} catch (IllegalArgumentException e) {
 			log.warn("IllegalArgumentException", e);
 			throw new BuildSystemException(e.getMessage());
@@ -87,8 +87,8 @@ public class MainProjectBuildSystemState {
 			throw new BuildSystemException(e.getMessage());
 		}
 		
-		AllDBCPPartItems allDBCPPartItems = sinnoriConfiguration.getAllDBCPPart();
-		AllSubProjectPartItems allSubProjectPartItems = sinnoriConfiguration.getAllSubProjectPart();
+		AllDBCPPartConfiguration allDBCPPartItems = sinnoriConfiguration.getAllDBCPPartConfiguration();
+		AllSubProjectPartConfiguration allSubProjectPartItems = sinnoriConfiguration.getAllSubProjectPartConfiguration();
 		
 		dbcpNameList = allDBCPPartItems.getDBCPNameList();
 		subProjectNameList = allSubProjectPartItems.getSubProjectNamelist();	
