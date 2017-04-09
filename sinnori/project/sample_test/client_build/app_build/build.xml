@@ -48,7 +48,7 @@
 			<fileset file="${dir.core.build}/dist/sinnori-core.jar" />
 		</copy>
 		<copy todir="${dir.corelib}/ex" verbose="true" overwrite="true">
-			<fileset dir="${dir.core.build}/lib/ex/" />
+			<fileset dir="${dir.core.build}/lib/main/ex/" />
 		</copy>		
 	</target>
 		
@@ -92,8 +92,7 @@
 	
 	<path id="build.classpath">
 		<fileset dir="${basedir}">
-			<include name="corelib/ex/*.jar"/>
-			<include name="lib/ex/*.jar"/>
+			<include name="dist/lib/*.jar"/>
 		</fileset>
 	</path>
 

@@ -387,15 +387,9 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 			}
 		}
 		
-		try {
-			
-			/** DHB only */
+		try {			
 			int numRead = 0;
-			// long totalRead = 0;
-			// MessageInputStreamResource messageInputStreamResource = getMessageInputStreamResource();
 			
-
-			// for(int i=0; i < 1; i++) {
 			ByteBuffer lastInputStreamBuffer = messageInputStreamResource.getLastDataPacketBuffer();
 			/** FIXME! order 지정이 필요한지 몰라서 지움 */
 			//lastInputStreamBuffer.order(dataPacketBufferQueueManager.getByteOrder());
@@ -403,9 +397,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 			/**
 			 * Warning! ByteBuffer.array() method only no direct buffer support.
 			 */
-			byte recvBytes[] = new byte[lastInputStreamBuffer.capacity()];
-			// lastInputStreamBuffer.get(recvBytes);
-			
+			byte recvBytes[] = new byte[lastInputStreamBuffer.capacity()];			
 			
 			numRead = inputStream.read(recvBytes,
 					0,
@@ -424,8 +416,6 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 				
 				log.debug(String.format("3.numRead[%d], lastInputStreamBuffer=[%s]", numRead, lastInputStreamBuffer.toString()));				
 				
-				
-				// outputMessageList = messageProtocol.S2MList(clientProjectConfig.getCharset(), messageInputStreamResource);
 				receivedLetterList = messageProtocol.S2MList(charsetOfProject, messageInputStreamResource);
 				
 				
@@ -433,7 +423,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 				if (receivedLetterListSize != 0) break;
 				
 				lastInputStreamBuffer = messageInputStreamResource.getLastDataPacketBuffer();
-				//recvBytes = lastInputStreamBuffer.array();
+
 				numRead = inputStream.read(recvBytes,
 						0,
 						lastInputStreamBuffer.remaining());
@@ -462,6 +452,13 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 			
 		} catch (HeaderFormatException e) {
 			log.warn(String.format("HeaderFormatException::%s", e.getMessage()), e);
+			if (null != inputStream) {
+				try {
+					inputStream.close();
+				} catch (IOException e1) {
+					log.warn("fail to close inputStream", e1);
+				}
+			}
 			serverClose();
 		} catch (SocketTimeoutException e) {
 			log.warn(String.format("SocketTimeoutException, inObj=[%s]",
@@ -475,13 +472,29 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 			 * 적용한 것 이기때문에 소켓을 닫을 필요는 없다.
 			 * </pre>
 			 */
+			if (null != inputStream) {
+				try {
+					inputStream.close();
+				} catch (IOException e1) {
+					log.warn("fail to close inputStream", e1);
+				}
+			}
 			serverClose();
 			throw e;
 		} catch (IOException e) {
 			log.error("IOException", e);
+			
+			if (null != inputStream) {
+				try {
+					inputStream.close();
+				} catch (IOException e1) {
+					log.warn("fail to close inputStream", e1);
+				}
+			}
 			serverClose();
 			// System.exit(1);
 		} finally {
+			
 			
 			if (null != inputStreamWrapBufferList) {
 				int inputStreamWrapBufferListSize = inputStreamWrapBufferList.size();

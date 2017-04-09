@@ -92,8 +92,7 @@
 	
 	<path id="build.classpath">
 		<fileset dir="${basedir}">
-			<include name="corelib/ex/*.jar"/>
-			<include name="lib/main/ex/*.jar"/>
+			<include name="dist/lib/*.jar"/>
 		</fileset>
 	</path>
 

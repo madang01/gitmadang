@@ -53,7 +53,7 @@
 			<fileset file="${dir.core.build}/dist/sinnori-core.jar" />
 		</copy>
 		<copy todir="${dir.corelib}/ex" verbose="true" overwrite="true">
-			<fileset dir="${dir.core.build}/lib/ex/" />
+			<fileset dir="${dir.core.build}/lib/main/ex/" />
 		</copy>		
 	</target>
 	
@@ -120,8 +120,7 @@
 	
 	<path id="build.classpath">
 		<fileset dir="${basedir}">
-			<include name="corelib/ex/*.jar"/>
-			<include name="lib/ex/*.jar"/>
+			<include name="dist/lib/*.jar"/>
 		</fileset>
 	</path>
 	
@@ -141,8 +140,8 @@
 				<name name="**/*.class" />
 				<archives>
 					<zips>
-						<fileset dir="corelib/in" includes="**/*.jar" />
-						<fileset dir="lib/in" includes="**/*.jar" />
+						<fileset dir="${dir.corelib}/in" includes="**/*.jar" />
+						<fileset dir="${dir.mainlib}/in" includes="**/*.jar" />
 					</zips>
 				</archives>
 			</restrict>

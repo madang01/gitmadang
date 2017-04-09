@@ -2,9 +2,8 @@ package kr.pe.sinnori.common.config.buildsystem;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 
-public abstract class BuildSystemFileContents {	
-	
-	
+public abstract class BuildSystemFileContents {
+
 	/** impl/message/info/Echo.xml */
 	public static String getEchoMessageInfoContents() {
 		StringBuilder stringBuilder = new StringBuilder();
@@ -19,14 +18,15 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append("\t\t\t\t\tub pascal string, us pascal string, si pascal string,");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t\t\tfixed length byte[], variable length byte[],");
-		
+
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t\t\tjava sql date, java sql timestamp, boolean");
-		
+
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\tarray cnttype : reference 변수참조, direct 직접입력");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\tdirection : FROM_NONE_TO_NONE, FROM_SERVER_TO_CLINET, FROM_CLIENT_TO_SERVER, FROM_ALL_TO_ALL");
+		stringBuilder.append(
+				"\tdirection : FROM_NONE_TO_NONE, FROM_SERVER_TO_CLINET, FROM_CLIENT_TO_SERVER, FROM_ALL_TO_ALL");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t(1) FROM_NONE_TO_NONE : 메시지는 서버에서 클라이언트로 혹은 클라이언트에서 서버로 양쪽 모두에서 전송되지 않는다.");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -54,7 +54,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		return stringBuilder.toString();
 	}
-	
+
 	/** config/logback.xml */
 	public static String getContentsOfLogback() {
 		StringBuilder stringBuilder = new StringBuilder();
@@ -122,10 +122,9 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		return stringBuilder.toString();
 	}
-	
+
 	/** server_build/build.xml */
-	public static String getServerAntBuildXMLFileContent(String mainProjectName, 
-			String serverMainClassFullName ,
+	public static String getServerAntBuildXMLFileContent(String mainProjectName, String serverMainClassFullName,
 			String serverExecutableJarShortFileName) {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("<project name=\"");
@@ -153,7 +152,6 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append("\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<property name=\"server.main.jar\" value=\"");
-		// stringBuilder.append("SinnoriServerRun.jar");
 		stringBuilder.append(serverExecutableJarShortFileName);
 		stringBuilder.append("\" />\t");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -245,7 +243,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t<copy todir=\"${dir.corelib}/ex\" verbose=\"true\" overwrite=\"true\">");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t<fileset dir=\"${dir.core.build}/lib/ex/\" />");
+		stringBuilder.append("\t\t\t<fileset dir=\"${dir.core.build}/lib/main/ex/\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t</copy>\t\t");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -275,13 +273,17 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("    <!-- Except for the sample class file that inherits the UnpooledDataSourceFactory class and gets a db connection pool from the DBCPManager class -->");
+		stringBuilder.append(
+				"    <!-- Except for the sample class file that inherits the UnpooledDataSourceFactory class and gets a db connection pool from the DBCPManager class -->");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t<copy todir=\"${dir.src}/kr/pe/sinnori/impl/server/mybatis/\" verbose=\"true\" overwrite=\"false\">");
+		stringBuilder.append(
+				"\t\t<copy todir=\"${dir.src}/kr/pe/sinnori/impl/server/mybatis/\" verbose=\"true\" overwrite=\"false\">");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t  <!-- the SqlSessionFactoryManger class depends on the server dynimic class loader -->");
+		stringBuilder
+				.append("\t\t  <!-- the SqlSessionFactoryManger class depends on the server dynimic class loader -->");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t<fileset file=\"${dir.core.build}/src/main/java/kr/pe/sinnori/impl/server/mybatis/SampleBaseDBSourceFactory.java.txt\" />");
+		stringBuilder.append(
+				"\t\t\t<fileset file=\"${dir.core.build}/src/main/java/kr/pe/sinnori/impl/server/mybatis/SampleBaseDBSourceFactory.java.txt\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t</copy>");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -289,7 +291,8 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t<copy todir=\"${dir.appinf}/classes\" verbose=\"true\" overwrite=\"false\">");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t  <!-- the SqlSessionFactoryManger class depends on the server dynimic class loader -->");
+		stringBuilder
+				.append("\t\t  <!-- the SqlSessionFactoryManger class depends on the server dynimic class loader -->");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t<fileset dir=\"${dir.core.build}/build/appinf/\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -309,7 +312,8 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"lines,vars,source\" encoding=\"UTF-8\" includeantruntime=\"false\" srcdir=\"${dir.src}\" destdir=\"${dir.build}\" >");
+		stringBuilder.append(
+				"\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"lines,vars,source\" encoding=\"UTF-8\" includeantruntime=\"false\" srcdir=\"${dir.src}\" destdir=\"${dir.build}\" >");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t<exclude name=\"kr/pe/sinnori/impl/**\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -379,9 +383,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t<fileset dir=\"${basedir}\">");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t<include name=\"corelib/ex/*.jar\"/>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t<include name=\"lib/ex/*.jar\"/>");
+		stringBuilder.append("\t\t\t<include name=\"dist/lib/*.jar\"/>");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t</fileset>");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -421,9 +423,9 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t\t\t<zips>");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\t\t\t<fileset dir=\"corelib/in\" includes=\"**/*.jar\" />");
+		stringBuilder.append("\t\t\t\t\t\t<fileset dir=\"${dir.corelib}/in\" includes=\"**/*.jar\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\t\t\t<fileset dir=\"lib/in\" includes=\"**/*.jar\" />");
+		stringBuilder.append("\t\t\t\t\t\t<fileset dir=\"${dir.mainlib}/in\" includes=\"**/*.jar\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t\t\t</zips>");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -457,7 +459,8 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<target name=\"compile.appinf\" depends=\"init.var\">");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"lines,vars,source\" encoding=\"UTF-8\" includeantruntime=\"false\" srcdir=\"${dir.src}\" destdir=\"${dir.appinf}/classes\" >");
+		stringBuilder.append(
+				"\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"lines,vars,source\" encoding=\"UTF-8\" includeantruntime=\"false\" srcdir=\"${dir.src}\" destdir=\"${dir.appinf}/classes\" >");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t<include name=\"kr/pe/sinnori/impl/**\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -506,10 +509,11 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append("");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("</project>");
+
 		return stringBuilder.toString();
 	}
-	
-	/** server_build/src/kr/pe/sinnori/impl/servertask/EchoServerTask.java */	
+
+	/** server_build/src/kr/pe/sinnori/impl/servertask/EchoServerTask.java */
 	public static String getEchoServerTaskContents() {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("/*");
@@ -595,7 +599,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append("\t\t\tLetterSender letterSender, Echo echoInObj)");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\tthrows Exception {");
-		stringBuilder.append(System.getProperty("line.separator"));		
+		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\tEcho echoOutObj = new Echo();");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("");
@@ -614,11 +618,9 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		return stringBuilder.toString();
 	}
-	
-	
+
 	/** client_build/app_build/build.xml */
-	public static String getAppClientAntBuildXMLFileContents(String mainProjectName,
-			String appclientMainClassFullName ,
+	public static String getAppClientAntBuildXMLFileContents(String mainProjectName, String appclientMainClassFullName,
 			String appclientExecutableJarShortFileName) {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("<project name=\"");
@@ -727,7 +729,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t<copy todir=\"${dir.corelib}/ex\" verbose=\"true\" overwrite=\"true\">");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t<fileset dir=\"${dir.core.build}/lib/ex/\" />");
+		stringBuilder.append("\t\t\t<fileset dir=\"${dir.core.build}/lib/main/ex/\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t</copy>\t\t");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -753,7 +755,8 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"lines,vars,source\" encoding=\"UTF-8\" includeantruntime=\"false\" srcdir=\"${dir.src}\" destdir=\"${dir.build}\">");
+		stringBuilder.append(
+				"\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"lines,vars,source\" encoding=\"UTF-8\" includeantruntime=\"false\" srcdir=\"${dir.src}\" destdir=\"${dir.build}\">");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t<classpath>");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -815,9 +818,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t<fileset dir=\"${basedir}\">");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t<include name=\"corelib/ex/*.jar\"/>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t<include name=\"lib/ex/*.jar\"/>");
+		stringBuilder.append("\t\t\t<include name=\"dist/lib/*.jar\"/>");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t</fileset>");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -887,7 +888,8 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<target name=\"compile.main.only\" depends=\"init.var\">");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"lines,vars,source\" encoding=\"UTF-8\" includeantruntime=\"false\" srcdir=\"${dir.src}\" destdir=\"${dir.build}\">");
+		stringBuilder.append(
+				"\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"lines,vars,source\" encoding=\"UTF-8\" includeantruntime=\"false\" srcdir=\"${dir.src}\" destdir=\"${dir.build}\">");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t<classpath>");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -960,16 +962,15 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append("\t</target>");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("</project>");
-		
 		return stringBuilder.toString();
 	}
-	
+
 	/** client_build/web_build/build.xml */
 	public static String getWebClientAntBuildXMLFileContents(String mainProjectName) {
 		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("<project name=\"");
-		stringBuilder.append(mainProjectName);
-		stringBuilder.append("_webclient\" default=\"compile.webclass.only\" basedir=\".\">");
+		stringBuilder	.append("<project name=\"");
+		stringBuilder	.append(mainProjectName);
+		stringBuilder	.append("_webclient\" default=\"compile.webclass.only\" basedir=\".\">");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<!-- set global properties for this build -->");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -985,7 +986,8 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<property name=\"dir.core.build\" location=\"../../../../core_build\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t<property name=\"dir.webclass\" location=\"../../web_app_base/ROOT/WEB-INF/classes\" />");
+		stringBuilder
+				.append("\t<property name=\"dir.webclass\" location=\"../../web_app_base/ROOT/WEB-INF/classes\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<property name=\"dir.weblib\" location=\"../../web_app_base/ROOT/WEB-INF/lib\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -1093,7 +1095,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t<copy todir=\"${dir.corelib}/ex\" verbose=\"true\" overwrite=\"true\">");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t<fileset dir=\"${dir.core.build}/lib/ex/\" />");
+		stringBuilder.append("\t\t\t<fileset dir=\"${dir.core.build}/lib/main/ex/\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t</copy>\t\t");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -1109,7 +1111,8 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t\t");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"lines,vars,source\" encoding=\"UTF-8\" includeantruntime=\"false\" srcdir=\"${dir.src}\" destdir=\"${dir.build}/weblib\">");
+		stringBuilder.append(
+				"\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"lines,vars,source\" encoding=\"UTF-8\" includeantruntime=\"false\" srcdir=\"${dir.src}\" destdir=\"${dir.build}/weblib\">");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t<include name=\"kr/pe/sinnori/weblib/**\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -1163,9 +1166,11 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t\t\twebclient.core.jar is loaded by tomcat dynamic classloader.");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\t\tsinnori core must not be loaded by tomcat dynamic classloader because of singleton pattern.");
+		stringBuilder.append(
+				"\t\t\t\t\tsinnori core must not be loaded by tomcat dynamic classloader because of singleton pattern.");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\t\tso webclient.core.jar doesn't inlucde sinnori core and sinnori core's extern libiary.");
+		stringBuilder.append(
+				"\t\t\t\t\tso webclient.core.jar doesn't inlucde sinnori core and sinnori core's extern libiary.");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t\t\ttomcat referes to them using setenv.sh or setenv.bat.");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -1201,7 +1206,8 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<target name=\"compile.webclass\" depends=\"dist.weblib\">");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t <!-- webclass directory is a user define directory that has the web-application dynamic classes -->");
+		stringBuilder.append(
+				"\t <!-- webclass directory is a user define directory that has the web-application dynamic classes -->");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t<delete dir=\"${dir.webclass}\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -1209,7 +1215,8 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"lines,vars,source\" encoding=\"UTF-8\" ");
+		stringBuilder.append(
+				"\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"lines,vars,source\" encoding=\"UTF-8\" ");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\tincludeantruntime=\"false\" srcdir=\"${dir.src}\" destdir=\"${dir.webclass}\"");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -1251,7 +1258,8 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<target name=\"all\" depends=\"compile.webclass\">");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t<echo message=\"is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}, java.debug=${java.complile.option.debug}\" />");
+		stringBuilder.append(
+				"\t\t<echo message=\"is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}, java.debug=${java.complile.option.debug}\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t</target>");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -1269,7 +1277,8 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("<target name=\"compile.webclass.only\" depends=\"init.var\">");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"lines,vars,source\" encoding=\"UTF-8\" ");
+		stringBuilder.append(
+				"\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"lines,vars,source\" encoding=\"UTF-8\" ");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\tincludeantruntime=\"false\" srcdir=\"${dir.src}\" destdir=\"${dir.webclass}\"");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -1309,116 +1318,96 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("</project>");
 		return stringBuilder.toString();
+
 	}
 
-	
-	/** server_build/<main project name>.sh or client_build/app_build/<main project name>Client.sh */
-	public static String getDosShellContents(
-			String mainProjectName,
-			String sinnoriInstalledPathString,
-			
-			String jvmOptions, 
-			String logName, 
-			String workingPathString, 
-			String relativeExecutabeJarFileName) {
-		String commonPartOfShellContents = getCommonPartOfShellContents(
-				mainProjectName,
-				sinnoriInstalledPathString,
-				
-				jvmOptions, "^", 
-				logName, relativeExecutabeJarFileName);
-		
+	/**
+	 * server_build/<main project name>.sh or client_build/app_build/<main
+	 * project name>Client.sh
+	 */
+	public static String getDosShellContents(String mainProjectName, String sinnoriInstalledPathString,
+
+			String jvmOptions, String logName, String workingPathString, String relativeExecutabeJarFileName) {
+		String commonPartOfShellContents = getCommonPartOfShellContents(mainProjectName, sinnoriInstalledPathString,
+
+				jvmOptions, "^", logName, relativeExecutabeJarFileName);
+
 		StringBuilder shellContentsBuilder = new StringBuilder();
 		shellContentsBuilder.append("set OLDPWD=%CD%");
 		shellContentsBuilder.append(System.getProperty("line.separator"));
-		
+
 		shellContentsBuilder.append("cd /D ");
 		shellContentsBuilder.append(workingPathString);
 		shellContentsBuilder.append(System.getProperty("line.separator"));
-		
+
 		shellContentsBuilder.append(commonPartOfShellContents);
 		shellContentsBuilder.append(System.getProperty("line.separator"));
-		
+
 		shellContentsBuilder.append("cd /D %OLDPWD%");
 		return shellContentsBuilder.toString();
 	}
-	
-	/** server_build/<main project name>Server.bat or client_build/app_build/<main project name>Client.bat */
-	public static String getUnixShellContents(
-			String mainProjectName,
-			String sinnoriInstalledPathString,
-			
-			String jvmOptions, String logName, 
-			String workingPathString, String relativeExecutabeJarFileName) {
-		
-		String commonPartOfShellContents = getCommonPartOfShellContents(
-				mainProjectName,
-				sinnoriInstalledPathString,				
-				jvmOptions, 
-				"\\", logName, relativeExecutabeJarFileName);
-		
+
+	/**
+	 * server_build/<main project name>Server.bat or
+	 * client_build/app_build/<main project name>Client.bat
+	 */
+	public static String getUnixShellContents(String mainProjectName, String sinnoriInstalledPathString,
+
+			String jvmOptions, String logName, String workingPathString, String relativeExecutabeJarFileName) {
+
+		String commonPartOfShellContents = getCommonPartOfShellContents(mainProjectName, sinnoriInstalledPathString,
+				jvmOptions, "\\", logName, relativeExecutabeJarFileName);
+
 		StringBuilder shellContentsBuilder = new StringBuilder();
 		shellContentsBuilder.append("cd ");
 		shellContentsBuilder.append(workingPathString);
 		shellContentsBuilder.append(System.getProperty("line.separator"));
-		
+
 		shellContentsBuilder.append(commonPartOfShellContents);
 		shellContentsBuilder.append(System.getProperty("line.separator"));
-		
+
 		shellContentsBuilder.append("cd -");
 		return shellContentsBuilder.toString();
 	}
-	
+
 	// FIXME!
-	private static String getCommonPartOfShellContents(
-			String mainProjectName,
-			String sinnoriInstalledPathString,
-			String jvmOptions, 
-			String shellLineSeparator, 
-			String logName, String relativeExecutabeJarFileName) {		
+	private static String getCommonPartOfShellContents(String mainProjectName, String sinnoriInstalledPathString,
+			String jvmOptions, String shellLineSeparator, String logName, String relativeExecutabeJarFileName) {
 		StringBuilder commandPartBuilder = new StringBuilder();
-		
+
 		commandPartBuilder.append("java ");
 		commandPartBuilder.append(jvmOptions);
-		commandPartBuilder.append(" ").append(shellLineSeparator).append(System.getProperty("line.separator"));		
-		
-		commandPartBuilder.append("-D");		
+		commandPartBuilder.append(" ").append(shellLineSeparator).append(System.getProperty("line.separator"));
+
+		commandPartBuilder.append("-D");
 		commandPartBuilder.append(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_LOGBACK_CONFIG_FILE);
-		commandPartBuilder.append("=")
-		.append(BuildSystemPathSupporter
-				.getLogbackConfigFilePathString(mainProjectName, 
-						sinnoriInstalledPathString));
-		
-		commandPartBuilder.append(" ")
-		.append(shellLineSeparator)
-		.append(System.getProperty("line.separator"));
-		
+		commandPartBuilder.append("=").append(
+				BuildSystemPathSupporter.getLogbackConfigFilePathString(mainProjectName, sinnoriInstalledPathString));
+
+		commandPartBuilder.append(" ").append(shellLineSeparator).append(System.getProperty("line.separator"));
+
 		commandPartBuilder.append("-D");
 		commandPartBuilder.append(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_LOG_PATH);
-		commandPartBuilder.append("=")
-		.append(BuildSystemPathSupporter.getLogPathString(mainProjectName, 
-						sinnoriInstalledPathString, logName));
-		
+		commandPartBuilder.append("=").append(
+				BuildSystemPathSupporter.getLogPathString(mainProjectName, sinnoriInstalledPathString, logName));
+
 		commandPartBuilder.append(" ").append(shellLineSeparator).append(System.getProperty("line.separator"));
-		
+
 		commandPartBuilder.append("-D");
 		commandPartBuilder.append(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH);
-		commandPartBuilder.append("=")
-		.append(sinnoriInstalledPathString);
-		
-		
+		commandPartBuilder.append("=").append(sinnoriInstalledPathString);
+
 		commandPartBuilder.append(" ").append(shellLineSeparator).append(System.getProperty("line.separator"));
-		
+
 		commandPartBuilder.append("-D");
 		commandPartBuilder.append(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME);
-		commandPartBuilder.append("=")
-		.append(mainProjectName);
+		commandPartBuilder.append("=").append(mainProjectName);
 		commandPartBuilder.append(" ").append(shellLineSeparator).append(System.getProperty("line.separator"));
-		
-		// -jar /home/madang01/gitsinnori/sinnori/project/sample_test/server_build/dist/SinnoriServerMain.jar
-		commandPartBuilder.append("-jar ")
-		.append(relativeExecutabeJarFileName);
-		
+
+		// -jar
+		// /home/madang01/gitsinnori/sinnori/project/sample_test/server_build/dist/SinnoriServerMain.jar
+		commandPartBuilder.append("-jar ").append(relativeExecutabeJarFileName);
+
 		return commandPartBuilder.toString();
 	}
 }
