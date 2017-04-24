@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.common.config.buildsystem.BuildSystemSupporter;
+import kr.pe.sinnori.common.buildsystem.BuildSystemSupporter;
 import kr.pe.sinnori.common.exception.BuildSystemException;
 
 public class BuildSystemSupporterTest {

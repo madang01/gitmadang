@@ -29,7 +29,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.common.config.buildsystem.BuildSystemPathSupporter;
+import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.config.vo.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
@@ -135,9 +135,8 @@ public class ServerProject extends AbstractProject implements
 		String sinnoriInstalledPathString = System
 				.getProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH);
 		
-		String serverAPPINFPathString = BuildSystemPathSupporter.getServerAPPINFPathString(
-				projectPartItems.getProjectName(), 
-				sinnoriInstalledPathString);
+		String serverAPPINFPathString = BuildSystemPathSupporter
+				.getServerAPPINFPathString(sinnoriInstalledPathString, projectPartItems.getProjectName());
 
 		this.serverAPPINFPath = new File(serverAPPINFPathString);
 		

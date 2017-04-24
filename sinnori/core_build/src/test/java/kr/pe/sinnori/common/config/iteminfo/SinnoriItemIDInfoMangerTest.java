@@ -28,7 +28,7 @@ public class SinnoriItemIDInfoMangerTest {
 		String mainProjectName = "sample_test";
 		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
 		SequencedProperties newSinnoriProperties = SinnoriItemIDInfoManger.getInstance()
-				.getNewSinnoriConfigSequencedProperties(mainProjectName, sinnoriInstalledPathString);
+				.getNewSinnoriConfigSequencedProperties(sinnoriInstalledPathString, mainProjectName);
 		log.info(newSinnoriProperties.toString());
 		
 		/*try {

@@ -9,7 +9,7 @@ import java.awt.Container;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 
-import kr.pe.sinnori.common.config.buildsystem.MainProjectBuildSystemState;
+import kr.pe.sinnori.common.buildsystem.MainProjectBuildSystemState;
 import kr.pe.sinnori.gui.helper.iobuilder.screen.EachIOFileTypeBuilder;
 import kr.pe.sinnori.gui.helper.iobuilder.screen.IOFIleSetBuilderPanel;
 import kr.pe.sinnori.gui.helper.projectmanager.screen.AllMainProjectManagerPanel;

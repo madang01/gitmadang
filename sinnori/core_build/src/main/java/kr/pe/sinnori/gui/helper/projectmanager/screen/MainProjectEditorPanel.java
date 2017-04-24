@@ -41,9 +41,9 @@ import org.slf4j.LoggerFactory;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
-import kr.pe.sinnori.common.config.buildsystem.BuildSystemPathSupporter;
-import kr.pe.sinnori.common.config.buildsystem.MainProjectBuildSystemState;
-import kr.pe.sinnori.common.config.buildsystem.ProjectBuilder;
+import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
+import kr.pe.sinnori.common.buildsystem.BuildSystemSupporter;
+import kr.pe.sinnori.common.buildsystem.MainProjectBuildSystemState;
 import kr.pe.sinnori.common.config.fileorpathstringgetter.AbstractFileOrPathStringGetter;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.config.itemidinfo.SinnoriItemIDInfoManger;
@@ -645,6 +645,7 @@ public class MainProjectEditorPanel extends JPanel {
 			return;
 		}
 	
+		boolean isServer = serverCheckBox.isSelected();
 		boolean isAppClient = appClientCheckBox.isSelected();
 		boolean isWebClient = webClientCheckBox.isSelected();
 		
@@ -672,17 +673,16 @@ public class MainProjectEditorPanel extends JPanel {
 		if (null == modifiedSinnoriConfigSequencedProperties)
 			return;
 		
-		ProjectBuilder projectBuilder = null;
 		try {
-			projectBuilder = new ProjectBuilder(
-					sinnoriInstalledPathString, mainProjectName);
-			
-			projectBuilder.changeProjectState(isAppClient, isWebClient, servletSystemLibraryPathString, modifiedSinnoriConfigSequencedProperties);
+			BuildSystemSupporter.changeProjectState(
+					sinnoriInstalledPathString, mainProjectName, 
+					isServer, isAppClient, 
+					isWebClient, servletSystemLibraryPathString, modifiedSinnoriConfigSequencedProperties);
 		} catch (BuildSystemException e1) {
 			log.warn(e1.getMessage(), e1);
 			showMessageDialog(e1.getMessage());
 			return;
-		}	
+		}
 
 		JOptionPane.showMessageDialog(mainFrame, "save successfully");
 	}
@@ -1276,7 +1276,6 @@ public class MainProjectEditorPanel extends JPanel {
 				//---- serverCheckBox ----
 				serverCheckBox.setText("server");
 				serverCheckBox.setSelected(true);
-				serverCheckBox.setEnabled(false);
 				projectTypeChoicePanel.add(serverCheckBox);
 
 				//---- appClientCheckBox ----

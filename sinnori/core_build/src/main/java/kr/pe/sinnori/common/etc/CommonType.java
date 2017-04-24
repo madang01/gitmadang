@@ -41,10 +41,10 @@ public class CommonType {
 	};
 	
 	/**
-	 * 섹션키에서 대칭키 인코딩 방법 NONE : 인코딩 없음 BASE64 : 대칭키는 Base64 인코딩으로 되어있음. 참고) 공개키
-	 * 암호화 라이브러리에서 공개키로 암호화 할때 이진 데이터를 못받고 문자열만 받을 경우 부득이 Base64 인코딩해야함.
+	 * 섹션키에서 대칭키 인코딩 방법 NONE : 인코딩 없음 BASE64 : 대칭키는 Base64 인코딩으로 되어있음. 
+	 * 참고) WEB 공개키 암호화 라이브러리에서 공개키로 암호화 할때 이진 데이터를 못받고 문자열만 받을 경우 부득이 Base64 인코딩해야함.
 	 */
-	public enum SYMMETRIC_KEY_ENCODING {
+	public enum SYMMETRIC_KEY_ENCODING_TYPE {
 		NONE, BASE64
 	};
 
@@ -172,5 +172,9 @@ public class CommonType {
 	
 	public enum READ_WRITE_MODE {
 		ONLY_READ, ONLY_WRITE, READ_WRITE
+	}
+	
+	public enum LOG_TYPE {
+		TOMCAT, APACHE, SERVER, APPCLIENT
 	}
 }

@@ -15,7 +15,7 @@ NativeValueConverterTestIF {
 	Logger log = LoggerFactory.getLogger(SetTypeConverterReturningSessionkeyPrivateKeyEncodingTest.class);
 	
 	private SetTypeConverterReturningSessionkeyPrivateKeyEncoding nativeValueConverter = null;
-	private CommonType.SYMMETRIC_KEY_ENCODING returnedValue = null;
+	private CommonType.SYMMETRIC_KEY_ENCODING_TYPE returnedValue = null;
 
 	@Override
 	@Before
@@ -31,9 +31,9 @@ NativeValueConverterTestIF {
 	@Override
 	@Test
 	public void testToNativeValue_ExpectedValueComparison() {
-		CommonType.SYMMETRIC_KEY_ENCODING expectedValue = null;
+		CommonType.SYMMETRIC_KEY_ENCODING_TYPE expectedValue = null;
 		
-		CommonType.SYMMETRIC_KEY_ENCODING[] messageProtocoles = CommonType.SYMMETRIC_KEY_ENCODING.values();
+		CommonType.SYMMETRIC_KEY_ENCODING_TYPE[] messageProtocoles = CommonType.SYMMETRIC_KEY_ENCODING_TYPE.values();
 		for (int i=0; i < messageProtocoles.length; i++) {
 			expectedValue = messageProtocoles[i];
 			try {

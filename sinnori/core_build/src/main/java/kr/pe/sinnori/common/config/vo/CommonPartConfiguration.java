@@ -29,7 +29,7 @@ public class CommonPartConfiguration {
 	private String symmetricKeyAlgorithmOfSessionKey = null;	
 	private Integer symmetricKeySizeOfSessionKey=null;
 	private Integer symmetricIVSizeOfSessionKey=null;
-	private CommonType.SYMMETRIC_KEY_ENCODING symmetricKeyEncodingOfSessionKey = null;	
+	private CommonType.SYMMETRIC_KEY_ENCODING_TYPE symmetricKeyEncodingOfSessionKey = null;	
 	
 	private Integer localSourceFileResourceCnt=null;
 	private Integer localTargetFileResourceCnt=null;
@@ -175,17 +175,17 @@ public class CommonPartConfiguration {
 			
 			this.symmetricIVSizeOfSessionKey = (Integer) nativeValue;
 		} else if (itemID.equals(ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_PRIVATE_KEY_ENCODING_ITEMID)) {
-			if (null != nativeValue && !(nativeValue instanceof CommonType.SYMMETRIC_KEY_ENCODING)) {
+			if (null != nativeValue && !(nativeValue instanceof CommonType.SYMMETRIC_KEY_ENCODING_TYPE)) {
 				String errorMessage = new StringBuilder("the generic type[")
 				.append(nativeValue.getClass().getName())
 				.append("] of the parameter itemIDInfo[")
 				.append(itemID).append("] is differnet from the mapped variable's type[")
-				.append(CommonType.SYMMETRIC_KEY_ENCODING.class.getName())
+				.append(CommonType.SYMMETRIC_KEY_ENCODING_TYPE.class.getName())
 				.append("]").toString();
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 			
-			this.symmetricKeyEncodingOfSessionKey = (CommonType.SYMMETRIC_KEY_ENCODING) nativeValue;
+			this.symmetricKeyEncodingOfSessionKey = (CommonType.SYMMETRIC_KEY_ENCODING_TYPE) nativeValue;
 		} else if (itemID.equals(ItemIDDefiner.CommonPartItemIDDefiner.COMMON_UPDOWNFILE_LOCAL_SOURCE_FILE_RESOURCE_CNT_ITEMID)) {
 			if (null != nativeValue && !(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -291,7 +291,7 @@ public class CommonPartConfiguration {
 		return symmetricIVSizeOfSessionKey;
 	}
 
-	public CommonType.SYMMETRIC_KEY_ENCODING getSymmetricKeyEncodingOfSessionKey() {
+	public CommonType.SYMMETRIC_KEY_ENCODING_TYPE getSymmetricKeyEncodingOfSessionKey() {
 		return symmetricKeyEncodingOfSessionKey;
 	}
 

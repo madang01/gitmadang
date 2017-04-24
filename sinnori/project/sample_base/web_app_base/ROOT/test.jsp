@@ -2,3 +2,4 @@
 %><%@ page import="org.apache.commons.lang3.StringEscapeUtils" %><%
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
 %><%="\u0032"%>
+<%=SingletonTest.getInstance()%>

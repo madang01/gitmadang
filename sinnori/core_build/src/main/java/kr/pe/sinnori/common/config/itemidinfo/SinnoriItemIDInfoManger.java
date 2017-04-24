@@ -20,7 +20,6 @@ import kr.pe.sinnori.common.config.AbstractDependencyValidator;
 import kr.pe.sinnori.common.config.dependoninactivechecker.RSAKeypairPathDependOnSourceInActiveChecker;
 import kr.pe.sinnori.common.config.dependonvalidchecker.MinAndMaxDependencyValidator;
 import kr.pe.sinnori.common.config.fileorpathstringgetter.AbstractFileOrPathStringGetter;
-import kr.pe.sinnori.common.config.fileorpathstringgetter.CommonMessageInfoXMLPathStringGetter;
 import kr.pe.sinnori.common.config.fileorpathstringgetter.DBCPConfigFilePathStringGetter;
 import kr.pe.sinnori.common.config.fileorpathstringgetter.SessionkeyRSAKeypairPathStringGetter;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo.ConfigurationPart;
@@ -216,7 +215,7 @@ public class SinnoriItemIDInfoManger {
 					ItemIDInfo.ViewType.PATH,
 					itemID,
 					"세션키에 사용되는 공개키 키쌍 파일 경로, 세션키에 사용되는 공개키 키쌍 생성 방법이 File인 경우에 유효하다",
-					"[sinnnori installed path]/project/[main project name]/rsa_keypair",
+					"[sinnnori installed path]/project/[main project name]/resouces/rsa_keypair",
 					isDefaultValueCheck,
 					new GeneralConverterReturningPath());
 			addCommonPartItemIDInfo(itemIDInfo);
@@ -263,7 +262,7 @@ public class SinnoriItemIDInfoManger {
 
 			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_PRIVATE_KEY_ENCODING_ITEMID;
 			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<CommonType.SYMMETRIC_KEY_ENCODING>(
+			itemIDInfo = new ItemIDInfo<CommonType.SYMMETRIC_KEY_ENCODING_TYPE>(
 					ItemIDInfo.ConfigurationPart.COMMON,
 					ItemIDInfo.ViewType.SINGLE_SET,
 					itemID,
@@ -384,17 +383,6 @@ public class SinnoriItemIDInfoManger {
 
 		try {
 			/** 프로젝트 공통 설정 부분 */
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_MESSAGE_INFO_XMLPATH_ITEMID;
-			isDefaultValueCheck = false;
-			itemIDInfo = new ItemIDInfo<File>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.PATH,
-					itemID,
-					"메시지 정보 파일 경로",
-					"[sinnori installed path]/project/[main project name]/impl/message/info",
-					isDefaultValueCheck, new GeneralConverterReturningPath());
-			addProjectPartItemIDInfo(itemIDInfo);
-
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_HOST_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<String>(
@@ -1291,11 +1279,7 @@ public class SinnoriItemIDInfoManger {
 	private void addFileOrPathStringGetter() throws IllegalArgumentException,
 	SinnoriConfigurationException {
 		String itemID = null;
-		itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_MESSAGE_INFO_XMLPATH_ITEMID;
-		fileOrPathStringGetterHash.put(itemID, new CommonMessageInfoXMLPathStringGetter(itemID));
 		
-		/*itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_CLASSLOADER_APPINF_PATH_ITEMID;
-		fileOrPathStringGetterHash.put(itemID, new ServerClassloaderAPPINFPathStringGetter(itemID));*/
 	
 		itemID = ItemIDDefiner.DBCPPartItemIDDefiner.DBCP_CONFIGE_FILE_ITEMID;
 		fileOrPathStringGetterHash.put(itemID, new DBCPConfigFilePathStringGetter(itemID));
@@ -1317,8 +1301,7 @@ public class SinnoriItemIDInfoManger {
 	 * @return 구축한 항목 식별자 정보를 바탕으로 주어진 메인 프로젝트 이름과 설치 경로에 맞도록 신규 생성된 신놀이 설정 시퀀스
 	 *         프로퍼티
 	 */
-	public SequencedProperties getNewSinnoriConfigSequencedProperties(
-			String mainProjectName, String sinnoriInstalledPathString) {
+	public SequencedProperties getNewSinnoriConfigSequencedProperties(String sinnoriInstalledPathString, String mainProjectName) {
 		
 		SequencedProperties sinnoriConfigSequencedProperties = new SequencedProperties();		
 

@@ -41,7 +41,7 @@ import org.xml.sax.SAXException;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
-import kr.pe.sinnori.common.config.buildsystem.BuildSystemPathSupporter;
+import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.etc.CommonType.READ_WRITE_MODE;
@@ -95,8 +95,8 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 
 		sinnoriInstalledPathTextField.setText(sinnoriInstalledPathString);
 		mainProjectNameTextField.setText(mainProjectName);
-		messageInfoPathTextField.setText(
-				BuildSystemPathSupporter.getMessageInfoPathString(mainProjectName, sinnoriInstalledPathString));
+		messageInfoPathTextField.setText(BuildSystemPathSupporter
+				.getMessageInfoPathString(sinnoriInstalledPathString, mainProjectName));
 
 		otherMainProjectComboBox.setEnabled(false);
 
@@ -397,7 +397,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 		return true;
 	}
 
-	private ArrayList<File> getListOfWritablePathSavingIOFileSet(String selectedMainProjectName, String sinnoriInstalledPathString) {
+	private ArrayList<File> getListOfWritablePathSavingIOFileSet(String sinnoriInstalledPathString, String selectedMainProjectName) {
 		ArrayList<File> listOfPathSavingIOFileSet = new ArrayList<File>();
 
 		/*
@@ -416,8 +416,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 		 * selectedMainProjectName = mainProjectName; }
 		 */
 
-		String serverIOSourcePathString = BuildSystemPathSupporter.getServerIOSourcePath(selectedMainProjectName,
-				sinnoriInstalledPathString);
+		String serverIOSourcePathString = BuildSystemPathSupporter.getServerIOSourcePath(sinnoriInstalledPathString, selectedMainProjectName);
 		File serverIOSourcePath = null;
 		try {
 			serverIOSourcePath = CommonStaticUtil.getValidPath(serverIOSourcePathString, READ_WRITE_MODE.ONLY_WRITE);
@@ -426,8 +425,8 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 			log.info("the project[{}] has no the valid server IO source path::{}", selectedMainProjectName, e.getMessage());
 		}
 
-		String appClientIOSourcePathString = BuildSystemPathSupporter.getAppClientIOSourcePath(selectedMainProjectName,
-				sinnoriInstalledPathString);
+		String appClientIOSourcePathString = BuildSystemPathSupporter
+				.getAppClientIOSourcePath(sinnoriInstalledPathString, selectedMainProjectName);
 		File appClientIOSourcePath = null;
 		try {
 			appClientIOSourcePath = CommonStaticUtil.getValidPath(appClientIOSourcePathString,
@@ -439,7 +438,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 		}
 
 		String webClientIOSourcePathString = BuildSystemPathSupporter
-				.getWebClientBuildPathString(selectedMainProjectName, sinnoriInstalledPathString);
+				.getWebClinetIOSourcePath(sinnoriInstalledPathString, selectedMainProjectName);
 		File webClientIOSourcePath = null;
 		try {
 			webClientIOSourcePath = CommonStaticUtil.getValidPath(webClientIOSourcePathString,
@@ -564,8 +563,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 			return false;
 		}
 
-		String messageInfoSourcePathString = BuildSystemPathSupporter.getMessageInfoPathString(mainProjectName,
-				sinnoriInstalledPathString);
+		String messageInfoSourcePathString = BuildSystemPathSupporter.getMessageInfoPathString(sinnoriInstalledPathString, mainProjectName);
 
 		File messageInfoSourcePath = new File(messageInfoSourcePathString);
 		if (messageInfoSourcePath.exists()) {
@@ -599,8 +597,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 			}
 
 			String targetProjectName = selectedMainProjectName = (String) otherMainProjectComboBox.getSelectedItem();
-			String messageInfoTargetPathString = BuildSystemPathSupporter.getMessageInfoPathString(targetProjectName,
-					sinnoriInstalledPathString);
+			String messageInfoTargetPathString = BuildSystemPathSupporter.getMessageInfoPathString(sinnoriInstalledPathString, targetProjectName);
 
 			File targetMessageInfoXMLPath = new File(messageInfoTargetPathString);
 			if (targetMessageInfoXMLPath.exists()) {
@@ -652,7 +649,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 			}
 		}
 
-		ArrayList<File> listOfTargetPathSavingIOFileSet = getListOfWritablePathSavingIOFileSet(selectedMainProjectName, sinnoriInstalledPathString);
+		ArrayList<File> listOfTargetPathSavingIOFileSet = getListOfWritablePathSavingIOFileSet(sinnoriInstalledPathString, selectedMainProjectName);
 		if (0 == listOfTargetPathSavingIOFileSet.size()) {
 			String errorMessage = String.format("the selected project[%s] hasn't any build paths",
 					selectedMainProjectName);
@@ -968,8 +965,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 			return;
 		}
 
-		String messageInfoSourcePathString = BuildSystemPathSupporter.getMessageInfoPathString(mainProjectName,
-				sinnoriInstalledPathString);
+		String messageInfoSourcePathString = BuildSystemPathSupporter.getMessageInfoPathString(sinnoriInstalledPathString, mainProjectName);
 		
 		@SuppressWarnings("unused")
 		File messageInfoSourcePath =null;
@@ -1001,8 +997,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 			}
 
 			String targetProjectName = (String) otherMainProjectComboBox.getSelectedItem();
-			String messageInfoTargetPathString = BuildSystemPathSupporter.getMessageInfoPathString(targetProjectName,
-					sinnoriInstalledPathString);
+			String messageInfoTargetPathString = BuildSystemPathSupporter.getMessageInfoPathString(sinnoriInstalledPathString, targetProjectName);
 
 			File targetMessageInfoXMLPath = new File(messageInfoTargetPathString);
 			if (targetMessageInfoXMLPath.exists()) {
@@ -1020,7 +1015,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 				return;
 			}
 
-			listOfTargetPathSavingIOFileSet = getListOfWritablePathSavingIOFileSet(targetProjectName, sinnoriInstalledPathString);
+			listOfTargetPathSavingIOFileSet = getListOfWritablePathSavingIOFileSet(sinnoriInstalledPathString, targetProjectName);
 			if (0 == listOfTargetPathSavingIOFileSet.size()) {
 				String errorMessage = String.format("the selected project[%s] hasn't any build paths",
 						targetProjectName);
@@ -1075,7 +1070,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 						sourceMessageInfo);
 			}
 		} else {
-			listOfTargetPathSavingIOFileSet = getListOfWritablePathSavingIOFileSet(mainProjectName, sinnoriInstalledPathString);
+			listOfTargetPathSavingIOFileSet = getListOfWritablePathSavingIOFileSet(sinnoriInstalledPathString, mainProjectName);
 			if (0 == listOfTargetPathSavingIOFileSet.size()) {
 				String errorMessage = String.format("the selected project[%s] hasn't any build paths", mainProjectName);
 				showMessageDialog(errorMessage);

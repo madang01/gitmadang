@@ -4,14 +4,14 @@ import kr.pe.sinnori.common.config.AbstractSetTypeNativeValueConverter;
 import kr.pe.sinnori.common.etc.CommonType;
 
 public class SetTypeConverterReturningSessionkeyPrivateKeyEncoding 
-extends AbstractSetTypeNativeValueConverter<CommonType.SYMMETRIC_KEY_ENCODING> {
+extends AbstractSetTypeNativeValueConverter<CommonType.SYMMETRIC_KEY_ENCODING_TYPE> {
 	public SetTypeConverterReturningSessionkeyPrivateKeyEncoding() {
-		super(CommonType.SYMMETRIC_KEY_ENCODING.class);
+		super(CommonType.SYMMETRIC_KEY_ENCODING_TYPE.class);
 	}
 
 	@Override
 	protected void initItemValueSet() {		
-		CommonType.SYMMETRIC_KEY_ENCODING[] nativeValues = CommonType.SYMMETRIC_KEY_ENCODING.values();
+		CommonType.SYMMETRIC_KEY_ENCODING_TYPE[] nativeValues = CommonType.SYMMETRIC_KEY_ENCODING_TYPE.values();
 		for (int i=0; i < nativeValues.length; i++) {
 			itemValueSet.add(nativeValues[i].toString());
 		}
@@ -23,7 +23,7 @@ extends AbstractSetTypeNativeValueConverter<CommonType.SYMMETRIC_KEY_ENCODING> {
 	}
 		
 	@Override
-	public CommonType.SYMMETRIC_KEY_ENCODING valueOf(String itemValue) throws IllegalArgumentException {
+	public CommonType.SYMMETRIC_KEY_ENCODING_TYPE valueOf(String itemValue) throws IllegalArgumentException {
 		if (null == itemValue) {
 			String errorMessage = "parameter itemValue is null";
 			throw new IllegalArgumentException(errorMessage);
@@ -34,9 +34,9 @@ extends AbstractSetTypeNativeValueConverter<CommonType.SYMMETRIC_KEY_ENCODING> {
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		CommonType.SYMMETRIC_KEY_ENCODING returnValue = null;
+		CommonType.SYMMETRIC_KEY_ENCODING_TYPE returnValue = null;
 		try {
-			returnValue = CommonType.SYMMETRIC_KEY_ENCODING.valueOf(itemValue);
+			returnValue = CommonType.SYMMETRIC_KEY_ENCODING_TYPE.valueOf(itemValue);
 		} catch(IllegalArgumentException e) {
 			String errorMessage = new StringBuilder("parameter itemValue[")
 			.append(itemValue)

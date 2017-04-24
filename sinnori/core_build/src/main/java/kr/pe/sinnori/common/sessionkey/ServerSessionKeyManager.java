@@ -69,7 +69,7 @@ public final class ServerSessionKeyManager {
 	/** Warning! the variable symmetricKeyAlgorithm must not create getXXX method because it is Sinnori configuration variable */
 	private String symmetricKeyAlgorithm = null;
 	/** Warning! the variable symmetricKeyEncoding must not create getXXX method because it is Sinnori configuration variable */
-	private CommonType.SYMMETRIC_KEY_ENCODING symmetricKeyEncoding = null;
+	private CommonType.SYMMETRIC_KEY_ENCODING_TYPE symmetricKeyEncoding = null;
 	/** Warning! the variable rsaKeySize must not create getXXX method because it is Sinnori configuration variable */
 	private int rsaKeySize;
 
@@ -312,17 +312,19 @@ public final class ServerSessionKeyManager {
 		symmetricKeyEncoding = commonPart.getSymmetricKeyEncodingOfSessionKey();
 		rsaKeySize = commonPart.getRsaKeySizeOfSessionKey();;
 		
-		// String rsaKeyPairSource = (String)conf.getResource("sessionkey.rsa_keypair_source.value");
+		
 		CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY rsaKeyPairSource = commonPart.getRsaKeypairSourceOfSessionKey();
 		if (rsaKeyPairSource.equals(CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY.File)) {
-			File resKeyPairPath = null;
+			File rsaKeyPairPath = null;
 			try {
-				resKeyPairPath = commonPart.getRsaKeyPairPathOfSessionKey();
+				rsaKeyPairPath = commonPart.getRsaKeyPairPathOfSessionKey();
+				makeRSAKeyUsingFile(rsaKeyPairPath);
 			} catch (SinnoriConfigurationException e) {
-				log.error("this exception expects that key pair source is API but File", e);
-				System.exit(1);
+				log.warn("fail to get RSAKeypairPath", e);
+				log.info("The rsa key pair path[{}] doesn't exist so the rsa key pair will be created using API");
+				makeRSAKeyUsingAPI();
 			}
-			makeRSAKeyUsingFile(resKeyPairPath);
+			
 		} else {
 			makeRSAKeyUsingAPI();
 		}
@@ -384,7 +386,7 @@ public final class ServerSessionKeyManager {
 	 * @throws SymmetricException 암호화 관련 에러가 있다면 발생
 	 */
 	public SymmetricKey getSymmetricKey(String symmetricKeyAlgorithm,
-			CommonType.SYMMETRIC_KEY_ENCODING symmetricKeyEncoding,
+			CommonType.SYMMETRIC_KEY_ENCODING_TYPE symmetricKeyEncoding,
 			String sessionKeyBase64, String ivBase64)
 			throws IllegalArgumentException, SymmetricException {
 

@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.common.config.buildsystem.BuildSystemPathSupporter;
+import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 
 public class BuildSystemPathSupporterTest {
 	private Logger log = LoggerFactory
@@ -51,7 +51,7 @@ public class BuildSystemPathSupporterTest {
 		}
 		
 		String returnedValue = BuildSystemPathSupporter
-				.getProjectPathString(mainProjectName, sinnoriInstalledPathString);
+				.getProjectPathString(sinnoriInstalledPathString, mainProjectName);
 		
 		org.junit.Assert.assertThat("the expected value comparison",
 				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
@@ -71,7 +71,7 @@ public class BuildSystemPathSupporterTest {
 		}
 		
 		String returnedValue = BuildSystemPathSupporter
-				.getSinnoriConfigPathString(mainProjectName, sinnoriInstalledPathString);
+				.getSinnoriConfigPathString(sinnoriInstalledPathString, mainProjectName);
 		
 		org.junit.Assert.assertThat("the expected value comparison",
 				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
@@ -91,7 +91,7 @@ public class BuildSystemPathSupporterTest {
 		}
 		
 		String returnedValue = BuildSystemPathSupporter
-				.getSinnoriConfigFilePathString(mainProjectName, sinnoriInstalledPathString);
+				.getSinnoriConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
 		
 		org.junit.Assert.assertThat("the expected value comparison",
 				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
@@ -111,7 +111,7 @@ public class BuildSystemPathSupporterTest {
 		}
 		
 		String returnedValue = BuildSystemPathSupporter
-				.getLogbackConfigFilePathString(mainProjectName, sinnoriInstalledPathString);
+				.getLogbackConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
 		
 		org.junit.Assert.assertThat("the expected value comparison",
 				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
@@ -132,7 +132,7 @@ public class BuildSystemPathSupporterTest {
 		
 		
 		String returnedValue = BuildSystemPathSupporter
-				.getMessageInfoPathString(mainProjectName, sinnoriInstalledPathString);
+				.getMessageInfoPathString(sinnoriInstalledPathString, mainProjectName);
 		
 		org.junit.Assert.assertThat("the expected value comparison",
 				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
@@ -149,11 +149,10 @@ public class BuildSystemPathSupporterTest {
 		}
 		if (!(new File(expectedValue)).exists()) {
 			fail("the file(=the variable expectedValue) doesn't exist");
-		}
-		
+		}	
 		
 		String returnedValue = BuildSystemPathSupporter
-				.getWebClientAntPropertiesFilePath(mainProjectName, sinnoriInstalledPathString);
+				.getWebClientAntPropertiesFilePath(sinnoriInstalledPathString, mainProjectName);
 		
 		org.junit.Assert.assertThat("the expected value comparison",
 				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
@@ -175,7 +174,7 @@ public class BuildSystemPathSupporterTest {
 		
 		
 		String returnedValue = BuildSystemPathSupporter
-				.getSessionKeyRSAKeypairPathString(mainProjectName, sinnoriInstalledPathString);
+				.getSessionKeyRSAKeypairPathString(sinnoriInstalledPathString, mainProjectName);
 		
 		org.junit.Assert.assertThat("the expected value comparison",
 				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
@@ -196,7 +195,7 @@ public class BuildSystemPathSupporterTest {
 		
 		
 		String returnedValue = BuildSystemPathSupporter
-				.getServerBuildPathString(mainProjectName, sinnoriInstalledPathString);
+				.getServerBuildPathString(sinnoriInstalledPathString, mainProjectName);
 		
 		org.junit.Assert.assertThat("the expected value comparison",
 				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
@@ -217,7 +216,7 @@ public class BuildSystemPathSupporterTest {
 		
 		
 		String returnedValue = BuildSystemPathSupporter
-				.getServerAntBuildXMLFilePathString(mainProjectName, sinnoriInstalledPathString);
+				.getServerAntBuildXMLFilePathString(sinnoriInstalledPathString, mainProjectName);
 		
 		org.junit.Assert.assertThat("the expected value comparison",
 				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
@@ -238,7 +237,7 @@ public class BuildSystemPathSupporterTest {
 		
 		
 		String returnedValue = BuildSystemPathSupporter
-				.getServerAPPINFPathString(mainProjectName, sinnoriInstalledPathString);
+				.getServerAPPINFPathString(sinnoriInstalledPathString, mainProjectName);
 		
 		org.junit.Assert.assertThat("the expected value comparison",
 				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
@@ -259,9 +258,7 @@ public class BuildSystemPathSupporterTest {
 		
 		
 		String returnedValue = BuildSystemPathSupporter
-				.getDBCPConfigFilePathString(mainProjectName, 
-						sinnoriInstalledPathString,
-						"sample_base_db");
+				.getDBCPConfigFilePathString(sinnoriInstalledPathString, mainProjectName, "sample_base_db");
 		
 		org.junit.Assert.assertThat("the expected value comparison",
 				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
@@ -282,8 +279,7 @@ public class BuildSystemPathSupporterTest {
 		
 		
 		String returnedValue = BuildSystemPathSupporter
-				.getClientBuildBasePathString(mainProjectName, 
-						sinnoriInstalledPathString);
+				.getClientBuildBasePathString(sinnoriInstalledPathString, mainProjectName);
 		
 		org.junit.Assert.assertThat("the expected value comparison",
 				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
@@ -304,8 +300,7 @@ public class BuildSystemPathSupporterTest {
 		
 		
 		String returnedValue = BuildSystemPathSupporter
-				.getAppClientBuildPathString(mainProjectName, 
-						sinnoriInstalledPathString);
+				.getAppClientBuildPathString(sinnoriInstalledPathString, mainProjectName);
 		
 		org.junit.Assert.assertThat("the expected value comparison",
 				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
@@ -326,8 +321,7 @@ public class BuildSystemPathSupporterTest {
 		
 		
 		String returnedValue = BuildSystemPathSupporter
-				.getAppClientAntBuildXMLFilePathString(mainProjectName, 
-						sinnoriInstalledPathString);
+				.getAppClientAntBuildXMLFilePathString(sinnoriInstalledPathString, mainProjectName);
 		
 		org.junit.Assert.assertThat("the expected value comparison",
 				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
@@ -351,8 +345,7 @@ public class BuildSystemPathSupporterTest {
 		
 		
 		String returnedValue = BuildSystemPathSupporter
-				.getWebClientBuildPathString(mainProjectName, 
-						sinnoriInstalledPathString);
+				.getWebClientBuildPathString(sinnoriInstalledPathString, mainProjectName);
 		
 		org.junit.Assert.assertThat("the expected value comparison",
 				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
@@ -373,8 +366,7 @@ public class BuildSystemPathSupporterTest {
 		
 		
 		String returnedValue = BuildSystemPathSupporter
-				.getWebClientAntBuildXMLFilePathString(mainProjectName, 
-						sinnoriInstalledPathString);
+				.getWebClientAntBuildXMLFilePathString(sinnoriInstalledPathString, mainProjectName);
 		
 		org.junit.Assert.assertThat("the expected value comparison",
 				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));

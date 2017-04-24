@@ -31,16 +31,16 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
+import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.vo.CommonPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.util.HexUtil;
-
-import org.apache.commons.codec.binary.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 클라이언트 관점의 세션키 관리자
@@ -61,7 +61,7 @@ public final class ClientSessionKeyManager {
 	/** Warning! the variable symmetricKeyAlgorithm must not create getXXX method because it is Sinnori configuration variable */
 	private String symmetricKeyAlgorithm = null;
 	/** Warning! the variable symmetricKeyEncoding must not create getXXX method because it is Sinnori configuration variable */
-	private CommonType.SYMMETRIC_KEY_ENCODING symmetricKeyEncoding = null;
+	private CommonType.SYMMETRIC_KEY_ENCODING_TYPE symmetricKeyEncodingType = null;
 	
 	/**
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 생성자<br/>
@@ -97,7 +97,7 @@ public final class ClientSessionKeyManager {
 		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
 		symmetricIVSize = commonPart.getSymmetricIVSizeOfSessionKey();		
 		symmetricKeyAlgorithm = commonPart.getSymmetricKeyAlgorithmOfSessionKey();
-		symmetricKeyEncoding = commonPart.getSymmetricKeyEncodingOfSessionKey();
+		symmetricKeyEncodingType = commonPart.getSymmetricKeyEncodingOfSessionKey();
 		int symmetricKeySize = commonPart.getSymmetricKeySizeOfSessionKey();
 		
 		KeyFactory rsaKeyFactory = null;
@@ -155,24 +155,26 @@ public final class ClientSessionKeyManager {
 
 		
 
-		byte[] rsaPrivateKeyBytes = null;
-		// switch (this.symmetricKeyEncoding) {
-		switch (symmetricKeyEncoding) {
+		byte[] symmetricKeyBytesWithEncodingTypeApplied = null;
+		switch (symmetricKeyEncodingType) {
 			case NONE: {
-				rsaPrivateKeyBytes = symmetricKeyBytes;
+				symmetricKeyBytesWithEncodingTypeApplied = symmetricKeyBytes;
 				break;
 			}
 			case BASE64: {
 				log.info("개인키를 Base64로 인코딩한 값으로 바꾼다.");
-				rsaPrivateKeyBytes = Base64.encodeBase64(symmetricKeyBytes);
+				symmetricKeyBytesWithEncodingTypeApplied = Base64.encodeBase64(symmetricKeyBytes);
+			}
+			default : {
+				throw new SymmetricException("unknown symmetirc key encoding type");
 			}
 		}
 
-		byte[] encryptedBytesUsingPublickKey = null;
+		// byte[] encryptedBytesUsingPublickKey = null;
 
 		try {
-			encryptedBytesUsingPublickKey = rsaEncModeCipher
-					.doFinal(rsaPrivateKeyBytes);
+			sessionKeyBytes = rsaEncModeCipher
+					.doFinal(symmetricKeyBytesWithEncodingTypeApplied);
 		} catch (IllegalBlockSizeException e) {
 			String errorMessage = String
 					.format("RSA Cipher IllegalBlockSizeException, errormessage=%s", e.getMessage());
@@ -185,29 +187,10 @@ public final class ClientSessionKeyManager {
 			throw new SymmetricException(errorMessage);
 		}
 
-		sessionKeyBytes = encryptedBytesUsingPublickKey;
+		// sessionKeyBytes = encryptedBytesUsingPublickKey;
 		
 		
 	}
-
-	
-
-	/*
-	 * public boolean isSessionKey() throws RuntimeException { if (null !=
-	 * errorMessage) throw new RuntimeException(errorMessage);
-	 * 
-	 * return (null != sessionKeyBytes); }
-	 * 
-	 * 
-	 * 
-	 * public String getSymmetricKeyAlgorithm() throws RuntimeException { if
-	 * (null != errorMessage) throw new RuntimeException(errorMessage); return
-	 * symmetricKeyAlgorithm; }
-	 * 
-	 * public PrivakeKeyEncoding getPrivateKeyEncoding() throws RuntimeException
-	 * { if (null != errorMessage) throw new RuntimeException(errorMessage);
-	 * return symmetricKeyEncoding; }
-	 */
 
 	/**
 	 * 세션키를 반환한다. 참고) 개인키는 싱글턴 패턴 생성자에서 환경 변수에서 지정하는 크기를 가지며 랜덤 값을 갖는다. 
@@ -260,8 +243,8 @@ public final class ClientSessionKeyManager {
 		builder.append(symmetricIVSize);
 		builder.append(", symmetricKeyAlgorithm=");
 		builder.append(symmetricKeyAlgorithm);
-		builder.append(", symmetricKeyEncoding=");
-		builder.append(symmetricKeyEncoding);
+		builder.append(", symmetricKeyEncodingType=");
+		builder.append(symmetricKeyEncodingType);
 		builder.append("]");
 		return builder.toString();
 	}

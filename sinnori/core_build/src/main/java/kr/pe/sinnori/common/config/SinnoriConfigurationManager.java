@@ -21,7 +21,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import kr.pe.sinnori.common.config.buildsystem.BuildSystemPathSupporter;
+import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
@@ -129,8 +129,7 @@ public final class SinnoriConfigurationManager {
 		}
 		
 		String sinnoriConfigFilePathString = BuildSystemPathSupporter
-				.getSinnoriConfigFilePathString(sinnoriRunningProjectName,
-						sinnoriInstalledPathString);
+				.getSinnoriConfigFilePathString(sinnoriInstalledPathString, sinnoriRunningProjectName);
 		
 		try {
 			sinnoriRunningProjectConfiguration = new SinnoriConfiguration(sinnoriInstalledPathString, sinnoriRunningProjectName);

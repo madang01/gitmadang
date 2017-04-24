@@ -1,6 +1,6 @@
 package kr.pe.sinnori.gui.helper;
 
-import kr.pe.sinnori.common.config.buildsystem.MainProjectBuildSystemState;
+import kr.pe.sinnori.common.buildsystem.MainProjectBuildSystemState;
 
 public interface ScreenManagerIF {
 	/**

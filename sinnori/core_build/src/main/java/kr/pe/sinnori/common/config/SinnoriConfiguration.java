@@ -13,7 +13,7 @@ import java.util.StringTokenizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.common.config.buildsystem.BuildSystemPathSupporter;
+import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.config.fileorpathstringgetter.AbstractFileOrPathStringGetter;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.config.itemidinfo.SinnoriItemIDInfoManger;
@@ -93,8 +93,7 @@ public class SinnoriConfiguration {
 		this.mainProjectName = mainProjectName;
 		this.sinnoriInstalledPathString = sinnoriInstalledPathString;
 		this.sinnoriConfigFilePathString = BuildSystemPathSupporter
-				.getSinnoriConfigFilePathString(mainProjectName,
-						sinnoriInstalledPathString);
+				.getSinnoriConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
 
 		this.allDBCPPartConfiguration = new AllDBCPPartConfiguration();
 		this.commonPartConfiguration = new CommonPartConfiguration();
@@ -159,8 +158,7 @@ public class SinnoriConfiguration {
 		this.sinnoriInstalledPathString = sinnoriInstalledPathString;
 		
 		this.sinnoriConfigFilePathString = BuildSystemPathSupporter
-				.getSinnoriConfigFilePathString(mainProjectName,
-						sinnoriInstalledPathString);
+				.getSinnoriConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
 
 		this.allDBCPPartConfiguration = new AllDBCPPartConfiguration();
 		this.commonPartConfiguration = new CommonPartConfiguration();

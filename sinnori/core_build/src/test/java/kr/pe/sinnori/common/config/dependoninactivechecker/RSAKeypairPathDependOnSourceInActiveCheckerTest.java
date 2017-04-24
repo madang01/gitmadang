@@ -6,8 +6,8 @@ import java.io.File;
 import java.nio.charset.Charset;
 import java.util.Properties;
 
+import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.config.AbstractDependOnInactiveChecker;
-import kr.pe.sinnori.common.config.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDDefiner;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningCharset;
@@ -67,9 +67,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 					ItemIDInfo.ViewType.PATH,
 					dependentSourceItemID,
 					"세션키에 사용되는 공개키 키쌍 파일 경로, 세션키에 사용되는 공개키 키쌍 생성 방법이 File인 경우에 유효하다",
-					BuildSystemPathSupporter.getSessionKeyRSAKeypairPathString(
-							projectName,
-							sinnoriInstalledPathString),
+					BuildSystemPathSupporter.getSessionKeyRSAKeypairPathString(sinnoriInstalledPathString, projectName),
 					isDefaultValueCheck,
 					new GeneralConverterReturningPath());
 		} catch (IllegalArgumentException e) {
@@ -117,22 +115,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 		
 		isDefaultValueCheck = false;
 		ItemIDInfo<File> dependentSourceItemIDInfo = null;
-		/*try {
-			dependentSourceItemIDInfo = new ItemIDInfo<File>(
-					ItemIDInfo.ConfigurationPart.COMMON,
-					ItemIDInfo.ViewType.PATH,
-					dependentSourceItemID,
-					"세션키에 사용되는 공개키 키쌍 파일 경로, 세션키에 사용되는 공개키 키쌍 생성 방법이 File인 경우에 유효하다",
-					BuildSystemPathSupporter.getSessionKeyRSAKeypairPathString(
-							projectName,
-							sinnoriInstalledPathString),
-					isDefaultValueCheck,
-					new GeneralConverterReturningPath());
-		} catch (IllegalArgumentException e) {
-			fail(e.getMessage());
-		} catch (ConfigErrorException e) {
-			fail(e.getMessage());
-		}*/
+		
 		
 		String[] inactiveStrings = {CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY.API.toString()};
 		
@@ -179,9 +162,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 					ItemIDInfo.ViewType.PATH,
 					dependentSourceItemID,
 					"세션키에 사용되는 공개키 키쌍 파일 경로, 세션키에 사용되는 공개키 키쌍 생성 방법이 File인 경우에 유효하다",
-					BuildSystemPathSupporter.getSessionKeyRSAKeypairPathString(
-							projectName,
-							sinnoriInstalledPathString),
+					BuildSystemPathSupporter.getSessionKeyRSAKeypairPathString(sinnoriInstalledPathString, projectName),
 					isDefaultValueCheck,
 					new GeneralConverterReturningPath());
 		} catch (IllegalArgumentException e) {
@@ -235,9 +216,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 					ItemIDInfo.ViewType.PATH,
 					dependentSourceItemID,
 					"세션키에 사용되는 공개키 키쌍 파일 경로, 세션키에 사용되는 공개키 키쌍 생성 방법이 File인 경우에 유효하다",
-					BuildSystemPathSupporter.getSessionKeyRSAKeypairPathString(
-							projectName,
-							sinnoriInstalledPathString),
+					BuildSystemPathSupporter.getSessionKeyRSAKeypairPathString(sinnoriInstalledPathString, projectName),
 					isDefaultValueCheck,
 					new GeneralConverterReturningPath());
 		} catch (IllegalArgumentException e) {
@@ -292,9 +271,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 					ItemIDInfo.ViewType.PATH,
 					dependentSourceItemID,
 					"세션키에 사용되는 공개키 키쌍 파일 경로, 세션키에 사용되는 공개키 키쌍 생성 방법이 File인 경우에 유효하다",
-					BuildSystemPathSupporter.getSessionKeyRSAKeypairPathString(
-							projectName,
-							sinnoriInstalledPathString),
+					BuildSystemPathSupporter.getSessionKeyRSAKeypairPathString(sinnoriInstalledPathString, projectName),
 					isDefaultValueCheck,
 					new GeneralConverterReturningPath());
 		} catch (IllegalArgumentException e) {
@@ -349,9 +326,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 					ItemIDInfo.ViewType.PATH,
 					dependentSourceItemID,
 					"테스트를 위한 RSAKeypairPath가아닌 문자열 타입 항목 식별자 정보",
-					BuildSystemPathSupporter.getSessionKeyRSAKeypairPathString(
-							projectName,
-							sinnoriInstalledPathString),
+					BuildSystemPathSupporter.getSessionKeyRSAKeypairPathString(sinnoriInstalledPathString, projectName),
 					isDefaultValueCheck,
 					new GeneralConverterReturningEmptyOrNoTrimString());
 		} catch (IllegalArgumentException e) {
@@ -388,9 +363,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 			dependentTargetItemIDInfo = new ItemIDInfo<Charset>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
 					ItemIDInfo.ViewType.PATH, dependentTargetItemID, "서버 동적 클래스 APP-INF 경로",
-					BuildSystemPathSupporter.getServerAPPINFPathString(
-							projectName,
-							sinnoriInstalledPathString),
+					BuildSystemPathSupporter.getServerAPPINFPathString(sinnoriInstalledPathString, projectName),
 							isDefaultValueCheck,
 					new GeneralConverterReturningCharset());
 		} catch (IllegalArgumentException e) {
@@ -407,9 +380,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 					ItemIDInfo.ViewType.PATH,
 					dependentSourceItemID,
 					"세션키에 사용되는 공개키 키쌍 파일 경로, 세션키에 사용되는 공개키 키쌍 생성 방법이 File인 경우에 유효하다",
-					BuildSystemPathSupporter.getSessionKeyRSAKeypairPathString(
-							projectName,
-							sinnoriInstalledPathString),
+					BuildSystemPathSupporter.getSessionKeyRSAKeypairPathString(sinnoriInstalledPathString, projectName),
 					isDefaultValueCheck,
 					new GeneralConverterReturningPath());
 		} catch (IllegalArgumentException e) {
@@ -462,9 +433,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 					ItemIDInfo.ViewType.PATH,
 					dependentSourceItemID,
 					"세션키에 사용되는 공개키 키쌍 파일 경로, 세션키에 사용되는 공개키 키쌍 생성 방법이 File인 경우에 유효하다",
-					BuildSystemPathSupporter.getSessionKeyRSAKeypairPathString(
-							projectName,
-							sinnoriInstalledPathString),
+					BuildSystemPathSupporter.getSessionKeyRSAKeypairPathString(sinnoriInstalledPathString, projectName),
 					isDefaultValueCheck,
 					new GeneralConverterReturningPath());
 		} catch (IllegalArgumentException e) {
@@ -519,9 +488,7 @@ public class RSAKeypairPathDependOnSourceInActiveCheckerTest {
 					ItemIDInfo.ViewType.PATH,
 					dependentSourceItemID,
 					"세션키에 사용되는 공개키 키쌍 파일 경로, 세션키에 사용되는 공개키 키쌍 생성 방법이 File인 경우에 유효하다",
-					BuildSystemPathSupporter.getSessionKeyRSAKeypairPathString(
-							projectName,
-							sinnoriInstalledPathString),
+					BuildSystemPathSupporter.getSessionKeyRSAKeypairPathString(sinnoriInstalledPathString, projectName),
 					isDefaultValueCheck,
 					new GeneralConverterReturningPath());
 		} catch (IllegalArgumentException e) {

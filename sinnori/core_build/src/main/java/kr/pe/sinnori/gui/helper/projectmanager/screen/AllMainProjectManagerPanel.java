@@ -31,10 +31,9 @@ import org.slf4j.LoggerFactory;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
-import kr.pe.sinnori.common.config.buildsystem.BuildSystemPathSupporter;
-import kr.pe.sinnori.common.config.buildsystem.BuildSystemSupporter;
-import kr.pe.sinnori.common.config.buildsystem.MainProjectBuildSystemState;
-import kr.pe.sinnori.common.config.buildsystem.ProjectBuilder;
+import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
+import kr.pe.sinnori.common.buildsystem.BuildSystemSupporter;
+import kr.pe.sinnori.common.buildsystem.MainProjectBuildSystemState;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.BuildSystemException;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
@@ -151,8 +150,9 @@ public class AllMainProjectManagerPanel extends JPanel {
 			MainProjectBuildSystemState selectedMainProjectBuildSystemState = null;
 
 			try {
-				selectedMainProjectBuildSystemState = new MainProjectBuildSystemState(sinnoriInstalledPathString,
-						mainProjectName);
+				
+				selectedMainProjectBuildSystemState = BuildSystemSupporter.getMainProjectBuildSystemState(sinnoriInstalledPathString, mainProjectName);
+				
 			} catch (BuildSystemException e1) {
 				log.warn("fail to load main project build system state", e1);
 				JOptionPane.showMessageDialog(mainFrame, e1.getMessage());
@@ -177,9 +177,8 @@ public class AllMainProjectManagerPanel extends JPanel {
 
 				MainProjectBuildSystemState mainProjectBuildSystemState = null;
 
-				try {
-					mainProjectBuildSystemState = new MainProjectBuildSystemState(sinnoriInstalledPathString,
-							mainProjectName);
+				try {					
+					mainProjectBuildSystemState = BuildSystemSupporter.getMainProjectBuildSystemState(sinnoriInstalledPathString, mainProjectName);
 				} catch (BuildSystemException e2) {
 					log.warn("fail to load main project build system state", e2);
 					mainProjectNameListComboBox.setSelectedIndex(0);
@@ -188,6 +187,7 @@ public class AllMainProjectManagerPanel extends JPanel {
 				}
 
 				projectNameValueLabel.setText(mainProjectBuildSystemState.getMainProjectName());
+				serverCheckBox.setSelected(mainProjectBuildSystemState.isServer());
 				appClientCheckBox.setSelected(mainProjectBuildSystemState.isAppClient());
 				webClientCheckBox.setSelected(mainProjectBuildSystemState.isWebClient());
 						
@@ -337,16 +337,11 @@ public class AllMainProjectManagerPanel extends JPanel {
 		String sinnoriInstalledPathString = sinnoriInstalledPathInfoValueLabel.getText();
 		
 		for (int i = 1; i < itemCount; i++) {
-			String mainProjectName = mainProjectNameListComboBox.getItemAt(i);			
-			
-			
-			ProjectBuilder projectBuidler = null;
+			String mainProjectName = mainProjectNameListComboBox.getItemAt(i);
 			
 			try {
-				projectBuidler = new ProjectBuilder(
-						sinnoriInstalledPathString, mainProjectName);
 				
-				projectBuidler.applySinnoriInstalledPath();
+				BuildSystemSupporter.applySinnoriInstalledPath(sinnoriInstalledPathString, mainProjectName);
 			} catch (BuildSystemException e1) {
 				log.warn(e1.getMessage(), e1);
 				showMessageDialog(e1.getMessage());

@@ -1,6 +1,5 @@
 package kr.pe.sinnori.common.config.vo;
 
-import java.io.File;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 
@@ -22,10 +21,7 @@ public class ProjectPartConfiguration {
 	private CommonType.PROJECT_GUBUN projectGubun = null;
 	private String prefexOfItemID = null;
 	
-	/************* common 변수 시작 ******************/
-	/** 메시지 정보 파일들이 위치한 경로 */
-	private File messageInfoPath = null;
-	
+	/************* common 변수 시작 ******************/	
 	private String serverHost = null;
 	private Integer  serverPort = null;
 	private ByteOrder byteOrder = null;
@@ -162,19 +158,7 @@ public class ProjectPartConfiguration {
 		String itemID = itemKey.substring(prefexOfItemID.length());	
 		
 		
-		if (itemID.equals("common.message_info.xmlpath.value")) {
-			if (!(nativeValue instanceof File)) {
-				String errorMessage = new StringBuilder("the generic type[")
-				.append(nativeValue.getClass().getName())
-				.append("] of the parameter itemIDInfo[")
-				.append(itemID).append("] is differnet from the mapped variable's type[")
-				.append(File.class.getName())
-				.append("]").toString();
-				throw new SinnoriConfigurationException(errorMessage);
-			}
-			
-			this.messageInfoPath = (File) nativeValue;
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_HOST_ITEMID)) {
+		if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_HOST_ITEMID)) {
 			if (!(nativeValue instanceof String)) {
 				String errorMessage = new StringBuilder("the generic type[")
 				.append(nativeValue.getClass().getName())
@@ -738,9 +722,7 @@ public class ProjectPartConfiguration {
 		
 	}
 
-	public File getMessageInfoPath() {
-		return messageInfoPath;
-	}
+	
 
 	public String getServerHost() {
 		return serverHost;
@@ -944,9 +926,7 @@ public class ProjectPartConfiguration {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("ProjectPart [messageInfoPath=");
-		builder.append(messageInfoPath);
-		builder.append(", serverHost=");
+		builder.append("ProjectPart [serverHost=");
 		builder.append(serverHost);
 		builder.append(", serverPort=");
 		builder.append(serverPort);
