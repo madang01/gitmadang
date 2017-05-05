@@ -50,7 +50,7 @@ public final class BinaryPublicKeyDecoder extends AbstractMessageDecoder {
 		, "publicKeyBytes" // itemName
 		, 13 // itemTypeID
 		, "si variable length byte[]" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));

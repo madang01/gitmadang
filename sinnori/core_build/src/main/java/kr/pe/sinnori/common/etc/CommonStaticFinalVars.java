@@ -83,6 +83,8 @@ public abstract class CommonStaticFinalVars {
 	public static final int MAX_FILE_SIZE_IN_JAR_FILE = 1024 * 1024;
 	
 	
+	public static final String RSA_TRANSFORMATION = "RSA/ECB/PKCS1Padding";
+	
 	/*********** Sinnori Build System start **********/
 	/** configuration start */
 	public static final String DBCP_NAME_LIST_KEY_STRING = "dbcp.name_list.value";
@@ -119,4 +121,7 @@ public abstract class CommonStaticFinalVars {
 	
 	/** sinnori message information xml file's root tag */
 	public static final String MESSAGE_INFO_XML_FILE_ROOT_TAG = "sinnori_message";
+	
+	public static final String MYBATIS_CONFIG_XML_FILE_ROOT_TAG = "configuration";
+	
 }

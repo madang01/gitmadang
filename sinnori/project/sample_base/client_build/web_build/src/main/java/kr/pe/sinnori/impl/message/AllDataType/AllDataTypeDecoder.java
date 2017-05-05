@@ -50,7 +50,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "byteVar1" // itemName
 		, 0 // itemTypeID
 		, "byte" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -60,7 +60,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "byteVar2" // itemName
 		, 0 // itemTypeID
 		, "byte" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -70,7 +70,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "byteVar3" // itemName
 		, 0 // itemTypeID
 		, "byte" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -80,7 +80,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "unsignedByteVar1" // itemName
 		, 1 // itemTypeID
 		, "unsigned byte" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -90,7 +90,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "unsignedByteVar2" // itemName
 		, 1 // itemTypeID
 		, "unsigned byte" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -100,7 +100,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "unsignedByteVar3" // itemName
 		, 1 // itemTypeID
 		, "unsigned byte" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -110,7 +110,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "shortVar1" // itemName
 		, 2 // itemTypeID
 		, "short" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -120,7 +120,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "shortVar2" // itemName
 		, 2 // itemTypeID
 		, "short" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -130,7 +130,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "shortVar3" // itemName
 		, 2 // itemTypeID
 		, "short" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -140,7 +140,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "unsignedShortVar1" // itemName
 		, 3 // itemTypeID
 		, "unsigned short" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -150,7 +150,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "unsignedShortVar2" // itemName
 		, 3 // itemTypeID
 		, "unsigned short" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -160,7 +160,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "unsignedShortVar3" // itemName
 		, 3 // itemTypeID
 		, "unsigned short" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -170,7 +170,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "intVar1" // itemName
 		, 4 // itemTypeID
 		, "integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -180,7 +180,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "intVar2" // itemName
 		, 4 // itemTypeID
 		, "integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -190,7 +190,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "intVar3" // itemName
 		, 4 // itemTypeID
 		, "integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -200,7 +200,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "unsignedIntVar1" // itemName
 		, 5 // itemTypeID
 		, "unsigned integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -210,7 +210,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "unsignedIntVar2" // itemName
 		, 5 // itemTypeID
 		, "unsigned integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -220,7 +220,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "unsignedIntVar3" // itemName
 		, 5 // itemTypeID
 		, "unsigned integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -230,7 +230,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "longVar1" // itemName
 		, 6 // itemTypeID
 		, "long" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -240,7 +240,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "longVar2" // itemName
 		, 6 // itemTypeID
 		, "long" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -250,7 +250,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "longVar3" // itemName
 		, 6 // itemTypeID
 		, "long" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -260,7 +260,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "strVar1" // itemName
 		, 7 // itemTypeID
 		, "ub pascal string" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -270,7 +270,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "strVar2" // itemName
 		, 8 // itemTypeID
 		, "us pascal string" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -280,7 +280,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "strVar3" // itemName
 		, 9 // itemTypeID
 		, "si pascal string" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -290,7 +290,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "bytesVar1" // itemName
 		, 14 // itemTypeID
 		, "fixed length byte[]" // itemTypeName
-		, 7 // itemSizeForLang
+		, 7 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -300,7 +300,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "bytesVar2" // itemName
 		, 13 // itemTypeID
 		, "si variable length byte[]" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -310,7 +310,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "sqldate" // itemName
 		, 15 // itemTypeID
 		, "java sql date" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -320,7 +320,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "sqltimestamp" // itemName
 		, 16 // itemTypeID
 		, "java sql timestamp" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -330,7 +330,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 		, "cnt" // itemName
 		, 4 // itemTypeID
 		, "integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -349,7 +349,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 			, "memberID" // itemName
 			, 10 // itemTypeID
 			, "fixed length string" // itemTypeName
-			, 30 // itemSizeForLang
+			, 30 // itemSize
 			, null // itemCharset,
 			, charsetOfProject
 			, memberMiddleReadObj));
@@ -359,7 +359,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 			, "memberName" // itemName
 			, 10 // itemTypeID
 			, "fixed length string" // itemTypeName
-			, 30 // itemSizeForLang
+			, 30 // itemSize
 			, null // itemCharset,
 			, charsetOfProject
 			, memberMiddleReadObj));
@@ -369,7 +369,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 			, "cnt" // itemName
 			, 4 // itemTypeID
 			, "integer" // itemTypeName
-			, -1 // itemSizeForLang
+			, -1 // itemSize
 			, null // itemCharset,
 			, charsetOfProject
 			, memberMiddleReadObj));
@@ -388,7 +388,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 				, "itemID" // itemName
 				, 10 // itemTypeID
 				, "fixed length string" // itemTypeName
-				, 30 // itemSizeForLang
+				, 30 // itemSize
 				, null // itemCharset,
 				, charsetOfProject
 				, itemMiddleReadObj));
@@ -398,7 +398,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 				, "itemName" // itemName
 				, 10 // itemTypeID
 				, "fixed length string" // itemTypeName
-				, 30 // itemSizeForLang
+				, 30 // itemSize
 				, null // itemCharset,
 				, charsetOfProject
 				, itemMiddleReadObj));
@@ -408,7 +408,7 @@ public final class AllDataTypeDecoder extends AbstractMessageDecoder {
 				, "itemCnt" // itemName
 				, 4 // itemTypeID
 				, "integer" // itemTypeName
-				, -1 // itemSizeForLang
+				, -1 // itemSize
 				, null // itemCharset,
 				, charsetOfProject
 				, itemMiddleReadObj));

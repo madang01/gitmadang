@@ -1123,7 +1123,7 @@ public class MainProjectEditorPanel extends JPanel {
 		onlyFileChooser = new JFileChooser();
 		onlyFileChooser.setMultiSelectionEnabled(true);
 		onlyFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		PathSwingAction pathAction = new PathSwingAction(mainFrame, onlyPathChooser, servletSystemLibraryPathTextField);
+		PathSwingAction pathAction = new PathSwingAction(mainFrame, onlyPathChooser, servletSystemLibraryPathButton.getText(), servletSystemLibraryPathTextField);
 		servletSystemLibraryPathButton.setAction(pathAction);
 	}
 
@@ -1311,7 +1311,7 @@ public class MainProjectEditorPanel extends JPanel {
 			servletEnginLibinaryPathLinePanel.add(servletSystemLibraryPathTextField, CC.xy(3, 1));
 
 			//---- servletSystemLibraryPathButton ----
-			servletSystemLibraryPathButton.setText("\uacbd\ub85c \uc120\ud0dd");
+			servletSystemLibraryPathButton.setText("Path");
 			servletSystemLibraryPathButton.setEnabled(false);
 			servletEnginLibinaryPathLinePanel.add(servletSystemLibraryPathButton, CC.xy(5, 1));
 		}

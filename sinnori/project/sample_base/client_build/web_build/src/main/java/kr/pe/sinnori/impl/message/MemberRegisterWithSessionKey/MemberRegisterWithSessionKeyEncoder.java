@@ -59,7 +59,7 @@ public final class MemberRegisterWithSessionKeyEncoder extends AbstractMessageEn
 					, 9 // itemTypeID
 					, "si pascal string" // itemTypeName
 					, memberRegisterWithSessionKey.getIdCipherBase64() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -67,7 +67,7 @@ public final class MemberRegisterWithSessionKeyEncoder extends AbstractMessageEn
 					, 9 // itemTypeID
 					, "si pascal string" // itemTypeName
 					, memberRegisterWithSessionKey.getPwdCipherBase64() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -75,7 +75,7 @@ public final class MemberRegisterWithSessionKeyEncoder extends AbstractMessageEn
 					, 9 // itemTypeID
 					, "si pascal string" // itemTypeName
 					, memberRegisterWithSessionKey.getNicknameCipherBase64() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -83,7 +83,7 @@ public final class MemberRegisterWithSessionKeyEncoder extends AbstractMessageEn
 					, 9 // itemTypeID
 					, "si pascal string" // itemTypeName
 					, memberRegisterWithSessionKey.getHintCipherBase64() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -91,7 +91,7 @@ public final class MemberRegisterWithSessionKeyEncoder extends AbstractMessageEn
 					, 9 // itemTypeID
 					, "si pascal string" // itemTypeName
 					, memberRegisterWithSessionKey.getAnswerCipherBase64() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -99,7 +99,7 @@ public final class MemberRegisterWithSessionKeyEncoder extends AbstractMessageEn
 					, 9 // itemTypeID
 					, "si pascal string" // itemTypeName
 					, memberRegisterWithSessionKey.getSessionKeyBase64() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -107,7 +107,7 @@ public final class MemberRegisterWithSessionKeyEncoder extends AbstractMessageEn
 					, 9 // itemTypeID
 					, "si pascal string" // itemTypeName
 					, memberRegisterWithSessionKey.getIvBase64() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);

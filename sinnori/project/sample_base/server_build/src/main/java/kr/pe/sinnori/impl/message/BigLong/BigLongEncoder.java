@@ -59,7 +59,7 @@ public final class BigLongEncoder extends AbstractMessageEncoder {
 					, 13 // itemTypeID
 					, "si variable length byte[]" // itemTypeName
 					, bigLong.getFiller1() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -67,7 +67,7 @@ public final class BigLongEncoder extends AbstractMessageEncoder {
 					, 6 // itemTypeID
 					, "long" // itemTypeName
 					, bigLong.getValue1() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -75,7 +75,7 @@ public final class BigLongEncoder extends AbstractMessageEncoder {
 					, 6 // itemTypeID
 					, "long" // itemTypeName
 					, bigLong.getValue2() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);

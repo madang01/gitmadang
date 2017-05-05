@@ -50,7 +50,7 @@ public final class SeqValueOutDTODecoder extends AbstractMessageDecoder {
 		, "seqValue" // itemName
 		, 5 // itemTypeID
 		, "unsigned integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -60,7 +60,7 @@ public final class SeqValueOutDTODecoder extends AbstractMessageDecoder {
 		, "wantedSize" // itemName
 		, 1 // itemTypeID
 		, "unsigned byte" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));

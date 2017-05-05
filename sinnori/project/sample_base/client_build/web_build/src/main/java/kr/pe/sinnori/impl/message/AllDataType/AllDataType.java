@@ -25,7 +25,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
 public class AllDataType extends AbstractMessage {
 	private byte byteVar1;
 	private byte byteVar2;
-	private byte byteVar3;
+	private byte byteVar3 = 123;
 	private short unsignedByteVar1;
 	private short unsignedByteVar2;
 	private short unsignedByteVar3;
@@ -53,9 +53,9 @@ public class AllDataType extends AbstractMessage {
 	private java.sql.Timestamp sqltimestamp;
 	private int cnt;
 	public static class Member {
-		private String memberID;
+		private String memberID = "king";
 		private String memberName;
-		private int cnt;
+		private int cnt = 10;
 		public static class Item {
 			private String itemID;
 			private String itemName;

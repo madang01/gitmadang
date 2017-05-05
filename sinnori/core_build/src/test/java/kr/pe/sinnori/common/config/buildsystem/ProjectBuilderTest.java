@@ -764,8 +764,8 @@ public class ProjectBuilderTest {
 			SequencedProperties sequencedPropertiesForModify = projectBuilder.loadSinnoriConfigPropertiesFile();
 			
 			// FIXME!
-			sequencedPropertiesForModify.getProperty(ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_PATH_ITEMID);
-			sequencedPropertiesForModify.setProperty(ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_PATH_ITEMID, "aaaa");
+			sequencedPropertiesForModify.setProperty(ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_PRIVATEKEY_FILE_ITEMID, "aaaa");
+			sequencedPropertiesForModify.setProperty(ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_PUBLICKEY_FILE_ITEMID, "bbbb");
 			
 			// log.info("sequencedPropertiesForModify={}", sequencedPropertiesForModify.toString());
 			

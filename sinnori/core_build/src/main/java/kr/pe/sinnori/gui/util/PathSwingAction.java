@@ -77,12 +77,12 @@ public class PathSwingAction extends AbstractAction {
 	 * @param pathChooser 파일 상자 콤포넌트
 	 * @param pathTextField 경로 선택시 그 값이 들어갈 입력 박스 컴포넌트
 	 */
-	public PathSwingAction(Component parentComponent, JFileChooser pathChooser, JTextField pathTextField) {
+	public PathSwingAction(Component parentComponent, JFileChooser pathChooser, String title, JTextField pathTextField) {
 		this.parentComponent= parentComponent;
 		this.pathChooser = pathChooser;
 		this.pathTextField = pathTextField;
 		
-		putValue(NAME, "Path");
+		putValue(NAME, title);
 		putValue(SHORT_DESCRIPTION, "select path dialog");
 	}
 	

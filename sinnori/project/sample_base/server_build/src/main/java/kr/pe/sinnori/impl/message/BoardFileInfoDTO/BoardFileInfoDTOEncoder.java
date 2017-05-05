@@ -59,7 +59,7 @@ public final class BoardFileInfoDTOEncoder extends AbstractMessageEncoder {
 					, 5 // itemTypeID
 					, "unsigned integer" // itemTypeName
 					, boardFileInfoDTO.getAttachId() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -67,7 +67,7 @@ public final class BoardFileInfoDTOEncoder extends AbstractMessageEncoder {
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
 					, boardFileInfoDTO.getOwnerId() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -75,7 +75,7 @@ public final class BoardFileInfoDTOEncoder extends AbstractMessageEncoder {
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
 					, boardFileInfoDTO.getIp() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -83,7 +83,7 @@ public final class BoardFileInfoDTOEncoder extends AbstractMessageEncoder {
 					, 16 // itemTypeID
 					, "java sql timestamp" // itemTypeName
 					, boardFileInfoDTO.getRegisterDate() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -91,7 +91,7 @@ public final class BoardFileInfoDTOEncoder extends AbstractMessageEncoder {
 					, 16 // itemTypeID
 					, "java sql timestamp" // itemTypeName
 					, boardFileInfoDTO.getModifiedDate() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);

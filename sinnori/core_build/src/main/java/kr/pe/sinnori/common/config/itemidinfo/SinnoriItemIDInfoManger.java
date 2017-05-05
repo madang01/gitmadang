@@ -17,18 +17,18 @@ import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.config.AbstractDependOnInactiveChecker;
 import kr.pe.sinnori.common.config.AbstractDependencyValidator;
-import kr.pe.sinnori.common.config.dependoninactivechecker.RSAKeypairPathDependOnSourceInActiveChecker;
+import kr.pe.sinnori.common.config.dependoninactivechecker.RSAKeyFileDependOnSourceInActiveChecker;
 import kr.pe.sinnori.common.config.dependonvalidchecker.MinAndMaxDependencyValidator;
 import kr.pe.sinnori.common.config.fileorpathstringgetter.AbstractFileOrPathStringGetter;
 import kr.pe.sinnori.common.config.fileorpathstringgetter.DBCPConfigFilePathStringGetter;
-import kr.pe.sinnori.common.config.fileorpathstringgetter.SessionkeyRSAKeypairPathStringGetter;
+import kr.pe.sinnori.common.config.fileorpathstringgetter.SessionkeyRSAPrivatekeyFilePathStringGetter;
+import kr.pe.sinnori.common.config.fileorpathstringgetter.SessionkeyRSAPublickeyFilePathStringGetter;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo.ConfigurationPart;
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningCharset;
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningEmptyOrNoTrimString;
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningIntegerBetweenMinAndMax;
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningLongBetweenMinAndMax;
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningNoTrimString;
-import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningPath;
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningRegularFile;
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningUpDownFileBlockMaxSizeBetweenMinAndMax;
 import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterOfSessionKeyRSAKeypairSource;
@@ -37,7 +37,6 @@ import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturnin
 import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningConnectionType;
 import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningInteger;
 import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningMessageProtocol;
-import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningSessionkeyPrivateKeyEncoding;
 import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningString;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
@@ -204,21 +203,34 @@ public class SinnoriItemIDInfoManger {
 					ItemIDInfo.ViewType.SINGLE_SET,
 					itemID,
 					"세션키에 사용되는 공개키 키쌍 생성 방법, API:내부적으로 RSA 키쌍 생성, File:외부 파일를 읽어와서 RSA  키쌍을 생성",
-					"API", isDefaultValueCheck,
+					CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY.SERVER.toString(), isDefaultValueCheck,
 					new SetTypeConverterOfSessionKeyRSAKeypairSource());
 			addCommonPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_PATH_ITEMID;
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_PUBLICKEY_FILE_ITEMID;
 			isDefaultValueCheck = false;
 			itemIDInfo = new ItemIDInfo<File>(
 					ItemIDInfo.ConfigurationPart.COMMON,
-					ItemIDInfo.ViewType.PATH,
+					ItemIDInfo.ViewType.FILE,
 					itemID,
-					"세션키에 사용되는 공개키 키쌍 파일 경로, 세션키에 사용되는 공개키 키쌍 생성 방법이 File인 경우에 유효하다",
-					"[sinnnori installed path]/project/[main project name]/resouces/rsa_keypair",
+					"세션키에 사용되는 RSA 공개키 파일",
+					"[sinnnori installed path]/project/[main project name]/resouces/rsa_keypair/sinnori.publickey",
 					isDefaultValueCheck,
-					new GeneralConverterReturningPath());
+					new GeneralConverterReturningRegularFile(false));
 			addCommonPartItemIDInfo(itemIDInfo);
+			
+			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_PRIVATEKEY_FILE_ITEMID;
+			isDefaultValueCheck = false;
+			itemIDInfo = new ItemIDInfo<File>(
+					ItemIDInfo.ConfigurationPart.COMMON,
+					ItemIDInfo.ViewType.FILE,
+					itemID,
+					"세션키에 사용되는 RSA 개인키 파일",
+					"[sinnnori installed path]/project/[main project name]/resouces/rsa_keypair/sinnori.privatekey",
+					isDefaultValueCheck,
+					new GeneralConverterReturningRegularFile(false));
+			addCommonPartItemIDInfo(itemIDInfo);
+			
 
 			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYSIZE_ITEMID;
 			isDefaultValueCheck = true;
@@ -260,17 +272,7 @@ public class SinnoriItemIDInfoManger {
 					new SetTypeConverterReturningInteger("8", "16", "24"));
 			addCommonPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_PRIVATE_KEY_ENCODING_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<CommonType.SYMMETRIC_KEY_ENCODING_TYPE>(
-					ItemIDInfo.ConfigurationPart.COMMON,
-					ItemIDInfo.ViewType.SINGLE_SET,
-					itemID,
-					"개인키 인코딩 방법, NONE : 아무 인코딩 없이 이진 데이터 그대로인 개인키 값, BASE64: base64 인코딩한 개인키 값",
-					"BASE64",
-					isDefaultValueCheck,
-					new SetTypeConverterReturningSessionkeyPrivateKeyEncoding());
-			addCommonPartItemIDInfo(itemIDInfo);
+		
 
 			itemID = ItemIDDefiner.CommonPartItemIDDefiner.COMMON_UPDOWNFILE_LOCAL_SOURCE_FILE_RESOURCE_CNT_ITEMID;
 			isDefaultValueCheck = true;
@@ -1242,7 +1244,7 @@ public class SinnoriItemIDInfoManger {
 	private void addInactiveChecker() throws IllegalArgumentException,
 			SinnoriConfigurationException {
 		{
-			String dependentSourceItemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_PATH_ITEMID;
+			String dependentSourceItemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_PUBLICKEY_FILE_ITEMID;
 			String dependentTargetItemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_SOURCE_ITEMID;
 
 			ItemIDInfo<?> dependentSourceItemIDInfo = getItemIDInfo(dependentSourceItemID);
@@ -1266,10 +1268,42 @@ public class SinnoriItemIDInfoManger {
 
 			inactiveCheckerHash
 					.put(dependentSourceItemID,
-							new RSAKeypairPathDependOnSourceInActiveChecker(
+							new RSAKeyFileDependOnSourceInActiveChecker(
 									dependentSourceItemIDInfo,
 									dependentTargetItemIDInfo,
-									new String[] { CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY.API
+									new String[] { CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY.SERVER
+											.toString() }));
+		}
+		
+		{
+			String dependentSourceItemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_PRIVATEKEY_FILE_ITEMID;
+			String dependentTargetItemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_SOURCE_ITEMID;
+
+			ItemIDInfo<?> dependentSourceItemIDInfo = getItemIDInfo(dependentSourceItemID);
+			if (null == dependentSourceItemIDInfo) {
+				String errorMessage = new StringBuilder(
+						"the dependent source item identification[")
+						.append(dependentSourceItemID)
+						.append("] information is not ready").toString();
+				throw new SinnoriConfigurationException(errorMessage);
+			}
+
+			ItemIDInfo<?> dependentTargetItemIDInfo = getItemIDInfo(dependentTargetItemID);
+			if (null == dependentTargetItemIDInfo) {
+				String errorMessage = new StringBuilder(
+						"the dependent target item identification[")
+						.append(dependentTargetItemID)
+						.append("] information is not ready").toString();
+				// log.error(errorMessage);
+				throw new SinnoriConfigurationException(errorMessage);
+			}
+
+			inactiveCheckerHash
+					.put(dependentSourceItemID,
+							new RSAKeyFileDependOnSourceInActiveChecker(
+									dependentSourceItemIDInfo,
+									dependentTargetItemIDInfo,
+									new String[] { CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY.SERVER
 											.toString() }));
 		}
 
@@ -1284,8 +1318,11 @@ public class SinnoriItemIDInfoManger {
 		itemID = ItemIDDefiner.DBCPPartItemIDDefiner.DBCP_CONFIGE_FILE_ITEMID;
 		fileOrPathStringGetterHash.put(itemID, new DBCPConfigFilePathStringGetter(itemID));
 	
-		itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_PATH_ITEMID;
-		fileOrPathStringGetterHash.put(itemID, new SessionkeyRSAKeypairPathStringGetter(itemID));
+		itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_PUBLICKEY_FILE_ITEMID;
+		fileOrPathStringGetterHash.put(itemID, new SessionkeyRSAPublickeyFilePathStringGetter(itemID));
+		
+		itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_PRIVATEKEY_FILE_ITEMID;
+		fileOrPathStringGetterHash.put(itemID, new SessionkeyRSAPrivatekeyFilePathStringGetter(itemID));
 	}
 	
 	
@@ -1322,8 +1359,7 @@ public class SinnoriItemIDInfoManger {
 				
 				if (null != fileOrPathStringGetter) {
 					itemValue = fileOrPathStringGetter
-							.getFileOrPathStringDependingOnSinnoriInstalledPath(mainProjectName, 
-									sinnoriInstalledPathString);
+							.getFileOrPathStringDependingOnSinnoriInstalledPath(sinnoriInstalledPathString, mainProjectName);
 				}
 				
 				sinnoriConfigSequencedProperties.put(itemDescKey,
@@ -1360,8 +1396,7 @@ public class SinnoriItemIDInfoManger {
 				
 				if (null != fileOrPathStringGetter) {
 					itemValue = fileOrPathStringGetter
-							.getFileOrPathStringDependingOnSinnoriInstalledPath(mainProjectName, 
-									sinnoriInstalledPathString);
+							.getFileOrPathStringDependingOnSinnoriInstalledPath(sinnoriInstalledPathString, mainProjectName);
 				}
 				
 				sinnoriConfigSequencedProperties.put(itemDescKey,

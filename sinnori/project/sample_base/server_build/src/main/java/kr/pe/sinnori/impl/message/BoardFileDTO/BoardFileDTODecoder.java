@@ -50,7 +50,7 @@ public final class BoardFileDTODecoder extends AbstractMessageDecoder {
 		, "attachId" // itemName
 		, 5 // itemTypeID
 		, "unsigned integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -60,7 +60,7 @@ public final class BoardFileDTODecoder extends AbstractMessageDecoder {
 		, "attachSeq" // itemName
 		, 1 // itemTypeID
 		, "unsigned byte" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -70,7 +70,7 @@ public final class BoardFileDTODecoder extends AbstractMessageDecoder {
 		, "attachFileName" // itemName
 		, 8 // itemTypeID
 		, "us pascal string" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -80,7 +80,7 @@ public final class BoardFileDTODecoder extends AbstractMessageDecoder {
 		, "systemFileName" // itemName
 		, 8 // itemTypeID
 		, "us pascal string" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));

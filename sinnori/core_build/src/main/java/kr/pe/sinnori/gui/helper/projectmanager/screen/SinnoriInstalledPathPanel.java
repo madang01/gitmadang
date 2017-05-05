@@ -77,7 +77,7 @@ public class SinnoriInstalledPathPanel extends JPanel {
 		sinnoriInstalledPathChooser = new JFileChooser();
 		sinnoriInstalledPathChooser.setMultiSelectionEnabled(false);
 		sinnoriInstalledPathChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		PathSwingAction pathAction = new PathSwingAction(mainFrame, sinnoriInstalledPathChooser, sinnoriInstalledPathTextField);		
+		PathSwingAction pathAction = new PathSwingAction(mainFrame, sinnoriInstalledPathChooser, sinnoriInstalledPathButton.getText(), sinnoriInstalledPathTextField);		
 		sinnoriInstalledPathButton.setAction(pathAction);
 		nextStepButton.setToolTipText(
 			"<html>update all project'config and overwrite all project'shells based on installed path</html>");

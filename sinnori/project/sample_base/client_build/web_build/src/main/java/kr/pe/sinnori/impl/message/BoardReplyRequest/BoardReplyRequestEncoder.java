@@ -59,7 +59,7 @@ public final class BoardReplyRequestEncoder extends AbstractMessageEncoder {
 					, 5 // itemTypeID
 					, "unsigned integer" // itemTypeName
 					, boardReplyRequest.getBoardId() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -67,7 +67,7 @@ public final class BoardReplyRequestEncoder extends AbstractMessageEncoder {
 					, 5 // itemTypeID
 					, "unsigned integer" // itemTypeName
 					, boardReplyRequest.getParentBoardNo() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -75,7 +75,7 @@ public final class BoardReplyRequestEncoder extends AbstractMessageEncoder {
 					, 8 // itemTypeID
 					, "us pascal string" // itemTypeName
 					, boardReplyRequest.getSubject() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -83,7 +83,7 @@ public final class BoardReplyRequestEncoder extends AbstractMessageEncoder {
 					, 9 // itemTypeID
 					, "si pascal string" // itemTypeName
 					, boardReplyRequest.getContent() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -91,7 +91,7 @@ public final class BoardReplyRequestEncoder extends AbstractMessageEncoder {
 					, 5 // itemTypeID
 					, "unsigned integer" // itemTypeName
 					, boardReplyRequest.getAttachId() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -99,7 +99,7 @@ public final class BoardReplyRequestEncoder extends AbstractMessageEncoder {
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
 					, boardReplyRequest.getUserId() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -107,7 +107,7 @@ public final class BoardReplyRequestEncoder extends AbstractMessageEncoder {
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
 					, boardReplyRequest.getIp() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);

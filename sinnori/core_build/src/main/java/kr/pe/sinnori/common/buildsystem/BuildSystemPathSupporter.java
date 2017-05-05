@@ -148,6 +148,22 @@ public abstract class BuildSystemPathSupporter {
 		strBuilder.append("rsa_keypair");
 		return strBuilder.toString();
 	}
+	
+	/** RSA Publickey file : <RSA keypair path>/sinnori.publickey */
+	public static String getSessionKeyRSAPublickeyFilePathString(String sinnoriInstalledPathString, String mainProjectName) {
+		StringBuilder strBuilder = new StringBuilder(getSessionKeyRSAKeypairPathString(sinnoriInstalledPathString, mainProjectName));
+		strBuilder.append(File.separator);
+		strBuilder.append(CommonStaticFinalVars.PUBLIC_KEY_FILE_NAME);
+		return strBuilder.toString();
+	}
+	
+	/** RSA Publickey file : <RSA keypair path>/sinnori.privatekey */
+	public static String getSessionKeyRSAPrivatekeyFilePathString(String sinnoriInstalledPathString, String mainProjectName) {
+		StringBuilder strBuilder = new StringBuilder(getSessionKeyRSAKeypairPathString(sinnoriInstalledPathString, mainProjectName));
+		strBuilder.append(File.separator);
+		strBuilder.append(CommonStaticFinalVars.PRIVATE_KEY_FILE_NAME);
+		return strBuilder.toString();
+	}
 
 	/** server build path : <project path>/server_build */
 	public static String getServerBuildPathString(String sinnoriInstalledPathString, String mainProjectName) {
@@ -170,6 +186,13 @@ public abstract class BuildSystemPathSupporter {
 		StringBuilder strBuilder = new StringBuilder(getServerBuildPathString(sinnoriInstalledPathString, mainProjectName));
 		strBuilder.append(File.separator);
 		strBuilder.append("APP-INF");
+		return strBuilder.toString();
+	}
+	
+	public static String getServerAPPINFResourcesPathString(String sinnoriInstalledPathString, String mainProjectName) {
+		StringBuilder strBuilder = new StringBuilder(getServerAPPINFPathString(sinnoriInstalledPathString, mainProjectName));
+		strBuilder.append(File.separator);
+		strBuilder.append("resources");
 		return strBuilder.toString();
 	}
 	

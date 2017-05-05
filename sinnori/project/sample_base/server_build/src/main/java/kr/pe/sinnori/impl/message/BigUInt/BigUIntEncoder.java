@@ -59,7 +59,7 @@ public final class BigUIntEncoder extends AbstractMessageEncoder {
 					, 13 // itemTypeID
 					, "si variable length byte[]" // itemTypeName
 					, bigUInt.getFiller1() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -67,7 +67,7 @@ public final class BigUIntEncoder extends AbstractMessageEncoder {
 					, 5 // itemTypeID
 					, "unsigned integer" // itemTypeName
 					, bigUInt.getValue1() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -75,7 +75,7 @@ public final class BigUIntEncoder extends AbstractMessageEncoder {
 					, 5 // itemTypeID
 					, "unsigned integer" // itemTypeName
 					, bigUInt.getValue2() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);

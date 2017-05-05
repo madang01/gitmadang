@@ -6,17 +6,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
 
-import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
-import kr.pe.sinnori.common.exception.MessageInfoSAXParserException;
-import kr.pe.sinnori.common.message.builder.info.MessageInfo;
-import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
-
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
+
+import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
 
 public class MessageInfoSAXParserTest {
 	private Logger log = LoggerFactory
@@ -52,14 +49,14 @@ public class MessageInfoSAXParserTest {
 
 		try {
 			messageInfoSAXParser = new MessageInfoSAXParser();
-		} catch (MessageInfoSAXParserException e) {
+		} catch (SAXException e) {
 			e.printStackTrace();
 			fail(e.getMessage());
 		}
 	}
 
 	@Ignore
-	@Test(expected = MessageInfoSAXParserException.class)
+	@Test(expected = SAXException.class)
 	public void testConstructor() throws Exception {
 		/** TODO how to meet bug? I don't know. help me! */
 	}

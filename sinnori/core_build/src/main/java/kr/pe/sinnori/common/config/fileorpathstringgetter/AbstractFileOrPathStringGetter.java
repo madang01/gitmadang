@@ -31,7 +31,7 @@ public abstract class AbstractFileOrPathStringGetter {
 	 * @return 주어진 메인 프로젝트, 신놀이 설치 경로 그리고 기타 정보들에 맞는 파일 혹은 경로 문자열
 	 */
 	public abstract String getFileOrPathStringDependingOnSinnoriInstalledPath(
-			String mainProjectName, String sinnoriInstalledPathString,
+			String sinnoriInstalledPathString, String mainProjectName, 
 			String... etcParamter);
 
 	/**

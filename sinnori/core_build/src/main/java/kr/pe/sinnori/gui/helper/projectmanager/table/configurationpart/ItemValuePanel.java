@@ -58,14 +58,14 @@ public class ItemValuePanel extends JPanel {
 			valueTextField.setPreferredSize(new Dimension(310,20));
 			add(valueTextField);
 			
-			pathButton = new JButton("파일 선택");
+			pathButton = new JButton("File");
 			
 			UIManager.put("FileChooser.readOnly", Boolean.TRUE);
 			JFileChooser chooser = new JFileChooser();
 			chooser.setMultiSelectionEnabled(false);
 			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			
-			PathSwingAction pathAction = new PathSwingAction(this.mainFrame, chooser, valueTextField);
+			PathSwingAction pathAction = new PathSwingAction(this.mainFrame, chooser, pathButton.getText(), valueTextField);
 			pathButton.setAction(pathAction);
 			add(pathButton);
 		} else if (itemViewType == ItemIDInfo.ViewType.PATH) {
@@ -74,14 +74,14 @@ public class ItemValuePanel extends JPanel {
 			valueTextField.setPreferredSize(new Dimension(310,20));
 			add(valueTextField);
 			
-			pathButton = new JButton("경로 선택");
+			pathButton = new JButton("Path");
 			
 			UIManager.put("FileChooser.readOnly", Boolean.TRUE); 
 			JFileChooser chooser = new JFileChooser();
 			chooser.setMultiSelectionEnabled(false);
 			chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);			
 			
-			PathSwingAction pathAction = new PathSwingAction(this.mainFrame, chooser, valueTextField);
+			PathSwingAction pathAction = new PathSwingAction(this.mainFrame, chooser, pathButton.getText(), valueTextField);
 			pathButton.setAction(pathAction);
 			add(pathButton);		
 		} else if (itemViewType == ViewType.SINGLE_SET) {
@@ -104,6 +104,8 @@ public class ItemValuePanel extends JPanel {
 				valueComboBox.setSelectedIndex(selectedIndex);
 			} else {
 				showMessageDialog(new StringBuilder("the paramter itemValue[")
+				.append(itemKey)
+				.append("][")
 				.append(itemValue)
 				.append("] is not element of set")
 				.append(itemSet.toString()).toString());
@@ -155,6 +157,8 @@ public class ItemValuePanel extends JPanel {
 				valueComboBox.setSelectedIndex(selectedIndex);
 			} else {
 				showMessageDialog(new StringBuilder("the paramter itemValue[")
+				.append(itemKey)
+				.append("][")
 				.append(itemValue)
 				.append("] is not element of set")
 				.append(itemSet.toString()).toString());

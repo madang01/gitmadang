@@ -50,7 +50,7 @@ public final class EchoDecoder extends AbstractMessageDecoder {
 		, "randomInt" // itemName
 		, 4 // itemTypeID
 		, "integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -60,7 +60,7 @@ public final class EchoDecoder extends AbstractMessageDecoder {
 		, "startTime" // itemName
 		, 6 // itemTypeID
 		, "long" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));

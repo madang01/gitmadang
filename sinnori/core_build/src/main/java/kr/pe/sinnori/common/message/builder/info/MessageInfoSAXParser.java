@@ -30,17 +30,16 @@ import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
 
-import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.CommonType;
-import kr.pe.sinnori.common.exception.MessageInfoSAXParserException;
-import kr.pe.sinnori.common.message.AbstractMessage;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
+
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.common.etc.CommonType;
+import kr.pe.sinnori.common.message.AbstractMessage;
 
 /**
  * XML로 작성된 메시지 정보 파일을 SAX 파싱하여 메시지 정보를 작성하는 클래스.<br/>
@@ -78,25 +77,9 @@ public class MessageInfoSAXParser extends DefaultHandler {
 	 * 
 	 * @param isFileNameCheck 파일명의 메시지 식별자와 파일 내용의 메시지 식별자 구별 여부
 	 */
-	public MessageInfoSAXParser() throws MessageInfoSAXParserException {
-		
-		try {
-			SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-			saxParserFactory.setValidating(false);
-			saxParserFactory.setNamespaceAware(true);
-
-			SchemaFactory schemaFactory = SchemaFactory
-					.newInstance("http://www.w3.org/2001/XMLSchema");			
-		
-			saxParserFactory.setSchema(schemaFactory
-					.newSchema(new Source[] { new StreamSource(ItemValueTypeManger.getInstance().getMesgXSLInputSream()) }));
-
-			saxParser = saxParserFactory.newSAXParser();
+	public MessageInfoSAXParser() throws SAXException {
+		saxParser = getNewInstanceOfSAXParser();
 			
-		} catch (Exception | Error e) {
-			log.error("unknown error", e);
-			throw new MessageInfoSAXParserException(e.getMessage());
-		}		
 		
 		possibleItemValueTypeSetForArraySizeReferenceVariable.add("byte");
 		possibleItemValueTypeSetForArraySizeReferenceVariable.add("unsigned byte");
@@ -474,27 +457,49 @@ public class MessageInfoSAXParser extends DefaultHandler {
 				MessageInfo retMessageInfo = (MessageInfo) itemGroupInfoStack.pop();
 				return retMessageInfo;
 			} finally {
-				reset();
-				
-				try {
-					saxParser.reset();
-				} catch (UnsupportedOperationException e) {
-					/**
-					 * 두번 세번 이상 사용할려면 과거 파싱한 잔재를 지워 초기 상태로 만들어야한다.
-					 * 이 전제 조건이 무너지면 구조를 바꾸어야 하기때문에 시스템 종료를 사용하였다.					 * 
-					 */
-					log.error(e.toString(), e);
-					System.exit(1);
-				}				
+				reset();	
 			}
 		}		
 	}
 	
-	public void reset() {
+	private SAXParser getNewInstanceOfSAXParser() throws SAXException {
+		SAXParser saxParser = null;
+		try {
+			SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+			saxParserFactory.setValidating(false);
+			saxParserFactory.setNamespaceAware(true);
+
+			SchemaFactory schemaFactory = SchemaFactory
+					.newInstance("http://www.w3.org/2001/XMLSchema");	
+			
+			saxParserFactory.setSchema(schemaFactory
+					.newSchema(new Source[] { new StreamSource(ItemValueTypeManger.getInstance().getMesgXSLInputSream()) }));
+			
+			saxParser = saxParserFactory.newSAXParser();
+		} catch (Exception | Error e) {
+			log.warn(e.getMessage(), e);
+			throw new SAXException(e.getMessage());
+		}
+		
+		return saxParser;
+	}
+	
+	private void reset() throws SAXException {
 		this.rootTag = null;
 		this.startTagStack.clear();
 		this.tagValueStack.clear();
 		this.itemGroupInfoStack.clear();
+		try {
+			saxParser.reset();
+		} catch (UnsupportedOperationException e) {
+			/**
+			 * 두번 세번 이상 사용할려면 과거 파싱한 잔재를 지워 초기 상태로 만들어야한다.
+			 * 이 전제 조건이 무너지면 구조를 바꾸어야 하기때문에 시스템 종료를 사용하였다. 
+			 */
+			log.warn("sax 파서가 reset() 메소드를 미 지원하므로 과거 파싱 잔재를 지워 초기 상태로 만들기 위해서 기존 sax 파서를 버리고 새로운 sax 파서 인스턴스로 대체한다.", e);
+			
+			saxParser  = getNewInstanceOfSAXParser();
+		}	
 	}
 	
 	public String getMessageIDFromXMLFilePathString(String messageInformationXMLFilePathString) 

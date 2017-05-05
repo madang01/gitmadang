@@ -29,7 +29,7 @@ public class SinnoriConfigurationManagerTest {
 		
 		System.setProperty(
 				CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME,
-				"sample_test");
+				"sample_base");
 		System.setProperty(
 				CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH,
 				"D:\\gitsinnori\\sinnori");
@@ -46,6 +46,7 @@ public class SinnoriConfigurationManagerTest {
 		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
 		ProjectPartConfiguration mainProjectPart = sinnoriRunningProjectConfiguration.getMainProjectPartConfiguration();
 		AllSubProjectPartConfiguration allSubProjectPart = sinnoriRunningProjectConfiguration.getAllSubProjectPartConfiguration();
+		
 		
 		List<String> dbcpNameList = allDBCPPart.getDBCPNameList();
 		for (String dbcpName : dbcpNameList) {
@@ -64,16 +65,17 @@ public class SinnoriConfigurationManagerTest {
 			// log.info(dbcpPart.toString());
 		}
 		
-		// log.info(commonPart.toString());
+		log.info(commonPart.toString());
+		
 		if (commonPart.toString().indexOf("null") >= 0) {
 			/** if RSA Keypair source is API, then rsaKeyPairPathOfSessionKey is null. so first null no problem. */
-			if (!commonPart.getRsaKeypairSourceOfSessionKey().equals(CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY.API)) {
+			if (!commonPart.getRsaKeypairSourceOfSessionKey().equals(CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY.SERVER)) {
 				fail("Maybe common part's one more variables are null");
 			}
 			
 			/** second null check */
-			if (commonPart.toString().indexOf("null", commonPart.toString().indexOf("null")+1) >= 0) {
-				fail("Maybe common part's two more variables are null");
+			if (commonPart.toString().indexOf("null", commonPart.toString().indexOf("rsaKeySizeOfSessionKey")) >= 0) {
+				fail("Maybe common part's three more variables are null");
 			}
 		}
 		

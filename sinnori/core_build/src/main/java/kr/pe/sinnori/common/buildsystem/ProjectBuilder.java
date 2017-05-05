@@ -20,7 +20,6 @@ import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
 import kr.pe.sinnori.common.exception.BuildSystemException;
-import kr.pe.sinnori.common.exception.MessageInfoSAXParserException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.message.builder.IOFileSetContentsBuilderManager;
 import kr.pe.sinnori.common.message.builder.info.MessageInfo;
@@ -259,12 +258,12 @@ public class ProjectBuilder {
 			throw new BuildSystemException(e.getMessage());
 		}
 		
-		AllDBCPPartConfiguration allDBCPPartItems = sinnoriConfiguration.getAllDBCPPartConfiguration();
-		AllSubProjectPartConfiguration allSubProjectPartItems = sinnoriConfiguration.getAllSubProjectPartConfiguration();
+		AllDBCPPartConfiguration allDBCPPartConfiguration = sinnoriConfiguration.getAllDBCPPartConfiguration();
+		AllSubProjectPartConfiguration allSubProjectPartConfiguration = sinnoriConfiguration.getAllSubProjectPartConfiguration();
 		
-		dbcpNameList = allDBCPPartItems.getDBCPNameList();
-		subProjectNameList = allSubProjectPartItems.getSubProjectNamelist();	
-		
+		dbcpNameList = allDBCPPartConfiguration.getDBCPNameList();
+		subProjectNameList = allSubProjectPartConfiguration.getSubProjectNamelist();	
+				
 		sinnoriConfigurationSequencedPropties =
 		sinnoriConfiguration.getSinnoriConfigurationSequencedPropties();
 		
@@ -587,7 +586,10 @@ public class ProjectBuilder {
 			final String webClientBuildPathString = BuildSystemPathSupporter
 					.getWebClientBuildPathString(sinnoriInstalledPathString, mainProjectName);
 
-			messageIOSetBasedirectoryPathString = getMessageIOSetBasedirectoryPathString(webClientBuildPathString);
+			messageIOSetBasedirectoryPathString = CommonStaticUtil
+					.getFilePathStringFromResourcePathAndRelativePathOfFile
+					(webClientBuildPathString, MESSAGE_SOURCE_FILE_RELATIVE_PATH);
+			
 			createNewMessageIDDirectory(messageIOSetBasedirectoryPathString, ECHO_MESSAGE_ID);
 		}
 
@@ -875,7 +877,10 @@ public class ProjectBuilder {
 			final String appClientBuildPathString = BuildSystemPathSupporter
 					.getAppClientBuildPathString(sinnoriInstalledPathString, mainProjectName);
 
-			messageIOSetBasedirectoryPathString = getMessageIOSetBasedirectoryPathString(appClientBuildPathString);
+			messageIOSetBasedirectoryPathString = CommonStaticUtil
+					.getFilePathStringFromResourcePathAndRelativePathOfFile
+					(appClientBuildPathString, MESSAGE_SOURCE_FILE_RELATIVE_PATH);
+			
 			createNewMessageIDDirectory(messageIOSetBasedirectoryPathString, ECHO_MESSAGE_ID);
 		}
 
@@ -924,7 +929,7 @@ public class ProjectBuilder {
 		log.info("mainproject[{}]'s server build path deletion task end", mainProjectName);
 	}
 
-	private String getMessageIOSetBasedirectoryPathString(String buildPathString) {
+	/*private String getMessageIOSetBasedirectoryPathString(String buildPathString) {
 		String messageIOSetBasedirectoryPathString = null;
 		if (File.separator.equals("/")) {
 			messageIOSetBasedirectoryPathString = new StringBuilder(buildPathString).append(File.separator)
@@ -937,7 +942,8 @@ public class ProjectBuilder {
 		}
 
 		return messageIOSetBasedirectoryPathString;
-	}
+	}*/
+	
 
 	private void createNewMessageIDDirectory(String messageIOSetBasedirectoryPathString, String messageID)
 			throws BuildSystemException {
@@ -955,7 +961,10 @@ public class ProjectBuilder {
 
 		{
 			final String serverBuildPathString = BuildSystemPathSupporter.getServerBuildPathString(sinnoriInstalledPathString, mainProjectName);
-			messageIOSetBasedirectoryPathString = getMessageIOSetBasedirectoryPathString(serverBuildPathString);
+			messageIOSetBasedirectoryPathString = CommonStaticUtil
+					.getFilePathStringFromResourcePathAndRelativePathOfFile
+					(serverBuildPathString, MESSAGE_SOURCE_FILE_RELATIVE_PATH);
+			
 			createNewMessageIDDirectory(messageIOSetBasedirectoryPathString, ECHO_MESSAGE_ID);
 		}
 
@@ -979,7 +988,7 @@ public class ProjectBuilder {
 		MessageInfoSAXParser messageInfoSAXParser = null;
 		try {
 			messageInfoSAXParser = new MessageInfoSAXParser();
-		} catch (MessageInfoSAXParserException e) {
+		} catch (SAXException e) {
 			System.exit(1);
 		}
 		MessageInfo echoMessageInfo = null;

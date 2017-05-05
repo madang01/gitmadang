@@ -24,12 +24,12 @@ public class CommonPartConfiguration {
 	
 	
 	private CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY rsaKeypairSourceOfSessionKey = null;
-	private File rsaKeyPairPathOfSessionKey = null;
+	private File rsaPublickeyFileOfSessionKey = null;
+	private File rsaPrivatekeyFileOfSessionKey = null;
 	private Integer rsaKeySizeOfSessionKey = null;	
 	private String symmetricKeyAlgorithmOfSessionKey = null;	
 	private Integer symmetricKeySizeOfSessionKey=null;
-	private Integer symmetricIVSizeOfSessionKey=null;
-	private CommonType.SYMMETRIC_KEY_ENCODING_TYPE symmetricKeyEncodingOfSessionKey = null;	
+	private Integer symmetricIVSizeOfSessionKey=null;	
 	
 	private Integer localSourceFileResourceCnt=null;
 	private Integer localTargetFileResourceCnt=null;
@@ -114,7 +114,7 @@ public class CommonPartConfiguration {
 			}
 			
 			this.rsaKeypairSourceOfSessionKey = (CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY) nativeValue;
-		} else if (itemID.equals(ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_PATH_ITEMID)) {
+		} else if (itemID.equals(ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_PUBLICKEY_FILE_ITEMID)) {
 			if (null != nativeValue && !(nativeValue instanceof File)) {
 				String errorMessage = new StringBuilder("the generic type[")
 				.append(nativeValue.getClass().getName())
@@ -125,7 +125,19 @@ public class CommonPartConfiguration {
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 			
-			this.rsaKeyPairPathOfSessionKey = (File) nativeValue;
+			this.rsaPublickeyFileOfSessionKey = (File) nativeValue;
+		} else if (itemID.equals(ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_PRIVATEKEY_FILE_ITEMID)) {
+			if (null != nativeValue && !(nativeValue instanceof File)) {
+				String errorMessage = new StringBuilder("the generic type[")
+				.append(nativeValue.getClass().getName())
+				.append("] of the parameter itemIDInfo[")
+				.append(itemID).append("] is differnet from the mapped variable's type[")
+				.append(File.class.getName())
+				.append("]").toString();
+				throw new SinnoriConfigurationException(errorMessage);
+			}
+			
+			this.rsaPrivatekeyFileOfSessionKey = (File) nativeValue;
 		} else if (itemID.equals(ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYSIZE_ITEMID)) {
 			if (null != nativeValue && !(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -173,19 +185,7 @@ public class CommonPartConfiguration {
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 			
-			this.symmetricIVSizeOfSessionKey = (Integer) nativeValue;
-		} else if (itemID.equals(ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_PRIVATE_KEY_ENCODING_ITEMID)) {
-			if (null != nativeValue && !(nativeValue instanceof CommonType.SYMMETRIC_KEY_ENCODING_TYPE)) {
-				String errorMessage = new StringBuilder("the generic type[")
-				.append(nativeValue.getClass().getName())
-				.append("] of the parameter itemIDInfo[")
-				.append(itemID).append("] is differnet from the mapped variable's type[")
-				.append(CommonType.SYMMETRIC_KEY_ENCODING_TYPE.class.getName())
-				.append("]").toString();
-				throw new SinnoriConfigurationException(errorMessage);
-			}
-			
-			this.symmetricKeyEncodingOfSessionKey = (CommonType.SYMMETRIC_KEY_ENCODING_TYPE) nativeValue;
+			this.symmetricIVSizeOfSessionKey = (Integer) nativeValue;		
 		} else if (itemID.equals(ItemIDDefiner.CommonPartItemIDDefiner.COMMON_UPDOWNFILE_LOCAL_SOURCE_FILE_RESOURCE_CNT_ITEMID)) {
 			if (null != nativeValue && !(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -268,11 +268,18 @@ public class CommonPartConfiguration {
 		return rsaKeypairSourceOfSessionKey;
 	}
 
-	public File getRsaKeyPairPathOfSessionKey() throws SinnoriConfigurationException {
-		if (null == rsaKeyPairPathOfSessionKey) {
-			throw new SinnoriConfigurationException("no matching or inactive status");
+	public File getRSAPublickeyFileOfSessionKey() throws SinnoriConfigurationException {
+		if (null == rsaPublickeyFileOfSessionKey) {
+			throw new SinnoriConfigurationException("sinnori config's RSA public key file is null because of no matching or inactive status");
 		}
-		return rsaKeyPairPathOfSessionKey;
+		return rsaPublickeyFileOfSessionKey;
+	}
+	
+	public File getRSAPrivatekeyFileOfSessionKey() throws SinnoriConfigurationException {
+		if (null == rsaPrivatekeyFileOfSessionKey) {
+			throw new SinnoriConfigurationException("sinnori config's RSA private key file is null because of no matching or inactive status");
+		}
+		return rsaPrivatekeyFileOfSessionKey;
 	}
 
 	public Integer getRsaKeySizeOfSessionKey() {
@@ -291,9 +298,6 @@ public class CommonPartConfiguration {
 		return symmetricIVSizeOfSessionKey;
 	}
 
-	public CommonType.SYMMETRIC_KEY_ENCODING_TYPE getSymmetricKeyEncodingOfSessionKey() {
-		return symmetricKeyEncodingOfSessionKey;
-	}
 
 	public Integer getLocalSourceFileResourceCnt() {
 		return localSourceFileResourceCnt;
@@ -314,7 +318,7 @@ public class CommonPartConfiguration {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("CommonPart [jdfErrorMessagePage=");
+		builder.append("CommonPartConfiguration [jdfErrorMessagePage=");
 		builder.append(jdfErrorMessagePage);
 		builder.append(", jdfLoginPage=");
 		builder.append(jdfLoginPage);
@@ -324,8 +328,10 @@ public class CommonPartConfiguration {
 		builder.append(webLayoutControlPage);
 		builder.append(", rsaKeypairSourceOfSessionKey=");
 		builder.append(rsaKeypairSourceOfSessionKey);
-		builder.append(", rsaKeyPairPathOfSessionKey=");
-		builder.append(rsaKeyPairPathOfSessionKey);
+		builder.append(", rsaPublickeyFileOfSessionKey=");
+		builder.append(rsaPublickeyFileOfSessionKey);
+		builder.append(", rsaPrivatekeyFileOfSessionKey=");
+		builder.append(rsaPrivatekeyFileOfSessionKey);
 		builder.append(", rsaKeySizeOfSessionKey=");
 		builder.append(rsaKeySizeOfSessionKey);
 		builder.append(", symmetricKeyAlgorithmOfSessionKey=");
@@ -334,14 +340,12 @@ public class CommonPartConfiguration {
 		builder.append(symmetricKeySizeOfSessionKey);
 		builder.append(", symmetricIVSizeOfSessionKey=");
 		builder.append(symmetricIVSizeOfSessionKey);
-		builder.append(", symmetricKeyEncodingOfSessionKey=");
-		builder.append(symmetricKeyEncodingOfSessionKey);
 		builder.append(", localSourceFileResourceCnt=");
 		builder.append(localSourceFileResourceCnt);
 		builder.append(", localTargetFileResourceCnt=");
 		builder.append(localTargetFileResourceCnt);
 		builder.append(", fileBlockMaxSize=");
-		builder.append(fileBlockMaxSize);		
+		builder.append(fileBlockMaxSize);
 		builder.append(", cachedObjectMaxSize=");
 		builder.append(cachedObjectMaxSize);
 		builder.append("]");

@@ -8,14 +8,16 @@ public abstract class ItemIDDefiner {
 		public static final String SERVLET_JSP_JDF_ERROR_MESSAGE_PAGE_ITEMID = "servlet_jsp.jdf_error_message_page.value";
 		public static final String SERVLET_JSP_JDF_LOGIN_PAGE_ITEMID = "servlet_jsp.jdf_login_page.value";
 		public static final String SERVLET_JSP_JDF_SERVLET_TRACE_ITEMID = "servlet_jsp.jdf_servlet_trace.value";
-		public static final String SERVLET_JSP_WEB_LAYOUT_CONTROL_PAGE_ITEMID = "servlet_jsp.web_layout_control_page.value";
-		public static final String SESSIONKEY_RSA_KEYPAIR_SOURCE_ITEMID = "sessionkey.rsa_keypair_source.value";
-		public static final String SESSIONKEY_RSA_KEYPAIR_PATH_ITEMID = "sessionkey.rsa_keypair_path.value";
-		public static final String SESSIONKEY_RSA_KEYSIZE_ITEMID = "sessionkey.rsa_keysize.value";
-		public static final String SESSIONKEY_SYMMETRIC_KEY_ALGORITHM_ITEMID = "sessionkey.symmetric_key_algorithm.value";
-		public static final String SESSIONKEY_SYMMETRIC_KEY_SIZE_ITEMID = "sessionkey.symmetric_key_size.value";
+		public static final String SERVLET_JSP_WEB_LAYOUT_CONTROL_PAGE_ITEMID = "servlet_jsp.web_layout_control_page.value";		
+		public static final String SESSIONKEY_RSA_KEYPAIR_SOURCE_ITEMID = "sessionkey.rsa.keypair_source.value";
+		
+		public static final String SESSIONKEY_RSA_PUBLICKEY_FILE_ITEMID = "sessionkey.rsa.publickey.file.value";
+		public static final String SESSIONKEY_RSA_PRIVATEKEY_FILE_ITEMID = "sessionkey.rsa.privatekey.file.value";		
+		public static final String SESSIONKEY_RSA_KEYSIZE_ITEMID = "sessionkey.rsa.keysize.value";
+		public static final String SESSIONKEY_SYMMETRIC_KEY_ALGORITHM_ITEMID = "sessionkey.symmetric_key.algorithm.value";
+		public static final String SESSIONKEY_SYMMETRIC_KEY_SIZE_ITEMID = "sessionkey.symmetric_key.size.value";
 		public static final String SESSIONKEY_IV_SIZE_ITEMID = "sessionkey.iv_size.value";
-		public static final String SESSIONKEY_PRIVATE_KEY_ENCODING_ITEMID = "sessionkey.private_key.encoding.value";
+		
 		public static final String COMMON_UPDOWNFILE_LOCAL_SOURCE_FILE_RESOURCE_CNT_ITEMID ="common.updownfile.local_source_file_resource_cnt.value";
 		public static final String COMMON_UPDOWNFILE_LOCAL_TARGET_FILE_RESOURCE_CNT_ITEMID = "common.updownfile.local_target_file_resource_cnt.value";
 		public static final String COMMON_UPDOWNFILE_FILE_BLOCK_MAX_SIZE_ITEMID ="common.updownfile.file_block_max_size.value";

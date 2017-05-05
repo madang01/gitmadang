@@ -50,7 +50,7 @@ public final class BoardReplyDTODecoder extends AbstractMessageDecoder {
 		, "boardId" // itemName
 		, 5 // itemTypeID
 		, "unsigned integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -60,7 +60,7 @@ public final class BoardReplyDTODecoder extends AbstractMessageDecoder {
 		, "groupNo" // itemName
 		, 5 // itemTypeID
 		, "unsigned integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -70,7 +70,7 @@ public final class BoardReplyDTODecoder extends AbstractMessageDecoder {
 		, "groupSeq" // itemName
 		, 3 // itemTypeID
 		, "unsigned short" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -80,7 +80,7 @@ public final class BoardReplyDTODecoder extends AbstractMessageDecoder {
 		, "parentBoardNo" // itemName
 		, 5 // itemTypeID
 		, "unsigned integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -90,7 +90,7 @@ public final class BoardReplyDTODecoder extends AbstractMessageDecoder {
 		, "depth" // itemName
 		, 1 // itemTypeID
 		, "unsigned byte" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -100,7 +100,7 @@ public final class BoardReplyDTODecoder extends AbstractMessageDecoder {
 		, "subject" // itemName
 		, 8 // itemTypeID
 		, "us pascal string" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -110,7 +110,7 @@ public final class BoardReplyDTODecoder extends AbstractMessageDecoder {
 		, "content" // itemName
 		, 9 // itemTypeID
 		, "si pascal string" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -120,7 +120,7 @@ public final class BoardReplyDTODecoder extends AbstractMessageDecoder {
 		, "attachId" // itemName
 		, 5 // itemTypeID
 		, "unsigned integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -130,7 +130,7 @@ public final class BoardReplyDTODecoder extends AbstractMessageDecoder {
 		, "writerId" // itemName
 		, 7 // itemTypeID
 		, "ub pascal string" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -140,7 +140,7 @@ public final class BoardReplyDTODecoder extends AbstractMessageDecoder {
 		, "ip" // itemName
 		, 7 // itemTypeID
 		, "ub pascal string" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));

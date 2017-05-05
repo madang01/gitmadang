@@ -24,7 +24,7 @@ public class MainProjectBuildSystemState {
 			String mainProjectName,
 			boolean isServer, boolean isAppClient, boolean isWebClient, 
 			String servletSystemLibrayPathString,
-			List<String> subProjectNameList, List<String> dbcpNameList, 
+			List<String> dbcpNameList, List<String> subProjectNameList,  
 			SequencedProperties sinnoriConfigurationSequencedPropties)
 			throws BuildSystemException {
 		if (null == sinnoriInstalledPathString) {

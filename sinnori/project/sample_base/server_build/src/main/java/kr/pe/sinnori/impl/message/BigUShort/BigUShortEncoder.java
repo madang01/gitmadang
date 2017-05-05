@@ -59,7 +59,7 @@ public final class BigUShortEncoder extends AbstractMessageEncoder {
 					, 13 // itemTypeID
 					, "si variable length byte[]" // itemTypeName
 					, bigUShort.getFiller1() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -67,7 +67,7 @@ public final class BigUShortEncoder extends AbstractMessageEncoder {
 					, 3 // itemTypeID
 					, "unsigned short" // itemTypeName
 					, bigUShort.getValue1() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -75,7 +75,7 @@ public final class BigUShortEncoder extends AbstractMessageEncoder {
 					, 3 // itemTypeID
 					, "unsigned short" // itemTypeName
 					, bigUShort.getValue2() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);

@@ -50,7 +50,7 @@ public final class BoardListOutDTODecoder extends AbstractMessageDecoder {
 		, "boardId" // itemName
 		, 5 // itemTypeID
 		, "unsigned integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -60,7 +60,7 @@ public final class BoardListOutDTODecoder extends AbstractMessageDecoder {
 		, "startNo" // itemName
 		, 5 // itemTypeID
 		, "unsigned integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -70,7 +70,7 @@ public final class BoardListOutDTODecoder extends AbstractMessageDecoder {
 		, "pageSize" // itemName
 		, 3 // itemTypeID
 		, "unsigned short" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -80,7 +80,7 @@ public final class BoardListOutDTODecoder extends AbstractMessageDecoder {
 		, "total" // itemName
 		, 5 // itemTypeID
 		, "unsigned integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -90,7 +90,7 @@ public final class BoardListOutDTODecoder extends AbstractMessageDecoder {
 		, "cnt" // itemName
 		, 4 // itemTypeID
 		, "integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -109,7 +109,7 @@ public final class BoardListOutDTODecoder extends AbstractMessageDecoder {
 			, "boardNo" // itemName
 			, 5 // itemTypeID
 			, "unsigned integer" // itemTypeName
-			, -1 // itemSizeForLang
+			, -1 // itemSize
 			, null // itemCharset,
 			, charsetOfProject
 			, boardMiddleReadObj));
@@ -119,7 +119,7 @@ public final class BoardListOutDTODecoder extends AbstractMessageDecoder {
 			, "groupNo" // itemName
 			, 5 // itemTypeID
 			, "unsigned integer" // itemTypeName
-			, -1 // itemSizeForLang
+			, -1 // itemSize
 			, null // itemCharset,
 			, charsetOfProject
 			, boardMiddleReadObj));
@@ -129,7 +129,7 @@ public final class BoardListOutDTODecoder extends AbstractMessageDecoder {
 			, "groupSeq" // itemName
 			, 3 // itemTypeID
 			, "unsigned short" // itemTypeName
-			, -1 // itemSizeForLang
+			, -1 // itemSize
 			, null // itemCharset,
 			, charsetOfProject
 			, boardMiddleReadObj));
@@ -139,7 +139,7 @@ public final class BoardListOutDTODecoder extends AbstractMessageDecoder {
 			, "parentNo" // itemName
 			, 5 // itemTypeID
 			, "unsigned integer" // itemTypeName
-			, -1 // itemSizeForLang
+			, -1 // itemSize
 			, null // itemCharset,
 			, charsetOfProject
 			, boardMiddleReadObj));
@@ -149,7 +149,7 @@ public final class BoardListOutDTODecoder extends AbstractMessageDecoder {
 			, "depth" // itemName
 			, 1 // itemTypeID
 			, "unsigned byte" // itemTypeName
-			, -1 // itemSizeForLang
+			, -1 // itemSize
 			, null // itemCharset,
 			, charsetOfProject
 			, boardMiddleReadObj));
@@ -159,7 +159,7 @@ public final class BoardListOutDTODecoder extends AbstractMessageDecoder {
 			, "subject" // itemName
 			, 7 // itemTypeID
 			, "ub pascal string" // itemTypeName
-			, -1 // itemSizeForLang
+			, -1 // itemSize
 			, null // itemCharset,
 			, charsetOfProject
 			, boardMiddleReadObj));
@@ -169,7 +169,7 @@ public final class BoardListOutDTODecoder extends AbstractMessageDecoder {
 			, "writerId" // itemName
 			, 7 // itemTypeID
 			, "ub pascal string" // itemTypeName
-			, -1 // itemSizeForLang
+			, -1 // itemSize
 			, null // itemCharset,
 			, charsetOfProject
 			, boardMiddleReadObj));
@@ -179,7 +179,7 @@ public final class BoardListOutDTODecoder extends AbstractMessageDecoder {
 			, "nickname" // itemName
 			, 7 // itemTypeID
 			, "ub pascal string" // itemTypeName
-			, -1 // itemSizeForLang
+			, -1 // itemSize
 			, null // itemCharset,
 			, charsetOfProject
 			, boardMiddleReadObj));
@@ -189,7 +189,7 @@ public final class BoardListOutDTODecoder extends AbstractMessageDecoder {
 			, "viewCount" // itemName
 			, 4 // itemTypeID
 			, "integer" // itemTypeName
-			, -1 // itemSizeForLang
+			, -1 // itemSize
 			, null // itemCharset,
 			, charsetOfProject
 			, boardMiddleReadObj));
@@ -199,7 +199,7 @@ public final class BoardListOutDTODecoder extends AbstractMessageDecoder {
 			, "votes" // itemName
 			, 4 // itemTypeID
 			, "integer" // itemTypeName
-			, -1 // itemSizeForLang
+			, -1 // itemSize
 			, null // itemCharset,
 			, charsetOfProject
 			, boardMiddleReadObj));
@@ -209,7 +209,7 @@ public final class BoardListOutDTODecoder extends AbstractMessageDecoder {
 			, "deleteFlag" // itemName
 			, 7 // itemTypeID
 			, "ub pascal string" // itemTypeName
-			, -1 // itemSizeForLang
+			, -1 // itemSize
 			, null // itemCharset,
 			, charsetOfProject
 			, boardMiddleReadObj));
@@ -219,7 +219,7 @@ public final class BoardListOutDTODecoder extends AbstractMessageDecoder {
 			, "registerDate" // itemName
 			, 16 // itemTypeID
 			, "java sql timestamp" // itemTypeName
-			, -1 // itemSizeForLang
+			, -1 // itemSize
 			, null // itemCharset,
 			, charsetOfProject
 			, boardMiddleReadObj));
@@ -229,7 +229,7 @@ public final class BoardListOutDTODecoder extends AbstractMessageDecoder {
 			, "modifiedDate" // itemName
 			, 16 // itemTypeID
 			, "java sql timestamp" // itemTypeName
-			, -1 // itemSizeForLang
+			, -1 // itemSize
 			, null // itemCharset,
 			, charsetOfProject
 			, boardMiddleReadObj));
@@ -239,7 +239,7 @@ public final class BoardListOutDTODecoder extends AbstractMessageDecoder {
 			, "memberGubunName" // itemName
 			, 7 // itemTypeID
 			, "ub pascal string" // itemTypeName
-			, -1 // itemSizeForLang
+			, -1 // itemSize
 			, null // itemCharset,
 			, charsetOfProject
 			, boardMiddleReadObj));

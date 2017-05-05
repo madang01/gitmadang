@@ -59,7 +59,7 @@ public final class EchoEncoder extends AbstractMessageEncoder {
 					, 4 // itemTypeID
 					, "integer" // itemTypeName
 					, echo.getRandomInt() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -67,7 +67,7 @@ public final class EchoEncoder extends AbstractMessageEncoder {
 					, 6 // itemTypeID
 					, "long" // itemTypeName
 					, echo.getStartTime() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);

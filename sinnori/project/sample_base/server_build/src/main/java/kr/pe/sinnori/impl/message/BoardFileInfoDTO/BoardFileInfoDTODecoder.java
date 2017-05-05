@@ -50,7 +50,7 @@ public final class BoardFileInfoDTODecoder extends AbstractMessageDecoder {
 		, "attachId" // itemName
 		, 5 // itemTypeID
 		, "unsigned integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -60,7 +60,7 @@ public final class BoardFileInfoDTODecoder extends AbstractMessageDecoder {
 		, "ownerId" // itemName
 		, 7 // itemTypeID
 		, "ub pascal string" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -70,7 +70,7 @@ public final class BoardFileInfoDTODecoder extends AbstractMessageDecoder {
 		, "ip" // itemName
 		, 7 // itemTypeID
 		, "ub pascal string" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -80,7 +80,7 @@ public final class BoardFileInfoDTODecoder extends AbstractMessageDecoder {
 		, "registerDate" // itemName
 		, 16 // itemTypeID
 		, "java sql timestamp" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -90,7 +90,7 @@ public final class BoardFileInfoDTODecoder extends AbstractMessageDecoder {
 		, "modifiedDate" // itemName
 		, 16 // itemTypeID
 		, "java sql timestamp" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));

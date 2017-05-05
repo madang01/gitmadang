@@ -50,7 +50,7 @@ public final class BoardUploadFileOutDTODecoder extends AbstractMessageDecoder {
 		, "attachId" // itemName
 		, 5 // itemTypeID
 		, "unsigned integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -60,7 +60,7 @@ public final class BoardUploadFileOutDTODecoder extends AbstractMessageDecoder {
 		, "ownerId" // itemName
 		, 7 // itemTypeID
 		, "ub pascal string" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -70,7 +70,7 @@ public final class BoardUploadFileOutDTODecoder extends AbstractMessageDecoder {
 		, "ip" // itemName
 		, 7 // itemTypeID
 		, "ub pascal string" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -80,7 +80,7 @@ public final class BoardUploadFileOutDTODecoder extends AbstractMessageDecoder {
 		, "registerDate" // itemName
 		, 16 // itemTypeID
 		, "java sql timestamp" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -90,7 +90,7 @@ public final class BoardUploadFileOutDTODecoder extends AbstractMessageDecoder {
 		, "modifiedDate" // itemName
 		, 16 // itemTypeID
 		, "java sql timestamp" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -100,7 +100,7 @@ public final class BoardUploadFileOutDTODecoder extends AbstractMessageDecoder {
 		, "attachFileCnt" // itemName
 		, 4 // itemTypeID
 		, "integer" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -119,7 +119,7 @@ public final class BoardUploadFileOutDTODecoder extends AbstractMessageDecoder {
 			, "attachSeq" // itemName
 			, 1 // itemTypeID
 			, "unsigned byte" // itemTypeName
-			, -1 // itemSizeForLang
+			, -1 // itemSize
 			, null // itemCharset,
 			, charsetOfProject
 			, attachFileMiddleReadObj));
@@ -129,7 +129,7 @@ public final class BoardUploadFileOutDTODecoder extends AbstractMessageDecoder {
 			, "attachFileName" // itemName
 			, 8 // itemTypeID
 			, "us pascal string" // itemTypeName
-			, -1 // itemSizeForLang
+			, -1 // itemSize
 			, null // itemCharset,
 			, charsetOfProject
 			, attachFileMiddleReadObj));
@@ -139,7 +139,7 @@ public final class BoardUploadFileOutDTODecoder extends AbstractMessageDecoder {
 			, "systemFileName" // itemName
 			, 8 // itemTypeID
 			, "us pascal string" // itemTypeName
-			, -1 // itemSizeForLang
+			, -1 // itemSize
 			, null // itemCharset,
 			, charsetOfProject
 			, attachFileMiddleReadObj));

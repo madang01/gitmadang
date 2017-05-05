@@ -204,18 +204,20 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 			log.info("{}:calling", traceLogBaseMsg);
 		}
 
-		String topmenu = req.getParameter("topmenu");
+		/*String topmenu = req.getParameter("topmenu");
 		// if (null == topmenu) topmenu="";
 
 		String leftmenu = req.getRequestURI();
 		// if (null == leftmenu) leftmenu = req.getRequestURI();
 
 		req.setAttribute("topmenu", topmenu);
-		req.setAttribute("leftmenu", leftmenu);
+		req.setAttribute("leftmenu", leftmenu);*/
 		
-		kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager sessionKeyServerManger = kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager.getInstance();
-		String modulusHex = sessionKeyServerManger.getModulusHexStrForWeb();
-		req.setAttribute("modulusHex", modulusHex);
+		
+		/*ServerSessionkeyManger serverSessionkeyManger = ServerSessionkeyManger.getInstance();
+		
+		String modulusHex = serverSessionkeyManger.getModulusHexStrForWeb();
+		req.setAttribute("modulusHex", modulusHex);*/
 
 		try {
 			performPreTask(req, res);

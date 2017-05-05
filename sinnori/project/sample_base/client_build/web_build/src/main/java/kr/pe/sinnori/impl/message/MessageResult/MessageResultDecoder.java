@@ -50,7 +50,7 @@ public final class MessageResultDecoder extends AbstractMessageDecoder {
 		, "taskMessageID" // itemName
 		, 7 // itemTypeID
 		, "ub pascal string" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -60,7 +60,7 @@ public final class MessageResultDecoder extends AbstractMessageDecoder {
 		, "isSuccess" // itemName
 		, 17 // itemTypeID
 		, "boolean" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -70,7 +70,7 @@ public final class MessageResultDecoder extends AbstractMessageDecoder {
 		, "resultMessage" // itemName
 		, 7 // itemTypeID
 		, "ub pascal string" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));

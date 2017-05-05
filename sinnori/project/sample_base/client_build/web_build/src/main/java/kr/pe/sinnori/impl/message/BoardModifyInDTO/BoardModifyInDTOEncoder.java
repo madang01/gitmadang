@@ -59,7 +59,7 @@ public final class BoardModifyInDTOEncoder extends AbstractMessageEncoder {
 					, 5 // itemTypeID
 					, "unsigned integer" // itemTypeName
 					, boardModifyInDTO.getBoardId() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -67,7 +67,7 @@ public final class BoardModifyInDTOEncoder extends AbstractMessageEncoder {
 					, 5 // itemTypeID
 					, "unsigned integer" // itemTypeName
 					, boardModifyInDTO.getBoardNo() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -75,7 +75,7 @@ public final class BoardModifyInDTOEncoder extends AbstractMessageEncoder {
 					, 8 // itemTypeID
 					, "us pascal string" // itemTypeName
 					, boardModifyInDTO.getSubject() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -83,7 +83,7 @@ public final class BoardModifyInDTOEncoder extends AbstractMessageEncoder {
 					, 9 // itemTypeID
 					, "si pascal string" // itemTypeName
 					, boardModifyInDTO.getContent() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -91,7 +91,7 @@ public final class BoardModifyInDTOEncoder extends AbstractMessageEncoder {
 					, 5 // itemTypeID
 					, "unsigned integer" // itemTypeName
 					, boardModifyInDTO.getAttachId() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -99,7 +99,7 @@ public final class BoardModifyInDTOEncoder extends AbstractMessageEncoder {
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
 					, boardModifyInDTO.getUserId() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -107,7 +107,7 @@ public final class BoardModifyInDTOEncoder extends AbstractMessageEncoder {
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
 					, boardModifyInDTO.getIp() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);

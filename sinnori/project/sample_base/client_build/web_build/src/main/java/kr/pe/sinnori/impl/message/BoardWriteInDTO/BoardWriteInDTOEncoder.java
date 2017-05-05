@@ -59,7 +59,7 @@ public final class BoardWriteInDTOEncoder extends AbstractMessageEncoder {
 					, 6 // itemTypeID
 					, "long" // itemTypeName
 					, boardWriteInDTO.getBoardId() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -67,7 +67,7 @@ public final class BoardWriteInDTOEncoder extends AbstractMessageEncoder {
 					, 8 // itemTypeID
 					, "us pascal string" // itemTypeName
 					, boardWriteInDTO.getSubject() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -75,7 +75,7 @@ public final class BoardWriteInDTOEncoder extends AbstractMessageEncoder {
 					, 8 // itemTypeID
 					, "us pascal string" // itemTypeName
 					, boardWriteInDTO.getContent() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -83,7 +83,7 @@ public final class BoardWriteInDTOEncoder extends AbstractMessageEncoder {
 					, 5 // itemTypeID
 					, "unsigned integer" // itemTypeName
 					, boardWriteInDTO.getAttachId() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -91,7 +91,7 @@ public final class BoardWriteInDTOEncoder extends AbstractMessageEncoder {
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
 					, boardWriteInDTO.getUserId() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -99,7 +99,7 @@ public final class BoardWriteInDTOEncoder extends AbstractMessageEncoder {
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
 					, boardWriteInDTO.getIp() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);

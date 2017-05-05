@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--  !DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd" -->
-<!DOCTYPE configuration SYSTEM "/home/madang01/gitsinnori/sinnori/resources/mybatis-3-config.dtd">
+<!DOCTYPE configuration SYSTEM "D:\gitsinnori\sinnori\resouces\mybatis\mybatis-3-config.dtd">
 
 <configuration>
-	<typeAliases><typeAlias type="kr.pe.sinnori.impl.server.mybatis.SampleBaseDBDataSourceFactory" alias="DBCP" /></typeAliases>
-
 	<environments default="sample_base_db">
 
 		<environment id="sample_base_db">
@@ -30,17 +28,13 @@
 				<property name="poolPingEnabled" value="true" />
 				
 			</dataSource -->
-			<dataSource type="DBCP"></dataSource>
+			<dataSource type="kr.pe.sinnori.server.mysql.SampleBaseDBDataSourceFactory"></dataSource>
 
 		</environment>
 
 	</environments>
 
 	<mappers>
-		<!-- 
-		classpath relative resource 방식으로 지정된 상대 경로는 
-		메인 프로젝트에서 지정한 동적  클래스 로딩 APP-INF 의 리소스를 따른다.
-		-->
 		<mapper resource="kr/pe/sinnori/impl/mybatis/sinnoriWebMapper.xml" />
 
 	</mappers>

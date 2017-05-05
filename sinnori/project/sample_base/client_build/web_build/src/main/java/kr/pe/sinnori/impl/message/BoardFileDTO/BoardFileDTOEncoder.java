@@ -59,7 +59,7 @@ public final class BoardFileDTOEncoder extends AbstractMessageEncoder {
 					, 5 // itemTypeID
 					, "unsigned integer" // itemTypeName
 					, boardFileDTO.getAttachId() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -67,7 +67,7 @@ public final class BoardFileDTOEncoder extends AbstractMessageEncoder {
 					, 1 // itemTypeID
 					, "unsigned byte" // itemTypeName
 					, boardFileDTO.getAttachSeq() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -75,7 +75,7 @@ public final class BoardFileDTOEncoder extends AbstractMessageEncoder {
 					, 8 // itemTypeID
 					, "us pascal string" // itemTypeName
 					, boardFileDTO.getAttachFileName() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -83,7 +83,7 @@ public final class BoardFileDTOEncoder extends AbstractMessageEncoder {
 					, 8 // itemTypeID
 					, "us pascal string" // itemTypeName
 					, boardFileDTO.getSystemFileName() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);

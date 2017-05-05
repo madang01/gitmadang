@@ -59,7 +59,7 @@ public final class BinaryPublicKeyEncoder extends AbstractMessageEncoder {
 					, 13 // itemTypeID
 					, "si variable length byte[]" // itemTypeName
 					, binaryPublicKey.getPublicKeyBytes() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);

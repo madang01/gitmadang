@@ -59,7 +59,7 @@ public final class SeqValueOutDTOEncoder extends AbstractMessageEncoder {
 					, 5 // itemTypeID
 					, "unsigned integer" // itemTypeName
 					, seqValueOutDTO.getSeqValue() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -67,7 +67,7 @@ public final class SeqValueOutDTOEncoder extends AbstractMessageEncoder {
 					, 1 // itemTypeID
 					, "unsigned byte" // itemTypeName
 					, seqValueOutDTO.getWantedSize() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);

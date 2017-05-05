@@ -59,7 +59,7 @@ public final class BigIntEncoder extends AbstractMessageEncoder {
 					, 13 // itemTypeID
 					, "si variable length byte[]" // itemTypeName
 					, bigInt.getFiller1() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -67,7 +67,7 @@ public final class BigIntEncoder extends AbstractMessageEncoder {
 					, 4 // itemTypeID
 					, "integer" // itemTypeName
 					, bigInt.getValue1() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -75,7 +75,7 @@ public final class BigIntEncoder extends AbstractMessageEncoder {
 					, 4 // itemTypeID
 					, "integer" // itemTypeName
 					, bigInt.getValue2() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);

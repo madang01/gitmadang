@@ -1,11 +1,11 @@
 package kr.pe.sinnori.impl.server.mybatis;
 
-import kr.pe.sinnori.common.etc.DBCPManager;
-import kr.pe.sinnori.common.exception.DBNotReadyException;
-
 import org.apache.ibatis.datasource.unpooled.UnpooledDataSourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import kr.pe.sinnori.common.etc.DBCPManager;
+import kr.pe.sinnori.common.exception.DBNotReadyException;
 
 public class SampleBaseDBDataSourceFactory extends UnpooledDataSourceFactory {
 	private Logger log = LoggerFactory.getLogger(SampleBaseDBDataSourceFactory.class);
@@ -16,7 +16,7 @@ public class SampleBaseDBDataSourceFactory extends UnpooledDataSourceFactory {
 		try {
 			this.dataSource = dbcpManager.getBasicDataSource(dbcpConnectionPoolName);
 		} catch (DBNotReadyException e) {
-			log.error("unknown dbcp connection pool name[{}]", dbcpConnectionPoolName);
+			log.error("unknown dbcp connection pool name[{}]", dbcpConnectionPoolName);			
 			System.exit(1);
 		}
 	}

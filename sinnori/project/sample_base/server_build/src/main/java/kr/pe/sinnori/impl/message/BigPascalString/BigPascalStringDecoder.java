@@ -50,7 +50,7 @@ public final class BigPascalStringDecoder extends AbstractMessageDecoder {
 		, "filler1" // itemName
 		, 13 // itemTypeID
 		, "si variable length byte[]" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -60,7 +60,7 @@ public final class BigPascalStringDecoder extends AbstractMessageDecoder {
 		, "value1" // itemName
 		, 7 // itemTypeID
 		, "ub pascal string" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));

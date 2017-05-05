@@ -50,7 +50,7 @@ public final class BigShortDecoder extends AbstractMessageDecoder {
 		, "filler1" // itemName
 		, 13 // itemTypeID
 		, "si variable length byte[]" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -60,7 +60,7 @@ public final class BigShortDecoder extends AbstractMessageDecoder {
 		, "value1" // itemName
 		, 2 // itemTypeID
 		, "short" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -70,7 +70,7 @@ public final class BigShortDecoder extends AbstractMessageDecoder {
 		, "value2" // itemName
 		, 2 // itemTypeID
 		, "short" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));

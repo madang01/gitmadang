@@ -59,7 +59,7 @@ public final class BoardUploadFileOutDTOEncoder extends AbstractMessageEncoder {
 					, 5 // itemTypeID
 					, "unsigned integer" // itemTypeName
 					, boardUploadFileOutDTO.getAttachId() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -67,7 +67,7 @@ public final class BoardUploadFileOutDTOEncoder extends AbstractMessageEncoder {
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
 					, boardUploadFileOutDTO.getOwnerId() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -75,7 +75,7 @@ public final class BoardUploadFileOutDTOEncoder extends AbstractMessageEncoder {
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
 					, boardUploadFileOutDTO.getIp() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -83,7 +83,7 @@ public final class BoardUploadFileOutDTOEncoder extends AbstractMessageEncoder {
 					, 16 // itemTypeID
 					, "java sql timestamp" // itemTypeName
 					, boardUploadFileOutDTO.getRegisterDate() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -91,7 +91,7 @@ public final class BoardUploadFileOutDTOEncoder extends AbstractMessageEncoder {
 					, 16 // itemTypeID
 					, "java sql timestamp" // itemTypeName
 					, boardUploadFileOutDTO.getModifiedDate() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -99,7 +99,7 @@ public final class BoardUploadFileOutDTOEncoder extends AbstractMessageEncoder {
 					, 4 // itemTypeID
 					, "integer" // itemTypeName
 					, boardUploadFileOutDTO.getAttachFileCnt() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -146,7 +146,7 @@ public final class BoardUploadFileOutDTOEncoder extends AbstractMessageEncoder {
 							, 1 // itemTypeID
 							, "unsigned byte" // itemTypeName
 							, attachFile.getAttachSeq() // itemValue
-							, -1 // itemSizeForLang
+							, -1 // itemSize
 							, null // itemCharset,
 							, charsetOfProject
 							, attachFileMiddleWriteObj);
@@ -154,7 +154,7 @@ public final class BoardUploadFileOutDTOEncoder extends AbstractMessageEncoder {
 							, 8 // itemTypeID
 							, "us pascal string" // itemTypeName
 							, attachFile.getAttachFileName() // itemValue
-							, -1 // itemSizeForLang
+							, -1 // itemSize
 							, null // itemCharset,
 							, charsetOfProject
 							, attachFileMiddleWriteObj);
@@ -162,7 +162,7 @@ public final class BoardUploadFileOutDTOEncoder extends AbstractMessageEncoder {
 							, 8 // itemTypeID
 							, "us pascal string" // itemTypeName
 							, attachFile.getSystemFileName() // itemValue
-							, -1 // itemSizeForLang
+							, -1 // itemSize
 							, null // itemCharset,
 							, charsetOfProject
 							, attachFileMiddleWriteObj);

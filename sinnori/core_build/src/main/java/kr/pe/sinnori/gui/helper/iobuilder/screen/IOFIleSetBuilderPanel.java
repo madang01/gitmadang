@@ -42,7 +42,6 @@ import com.jgoodies.forms.layout.FormLayout;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.etc.CommonType.READ_WRITE_MODE;
-import kr.pe.sinnori.common.exception.MessageInfoSAXParserException;
 import kr.pe.sinnori.common.message.builder.IOFileSetContentsBuilderManager;
 import kr.pe.sinnori.common.message.builder.info.MessageInfo;
 import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
@@ -110,13 +109,13 @@ public class IOFIleSetBuilderPanel extends JPanel implements FileFunctionManager
 		thirdPathSavingIOFileSetChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
 		messageInfoPathButton
-				.setAction(new PathSwingAction(mainFrame, messageInfoPathChooser, messageInfoPathTextField));
+				.setAction(new PathSwingAction(mainFrame, messageInfoPathChooser, messageInfoPathButton.getText(), messageInfoPathTextField));
 		firstPathSavingIOFileSetButton.setAction(
-				new PathSwingAction(mainFrame, firstPathSavingIOFileSetChooser, firstPathSavingIOFileSetTextField));
+				new PathSwingAction(mainFrame, firstPathSavingIOFileSetChooser, firstPathSavingIOFileSetButton.getText(), firstPathSavingIOFileSetTextField));
 		secondPathSavingIOFileSetButton.setAction(
-				new PathSwingAction(mainFrame, secondPathSavingIOFileSetChooser, secondPathSavingIOFileSetTextField));
+				new PathSwingAction(mainFrame, secondPathSavingIOFileSetChooser, secondPathSavingIOFileSetButton.getText(), secondPathSavingIOFileSetTextField));
 		thirdPathSavingIOFileSetButton.setAction(
-				new PathSwingAction(mainFrame, thirdPathSavingIOFileSetChooser, thirdPathSavingIOFileSetTextField));
+				new PathSwingAction(mainFrame, thirdPathSavingIOFileSetChooser, thirdPathSavingIOFileSetButton.getText(), thirdPathSavingIOFileSetTextField));
 
 		// readAllMessageInfo();
 		messageInfoTable.setRowSelectionAllowed(false);
@@ -234,7 +233,7 @@ public class IOFIleSetBuilderPanel extends JPanel implements FileFunctionManager
 				MessageInfoSAXParser messageInfoSAXParser = null;
 				try {
 					messageInfoSAXParser = new MessageInfoSAXParser();
-				} catch (MessageInfoSAXParserException e) {
+				} catch (SAXException e) {
 					String errorMessage = e.toString();
 					log.warn(errorMessage, e);
 					continue;

@@ -50,7 +50,7 @@ public final class BigFixedLenStringDecoder extends AbstractMessageDecoder {
 		, "filler1" // itemName
 		, 13 // itemTypeID
 		, "si variable length byte[]" // itemTypeName
-		, -1 // itemSizeForLang
+		, -1 // itemSize
 		, null // itemCharset,
 		, charsetOfProject
 		, middleReadObj));
@@ -60,7 +60,7 @@ public final class BigFixedLenStringDecoder extends AbstractMessageDecoder {
 		, "value1" // itemName
 		, 10 // itemTypeID
 		, "fixed length string" // itemTypeName
-		, 10 // itemSizeForLang
+		, 10 // itemSize
 		, "EUC-KR" // itemCharset,
 		, charsetOfProject
 		, middleReadObj));

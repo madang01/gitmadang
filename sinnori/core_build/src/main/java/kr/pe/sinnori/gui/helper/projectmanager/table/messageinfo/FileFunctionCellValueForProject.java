@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import kr.pe.sinnori.common.etc.CommonType;
-import kr.pe.sinnori.common.exception.MessageInfoSAXParserException;
 import kr.pe.sinnori.common.message.builder.info.MessageInfo;
 import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
@@ -55,7 +54,7 @@ public class FileFunctionCellValueForProject extends JPanel {
 			MessageInfoSAXParser messageInfoSAXParser = null;
 			try {
 				messageInfoSAXParser = new MessageInfoSAXParser();
-			} catch (MessageInfoSAXParserException e1) {
+			} catch (SAXException e1) {
 				showMessageDialog(e1.toString());
 				log.warn("fail to create instacne of  MessageInfoSAXParser class", e1);
 				return;

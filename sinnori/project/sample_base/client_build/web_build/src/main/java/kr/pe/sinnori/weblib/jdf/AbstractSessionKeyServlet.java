@@ -24,10 +24,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.SymmetricException;
-import kr.pe.sinnori.common.sessionkey.ServerSessionKeyManager;
-import kr.pe.sinnori.common.sessionkey.SymmetricKey;
+import kr.pe.sinnori.server.sessionkey.ServerSessionkey;
+import kr.pe.sinnori.server.sessionkey.ServerSessionkeyManager;
 import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
 
 /**
@@ -43,10 +42,198 @@ import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
 @SuppressWarnings("serial")
 public abstract class AbstractSessionKeyServlet extends AbstractServlet {	
 
-	
-	protected void performPreTask(HttpServletRequest req, HttpServletResponse res) throws Exception  {
-		// HttpSession session = req.getSession();
+	private String getRedirectPageStringGettingSessionkey(HttpServletRequest req, String modulusHexString) {
+		String requestURI = req.getRequestURI();
 		
+		StringBuilder pageStrBuilder = new StringBuilder("<!DOCTYPE html><html><head>");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		pageStrBuilder.append("<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		pageStrBuilder.append("<title>");
+		pageStrBuilder.append(WebCommonStaticFinalVars.WEBSITE_TITLE);
+		pageStrBuilder.append("</title>");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		pageStrBuilder.append("<script type=\"text/javascript\" src=\"/js/jsbn/jsbn.js\"></script>");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		pageStrBuilder.append("<script type=\"text/javascript\" src=\"/js/jsbn/jsbn2.js\"></script>");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		pageStrBuilder.append("<script type=\"text/javascript\" src=\"/js/jsbn/prng4.js\"></script>");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		pageStrBuilder.append("<script type=\"text/javascript\" src=\"/js/jsbn/rng.js\"></script>");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		pageStrBuilder.append("<script type=\"text/javascript\" src=\"/js/jsbn/rsa.js\"></script>");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		pageStrBuilder.append("<script type=\"text/javascript\" src=\"/js/jsbn/rsa2.js\"></script>");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		pageStrBuilder.append("<script type=\"text/javascript\" src=\"/js/cryptoJS/rollups/sha256.js\"></script>");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		pageStrBuilder.append("<script type=\"text/javascript\" src=\"/js/cryptoJS/rollups/aes.js\"></script>");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		pageStrBuilder.append("<script type=\"text/javascript\" src=\"/js/cryptoJS/components/core-min.js\"></script>");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		pageStrBuilder.append("<script type=\"text/javascript\" src=\"/js/cryptoJS/components/cipher-core-min.js\"></script>");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		pageStrBuilder.append("<script type=\"text/javascript\">");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		pageStrBuilder.append("\tfunction goURL(targeturl) {");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		pageStrBuilder.append("\t\tif (typeof(sessionStorage) == 'undefined' ) {");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		pageStrBuilder.append("\t\t\talert('당신의 브라우저는 HTML5 sessionStorage 를 지원하지 않습니다. 브라우저를 업그레이드하세요.');");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		pageStrBuilder.append("\t\t\treturn;");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		pageStrBuilder.append("\t\t}");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		pageStrBuilder.append("\t\tvar webUserPrivateKeyBase64 = sessionStorage.getItem('");
+		pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME);
+		pageStrBuilder.append("');");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		// FIXME! 웹 유저 비밀키(=대칭키)
+		// pageStrBuilder.append("\t\talert(sinnoriPrivateKey);");
+		// pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		pageStrBuilder.append("\t\tif (null == webUserPrivateKeyBase64 || '' == webUserPrivateKeyBase64) {");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		pageStrBuilder.append("\t\t\ttry {");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		pageStrBuilder.append("\t\t\t\tvar webUserPrivateKey = CryptoJS.lib.WordArray.random(");
+		pageStrBuilder.append(WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE);
+		pageStrBuilder.append(");");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		
+		pageStrBuilder.append("\t\t\t\tsessionStorage.setItem('");
+		pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME);
+		pageStrBuilder.append("', CryptoJS.enc.Base64.stringify(webUserPrivateKey)); // key-value 형식으로 저장");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		
+				
+		pageStrBuilder.append("\t\t\t\tvar rsa = new RSAKey();");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		pageStrBuilder.append("\t\t\t\trsa.setPublic(\"");
+		pageStrBuilder.append(modulusHexString);
+		pageStrBuilder.append("\", \"10001\");");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		pageStrBuilder.append("\t\t\t\tvar sessionKeyHex = rsa.encrypt(CryptoJS.enc.Base64.stringify(webUserPrivateKey));");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		pageStrBuilder.append("\t\t\t\tsessionStorage.setItem('");
+		pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_SESSIONKEY_NAME);
+		pageStrBuilder.append("', CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex))); // key-value 형식으로 저장");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		pageStrBuilder.append("\t\t\t} catch (e) {");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		
+		
+		pageStrBuilder.append("\t\t\t\t\tsessionStorage.removeItem('");
+		pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME);
+		pageStrBuilder.append("');");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		pageStrBuilder.append("\t\t\t\t\tsessionStorage.removeItem('");
+		pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_SESSIONKEY_NAME);
+		pageStrBuilder.append("');");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		pageStrBuilder.append("\t\t\t\t\talert(e);");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		pageStrBuilder.append("\t\t\t\t\treturn;");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		
+		
+		pageStrBuilder.append("\t\t\t}");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		pageStrBuilder.append("\t\t}");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		pageStrBuilder.append("\t\tvar g = document.gofrm;");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		pageStrBuilder.append("\t\tg.action = targeturl;");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+
+		pageStrBuilder.append("\t\tg.sessionkeyBase64.value = sessionStorage.getItem('");
+		pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_SESSIONKEY_NAME);
+		pageStrBuilder.append("');");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		pageStrBuilder.append("\t\tvar iv = CryptoJS.lib.WordArray.random(");
+		pageStrBuilder.append(WebCommonStaticFinalVars.WEBSITE_IV_SIZE);
+		pageStrBuilder.append(");");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		pageStrBuilder.append("\t\tg.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		// FIXME!
+		pageStrBuilder.append("\t\tg.submit();");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		pageStrBuilder.append("\t}");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		pageStrBuilder.append("</script>");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		pageStrBuilder.append("</head>");
+		
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		pageStrBuilder.append("<body onload=\"goURL('");
+		pageStrBuilder.append(requestURI);
+		pageStrBuilder.append("')\">");
+		
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		pageStrBuilder.append("<form name=gofrm method='post'>");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		pageStrBuilder.append("<input type=hidden name=\"sessionkeyBase64\" />");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		pageStrBuilder.append("<input type=hidden name=\"ivBase64\" />");
+		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		
+		Enumeration<String> parmEnum = req.getParameterNames();
+		while(parmEnum.hasMoreElements()) {
+			String parmName = parmEnum.nextElement();
+			String parmValue = req.getParameter(parmName);
+			
+			pageStrBuilder.append("<input type=hidden name=\"");
+			pageStrBuilder.append(StringEscapeUtils.escapeHtml4(parmName));
+			
+			
+			pageStrBuilder.append("\" value=\"");
+			pageStrBuilder.append(StringEscapeUtils.escapeHtml4(parmValue));
+			pageStrBuilder.append("\" />");
+			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		}
+		
+		pageStrBuilder.append("</body>");
+		pageStrBuilder.append("</html>");
+		
+		return pageStrBuilder.toString();
+	}
+	
+	
+	protected void performPreTask(HttpServletRequest req, HttpServletResponse res) throws Exception  {		
 		String parmSessionKeyBase64 = req.getParameter("sessionkeyBase64");
 		String parmIVBase64 = req.getParameter("ivBase64");
 		
@@ -54,230 +241,55 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		log.info(String.format("parm parmSessionKeyBase64=[%s]", parmSessionKeyBase64));
 		log.info(String.format("parm parmIVBase64=[%s]", parmIVBase64));
 		
-		if (null == parmSessionKeyBase64 || null == parmIVBase64) {
-			ServerSessionKeyManager sessionKeyServerManger = ServerSessionKeyManager
-					.getInstance();
-			String modulusHex = sessionKeyServerManger.getModulusHexStrForWeb();
+		ServerSessionkeyManager sessionkeyServerManger = null;
+		try {
+			sessionkeyServerManger = ServerSessionkeyManager.getInstance();
+		} catch (SymmetricException e) {
+			log.warn("ServerSessionkeyManger instance init error, errormessage=[{}]", e.getMessage());
 			
-			
-			String requestURI = req.getRequestURI();
-			
-			StringBuilder pageStrBuilder = new StringBuilder("<!DOCTYPE html><html><head>");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			pageStrBuilder.append("<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			pageStrBuilder.append("<title>");
-			pageStrBuilder.append(WebCommonStaticFinalVars.WEBSITE_TITLE);
-			pageStrBuilder.append("</title>");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			pageStrBuilder.append("<script type=\"text/javascript\" src=\"/js/jsbn/jsbn.js\"></script>");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			pageStrBuilder.append("<script type=\"text/javascript\" src=\"/js/jsbn/jsbn2.js\"></script>");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			pageStrBuilder.append("<script type=\"text/javascript\" src=\"/js/jsbn/prng4.js\"></script>");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			pageStrBuilder.append("<script type=\"text/javascript\" src=\"/js/jsbn/rng.js\"></script>");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			pageStrBuilder.append("<script type=\"text/javascript\" src=\"/js/jsbn/rsa.js\"></script>");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			pageStrBuilder.append("<script type=\"text/javascript\" src=\"/js/jsbn/rsa2.js\"></script>");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			pageStrBuilder.append("<script type=\"text/javascript\" src=\"/js/cryptoJS/rollups/sha256.js\"></script>");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			pageStrBuilder.append("<script type=\"text/javascript\" src=\"/js/cryptoJS/rollups/aes.js\"></script>");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			pageStrBuilder.append("<script type=\"text/javascript\" src=\"/js/cryptoJS/components/core-min.js\"></script>");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			pageStrBuilder.append("<script type=\"text/javascript\" src=\"/js/cryptoJS/components/cipher-core-min.js\"></script>");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			pageStrBuilder.append("<script type=\"text/javascript\">");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			pageStrBuilder.append("\tfunction goURL(targeturl) {");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			pageStrBuilder.append("\t\tif (typeof(sessionStorage) == 'undefined' ) {");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			pageStrBuilder.append("\t\t\talert('당신의 브라우저는 HTML5 sessionStorage 를 지원하지 않습니다. 브라우저를 업그레이드하세요.');");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			pageStrBuilder.append("\t\t\treturn;");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			pageStrBuilder.append("\t\t}");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			pageStrBuilder.append("\t\tvar webUserPrivateKeyBase64 = sessionStorage.getItem('");
-			pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME);
-			pageStrBuilder.append("');");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			// FIXME! 웹 유저 비밀키(=대칭키)
-			// pageStrBuilder.append("\t\talert(sinnoriPrivateKey);");
-			// pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			pageStrBuilder.append("\t\tif (null == webUserPrivateKeyBase64 || '' == webUserPrivateKeyBase64) {");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			pageStrBuilder.append("\t\t\ttry {");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			pageStrBuilder.append("\t\t\t\tvar webUserPrivateKey = CryptoJS.lib.WordArray.random(");
-			pageStrBuilder.append(WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE);
-			pageStrBuilder.append(");");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			
-			pageStrBuilder.append("\t\t\t\tsessionStorage.setItem('");
-			pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME);
-			pageStrBuilder.append("', CryptoJS.enc.Base64.stringify(webUserPrivateKey)); // key-value 형식으로 저장");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			
-					
-			pageStrBuilder.append("\t\t\t\tvar rsa = new RSAKey();");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			pageStrBuilder.append("\t\t\t\trsa.setPublic(\"");
-			pageStrBuilder.append(modulusHex);
-			pageStrBuilder.append("\", \"10001\");");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			pageStrBuilder.append("\t\t\t\tvar sessionKeyHex = rsa.encrypt(CryptoJS.enc.Base64.stringify(webUserPrivateKey));");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			pageStrBuilder.append("\t\t\t\tsessionStorage.setItem('");
-			pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_SESSIONKEY_NAME);
-			pageStrBuilder.append("', CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex))); // key-value 형식으로 저장");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			pageStrBuilder.append("\t\t\t} catch (e) {");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			
-			
-			pageStrBuilder.append("\t\t\t\t\tsessionStorage.removeItem('");
-			pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME);
-			pageStrBuilder.append("');");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			pageStrBuilder.append("\t\t\t\t\tsessionStorage.removeItem('");
-			pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_SESSIONKEY_NAME);
-			pageStrBuilder.append("');");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			pageStrBuilder.append("\t\t\t\t\talert(e);");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			pageStrBuilder.append("\t\t\t\t\treturn;");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			
-			
-			pageStrBuilder.append("\t\t\t}");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			pageStrBuilder.append("\t\t}");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			pageStrBuilder.append("\t\tvar g = document.gofrm;");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			pageStrBuilder.append("\t\tg.action = targeturl;");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-
-			pageStrBuilder.append("\t\tg.sessionkeyBase64.value = sessionStorage.getItem('");
-			pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_SESSIONKEY_NAME);
-			pageStrBuilder.append("');");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			pageStrBuilder.append("\t\tvar iv = CryptoJS.lib.WordArray.random(");
-			pageStrBuilder.append(WebCommonStaticFinalVars.WEBSITE_IV_SIZE);
-			pageStrBuilder.append(");");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			pageStrBuilder.append("\t\tg.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			// FIXME!
-			pageStrBuilder.append("\t\tg.submit();");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			pageStrBuilder.append("\t}");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			pageStrBuilder.append("</script>");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			pageStrBuilder.append("</head>");
-			
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			pageStrBuilder.append("<body onload=\"goURL('");
-			pageStrBuilder.append(requestURI);
-			pageStrBuilder.append("')\">");
-			
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			pageStrBuilder.append("<form name=gofrm method='post'>");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			pageStrBuilder.append("<input type=hidden name=\"sessionkeyBase64\" />");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			pageStrBuilder.append("<input type=hidden name=\"ivBase64\" />");
-			pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			
-			
-			Enumeration<String> parmEnum = req.getParameterNames();
-			while(parmEnum.hasMoreElements()) {
-				String parmName = parmEnum.nextElement();
-				String parmValue = req.getParameter(parmName);
-				
-				pageStrBuilder.append("<input type=hidden name=\"");
-				pageStrBuilder.append(StringEscapeUtils.escapeHtml4(parmName));
-				
-				
-				pageStrBuilder.append("\" value=\"");
-				pageStrBuilder.append(StringEscapeUtils.escapeHtml4(parmValue));
-				pageStrBuilder.append("\" />");
-				pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-			}
-			
-			pageStrBuilder.append("</body>");
-			pageStrBuilder.append("</html>");
-
-			// log.info(pageStrBuilder.toString());
-			
-			
+			String errorMessage = "ServerSessionkeyManger instance init error";
+			String debugMessage = String.format("ServerSessionkeyManger instance init error, errormessage=[%s]", e.getMessage());
+			printMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}		
+		ServerSessionkey webServerSessionkey = sessionkeyServerManger.getServerSessionkey();		
+		String modulusHexString = webServerSessionkey.getModulusHexStrForWeb();
+		
+		if (null == parmSessionKeyBase64 || null == parmIVBase64) {			
 			java.io.PrintWriter out = res.getWriter();
-			out.write(pageStrBuilder.toString());
+			out.write(getRedirectPageStringGettingSessionkey(req, modulusHexString));
 			out.close();
 			return;
 		}
 		
-		SymmetricKey  webUserSymmetricKey = null;
+		byte[] sessionkeyBytes = null;
 		try {
-			ServerSessionKeyManager sessionKeyServerManger = ServerSessionKeyManager.getInstance();
-			webUserSymmetricKey = sessionKeyServerManger.getSymmetricKey(WebCommonStaticFinalVars.WEBSITE_JAVA_SYMMETRIC_KEY_ALGORITHM_NAME, CommonType.SYMMETRIC_KEY_ENCODING.BASE64, parmSessionKeyBase64, parmIVBase64);
-		} catch(IllegalArgumentException e) {
-			log.warn("IllegalArgumentException", e);
+			sessionkeyBytes = org.apache.commons.codec.binary.Base64.decodeBase64(parmSessionKeyBase64);
+		} catch(Exception e) {
+			log.warn("parmSessionKeyBase64[{}] base64 decode error, errormessage=[{}]", parmSessionKeyBase64, e.getMessage());
 			
-			String errorMessage = e.getMessage();
-			
-			
-			printMessagePage(req, res, errorMessage, null);
+			String errorMessage = "the parameter parmSessionKeyBase64 is not a base64 string";
+			String debugMessage = String.format("parmSessionKeyBase64[%s] base64 decode error, errormessage=[%s]", parmSessionKeyBase64, e.getMessage());
+			printMessagePage(req, res, errorMessage, debugMessage);
 			return;
-		} catch(SymmetricException e) {
-			log.warn("SymmetricException", e);
+		}
+		byte[] ivBytes = null;
+		try {
+			ivBytes = org.apache.commons.codec.binary.Base64.decodeBase64(parmIVBase64);
+		} catch(Exception e) {
+			log.warn("parmIVBase64[{}] base64 decode error, errormessage=[{}]", parmIVBase64, e.getMessage());
 			
-			String errorMessage = e.getMessage();
+			String errorMessage = "the parameter parmIVBase64 is not a base64 string";
+			String debugMessage = String.format("parmIVBase64[%s] base64 decode error, errormessage=[%s]", parmIVBase64, e.getMessage());
 			
-			printMessagePage(req, res, errorMessage, null);
+			printMessagePage(req, res, errorMessage, debugMessage);
 			return;
-		}			
+		}		
 		
+		req.setAttribute("parmSessionKeyBase64", parmSessionKeyBase64);
 		req.setAttribute("parmIVBase64", parmIVBase64);
-		req.setAttribute("webUserSymmetricKey", webUserSymmetricKey);
+		req.setAttribute("modulusHexString", modulusHexString);
+		req.setAttribute("webServerSymmetricKey", webServerSessionkey.getNewInstanceOfServerSymmetricKey(sessionkeyBytes, ivBytes));
 		performTask(req,res);
 	}
 }

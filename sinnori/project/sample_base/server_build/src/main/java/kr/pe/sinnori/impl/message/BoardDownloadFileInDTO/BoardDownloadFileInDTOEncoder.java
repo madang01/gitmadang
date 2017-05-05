@@ -59,7 +59,7 @@ public final class BoardDownloadFileInDTOEncoder extends AbstractMessageEncoder 
 					, 5 // itemTypeID
 					, "unsigned integer" // itemTypeName
 					, boardDownloadFileInDTO.getAttachId() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -67,7 +67,7 @@ public final class BoardDownloadFileInDTOEncoder extends AbstractMessageEncoder 
 					, 1 // itemTypeID
 					, "unsigned byte" // itemTypeName
 					, boardDownloadFileInDTO.getAttachSeq() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);

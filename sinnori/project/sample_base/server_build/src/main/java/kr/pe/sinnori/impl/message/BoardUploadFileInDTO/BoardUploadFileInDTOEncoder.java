@@ -59,7 +59,7 @@ public final class BoardUploadFileInDTOEncoder extends AbstractMessageEncoder {
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
 					, boardUploadFileInDTO.getUserId() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -67,7 +67,7 @@ public final class BoardUploadFileInDTOEncoder extends AbstractMessageEncoder {
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
 					, boardUploadFileInDTO.getIp() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -75,7 +75,7 @@ public final class BoardUploadFileInDTOEncoder extends AbstractMessageEncoder {
 					, 5 // itemTypeID
 					, "unsigned integer" // itemTypeName
 					, boardUploadFileInDTO.getAttachId() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -83,7 +83,7 @@ public final class BoardUploadFileInDTOEncoder extends AbstractMessageEncoder {
 					, 4 // itemTypeID
 					, "integer" // itemTypeName
 					, boardUploadFileInDTO.getSelectedOldAttachFileCnt() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -130,7 +130,7 @@ public final class BoardUploadFileInDTOEncoder extends AbstractMessageEncoder {
 							, 1 // itemTypeID
 							, "unsigned byte" // itemTypeName
 							, selectedOldAttachFile.getAttachSeq() // itemValue
-							, -1 // itemSizeForLang
+							, -1 // itemSize
 							, null // itemCharset,
 							, charsetOfProject
 							, selectedOldAttachFileMiddleWriteObj);
@@ -141,7 +141,7 @@ public final class BoardUploadFileInDTOEncoder extends AbstractMessageEncoder {
 					, 4 // itemTypeID
 					, "integer" // itemTypeName
 					, boardUploadFileInDTO.getNewAttachFileCnt() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -188,7 +188,7 @@ public final class BoardUploadFileInDTOEncoder extends AbstractMessageEncoder {
 							, 8 // itemTypeID
 							, "us pascal string" // itemTypeName
 							, newAttachFile.getAttachFileName() // itemValue
-							, -1 // itemSizeForLang
+							, -1 // itemSize
 							, null // itemCharset,
 							, charsetOfProject
 							, newAttachFileMiddleWriteObj);
@@ -196,7 +196,7 @@ public final class BoardUploadFileInDTOEncoder extends AbstractMessageEncoder {
 							, 8 // itemTypeID
 							, "us pascal string" // itemTypeName
 							, newAttachFile.getSystemFileName() // itemValue
-							, -1 // itemSizeForLang
+							, -1 // itemSize
 							, null // itemCharset,
 							, charsetOfProject
 							, newAttachFileMiddleWriteObj);

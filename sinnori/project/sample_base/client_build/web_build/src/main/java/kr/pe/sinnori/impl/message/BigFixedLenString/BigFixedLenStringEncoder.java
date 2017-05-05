@@ -59,7 +59,7 @@ public final class BigFixedLenStringEncoder extends AbstractMessageEncoder {
 					, 13 // itemTypeID
 					, "si variable length byte[]" // itemTypeName
 					, bigFixedLenString.getFiller1() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -67,7 +67,7 @@ public final class BigFixedLenStringEncoder extends AbstractMessageEncoder {
 					, 10 // itemTypeID
 					, "fixed length string" // itemTypeName
 					, bigFixedLenString.getValue1() // itemValue
-					, 10 // itemSizeForLang
+					, 10 // itemSize
 					, "EUC-KR" // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);

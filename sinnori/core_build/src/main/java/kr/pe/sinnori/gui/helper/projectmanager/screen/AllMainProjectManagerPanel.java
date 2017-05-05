@@ -158,6 +158,7 @@ public class AllMainProjectManagerPanel extends JPanel {
 				JOptionPane.showMessageDialog(mainFrame, e1.getMessage());
 				return;
 			}
+			
 
 			projectNameValueLabel.setText(selectedMainProjectBuildSystemState.getMainProjectName());
 			appClientCheckBox.setSelected(selectedMainProjectBuildSystemState.isAppClient());

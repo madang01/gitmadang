@@ -59,7 +59,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 0 // itemTypeID
 					, "byte" // itemTypeName
 					, allDataType.getByteVar1() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -67,7 +67,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 0 // itemTypeID
 					, "byte" // itemTypeName
 					, allDataType.getByteVar2() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -75,7 +75,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 0 // itemTypeID
 					, "byte" // itemTypeName
 					, allDataType.getByteVar3() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -83,7 +83,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 1 // itemTypeID
 					, "unsigned byte" // itemTypeName
 					, allDataType.getUnsignedByteVar1() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -91,7 +91,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 1 // itemTypeID
 					, "unsigned byte" // itemTypeName
 					, allDataType.getUnsignedByteVar2() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -99,7 +99,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 1 // itemTypeID
 					, "unsigned byte" // itemTypeName
 					, allDataType.getUnsignedByteVar3() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -107,7 +107,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 2 // itemTypeID
 					, "short" // itemTypeName
 					, allDataType.getShortVar1() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -115,7 +115,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 2 // itemTypeID
 					, "short" // itemTypeName
 					, allDataType.getShortVar2() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -123,7 +123,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 2 // itemTypeID
 					, "short" // itemTypeName
 					, allDataType.getShortVar3() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -131,7 +131,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 3 // itemTypeID
 					, "unsigned short" // itemTypeName
 					, allDataType.getUnsignedShortVar1() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -139,7 +139,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 3 // itemTypeID
 					, "unsigned short" // itemTypeName
 					, allDataType.getUnsignedShortVar2() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -147,7 +147,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 3 // itemTypeID
 					, "unsigned short" // itemTypeName
 					, allDataType.getUnsignedShortVar3() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -155,7 +155,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 4 // itemTypeID
 					, "integer" // itemTypeName
 					, allDataType.getIntVar1() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -163,7 +163,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 4 // itemTypeID
 					, "integer" // itemTypeName
 					, allDataType.getIntVar2() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -171,7 +171,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 4 // itemTypeID
 					, "integer" // itemTypeName
 					, allDataType.getIntVar3() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -179,7 +179,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 5 // itemTypeID
 					, "unsigned integer" // itemTypeName
 					, allDataType.getUnsignedIntVar1() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -187,7 +187,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 5 // itemTypeID
 					, "unsigned integer" // itemTypeName
 					, allDataType.getUnsignedIntVar2() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -195,7 +195,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 5 // itemTypeID
 					, "unsigned integer" // itemTypeName
 					, allDataType.getUnsignedIntVar3() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -203,7 +203,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 6 // itemTypeID
 					, "long" // itemTypeName
 					, allDataType.getLongVar1() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -211,7 +211,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 6 // itemTypeID
 					, "long" // itemTypeName
 					, allDataType.getLongVar2() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -219,7 +219,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 6 // itemTypeID
 					, "long" // itemTypeName
 					, allDataType.getLongVar3() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -227,7 +227,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
 					, allDataType.getStrVar1() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -235,7 +235,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 8 // itemTypeID
 					, "us pascal string" // itemTypeName
 					, allDataType.getStrVar2() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -243,7 +243,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 9 // itemTypeID
 					, "si pascal string" // itemTypeName
 					, allDataType.getStrVar3() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -251,7 +251,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 14 // itemTypeID
 					, "fixed length byte[]" // itemTypeName
 					, allDataType.getBytesVar1() // itemValue
-					, 7 // itemSizeForLang
+					, 7 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -259,7 +259,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 13 // itemTypeID
 					, "si variable length byte[]" // itemTypeName
 					, allDataType.getBytesVar2() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -267,7 +267,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 15 // itemTypeID
 					, "java sql date" // itemTypeName
 					, allDataType.getSqldate() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -275,7 +275,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 16 // itemTypeID
 					, "java sql timestamp" // itemTypeName
 					, allDataType.getSqltimestamp() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -283,7 +283,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 					, 4 // itemTypeID
 					, "integer" // itemTypeName
 					, allDataType.getCnt() // itemValue
-					, -1 // itemSizeForLang
+					, -1 // itemSize
 					, null // itemCharset,
 					, charsetOfProject
 					, middleWriteObj);
@@ -330,7 +330,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 							, 10 // itemTypeID
 							, "fixed length string" // itemTypeName
 							, member.getMemberID() // itemValue
-							, 30 // itemSizeForLang
+							, 30 // itemSize
 							, null // itemCharset,
 							, charsetOfProject
 							, memberMiddleWriteObj);
@@ -338,7 +338,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 							, 10 // itemTypeID
 							, "fixed length string" // itemTypeName
 							, member.getMemberName() // itemValue
-							, 30 // itemSizeForLang
+							, 30 // itemSize
 							, null // itemCharset,
 							, charsetOfProject
 							, memberMiddleWriteObj);
@@ -346,7 +346,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 							, 4 // itemTypeID
 							, "integer" // itemTypeName
 							, member.getCnt() // itemValue
-							, -1 // itemSizeForLang
+							, -1 // itemSize
 							, null // itemCharset,
 							, charsetOfProject
 							, memberMiddleWriteObj);
@@ -393,7 +393,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 									, 10 // itemTypeID
 									, "fixed length string" // itemTypeName
 									, item.getItemID() // itemValue
-									, 30 // itemSizeForLang
+									, 30 // itemSize
 									, null // itemCharset,
 									, charsetOfProject
 									, itemMiddleWriteObj);
@@ -401,7 +401,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 									, 10 // itemTypeID
 									, "fixed length string" // itemTypeName
 									, item.getItemName() // itemValue
-									, 30 // itemSizeForLang
+									, 30 // itemSize
 									, null // itemCharset,
 									, charsetOfProject
 									, itemMiddleWriteObj);
@@ -409,7 +409,7 @@ public final class AllDataTypeEncoder extends AbstractMessageEncoder {
 									, 4 // itemTypeID
 									, "integer" // itemTypeName
 									, item.getItemCnt() // itemValue
-									, -1 // itemSizeForLang
+									, -1 // itemSize
 									, null // itemCharset,
 									, charsetOfProject
 									, itemMiddleWriteObj);

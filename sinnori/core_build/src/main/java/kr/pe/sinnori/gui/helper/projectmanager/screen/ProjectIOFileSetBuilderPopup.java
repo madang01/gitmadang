@@ -45,7 +45,6 @@ import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.etc.CommonType.READ_WRITE_MODE;
-import kr.pe.sinnori.common.exception.MessageInfoSAXParserException;
 import kr.pe.sinnori.common.message.builder.IOFileSetContentsBuilderManager;
 import kr.pe.sinnori.common.message.builder.info.MessageInfo;
 import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
@@ -510,7 +509,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 				MessageInfoSAXParser messageInfoSAXParser = null;
 				try {
 					messageInfoSAXParser = new MessageInfoSAXParser();
-				} catch (MessageInfoSAXParserException e) {
+				} catch (SAXException e) {
 					String errorMessage = e.toString();
 					log.warn(errorMessage, e);
 					continue;
