@@ -13,6 +13,7 @@ sinnori/project/sample_test/web_app_base/upload/*
 sinnori/project/sample_test/web_app_base/temp/*
 !sinnori/SinnoriHelper.jar
 !sinnori/core_build/lib/main/ex/*.jar
+!sinnori/core_build/lib/test/*.jar
 !sinnori/core_build/APP-INF/lib/*.jar
 !sinnori/core_build/guilib/jgoodies-common.jar
 !sinnori/core_build/guilib/jgoodies-forms.jar
