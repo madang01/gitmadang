@@ -8,6 +8,7 @@ import kr.pe.sinnori.common.config.vo.CommonPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.sessionkey.ClientSessionKey;
+import kr.pe.sinnori.common.sessionkey.ClientSessionkeyBuilderUtil;
 
 public abstract class ClientSessionKeyBuilder {
 	private static ClientSessionKey mainClientSessionKey = null;	
@@ -33,7 +34,7 @@ public abstract class ClientSessionKeyBuilder {
 						.append(rsaKeyPairSoureOfSessionkey.toString()).append("]").toString());
 			}
 
-			mainClientSessionKey = ClientSessionkeyUtil.getNewInstanceOfClientSessionkey(publicKeyBytes);
+			mainClientSessionKey = ClientSessionkeyBuilderUtil.getNewInstanceOfClientSessionkey(publicKeyBytes);
 		}
 		return mainClientSessionKey;
 	}
@@ -48,7 +49,9 @@ public abstract class ClientSessionKeyBuilder {
 		
 		if (null == subClientSessionKey) {
 			byte[] publicKeyBytes = ClientRSAPublickeyUtil.getPublickeyFromSubProjectServer(subProjectName);
-			ClientSessionkeyUtil.getNewInstanceOfClientSessionkey(publicKeyBytes);
+			subClientSessionKey = ClientSessionkeyBuilderUtil.getNewInstanceOfClientSessionkey(publicKeyBytes);
+			
+			subClientSessionKeyHash.put(subProjectName, subClientSessionKey);
 		}
 		 
 		return subClientSessionKey;

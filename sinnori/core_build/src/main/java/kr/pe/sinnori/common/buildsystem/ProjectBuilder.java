@@ -299,6 +299,7 @@ public class ProjectBuilder {
 		List<String> childRelativeDirectoryList = new ArrayList<String>();
 		
 		childRelativeDirectoryList.add("config");
+		childRelativeDirectoryList.add("resources/dbcp");
 		childRelativeDirectoryList.add("resources/message_info");
 		childRelativeDirectoryList.add("resources/rsa_keypair");
 		childRelativeDirectoryList.add("log/apache");
@@ -368,8 +369,9 @@ public class ProjectBuilder {
 		
 		childRelativeDirectoryList.add("client_build/web_build/corelib/ex");
 		childRelativeDirectoryList.add("client_build/web_build/corelib/in");
-		childRelativeDirectoryList.add("client_build/web_build/lib/ex");
-		childRelativeDirectoryList.add("client_build/web_build/lib/in");
+		childRelativeDirectoryList.add("client_build/web_build/lib/main/ex");
+		childRelativeDirectoryList.add("client_build/web_build/lib/main/in");
+		childRelativeDirectoryList.add("client_build/web_build/lib/test");
 		childRelativeDirectoryList.add(
 				new StringBuilder("client_build/web_build/").append(MESSAGE_SOURCE_FILE_RELATIVE_PATH).toString());
 		childRelativeDirectoryList.add("client_build/web_build/src/main/java//kr/pe/sinnori/servlet");

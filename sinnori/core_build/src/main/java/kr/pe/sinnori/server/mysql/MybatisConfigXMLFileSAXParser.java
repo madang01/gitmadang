@@ -12,9 +12,13 @@ import java.util.Stack;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.SchemaFactory;
+
+import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
+import kr.pe.sinnori.common.config.SinnoriConfiguration;
+import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
+import kr.pe.sinnori.common.config.vo.AllDBCPPartConfiguration;
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.common.util.CommonStaticUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,16 +27,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
-import kr.pe.sinnori.common.config.SinnoriConfiguration;
-import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.vo.AllDBCPPartConfiguration;
-import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.message.builder.info.ItemValueTypeManger;
-import kr.pe.sinnori.common.util.CommonStaticUtil;
-
-public class MybatisConfigSAXParser extends DefaultHandler {
-	private final Logger log = LoggerFactory.getLogger(MybatisConfigSAXParser.class);
+public class MybatisConfigXMLFileSAXParser extends DefaultHandler {
+	private final Logger log = LoggerFactory.getLogger(MybatisConfigXMLFileSAXParser.class);
 	
 	private SAXParser saxParser = null;
 	
@@ -40,15 +36,13 @@ public class MybatisConfigSAXParser extends DefaultHandler {
 	private Stack<String> startTagStack = new Stack<String>();
 	private Stack<String> tagValueStack = new Stack<String>();
 	
-	// private Hashtable<String, String> alias2TypeHash = new Hashtable<String, String>();
-	// private Hashtable<String, EnvironmentInfo> environmentInfoHash = new Hashtable<String, EnvironmentInfo>();
-	private Set<String> environmentSet = new HashSet<String>(); 
-	private List<MepperInfo> mepperInfoList = new ArrayList<MepperInfo>();
+	private Set<String> environmentIDSet = new HashSet<String>();
+	private List<File> fileTypeResource2FileList = new ArrayList<File>();
 	private String currentEnvironmentID = null;
 	 
 	
 	
-	public MybatisConfigSAXParser() throws SAXException {
+	public MybatisConfigXMLFileSAXParser() throws SAXException {
 		saxParser = getNewInstanceOfSAXParser();
 	}
 
@@ -56,15 +50,15 @@ public class MybatisConfigSAXParser extends DefaultHandler {
 		SAXParser saxParser = null;
 		try {
 			SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-			saxParserFactory.setValidating(false);
-			saxParserFactory.setNamespaceAware(true);
+			saxParserFactory.setValidating(true);
+			saxParserFactory.setNamespaceAware(false);
 
-			SchemaFactory schemaFactory = SchemaFactory
+			/*SchemaFactory schemaFactory = SchemaFactory
 					.newInstance("http://www.w3.org/2001/XMLSchema");	
 			
 			saxParserFactory.setSchema(schemaFactory
 					.newSchema(new Source[] { new StreamSource(ItemValueTypeManger.getInstance().getMesgXSLInputSream()) }));
-			
+			*/
 			saxParser = saxParserFactory.newSAXParser();
 		} catch (Exception | Error e) {
 			log.warn(e.getMessage(), e);
@@ -74,7 +68,7 @@ public class MybatisConfigSAXParser extends DefaultHandler {
 		return saxParser;
 	}
 	
-	public Object parse(File xmlFile, boolean isFileNameCheck) 
+	public FileTypeResourceManager parse(File xmlFile) 
 			throws IllegalArgumentException, SAXException, IOException {
 		if (null == xmlFile) {
 			throw new IllegalArgumentException("the parameter xmlFile is null");
@@ -93,22 +87,32 @@ public class MybatisConfigSAXParser extends DefaultHandler {
 			.append("]) doesn't hava permission to read").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
-				
+		
+		fileTypeResource2FileList.add(xmlFile);
+		
+		FileTypeResourceManager fileTypeResourceManger = new FileTypeResourceManager();	
+		
 		try {
 			saxParser.parse(xmlFile, this);
-			return null;
+			/**
+			 * Warning! copy list before reset
+			 */
+			for (File fileTypeResource2File : fileTypeResource2FileList) {
+				fileTypeResourceManger.add(fileTypeResource2File);
+			}
 		} finally {
 			reset();	
 		}	
+		
+		return fileTypeResourceManger;
 	}
 	
 	private void reset() throws SAXException {
 		this.rootTag = null;
 		this.startTagStack.clear();
 		this.tagValueStack.clear();
-		// this.alias2TypeHash.clear();
-		this.environmentSet.clear();
-		this.mepperInfoList.clear();
+		this.environmentIDSet.clear();
+		this.fileTypeResource2FileList.clear();
 		this.currentEnvironmentID = null;
 		
 		try {
@@ -145,8 +149,10 @@ public class MybatisConfigSAXParser extends DefaultHandler {
 				.append("]").toString();
 				throw new SAXException(errorMessage);
 			}
-		} else {
-			prevTag = startTagStack.pop();
+		}
+		
+		if (!startTagStack.empty()) {
+			prevTag = startTagStack.peek();
 		}
 		
 		startTagStack.push(startTag);
@@ -200,13 +206,13 @@ public class MybatisConfigSAXParser extends DefaultHandler {
 			
 			// boolean isEnvironment = environmentSet.contains(currentEnvironmentID);			
 			
-			if (whetherEnviromentExistInDBCPList) {
+			if (!whetherEnviromentExistInDBCPList) {
 				String errorMessage = new StringBuilder("the environment tag's id[").append(currentEnvironmentID)
-						.append("] is duplicated").toString();
+						.append("] doesn't exist in DBCP name list of Sinnori configration").toString();
 				throw new SAXException(errorMessage);	
 			}
 			
-			environmentSet.add(currentEnvironmentID);
+			environmentIDSet.add(currentEnvironmentID);
 			
 		} else if (startTag.equals("dataSource")) {
 			String typeValue = attributes.getValue("type");
@@ -288,7 +294,7 @@ public class MybatisConfigSAXParser extends DefaultHandler {
 			String sinnoriInstalledPathString = sinnoriConfiguration.getSinnoriInstalledPathString();
 			
 			if (null != classValue) {
-				mepperInfoList.add(new MepperInfo(MepperInfo.RESOURCE_TYPE.CLASS, classValue));
+				return;
 			}
 			
 			if (null != urlValue) {
@@ -307,50 +313,47 @@ public class MybatisConfigSAXParser extends DefaultHandler {
 				
 				
 				String protocol =  urlOfMapper.getProtocol();
-				if (protocol.toLowerCase().equals("file")) {
-					URI uriOfMapper = null;
-					try {
-						uriOfMapper = urlOfMapper.toURI();
-					} catch (Exception e) {
-						String errorMessage = new StringBuilder("the url type mapper[")
-								.append(urlValue)
-								.append("]'s protocol is file but  it failed to convert to URI, errormessage=")
-								.append(e.getMessage()).toString();
-						
-						log.warn(errorMessage, e);
-								throw new SAXException(errorMessage);
-					}
-					
-					File resourceFile = null;
-					try {
-						resourceFile = new File(uriOfMapper);
-					} catch(Exception e) {
-						mepperInfoList.add(new MepperInfo(MepperInfo.RESOURCE_TYPE.URL, urlOfMapper));
-						return;
-					}
-					
-					if (! resourceFile.exists()) {
-						String errorMessage = new StringBuilder("the file converted the url[")
-								.append(urlValue)
-								.append("] whose protocol is file doesn't exist").toString();
-						log.warn(errorMessage);
-								throw new SAXException(errorMessage);
-					}
-					
-					if (! resourceFile.isFile()) {
-						String errorMessage = new StringBuilder("the file converted the url[")							
-								.append(urlValue)
-								.append("] whose protocol is file isn't a regular file").toString();
-						
-						log.warn(errorMessage);
-								throw new SAXException(errorMessage);
-					}
-					
-					mepperInfoList.add(new MepperInfo(MepperInfo.RESOURCE_TYPE.URL, resourceFile));
-				} else {
-					mepperInfoList.add(new MepperInfo(MepperInfo.RESOURCE_TYPE.URL, urlOfMapper));
-				}					
+				if (!protocol.toLowerCase().equals("file")) return;
 				
+				URI uriOfMapper = null;
+				try {
+					uriOfMapper = urlOfMapper.toURI();
+				} catch (Exception e) {
+					String errorMessage = new StringBuilder("the url type mapper[")
+							.append(urlValue)
+							.append("]'s protocol is file but  it failed to convert to URI, errormessage=")
+							.append(e.getMessage()).toString();
+					
+					log.warn(errorMessage, e);
+							throw new SAXException(errorMessage);
+				}
+				
+				File fileTypeResource2File = null;
+				try {
+					fileTypeResource2File = new File(uriOfMapper);
+				} catch(Exception e) {
+					return;
+				}
+				
+				if (! fileTypeResource2File.exists()) {
+					String errorMessage = new StringBuilder("the file converted the url[")
+							.append(urlValue)
+							.append("] whose protocol is file doesn't exist").toString();
+					log.warn(errorMessage);
+							throw new SAXException(errorMessage);
+				}
+				
+				if (! fileTypeResource2File.isFile()) {
+					String errorMessage = new StringBuilder("the file converted the url[")							
+							.append(urlValue)
+							.append("] whose protocol is file isn't a regular file").toString();
+					
+					log.warn(errorMessage);
+							throw new SAXException(errorMessage);
+				}
+				
+				fileTypeResource2FileList.add(fileTypeResource2File);
+				return;
 			}
 			
 			if (null != resourceValue) {
@@ -361,9 +364,9 @@ public class MybatisConfigSAXParser extends DefaultHandler {
 				// FIXME!
 				log.info("resourceFilePathString=[{}]", resourceFilePathString);
 				
-				File resourceFile  = new File(resourceFilePathString);
+				File fileTypeResource2File  = new File(resourceFilePathString);
 				
-				if (! resourceFile.exists()) {
+				if (! fileTypeResource2File.exists()) {
 					String errorMessage = new StringBuilder("the resource type mapper file[")
 							.append(resourceFilePathString)
 							.append("] doesn't exist").toString();
@@ -372,7 +375,7 @@ public class MybatisConfigSAXParser extends DefaultHandler {
 							throw new SAXException(errorMessage);
 				}
 				
-				if (! resourceFile.isFile()) {
+				if (! fileTypeResource2File.isFile()) {
 					String errorMessage = new StringBuilder("the resource type mapper file[")							
 							.append(resourceFilePathString)
 							.append("] isn't a regular file").toString();
@@ -381,12 +384,13 @@ public class MybatisConfigSAXParser extends DefaultHandler {
 							throw new SAXException(errorMessage);
 				}
 				
-				// FIXME!
-				mepperInfoList.add(new MepperInfo(MepperInfo.RESOURCE_TYPE.RESOURCE, resourceFile));
-				
+				fileTypeResource2FileList.add(fileTypeResource2File);
+				return;
 			}			
 			
-			
+			String errorMessage ="the mapper tag must have one attribute(class, url, resource)";
+			log.warn("{}, uri=", errorMessage, uri);
+			throw new SAXException(errorMessage);
 		} else if (startTag.equals("package")) {
 						
 			// FIXME!
@@ -421,9 +425,30 @@ public class MybatisConfigSAXParser extends DefaultHandler {
 	@Override
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
-		// String endTag = qName.toLowerCase();
+		String endTag = qName.toLowerCase();
 
 		startTagStack.pop();
+		
+		// FIXME!
+		if (endTag.equals("environments")) {
+			SinnoriConfiguration sinnoriConfiguration = 
+					SinnoriConfigurationManager.getInstance()
+					.getSinnoriRunningProjectConfiguration();
+			
+			AllDBCPPartConfiguration allDBCPPart = sinnoriConfiguration.getAllDBCPPartConfiguration();
+			List<String> dbcpConnectionPoolNameList = allDBCPPart.getDBCPNameList();
+			
+			int dbcpConnectionPoolNameListSize = dbcpConnectionPoolNameList.size();
+			
+			int environmentCount = environmentIDSet.size();
+			
+			if (dbcpConnectionPoolNameListSize != environmentCount) {
+				String errorMessage = String.format("the count of mybatis config's environment[%d] is " +
+						"not same to Sinnori config's dbcp connection pool name list size[%d]", 
+						environmentCount, dbcpConnectionPoolNameListSize);
+				throw new SAXException(errorMessage);
+			}
+		}
 	}
 	
 	@Override

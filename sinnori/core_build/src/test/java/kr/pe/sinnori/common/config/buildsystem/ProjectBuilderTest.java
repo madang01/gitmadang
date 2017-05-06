@@ -232,7 +232,7 @@ public class ProjectBuilderTest {
 		boolean isServer = true;
 		boolean isAppClient = true;
 		boolean isWebClient = true;
-		String servletSystemLibraryPathString = "D:\\apache-tomcat-8.5.11\\lib";
+		String servletSystemLibraryPathString = "D:\\apache-tomcat-7.0.57\\lib";
 
 		try {
 			ProjectBuilder projectBuilder = new ProjectBuilder(sinnoriInstalledPathString, mainProjectName);

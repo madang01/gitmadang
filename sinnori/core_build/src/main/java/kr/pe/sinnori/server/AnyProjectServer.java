@@ -519,9 +519,6 @@ public class AnyProjectServer extends AbstractProject implements
 		return serverTaskObjectInfo.getServerTask();
 	}
 	
-	public File getServerAPPINFPath() {
-		return serverAPPINFPath;
-	}
 
 	/**
 	 * @return 서버 프로젝트 정보

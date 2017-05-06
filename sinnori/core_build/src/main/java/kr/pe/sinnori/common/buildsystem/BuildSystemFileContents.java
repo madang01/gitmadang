@@ -260,45 +260,15 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t<mkdir dir=\"${dir.appinf}/classes\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t<mkdir dir=\"${dir.appinf}/lib\" />");
-		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t<mkdir dir=\"${dir.appinf}/resources\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t<copy todir=\"${dir.appinf}/lib\" verbose=\"true\" overwrite=\"false\">");
+		stringBuilder.append("\t\t<copy todir=\"${dir.appinf}/resources\" verbose=\"true\" overwrite=\"false\">");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t<fileset dir=\"${dir.core.build}/APP-INF/lib/\" />");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t</copy>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append(
-				"    <!-- Except for the sample class file that inherits the UnpooledDataSourceFactory class and gets a db connection pool from the DBCPManager class -->");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append(
-				"\t\t<copy todir=\"${dir.src}/kr/pe/sinnori/impl/server/mybatis/\" verbose=\"true\" overwrite=\"false\">");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder
-				.append("\t\t  <!-- the SqlSessionFactoryManger class depends on the server dynimic class loader -->");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append(
-				"\t\t\t<fileset file=\"${dir.core.build}/src/main/java/kr/pe/sinnori/impl/server/mybatis/SampleBaseDBSourceFactory.java.txt\" />");
+		stringBuilder.append("\t\t\t<fileset dir=\"${dir.core.build}/APP-INF/resources/\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t</copy>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t<copy todir=\"${dir.appinf}/classes\" verbose=\"true\" overwrite=\"false\">");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder
-				.append("\t\t  <!-- the SqlSessionFactoryManger class depends on the server dynimic class loader -->");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t<fileset dir=\"${dir.core.build}/build/appinf/\" />");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t</copy>\t\t");
-		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t</target>");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t");

@@ -1,8 +1,9 @@
 package main;
+
 import java.net.SocketTimeoutException;
 
-import kr.pe.sinnori.client.ClientProject;
-import kr.pe.sinnori.client.ClientProjectManager;
+import kr.pe.sinnori.client.AnyProjectClient;
+import kr.pe.sinnori.client.ProjectClientManager;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
@@ -16,16 +17,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+
 public class SinnoriAppClientMain {
 
 	public static void main(String[] args) {
 		Logger log = LoggerFactory.getLogger("kr.pe.sinnori");
 		
-		log.info("start");
+		log.info("start");		
 		
-		ClientProjectManager clientProjectManager = ClientProjectManager.getInstance();
-		ClientProject mainClientProject = clientProjectManager.getMainClientProject();
-		
+		ProjectClientManager projectClientManager = ProjectClientManager.getInstance();
+		AnyProjectClient mainProjectClient = projectClientManager.getMainProjectClient();			
 		
 		java.util.Random random = new java.util.Random();
 		
@@ -35,7 +36,7 @@ public class SinnoriAppClientMain {
 				
 		AbstractMessage messageFromServer = null;
 		try {
-			messageFromServer = mainClientProject.sendSyncInputMessage(echoInObj);
+			messageFromServer = mainProjectClient.sendSyncInputMessage(echoInObj);
 			
 			if (messageFromServer instanceof Echo) {
 				Echo echoOutObj = (Echo)messageFromServer;

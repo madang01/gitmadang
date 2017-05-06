@@ -21,13 +21,12 @@ import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringEscapeUtils;
-
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.exception.SymmetricException;
-import kr.pe.sinnori.server.sessionkey.ServerSessionkey;
-import kr.pe.sinnori.server.sessionkey.ServerSessionkeyManager;
+import kr.pe.sinnori.common.sessionkey.ServerSessionkey;
+import kr.pe.sinnori.common.sessionkey.ServerSessionkeyBuilder;
 import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
+
+import org.apache.commons.lang3.StringEscapeUtils;
 
 /**
  * <pre>
@@ -241,18 +240,8 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		log.info(String.format("parm parmSessionKeyBase64=[%s]", parmSessionKeyBase64));
 		log.info(String.format("parm parmIVBase64=[%s]", parmIVBase64));
 		
-		ServerSessionkeyManager sessionkeyServerManger = null;
-		try {
-			sessionkeyServerManger = ServerSessionkeyManager.getInstance();
-		} catch (SymmetricException e) {
-			log.warn("ServerSessionkeyManger instance init error, errormessage=[{}]", e.getMessage());
 			
-			String errorMessage = "ServerSessionkeyManger instance init error";
-			String debugMessage = String.format("ServerSessionkeyManger instance init error, errormessage=[%s]", e.getMessage());
-			printMessagePage(req, res, errorMessage, debugMessage);
-			return;
-		}		
-		ServerSessionkey webServerSessionkey = sessionkeyServerManger.getServerSessionkey();		
+		ServerSessionkey webServerSessionkey = ServerSessionkeyBuilder.build();		
 		String modulusHexString = webServerSessionkey.getModulusHexStrForWeb();
 		
 		if (null == parmSessionKeyBase64 || null == parmIVBase64) {			
