@@ -8,8 +8,7 @@ public class FileTypeResource {
 	
 	public FileTypeResource(File sourceFile) {
 		this.sourceFile = sourceFile;
-		this.lastModifiedTime = sourceFile.lastModified();
-		
+		this.lastModifiedTime = sourceFile.lastModified();		
 	}
 	
 	public boolean isModified() {

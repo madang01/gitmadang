@@ -11,6 +11,7 @@ public class FileTypeResourceManager {
 		fileTypeResourceList.add(new FileTypeResource(fileTypeResource2File));
 	}
 	
+	
 	public boolean isModified() {
 		for (FileTypeResource fileTypeResource : fileTypeResourceList) {
 			if (fileTypeResource.isModified()) return true;

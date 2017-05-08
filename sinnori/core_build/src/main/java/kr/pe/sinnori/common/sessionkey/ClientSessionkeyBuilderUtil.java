@@ -6,4 +6,5 @@ public abstract class ClientSessionkeyBuilderUtil {
 	public static ClientSessionKey getNewInstanceOfClientSessionkey(byte[] publicKeyBytes) throws SymmetricException {
 		return new ClientSessionKey(new ClientRSA(publicKeyBytes));
 	}
+	
 }
