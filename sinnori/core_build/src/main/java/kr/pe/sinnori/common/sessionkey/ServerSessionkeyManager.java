@@ -2,12 +2,12 @@ package kr.pe.sinnori.common.sessionkey;
 
 import kr.pe.sinnori.common.exception.SymmetricException;
 
-public abstract class ServerSessionkeyBuilder {
+public abstract class ServerSessionkeyManager {
 	// private static ServerSessionkeyManager severSessionkeyManger = null;
 	
-	private static ServerSessionkey severSessionkey = null;
+	private static ServerSessionkeyIF severSessionkey = null;
 	
-	public static synchronized ServerSessionkey build() throws SymmetricException {
+	public static synchronized ServerSessionkeyIF getInstance() throws SymmetricException {
 		if (null == severSessionkey) {
 			severSessionkey = new ServerSessionkey(new ServerRSA());
 		}

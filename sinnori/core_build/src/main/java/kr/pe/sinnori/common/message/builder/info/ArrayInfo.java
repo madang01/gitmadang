@@ -30,7 +30,7 @@ import kr.pe.sinnori.common.etc.CommonType;
  * 
  */
 public class ArrayInfo extends AbstractItemInfo implements
-		ItemGroupInfoIF {
+		ItemGroupIF {
 	private ArrayList<AbstractItemInfo> itemGroupInfoOfArray = new ArrayList<AbstractItemInfo>();
 	private HashMap<String, AbstractItemInfo> itemInfoHash = new HashMap<String, AbstractItemInfo>();
 

@@ -24,8 +24,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.client.connection.AbstractConnection;
-import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderPoolIF;
-import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReader;
+import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.AsynServerAdderIF;
+import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReaderThread;
 import kr.pe.sinnori.client.io.LetterToServer;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
@@ -47,7 +47,7 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 	protected LinkedBlockingQueue<LetterToServer> inputMessageQueue = null;
 
 	/** 연결 클래스에 제공된 selector 를 가지고 비동기 방식으로 출력 메시지의 소켓 읽기를 시도하는 핸들러 관리자 인터페이스 */
-	protected OutputMessageReaderPoolIF outputMessageReaderPool = null;
+	protected AsynServerAdderIF outputMessageReaderPool = null;
 
 	/**
 	 * 비동기 방식의 소켓 채널의 연결 확립 최대 시도 횟수
@@ -85,7 +85,7 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 			LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
 			MessageProtocolIF messageProtocol,
-			OutputMessageReaderPoolIF outputMessageReaderPool,
+			AsynServerAdderIF outputMessageReaderPool,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager,
 			ClientObjectCacheManagerIF clientObjectCacheManager) throws InterruptedException, NoMoreDataPacketBufferException {
 		super(projectName, index, 
@@ -151,7 +151,7 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 	 * 비동기 방식의 소켓 채널의 신규 생성시 후기 작업을 수행한다. 참고) 비동기 방식의 소켓 채널의 읽기 담당 클래스는 selector
 	 * 를 가지고 있는데 여기에 소켓 채널을 등록시켜야 한다.
 	 * 
-	 * @see OutputMessageReaderPoolIF
+	 * @see AsynServerAdderIF
 	 */
 	abstract protected void afterConnectionWork() throws InterruptedException;
 
@@ -166,7 +166,7 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 	abstract public void putToOutputMessageQueue(ReceivedLetter receivedLetter);
 	
 	/**
-	 * {@link OutputMessageReader } 가 운영하는 소켓 읽기 전용 selector 에 등록과 운영을 위한 hash 와 set 에 connection 을 등록한다.  
+	 * {@link OutputMessageReaderThread } 가 운영하는 소켓 읽기 전용 selector 에 등록과 운영을 위한 hash 와 set 에 connection 을 등록한다.  
 	 * @param hash 소켓 읽기 전용 selector 에 등록된 소켓에 대응하는 connection 객체 정보를 가지고 있는 해쉬 
 	 * @param newClients 소켓 읽기 전용 selector 에 등록되어야할 신규 클라이언트들
 	 */

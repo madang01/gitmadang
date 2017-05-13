@@ -23,10 +23,10 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
-import kr.pe.sinnori.client.SyncOutputMessageQueueQueueMangerIF;
+import kr.pe.sinnori.client.ClientOutputMessageQueueQueueMangerIF;
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.AbstractConnectionPool;
-import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderPoolIF;
+import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.AsynServerAdderIF;
 import kr.pe.sinnori.client.io.LetterToServer;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
@@ -89,8 +89,8 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 			LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
 			MessageProtocolIF messageProtocol,
-			OutputMessageReaderPoolIF outputMessageReaderPool,
-			SyncOutputMessageQueueQueueMangerIF syncOutputMessageQueueQueueManger,
+			AsynServerAdderIF outputMessageReaderPool,
+			ClientOutputMessageQueueQueueMangerIF syncOutputMessageQueueQueueManger,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager,
 			ClientObjectCacheManagerIF clientObjectCacheManager)
 			throws NoMoreDataPacketBufferException, InterruptedException, NoMoreOutputMessageQueueException {

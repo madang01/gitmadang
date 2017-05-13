@@ -30,7 +30,7 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
 import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
 import kr.pe.sinnori.common.io.FixedSizeOutputStream;
-import kr.pe.sinnori.common.io.InputStreamIF;
+import kr.pe.sinnori.common.io.SinnoriInputStreamIF;
 import kr.pe.sinnori.common.protocol.dhb.header.DHBMessageHeader;
 
 import org.slf4j.Logger;
@@ -146,7 +146,7 @@ public class THBMessageHeader {
 	 * @param headerInputStream 헤더 정보를 갖고 있는 입력 스트림
 	 * @throws HeaderFormatException 메시지 식별자 읽을때 문자셋 에러 발생시 던지는 예외
 	 */
-	public void readMessageHeader(InputStreamIF headerInputStream) throws HeaderFormatException {
+	public void readMessageHeader(SinnoriInputStreamIF headerInputStream) throws HeaderFormatException {
 		
 		try {
 			this.messageID = headerInputStream

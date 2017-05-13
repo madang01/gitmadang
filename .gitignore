@@ -7,7 +7,7 @@
 *.zip
 *.tar.gz
 *.jar
-sinnori/project/sample_test/*
+sinnori/project/sample_test/**
 !sinnori/SinnoriHelper.jar
 !sinnori/core_build/lib/main/ex/*.jar
 !sinnori/core_build/lib/test/*.jar

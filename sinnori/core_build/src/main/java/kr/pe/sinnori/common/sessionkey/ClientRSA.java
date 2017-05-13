@@ -42,7 +42,7 @@ public class ClientRSA implements ClientRSAIF {
 
 		X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(
 				publicKeyBytes);
-
+		
 		PublicKey publicKey = null;
 		try {
 			publicKey = rsaKeyFactory.generatePublic(publicKeySpec);

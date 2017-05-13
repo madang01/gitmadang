@@ -68,7 +68,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 	private String rootTag = null;
 	private Stack<String> startTagStack = new Stack<String>();
 	private Stack<String> tagValueStack = new Stack<String>();
-	private Stack<ItemGroupInfoIF> itemGroupInfoStack = new Stack<ItemGroupInfoIF>();
+	private Stack<ItemGroupIF> itemGroupInfoStack = new Stack<ItemGroupIF>();
 	/** this member variables is initialized in parse(File) end */
 
 
@@ -125,7 +125,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 			return;
 
 		if (startTag.equals("singleitem")) {
-			ItemGroupInfoIF workItemGroupInfo = itemGroupInfoStack.peek();
+			ItemGroupIF workItemGroupInfo = itemGroupInfoStack.peek();
 
 			String itemName = attributes.getValue("name");
 			if (null == itemName) {
@@ -176,7 +176,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 			
 			workItemGroupInfo.addItemInfo(singleItemInfo);
 		} else if (startTag.equals("array")) {
-			ItemGroupInfoIF workItemGroupInfo = itemGroupInfoStack.peek();
+			ItemGroupIF workItemGroupInfo = itemGroupInfoStack.peek();
 
 			String arrayName = attributes.getValue("name");
 
@@ -356,7 +356,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 			}
 		} else if (endTag.equals("array")) {
 			ArrayInfo arrayInfo = (ArrayInfo) itemGroupInfoStack.pop();
-			ItemGroupInfoIF workItemGroupInfo = itemGroupInfoStack.peek();
+			ItemGroupIF workItemGroupInfo = itemGroupInfoStack.peek();
 			workItemGroupInfo.addItemInfo(arrayInfo);
 		}
 	}
@@ -364,17 +364,17 @@ public class MessageInfoSAXParser extends DefaultHandler {
 	private String getParsingResultFromItemGroupInfoStack() {
 		StringBuilder messageStringBuilder = new StringBuilder("parsing result=");
 		
-		Iterator<ItemGroupInfoIF> iter = itemGroupInfoStack.iterator();
+		Iterator<ItemGroupIF> iter = itemGroupInfoStack.iterator();
 		
 		if (iter.hasNext()) {
-			ItemGroupInfoIF itemGroupInfo = iter.next();			
+			ItemGroupIF itemGroupInfo = iter.next();			
 			messageStringBuilder.append(itemGroupInfo.toString());
 		}
 		
 		while (iter.hasNext()) {
 			messageStringBuilder.append(CommonStaticFinalVars.NEWLINE);
 			messageStringBuilder.append("incompletion=");
-			ItemGroupInfoIF itemGroupInfo = iter.next();			
+			ItemGroupIF itemGroupInfo = iter.next();			
 			messageStringBuilder.append(itemGroupInfo.toString());
 			
 		}

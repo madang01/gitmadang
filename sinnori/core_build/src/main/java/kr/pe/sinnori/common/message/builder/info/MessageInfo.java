@@ -42,7 +42,7 @@ import kr.pe.sinnori.common.etc.CommonType;
  * @author Won Jonghoon
  * 
  */
-public class MessageInfo implements ItemGroupInfoIF {
+public class MessageInfo implements ItemGroupIF {
 	private String messageID = null;
 	private java.util.Date lastModfied;
 	private String firstUpperMessageID = null;

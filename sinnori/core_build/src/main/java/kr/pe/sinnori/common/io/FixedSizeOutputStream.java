@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * @author Won Jonghoon
  * 
  */
-public class FixedSizeOutputStream implements OutputStreamIF {
+public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 	private Logger log = LoggerFactory.getLogger(FixedSizeOutputStream.class);
 	/**
 	 * 출력을 담을 ByteBuffer.

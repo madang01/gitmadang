@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * @author Won Jonghoon
  *
  */
-public final class FreeSizeOutputStream implements OutputStreamIF {
+public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 	private Logger log = LoggerFactory.getLogger(FreeSizeOutputStream.class);
 	
 	private ArrayList<WrapBuffer> dataPacketBufferList = null;

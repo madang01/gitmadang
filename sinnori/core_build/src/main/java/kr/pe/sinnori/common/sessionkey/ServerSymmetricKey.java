@@ -5,7 +5,7 @@ import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.vo.CommonPartConfiguration;
 import kr.pe.sinnori.common.exception.SymmetricException;
 
-public class ServerSymmetricKey {
+public class ServerSymmetricKey implements ServerSymmetricKeyIF {
 private SymmetricKeyManager symmetricKeyManager = SymmetricKeyManager.getInstance();
 	
 	private byte[] symmetricKeyBytes = null;
@@ -52,7 +52,7 @@ private SymmetricKeyManager symmetricKeyManager = SymmetricKeyManager.getInstanc
 		if (null == symmetricKeyBytes) {
 			new SymmetricException("sessionkey not setting");
 		}
-		return symmetricKeyManager.encryptDirect(symmetricKeyAlgorithm, symmetricKeyBytes, plainTextBytes, ivBytes);
+		return symmetricKeyManager.encrypt(symmetricKeyAlgorithm, symmetricKeyBytes, plainTextBytes, ivBytes);
 	}
 	
 	public byte[] decrypt(byte[] encryptedBytes) throws IllegalArgumentException, SymmetricException {
@@ -60,6 +60,6 @@ private SymmetricKeyManager symmetricKeyManager = SymmetricKeyManager.getInstanc
 			new SymmetricException("sessionkey not setting");
 		}
 		
-		return symmetricKeyManager.decryptDirect(symmetricKeyAlgorithm, symmetricKeyBytes, encryptedBytes, ivBytes);
+		return symmetricKeyManager.decrypt(symmetricKeyAlgorithm, symmetricKeyBytes, encryptedBytes, ivBytes);
 	}
 }

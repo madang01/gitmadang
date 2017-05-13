@@ -42,10 +42,10 @@ public class ClientSymmetricKey implements ClientSymmetricKeyIF {
 	
 		
 	public byte[] encrypt(byte[] plainTextBytes) throws IllegalArgumentException, SymmetricException {
-		return symmetricKeyManager.encryptDirect(symmetricKeyAlgorithm, symmetricKeyBytes, plainTextBytes, ivBytes);
+		return symmetricKeyManager.encrypt(symmetricKeyAlgorithm, symmetricKeyBytes, plainTextBytes, ivBytes);
 	}
 	
 	public byte[] decrypt(byte[] encryptedBytes) throws IllegalArgumentException, SymmetricException {
-		return symmetricKeyManager.decryptDirect(symmetricKeyAlgorithm, symmetricKeyBytes, encryptedBytes, ivBytes);
+		return symmetricKeyManager.decrypt(symmetricKeyAlgorithm, symmetricKeyBytes, encryptedBytes, ivBytes);
 	}
 }

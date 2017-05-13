@@ -27,8 +27,8 @@ public class AllSubProjectPartConfiguration {
 		return subProjectNamelist;
 	}
 
-	public boolean isRegistedProjectName(String projectName) {
-		return (null != subProjectPartConfigurationHash.get(projectName));
+	public boolean isRegistedSubProjectName(String subProjectName) {
+		return (null != subProjectPartConfigurationHash.get(subProjectName));
 	}
 
 	public ProjectPartConfiguration getSubProjectPartConfiguration(String projectName) {

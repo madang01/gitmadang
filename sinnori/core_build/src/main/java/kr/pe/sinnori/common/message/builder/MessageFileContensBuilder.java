@@ -6,7 +6,7 @@ import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.message.builder.info.AbstractItemInfo;
 import kr.pe.sinnori.common.message.builder.info.ArrayInfo;
-import kr.pe.sinnori.common.message.builder.info.ItemGroupInfoIF;
+import kr.pe.sinnori.common.message.builder.info.ItemGroupIF;
 import kr.pe.sinnori.common.message.builder.info.SingleItemInfo;
 
 
@@ -18,7 +18,7 @@ public class MessageFileContensBuilder extends AbstractSourceFileBuildre {
 	 * @param arrayInfo 배열 정보
 	 * @return 배열 정보를 바탕으로만들어진 내부 클래스
 	 */
-	private String getClassPart(int depth, ItemGroupInfoIF arrayInfo) {
+	private String getClassPart(int depth, ItemGroupIF arrayInfo) {
 		StringBuilder stringBuilder = new StringBuilder();
 		
 		for (int i=0; i < depth; i++) {
@@ -53,7 +53,7 @@ public class MessageFileContensBuilder extends AbstractSourceFileBuildre {
 	 * @param arrayInfo
 	 * @return
 	 */
-	private String getVariableDeclarationPart(int depth, ItemGroupInfoIF arrayInfo) {
+	private String getVariableDeclarationPart(int depth, ItemGroupIF arrayInfo) {
 		StringBuilder stringBuilder = new StringBuilder();
 		
 		ArrayList<AbstractItemInfo> itemInfoList = arrayInfo.getItemInfoList();
@@ -102,7 +102,7 @@ public class MessageFileContensBuilder extends AbstractSourceFileBuildre {
 	 * @param arrayInfo
 	 * @return
 	 */
-	private String getMethodDeclarationPart(int depth, ItemGroupInfoIF arrayInfo) {
+	private String getMethodDeclarationPart(int depth, ItemGroupIF arrayInfo) {
 		StringBuilder stringBuilder = new StringBuilder();
 		ArrayList<AbstractItemInfo> itemInfoList = arrayInfo.getItemInfoList();
 		for (AbstractItemInfo itemInfo:itemInfoList) {
@@ -220,7 +220,7 @@ public class MessageFileContensBuilder extends AbstractSourceFileBuildre {
 		return stringBuilder.toString();
 	}
 	
-	private String getToStringPart(int depth, ItemGroupInfoIF arrayInfo) {
+	private String getToStringPart(int depth, ItemGroupIF arrayInfo) {
 		StringBuilder stringBuilder = new StringBuilder();
 		
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);

@@ -28,9 +28,9 @@ import kr.pe.sinnori.client.connection.AbstractConnectionPool;
 import kr.pe.sinnori.client.connection.asyn.noshare.NoShareAsynConnectionPool;
 import kr.pe.sinnori.client.connection.asyn.share.ShareAsynConnectionPool;
 import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.InputMessageWriterPool;
-import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderPool;
+import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderThreadPool;
 import kr.pe.sinnori.client.connection.sync.noshare.NoShareSyncConnectionPool;
-import kr.pe.sinnori.client.io.ClientWrapOutputMessageQueue;
+import kr.pe.sinnori.client.io.ClientOutputMessageQueueWrapper;
 import kr.pe.sinnori.client.io.LetterToServer;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.vo.ProjectPartConfiguration;
@@ -69,7 +69,7 @@ import kr.pe.sinnori.common.protocol.ReceivedLetter;
  * 
  */
 public class AnyProjectClient extends AbstractProject implements ClientProjectIF,
-		SyncOutputMessageQueueQueueMangerIF, ClientObjectCacheManagerIF {
+		ClientOutputMessageQueueQueueMangerIF, ClientObjectCacheManagerIF {
 	/** 모니터 객체 */
 	private final Object outputMessageQueuerQueueMonitor = new Object();
 
@@ -77,7 +77,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 	private LinkedBlockingQueue<LetterToServer> inputMessageQueue = null;
 
 	/** 비동기 방식에서 사용되는 출력 메시지 큐를 원소로 가지는 큐 */
-	private LinkedBlockingQueue<ClientWrapOutputMessageQueue> syncOutputMessageQueueQueue = null;
+	private LinkedBlockingQueue<ClientOutputMessageQueueWrapper> syncOutputMessageQueueQueue = null;
 
 	/** 서버에서 보내는 불특정 다수 메시지를 받는 큐 */
 	private LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue = null;
@@ -86,7 +86,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 	private InputMessageWriterPool inputMessageWriterPool = null;
 
 	/** 비동기 방식에서 사용되는 출력 메시지 읽기 쓰레드 */
-	private OutputMessageReaderPool outputMessageReaderPool = null;
+	private OutputMessageReaderThreadPool outputMessageReaderPool = null;
 
 	/** 프로젝트의 연결 클래스 폴 */
 	private AbstractConnectionPool connectionPool = null;
@@ -163,7 +163,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 					clientAsynInputMessageWriterMaxSize,
 					inputMessageQueue, this);
 
-			outputMessageReaderPool = new OutputMessageReaderPool(
+			outputMessageReaderPool = new OutputMessageReaderThreadPool(
 					projectName,
 					clientAsynOutputMessageReaderSize,
 					clientAsynOutputMessageReaderMaxSize,
@@ -176,14 +176,14 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 			if (CONNECTION_TYPE.ShareAsyn == connectionType) {
 
 				int outputMessageQueueQueueSize = mailBoxCnt * connectionCount;
-				syncOutputMessageQueueQueue = new LinkedBlockingQueue<ClientWrapOutputMessageQueue>(
+				syncOutputMessageQueueQueue = new LinkedBlockingQueue<ClientOutputMessageQueueWrapper>(
 						outputMessageQueueQueueSize);
 
 				for (int i = 0; i < connectionCount; i++) {
 					for (int j = 0; j < mailBoxCnt; j++) {
 						LinkedBlockingQueue<ReceivedLetter> outputMessageQueue = new LinkedBlockingQueue<ReceivedLetter>(
 								OutputMessageQueueSize);
-						ClientWrapOutputMessageQueue wrapOutputMessageQeuue = new ClientWrapOutputMessageQueue(
+						ClientOutputMessageQueueWrapper wrapOutputMessageQeuue = new ClientOutputMessageQueueWrapper(
 								outputMessageQueue);
 						syncOutputMessageQueueQueue.add(wrapOutputMessageQeuue);
 					}
@@ -198,12 +198,12 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 						inputMessageQueue, messageProtocol,
 						outputMessageReaderPool, this, this, this);
 			} else {
-				syncOutputMessageQueueQueue = new LinkedBlockingQueue<ClientWrapOutputMessageQueue>(
+				syncOutputMessageQueueQueue = new LinkedBlockingQueue<ClientOutputMessageQueueWrapper>(
 						connectionCount);
 				for (int i = 0; i < connectionCount; i++) {
 					LinkedBlockingQueue<ReceivedLetter> outputMessageQueue = new LinkedBlockingQueue<ReceivedLetter>(
 							OutputMessageQueueSize);
-					ClientWrapOutputMessageQueue wrapOutputMessageQeuue = new ClientWrapOutputMessageQueue(
+					ClientOutputMessageQueueWrapper wrapOutputMessageQeuue = new ClientOutputMessageQueueWrapper(
 							outputMessageQueue);
 					syncOutputMessageQueueQueue.add(wrapOutputMessageQeuue);
 				}
@@ -282,10 +282,10 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 	}
 
 	@Override
-	public ClientWrapOutputMessageQueue pollOutputMessageQueue()
+	public ClientOutputMessageQueueWrapper pollOutputMessageQueue()
 			throws NoMoreOutputMessageQueueException {
 
-		ClientWrapOutputMessageQueue wrapOutputMessageQueue = syncOutputMessageQueueQueue
+		ClientOutputMessageQueueWrapper wrapOutputMessageQueue = syncOutputMessageQueueQueue
 				.poll();
 		if (null == wrapOutputMessageQueue) {
 			String errorMessage = String.format(
@@ -300,7 +300,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 
 	@Override
 	public void putOutputMessageQueue(
-			ClientWrapOutputMessageQueue wrapOutputMessageQueue) {
+			ClientOutputMessageQueueWrapper wrapOutputMessageQueue) {
 		if (null == wrapOutputMessageQueue)
 			return;
 

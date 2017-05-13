@@ -2,24 +2,24 @@ package kr.pe.sinnori.common.sessionkey;
 
 import kr.pe.sinnori.common.exception.SymmetricException;
 
-public class ServerSessionkey {
-	ServerSymmetricKey serverSymmetricKey = null;
-	ServerRSA serverRSA = null;
+public class ServerSessionkey implements ServerSessionkeyIF {
+	ServerSymmetricKeyIF serverSymmetricKey = null;
+	ServerRSAIF serverRSA = null;
 	
 	
-	public ServerSessionkey(ServerRSA serverRSA) {
+	public ServerSessionkey(ServerRSAIF serverRSA) {
 		this.serverRSA = serverRSA;
 	}
 	
-	public ServerSymmetricKey getNewInstanceOfServerSymmetricKey(byte[] sessionkeyBytes, byte[] ivBytes) throws SymmetricException {
-		return new ServerSymmetricKey(serverRSA.decryptUsingPrivateKey(sessionkeyBytes), ivBytes);
+	public ServerSymmetricKeyIF getNewInstanceOfServerSymmetricKey(byte[] sessionkeyBytes, byte[] ivBytes) throws SymmetricException {
+		return new ServerSymmetricKey(serverRSA.getClientSymmetricKeyBytes(sessionkeyBytes), ivBytes);
 	}	
 		
 	public String getModulusHexStrForWeb() {
 		return serverRSA.getModulusHexStrForWeb();
 	}
 	
-	public final byte[] getPublicKeyBytes() {
-		return serverRSA.getPublicKeyBytes();
+	public final byte[] getDupPublicKeyBytes() {
+		return serverRSA.getDupPublicKeyBytes();
 	}
 }

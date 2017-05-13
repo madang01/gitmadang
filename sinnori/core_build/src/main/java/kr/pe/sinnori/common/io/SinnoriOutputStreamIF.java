@@ -32,7 +32,7 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
  * @author Won Jonghoon
  * 
  */
-public interface OutputStreamIF {
+public interface SinnoriOutputStreamIF {
 	/**
 	 * @return 스트림 문자셋
 	 */

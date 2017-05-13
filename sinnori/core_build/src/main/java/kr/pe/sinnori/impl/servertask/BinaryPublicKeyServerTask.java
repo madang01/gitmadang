@@ -1,7 +1,7 @@
 package kr.pe.sinnori.impl.servertask;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.sessionkey.ServerSessionkeyBuilder;
+import kr.pe.sinnori.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.sinnori.impl.message.BinaryPublicKey.BinaryPublicKey;
 import kr.pe.sinnori.server.LoginManagerIF;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
@@ -31,7 +31,7 @@ public class BinaryPublicKeyServerTask extends AbstractServerTask {
 		}*/
 		BinaryPublicKey outObj = new BinaryPublicKey();
 		
-		outObj.setPublicKeyBytes(ServerSessionkeyBuilder.build().getPublicKeyBytes());
+		outObj.setPublicKeyBytes(ServerSessionkeyManager.getInstance().getDupPublicKeyBytes());
 		letterSender.addSyncMessage(outObj);
 	}
 }

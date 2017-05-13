@@ -318,7 +318,6 @@ public class ProjectBuilder {
 		List<String> childRelativeDirectoryList = new ArrayList<String>();
 		
 		childRelativeDirectoryList.add("server_build/APP-INF/classes");
-		childRelativeDirectoryList.add("server_build/APP-INF/lib");
 		childRelativeDirectoryList.add("server_build/APP-INF/resources");
 		childRelativeDirectoryList.add("server_build/corelib/ex");
 		childRelativeDirectoryList.add("server_build/corelib/in");

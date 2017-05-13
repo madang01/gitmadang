@@ -22,12 +22,12 @@ import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 /**
  * 클라이언트 출력 메시지 소켓 읽기 담당 쓰레드 폴이 바라보는 출력 메시지 소켓 읽기 담당 쓰레드 인터페이스 
  * 
- * @see OutputMessageReader#addNewServer(AbstractAsynConnection)
- * @see OutputMessageReader#getCntOfClients()
+ * @see OutputMessageReaderThread#addNewServer(AbstractAsynConnection)
+ * @see OutputMessageReaderThread#getCntOfServers()
  * @author Won Jonghoon
  * 
  */
-public interface OutputMessageReaderIF {
+public interface AsynReadOnlySelectorManagerIF {
 	/**
 	 * 신규 비동기 방식의 연결 클래스를 등록시킨다. 내부적으로는 연결이 가진 소켓 채널을 selector 와 해쉬 테이블<소켓채널,
 	 * 비동기 방식의 연결클래스>에 등록한다.
@@ -35,12 +35,12 @@ public interface OutputMessageReaderIF {
 	 * @param serverConnection
 	 *            비동기 방식의 연결클래스
 	 */
-	public void addNewServer(AbstractAsynConnection serverConnection);
+	public void addNewServer(AbstractAsynConnection serverAsynConnection);
 
 	/**
 	 * 등록된 소켓 채널 수를 반환한다. 이는 균등 분배를 위해서 필요하다.
 	 * 
 	 * @return 등록된 소켓 채널 수
 	 */
-	public int getCntOfClients();
+	public int getCntOfServers();
 }

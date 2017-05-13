@@ -117,7 +117,7 @@ public final class SymmetricKeyManager {
 	 * @throws SymmetricException
 	 *             암호화 관련 에러가 있다면 발생
 	 */
-	public byte[] decryptDirect(String symmetricKeyAlgorithm,
+	public byte[] decrypt(String symmetricKeyAlgorithm,
 			byte[] symmetricKeyBytes, byte[] encryptedBytes, byte[] ivBytes)
 			throws IllegalArgumentException, SymmetricException {
 
@@ -240,7 +240,7 @@ public final class SymmetricKeyManager {
 	 * @throws SymmetricException
 	 *             암호화 관련 에러가 있다면 발생
 	 */
-	public byte[] encryptDirect(String symmetricKeyAlgorithm,
+	public byte[] encrypt(String symmetricKeyAlgorithm,
 			byte[] symmetricKeyBytes, byte[] plainTextBytes, byte[] ivBytes)
 			throws IllegalArgumentException, SymmetricException {
 

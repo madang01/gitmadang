@@ -31,10 +31,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
-import kr.pe.sinnori.client.SyncOutputMessageQueueQueueMangerIF;
+import kr.pe.sinnori.client.ClientOutputMessageQueueQueueMangerIF;
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.client.connection.asyn.share.mailbox.PrivateMailbox;
-import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderPoolIF;
+import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.AsynServerAdderIF;
 import kr.pe.sinnori.client.io.LetterToServer;
 import kr.pe.sinnori.common.config.vo.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
@@ -112,8 +112,8 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 			long finishConnectWaittingTime, int mailBoxCnt, ProjectPartConfiguration projectPart,
 			LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue, MessageProtocolIF messageProtocol,
-			OutputMessageReaderPoolIF outputMessageReaderPool,
-			SyncOutputMessageQueueQueueMangerIF outputMessageQueueQueueManager,
+			AsynServerAdderIF outputMessageReaderPool,
+			ClientOutputMessageQueueQueueMangerIF outputMessageQueueQueueManager,
 			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager,
 			ClientObjectCacheManagerIF clientObjectCacheManager)
 			throws InterruptedException, NoMoreDataPacketBufferException, NoMoreOutputMessageQueueException {

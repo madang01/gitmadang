@@ -32,7 +32,7 @@ import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
  * @author Won Jonghoon
  * 
  */
-public interface InputStreamIF {
+public interface SinnoriInputStreamIF {
 	/**
 	 * @return byte 데이터
 	 * @throws SinnoriBufferUnderflowException

@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  * @author Won Jonghoon
  *
  */
-public class FreeSizeInputStream implements InputStreamIF {
+public class FreeSizeInputStream implements SinnoriInputStreamIF {
 	private Logger log = LoggerFactory.getLogger(FreeSizeInputStream.class);
 	private ArrayList<WrapBuffer> dataPacketBufferList = null;
 	private CommonType.WRAPBUFFER_RECALL_GUBUN memoryRecallGubun;

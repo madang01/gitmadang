@@ -49,9 +49,9 @@ import org.slf4j.LoggerFactory;
  * @author Won Jonghoon
  * 
  */
-public class OutputMessageReader extends Thread implements
-		OutputMessageReaderIF {
-	private Logger log = LoggerFactory.getLogger(OutputMessageReader.class);
+public class OutputMessageReaderThread extends Thread implements
+		AsynReadOnlySelectorManagerIF {
+	private Logger log = LoggerFactory.getLogger(OutputMessageReaderThread.class);
 	
 	private String projectName = null;
 	/** 출력 메시지를 읽는 쓰레드 번호 */
@@ -79,7 +79,7 @@ public class OutputMessageReader extends Thread implements
 	 * @param projectPart 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
 	 * @param messageProtocol 메시지 교환 프로토콜
 	 */
-	public OutputMessageReader(String projectName, int index, Charset charsetOfProject, long readSelectorWakeupInterval,
+	public OutputMessageReaderThread(String projectName, int index, Charset charsetOfProject, long readSelectorWakeupInterval,
 			MessageProtocolIF messageProtocol) {
 		this.projectName = projectName;
 		this.index = index;
@@ -95,7 +95,7 @@ public class OutputMessageReader extends Thread implements
 	}
 
 	@Override
-	public int getCntOfClients() {
+	public int getCntOfServers() {
 		return (newClients.size() + selector.keys().size());
 	}
 

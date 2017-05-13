@@ -20,19 +20,19 @@ package kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage;
 import java.nio.charset.Charset;
 
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
-import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReader;
-import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReaderIF;
+import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReaderThread;
+import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.AsynReadOnlySelectorManagerIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 
 /**
  * 클라이언트 출력 메시지 소켓 읽기 담당 쓰레드 폴
  * 
- * @see OutputMessageReader
+ * @see OutputMessageReaderThread
  * @author Won Jonghoon
  */
-public class OutputMessageReaderPool extends AbstractThreadPool implements
-		OutputMessageReaderPoolIF {
+public class OutputMessageReaderThreadPool extends AbstractThreadPool implements
+		AsynServerAdderIF {
 	private String projectName = null;
 	private int maxHandler;
 	private Charset charsetOfProject = null;
@@ -47,7 +47,7 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements
 	 * @param projectPart 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
 	 * @param messageProtocol 메시지 교환 프로토콜
 	 */
-	public OutputMessageReaderPool(String projectName, int size, int max, 
+	public OutputMessageReaderThreadPool(String projectName, int size, int max, 
 			Charset charsetOfProject,
 			long readSelectorWakeupInterval, 			
 			MessageProtocolIF messageProtocol) {
@@ -81,7 +81,7 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements
 
 			if (size < maxHandler) {
 				try {
-					Thread handler = new OutputMessageReader(projectName, size, charsetOfProject, readSelectorWakeupInterval, messageProtocol);
+					Thread handler = new OutputMessageReaderThread(projectName, size, charsetOfProject, readSelectorWakeupInterval, messageProtocol);
 					pool.add(handler);
 				} catch (Exception e) {
 					String errorMessage = String.format("%s OutputMessageReader[%d] 등록 실패", projectName, size); 
@@ -97,20 +97,20 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements
 	}
 
 	@Override
-	public void addNewServer(AbstractAsynConnection serverConnection) {
-		OutputMessageReaderIF minHandler = null;
+	public void addNewServer(AbstractAsynConnection serverAsynConnection) {
+		AsynReadOnlySelectorManagerIF minHandler = null;
 		int MIN_COUNT = Integer.MAX_VALUE;
 
 		int size = pool.size();
 		for (int i = 0; i < size; i++) {
-			OutputMessageReaderIF handler = (OutputMessageReaderIF) pool.get(i);
-			int cnt_of_clients = handler.getCntOfClients();
+			AsynReadOnlySelectorManagerIF handler = (AsynReadOnlySelectorManagerIF) pool.get(i);
+			int cnt_of_clients = handler.getCntOfServers();
 			if (cnt_of_clients < MIN_COUNT) {
 				MIN_COUNT = cnt_of_clients;
 				minHandler = handler;
 			}
 		}
 		// 읽기 전용 selector 에 최소로 등록된 소켓 채널을 가지고 있는 출력 메시지 읽기 처리 쓰레드에 연결 객체 등록 
-		minHandler.addNewServer(serverConnection);
+		minHandler.addNewServer(serverAsynConnection);
 	}
 }

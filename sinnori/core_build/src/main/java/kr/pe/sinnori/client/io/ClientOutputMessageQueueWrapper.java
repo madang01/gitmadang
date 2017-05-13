@@ -29,13 +29,13 @@ import org.slf4j.LoggerFactory;
  * @author Won Jonghoon
  *
  */
-public class ClientWrapOutputMessageQueue {
-	private Logger log = LoggerFactory.getLogger(ClientWrapOutputMessageQueue.class);
+public class ClientOutputMessageQueueWrapper {
+	private Logger log = LoggerFactory.getLogger(ClientOutputMessageQueueWrapper.class);
 	
 	private boolean isInQueue = true;
 	private LinkedBlockingQueue<ReceivedLetter> outputMessageQueue = null;
 	
-	public ClientWrapOutputMessageQueue(LinkedBlockingQueue<ReceivedLetter> outputMessageQueue) {
+	public ClientOutputMessageQueueWrapper(LinkedBlockingQueue<ReceivedLetter> outputMessageQueue) {
 		this.outputMessageQueue = outputMessageQueue;
 	}
 	

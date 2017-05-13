@@ -14,27 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage;
 
-package kr.pe.sinnori.client;
-
-import kr.pe.sinnori.client.io.ClientWrapOutputMessageQueue;
-import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
+import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 
 /**
- * 비동기 입출력 지원용 랩 출력 메시지 큐를 원소로 하는 큐 관리자 
+ * 클라이언트 연결 클래스가 바라보는 출력 메시지 소켓 읽기 담당 쓰레드 폴 인터페이스.
+ * 
+ * @see OutputMessageReaderThreadPool#addNewServer(AbstractAsynConnection)
  * @author Won Jonghoon
- *
+ * 
  */
-public interface SyncOutputMessageQueueQueueMangerIF {
+public interface AsynServerAdderIF {
 	/**
-	 * 랩 출력 메시지 큐를 원소로 하는 큐에서 랩 출력 메시지 큐를 얻어온다.
-	 * @return 데이터 패킷 버퍼
+	 * 소켓 채널의 균등한 분배를 위해서 등록된 쓰레드중 최소 소켓을 갖는 쓰레드에 신규 소켓 채널을 배당한다.
+	 * 
+	 * @param serverConnection
+	 *            등록을 원하는 신규 연결 클래스
 	 */
-	public ClientWrapOutputMessageQueue pollOutputMessageQueue() throws NoMoreOutputMessageQueueException;
-
-	/**
-	 * 랩 출력 메시지 큐를 원소로 하는 큐에 랩 출력 메시지 큐를 반환한다.
-	 * @param wrapOutputMessageQueue 큐에 반환하고자 하는 랩 출력 메시지 큐
-	 */
-	public void putOutputMessageQueue(ClientWrapOutputMessageQueue wrapOutputMessageQueue);
+	public void addNewServer(AbstractAsynConnection serverAsynConnection);
 }

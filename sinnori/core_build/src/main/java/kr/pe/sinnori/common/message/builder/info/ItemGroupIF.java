@@ -25,7 +25,7 @@ import java.util.ArrayList;
  * @author Won Jonghoon
  * 
  */
-public interface ItemGroupInfoIF {
+public interface ItemGroupIF {
 	/**
 	 * 순서를 가지는 항목 그룹 정보를 반환한다.
 	 * 
@@ -51,6 +51,5 @@ public interface ItemGroupInfoIF {
 	 */
 	public AbstractItemInfo getItemInfo(String itemName);
 	
-	public String getFirstUpperItemName();
-	
+	public String getFirstUpperItemName();	
 }

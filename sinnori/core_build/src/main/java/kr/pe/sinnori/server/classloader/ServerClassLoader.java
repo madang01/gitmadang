@@ -25,10 +25,10 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Hashtable;
 
-import kr.pe.sinnori.common.util.CommonStaticUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import kr.pe.sinnori.common.util.CommonStaticUtil;
 
 
 
@@ -275,7 +275,6 @@ public class ServerClassLoader extends ClassLoader {
 	 * kr/pe/sinnori/impl/mybatis/memberMapper.xml 로 시작되는 mybatis 리소스 파일의 InputStream 을 반환한다.
 	 * </pre>
 	 */
-	@SuppressWarnings("resource")
 	@Override
 	public InputStream getResourceAsStream(String name) {
 		InputStream is = null;

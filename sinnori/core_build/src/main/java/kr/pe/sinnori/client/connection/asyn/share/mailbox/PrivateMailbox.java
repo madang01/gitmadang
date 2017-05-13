@@ -20,10 +20,10 @@ import java.net.SocketTimeoutException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import kr.pe.sinnori.client.SyncOutputMessageQueueQueueMangerIF;
+import kr.pe.sinnori.client.ClientOutputMessageQueueQueueMangerIF;
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.client.connection.asyn.share.ShareAsynConnection;
-import kr.pe.sinnori.client.io.ClientWrapOutputMessageQueue;
+import kr.pe.sinnori.client.io.ClientOutputMessageQueueWrapper;
 import kr.pe.sinnori.client.io.LetterToServer;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
@@ -61,9 +61,9 @@ public class PrivateMailbox {
 	private int mailboxID;
 	/** 입력 메시지 큐 */
 	private LinkedBlockingQueue<LetterToServer> inputMessageQueue = null;
-	private SyncOutputMessageQueueQueueMangerIF syncOutputMessageQueueQueueManager = null;
+	private ClientOutputMessageQueueQueueMangerIF syncOutputMessageQueueQueueManager = null;
 	/** 출력 메시지 큐 */
-	private ClientWrapOutputMessageQueue wrapOutputMessageQueue = null;
+	private ClientOutputMessageQueueWrapper wrapOutputMessageQueue = null;
 	private LinkedBlockingQueue<ReceivedLetter> syncOutputMessageQueue = null;
 	/** 메일함이 속한 비동기 연결 방식의 소켓 채널을 쓰레드간에 공유할려는 연결 클래스 */
 	private AbstractAsynConnection serverConnection = null;
@@ -97,7 +97,7 @@ public class PrivateMailbox {
 	public PrivateMailbox(AbstractAsynConnection serverConnection,
 			int mailboxID,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
-			SyncOutputMessageQueueQueueMangerIF syncOutputMessageQueueQueueManger
+			ClientOutputMessageQueueQueueMangerIF syncOutputMessageQueueQueueManger
 			) throws NoMoreOutputMessageQueueException {
 		// this.mailboxMonitor = mailboxMonitor;
 		this.serverConnection = serverConnection;

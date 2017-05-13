@@ -6,7 +6,7 @@ import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.message.builder.info.AbstractItemInfo;
 import kr.pe.sinnori.common.message.builder.info.ArrayInfo;
-import kr.pe.sinnori.common.message.builder.info.ItemGroupInfoIF;
+import kr.pe.sinnori.common.message.builder.info.ItemGroupIF;
 import kr.pe.sinnori.common.message.builder.info.SingleItemInfo;
 
 
@@ -20,7 +20,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		return countVarNameBuilder.toString();
 	}
 	
-	private String toBody(int depth, String path, String varName, ItemGroupInfoIF arrayInfo, String middleObjVarName) {
+	private String toBody(int depth, String path, String varName, ItemGroupIF arrayInfo, String middleObjVarName) {
 		StringBuilder stringBuilder = new StringBuilder();
 		
 		ArrayList<AbstractItemInfo> itemInfoList = arrayInfo.getItemInfoList();
