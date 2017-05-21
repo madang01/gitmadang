@@ -33,7 +33,7 @@ public abstract class ItemIDDefiner {
 		public static final String COMMON_DATA_PACKET_BUFFER_SIZE_ITEMID = "common.data_packet_buffer_size.value";
 		public static final String COMMON_MESSAGE_ID_FIXED_SIZE_ITEMID = "common.message_id_fixed_size.value";
 		public static final String COMMON_MESSAGE_PROTOCOL_ITEMID = "common.message_protocol.value";
-		public static final String COMMON_CLASSLOADER_CLASS_PACKAGE_PREFIX_NAME_ITEMID = "common.classloader.class_package_prefix_name.value";
+		public static final String COMMON_CLASSLOADER_PACKAGE_PREFIX_NAME_ITEMID = "common.classloader.package_prefix_name.value";
 		public static final String CLIENT_MONITOR_TIME_INTERVAL_ITEMID = "client.monitor.time_interval.value";
 		public static final String CLIENT_MONITOR_RECEPTION_TIMEOUT_ITEMID = "client.monitor.reception_timeout.value";
 		public static final String CLIENT_CONNECTION_TYPE_ITEMID = "client.connection.type.value";
@@ -69,6 +69,6 @@ public abstract class ItemIDDefiner {
 		public static final String SERVER_POOL_EXECUTOR_PROCESSOR_SIZE_ITEMID = "server.pool.executor_processor.size.value";
 		public static final String SERVER_POOL_OUTPUT_MESSAGE_WRITER_MAX_SIZE_ITEMID = "server.pool.output_message_writer.max_size.value";
 		public static final String SERVER_POOL_OUTPUT_MESSAGE_WRITER_SIZE_ITEMID = "server.pool.output_message_writer.size.value";
-		public static final String SERVER_CLASSLOADER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_STRING_ITEMID = "server.classloader.mybatis_config_file_relative_path.value";
+		public static final String SERVER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_STRING_ITEMID = "server.mybatis.config_file_relative_path.value";
 	}
 }

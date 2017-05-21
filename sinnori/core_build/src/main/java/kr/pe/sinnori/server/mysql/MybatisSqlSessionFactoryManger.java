@@ -13,6 +13,8 @@ import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.vo.AllDBCPPartConfiguration;
 import kr.pe.sinnori.common.config.vo.ProjectPartConfiguration;
 import kr.pe.sinnori.common.exception.DBCPDataSourceNotFoundException;
+import kr.pe.sinnori.common.mysql.FileTypeResourceManager;
+import kr.pe.sinnori.common.mysql.MybatisConfigXMLFileSAXParser;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -56,26 +58,26 @@ public class MybatisSqlSessionFactoryManger {
 		SinnoriConfiguration sinnoriConfiguration = SinnoriConfigurationManager
 				.getInstance().getSinnoriRunningProjectConfiguration();
 
-		AllDBCPPartConfiguration allDBCPPart = sinnoriConfiguration
+		AllDBCPPartConfiguration allDBCPPartConfiguration = sinnoriConfiguration
 				.getAllDBCPPartConfiguration();
-		ProjectPartConfiguration mainProjetPart = sinnoriConfiguration
+		ProjectPartConfiguration mainProjetPartConfiguration = sinnoriConfiguration
 				.getMainProjectPartConfiguration();
 
-		String serverClassloaderMybatisConfigFileRelativePathString = mainProjetPart
-				.getServerClassloaderMybatisConfigFileRelativePathString();
+		String serverMybatisConfigFileRelativePathString = mainProjetPartConfiguration
+				.getServerMybatisConfigFileRelativePathString();
 
 		String sinnoriInstalledPathString = sinnoriConfiguration
 				.getSinnoriInstalledPathString();
 		String mainProjectName = sinnoriConfiguration.getMainProjectName();
 
-		String serverAPPINFResorucePathString = BuildSystemPathSupporter
-				.getServerAPPINFResourcesPathString(sinnoriInstalledPathString,
+		String mainProjectResorucesPathString = BuildSystemPathSupporter
+				.getProjectResourcesPathString(sinnoriInstalledPathString,
 						mainProjectName);
 
 		String mybatisConfigeFilePathString = CommonStaticUtil
 				.getFilePathStringFromResourcePathAndRelativePathOfFile(
-						serverAPPINFResorucePathString,
-						serverClassloaderMybatisConfigFileRelativePathString);
+						mainProjectResorucesPathString,
+						serverMybatisConfigFileRelativePathString);
 
 		mybatisConfigeFile = new File(mybatisConfigeFilePathString);
 
@@ -111,7 +113,7 @@ public class MybatisSqlSessionFactoryManger {
 			return;
 		}
 
-		List<String> dbcpConnectionPoolNameList = allDBCPPart.getDBCPNameList();
+		List<String> dbcpConnectionPoolNameList = allDBCPPartConfiguration.getDBCPNameList();
 
 		for (String dbcpConnectionPoolName : dbcpConnectionPoolNameList) {
 			try {

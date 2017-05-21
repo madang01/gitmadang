@@ -11,6 +11,8 @@ import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.vo.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
+import kr.pe.sinnori.common.mysql.FileTypeResourceManager;
+import kr.pe.sinnori.common.mysql.MybatisConfigXMLFileSAXParser;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 import kr.pe.sinnori.common.util.SequencedProperties;
 
@@ -55,11 +57,9 @@ public class MybatisConfigSAXParserTest {
 		} catch (SAXException e) {
 			log.warn("1.SAXException", e);
 			fail(e.getMessage());
-		}
+		}		
 		
-		
-		
-		String serverClassloaderMybatisConfigFileRelativePathString = null;
+		String serverMybatisConfigFileRelativePathString = null;
 		{
 			SinnoriConfiguration sinnoriConfiguration = 
 					SinnoriConfigurationManager.getInstance()
@@ -68,17 +68,17 @@ public class MybatisConfigSAXParserTest {
 			ProjectPartConfiguration mainProjetPart = sinnoriConfiguration
 					.getMainProjectPartConfiguration();
 			
-			serverClassloaderMybatisConfigFileRelativePathString = mainProjetPart
-					.getServerClassloaderMybatisConfigFileRelativePathString();
+			serverMybatisConfigFileRelativePathString = mainProjetPart
+					.getServerMybatisConfigFileRelativePathString();
 		}
 		
-		String serverAPPINFResorucePathString = BuildSystemPathSupporter.getServerAPPINFResourcesPathString
-		(sinnoriInstalledPathString, mainProjectName);
+		String mainProjectResorucesPathString = BuildSystemPathSupporter
+				.getProjectResourcesPathString(sinnoriInstalledPathString, mainProjectName);
 		
 		String mybatisConfigeFilePathString = CommonStaticUtil
 				.getFilePathStringFromResourcePathAndRelativePathOfFile(
-						serverAPPINFResorucePathString,
-						serverClassloaderMybatisConfigFileRelativePathString);
+						mainProjectResorucesPathString,
+						serverMybatisConfigFileRelativePathString);
 		
 		/*log.info("serverAPPINFResorucePathString={}", serverAPPINFResorucePathString);
 		log.info("serverClassloaderMybatisConfigFileRelativePathString={}", serverClassloaderMybatisConfigFileRelativePathString);

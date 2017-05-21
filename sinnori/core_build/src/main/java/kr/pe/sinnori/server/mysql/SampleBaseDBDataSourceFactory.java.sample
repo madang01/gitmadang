@@ -1,0 +1,12 @@
+package kr.pe.sinnori.server.mysql;
+
+import kr.pe.sinnori.common.mysql.AbstractUnpooledDataSourceFactory;
+
+public class SampleBaseDBDataSourceFactory extends AbstractUnpooledDataSourceFactory {
+
+	@Override
+	public String getDBCPConnectionPoolName() {
+		return "sample_base_db";
+	}
+	
+}

@@ -16,6 +16,7 @@ import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.itemidinfo.SinnoriItemIDInfoManger;
 import kr.pe.sinnori.common.config.vo.AllDBCPPartConfiguration;
 import kr.pe.sinnori.common.config.vo.AllSubProjectPartConfiguration;
+import kr.pe.sinnori.common.config.vo.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
@@ -24,6 +25,9 @@ import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.message.builder.IOFileSetContentsBuilderManager;
 import kr.pe.sinnori.common.message.builder.info.MessageInfo;
 import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
+import kr.pe.sinnori.common.mysql.FileTypeResource;
+import kr.pe.sinnori.common.mysql.FileTypeResourceManager;
+import kr.pe.sinnori.common.mysql.MybatisConfigXMLFileSAXParser;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 import kr.pe.sinnori.common.util.SequencedProperties;
 import kr.pe.sinnori.common.util.SequencedPropertiesUtil;
@@ -32,10 +36,12 @@ public class ProjectBuilder {
 	private Logger log = LoggerFactory.getLogger(ProjectBuilder.class);
 
 	private static final String MESSAGE_SOURCE_FILE_RELATIVE_PATH = "src/main/java/kr/pe/sinnori/impl/message";
-	public static final String ECHO_MESSAGE_ID = "Echo";
+	
 	public static final String AUTHOR = "Won Jonghoon";
 	public static final String JVM_OPTIONS_OF_SERVER = "-server -Xmx2048m -Xms1024m";
 	public static final String JVM_OPTIONS_OF_APP_CLIENT = "-Xmx2048m -Xms1024m";
+	
+	private final String[] messageIDList = {"Echo", "PublicKeyReq",  "PublicKeyRes"};
 
 	private String mainProjectName;
 	private String sinnoriInstalledPathString;
@@ -275,7 +281,6 @@ public class ProjectBuilder {
 	
 	public void createProject(boolean isServer, boolean isAppClient, boolean isWebClient, 
 			String servletSystemLibraryPathString) throws BuildSystemException {
-		// FIXME!
 		if (!isServer && !isAppClient && !isWebClient) {
 			throw new IllegalArgumentException("You must choose one more build system type but isSerer=false, isAppClient=false, isWebClient=false");
 		}
@@ -293,7 +298,7 @@ public class ProjectBuilder {
 		createFiles(isServer, isAppClient, isWebClient, servletSystemLibraryPathString);
 	}
 	
-	public void createCommonChildDirectories() throws BuildSystemException {
+	private void createCommonChildDirectories() throws BuildSystemException {
 		log.info("main project[{}]'s common child direcotry creation task start", mainProjectName);
 
 		List<String> childRelativeDirectoryList = new ArrayList<String>();
@@ -312,7 +317,7 @@ public class ProjectBuilder {
 		log.info("main project[{}]'s common child direcotry creation task end", mainProjectName);
 	}
 	
-	public void createServerBuildChildDirectories() throws BuildSystemException {
+	private void createServerBuildChildDirectories() throws BuildSystemException {
 		log.info("main project[{}]'s server child direcotry creation task start", mainProjectName);
 
 		List<String> childRelativeDirectoryList = new ArrayList<String>();
@@ -324,8 +329,7 @@ public class ProjectBuilder {
 		childRelativeDirectoryList.add("server_build/lib/main/ex");
 		childRelativeDirectoryList.add("server_build/lib/main/in");
 		childRelativeDirectoryList.add("server_build/lib/test");
-
-		childRelativeDirectoryList.add("server_build/src/main/java/kr/pe/sinnori/impl/server/mybatis");
+		
 		childRelativeDirectoryList.add("server_build/src/main/java/kr/pe/sinnori/impl/servertask");
 		childRelativeDirectoryList.add(new StringBuilder("server_build/").append(MESSAGE_SOURCE_FILE_RELATIVE_PATH).toString());		
 		childRelativeDirectoryList.add("server_build/src/main/java/main");
@@ -338,7 +342,7 @@ public class ProjectBuilder {
 		log.info("main project[{}]'s server child direcotry creation task end", mainProjectName);
 	}
 	
-	public void createAppBuildChildDirectories() throws BuildSystemException {
+	private void createAppBuildChildDirectories() throws BuildSystemException {
 		log.info("main project[{}]'s application build child direcotry creation task start", mainProjectName);
 
 		List<String> childRelativeDirectoryList = new ArrayList<String>();
@@ -361,7 +365,7 @@ public class ProjectBuilder {
 		log.info("main project[{}]'s application build child direcotry creation task end", mainProjectName);
 	}
 	
-	public void createWebBuildChildDirectories() throws BuildSystemException {
+	private void createWebBuildChildDirectories() throws BuildSystemException {
 		log.info("main project[{}]'s web build child direcotry creation task start", mainProjectName);
 
 		List<String> childRelativeDirectoryList = new ArrayList<String>();
@@ -386,7 +390,7 @@ public class ProjectBuilder {
 		log.info("main project[{}]'s web build child direcotry creation task end", mainProjectName);
 	}
 	
-	public void createWebRootChildDirectories() throws BuildSystemException {
+	private void createWebRootChildDirectories() throws BuildSystemException {
 		log.info("main project[{}]'s web root child direcotry creation task start", mainProjectName);
 
 		List<String> childRelativeDirectoryList = new ArrayList<String>();
@@ -400,7 +404,7 @@ public class ProjectBuilder {
 		log.info("main project[{}]'s web root child direcotry creation task end", mainProjectName);
 	}
 	
-	public void createChildDirectories(boolean isServer, boolean isAppClient, boolean isWebClient)
+	private void createChildDirectories(boolean isServer, boolean isAppClient, boolean isWebClient)
 			throws BuildSystemException {
 		log.info("main project[{}]'s child direcotry creation task start", mainProjectName);
 		createCommonChildDirectories();
@@ -424,7 +428,7 @@ public class ProjectBuilder {
 		log.info("main project[{}]'s child direcotry creation task end", mainProjectName);
 	}
 
-	public void createFiles(boolean isServer, boolean isAppClient, boolean isWebClient, 
+	private void createFiles(boolean isServer, boolean isAppClient, boolean isWebClient, 
 			String servletSystemLibraryPathString) throws BuildSystemException {
 		log.info("main project[{}]'s file creation task start", mainProjectName);
 		
@@ -433,8 +437,7 @@ public class ProjectBuilder {
 		}
 		
 		createNewSinnoriConfigFile();
-		createNewLogbackConfigFile();
-		createNewEchoMessageInfomationFile();
+		copySampleFilesToResoruces();
 
 		if (isServer) {
 			createServerBuildSystemFiles();
@@ -450,8 +453,42 @@ public class ProjectBuilder {
 		}
 		log.info("main project[{}]'s file creation task end", mainProjectName);
 	}
+	
+	private void copySampleFilesToResoruces() throws BuildSystemException {
+		log.info("the mainproject[{}]'s resources directory copy task start", mainProjectName);
 
-	public void createWebClientBuildSystemFiles(String servletSystemLibraryPathString) throws BuildSystemException {
+		String sinnoriResourcePathString = BuildSystemPathSupporter
+				.getSinnoriResourcesPathString(sinnoriInstalledPathString);
+		String projectResorucesPathString = BuildSystemPathSupporter
+				.getProjectResourcesPathString(sinnoriInstalledPathString, mainProjectName);
+
+		String sourceDirectoryPathString = new StringBuilder(sinnoriResourcePathString).append(File.separator)
+				.append("newproject").append(File.separator).append("resources").toString();
+
+		String targetDirectoryPathString = new StringBuilder(projectResorucesPathString).toString();
+
+		File sourceDirectory = new File(sourceDirectoryPathString);
+		File targetDirectory = new File(targetDirectoryPathString);
+
+		try {
+			FileUtils.copyDirectory(sourceDirectory, targetDirectory);
+		} catch (IOException e) {
+			String errorMessage = new StringBuilder("fail to copy the sample resoruces directory[")
+					.append(sourceDirectoryPathString)
+					.append("]  to the main project[").append(mainProjectName)
+					.append("]'s the resources directory[").append(targetDirectoryPathString)
+					.append("]").toString();
+
+			log.warn(errorMessage, e);
+
+			throw new BuildSystemException(
+					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
+		}
+
+		log.info("the mainproject[{}]'s resources directory copy task end", mainProjectName);
+	}
+
+	private void createWebClientBuildSystemFiles(String servletSystemLibraryPathString) throws BuildSystemException {
 		log.info("main project[{}]'s web client build system files creation task start", mainProjectName);
 		
 		if(null == servletSystemLibraryPathString) {
@@ -460,13 +497,13 @@ public class ProjectBuilder {
 
 		createNewWebClientAntBuildFile();
 		createNewWebClientAntPropertiesFile(servletSystemLibraryPathString);
-		createNewWebClientEchoIOFileSet();
+		createNewWebClientMessageIOFileSet();
 		copyWebClientSampleFiles();
 
 		log.info("main project[{}]'s web client build system files creation task end", mainProjectName);
 	}
 	
-	public void deleteWebCientBuildPath() throws BuildSystemException {
+	private void deleteWebCientBuildPath() throws BuildSystemException {
 		log.info("main project[{}]'s web client build path deletion task start", mainProjectName);
 		
 		String webClientBuildPathString = BuildSystemPathSupporter
@@ -489,7 +526,7 @@ public class ProjectBuilder {
 	}
 
 	
-	public void createWebRootSampleFiles() throws BuildSystemException {
+	private void createWebRootSampleFiles() throws BuildSystemException {
 		log.info("main project[{}]'s web root sample files creation task start", mainProjectName);
 
 		copyWebRootSampleFiles();
@@ -497,7 +534,7 @@ public class ProjectBuilder {
 		log.info("main project[{}]'s web root sample files creation task end", mainProjectName);
 	}
 	
-	public void deleteWebRoot() throws BuildSystemException {
+	private void deleteWebRoot() throws BuildSystemException {
 		log.info("main project[{}]'s web root path deletion task start", mainProjectName);
 		
 		String webRootPathString = BuildSystemPathSupporter
@@ -519,7 +556,7 @@ public class ProjectBuilder {
 		log.info("main project[{}]'s web root path deletion task end", mainProjectName);
 	}
 
-	public void copyWebRootSampleFiles() throws BuildSystemException {
+	private void copyWebRootSampleFiles() throws BuildSystemException {
 		log.info("main project[{}]'s web root sample files copy task start", mainProjectName);
 
 		String sinnoriResourcePathString = BuildSystemPathSupporter
@@ -549,7 +586,7 @@ public class ProjectBuilder {
 		log.info("main project[{}]'s web root sample files copy task end", mainProjectName);
 	}
 
-	public void createNewWebClientAntBuildFile() throws BuildSystemException {
+	private void createNewWebClientAntBuildFile() throws BuildSystemException {
 		log.info("main project[{}]'s web client ant build.xml file creation task start", mainProjectName);
 
 		String webClientAntBuildXMLFileContents = BuildSystemFileContents
@@ -577,34 +614,25 @@ public class ProjectBuilder {
 		log.info("main project[{}]'s web client ant build.xml file creation task end", mainProjectName);
 	}
 
-	public void createNewWebClientEchoIOFileSet() throws BuildSystemException {
-		log.info("main project[{}]'s web client message[{}] io file set creation task start", mainProjectName,
-				ECHO_MESSAGE_ID);
+	private void createNewWebClientMessageIOFileSet() throws BuildSystemException {
+		log.info("main project[{}]'s web client message io file set creation task start", mainProjectName);
 
-		String messageIOSetBasedirectoryPathString = null;
-
-		{
-			final String webClientBuildPathString = BuildSystemPathSupporter
-					.getWebClientBuildPathString(sinnoriInstalledPathString, mainProjectName);
-
-			messageIOSetBasedirectoryPathString = CommonStaticUtil
+		String webClientBuildPathString = BuildSystemPathSupporter
+				.getWebClientBuildPathString(sinnoriInstalledPathString, mainProjectName);
+		
+		String messageIOSetBasedirectoryPathString = CommonStaticUtil
 					.getFilePathStringFromResourcePathAndRelativePathOfFile
 					(webClientBuildPathString, MESSAGE_SOURCE_FILE_RELATIVE_PATH);
-			
-			createNewMessageIDDirectory(messageIOSetBasedirectoryPathString, ECHO_MESSAGE_ID);
+		
+		
+		for (String messageID : messageIDList) {
+			createNewMessageIOSet(messageID, AUTHOR, messageIOSetBasedirectoryPathString);
 		}
 
-		createNewMessageSourceFile(ECHO_MESSAGE_ID, AUTHOR, messageIOSetBasedirectoryPathString);
-		createNewDecoderSourceFile(ECHO_MESSAGE_ID, AUTHOR, messageIOSetBasedirectoryPathString);
-		createNewEncoderSourceFile(ECHO_MESSAGE_ID, AUTHOR, messageIOSetBasedirectoryPathString);
-		createNewServerCodecSourceFile(ECHO_MESSAGE_ID, AUTHOR, messageIOSetBasedirectoryPathString);
-		createNewClientCodecSourceFile(ECHO_MESSAGE_ID, AUTHOR, messageIOSetBasedirectoryPathString);
-
-		log.info("main project[{}]'s web client message[{}] io file set creation task end", mainProjectName,
-				ECHO_MESSAGE_ID);
+		log.info("main project[{}]'s web client message io file set creation task end", mainProjectName);
 	}
 
-	public void copyWebClientSampleFiles() throws BuildSystemException {
+	private void copyWebClientSampleFiles() throws BuildSystemException {
 		log.info("mainproject[{}]'s web client sample source files copy task start", mainProjectName);
 
 		String sinnoriResourcePathString = BuildSystemPathSupporter
@@ -637,19 +665,19 @@ public class ProjectBuilder {
 		log.info("mainproject[{}]'s web client sample source files copy task end", mainProjectName);
 	}
 
-	public void createAppClientBuildSystemFiles() throws BuildSystemException {
+	private void createAppClientBuildSystemFiles() throws BuildSystemException {
 		log.info("mainproject[{}]'s application client build system files creation task start", mainProjectName);
 
 		createNewAppClientAntBuildXMLFile();
 		createNewAppClientDosShellFile();
 		createNewAppClientUnixShellFile();
-		copyAppClientSampleSourceFiles();
-		createNewAppClientEchoIOFileSet();
+		copyAppClientSampleFiles();
+		createNewAppClientAllMessageIOFileSet();
 
 		log.info("mainproject[{}]'s application client build system files creation task end", mainProjectName);
 	}
 	
-	public void deleteAppClientBuildPath() throws BuildSystemException {
+	private void deleteAppClientBuildPath() throws BuildSystemException {
 		log.info("mainproject[{}]'s application client build path deletion task start", mainProjectName);
 		
 		String appClientBuildPathString = BuildSystemPathSupporter
@@ -671,7 +699,7 @@ public class ProjectBuilder {
 		log.info("mainproject[{}]'s application client build path deletion task end", mainProjectName);
 	}
 
-	public void createNewAppClientAntBuildXMLFile() throws BuildSystemException {
+	private void createNewAppClientAntBuildXMLFile() throws BuildSystemException {
 		log.info("main project[{}]'s application client ant build.xml file creation task start", mainProjectName);
 
 		String appClientAntBuildXMLFileContents = BuildSystemFileContents.getAppClientAntBuildXMLFileContents(mainProjectName,
@@ -700,7 +728,7 @@ public class ProjectBuilder {
 		log.info("main project[{}]'s application client ant build.xml file creation task end", mainProjectName);
 	}
 
-	public void createNewAppClientDosShellFile() throws BuildSystemException {
+	private void createNewAppClientDosShellFile() throws BuildSystemException {
 		log.info("main project[{}]'s application client dos shell file creation task start", mainProjectName);
 
 		String relativeExecutabeJarFileName = new StringBuilder("dist").append(File.separator)
@@ -734,7 +762,7 @@ public class ProjectBuilder {
 		log.info("main project[{}]'s application client dos shell file creation task end", mainProjectName);
 	}
 
-	public void overwriteAppClientDosShellFile() throws BuildSystemException {
+	private void overwriteAppClientDosShellFile() throws BuildSystemException {
 		log.info("main project[{}]'s application client dos shell file  overwrite task start", mainProjectName);
 
 		String relativeExecutabeJarFileName = new StringBuilder("dist").append(File.separator)
@@ -768,7 +796,7 @@ public class ProjectBuilder {
 		log.info("main project[{}]'s application client dos shell file overwrite task end", mainProjectName);
 	}
 
-	public void createNewAppClientUnixShellFile() throws BuildSystemException {
+	private void createNewAppClientUnixShellFile() throws BuildSystemException {
 		log.info("main project[{}]'s application client unix shell file creation task start", mainProjectName);
 
 		String relativeExecutabeJarFileName = new StringBuilder("dist").append(File.separator)
@@ -801,7 +829,7 @@ public class ProjectBuilder {
 		log.info("main project[{}]'s application client unix shell file creation task end", mainProjectName);
 	}
 
-	public void overwriteAppClientUnixShellFile() throws BuildSystemException {
+	private void overwriteAppClientUnixShellFile() throws BuildSystemException {
 		log.info("main project[{}]'s application client unix shell file overwrite task start", mainProjectName);
 
 		String relativeExecutabeJarFileName = new StringBuilder("dist").append(File.separator)
@@ -834,7 +862,7 @@ public class ProjectBuilder {
 		log.info("main project[{}]'s application client unix shell file overwrite task end", mainProjectName);
 	}
 
-	public void copyAppClientSampleSourceFiles() throws BuildSystemException {
+	private void copyAppClientSampleFiles() throws BuildSystemException {
 		log.info("application client sample source files copy task start");
 
 		String sinnoriResourcePathString = BuildSystemPathSupporter
@@ -842,11 +870,9 @@ public class ProjectBuilder {
 		String applicationClientBuildPathString = BuildSystemPathSupporter.getAppClientBuildPathString(sinnoriInstalledPathString, mainProjectName);
 
 		String sourceDirectoryPathString = new StringBuilder(sinnoriResourcePathString).append(File.separator)
-				.append("newproject").append(File.separator).append("app_build").append(File.separator).append("src")
-				.toString();
+				.append("newproject").append(File.separator).append("app_build").toString();
 
-		String targetDirectoryPathString = new StringBuilder(applicationClientBuildPathString).append(File.separator)
-				.append("src").toString();
+		String targetDirectoryPathString = applicationClientBuildPathString;
 
 		File sourceDirectory = new File(sourceDirectoryPathString);
 		File targetDirectory = new File(targetDirectoryPathString);
@@ -855,7 +881,7 @@ public class ProjectBuilder {
 			FileUtils.copyDirectory(sourceDirectory, targetDirectory);
 		} catch (IOException e) {
 			String errorMessage = new StringBuilder("fail to copy the main project[").append(mainProjectName)
-					.append("]'s the source directory[").append(sourceDirectoryPathString)
+					.append("]'s the build directory[").append(sourceDirectoryPathString)
 					.append("]  having sample source files to the target directory[").append(targetDirectoryPathString)
 					.append("]").toString();
 
@@ -868,47 +894,46 @@ public class ProjectBuilder {
 		log.info("application client sample source files copy task end");
 	}
 
-	public void createNewAppClientEchoIOFileSet() throws BuildSystemException {
-		log.info("main project[{}]'s application client message[{}] io file set creation task start", mainProjectName,
-				ECHO_MESSAGE_ID);
+	private void createNewAppClientAllMessageIOFileSet() throws BuildSystemException {
+		log.info("main project[{}]'s application client message io file set creation task start", mainProjectName);
 
-		String messageIOSetBasedirectoryPathString = null;
-
-		{
-			final String appClientBuildPathString = BuildSystemPathSupporter
-					.getAppClientBuildPathString(sinnoriInstalledPathString, mainProjectName);
-
-			messageIOSetBasedirectoryPathString = CommonStaticUtil
+		String appClientBuildPathString = BuildSystemPathSupporter
+				.getAppClientBuildPathString(sinnoriInstalledPathString, mainProjectName);
+		
+		String messageIOSetBasedirectoryPathString = CommonStaticUtil
 					.getFilePathStringFromResourcePathAndRelativePathOfFile
 					(appClientBuildPathString, MESSAGE_SOURCE_FILE_RELATIVE_PATH);
 			
-			createNewMessageIDDirectory(messageIOSetBasedirectoryPathString, ECHO_MESSAGE_ID);
-		}
+		for (String messageID : messageIDList) {
+			createNewMessageIOSet(messageID, AUTHOR, messageIOSetBasedirectoryPathString);
+		}		
 
-		createNewMessageSourceFile(ECHO_MESSAGE_ID, AUTHOR, messageIOSetBasedirectoryPathString);
-		createNewDecoderSourceFile(ECHO_MESSAGE_ID, AUTHOR, messageIOSetBasedirectoryPathString);
-		createNewEncoderSourceFile(ECHO_MESSAGE_ID, AUTHOR, messageIOSetBasedirectoryPathString);
-		createNewServerCodecSourceFile(ECHO_MESSAGE_ID, AUTHOR, messageIOSetBasedirectoryPathString);
-		createNewClientCodecSourceFile(ECHO_MESSAGE_ID, AUTHOR, messageIOSetBasedirectoryPathString);
-
-		log.info("main project[{}]'s application client message[{}] io file set creation task end", mainProjectName,
-				ECHO_MESSAGE_ID);
+		log.info("main project[{}]'s application client message io file set creation task end", mainProjectName);
 	}
 
-	public void createServerBuildSystemFiles() throws BuildSystemException {
+	private void createNewMessageIOSet(String messageID, String author, String messageIOSetBasedirectoryPathString)
+			throws BuildSystemException {
+		createNewMessageIDDirectory(messageIOSetBasedirectoryPathString, messageID);
+		createNewMessageSourceFile(messageID, author, messageIOSetBasedirectoryPathString);
+		createNewDecoderSourceFile(messageID, author, messageIOSetBasedirectoryPathString);
+		createNewEncoderSourceFile(messageID, author, messageIOSetBasedirectoryPathString);
+		createNewServerCodecSourceFile(messageID, author, messageIOSetBasedirectoryPathString);
+		createNewClientCodecSourceFile(messageID, author, messageIOSetBasedirectoryPathString);
+	}
+
+	private void createServerBuildSystemFiles() throws BuildSystemException {
 		log.info("server build system files creation task start");
 
 		createNewServerAntBuildXMLFile();
 		createNewServerDosShellFile();
 		createNewServerUnixShellFile();
-		copyServerSampleSourceFiles();
-		createNewServerEchoTaskFile();
-		createServerEchoIOFileSet();
+		copyServerSampleFiles();
+		createServerMessageIOFileSet();
 
 		log.info("server build system files creation task end");
 	}
 	
-	public void deleteServerBuildPath() throws BuildSystemException {
+	private void deleteServerBuildPath() throws BuildSystemException {
 		log.info("mainproject[{}]'s server build path deletion task start", mainProjectName);
 		
 		String serverBuildPathString = BuildSystemPathSupporter
@@ -930,22 +955,6 @@ public class ProjectBuilder {
 		log.info("mainproject[{}]'s server build path deletion task end", mainProjectName);
 	}
 
-	/*private String getMessageIOSetBasedirectoryPathString(String buildPathString) {
-		String messageIOSetBasedirectoryPathString = null;
-		if (File.separator.equals("/")) {
-			messageIOSetBasedirectoryPathString = new StringBuilder(buildPathString).append(File.separator)
-					.append(MESSAGE_SOURCE_FILE_RELATIVE_PATH).toString();
-
-		} else {
-			messageIOSetBasedirectoryPathString = new StringBuilder(buildPathString).append(File.separator)
-					.append(MESSAGE_SOURCE_FILE_RELATIVE_PATH.replaceAll("/", "\\\\")).toString();
-
-		}
-
-		return messageIOSetBasedirectoryPathString;
-	}*/
-	
-
 	private void createNewMessageIDDirectory(String messageIOSetBasedirectoryPathString, String messageID)
 			throws BuildSystemException {
 		List<String> childRelativeDirectoryList = new ArrayList<String>();
@@ -954,32 +963,25 @@ public class ProjectBuilder {
 				childRelativeDirectoryList);
 	}
 
-	public void createServerEchoIOFileSet() throws BuildSystemException {
-		log.info("main project[{}]'s server {} message io file set creation task start", mainProjectName,
-				ECHO_MESSAGE_ID);
+	private void createServerMessageIOFileSet() throws BuildSystemException {
+		log.info("main project[{}]'s server message io file set creation task start", mainProjectName);
 
-		String messageIOSetBasedirectoryPathString = null;
-
-		{
-			final String serverBuildPathString = BuildSystemPathSupporter.getServerBuildPathString(sinnoriInstalledPathString, mainProjectName);
-			messageIOSetBasedirectoryPathString = CommonStaticUtil
+		String serverBuildPathString = BuildSystemPathSupporter.getServerBuildPathString(sinnoriInstalledPathString, mainProjectName);
+		String messageIOSetBasedirectoryPathString = CommonStaticUtil
 					.getFilePathStringFromResourcePathAndRelativePathOfFile
 					(serverBuildPathString, MESSAGE_SOURCE_FILE_RELATIVE_PATH);
-			
-			createNewMessageIDDirectory(messageIOSetBasedirectoryPathString, ECHO_MESSAGE_ID);
+		
+
+		
+		
+		for (String messageID : messageIDList) {
+			createNewMessageIOSet(messageID, AUTHOR, messageIOSetBasedirectoryPathString);
 		}
-
-		createNewMessageSourceFile(ECHO_MESSAGE_ID, AUTHOR, messageIOSetBasedirectoryPathString);
-		createNewDecoderSourceFile(ECHO_MESSAGE_ID, AUTHOR, messageIOSetBasedirectoryPathString);
-		createNewEncoderSourceFile(ECHO_MESSAGE_ID, AUTHOR, messageIOSetBasedirectoryPathString);
-		createNewServerCodecSourceFile(ECHO_MESSAGE_ID, AUTHOR, messageIOSetBasedirectoryPathString);
-		createNewClientCodecSourceFile(ECHO_MESSAGE_ID, AUTHOR, messageIOSetBasedirectoryPathString);
-
-		log.info("main project[{}]'s server {} message io file set creation task end", mainProjectName,
-				ECHO_MESSAGE_ID);
+		
+		log.info("main project[{}]'s server message io file set creation task end", mainProjectName);
 	}
 
-	public MessageInfo getMessageInfo(String messageID) throws BuildSystemException {
+	private MessageInfo getMessageInfo(String messageID) throws BuildSystemException {
 
 		String echoMessageInfoFilePathString = new StringBuilder(
 				BuildSystemPathSupporter.getMessageInfoPathString(sinnoriInstalledPathString, mainProjectName))
@@ -1193,40 +1195,9 @@ public class ProjectBuilder {
 				messageIOSetBasedirectoryPathString);
 	}
 
-	public void createNewServerEchoTaskFile() throws BuildSystemException {
-		log.info("main project[{}]'s server echo task file creation task start", mainProjectName);
+	
 
-		// final String messageID = "Echo";
-		String echoServerTaskContents = BuildSystemFileContents.getEchoServerTaskContents();
-
-		String serverBuildPathString = BuildSystemPathSupporter.getServerBuildPathString(sinnoriInstalledPathString, mainProjectName);
-
-		/** server_build/src/main/java/kr/pe/sinnori/impl/servertask */
-		String serverEchoTaskFilePathString = new StringBuilder(serverBuildPathString).append(File.separator)
-				.append("src").append(File.separator).append("main").append(File.separator).append("java")
-				.append(File.separator).append("kr").append(File.separator).append("pe").append(File.separator)
-				.append("sinnori").append(File.separator).append("impl").append(File.separator).append("servertask")
-				.append(File.separator).append(ECHO_MESSAGE_ID).append("ServerTask.java").toString();
-
-		File serverEchoTaskFile = new File(serverEchoTaskFilePathString);
-
-		try {
-			CommonStaticUtil.createNewFile(serverEchoTaskFile, echoServerTaskContents,
-					CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
-		} catch (IOException e) {
-			String errorMessage = new StringBuilder("fail to save the main project[").append(mainProjectName)
-					.append("]'s server dos shell file[").append(serverEchoTaskFilePathString).append("]").toString();
-
-			log.warn(errorMessage, e);
-
-			throw new BuildSystemException(
-					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
-		}
-
-		log.info("main project[{}]'s server echo task file creation task end", mainProjectName);
-	}
-
-	public void copyServerSampleSourceFiles() throws BuildSystemException {
+	private void copyServerSampleFiles() throws BuildSystemException {
 		log.info("server sample source files copy task start");
 
 		String sinnoriResourcePathString = BuildSystemPathSupporter
@@ -1234,11 +1205,9 @@ public class ProjectBuilder {
 		String serverBuildPathString = BuildSystemPathSupporter.getServerBuildPathString(sinnoriInstalledPathString, mainProjectName);
 
 		String sourceDirectoryPathString = new StringBuilder(sinnoriResourcePathString).append(File.separator)
-				.append("newproject").append(File.separator).append("server_build").append(File.separator).append("src")
-				.toString();
+				.append("newproject").append(File.separator).append("server_build").toString();
 
-		String targetDirectoryPathString = new StringBuilder(serverBuildPathString).append(File.separator).append("src")
-				.toString();
+		String targetDirectoryPathString = new StringBuilder(serverBuildPathString).toString();
 
 		File sourceDirectory = new File(sourceDirectoryPathString);
 		File targetDirectory = new File(targetDirectoryPathString);
@@ -1247,7 +1216,7 @@ public class ProjectBuilder {
 			FileUtils.copyDirectory(sourceDirectory, targetDirectory);
 		} catch (IOException e) {
 			String errorMessage = new StringBuilder("fail to copy the main project[").append(mainProjectName)
-					.append("]'s the source directory[").append(sourceDirectoryPathString)
+					.append("]'s the build directory[").append(sourceDirectoryPathString)
 					.append("]  having sample source files to the target directory[").append(targetDirectoryPathString)
 					.append("]").toString();
 
@@ -1260,7 +1229,7 @@ public class ProjectBuilder {
 		log.info("server sample source files copy task end");
 	}
 
-	public void createNewServerDosShellFile() throws BuildSystemException {
+	private void createNewServerDosShellFile() throws BuildSystemException {
 		log.info("main project[{}]'s server dos shell file creation task start", mainProjectName);
 
 		String relativeExecutabeJarFileName = new StringBuilder("dist").append(File.separator)
@@ -1292,7 +1261,7 @@ public class ProjectBuilder {
 		log.info("main project[{}]'s server dos shell file creation task end", mainProjectName);
 	}
 
-	public void overwriteServerDosShellFile() throws BuildSystemException {
+	private void overwriteServerDosShellFile() throws BuildSystemException {
 		log.info("main project[{}]'s server dos shell file overwrite task start", mainProjectName);
 
 		String relativeExecutabeJarFileName = new StringBuilder("dist").append(File.separator)
@@ -1324,7 +1293,7 @@ public class ProjectBuilder {
 		log.info("main project[{}]'s server dos shell file overwrite task end", mainProjectName);
 	}
 
-	public void createNewServerUnixShellFile() throws BuildSystemException {
+	private void createNewServerUnixShellFile() throws BuildSystemException {
 		log.info("main project[{}]'s server unix shell file creation task start", mainProjectName);
 
 		String relativeExecutabeJarFileName = new StringBuilder("dist").append(File.separator)
@@ -1356,7 +1325,7 @@ public class ProjectBuilder {
 		log.info("main project[{}]'s server unix shell file creation task end", mainProjectName);
 	}
 
-	public void overwriteServerUnixShellFile() throws BuildSystemException {
+	private void overwriteServerUnixShellFile() throws BuildSystemException {
 		log.info("main project[{}]'s server unix shell file overwrite task start", mainProjectName);
 
 		String relativeExecutabeJarFileName = new StringBuilder("dist").append(File.separator)
@@ -1388,7 +1357,7 @@ public class ProjectBuilder {
 		log.info("main project[{}]'s server unix shell file overwrite task end", mainProjectName);
 	}
 
-	public void createNewServerAntBuildXMLFile() throws BuildSystemException {
+	private void createNewServerAntBuildXMLFile() throws BuildSystemException {
 		log.info("main project[{}]'s server ant build.xml file creation task start", mainProjectName);
 
 		String sererAntBuildXMLFileContents = BuildSystemFileContents.getServerAntBuildXMLFileContent(mainProjectName,
@@ -1415,60 +1384,7 @@ public class ProjectBuilder {
 		log.info("main project[{}]'s server ant build.xml file creation task end", mainProjectName);
 	}
 
-	public void createNewEchoMessageInfomationFile() throws BuildSystemException {
-		log.info("main project[{}]'s echo message information file creation task start", mainProjectName);
-
-		String echoMessageInformationFileContents = BuildSystemFileContents.getEchoMessageInfoContents();
-
-		String echoMessageXMLFilePathString = new StringBuilder(
-				BuildSystemPathSupporter.getMessageInfoPathString(sinnoriInstalledPathString, mainProjectName))
-						.append(File.separator).append("Echo.xml").toString();
-
-		File logbackConfigFile = new File(echoMessageXMLFilePathString);
-
-		try {
-			CommonStaticUtil.createNewFile(logbackConfigFile, echoMessageInformationFileContents,
-					CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
-		} catch (IOException e) {
-			String errorMessage = new StringBuilder("fail to save the main project[").append(mainProjectName)
-					.append("]'s echo message information file[").append(echoMessageXMLFilePathString).append("]")
-					.toString();
-
-			log.warn(errorMessage, e);
-
-			throw new BuildSystemException(
-					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
-		}
-
-		log.info("main project[{}]'s echo message information file creation task end", mainProjectName);
-	}
-
-	public void createNewLogbackConfigFile() throws BuildSystemException {
-		log.info("main project[{}]'s logback config file creation task start", mainProjectName);
-
-		String logbackConfigFileContents = BuildSystemFileContents.getContentsOfLogback();
-
-		String logbackConfigFilePathString = BuildSystemPathSupporter.getLogbackConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
-
-		File logbackConfigFile = new File(logbackConfigFilePathString);
-
-		try {
-			CommonStaticUtil.createNewFile(logbackConfigFile, logbackConfigFileContents,
-					CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
-		} catch (IOException e) {
-			String errorMessage = new StringBuilder("fail to save the main project[").append(mainProjectName)
-					.append("]'s logback config file[").append(logbackConfigFilePathString).append("]").toString();
-
-			log.warn(errorMessage, e);
-
-			throw new BuildSystemException(
-					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
-		}
-
-		log.info("main project[{}]'s logback config file creation task end", mainProjectName);
-	}
-
-	public void createNewSinnoriConfigFile() throws BuildSystemException {
+	private void createNewSinnoriConfigFile() throws BuildSystemException {
 		log.info("main project[{}]'s config file creation task start", mainProjectName);
 		
 		String sinnoriConfigFilePathString = BuildSystemPathSupporter.getSinnoriConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
@@ -1581,7 +1497,7 @@ public class ProjectBuilder {
 		
 	}
 	
-	public void createNewWebClientAntPropertiesFile(String servletSystemLibraryPathString)
+	private void createNewWebClientAntPropertiesFile(String servletSystemLibraryPathString)
 			throws BuildSystemException {
 		log.info("main project[{}]'s web client ant properties file creation task start", mainProjectName);
 		
@@ -1637,30 +1553,30 @@ public class ProjectBuilder {
 		log.info("main project[{}]'s web client ant properties file creation task end", mainProjectName);
 	}
 	
-	public void overwriteWebClientAntPropertiesFile(String servletSystemLibraryPathString)
-			throws BuildSystemException {
-		log.info("main project[{}]'s web client ant properties file overwrite task start", mainProjectName);
+	// FIXME!
+	private void modifyWebClientAntPropertiesFile(String servletSystemLibraryPathString) throws BuildSystemException {
+log.info("main project[{}]'s web client ant properties file modification task start", mainProjectName);
 		
 		if(null == servletSystemLibraryPathString) {
 			throw new IllegalArgumentException("the paramet servletSystemLibraryPathString is null");
 		}
 		
-		String webClientAntPropertiesFilePathString = BuildSystemPathSupporter
-				.getWebClientAntPropertiesFilePath(sinnoriInstalledPathString, mainProjectName);
-		
 		File servletSystemLibraryPath = new File(servletSystemLibraryPathString);
-		if (servletSystemLibraryPath.exists()) {
+		if (!servletSystemLibraryPath.exists()) {
 			String errorMessage = new StringBuilder("the web client's servlet system library path[")
 					.append(servletSystemLibraryPathString)
 					.append("] doesn't exist").toString();
 
 			throw new BuildSystemException(errorMessage);
 		}
-
+		
+		String webClientAntPropertiesFilePathString = BuildSystemPathSupporter
+				.getWebClientAntPropertiesFilePath(sinnoriInstalledPathString, mainProjectName);
+		
 		SequencedProperties antBuiltInProperties = new SequencedProperties();
+
 		antBuiltInProperties.setProperty(CommonStaticFinalVars.SERVLET_SYSTEM_LIBRARY_PATH_KEY,
 				servletSystemLibraryPathString);
-
 		
 		try {
 			SequencedPropertiesUtil.overwriteSequencedPropertiesFile(antBuiltInProperties, getWebClientAntPropertiesTitle(),
@@ -1677,7 +1593,7 @@ public class ProjectBuilder {
 			throw new BuildSystemException(
 					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
 		} catch (IOException e) {
-			String errorMessage = new StringBuilder("fail to overwrite the main project[").append(mainProjectName)
+			String errorMessage = new StringBuilder("fail to modify the main project[").append(mainProjectName)
 					.append("]'s web client ant properties file[").append(webClientAntPropertiesFilePathString).append("]")
 					.toString();
 
@@ -1687,14 +1603,13 @@ public class ProjectBuilder {
 					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
 		}
 
-		log.info("main project[{}]'s web client ant properties file overwrite task end", mainProjectName);
+		log.info("main project[{}]'s web client ant properties file modification task end", mainProjectName);
 	}
-
 	private String getWebClientAntPropertiesTitle() {
 		return new StringBuilder("project[").append(mainProjectName).append("]'s web client ant properteis file").toString();
 	}
 		
-	public Properties loadValidWebClientAntPropertiesFile() throws BuildSystemException {		
+	private Properties loadValidWebClientAntPropertiesFile() throws BuildSystemException {		
 		String webClientAntPropertiesFilePathString = BuildSystemPathSupporter
 				.getWebClientAntPropertiesFilePath(sinnoriInstalledPathString, mainProjectName);
 		
@@ -1740,22 +1655,180 @@ public class ProjectBuilder {
 			/** unix shell */
 			if (isValidServerAntBuildXMLFile()) {
 				overwriteServerUnixShellFile();
+			} else {
+				createNewServerAntBuildXMLFile();
 			}
 			if (isValidAppClientAntBuildXMLFile()) {
 				overwriteAppClientUnixShellFile();
+			} else {
+				createNewAppClientUnixShellFile();
 			}
 		} else {
 			/** dos shell */
 			if (isValidServerAntBuildXMLFile()) {
 				overwriteServerDosShellFile();
+			} else {
+				createNewServerDosShellFile();
 			}
 			if (isValidAppClientAntBuildXMLFile()) {
 				overwriteAppClientDosShellFile();
+			} else {
+				createNewAppClientDosShellFile();
+			}
+		}
+		
+		applySinnoriInstalledPathToAllMybatisDTDFilePath();
+	}
+	
+	private String getServerMybatisConfigFileRelativePathString() throws BuildSystemException {
+		SinnoriConfiguration sinnoriConfiguration = null;
+		
+		try {
+			sinnoriConfiguration = new SinnoriConfiguration(sinnoriInstalledPathString, mainProjectName);
+		} catch (Exception e) {
+			String errorMessage = new StringBuilder("fail to get the main project[").append(sinnoriInstalledPathString)
+					.append("][")
+					.append(mainProjectName).append("]'s Sinnori configuration").toString();
+
+			log.warn(errorMessage, e);
+
+			throw new BuildSystemException(
+					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
+		}
+		
+		ProjectPartConfiguration mainProjectPartConfiguration = sinnoriConfiguration.getMainProjectPartConfiguration();
+		String serverMybatisConfigFileRelativePathString = mainProjectPartConfiguration.getServerMybatisConfigFileRelativePathString();
+		
+		return serverMybatisConfigFileRelativePathString;
+	}
+	
+	private File getMybatisConfigFIle(String serverMybatisConfigFileRelativePathString) {
+		String mainProjectResorucesPathString = BuildSystemPathSupporter
+				.getProjectResourcesPathString(sinnoriInstalledPathString, mainProjectName);
+		
+		String mybatisConfigeFilePathString = CommonStaticUtil
+				.getFilePathStringFromResourcePathAndRelativePathOfFile(
+						mainProjectResorucesPathString,
+						serverMybatisConfigFileRelativePathString);		
+		
+		File mybatisConfigeFile = new File(mybatisConfigeFilePathString);
+		
+		return mybatisConfigeFile;
+	}
+	
+	private FileTypeResourceManager getFileTypeResourceManager(File mybatisConfigeFile) throws BuildSystemException {
+		MybatisConfigXMLFileSAXParser mybatisConfigXMLFileSAXParser = null;
+		try {
+			mybatisConfigXMLFileSAXParser  = new MybatisConfigXMLFileSAXParser();
+		} catch (SAXException e) {
+			String errorMessage = new StringBuilder("fail to get the main project[").append(sinnoriInstalledPathString)
+					.append("][")
+					.append(mainProjectName).append("]'s MybatisConfigXMLFileSAXParser instance").toString();
+
+			log.warn(errorMessage, e);
+
+			throw new BuildSystemException(
+					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
+		}
+		
+		FileTypeResourceManager fileTypeResourceManager = null;
+		try {
+			fileTypeResourceManager = mybatisConfigXMLFileSAXParser.parse(mybatisConfigeFile);
+		} catch (IllegalArgumentException | SAXException | IOException e) {
+			String errorMessage = new StringBuilder("fail to parse the main project[").append(sinnoriInstalledPathString)
+					.append("][")
+					.append(mainProjectName).append("]'s mybatis config file[")
+					.append(mybatisConfigeFile.getAbsolutePath())
+					.append("]").toString();
+
+			log.warn(errorMessage, e);
+
+			throw new BuildSystemException(
+					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
+		}
+		
+		return fileTypeResourceManager;
+	}
+	
+	private void applySinnoriInstalledPathToMybatisConfigFile(File mybatisConfigFile)
+			throws BuildSystemException {
+					
+		
+		try {
+			String mybatisConfigFileContents = FileUtils.readFileToString(mybatisConfigFile, CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
+			
+			String mybatisConfigDTDFilePathString = BuildSystemPathSupporter.getMybatisConfigDTDFilePathString(sinnoriInstalledPathString);
+			
+			if (File.separator.equals("\\")) {
+				mybatisConfigDTDFilePathString = mybatisConfigDTDFilePathString.replaceAll("\\\\", "\\\\\\\\");
+			}
+			
+			String mybatisConfigFileContentsAppliedSinnoriInstalledPath = mybatisConfigFileContents.replaceAll("SYSTEM\\p{Blank}+\".*\"", 
+					new StringBuilder("SYSTEM \")")
+							.append(mybatisConfigDTDFilePathString).append("\"").toString());
+			
+			FileUtils.writeStringToFile(mybatisConfigFile, mybatisConfigFileContentsAppliedSinnoriInstalledPath, CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
+			
+		} catch (IOException e) {
+			String errorMessage = new StringBuilder("fail to apply Sinnori installed path to the main project[").append(sinnoriInstalledPathString)
+					.append("][")
+					.append(mainProjectName).append("]'s mybatis config file[")
+					.append(mybatisConfigFile.getAbsolutePath())
+					.append("]").toString();
+
+			log.warn(errorMessage, e);
+			
+			throw new BuildSystemException(
+					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
+		}
+	}
+	
+	private void applySinnoriInstalledPathToAllMybatisMapperFiles(List<File> mapperFileList) {		
+		for (File mapperFile : mapperFileList) {			
+			try {
+				String mapperFileContents = FileUtils.readFileToString(mapperFile, CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
+				
+				String mybatisMapperDTDFilePathString = BuildSystemPathSupporter.getMybatisMapperDTDFilePathString(sinnoriInstalledPathString);
+				
+				if (File.separator.equals("\\")) {
+					mybatisMapperDTDFilePathString = mybatisMapperDTDFilePathString.replaceAll("\\\\", "\\\\\\\\");
+				}
+				
+				String mapperFileContentsAppliedSinnoriInstalledPath = mapperFileContents.replaceAll("SYSTEM\\p{Blank}+\".*\"", 
+						new StringBuilder("SYSTEM \"")
+								.append(mybatisMapperDTDFilePathString).append("\"").toString());
+				
+				FileUtils.writeStringToFile(mapperFile, mapperFileContentsAppliedSinnoriInstalledPath, CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
+			} catch (IOException e) {
+				String errorMessage = new StringBuilder("fail to apply Sinnori installed path to the main project[").append(sinnoriInstalledPathString)
+						.append("][")
+						.append(mainProjectName).append("]'s mybatis mapper file[")
+						.append(mapperFile.getAbsolutePath())
+						.append("]").toString();
+
+				log.warn(errorMessage, e);
+				continue;
 			}
 		}
 	}
+	
+	private void applySinnoriInstalledPathToAllMybatisDTDFilePath() throws BuildSystemException {
+		String serverMybatisConfigFileRelativePathString = getServerMybatisConfigFileRelativePathString();		
+		if (serverMybatisConfigFileRelativePathString.equals("")) return;
+		
+		File mybatisConfigeFile = getMybatisConfigFIle(serverMybatisConfigFileRelativePathString);		
+		FileTypeResourceManager fileTypeResourceManager = getFileTypeResourceManager(mybatisConfigeFile);		
+		
+		FileTypeResource mybatisConfigFileTypeResource = fileTypeResourceManager.getMybatisConfigFIleTypeResoruce();
+		
+		File mybatisConfigFile = mybatisConfigFileTypeResource.getFile();
+		List<File> mapperFileList = fileTypeResourceManager.getMapperFileList();
+		
+		applySinnoriInstalledPathToMybatisConfigFile(mybatisConfigFile);
+		applySinnoriInstalledPathToAllMybatisMapperFiles(mapperFileList);
+	}	
 
-	public void applySinnoriInstalledPathToConfigFile() throws BuildSystemException {
+	private void applySinnoriInstalledPathToConfigFile() throws BuildSystemException {
 		String sinnoriConfigFilePathString = BuildSystemPathSupporter.getSinnoriConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
 
 		SinnoriConfiguration sinnoriConfiguration = null;
@@ -1839,7 +1912,7 @@ public class ProjectBuilder {
 			if (!appClientBuildPath.exists()) {
 				createAppBuildChildDirectories();
 				createAppClientBuildSystemFiles();				
-			} else {
+			} else {				
 				log.warn("the app client build path[{}] exist, so skip creation of app client build system", appClientBuildPathString);
 			}			
 		} else {			
@@ -1864,8 +1937,10 @@ public class ProjectBuilder {
 				if (!webClientBuildPath.exists()) {
 					createWebBuildChildDirectories();
 					createWebClientBuildSystemFiles(servletSystemLibraryPathString);
-				} else {				
-					log.warn("the web client build path[{}] exists, so skip creation of web client build system", webClientBuildPathString);
+				} else {
+					modifyWebClientAntPropertiesFile(servletSystemLibraryPathString);
+					log.warn("the web client build path[{}] exists, so only the web client's ant properties including servlet system library path  was updated for new servletSystemLibraryPathString[{}]", 
+							webClientBuildPathString, servletSystemLibraryPathString);
 				}		
 			}
 			{

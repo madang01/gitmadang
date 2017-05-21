@@ -18,7 +18,6 @@
 package kr.pe.sinnori.server;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
@@ -38,8 +37,6 @@ import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.io.SocketInputStream;
 import kr.pe.sinnori.common.project.AbstractProject;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
-import kr.pe.sinnori.server.classloader.JarClassEntryContents;
-import kr.pe.sinnori.server.classloader.JarUtil;
 import kr.pe.sinnori.server.classloader.ServerClassLoader;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
 import kr.pe.sinnori.server.io.LetterFromClient;
@@ -118,25 +115,25 @@ public class AnyProjectServer extends AbstractProject implements
 
 	private ServerProjectMonitor serverProjectMonitor = null;
 
-	private Hashtable<String, JarClassEntryContents> jarClassEntryContentsHash = null;
+	
 
 	/**
 	 * 생성자
 	 * 
-	 * @param projectPartItems
+	 * @param projectPartConfiguration
 	 *            프로젝트 파트 설정 내용
 	 * @throws NoMoreDataPacketBufferException
 	 *             데이터 패킷 버퍼 부족시 던지는 예외
 	 */
-	public AnyProjectServer(ProjectPartConfiguration projectPartItems)
+	public AnyProjectServer(ProjectPartConfiguration projectPartConfiguration)
 			throws NoMoreDataPacketBufferException, SinnoriConfigurationException {
-		super(projectPartItems);
+		super(projectPartConfiguration);
 
 		String sinnoriInstalledPathString = System
 				.getProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH);
 		
 		String serverAPPINFPathString = BuildSystemPathSupporter
-				.getServerAPPINFPathString(sinnoriInstalledPathString, projectPartItems.getProjectName());
+				.getServerAPPINFPathString(sinnoriInstalledPathString, projectPartConfiguration.getProjectName());
 
 		this.serverAPPINFPath = new File(serverAPPINFPathString);
 		
@@ -150,53 +147,46 @@ public class AnyProjectServer extends AbstractProject implements
 		 	throw new SinnoriConfigurationException(errorMessage);
 		}
 		
-		long acceptSelectTimeout = projectPartItems.getServerAcceptSelectorTimeout();
-		int maxClients = projectPartItems.getServerMaxClients();
-		int acceptProcessorSize = projectPartItems.getServerAcceptProcessorSize();
-		int acceptProcessorMaxSize = projectPartItems
+		long acceptSelectTimeout = projectPartConfiguration.getServerAcceptSelectorTimeout();
+		int maxClients = projectPartConfiguration.getServerMaxClients();
+		int acceptProcessorSize = projectPartConfiguration.getServerAcceptProcessorSize();
+		int acceptProcessorMaxSize = projectPartConfiguration
 				.getServerAcceptProcessorMaxSize();
 
-		int inputMessageReaderSize = projectPartItems
+		int inputMessageReaderSize = projectPartConfiguration
 				.getServerInputMessageReaderSize();
-		int inputMessageReaderMaxSize = projectPartItems
+		int inputMessageReaderMaxSize = projectPartConfiguration
 				.getServerInputMessageReaderMaxSize();
-		long readSelectorWakeupInterval = projectPartItems
+		long readSelectorWakeupInterval = projectPartConfiguration
 				.getServerReadSelectorWakeupInterval();
 
-		int executorProcessorSize = projectPartItems
+		int executorProcessorSize = projectPartConfiguration
 				.getServerExecutorProcessorSize();
-		int executorProcessorMaxSize = projectPartItems
+		int executorProcessorMaxSize = projectPartConfiguration
 				.getServerExecutorProcessorMaxSize();
 
-		int outputMessageWriterSize = projectPartItems
+		int outputMessageWriterSize = projectPartConfiguration
 				.getServerOutputMessageWriterSize();
-		int outputMessageWriterMaxSize = projectPartItems
+		int outputMessageWriterMaxSize = projectPartConfiguration
 				.getServerOutputMessageWriterMaxSize();
 
 		
 
-		int serverAcceptQueueSize = projectPartItems.getServerAcceptQueueSize();
-		int serverInputMessageQueueSize = projectPartItems
+		int serverAcceptQueueSize = projectPartConfiguration.getServerAcceptQueueSize();
+		int serverInputMessageQueueSize = projectPartConfiguration
 				.getServerInputMessageQueueSize();
-		int serverOutputMessageQueueSize = projectPartItems
+		int serverOutputMessageQueueSize = projectPartConfiguration
 				.getServerOutputMessageQueueSize();
 
-		long serverMonitorTimeInterval = projectPartItems
+		long serverMonitorTimeInterval = projectPartConfiguration
 				.getServerMonitorTimeInterval();
-		long serverMonitorReceptionTimeout = projectPartItems
+		long serverMonitorReceptionTimeout = projectPartConfiguration
 				.getServerMonitorReceptionTimeout();
 
-		try {
-			jarClassEntryContentsHash = JarUtil
-					.getJarClassEntryContensHash(serverAPPINFPathString
-							+ File.separator + "lib");
-		} catch (FileNotFoundException e) {
-			log.error("FileNotFoundException", e);
-			System.exit(1);
-		}
+		
 		workBaseClassLoader = new ServerClassLoader(projectName,
 				serverAPPINFPathString,
-				classLoaderClassPackagePrefixName, jarClassEntryContentsHash);
+				classLoaderClassPackagePrefixName);
 
 		acceptQueue = new LinkedBlockingQueue<SocketChannel>(
 				serverAcceptQueueSize);
@@ -509,7 +499,7 @@ public class AnyProjectServer extends AbstractProject implements
 					/** 새로운 서버 클래스 로더로 교체 */
 					workBaseClassLoader = new ServerClassLoader(projectName,
 							serverAPPINFPath.getAbsolutePath(),
-							classLoaderClassPackagePrefixName, jarClassEntryContentsHash);
+							classLoaderClassPackagePrefixName);
 					serverTaskObjectInfo = getServerTaskFromWorkBaseClassload(classFullName);
 					className2ServerTaskObjectInfoHash.put(classFullName,
 							serverTaskObjectInfo);

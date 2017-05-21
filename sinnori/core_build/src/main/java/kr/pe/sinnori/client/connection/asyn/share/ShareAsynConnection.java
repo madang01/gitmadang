@@ -67,7 +67,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 	/** 개인 메일함 큐 */
 	private LinkedBlockingQueue<PrivateMailbox> PrivateMailboxWaitingQueue = null;
 	/** 메일 식별자를 키로 활성화된 메일함을 값으로 가지는 해쉬 */
-	private Map<Integer, PrivateMailbox> hashActiveMailBox = new Hashtable<Integer, PrivateMailbox>();
+	private Map<Integer, PrivateMailbox> privateMailboxMap = new Hashtable<Integer, PrivateMailbox>();
 
 	// private boolean isFailToGetMailbox = false;
 
@@ -315,7 +315,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 				log.warn(errorMsg);
 			}
 		} else {
-			PrivateMailbox mailbox = hashActiveMailBox.get(receivedLetter.getMailboxID());
+			PrivateMailbox mailbox = privateMailboxMap.get(receivedLetter.getMailboxID());
 			if (null == mailbox) {
 
 				log.warn(String.format("no match mailid, projectName=[%s%02d], serverSC=[%d], receivedLetter=[%s]",
@@ -374,7 +374,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 				inObj.messageHeaderInfo.mailID = mailbox.getMailID();
 				letterToServer = getLetterToServer(classLoader, inObj);
 
-				hashActiveMailBox.put(inObj.messageHeaderInfo.mailboxID, mailbox);
+				privateMailboxMap.put(inObj.messageHeaderInfo.mailboxID, mailbox);
 
 				try {
 					mailbox.putSyncInputMessage(letterToServer);
@@ -415,7 +415,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 
 			} finally {
 				if (null != mailbox) {
-					hashActiveMailBox.remove(mailbox.getMailboxID());
+					privateMailboxMap.remove(mailbox.getMailboxID());
 					mailbox.setDisable();
 					/**
 					 * InterruptedException 를 발생시키지 않는 offer 메소드 사용. 개인 메일함
@@ -490,7 +490,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 				inObj.messageHeaderInfo.mailID = mailbox.getMailID();
 				letterToServer = getLetterToServer(classLoader, inObj);
 
-				hashActiveMailBox.put(mailbox.getMailboxID(), mailbox);
+				privateMailboxMap.put(mailbox.getMailboxID(), mailbox);
 
 				try {
 					mailbox.putAsynInputMessage(letterToServer);
@@ -506,7 +506,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 
 			} finally {
 				if (null != mailbox) {
-					hashActiveMailBox.remove(mailbox.getMailboxID());
+					privateMailboxMap.remove(mailbox.getMailboxID());
 					mailbox.setDisable();
 					/**
 					 * InterruptedException 를 발생시키지 않는 offer 메소드 사용. 개인 메일함

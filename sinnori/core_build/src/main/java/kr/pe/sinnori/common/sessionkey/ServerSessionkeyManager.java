@@ -2,24 +2,31 @@ package kr.pe.sinnori.common.sessionkey;
 
 import kr.pe.sinnori.common.exception.SymmetricException;
 
-public abstract class ServerSessionkeyManager {
-	// private static ServerSessionkeyManager severSessionkeyManger = null;
+public final class ServerSessionkeyManager {
+	private ServerSessionkeyIF severSessionkey = null;
+	private SymmetricException savedSymmetricException = null;
 	
-	private static ServerSessionkeyIF severSessionkey = null;
-	
-	public static synchronized ServerSessionkeyIF getInstance() throws SymmetricException {
-		if (null == severSessionkey) {
-			severSessionkey = new ServerSessionkey(new ServerRSA());
-		}
-		return severSessionkey;
+	/** 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스 */
+	private static final class ServerSessionkeyManagerHolder {
+		static final ServerSessionkeyManager singleton = new ServerSessionkeyManager();
+	}
+
+	/** 동기화 쓰지 않는 싱글턴 구현 메소드 */
+	public static ServerSessionkeyManager getInstance() {
+		return ServerSessionkeyManagerHolder.singleton;
 	}
 	
+	private ServerSessionkeyManager() {
+		try {
+			severSessionkey = new ServerSessionkey(new ServerRSA());
+		} catch (SymmetricException e) {
+			savedSymmetricException = e;
+		}
+	}
 	
-	/*public ServerSessionkey getServerSessionkey() {
+	public ServerSessionkeyIF getServerSessionkey() throws SymmetricException {
+		if (null != savedSymmetricException) throw savedSymmetricException;
+		
 		return severSessionkey;
-	}*/
-	
-	/*public ServerSymmetricKey getNewInstanceOfServerSymmetricKey(byte[] sessionkeyBytes, byte[] ivBytes) throws SymmetricException {
-		return severSessionkey.getNewInstanceOfServerSymmetricKey(sessionkeyBytes, ivBytes);
-	}*/
+	}
 }

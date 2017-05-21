@@ -21,12 +21,12 @@ import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.sessionkey.ServerSessionkey;
-import kr.pe.sinnori.common.sessionkey.ServerSessionkeyBuilder;
-import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
-
 import org.apache.commons.lang3.StringEscapeUtils;
+
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.common.sessionkey.ServerSessionkeyIF;
+import kr.pe.sinnori.common.sessionkey.ServerSessionkeyManager;
+import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
 
 /**
  * <pre>
@@ -241,7 +241,7 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		log.info(String.format("parm parmIVBase64=[%s]", parmIVBase64));
 		
 			
-		ServerSessionkey webServerSessionkey = ServerSessionkeyBuilder.build();		
+		ServerSessionkeyIF webServerSessionkey = ServerSessionkeyManager.getInstance().getServerSessionkey();		
 		String modulusHexString = webServerSessionkey.getModulusHexStrForWeb();
 		
 		if (null == parmSessionKeyBase64 || null == parmIVBase64) {			

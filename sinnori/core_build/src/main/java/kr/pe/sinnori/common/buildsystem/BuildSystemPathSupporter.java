@@ -26,6 +26,24 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 	
+	public static String getMybatisConfigDTDFilePathString(String sinnoriInstalledPathString) {		
+		StringBuilder strBuilder = new StringBuilder(getSinnoriResourcesPathString(sinnoriInstalledPathString));
+		strBuilder.append(File.separator);
+		strBuilder.append("mybatis");
+		strBuilder.append(File.separator);
+		strBuilder.append("mybatis-3-config.dtd");
+		return strBuilder.toString();
+	}
+	
+	public static String getMybatisMapperDTDFilePathString(String sinnoriInstalledPathString) {		
+		StringBuilder strBuilder = new StringBuilder(getSinnoriResourcesPathString(sinnoriInstalledPathString));
+		strBuilder.append(File.separator);
+		strBuilder.append("mybatis");
+		strBuilder.append(File.separator);
+		strBuilder.append("mybatis-3-mapper.dtd");
+		return strBuilder.toString();
+	}
+	
 	/** project base path : <sinnori installed path>/project */
 	public static String getProjectBasePathString(
 			String sinnoriInstalledPathString) {
@@ -189,12 +207,12 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 	
-	public static String getServerAPPINFResourcesPathString(String sinnoriInstalledPathString, String mainProjectName) {
+	/*public static String getServerAPPINFResourcesPathString(String sinnoriInstalledPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getServerAPPINFPathString(sinnoriInstalledPathString, mainProjectName));
 		strBuilder.append(File.separator);
 		strBuilder.append("resources");
 		return strBuilder.toString();
-	}
+	}*/
 	
 	/**
 	 * @return src/main/java/kr/pe/sinnori/impl/message, the relative path where message I / O files are located based on 'Ant build path'

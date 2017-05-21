@@ -2,19 +2,22 @@ package main;
 
 import java.net.SocketTimeoutException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import kr.pe.sinnori.applib.sessionkey.RSAPublickeyGetterBuilder;
 import kr.pe.sinnori.client.AnyProjectClient;
-import kr.pe.sinnori.client.ProjectClientManager;
+import kr.pe.sinnori.client.MainClientManager;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
+import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.message.AbstractMessage;
+import kr.pe.sinnori.common.sessionkey.ClientSessionKeyManager;
 import kr.pe.sinnori.impl.message.Echo.Echo;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 
@@ -23,10 +26,19 @@ public class SinnoriAppClientMain {
 	public static void main(String[] args) {
 		Logger log = LoggerFactory.getLogger("kr.pe.sinnori");
 		
-		log.info("start");		
+		log.info("start");
 		
-		ProjectClientManager projectClientManager = ProjectClientManager.getInstance();
-		AnyProjectClient mainProjectClient = projectClientManager.getMainProjectClient();			
+		try {
+			ClientSessionKeyManager.getInstance().getMainProjectClientSessionKey(RSAPublickeyGetterBuilder.build());
+		} catch (SymmetricException e) {
+			log.warn("fail to getting the main project's instance of the ClientSessionKey class", e);
+			System.exit(1);
+		}
+		
+		log.info("successfully getting the main project's instance of the ClientSessionKey class");
+		
+		MainClientManager mainClientManager = MainClientManager.getInstance();
+		AnyProjectClient mainProjectClient = mainClientManager.getMainProjectClient();			
 		
 		java.util.Random random = new java.util.Random();
 		
@@ -48,6 +60,8 @@ public class SinnoriAppClientMain {
 			} else {
 				log.warn("messageFromServer={}", messageFromServer.toString());
 			}
+			
+			System.exit(0);
 		} catch (SocketTimeoutException e) {
 			log.warn("SocketTimeoutException", e);
 		} catch (ServerNotReadyException e) {
@@ -62,6 +76,8 @@ public class SinnoriAppClientMain {
 			log.warn("ServerTaskException", e);
 		} catch (NotLoginException e) {
 			log.warn("NotLoginException", e);
-		}		
+		}
+		
+		System.exit(1);
 	}
 }

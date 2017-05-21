@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.Hashtable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,22 +54,19 @@ public class ServerClassLoader extends ClassLoader {
 	//private String libraryPath = null;
 	private String resourcesPathString = null;
 	
-	private Hashtable<String, JarClassEntryContents> jarClassEntryContentsHash = null;
 	
 	/**
 	 * 생성자
 	 * @param parent 부모 클래스 로더
 	 * @param classNameRegex 동적 클래스 로딩 대상 클래스 이름 검사용 클래스 이름 정규식
 	 */
-	public ServerClassLoader(String projectName, String appINFBasePathString, String classLoaderClassPackagePrefixName, 
-			Hashtable<String, JarClassEntryContents> jarClassEntryContentsHash) {
+	public ServerClassLoader(String projectName, String appINFBasePathString, String classLoaderClassPackagePrefixName) {
 		super(ClassLoader.getSystemClassLoader());
 		
 		// this.parent = parent;
 		this.projectName = projectName;
 		this.appInfBasePathString = appINFBasePathString;
-		this.classLoaderClassPackagePrefixName = classLoaderClassPackagePrefixName;		
-		this.jarClassEntryContentsHash = jarClassEntryContentsHash;
+		this.classLoaderClassPackagePrefixName = classLoaderClassPackagePrefixName;
 		
 		classPathString = new StringBuilder(this.appInfBasePathString)
 		.append(File.separator).append("classes").toString();
@@ -109,22 +105,9 @@ public class ServerClassLoader extends ClassLoader {
 					
 					
 					if (-1 == classFullName.indexOf(classLoaderClassPackagePrefixName)) {
-						JarClassEntryContents jarClassEntryContents = jarClassEntryContentsHash.get(classFullName);
-						
-						if (null == jarClassEntryContents) {
-							/** 서버 동적 클래스 비 대상 클래스 */							
-							return systemClassLoader.loadClass(classFullName);
-						}
-						
-						/** class in jar libray */
-						byte[] classFileBuffer = jarClassEntryContents.getClassFileContents();
-						retClass = defineClass(classFullName, classFileBuffer, 0,
-								classFileBuffer.length);
-						
-						return retClass;
-					}
-	
-						
+						/** 서버 동적 클래스 비 대상 클래스 */							
+						return systemClassLoader.loadClass(classFullName);
+					}					
 					
 					
 					if (classFullName.startsWith("kr.pe.sinnori.impl.message.SelfExn.")) {

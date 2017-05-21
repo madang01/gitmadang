@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import kr.pe.sinnori.client.AnyProjectClient;
-import kr.pe.sinnori.client.ProjectClientManager;
+import kr.pe.sinnori.client.MainClientManager;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.Echo.Echo;
 import kr.pe.sinnori.weblib.jdf.AbstractServlet;
@@ -46,7 +46,7 @@ public class EchoTestSvl extends AbstractServlet {
 		echoInObj.setRandomInt(random.nextInt());
 		echoInObj.setStartTime(new java.util.Date().getTime());
 
-		AnyProjectClient mainProjectClient = ProjectClientManager.getInstance().getMainProjectClient();
+		AnyProjectClient mainProjectClient = MainClientManager.getInstance().getMainProjectClient();
 		AbstractMessage messageFromServer = mainProjectClient.sendSyncInputMessage(echoInObj);
 		
 		boolean isSame = false;

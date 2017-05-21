@@ -12,7 +12,7 @@
 	</appender>
 	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
-			<pattern>%d %-5level [%thread] %msg\(%F:%L\)%n</pattern>
+			<pattern>%d %-5level [%thread] %msg \(%F:%L\)%n</pattern>
 		</encoder>
 	</appender>	
 	

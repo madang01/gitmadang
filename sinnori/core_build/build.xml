@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-<project name="sinnori_core" default="compile.server.appinf" basedir=".">
+<project name="sinnori_core" default="make.core" basedir=".">
 	<description>Sinnori Core Library</description>
 	<!-- set global properties for this build -->
 	<property name="dir.src" location="src/main/java" />
@@ -134,27 +134,7 @@
 			</restrict>
 		</jar>
 	</target>
-	
-	
-	<target name="compile.server.appinf" depends="make.core">
-	<echo message="this compile.server.appinf task compile 'MyBatis SqlSessionFactory Manager' source file" />
-	
-	  <mkdir dir="${dir.build}/appinf" />
-		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}/appinf">
-			<include name="kr/pe/sinnori/impl/server/mybatis/**" />
-			<classpath>
-				<fileset file="${dir.dist}/sinnori-core-server.jar" />
-				<fileset dir="${dir.mainlib}/ex">
-					<include name="**/*.jar" />
-				</fileset>
-				<fileset dir="${dir.appinf}/lib">
-					<include name="**/*.jar" />
-				</fileset>
-			</classpath>
-		</javac>		
-	</target>
-	
-	
+		
 	
 	<target name="clean.helper">
 		<delete dir="${dir.build}/helper" />

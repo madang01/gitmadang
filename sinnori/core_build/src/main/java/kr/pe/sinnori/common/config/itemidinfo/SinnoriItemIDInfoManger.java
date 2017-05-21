@@ -475,7 +475,7 @@ public class SinnoriItemIDInfoManger {
 					new SetTypeConverterReturningMessageProtocol());
 			addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_CLASSLOADER_CLASS_PACKAGE_PREFIX_NAME_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_CLASSLOADER_PACKAGE_PREFIX_NAME_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<String>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -918,13 +918,13 @@ public class SinnoriItemIDInfoManger {
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_CLASSLOADER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_STRING_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_STRING_ITEMID;
 			isDefaultValueCheck = false;
 			itemIDInfo = new ItemIDInfo<String>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
 					ItemIDInfo.ViewType.TEXT,
 					itemID,
-					"mybatis 설정 파일의 상대 경로, [서버 동적 클래스 APP-INF 경로]/resources 경로 기준으로 읽어오며 구별자가 '/' 문자로된 상대 경로로 기술되어야 한다. ex) kr/pe/sinnori/mybatis/mybatisConfig.xml",
+					"mybatis 설정 파일의 상대 경로, [프로젝트 경로]/resources 경로 기준으로 읽어오며 구별자가 '/' 문자로된 상대 경로로 기술되어야 한다. ex) kr/pe/sinnori/mybatis/mybatisConfig.xml",
 					"", isDefaultValueCheck,
 					new GeneralConverterReturningEmptyOrNoTrimString());
 			addProjectPartItemIDInfo(itemIDInfo);

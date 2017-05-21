@@ -5,125 +5,6 @@ import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
 
 public abstract class BuildSystemFileContents {
 
-	/** impl/message/info/Echo.xml */
-	public static String getEchoMessageInfoContents() {
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("<?xml version=\"1.0\" encoding=\"utf-8\" ?>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("<!--");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\tsingleitem type : (unsigned) byte, (unsigned) short, (unsigned) integer, long,");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\t\tfixed length string, ");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\t\tub pascal string, us pascal string, si pascal string,");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\t\tfixed length byte[], variable length byte[],");
-
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\t\tjava sql date, java sql timestamp, boolean");
-
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\tarray cnttype : reference 변수참조, direct 직접입력");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append(
-				"\tdirection : FROM_NONE_TO_NONE, FROM_SERVER_TO_CLINET, FROM_CLIENT_TO_SERVER, FROM_ALL_TO_ALL");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t(1) FROM_NONE_TO_NONE : 메시지는 서버에서 클라이언트로 혹은 클라이언트에서 서버로 양쪽 모두에서 전송되지 않는다.");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t(2) FROM_SERVER_TO_CLINET : 메시지는 서버에서 클라이언트로만 전송된다.");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t(3) FROM_CLIENT_TO_SERVER : 메시지는 클라이언트에서 서버로만 전송된다.");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t(4) FROM_ALL_TO_ALL : 메시지는 서버에서 클라이언트로도 혹은 클라이언트에서 서버로 양쪽 모두에서 전송된다.");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("-->");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("<sinnori_message>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("<messageID>Echo</messageID>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("<direction>FROM_ALL_TO_ALL</direction>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("<desc>에코 메시지</desc>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("<singleitem name=\"randomInt\" type=\"integer\" />");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("<singleitem name=\"startTime\" type=\"long\" />");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("</sinnori_message>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		return stringBuilder.toString();
-	}
-
-	/** config/logback.xml */
-	public static String getContentsOfLogback() {
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("<configuration>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t<appender name=\"logfile\" class=\"ch.qos.logback.core.rolling.RollingFileAppender\">");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t<file>${sinnori.logPath}/logger.log</file>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t<encoder>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t<pattern>%-4relative [%thread] %-5level %logger{35} - %msg%n</pattern>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t</encoder>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t<rollingPolicy class=\"ch.qos.logback.core.rolling.TimeBasedRollingPolicy\">");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t<fileNamePattern>${sinnori.logPath}/logFile.%d{yyyy-MM-dd}.log</fileNamePattern>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t<maxHistory>15</maxHistory>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t</rollingPolicy>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t</appender>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t<appender name=\"console\" class=\"ch.qos.logback.core.ConsoleAppender\">");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t<encoder>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t<pattern>%d %-5level [%thread] %msg\\(%F:%L\\)%n</pattern>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t</encoder>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t</appender>\t");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t<root level=\"INFO\">");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t<appender-ref ref=\"console\"/>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t</root>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t<logger name=\"kr.pe.sinnori\" level=\"INFO\">");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t<appender-ref ref=\"logfile\"/>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t</logger>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t<!-- \"mapper\" tag's attribute namespace in the mybatis mapper xml file -->");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t<logger name=\"kr.pr.sinnori.testweb\" level=\"DEBUG\">");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t<appender-ref ref=\"logfile\"/>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t</logger>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("</configuration>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		return stringBuilder.toString();
-	}
-
 	/** server_build/build.xml */
 	public static String getServerAntBuildXMLFileContent(String mainProjectName, String serverMainClassFullName,
 			String serverExecutableJarShortFileName) {
@@ -313,12 +194,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append("\t\t\t\t\t<include name=\"**/*.jar\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t\t</fileset>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\t<fileset dir=\"${dir.appinf}/lib\">");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\t\t<include name=\"**/*.jar\" />");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\t</fileset>");
+		stringBuilder.append(System.getProperty("line.separator"));		
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t</classpath>");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -461,12 +337,6 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t\t</fileset>");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\t<fileset dir=\"${dir.appinf}/lib\">");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\t\t<include name=\"**/*.jar\" />");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\t</fileset>");
-		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t</classpath>");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t</javac>");
@@ -484,8 +354,8 @@ public abstract class BuildSystemFileContents {
 		return stringBuilder.toString();
 	}
 
-	/** server_build/src/kr/pe/sinnori/impl/servertask/EchoServerTask.java */
-	public static String getEchoServerTaskContents() {
+	/** server_build/src/kr/pe/sinnori/impl/servertask/EchoServerTask.java */	
+	/*public static String getEchoServerTaskContents() {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("/*");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -517,7 +387,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append(" * limitations under the License.");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append(" */");
+		stringBuilder.append(" *\/");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("package kr.pe.sinnori.impl.servertask;");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -543,7 +413,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append(" *");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append(" */");
+		stringBuilder.append(" *\/");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("public final class EchoServerTask extends AbstractServerTask {\t");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -588,7 +458,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append("}");
 		stringBuilder.append(System.getProperty("line.separator"));
 		return stringBuilder.toString();
-	}
+	}*/
 
 	/** client_build/app_build/build.xml */
 	public static String getAppClientAntBuildXMLFileContents(String mainProjectName, String appclientMainClassFullName,

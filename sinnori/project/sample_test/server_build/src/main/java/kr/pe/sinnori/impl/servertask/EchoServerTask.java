@@ -39,7 +39,7 @@ public final class EchoServerTask extends AbstractServerTask {
 	
 	private void doWork(String projectName,
 			LetterSender letterSender, Echo echoInObj)
-			throws Exception {
+			throws Exception {		
 		Echo echoOutObj = new Echo();
 
 		echoOutObj.setRandomInt(echoInObj.getRandomInt());
