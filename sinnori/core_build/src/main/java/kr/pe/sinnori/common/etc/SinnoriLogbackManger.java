@@ -51,6 +51,9 @@ public class SinnoriLogbackManger {
 			}
 		}
 		
+		/*System.out.printf("isValid=%s", isValid);
+		System.out.println();*/
+		
 		if (!isValid) {
 			String contentsOfConfigFile = null;
 			StringBuilder stringBuilder = new StringBuilder();

@@ -3,7 +3,7 @@ package kr.pe.sinnori.common.sessionkey;
 import kr.pe.sinnori.common.exception.SymmetricException;
 
 public final class ServerSessionkeyManager {
-	private ServerSessionkeyIF severSessionkey = null;
+	private ServerSessionkeyIF mainProjectSeverSessionkey = null;
 	private SymmetricException savedSymmetricException = null;
 	
 	/** 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스 */
@@ -18,15 +18,15 @@ public final class ServerSessionkeyManager {
 	
 	private ServerSessionkeyManager() {
 		try {
-			severSessionkey = new ServerSessionkey(new ServerRSA());
+			mainProjectSeverSessionkey = new ServerSessionkey(new ServerRSA());
 		} catch (SymmetricException e) {
 			savedSymmetricException = e;
 		}
 	}
 	
-	public ServerSessionkeyIF getServerSessionkey() throws SymmetricException {
+	public ServerSessionkeyIF getMainProjectServerSessionkey() throws SymmetricException {
 		if (null != savedSymmetricException) throw savedSymmetricException;
 		
-		return severSessionkey;
+		return mainProjectSeverSessionkey;
 	}
 }

@@ -19,15 +19,11 @@ package kr.pe.sinnori.server.classloader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import kr.pe.sinnori.common.util.CommonStaticUtil;
 
 
 
@@ -52,7 +48,7 @@ public class ServerClassLoader extends ClassLoader {
 	
 	private String classPathString = null;
 	//private String libraryPath = null;
-	private String resourcesPathString = null;
+	// private String resourcesPathString = null;
 	
 	
 	/**
@@ -71,8 +67,8 @@ public class ServerClassLoader extends ClassLoader {
 		classPathString = new StringBuilder(this.appInfBasePathString)
 		.append(File.separator).append("classes").toString();
 		// libraryPath = this.appInfBasePath + File.separator + "lib";
-		resourcesPathString = new StringBuilder(this.appInfBasePathString)
-		.append(File.separator).append("resources").toString();
+	/*	resourcesPathString = new StringBuilder(this.appInfBasePathString)
+		.append(File.separator).append("resources").toString();*/
 	
 		// Throwable t = new Throwable();
 		log.info("SinnoriClassLoader hashCode=[{}] create", this.hashCode());
@@ -258,8 +254,8 @@ public class ServerClassLoader extends ClassLoader {
 	 * kr/pe/sinnori/impl/mybatis/memberMapper.xml 로 시작되는 mybatis 리소스 파일의 InputStream 을 반환한다.
 	 * </pre>
 	 */
-	@Override
-	public InputStream getResourceAsStream(String name) {
+	// @Override
+	/*public InputStream getResourceAsStream(String name) {
 		InputStream is = null;
 		
 		String realResourceFilePathString = CommonStaticUtil.getFilePathStringFromResourcePathAndRelativePathOfFile(resourcesPathString, name);
@@ -280,11 +276,11 @@ public class ServerClassLoader extends ClassLoader {
 		}		
 		
 		return is;
-	}
+	}*/
 	
 	
 	
-	public URL getResource(String name) {
+	/*public URL getResource(String name) {
 		URL url = null;
 		
 		String realResourceFilePathString = CommonStaticUtil.getFilePathStringFromResourcePathAndRelativePathOfFile(resourcesPathString, name);
@@ -306,7 +302,7 @@ public class ServerClassLoader extends ClassLoader {
 		
 		
 		return url;
-	}
+	}*/
 	
 	@Override
     protected void finalize() throws Throwable{

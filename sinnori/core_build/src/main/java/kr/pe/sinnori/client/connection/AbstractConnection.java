@@ -478,11 +478,11 @@ public abstract class AbstractConnection {
 		return wrapBufferList;
 	}
 	
-	public void changeServerAddress(String newServerHost, int newServerPort) {
-		if (serverSC != null && serverSC.isOpen() && serverSC.isConnected()) {
+	public void changeServerAddress(String newServerHost, int newServerPort) throws NotSupportedException {
+		if (serverSC != null && serverSC.isConnected()) {
 			String errorMessage = String.format("this client cann't change new server address[host:%s,port:%s] becase this client is connected", 
 					newServerHost, newServerPort);
-			throw new RuntimeException(errorMessage);
+			throw new NotSupportedException(errorMessage);
 		}
 		this.hostOfProject = newServerHost;
 		this.portOfProject = newServerPort;

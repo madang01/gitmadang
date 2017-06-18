@@ -1,5 +1,6 @@
 package kr.pe.sinnori.common.sessionkey;
 
+import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -24,9 +25,7 @@ public class ServerRSA implements ServerRSAIF {
 	private Logger log = LoggerFactory.getLogger(ServerRSA.class);
 
 	private KeyPair rsaKeypair = null;
-
-	private Cipher rsaDecryptModeCipher = null;
-	private RSAPrivateCrtKeySpec rsaPrivateCrtKeySpec = null;
+	private BigInteger modulusOfRSAPrivateCrtKeySpec = null;
 
 	public ServerRSA() throws SymmetricException {		
 		rsaKeypair = ServerRSAKeypairGetter.getRSAKeyPair();
@@ -41,17 +40,33 @@ public class ServerRSA implements ServerRSAIF {
 		}
 		
 		try {
-			rsaPrivateCrtKeySpec = rsaKeyFactory.getKeySpec(rsaKeypair.getPrivate(), RSAPrivateCrtKeySpec.class);
+			RSAPrivateCrtKeySpec rsaPrivateCrtKeySpec = rsaKeyFactory.getKeySpec(rsaKeypair.getPrivate(), RSAPrivateCrtKeySpec.class);
+			
+			modulusOfRSAPrivateCrtKeySpec = rsaPrivateCrtKeySpec.getModulus();
 		} catch (InvalidKeySpecException e) {
 			String errorMessage = String.format(
 					"fail to get the RSA private key spec(=RSAPrivateCrtKeySpec), errormessage=%s", e.getMessage());
 			log.error(errorMessage, e);
 			System.exit(1);
-		}
+		}		
+	}
 
+
+
+	public final byte[] getDupPublicKeyBytes() {
+		byte[] publickKeyBytes = rsaKeypair.getPublic().getEncoded();
+		return Arrays.copyOf(publickKeyBytes, publickKeyBytes.length);
+	}
+
+	public byte[] decrypt(byte[] encryptedBytes) throws SymmetricException {
+		if (null == encryptedBytes) {
+			throw new IllegalArgumentException("the paramter encryptedBytes is null");
+		}
+		byte[] decryptedBytes = null;		
+		Cipher rsaDecryptModeCipher = null;
+		
 		try {
 			rsaDecryptModeCipher = Cipher.getInstance(CommonStaticFinalVars.RSA_TRANSFORMATION);
-			// rsaDecModeCipher = Cipher.getInstance("RSA/ECB/NoPadding");
 		} catch (NoSuchAlgorithmException e) {
 			String errorMessage = String.format("Cipher.getInstance NoSuchAlgorithmException, errormessage=%s",
 					e.getMessage());
@@ -70,20 +85,9 @@ public class ServerRSA implements ServerRSAIF {
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		}
-	}
-
-
-
-	public final byte[] getDupPublicKeyBytes() {
-		byte[] publickKeyBytes = rsaKeypair.getPublic().getEncoded();
-		return Arrays.copyOf(publickKeyBytes, publickKeyBytes.length);
-	}
-
-	public byte[] getClientSymmetricKeyBytes(byte[] sessionKeyBytes) throws SymmetricException {
-
-		byte[] clientSymmetricKeyBytes = null;
+		
 		try {
-			clientSymmetricKeyBytes = rsaDecryptModeCipher.doFinal(sessionKeyBytes);
+			decryptedBytes = rsaDecryptModeCipher.doFinal(encryptedBytes);
 		} catch (IllegalBlockSizeException e) {
 			String errorMessage = String.format("RSA Cipher IllegalBlockSizeException, errormessage=%s",
 					e.getMessage());
@@ -99,10 +103,10 @@ public class ServerRSA implements ServerRSAIF {
 		// HexUtil.byteArrayAllToHex(encryptedBytesWithPublicKey));
 		// log.info("비밀키로 복호화한 이진 데이터를 16진수로 표현한 문자열[%s]",
 		// HexUtil.byteArrayAllToHex(decryptedBytesUsingPrivateKey));
-		return clientSymmetricKeyBytes;
+		return decryptedBytes;
 	}
 
 	public String getModulusHexStrForWeb() {
-		return HexUtil.getHexStringFromByteArray(rsaPrivateCrtKeySpec.getModulus().toByteArray());
+		return HexUtil.getHexStringFromByteArray(modulusOfRSAPrivateCrtKeySpec.toByteArray());
 	}
 }

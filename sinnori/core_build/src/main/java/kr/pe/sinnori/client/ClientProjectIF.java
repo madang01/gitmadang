@@ -17,7 +17,6 @@
 
 package kr.pe.sinnori.client;
 
-import java.io.IOException;
 import java.net.SocketTimeoutException;
 
 import kr.pe.sinnori.client.connection.AbstractConnection;
@@ -87,7 +86,7 @@ public interface ClientProjectIF {
 	 */
 	public MessageProtocolIF getMessageProtocol();
 	
-	public void changeServerAddress(String newServerHost, int newServerPort);
+	public void changeServerAddress(String newServerHost, int newServerPort) throws NotSupportedException;
 	
-	public void saveSinnoriConfiguration() throws IOException;
+	// public void saveSinnoriConfiguration() throws IllegalArgumentException, SinnoriConfigurationException, IOException;
 }

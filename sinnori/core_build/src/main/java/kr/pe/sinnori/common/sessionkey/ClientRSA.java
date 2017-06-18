@@ -22,15 +22,20 @@ import kr.pe.sinnori.common.exception.SymmetricException;
 public class ClientRSA implements ClientRSAIF {
 	private Logger log = LoggerFactory.getLogger(ClientRSA.class);	
 	
-	private byte[] publicKeyBytes = null;
-	
-	private Cipher rsaEncModeCipher = null;
-	
+	private byte[] publicKeyBytes = null;	
 	
 	public ClientRSA(byte[] publicKeyBytes ) throws SymmetricException {
 		this.publicKeyBytes =publicKeyBytes;		
-		
-		
+	}
+	
+	public final byte[] getDupPublicKeyBytes() {		
+		return Arrays.copyOf(publicKeyBytes, publicKeyBytes.length);
+	}
+	
+	public byte[] encrypt(byte plainTextBytes[]) throws SymmetricException {
+		if (null == plainTextBytes) {
+			throw new IllegalArgumentException("the paramter plainTextBytes is null");
+		}
 		KeyFactory rsaKeyFactory = null;
 		try {
 			rsaKeyFactory = KeyFactory.getInstance("RSA");
@@ -52,9 +57,8 @@ public class ClientRSA implements ClientRSAIF {
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		}
-
 		
-
+		Cipher rsaEncModeCipher = null;
 		try {
 			rsaEncModeCipher = Cipher.getInstance(CommonStaticFinalVars.RSA_TRANSFORMATION);
 			// rsaDecModeCipher = Cipher.getInstance("RSA/ECB/NoPadding");
@@ -78,17 +82,11 @@ public class ClientRSA implements ClientRSAIF {
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		}
-	}
-	
-	public final byte[] getDupPublicKeyBytes() {		
-		return Arrays.copyOf(publicKeyBytes, publicKeyBytes.length);
-	}
-	
-	public byte[] encrypt(byte sourceBytes[]) throws SymmetricException {
+		
 		byte encryptedBytes[] = null;
 		try {
 			encryptedBytes = rsaEncModeCipher
-					.doFinal(sourceBytes);
+					.doFinal(plainTextBytes);
 		} catch (IllegalBlockSizeException e) {
 			String errorMessage = String
 					.format("RSA Cipher IllegalBlockSizeException, errormessage=%s", e.getMessage());

@@ -64,7 +64,7 @@ public abstract class AbstractRSAPublickeyGetter {
 	 * @return public key bytes getting from sub project server
 	 * @throws SymmetricException
 	 */
-	abstract protected byte[] getSubProjectPublickeyBytes(
+	abstract public byte[] getSubProjectPublickeyBytes(
 			String subProjectName) throws SymmetricException;
 	
 	/*public byte[] getSubProjectPublickeyBytes(

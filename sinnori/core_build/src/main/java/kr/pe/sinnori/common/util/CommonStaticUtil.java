@@ -290,7 +290,7 @@ public abstract class CommonStaticUtil {
 		}
 	}
 	
-	public static void savePreparedRegularFile( File targetFile, String contents, Charset targetCharset) throws IOException {		
+	public static void saveFile( File targetFile, String contents, Charset targetCharset) throws IOException {		
 		if (null == targetFile) {
 			throw new IllegalArgumentException("the parameter 'targetFile' is null");
 		}
@@ -301,34 +301,10 @@ public abstract class CommonStaticUtil {
 			throw new IllegalArgumentException("the parameter 'targetCharset' is null");
 		}
 		
-		targetFile.createNewFile();		
-		
-		if (!targetFile.isFile()) {
-			String errorMessage = String.format("the file[%s] is not a regular file",
-					targetFile.getAbsolutePath());
-			throw new IOException(errorMessage);
-		}
-
-		if (!targetFile.canWrite()) {
-			String errorMessage = String.format("the file[%s] can not be written", targetFile.getAbsolutePath());
-			throw new IOException(errorMessage);
-		}
-		
-		FileOutputStream fos = null;
-		try {
-			fos = new FileOutputStream(targetFile);
-
-			fos.write(contents.getBytes(targetCharset));
-		} finally {
-			try {
-				if (null != fos)
-					fos.close();
-			} catch (IOException e) {
-				// log.warn("fail to close the file[{}][{}] output stream", fileNickname, targetFile.getAbsolutePath());
-				// e.printStackTrace();
-				Logger log = LoggerFactory.getLogger(CommonStaticUtil.class);
-				log.warn("fail to close the file[{}] output stream", targetFile.getAbsolutePath());
-			}
+		if (targetFile.exists()) {
+			overwriteFile(targetFile, contents, targetCharset);
+		} else {
+			createNewFile(targetFile, contents, targetCharset);
 		}
 	}
 	

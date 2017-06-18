@@ -1,6 +1,7 @@
 package kr.pe.sinnori.common.sessionkey;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Random;
 
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
@@ -28,6 +29,7 @@ public class ClientSessionKey implements ClientSessionKeyIF {
 		// this.clientSymmetricKey = clientSymmetricKey;
 		ivBytes = new byte[symmetricIVSize];
 		Random random = new Random();
+		random.setSeed(new Date().getTime());
 		random.nextBytes(ivBytes);
 		
 		clientSymmetricKey = new ClientSymmetricKey(ivBytes);
@@ -46,6 +48,11 @@ public class ClientSessionKey implements ClientSessionKeyIF {
 	public byte[] getDupPublicKeyBytes() {
 		return clientRSAPublickey.getDupPublicKeyBytes();
 	}
+	
+	public byte[] getDupIVBytes() {
+		return Arrays.copyOf(ivBytes, ivBytes.length);
+	}
+	
 
 	@Override
 	public String toString() {

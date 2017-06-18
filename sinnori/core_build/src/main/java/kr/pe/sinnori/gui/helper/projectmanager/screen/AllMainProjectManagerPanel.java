@@ -272,6 +272,8 @@ public class AllMainProjectManagerPanel extends JPanel {
 				JOptionPane.WARNING_MESSAGE);
 
 		if (answer == JOptionPane.OK_OPTION) {
+			mainProjectNameListComboBox.setSelectedIndex(0);
+			
 			String sinnoriInstalledPathString = sinnoriInstalledPathInfoValueLabel.getText();
 			try {
 				BuildSystemSupporter.dropProject(sinnoriInstalledPathString, selectedProjectName);

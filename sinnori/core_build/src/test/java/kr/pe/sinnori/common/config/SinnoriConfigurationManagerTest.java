@@ -24,9 +24,6 @@ public class SinnoriConfigurationManagerTest {
 	
 	@Before
 	public void setup() {
-		SinnoriLogbackManger.getInstance().setup();
-		
-		
 		System.setProperty(
 				CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME,
 				"sample_base");
@@ -34,6 +31,7 @@ public class SinnoriConfigurationManagerTest {
 				CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH,
 				"D:\\gitsinnori\\sinnori");
 		
+		SinnoriLogbackManger.getInstance().setup();
 		
 	}
 	

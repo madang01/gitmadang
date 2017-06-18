@@ -100,7 +100,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 	/**
 	 * 생성자
 	 * 
-	 * @param projectPartConfigurationVO
+	 * @param projectPartConfiguration
 	 *            프로젝트 파트 설정 내용
 	 * @throws NoMoreDataPacketBufferException
 	 *             프로젝트의 연결 클래스을 만들때 데이터 패킷 버퍼 부족시 던지는 예외
@@ -109,41 +109,41 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 	 * @throws InterruptedException
 	 *             쓰레드 인터럽트
 	 */
-	public AnyProjectClient(ProjectPartConfiguration projectPartConfigurationVO)
+	public AnyProjectClient(ProjectPartConfiguration projectPartConfiguration)
 			throws NoMoreDataPacketBufferException,
 			NoMoreOutputMessageQueueException, InterruptedException {
-		super(projectPartConfigurationVO);
+		super(projectPartConfiguration);
 
-		int connectionCount = projectPartConfigurationVO.getClientConnectionCount();
-		long socketTimeOut = projectPartConfigurationVO.getClientSocketTimeout();
-		boolean whetherToAutoConnect = projectPartConfigurationVO
+		int connectionCount = projectPartConfiguration.getClientConnectionCount();
+		long socketTimeOut = projectPartConfiguration.getClientSocketTimeout();
+		boolean whetherToAutoConnect = projectPartConfiguration
 				.getClientWhetherAutoConnection();
-		CONNECTION_TYPE connectionType = projectPartConfigurationVO.getConnectionType();
-		long clientMonitorTimeInterval = projectPartConfigurationVO
+		CONNECTION_TYPE connectionType = projectPartConfiguration.getConnectionType();
+		long clientMonitorTimeInterval = projectPartConfiguration
 				.getClientMonitorTimeInterval();
-		long clientMonitorReceptionTimeout = projectPartConfigurationVO
+		long clientMonitorReceptionTimeout = projectPartConfiguration
 				.getClientMonitorReceptionTimeout();
-		int inputMessageQueueSize = projectPartConfigurationVO
+		int inputMessageQueueSize = projectPartConfiguration
 				.getClientAsynInputMessageQueueSize();
-		int OutputMessageQueueSize = projectPartConfigurationVO
+		int OutputMessageQueueSize = projectPartConfiguration
 				.getClientAsynOutputMessageQueueSize();
-		int finishConnectMaxCall = projectPartConfigurationVO
+		int finishConnectMaxCall = projectPartConfiguration
 				.getClientAsynFinishConnectMaxCall();
-		long finishConnectWaittingTime = projectPartConfigurationVO
+		long finishConnectWaittingTime = projectPartConfiguration
 				.getClientFinishConnectWaittingTime();
-		long readSelectorWakeupInterval = projectPartConfigurationVO
+		long readSelectorWakeupInterval = projectPartConfiguration
 				.getClientReadSelectorWakeupInterval();
-		int clientAsynInputMessageWriterSize = projectPartConfigurationVO
+		int clientAsynInputMessageWriterSize = projectPartConfiguration
 				.getClientAsynInputMessageWriterSize();
-		int clientAsynInputMessageWriterMaxSize = projectPartConfigurationVO
+		int clientAsynInputMessageWriterMaxSize = projectPartConfiguration
 				.getClientAsynInputMessageWriterMaxSize();
-		int clientAsynOutputMessageReaderSize = projectPartConfigurationVO
+		int clientAsynOutputMessageReaderSize = projectPartConfiguration
 				.getClientAsynOutputMessageReaderSize();
-		int clientAsynOutputMessageReaderMaxSize = projectPartConfigurationVO
+		int clientAsynOutputMessageReaderMaxSize = projectPartConfiguration
 				.getClientAsynOutputMessageReaderMaxSize();
-		int clientAsynOutputMessageExecutorThreadCnt = projectPartConfigurationVO
+		int clientAsynOutputMessageExecutorThreadCnt = projectPartConfiguration
 				.getClientAsynOutputMessageExecutorThreadCnt();
-		int mailBoxCnt = projectPartConfigurationVO.getClientAsynShareMailboxCnt();
+		int mailBoxCnt = projectPartConfiguration.getClientAsynShareMailboxCnt();
 
 		if (CONNECTION_TYPE.NoShareSync == connectionType) {
 			connectionPool = new NoShareSyncConnectionPool(projectName, hostOfProject,
@@ -194,7 +194,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 						connectionCount,
 						socketTimeOut, whetherToAutoConnect,
 						finishConnectMaxCall, finishConnectWaittingTime,
-						mailBoxCnt, projectPartConfigurationVO, asynOutputMessageQueue,
+						mailBoxCnt, projectPartConfiguration, asynOutputMessageQueue,
 						inputMessageQueue, messageProtocol,
 						outputMessageReaderPool, this, this, this);
 			} else {
@@ -680,17 +680,23 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 	}
 	
 	@Override
-	public void changeServerAddress(String newServerHost, int newServerPort) {
-		// FIXME!
+	public void changeServerAddress(String newServerHost, int newServerPort) throws NotSupportedException {
 		List<AbstractConnection> connList = connectionPool.getConnectionList();
-		for (AbstractConnection conn : connList) {
-			conn.changeServerAddress(newServerHost, newServerPort);
+		for (AbstractConnection conn : connList) {			
+			conn.changeServerAddress(newServerHost, newServerPort);			
 		}
 		
-		SinnoriConfigurationManager.getInstance().getSinnoriRunningProjectConfiguration().changeServerAddress(newServerHost, newServerPort);
+		try {
+			SinnoriConfigurationManager.getInstance().getSinnoriRunningProjectConfiguration().changeServerAddress(newServerHost, newServerPort);
+		} catch (IOException e) {
+			log.warn("It failed to save new server address to the Sinnori config file and Ignore this exception for quiet processing", e);
+		}
 	}
 	
-	public void saveSinnoriConfiguration() throws IOException {
-		SinnoriConfigurationManager.getInstance().getSinnoriRunningProjectConfiguration().createNewFile();
-	}
+	/*public void saveSinnoriConfiguration() throws IllegalArgumentException, SinnoriConfigurationException, IOException {
+		SinnoriConfigurationManager sinnoriConfigurationManager = SinnoriConfigurationManager.getInstance();
+		SinnoriConfiguration sinnoriConfiguration = sinnoriConfigurationManager.getSinnoriRunningProjectConfiguration();
+		
+		sinnoriConfiguration.applyModifiedSinnoriConfigSequencedProperties();
+	}*/
 }

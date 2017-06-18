@@ -53,7 +53,7 @@ public class RSAPublickeyGetterBuilder extends AbstractRSAPublickeyGetter {
 		return publicKeyBytes;
 	}
 
-	protected byte[] getSubProjectPublickeyBytes(String subProjectName) throws SymmetricException {
+	public byte[] getSubProjectPublickeyBytes(String subProjectName) throws SymmetricException {
 		Logger log = LoggerFactory.getLogger(RSAPublickeyGetterBuilder.class);
 
 		AnyProjectClient subClientProject = null;

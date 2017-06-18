@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.config.fileorpathstringgetter.AbstractFileOrPathStringGetter;
+import kr.pe.sinnori.common.config.itemidinfo.ItemIDDefiner;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.config.itemidinfo.SinnoriItemIDInfoManger;
 import kr.pe.sinnori.common.config.vo.AllDBCPPartConfiguration;
@@ -43,10 +44,10 @@ public class SinnoriConfiguration {
 	private AllSubProjectPartConfiguration allSubProjectPartConfiguration = null;	
 	
 	private SequencedProperties sinnoriConfigSequencedProperties = null;
-
+	
+	
 	public SinnoriConfiguration(String sinnoriInstalledPathString,
-			String mainProjectName) throws IllegalArgumentException,
-			FileNotFoundException, IOException, SinnoriConfigurationException {
+			String mainProjectName) throws IllegalArgumentException, SinnoriConfigurationException, FileNotFoundException, IOException {
 		if (null == sinnoriInstalledPathString) {
 			throw new IllegalArgumentException(
 					"the parameter sinnoriInstalledPathString is null");
@@ -95,20 +96,22 @@ public class SinnoriConfiguration {
 		this.sinnoriConfigFilePathString = BuildSystemPathSupporter
 				.getSinnoriConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
 
+		this.sinnoriConfigSequencedProperties = SequencedPropertiesUtil
+				.loadSequencedPropertiesFile(sinnoriConfigFilePathString, CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
+		
+		initAllPartItems(mainProjectName);		
+		convertSinnoriConfigSequencedPropertiesToAllPartItemsWithValidation(this.sinnoriConfigSequencedProperties);
+	}
+
+	private void initAllPartItems(String mainProjectName) {
 		this.allDBCPPartConfiguration = new AllDBCPPartConfiguration();
 		this.commonPartConfiguration = new CommonPartConfiguration();
 		this.mainProjectPartConfiguration = new ProjectPartConfiguration(
 				CommonType.PROJECT_GUBUN.MAIN_PROJECT, mainProjectName);
 		this.allSubProjectPartConfiguration = new AllSubProjectPartConfiguration();
-
-		
-		this.sinnoriConfigSequencedProperties = SequencedPropertiesUtil
-				.loadSequencedPropertiesFile(sinnoriConfigFilePathString, CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
-		
-		moveSinnoriConfigSequencedPropertiesToAllPartItemsWhilePerformingValidation();
 	}
 	
-	public SinnoriConfiguration(String sinnoriInstalledPathString,
+	/*public SinnoriConfiguration(String sinnoriInstalledPathString,
 			String mainProjectName, SequencedProperties modifiedSinnoriConfigSequencedProperties) throws IllegalArgumentException,
 			IOException, SinnoriConfigurationException {
 		if (null == sinnoriInstalledPathString) {
@@ -155,23 +158,24 @@ public class SinnoriConfiguration {
 		}		
 
 		this.mainProjectName = mainProjectName;
-		this.sinnoriInstalledPathString = sinnoriInstalledPathString;
-		
+		this.sinnoriInstalledPathString = sinnoriInstalledPathString;		
 		this.sinnoriConfigFilePathString = BuildSystemPathSupporter
-				.getSinnoriConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
-
-		this.allDBCPPartConfiguration = new AllDBCPPartConfiguration();
-		this.commonPartConfiguration = new CommonPartConfiguration();
-		this.mainProjectPartConfiguration = new ProjectPartConfiguration(
-				CommonType.PROJECT_GUBUN.MAIN_PROJECT, mainProjectName);
-		this.allSubProjectPartConfiguration = new AllSubProjectPartConfiguration();
+				.getSinnoriConfigFilePathString(sinnoriInstalledPathString, mainProjectName);		
 		this.sinnoriConfigSequencedProperties = modifiedSinnoriConfigSequencedProperties;
-				
-		moveSinnoriConfigSequencedPropertiesToAllPartItemsWhilePerformingValidation();
-	}
+		
+		File sinnoriConfigFile = new File(sinnoriConfigFilePathString);
+		if (!sinnoriConfigFile.exists()) {
+			createNewFile();
+		} else {
+			overwriteFile();
+		}
+		
+		
+		initAllPartItems(mainProjectName);
+		convertSinnoriConfigSequencedPropertiesToAllPartItemsWithValidation();
+	}*/
 
-	private void moveSinnoriConfigSequencedPropertiesToAllPartItemsWhilePerformingValidation() throws FileNotFoundException, IOException,
-			SinnoriConfigurationException {
+	public void convertSinnoriConfigSequencedPropertiesToAllPartItemsWithValidation(SequencedProperties sinnoriConfigSequencedProperties) throws SinnoriConfigurationException {
 		/*
 		 * allDBCPPart.clear(); allSubProjectPart.clear();
 		 */
@@ -494,20 +498,37 @@ public class SinnoriConfiguration {
 	}
 
 	
-	public void changeServerAddress(String newServerHost, int newServerPort) {
+	public void changeServerAddress(String newServerHost, int newServerPort) throws IOException {
+		String serverHostKey = new StringBuilder("mainproject.").append(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_HOST_ITEMID).toString();
+		sinnoriConfigSequencedProperties.setProperty(
+				serverHostKey, newServerHost);
+		
+		String serverPortKey = new StringBuilder("mainproject.").append(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_PORT_ITEMID).toString();
+		sinnoriConfigSequencedProperties.setProperty(
+				serverPortKey, String.valueOf(newServerPort));
+		
 		mainProjectPartConfiguration.changeServerAddress(newServerHost, newServerPort);
+		
+		overwriteFile();
 	}
 	
 	
-	public void createNewFile() throws IOException {
+	/*private void createNewFile() throws IOException {
 		SequencedPropertiesUtil.createNewSequencedPropertiesFile(sinnoriConfigSequencedProperties,
 				getSinnoriConfigPropertiesTitle(), sinnoriConfigFilePathString, CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
-	}
+	}*/
 	
-	public void overwriteFile() throws IOException {		
+	private void overwriteFile() throws IOException {		
 		SequencedPropertiesUtil.overwriteSequencedPropertiesFile(sinnoriConfigSequencedProperties,
 				getSinnoriConfigPropertiesTitle(), sinnoriConfigFilePathString, CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 	}
+	
+	public void applyModifiedSinnoriConfigSequencedProperties() throws IOException, SinnoriConfigurationException {
+		initAllPartItems(mainProjectName);
+		convertSinnoriConfigSequencedPropertiesToAllPartItemsWithValidation(sinnoriConfigSequencedProperties);
+		overwriteFile();
+	}
+	
 	
 	// FIXME!
 	public void applySinnoriInstalledPath() throws IOException {		
@@ -646,6 +667,10 @@ public class SinnoriConfiguration {
 	}
 	
 	public String getSinnoriConfigPropertiesTitle() {
+		return getSinnoriConfigPropertiesTitle(mainProjectName);
+	}
+	
+	public static String getSinnoriConfigPropertiesTitle(String mainProjectName) {
 		return new StringBuilder("project[").append(mainProjectName).append("]'s sinnori config file").toString();
 	}
 }

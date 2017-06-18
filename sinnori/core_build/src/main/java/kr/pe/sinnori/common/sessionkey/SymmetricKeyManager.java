@@ -43,16 +43,16 @@ import org.slf4j.LoggerFactory;
  */
 public final class SymmetricKeyManager {
 	private Logger log = LoggerFactory.getLogger(SymmetricKeyManager.class);
-	
+
 	private Map<String, String> symmetricKeyTransformationHash = null;
-	
+
 	/**
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스
 	 */
 	private static final class SymmetricKeyManagerHolder {
 		static final SymmetricKeyManager singleton = new SymmetricKeyManager();
 	}
-	
+
 	/**
 	 * 동기화 쓰지 않는 싱글턴 구현 메소드
 	 * 
@@ -94,125 +94,79 @@ public final class SymmetricKeyManager {
 		symmetricKeyTransformationHash.put("AES", "AES/CBC/PKCS5Padding");
 		symmetricKeyTransformationHash.put("DES", "DES/CBC/PKCS5Padding");
 		symmetricKeyTransformationHash.put("DESede", "DESede/CBC/PKCS5Padding");
-	}
+	}	
 
-	
-
-	
-
-	/**
-	 * 대칭키 알고리즘과 키를 받아 암호문에서 복호문을 만들어 반환한다.
-	 * 
-	 * @param symmetricKeyAlgorithm
-	 *            대칭키 알고리즘명
-	 * @param symmetricKeyBytes
-	 *            대칭키 알고리즘 대칭키
-	 * @param encryptedBytes
-	 *            대칭키 알고리즘으로 만든 암호문
-	 * @param ivBytes
-	 *            IV
-	 * @return 복호문
-	 * @throws IllegalArgumentException
-	 *             잘못된 파라미터가 있을때 발생
-	 * @throws SymmetricException
-	 *             암호화 관련 에러가 있다면 발생
-	 */
-	public byte[] decrypt(String symmetricKeyAlgorithm,
-			byte[] symmetricKeyBytes, byte[] encryptedBytes, byte[] ivBytes)
+	public byte[] decrypt(String symmetricKeyAlgorithm, byte[] symmetricKeyBytes, byte[] encryptedBytes, byte[] ivBytes)
 			throws IllegalArgumentException, SymmetricException {
 
-		if (null == symmetricKeyAlgorithm)
-			log.info("symmetricKeyAlgorithm is null");
-		
+		if (null == symmetricKeyAlgorithm) {
+			throw new IllegalArgumentException("the paramter symmetricKeyAlgorithm is null");
+		}
+
 		if (null == symmetricKeyBytes) {
-			throw new IllegalArgumentException("symmetricKeyBytes is null");
+			throw new IllegalArgumentException("the paramter symmetricKeyBytes is null");
 		}
 
 		if (null == encryptedBytes) {
-			throw new IllegalArgumentException("encryptedBytes is null");
+			throw new IllegalArgumentException("the paramter encryptedBytes is null");
 		}
 
-		if (null == ivBytes)
-			log.info("ivBytes is null");
+		if (null == ivBytes) {
+			throw new IllegalArgumentException("the paramter ivBytes is null");
+		}
 
-		String transformation = symmetricKeyTransformationHash
-				.get(symmetricKeyAlgorithm);
-		
+		String transformation = symmetricKeyTransformationHash.get(symmetricKeyAlgorithm);
+
 		if (null == transformation) {
-			String errorMessage = String.format("지원하지 않는 파라미터 symmetricKeyAlgorithm 값[%s]", symmetricKeyAlgorithm);
-			log.warn(errorMessage, new Throwable("잘못된 파라미터 값을 넣은 소스 추적용 예외"));
-			throw new IllegalArgumentException(errorMessage);			
+			String errorMessage = String.format("the parameter symmetricKeyAlgorithm[%s] is not a element of set%s", symmetricKeyAlgorithm, symmetricKeyTransformationHash.keySet().toString());
+			throw new IllegalArgumentException(errorMessage);
 		}
-		
 
 		Cipher symmetricKeyCipher = null;
 		try {
 			symmetricKeyCipher = Cipher.getInstance(transformation);
 		} catch (NoSuchAlgorithmException e) {
-			String errorMessage = String
-					.format("%s Cipher NoSuchAlgorithmException",
-							symmetricKeyAlgorithm);
+			String errorMessage = String.format("%s Cipher NoSuchAlgorithmException", symmetricKeyAlgorithm);
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		} catch (NoSuchPaddingException e) {
-			String errorMessage = String.format(
-					"%s Cipher NoSuchPaddingException, errormessage=%s", 
+			String errorMessage = String.format("%s Cipher NoSuchPaddingException, errormessage=%s",
 					symmetricKeyAlgorithm, e.getMessage());
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		}
-		log.info("Successful symmetric key cipher class creation");
 
-		SecretKeySpec symmetricKey = new SecretKeySpec(symmetricKeyBytes,
-				symmetricKeyAlgorithm);
-		if (null == ivBytes) {
-			try {
-				symmetricKeyCipher.init(Cipher.DECRYPT_MODE, symmetricKey);
-			} catch (InvalidKeyException e) {
-				String errorMessage = String.format(
-						"%s Cipher InvalidKeyException, errormessage=%s", 
-						symmetricKeyAlgorithm, e.getMessage());
-				log.warn(errorMessage, e);
-				throw new SymmetricException(errorMessage);
-			}
+		SecretKeySpec symmetricKey = new SecretKeySpec(symmetricKeyBytes, symmetricKeyAlgorithm);
 
-			// log.info("Cipher.init");
-		} else {
-			IvParameterSpec iv = new IvParameterSpec(ivBytes);
-			try {
-				symmetricKeyCipher.init(Cipher.DECRYPT_MODE, symmetricKey, iv);
-			} catch (InvalidKeyException e) {
-				String errorMessage = String.format(
-						"%s Cipher with IV InvalidKeyException, errormessage=%s",
-						symmetricKeyAlgorithm, e.getMessage());
-				log.warn(errorMessage, e);
-				throw new SymmetricException(errorMessage);
-			} catch (InvalidAlgorithmParameterException e) {
-				String errorMessage = String
-						.format("%s Cipher with IV[%s] InvalidAlgorithmParameterException, errormessage=%s",
-								symmetricKeyAlgorithm,
-								HexUtil.getHexStringFromByteArray(ivBytes),
-								e.getMessage());
-				log.warn(errorMessage, e);
-				throw new SymmetricException(errorMessage);
-			}
-
-			// log.info("Cipher.init with IV");
+		IvParameterSpec ivParameterSpec = new IvParameterSpec(ivBytes);
+		try {
+			symmetricKeyCipher.init(Cipher.DECRYPT_MODE, symmetricKey, ivParameterSpec);
+		} catch (InvalidKeyException e) {
+			String errorMessage = String.format("%s Cipher with IV InvalidKeyException, errormessage=%s",
+					symmetricKeyAlgorithm, e.getMessage());
+			log.warn(errorMessage, e);
+			throw new SymmetricException(errorMessage);
+		} catch (InvalidAlgorithmParameterException e) {
+			String errorMessage = String.format(
+					"%s Cipher with IV[%s] InvalidAlgorithmParameterException, errormessage=%s", symmetricKeyAlgorithm,
+					HexUtil.getHexStringFromByteArray(ivBytes), e.getMessage());
+			log.warn(errorMessage, e);
+			throw new SymmetricException(errorMessage);
 		}
+
+		// log.info("Cipher.init with IV");
 
 		byte[] decryptedBytes;
 		try {
 			decryptedBytes = symmetricKeyCipher.doFinal(encryptedBytes);
 		} catch (IllegalBlockSizeException e) {
-			String errorMessage = String.format(
-					"%s Cipher IllegalBlockSizeException, errormessage=%s",
+			String errorMessage = String.format("%s Cipher IllegalBlockSizeException, errormessage=%s",
 					symmetricKeyAlgorithm, e.getMessage());
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		} catch (BadPaddingException e) {
-			String errorMessage = String.format(
-					"%s Cipher BadPaddingException, errormessage=%s", 
-					symmetricKeyAlgorithm, e.getMessage());
+			String errorMessage = String.format("%s Cipher BadPaddingException, errormessage=%s", symmetricKeyAlgorithm,
+					e.getMessage());
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		}
@@ -223,120 +177,76 @@ public final class SymmetricKeyManager {
 		return decryptedBytes;
 	}
 
-	/**
-	 * 대칭키 알고리즘, 대칭키를 가지고 평문을 암호화하여 암호문을 반환한다.
-	 * 
-	 * @param symmetricKeyAlgorithm
-	 *            대칭키 알고리즘명
-	 * @param symmetricKeyBytes
-	 *            대칭키
-	 * @param plainTextBytes
-	 *            평문
-	 * @param ivBytes
-	 *            IV
-	 * @return 암호문
-	 * @throws IllegalArgumentException
-	 *             잘못된 파라미터가 있을때 발생
-	 * @throws SymmetricException
-	 *             암호화 관련 에러가 있다면 발생
-	 */
-	public byte[] encrypt(String symmetricKeyAlgorithm,
-			byte[] symmetricKeyBytes, byte[] plainTextBytes, byte[] ivBytes)
+	public byte[] encrypt(String symmetricKeyAlgorithm, byte[] symmetricKeyBytes, byte[] plainTextBytes, byte[] ivBytes)
 			throws IllegalArgumentException, SymmetricException {
 
-		if (null == symmetricKeyAlgorithm)
-			log.info("symmetricKeyAlgorithm is null");
-		
+		if (null == symmetricKeyAlgorithm) {
+			throw new IllegalArgumentException("the parameter symmetricKeyAlgorithm is null");
+		}
+
 		if (null == symmetricKeyBytes) {
-			throw new IllegalArgumentException("symmetricKeyBytes is null");
+			throw new IllegalArgumentException("the parameter symmetricKeyBytes is null");
 		}
 
 		if (null == plainTextBytes) {
-			throw new IllegalArgumentException("plainTextBytes is null");
+			throw new IllegalArgumentException("the parameter plainTextBytes is null");
 		}
 
-		if (null == ivBytes)
-			log.info("ivBytes is null");
+		if (null == ivBytes) {
+			throw new IllegalArgumentException("the parameter ivBytes is null");
+		}
 
-		String transformation = symmetricKeyTransformationHash
-				.get(symmetricKeyAlgorithm);
-		
+		String transformation = symmetricKeyTransformationHash.get(symmetricKeyAlgorithm);
+
 		if (null == transformation) {
-			String errorMessage = String.format("지원하지 않는 파라미터 symmetricKeyAlgorithm 값[%s]", symmetricKeyAlgorithm);
-			log.warn(errorMessage, new Throwable("잘못된 파라미터 값을 넣은 소스 추적용 예외"));
-			throw new IllegalArgumentException(errorMessage);			
+			String errorMessage = String.format("the parameter symmetricKeyAlgorithm[%s] is not a element of set%s", symmetricKeyAlgorithm, symmetricKeyTransformationHash.keySet().toString());			
+			throw new IllegalArgumentException(errorMessage);
 		}
 
 		Cipher symmetricKeyCipher = null;
 		try {
 			symmetricKeyCipher = Cipher.getInstance(transformation);
 		} catch (NoSuchAlgorithmException e) {
-			String errorMessage = String
-					.format("%s Cipher NoSuchAlgorithmException",
-							symmetricKeyAlgorithm);
+			String errorMessage = String.format("%s Cipher NoSuchAlgorithmException", symmetricKeyAlgorithm);
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		} catch (NoSuchPaddingException e) {
-			String errorMessage = String.format(
-					"%s Cipher NoSuchPaddingException, errormessage=%s", 
+			String errorMessage = String.format("%s Cipher NoSuchPaddingException, errormessage=%s",
 					symmetricKeyAlgorithm, e.getMessage());
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		}
 
-		// FIXME!
-		log.info("Successful symmetric key cipher class creation");
 
-		SecretKeySpec symmetricKey = new SecretKeySpec(symmetricKeyBytes,
-				symmetricKeyAlgorithm);
+		SecretKeySpec symmetricKey = new SecretKeySpec(symmetricKeyBytes, symmetricKeyAlgorithm);
 
-		if (null == ivBytes) {
-			try {
-				symmetricKeyCipher.init(Cipher.ENCRYPT_MODE, symmetricKey);
-			} catch (InvalidKeyException e) {
-				String errorMessage = String.format(
-						"%s Cipher InvalidKeyException, errormessage=%s", 
-						symmetricKeyAlgorithm, e.getMessage());
-				log.warn(errorMessage, e);
-				throw new SymmetricException(errorMessage);
-			}
-
-			// log.info("Cipher.init");
-		} else {
-			IvParameterSpec iv = new IvParameterSpec(ivBytes);
-			try {
-				symmetricKeyCipher.init(Cipher.ENCRYPT_MODE, symmetricKey, iv);
-			} catch (InvalidKeyException e) {
-				String errorMessage = String.format(
-						"%s Cipher with IV InvalidKeyException, errormessage=%s",
-						symmetricKeyAlgorithm, e.getMessage());
-				log.warn(errorMessage, e);
-				throw new SymmetricException(errorMessage);
-			} catch (InvalidAlgorithmParameterException e) {
-				String errorMessage = String
-						.format("%s Cipher with IV[%s] InvalidAlgorithmParameterException, errormessage=%s",
-								symmetricKeyAlgorithm,
-								HexUtil.getHexStringFromByteArray(ivBytes),
-								e.getMessage());
-				log.warn(errorMessage, e);
-				throw new SymmetricException(errorMessage);
-			}
-			// log.info("Cipher.init with IV");
+		IvParameterSpec ivParameterSpec = new IvParameterSpec(ivBytes);
+		try {
+			symmetricKeyCipher.init(Cipher.ENCRYPT_MODE, symmetricKey, ivParameterSpec);
+		} catch (InvalidKeyException e) {
+			String errorMessage = String.format("%s Cipher with IV InvalidKeyException, errormessage=%s",
+					symmetricKeyAlgorithm, e.getMessage());
+			log.warn(errorMessage, e);
+			throw new SymmetricException(errorMessage);
+		} catch (InvalidAlgorithmParameterException e) {
+			String errorMessage = String.format(
+					"%s Cipher with IV[%s] InvalidAlgorithmParameterException, errormessage=%s", symmetricKeyAlgorithm,
+					HexUtil.getHexStringFromByteArray(ivBytes), e.getMessage());
+			log.warn(errorMessage, e);
+			throw new SymmetricException(errorMessage);
 		}
 
 		byte[] encryptedBytes;
 		try {
 			encryptedBytes = symmetricKeyCipher.doFinal(plainTextBytes);
 		} catch (IllegalBlockSizeException e) {
-			String errorMessage = String.format(
-					"%s Cipher IllegalBlockSizeException, errormessage=%s",
+			String errorMessage = String.format("%s Cipher IllegalBlockSizeException, errormessage=%s",
 					symmetricKeyAlgorithm, e.getMessage());
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		} catch (BadPaddingException e) {
-			String errorMessage = String.format(
-					"%s Cipher BadPaddingException, errormessage=%s", 
-					symmetricKeyAlgorithm, e.getMessage());
+			String errorMessage = String.format("%s Cipher BadPaddingException, errormessage=%s", symmetricKeyAlgorithm,
+					e.getMessage());
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
 		}
@@ -346,4 +256,5 @@ public final class SymmetricKeyManager {
 
 		return encryptedBytes;
 	}
+
 }

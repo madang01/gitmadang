@@ -10,8 +10,8 @@ import org.junit.Test;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
-import kr.pe.sinnori.common.exception.DBCPDataSourceNotFoundException;
-import kr.pe.sinnori.server.mysql.MybatisSqlSessionFactoryManger;
+import kr.pe.sinnori.common.exception.MybatisException;
+import kr.pe.sinnori.common.mybatis.MybatisSqlSessionFactoryManger;
 
 public class ClassloaderResourcesTest {
 	@Before
@@ -28,6 +28,7 @@ public class ClassloaderResourcesTest {
 		
 		
 	}
+	
 	
 	@Test
 	public void classpathResourcesTest() {
@@ -55,9 +56,12 @@ public class ClassloaderResourcesTest {
 			e.printStackTrace();
 		}
 		
+		
 		try {
-			SqlSessionFactory sqlSessionFactory = MybatisSqlSessionFactoryManger.getInstance().getSqlSessionFactory("sample_base_db");
-		} catch (DBCPDataSourceNotFoundException e) {
+		
+				@SuppressWarnings("unused")
+				SqlSessionFactory sqlSessionFactory = MybatisSqlSessionFactoryManger.getInstance().getSqlSessionFactory("sample_base_db");
+		} catch (MybatisException e) {
 			e.printStackTrace();
 			fail(e.getMessage());
 		}

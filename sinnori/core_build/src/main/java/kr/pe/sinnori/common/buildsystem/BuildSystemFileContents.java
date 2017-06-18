@@ -1,7 +1,11 @@
 package kr.pe.sinnori.common.buildsystem;
 
+import java.util.List;
+
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
+import kr.pe.sinnori.common.mybatis.MybatisEnviroment;
+import kr.pe.sinnori.common.mybatis.MybatisMapper;
 
 public abstract class BuildSystemFileContents {
 
@@ -228,12 +232,22 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<path id=\"build.classpath\">");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t<fileset dir=\"${basedir}\">");
+		
+		
+		stringBuilder.append("\t\t<fileset dir=\"${dir.core.build}\">");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t<include name=\"dist/lib/*.jar\"/>");
+		stringBuilder.append("\t\t\t<include name=\"lib/main/ex/*.jar\"/>");		
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t</fileset>");
 		stringBuilder.append(System.getProperty("line.separator"));
+		
+		stringBuilder.append("\t\t<fileset dir=\"${dir.mainlib}\">");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t\t<include name=\"ex/*.jar\"/>");		
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t</fileset>");		
+		stringBuilder.append(System.getProperty("line.separator"));
+		
 		stringBuilder.append("\t</path>");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t");
@@ -656,13 +670,31 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append("\t");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<path id=\"build.classpath\">");
+		
+		
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t<fileset dir=\"${basedir}\">");
+		stringBuilder.append("\t\t<fileset dir=\"${dir.core.build}\">");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t\t<include name=\"lib/main/ex/*.jar\"/>");		
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t</fileset>");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<fileset dir=\"${dir.mainlib}\">");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t\t<include name=\"ex/*.jar\"/>");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t</fileset>");		
+		stringBuilder.append(System.getProperty("line.separator"));
+		
+		/*stringBuilder.append("\t\t<fileset dir=\"${basedir}\">");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t<include name=\"dist/lib/*.jar\"/>");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t</fileset>");
-		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append(System.getProperty("line.separator"));*/
+		
+		
+		
 		stringBuilder.append("\t</path>");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("");
@@ -1254,5 +1286,81 @@ public abstract class BuildSystemFileContents {
 		commandPartBuilder.append("-jar ").append(relativeExecutabeJarFileName);
 
 		return commandPartBuilder.toString();
+	}
+	
+	/**
+	 * <project>/resources/mybatis/mybatisConfig.xml
+	 */
+	public static String getMybatisConfigFileContents(String sinnoriInstalledPathString, 
+			String defaultDBCPName,
+			List<MybatisEnviroment> mybatisEnviromentList,
+			List<MybatisMapper> mybatisMapperList) {
+		StringBuilder mybatisConfigStringBuidler = new StringBuilder();
+		mybatisConfigStringBuidler.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+		mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
+		mybatisConfigStringBuidler.append("<!DOCTYPE configuration SYSTEM \"");
+		mybatisConfigStringBuidler.append(BuildSystemPathSupporter.getMybatisConfigDTDFilePathString(sinnoriInstalledPathString));
+		mybatisConfigStringBuidler.append("\">");
+		mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
+		mybatisConfigStringBuidler.append("<configuration>");
+		mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
+		mybatisConfigStringBuidler.append("<environments default=\"");
+		mybatisConfigStringBuidler.append(defaultDBCPName);
+		mybatisConfigStringBuidler.append("\">");
+		mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
+		
+		for (MybatisEnviroment mybatisEnviroment : mybatisEnviromentList) {
+			mybatisConfigStringBuidler.append("<environment id=\"");
+			mybatisConfigStringBuidler.append(mybatisEnviroment.getDBCPName());
+			mybatisConfigStringBuidler.append("\">");
+			mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
+			mybatisConfigStringBuidler.append("<transactionManager type=\"JDBC\" />");
+			mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
+			mybatisConfigStringBuidler.append("<dataSource type=\"");
+			mybatisConfigStringBuidler.append(mybatisEnviroment.getDataSourceFacotryClassFullName());
+			mybatisConfigStringBuidler.append("\"></dataSource>");
+			mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
+			mybatisConfigStringBuidler.append("</environment>");
+			mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
+		}		
+		
+		mybatisConfigStringBuidler.append("</environments>");
+		mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
+		mybatisConfigStringBuidler.append("<mappers>");
+		mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
+		
+		for (MybatisMapper mybatisMapper : mybatisMapperList) {
+			mybatisConfigStringBuidler.append("<mapper resource=\"");
+			mybatisConfigStringBuidler.append(mybatisMapper.getMybatisMapperFileRelativePathString());
+			mybatisConfigStringBuidler.append("\" />");
+			mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
+		}		
+		
+		mybatisConfigStringBuidler.append("</mappers>");
+		mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
+		mybatisConfigStringBuidler.append("</configuration>");
+		
+		return mybatisConfigStringBuidler.toString();
+	}
+	
+	public static String getSample1MybatisMapperFileContents(String sinnoriInstalledPathString, String nameSpace) {
+		StringBuilder mybatisConfigStringBuidler = new StringBuilder();
+		mybatisConfigStringBuidler.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+		mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
+		mybatisConfigStringBuidler.append("<!DOCTYPE mapper SYSTEM \"");
+		mybatisConfigStringBuidler.append(BuildSystemPathSupporter.getMybatisMapperDTDFilePathString(sinnoriInstalledPathString));
+		mybatisConfigStringBuidler.append("\">");
+		mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
+		
+		mybatisConfigStringBuidler.append("<mapper namespace=\"");
+		mybatisConfigStringBuidler.append(nameSpace);
+		mybatisConfigStringBuidler.append("\">");
+		mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
+		
+		
+		
+		mybatisConfigStringBuidler.append("</mapper>");
+		
+		return mybatisConfigStringBuidler.toString();
 	}
 }

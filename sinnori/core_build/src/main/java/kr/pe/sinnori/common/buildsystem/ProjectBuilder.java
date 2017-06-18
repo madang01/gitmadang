@@ -25,9 +25,9 @@ import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.message.builder.IOFileSetContentsBuilderManager;
 import kr.pe.sinnori.common.message.builder.info.MessageInfo;
 import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
-import kr.pe.sinnori.common.mysql.FileTypeResource;
-import kr.pe.sinnori.common.mysql.FileTypeResourceManager;
-import kr.pe.sinnori.common.mysql.MybatisConfigXMLFileSAXParser;
+import kr.pe.sinnori.common.mybatis.FileTypeResource;
+import kr.pe.sinnori.common.mybatis.FileTypeResourceManager;
+import kr.pe.sinnori.common.mybatis.MybatisConfigXMLFileSAXParser;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 import kr.pe.sinnori.common.util.SequencedProperties;
 import kr.pe.sinnori.common.util.SequencedPropertiesUtil;
@@ -323,7 +323,7 @@ public class ProjectBuilder {
 		List<String> childRelativeDirectoryList = new ArrayList<String>();
 		
 		childRelativeDirectoryList.add("server_build/APP-INF/classes");
-		childRelativeDirectoryList.add("server_build/APP-INF/resources");
+		// childRelativeDirectoryList.add("server_build/APP-INF/resources");
 		childRelativeDirectoryList.add("server_build/corelib/ex");
 		childRelativeDirectoryList.add("server_build/corelib/in");
 		childRelativeDirectoryList.add("server_build/lib/main/ex");
@@ -1394,18 +1394,9 @@ public class ProjectBuilder {
 		SequencedProperties newSinnoriConfigSequencedProperties = mainProjectItemIDInfo
 				.getNewSinnoriConfigSequencedProperties(sinnoriInstalledPathString, mainProjectName);
 		
-		SinnoriConfiguration sinnoriConfiguration = null;
 		try {
-			sinnoriConfiguration = new SinnoriConfiguration(sinnoriInstalledPathString, mainProjectName, newSinnoriConfigSequencedProperties);
-			sinnoriConfiguration.createNewFile();
-		} catch (IllegalArgumentException e) {
-			String errorMessage = new StringBuilder("fail to create the main project[").append(mainProjectName)
-					.append("]'s sinnori configuration file").toString();
-
-			log.warn(errorMessage, e);
-
-			throw new BuildSystemException(
-					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
+			SequencedPropertiesUtil.createNewSequencedPropertiesFile(newSinnoriConfigSequencedProperties,
+					SinnoriConfiguration.getSinnoriConfigPropertiesTitle(mainProjectName), sinnoriConfigFilePathString, CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 		} catch (IOException e) {
 			String errorMessage = new StringBuilder("fail to create the main project's sinnori configuration file[").append(sinnoriConfigFilePathString)
 					.append("]").toString();
@@ -1414,16 +1405,8 @@ public class ProjectBuilder {
 
 			throw new BuildSystemException(
 					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
-		} catch (SinnoriConfigurationException e) {
-			String errorMessage = new StringBuilder("fail to create the main project's sinnori configuration file[").append(sinnoriConfigFilePathString)
-					.append("]").toString();
-
-			log.warn(errorMessage, e);
-
-			throw new BuildSystemException(
-					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
 		}
-
+		
 		log.info("main project[{}]'s config file creation task end", mainProjectName);
 	}
 	
@@ -1431,12 +1414,12 @@ public class ProjectBuilder {
 		log.info("main project[{}]'s config file overwrite task start", mainProjectName);
 		
 		String sinnoriConfigFilePathString = BuildSystemPathSupporter.getSinnoriConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
-
-		
-		SinnoriConfiguration sinnoriConfiguration = null;
 		try {
-			sinnoriConfiguration = new SinnoriConfiguration(sinnoriInstalledPathString, mainProjectName, modifiedSinnoriConfigSequencedProperties);
-			sinnoriConfiguration.overwriteFile();
+			
+			
+			SequencedPropertiesUtil.overwriteSequencedPropertiesFile(modifiedSinnoriConfigSequencedProperties,
+					SinnoriConfiguration.getSinnoriConfigPropertiesTitle(mainProjectName), 
+					sinnoriConfigFilePathString, CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 		} catch (IllegalArgumentException e) {
 			String errorMessage = new StringBuilder("fail to save the main project[").append(mainProjectName)
 					.append("]'s sinnori configuration file").toString();
@@ -1445,23 +1428,7 @@ public class ProjectBuilder {
 
 			throw new BuildSystemException(
 					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
-		} catch (FileNotFoundException e) {			
-			String errorMessage = new StringBuilder("fail to overwrite the main project's sinnori configuration file").append(sinnoriConfigFilePathString)
-					.append("]").toString();
-
-			log.warn(errorMessage, e);
-
-			throw new BuildSystemException(
-					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
 		} catch (IOException e) {			
-			String errorMessage = new StringBuilder("fail to overwrite the main project's sinnori configuration file").append(sinnoriConfigFilePathString)
-					.append("]").toString();
-
-			log.warn(errorMessage, e);
-
-			throw new BuildSystemException(
-					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
-		} catch (SinnoriConfigurationException e) {			
 			String errorMessage = new StringBuilder("fail to overwrite the main project's sinnori configuration file").append(sinnoriConfigFilePathString)
 					.append("]").toString();
 

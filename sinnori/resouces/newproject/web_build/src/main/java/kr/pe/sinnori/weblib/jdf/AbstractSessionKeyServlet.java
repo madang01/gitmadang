@@ -241,7 +241,7 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		log.info(String.format("parm parmIVBase64=[%s]", parmIVBase64));
 		
 			
-		ServerSessionkeyIF webServerSessionkey = ServerSessionkeyManager.getInstance().getServerSessionkey();		
+		ServerSessionkeyIF webServerSessionkey = ServerSessionkeyManager.getInstance().getMainProjectServerSessionkey();		
 		String modulusHexString = webServerSessionkey.getModulusHexStrForWeb();
 		
 		if (null == parmSessionKeyBase64 || null == parmIVBase64) {			

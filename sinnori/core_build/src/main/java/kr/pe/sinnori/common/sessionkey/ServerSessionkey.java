@@ -12,7 +12,7 @@ public class ServerSessionkey implements ServerSessionkeyIF {
 	}
 	
 	public ServerSymmetricKeyIF getNewInstanceOfServerSymmetricKey(byte[] sessionkeyBytes, byte[] ivBytes) throws SymmetricException {
-		return new ServerSymmetricKey(serverRSA.getClientSymmetricKeyBytes(sessionkeyBytes), ivBytes);
+		return new ServerSymmetricKey(serverRSA.decrypt(sessionkeyBytes), ivBytes);
 	}	
 		
 	public String getModulusHexStrForWeb() {

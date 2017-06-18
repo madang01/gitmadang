@@ -363,7 +363,7 @@ public class IOFIleSetBuilderPanel extends JPanel implements FileFunctionManager
 				String fileNickname = null;
 				fileNickname = "the message class";
 				try {
-					CommonStaticUtil.savePreparedRegularFile(messageFile, 
+					CommonStaticUtil.saveFile(messageFile, 
 							ioFileSetContentsBuilderManager.getMessageSourceFileContents(messageID,	author, messageInfo),
 							CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 				} catch (IOException e) {
@@ -376,7 +376,7 @@ public class IOFIleSetBuilderPanel extends JPanel implements FileFunctionManager
 
 				fileNickname = "the message encoder class";
 				try {
-					CommonStaticUtil.savePreparedRegularFile(messageEncoderFile, ioFileSetContentsBuilderManager
+					CommonStaticUtil.saveFile(messageEncoderFile, ioFileSetContentsBuilderManager
 							.getEncoderSourceFileContents(messageID, author, messageInfo), CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 				} catch (IOException e) {
 					String errorMessage = String.format("fail to save file[%s][%s]::%s", fileNickname,
@@ -388,7 +388,7 @@ public class IOFIleSetBuilderPanel extends JPanel implements FileFunctionManager
 
 				fileNickname = "the message decoder class";
 				try {
-					CommonStaticUtil.savePreparedRegularFile(messageDecoderFile, ioFileSetContentsBuilderManager
+					CommonStaticUtil.saveFile(messageDecoderFile, ioFileSetContentsBuilderManager
 							.getDecoderSourceFileContents(messageID, author, messageInfo), CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 				} catch (IOException e) {
 					String errorMessage = String.format("fail to save file[%s][%s]::%s", fileNickname,
@@ -408,7 +408,7 @@ public class IOFIleSetBuilderPanel extends JPanel implements FileFunctionManager
 				String fileNickname = null;
 				fileNickname = "the server codec class";
 				try {
-					CommonStaticUtil.savePreparedRegularFile(messageServerCodecFile, ioFileSetContentsBuilderManager
+					CommonStaticUtil.saveFile(messageServerCodecFile, ioFileSetContentsBuilderManager
 							.getServerCodecSourceFileContents(messageInfo.getDirection(), messageID, author), CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 				} catch (IOException e) {
 					String errorMessage = String.format("fail to save file[%s][%s]::%s", fileNickname,
@@ -420,7 +420,7 @@ public class IOFIleSetBuilderPanel extends JPanel implements FileFunctionManager
 
 				fileNickname = "the client codec class";
 				try {
-					CommonStaticUtil.savePreparedRegularFile(messageClientCodecFile, ioFileSetContentsBuilderManager
+					CommonStaticUtil.saveFile(messageClientCodecFile, ioFileSetContentsBuilderManager
 							.getClientCodecSourceFileContents(messageInfo.getDirection(), messageID, author), CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 				} catch (IOException e) {
 					String errorMessage = String.format("fail to save file[%s][%s]::%s", fileNickname,

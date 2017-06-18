@@ -1345,14 +1345,14 @@ public class SinnoriItemIDInfoManger {
 		/** common */
 		{
 			String prefixOfItemID = "";
-			for (ItemIDInfo<?> itemIDConfigInfo : commonPartItemIDInfoList) {
-				String itemID = itemIDConfigInfo.getItemID();
+			for (ItemIDInfo<?> commonPartItemIDInfo : commonPartItemIDInfoList) {
+				String itemID = commonPartItemIDInfo.getItemID();
 				String itemKey = itemID;
-
-				String itemDescKey = itemIDConfigInfo
+				String itemValue = commonPartItemIDInfo.getDefaultValue();
+				
+				String itemDescriptionKey = commonPartItemIDInfo
 						.getItemDescKey(prefixOfItemID);
-
-				String itemValue = itemIDConfigInfo.getDefaultValue();
+				String itemDescriptionValue = commonPartItemIDInfo.getDescription();
 				
 				AbstractFileOrPathStringGetter fileOrPathStringGetter = 
 						fileOrPathStringGetterHash.get(itemID);
@@ -1362,10 +1362,8 @@ public class SinnoriItemIDInfoManger {
 							.getFileOrPathStringDependingOnSinnoriInstalledPath(sinnoriInstalledPathString, mainProjectName);
 				}
 				
-				sinnoriConfigSequencedProperties.put(itemDescKey,
-						itemIDConfigInfo.getDescription());
-				sinnoriConfigSequencedProperties.put(itemKey,
-						itemValue);
+				sinnoriConfigSequencedProperties.put(itemDescriptionKey, itemDescriptionValue);
+				sinnoriConfigSequencedProperties.put(itemKey, itemValue);
 			}
 		}
 		
@@ -1380,16 +1378,16 @@ public class SinnoriItemIDInfoManger {
 		/** main project */
 		{
 			String prefixOfItemID = new StringBuilder("mainproject.").toString();
-			for (ItemIDInfo<?> itemIDConfigInfo : projectPartItemIDInfoList) {
+			for (ItemIDInfo<?> mainProjectPartItemIDInfo : projectPartItemIDInfoList) {
 				
-				String itemID = itemIDConfigInfo.getItemID();
+				String itemID = mainProjectPartItemIDInfo.getItemID();
 				String itemKey = new StringBuilder(prefixOfItemID).append(
-						itemID).toString();
-
-				String itemDescKey = itemIDConfigInfo
-						.getItemDescKey(prefixOfItemID);
+						itemID).toString();				
+				String itemValue = mainProjectPartItemIDInfo.getDefaultValue();
 				
-				String itemValue = itemIDConfigInfo.getDefaultValue();
+				String itemDescriptionKey = mainProjectPartItemIDInfo
+						.getItemDescKey(prefixOfItemID);
+				String itemDescriptionValue = mainProjectPartItemIDInfo.getDescription();
 				
 				AbstractFileOrPathStringGetter fileOrPathStringGetter = 
 						fileOrPathStringGetterHash.get(itemID);
@@ -1399,10 +1397,8 @@ public class SinnoriItemIDInfoManger {
 							.getFileOrPathStringDependingOnSinnoriInstalledPath(sinnoriInstalledPathString, mainProjectName);
 				}
 				
-				sinnoriConfigSequencedProperties.put(itemDescKey,
-						itemIDConfigInfo.getDescription());
-				sinnoriConfigSequencedProperties.put(itemKey,
-						itemValue);
+				sinnoriConfigSequencedProperties.put(itemDescriptionKey, itemDescriptionValue);
+				sinnoriConfigSequencedProperties.put(itemKey, itemValue);
 			}
 		}
 		

@@ -1,5 +1,6 @@
 package kr.pe.sinnori.common.sessionkey;
 
+import java.util.Date;
 import java.util.Random;
 
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
@@ -28,6 +29,7 @@ public class ClientSymmetricKey implements ClientSymmetricKeyIF {
 		symmetricKeySize = commonPart.getSymmetricKeySizeOfSessionKey();
 		symmetricKeyBytes = new byte[symmetricKeySize];
 		Random random = new Random();
+		random.setSeed(new Date().getTime());
 		random.nextBytes(symmetricKeyBytes);
 		this.ivBytes = ivBytes;
 	}

@@ -161,7 +161,9 @@ public final class SinnoriConfigurationManager {
 		}
 	}
 	
-	public SinnoriConfiguration getSinnoriRunningProjectConfiguration() {
+	public SinnoriConfiguration getSinnoriRunningProjectConfiguration() {		
 		return sinnoriRunningProjectConfiguration;
 	}
+	
+	
 }

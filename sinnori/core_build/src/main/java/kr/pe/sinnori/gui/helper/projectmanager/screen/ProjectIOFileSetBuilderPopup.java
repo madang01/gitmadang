@@ -316,7 +316,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 				String fileNickname = null;
 				fileNickname = "the message class";
 				try {
-					CommonStaticUtil.savePreparedRegularFile(messageFile, ioFileSetContentsBuilderManager.getMessageSourceFileContents(
+					CommonStaticUtil.saveFile(messageFile, ioFileSetContentsBuilderManager.getMessageSourceFileContents(
 							messageID, author, messageInfo), CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 				} catch (IOException e) {
 					String errorMessage = String.format("fail to save file[%s][%s]::%s", fileNickname,
@@ -328,7 +328,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 
 				fileNickname = "the message encoder class";
 				try {
-					CommonStaticUtil.savePreparedRegularFile(
+					CommonStaticUtil.saveFile(
 									messageEncoderFile, ioFileSetContentsBuilderManager
 											.getEncoderSourceFileContents(messageID, author, messageInfo),
 									CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
@@ -342,7 +342,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 
 				fileNickname = "the message decoder class";
 				try {
-					CommonStaticUtil.savePreparedRegularFile(
+					CommonStaticUtil.saveFile(
 									messageDecoderFile, ioFileSetContentsBuilderManager
 											.getDecoderSourceFileContents(messageID, author, messageInfo),
 									CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
@@ -365,7 +365,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 				String fileNickname = null;
 				fileNickname = "the server codec class";
 				try {
-					CommonStaticUtil.savePreparedRegularFile(
+					CommonStaticUtil.saveFile(
 							messageServerCodecFile, ioFileSetContentsBuilderManager
 									.getServerCodecSourceFileContents(messageInfo.getDirection(), messageID, author),
 							CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
@@ -379,7 +379,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 
 				fileNickname = "the client codec class";
 				try {
-					CommonStaticUtil.savePreparedRegularFile(
+					CommonStaticUtil.saveFile(
 							messageClientCodecFile, ioFileSetContentsBuilderManager
 									.getClientCodecSourceFileContents(messageInfo.getDirection(), messageID, author),
 							CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);

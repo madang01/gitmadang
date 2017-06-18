@@ -11,6 +11,7 @@ public class TestConstruct extends AbstractParent {
 	
 	public static void main(String[] args) {
 	
+		@SuppressWarnings("unused")
 		TestConstruct testConstruct = new TestConstruct(1);
 	}
 }

@@ -33,7 +33,7 @@ import kr.pe.sinnori.common.exception.DBCPDataSourceNotFoundException;
  */
 public final class DBCPManager {
 	private Logger log = LoggerFactory.getLogger(DBCPManager.class);
-	private Hashtable<String, BasicDataSource> dbcpConnectionPoolName2BasicDataSourceHash = new Hashtable<String, BasicDataSource>();
+	private Hashtable<String, BasicDataSource> dbcpName2BasicDataSourceHash = new Hashtable<String, BasicDataSource>();
 	private Hashtable<BasicDataSource, String> basicDataSource2dbcpConnectionPoolNameHash = new Hashtable<BasicDataSource, String>();
 
 	/**
@@ -64,10 +64,7 @@ public final class DBCPManager {
 		
 		List<String> dbcpNameList = allDBCPPart.getDBCPNameList();		
 
-		for (String dbcpName : dbcpNameList) {
-			// FIXME!
-			log.info("start dbcpName={}", dbcpName);			
-			
+		for (String dbcpName : dbcpNameList) {			
 			DBCPParConfiguration dbcpPart = allDBCPPart.getDBCPPartConfiguration(dbcpName);
 			if (null == dbcpPart) {
 				log.warn("the dbcp name[{}] is bad, check dbcp part of config file", dbcpName);
@@ -133,7 +130,7 @@ public final class DBCPManager {
 				continue;
 			}
 			
-			dbcpConnectionPoolName2BasicDataSourceHash.put(dbcpName, basicDataSource);
+			dbcpName2BasicDataSourceHash.put(dbcpName, basicDataSource);
 			basicDataSource2dbcpConnectionPoolNameHash.put(basicDataSource, dbcpName);
 
 			// FIXME!
@@ -160,13 +157,13 @@ public final class DBCPManager {
 	 * @throws DBCPDataSourceNotFoundException
 	 *             DB 사용 준비가 안되었을 경우 던지는 예외
 	 */
-	public BasicDataSource getBasicDataSource(String dbcpConnectionPoolName)
+	public BasicDataSource getBasicDataSource(String dbcpName)
 			throws DBCPDataSourceNotFoundException {
-		BasicDataSource basicDataSource = dbcpConnectionPoolName2BasicDataSourceHash
-				.get(dbcpConnectionPoolName);
+		BasicDataSource basicDataSource = dbcpName2BasicDataSourceHash
+				.get(dbcpName);
 		if (null == basicDataSource) {
 			throw new DBCPDataSourceNotFoundException(new StringBuilder(
-					"dbcp connection pool[").append(dbcpConnectionPoolName)
+					"dbcp connection pool[").append(dbcpName)
 					.append("] not ready").toString());
 		}
 		
@@ -175,7 +172,7 @@ public final class DBCPManager {
 
 	protected void finalize() throws Throwable {
 		super.finalize();
-		Enumeration<BasicDataSource> basicDataSourceEnum = dbcpConnectionPoolName2BasicDataSourceHash
+		Enumeration<BasicDataSource> basicDataSourceEnum = dbcpName2BasicDataSourceHash
 				.elements();
 		while (basicDataSourceEnum.hasMoreElements()) {
 			BasicDataSource basicDataSource = basicDataSourceEnum.nextElement();

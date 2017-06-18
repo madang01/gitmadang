@@ -141,20 +141,26 @@ public class MainProjectEditorPanel extends JPanel {
 			Object[][] valuesOfDBCPPropertiesTableModel = new Object[dbcpItemIDInfoListSize][titlesOfPropertiesTableModel.length];
 
 			for (int i = 0; i < dbcpItemIDInfoListSize; i++) {
-				ItemIDInfo<?> itemIDInfo = dbcpItemIDInfoList.get(i);
-				String itemID = itemIDInfo.getItemID();
+				ItemIDInfo<?> dbcpPartItemIDInfo = dbcpItemIDInfoList.get(i);
+				String itemID = dbcpPartItemIDInfo.getItemID();
 				String itemKey = new StringBuilder(prefixOfItemID).append(itemID).toString();
 				String itemValue = sinnoriConfigSequencedProperties
 						.getProperty(itemKey);
+				
+				String itemDescriptionKey = dbcpPartItemIDInfo
+						.getItemDescKey(prefixOfItemID);
+				String itemDescriptionValue = dbcpPartItemIDInfo.getDescription();
 
-				ItemIDInfo.ViewType itemViewType = itemIDInfo.getViewType();
-				Set<String> itemSet = itemIDInfo.getItemSet();
+				ItemIDInfo.ViewType itemViewType = dbcpPartItemIDInfo.getViewType();
+				Set<String> itemSet = dbcpPartItemIDInfo.getItemSet();
 
 				ItemKeyLabel itemKeyLabel = new ItemKeyLabel(itemKey,
-						itemIDInfo.getDescription());
+						dbcpPartItemIDInfo.getDescription());
 				ItemValuePanel itemValuePanel = new ItemValuePanel(i, 
-						itemID, prefixOfItemID, itemKey,
-						itemValue, itemViewType, itemSet, mainFrame);
+						itemID, prefixOfItemID, 
+						itemKey, itemValue,
+						itemDescriptionKey, itemDescriptionValue,					
+						itemViewType, itemSet, mainFrame);
 
 				valuesOfDBCPPropertiesTableModel[i][0] = itemKeyLabel;
 				valuesOfDBCPPropertiesTableModel[i][1] = itemValuePanel;
@@ -177,21 +183,27 @@ public class MainProjectEditorPanel extends JPanel {
 
 			Object[][] valuesOfCommonPartPropertiesTableModel = new Object[commonPartConfigItemListSize][titlesOfPropertiesTableModel.length];
 
+			String prefixOfItemID = "";
 			for (int i = 0; i < commonPartConfigItemListSize; i++) {
-				ItemIDInfo<?> itemIDInfo = commonPartItemIDInfoList.get(i);
-				String itemID = itemIDInfo.getItemID();
+				ItemIDInfo<?> commonPartItemIDInfo = commonPartItemIDInfoList.get(i);
+				String itemID = commonPartItemIDInfo.getItemID();
 				String itemKey = itemID;
 				String itemValue = sinnoriConfigSequencedProperties
 						.getProperty(itemKey);
+				
+				String itemDescriptionKey = commonPartItemIDInfo
+						.getItemDescKey(prefixOfItemID);
+				String itemDescriptionValue = commonPartItemIDInfo.getDescription();
 
 				ItemKeyLabel itemKeyLabel = new ItemKeyLabel(itemKey,
-						itemIDInfo.getDescription());
+						commonPartItemIDInfo.getDescription());
 
-				ItemIDInfo.ViewType itemViewType = itemIDInfo.getViewType();
-				Set<String> itemSet = itemIDInfo.getItemSet();
+				ItemIDInfo.ViewType itemViewType = commonPartItemIDInfo.getViewType();
+				Set<String> itemSet = commonPartItemIDInfo.getItemSet();
 
 				ItemValuePanel itemValuePanel = new ItemValuePanel(i, 
-						itemID, "", itemKey,
+						itemID, prefixOfItemID, itemKey,
+						itemDescriptionKey, itemDescriptionValue,
 						itemValue, itemViewType, itemSet, mainFrame);
 
 				maxRowHeightOfCommonPartItemValuePanel = Math.max(
@@ -218,23 +230,29 @@ public class MainProjectEditorPanel extends JPanel {
 
 			Object[][] valuesOfMainProjectPartPropertiesTableModel = new Object[mainProjectPartItemIDInfoListSize][titlesOfPropertiesTableModel.length];
 
+			String prefixOfItemID = "mainproject.";
 			for (int i = 0; i < mainProjectPartItemIDInfoListSize; i++) {
-				ItemIDInfo<?> itemIDInfo = mainProjectPartItemIDInfoList.get(i);
-				String itemID = itemIDInfo.getItemID();
+				ItemIDInfo<?> mainProjectPartItemIDInfo = mainProjectPartItemIDInfoList.get(i);
+				String itemID = mainProjectPartItemIDInfo.getItemID();
 				String itemKey = new StringBuilder("mainproject.").append(
 						itemID).toString();
 				String itemValue = sinnoriConfigSequencedProperties
 						.getProperty(itemKey);
+				
+				String itemDescriptionKey = mainProjectPartItemIDInfo
+						.getItemDescKey(prefixOfItemID);
+				String itemDescriptionValue = mainProjectPartItemIDInfo.getDescription();
 
 				ItemKeyLabel itemKeyLabel = new ItemKeyLabel(itemKey,
-						itemIDInfo.getDescription());
+						mainProjectPartItemIDInfo.getDescription());
 
-				ItemIDInfo.ViewType itemViewType = itemIDInfo.getViewType();
-				Set<String> itemSet = itemIDInfo.getItemSet();
+				ItemIDInfo.ViewType itemViewType = mainProjectPartItemIDInfo.getViewType();
+				Set<String> itemSet = mainProjectPartItemIDInfo.getItemSet();
 
 				ItemValuePanel itemValuePanel = new ItemValuePanel(i, 
-						itemID, "mainproject.", itemKey,
-						itemValue, itemViewType, itemSet, mainFrame);
+						itemID, prefixOfItemID, itemKey, itemValue, 
+						itemDescriptionKey, itemDescriptionValue,
+						itemViewType, itemSet, mainFrame);
 
 				valuesOfMainProjectPartPropertiesTableModel[i][0] = itemKeyLabel;
 				valuesOfMainProjectPartPropertiesTableModel[i][1] = itemValuePanel;
@@ -257,21 +275,26 @@ public class MainProjectEditorPanel extends JPanel {
 			Object[][] valuesOfSubProjectPropertiesTableModel = new Object[subProjectPartItemIDInfoListSize][titlesOfPropertiesTableModel.length];
 
 			for (int i = 0; i < subProjectPartItemIDInfoListSize; i++) {
-				ItemIDInfo<?> itemIDInfo = subProjectPartItemIDInfoList.get(i);
-				String itemID = itemIDInfo.getItemID();
+				ItemIDInfo<?> subProjectPartItemIDInfo = subProjectPartItemIDInfoList.get(i);
+				String itemID = subProjectPartItemIDInfo.getItemID();
 				String itemKey = new StringBuilder(prefixOfItemID).append(itemID)
 						.toString();
 				String itemValue = sinnoriConfigSequencedProperties
 						.getProperty(itemKey);
+				
+				String itemDescriptionKey = subProjectPartItemIDInfo
+						.getItemDescKey(prefixOfItemID);
+				String itemDescriptionValue = subProjectPartItemIDInfo.getDescription();
 
-				ItemIDInfo.ViewType itemViewType = itemIDInfo.getViewType();
-				Set<String> itemSet = itemIDInfo.getItemSet();
+				ItemIDInfo.ViewType itemViewType = subProjectPartItemIDInfo.getViewType();
+				Set<String> itemSet = subProjectPartItemIDInfo.getItemSet();
 
 				ItemKeyLabel itemKeyLabel = new ItemKeyLabel(itemKey,
-						itemIDInfo.getDescription());
+						subProjectPartItemIDInfo.getDescription());
 				ItemValuePanel itemValuePanel = new ItemValuePanel(i, 
-						itemID, prefixOfItemID, itemKey,
-						itemValue, itemViewType, itemSet, mainFrame);
+						itemID, prefixOfItemID, itemKey, 	itemValue, 
+						itemDescriptionKey, itemDescriptionValue,
+						itemViewType, itemSet, mainFrame);
 
 				valuesOfSubProjectPropertiesTableModel[i][0] = itemKeyLabel;
 				valuesOfSubProjectPropertiesTableModel[i][1] = itemValuePanel;
@@ -417,8 +440,12 @@ public class MainProjectEditorPanel extends JPanel {
 				String prefixOfItemID = itemValuePanel.getPrefixOfItemID();
 				String itemKey = itemValuePanel.getItemKey();
 				String itemValue = itemValuePanel.getItemValue();
+				String itemDescriptionKey = itemValuePanel.getItemDescriptionKey();
+				String itemDescriptionValue = itemValuePanel.getItemDescriptionValue();
+				
 				int indexOfTableModel = itemValuePanel.getIndexOfTableModel();
 
+				this.put(itemDescriptionKey, itemDescriptionValue);
 				this.put(itemKey, itemValue);
 
 				boolean isInactive = sinnoriItemIDInfoManger.isInactive(
@@ -467,7 +494,10 @@ public class MainProjectEditorPanel extends JPanel {
 					String prefixOfItemID = itemValuePanel.getPrefixOfItemID();
 					String itemKey = itemValuePanel.getItemKey();
 					String itemValue = itemValuePanel.getItemValue();
+					String itemDescriptionKey = itemValuePanel.getItemDescriptionKey();
+					String itemDescriptionValue = itemValuePanel.getItemDescriptionValue();
 
+					this.put(itemDescriptionKey, itemDescriptionValue);
 					this.put(itemKey, itemValue);
 
 					boolean isInactive = sinnoriItemIDInfoManger.isInactive(
@@ -513,8 +543,12 @@ public class MainProjectEditorPanel extends JPanel {
 				String prefixOfItemID = itemValuePanel.getPrefixOfItemID();
 				String itemKey = itemValuePanel.getItemKey();
 				String itemValue = itemValuePanel.getItemValue();
-				int indexOfTableModel = itemValuePanel.getIndexOfTableModel();
+				String itemDescriptionKey = itemValuePanel.getItemDescriptionKey();
+				String itemDescriptionValue = itemValuePanel.getItemDescriptionValue();
+				
+				int indexOfTableModel = itemValuePanel.getIndexOfTableModel();				
 
+				this.put(itemDescriptionKey, itemDescriptionValue);				
 				this.put(itemKey, itemValue);
 
 				boolean isInactive = sinnoriItemIDInfoManger.isInactive(
@@ -709,12 +743,17 @@ public class MainProjectEditorPanel extends JPanel {
 		
 		Object[][] valuesOfSubProjectPropertiesTableModel = new Object[subProjectPartItemIDInfoListSize][titlesOfPropertiesTableModel.length];
 		for (int i = 0; i < subProjectPartItemIDInfoListSize; i++) {
-			ItemIDInfo<?> itemIDInfo = subProjectPartItemIDInfoList.get(i);
-			String itemID = itemIDInfo.getItemID();
+			ItemIDInfo<?> subProjectPartItemIDInfo = subProjectPartItemIDInfoList.get(i);
+			String itemID = subProjectPartItemIDInfo.getItemID();
 			String itemKey = new StringBuilder("subproject.")
 					.append(newSubProjectName).append(".").append(itemID)
 					.toString();
-			String itemValue = itemIDInfo.getDefaultValue();
+			String itemValue = subProjectPartItemIDInfo.getDefaultValue();
+			
+			String itemDescriptionKey = subProjectPartItemIDInfo
+					.getItemDescKey(prefixOfItemID);
+			String itemDescriptionValue = subProjectPartItemIDInfo.getDescription();
+			
 			AbstractFileOrPathStringGetter fileOrPathStringGetter = sinnoriItemIDInfoManger
 					.getFileOrPathStringGetter(itemID);
 			if (null != fileOrPathStringGetter) {
@@ -722,14 +761,15 @@ public class MainProjectEditorPanel extends JPanel {
 						.getFileOrPathStringDependingOnSinnoriInstalledPath(
 								mainProjectName, sinnoriInstalledPathString);
 			}
-			ItemIDInfo.ViewType itemViewType = itemIDInfo.getViewType();
-			Set<String> itemSet = itemIDInfo.getItemSet();
+			ItemIDInfo.ViewType itemViewType = subProjectPartItemIDInfo.getViewType();
+			Set<String> itemSet = subProjectPartItemIDInfo.getItemSet();
 
 			ItemKeyLabel itemKeyLabel = new ItemKeyLabel(itemKey,
-					itemIDInfo.getDescription());
+					subProjectPartItemIDInfo.getDescription());
 			ItemValuePanel itemValuePanel = new ItemValuePanel(i, 
-					itemID, prefixOfItemID, itemKey,
-					itemValue, itemViewType, itemSet, mainFrame);
+					itemID, prefixOfItemID, itemKey, itemValue, 
+					itemDescriptionKey, itemDescriptionValue,
+					itemViewType, itemSet, mainFrame);
 
 			valuesOfSubProjectPropertiesTableModel[i][0] = itemKeyLabel;
 			valuesOfSubProjectPropertiesTableModel[i][1] = itemValuePanel;
@@ -875,11 +915,16 @@ public class MainProjectEditorPanel extends JPanel {
 		Object[][] valuesOfDBCPPropertiesTableModel = new Object[dbcpItemIDInfoListSize][titlesOfPropertiesTableModel.length];
 
 		for (int i = 0; i < dbcpItemIDInfoListSize; i++) {
-			ItemIDInfo<?> itemIDInfo = dbcpItemIDInfoList.get(i);
-			String itemID = itemIDInfo.getItemID();
+			ItemIDInfo<?> dbcpPartItemIDInfo = dbcpItemIDInfoList.get(i);
+			String itemID = dbcpPartItemIDInfo.getItemID();
 			String itemKey = new StringBuilder("dbcp.").append(newDBCPName)
 					.append(".").append(itemID).toString();
-			String itemValue = itemIDInfo.getDefaultValue();
+			String itemValue = dbcpPartItemIDInfo.getDefaultValue();
+			
+			String itemDescriptionKey = dbcpPartItemIDInfo
+					.getItemDescKey(prefixOfItemID);
+			String itemDescriptionValue = dbcpPartItemIDInfo.getDescription();
+			
 			AbstractFileOrPathStringGetter fileOrPathStringGetter = sinnoriItemIDInfoManger
 					.getFileOrPathStringGetter(itemID);
 			if (null != fileOrPathStringGetter) {
@@ -888,14 +933,15 @@ public class MainProjectEditorPanel extends JPanel {
 								mainProjectName, sinnoriInstalledPathString,
 								newDBCPName);
 			}
-			ItemIDInfo.ViewType itemViewType = itemIDInfo.getViewType();
-			Set<String> itemSet = itemIDInfo.getItemSet();
+			ItemIDInfo.ViewType itemViewType = dbcpPartItemIDInfo.getViewType();
+			Set<String> itemSet = dbcpPartItemIDInfo.getItemSet();
 
 			ItemKeyLabel itemKeyLabel = new ItemKeyLabel(itemKey,
-					itemIDInfo.getDescription());
+					dbcpPartItemIDInfo.getDescription());
 			ItemValuePanel itemValuePanel = new ItemValuePanel(i, 
-					itemID, prefixOfItemID, itemKey,
-					itemValue, itemViewType, itemSet, mainFrame);
+					itemID, prefixOfItemID, itemKey, itemValue, 
+					itemDescriptionKey, itemDescriptionValue,
+					itemViewType, itemSet, mainFrame);
 
 			valuesOfDBCPPropertiesTableModel[i][0] = itemKeyLabel;
 			valuesOfDBCPPropertiesTableModel[i][1] = itemValuePanel;

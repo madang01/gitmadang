@@ -1,6 +1,9 @@
 package kr.pe.sinnori.common.config.itemidinfo;
 
 public abstract class ItemIDDefiner {
+	
+	
+	
 	public abstract class DBCPPartItemIDDefiner {
 		public static final String DBCP_CONFIGE_FILE_ITEMID = "dbcp_confige_file.value";
 	}	

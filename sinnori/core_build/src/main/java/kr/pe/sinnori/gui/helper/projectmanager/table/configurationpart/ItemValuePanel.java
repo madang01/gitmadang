@@ -29,12 +29,17 @@ public class ItemValuePanel extends JPanel {
 	private String itemID;
 	private String prefixOfItemID;
 	private String itemKey;
+	
+	private String itemDescriptionKey = null;
+	private String itemDescriptionValue = null;
+	
 	private ItemIDInfo.ViewType itemViewType = null;
 	private Set<String> itemSet = null;
 	private Frame mainFrame = null;
 	
 	private JComboBox<String> valueComboBox = null;
 	private JTextField valueTextField = null;
+	
 	private JButton pathButton = null;
 	private boolean isSelected = false;
 	
@@ -42,12 +47,16 @@ public class ItemValuePanel extends JPanel {
 			String prefixOfItemID,
 			String itemKey, 
 			String itemValue, 
+			String itemDescriptionKey,
+			String itemDescriptionValue,
 			ItemIDInfo.ViewType itemViewType, 
 			Set<String> itemSet, Frame mainFrame) {
 		this.indexOfTableModel = indexOfTableModel;
 		this.itemID = itemID;
 		this.prefixOfItemID = prefixOfItemID;
 		this.itemKey = itemKey;
+		this.itemDescriptionKey = itemDescriptionKey;
+		this.itemDescriptionValue = itemDescriptionValue;
 		this.itemSet = itemSet;
 		this.mainFrame = mainFrame;
 		this.itemViewType = itemViewType;
@@ -119,6 +128,7 @@ public class ItemValuePanel extends JPanel {
 			valueTextField.setText(itemValue);
 			add(valueTextField);
 		}
+		
 	}
 	
 	private void showMessageDialog(String message) {
@@ -193,5 +203,13 @@ public class ItemValuePanel extends JPanel {
 		} else {
 			return valueTextField.getText();
 		}		
+	}
+
+	public String getItemDescriptionKey() {
+		return itemDescriptionKey;
+	}
+
+	public String getItemDescriptionValue() {
+		return itemDescriptionValue;
 	}
 }

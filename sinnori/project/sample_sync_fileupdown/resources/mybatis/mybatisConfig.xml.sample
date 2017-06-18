@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration SYSTEM "D:\gitsinnori\sinnori\resouces\mybatis\mybatis-3-config.dtd">
+<configuration>
+	<environments default="sample_base_db">
+		<environment id="sample_base_db">
+			<transactionManager type="JDBC" />
+			<dataSource type="kr.pe.sinnori.server.mysql.SampleBaseDBDataSourceFactory"></dataSource>
+		</environment>
+	</environments>
+	<mappers>
+		<mapper resource="mybatis/sinnoriWebMapper.xml" />
+	</mappers>
+</configuration>

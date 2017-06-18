@@ -75,30 +75,8 @@ public abstract class SequencedPropertiesUtil {
 			throw new IOException(errorMessage);
 		}
 
-		FileOutputStream fos = null;
-		OutputStreamWriter osw = null;
-		try {
-			fos = new FileOutputStream(sourcePropertiesFile);
-			osw = new OutputStreamWriter(fos, sourcePropertiesFileCharset);
-			sourceProperties.store(osw, sourcePropertiesTitle);
-		} finally {
-			if (osw != null) {
-				try {
-					osw.close();
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
-			}
-			
-			if (fos != null) {
-				try {
-					fos.close();
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
-			}
-
-		}
+		doSaveSequencedPropertiesFile(sourceProperties, sourcePropertiesTitle, sourcePropertiesFileCharset,
+				sourcePropertiesFile);
 	}
 	
 	public static void overwriteSequencedPropertiesFile(
@@ -124,6 +102,13 @@ public abstract class SequencedPropertiesUtil {
 			throw new IOException(errorMessage);
 		}
 
+		doSaveSequencedPropertiesFile(sourceProperties, sourcePropertiesTitle, sourcePropertiesFileCharset,
+				sourcePropertiesFile);
+	}
+
+	private static void doSaveSequencedPropertiesFile(SequencedProperties sourceProperties,
+			String sourcePropertiesTitle, Charset sourcePropertiesFileCharset, File sourcePropertiesFile)
+			throws FileNotFoundException, IOException {
 		FileOutputStream fos = null;
 		OutputStreamWriter osw = null;
 		try {
@@ -150,7 +135,8 @@ public abstract class SequencedPropertiesUtil {
 		}
 	}
 	
-	public static void savePreparedRegularFile(
+	
+	/*public static void savePreparedRegularFile(
 			SequencedProperties sourceProperties, String sourcePropertiesTitle,
 			String sourcePropertiesFilePathString,
 			Charset sourcePropertiesFileCharset) throws FileNotFoundException,  IOException {
@@ -196,5 +182,5 @@ public abstract class SequencedPropertiesUtil {
 			}
 
 		}
-	}
+	}*/
 }
