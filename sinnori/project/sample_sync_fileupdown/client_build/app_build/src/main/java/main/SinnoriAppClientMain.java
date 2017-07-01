@@ -20,7 +20,6 @@ import kr.pe.sinnori.common.sessionkey.ClientSessionKeyManager;
 import kr.pe.sinnori.impl.message.Echo.Echo;
 
 
-
 public class SinnoriAppClientMain {
 
 	public static void main(String[] args) {
