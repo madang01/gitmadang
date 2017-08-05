@@ -18,11 +18,11 @@ import kr.pe.sinnori.common.config.fileorpathstringgetter.AbstractFileOrPathStri
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDDefiner;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.config.itemidinfo.SinnoriItemIDInfoManger;
-import kr.pe.sinnori.common.config.vo.AllDBCPPartConfiguration;
-import kr.pe.sinnori.common.config.vo.AllSubProjectPartConfiguration;
-import kr.pe.sinnori.common.config.vo.CommonPartConfiguration;
-import kr.pe.sinnori.common.config.vo.DBCPParConfiguration;
-import kr.pe.sinnori.common.config.vo.ProjectPartConfiguration;
+import kr.pe.sinnori.common.config.itemvalue.AllDBCPPartConfiguration;
+import kr.pe.sinnori.common.config.itemvalue.AllSubProjectPartConfiguration;
+import kr.pe.sinnori.common.config.itemvalue.CommonPartConfiguration;
+import kr.pe.sinnori.common.config.itemvalue.DBCPParConfiguration;
+import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
@@ -497,8 +497,34 @@ public class SinnoriConfiguration {
 		}
 	}
 
-	
-	public void changeServerAddress(String newServerHost, int newServerPort) throws IOException {
+	/**
+	 * 만약 서버 주소가 다르다면 새로운 서버 주소로 교체후 저장한다.   
+	 * @param newServerHost 새로운 서버 호스트 주소
+	 * @param newServerPort 새로운 서버 포트
+	 * @throws IOException 저장시 에러 발생시 던지는 예외
+	 */
+	public void changeServerAddressIfDifferent(String newServerHost, int newServerPort) throws IOException {
+		if (null == newServerHost) {
+			throw new IllegalArgumentException("the parameter newServerHost is null");
+		}		
+		
+		if (newServerHost.equals("")) {
+			throw new IllegalArgumentException("the parameter newServerHost is a empty string");
+		}
+		
+		if (CommonStaticUtil.hasLeadingOrTailingWhiteSpace(newServerHost)) {
+			throw new IllegalArgumentException("the parameter newServerHost has any leading or tailing white space");
+		}
+		
+		String oldSeverHost = mainProjectPartConfiguration.getServerHost();
+		int oldServerPort = mainProjectPartConfiguration.getServerPort();
+		
+		if (newServerHost.equals(oldSeverHost) && newServerPort == oldServerPort) {
+			return;
+		}
+		
+		mainProjectPartConfiguration.changeServerAddress(newServerHost, newServerPort);
+		
 		String serverHostKey = new StringBuilder("mainproject.").append(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_HOST_ITEMID).toString();
 		sinnoriConfigSequencedProperties.setProperty(
 				serverHostKey, newServerHost);
@@ -506,8 +532,6 @@ public class SinnoriConfiguration {
 		String serverPortKey = new StringBuilder("mainproject.").append(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_PORT_ITEMID).toString();
 		sinnoriConfigSequencedProperties.setProperty(
 				serverPortKey, String.valueOf(newServerPort));
-		
-		mainProjectPartConfiguration.changeServerAddress(newServerHost, newServerPort);
 		
 		overwriteFile();
 	}

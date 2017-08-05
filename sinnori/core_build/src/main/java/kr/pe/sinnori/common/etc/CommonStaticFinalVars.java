@@ -75,7 +75,7 @@ public abstract class CommonStaticFinalVars {
 
 	public static final Charset SINNORI_SOURCE_FILE_CHARSET = Charset.forName("UTF-8");
 	
-	public static final Charset SINNORI_PASSWORD_CHARSET = Charset.forName("UTF-8");
+	public static final Charset SINNORI_CIPHER_CHARSET = Charset.forName("UTF-8");
 	public static final String SINNORI_PASSWORD_ALGORITHM_NAME = "SHA-512";
 	
 	

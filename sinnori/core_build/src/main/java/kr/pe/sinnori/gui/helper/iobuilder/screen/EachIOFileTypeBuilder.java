@@ -35,7 +35,7 @@ import kr.pe.sinnori.common.message.builder.IOFileSetContentsBuilderManager;
 import kr.pe.sinnori.common.message.builder.info.MessageInfo;
 import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
-import kr.pe.sinnori.gui.helper.ScreenManagerIF;
+import kr.pe.sinnori.gui.helper.lib.ScreenManagerIF;
 
 /**
  * @author Jonghoon Won

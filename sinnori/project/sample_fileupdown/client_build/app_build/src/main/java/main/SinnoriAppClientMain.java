@@ -22,7 +22,6 @@ import kr.pe.sinnori.util.SinnoriClientWorker;
 public class SinnoriAppClientMain {
 	// private Logger log = LoggerFactory.getLogger(SinnoriAppClientMain.class);
 	
-	
 	public static void main(String[] args) {
 		
 

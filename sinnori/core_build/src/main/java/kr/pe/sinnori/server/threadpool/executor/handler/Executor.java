@@ -115,7 +115,7 @@ public class Executor extends Thread {
 					selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
 					selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
 					
-					selfExnOutObj.setErrorWhere("S");
+					selfExnOutObj.setErrorPlace("S");
 					selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
 					selfExnOutObj.setErrorMessageID(messageID);
 					selfExnOutObj.setErrorMessage(errorMessage);
@@ -139,7 +139,7 @@ public class Executor extends Thread {
 					selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
 					selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
 					// selfExnOutObj.setError("S", messageID, new DynamicClassCallException("알수 없는 에러 발생::"+e.getMessage()));
-					selfExnOutObj.setErrorWhere("S");
+					selfExnOutObj.setErrorPlace("S");
 					selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
 					selfExnOutObj.setErrorMessageID(messageID);
 					selfExnOutObj.setErrorMessage(errorMessage);
@@ -163,7 +163,7 @@ public class Executor extends Thread {
 					selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
 					selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
 					// selfExnOutObj.setError("S", messageID, new DynamicClassCallException("알수 없는 에러 발생::"+e.getMessage()));
-					selfExnOutObj.setErrorWhere("S");
+					selfExnOutObj.setErrorPlace("S");
 					selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
 					selfExnOutObj.setErrorMessageID(messageID);
 					selfExnOutObj.setErrorMessage(errorMessage);

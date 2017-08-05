@@ -18,8 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.vo.AllDBCPPartConfiguration;
-import kr.pe.sinnori.common.config.vo.DBCPParConfiguration;
+import kr.pe.sinnori.common.config.itemvalue.AllDBCPPartConfiguration;
+import kr.pe.sinnori.common.config.itemvalue.DBCPParConfiguration;
 import kr.pe.sinnori.common.exception.DBCPDataSourceNotFoundException;
 
 /**

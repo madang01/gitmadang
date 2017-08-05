@@ -19,14 +19,14 @@ public class PublicKeyReqServerTask extends AbstractServerTask {
 	}
 	
 	private void doWork(String projectName,
-			LetterSender letterSender, PublicKeyReq echoInObj)
-			throws Exception {		
+			LetterSender letterSender, PublicKeyReq publicKeyReq)
+			throws Exception {
 
-		PublicKeyRes echoOutObj = new PublicKeyRes();
+		PublicKeyRes publicKeyRes = new PublicKeyRes();
 
 		byte[] publicKeyBytes = ServerSessionkeyManager.getInstance().getMainProjectServerSessionkey().getDupPublicKeyBytes();
-		echoOutObj.setPublicKeyBytes(publicKeyBytes);
+		publicKeyRes.setPublicKeyBytes(publicKeyBytes);
 		
-		letterSender.addSyncMessage(echoOutObj);
+		letterSender.addSyncMessage(publicKeyRes);
 	}	
 }

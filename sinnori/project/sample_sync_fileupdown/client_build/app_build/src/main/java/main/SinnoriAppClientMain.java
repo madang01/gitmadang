@@ -1,29 +1,21 @@
 package main;
 
-import java.net.SocketTimeoutException;
+import javax.swing.JFrame;
+import javax.swing.ToolTipManager;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import kr.pe.sinnori.applib.sessionkey.RSAPublickeyGetterBuilder;
-import kr.pe.sinnori.client.AnyProjectClient;
-import kr.pe.sinnori.client.MainClientManager;
-import kr.pe.sinnori.common.exception.BodyFormatException;
-import kr.pe.sinnori.common.exception.DynamicClassCallException;
-import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.exception.NotLoginException;
-import kr.pe.sinnori.common.exception.ServerNotReadyException;
-import kr.pe.sinnori.common.exception.ServerTaskException;
-import kr.pe.sinnori.common.exception.SymmetricException;
-import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.sessionkey.ClientSessionKeyManager;
-import kr.pe.sinnori.impl.message.Echo.Echo;
+import kr.pe.sinnori.gui.syncfileupdown.screen.SyncFileUpDownMainWindow;
 
 
 public class SinnoriAppClientMain {
 
 	public static void main(String[] args) {
-		Logger log = LoggerFactory.getLogger("kr.pe.sinnori");
+		ToolTipManager.sharedInstance().setDismissDelay(10000);
+		
+		SyncFileUpDownMainWindow mainWindow = new SyncFileUpDownMainWindow();
+		mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		mainWindow.setVisible(true);
+		
+		/*Logger log = LoggerFactory.getLogger("kr.pe.sinnori");
 		
 		log.info("start");
 		
@@ -77,6 +69,6 @@ public class SinnoriAppClientMain {
 			log.warn("NotLoginException", e);
 		}
 		
-		System.exit(1);
+		System.exit(1);*/
 	}
 }

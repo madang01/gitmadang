@@ -21,6 +21,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.client.ClientOutputMessageQueueQueueMangerIF;
@@ -29,6 +30,7 @@ import kr.pe.sinnori.client.connection.AbstractConnectionPool;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.AsynServerAdderIF;
 import kr.pe.sinnori.client.io.LetterToServer;
 import kr.pe.sinnori.common.exception.BodyFormatException;
+import kr.pe.sinnori.common.exception.ConnectionTimeoutException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
@@ -55,7 +57,8 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 	private LinkedBlockingQueue<NoShareAsynConnection> connectionQueue = null;
 	private ArrayList<NoShareAsynConnection> connectionList = new ArrayList<NoShareAsynConnection>();
 	private int connectionPoolSize;
-	private boolean isFailToGetConnection = false;
+	private long connectionTimeout;
+	
 
 	
 	/**
@@ -81,7 +84,7 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 			String hostOfProject,
 			int portOfProject,
 			Charset charsetOfProject,
-			int connectionPoolSize, 			
+			int connectionPoolSize, long connectionTimeout,			
 			long socketTimeOut,
 			boolean whetherToAutoConnect,
 			int finishConnectMaxCall,
@@ -97,6 +100,7 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 		super(asynOutputMessageQueue);
 		
 		this.connectionPoolSize = connectionPoolSize;
+		this.connectionTimeout = connectionTimeout;
 		
 		connectionQueue = new LinkedBlockingQueue<NoShareAsynConnection>(
 				connectionPoolSize);
@@ -135,71 +139,78 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
 			throws ServerNotReadyException, SocketTimeoutException,
 			NoMoreDataPacketBufferException, BodyFormatException, 
-			DynamicClassCallException, ServerTaskException, NotLoginException {
+			DynamicClassCallException, ServerTaskException, NotLoginException, ConnectionTimeoutException, InterruptedException {
 		NoShareAsynConnection conn = null;
 
-		/** 쓰레드 간에 공유를 막기 위해 queueOut 사용*/
-		try {
-			conn = connectionQueue.poll();
-			if (null == conn) {
-				if (!isFailToGetConnection) {
-					isFailToGetConnection = true;
-					log.warn("WARNING::connection queue empty");
-				}
-				conn = connectionQueue.take();
-			}
-			
-			conn.queueOut();
-		} catch (InterruptedException e) {
-			try {
-				conn = connectionQueue.take();
-				conn.queueOut();
-			} catch (InterruptedException e1) {
-				log.error("인터럽트 받아 후속 처리중 발생", e1);
-				System.exit(1);
-			}
-		}
+		/** 쓰레드 간에 공유를 막기 위해 queueOut 사용*/		
+		conn = connectionQueue.poll(connectionTimeout, TimeUnit.MICROSECONDS);		
 
+		if (null == conn) {
+			throw new ConnectionTimeoutException("no share synchronized connection pool timeout");
+		}
+		
+		conn.queueOut();
+		
 		AbstractMessage outObj = null;
 		try {
 			outObj = conn.sendSyncInputMessage(inputMessage);
 		} finally {
 			conn.queueIn();
-			connectionQueue.offer(conn);
+			boolean isSuccess = connectionQueue.offer(conn);
+			if (!isSuccess) {
+				log.error("fail to offer connection[{}] to connection queue becase of bug, you need to check and fix bug", conn.hashCode());
+				System.exit(1);
+			}
 		}
 
 		return outObj;
 	}	
 	
 	@Override
-	public AbstractConnection getConnection() throws InterruptedException, NotSupportedException {
-		NoShareAsynConnection conn = connectionQueue.poll();
-		if (null == conn) {
-			if (!isFailToGetConnection) {
-				isFailToGetConnection = true;
-				log.warn("WARNING::connection queue empty");
-			}
-			conn = connectionQueue.take();
-		}
+	public AbstractConnection getConnection() throws InterruptedException, NotSupportedException, ConnectionTimeoutException {
 		
 		synchronized (monitor) {
+			NoShareAsynConnection conn = connectionQueue.poll(connectionTimeout, TimeUnit.MILLISECONDS);
+			if (null == conn) {
+				throw new ConnectionTimeoutException("no share synchronized connection pool timeout");
+			}
 			conn.queueOut();
 			return conn;
 		}
 	}
 	
 	@Override
-	public void freeConnection(AbstractConnection conn) throws NotSupportedException {
-		if (null == conn) return;
+	public void release(AbstractConnection conn) throws NotSupportedException {
+		if (null == conn) {
+			String errorMessage = "the parameter conn is null";
+			log.warn(errorMessage, new Throwable());
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (! (conn instanceof NoShareAsynConnection)) {
+			String errorMessage = "the parameter conn is not instace of NoShareAsynConnection class";
+			log.warn(errorMessage, new Throwable());
+			throw new IllegalArgumentException(errorMessage);
+		}
 
 		NoShareAsynConnection serverConnection = (NoShareAsynConnection)conn;
 		
 		synchronized (monitor) {
-			if (serverConnection.isInQueue()) return;
+			/**
+			 * 연속 2회 큐 입력 방지
+			 */
+			if (serverConnection.isInQueue()) {
+				String errorMessage = String.format("the paramter conn[%d] allready was in connection queue", conn.hashCode());
+				log.warn(errorMessage, new Throwable());
+				return;
+			}
 			serverConnection.queueIn();
+			boolean isSuccess = connectionQueue.offer(serverConnection);
+			if (!isSuccess) {
+				log.error("fail to offer NoShareAsynConnection[{}] to connection queue becase of bug, you need to check and fix bug", conn.hashCode());
+				System.exit(1);
+			}
 		}
-		
-		connectionQueue.offer(serverConnection);
 	}
 
 	@Override

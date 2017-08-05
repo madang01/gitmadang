@@ -33,9 +33,10 @@ import kr.pe.sinnori.client.connection.sync.noshare.NoShareSyncConnectionPool;
 import kr.pe.sinnori.client.io.ClientOutputMessageQueueWrapper;
 import kr.pe.sinnori.client.io.LetterToServer;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.vo.ProjectPartConfiguration;
+import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonType.CONNECTION_TYPE;
 import kr.pe.sinnori.common.exception.BodyFormatException;
+import kr.pe.sinnori.common.exception.ConnectionTimeoutException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
@@ -114,8 +115,10 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 			NoMoreOutputMessageQueueException, InterruptedException {
 		super(projectPartConfiguration);
 
+		
 		int connectionCount = projectPartConfiguration.getClientConnectionCount();
 		long socketTimeOut = projectPartConfiguration.getClientSocketTimeout();
+		long connectionTimeout = projectPartConfiguration.getClientConnectionTimeout();
 		boolean whetherToAutoConnect = projectPartConfiguration
 				.getClientWhetherAutoConnection();
 		CONNECTION_TYPE connectionType = projectPartConfiguration.getConnectionType();
@@ -125,7 +128,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 				.getClientMonitorReceptionTimeout();
 		int inputMessageQueueSize = projectPartConfiguration
 				.getClientAsynInputMessageQueueSize();
-		int OutputMessageQueueSize = projectPartConfiguration
+		int outputMessageQueueSize = projectPartConfiguration
 				.getClientAsynOutputMessageQueueSize();
 		int finishConnectMaxCall = projectPartConfiguration
 				.getClientAsynFinishConnectMaxCall();
@@ -147,12 +150,12 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 
 		if (CONNECTION_TYPE.NoShareSync == connectionType) {
 			connectionPool = new NoShareSyncConnectionPool(projectName, hostOfProject,
-					portOfProject, charsetOfProject, connectionCount,
+					portOfProject, charsetOfProject, connectionCount, connectionTimeout, 
 					socketTimeOut, whetherToAutoConnect,
 					messageProtocol, this, this);
 		} else {
 			asynOutputMessageQueue = new LinkedBlockingQueue<ReceivedLetter>(
-					OutputMessageQueueSize);
+					outputMessageQueueSize);
 
 			inputMessageQueue = new LinkedBlockingQueue<LetterToServer>(
 					inputMessageQueueSize);
@@ -182,7 +185,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 				for (int i = 0; i < connectionCount; i++) {
 					for (int j = 0; j < mailBoxCnt; j++) {
 						LinkedBlockingQueue<ReceivedLetter> outputMessageQueue = new LinkedBlockingQueue<ReceivedLetter>(
-								OutputMessageQueueSize);
+								outputMessageQueueSize);
 						ClientOutputMessageQueueWrapper wrapOutputMessageQeuue = new ClientOutputMessageQueueWrapper(
 								outputMessageQueue);
 						syncOutputMessageQueueQueue.add(wrapOutputMessageQeuue);
@@ -191,7 +194,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 
 				connectionPool = new ShareAsynConnectionPool(projectName, hostOfProject,
 						portOfProject, charsetOfProject,
-						connectionCount,
+						connectionCount, connectionTimeout,
 						socketTimeOut, whetherToAutoConnect,
 						finishConnectMaxCall, finishConnectWaittingTime,
 						mailBoxCnt, projectPartConfiguration, asynOutputMessageQueue,
@@ -202,14 +205,14 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 						connectionCount);
 				for (int i = 0; i < connectionCount; i++) {
 					LinkedBlockingQueue<ReceivedLetter> outputMessageQueue = new LinkedBlockingQueue<ReceivedLetter>(
-							OutputMessageQueueSize);
+							outputMessageQueueSize);
 					ClientOutputMessageQueueWrapper wrapOutputMessageQeuue = new ClientOutputMessageQueueWrapper(
 							outputMessageQueue);
 					syncOutputMessageQueueQueue.add(wrapOutputMessageQeuue);
 				}
 
 				connectionPool = new NoShareAsynConnectionPool(projectName, hostOfProject,
-						portOfProject, charsetOfProject, connectionCount,
+						portOfProject, charsetOfProject, connectionCount, connectionTimeout, 
 						socketTimeOut, whetherToAutoConnect,
 						finishConnectMaxCall, finishConnectWaittingTime,
 						asynOutputMessageQueue, inputMessageQueue,
@@ -237,21 +240,20 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
 			throws SocketTimeoutException, ServerNotReadyException,
 			NoMoreDataPacketBufferException, BodyFormatException,
-			DynamicClassCallException, ServerTaskException, NotLoginException {
+			DynamicClassCallException, ServerTaskException, NotLoginException, ConnectionTimeoutException, InterruptedException {
 		return connectionPool.sendSyncInputMessage(inputMessage);
 	}
 
 	@Override
 	public AbstractConnection getConnection() throws InterruptedException,
-			NotSupportedException {
+			NotSupportedException, ConnectionTimeoutException {
 		return connectionPool.getConnection();
 	}
 
 	@Override
-	public void freeConnection(AbstractConnection conn)
+	public void releaseConnection(AbstractConnection conn)
 			throws NotSupportedException {
-		connectionPool.freeConnection(conn);
-		;
+		connectionPool.release(conn);
 	}
 
 	/**
@@ -539,7 +541,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 		}
 	}
 
-	// FIXME!
+	// FIXME! 무엇을 모니터 할것인가? 검토하여 전체적인 보강 필요
 	private class ClientProjectMonitor extends Thread {
 		private long monitorInterval;
 		private long requestTimeout;
@@ -687,7 +689,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 		}
 		
 		try {
-			SinnoriConfigurationManager.getInstance().getSinnoriRunningProjectConfiguration().changeServerAddress(newServerHost, newServerPort);
+			SinnoriConfigurationManager.getInstance().getSinnoriRunningProjectConfiguration().changeServerAddressIfDifferent(newServerHost, newServerPort);
 		} catch (IOException e) {
 			log.warn("It failed to save new server address to the Sinnori config file and Ignore this exception for quiet processing", e);
 		}

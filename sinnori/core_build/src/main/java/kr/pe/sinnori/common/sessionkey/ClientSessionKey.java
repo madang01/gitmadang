@@ -1,12 +1,12 @@
 package kr.pe.sinnori.common.sessionkey;
 
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Random;
 
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.vo.CommonPartConfiguration;
+import kr.pe.sinnori.common.config.itemvalue.CommonPartConfiguration;
 import kr.pe.sinnori.common.exception.SymmetricException;
 
 public class ClientSessionKey implements ClientSessionKeyIF {
@@ -28,7 +28,7 @@ public class ClientSessionKey implements ClientSessionKeyIF {
 		
 		// this.clientSymmetricKey = clientSymmetricKey;
 		ivBytes = new byte[symmetricIVSize];
-		Random random = new Random();
+		SecureRandom random = new SecureRandom();
 		random.setSeed(new Date().getTime());
 		random.nextBytes(ivBytes);
 		

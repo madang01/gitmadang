@@ -24,7 +24,7 @@ public final class ClientSessionKeyManager {
 		
 	}
 
-	public synchronized ClientSessionKeyIF getMainProjectClientSessionKey(AbstractRSAPublickeyGetter clientRSAPublickeyGetter) throws SymmetricException {
+	public synchronized ClientSessionKeyIF getMainProjectClientSessionKey(AbstractRSAPublickeyGetter clientRSAPublickeyGetter) throws SymmetricException, InterruptedException {
 		if (null == mainClientSessionKey) {
 			
 			byte[] publicKeyBytes = clientRSAPublickeyGetter.getMainProjectPublickeyBytes();

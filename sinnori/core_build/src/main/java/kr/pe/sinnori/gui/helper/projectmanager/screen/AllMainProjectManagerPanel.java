@@ -37,7 +37,7 @@ import kr.pe.sinnori.common.buildsystem.MainProjectBuildSystemState;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.BuildSystemException;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
-import kr.pe.sinnori.gui.helper.ScreenManagerIF;
+import kr.pe.sinnori.gui.helper.lib.ScreenManagerIF;
 
 /**
  * @author Jonghoon Won

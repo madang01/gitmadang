@@ -4,11 +4,11 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 
-import kr.pe.sinnori.common.config.vo.AllDBCPPartConfiguration;
-import kr.pe.sinnori.common.config.vo.AllSubProjectPartConfiguration;
-import kr.pe.sinnori.common.config.vo.CommonPartConfiguration;
-import kr.pe.sinnori.common.config.vo.DBCPParConfiguration;
-import kr.pe.sinnori.common.config.vo.ProjectPartConfiguration;
+import kr.pe.sinnori.common.config.itemvalue.AllDBCPPartConfiguration;
+import kr.pe.sinnori.common.config.itemvalue.AllSubProjectPartConfiguration;
+import kr.pe.sinnori.common.config.itemvalue.CommonPartConfiguration;
+import kr.pe.sinnori.common.config.itemvalue.DBCPParConfiguration;
+import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.etc.SinnoriLogbackManger;

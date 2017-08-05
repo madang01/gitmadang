@@ -59,7 +59,7 @@ public final class SelfExnEncoder extends AbstractMessageEncoder {
 		singleItemEncoder.putValueToMiddleWriteObj(selfExn.getMessageID(), "errorWhere" 
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
-					, selfExn.getErrorWhere() // itemValue 
+					, selfExn.getErrorPlace() // itemValue 
 					, -1 // itemSizeForLang 
 					, null // itemCharsetForLang, 
 					, charsetOfProject
@@ -68,7 +68,7 @@ public final class SelfExnEncoder extends AbstractMessageEncoder {
 		singleItemEncoder.putValueToMiddleWriteObj(selfExn.getMessageID(), "errorGubun" 
 				, 7 // itemTypeID
 				, "ub pascal string" // itemTypeName
-				, selfExn.getErrorWhere() // itemValue 
+				, selfExn.getErrorPlace() // itemValue 
 				, -1 // itemSizeForLang 
 				, null // itemCharsetForLang, 
 				, charsetOfProject

@@ -27,7 +27,7 @@ import com.jgoodies.forms.layout.FormLayout;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.etc.CommonType.READ_WRITE_MODE;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
-import kr.pe.sinnori.gui.helper.ScreenManagerIF;
+import kr.pe.sinnori.gui.helper.lib.ScreenManagerIF;
 import kr.pe.sinnori.gui.util.PathSwingAction;
 
 /**

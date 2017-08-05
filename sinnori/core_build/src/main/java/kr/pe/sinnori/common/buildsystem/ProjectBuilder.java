@@ -14,9 +14,9 @@ import org.xml.sax.SAXException;
 
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.itemidinfo.SinnoriItemIDInfoManger;
-import kr.pe.sinnori.common.config.vo.AllDBCPPartConfiguration;
-import kr.pe.sinnori.common.config.vo.AllSubProjectPartConfiguration;
-import kr.pe.sinnori.common.config.vo.ProjectPartConfiguration;
+import kr.pe.sinnori.common.config.itemvalue.AllDBCPPartConfiguration;
+import kr.pe.sinnori.common.config.itemvalue.AllSubProjectPartConfiguration;
+import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;

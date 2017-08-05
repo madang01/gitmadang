@@ -26,9 +26,13 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BodyFormatException;
+import kr.pe.sinnori.common.exception.MailboxTimeoutException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotLoginException;
@@ -44,9 +48,7 @@ import kr.pe.sinnori.common.project.DataPacketBufferQueueManagerIF;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
 
 /**
  * 클라이언트 연결 클래스의 부모 추상화 클래스<br/>
@@ -366,11 +368,13 @@ public abstract class AbstractConnection {
 	 *             래퍼 메시지를 만들때 데이터 패킷 버퍼 큐에서 버퍼를 확보하는데 실패할때 발생
 	 * @throws BodyFormatException
 	 *             스트림에서 메시지로, 메시지에서 스트림으로 바꿀때 바디 부분 구성 실패시 발생
+	 * @throws InterruptedException 
+	 * @throws MailboxTimeoutException 
 	 */
 	abstract public AbstractMessage sendSyncInputMessage(
 			AbstractMessage inputMessage) throws ServerNotReadyException, SocketTimeoutException,
 			NoMoreDataPacketBufferException, BodyFormatException, 
-			DynamicClassCallException, ServerTaskException, NotLoginException;
+			DynamicClassCallException, ServerTaskException, NotLoginException, InterruptedException, MailboxTimeoutException;
 	
 	
 	/**
@@ -381,12 +385,13 @@ public abstract class AbstractConnection {
 	 * @throws NoMoreDataPacketBufferException 래퍼 메시지를 만들때 데이터 패킷 버퍼 큐에서 버퍼를 확보하는데 실패할때 발생
 	 * @throws BodyFormatException 스트림에서 메시지로, 메시지에서 스트림으로 바꿀때 바디 부분 구성 실패시 발생
 	 * @throws NotSupportedException 
+	 * @throws InterruptedException 
 	 */
 	abstract public void sendAsynInputMessage(
 			AbstractMessage inputMessage) throws ServerNotReadyException, SocketTimeoutException, 
-			NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException, NotSupportedException;
+			NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException, NotSupportedException, InterruptedException;
 	
-	protected AbstractMessage getMessageFromMiddleReadObj(ClassLoader classLoader, ReceivedLetter receivedLetter) throws DynamicClassCallException, BodyFormatException {
+	protected AbstractMessage getMessageFromMiddleReadObj(ClassLoader classLoader, ReceivedLetter receivedLetter) throws DynamicClassCallException, BodyFormatException, NoMoreDataPacketBufferException, ServerTaskException, NotLoginException {
 		String messageID = receivedLetter.getMessageID();
 		int mailboxID = receivedLetter.getMailboxID();
 		int mailID = receivedLetter.getMailID();
@@ -424,6 +429,12 @@ public abstract class AbstractConnection {
 			String errorMessage = String.format("알 수 없는 원인으로 클라이언트에서 메시지[messageID=[%s], mailboxID=[%d], mailID=[%d]] 바디 디코딩 실패, %s", messageID, mailboxID, mailID, e.getMessage());
 			log.warn(errorMessage);
 			throw new BodyFormatException(errorMessage);
+		}
+		
+		if (messageObj instanceof SelfExn) {
+			SelfExn selfExnOutObj =(SelfExn)messageObj;
+			log.warn(selfExnOutObj.getReport());
+			selfExnOutObj.throwException(); 
 		}
 		
 		return messageObj;
@@ -479,6 +490,15 @@ public abstract class AbstractConnection {
 	}
 	
 	public void changeServerAddress(String newServerHost, int newServerPort) throws NotSupportedException {
+		if (null == newServerHost) {
+			throw new IllegalArgumentException("the parameter newServerHost is null");
+		}
+		
+		if (newServerHost.equals(this.hostOfProject) && newServerPort == this.portOfProject) {
+			/** if the new address is same to the old address then nothing */
+			return;
+		}
+		
 		if (serverSC != null && serverSC.isConnected()) {
 			String errorMessage = String.format("this client cann't change new server address[host:%s,port:%s] becase this client is connected", 
 					newServerHost, newServerPort);

@@ -39,10 +39,11 @@ public abstract class ItemIDDefiner {
 		public static final String COMMON_CLASSLOADER_PACKAGE_PREFIX_NAME_ITEMID = "common.classloader.package_prefix_name.value";
 		public static final String CLIENT_MONITOR_TIME_INTERVAL_ITEMID = "client.monitor.time_interval.value";
 		public static final String CLIENT_MONITOR_RECEPTION_TIMEOUT_ITEMID = "client.monitor.reception_timeout.value";
-		public static final String CLIENT_CONNECTION_TYPE_ITEMID = "client.connection.type.value";
-		public static final String CLIENT_CONNECTION_SOCKET_TIMEOUT_ITEMID = "client.connection.socket_timeout.value";
+		public static final String CLIENT_SOCKET_TIMEOUT_ITEMID = "client.socket.timeout.value";
+		public static final String CLIENT_CONNECTION_TYPE_ITEMID = "client.connection.type.value";		
 		public static final String CLIENT_CONNECTION_WHETHER_AUTO_CONNECTION_ITEMID = "client.connection.whether_auto_connection.value";
-		public static final String CLIENT_CONNECTION_COUNT_ITEMID = "client.connection.count.value";		
+		public static final String CLIENT_CONNECTION_COUNT_ITEMID = "client.connection.count.value";
+		public static final String CLIENT_CONNECTION_TIMEOUT_ITEMID = "client.connection.timeout.value";
 		public static final String CLIENT_DATA_PACKET_BUFFER_CNT_ITEMID = "client.data_packet_buffer_cnt.value";
 		public static final String CLIENT_ASYN_FINISH_CONNECT_MAX_CALL_ITEMID = "client.asyn.finish_connect.max_call.value";
 		public static final String CLIENT_ASYN_FINISH_CONNECT_WAITTING_TIME_ITEMID = "client.asyn.finish_connect.waitting_time.value";

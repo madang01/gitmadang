@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.exception.BodyFormatException;
+import kr.pe.sinnori.common.exception.ConnectionTimeoutException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotLoginException;
@@ -75,11 +76,12 @@ public abstract class AbstractConnectionPool {
 	 *             래퍼 메시지를 만들때 데이터 패킷 버퍼 큐에서 버퍼를 확보하는데 실패할때 발생
 	 * @throws BodyFormatException
 	 *             스트림에서 메시지로, 메시지에서 스트림으로 바꿀때 바디 부분 구성 실패시 발생
+	 * @throws InterruptedException 
 	 */
 	abstract public AbstractMessage sendSyncInputMessage(
 			AbstractMessage inputMessage) throws SocketTimeoutException, ServerNotReadyException, 
 			NoMoreDataPacketBufferException, BodyFormatException, 
-			DynamicClassCallException, ServerTaskException, NotLoginException;
+			DynamicClassCallException, ServerTaskException, NotLoginException, ConnectionTimeoutException, InterruptedException;
 	
 	
 	/**
@@ -87,14 +89,14 @@ public abstract class AbstractConnectionPool {
 	 * @throws InterruptedException 연결 폴에서 연결 객체를 가져올때 인터럽트가 걸렸을 경우 던지는 예외
 	 * @throws NotSupportedException 공유+비동기 연결 폴에서 실행시 던지는 예외.  공유+비동기 연결 폴은 직접적으로 연결 객체를 받을 수 없다.
 	 */
-	abstract public AbstractConnection getConnection() throws InterruptedException, NotSupportedException;
+	abstract public AbstractConnection getConnection() throws InterruptedException, NotSupportedException, ConnectionTimeoutException;
 	
 	/**
 	 * 연결 객체를 반환한다.
 	 * @param conn
 	 * @throws NotSupportedException
 	 */
-	abstract public void freeConnection(AbstractConnection conn) throws NotSupportedException;
+	abstract public void release(AbstractConnection conn) throws NotSupportedException;
 	
 	/**
 	 * @return 메일함 갯수

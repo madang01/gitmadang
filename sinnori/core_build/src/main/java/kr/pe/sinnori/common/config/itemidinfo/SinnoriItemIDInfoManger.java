@@ -519,7 +519,7 @@ public class SinnoriItemIDInfoManger {
 					new SetTypeConverterReturningConnectionType());
 			addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_SOCKET_TIMEOUT_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_SOCKET_TIMEOUT_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Long>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -549,6 +549,16 @@ public class SinnoriItemIDInfoManger {
 					isDefaultValueCheck,
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+			
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_TIMEOUT_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Long>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT, itemID, "연결 타임아웃, 단위 ms", "5000",
+					isDefaultValueCheck,
+					new GeneralConverterReturningLongBetweenMinAndMax(
+							1000L, 1000L*60*10));
 			addProjectPartItemIDInfo(itemIDInfo);
 
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_DATA_PACKET_BUFFER_CNT_ITEMID;
@@ -1052,7 +1062,7 @@ public class SinnoriItemIDInfoManger {
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 
-			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_SOCKET_TIMEOUT_ITEMID;
+			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_SOCKET_TIMEOUT_ITEMID;
 			ItemIDInfo<?> dependentSourceitemIDConfigInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentSourceitemIDConfigInfo) {
 				String errorMessage = new StringBuilder(

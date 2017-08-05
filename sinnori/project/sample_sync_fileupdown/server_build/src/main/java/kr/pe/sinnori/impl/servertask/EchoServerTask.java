@@ -38,13 +38,13 @@ public final class EchoServerTask extends AbstractServerTask {
 	}
 	
 	private void doWork(String projectName,
-			LetterSender letterSender, Echo echoInObj)
+			LetterSender letterSender, Echo echoReq)
 			throws Exception {		
-		Echo echoOutObj = new Echo();
+		Echo echoRes = new Echo();
 
-		echoOutObj.setRandomInt(echoInObj.getRandomInt());
-		echoOutObj.setStartTime(echoInObj.getStartTime());
+		echoRes.setRandomInt(echoReq.getRandomInt());
+		echoRes.setStartTime(echoReq.getStartTime());
 		
-		letterSender.addSyncMessage(echoOutObj);
+		letterSender.addSyncMessage(echoRes);
 	}	
 }

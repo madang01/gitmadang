@@ -22,7 +22,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.vo.CommonPartConfiguration;
+import kr.pe.sinnori.common.config.itemvalue.CommonPartConfiguration;
 import kr.pe.sinnori.common.exception.UpDownFileException;
 
 import org.slf4j.Logger;

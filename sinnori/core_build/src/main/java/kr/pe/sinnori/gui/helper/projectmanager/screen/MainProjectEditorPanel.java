@@ -53,7 +53,7 @@ import kr.pe.sinnori.common.exception.BuildSystemException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 import kr.pe.sinnori.common.util.SequencedProperties;
-import kr.pe.sinnori.gui.helper.ScreenManagerIF;
+import kr.pe.sinnori.gui.helper.lib.ScreenManagerIF;
 import kr.pe.sinnori.gui.helper.projectmanager.table.configurationpart.ConfigurationPartTableModel;
 import kr.pe.sinnori.gui.helper.projectmanager.table.configurationpart.ItemKeyLabel;
 import kr.pe.sinnori.gui.helper.projectmanager.table.configurationpart.ItemKeyRenderer;
@@ -202,9 +202,10 @@ public class MainProjectEditorPanel extends JPanel {
 				Set<String> itemSet = commonPartItemIDInfo.getItemSet();
 
 				ItemValuePanel itemValuePanel = new ItemValuePanel(i, 
-						itemID, prefixOfItemID, itemKey,
+						itemID, prefixOfItemID, 
+						itemKey, 	itemValue,
 						itemDescriptionKey, itemDescriptionValue,
-						itemValue, itemViewType, itemSet, mainFrame);
+						itemViewType, itemSet, mainFrame);
 
 				maxRowHeightOfCommonPartItemValuePanel = Math.max(
 						maxRowHeightOfCommonPartItemValuePanel,

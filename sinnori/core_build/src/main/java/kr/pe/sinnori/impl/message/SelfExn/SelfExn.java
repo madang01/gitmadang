@@ -30,14 +30,14 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  *
  */
 public final class SelfExn extends AbstractMessage {
-	String errorWhere="";
+	String errorPlace="";
 	String errorGubun="";
 	String errorMessageID="";
 	String errorMessage="";
 	
-	public String getErrorWhere() {
+	public String getErrorPlace() {
 		// if (null == errorWhere) errorWhere = "";
-		return errorWhere;
+		return errorPlace;
 	}
 	
 	public String getErrorGubun() {
@@ -52,20 +52,20 @@ public final class SelfExn extends AbstractMessage {
 		return errorMessage;
 	}
 	
-	public void setErrorWhere(String errorWhere)  {
-		if (null == errorWhere) {
-			String errorMessage = "paramter errorWhere is null";
+	public void setErrorPlace(String errorPlace)  {
+		if (null == errorPlace) {
+			String errorMessage = "paramter errorPlace is null";
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		if (!errorWhere.equals("S") && !errorWhere.equals("C")) {
-			String errorMessage = "paramter errorWhere value["+errorWhere+"] is a unknown value";
+		if (!errorPlace.equals("S") && !errorPlace.equals("C")) {
+			String errorMessage = "paramter errorPlace value["+errorPlace+"] is a unknown value";
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		this.errorWhere = errorWhere;
+		this.errorPlace = errorPlace;
 	}
 	
 	public void setErrorMessageID(String errorMessageID) {
@@ -147,7 +147,7 @@ public final class SelfExn extends AbstractMessage {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("SelfExn [errorWhere=");
-		builder.append(errorWhere);
+		builder.append(errorPlace);
 		builder.append(", errorGubun=");
 		builder.append(errorGubun);
 		builder.append(", errorMessageID=");
@@ -161,20 +161,20 @@ public final class SelfExn extends AbstractMessage {
 	public String getReport() {
 		StringBuilder builder = new StringBuilder();
 		
-		builder.append("발생장소 : ");
+		builder.append("where : ");
 		
-		if (errorWhere.equals("S")) {
-			builder.append("서버");
-		} else if (errorWhere.equals("C")) {
-			builder.append("클라이언트");
+		if (errorPlace.equals("S")) {
+			builder.append("server");
+		} else if (errorPlace.equals("C")) {
+			builder.append("client");
 		} else {
-			builder.append("알 수 없는곳[");
-			builder.append(errorWhere);
+			builder.append("unknown the error place[");
+			builder.append(errorPlace);
 			builder.append("]");
 		}
 		
 		builder.append(CommonStaticFinalVars.NEWLINE);
-		builder.append("에러구분 : ");
+		builder.append("type : ");
 		
 		if (errorGubun.equals("B")) {
 			builder.append("BodyFormatException");
@@ -187,53 +187,53 @@ public final class SelfExn extends AbstractMessage {
 		} else if (errorGubun.equals("A")) {
 			builder.append("NotLoginException");
 		} else {
-			builder.append("알수 없는 에러[");
+			builder.append("unknown error type[");
 			builder.append(errorGubun);
 			builder.append("]");
 		}
 		
 		builder.append(CommonStaticFinalVars.NEWLINE);
-		builder.append("에러가 발생한 메시지 식별자 : ");
+		builder.append("message id : ");
 		builder.append(errorMessageID);
 		
 		builder.append(CommonStaticFinalVars.NEWLINE);
-		builder.append("에러 발생 상세 사유 : ");
+		builder.append("error message : ");
 		builder.append(errorMessage);
 		
 		return builder.toString();
 	}
 	
-	public void toException() throws BodyFormatException, DynamicClassCallException, 
+	public void throwException() throws BodyFormatException, DynamicClassCallException, 
 		NoMoreDataPacketBufferException, ServerTaskException,
 		NotLoginException {
 		
 		String errorWhereMsg = null;
-		if (errorWhere.equals("S")) {
-			errorWhereMsg = "서버";
-		} else if (errorWhere.equals("C")) {
-			errorWhereMsg = "클라이언트";
+		if (errorPlace.equals("S")) {
+			errorWhereMsg = "server";
+		} else if (errorPlace.equals("C")) {
+			errorWhereMsg = "client";
 		} else {
-			String errorMessage = "알수 없는 에러 장소" + getReport();
+			String errorMessage = "the unknown error place, " + toString();
 			throw new BodyFormatException(errorMessage);
 		}
 		
 		if (errorGubun.equals("B")) {
-			String errorMessageMsg = errorWhereMsg+"::메시지["+errorMessageID+"]::"+errorMessage;
+			String errorMessageMsg = errorWhereMsg+"::message id["+errorMessageID+"]::"+errorMessage;
 			throw new BodyFormatException(errorMessageMsg);
 		} else if (errorGubun.equals("D")) {
-			String errorMessageMsg = errorWhereMsg+"::메시지["+errorMessageID+"]::"+errorMessage;
+			String errorMessageMsg = errorWhereMsg+"::message id["+errorMessageID+"]::"+errorMessage;
 			throw new DynamicClassCallException(errorMessageMsg);
 		} else if (errorGubun.equals("N")) {
-			String errorMessageMsg = errorWhereMsg+"::메시지["+errorMessageID+"]::"+errorMessage;
+			String errorMessageMsg = errorWhereMsg+"::message id["+errorMessageID+"]::"+errorMessage;
 			throw new NoMoreDataPacketBufferException(errorMessageMsg);
 		} else if (errorGubun.equals("S")) {
-			String errorMessageMsg = errorWhereMsg+"::메시지["+errorMessageID+"]::"+errorMessage;
+			String errorMessageMsg = errorWhereMsg+"::message id["+errorMessageID+"]::"+errorMessage;
 			throw new ServerTaskException(errorMessageMsg);
 		} else if (errorGubun.equals("A")) {
-			String errorMessageMsg = errorWhereMsg+"::메시지["+errorMessageID+"]::"+errorMessage;
+			String errorMessageMsg = errorWhereMsg+"::message id["+errorMessageID+"]::"+errorMessage;
 			throw new NotLoginException(errorMessageMsg);
 		} else {
-			String errorMessageMsg = errorWhereMsg+"::메시지["+errorMessageID+"]::알수없는에러구분["+errorGubun+"]::"+errorMessage;
+			String errorMessageMsg = "the unknown error gubun, " + toString();
 			throw new BodyFormatException(errorMessageMsg);
 		}
 	}

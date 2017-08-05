@@ -72,7 +72,11 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 	private String sinnoriInstalledPathString;
 	private String mainProjectName;
 	private ArrayList<String> otherMainProjectNameList;
+	private enum MessageInfoTableModelColumnOrder {
+		MESSAGE_ID, RECENTLY_MODIFIED_DATE, DIRECTRION, MESAGE_INFO_FILE_FUNCTION, IO_SOURCE_BUILD_FUNCTION
+	};
 
+	
 	/** MessageInfo Table Model start */
 	private MessageInfoTableModelForProject messageInfoTableModel = null;
 
@@ -119,10 +123,9 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 			ArrayList<String> otherMainProjectNameList) {
 		super(ownerFrame);
 		
-		// FIXME!
-		log.info("the parameter sinnoriInstalledPathString=[{}]", sinnoriInstalledPathString);
+		/*log.info("the parameter sinnoriInstalledPathString=[{}]", sinnoriInstalledPathString);
 		log.info("the parameter mainProjectName=[{}]", mainProjectName);
-		log.info("the parameter otherMainProjectNameList=[{}]", otherMainProjectNameList.toString());
+		log.info("the parameter otherMainProjectNameList=[{}]", otherMainProjectNameList.toString());*/
 		
 		this.ownerFrame = ownerFrame;
 		this.sinnoriInstalledPathString = sinnoriInstalledPathString;
@@ -209,26 +212,26 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 		messageInfoTable.setVisible(false);
 		messageInfoTable.setModel(messageInfoTableModel);
 
-		messageInfoTable.getColumnModel().getColumn(0).setPreferredWidth(120);
+		messageInfoTable.getColumnModel().getColumn(MessageInfoTableModelColumnOrder.MESSAGE_ID.ordinal()).setPreferredWidth(120);
 
 		// table.getColumnModel().getColumn(1).setResizable(false);
-		messageInfoTable.getColumnModel().getColumn(1).setPreferredWidth(95);
+		messageInfoTable.getColumnModel().getColumn(MessageInfoTableModelColumnOrder.RECENTLY_MODIFIED_DATE.ordinal()).setPreferredWidth(95);
 
 		// table.getColumnModel().getColumn(2).setResizable(false);
-		messageInfoTable.getColumnModel().getColumn(2).setPreferredWidth(75);
+		messageInfoTable.getColumnModel().getColumn(MessageInfoTableModelColumnOrder.DIRECTRION.ordinal()).setPreferredWidth(75);
 
-		messageInfoTable.getColumnModel().getColumn(3).setResizable(false);
-		messageInfoTable.getColumnModel().getColumn(3).setPreferredWidth(150);
+		messageInfoTable.getColumnModel().getColumn(MessageInfoTableModelColumnOrder.MESAGE_INFO_FILE_FUNCTION.ordinal()).setResizable(false);
+		messageInfoTable.getColumnModel().getColumn(MessageInfoTableModelColumnOrder.MESAGE_INFO_FILE_FUNCTION.ordinal()).setPreferredWidth(150);
 
-		messageInfoTable.getColumnModel().getColumn(4).setResizable(false);
-		messageInfoTable.getColumnModel().getColumn(4).setPreferredWidth(175);
+		messageInfoTable.getColumnModel().getColumn(MessageInfoTableModelColumnOrder.IO_SOURCE_BUILD_FUNCTION.ordinal()).setResizable(false);
+		messageInfoTable.getColumnModel().getColumn(MessageInfoTableModelColumnOrder.IO_SOURCE_BUILD_FUNCTION.ordinal()).setPreferredWidth(175);
 
-		messageInfoTable.getColumnModel().getColumn(3).setCellRenderer(new FileFunctionCellRendererForProject());
-		messageInfoTable.getColumnModel().getColumn(3)
+		messageInfoTable.getColumnModel().getColumn(MessageInfoTableModelColumnOrder.MESAGE_INFO_FILE_FUNCTION.ordinal()).setCellRenderer(new FileFunctionCellRendererForProject());
+		messageInfoTable.getColumnModel().getColumn(MessageInfoTableModelColumnOrder.MESAGE_INFO_FILE_FUNCTION.ordinal())
 				.setCellEditor(new FileFunctionCellEditorForProject(new JCheckBox()));
 
-		messageInfoTable.getColumnModel().getColumn(4).setCellRenderer(new BuildFunctionCellRendererForProject());
-		messageInfoTable.getColumnModel().getColumn(4)
+		messageInfoTable.getColumnModel().getColumn(MessageInfoTableModelColumnOrder.IO_SOURCE_BUILD_FUNCTION.ordinal()).setCellRenderer(new BuildFunctionCellRendererForProject());
+		messageInfoTable.getColumnModel().getColumn(MessageInfoTableModelColumnOrder.IO_SOURCE_BUILD_FUNCTION.ordinal())
 				.setCellEditor(new BuildFunctionCellEditorForProject(new JCheckBox()));
 
 		// messageInfoTable.repaint();
@@ -421,7 +424,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 			serverIOSourcePath = CommonStaticUtil.getValidPath(serverIOSourcePathString, READ_WRITE_MODE.ONLY_WRITE);
 			listOfPathSavingIOFileSet.add(serverIOSourcePath);
 		} catch (RuntimeException e) {
-			log.info("the project[{}] has no the valid server IO source path::{}", selectedMainProjectName, e.getMessage());
+			log.debug("the project[{}] has no the valid server IO source path::{}", selectedMainProjectName, e.getMessage());
 		}
 
 		String appClientIOSourcePathString = BuildSystemPathSupporter
@@ -433,7 +436,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 
 			listOfPathSavingIOFileSet.add(appClientIOSourcePath);
 		} catch (RuntimeException e) {
-			log.info("the project[{}] has no the valid app-clent IO source path::{}", selectedMainProjectName, e.getMessage());
+			log.debug("the project[{}] has no the valid app-clent IO source path::{}", selectedMainProjectName, e.getMessage());
 		}
 
 		String webClientIOSourcePathString = BuildSystemPathSupporter
@@ -565,14 +568,14 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 		String messageInfoSourcePathString = BuildSystemPathSupporter.getMessageInfoPathString(sinnoriInstalledPathString, mainProjectName);
 
 		File messageInfoSourcePath = new File(messageInfoSourcePathString);
-		if (messageInfoSourcePath.exists()) {
+		if (!messageInfoSourcePath.exists()) {
 			String errorMessage = String.format("source project[%s]'s message info path[%s] doesn't exist",
 					mainProjectName, messageInfoSourcePathString);
 			log.warn(errorMessage);
 			showMessageDialog(errorMessage);
 			return false;
 		}
-		if (messageInfoSourcePath.canRead()) {
+		if (!messageInfoSourcePath.canRead()) {
 			String errorMessage = String.format("source project[%s]'s message info path[%s] can't be read",
 					mainProjectName, messageInfoSourcePathString);
 			log.warn(errorMessage);
@@ -582,6 +585,9 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 
 		String selectedMainProjectName = mainProjectName;
 
+		/**
+		 * 다른 프로젝트 복사 선택시
+		 */
 		if (isOtherMainProjectCheckBox.isSelected()) {
 			if (otherMainProjectComboBox.getItemCount() <= 1) {
 				showMessageDialog("other project list empty!");
@@ -599,14 +605,14 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 			String messageInfoTargetPathString = BuildSystemPathSupporter.getMessageInfoPathString(sinnoriInstalledPathString, targetProjectName);
 
 			File targetMessageInfoXMLPath = new File(messageInfoTargetPathString);
-			if (targetMessageInfoXMLPath.exists()) {
+			if (!targetMessageInfoXMLPath.exists()) {
 				String errorMessage = String.format("target project[%s]'s message info path[%s] doesn't exist",
 						targetProjectName, messageInfoTargetPathString);
 				log.warn(errorMessage);
 				showMessageDialog(errorMessage);
 				return false;
 			}
-			if (targetMessageInfoXMLPath.canWrite()) {
+			if (!targetMessageInfoXMLPath.canWrite()) {
 				String errorMessage = String.format("target project[%s]'s message info path[%s] can't be written",
 						targetProjectName, messageInfoTargetPathString);
 				log.warn(errorMessage);
@@ -619,6 +625,9 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 			File targetMessageInfoXMLFile = new File(new StringBuilder().append(messageInfoTargetPathString)
 					.append(File.separator).append(sourceLastFileName).toString());
 
+			/**
+			 * 덮어 쓰기 물은후 처리하기
+			 */
 			if (targetMessageInfoXMLFile.exists()) {
 				String confirmDialogTitle = "message info xml file copy";
 				String confirmDialogMessage = String.format(
@@ -675,14 +684,16 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 		} else {
 			directionStr = "no direction";
 		}
-		messageInfoTableModel.setValueAt(directionStr, row, 1);
+		
+		messageInfoTableModel.setValueAt(directionStr, row, MessageInfoTableModelColumnOrder.DIRECTRION.ordinal());
 
 		java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
-		messageInfoTableModel.setValueAt(sdf.format(newMessageInfo.getLastModified()), row, 2);
+		messageInfoTableModel.setValueAt(sdf.format(newMessageInfo.getLastModified()), row, 
+				MessageInfoTableModelColumnOrder.RECENTLY_MODIFIED_DATE.ordinal());
 
-		BuildFunctionCellValueForProject sourceFileCellValue = (BuildFunctionCellValueForProject) messageInfoTableModel
-				.getValueAt(row, 4);
-		sourceFileCellValue.setMessageInfo(newMessageInfo);
+		BuildFunctionCellValueForProject buildFunctionCellValue = (BuildFunctionCellValueForProject) messageInfoTableModel
+				.getValueAt(row, MessageInfoTableModelColumnOrder.IO_SOURCE_BUILD_FUNCTION.ordinal());
+		buildFunctionCellValue.setMessageInfo(newMessageInfo);
 		messageInfoScrollPane.repaint();
 	}
 
@@ -1024,7 +1035,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 
 			for (int i = 0; resultSavingFile && i < rowCount; i++) {
 				BuildFunctionCellValueForProject buildFunctionCellValue = (BuildFunctionCellValueForProject) messageInfoTableModel
-						.getValueAt(i, 4);
+						.getValueAt(i, MessageInfoTableModelColumnOrder.IO_SOURCE_BUILD_FUNCTION.ordinal());
 
 				MessageInfo sourceMessageInfo = buildFunctionCellValue.getMessageInfo();
 
@@ -1078,7 +1089,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 
 			for (int i = 0; resultSavingFile && i < rowCount; i++) {
 				BuildFunctionCellValueForProject buildFunctionCellValue = (BuildFunctionCellValueForProject) messageInfoTableModel
-						.getValueAt(i, 4);
+						.getValueAt(i, MessageInfoTableModelColumnOrder.IO_SOURCE_BUILD_FUNCTION.ordinal());
 
 				MessageInfo sourceMessageInfo = buildFunctionCellValue.getMessageInfo();
 				resultSavingFile = saveIOFileSetToTargetPath(listOfTargetPathSavingIOFileSet, writer,

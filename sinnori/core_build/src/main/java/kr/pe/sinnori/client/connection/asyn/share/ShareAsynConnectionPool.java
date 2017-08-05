@@ -28,8 +28,9 @@ import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.AbstractConnectionPool;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.AsynServerAdderIF;
 import kr.pe.sinnori.client.io.LetterToServer;
-import kr.pe.sinnori.common.config.vo.ProjectPartConfiguration;
+import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.exception.BodyFormatException;
+import kr.pe.sinnori.common.exception.ConnectionTimeoutException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
@@ -93,7 +94,7 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 	 *             출력 메시지 큐 부족시 실패시 던지는 예외
 	 */
 	public ShareAsynConnectionPool(String projectName, String hostOfProject, int portOfProject,
-			Charset charsetOfProject, int connectionPoolSize, long socketTimeOut, boolean whetherToAutoConnect,
+			Charset charsetOfProject, int connectionPoolSize, long connectionTimeout, long socketTimeOut, boolean whetherToAutoConnect,
 			int finishConnectMaxCall, long finishConnectWaittingTime, int mailBoxCnt,
 			ProjectPartConfiguration projectPart, LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue, MessageProtocolIF messageProtocol,
@@ -113,6 +114,7 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 			ShareAsynConnection serverConnection = null;
 
 			serverConnection = new ShareAsynConnection(projectName, i, hostOfProject, portOfProject, charsetOfProject,
+					connectionTimeout,
 					socketTimeOut, whetherToAutoConnect, finishConnectMaxCall, finishConnectWaittingTime, mailBoxCnt,
 					projectPart, asynOutputMessageQueue, inputMessageQueue, messageProtocol, outputMessageReaderPool,
 					syncOutputMessageQueueQueueManger, dataPacketBufferQueueManager, clientObjectCacheManager);
@@ -148,23 +150,24 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 	@Override
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
 			throws ServerNotReadyException, SocketTimeoutException, NoMoreDataPacketBufferException,
-			BodyFormatException, DynamicClassCallException, ServerTaskException, NotLoginException {
+			BodyFormatException, DynamicClassCallException, ServerTaskException, NotLoginException, ConnectionTimeoutException, InterruptedException {
 		ShareAsynConnection conn = null;
 
 		synchronized (monitor) {
 			conn = connectionList.get(indexOfConnection);
-			indexOfConnection = (indexOfConnection + 1) % connectionList.size();
+			indexOfConnection = (indexOfConnection + 1) % connectionList.size();			
+			
+			return conn.sendSyncInputMessage(inputMessage);
 		}
-		return conn.sendSyncInputMessage(inputMessage);
 	}
 
 	@Override
-	public AbstractConnection getConnection() throws InterruptedException, NotSupportedException {
+	public AbstractConnection getConnection() throws InterruptedException, NotSupportedException, ConnectionTimeoutException {
 		throw new NotSupportedException("공유+비동기 연결 객체는 직접적으로 받을 수 없습니다.");
 	}
 
 	@Override
-	public void freeConnection(AbstractConnection conn) throws NotSupportedException {
+	public void release(AbstractConnection conn) throws NotSupportedException {
 		throw new NotSupportedException("공유+비동기 연결 객체를 직접 받지 않으므로 반환 기능도 없습니다.");
 	}
 

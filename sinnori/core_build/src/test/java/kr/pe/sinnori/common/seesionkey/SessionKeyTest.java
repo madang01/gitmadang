@@ -42,7 +42,7 @@ public class SessionKeyTest {
 		try {
 			mainProjectServerSessionkey = serverSessionkeyManager.getMainProjectServerSessionkey();
 			mainProjectClientSessionKey = clientSessionKeyManager.getMainProjectClientSessionKey(RSAPublickeyGetterBuilder.build());
-		} catch (SymmetricException e) {
+		} catch (SymmetricException | InterruptedException e) {
 			log.warn(e.getMessage(), e);
 			fail(e.getMessage());
 		}

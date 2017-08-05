@@ -6,10 +6,6 @@ public class PasswordWrapper {
 	private char[] passwordChars = null;
 	
 	public PasswordWrapper(char[] passwordChars) {
-		this.passwordChars = passwordChars;
-	}
-	
-	public byte[] toBytes(char[] passwordChars) {
 		if (null == passwordChars) {
 			throw new IllegalArgumentException("the parameter passwordChars is null");
 		}
@@ -22,8 +18,12 @@ public class PasswordWrapper {
 			if (passwordChars[i] > 0xff) {
 				throw new IllegalArgumentException(String.format("the parameter passwordChars[%d][%04x] that consists of a password character ranging from 0x00 to 0xff is bad", i, passwordChars[i]));
 			}
-		}		
+		}	
 		
+		this.passwordChars = passwordChars;
+	}
+	
+	public byte[] toBytes() {
 		byte[] passwordBytes = new byte[passwordChars.length];
 		for (int i=0; i < passwordChars.length; i++) {
 			passwordBytes[i] = (byte)(passwordChars[i]&0xff);

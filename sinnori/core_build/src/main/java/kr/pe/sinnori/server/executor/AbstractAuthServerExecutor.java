@@ -73,7 +73,7 @@ public abstract class AbstractAuthServerExecutor extends AbstractServerTask {
 			selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
 			selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
 			// selfExnOutObj.setError("S", messageID, new NotLoginException("로그인을 요구하는 서비스입니다"));
-			selfExnOutObj.setErrorWhere("S");
+			selfExnOutObj.setErrorPlace("S");
 			selfExnOutObj.setErrorGubun(NotLoginException.class);
 			selfExnOutObj.setErrorMessageID(messageID);
 			selfExnOutObj.setErrorMessage("로그인을 요구하는 서비스입니다");

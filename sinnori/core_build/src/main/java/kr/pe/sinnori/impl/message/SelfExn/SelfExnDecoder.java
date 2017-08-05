@@ -51,7 +51,7 @@ public final class SelfExnDecoder extends AbstractMessageDecoder {
 	@Override
 	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Charset charsetOfProject, Object  middleReadObj) throws OutOfMemoryError, BodyFormatException {
 		SelfExn SelfExn = new SelfExn();
-		SelfExn.setErrorWhere((String)
+		SelfExn.setErrorPlace((String)
 				singleItemDecoder.getValueFromMiddleReadObj(SelfExn.getMessageID()
 				, "errorWhere" // itemName
 				, 7 // itemType

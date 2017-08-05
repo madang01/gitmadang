@@ -2,7 +2,7 @@ package kr.pe.sinnori.common.sessionkey;
 
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.vo.CommonPartConfiguration;
+import kr.pe.sinnori.common.config.itemvalue.CommonPartConfiguration;
 import kr.pe.sinnori.common.exception.SymmetricException;
 
 public class ServerSymmetricKey implements ServerSymmetricKeyIF {

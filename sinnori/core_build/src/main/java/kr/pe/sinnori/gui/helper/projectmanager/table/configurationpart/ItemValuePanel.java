@@ -43,12 +43,10 @@ public class ItemValuePanel extends JPanel {
 	private JButton pathButton = null;
 	private boolean isSelected = false;
 	
-	public ItemValuePanel(int indexOfTableModel, String itemID, 
-			String prefixOfItemID,
-			String itemKey, 
-			String itemValue, 
-			String itemDescriptionKey,
-			String itemDescriptionValue,
+	public ItemValuePanel(int indexOfTableModel, 
+			String itemID, String prefixOfItemID,
+			String itemKey, 	String itemValue, 
+			String itemDescriptionKey, String itemDescriptionValue,
 			ItemIDInfo.ViewType itemViewType, 
 			Set<String> itemSet, Frame mainFrame) {
 		this.indexOfTableModel = indexOfTableModel;

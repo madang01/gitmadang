@@ -18,7 +18,7 @@ package kr.pe.sinnori.common.etc;
 
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.vo.CommonPartConfiguration;
+import kr.pe.sinnori.common.config.itemvalue.CommonPartConfiguration;
 
 import org.apache.commons.collections4.map.LRUMap;
 import org.apache.commons.collections4.map.MultiKeyMap;

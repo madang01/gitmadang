@@ -36,10 +36,11 @@ import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.client.connection.asyn.share.mailbox.PrivateMailbox;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.AsynServerAdderIF;
 import kr.pe.sinnori.client.io.LetterToServer;
-import kr.pe.sinnori.common.config.vo.ProjectPartConfiguration;
+import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
+import kr.pe.sinnori.common.exception.MailboxTimeoutException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
 import kr.pe.sinnori.common.exception.NotLoginException;
@@ -69,6 +70,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 	/** 메일 식별자를 키로 활성화된 메일함을 값으로 가지는 해쉬 */
 	private Map<Integer, PrivateMailbox> privateMailboxMap = new Hashtable<Integer, PrivateMailbox>();
 
+	private long connectionTimeout;
 	// private boolean isFailToGetMailbox = false;
 
 	/**
@@ -108,7 +110,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 	 *             출력 메시지 큐 부족시 실패시 던지는 예외
 	 */
 	public ShareAsynConnection(String projectName, int index, String hostOfProject, int portOfProject,
-			Charset charsetOfProject, long socketTimeOut, boolean whetherToAutoConnect, int finishConnectMaxCall,
+			Charset charsetOfProject, long connectionTimeout, long socketTimeOut, boolean whetherToAutoConnect, int finishConnectMaxCall,
 			long finishConnectWaittingTime, int mailBoxCnt, ProjectPartConfiguration projectPart,
 			LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue, MessageProtocolIF messageProtocol,
@@ -125,7 +127,8 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 				index, mailBoxCnt));
 
 		// this.messageManger = messageManger;
-		PrivateMailboxWaitingQueue = new LinkedBlockingQueue<PrivateMailbox>(mailBoxCnt);
+		this.PrivateMailboxWaitingQueue = new LinkedBlockingQueue<PrivateMailbox>(mailBoxCnt);
+		this.connectionTimeout = connectionTimeout;
 
 		boolean isInterrupted = false;
 
@@ -139,24 +142,8 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 		for (int i = 0; i < mailBoxCnt; i++) {
 
 			PrivateMailbox mailBox = new PrivateMailbox(this, i + 1, inputMessageQueue, outputMessageQueueQueueManager);
-
-			try {
-				PrivateMailboxWaitingQueue.put(mailBox);
-			} catch (InterruptedException e) {
-				if (isInterrupted) {
-					log.error("인터럽트 받아 후속 처리중 발생", e);
-					System.exit(1);
-				} else {
-					try {
-						PrivateMailboxWaitingQueue.put(mailBox);
-					} catch (InterruptedException e1) {
-						log.error("인터럽트 받아 후속 처리중 발생", e1);
-						System.exit(1);
-					}
-					isInterrupted = true;
-					continue;
-				}
-			}
+			
+			PrivateMailboxWaitingQueue.add(mailBox);
 		}
 
 		if (isInterrupted)
@@ -329,7 +316,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 	@Override
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inObj)
 			throws ServerNotReadyException, SocketTimeoutException, NoMoreDataPacketBufferException,
-			BodyFormatException, DynamicClassCallException, ServerTaskException, NotLoginException {
+			BodyFormatException, DynamicClassCallException, ServerTaskException, NotLoginException, InterruptedException, MailboxTimeoutException {
 		long startTime = 0;
 		long endTime = 0;
 		startTime = new java.util.Date().getTime();
@@ -343,18 +330,11 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 
 		PrivateMailbox mailbox = null;
 
-		boolean isInterrupted = false;
+		// boolean isInterrupted = false;
 
-		try {
-			mailbox = PrivateMailboxWaitingQueue.take();
-		} catch (InterruptedException e) {
-			try {
-				mailbox = PrivateMailboxWaitingQueue.take();
-			} catch (InterruptedException e1) {
-				log.error("인터럽트 받아 후속 처리중 발생", e1);
-				System.exit(1);
-			}
-			isInterrupted = true;
+		mailbox = PrivateMailboxWaitingQueue.poll(connectionTimeout, TimeUnit.MILLISECONDS);
+		if (null == mailbox) {
+			throw new MailboxTimeoutException("share asynchronized mailbox timeout");
 		}
 
 		ClassLoader classLoader = inObj.getClass().getClassLoader();
@@ -379,56 +359,31 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 				try {
 					mailbox.putSyncInputMessage(letterToServer);
 				} catch (InterruptedException e) {
-					isInterrupted = true;
-					try {
-						mailbox.putSyncInputMessage(letterToServer);
-					} catch (InterruptedException e1) {
-						log.error("인터럽트 받아 후속 처리중 발생", e);
-						System.exit(1);
-					}
+					log.warn("fail to put the input message[{}] in the input message queue of mailbox becase this current thread was interrupted", inObj.toString());
+					throw e;
 				}
 
 				// LetterFromServer letterFromServer = null;
 
 				try {
-					receivedLetter = mailbox.takeSyncOutputMessage();
+					receivedLetter = mailbox.getSyncOutputMessage();
 
 					// letterFromServer = new LetterFromServer(workOutObj);
 				} catch (InterruptedException e) {
-					/**
-					 * 인터럽트 발생시 메소드 끝가지 로직 수행후 인터럽트 상태를 복귀 시켜 최종 인터럽트 처리를 마무리
-					 * 하도록 유도
-					 */
-					if (isInterrupted) {
-						log.error("인터럽트 받아 후속 처리중 발생", e);
-						System.exit(1);
-					} else {
-						try {
-							receivedLetter = mailbox.takeSyncOutputMessage();
-						} catch (InterruptedException e1) {
-							log.error("인터럽트 받아 후속 처리중 발생", e1);
-							System.exit(1);
-						}
-						isInterrupted = true;
-					}
+					log.warn("fail to get the output message from the output message queue of mailbox becase this current thread was interrupted, the input message[{}]", inObj.toString());
+					throw e;
 				}
 
 			} finally {
 				if (null != mailbox) {
 					privateMailboxMap.remove(mailbox.getMailboxID());
 					mailbox.setDisable();
-					/**
-					 * InterruptedException 를 발생시키지 않는 offer 메소드 사용. 개인 메일함
-					 * 큐(=PrivateMailboxWaitingQueue) 는 메일함의 갯수를 고정으로 갖으며, 그것을
-					 * 넘어서는 메일함을 가질 이유는 없다. 단, 2번이상 넣기 시도등 큐에 2개 이상 중복되는 경우에
-					 * 오동작을 한다. 하지만 큐에 대한 사용자 개입을 원천적으로 차단되어 2개이상 중복하여 큐에 들어갈 일은
-					 * 없다.
-					 */
-					PrivateMailboxWaitingQueue.offer(mailbox);
+					boolean isSuccess =  PrivateMailboxWaitingQueue.offer(mailbox);
+					if (!isSuccess) {
+						log.error("fail to put mailbox[{}] in the mailbox queue becase of bug, you need to check and fix bug", mailbox.hashCode());
+						System.exit(1);
+					}
 				}
-
-				if (isInterrupted)
-					Thread.currentThread().interrupt();
 			}
 		}
 
@@ -437,18 +392,14 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 		endTime = new java.util.Date().getTime();
 		log.info(String.format("시간차=[%d]", (endTime - startTime)));
 
-		/*
-		 * if (outObj instanceof SelfExn) { SelfExn selfExnOutObj =
-		 * (SelfExn)outObj; log.warn(selfExnOutObj.getReport());
-		 * selfExnOutObj.toException(); }
-		 */
+		
 
 		return outObj;
 	}
 
 	@Override
 	public void sendAsynInputMessage(AbstractMessage inObj) throws ServerNotReadyException, SocketTimeoutException,
-			NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException, NotSupportedException {
+			NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException, NotSupportedException, InterruptedException {
 		long startTime = 0;
 		long endTime = 0;
 		startTime = new java.util.Date().getTime();
@@ -459,19 +410,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 		connectServerIfNoConnection();
 
 		PrivateMailbox mailbox = null;
-		boolean isInterrupted = false;
-
-		try {
-			mailbox = PrivateMailboxWaitingQueue.take();
-		} catch (InterruptedException e) {
-			try {
-				mailbox = PrivateMailboxWaitingQueue.take();
-			} catch (InterruptedException e1) {
-				log.error("인터럽트 받아 후속 처리중 발생", e1);
-				System.exit(1);
-			}
-			isInterrupted = true;
-		}
+		mailbox = PrivateMailboxWaitingQueue.poll(connectionTimeout, TimeUnit.MILLISECONDS);
 
 		ClassLoader classLoader = inObj.getClass().getClassLoader();
 		LetterToServer letterToServer = null;
@@ -495,31 +434,21 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 				try {
 					mailbox.putAsynInputMessage(letterToServer);
 				} catch (InterruptedException e) {
-					isInterrupted = true;
-					try {
-						mailbox.putSyncInputMessage(letterToServer);
-					} catch (InterruptedException e1) {
-						log.error("인터럽트 받아 후속 처리중 발생", e);
-						System.exit(1);
-					}
+					log.warn("fail to put the input message[{}] in the input message queue of mailbox becase this current thread was interrupted", inObj.toString());
+					throw e;
 				}
 
 			} finally {
 				if (null != mailbox) {
 					privateMailboxMap.remove(mailbox.getMailboxID());
 					mailbox.setDisable();
-					/**
-					 * InterruptedException 를 발생시키지 않는 offer 메소드 사용. 개인 메일함
-					 * 큐(=PrivateMailboxWaitingQueue) 는 메일함의 갯수를 고정으로 갖으며, 그것을
-					 * 넘어서는 메일함을 가질 이유는 없다. 단, 2번이상 넣기 시도등 큐에 2개 이상 중복되는 경우에
-					 * 오동작을 한다. 하지만 큐에 대한 사용자 개입을 원천적으로 차단되어 2개이상 중복하여 큐에 들어갈 일은
-					 * 없다.
-					 */
-					PrivateMailboxWaitingQueue.offer(mailbox);
+					boolean isSuccess =  PrivateMailboxWaitingQueue.offer(mailbox);
+					if (!isSuccess) {
+						log.error("fail to put mailbox[{}] in the mailbox queue becase of bug, you need to check and fix bug", mailbox.hashCode());
+						System.exit(1);
+					}
 				}
-
-				if (isInterrupted)
-					Thread.currentThread().interrupt();
+				
 			}
 		}
 

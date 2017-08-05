@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	item type : (unsigned) byte, (unsigned) short, (unsigned) integer, long,
+					fixed length string, 
+					ub pascal string, us pascal string, si pascal string, 
+					fixed length byte[], variable length byte[] 
+	array counter type : reference 변수참조, direct 직접입력
+	direction : FROM_NONE_TO_NONE, FROM_SERVER_TO_CLINET, FROM_CLIENT_TO_SERVER, FROM_ALL_TO_ALL
+	(1) FROM_NONE_TO_NONE : 메시지는 서버에서 클라이언트로 혹은 클라이언트에서 서버로 양쪽 모두에서 전송되지 않는다.
+	(2) FROM_SERVER_TO_CLINET : 메시지는 서버에서 클라이언트로만 전송된다.
+	(3) FROM_CLIENT_TO_SERVER : 메시지는 클라이언트에서 서버로만 전송된다.
+	(4) FROM_ALL_TO_ALL : 메시지는 서버에서 클라이언트로도 혹은 클라이언트에서 서버로 양쪽 모두에서 전송된다.
+-->
+<sinnori_message>
+<messageID>ReadyToUploadRes</messageID>
+<direction>FROM_SERVER_TO_CLINET</direction>
+<desc>파일 업로드 준비 요청 출력 메시지</desc>
+<singleitem name="clientSourceFileID" type="integer">
+	<desc>클라이언트 원본 파일 식별자</desc>
+</singleitem>
+<singleitem name="taskResult" type="ub pascal string">
+	<desc>메시지 1:1 대응 비지니스 로직 수행 후 성공여부 , Y:성공, N:실패</desc>
+</singleitem>
+<singleitem name="resultMessage" type="ub pascal string">
+	<desc>결과 메세지</desc>
+</singleitem>
+<singleitem name="serverTargetFileID" type="integer">
+	<desc>서버 목적지 파일 식별자</desc>
+</singleitem>
+</sinnori_message>

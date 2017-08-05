@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
-import kr.pe.sinnori.common.config.vo.ProjectPartConfiguration;
+import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
@@ -334,7 +334,7 @@ public class AnyProjectServer extends AbstractProject implements
 	}
 
 	// FIXME!
-	public void login(String loginID, ClientResource clientResource) {
+	public void doLoginSuccess(String loginID, ClientResource clientResource) {
 		clientResource.setLoginID(loginID);
 
 		loginIDToSCHash.put(loginID, clientResource);

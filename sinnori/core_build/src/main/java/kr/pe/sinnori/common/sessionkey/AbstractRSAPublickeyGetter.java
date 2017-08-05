@@ -9,14 +9,14 @@ import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.vo.CommonPartConfiguration;
+import kr.pe.sinnori.common.config.itemvalue.CommonPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.exception.SymmetricException;
 
 public abstract class AbstractRSAPublickeyGetter {
 	
-	public final byte[] getMainProjectPublickeyBytes() throws SymmetricException {
+	public final byte[] getMainProjectPublickeyBytes() throws SymmetricException, InterruptedException {
 		byte[] publicKeyBytes = null;
 		SinnoriConfiguration sinnoriRunningProjectConfiguration = SinnoriConfigurationManager.getInstance()
 				.getSinnoriRunningProjectConfiguration();
@@ -37,7 +37,7 @@ public abstract class AbstractRSAPublickeyGetter {
 		return publicKeyBytes;
 	}
 	
-	abstract protected byte[] getPublickeyBytesFromMainProjectServer() throws SymmetricException;
+	abstract protected byte[] getPublickeyBytesFromMainProjectServer() throws SymmetricException, InterruptedException;
 	
 	/*private static final byte[] getPublickeyBytesFromMainProjectServer() throws SymmetricException {
 		Logger log = LoggerFactory.getLogger(ClientRSAPublickeyGetter.class);

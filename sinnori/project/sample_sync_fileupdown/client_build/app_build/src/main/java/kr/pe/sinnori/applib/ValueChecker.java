@@ -39,15 +39,15 @@ public final class ValueChecker {
 	
 	/**
 	 * 비밀번호에 대한 입력값 검사를 수행한다.
-	 * @param password 비밀번호
+	 * @param passwordChars 비밀번호
 	 * @throws IllegalArgumentException 값이 적당하지 않으면 던진는 예외
 	 */
-	public static void checkValidPwd(char[] pwdBytes) throws IllegalArgumentException {
-		if (null == pwdBytes) {
-			throw new IllegalArgumentException("the paramter pwdBytes is null");
+	public static void checkValidPwd(char[] passwordChars) throws IllegalArgumentException {
+		if (null == passwordChars) {
+			throw new IllegalArgumentException("the paramter passwordChars is null");
 		}
 		
-		CharBuffer pwdCharBuffer = CharBuffer.wrap(pwdBytes);
+		CharBuffer pwdCharBuffer = CharBuffer.wrap(passwordChars);
 		
 		/**
 		 * \p{Graph} = [\p{Alpha}|\p{Digit}{1,}|\p{Punct}]

@@ -165,6 +165,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 	 */
 	public void queueIn() {
 		isQueueIn = true;
+		log.info("put NoShareSyncConnection[{}] in the connection queue", monitor.hashCode());
 	}
 
 	/**
@@ -172,6 +173,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 	 */
 	public void queueOut() {
 		isQueueIn = false;
+		log.info("get NoShareSyncConnection[{}] from the connection queue", monitor.hashCode());
 	}
 	
 	@Override
@@ -369,10 +371,10 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 
 			selfExn.messageHeaderInfo = inObj.messageHeaderInfo;
 			
-			selfExn.setErrorWhere("C");
+			selfExn.setErrorPlace("C");
 			selfExn.setErrorGubun("D");
 			selfExn.setErrorMessageID(inObj.getMessageID());
-			selfExn.setErrorWhere(e.getMessage());
+			selfExn.setErrorPlace(e.getMessage());
 			
 			//letterFromServer = new LetterFromServer(selfExn);
 			return selfExn;
@@ -444,11 +446,6 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 			
 			ReceivedLetter  receivedLetter  = receivedLetterList.get(0);
 			outObj = getMessageFromMiddleReadObj(classLoader, receivedLetter);
-			// AbstractMessage outObj = outputMessageList.get(0);
-				// log.info(OutObj.toString());
-			// letterFromServer = new LetterFromServer(outObj);
-			
-			// }
 			
 		} catch (HeaderFormatException e) {
 			log.warn(String.format("HeaderFormatException::%s", e.getMessage()), e);

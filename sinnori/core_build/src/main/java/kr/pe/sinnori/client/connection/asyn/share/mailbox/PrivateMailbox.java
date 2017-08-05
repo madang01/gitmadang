@@ -57,6 +57,8 @@ import org.slf4j.LoggerFactory;
 public class PrivateMailbox {
 	private Logger log = LoggerFactory.getLogger(PrivateMailbox.class);
 	
+	private final Object monitor = new Object();
+	
 	/** 메일함 식별자 */
 	private int mailboxID;
 	/** 입력 메시지 큐 */
@@ -217,7 +219,7 @@ public class PrivateMailbox {
 	}
 
 	/**
-	 * 메일함이 가지는 출력 메시지 큐에서 얻은 출력 메시지를 반환한다.
+	 * 지정된 소켓 타임 아웃 시간 동안 메일함의 출력 메시지 큐에서 얻은 출력 메시지를 반환한다.
 	 * 
 	 * @return 메일함이 가지는 출력 메시지 큐에서 얻은 출력 메시지
 	 * @throws SocketTimeoutException
@@ -225,22 +227,37 @@ public class PrivateMailbox {
 	 *             못했을때 발생
 	 * @throws InterruptedException 인터럽트 발생시 던지는 예외
 	 */
-	public ReceivedLetter takeSyncOutputMessage() throws SocketTimeoutException, InterruptedException {
-		ReceivedLetter receivedLetter = null;
-		
+	public ReceivedLetter getSyncOutputMessage() throws SocketTimeoutException, InterruptedException {
+		long firstElapsedTime = new java.util.Date().getTime();
+		long lastElapsedTime = firstElapsedTime;
+		long elapsedTimeDifference = 0L;
+		ReceivedLetter receivedLetter = null;		
 		do {
-			receivedLetter = syncOutputMessageQueue.poll(socketTimeOut,
+			receivedLetter = syncOutputMessageQueue.poll(socketTimeOut - elapsedTimeDifference,
 					TimeUnit.MILLISECONDS);
 			if (null == receivedLetter) {
-				String errorMsg = String
-						.format("서버 응답 시간[%d]이 초과되었습니다. %s, mailboxID=[%d], mailID=[%d]",
+				String errorMessage = String
+						.format("1.서버 응답 시간[%d]이 초과되었습니다. %s, mailboxID=[%d], mailID=[%d]",
 								socketTimeOut, serverConnection.getSimpleConnectionInfo(),
 								mailboxID, mailID);
-				log.warn(errorMsg);
-				throw new SocketTimeoutException(errorMsg);
+				log.warn(errorMessage);
+				throw new SocketTimeoutException(errorMessage);
 			}
 			
-			if (receivedLetter.getMailID() == mailID) return receivedLetter;				
+			if (receivedLetter.getMailID() == mailID) {
+				return receivedLetter;
+			}
+			
+			lastElapsedTime = new java.util.Date().getTime();
+			elapsedTimeDifference = lastElapsedTime - firstElapsedTime; 
+			if (elapsedTimeDifference >= socketTimeOut) {
+				String errorMessage = String
+						.format("2.서버 응답 시간[%d]이 초과되었습니다. %s, mailboxID=[%d], mailID=[%d]",
+								socketTimeOut, serverConnection.getSimpleConnectionInfo(),
+								mailboxID, mailID);
+				log.warn(errorMessage);
+				throw new SocketTimeoutException(errorMessage);
+			}
 			
 			log.warn(String.format(
 					"%s 연결 객체의 메일 박스[%d]를 통해 보낸 입력 메시지의 메일 식별자[%d]와 전달 받은 출력 메시지[%s]의 메일 식별자가 다릅니다.",
@@ -248,6 +265,7 @@ public class PrivateMailbox {
 					mailID,
 					receivedLetter.toString()));
 			
+						
 		} while (true);		
 	}
 
@@ -283,6 +301,10 @@ public class PrivateMailbox {
 	 */
 	public boolean isActive() {
 		return isActive;
+	}
+	
+	public int hashCode() {
+		return monitor.hashCode();
 	}
 
 	@Override

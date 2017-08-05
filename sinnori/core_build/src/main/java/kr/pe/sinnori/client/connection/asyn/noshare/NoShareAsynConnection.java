@@ -152,6 +152,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 	 */
 	public void queueIn() {
 		isQueueIn = true;
+		log.info("get NoShareAsynConnection[{}] from the connection queue", monitor.hashCode());
 	}
 
 	/**
@@ -159,6 +160,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 	 */
 	public void queueOut() {
 		isQueueIn = false;
+		log.info("get NoShareAsynConnection[{}] from the connection queue", monitor.hashCode());
 	}
 
 	/**
@@ -358,7 +360,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 				// AbstractMessage workOutObj = null;
 
 				try {
-					receivedLetter = mailbox.takeSyncOutputMessage();
+					receivedLetter = mailbox.getSyncOutputMessage();
 				} catch (InterruptedException e) {
 					/**
 					 * 인터럽트 발생시 메소드 끝가지 로직 수행후 인터럽트 상태를 복귀 시켜 최종 인터럽트 처리를 마무리
@@ -369,7 +371,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 						System.exit(1);
 					} else {
 						try {
-							receivedLetter = mailbox.takeSyncOutputMessage();
+							receivedLetter = mailbox.getSyncOutputMessage();
 						} catch (InterruptedException e1) {
 							log.error("인터럽트 받아 후속 처리중 발생", e1);
 							System.exit(1);
@@ -401,13 +403,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 
 		endTime = new java.util.Date().getTime();
 		log.info(String.format("2.시간차=[%d]", (endTime - startTime)));
-
-		/*
-		 * if (outObj instanceof SelfExn) { SelfExn selfExnOutObj =
-		 * (SelfExn)outObj; log.warn(selfExnOutObj.getReport());
-		 * selfExnOutObj.toException(); }
-		 */
-
+		
 		return outObj;
 	}
 
@@ -454,8 +450,9 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 			} finally {
 				mailbox.setDisable();
 
-				if (isInterrupted)
+				if (isInterrupted) {
 					Thread.currentThread().interrupt();
+				}
 			}
 		}
 

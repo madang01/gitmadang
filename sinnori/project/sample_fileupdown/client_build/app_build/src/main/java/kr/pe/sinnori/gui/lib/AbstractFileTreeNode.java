@@ -36,8 +36,8 @@ public abstract class AbstractFileTreeNode extends DefaultMutableTreeNode {
 	public enum FileType { File, Directory };
 	protected FileType fileType;
 	
-	public static byte FILE = 0;
-	public static byte DIRECTORY = 1;
+	public static final byte FILE = 0;
+	public static final byte DIRECTORY = 1;
 	
 	/**
 	 * 생성자
@@ -85,8 +85,8 @@ public abstract class AbstractFileTreeNode extends DefaultMutableTreeNode {
 	/**
 	 * @return 디렉토리 여부
 	 */
-	public boolean isDirectory() {
-		return (FileType.Directory == fileType);
+	public boolean isDirectory() {		
+		return FileType.Directory.equals(fileType);
 	}
 	
 	/*

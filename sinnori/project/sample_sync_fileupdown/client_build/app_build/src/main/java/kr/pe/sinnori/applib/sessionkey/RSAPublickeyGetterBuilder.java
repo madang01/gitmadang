@@ -5,12 +5,11 @@ import java.net.SocketTimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.client.AnyProjectClient;
-import kr.pe.sinnori.client.MainClientManager;
+import kr.pe.sinnori.applib.MainProejctSyncConnectionManager;
 import kr.pe.sinnori.common.exception.BodyFormatException;
+import kr.pe.sinnori.common.exception.ConnectionTimeoutException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.exception.NotFoundProjectException;
 import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
@@ -21,6 +20,11 @@ import kr.pe.sinnori.impl.message.PublicKeyReq.PublicKeyReq;
 import kr.pe.sinnori.impl.message.PublicKeyRes.PublicKeyRes;
 
 public class RSAPublickeyGetterBuilder extends AbstractRSAPublickeyGetter {
+
+	private final Object mainProjectPublicKeyMonitor = new Object();
+	
+	private byte[] mainProjectPublicKeyBytes = null;
+	
 
 	/** 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스 */
 	private static final class RSAPublickeyGetterHolder {
@@ -35,57 +39,44 @@ public class RSAPublickeyGetterBuilder extends AbstractRSAPublickeyGetter {
 	private RSAPublickeyGetterBuilder() {
 	}
 
-	protected byte[] getPublickeyBytesFromMainProjectServer() throws SymmetricException {
+	protected byte[] getPublickeyBytesFromMainProjectServer() throws SymmetricException, InterruptedException {
 		Logger log = LoggerFactory.getLogger(RSAPublickeyGetterBuilder.class);
 
-		AnyProjectClient mainClientProject = MainClientManager.getInstance().getMainProjectClient();
+		synchronized (mainProjectPublicKeyMonitor) {
+			if (null == mainProjectPublicKeyBytes) {
+				MainProejctSyncConnectionManager mainProejctConnectionManager = MainProejctSyncConnectionManager.getInstance();
 
-		byte[] publicKeyBytes = null;
-		try {
-			publicKeyBytes = getPublickeyFromServer(mainClientProject);
-		} catch (SocketTimeoutException | ServerNotReadyException | NoMoreDataPacketBufferException
-				| BodyFormatException | DynamicClassCallException | ServerTaskException | NotLoginException e) {
-			String errorMessage = e.getMessage();
-			log.warn(errorMessage, e);
-			throw new SymmetricException(errorMessage);
+				PublicKeyReq publicKeyReq = new PublicKeyReq();
+				PublicKeyRes publicKeyRes = null;
+				AbstractMessage ouputMessage = null;
+
+				try {
+					ouputMessage = mainProejctConnectionManager.sendSyncInputMessage(publicKeyReq);
+				} catch (SocketTimeoutException | ServerNotReadyException | NoMoreDataPacketBufferException
+						| BodyFormatException | DynamicClassCallException | ServerTaskException | NotLoginException 
+						| ConnectionTimeoutException  e) {
+					String errorMessage = e.getMessage();
+					log.warn(errorMessage, e);
+					throw new SymmetricException(errorMessage);
+				}
+
+				if (!ouputMessage.getMessageID().equals("PublicKeyRes")) {
+					String errorMessage = String.format(
+							"expected message id PublicKeyRes but returned message id is not PublicKeyRes, ",
+							ouputMessage.toString());
+					throw new SymmetricException(errorMessage);
+				}
+
+				publicKeyRes = (PublicKeyRes) ouputMessage;
+
+				mainProjectPublicKeyBytes = publicKeyRes.getPublicKeyBytes();
+			}
+
+			return mainProjectPublicKeyBytes;
 		}
-
-		return publicKeyBytes;
 	}
 
 	public byte[] getSubProjectPublickeyBytes(String subProjectName) throws SymmetricException {
-		Logger log = LoggerFactory.getLogger(RSAPublickeyGetterBuilder.class);
-
-		AnyProjectClient subClientProject = null;
-		try {
-			subClientProject = MainClientManager.getInstance().getSubProjectClient(subProjectName);
-		} catch (NotFoundProjectException e) {
-			String errorMessage = e.getMessage();
-			log.warn(errorMessage, e);
-			throw new SymmetricException(errorMessage);
-		}
-
-		byte[] publicKeyBytes = null;
-		try {
-			publicKeyBytes = getPublickeyFromServer(subClientProject);
-		} catch (SocketTimeoutException | ServerNotReadyException | NoMoreDataPacketBufferException
-				| BodyFormatException | DynamicClassCallException | ServerTaskException | NotLoginException e) {
-			String errorMessage = e.getMessage();
-			log.warn(errorMessage, e);
-			throw new SymmetricException(errorMessage);
-		}
-
-		return publicKeyBytes;
-	}
-
-	private byte[] getPublickeyFromServer(AnyProjectClient clientProject)
-			throws SymmetricException, SocketTimeoutException, ServerNotReadyException, NoMoreDataPacketBufferException,
-			BodyFormatException, DynamicClassCallException, ServerTaskException, NotLoginException {
-		PublicKeyReq publicKeyReq = new PublicKeyReq();		
-
-		AbstractMessage outObj = clientProject.sendSyncInputMessage(publicKeyReq);
-		PublicKeyRes publicKeyRes = (PublicKeyRes) outObj;
-
-		return publicKeyRes.getPublicKeyBytes();
-	}
+		throw new SymmetricException("the sample_sync_fileupdown client applicaiton doesn't support this method becase of  no sub-project");
+	}	
 }

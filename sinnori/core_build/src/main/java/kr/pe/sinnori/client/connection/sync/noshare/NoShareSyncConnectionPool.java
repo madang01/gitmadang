@@ -21,11 +21,13 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.AbstractConnectionPool;
 import kr.pe.sinnori.common.exception.BodyFormatException;
+import kr.pe.sinnori.common.exception.ConnectionTimeoutException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotLoginException;
@@ -48,11 +50,12 @@ public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 	private LinkedBlockingQueue<NoShareSyncConnection> connectionQueue = null;
 	private ArrayList<NoShareSyncConnection> connectionList = new ArrayList<NoShareSyncConnection>();
 	private int connectionPoolSize;
-	private boolean isFailToGetConnection = false;
+	private long connectionTimeout;
 	
 	/**
 	 * 생성자
 	 * @param connectionPoolSize 연결 폴 크기
+	 * @param connectionTimeout 비공유 연결 타임 아웃
 	 * @param socketTimeOut 소켓 타임 아웃
 	 * @param whetherToAutoConnect 자동 연결 여부
 	 * @param projectPart 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
@@ -64,7 +67,7 @@ public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 	public NoShareSyncConnectionPool(String projectName,
 			String hostOfProject,
 			int portOfProject,
-			Charset charsetOfProject, int connectionPoolSize, 
+			Charset charsetOfProject, int connectionPoolSize, long connectionTimeout, 
 			long socketTimeOut,
 			boolean whetherToAutoConnect,
 			MessageProtocolIF messageProtocol,
@@ -76,6 +79,7 @@ public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 		// log.info("create new SingleBlockConnectionPool");
 
 		this.connectionPoolSize = connectionPoolSize;
+		this.connectionTimeout = connectionTimeout;
 
 		connectionQueue = new LinkedBlockingQueue<NoShareSyncConnection>(
 				connectionPoolSize);
@@ -107,74 +111,77 @@ public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
 			throws ServerNotReadyException, SocketTimeoutException,
 			NoMoreDataPacketBufferException, BodyFormatException, 
-			DynamicClassCallException, ServerTaskException, NotLoginException {
+			DynamicClassCallException, ServerTaskException, NotLoginException, ConnectionTimeoutException, InterruptedException {
 		NoShareSyncConnection conn = null;
-		// synchronized (monitor) {
-		try {
-			conn = connectionQueue.poll();
-			if (null == conn) {
-				if (!isFailToGetConnection) {
-					isFailToGetConnection = true;
-					log.warn("WARNING::connection queue empty");
-				}
-				conn = connectionQueue.take();
-			}
-			
-			conn.queueOut();
-		} catch (InterruptedException e) {
-			try {
-				conn = connectionQueue.take();
-				conn.queueOut();
-			} catch (InterruptedException e1) {
-				log.error("인터럽트 받아 후속 처리중 발생", e1);
-				System.exit(1);
-			}
+		
+		conn = connectionQueue.poll(connectionTimeout, TimeUnit.MILLISECONDS);
+		if (null == conn) {
+			throw new ConnectionTimeoutException("no share synchronized connection pool timeout");
 		}
-		// }
+		
+		conn.queueOut();
 
 		AbstractMessage retMessage = null;
 		try {
 			retMessage = conn.sendSyncInputMessage(inputMessage);
 		} finally {
-			// synchronized (monitor) {
-			try {
-				conn.queueIn();
-				connectionQueue.put(conn);
-			} catch (InterruptedException e) {
-				log.error("발생할 이유 없음 원인 제거 필요함", e);
+			
+			conn.queueIn();
+			boolean isSuccess = connectionQueue.offer(conn);
+			if (!isSuccess) {
+				log.error("fail to put NoShareSyncConnection[{}] in the connection queue becase of bug, you need to check and fix bug", conn.hashCode());
+				System.exit(1);
 			}
-			// }
+			
 		}
 		return retMessage;
 	}
 	
 	@Override
-	public AbstractConnection getConnection() throws InterruptedException, NotSupportedException {
-		NoShareSyncConnection conn = connectionQueue.poll();
-		if (null == conn) {
-			if (!isFailToGetConnection) {
-				isFailToGetConnection = true;
-				log.warn("WARNING::connection queue empty");
-			}
-			conn = connectionQueue.take();
-		}
+	public AbstractConnection getConnection() throws InterruptedException, NotSupportedException, ConnectionTimeoutException {
+		
 		
 		synchronized (monitor) {
+			NoShareSyncConnection conn = connectionQueue.poll(connectionTimeout, TimeUnit.MILLISECONDS);
+			if (null == conn) {
+				throw new ConnectionTimeoutException("no share synchronized connection pool timeout");
+			}
 			conn.queueOut();
 			return conn;
 		}
 	}
 	
 	@Override
-	public void freeConnection(AbstractConnection conn) throws NotSupportedException {
-		if (null == conn) return;
+	public void release(AbstractConnection conn) throws NotSupportedException {
+		if (null == conn) {
+			String errorMessage = "the parameter conn is null";
+			log.warn(errorMessage, new Throwable());
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (! (conn instanceof NoShareSyncConnection)) {
+			String errorMessage = "the parameter conn is not instace of NoShareSyncConnection class";
+			log.warn(errorMessage, new Throwable());
+			throw new IllegalArgumentException(errorMessage);
+		}
 		
 		NoShareSyncConnection serverConnection = (NoShareSyncConnection)conn;
 		synchronized (monitor) {
-			if (serverConnection.isInQueue()) return;
+			/**
+			 * 연속 2회 큐 입력 방지
+			 */
+			if (serverConnection.isInQueue()) {
+				String errorMessage = String.format("the paramter conn[%d] that is NoShareSyncConnection  allready was in connection queue", conn.hashCode());
+				log.warn(errorMessage, new Throwable());
+				return;
+			}
 			serverConnection.queueIn();
+			boolean isSuccess = connectionQueue.offer(serverConnection);
+			if (!isSuccess) {
+				log.error("fail to offer NoShareSyncConnection[{}] to connection queue becase of bug, you need to check and fix bug", conn.hashCode());
+				System.exit(1);
+			}
 		}
-		connectionQueue.offer(serverConnection);
 	}
 	
 	@Override
