@@ -30,6 +30,7 @@ import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.itemvalue.CommonPartConfiguration;
 import kr.pe.sinnori.common.exception.UpDownFileException;
+import kr.pe.sinnori.gui.syncfileupdown.screen.FileTranferProcessDialogIF;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,6 +80,29 @@ public class LocalSourceFileResource {
 	
 	/** Warning! the variable fileBlockMaxSize must not create getXXX method because it is Sinnori configuration variable */
 	private int fileBlockMaxSize;
+	
+	
+	/*******  view 와 관련된 모듈 시작 ***************/
+	private FileTranferProcessDialogIF fileTranferProcessDialog = null;
+	
+	public void setFileTranferProcessDialog(FileTranferProcessDialogIF fileTranferProcessDialog) {
+		this.fileTranferProcessDialog = fileTranferProcessDialog;
+	}
+	
+	public void noticeAddedFileDataToFileTranferProcessDialog(int receivedDataSize) {
+		if (null != fileTranferProcessDialog) {
+			fileTranferProcessDialog.noticeAddedFileData(receivedDataSize);
+		}
+	}
+	
+	public void disposeFileTranferProcessDialog() {
+		if (null != fileTranferProcessDialog) {
+			fileTranferProcessDialog.dispose();
+			fileTranferProcessDialog = null;
+		}
+	}
+	/*******  view 와 관련된 모듈 종료 ***************/
+	
 	public LocalSourceFileResource(int sourceFileID) {
 		this.sourceFileID = sourceFileID;
 		
@@ -784,6 +808,14 @@ public class LocalSourceFileResource {
 	 */
 	public int getEndFileBlockNo() {
 		return (int) endFileBlockNo;
+	}
+	
+	public long getTotalReceivedDataSize() {
+		if (append) {
+			return targetFileSize;
+		} else {
+			return 0;
+		}
 	}
 
 	@Override

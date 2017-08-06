@@ -104,7 +104,9 @@ public class LocalSourceFileResourceManager {
 		LocalSourceFileResource localSourceFileResource = null;
 		synchronized (monitor) {
 			localSourceFileResource = localSourceFileResourceQueue.poll();
-			if (null == localSourceFileResource) return null;
+			if (null == localSourceFileResource) {
+				return null;
+			}
 			localSourceFileResource.queueOut();
 			localSourceFileResourceHash.put(localSourceFileResource.getSourceFileID(), localSourceFileResource);
 		}
@@ -152,5 +154,16 @@ public class LocalSourceFileResourceManager {
 			LocalSourceFileResource localSourceFileResource = localSourceFileResourceHash.get(sourceFileID);
 			return localSourceFileResource;
 		}
+	}
+	
+	public void releaseAll() {
+		for (LocalSourceFileResource localSourceFileResource  : localSourceFileResourceHash.values()) {
+	 		localSourceFileResource.releaseFileLock();
+	 	}
+	}
+	
+	@Override
+	protected void finalize() throws Throwable {		
+		releaseAll();
 	}
 }

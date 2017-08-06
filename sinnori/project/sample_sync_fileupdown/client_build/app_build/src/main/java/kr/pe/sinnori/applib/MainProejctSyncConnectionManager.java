@@ -74,7 +74,8 @@ public class MainProejctSyncConnectionManager {
 	public void closeConnection() {
 		if (null == conn) {
 			log.error("conn is null");
-			System.exit(1);
+			// System.exit(1);
+			return;
 		}
 		conn.serverClose();
 	}

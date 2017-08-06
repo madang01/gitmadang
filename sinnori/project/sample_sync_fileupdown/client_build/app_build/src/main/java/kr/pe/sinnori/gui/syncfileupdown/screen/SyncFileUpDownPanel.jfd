@@ -104,6 +104,7 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "uploadButton"
 					"text": "upload"
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "uploadButtonActionPerformed", true ) )
 				} )
 				add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
 					name: "menuVerticalSpacer"
