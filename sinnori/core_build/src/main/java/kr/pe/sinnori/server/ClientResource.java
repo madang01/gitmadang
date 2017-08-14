@@ -20,8 +20,6 @@ package kr.pe.sinnori.server;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,9 +28,7 @@ import kr.pe.sinnori.common.io.SocketInputStream;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
-import kr.pe.sinnori.common.updownfile.LocalSourceFileResource;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResourceManager;
-import kr.pe.sinnori.common.updownfile.LocalTargetFileResource;
 import kr.pe.sinnori.common.updownfile.LocalTargetFileResourceManager;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
 import kr.pe.sinnori.server.io.LetterToClient;
@@ -75,13 +71,6 @@ public class ClientResource {
 	/** 로그인 아이디 */
 	private String loginID = null;
 	
-	
-	private HashSet<Integer> localSourceFileIDSet = new HashSet<Integer>(); 
-	private HashSet<Integer> localTargetFileIDSet = new HashSet<Integer>();
-	
-
-	private LocalTargetFileResourceManager localTargetFileResourceManager = LocalTargetFileResourceManager.getInstance();
-		
 	/**
 	 * 생성자
 	 * @param clientSC 서버에 접속한 클라이언트 소켓 채널
@@ -192,78 +181,13 @@ public class ClientResource {
 		
 		messageInputStreamResource.destory();
 		
-		LocalSourceFileResourceManager localSourceFileResourceManager = LocalSourceFileResourceManager.getInstance();
-		Iterator<Integer> localSourceFileIDIterator = localSourceFileIDSet.iterator();
-		while (localSourceFileIDIterator.hasNext()) {
-			int localSourceFileID = localSourceFileIDIterator.next();
-			LocalSourceFileResource  localSourceFileResource  = localSourceFileResourceManager.getLocalSourceFileResource(localSourceFileID);
-			localSourceFileResourceManager.putLocalSourceFileResource(localSourceFileResource);
-			
-			log.info(String.format("clientSC[%d] loginID[%s] logout, free localSourceFileID[%d]", clientSC.hashCode(), loginID, localSourceFileID));
-			
-		}
-		
-		Iterator<Integer> localTargetFileIDIterator = localTargetFileIDSet.iterator();
-		while(localTargetFileIDIterator.hasNext()) {
-			int localTargetFileID = localTargetFileIDIterator.next();
-			LocalTargetFileResource localTargetFileResource = localTargetFileResourceManager.getLocalTargetFileResource(localTargetFileID);
-			localTargetFileResourceManager.putLocalTargetFileResource(localTargetFileResource);
-			
-			log.info(String.format("clientSC[%d] loginID[%s] logout, free localTargetFileID[%d]", clientSC.hashCode(), loginID, localTargetFileID));
-		}
+		LocalSourceFileResourceManager.getInstance().removeUsingUserIDWithUnlockFile(loginID);
+		LocalTargetFileResourceManager.getInstance().removeUsingUserIDWithUnlockFile(loginID);
 		
 		loginID = null;
 	}
 	
 	
-	
-	public void addLocalSourceFileID(int localSourceFileID) {
-		log.info(String.format("clientSC[%d] add localSourceFileID=[%d]", clientSC.hashCode(), localSourceFileID));
-		
-		localSourceFileIDSet.add(localSourceFileID);
-	}
-	
-	public void removeLocalSourceFileID(int localSourceFileID) {
-		// log.info(String.format("SC[%d] remove localSourceFileID=[%d]", clientSC.hashCode(), localSourceFileID));
-		
-		boolean isLocalSourceFileID = localSourceFileIDSet.remove(localSourceFileID);
-		
-		log.info(String.format("clientSC[%d] remove localSourceFileID=[%d], isLocalSourceFileID=[%s]", clientSC.hashCode(), localSourceFileID, isLocalSourceFileID));
-		
-		if (isLocalSourceFileID) {
-			LocalSourceFileResourceManager localSourceFileResourceManager = LocalSourceFileResourceManager.getInstance();
-			LocalSourceFileResource  localSourceFileResource = localSourceFileResourceManager.getLocalSourceFileResource(localSourceFileID);
-			localSourceFileResourceManager.putLocalSourceFileResource(localSourceFileResource);
-		}
-	}
-	
-	public boolean isLocalSourceFileID(int localSourceFileID) {
-		return localSourceFileIDSet.contains(localSourceFileID);
-	}
-
-	public void addLocalTargetFileID(int localTargetFileID) {
-		log.info(String.format("SC[%d] add localTargetFileID=[%d]", clientSC.hashCode(), localTargetFileID));
-		
-		localTargetFileIDSet.add(localTargetFileID);
-	}
-	
-	public void removeLocalTargetFileID(int localTargetFileID) {
-		// log.info(String.format("SC[%d] remove localTargetFileID=[%d]", clientSC.hashCode(), localTargetFileID));
-		
-		boolean isLocalTargetFileID = localTargetFileIDSet.remove(localTargetFileID);
-		
-		log.info(String.format("SC[%d] remove localTargetFileID=[%d], isLocalTargetFileID=[%s]", clientSC.hashCode(), localTargetFileID, isLocalTargetFileID));
-		
-		if (isLocalTargetFileID) {
-			
-			LocalTargetFileResource localTargetFileResource = localTargetFileResourceManager.getLocalTargetFileResource(localTargetFileID);
-			localTargetFileResourceManager.putLocalTargetFileResource(localTargetFileResource);
-		}
-	}
-	
-	public boolean isLocalTargetFileID(int localTargetFileID) {
-		return localTargetFileIDSet.contains(localTargetFileID);
-	}
 	
 	
 	
@@ -310,11 +234,7 @@ public class ClientResource {
 		builder.append(", serverMailID=");
 		builder.append(serverMailID);
 		builder.append(", loginID=");
-		builder.append(loginID);		
-		builder.append(", localSourceFileIDSet=");
-		builder.append(localSourceFileIDSet.toString());
-		builder.append(", localTargetFileIDSet=");
-		builder.append(localTargetFileIDSet.toString());
+		builder.append(loginID);
 		// builder.append(", localTargetFileResourceManager=");
 		// builder.append(localTargetFileResourceManager);
 		builder.append("]");

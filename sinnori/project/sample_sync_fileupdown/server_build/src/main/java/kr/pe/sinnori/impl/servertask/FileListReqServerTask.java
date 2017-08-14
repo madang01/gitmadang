@@ -20,9 +20,9 @@ public class FileListReqServerTask extends AbstractAuthServerExecutor {
 	@Override
 	public void doTask(String projectName,
 			LoginManagerIF loginManager,
-			LetterSender letterSender, AbstractMessage fileListReq)
+			LetterSender letterSender, AbstractMessage requestMessage)
 			throws Exception {
-		doWork(projectName, letterSender, (FileListReq)fileListReq);
+		doWork(projectName, letterSender, (FileListReq)requestMessage);
 	}
 	
 	 

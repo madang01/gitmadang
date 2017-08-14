@@ -13,9 +13,9 @@ public class PublicKeyReqServerTask extends AbstractServerTask {
 	@Override
 	public void doTask(String projectName,
 			LoginManagerIF loginManager,
-			LetterSender letterSender, AbstractMessage messageFromClient)
+			LetterSender letterSender, AbstractMessage requestMessage)
 			throws Exception {
-		doWork(projectName, letterSender, (PublicKeyReq)messageFromClient);
+		doWork(projectName, letterSender, (PublicKeyReq)requestMessage);
 	}
 	
 	private void doWork(String projectName,

@@ -291,6 +291,8 @@ public final class LoginPanel extends JPanel {
 			return;
 		}
 		
+		mainProejctConnectionManager.setLoginID(id);
+		
 		screenManagerIF.goToFileUpDownScreen();
 	}
 

@@ -32,9 +32,9 @@ public final class EchoServerTask extends AbstractServerTask {
 	@Override
 	public void doTask(String projectName,
 			LoginManagerIF loginManager,
-			LetterSender letterSender, AbstractMessage messageFromClient)
+			LetterSender letterSender, AbstractMessage requestMessage)
 			throws Exception {
-		doWork(projectName, letterSender, (Echo)messageFromClient);
+		doWork(projectName, letterSender, (Echo)requestMessage);
 	}
 	
 	private void doWork(String projectName,

@@ -17,33 +17,36 @@
 
 package kr.pe.sinnori.common.updownfile;
 
-import java.util.Hashtable;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.HashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.itemvalue.CommonPartConfiguration;
 import kr.pe.sinnori.common.exception.UpDownFileException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * <pre>
  * 로컬 목적지 파일을 원할하게 수신하기 위한 로컬 목적지 파일 자원 큐 관리자 클래스. 
  * 주) 느슷한 구조의 큐 자원 관리자로 통제된 사용 방법외 방법으로 사용시 비 정상 동작한다.
  * </pre>
+ * 
  * @author Won Jonghoon
  *
  */
 public class LocalTargetFileResourceManager {
 	private Logger log = LoggerFactory.getLogger(LocalTargetFileResourceManager.class);
-	
-	private final Object monitor = new Object(); 
-	
-	private LinkedBlockingQueue<LocalTargetFileResource> localTargetFileResourceQueue  = null;
-	private Hashtable<Integer, LocalTargetFileResource> localTargetFileResourceHash = null;
-	
+
+	private final Object monitor = new Object();
+
+	private int targetFileID = Integer.MAX_VALUE;
+	private int localTargetFileResourceCnt = -1;
+
+	private HashMap<Integer, LocalTargetFileResource> localTargetFileResourceHash = null;
+	private HashMap<String, Integer> ownerID2TargetFileIDHash = new HashMap<String, Integer>();
+
 	/**
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스
 	 */
@@ -64,91 +67,126 @@ public class LocalTargetFileResourceManager {
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 생성자
 	 */
 	private LocalTargetFileResourceManager() {
-		//int localTargetFileResourceCnt = (Integer)conf.getResource("common.updownfile.local_target_file_resource_cnt.value");
-		SinnoriConfiguration sinnoriRunningProjectConfiguration = 
-				SinnoriConfigurationManager.getInstance()
-				.getSinnoriRunningProjectConfiguration();		
+		// int localTargetFileResourceCnt =
+		// (Integer)conf.getResource("common.updownfile.local_target_file_resource_cnt.value");
+		SinnoriConfiguration sinnoriRunningProjectConfiguration = SinnoriConfigurationManager.getInstance()
+				.getSinnoriRunningProjectConfiguration();
 		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
-		int localTargetFileResourceCnt = commonPart.getLocalTargetFileResourceCnt();
-		
-		localTargetFileResourceQueue = new LinkedBlockingQueue<LocalTargetFileResource>(localTargetFileResourceCnt);
-		localTargetFileResourceHash = new Hashtable<Integer, LocalTargetFileResource>();
-		
-		for (int i=0; i < localTargetFileResourceCnt; i++) {
-			localTargetFileResourceQueue.add(new LocalTargetFileResource(i));
-		}
+		localTargetFileResourceCnt = commonPart.getLocalTargetFileResourceCnt();
+
+		localTargetFileResourceHash = new HashMap<Integer, LocalTargetFileResource>();
 	}
-	
-	/**
-	 * 큐에서 파일 자원 관리자를 받아서 소스 파일을 받을 목적지 파일을 준비시킨후 반환한다.
-	 * 
-	 * @param append 이어받기 여부
-	 * @param sourceFilePathName 소스 파일 경로 이름
-	 * @param sourceFileName 소스 파일명
-	 * @param sourceFileSize 소스 파일 크기
-	 * @param targetFilePathName 목적지 파일 경로 이름
-	 * @param targetFileName 목적지 파일 이름
-	 * @param targetFileSize 목적지 파일 크기
-	 * @param fileBlockSize 송수신 파일 조각 크기 
-	 * @return 소스 파일을 받을 목적지 파일을 준비된 파일 자원 관리자
-	 * @throws IllegalArgumentException 잘못된 파라미터 입력시 던지는 예외
-	 * @throws UpDownFileException 파일 송수신과 관련된 파일 관련 작업시 발생한 에러
-	 */
-	public LocalTargetFileResource pollLocalTargetFileResource(boolean append,
-			String sourceFilePathName, String sourceFileName, long sourceFileSize,
-			String targetFilePathName,String targetFileName, long targetFileSize, 
-			int fileBlockSize) throws IllegalArgumentException, UpDownFileException {
-		
-		LocalTargetFileResource localTargetFileResource = null;
+
+	public LocalTargetFileResource registerNewLocalTargetFileResource(String ownerID, boolean append,
+			String sourceFilePathName, String sourceFileName, long sourceFileSize, String targetFilePathName,
+			String targetFileName, long targetFileSize, int fileBlockSize)
+			throws IllegalArgumentException, UpDownFileException {
+		if (null == ownerID) {
+			throw new IllegalArgumentException("the parameter ownerID is null");
+		}
 		synchronized (monitor) {
-			localTargetFileResource = localTargetFileResourceQueue.poll();
-			if (null == localTargetFileResource) return null;
-			localTargetFileResource.queueOut();
+			int localTargetFileResourceHashSize = localTargetFileResourceHash.size();
+			if (localTargetFileResourceHashSize >= localTargetFileResourceCnt) {
+				log.info(
+						"환경 변수 '로컬 목적지 파일 자원 갯수'(=common.updownfile.local_target_file_resource_cnt.value 만큼 사용중으로 더 이상 생성할 수 없습니다.");
+				return null;
+			}
+
+			if (Integer.MAX_VALUE == targetFileID) {
+				targetFileID = Integer.MIN_VALUE;
+			} else {
+				targetFileID++;
+			}
+
+			LocalTargetFileResource localTargetFileResource = new LocalTargetFileResource(ownerID, targetFileID, append,
+					sourceFilePathName, sourceFileName, sourceFileSize, targetFilePathName, targetFileName,
+					targetFileSize, fileBlockSize);
+
 			localTargetFileResourceHash.put(localTargetFileResource.getTargetFileID(), localTargetFileResource);
+			ownerID2TargetFileIDHash.put(ownerID, targetFileID);
+			return localTargetFileResource;
 		}
-		
-		localTargetFileResource.readyWritingFile(append, sourceFilePathName, sourceFileName, sourceFileSize, 
-				targetFilePathName, targetFileName, targetFileSize, fileBlockSize);
-		return localTargetFileResource;
 	}
 
-	/**
-	 * "로컬 목적 파일 자원 큐" 로 로컬 목적 파일 자원을 반환한다. 
-	 * @param localTargetFileResource 반환할 로컬 목적 파일 자원
-	 */
-	public void putLocalTargetFileResource(LocalTargetFileResource localTargetFileResource) {
-		if (null == localTargetFileResource) return;
+	public void removeWithUnlockFile(LocalTargetFileResource localTargetFileResource) {
+		if (null == localTargetFileResource) {
+			return;
+		}
 
-		/**
-		 * 2번 연속 반환 막기
-		 */
 		synchronized (monitor) {
-			if (localTargetFileResource.isInQueue()) {
-				log.warn(String.format("clientFileID[%d] 파일 업로드 자원 2번 연속 반환 시도", localTargetFileResource.getTargetFileID()));
+			String ownerID = localTargetFileResource.getOwnerID();
+			int targetFileID = localTargetFileResource.getTargetFileID();
+
+			if (!localTargetFileResourceHash.containsKey(targetFileID)) {
+				log.info("'로컬 목적지 파일 자원 해쉬'에 지정한 '로컬 목적지 파일 자원'[{}] 이 존재하지 않습니다", localTargetFileResource.toString());
 				return;
 			}
-			localTargetFileResource.releaseFileLock();
-			
-			localTargetFileResource.queueIn();
-			
-			localTargetFileResourceHash.remove(localTargetFileResource.getTargetFileID());
-			localTargetFileResourceQueue.add(localTargetFileResource);
+
+			doRemove(ownerID, targetFileID, localTargetFileResource);
 		}
-		
-		// FIXME! 잠시 디버깅을 위해서 리소스 자원 많이 잡는 Throwable 객체 생성. 나중 삭제해야함.
-		// Throwable t = new Throwable();
-		log.info(String.format("localTargetFileID[%d] 큐 반환", localTargetFileResource.getTargetFileID()));
 	}
-	
+
+	public void removeUsingUserIDWithUnlockFile(String ownerID) {
+		if (null == ownerID) {
+			throw new IllegalArgumentException("the parameter ownerID is null");
+		}
+		synchronized (monitor) {
+			Integer targetFileID = ownerID2TargetFileIDHash.get(ownerID);
+			if (null == targetFileID) {
+				log.info("소유자[{}]의 로컬 목적지 자원이 '소유자별 로컬 목적지 자원 해쉬'(ownerID2TargetFileIDHash)에 존재하지 않습니다.", ownerID);
+				return;
+			}
+
+			LocalTargetFileResource localTargetFileResource = localTargetFileResourceHash.get(targetFileID);
+			if (null == localTargetFileResource) {
+				log.info("소유자[{}]의 로컬 목적지 자원[{}]이 '로컬 목적지 파일 자원 해쉬'(localTargetFileResourceHash)에 존재하지 않습니다.", ownerID,
+						targetFileID);
+				return;
+			}
+
+			doRemove(ownerID, targetFileID, localTargetFileResource);
+		}
+	}
+
+	private void doRemove(String ownerID, int targetFileID, LocalTargetFileResource localTargetFileResource) {
+		localTargetFileResource.releaseFileLock();
+		localTargetFileResourceHash.remove(targetFileID);
+		ownerID2TargetFileIDHash.remove(ownerID);
+
+		/**
+		 * <pre>
+		 * '전송 처리 정보 윈도우' 가 지정되었고 전송 완료된 경우 사용자가 OK 버튼 클릭으로 창을 닫게 해주어야 하므로 이곳에서
+		 * 닫지 않는다.
+		 * 
+		 * <pre>
+		 */
+		FileTranferProcessInformationDialogIF fileTranferProcessInformationDialog = localTargetFileResource
+				.getViewObejct();
+		if (null != fileTranferProcessInformationDialog) {
+			LocalTargetFileResource.WorkStep workStep = localTargetFileResource.getWorkStep();
+
+			if (workStep != LocalTargetFileResource.WorkStep.TRANSFER_DONE) {
+				fileTranferProcessInformationDialog.dispose();
+				localTargetFileResource.setViewObject(null);
+			}
+		}
+
+		log.info("소유자[{}]의 지정한 로컬 목적지 파일 자원[{}]의 파일 락을 해제후 "
+				+ "'로컬 목적지 파일 자원 해쉬'와 '소유자별 로컬 목적지 자원 해쉬'에서 지정한 로컬 목적지 파일 자원 삭제", ownerID, targetFileID);
+	}
+
 	/**
 	 * 목적 파일 식별자에 1:1 대응하는 로컬 목적 파일 자원을 반환한다.
-	 * @param targetFileID 목적 파일 식별자
-	 * @return 목적 파일 식별자에 1:1 대응하는 로컬 목적 파일 자원, 할당 받은 로컬 목적 파일 자원들중 목적 파일 식별자를 갖는것이 없을 경우 null 를 반환한다.
+	 * 
+	 * @param targetFileID
+	 *            목적 파일 식별자
+	 * @return 목적 파일 식별자에 1:1 대응하는 로컬 목적 파일 자원, 할당 받은 로컬 목적 파일 자원들중 목적 파일 식별자를
+	 *         갖는것이 없을 경우 null 를 반환한다.
 	 */
 	public LocalTargetFileResource getLocalTargetFileResource(int targetFileID) {
-		// synchronized (monitor) {
+		synchronized (monitor) {
 			LocalTargetFileResource localTargetFileResource = localTargetFileResourceHash.get(targetFileID);
 			return localTargetFileResource;
-		// }
+		}
 	}
 }

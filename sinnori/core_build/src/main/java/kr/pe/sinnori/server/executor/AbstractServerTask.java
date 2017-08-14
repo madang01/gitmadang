@@ -555,11 +555,11 @@ public abstract class AbstractServerTask {
 	 * @param projectName 프로젝트 이름
 	 * @param loginManager 로그인 관리자
 	 * @param letterSender 클라이언트로 보내는 편지 배달부
-	 * @param messageFromClient 입력 메시지	
+	 * @param requestMessage 요청 메시지	
 	 * @throws Exception 에러 발생시 던지는 예외
 	 */
 	abstract public void doTask(String projectName,
 			LoginManagerIF loginManager,
 			LetterSender letterSender,
-			AbstractMessage messageFromClient) throws Exception;
+			AbstractMessage requestMessage) throws Exception;
 }

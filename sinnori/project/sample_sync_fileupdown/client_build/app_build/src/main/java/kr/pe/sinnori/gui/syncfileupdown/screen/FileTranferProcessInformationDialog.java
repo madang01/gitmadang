@@ -25,14 +25,15 @@ import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import kr.pe.sinnori.common.updownfile.FileTranferProcessInformationDialogIF;
 import kr.pe.sinnori.gui.syncfileupdown.lib.FileTransferTaskIF;
 
 /**
  * @author Jonghoon Won
  */
 @SuppressWarnings("serial")
-public class FileTranferProcessDialog extends JDialog implements FileTranferProcessDialogIF {
-	private Logger log = LoggerFactory.getLogger(FileTranferProcessDialog.class);
+public class FileTranferProcessInformationDialog extends JDialog implements FileTranferProcessInformationDialogIF {
+	private Logger log = LoggerFactory.getLogger(FileTranferProcessInformationDialog.class);
 	
 	
 	private long fileSize;
@@ -41,10 +42,10 @@ public class FileTranferProcessDialog extends JDialog implements FileTranferProc
 	private FileTransferTaskIF fileTransferTask = null;
 	
 	
-	public FileTranferProcessDialog(Frame owner, String title, long fileSize, long totalReceivedDataSize, FileTransferTaskIF fileTransferTask) {
+	public FileTranferProcessInformationDialog(Frame owner, String title, long fileSize, long startOffset, FileTransferTaskIF fileTransferTask) {
 		super(owner);
 		this.fileSize = fileSize;
-		this.totalReceivedDataSize = totalReceivedDataSize;
+		this.totalReceivedDataSize = startOffset;
 		this.fileTransferTask = fileTransferTask;
 		this.setTitle(title);
 		
@@ -65,8 +66,6 @@ public class FileTranferProcessDialog extends JDialog implements FileTranferProc
 	 */
 	@Override
 	public void noticeAddedFileData(int receivedDataSize) {
-		
-		
 		totalReceivedDataSize += receivedDataSize;
 		
 		if (totalReceivedDataSize > fileSize) {

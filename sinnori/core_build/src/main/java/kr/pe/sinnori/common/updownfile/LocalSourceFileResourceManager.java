@@ -15,36 +15,40 @@
  * limitations under the License.
  */
 
-
 package kr.pe.sinnori.common.updownfile;
 
 import java.util.HashMap;
-import java.util.concurrent.LinkedBlockingQueue;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.itemvalue.CommonPartConfiguration;
 import kr.pe.sinnori.common.exception.UpDownFileException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * <pre>
  * 로컬 원본 파일을 원할하게 송신하기 위한 로컬 원본 파일 자원 큐 관리자 클래스.
  * 주) 느슷한 구조의 큐 자원 관리자로 통제된 사용 방법외 방법으로 사용시 비 정상 동작한다.
  * </pre>
+ * 
  * @author Won Jonghoon
  *
  */
 public class LocalSourceFileResourceManager {
 	private Logger log = LoggerFactory.getLogger(LocalSourceFileResourceManager.class);
-	
-	private final Object monitor = new Object(); 
-	
-	private LinkedBlockingQueue<LocalSourceFileResource> localSourceFileResourceQueue  = null;
+
+	private final Object monitor = new Object();
+
+	private int sourceFileID = Integer.MAX_VALUE;
+
+	private int localSourceFileResourceCnt = -1;
+
 	private HashMap<Integer, LocalSourceFileResource> localSourceFileResourceHash = null;
-	
+
+	private HashMap<String, Integer> ownerID2SourceFileIDHash = new HashMap<String, Integer>();
+
 	/**
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스
 	 */
@@ -65,89 +69,149 @@ public class LocalSourceFileResourceManager {
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 생성자
 	 */
 	private LocalSourceFileResourceManager() {
-		// int localSourceFileResourceCnt = (Integer)conf.getResource("common.updownfile.local_source_file_resource_cnt.value");
-		
-		SinnoriConfiguration sinnoriRunningProjectConfiguration = 
-				SinnoriConfigurationManager.getInstance()
-				.getSinnoriRunningProjectConfiguration();		
+		// int localSourceFileResourceCnt =
+		// (Integer)conf.getResource("common.updownfile.local_source_file_resource_cnt.value");
+
+		SinnoriConfiguration sinnoriRunningProjectConfiguration = SinnoriConfigurationManager.getInstance()
+				.getSinnoriRunningProjectConfiguration();
 		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
-		
-		int localSourceFileResourceCnt = commonPart.getLocalSourceFileResourceCnt();
-		
-		localSourceFileResourceQueue = new LinkedBlockingQueue<LocalSourceFileResource>(localSourceFileResourceCnt);
+
+		localSourceFileResourceCnt = commonPart.getLocalSourceFileResourceCnt();
+
 		localSourceFileResourceHash = new HashMap<Integer, LocalSourceFileResource>();
-		
-		for (int i=0; i < localSourceFileResourceCnt; i++) {
-			localSourceFileResourceQueue.add(new LocalSourceFileResource(i));
-		}
+
 	}
-	
+
 	/**
 	 * 큐에서 파일 자원 관리자를 받아서 소스 파일을 받을 목적지 파일을 준비시킨후 반환한다.
 	 * 
-	 * @param append 이어받기 여부
-	 * @param sourceFilePathName 소스 파일 경로 이름
-	 * @param sourceFileName 소스 파일명
-	 * @param sourceFileSize 소스 파일 크기
-	 * @param targetFilePathName 목적지 파일 경로 이름
-	 * @param targetFileName 목적지 파일 이름
-	 * @param targetFileSize 목적지 파일 크기
-	 * @param fileBlockSize 송수신 파일 조각 크기 
+	 * @param append
+	 *            이어받기 여부
+	 * @param sourceFilePathName
+	 *            소스 파일 경로 이름
+	 * @param sourceFileName
+	 *            소스 파일명
+	 * @param sourceFileSize
+	 *            소스 파일 크기
+	 * @param targetFilePathName
+	 *            목적지 파일 경로 이름
+	 * @param targetFileName
+	 *            목적지 파일 이름
+	 * @param targetFileSize
+	 *            목적지 파일 크기
+	 * @param fileBlockSize
+	 *            송수신 파일 조각 크기
 	 * @return 소스 파일을 받을 목적지 파일을 준비된 파일 자원 관리자
-	 * @throws IllegalArgumentException 잘못된 파라미터 입력시 던지는 예외
-	 * @throws UpDownFileException 파일 송수신과 관련된 파일 관련 작업시 발생한 에러
+	 * @throws IllegalArgumentException
+	 *             잘못된 파라미터 입력시 던지는 예외
+	 * @throws UpDownFileException
+	 *             파일 송수신과 관련된 파일 관련 작업시 발생한 에러
 	 */
-	public LocalSourceFileResource pollLocalSourceFileResource(boolean append, String sourceFilePathName, String sourceFileName, long sourceFileSize,
-			String targetFilePathName,String targetFileName, long targetFileSize,
-			int fileBlockSize) throws IllegalArgumentException, UpDownFileException {
-		
-		LocalSourceFileResource localSourceFileResource = null;
+	public LocalSourceFileResource registerNewLocalSourceFileResource(String ownerID, boolean append,
+			String sourceFilePathName, String sourceFileName, long sourceFileSize, String targetFilePathName,
+			String targetFileName, long targetFileSize, int fileBlockSize)
+			throws IllegalArgumentException, UpDownFileException {
+
 		synchronized (monitor) {
-			localSourceFileResource = localSourceFileResourceQueue.poll();
-			if (null == localSourceFileResource) {
+
+			int localSourceFileResourceHashSize = localSourceFileResourceHash.size();
+			if (localSourceFileResourceHashSize >= localSourceFileResourceCnt) {
+				log.info(
+						"환경 변수 '로컬 원본 파일 자원 갯수'(=common.updownfile.local_source_file_resource_cnt.value 만큼 사용중으로 더 이상 생성할 수 없습니다.");
 				return null;
 			}
-			localSourceFileResource.queueOut();
-			localSourceFileResourceHash.put(localSourceFileResource.getSourceFileID(), localSourceFileResource);
+
+			if (Integer.MAX_VALUE == sourceFileID) {
+				sourceFileID = Integer.MIN_VALUE;
+			} else {
+				sourceFileID++;
+			}
+
+			LocalSourceFileResource localSourceFileResource =
+
+					new LocalSourceFileResource(ownerID, sourceFileID, append, sourceFilePathName, sourceFileName,
+							sourceFileSize, targetFilePathName, targetFileName, targetFileSize, fileBlockSize);
+
+			localSourceFileResourceHash.put(sourceFileID, localSourceFileResource);
+			ownerID2SourceFileIDHash.put(ownerID, sourceFileID);
+			return localSourceFileResource;
 		}
-		
-		localSourceFileResource.readyReadingFile(append, sourceFilePathName, sourceFileName, sourceFileSize, 
-				targetFilePathName, targetFileName, targetFileSize, fileBlockSize);
-		return localSourceFileResource;
+
 	}
 
-	/**
-	 * "로컬 원본 파일 자원 큐" 로 로컬 원본 파일 자원을 반환한다.
-	 * @param localSourceFileResource 반환할 로컬 원본 파일 자원
-	 */
-	public void putLocalSourceFileResource(LocalSourceFileResource localSourceFileResource) {
-		if (null == localSourceFileResource) return;
+	public void removeWithUnlockFile(LocalSourceFileResource localSourceFileResource) {
+		if (null == localSourceFileResource) {
+			throw new IllegalArgumentException("the parameter localSourceFileResource is null");
+		}
 
-		
-		/**
-		 * 2번 연속 반환 막기
-		 */
 		synchronized (monitor) {
-			if (localSourceFileResource.isInQueue()) {
-				log.warn(String.format("clientFileID[%d] 파일 업로드 자원 2번 연속 반환 시도", localSourceFileResource.getSourceFileID()));
+			String ownerID = localSourceFileResource.getOwnerID();
+			int sourceFileID = localSourceFileResource.getSourceFileID();
+
+			if (!localSourceFileResourceHash.containsKey(sourceFileID)) {
+				log.info("'로컬 소스 파일 자원 해쉬'에 지정한 '로컬 소스 파일 자원'[{}] 이 존재하지 않습니다", localSourceFileResource.toString());
 				return;
 			}
-			localSourceFileResource.releaseFileLock();
-			localSourceFileResource.queueIn();
-			
-			localSourceFileResourceHash.remove(localSourceFileResource.getSourceFileID());
-			localSourceFileResourceQueue.add(localSourceFileResource);
+
+			doRemove(ownerID, sourceFileID, localSourceFileResource);
 		}
-		
-		// FIXME! 잠시 디버깅을 위해서 리소스 자원 많이 잡는 Throwable 객체 생성. 나중 삭제해야함.
-		// Throwable t = new Throwable();
-		log.info(String.format("localSourceFileID[%d] 큐 반환", localSourceFileResource.getSourceFileID()));
 	}
-	
+
+	public void removeUsingUserIDWithUnlockFile(String ownerID) {
+		if (null == ownerID) {
+			throw new IllegalArgumentException("the parameter ownerID is null");
+		}
+		synchronized (monitor) {
+			Integer sourceFileID = ownerID2SourceFileIDHash.get(ownerID);
+			if (null == sourceFileID) {
+				log.info("소유자[{}]의 로컬 소스 자원이 '소유자별 로컬 소스 자원 해쉬'(ownerID2SourceFileIDHash)에 존재하지 않습니다.", ownerID);
+				return;
+			}
+			LocalSourceFileResource localSourceFileResource = localSourceFileResourceHash.get(sourceFileID);
+			if (null == localSourceFileResource) {
+				log.info("소유자[{}]의 로컬 소스 자원[{}]이 '로컬 소스 파일 자원 해쉬'(localSourceFileResourceHash)에 존재하지 않습니다.", ownerID,
+						sourceFileID);
+				return;
+			}
+
+			doRemove(ownerID, sourceFileID, localSourceFileResource);
+		}
+	}
+
+	private void doRemove(String ownerID, int sourceFileID, LocalSourceFileResource localSourceFileResource) {
+		localSourceFileResource.releaseFileLock();
+		localSourceFileResourceHash.remove(sourceFileID);
+		ownerID2SourceFileIDHash.remove(ownerID);
+
+		/**
+		 * <pre>
+		 * '전송 처리 정보 윈도우' 가 지정되었고 전송 완료된 경우 사용자가 OK 버튼 클릭으로 창을 닫게 해주어야 하므로 이곳에서
+		 * 닫지 않는다.
+		 * 
+		 * <pre>
+		 */
+		FileTranferProcessInformationDialogIF fileTranferProcessInformationDialog = localSourceFileResource
+				.getViewObejct();
+		if (null != fileTranferProcessInformationDialog) {
+			LocalSourceFileResource.WorkStep workStep = localSourceFileResource.getWorkStep();
+
+			if (workStep != LocalSourceFileResource.WorkStep.TRANSFER_DONE) {
+				fileTranferProcessInformationDialog.dispose();
+				localSourceFileResource.setViewObject(null);
+			}
+		}
+
+		log.info("2.소유자[{}]의 지정한 로컬 소스 파일 자원[{}]의 파일 락을 해제후 "
+				+ "'로컬 소스 파일 자원 해쉬'와 '소유자별 로컬 소스 자원 해쉬'에서 소유자의 로컬 소스 파일 자원 삭제", ownerID, sourceFileID);
+	}
+
 	/**
 	 * 원본 파일 식별자에 1:1 대응하는 로컬 원본 파일 자원을 반환한다.
-	 * @param sourceFileID 원본 파일 식별자 
-	 * @return 원본 파일 식별자에 1:1 대응하는 로컬 원본 파일 자원, 할당 받은 로컬 원본 파일 자원들중 원본 파일 식별자를 갖는것이 없을 경우 null 를 반환한다.
+	 * 
+	 * @param sourceFileID
+	 *            원본 파일 식별자
+	 * @return 원본 파일 식별자에 1:1 대응하는 로컬 원본 파일 자원, 할당 받은 로컬 원본 파일 자원들중 원본 파일 식별자를
+	 *         갖는것이 없을 경우 null 를 반환한다.
 	 */
 	public LocalSourceFileResource getLocalSourceFileResource(int sourceFileID) {
 		synchronized (monitor) {
@@ -155,15 +219,18 @@ public class LocalSourceFileResourceManager {
 			return localSourceFileResource;
 		}
 	}
-	
-	public void releaseAll() {
-		for (LocalSourceFileResource localSourceFileResource  : localSourceFileResourceHash.values()) {
-	 		localSourceFileResource.releaseFileLock();
-	 	}
+
+	public void releaseAllFileLock() {
+		synchronized (monitor) {
+			for (LocalSourceFileResource localSourceFileResource : localSourceFileResourceHash.values()) {
+				log.info("release the file lock of LocalSourceFileResource[{}]", localSourceFileResource.toString());
+				localSourceFileResource.releaseFileLock();
+			}
+		}
 	}
-	
+
 	@Override
-	protected void finalize() throws Throwable {		
-		releaseAll();
+	protected void finalize() throws Throwable {
+		releaseAllFileLock();
 	}
 }

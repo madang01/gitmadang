@@ -24,6 +24,7 @@ public class MainProejctSyncConnectionManager {
 
 	
 	private AbstractConnection conn = null;
+	private String loginID = null;
 	
 
 	/** 동기화 안쓰고 싱글턴 구현을 위한 내부 클래스 */
@@ -54,6 +55,25 @@ public class MainProejctSyncConnectionManager {
 		}
 	}
 	
+	public void setLoginID(String loginID) {
+		if (null == loginID) {
+			throw new IllegalArgumentException("the parameter loginID is null");
+		}
+		this.loginID = loginID; 
+	}
+	
+	public boolean isLogin() {
+		return (loginID != null);
+	}
+	
+	public void logout() {
+		loginID = null;
+	}
+	
+	public String getLoginID() {
+		return loginID;
+	}
+	
 	public boolean isConnected() {
 		if (null == conn) {
 			log.error("conn is null");
@@ -77,6 +97,8 @@ public class MainProejctSyncConnectionManager {
 			// System.exit(1);
 			return;
 		}
+		
+		logout();
 		conn.serverClose();
 	}
 	
@@ -86,6 +108,7 @@ public class MainProejctSyncConnectionManager {
 			System.exit(1);
 		}
 		
+		logout();
 		
 		conn.changeServerAddress(newServerHost, newServerPort);
 	}
@@ -96,6 +119,8 @@ public class MainProejctSyncConnectionManager {
 			log.error("conn is null");
 			System.exit(1);
 		}
+		
+		logout();
 		
 		AnyProjectClient mainProjectClient = MainClientManager.getInstance().getMainProjectClient();
 		mainProjectClient.releaseConnection(conn);
