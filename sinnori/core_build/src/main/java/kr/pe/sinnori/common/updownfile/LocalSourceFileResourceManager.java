@@ -153,7 +153,8 @@ public class LocalSourceFileResourceManager {
 				return;
 			}
 
-			doRemove(ownerID, sourceFileID, localSourceFileResource);
+			releaseLocalSourceFileResource(localSourceFileResource);
+			doRemove(ownerID, sourceFileID);
 		}
 	}
 
@@ -174,15 +175,14 @@ public class LocalSourceFileResourceManager {
 				return;
 			}
 
-			doRemove(ownerID, sourceFileID, localSourceFileResource);
+			
+			releaseLocalSourceFileResource(localSourceFileResource);
+			doRemove(ownerID, sourceFileID);			
 		}
 	}
-
-	private void doRemove(String ownerID, int sourceFileID, LocalSourceFileResource localSourceFileResource) {
+	
+	private void releaseLocalSourceFileResource(LocalSourceFileResource localSourceFileResource) {
 		localSourceFileResource.releaseFileLock();
-		localSourceFileResourceHash.remove(sourceFileID);
-		ownerID2SourceFileIDHash.remove(ownerID);
-
 		/**
 		 * <pre>
 		 * '전송 처리 정보 윈도우' 가 지정되었고 전송 완료된 경우 사용자가 OK 버튼 클릭으로 창을 닫게 해주어야 하므로 이곳에서
@@ -190,16 +190,12 @@ public class LocalSourceFileResourceManager {
 		 * 
 		 * <pre>
 		 */
-		FileTranferProcessInformationDialogIF fileTranferProcessInformationDialog = localSourceFileResource
-				.getViewObejct();
-		if (null != fileTranferProcessInformationDialog) {
-			LocalSourceFileResource.WorkStep workStep = localSourceFileResource.getWorkStep();
+		localSourceFileResource.disposeFileTranferProcessInformationDialogIfExistAndNotTransferDone();
+	}
 
-			if (workStep != LocalSourceFileResource.WorkStep.TRANSFER_DONE) {
-				fileTranferProcessInformationDialog.dispose();
-				localSourceFileResource.setViewObject(null);
-			}
-		}
+	private void doRemove(String ownerID, int sourceFileID) {
+		localSourceFileResourceHash.remove(sourceFileID);
+		ownerID2SourceFileIDHash.remove(ownerID);		
 
 		log.info("2.소유자[{}]의 지정한 로컬 소스 파일 자원[{}]의 파일 락을 해제후 "
 				+ "'로컬 소스 파일 자원 해쉬'와 '소유자별 로컬 소스 자원 해쉬'에서 소유자의 로컬 소스 파일 자원 삭제", ownerID, sourceFileID);

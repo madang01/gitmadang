@@ -9,7 +9,7 @@ import kr.pe.sinnori.client.AnyProjectClient;
 import kr.pe.sinnori.client.MainClientManager;
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.common.exception.BodyFormatException;
-import kr.pe.sinnori.common.exception.ConnectionTimeoutException;
+import kr.pe.sinnori.common.exception.ConnectionPoolTimeoutException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotLoginException;
@@ -49,7 +49,7 @@ public class MainProejctSyncConnectionManager {
 		
 		try {
 			conn = mainProjectClient.getConnection();
-		} catch (InterruptedException | NotSupportedException | ConnectionTimeoutException e1) {
+		} catch (InterruptedException | NotSupportedException | ConnectionPoolTimeoutException e1) {
 			log.error(e1.getMessage(), e1);
 			System.exit(1);
 		}
@@ -83,7 +83,7 @@ public class MainProejctSyncConnectionManager {
 	}
 	
 	
-	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage) throws SocketTimeoutException, ServerNotReadyException, NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException, ServerTaskException, NotLoginException, ConnectionTimeoutException, InterruptedException {
+	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage) throws SocketTimeoutException, ServerNotReadyException, NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException, ServerTaskException, NotLoginException, ConnectionPoolTimeoutException, InterruptedException {
 		if (null == conn) {
 			log.error("conn is null");
 			System.exit(1);

@@ -4,7 +4,6 @@ import java.io.File;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.updownfile.LocalTargetFileResource;
-import kr.pe.sinnori.common.updownfile.LocalTargetFileResource.WorkStep;
 import kr.pe.sinnori.common.updownfile.LocalTargetFileResourceManager;
 import kr.pe.sinnori.impl.message.SyncCancelUploadReq.SyncCancelUploadReq;
 import kr.pe.sinnori.impl.message.SyncCancelUploadRes.SyncCancelUploadRes;
@@ -47,7 +46,7 @@ public class SyncCancelUploadReqServerTask extends AbstractAuthServerExecutor {
 			return;
 		}
 		
-		localTargetFileResource.setWorkStep(WorkStep.CANCEL_DONE);
+		localTargetFileResource.setWorkStep(LocalTargetFileResource.WorkStep.CANCEL_DONE);
 		localTargetFileResourceManager.removeWithUnlockFile(localTargetFileResource);
 		
 		syncCancelUploadRes.setTaskResult("Y");

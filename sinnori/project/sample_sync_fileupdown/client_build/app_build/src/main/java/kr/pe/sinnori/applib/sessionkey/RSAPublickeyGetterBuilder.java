@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.applib.MainProejctSyncConnectionManager;
 import kr.pe.sinnori.common.exception.BodyFormatException;
-import kr.pe.sinnori.common.exception.ConnectionTimeoutException;
+import kr.pe.sinnori.common.exception.ConnectionPoolTimeoutException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotLoginException;
@@ -54,7 +54,7 @@ public class RSAPublickeyGetterBuilder extends AbstractRSAPublickeyGetter {
 					ouputMessage = mainProejctConnectionManager.sendSyncInputMessage(publicKeyReq);
 				} catch (SocketTimeoutException | ServerNotReadyException | NoMoreDataPacketBufferException
 						| BodyFormatException | DynamicClassCallException | ServerTaskException | NotLoginException 
-						| ConnectionTimeoutException  e) {
+						| ConnectionPoolTimeoutException  e) {
 					String errorMessage = e.getMessage();
 					log.warn(errorMessage, e);
 					throw new SymmetricException(errorMessage);

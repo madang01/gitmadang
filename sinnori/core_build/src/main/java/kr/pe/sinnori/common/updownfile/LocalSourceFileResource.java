@@ -74,8 +74,6 @@ public class LocalSourceFileResource {
 	private int fileBlockSize = -1;
 	private long startFileBlockNo = -1;
 	private long endFileBlockNo = -1;
-	private long firstFileDataLength = -1;
-	private long lastFileDataLength = -1;
 
 	// private long wantedCardinalityOfWorkedFileBlockBitSet = -1;
 	/** 주의점 : BitSet 의 크기는 동적으로 자란다. 따라서 해당 비트 인덱스에 대한 엄격한 제한이 필요하다. */
@@ -94,16 +92,55 @@ public class LocalSourceFileResource {
 	
 
 	/******* view 와 관련된 모듈 시작 ***************/
-	private FileTranferProcessInformationDialogIF viewObject = null;
+	private FileTranferProcessInformationDialogIF fileTranferProcessInformationDialog = null;
 
-	public void setViewObject(FileTranferProcessInformationDialogIF viewObject) {
-		this.viewObject = viewObject;
+	private void noticeAddedFileData(int fileBlockNo) {
+		if (null != fileTranferProcessInformationDialog) {
+			long currentStartOffset = fileBlockNo*fileBlockSize;
+			long currentEndOffset = currentStartOffset + fileBlockSize;
+			
+			if (append && fileBlockSize == startFileBlockNo) {
+				currentStartOffset = targetFileSize;
+			}
+			
+			if (currentEndOffset > sourceFileSize) {
+				currentEndOffset = sourceFileSize;
+			}
+			
+			int receivedDataSize =  (int)(currentEndOffset - currentStartOffset);
+			
+			fileTranferProcessInformationDialog.noticeAddedFileData(receivedDataSize);
+		}
 	}
-
-	public FileTranferProcessInformationDialogIF getViewObejct() {
-		return viewObject;
+	
+	public void setFileTranferProcessInformationDialog(FileTranferProcessInformationDialogIF fileTranferProcessInformationDialog) {
+		if (null == fileTranferProcessInformationDialog) {
+			throw new IllegalArgumentException("the parameter fileTranferProcessInformationDialog is null");
+		}
+		this.fileTranferProcessInformationDialog = fileTranferProcessInformationDialog;
 	}
+	
+	/**
+	 * <pre>
+	 * '전송 처리 정보 윈도우' 가 지정되었다면 창을 자동으로 닫는다. 
+	 * 단 예외적으로 '전송 완료' 상태인 경우에는 창을 자동으로 닫지 않는다.
+	 * 이는 사용자가 최종 전송 완료된 시점의 정보를 확인할 수 있게 해 주는 배려로
+	 * 창은 사용자는 OK 버튼 클릭으로 닫히게 된다.
+	 * 
+	 * <pre>
+	 */
+	protected void disposeFileTranferProcessInformationDialogIfExistAndNotTransferDone() {		
+		if (null != fileTranferProcessInformationDialog) {
+			if (! workStep.equals(WorkStep.TRANSFER_DONE)) {
+				fileTranferProcessInformationDialog.dispose();
+			}
+		}
+	}
+	
 	/******* view 와 관련된 모듈 종료 ***************/
+	
+	
+	
 
 	/**
 	 * 생성자
@@ -238,26 +275,7 @@ public class LocalSourceFileResource {
 				log.warn(errorMessage);
 				throw new IllegalArgumentException(errorMessage);
 			}
-
-			if (sourceFileSize < fileBlockSize) {
-				/** 원본 파일 크기가 전송할 데이터 블락 크기 보다 작은 경우 */
-				this.firstFileDataLength = sourceFileSize - this.targetFileSize;
-			} else {
-				/** 원본 파일 크기가 전송할 데이터 블락 크기 보다 크거나 같은 경우 */
-				/** 첫번째로 전송할 블락에서 이미 전송된 데이터 크기 */
-				long transferedDataSizeForStartFileBlockNo = this.targetFileSize - startFileBlockNo * fileBlockSize;
-				/** 첫번째로 전송할 블락에서 이미 전송된 데이터를 제외 */
-				this.firstFileDataLength = fileBlockSize - transferedDataSizeForStartFileBlockNo;
-			}
-
-			if (endFileBlockNo == startFileBlockNo) {
-				/** 전송할 데이터 블락이 1개뿐인 경우 */
-				this.lastFileDataLength = sourceFileSize - this.targetFileSize;
-			} else {
-				/** 전송할 데이터 블락이 2개 이상인 경우 */
-				this.lastFileDataLength = sourceFileSize - endFileBlockNo * fileBlockSize;
-			}
-
+			
 			workedFileBlockBitSet = new LongBitSet(endFileBlockNo + 1);
 
 			/** 이어 받기를 시작하는 위치 전까지 데이터 읽기 여부를 참으로 설정한다. */
@@ -290,23 +308,7 @@ public class LocalSourceFileResource {
 						sourceFileID, startFileBlockNo, endFileBlockNo);
 				log.warn(errorMessage);
 				throw new IllegalArgumentException(errorMessage);
-			}
-
-			if (sourceFileSize < fileBlockSize) {
-				/** 원본 파일 크기가 전송할 데이터 블락 크기 보다 작은 경우 */
-				this.firstFileDataLength = sourceFileSize;
-			} else {
-				/** 원본 파일 크기가 전송할 데이터 블락 크기 보다 크거나 같은 경우 */
-				this.firstFileDataLength = fileBlockSize;
-			}
-
-			if (endFileBlockNo == startFileBlockNo) {
-				/** 전송할 데이터 블락이 1개뿐인 경우 */
-				this.lastFileDataLength = sourceFileSize;
-			} else {
-				/** 전송할 데이터 블락이 2개 이상인 경우 */
-				this.lastFileDataLength = sourceFileSize - endFileBlockNo * fileBlockSize;
-			}
+			}			
 
 			workedFileBlockBitSet = new LongBitSet(endFileBlockNo + 1);
 		}
@@ -566,7 +568,11 @@ public class LocalSourceFileResource {
 			log.error(errorMessage);
 			System.exit(1);
 		}
+		
+		noticeAddedFileData(fileBlockNo);
 	}
+	
+	
 
 	/**
 	 * @return 원격지 파일 복사 작업 완료 여부
@@ -616,28 +622,7 @@ public class LocalSourceFileResource {
 		wantedCardinalityOfWorkedFileBlockBitSet = Math.min(wantedCardinalityOfWorkedFileBlockBitSet, canceledFileBlockNo);
 	}*/
 
-	/**
-	 * <pre>
-	 * 원본 파일에서 파일 조각 번호에 대응하는 데이터를 담을 바이트 배열을 반환한다. 
-	 * 마지막 전까지는 지정한 파일 조각 크기, 마지막은 남은 파일 데이터 크기가 된다.
-	 * </pre>
-	 * 
-	 * @param fileBlockNo
-	 *            원본 파일 조각 번호
-	 * @return 원본 파일에서 파일 조각 번호에 대응하는 데이터를 담을 바이트 배열
-	 */
-	public byte[] getByteArrayOfFileBlockNo(int fileBlockNo) {
-		byte[] fileData = null;
-		if (fileBlockNo == endFileBlockNo) {
-			fileData = new byte[(int) lastFileDataLength];
-		} else if (fileBlockNo == startFileBlockNo) {
-			fileData = new byte[(int) firstFileDataLength];
-		} else {
-			fileData = new byte[fileBlockSize];
-
-		}
-		return fileData;
-	}
+	
 
 	/**
 	 * 수신한 파일 조각을 저장한다.
@@ -652,7 +637,7 @@ public class LocalSourceFileResource {
 	 * @throws UpDownFileException
 	 *             수신한 파일 조각을 저장하는 과정에서 에러 발생시 던지는 예외
 	 */
-	public void readSourceFileData(int sourceFileID, int fileBlockNo, byte[] fileData)
+	public byte[] readSourceFileData(int sourceFileID, int fileBlockNo) 
 			throws IllegalArgumentException, UpDownFileException {
 	
 		if (fileBlockNo < 0) {
@@ -677,38 +662,7 @@ public class LocalSourceFileResource {
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
-	
-		if (null == fileData) {
-			String errorMessage = String.format("sourceFileID[%d]::parameter fileData is null", sourceFileID);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-	
-		long sourceFileOffset;
-	
-		if (append && startFileBlockNo == fileBlockNo) {
-			if (sourceFileSize < fileBlockSize) {
-				sourceFileOffset = sourceFileSize - fileData.length;
-			} else {
-				sourceFileOffset = (long) fileBlockSize * fileBlockNo + fileBlockSize - fileData.length;
-			}
-			// FIXME! 디버깅용
-			try {
-				long sourceFileLength = sourceFileChannel.size();
-				if (sourceFileOffset != sourceFileLength) {
-					log.warn("파일 송수신 덧붙이기 모드에서 계산해서 얻은 오프셋[{}]과 파일의 크기[{}]가 서로 다름", sourceFileOffset, sourceFileLength);
-				}
-			} catch (IOException e) {
-				/** n 번째 목적지 파일 조각 쓰기 실패 */
-				String errorMessage = String.format("sourceFileID[%d]::%d 번째 원본 파일[%s][%s] 조각 읽기 실패", sourceFileID,
-						fileBlockNo, sourceFilePathName, sourceFileName);
-				log.warn(errorMessage);
-				throw new UpDownFileException(errorMessage);
-			}
-		} else {
-			sourceFileOffset = (long) fileBlockSize * fileBlockNo;
-		}
-	
+		
 		/**************************** 방어 코드 시작 *****************/
 		if (sourceFileID != this.sourceFileID) {
 			String errorMessage = String.format("%d 번째 데이터 패킷 읽기 작업중 작업중인 소스 파일 식별자[%d]와 실제 소스 파일 식별자[%d]가 다릅니다. ",
@@ -717,11 +671,22 @@ public class LocalSourceFileResource {
 			System.exit(1);
 		}
 		/**************************** 방어 코드 종료 *****************/
-	
+			
+		long currentStartOffset = fileBlockNo*fileBlockSize;
+		long currentEndOffset = currentStartOffset + fileBlockSize;
 		
+		if (append && fileBlockSize == startFileBlockNo) {
+			currentStartOffset = targetFileSize;
+		}
+		
+		if (currentEndOffset > sourceFileSize) {
+			currentEndOffset = sourceFileSize;
+		}
+		
+		byte[] fileData = new byte[(int)(currentEndOffset - currentEndOffset)];
 	
 		try {
-			sourceRandomAccessFile.seek(sourceFileOffset);
+			sourceRandomAccessFile.seek(currentStartOffset);
 			sourceRandomAccessFile.read(fileData);
 	
 			// log.info(String.format("fileBlockNo=[%d],
@@ -741,6 +706,12 @@ public class LocalSourceFileResource {
 			log.warn(errorMessage);
 			throw new UpDownFileException(errorMessage);
 		}
+		
+		log.info("fileBlockNo=[{}], startFileBlockNo=[{}], endFileBlockNo=[{}], fileBlockSize[{}], currentStartOffset=[{}], currentEndOffset=[{}], fileData.length=[{}]", 
+				fileBlockNo, startFileBlockNo, endFileBlockNo, fileBlockSize, 
+				currentStartOffset, currentEndOffset, fileData.length);
+		
+		return fileData;
 	}
 
 	public boolean isReleasedFileLock() {
@@ -834,10 +805,6 @@ public class LocalSourceFileResource {
 		builder.append(startFileBlockNo);
 		builder.append(", endFileBlockNo=");
 		builder.append(endFileBlockNo);
-		builder.append(", firstFileDataLength=");
-		builder.append(firstFileDataLength);
-		builder.append(", lastFileDataLength=");
-		builder.append(lastFileDataLength);
 		/*builder.append(", wantedSizeOfWorkedFileBlockBitSet=");
 		builder.append(wantedCardinalityOfWorkedFileBlockBitSet);*/
 		builder.append(", workedFileBlockBitSet.cardinality()=");
@@ -849,7 +816,7 @@ public class LocalSourceFileResource {
 		builder.append(", fileBlockMaxSize=");
 		builder.append(fileBlockMaxSize);
 		builder.append(", whether viewObject is null =");
-		builder.append((null == viewObject));
+		builder.append((null == fileTranferProcessInformationDialog));
 		builder.append("]");
 		return builder.toString();
 	}

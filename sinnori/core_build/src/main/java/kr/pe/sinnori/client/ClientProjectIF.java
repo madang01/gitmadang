@@ -21,7 +21,7 @@ import java.net.SocketTimeoutException;
 
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.common.exception.BodyFormatException;
-import kr.pe.sinnori.common.exception.ConnectionTimeoutException;
+import kr.pe.sinnori.common.exception.ConnectionPoolTimeoutException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotLoginException;
@@ -51,21 +51,21 @@ public interface ClientProjectIF {
 	 *             래퍼 메시지를 만들때 데이터 패킷 버퍼 큐에서 버퍼를 확보하는데 실패할때 발생
 	 * @throws BodyFormatException
 	 *             스트림에서 메시지로, 메시지에서 스트림으로 바꿀때 바디 부분 구성 실패시 발생
-	 * @throws ConnectionTimeoutException 
+	 * @throws ConnectionPoolTimeoutException 
 	 * @throws InterruptedException 
 	 */
 	public AbstractMessage sendSyncInputMessage(
 			AbstractMessage inputMessage) throws SocketTimeoutException, ServerNotReadyException, 
 			NoMoreDataPacketBufferException, BodyFormatException, 
-			DynamicClassCallException, ServerTaskException, NotLoginException, ConnectionTimeoutException, InterruptedException;
+			DynamicClassCallException, ServerTaskException, NotLoginException, ConnectionPoolTimeoutException, InterruptedException;
 		
 	/**
 	 * @return 연결 객체
 	 * @throws InterruptedException 연결 폴에서 연결 객체를 가져올때 인터럽트가 걸렸을 경우 던지는 예외
 	 * @throws NotSupportedException 공유+비동기 연결 폴에서 실행시 던지는 예외.  공유+비동기 연결 폴은 직접적으로 연결 객체를 받을 수 없다.
-	 * @throws ConnectionTimeoutException 
+	 * @throws ConnectionPoolTimeoutException 
 	 */
-	public AbstractConnection getConnection() throws InterruptedException, NotSupportedException, ConnectionTimeoutException;
+	public AbstractConnection getConnection() throws InterruptedException, NotSupportedException, ConnectionPoolTimeoutException;
 	
 	/**
 	 * 연결 객체를 반환한다.

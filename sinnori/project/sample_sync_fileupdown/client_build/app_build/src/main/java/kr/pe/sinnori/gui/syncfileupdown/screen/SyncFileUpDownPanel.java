@@ -39,7 +39,7 @@ import com.jgoodies.forms.layout.FormLayout;
 import kr.pe.sinnori.applib.MainProejctSyncConnectionManager;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BodyFormatException;
-import kr.pe.sinnori.common.exception.ConnectionTimeoutException;
+import kr.pe.sinnori.common.exception.ConnectionPoolTimeoutException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotLoginException;
@@ -47,7 +47,6 @@ import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.exception.UpDownFileException;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.updownfile.FileTranferProcessInformationDialogIF;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResource;
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResourceManager;
 import kr.pe.sinnori.gui.syncfileupdown.lib.AbstractFileTreeNode.FileType;
@@ -171,7 +170,7 @@ public class SyncFileUpDownPanel extends JPanel {
 			log.warn(e.getMessage(), e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
 			System.exit(1);
-		} catch (ConnectionTimeoutException e) {
+		} catch (ConnectionPoolTimeoutException e) {
 			log.warn(e.getMessage(), e);
 			JOptionPane.showMessageDialog(mainFrame, e.getMessage());
 			System.exit(1);
@@ -712,7 +711,7 @@ public class SyncFileUpDownPanel extends JPanel {
 				log.error(e1.getMessage(), e1);
 				JOptionPane.showMessageDialog(mainFrame, e1.getMessage());
 				System.exit(1);
-			} catch (ConnectionTimeoutException e1) {
+			} catch (ConnectionPoolTimeoutException e1) {
 				log.error(e1.getMessage(), e1);
 				JOptionPane.showMessageDialog(mainFrame, e1.getMessage());
 				System.exit(1);
@@ -758,6 +757,8 @@ public class SyncFileUpDownPanel extends JPanel {
 
 			localSourceFileResource.setTargetFileID(serverTargetFileID);
 
+			
+
 			SyncUploadFileTransferTask syncUploadFileTransferTask = new SyncUploadFileTransferTask(
 					localSourceFileResource);
 
@@ -778,7 +779,7 @@ public class SyncFileUpDownPanel extends JPanel {
 		public SyncUploadFileTransferTask(LocalSourceFileResource localSourceFileResource) {
 			this.localSourceFileResource = localSourceFileResource;
 			this.sourceFileID = localSourceFileResource.getSourceFileID();
-
+			
 			FileTranferProcessInformationDialog fileTranferProcessInfomationDialog = new FileTranferProcessInformationDialog(
 					mainFrame, "Upload Process Bar Dialog", localSourceFileResource.getSourceFileSize(),
 					localSourceFileResource.getStartOffset(), this);
@@ -788,10 +789,9 @@ public class SyncFileUpDownPanel extends JPanel {
 			 * WindowAdapter() { public void windowClosing(WindowEvent we) { //
 			 * nothing } });
 			 */
-
 			fileTranferProcessInfomationDialog.setVisible(true);
 
-			localSourceFileResource.setViewObject(fileTranferProcessInfomationDialog);
+			localSourceFileResource.setFileTranferProcessInformationDialog(fileTranferProcessInfomationDialog);
 		}
 
 		private void doCancel() {
@@ -838,7 +838,7 @@ public class SyncFileUpDownPanel extends JPanel {
 				log.warn(e.getMessage(), e);
 				JOptionPane.showMessageDialog(mainFrame, e.getMessage());
 				System.exit(1);
-			} catch (ConnectionTimeoutException e) {
+			} catch (ConnectionPoolTimeoutException e) {
 				log.warn(e.getMessage(), e);
 				JOptionPane.showMessageDialog(mainFrame, e.getMessage());
 				System.exit(1);
@@ -863,7 +863,7 @@ public class SyncFileUpDownPanel extends JPanel {
 			String taskResult = syncCancelUploadRes.getTaskResult();
 			String resultMessage = syncCancelUploadRes.getResultMessage();
 
-			localSourceFileResource.setWorkStep(LocalSourceFileResource.WorkStep.CANCEL_DONE);			
+			localSourceFileResource.setWorkStep(LocalSourceFileResource.WorkStep.CANCEL_DONE);
 			localSourceFileResourceManager.removeWithUnlockFile(localSourceFileResource);
 
 			if (taskResult.equals("Y")) {
@@ -878,19 +878,20 @@ public class SyncFileUpDownPanel extends JPanel {
 
 		@Override
 		public void run() {
-			int endFileBlockNo = localSourceFileResource.getEndFileBlockNo();
-			int startFileBlockNo = localSourceFileResource.getStartFileBlockNo();
+			final int endFileBlockNo = localSourceFileResource.getEndFileBlockNo();
+			final int startFileBlockNo = localSourceFileResource.getStartFileBlockNo();
 
-			for (; startFileBlockNo <= endFileBlockNo; startFileBlockNo++) {
+			for (int currentFileBlockNo=startFileBlockNo; currentFileBlockNo <= endFileBlockNo; currentFileBlockNo++) {
 				if (localSourceFileResource.getWorkStep() == LocalSourceFileResource.WorkStep.CANCEL_WORKING) {
 					doCancel();
 					return;
 				}
 
-				byte fileData[] = localSourceFileResource.getByteArrayOfFileBlockNo(startFileBlockNo);
+				// byte fileData[] = localSourceFileResource.getByteArrayOfFileBlockNo(currentFileBlockNo);
+				byte fileData[] = null;
 
 				try {
-					localSourceFileResource.readSourceFileData(sourceFileID, startFileBlockNo, fileData);
+					fileData = localSourceFileResource.readSourceFileData(sourceFileID, currentFileBlockNo);
 				} catch (IllegalArgumentException e) {
 					log.error(e.getMessage(), e);
 					JOptionPane.showMessageDialog(mainFrame, e.getMessage());
@@ -901,6 +902,10 @@ public class SyncFileUpDownPanel extends JPanel {
 					System.exit(1);
 				}
 				SyncUploadReq syncUploadReq = new SyncUploadReq();
+				syncUploadReq.setClientSourceFileID(localSourceFileResource.getSourceFileID());
+				syncUploadReq.setServerTargetFileID(localSourceFileResource.getTargetFileID());
+				syncUploadReq.setFileBlockNo(currentFileBlockNo);
+				syncUploadReq.setFileData(fileData);				
 
 				AbstractMessage outObj = null;
 				try {
@@ -908,7 +913,7 @@ public class SyncFileUpDownPanel extends JPanel {
 				} catch (SocketTimeoutException e) {
 					log.error(e.getMessage(), e);
 					JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-										
+
 					localSourceFileResourceManager.removeWithUnlockFile(localSourceFileResource);
 					mainProejctSyncConnectionManager.closeConnection();
 					screenManager.goToLoginScreen();
@@ -916,7 +921,7 @@ public class SyncFileUpDownPanel extends JPanel {
 				} catch (ServerNotReadyException e) {
 					log.warn(e.getMessage(), e);
 					JOptionPane.showMessageDialog(mainFrame, e.getMessage());
-					
+
 					localSourceFileResourceManager.removeWithUnlockFile(localSourceFileResource);
 					mainProejctSyncConnectionManager.closeConnection();
 					screenManager.goToLoginScreen();
@@ -941,7 +946,7 @@ public class SyncFileUpDownPanel extends JPanel {
 					log.error(e.getMessage(), e);
 					JOptionPane.showMessageDialog(mainFrame, e.getMessage());
 					System.exit(1);
-				} catch (ConnectionTimeoutException e) {
+				} catch (ConnectionPoolTimeoutException e) {
 					log.error(e.getMessage(), e);
 					JOptionPane.showMessageDialog(mainFrame, e.getMessage());
 					System.exit(1);
@@ -983,22 +988,18 @@ public class SyncFileUpDownPanel extends JPanel {
 					 */
 					if (JOptionPane.YES_OPTION == n) {
 						/** 재시도 */
-						log.info("{} 번째 업로드 데이터 패킷 에러에 따른 사용자 재시도 요청", startFileBlockNo);
+						log.info("{} 번째 업로드 데이터 패킷 에러에 따른 사용자 재시도 요청", currentFileBlockNo);
 
 					} else {
 						/** 중지 */
-						log.info("{} 번째 업로드 데이터 패킷 에러에 따른 사용자 중지 요청", startFileBlockNo);
+						log.info("{} 번째 업로드 데이터 패킷 에러에 따른 사용자 중지 요청", currentFileBlockNo);
 						localSourceFileResource.setWorkStep(LocalSourceFileResource.WorkStep.CANCEL_WORKING);
 					}
-					startFileBlockNo--;
+					currentFileBlockNo--;
 					continue;
 				}
 
-				localSourceFileResource.turnOnWorkedFileBlockBitSetAt(startFileBlockNo);
-
-				FileTranferProcessInformationDialogIF fileTranferProcessInformationDialog = localSourceFileResource
-						.getViewObejct();
-				fileTranferProcessInformationDialog.noticeAddedFileData(fileData.length);
+				localSourceFileResource.turnOnWorkedFileBlockBitSetAt(currentFileBlockNo);
 			}
 
 			// FIXME!

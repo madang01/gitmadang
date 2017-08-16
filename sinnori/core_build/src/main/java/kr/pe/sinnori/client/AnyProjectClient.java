@@ -36,7 +36,7 @@ import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonType.CONNECTION_TYPE;
 import kr.pe.sinnori.common.exception.BodyFormatException;
-import kr.pe.sinnori.common.exception.ConnectionTimeoutException;
+import kr.pe.sinnori.common.exception.ConnectionPoolTimeoutException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
@@ -240,13 +240,13 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
 			throws SocketTimeoutException, ServerNotReadyException,
 			NoMoreDataPacketBufferException, BodyFormatException,
-			DynamicClassCallException, ServerTaskException, NotLoginException, ConnectionTimeoutException, InterruptedException {
+			DynamicClassCallException, ServerTaskException, NotLoginException, ConnectionPoolTimeoutException, InterruptedException {
 		return connectionPool.sendSyncInputMessage(inputMessage);
 	}
 
 	@Override
 	public AbstractConnection getConnection() throws InterruptedException,
-			NotSupportedException, ConnectionTimeoutException {
+			NotSupportedException, ConnectionPoolTimeoutException {
 		return connectionPool.getConnection();
 	}
 
