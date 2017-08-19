@@ -25,13 +25,6 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 
-import org.apache.lucene.util.LongBitSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import kr.pe.sinnori.common.config.SinnoriConfiguration;
-import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.itemvalue.CommonPartConfiguration;
 import kr.pe.sinnori.common.exception.UpDownFileException;
 
 /**
@@ -44,302 +37,27 @@ import kr.pe.sinnori.common.exception.UpDownFileException;
  * @author Won Jonghoon
  * 
  */
-public class LocalTargetFileResource {
-	private Logger log = LoggerFactory.getLogger(LocalTargetFileResource.class);
-
-	private String ownerID = null;
-	
-	
+public class LocalTargetFileResource extends AbstractFileResource {	
 	public enum WorkStep {
 		TRANSFER_WORKING, TRANSFER_DONE, CANCEL_DONE
 	}
 
 	private WorkStep workStep = WorkStep.TRANSFER_WORKING;
-
-	private int sourceFileID = Integer.MAX_VALUE;
-	private int targetFileID = Integer.MIN_VALUE;
-
-	private boolean append = false;
-
-	private String sourceFilePathName = null;
-	private String sourceFileName = null;
-	private long sourceFileSize = -1;
-
-	private String targetFilePathName = null;
-	private String targetFileName = null;
-	private long targetFileSize = -1;
-
-	private int fileBlockSize = -1;
-	private long startFileBlockNo = -1;
-	private long endFileBlockNo = -1;
 	
-	
-	
-	// private long wantedCardinalityOfWorkedFileBlockBitSet = -1;
-
-	/** 주의점 : BitSet 의 크기는 동적으로 자란다. 따라서 해당 비트 인덱스에 대한 엄격한 제한이 필요하다. */
-	private LongBitSet workedFileBlockBitSet = null;
 	private RandomAccessFile targetRandomAccessFile = null;
 	private FileChannel targetFileChannel = null;
-	private FileLock targetFileLock = null;
-
-	/**
-	 * Warning! the variable fileBlockMaxSize must not create getXXX method
-	 * because it is Sinnori configuration variable
-	 */
-	private int fileBlockMaxSize = -1;
-
-	/******* view 와 관련된 모듈 시작 ***************/
-	private FileTranferProcessInformationDialogIF fileTranferProcessInformationDialog = null;
-
-	private void noticeAddedFileData(int fileBlockNo) {
-		if (null != fileTranferProcessInformationDialog) {
-			long currentStartOffset = fileBlockNo*fileBlockSize;
-			long currentEndOffset = currentStartOffset + fileBlockSize;
-			
-			if (append && fileBlockSize == startFileBlockNo) {
-				currentStartOffset = targetFileSize;
-			}
-			
-			if (currentEndOffset > sourceFileSize) {
-				currentEndOffset = sourceFileSize;
-			}
-			
-			int receivedDataSize =  (int)(currentEndOffset - currentStartOffset);
-			
-			fileTranferProcessInformationDialog.noticeAddedFileData(receivedDataSize);
-		}
-	}
-	
-	public void setFileTranferProcessInformationDialog(FileTranferProcessInformationDialogIF fileTranferProcessInformationDialog) {
-		if (null == fileTranferProcessInformationDialog) {
-			throw new IllegalArgumentException("the parameter fileTranferProcessInformationDialog is null");
-		}
-		this.fileTranferProcessInformationDialog = fileTranferProcessInformationDialog;
-	}
-	
-	/**
-	 * <pre>
-	 * '전송 처리 정보 윈도우' 가 지정되었다면 창을 자동으로 닫는다. 
-	 * 단 예외적으로 '전송 완료' 상태인 경우에는 창을 자동으로 닫지 않는다.
-	 * 이는 사용자가 최종 전송 완료된 시점의 정보를 확인할 수 있게 해 주는 배려로
-	 * 창은 사용자는 OK 버튼 클릭으로 닫히게 된다.
-	 * 
-	 * <pre>
-	 */
-	protected void disposeFileTranferProcessInformationDialogIfExistAndNotTransferDone() {		
-		if (null != fileTranferProcessInformationDialog) {
-			if (! workStep.equals(WorkStep.TRANSFER_DONE)) {
-				fileTranferProcessInformationDialog.dispose();
-			}
-		}
-	}
-	/******* view 와 관련된 모듈 종료 ***************/
+	private FileLock targetFileLock = null;	
 	
 	public LocalTargetFileResource(String ownerID, int targetFileID, boolean append, String sourceFilePathName, String sourceFileName,
 			long sourceFileSize, String targetFilePathName, String targetFileName, long targetFileSize,
 			int fileBlockSize) throws IllegalArgumentException, UpDownFileException {
-		SinnoriConfiguration sinnoriRunningProjectConfiguration = SinnoriConfigurationManager.getInstance()
-				.getSinnoriRunningProjectConfiguration();
-		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
-		fileBlockMaxSize = commonPart.getFileBlockMaxSize();
+		super(ownerID, append, sourceFilePathName, sourceFileName,
+				sourceFileSize, targetFilePathName, targetFileName, targetFileSize,
+				fileBlockSize);
 		
-		if (null == ownerID) {
-			throw new IllegalArgumentException("the parameter ownerID is null");
-		}
-		
-		if (null == sourceFilePathName) {
-			String errorMessage = String.format("targetFileID[%d]::parameter sourceFilePathName is null", targetFileID);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-
-		sourceFilePathName = sourceFilePathName.trim();
-
-		if (sourceFilePathName.equals("")) {
-			String errorMessage = String.format("targetFileID[%d]::parameter sourceFilePathName is a empty",
-					targetFileID);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-
-		if (null == sourceFileName) {
-			String errorMessage = String.format("targetFileID[%d]::parameter sourceFileName is null", targetFileID);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-
-		sourceFileName = sourceFileName.trim();
-
-		if (sourceFileName.equals("")) {
-			String errorMessage = String.format("targetFileID[%d]::parameter sourceFileName is a empty", targetFileID);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-
-		if (sourceFileSize <= 0) {
-			String errorMessage = String.format("targetFileID[%d]::parameter sourceFileSize[%d] less than zero",
-					targetFileID, sourceFileSize);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-
-		/*
-		 * if (sourceFileSize > CommonStaticFinal.UP_DOWN_SOURCE_FILE_MAX_SIZE)
-		 * { String errorMessage = String
-		 * .format("targetFileID[%d]::parameter sourceFileSize[%d] is over than max[%d]"
-		 * , targetFileID, sourceFileSize,
-		 * CommonStaticFinal.UP_DOWN_SOURCE_FILE_MAX_SIZE);
-		 * log.warn(errorMessage); throw new
-		 * IllegalArgumentException(errorMessage); }
-		 */
-
-		if (null == targetFilePathName) {
-			String errorMessage = String.format("targetFileID[%d]::parameter targetFilePathName is null", targetFileID);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-		targetFilePathName = targetFilePathName.trim();
-
-		if (targetFilePathName.equals("")) {
-			String errorMessage = String.format("targetFileID[%d]::parameter targetFilePathName is a empty",
-					targetFileID);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-
-		if (null == targetFileName) {
-			String errorMessage = String.format("targetFileID[%d]::parameter targetFileName is null", targetFileID);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-
-		targetFileName = targetFileName.trim();
-
-		if (targetFileName.equals("")) {
-			String errorMessage = String.format(
-					"targetFileID[%d]::parameter targetFileName is a empty, so change to parameter sourceFileName[%s]",
-					targetFileID, sourceFileName);
-			log.info(errorMessage);
-			targetFileName = sourceFileName;
-		}
-
-		if (targetFileSize < 0) {
-			String errorMessage = String.format(
-					"targetFileID[%d]::targetFile[%s][%s]::parameter targetFileSize[%d] less than zero", targetFileID,
-					targetFilePathName, targetFileName, targetFileSize);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-
-		if (fileBlockSize <= 0) {
-			String errorMessage = String.format("targetFileID[%d]::parameter fileBlockSize[%d] less than or equal zero",
-					targetFileID, fileBlockSize);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-
-		if (0 != (fileBlockSize % 1024)) {
-			String errorMessage = String.format(
-					"targetFileID[%d]::parameter fileBlockSize[%d] is not a multiple of 1024", targetFileID,
-					fileBlockSize);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-
-		if (fileBlockSize > fileBlockMaxSize) {
-			String errorMessage = String.format("targetFileID[%d]::parameter fileBlockSize[%d] is over than max[%d]",
-					targetFileID, fileBlockSize, fileBlockMaxSize);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-
-		if (append) {
-			/** 이어받기 */
-			if (sourceFileSize <= targetFileSize) {
-				String errorMessage = String.format(
-						"targetFileID[%d]::targetFile[%s][%s]::parameter sourceFileSize[%d] less than or equal to parameter targetFileSize[%d]",
-						targetFileID, targetFilePathName, targetFileName, sourceFileSize, targetFileSize);
-				log.warn(errorMessage);
-				throw new IllegalArgumentException(errorMessage);
-			}
-		}
-
-		this.ownerID = ownerID;
-		this.workStep = WorkStep.TRANSFER_WORKING;
 		this.targetFileID = targetFileID;
-		this.append = append;
-		this.sourceFilePathName = sourceFilePathName;
-		this.sourceFileName = sourceFileName;
-		this.sourceFileSize = sourceFileSize;
-		this.targetFilePathName = targetFilePathName;
-		this.targetFileName = targetFileName;
-		this.targetFileSize = targetFileSize;
-		this.fileBlockSize = fileBlockSize;
-
-		if (append) {
-			/** 이어받기 */
-			this.endFileBlockNo = (sourceFileSize + fileBlockSize - 1) / fileBlockSize - 1;
-
-			if (endFileBlockNo > (Long.MAX_VALUE - 1)) {
-				/**
-				 * 자바는 배열 크기가 정수로 제한되는데, 파일 조각 받은 여부를 기억하는 BitSet 도 그대로 그 문제를
-				 * 상속한다. 따라서 fileBlock 최대 갯수는 정수(=Integer) 이어야 한다.
-				 */
-				String errorMessage = String.format(
-						"targetFileID[%d]::endFileBlockNo[%d] greater than (Long.MAX - 1), maybe parameter fileBlockSize[%d] is not enough size or parameter sourceFileSize[%d] too big",
-						targetFileID, endFileBlockNo, fileBlockSize, sourceFileSize);
-				log.warn(errorMessage);
-				throw new IllegalArgumentException(errorMessage);
-			}
-
-			this.startFileBlockNo = (this.targetFileSize + fileBlockSize - 1) / fileBlockSize - 1;
-
-			if (startFileBlockNo > endFileBlockNo) {
-				String errorMessage = String.format(
-						"targetFileID[%d]::the variable 'startFileBlockNo'[%d] is greater than endFileBlockNo[%d], sourceFileSize=[%d], ",
-						targetFileID, startFileBlockNo, endFileBlockNo);
-				log.warn(errorMessage);
-				throw new IllegalArgumentException(errorMessage);
-			}
-
-			workedFileBlockBitSet = new LongBitSet( endFileBlockNo + 1);
-
-			/** 이어 받기를 시작하는 위치 전까지 데이터 쓰기 여부를 참으로 설정한다. */
-			for (long i = 0; i < startFileBlockNo; i++) {
-				workedFileBlockBitSet.set(i);
-			}
-		} else {
-			/** 덮어 쓰기 */
-
-			this.endFileBlockNo = (sourceFileSize + fileBlockSize - 1) / fileBlockSize - 1;
-
-			if (endFileBlockNo > (Long.MAX_VALUE - 1)) {
-				/**
-				 * 자바는 배열 크기가 정수로 제한되는데, 파일 조각 받은 여부를 기억하는 BitSet 도 그대로 그 문제를
-				 * 상속한다. 따라서 fileBlock 최대 갯수는 정수(=Integer) 이어야 한다.
-				 */
-				String errorMessage = String.format(
-						"targetFileID[%d]::endFileBlockNo[%d] greater than (Long.MAX - 1), maybe parameter fileBlockSize[%d] is not enough size or parameter sourceFileSize[%d] too big",
-						targetFileID, endFileBlockNo, fileBlockSize, sourceFileSize);
-				log.warn(errorMessage);
-				throw new IllegalArgumentException(errorMessage);
-			}
-
-			this.startFileBlockNo = 0;
-
-			if (startFileBlockNo > endFileBlockNo) {
-				String errorMessage = String.format(
-						"targetFileID[%d]::the variable 'startFileBlockNo'[%d] is greater than endFileBlockNo[%d], sourceFileSize=[%d], ",
-						targetFileID, startFileBlockNo, endFileBlockNo);
-				log.warn(errorMessage);
-				throw new IllegalArgumentException(errorMessage);
-			}			
-
-			workedFileBlockBitSet = new LongBitSet(endFileBlockNo + 1);
-		}
+		this.workStep = WorkStep.TRANSFER_WORKING;
 		
-
 		File targetFilePath = new File(targetFilePathName);
 
 		if (!targetFilePath.exists()) {
@@ -357,7 +75,6 @@ public class LocalTargetFileResource {
 		String targetfullFileName = targetfullFileNameBuilder.toString();
 		File targetFileObj = new File(targetfullFileName);
 
-		// boolean isFile = sourceFile.createNewFile();
 		if (!targetFileObj.exists()) {
 			try {
 				targetFileObj.createNewFile();
@@ -393,7 +110,7 @@ public class LocalTargetFileResource {
 			log.warn(errorMessage);
 			throw new UpDownFileException(errorMessage);
 		}
-
+		
 		try {
 			targetRandomAccessFile = new RandomAccessFile(targetFileObj, "rw");
 		} catch (FileNotFoundException e) {
@@ -432,26 +149,9 @@ public class LocalTargetFileResource {
 			throw new UpDownFileException(errorMessage);
 		}
 		
+		
+		
 		log.info("생성자::{}", toString());
-	}
-
-	public String getOwnerID() {
-		return ownerID;
-	}
-
-	public void setWorkStep(WorkStep localUploadStep) {
-		this.workStep = localUploadStep;
-	}
-
-	public WorkStep getWorkStep() {
-		return workStep;
-	}
-
-	/**
-	 * @return the sourceFileID
-	 */
-	public int getSourceFileID() {
-		return sourceFileID;
 	}
 
 	/**
@@ -461,183 +161,33 @@ public class LocalTargetFileResource {
 	public void setSourceFileID(int sourceFileID) {
 		this.sourceFileID = sourceFileID;
 	}
-
-	/**
-	 * @return the targetFileID
-	 */
-	public int getTargetFileID() {
-		return targetFileID;
+	
+	public void setWorkStep(WorkStep localUploadStep) {
+		this.workStep = localUploadStep;
 	}
 
-	/**
-	 * @return the targetFilePathName
-	 */
-	public String getTargetFilePathName() {
-		return targetFilePathName;
-	}
-
-	/**
-	 * @return the targetFileName
-	 */
-	public String getTargetFileName() {
-		return targetFileName;
-	}
-
-	/**
-	 * @return the targetFileSize
-	 */
-	public long getTargetFileSize() {
-		return targetFileSize;
-	}
-
-	/**
-	 * @return the sourceFilePathName
-	 */
-	public String getSourceFilePathName() {
-		return sourceFilePathName;
-	}
-
-	/**
-	 * @return the sourceFileName
-	 */
-	public String getSourceFileName() {
-		return sourceFileName;
-	}
-
-	/**
-	 * @return the sourceFileSize
-	 */
-	public long getSourceFileSize() {
-		return sourceFileSize;
-	}
-
-	/**
-	 * @return the fileBlockSize
-	 */
-	public long getFileBlockSize() {
-		return fileBlockSize;
-	}
-
-	/**
-	 * @return the startFileBlockNo
-	 */
-	public int getStartFileBlockNo() {
-		return (int) startFileBlockNo;
-	}
-
-	/**
-	 * @return the endFileBlockNo
-	 */
-	public int getEndFileBlockNo() {
-		return (int) endFileBlockNo;
-	}
-
-	public void turnOnWorkedFileBlockBitSetAt(int fileBlockNo) {
-		if (fileBlockNo < 0) {
-			String errorMessage = String.format("targetFileID[%d]::parameter fileBlockNo[%d] is less than zero",
-					targetFileID, fileBlockNo);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-
-		if (fileBlockNo < startFileBlockNo) {
-			String errorMessage = String.format(
-					"targetFileID[%d]::parameter fileBlockNo[%d] is less than startFileBlockNo[%d]", targetFileID,
-					fileBlockNo, startFileBlockNo);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-
-		if (fileBlockNo > endFileBlockNo) {
-			String errorMessage = String.format(
-					"targetFileID[%d]::parameter fileBlockNo[%d] is greater than endFileBlockNo[%d]", targetFileID,
-					fileBlockNo, endFileBlockNo);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-
-		try {
-			if (workedFileBlockBitSet.get(fileBlockNo)) {
-				/** 파일 조각 중복 도착 */
-				String errorMessage = String.format("targetFileID[%d]::파일 조각[%d] 중복 도착", targetFileID, fileBlockNo);
-				log.error(errorMessage);
-				System.exit(1);
-			} else {
-				workedFileBlockBitSet.set(fileBlockNo);
-			}
-		} catch (NullPointerException e) {
-			/**
-			 * 심각한 로직 버그
-			 */
-			String errorMessage = String.format("변수 workedFileBlockBitSet 가 null 입니다, toString=[%s]", toString());
-			log.error(errorMessage);
-			System.exit(1);
-		}
-		
-		noticeAddedFileData(fileBlockNo);
+	public WorkStep getWorkStep() {
+		return workStep;
 	}
 	
-	/*public void setWantedCardinalityOfWorkedFileBlockBitSet(int canceledFileBlockNo) {
-		if (canceledFileBlockNo < 0) {
-			String errorMessage = String.format("targetFileID[%d]::parameter canceledFileBlockNo[%d] is less than zero",
-					targetFileID, canceledFileBlockNo);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-	
-		if (canceledFileBlockNo < startFileBlockNo) {
-			String errorMessage = String.format(
-					"targetFileID[%d]::parameter fileBlockNo[%d] is less than startFileBlockNo[%d]", targetFileID,
-					canceledFileBlockNo, startFileBlockNo);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-	
-		if (canceledFileBlockNo > endFileBlockNo) {
-			String errorMessage = String.format(
-					"targetFileID[%d]::parameter fileBlockNo[%d] is greater than endFileBlockNo[%d]", targetFileID,
-					canceledFileBlockNo, endFileBlockNo);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}		
-		
-		wantedCardinalityOfWorkedFileBlockBitSet = Math.min(wantedCardinalityOfWorkedFileBlockBitSet, canceledFileBlockNo);
-	}
-	*/
 	/**
+	 * <pre>
+	 * '전송 처리 정보 윈도우' 가 지정되었다면 창을 자동으로 닫는다. 
+	 * 단 예외적으로 '전송 완료' 상태인 경우에는 창을 자동으로 닫지 않는다.
+	 * 이는 사용자가 최종 전송 완료된 시점의 정보를 확인할 수 있게 해 주는 배려로
+	 * 창은 사용자는 OK 버튼 클릭으로 닫히게 된다.
 	 * 
-	 * @return 첫번째로 실패한 파일 블락 번호, if nothing then -1
+	 * <pre>
 	 */
-	public long getFirstFailedFileBlockNo() {
-		for (long i=startFileBlockNo; i <= endFileBlockNo; i++) {
-			boolean isSuccess = workedFileBlockBitSet.get(i);
-			if (! isSuccess) {
-				return i;
+	protected void disposeFileTranferProcessInformationDialogIfExistAndNotTransferDone() {		
+		if (null != fileTranferProcessInformationDialog) {
+			if (! workStep.equals(LocalTargetFileResource.WorkStep.TRANSFER_DONE)) {
+				fileTranferProcessInformationDialog.dispose();
 			}
 		}
-		return -1L;
 	}
-
-	/**
-	 * @return 파일 복사 작업이 완료 되었는지 여부
-	 */
-	public boolean whetherLocalFileCopyWorkIsCompleted() {
-		boolean isFinished = false;
-		try {
-			// isFinished = (workedFileBlockBitSet.cardinality() == wantedCardinalityOfWorkedFileBlockBitSet);
-			isFinished = (workedFileBlockBitSet.cardinality() == workedFileBlockBitSet.length());
-		} catch (NullPointerException e) {
-			/**
-			 * 심각한 로직 버그
-			 */
-			String errorMessage = String.format("변수 workedFileBlockBitSet 가 null 입니다, toString=[%s]", toString());
-			log.error(errorMessage);
-			System.exit(1);
-		}
-
-		return isFinished;
-	}
-
+	
+	
 	/**
 	 * <pre>
 	 * 덮어 쓰기 모드일 경우 목적지 파일 크기를 0으로 재 조정한다.
@@ -715,22 +265,20 @@ public class LocalTargetFileResource {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		long currentStartOffset = fileBlockNo*fileBlockSize;
-		long currentEndOffset = currentStartOffset + fileBlockSize;
+		FileBlockInformation fileBlockInformation = new FileBlockInformation(
+				sourceFileID,			
+				targetFileID,
+				sourceFileSize,
+				targetFileSize,
+				startFileBlockNo,
+				endFileBlockNo,				
+				append, fileBlockSize, fileBlockNo);
 		
-		if (append && fileBlockSize == startFileBlockNo) {
-			currentStartOffset = targetFileSize;
-		}
+		int expectedLength = fileBlockInformation.getCurrentLength();
 		
-		if (currentEndOffset > sourceFileSize) {
-			currentEndOffset = sourceFileSize;
-		}
-		
-		int expectedFileDataSize = (int)(currentEndOffset - currentStartOffset);
-		
-		if (fileData.length != expectedFileDataSize) {
+		if (fileData.length != expectedLength) {
 			String errorMessage = String.format("targetFileID[%d]::parameter fileData's length[%d] is not same to the expected length[%d]", 
-					targetFileID, fileData.length, expectedFileDataSize);
+					targetFileID, fileData.length, expectedLength);
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
@@ -745,7 +293,7 @@ public class LocalTargetFileResource {
 		/**************************** 방어 코드 종료 *****************/
 
 		try {
-			targetRandomAccessFile.seek(currentStartOffset);
+			targetRandomAccessFile.seek(fileBlockInformation.getCurrentStartOffset());
 			targetRandomAccessFile.write(fileData);
 
 			// log.info(String.format("fileBlockNo=[%d], targetFileOffset=[%d],
@@ -769,9 +317,7 @@ public class LocalTargetFileResource {
 		
 		turnOnWorkedFileBlockBitSetAt(fileBlockNo);
 		
-		log.info("fileBlockNo=[{}], startFileBlockNo=[{}], endFileBlockNo=[{}], fileBlockSize[{}], currentStartOffset=[{}], currentEndOffset=[{}], fileData.length=[{}]", 
-				fileBlockNo, startFileBlockNo, endFileBlockNo, fileBlockSize, 
-				currentStartOffset, currentEndOffset, fileData.length);
+		log.info(fileBlockInformation.toString());
 	}
 	
 	public boolean isReleasedFileLock() {
@@ -848,66 +394,22 @@ public class LocalTargetFileResource {
 						targetFileID, targetFilePathName, targetFileName);
 				log.warn(errorMessage, e);
 			}
-		}
-		
-		
+		}		
 	}
-	
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("LocalTargetFileResource [ownerID=");
-		builder.append(ownerID);
-		builder.append(", localWorkStep=");
+		builder.append(super.toString());
+		builder.append("LocalTargetFileResource [workStep=");
 		builder.append(workStep);
-		builder.append(", sourceFileID=");
-		builder.append(sourceFileID);
-		builder.append(", targetFileID=");
-		builder.append(targetFileID);
-		builder.append(", append=");
-		builder.append(append);
-		builder.append(", sourceFilePathName=");
-		builder.append(sourceFilePathName);
-		builder.append(", sourceFileName=");
-		builder.append(sourceFileName);
-		builder.append(", sourceFileSize=");
-		builder.append(sourceFileSize);
-		builder.append(", targetFilePathName=");
-		builder.append(targetFilePathName);
-		builder.append(", targetFileName=");
-		builder.append(targetFileName);
-		builder.append(", targetFileSize=");
-		builder.append(targetFileSize);
-		builder.append(", fileBlockSize=");
-		builder.append(fileBlockSize);
-		builder.append(", startFileBlockNo=");
-		builder.append(startFileBlockNo);
-		builder.append(", endFileBlockNo=");
-		builder.append(endFileBlockNo);
-		builder.append(", workedFileBlockBitSet.cardinality()=");
-		builder.append(workedFileBlockBitSet.cardinality());
-		builder.append(", workedFileBlockBitSet.length()=");
-		builder.append(workedFileBlockBitSet.length());
-		
 		builder.append(", targetRandomAccessFile=");
 		builder.append(targetRandomAccessFile);
 		builder.append(", targetFileChannel=");
 		builder.append(targetFileChannel);
 		builder.append(", targetFileLock=");
 		builder.append(targetFileLock);
-		builder.append(", fileBlockMaxSize=");
-		builder.append(fileBlockMaxSize);
-		builder.append(", fileTranferProcessInformationDialog=");
-		builder.append(fileTranferProcessInformationDialog);
 		builder.append("]");
 		return builder.toString();
-	}
-
-	@Override
-	public void finalize() {
-		log.warn("큐에 반환되지 못한 랩 버퍼 소멸");
-		releaseFileLock();
-	}
-
+	}	
 }
