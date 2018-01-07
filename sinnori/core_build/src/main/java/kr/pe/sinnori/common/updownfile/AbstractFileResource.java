@@ -1,20 +1,18 @@
 package kr.pe.sinnori.common.updownfile;
 
-import org.apache.lucene.util.LongBitSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.itemvalue.CommonPartConfiguration;
+import kr.pe.sinnori.common.etc.LimitedLongBitSet;
 import kr.pe.sinnori.common.exception.UpDownFileException;
 
 public abstract class AbstractFileResource {
 	protected Logger log = LoggerFactory.getLogger(AbstractFileResource.class);
 	
 	protected String ownerID = null;
-	
-	
 	
 
 	protected int sourceFileID = Integer.MAX_VALUE;
@@ -39,7 +37,7 @@ public abstract class AbstractFileResource {
 	// private long wantedCardinalityOfWorkedFileBlockBitSet = -1;
 
 	/** 주의점 : BitSet 의 크기는 동적으로 자란다. 따라서 해당 비트 인덱스에 대한 엄격한 제한이 필요하다. */
-	protected LongBitSet workedFileBlockBitSet = null;
+	protected LimitedLongBitSet workedFileBlockBitSet = null;
 	
 	/**
 	 * Warning! the variable fileBlockMaxSize must not create getXXX method
@@ -73,8 +71,24 @@ public abstract class AbstractFileResource {
 	}
 	
 	
-	abstract protected void disposeFileTranferProcessInformationDialogIfExistAndNotTransferDone();
+	/**
+	 * <pre>
+	 * '전송 처리 정보 윈도우' 가 지정되었다면 창을 자동으로 닫는다. 
+	 * 단 예외적으로 '전송 완료' 상태인 경우에는 창을 자동으로 닫지 않는다.
+	 * 이는 사용자가 최종 전송 완료된 시점의 정보를 확인할 수 있게 해 주는 배려로
+	 * 창은 사용자는 OK 버튼 클릭으로 닫히게 된다.
+	 * 
+	 * <pre>
+	 */
+	protected void disposeFileTranferProcessInformationDialogIfExistAndNotTransferDone() {		
+		if (null != fileTranferProcessInformationDialog) {
+			if (! whetherWorkStepIsTransferDoneState()) {
+				fileTranferProcessInformationDialog.dispose();
+			}
+		}
+	}
 	
+	abstract protected boolean whetherWorkStepIsTransferDoneState();
 	
 	/******* view 와 관련된 모듈 종료 ***************/
 	
@@ -174,7 +188,7 @@ public abstract class AbstractFileResource {
 
 		long sourceFileBlockCount = FileBlockInformation.getFileBlockCountUsingBigDecimal(sourceFileSize, fileBlockSize);
 		this.endFileBlockNo = sourceFileBlockCount - 1;
-		this.workedFileBlockBitSet = new LongBitSet(sourceFileBlockCount);
+		this.workedFileBlockBitSet = new LimitedLongBitSet(sourceFileBlockCount);
 
 		if (append) {
 			/** 이어받기 */
@@ -186,7 +200,12 @@ public abstract class AbstractFileResource {
 
 				/** 이어 받기를 시작하는 위치 전까지 데이터 읽기 여부를 참으로 설정한다. */
 				for (int i = 0; i < startFileBlockNo; i++) {
-					this.workedFileBlockBitSet.set(i);
+					try {
+						this.workedFileBlockBitSet.set(i);
+					} catch (Exception e) {
+						log.error(e.getMessage(), e);
+						System.exit(1);
+					}
 				}
 			}
 		} else {
@@ -197,9 +216,7 @@ public abstract class AbstractFileResource {
 	
 	public String getOwnerID() {
 		return ownerID;
-	}
-
-	
+	}	
 
 	/**
 	 * @return the sourceFileID
@@ -208,7 +225,6 @@ public abstract class AbstractFileResource {
 		return sourceFileID;
 	}
 
-	
 
 	/**
 	 * @return the targetFileID
@@ -280,6 +296,18 @@ public abstract class AbstractFileResource {
 		return (int) endFileBlockNo;
 	}
 
+	/**
+	 * <pre>
+	 * {@link LocalTargetFileResource#writeTargetFileData(int, int, byte[], boolean)} 에서 호출된다.
+	 * 따라서 LocalTargetFileResource 에서는 비트셋의 모든 비트가 켜져 있다는 의미는 파일 복사가 완료 되었다는 의미를 갖는다.
+	 * 
+	 * 반면에 LocalSourceFileResource 에서는 비트셋의 모든 비트가 켜져 있다는 의미는 개발자가 비트셋을 언제 켰느냐에 따라 의미가 달라진다.
+	 * 
+	 * 신놀이는 파일 블락 저장이 성공했다는 메시지 결과를 받은후 {@link LocalSourceFileResource#turnOnWorkedFileBlockBitSetAt(int))} 를 호출하도록 권장한다. 
+	 * </pre>
+	 * 
+	 * @param fileBlockNo
+	 */
 	public void turnOnWorkedFileBlockBitSetAt(int fileBlockNo) {
 		if (fileBlockNo < 0) {
 			String errorMessage = String.format("targetFileID[%d]::parameter fileBlockNo[%d] is less than zero",
@@ -311,7 +339,12 @@ public abstract class AbstractFileResource {
 				log.error(errorMessage);
 				System.exit(1);
 			} else {
-				workedFileBlockBitSet.set(fileBlockNo);
+				try {
+					workedFileBlockBitSet.set(fileBlockNo);
+				} catch (Exception e) {
+					log.error(e.getMessage(), e);
+					System.exit(1);
+				}
 			}
 		} catch (NullPointerException e) {
 			/**
@@ -325,29 +358,22 @@ public abstract class AbstractFileResource {
 		noticeAddedFileData(fileBlockNo);
 	}
 	
-	
 	/**
+	 * <pre>
+	 * {@link LocalTargetFileResource#writeTargetFileData(int, int, byte[], boolean)} 에서 호출된다.
+	 * 따라서 LocalTargetFileResource 에서는 비트셋의 모든 비트가 켜져 있다는 의미는 파일 복사가 완료 되었다는 의미를 갖는다.
 	 * 
-	 * @return 첫번째로 실패한 파일 블락 번호, if nothing then -1
+	 * 반면에 LocalSourceFileResource 에서는 비트셋의 모든 비트가 켜져 있다는 의미는 개발자가 비트셋을 언제 켰느냐에 따라 의미가 달라진다.
+	 * 
+	 * 신놀이는 파일 블락 저장이 성공했다는 메시지 결과를 받은후 {@link LocalSourceFileResource#turnOnWorkedFileBlockBitSetAt(int))} 를 호출하도록 권장한다. 
+	 * </pre>
+	 *   
+	 * @return 비트셋 모든 비트가 켜져 있는지 여부를 반환한다. 
 	 */
-	public long getFirstFailedFileBlockNo() {
-		for (long i=startFileBlockNo; i <= endFileBlockNo; i++) {
-			boolean isSuccess = workedFileBlockBitSet.get(i);
-			if (! isSuccess) {
-				return i;
-			}
-		}
-		return -1L;
-	}
-
-	/**
-	 * @return 파일 복사 작업이 완료 되었는지 여부
-	 */
-	public boolean whetherLocalFileCopyWorkIsCompleted() {
+	public boolean whetherAllBitOfBitSetIslTrue() {
 		boolean isFinished = false;
 		try {
-			// isFinished = (workedFileBlockBitSet.cardinality() == wantedCardinalityOfWorkedFileBlockBitSet);
-			isFinished = (workedFileBlockBitSet.cardinality() == workedFileBlockBitSet.length());
+			isFinished = (workedFileBlockBitSet.cardinality() == workedFileBlockBitSet.getMaxBitNumber());
 		} catch (NullPointerException e) {
 			/**
 			 * 심각한 로직 버그
@@ -358,6 +384,19 @@ public abstract class AbstractFileResource {
 		}
 
 		return isFinished;
+	}
+	
+	
+	public long getStartOffset() {
+		FileBlockInformation fileBlockInformation = new FileBlockInformation(
+				sourceFileID,			
+				targetFileID,
+				sourceFileSize,
+				targetFileSize,
+				startFileBlockNo,
+				endFileBlockNo,				
+				append, fileBlockSize, startFileBlockNo);
+		return fileBlockInformation.getCurrentStartOffset();
 	}
 
 	@Override
@@ -392,8 +431,8 @@ public abstract class AbstractFileResource {
 		
 		builder.append(", workedFileBlockBitSet.cardinality()=");
 		builder.append(workedFileBlockBitSet.cardinality());
-		builder.append(", workedFileBlockBitSet.length()=");
-		builder.append(workedFileBlockBitSet.length());
+		builder.append(", workedFileBlockBitSet.getMaxBitNumber()=");
+		builder.append(workedFileBlockBitSet.getMaxBitNumber());
 		
 		builder.append(", fileBlockMaxSize=");
 		builder.append(fileBlockMaxSize);

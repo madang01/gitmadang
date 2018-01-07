@@ -1,0 +1,24 @@
+grant {
+    // allows anyone to listen on dynamic ports
+    // permission java.net.SocketPermission "localhost:0", "listen";
+
+	permission java.net.SocketPermission "127.0.0.1:*", "connect,resolve";
+
+	permission java.lang.RuntimePermission "shutdownHooks";
+	
+	
+	// permission java.util.PropertyPermission "*", "write, read";
+	
+	// permission java.lang.RuntimePermission "createClassLoader";
+	
+	
+	permission java.io.FilePermission "D:\workspace\sinnori_core\bin\*.class", "read";
+	permission java.io.FilePermission "sinnori.logPath_IS_UNDEFINED\logger*.log","read";
+	permission java.io.FilePermission "sinnori.logPath_IS_UNDEFINED", "read";
+	permission java.io.FilePermission "sinnori.logPath_IS_UNDEFINED\logger.log", "write";
+	permission java.io.FilePermission "sinnori.logPath_IS_UNDEFINED\logFile.2017-11-04.log", "write";
+	
+	permission java.util.PropertyPermission "java.version", "read";
+	
+	permission java.lang.RuntimePermission "getProtectionDomain";
+};

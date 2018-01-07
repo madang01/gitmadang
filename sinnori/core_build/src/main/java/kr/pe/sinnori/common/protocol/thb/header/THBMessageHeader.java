@@ -121,10 +121,10 @@ public class THBMessageHeader {
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		FixedSizeOutputStream headerOutputStream = new FixedSizeOutputStream(dstBuffer, streamCharset, streamCharsetEncoder);
+		FixedSizeOutputStream headerOutputStream = new FixedSizeOutputStream(dstBuffer, streamCharsetEncoder);
 		
 		try {
-			headerOutputStream.putString(messageIDFixedSize, messageID, CharsetUtil.createCharsetEncoder(HEADER_CHARSET));
+			headerOutputStream.putFixedLengthString(messageIDFixedSize, messageID, CharsetUtil.createCharsetEncoder(HEADER_CHARSET));
 			headerOutputStream.putUnsignedShort(mailboxID);
 			headerOutputStream.putInt(mailID);
 			headerOutputStream.putLong(bodySize);

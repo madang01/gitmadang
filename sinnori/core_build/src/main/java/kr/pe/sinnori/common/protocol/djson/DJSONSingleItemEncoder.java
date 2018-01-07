@@ -325,13 +325,13 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 			FixedSizeOutputStream fsos = null;
 			
 			if (null == itemCharsetForLang) {
-				fsos = new FixedSizeOutputStream(outputBuffer, itemCharsetForLang, CharsetUtil.createCharsetEncoder(charsetOfProject));
+				fsos = new FixedSizeOutputStream(outputBuffer, CharsetUtil.createCharsetEncoder(charsetOfProject));
 			} else {
-				fsos = new FixedSizeOutputStream(outputBuffer, itemCharsetForLang, CharsetUtil.createCharsetEncoder(itemCharsetForLang));
+				fsos = new FixedSizeOutputStream(outputBuffer, CharsetUtil.createCharsetEncoder(itemCharsetForLang));
 			}		
 			
 			try {
-				fsos.putString(itemSizeForLang, tValue);
+				fsos.putFixedLengthString(itemSizeForLang, tValue);
 			} catch (BufferOverflowException e) {
 				/** dead code area */
 				e.printStackTrace();

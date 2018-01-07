@@ -65,7 +65,7 @@ public class SyncUploadReqServerTask extends AbstractAuthServerExecutor {
 			localTargetFileResource.writeTargetFileData(serverTargetFileID, fileBlockNo, fileData, true);
 			// localTargetFileResource.turnOnWorkedFileBlockBitSetAt(fileBlockNo);
 
-			if (localTargetFileResource.whetherLocalFileCopyWorkIsCompleted()) {
+			if (localTargetFileResource.whetherAllBitOfBitSetIslTrue()) {
 				log.info(String.format("clientSourceFileID[%s] to serverTargetFileID[%d] 파일 업로드 전체 완료",
 						localTargetFileResource.getSourceFileID(), serverTargetFileID));
 

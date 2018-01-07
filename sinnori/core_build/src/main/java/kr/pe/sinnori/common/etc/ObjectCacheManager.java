@@ -16,14 +16,16 @@
  */
 package kr.pe.sinnori.common.etc;
 
-import kr.pe.sinnori.common.config.SinnoriConfiguration;
-import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
-import kr.pe.sinnori.common.config.itemvalue.CommonPartConfiguration;
+import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.collections4.map.LRUMap;
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import kr.pe.sinnori.common.config.SinnoriConfiguration;
+import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
+import kr.pe.sinnori.common.config.itemvalue.CommonPartConfiguration;
 
 
 /**
@@ -83,7 +85,7 @@ public final class ObjectCacheManager {
 	@SuppressWarnings("unchecked")
 	public Object getCachedObject(ClassLoader classLoader,
 			String classFullName) throws ClassNotFoundException,
-			InstantiationException, IllegalAccessException {
+			InstantiationException, IllegalAccessException, InvocationTargetException, IllegalArgumentException, NoSuchMethodException, SecurityException {
 		if (null == classLoader) {
 			String errorMessage = "parameter classLoader is null";
 			log.debug(errorMessage);
@@ -104,7 +106,7 @@ public final class ObjectCacheManager {
 			if (null == cachedObj) {
 				/** classLoader 미 등재 */
 				Class<?> cachedObjClass = classLoader.loadClass(classFullName);
-				cachedObj = cachedObjClass.newInstance();	
+				cachedObj = cachedObjClass.getDeclaredConstructor().newInstance();
 				objectCache.put(classLoaderHashCode, classFullName, cachedObj);
 			}
 		}		

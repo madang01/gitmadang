@@ -86,7 +86,7 @@ public class GeneralConverterReturningUpDownFileBlockMaxSizeBetweenMinAndMaxTest
 	@Override
 	@Test
 	public void testToNativeValue_ExpectedValueComparison() {
-		expectedValue = new Integer(1024);
+		expectedValue = Integer.valueOf(1024);
 		try {
 			returnedValue = nativeValueConverter.valueOf(expectedValue
 					.toString());

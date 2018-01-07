@@ -24,11 +24,12 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 
-import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.util.HexUtil;
 
 /**
  * 고정 크기를 갖는 이진 출력 스트림.
@@ -47,8 +48,7 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 	private CharsetEncoder streamCharsetEncoder = null;
 	private ByteOrder bufferByteOrder = null;
 
-	private ByteBuffer intBuffer = null;
-	private ByteBuffer longBuffer = null;
+	
 	
 	/**
 	 * 생성자
@@ -56,35 +56,39 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 	 * @param streamCharset 출력 스트림 문자셋
 	 * @param streamCharsetEncoder  출력 스트림 문자셋 인코더
 	 */
-	public FixedSizeOutputStream(ByteBuffer outputStreamBuffer, Charset streamCharset, 
-			CharsetEncoder streamCharsetEncoder) {
+	public FixedSizeOutputStream(ByteBuffer outputStreamBuffer, CharsetEncoder streamCharsetEncoder) {
 		if (null == outputStreamBuffer) {
-			throw new IllegalArgumentException("파라미터 바이트 버퍼 값이 null 입니다.");
+			throw new IllegalArgumentException("the parameter outputStreamBuffer is null");
 		}
 
 		if (null == streamCharsetEncoder) {
-			throw new IllegalArgumentException("파라미터 문자셋의 인코더 값이 null 입니다.");
+			throw new IllegalArgumentException("the parameter streamCharsetEncoder is null");
 		}
 
 		this.outputStreamBuffer = outputStreamBuffer;
-		this.streamCharset = streamCharset;
+		this.streamCharset = streamCharsetEncoder.charset();
 		this.streamCharsetEncoder = streamCharsetEncoder;
 		this.bufferByteOrder = outputStreamBuffer.order();
 
-		intBuffer = ByteBuffer.allocate(4);
+		/*intBuffer = ByteBuffer.allocate(4);
 		intBuffer.order(bufferByteOrder);
 
 		longBuffer = ByteBuffer.allocate(8);
-		longBuffer.order(bufferByteOrder);
+		longBuffer.order(bufferByteOrder);*/
 	}
 
 	
-
-	/**
-	 * 소스 바이트 버퍼 초기화, 즉 스트림 초기화.
-	 */
-	public void clear() {
+	public void clearOutputStreamBuffer() {
 		outputStreamBuffer.clear();
+	}
+	
+	public void flipOutputStreamBuffer() {
+		outputStreamBuffer.flip();
+	}
+	
+	@Override
+	public Charset getCharset() {
+		return streamCharset;
 	}
 
 	/**
@@ -96,7 +100,7 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 	 * @throws IllegalArgumentException
 	 *             잘못된 파라미터를 입력하여 발생한다.
 	 */
-	protected ByteBuffer getIntegerBufferForUnsignedShort(int value)
+	/*protected ByteBuffer getIntegerBufferForUnsignedShort(int value)
 			throws IllegalArgumentException {
 		if (value < 0) {
 			throw new IllegalArgumentException(String.format(
@@ -120,7 +124,7 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 			intBuffer.limit(2);
 		}
 		return intBuffer;
-	}
+	}*/
 
 	/**
 	 * unsigned integer 를 위한 long 버퍼에 값을 저장후 long 버퍼를 반환한다.
@@ -131,7 +135,7 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 	 * @throws IllegalArgumentException
 	 *             잘못된 파라미터를 입력하여 발생한다.
 	 */
-	private ByteBuffer getLongBufferForUnsignedInt(long value)
+	/*private ByteBuffer getLongBufferForUnsignedInt(long value)
 			throws IllegalArgumentException {
 		if (value < 0) {
 			throw new IllegalArgumentException(String.format(
@@ -154,31 +158,47 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 			longBuffer.limit(4);
 		}
 		return longBuffer;
-	}
+	}*/
 	
-	@Override
-	public Charset getCharset() {
-		return streamCharset;
-	}
+	
 
 	@Override
 	public void putByte(byte value) throws BufferOverflowException {
 		outputStreamBuffer.put(value);
 	}
 
-	@Override
-	public void putUnsignedByte(short value) throws BufferOverflowException,
-			IllegalArgumentException {
+	
+	private void throwExceptionIfNotUnsingedByte(short value) {
 		if (value < 0) {
 			throw new IllegalArgumentException(String.format(
-					"파라미터 값[%d]이 음수입니다.", value));
+					"the parameter value[%d] is less than zero", value));
 		}
 
 		if (value > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 			throw new IllegalArgumentException(String.format(
-					"파라미터 값[%d]이 unsigned byte 최대값[%d]을 넘었습니다.", value,
+					"the parameter value[%d] is greater than the unsigned byte max[%d]", value,
 					CommonStaticFinalVars.UNSIGNED_BYTE_MAX));
 		}
+	}
+	
+	private void throwExceptionIfNotUnsingedByte(int value) {
+		if (value < 0) {
+			throw new IllegalArgumentException(String.format(
+					"the parameter value[%d] is less than zero", value));
+		}
+
+		if (value > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+			throw new IllegalArgumentException(String.format(
+					"the parameter value[%d] is greater than the unsigned byte max[%d]", value,
+					CommonStaticFinalVars.UNSIGNED_BYTE_MAX));
+		}
+	}
+	
+	@Override
+	public void putUnsignedByte(short value) throws BufferOverflowException,
+			IllegalArgumentException {
+		throwExceptionIfNotUnsingedByte(value);
+		
 		/*ByteBuffer int_buffer = ByteBuffer.allocate(2);
 		int_buffer.order(bufferByteOrder);
 		int_buffer.putShort((short) value);
@@ -199,18 +219,11 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 		putByte((byte) value);
 	}
 	
+	
+	
 	@Override
 	public void putUnsignedByte(int value) throws BufferOverflowException, IllegalArgumentException {
-		if (value < 0) {
-			throw new IllegalArgumentException(String.format(
-					"파라미터 값[%d]이 음수입니다.", value));
-		}
-		
-		if (value > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
-			throw new IllegalArgumentException(String.format(
-					"파라미터 값[%d]이 unsigned byte 최대값[%d]을 넘었습니다.", value,
-					CommonStaticFinalVars.UNSIGNED_BYTE_MAX));
-		}
+		throwExceptionIfNotUnsingedByte(value);
 
 		/*ByteBuffer int_buffer = ByteBuffer.allocate(2);
 		int_buffer.order(bufferByteOrder);
@@ -236,12 +249,43 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 	public void putShort(short value) throws BufferOverflowException {
 		outputStreamBuffer.putShort(value);
 	}
+	
+	private void throwExceptionIfNotUnsingedShort(int value) {
+		if (value < 0) {
+			throw new IllegalArgumentException(String.format(
+					"the parameter value[%d] is less than zero", value));
+		}
+
+		if (value > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
+			throw new IllegalArgumentException(String.format(
+					"the parameter value[%d] is greater than the unsigned short max[%d]", value,
+					CommonStaticFinalVars.UNSIGNED_SHORT_MAX));
+		}
+	}
 
 	@Override
 	public void putUnsignedShort(int value) throws BufferOverflowException,
 			IllegalArgumentException {
-		ByteBuffer unsingedShortBuffer = getIntegerBufferForUnsignedShort(value);
-		outputStreamBuffer.put(unsingedShortBuffer);
+		throwExceptionIfNotUnsingedShort(value);
+		/*ByteBuffer unsingedShortBuffer = getIntegerBufferForUnsignedShort(value);
+		outputStreamBuffer.put(unsingedShortBuffer);*/
+		byte t0 =  (byte)(value);
+		byte t1 =  (byte)(value >>> 8);
+		
+		
+		log.info("the parameter value=[{}], t0=[{}], t1=[{}]"
+				, HexUtil.getHexString(value)
+				, HexUtil.getHexString(t0)
+				, HexUtil.getHexString(t1));
+		
+		
+		if (bufferByteOrder.equals(ByteOrder.BIG_ENDIAN)) {
+			outputStreamBuffer.put(t1);
+			outputStreamBuffer.put(t0);
+		} else {
+			outputStreamBuffer.put(t0);
+			outputStreamBuffer.put(t1);
+		}
 	}
 
 	@Override
@@ -249,11 +293,50 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 		outputStreamBuffer.putInt(value);
 	}
 
+	private void throwExceptionIfNotUnsingedInt(long value) {
+		if (value < 0) {
+			throw new IllegalArgumentException(String.format(
+					"the parameter value[%d] is less than zero", value));
+		}
+
+		if (value > CommonStaticFinalVars.UNSIGNED_INTEGER_MAX) {
+			throw new IllegalArgumentException(String.format(
+					"the parameter value[%d] is greater than the unsigned integer max[%d]", value,
+					CommonStaticFinalVars.UNSIGNED_INTEGER_MAX));
+		}
+	}
+	
 	@Override
 	public void putUnsignedInt(long value) throws BufferOverflowException,
 			IllegalArgumentException {
-		ByteBuffer unsingedIntBuffer = getLongBufferForUnsignedInt(value);
-		outputStreamBuffer.put(unsingedIntBuffer);
+		throwExceptionIfNotUnsingedInt(value);
+		
+		/*ByteBuffer unsingedIntBuffer = getLongBufferForUnsignedInt(value);
+		outputStreamBuffer.put(unsingedIntBuffer);*/
+		
+		byte t0 =  (byte) value;
+		byte t1 =  (byte)(value >>> 8);
+		byte t2 =  (byte)(value >>> 16);
+		byte t3 =  (byte)(value >>> 24);
+		
+		log.info("the parameter value=[{}], t0=[{}], t1=[{}], t2=[{}], t3=[{}]"
+				, HexUtil.getHexString(value)
+				, HexUtil.getHexString(t0)
+				, HexUtil.getHexString(t1)
+				, HexUtil.getHexString(t2)
+				, HexUtil.getHexString(t3));
+		
+		if (bufferByteOrder.equals(ByteOrder.BIG_ENDIAN)) {
+			outputStreamBuffer.put(t3);
+			outputStreamBuffer.put(t2);
+			outputStreamBuffer.put(t1);
+			outputStreamBuffer.put(t0);
+		} else {
+			outputStreamBuffer.put(t0);
+			outputStreamBuffer.put(t1);
+			outputStreamBuffer.put(t2);
+			outputStreamBuffer.put(t3);
+		}
 	}
 
 	@Override
@@ -262,7 +345,7 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 	}
 
 	@Override
-	public void putString(int len, String str, CharsetEncoder clientEncoder)
+	public void putFixedLengthString(int len, String str, CharsetEncoder clientEncoder)
 			throws BufferOverflowException, IllegalArgumentException,
 			NoMoreDataPacketBufferException {
 		if (len < 0) {
@@ -332,9 +415,9 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 	}
 
 	@Override
-	public void putString(int len, String str) throws BufferOverflowException,
+	public void putFixedLengthString(int len, String str) throws BufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException {
-		putString(len, str, streamCharsetEncoder);
+		putFixedLengthString(len, str, streamCharsetEncoder);
 	}
 
 	@Override
@@ -353,7 +436,7 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 		}
 
 		int numOfBytes = str.getBytes(streamCharset).length;
-		putString(numOfBytes, str, streamCharsetEncoder);
+		putFixedLengthString(numOfBytes, str, streamCharsetEncoder);
 	}
 
 	@Override
@@ -570,4 +653,8 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 	public long postion() {
 		return outputStreamBuffer.position();
 	}
+	
+	/*public void close() {
+		outputStreamBuffer.flip();
+	}*/
 }

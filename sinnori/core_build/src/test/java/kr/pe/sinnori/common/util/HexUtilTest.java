@@ -1,14 +1,35 @@
 package kr.pe.sinnori.common.util;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.logging.Logger;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
 
 public class HexUtilTest {
+	
+	Logger log = LoggerFactory.getLogger(HexUtilTest.class);
+	
+	@Before
+	public void setup() {
+		System.setProperty(
+				CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME,
+				"sample_base");
+		System.setProperty(
+				CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH,
+				"D:\\gitsinnori\\sinnori");
+		
+		SinnoriLogbackManger.getInstance().setup();
+		
+	}
 
 	@Test
 	public void testGetByteArrayFromHexString() {
@@ -28,6 +49,185 @@ public class HexUtilTest {
 			fail("변환된 핵사 문자열과 원본 핵사 문자열 틀림");
 		}
 	}
+	
+	@Test
+	public void testGetHexString_TheParamterValue_byteType_fulltest() {
+		/** the parameter value's type is byte */
+		byte byteValue=Byte.MIN_VALUE;
+		
+		for (int i=0; i <= CommonStaticFinalVars.UNSIGNED_BYTE_MAX; i++, byteValue++) {
+			String expectedValue = String.format("%02x", byteValue);
+			String acutualValue = HexUtil.getHexString(byteValue);
+			
+			log.info("byteValue={}, expectedValue={}, acutualValue={}", byteValue, expectedValue, acutualValue);
+			// if (i > 10) break;
+			
+			assertEquals(expectedValue, acutualValue);
+		}
+	}
+	
+	
+	@Test
+	public void testGetHexString_TheParamterValue_shortType_fulltest() {
+		/** the parameter value's type is short */
+		short shortValue=Short.MIN_VALUE;
+		
+		for (int i=0; i <= CommonStaticFinalVars.UNSIGNED_SHORT_MAX; i++, shortValue++) {
+			String expectedValue = String.format("%04x", shortValue);
+			String acutualValue = HexUtil.getHexString(shortValue);
+			
+			// log.info("shortValue={}, expectedValue={}, acutualValue={}", shortValue, expectedValue, acutualValue);
+			
+			// if (i > 10) break;
+			
+			assertEquals(expectedValue, acutualValue);
+		}
+	}
+	
+	
+	
+	@Test
+	public void testGetHexString_TheParamterValue_integerType_minMaxMiddleTest() {
+		/** the parameter value's type is integer */
+		int integerValue=Integer.MIN_VALUE;
+		
+		{
+			integerValue=Integer.MIN_VALUE;
+			String expectedValue = String.format("%08x", integerValue);
+			String acutualValue = HexUtil.getHexString(integerValue);
+			
+			assertEquals(expectedValue, acutualValue);
+		}
+		
+		{
+			integerValue=Integer.MIN_VALUE-Integer.MIN_VALUE/2;
+			String expectedValue = String.format("%08x", integerValue);
+			String acutualValue = HexUtil.getHexString(integerValue);
+			
+			assertEquals(expectedValue, acutualValue);
+		}
+		
+		{
+			integerValue=-1;
+			String expectedValue = String.format("%08x", integerValue);
+			String acutualValue = HexUtil.getHexString(integerValue);
+			
+			assertEquals(expectedValue, acutualValue);
+		}
+		
+		{
+			integerValue=0;
+			String expectedValue = String.format("%08x", integerValue);
+			String acutualValue = HexUtil.getHexString(integerValue);
+			
+			assertEquals(expectedValue, acutualValue);
+		}
+		
+		{
+			integerValue=1;
+			String expectedValue = String.format("%08x", integerValue);
+			String acutualValue = HexUtil.getHexString(integerValue);
+			
+			assertEquals(expectedValue, acutualValue);
+		}
+		
+		{
+			integerValue=1;
+			String expectedValue = String.format("%08x", integerValue);
+			String acutualValue = HexUtil.getHexString(integerValue);
+			
+			assertEquals(expectedValue, acutualValue);
+		}
+		
+		{
+			integerValue=Integer.MAX_VALUE - Integer.MAX_VALUE/2;
+			String expectedValue = String.format("%08x", integerValue);
+			String acutualValue = HexUtil.getHexString(integerValue);
+			
+			assertEquals(expectedValue, acutualValue);
+		}
+		
+		{
+			integerValue=Integer.MAX_VALUE;
+			String expectedValue = String.format("%08x", integerValue);
+			String acutualValue = HexUtil.getHexString(integerValue);
+			
+			assertEquals(expectedValue, acutualValue);
+		}
+	}
+	
+	
+	@Test
+	public void testGetHexString_TheParamterValue_longType_minMaxMiddleTest() {
+		/** the parameter value's type is long */
+		long longValue=Long.MIN_VALUE;
+		
+		{
+			longValue=Long.MIN_VALUE;
+			String expectedValue = String.format("%016x", longValue);
+			String acutualValue = HexUtil.getHexString(longValue);
+			
+			assertEquals(expectedValue, acutualValue);
+		}
+		
+		{
+			longValue=Long.MIN_VALUE-Long.MIN_VALUE/2;
+			String expectedValue = String.format("%016x", longValue);
+			String acutualValue = HexUtil.getHexString(longValue);
+			
+			assertEquals(expectedValue, acutualValue);
+		}
+		
+		{
+			longValue=-1;
+			String expectedValue = String.format("%016x", longValue);
+			String acutualValue = HexUtil.getHexString(longValue);
+			
+			assertEquals(expectedValue, acutualValue);
+		}
+		
+		{
+			longValue=0;
+			String expectedValue = String.format("%016x", longValue);
+			String acutualValue = HexUtil.getHexString(longValue);
+			
+			assertEquals(expectedValue, acutualValue);
+		}
+		
+		{
+			longValue=1;
+			String expectedValue = String.format("%016x", longValue);
+			String acutualValue = HexUtil.getHexString(longValue);
+			
+			assertEquals(expectedValue, acutualValue);
+		}
+		
+		{
+			longValue=1;
+			String expectedValue = String.format("%016x", longValue);
+			String acutualValue = HexUtil.getHexString(longValue);
+			
+			assertEquals(expectedValue, acutualValue);
+		}
+		
+		{
+			longValue=Long.MAX_VALUE - Long.MAX_VALUE/2;
+			String expectedValue = String.format("%016x", longValue);
+			String acutualValue = HexUtil.getHexString(longValue);
+			
+			assertEquals(expectedValue, acutualValue);
+		}
+		
+		{
+			longValue=Long.MAX_VALUE;
+			String expectedValue = String.format("%016x", longValue);
+			String acutualValue = HexUtil.getHexString(longValue);
+			
+			assertEquals(expectedValue, acutualValue);
+		}
+	}
+	
+	
 	
 	@Test
 	public void testGetHexStringFromByteBuffer() {
@@ -56,7 +256,7 @@ public class HexUtilTest {
 			
 			fail("parm buffer is null but no fail");
 		} catch(IllegalArgumentException e) {
-			Logger.getGlobal().info(e.getMessage());
+			log.info(e.getMessage());
 		}
 		
 		try {
@@ -64,7 +264,7 @@ public class HexUtilTest {
 			
 			fail("parm offset[-1] less than zero but no fail");
 		} catch(IllegalArgumentException e) {
-			Logger.getGlobal().info(e.getMessage());
+			log.info(e.getMessage());
 		}
 		
 		try {
@@ -72,7 +272,7 @@ public class HexUtilTest {
 			
 			fail("parm length[-1] less than zero but no fail");
 		} catch(IllegalArgumentException e) {
-			Logger.getGlobal().info(e.getMessage());
+			log.info(e.getMessage());
 		}
 		
 		try {
@@ -80,7 +280,7 @@ public class HexUtilTest {
 			
 			fail("sum of parm offset[1] and parm length[5] over than parm buffer'capacity[4] but no fail");
 		} catch(IllegalArgumentException e) {
-			Logger.getGlobal().info(e.getMessage());
+			log.info(e.getMessage());
 		}
 	}
 	
@@ -107,7 +307,7 @@ public class HexUtilTest {
 			
 			fail("parm buffer is null but no fail");
 		} catch(IllegalArgumentException e) {
-			Logger.getGlobal().info(e.getMessage());
+			log.info(e.getMessage());
 		}
 		
 		try {
@@ -115,7 +315,7 @@ public class HexUtilTest {
 			
 			fail("parm offset[-1] less than zero but no fail");
 		} catch(IllegalArgumentException e) {
-			Logger.getGlobal().info(e.getMessage());
+			log.info(e.getMessage());
 		}
 		
 		try {
@@ -123,7 +323,7 @@ public class HexUtilTest {
 			
 			fail("parm length[-1] less than zero but no fail");
 		} catch(IllegalArgumentException e) {
-			Logger.getGlobal().info(e.getMessage());
+			log.info(e.getMessage());
 		}
 		
 		try {
@@ -131,7 +331,7 @@ public class HexUtilTest {
 			
 			fail("sum of parm offset[1] and parm length[5] over than parm buffer'capacity[4] but no fail");
 		} catch(IllegalArgumentException e) {
-			Logger.getGlobal().info(e.getMessage());
+			log.info(e.getMessage());
 		}
 	}
 }

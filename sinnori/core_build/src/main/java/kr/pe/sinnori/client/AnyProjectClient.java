@@ -630,26 +630,12 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 			try {
 				valueObj = objectCacheManager.getCachedObject(classLoader,
 						classFullName);
-			} catch (ClassNotFoundException e) {
+			} catch (Exception e) {
 				String errorMessage = String
-						.format("ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::ClassNotFoundException",
+						.format("ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::%s",
 								classLoader.hashCode(), messageID,
-								classFullName);
-				log.warn(errorMessage);
-				throw new DynamicClassCallException(errorMessage);
-			} catch (InstantiationException e) {
-				String errorMessage = String
-						.format("ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::InstantiationException",
-								classLoader.hashCode(), messageID,
-								classFullName);
-				log.warn(errorMessage);
-				throw new DynamicClassCallException(errorMessage);
-			} catch (IllegalAccessException e) {
-				String errorMessage = String
-						.format("ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::IllegalAccessException",
-								classLoader.hashCode(), messageID,
-								classFullName);
-				log.warn(errorMessage);
+								classFullName, e.toString());
+				log.warn(errorMessage, e);
 				throw new DynamicClassCallException(errorMessage);
 			}
 		} catch (IllegalArgumentException e) {

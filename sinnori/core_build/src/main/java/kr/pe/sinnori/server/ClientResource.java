@@ -61,7 +61,7 @@ public class ClientResource {
 	private int echoMesgCount = 0;
 	
 	/** 소켓 채널 전용 읽기 자원 */
-	private SocketInputStream messageInputStreamResource = null;
+	private SocketInputStream socketInputStream = null;
 
 	/**
 	 * 클라이언트에 할당되는 서버 편지 식별자.
@@ -79,20 +79,20 @@ public class ClientResource {
 	 */
 	public ClientResource(SocketChannel clientSC, 
 			String projectName,
-			SocketInputStream messageInputStreamResource) {
+			SocketInputStream socketInputStream) {
 		this.clientSC = clientSC;
 		this.projectName = projectName;
 		this.finalReadTime = new java.util.Date();
-		this.messageInputStreamResource = messageInputStreamResource;
+		this.socketInputStream = socketInputStream;
 		this.loginID = null;
 	}
 
 	/**
 	 * @return 소켓 채널 전용 읽기 자원
 	 */
-	public SocketInputStream getMessageInputStreamResource() {
+	public SocketInputStream getSocketInputStream() {
 		
-		return messageInputStreamResource;
+		return socketInputStream;
 	}
 	
 	/**
@@ -179,7 +179,7 @@ public class ClientResource {
 		// FIXME!
 		log.info(String.format("clientSC[%d] logout", clientSC.hashCode()));
 		
-		messageInputStreamResource.destory();
+		socketInputStream.destory();
 		
 		LocalSourceFileResourceManager.getInstance().removeUsingUserIDWithUnlockFile(loginID);
 		LocalTargetFileResourceManager.getInstance().removeUsingUserIDWithUnlockFile(loginID);
@@ -195,7 +195,7 @@ public class ClientResource {
 	 * @return 메시지 데이터 수신중 여부, true 이면 메시지 데이터 수신중, false 이면 메시지 데이터 수신 대기중
 	 */
 	public boolean isReading() {
-		return messageInputStreamResource.isReading();
+		return socketInputStream.isReading();
 	}
 	
 	public LetterToClient getLetterToClient(AbstractMessage messageToClient, ArrayList<WrapBuffer> wrapBufferList) {		
@@ -230,7 +230,7 @@ public class ClientResource {
 		builder.append(", echoMesgCount=");
 		builder.append(echoMesgCount);
 		builder.append(", messageInputStreamResource.WrapBufferListSize=");
-		builder.append(messageInputStreamResource.getDataPacketBufferListSize());		
+		builder.append(socketInputStream.getDataPacketBufferListSize());		
 		builder.append(", serverMailID=");
 		builder.append(serverMailID);
 		builder.append(", loginID=");

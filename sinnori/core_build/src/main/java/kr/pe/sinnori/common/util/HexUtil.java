@@ -68,16 +68,59 @@ public class HexUtil {
 	
 	public static String getAllHexStringFromByteBuffer(ByteBuffer buffer) throws IllegalArgumentException {
 		if (null == buffer) {
-			throw new IllegalArgumentException("parm buffer is null");
+			throw new IllegalArgumentException("the parameter buffer is null");
 		}
 		
 		int capacity = buffer.capacity();
 		return getHexStringFromByteBuffer(buffer, 0, capacity);
 	}
+	
+	public static String getHexString(byte value) throws IllegalArgumentException {
+		int inx = 0xff & value;
+		return hexTable[inx];
+	}
+	
+	public static String getHexString(short value) throws IllegalArgumentException {
+		byte t0 = (byte)value;
+		byte t1 = (byte)(value >> 8);
+		return new StringBuilder(getHexString(t1)).append(getHexString(t0)).toString();
+	}
+	
+	public static String getHexString(int value) throws IllegalArgumentException {
+		byte t0 = (byte)value;
+		byte t1 = (byte)(value >>> 8);
+		byte t2 = (byte)(value >>> 16);
+		byte t3 = (byte)(value >>> 24);
+		return new StringBuilder(getHexString(t3))
+				.append(getHexString(t2))
+				.append(getHexString(t1))
+				.append(getHexString(t0)).toString();
+	}
+	
+	public static String getHexString(long value) throws IllegalArgumentException {
+		byte t0 = (byte)value;
+		byte t1 = (byte)(value >>> 8);
+		byte t2 = (byte)(value >>> 16);
+		byte t3 = (byte)(value >>> 24);
+		byte t4 = (byte)(value >>> 32);
+		byte t5 = (byte)(value >>> 40);
+		byte t6 = (byte)(value >>> 48);
+		byte t7 = (byte)(value >>> 56);		
+		
+		return new StringBuilder(getHexString(t7))
+				.append(getHexString(t6))
+				.append(getHexString(t5))
+				.append(getHexString(t4))
+				.append(getHexString(t3))
+				.append(getHexString(t2))
+				.append(getHexString(t1))
+				.append(getHexString(t0))
+				.toString();
+	}
 
 	public static String getHexStringFromByteBuffer(ByteBuffer buffer) throws IllegalArgumentException {
 		if (null == buffer) {
-			throw new IllegalArgumentException("parm buffer is null");
+			throw new IllegalArgumentException("the parameter buffer is null");
 		}
 		
 		int position = buffer.position();
@@ -88,30 +131,30 @@ public class HexUtil {
 	public static String getHexStringFromByteBuffer(ByteBuffer buffer, int offset,
 			int length) throws IllegalArgumentException {
 		if (null == buffer) {
-			throw new IllegalArgumentException("parm buffer is null");
+			throw new IllegalArgumentException("the parameter buffer is null");
 		}
 		
 		if (offset < 0) {
-			String errorMessage = String.format("parm offset[%d] less than zero", offset);
+			String errorMessage = String.format("the parameter offset[%d] less than zero", offset);
 			throw new IllegalArgumentException(errorMessage);
 		}
 
 		if (length < 0) {
-			String errorMessage = String.format("parm length[%d] less than zero", length);
+			String errorMessage = String.format("the parameter length[%d] less than zero", length);
 			throw new IllegalArgumentException(errorMessage);
 		}
 
 		int capacity = buffer.capacity();
 
 		if (offset > capacity) {
-			String errorMessage = String.format("parm offset[%d] over than parm buffer'capacity[%d]", offset, capacity);
+			String errorMessage = String.format("the parameter offset[%d] over than the parameter buffer'capacity[%d]", offset, capacity);
 			throw new IllegalArgumentException(errorMessage);
 		}
 
 		int size = offset + length;
 
 		if (size > capacity) {
-			String errorMessage = String.format("sum of parm offset[%d] and parm length[%d] over than parm buffer'capacity[%d]", offset, length, capacity);
+			String errorMessage = String.format("the sum of the parameter offset[%d] and the parameter length[%d] is over than the parameter buffer'capacity[%d]", offset, length, capacity);
 			throw new IllegalArgumentException(errorMessage);
 		}
 
@@ -122,8 +165,8 @@ public class HexUtil {
 
 		for (int j = offset; j < size; j++) {
 			byte one_byte = dupBuffer.get(j);
-			int inx = 0xff & one_byte;
-			strbuff.append(hexTable[inx]);
+			// int inx = 0xff & one_byte;
+			strbuff.append(getHexString(one_byte));
 		}
 
 		return strbuff.toString();
@@ -131,7 +174,7 @@ public class HexUtil {
 
 	public static String getHexStringFromByteArray(byte[] buffer) throws IllegalArgumentException {
 		if (null == buffer) {
-			throw new IllegalArgumentException("parm buffer is null");
+			throw new IllegalArgumentException("the parameter buffer is null");
 		}
 		
 		return getHexStringFromByteArray(buffer, 0, buffer.length);
@@ -139,38 +182,38 @@ public class HexUtil {
 
 	public static String getHexStringFromByteArray(byte[] buffer, int offset, int length) throws IllegalArgumentException {
 		if (null == buffer) {
-			throw new IllegalArgumentException("parm buffer is null");
+			throw new IllegalArgumentException("the parameter buffer is null");
 		}
 		
 		if (offset < 0) {
-			String errorMessage = String.format("parm offset[%d] less than zero", offset);
+			String errorMessage = String.format("the parameter offset[%d] less than zero", offset);
 			throw new IllegalArgumentException(errorMessage);
 		}
 
 		if (length < 0) {
-			String errorMessage = String.format("parm length[%d] less than zero", length);
+			String errorMessage = String.format("the parameter length[%d] less than zero", length);
 			throw new IllegalArgumentException(errorMessage);
 		}
 
 		int capacity = buffer.length;
 
 		if (offset > capacity) {
-			String errorMessage = String.format("parm offset[%d] over than parm buffer'capacity[%d]", offset, capacity);
+			String errorMessage = String.format("the parameter offset[%d] over than the parameter buffer'capacity[%d]", offset, capacity);
 			throw new IllegalArgumentException(errorMessage);
 		}
 
 		int size = offset + length;
 
 		if (size > capacity) {
-			String errorMessage = String.format("sum of parm offset[%d] and parm length[%d] over than parm buffer'capacity[%d]", offset, length, capacity);
+			String errorMessage = String.format("the sum of the parameter offset[%d] and the parameter length[%d] is over than the parameter buffer'capacity[%d]", offset, length, capacity);
 			throw new IllegalArgumentException(errorMessage);
 		}
 
 		StringBuffer strbuff = new StringBuffer();
 		for (int j = offset; j < size; j++) {
 			byte one_byte = buffer[j];
-			int inx = 0xff & one_byte;
-			strbuff.append(hexTable[inx]);
+			// int inx = 0xff & one_byte;
+			strbuff.append(getHexString(one_byte));
 		}
 		return strbuff.toString();
 	}

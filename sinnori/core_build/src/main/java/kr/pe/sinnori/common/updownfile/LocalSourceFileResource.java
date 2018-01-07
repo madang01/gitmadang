@@ -178,42 +178,21 @@ public class LocalSourceFileResource extends AbstractFileResource {
 		this.targetFileID = targetFileID;
 	}
 	
-	/**
-	 * <pre>
-	 * '전송 처리 정보 윈도우' 가 지정되었다면 창을 자동으로 닫는다. 
-	 * 단 예외적으로 '전송 완료' 상태인 경우에는 창을 자동으로 닫지 않는다.
-	 * 이는 사용자가 최종 전송 완료된 시점의 정보를 확인할 수 있게 해 주는 배려로
-	 * 창은 사용자는 OK 버튼 클릭으로 닫히게 된다.
-	 * 
-	 * <pre>
-	 */
-	protected void disposeFileTranferProcessInformationDialogIfExistAndNotTransferDone() {		
-		if (null != fileTranferProcessInformationDialog) {
-			if (! workStep.equals(LocalSourceFileResource.WorkStep.TRANSFER_DONE)) {
-				fileTranferProcessInformationDialog.dispose();
-			}
-		}
+	public void setWorkStep(WorkStep localUploadStep) {
+		this.workStep = localUploadStep;
+	}
+
+	public WorkStep getWorkStep() {
+		return workStep;
 	}
 	
-	/**
-	 * @return 원격지 파일 복사 작업 완료 여부
-	 */
-	public boolean whetherRemoteFileCopyWorkIsCompleted() {
-		boolean isFinished = false;
-		try {
-			// isFinished = (workedFileBlockBitSet.cardinality() == wantedCardinalityOfWorkedFileBlockBitSet);
-			isFinished = (workedFileBlockBitSet.cardinality() == workedFileBlockBitSet.length());
-		} catch (NullPointerException e) {
-			/**
-			 * 심각한 로직 버그
-			 */
-			String errorMessage = String.format("변수 workedFileBlockBitSet 가 null 입니다, toString=[%s]", toString());
-			log.error(errorMessage);
-			System.exit(1);
-		}
-
-		return isFinished;
+	
+	@Override
+	protected boolean whetherWorkStepIsTransferDoneState() {
+		return (workStep.equals(LocalSourceFileResource.WorkStep.TRANSFER_DONE));
 	}
+	
+	
 	
 	
 

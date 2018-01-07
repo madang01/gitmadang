@@ -171,12 +171,12 @@ public class DHBMessageHeader {
 		int positionBeforeWork = dstBuffer.position();
 		int limitBeofreWork = dstBuffer.limit();
 		
-		FixedSizeOutputStream headerOutputStream = new FixedSizeOutputStream(dstBuffer, streamCharset, streamCharsetEncoder);
+		FixedSizeOutputStream headerOutputStream = new FixedSizeOutputStream(dstBuffer, streamCharsetEncoder);
 		// int beforePosition = dstBuffer.position();
 		// int beforeLimit = dstBuffer.limit();
 		
 		try {
-			headerOutputStream.putString(messageIDFixedSize, messageID, CharsetUtil.createCharsetEncoder(HEADER_CHARSET));
+			headerOutputStream.putFixedLengthString(messageIDFixedSize, messageID, CharsetUtil.createCharsetEncoder(HEADER_CHARSET));
 			headerOutputStream.putUnsignedShort(mailboxID);
 			headerOutputStream.putInt(mailID);
 			headerOutputStream.putLong(bodySize);

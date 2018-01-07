@@ -27,7 +27,7 @@ import kr.pe.sinnori.common.protocol.MessageCodecIF;
  *
  */
 public final class FileListReqClientCodec implements MessageCodecIF {
-
+	
 	@Override
 	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
 		throw new DynamicClassCallException("FileListReq 메시지는 서버에서 클라이언트로 전달하지 않는 메시지 입니다.");

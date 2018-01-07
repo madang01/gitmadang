@@ -17,7 +17,9 @@
 
 package kr.pe.sinnori.common.io;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
 
@@ -56,6 +58,7 @@ public class SocketInputStream {
 	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManager = null;
 	//private ByteOrder byteOrderOfProject = null;
 	
+	// private SocketChannel clientSC = null;
 	private int dataPacketBufferMaxCntPerMessage = -1;
 	
 	private ByteBuffer lastByteBuffer = null;
@@ -72,7 +75,7 @@ public class SocketInputStream {
 	public SocketInputStream(DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
 		// FIXME!
 		// log.info("call");
-		
+		// this.clientSC = clientSC;
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 		//this.byteOrderOfProject = dataPacketBufferQueueManager.getByteOrder();
 		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferQueueManager.getDataPacketBufferMaxCntPerMessage();
@@ -364,5 +367,21 @@ public class SocketInputStream {
 				new FreeSizeInputStream(dataPacketBufferList, CommonType.WRAPBUFFER_RECALL_GUBUN.WRAPBUFFER_RECALL_NO, charsetDecoderOfProject, dataPacketBufferQueueManager);
 		
 		return freeSizeInputStream;
+	}
+	
+	public int readFrom(SocketChannel readableSocketChannel) throws IOException, NoMoreDataPacketBufferException {
+		// ByteBuffer lastInputStreamBuffer = getLastDataPacketBuffer();
+		int numRead = 0;
+		do {
+			numRead = readableSocketChannel.read(lastByteBuffer);
+			if (numRead < 1) break;
+			
+			if (!lastByteBuffer.hasRemaining()) {
+				if (!canNextDataPacketBuffer()) break;
+				lastByteBuffer = nextDataPacketBuffer();
+			}
+		} while(true);
+		
+		return numRead;
 	}
 }

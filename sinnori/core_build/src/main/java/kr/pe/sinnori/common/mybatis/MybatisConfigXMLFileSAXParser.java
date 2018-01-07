@@ -239,9 +239,10 @@ public class MybatisConfigXMLFileSAXParser extends DefaultHandler {
 						throw new SAXException(errorMessage);
 			}
 
+			
 			Object resultObj = null;
 			try {
-				resultObj = dataSourceClass.newInstance();
+				resultObj = dataSourceClass.getDeclaredConstructor().newInstance();
 			} catch (Exception e) {
 				String errorMessage = new StringBuilder("the environment[")
 						.append(currentEnvironmentID)

@@ -167,7 +167,7 @@ public interface SinnoriOutputStreamIF {
 	 * @throws NoMoreDataPacketBufferException
 	 *             데이터 패킷 버퍼 확보 실패시 던지는 예외 
 	 */
-	public void putString(int len, String str,
+	public void putFixedLengthString(int len, String str,
 			CharsetEncoder wantedCharsetEncoder)
 			throws BufferOverflowException, IllegalArgumentException,
 			NoMoreDataPacketBufferException;
@@ -186,7 +186,7 @@ public interface SinnoriOutputStreamIF {
 	 * @throws NoMoreDataPacketBufferException
 	 *             데이터 패킷 버퍼 확보 실패시 던지는 예외
 	 */
-	public void putString(int len, String str) throws BufferOverflowException,
+	public void putFixedLengthString(int len, String str) throws BufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException;
 
 	/**

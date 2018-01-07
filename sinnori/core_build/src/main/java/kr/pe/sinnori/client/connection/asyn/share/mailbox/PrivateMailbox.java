@@ -20,6 +20,9 @@ import java.net.SocketTimeoutException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.client.ClientOutputMessageQueueQueueMangerIF;
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.client.connection.asyn.share.ShareAsynConnection;
@@ -27,9 +30,6 @@ import kr.pe.sinnori.client.io.ClientOutputMessageQueueWrapper;
 import kr.pe.sinnori.client.io.LetterToServer;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <pre>
@@ -316,6 +316,6 @@ public class PrivateMailbox {
 		log.warn(errorMsg);
 		
 		syncOutputMessageQueueQueueManager.putOutputMessageQueue(wrapOutputMessageQueue);
-		super.finalize();
+		// super.finalize();
 	}
 }

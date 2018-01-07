@@ -520,7 +520,7 @@ public class DHBSingleItemDecoder implements SingleItemDecoderIF {
 				throw new BodyFormatException(errorMesssage);
 			}
 				
-			return new java.lang.Boolean(0 != booleanByte);
+			return Boolean.valueOf(0 != booleanByte);
 		}
 	}
 	

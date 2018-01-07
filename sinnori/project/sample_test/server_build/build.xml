@@ -104,8 +104,11 @@
 	</target>
 	
 	<path id="build.classpath">
-		<fileset dir="${basedir}">
-			<include name="dist/lib/*.jar"/>
+		<fileset dir="${dir.core.build}">
+			<include name="lib/main/ex/*.jar"/>
+		</fileset>
+		<fileset dir="${dir.mainlib}">
+			<include name="ex/*.jar"/>
 		</fileset>
 	</path>
 	

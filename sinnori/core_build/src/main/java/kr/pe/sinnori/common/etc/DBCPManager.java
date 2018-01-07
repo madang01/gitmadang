@@ -170,8 +170,8 @@ public final class DBCPManager {
 		return basicDataSource;
 	}
 
-	protected void finalize() throws Throwable {
-		super.finalize();
+	
+	public void closeAllDataSource() {
 		Enumeration<BasicDataSource> basicDataSourceEnum = dbcpName2BasicDataSourceHash
 				.elements();
 		while (basicDataSourceEnum.hasMoreElements()) {
@@ -184,5 +184,9 @@ public final class DBCPManager {
 				log.warn("unknown error", e);
 			}
 		}
+	}
+	
+	protected void finalize() throws Throwable {
+		closeAllDataSource();
 	}
 }

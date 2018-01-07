@@ -20,7 +20,6 @@ package kr.pe.sinnori.server.threadpool.inputmessage.handler;
 //import java.util.logging.Level;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SelectionKey;
@@ -34,6 +33,9 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.SocketInputStream;
@@ -43,9 +45,6 @@ import kr.pe.sinnori.common.protocol.ReceivedLetter;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.io.LetterFromClient;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 서버 입력 메시지 소켓 읽기 담당 쓰레드
@@ -189,7 +188,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 						SelectionKey readableSelectionKey = readableSelectionKeyIterator.next();
 						readableSelectionKeyIterator.remove();
 						SocketChannel readableSocketChannel = (SocketChannel) readableSelectionKey.channel();
-						ByteBuffer lastInputStreamBuffer = null;
+						// ByteBuffer lastInputStreamBuffer = null;
 						ClientResource clientResource = clientResourceManager
 								.getClientResource(readableSocketChannel);
 						
@@ -198,21 +197,23 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 							continue;
 						}
 						
-						SocketInputStream messageInputStreamResource = clientResource.getMessageInputStreamResource();
+						SocketInputStream clientSocketInputStream = clientResource.getSocketInputStream();
 						
 						
 						try {
-							lastInputStreamBuffer = messageInputStreamResource.getLastDataPacketBuffer();
+							/*lastInputStreamBuffer = clientSocketInputStream.getLastDataPacketBuffer();
 							
 							do {
 								numRead = readableSocketChannel.read(lastInputStreamBuffer);
 								if (numRead < 1) break;
 								
 								if (!lastInputStreamBuffer.hasRemaining()) {
-									if (!messageInputStreamResource.canNextDataPacketBuffer()) break;
-									lastInputStreamBuffer = messageInputStreamResource.nextDataPacketBuffer();
+									if (!clientSocketInputStream.canNextDataPacketBuffer()) break;
+									lastInputStreamBuffer = clientSocketInputStream.nextDataPacketBuffer();
 								}
-							} while(true);
+							} while(true);*/
+							
+							numRead = clientSocketInputStream.readFrom(readableSocketChannel);
 							
 							if (numRead == -1) {
 								log.warn(String.format(
@@ -226,7 +227,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 							clientResource.setFinalReadTime();
 							
 							ArrayList<ReceivedLetter> inputMessageList = 
-									messageProtocol.S2MList(charsetOfProject, messageInputStreamResource);							
+									messageProtocol.S2MList(charsetOfProject, clientSocketInputStream);							
 
 							for (ReceivedLetter receivedLetter : inputMessageList) {
 								inputMessageQueue.put(new LetterFromClient(readableSocketChannel, clientResource, receivedLetter));

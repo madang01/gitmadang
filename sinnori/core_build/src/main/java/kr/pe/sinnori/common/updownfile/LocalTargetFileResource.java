@@ -170,22 +170,13 @@ public class LocalTargetFileResource extends AbstractFileResource {
 		return workStep;
 	}
 	
-	/**
-	 * <pre>
-	 * '전송 처리 정보 윈도우' 가 지정되었다면 창을 자동으로 닫는다. 
-	 * 단 예외적으로 '전송 완료' 상태인 경우에는 창을 자동으로 닫지 않는다.
-	 * 이는 사용자가 최종 전송 완료된 시점의 정보를 확인할 수 있게 해 주는 배려로
-	 * 창은 사용자는 OK 버튼 클릭으로 닫히게 된다.
-	 * 
-	 * <pre>
-	 */
-	protected void disposeFileTranferProcessInformationDialogIfExistAndNotTransferDone() {		
-		if (null != fileTranferProcessInformationDialog) {
-			if (! workStep.equals(LocalTargetFileResource.WorkStep.TRANSFER_DONE)) {
-				fileTranferProcessInformationDialog.dispose();
-			}
-		}
+	
+	@Override
+	protected boolean whetherWorkStepIsTransferDoneState() {
+		return (workStep.equals(LocalTargetFileResource.WorkStep.TRANSFER_DONE));
 	}
+	
+	
 	
 	
 	/**

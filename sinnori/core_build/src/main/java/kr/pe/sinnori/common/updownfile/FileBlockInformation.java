@@ -23,7 +23,7 @@ public class FileBlockInformation {
 			long startFileBlockNo,
 			long endFileBlockNo,
 			
-			boolean append, int fileBlockSize, int fileBlockNo) {
+			boolean append, int fileBlockSize, long fileBlockNo) {
 		if (fileBlockNo < 0) {
 			String errorMessage = String.format("sourceFileID[%d]::parameter fileBlockNo[%d] is less than zero",
 					sourceFileID, fileBlockNo);

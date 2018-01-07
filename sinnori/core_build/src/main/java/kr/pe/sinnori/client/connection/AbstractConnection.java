@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
 import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BodyFormatException;
-import kr.pe.sinnori.common.exception.MailboxTimeoutException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
+import kr.pe.sinnori.common.exception.MailboxTimeoutException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
@@ -227,7 +227,7 @@ public abstract class AbstractConnection {
 	 * @throws IOException 소켓 쓰기 에러 발생시 던지는 예외
 	 * @throws ClosedByInterruptException 
 	 */
-	public void write(ArrayList<WrapBuffer> inObjWrapBufferList) throws ClosedByInterruptException, IOException {
+	public void write(ArrayList<WrapBuffer> inObjWrapBufferList) throws IOException {
 		// if (null == inObjWrapBufferList) return;
 		
 		 
@@ -247,7 +247,7 @@ public abstract class AbstractConnection {
 					serverSC.write(byteBuffer);
 				} while(byteBuffer.hasRemaining());
 			}*/
-			
+			// try {
 			for (WrapBuffer wrapBuffer : inObjWrapBufferList) {
 				ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
 				do {
@@ -261,6 +261,18 @@ public abstract class AbstractConnection {
 					}
 				} while(byteBuffer.hasRemaining());
 			}
+			/*} catch(ClosedByInterruptException e) {
+				serverClose();
+				log.error("this eorr is very serious so exist", e);
+				System.exit(1);
+			} catch(AsynchronousCloseException e) {
+				serverClose();
+				log.error("this eorr is very serious so exist", e);
+				System.exit(1);
+			} catch(ClosedChannelException e) {
+				serverClose();
+				throw e;
+			}*/
 		}
 		
 		/*long endTime = System.currentTimeMillis();

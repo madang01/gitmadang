@@ -249,9 +249,9 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 			sw.putUnsignedByte(itemTypeID);
 			
 			if (null == itemCharsetForLang) {
-				sw.putString(itemSizeForLang, value);
+				sw.putFixedLengthString(itemSizeForLang, value);
 			} else {
-				sw.putString(itemSizeForLang, value,
+				sw.putFixedLengthString(itemSizeForLang, value,
 						CharsetUtil.createCharsetEncoder(itemCharsetForLang));
 			}
 

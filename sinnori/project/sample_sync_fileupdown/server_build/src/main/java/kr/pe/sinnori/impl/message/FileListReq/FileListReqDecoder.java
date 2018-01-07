@@ -28,7 +28,7 @@ import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
  *
  */
 public final class FileListReqDecoder extends AbstractMessageDecoder {
-
+	
 	/**
 	 * <pre>
 	 *  "단일항목 디코더"를 이용하여 "중간 다리 역활 읽기 객체" 에서 추출된 FileListReq 메시지를 반환한다.

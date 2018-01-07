@@ -535,7 +535,7 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 	}
 
 	@Override
-	public void putString(int len, String str,
+	public void putFixedLengthString(int len, String str,
 			CharsetEncoder wantedCharsetEncoder)
 			throws BufferOverflowException, IllegalArgumentException,
 			NoMoreDataPacketBufferException{
@@ -592,9 +592,9 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 	}
 
 	@Override
-	public void putString(int len, String str) throws BufferOverflowException,
+	public void putFixedLengthString(int len, String str) throws BufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException {
-		putString(len, str, streamCharsetEncoder);
+		putFixedLengthString(len, str, streamCharsetEncoder);
 	}
 
 	@Override

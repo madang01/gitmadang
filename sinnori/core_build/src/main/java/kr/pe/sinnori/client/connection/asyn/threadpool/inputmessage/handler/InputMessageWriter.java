@@ -17,19 +17,19 @@
 package kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler;
 
 import java.io.IOException;
-import java.nio.channels.ClosedByInterruptException;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.NotYetConnectedException;
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.client.io.LetterToServer;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.project.DataPacketBufferQueueManagerIF;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 클라이언트 입력 메시지 소켓 쓰기 담당 쓰레드(=핸들러)
@@ -112,10 +112,10 @@ public class InputMessageWriter extends Thread {
 				} catch (NotYetConnectedException e) {
 					log.warn(String.format("%s InputMessageWriter[%d] NotYetConnectedException::%s, letterToServer=[%s]", asynConnection.getSimpleConnectionInfo(), index, e.getMessage(), letterToServer.toString()), e);
 					
-					asynConnection.serverClose();
+					// asynConnection.serverClose();
 					
-				} catch(ClosedByInterruptException e) {
-					log.warn(String.format("%s InputMessageWriter[%d] ClosedByInterruptException::%s, letterToServer=[%s]", asynConnection.getSimpleConnectionInfo(), index, e.getMessage(), letterToServer.toString()), e);
+				} catch(ClosedChannelException e) {
+					log.warn(String.format("%s InputMessageWriter[%d] ClosedChannelException::%s, letterToServer=[%s]", asynConnection.getSimpleConnectionInfo(), index, e.getMessage(), letterToServer.toString()), e);
 					
 					asynConnection.serverClose();
 				} catch (IOException e) {

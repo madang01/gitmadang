@@ -19,6 +19,7 @@ package kr.pe.sinnori.server;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -284,20 +285,20 @@ public class AnyProjectServer extends AbstractProject implements
 	}
 
 	@Override
-	public void addNewClient(SocketChannel sc)
+	public void addNewClient(SocketChannel clientSC)
 			throws NoMoreDataPacketBufferException {
 		// synchronized (clientResourceMonitor) {
-		ClientResource clientResource = scToClientResourceHash.get(sc);
+		ClientResource clientResource = scToClientResourceHash.get(clientSC);
 		if (null != clientResource) {
 			log.warn(String.format("클라이언트 자원에서 신규 클라이언트[%d] 등록시 중복 시도",
-					sc.hashCode()));
+					clientSC.hashCode()));
 			return;
 		}
 
-		clientResource = new ClientResource(sc, projectName,
+		clientResource = new ClientResource(clientSC, projectName,
 				new SocketInputStream(this));
 
-		scToClientResourceHash.put(sc, clientResource);
+		scToClientResourceHash.put(clientSC, clientResource);
 		// }
 	}
 
@@ -375,26 +376,12 @@ public class AnyProjectServer extends AbstractProject implements
 			try {
 				valueObj = objectCacheManager.getCachedObject(classLoader,
 						classFullName);
-			} catch (ClassNotFoundException e) {
+			} catch (Exception e) {
 				String errorMessage = String
-						.format("ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::ClassNotFoundException",
+						.format("ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::%s",
 								classLoader.hashCode(), messageID,
-								classFullName);
-				log.warn(errorMessage);
-				throw new DynamicClassCallException(errorMessage);
-			} catch (InstantiationException e) {
-				String errorMessage = String
-						.format("ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::InstantiationException",
-								classLoader.hashCode(), messageID,
-								classFullName);
-				log.warn(errorMessage);
-				throw new DynamicClassCallException(errorMessage);
-			} catch (IllegalAccessException e) {
-				String errorMessage = String
-						.format("ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::IllegalAccessException",
-								classLoader.hashCode(), messageID,
-								classFullName);
-				log.warn(errorMessage);
+								classFullName, e.toString());
+				log.warn(errorMessage, e);
 				throw new DynamicClassCallException(errorMessage);
 			}
 		} catch (IllegalArgumentException e) {
@@ -441,8 +428,8 @@ public class AnyProjectServer extends AbstractProject implements
 		}
 
 		Object retObject = null;
-		try {
-			retObject = retClass.newInstance();
+		try {			
+			retObject = retClass.getDeclaredConstructor().newInstance();
 		} catch (InstantiationException e) {
 			String errorMessage = String
 					.format("ServerClassLoader hashCode=[%d], classFullName=[%s]::InstantiationException",
@@ -452,6 +439,30 @@ public class AnyProjectServer extends AbstractProject implements
 		} catch (IllegalAccessException e) {
 			String errorMessage = String
 					.format("ServerClassLoader hashCode=[%d], classFullName=[%s]::IllegalAccessException",
+							this.hashCode(), classFullName);
+			log.warn(errorMessage);
+			throw new DynamicClassCallException(errorMessage);
+		} catch (IllegalArgumentException e) {
+			String errorMessage = String
+					.format("ServerClassLoader hashCode=[%d], classFullName=[%s]::IllegalArgumentException",
+							this.hashCode(), classFullName);
+			log.warn(errorMessage);
+			throw new DynamicClassCallException(errorMessage);
+		} catch (InvocationTargetException e) {
+			String errorMessage = String
+					.format("ServerClassLoader hashCode=[%d], classFullName=[%s]::InvocationTargetException",
+							this.hashCode(), classFullName);
+			log.warn(errorMessage);
+			throw new DynamicClassCallException(errorMessage);
+		} catch (NoSuchMethodException e) {
+			String errorMessage = String
+					.format("ServerClassLoader hashCode=[%d], classFullName=[%s]::NoSuchMethodException",
+							this.hashCode(), classFullName);
+			log.warn(errorMessage);
+			throw new DynamicClassCallException(errorMessage);
+		} catch (SecurityException e) {
+			String errorMessage = String
+					.format("ServerClassLoader hashCode=[%d], classFullName=[%s]::SecurityException",
 							this.hashCode(), classFullName);
 			log.warn(errorMessage);
 			throw new DynamicClassCallException(errorMessage);
