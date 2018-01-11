@@ -35,7 +35,7 @@ import kr.pe.sinnori.common.io.SocketInputStream;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
-import kr.pe.sinnori.common.project.DataPacketBufferQueueManagerIF;
+import kr.pe.sinnori.common.project.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
@@ -69,7 +69,7 @@ public class DJSONMessageProtocol implements MessageProtocolIF {
 	/** 1개 메시당 데이터 패킷 버퍼 최대수 */ 
 	// private int dataPacketBufferMaxCntPerMessage;
 	
-	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManager = null;
+	private DataPacketBufferPoolManagerIF dataPacketBufferQueueManager = null;
 	
 	
 	private static final int messageHeaderSize = 4;
@@ -80,7 +80,7 @@ public class DJSONMessageProtocol implements MessageProtocolIF {
 	// private ServerObjectManager serverMessageController = ServerObjectManager.getInstance();
 	
 	public DJSONMessageProtocol( 
-			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) {
+			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) {
 		// this.dataPacketBufferSize = dataPacketBufferQueueManager.getDataPacketBufferSize();
 		// this.dataPacketBufferMaxCntPerMessage = dataPacketBufferQueueManager.getDataPacketBufferMaxCntPerMessage();
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
@@ -289,7 +289,7 @@ public class DJSONMessageProtocol implements MessageProtocolIF {
 						
 						String jsonStr = null;
 						try {
-							jsonStr = freeSizeInputStream.getString(messageHeader.lenOfJSONStr, DJSONHeader.JSON_STRING_CHARSET.newDecoder());
+							jsonStr = freeSizeInputStream.getFixedLengthString(messageHeader.lenOfJSONStr, DJSONHeader.JSON_STRING_CHARSET.newDecoder());
 						} catch (IllegalArgumentException e) {
 							String errorMessage = e.getMessage();
 							log.warn(String.format("존슨 문자열 추출 실패::IllegalArgumentException::%s", errorMessage), e);

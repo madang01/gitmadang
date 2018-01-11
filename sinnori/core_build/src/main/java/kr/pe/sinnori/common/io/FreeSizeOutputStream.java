@@ -29,7 +29,7 @@ import java.util.Arrays;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.project.DataPacketBufferQueueManagerIF;
+import kr.pe.sinnori.common.project.DataPacketBufferPoolManagerIF;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +48,7 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 	private Charset streamCharset = null;
 	private CharsetEncoder streamCharsetEncoder = null;
 	private int dataPacketBufferMaxCntPerMessage;
-	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManager = null;
+	private DataPacketBufferPoolManagerIF dataPacketBufferQueueManager = null;
 	
 	/**
 	 * 주) 아래 SHORT_BYTES, INTEGER_BYTES, LONG_BYTES 는 객체 인스턴스마다 필요합니다. 만약 static 으로 만들면 thread safe 문제에 직면할 것입니다.
@@ -81,7 +81,7 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 관리자
 	 * @throws NoMoreDataPacketBufferException 데이터 패키 버퍼를 확보하지 못했을 경우 던지는 예외
 	 */
-	public FreeSizeOutputStream(Charset streamCharset, CharsetEncoder streamCharsetEncoder, DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
+	public FreeSizeOutputStream(Charset streamCharset, CharsetEncoder streamCharsetEncoder, DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
 		this(streamCharset, streamCharsetEncoder, 0, dataPacketBufferQueueManager);
 	}
 	
@@ -93,7 +93,7 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 관리자
 	 * @throws NoMoreDataPacketBufferException 데이터 패키 버퍼를 확보하지 못했을 경우 던지는 예외
 	 */
-	public FreeSizeOutputStream(Charset streamCharset, CharsetEncoder streamCharsetEncoder, int firtBufferStartPosition, DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
+	public FreeSizeOutputStream(Charset streamCharset, CharsetEncoder streamCharsetEncoder, int firtBufferStartPosition, DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
 		this.streamByteOrder = dataPacketBufferQueueManager.getByteOrder();
 		this.streamCharset = streamCharset;
 		this.streamCharsetEncoder = streamCharsetEncoder;
@@ -390,12 +390,12 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 					CommonStaticFinalVars.UNSIGNED_BYTE_MAX));
 		}
 
-		/**
-		 * 우분투 jdk 1.6.x에서 테스트한 시스템 디폴트 ByteOrder는 LITTLE_ENDIAN 로 정수(=Integer)
-		 * 0xff 를 byte 형 변환하면 0xff 이다.
-		 */
-		putByte((byte) value);
+		doPutUnsignedByte((byte)value);
 		
+	}
+	
+	private void doPutUnsignedByte(byte value) throws BufferOverflowException, NoMoreDataPacketBufferException {		
+		putByte(value);
 	}
 	
 	@Override
@@ -411,11 +411,23 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 					CommonStaticFinalVars.UNSIGNED_BYTE_MAX));
 		}
 		
-		/**
-		 * 우분투 jdk 1.6.x에서 테스트한 시스템 디폴트 ByteOrder는 LITTLE_ENDIAN 로 정수(=Integer)
-		 * 0xff 를 byte 형 변환하면 0xff 이다.
-		 */
-		putByte((byte) value);
+		doPutUnsignedByte((byte)value);
+	}
+	
+	@Override
+	public void putUnsignedByte(long value) throws BufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
+		if (value < 0) {
+			throw new IllegalArgumentException(String.format(
+					"파라미터 값[%d]이 음수입니다.", value));
+		}
+		
+		if (value > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+			throw new IllegalArgumentException(String.format(
+					"파라미터 값[%d]은 unsigned byte 최대값[%d]을 넘을 수 없습니다.", value,
+					CommonStaticFinalVars.UNSIGNED_BYTE_MAX));
+		}
+		
+		doPutUnsignedByte((byte)value);
 	}
 	
 
@@ -450,6 +462,10 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 					CommonStaticFinalVars.UNSIGNED_SHORT_MAX));
 		}
 		
+		doPutUnsignedShort(value);		
+	}
+	
+	private void doPutUnsignedShort(int value) throws NoMoreDataPacketBufferException {
 		ByteBuffer integerBuffer = getIntegerBufferForUnsignedShort(value);
 		// log.info("1. unsingedShortBuffer=[%s]",
 		// unsingedShortBuffer.toString());
@@ -467,6 +483,24 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 			workBuffer.put(integerBuffer);
 		}
 	}
+	
+	@Override
+	public void putUnsignedShort(long value) throws BufferOverflowException,
+			IllegalArgumentException, NoMoreDataPacketBufferException {
+		if (value < 0) {
+			throw new IllegalArgumentException(String.format(
+					"파라미터 값[%d]이 음수입니다.", value));
+		}
+
+		if (value > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
+			throw new IllegalArgumentException(String.format(
+					"파라미터 값[%d]은 unsigned short 최대값[%d]을 넘을 수 없습니다.", value,
+					CommonStaticFinalVars.UNSIGNED_SHORT_MAX));
+		}
+		
+		doPutUnsignedShort((int)value);		
+	}
+	
 
 	@Override
 	public void putInt(int value) throws BufferOverflowException,
@@ -826,4 +860,8 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 		return position;
 	}
 
+	@Override
+	public void close() {
+		freeDataPacketBufferList();
+	}
 }

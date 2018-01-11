@@ -332,9 +332,9 @@ public class DHBSingleItemDecoder implements SingleItemDecoderIF {
 			}
 			
 			if (null == itemCharsetForLang) {
-				return sr.getString(itemSizeForLang).trim();
+				return sr.getFixedLengthString(itemSizeForLang).trim();
 			} else {
-				return sr.getString(itemSizeForLang, CharsetUtil.createCharsetDecoder(itemCharsetForLang)).trim();
+				return sr.getFixedLengthString(itemSizeForLang, CharsetUtil.createCharsetDecoder(itemCharsetForLang)).trim();
 			}
 		}		
 	}

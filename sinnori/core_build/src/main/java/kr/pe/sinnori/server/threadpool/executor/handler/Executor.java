@@ -100,7 +100,7 @@ public class Executor extends Thread {
 
 				SocketChannel clientSC = letterFromClient.getFromSC();
 				ClientResource clientResource = letterFromClient.getClientResource();
-				ReceivedLetter receivedLetter = letterFromClient.getWrapMiddleReadObj();
+				ReceivedLetter receivedLetter = letterFromClient.getReceivedLetter();
 				String messageID = receivedLetter.getMessageID();
 				AbstractServerTask  serverTask = null;
 				

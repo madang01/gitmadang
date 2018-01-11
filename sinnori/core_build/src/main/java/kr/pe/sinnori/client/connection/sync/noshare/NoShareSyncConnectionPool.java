@@ -35,7 +35,7 @@ import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.project.DataPacketBufferQueueManagerIF;
+import kr.pe.sinnori.common.project.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 
 /**
@@ -71,7 +71,7 @@ public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 			long socketTimeOut,
 			boolean whetherToAutoConnect,
 			MessageProtocolIF messageProtocol,
-			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager,
+			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager,
 			ClientObjectCacheManagerIF clientObjectCacheManager)
 			throws NoMoreDataPacketBufferException, InterruptedException {
 		super(null);

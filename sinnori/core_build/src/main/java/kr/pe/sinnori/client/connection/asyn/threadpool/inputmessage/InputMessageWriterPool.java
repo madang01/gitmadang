@@ -21,7 +21,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler.InputMessageWriter;
 import kr.pe.sinnori.client.io.LetterToServer;
-import kr.pe.sinnori.common.project.DataPacketBufferQueueManagerIF;
+import kr.pe.sinnori.common.project.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 
 /**
@@ -33,7 +33,7 @@ public class InputMessageWriterPool extends AbstractThreadPool {
 	private String projectName = null;
 	private int maxHandler;
 	private LinkedBlockingQueue<LetterToServer> inputMessageQueue;
-	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManager;
+	private DataPacketBufferPoolManagerIF dataPacketBufferQueueManager;
 	
 	
 	/**
@@ -47,7 +47,7 @@ public class InputMessageWriterPool extends AbstractThreadPool {
 	 */
 	public InputMessageWriterPool(String projectName, int size, int max,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
-			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) {
+			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) {
 		if (size <= 0) {
 			throw new IllegalArgumentException(String.format("%s 파라미터 size 는 0보다 커야 합니다.", projectName));
 		}

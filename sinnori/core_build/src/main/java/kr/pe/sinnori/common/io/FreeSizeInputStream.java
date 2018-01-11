@@ -34,7 +34,7 @@ import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
 import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
-import kr.pe.sinnori.common.project.DataPacketBufferQueueManagerIF;
+import kr.pe.sinnori.common.project.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.util.HexUtil;
 
 import org.slf4j.Logger;
@@ -54,7 +54,7 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 	private Charset streamCharset;
 	private CharsetDecoder streamCharsetDecoder = null;	
 	private ByteOrder streamByteOrder = null;
-	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManager = null;
+	private DataPacketBufferPoolManagerIF dataPacketBufferQueueManager = null;
 	
 	
 	private ByteBuffer workBuffer;
@@ -106,7 +106,7 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 	public FreeSizeInputStream(ArrayList<WrapBuffer> dataPacketBufferList,
 			CommonType.WRAPBUFFER_RECALL_GUBUN wrapbufferRecallGubun,
 			CharsetDecoder  streamCharsetDecoder,
-			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) {
+			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) {
 		if (null == dataPacketBufferList) {
 			String errorMessage = "the parameter dataPacketBufferList is null";
 			log.warn(errorMessage);
@@ -565,7 +565,7 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 	}
 
 	@Override
-	public String getString(final int len, final CharsetDecoder wantedCharsetDecoder)
+	public String getFixedLengthString(final int len, final CharsetDecoder wantedCharsetDecoder)
 			throws SinnoriBufferUnderflowException, IllegalArgumentException, SinnoriCharsetCodingException {
 		if (len < 0) {
 			throw new IllegalArgumentException(String.format(
@@ -619,9 +619,9 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 	}
 
 	@Override
-	public String getString(int len) throws SinnoriBufferUnderflowException,
+	public String getFixedLengthString(int len) throws SinnoriBufferUnderflowException,
 			IllegalArgumentException, SinnoriCharsetCodingException {
-		return getString(len, streamCharsetDecoder);
+		return getFixedLengthString(len, streamCharsetDecoder);
 	}
 
 	@Override
@@ -641,7 +641,7 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 							Integer.MAX_VALUE));
 		}
 		
-		return getString((int) limitedRemainingBytes, streamCharsetDecoder);
+		return getFixedLengthString((int) limitedRemainingBytes, streamCharsetDecoder);
 	}
 
 	@Override
@@ -660,7 +660,7 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 
 		if (0 == len) return "";
 
-		return getString(len, streamCharsetDecoder);
+		return getFixedLengthString(len, streamCharsetDecoder);
 	}
 
 	@Override
@@ -669,7 +669,7 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 		int numOfBytes = getUnsignedShort();
 		if (0 == numOfBytes)
 			return "";
-		return getString(numOfBytes, streamCharsetDecoder);
+		return getFixedLengthString(numOfBytes, streamCharsetDecoder);
 	}
 
 	@Override
@@ -679,7 +679,7 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 
 		if (0 == numOfBytes)
 			return "";
-		return getString(numOfBytes, streamCharsetDecoder);
+		return getFixedLengthString(numOfBytes, streamCharsetDecoder);
 	}
 
 	@Override

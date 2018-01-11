@@ -81,6 +81,9 @@ public interface SinnoriOutputStreamIF {
 	 */
 	public void putUnsignedByte(int value) throws BufferOverflowException,
 	IllegalArgumentException, NoMoreDataPacketBufferException;
+	
+	public void putUnsignedByte(long value) throws BufferOverflowException,
+	IllegalArgumentException, NoMoreDataPacketBufferException;
 
 	/**
 	 * 이진 스트림에 short 타입의 데이터를 쓴다.
@@ -110,6 +113,8 @@ public interface SinnoriOutputStreamIF {
 	public void putUnsignedShort(int value) throws BufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException;
 
+	public void putUnsignedShort(long value) throws BufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException;
+	
 	/**
 	 * 이진 스트림에 integer 타입의 데이터를 쓴다.
 	 * 
@@ -154,7 +159,7 @@ public interface SinnoriOutputStreamIF {
 	/**
 	 * 문자열을 이진 스트림에 지정된 길이 만큼 지정된 문자셋으로 변환 후 저장한다.
 	 * 
-	 * @param len
+	 * @param length
 	 *            지정된 길이, 단위 byte
 	 * @param str
 	 *            문자열
@@ -167,7 +172,7 @@ public interface SinnoriOutputStreamIF {
 	 * @throws NoMoreDataPacketBufferException
 	 *             데이터 패킷 버퍼 확보 실패시 던지는 예외 
 	 */
-	public void putFixedLengthString(int len, String str,
+	public void putFixedLengthString(int length, String str,
 			CharsetEncoder wantedCharsetEncoder)
 			throws BufferOverflowException, IllegalArgumentException,
 			NoMoreDataPacketBufferException;
@@ -175,7 +180,7 @@ public interface SinnoriOutputStreamIF {
 	/**
 	 * 문자열을 이진 스트림에 지정된 길이 만큼 스트림 고유 문자셋으로 변환 후 저장한다.
 	 * 
-	 * @param len
+	 * @param length
 	 *            지정된 길이, 단위 byte
 	 * @param str
 	 *            문자열
@@ -186,7 +191,7 @@ public interface SinnoriOutputStreamIF {
 	 * @throws NoMoreDataPacketBufferException
 	 *             데이터 패킷 버퍼 확보 실패시 던지는 예외
 	 */
-	public void putFixedLengthString(int len, String str) throws BufferOverflowException,
+	public void putFixedLengthString(int length, String str) throws BufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException;
 
 	/**
@@ -281,14 +286,14 @@ public interface SinnoriOutputStreamIF {
 	 *             데이터 패킷 버퍼 확보 실패시 던지는 예외
 	 */
 
-	public void putBytes(byte[] srcBuffer, int offset, int length)
+	public void putBytes(byte[] src, int offset, int length)
 			throws BufferOverflowException, IllegalArgumentException,
 			NoMoreDataPacketBufferException;
 
 	/**
 	 * 바이트 배열 데이터를 이진 스트림에 저장한다.
 	 * 
-	 * @param srcBuffer
+	 * @param src
 	 *            이진 스트림에 저장을 원하는 바이트 배열
 	 * @throws BufferOverflowException
 	 *             이진 스트림은 버퍼로 구현되는데 버퍼 크기를 벗어난 쓰기 시도시 발생
@@ -297,13 +302,13 @@ public interface SinnoriOutputStreamIF {
 	 * @throws NoMoreDataPacketBufferException
 	 *             데이터 패킷 버퍼 확보 실패시 던지는 예외
 	 */
-	public void putBytes(byte[] srcBuffer) throws BufferOverflowException,
+	public void putBytes(byte[] src) throws BufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException;
 
 	/**
 	 * 바이트 버퍼 데이터를 이진 스트림에 저장한다.
 	 * 
-	 * @param srcBuffer
+	 * @param src
 	 *            이진 스트림에 저장을 원하는 바이트 버퍼
 	 * @throws BufferOverflowException
 	 *             이진 스트림은 버퍼로 구현되는데 버퍼 크기를 벗어난 쓰기 시도시 발생
@@ -312,13 +317,13 @@ public interface SinnoriOutputStreamIF {
 	 * @throws NoMoreDataPacketBufferException
 	 *             데이터 패킷 버퍼 확보 실패시 던지는 예외
 	 */
-	public void putBytes(ByteBuffer srcBuffer) throws BufferOverflowException,
+	public void putBytes(ByteBuffer src) throws BufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException;
 
 	/**
 	 * 이진 스트림에서 지정된 크기만큼 거넌 뛰기를 한다.
 	 * 
-	 * @param skipBytes
+	 * @param n
 	 *            지정된 크기, 단위 byte
 	 * @throws BufferOverflowException
 	 *             이진 스트림은 버퍼로 구현되는데 버퍼 크기를 벗어난 쓰기 시도시 발생
@@ -327,7 +332,7 @@ public interface SinnoriOutputStreamIF {
 	 * @throws NoMoreDataPacketBufferException
 	 *             데이터 패킷 버퍼 확보 실패시 던지는 예외
 	 */
-	public void skip(int skipBytes) throws BufferOverflowException,
+	public void skip(int n) throws BufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException;
 
 	/**
@@ -341,4 +346,6 @@ public interface SinnoriOutputStreamIF {
 	 * @return 스트림 위치, 다른 말로 지금까지 쓰기 작업한 스트림 크기.
 	 */
 	public long postion();
+	
+	public void close();
 }

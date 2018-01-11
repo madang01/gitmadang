@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * @author Won Jonghoon
  * 
  */
-public abstract class AbstractProject implements DataPacketBufferQueueManagerIF {
+public abstract class AbstractProject implements DataPacketBufferPoolManagerIF {
 	protected Logger log = LoggerFactory.getLogger(AbstractProject.class);
 	
 	/** 모니터 객체 */

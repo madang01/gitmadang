@@ -150,7 +150,7 @@ public class THBMessageHeader {
 		
 		try {
 			this.messageID = headerInputStream
-					.getString( messageIDFixedSize,
+					.getFixedLengthString( messageIDFixedSize,
 							CharsetUtil.createCharsetDecoder(DHBMessageHeader.HEADER_CHARSET)).trim();
 			this.mailboxID = headerInputStream
 					.getUnsignedShort();

@@ -37,7 +37,7 @@ import kr.pe.sinnori.common.io.SocketInputStream;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
-import kr.pe.sinnori.common.project.DataPacketBufferQueueManagerIF;
+import kr.pe.sinnori.common.project.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
@@ -65,7 +65,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 	
 	private ByteOrder byteOrderOfProject = null;
 
-	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManager = null;
+	private DataPacketBufferPoolManagerIF dataPacketBufferQueueManager = null;
 	private DHBSingleItemDecoder dhbSingleItemDecoder = null;
 	private DHBSingleItemEncoder dhbSingleItemEncoder = null;
 
@@ -73,7 +73,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 	// private ServerObjectManager serverMessageController = ServerObjectManager.getInstance();
 	
 	public DHBMessageProtocol(int messageIDFixedSize,
-			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) {
+			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) {
 		/*if (messageIDFixedSize < 0) {
 			String errorMessage = String.format("parameter messageIDFixedSize less than zero");
 			log.warn(errorMessage);

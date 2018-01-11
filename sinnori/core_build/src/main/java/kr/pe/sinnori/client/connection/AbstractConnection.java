@@ -44,7 +44,7 @@ import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
-import kr.pe.sinnori.common.project.DataPacketBufferQueueManagerIF;
+import kr.pe.sinnori.common.project.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
@@ -77,7 +77,7 @@ public abstract class AbstractConnection {
 	
 	
 	/** 데이터 패킷 버퍼 관리자 */
-	protected DataPacketBufferQueueManagerIF dataPacketBufferQueueManager = null;
+	protected DataPacketBufferPoolManagerIF dataPacketBufferQueueManager = null;
 	/** */
 	protected MessageProtocolIF messageProtocol = null;
 	
@@ -127,7 +127,7 @@ public abstract class AbstractConnection {
 			boolean whetherToAutoConnect,
 			LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue,
 			MessageProtocolIF messageProtocol,
-			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager,
+			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager,
 			ClientObjectCacheManagerIF clientObjectCacheManager) throws NoMoreDataPacketBufferException, InterruptedException {
 		this.projectName = projectName;
 		this.index = index;

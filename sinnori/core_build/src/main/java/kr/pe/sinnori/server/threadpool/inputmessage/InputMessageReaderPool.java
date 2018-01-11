@@ -22,7 +22,7 @@ import java.nio.charset.Charset;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.project.DataPacketBufferQueueManagerIF;
+import kr.pe.sinnori.common.project.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
@@ -44,7 +44,7 @@ public class InputMessageReaderPool extends AbstractThreadPool implements
 	private long readSelectorWakeupInterval;
 	private LinkedBlockingQueue<LetterFromClient> inputMessageQueue;
 	private MessageProtocolIF messageProtocol;
-	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManager;
+	private DataPacketBufferPoolManagerIF dataPacketBufferQueueManager;
 	private ClientResourceManagerIF clientResourceManager;
 	
 	
@@ -67,7 +67,7 @@ public class InputMessageReaderPool extends AbstractThreadPool implements
 			
 			LinkedBlockingQueue<LetterFromClient> inputMessageQueue,
 			MessageProtocolIF messageProtocol,
-			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager,
+			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager,
 			ClientResourceManagerIF clientResourceManager) {
 		if (size <= 0) {
 			String errorMessage = String.format("%s 파라미터 size 는 0보다 커야 합니다.", projectName);

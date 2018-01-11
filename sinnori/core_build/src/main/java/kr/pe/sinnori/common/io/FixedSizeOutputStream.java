@@ -166,83 +166,60 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 	public void putByte(byte value) throws BufferOverflowException {
 		outputStreamBuffer.put(value);
 	}
-
 	
-	private void throwExceptionIfNotUnsingedByte(short value) {
-		if (value < 0) {
-			throw new IllegalArgumentException(String.format(
-					"the parameter value[%d] is less than zero", value));
-		}
-
-		if (value > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
-			throw new IllegalArgumentException(String.format(
-					"the parameter value[%d] is greater than the unsigned byte max[%d]", value,
-					CommonStaticFinalVars.UNSIGNED_BYTE_MAX));
-		}
-	}
-	
-	private void throwExceptionIfNotUnsingedByte(int value) {
-		if (value < 0) {
-			throw new IllegalArgumentException(String.format(
-					"the parameter value[%d] is less than zero", value));
-		}
-
-		if (value > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
-			throw new IllegalArgumentException(String.format(
-					"the parameter value[%d] is greater than the unsigned byte max[%d]", value,
-					CommonStaticFinalVars.UNSIGNED_BYTE_MAX));
-		}
-	}
 	
 	@Override
 	public void putUnsignedByte(short value) throws BufferOverflowException,
 			IllegalArgumentException {
-		throwExceptionIfNotUnsingedByte(value);
-		
-		/*ByteBuffer int_buffer = ByteBuffer.allocate(2);
-		int_buffer.order(bufferByteOrder);
-		int_buffer.putShort((short) value);
-
-		if (ByteOrder.BIG_ENDIAN == bufferByteOrder) {
-			int_buffer.position(1);
-			int_buffer.limit(2);
-		} else {
-			int_buffer.position(0);
-			int_buffer.limit(1);
+		if (value < 0) {
+			throw new IllegalArgumentException(String.format(
+					"the parameter value[%d] is less than zero", value));
 		}
-		outputStreamBuffer.put(int_buffer);*/
+
+		if (value > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+			throw new IllegalArgumentException(String.format(
+					"the parameter value[%d] is greater than the unsigned byte max[%d]", value,
+					CommonStaticFinalVars.UNSIGNED_BYTE_MAX));
+		}		
 		
-		/**
-		 * 우분투 jdk 1.6.x에서 테스트한 시스템 디폴트 ByteOrder는 LITTLE_ENDIAN 로 정수(=Integer)
-		 * 0xff 를 byte 형 변환하면 0xff 이다.
-		 */
-		putByte((byte) value);
+		doPutUnsignedByte((byte)value);
+		
 	}
 	
-	
+	private void doPutUnsignedByte(byte value) {
+		putByte(value);
+	}
 	
 	@Override
 	public void putUnsignedByte(int value) throws BufferOverflowException, IllegalArgumentException {
-		throwExceptionIfNotUnsingedByte(value);
-
-		/*ByteBuffer int_buffer = ByteBuffer.allocate(2);
-		int_buffer.order(bufferByteOrder);
-		int_buffer.putShort((short) value);
-		
-		if (ByteOrder.BIG_ENDIAN == bufferByteOrder) {
-			int_buffer.position(1);
-			int_buffer.limit(2);
-		} else {
-			int_buffer.position(0);
-			int_buffer.limit(1);
+		if (value < 0) {
+			throw new IllegalArgumentException(String.format(
+					"the parameter value[%d] is less than zero", value));
 		}
-		outputStreamBuffer.put(int_buffer);*/
-		
-		/**
-		 * 우분투 jdk 1.6.x에서 테스트한 시스템 디폴트 ByteOrder는 LITTLE_ENDIAN 로 정수(=Integer)
-		 * 0xff 를 byte 형 변환하면 0xff 이다.
-		 */
-		putByte((byte) value);
+
+		if (value > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+			throw new IllegalArgumentException(String.format(
+					"the parameter value[%d] is greater than the unsigned byte max[%d]", value,
+					CommonStaticFinalVars.UNSIGNED_BYTE_MAX));
+		}
+
+		doPutUnsignedByte((byte)value);
+	}
+	
+	@Override
+	public void putUnsignedByte(long value) throws BufferOverflowException, IllegalArgumentException {
+		if (value < 0) {
+			throw new IllegalArgumentException(String.format(
+					"the parameter value[%d] is less than zero", value));
+		}
+
+		if (value > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+			throw new IllegalArgumentException(String.format(
+					"the parameter value[%d] is greater than the unsigned byte max[%d]", value,
+					CommonStaticFinalVars.UNSIGNED_BYTE_MAX));
+		}
+
+		doPutUnsignedByte((byte)value);
 	}
 
 	@Override
@@ -250,7 +227,10 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 		outputStreamBuffer.putShort(value);
 	}
 	
-	private void throwExceptionIfNotUnsingedShort(int value) {
+
+	@Override
+	public void putUnsignedShort(int value) throws BufferOverflowException,
+			IllegalArgumentException {
 		if (value < 0) {
 			throw new IllegalArgumentException(String.format(
 					"the parameter value[%d] is less than zero", value));
@@ -261,14 +241,12 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 					"the parameter value[%d] is greater than the unsigned short max[%d]", value,
 					CommonStaticFinalVars.UNSIGNED_SHORT_MAX));
 		}
-	}
-
-	@Override
-	public void putUnsignedShort(int value) throws BufferOverflowException,
-			IllegalArgumentException {
-		throwExceptionIfNotUnsingedShort(value);
 		/*ByteBuffer unsingedShortBuffer = getIntegerBufferForUnsignedShort(value);
 		outputStreamBuffer.put(unsingedShortBuffer);*/
+		doPutUnsignedShort((short)value);
+	}
+	
+	private void doPutUnsignedShort(short value) {
 		byte t0 =  (byte)(value);
 		byte t1 =  (byte)(value >>> 8);
 		
@@ -287,13 +265,35 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 			outputStreamBuffer.put(t1);
 		}
 	}
+	
+
+	@Override
+	public void putUnsignedShort(long value) throws BufferOverflowException,
+			IllegalArgumentException {
+		if (value < 0) {
+			throw new IllegalArgumentException(String.format(
+					"the parameter value[%d] is less than zero", value));
+		}
+
+		if (value > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
+			throw new IllegalArgumentException(String.format(
+					"the parameter value[%d] is greater than the unsigned short max[%d]", value,
+					CommonStaticFinalVars.UNSIGNED_SHORT_MAX));
+		}
+		/*ByteBuffer unsingedShortBuffer = getIntegerBufferForUnsignedShort(value);
+		outputStreamBuffer.put(unsingedShortBuffer);*/
+		doPutUnsignedShort((short)value);
+	}
 
 	@Override
 	public void putInt(int value) throws BufferOverflowException {
 		outputStreamBuffer.putInt(value);
 	}
 
-	private void throwExceptionIfNotUnsingedInt(long value) {
+
+	@Override
+	public void putUnsignedInt(long value) throws BufferOverflowException,
+			IllegalArgumentException {
 		if (value < 0) {
 			throw new IllegalArgumentException(String.format(
 					"the parameter value[%d] is less than zero", value));
@@ -304,12 +304,6 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 					"the parameter value[%d] is greater than the unsigned integer max[%d]", value,
 					CommonStaticFinalVars.UNSIGNED_INTEGER_MAX));
 		}
-	}
-	
-	@Override
-	public void putUnsignedInt(long value) throws BufferOverflowException,
-			IllegalArgumentException {
-		throwExceptionIfNotUnsingedInt(value);
 		
 		/*ByteBuffer unsingedIntBuffer = getLongBufferForUnsignedInt(value);
 		outputStreamBuffer.put(unsingedIntBuffer);*/
@@ -345,37 +339,36 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 	}
 
 	@Override
-	public void putFixedLengthString(int len, String str, CharsetEncoder clientEncoder)
+	public void putFixedLengthString(int length, String src, CharsetEncoder wantedCharsetEncoder)
 			throws BufferOverflowException, IllegalArgumentException,
 			NoMoreDataPacketBufferException {
-		if (len < 0) {
+		if (length < 0) {
 			throw new IllegalArgumentException(String.format(
-					"파리미터 문자열 길이(=len)의 값[%d]은  0 보다 크거나 같아야 합니다.", len));
+					"the parameter length[%d] is less than zero", length));
 		}
 
-		if (len > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
+		/*if (length > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
 			throw new IllegalArgumentException(
 					String.format(
-							"파리미터 문자열 길이(=len)의 값[%d]은  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.",
-							len, CommonStaticFinalVars.UNSIGNED_SHORT_MAX));
+							"the parameter length is greater than ",
+							length, CommonStaticFinalVars.UNSIGNED_SHORT_MAX));
+		}*/
+
+		if (src == null) {
+			throw new IllegalArgumentException("the parameter src is null");
 		}
 
-		if (str == null) {
-			throw new IllegalArgumentException("파리미터 문자열(=str)의 값이 null 입니다.");
-		}
-
-		if (clientEncoder == null) {
+		if (wantedCharsetEncoder == null) {
 			throw new IllegalArgumentException(
-					"파리미터 문자셋(=clientEncoder)의 값이 null 입니다.");
+					"the parameter wantedCharsetEncoder is null");
 		}
 
-		int cur_pos = outputStreamBuffer.position();
-		int cur_limit = outputStreamBuffer.limit();
+		// The number of elements remaining in this buffer
+		int remainingBytes = outputStreamBuffer.remaining();
 
-		if (cur_limit < (cur_pos + len)) {
-			throw new IllegalArgumentException(String.format(
-					"남아 있는 저장 가능한 영역의 크기[%d]가 지정된 문자열[%d] 크기 보다 작습니다.",
-					cur_limit - cur_pos, len));
+		if (length > remainingBytes) {
+			// String.format("남아 있는 저장 가능한 영역의 크기[%d]가 지정된 문자열[%d] 크기 보다 작습니다.", remainingBytes, length)
+			throw new IllegalArgumentException(String.format("the parameter length[%d] is greater than the remaining bytes[%d]", length, remainingBytes));
 		}
 
 		/**
@@ -396,9 +389,11 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 		 * 
 		 * 참고2) 자바 내부적인 문자열에 대한 인코딩시 "알수없는 문자"는 발생할수가 없다. 오직 디코딩시에만 발생한다.
 		 */
-		outputStreamBuffer.limit(cur_pos + len);
+		int oldLimit = outputStreamBuffer.limit();
+		int newLimit = outputStreamBuffer.position() + length;
+		outputStreamBuffer.limit(newLimit);
 
-		clientEncoder.encode(CharBuffer.wrap(str), outputStreamBuffer, true);
+		wantedCharsetEncoder.encode(CharBuffer.wrap(src), outputStreamBuffer, true);
 
 		/**
 		 * 파라미터로 넘어온 len 길이중 문자열을 저장하고 남은 영역만큼 영(=0x00) 값을 넣는다. 쓰레기 값이 읽혀지는것을
@@ -411,80 +406,83 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 		/**
 		 * 백업 받은 limit 속성을 복구한다.
 		 */
-		outputStreamBuffer.limit(cur_limit);
+		outputStreamBuffer.limit(oldLimit);
 	}
 
 	@Override
-	public void putFixedLengthString(int len, String str) throws BufferOverflowException,
+	public void putFixedLengthString(int length, String src) throws BufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException {
-		putFixedLengthString(len, str, streamCharsetEncoder);
+		putFixedLengthString(length, src, streamCharsetEncoder);
 	}
 
 	@Override
-	public void putStringAll(String str) throws BufferOverflowException,
+	public void putStringAll(String src) throws BufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException {
-		if (str == null) {
-			throw new IllegalArgumentException("파리미터 문자열(=str)의 값이 null 입니다.");
+		if (src == null) {
+			throw new IllegalArgumentException("the parameter src is null");
 		}
 
-		int len = str.getBytes(streamCharset).length;
-		if (len > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
+		int numberOfResultBytes = src.getBytes(streamCharset).length;
+		/*if (numOfBytes > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
+			throw new IllegalArgumentException(
+					String.format(
+							"파라미터로 넘어온 문자열[%s]을 지정한 문자셋[%s]에 맞추어 변환된 바이트 배열의 크기[%d]은  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.",
+							src, streamCharset.displayName(),
+							numOfBytes, CommonStaticFinalVars.UNSIGNED_SHORT_MAX));
+		}*/
+
+		
+		putFixedLengthString(numberOfResultBytes, src, streamCharsetEncoder);
+	}
+
+	@Override
+	public void putPascalString(String src) throws BufferOverflowException,
+			IllegalArgumentException, NoMoreDataPacketBufferException {
+		putUBPascalString(src);
+	}
+
+	@Override
+	public void putSIPascalString(String src) throws BufferOverflowException,
+			IllegalArgumentException, NoMoreDataPacketBufferException {
+		if (src == null) {
+			throw new IllegalArgumentException("the parameter src is null");
+		}
+
+		// Encodes this String into a sequence of bytes using the given charset,
+		// the sequence of bytes encoded by the parameter src using the given charset
+		byte resultBytes[]  = src.getBytes(streamCharset);
+
+		/*if (srcBytesAppliedCharset.length > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
 			throw new IllegalArgumentException(
 					String.format(
 							"파리미터 문자열 길이(=len)의 값[%d]은  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.",
-							len, CommonStaticFinalVars.UNSIGNED_SHORT_MAX));
-		}
-
-		int numOfBytes = str.getBytes(streamCharset).length;
-		putFixedLengthString(numOfBytes, str, streamCharsetEncoder);
-	}
-
-	@Override
-	public void putPascalString(String str) throws BufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException {
-		putUBPascalString(str);
-	}
-
-	@Override
-	public void putSIPascalString(String str) throws BufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException {
-		if (str == null) {
-			throw new IllegalArgumentException("파리미터 문자열(=str)의 값이 null 입니다.");
-		}
-
-		byte strBytes[] = str.getBytes(streamCharset);
-
-		if (strBytes.length > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
-			throw new IllegalArgumentException(
-					String.format(
-							"파리미터 문자열 길이(=len)의 값[%d]은  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.",
-							strBytes.length,
+							srcBytesAppliedCharset.length,
 							CommonStaticFinalVars.UNSIGNED_SHORT_MAX));
-		}
+		}*/
 
-		putInt(strBytes.length);
-		putBytes(strBytes);
+		putInt(resultBytes.length);
+		putBytes(resultBytes);
 	}
 
 	@Override
-	public void putUSPascalString(String str) throws BufferOverflowException,
+	public void putUSPascalString(String src) throws BufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException {
-		if (str == null) {
-			throw new IllegalArgumentException("파리미터 문자열(=str)의 값이 null 입니다.");
+		if (src == null) {
+			throw new IllegalArgumentException("the parameter src is null");
 		}
-		byte strBytes[] = str.getBytes(streamCharset);
-		putUnsignedShort(strBytes.length);
-		putBytes(strBytes);
+		byte resultBytes[] = src.getBytes(streamCharset);
+		putUnsignedShort(resultBytes.length);
+		putBytes(resultBytes);
 	}
 
 	@Override
 	public void putUBPascalString(String str) throws BufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException {
 		if (str == null) {
-			throw new IllegalArgumentException("파리미터 문자열(=str)의 값이 null 입니다.");
+			throw new IllegalArgumentException("the parameter src is null");
 		}
 
-		byte strBytes[] = str.getBytes(streamCharset);
+		byte resultBytes[] = str.getBytes(streamCharset);
 		/*
 		if (strBytes.length > CommonStaticFinal.MAX_UNSIGNED_BYTE) {
 			throw new IllegalArgumentException(String.format(
@@ -492,121 +490,134 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 		}
 		*/
 		
-		putUnsignedByte(strBytes.length);
-		putBytes(strBytes);
+		putUnsignedByte(resultBytes.length);
+		putBytes(resultBytes);
 	}
 
 	@Override
-	public void putBytes(byte[] dstBuffer, int offset, int length)
+	public void putBytes(byte[] src, int offset, int length)
 			throws BufferOverflowException, IllegalArgumentException,
 			NoMoreDataPacketBufferException {
-		if (dstBuffer == null) {
-			throw new IllegalArgumentException(
-					"파리미터 목적지 바이트 배열(=dstBuffer)의 값이 null 입니다.");
+		if (src == null) {
+			throw new IllegalArgumentException("the parameter src is null");
 		}
 
 		if (offset < 0) {
+			throw new IllegalArgumentException(String.format("the parameter offset[%d] is less than zero", offset));
+		}
+		
+		/** check IndexOutOfBoundsException */
+		if (offset >= src.length) {
 			throw new IllegalArgumentException(String.format(
-					"파라미터 옵셋[%d]은  0 보다 커야 합니다.", offset));
+					"the parameter offset[%d] is greater than or equal to the length[%d] of the parameter src that is a byte array", offset,
+					src.length));
 		}
 
 		if (length < 0) {
+			throw new IllegalArgumentException(String.format("the parameter length[%d] is less than zero", length));
+		}
+		
+		/** check IndexOutOfBoundsException */
+		long sumOfOffsetAndLength = ((long)offset + length);
+		if (sumOfOffsetAndLength > src.length) {
 			throw new IllegalArgumentException(String.format(
-					"파라미터 길이[%d]는  0 보다 커야 합니다.", length));
+					"the sum[%d] of the parameter offset[%d] and the parameter length[%d] is greater than the length[%d] of the parameter src that is a byte array", 
+					sumOfOffsetAndLength, offset, length, src.length));
 		}
 
-		if (length > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
+		/*if (length > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
 			throw new IllegalArgumentException(
 					String.format(
 							"파리미터 목적지 바이트 배열 길이[%d]는  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.",
 							length, CommonStaticFinalVars.UNSIGNED_SHORT_MAX));
-		}
+		}*/
 
+		/** check BufferOverflowException */
 		long remainingBytes = remaining();
 		if (length > remainingBytes) {
 			throw new IllegalArgumentException(String.format(
-					"파라미터 길이[%d]는 남아 있은 버퍼 크기[%d] 보다 작거나 같아야 합니다.", length,
+					"the parameter length[%d] is greater than the remaining bytes[%d]", length,
 					remainingBytes));
-		}
+		}	
 
-		if (dstBuffer.length > 0 && offset >= dstBuffer.length) {
-			throw new IllegalArgumentException(String.format(
-					"파라미터 옵셋[%d]는 목적지 버퍼 크기[%d] 보다 작아야 합니다.", offset,
-					dstBuffer.length));
-		}
-
-		if (length > dstBuffer.length) {
-			throw new IllegalArgumentException(String.format(
-					"지정된 길이[%d]는  목적지 버퍼 크기[%d] 보다 작아야 합니다.", length,
-					dstBuffer.length));
-		}
-
-		outputStreamBuffer.put(dstBuffer, offset, length);
+		outputStreamBuffer.put(src, offset, length);
 	}
 
 	@Override
-	public void putBytes(byte[] dstBuffer) throws BufferOverflowException,
+	public void putBytes(byte[] src) throws BufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException {
-		if (null == dstBuffer) {
+		if (null == src) {
 			throw new IllegalArgumentException(
-					"파리미터 목적지 바이트 배열(=dstBuffer)의 값이 null 입니다.");
+					"the parameter src is null");
 		}
 
-		if (dstBuffer.length > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
+		/*if (dstBuffer.length > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
 			throw new IllegalArgumentException(
 					String.format(
 							"파리미터 목적지 바이트 배열 길이[%d]는  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.",
 							dstBuffer.length,
 							CommonStaticFinalVars.UNSIGNED_SHORT_MAX));
-		}
+		}*/
 
 		// if (dstBuffer.length == 0) return;
 
-		putBytes(dstBuffer, 0, dstBuffer.length);
+		putBytes(src, 0, src.length);
 	}
 
 	@Override
-	public void putBytes(ByteBuffer dstBuffer) throws BufferOverflowException,
+	public void putBytes(ByteBuffer src) throws BufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException {
-		if (null == dstBuffer) {
-			throw new IllegalArgumentException("파리미터 목적지 버퍼의 값이 null 입니다.");
+		if (null == src) {
+			throw new IllegalArgumentException("the parameter src is null");
 		}
+		
 
-		long remainingBytes = dstBuffer.remaining();
+		/*long remainingBytes = dstBuffer.remaining();
 		if (remainingBytes > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
 			throw new IllegalArgumentException(
 					String.format(
 							"파리미터 바이트 버퍼의 길이[%d]는 unsigned short 최대값[%d] 보다 작거나 같아야 합니다.",
 							remainingBytes,
 							CommonStaticFinalVars.UNSIGNED_SHORT_MAX));
-		}
+		}*/
+		
+		long remainingBytesInOutputStreamBuffer = remaining();
+		int remainingBytesInSrcByteBuffer= src.remaining();
+		if (remainingBytesInSrcByteBuffer > remainingBytesInOutputStreamBuffer) {
+			String errorMessage = String.format(
+					"the bytes[%d] remaing in the parameter src that is a ByteBuffer greater than the remaining bytes[%d]",
+					remainingBytesInSrcByteBuffer, remainingBytesInOutputStreamBuffer);
+			throw new IllegalArgumentException(errorMessage);
+		}	
 
-		outputStreamBuffer.put(dstBuffer);
+		outputStreamBuffer.put(src);
 	}
 
 	@Override
-	public void skip(int skipBytes) throws BufferOverflowException,
+	public void skip(int n) throws BufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException {
-		if (skipBytes <= 0) {
+		if (n < 0) {
 			throw new IllegalArgumentException(String.format(
-					"파라미터 생략할 쓰기 크기[%d]는 0보다 커야 합니다.", skipBytes));
+					"the parameter n is less than zero", n));
 		}
 
-		if (skipBytes >= CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+		/*if (skipBytes >= CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 생략할 쓰기 크기[%d]는 unsinged byte 최대값[%d]보다 작어야 합니다.",
 					skipBytes, CommonStaticFinalVars.UNSIGNED_BYTE_MAX));
+		}*/
+		
+		int remaingBytes = outputStreamBuffer.remaining();
+		
+		if (n > remaingBytes) {
+			String errorMessage = String.format(
+					"the parameter n[%d] is greater than the remaining bytes[%d]",
+					n, remaingBytes);
+			// log.info(errorMessage);
+			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		if (skipBytes > outputStreamBuffer.remaining()) {
-			String errorMessage = String.format(
-					"parameter skipBytes greater than remainging bytes[%d] of outputStreamBuffer",
-					skipBytes, outputStreamBuffer.remaining());
-			log.info(errorMessage);
-			throw new BufferOverflowException();
-		}
-
-		int newLimit = outputStreamBuffer.position() + skipBytes;
+		int newLimit = outputStreamBuffer.position() + n;
 		outputStreamBuffer.position(newLimit);
 	}
 
@@ -654,7 +665,9 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 		return outputStreamBuffer.position();
 	}
 	
-	/*public void close() {
-		outputStreamBuffer.flip();
-	}*/
+	/**
+	 * Closing a FixedSizeOutputStream has no effect
+	 */
+	public void close() {
+	}
 }

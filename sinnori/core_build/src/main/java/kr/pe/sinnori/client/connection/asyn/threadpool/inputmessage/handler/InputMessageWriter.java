@@ -29,7 +29,7 @@ import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.client.io.LetterToServer;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.WrapBuffer;
-import kr.pe.sinnori.common.project.DataPacketBufferQueueManagerIF;
+import kr.pe.sinnori.common.project.DataPacketBufferPoolManagerIF;
 
 /**
  * 클라이언트 입력 메시지 소켓 쓰기 담당 쓰레드(=핸들러)
@@ -48,7 +48,7 @@ public class InputMessageWriter extends Thread {
 	private LinkedBlockingQueue<LetterToServer> inputMessageQueue = null;
 	
 	// private MessageProtocolIF messageProtocol = null;
-	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManager = null;
+	private DataPacketBufferPoolManagerIF dataPacketBufferQueueManager = null;
 	
 	
 
@@ -64,7 +64,7 @@ public class InputMessageWriter extends Thread {
 	 */
 	public InputMessageWriter(String projectName, int index,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
-			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
+			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
 		this.projectName = projectName;
 		this.index = index;		
 		this.inputMessageQueue = inputMessageQueue;

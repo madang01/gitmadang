@@ -62,7 +62,7 @@ public final class DBCPManager {
 		
 		AllDBCPPartConfiguration allDBCPPart =  sinnoriRunningProjectConfiguration.getAllDBCPPartConfiguration();
 		
-		List<String> dbcpNameList = allDBCPPart.getDBCPNameList();		
+		List<String> dbcpNameList = allDBCPPart.getDBCPNameList();
 
 		for (String dbcpName : dbcpNameList) {			
 			DBCPParConfiguration dbcpPart = allDBCPPart.getDBCPPartConfiguration(dbcpName);

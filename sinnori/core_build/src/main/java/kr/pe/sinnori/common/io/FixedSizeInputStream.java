@@ -109,7 +109,7 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 	public byte getByte() throws SinnoriBufferUnderflowException {
 		long remainingBytes = remaining();
 		if (0 == remainingBytes) {
-			throw new SinnoriBufferUnderflowException(String.format("the remaining bytes[%d] is less than one byte", remainingBytes));
+			throw new SinnoriBufferUnderflowException("the remaining bytes is zero");
 		}
 		
 		return streamBuffer.get();
@@ -117,7 +117,7 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 
 	@Override
 	public short getUnsignedByte() throws SinnoriBufferUnderflowException {
-		short retValue = (short) (0xFF & getByte());
+		short retValue = (short) (getByte() & 0xff);
 		return retValue;
 	}
 
@@ -270,11 +270,11 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 	}
 
 	@Override
-	public String getString(final int len, final CharsetDecoder wantedCharsetDecoder)
+	public String getFixedLengthString(final int length, final CharsetDecoder wantedCharsetDecoder)
 			throws SinnoriBufferUnderflowException, IllegalArgumentException, SinnoriCharsetCodingException {
-		if (len < 0) {
+		if (length < 0) {
 			throw new IllegalArgumentException(String.format(
-					"parameter len[%d] less than zero", len));
+					"parameter length[%d] less than zero", length));
 		}
 
 		/*if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
@@ -285,14 +285,14 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 		}*/
 
 		long remainingBytes = remaining();
-		if (len > remainingBytes) {
-			throw new SinnoriBufferUnderflowException(String.format("the parameter len[%d] is greater than the remaining bytes[%d]", len, remainingBytes));
+		if (length > remainingBytes) {
+			throw new SinnoriBufferUnderflowException(String.format("the parameter length[%d] is greater than the remaining bytes[%d]", length, remainingBytes));
 		}
 		
 		ByteBuffer dstBuffer = null;
 		byte dstBytes[] = null;
 		try {
-			dstBuffer = ByteBuffer.allocate(len);
+			dstBuffer = ByteBuffer.allocate(length);
 		} catch (OutOfMemoryError e) {
 			log.warn("OutOfMemoryError", e);
 			throw e;
@@ -319,9 +319,9 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 	}
 
 	@Override
-	public String getString(final int len) throws SinnoriBufferUnderflowException,
+	public String getFixedLengthString(final int length) throws SinnoriBufferUnderflowException,
 			IllegalArgumentException, SinnoriCharsetCodingException {
-		return getString(len, streamCharsetDecoder);
+		return getFixedLengthString(length, streamCharsetDecoder);
 	}
 
 	@Override
@@ -339,7 +339,7 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 
 		if (0 == remainingBytes)
 			return "";
-		return getString((int) remainingBytes, streamCharsetDecoder);
+		return getFixedLengthString((int) remainingBytes, streamCharsetDecoder);
 	}
 
 	@Override
@@ -365,7 +365,7 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 		if (0 == len)
 			return "";
 
-		return getString(len, streamCharsetDecoder);
+		return getFixedLengthString(len, streamCharsetDecoder);
 	}
 
 	@Override
@@ -374,7 +374,7 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 		int numOfBytes = getUnsignedShort();
 		if (0 == numOfBytes)
 			return "";
-		return getString(numOfBytes, streamCharsetDecoder);
+		return getFixedLengthString(numOfBytes, streamCharsetDecoder);
 	}
 
 	@Override
@@ -383,24 +383,37 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 		int numOfBytes = getUnsignedByte();
 		if (0 == numOfBytes)
 			return "";
-		return getString(numOfBytes, streamCharsetDecoder);
+		return getFixedLengthString(numOfBytes, streamCharsetDecoder);
 	}
 
 	@Override
-	public void getBytes(byte[] dstBytes, int offset, int len)
+	public void getBytes(byte[] dst, int offset, int length)
 			throws SinnoriBufferUnderflowException, IllegalArgumentException {
-		if (null == dstBytes) {
-			throw new IllegalArgumentException("ths parameter dstBytes is null");
+		if (null == dst) {
+			throw new IllegalArgumentException("ths parameter dst is null");
 		}
 
 		if (offset < 0) {
 			throw new IllegalArgumentException(String.format(
 					"the parameter offset[%d] is less than zero", offset));
 		}
-
-		if (len <= 0) {
+		
+		if (offset >= dst.length) {
 			throw new IllegalArgumentException(String.format(
-					"the parameter len[%d] is less than or equal to zero", len));
+					"the parameter offset[%d] is greater than or equal to the dest buffer's length[%d]", offset, dst.length));
+		}
+
+		if (length < 0) {
+			throw new IllegalArgumentException(String.format(
+					"the parameter length[%d] is less than or equal to zero", length));
+		}
+		
+		/** check IndexOutOfBoundsException */
+		long sumOfOffsetAndLength = ((long)offset + length);
+		if (sumOfOffsetAndLength > dst.length) {
+			throw new IllegalArgumentException(String.format(
+					"the sum[%d] of the parameter offset[%d] and the parameter length[%d] is greater than the length[%d] of the parameter dst that is a byte array", 
+					sumOfOffsetAndLength, offset, length, dst.length));
 		}
 
 		/*if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
@@ -408,43 +421,34 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 					"파라미터 문자열 길이[%d]는  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.",
 					len, CommonStaticFinal.MAX_UNSIGNED_SHORT));
 		}*/		
-
-		if (offset >= dstBytes.length) {
-			throw new IllegalArgumentException(String.format(
-					"the parameter offset[%d] is greater than or equal to the dest buffer's length[%d]", offset, dstBytes.length));
-		}
-
-		if (len > dstBytes.length) {
-			throw new IllegalArgumentException(String.format(
-					"the parameter len[%d] is greater than the dest buffer's length[%d]", len, dstBytes.length));
-		}
+		
 		
 		long remainingBytes = remaining();
-		if (len > remainingBytes) {
-			throw new SinnoriBufferUnderflowException(String.format("parameter len[%d] greater than the remaining bytes[%d]", len, remainingBytes));
+		if (length > remainingBytes) {
+			throw new SinnoriBufferUnderflowException(String.format("the parameter length[%d] is greater than the remaining bytes[%d]", length, remainingBytes));
 		}
 
 		// int position = streamBuffer.position();
 
-		streamBuffer.get(dstBytes, offset, len);
+		streamBuffer.get(dst, offset, length);
 	}
 
 	@Override
-	public void getBytes(byte[] targetBuffer) throws SinnoriBufferUnderflowException,
+	public void getBytes(byte[] dst) throws SinnoriBufferUnderflowException,
 			IllegalArgumentException {
-		if (null == targetBuffer) {
+		if (null == dst) {
 			throw new IllegalArgumentException(
-					"the paramerter targetBuffer is null");
+					"the paramerter dst is null");
 		}
-		getBytes(targetBuffer, 0, targetBuffer.length);
+		getBytes(dst, 0, dst.length);
 	}
 
 	@Override
-	public byte[] getBytes(int len) throws SinnoriBufferUnderflowException,
+	public byte[] getBytes(int length) throws SinnoriBufferUnderflowException,
 			IllegalArgumentException, OutOfMemoryError {
-		if (len < 0) {
+		if (length < 0) {
 			throw new IllegalArgumentException(String.format(
-					"the parameter len[%d] is less than zero", len));
+					"the parameter length[%d] is less than zero", length));
 		}
 
 		/*if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
@@ -454,13 +458,13 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 		}*/
 
 		long remainingBytes = remaining();
-		if (len > remainingBytes) {
-			throw new SinnoriBufferUnderflowException(String.format("the parameter len[%d] is greater than the remaining bytes[%d]", len, remainingBytes));
+		if (length > remainingBytes) {
+			throw new SinnoriBufferUnderflowException(String.format("the parameter length[%d] is greater than the remaining bytes[%d]", length, remainingBytes));
 		}
 
 		byte buffer[] = null;
 		try {
-			buffer = new byte[len];
+			buffer = new byte[length];
 		} catch (OutOfMemoryError e) {
 			log.warn("OutOfMemoryError", e);
 			throw e;
@@ -473,10 +477,10 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 	}
 
 	@Override
-	public void skip(int len) throws SinnoriBufferUnderflowException {
-		if (len <= 0) {
+	public void skip(int n) throws SinnoriBufferUnderflowException {
+		if (n < 0) {
 			throw new IllegalArgumentException(String.format(
-					"the parameter len[%d] is less than zero", len));
+					"the parameter n[%d] is less than zero", n));
 		}
 
 		/*if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
@@ -486,11 +490,11 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 		}*/
 
 		long remainingBytes = remaining();
-		if (len > remainingBytes) {
-			throw new SinnoriBufferUnderflowException(String.format("the parameter len[%d] is greater than the remaining bytes[%d]", len, remainingBytes));
+		if (n > remainingBytes) {
+			throw new SinnoriBufferUnderflowException(String.format("the parameter n[%d] is greater than the remaining bytes[%d]", n, remainingBytes));
 		}
 
-		streamBuffer.position(streamBuffer.position() + len);
+		streamBuffer.position(streamBuffer.position() + n);
 	}
 	
 	
@@ -513,8 +517,10 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 		return -1;
 	}
 	
+	/**
+	 * Closing a FixedSizeOutputStream has no effect
+	 */
 	@Override
 	public void close() {
-		streamBuffer.position(streamBuffer.limit());
 	}
 }

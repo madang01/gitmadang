@@ -28,7 +28,7 @@ import kr.pe.sinnori.common.io.WrapBuffer;
  * @author Won Jonghoon
  *
  */
-public interface DataPacketBufferQueueManagerIF {
+public interface DataPacketBufferPoolManagerIF {
 	
 	/**
 	 * 프로젝트 자원인 데이터 패킷 버퍼 큐에서 데이터 패킷 버퍼를 얻어온다.

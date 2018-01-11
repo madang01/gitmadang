@@ -25,7 +25,7 @@ import java.util.ArrayList;
 
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.project.DataPacketBufferQueueManagerIF;
+import kr.pe.sinnori.common.project.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 
 /**
@@ -55,7 +55,7 @@ public class SocketInputStream {
 	/** 메시지를 추출시 생기는 부가 정보를  */
 	private Object userDefObject = null;
 	
-	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManager = null;
+	private DataPacketBufferPoolManagerIF dataPacketBufferQueueManager = null;
 	//private ByteOrder byteOrderOfProject = null;
 	
 	// private SocketChannel clientSC = null;
@@ -72,7 +72,7 @@ public class SocketInputStream {
 	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷 버퍼 확보 실패시 던지는 예외
 	 */
-	public SocketInputStream(DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
+	public SocketInputStream(DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
 		// FIXME!
 		// log.info("call");
 		// this.clientSC = clientSC;
@@ -103,7 +103,7 @@ public class SocketInputStream {
 	 * @throws NoMoreDataPacketBufferException
 	 */
 	public SocketInputStream(ArrayList<WrapBuffer> messageReadWrapBufferList,
-			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
+			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 		// this.byteOrderOfProject = dataPacketBufferQueueManager.getByteOrder();
 		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferQueueManager.getDataPacketBufferMaxCntPerMessage();

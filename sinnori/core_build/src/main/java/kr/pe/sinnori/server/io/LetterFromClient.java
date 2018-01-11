@@ -44,7 +44,7 @@ public class LetterFromClient {
 	 * 
 	 * @return 메세지
 	 */
-	public ReceivedLetter getWrapMiddleReadObj() {
+	public ReceivedLetter getReceivedLetter() {
 		return receivedLetter;
 	}
 	

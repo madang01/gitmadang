@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.common.io.WrapBuffer;
-import kr.pe.sinnori.common.project.DataPacketBufferQueueManagerIF;
+import kr.pe.sinnori.common.project.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.server.io.LetterToClient;
 
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ public class OutputMessageWriter extends Thread {
 	
 	private String projectName;
 	private int index;	
-	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManager;
+	private DataPacketBufferPoolManagerIF dataPacketBufferQueueManager;
 	private LinkedBlockingQueue<LetterToClient> outputMessageQueue;	
 
 	/**
@@ -56,7 +56,7 @@ public class OutputMessageWriter extends Thread {
 	 */
 	public OutputMessageWriter(String projectName, int index, 
 			LinkedBlockingQueue<LetterToClient> outputMessageQueue,
-			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) {
+			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) {
 		this.index = index;
 		this.projectName = projectName;
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;

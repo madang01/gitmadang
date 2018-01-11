@@ -97,7 +97,7 @@ public interface SinnoriInputStreamIF {
 	/**
 	 * 이진 스트림에서 지정된 길이의 데이터를 지정된 문자셋으로 읽어서 얻은 문자열을 반환한다.
 	 * 
-	 * @param len
+	 * @param length
 	 *            지정된 길이, 단위 byte
 	 * @param wantedCharsetDecoder
 	 *            지정된 문자셋 디코더
@@ -108,13 +108,13 @@ public interface SinnoriInputStreamIF {
 	 *             잘못된 파라미터 입력시 발생
 	 * @throws SinnoriCharsetCodingException 문자셋 디코딩시 에러 발생시 던지는 예외
 	 */
-	public String getString(final int len, final CharsetDecoder wantedCharsetDecoder)
+	public String getFixedLengthString(final int length, final CharsetDecoder wantedCharsetDecoder)
 			throws SinnoriBufferUnderflowException, IllegalArgumentException, SinnoriCharsetCodingException;
 
 	/**
 	 * 이진 스트림에서 지정된 길이의 데이터를 스트림 고유 문자셋으로 읽어서 얻은 문자열을 반환한다.
 	 * 
-	 * @param len
+	 * @param length
 	 *            지정된 길이, 단위 byte
 	 * @return 이진 스트림에서 지정된 길이의 데이터를 스트림 고유 문자셋으로 읽어서 얻은 문자열
 	 * @throws SinnoriBufferUnderflowException
@@ -123,7 +123,7 @@ public interface SinnoriInputStreamIF {
 	 *             잘못된 파라미터 입력시 발생
 	 * @throws SinnoriCharsetCodingException 문자셋 디코딩시 에러 발생시 던지는 예외
 	 */
-	public String getString(final int len) throws SinnoriBufferUnderflowException,
+	public String getFixedLengthString(final int length) throws SinnoriBufferUnderflowException,
 			IllegalArgumentException, SinnoriCharsetCodingException;
 
 	/**
@@ -198,14 +198,14 @@ public interface SinnoriInputStreamIF {
 	 *            목적지 바이트 배열
 	 * @param offset
 	 *            목저지 바이트 배열내에 데이터가 저장될 시작 위치
-	 * @param len
+	 * @param length
 	 *            길이
 	 * @throws SinnoriBufferUnderflowException
 	 *             이진 스트림은 버퍼로 구현되는데 버퍼 크기를 넘어서는 읽기 시도시 발생
 	 * @throws IllegalArgumentException
 	 *             잘못된 파라미터 입력시 발생한다.
 	 */
-	public void getBytes(byte[] dstBuffer, int offset, int len)
+	public void getBytes(byte[] dst, int offset, int length)
 			throws SinnoriBufferUnderflowException, IllegalArgumentException;
 
 	/**
@@ -218,13 +218,13 @@ public interface SinnoriInputStreamIF {
 	 * @throws IllegalArgumentException
 	 *             잘못된 파라미터 입력시 발생한다.
 	 */
-	public void getBytes(byte[] dstBuffer) throws SinnoriBufferUnderflowException,
+	public void getBytes(byte[] dst) throws SinnoriBufferUnderflowException,
 			IllegalArgumentException;
 
 	/**
 	 * 이진 스트림에서 지정된 길이 만큼 읽어서 바이트 배열에 넣어 반환한다.
 	 * 
-	 * @param len
+	 * @param length
 	 *            지정된 길이
 	 * @return 스트림에서 읽은 지정된 길이의 데이터를 가지는 바이트 배열
 	 * @throws SinnoriBufferUnderflowException
@@ -232,20 +232,20 @@ public interface SinnoriInputStreamIF {
 	 * @throws IllegalArgumentException
 	 *             잘못된 파라미터 입력시 발생한다.
 	 */
-	public byte[] getBytes(int len) throws SinnoriBufferUnderflowException,
+	public byte[] getBytes(int length) throws SinnoriBufferUnderflowException,
 			IllegalArgumentException;
 
 	/**
 	 * 지정된 크기 만큼 읽을 위치를 이동시킨다.
 	 * 
-	 * @param len
+	 * @param n
 	 *            건너 뛰기를 원하는 길이
 	 * @throws SinnoriBufferUnderflowException
 	 *             이진 스트림은 버퍼로 구현되는데 버퍼 크기를 넘어서는 읽기 시도시 발생
 	 * @throws IllegalArgumentException
 	 *             잘못된 파라미터 입력시 발생한다.
 	 */
-	public void skip(int len) throws SinnoriBufferUnderflowException,
+	public void skip(int n) throws SinnoriBufferUnderflowException,
 			IllegalArgumentException;
 
 	/**

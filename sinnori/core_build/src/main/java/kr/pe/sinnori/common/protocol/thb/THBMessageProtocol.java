@@ -35,7 +35,7 @@ import kr.pe.sinnori.common.io.SocketInputStream;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
-import kr.pe.sinnori.common.project.DataPacketBufferQueueManagerIF;
+import kr.pe.sinnori.common.project.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
@@ -64,7 +64,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 	/** 메시지 헤더 크기, 단위 byte */
 	private int messageHeaderSize;
 	
-	private DataPacketBufferQueueManagerIF dataPacketBufferQueueManager = null;
+	private DataPacketBufferPoolManagerIF dataPacketBufferQueueManager = null;
 	private THBSingleItemDecoder thbSingleItemDecoder = null;
 	private THBSingleItemEncoder thbSingleItemEncoder = null;
 	
@@ -75,7 +75,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 	
 	public THBMessageProtocol(
 			int messageIDFixedSize, 
-			DataPacketBufferQueueManagerIF dataPacketBufferQueueManager) {
+			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) {
 		
 		this.messageIDFixedSize = messageIDFixedSize;
 		this.messageHeaderSize = THBMessageHeader.getMessageHeaderSize(messageIDFixedSize);
