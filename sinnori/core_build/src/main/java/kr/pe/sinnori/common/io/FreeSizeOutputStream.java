@@ -209,7 +209,7 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 		} while (shortBuffer.hasRemaining());
 	}
 
-	private void throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(int numberOfBytesRequired)
+	private void throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(long numberOfBytesRequired)
 			throws SinnoriBufferOverflowException {
 		long numberOfBytesRemaining = remaining();
 		if (numberOfBytesRemaining < numberOfBytesRequired) {
