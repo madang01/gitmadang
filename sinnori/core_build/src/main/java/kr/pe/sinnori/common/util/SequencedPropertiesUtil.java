@@ -115,6 +115,7 @@ public abstract class SequencedPropertiesUtil {
 			fos = new FileOutputStream(sourcePropertiesFile);
 			osw = new OutputStreamWriter(fos, sourcePropertiesFileCharset);
 			sourceProperties.store(osw, sourcePropertiesTitle);
+			
 		} finally {
 			if (osw != null) {
 				try {

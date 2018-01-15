@@ -13,7 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
+import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
 
 public class MessageInfoSAXParserTest {
 	private Logger log = LoggerFactory
@@ -24,7 +26,7 @@ public class MessageInfoSAXParserTest {
 
 	@Before
 	public void setup() {
-		SinnoriLogbackManger.getInstance().setup();
+		
 
 		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
 		File sinnoriInstalledPath = new File(sinnoriInstalledPathString);
@@ -39,6 +41,18 @@ public class MessageInfoSAXParserTest {
 		}
 
 		this.sinnoriInstalledPathString = sinnoriInstalledPathString;
+		
+		//String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
+		String mainProjectName = "sample_base";
+		LOG_TYPE logType = LOG_TYPE.SERVER;
+		
+		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH,
+				sinnoriInstalledPathString);
+		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME,
+				mainProjectName);		
+		
+
+		SinnoriLogbackManger.getInstance().setup(sinnoriInstalledPathString, mainProjectName, logType);
 
 		/**
 		 * Warning 로케일 설정 생략하지 말것. xml 파싱시 xsl에서 정의한 규칙에 어긋난 경우 로케일 설정에 따라 메시지를

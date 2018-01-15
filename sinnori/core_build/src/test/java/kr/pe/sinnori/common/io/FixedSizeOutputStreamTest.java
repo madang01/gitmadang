@@ -15,22 +15,37 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.etc.CharsetUtil;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
+import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
 import kr.pe.sinnori.common.util.HexUtil;
 
 public class FixedSizeOutputStreamTest {
-	Logger log = LoggerFactory.getLogger(FixedSizeOutputStreamTest.class);
+	Logger log = null;
 
 	@Before
 	public void setup() {
-		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME,
-				"sample_base");
+		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
+		String mainProjectName = "sample_base";
+		LOG_TYPE logType = LOG_TYPE.SERVER;
+		String logbackConfigFilePathString = BuildSystemPathSupporter.getLogbackConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
+		String sinnoriLogPathString = BuildSystemPathSupporter.getLogPathString(sinnoriInstalledPathString, mainProjectName, logType);
+		
 		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH,
-				"D:\\gitsinnori\\sinnori");
+				sinnoriInstalledPathString);
+		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME,
+				mainProjectName);		
+		
+		
+		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_LOG_PATH,
+				sinnoriLogPathString);
+		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_LOGBACK_CONFIG_FILE,
+				logbackConfigFilePathString);
 
-		SinnoriLogbackManger.getInstance().setup();
+		// SinnoriLogbackManger.getInstance().setup(sinnoriInstalledPathString, mainProjectName, logType);
+		
+		log = LoggerFactory.getLogger(FixedSizeOutputStreamTest.class);
 
 	}
 
@@ -149,13 +164,11 @@ public class FixedSizeOutputStreamTest {
 		short shortTypeExpectedValueList[] = { 0, CommonStaticFinalVars.UNSIGNED_BYTE_MAX,
 				CommonStaticFinalVars.UNSIGNED_BYTE_MAX / 2 };
 
-		for (int j = 0; j < streamByteOrderList.length; j++) {
-			ByteOrder streamByteOrder = streamByteOrderList[j];
+		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			streambuffer.order(streamByteOrder);
 			shortBuffer.order(streamByteOrder);
 			
-			for (int i = 0; i < shortTypeExpectedValueList.length; i++) {
-				short expectedValue = shortTypeExpectedValueList[i];
+			for (short expectedValue : shortTypeExpectedValueList) {
 				streambuffer.clear();
 				Arrays.fill(streambuffer.array(), (byte) 0);
 
@@ -166,9 +179,9 @@ public class FixedSizeOutputStreamTest {
 					fsos.flipOutputStreamBuffer();
 
 					FixedSizeInputStream fsis = new FixedSizeInputStream(streambuffer, streamCharsetDecoder);
-					short actucalValue = fsis.getUnsignedByte();
+					short actualValue = fsis.getUnsignedByte();
 
-					assertEquals(expectedValue, actucalValue);
+					assertEquals(expectedValue, actualValue);
 
 					if (streambuffer.hasRemaining()) {
 						fail("buffer has a remaing data");
@@ -185,9 +198,9 @@ public class FixedSizeOutputStreamTest {
 					}
 
 					shortBuffer.clear();
-					actucalValue = shortBuffer.getShort();
+					actualValue = shortBuffer.getShort();
 					
-					assertEquals(expectedValue, actucalValue);
+					assertEquals(expectedValue, actualValue);
 
 				} catch (IllegalArgumentException e) {
 					fail(e.getMessage());
@@ -363,14 +376,12 @@ public class FixedSizeOutputStreamTest {
 		ByteOrder[] streamByteOrderList = { ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN };
 		ByteBuffer integerBuffer = ByteBuffer.allocate(4);
 
-		for (int j = 0; j < streamByteOrderList.length; j++) {
-			ByteOrder streamByteOrder = streamByteOrderList[j];
+		for (ByteOrder streamByteOrder : streamByteOrderList) {
 
 			streambuffer.order(streamByteOrder);
 			integerBuffer.order(streamByteOrder);
 
-			for (int i = 0; i < integerTypeExpectedValueList.length; i++) {
-				int expectedValue = integerTypeExpectedValueList[i];
+			for (int expectedValue : integerTypeExpectedValueList) {
 				streambuffer.clear();
 				Arrays.fill(streambuffer.array(), (byte) 0);
 
@@ -381,9 +392,9 @@ public class FixedSizeOutputStreamTest {
 					fsos.flipOutputStreamBuffer();
 
 					FixedSizeInputStream fsis = new FixedSizeInputStream(streambuffer, streamCharsetDecoder);
-					int actucalValue = fsis.getUnsignedShort();
+					int actualValue = fsis.getUnsignedShort();
 
-					assertEquals(expectedValue, actucalValue);
+					assertEquals(expectedValue, actualValue);
 
 					if (streambuffer.hasRemaining()) {
 						fail("buffer has a remaing data");
@@ -402,8 +413,8 @@ public class FixedSizeOutputStreamTest {
 					}
 
 					integerBuffer.clear();
-					actucalValue = integerBuffer.getInt();
-					assertEquals(expectedValue, actucalValue);
+					actualValue = integerBuffer.getInt();
+					assertEquals(expectedValue, actualValue);
 
 				} catch (IllegalArgumentException e) {
 					fail(e.getMessage());
@@ -473,14 +484,12 @@ public class FixedSizeOutputStreamTest {
 		ByteOrder[] streamByteOrderList = { ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN };
 		ByteBuffer longBuffer = ByteBuffer.allocate(8);
 
-		for (int j = 0; j < streamByteOrderList.length; j++) {
-			ByteOrder streamByteOrder = streamByteOrderList[j];
+		for (ByteOrder streamByteOrder : streamByteOrderList) {
 
 			streambuffer.order(streamByteOrder);
 			longBuffer.order(streamByteOrder);
 
-			for (int i = 0; i < longTypeExpectedValueList.length; i++) {
-				long expectedValue = longTypeExpectedValueList[i];
+			for (long expectedValue : longTypeExpectedValueList) {
 				streambuffer.clear();
 				Arrays.fill(streambuffer.array(), (byte) 0);
 
@@ -491,9 +500,9 @@ public class FixedSizeOutputStreamTest {
 					fsos.flipOutputStreamBuffer();
 
 					FixedSizeInputStream fsis = new FixedSizeInputStream(streambuffer, streamCharsetDecoder);
-					long actucalValue = fsis.getUnsignedInt();
+					long actualValue = fsis.getUnsignedInt();
 
-					assertEquals(expectedValue, actucalValue);
+					assertEquals(expectedValue, actualValue);
 
 					if (streambuffer.hasRemaining()) {
 						fail("buffer has a remaing data");
@@ -516,8 +525,8 @@ public class FixedSizeOutputStreamTest {
 					}
 
 					longBuffer.clear();
-					actucalValue = longBuffer.getLong();
-					assertEquals(expectedValue, actucalValue);
+					actualValue = longBuffer.getLong();
+					assertEquals(expectedValue, actualValue);
 				} catch (IllegalArgumentException e) {
 					fail(e.getMessage());
 				} catch (Exception e) {
@@ -977,10 +986,10 @@ public class FixedSizeOutputStreamTest {
 			streambuffer.clear();
 
 			FixedSizeInputStream fsis = new FixedSizeInputStream(streambuffer, streamCharsetDecoder);
-			String actucalValue = fsis.getFixedLengthString(length, wantedCharsetDecoder);
+			String actualValue = fsis.getFixedLengthString(length, wantedCharsetDecoder);
 
 			/** 원본 문자열 "똠방각하" 에서 스트림 문자셋  ecu-kr 는 '똠' 자를 표현할 수 없지만 UTF-8 문자셋은 표현할 수 있다. */
-			assertEquals(expectedValue, actucalValue);
+			assertEquals(expectedValue, actualValue);
 			
 			if (length != streambuffer.position() ) {
 				fail(String.format("2.the parameter length[%d] is different from the the length[%d] read in stream buffer", length, streambuffer.position()));
@@ -1026,9 +1035,9 @@ public class FixedSizeOutputStreamTest {
 			fsos.skip(3);
 
 			FixedSizeInputStream fsis = new FixedSizeInputStream(streambuffer, streamCharsetDecoder);
-			String actucalValue = fsis.getFixedLengthString(length, wantedCharsetDecoder);
+			String actualValue = fsis.getFixedLengthString(length, wantedCharsetDecoder);
 
-			assertEquals(expectedValue, actucalValue.trim());
+			assertEquals(expectedValue, actualValue.trim());
 			
 			if (length != (streambuffer.position()-3) ) {
 				fail(String.format("2.the parameter length[%d] is different from the the length[%d] read in stream buffer", length, streambuffer.position()-3));

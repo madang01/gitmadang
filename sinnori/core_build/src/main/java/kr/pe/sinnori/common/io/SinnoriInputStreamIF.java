@@ -265,14 +265,14 @@ public interface SinnoriInputStreamIF {
 	 * 
 	 * @return 남아 있는 용량
 	 */
-	public long remaining();
+	public long available();
 
 	/**
 	 * 스트림 안에서의 위치를 반환한다.
 	 * 
 	 * @return 스트림 안에서의 위치
 	 */
-	public long position();
+	// public long position();
 	
 	
 	

@@ -25,6 +25,7 @@ import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.etc.ObjectCacheManager;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.dhb.DHBMessageProtocol;
@@ -54,8 +55,9 @@ public abstract class AbstractProject implements DataPacketBufferPoolManagerIF {
 	protected ByteOrder byteOrderOfProject = null;
 	protected Charset charsetOfProject = null;
 	protected String classLoaderClassPackagePrefixName = null;
-	private int dataPacketBufferMaxCntPerMessage;
+	protected int dataPacketBufferMaxCntPerMessage;
 	private int dataPacketBufferSize;
+	private int dataPacketBufferPoolSize;
 	
 
 	protected ObjectCacheManager objectCacheManager = ObjectCacheManager
@@ -86,24 +88,24 @@ public abstract class AbstractProject implements DataPacketBufferPoolManagerIF {
 		dataPacketBufferMaxCntPerMessage = projectPartConfiguration.getDataPacketBufferMaxCntPerMessage();
 		
 		int messageIDFixedSize = projectPartConfiguration.getMessageIDFixedSize();		
-		int dataPacketBufferCnt = projectPartConfiguration.getServerDataPacketBufferCnt();
+		dataPacketBufferPoolSize = projectPartConfiguration.getDataPacketBufferPoolSize();
 		CommonType.MESSAGE_PROTOCOL_GUBUN messageProtocolGubun = projectPartConfiguration.getMessageProtocol();
 		
 
 		switch (messageProtocolGubun) {
 			case DHB: {
 				messageProtocol = new DHBMessageProtocol(
-						messageIDFixedSize, this);
+						messageIDFixedSize, dataPacketBufferMaxCntPerMessage, this);
 	
 				break;
 			}
 			case DJSON: {
-				messageProtocol = new DJSONMessageProtocol(this);
+				messageProtocol = new DJSONMessageProtocol(dataPacketBufferMaxCntPerMessage, this);
 				break;
 			}
 			case THB: {
 				messageProtocol = new THBMessageProtocol(
-						messageIDFixedSize, this);
+						messageIDFixedSize, dataPacketBufferMaxCntPerMessage, this);
 				break;
 			}
 			default: {
@@ -114,10 +116,10 @@ public abstract class AbstractProject implements DataPacketBufferPoolManagerIF {
 			}
 		}
 		
-		dataPacketBufferQueue = new LinkedBlockingQueue<WrapBuffer>(dataPacketBufferCnt);
+		dataPacketBufferQueue = new LinkedBlockingQueue<WrapBuffer>(dataPacketBufferPoolSize);
 		try {
-			for (int i = 0; i < dataPacketBufferCnt; i++) {
-				WrapBuffer buffer = new WrapBuffer(dataPacketBufferSize, byteOrderOfProject);
+			for (int i = 0; i < dataPacketBufferPoolSize; i++) {
+				WrapBuffer buffer = new WrapBuffer(false, dataPacketBufferSize, byteOrderOfProject);
 				dataPacketBufferQueue.add(buffer);				
 			}
 		} catch (OutOfMemoryError e) {
@@ -167,17 +169,13 @@ public abstract class AbstractProject implements DataPacketBufferPoolManagerIF {
 		dataPacketBufferQueue.add(buffer);
 	}
 
-	@Override
-	public final int getDataPacketBufferMaxCntPerMessage() {
-		return dataPacketBufferMaxCntPerMessage;
-	}
 
 	@Override
 	public int getDataPacketBufferSize() {
 		return dataPacketBufferSize;
 	}
 
-	@Override
+	
 	public String getQueueState() {
 		StringBuilder strBuilder = new StringBuilder();
 		strBuilder.append("DataPacketBufferQueue size=[");
@@ -204,6 +202,9 @@ public abstract class AbstractProject implements DataPacketBufferPoolManagerIF {
 		return portOfProject;
 	}
 	
-	
+	@Override
+	public int getDataPacketBufferPoolSize() {
+		return dataPacketBufferPoolSize;
+	}
 
 }

@@ -26,6 +26,7 @@ import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDDefiner;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
+import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
 import kr.pe.sinnori.common.exception.BuildSystemException;
 import kr.pe.sinnori.common.exception.MybatisException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
@@ -52,22 +53,16 @@ public class MybatisSqlSessionFactoryMangerTest {
 				CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH,
 				sinnoriInstalledPathString);
 		
-		/*System.setProperty(
-				CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_LOGBACK_CONFIG_FILE,
-				BuildSystemPathSupporter.getLogbackConfigFilePathString(sinnoriInstalledPathString, mainProjectName));
-		System.setProperty(
-				CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_LOG_PATH,
-				BuildSystemPathSupporter.getLogPathString(sinnoriInstalledPathString, mainProjectName, LOG_TYPE.SERVER));*/
-		
 		/** Logback 로그 경로 지정에 비 의존하기 위해서 셋업 */
-		SinnoriLogbackManger.getInstance().setup();
+		LOG_TYPE logType = LOG_TYPE.SERVER;
+		SinnoriLogbackManger.getInstance().setup(sinnoriInstalledPathString, mainProjectName, logType);
 		
 		log = LoggerFactory.getLogger(MybatisConfigSAXParserTest.class);
 		
 		boolean isServer = true;
 		boolean isAppClient = true;
 		boolean isWebClient = true;
-		String servletSystemLibraryPathString = "D:\\apache-tomcat-8.5.11\\lib";
+		String servletSystemLibraryPathString = "D:\\apache-tomcat-8.5.15\\lib";
 		
 		try {
 			ProjectBuilder projectBuilder = new ProjectBuilder(sinnoriInstalledPathString, mainProjectName);			

@@ -23,7 +23,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.project.DataPacketBufferPoolManagerIF;
+import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
 
@@ -57,11 +57,12 @@ public abstract class AbstractSyncConnection extends AbstractConnection {
 			boolean whetherToAutoConnect,
 			LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue,
 			MessageProtocolIF messageProtocol,
+			int dataPacketBufferMaxCntPerMessage,
 			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager,
 			ClientObjectCacheManagerIF clientObjectCacheManager) throws InterruptedException, NoMoreDataPacketBufferException {
 		super(projectName, index, hostOfProject, portOfProject, charsetOfProject, 
 				socketTimeOut, whetherToAutoConnect,
-				asynOutputMessageQueue, messageProtocol, dataPacketBufferQueueManager, clientObjectCacheManager);
+				asynOutputMessageQueue, messageProtocol, dataPacketBufferMaxCntPerMessage, dataPacketBufferQueueManager, clientObjectCacheManager);
 		// log.info("whether_to_auto_connect=[%s]", whether_to_auto_connect);
 	}	
 }

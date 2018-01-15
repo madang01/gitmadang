@@ -5,6 +5,8 @@
  */
 package kr.pe.sinnori.common.util;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -51,5 +53,25 @@ public class SequencedProperties extends Properties {
         }
 
         super.putAll(values);
+    }
+    
+    @Override
+    public void store(Writer writer, String title) throws IOException {
+    	writer.append("# ");
+    	writer.append(title);
+    	writer.append(System.getProperty("line.separator"));
+    	
+    	writer.append("# ");
+    	writer.append(new java.util.Date().toString());
+    	writer.append(System.getProperty("line.separator"));
+    	
+    	for (Object key : keyList) {
+    		writer.append((String)key);
+    		writer.append("=");
+    		writer.append(getProperty((String)key));
+    		writer.append(System.getProperty("line.separator"));
+    	}
+    	
+    	writer.close();
     }
 }

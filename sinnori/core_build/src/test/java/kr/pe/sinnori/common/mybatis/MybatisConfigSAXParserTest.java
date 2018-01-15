@@ -24,6 +24,7 @@ import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDDefiner;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
+import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
 import kr.pe.sinnori.common.exception.BuildSystemException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
@@ -56,8 +57,16 @@ public class MybatisConfigSAXParserTest {
 				CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_LOG_PATH,
 				BuildSystemPathSupporter.getLogPathString(sinnoriInstalledPathString, mainProjectName, LOG_TYPE.SERVER));*/
 		
-		/** Logback 로그 경로 지정에 비 의존하기 위해서 셋업 */
-		SinnoriLogbackManger.getInstance().setup();
+		/** Logback 로그 경로 지정에 비 의존하기 위해서 셋업 */		
+		LOG_TYPE logType = LOG_TYPE.SERVER;
+		
+		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH,
+				sinnoriInstalledPathString);
+		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME,
+				mainProjectName);		
+		
+
+		SinnoriLogbackManger.getInstance().setup(sinnoriInstalledPathString, mainProjectName, logType);
 		
 		log = LoggerFactory.getLogger(MybatisConfigSAXParserTest.class);
 		

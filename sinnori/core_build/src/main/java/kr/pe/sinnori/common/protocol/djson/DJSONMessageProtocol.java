@@ -29,13 +29,13 @@ import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
 import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
+import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.io.FreeSizeInputStream;
 import kr.pe.sinnori.common.io.FreeSizeOutputStream;
 import kr.pe.sinnori.common.io.SocketInputStream;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
-import kr.pe.sinnori.common.project.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
@@ -69,6 +69,7 @@ public class DJSONMessageProtocol implements MessageProtocolIF {
 	/** 1개 메시당 데이터 패킷 버퍼 최대수 */ 
 	// private int dataPacketBufferMaxCntPerMessage;
 	
+	private int dataPacketBufferMaxCntPerMessage;
 	private DataPacketBufferPoolManagerIF dataPacketBufferQueueManager = null;
 	
 	
@@ -79,10 +80,11 @@ public class DJSONMessageProtocol implements MessageProtocolIF {
 	// private ClientObjectManager clientMessageController = ClientObjectManager.getInstance();
 	// private ServerObjectManager serverMessageController = ServerObjectManager.getInstance();
 	
-	public DJSONMessageProtocol( 
+	public DJSONMessageProtocol(int dataPacketBufferMaxCntPerMessage,  
 			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) {
 		// this.dataPacketBufferSize = dataPacketBufferQueueManager.getDataPacketBufferSize();
 		// this.dataPacketBufferMaxCntPerMessage = dataPacketBufferQueueManager.getDataPacketBufferMaxCntPerMessage();
+		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 		this.jsonSingleItemDecoder = new DJSONSingleItemDecoder();
 		this.jsonSingleItemEncoder = new DJSONSingleItemEncoder();
@@ -126,8 +128,7 @@ public class DJSONMessageProtocol implements MessageProtocolIF {
 		
 		CharsetEncoder clientCharsetEncoder = CharsetUtil.createCharsetEncoder(charsetOfProject);
 		FreeSizeOutputStream bodyOutputStream = 
-				new FreeSizeOutputStream(charsetOfProject, 
-						clientCharsetEncoder, 0, dataPacketBufferQueueManager);
+				new FreeSizeOutputStream(dataPacketBufferMaxCntPerMessage, clientCharsetEncoder, dataPacketBufferQueueManager);
 		
 		byte[] jsonStrBytes = jsonStr.getBytes(DJSONHeader.JSON_STRING_CHARSET);
 		try {
@@ -162,7 +163,7 @@ public class DJSONMessageProtocol implements MessageProtocolIF {
 			throw new BodyFormatException(errorMessage);
 		}
 		
-		ArrayList<WrapBuffer> messageWrapBufferList = bodyOutputStream.getFlipDataPacketBufferList();
+		ArrayList<WrapBuffer> messageWrapBufferList = bodyOutputStream.getFlippedWrapBufferList();
 		
 		return messageWrapBufferList;
 	}
@@ -381,7 +382,7 @@ public class DJSONMessageProtocol implements MessageProtocolIF {
 						
 						receivedLetterList.add(receivedLetter);
 						
-						inputStramSizeBeforeMessageWork = freeSizeInputStream.remaining();
+						inputStramSizeBeforeMessageWork = freeSizeInputStream.available();
 						if (inputStramSizeBeforeMessageWork > messageHeaderSize) {
 							isMoreMessage = true;
 						}

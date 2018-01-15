@@ -39,12 +39,12 @@ import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
+import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.io.SocketInputStream;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
-import kr.pe.sinnori.common.project.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
@@ -127,6 +127,7 @@ public abstract class AbstractConnection {
 			boolean whetherToAutoConnect,
 			LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue,
 			MessageProtocolIF messageProtocol,
+			int dataPacketBufferMaxCntPerMessage,
 			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager,
 			ClientObjectCacheManagerIF clientObjectCacheManager) throws NoMoreDataPacketBufferException, InterruptedException {
 		this.projectName = projectName;
@@ -138,7 +139,7 @@ public abstract class AbstractConnection {
 		this.whetherToAutoConnect = whetherToAutoConnect;
 		this.messageProtocol = messageProtocol;
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-		messageInputStreamResource = new SocketInputStream(dataPacketBufferQueueManager);
+		messageInputStreamResource = new SocketInputStream(dataPacketBufferMaxCntPerMessage, dataPacketBufferQueueManager);
 		
 		this.asynOutputMessageQueue = asynOutputMessageQueue;
 		this.clientObjectCacheManager = clientObjectCacheManager;

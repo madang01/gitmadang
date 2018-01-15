@@ -1,9 +1,11 @@
 package javapackage.java.nio.ByteBuffer;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -12,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
+import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
 
 public class ByteBufferTest {
 	Logger log = LoggerFactory
@@ -19,14 +22,17 @@ public class ByteBufferTest {
 	
 	@Before
 	public void setup() {
-		System.setProperty(
-				CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME,
-				"sample_base");
-		System.setProperty(
-				CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH,
-				"D:\\gitsinnori\\sinnori");
+		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
+		String mainProjectName = "sample_base";
+		LOG_TYPE logType = LOG_TYPE.SERVER;
 		
-		SinnoriLogbackManger.getInstance().setup();
+		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH,
+				sinnoriInstalledPathString);
+		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME,
+				mainProjectName);		
+		
+
+		SinnoriLogbackManger.getInstance().setup(sinnoriInstalledPathString, mainProjectName, logType);
 		
 	}
 	
@@ -84,4 +90,21 @@ public class ByteBufferTest {
 		}
 	}
 	
+	@Test
+	public void testDuplicate_바이트오더도복제하는지여부() {
+		// ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
+		
+		ByteBuffer streambuffer =  ByteBuffer.allocate(2);
+		
+		
+		ByteOrder[] streamByteOrderList = { ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN };
+		
+		for (ByteOrder byteOrder : streamByteOrderList) {
+			streambuffer.order(byteOrder);
+			
+			ByteBuffer dupBuffer = streambuffer.duplicate();
+			
+			assertEquals(byteOrder, dupBuffer.order());
+		}
+	}
 }

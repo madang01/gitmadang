@@ -676,7 +676,7 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 		}
 		
 		SinnoriInputStreamIF sr = (SinnoriInputStreamIF)middleReadObj;
-		long remainingBytes = sr.remaining();
+		long remainingBytes = sr.available();
 		
 		sr.close();
 		

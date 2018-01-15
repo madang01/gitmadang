@@ -10,21 +10,24 @@ import org.junit.Test;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
+import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
 import kr.pe.sinnori.common.exception.MybatisException;
 import kr.pe.sinnori.common.mybatis.MybatisSqlSessionFactoryManger;
 
 public class ClassloaderResourcesTest {
 	@Before
 	public void setup() {
-		SinnoriLogbackManger.getInstance().setup();
+		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
+		String mainProjectName = "sample_base";
+		LOG_TYPE logType = LOG_TYPE.SERVER;
 		
+		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH,
+				sinnoriInstalledPathString);
+		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME,
+				mainProjectName);		
 		
-		System.setProperty(
-				CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME,
-				"sample_base");
-		System.setProperty(
-				CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH,
-				"D:\\gitsinnori\\sinnori");
+
+		SinnoriLogbackManger.getInstance().setup(sinnoriInstalledPathString, mainProjectName, logType);
 		
 		
 	}

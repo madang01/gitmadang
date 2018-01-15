@@ -34,6 +34,7 @@ public abstract class ItemIDDefiner {
 		public static final String COMMON_CHARSET_ITEMID = "common.charset.value";
 		public static final String COMMON_DATA_PACKET_BUFFER_MAX_CNT_PER_MESSAGE_ITEMID = "common.data_packet_buffer_max_cnt_per_message.value";
 		public static final String COMMON_DATA_PACKET_BUFFER_SIZE_ITEMID = "common.data_packet_buffer_size.value";
+		public static final String COMMON_DATA_PACKET_BUFFER_POOL_SIZE_ITEMID = "common.data_packet_buffer_pool_size.value";
 		public static final String COMMON_MESSAGE_ID_FIXED_SIZE_ITEMID = "common.message_id_fixed_size.value";
 		public static final String COMMON_MESSAGE_PROTOCOL_ITEMID = "common.message_protocol.value";
 		public static final String COMMON_CLASSLOADER_PACKAGE_PREFIX_NAME_ITEMID = "common.classloader.package_prefix_name.value";
@@ -58,8 +59,7 @@ public abstract class ItemIDDefiner {
 		public static final String CLIENT_ASYN_READ_SELECTOR_WAKEUP_INTERVAL_ITEMID = "client.asyn.read_selector_wakeup_interval.value";
 		public static final String SERVER_MONITOR_TIME_INTERVAL_ITEMID = "server.monitor.time_interval.value";
 		public static final String SERVER_MONITOR_RECEPTION_TIMEOUT_ITEMID = "server.monitor.reception_timeout.value";
-		public static final String SERVER_MAX_CLIENTS_ITEMID = "server.max_clients.value";
-		public static final String SERVER_DATA_PACKET_BUFFER_CNT_ITEMID = "server.data_packet_buffer_cnt.value";
+		public static final String SERVER_MAX_CLIENTS_ITEMID = "server.max_clients.value";		
 		public static final String SERVER_POOL_ACCEPT_QUEUE_SIZE_ITEMID = "server.pool.accept_queue_size.value";
 		public static final String SERVER_POOL_INPUT_MESSAGE_QUEUE_SIZE_ITEMID = "server.pool.input_message_queue_size.value";
 		public static final String SERVER_POOL_OUTPUT_MESSAGE_QUEUE_SIZE_ITEMID = "server.pool.output_message_queue_size.value";

@@ -11,6 +11,8 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
+import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
+import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
 
 
 public class SinnoriLogbackManger {
@@ -33,10 +35,12 @@ public class SinnoriLogbackManger {
 		return SinnoriLogbackMangerHolder.singleton;
 	}
 	
-	public void setup() {
-		String logbackConfigFilePathString = System.getProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_LOGBACK_CONFIG_FILE);
-		String sinnoriLogPathString = System.getProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_LOG_PATH);
+	public void setup(String sinnoriInstalledPathString, String mainProjectName, LOG_TYPE logType) {
 		
+		String logbackConfigFilePathString = BuildSystemPathSupporter.getLogbackConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
+		String sinnoriLogPathString = BuildSystemPathSupporter.getLogPathString(sinnoriInstalledPathString, mainProjectName, logType);
+		
+				
 		/**
 		 * 로그백 설정 파일과 로그 경로가 올바르지 않는  경우 내장한 환경 설정 내용으로 로그백을 설정한다.
 		 */
@@ -52,9 +56,20 @@ public class SinnoriLogbackManger {
 		}
 		
 		/*System.out.printf("isValid=%s", isValid);
+		System.out.println();
+		
+		System.out.printf("sinnoriLogPathString=%s", sinnoriLogPathString);
+		System.out.println();
+		
+		System.out.printf("logbackConfigFilePathString=%s", logbackConfigFilePathString);
 		System.out.println();*/
 		
-		if (!isValid) {
+		if (isValid) {
+			System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_LOG_PATH,
+					sinnoriLogPathString);
+			System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_LOGBACK_CONFIG_FILE,
+					logbackConfigFilePathString);
+		} else {
 			String contentsOfConfigFile = null;
 			StringBuilder stringBuilder = new StringBuilder();
 			stringBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");

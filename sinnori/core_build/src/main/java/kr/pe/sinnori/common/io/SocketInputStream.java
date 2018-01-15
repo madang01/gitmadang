@@ -23,9 +23,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
 
-import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.project.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 
 /**
@@ -72,13 +70,13 @@ public class SocketInputStream {
 	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷 버퍼 확보 실패시 던지는 예외
 	 */
-	public SocketInputStream(DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
+	public SocketInputStream(int dataPacketBufferMaxCntPerMessage, DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
 		// FIXME!
 		// log.info("call");
 		// this.clientSC = clientSC;
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 		//this.byteOrderOfProject = dataPacketBufferQueueManager.getByteOrder();
-		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferQueueManager.getDataPacketBufferMaxCntPerMessage();
+		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
 		
 		WrapBuffer lastWrapBuffer = dataPacketBufferQueueManager.pollDataPacketBuffer();
 		dataPacketBufferList.add(lastWrapBuffer);		
@@ -102,11 +100,11 @@ public class SocketInputStream {
 	 * @param dataPacketBufferQueueManager
 	 * @throws NoMoreDataPacketBufferException
 	 */
-	public SocketInputStream(ArrayList<WrapBuffer> messageReadWrapBufferList,
+	public SocketInputStream(int dataPacketBufferMaxCntPerMessage, ArrayList<WrapBuffer> messageReadWrapBufferList,
 			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 		// this.byteOrderOfProject = dataPacketBufferQueueManager.getByteOrder();
-		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferQueueManager.getDataPacketBufferMaxCntPerMessage();
+		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
 		this.dataPacketBufferList = messageReadWrapBufferList;
 		
 		firstByteBuffer = dataPacketBufferList.get(0).getByteBuffer();		
@@ -363,8 +361,9 @@ public class SocketInputStream {
 			streamBufferList.add(dupPacketBuffer);
 		}*/
 		
+		// FIXME!
 		FreeSizeInputStream freeSizeInputStream = 
-				new FreeSizeInputStream(dataPacketBufferList, CommonType.WRAPBUFFER_RECALL_GUBUN.WRAPBUFFER_RECALL_NO, charsetDecoderOfProject, dataPacketBufferQueueManager);
+				new FreeSizeInputStream(dataPacketBufferMaxCntPerMessage, dataPacketBufferList, charsetDecoderOfProject, dataPacketBufferQueueManager);
 		
 		return freeSizeInputStream;
 	}

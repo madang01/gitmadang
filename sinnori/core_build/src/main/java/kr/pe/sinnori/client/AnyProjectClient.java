@@ -152,7 +152,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 			connectionPool = new NoShareSyncConnectionPool(projectName, hostOfProject,
 					portOfProject, charsetOfProject, connectionCount, connectionTimeout, 
 					socketTimeOut, whetherToAutoConnect,
-					messageProtocol, this, this);
+					messageProtocol, dataPacketBufferMaxCntPerMessage, this, this);
 		} else {
 			asynOutputMessageQueue = new LinkedBlockingQueue<ReceivedLetter>(
 					outputMessageQueueSize);
@@ -199,7 +199,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 						finishConnectMaxCall, finishConnectWaittingTime,
 						mailBoxCnt, projectPartConfiguration, asynOutputMessageQueue,
 						inputMessageQueue, messageProtocol,
-						outputMessageReaderPool, this, this, this);
+						outputMessageReaderPool, this, dataPacketBufferMaxCntPerMessage, this, this);
 			} else {
 				syncOutputMessageQueueQueue = new LinkedBlockingQueue<ClientOutputMessageQueueWrapper>(
 						connectionCount);
@@ -216,8 +216,8 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 						socketTimeOut, whetherToAutoConnect,
 						finishConnectMaxCall, finishConnectWaittingTime,
 						asynOutputMessageQueue, inputMessageQueue,
-						messageProtocol, outputMessageReaderPool, this, this,
-						this);
+						messageProtocol, outputMessageReaderPool, this, 
+						dataPacketBufferMaxCntPerMessage, this,	this);
 			}
 
 			asynOutputMessageExecutorThreadList = new AsynOutputMessageExecutorThread[clientAsynOutputMessageExecutorThreadCnt];
@@ -680,6 +680,8 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 			log.warn("It failed to save new server address to the Sinnori config file and Ignore this exception for quiet processing", e);
 		}
 	}
+
+	
 	
 	/*public void saveSinnoriConfiguration() throws IllegalArgumentException, SinnoriConfigurationException, IOException {
 		SinnoriConfigurationManager sinnoriConfigurationManager = SinnoriConfigurationManager.getInstance();

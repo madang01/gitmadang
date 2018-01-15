@@ -21,7 +21,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler.InputMessageWriter;
 import kr.pe.sinnori.client.io.LetterToServer;
-import kr.pe.sinnori.common.project.DataPacketBufferPoolManagerIF;
+import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 
 /**

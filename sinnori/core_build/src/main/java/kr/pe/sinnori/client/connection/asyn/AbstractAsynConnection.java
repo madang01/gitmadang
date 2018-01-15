@@ -31,8 +31,8 @@ import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
+import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.project.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
 
@@ -86,11 +86,13 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
 			MessageProtocolIF messageProtocol,
 			AsynServerAdderIF outputMessageReaderPool,
+			int dataPacketBufferMaxCntPerMessage,
 			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager,
 			ClientObjectCacheManagerIF clientObjectCacheManager) throws InterruptedException, NoMoreDataPacketBufferException {
 		super(projectName, index, 
 				hostOfProject, portOfProject, charsetOfProject, socketTimeOut, 
 				whetherToAutoConnect, asynOutputMessageQueue, messageProtocol, 
+				dataPacketBufferMaxCntPerMessage,
 				dataPacketBufferQueueManager, clientObjectCacheManager);
 
 		this.maxCountFinishingConnect = maxCountFinishingConnect;

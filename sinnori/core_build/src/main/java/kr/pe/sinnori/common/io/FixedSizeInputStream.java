@@ -96,18 +96,18 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 	}
 
 	@Override
-	public long remaining() {
+	public long available() {
 		return streamBuffer.remaining();
 	}
 
-	@Override
+	// @Override
 	public long position() {
 		return streamBuffer.position();
 	}
 
 	@Override
 	public byte getByte() throws SinnoriBufferUnderflowException {
-		long remainingBytes = remaining();
+		long remainingBytes = available();
 		if (0 == remainingBytes) {
 			throw new SinnoriBufferUnderflowException("the remaining bytes is zero");
 		}
@@ -123,7 +123,7 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 
 	@Override
 	public short getShort() throws SinnoriBufferUnderflowException {
-		long remainingBytes = remaining();
+		long remainingBytes = available();
 		if (2 > remainingBytes) {
 			throw new SinnoriBufferUnderflowException(String.format("the remaining bytes[%d] is less than two bytes", remainingBytes));
 		}
@@ -134,7 +134,7 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 
 	@Override
 	public int getUnsignedShort() throws SinnoriBufferUnderflowException {
-		long remainingBytes = remaining();
+		long remainingBytes = available();
 		if (2 > remainingBytes) {
 			throw new SinnoriBufferUnderflowException(String.format("the remaining bytes[%d] is less than two bytes", remainingBytes));
 		}
@@ -188,7 +188,7 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 
 	@Override
 	public int getInt() throws SinnoriBufferUnderflowException {
-		long remainingBytes = remaining();
+		long remainingBytes = available();
 		if (4 > remainingBytes) {
 			throw new SinnoriBufferUnderflowException(String.format("the remaining bytes[%d] is less than four bytes", remainingBytes));
 		}
@@ -199,7 +199,7 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 
 	@Override
 	public long getUnsignedInt() throws SinnoriBufferUnderflowException {
-		long remainingBytes = remaining();
+		long remainingBytes = available();
 		if (4 > remainingBytes) {
 			throw new SinnoriBufferUnderflowException(String.format("the remaining bytes[%d] is less than four bytes", remainingBytes));
 		}
@@ -260,7 +260,7 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 
 	@Override
 	public long getLong() throws SinnoriBufferUnderflowException {
-		long remainingBytes = remaining();
+		long remainingBytes = available();
 		if (8 > remainingBytes) {
 			throw new SinnoriBufferUnderflowException(String.format("the remaining bytes[%d] is less than eight bytes", remainingBytes));
 		}
@@ -284,7 +284,7 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 							len, CommonStaticFinal.MAX_UNSIGNED_SHORT));
 		}*/
 
-		long remainingBytes = remaining();
+		long remainingBytes = available();
 		if (length > remainingBytes) {
 			throw new SinnoriBufferUnderflowException(String.format("the parameter length[%d] is greater than the remaining bytes[%d]", length, remainingBytes));
 		}
@@ -327,7 +327,7 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 	@Override
 	public String getStringAll() throws SinnoriBufferUnderflowException,
 			IllegalArgumentException, SinnoriCharsetCodingException {
-		long remainingBytes = remaining();
+		long remainingBytes = available();
 
 		/*if (remainingBytes > Integer.MAX_VALUE) {
 			throw new IllegalArgumentException(
@@ -423,7 +423,7 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 		}*/		
 		
 		
-		long remainingBytes = remaining();
+		long remainingBytes = available();
 		if (length > remainingBytes) {
 			throw new SinnoriBufferUnderflowException(String.format("the parameter length[%d] is greater than the remaining bytes[%d]", length, remainingBytes));
 		}
@@ -457,7 +457,7 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 					len, CommonStaticFinal.MAX_UNSIGNED_SHORT));
 		}*/
 
-		long remainingBytes = remaining();
+		long remainingBytes = available();
 		if (length > remainingBytes) {
 			throw new SinnoriBufferUnderflowException(String.format("the parameter length[%d] is greater than the remaining bytes[%d]", length, remainingBytes));
 		}
@@ -489,7 +489,7 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 					len, CommonStaticFinal.MAX_UNSIGNED_SHORT));
 		}*/
 
-		long remainingBytes = remaining();
+		long remainingBytes = available();
 		if (n > remainingBytes) {
 			throw new SinnoriBufferUnderflowException(String.format("the parameter n[%d] is greater than the remaining bytes[%d]", n, remainingBytes));
 		}

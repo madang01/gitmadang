@@ -450,6 +450,19 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1024, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
+			
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_DATA_PACKET_BUFFER_POOL_SIZE_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"데이터 패킷 버퍼 큐 크기",
+					"1000",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
 
 			/** 메시지 식별자 크기의 최소 크기는 내부적으로 사용하는 SelfExn 메시지를 기준으로 정했음. */
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_MESSAGE_ID_FIXED_SIZE_ITEMID;
@@ -458,7 +471,7 @@ public class SinnoriItemIDInfoManger {
 					ItemIDInfo.ConfigurationPart.PROJECT,
 					ItemIDInfo.ViewType.TEXT,
 					itemID,
-					"메시지 식별자 최소 크기",
+					"데이터 송수신시 메시지 식별자 크기",
 					"50",
 					isDefaultValueCheck,
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
@@ -749,18 +762,7 @@ public class SinnoriItemIDInfoManger {
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_DATA_PACKET_BUFFER_CNT_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<Integer>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.TEXT,
-					itemID,
-					"서버 프로젝트가 가지는 데이터 패킷 버퍼 수",
-					"1000",
-					isDefaultValueCheck,
-					new GeneralConverterReturningIntegerBetweenMinAndMax(
-							1, Integer.MAX_VALUE));
-			addProjectPartItemIDInfo(itemIDInfo);
+			
 
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_ACCEPT_QUEUE_SIZE_ITEMID;
 			isDefaultValueCheck = true;

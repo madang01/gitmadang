@@ -38,8 +38,8 @@ import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
+import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.project.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
 
@@ -100,6 +100,7 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue, MessageProtocolIF messageProtocol,
 			AsynServerAdderIF outputMessageReaderPool,
 			ClientOutputMessageQueueQueueMangerIF syncOutputMessageQueueQueueManger,
+			int dataPacketBufferMaxCntPerMessage,
 			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager,
 			ClientObjectCacheManagerIF clientObjectCacheManager)
 			throws NoMoreDataPacketBufferException, InterruptedException, NoMoreOutputMessageQueueException {
@@ -117,7 +118,7 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 					connectionTimeout,
 					socketTimeOut, whetherToAutoConnect, finishConnectMaxCall, finishConnectWaittingTime, mailBoxCnt,
 					projectPart, asynOutputMessageQueue, inputMessageQueue, messageProtocol, outputMessageReaderPool,
-					syncOutputMessageQueueQueueManger, dataPacketBufferQueueManager, clientObjectCacheManager);
+					syncOutputMessageQueueQueueManger, dataPacketBufferMaxCntPerMessage, dataPacketBufferQueueManager, clientObjectCacheManager);
 
 			connectionList.add(serverConnection);
 

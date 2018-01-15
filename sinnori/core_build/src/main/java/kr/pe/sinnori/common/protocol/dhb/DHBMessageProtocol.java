@@ -31,13 +31,13 @@ import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
+import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.io.FreeSizeInputStream;
 import kr.pe.sinnori.common.io.FreeSizeOutputStream;
 import kr.pe.sinnori.common.io.SocketInputStream;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
-import kr.pe.sinnori.common.project.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
@@ -68,11 +68,13 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 	private DataPacketBufferPoolManagerIF dataPacketBufferQueueManager = null;
 	private DHBSingleItemDecoder dhbSingleItemDecoder = null;
 	private DHBSingleItemEncoder dhbSingleItemEncoder = null;
+	private int dataPacketBufferMaxCntPerMessage;
 
 	//private ClientObjectManager clientMessageController = ClientObjectManager.getInstance();
 	// private ServerObjectManager serverMessageController = ServerObjectManager.getInstance();
 	
 	public DHBMessageProtocol(int messageIDFixedSize,
+			int dataPacketBufferMaxCntPerMessage,
 			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) {
 		/*if (messageIDFixedSize < 0) {
 			String errorMessage = String.format("parameter messageIDFixedSize less than zero");
@@ -87,6 +89,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 		}*/
 
 		this.messageIDFixedSize = messageIDFixedSize;
+		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
 		this.messageHeaderSize = DHBMessageHeader
 				.getMessageHeaderSize(messageIDFixedSize);
 		// this.bodyMD5Offset = DHBMessageHeader.getBodyMD5Offset(messageIDFixedSize);
@@ -115,9 +118,11 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 		// java.security.MessageDigest md5 = DigestUtils.getMd5Digest();
 
 		/** 바디 만들기 */
-		FreeSizeOutputStream bodyOutputStream = new FreeSizeOutputStream(
-				charsetOfProject, charsetOfProjectEncoder, messageHeaderSize,
-				dataPacketBufferQueueManager);
+		FreeSizeOutputStream bodyOutputStream = new FreeSizeOutputStream(dataPacketBufferMaxCntPerMessage, charsetOfProjectEncoder, dataPacketBufferQueueManager);
+		
+		// messageHeaderSize
+		
+		// bodyOutputStream.skip(messageHeaderSize);
 		
 		/*String messageID = messageObj.getMessageID();
 		MessageEncoder messageEncoder = null;
@@ -168,11 +173,11 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 		messageHeader.messageID = messageObj.getMessageID();
 		messageHeader.mailboxID = messageObj.messageHeaderInfo.mailboxID;
 		messageHeader.mailID = messageObj.messageHeaderInfo.mailID;
-		messageHeader.bodySize = bodyOutputStream.postion() - messageHeaderSize;
+		messageHeader.bodySize = bodyOutputStream.getOutputStreamSize() - messageHeaderSize;
 
 		/** 바디 MD5 */
 		ArrayList<WrapBuffer> messageWrapBufferList = bodyOutputStream
-				.getNoFlipDataPacketBufferList();
+				.getFlippedWrapBufferList();
 		int bufferListSize = messageWrapBufferList.size();
 
 		ByteBuffer firstWorkBuffer = messageWrapBufferList.get(0)
@@ -461,7 +466,8 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 						}
 						
 						FreeSizeInputStream bodyInputStream = null;
-						try {
+						// FIXME!
+						/*try {
 							bodyInputStream = freeSizeInputStream.getInputStream(messageHeader.bodySize);
 						} catch (IllegalArgumentException e) {
 							String errorMessage = e.getMessage();
@@ -471,7 +477,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 							String errorMessage = e.getMessage();
 							log.error(errorMessage, e);
 							System.exit(1);
-						}
+						}*/
 						
 						lastPostionOfWorkBuffer = freeSizeInputStream.getPositionOfWorkBuffer();
 						lastIndexOfWorkBuffer = freeSizeInputStream.getIndexOfWorkBuffer();

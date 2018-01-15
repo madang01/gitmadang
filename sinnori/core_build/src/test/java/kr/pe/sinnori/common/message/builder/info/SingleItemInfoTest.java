@@ -8,6 +8,7 @@ import java.util.Set;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
+import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
 import kr.pe.sinnori.common.message.builder.info.SingleItemInfo;
 
 import org.junit.Before;
@@ -21,7 +22,17 @@ public class SingleItemInfoTest {
 	
 	@Before
 	public void setup() {
-		SinnoriLogbackManger.getInstance().setup();
+		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
+		String mainProjectName = "sample_base";
+		LOG_TYPE logType = LOG_TYPE.SERVER;
+		
+		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH,
+				sinnoriInstalledPathString);
+		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME,
+				mainProjectName);		
+		
+
+		SinnoriLogbackManger.getInstance().setup(sinnoriInstalledPathString, mainProjectName, logType);
 	}
 	
 	@Test

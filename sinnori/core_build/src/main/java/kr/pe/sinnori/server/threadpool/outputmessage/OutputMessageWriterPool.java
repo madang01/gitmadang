@@ -21,7 +21,7 @@ package kr.pe.sinnori.server.threadpool.outputmessage;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
-import kr.pe.sinnori.common.project.DataPacketBufferPoolManagerIF;
+import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 import kr.pe.sinnori.server.io.LetterToClient;
 import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriter;

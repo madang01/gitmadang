@@ -47,6 +47,7 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 	private Charset streamCharset = null;
 	private CharsetEncoder streamCharsetEncoder = null;
 	private ByteOrder bufferByteOrder = null;
+	private int startPosition = -1;
 
 	
 	
@@ -69,6 +70,7 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 		this.streamCharset = streamCharsetEncoder.charset();
 		this.streamCharsetEncoder = streamCharsetEncoder;
 		this.bufferByteOrder = outputStreamBuffer.order();
+		this.startPosition = outputStreamBuffer.position();
 
 		/*intBuffer = ByteBuffer.allocate(4);
 		intBuffer.order(bufferByteOrder);
@@ -533,7 +535,7 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 		}*/
 
 		/** check BufferOverflowException */
-		long remainingBytes = remaining();
+		long remainingBytes = outputStreamBuffer.remaining();
 		if (length > remainingBytes) {
 			throw new IllegalArgumentException(String.format(
 					"the parameter length[%d] is greater than the remaining bytes[%d]", length,
@@ -581,7 +583,7 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 							CommonStaticFinalVars.UNSIGNED_SHORT_MAX));
 		}*/
 		
-		long remainingBytesInOutputStreamBuffer = remaining();
+		long remainingBytesInOutputStreamBuffer = outputStreamBuffer.remaining();
 		int remainingBytesInSrcByteBuffer= src.remaining();
 		if (remainingBytesInSrcByteBuffer > remainingBytesInOutputStreamBuffer) {
 			String errorMessage = String.format(
@@ -655,16 +657,20 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 		return outputStreamBuffer.hasRemaining();
 	}
 
-	@Override
+	/*@Override
 	public long remaining() {
 		return outputStreamBuffer.remaining();
-	}
+	}*/
 
-	@Override
-	public long postion() {
+	// @Override
+	/*public long postion() {
 		return outputStreamBuffer.position();
 	}
+	*/
 	
+	public long size() {
+		return (outputStreamBuffer.position() - startPosition);
+	}
 	/**
 	 * Closing a FixedSizeOutputStream has no effect
 	 */

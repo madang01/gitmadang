@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class WrapBuffer {
 	private Logger log = LoggerFactory.getLogger(WrapBuffer.class);
+	private boolean isDirect;
 	private ByteBuffer buffer = null;
 	private boolean isInQueue = true;
 	private ByteOrder byteOrderOfBuffer = null;
@@ -44,13 +45,24 @@ public class WrapBuffer {
 	 * 생성자
 	 * @param capacity 큐 ByteBuffer 용량
 	 */
-	public WrapBuffer(int capacity, ByteOrder byteOrderOfBuffer) {
-		//buffer = ByteBuffer.allocate(capacity);
-		buffer = ByteBuffer.allocateDirect(capacity);
+	public WrapBuffer(boolean isDirect, int capacity, ByteOrder byteOrderOfBuffer) {
+		this.isDirect = isDirect;
+		if (isDirect) {
+			buffer = ByteBuffer.allocateDirect(capacity);
+		} else {
+			buffer = ByteBuffer.allocate(capacity);
+		}
 		buffer.order(byteOrderOfBuffer);
 		this.byteOrderOfBuffer = byteOrderOfBuffer;
 	}
 	
+	
+	public WrapBuffer(ByteBuffer buffer) {
+		this.isDirect = buffer.isDirect();
+		
+		this.buffer  = buffer;
+		this.byteOrderOfBuffer = buffer.order();
+	}
 	
 	/**
 	 * @return 큐에 들어간 상태 여부
@@ -64,9 +76,10 @@ public class WrapBuffer {
 	 */
 	public void queueIn() {
 		isInQueue = true;
-		// lastCallerThrowable = null;
 		buffer.clear();
 		buffer.order(byteOrderOfBuffer);
+		
+		// lastCallerThrowable = null;
 	}
 
 	/**
@@ -79,8 +92,7 @@ public class WrapBuffer {
 
 	@Override
 	public void finalize() {
-		log.warn("큐에 반환되지 못한 랩 버퍼 소멸");
-		// log.warning(lastCallerThrowable, "랩 버퍼 파괴");
+		log.warn("this wrap buffer[hashcode={}] was destroyed", hashCode());
 	}
 
 	/**
@@ -100,5 +112,9 @@ public class WrapBuffer {
 		strBuffer.append(isInQueue);
 		strBuffer.append("]");
 		return strBuffer.toString();
+	}
+	
+	public boolean isDirect() {
+		return isDirect;
 	}
 }

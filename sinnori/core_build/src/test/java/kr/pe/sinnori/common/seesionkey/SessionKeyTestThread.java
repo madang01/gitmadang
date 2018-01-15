@@ -34,6 +34,7 @@ public class SessionKeyTestThread extends Thread {
 	public void run() {
 		Random random = new Random();
 		random.setSeed(new Date().getTime());
+		isTerminated=false;
 		
 		// log.info("threadID[{}] start", threadID);
 		

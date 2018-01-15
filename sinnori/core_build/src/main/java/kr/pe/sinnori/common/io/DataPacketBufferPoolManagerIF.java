@@ -16,12 +16,11 @@
  */
 
 
-package kr.pe.sinnori.common.project;
+package kr.pe.sinnori.common.io;
 
 import java.nio.ByteOrder;
 
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.io.WrapBuffer;
 
 /**
  * 데이터 패킷 버퍼 관리자 인터페이스
@@ -44,10 +43,6 @@ public interface DataPacketBufferPoolManagerIF {
 	 */
 	public void putDataPacketBuffer(WrapBuffer buffer);
 	
-	/**
-	 * @return 메시지 1개당 최대 데이터 패킷 갯수
-	 */
-	public int getDataPacketBufferMaxCntPerMessage();
 	
 	/**
 	 * @return 데이터 패킷 버퍼 크기
@@ -55,12 +50,10 @@ public interface DataPacketBufferPoolManagerIF {
 	public int getDataPacketBufferSize();
 	
 	/**
-	 * @return 큐 상태
-	 */
-	public String getQueueState();
-	
-	/**
 	 * @return 데이터 패킷 버퍼의 바이트 오더. 참고) 데이터 패킷 버퍼의 바이트 오더는 데이터 패킷 버퍼 관리자 생성시 결정되는 프로젝트의 바이트 오더이다.
 	 */
 	public ByteOrder getByteOrder();
+	
+	
+	public int getDataPacketBufferPoolSize();
 }

@@ -29,13 +29,13 @@ import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
+import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.io.FreeSizeInputStream;
 import kr.pe.sinnori.common.io.FreeSizeOutputStream;
 import kr.pe.sinnori.common.io.SocketInputStream;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
-import kr.pe.sinnori.common.project.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
@@ -64,6 +64,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 	/** 메시지 헤더 크기, 단위 byte */
 	private int messageHeaderSize;
 	
+	private int dataPacketBufferMaxCntPerMessage;
 	private DataPacketBufferPoolManagerIF dataPacketBufferQueueManager = null;
 	private THBSingleItemDecoder thbSingleItemDecoder = null;
 	private THBSingleItemEncoder thbSingleItemEncoder = null;
@@ -75,9 +76,10 @@ public class THBMessageProtocol implements MessageProtocolIF {
 	
 	public THBMessageProtocol(
 			int messageIDFixedSize, 
+			int dataPacketBufferMaxCntPerMessage,
 			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) {
-		
 		this.messageIDFixedSize = messageIDFixedSize;
+		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
 		this.messageHeaderSize = THBMessageHeader.getMessageHeaderSize(messageIDFixedSize);
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 		this.byteOrderOfProject = dataPacketBufferQueueManager.getByteOrder();
@@ -97,8 +99,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 		
 		/** 바디 만들기 */
 		FreeSizeOutputStream bodyOutputStream = 
-				new FreeSizeOutputStream(charsetOfProject, 
-						charsetOfProjectEncoder, messageHeaderSize, dataPacketBufferQueueManager);
+				new FreeSizeOutputStream(dataPacketBufferMaxCntPerMessage, charsetOfProjectEncoder, dataPacketBufferQueueManager);
 		
 		try {
 			messageEncoder.encode(messageObj, thbSingleItemEncoder, charsetOfProject, bodyOutputStream);
@@ -122,12 +123,12 @@ public class THBMessageProtocol implements MessageProtocolIF {
 		messageHeader.messageID = messageObj.getMessageID();
 		messageHeader.mailboxID = messageObj.messageHeaderInfo.mailboxID;
 		messageHeader.mailID = messageObj.messageHeaderInfo.mailID;
-		messageHeader.bodySize =  bodyOutputStream.postion() - messageHeaderSize;
+		messageHeader.bodySize =  bodyOutputStream.getOutputStreamSize() - messageHeaderSize;
 		
 		// FIXME!
 		//log.info(messageHeader.toString());
 		
-		ArrayList<WrapBuffer> messageWrapBufferList = bodyOutputStream.getFlipDataPacketBufferList();
+		ArrayList<WrapBuffer> messageWrapBufferList = bodyOutputStream.getFlippedWrapBufferList();
 		
 		ByteBuffer firstWorkBuffer = messageWrapBufferList.get(0).getByteBuffer();
 		
@@ -238,8 +239,9 @@ public class THBMessageProtocol implements MessageProtocolIF {
 						
 						// log.info(String.format("3. messageFrameSize=[%d], postionBeforeReadingBody=[%d], expectedPosition=[%d]", messageFrameSize, postionBeforeReadingBody, expectedPosition));
 						
+						// FIXME!
 						FreeSizeInputStream bodyInputStream = null;
-						try {
+						/*try {
 							bodyInputStream = freeSizeInputStream.getInputStream(messageHeader.bodySize);
 						} catch (IllegalArgumentException e) {
 							String errorMessage = e.getMessage();
@@ -249,7 +251,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 							String errorMessage = e.getMessage();
 							log.error(errorMessage, e);
 							System.exit(1);
-						}
+						}*/
 						
 						lastPostionOfWorkBuffer = freeSizeInputStream.getPositionOfWorkBuffer();
 						lastIndexOfWorkBuffer = freeSizeInputStream.getIndexOfWorkBuffer();

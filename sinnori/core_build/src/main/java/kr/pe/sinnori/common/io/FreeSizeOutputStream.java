@@ -27,12 +27,12 @@ import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.project.DataPacketBufferPoolManagerIF;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
 
 /**
  * 가변 크기를 갖는 출력 이진 스트림<br/>
@@ -47,104 +47,85 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 	private ByteOrder streamByteOrder = null;
 	private Charset streamCharset = null;
 	private CharsetEncoder streamCharsetEncoder = null;
-	private int dataPacketBufferMaxCntPerMessage;
+	private int dataPacketBufferMaxCount;
 	private DataPacketBufferPoolManagerIF dataPacketBufferQueueManager = null;
+	
+	
 	
 	/**
 	 * 주) 아래 SHORT_BYTES, INTEGER_BYTES, LONG_BYTES 는 객체 인스턴스마다 필요합니다. 만약 static 으로 만들면 thread safe 문제에 직면할 것입니다.
-	 */
-	/*
-	private final byte SHORT_BYTES[] = { CommonStaticFinal.ZERO_BYTE,
-			CommonStaticFinal.ZERO_BYTE };
-	private final byte INTEGER_BYTES[] = { CommonStaticFinal.ZERO_BYTE,
-			CommonStaticFinal.ZERO_BYTE, CommonStaticFinal.ZERO_BYTE,
-			CommonStaticFinal.ZERO_BYTE };
-	private final byte LONG_BYTES[] = { CommonStaticFinal.ZERO_BYTE,
-			CommonStaticFinal.ZERO_BYTE, CommonStaticFinal.ZERO_BYTE,
-			CommonStaticFinal.ZERO_BYTE, CommonStaticFinal.ZERO_BYTE,
-			CommonStaticFinal.ZERO_BYTE, CommonStaticFinal.ZERO_BYTE,
-			CommonStaticFinal.ZERO_BYTE };
-			*/
-	private byte[] shortBytes = null;
+	 */	
+	/*private final byte SHORT_BYTES[] = { CommonStaticFinalVars.ZERO_BYTE,
+			CommonStaticFinalVars.ZERO_BYTE };
+	private final byte INTEGER_BYTES[] = { CommonStaticFinalVars.ZERO_BYTE,
+			CommonStaticFinalVars.ZERO_BYTE, CommonStaticFinalVars.ZERO_BYTE,
+			CommonStaticFinalVars.ZERO_BYTE };
+	private final byte LONG_BYTES[] = { CommonStaticFinalVars.ZERO_BYTE,
+			CommonStaticFinalVars.ZERO_BYTE, CommonStaticFinalVars.ZERO_BYTE,
+			CommonStaticFinalVars.ZERO_BYTE, CommonStaticFinalVars.ZERO_BYTE,
+			CommonStaticFinalVars.ZERO_BYTE, CommonStaticFinalVars.ZERO_BYTE,
+			CommonStaticFinalVars.ZERO_BYTE };*/
+			
+	/*private byte[] shortBytes = null;
 	private byte[] intBytes = null;
-	private byte[] longBytes = null;
+	private byte[] longBytes = null;*/
 
 	private ByteBuffer shortBuffer = null;
 	private ByteBuffer intBuffer = null;
 	private ByteBuffer longBuffer = null;
 	
 	private ByteBuffer workBuffer = null;
+	private long outputStreamSize = 0;
 
-	/**
-	 * 생성자
-	 * @param streamCharset 문자셋 
-	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 관리자
-	 * @throws NoMoreDataPacketBufferException 데이터 패키 버퍼를 확보하지 못했을 경우 던지는 예외
-	 */
-	public FreeSizeOutputStream(Charset streamCharset, CharsetEncoder streamCharsetEncoder, DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
-		this(streamCharset, streamCharsetEncoder, 0, dataPacketBufferQueueManager);
-	}
 	
-	/**
-	 * 생성자 
-	 * @param streamCharset 문자셋
-	 * @param streamCharsetEncoder 문자셋 인코더
-	 * @param firtBufferStartPosition 데이터 패킷 버퍼 관리자로 부터 첫번째로 할당 받은 데이터 패킷 버퍼의 쓰기 시작 위치, DHB 프로토콜에서 DHB 헤더를 건너뛰고 바디 부터 바디 부분을 먼저 구성할때 필요하다.
-	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 관리자
-	 * @throws NoMoreDataPacketBufferException 데이터 패키 버퍼를 확보하지 못했을 경우 던지는 예외
-	 */
-	public FreeSizeOutputStream(Charset streamCharset, CharsetEncoder streamCharsetEncoder, int firtBufferStartPosition, DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
+	public FreeSizeOutputStream(int dataPacketBufferMaxCount, CharsetEncoder streamCharsetEncoder, DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {	
+		if (dataPacketBufferMaxCount <= 0) {
+			String errorMessage = String.format("the parameter dataPacketBufferMaxCount[%d] is less than or equal to zero", dataPacketBufferMaxCount);
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (null == streamCharsetEncoder) {
+			throw new IllegalArgumentException("the parameter streamCharsetEncoder is null");
+		}
+		if (null == dataPacketBufferQueueManager) {
+			throw new IllegalArgumentException("the parameter dataPacketBufferQueueManager is null");
+		}
+		
+		this.dataPacketBufferMaxCount = dataPacketBufferMaxCount;
 		this.streamByteOrder = dataPacketBufferQueueManager.getByteOrder();
-		this.streamCharset = streamCharset;
+		this.streamCharset = streamCharsetEncoder.charset();
 		this.streamCharsetEncoder = streamCharsetEncoder;
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 		
-		dataPacketBufferMaxCntPerMessage = dataPacketBufferQueueManager.getDataPacketBufferMaxCntPerMessage();
+		
 		
 		dataPacketBufferList = new ArrayList<WrapBuffer>();
 		WrapBuffer wrapBuffer = dataPacketBufferQueueManager.pollDataPacketBuffer();
 		workBuffer = wrapBuffer.getByteBuffer();
-		workBuffer.position(firtBufferStartPosition);
+		//workBuffer.position(firtBufferStartPosition);
 		dataPacketBufferList.add(wrapBuffer);
 		
 		
 		shortBuffer = ByteBuffer.allocate(2);
 		shortBuffer.order(streamByteOrder);
-		shortBytes = shortBuffer.array();
+		// shortBytes = shortBuffer.array();
 
 		intBuffer = ByteBuffer.allocate(4);
 		intBuffer.order(streamByteOrder);
-		intBytes = intBuffer.array();
+		// intBytes = intBuffer.array();
 
 		longBuffer = ByteBuffer.allocate(8);
 		longBuffer.order(streamByteOrder);
-		longBytes = longBuffer.array();
+		// longBytes = longBuffer.array();
 	}
-	
-	/**
-	 * unsigned byte 쓰기를 위한 short 버퍼 초기화
-	 */
-	private void clearShortBuffer() {
-		shortBuffer.clear();
-		Arrays.fill(shortBytes, CommonStaticFinalVars.ZERO_BYTE);
-	}
-
-	/**
-	 * unsigned short 쓰기를 위한 integer 버퍼 초기화
-	 */
-	private void clearIntBuffer() {
-		intBuffer.clear();
-		Arrays.fill(intBytes, CommonStaticFinalVars.ZERO_BYTE);
-	}
-	
+		
 	/**
 	 * 랩 버퍼 확보 실패시 이전에 등록한 랩 버퍼 목록을 해제해 주는 메소드
 	 */
 	private void freeDataPacketBufferList() {
 		if (null != dataPacketBufferList) {
-			int bodyBufferSize = dataPacketBufferList.size();
-			for (int i = 0; i < bodyBufferSize; i++) {
-				dataPacketBufferQueueManager.putDataPacketBuffer(dataPacketBufferList.remove(0));
+			for (WrapBuffer dataPacketBuffer : dataPacketBufferList) {
+				dataPacketBufferQueueManager.putDataPacketBuffer(dataPacketBuffer);
 			}
 		}
 	}
@@ -153,17 +134,18 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 	 * 스트림에 랩 버퍼를 추가하여 확장한다.
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷 버퍼 확보 실패시 던지는 예외
 	 */
-	private void addBuffer() throws NoMoreDataPacketBufferException  {
-		/** 남은 용량 없이 꽉 차서 들어와야 한다. */
+	private void addBuffer() throws NoMoreDataPacketBufferException, SinnoriBufferOverflowException  {
+		/** FIXME! 남은 용량 없이 꽉 차서 들어와야 한다. */
 		if (workBuffer.hasRemaining()) {
-			String errorMessage = "작업 버퍼에 남은 용량이 있습니다.";
+			String errorMessage = "the working buffer has a remaing data";
 			log.warn(errorMessage);
 			System.exit(1);
 		}
 
-		if (dataPacketBufferList.size() == dataPacketBufferMaxCntPerMessage) {
-			log.warn(String.format("메시지당 최대 버퍼수[%d]에 도달하여 신규 데이터 패킷 버퍼를 추가할 수 없습니다.", dataPacketBufferMaxCntPerMessage));
-			throw new BufferOverflowException();
+		if (dataPacketBufferList.size() == dataPacketBufferMaxCount) {
+			String errorMessage = String.format("this output stream is full. maximum number of data packet buffers=[%d]", dataPacketBufferMaxCount);
+			// log.warn();
+			throw new SinnoriBufferOverflowException(errorMessage);
 		}
 
 		/** 새로운 바디 버퍼 받아 오기 */
@@ -179,117 +161,16 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 		dataPacketBufferList.add(newWrapBuffer);
 	}
 	
-	/**
-	 * unsigned integer 쓰기를 위한 long 버퍼 초기화
-	 */
-	private void clearLongBuffer() {
-		longBuffer.clear();
-		Arrays.fill(longBytes, CommonStaticFinalVars.ZERO_BYTE);
-	}
 	
-	/**
-	 * unsigned short 을 위한 integer 버퍼에 값을 저장훈 Integer 버퍼를 반환한다.
-	 * 
-	 * @param value
-	 *            unsigned short 타입에 대응하는 값
-	 * @return 값이 저장된 unsigned short 을 위한 integer 버퍼
-	 * @throws IllegalArgumentException
-	 *             잘못된 파라미터를 입력하여 발생한다.
-	 */
-	private ByteBuffer getIntegerBufferForUnsignedShort(int value)
-			throws IllegalArgumentException {
-		if (value < 0) {
-			throw new IllegalArgumentException(String.format(
-					"파라미터 값[%d]은 음수입니다.", value));
-		}
-		/*
-		if (value > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
-			throw new IllegalArgumentException(String.format(
-					"파라미터 값[%d]은 unsigned short 최대값[%d]을 넘을 수 없습니다.", value,
-					CommonStaticFinal.MAX_UNSIGNED_SHORT));
-		}
-		*/
-
-		clearIntBuffer();
-		intBuffer.putInt(value);
-
-		if (ByteOrder.BIG_ENDIAN == streamByteOrder) {
-			intBuffer.position(2);
-			intBuffer.limit(4);
-		} else {
-			intBuffer.position(0);
-			intBuffer.limit(2);
-		}
-		return intBuffer;
-	}
-	/**
-	 * unsigned integer 를 위한 long 버퍼에 값을 저장후 long 버퍼를 반환한다.
-	 * 
-	 * @param value
-	 *            unsigned integer 타입에 대응하는 값
-	 * @return 값이 저장된 unsigned integer 를 위한 long 버퍼
-	 * @throws IllegalArgumentException
-	 *             잘못된 파라미터를 입력하여 발생한다.
-	 */
-	private ByteBuffer getLongBufferForUnsignedInt(long value)
-			throws IllegalArgumentException {
-		if (value < 0) {
-			throw new IllegalArgumentException(String.format(
-					"파라미터 값[%d]은 음수입니다.", value));
-		}
-		if (value > CommonStaticFinalVars.UNSIGNED_INTEGER_MAX) {
-			throw new IllegalArgumentException(String.format(
-					"파라미터 값[%d]은 unsigned int 최대값[%d]을 넘을 수 없습니다.", value,
-					CommonStaticFinalVars.UNSIGNED_INTEGER_MAX));
-		}
-		clearLongBuffer();
-		longBuffer.putLong(value);
-
-		if (ByteOrder.BIG_ENDIAN == streamByteOrder) {
-			longBuffer.position(4);
-			longBuffer.limit(8);
-		} else {
-			longBuffer.position(0);
-			longBuffer.limit(4);
-		}
-		return longBuffer;
-	}
 	
-	/**
-	 * 스트림을 확장해가면서 스트림에 소스 바이트 버퍼의 내용을 저장한다. 단 스트림은 최대 크기 제약이 있다.
-	 * 
-	 * @param srcByteBuffer
-	 *            소스 바이트 버퍼
-	 * @throws BufferOverflowException
-	 *             버퍼 크기를 벗어난 쓰기 시도시 발생
-	 * @throws IllegalArgumentException
-	 *             잘못된 파라미터를 입력하여 발생한다.
-	 * @throws NoMoreDataPacketBufferException
-	 *             스트림 확장을 위한 랩 버퍼 확보 실패시 발생
-	 */
-	private void putBytesToWorkBuffer(ByteBuffer srcByteBuffer)
-			throws BufferOverflowException, IllegalArgumentException,
-			NoMoreDataPacketBufferException {
-		/*
+	
+	
+	
+	private void doPutBytes(ByteBuffer src)
+			throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException,
+			NoMoreDataPacketBufferException {		
 		do {
-			try {
-				workBuffer.put(srcByteBuffer);
-			} catch (BufferOverflowException e) {
-				int newLimit = srcByteBuffer.position() + workBuffer.remaining();
-				srcByteBuffer.limit(newLimit);
-				workBuffer.put(srcByteBuffer);
-				srcByteBuffer.limit(srcByteBuffer.capacity());
-			}
-
-			if (!srcByteBuffer.hasRemaining())
-				break;
-
-			addBuffer();
-		} while (true);
-		*/
-		
-		do {
-			int remainingBytes = workBuffer.remaining();
+			/*int remainingBytes = workBuffer.remaining();
 			if (remainingBytes >= srcByteBuffer.remaining()) {
 				workBuffer.put(srcByteBuffer);
 				break;
@@ -299,13 +180,18 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 				workBuffer.put(srcByteBuffer);
 				srcByteBuffer.limit(oldLimitOfSrc);				
 				addBuffer();
-			}
-		} while (srcByteBuffer.hasRemaining());
+			}*/
+			if (! workBuffer.hasRemaining()) {
+				addBuffer();
+			}				
+			workBuffer.put(src.get());
+			outputStreamSize++;
+		} while (src.hasRemaining());
 	}
 	
-	// FIXME!
-	private void putBytesToWorkBuffer(byte[] srcBytes)
-			throws BufferOverflowException, IllegalArgumentException,
+	
+	/*private void doPutBytes(byte[] src)
+			throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException,
 			NoMoreDataPacketBufferException {
 		int offset = 0;
 		int len = srcBytes.length; 
@@ -322,43 +208,107 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 				addBuffer();
 			}
 		} while (0 != len);
-	}
+		doPutBytes(src, 0, src.length);
+	}*/
 	
-	private void putBytesToWorkBuffer(byte[] srcBytes, int offset, int len)
-			throws BufferOverflowException, IllegalArgumentException,
+	private void doPutBytes(byte[] src, int offset, int length)
+			throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException,
 			NoMoreDataPacketBufferException { 
-		do {
-			int remainingBytes = workBuffer.remaining();
-			if (remainingBytes >= len) {
-				workBuffer.put(srcBytes, offset, len);
-				// len = 0;
+		int remainingBytesOfWorkBuffer = workBuffer.remaining();
+		if (0 == remainingBytesOfWorkBuffer) {
+			addBuffer();
+			remainingBytesOfWorkBuffer = workBuffer.remaining();
+		}
+		
+		do {			
+			if (remainingBytesOfWorkBuffer >= length) {
+				workBuffer.put(src, offset, length);
+				outputStreamSize += length;
 				break;
-			} else {
-				workBuffer.put(srcBytes, offset, remainingBytes);
-				offset += remainingBytes;
-				len -= remainingBytes;
-				addBuffer();
 			}
-		} while (0 != len);
+			
+			workBuffer.put(src, offset, remainingBytesOfWorkBuffer);
+			outputStreamSize += remainingBytesOfWorkBuffer;
+			
+			offset += remainingBytesOfWorkBuffer;
+			length -= remainingBytesOfWorkBuffer;
+			addBuffer();
+			remainingBytesOfWorkBuffer = workBuffer.remaining();
+		} while (0 != length);
+		
+		
 	}
 	
 	/** 
 	 * @return 출력 스트림 쓰기 과정 결과 물이 담긴 버퍼 목록, 모든 버퍼는 읽기 가능 상태 flip 되어진다.
 	 */
-	public ArrayList<WrapBuffer> getFlipDataPacketBufferList() {
+	/*public ArrayList<WrapBuffer> getFlipDataPacketBufferList() {
 		int bufferSize = dataPacketBufferList.size();
 		for (int i = 0; i < bufferSize; i++) {
 			dataPacketBufferList.get(i).getByteBuffer().flip();
 		}
 		return dataPacketBufferList;
+	}*/
+	
+	/*public FreeSizeInputStream getFreeSizeInputStream(CharsetDecoder  streamCharsetDecoder) {
+		if (null == streamCharsetDecoder) {
+			throw new IllegalArgumentException("the parameter streamCharsetDecoder is null");
+		}
+		
+		if (! streamCharsetDecoder.charset().equals(streamCharset)) {
+			String errorMessage = String.format("the parameter streamCharsetDecoder's charset[%s] is different from this stream charset[%s]", 
+					streamCharsetDecoder.charset().name(), streamCharset.name());
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		ArrayList<WrapBuffer> dupWrapBufferList = new ArrayList<WrapBuffer>();
+		
+		for (WrapBuffer srcBuffer : dataPacketBufferList) {
+			ByteBuffer dupByteBuffer = srcBuffer.getByteBuffer().duplicate();
+			*//** In ByteBuffer the duplicate method doesn't copy the byte order attribute *//*
+			dupByteBuffer.order(streamByteOrder);
+			dupByteBuffer.flip();
+			WrapBuffer dupWrapBuffer = new WrapBuffer(dupByteBuffer);
+			
+			dupWrapBufferList.add(dupWrapBuffer);
+		}
+		
+		return new FreeSizeInputStream(dupWrapBufferList, streamCharsetDecoder, dataPacketBufferQueueManager);
+	}*/
+	
+	/*public ArrayList<WrapBuffer> getFlippedWrapBufferList() {
+		ArrayList<WrapBuffer> dupWrapBufferList = new ArrayList<WrapBuffer>();
+		
+		for (WrapBuffer srcBuffer : dataPacketBufferList) {
+			ByteBuffer dupByteBuffer = srcBuffer.getByteBuffer().duplicate();
+			*//** In ByteBuffer the duplicate method doesn't copy the byte order attribute *//*
+			dupByteBuffer.order(streamByteOrder);
+			dupByteBuffer.flip();
+			WrapBuffer dupWrapBuffer = new WrapBuffer(dupByteBuffer);
+			
+			dupWrapBufferList.add(dupWrapBuffer);
+		}
+		
+		return dupWrapBufferList;
+	}*/
+	
+	public void flip() {
+		for (WrapBuffer srcBuffer : dataPacketBufferList) {
+			srcBuffer.getByteBuffer().flip();
+		}
 	}
 	
 	/** 
 	 * @return flip 없는 출력 스트림 쓰기 과정 결과 물이 담긴 버퍼 목록
 	 */
-	public ArrayList<WrapBuffer> getNoFlipDataPacketBufferList() {
+	public ArrayList<WrapBuffer> getDataPacketBufferList() {
 		return dataPacketBufferList;
 	}
+	
+	public ArrayList<WrapBuffer> getFlippedWrapBufferList() {
+		flip();
+		return dataPacketBufferList;
+	} 
 	
 	@Override
 	public Charset getCharset() {
@@ -366,18 +316,24 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 	}
 	
 	@Override
-	public void putByte(byte value) throws BufferOverflowException,
+	public void putByte(byte value) throws BufferOverflowException, SinnoriBufferOverflowException,
 			NoMoreDataPacketBufferException {
+		if (! workBuffer.hasRemaining()) {
+			addBuffer();
+		}
+		workBuffer.put(value);
+		outputStreamSize++;
+		/*
 		try {
 			workBuffer.put(value);
 		} catch (BufferOverflowException e) {
 			addBuffer();
 			workBuffer.put(value);
-		}
+		}*/
 	}
 
 	@Override
-	public void putUnsignedByte(short value) throws BufferOverflowException,
+	public void putUnsignedByte(short value) throws BufferOverflowException, SinnoriBufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException {
 		if (value < 0) {
 			throw new IllegalArgumentException(String.format(
@@ -394,12 +350,13 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 		
 	}
 	
-	private void doPutUnsignedByte(byte value) throws BufferOverflowException, NoMoreDataPacketBufferException {		
+	private void doPutUnsignedByte(byte value) throws BufferOverflowException, SinnoriBufferOverflowException, NoMoreDataPacketBufferException {		
 		putByte(value);
 	}
 	
 	@Override
-	public void putUnsignedByte(int value) throws BufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
+	public void putUnsignedByte(int value) throws BufferOverflowException, SinnoriBufferOverflowException, 
+	IllegalArgumentException, NoMoreDataPacketBufferException {
 		if (value < 0) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 값[%d]이 음수입니다.", value));
@@ -415,7 +372,8 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 	}
 	
 	@Override
-	public void putUnsignedByte(long value) throws BufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
+	public void putUnsignedByte(long value) throws BufferOverflowException, SinnoriBufferOverflowException,
+	IllegalArgumentException, NoMoreDataPacketBufferException {
 		if (value < 0) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 값[%d]이 음수입니다.", value));
@@ -432,12 +390,12 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 	
 
 	@Override
-	public void putShort(short value) throws BufferOverflowException,
+	public void putShort(short value) throws BufferOverflowException, SinnoriBufferOverflowException,
 			NoMoreDataPacketBufferException {
-		try {
+		/*try {
 			workBuffer.putShort(value);
 		} catch (BufferOverflowException e) {
-			clearShortBuffer();
+			shortBuffer.clear();
 			shortBuffer.putShort(value);
 			shortBuffer.position(0);
 			shortBuffer.limit(workBuffer.remaining());
@@ -445,11 +403,23 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 			shortBuffer.limit(shortBuffer.capacity());
 			addBuffer();
 			workBuffer.put(shortBuffer);
-		}
+		}*/
+		
+		shortBuffer.clear();
+		shortBuffer.putShort(value);
+		shortBuffer.rewind();
+		do {			
+			if (! workBuffer.hasRemaining()) {
+				addBuffer();
+			}				
+			workBuffer.put(shortBuffer.get());
+			outputStreamSize++;
+		} while(shortBuffer.hasRemaining());		
 	}
 
 	@Override
-	public void putUnsignedShort(int value) throws BufferOverflowException,
+	public void putUnsignedShort(int value) throws BufferOverflowException, 
+	SinnoriBufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException {
 		if (value < 0) {
 			throw new IllegalArgumentException(String.format(
@@ -465,28 +435,60 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 		doPutUnsignedShort(value);		
 	}
 	
-	private void doPutUnsignedShort(int value) throws NoMoreDataPacketBufferException {
-		ByteBuffer integerBuffer = getIntegerBufferForUnsignedShort(value);
+	private void doPutUnsignedShort(int value) throws SinnoriBufferOverflowException, NoMoreDataPacketBufferException {
+		// ByteBuffer integerBuffer = getIntegerBufferForUnsignedShort(value);
+		intBuffer.clear();
+		intBuffer.putInt(value);
+
+		if (ByteOrder.BIG_ENDIAN == streamByteOrder) {
+			intBuffer.position(2);
+			intBuffer.limit(4);
+		} else {
+			intBuffer.position(0);
+			intBuffer.limit(2);
+		}
+		
 		// log.info("1. unsingedShortBuffer=[%s]",
 		// unsingedShortBuffer.toString());
 		// log.info("1. workBuffer=[%s]", workBuffer.toString());
 
-		try {
-			workBuffer.put(integerBuffer);
-		} catch (BufferOverflowException e) {
-			int limit = integerBuffer.limit();
-			integerBuffer.limit(integerBuffer.position()+workBuffer.remaining());
-			workBuffer.put(integerBuffer);
-			integerBuffer.limit(limit);
-
-			addBuffer();
-			workBuffer.put(integerBuffer);
-		}
+		// FIXME! old code
+		
+		do {
+			
+			if (! workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+				
+			workBuffer.put(intBuffer.get());
+			outputStreamSize++;
+			
+			/*try {
+				workBuffer.put(intBuffer);
+			} catch (BufferOverflowException e) {
+				int oldLimitOfIntBuffer = intBuffer.limit();
+				intBuffer.limit(intBuffer.position()+workBuffer.remaining());
+				workBuffer.put(intBuffer);
+				intBuffer.limit(oldLimitOfIntBuffer);
+	
+				addBuffer();
+				// workBuffer.put(intBuffer);
+			}*/
+		} while(intBuffer.hasRemaining());
+		
+		/*while(intBuffer.hasRemaining()) {
+			try {
+				workBuffer.put(intBuffer.get());
+			} catch (BufferOverflowException e) {
+				addBuffer();
+				workBuffer.put(intBuffer.get());
+			}
+		}*/
 	}
 	
 	@Override
 	public void putUnsignedShort(long value) throws BufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException {
+			IllegalArgumentException, NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
 		if (value < 0) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 값[%d]이 음수입니다.", value));
@@ -504,11 +506,11 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 
 	@Override
 	public void putInt(int value) throws BufferOverflowException,
-			NoMoreDataPacketBufferException {
-		try {
+			NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
+		/*try {
 			workBuffer.putInt(value);
 		} catch (BufferOverflowException e) {
-			clearIntBuffer();
+			intBuffer.clear();
 			intBuffer.putInt(value);
 			intBuffer.position(0);
 			intBuffer.limit(workBuffer.remaining());
@@ -516,15 +518,35 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 			intBuffer.limit(intBuffer.capacity());
 
 			addBuffer();
-			workBuffer.put(intBuffer);
-		}
+			do {
+				try {
+					workBuffer.put(intBuffer);
+				} catch (BufferOverflowException e1) {
+					intBuffer.limit(longBuffer.position() + workBuffer.remaining());
+					workBuffer.put(intBuffer);
+					intBuffer.limit(intBuffer.capacity());
+					addBuffer();
+				}
+			} while(intBuffer.hasRemaining());
+		}*/
+		
+		intBuffer.clear();
+		intBuffer.putInt(value);
+		intBuffer.rewind();
+		do {			
+			if (! workBuffer.hasRemaining()) {
+				addBuffer();
+			}				
+			workBuffer.put(intBuffer.get());
+			outputStreamSize++;
+		} while(intBuffer.hasRemaining());
 		
 	}
 	
 	
 	@Override
 	public void putUnsignedInt(long value) throws BufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException {
+			IllegalArgumentException, NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
 		if (value < 0) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 값[%d]이 음수입니다.", value));
@@ -536,28 +558,61 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 					CommonStaticFinalVars.UNSIGNED_INTEGER_MAX));
 		}
 		
-		ByteBuffer longBuffer = getLongBufferForUnsignedInt(value);
-		try {
-			workBuffer.put(longBuffer);
-		} catch (BufferOverflowException e) {
-			int limit = longBuffer.limit();
-			longBuffer.limit(longBuffer.position() + workBuffer.remaining());
-			workBuffer.put(longBuffer);
-			longBuffer.limit(limit);
+		
+		longBuffer.clear();
+		longBuffer.putLong(value);
 
-			addBuffer();
-			workBuffer.put(longBuffer);
+		if (ByteOrder.BIG_ENDIAN == streamByteOrder) {
+			longBuffer.position(4);
+			longBuffer.limit(8);
+		} else {
+			longBuffer.position(0);
+			longBuffer.limit(4);
 		}
+		
+		do {
+			
+			if (! workBuffer.hasRemaining()) {
+				addBuffer();
+			}
+			
+			workBuffer.put(longBuffer.get());
+			outputStreamSize++;
+			
+			/*
+			try {
+				workBuffer.put(longBuffer);
+			} catch (BufferOverflowException e) {
+				int oldLimitOfLongBuffer = longBuffer.limit();
+				longBuffer.limit(longBuffer.position() + workBuffer.remaining());
+				workBuffer.put(longBuffer);
+				longBuffer.limit(oldLimitOfLongBuffer);
+	
+				addBuffer();
+				
+				// workBuffer.put(longBuffer);
+			}*/
+		} while(longBuffer.hasRemaining());
+		
+		/*do {
+			try {
+				workBuffer.put(longBuffer.get());
+			} catch (BufferOverflowException e) {
+				addBuffer();
+			}
+		} while(longBuffer.hasRemaining()); */
 	}
 
 	@Override
 	public void putLong(long value) throws BufferOverflowException,
-			NoMoreDataPacketBufferException {
-		try {
+			NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
+		/*try {
 			workBuffer.putLong(value);
 		} catch (BufferOverflowException e) {
-			clearLongBuffer();
+			longBuffer.clear();
 			longBuffer.putLong(value);
+			
+			
 			longBuffer.position(0);
 			longBuffer.limit(workBuffer.remaining());
 			workBuffer.put(longBuffer);
@@ -565,17 +620,35 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 			
 			addBuffer();
 			workBuffer.put(longBuffer);
-		}
+			
+			do {				
+				if (! workBuffer.hasRemaining()) {
+					addBuffer();
+				}				
+				workBuffer.put(longBuffer.get());				
+			} while(longBuffer.hasRemaining());
+		}*/
+		
+		longBuffer.clear();
+		longBuffer.putLong(value);
+		longBuffer.rewind();
+		do {				
+			if (! workBuffer.hasRemaining()) {
+				addBuffer();
+			}				
+			workBuffer.put(longBuffer.get());
+			outputStreamSize++;
+		} while(longBuffer.hasRemaining());
 	}
 
 	@Override
-	public void putFixedLengthString(int len, String str,
+	public void putFixedLengthString(int fixedLength, String str,
 			CharsetEncoder wantedCharsetEncoder)
 			throws BufferOverflowException, IllegalArgumentException,
-			NoMoreDataPacketBufferException{
-		if (len < 0) {
+			NoMoreDataPacketBufferException, SinnoriBufferOverflowException{
+		if (fixedLength < 0) {
 			throw new IllegalArgumentException(String.format(
-					"파리미터 문자열 길이(=len)의 값[%d]은  0 보다 크거나 같아야 합니다.", len));
+					"the parameter fixedLength[%d] is less than zero", fixedLength));
 		}
 
 		/*
@@ -587,12 +660,12 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 		}
 		*/
 
-		long remainingBytes = remaining();
+		/*long remainingBytes = remaining();
 		if (len > remainingBytes) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 길이[%d]는 남아 있은 버퍼 크기[%d] 보다 작거나 같아야 합니다.", len,
 					remainingBytes));
-		}
+		}*/
 
 		if (str == null) {
 			throw new IllegalArgumentException("파리미터 문자열(=str)의 값이 null 입니다.");
@@ -603,18 +676,20 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 					"파리미터 문자셋(=clientEncoder)의 값이 null 입니다.");
 		}
 		
+		if (0 == fixedLength) return;
+		
 		CharBuffer strCharBuffer = CharBuffer.wrap(str);
 
 		ByteBuffer strByteBuffer = null;
 		try {
-			strByteBuffer = ByteBuffer.allocate(len);
+			strByteBuffer = ByteBuffer.allocate(fixedLength);
 		} catch (OutOfMemoryError e) {
 			log.warn("OutOfMemoryError", e);
 			throw e;
 		}
 		
-		byte srcBytes[] = strByteBuffer.array(); 
-		Arrays.fill(srcBytes, CommonStaticFinalVars.ZERO_BYTE);
+		byte strBytes[] = strByteBuffer.array(); 
+		Arrays.fill(strBytes, CommonStaticFinalVars.ZERO_BYTE);
 		wantedCharsetEncoder.encode(strCharBuffer, strByteBuffer, true);
 		// log.info("strBufer=[%s]", strBufer.toString());
 		
@@ -622,18 +697,18 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 		strByteBuffer.rewind();
 		putBytesToWorkBuffer(strByteBuffer);
 		*/
-		putBytesToWorkBuffer(srcBytes);
+		doPutBytes(strBytes, 0, strBytes.length);
 	}
 
 	@Override
-	public void putFixedLengthString(int len, String str) throws BufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException {
-		putFixedLengthString(len, str, streamCharsetEncoder);
+	public void putFixedLengthString(int fixedLength, String str) throws BufferOverflowException,
+			IllegalArgumentException, NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
+		putFixedLengthString(fixedLength, str, streamCharsetEncoder);
 	}
 
 	@Override
 	public void putStringAll(String str) throws BufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException {
+			IllegalArgumentException, NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
 		if (str == null) {
 			throw new IllegalArgumentException("파리미터 문자열(=str)의 값이 null 입니다.");
 		}
@@ -649,18 +724,18 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 		}
 		*/
 
-		putBytes(strBytes);
+		doPutBytes(strBytes, 0, strBytes.length);
 	}
 
 	@Override
 	public void putPascalString(String str) throws BufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException {
+			IllegalArgumentException, NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
 		putUBPascalString(str);
 	}
 
 	@Override
 	public void putSIPascalString(String str) throws BufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException {
+			IllegalArgumentException, NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
 		if (str == null) {
 			throw new IllegalArgumentException("파리미터 문자열(=str)의 값이 null 입니다.");
 		}
@@ -683,7 +758,7 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 
 	@Override
 	public void putUSPascalString(String str) throws BufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException {
+			IllegalArgumentException, NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
 		if (str == null) {
 			throw new IllegalArgumentException("파리미터 문자열(=str)의 값이 null 입니다.");
 		}
@@ -702,7 +777,7 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 
 	@Override
 	public void putUBPascalString(String str) throws BufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException {
+			IllegalArgumentException, NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
 		if (str == null) {
 			throw new IllegalArgumentException("파리미터 문자열(=str)의 값이 null 입니다.");
 		}
@@ -721,22 +796,25 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 	}
 
 	@Override
-	public void putBytes(byte[] srcBytes, int offset, int length)
+	public void putBytes(byte[] src, int offset, int length)
 			throws BufferOverflowException, IllegalArgumentException,
-			NoMoreDataPacketBufferException {
-		if (srcBytes == null) {
-			throw new IllegalArgumentException(
-					"파리미터 소스 바이트 배열(=srcBytes)의 값이 null 입니다.");
+			NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
+		if (src == null) {
+			throw new IllegalArgumentException("the parameter src is null");
 		}
 
 		if (offset < 0) {
 			throw new IllegalArgumentException(String.format(
-					"파라미터 옵셋[%d]은  0 보다 커야 합니다.", offset));
+					"the parameter offset[%d] is less than zero", offset));
 		}
 
 		if (length < 0) {
 			throw new IllegalArgumentException(String.format(
-					"파라미터 소스 바이트 배열 길이[%d]는  0 보다 커야 합니다.", length));
+					"the parameter length[%d] is less than zero", length));
+		}
+		
+		if (0 == length) {
+			return;
 		}
 		/*
 		if (length > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
@@ -747,24 +825,23 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 		}
 		*/
 
-		long remainingBytes = remaining();
+		/*long remainingBytes = remaining();
 		if (length > remainingBytes) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 소스 바이트 배열 길이[%d]는 남아 있은 버퍼 크기[%d] 보다 작거나 같아야 합니다.",
 					length, remainingBytes));
-		}
+		}*/
 
 		// ByteBuffer srcByteBuffer = ByteBuffer.wrap(srcBytes, offset, length);
 
-		putBytesToWorkBuffer(srcBytes, offset, length);
+		doPutBytes(src, offset, length);
 	}
 
 	@Override
-	public void putBytes(byte[] srcBytes) throws BufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException {
-		if (srcBytes == null) {
-			throw new IllegalArgumentException(
-					"파리미터 소스 바이트 배열(=srcBytes)의 값이 null 입니다.");
+	public void putBytes(byte[] src) throws BufferOverflowException,
+			IllegalArgumentException, NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
+		if (src == null) {
+			throw new IllegalArgumentException("the parameter src is null");
 		}
 		/*
 		if (srcBuffer.length > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
@@ -778,15 +855,15 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 
 		// ByteBuffer srcByteBuffer = ByteBuffer.wrap(srcBuffer);
 
-		putBytesToWorkBuffer(srcBytes);
+		doPutBytes(src, 0, src.length);
 		
 	}
 
 	@Override
-	public void putBytes(ByteBuffer srcByteBuffer) throws BufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException {
-		if (srcByteBuffer == null) {
-			throw new IllegalArgumentException("파리미터 소스 버퍼의 값이 null 입니다.");
+	public void putBytes(ByteBuffer src) throws BufferOverflowException,
+			IllegalArgumentException, NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
+		if (src == null) {
+			throw new IllegalArgumentException("the parameter src is null");
 		}
 
 		/*
@@ -804,60 +881,93 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 		 * slice 메소드를 통해 원본 버퍼의 속성과 별개의 속성을 갖는 <br/>
 		 * 그리고 실제 필요한 영역만을 가지는 바이트 버퍼를 만든다.
 		 */
-		ByteBuffer sliceBuffer = srcByteBuffer.slice();
+		ByteBuffer sliceBuffer = src.slice();
 
-		putBytesToWorkBuffer(sliceBuffer);
+		doPutBytes(sliceBuffer);
 		
 	}
 
 	@Override
-	public void skip(int skipBytes) throws BufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException {
-		if (skipBytes <= 0) {
+	public void skip(int n) throws BufferOverflowException,
+			IllegalArgumentException, NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
+		if (n < 0) {
 			throw new IllegalArgumentException(String.format(
-					"파라미터 생략할 크기[%d]는 0보다 커야 합니다.", skipBytes));
+					"the parameter n is less than zero", n));
 		}
+		if (0 == n) return;
 
-		if (skipBytes >= CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+		/*if (n >= CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 			throw new IllegalArgumentException(String.format(
 					"파라미터 생략할 크기[%d]는 unsinged byte 최대값[%d]보다 작어야 합니다.",
 					skipBytes, CommonStaticFinalVars.UNSIGNED_BYTE_MAX));
+		}*/
+		
+		int remainingBytesOfWorkBuffer = workBuffer.remaining();
+		if (0 == remainingBytesOfWorkBuffer) {
+			addBuffer();
+			remainingBytesOfWorkBuffer = workBuffer.remaining();
 		}
 		
-		int dstRemainingByte = skipBytes;
 		do {
-			int workRemainingByte = workBuffer.remaining();
-			if (dstRemainingByte < workRemainingByte) {
-				workBuffer.position(workBuffer.position() + dstRemainingByte);
-				dstRemainingByte = 0;
+			if (n <= remainingBytesOfWorkBuffer) {
+				workBuffer.position(workBuffer.position() + n);
+				outputStreamSize += n;
 				break;
 			}
 
-			workBuffer.position(workBuffer.limit());
-			dstRemainingByte -= workRemainingByte;
-			if (dstRemainingByte <= 0)
-				break;
+			int limitOfWorkBuffer = workBuffer.limit();
+			workBuffer.position(limitOfWorkBuffer);
+			outputStreamSize += remainingBytesOfWorkBuffer;
+			
+			n -= remainingBytesOfWorkBuffer;			
 			addBuffer();
-		} while (true);
+			remainingBytesOfWorkBuffer = workBuffer.remaining();
+		} while (n != 0);
 	}
 
-	@Override
+	/*@Override
 	public long remaining() {
 		long remainingBufferCount = dataPacketBufferMaxCntPerMessage - dataPacketBufferList.size();
 		long remainingByte = workBuffer.capacity()*remainingBufferCount
 				+ workBuffer.remaining();
 		return remainingByte;
-	}
+		
+		if (null == workBuffer) {
+			return 0L;
+		}
+		
+		int streamBufferListSize = streamBufferList.size();
+		
+		long availableBytes = 0;
+		
+		for (int i=indexOfWorkBuffer; i < streamBufferListSize; i++) {
+			availableBytes += streamBufferList.get(i).remaining();
+			
+		}
+		
+		return availableBytes;
+	}*/
 	
-	@Override
-	public long postion() {
-		int dataPacketBufferListSize = dataPacketBufferList.size();
+	// @Override
+	public long getOutputStreamSize() {
+		/*int dataPacketBufferListSize = dataPacketBufferList.size();
 		
 		if (0 == dataPacketBufferListSize) return 0;
 		
 		long position = (dataPacketBufferListSize - 1)*workBuffer.capacity()+workBuffer.position();
 		
-		return position;
+		return position;*/
+		return outputStreamSize;
+	}
+	
+	public long getWrittenBytes() {
+		long writtenBytes = 0;
+		
+		for (WrapBuffer buffer : dataPacketBufferList) {
+			writtenBytes += buffer.getByteBuffer().position();
+		}
+		
+		return writtenBytes;
 	}
 
 	@Override

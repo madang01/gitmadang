@@ -47,8 +47,8 @@ import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
+import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.project.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
 
@@ -116,12 +116,13 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue, MessageProtocolIF messageProtocol,
 			AsynServerAdderIF outputMessageReaderPool,
 			ClientOutputMessageQueueQueueMangerIF outputMessageQueueQueueManager,
+			int dataPacketBufferMaxCntPerMessage,
 			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager,
 			ClientObjectCacheManagerIF clientObjectCacheManager)
 			throws InterruptedException, NoMoreDataPacketBufferException, NoMoreOutputMessageQueueException {
 		super(projectName, index, hostOfProject, portOfProject, charsetOfProject, socketTimeOut, whetherToAutoConnect,
 				finishConnectMaxCall, finishConnectWaittingTime, asynOutputMessageQueue, inputMessageQueue,
-				messageProtocol, outputMessageReaderPool, dataPacketBufferQueueManager, clientObjectCacheManager);
+				messageProtocol, outputMessageReaderPool, dataPacketBufferMaxCntPerMessage, dataPacketBufferQueueManager, clientObjectCacheManager);
 
 		log.info(String.format("create MultiNoneBlockConnection, projectName=[%s%02d], mailBoxCnt=[%d]", projectName,
 				index, mailBoxCnt));

@@ -29,7 +29,8 @@ public class ProjectPartConfiguration {
 	
 	private Integer dataPacketBufferMaxCntPerMessage = null;	
 	private Integer dataPacketBufferSize = null;
-	private Integer  messageIDFixedSize = null;	
+	private Integer dataPacketBufferPoolSize = null;
+	private Integer messageIDFixedSize = null;	
 		
 	private CommonType.MESSAGE_PROTOCOL_GUBUN messageProtocol = null;
 	
@@ -95,8 +96,7 @@ public class ProjectPartConfiguration {
 	private Long serverMonitorReceptionTimeout = null;
 	/***** 모니터 환경 변수 종료 *****/
 	
-	private Integer serverMaxClients = null;
-	private Integer  serverDataPacketBufferCnt = null;	
+	private Integer serverMaxClients = null;		
 	
 	/***** 서버 비동기 입출력 지원용 자원 시작 *****/
 	private Integer  serverAcceptQueueSize = null;
@@ -230,7 +230,19 @@ public class ProjectPartConfiguration {
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 			
-			this.dataPacketBufferSize = (Integer)nativeValue;			
+			this.dataPacketBufferSize = (Integer)nativeValue;	
+		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_DATA_PACKET_BUFFER_POOL_SIZE_ITEMID)) {
+			if (!(nativeValue instanceof Integer)) {
+				String errorMessage = new StringBuilder("the generic type[")
+				.append(nativeValue.getClass().getName())
+				.append("] of the parameter itemIDInfo[")
+				.append(itemID).append("] is differnet from the mapped variable's type[")
+				.append(Integer.class.getName())
+				.append("]").toString();
+				throw new SinnoriConfigurationException(errorMessage);
+			}
+			
+			this.dataPacketBufferPoolSize = (Integer) nativeValue;
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_MESSAGE_ID_FIXED_SIZE_ITEMID)) {
 			if (!(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -534,19 +546,7 @@ public class ProjectPartConfiguration {
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 			
-			this.serverMaxClients = (Integer) nativeValue;
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_DATA_PACKET_BUFFER_CNT_ITEMID)) {
-			if (!(nativeValue instanceof Integer)) {
-				String errorMessage = new StringBuilder("the generic type[")
-				.append(nativeValue.getClass().getName())
-				.append("] of the parameter itemIDInfo[")
-				.append(itemID).append("] is differnet from the mapped variable's type[")
-				.append(Integer.class.getName())
-				.append("]").toString();
-				throw new SinnoriConfigurationException(errorMessage);
-			}
-			
-			this.serverDataPacketBufferCnt = (Integer) nativeValue;
+			this.serverMaxClients = (Integer) nativeValue;		
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_ACCEPT_QUEUE_SIZE_ITEMID)) {
 			if (!(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -903,8 +903,8 @@ public class ProjectPartConfiguration {
 		return serverOutputMessageQueueSize;
 	}
 
-	public int getServerDataPacketBufferCnt() {
-		return serverDataPacketBufferCnt;
+	public int getDataPacketBufferPoolSize() {
+		return dataPacketBufferPoolSize;
 	}
 
 	public long getServerMonitorTimeInterval() {
@@ -957,7 +957,9 @@ public class ProjectPartConfiguration {
 		builder.append(dataPacketBufferMaxCntPerMessage);
 		builder.append(", dataPacketBufferSize=");
 		builder.append(dataPacketBufferSize);
-		builder.append(", messageIDFixedSize=");
+		builder.append(", dataPacketBufferCount=");
+		builder.append(dataPacketBufferPoolSize);
+		builder.append(", messageIDFixedSize=");		
 		builder.append(messageIDFixedSize);
 		builder.append(", messageProtocol=");
 		builder.append(messageProtocol);
@@ -1004,9 +1006,7 @@ public class ProjectPartConfiguration {
 		builder.append(", serverMonitorReceptionTimeout=");
 		builder.append(serverMonitorReceptionTimeout);
 		builder.append(", serverMaxClients=");
-		builder.append(serverMaxClients);
-		builder.append(", serverDataPacketBufferCnt=");
-		builder.append(serverDataPacketBufferCnt);
+		builder.append(serverMaxClients);		
 		builder.append(", serverAcceptQueueSize=");
 		builder.append(serverAcceptQueueSize);
 		builder.append(", serverInputMessageQueueSize=");

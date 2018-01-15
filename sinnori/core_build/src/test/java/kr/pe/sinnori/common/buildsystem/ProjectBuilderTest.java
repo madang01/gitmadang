@@ -17,19 +17,30 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
-import kr.pe.sinnori.common.buildsystem.MainProjectBuildSystemState;
-import kr.pe.sinnori.common.buildsystem.ProjectBuilder;
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDDefiner;
+import kr.pe.sinnori.common.config.itemidinfo.SinnoriItemIDInfoManger;
 import kr.pe.sinnori.common.exception.BuildSystemException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.util.SequencedProperties;
 
 public class ProjectBuilderTest {
-	private Logger log = LoggerFactory.getLogger(BuildSystemSupporterTest.class);
+	private Logger log = LoggerFactory.getLogger(ProjectBuilderTest.class);
 
 	final int EXIT_SUCCESS = 0;
+	
+	@Test
+	public void test() {
+		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori2";
+		String mainProjectName = "sample_test";
+		
+		SinnoriItemIDInfoManger mainProjectItemIDInfo = SinnoriItemIDInfoManger.getInstance();
+
+		SequencedProperties newSinnoriConfigSequencedProperties = mainProjectItemIDInfo
+				.getNewSinnoriConfigSequencedProperties(sinnoriInstalledPathString, mainProjectName);
+		
+		log.info(newSinnoriConfigSequencedProperties.toString());
+	}
 
 	@SuppressWarnings("unused")
 	@Test
@@ -485,7 +496,7 @@ public class ProjectBuilderTest {
 			boolean isServer = false;
 			boolean isAppClient = true;
 			boolean isWebClient = false;
-			String servletSystemLibraryPathString = "D:\\apache-tomcat-8.5.11\\lib";
+			String servletSystemLibraryPathString = "D:\\apache-tomcat-8.5.15\\lib";
 
 			projectBuilder.createProject(isServer, isAppClient, isWebClient, servletSystemLibraryPathString);
 		} catch (BuildSystemException e) {
@@ -519,7 +530,7 @@ public class ProjectBuilderTest {
 	}
 
 	@Test
-	public void testisValidSeverAntBuildXMLFile() {
+	public void testIsValidSeverAntBuildXMLFile() {
 		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
 		String mainProjectName = "sample_test";
 
@@ -556,7 +567,7 @@ public class ProjectBuilderTest {
 		boolean isServer = true;
 		boolean isAppClient = true;
 		boolean isWebClient = true;
-		String servletSystemLibraryPathString = "D:\\apache-tomcat-8.5.11\\lib";
+		String servletSystemLibraryPathString = "D:\\apache-tomcat-8.5.15\\lib";
 
 		try {
 			ProjectBuilder projectBuilder = new ProjectBuilder(sinnoriInstalledPathString, mainProjectName);
@@ -637,7 +648,7 @@ public class ProjectBuilderTest {
 			boolean isServer = true;
 			boolean isAppClient = true;
 			boolean isWebClient = true;
-			String servletSystemLibraryPathString = "D:\\apache-tomcat-8.5.11\\lib";
+			String servletSystemLibraryPathString = "D:\\apache-tomcat-8.5.15\\lib";
 			boolean[] isServerBooleanSet = { true, false };
 			boolean[] isAppClientBooleanSet = { true, false };
 			boolean[] isWebClientBooleanSet = { true, false };

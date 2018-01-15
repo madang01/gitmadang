@@ -38,8 +38,8 @@ import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
+import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.project.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
 
@@ -94,6 +94,7 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 			MessageProtocolIF messageProtocol,
 			AsynServerAdderIF outputMessageReaderPool,
 			ClientOutputMessageQueueQueueMangerIF syncOutputMessageQueueQueueManger,
+			int dataPacketBufferMaxCntPerMessage,
 			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager,
 			ClientObjectCacheManagerIF clientObjectCacheManager)
 			throws NoMoreDataPacketBufferException, InterruptedException, NoMoreOutputMessageQueueException {
@@ -116,8 +117,9 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 					finishConnectMaxCall, finishConnectWaittingTime,  
 					asynOutputMessageQueue, inputMessageQueue,
 					messageProtocol,
-					outputMessageReaderPool,  
+					outputMessageReaderPool,
 					syncOutputMessageQueueQueueManger,
+					dataPacketBufferMaxCntPerMessage,
 					dataPacketBufferQueueManager, clientObjectCacheManager);
 			connectionQueue.add(serverConnection);
 			connectionList.add(serverConnection);

@@ -43,8 +43,8 @@ import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
+import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.project.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
 
@@ -101,12 +101,13 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue, MessageProtocolIF messageProtocol,
 			AsynServerAdderIF outputMessageReaderPool,
 			ClientOutputMessageQueueQueueMangerIF outputMessageQueueQueueManger,
+			int dataPacketBufferMaxCntPerMessage,
 			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager,
 			ClientObjectCacheManagerIF clientObjectCacheManager)
 			throws InterruptedException, NoMoreDataPacketBufferException, NoMoreOutputMessageQueueException {
 		super(projectName, index, hostOfProject, portOfProject, charsetOfProject, socketTimeOut, whetherToAutoConnect,
 				finishConnectMaxCall, finishConnectWaittingTime, asynOutputMessageQueue, inputMessageQueue,
-				messageProtocol, outputMessageReaderPool, dataPacketBufferQueueManager, clientObjectCacheManager);
+				messageProtocol, outputMessageReaderPool, dataPacketBufferMaxCntPerMessage, dataPacketBufferQueueManager, clientObjectCacheManager);
 
 		// this.messageManger = messageManger;
 		// this.outputMessageQueue = outputMessageQueue;
