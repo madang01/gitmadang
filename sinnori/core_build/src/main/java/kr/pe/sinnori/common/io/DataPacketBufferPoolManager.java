@@ -2,7 +2,6 @@ package kr.pe.sinnori.common.io;
 
 import java.nio.ByteOrder;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -76,6 +75,7 @@ public class DataPacketBufferPoolManager implements DataPacketBufferPoolManagerI
 			System.exit(1);
 		}
 	}
+	
 
 	@Override
 	public WrapBuffer pollDataPacketBuffer() throws NoMoreDataPacketBufferException {
@@ -143,30 +143,7 @@ public class DataPacketBufferPoolManager implements DataPacketBufferPoolManagerI
 		return dataPacketBufferSize;
 	}
 
-	private Set<Integer> getMissingWrapBufferHashcodeSet() {
-		Set<Integer> dupWrapBufferSet = new HashSet<Integer>();
-		
-		dupWrapBufferSet.addAll(allWrapBufferHashcodeSet);
-		
-		dupWrapBufferSet.removeAll(queueOutWrapBufferHashcodeSet);
-		
-		Iterator<WrapBuffer> dataPacketBufferQueueIterator = dataPacketBufferQueue.iterator();
-		
-		while(dataPacketBufferQueueIterator.hasNext()) {
-			dupWrapBufferSet.remove(dataPacketBufferQueueIterator.next().hashCode());
-		}
-		
-		return dupWrapBufferSet;
-		
-	}
 	
-	public void checkMissingWrapBufferExist() {
-		Set<Integer> missingWrapBufferHashcodeSet = getMissingWrapBufferHashcodeSet();		
-		if (! missingWrapBufferHashcodeSet.isEmpty()) {
-			log.error("missing WrapBuffer exist, missingWrapBufferHashcodeSet={}", missingWrapBufferHashcodeSet.toString());
-			System.exit(1);
-		}
-	}
 	
 	
 	public String getQueueState() {		

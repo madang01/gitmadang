@@ -92,7 +92,9 @@ public class WrapBuffer {
 
 	@Override
 	public void finalize() {
-		log.warn("this wrap buffer[hashcode={}] was destroyed", hashCode());
+		if (! isInQueue) {
+			log.warn("this wrap buffer[hashcode={}] was destroyed outside the queue", hashCode());
+		}
 	}
 
 	/**

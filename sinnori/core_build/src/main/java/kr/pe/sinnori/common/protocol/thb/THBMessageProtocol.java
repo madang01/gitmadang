@@ -123,7 +123,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 		messageHeader.messageID = messageObj.getMessageID();
 		messageHeader.mailboxID = messageObj.messageHeaderInfo.mailboxID;
 		messageHeader.mailID = messageObj.messageHeaderInfo.mailID;
-		messageHeader.bodySize =  bodyOutputStream.getOutputStreamSize() - messageHeaderSize;
+		messageHeader.bodySize =  bodyOutputStream.size() - messageHeaderSize;
 		
 		// FIXME!
 		//log.info(messageHeader.toString());

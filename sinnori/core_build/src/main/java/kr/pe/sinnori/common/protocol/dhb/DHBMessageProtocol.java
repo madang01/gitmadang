@@ -173,7 +173,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 		messageHeader.messageID = messageObj.getMessageID();
 		messageHeader.mailboxID = messageObj.messageHeaderInfo.mailboxID;
 		messageHeader.mailID = messageObj.messageHeaderInfo.mailID;
-		messageHeader.bodySize = bodyOutputStream.getOutputStreamSize() - messageHeaderSize;
+		messageHeader.bodySize = bodyOutputStream.size() - messageHeaderSize;
 
 		/** 바디 MD5 */
 		ArrayList<WrapBuffer> messageWrapBufferList = bodyOutputStream

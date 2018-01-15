@@ -87,7 +87,6 @@ public class DataPacketBufferPoolManagerTest {
 			}
 		}
 		
-		dataPacketBufferPoolManager.checkMissingWrapBufferExist();
 	}
 	
 	@Test
@@ -210,7 +209,6 @@ public class DataPacketBufferPoolManagerTest {
 			fail("error");
 		}
 		
-		dataPacketBufferPoolManager.checkMissingWrapBufferExist();		
 	}
 	
 	

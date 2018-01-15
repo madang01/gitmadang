@@ -108,7 +108,7 @@ public class FixedSizeOutputStreamTest {
 	}
 
 	@Test
-	public void testPutUnsignedByte_theParameterValue_shortType_lessThanZero() {
+	public void testPutUnsignedByte_shortType_lessThanZero() {
 		short value = -1;
 		ByteBuffer streambuffer = ByteBuffer.allocate(8);
 
@@ -129,7 +129,7 @@ public class FixedSizeOutputStreamTest {
 	}
 
 	@Test
-	public void testPutUnsignedByte_theParameterValue_shortType_greaterThanMax() {
+	public void testPutUnsignedByte_shortType_greaterThanMax() {
 		short value = CommonStaticFinalVars.UNSIGNED_BYTE_MAX + 1;
 		ByteBuffer streambuffer = ByteBuffer.allocate(8);
 
@@ -151,7 +151,7 @@ public class FixedSizeOutputStreamTest {
 	}
 
 	@Test
-	public void testPutUnsignedByte_theParameterValue_minMaxMiddle() {
+	public void testPutUnsignedByte_minMaxMiddle() {
 		ByteBuffer streambuffer = ByteBuffer.allocate(8);
 
 		Charset streamCharset = Charset.forName("utf-8");
@@ -170,7 +170,7 @@ public class FixedSizeOutputStreamTest {
 			
 			for (short expectedValue : shortTypeExpectedValueList) {
 				streambuffer.clear();
-				Arrays.fill(streambuffer.array(), (byte) 0);
+				Arrays.fill(streambuffer.array(), CommonStaticFinalVars.ZERO_BYTE);
 
 				try {
 					FixedSizeOutputStream fsos = new FixedSizeOutputStream(streambuffer, streamCharsetEncoder);
@@ -189,7 +189,7 @@ public class FixedSizeOutputStreamTest {
 
 					streambuffer.position(0);
 					shortBuffer.clear();
-					Arrays.fill(shortBuffer.array(), (byte) 0);
+					Arrays.fill(shortBuffer.array(), CommonStaticFinalVars.ZERO_BYTE);
 					if (ByteOrder.BIG_ENDIAN.equals(streamByteOrder)) {						
 						shortBuffer.position(1);
 						shortBuffer.put(streambuffer.get());
@@ -213,7 +213,7 @@ public class FixedSizeOutputStreamTest {
 	}
 
 	@Test
-	public void testPutUnsignedByte_theParameterValue_integerType_lessThanZero() {
+	public void testPutUnsignedByte_integerType_lessThanZero() {
 		int value = -1;
 		ByteBuffer streambuffer = ByteBuffer.allocate(8);
 
@@ -234,7 +234,7 @@ public class FixedSizeOutputStreamTest {
 	}
 
 	@Test
-	public void testPutUnsignedByte_theParameterValue_integerType_greaterThanMax() {
+	public void testPutUnsignedByte_integerType_greaterThanMax() {
 		int value = CommonStaticFinalVars.UNSIGNED_BYTE_MAX + 1;
 		ByteBuffer streambuffer = ByteBuffer.allocate(8);
 
@@ -256,7 +256,7 @@ public class FixedSizeOutputStreamTest {
 	}
 	
 	@Test
-	public void testPutUnsignedByte_theParameterValue_longType_greaterThanMax() {
+	public void testPutUnsignedByte_longType_greaterThanMax() {
 		long value = CommonStaticFinalVars.UNSIGNED_BYTE_MAX + 1;
 		ByteBuffer streambuffer = ByteBuffer.allocate(8);
 
@@ -278,7 +278,7 @@ public class FixedSizeOutputStreamTest {
 	}
 
 	@Test
-	public void testPutUnsignedShort_theParameterValue_integerType_lessThanZero() {
+	public void testPutUnsignedShort_integerType_lessThanZero() {
 		int value = -1;
 		ByteBuffer streambuffer = ByteBuffer.allocate(8);
 
@@ -299,7 +299,7 @@ public class FixedSizeOutputStreamTest {
 	}
 
 	@Test
-	public void testPutUnsignedShort_theParameterValue_integerType_greaterThanMax() {
+	public void testPutUnsignedShort_integerType_greaterThanMax() {
 		int value = CommonStaticFinalVars.UNSIGNED_SHORT_MAX + 10;
 		ByteBuffer streambuffer = ByteBuffer.allocate(8);
 
@@ -321,7 +321,7 @@ public class FixedSizeOutputStreamTest {
 	}
 
 	@Test
-	public void testPutUnsignedShort_theParameterValue_longType_lessThanZero() {
+	public void testPutUnsignedShort_longType_lessThanZero() {
 		long value = -1;
 		ByteBuffer streambuffer = ByteBuffer.allocate(8);
 
@@ -342,7 +342,7 @@ public class FixedSizeOutputStreamTest {
 	}
 
 	@Test
-	public void testPutUnsignedShort_theParameterValue_longType_greaterThanMax() {
+	public void testPutUnsignedShort_longType_greaterThanMax() {
 		long value = CommonStaticFinalVars.UNSIGNED_SHORT_MAX + 10;
 		ByteBuffer streambuffer = ByteBuffer.allocate(8);
 
@@ -364,7 +364,7 @@ public class FixedSizeOutputStreamTest {
 	}
 	
 	@Test
-	public void testPutUnsignedShort_theParameterValue_minMaxMiddle() {
+	public void testPutUnsignedShort_minMaxMiddle() {
 		ByteBuffer streambuffer = ByteBuffer.allocate(8);
 
 		Charset streamCharset = Charset.forName("utf-8");
@@ -383,7 +383,7 @@ public class FixedSizeOutputStreamTest {
 
 			for (int expectedValue : integerTypeExpectedValueList) {
 				streambuffer.clear();
-				Arrays.fill(streambuffer.array(), (byte) 0);
+				Arrays.fill(streambuffer.array(), CommonStaticFinalVars.ZERO_BYTE);
 
 				try {
 					FixedSizeOutputStream fsos = new FixedSizeOutputStream(streambuffer, streamCharsetEncoder);
@@ -402,7 +402,7 @@ public class FixedSizeOutputStreamTest {
 
 					streambuffer.position(0);
 					integerBuffer.clear();
-					Arrays.fill(integerBuffer.array(), (byte) 0);
+					Arrays.fill(integerBuffer.array(), CommonStaticFinalVars.ZERO_BYTE);
 					if (ByteOrder.BIG_ENDIAN.equals(streamByteOrder)) {
 						integerBuffer.position(2);
 						integerBuffer.put(streambuffer.get());
@@ -426,7 +426,7 @@ public class FixedSizeOutputStreamTest {
 	}
 
 	@Test
-	public void testPutUnsignedInt_theParameterValue_lessThanZero() {
+	public void testPutUnsignedInt_lessThanZero() {
 		long value = -1;
 		ByteBuffer streambuffer = ByteBuffer.allocate(8);
 
@@ -447,7 +447,7 @@ public class FixedSizeOutputStreamTest {
 	}
 
 	@Test
-	public void testPutUnsignedInt_theParameterValue_greaterThanMax() {
+	public void testPutUnsignedInt_greaterThanMax() {
 		long value = CommonStaticFinalVars.UNSIGNED_INTEGER_MAX + 10;
 		ByteBuffer streambuffer = ByteBuffer.allocate(8);
 
@@ -472,15 +472,15 @@ public class FixedSizeOutputStreamTest {
 	
 
 	@Test
-	public void testPutUnsignedInt_theParameterValue_minMaxMiddle() {
+	public void testPutUnsignedInt_minMaxMiddle() {
 		ByteBuffer streambuffer = ByteBuffer.allocate(8);
 
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		long longTypeExpectedValueList[] = { 0, CommonStaticFinalVars.UNSIGNED_INTEGER_MAX,
-				CommonStaticFinalVars.UNSIGNED_INTEGER_MAX / 14 };
+		long longTypeExpectedValueList[] = {CommonStaticFinalVars.UNSIGNED_INTEGER_MAX,
+				CommonStaticFinalVars.UNSIGNED_INTEGER_MAX / 14, 0 };
 		ByteOrder[] streamByteOrderList = { ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN };
 		ByteBuffer longBuffer = ByteBuffer.allocate(8);
 
@@ -491,7 +491,7 @@ public class FixedSizeOutputStreamTest {
 
 			for (long expectedValue : longTypeExpectedValueList) {
 				streambuffer.clear();
-				Arrays.fill(streambuffer.array(), (byte) 0);
+				Arrays.fill(streambuffer.array(), CommonStaticFinalVars.ZERO_BYTE);
 
 				try {
 					FixedSizeOutputStream fsos = new FixedSizeOutputStream(streambuffer, streamCharsetEncoder);
@@ -510,7 +510,7 @@ public class FixedSizeOutputStreamTest {
 
 					streambuffer.position(0);
 					longBuffer.clear();
-					Arrays.fill(longBuffer.array(), (byte) 0);
+					Arrays.fill(longBuffer.array(), CommonStaticFinalVars.ZERO_BYTE);
 					if (ByteOrder.BIG_ENDIAN.equals(streamByteOrder)) {
 						longBuffer.position(4);
 						longBuffer.put(streambuffer.get());
@@ -546,7 +546,7 @@ public class FixedSizeOutputStreamTest {
 		// CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 
 		streambuffer.clear();
-		Arrays.fill(streambuffer.array(), (byte) 0);
+		Arrays.fill(streambuffer.array(), CommonStaticFinalVars.ZERO_BYTE);
 		byte[] src = null;
 		int offset = 0;
 		int length = 1;
@@ -576,7 +576,7 @@ public class FixedSizeOutputStreamTest {
 		// CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 
 		streambuffer.clear();
-		Arrays.fill(streambuffer.array(), (byte) 0);
+		Arrays.fill(streambuffer.array(), CommonStaticFinalVars.ZERO_BYTE);
 		byte[] src = {0x10, 0x20, 0x30, 0x40};
 		int offset = -1;
 		int length = 1;
@@ -607,7 +607,7 @@ public class FixedSizeOutputStreamTest {
 		// CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 
 		streambuffer.clear();
-		Arrays.fill(streambuffer.array(), (byte) 0);
+		Arrays.fill(streambuffer.array(), CommonStaticFinalVars.ZERO_BYTE);
 		byte[] src = {0x10, 0x20, 0x30, 0x40};
 		int offset = src.length;
 		int length = 1;
@@ -637,7 +637,7 @@ public class FixedSizeOutputStreamTest {
 		// CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 
 		streambuffer.clear();
-		Arrays.fill(streambuffer.array(), (byte) 0);
+		Arrays.fill(streambuffer.array(), CommonStaticFinalVars.ZERO_BYTE);
 		byte[] src = {0x10, 0x20, 0x30, 0x40};
 		int offset = 0;
 		int length = -1;
@@ -668,7 +668,7 @@ public class FixedSizeOutputStreamTest {
 		// CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 
 		streambuffer.clear();
-		Arrays.fill(streambuffer.array(), (byte) 0);
+		Arrays.fill(streambuffer.array(), CommonStaticFinalVars.ZERO_BYTE);
 		byte[] src = {0x10, 0x20, 0x30, 0x40};
 		int offset = 1;
 		int length = src.length;
@@ -704,7 +704,7 @@ public class FixedSizeOutputStreamTest {
 		int oldPosition = -1;
 		int newPosition = -2;
 		
-		Arrays.fill(streambuffer.array(), (byte) 0);
+		Arrays.fill(streambuffer.array(), CommonStaticFinalVars.ZERO_BYTE);
 		byte[] src = {0x10, 0x20, 0x30, 0x40};
 		int offset = 0;
 		int length = 0;
@@ -767,7 +767,7 @@ public class FixedSizeOutputStreamTest {
 
 		
 				
-		Arrays.fill(streambuffer.array(), (byte) 0);
+		Arrays.fill(streambuffer.array(), CommonStaticFinalVars.ZERO_BYTE);
 		byte[] src = {0x10, 0x20, 0x30, 0x40};
 		int offset = 0;
 		int length = src.length;
@@ -808,7 +808,7 @@ public class FixedSizeOutputStreamTest {
 		// CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 
 		streambuffer.clear();
-		Arrays.fill(streambuffer.array(), (byte) 0);
+		Arrays.fill(streambuffer.array(), CommonStaticFinalVars.ZERO_BYTE);
 		
 		int length = -1;
 
@@ -847,7 +847,7 @@ public class FixedSizeOutputStreamTest {
 		CharsetEncoder wantedCharsetEncoder = CharsetUtil.createCharsetEncoder(wantedCharset);
 
 		streambuffer.clear();
-		Arrays.fill(streambuffer.array(), (byte) 0);
+		Arrays.fill(streambuffer.array(), CommonStaticFinalVars.ZERO_BYTE);
 
 		int length = 5;
 		String src = null;
@@ -886,7 +886,7 @@ public class FixedSizeOutputStreamTest {
 		CharsetEncoder wantedCharsetEncoder = null;
 
 		streambuffer.clear();
-		Arrays.fill(streambuffer.array(), (byte) 0);
+		Arrays.fill(streambuffer.array(), CommonStaticFinalVars.ZERO_BYTE);
 
 		int length = 5;
 		String src = "똠방각하";
@@ -929,7 +929,7 @@ public class FixedSizeOutputStreamTest {
 		String src = "똠방각하";
 		
 		streambuffer.clear();
-		Arrays.fill(streambuffer.array(), (byte) 0);
+		Arrays.fill(streambuffer.array(), CommonStaticFinalVars.ZERO_BYTE);
 		streambuffer.position(streambuffer.limit() - length + 1);
 		
 		try {
@@ -973,7 +973,7 @@ public class FixedSizeOutputStreamTest {
 		String expectedValue = src;
 		
 		streambuffer.clear();
-		Arrays.fill(streambuffer.array(), (byte) 0);
+		Arrays.fill(streambuffer.array(), CommonStaticFinalVars.ZERO_BYTE);
 				
 		try {
 			FixedSizeOutputStream fsos = new FixedSizeOutputStream(streambuffer, streamCharsetEncoder);
@@ -1021,7 +1021,7 @@ public class FixedSizeOutputStreamTest {
 		String expectedValue = "방각하";
 		
 		streambuffer.clear();
-		Arrays.fill(streambuffer.array(), (byte) 0);
+		Arrays.fill(streambuffer.array(), CommonStaticFinalVars.ZERO_BYTE);
 				
 		try {
 			FixedSizeOutputStream fsos = new FixedSizeOutputStream(streambuffer, streamCharsetEncoder);

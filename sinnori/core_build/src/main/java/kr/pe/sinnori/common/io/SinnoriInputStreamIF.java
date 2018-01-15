@@ -261,9 +261,9 @@ public interface SinnoriInputStreamIF {
 	public ByteOrder getByteOrder();
 
 	/**
-	 * 남아 있는 용량을 반환한다.
+	 * 남아 있는 바이트 수를 반환한다.
 	 * 
-	 * @return 남아 있는 용량
+	 * @return 남아 있는 바이트 수
 	 */
 	public long available();
 

@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.util.HexUtil;
 
 /**
  * 고정 크기를 갖는 이진 출력 스트림.
@@ -46,8 +45,11 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 
 	private Charset streamCharset = null;
 	private CharsetEncoder streamCharsetEncoder = null;
-	private ByteOrder bufferByteOrder = null;
+	private ByteOrder streamByteOrder = null;
 	private int startPosition = -1;
+	
+	private ByteBuffer shortBuffer = null;
+	private ByteBuffer intBuffer = null;
 
 	
 	
@@ -69,17 +71,51 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 		this.outputStreamBuffer = outputStreamBuffer;
 		this.streamCharset = streamCharsetEncoder.charset();
 		this.streamCharsetEncoder = streamCharsetEncoder;
-		this.bufferByteOrder = outputStreamBuffer.order();
+		this.streamByteOrder = outputStreamBuffer.order();
 		this.startPosition = outputStreamBuffer.position();
 
-		/*intBuffer = ByteBuffer.allocate(4);
-		intBuffer.order(bufferByteOrder);
-
-		longBuffer = ByteBuffer.allocate(8);
-		longBuffer.order(bufferByteOrder);*/
+		
+		shortBuffer = ByteBuffer.allocate(2);
+		shortBuffer.order(streamByteOrder);
+		
+		intBuffer = ByteBuffer.allocate(4);
+		intBuffer.order(streamByteOrder);	
 	}
 
 	
+	private void doPutUnsignedByte(byte value) {
+		putByte(value);
+	}
+
+
+	private void doPutUnsignedShort(short value) {
+		shortBuffer.clear();
+		shortBuffer.putShort(value);
+		shortBuffer.rewind();
+		
+		outputStreamBuffer.put(shortBuffer);
+		/*
+		
+		byte t0 =  (byte)(value);
+		byte t1 =  (byte)(value >>> 8);
+		
+		
+		log.info("the parameter value=[{}], t0=[{}], t1=[{}]"
+				, HexUtil.getHexString(value)
+				, HexUtil.getHexString(t0)
+				, HexUtil.getHexString(t1));
+		
+		
+		if (streamByteOrder.equals(ByteOrder.BIG_ENDIAN)) {
+			outputStreamBuffer.put(t1);
+			outputStreamBuffer.put(t0);
+		} else {
+			outputStreamBuffer.put(t0);
+			outputStreamBuffer.put(t1);
+		}*/
+	}
+
+
 	public void clearOutputStreamBuffer() {
 		outputStreamBuffer.clear();
 	}
@@ -188,10 +224,6 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 		
 	}
 	
-	private void doPutUnsignedByte(byte value) {
-		putByte(value);
-	}
-	
 	@Override
 	public void putUnsignedByte(int value) throws BufferOverflowException, IllegalArgumentException {
 		if (value < 0) {
@@ -248,27 +280,6 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 		doPutUnsignedShort((short)value);
 	}
 	
-	private void doPutUnsignedShort(short value) {
-		byte t0 =  (byte)(value);
-		byte t1 =  (byte)(value >>> 8);
-		
-		
-		log.info("the parameter value=[{}], t0=[{}], t1=[{}]"
-				, HexUtil.getHexString(value)
-				, HexUtil.getHexString(t0)
-				, HexUtil.getHexString(t1));
-		
-		
-		if (bufferByteOrder.equals(ByteOrder.BIG_ENDIAN)) {
-			outputStreamBuffer.put(t1);
-			outputStreamBuffer.put(t0);
-		} else {
-			outputStreamBuffer.put(t0);
-			outputStreamBuffer.put(t1);
-		}
-	}
-	
-
 	@Override
 	public void putUnsignedShort(long value) throws BufferOverflowException,
 			IllegalArgumentException {
@@ -309,7 +320,7 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 		
 		/*ByteBuffer unsingedIntBuffer = getLongBufferForUnsignedInt(value);
 		outputStreamBuffer.put(unsingedIntBuffer);*/
-		
+		/*
 		byte t0 =  (byte) value;
 		byte t1 =  (byte)(value >>> 8);
 		byte t2 =  (byte)(value >>> 16);
@@ -322,7 +333,7 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 				, HexUtil.getHexString(t2)
 				, HexUtil.getHexString(t3));
 		
-		if (bufferByteOrder.equals(ByteOrder.BIG_ENDIAN)) {
+		if (streamByteOrder.equals(ByteOrder.BIG_ENDIAN)) {
 			outputStreamBuffer.put(t3);
 			outputStreamBuffer.put(t2);
 			outputStreamBuffer.put(t1);
@@ -332,7 +343,13 @@ public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
 			outputStreamBuffer.put(t1);
 			outputStreamBuffer.put(t2);
 			outputStreamBuffer.put(t3);
-		}
+		}*/
+		
+		intBuffer.clear();
+		intBuffer.putInt((int)value);
+		intBuffer.rewind();
+		
+		outputStreamBuffer.put(intBuffer);
 	}
 
 	@Override

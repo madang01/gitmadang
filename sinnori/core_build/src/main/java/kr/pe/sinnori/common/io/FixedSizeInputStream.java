@@ -23,13 +23,15 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
-
-import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
-import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
-import kr.pe.sinnori.common.util.HexUtil;
+import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
+import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
+import kr.pe.sinnori.common.util.HexUtil;
 
 /**
  * 고정 크기를 갖는 입력 이진 스트림.<br/>
@@ -53,8 +55,11 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 	 */
 	private ByteOrder streamByteOrder;
 
-	/*private ByteBuffer intBuffer = null;
-	private ByteBuffer longBuffer = null;*/
+	private ByteBuffer intBuffer = null;
+	private ByteBuffer longBuffer = null;
+	
+	private byte[] bytesOfIntBuffer = null;
+	private byte[] bytesOfLongBuffer = null;
 
 	/**
 	 * 생성자
@@ -78,11 +83,13 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 		this.streamCharsetDecoder = streamCharsetDecoder;
 		streamByteOrder = streamBuffer.order();
 
-		/*intBuffer = ByteBuffer.allocate(4);
+		intBuffer = ByteBuffer.allocate(4);
 		intBuffer.order(streamByteOrder);
+		bytesOfIntBuffer = intBuffer.array();
 
 		longBuffer = ByteBuffer.allocate(8);
-		longBuffer.order(streamByteOrder);*/
+		longBuffer.order(streamByteOrder);		
+		bytesOfLongBuffer = longBuffer.array();
 	}
 
 	@Override
@@ -141,10 +148,8 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 		
 		int retValue=0;
 		
-		
-
-		/*intBuffer.clear();
-
+		intBuffer.clear();
+		Arrays.fill(bytesOfIntBuffer, CommonStaticFinalVars.ZERO_BYTE);
 		if (ByteOrder.BIG_ENDIAN == streamByteOrder) {
 			intBuffer.position(2);
 			intBuffer.limit(4);
@@ -158,9 +163,9 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 
 		intBuffer.clear();
 
-		retValue = intBuffer.getInt();*/
+		retValue = intBuffer.getInt();
 		
-		byte t0;
+		/*byte t0;
 		byte t1;
 		
 		if (ByteOrder.BIG_ENDIAN == streamByteOrder) {
@@ -172,16 +177,16 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 			t1 = streamBuffer.get();
 		}
 		
-		/**
+		*//**
 		 * Warning! don't delete '0xff', if no 0xff, then it fails to get a valid value because of signed byte. 
-		 */
+		 *//*
 		retValue = (t0 & 0xff) | ((t1 & 0xff) << 8);
 		
 		// log.info("{}", String.format("retValue=[%x], t0=[%x], t1=[%x]", retValue, t0, t1));
 		log.info("retValue=[{}], t0=[{}], t1=[{}]"
 				, HexUtil.getHexString(retValue)
 				, HexUtil.getHexString(t0)
-				, HexUtil.getHexString(t1));
+				, HexUtil.getHexString(t1));*/
 
 		return retValue;
 	}
@@ -204,9 +209,10 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 			throw new SinnoriBufferUnderflowException(String.format("the remaining bytes[%d] is less than four bytes", remainingBytes));
 		}
 		
-		long retValue;
+		long retValue=0L;
 
-		/*longBuffer.clear();
+		longBuffer.clear();
+		Arrays.fill(bytesOfLongBuffer, CommonStaticFinalVars.ZERO_BYTE);
 		
 		if (ByteOrder.BIG_ENDIAN.equals(streamByteOrder)) {
 			longBuffer.position(4);
@@ -223,8 +229,9 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 
 		longBuffer.clear();
 
-		retValue = longBuffer.getLong();*/
-		byte t0;
+		retValue = longBuffer.getLong();
+		
+		/*byte t0;
 		byte t1;
 		byte t2;
 		byte t3;
@@ -242,9 +249,9 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 			t3 = streamBuffer.get();
 		}
 		
-		/**
+		*//**
 		 * Warning! don't delete '0xff', if no 0xff, then it fails to get a valid value because of signed byte. 
-		 */
+		 *//*
 		retValue = (t0 & 0xffL) | ((t1 & 0xffL) << 8) | ((t2 & 0xffL) << 16) | ((t3 & 0xffL) << 24);
 		
 		// log.info("{}", String.format("retValue=[%x], t0=[%x], t1=[%x], t2=[%x], t3=[%x]", retValue, t0, t1, t2, t3));
@@ -253,7 +260,7 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 				, HexUtil.getHexString(t0)
 				, HexUtil.getHexString(t1)
 				, HexUtil.getHexString(t2)
-				, HexUtil.getHexString(t3));
+				, HexUtil.getHexString(t3));*/
 		
 		return retValue;
 	}

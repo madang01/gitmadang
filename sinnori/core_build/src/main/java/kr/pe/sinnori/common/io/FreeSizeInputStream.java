@@ -26,10 +26,12 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
 import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
 import kr.pe.sinnori.common.util.HexUtil;
@@ -44,9 +46,9 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 	private Logger log = LoggerFactory.getLogger(FreeSizeInputStream.class);
 	
 	private int dataPacketBufferMaxCount;
-	private ArrayList<WrapBuffer> dataPacketBufferList = null;
+	private List<WrapBuffer> dataPacketBufferList = null;
 	// private CommonType.WRAPBUFFER_RECALL_GUBUN memoryRecallGubun;
-	private ArrayList<ByteBuffer> streamBufferList = null;
+	private List<ByteBuffer> streamBufferList = null;
 	private Charset streamCharset;
 	private CharsetDecoder streamCharsetDecoder = null;	
 	private ByteOrder streamByteOrder = null;
@@ -56,18 +58,20 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 	private ByteBuffer workBuffer;
 	private int indexOfWorkBuffer;
 	
-	private long remainingBytesOfInputStream = -1;
+	private long numberOfRemaingBytes = -1;
+	private long inputStreamSize = 0;
 	
 	/**
 	 * 주) 아래 shortBytes, intBytes, longBytes 는 객체 인스턴스마다 필요합니다. 만약 static 으로 만들면 thread safe 문제에 직면할 것입니다.
-	 *//*
-	private byte[] shortBytes = null;
-	private byte[] intBytes = null;
-	private byte[] longBytes = null;*/
+	 */
+	// private byte[] bytesOfShortBuffer = null;
+	private byte[] bytesOfIntBuffer = null;
+	private byte[] bytesOfLongBuffer = null;
 	
 	private ByteBuffer shortBuffer = null;
 	private ByteBuffer intBuffer = null;
 	private ByteBuffer longBuffer = null;
+	
 	
 	/**
 	 * <pre>
@@ -98,7 +102,7 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 	 * @param streamCharsetDecoder 스트림 문자셋 디코더
 	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자, 메시지당 받을 수 있는 최대 데이터 패킷 버퍼 갯수를 얻기 위해 사용된다.
 	 */
-	public FreeSizeInputStream(int dataPacketBufferMaxCount, ArrayList<WrapBuffer> dataPacketBufferList,
+	public FreeSizeInputStream(int dataPacketBufferMaxCount, List<WrapBuffer> dataPacketBufferList,
 			CharsetDecoder  streamCharsetDecoder,
 			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) {
 		if (dataPacketBufferMaxCount <= 0) {
@@ -141,15 +145,15 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 			
 			shortBuffer = ByteBuffer.allocate(2);
 			shortBuffer.order(streamByteOrder);
-			//shortBytes = shortBuffer.array();
+			// bytesOfShortBuffer = shortBuffer.array();
 
 			intBuffer = ByteBuffer.allocate(4);
 			intBuffer.order(streamByteOrder);
-			//intBytes = intBuffer.array();		
+			bytesOfIntBuffer = intBuffer.array();		
 
 			longBuffer = ByteBuffer.allocate(8);
 			longBuffer.order(streamByteOrder);
-			//longBytes = longBuffer.array();
+			bytesOfLongBuffer = longBuffer.array();
 		} else {
 			indexOfWorkBuffer = -1;
 			workBuffer = null;
@@ -157,26 +161,21 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 		
 		// limitedRemainingBytes = available();
 		
-		remainingBytesOfInputStream = 0L;
+		numberOfRemaingBytes = 0L;
 		
 		
 		
 		for (ByteBuffer buffer : streamBufferList) {
-			remainingBytesOfInputStream += buffer.remaining();
+			numberOfRemaingBytes += buffer.remaining();
 			
 		}
 		
-		
+		inputStreamSize = numberOfRemaingBytes;
 		
 		// log.info("limitedRemainingBytes={}, streamBufferList size={}", limitedRemainingBytes, streamBufferList.size());
 	}
 	
 	
-	public int getDataPacketBufferMaxCount() {
-		return dataPacketBufferMaxCount;
-	}	
-	
-
 	/**
 	 * 다음 데이터를 읽기 위해서 현재 작업버퍼를 다음 버퍼로 변경한다.
 	 * 
@@ -233,7 +232,7 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 	 * 목적지 바이트 버퍼에 스트림의 내용을 읽어 저장한다. 주) 목적지 바이트 버퍼의 내용을 읽을려면 flip 등을 해야 한다.
 	 * @param dstBuffer 목적지 바이트 버퍼
 	 */
-	private void getBytesFromWorkBuffer(ByteBuffer dst) throws SinnoriBufferUnderflowException {		
+	private void doGetBytes(ByteBuffer dst) throws SinnoriBufferUnderflowException {		
 		/*do {
 			int len = dstByteBuffer.remaining();
 			if (workBuffer.remaining() >= len) {
@@ -254,7 +253,7 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 			}
 			
 			dst.put(workBuffer.get());
-			remainingBytesOfInputStream--;
+			numberOfRemaingBytes--;
 			
 		} while (dst.hasRemaining());
 	}
@@ -263,8 +262,8 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 	 *  목적지 바이트 배열 크기 만큼 목적지 바이트 배열에 스트림의 내용을 읽어 저장한다.
 	 * @param dstBytes 목적지 바이트 버퍼
 	 */
-	private void getBytesFromWorkBuffer(byte[] dstBytes) throws SinnoriBufferUnderflowException {		
-		getBytesFromWorkBuffer(dstBytes, 0, dstBytes.length);
+	private void doGetBytes(byte[] dstBytes) throws SinnoriBufferUnderflowException {		
+		doGetBytes(dstBytes, 0, dstBytes.length);
 	}
 	
 	/**
@@ -273,7 +272,7 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 	 * @param offset 스트림 내용이 저장될 목적지 바이트 배열의 시작 위치 
 	 * @param len 스트림으로 부터 읽어 올 크기 
 	 */
-	private void getBytesFromWorkBuffer(byte[] dstBytes, int offset, int len) throws SinnoriBufferUnderflowException {
+	private void doGetBytes(byte[] dstBytes, int offset, int len) throws SinnoriBufferUnderflowException {
 		int remainingBytesOfWorkBuffer = workBuffer.remaining();
 		
 		if (0 == remainingBytesOfWorkBuffer) {
@@ -284,13 +283,13 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 		do {
 			if (remainingBytesOfWorkBuffer >= len) {
 				workBuffer.get(dstBytes, offset, len);
-				remainingBytesOfInputStream -= len;
+				numberOfRemaingBytes -= len;
 				// len = 0;
 				break;
 			} 
 			
 			workBuffer.get(dstBytes, offset, remainingBytesOfWorkBuffer);
-			remainingBytesOfInputStream -= remainingBytesOfWorkBuffer;
+			numberOfRemaingBytes -= remainingBytesOfWorkBuffer;
 			
 			offset += remainingBytesOfWorkBuffer;
 			len -= remainingBytesOfWorkBuffer;
@@ -311,8 +310,8 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 			throw new SinnoriBufferUnderflowException(errorMessage);
 		}*/
 		
-		if (remainingBytesOfInputStream < 1) {
-			String errorMessage = String.format("the member variable 'limitedRemainingBytes'[%d] less than one byte", remainingBytesOfInputStream);
+		if (numberOfRemaingBytes < 1) {
+			String errorMessage = String.format("the member variable 'limitedRemainingBytes'[%d] less than one byte", numberOfRemaingBytes);
 			log.info(errorMessage);
 			throw new SinnoriBufferUnderflowException(errorMessage);
 		}
@@ -336,7 +335,7 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 		}
 		
 		byte returnValue = workBuffer.get();
-		remainingBytesOfInputStream--;
+		numberOfRemaingBytes--;
 		
 		return returnValue;
 	}
@@ -355,8 +354,8 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 			throw new SinnoriBufferUnderflowException(errorMessage);
 		}*/
 		
-		if (remainingBytesOfInputStream < 2) {
-			String errorMessage = String.format("the member variable 'limitedRemainingBytes'[%d] less than two bytes", remainingBytesOfInputStream);
+		if (numberOfRemaingBytes < 2) {
+			String errorMessage = String.format("the member variable 'limitedRemainingBytes'[%d] less than two bytes", numberOfRemaingBytes);
 			log.info(errorMessage);
 			throw new SinnoriBufferUnderflowException(errorMessage);
 		}
@@ -393,7 +392,7 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 			}
 			
 			shortBuffer.put(workBuffer.get());
-			remainingBytesOfInputStream--;
+			numberOfRemaingBytes--;
 			
 		} while (shortBuffer.hasRemaining());
 		
@@ -409,8 +408,8 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 			throw new SinnoriBufferUnderflowException(errorMessage);
 		}*/
 		
-		if (remainingBytesOfInputStream < 2) {
-			String errorMessage = String.format("the member variable 'limitedRemainingBytes'[%d] less than two bytes", remainingBytesOfInputStream);
+		if (numberOfRemaingBytes < 2) {
+			String errorMessage = String.format("the member variable 'limitedRemainingBytes'[%d] less than two bytes", numberOfRemaingBytes);
 			log.info(errorMessage);
 			throw new SinnoriBufferUnderflowException(errorMessage);
 		}
@@ -422,7 +421,7 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 		// clearIntBuffer();
 
 		intBuffer.clear();
-		Arrays.fill(intBuffer.array(), (byte)0x00);
+		Arrays.fill(bytesOfIntBuffer, CommonStaticFinalVars.ZERO_BYTE);
 		if (ByteOrder.BIG_ENDIAN == streamByteOrder) {
 			intBuffer.position(2);
 			intBuffer.limit(4);
@@ -462,7 +461,7 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 			}
 			
 			intBuffer.put(workBuffer.get());
-			remainingBytesOfInputStream--;
+			numberOfRemaingBytes--;
 		} while (intBuffer.hasRemaining());
 		
 		intBuffer.clear();
@@ -477,8 +476,8 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 			throw new SinnoriBufferUnderflowException(errorMessage);
 		}*/
 		
-		if (remainingBytesOfInputStream < 4) {
-			String errorMessage = String.format("the member variable 'limitedRemainingBytes'[%d] is less than four bytes", remainingBytesOfInputStream);
+		if (numberOfRemaingBytes < 4) {
+			String errorMessage = String.format("the member variable 'limitedRemainingBytes'[%d] is less than four bytes", numberOfRemaingBytes);
 			SinnoriBufferUnderflowException e = new SinnoriBufferUnderflowException(errorMessage);
 			log.info(errorMessage, e);
 			throw e;
@@ -518,7 +517,7 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 			}
 			
 			intBuffer.put(workBuffer.get());
-			remainingBytesOfInputStream--;
+			numberOfRemaingBytes--;
 		} while (intBuffer.hasRemaining());
 		
 		intBuffer.rewind();
@@ -533,8 +532,8 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 			throw new SinnoriBufferUnderflowException(errorMessage);
 		}*/
 		
-		if (remainingBytesOfInputStream < 4) {
-			String errorMessage = String.format("the member variable 'limitedRemainingBytes'[%d] less than four bytes", remainingBytesOfInputStream);
+		if (numberOfRemaingBytes < 4) {
+			String errorMessage = String.format("the member variable 'limitedRemainingBytes'[%d] less than four bytes", numberOfRemaingBytes);
 			log.info(errorMessage);
 			throw new SinnoriBufferUnderflowException(errorMessage);
 		}
@@ -573,7 +572,7 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 		return retValue;*/
 		
 		longBuffer.clear();
-		Arrays.fill(longBuffer.array(), (byte)0x00);
+		Arrays.fill(bytesOfLongBuffer, CommonStaticFinalVars.ZERO_BYTE);
 		if (ByteOrder.BIG_ENDIAN == streamByteOrder) {
 			longBuffer.position(4);
 			longBuffer.limit(8);
@@ -588,7 +587,7 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 			}
 			
 			longBuffer.put(workBuffer.get());
-			remainingBytesOfInputStream--;
+			numberOfRemaingBytes--;
 		} while (longBuffer.hasRemaining());
 		
 		longBuffer.clear();
@@ -603,8 +602,8 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 			throw new SinnoriBufferUnderflowException(errorMessage);
 		}*/
 		
-		if (remainingBytesOfInputStream < 8) {
-			String errorMessage = String.format("the member variable 'limitedRemainingBytes'[%d] less than eight bytes", remainingBytesOfInputStream);
+		if (numberOfRemaingBytes < 8) {
+			String errorMessage = String.format("the member variable 'limitedRemainingBytes'[%d] less than eight bytes", numberOfRemaingBytes);
 			log.info(errorMessage);
 			throw new SinnoriBufferUnderflowException(errorMessage);
 		}
@@ -638,7 +637,7 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 			}
 			
 			longBuffer.put(workBuffer.get());
-			remainingBytesOfInputStream--;
+			numberOfRemaingBytes--;
 		} while (longBuffer.hasRemaining());
 		
 		longBuffer.rewind();
@@ -659,8 +658,8 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 			throw new SinnoriBufferUnderflowException(errorMessage);
 		}*/
 
-		if (len > remainingBytesOfInputStream) {
-			String errorMessage = String.format("parameter len[%d] greater than the member variable 'limitedRemainingBytes'[%d]", len, remainingBytesOfInputStream);
+		if (len > numberOfRemaingBytes) {
+			String errorMessage = String.format("parameter len[%d] greater than the member variable 'limitedRemainingBytes'[%d]", len, numberOfRemaingBytes);
 			log.info(errorMessage);
 			throw new SinnoriBufferUnderflowException(errorMessage);
 		}
@@ -682,7 +681,7 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 		}
 		
 
-		getBytesFromWorkBuffer(dstBuffer);
+		doGetBytes(dstBuffer);
 		dstBuffer.flip();
 				
 		CharBuffer dstCharBuffer = null;
@@ -709,19 +708,19 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 			IllegalArgumentException, SinnoriCharsetCodingException {
 		// long remainingBytes = remaining();
 		
-		if (0 == remainingBytesOfInputStream) return "";
-		else if (remainingBytesOfInputStream > Integer.MAX_VALUE) {
+		if (0 == numberOfRemaingBytes) return "";
+		else if (numberOfRemaingBytes > Integer.MAX_VALUE) {
 			/**
 			 * 자바 문자열에 입력 가능한 바이트 배열의 크기는 Integer.MAX_VALUE 이다.
 			 */
-			throw new IllegalArgumentException(
+			throw new SinnoriBufferUnderflowException(
 					String.format(
 							"the remaing bytes[%d] of stream is greater than the maximum value[%d] of integer",
-							remainingBytesOfInputStream,
+							numberOfRemaingBytes,
 							Integer.MAX_VALUE));
 		}
 		
-		return getFixedLengthString((int) remainingBytesOfInputStream, streamCharsetDecoder);
+		return getFixedLengthString((int) numberOfRemaingBytes, streamCharsetDecoder);
 	}
 
 	@Override
@@ -794,8 +793,8 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 			throw new SinnoriBufferUnderflowException(errorMessage);
 		}*/
 		
-		if (len > remainingBytesOfInputStream) {
-			String errorMessage = String.format("parameter len[%d] gretater than the member variable 'limitedRemainingBytes'[%d]", len, remainingBytesOfInputStream);
+		if (len > numberOfRemaingBytes) {
+			String errorMessage = String.format("parameter len[%d] gretater than the member variable 'limitedRemainingBytes'[%d]", len, numberOfRemaingBytes);
 			log.info(errorMessage);
 			throw new SinnoriBufferUnderflowException(errorMessage);
 		}
@@ -809,7 +808,7 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 					remainingBytes));
 		}*/
 
-		getBytesFromWorkBuffer(dstBytes, offset, len);
+		doGetBytes(dstBytes, offset, len);
 	}
 
 	@Override
@@ -825,15 +824,15 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 			throw new SinnoriBufferUnderflowException(errorMessage);
 		}*/
 		
-		if (dstBytes.length > remainingBytesOfInputStream) {
-			String errorMessage = String.format("parameter dstBytes's length[%d] greater than the member variable 'limitedRemainingBytes'[%d]", dstBytes.length, remainingBytesOfInputStream);
+		if (dstBytes.length > numberOfRemaingBytes) {
+			String errorMessage = String.format("parameter dstBytes's length[%d] greater than the member variable 'limitedRemainingBytes'[%d]", dstBytes.length, numberOfRemaingBytes);
 			log.info(errorMessage);
 			throw new SinnoriBufferUnderflowException(errorMessage);
 		}
 		
 		//log.info(String.format("limitedRemainingBytes=[%d]", limitedRemainingBytes));
 		
-		getBytesFromWorkBuffer(dstBytes);
+		doGetBytes(dstBytes);
 	}
 
 	@Override
@@ -850,8 +849,8 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 			throw new SinnoriBufferUnderflowException(errorMessage);
 		}*/
 		
-		if (len > remainingBytesOfInputStream) {
-			String errorMessage = String.format("parameter len[%d] gretater than the member variable 'limitedRemainingBytes'[%d]", len, remainingBytesOfInputStream);
+		if (len > numberOfRemaingBytes) {
+			String errorMessage = String.format("parameter len[%d] gretater than the member variable 'limitedRemainingBytes'[%d]", len, numberOfRemaingBytes);
 			log.info(errorMessage);
 			throw new SinnoriBufferUnderflowException(errorMessage);
 		}
@@ -872,7 +871,7 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 			log.warn("OutOfMemoryError", e);
 			throw e;
 		}
-		getBytesFromWorkBuffer(srcBytes);
+		doGetBytes(srcBytes);
 		return srcBytes;
 	}
 
@@ -896,8 +895,8 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 			throw new SinnoriBufferUnderflowException(errorMessage);
 		}*/
 		
-		if (n > remainingBytesOfInputStream) {
-			String errorMessage = String.format("parameter len[%d] gretater than the member variable 'limitedRemainingBytes'[%d]", n, remainingBytesOfInputStream);
+		if (n > numberOfRemaingBytes) {
+			String errorMessage = String.format("parameter len[%d] gretater than the member variable 'limitedRemainingBytes'[%d]", n, numberOfRemaingBytes);
 			log.info(errorMessage);
 			throw new SinnoriBufferUnderflowException(errorMessage);
 		}
@@ -923,12 +922,12 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 			
 			if (n <= remainingBytesOfWorkBuffer) {
 				workBuffer.position(workBuffer.position() + (int)n);
-				remainingBytesOfInputStream -= n;
+				numberOfRemaingBytes -= n;
 				break;
 			}
 		
 			workBuffer.position(workBuffer.limit());
-			remainingBytesOfInputStream -= remainingBytesOfWorkBuffer;
+			numberOfRemaingBytes -= remainingBytesOfWorkBuffer;
 			
 			n -= remainingBytesOfWorkBuffer;
 			/*if (dstRemainingByte <= 0) {
@@ -952,79 +951,27 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 		return streamCharset;
 	}
 
+	public int getDataPacketBufferMaxCount() {
+		return dataPacketBufferMaxCount;
+	}
+
+
 	@Override
-	/**
-	 * 주의 : "앞에서 부터 꽉찬 버퍼 목록" 이 전제되어야 정상 동작한다.
-	 */
 	public long available() {
-		/*if (null == workBuffer) {
-			return 0L;
-		}
-		
-		long remaingBytes = streamBufferList.get(indexOfWorkBuffer).remaining();
-		int lastIndexOfStreamBufferList = streamBufferList.size() -1;
-		
-		if (lastIndexOfStreamBufferList != indexOfWorkBuffer) {
-			int countOfFullStreamBuffer = lastIndexOfStreamBufferList - indexOfWorkBuffer - 1;
-			remaingBytes += countOfFullStreamBuffer * (long)workBuffer.capacity();
-			
-			remaingBytes += streamBufferList.get(lastIndexOfStreamBufferList).remaining();
-		}
-		
-		// FIXME! debug code
-		long debugRemaingBytes = 0;
-		for (int i = indexOfWorkBuffer; i < streamBufferListSize; i++) {
-			debugRemaingBytes += streamBufferList.get(i).remaining();
-		}
-		if (debugRemaingBytes != remaingBytes) {
-			log.warn(String.format("남아 있는 양 공식[%d]과 실체 측정치[%d] 다름", remaingBytes, debugRemaingBytes));
-		}
-		
-		return remaingBytes;*/
-		
-		
-		
-		return remainingBytesOfInputStream;
+		return numberOfRemaingBytes;
 	}
 	
 	
-	public long getReadBytes() {
-		long readBytes = 0;
-		
-		for (WrapBuffer buffer : dataPacketBufferList) {
-			readBytes += buffer.getByteBuffer().position();
-		}
-		
-		return readBytes;
+	public long getNumberOfReadBytes() {
+		/**
+		 * <pre>
+		 * 스트림을 구성하는 버퍼들의 각각의 상태가 중구난방이므로 
+		 * 처음 스트림을 구성할때 '읽을 수 있을 바이트수', 즉 '입력 스트림 크기'(=inputStreamSize)와 
+		 * '남은 바이트수'(=numberOfRemaingBytes) 의 차가 읽은 바이트 수가 된다.
+		 * </pre>
+		 */
+		return (inputStreamSize - numberOfRemaingBytes);
 	}
-
-	/**
-	 * 주의 : "앞에서 부터 꽉찬 버퍼 목록" 이 전제되어야 정상 동작한다.
-	 */
-	// @Override	
-	/*public long position() {
-		// log.info(String.format("in position, indexOfWorkBuffer=[%d], workBuffer.capacity=[%d]", indexOfWorkBuffer, workBuffer.capacity()));
-		if (null == workBuffer) {
-			return 0L;
-		}
-		
-		long positionInBuffer = indexOfWorkBuffer*(long)workBuffer.capacity() 
-				+ workBuffer.position();
-
-		return positionInBuffer;
-	}*/
-	
-	public int getIndexOfWorkBuffer() {
-		return indexOfWorkBuffer;
-	}
-	
-	public int getPositionOfWorkBuffer() {
-		if (null == workBuffer) {
-			return 0;
-		}
-		return workBuffer.position();
-	}
-	
 	
 	@Override
 	public long indexOf(byte[] searchBytes) {
@@ -1108,8 +1055,8 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		if (size > remainingBytesOfInputStream) {
-			String errorMessage = String.format("parameter size'[%d] greater than limitedRemainingBytes[%d]", size, remainingBytesOfInputStream);
+		if (size > numberOfRemaingBytes) {
+			String errorMessage = String.format("parameter size'[%d] greater than limitedRemainingBytes[%d]", size, numberOfRemaingBytes);
 			log.info(errorMessage);
 			throw new SinnoriBufferUnderflowException(errorMessage);
 		}
@@ -1152,7 +1099,7 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 		return md5Bytes;
 	}
 	
-	public void setLimitedRemainingBytes(long newLimitedRemainingBytes) throws SinnoriBufferUnderflowException {
+	/*public void setLimitedRemainingBytes(long newLimitedRemainingBytes) throws SinnoriBufferUnderflowException {
 		if (newLimitedRemainingBytes < 0) {
 			String errorMessage = "the parameter newLimitedWorkSize is less than zero";
 			throw new IllegalArgumentException(errorMessage);
@@ -1164,9 +1111,9 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 			throw new SinnoriBufferUnderflowException(errorMessage);
 		}		
 		
-		remainingBytesOfInputStream = newLimitedRemainingBytes;
+		numberOfRemaingBytes = newLimitedRemainingBytes;
 		//log.info(String.format("limitedRemainingBytes=[%d]", limitedRemainingBytes));
-	}
+	}*/
 	
 	
 	
@@ -1174,7 +1121,20 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 		limitedRemainingBytes = available();
 	}*/
 	
-	// FIXME!
+	public int getIndexOfWorkBuffer() {
+		return indexOfWorkBuffer;
+	}
+
+
+			public int getPositionOfWorkBuffer() {
+		if (null == workBuffer) {
+			return 0;
+		}
+		return workBuffer.position();
+	}
+
+
+			// FIXME!
 	/*public FreeSizeInputStream getInputStream(long wantedInputStreamSize) throws IllegalArgumentException, NoMoreDataPacketBufferException, SinnoriBufferUnderflowException {
 		if (wantedInputStreamSize < 0) {
 			String errorMessage = "the parameter oneMessageStreamSize is less than zero";
@@ -1330,6 +1290,6 @@ String.format("dstRemainingByte equal to or less than zero, maybe remaining() bu
 		streamBufferList.clear();
 		indexOfWorkBuffer = -1;
 		workBuffer = null;
-		remainingBytesOfInputStream = 0;
+		numberOfRemaingBytes = 0;
 	}
 }
