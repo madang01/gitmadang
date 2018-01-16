@@ -108,7 +108,7 @@ public interface SinnoriInputStreamIF {
 	 *             잘못된 파라미터 입력시 발생
 	 * @throws SinnoriCharsetCodingException 문자셋 디코딩시 에러 발생시 던지는 예외
 	 */
-	public String getFixedLengthString(final int length, final CharsetDecoder wantedCharsetDecoder)
+	public String getFixedLengthString(final int fixedLength, final CharsetDecoder wantedCharsetDecoder)
 			throws SinnoriBufferUnderflowException, IllegalArgumentException, SinnoriCharsetCodingException;
 
 	/**
@@ -123,7 +123,7 @@ public interface SinnoriInputStreamIF {
 	 *             잘못된 파라미터 입력시 발생
 	 * @throws SinnoriCharsetCodingException 문자셋 디코딩시 에러 발생시 던지는 예외
 	 */
-	public String getFixedLengthString(final int length) throws SinnoriBufferUnderflowException,
+	public String getFixedLengthString(final int fixedLength) throws SinnoriBufferUnderflowException,
 			IllegalArgumentException, SinnoriCharsetCodingException;
 
 	/**

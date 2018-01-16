@@ -24,6 +24,7 @@ import kr.pe.sinnori.common.etc.CharsetUtil;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
 import kr.pe.sinnori.common.io.FixedSizeOutputStream;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
 import kr.pe.sinnori.common.protocol.djson.header.DJSONHeader;
@@ -332,6 +333,10 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 			
 			try {
 				fsos.putFixedLengthString(itemSizeForLang, tValue);
+			} catch (SinnoriBufferOverflowException e) {
+				/** dead code area */
+				log.error("SinnoriBufferOverflowException", e);
+				System.exit(1);
 			} catch (BufferOverflowException e) {
 				/** dead code area */
 				e.printStackTrace();

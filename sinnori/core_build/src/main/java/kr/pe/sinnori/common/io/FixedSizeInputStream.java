@@ -91,25 +91,15 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 		longBuffer.order(streamByteOrder);		
 		bytesOfLongBuffer = longBuffer.array();
 	}
-
-	@Override
-	public Charset getCharset() {
-		return streamCharset;
-	}
 	
-	@Override
-	public ByteOrder getByteOrder() {
-		return streamByteOrder;
-	}
-
-	@Override
-	public long available() {
-		return streamBuffer.remaining();
-	}
-
-	// @Override
-	public long position() {
-		return streamBuffer.position();
+	private void throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(int numberOfBytesRequired)
+			throws SinnoriBufferUnderflowException {
+		int numberOfBytesRemaining = streamBuffer.remaining();
+		if (numberOfBytesRemaining < numberOfBytesRequired) {
+			throw new SinnoriBufferUnderflowException(
+					String.format("the number[%d] of bytes remaining in this input stream is less than [%d] byte(s) that is required",
+							numberOfBytesRemaining, numberOfBytesRequired));
+		}
 	}
 
 	@Override
@@ -277,11 +267,11 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 	}
 
 	@Override
-	public String getFixedLengthString(final int length, final CharsetDecoder wantedCharsetDecoder)
+	public String getFixedLengthString(final int fixedLength, final CharsetDecoder wantedCharsetDecoder)
 			throws SinnoriBufferUnderflowException, IllegalArgumentException, SinnoriCharsetCodingException {
-		if (length < 0) {
+		if (fixedLength < 0) {
 			throw new IllegalArgumentException(String.format(
-					"parameter length[%d] less than zero", length));
+					"parameter fixedLength[%d] less than zero", fixedLength));
 		}
 
 		/*if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
@@ -291,15 +281,13 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 							len, CommonStaticFinal.MAX_UNSIGNED_SHORT));
 		}*/
 
-		long remainingBytes = available();
-		if (length > remainingBytes) {
-			throw new SinnoriBufferUnderflowException(String.format("the parameter length[%d] is greater than the remaining bytes[%d]", length, remainingBytes));
-		}
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(fixedLength);
+		
 		
 		ByteBuffer dstBuffer = null;
 		byte dstBytes[] = null;
 		try {
-			dstBuffer = ByteBuffer.allocate(length);
+			dstBuffer = ByteBuffer.allocate(fixedLength);
 		} catch (OutOfMemoryError e) {
 			log.warn("OutOfMemoryError", e);
 			throw e;
@@ -326,27 +314,32 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 	}
 
 	@Override
-	public String getFixedLengthString(final int length) throws SinnoriBufferUnderflowException,
+	public String getFixedLengthString(final int fixedLength) throws SinnoriBufferUnderflowException,
 			IllegalArgumentException, SinnoriCharsetCodingException {
-		return getFixedLengthString(length, streamCharsetDecoder);
+		return getFixedLengthString(fixedLength, streamCharsetDecoder);
 	}
 
 	@Override
 	public String getStringAll() throws SinnoriBufferUnderflowException,
 			IllegalArgumentException, SinnoriCharsetCodingException {
-		long remainingBytes = available();
-
-		/*if (remainingBytes > Integer.MAX_VALUE) {
-			throw new IllegalArgumentException(
-					String.format(
-							"문자열로 변환될 남아 있는 버퍼 크기[%d]는  integer 최대값[%d] 보다 작거나 같아야 합니다.",
-							remainingBytes,
-							Integer.MAX_VALUE));
-		}*/
-
-		if (0 == remainingBytes)
+		long numberOfBytesRemaining = available();
+		
+		if (0 == numberOfBytesRemaining) {
 			return "";
-		return getFixedLengthString((int) remainingBytes, streamCharsetDecoder);
+		}
+
+		if (numberOfBytesRemaining > Integer.MAX_VALUE) {
+			/**
+			 * 자바 문자열에 입력 가능한 바이트 배열의 크기는 Integer.MAX_VALUE 이다.
+			 */
+			throw new SinnoriBufferUnderflowException(
+					String.format("the number[%d] of bytes remaing in this input stream is greater than the maximum value[%d] of integer",
+							numberOfBytesRemaining, Integer.MAX_VALUE));
+		}
+		
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired((int) numberOfBytesRemaining);
+		
+		return getFixedLengthString((int) numberOfBytesRemaining, streamCharsetDecoder);
 	}
 
 	@Override
@@ -358,10 +351,10 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 	@Override
 	public String getSIPascalString() throws SinnoriBufferUnderflowException,
 			IllegalArgumentException, SinnoriCharsetCodingException {
-		int len = getInt();
-		if (len < 0)
+		int length = getInt();
+		if (length < 0)
 			throw new IllegalArgumentException(String.format(
-					"the pascal string length[%d] whose type is integer is less than zero", len));
+					"the pascal string length[%d] whose type is integer is less than zero", length));
 
 		/*if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
 			throw new IllegalArgumentException(String.format(
@@ -369,28 +362,32 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 					CommonStaticFinal.MAX_UNSIGNED_SHORT));
 		}*/
 
-		if (0 == len)
+		if (0 == length) {
 			return "";
+		}
 
-		return getFixedLengthString(len, streamCharsetDecoder);
+		return getFixedLengthString(length, streamCharsetDecoder);
 	}
 
 	@Override
 	public String getUSPascalString() throws SinnoriBufferUnderflowException,
 			IllegalArgumentException, SinnoriCharsetCodingException {
-		int numOfBytes = getUnsignedShort();
-		if (0 == numOfBytes)
+		int length = getUnsignedShort();
+		if (0 == length) {
 			return "";
-		return getFixedLengthString(numOfBytes, streamCharsetDecoder);
+		}
+		return getFixedLengthString(length, streamCharsetDecoder);
 	}
 
 	@Override
 	public String getUBPascalString() throws SinnoriBufferUnderflowException,
 			IllegalArgumentException, SinnoriCharsetCodingException {
-		int numOfBytes = getUnsignedByte();
-		if (0 == numOfBytes)
+		int length = getUnsignedByte();
+		if (0 == length) {
 			return "";
-		return getFixedLengthString(numOfBytes, streamCharsetDecoder);
+		}
+		
+		return getFixedLengthString(length, streamCharsetDecoder);
 	}
 
 	@Override
@@ -506,6 +503,26 @@ public class FixedSizeInputStream implements SinnoriInputStreamIF {
 	
 	
 	
+	// @Override
+	public long position() {
+		return streamBuffer.position();
+	}
+
+	@Override
+	public long available() {
+		return streamBuffer.remaining();
+	}
+
+	@Override
+	public Charset getCharset() {
+		return streamCharset;
+	}
+
+	@Override
+	public ByteOrder getByteOrder() {
+		return streamByteOrder;
+	}
+
 	@Override
 	public long indexOf(byte[] searchBytes) {
 		int remainingBytes = streamBuffer.remaining();

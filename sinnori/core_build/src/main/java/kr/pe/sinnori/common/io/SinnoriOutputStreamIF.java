@@ -86,38 +86,38 @@ public interface SinnoriOutputStreamIF {
 			NoMoreDataPacketBufferException;
 
 
-	public void putFixedLengthString(int length, String str,
+	public void putFixedLengthString(int fixedLength, String src,
 			CharsetEncoder wantedCharsetEncoder)
 			throws BufferOverflowException, SinnoriBufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException;
 
 	
-	public void putFixedLengthString(int length, String str) throws BufferOverflowException,
+	public void putFixedLengthString(int fixedLength, String src) throws BufferOverflowException,
 	SinnoriBufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException;
 
 	
-	public void putStringAll(String str) throws BufferOverflowException,
+	public void putStringAll(String src) throws BufferOverflowException,
 	SinnoriBufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException;
 
 	
-	public void putPascalString(String str) throws BufferOverflowException,
+	public void putPascalString(String src) throws BufferOverflowException,
 	SinnoriBufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException;
 
 	
-	public void putSIPascalString(String str) throws BufferOverflowException,
+	public void putSIPascalString(String src) throws BufferOverflowException,
 	SinnoriBufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException;
 
 	
-	public void putUSPascalString(String str) throws BufferOverflowException,
+	public void putUSPascalString(String src) throws BufferOverflowException,
 	SinnoriBufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException;
 
 	
-	public void putUBPascalString(String str) throws BufferOverflowException,
+	public void putUBPascalString(String src) throws BufferOverflowException,
 	SinnoriBufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException;
 

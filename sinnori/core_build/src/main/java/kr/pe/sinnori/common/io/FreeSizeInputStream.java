@@ -227,7 +227,7 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 			throws SinnoriBufferUnderflowException {
 		if (numberOfBytesRemaining < numberOfBytesRequired) {
 			throw new SinnoriBufferUnderflowException(
-					String.format("the number[%d] of bytes remaining in this input stream is less than [%d] byte(s)",
+					String.format("the number[%d] of bytes remaining in this input stream is less than [%d] byte(s) that is required",
 							numberOfBytesRemaining, numberOfBytesRequired));
 		}
 	}
@@ -484,7 +484,7 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 	public String getFixedLengthString(final int fixedLength, final CharsetDecoder wantedCharsetDecoder)
 			throws SinnoriBufferUnderflowException, IllegalArgumentException, SinnoriCharsetCodingException {
 		if (fixedLength < 0) {
-			throw new IllegalArgumentException(String.format("parameter fixedLength[%d] less than zero", fixedLength));
+			throw new IllegalArgumentException(String.format("the parameter fixedLength[%d] is less than zero", fixedLength));
 		}
 		
 		if (0 == fixedLength) {
@@ -529,14 +529,16 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 			throws SinnoriBufferUnderflowException, IllegalArgumentException, SinnoriCharsetCodingException {
 		// long remainingBytes = remaining();
 
-		if (0 == numberOfBytesRemaining)
+		if (0 == numberOfBytesRemaining) {
 			return "";
-		else if (numberOfBytesRemaining > Integer.MAX_VALUE) {
+		}
+		 
+		if (numberOfBytesRemaining > Integer.MAX_VALUE) {
 			/**
 			 * 자바 문자열에 입력 가능한 바이트 배열의 크기는 Integer.MAX_VALUE 이다.
 			 */
 			throw new SinnoriBufferUnderflowException(
-					String.format("the remaing bytes[%d] of stream is greater than the maximum value[%d] of integer",
+					String.format("the number[%d] of bytes remaing in this input stream is greater than the maximum value[%d] of integer",
 							numberOfBytesRemaining, Integer.MAX_VALUE));
 		}
 
@@ -555,54 +557,56 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 	public String getSIPascalString()
 			throws SinnoriBufferUnderflowException, IllegalArgumentException, SinnoriCharsetCodingException {
 
-		int len = getInt();
-		if (len < 0)
+		int length = getInt();
+		if (length < 0)
 			throw new IllegalArgumentException(
-					String.format("the pascal string length[%d] whose type is integer is less than zero", len));
+					String.format("the pascal string length[%d] whose type is integer is less than zero", length));
 
-		return getFixedLengthString(len, streamCharsetDecoder);
+		return getFixedLengthString(length, streamCharsetDecoder);
 	}
 
 	@Override
 	public String getUSPascalString()
 			throws SinnoriBufferUnderflowException, IllegalArgumentException, SinnoriCharsetCodingException {
-		int numOfBytes = getUnsignedShort();
+		int length = getUnsignedShort();
 		
-		return getFixedLengthString(numOfBytes, streamCharsetDecoder);
+		return getFixedLengthString(length, streamCharsetDecoder);
 	}
 
 	@Override
 	public String getUBPascalString()
 			throws SinnoriBufferUnderflowException, IllegalArgumentException, SinnoriCharsetCodingException {
-		int numOfBytes = getUnsignedByte();
+		int length = getUnsignedByte();
 		
-		return getFixedLengthString(numOfBytes, streamCharsetDecoder);
+		return getFixedLengthString(length, streamCharsetDecoder);
 	}
 
 	@Override
-	public void getBytes(byte[] dstBytes, int offset, int len)
+	public void getBytes(byte[] dst, int offset, int length)
 			throws SinnoriBufferUnderflowException, IllegalArgumentException {
-		if (null == dstBytes) {
-			throw new IllegalArgumentException("parameter dstBytes is null");
+		if (null == dst) {
+			throw new IllegalArgumentException("the parameter dst is null");
 		}
 
 		if (offset < 0) {
-			throw new IllegalArgumentException(String.format("parameter offset[%d] less than zero", offset));
+			throw new IllegalArgumentException(String.format("the parameter offset[%d] less than zero", offset));
 		}
-
-		if (len <= 0) {
-			throw new IllegalArgumentException(String.format("parameter len[%d] less than or equal to zero", len));
-		}
-
-		if (offset >= dstBytes.length) {
+		
+		if (offset >= dst.length) {
 			throw new IllegalArgumentException(
-					String.format("parameter offset[%d] greater than or equal to the dest buffer's length[%d]", offset,
-							dstBytes.length));
+					String.format("the parameter offset[%d] greater than or equal to the dest buffer's length[%d]", offset,
+							dst.length));
 		}
 
-		if (len > dstBytes.length) {
-			throw new IllegalArgumentException(
-					String.format("parameter len[%d] greater than the dest buffer's length[%d]", len, dstBytes.length));
+		if (length < 0) {
+			throw new IllegalArgumentException(String.format("the parameter length[%d] less than zero", length));
+		}		
+
+		long sumOfOffsetAndLength = ((long)offset + length);
+		if (sumOfOffsetAndLength > dst.length) {
+			throw new IllegalArgumentException(String.format(
+					"the sum[%d] of the parameter offset[%d] and the parameter length[%d] is greater than array.length[%d]", 
+					sumOfOffsetAndLength, offset, length, dst.length));
 		}
 
 		/*
@@ -611,7 +615,7 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 		 * SinnoriBufferUnderflowException(errorMessage); }
 		 */
 
-		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(len);
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(length);
 
 		// log.info(String.format("limitedRemainingBytes=[%d]", limitedRemainingBytes));
 
@@ -621,7 +625,7 @@ public class FreeSizeInputStream implements SinnoriInputStreamIF {
 		 * "지정된 bye 크기[%d]는  남아 있은 버퍼 크기[%d] 보다 작거나 같아야 합니다.", len, remainingBytes)); }
 		 */
 
-		doGetBytes(dstBytes, offset, len);
+		doGetBytes(dst, offset, length);
 	}
 
 	@Override

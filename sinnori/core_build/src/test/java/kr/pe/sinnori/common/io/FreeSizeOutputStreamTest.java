@@ -70,8 +70,8 @@ public class FreeSizeOutputStreamTest {
 		
 		for (int i=0; i < flippedWrapBufferListSize; i++) {
 			WrapBuffer flippedWrapBuffer = flippedWrapBufferList.get(i);
-			int limitOfFlippedWrapBuffer = flippedWrapBuffer.getByteBuffer().limit();
-			if (0 == limitOfFlippedWrapBuffer) {
+			
+			if (! flippedWrapBuffer.getByteBuffer().hasRemaining()) {
 				String errorMessage = String.format("the flippedWrapBufferList index[%d]' buffer has no data", i);
 				fail(errorMessage);
 			}
@@ -117,6 +117,7 @@ public class FreeSizeOutputStreamTest {
 
 			assertEquals(expectedMessage, errorMessage);
 		} catch (Exception e) {
+			log.warn(""+e.getMessage(), e);
 			fail("unknown error::" + e.getMessage());
 		} finally {
 			if (null != fsos) {
@@ -141,6 +142,7 @@ public class FreeSizeOutputStreamTest {
 
 			assertEquals(expectedMessage, errorMessage);
 		} catch (Exception e) {
+			log.warn(""+e.getMessage(), e);
 			fail("unknown error::" + e.getMessage());
 		} finally {
 			if (null != fsos) {
@@ -168,6 +170,7 @@ public class FreeSizeOutputStreamTest {
 
 			assertEquals(expectedMessage, errorMessage);
 		} catch (Exception e) {
+			log.warn(""+e.getMessage(), e);
 			fail("unknown error::" + e.getMessage());
 		} finally {
 			if (null != fsos) {
@@ -199,7 +202,7 @@ public class FreeSizeOutputStreamTest {
 
 			assertEquals(expectedMessage, errorMessage);
 		} catch (Exception e) {
-			log.warn("", e);
+			log.warn(""+e.getMessage(), e);
 			fail("unknown error::" + e.getMessage());
 		} finally {
 			if (null != fsos) {
@@ -234,7 +237,7 @@ public class FreeSizeOutputStreamTest {
 				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
-				log.warn(e.getMessage(), e);
+				log.warn(""+e.getMessage(), e);
 				fail("error");
 			}
 
@@ -287,6 +290,7 @@ public class FreeSizeOutputStreamTest {
 					}
 
 				} catch (Exception e) {
+					log.warn(""+e.getMessage(), e);
 					fail("unknown error::" + e.getMessage());
 				} finally {
 					if (null != fsos) {
@@ -297,6 +301,64 @@ public class FreeSizeOutputStreamTest {
 
 		}
 
+	}
+	
+	@Test
+	public void testPutByte_greaterThanNumberOfBytesRemaining() {
+		int dataPacketBufferMaxCount = 5;
+		Charset streamCharset = Charset.forName("utf-8");
+		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
+
+		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		boolean isDirect = false;
+		int dataPacketBufferSize = 512;
+		int dataPacketBufferPoolSize = 10;
+
+		byte expectedValue = (byte) 0x31;
+
+		FreeSizeOutputStream fsos = null;
+		
+		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
+		
+		int numberOfBytesRequired = 1;
+		int numberOfBytesSkipping = dataPacketBufferSize*dataPacketBufferMaxCount;
+		long numberOfBytesRemaining = dataPacketBufferSize*dataPacketBufferMaxCount - numberOfBytesSkipping;
+		
+		try {
+			try {
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+			} catch (Exception e) {
+				log.warn(""+e.getMessage(), e);
+				fail("error");
+			}
+			
+			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
+					dataPacketBufferPoolManager);
+
+			fsos.skip(numberOfBytesSkipping);
+			
+			checkNumberOfWrittenBytes(numberOfBytesSkipping, fsos);
+			
+			fsos.putByte(expectedValue);
+			
+			fail("no SinnoriBufferOverflowException");
+		} catch (SinnoriBufferOverflowException e) {
+			String errorMessage = e.getMessage();
+			String expectedMessage =
+			String.format("the number[%d] of bytes remaining in this ouput stream is less than [%d] byte(s) that is required",
+					numberOfBytesRemaining, numberOfBytesRequired);
+			
+			assertEquals(expectedMessage, errorMessage);
+			
+		} catch (Exception e) {
+			log.warn(""+e.getMessage(), e);
+			fail("unknown error::" + e.getMessage());
+		} finally {
+			if (null != fsos) {
+				fsos.close();
+			}
+		}
 	}
 
 	@Test
@@ -324,7 +386,7 @@ public class FreeSizeOutputStreamTest {
 				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
-				log.warn(e.getMessage(), e);
+				log.warn(""+e.getMessage(), e);
 				fail("error");
 			}
 
@@ -367,8 +429,8 @@ public class FreeSizeOutputStreamTest {
 
 					actualValue = fsis.getUnsignedByte();
 
-					log.info("2.expectedValue=0x{}, actualValue=0x{}", HexUtil.getHexString(expectedValue),
-							HexUtil.getHexString(actualValue));
+					/*log.info("2.expectedValue=0x{}, actualValue=0x{}", HexUtil.getHexString(expectedValue),
+							HexUtil.getHexString(actualValue));*/
 
 					// log.info("FreeSizeInputStream size={}", fsis.position());
 
@@ -387,12 +449,72 @@ public class FreeSizeOutputStreamTest {
 					}
 
 				} catch (Exception e) {
+					log.warn(""+e.getMessage(), e);
 					fail("unknown error::" + e.getMessage());
 				} finally {
 					if (null != fsos) {
 						fsos.close();
 					}
 				}
+			}
+		}
+	}
+	
+	@Test
+	public void testPutUnsignedByte_greaterThanNumberOfBytesRemaining() {
+		int dataPacketBufferMaxCount = 5;
+		Charset streamCharset = Charset.forName("utf-8");
+		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
+
+		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		boolean isDirect = false;
+		int dataPacketBufferSize = 512;
+		int dataPacketBufferPoolSize = 10;
+
+		short expectedValue =  0x87;
+
+		FreeSizeOutputStream fsos = null;
+		
+		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
+		
+		int numberOfBytesRequired = 1;
+		int numberOfBytesSkipping = dataPacketBufferSize*dataPacketBufferMaxCount;
+		long numberOfBytesRemaining = dataPacketBufferSize*dataPacketBufferMaxCount - numberOfBytesSkipping;
+		
+		try {
+			try {
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+			} catch (Exception e) {
+				log.warn(""+e.getMessage(), e);
+				fail("error");
+			}
+			
+			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
+					dataPacketBufferPoolManager);
+
+			fsos.skip(numberOfBytesSkipping);
+			
+			checkNumberOfWrittenBytes(numberOfBytesSkipping, fsos);
+			
+			fsos.putUnsignedByte(expectedValue);
+			
+			fail("no SinnoriBufferOverflowException");
+		} catch (SinnoriBufferOverflowException e) {
+			// log.warn(""+e.getMessage(), e);			
+			String errorMessage = e.getMessage();
+			String expectedMessage =
+			String.format("the number[%d] of bytes remaining in this ouput stream is less than [%d] byte(s) that is required",
+					numberOfBytesRemaining, numberOfBytesRequired);
+			
+			assertEquals(expectedMessage, errorMessage);
+			
+		} catch (Exception e) {
+			log.warn(""+e.getMessage(), e);
+			fail("unknown error::" + e.getMessage());
+		} finally {
+			if (null != fsos) {
+				fsos.close();
 			}
 		}
 	}
@@ -421,7 +543,7 @@ public class FreeSizeOutputStreamTest {
 				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
-				log.warn(e.getMessage(), e);
+				log.warn(""+e.getMessage(), e);
 				fail("error");
 			}
 
@@ -479,7 +601,7 @@ public class FreeSizeOutputStreamTest {
 					}
 
 				} catch (Exception e) {
-					log.warn("", e);
+					log.warn(""+e.getMessage(), e);
 					fail("unknown error::" + e.getMessage());
 				} finally {
 					if (null != fsos) {
@@ -490,6 +612,66 @@ public class FreeSizeOutputStreamTest {
 
 		}
 
+	}
+	
+	@Test
+	public void testPutShort_greaterThanNumberOfBytesRemaining() {
+		int dataPacketBufferMaxCount = 5;
+		Charset streamCharset = Charset.forName("utf-8");
+		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
+
+		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		boolean isDirect = false;
+		int dataPacketBufferSize = 512;
+		int dataPacketBufferPoolSize = 10;
+
+		short expectedValue =  (short)0x8713;
+
+		FreeSizeOutputStream fsos = null;
+		
+		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
+		
+		int numberOfBytesRequired = 2;
+		int numberOfBytesSkipping = dataPacketBufferSize*dataPacketBufferMaxCount;
+		long numberOfBytesRemaining = dataPacketBufferSize*dataPacketBufferMaxCount - numberOfBytesSkipping;
+		
+		try {
+			try {
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+			} catch (Exception e) {
+				log.warn(""+e.getMessage(), e);
+				fail("error");
+			}
+			
+			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
+					dataPacketBufferPoolManager);
+
+			fsos.skip(numberOfBytesSkipping);
+			
+			checkNumberOfWrittenBytes(numberOfBytesSkipping, fsos);
+			
+			fsos.putShort(expectedValue);
+			
+			fail("no SinnoriBufferOverflowException");
+		} catch (SinnoriBufferOverflowException e) {
+			// log.warn(""+e.getMessage(), e);
+			
+			String errorMessage = e.getMessage();
+			String expectedMessage =
+			String.format("the number[%d] of bytes remaining in this ouput stream is less than [%d] byte(s) that is required",
+					numberOfBytesRemaining, numberOfBytesRequired);
+			
+			assertEquals(expectedMessage, errorMessage);
+			
+		} catch (Exception e) {
+			log.warn(""+e.getMessage(), e);
+			fail("unknown error::" + e.getMessage());
+		} finally {
+			if (null != fsos) {
+				fsos.close();
+			}
+		}
 	}
 
 	@Test
@@ -517,7 +699,7 @@ public class FreeSizeOutputStreamTest {
 				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
-				log.warn(e.getMessage(), e);
+				log.warn(""+e.getMessage(), e);
 				fail("error");
 			}
 
@@ -575,7 +757,7 @@ public class FreeSizeOutputStreamTest {
 					}
 
 				} catch (Exception e) {
-					log.warn("", e);
+					log.warn(""+e.getMessage(), e);
 					fail("unknown error::" + e.getMessage());
 				} finally {
 					if (null != fsos) {
@@ -585,6 +767,66 @@ public class FreeSizeOutputStreamTest {
 			}
 		}
 
+	}
+	
+	@Test
+	public void testPutUnsignedShort_greaterThanNumberOfBytesRemaining() {
+		int dataPacketBufferMaxCount = 5;
+		Charset streamCharset = Charset.forName("utf-8");
+		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
+
+		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		boolean isDirect = false;
+		int dataPacketBufferSize = 512;
+		int dataPacketBufferPoolSize = 10;
+
+		int expectedValue =  0x8713;
+
+		FreeSizeOutputStream fsos = null;
+		
+		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
+		
+		int numberOfBytesRequired = 2;		
+		int numberOfBytesSkipping = dataPacketBufferSize*dataPacketBufferMaxCount;
+		long numberOfBytesRemaining = dataPacketBufferSize*dataPacketBufferMaxCount - numberOfBytesSkipping;
+		
+		try {
+			try {
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+			} catch (Exception e) {
+				log.warn(""+e.getMessage(), e);
+				fail("error");
+			}
+			
+			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
+					dataPacketBufferPoolManager);
+
+			fsos.skip(numberOfBytesSkipping);
+			
+			checkNumberOfWrittenBytes(numberOfBytesSkipping, fsos);
+			
+			fsos.putUnsignedShort(expectedValue);
+			
+			fail("no SinnoriBufferOverflowException");
+		} catch (SinnoriBufferOverflowException e) {
+			// log.warn(""+e.getMessage(), e);
+			
+			String errorMessage = e.getMessage();
+			String expectedMessage =
+			String.format("the number[%d] of bytes remaining in this ouput stream is less than [%d] byte(s) that is required",
+					numberOfBytesRemaining, numberOfBytesRequired);
+			
+			assertEquals(expectedMessage, errorMessage);
+			
+		} catch (Exception e) {
+			log.warn(""+e.getMessage(), e);
+			fail("unknown error::" + e.getMessage());
+		} finally {
+			if (null != fsos) {
+				fsos.close();
+			}
+		}
 	}
 
 	@Test
@@ -611,7 +853,7 @@ public class FreeSizeOutputStreamTest {
 				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
-				log.warn(e.getMessage(), e);
+				log.warn(""+e.getMessage(), e);
 				fail("error");
 			}
 
@@ -670,13 +912,73 @@ public class FreeSizeOutputStreamTest {
 					}
 
 				} catch (Exception e) {
-					log.warn("", e);
+					log.warn(""+e.getMessage(), e);
 					fail("unknown error::" + e.getMessage());
 				} finally {
 					if (null != fsos) {
 						fsos.close();
 					}
 				}
+			}
+		}
+	}
+	
+	@Test
+	public void testPutInt_SinnoriBufferOverflowException() {
+		int dataPacketBufferMaxCount = 5;
+		Charset streamCharset = Charset.forName("utf-8");
+		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
+
+		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		boolean isDirect = false;
+		int dataPacketBufferSize = 512;
+		int dataPacketBufferPoolSize = 10;
+
+		int expectedValue =  0x76135249;
+
+		FreeSizeOutputStream fsos = null;
+		
+		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
+		
+		int numberOfBytesRequired = 4;		
+		int numberOfBytesSkipping = dataPacketBufferSize*dataPacketBufferMaxCount-3;
+		long numberOfBytesRemaining = dataPacketBufferSize*dataPacketBufferMaxCount - numberOfBytesSkipping;
+		
+		try {
+			try {
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+			} catch (Exception e) {
+				log.warn(""+e.getMessage(), e);
+				fail("error");
+			}
+			
+			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
+					dataPacketBufferPoolManager);
+
+			fsos.skip(numberOfBytesSkipping);
+			
+			checkNumberOfWrittenBytes(numberOfBytesSkipping, fsos);
+			
+			fsos.putInt(expectedValue);
+			
+			fail("no SinnoriBufferOverflowException");
+		} catch (SinnoriBufferOverflowException e) {
+			// log.warn(""+e.getMessage(), e);
+			
+			String errorMessage = e.getMessage();
+			String expectedMessage =
+			String.format("the number[%d] of bytes remaining in this ouput stream is less than [%d] byte(s) that is required",
+					numberOfBytesRemaining, numberOfBytesRequired);
+			
+			assertEquals(expectedMessage, errorMessage);
+			
+		} catch (Exception e) {
+			log.warn(""+e.getMessage(), e);
+			fail("unknown error::" + e.getMessage());
+		} finally {
+			if (null != fsos) {
+				fsos.close();
 			}
 		}
 	}
@@ -706,7 +1008,7 @@ public class FreeSizeOutputStreamTest {
 				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
-				log.warn(e.getMessage(), e);
+				log.warn(""+e.getMessage(), e);
 				fail("error");
 			}
 
@@ -764,13 +1066,73 @@ public class FreeSizeOutputStreamTest {
 					}
 
 				} catch (Exception e) {
-					log.warn("", e);
+					log.warn(""+e.getMessage(), e);
 					fail("unknown error::" + e.getMessage());
 				} finally {
 					if (null != fsos) {
 						fsos.close();
 					}
 				}
+			}
+		}
+	}
+	
+	@Test
+	public void testPutUnsignedInt_greaterThanNumberOfBytesRemaining() {
+		int dataPacketBufferMaxCount = 5;
+		Charset streamCharset = Charset.forName("utf-8");
+		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
+
+		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		boolean isDirect = false;
+		int dataPacketBufferSize = 512;
+		int dataPacketBufferPoolSize = 10;
+
+		long expectedValue =  0x76135249L;
+
+		FreeSizeOutputStream fsos = null;
+		
+		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
+		
+		int numberOfBytesRequired = 4;		
+		int numberOfBytesSkipping = dataPacketBufferSize*dataPacketBufferMaxCount-3;
+		long numberOfBytesRemaining = dataPacketBufferSize*dataPacketBufferMaxCount - numberOfBytesSkipping;
+		
+		try {
+			try {
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+			} catch (Exception e) {
+				log.warn(""+e.getMessage(), e);
+				fail("error");
+			}
+			
+			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
+					dataPacketBufferPoolManager);
+
+			fsos.skip(numberOfBytesSkipping);
+			
+			checkNumberOfWrittenBytes(numberOfBytesSkipping, fsos);
+			
+			fsos.putUnsignedInt(expectedValue);
+			
+			fail("no SinnoriBufferOverflowException");
+		} catch (SinnoriBufferOverflowException e) {
+			// log.warn(""+e.getMessage(), e);
+			
+			String errorMessage = e.getMessage();
+			String expectedMessage =
+			String.format("the number[%d] of bytes remaining in this ouput stream is less than [%d] byte(s) that is required",
+					numberOfBytesRemaining, numberOfBytesRequired);
+			
+			assertEquals(expectedMessage, errorMessage);
+			
+		} catch (Exception e) {
+			log.warn(""+e.getMessage(), e);
+			fail("unknown error::" + e.getMessage());
+		} finally {
+			if (null != fsos) {
+				fsos.close();
 			}
 		}
 	}
@@ -802,7 +1164,7 @@ public class FreeSizeOutputStreamTest {
 				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
-				log.warn(e.getMessage(), e);
+				log.warn(""+e.getMessage(), e);
 				fail("error");
 			}
 
@@ -860,7 +1222,7 @@ public class FreeSizeOutputStreamTest {
 					}
 
 				} catch (Exception e) {
-					log.warn("", e);
+					log.warn(""+e.getMessage(), e);
 					fail("unknown error::" + e.getMessage());
 				} finally {
 					if (null != fsos) {
@@ -870,6 +1232,66 @@ public class FreeSizeOutputStreamTest {
 			}
 		}
 
+	}
+	
+	@Test
+	public void testPutLong_greaterThanNumberOfBytesRemaining() {
+		int dataPacketBufferMaxCount = 8;
+		Charset streamCharset = Charset.forName("utf-8");
+		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
+
+		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		boolean isDirect = false;
+		int dataPacketBufferSize = 1;
+		int dataPacketBufferPoolSize = 15;
+
+		long expectedValue =  0x4762176135249038L;
+
+		FreeSizeOutputStream fsos = null;
+		
+		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
+		
+		int numberOfBytesRequired = 8;		
+		int numberOfBytesSkipping = dataPacketBufferSize*dataPacketBufferMaxCount-1;
+		long numberOfBytesRemaining = dataPacketBufferSize*dataPacketBufferMaxCount - numberOfBytesSkipping;
+		
+		try {
+			try {
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+			} catch (Exception e) {
+				log.warn(""+e.getMessage(), e);
+				fail("error");
+			}
+			
+			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
+					dataPacketBufferPoolManager);
+
+			fsos.skip(numberOfBytesSkipping);
+			
+			checkNumberOfWrittenBytes(numberOfBytesSkipping, fsos);
+			
+			fsos.putLong(expectedValue);
+			
+			fail("no SinnoriBufferOverflowException");
+		} catch (SinnoriBufferOverflowException e) {
+			// log.warn(""+e.getMessage(), e);
+			
+			String errorMessage = e.getMessage();
+			String expectedMessage =
+			String.format("the number[%d] of bytes remaining in this ouput stream is less than [%d] byte(s) that is required",
+					numberOfBytesRemaining, numberOfBytesRequired);
+			
+			assertEquals(expectedMessage, errorMessage);
+			
+		} catch (Exception e) {
+			log.warn(""+e.getMessage(), e);
+			fail("unknown error::" + e.getMessage());
+		} finally {
+			if (null != fsos) {
+				fsos.close();
+			}
+		}
 	}
 	
 	@Test
@@ -892,7 +1314,7 @@ public class FreeSizeOutputStreamTest {
 			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
-			log.warn(e.getMessage(), e);
+			log.warn(""+e.getMessage(), e);
 			fail("error");
 		}
 
@@ -914,7 +1336,7 @@ public class FreeSizeOutputStreamTest {
 
 				assertEquals(expectedMessage, errorMessage);
 			} catch (Exception e) {
-				log.warn("", e);
+				log.warn(""+e.getMessage(), e);
 				fail("unknown error::" + e.getMessage());
 			} finally {
 				if (null != fsos) {
@@ -944,7 +1366,7 @@ public class FreeSizeOutputStreamTest {
 
 				assertEquals(expectedMessage, errorMessage);
 			} catch (Exception e) {
-				log.warn("", e);
+				log.warn(""+e.getMessage(), e);
 				fail("unknown error::" + e.getMessage());
 			} finally {
 				if (null != fsos) {
@@ -972,7 +1394,7 @@ public class FreeSizeOutputStreamTest {
 
 				assertEquals(expectedMessage, errorMessage);
 			} catch (Exception e) {
-				log.warn("", e);
+				log.warn(""+e.getMessage(), e);
 				fail("unknown error::" + e.getMessage());
 			} finally {
 				if (null != fsos) {
@@ -1002,7 +1424,7 @@ public class FreeSizeOutputStreamTest {
 			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
-			log.warn(e.getMessage(), e);
+			log.warn(""+e.getMessage(), e);
 			fail("error");
 		}
 
@@ -1025,7 +1447,59 @@ public class FreeSizeOutputStreamTest {
 
 			assertEquals(expectedMessage, errorMessage);
 		} catch (Exception e) {
-			log.warn("", e);
+			log.warn(""+e.getMessage(), e);
+			fail("unknown error::" + e.getMessage());
+		} finally {
+			if (null != fsos) {
+				fsos.close();
+			}
+		}
+	}
+	
+	@Test
+	public void testPutBytes_theParameterOffset_greaterThanOrEqualToArrayLength() {
+		int dataPacketBufferMaxCount = 5;
+		Charset streamCharset = Charset.forName("utf-8");
+		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
+		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
+
+		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		boolean isDirect = false;
+		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
+		int dataPacketBufferSize = 1;
+		int dataPacketBufferPoolSize = 5;
+
+		FreeSizeOutputStream fsos = null;
+		// FreeSizeInputStream fsis = null;
+
+		try {
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+		} catch (Exception e) {
+			log.warn(""+e.getMessage(), e);
+			fail("error");
+		}
+
+		byte[] sourceBytes = { 0x11, 0x22, 0x33 };
+		// byte actualValue[] = new byte[expectedValue.length];
+		int sourceOffset = sourceBytes.length;
+		int sourceLength = 1;
+
+		try {
+			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
+					dataPacketBufferPoolManager);
+
+			fsos.putBytes(sourceBytes, sourceOffset, sourceLength);
+
+			fail("no IllegalArgumentException");
+		} catch (IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
+
+			String expectedMessage = String.format("the parameter offset[%d] is greater than or equal to array.length[%d]", sourceOffset, sourceBytes.length);
+
+			assertEquals(expectedMessage, errorMessage);
+		} catch (Exception e) {
+			log.warn(""+e.getMessage(), e);
 			fail("unknown error::" + e.getMessage());
 		} finally {
 			if (null != fsos) {
@@ -1054,7 +1528,7 @@ public class FreeSizeOutputStreamTest {
 			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
-			log.warn(e.getMessage(), e);
+			log.warn(""+e.getMessage(), e);
 			fail("error");
 		}
 
@@ -1077,7 +1551,7 @@ public class FreeSizeOutputStreamTest {
 
 			assertEquals(expectedMessage, errorMessage);
 		} catch (Exception e) {
-			log.warn("", e);
+			log.warn(""+e.getMessage(), e);
 			fail("unknown error::" + e.getMessage());
 		} finally {
 			if (null != fsos) {
@@ -1085,10 +1559,67 @@ public class FreeSizeOutputStreamTest {
 			}
 		}
 	}	
+	
+	@Test
+	public void testPutBytes_sumOftheParameterOffsetAndtheParameterLength_greaterThanArrayLength() {		
+		int dataPacketBufferMaxCount = 5;
+		Charset streamCharset = Charset.forName("utf-8");
+		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
+		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
+
+		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		boolean isDirect = false;
+		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
+		int dataPacketBufferSize = 2;
+		int dataPacketBufferPoolSize = 5;
+
+		FreeSizeOutputStream fsos = null;
+		// FreeSizeInputStream fsis = null;
+
+		try {
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+		} catch (Exception e) {
+			log.warn(""+e.getMessage(), e);
+			fail("error");
+		}
+
+		byte[] sourceBytes = { 0x11, 0x22, 0x33 };
+		// byte actualValue[] = new byte[expectedValue.length];
+		int sourceOffset = sourceBytes.length-1;
+		int sourceLength = 2;
+		
+
+		try {
+			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
+					dataPacketBufferPoolManager);
+
+			fsos.putBytes(sourceBytes, sourceOffset, sourceLength);
+
+			fail("no IllegalArgumentException");
+		} catch (IllegalArgumentException e) {
+			// log.warn(""+e.getMessage(), e);
+			
+			String errorMessage = e.getMessage();
+
+			String expectedMessage = String.format(
+					"the sum[%d] of the parameter offset[%d] and the parameter length[%d] is greater than array.length[%d]", 
+					sourceOffset+sourceLength, sourceOffset, sourceLength, sourceBytes.length);
+
+			assertEquals(expectedMessage, errorMessage);
+		} catch (Exception e) {
+			log.warn(""+e.getMessage(), e);
+			fail("unknown error::" + e.getMessage());
+		} finally {
+			if (null != fsos) {
+				fsos.close();
+			}
+		}
+	}
 
 	@SuppressWarnings("unused")
 	@Test
-	public void testPutBytes_SinnoriBufferOverflowException() {
+	public void testPutBytes_greaterThanNumberOfBytesRemaining() {
 		int dataPacketBufferMaxCount = 2;
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
@@ -1107,7 +1638,7 @@ public class FreeSizeOutputStreamTest {
 			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
-			log.warn(e.getMessage(), e);
+			log.warn(""+e.getMessage(), e);
 			fail("error");
 		}
 	
@@ -1123,12 +1654,12 @@ public class FreeSizeOutputStreamTest {
 			fail("no SinnoriBufferOverflowException");
 		} catch (SinnoriBufferOverflowException e) {
 			String errorMessage = e.getMessage();
-			String expectedMessage = String.format("the number[%d] of bytes remaining in this ouput stream is less than [%d] byte(s)",
+			String expectedMessage = String.format("the number[%d] of bytes remaining in this ouput stream is less than [%d] byte(s) that is required",
 					dataPacketBufferMaxCount*dataPacketBufferSize, expectedValue.length);
 	
 			assertEquals(expectedMessage, errorMessage);
 		} catch (Exception e) {
-			log.warn("", e);
+			log.warn(""+e.getMessage(), e);
 			fail("unknown error::" + e.getMessage());
 		} finally {
 			if (null != fsos) {
@@ -1138,10 +1669,9 @@ public class FreeSizeOutputStreamTest {
 	}
 
 
-	// FIXME!
 	@Test
 	public void testPutBytes_basic() {
-		int dataPacketBufferMaxCount = 3;
+		int dataPacketBufferMaxCount = 4;
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
@@ -1150,7 +1680,7 @@ public class FreeSizeOutputStreamTest {
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
-		int dataPacketBufferPoolSize = 3;
+		int dataPacketBufferPoolSize = 4;
 
 		FreeSizeOutputStream fsos = null;
 		FreeSizeInputStream fsis = null;
@@ -1159,69 +1689,223 @@ public class FreeSizeOutputStreamTest {
 			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
-			log.warn(e.getMessage(), e);
+			log.warn(""+e.getMessage(), e);
 			fail("error");
 		}
+		{
+			log.info("test case::ok operation in the method \"public void putBytes(byte[] src)\"");
+			
+			byte[] sourceBytes = { 0x11, 0x22, 0x33, 0x44 };
+			
+			byte destinationBytes[] = new byte[sourceBytes.length];
 
-		byte[] sourceBytes = { 0x11, 0x22, 0x33 };
-		byte destinationBytes[] = new byte[sourceBytes.length];
+			try {
+				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
+						dataPacketBufferPoolManager);
 
-		try {
-			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+				fsos.putBytes(sourceBytes);
 
-			fsos.putBytes(sourceBytes);
+				long outputStreamSize = fsos.size();
 
-			long outputStreamSize = fsos.size();
+				if (outputStreamSize != sourceBytes.length) {
+					String errorMessage = String.format("the size[%d] of FreeSizeOutputStream is not [%d] bytes",
+							outputStreamSize, sourceBytes.length);
+					fail(errorMessage);
+				}
 
-			if (outputStreamSize != sourceBytes.length) {
-				String errorMessage = String.format("the size[%d] of FreeSizeOutputStream is not [%d] bytes",
-						outputStreamSize, sourceBytes.length);
-				fail(errorMessage);
-			}
+				ArrayList<WrapBuffer> wrapBufferList = fsos.getFlippedWrapBufferList();
 
-			ArrayList<WrapBuffer> wrapBufferList = fsos.getFlippedWrapBufferList();
+				if (outputStreamSize <= dataPacketBufferSize) {
+					WrapBuffer workingWrapBuffer = wrapBufferList.get(0);
+					ByteBuffer dupBuffer = workingWrapBuffer.getByteBuffer().duplicate();
+					/** warning! the duplicate method doesn't copy the byte order attribute */
+					dupBuffer.order(streamByteOrder);
 
-			if (outputStreamSize <= dataPacketBufferSize) {
-				/**
-				 * 하나의 버퍼에 쓴 내용이 모두 담겨있을 경우 ByteBuffer 를 이용한 데이터 검증
-				 */
+					dupBuffer.get(destinationBytes);
 
-				log.info("fsos.size={}, dataPacketBufferSize={}", outputStreamSize, dataPacketBufferSize);
+					/*log.info("1.expectedValue=0x{}, actualValue=0x{}", HexUtil.getHexStringFromByteArray(sourceBytes),
+							HexUtil.getHexStringFromByteArray(destinationBytes));*/
 
-				WrapBuffer workingWrapBuffer = wrapBufferList.get(0);
-				ByteBuffer dupBuffer = workingWrapBuffer.getByteBuffer().duplicate();
-				/** warning! the duplicate method doesn't copy the byte order attribute */
-				dupBuffer.order(streamByteOrder);
+					Assert.assertArrayEquals(sourceBytes, destinationBytes);
+					
+					log.info("하나의 버퍼에 쓴 내용이 모두 담겨있을 경우 ByteBuffer 를 이용한 데이터 검증 완료");
+				}
 
-				dupBuffer.get(destinationBytes);
+				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, wrapBufferList, streamCharsetDecoder,
+						dataPacketBufferPoolManager);
+				// fsis = fsos.getFreeSizeInputStream(streamCharsetDecoder);
 
-				log.info("1.expectedValue=0x{}, actualValue=0x{}", HexUtil.getHexStringFromByteArray(sourceBytes),
-						HexUtil.getHexStringFromByteArray(destinationBytes));
+				destinationBytes = fsis.getBytes(sourceBytes.length);
+
 
 				Assert.assertArrayEquals(sourceBytes, destinationBytes);
-			}
+				
+				long numberOfReadBytes = fsis.getNumberOfReadBytes();
+				if (numberOfReadBytes != outputStreamSize) {
+					String errorMessage = String.format("numberOfReadBytes[%d] is different from outputStreamSize[%d]",
+							numberOfReadBytes, outputStreamSize);
+					fail(errorMessage);
+				}			
 
-			fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, wrapBufferList, streamCharsetDecoder,
-					dataPacketBufferPoolManager);
-			// fsis = fsos.getFreeSizeInputStream(streamCharsetDecoder);
+				long numberOfRemaingBytes = fsis.available();
+				if (0 != numberOfRemaingBytes) {
+					fail("the input stream is available");
+				}
 
-			destinationBytes = fsis.getBytes(sourceBytes.length);
-
-			log.info("2.expectedValue=0x{}, actualValue=0x{}", HexUtil.getHexStringFromByteArray(sourceBytes),
-					HexUtil.getHexStringFromByteArray(destinationBytes));
-			// log.info("FreeSizeInputStream size={}", fsis.position());
-
-			Assert.assertArrayEquals(sourceBytes, destinationBytes);
-
-		} catch (Exception e) {
-			log.warn("", e);
-			fail("unknown error::" + e.getMessage());
-		} finally {
-			if (null != fsos) {
-				fsos.close();
+			} catch (Exception e) {
+				log.warn(""+e.getMessage(), e);
+				fail("unknown error::" + e.getMessage());
+			} finally {
+				if (null != fsos) {
+					fsos.close();
+				}
 			}
 		}
+		
+		{
+			log.info("test case::ok operation in the method \"public void putBytes(byte[] src, int offset, int length)\"");
+			
+			byte[] sourceBytes = { 0x11, 0x22, 0x33, 0x44 };		
+			int sourceOffset = 1;
+			int sourceLength = 2;
+			byte[] expectedBytes = { 0x22, 0x33 };
+			
+			byte destinationBytes[] = new byte[sourceLength];
+
+			try {
+				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
+						dataPacketBufferPoolManager);
+
+				fsos.putBytes(sourceBytes, sourceOffset, sourceLength);
+
+				long outputStreamSize = fsos.size();
+
+				if (outputStreamSize != sourceLength) {
+					String errorMessage = String.format("the size[%d] of FreeSizeOutputStream is not [%d] bytes",
+							outputStreamSize, sourceLength);
+					fail(errorMessage);
+				}
+
+				ArrayList<WrapBuffer> wrapBufferList = fsos.getFlippedWrapBufferList();
+
+				if (outputStreamSize <= dataPacketBufferSize) {
+					WrapBuffer workingWrapBuffer = wrapBufferList.get(0);
+					ByteBuffer dupBuffer = workingWrapBuffer.getByteBuffer().duplicate();
+					/** warning! the duplicate method doesn't copy the byte order attribute */
+					dupBuffer.order(streamByteOrder);
+
+					dupBuffer.get(destinationBytes);
+
+					/*log.info("1.expectedValue=0x{}, actualValue=0x{}", HexUtil.getHexStringFromByteArray(sourceBytes),
+							HexUtil.getHexStringFromByteArray(destinationBytes));*/
+
+					Assert.assertArrayEquals(expectedBytes, destinationBytes);
+					
+					log.info("하나의 버퍼에 쓴 내용이 모두 담겨있을 경우 ByteBuffer 를 이용한 데이터 검증 완료");
+				}
+
+				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, wrapBufferList, streamCharsetDecoder,
+						dataPacketBufferPoolManager);
+				// fsis = fsos.getFreeSizeInputStream(streamCharsetDecoder);
+
+				destinationBytes = fsis.getBytes(sourceLength);
+
+
+				Assert.assertArrayEquals(expectedBytes, destinationBytes);
+				
+				long numberOfReadBytes = fsis.getNumberOfReadBytes();
+				if (numberOfReadBytes != outputStreamSize) {
+					String errorMessage = String.format("numberOfReadBytes[%d] is different from outputStreamSize[%d]",
+							numberOfReadBytes, outputStreamSize);
+					fail(errorMessage);
+				}			
+
+				long numberOfRemaingBytes = fsis.available();
+				if (0 != numberOfRemaingBytes) {
+					fail("the input stream is available");
+				}
+
+			} catch (Exception e) {
+				log.warn(""+e.getMessage(), e);
+				fail("unknown error::" + e.getMessage());
+			} finally {
+				if (null != fsos) {
+					fsos.close();
+				}
+			}
+		}
+
+		{
+			log.info("test case::ok operation in the method \"public void putBytes(ByteBuffer src)\"");
+			
+			byte[] sourceBytes = { 0x11, 0x22, 0x33, 0x44 };
+			ByteBuffer sourceByteBuffer = ByteBuffer.wrap(sourceBytes);
+			
+			byte destinationBytes[] = new byte[sourceBytes.length];
+
+			try {
+				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
+						dataPacketBufferPoolManager);
+
+				fsos.putBytes(sourceByteBuffer);
+
+				long outputStreamSize = fsos.size();
+
+				if (outputStreamSize != sourceBytes.length) {
+					String errorMessage = String.format("the size[%d] of FreeSizeOutputStream is not [%d] bytes",
+							outputStreamSize, sourceBytes.length);
+					fail(errorMessage);
+				}
+
+				ArrayList<WrapBuffer> wrapBufferList = fsos.getFlippedWrapBufferList();
+
+				if (outputStreamSize <= dataPacketBufferSize) {
+					WrapBuffer workingWrapBuffer = wrapBufferList.get(0);
+					ByteBuffer dupBuffer = workingWrapBuffer.getByteBuffer().duplicate();
+					/** warning! the duplicate method doesn't copy the byte order attribute */
+					dupBuffer.order(streamByteOrder);
+
+					dupBuffer.get(destinationBytes);
+
+					/*log.info("1.expectedValue=0x{}, actualValue=0x{}", HexUtil.getHexStringFromByteArray(sourceBytes),
+							HexUtil.getHexStringFromByteArray(destinationBytes));*/
+
+					Assert.assertArrayEquals(sourceBytes, destinationBytes);
+					
+					log.info("하나의 버퍼에 쓴 내용이 모두 담겨있을 경우 ByteBuffer 를 이용한 데이터 검증 완료");
+				}
+
+				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, wrapBufferList, streamCharsetDecoder,
+						dataPacketBufferPoolManager);
+				// fsis = fsos.getFreeSizeInputStream(streamCharsetDecoder);
+
+				destinationBytes = fsis.getBytes(sourceBytes.length);
+
+
+				Assert.assertArrayEquals(sourceBytes, destinationBytes);
+				
+				long numberOfReadBytes = fsis.getNumberOfReadBytes();
+				if (numberOfReadBytes != outputStreamSize) {
+					String errorMessage = String.format("numberOfReadBytes[%d] is different from outputStreamSize[%d]",
+							numberOfReadBytes, outputStreamSize);
+					fail(errorMessage);
+				}			
+
+				long numberOfRemaingBytes = fsis.available();
+				if (0 != numberOfRemaingBytes) {
+					fail("the input stream is available");
+				}
+
+			} catch (Exception e) {
+				log.warn(""+e.getMessage(), e);
+				fail("unknown error::" + e.getMessage());
+			} finally {
+				if (null != fsos) {
+					fsos.close();
+				}
+			}
+		}
+		
 	}
 
 	@Test
@@ -1247,7 +1931,7 @@ public class FreeSizeOutputStreamTest {
 			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
-			log.warn(e.getMessage(), e);
+			log.warn(""+e.getMessage(), e);
 			fail("error");
 		}
 
@@ -1269,7 +1953,7 @@ public class FreeSizeOutputStreamTest {
 
 			assertEquals(expectedMessage, errorMessage);
 		} catch (Exception e) {
-			log.warn("", e);
+			log.warn(""+e.getMessage(), e);
 			fail("unknown error::" + e.getMessage());
 		} finally {
 			if (null != fsos) {
@@ -1296,13 +1980,13 @@ public class FreeSizeOutputStreamTest {
 			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
-			log.warn(e.getMessage(), e);
+			log.warn(""+e.getMessage(), e);
 			fail("error");
 		}
 		
 		{
-			log.info("test case::the 'str' parameter is null in the method \"public void putFixedLengthString(int fixedLength, "
-					+ "String str, CharsetEncoder wantedCharsetEncoder)\"");
+			log.info("test case::the 'src' parameter is null in the method \"public void putFixedLengthString(int fixedLength, "
+					+ "String src, CharsetEncoder wantedCharsetEncoder)\"");
 			
 			String strStr = null;
 			int fixedLength = 1;
@@ -1318,11 +2002,11 @@ public class FreeSizeOutputStreamTest {
 			} catch (IllegalArgumentException e) {
 				String errorMessage = e.getMessage();
 
-				String expectedMessage = "the parameter str is null";
+				String expectedMessage = "the parameter src is null";
 
 				assertEquals(expectedMessage, errorMessage);
 			} catch (Exception e) {
-				log.warn("", e);
+				log.warn(""+e.getMessage(), e);
 				fail("unknown error::" + e.getMessage());
 			} finally {
 				if (null != fsos) {
@@ -1332,7 +2016,7 @@ public class FreeSizeOutputStreamTest {
 		}
 		
 		{
-			log.info("test case::the 'str' parameter is null in the method \"public void putFixedLengthString(int fixedLength, String str)\"");
+			log.info("test case::the 'src' parameter is null in the method \"public void putFixedLengthString(int fixedLength, String src)\"");
 			
 			String strStr = null;
 			int fixedLength = 1;			
@@ -1345,11 +2029,11 @@ public class FreeSizeOutputStreamTest {
 			} catch (IllegalArgumentException e) {
 				String errorMessage = e.getMessage();
 
-				String expectedMessage = "the parameter str is null";
+				String expectedMessage = "the parameter src is null";
 
 				assertEquals(expectedMessage, errorMessage);
 			} catch (Exception e) {
-				log.warn("", e);
+				log.warn(""+e.getMessage(), e);
 				fail("unknown error::" + e.getMessage());
 			} finally {
 				if (null != fsos) {
@@ -1377,7 +2061,7 @@ public class FreeSizeOutputStreamTest {
 			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
-			log.warn(e.getMessage(), e);
+			log.warn(""+e.getMessage(), e);
 			fail("error");
 		}
 
@@ -1397,7 +2081,7 @@ public class FreeSizeOutputStreamTest {
 
 			assertEquals(expectedMessage, errorMessage);
 		} catch (Exception e) {
-			log.warn("", e);
+			log.warn(""+e.getMessage(), e);
 			fail("unknown error::" + e.getMessage());
 		} finally {
 			if (null != fsos) {
@@ -1406,8 +2090,6 @@ public class FreeSizeOutputStreamTest {
 		}
 	}
 
-
-	// FIXME!
 	@Test
 	public void testPutFixedLengthString_basic() {
 		int dataPacketBufferMaxCount = 6;
@@ -1428,75 +2110,305 @@ public class FreeSizeOutputStreamTest {
 			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
-			log.warn(e.getMessage(), e);
+			log.warn(""+e.getMessage(), e);
 			fail("error");
-		}
-
-		String strStr = "똠방각하";
-		String excpectedValue = "똠방";
-		String actualValue = null;
-		int fixedLength = 6;
+		}		
 
 		Charset wantedCharset = Charset.forName("utf-8");
 		CharsetEncoder wantedCharsetEncoder = CharsetUtil.createCharsetEncoder(wantedCharset);
 		CharsetDecoder wantedCharsetDecoder = CharsetUtil.createCharsetDecoder(wantedCharset);
 
+		{
+			log.info("test case::ok operation in the method \"public void putFixedLengthString(int fixedLength, String src)\"");
+			
+			String strStr = "가나다라";
+			String excpectedValue = "가나";
+			String actualValue = null;
+			int fixedLength = 6;
+			
+			try {
+				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
+						dataPacketBufferPoolManager);
+
+				fsos.putFixedLengthString(fixedLength, strStr, wantedCharsetEncoder);
+
+				checkNumberOfWrittenBytes(fixedLength, fsos);
+
+				ArrayList<WrapBuffer> flippedWrapBufferList = fsos.getFlippedWrapBufferList();
+				
+				checkValidFlippedWrapBufferList(flippedWrapBufferList);
+				
+				long outputStreamSize = fsos.size();
+
+				if (outputStreamSize <= dataPacketBufferSize) {
+					WrapBuffer workingWrapBuffer = flippedWrapBufferList.get(0);
+					ByteBuffer dupBuffer = workingWrapBuffer.getByteBuffer().duplicate();
+					/** warning! the duplicate method doesn't copy the byte order attribute */
+					dupBuffer.order(streamByteOrder);
+
+					byte temp[] = new byte[(int) outputStreamSize];
+					dupBuffer.get(temp);
+					actualValue = new String(temp, wantedCharset);
+
+					Assert.assertEquals(excpectedValue, actualValue.trim());
+
+					log.info("하나의 버퍼에 쓴 내용이 모두 담겨있을 경우 ByteBuffer 를 이용한 데이터 검증 완료");
+				}
+
+				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
+						dataPacketBufferPoolManager);
+				// fsis = fsos.getFreeSizeInputStream(streamCharsetDecoder);
+
+				/*byte temp[] = new byte[(int) outputStreamSize];
+				fsis.getBytes(temp);
+				actualValue = new String(temp, wantedCharset);
+
+				Assert.assertEquals(excpectedValue, actualValue.trim());*/
+				
+				actualValue = fsis.getFixedLengthString(fixedLength, wantedCharsetDecoder);
+				
+				Assert.assertEquals(excpectedValue, actualValue.trim());
+				
+				long numberOfReadBytes = fsis.getNumberOfReadBytes();
+				if (numberOfReadBytes != outputStreamSize) {
+					String errorMessage = String.format("numberOfReadBytes[%d] is different from outputStreamSize[%d]",
+							numberOfReadBytes, outputStreamSize);
+					fail(errorMessage);
+				}			
+
+				long numberOfRemaingBytes = fsis.available();
+				if (0 != numberOfRemaingBytes) {
+					fail("the input stream is available");
+				}
+			} catch (Exception e) {
+				log.warn(""+e.getMessage(), e);
+				fail("unknown error::" + e.getMessage());
+			} finally {
+				if (null != fsos) {
+					fsos.close();
+				}
+			}
+		}
+		
+		{
+			log.info("test case::ok operation in the method \"public void putFixedLengthString(int fixedLength, String src, CharsetEncoder wantedCharsetEncoder)\"");
+			
+			String strStr = "가나다라";
+			String excpectedValue = "가나다";
+			String actualValue = null;
+			int fixedLength = 6;
+			
+			try {
+				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
+						dataPacketBufferPoolManager);
+
+				fsos.putFixedLengthString(fixedLength, strStr);
+
+				checkNumberOfWrittenBytes(fixedLength, fsos);
+
+				ArrayList<WrapBuffer> flippedWrapBufferList = fsos.getFlippedWrapBufferList();
+				
+				checkValidFlippedWrapBufferList(flippedWrapBufferList);
+				
+				long outputStreamSize = fsos.size();
+
+				if (outputStreamSize <= dataPacketBufferSize) {
+					WrapBuffer workingWrapBuffer = flippedWrapBufferList.get(0);
+					ByteBuffer dupBuffer = workingWrapBuffer.getByteBuffer().duplicate();
+					/** warning! the duplicate method doesn't copy the byte order attribute */
+					dupBuffer.order(streamByteOrder);
+
+					byte temp[] = new byte[(int) outputStreamSize];
+					dupBuffer.get(temp);
+					actualValue = new String(temp, wantedCharset);
+
+					Assert.assertEquals(excpectedValue, actualValue.trim());
+
+					log.info("하나의 버퍼에 쓴 내용이 모두 담겨있을 경우 ByteBuffer 를 이용한 데이터 검증 완료");
+				}
+
+				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
+						dataPacketBufferPoolManager);
+				// fsis = fsos.getFreeSizeInputStream(streamCharsetDecoder);
+
+				/*byte temp[] = new byte[(int) outputStreamSize];
+				fsis.getBytes(temp);
+				actualValue = new String(temp, wantedCharset);
+
+				Assert.assertEquals(excpectedValue, actualValue.trim());*/
+				
+				actualValue = fsis.getFixedLengthString(fixedLength);
+				
+				Assert.assertEquals(excpectedValue, actualValue.trim());
+				
+				long numberOfReadBytes = fsis.getNumberOfReadBytes();
+				if (numberOfReadBytes != outputStreamSize) {
+					String errorMessage = String.format("numberOfReadBytes[%d] is different from outputStreamSize[%d]",
+							numberOfReadBytes, outputStreamSize);
+					fail(errorMessage);
+				}			
+
+				long numberOfRemaingBytes = fsis.available();
+				if (0 != numberOfRemaingBytes) {
+					fail("the input stream is available");
+				}
+			} catch (Exception e) {
+				log.warn(""+e.getMessage(), e);
+				fail("unknown error::" + e.getMessage());
+			} finally {
+				if (null != fsos) {
+					fsos.close();
+				}
+			}
+		}
+		
+	}
+	
+	@Test
+	public void testPutStringAll_theParameterStr_null() {
+		int dataPacketBufferMaxCount = 6;
+		Charset streamCharset = Charset.forName("EUC-KR");
+		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
+
+		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		boolean isDirect = false;
+		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
+		int dataPacketBufferSize = 1;
+		int dataPacketBufferPoolSize = 6;
+
+		FreeSizeOutputStream fsos = null;
+
+		try {
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+		} catch (Exception e) {
+			log.warn(""+e.getMessage(), e);
+			fail("error");
+		}
+		
+		String strStr = null;
+		
 		try {
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
 					dataPacketBufferPoolManager);
 
-			fsos.putFixedLengthString(fixedLength, strStr, wantedCharsetEncoder);
+			fsos.putStringAll(strStr);
 
-			checkNumberOfWrittenBytes(fixedLength, fsos);
+			fail("no Exception");
+		} catch (IllegalArgumentException e) {
+			String errorMessage = e.getMessage();
 
+			String expectedMessage = "the parameter src is null";
+
+			assertEquals(expectedMessage, errorMessage);
+		} catch (Exception e) {
+			log.warn(""+e.getMessage(), e);
+			fail("unknown error::" + e.getMessage());
+		} finally {
+			if (null != fsos) {
+				fsos.close();
+			}
+		}
+	}
+	
+	@Test
+	public void testPutStringAll_greaterThanNumberOfBytesRemaining() {
+		int dataPacketBufferMaxCount = 6;
+		Charset streamCharset = Charset.forName("EUC-KR");
+		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
+
+		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		boolean isDirect = false;
+		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
+		int dataPacketBufferSize = 1;
+		int dataPacketBufferPoolSize = 6;
+
+		FreeSizeOutputStream fsos = null;
+
+		try {
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+		} catch (Exception e) {
+			log.warn(""+e.getMessage(), e);
+			fail("error");
+		}
+		
+		
+		String strStr = "한글";
+		
+		int numberOfBytesRequired = strStr.getBytes(streamCharset).length;		
+		int numberOfBytesSkipping = dataPacketBufferSize*dataPacketBufferMaxCount-1;
+		long numberOfBytesRemaining = dataPacketBufferSize*dataPacketBufferMaxCount - numberOfBytesSkipping;
+		
+		
+		
+		try {
+			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
+					dataPacketBufferPoolManager);
+			
+			fsos.skip(numberOfBytesSkipping);
+			
+			checkNumberOfWrittenBytes(numberOfBytesSkipping, fsos);
+
+			fsos.putStringAll(strStr);
+
+			fail("no SinnoriBufferOverflowException");
+		} catch (SinnoriBufferOverflowException e) {
+			// log.warn(""+e.getMessage(), e);			
+			String errorMessage = e.getMessage();
+			String expectedMessage =
+			String.format("the number[%d] of bytes remaining in this ouput stream is less than [%d] byte(s) that is required",
+					numberOfBytesRemaining, numberOfBytesRequired);
+			
+			assertEquals(expectedMessage, errorMessage);
+		} catch (Exception e) {
+			log.warn(""+e.getMessage(), e);
+			fail("unknown error::" + e.getMessage());
+		} finally {
+			if (null != fsos) {
+				fsos.close();
+			}
+		}
+	}
+	
+	@Test
+	public void testSkip_basic() {
+		int dataPacketBufferMaxCount = 5;
+		Charset streamCharset = Charset.forName("utf-8");
+		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
+		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
+
+		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		boolean isDirect = false;
+		int dataPacketBufferSize = 512;
+		int dataPacketBufferPoolSize = 10;		
+
+		FreeSizeOutputStream fsos = null;
+		
+		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
+		
+		
+		try {
+			try {
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+			} catch (Exception e) {
+				log.warn(""+e.getMessage(), e);
+				fail("error");
+			}
+			
+			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
+					dataPacketBufferPoolManager);
+
+			fsos.skip(dataPacketBufferSize*dataPacketBufferMaxCount);
+			
+			checkNumberOfWrittenBytes(dataPacketBufferSize*dataPacketBufferMaxCount, fsos);
+			
 			ArrayList<WrapBuffer> flippedWrapBufferList = fsos.getFlippedWrapBufferList();
 			
-			checkValidFlippedWrapBufferList(flippedWrapBufferList);
-			
-			long outputStreamSize = fsos.size();
-
-			if (outputStreamSize <= dataPacketBufferSize) {
-				WrapBuffer workingWrapBuffer = flippedWrapBufferList.get(0);
-				ByteBuffer dupBuffer = workingWrapBuffer.getByteBuffer().duplicate();
-				/** warning! the duplicate method doesn't copy the byte order attribute */
-				dupBuffer.order(streamByteOrder);
-
-				byte temp[] = new byte[(int) outputStreamSize];
-				dupBuffer.get(temp);
-				actualValue = new String(temp, wantedCharset);
-
-				Assert.assertEquals(excpectedValue, actualValue.trim());
-
-				log.info("하나의 버퍼에 쓴 내용이 모두 담겨있을 경우 ByteBuffer 를 이용한 데이터 검증 완료");
-			}
-
-			fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
-					dataPacketBufferPoolManager);
-			// fsis = fsos.getFreeSizeInputStream(streamCharsetDecoder);
-
-			/*byte temp[] = new byte[(int) outputStreamSize];
-			fsis.getBytes(temp);
-			actualValue = new String(temp, wantedCharset);
-
-			Assert.assertEquals(excpectedValue, actualValue.trim());*/
-			
-			actualValue = fsis.getFixedLengthString(fixedLength, wantedCharsetDecoder);
-			
-			Assert.assertEquals(excpectedValue, actualValue.trim());
-			
-			long numberOfReadBytes = fsis.getNumberOfReadBytes();
-			if (numberOfReadBytes != outputStreamSize) {
-				String errorMessage = String.format("numberOfReadBytes[%d] is different from outputStreamSize[%d]",
-						numberOfReadBytes, outputStreamSize);
-				fail(errorMessage);
-			}			
-
-			long numberOfRemaingBytes = fsis.available();
-			if (0 != numberOfRemaingBytes) {
-				fail("the input stream is available");
-			}
+			checkValidFlippedWrapBufferList(flippedWrapBufferList);	
 		} catch (Exception e) {
-			log.warn("", e);
+			log.warn(""+e.getMessage(), e);
 			fail("unknown error::" + e.getMessage());
 		} finally {
 			if (null != fsos) {

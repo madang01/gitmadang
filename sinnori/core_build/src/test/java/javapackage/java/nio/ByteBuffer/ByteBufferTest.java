@@ -107,4 +107,20 @@ public class ByteBufferTest {
 			assertEquals(byteOrder, dupBuffer.order());
 		}
 	}
+	
+	@Test
+	public void testArray_유효한범위인지전체범위인지테스트() {
+		byte src[] = {0x32, 0x33, 0x34, 0x35};
+		ByteBuffer streambuffer =  ByteBuffer.wrap(src);
+		streambuffer.get();
+		streambuffer.get();
+		
+		byte result[] = streambuffer.array();
+		
+		if (src.length == result.length) {
+			log.info("결과:전체, streambuffer={}", streambuffer.toString());
+		} else {
+			log.info("결과:유효한부분만, streambuffer={}", streambuffer.toString());
+		}
+	}
 }

@@ -26,6 +26,7 @@ import java.nio.charset.CharsetEncoder;
 import kr.pe.sinnori.common.etc.CharsetUtil;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
 import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
 import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
 import kr.pe.sinnori.common.io.FixedSizeOutputStream;
@@ -206,6 +207,9 @@ public class DHBMessageHeader {
 		} catch (NoMoreDataPacketBufferException e) {
 			/** 고정 크기 출력 스트림은 NoMoreDataPacketBufferException 를 발생시키니 않는다. */
 			log.error("NoMoreDataPacketBufferException", e);
+			System.exit(1);
+		} catch (SinnoriBufferOverflowException e) {
+			log.error("SinnoriBufferOverflowException", e);
 			System.exit(1);
 		}
 	}

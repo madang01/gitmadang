@@ -138,7 +138,7 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 		try {
 			newWrapBuffer = dataPacketBufferQueueManager.pollDataPacketBuffer();
 		} catch (NoMoreDataPacketBufferException e) {
-			freeDataPacketBufferList();
+			// freeDataPacketBufferList();
 			throw e;
 		}
 
@@ -214,7 +214,7 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 		long numberOfBytesRemaining = remaining();
 		if (numberOfBytesRemaining < numberOfBytesRequired) {
 			throw new SinnoriBufferOverflowException(
-					String.format("the number[%d] of bytes remaining in this ouput stream is less than [%d] byte(s)",
+					String.format("the number[%d] of bytes remaining in this ouput stream is less than [%d] byte(s) that is required",
 							numberOfBytesRemaining, numberOfBytesRequired));
 		}
 	}
@@ -404,15 +404,93 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 	}
 
 	@Override
-	public void putFixedLengthString(int fixedLength, String str, CharsetEncoder wantedCharsetEncoder)
+	public void putBytes(byte[] src) throws BufferOverflowException, IllegalArgumentException,
+			NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
+		if (src == null) {
+			throw new IllegalArgumentException("the parameter src is null");
+		}		
+	
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(src.length);
+	
+		doPutBytes(src, 0, src.length);
+	}
+
+	@Override
+	public void putBytes(byte[] src, int offset, int length) throws BufferOverflowException, IllegalArgumentException,
+			NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
+		if (src == null) {
+			throw new IllegalArgumentException("the parameter src is null");
+		}
+	
+		if (offset < 0) {
+			throw new IllegalArgumentException(String.format("the parameter offset[%d] is less than zero", offset));
+		}
+		
+		if (offset >= src.length) {
+			throw new IllegalArgumentException(String.format("the parameter offset[%d] is greater than or equal to array.length[%d]", offset, src.length));
+		}
+	
+		if (length < 0) {
+			throw new IllegalArgumentException(String.format("the parameter length[%d] is less than zero", length));
+		}
+		
+		if (0 == length) {
+			return;
+		}
+		
+		long sumOfOffsetAndLength = ((long)offset + length);
+		if (sumOfOffsetAndLength > src.length) {
+			throw new IllegalArgumentException(String.format(
+					"the sum[%d] of the parameter offset[%d] and the parameter length[%d] is greater than array.length[%d]", 
+					sumOfOffsetAndLength, offset, length, src.length));
+		}
+		
+		
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(length);		
+	
+		doPutBytes(src, offset, length);
+	}
+
+	@Override
+	public void putBytes(ByteBuffer src) throws BufferOverflowException, IllegalArgumentException,
+			NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
+		if (src == null) {
+			throw new IllegalArgumentException("the parameter src is null");
+		}
+		
+		int numberOfBytesReamaining = src.remaining();
+		if (0 == numberOfBytesReamaining) {
+			return;
+		}
+	
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(numberOfBytesReamaining);
+		
+		/**
+		 * slice 메소드를 통해 원본 버퍼의 속성과 별개의 속성을 갖는 <br/>
+		 * 그리고 실제 필요한 영역만을 가지는 바이트 버퍼를 만든다.
+		 */
+		ByteBuffer sliceBuffer = src.slice();
+	
+		doPutBytes(sliceBuffer);
+	
+	}
+
+	@Override
+	public void putFixedLengthString(int fixedLength, String src) throws BufferOverflowException,
+			IllegalArgumentException, NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
+		putFixedLengthString(fixedLength, src, streamCharsetEncoder);
+	}
+
+	@Override
+	public void putFixedLengthString(int fixedLength, String src, CharsetEncoder wantedCharsetEncoder)
 			throws BufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException,
 			SinnoriBufferOverflowException {
 		if (fixedLength < 0) {
 			throw new IllegalArgumentException(
 					String.format("the parameter fixedLength[%d] is less than zero", fixedLength));
 		}
-		if (str == null) {
-			throw new IllegalArgumentException("the parameter str is null");
+		if (src == null) {
+			throw new IllegalArgumentException("the parameter src is null");
 		}
 
 		if (wantedCharsetEncoder == null) {
@@ -425,7 +503,7 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(fixedLength);
 
-		CharBuffer strCharBuffer = CharBuffer.wrap(str);
+		CharBuffer strCharBuffer = CharBuffer.wrap(src);
 
 		ByteBuffer strByteBuffer = null;
 		try {
@@ -444,19 +522,13 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 	}
 
 	@Override
-	public void putFixedLengthString(int fixedLength, String str) throws BufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
-		putFixedLengthString(fixedLength, str, streamCharsetEncoder);
-	}
-
-	@Override
-	public void putStringAll(String str) throws BufferOverflowException, IllegalArgumentException,
+	public void putStringAll(String src) throws BufferOverflowException, IllegalArgumentException,
 			NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
-		if (str == null) {
-			throw new IllegalArgumentException("the parameter str is null");
+		if (src == null) {
+			throw new IllegalArgumentException("the parameter src is null");
 		}
 
-		byte strBytes[] = str.getBytes(streamCharset);
+		byte strBytes[] = src.getBytes(streamCharset);
 
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(strBytes.length);
 
@@ -464,19 +536,19 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 	}
 
 	@Override
-	public void putPascalString(String str) throws BufferOverflowException, IllegalArgumentException,
+	public void putPascalString(String src) throws BufferOverflowException, IllegalArgumentException,
 			NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
-		putUBPascalString(str);
+		putUBPascalString(src);
 	}
 
 	@Override
-	public void putSIPascalString(String str) throws BufferOverflowException, IllegalArgumentException,
+	public void putSIPascalString(String src) throws BufferOverflowException, IllegalArgumentException,
 			NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
-		if (str == null) {
-			throw new IllegalArgumentException("the parameter str is null");
+		if (src == null) {
+			throw new IllegalArgumentException("the parameter src is null");
 		}
 
-		byte strBytes[] = str.getBytes(streamCharset);
+		byte strBytes[] = src.getBytes(streamCharset);
 
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired((strBytes.length + 4));
 
@@ -485,13 +557,13 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 	}
 
 	@Override
-	public void putUSPascalString(String str) throws BufferOverflowException, IllegalArgumentException,
+	public void putUSPascalString(String src) throws BufferOverflowException, IllegalArgumentException,
 			NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
-		if (str == null) {
-			throw new IllegalArgumentException("the parameter str is null");
+		if (src == null) {
+			throw new IllegalArgumentException("the parameter src is null");
 		}
 
-		byte strBytes[] = str.getBytes(streamCharset);		
+		byte strBytes[] = src.getBytes(streamCharset);		
 
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired((strBytes.length + 2));
 
@@ -500,73 +572,18 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 	}
 
 	@Override
-	public void putUBPascalString(String str) throws BufferOverflowException, IllegalArgumentException,
+	public void putUBPascalString(String src) throws BufferOverflowException, IllegalArgumentException,
 			NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
-		if (str == null) {
-			throw new IllegalArgumentException("the parameter str is null");
+		if (src == null) {
+			throw new IllegalArgumentException("the parameter src is null");
 		}
 
-		byte strBytes[] = str.getBytes(streamCharset);		
+		byte strBytes[] = src.getBytes(streamCharset);		
 
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired((strBytes.length + 1));
 
 		putUnsignedByte(strBytes.length);
 		putBytes(strBytes);
-
-	}
-
-	@Override
-	public void putBytes(byte[] src, int offset, int length) throws BufferOverflowException, IllegalArgumentException,
-			NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
-		if (src == null) {
-			throw new IllegalArgumentException("the parameter src is null");
-		}
-
-		if (offset < 0) {
-			throw new IllegalArgumentException(String.format("the parameter offset[%d] is less than zero", offset));
-		}
-
-		if (length < 0) {
-			throw new IllegalArgumentException(String.format("the parameter length[%d] is less than zero", length));
-		}
-
-		if (0 == length) {
-			return;
-		}
-
-		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(length);		
-
-		doPutBytes(src, offset, length);
-	}
-
-	@Override
-	public void putBytes(byte[] src) throws BufferOverflowException, IllegalArgumentException,
-			NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
-		if (src == null) {
-			throw new IllegalArgumentException("the parameter src is null");
-		}		
-
-		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(src.length);
-
-		doPutBytes(src, 0, src.length);
-	}
-
-	@Override
-	public void putBytes(ByteBuffer src) throws BufferOverflowException, IllegalArgumentException,
-			NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
-		if (src == null) {
-			throw new IllegalArgumentException("the parameter src is null");
-		}
-
-		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(src.remaining());
-		
-		/**
-		 * slice 메소드를 통해 원본 버퍼의 속성과 별개의 속성을 갖는 <br/>
-		 * 그리고 실제 필요한 영역만을 가지는 바이트 버퍼를 만든다.
-		 */
-		ByteBuffer sliceBuffer = src.slice();
-
-		doPutBytes(sliceBuffer);
 
 	}
 

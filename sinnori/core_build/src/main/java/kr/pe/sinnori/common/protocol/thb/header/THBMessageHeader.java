@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 import kr.pe.sinnori.common.etc.CharsetUtil;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
 import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
 import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
 import kr.pe.sinnori.common.io.FixedSizeOutputStream;
@@ -128,6 +129,9 @@ public class THBMessageHeader {
 			headerOutputStream.putUnsignedShort(mailboxID);
 			headerOutputStream.putInt(mailID);
 			headerOutputStream.putLong(bodySize);
+		} catch (SinnoriBufferOverflowException e) {
+			log.error("SinnoriBufferOverflowException", e);
+			System.exit(1);
 		} catch (BufferOverflowException e) {
 			log.error("BufferOverflowException", e);
 			System.exit(1);

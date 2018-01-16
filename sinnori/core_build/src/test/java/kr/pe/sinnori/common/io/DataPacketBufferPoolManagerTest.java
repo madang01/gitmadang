@@ -207,11 +207,8 @@ public class DataPacketBufferPoolManagerTest {
 		} catch(Exception e) {
 			log.warn(e.getMessage(), e);
 			fail("error");
-		}
-		
-	}
-	
-	
+		}		
+	}	
 	
 	
 	@Test

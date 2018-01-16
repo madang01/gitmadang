@@ -19,6 +19,7 @@ import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.etc.CharsetUtil;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
+import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
 import kr.pe.sinnori.common.util.HexUtil;
 
 public class FixedSizeOutputStreamTest {
@@ -620,7 +621,7 @@ public class FixedSizeOutputStreamTest {
 			fail("no IllegalArgumentException");
 		} catch (IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
-			String expectedMessage = String.format("the parameter offset[%d] is greater than or equal to the length[%d] of the parameter src that is a byte array", offset, src.length);
+			String expectedMessage = String.format("the parameter offset[%d] is greater than or equal to array.length[%d]", offset, src.length);
 
 			assertEquals(expectedMessage, errorMessage);
 		} catch (Exception e) {
@@ -660,7 +661,7 @@ public class FixedSizeOutputStreamTest {
 	
 	
 	@Test
-	public void testPutBytes_theParameterOffset_theParameterLength_sumIsGreaterThanSourceByteArrayLength() {
+	public void testPutBytes_sumOfTheParameterOffsetAndtheParameterLength_isGreaterThanArrayLength() {
 		ByteBuffer streambuffer = ByteBuffer.allocate(1024);
 
 		Charset streamCharset = Charset.forName("EUC-KR");
@@ -670,8 +671,8 @@ public class FixedSizeOutputStreamTest {
 		streambuffer.clear();
 		Arrays.fill(streambuffer.array(), CommonStaticFinalVars.ZERO_BYTE);
 		byte[] src = {0x10, 0x20, 0x30, 0x40};
-		int offset = 1;
-		int length = src.length;
+		int offset = src.length-1;
+		int length = 2;
 		
 		try {
 			FixedSizeOutputStream fsos = new FixedSizeOutputStream(streambuffer, streamCharsetEncoder);
@@ -683,7 +684,7 @@ public class FixedSizeOutputStreamTest {
 			long sumOfOffsetAndLength = (long)offset + length;
 			String errorMessage = e.getMessage();
 			String expectedMessage = String.format(
-					"the sum[%d] of the parameter offset[%d] and the parameter length[%d] is greater than the length[%d] of the parameter src that is a byte array", 
+					"the sum[%d] of the parameter offset[%d] and the parameter length[%d] is greater than array.length[%d]", 
 					sumOfOffsetAndLength, offset, length, src.length);
 
 			assertEquals(expectedMessage, errorMessage);
@@ -693,7 +694,7 @@ public class FixedSizeOutputStreamTest {
 	}
 	
 	@Test
-	public void testPutBytes_theParameterOffset_theParameterLength_minMaxMiddle() {
+	public void testPutBytes_minMaxMiddle() {
 		ByteBuffer streambuffer = ByteBuffer.allocate(1024);
 
 		Charset streamCharset = Charset.forName("EUC-KR");
@@ -758,46 +759,47 @@ public class FixedSizeOutputStreamTest {
 	
 	
 	@Test
-	public void testPutBytes_theParameterLength_greaterThanRemaingBytes() {
+	public void testPutBytes_greaterThanNumberOfBytesRemaining() {
 		ByteBuffer streambuffer = ByteBuffer.allocate(1024);
 
 		Charset streamCharset = Charset.forName("EUC-KR");
 		CharsetEncoder streamCharsetEncoder = CharsetUtil.createCharsetEncoder(streamCharset);
 		// CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
-
-		
 				
 		Arrays.fill(streambuffer.array(), CommonStaticFinalVars.ZERO_BYTE);
 		byte[] src = {0x10, 0x20, 0x30, 0x40};
 		int offset = 0;
 		int length = src.length;
 		
-		streambuffer.clear();
-		streambuffer.position(streambuffer.limit() - src.length + 1);
+		int numberOfBytesRequired = length;		
+		int numberOfBytesSkipping = streambuffer.remaining() - 1;
+		long numberOfBytesRemaining = streambuffer.remaining() - numberOfBytesSkipping;
+		
+		// streambuffer.clear();
+		// streambuffer.position(streambuffer.limit() - src.length + 1);
 		
 		try {
-			FixedSizeOutputStream fsos = new FixedSizeOutputStream(streambuffer, streamCharsetEncoder);
+			FixedSizeOutputStream fsos = new FixedSizeOutputStream(streambuffer, streamCharsetEncoder);	
+			
+			fsos.skip(numberOfBytesSkipping);
 			
 			fsos.putBytes(src, offset, length);
 			
-			fail("no IllegalArgumentException");
-		} catch (IllegalArgumentException e) {
+			fail("no SinnoriBufferOverflowException");
+		} catch (SinnoriBufferOverflowException e) {
 			String errorMessage = e.getMessage();
 			// log.info(errorMessage, e);
 			
-			String expectedMessage = String.format(
-					"the parameter length[%d] is greater than the remaining bytes[%d]", length,
-					streambuffer.remaining());
+			String expectedMessage = String.format("the number[%d] of bytes remaining in this ouput stream is less than [%d] byte(s) that is required",
+					numberOfBytesRemaining, numberOfBytesRequired);
 
 			assertEquals(expectedMessage, errorMessage);
 		
 		} catch (Exception e) {
+			log.warn(""+e.getMessage(), e);
 			fail(e.getMessage());
 		}
-		
-	}
-	
-	
+	}	
 	
 	@Test
 	public void testPutFixedLengthString_theParameterLength_lessThanZero() {
@@ -826,7 +828,7 @@ public class FixedSizeOutputStreamTest {
 			String errorMessage = e.getMessage();
 			// log.info(errorMessage, e);
 			
-			String expectedMessage = String.format("the parameter length[%d] is less than zero", length);
+			String expectedMessage = String.format("the parameter fixedLength[%d] is less than zero", length);
 
 			assertEquals(expectedMessage, errorMessage);
 		} catch (Exception e) {
@@ -915,7 +917,7 @@ public class FixedSizeOutputStreamTest {
 	
 	
 	@Test
-	public void testPutFixedLengthString_theParameterLength_greaterThanRemaingBytes() {
+	public void testPutFixedLengthString_greaterThanNumberOfBytesRemaining() {
 		ByteBuffer streambuffer = ByteBuffer.allocate(1024);
 
 		Charset streamCharset = Charset.forName("EUC-KR");
@@ -928,24 +930,29 @@ public class FixedSizeOutputStreamTest {
 		int length = 5;
 		String src = "똠방각하";
 		
-		streambuffer.clear();
+		/*streambuffer.clear();
 		Arrays.fill(streambuffer.array(), CommonStaticFinalVars.ZERO_BYTE);
-		streambuffer.position(streambuffer.limit() - length + 1);
+		streambuffer.position(streambuffer.limit() - length + 1);*/
+		
+		int numberOfBytesRequired = length;		
+		int numberOfBytesSkipping = streambuffer.remaining() - 1;
+		long numberOfBytesRemaining = streambuffer.remaining() - numberOfBytesSkipping;
 		
 		try {
 			FixedSizeOutputStream fsos = new FixedSizeOutputStream(streambuffer, streamCharsetEncoder);
+			
+			fsos.skip(numberOfBytesSkipping);
 
 			fsos.putFixedLengthString(length, src, wantedCharsetEncoder);
 			fsos.flipOutputStreamBuffer();
 
-			fail("no IllegalArgumentException");
-
-		} catch (IllegalArgumentException e) {
+			fail("no SinnoriBufferOverflowException");
+		} catch (SinnoriBufferOverflowException e) {
 			String errorMessage = e.getMessage();
-			
 			// log.info(errorMessage, e);
 			
-			String expectedMessage = String.format("the parameter length[%d] is greater than the remaining bytes[%d]", length, streambuffer.remaining());
+			String expectedMessage = String.format("the number[%d] of bytes remaining in this ouput stream is less than [%d] byte(s) that is required",
+					numberOfBytesRemaining, numberOfBytesRequired);
 
 			assertEquals(expectedMessage, errorMessage);
 		} catch (Exception e) {
