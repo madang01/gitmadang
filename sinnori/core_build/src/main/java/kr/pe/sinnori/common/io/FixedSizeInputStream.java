@@ -40,7 +40,7 @@ import kr.pe.sinnori.common.util.HexUtil;
  * @author Won Jonghoon
  * 
  */
-public class FixedSizeInputStream implements SinnoriInputStreamIF {
+public class FixedSizeInputStream implements BinaryInputStreamIF {
 	private Logger log = LoggerFactory.getLogger(FixedSizeInputStream.class);
 	/**
 	 * 입력받은 InputStream 처럼 동작 시킬 ByteBuffer

@@ -40,7 +40,7 @@ import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
-import kr.pe.sinnori.common.io.SocketInputStream;
+import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
@@ -92,7 +92,7 @@ public abstract class AbstractConnection {
 	protected boolean whetherToAutoConnect;
 
 	/** 소켓 채널 전용 읽기 자원 */
-	protected SocketInputStream messageInputStreamResource = null;
+	protected SocketOutputStream messageInputStreamResource = null;
 	
 
 	/** 최종 읽기를 수행한 시간. 초기값은 클라이언트(=SocketChannel) 생성시간이다. */
@@ -139,7 +139,7 @@ public abstract class AbstractConnection {
 		this.whetherToAutoConnect = whetherToAutoConnect;
 		this.messageProtocol = messageProtocol;
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-		messageInputStreamResource = new SocketInputStream(dataPacketBufferMaxCntPerMessage, dataPacketBufferQueueManager);
+		messageInputStreamResource = new SocketOutputStream(dataPacketBufferMaxCntPerMessage, dataPacketBufferQueueManager);
 		
 		this.asynOutputMessageQueue = asynOutputMessageQueue;
 		this.clientObjectCacheManager = clientObjectCacheManager;
@@ -334,7 +334,7 @@ public abstract class AbstractConnection {
 	/**
 	 * @return 소켓 채널 전용 읽기 자원
 	 */
-	public SocketInputStream getMessageInputStreamResource() {
+	public SocketOutputStream getMessageInputStreamResource() {
 		
 		return messageInputStreamResource;
 	}

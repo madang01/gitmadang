@@ -40,7 +40,7 @@ import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
  * @author Won Jonghoon
  *
  */
-public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
+public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 	private Logger log = LoggerFactory.getLogger(FreeSizeOutputStream.class);
 
 	private ArrayList<WrapBuffer> dataPacketBufferList = null;
@@ -634,7 +634,11 @@ public final class FreeSizeOutputStream implements SinnoriOutputStreamIF {
 		long numberOfWrittenBytes = 0;
 
 		for (WrapBuffer buffer : dataPacketBufferList) {
-			numberOfWrittenBytes += buffer.getByteBuffer().position();
+			// numberOfWrittenBytes += buffer.getByteBuffer().position();
+			
+			ByteBuffer dupByteBuffer = buffer.getByteBuffer().duplicate();
+			dupByteBuffer.flip();			
+			numberOfWrittenBytes += dupByteBuffer.remaining();
 		}
 
 		return numberOfWrittenBytes;

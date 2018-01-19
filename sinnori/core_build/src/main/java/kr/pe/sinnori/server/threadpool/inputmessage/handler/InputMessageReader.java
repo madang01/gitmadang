@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
-import kr.pe.sinnori.common.io.SocketInputStream;
+import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
 import kr.pe.sinnori.server.ClientResource;
@@ -197,7 +197,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 							continue;
 						}
 						
-						SocketInputStream clientSocketInputStream = clientResource.getSocketInputStream();
+						SocketOutputStream clientSocketInputStream = clientResource.getSocketInputStream();
 						
 						
 						try {

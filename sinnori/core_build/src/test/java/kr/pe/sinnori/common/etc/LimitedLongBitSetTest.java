@@ -3,13 +3,10 @@ package kr.pe.sinnori.common.etc;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.lang.reflect.InvocationTargetException;
-
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import junitlib.JunitUtil;
 import kr.pe.sinnori.common.etc.LimitedLongBitSet.BadBitSetIndexException;
 import kr.pe.sinnori.common.etc.LimitedLongBitSet.FailedListFullException;
 
@@ -43,44 +40,91 @@ public class LimitedLongBitSetTest {
 	}
 	
 	@Test
-	public void testConstructor_badParameter_maxBitNumberIsZero() {
+	public void testConstructor_theParameterMaxBitNumber_lessThanOrEqualToZero() {
 		long maxBitNumber = 0;
-		try {			
-			@SuppressWarnings("unused")
-			LimitedLongBitSet limitedLongBitSet = new LimitedLongBitSet(maxBitNumber);
+		{
+			log.info("test case::the parameter maxBitNumber is equal to zero in the method 'public LimitedLongBitSet(long maxBitNumber)'");
 			
-			fail("no IllegalArgumentException");
-		} catch(IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			log.info("errorMessage=[{}]", errorMessage);
-			
-			final String exepectedErrorMessage = String.format("the parameter maxBitNumber[%d] is less than or equal to zero", maxBitNumber);
-			
-			assertEquals(errorMessage, exepectedErrorMessage);
-		} catch(Exception e) {
-			fail("unknown error::"+e.getMessage());
+			try {			
+				@SuppressWarnings("unused")
+				LimitedLongBitSet limitedLongBitSet = new LimitedLongBitSet(maxBitNumber);
+				
+				fail("no IllegalArgumentException");
+			} catch(IllegalArgumentException e) {
+				String errorMessage = e.getMessage();
+				//log.info("errorMessage=[{}]", errorMessage);
+				
+				final String exepectedErrorMessage = String.format("the parameter maxBitNumber[%d] is less than or equal to zero", maxBitNumber);
+				
+				assertEquals(errorMessage, exepectedErrorMessage);
+			} catch(Exception e) {
+				fail("unknown error::"+e.getMessage());
+			}
 		}
+		
+		{
+			log.info("test case::the parameter maxBitNumber is equal to zero in the method 'public LimitedLongBitSet(long maxBitNumber, long lastCheckedIndex)'");
+			
+			try {			
+				@SuppressWarnings("unused")
+				LimitedLongBitSet limitedLongBitSet = new LimitedLongBitSet(maxBitNumber, 1);
+				
+				fail("no IllegalArgumentException");
+			} catch(IllegalArgumentException e) {
+				String errorMessage = e.getMessage();
+				//log.info("errorMessage=[{}]", errorMessage);
+				
+				final String exepectedErrorMessage = String.format("the parameter maxBitNumber[%d] is less than or equal to zero", maxBitNumber);
+				
+				assertEquals(errorMessage, exepectedErrorMessage);
+			} catch(Exception e) {
+				fail("unknown error::"+e.getMessage());
+			}
+		}
+		
+		maxBitNumber = -10;
+		{
+			log.info("test case::the parameter maxBitNumber is less than zero in the method 'public LimitedLongBitSet(long maxBitNumber)'");
+			
+			try {			
+				@SuppressWarnings("unused")
+				LimitedLongBitSet limitedLongBitSet = new LimitedLongBitSet(maxBitNumber);
+				
+				fail("no IllegalArgumentException");
+			} catch(IllegalArgumentException e) {
+				String errorMessage = e.getMessage();
+				//log.info("errorMessage=[{}]", errorMessage);
+				
+				final String exepectedErrorMessage = String.format("the parameter maxBitNumber[%d] is less than or equal to zero", maxBitNumber);
+				
+				assertEquals(errorMessage, exepectedErrorMessage);
+			} catch(Exception e) {
+				fail("unknown error::"+e.getMessage());
+			}
+		}
+		
+		{
+			log.info("test case::the parameter maxBitNumber is less than zero in the method 'public LimitedLongBitSet(long maxBitNumber, long lastCheckedIndex)'");
+			
+			try {			
+				@SuppressWarnings("unused")
+				LimitedLongBitSet limitedLongBitSet = new LimitedLongBitSet(maxBitNumber, 1);
+				
+				fail("no IllegalArgumentException");
+			} catch(IllegalArgumentException e) {
+				String errorMessage = e.getMessage();
+				//log.info("errorMessage=[{}]", errorMessage);
+				
+				final String exepectedErrorMessage = String.format("the parameter maxBitNumber[%d] is less than or equal to zero", maxBitNumber);
+				
+				assertEquals(errorMessage, exepectedErrorMessage);
+			} catch(Exception e) {
+				fail("unknown error::"+e.getMessage());
+			}
+		}
+		
 	}
 	
-	@Test
-	public void testConstructor_badParameter_maxBitNumberIsLessThanZero() {
-		long maxBitNumber = -10;
-		try {			
-			@SuppressWarnings("unused")
-			LimitedLongBitSet limitedLongBitSet = new LimitedLongBitSet(maxBitNumber);
-			
-			fail("no IllegalArgumentException");
-		} catch(IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			log.info("errorMessage=[{}]", errorMessage);
-			
-			final String exepectedErrorMessage = String.format("the parameter maxBitNumber[%d] is less than or equal to zero", maxBitNumber);
-			
-			assertEquals(errorMessage, exepectedErrorMessage);
-		} catch(Exception e) {
-			fail("unknown error::"+e.getMessage());
-		}
-	}
 	
 	@Test
 	public void testConstructor_badParameter_lastCheckedIndexIsNegative() {
@@ -127,53 +171,8 @@ public class LimitedLongBitSetTest {
 	}
 	
 	
-	/**
-	 * this method test for the private method 'LimitedLongBitSet#checkIndexOutOfBoundsException' using Java reflection.
-	 * if this test can't run because of java reflection permission, then check java reflection permission
-	 * (ex vm argument -Djava.security.manager, the Sinnori project set vm argument 'java.security.manager' to 'kr.pe.sinnori.common.etc.SinnoriSecurityManger' for preventing java reflection)  
-	 */
 	@Test
-	public void testCheckIndexOutOfBoundsException_usnigJavaRelection_badParameter_bitIndexIsLessThanZero() {		
-		long maxBitNumber = 10;
-		LimitedLongBitSet limitedLongBitSet = null;
-		try {			
-			limitedLongBitSet = new LimitedLongBitSet(maxBitNumber);			
-			
-		} catch(IllegalArgumentException e) {
-			fail(e.getMessage());
-		}
-		
-		long bitIndex = -1;
-		@SuppressWarnings("unused")
-		Object returnedValueObject = null;
-		try {
-			returnedValueObject = JunitUtil.genericInvokMethod(limitedLongBitSet, "checkIndexOutOfBoundsException", 1, bitIndex);
-		} catch(InvocationTargetException e) {
-			Throwable causedException = e.getCause();
-			if (null != causedException && causedException instanceof IndexOutOfBoundsException) {
-				String errorMessage = causedException.getMessage();
-				log.info("errorMessage=[{}]", errorMessage);
-				
-				final String exepectedErrorMessage = String.format("the parameter bitIndex[%d] is less than zero", bitIndex);
-				
-				assertEquals(errorMessage, exepectedErrorMessage);
-			} else {
-				log.warn(e.getMessage(), e);
-				fail("InvocationTargetException error::"+e.getMessage());
-			}
-		
-		} catch(Exception e) {
-			log.warn(e.getMessage(), e);
-			fail("unknown error::"+e.getMessage());
-		}
-		
-		/*if (null == returnedValueObject) {
-			fail("the returned value object of LimitedLongBitSet class::checkIndexOutOfBoundsException method is null");
-		}*/		
-	}
-	
-	@Test
-	public void testCheckIndexOutOfBoundsException_badParameter_bitIndexIsLessThanZero() {
+	public void testThrowExceptionIfIndexOutOfBound_lessThanZero() {
 		long maxBitNumber = 10;
 		LimitedLongBitSet limitedLongBitSet = null;
 		try {			
@@ -201,7 +200,7 @@ public class LimitedLongBitSetTest {
 	}
 	
 	@Test
-	public void testCheckIndexOutOfBoundsException_badParameter_bitIndexIsGreaterThanOrEqualToMaxBitNumber() {		
+	public void testThrowExceptionIfIndexOutOfBound_greaterThanOrEqualToMaxBitNumber() {		
 		long maxBitNumber = 10;
 		LimitedLongBitSet limitedLongBitSet = null;
 		try {			
@@ -229,7 +228,7 @@ public class LimitedLongBitSetTest {
 	}
 	
 	@Test
-	public void testCheckIndexOutOfBoundsException_badParameter_bitIndexIsLessThanOrEqualToLastCheckedIndex() {
+	public void testThrowExceptionIfIndexOutOfBound_lessThanOrEqualToLastCheckedIndex() {
 		long maxBitNumber = 10;
 		long lastCheckedIndex = 5;
 		LimitedLongBitSet limitedLongBitSet = null;

@@ -37,7 +37,7 @@ import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
  * @author Won Jonghoon
  * 
  */
-public class FixedSizeOutputStream implements SinnoriOutputStreamIF {
+public class FixedSizeOutputStream implements BinaryOutputStreamIF {
 	private Logger log = LoggerFactory.getLogger(FixedSizeOutputStream.class);
 	/**
 	 * 출력을 담을 ByteBuffer.

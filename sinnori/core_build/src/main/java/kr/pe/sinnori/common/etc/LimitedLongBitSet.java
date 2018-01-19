@@ -70,29 +70,13 @@ public class LimitedLongBitSet {
 	}
 	
 	
-	@SuppressWarnings("serial")
-	public class FailedListFullException extends Exception {
-		public FailedListFullException(String errorMessage) {
-			super(errorMessage);
-		}
-	}
-	
-	
-	
-	@SuppressWarnings("serial")
-	public class BadBitSetIndexException extends Exception {
-		public BadBitSetIndexException(String errorMessage) {
-			super(errorMessage);
-		}
-	}
-	
-	
 	private boolean isDuplicated(long bitIndex) {
 		boolean isDuplecated = (bitIndex <= workingLastCheckedIndex);
 		
 		return isDuplecated;
 	}
-	
+
+
 	private void throwExceptionIfIndexOutOfBound(Long bitIndex) throws IndexOutOfBoundsException {
 		if (bitIndex < 0) {
 			String errorMessage = String.format("the parameter bitIndex[%d] is less than zero", bitIndex);
@@ -109,6 +93,37 @@ public class LimitedLongBitSet {
 			throw new IndexOutOfBoundsException(errorMessage);
 		}
 	}
+
+
+	/**
+	 * if the parameter bitIndex is not a next bit set index, then throw BadBitSetIndexException 
+	 * @param bitIndex
+	 * @throws BadBitSetIndexException
+	 */
+	private void throwExceptionIfNotNextBitSetIndex(long bitIndex) throws BadBitSetIndexException {
+		if ((workingLastCheckedIndex+1) != bitIndex) {
+			String errorMessge = String.format("the parameter bitIndex[%d] is not a next bit index[%d]", bitIndex, workingLastCheckedIndex+1);
+			throw new BadBitSetIndexException(errorMessge);
+		}
+	}
+
+
+	@SuppressWarnings("serial")
+	public class FailedListFullException extends Exception {
+		public FailedListFullException(String errorMessage) {
+			super(errorMessage);
+		}
+	}
+	
+	
+	
+	@SuppressWarnings("serial")
+	public class BadBitSetIndexException extends Exception {
+		public BadBitSetIndexException(String errorMessage) {
+			super(errorMessage);
+		}
+	}
+	
 	
 	/**
 	 * Sets the bit at the specified index to true.
@@ -142,18 +157,6 @@ public class LimitedLongBitSet {
 		
 	}
 
-	/**
-	 * if the parameter bitIndex is not a next bit set index, then throw BadBitSetIndexException 
-	 * @param bitIndex
-	 * @throws BadBitSetIndexException
-	 */
-	private void throwExceptionIfNotNextBitSetIndex(long bitIndex) throws BadBitSetIndexException {
-		if ((workingLastCheckedIndex+1) != bitIndex) {
-			String errorMessge = String.format("the parameter bitIndex[%d] is not a next bit index[%d]", bitIndex, workingLastCheckedIndex+1);
-			throw new BadBitSetIndexException(errorMessge);
-		}
-	}
-	
 	/**
 	 * Sets the bit specified by the index to false.
 	 */

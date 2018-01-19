@@ -42,7 +42,7 @@ import kr.pe.sinnori.common.util.HexUtil;
  * @author Won Jonghoon
  *
  */
-public class FreeSizeInputStream implements SinnoriInputStreamIF {
+public class FreeSizeInputStream implements BinaryInputStreamIF {
 	private Logger log = LoggerFactory.getLogger(FreeSizeInputStream.class);
 
 	private int dataPacketBufferMaxCount;

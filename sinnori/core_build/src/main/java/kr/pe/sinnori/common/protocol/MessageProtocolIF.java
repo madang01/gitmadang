@@ -23,7 +23,7 @@ import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.io.SocketInputStream;
+import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
@@ -62,7 +62,7 @@ public interface MessageProtocolIF {
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷 버퍼가 없을때 던지는 예외
 	 */
 	public ArrayList<ReceivedLetter> S2MList(Charset clientCharset,
-			SocketInputStream socketInputStream) 
+			SocketOutputStream socketInputStream) 
 					throws HeaderFormatException, NoMoreDataPacketBufferException;
 	
 	public SingleItemDecoderIF getSingleItemDecoder();

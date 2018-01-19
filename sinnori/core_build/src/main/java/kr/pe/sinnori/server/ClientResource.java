@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.common.io.SocketInputStream;
+import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
@@ -61,7 +61,7 @@ public class ClientResource {
 	private int echoMesgCount = 0;
 	
 	/** 소켓 채널 전용 읽기 자원 */
-	private SocketInputStream socketInputStream = null;
+	private SocketOutputStream socketInputStream = null;
 
 	/**
 	 * 클라이언트에 할당되는 서버 편지 식별자.
@@ -79,7 +79,7 @@ public class ClientResource {
 	 */
 	public ClientResource(SocketChannel clientSC, 
 			String projectName,
-			SocketInputStream socketInputStream) {
+			SocketOutputStream socketInputStream) {
 		this.clientSC = clientSC;
 		this.projectName = projectName;
 		this.finalReadTime = new java.util.Date();
@@ -90,7 +90,7 @@ public class ClientResource {
 	/**
 	 * @return 소켓 채널 전용 읽기 자원
 	 */
-	public SocketInputStream getSocketInputStream() {
+	public SocketOutputStream getSocketInputStream() {
 		
 		return socketInputStream;
 	}

@@ -35,7 +35,7 @@ import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
-import kr.pe.sinnori.common.io.SocketInputStream;
+import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.project.AbstractProject;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
 import kr.pe.sinnori.server.classloader.ServerClassLoader;
@@ -296,7 +296,7 @@ public class AnyProjectServer extends AbstractProject implements
 		}
 
 		clientResource = new ClientResource(clientSC, projectName,
-				new SocketInputStream(dataPacketBufferMaxCntPerMessage, this));
+				new SocketOutputStream(dataPacketBufferMaxCntPerMessage, this));
 
 		scToClientResourceHash.put(clientSC, clientResource);
 		// }

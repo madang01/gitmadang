@@ -25,7 +25,7 @@ import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
-import kr.pe.sinnori.common.io.SinnoriOutputStreamIF;
+import kr.pe.sinnori.common.io.BinaryOutputStreamIF;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
 
 import org.slf4j.Logger;
@@ -41,7 +41,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 	
 	private interface THBTypeSingleItemEncoderIF {
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, SinnoriOutputStreamIF sw)
+				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
 				throws Exception;
 	}
 	
@@ -63,7 +63,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 	private final class THBByteSingleItemEncoder implements THBTypeSingleItemEncoderIF {
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, SinnoriOutputStreamIF sw)
+				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
 				throws BufferOverflowException, SinnoriBufferOverflowException, NoMoreDataPacketBufferException {
 			
 			byte value = 0;
@@ -81,7 +81,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, SinnoriOutputStreamIF sw)
+				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
 				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
 			short value = 0;
 			
@@ -98,7 +98,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 	private final class THBShortSingleItemEncoder implements THBTypeSingleItemEncoderIF {
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, SinnoriOutputStreamIF sw)
+				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
 				throws BufferOverflowException, SinnoriBufferOverflowException, NoMoreDataPacketBufferException {
 			short value = 0;
 			
@@ -116,7 +116,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 		
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, SinnoriOutputStreamIF sw)
+				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
 				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
 			int value = 0;	
 			
@@ -134,7 +134,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 		
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, SinnoriOutputStreamIF sw)
+				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
 				throws BufferOverflowException, SinnoriBufferOverflowException, NoMoreDataPacketBufferException {
 			int value = 0;
 			
@@ -152,7 +152,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 		
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, SinnoriOutputStreamIF sw)
+				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
 				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
 			long value = 0;
 			
@@ -169,7 +169,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 	private final class THBLongSingleItemEncoder implements THBTypeSingleItemEncoderIF {		
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, SinnoriOutputStreamIF sw)
+				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
 				throws BufferOverflowException, SinnoriBufferOverflowException, NoMoreDataPacketBufferException {
 			long value = 0;
 			
@@ -186,7 +186,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 	private final class THBUBPascalStringSingleItemEncoder implements THBTypeSingleItemEncoderIF {		
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, SinnoriOutputStreamIF sw)
+				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
 				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
 			String value = CommonStaticFinalVars.EMPTY_STRING;
 			
@@ -203,7 +203,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 	private final class THBUSPascalStringSingleItemEncoder implements THBTypeSingleItemEncoderIF {
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, SinnoriOutputStreamIF sw)
+				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
 				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
 			String value = CommonStaticFinalVars.EMPTY_STRING;;
 			
@@ -220,7 +220,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 	private final class THBSIPascalStringSingleItemEncoder implements THBTypeSingleItemEncoderIF {
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, SinnoriOutputStreamIF sw)
+				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
 				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
 			String value = CommonStaticFinalVars.EMPTY_STRING;;
 			
@@ -237,7 +237,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 	private final class THBFixedLengthStringSingleItemEncoder implements THBTypeSingleItemEncoderIF {
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, SinnoriOutputStreamIF sw)
+				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
 				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
 			String value = CommonStaticFinalVars.EMPTY_STRING;;
 			
@@ -263,7 +263,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 	private final class THBUBVariableLengthBytesSingleItemEncoder implements THBTypeSingleItemEncoderIF {
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, SinnoriOutputStreamIF sw)
+				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
 				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
 			sw.putUnsignedByte(itemTypeID);
 			
@@ -287,7 +287,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 	private final class THBUSVariableLengthBytesSingleItemEncoder implements THBTypeSingleItemEncoderIF {
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, SinnoriOutputStreamIF sw)
+				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
 				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
 			sw.putUnsignedByte(itemTypeID);
 			
@@ -305,7 +305,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 	private final class THBSIVariableLengthBytesSingleItemEncoder implements THBTypeSingleItemEncoderIF {
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, SinnoriOutputStreamIF sw)
+				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
 				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
 			
 			sw.putUnsignedByte(itemTypeID);
@@ -325,7 +325,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 	private final class THBFixedLengthBytesSingleItemEncoder implements THBTypeSingleItemEncoderIF {
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, SinnoriOutputStreamIF sw)
+				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
 				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
 			sw.putUnsignedByte(itemTypeID);
 			
@@ -355,7 +355,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue,
 				int itemSizeForLang, Charset itemCharsetForLang,
-				SinnoriOutputStreamIF sw) throws Exception {
+				BinaryOutputStreamIF sw) throws Exception {
 			if (null == itemValue) {
 				String errorMessage = "항목의 값이 null 입니다.";
 				throw new IllegalArgumentException(errorMessage);
@@ -382,7 +382,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue,
 				int itemSizeForLang, Charset itemCharsetForLang,
-				SinnoriOutputStreamIF sw) throws Exception {
+				BinaryOutputStreamIF sw) throws Exception {
 			if (null == itemValue) {
 				String errorMessage = "항목의 값이 null 입니다.";
 				throw new IllegalArgumentException(errorMessage);
@@ -408,7 +408,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue,
 				int itemSizeForLang, Charset itemCharsetForLang,
-				SinnoriOutputStreamIF sw) throws Exception {
+				BinaryOutputStreamIF sw) throws Exception {
 			if (null == itemValue) {
 				String errorMessage = "항목의 값이 null 입니다.";
 				throw new IllegalArgumentException(errorMessage);
@@ -441,7 +441,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 			int itemTypeID, String itemTypeName, Object itemValue,
 			int itemSizeForLang, String itemCharset,
 			Charset charsetOfProject, Object middleWriteObj) throws Exception {
-		if (!(middleWriteObj instanceof SinnoriOutputStreamIF)) {
+		if (!(middleWriteObj instanceof BinaryOutputStreamIF)) {
 			String errorMessage = String.format(
 					"중간 다리역활 출력 객체[%s] 타입이 OutputStreamIF 이 아닙니다.",
 					middleWriteObj.getClass().getCanonicalName());
@@ -455,7 +455,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 			itemCharsetForLang = Charset.forName(itemCharset);
 		}
 		
-		SinnoriOutputStreamIF sw = (SinnoriOutputStreamIF)middleWriteObj;		
+		BinaryOutputStreamIF sw = (BinaryOutputStreamIF)middleWriteObj;		
 		try {
 			dhbTypeSingleItemEncoderList[itemTypeID].putValue(itemTypeID, itemName, itemValue, itemSizeForLang, itemCharsetForLang, sw);
 		} catch(IllegalArgumentException e) {
