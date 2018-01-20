@@ -43,7 +43,7 @@ import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
 public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 	private Logger log = LoggerFactory.getLogger(FreeSizeOutputStream.class);
 
-	private ArrayList<WrapBuffer> dataPacketBufferList = null;
+	private ArrayList<WrapBuffer> outputStreamWrapBufferList = null;
 	private ByteOrder streamByteOrder = null;
 	private Charset streamCharset = null;
 	private CharsetEncoder streamCharsetEncoder = null;
@@ -80,10 +80,10 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 		this.streamCharsetEncoder = streamCharsetEncoder;
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 
-		dataPacketBufferList = new ArrayList<WrapBuffer>();
+		outputStreamWrapBufferList = new ArrayList<WrapBuffer>();
 		WrapBuffer wrapBuffer = dataPacketBufferQueueManager.pollDataPacketBuffer();
 		workBuffer = wrapBuffer.getByteBuffer();
-		dataPacketBufferList.add(wrapBuffer);
+		outputStreamWrapBufferList.add(wrapBuffer);
 
 		shortBuffer = ByteBuffer.allocate(2);
 		shortBuffer.order(streamByteOrder);
@@ -105,9 +105,11 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 	 * 랩 버퍼 확보 실패시 이전에 등록한 랩 버퍼 목록을 해제해 주는 메소드
 	 */
 	private void freeDataPacketBufferList() {
-		if (null != dataPacketBufferList) {
-			for (WrapBuffer dataPacketBuffer : dataPacketBufferList) {
-				dataPacketBufferQueueManager.putDataPacketBuffer(dataPacketBuffer);
+		if (null != outputStreamWrapBufferList) {
+			for (WrapBuffer outputStreamWrapBuffer : outputStreamWrapBufferList) {
+				log.info("return the outputStreamWrapBuffer[hashcode={}] to the data packet buffer pool", outputStreamWrapBuffer.hashCode());
+				
+				dataPacketBufferQueueManager.putDataPacketBuffer(outputStreamWrapBuffer);
 			}
 		}
 	}
@@ -126,7 +128,7 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 			System.exit(1);
 		}
 
-		if (dataPacketBufferList.size() == dataPacketBufferMaxCount) {
+		if (outputStreamWrapBufferList.size() == dataPacketBufferMaxCount) {
 			String errorMessage = String.format(
 					"this output stream is full. maximum number of data packet buffers=[%d]", dataPacketBufferMaxCount);
 			// log.warn();
@@ -143,7 +145,7 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 		}
 
 		workBuffer = newWrapBuffer.getByteBuffer();
-		dataPacketBufferList.add(newWrapBuffer);
+		outputStreamWrapBufferList.add(newWrapBuffer);
 	}
 
 	private void doPutBytes(ByteBuffer src) throws BufferOverflowException, SinnoriBufferOverflowException,
@@ -590,6 +592,11 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 	@Override
 	public void skip(int n) throws BufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException,
 			SinnoriBufferOverflowException {
+		skip((long)n);
+	}
+	
+	public void skip(long n) throws BufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException,
+		SinnoriBufferOverflowException {
 		if (n < 0) {
 			throw new IllegalArgumentException(String.format("the parameter n is less than zero", n));
 		}
@@ -606,7 +613,7 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 
 		do {
 			if (n <= numberOfBytesRemainingInWorkBuffer) {
-				workBuffer.position(workBuffer.position() + n);
+				workBuffer.position(workBuffer.position() + (int)n);
 				numberOfWrittenBytes += n;
 				break;
 			}
@@ -633,7 +640,7 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 	public long getNumberOfWrittenBytes() {
 		long numberOfWrittenBytes = 0;
 
-		for (WrapBuffer buffer : dataPacketBufferList) {
+		for (WrapBuffer buffer : outputStreamWrapBufferList) {
 			// numberOfWrittenBytes += buffer.getByteBuffer().position();
 			
 			ByteBuffer dupByteBuffer = buffer.getByteBuffer().duplicate();
@@ -644,14 +651,23 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 		return numberOfWrittenBytes;
 	}
 
-	public ArrayList<WrapBuffer> getFlippedWrapBufferList() {
-		/** flip all buffer */
-		for (WrapBuffer srcBuffer : dataPacketBufferList) {
-			srcBuffer.getByteBuffer().flip();
-		}
+	public ArrayList<WrapBuffer> getInputStreamWrapBufferList() {
+		flipAllOutputStreamWrapBuffer();
 
-		return dataPacketBufferList;
+		return outputStreamWrapBufferList;
 	}
+	
+	public void flipAllOutputStreamWrapBuffer() {
+		/** flip all buffer */
+		for (WrapBuffer outputStreamWrapBuffer : outputStreamWrapBufferList) {
+			outputStreamWrapBuffer.getByteBuffer().flip();
+		}
+	}
+	
+	
+	public ArrayList<WrapBuffer> getOutputStreamWrapBufferList() {
+		return outputStreamWrapBufferList;
+	}	
 
 	@Override
 	public void close() {

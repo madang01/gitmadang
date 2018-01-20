@@ -128,7 +128,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 		// FIXME!
 		//log.info(messageHeader.toString());
 		
-		ArrayList<WrapBuffer> messageWrapBufferList = bodyOutputStream.getFlippedWrapBufferList();
+		ArrayList<WrapBuffer> messageWrapBufferList = bodyOutputStream.getInputStreamWrapBufferList();
 		
 		ByteBuffer firstWorkBuffer = messageWrapBufferList.get(0).getByteBuffer();
 		

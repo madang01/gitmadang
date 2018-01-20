@@ -177,7 +177,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 
 		/** 바디 MD5 */
 		ArrayList<WrapBuffer> messageWrapBufferList = bodyOutputStream
-				.getFlippedWrapBufferList();
+				.getInputStreamWrapBufferList();
 		int bufferListSize = messageWrapBufferList.size();
 
 		ByteBuffer firstWorkBuffer = messageWrapBufferList.get(0)

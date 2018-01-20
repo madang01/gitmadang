@@ -250,7 +250,7 @@ public class FreeSizeOutputStreamTest {
 					
 					checkNumberOfWrittenBytes(1, fsos);					
 					
-					ArrayList<WrapBuffer> flippedWrapBufferList = fsos.getFlippedWrapBufferList();
+					ArrayList<WrapBuffer> flippedWrapBufferList = fsos.getInputStreamWrapBufferList();
 					
 					checkValidFlippedWrapBufferList(flippedWrapBufferList);
 					
@@ -399,7 +399,7 @@ public class FreeSizeOutputStreamTest {
 
 					checkNumberOfWrittenBytes(1, fsos);
 
-					ArrayList<WrapBuffer> flippedWrapBufferList = fsos.getFlippedWrapBufferList();
+					ArrayList<WrapBuffer> flippedWrapBufferList = fsos.getInputStreamWrapBufferList();
 					
 					checkValidFlippedWrapBufferList(flippedWrapBufferList);
 					
@@ -556,7 +556,7 @@ public class FreeSizeOutputStreamTest {
 
 					checkNumberOfWrittenBytes(2, fsos);
 
-					ArrayList<WrapBuffer> flippedWrapBufferList = fsos.getFlippedWrapBufferList();
+					ArrayList<WrapBuffer> flippedWrapBufferList = fsos.getInputStreamWrapBufferList();
 					
 					checkValidFlippedWrapBufferList(flippedWrapBufferList);
 
@@ -712,7 +712,7 @@ public class FreeSizeOutputStreamTest {
 
 					checkNumberOfWrittenBytes(2, fsos);
 
-					ArrayList<WrapBuffer> flippedWrapBufferList = fsos.getFlippedWrapBufferList();
+					ArrayList<WrapBuffer> flippedWrapBufferList = fsos.getInputStreamWrapBufferList();
 					
 					checkValidFlippedWrapBufferList(flippedWrapBufferList);
 
@@ -867,7 +867,7 @@ public class FreeSizeOutputStreamTest {
 					checkNumberOfWrittenBytes(4, fsos);
 					
 					
-					ArrayList<WrapBuffer> flippedWrapBufferList = fsos.getFlippedWrapBufferList();
+					ArrayList<WrapBuffer> flippedWrapBufferList = fsos.getInputStreamWrapBufferList();
 					
 					checkValidFlippedWrapBufferList(flippedWrapBufferList);
 
@@ -1021,7 +1021,7 @@ public class FreeSizeOutputStreamTest {
 
 					checkNumberOfWrittenBytes(4, fsos);
 
-					ArrayList<WrapBuffer> flippedWrapBufferList = fsos.getFlippedWrapBufferList();
+					ArrayList<WrapBuffer> flippedWrapBufferList = fsos.getInputStreamWrapBufferList();
 					
 					checkValidFlippedWrapBufferList(flippedWrapBufferList);
 
@@ -1177,7 +1177,7 @@ public class FreeSizeOutputStreamTest {
 
 					checkNumberOfWrittenBytes(8, fsos);
 
-					ArrayList<WrapBuffer> flippedWrapBufferList = fsos.getFlippedWrapBufferList();
+					ArrayList<WrapBuffer> flippedWrapBufferList = fsos.getInputStreamWrapBufferList();
 					
 					checkValidFlippedWrapBufferList(flippedWrapBufferList);
 
@@ -1713,7 +1713,7 @@ public class FreeSizeOutputStreamTest {
 					fail(errorMessage);
 				}
 
-				ArrayList<WrapBuffer> wrapBufferList = fsos.getFlippedWrapBufferList();
+				ArrayList<WrapBuffer> wrapBufferList = fsos.getInputStreamWrapBufferList();
 
 				if (outputStreamSize <= dataPacketBufferSize) {
 					WrapBuffer workingWrapBuffer = wrapBufferList.get(0);
@@ -1786,7 +1786,7 @@ public class FreeSizeOutputStreamTest {
 					fail(errorMessage);
 				}
 
-				ArrayList<WrapBuffer> wrapBufferList = fsos.getFlippedWrapBufferList();
+				ArrayList<WrapBuffer> wrapBufferList = fsos.getInputStreamWrapBufferList();
 
 				if (outputStreamSize <= dataPacketBufferSize) {
 					WrapBuffer workingWrapBuffer = wrapBufferList.get(0);
@@ -1857,7 +1857,7 @@ public class FreeSizeOutputStreamTest {
 					fail(errorMessage);
 				}
 
-				ArrayList<WrapBuffer> wrapBufferList = fsos.getFlippedWrapBufferList();
+				ArrayList<WrapBuffer> wrapBufferList = fsos.getInputStreamWrapBufferList();
 
 				if (outputStreamSize <= dataPacketBufferSize) {
 					WrapBuffer workingWrapBuffer = wrapBufferList.get(0);
@@ -2134,7 +2134,7 @@ public class FreeSizeOutputStreamTest {
 
 				checkNumberOfWrittenBytes(fixedLength, fsos);
 
-				ArrayList<WrapBuffer> flippedWrapBufferList = fsos.getFlippedWrapBufferList();
+				ArrayList<WrapBuffer> flippedWrapBufferList = fsos.getInputStreamWrapBufferList();
 				
 				checkValidFlippedWrapBufferList(flippedWrapBufferList);
 				
@@ -2206,7 +2206,7 @@ public class FreeSizeOutputStreamTest {
 
 				checkNumberOfWrittenBytes(fixedLength, fsos);
 
-				ArrayList<WrapBuffer> flippedWrapBufferList = fsos.getFlippedWrapBufferList();
+				ArrayList<WrapBuffer> flippedWrapBufferList = fsos.getInputStreamWrapBufferList();
 				
 				checkValidFlippedWrapBufferList(flippedWrapBufferList);
 				
@@ -2404,7 +2404,7 @@ public class FreeSizeOutputStreamTest {
 			
 			checkNumberOfWrittenBytes(dataPacketBufferSize*dataPacketBufferMaxCount, fsos);
 			
-			ArrayList<WrapBuffer> flippedWrapBufferList = fsos.getFlippedWrapBufferList();
+			ArrayList<WrapBuffer> flippedWrapBufferList = fsos.getInputStreamWrapBufferList();
 			
 			checkValidFlippedWrapBufferList(flippedWrapBufferList);	
 		} catch (Exception e) {

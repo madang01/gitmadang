@@ -163,7 +163,7 @@ public class DJSONMessageProtocol implements MessageProtocolIF {
 			throw new BodyFormatException(errorMessage);
 		}
 		
-		ArrayList<WrapBuffer> messageWrapBufferList = bodyOutputStream.getFlippedWrapBufferList();
+		ArrayList<WrapBuffer> messageWrapBufferList = bodyOutputStream.getInputStreamWrapBufferList();
 		
 		return messageWrapBufferList;
 	}
