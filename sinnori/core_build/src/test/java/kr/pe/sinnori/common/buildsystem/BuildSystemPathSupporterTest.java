@@ -132,7 +132,7 @@ public class BuildSystemPathSupporterTest {
 		
 		
 		String returnedValue = BuildSystemPathSupporter
-				.getMessageInfoPathString(sinnoriInstalledPathString, mainProjectName);
+				.getMessageInfoFilesPathString(sinnoriInstalledPathString, mainProjectName);
 		
 		org.junit.Assert.assertThat("the expected value comparison",
 				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));

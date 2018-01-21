@@ -17,82 +17,75 @@
 package kr.pe.sinnori.impl.message.SelfExn;
 
 import java.nio.charset.Charset;
-
+import java.util.LinkedList;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
 
 /**
- * SelfExn 메시지 THB 프로토콜 인코더
+ * SelfExn 메시지 인코더
  * @author Won Jonghoon
  *
  */
 public final class SelfExnEncoder extends AbstractMessageEncoder {
 	@Override
-	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj)
+	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Charset streamCharset, Object middleWriteObj)
 			throws Exception {
 		if (!(messageObj instanceof SelfExn)) {
-			String errorMessage = String.format(
-					"메시지 객체 타입[%s]이 SelfExn 이 아닙니다.", messageObj.getClass()
-							.getCanonicalName());
+			String errorMessage = String.format("메시지 객체 타입[%s]이 SelfExn 이(가) 아닙니다.", messageObj.getClass().getCanonicalName());
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-
-		SelfExn SelfExn = (SelfExn) messageObj;
-		encodeBody(SelfExn, singleItemEncoder, charsetOfProject, middleWriteObj);
+		SelfExn selfExn = (SelfExn) messageObj;
+		encodeBody(selfExn, singleItemEncoder, streamCharset, middleWriteObj);
 	}
 
 	/**
 	 * <pre>
-	 * SelfExn 메시지의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장한다.
+	 * SelfExn 입력 메시지의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장한다.
 	 * </pre>
-	 * @param SelfExn SelfExn 메시지
+	 * @param selfExn SelfExn 입력 메시지
 	 * @param singleItemEncoder 단일항목 인코더
-	 * @param charsetOfProject 프로젝트 문자셋
+	 * @param streamCharset 프로젝트 문자셋
 	 * @param middleWriteObj 중간 다리 역활 쓰기 객체
 	 * @throws Exception "입력/출력 메시지"의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장할때 에러 발생시 던지는 예외
 	 */
-	private void encodeBody(SelfExn selfExn, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj) 
-			throws Exception {
-		
-		singleItemEncoder.putValueToMiddleWriteObj(selfExn.getMessageID(), "errorWhere" 
+	private void encodeBody(SelfExn selfExn, SingleItemEncoderIF singleItemEncoder, Charset streamCharset, Object middleWriteObj) throws Exception {
+		String selfExnSingleItemPath = "SelfExn";
+		LinkedList<String> singleItemPathStatck = new LinkedList<String>();
+		singleItemPathStatck.push(selfExnSingleItemPath);
+
+		singleItemEncoder.putValueToMiddleWriteObj(selfExnSingleItemPath, "errorPlace"
 					, 7 // itemTypeID
 					, "ub pascal string" // itemTypeName
-					, selfExn.getErrorPlace() // itemValue 
-					, -1 // itemSizeForLang 
-					, null // itemCharsetForLang, 
-					, charsetOfProject
-					, middleWriteObj
-					);
-		singleItemEncoder.putValueToMiddleWriteObj(selfExn.getMessageID(), "errorGubun" 
-				, 7 // itemTypeID
-				, "ub pascal string" // itemTypeName
-				, selfExn.getErrorPlace() // itemValue 
-				, -1 // itemSizeForLang 
-				, null // itemCharsetForLang, 
-				, charsetOfProject
-				, middleWriteObj
-				);
-		
-		singleItemEncoder.putValueToMiddleWriteObj(selfExn.getMessageID(), "errorMessageID" 
-				, 7 // itemTypeID
-				, "ub pascal string" // itemTypeName
-				, selfExn.getErrorMessageID() // itemValue 
-				, -1 // itemSizeForLang 
-				, null // itemCharsetForLang, 
-				, charsetOfProject
-				, middleWriteObj
-				);
-		
-		singleItemEncoder.putValueToMiddleWriteObj(selfExn.getMessageID(), "errorMessage" 
-				, 8 // itemTypeID
-				, "us pascal string" // itemTypeName
-				, selfExn.getErrorMessage() // itemValue 
-				, -1 // itemSizeForLang 
-				, null // itemCharsetForLang, 
-				, charsetOfProject
-				, middleWriteObj
-				);
+					, selfExn.getErrorPlace() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, streamCharset
+					, middleWriteObj);
+		singleItemEncoder.putValueToMiddleWriteObj(selfExnSingleItemPath, "errorGubun"
+					, 7 // itemTypeID
+					, "ub pascal string" // itemTypeName
+					, selfExn.getErrorGubun() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, streamCharset
+					, middleWriteObj);
+		singleItemEncoder.putValueToMiddleWriteObj(selfExnSingleItemPath, "errorMessageID"
+					, 7 // itemTypeID
+					, "ub pascal string" // itemTypeName
+					, selfExn.getErrorMessageID() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, streamCharset
+					, middleWriteObj);
+		singleItemEncoder.putValueToMiddleWriteObj(selfExnSingleItemPath, "errorMessage"
+					, 8 // itemTypeID
+					, "us pascal string" // itemTypeName
+					, selfExn.getErrorMessage() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, streamCharset
+					, middleWriteObj);
 	}
 }

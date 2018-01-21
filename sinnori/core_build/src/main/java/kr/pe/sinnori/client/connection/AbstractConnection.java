@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.common.etc.CharsetUtil;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.common.etc.SelfExnUtil;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.MailboxTimeoutException;
@@ -455,8 +456,8 @@ public abstract class AbstractConnection {
 		
 		if (messageObj instanceof SelfExn) {
 			SelfExn selfExnOutObj =(SelfExn)messageObj;
-			log.warn(selfExnOutObj.getReport());
-			selfExnOutObj.throwException(); 
+			log.warn(SelfExnUtil.getSelfExnReport(selfExnOutObj));
+			SelfExnUtil.throwSelfExnException(selfExnOutObj); 
 		}
 		
 		return messageObj;

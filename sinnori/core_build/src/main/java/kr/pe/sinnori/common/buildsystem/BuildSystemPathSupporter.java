@@ -26,6 +26,23 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 	
+	/** message info path : <sinori resource path>/message_info */
+	public static String getMessageInfoFilesPathString(String sinnoriInstalledPathString) {
+		StringBuilder strBuilder = new StringBuilder(getSinnoriResourcesPathString(sinnoriInstalledPathString))
+				.append(File.separator)
+				.append("message_info");
+		return strBuilder.toString();
+	}
+
+	/** message info path : <project path>/resources/message_info/<message id>.xml */
+	public static String getMessageInfoFilePathString(String sinnoriInstalledPathString, String messageID) {
+		StringBuilder strBuilder = new StringBuilder(getMessageInfoFilesPathString(sinnoriInstalledPathString))
+				.append(File.separator)
+				.append(messageID)
+				.append(".xml");
+		return strBuilder.toString();
+	}
+	
 	public static String getMybatisConfigDTDFilePathString(String sinnoriInstalledPathString) {		
 		StringBuilder strBuilder = new StringBuilder(getSinnoriResourcesPathString(sinnoriInstalledPathString));
 		strBuilder.append(File.separator);
@@ -150,13 +167,21 @@ public abstract class BuildSystemPathSupporter {
 	}
 
 	/** message info path : <project path>/resources/message_info */
-	public static String getMessageInfoPathString(String sinnoriInstalledPathString, String mainProjectName) {
+	public static String getMessageInfoFilesPathString(String sinnoriInstalledPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getProjectResourcesPathString(sinnoriInstalledPathString, mainProjectName))
 				.append(File.separator)
 				.append("message_info");
 		return strBuilder.toString();
 	}
 
+	/** message info path : <project path>/resources/message_info/<message id>.xml */
+	public static String getMessageInfoFilePathString(String sinnoriInstalledPathString, String mainProjectName, String messageID) {
+		StringBuilder strBuilder = new StringBuilder(getMessageInfoFilesPathString(sinnoriInstalledPathString, mainProjectName))
+				.append(File.separator)
+				.append(messageID)
+				.append(".xml");
+		return strBuilder.toString();
+	}
 	
 
 	/** RSA keypair path : <project path>/resources/rsa_keypair */

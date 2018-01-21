@@ -984,7 +984,7 @@ public class ProjectBuilder {
 	private MessageInfo getMessageInfo(String messageID) throws BuildSystemException {
 
 		String echoMessageInfoFilePathString = new StringBuilder(
-				BuildSystemPathSupporter.getMessageInfoPathString(sinnoriInstalledPathString, mainProjectName))
+				BuildSystemPathSupporter.getMessageInfoFilesPathString(sinnoriInstalledPathString, mainProjectName))
 						.append(File.separator).append(messageID).append(".xml").toString();
 		File echoMessageInfoFile = new File(echoMessageInfoFilePathString);
 

@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.common.etc.SelfExnUtil;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
@@ -108,7 +109,9 @@ public abstract class AbstractServerTask {
 					selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
 					
 					selfExnOutObj.setErrorPlace("S");
-					selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+					selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class));
+					
+					
 					selfExnOutObj.setErrorMessageID(messageIDFromClient);
 					selfExnOutObj.setErrorMessage(e.getMessage());
 					
@@ -130,7 +133,7 @@ public abstract class AbstractServerTask {
 					selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
 					// selfExnOutObj.setError("S", messageID, new DynamicClassCallException("알수 없는 에러 발생::"+e.getMessage()));
 					selfExnOutObj.setErrorPlace("S");
-					selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+					selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class));
 					selfExnOutObj.setErrorMessageID(messageIDFromClient);
 					selfExnOutObj.setErrorMessage("메시지 서버 코덱을 얻을때 알수 없는 에러 발생::"+e.getMessage());
 					
@@ -156,7 +159,7 @@ public abstract class AbstractServerTask {
 					selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
 					// selfExnOutObj.setError("S", messageID, new DynamicClassCallException(e.getMessage()));
 					selfExnOutObj.setErrorPlace("S");
-					selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+					selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class));
 					selfExnOutObj.setErrorMessageID(messageIDFromClient);
 					selfExnOutObj.setErrorMessage(e.getMessage());
 					
@@ -175,7 +178,7 @@ public abstract class AbstractServerTask {
 					selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
 					selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
 					selfExnOutObj.setErrorPlace("S");
-					selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+					selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class));
 					selfExnOutObj.setErrorMessageID(messageIDFromClient);
 					selfExnOutObj.setErrorMessage("메시지 디코더를 얻을때 알수 없는 에러 발생::"+e.getMessage());
 					
@@ -202,8 +205,8 @@ public abstract class AbstractServerTask {
 				SelfExn selfExnOutObj = new SelfExn();
 				selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
 				selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
-				selfExnOutObj.setErrorPlace("S");
-				selfExnOutObj.setErrorGubun(BodyFormatException.class);
+				selfExnOutObj.setErrorPlace("S");				
+				selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(BodyFormatException.class));
 				selfExnOutObj.setErrorMessageID(messageIDFromClient);
 				selfExnOutObj.setErrorMessage(e.getMessage());
 				
@@ -223,7 +226,7 @@ public abstract class AbstractServerTask {
 				selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
 				selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
 				selfExnOutObj.setErrorPlace("S");
-				selfExnOutObj.setErrorGubun(BodyFormatException.class);
+				selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(BodyFormatException.class));
 				selfExnOutObj.setErrorMessageID(messageIDFromClient);
 				selfExnOutObj.setErrorMessage(new StringBuilder("OutOfMemoryError::").append(e.getMessage()).toString());
 				
@@ -243,7 +246,7 @@ public abstract class AbstractServerTask {
 				selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
 				selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
 				selfExnOutObj.setErrorPlace("S");
-				selfExnOutObj.setErrorGubun(BodyFormatException.class);
+				selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(BodyFormatException.class));
 				selfExnOutObj.setErrorMessageID(messageIDFromClient);
 				selfExnOutObj.setErrorMessage(new StringBuilder("메시지를 디코딩하여 추출할때 알수 없는 에러 발생::").append(e.getMessage()).toString());
 				
@@ -287,7 +290,7 @@ public abstract class AbstractServerTask {
 			SelfExn selfExnOutObj = new SelfExn();
 			selfExnOutObj.messageHeaderInfo = messageFromClient.messageHeaderInfo;
 			selfExnOutObj.setErrorPlace("S");
-			selfExnOutObj.setErrorGubun(ServerTaskException.class);
+			selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(ServerTaskException.class));
 			selfExnOutObj.setErrorMessageID(messageIDFromClient);
 			selfExnOutObj.setErrorMessage(errorMessgae);
 			
@@ -324,7 +327,7 @@ public abstract class AbstractServerTask {
 			SelfExn selfExnOutObj = new SelfExn();
 			selfExnOutObj.messageHeaderInfo = messageFromClient.messageHeaderInfo;
 			selfExnOutObj.setErrorPlace("S");
-			selfExnOutObj.setErrorGubun(ServerTaskException.class);
+			selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(ServerTaskException.class));
 			selfExnOutObj.setErrorMessageID(messageIDFromClient);
 			selfExnOutObj.setErrorMessage(errorMessgae);
 			
@@ -372,7 +375,7 @@ public abstract class AbstractServerTask {
 				SelfExn selfExnOutObj = new SelfExn();
 				selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
 				selfExnOutObj.setErrorPlace("S");
-				selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+				selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class));
 				selfExnOutObj.setErrorMessageID(messageIDToClient);
 				selfExnOutObj.setErrorMessage(e.getMessage());
 				
@@ -387,7 +390,7 @@ public abstract class AbstractServerTask {
 				SelfExn selfExnOutObj = new SelfExn();
 				selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
 				selfExnOutObj.setErrorPlace("S");
-				selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+				selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class));
 				selfExnOutObj.setErrorMessageID(messageIDToClient);
 				selfExnOutObj.setErrorMessage(e.getMessage());
 				
@@ -406,7 +409,7 @@ public abstract class AbstractServerTask {
 				SelfExn selfExnOutObj = new SelfExn();
 				selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
 				selfExnOutObj.setErrorPlace("S");
-				selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+				selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class));
 				selfExnOutObj.setErrorMessageID(messageIDToClient);
 				selfExnOutObj.setErrorMessage(e.getMessage());
 				try {
@@ -420,7 +423,7 @@ public abstract class AbstractServerTask {
 				SelfExn selfExnOutObj = new SelfExn();
 				selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
 				selfExnOutObj.setErrorPlace("S");
-				selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+				selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class));
 				selfExnOutObj.setErrorMessageID(messageIDToClient);
 				selfExnOutObj.setErrorMessage(e.getMessage());
 				
@@ -444,7 +447,7 @@ public abstract class AbstractServerTask {
 			SelfExn selfExnOutObj = new SelfExn();
 			selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
 			selfExnOutObj.setErrorPlace("S");
-			selfExnOutObj.setErrorGubun(NoMoreDataPacketBufferException.class);
+			selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(NoMoreDataPacketBufferException.class));
 			selfExnOutObj.setErrorMessageID(messageIDToClient);
 			selfExnOutObj.setErrorMessage(e.getMessage());
 			try {
@@ -458,7 +461,7 @@ public abstract class AbstractServerTask {
 			SelfExn selfExnOutObj = new SelfExn();
 			selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
 			selfExnOutObj.setErrorPlace("S");
-			selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+			selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class));
 			selfExnOutObj.setErrorMessageID(messageIDToClient);
 			selfExnOutObj.setErrorMessage(e.getMessage());
 			
@@ -473,7 +476,7 @@ public abstract class AbstractServerTask {
 			SelfExn selfExnOutObj = new SelfExn();
 			selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
 			selfExnOutObj.setErrorPlace("S");
-			selfExnOutObj.setErrorGubun(BodyFormatException.class);
+			selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(BodyFormatException.class));
 			selfExnOutObj.setErrorMessageID(messageIDToClient);
 			selfExnOutObj.setErrorMessage(e.getMessage());
 			
@@ -488,7 +491,7 @@ public abstract class AbstractServerTask {
 			SelfExn selfExnOutObj = new SelfExn();
 			selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
 			selfExnOutObj.setErrorPlace("S");
-			selfExnOutObj.setErrorGubun(BodyFormatException.class);
+			selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(BodyFormatException.class));
 			selfExnOutObj.setErrorMessageID(messageIDToClient);
 			selfExnOutObj.setErrorMessage("unknown error::"+e.getMessage());
 			

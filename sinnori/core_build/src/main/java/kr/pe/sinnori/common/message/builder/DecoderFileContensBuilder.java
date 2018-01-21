@@ -115,7 +115,7 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 				} else {
 					stringBuilder.append("null");
 				}
-				stringBuilder.append(" // native itemCharset,");
+				stringBuilder.append(" // nativeItemCharset");
 				
 				// streamCharset
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);

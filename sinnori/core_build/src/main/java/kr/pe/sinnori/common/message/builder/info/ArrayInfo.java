@@ -76,10 +76,10 @@ public class ArrayInfo extends AbstractItemInfo implements
 		
 		
 		if (arrayCntType.equals("direct")) {
-			int itemSizeForLang = -1;
+			int arrayCount = -1;
 			if (null != arrayCntValue) {
 				try {
-					itemSizeForLang = Integer.parseInt(arrayCntValue);
+					arrayCount = Integer.parseInt(arrayCntValue);
 
 				} catch (NumberFormatException num_e) {
 					String errorMessage = new StringBuilder("fail to parses the string argument(=this array item[")
@@ -90,7 +90,7 @@ public class ArrayInfo extends AbstractItemInfo implements
 				}
 			}
 
-			if (itemSizeForLang <= 0) {				
+			if (arrayCount <= 0) {				
 				String errorMessage = new StringBuilder("this array item[")
 				.append(arrayName).append("]'s attribute 'cntvalue' value[")
 				.append(arrayCntValue).append("] is less than or equals to zero")

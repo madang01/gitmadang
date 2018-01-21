@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.common.etc.SelfExnUtil;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
@@ -120,7 +121,7 @@ public class Executor extends Thread {
 					selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
 					
 					selfExnOutObj.setErrorPlace("S");
-					selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+					selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class));
 					selfExnOutObj.setErrorMessageID(messageID);
 					selfExnOutObj.setErrorMessage(errorMessage);
 					
@@ -144,7 +145,7 @@ public class Executor extends Thread {
 					selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
 					// selfExnOutObj.setError("S", messageID, new DynamicClassCallException("알수 없는 에러 발생::"+e.getMessage()));
 					selfExnOutObj.setErrorPlace("S");
-					selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+					selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class));
 					selfExnOutObj.setErrorMessageID(messageID);
 					selfExnOutObj.setErrorMessage(errorMessage);
 					
@@ -168,7 +169,7 @@ public class Executor extends Thread {
 					selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
 					// selfExnOutObj.setError("S", messageID, new DynamicClassCallException("알수 없는 에러 발생::"+e.getMessage()));
 					selfExnOutObj.setErrorPlace("S");
-					selfExnOutObj.setErrorGubun(DynamicClassCallException.class);
+					selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class));
 					selfExnOutObj.setErrorMessageID(messageID);
 					selfExnOutObj.setErrorMessage(errorMessage);
 					

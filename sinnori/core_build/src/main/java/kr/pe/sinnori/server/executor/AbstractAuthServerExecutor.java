@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.common.etc.SelfExnUtil;
 import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
@@ -76,7 +77,8 @@ public abstract class AbstractAuthServerExecutor extends AbstractServerTask {
 			selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
 			// selfExnOutObj.setError("S", messageID, new NotLoginException("로그인을 요구하는 서비스입니다"));
 			selfExnOutObj.setErrorPlace("S");
-			selfExnOutObj.setErrorGubun(NotLoginException.class);
+			selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(NotLoginException.class));
+			
 			selfExnOutObj.setErrorMessageID(messageID);
 			selfExnOutObj.setErrorMessage("로그인을 요구하는 서비스입니다");
 			

@@ -99,7 +99,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 		sinnoriInstalledPathTextField.setText(sinnoriInstalledPathString);
 		mainProjectNameTextField.setText(mainProjectName);
 		messageInfoPathTextField.setText(BuildSystemPathSupporter
-				.getMessageInfoPathString(sinnoriInstalledPathString, mainProjectName));
+				.getMessageInfoFilesPathString(sinnoriInstalledPathString, mainProjectName));
 
 		otherMainProjectComboBox.setEnabled(false);
 
@@ -565,7 +565,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 			return false;
 		}
 
-		String messageInfoSourcePathString = BuildSystemPathSupporter.getMessageInfoPathString(sinnoriInstalledPathString, mainProjectName);
+		String messageInfoSourcePathString = BuildSystemPathSupporter.getMessageInfoFilesPathString(sinnoriInstalledPathString, mainProjectName);
 
 		File messageInfoSourcePath = new File(messageInfoSourcePathString);
 		if (!messageInfoSourcePath.exists()) {
@@ -602,7 +602,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 			}
 
 			String targetProjectName = selectedMainProjectName = (String) otherMainProjectComboBox.getSelectedItem();
-			String messageInfoTargetPathString = BuildSystemPathSupporter.getMessageInfoPathString(sinnoriInstalledPathString, targetProjectName);
+			String messageInfoTargetPathString = BuildSystemPathSupporter.getMessageInfoFilesPathString(sinnoriInstalledPathString, targetProjectName);
 
 			File targetMessageInfoXMLPath = new File(messageInfoTargetPathString);
 			if (!targetMessageInfoXMLPath.exists()) {
@@ -975,7 +975,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 			return;
 		}
 
-		String messageInfoSourcePathString = BuildSystemPathSupporter.getMessageInfoPathString(sinnoriInstalledPathString, mainProjectName);
+		String messageInfoSourcePathString = BuildSystemPathSupporter.getMessageInfoFilesPathString(sinnoriInstalledPathString, mainProjectName);
 		
 		@SuppressWarnings("unused")
 		File messageInfoSourcePath =null;
@@ -1007,7 +1007,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 			}
 
 			String targetProjectName = (String) otherMainProjectComboBox.getSelectedItem();
-			String messageInfoTargetPathString = BuildSystemPathSupporter.getMessageInfoPathString(sinnoriInstalledPathString, targetProjectName);
+			String messageInfoTargetPathString = BuildSystemPathSupporter.getMessageInfoFilesPathString(sinnoriInstalledPathString, targetProjectName);
 
 			File targetMessageInfoXMLPath = new File(messageInfoTargetPathString);
 			if (targetMessageInfoXMLPath.exists()) {
