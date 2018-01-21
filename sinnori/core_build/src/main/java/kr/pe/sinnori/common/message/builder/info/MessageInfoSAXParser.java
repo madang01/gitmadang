@@ -58,7 +58,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 	/** this member variables is initialized in constructor start */	
 	private SAXParser saxParser;
 	// 배열 크기로 참조하는 단일 항목이 가질 수 있는 값의 타입 집합
-	private Set<String> possibleItemValueTypeSetForArraySizeReferenceVariable = new HashSet<String>();
+	private Set<String> possibleItemTypeNameSetForArraySizeReferenceVariable = new HashSet<String>();
 	/** this member variables is initialized in constructor end */
 	
 	/** this member variables is initialized in parse(File) start */
@@ -81,13 +81,13 @@ public class MessageInfoSAXParser extends DefaultHandler {
 		saxParser = getNewInstanceOfSAXParser();
 			
 		
-		possibleItemValueTypeSetForArraySizeReferenceVariable.add("byte");
-		possibleItemValueTypeSetForArraySizeReferenceVariable.add("unsigned byte");
-		possibleItemValueTypeSetForArraySizeReferenceVariable.add("short");
-		possibleItemValueTypeSetForArraySizeReferenceVariable.add("unsigned short");
-		possibleItemValueTypeSetForArraySizeReferenceVariable.add("integer");
-		possibleItemValueTypeSetForArraySizeReferenceVariable.add("unsigned integer");
-		possibleItemValueTypeSetForArraySizeReferenceVariable.add("long");
+		possibleItemTypeNameSetForArraySizeReferenceVariable.add("byte");
+		possibleItemTypeNameSetForArraySizeReferenceVariable.add("unsigned byte");
+		possibleItemTypeNameSetForArraySizeReferenceVariable.add("short");
+		possibleItemTypeNameSetForArraySizeReferenceVariable.add("unsigned short");
+		possibleItemTypeNameSetForArraySizeReferenceVariable.add("integer");
+		possibleItemTypeNameSetForArraySizeReferenceVariable.add("unsigned integer");
+		possibleItemTypeNameSetForArraySizeReferenceVariable.add("long");
 	}
 
 	@Override
@@ -145,8 +145,8 @@ public class MessageInfoSAXParser extends DefaultHandler {
 				throw new SAXException(errorMessage);
 			}
 
-			String itemValueType = attributes.getValue("type");
-			if (null == itemValueType) {
+			String itemTypeName = attributes.getValue("type");
+			if (null == itemTypeName) {
 				/**
 				 * this code is dead code and defensive code 
 				 * because if xsl engine throws exception having message is
@@ -164,7 +164,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 			SingleItemInfo singleItemInfo = null;
 			
 			try {
-				singleItemInfo = new SingleItemInfo(itemName, itemValueType,
+				singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 						itemDefaultValue, itemSize, itemCharset);
 			} catch (IllegalArgumentException e) {
 				String errorMessage = "fail to create instance of SingleItemInfo class";
@@ -245,12 +245,12 @@ public class MessageInfoSAXParser extends DefaultHandler {
 				}
 
 				SingleItemInfo singleItemInfoForArraySizeReferenceVariable = (SingleItemInfo) itemInfoForArraySizeReferenceVariable;
-				String itemValueTypeOfArraySizeReferenceVariable = singleItemInfoForArraySizeReferenceVariable.getItemValueType();				
+				String itemTypeNameOfArraySizeReferenceVariable = singleItemInfoForArraySizeReferenceVariable.getItemTypeName();				
 				
-				if (!possibleItemValueTypeSetForArraySizeReferenceVariable.contains(itemValueTypeOfArraySizeReferenceVariable)) {
+				if (!possibleItemTypeNameSetForArraySizeReferenceVariable.contains(itemTypeNameOfArraySizeReferenceVariable)) {
 					String errorMessage = new StringBuilder("the value of single item that specifies this array item[")
 					.append(arrayName).append("]'s size must be number, possible item type set={")
-					.append(possibleItemValueTypeSetForArraySizeReferenceVariable.toString())
+					.append(possibleItemTypeNameSetForArraySizeReferenceVariable.toString())
 					.append("}").toString();
 					throw new SAXException(errorMessage);
 				}
@@ -444,7 +444,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 		
 		String xmlFilePathString = xmlFile.getAbsolutePath();
 				
-		synchronized (possibleItemValueTypeSetForArraySizeReferenceVariable) {
+		synchronized (possibleItemTypeNameSetForArraySizeReferenceVariable) {
 			this.messageInformationXMLFile = xmlFile;
 			this.isFileNameCheck = isFileNameCheck;
 			if (isFileNameCheck) {
@@ -473,7 +473,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 					.newInstance("http://www.w3.org/2001/XMLSchema");	
 			
 			saxParserFactory.setSchema(schemaFactory
-					.newSchema(new Source[] { new StreamSource(ItemValueTypeManger.getInstance().getMesgXSLInputSream()) }));
+					.newSchema(new Source[] { new StreamSource(ItemTypeManger.getInstance().getMesgXSLInputSream()) }));
 			
 			saxParser = saxParserFactory.newSAXParser();
 		} catch (Exception | Error e) {

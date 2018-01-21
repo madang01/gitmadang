@@ -54,7 +54,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 					stringBuilder.append("\t");
 				}
 				stringBuilder.append("\t\t\t\t\t, \"");
-				stringBuilder.append(singleItemInfo.getItemValueType());
+				stringBuilder.append(singleItemInfo.getItemTypeName());
 				stringBuilder.append("\" // itemTypeName");
 				
 				// itemValue
@@ -94,7 +94,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 				 * </pre>
 				 */
 				
-				if (singleItemInfo.getItemValueType().equals("fixed length string")) {
+				if (singleItemInfo.getItemTypeName().equals("fixed length string")) {
 					String nativeItemCharset = singleItemInfo.getNativeItemCharset();
 					if (null == nativeItemCharset) {
 						stringBuilder.append("null");

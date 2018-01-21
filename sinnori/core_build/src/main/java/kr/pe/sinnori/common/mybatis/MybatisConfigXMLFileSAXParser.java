@@ -51,14 +51,7 @@ public class MybatisConfigXMLFileSAXParser extends DefaultHandler {
 		try {
 			SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
 			saxParserFactory.setValidating(true);
-			saxParserFactory.setNamespaceAware(false);
-
-			/*SchemaFactory schemaFactory = SchemaFactory
-					.newInstance("http://www.w3.org/2001/XMLSchema");	
-			
-			saxParserFactory.setSchema(schemaFactory
-					.newSchema(new Source[] { new StreamSource(ItemValueTypeManger.getInstance().getMesgXSLInputSream()) }));
-			*/
+			saxParserFactory.setNamespaceAware(false);			
 			saxParser = saxParserFactory.newSAXParser();
 		} catch (Exception | Error e) {
 			log.warn(e.getMessage(), e);

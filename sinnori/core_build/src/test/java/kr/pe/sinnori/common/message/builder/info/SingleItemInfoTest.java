@@ -42,7 +42,7 @@ public class SingleItemInfoTest {
 		String expectedMessage  = "this single item's attribute 'name' value length is greater than or eqaul to 2";
 		
 		String itemName = "t";
-		String itemValueType = "byte";
+		String itemTypeName = "byte";
 		String itemDefaultValue = null;
 		String itemSize = null;
 		String itemCharset = null;
@@ -51,7 +51,7 @@ public class SingleItemInfoTest {
 		SingleItemInfo singleItemInfo = null;
 		
 		try {
-			singleItemInfo = new SingleItemInfo(itemName, itemValueType,
+			singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 					itemDefaultValue, itemSize, itemCharset);
 		} catch (IllegalArgumentException e) {
 			log.warn(e.toString(), e);
@@ -70,7 +70,7 @@ public class SingleItemInfoTest {
 		String expectedMessage  = "this single item name[xMlabc] must not begin with the string 'xml' that would match (('X'|'x') ('M'|'m') ('L'|'l'))";
 		
 		String itemName = "xMlabc";
-		String itemValueType = "byte";
+		String itemTypeName = "byte";
 		String itemDefaultValue = null;
 		String itemSize = null;
 		String itemCharset = null;
@@ -79,7 +79,7 @@ public class SingleItemInfoTest {
 		SingleItemInfo singleItemInfo = null;
 		
 		try {
-			singleItemInfo = new SingleItemInfo(itemName, itemValueType,
+			singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 					itemDefaultValue, itemSize, itemCharset);
 		} catch (IllegalArgumentException e) {
 			log.warn(e.toString(), e);
@@ -98,7 +98,7 @@ public class SingleItemInfoTest {
 		String expectedMessage  = "this single item name[;abcd] should be decided in accordance with java xml tag name rule";
 		
 		String itemName = ";abcd";
-		String itemValueType = "byte";
+		String itemTypeName = "byte";
 		String itemDefaultValue = null;
 		String itemSize = null;
 		String itemCharset = null;
@@ -107,7 +107,7 @@ public class SingleItemInfoTest {
 		SingleItemInfo singleItemInfo = null;
 		
 		try {
-			singleItemInfo = new SingleItemInfo(itemName, itemValueType,
+			singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 					itemDefaultValue, itemSize, itemCharset);
 		} catch (IllegalArgumentException e) {
 			log.warn(e.toString(), e);
@@ -126,7 +126,7 @@ public class SingleItemInfoTest {
 		String expectedMessage  = "this single item[a2]'s attribute 'type' value[byte22]) is not an element of item value type set";
 		
 		String itemName = "a2";
-		String itemValueType = "byte22";
+		String itemTypeName = "byte22";
 		String itemDefaultValue = null;
 		String itemSize = null;
 		String itemCharset = null;
@@ -135,7 +135,7 @@ public class SingleItemInfoTest {
 		SingleItemInfo singleItemInfo = null;
 		
 		try {
-			singleItemInfo = new SingleItemInfo(itemName, itemValueType,
+			singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 					itemDefaultValue, itemSize, itemCharset);
 		} catch (IllegalArgumentException e) {
 			log.warn(e.toString(), e);
@@ -175,7 +175,7 @@ public class SingleItemInfoTest {
 			.append(numberTypeName2ParsingTypeNameHash.get(numberTypeName)).toString();
 						
 			String itemName = "a2";
-			String itemValueType = numberTypeName;
+			String itemTypeName = numberTypeName;
 			String itemDefaultValue = "king";
 			String itemSize = null;
 			String itemCharset = null;
@@ -184,7 +184,7 @@ public class SingleItemInfoTest {
 			SingleItemInfo singleItemInfo = null;
 			
 			try {
-				singleItemInfo = new SingleItemInfo(itemName, itemValueType,
+				singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 						itemDefaultValue, itemSize, itemCharset);
 			} catch (IllegalArgumentException e) {
 				log.warn(e.toString(), e);
@@ -213,7 +213,7 @@ public class SingleItemInfoTest {
 			.toString();
 						
 			String itemName = "a2";
-			String itemValueType = stringTypeName;
+			String itemTypeName = stringTypeName;
 			String itemDefaultValue = " king ";
 			String itemSize = null;
 			String itemCharset = null;
@@ -222,7 +222,7 @@ public class SingleItemInfoTest {
 			SingleItemInfo singleItemInfo = null;
 			
 			try {
-				singleItemInfo = new SingleItemInfo(itemName, itemValueType,
+				singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 						itemDefaultValue, itemSize, itemCharset);
 			} catch (IllegalArgumentException e) {
 				log.warn(e.toString(), e);
@@ -252,7 +252,7 @@ public class SingleItemInfoTest {
 				.toString();
 				
 				String itemName = "a2";
-				String itemValueType = unsignedNumberTypeName;
+				String itemTypeName = unsignedNumberTypeName;
 				String itemDefaultValue = "-1";
 				String itemSize = null;
 				String itemCharset = null;
@@ -261,7 +261,7 @@ public class SingleItemInfoTest {
 				SingleItemInfo singleItemInfo = null;
 				
 				try {
-					singleItemInfo = new SingleItemInfo(itemName, itemValueType,
+					singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 							itemDefaultValue, itemSize, itemCharset);
 				} catch (IllegalArgumentException e) {
 					log.warn(e.toString(), e);
@@ -310,7 +310,7 @@ public class SingleItemInfoTest {
 			.toString();
 			
 			String itemName = "a2";
-			String itemValueType = unsignedNumberTypeName;
+			String itemTypeName = unsignedNumberTypeName;
 			String itemDefaultValue = numberTypeName2MaxOverValueHash.get(unsignedNumberTypeName);
 			String itemSize = null;
 			String itemCharset = null;			
@@ -319,7 +319,7 @@ public class SingleItemInfoTest {
 			SingleItemInfo singleItemInfo = null;
 			
 			try {
-				singleItemInfo = new SingleItemInfo(itemName, itemValueType,
+				singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 						itemDefaultValue, itemSize, itemCharset);
 			} catch (IllegalArgumentException e) {
 				log.warn(e.toString(), e);
@@ -350,7 +350,7 @@ public class SingleItemInfoTest {
 			.append(sizeDemandTypeName).append("' type single item[a2] needs attribute 'size'").toString();
 			
 			String itemName = "a2";
-			String itemValueType = sizeDemandTypeName;
+			String itemTypeName = sizeDemandTypeName;
 			String itemDefaultValue = null;
 			String itemSize = null;
 			String itemCharset = null;
@@ -359,7 +359,7 @@ public class SingleItemInfoTest {
 			SingleItemInfo singleItemInfo = null;
 			
 			try {
-				singleItemInfo = new SingleItemInfo(itemName, itemValueType,
+				singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 						itemDefaultValue, itemSize, itemCharset);
 			} catch (IllegalArgumentException e) {
 				log.warn(e.toString(), e);
@@ -384,7 +384,7 @@ public class SingleItemInfoTest {
 			.append(sizeDemandTypeName).append("' type single item[a2]'s attribute 'size' value[-1] must be greater than zero").toString();
 			
 			String itemName = "a2";
-			String itemValueType = sizeDemandTypeName;
+			String itemTypeName = sizeDemandTypeName;
 			String itemDefaultValue = null;
 			String itemSize = "-1";
 			String itemCharset = null;
@@ -393,7 +393,7 @@ public class SingleItemInfoTest {
 			SingleItemInfo singleItemInfo = null;
 			
 			try {
-				singleItemInfo = new SingleItemInfo(itemName, itemValueType,
+				singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 						itemDefaultValue, itemSize, itemCharset);
 			} catch (IllegalArgumentException e) {
 				log.warn(e.toString(), e);
@@ -423,7 +423,7 @@ public class SingleItemInfoTest {
 			.append(sizeDemandTypeName).append("' type single item[a2]'s attribute 'size' value[king] is not integer").toString();
 			
 			String itemName = "a2";
-			String itemValueType = sizeDemandTypeName;
+			String itemTypeName = sizeDemandTypeName;
 			String itemDefaultValue = null;
 			String itemSize = "king";
 			String itemCharset = null;
@@ -432,7 +432,7 @@ public class SingleItemInfoTest {
 			SingleItemInfo singleItemInfo = null;
 			
 			try {
-				singleItemInfo = new SingleItemInfo(itemName, itemValueType,
+				singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 						itemDefaultValue, itemSize, itemCharset);
 			} catch (IllegalArgumentException e) {
 				log.warn(e.toString(), e);
@@ -464,12 +464,12 @@ public class SingleItemInfoTest {
 			.append(charsetOptionTypeName).append("' type single item[a2]'s attribute 'charset' value[king] is a bad charset name").toString();
 			
 			String itemName = "a2";
-			String itemValueType = charsetOptionTypeName;
+			String itemTypeName = charsetOptionTypeName;
 			String itemDefaultValue = null;
 			String itemSize = null;
 			String itemCharset = "king";
 			
-			if (itemValueType.equals("fixed length string")) {
+			if (itemTypeName.equals("fixed length string")) {
 				itemSize = "10";						
 			}
 			
@@ -477,7 +477,7 @@ public class SingleItemInfoTest {
 			SingleItemInfo singleItemInfo = null;
 			
 			try {
-				singleItemInfo = new SingleItemInfo(itemName, itemValueType,
+				singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 						itemDefaultValue, itemSize, itemCharset);
 			} catch (IllegalArgumentException e) {
 				log.warn(e.toString(), e);
@@ -511,12 +511,12 @@ public class SingleItemInfoTest {
 			.append(noSupportTypeName).append("' type single item[a2] doesn't support attribute 'defaultValue'").toString();
 			
 			String itemName = "a2";
-			String itemValueType = noSupportTypeName;
+			String itemTypeName = noSupportTypeName;
 			String itemDefaultValue = "NotNullOk";
 			String itemSize = null;
 			String itemCharset = null;
 			
-			if (itemValueType.equals("fixed length byte[]")) {
+			if (itemTypeName.equals("fixed length byte[]")) {
 				itemSize = "10";						
 			}
 			
@@ -524,7 +524,7 @@ public class SingleItemInfoTest {
 			SingleItemInfo singleItemInfo = null;
 			
 			try {
-				singleItemInfo = new SingleItemInfo(itemName, itemValueType,
+				singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 						itemDefaultValue, itemSize, itemCharset);
 			} catch (IllegalArgumentException e) {
 				log.warn(e.toString(), e);
@@ -563,7 +563,7 @@ public class SingleItemInfoTest {
 			.append(noSupportTypeName).append("' type single item[a2] doesn't support attribute 'size'").toString();
 			
 			String itemName = "a2";
-			String itemValueType = noSupportTypeName;
+			String itemTypeName = noSupportTypeName;
 			String itemDefaultValue = null;
 			String itemSize = "10";
 			String itemCharset = null;
@@ -572,7 +572,7 @@ public class SingleItemInfoTest {
 			SingleItemInfo singleItemInfo = null;
 			
 			try {
-				singleItemInfo = new SingleItemInfo(itemName, itemValueType,
+				singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 						itemDefaultValue, itemSize, itemCharset);
 			} catch (IllegalArgumentException e) {
 				log.warn(e.toString(), e);
@@ -609,7 +609,7 @@ public class SingleItemInfoTest {
 			.append(noSupportTypeName).append("' type single item[a2] doesn't support attribute 'charset'").toString();
 			
 			String itemName = "a2";
-			String itemValueType = noSupportTypeName;
+			String itemTypeName = noSupportTypeName;
 			String itemDefaultValue = null;
 			String itemSize = null;
 			String itemCharset = "utf8";
@@ -622,7 +622,7 @@ public class SingleItemInfoTest {
 			SingleItemInfo singleItemInfo = null;
 			
 			try {
-				singleItemInfo = new SingleItemInfo(itemName, itemValueType,
+				singleItemInfo = new SingleItemInfo(itemName, itemTypeName,
 						itemDefaultValue, itemSize, itemCharset);
 			} catch (IllegalArgumentException e) {
 				log.warn(e.toString(), e);

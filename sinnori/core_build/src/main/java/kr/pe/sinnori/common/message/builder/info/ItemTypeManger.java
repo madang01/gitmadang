@@ -47,20 +47,19 @@ import org.slf4j.LoggerFactory;
  * @author Won Jonghoon
  *
  */
-public class ItemValueTypeManger {
-	private final Logger log = LoggerFactory.getLogger(ItemValueTypeManger.class);
+public class ItemTypeManger {
+	private final Logger log = LoggerFactory.getLogger(ItemTypeManger.class);
 	
 	private String messageXSLStr = null;
 	
-	private LinkedHashMap<String, Integer> itemValueTypeToIDHash  = new LinkedHashMap<String, Integer>();
-	private HashMap<Integer, String> itemIDToItemValueTypeHash  = new HashMap<Integer, String>();
-		
-	
+	private LinkedHashMap<String, Integer> itemTypeNameToIDHash  = new LinkedHashMap<String, Integer>();
+	private HashMap<Integer, String> itemIDToItemTypeNameHash  = new HashMap<Integer, String>();
+
 	/**
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스
 	 */
-	private static final class ItemValueTypeMangerHolder {
-		static final ItemValueTypeManger singleton = new ItemValueTypeManger();
+	private static final class ItemTypeMangerHolder {
+		static final ItemTypeManger singleton = new ItemTypeManger();
 	}
 
 	/**
@@ -68,114 +67,21 @@ public class ItemValueTypeManger {
 	 * 
 	 * @return 싱글턴 객체
 	 */
-	public static ItemValueTypeManger getInstance() {
-		return ItemValueTypeMangerHolder.singleton;
+	public static ItemTypeManger getInstance() {
+		return ItemTypeMangerHolder.singleton;
 	}
 	
 	/**
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 생성자
 	 */
-	private ItemValueTypeManger() {
+	private ItemTypeManger() {
 		
-		int id=0;
-		String itemValueType = "byte";
-		itemValueTypeToIDHash.put(itemValueType, id);
-		itemIDToItemValueTypeHash.put(id, itemValueType);
-		id++;
-		
-		
-		itemValueType = "unsigned byte";
-		itemValueTypeToIDHash.put(itemValueType, id);
-		itemIDToItemValueTypeHash.put(id, itemValueType);
-		id++;
-		
-		
-		itemValueType = "short";
-		itemValueTypeToIDHash.put(itemValueType, id);
-		itemIDToItemValueTypeHash.put(id, itemValueType);
-		id++;
-		
-		
-		itemValueType = "unsigned short";
-		itemValueTypeToIDHash.put(itemValueType, id);
-		itemIDToItemValueTypeHash.put(id, itemValueType);
-		id++;
-		
-		
-		itemValueType = "integer";
-		itemValueTypeToIDHash.put(itemValueType, id);
-		itemIDToItemValueTypeHash.put(id, itemValueType);
-		id++;
-		
-		
-		itemValueType = "unsigned integer";
-		itemValueTypeToIDHash.put(itemValueType, id);
-		itemIDToItemValueTypeHash.put(id, itemValueType);
-		id++;
-		
-		
-		itemValueType = "long";
-		itemValueTypeToIDHash.put(itemValueType, id);
-		itemIDToItemValueTypeHash.put(id, itemValueType);
-		id++;
-		
-		
-		itemValueType = "ub pascal string";
-		itemValueTypeToIDHash.put(itemValueType, id);
-		itemIDToItemValueTypeHash.put(id, itemValueType);
-		id++;
-		
-		itemValueType = "us pascal string";
-		itemValueTypeToIDHash.put(itemValueType, id);
-		itemIDToItemValueTypeHash.put(id, itemValueType);
-		id++;
-		
-		itemValueType = "si pascal string";
-		itemValueTypeToIDHash.put(itemValueType, id);
-		itemIDToItemValueTypeHash.put(id, itemValueType);
-		id++;
-		
-		itemValueType = "fixed length string";
-		itemValueTypeToIDHash.put(itemValueType, id);
-		itemIDToItemValueTypeHash.put(id, itemValueType);
-		id++;
-		
-		
-		itemValueType = "ub variable length byte[]";
-		itemValueTypeToIDHash.put(itemValueType, id);
-		itemIDToItemValueTypeHash.put(id, itemValueType);
-		id++;
-		
-		itemValueType = "us variable length byte[]";
-		itemValueTypeToIDHash.put(itemValueType, id);
-		itemIDToItemValueTypeHash.put(id, itemValueType);
-		id++;
-		
-		itemValueType = "si variable length byte[]";
-		itemValueTypeToIDHash.put(itemValueType, id);
-		itemIDToItemValueTypeHash.put(id, itemValueType);
-		id++;
-		
-		itemValueType = "fixed length byte[]";
-		itemValueTypeToIDHash.put(itemValueType, id);
-		itemIDToItemValueTypeHash.put(id, itemValueType);
-		id++;
-		
-		itemValueType = "java sql date";
-		itemValueTypeToIDHash.put(itemValueType, id);
-		itemIDToItemValueTypeHash.put(id, itemValueType);
-		id++;
-		
-		itemValueType = "java sql timestamp";
-		itemValueTypeToIDHash.put(itemValueType, id);
-		itemIDToItemValueTypeHash.put(id, itemValueType);
-		id++;
-		
-		itemValueType = "boolean";
-		itemValueTypeToIDHash.put(itemValueType, id);
-		itemIDToItemValueTypeHash.put(id, itemValueType);
-		id++;
-		
+		for (ItemType itemType : ItemType.values()) {
+			int itemTypeID = itemType.getItemTypeID();
+			String itemTypeName = itemType.getItemTypeName();
+			itemTypeNameToIDHash.put(itemTypeName, itemTypeID);
+			itemIDToItemTypeNameHash.put(itemTypeID, itemTypeName);
+		}
 		
 		/** 신규 타입 추가시 구현 언어인 자바 타입등을 정의한 SingleItemInfo 에도 추가를 해 주어야 한다. */
 		
@@ -202,11 +108,11 @@ public class ItemValueTypeManger {
 		mesgXSLStringBuilder.append("\t\t\t\t\t\t<xs:simpleType>\n");
 		mesgXSLStringBuilder.append("\t\t\t\t\t\t\t<xs:restriction base=\"xs:string\">\n");
 		
-		Iterator<String> itemValueTypeIter = itemValueTypeToIDHash.keySet().iterator();
+		Iterator<String> itemTypeNameIter = itemTypeNameToIDHash.keySet().iterator();
 
-		while (itemValueTypeIter.hasNext()) {
+		while (itemTypeNameIter.hasNext()) {
 			mesgXSLStringBuilder.append("\t\t\t\t\t\t\t\t<xs:enumeration value=\"");
-			mesgXSLStringBuilder.append(itemValueTypeIter.next());
+			mesgXSLStringBuilder.append(itemTypeNameIter.next());
 			mesgXSLStringBuilder.append("\" />\n");
 		}
 		
@@ -347,36 +253,39 @@ public class ItemValueTypeManger {
 		return xslByteArrayInputStream;
 	}
 	
-	public int getItemValueTypeID(String itemValueType) throws UnknownItemTypeException {
-		Integer itemValueTypeID = itemValueTypeToIDHash.get(itemValueType);
-		if (null == itemValueTypeID) {
-			String errorMessage = new StringBuilder("the parameter itemValueType[")
-			.append(itemValueType).append("] is not an element of item value type set")
-			.append(getUnmodifiableItemValueTypeSet().toString()).toString();
+	public int getItemTypeID(String itemTypeName) throws UnknownItemTypeException {
+		if (null == itemTypeName) {
+			throw new IllegalArgumentException("the parameter itemTypeName is null");
+		}
+		Integer itemTypeID = itemTypeNameToIDHash.get(itemTypeName);
+		if (null == itemTypeID) {
+			String errorMessage = new StringBuilder("the parameter itemTypeName[")
+			.append(itemTypeName).append("] is not an element of item value type set")
+			.append(getUnmodifiableItemTypeNameSet().toString()).toString();
 			UnknownItemTypeException e = new UnknownItemTypeException(errorMessage);			
 			throw e;
 		}		
-		return itemValueTypeID.intValue();
+		return itemTypeID.intValue();
 	}
 	
-	public String getItemValueType(int itemValueTypeID) throws UnknownItemTypeException {
-		String itemValueType = itemIDToItemValueTypeHash.get(itemValueTypeID);
-		if (null == itemValueType) {
-			String errorMessage = String.format("unknown message item type id[%d]", itemValueTypeID);
+	public String getItemTypeName(int itemTypeID) throws UnknownItemTypeException {
+		String itemTypeName = itemIDToItemTypeNameHash.get(itemTypeID);
+		if (null == itemTypeName) {
+			String errorMessage = String.format("unknown message item type id[%d]", itemTypeID);
 			UnknownItemTypeException e = new UnknownItemTypeException(errorMessage);
 			// log.warn(errorMessage, e);
 			e.printStackTrace();
 			throw e;
 		}		
-		return itemValueType;
+		return itemTypeName;
 	}
 	
-	public int getItemValueTypeCnt() {
-		return itemValueTypeToIDHash.size();
+	public int getItemTypeCount() {
+		return itemTypeNameToIDHash.size();
 	}
 	
-	public Set<String> getUnmodifiableItemValueTypeSet() {
-		Set<String> itemValueTypeSet = Collections.unmodifiableSet(itemValueTypeToIDHash.keySet());
-		return itemValueTypeSet;
+	public Set<String> getUnmodifiableItemTypeNameSet() {
+		Set<String> itemTypeNameSet = Collections.unmodifiableSet(itemTypeNameToIDHash.keySet());
+		return itemTypeNameSet;
 	}
 }

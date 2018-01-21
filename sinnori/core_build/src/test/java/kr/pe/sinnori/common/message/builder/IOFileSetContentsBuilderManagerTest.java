@@ -15,7 +15,6 @@ import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
-import kr.pe.sinnori.common.io.FreeSizeOutputStreamTest;
 import kr.pe.sinnori.common.message.builder.info.MessageInfo;
 import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
@@ -23,8 +22,8 @@ import kr.pe.sinnori.common.util.CommonStaticUtil;
 public class IOFileSetContentsBuilderManagerTest {
 	Logger log = null;
 
-	String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
-	String mainProjectName = "sample_base";
+	final String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
+	final String mainProjectName = "sample_base";
 
 	@Before
 	public void setup() {
@@ -44,12 +43,12 @@ public class IOFileSetContentsBuilderManagerTest {
 		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_LOGBACK_CONFIG_FILE,
 				logbackConfigFilePathString);
 
-		log = LoggerFactory.getLogger(FreeSizeOutputStreamTest.class);
+		log = LoggerFactory.getLogger(IOFileSetContentsBuilderManagerTest.class);
 	}
 
 	@Test
 	public void test_SelfExn메시지IO관련파일만들기() {
-		String messageID = "SelfExn";
+		final String messageID = "SelfExn";
 		
 		String messageInfoFilesPathString = BuildSystemPathSupporter
 				.getMessageInfoFilesPathString(sinnoriInstalledPathString);
@@ -80,8 +79,7 @@ public class IOFileSetContentsBuilderManagerTest {
 		
 		String author = "Won Jonghoon";
 		
-	// 	String savedPathStrig = "d:\\";
-		
+	
 		IOFileSetContentsBuilderManager ioFileSetContentsBuilderManager = IOFileSetContentsBuilderManager.getInstance();
 		
 		{

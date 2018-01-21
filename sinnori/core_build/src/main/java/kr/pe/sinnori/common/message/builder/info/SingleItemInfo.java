@@ -38,7 +38,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 	private final Logger log = LoggerFactory.getLogger(SingleItemInfo.class);
 
 	private String itemName;
-	private String itemValueType;	
+	private String itemTypeName;	
 	private String nativeItemDefaultValue;	
 	private String nativeItemSize;
 	private String nativeItemCharset;
@@ -47,10 +47,10 @@ public class SingleItemInfo extends AbstractItemInfo {
 	private int itemTypeID;
 	private int itemSize;
 	private String defaultValueForVariableDeclarationPart = null;	
-	private String javaLangTypeOfItemValueType;
-	private String JavaLangClassCastingTypeOfItemValueType;
+	private String javaLangTypeOfItemType;
+	private String JavaLangClassCastingTypeOfItemType;
 
-	private static final ItemValueTypeManger itemTypeIDManger = ItemValueTypeManger
+	private static final ItemTypeManger itemTypeIDManger = ItemTypeManger
 			.getInstance();
 
 	/**
@@ -59,7 +59,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 	 * 
 	 * @param itemName
 	 *            항목 이름
-	 * @param itemValueType
+	 * @param itemTypeName
 	 *            항목 값의 타입
 	 * @param nativeItemDefaultValue 디폴트 값, 
 	 * <pre>Warning! 파스칼 문자열 타입에 디폴트 값을 지정할때
@@ -85,82 +85,82 @@ public class SingleItemInfo extends AbstractItemInfo {
 	 * @throws IllegalArgumentException
 	 *             잘못된 파라미터 값이 들어올 경우 던지는 예외
 	 */
-	public SingleItemInfo(String itemName, String itemValueType,
+	public SingleItemInfo(String itemName, String itemTypeName,
 			String nativeItemDefaultValue, String nativeItemSize, String nativeItemCharset)
 			throws IllegalArgumentException {
 		checkParmItemName(itemName);		
 		int itemTypeID = -1;
 		
 		try {
-			itemTypeID = getItemValueTypeIDAfterCheckingParmItemValueType(itemValueType);
+			itemTypeID = itemTypeIDManger.getItemTypeID(itemTypeName);
 		} catch(UnknownItemTypeException e) {
 			log.warn(e.toString(), e);
 			String errorMessage = new StringBuilder(
 					"this single item[")
 					.append(itemName).append("]'s attribute 'type' value[")
-					.append(itemValueType)
+					.append(itemTypeName)
 					.append("]) is not an element of item value type set").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		if (itemValueType.equals("byte")) {
+		if (itemTypeName.equals("byte")) {
 			makeByteTypeInformationAfterCheckingAdditionalInformation(itemName,
 					nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemValueType.equals("unsigned byte")) {
+		} else if (itemTypeName.equals("unsigned byte")) {
 			makeUnsignedByteTypeInformationAfterCheckingAdditionalInformation(itemName,
 					nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemValueType.equals("short")) {
+		} else if (itemTypeName.equals("short")) {
 			makeShortTypeInformationAfterCheckingAdditionalInformation(itemName,
 					nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemValueType.equals("unsigned short")) {
+		} else if (itemTypeName.equals("unsigned short")) {
 			makeUnsignedShortTypeInformationAfterCheckingAdditionalInformation(itemName,
 					nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemValueType.equals("integer")) {
+		} else if (itemTypeName.equals("integer")) {
 			makeIntegerTypeInformationAfterCheckingAdditionalInformation(itemName,
 					nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemValueType.equals("unsigned integer")) {
+		} else if (itemTypeName.equals("unsigned integer")) {
 			makeUnsignedIntegerTypeInformationAfterCheckingAdditionalInformation(
 					itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemValueType.equals("long")) {
+		} else if (itemTypeName.equals("long")) {
 			makeLongTypeInformationAfterCheckingAdditionalInformation(itemName,
 					nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemValueType.equals("ub pascal string")) {
+		} else if (itemTypeName.equals("ub pascal string")) {
 			makePascalStringTypeInformationAfterCheckingAdditionalInformation("ub",
 					itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemValueType.equals("us pascal string")) {
+		} else if (itemTypeName.equals("us pascal string")) {
 			makePascalStringTypeInformationAfterCheckingAdditionalInformation("us",
 					itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemValueType.equals("si pascal string")) {
+		} else if (itemTypeName.equals("si pascal string")) {
 			makePascalStringTypeInformationAfterCheckingAdditionalInformation("si",
 					itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemValueType.equals("fixed length string")) {
+		} else if (itemTypeName.equals("fixed length string")) {
 			makeFixedLengthStringTypeInformationAfterCheckingAdditionalInformation(
 					itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemValueType.equals("ub variable length byte[]")) {
+		} else if (itemTypeName.equals("ub variable length byte[]")) {
 			makeVariableLengthByteArrayTypeInformationAfterCheckingAdditionalInformation(
 					"ub", itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemValueType.equals("us variable length byte[]")) {
+		} else if (itemTypeName.equals("us variable length byte[]")) {
 			makeVariableLengthByteArrayTypeInformationAfterCheckingAdditionalInformation(
 					"us", itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 
-		} else if (itemValueType.equals("si variable length byte[]")) {
+		} else if (itemTypeName.equals("si variable length byte[]")) {
 			makeVariableLengthByteArrayTypeInformationAfterCheckingAdditionalInformation(
 					"si", itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemValueType.equals("fixed length byte[]")) {
+		} else if (itemTypeName.equals("fixed length byte[]")) {
 			makeFixedLengthByteArrayTypeInformationAfterCheckingAdditionalInformation(
 					itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemValueType.equals("java sql date")) {
+		} else if (itemTypeName.equals("java sql date")) {
 			makeJavaSqlDateTypeInformationAfterCheckingAdditionalInformation(
 					itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemValueType.equals("java sql timestamp")) {
+		} else if (itemTypeName.equals("java sql timestamp")) {
 			makeJavaSqlTimestampTypeInformationAfterCheckingAdditionalInformation(
 					itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemValueType.equals("boolean")) {
+		} else if (itemTypeName.equals("boolean")) {
 			makeBooleanTypeInformationAfterCheckingAdditionalInformation(
 					itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 		} else {
 			String errorMessage = new StringBuilder("this single item[")
-					.append(itemName).append("]'s type[").append(itemValueType)
+					.append(itemName).append("]'s type[").append(itemTypeName)
 					.append("] is a unknown type").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
@@ -170,7 +170,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 		this.firstUpperItemName = new StringBuilder(
 				itemName.substring(0, 1).toUpperCase())
 		.append(itemName.substring(1)).toString();
-		this.itemValueType = itemValueType;
+		this.itemTypeName = itemTypeName;
 		this.nativeItemDefaultValue = nativeItemDefaultValue;
 		this.nativeItemSize = nativeItemSize;
 		this.nativeItemCharset = nativeItemCharset;
@@ -180,16 +180,16 @@ public class SingleItemInfo extends AbstractItemInfo {
 		return firstUpperItemName;
 	}
 
-	public String getJavaLangTypeOfItemValueType() {
-		return javaLangTypeOfItemValueType;
+	public String getJavaLangTypeOfItemType() {
+		return javaLangTypeOfItemType;
 	}
 
-	public String getJavaLangClassCastingTypeOfItemValueType() {
-		return JavaLangClassCastingTypeOfItemValueType;
+	public String getJavaLangClassCastingTypeOfItemType() {
+		return JavaLangClassCastingTypeOfItemType;
 	}
 
 	/**
-	 * @see ItemValueTypeManger
+	 * @see ItemTypeManger
 	 * @return 항목 타입 식별자
 	 */
 	public int getItemTypeID() {
@@ -219,8 +219,8 @@ public class SingleItemInfo extends AbstractItemInfo {
 	 * 
 	 * @return 항목 타입
 	 */
-	public String getItemValueType() {
-		return itemValueType;
+	public String getItemTypeName() {
+		return itemTypeName;
 	}
 
 	/**
@@ -321,16 +321,6 @@ public class SingleItemInfo extends AbstractItemInfo {
 		}
 	}
 
-	private int getItemValueTypeIDAfterCheckingParmItemValueType(
-			String itemValueType) throws IllegalArgumentException, UnknownItemTypeException {
-		if (null == itemValueType) {
-			throw new IllegalArgumentException("the parmamter itemType is null");
-		}
-		int itemTypeID = itemTypeIDManger.getItemValueTypeID(itemValueType);
-		
-		return itemTypeID;
-	}
-
 	private void makeByteTypeInformationAfterCheckingAdditionalInformation(
 			String itemName, String nativeItemDefaultValue, String nativeItemSize,
 			String nativeItemCharset) throws IllegalArgumentException {
@@ -366,8 +356,8 @@ public class SingleItemInfo extends AbstractItemInfo {
 
 		this.itemSize = -1;
 		this.defaultValueForVariableDeclarationPart = nativeItemDefaultValue;
-		this.javaLangTypeOfItemValueType = "byte";
-		this.JavaLangClassCastingTypeOfItemValueType = "Byte";
+		this.javaLangTypeOfItemType = "byte";
+		this.JavaLangClassCastingTypeOfItemType = "Byte";
 	}
 
 	private void makeUnsignedByteTypeInformationAfterCheckingAdditionalInformation(
@@ -424,8 +414,8 @@ public class SingleItemInfo extends AbstractItemInfo {
 
 		this.itemSize = -1;
 		this.defaultValueForVariableDeclarationPart = nativeItemDefaultValue;
-		this.javaLangTypeOfItemValueType = "short";
-		this.JavaLangClassCastingTypeOfItemValueType = "Short";
+		this.javaLangTypeOfItemType = "short";
+		this.JavaLangClassCastingTypeOfItemType = "Short";
 	}
 
 	private void makeShortTypeInformationAfterCheckingAdditionalInformation(
@@ -462,8 +452,8 @@ public class SingleItemInfo extends AbstractItemInfo {
 
 		this.itemSize = -1;
 		this.defaultValueForVariableDeclarationPart = nativeItemDefaultValue;
-		this.javaLangTypeOfItemValueType = "short";
-		this.JavaLangClassCastingTypeOfItemValueType = "Short";
+		this.javaLangTypeOfItemType = "short";
+		this.JavaLangClassCastingTypeOfItemType = "Short";
 	}
 
 	private void makeUnsignedShortTypeInformationAfterCheckingAdditionalInformation(
@@ -519,8 +509,8 @@ public class SingleItemInfo extends AbstractItemInfo {
 
 		this.itemSize = -1;
 		this.defaultValueForVariableDeclarationPart = nativeItemDefaultValue;
-		this.javaLangTypeOfItemValueType = "int";
-		this.JavaLangClassCastingTypeOfItemValueType = "Integer";
+		this.javaLangTypeOfItemType = "int";
+		this.JavaLangClassCastingTypeOfItemType = "Integer";
 	}
 
 	private void makeIntegerTypeInformationAfterCheckingAdditionalInformation(
@@ -557,8 +547,8 @@ public class SingleItemInfo extends AbstractItemInfo {
 
 		this.itemSize = -1;
 		this.defaultValueForVariableDeclarationPart = nativeItemDefaultValue;
-		this.javaLangTypeOfItemValueType = "int";
-		this.JavaLangClassCastingTypeOfItemValueType = "Integer";
+		this.javaLangTypeOfItemType = "int";
+		this.JavaLangClassCastingTypeOfItemType = "Integer";
 	}
 
 	private void makeUnsignedIntegerTypeInformationAfterCheckingAdditionalInformation(
@@ -616,8 +606,8 @@ public class SingleItemInfo extends AbstractItemInfo {
 
 		this.itemSize = -1;
 		this.defaultValueForVariableDeclarationPart = nativeItemDefaultValue;
-		this.javaLangTypeOfItemValueType = "long";
-		this.JavaLangClassCastingTypeOfItemValueType = "Long";
+		this.javaLangTypeOfItemType = "long";
+		this.JavaLangClassCastingTypeOfItemType = "Long";
 	}
 
 	private void makeLongTypeInformationAfterCheckingAdditionalInformation(
@@ -654,8 +644,8 @@ public class SingleItemInfo extends AbstractItemInfo {
 
 		this.itemSize = -1;
 		this.defaultValueForVariableDeclarationPart = nativeItemDefaultValue;
-		this.javaLangTypeOfItemValueType = "long";
-		this.JavaLangClassCastingTypeOfItemValueType = "Long";
+		this.javaLangTypeOfItemType = "long";
+		this.JavaLangClassCastingTypeOfItemType = "Long";
 	}
 
 	private void makePascalStringTypeInformationAfterCheckingAdditionalInformation(
@@ -720,8 +710,8 @@ public class SingleItemInfo extends AbstractItemInfo {
 		}
 		
 		this.itemSize = -1;
-		javaLangTypeOfItemValueType = "String";
-		JavaLangClassCastingTypeOfItemValueType = "String";
+		javaLangTypeOfItemType = "String";
+		JavaLangClassCastingTypeOfItemType = "String";
 	}
 
 	private void makeFixedLengthStringTypeInformationAfterCheckingAdditionalInformation(
@@ -797,8 +787,8 @@ public class SingleItemInfo extends AbstractItemInfo {
 		}
 		
 		this.itemSize = tempItemSize;
-		javaLangTypeOfItemValueType = "String";
-		JavaLangClassCastingTypeOfItemValueType = "String";
+		javaLangTypeOfItemType = "String";
+		JavaLangClassCastingTypeOfItemType = "String";
 	}
 
 	private void makeVariableLengthByteArrayTypeInformationAfterCheckingAdditionalInformation(
@@ -849,8 +839,8 @@ public class SingleItemInfo extends AbstractItemInfo {
 
 		this.itemSize = -1;
 		defaultValueForVariableDeclarationPart = null;
-		javaLangTypeOfItemValueType = "byte[]";
-		JavaLangClassCastingTypeOfItemValueType = "byte[]";
+		javaLangTypeOfItemType = "byte[]";
+		JavaLangClassCastingTypeOfItemType = "byte[]";
 	}
 	
 	private void makeFixedLengthByteArrayTypeInformationAfterCheckingAdditionalInformation(
@@ -901,8 +891,8 @@ public class SingleItemInfo extends AbstractItemInfo {
 
 		this.itemSize = tempItemSize;
 		defaultValueForVariableDeclarationPart = null;
-		javaLangTypeOfItemValueType = "byte[]";
-		JavaLangClassCastingTypeOfItemValueType = "byte[]";
+		javaLangTypeOfItemType = "byte[]";
+		JavaLangClassCastingTypeOfItemType = "byte[]";
 	}
 	
 	private void makeJavaSqlDateTypeInformationAfterCheckingAdditionalInformation(
@@ -933,8 +923,8 @@ public class SingleItemInfo extends AbstractItemInfo {
 
 		this.itemSize = -1;
 		defaultValueForVariableDeclarationPart = null;
-		javaLangTypeOfItemValueType = "java.sql.Date";
-		JavaLangClassCastingTypeOfItemValueType = "java.sql.Date";
+		javaLangTypeOfItemType = "java.sql.Date";
+		JavaLangClassCastingTypeOfItemType = "java.sql.Date";
 	}
 	
 	private void makeJavaSqlTimestampTypeInformationAfterCheckingAdditionalInformation(
@@ -965,8 +955,8 @@ public class SingleItemInfo extends AbstractItemInfo {
 
 		this.itemSize = -1;
 		defaultValueForVariableDeclarationPart = null;
-		javaLangTypeOfItemValueType = "java.sql.Timestamp";
-		JavaLangClassCastingTypeOfItemValueType = "java.sql.Timestamp";
+		javaLangTypeOfItemType = "java.sql.Timestamp";
+		JavaLangClassCastingTypeOfItemType = "java.sql.Timestamp";
 	}
 	
 	private void makeBooleanTypeInformationAfterCheckingAdditionalInformation(
@@ -1002,8 +992,8 @@ public class SingleItemInfo extends AbstractItemInfo {
 
 		this.itemSize = -1;
 		defaultValueForVariableDeclarationPart = nativeItemDefaultValue;
-		javaLangTypeOfItemValueType = "boolean";
-		JavaLangClassCastingTypeOfItemValueType = "java.lang.Boolean";
+		javaLangTypeOfItemType = "boolean";
+		JavaLangClassCastingTypeOfItemType = "java.lang.Boolean";
 	}
 
 
@@ -1013,7 +1003,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 		strBuff.append("{ itemName=[");
 		strBuff.append(itemName);
 		strBuff.append("], itemType=[");
-		strBuff.append(itemValueType);
+		strBuff.append(itemTypeName);
 		strBuff.append("], nativeItemDefaultValue=[");
 		strBuff.append(nativeItemDefaultValue);
 		strBuff.append("], itemSize=[");

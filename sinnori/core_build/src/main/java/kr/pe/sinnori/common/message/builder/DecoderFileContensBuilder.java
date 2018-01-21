@@ -39,7 +39,7 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 				stringBuilder.append(".set");
 				stringBuilder.append(singleItemInfo.getFirstUpperItemName());
 				stringBuilder.append("((");
-				stringBuilder.append(singleItemInfo.getJavaLangClassCastingTypeOfItemValueType());
+				stringBuilder.append(singleItemInfo.getJavaLangClassCastingTypeOfItemType());
 				stringBuilder.append(")");
 				
 				// singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
@@ -74,7 +74,7 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 					stringBuilder.append("\t");
 				}
 				stringBuilder.append("\t\t, \"");
-				stringBuilder.append(singleItemInfo.getItemValueType());
+				stringBuilder.append(singleItemInfo.getItemTypeName());
 				stringBuilder.append("\" // itemTypeName");
 				
 				// itemSize
@@ -103,7 +103,7 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 				 * </pre>
 				 */
 				
-				if (singleItemInfo.getItemValueType().equals("fixed length string")) {
+				if (singleItemInfo.getItemTypeName().equals("fixed length string")) {
 					String nativeItemCharset = singleItemInfo.getNativeItemCharset();
 					if (null == nativeItemCharset) {
 						stringBuilder.append("null");
