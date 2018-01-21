@@ -40,8 +40,8 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 	private Logger log = LoggerFactory.getLogger(DHBSingleItemEncoder.class);
 	
 	private interface DHBTypeSingleItemEncoderIF {
-		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
 				throws Exception;
 	}
 	
@@ -64,17 +64,17 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 	/** DHB 프로토콜의 byte 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DHBByteSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 		@Override
-		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
 				throws BufferOverflowException, SinnoriBufferOverflowException, NoMoreDataPacketBufferException {
 			
-			byte value = 0;
+			byte tempItemValue = 0;
 				
 			if (null != itemValue) {
-				value = (Byte) itemValue;
+				tempItemValue = (Byte) itemValue;
 			}
-			sw.putUnsignedByte(itemTypeID);
-			sw.putByte(value);
+			binaryOutputStream.putUnsignedByte(itemTypeID);
+			binaryOutputStream.putByte(tempItemValue);
 		}
 	}
 
@@ -82,35 +82,35 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 	private final class DHBUnsignedByteSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 
 		@Override
-		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
 				throws BufferOverflowException, SinnoriBufferOverflowException, 
 				IllegalArgumentException, NoMoreDataPacketBufferException {
-			short value = 0;
+			short tempItemValue = 0;
 			
 			if (null != itemValue) {
-				value = (Short) itemValue;
+				tempItemValue = (Short) itemValue;
 			}
 			
-			sw.putUnsignedByte(itemTypeID);
-			sw.putUnsignedByte(value);
+			binaryOutputStream.putUnsignedByte(itemTypeID);
+			binaryOutputStream.putUnsignedByte(tempItemValue);
 		}
 	}
 
 	/** DHB 프로토콜의 short 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DHBShortSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 		@Override
-		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
 				throws BufferOverflowException, SinnoriBufferOverflowException, NoMoreDataPacketBufferException {
-			short value = 0;
+			short tempItemValue = 0;
 			
 			if (null != itemValue) {
-				value = (Short) itemValue;
+				tempItemValue = (Short) itemValue;
 			}
 			
-			sw.putUnsignedByte(itemTypeID);
-			sw.putShort(value);
+			binaryOutputStream.putUnsignedByte(itemTypeID);
+			binaryOutputStream.putShort(tempItemValue);
 		}
 	}
 
@@ -118,17 +118,17 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 	private final class DHBUnsignedShortSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 		
 		@Override
-		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
 				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
-			int value = 0;	
+			int tempItemValue = 0;	
 			
 			if (null != itemValue) {
-				value = (Integer) itemValue;
+				tempItemValue = (Integer) itemValue;
 			}
 
-			sw.putUnsignedByte(itemTypeID);
-			sw.putUnsignedShort(value);
+			binaryOutputStream.putUnsignedByte(itemTypeID);
+			binaryOutputStream.putUnsignedShort(tempItemValue);
 		}
 	}
 
@@ -136,17 +136,17 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 	private final class DHBIntSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 		
 		@Override
-		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
 				throws BufferOverflowException, SinnoriBufferOverflowException, NoMoreDataPacketBufferException {
-			int value = 0;
+			int tempItemValue = 0;
 			
 			if (null != itemValue) {
-				value = (Integer) itemValue;
+				tempItemValue = (Integer) itemValue;
 			}
 			
-			sw.putUnsignedByte(itemTypeID);
-			sw.putInt(value);
+			binaryOutputStream.putUnsignedByte(itemTypeID);
+			binaryOutputStream.putInt(tempItemValue);
 		}
 	}
 
@@ -154,107 +154,107 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 	private final class DHBUnsignedIntSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 		
 		@Override
-		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
 				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
-			long value = 0;
+			long tempItemValue = 0;
 			
 			if (null != itemValue) {
-				value = (Long) itemValue;
+				tempItemValue = (Long) itemValue;
 			}
 			
-			sw.putUnsignedByte(itemTypeID);
-			sw.putUnsignedInt(value);
+			binaryOutputStream.putUnsignedByte(itemTypeID);
+			binaryOutputStream.putUnsignedInt(tempItemValue);
 		}
 	}
 
 	/** DHB 프로토콜의 long 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DHBLongSingleItemEncoder implements DHBTypeSingleItemEncoderIF {		
 		@Override
-		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
 				throws BufferOverflowException, SinnoriBufferOverflowException, NoMoreDataPacketBufferException {
-			long value = 0;
+			long tempItemValue = 0;
 			
 			if (null != itemValue) {
-				value = (Long) itemValue;
+				tempItemValue = (Long) itemValue;
 			}
 			
-			sw.putUnsignedByte(itemTypeID);
-			sw.putLong(value);
+			binaryOutputStream.putUnsignedByte(itemTypeID);
+			binaryOutputStream.putLong(tempItemValue);
 		}
 	}
 
 	/** DHB 프로토콜의 ub pascal string 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DHBUBPascalStringSingleItemEncoder implements DHBTypeSingleItemEncoderIF {		
 		@Override
-		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
 				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
-			String value = CommonStaticFinalVars.EMPTY_STRING;
+			String tempItemValue = CommonStaticFinalVars.EMPTY_STRING;
 			
 			if (null != itemValue) {
-				value = (String) itemValue;
+				tempItemValue = (String) itemValue;
 			}
 			
-			sw.putUnsignedByte(itemTypeID);
-			sw.putUBPascalString(value);
+			binaryOutputStream.putUnsignedByte(itemTypeID);
+			binaryOutputStream.putUBPascalString(tempItemValue);
 		}
 	}
 
 	/** DHB 프로토콜의 us pascal string 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DHBUSPascalStringSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 		@Override
-		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
 				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
-			String value = CommonStaticFinalVars.EMPTY_STRING;;
+			String tempItemValue = CommonStaticFinalVars.EMPTY_STRING;;
 			
 			if (null != itemValue) {
-				value = (String) itemValue;
+				tempItemValue = (String) itemValue;
 			}
 			
-			sw.putUnsignedByte(itemTypeID);
-			sw.putUSPascalString(value);
+			binaryOutputStream.putUnsignedByte(itemTypeID);
+			binaryOutputStream.putUSPascalString(tempItemValue);
 		}
 	}
 
 	/** DHB 프로토콜의 si pascal string 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DHBSIPascalStringSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 		@Override
-		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
 				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
-			String value = CommonStaticFinalVars.EMPTY_STRING;;
+			String tempItemValue = CommonStaticFinalVars.EMPTY_STRING;;
 			
 			if (null != itemValue) {
-				value = (String) itemValue;
+				tempItemValue = (String) itemValue;
 			}
 			
-			sw.putUnsignedByte(itemTypeID);
-			sw.putSIPascalString(value);
+			binaryOutputStream.putUnsignedByte(itemTypeID);
+			binaryOutputStream.putSIPascalString(tempItemValue);
 		}
 	}
 
 	/** DHB 프로토콜의 fixed length string 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DHBFixedLengthStringSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 		@Override
-		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
 				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
-			String value = CommonStaticFinalVars.EMPTY_STRING;;
+			String tempItemValue = CommonStaticFinalVars.EMPTY_STRING;;
 			
 			if (null != itemValue) {
-				value = (String) itemValue;
+				tempItemValue = (String) itemValue;
 			}
 			
-			sw.putUnsignedByte(itemTypeID);
+			binaryOutputStream.putUnsignedByte(itemTypeID);
 			
-			if (null == itemCharsetForLang) {
-				sw.putFixedLengthString(itemSizeForLang, value);
+			if (null == itemCharset) {
+				binaryOutputStream.putFixedLengthString(itemSize, tempItemValue);
 			} else {
-				sw.putFixedLengthString(itemSizeForLang, value,
-						CharsetUtil.createCharsetEncoder(itemCharsetForLang));
+				binaryOutputStream.putFixedLengthString(itemSize, tempItemValue,
+						CharsetUtil.createCharsetEncoder(itemCharset));
 			}
 
 		}
@@ -265,23 +265,23 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 	/** DHB 프로토콜의 ub variable length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DHBUBVariableLengthBytesSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 		@Override
-		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
 				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
-			sw.putUnsignedByte(itemTypeID);
+			binaryOutputStream.putUnsignedByte(itemTypeID);
 			
 			if (null == itemValue) {
-				sw.putUnsignedByte((short)0);
+				binaryOutputStream.putUnsignedByte((short)0);
 			} else {
-				byte value[] = (byte[]) itemValue;
+				byte tempItemValue[] = (byte[]) itemValue;
 				/*
 				if (realValue.length > CommonStaticFinal.MAX_UNSIGNED_BYTE) {
 					throw new IllegalArgumentException(String.format(
 							"파라미터 바이트 배열 길이[%d]는 unsigned byte 최대값[%d]을 넘을 수 없습니다.", realValue.length, CommonStaticFinal.MAX_UNSIGNED_BYTE));
 				}
 				*/
-				sw.putUnsignedByte(value.length);
-				sw.putBytes(value);
+				binaryOutputStream.putUnsignedByte(tempItemValue.length);
+				binaryOutputStream.putBytes(tempItemValue);
 			}
 		}
 	}
@@ -289,17 +289,17 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 	/** DHB 프로토콜의 us variable length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DHBUSVariableLengthBytesSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 		@Override
-		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
 				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
-			sw.putUnsignedByte(itemTypeID);
+			binaryOutputStream.putUnsignedByte(itemTypeID);
 			
 			if (null == itemValue) {
-				sw.putUnsignedShort(0);
+				binaryOutputStream.putUnsignedShort(0);
 			} else {
-				byte value[] = (byte[]) itemValue;
-				sw.putUnsignedShort(value.length);
-				sw.putBytes(value);
+				byte tempItemValue[] = (byte[]) itemValue;
+				binaryOutputStream.putUnsignedShort(tempItemValue.length);
+				binaryOutputStream.putBytes(tempItemValue);
 			}
 		}
 	}
@@ -307,19 +307,19 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 	/** DHB 프로토콜의 si variable length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DHBSIVariableLengthBytesSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 		@Override
-		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
 				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
 			
-			sw.putUnsignedByte(itemTypeID);
+			binaryOutputStream.putUnsignedByte(itemTypeID);
 			
 			if (null == itemValue) {
-				sw.putInt(0);
+				binaryOutputStream.putInt(0);
 			} else {
 
-				byte value[] = (byte[]) itemValue;
-				sw.putInt(value.length);
-				sw.putBytes(value);
+				byte tempItemValue[] = (byte[]) itemValue;
+				binaryOutputStream.putInt(tempItemValue.length);
+				binaryOutputStream.putBytes(tempItemValue);
 			}
 		}
 	}
@@ -327,28 +327,28 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 	/** DHB 프로토콜의 fixed length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DHBFixedLengthBytesSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 		@Override
-		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryOutputStreamIF sw)
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
 				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
-			sw.putUnsignedByte(itemTypeID);
+			binaryOutputStream.putUnsignedByte(itemTypeID);
 			
 			if (null == itemValue) {
 
-				byte value[] = new byte[itemSizeForLang];
-				Arrays.fill((byte[]) value, (byte) 0);
-				sw.putBytes((byte[]) value, 0, itemSizeForLang);
+				byte tempItemValue[] = new byte[itemSize];
+				Arrays.fill((byte[]) tempItemValue, (byte) 0);
+				binaryOutputStream.putBytes((byte[]) tempItemValue, 0, itemSize);
 			} else {
-				byte value[] = (byte[]) itemValue;	
+				byte tempItemValue[] = (byte[]) itemValue;	
 
-				if (value.length != itemSizeForLang) {
+				if (tempItemValue.length != itemSize) {
 					throw new IllegalArgumentException(
 							String.format(
 									"파라미터로 넘어온 바이트 배열의 크기[%d]가 메시지 정보에서 지정한 크기[%d]와 다릅니다. 고정 크기 바이트 배열에서는 일치해야 합니다.",
-									value.length, itemSizeForLang));
+									tempItemValue.length, itemSize));
 				}
 				
 				
-				sw.putBytes(value);
+				binaryOutputStream.putBytes(tempItemValue);
 			}
 		}
 	}
@@ -357,8 +357,8 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 	private final class  DHBJavaSqlDateSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue,
-				int itemSizeForLang, Charset itemCharsetForLang,
-				BinaryOutputStreamIF sw) throws Exception {
+				int itemSize, Charset itemCharset,
+				BinaryOutputStreamIF binaryOutputStream) throws Exception {
 			if (null == itemValue) {
 				String errorMessage = "항목의 값이 null 입니다.";
 				throw new IllegalArgumentException(errorMessage);
@@ -374,8 +374,8 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 			java.sql.Date javaSqlDateValue = (java.sql.Date)itemValue;
 			long javaSqlDateLongValue = javaSqlDateValue.getTime();
 			
-			sw.putUnsignedByte(itemTypeID);
-			sw.putLong(javaSqlDateLongValue);
+			binaryOutputStream.putUnsignedByte(itemTypeID);
+			binaryOutputStream.putLong(javaSqlDateLongValue);
 			
 		}
 	}
@@ -384,8 +384,8 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 	private final class  DHBJavaSqlTimestampSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue,
-				int itemSizeForLang, Charset itemCharsetForLang,
-				BinaryOutputStreamIF sw) throws Exception {
+				int itemSize, Charset itemCharset,
+				BinaryOutputStreamIF binaryOutputStream) throws Exception {
 			if (null == itemValue) {
 				String errorMessage = "항목의 값이 null 입니다.";
 				throw new IllegalArgumentException(errorMessage);
@@ -401,8 +401,8 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 			java.sql.Timestamp javaSqlTimestampValue = (java.sql.Timestamp)itemValue;
 			long javaSqlTimestampLongValue = javaSqlTimestampValue.getTime();
 			
-			sw.putUnsignedByte(itemTypeID);
-			sw.putLong(javaSqlTimestampLongValue);			
+			binaryOutputStream.putUnsignedByte(itemTypeID);
+			binaryOutputStream.putLong(javaSqlTimestampLongValue);			
 		}
 	}
 	
@@ -410,8 +410,8 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 	private final class  DHBBooleanSingleItemEncoder implements DHBTypeSingleItemEncoderIF {
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue,
-				int itemSizeForLang, Charset itemCharsetForLang,
-				BinaryOutputStreamIF sw) throws Exception {
+				int itemSize, Charset itemCharset,
+				BinaryOutputStreamIF binaryOutputStream) throws Exception {
 			if (null == itemValue) {
 				String errorMessage = "항목의 값이 null 입니다.";
 				throw new IllegalArgumentException(errorMessage);
@@ -434,34 +434,42 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 				booleanByte = 0;
 			}
 						
-			sw.putUnsignedByte(itemTypeID);
-			sw.putByte(booleanByte);			
+			binaryOutputStream.putUnsignedByte(itemTypeID);
+			binaryOutputStream.putByte(booleanByte);			
 		}
 	}
 	
 	@Override
 	public void putValueToMiddleWriteObj(String path, String itemName, int itemTypeID, String itemTypeName, Object itemValue,
-			int itemSizeForLang, String itemCharset, Charset charsetOfProject, Object middleObjToStream)
+			int itemSize, String nativeItemCharset, Charset streamCharset, Object middleObjToStream)
 			throws BodyFormatException, NoMoreDataPacketBufferException {		
 		
 		if (!(middleObjToStream instanceof BinaryOutputStreamIF)) {
 			String errorMessage = String.format(
-					"중간 다리역활 출력 객체[%s] 타입이 OutputStreamIF 이 아닙니다.",
+					"the parameter middleObjToStream[%s] is not Inherited the BinaryOutputStreamIF interface",
 					middleObjToStream.getClass().getCanonicalName());
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		Charset itemCharsetForLang = null;
-		if (null == itemCharset) {
-			itemCharsetForLang = charsetOfProject;
+		Charset itemCharset = null;
+		
+		if (null == nativeItemCharset) {
+			itemCharset = streamCharset;
 		} else {
-			itemCharsetForLang = Charset.forName(itemCharset);
+			try {
+				itemCharset = Charset.forName(nativeItemCharset);
+			} catch(Exception e) {
+				log.warn(String.format("the parameter nativeItemCharset[%s] is not a bad charset name", nativeItemCharset), e);
+				
+				itemCharset = streamCharset;
+			}
 		}
 		
-		BinaryOutputStreamIF sw = (BinaryOutputStreamIF)middleObjToStream;
+		BinaryOutputStreamIF binaryOutputStream = (BinaryOutputStreamIF)middleObjToStream;
+		
 				
 		try {
-			dhbTypeSingleItemEncoderList[itemTypeID].putValue(itemTypeID, itemName, itemValue, itemSizeForLang, itemCharsetForLang, sw);
+			dhbTypeSingleItemEncoderList[itemTypeID].putValue(itemTypeID, itemName, itemValue, itemSize, itemCharset, binaryOutputStream);
 		} catch(IllegalArgumentException e) {
 			StringBuffer errorMessageBuilder = new StringBuffer("wrong paramter error::");
 			errorMessageBuilder.append(path);
@@ -472,7 +480,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 			errorMessageBuilder.append("], itemValue=[");
 			errorMessageBuilder.append(itemValue);
 			errorMessageBuilder.append("], itemSize=[");
-			errorMessageBuilder.append(itemSizeForLang);
+			errorMessageBuilder.append(itemSize);
 			errorMessageBuilder.append("], itemCharset=[");
 			errorMessageBuilder.append(itemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
@@ -492,7 +500,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 			errorMessageBuilder.append("], itemValue=[");
 			errorMessageBuilder.append(itemValue);
 			errorMessageBuilder.append("], itemSize=[");
-			errorMessageBuilder.append(itemSizeForLang);
+			errorMessageBuilder.append(itemSize);
 			errorMessageBuilder.append("], itemCharset=[");
 			errorMessageBuilder.append(itemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
@@ -512,7 +520,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 			errorMessageBuilder.append("], itemValue=[");
 			errorMessageBuilder.append(itemValue);
 			errorMessageBuilder.append("], itemSize=[");
-			errorMessageBuilder.append(itemSizeForLang);
+			errorMessageBuilder.append(itemSize);
 			errorMessageBuilder.append("], itemCharset=[");
 			errorMessageBuilder.append(itemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
@@ -534,7 +542,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 			errorMessageBuilder.append("], itemValue=[");
 			errorMessageBuilder.append(itemValue);
 			errorMessageBuilder.append("], itemSize=[");
-			errorMessageBuilder.append(itemSizeForLang);
+			errorMessageBuilder.append(itemSize);
 			errorMessageBuilder.append("], itemCharset=[");
 			errorMessageBuilder.append(itemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");

@@ -19,7 +19,7 @@ package kr.pe.sinnori.server;
 
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +61,7 @@ public class ClientResource {
 	private int echoMesgCount = 0;
 	
 	/** 소켓 채널 전용 읽기 자원 */
-	private SocketOutputStream socketInputStream = null;
+	private SocketOutputStream socketOutputStream = null;
 
 	/**
 	 * 클라이언트에 할당되는 서버 편지 식별자.
@@ -79,20 +79,20 @@ public class ClientResource {
 	 */
 	public ClientResource(SocketChannel clientSC, 
 			String projectName,
-			SocketOutputStream socketInputStream) {
+			SocketOutputStream socketOutputStream) {
 		this.clientSC = clientSC;
 		this.projectName = projectName;
 		this.finalReadTime = new java.util.Date();
-		this.socketInputStream = socketInputStream;
+		this.socketOutputStream = socketOutputStream;
 		this.loginID = null;
 	}
 
 	/**
 	 * @return 소켓 채널 전용 읽기 자원
 	 */
-	public SocketOutputStream getSocketInputStream() {
+	public SocketOutputStream getSocketOutputStream() {
 		
-		return socketInputStream;
+		return socketOutputStream;
 	}
 	
 	/**
@@ -179,31 +179,27 @@ public class ClientResource {
 		// FIXME!
 		log.info(String.format("clientSC[%d] logout", clientSC.hashCode()));
 		
-		socketInputStream.destory();
+		socketOutputStream.close();
 		
 		LocalSourceFileResourceManager.getInstance().removeUsingUserIDWithUnlockFile(loginID);
 		LocalTargetFileResourceManager.getInstance().removeUsingUserIDWithUnlockFile(loginID);
 		
 		loginID = null;
-	}
-	
-	
-	
-	
+	}	
 	
 	/**
 	 * @return 메시지 데이터 수신중 여부, true 이면 메시지 데이터 수신중, false 이면 메시지 데이터 수신 대기중
 	 */
-	public boolean isReading() {
-		return socketInputStream.isReading();
-	}
+	/*public boolean isReading() {
+		return socketOutputStream.isReading();
+	}*/
 	
-	public LetterToClient getLetterToClient(AbstractMessage messageToClient, ArrayList<WrapBuffer> wrapBufferList) {		
+	public LetterToClient getLetterToClient(AbstractMessage messageToClient, List<WrapBuffer> wrapBufferList) {		
 		LetterToClient letterToClient = new LetterToClient(clientSC, messageToClient, wrapBufferList);		
 		return letterToClient;
 	}
 	
-	public ArrayList<WrapBuffer> getMessageStream(AbstractServerTask serverTask, String messageIDFromClient, 
+	public List<WrapBuffer> getMessageStream(AbstractServerTask serverTask, String messageIDFromClient, 
 			AbstractMessage  messageToClient,
 			Charset projectCharset,
 			MessageProtocolIF messageProtocol,			
@@ -229,8 +225,8 @@ public class ClientResource {
 		builder.append(finalReadTime);
 		builder.append(", echoMesgCount=");
 		builder.append(echoMesgCount);
-		builder.append(", messageInputStreamResource.WrapBufferListSize=");
-		builder.append(socketInputStream.getDataPacketBufferListSize());		
+		builder.append(", socketOutputStream.size=");
+		builder.append(socketOutputStream.size());		
 		builder.append(", serverMailID=");
 		builder.append(serverMailID);
 		builder.append(", loginID=");

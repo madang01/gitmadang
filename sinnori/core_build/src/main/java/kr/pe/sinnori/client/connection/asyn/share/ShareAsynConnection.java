@@ -471,7 +471,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 
 	@Override
 	public void finalize() {
-		messageInputStreamResource.destory();
+		socketOutputStream.close();
 		log.warn(String.format("MultiNoneBlockConnection 소멸::[%s]", toString()));
 	}
 

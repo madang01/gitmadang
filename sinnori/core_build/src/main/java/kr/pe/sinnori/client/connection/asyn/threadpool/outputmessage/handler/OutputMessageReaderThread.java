@@ -18,7 +18,6 @@
 package kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SelectionKey;
@@ -33,15 +32,15 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.ReceivedLetter;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 클라이언트 출력 메시지 소켓 읽기 담당 쓰레드.
@@ -56,6 +55,7 @@ public class OutputMessageReaderThread extends Thread implements
 	private String projectName = null;
 	/** 출력 메시지를 읽는 쓰레드 번호 */
 	private int index;
+	@SuppressWarnings("unused")
 	private Charset charsetOfProject = null;
 	private MessageProtocolIF messageProtocol = null;
 	
@@ -160,7 +160,7 @@ public class OutputMessageReaderThread extends Thread implements
 	public void run() {
 		log.info(String.format("%s OutputMessageReader[%d] start", projectName, index));
 
-		int numRead = 0;
+		// int numRead = 0;
 		// long totalRead = 0;
 
 		try {
@@ -188,29 +188,11 @@ public class OutputMessageReaderThread extends Thread implements
 							continue;
 						}
 
-						SocketOutputStream messageInputStreamResource = asynConnection.getMessageInputStreamResource();
-						ByteBuffer lastInputStreamBuffer = null;						
-						
+						SocketOutputStream socketOutputStream = asynConnection.getSocketOutputStream();
 
 						try {
-							lastInputStreamBuffer = messageInputStreamResource.getLastDataPacketBuffer();
-							
-							// long totalReadBytes = 0;
-							do {
-								numRead = serverSC.read(lastInputStreamBuffer);
-								
-								if (numRead < 1) break;
-								
-								// totalReadBytes += numRead;
-								
-								/*log.info(String.format("numRead=[%d], totalReadBytes=[%d], messageInputStreamResource.position=[%d],lastInputStreamBuffer.hasRemaining=[%s]"
-										, numRead, totalReadBytes, messageInputStreamResource.position(), lastInputStreamBuffer.hasRemaining()));*/
-								
-								if (!lastInputStreamBuffer.hasRemaining()) {
-									if (!messageInputStreamResource.canNextDataPacketBuffer()) break;
-									lastInputStreamBuffer = messageInputStreamResource.nextDataPacketBuffer();
-								}
-							} while(true);
+							@SuppressWarnings("unused")
+							int numberOfReadBytes = socketOutputStream.read(serverSC);							
 							
 							// FIXME! 한번에 읽는 바이트 추적용 로그
 							// log.info(String.format("totalReadBytes=[%d], %d", totalReadBytes, serverSC.getOption(StandardSocketOptions.SO_RCVBUF)));
@@ -218,7 +200,7 @@ public class OutputMessageReaderThread extends Thread implements
 
 							asynConnection.setFinalReadTime();
 							
-							ArrayList<ReceivedLetter> receivedLetterList = messageProtocol.S2MList(charsetOfProject, messageInputStreamResource);
+							ArrayList<ReceivedLetter> receivedLetterList = messageProtocol.S2MList(socketOutputStream);
 							
 							
 							for (ReceivedLetter receivedLetter : receivedLetterList) {

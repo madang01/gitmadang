@@ -22,15 +22,15 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.server.io.LetterToClient;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 서버 출력 메시지 소켓 쓰기 담당 쓰레드
@@ -82,7 +82,7 @@ public class OutputMessageWriter extends Thread {
 				}
 
 				SocketChannel toSC = toLetter.getToSC();	
-				ArrayList<WrapBuffer> outObjWrapBufferList = toLetter.getWrapBufferList();
+				List<WrapBuffer> outObjWrapBufferList = toLetter.getWrapBufferList();
 				
 				try {
 					// int outObjWrapBufferListSize = outObjWrapBufferList.size();

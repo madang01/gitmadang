@@ -4,11 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.nio.ByteOrder;
-import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -65,7 +64,7 @@ public class SocketOutputStreamTest {
 		boolean isDirect = false;
 		int dataPacketBufferSize = 512;
 		int dataPacketBufferPoolSize = 15;
-		// NewSocketOutputStream 
+		// SocketOutputStream 
 		
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		
@@ -77,21 +76,19 @@ public class SocketOutputStreamTest {
 			fail("unknown error::" + e.getMessage());
 		}
 		
-		SocketChannel ownerSocketChannel = null;
 		
-		NewSocketOutputStream sos = null;
+		SocketOutputStream sos = null;
 		FreeSizeOutputStream fsos = null;
 		try {
 			sos = 
-					new NewSocketOutputStream(ownerSocketChannel, 
-					streamCharsetDecoder, dataPacketBufferMaxCount, dataPacketBufferPoolManager);
+					new SocketOutputStream(streamCharsetDecoder, dataPacketBufferMaxCount, dataPacketBufferPoolManager);
 			
 			{
 				long expectedSize = dataPacketBufferSize*3+42;
 				{
 					// sos.makeEmptySocketOutputStream(expectedSize);
 					
-					ArrayList<WrapBuffer> emptyOutputStreamWrapBufferList = null;
+					List<WrapBuffer> emptyOutputStreamWrapBufferList = null;
 					fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
 							dataPacketBufferPoolManager);
 					
@@ -102,14 +99,14 @@ public class SocketOutputStreamTest {
 				}
 				
 				
-				long actualSize = sos.getNumberOfWrittenBytes();
+				long actualSize = sos.getNumberOfWrittenBytesUsingList();
 				
 				assertEquals(expectedSize, actualSize);
 			}			
 			
 			FreeSizeInputStream fsis = null;
 			try {
-				long oldSize = sos.getNumberOfWrittenBytes();
+				long oldSize = sos.getNumberOfWrittenBytesUsingList();
 				
 				long expectedSize = oldSize - dataPacketBufferSize - 24;
 				fsis = sos.cutMessageInputStreamFromStartingPosition(expectedSize);
@@ -117,7 +114,7 @@ public class SocketOutputStreamTest {
 				//log.info("fsis size={}", fsis.available());
 				// log.info("sos size={}", sos.size());
 				
-				long actualSize = sos.getNumberOfWrittenBytes();
+				long actualSize = sos.getNumberOfWrittenBytesUsingList();
 				
 				assertEquals(oldSize - expectedSize, actualSize);
 			} finally {
@@ -147,7 +144,7 @@ public class SocketOutputStreamTest {
 		boolean isDirect = false;
 		int dataPacketBufferSize = 6;
 		int dataPacketBufferPoolSize = 15;
-		// NewSocketOutputStream 
+		// SocketOutputStream 
 		
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		
@@ -169,11 +166,10 @@ public class SocketOutputStreamTest {
 		final byte eofByte = (byte) 0xc1;
 		 
 		
-		SocketChannel ownerSocketChannel = null;
-		NewSocketOutputStream sos = null;
+		SocketOutputStream sos = null;
 		
 		FreeSizeOutputStream fsos = null;
-		ArrayList<WrapBuffer> outputStreamWrapBufferListForTest = null;
+		List<WrapBuffer> outputStreamWrapBufferListForTest = null;
 		try {
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
 					dataPacketBufferPoolManager);
@@ -188,8 +184,7 @@ public class SocketOutputStreamTest {
 			outputStreamWrapBufferListForTest = fsos.getOutputStreamWrapBufferList();
 			
 			sos = 
-					new NewSocketOutputStream(ownerSocketChannel, 
-					streamCharsetDecoder, dataPacketBufferMaxCount, dataPacketBufferPoolManager);
+					new SocketOutputStream(streamCharsetDecoder, dataPacketBufferMaxCount, dataPacketBufferPoolManager);
 			sos.rebuildSocketOutputStream(outputStreamWrapBufferListForTest);
 			
 			// log.info("sos.size={}", sos.size());
@@ -228,7 +223,7 @@ public class SocketOutputStreamTest {
 				fail("1. socketOutputStream is not empty");
 			}
 			
-			if (0L != sos.getNumberOfWrittenBytes()) {
+			if (0L != sos.getNumberOfWrittenBytesUsingList()) {
 				fail("2. socketOutputStream is not empty");
 			}
 			

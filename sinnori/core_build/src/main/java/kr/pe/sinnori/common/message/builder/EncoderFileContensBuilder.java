@@ -74,7 +74,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 					stringBuilder.append("\t");
 				}
 				stringBuilder.append("\t\t\t\t\t, ");
-				stringBuilder.append(singleItemInfo.getItemSizeForLang());
+				stringBuilder.append(singleItemInfo.getItemSize());
 				stringBuilder.append(" // itemSize");
 				
 				// itemCharset
@@ -95,25 +95,25 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 				 */
 				
 				if (singleItemInfo.getItemValueType().equals("fixed length string")) {
-					String itemCharset = singleItemInfo.getItemCharset();
-					if (null == itemCharset) {
+					String nativeItemCharset = singleItemInfo.getNativeItemCharset();
+					if (null == nativeItemCharset) {
 						stringBuilder.append("null");
 					} else {
 						stringBuilder.append("\"");
-						stringBuilder.append(itemCharset);
+						stringBuilder.append(nativeItemCharset);
 						stringBuilder.append("\"");
 					}
 				} else {
 					stringBuilder.append("null");
 				}
-				stringBuilder.append(" // itemCharset,");
+				stringBuilder.append(" // native itemCharset");
 				
-				// charsetOfProject
+				// streamCharset
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				for (int i=0; i < depth; i++) {
 					stringBuilder.append("\t");
 				}
-				stringBuilder.append("\t\t\t\t\t, charsetOfProject");
+				stringBuilder.append("\t\t\t\t\t, streamCharset");
 				
 				// middleWriteObj
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
@@ -607,7 +607,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("\t@Override");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\tpublic void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj)");
+		stringBuilder.append("\tpublic void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Charset streamCharset, Object middleWriteObj)");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("\t\t\tthrows Exception {");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
@@ -635,7 +635,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("\t\tencodeBody(");
 		stringBuilder.append(firstLowerMessageID);
-		stringBuilder.append(", singleItemEncoder, charsetOfProject, middleWriteObj);");
+		stringBuilder.append(", singleItemEncoder, streamCharset, middleWriteObj);");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("\t}");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
@@ -658,7 +658,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("\t * @param singleItemEncoder 단일항목 인코더");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t * @param charsetOfProject 프로젝트 문자셋");
+		stringBuilder.append("\t * @param streamCharset 프로젝트 문자셋");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("\t * @param middleWriteObj 중간 다리 역활 쓰기 객체");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
@@ -670,7 +670,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(messageID);
 		stringBuilder.append(" ");
 		stringBuilder.append(firstLowerMessageID);
-		stringBuilder.append(", SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj) throws Exception {");
+		stringBuilder.append(", SingleItemEncoderIF singleItemEncoder, Charset streamCharset, Object middleWriteObj) throws Exception {");
 		
 		// String allDataTypeInObjSingleItemPath = "AllDataType";
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);

@@ -48,6 +48,9 @@ public abstract class CommonStaticFinalVars {
 			
 	public static final String SINNORI_CONFIG_FILE_CHARSET = "UTF-8";
 	
+	
+	public static final int MD5_BYTESIZE = 16;
+	
 		
 	/************* network binary stream start *************/
 	public static final short UNSIGNED_BYTE_MAX = 0xff;

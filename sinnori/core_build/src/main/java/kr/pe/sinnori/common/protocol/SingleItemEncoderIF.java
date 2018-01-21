@@ -33,14 +33,14 @@ public interface SingleItemEncoderIF {
 	 * @param itemTypeID
 	 * @param itemTypeName
 	 * @param itemValue
-	 * @param itemSizeForLang
-	 * @param itemCharset
+	 * @param itemSize
+	 * @param nativeItemCharset
 	 * @param charsetOfProject
 	 * @param middleWriteObj
 	 * @throws Exception
 	 */
 	public void putValueToMiddleWriteObj(String path, String itemName, int itemTypeID, String itemTypeName, 
-			Object itemValue, int itemSizeForLang, String itemCharset,  Charset charsetOfProject, Object middleWriteObj)
+			Object itemValue, int itemSize, String nativeItemCharset,  Charset charsetOfProject, Object middleWriteObj)
 			throws Exception;
 	
 	public Object getArrayObjFromMiddleWriteObj(String path, String arrayName,

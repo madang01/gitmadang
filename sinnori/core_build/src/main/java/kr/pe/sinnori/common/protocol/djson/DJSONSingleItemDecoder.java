@@ -40,8 +40,8 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 	private Logger log = LoggerFactory.getLogger(DJSONSingleItemDecoder.class);
 	
 	private interface DJSONTypeSingleItemDecoderIF {
-		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, Charset charsetOfProject, JSONObject jsonObjFromStream) throws Exception;
+		public Object getValue(String itemName, int itemSize,
+				Charset itemCharset, Charset streamCharset, JSONObject jsonObjForInputStream) throws Exception;
 	}
 	
 	private final DJSONTypeSingleItemDecoderIF[] dhbTypeSingleItemDecoderList = new DJSONTypeSingleItemDecoderIF[] { 
@@ -64,14 +64,14 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 	/** DJSON 프로토콜의 byte 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DJSONByteSingleItemDecoder implements DJSONTypeSingleItemDecoderIF {
 		@Override
-		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, Charset charsetOfProject, JSONObject jsonObjFromStream)
+		public Object getValue(String itemName, int itemSize,
+				Charset itemCharset, Charset streamCharset, JSONObject jsonObjForInputStream)
 				throws Exception {
-			Object jsonValue = jsonObjFromStream.get(itemName);
+			Object jsonValue = jsonObjForInputStream.get(itemName);
 			if (null == jsonValue) {
 				String errorMessage = 
 						String.format("JSON Object[%s]에 byte 타입 항목[%s]이 존재하지 않습니다.", 
-								jsonObjFromStream.toJSONString(), itemName);
+								jsonObjForInputStream.toJSONString(), itemName);
 				throw new BodyFormatException(errorMessage);
 			}
 			
@@ -82,15 +82,15 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 				throw new BodyFormatException(errorMessage);
 			}
 			
-			long tValue = (long)jsonValue; 
-			if (tValue < Byte.MIN_VALUE || tValue > Byte.MAX_VALUE) {
+			long tempItemValue = (long)jsonValue; 
+			if (tempItemValue < Byte.MIN_VALUE || tempItemValue > Byte.MAX_VALUE) {
 				String errorMessage = 
 						String.format("JSON Object 로 부터 얻은 byte 타입 항목[%s]의 값[%d]이 byte 값 범위를 벗어났습니다.", 
-								itemName, tValue);
+								itemName, tempItemValue);
 				throw new BodyFormatException(errorMessage);
 			}
 			
-			byte value = (byte) tValue;
+			byte value = (byte) tempItemValue;
 			
 			return value;
 		}		
@@ -100,14 +100,14 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 	private final class DJSONUnsignedByteSingleItemDecoder implements DJSONTypeSingleItemDecoderIF {
 
 		@Override
-		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, Charset charsetOfProject, JSONObject jsonObjFromStream)
+		public Object getValue(String itemName, int itemSize,
+				Charset itemCharset, Charset streamCharset, JSONObject jsonObjForInputStream)
 				throws Exception {
-			Object jsonValue = jsonObjFromStream.get(itemName);
+			Object jsonValue = jsonObjForInputStream.get(itemName);
 			if (null == jsonValue) {
 				String errorMessage = 
 						String.format("JSON Object[%s]에 unsigned byte 타입 항목[%s]이 존재하지 않습니다.", 
-								jsonObjFromStream.toJSONString(), itemName);
+								jsonObjForInputStream.toJSONString(), itemName);
 				throw new BodyFormatException(errorMessage);
 			}
 			
@@ -118,16 +118,16 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 				throw new BodyFormatException(errorMessage);
 			}
 			
-			long tValue = (long)jsonValue; 
-			if (tValue < 0 || tValue > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+			long tempItemValue = (long)jsonValue; 
+			if (tempItemValue < 0 || tempItemValue > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 				String errorMessage = 
 						String.format("JSON Object 로 부터 얻은 unsigned byte 타입 항목[%s]의 값[%d]이 unsigned byte 값 범위를 벗어났습니다.", 
-								itemName, tValue);
+								itemName, tempItemValue);
 				throw new BodyFormatException(errorMessage);
 			}
 			
 			
-			short value = (short) tValue;
+			short value = (short) tempItemValue;
 			
 			return value;
 		}		
@@ -136,14 +136,14 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 	/** DJSON 프로토콜의 short 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DJSONShortSingleItemDecoder implements DJSONTypeSingleItemDecoderIF {
 		@Override
-		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, Charset charsetOfProject, JSONObject jsonObjFromStream)
+		public Object getValue(String itemName, int itemSize,
+				Charset itemCharset, Charset streamCharset, JSONObject jsonObjForInputStream)
 				throws Exception {
-			Object jsonValue = jsonObjFromStream.get(itemName);
+			Object jsonValue = jsonObjForInputStream.get(itemName);
 			if (null == jsonValue) {
 				String errorMessage = 
 						String.format("JSON Object[%s]에 short 타입 항목[%s]이 존재하지 않습니다.", 
-								jsonObjFromStream.toJSONString(), itemName);
+								jsonObjForInputStream.toJSONString(), itemName);
 				throw new BodyFormatException(errorMessage);
 			}
 			
@@ -154,16 +154,16 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 				throw new BodyFormatException(errorMessage);
 			}
 			
-			long tValue = (long)jsonValue; 
-			if (tValue < Short.MIN_VALUE || tValue > Short.MAX_VALUE) {
+			long tempItemValue = (long)jsonValue; 
+			if (tempItemValue < Short.MIN_VALUE || tempItemValue > Short.MAX_VALUE) {
 				String errorMessage = 
 						String.format("JSON Object 로 부터 얻은 short 타입 항목[%s]의 값[%d]이 short 값 범위를 벗어났습니다.", 
-								itemName, tValue);
+								itemName, tempItemValue);
 				throw new BodyFormatException(errorMessage);
 			}
 			
 			
-			short value = (short) tValue;
+			short value = (short) tempItemValue;
 			
 			return value;
 		}		
@@ -173,14 +173,14 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 	private final class DJSONUnsignedShortSingleItemDecoder implements DJSONTypeSingleItemDecoderIF {
 		
 		@Override
-		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, Charset charsetOfProject, JSONObject jsonObjFromStream)
+		public Object getValue(String itemName, int itemSize,
+				Charset itemCharset, Charset streamCharset, JSONObject jsonObjForInputStream)
 				throws Exception {
-			Object jsonValue = jsonObjFromStream.get(itemName);
+			Object jsonValue = jsonObjForInputStream.get(itemName);
 			if (null == jsonValue) {
 				String errorMessage = 
 						String.format("JSON Object[%s]에 unsigned short 타입 항목[%s]이 존재하지 않습니다.", 
-								jsonObjFromStream.toJSONString(), itemName);
+								jsonObjForInputStream.toJSONString(), itemName);
 				throw new BodyFormatException(errorMessage);
 			}
 			
@@ -191,16 +191,16 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 				throw new BodyFormatException(errorMessage);
 			}
 			
-			long tValue = (long)jsonValue; 
-			if (tValue < 0 || tValue > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
+			long tempItemValue = (long)jsonValue; 
+			if (tempItemValue < 0 || tempItemValue > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
 				String errorMessage = 
 						String.format("JSON Object 로 부터 얻은 unsigned short 타입 항목[%s]의 값[%d]이 unsigned short 값 범위를 벗어났습니다.", 
-								itemName, tValue);
+								itemName, tempItemValue);
 				throw new BodyFormatException(errorMessage);
 			}
 			
 			
-			int value = (int) tValue;
+			int value = (int) tempItemValue;
 			
 			return value;
 		}		
@@ -210,14 +210,14 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 	private final class DJSONIntSingleItemDecoder implements DJSONTypeSingleItemDecoderIF {
 		
 		@Override
-		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, Charset charsetOfProject, JSONObject jsonObjFromStream)
+		public Object getValue(String itemName, int itemSize,
+				Charset itemCharset, Charset streamCharset, JSONObject jsonObjForInputStream)
 				throws Exception {
-			Object jsonValue = jsonObjFromStream.get(itemName);
+			Object jsonValue = jsonObjForInputStream.get(itemName);
 			if (null == jsonValue) {
 				String errorMessage = 
 						String.format("JSON Object[%s]에 integer 타입 항목[%s]이 존재하지 않습니다.", 
-								jsonObjFromStream.toJSONString(), itemName);
+								jsonObjForInputStream.toJSONString(), itemName);
 				throw new BodyFormatException(errorMessage);
 			}
 			
@@ -228,16 +228,16 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 				throw new BodyFormatException(errorMessage);
 			}
 			
-			long tValue = (long)jsonValue; 
-			if (tValue < Integer.MIN_VALUE || tValue > Integer.MAX_VALUE) {
+			long tempItemValue = (long)jsonValue; 
+			if (tempItemValue < Integer.MIN_VALUE || tempItemValue > Integer.MAX_VALUE) {
 				String errorMessage = 
 						String.format("JSON Object 로 부터 얻은 integer 타입 항목[%s]의 값[%d]이 integer 값 범위를 벗어났습니다.", 
-								itemName, tValue);
+								itemName, tempItemValue);
 				throw new BodyFormatException(errorMessage);
 			}
 			
 			
-			int value = (int) tValue;
+			int value = (int) tempItemValue;
 			
 			return value;
 		}		
@@ -247,14 +247,14 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 	private final class DJSONUnsignedIntSingleItemDecoder implements DJSONTypeSingleItemDecoderIF {
 		
 		@Override
-		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, Charset charsetOfProject, JSONObject jsonObjFromStream)
+		public Object getValue(String itemName, int itemSize,
+				Charset itemCharset, Charset streamCharset, JSONObject jsonObjForInputStream)
 				throws Exception {
-			Object jsonValue = jsonObjFromStream.get(itemName);
+			Object jsonValue = jsonObjForInputStream.get(itemName);
 			if (null == jsonValue) {
 				String errorMessage = 
 						String.format("JSON Object[%s]에 unsigned integer 타입 항목[%s]이 존재하지 않습니다.", 
-								jsonObjFromStream.toJSONString(), itemName);
+								jsonObjForInputStream.toJSONString(), itemName);
 				throw new BodyFormatException(errorMessage);
 			}
 			
@@ -265,30 +265,30 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 				throw new BodyFormatException(errorMessage);
 			}
 			
-			long tValue = (long)jsonValue; 
-			if (tValue < 0 || tValue > CommonStaticFinalVars.UNSIGNED_INTEGER_MAX) {
+			long tempItemValue = (long)jsonValue; 
+			if (tempItemValue < 0 || tempItemValue > CommonStaticFinalVars.UNSIGNED_INTEGER_MAX) {
 				String errorMessage = 
 						String.format("JSON Object 로 부터 얻은 unsigned integer 타입 항목[%s]의 값[%d]이 unsigned integer 값 범위를 벗어났습니다.", 
-								itemName, tValue);
+								itemName, tempItemValue);
 				throw new BodyFormatException(errorMessage);
 			}
 			
 			
-			return tValue;
+			return tempItemValue;
 		}		
 	}
 
 	/** DJSON 프로토콜의 long 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DJSONLongSingleItemDecoder implements DJSONTypeSingleItemDecoderIF {		
 		@Override
-		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, Charset charsetOfProject, JSONObject jsonObjFromStream)
+		public Object getValue(String itemName, int itemSize,
+				Charset itemCharset, Charset streamCharset, JSONObject jsonObjForInputStream)
 				throws Exception {
-			Object jsonValue = jsonObjFromStream.get(itemName);
+			Object jsonValue = jsonObjForInputStream.get(itemName);
 			if (null == jsonValue) {
 				String errorMessage = 
 						String.format("JSON Object[%s]에 long 타입 항목[%s]이 존재하지 않습니다.", 
-								jsonObjFromStream.toJSONString(), itemName);
+								jsonObjForInputStream.toJSONString(), itemName);
 				throw new BodyFormatException(errorMessage);
 			}
 			
@@ -299,23 +299,23 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 				throw new BodyFormatException(errorMessage);
 			}
 			
-			long tValue = (long)jsonValue;
+			long tempItemValue = (long)jsonValue;
 			
-			return tValue;
+			return tempItemValue;
 		}		
 	}
 
 	/** DJSON 프로토콜의 ub pascal string 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DJSONUBPascalStringSingleItemDecoder implements DJSONTypeSingleItemDecoderIF {		
 		@Override
-		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, Charset charsetOfProject, JSONObject jsonObjFromStream)
+		public Object getValue(String itemName, int itemSize,
+				Charset itemCharset, Charset streamCharset, JSONObject jsonObjForInputStream)
 				throws Exception {
-			Object jsonValue = jsonObjFromStream.get(itemName);
+			Object jsonValue = jsonObjForInputStream.get(itemName);
 			if (null == jsonValue) {
 				String errorMessage = 
 						String.format("JSON Object[%s]에 UBPascalString 타입 항목[%s]이 존재하지 않습니다.", 
-								jsonObjFromStream.toJSONString(), itemName);
+								jsonObjForInputStream.toJSONString(), itemName);
 				throw new BodyFormatException(errorMessage);
 			}
 			if (!(jsonValue instanceof String)) {
@@ -326,17 +326,17 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 			}
 			
 			
-			String tValue = (String)jsonValue;
-			int tSize = tValue.getBytes(charsetOfProject).length;
+			String tempItemValue = (String)jsonValue;
+			int tSize = tempItemValue.getBytes(streamCharset).length;
 			
 			if (tSize > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 				String errorMessage = 
 						String.format("JSON Object 로 부터 얻은 UBPascalString 타입 항목[%s]의 문자열 크기[%d]가 unsinged byte 범위를 넘어섰습니다. 참고) 프로젝트 문자셋[%s]", 
-								itemName, tSize, charsetOfProject.name());
+								itemName, tSize, streamCharset.name());
 				throw new BodyFormatException(errorMessage);
 			}
 			
-			return tValue;
+			return tempItemValue;
 			
 		}		
 	}
@@ -344,14 +344,14 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 	/** DJSON 프로토콜의 us pascal string 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DJSONUSPascalStringSingleItemDecoder implements DJSONTypeSingleItemDecoderIF {
 		@Override
-		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, Charset charsetOfProject, JSONObject jsonObjFromStream)
+		public Object getValue(String itemName, int itemSize,
+				Charset itemCharset, Charset streamCharset, JSONObject jsonObjForInputStream)
 				throws Exception {
-			Object jsonValue = jsonObjFromStream.get(itemName);
+			Object jsonValue = jsonObjForInputStream.get(itemName);
 			if (null == jsonValue) {
 				String errorMessage = 
 						String.format("JSON Object[%s]에 UBPascalString 타입 항목[%s]이 존재하지 않습니다.", 
-								jsonObjFromStream.toJSONString(), itemName);
+								jsonObjForInputStream.toJSONString(), itemName);
 				throw new BodyFormatException(errorMessage);
 			}
 			if (!(jsonValue instanceof String)) {
@@ -361,31 +361,31 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 				throw new BodyFormatException(errorMessage);
 			}
 			
-			String tValue = (String)jsonValue;
-			int tSize = tValue.getBytes(charsetOfProject).length;
+			String tempItemValue = (String)jsonValue;
+			int tSize = tempItemValue.getBytes(streamCharset).length;
 			
 			if (tSize > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
 				String errorMessage = 
 						String.format("JSON Object 로 부터 얻은 USPascalString 타입 항목[%s]의 문자열 크기[%d]가 unsinged short 범위를 넘어섰습니다. 참고) 프로젝트 문자셋[%s]", 
-								itemName, tSize, charsetOfProject.name());
+								itemName, tSize, streamCharset.name());
 				throw new BodyFormatException(errorMessage);
 			}
 			
-			return tValue;
+			return tempItemValue;
 		}		
 	}
 
 	/** DJSON 프로토콜의 si pascal string 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DJSONSIPascalStringSingleItemDecoder implements DJSONTypeSingleItemDecoderIF {
 		@Override
-		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, Charset charsetOfProject, JSONObject jsonObjFromStream)
+		public Object getValue(String itemName, int itemSize,
+				Charset itemCharset, Charset streamCharset, JSONObject jsonObjForInputStream)
 				throws Exception {
-			Object jsonValue = jsonObjFromStream.get(itemName);
+			Object jsonValue = jsonObjForInputStream.get(itemName);
 			if (null == jsonValue) {
 				String errorMessage = 
 						String.format("JSON Object[%s]에 UBPascalString 타입 항목[%s]이 존재하지 않습니다.", 
-								jsonObjFromStream.toJSONString(), itemName);
+								jsonObjForInputStream.toJSONString(), itemName);
 				throw new BodyFormatException(errorMessage);
 			}
 			if (!(jsonValue instanceof String)) {
@@ -395,8 +395,8 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 				throw new BodyFormatException(errorMessage);
 			}
 			
-			/*String tValue = (String)jsonValue;
-			return tValue;*/
+			/*String tempItemValue = (String)jsonValue;
+			return tempItemValue;*/
 			return jsonValue;
 		}		
 	}
@@ -404,14 +404,14 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 	/** DJSON 프로토콜의 fixed length string 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DJSONFixedLengthStringSingleItemDecoder implements DJSONTypeSingleItemDecoderIF {
 		@Override
-		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, Charset charsetOfProject, JSONObject jsonObjFromStream)
+		public Object getValue(String itemName, int itemSize,
+				Charset itemCharset, Charset streamCharset, JSONObject jsonObjForInputStream)
 				throws Exception {
-			Object jsonValue = jsonObjFromStream.get(itemName);
+			Object jsonValue = jsonObjForInputStream.get(itemName);
 			if (null == jsonValue) {
 				String errorMessage = 
 						String.format("JSON Object[%s]에 FixedLengthBytes 타입 항목[%s]이 존재하지 않습니다.", 
-								jsonObjFromStream.toJSONString(), itemName);
+								jsonObjForInputStream.toJSONString(), itemName);
 				throw new BodyFormatException(errorMessage);
 			}
 			if (!(jsonValue instanceof String)) {
@@ -430,14 +430,14 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 	/** DJSON 프로토콜의 ub variable length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DJSONUBVariableLengthBytesSingleItemDecoder implements DJSONTypeSingleItemDecoderIF {
 		@Override
-		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, Charset charsetOfProject, JSONObject jsonObjFromStream)
+		public Object getValue(String itemName, int itemSize,
+				Charset itemCharset, Charset streamCharset, JSONObject jsonObjForInputStream)
 				throws Exception {
-			Object jsonValue = jsonObjFromStream.get(itemName);
+			Object jsonValue = jsonObjForInputStream.get(itemName);
 			if (null == jsonValue) {
 				String errorMessage = 
 						String.format("JSON Object[%s]에 UBVariableLengthBytes 타입 항목[%s]이 존재하지 않습니다.", 
-								jsonObjFromStream.toJSONString(), itemName);
+								jsonObjForInputStream.toJSONString(), itemName);
 				throw new BodyFormatException(errorMessage);
 			}
 			if (!(jsonValue instanceof String)) {
@@ -447,44 +447,44 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 				throw new BodyFormatException(errorMessage);
 			}
 			
-			byte[] value = null;
-			String tValue = (String)jsonValue;
+			byte[] returnValue = null;
+			String tempItemValue = (String)jsonValue;
 			
-			if (tValue.isEmpty()) {
-				value = new byte[0];
+			if (tempItemValue.isEmpty()) {
+				returnValue = new byte[0];
 			} else {
 				try {
-					value = HexUtil.getByteArrayFromHexString(tValue);
+					returnValue = HexUtil.getByteArrayFromHexString(tempItemValue);
 					
-					if (value.length > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+					if (returnValue.length > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 						String errorMessage = 
 								String.format("UBVariableLengthBytes 타입 항목[%s]의 길이[%d]가 unsigned byte 최대값을 넘었습니다.", 
-										itemName, value.length);
+										itemName, returnValue.length);
 						throw new BodyFormatException(errorMessage);
 					}
 				} catch(NumberFormatException e) {
 					String errorMessage = 
 							String.format("JSON Object 로 부터 얻은 UBVariableLengthBytes 타입 항목[%s]의 값[%s]이 hex 문자열이 아닙니다.", 
-									itemName, tValue);
+									itemName, tempItemValue);
 					throw new BodyFormatException(errorMessage);
 				}
 			}
 			
-			return value;
+			return returnValue;
 		}		
 	}
 
 	/** DJSON 프로토콜의 us variable length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DJSONUSVariableLengthBytesSingleItemDecoder implements DJSONTypeSingleItemDecoderIF {
 		@Override
-		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, Charset charsetOfProject, JSONObject jsonObjFromStream)
+		public Object getValue(String itemName, int itemSize,
+				Charset itemCharset, Charset streamCharset, JSONObject jsonObjForInputStream)
 				throws Exception {
-			Object jsonValue = jsonObjFromStream.get(itemName);
+			Object jsonValue = jsonObjForInputStream.get(itemName);
 			if (null == jsonValue) {
 				String errorMessage = 
 						String.format("JSON Object[%s]에 USVariableLengthBytes 타입 항목[%s]이 존재하지 않습니다.", 
-								jsonObjFromStream.toJSONString(), itemName);
+								jsonObjForInputStream.toJSONString(), itemName);
 				throw new BodyFormatException(errorMessage);
 			}
 			if (!(jsonValue instanceof String)) {
@@ -494,44 +494,44 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 				throw new BodyFormatException(errorMessage);
 			}
 			
-			byte[] value = null;
-			String tValue = (String)jsonValue;
+			byte[] returnValue = null;
+			String tempItemValue = (String)jsonValue;
 			
-			if (tValue.isEmpty()) {
-				value = new byte[0];
+			if (tempItemValue.isEmpty()) {
+				returnValue = new byte[0];
 			} else {
 				try {
-					value = HexUtil.getByteArrayFromHexString(tValue);
+					returnValue = HexUtil.getByteArrayFromHexString(tempItemValue);
 					
-					if (value.length > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
+					if (returnValue.length > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
 						String errorMessage = 
 								String.format("USVariableLengthBytes 타입 항목[%s]의 길이[%d]가 unsigned short 최대값을 넘었습니다.", 
-										itemName, value.length);
+										itemName, returnValue.length);
 						throw new BodyFormatException(errorMessage);
 					}
 				} catch(NumberFormatException e) {
 					String errorMessage = 
 							String.format("JSON Object 로 부터 얻은 USVariableLengthBytes 타입 항목[%s]의 값[%s]이 hex 문자열이 아닙니다.", 
-									itemName, tValue);
+									itemName, tempItemValue);
 					throw new BodyFormatException(errorMessage);
 				}
 			}
 			
-			return value;
+			return returnValue;
 		}		
 	}
 	
 	/** DJSON 프로토콜의 si variable length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DJSONSIVariableLengthBytesSingleItemDecoder implements DJSONTypeSingleItemDecoderIF {
 		@Override
-		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, Charset charsetOfProject, JSONObject jsonObjFromStream)
+		public Object getValue(String itemName, int itemSize,
+				Charset itemCharset, Charset streamCharset, JSONObject jsonObjForInputStream)
 				throws Exception {
-			Object jsonValue = jsonObjFromStream.get(itemName);
+			Object jsonValue = jsonObjForInputStream.get(itemName);
 			if (null == jsonValue) {
 				String errorMessage = 
 						String.format("JSON Object[%s]에 SIVariableLengthBytes 타입 항목[%s]이 존재하지 않습니다.", 
-								jsonObjFromStream.toJSONString(), itemName);
+								jsonObjForInputStream.toJSONString(), itemName);
 				throw new BodyFormatException(errorMessage);
 			}
 			if (!(jsonValue instanceof String)) {
@@ -541,37 +541,37 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 				throw new BodyFormatException(errorMessage);
 			}
 			
-			byte[] value = null;
-			String tValue = (String)jsonValue;
+			byte[] returnValue = null;
+			String tempItemValue = (String)jsonValue;
 			
-			if (tValue.isEmpty()) {
-				value = new byte[0];
+			if (tempItemValue.isEmpty()) {
+				returnValue = new byte[0];
 			} else {
 				try {
-					value = HexUtil.getByteArrayFromHexString(tValue);
+					returnValue = HexUtil.getByteArrayFromHexString(tempItemValue);
 				} catch(NumberFormatException e) {
 					String errorMessage = 
 							String.format("JSON Object 로 부터 얻은 SIVariableLengthBytes 타입 항목[%s]의 값[%s]이 hex 문자열이 아닙니다.", 
-									itemName, tValue);
+									itemName, tempItemValue);
 					throw new BodyFormatException(errorMessage);
 				}
 			}
 			
-			return value;
+			return returnValue;
 		}		
 	}
 	
 	/** DJSON 프로토콜의 fixed length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DJSONFixedLengthBytesSingleItemDecoder implements DJSONTypeSingleItemDecoderIF {
 		@Override
-		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, Charset charsetOfProject, JSONObject jsonObjFromStream)
+		public Object getValue(String itemName, int itemSize,
+				Charset itemCharset, Charset streamCharset, JSONObject jsonObjForInputStream)
 				throws Exception {
-			Object jsonValue = jsonObjFromStream.get(itemName);
+			Object jsonValue = jsonObjForInputStream.get(itemName);
 			if (null == jsonValue) {
 				String errorMessage = 
 						String.format("JSON Object[%s]에 FixedLengthBytes 타입 항목[%s]이 존재하지 않습니다.", 
-								jsonObjFromStream.toJSONString(), itemName);
+								jsonObjForInputStream.toJSONString(), itemName);
 				throw new BodyFormatException(errorMessage);
 			}
 			if (!(jsonValue instanceof String)) {
@@ -582,24 +582,24 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 			}
 			
 			byte[] value = null;
-			String tValue = (String)jsonValue;
+			String tempItemValue = (String)jsonValue;
 			
-			if (tValue.isEmpty()) {
+			if (tempItemValue.isEmpty()) {
 				value = new byte[0];
 			} else {
 				try {
-					value = HexUtil.getByteArrayFromHexString(tValue);
+					value = HexUtil.getByteArrayFromHexString(tempItemValue);
 					
-					if (value.length != itemSizeForLang) {
+					if (value.length != itemSize) {
 						throw new IllegalArgumentException(
 								String.format(
 										"파라미터로 넘어온 바이트 배열의 크기[%d]가 메시지 정보에서 지정한 크기[%d]와 다릅니다. 고정 크기 바이트 배열에서는 일치해야 합니다.",
-										value.length, itemSizeForLang));
+										value.length, itemSize));
 					}
 				} catch(NumberFormatException e) {
 					String errorMessage = 
 							String.format("JSON Object 로 부터 얻은 FixedLengthBytes 타입 항목[%s]의 값[%s]이 hex 문자열이 아닙니다.", 
-									itemName, tValue);
+									itemName, tempItemValue);
 					throw new BodyFormatException(errorMessage);
 				}
 			}
@@ -612,14 +612,14 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 	private final class DJSONJavaSqlDateSingleItemDecoder implements DJSONTypeSingleItemDecoderIF {
 
 		@Override
-		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, Charset charsetOfProject,
-				JSONObject jsonObjFromStream) throws Exception {			
-			Object jsonValue = jsonObjFromStream.get(itemName);
+		public Object getValue(String itemName, int itemSize,
+				Charset itemCharset, Charset streamCharset,
+				JSONObject jsonObjForInputStream) throws Exception {			
+			Object jsonValue = jsonObjForInputStream.get(itemName);
 			if (null == jsonValue) {
 				String errorMessage = 
 						String.format("JSON Object[%s]에 java sql date 타입 항목[%s]이 존재하지 않습니다.", 
-								jsonObjFromStream.toJSONString(), itemName);
+								jsonObjForInputStream.toJSONString(), itemName);
 				throw new BodyFormatException(errorMessage);
 			}
 			
@@ -639,14 +639,14 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 	private final class DJSONJavaSqlTimestampSingleItemDecoder implements DJSONTypeSingleItemDecoderIF {
 
 		@Override
-		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, Charset charsetOfProject,
-				JSONObject jsonObjFromStream) throws Exception {			
-			Object jsonValue = jsonObjFromStream.get(itemName);
+		public Object getValue(String itemName, int itemSize,
+				Charset itemCharset, Charset streamCharset,
+				JSONObject jsonObjForInputStream) throws Exception {			
+			Object jsonValue = jsonObjForInputStream.get(itemName);
 			if (null == jsonValue) {
 				String errorMessage = 
 						String.format("JSON Object[%s]에 java sql timestamp 타입 항목[%s]이 존재하지 않습니다.", 
-								jsonObjFromStream.toJSONString(), itemName);
+								jsonObjForInputStream.toJSONString(), itemName);
 				throw new BodyFormatException(errorMessage);
 			}
 			
@@ -666,14 +666,14 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 	private final class DJSONBooleanSingleItemDecoder implements DJSONTypeSingleItemDecoderIF {
 
 		@Override
-		public Object getValue(String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, Charset charsetOfProject,
-				JSONObject jsonObjFromStream) throws Exception {			
-			Object jsonValue = jsonObjFromStream.get(itemName);
+		public Object getValue(String itemName, int itemSize,
+				Charset itemCharset, Charset streamCharset,
+				JSONObject jsonObjForInputStream) throws Exception {			
+			Object jsonValue = jsonObjForInputStream.get(itemName);
 			if (null == jsonValue) {
 				String errorMessage = 
 						String.format("JSON Object[%s]에 boolean 타입 항목[%s]이 존재하지 않습니다.", 
-								jsonObjFromStream.toJSONString(), itemName);
+								jsonObjForInputStream.toJSONString(), itemName);
 				throw new BodyFormatException(errorMessage);
 			}
 			
@@ -686,17 +686,17 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 			
 			
 			
-			String tValue = (String)jsonValue;
+			String tempItemValue = (String)jsonValue;
 			
-			if (tValue.equals("true")) {
+			if (tempItemValue.equals("true")) {
 				return true;
-			} else if (tValue.equals("false")) {
+			} else if (tempItemValue.equals("false")) {
 				return false;
 			} else {
 				String errorMessage = 
 						String.format("JSON Object 에서 boolean 타입의 값은  문자열 true, false 를 갖습니다." +
 								"%sJSON Object 로 부터 얻은 boolean 타입 항목[%s]의 값[%s]이 잘못되었습니다.", 
-								CommonStaticFinalVars.NEWLINE, itemName, tValue);
+								CommonStaticFinalVars.NEWLINE, itemName, tempItemValue);
 				throw new BodyFormatException(errorMessage);
 			}			
 		}
@@ -704,8 +704,8 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 	
 	@Override
 	public Object getValueFromMiddleReadObj(String path, String itemName,
-			int itemTypeID, String itemTypeName, int itemSizeForLang,
-			String itemCharset, Charset charsetOfProject,
+			int itemTypeID, String itemTypeName, int itemSize,
+			String nativeItemCharset, Charset streamCharset,
 			Object middleReadObj) throws BodyFormatException {
 		
 		if (!(middleReadObj instanceof JSONObject)) {
@@ -715,12 +715,16 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 			throw new BodyFormatException(errorMessage);
 		}
 		
-		Charset itemCharsetForLang = null;
-		if (null != itemCharset) {
+		Charset itemCharset = null;
+		if (null == nativeItemCharset) {
+			itemCharset = streamCharset;
+		} else {
 			try {
-				itemCharsetForLang = Charset.forName(itemCharset);
+				itemCharset = Charset.forName(nativeItemCharset);
 			} catch(Exception e) {
-				log.warn("문자셋[{}] 이름이 잘못되었습니다.", itemCharset);
+				log.warn(String.format("the parameter nativeItemCharset[%s] is not a bad charset name", nativeItemCharset), e);
+				
+				itemCharset = streamCharset;
 			}
 		}
 		
@@ -728,7 +732,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 		
 		Object retObj = null;
 		try {
-			retObj = dhbTypeSingleItemDecoderList[itemTypeID].getValue(itemName, itemSizeForLang, itemCharsetForLang, charsetOfProject, jsonReadObj);
+			retObj = dhbTypeSingleItemDecoderList[itemTypeID].getValue(itemName, itemSize, itemCharset, streamCharset, jsonReadObj);
 		} catch(IllegalArgumentException e) {
 			StringBuffer errorMessageBuilder = new StringBuffer("잘못된 파라미티터 에러::");
 			errorMessageBuilder.append("{ path=[");
@@ -738,9 +742,9 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 			errorMessageBuilder.append("], itemType=[");
 			errorMessageBuilder.append(itemTypeName);			
 			errorMessageBuilder.append("], itemSize=[");
-			errorMessageBuilder.append(itemSizeForLang);
+			errorMessageBuilder.append(itemSize);
 			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(itemCharset);
+			errorMessageBuilder.append(nativeItemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
 			errorMessageBuilder.append(e.getMessage());
 			errorMessageBuilder.append("]");
@@ -757,9 +761,9 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 			errorMessageBuilder.append("], itemType=[");
 			errorMessageBuilder.append(itemTypeName);
 			errorMessageBuilder.append("], itemSize=[");
-			errorMessageBuilder.append(itemSizeForLang);
+			errorMessageBuilder.append(itemSize);
 			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(itemCharset);
+			errorMessageBuilder.append(nativeItemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
 			errorMessageBuilder.append(e.getMessage());
 			errorMessageBuilder.append("]");
@@ -776,9 +780,9 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 			errorMessageBuilder.append("], itemType=[");
 			errorMessageBuilder.append(itemTypeName);
 			errorMessageBuilder.append("], itemSize=[");
-			errorMessageBuilder.append(itemSizeForLang);
+			errorMessageBuilder.append(itemSize);
 			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(itemCharset);
+			errorMessageBuilder.append(nativeItemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
 			errorMessageBuilder.append(e.getMessage());
 			errorMessageBuilder.append("]");
@@ -795,9 +799,9 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 			errorMessageBuilder.append("], itemType=[");
 			errorMessageBuilder.append(itemTypeName);
 			errorMessageBuilder.append("], itemSize=[");
-			errorMessageBuilder.append(itemSizeForLang);
+			errorMessageBuilder.append(itemSize);
 			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(itemCharset);
+			errorMessageBuilder.append(nativeItemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
 			errorMessageBuilder.append(e.getMessage());
 			errorMessageBuilder.append("]");
@@ -816,9 +820,9 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 			errorMessageBuilder.append("], itemType=[");
 			errorMessageBuilder.append(itemTypeName);
 			errorMessageBuilder.append("], itemSize=[");
-			errorMessageBuilder.append(itemSizeForLang);
+			errorMessageBuilder.append(itemSize);
 			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(itemCharset);
+			errorMessageBuilder.append(nativeItemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
 			errorMessageBuilder.append(e.getMessage());
 			errorMessageBuilder.append("]");

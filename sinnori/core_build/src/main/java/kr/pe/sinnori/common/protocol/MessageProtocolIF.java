@@ -16,8 +16,8 @@
  */
 package kr.pe.sinnori.common.protocol;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.List;
 
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
@@ -44,7 +44,7 @@ public interface MessageProtocolIF {
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷 버퍼가 없을때 던지는 예외
 	 * @throws BodyFormatException 바디 구성할때 에러 발생시 던지는 예외
 	 */
-	public ArrayList<WrapBuffer> M2S(AbstractMessage messageObj, AbstractMessageEncoder messageEncoder, Charset clientCharset) 
+	public List<WrapBuffer> M2S(AbstractMessage messageObj, AbstractMessageEncoder messageEncoder) 
 			throws NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException;
 	
 	
@@ -56,13 +56,12 @@ public interface MessageProtocolIF {
 	 * 
 	 * @param serverClientGubun 서버 클라이언트 구분
 	 * @param clientCharset 문자셋
-	 * @param socketInputStream 메시지 입력 스트림 자원
+	 * @param socketOutputStream 메시지 입력 스트림 자원
 	 * @return 읽기 전용 버퍼 목록으로 부터 추출한 메시지 목록, IOMode 가 true이면 입력 메시지 목록, false 이면 출력 메시지 목록이 된다.
 	 * @throws HeaderFormatException 헤더 포맷 구성시 에러 발생시 던지는 예외
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷 버퍼가 없을때 던지는 예외
 	 */
-	public ArrayList<ReceivedLetter> S2MList(Charset clientCharset,
-			SocketOutputStream socketInputStream) 
+	public ArrayList<ReceivedLetter> S2MList(SocketOutputStream socketOutputStream) 
 					throws HeaderFormatException, NoMoreDataPacketBufferException;
 	
 	public SingleItemDecoderIF getSingleItemDecoder();

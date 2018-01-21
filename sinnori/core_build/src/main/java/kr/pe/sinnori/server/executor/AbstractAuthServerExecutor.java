@@ -20,7 +20,7 @@ package kr.pe.sinnori.server.executor;
 
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
@@ -58,6 +58,8 @@ public abstract class AbstractAuthServerExecutor extends AbstractServerTask {
 			ReceivedLetter receivedLetter, LoginManagerIF loginManager,
 			ServerObjectCacheManagerIF serverObjectCacheManager) {
 		
+		// CharsetEncoder charsetEncoderOfProject = CharsetUtil.createCharsetEncoder(charsetOfProject);
+		
 		if (!clientResource.isLogin()) {
 			String messageID = receivedLetter.getMessageID();
 			
@@ -78,9 +80,9 @@ public abstract class AbstractAuthServerExecutor extends AbstractServerTask {
 			selfExnOutObj.setErrorMessageID(messageID);
 			selfExnOutObj.setErrorMessage("로그인을 요구하는 서비스입니다");
 			
-			ArrayList<WrapBuffer> wrapBufferList = null;
+			List<WrapBuffer> wrapBufferList = null;
 			try {
-				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, charsetOfProject);
+				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER);
 				
 				LetterToClient letterToClient = new LetterToClient(clientSC,
 						selfExnOutObj,

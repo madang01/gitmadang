@@ -83,7 +83,7 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 					stringBuilder.append("\t");
 				}
 				stringBuilder.append("\t\t, ");
-				stringBuilder.append(singleItemInfo.getItemSizeForLang());
+				stringBuilder.append(singleItemInfo.getItemSize());
 				stringBuilder.append(" // itemSize");
 				
 				// itemCharset
@@ -104,25 +104,25 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 				 */
 				
 				if (singleItemInfo.getItemValueType().equals("fixed length string")) {
-					String itemCharset = singleItemInfo.getItemCharset();
-					if (null == itemCharset) {
+					String nativeItemCharset = singleItemInfo.getNativeItemCharset();
+					if (null == nativeItemCharset) {
 						stringBuilder.append("null");
 					} else {
 						stringBuilder.append("\"");
-						stringBuilder.append(itemCharset);
+						stringBuilder.append(nativeItemCharset);
 						stringBuilder.append("\"");
 					}
 				} else {
 					stringBuilder.append("null");
 				}
-				stringBuilder.append(" // itemCharset,");
+				stringBuilder.append(" // native itemCharset,");
 				
-				// charsetOfProject
+				// streamCharset
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				for (int i=0; i < depth; i++) {
 					stringBuilder.append("\t");
 				}
-				stringBuilder.append("\t\t, charsetOfProject");
+				stringBuilder.append("\t\t, streamCharset");
 				
 				// , middleReadObj));
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
@@ -358,7 +358,7 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("\t * @param singleItemDecoder 단일항목 디코더");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t * @param charsetOfProject 프로젝트 문자셋");
+		stringBuilder.append("\t * @param streamCharset 프로젝트 문자셋");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("\t * @param middleReadObj 중간 다리 역활 읽기 객체");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
@@ -374,7 +374,7 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("\t@Override");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\tprotected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Charset charsetOfProject, Object  middleReadObj) throws OutOfMemoryError, BodyFormatException {");
+		stringBuilder.append("\tprotected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Charset streamCharset, Object  middleReadObj) throws OutOfMemoryError, BodyFormatException {");
 		
 		// AllDataType allDataType = new AllDataType();
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);

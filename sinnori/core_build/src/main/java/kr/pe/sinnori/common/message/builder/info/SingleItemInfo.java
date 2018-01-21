@@ -39,14 +39,14 @@ public class SingleItemInfo extends AbstractItemInfo {
 
 	private String itemName;
 	private String itemValueType;	
-	private String itemDefaultValue;	
-	private String itemSize;
-	private String itemCharset;
+	private String nativeItemDefaultValue;	
+	private String nativeItemSize;
+	private String nativeItemCharset;
 	
 	private String firstUpperItemName;
 	private int itemTypeID;
-	private int itemSizeForLang;
-	private String defaultValueRightValueString = null;	
+	private int itemSize;
+	private String defaultValueForVariableDeclarationPart = null;	
 	private String javaLangTypeOfItemValueType;
 	private String JavaLangClassCastingTypeOfItemValueType;
 
@@ -61,7 +61,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 	 *            항목 이름
 	 * @param itemValueType
 	 *            항목 값의 타입
-	 * @param itemDefaultValue 디폴트 값, 
+	 * @param nativeItemDefaultValue 디폴트 값, 
 	 * <pre>Warning! 파스칼 문자열 타입에 디폴트 값을 지정할때
 	 * 송수신 에러가 발생할 수 있기때문에 주의가 필요하다.
 	 * 이는 송수신시 파스칼 문자열 길이에 제약이 있는데 
@@ -78,15 +78,15 @@ public class SingleItemInfo extends AbstractItemInfo {
 	 * 미 지정시 갖게 되는 문자셋은
 	 * 작업중인 프로젝트의 환경변수 '문자셋' 인데 
 	 * 작업중인 프로젝트는 송수신때 결정되기때문이다.</pre> 
-	 * @param itemSize
+	 * @param nativeItemSize
 	 *            항목 타입 부가 정보중 하나인 크기
-	 * @param itemCharset
+	 * @param nativeItemCharset
 	 *            항목 타입 부가 정보중 하나인 문자셋
 	 * @throws IllegalArgumentException
 	 *             잘못된 파라미터 값이 들어올 경우 던지는 예외
 	 */
 	public SingleItemInfo(String itemName, String itemValueType,
-			String itemDefaultValue, String itemSize, String itemCharset)
+			String nativeItemDefaultValue, String nativeItemSize, String nativeItemCharset)
 			throws IllegalArgumentException {
 		checkParmItemName(itemName);		
 		int itemTypeID = -1;
@@ -105,59 +105,59 @@ public class SingleItemInfo extends AbstractItemInfo {
 		
 		if (itemValueType.equals("byte")) {
 			makeByteTypeInformationAfterCheckingAdditionalInformation(itemName,
-					itemDefaultValue, itemSize, itemCharset);
+					nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 		} else if (itemValueType.equals("unsigned byte")) {
 			makeUnsignedByteTypeInformationAfterCheckingAdditionalInformation(itemName,
-					itemDefaultValue, itemSize, itemCharset);
+					nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 		} else if (itemValueType.equals("short")) {
 			makeShortTypeInformationAfterCheckingAdditionalInformation(itemName,
-					itemDefaultValue, itemSize, itemCharset);
+					nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 		} else if (itemValueType.equals("unsigned short")) {
 			makeUnsignedShortTypeInformationAfterCheckingAdditionalInformation(itemName,
-					itemDefaultValue, itemSize, itemCharset);
+					nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 		} else if (itemValueType.equals("integer")) {
 			makeIntegerTypeInformationAfterCheckingAdditionalInformation(itemName,
-					itemDefaultValue, itemSize, itemCharset);
+					nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 		} else if (itemValueType.equals("unsigned integer")) {
 			makeUnsignedIntegerTypeInformationAfterCheckingAdditionalInformation(
-					itemName, itemDefaultValue, itemSize, itemCharset);
+					itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 		} else if (itemValueType.equals("long")) {
 			makeLongTypeInformationAfterCheckingAdditionalInformation(itemName,
-					itemDefaultValue, itemSize, itemCharset);
+					nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 		} else if (itemValueType.equals("ub pascal string")) {
 			makePascalStringTypeInformationAfterCheckingAdditionalInformation("ub",
-					itemName, itemDefaultValue, itemSize, itemCharset);
+					itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 		} else if (itemValueType.equals("us pascal string")) {
 			makePascalStringTypeInformationAfterCheckingAdditionalInformation("us",
-					itemName, itemDefaultValue, itemSize, itemCharset);
+					itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 		} else if (itemValueType.equals("si pascal string")) {
 			makePascalStringTypeInformationAfterCheckingAdditionalInformation("si",
-					itemName, itemDefaultValue, itemSize, itemCharset);
+					itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 		} else if (itemValueType.equals("fixed length string")) {
 			makeFixedLengthStringTypeInformationAfterCheckingAdditionalInformation(
-					itemName, itemDefaultValue, itemSize, itemCharset);
+					itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 		} else if (itemValueType.equals("ub variable length byte[]")) {
 			makeVariableLengthByteArrayTypeInformationAfterCheckingAdditionalInformation(
-					"ub", itemName, itemDefaultValue, itemSize, itemCharset);
+					"ub", itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 		} else if (itemValueType.equals("us variable length byte[]")) {
 			makeVariableLengthByteArrayTypeInformationAfterCheckingAdditionalInformation(
-					"us", itemName, itemDefaultValue, itemSize, itemCharset);
+					"us", itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 
 		} else if (itemValueType.equals("si variable length byte[]")) {
 			makeVariableLengthByteArrayTypeInformationAfterCheckingAdditionalInformation(
-					"si", itemName, itemDefaultValue, itemSize, itemCharset);
+					"si", itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 		} else if (itemValueType.equals("fixed length byte[]")) {
 			makeFixedLengthByteArrayTypeInformationAfterCheckingAdditionalInformation(
-					itemName, itemDefaultValue, itemSize, itemCharset);
+					itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 		} else if (itemValueType.equals("java sql date")) {
 			makeJavaSqlDateTypeInformationAfterCheckingAdditionalInformation(
-					itemName, itemDefaultValue, itemSize, itemCharset);
+					itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 		} else if (itemValueType.equals("java sql timestamp")) {
 			makeJavaSqlTimestampTypeInformationAfterCheckingAdditionalInformation(
-					itemName, itemDefaultValue, itemSize, itemCharset);
+					itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 		} else if (itemValueType.equals("boolean")) {
 			makeBooleanTypeInformationAfterCheckingAdditionalInformation(
-					itemName, itemDefaultValue, itemSize, itemCharset);
+					itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 		} else {
 			String errorMessage = new StringBuilder("this single item[")
 					.append(itemName).append("]'s type[").append(itemValueType)
@@ -171,9 +171,9 @@ public class SingleItemInfo extends AbstractItemInfo {
 				itemName.substring(0, 1).toUpperCase())
 		.append(itemName.substring(1)).toString();
 		this.itemValueType = itemValueType;
-		this.itemDefaultValue = itemDefaultValue;
-		this.itemSize = itemSize;
-		this.itemCharset = itemCharset;
+		this.nativeItemDefaultValue = nativeItemDefaultValue;
+		this.nativeItemSize = nativeItemSize;
+		this.nativeItemCharset = nativeItemCharset;
 	}
 
 	public String getFirstUpperItemName() {
@@ -201,8 +201,8 @@ public class SingleItemInfo extends AbstractItemInfo {
 	 * 
 	 * @return 정수형 항목 크기
 	 */
-	public int getItemSizeForLang() {
-		return itemSizeForLang;
+	public int getItemSize() {
+		return itemSize;
 	}
 
 	/**
@@ -210,8 +210,8 @@ public class SingleItemInfo extends AbstractItemInfo {
 	 * 
 	 * @return 타입 부가 정보인 문자셋
 	 */
-	public String getItemCharset() {
-		return itemCharset;
+	public String getNativeItemCharset() {
+		return nativeItemCharset;
 	}
 
 	/**
@@ -228,8 +228,8 @@ public class SingleItemInfo extends AbstractItemInfo {
 	 * 
 	 * @return 타입 부과 정보인 크기
 	 */
-	public String getItemSize() {
-		return itemSize;
+	public String getNatvieItemSize() {
+		return nativeItemSize;
 	}
 
 	/**
@@ -237,12 +237,15 @@ public class SingleItemInfo extends AbstractItemInfo {
 	 * 
 	 * @return 디폴트 값
 	 */
-	public String getItemDefaultValue() {
-		return itemDefaultValue;
-	}
+	/*public String getNativeItemDefaultValue() {
+		return nativeItemDefaultValue;
+	}*/
 
-	public String getDefaultValueRightValueString() {
-		return defaultValueRightValueString;
+	/**
+	 * @return IO 소스 생성기에서 변수 선언부에 쓰일 문자열로 표현된 디폴트 값
+	 */
+	public String getDefaultValueForVariableDeclarationPart() {
+		return defaultValueForVariableDeclarationPart;
 	}
 
 	/******************* AbstractItemInfo start ***********************/
@@ -329,56 +332,56 @@ public class SingleItemInfo extends AbstractItemInfo {
 	}
 
 	private void makeByteTypeInformationAfterCheckingAdditionalInformation(
-			String itemName, String itemDefaultValue, String itemSize,
-			String itemCharset) throws IllegalArgumentException {
-		if (null != itemDefaultValue) {
+			String itemName, String nativeItemDefaultValue, String nativeItemSize,
+			String nativeItemCharset) throws IllegalArgumentException {
+		if (null != nativeItemDefaultValue) {
 			@SuppressWarnings("unused")
 			Byte resultValue = null;
 			try {
-				resultValue = Byte.parseByte(itemDefaultValue);
+				resultValue = Byte.parseByte(nativeItemDefaultValue);
 			} catch (NumberFormatException nfe) {
 				String errorMessage = new StringBuilder(
 						"fail to parses the string argument(=this 'byte' type single item[")
 						.append(itemName).append("]'s attribute 'defaultValue' value[")
-						.append(itemDefaultValue)
+						.append(nativeItemDefaultValue)
 						.append("]) as a signed decimal byte").toString();
 				throw new IllegalArgumentException(errorMessage);
 			}
 
 		}
 
-		if (null != itemSize) {
+		if (null != nativeItemSize) {
 			String errorMessage = new StringBuilder(
 					"this 'byte' type single item[").append(itemName)
 					.append("] doesn't support attribute 'size'").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		if (null != itemCharset) {
+		if (null != nativeItemCharset) {
 			String errorMessage = new StringBuilder(
 					"this 'byte' type single item[").append(itemName)
 					.append("] doesn't support attribute 'charset'").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		itemSizeForLang = -1;
-		defaultValueRightValueString = itemDefaultValue;
-		javaLangTypeOfItemValueType = "byte";
-		JavaLangClassCastingTypeOfItemValueType = "Byte";
+		this.itemSize = -1;
+		this.defaultValueForVariableDeclarationPart = nativeItemDefaultValue;
+		this.javaLangTypeOfItemValueType = "byte";
+		this.JavaLangClassCastingTypeOfItemValueType = "Byte";
 	}
 
 	private void makeUnsignedByteTypeInformationAfterCheckingAdditionalInformation(
-			String itemName, String itemDefaultValue, String itemSize,
-			String itemCharset) throws IllegalArgumentException {
-		if (null != itemDefaultValue) {
+			String itemName, String nativeItemDefaultValue, String nativeItemSize,
+			String nativeItemCharset) throws IllegalArgumentException {
+		if (null != nativeItemDefaultValue) {
 			Short resultValue = null;
 			try {
-				resultValue = Short.parseShort(itemDefaultValue);
+				resultValue = Short.parseShort(nativeItemDefaultValue);
 			} catch (NumberFormatException nfe) {
 				String errorMessage = new StringBuilder(
 						"fail to parses the string argument(=this 'unsigned byte' type single item[")
 						.append(itemName).append("]'s attribute 'defaultValue' value[")
-						.append(itemDefaultValue)
+						.append(nativeItemDefaultValue)
 						.append("]) as a signed decimal short").toString();
 				throw new IllegalArgumentException(errorMessage);
 			}
@@ -387,7 +390,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 				String errorMessage = new StringBuilder(
 						"this 'unsigned byte' type single item[")
 						.append(itemName).append("]'s attribute 'defaultValue' value[")
-						.append(itemDefaultValue)
+						.append(nativeItemDefaultValue)
 						.append("] is less than zero").toString();
 				throw new IllegalArgumentException(errorMessage);
 			}
@@ -396,7 +399,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 				String errorMessage = new StringBuilder(
 						"this 'unsigned byte' type single item[")
 						.append(itemName).append("]'s attribute 'defaultValue' value[")
-						.append(itemDefaultValue)
+						.append(nativeItemDefaultValue)
 						.append("] is greater than unsigned byte max[")
 						.append(CommonStaticFinalVars.UNSIGNED_BYTE_MAX)
 						.append("]").toString();
@@ -405,76 +408,76 @@ public class SingleItemInfo extends AbstractItemInfo {
 
 		}
 
-		if (null != itemSize) {
+		if (null != nativeItemSize) {
 			String errorMessage = new StringBuilder(
 					"this 'unsigned byte' type single item[").append(itemName)
 					.append("] doesn't support attribute 'size'").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		if (null != itemCharset) {
+		if (null != nativeItemCharset) {
 			String errorMessage = new StringBuilder(
 					"this 'unsigned byte' type single item[").append(itemName)
 					.append("] doesn't support attribute 'charset'").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		itemSizeForLang = -1;
-		defaultValueRightValueString = itemDefaultValue;
-		javaLangTypeOfItemValueType = "short";
-		JavaLangClassCastingTypeOfItemValueType = "Short";
+		this.itemSize = -1;
+		this.defaultValueForVariableDeclarationPart = nativeItemDefaultValue;
+		this.javaLangTypeOfItemValueType = "short";
+		this.JavaLangClassCastingTypeOfItemValueType = "Short";
 	}
 
 	private void makeShortTypeInformationAfterCheckingAdditionalInformation(
-			String itemName, String itemDefaultValue, String itemSize,
-			String itemCharset) throws IllegalArgumentException {
-		if (null != itemDefaultValue) {
+			String itemName, String nativeItemDefaultValue, String nativeItemSize,
+			String nativeItemCharset) throws IllegalArgumentException {
+		if (null != nativeItemDefaultValue) {
 			@SuppressWarnings("unused")
 			Short resultValue = null;
 			try {
-				resultValue = Short.parseShort(itemDefaultValue);
+				resultValue = Short.parseShort(nativeItemDefaultValue);
 			} catch (NumberFormatException nfe) {
 				String errorMessage = new StringBuilder(
 						"fail to parses the string argument(=this 'short' type single item[")
 						.append(itemName).append("]'s attribute 'defaultValue' value[")
-						.append(itemDefaultValue)
+						.append(nativeItemDefaultValue)
 						.append("]) as a signed decimal short").toString();
 				throw new IllegalArgumentException(errorMessage);
 			}
 		}
 
-		if (null != itemSize) {
+		if (null != nativeItemSize) {
 			String errorMessage = new StringBuilder(
 					"this 'short' type single item[").append(itemName)
 					.append("] doesn't support attribute 'size'").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		if (null != itemCharset) {
+		if (null != nativeItemCharset) {
 			String errorMessage = new StringBuilder(
 					"this 'short' type single item[").append(itemName)
 					.append("] doesn't support attribute 'charset'").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		itemSizeForLang = -1;
-		defaultValueRightValueString = itemDefaultValue;
-		javaLangTypeOfItemValueType = "short";
-		JavaLangClassCastingTypeOfItemValueType = "Short";
+		this.itemSize = -1;
+		this.defaultValueForVariableDeclarationPart = nativeItemDefaultValue;
+		this.javaLangTypeOfItemValueType = "short";
+		this.JavaLangClassCastingTypeOfItemValueType = "Short";
 	}
 
 	private void makeUnsignedShortTypeInformationAfterCheckingAdditionalInformation(
-			String itemName, String itemDefaultValue, String itemSize,
-			String itemCharset) throws IllegalArgumentException {
-		if (null != itemDefaultValue) {
+			String itemName, String nativeItemDefaultValue, String nativeItemSize,
+			String nativeItemCharset) throws IllegalArgumentException {
+		if (null != nativeItemDefaultValue) {
 			Integer resultValue = null;
 			try {
-				resultValue = Integer.parseInt(itemDefaultValue);
+				resultValue = Integer.parseInt(nativeItemDefaultValue);
 			} catch (NumberFormatException nfe) {
 				String errorMessage = new StringBuilder(
 						"fail to parses the string argument(=this 'unsigned short' type single item[")
 						.append(itemName).append("]'s attribute 'defaultValue' value[")
-						.append(itemDefaultValue)
+						.append(nativeItemDefaultValue)
 						.append("]) as a signed decimal integer").toString();
 				throw new IllegalArgumentException(errorMessage);
 			}
@@ -483,7 +486,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 				String errorMessage = new StringBuilder(
 						"this 'unsigned short' type single item[")
 						.append(itemName).append("]'s attribute 'defaultValue' value[")
-						.append(itemDefaultValue)
+						.append(nativeItemDefaultValue)
 						.append("] is less than zero").toString();
 				throw new IllegalArgumentException(errorMessage);
 			}
@@ -492,7 +495,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 				String errorMessage = new StringBuilder(
 						"this 'unsigned short' type single item[")
 						.append(itemName).append("]'s attribute 'defaultValue' value[")
-						.append(itemDefaultValue)
+						.append(nativeItemDefaultValue)
 						.append("] is greater than unsigned short max[")
 						.append(CommonStaticFinalVars.UNSIGNED_SHORT_MAX)
 						.append("]").toString();
@@ -500,76 +503,76 @@ public class SingleItemInfo extends AbstractItemInfo {
 			}
 		}
 
-		if (null != itemSize) {
+		if (null != nativeItemSize) {
 			String errorMessage = new StringBuilder(
 					"this 'unsigned short' type single item[").append(itemName)
 					.append("] doesn't support attribute 'size'").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		if (null != itemCharset) {
+		if (null != nativeItemCharset) {
 			String errorMessage = new StringBuilder(
 					"this 'unsigned short' type single item[").append(itemName)
 					.append("] doesn't support attribute 'charset'").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		itemSizeForLang = -1;
-		defaultValueRightValueString = itemDefaultValue;
-		javaLangTypeOfItemValueType = "int";
-		JavaLangClassCastingTypeOfItemValueType = "Integer";
+		this.itemSize = -1;
+		this.defaultValueForVariableDeclarationPart = nativeItemDefaultValue;
+		this.javaLangTypeOfItemValueType = "int";
+		this.JavaLangClassCastingTypeOfItemValueType = "Integer";
 	}
 
 	private void makeIntegerTypeInformationAfterCheckingAdditionalInformation(
-			String itemName, String itemDefaultValue, String itemSize,
-			String itemCharset) throws IllegalArgumentException {
-		if (null != itemDefaultValue) {
+			String itemName, String nativeItemDefaultValue, String nativeItemSize,
+			String nativeItemCharset) throws IllegalArgumentException {
+		if (null != nativeItemDefaultValue) {
 			@SuppressWarnings("unused")
 			Integer resultValue = null;
 			try {
-				resultValue = Integer.parseInt(itemDefaultValue);
+				resultValue = Integer.parseInt(nativeItemDefaultValue);
 			} catch (NumberFormatException nfe) {
 				String errorMessage = new StringBuilder(
 						"fail to parses the string argument(=this 'integer' type single item[")
 						.append(itemName).append("]'s attribute 'defaultValue' value[")
-						.append(itemDefaultValue)
+						.append(nativeItemDefaultValue)
 						.append("]) as a signed decimal integer").toString();
 				throw new IllegalArgumentException(errorMessage);
 			}
 		}
 
-		if (null != itemSize) {
+		if (null != nativeItemSize) {
 			String errorMessage = new StringBuilder(
 					"this 'integer' type single item[").append(itemName)
 					.append("] doesn't support attribute 'size'").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		if (null != itemCharset) {
+		if (null != nativeItemCharset) {
 			String errorMessage = new StringBuilder(
 					"this 'integer' type single item[").append(itemName)
 					.append("] doesn't support attribute 'charset'").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		itemSizeForLang = -1;
-		defaultValueRightValueString = itemDefaultValue;
-		javaLangTypeOfItemValueType = "int";
-		JavaLangClassCastingTypeOfItemValueType = "Integer";
+		this.itemSize = -1;
+		this.defaultValueForVariableDeclarationPart = nativeItemDefaultValue;
+		this.javaLangTypeOfItemValueType = "int";
+		this.JavaLangClassCastingTypeOfItemValueType = "Integer";
 	}
 
 	private void makeUnsignedIntegerTypeInformationAfterCheckingAdditionalInformation(
-			String itemName, String itemDefaultValue, String itemSize,
-			String itemCharset) throws IllegalArgumentException {
-		if (null != itemDefaultValue) {
+			String itemName, String nativeItemDefaultValue, String nativeItemSize,
+			String nativeItemCharset) throws IllegalArgumentException {
+		if (null != nativeItemDefaultValue) {
 			Long resultValue = null;
 			try {
-				resultValue = Long.parseLong(itemDefaultValue);
+				resultValue = Long.parseLong(nativeItemDefaultValue);
 			} catch (NumberFormatException nfe) {
 				String errorMessage = new StringBuilder(
 						"fail to parses the string argument(=this 'unsigned integer' type single item[")
 						.append(itemName).append("]'s attribute 'defaultValue' value[")
-						.append(itemDefaultValue)
+						.append(nativeItemDefaultValue)
 						.append("]) as a signed decimal long").toString();
 				throw new IllegalArgumentException(errorMessage);
 			}
@@ -578,7 +581,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 				String errorMessage = new StringBuilder(
 						"this 'unsigned integer' type single item[")
 						.append(itemName).append("]'s attribute 'defaultValue' value[")
-						.append(itemDefaultValue)
+						.append(nativeItemDefaultValue)
 						.append("] is less than zero").toString();
 				throw new IllegalArgumentException(errorMessage);
 			}
@@ -587,7 +590,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 				String errorMessage = new StringBuilder(
 						"this 'unsigned integer' type single item[")
 						.append(itemName).append("]'s attribute 'defaultValue' value[")
-						.append(itemDefaultValue)
+						.append(nativeItemDefaultValue)
 						.append("] is greater than unsigned integer max[")
 						.append(CommonStaticFinalVars.UNSIGNED_INTEGER_MAX)
 						.append("]").toString();
@@ -595,7 +598,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 			}
 		}
 
-		if (null != itemSize) {
+		if (null != nativeItemSize) {
 			String errorMessage = new StringBuilder(
 					"this 'unsigned integer' type single item[")
 					.append(itemName)
@@ -603,7 +606,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		if (null != itemCharset) {
+		if (null != nativeItemCharset) {
 			String errorMessage = new StringBuilder(
 					"this 'unsigned integer' type single item[")
 					.append(itemName)
@@ -611,53 +614,53 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		itemSizeForLang = -1;
-		defaultValueRightValueString = itemDefaultValue;
-		javaLangTypeOfItemValueType = "long";
-		JavaLangClassCastingTypeOfItemValueType = "Long";
+		this.itemSize = -1;
+		this.defaultValueForVariableDeclarationPart = nativeItemDefaultValue;
+		this.javaLangTypeOfItemValueType = "long";
+		this.JavaLangClassCastingTypeOfItemValueType = "Long";
 	}
 
 	private void makeLongTypeInformationAfterCheckingAdditionalInformation(
-			String itemName, String itemDefaultValue, String itemSize,
-			String itemCharset) throws IllegalArgumentException {
-		if (null != itemDefaultValue) {
+			String itemName, String nativeItemDefaultValue, String nativeItemSize,
+			String nativeItemCharset) throws IllegalArgumentException {
+		if (null != nativeItemDefaultValue) {
 			@SuppressWarnings("unused")
 			Long resultValue = null;
 			try {
-				resultValue = Long.parseLong(itemDefaultValue);
+				resultValue = Long.parseLong(nativeItemDefaultValue);
 			} catch (NumberFormatException nfe) {
 				String errorMessage = new StringBuilder(
 						"fail to parses the string argument(=this 'long' type single item[")
 						.append(itemName).append("]'s attribute 'defaultValue' value[")
-						.append(itemDefaultValue)
+						.append(nativeItemDefaultValue)
 						.append("]) as a signed decimal long").toString();
 				throw new IllegalArgumentException(errorMessage);
 			}
 		}
 
-		if (null != itemSize) {
+		if (null != nativeItemSize) {
 			String errorMessage = new StringBuilder(
 					"this 'long' type single item[").append(itemName)
 					.append("] doesn't support attribute 'size'").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		if (null != itemCharset) {
+		if (null != nativeItemCharset) {
 			String errorMessage = new StringBuilder(
 					"this 'long' type single item[").append(itemName)
 					.append("] doesn't support attribute 'charset'").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		itemSizeForLang = -1;
-		defaultValueRightValueString = itemDefaultValue;
-		javaLangTypeOfItemValueType = "long";
-		JavaLangClassCastingTypeOfItemValueType = "Long";
+		this.itemSize = -1;
+		this.defaultValueForVariableDeclarationPart = nativeItemDefaultValue;
+		this.javaLangTypeOfItemValueType = "long";
+		this.JavaLangClassCastingTypeOfItemValueType = "Long";
 	}
 
 	private void makePascalStringTypeInformationAfterCheckingAdditionalInformation(
-			String pascalStringGubun, String itemName, String itemDefaultValue,
-			String itemSize, String itemCharset)
+			String pascalStringGubun, String itemName, String nativeItemDefaultValue,
+			String nativeItemSize, String nativeItemCharset)
 			throws IllegalArgumentException {
 		if (null == pascalStringGubun) {
 			throw new IllegalArgumentException("the parameter pascalStringGubun is null");
@@ -674,21 +677,21 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException("the parameter pascalStringGubun is not an element of pascal string gubun set[ub, us, si]");
 		}
 		
-		if (null != itemDefaultValue) {
+		if (null != nativeItemDefaultValue) {
 			if (CommonStaticUtil
-					.hasLeadingOrTailingWhiteSpace(itemDefaultValue)) {
+					.hasLeadingOrTailingWhiteSpace(nativeItemDefaultValue)) {
 				String errorMessage = new StringBuilder("this '")
 						.append(pascalStringGubun)
 						.append(" pascal string' type single item[")
 						.append(itemName)
 						.append("]'s attribute 'defaultValue' value[")
-						.append(itemDefaultValue)
+						.append(nativeItemDefaultValue)
 						.append("] has hreading or traling white space")
 						.toString();
 				throw new IllegalArgumentException(errorMessage);
 			}
 		}
-		if (null != itemSize) {
+		if (null != nativeItemSize) {
 			String errorMessage = new StringBuilder("this '")
 					.append(pascalStringGubun)
 					.append(" pascal string' type single item[")
@@ -697,47 +700,47 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		if (null != itemCharset) {
-			itemCharset = itemCharset.trim();
+		if (null != nativeItemCharset) {
+			nativeItemCharset = nativeItemCharset.trim();
 			try {
-				Charset.forName(itemCharset);
+				Charset.forName(nativeItemCharset);
 			} catch (Exception e) {
 				String errorMessage = new StringBuilder("this '")
 						.append(pascalStringGubun)
 						.append(" pascal string' type single item[")
 						.append(itemName).append("]'s attribute 'charset' value[")
-						.append(itemCharset).append("] is a bad charset name").toString();
+						.append(nativeItemCharset).append("] is a bad charset name").toString();
 				throw new IllegalArgumentException(errorMessage);
 			}
 		}
 
-		if (null != itemDefaultValue) {
-			defaultValueRightValueString = new StringBuilder("\"")
-					.append(itemDefaultValue).append("\"").toString();
+		if (null != nativeItemDefaultValue) {
+			defaultValueForVariableDeclarationPart = new StringBuilder("\"")
+					.append(nativeItemDefaultValue).append("\"").toString();
 		}
 		
-		itemSizeForLang = -1;
+		this.itemSize = -1;
 		javaLangTypeOfItemValueType = "String";
 		JavaLangClassCastingTypeOfItemValueType = "String";
 	}
 
 	private void makeFixedLengthStringTypeInformationAfterCheckingAdditionalInformation(
-			String itemName, String itemDefaultValue, String itemSize,
-			String itemCharset) throws IllegalArgumentException {
-		if (null != itemDefaultValue) {
+			String itemName, String nativeItemDefaultValue, String nativeItemSize,
+			String nativeItemCharset) throws IllegalArgumentException {
+		if (null != nativeItemDefaultValue) {
 			if (CommonStaticUtil
-					.hasLeadingOrTailingWhiteSpace(itemDefaultValue)) {
+					.hasLeadingOrTailingWhiteSpace(nativeItemDefaultValue)) {
 				String errorMessage = new StringBuilder(
 						"this 'fixed length string' type single item[")
 						.append(itemName)
 						.append("]'s attribute 'defaultValue' value[")
-						.append(itemDefaultValue)
+						.append(nativeItemDefaultValue)
 						.append("] has hreading or traling white space")
 						.toString();
 				throw new IllegalArgumentException(errorMessage);
 			}
 		}
-		if (null == itemSize) {
+		if (null == nativeItemSize) {
 			String errorMessage = new StringBuilder(
 					"this 'fixed length string' type single item[")
 					.append(itemName).append("] needs attribute 'size'")
@@ -745,62 +748,62 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		int itemSizeForLang;
+		int tempItemSize;
 		try {
-			itemSizeForLang = Integer.parseInt(itemSize);
+			tempItemSize = Integer.parseInt(nativeItemSize);
 		} catch (NumberFormatException num_e) {
 			String errorMessage = new StringBuilder(
 					"this 'fixed length string' type single item[")
 					.append(itemName).append("]'s attribute 'size' value[")
-					.append(itemSize).append("] is not integer").toString();
+					.append(nativeItemSize).append("] is not integer").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		if (itemSizeForLang <= 0) {
+		if (tempItemSize <= 0) {
 			String errorMessage = new StringBuilder(
 					"this 'fixed length string' type single item[")
 					.append(itemName).append("]'s attribute 'size' value[")
-					.append(itemSizeForLang)
+					.append(tempItemSize)
 					.append("] must be greater than zero").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		if (null != itemCharset) {
-			if (CommonStaticUtil.hasLeadingOrTailingWhiteSpace(itemCharset)) {
+		if (null != nativeItemCharset) {
+			if (CommonStaticUtil.hasLeadingOrTailingWhiteSpace(nativeItemCharset)) {
 				String errorMessage = new StringBuilder(
 						"this 'fixed length string' type single item[")
 						.append(itemName)
 						.append("]'s attribute 'charset' value[")
-						.append(itemDefaultValue)
+						.append(nativeItemDefaultValue)
 						.append("] has hreading or traling white space")
 						.toString();
 				throw new IllegalArgumentException(errorMessage);
 			}
 
 			try {
-				Charset.forName(itemCharset);
+				Charset.forName(nativeItemCharset);
 			} catch (Exception e) {
 				String errorMessage = new StringBuilder(
 						"this 'fixed length string' type single item[")
 						.append(itemName).append("]'s attribute 'charset' value[")
-						.append(itemCharset).append("] is a bad charset name").toString();
+						.append(nativeItemCharset).append("] is a bad charset name").toString();
 				throw new IllegalArgumentException(errorMessage);
 			}
 		}
 
-		if (null != itemDefaultValue) {
-			defaultValueRightValueString = new StringBuilder("\"")
-					.append(itemDefaultValue).append("\"").toString();
+		if (null != nativeItemDefaultValue) {
+			defaultValueForVariableDeclarationPart = new StringBuilder("\"")
+					.append(nativeItemDefaultValue).append("\"").toString();
 		}
 		
-		this.itemSizeForLang = itemSizeForLang;
+		this.itemSize = tempItemSize;
 		javaLangTypeOfItemValueType = "String";
 		JavaLangClassCastingTypeOfItemValueType = "String";
 	}
 
 	private void makeVariableLengthByteArrayTypeInformationAfterCheckingAdditionalInformation(
 			String variableLengthByteArrayGubun, String itemName,
-			String itemDefaultValue, String itemSize, String itemCharset)
+			String nativeItemDefaultValue, String nativeItemSize, String nativeItemCharset)
 			throws IllegalArgumentException {
 		if (null == variableLengthByteArrayGubun) {
 			throw new IllegalArgumentException("the parameter variableLengthByteArrayGubun is null");
@@ -817,7 +820,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException("the parameter variableLengthByteArrayGubun is not an element of variable length byte array gubun set[ub, us, si]");
 		}
 		
-		if (null != itemDefaultValue) {
+		if (null != nativeItemDefaultValue) {
 			String errorMessage = new StringBuilder("this '")
 					.append(variableLengthByteArrayGubun)
 					.append(" variable length byte[]' type single item[")
@@ -826,7 +829,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 					.toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
-		if (null != itemSize) {
+		if (null != nativeItemSize) {
 			String errorMessage = new StringBuilder("this '")
 					.append(variableLengthByteArrayGubun)
 					.append(" variable length byte[]' type single item[")
@@ -835,7 +838,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		if (null != itemCharset) {
+		if (null != nativeItemCharset) {
 			String errorMessage = new StringBuilder("this '")
 					.append(variableLengthByteArrayGubun)
 					.append(" variable length byte[]' type single item[")
@@ -844,23 +847,23 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		this.itemSizeForLang = -1;
-		defaultValueRightValueString = null;
+		this.itemSize = -1;
+		defaultValueForVariableDeclarationPart = null;
 		javaLangTypeOfItemValueType = "byte[]";
 		JavaLangClassCastingTypeOfItemValueType = "byte[]";
 	}
 	
 	private void makeFixedLengthByteArrayTypeInformationAfterCheckingAdditionalInformation(
-			String itemName, String itemDefaultValue, String itemSize,
-			String itemCharset) throws IllegalArgumentException {
-		if (null != itemDefaultValue) {
+			String itemName, String nativeItemDefaultValue, String nativeItemSize,
+			String nativeItemCharset) throws IllegalArgumentException {
+		if (null != nativeItemDefaultValue) {
 			String errorMessage = new StringBuilder("this 'fixed length byte[]' type single item[")
 			.append(itemName)
 			.append("] doesn't support attribute 'defaultValue'")
 			.toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
-		if (null == itemSize) {
+		if (null == nativeItemSize) {
 			String errorMessage = new StringBuilder(
 					"this 'fixed length byte[]' type single item[")
 					.append(itemName).append("] needs attribute 'size'")
@@ -868,27 +871,27 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		int itemSizeForLang;
+		int tempItemSize;
 		try {
-			itemSizeForLang = Integer.parseInt(itemSize);
+			tempItemSize = Integer.parseInt(nativeItemSize);
 		} catch (NumberFormatException num_e) {
 			String errorMessage = new StringBuilder(
 					"this 'fixed length byte[]' type single item[")
 					.append(itemName).append("]'s attribute 'size' value[")
-					.append(itemSize).append("] is not integer").toString();
+					.append(nativeItemSize).append("] is not integer").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		if (itemSizeForLang <= 0) {
+		if (tempItemSize <= 0) {
 			String errorMessage = new StringBuilder(
 					"this 'fixed length byte[]' type single item[")
 					.append(itemName).append("]'s attribute 'size' value[")
-					.append(itemSizeForLang)
+					.append(tempItemSize)
 					.append("] must be greater than zero").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		if (null != itemCharset) {
+		if (null != nativeItemCharset) {
 			String errorMessage = new StringBuilder("this 'fixed length byte[]' type single item[")
 			.append(itemName)
 			.append("] doesn't support attribute 'charset'")
@@ -896,23 +899,23 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		this.itemSizeForLang = itemSizeForLang;
-		defaultValueRightValueString = null;
+		this.itemSize = tempItemSize;
+		defaultValueForVariableDeclarationPart = null;
 		javaLangTypeOfItemValueType = "byte[]";
 		JavaLangClassCastingTypeOfItemValueType = "byte[]";
 	}
 	
 	private void makeJavaSqlDateTypeInformationAfterCheckingAdditionalInformation(
-			String itemName, String itemDefaultValue, String itemSize,
-			String itemCharset) throws IllegalArgumentException {
-		if (null != itemDefaultValue) {
+			String itemName, String nativeItemDefaultValue, String nativeItemSize,
+			String nativeItemCharset) throws IllegalArgumentException {
+		if (null != nativeItemDefaultValue) {
 			String errorMessage = new StringBuilder("this 'java sql date' type single item[")
 			.append(itemName)
 			.append("] doesn't support attribute 'defaultValue'")
 			.toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
-		if (null != itemSize) {
+		if (null != nativeItemSize) {
 			String errorMessage = new StringBuilder("this 'java sql date' type single item[")
 			.append(itemName)
 			.append("] doesn't support attribute 'size'")
@@ -920,7 +923,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		if (null != itemCharset) {
+		if (null != nativeItemCharset) {
 			String errorMessage = new StringBuilder("this 'java sql date' type single item[")
 			.append(itemName)
 			.append("] doesn't support attribute 'charset'")
@@ -928,23 +931,23 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		this.itemSizeForLang = -1;
-		defaultValueRightValueString = null;
+		this.itemSize = -1;
+		defaultValueForVariableDeclarationPart = null;
 		javaLangTypeOfItemValueType = "java.sql.Date";
 		JavaLangClassCastingTypeOfItemValueType = "java.sql.Date";
 	}
 	
 	private void makeJavaSqlTimestampTypeInformationAfterCheckingAdditionalInformation(
-			String itemName, String itemDefaultValue, String itemSize,
-			String itemCharset) throws IllegalArgumentException {
-		if (null != itemDefaultValue) {
+			String itemName, String nativeItemDefaultValue, String nativeItemSize,
+			String nativeItemCharset) throws IllegalArgumentException {
+		if (null != nativeItemDefaultValue) {
 			String errorMessage = new StringBuilder("this 'java sql timestamp' type single item[")
 			.append(itemName)
 			.append("] doesn't support attribute 'defaultValue'")
 			.toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
-		if (null != itemSize) {
+		if (null != nativeItemSize) {
 			String errorMessage = new StringBuilder("this 'java sql timestamp' type single item[")
 			.append(itemName)
 			.append("] doesn't support attribute 'size'")
@@ -952,7 +955,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		if (null != itemCharset) {
+		if (null != nativeItemCharset) {
 			String errorMessage = new StringBuilder("this 'java sql timestamp' type single item[")
 			.append(itemName)
 			.append("] doesn't support attribute 'charset'")
@@ -960,28 +963,28 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		this.itemSizeForLang = -1;
-		defaultValueRightValueString = null;
+		this.itemSize = -1;
+		defaultValueForVariableDeclarationPart = null;
 		javaLangTypeOfItemValueType = "java.sql.Timestamp";
 		JavaLangClassCastingTypeOfItemValueType = "java.sql.Timestamp";
 	}
 	
 	private void makeBooleanTypeInformationAfterCheckingAdditionalInformation(
-			String itemName, String itemDefaultValue, String itemSize,
-			String itemCharset) throws IllegalArgumentException {
-		if (null != itemDefaultValue) {
-			if (!itemDefaultValue.equals("true") && !itemDefaultValue.equals("false")) {
+			String itemName, String nativeItemDefaultValue, String nativeItemSize,
+			String nativeItemCharset) throws IllegalArgumentException {
+		if (null != nativeItemDefaultValue) {
+			if (!nativeItemDefaultValue.equals("true") && !nativeItemDefaultValue.equals("false")) {
 				String errorMessage = new StringBuilder("this 'boolean' type single item[")
 				.append(itemName)
 				.append("]'s attribute 'defaultValue' value[")
-				.append(itemDefaultValue)
+				.append(nativeItemDefaultValue)
 				.append("] is not an element of boolean set[true, false]")
 				.toString();
 				throw new IllegalArgumentException(errorMessage);
 			}
 			
 		}
-		if (null != itemSize) {
+		if (null != nativeItemSize) {
 			String errorMessage = new StringBuilder("this 'boolean' type single item[")
 			.append(itemName)
 			.append("] doesn't support attribute 'size'")
@@ -989,7 +992,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		if (null != itemCharset) {
+		if (null != nativeItemCharset) {
 			String errorMessage = new StringBuilder("this 'boolean' type single item[")
 			.append(itemName)
 			.append("] doesn't support attribute 'charset'")
@@ -997,8 +1000,8 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		this.itemSizeForLang = -1;
-		defaultValueRightValueString = itemDefaultValue;
+		this.itemSize = -1;
+		defaultValueForVariableDeclarationPart = nativeItemDefaultValue;
 		javaLangTypeOfItemValueType = "boolean";
 		JavaLangClassCastingTypeOfItemValueType = "java.lang.Boolean";
 	}
@@ -1011,12 +1014,12 @@ public class SingleItemInfo extends AbstractItemInfo {
 		strBuff.append(itemName);
 		strBuff.append("], itemType=[");
 		strBuff.append(itemValueType);
-		strBuff.append("], itemDefaultValue=[");
-		strBuff.append(itemDefaultValue);
+		strBuff.append("], nativeItemDefaultValue=[");
+		strBuff.append(nativeItemDefaultValue);
 		strBuff.append("], itemSize=[");
-		strBuff.append(itemSize);
+		strBuff.append(nativeItemSize);
 		strBuff.append("], itemCharset=[");
-		strBuff.append(itemCharset);
+		strBuff.append(nativeItemCharset);
 		strBuff.append("] }");
 
 		return strBuff.toString();

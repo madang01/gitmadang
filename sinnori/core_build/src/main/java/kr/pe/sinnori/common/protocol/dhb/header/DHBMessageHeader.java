@@ -22,19 +22,22 @@ import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.etc.CharsetUtil;
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
 import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
 import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
-import kr.pe.sinnori.common.io.FixedSizeOutputStream;
 import kr.pe.sinnori.common.io.BinaryInputStreamIF;
+import kr.pe.sinnori.common.io.FixedSizeOutputStream;
 import kr.pe.sinnori.common.util.HexUtil;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 메시시 헤더 클래스.
@@ -60,7 +63,7 @@ import org.slf4j.LoggerFactory;
 public class DHBMessageHeader {
 	private Logger log = LoggerFactory.getLogger(DHBMessageHeader.class);
 	
-	public static final int MD5_BYTESIZE = 16;
+	// public static final int CommonStaticFinalVars.MD5_BYTESIZE = 16;
 	public static final Charset HEADER_CHARSET = Charset.forName("ISO-8859-1");
 	public static final int MESSAGE_HEADER_BYTE_SIZE_WITHOUT_MESSAGEID = 6;
 	
@@ -74,9 +77,9 @@ public class DHBMessageHeader {
 	/** bodySize : long 8byte */
 	public long bodySize= -1;
 	/** bodyMD5 : byte array 16byte */
-	public byte bodyMD5[] = null;
+	public byte bodyMD5Bytes[] = null;
 	/** headerMD5 : byte array 16byte */
-	public byte headerMD5[] = null;
+	public byte headerBodyMD5Bytes[] = null;
 	
 	/** 메시지 헤더 정보에서 고정 크기를 갖는 메시지 식별자의 크기, 환경 변수를 통해 지정된다. */
 	public int messageIDFixedSize = -1;
@@ -99,7 +102,7 @@ public class DHBMessageHeader {
 	 * @return 지정된 메시지 식별자 크기를 갖는 THB 헤더 크기
 	 */
 	public static int getMessageHeaderSize(int messageIDFixedSize) {
-		return (messageIDFixedSize + 2 + 4 + 8 + MD5_BYTESIZE*2);
+		return (messageIDFixedSize + 2 + 4 + 8 + CommonStaticFinalVars.MD5_BYTESIZE*2);
 	}
 	
 	
@@ -116,23 +119,12 @@ public class DHBMessageHeader {
 	 * @param messageIDFixedSize 메시지 식별자 크기
 	 * @return 지정된 메시지 식별자 크기를 갖는 DHB 헤더의 헤더 MD5 옵셋
 	 */
-	public static int getHeaderMD5Offset(int messageIDFixedSize) {
-		return (messageIDFixedSize+ 2 + 4 + 8 + MD5_BYTESIZE);
+	public static int getHeaderBodySize(int messageIDFixedSize) {
+		return (messageIDFixedSize+ 2 + 4 + 8 + CommonStaticFinalVars.MD5_BYTESIZE);
 	}
 	
-	
-	
-	/**
-	 * 메시지 헤더의 내용을 목적지 버퍼에 저장한다. <br/>
-	 * 단, 헤더 MD5는 자동 계산되어 저장된다.<br/>
-	 * 참고) 이 메소드 정상 종료후  목적지 버퍼의 현재 읽을 위치는 메시지 헤더 크기이다.
-	 * @param dstBuffer 헤더를 저장할 목적지 바이트 버퍼, 반듯이 position=0 그리고 limit=capacity 이어야 한다.
-	 * @param streamCharset 문자셋
-	 * @param streamCharsetEncoder 문자셋 인코더
-	 * @param md5 MD5
-	 * @throws IllegalArgumentException 잘못된 파라미터 값이 들어온 경우 던지는 예외
-	 */
-	public void writeMessageHeader(ByteBuffer dstBuffer, Charset streamCharset, CharsetEncoder streamCharsetEncoder, java.security.MessageDigest md5) throws IllegalArgumentException {
+
+	public void toBuffer(ByteBuffer dstBuffer, CharsetEncoder streamCharsetEncoder) throws IllegalArgumentException {
 		if (dstBuffer.remaining() < messageHeaderSize) {
 			String errorMessage = String.format("파라미터 목적지 버퍼의 크기[%d]가 메시지 헤더 크기[%d] 보다 작습니다.");
 			throw new IllegalArgumentException(errorMessage);
@@ -151,22 +143,30 @@ public class DHBMessageHeader {
 		}
 		
 		
-		if (null == bodyMD5) {
+		if (null == bodyMD5Bytes) {
 			String errorMessage = "메시지 헤더 정보의 바디 MD5가 null 입니다.";
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		if (bodyMD5.length != MD5_BYTESIZE) {
-			String errorMessage = String.format("메시지 헤더 정보의 바디 MD5의 크기[%d]가 MD5 바이트 크기[%d]와 다릅니다.", bodyMD5.length, MD5_BYTESIZE);
+		if (bodyMD5Bytes.length != CommonStaticFinalVars.MD5_BYTESIZE) {
+			String errorMessage = String.format("메시지 헤더 정보의 바디 MD5의 크기[%d]가 MD5 바이트 크기[%d]와 다릅니다.", bodyMD5Bytes.length, CommonStaticFinalVars.MD5_BYTESIZE);
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		if (null != headerMD5) {
+		if (null != headerBodyMD5Bytes) {
 			String errorMessage = "메시지 헤더 정보 정보는 자동 계산 되므로 값을 지정할 필요가 없습니다.";
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		java.security.MessageDigest md5 = null;
+		try {
+			md5 = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			log.error("failed to get a MD5 instance", e);
+			System.exit(1);
 		}
 		
 		int positionBeforeWork = dstBuffer.position();
@@ -181,7 +181,7 @@ public class DHBMessageHeader {
 			headerOutputStream.putUnsignedShort(mailboxID);
 			headerOutputStream.putInt(mailID);
 			headerOutputStream.putLong(bodySize);
-			headerOutputStream.putBytes(bodyMD5);
+			headerOutputStream.putBytes(bodyMD5Bytes);
 			// header MD5 구히기 위한 메시지 헤더 쓰기전 위치로 돌리기
 			dstBuffer.limit(dstBuffer.position());
 			/** 백업한 position 복귀, 즉 헤더 시작 위치 */
@@ -192,12 +192,12 @@ public class DHBMessageHeader {
 			//log.info(String.format("%s", HexUtil.byteBufferAvailableToHex(dstBuffer)));
 			
 			md5.update(dstBuffer);
-			headerMD5 = md5.digest();
+			headerBodyMD5Bytes = md5.digest();
 			
 			/** 백업한 limit 복귀 */
 			dstBuffer.limit(limitBeofreWork);
 			
-			headerOutputStream.putBytes(headerMD5);		
+			headerOutputStream.putBytes(headerBodyMD5Bytes);		
 		} catch (BufferOverflowException e) {
 			log.error("BufferOverflowException", e);
 			System.exit(1);
@@ -219,7 +219,7 @@ public class DHBMessageHeader {
 	 * @param headerInputStream 헤더 정보를 갖고 있는 입력 스트림
 	 * @throws HeaderFormatException 메시지 식별자 읽을때 문자셋 에러 발생시 던지는 예외
 	 */
-	public void readMessageHeader(BinaryInputStreamIF headerInputStream) throws HeaderFormatException {
+	public void fromInputStream(BinaryInputStreamIF headerInputStream) throws HeaderFormatException {
 		try {
 			this.messageID = headerInputStream
 					.getFixedLengthString( messageIDFixedSize,
@@ -228,10 +228,10 @@ public class DHBMessageHeader {
 					.getUnsignedShort();
 			this.mailID = headerInputStream.getInt();
 			this.bodySize = headerInputStream.getLong();
-			this.bodyMD5 = headerInputStream
-					.getBytes(DHBMessageHeader.MD5_BYTESIZE);
-			this.headerMD5 = headerInputStream
-					.getBytes(DHBMessageHeader.MD5_BYTESIZE);
+			this.bodyMD5Bytes = headerInputStream
+					.getBytes(CommonStaticFinalVars.MD5_BYTESIZE);
+			this.headerBodyMD5Bytes = headerInputStream
+					.getBytes(CommonStaticFinalVars.MD5_BYTESIZE);
 		} catch (IllegalArgumentException e) {
 			log.error("IllegalArgumentException", e);
 			System.exit(1);
@@ -248,6 +248,39 @@ public class DHBMessageHeader {
 		}
 	}
 	
+	
+	public void fromBodyInputStream(BinaryInputStreamIF headerInputStream) throws HeaderFormatException {
+		try {
+			this.messageID = headerInputStream
+					.getFixedLengthString( messageIDFixedSize,
+							CharsetUtil.createCharsetDecoder(DHBMessageHeader.HEADER_CHARSET)).trim();
+			this.mailboxID = headerInputStream
+					.getUnsignedShort();
+			this.mailID = headerInputStream.getInt();
+			this.bodySize = headerInputStream.getLong();
+			this.bodyMD5Bytes = headerInputStream
+					.getBytes(CommonStaticFinalVars.MD5_BYTESIZE);/*
+			this.headerMD5 = headerInputStream
+					.getBytes(DHBMessageHeader.CommonStaticFinalVars.MD5_BYTESIZE);*/
+		} catch (IllegalArgumentException e) {
+			log.error("IllegalArgumentException", e);
+			System.exit(1);
+		} catch (SinnoriBufferUnderflowException e) {
+			log.error("SinnoriBufferUnderflowException", e);
+			System.exit(1);
+		} catch (BufferUnderflowException e) {
+			log.error("BufferUnderflowException", e);
+			System.exit(1);
+		} catch (SinnoriCharsetCodingException e) {
+			String errorMessage = e.getMessage();
+			log.warn(errorMessage, e);
+			throw new HeaderFormatException(errorMessage);
+		}
+	}
+	
+	public void setHeaderBodyMD5Bytes(byte[] headerBodyMD5Bytes) {
+		this.headerBodyMD5Bytes = headerBodyMD5Bytes;
+	}
 
 	@Override
 	public String toString() {
@@ -261,14 +294,14 @@ public class DHBMessageHeader {
 		headerInfo.append("], body data size=[");
 		headerInfo.append(bodySize);
 		headerInfo.append("]");
-		if (null != bodyMD5) {
+		if (null != bodyMD5Bytes) {
 			headerInfo.append(", data MD5=[");
-			headerInfo.append(HexUtil.getHexStringFromByteArray(bodyMD5));
+			headerInfo.append(HexUtil.getHexStringFromByteArray(bodyMD5Bytes));
 			headerInfo.append("]");
 		}
-		if (null != headerMD5) {
+		if (null != headerBodyMD5Bytes) {
 			headerInfo.append(", header MD5=[");
-			headerInfo.append(HexUtil.getHexStringFromByteArray(headerMD5));
+			headerInfo.append(HexUtil.getHexStringFromByteArray(headerBodyMD5Bytes));
 			headerInfo.append("]");
 		}		
 		headerInfo.append("}");

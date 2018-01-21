@@ -296,7 +296,7 @@ public class AnyProjectServer extends AbstractProject implements
 		}
 
 		clientResource = new ClientResource(clientSC, projectName,
-				new SocketOutputStream(dataPacketBufferMaxCntPerMessage, this));
+				new SocketOutputStream(charsetDecoderOfProject, dataPacketBufferMaxCntPerMessage, this));
 
 		scToClientResourceHash.put(clientSC, clientResource);
 		// }

@@ -23,13 +23,15 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
+import java.nio.charset.CharsetDecoder;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
+import kr.pe.sinnori.common.etc.CharsetUtil;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
@@ -72,12 +74,12 @@ public abstract class AbstractConnection {
 	protected String hostOfProject = null;
 	protected int portOfProject;
 	protected Charset charsetOfProject = null;
-	
+	protected CharsetDecoder charsetDecoderOfProject = null;
 	
 	
 	
 	/** 데이터 패킷 버퍼 관리자 */
-	protected DataPacketBufferPoolManagerIF dataPacketBufferQueueManager = null;
+	protected DataPacketBufferPoolManagerIF dataPacketBufferPoolManager = null;
 	/** */
 	protected MessageProtocolIF messageProtocol = null;
 	
@@ -92,7 +94,7 @@ public abstract class AbstractConnection {
 	protected boolean whetherToAutoConnect;
 
 	/** 소켓 채널 전용 읽기 자원 */
-	protected SocketOutputStream messageInputStreamResource = null;
+	protected SocketOutputStream socketOutputStream = null;
 	
 
 	/** 최종 읽기를 수행한 시간. 초기값은 클라이언트(=SocketChannel) 생성시간이다. */
@@ -108,13 +110,15 @@ public abstract class AbstractConnection {
 	
 	protected ClientObjectCacheManagerIF clientObjectCacheManager = null;
 	
+	protected int dataPacketBufferMaxCntPerMessage;
+	
 	/**
 	 * 생성자
 	 * @param index 연결 클래스 번호
 	 * @param socketTimeOut 소켓 타임 아웃
 	 * @param whetherToAutoConnect 자동 접속 여부
 	 * @param clientProjectConfig 프로젝트의 클라이언트 환경 변수
-	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자
+	 * @param dataPacketBufferPoolManager 데이터 패킷 버퍼 큐 관리자
 	 * @param asynOutputMessageQueue 서버에서 보내는 불특정 출력 메시지를 받는 큐
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷 버퍼를 할당 받지 못했을 경우 던지는 예외
 	 * @throws InterruptedException
@@ -128,7 +132,7 @@ public abstract class AbstractConnection {
 			LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue,
 			MessageProtocolIF messageProtocol,
 			int dataPacketBufferMaxCntPerMessage,
-			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager,
+			DataPacketBufferPoolManagerIF dataPacketBufferPoolManager,
 			ClientObjectCacheManagerIF clientObjectCacheManager) throws NoMoreDataPacketBufferException, InterruptedException {
 		this.projectName = projectName;
 		this.index = index;
@@ -138,13 +142,14 @@ public abstract class AbstractConnection {
 		this.socketTimeOut = socketTimeOut;
 		this.whetherToAutoConnect = whetherToAutoConnect;
 		this.messageProtocol = messageProtocol;
-		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-		messageInputStreamResource = new SocketOutputStream(dataPacketBufferMaxCntPerMessage, dataPacketBufferQueueManager);
+		this.dataPacketBufferPoolManager = dataPacketBufferPoolManager;
+		// messageInputStreamResource = new SocketOutputStream(dataPacketBufferMaxCntPerMessage, dataPacketBufferQueueManager);
+		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
 		
 		this.asynOutputMessageQueue = asynOutputMessageQueue;
 		this.clientObjectCacheManager = clientObjectCacheManager;
 		
-		
+		charsetDecoderOfProject = CharsetUtil.createCharsetDecoder(charsetOfProject);
 	
 		/*
 		try {
@@ -155,6 +160,10 @@ public abstract class AbstractConnection {
 			System.exit(1);
 		}
 		*/
+		
+		
+		this.socketOutputStream = new SocketOutputStream(charsetDecoderOfProject, dataPacketBufferMaxCntPerMessage, dataPacketBufferPoolManager);
+		
 	}
 	
 
@@ -164,7 +173,7 @@ public abstract class AbstractConnection {
 	 * 소켓에 종속적인 자원 초기화.
 	 */
 	protected void initSocketResource() {
-		messageInputStreamResource.initResource();
+		// socketOutputStream.initResource();
 		
 		echoMesgCount = 0;
 		// finalReadTime = null;
@@ -228,7 +237,7 @@ public abstract class AbstractConnection {
 	 * @throws IOException 소켓 쓰기 에러 발생시 던지는 예외
 	 * @throws ClosedByInterruptException 
 	 */
-	public void write(ArrayList<WrapBuffer> inObjWrapBufferList) throws IOException {
+	public void write(List<WrapBuffer> inObjWrapBufferList) throws IOException {
 		// if (null == inObjWrapBufferList) return;
 		
 		 
@@ -334,9 +343,9 @@ public abstract class AbstractConnection {
 	/**
 	 * @return 소켓 채널 전용 읽기 자원
 	 */
-	public SocketOutputStream getMessageInputStreamResource() {
+	public SocketOutputStream getSocketOutputStream() {
 		
-		return messageInputStreamResource;
+		return socketOutputStream;
 	}
 	
 	
@@ -456,7 +465,7 @@ public abstract class AbstractConnection {
 	
 	
 	
-	protected ArrayList<WrapBuffer> getWrapBufferList(ClassLoader classLoader, AbstractMessage messageToClient) throws DynamicClassCallException, NoMoreDataPacketBufferException, BodyFormatException {
+	protected List<WrapBuffer> getWrapBufferList(ClassLoader classLoader, AbstractMessage messageToClient) throws DynamicClassCallException, NoMoreDataPacketBufferException, BodyFormatException {
 		MessageCodecIF messageCodec = null;
 		
 		try {
@@ -485,9 +494,9 @@ public abstract class AbstractConnection {
 			throw new DynamicClassCallException("unkown error::"+e.getMessage());
 		}
 		
-		ArrayList<WrapBuffer> wrapBufferList = null;	
+		List<WrapBuffer> wrapBufferList = null;	
 		try {
-			wrapBufferList = messageProtocol.M2S(messageToClient, messageEncoder, charsetOfProject);
+			wrapBufferList = messageProtocol.M2S(messageToClient, messageEncoder);
 		} catch(NoMoreDataPacketBufferException e) {
 			throw e;
 		} catch(DynamicClassCallException e) {

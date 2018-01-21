@@ -40,8 +40,8 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 	private Logger log = LoggerFactory.getLogger(THBSingleItemDecoder.class);
 	
 	private interface THBTypeSingleItemDecoderIF {
-		public Object getValue(int itemTypeID, String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryInputStreamIF sr) throws Exception;
+		public Object getValue(int itemTypeID, String itemName, int itemSize,
+				Charset itemCharset, BinaryInputStreamIF binaryInputStream) throws Exception;
 	}
 	
 	private final THBTypeSingleItemDecoderIF[] thbTypeSingleItemDecoderList = new THBTypeSingleItemDecoderIF[] { 
@@ -62,11 +62,11 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 	/** THB 프로토콜의 byte 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class THBByteSingleItemDecoder implements THBTypeSingleItemDecoderIF {
 		@Override
-		public Object getValue(int itemTypeID, String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryInputStreamIF sr)
+		public Object getValue(int itemTypeID, String itemName, int itemSize,
+				Charset itemCharset, BinaryInputStreamIF binaryInputStream)
 				throws SinnoriBufferUnderflowException, BodyFormatException  {
 			
-			int receivedItemTypeID = sr.getUnsignedByte();
+			int receivedItemTypeID = binaryInputStream.getUnsignedByte();
 			if (itemTypeID != receivedItemTypeID) {
 				ItemTypeManger itemTypeManger = ItemTypeManger.getInstance();
 				String receivedItemTypeName = null;
@@ -81,7 +81,7 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 				throw new BodyFormatException(errorMesssage);
 			}
 			
-			return sr.getByte();
+			return binaryInputStream.getByte();
 		}		
 	}
 
@@ -89,10 +89,10 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 	private final class THBUnsignedByteSingleItemDecoder implements THBTypeSingleItemDecoderIF {
 
 		@Override
-		public Object getValue(int itemTypeID, String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryInputStreamIF sr)
+		public Object getValue(int itemTypeID, String itemName, int itemSize,
+				Charset itemCharset, BinaryInputStreamIF binaryInputStream)
 				throws SinnoriBufferUnderflowException, BodyFormatException  {
-			int receivedItemTypeID = sr.getUnsignedByte();
+			int receivedItemTypeID = binaryInputStream.getUnsignedByte();
 			if (itemTypeID != receivedItemTypeID) {
 				ItemTypeManger itemTypeManger = ItemTypeManger.getInstance();
 				String receivedItemTypeName = null;
@@ -107,17 +107,17 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 				throw new BodyFormatException(errorMesssage);
 			}
 			
-			return sr.getUnsignedByte();
+			return binaryInputStream.getUnsignedByte();
 		}		
 	}
 
 	/** THB 프로토콜의 short 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class THBShortSingleItemDecoder implements THBTypeSingleItemDecoderIF {
 		@Override
-		public Object getValue(int itemTypeID, String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryInputStreamIF sr)
+		public Object getValue(int itemTypeID, String itemName, int itemSize,
+				Charset itemCharset, BinaryInputStreamIF binaryInputStream)
 				throws SinnoriBufferUnderflowException, BodyFormatException  {
-			int receivedItemTypeID = sr.getUnsignedByte();
+			int receivedItemTypeID = binaryInputStream.getUnsignedByte();
 			if (itemTypeID != receivedItemTypeID) {
 				ItemTypeManger itemTypeManger = ItemTypeManger.getInstance();
 				String receivedItemTypeName = null;
@@ -132,7 +132,7 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 				throw new BodyFormatException(errorMesssage);
 			}
 			
-			return sr.getShort();
+			return binaryInputStream.getShort();
 		}		
 	}
 
@@ -140,11 +140,11 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 	private final class THBUnsignedShortSingleItemDecoder implements THBTypeSingleItemDecoderIF {
 		
 		@Override
-		public Object getValue(int itemTypeID, String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryInputStreamIF sr)
+		public Object getValue(int itemTypeID, String itemName, int itemSize,
+				Charset itemCharset, BinaryInputStreamIF binaryInputStream)
 				throws SinnoriBufferUnderflowException, BodyFormatException  {
 			
-			int receivedItemTypeID = sr.getUnsignedByte();
+			int receivedItemTypeID = binaryInputStream.getUnsignedByte();
 			if (itemTypeID != receivedItemTypeID) {
 				ItemTypeManger itemTypeManger = ItemTypeManger.getInstance();
 				String receivedItemTypeName = null;
@@ -159,7 +159,7 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 				throw new BodyFormatException(errorMesssage);
 			}
 			
-			return sr.getUnsignedShort();
+			return binaryInputStream.getUnsignedShort();
 		}		
 	}
 
@@ -167,10 +167,10 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 	private final class THBIntSingleItemDecoder implements THBTypeSingleItemDecoderIF {
 		
 		@Override
-		public Object getValue(int itemTypeID, String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryInputStreamIF sr)
+		public Object getValue(int itemTypeID, String itemName, int itemSize,
+				Charset itemCharset, BinaryInputStreamIF binaryInputStream)
 				throws SinnoriBufferUnderflowException, BodyFormatException  {
-			int receivedItemTypeID = sr.getUnsignedByte();
+			int receivedItemTypeID = binaryInputStream.getUnsignedByte();
 			if (itemTypeID != receivedItemTypeID) {
 				ItemTypeManger itemTypeManger = ItemTypeManger.getInstance();
 				String receivedItemTypeName = null;
@@ -185,7 +185,7 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 				throw new BodyFormatException(errorMesssage);
 			}
 			
-			return sr.getInt();
+			return binaryInputStream.getInt();
 		}		
 	}
 
@@ -193,10 +193,10 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 	private final class THBUnsignedIntSingleItemDecoder implements THBTypeSingleItemDecoderIF {
 		
 		@Override
-		public Object getValue(int itemTypeID, String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryInputStreamIF sr)
+		public Object getValue(int itemTypeID, String itemName, int itemSize,
+				Charset itemCharset, BinaryInputStreamIF binaryInputStream)
 				throws SinnoriBufferUnderflowException, BodyFormatException  {
-			int receivedItemTypeID = sr.getUnsignedByte();
+			int receivedItemTypeID = binaryInputStream.getUnsignedByte();
 			if (itemTypeID != receivedItemTypeID) {
 				ItemTypeManger itemTypeManger = ItemTypeManger.getInstance();
 				String receivedItemTypeName = null;
@@ -210,17 +210,17 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 				String errorMesssage = String.format("항목 타입[%d][%s]이 수신 받은 항목 타입[%d][%s] 과 다릅니다.", itemTypeID, itemName, receivedItemTypeID, receivedItemTypeName);
 				throw new BodyFormatException(errorMesssage);
 			}
-			return sr.getUnsignedInt();
+			return binaryInputStream.getUnsignedInt();
 		}		
 	}
 
 	/** THB 프로토콜의 long 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class THBLongSingleItemDecoder implements THBTypeSingleItemDecoderIF {		
 		@Override
-		public Object getValue(int itemTypeID, String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryInputStreamIF sr)
+		public Object getValue(int itemTypeID, String itemName, int itemSize,
+				Charset itemCharset, BinaryInputStreamIF binaryInputStream)
 				throws SinnoriBufferUnderflowException, BodyFormatException {
-			int receivedItemTypeID = sr.getUnsignedByte();
+			int receivedItemTypeID = binaryInputStream.getUnsignedByte();
 			if (itemTypeID != receivedItemTypeID) {
 				ItemTypeManger itemTypeManger = ItemTypeManger.getInstance();
 				String receivedItemTypeName = null;
@@ -234,17 +234,17 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 				String errorMesssage = String.format("항목 타입[%d][%s]이 수신 받은 항목 타입[%d][%s] 과 다릅니다.", itemTypeID, itemName, receivedItemTypeID, receivedItemTypeName);
 				throw new BodyFormatException(errorMesssage);
 			}
-			return sr.getLong();
+			return binaryInputStream.getLong();
 		}		
 	}
 
 	/** THB 프로토콜의 ub pascal string 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class THBUBPascalStringSingleItemDecoder implements THBTypeSingleItemDecoderIF {		
 		@Override
-		public Object getValue(int itemTypeID, String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryInputStreamIF sr)
+		public Object getValue(int itemTypeID, String itemName, int itemSize,
+				Charset itemCharset, BinaryInputStreamIF binaryInputStream)
 				throws SinnoriBufferUnderflowException, IllegalArgumentException, SinnoriCharsetCodingException, BodyFormatException {
-			int receivedItemTypeID = sr.getUnsignedByte();
+			int receivedItemTypeID = binaryInputStream.getUnsignedByte();
 			if (itemTypeID != receivedItemTypeID) {
 				ItemTypeManger itemTypeManger = ItemTypeManger.getInstance();
 				String receivedItemTypeName = null;
@@ -258,17 +258,17 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 				String errorMesssage = String.format("항목 타입[%d][%s]이 수신 받은 항목 타입[%d][%s] 과 다릅니다.", itemTypeID, itemName, receivedItemTypeID, receivedItemTypeName);
 				throw new BodyFormatException(errorMesssage);
 			}
-			return sr.getUBPascalString();
+			return binaryInputStream.getUBPascalString();
 		}		
 	}
 
 	/** THB 프로토콜의 us pascal string 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class THBUSPascalStringSingleItemDecoder implements THBTypeSingleItemDecoderIF {
 		@Override
-		public Object getValue(int itemTypeID, String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryInputStreamIF sr)
+		public Object getValue(int itemTypeID, String itemName, int itemSize,
+				Charset itemCharset, BinaryInputStreamIF binaryInputStream)
 				throws SinnoriBufferUnderflowException, IllegalArgumentException, SinnoriCharsetCodingException, BodyFormatException {
-			int receivedItemTypeID = sr.getUnsignedByte();
+			int receivedItemTypeID = binaryInputStream.getUnsignedByte();
 			if (itemTypeID != receivedItemTypeID) {
 				ItemTypeManger itemTypeManger = ItemTypeManger.getInstance();
 				String receivedItemTypeName = null;
@@ -283,17 +283,17 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 				throw new BodyFormatException(errorMesssage);
 			}
 			
-			return sr.getUSPascalString();
+			return binaryInputStream.getUSPascalString();
 		}		
 	}
 
 	/** THB 프로토콜의 si pascal string 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class THBSIPascalStringSingleItemDecoder implements THBTypeSingleItemDecoderIF {
 		@Override
-		public Object getValue(int itemTypeID, String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryInputStreamIF sr)
+		public Object getValue(int itemTypeID, String itemName, int itemSize,
+				Charset itemCharset, BinaryInputStreamIF binaryInputStream)
 				throws SinnoriBufferUnderflowException, IllegalArgumentException, SinnoriCharsetCodingException, BodyFormatException {
-			int receivedItemTypeID = sr.getUnsignedByte();
+			int receivedItemTypeID = binaryInputStream.getUnsignedByte();
 			if (itemTypeID != receivedItemTypeID) {
 				ItemTypeManger itemTypeManger = ItemTypeManger.getInstance();
 				String receivedItemTypeName = null;
@@ -307,18 +307,18 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 				String errorMesssage = String.format("항목 타입[%d][%s]이 수신 받은 항목 타입[%d][%s] 과 다릅니다.", itemTypeID, itemName, receivedItemTypeID, receivedItemTypeName);
 				throw new BodyFormatException(errorMesssage);
 			}
-			return sr.getSIPascalString();
+			return binaryInputStream.getSIPascalString();
 		}		
 	}
 
 	/** THB 프로토콜의 fixed length string 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class THBFixedLengthStringSingleItemDecoder implements THBTypeSingleItemDecoderIF {
 		@Override
-		public Object getValue(int itemTypeID, String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryInputStreamIF sr)
+		public Object getValue(int itemTypeID, String itemName, int itemSize,
+				Charset itemCharset, BinaryInputStreamIF binaryInputStream)
 				throws SinnoriBufferUnderflowException, IllegalArgumentException, SinnoriCharsetCodingException, BodyFormatException {
 			
-			int receivedItemTypeID = sr.getUnsignedByte();
+			int receivedItemTypeID = binaryInputStream.getUnsignedByte();
 			if (itemTypeID != receivedItemTypeID) {
 				ItemTypeManger itemTypeManger = ItemTypeManger.getInstance();
 				String receivedItemTypeName = null;
@@ -333,10 +333,10 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 				throw new BodyFormatException(errorMesssage);
 			}
 			
-			if (null == itemCharsetForLang) {
-				return sr.getFixedLengthString(itemSizeForLang).trim();
+			if (null == itemCharset) {
+				return binaryInputStream.getFixedLengthString(itemSize).trim();
 			} else {
-				return sr.getFixedLengthString(itemSizeForLang, CharsetUtil.createCharsetDecoder(itemCharsetForLang)).trim();
+				return binaryInputStream.getFixedLengthString(itemSize, CharsetUtil.createCharsetDecoder(itemCharset)).trim();
 			}
 		}		
 	}
@@ -346,10 +346,10 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 	/** THB 프로토콜의 ub variable length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class THBUBVariableLengthBytesSingleItemDecoder implements THBTypeSingleItemDecoderIF {
 		@Override
-		public Object getValue(int itemTypeID, String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryInputStreamIF sr)
+		public Object getValue(int itemTypeID, String itemName, int itemSize,
+				Charset itemCharset, BinaryInputStreamIF binaryInputStream)
 				throws SinnoriBufferUnderflowException, IllegalArgumentException, BodyFormatException {
-			int receivedItemTypeID = sr.getUnsignedByte();
+			int receivedItemTypeID = binaryInputStream.getUnsignedByte();
 			if (itemTypeID != receivedItemTypeID) {
 				ItemTypeManger itemTypeManger = ItemTypeManger.getInstance();
 				String receivedItemTypeName = null;
@@ -364,18 +364,18 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 				throw new BodyFormatException(errorMesssage);
 			}
 			
-			short len = sr.getUnsignedByte();
-			return sr.getBytes(len);
+			short len = binaryInputStream.getUnsignedByte();
+			return binaryInputStream.getBytes(len);
 		}		
 	}
 
 	/** THB 프로토콜의 us variable length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class THBUSVariableLengthBytesSingleItemDecoder implements THBTypeSingleItemDecoderIF {
 		@Override
-		public Object getValue(int itemTypeID, String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryInputStreamIF sr)
+		public Object getValue(int itemTypeID, String itemName, int itemSize,
+				Charset itemCharset, BinaryInputStreamIF binaryInputStream)
 				throws SinnoriBufferUnderflowException, IllegalArgumentException, BodyFormatException {
-			int receivedItemTypeID = sr.getUnsignedByte();
+			int receivedItemTypeID = binaryInputStream.getUnsignedByte();
 			if (itemTypeID != receivedItemTypeID) {
 				ItemTypeManger itemTypeManger = ItemTypeManger.getInstance();
 				String receivedItemTypeName = null;
@@ -390,18 +390,18 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 				throw new BodyFormatException(errorMesssage);
 			}
 			
-			int len = sr.getUnsignedShort();
-			return sr.getBytes(len);
+			int len = binaryInputStream.getUnsignedShort();
+			return binaryInputStream.getBytes(len);
 		}		
 	}
 	
 	/** THB 프로토콜의 si variable length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class THBSIVariableLengthBytesSingleItemDecoder implements THBTypeSingleItemDecoderIF {
 		@Override
-		public Object getValue(int itemTypeID, String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryInputStreamIF sr)
+		public Object getValue(int itemTypeID, String itemName, int itemSize,
+				Charset itemCharset, BinaryInputStreamIF binaryInputStream)
 				throws SinnoriBufferUnderflowException, IllegalArgumentException, BodyFormatException {
-			int receivedItemTypeID = sr.getUnsignedByte();
+			int receivedItemTypeID = binaryInputStream.getUnsignedByte();
 			if (itemTypeID != receivedItemTypeID) {
 				ItemTypeManger itemTypeManger = ItemTypeManger.getInstance();
 				String receivedItemTypeName = null;
@@ -415,18 +415,18 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 				String errorMesssage = String.format("항목 타입[%d][%s]이 수신 받은 항목 타입[%d][%s] 과 다릅니다.", itemTypeID, itemName, receivedItemTypeID, receivedItemTypeName);
 				throw new BodyFormatException(errorMesssage);
 			}
-			int len = sr.getInt();
-			return sr.getBytes(len);
+			int len = binaryInputStream.getInt();
+			return binaryInputStream.getBytes(len);
 		}		
 	}
 	
 	/** THB 프로토콜의 fixed length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class THBFixedLengthBytesSingleItemDecoder implements THBTypeSingleItemDecoderIF {
 		@Override
-		public Object getValue(int itemTypeID, String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryInputStreamIF sr)
+		public Object getValue(int itemTypeID, String itemName, int itemSize,
+				Charset itemCharset, BinaryInputStreamIF binaryInputStream)
 				throws SinnoriBufferUnderflowException, IllegalArgumentException, BodyFormatException {
-			int receivedItemTypeID = sr.getUnsignedByte();
+			int receivedItemTypeID = binaryInputStream.getUnsignedByte();
 			if (itemTypeID != receivedItemTypeID) {
 				ItemTypeManger itemTypeManger = ItemTypeManger.getInstance();
 				String receivedItemTypeName = null;
@@ -440,16 +440,16 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 				String errorMesssage = String.format("항목 타입[%d][%s]이 수신 받은 항목 타입[%d][%s] 과 다릅니다.", itemTypeID, itemName, receivedItemTypeID, receivedItemTypeName);
 				throw new BodyFormatException(errorMesssage);
 			}
-			return sr.getBytes(itemSizeForLang);
+			return binaryInputStream.getBytes(itemSize);
 		}		
 	}
 	
 	/** THB 프로토콜의 java sql date 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class THBJavaSqlDateSingleItemDecoder implements THBTypeSingleItemDecoderIF {
 		@Override
-		public Object getValue(int itemTypeID, String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryInputStreamIF sr) throws BodyFormatException, SinnoriBufferUnderflowException {
-			int receivedItemTypeID = sr.getUnsignedByte();
+		public Object getValue(int itemTypeID, String itemName, int itemSize,
+				Charset itemCharset, BinaryInputStreamIF binaryInputStream) throws BodyFormatException, SinnoriBufferUnderflowException {
+			int receivedItemTypeID = binaryInputStream.getUnsignedByte();
 			if (itemTypeID != receivedItemTypeID) {
 				ItemTypeManger itemTypeManger = ItemTypeManger.getInstance();
 				String receivedItemTypeName = null;
@@ -464,7 +464,7 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 				throw new BodyFormatException(errorMesssage);
 			}
 			
-			long javaSqlDateLongValue = sr.getLong();			
+			long javaSqlDateLongValue = binaryInputStream.getLong();			
 			return new java.sql.Date(javaSqlDateLongValue);
 		}
 	}
@@ -472,9 +472,9 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 	/** THB 프로토콜의 java sql timestamp 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class THBJavaSqlTimestampSingleItemDecoder implements THBTypeSingleItemDecoderIF {
 		@Override
-		public Object getValue(int itemTypeID, String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryInputStreamIF sr) throws BodyFormatException, SinnoriBufferUnderflowException {
-			int receivedItemTypeID = sr.getUnsignedByte();
+		public Object getValue(int itemTypeID, String itemName, int itemSize,
+				Charset itemCharset, BinaryInputStreamIF binaryInputStream) throws BodyFormatException, SinnoriBufferUnderflowException {
+			int receivedItemTypeID = binaryInputStream.getUnsignedByte();
 			if (itemTypeID != receivedItemTypeID) {
 				ItemTypeManger itemTypeManger = ItemTypeManger.getInstance();
 				String receivedItemTypeName = null;
@@ -489,7 +489,7 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 				throw new BodyFormatException(errorMesssage);
 			}
 			
-			long javaSqlDateLongValue = sr.getLong();			
+			long javaSqlDateLongValue = binaryInputStream.getLong();			
 			return new java.sql.Timestamp(javaSqlDateLongValue);
 		}
 	}
@@ -497,9 +497,9 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 	/** THB 프로토콜의 boolean 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class THBBooleanSingleItemDecoder implements THBTypeSingleItemDecoderIF {
 		@Override
-		public Object getValue(int itemTypeID, String itemName, int itemSizeForLang,
-				Charset itemCharsetForLang, BinaryInputStreamIF sr) throws BodyFormatException, SinnoriBufferUnderflowException {
-			int receivedItemTypeID = sr.getUnsignedByte();
+		public Object getValue(int itemTypeID, String itemName, int itemSize,
+				Charset itemCharset, BinaryInputStreamIF binaryInputStream) throws BodyFormatException, SinnoriBufferUnderflowException {
+			int receivedItemTypeID = binaryInputStream.getUnsignedByte();
 			if (itemTypeID != receivedItemTypeID) {
 				ItemTypeManger itemTypeManger = ItemTypeManger.getInstance();
 				String receivedItemTypeName = null;
@@ -514,7 +514,7 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 				throw new BodyFormatException(errorMesssage);
 			}
 			
-			byte booleanByte = sr.getByte();
+			byte booleanByte = binaryInputStream.getByte();
 			
 			if (booleanByte != 0 && booleanByte != 1) {
 				String errorMesssage = String.format("boolean 타입의 항목 값은 참을 뜻하는 1과 거짓을 뜻하는 0 을 갖습니다." +
@@ -529,8 +529,8 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 
 	@Override
 	public Object getValueFromMiddleReadObj(String path, String itemName,
-			int itemTypeID, String itemTypeName, int itemSizeForLang,
-			String itemCharset, Charset charsetOfProject,
+			int itemTypeID, String itemTypeName, int itemSize,
+			String nativeItemCharset, Charset streamCharset,
 			Object middleReadObj) throws BodyFormatException {
 		if (!(middleReadObj instanceof BinaryInputStreamIF)) {
 			String errorMessage = String.format(
@@ -539,19 +539,23 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		Charset itemCharsetForLang = null;
-		if (null != itemCharset) {
+		Charset itemCharset = null;
+		if (null == nativeItemCharset) {
+			itemCharset = streamCharset;
+		} else {
 			try {
-				itemCharsetForLang = Charset.forName(itemCharset);
+				itemCharset = Charset.forName(nativeItemCharset);
 			} catch(Exception e) {
-				log.warn("문자셋[{}] 이름이 잘못되었습니다.", itemCharset);
+				log.warn(String.format("the parameter nativeItemCharset[%s] is not a bad charset name", nativeItemCharset), e);
+				
+				itemCharset = streamCharset;
 			}
 		}
 		
-		BinaryInputStreamIF sr = (BinaryInputStreamIF)middleReadObj;
+		BinaryInputStreamIF binaryInputStream = (BinaryInputStreamIF)middleReadObj;
 		Object retObj = null;
 		try {
-			retObj = thbTypeSingleItemDecoderList[itemTypeID].getValue(itemTypeID, itemName, itemSizeForLang, itemCharsetForLang, sr);
+			retObj = thbTypeSingleItemDecoderList[itemTypeID].getValue(itemTypeID, itemName, itemSize, itemCharset, binaryInputStream);
 		} catch(IllegalArgumentException e) {
 			StringBuffer errorMessageBuilder = new StringBuffer("잘못된 파라미티터 에러::");
 			errorMessageBuilder.append("{ path=[");
@@ -561,9 +565,9 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 			errorMessageBuilder.append("], itemType=[");
 			errorMessageBuilder.append(itemTypeName);			
 			errorMessageBuilder.append("], itemSize=[");
-			errorMessageBuilder.append(itemSizeForLang);
+			errorMessageBuilder.append(itemSize);
 			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(itemCharset);
+			errorMessageBuilder.append(nativeItemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
 			errorMessageBuilder.append(e.getMessage());
 			errorMessageBuilder.append("]");
@@ -580,9 +584,9 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 			errorMessageBuilder.append("], itemType=[");
 			errorMessageBuilder.append(itemTypeName);
 			errorMessageBuilder.append("], itemSize=[");
-			errorMessageBuilder.append(itemSizeForLang);
+			errorMessageBuilder.append(itemSize);
 			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(itemCharset);
+			errorMessageBuilder.append(nativeItemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
 			errorMessageBuilder.append(e.getMessage());
 			errorMessageBuilder.append("]");
@@ -599,9 +603,9 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 			errorMessageBuilder.append("], itemType=[");
 			errorMessageBuilder.append(itemTypeName);
 			errorMessageBuilder.append("], itemSize=[");
-			errorMessageBuilder.append(itemSizeForLang);
+			errorMessageBuilder.append(itemSize);
 			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(itemCharset);
+			errorMessageBuilder.append(nativeItemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
 			errorMessageBuilder.append(e.getMessage());
 			errorMessageBuilder.append("]");
@@ -618,9 +622,9 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 			errorMessageBuilder.append("], itemType=[");
 			errorMessageBuilder.append(itemTypeName);
 			errorMessageBuilder.append("], itemSize=[");
-			errorMessageBuilder.append(itemSizeForLang);
+			errorMessageBuilder.append(itemSize);
 			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(itemCharset);
+			errorMessageBuilder.append(nativeItemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
 			errorMessageBuilder.append(e.getMessage());
 			errorMessageBuilder.append("]");
@@ -639,9 +643,9 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 			errorMessageBuilder.append("], itemType=[");
 			errorMessageBuilder.append(itemTypeName);
 			errorMessageBuilder.append("], itemSize=[");
-			errorMessageBuilder.append(itemSizeForLang);
+			errorMessageBuilder.append(itemSize);
 			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(itemCharset);
+			errorMessageBuilder.append(nativeItemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
 			errorMessageBuilder.append(e.getMessage());
 			errorMessageBuilder.append("]");
@@ -675,10 +679,10 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		BinaryInputStreamIF sr = (BinaryInputStreamIF)middleReadObj;
-		long remainingBytes = sr.available();
+		BinaryInputStreamIF binaryInputStream = (BinaryInputStreamIF)middleReadObj;
+		long remainingBytes = binaryInputStream.available();
 		
-		sr.close();
+		binaryInputStream.close();
 		
 		if (0 > remainingBytes) {
 			String errorMessage = String.format(

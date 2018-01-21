@@ -17,7 +17,7 @@
 
 package kr.pe.sinnori.client.io;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.common.io.WrapBuffer;
@@ -33,7 +33,7 @@ public class LetterToServer {
 	private String messageID = null;
 	private int mailboxID;
 	private int mailID;
-	private ArrayList<WrapBuffer> wrapBufferList = null;
+	private List<WrapBuffer> wrapBufferList = null;
 
 	/**
 	 * 생성자
@@ -43,7 +43,7 @@ public class LetterToServer {
 	 * @param intputMessage
 	 *            입력 메시지
 	 */
-	public LetterToServer(AbstractAsynConnection serverConnection, String messageID, int mailboxID, int mailID, ArrayList<WrapBuffer> wrapBufferList) {
+	public LetterToServer(AbstractAsynConnection serverConnection, String messageID, int mailboxID, int mailID, List<WrapBuffer> wrapBufferList) {
 		this.serverConnection = serverConnection;
 		this.messageID = messageID;
 		this.mailboxID = mailboxID;
@@ -78,7 +78,7 @@ public class LetterToServer {
 		this.mailID = mailID;
 	}*/
 	
-	public ArrayList<WrapBuffer> getWrapBufferList() {
+	public List<WrapBuffer> getWrapBufferList() {
 		return wrapBufferList;
 	}
 

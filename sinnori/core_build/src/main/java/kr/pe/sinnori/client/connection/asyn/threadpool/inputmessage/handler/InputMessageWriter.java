@@ -19,7 +19,7 @@ package kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler;
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.NotYetConnectedException;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
@@ -103,7 +103,7 @@ public class InputMessageWriter extends Thread {
 				// inputMessageWriteBuffer.clear();
 				// inputMessageWriteBuffer.order(connByteOrder);
 				
-				ArrayList<WrapBuffer> inObjWrapBufferList = null;
+				List<WrapBuffer> inObjWrapBufferList = null;
 				
 				try {
 					inObjWrapBufferList = letterToServer.getWrapBufferList();

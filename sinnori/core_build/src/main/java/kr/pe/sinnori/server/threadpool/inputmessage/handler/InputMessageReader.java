@@ -58,6 +58,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 	// private final Object monitor = new Object();
 	private String projectName = null; 
 	private int index;
+	@SuppressWarnings("unused")
 	private Charset charsetOfProject = null;
 	private long readSelectorWakeupInterval;	
 	private MessageProtocolIF messageProtocol;
@@ -197,7 +198,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 							continue;
 						}
 						
-						SocketOutputStream clientSocketInputStream = clientResource.getSocketInputStream();
+						SocketOutputStream clientSocketOutputStream = clientResource.getSocketOutputStream();
 						
 						
 						try {
@@ -213,7 +214,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 								}
 							} while(true);*/
 							
-							numRead = clientSocketInputStream.readFrom(readableSocketChannel);
+							numRead = clientSocketOutputStream.read(readableSocketChannel);
 							
 							if (numRead == -1) {
 								log.warn(String.format(
@@ -227,7 +228,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 							clientResource.setFinalReadTime();
 							
 							ArrayList<ReceivedLetter> inputMessageList = 
-									messageProtocol.S2MList(charsetOfProject, clientSocketInputStream);							
+									messageProtocol.S2MList(clientSocketOutputStream);							
 
 							for (ReceivedLetter receivedLetter : inputMessageList) {
 								inputMessageQueue.put(new LetterFromClient(readableSocketChannel, clientResource, receivedLetter));

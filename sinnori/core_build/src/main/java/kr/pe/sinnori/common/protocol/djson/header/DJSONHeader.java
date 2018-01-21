@@ -9,7 +9,9 @@ public class DJSONHeader {
 	public static final String JSON_STRING_CHARSET_NAME = "UTF-8";
 	public static final Charset JSON_STRING_CHARSET = CharsetUtil.getCharset(JSON_STRING_CHARSET_NAME);
 	
-	public int lenOfJSONStr;
+	public static final int MESSAGE_HEADER_SIZE = 4;
+	
+	private int bodySize;
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
@@ -17,9 +19,17 @@ public class DJSONHeader {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("DJSONHeader [lenOfJSONStr=");
-		builder.append(lenOfJSONStr);
+		builder.append("DJSONHeader [bodySize=");
+		builder.append(bodySize);
 		builder.append("]");
 		return builder.toString();
+	}
+	
+	public int getBodySize() {
+		return bodySize;
+	}
+	
+	public void setBodySize(int bodySize) {
+		this.bodySize = bodySize;
 	}
 }

@@ -18,7 +18,7 @@
 package kr.pe.sinnori.server.io;
 
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
+import java.util.List;
 
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
@@ -36,7 +36,7 @@ public class LetterToClient {
 	private String messageID = null;
 	int mailboxID;
 	int mailID; 
-	private ArrayList<WrapBuffer> wrapBufferList = null;
+	private List<WrapBuffer> wrapBufferList = null;
 	 
 
 	/**
@@ -44,7 +44,7 @@ public class LetterToClient {
 	 * @param toSC
 	 * @param messageToClient
 	 */
-	public LetterToClient(SocketChannel toSC, AbstractMessage messageToClient, ArrayList<WrapBuffer> wrapBufferList) {
+	public LetterToClient(SocketChannel toSC, AbstractMessage messageToClient, List<WrapBuffer> wrapBufferList) {
 		this.toSC = toSC;
 		this.messageToClient = messageToClient;
 		this.messageID = messageToClient.getMessageID();
@@ -98,7 +98,7 @@ public class LetterToClient {
 	/** 
 	 * @return 메시지 내용이 담긴 스트림 버퍼
 	 */
-	public ArrayList<WrapBuffer> getWrapBufferList() {
+	public List<WrapBuffer> getWrapBufferList() {
 		return wrapBufferList;
 	}
 	

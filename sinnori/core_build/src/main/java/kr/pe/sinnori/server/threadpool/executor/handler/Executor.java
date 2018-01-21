@@ -19,8 +19,11 @@ package kr.pe.sinnori.server.threadpool.executor.handler;
 
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
@@ -35,9 +38,6 @@ import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
 import kr.pe.sinnori.server.io.LetterFromClient;
 import kr.pe.sinnori.server.io.LetterToClient;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 서버 비지니스 로직 수행자 쓰레드<br/>
@@ -58,6 +58,8 @@ public class Executor extends Thread {
 	
 	private String projectName = null;
 	private Charset charsetOfProject = null;
+	// private CharsetDecoder charsetDecoderOfProject = null;
+	// private CharsetEncoder charsetEncoderOfProject = null;
 	
 	
 	/**
@@ -87,6 +89,8 @@ public class Executor extends Thread {
 		
 		this.projectName = projectName;
 		this.charsetOfProject = charsetOfProject;
+		// charsetDecoderOfProject = CharsetUtil.createCharsetDecoder(charsetOfProject);
+		// charsetEncoderOfProject = CharsetUtil.createCharsetEncoder(charsetOfProject);
 	}
 	
 
@@ -120,9 +124,9 @@ public class Executor extends Thread {
 					selfExnOutObj.setErrorMessageID(messageID);
 					selfExnOutObj.setErrorMessage(errorMessage);
 					
-					ArrayList<WrapBuffer> wrapBufferList = null;
+					List<WrapBuffer> wrapBufferList = null;
 					try {
-						wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, charsetOfProject);
+						wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER);
 					} catch(Throwable e1) {
 						log.error("fail to convert 'SelfExn' message to stream", e1);
 						System.exit(1);
@@ -144,9 +148,9 @@ public class Executor extends Thread {
 					selfExnOutObj.setErrorMessageID(messageID);
 					selfExnOutObj.setErrorMessage(errorMessage);
 					
-					ArrayList<WrapBuffer> wrapBufferList = null;
+					List<WrapBuffer> wrapBufferList = null;
 					try {
-						wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, charsetOfProject);
+						wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER);
 						
 						putToOutputMessageQueue(clientSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
 					} catch(Throwable e1) {
@@ -168,9 +172,9 @@ public class Executor extends Thread {
 					selfExnOutObj.setErrorMessageID(messageID);
 					selfExnOutObj.setErrorMessage(errorMessage);
 					
-					ArrayList<WrapBuffer> wrapBufferList = null;
+					List<WrapBuffer> wrapBufferList = null;
 					try {
-						wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER, charsetOfProject);
+						wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER);
 						
 						putToOutputMessageQueue(clientSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
 					} catch(Throwable e1) {
@@ -195,7 +199,7 @@ public class Executor extends Thread {
 	
 	private void putToOutputMessageQueue(SocketChannel clientSC, 
 			ReceivedLetter  receivedLetter,
-			AbstractMessage wrapBufferMessage, ArrayList<WrapBuffer> wrapBufferList, 
+			AbstractMessage wrapBufferMessage, List<WrapBuffer> wrapBufferList, 
 			LinkedBlockingQueue<LetterToClient> ouputMessageQueue) {
 		
 		LetterToClient letterToClient = new LetterToClient(clientSC,

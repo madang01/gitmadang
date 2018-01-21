@@ -19,9 +19,15 @@ package kr.pe.sinnori.common.project;
 
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
+import kr.pe.sinnori.common.etc.CharsetUtil;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.etc.ObjectCacheManager;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
@@ -31,9 +37,6 @@ import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.dhb.DHBMessageProtocol;
 import kr.pe.sinnori.common.protocol.djson.DJSONMessageProtocol;
 import kr.pe.sinnori.common.protocol.thb.THBMessageProtocol;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 프로젝트 부모 추상화 클래스. 서버/클라이언트 프로젝트 공통 분모를 모은 추상화 클래스이다.
@@ -54,6 +57,8 @@ public abstract class AbstractProject implements DataPacketBufferPoolManagerIF {
 	protected int portOfProject;
 	protected ByteOrder byteOrderOfProject = null;
 	protected Charset charsetOfProject = null;
+	protected CharsetEncoder charsetEncoderOfProject = null;
+	protected CharsetDecoder charsetDecoderOfProject = null;
 	protected String classLoaderClassPackagePrefixName = null;
 	protected int dataPacketBufferMaxCntPerMessage;
 	private int dataPacketBufferSize;
@@ -83,6 +88,8 @@ public abstract class AbstractProject implements DataPacketBufferPoolManagerIF {
 		portOfProject = projectPartConfiguration.getServerPort();
 		byteOrderOfProject = projectPartConfiguration.getByteOrder();
 		charsetOfProject = projectPartConfiguration.getCharset();
+		charsetEncoderOfProject = CharsetUtil.createCharsetEncoder(charsetOfProject);
+		charsetDecoderOfProject = CharsetUtil.createCharsetDecoder(charsetOfProject);
 		classLoaderClassPackagePrefixName = projectPartConfiguration.getClassLoaderClassPackagePrefixName();
 		dataPacketBufferSize = projectPartConfiguration.getDataPacketBufferSize();
 		dataPacketBufferMaxCntPerMessage = projectPartConfiguration.getDataPacketBufferMaxCntPerMessage();
@@ -95,17 +102,20 @@ public abstract class AbstractProject implements DataPacketBufferPoolManagerIF {
 		switch (messageProtocolGubun) {
 			case DHB: {
 				messageProtocol = new DHBMessageProtocol(
-						messageIDFixedSize, dataPacketBufferMaxCntPerMessage, this);
+						messageIDFixedSize, dataPacketBufferMaxCntPerMessage, 
+						charsetEncoderOfProject, charsetDecoderOfProject, this);
 	
 				break;
 			}
 			case DJSON: {
-				messageProtocol = new DJSONMessageProtocol(dataPacketBufferMaxCntPerMessage, this);
+				messageProtocol = new DJSONMessageProtocol(dataPacketBufferMaxCntPerMessage, 
+						charsetEncoderOfProject, charsetDecoderOfProject, this);
 				break;
 			}
 			case THB: {
 				messageProtocol = new THBMessageProtocol(
-						messageIDFixedSize, dataPacketBufferMaxCntPerMessage, this);
+						messageIDFixedSize, dataPacketBufferMaxCntPerMessage, 
+						charsetEncoderOfProject, charsetDecoderOfProject, this);
 				break;
 			}
 			default: {

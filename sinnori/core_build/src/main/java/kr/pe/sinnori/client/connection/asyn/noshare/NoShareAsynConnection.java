@@ -513,7 +513,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 	public void finalize() {
 		// MessageInputStreamResource messageInputStreamResource =
 		// getMessageInputStreamResource();
-		messageInputStreamResource.destory();
+		socketOutputStream.close();
 		log.warn(String.format("NoShareAsynConnection 소멸::[%s]", toString()));
 	}
 }

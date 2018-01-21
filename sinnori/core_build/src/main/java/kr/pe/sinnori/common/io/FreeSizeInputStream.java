@@ -43,15 +43,15 @@ import kr.pe.sinnori.common.util.HexUtil;
  *
  */
 public class FreeSizeInputStream implements BinaryInputStreamIF {
-	private Logger log = LoggerFactory.getLogger(FreeSizeInputStream.class);
+	protected Logger log = LoggerFactory.getLogger(FreeSizeInputStream.class);
 
 	private int dataPacketBufferMaxCount;
 	private List<WrapBuffer> dataPacketBufferList = null;
 	private List<ByteBuffer> streamBufferList = null;
 	private Charset streamCharset;
-	private CharsetDecoder streamCharsetDecoder = null;
-	private ByteOrder streamByteOrder = null;
-	private DataPacketBufferPoolManagerIF dataPacketBufferQueueManager = null;
+	protected CharsetDecoder streamCharsetDecoder = null;
+	protected ByteOrder streamByteOrder = null;
+	protected DataPacketBufferPoolManagerIF dataPacketBufferQueueManager = null;
 
 	private ByteBuffer workBuffer;
 	private int indexOfWorkBuffer;
@@ -814,7 +814,9 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 
 		return -1;
 	}
-
+	
+	
+	
 	/**
 	 * 스트림에서 지정된 크기만큼 MD5를 구한다. 복사된 스트림를 통해서 MD5를 구하기때문에 스트림 속성에 영향을 주지 않는다.
 	 * 
@@ -826,7 +828,7 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 	 * @throws IllegalArgumentException
 	 * @throws SinnoriBufferUnderflowException
 	 */
-	public byte[] getMD5FromDupStream(long size, java.security.MessageDigest md5)
+	/*public byte[] getMD5FromDupStream(long size, java.security.MessageDigest md5)
 			throws IllegalArgumentException, SinnoriBufferUnderflowException {
 		if (size < 0) {
 			String errorMessage = new StringBuilder("parameter size[").append(size).append("] is less than zero")
@@ -878,9 +880,9 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 			}
 		}
 		return md5Bytes;
-	}	
+	}	*/
 
-	public int getIndexOfWorkBuffer() {
+	public final int getIndexOfWorkBuffer() {
 		return indexOfWorkBuffer;
 	}
 
@@ -889,6 +891,10 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 			return 0;
 		}
 		return workBuffer.position();
+	}
+	
+	public CharsetDecoder getStreamCharsetDecoder() {
+		return streamCharsetDecoder;
 	}
 
 	

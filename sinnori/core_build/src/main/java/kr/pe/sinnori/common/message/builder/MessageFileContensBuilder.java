@@ -71,7 +71,7 @@ public class MessageFileContensBuilder extends AbstractSourceFileBuildre {
 				stringBuilder.append(" ");
 				stringBuilder.append(singleItemInfo.getItemName());
 				
-				String defaultValueRightValueString = singleItemInfo.getDefaultValueRightValueString();
+				String defaultValueRightValueString = singleItemInfo.getDefaultValueForVariableDeclarationPart();
 				if (null != defaultValueRightValueString) {
 					stringBuilder.append(" = ");
 					stringBuilder.append(defaultValueRightValueString);

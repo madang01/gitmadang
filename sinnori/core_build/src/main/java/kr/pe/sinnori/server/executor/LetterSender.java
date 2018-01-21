@@ -20,7 +20,11 @@ package kr.pe.sinnori.server.executor;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.io.WrapBuffer;
@@ -29,9 +33,6 @@ import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.io.LetterToClient;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 클라이언트로 보내는 편지 배달부. 서버 비지니스 로직 호출할때 마다 할당 된다. 
@@ -85,7 +86,7 @@ public class LetterSender {
 			return;
 		}
 		
-		ArrayList<WrapBuffer> wrapBufferList = clientResource.getMessageStream(serverTask, messageIDFromClient, messageToClient, projectCharset, messageProtocol, serverObjectCacheManager);
+		List<WrapBuffer> wrapBufferList = clientResource.getMessageStream(serverTask, messageIDFromClient, messageToClient, projectCharset, messageProtocol, serverObjectCacheManager);
 		if (null != wrapBufferList) {
 			LetterToClient letterToClient = clientResource.getLetterToClient(messageToClient, wrapBufferList);
 			letterToClientList.add(letterToClient);
@@ -101,7 +102,7 @@ public class LetterSender {
 		messageToClient.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
 		messageToClient.messageHeaderInfo.mailID = clientResource.getServerMailID();
 		
-		ArrayList<WrapBuffer> wrapBufferList = clientResource.getMessageStream(serverTask, messageIDFromClient, messageToClient, projectCharset, messageProtocol, serverObjectCacheManager);
+		List<WrapBuffer> wrapBufferList = clientResource.getMessageStream(serverTask, messageIDFromClient, messageToClient, projectCharset, messageProtocol, serverObjectCacheManager);
 		if (null != wrapBufferList) {
 			LetterToClient letterToClient = clientResource.getLetterToClient(messageToClient, wrapBufferList);
 			letterToClientList.add(letterToClient);
@@ -112,7 +113,7 @@ public class LetterSender {
 		messageToClient.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
 		messageToClient.messageHeaderInfo.mailID = clientResource.getServerMailID();
 		
-		ArrayList<WrapBuffer> wrapBufferList = serverTask.getMessageStream(messageIDFromClient, toSC, messageToClient, projectCharset, messageProtocol, serverObjectCacheManager);
+		List<WrapBuffer> wrapBufferList = serverTask.getMessageStream(messageIDFromClient, toSC, messageToClient, projectCharset, messageProtocol, serverObjectCacheManager);
 		if (null != wrapBufferList) {
 			LetterToClient letterToClient = new LetterToClient(toSC, messageToClient, wrapBufferList);
 			letterToClientList.add(letterToClient);
@@ -123,7 +124,7 @@ public class LetterSender {
 		messageToClient.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
 		messageToClient.messageHeaderInfo.mailID = clientResource.getServerMailID();
 		
-		ArrayList<WrapBuffer> wrapBufferList = serverTask.getMessageStream(messageIDFromClient, toSC, messageToClient, projectCharset, messageProtocol, serverObjectCacheManager);
+		List<WrapBuffer> wrapBufferList = serverTask.getMessageStream(messageIDFromClient, toSC, messageToClient, projectCharset, messageProtocol, serverObjectCacheManager);
 		if (null != wrapBufferList) {
 			LetterToClient letterToClient = new LetterToClient(toSC, messageToClient, wrapBufferList);
 			try {
@@ -144,7 +145,7 @@ public class LetterSender {
 		messageToClient.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
 		messageToClient.messageHeaderInfo.mailID = clientResource.getServerMailID();
 		
-		ArrayList<WrapBuffer> wrapBufferList = clientResource.getMessageStream(serverTask, messageIDFromClient, messageToClient, projectCharset, messageProtocol, serverObjectCacheManager);
+		List<WrapBuffer> wrapBufferList = clientResource.getMessageStream(serverTask, messageIDFromClient, messageToClient, projectCharset, messageProtocol, serverObjectCacheManager);
 		if (null != wrapBufferList) {
 			LetterToClient letterToClient = clientResource.getLetterToClient(messageToClient, wrapBufferList);
 			try {

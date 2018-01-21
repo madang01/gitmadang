@@ -30,6 +30,7 @@ import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
@@ -305,7 +306,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 		
 		boolean isInterrupted = false;
 		
-		ArrayList<WrapBuffer> inObjWrapBufferList = null;
+		List<WrapBuffer> inObjWrapBufferList = null;
 		ArrayList<WrapBuffer> inputStreamWrapBufferList = null;
 		AbstractMessage outObj = null;
 		
@@ -385,51 +386,29 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 				for (int i=0; i < inObjWrapBufferListSize; i++) {
 					WrapBuffer wrapBuffer = inObjWrapBufferList.get(0);
 					inObjWrapBufferList.remove(0);
-					dataPacketBufferQueueManager.putDataPacketBuffer(wrapBuffer);
+					dataPacketBufferPoolManager.putDataPacketBuffer(wrapBuffer);
 				}
 			}
 		}
 		
-		try {			
-			int numRead = 0;
-			
-			ByteBuffer lastInputStreamBuffer = messageInputStreamResource.getLastDataPacketBuffer();
-			/** FIXME! order 지정이 필요한지 몰라서 지움 */
-			//lastInputStreamBuffer.order(dataPacketBufferQueueManager.getByteOrder());
-			
-			/**
-			 * Warning! ByteBuffer.array() method only no direct buffer support.
-			 */
-			byte recvBytes[] = new byte[lastInputStreamBuffer.capacity()];			
-			
-			numRead = inputStream.read(recvBytes,
-					0,
-					lastInputStreamBuffer.remaining());
-			
-			// log.debug(String.format("1.numRead[%d]", numRead));
+		try {
+			int numRead = socketOutputStream.read(serverSocket);
+		
 			
 			ArrayList<ReceivedLetter> receivedLetterList = null;
 			int receivedLetterListSize = 0;
 			while (-1 != numRead) {
 				setFinalReadTime();
 				
-				log.debug(String.format("2.numRead[%d], lastInputStreamBuffer=[%s]", numRead, lastInputStreamBuffer.toString()));				
-				
-				lastInputStreamBuffer.put(recvBytes, 0, numRead);
-				
-				log.debug(String.format("3.numRead[%d], lastInputStreamBuffer=[%s]", numRead, lastInputStreamBuffer.toString()));				
-				
-				receivedLetterList = messageProtocol.S2MList(charsetOfProject, messageInputStreamResource);
+				receivedLetterList = messageProtocol.S2MList(socketOutputStream);
 				
 				
 				receivedLetterListSize = receivedLetterList.size();
-				if (receivedLetterListSize != 0) break;
-				
-				lastInputStreamBuffer = messageInputStreamResource.getLastDataPacketBuffer();
+				if (receivedLetterListSize != 0) {
+					break;
+				}
 
-				numRead = inputStream.read(recvBytes,
-						0,
-						lastInputStreamBuffer.remaining());
+				numRead = socketOutputStream.read(serverSocket);
 			}			
 			
 			if (receivedLetterListSize > 1) {
@@ -499,7 +478,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 				for (int i=1; i < inputStreamWrapBufferListSize; i++) {
 					WrapBuffer outputMessageWrapBuffer = inputStreamWrapBufferList.get(0);
 					inputStreamWrapBufferList.remove(0);
-					dataPacketBufferQueueManager.putDataPacketBuffer(outputMessageWrapBuffer);
+					dataPacketBufferPoolManager.putDataPacketBuffer(outputMessageWrapBuffer);
 				}
 	
 				WrapBuffer outputMessageWrapBuffer = inputStreamWrapBufferList.get(0);
@@ -538,7 +517,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 	@Override
 	public void finalize() {
 		// MessageInputStreamResource messageInputStreamResource = getMessageInputStreamResource();
-		messageInputStreamResource.destory();
+		socketOutputStream.close();
 		
 		log.warn(String.format("소멸::[%s]", toString()));
 	}

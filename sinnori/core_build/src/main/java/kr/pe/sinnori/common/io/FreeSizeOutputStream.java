@@ -25,6 +25,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -651,7 +652,7 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 		return numberOfWrittenBytes;
 	}
 
-	public ArrayList<WrapBuffer> getInputStreamWrapBufferList() {
+	public List<WrapBuffer> getReadableWrapBufferList() {
 		flipAllOutputStreamWrapBuffer();
 
 		return outputStreamWrapBufferList;
@@ -665,7 +666,7 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 	}
 	
 	
-	public ArrayList<WrapBuffer> getOutputStreamWrapBufferList() {
+	public List<WrapBuffer> getOutputStreamWrapBufferList() {
 		return outputStreamWrapBufferList;
 	}	
 

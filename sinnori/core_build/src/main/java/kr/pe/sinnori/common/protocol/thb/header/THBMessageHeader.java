@@ -44,7 +44,6 @@ import org.slf4j.LoggerFactory;
 public class THBMessageHeader {
 	private Logger log = LoggerFactory.getLogger(THBMessageHeader.class);
 	
-	public static final int MD5_BYTESIZE = 16;
 	public static final Charset HEADER_CHARSET = Charset.forName("ISO-8859-1");
 	public static final int MESSAGE_HEADER_BYTE_SIZE_WITHOUT_MESSAGEID = 6;
 	
@@ -104,7 +103,7 @@ public class THBMessageHeader {
 	 * @param streamCharsetEncoder 문자셋 인코더
 	 * @throws IllegalArgumentException 잘못된 파라미터 값이 들어온 경우 던지는 예외
 	 */
-	public void writeMessageHeader(ByteBuffer dstBuffer, Charset streamCharset, CharsetEncoder streamCharsetEncoder) throws IllegalArgumentException {
+	public void toBuffer(ByteBuffer dstBuffer, CharsetEncoder streamCharsetEncoder) throws IllegalArgumentException {
 		if (dstBuffer.remaining() < messageHeaderSize) {
 			String errorMessage = String.format("파라미터 목적지 버퍼의 크기[%d]가 메시지 헤더 크기[%d] 보다 작습니다.");
 			throw new IllegalArgumentException(errorMessage);
@@ -150,7 +149,7 @@ public class THBMessageHeader {
 	 * @param headerInputStream 헤더 정보를 갖고 있는 입력 스트림
 	 * @throws HeaderFormatException 메시지 식별자 읽을때 문자셋 에러 발생시 던지는 예외
 	 */
-	public void readMessageHeader(BinaryInputStreamIF headerInputStream) throws HeaderFormatException {
+	public void fromInputStream(BinaryInputStreamIF headerInputStream) throws HeaderFormatException {
 		
 		try {
 			this.messageID = headerInputStream

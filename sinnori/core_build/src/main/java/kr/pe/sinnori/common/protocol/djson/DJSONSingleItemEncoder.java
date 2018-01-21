@@ -45,8 +45,8 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 	private Logger log = LoggerFactory.getLogger(DJSONSingleItemEncoder.class);
 	
 	private interface DJSONTypeSingleItemEncoderIF {
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang,  Charset charsetOfProject, JSONObject jsonWriteObj)
+		public void putValue(String itemName, Object itemValue, int itemSize,
+				Charset itemCharset,  Charset streamCharset, JSONObject jsonObjForOutputStream)
 				throws Exception;
 	}
 	
@@ -68,8 +68,8 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 	private final class DJSONByteSingleItemEncoder implements DJSONTypeSingleItemEncoderIF {
 		@SuppressWarnings("unchecked")
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, Charset charsetOfProject, JSONObject jsonWriteObj)
+		public void putValue(String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, Charset streamCharset, JSONObject jsonObjForOutputStream)
 				throws IllegalArgumentException {
 			if (!(itemValue instanceof Byte)) {
 				String errorMessage = 
@@ -78,7 +78,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 				throw new IllegalArgumentException(errorMessage);
 			}
 			
-			jsonWriteObj.put(itemName, itemValue);
+			jsonObjForOutputStream.put(itemName, itemValue);
 		}
 	}
 
@@ -87,8 +87,8 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang,  Charset charsetOfProject, JSONObject jsonWriteObj)
+		public void putValue(String itemName, Object itemValue, int itemSize,
+				Charset itemCharset,  Charset streamCharset, JSONObject jsonObjForOutputStream)
 				throws IllegalArgumentException {
 			if (!(itemValue instanceof Short)) {
 				String errorMessage = 
@@ -97,15 +97,15 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 				throw new IllegalArgumentException(errorMessage);
 			}
 			
-			Short tValue = (Short) itemValue;
-			if (tValue < 0 || tValue > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+			Short tempItemValue = (Short) itemValue;
+			if (tempItemValue < 0 || tempItemValue > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 				String errorMessage = 
 						String.format("항목의 값[%d]이 Unsigned Byte 범위가 아닙니다.", 
-								tValue);
+								tempItemValue);
 				throw new IllegalArgumentException(errorMessage);
 			}
 			
-			jsonWriteObj.put(itemName, itemValue);
+			jsonObjForOutputStream.put(itemName, itemValue);
 		}
 	}
 
@@ -113,8 +113,8 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 	private final class DJSONShortSingleItemEncoder implements DJSONTypeSingleItemEncoderIF {
 		@SuppressWarnings("unchecked")
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang,  Charset charsetOfProject, JSONObject jsonWriteObj)
+		public void putValue(String itemName, Object itemValue, int itemSize,
+				Charset itemCharset,  Charset streamCharset, JSONObject jsonObjForOutputStream)
 				throws IllegalArgumentException {
 			if (!(itemValue instanceof Short)) {
 				String errorMessage = 
@@ -123,7 +123,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 				throw new IllegalArgumentException(errorMessage);
 			}
 			
-			jsonWriteObj.put(itemName, itemValue);
+			jsonObjForOutputStream.put(itemName, itemValue);
 		}
 	}
 
@@ -132,8 +132,8 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 		
 		@SuppressWarnings("unchecked")
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang,  Charset charsetOfProject, JSONObject jsonWriteObj)
+		public void putValue(String itemName, Object itemValue, int itemSize,
+				Charset itemCharset,  Charset streamCharset, JSONObject jsonObjForOutputStream)
 				throws IllegalArgumentException {
 			if (!(itemValue instanceof Integer)) {
 				String errorMessage = 
@@ -142,15 +142,15 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 				throw new IllegalArgumentException(errorMessage);
 			}
 			
-			Integer tValue = (Integer) itemValue;
-			if (tValue < 0 || tValue > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
+			Integer tempItemValue = (Integer) itemValue;
+			if (tempItemValue < 0 || tempItemValue > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
 				String errorMessage = 
 						String.format("항목의 값[%d]이 Unsigned Short 범위가 아닙니다.", 
-								tValue);
+								tempItemValue);
 				throw new IllegalArgumentException(errorMessage);
 			}
 			
-			jsonWriteObj.put(itemName, itemValue);
+			jsonObjForOutputStream.put(itemName, itemValue);
 		}
 	}
 
@@ -159,8 +159,8 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 		
 		@SuppressWarnings("unchecked")
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang,  Charset charsetOfProject, JSONObject jsonWriteObj)
+		public void putValue(String itemName, Object itemValue, int itemSize,
+				Charset itemCharset,  Charset streamCharset, JSONObject jsonObjForOutputStream)
 				throws IllegalArgumentException {
 			if (!(itemValue instanceof Integer)) {
 				String errorMessage = 
@@ -169,7 +169,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 				throw new IllegalArgumentException(errorMessage);
 			}
 			
-			jsonWriteObj.put(itemName, itemValue);
+			jsonObjForOutputStream.put(itemName, itemValue);
 		}
 	}
 
@@ -178,8 +178,8 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 		
 		@SuppressWarnings("unchecked")
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang,  Charset charsetOfProject, JSONObject jsonWriteObj)
+		public void putValue(String itemName, Object itemValue, int itemSize,
+				Charset itemCharset,  Charset streamCharset, JSONObject jsonObjForOutputStream)
 				throws IllegalArgumentException {
 			if (!(itemValue instanceof Long)) {
 				String errorMessage = 
@@ -188,15 +188,15 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 				throw new IllegalArgumentException(errorMessage);
 			}
 			
-			Long tValue = (Long) itemValue;
-			if (tValue < 0 || tValue > CommonStaticFinalVars.UNSIGNED_INTEGER_MAX) {
+			Long tempItemValue = (Long) itemValue;
+			if (tempItemValue < 0 || tempItemValue > CommonStaticFinalVars.UNSIGNED_INTEGER_MAX) {
 				String errorMessage = 
 						String.format("항목의 값[%d]이 Unsigned Integer 범위가 아닙니다.", 
-								tValue);
+								tempItemValue);
 				throw new IllegalArgumentException(errorMessage);
 			}
 			
-			jsonWriteObj.put(itemName, itemValue);
+			jsonObjForOutputStream.put(itemName, itemValue);
 		}
 	}
 
@@ -204,8 +204,8 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 	private final class DJSONLongSingleItemEncoder implements DJSONTypeSingleItemEncoderIF {		
 		@SuppressWarnings("unchecked")
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang,  Charset charsetOfProject, JSONObject jsonWriteObj)
+		public void putValue(String itemName, Object itemValue, int itemSize,
+				Charset itemCharset,  Charset streamCharset, JSONObject jsonObjForOutputStream)
 				throws IllegalArgumentException {
 			if (!(itemValue instanceof Long)) {
 				String errorMessage = 
@@ -214,7 +214,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 				throw new IllegalArgumentException(errorMessage);
 			}
 			
-			jsonWriteObj.put(itemName, itemValue);
+			jsonObjForOutputStream.put(itemName, itemValue);
 		}
 	}
 
@@ -222,8 +222,8 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 	private final class DJSONUBPascalStringSingleItemEncoder implements DJSONTypeSingleItemEncoderIF {		
 		@SuppressWarnings("unchecked")
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang,  Charset charsetOfProject, JSONObject jsonWriteObj)
+		public void putValue(String itemName, Object itemValue, int itemSize,
+				Charset itemCharset,  Charset streamCharset, JSONObject jsonObjForOutputStream)
 				throws IllegalArgumentException {
 			if (!(itemValue instanceof String)) {
 				String errorMessage = 
@@ -232,9 +232,9 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 				throw new IllegalArgumentException(errorMessage);
 			}
 			
-			String tValue = (String) itemValue;
+			String tempItemValue = (String) itemValue;
 			
-			byte[] valueBytes = tValue.getBytes(charsetOfProject);
+			byte[] valueBytes = tempItemValue.getBytes(streamCharset);
 			if (valueBytes.length > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 				String errorMessage = 
 						String.format("UBPascalString 타입 항목의 값을 %s 문자셋으로 변환된 바이트 길이[%d]가 unsigned byte 최대값[%d]을 넘었습니다.", 
@@ -242,7 +242,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 				throw new IllegalArgumentException(errorMessage);
 			}
 			
-			jsonWriteObj.put(itemName, tValue);
+			jsonObjForOutputStream.put(itemName, tempItemValue);
 		}
 	}
 
@@ -250,8 +250,8 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 	private final class DJSONUSPascalStringSingleItemEncoder implements DJSONTypeSingleItemEncoderIF {
 		@SuppressWarnings("unchecked")
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang,  Charset charsetOfProject, JSONObject jsonWriteObj)
+		public void putValue(String itemName, Object itemValue, int itemSize,
+				Charset itemCharset,  Charset streamCharset, JSONObject jsonObjForOutputStream)
 				throws IllegalArgumentException {
 			if (!(itemValue instanceof String)) {
 				String errorMessage = 
@@ -260,9 +260,9 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 				throw new IllegalArgumentException(errorMessage);
 			}
 			
-			String tValue = (String) itemValue;
+			String tempItemValue = (String) itemValue;
 			
-			byte[] valueBytes = tValue.getBytes(charsetOfProject);
+			byte[] valueBytes = tempItemValue.getBytes(streamCharset);
 			if (valueBytes.length > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
 				String errorMessage = 
 						String.format("UBPascalString 타입 항목의 값을 %s 문자셋으로 변환된 바이트 길이[%d]가 unsigned short 최대값[%d]을 넘었습니다.", 
@@ -270,7 +270,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 				throw new IllegalArgumentException(errorMessage);
 			}
 			
-			jsonWriteObj.put(itemName, tValue);
+			jsonObjForOutputStream.put(itemName, tempItemValue);
 		}
 	}
 
@@ -278,8 +278,8 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 	private final class DJSONSIPascalStringSingleItemEncoder implements DJSONTypeSingleItemEncoderIF {
 		@SuppressWarnings("unchecked")
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, Charset charsetOfProject, JSONObject jsonWriteObj)
+		public void putValue(String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, Charset streamCharset, JSONObject jsonObjForOutputStream)
 				throws IllegalArgumentException {
 			if (!(itemValue instanceof String)) {
 				String errorMessage = 
@@ -288,7 +288,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 				throw new IllegalArgumentException(errorMessage);
 			}
 			
-			jsonWriteObj.put(itemName, itemValue);
+			jsonObjForOutputStream.put(itemName, itemValue);
 		}
 	}
 
@@ -296,12 +296,12 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 	private final class DJSONFixedLengthStringSingleItemEncoder implements DJSONTypeSingleItemEncoderIF {
 		@SuppressWarnings("unchecked")
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, Charset charsetOfProject, JSONObject jsonWriteObj)
+		public void putValue(String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, Charset streamCharset, JSONObject jsonObjForOutputStream)
 				throws IllegalArgumentException {
-			String tValue = null;
+			String tempItemValue = null;
 			
-			if (null == itemValue) tValue = "";
+			if (null == itemValue) tempItemValue = "";
 			else {
 				if (!(itemValue instanceof String)) {
 					String errorMessage = 
@@ -309,14 +309,14 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 									itemValue.getClass().getCanonicalName());
 					throw new IllegalArgumentException(errorMessage);
 				}
-				tValue = (String) itemValue;
+				tempItemValue = (String) itemValue;
 			}
 			
 			
 			ByteBuffer outputBuffer = null;
 			
 			try {
-				outputBuffer = ByteBuffer.allocate(itemSizeForLang);
+				outputBuffer = ByteBuffer.allocate(itemSize);
 			} catch(OutOfMemoryError e) {
 				log.warn("OutOfMemoryError", e);
 				throw e;
@@ -325,14 +325,14 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 			/** 고정 크기 출력 스트림 */
 			FixedSizeOutputStream fsos = null;
 			
-			if (null == itemCharsetForLang) {
-				fsos = new FixedSizeOutputStream(outputBuffer, CharsetUtil.createCharsetEncoder(charsetOfProject));
+			if (null == itemCharset) {
+				fsos = new FixedSizeOutputStream(outputBuffer, CharsetUtil.createCharsetEncoder(streamCharset));
 			} else {
-				fsos = new FixedSizeOutputStream(outputBuffer, CharsetUtil.createCharsetEncoder(itemCharsetForLang));
+				fsos = new FixedSizeOutputStream(outputBuffer, CharsetUtil.createCharsetEncoder(itemCharset));
 			}		
 			
 			try {
-				fsos.putFixedLengthString(itemSizeForLang, tValue);
+				fsos.putFixedLengthString(itemSize, tempItemValue);
 			} catch (SinnoriBufferOverflowException e) {
 				/** dead code area */
 				log.error("SinnoriBufferOverflowException", e);
@@ -349,7 +349,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 			
 			outputBuffer.flip();
 			
-			jsonWriteObj.put(itemName, new String(outputBuffer.array(), itemCharsetForLang));
+			jsonObjForOutputStream.put(itemName, new String(outputBuffer.array(), itemCharset));
 
 		}
 	}
@@ -360,13 +360,13 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 	private final class DJSONUBVariableLengthBytesSingleItemEncoder implements DJSONTypeSingleItemEncoderIF {
 		@SuppressWarnings("unchecked")
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, Charset charsetOfProject, JSONObject jsonWriteObj)
+		public void putValue(String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, Charset streamCharset, JSONObject jsonObjForOutputStream)
 				throws IllegalArgumentException {
-			byte tValue[] = null;
+			byte tempItemValue[] = null;
 			
 			if (null == itemValue) {
-				tValue = new byte[0];
+				tempItemValue = new byte[0];
 			} else {
 				if (!(itemValue instanceof byte[])) {
 					String errorMessage = 
@@ -375,16 +375,16 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 					throw new IllegalArgumentException(errorMessage);
 				}
 				
-				tValue = (byte[]) itemValue;
+				tempItemValue = (byte[]) itemValue;
 				
-				if (tValue.length > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+				if (tempItemValue.length > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
 					String errorMessage = 
-							String.format("ub variable length byte[] 타입 항목의 길이[%d]가 unsigned byte 최대값을 넘었습니다.",  tValue.length);
+							String.format("ub variable length byte[] 타입 항목의 길이[%d]가 unsigned byte 최대값을 넘었습니다.",  tempItemValue.length);
 					throw new IllegalArgumentException(errorMessage);
 				}
 			}
 			
-			jsonWriteObj.put(itemName, HexUtil.getHexStringFromByteArray(tValue));
+			jsonObjForOutputStream.put(itemName, HexUtil.getHexStringFromByteArray(tempItemValue));
 		}
 	}
 
@@ -392,13 +392,13 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 	private final class DJSONUSVariableLengthBytesSingleItemEncoder implements DJSONTypeSingleItemEncoderIF {
 		@SuppressWarnings("unchecked")
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, Charset charsetOfProject, JSONObject jsonWriteObj)
+		public void putValue(String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, Charset streamCharset, JSONObject jsonObjForOutputStream)
 				throws IllegalArgumentException {
-			byte tValue[] = null;
+			byte tempItemValue[] = null;
 			
 			if (null == itemValue) {
-				tValue = new byte[0];
+				tempItemValue = new byte[0];
 			} else {
 				if (!(itemValue instanceof byte[])) {
 					String errorMessage = 
@@ -407,16 +407,16 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 					throw new IllegalArgumentException(errorMessage);
 				}
 				
-				tValue = (byte[]) itemValue;
+				tempItemValue = (byte[]) itemValue;
 				
-				if (tValue.length > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
+				if (tempItemValue.length > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
 					String errorMessage = 
-							String.format("ub variable length byte[] 타입 항목의 길이[%d]가 unsigned short 최대값을 넘었습니다.",  tValue.length);
+							String.format("ub variable length byte[] 타입 항목의 길이[%d]가 unsigned short 최대값을 넘었습니다.",  tempItemValue.length);
 					throw new IllegalArgumentException(errorMessage);
 				}
 			}
 			
-			jsonWriteObj.put(itemName, HexUtil.getHexStringFromByteArray(tValue));
+			jsonObjForOutputStream.put(itemName, HexUtil.getHexStringFromByteArray(tempItemValue));
 		}
 	}
 	
@@ -424,13 +424,13 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 	private final class DJSONSIVariableLengthBytesSingleItemEncoder implements DJSONTypeSingleItemEncoderIF {
 		@SuppressWarnings("unchecked")
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, Charset charsetOfProject, JSONObject jsonWriteObj)
+		public void putValue(String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, Charset streamCharset, JSONObject jsonObjForOutputStream)
 				throws IllegalArgumentException {
-			byte tValue[] = null;
+			byte tempItemValue[] = null;
 			
 			if (null == itemValue) {
-				tValue = new byte[0];
+				tempItemValue = new byte[0];
 			} else {
 				if (!(itemValue instanceof byte[])) {
 					String errorMessage = 
@@ -439,10 +439,10 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 					throw new IllegalArgumentException(errorMessage);
 				}
 				
-				tValue = (byte[]) itemValue;
+				tempItemValue = (byte[]) itemValue;
 			}
 			
-			jsonWriteObj.put(itemName, HexUtil.getHexStringFromByteArray(tValue));
+			jsonObjForOutputStream.put(itemName, HexUtil.getHexStringFromByteArray(tempItemValue));
 		}
 	}
 	
@@ -450,13 +450,13 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 	private final class DJSONFixedLengthBytesSingleItemEncoder implements DJSONTypeSingleItemEncoderIF {
 		@SuppressWarnings("unchecked")
 		@Override
-		public void putValue(String itemName, Object itemValue, int itemSizeForLang,
-				Charset itemCharsetForLang, Charset charsetOfProject, JSONObject jsonWriteObj)
+		public void putValue(String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, Charset streamCharset, JSONObject jsonObjForOutputStream)
 				throws IllegalArgumentException {
-			byte tValue[] = null;
+			byte tempItemValue[] = null;
 			
 			if (null == itemValue) {
-				tValue = new byte[0];
+				tempItemValue = new byte[0];
 			} else {
 				if (!(itemValue instanceof byte[])) {
 					String errorMessage = 
@@ -465,16 +465,16 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 					throw new IllegalArgumentException(errorMessage);
 				}
 				
-				tValue = (byte[]) itemValue;
+				tempItemValue = (byte[]) itemValue;
 				
-				if (tValue.length != itemSizeForLang) {
+				if (tempItemValue.length != itemSize) {
 					throw new IllegalArgumentException(
 							String.format(
 									"바이트 배열의 크기[%d]가 메시지 정보에서 지정한 크기[%d]와 다릅니다. 고정 크기 바이트 배열에서는 일치해야 합니다.",
-									tValue.length, itemSizeForLang));
+									tempItemValue.length, itemSize));
 				}
 			}
-			jsonWriteObj.put(itemName, HexUtil.getHexStringFromByteArray(tValue));
+			jsonObjForOutputStream.put(itemName, HexUtil.getHexStringFromByteArray(tempItemValue));
 		}
 	}
 	
@@ -483,8 +483,8 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 		@SuppressWarnings("unchecked")
 		@Override
 		public void putValue(String itemName, Object itemValue,
-				int itemSizeForLang, Charset itemCharsetForLang,
-				Charset charsetOfProject, JSONObject jsonWriteObj)
+				int itemSize, Charset itemCharset,
+				Charset streamCharset, JSONObject jsonObjForOutputStream)
 				throws Exception {
 			if (null == itemValue) {
 				String errorMessage = "항목의 값이 null 입니다.";
@@ -500,7 +500,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 			
 			java.sql.Date javaSqlDateValue = (java.sql.Date)itemValue;
 			long javaSqlDateLongValue = javaSqlDateValue.getTime();			
-			jsonWriteObj.put(itemName, javaSqlDateLongValue);
+			jsonObjForOutputStream.put(itemName, javaSqlDateLongValue);
 		}		
 	}
 	
@@ -509,8 +509,8 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 		@SuppressWarnings("unchecked")
 		@Override
 		public void putValue(String itemName, Object itemValue,
-				int itemSizeForLang, Charset itemCharsetForLang,
-				Charset charsetOfProject, JSONObject jsonWriteObj)
+				int itemSize, Charset itemCharset,
+				Charset streamCharset, JSONObject jsonObjForOutputStream)
 				throws Exception {
 			if (null == itemValue) {
 				String errorMessage = "항목의 값이 null 입니다.";
@@ -526,7 +526,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 			
 			java.sql.Timestamp javaSqlTimestampValue = (java.sql.Timestamp)itemValue;
 			long javaSqlTimestampLongValue = javaSqlTimestampValue.getTime();			
-			jsonWriteObj.put(itemName, javaSqlTimestampLongValue);
+			jsonObjForOutputStream.put(itemName, javaSqlTimestampLongValue);
 		}		
 	}
 	
@@ -535,8 +535,8 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 		@SuppressWarnings("unchecked")
 		@Override
 		public void putValue(String itemName, Object itemValue,
-				int itemSizeForLang, Charset itemCharsetForLang,
-				Charset charsetOfProject, JSONObject jsonWriteObj)
+				int itemSize, Charset itemCharset,
+				Charset streamCharset, JSONObject jsonObjForOutputStream)
 				throws Exception {
 			if (null == itemValue) {
 				String errorMessage = "항목의 값이 null 입니다.";
@@ -552,9 +552,9 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 			
 			java.lang.Boolean booleanValue = (java.lang.Boolean)itemValue;
 			if (booleanValue) {
-				jsonWriteObj.put(itemName, "true");
+				jsonObjForOutputStream.put(itemName, "true");
 			} else {
-				jsonWriteObj.put(itemName, "false");
+				jsonObjForOutputStream.put(itemName, "false");
 			}
 		}		
 	}
@@ -562,8 +562,8 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 	@Override
 	public void putValueToMiddleWriteObj(String path, String itemName,
 			int itemTypeID, String itemTypeName, Object itemValue,
-			int itemSizeForLang, String itemCharset,
-			Charset charsetOfProject, Object middleWriteObj) throws Exception {
+			int itemSize, String nativeItemCharset,
+			Charset streamCharset, Object middleWriteObj) throws Exception {
 		
 		if (!(middleWriteObj instanceof JSONObject)) {
 			String errorMessage = String.format(
@@ -572,17 +572,23 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		Charset itemCharsetForLang = null;
-		if (null == itemCharset) {
-			itemCharsetForLang = charsetOfProject;
+		Charset itemCharset = null;
+		if (null == nativeItemCharset) {
+			itemCharset = streamCharset;
 		} else {
-			itemCharsetForLang = Charset.forName(itemCharset);
+			try {
+				itemCharset = Charset.forName(nativeItemCharset);
+			} catch(Exception e) {
+				log.warn(String.format("the parameter nativeItemCharset[%s] is not a bad charset name", nativeItemCharset), e);
+				
+				itemCharset = streamCharset;
+			}
 		}
 		
 		
-		JSONObject jsonWriteObj = (JSONObject)middleWriteObj;
+		JSONObject jsonObjForOutputStream = (JSONObject)middleWriteObj;
 		try {
-			dhbTypeSingleItemEncoderList[itemTypeID].putValue(itemName, itemValue, itemSizeForLang, itemCharsetForLang, charsetOfProject, jsonWriteObj);
+			dhbTypeSingleItemEncoderList[itemTypeID].putValue(itemName, itemValue, itemSize, itemCharset, streamCharset, jsonObjForOutputStream);
 		} catch(IllegalArgumentException e) {
 			StringBuffer errorMessageBuilder = new StringBuffer("잘못된 파라미티터 에러::");
 			errorMessageBuilder.append(path);
@@ -593,9 +599,9 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 			errorMessageBuilder.append("], itemValue=[");
 			errorMessageBuilder.append(itemValue);
 			errorMessageBuilder.append("], itemSize=[");
-			errorMessageBuilder.append(itemSizeForLang);
+			errorMessageBuilder.append(itemSize);
 			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(itemCharset);
+			errorMessageBuilder.append(nativeItemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
 			errorMessageBuilder.append(e.getMessage());
 			errorMessageBuilder.append("]");
@@ -616,9 +622,9 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 			errorMessageBuilder.append("], itemValue=[");
 			errorMessageBuilder.append(itemValue);
 			errorMessageBuilder.append("], itemSize=[");
-			errorMessageBuilder.append(itemSizeForLang);
+			errorMessageBuilder.append(itemSize);
 			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(itemCharset);
+			errorMessageBuilder.append(nativeItemCharset);
 			errorMessageBuilder.append("] }, errmsg=[");
 			errorMessageBuilder.append(e.getMessage());
 			errorMessageBuilder.append("]");
