@@ -19,7 +19,7 @@ package kr.pe.sinnori.server.io;
 
 import java.nio.channels.SocketChannel;
 
-import kr.pe.sinnori.common.protocol.ReceivedLetter;
+import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.server.ClientResource;
 
 /**
@@ -30,22 +30,18 @@ import kr.pe.sinnori.server.ClientResource;
  */
 public class LetterFromClient {
 	private SocketChannel clientSC;
-	private ReceivedLetter receivedLetter;
+	private WrapReadableMiddleObject wrapReadableMiddleObject;
 	private ClientResource clientResource  = null;
 
-	public LetterFromClient(SocketChannel clientSC, ClientResource clientResource, ReceivedLetter receivedLetter) {
-		this.clientSC = clientSC;
+	public LetterFromClient(ClientResource clientResource, WrapReadableMiddleObject wrapReadableMiddleObject) {
+		this.clientSC = clientResource.getClientSC();
 		this.clientResource = clientResource;
-		this.receivedLetter = receivedLetter;
+		this.wrapReadableMiddleObject = wrapReadableMiddleObject;
 	}
 	
-	/**
-	 * 메세지를 반환한다.
-	 * 
-	 * @return 메세지
-	 */
-	public ReceivedLetter getReceivedLetter() {
-		return receivedLetter;
+	
+	public WrapReadableMiddleObject getWrapReadableMiddleObject() {
+		return wrapReadableMiddleObject;
 	}
 	
 	/**
@@ -53,7 +49,7 @@ public class LetterFromClient {
 	 * 
 	 * @return 송신할 client, 즉 송신자
 	 */
-	public SocketChannel getFromSC() {
+	public SocketChannel getClientSC() {
 		return clientSC;
 	}
 	

@@ -1,6 +1,6 @@
 package kr.pe.sinnori.common.message.builder.info;
 
-public enum ItemType {
+public enum SingleItemType {
 	BYTE(0, "byte"),
 	UNSIGNED_BYTE(1, "unsigned byte"),
 	SHORT(2, "short"),
@@ -26,7 +26,7 @@ public enum ItemType {
 	private int itemTypeID;
 	
 	
-	private ItemType(int itemTypeID, String itemTypeName) {
+	private SingleItemType(int itemTypeID, String itemTypeName) {
 		this.itemTypeID = itemTypeID;
 		this.itemTypeName = itemTypeName;
 	}
@@ -38,8 +38,4 @@ public enum ItemType {
 	public String getItemTypeName() {
 		return itemTypeName;
 	}
-	
-	/*public int ordinal() {
-		return itemTypeID;
-	}*/
 }

@@ -29,7 +29,7 @@ import kr.pe.sinnori.client.connection.asyn.share.ShareAsynConnection;
 import kr.pe.sinnori.client.io.ClientOutputMessageQueueWrapper;
 import kr.pe.sinnori.client.io.LetterToServer;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
-import kr.pe.sinnori.common.protocol.ReceivedLetter;
+import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
 /**
  * <pre>
@@ -66,7 +66,7 @@ public class PrivateMailbox {
 	private ClientOutputMessageQueueQueueMangerIF syncOutputMessageQueueQueueManager = null;
 	/** 출력 메시지 큐 */
 	private ClientOutputMessageQueueWrapper wrapOutputMessageQueue = null;
-	private LinkedBlockingQueue<ReceivedLetter> syncOutputMessageQueue = null;
+	private LinkedBlockingQueue<WrapReadableMiddleObject> syncOutputMessageQueue = null;
 	/** 메일함이 속한 비동기 연결 방식의 소켓 채널을 쓰레드간에 공유할려는 연결 클래스 */
 	private AbstractAsynConnection serverConnection = null;
 	/** 메일함 사용 여부 */
@@ -180,7 +180,7 @@ public class PrivateMailbox {
 	 * @param outObj
 	 *            출력 메시지
 	 */
-	public void putToSyncOutputMessageQueue(ReceivedLetter receivedLetter) {
+	public void putToSyncOutputMessageQueue(WrapReadableMiddleObject receivedLetter) {
 		if (!isActive) {
 			String errorMessage = String
 					.format("메일함이 사용중이 아닙니다. 출력 메시지를 버립니다. %s, receivedLetter=[%s]",
@@ -227,11 +227,11 @@ public class PrivateMailbox {
 	 *             못했을때 발생
 	 * @throws InterruptedException 인터럽트 발생시 던지는 예외
 	 */
-	public ReceivedLetter getSyncOutputMessage() throws SocketTimeoutException, InterruptedException {
+	public WrapReadableMiddleObject getSyncOutputMessage() throws SocketTimeoutException, InterruptedException {
 		long firstElapsedTime = new java.util.Date().getTime();
 		long lastElapsedTime = firstElapsedTime;
 		long elapsedTimeDifference = 0L;
-		ReceivedLetter receivedLetter = null;		
+		WrapReadableMiddleObject receivedLetter = null;		
 		do {
 			receivedLetter = syncOutputMessageQueue.poll(socketTimeOut - elapsedTimeDifference,
 					TimeUnit.MILLISECONDS);

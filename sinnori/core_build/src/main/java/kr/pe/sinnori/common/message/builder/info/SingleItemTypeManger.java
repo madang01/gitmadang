@@ -47,19 +47,21 @@ import org.slf4j.LoggerFactory;
  * @author Won Jonghoon
  *
  */
-public class ItemTypeManger {
-	private final Logger log = LoggerFactory.getLogger(ItemTypeManger.class);
+public class SingleItemTypeManger {
+	private final Logger log = LoggerFactory.getLogger(SingleItemTypeManger.class);
 	
 	private String messageXSLStr = null;
 	
-	private LinkedHashMap<String, Integer> itemTypeNameToIDHash  = new LinkedHashMap<String, Integer>();
-	private HashMap<Integer, String> itemIDToItemTypeNameHash  = new HashMap<Integer, String>();
+	private final SingleItemType[] singleItemTypes = SingleItemType.values();
+	
+	private final LinkedHashMap<String, Integer> itemTypeNameToIDHash  = new LinkedHashMap<String, Integer>();
+	private final HashMap<Integer, String> itemIDToItemTypeNameHash  = new HashMap<Integer, String>();
 
 	/**
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스
 	 */
 	private static final class ItemTypeMangerHolder {
-		static final ItemTypeManger singleton = new ItemTypeManger();
+		static final SingleItemTypeManger singleton = new SingleItemTypeManger();
 	}
 
 	/**
@@ -67,18 +69,18 @@ public class ItemTypeManger {
 	 * 
 	 * @return 싱글턴 객체
 	 */
-	public static ItemTypeManger getInstance() {
+	public static SingleItemTypeManger getInstance() {
 		return ItemTypeMangerHolder.singleton;
 	}
 	
 	/**
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 생성자
 	 */
-	private ItemTypeManger() {
+	private SingleItemTypeManger() {
 		
-		for (ItemType itemType : ItemType.values()) {
-			int itemTypeID = itemType.getItemTypeID();
-			String itemTypeName = itemType.getItemTypeName();
+		for (SingleItemType singleItemType : singleItemTypes) {
+			int itemTypeID = singleItemType.getItemTypeID();
+			String itemTypeName = singleItemType.getItemTypeName();
 			itemTypeNameToIDHash.put(itemTypeName, itemTypeID);
 			itemIDToItemTypeNameHash.put(itemTypeID, itemTypeName);
 		}
@@ -281,8 +283,23 @@ public class ItemTypeManger {
 	}
 	
 	public int getItemTypeCount() {
-		return itemTypeNameToIDHash.size();
+		return singleItemTypes.length;
 	}
+	
+	
+	public SingleItemType getSingleItemType(int singleItemTypeID) {
+		if (singleItemTypeID < 0) {
+			String errorMessage = String.format("the parameter singleItemTypeID[%d] is less than zero", singleItemTypeID);
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (singleItemTypeID >= singleItemTypes.length) {
+			String errorMessage = String.format("the parameter singleItemTypeID[%d] is out of range(0 ~ [%d])", singleItemTypeID, singleItemTypes.length-1);
+			throw new IllegalArgumentException(errorMessage);
+		}
+		return singleItemTypes[singleItemTypeID];
+	}
+	
 	
 	public Set<String> getUnmodifiableItemTypeNameSet() {
 		Set<String> itemTypeNameSet = Collections.unmodifiableSet(itemTypeNameToIDHash.keySet());

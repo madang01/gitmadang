@@ -42,7 +42,7 @@ import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
-import kr.pe.sinnori.common.protocol.ReceivedLetter;
+import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 import kr.pe.sinnori.common.protocol.djson.header.DJSONHeader;
 
@@ -169,12 +169,12 @@ public class DJSONMessageProtocol implements MessageProtocolIF {
 	}
 	
 	@Override
-	public ArrayList<ReceivedLetter> S2MList(SocketOutputStream socketOutputStream) throws HeaderFormatException,
+	public ArrayList<WrapReadableMiddleObject> S2MList(SocketOutputStream socketOutputStream) throws HeaderFormatException,
 			NoMoreDataPacketBufferException {
 		
 		DJSONHeader messageHeader = (DJSONHeader)socketOutputStream.getUserDefObject();
 		
-		ArrayList<ReceivedLetter> receivedLetterList = new ArrayList<ReceivedLetter>();
+		ArrayList<WrapReadableMiddleObject> receivedLetterList = new ArrayList<WrapReadableMiddleObject>();
 		
 		boolean isMoreMessage = false;
 		
@@ -308,8 +308,8 @@ public class DJSONMessageProtocol implements MessageProtocolIF {
 						int mailboxID = jsonMailboxID.intValue();
 						int mailID = jsonMailID.intValue();
 						
-						ReceivedLetter receivedLetter = 
-								new ReceivedLetter(messageID, 
+						WrapReadableMiddleObject receivedLetter = 
+								new WrapReadableMiddleObject(messageID, 
 										mailboxID, mailID, jsonObj);
 						
 						receivedLetterList.add(receivedLetter);

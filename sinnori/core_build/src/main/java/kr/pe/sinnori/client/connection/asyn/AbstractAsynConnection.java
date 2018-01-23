@@ -34,7 +34,7 @@ import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
-import kr.pe.sinnori.common.protocol.ReceivedLetter;
+import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
 /**
  * 클라이언트 소켓 채널 블락킹 모드가 넌블락인 비동기 연결 클래스의 부모 추상화 클래스<br/>
@@ -82,7 +82,7 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 			boolean whetherToAutoConnect,
 			int maxCountFinishingConnect,
 			long intervalFinishingConnect,
-			LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue,
+			LinkedBlockingQueue<WrapReadableMiddleObject> asynOutputMessageQueue,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
 			MessageProtocolIF messageProtocol,
 			AsynServerAdderIF outputMessageReaderPool,
@@ -165,7 +165,7 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 	 * 
 	 * @param outObj 
 	 */
-	abstract public void putToOutputMessageQueue(ReceivedLetter receivedLetter);
+	abstract public void putToOutputMessageQueue(WrapReadableMiddleObject receivedLetter);
 	
 	/**
 	 * {@link OutputMessageReaderThread } 가 운영하는 소켓 읽기 전용 selector 에 등록과 운영을 위한 hash 와 set 에 connection 을 등록한다.  

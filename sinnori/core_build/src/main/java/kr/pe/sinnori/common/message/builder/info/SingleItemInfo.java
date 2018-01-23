@@ -50,7 +50,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 	private String javaLangTypeOfItemType;
 	private String JavaLangClassCastingTypeOfItemType;
 
-	private static final ItemTypeManger itemTypeIDManger = ItemTypeManger
+	private static final SingleItemTypeManger singleItemTypeManger = SingleItemTypeManger
 			.getInstance();
 
 	/**
@@ -92,7 +92,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 		int itemTypeID = -1;
 		
 		try {
-			itemTypeID = itemTypeIDManger.getItemTypeID(itemTypeName);
+			itemTypeID = singleItemTypeManger.getItemTypeID(itemTypeName);
 		} catch(UnknownItemTypeException e) {
 			log.warn(e.toString(), e);
 			String errorMessage = new StringBuilder(
@@ -189,7 +189,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 	}
 
 	/**
-	 * @see ItemTypeManger
+	 * @see SingleItemTypeManger
 	 * @return 항목 타입 식별자
 	 */
 	public int getItemTypeID() {

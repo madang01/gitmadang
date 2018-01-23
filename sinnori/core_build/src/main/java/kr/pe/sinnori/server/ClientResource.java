@@ -187,6 +187,10 @@ public class ClientResource {
 		loginID = null;
 	}	
 	
+	public SocketChannel getClientSC() {
+		return clientSC;
+	}
+	
 	/**
 	 * @return 메시지 데이터 수신중 여부, true 이면 메시지 데이터 수신중, false 이면 메시지 데이터 수신 대기중
 	 */

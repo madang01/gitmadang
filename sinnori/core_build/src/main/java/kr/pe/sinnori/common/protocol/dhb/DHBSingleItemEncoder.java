@@ -18,18 +18,20 @@ package kr.pe.sinnori.common.protocol.dhb;
 
 import java.nio.BufferOverflowException;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
 import java.util.Arrays;
 
-import kr.pe.sinnori.common.etc.CharsetUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
 import kr.pe.sinnori.common.io.BinaryOutputStreamIF;
+import kr.pe.sinnori.common.message.builder.info.SingleItemType;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * DHB 프로톨 단일 항목 인코더
@@ -38,6 +40,17 @@ import org.slf4j.LoggerFactory;
  */
 public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 	private Logger log = LoggerFactory.getLogger(DHBSingleItemEncoder.class);
+	
+	@SuppressWarnings("unused")
+	private CharsetEncoder systemCharsetEncoder = null;
+	private CodingErrorAction streamCodingErrorActionOnMalformedInput = null;
+	private CodingErrorAction streamCodingErrorActionOnUnmappableCharacter = null;
+	
+	public DHBSingleItemEncoder(CharsetEncoder systemCharsetEncoder) {
+		this.systemCharsetEncoder = systemCharsetEncoder;
+		this.streamCodingErrorActionOnMalformedInput = systemCharsetEncoder.malformedInputAction();
+		this.streamCodingErrorActionOnUnmappableCharacter = systemCharsetEncoder.malformedInputAction();
+	}
 	
 	private interface DHBTypeSingleItemEncoderIF {
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
@@ -253,8 +266,12 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 			if (null == itemCharset) {
 				binaryOutputStream.putFixedLengthString(itemSize, tempItemValue);
 			} else {
+				CharsetEncoder userDefinedCharsetEncoder =  itemCharset.newEncoder();
+				userDefinedCharsetEncoder.onMalformedInput(streamCodingErrorActionOnMalformedInput);
+				userDefinedCharsetEncoder.onUnmappableCharacter(streamCodingErrorActionOnUnmappableCharacter);
+				
 				binaryOutputStream.putFixedLengthString(itemSize, tempItemValue,
-						CharsetUtil.createCharsetEncoder(itemCharset));
+						userDefinedCharsetEncoder);
 			}
 
 		}
@@ -440,32 +457,31 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 	}
 	
 	@Override
-	public void putValueToMiddleWriteObj(String path, String itemName, int itemTypeID, String itemTypeName, Object itemValue,
-			int itemSize, String nativeItemCharset, Charset streamCharset, Object middleObjToStream)
+	public void putValueToWritableMiddleObject(String path, String itemName, SingleItemType singleItemType, Object itemValue,
+			int itemSize, String nativeItemCharset, Charset streamCharset, Object writableMiddleObject)
 			throws BodyFormatException, NoMoreDataPacketBufferException {		
 		
-		if (!(middleObjToStream instanceof BinaryOutputStreamIF)) {
+		if (!(writableMiddleObject instanceof BinaryOutputStreamIF)) {
 			String errorMessage = String.format(
 					"the parameter middleObjToStream[%s] is not Inherited the BinaryOutputStreamIF interface",
-					middleObjToStream.getClass().getCanonicalName());
+					writableMiddleObject.getClass().getCanonicalName());
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
+		int itemTypeID = singleItemType.getItemTypeID();
+		String itemTypeName = singleItemType.getItemTypeName();		
+		
 		Charset itemCharset = null;
 		
-		if (null == nativeItemCharset) {
-			itemCharset = streamCharset;
-		} else {
+		if (null != nativeItemCharset) {			
 			try {
 				itemCharset = Charset.forName(nativeItemCharset);
 			} catch(Exception e) {
 				log.warn(String.format("the parameter nativeItemCharset[%s] is not a bad charset name", nativeItemCharset), e);
-				
-				itemCharset = streamCharset;
 			}
 		}
 		
-		BinaryOutputStreamIF binaryOutputStream = (BinaryOutputStreamIF)middleObjToStream;
+		BinaryOutputStreamIF binaryOutputStream = (BinaryOutputStreamIF)writableMiddleObject;
 		
 				
 		try {
@@ -556,13 +572,13 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 	}
 
 	@Override
-	public Object getMiddleWriteObjFromArrayObj(String path, Object arrayObj, int inx) throws BodyFormatException {
+	public Object getWritableMiddleObjectjFromArrayObject(String path, Object arrayObj, int inx) throws BodyFormatException {
 		return arrayObj;
 	}
 
 	@Override
-	public Object getArrayObjFromMiddleWriteObj(String path, String arrayName,
-			int arrayCntValue, Object middleWriteObj) throws BodyFormatException {
-		return middleWriteObj;
+	public Object getArrayObjectFromWritableMiddleObject(String path, String arrayName,
+			int arrayCntValue, Object writableMiddleObject) throws BodyFormatException {
+		return writableMiddleObject;
 	}	
 }

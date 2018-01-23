@@ -22,6 +22,7 @@ import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
 import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
+import kr.pe.sinnori.common.message.builder.info.SingleItemType;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 import kr.pe.sinnori.common.util.HexUtil;
 
@@ -703,8 +704,8 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 	}
 	
 	@Override
-	public Object getValueFromMiddleReadObj(String path, String itemName,
-			int itemTypeID, String itemTypeName, int itemSize,
+	public Object getValueFromReadableMiddleObject(String path, String itemName,
+			SingleItemType singleItemType, int itemSize,
 			String nativeItemCharset, Charset streamCharset,
 			Object middleReadObj) throws BodyFormatException {
 		
@@ -714,6 +715,9 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 					middleReadObj.getClass().getCanonicalName());
 			throw new BodyFormatException(errorMessage);
 		}
+		
+		int itemTypeID = singleItemType.getItemTypeID();
+		String itemTypeName = singleItemType.getItemTypeName();
 		
 		Charset itemCharset = null;
 		if (null == nativeItemCharset) {
@@ -836,13 +840,13 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 	
 	
 	@Override
-	public Object getArrayObjFromMiddleReadObj(String path, String arrayName,
-			int arrayCntValue, Object middleReadObj)
+	public Object getArrayObjectFromReadableMiddleObject(String path, String arrayName,
+			int arrayCntValue, Object readableMiddleObject)
 			throws BodyFormatException {
-		if (!(middleReadObj instanceof JSONObject)) {
+		if (!(readableMiddleObject instanceof JSONObject)) {
 			String errorMessage = String.format(
 					"%s 경로에 대응하는 존슨 객체에서 존슨 배열[%s]를 얻는 과정에서  파라미터 middleReadObj[%s]의 데이터 타입이 JSONObject 이 아닙니다.",
-					path, arrayName, middleReadObj.getClass().getCanonicalName());
+					path, arrayName, readableMiddleObject.getClass().getCanonicalName());
 			throw new BodyFormatException(errorMessage);
 		}
 		
@@ -853,7 +857,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 			throw new BodyFormatException(errorMessage);
 		}
 		
-		JSONObject jsonReadObj = (JSONObject)middleReadObj;
+		JSONObject jsonReadObj = (JSONObject)readableMiddleObject;
 		Object valueObj = jsonReadObj.get(arrayName);
 
 		if (null == valueObj) {
@@ -884,7 +888,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 	}
 
 	@Override
-	public Object getMiddleReadObjFromArrayObj(String path, Object arrayObj, int inx) throws BodyFormatException {
+	public Object getReadableMiddleObjFromArrayObject(String path, Object arrayObj, int inx) throws BodyFormatException {
 		if (null == path) {
 			String errorMessage = String.format(
 					"%s 경로에 대응하는 존슨 배열의 항목 값을 얻어오는 과정에서 파라미터 path 의 값[%d] 이 null 입니다.",
@@ -907,28 +911,28 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 		}
 		
 		JSONArray jsonArray = (JSONArray)arrayObj;
-		Object valueObj = null;
+		Object readableMiddleObjectOfArray = null;
 		try {
-			valueObj = jsonArray.get(inx);
+			readableMiddleObjectOfArray = jsonArray.get(inx);
 		} catch(IndexOutOfBoundsException  e) {
 			String errorMessage = String.format(
 					"%s 경로에 대응하는 존슨 배열의 항목 값은 배열 크기를 벗어난 요청입니다.", path);
 			throw new BodyFormatException(errorMessage);
 		}		
 		
-		if (!(valueObj instanceof JSONObject)) {
+		if (!(readableMiddleObjectOfArray instanceof JSONObject)) {
 			String errorMessage = String.format(
 					"%s 경로에 대응하는 존슨 배열의 항목의 값의 타입[%s]이 JSONObject 이 아닙니다.",
-					path, valueObj.getClass().getCanonicalName());
+					path, readableMiddleObjectOfArray.getClass().getCanonicalName());
 			throw new BodyFormatException(errorMessage);
 		}
 		
-		return valueObj;
+		return readableMiddleObjectOfArray;
 	}
 	
 	
 	@Override
-	public void finish(Object middleReadObj) throws BodyFormatException {
+	public void closeReadableMiddleObjectWithValidCheck(Object readableMiddleObject) throws BodyFormatException {
 		// nothing
 	}
 }

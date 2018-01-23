@@ -41,7 +41,7 @@ import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
-import kr.pe.sinnori.common.protocol.ReceivedLetter;
+import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
 /**
  * 클라이언트 비공유 방식의 비동기 연결 클래스 {@link NoShareAsynConnection} 를 원소로 가지는 폴 관리자 클래스<br/>
@@ -89,7 +89,7 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 			boolean whetherToAutoConnect,
 			int finishConnectMaxCall,
 			long finishConnectWaittingTime,
-			LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue,
+			LinkedBlockingQueue<WrapReadableMiddleObject> asynOutputMessageQueue,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
 			MessageProtocolIF messageProtocol,
 			AsynServerAdderIF outputMessageReaderPool,

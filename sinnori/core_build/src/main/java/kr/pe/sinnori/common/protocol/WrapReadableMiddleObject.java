@@ -27,19 +27,20 @@ import org.slf4j.LoggerFactory;
  * @author "Won Jonghoon"
  *
  */
-public class ReceivedLetter {
-	private Logger log = LoggerFactory.getLogger(ReceivedLetter.class);
+public class WrapReadableMiddleObject {
+	private Logger log = LoggerFactory.getLogger(WrapReadableMiddleObject.class);
 	
 	private String messageID = null;
 	private int mailboxID;
 	private int mailID;
-	private Object middleReadObj = null;
+	private Object readableMiddleObject = null;
 	
-	public ReceivedLetter(String messageID, int mailboxID, int mailID, Object middleReadObj) {
+	// Intermediate object between stream and message
+	public WrapReadableMiddleObject(String messageID, int mailboxID, int mailID, Object readableMiddleObject) {
 		this.messageID = messageID;
 		this.mailboxID = mailboxID;
 		this.mailID = mailID;
-		this.middleReadObj = middleReadObj;
+		this.readableMiddleObject = readableMiddleObject;
 	}
 
 	public String getMessageID() {
@@ -54,16 +55,22 @@ public class ReceivedLetter {
 		return mailID;
 	}
 
-	public Object getMiddleReadObj() {
-		return middleReadObj;
+	public Object getReadableMiddleObject() {
+		return readableMiddleObject;
 	}
 	
-	
-	public void closeMiddleReadObj() {
-		if (middleReadObj instanceof FreeSizeInputStream) {
-			FreeSizeInputStream bodyFreeSizeInputStream = (FreeSizeInputStream)middleReadObj;
+	/**
+	 * <pre>
+	 * MiddleReadableObject 가 가진 자원 반환을 하는 장소는  2군데이다.
+	 * 첫번째 장소는 메시지 추출 후 쓰임이 다해서 호출하는 AbstractMessageDecoder#decode 이며
+	 * 두번째 장소는 2번 연속 호출해도 무방하기때문에 안전하게 자원 반환을 보장하기위한 Executor#run 이다.
+	 * </pre>
+	 */
+	public void closeReadableMiddleObject() {
+		if (readableMiddleObject instanceof FreeSizeInputStream) {
+			FreeSizeInputStream messageInputStream = (FreeSizeInputStream)readableMiddleObject;
 			try {
-				bodyFreeSizeInputStream.close();
+				messageInputStream.close();
 				
 				// FIXME!
 				//log.info("messageID[{}], mailboxID[{}], mailID[{}] 메시지 바디 스트림 정상 닫힘", messageID, mailboxID, mailID);
@@ -86,8 +93,8 @@ public class ReceivedLetter {
 		builder.append(mailboxID);
 		builder.append(", mailID=");
 		builder.append(mailID);
-		builder.append(", middleReadObj hashCode=");
-		builder.append(middleReadObj.hashCode());
+		builder.append(", readableMiddleObject hashCode=");
+		builder.append(readableMiddleObject.hashCode());
 		builder.append("]");
 		return builder.toString();
 	}	

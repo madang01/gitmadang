@@ -41,7 +41,7 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
-import kr.pe.sinnori.common.protocol.ReceivedLetter;
+import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.ClientResourceManagerIF;
 import kr.pe.sinnori.server.io.LetterFromClient;
@@ -227,11 +227,11 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 							
 							clientResource.setFinalReadTime();
 							
-							ArrayList<ReceivedLetter> inputMessageList = 
+							ArrayList<WrapReadableMiddleObject> wrapReadableMiddleObjectList = 
 									messageProtocol.S2MList(clientSocketOutputStream);							
 
-							for (ReceivedLetter receivedLetter : inputMessageList) {
-								inputMessageQueue.put(new LetterFromClient(readableSocketChannel, clientResource, receivedLetter));
+							for (WrapReadableMiddleObject wrapReadableMiddleObject : wrapReadableMiddleObjectList) {
+								inputMessageQueue.put(new LetterFromClient(clientResource, wrapReadableMiddleObject));
 							}
 						
 						} catch (NoMoreDataPacketBufferException e) {

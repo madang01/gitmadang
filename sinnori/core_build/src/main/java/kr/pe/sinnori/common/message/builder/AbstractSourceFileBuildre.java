@@ -42,5 +42,15 @@ public abstract class AbstractSourceFileBuildre {
 		
 		return licenseBuilder.toString();
 	}
+	
+	protected String getImportPartString(String importElements[]) {
+		StringBuilder ImportPartBuilder = new StringBuilder();
+		for (String importElement : importElements) {
+			ImportPartBuilder.append(importElement);
+			ImportPartBuilder.append(CommonStaticFinalVars.NEWLINE);
+		}
+		
+		return ImportPartBuilder.toString();
+	}
 
 }

@@ -8,6 +8,7 @@ import kr.pe.sinnori.common.message.builder.info.AbstractItemInfo;
 import kr.pe.sinnori.common.message.builder.info.ArrayInfo;
 import kr.pe.sinnori.common.message.builder.info.ItemGroupIF;
 import kr.pe.sinnori.common.message.builder.info.SingleItemInfo;
+import kr.pe.sinnori.common.message.builder.info.SingleItemTypeManger;
 
 
 public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
@@ -59,7 +60,7 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 				stringBuilder.append(singleItemInfo.getItemName());
 				stringBuilder.append("\" // itemName");
 				
-				// , 0 // itemType
+				/*// , 0 // itemTypeID
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				for (int i=0; i < depth; i++) {
 					stringBuilder.append("\t");
@@ -75,7 +76,19 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 				}
 				stringBuilder.append("\t\t, \"");
 				stringBuilder.append(singleItemInfo.getItemTypeName());
-				stringBuilder.append("\" // itemTypeName");
+				stringBuilder.append("\" // itemTypeName");*/
+				
+				// itemType
+				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+				for (int i=0; i < depth; i++) {
+					stringBuilder.append("\t");
+				}
+				stringBuilder.append("\t\t, ");
+				stringBuilder.append("SingleItemType.");
+				stringBuilder.append(SingleItemTypeManger.getInstance()
+						.getSingleItemType(singleItemInfo.getItemTypeID()).name());
+				stringBuilder.append(" // itemType");
+				// , SingleItemType.UB_PASCAL_STRING
 				
 				// itemSize
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
@@ -92,6 +105,10 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 					stringBuilder.append("\t");
 				}
 				stringBuilder.append("\t\t, ");
+				
+				
+				
+				
 				/**
 				 * <pre>
 				 * 타입이 고정 문자열 크기일 경우만 문자셋을 지정할 수 있다.
@@ -124,7 +141,7 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 				}
 				stringBuilder.append("\t\t, streamCharset");
 				
-				// , middleReadObj));
+				// , middleReadableObject));
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				for (int i=0; i < depth; i++) {
 					stringBuilder.append("\t");
@@ -158,7 +175,7 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 					stringBuilder.append(";");
 				}
 								
-				// Object memberMiddleReadArray = singleItemDecoder.getArrayObjFromMiddleReadObj(sigleItemPath0, "member", memberListSize, middleReadObj);
+				// Object memberMiddleReadArray = singleItemDecoder.getArrayObjFromMiddleReadObj(sigleItemPath0, "member", memberListSize, middleReadableObject);
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				for (int i=0; i < depth; i++) {
 					stringBuilder.append("\t");
@@ -307,22 +324,19 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(messageID);
 		stringBuilder.append(";");
 		
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);		
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+				
+		String importElements[] = {
+				"import java.nio.charset.Charset;",
+				"import kr.pe.sinnori.common.exception.BodyFormatException;",
+				"import kr.pe.sinnori.common.message.AbstractMessage;",
+				"import kr.pe.sinnori.common.message.builder.info.SingleItemType;",				
+				"import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;",
+				"import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;"
+		};
+		stringBuilder.append(getImportPartString(importElements));
 		
-		// import java.nio.charset.Charset;
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("import java.nio.charset.Charset;");
-		
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("import kr.pe.sinnori.common.exception.BodyFormatException;");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("import kr.pe.sinnori.common.message.AbstractMessage;");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;");
-		
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("/**");
@@ -360,7 +374,7 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("\t * @param streamCharset 프로젝트 문자셋");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t * @param middleReadObj 중간 다리 역활 읽기 객체");
+		stringBuilder.append("\t * @param middleReadableObject 중간 다리 역활 읽기 객체");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("\t * @return \"단일항목 디코더\"를 이용하여 \"중간 다리 역활 읽기 객체\" 에서 추출된 ");
 		stringBuilder.append(messageID);
@@ -374,7 +388,7 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("\t@Override");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\tprotected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Charset streamCharset, Object  middleReadObj) throws OutOfMemoryError, BodyFormatException {");
+		stringBuilder.append("\tprotected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Charset streamCharset, Object  middleReadableObject) throws OutOfMemoryError, BodyFormatException {");
 		
 		// AllDataType allDataType = new AllDataType();
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
@@ -393,7 +407,7 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 			stringBuilder.append(messageID);
 			stringBuilder.append("\";");
 			
-			stringBuilder.append(toBody(0, messageID, firstLowerMessageID, messageInfo, "middleReadObj"));
+			stringBuilder.append(toBody(0, messageID, firstLowerMessageID, messageInfo, "middleReadableObject"));
 		}
 		
 		

@@ -26,6 +26,7 @@ import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
 import kr.pe.sinnori.common.io.FixedSizeOutputStream;
+import kr.pe.sinnori.common.message.builder.info.SingleItemType;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
 import kr.pe.sinnori.common.protocol.djson.header.DJSONHeader;
 import kr.pe.sinnori.common.util.HexUtil;
@@ -560,17 +561,20 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 	}
 
 	@Override
-	public void putValueToMiddleWriteObj(String path, String itemName,
-			int itemTypeID, String itemTypeName, Object itemValue,
+	public void putValueToWritableMiddleObject(String path, String itemName,
+			SingleItemType singleItemType, Object itemValue,
 			int itemSize, String nativeItemCharset,
-			Charset streamCharset, Object middleWriteObj) throws Exception {
+			Charset streamCharset, Object writableMiddleObject) throws Exception {
 		
-		if (!(middleWriteObj instanceof JSONObject)) {
+		if (!(writableMiddleObject instanceof JSONObject)) {
 			String errorMessage = String.format(
 					"파라미터 middleWriteObj[%s]의 데이터 타입이 JSONObject 이 아닙니다.",
-					middleWriteObj.getClass().getCanonicalName());
+					writableMiddleObject.getClass().getCanonicalName());
 			throw new IllegalArgumentException(errorMessage);
 		}
+		
+		int itemTypeID = singleItemType.getItemTypeID();
+		String itemTypeName = singleItemType.getItemTypeName();
 		
 		Charset itemCharset = null;
 		if (null == nativeItemCharset) {
@@ -586,7 +590,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 		}
 		
 		
-		JSONObject jsonObjForOutputStream = (JSONObject)middleWriteObj;
+		JSONObject jsonObjForOutputStream = (JSONObject)writableMiddleObject;
 		try {
 			dhbTypeSingleItemEncoderList[itemTypeID].putValue(itemName, itemValue, itemSize, itemCharset, streamCharset, jsonObjForOutputStream);
 		} catch(IllegalArgumentException e) {
@@ -636,7 +640,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 	}
 	
 	@Override
-	public Object getMiddleWriteObjFromArrayObj(String path, Object arrayObj, int inx) throws BodyFormatException {
+	public Object getWritableMiddleObjectjFromArrayObject(String path, Object arrayObj, int inx) throws BodyFormatException {
 		if (null == path) {
 			String errorMessage = String.format(
 					"%s 경로에 대응하는 존슨 객체에서 존슨 배열의 항목 값을 얻어오는 과정에서 파라미터 path 의 값[%d] 이 null 입니다.",
@@ -659,34 +663,34 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 		}
 		
 		JSONArray jsonArray = (JSONArray)arrayObj;
-		Object valueObj = null;
+		Object writableMiddleObjectOfArray = null;
 		try {
-			valueObj = jsonArray.get(inx);
+			writableMiddleObjectOfArray = jsonArray.get(inx);
 		} catch(IndexOutOfBoundsException  e) {
 			String errorMessage = String.format(
 					"%s 경로에 대응하는 존슨 객체에서 존슨 배열의 항목 값은 배열 크기를 벗어난 요청입니다.", path);
 			throw new BodyFormatException(errorMessage);
 		}		
 		
-		if (!(valueObj instanceof JSONObject)) {
+		if (!(writableMiddleObjectOfArray instanceof JSONObject)) {
 			String errorMessage = String.format(
 					"%s 경로에 대응하는 존슨 객체에서 존슨 배열의 항목의 값의 타입[%s]이 JSONObject 이 아닙니다.",
-					path, valueObj.getClass().getCanonicalName());
+					path, writableMiddleObjectOfArray.getClass().getCanonicalName());
 			throw new BodyFormatException(errorMessage);
 		}
 		
-		return valueObj;
+		return writableMiddleObjectOfArray;
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public Object getArrayObjFromMiddleWriteObj(String path, String arrayName,
-			int arrayCntValue, Object middleWriteObj)
+	public Object getArrayObjectFromWritableMiddleObject(String path, String arrayName,
+			int arrayCntValue, Object writableMiddleObject)
 			throws BodyFormatException {
-		if (!(middleWriteObj instanceof JSONObject)) {
+		if (!(writableMiddleObject instanceof JSONObject)) {
 			String errorMessage = String.format(
 					"%s 경로에 대응하는 존슨 객체에서 존슨 배열[%s]를 얻는 과정에서  파라미터 middleWriteObj[%s]의 데이터 타입이 JSONObject 이 아닙니다.",
-					path, arrayName, middleWriteObj.getClass().getCanonicalName());
+					path, arrayName, writableMiddleObject.getClass().getCanonicalName());
 			throw new BodyFormatException(errorMessage);
 		}
 		
@@ -697,7 +701,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 			throw new BodyFormatException(errorMessage);
 		}
 		
-		JSONObject jsonReadObj = (JSONObject)middleWriteObj;
+		JSONObject jsonReadObj = (JSONObject)writableMiddleObject;
 		Object valueObj = jsonReadObj.get(arrayName);
 
 		if (null == valueObj) {

@@ -84,6 +84,8 @@ public class SocketInputStream extends FreeSizeInputStream {
 		md5Bytes = md5.digest();		
 		return md5Bytes;
 	}
+	
+	
 	/*public SocketInputStream getDuplicatedStream() {
 		// List<WrapBuffer> dataPacketBufferList;
 		// indexOfWorkBuffer

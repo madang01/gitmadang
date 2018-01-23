@@ -19,6 +19,7 @@ package kr.pe.sinnori.common.protocol;
 import java.nio.charset.Charset;
 
 import kr.pe.sinnori.common.exception.BodyFormatException;
+import kr.pe.sinnori.common.message.builder.info.SingleItemType;
 
 /**
  * 단일 항목 디코더 인터페이스. 프로토콜별로 구현된다.
@@ -26,20 +27,8 @@ import kr.pe.sinnori.common.exception.BodyFormatException;
  *
  */
 public interface SingleItemDecoderIF {
-	/**
-	 * 항목 정보를 바탕으로 "중간 다리 역활 읽기 객체" 로 부터 얻은 값을 반환한다. 즉 이진 스트림을 통해 전달받은 항목의 값을 반환한다.
-	 * @param path 메시지 항목의 경로, ex) AllDataType.memberList[1].itemList[1]
-	 * @param itemName 항목 이름
-	 * @param itemTypeID 항목 타입 식별자
-	 * @param itemTypeName 항목 타입명
-	 * @param itemSize 항목 부가정보 - 데이터 크기
-	 * @param nativeItemCharset 항목 부가정보 - 문자셋
-	 * @param streamCharset 프로젝트 문자셋
-	 * @param middleReadObj 중간 다리 역활 읽기 객체
-	 * @return 항목 정보를 바탕으로 "중간 다리 역활 읽기 객체" 로 부터 얻은 값
-	 * @throws Exception 항목 정보를 바탕으로 "중간 다리 역활 읽기 객체" 로 부터 값을 얻을때 에러 발생시 던지는 예외
-	 */
-	public Object getValueFromMiddleReadObj(String path, String itemName, int itemTypeID, String itemTypeName, 
+	
+	public Object getValueFromReadableMiddleObject(String path, String itemName, SingleItemType singleItemType, 
 			int itemSize, String nativeItemCharset, 
 			Charset streamCharset,
 			Object middleReadObj)
@@ -55,11 +44,11 @@ public interface SingleItemDecoderIF {
 	 * @param path 메시지 항목의 경로, ex) AllDataType.memberList[1]
 	 * @param arrayName 배열 이름 
 	 * @param arrayCntValue 배열 크기 값
-	 * @param middleReadObj 중간 다리 역활 읽기 객체
+	 * @param readableMiddleObject 중간 다리 역활 읽기 객체
 	 * @return  "중간 다리 역활 읽기 객체" 로 부터 배열 정보를 가지고 배열 객체
 	 * @throws Exception  "중간 다리 역활 읽기 객체" 로 부터 배열 정보를 가지고 배열 객체를 얻을때 에러 발생시 던지는 예외
 	 */
-	public Object getArrayObjFromMiddleReadObj(String path, String arrayName, int arrayCntValue, Object middleReadObj)
+	public Object getArrayObjectFromReadableMiddleObject(String path, String arrayName, int arrayCntValue, Object readableMiddleObject)
 			throws BodyFormatException;
 	
 	/**
@@ -70,9 +59,16 @@ public interface SingleItemDecoderIF {
 	 * @return "배열 객체" 로 부터 지정된 인덱스에 있는 객체
 	 * @throws Exception "배열 객체" 로 부터 지정된 인덱스에 있는 객체를 반환할때 에러 발생시 던지는 예외
 	 */
-	public Object getMiddleReadObjFromArrayObj(String path, Object arrayObj, int inx) throws BodyFormatException;
+	public Object getReadableMiddleObjFromArrayObject(String path, Object arrayObj, int inx) throws BodyFormatException;
 	
-	public void finish(Object middleReadObj) throws BodyFormatException;
+	/**
+	 * <pre>
+	 * MiddleReadableObject 가 가진 자원 반환을 하는 장소는  2군데이다.
+	 * 첫번째 장소는 메시지 추출 후 쓰임이 다해서 호출하는 AbstractMessageDecoder#decode 이며
+	 * 두번째 장소는 2번 연속 호출해도 무방하기때문에 안전하게 자원 반환을 보장하기위한 Executor#run 이다.
+	 * </pre>
+	 */
+	public void closeReadableMiddleObjectWithValidCheck(Object readableMiddleObject) throws BodyFormatException;
 }
 
 

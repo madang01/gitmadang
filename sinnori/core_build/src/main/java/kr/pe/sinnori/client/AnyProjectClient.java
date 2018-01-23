@@ -49,7 +49,7 @@ import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
 import kr.pe.sinnori.common.project.AbstractProject;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
-import kr.pe.sinnori.common.protocol.ReceivedLetter;
+import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
 /**
  * <pre>
@@ -81,7 +81,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 	private LinkedBlockingQueue<ClientOutputMessageQueueWrapper> syncOutputMessageQueueQueue = null;
 
 	/** 서버에서 보내는 불특정 다수 메시지를 받는 큐 */
-	private LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue = null;
+	private LinkedBlockingQueue<WrapReadableMiddleObject> asynOutputMessageQueue = null;
 
 	/** 비동기 방식에서 사용되는 입력 메시지 쓰기 쓰레드 */
 	private InputMessageWriterPool inputMessageWriterPool = null;
@@ -154,7 +154,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 					socketTimeOut, whetherToAutoConnect,
 					messageProtocol, dataPacketBufferMaxCntPerMessage, this, this);
 		} else {
-			asynOutputMessageQueue = new LinkedBlockingQueue<ReceivedLetter>(
+			asynOutputMessageQueue = new LinkedBlockingQueue<WrapReadableMiddleObject>(
 					outputMessageQueueSize);
 
 			inputMessageQueue = new LinkedBlockingQueue<LetterToServer>(
@@ -184,7 +184,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 
 				for (int i = 0; i < connectionCount; i++) {
 					for (int j = 0; j < mailBoxCnt; j++) {
-						LinkedBlockingQueue<ReceivedLetter> outputMessageQueue = new LinkedBlockingQueue<ReceivedLetter>(
+						LinkedBlockingQueue<WrapReadableMiddleObject> outputMessageQueue = new LinkedBlockingQueue<WrapReadableMiddleObject>(
 								outputMessageQueueSize);
 						ClientOutputMessageQueueWrapper wrapOutputMessageQeuue = new ClientOutputMessageQueueWrapper(
 								outputMessageQueue);
@@ -204,7 +204,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 				syncOutputMessageQueueQueue = new LinkedBlockingQueue<ClientOutputMessageQueueWrapper>(
 						connectionCount);
 				for (int i = 0; i < connectionCount; i++) {
-					LinkedBlockingQueue<ReceivedLetter> outputMessageQueue = new LinkedBlockingQueue<ReceivedLetter>(
+					LinkedBlockingQueue<WrapReadableMiddleObject> outputMessageQueue = new LinkedBlockingQueue<WrapReadableMiddleObject>(
 							outputMessageQueueSize);
 					ClientOutputMessageQueueWrapper wrapOutputMessageQeuue = new ClientOutputMessageQueueWrapper(
 							outputMessageQueue);
@@ -263,9 +263,9 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 	 * @throws InterruptedException
 	 *             쓰레드 인터럽트
 	 */
-	public ReceivedLetter takeServerOutputMessageQueue()
+	public WrapReadableMiddleObject takeServerOutputMessageQueue()
 			throws InterruptedException {
-		ReceivedLetter receivedLetter = null;
+		WrapReadableMiddleObject receivedLetter = null;
 		receivedLetter = asynOutputMessageQueue.take();
 		return receivedLetter;
 	}
@@ -395,12 +395,12 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 		}
 
 		private AbstractMessage getMessageFromMiddleReadObj(
-				ClassLoader classLoader, ReceivedLetter receivedLetter)
+				ClassLoader classLoader, WrapReadableMiddleObject receivedLetter)
 				throws DynamicClassCallException, BodyFormatException {
 			String messageID = receivedLetter.getMessageID();
 			int mailboxID = receivedLetter.getMailboxID();
 			int mailID = receivedLetter.getMailID();
-			Object middleReadObj = receivedLetter.getMiddleReadObj();
+			Object middleReadObj = receivedLetter.getReadableMiddleObject();
 
 			MessageCodecIF messageCodec = clientObjectCacheManager
 					.getClientCodec(classLoader, messageID);
@@ -457,7 +457,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 		public void run() {
 			try {
 				while (!Thread.currentThread().isInterrupted()) {
-					ReceivedLetter receivedLetter = asynOutputMessageQueue
+					WrapReadableMiddleObject receivedLetter = asynOutputMessageQueue
 							.take();
 					AbstractMessage outObj;
 					try {

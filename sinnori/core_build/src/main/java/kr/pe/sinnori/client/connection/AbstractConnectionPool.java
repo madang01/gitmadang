@@ -32,7 +32,7 @@ import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.protocol.ReceivedLetter;
+import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
 /**
  * 클라이언트 연결 클래스 폴 관리자 부모 추상화 클래스.
@@ -50,7 +50,7 @@ public abstract class AbstractConnectionPool {
 	/**
 	 * 서버에서 공지등 불특정 다수한테 메시지를 보낼때 출력 메시지를 담은 큐
 	 */
-	protected LinkedBlockingQueue< ReceivedLetter> serverOutputMessageQueue = null;
+	protected LinkedBlockingQueue< WrapReadableMiddleObject> serverOutputMessageQueue = null;
 
 	
 	/**
@@ -58,7 +58,7 @@ public abstract class AbstractConnectionPool {
 	 * @param clientProjectConfig 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
 	 * @param serverOutputMessageQueue 서버에서 보내는 불특정 다수 메시지를 받는 큐
 	 */
-	protected AbstractConnectionPool(LinkedBlockingQueue<ReceivedLetter> serverOutputMessageQueue) {
+	protected AbstractConnectionPool(LinkedBlockingQueue<WrapReadableMiddleObject> serverOutputMessageQueue) {
 		this.serverOutputMessageQueue = serverOutputMessageQueue;
 	}
 	

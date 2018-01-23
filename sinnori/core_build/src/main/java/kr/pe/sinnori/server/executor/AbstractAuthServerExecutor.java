@@ -28,7 +28,7 @@ import kr.pe.sinnori.common.etc.SelfExnUtil;
 import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
-import kr.pe.sinnori.common.protocol.ReceivedLetter;
+import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.LoginManagerIF;
@@ -56,7 +56,7 @@ public abstract class AbstractAuthServerExecutor extends AbstractServerTask {
 			MessageProtocolIF messageProtocol,
 			SocketChannel clientSC,
 			ClientResource clientResource,
-			ReceivedLetter receivedLetter, LoginManagerIF loginManager,
+			WrapReadableMiddleObject receivedLetter, LoginManagerIF loginManager,
 			ServerObjectCacheManagerIF serverObjectCacheManager) {
 		
 		// CharsetEncoder charsetEncoderOfProject = CharsetUtil.createCharsetEncoder(charsetOfProject);

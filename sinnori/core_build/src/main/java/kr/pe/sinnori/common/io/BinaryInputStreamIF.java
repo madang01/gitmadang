@@ -221,19 +221,8 @@ public interface BinaryInputStreamIF {
 	public void getBytes(byte[] dst) throws SinnoriBufferUnderflowException,
 			IllegalArgumentException;
 
-	/**
-	 * 이진 스트림에서 지정된 길이 만큼 읽어서 바이트 배열에 넣어 반환한다.
-	 * 
-	 * @param length
-	 *            지정된 길이
-	 * @return 스트림에서 읽은 지정된 길이의 데이터를 가지는 바이트 배열
-	 * @throws SinnoriBufferUnderflowException
-	 *             이진 스트림은 버퍼로 구현되는데 버퍼 크기를 넘어서는 읽기 시도시 발생
-	 * @throws IllegalArgumentException
-	 *             잘못된 파라미터 입력시 발생한다.
-	 */
-	public byte[] getBytes(int length) throws SinnoriBufferUnderflowException,
-			IllegalArgumentException;
+	
+	public byte[] getBytes(int length) throws SinnoriBufferUnderflowException, IllegalArgumentException;
 
 	/**
 	 * 지정된 크기 만큼 읽을 위치를 이동시킨다.

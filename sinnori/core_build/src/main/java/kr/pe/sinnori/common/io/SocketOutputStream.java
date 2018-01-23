@@ -13,6 +13,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import kr.pe.sinnori.common.etc.WrapBufferUtil;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 
 public class SocketOutputStream {
@@ -208,16 +209,17 @@ public class SocketOutputStream {
 	
 	
 	public SocketInputStream createNewSocketInputStream() {		
-		LinkedList<WrapBuffer> dupFlippedDataPacketBufferList = new LinkedList<WrapBuffer>(); 
+		/*LinkedList<WrapBuffer> dupFlippedDataPacketBufferList = new LinkedList<WrapBuffer>(); 
 		
 		for (WrapBuffer dataPacketWrapBuffer : socketOutputStreamWrapBufferList) {
 			ByteBuffer dupDataPacketByteBuffer = dataPacketWrapBuffer.getByteBuffer().duplicate();
 			dupDataPacketByteBuffer.order(streamByteOrder);
 			dupDataPacketByteBuffer.flip();
 			dupFlippedDataPacketBufferList.add(new WrapBuffer(dupDataPacketByteBuffer));
-		}
+		}*/		
 		
-		return new SocketInputStream(dataPacketBufferMaxCntPerMessage, dupFlippedDataPacketBufferList, streamCharsetDecoder, dataPacketBufferPoolManager);
+		List<WrapBuffer> duplicatedAndReadableWrapBufferList = WrapBufferUtil.getDuplicatedAndReadableWrapBufferList(socketOutputStreamWrapBufferList);
+		return new SocketInputStream(dataPacketBufferMaxCntPerMessage, duplicatedAndReadableWrapBufferList, streamCharsetDecoder, dataPacketBufferPoolManager);
 	}
 	
 	
@@ -232,62 +234,48 @@ public class SocketOutputStream {
 			throw new IllegalArgumentException(String.format("the parameter size[%d] is greater than the number of written bytes[%d]", size, numberOfWrittenBytes));
 		}
 		
-		// Quotient and remainder
+		numberOfWrittenBytes -= size;
 		
-		/*int numberOfWrapBuffersRequiredForSize = (int)((size-1+dataPacketBufferSize) / dataPacketBufferSize);
-		int lastIndex = numberOfWrapBuffersRequiredForSize - 1;
-		int lastPosition = (int)(size - lastIndex * dataPacketBufferSize); */
+		//log.info("1. socketOutputStreamWrapBufferList={}", socketOutputStreamWrapBufferList.toString());
 		
-		long quotient = size / dataPacketBufferSize;
-		long remainder = size % dataPacketBufferSize;
-		
-		int lastIndex;
-		int lastPosition;
-		
-		if (0 == remainder && quotient > 1) {			
-			lastIndex = (int)(quotient - 1);
-			lastPosition = dataPacketBufferSize;
-		} else {
-			lastIndex = (int)quotient;
-			lastPosition = (int)remainder;
-		}
-		
-		//log.info("In cutMessageInputStreamFromStartingPosition, size={}, dataPacketBufferSize={}, quotient={}, remainder={}", size, dataPacketBufferSize, quotient, remainder);
-		//log.info("In cutMessageInputStreamFromStartingPosition, lastIndex={}, lastPosition={}", lastIndex, lastPosition);
-		
-		
-		LinkedList<WrapBuffer> messageInputStreamWrapBufferList = new LinkedList<WrapBuffer>(); 
-		for (int i=0; i <= lastIndex; i++) {
+		int lastPositionOfMessageInputStreamLastByteBuffer = -1;
+		LinkedList<WrapBuffer> messageInputStreamWrapBufferList = new LinkedList<WrapBuffer>();
+		do {
 			WrapBuffer outputStreamWrapBuffer = socketOutputStreamWrapBufferList.removeFirst();
-			outputStreamWrapBuffer.getByteBuffer().flip();
-			messageInputStreamWrapBufferList.add(outputStreamWrapBuffer);
+			ByteBuffer outputStreamByteBuffer = outputStreamWrapBuffer.getByteBuffer();
+			int remaining = outputStreamByteBuffer.flip().remaining();
 			
-			// log.info("additional work done::messageInputStreamWrapBufferList[{}]'s wrapBuffer[{}]", i, outputStreamWrapBuffer.toString());
-		}
-		
-		//log.info("1. messageInputStreamWrapBufferList={}", messageInputStreamWrapBufferList.toString());
+			if ((size - remaining) > 0L) {
+				size -= remaining;
+			} else {
+				lastPositionOfMessageInputStreamLastByteBuffer = (int)size;
+				outputStreamByteBuffer.position(outputStreamByteBuffer.position()+lastPositionOfMessageInputStreamLastByteBuffer);				
+				size=0;
+			}
+			messageInputStreamWrapBufferList.add(outputStreamWrapBuffer);
+		} while (size > 0);
+		 
+		//log.info("2. messageInputStreamWrapBufferList={}", messageInputStreamWrapBufferList.toString());
 		
 		ByteBuffer messageInputStreamLastByteBuffer = messageInputStreamWrapBufferList.getLast().getByteBuffer();
 		
-		
-		messageInputStreamLastByteBuffer.position(lastPosition);		
-		
-		//log.info("2. messageInputStreamLastByteBuffer={}", messageInputStreamLastByteBuffer.toString());
+		//log.info("3. messageInputStreamLastByteBuffer={}", messageInputStreamLastByteBuffer.toString());
 		
 		if (messageInputStreamLastByteBuffer.hasRemaining()) {
 			/** 잔존 데이터가 존재하면 데이터들을 앞으로 꽉 채워야 한다 */
 			compackOutputStreamWrapBufferList(messageInputStreamLastByteBuffer);
 		}
 		
+		//log.info("4. messageInputStreamLastByteBuffer={}", messageInputStreamLastByteBuffer.toString());
+		
 		/** 버퍼에 담긴 잔존 데이터 처리후 버퍼 속성 position 와 limit 값 복귀 */
 		messageInputStreamLastByteBuffer.position(0);
-		messageInputStreamLastByteBuffer.limit(lastPosition);
+		messageInputStreamLastByteBuffer.limit(lastPositionOfMessageInputStreamLastByteBuffer);		
 		
-		numberOfWrittenBytes -= size;
 		
-		// log.info("3. messageInputStreamWrapBufferList={}", messageInputStreamWrapBufferList.toString());
-		// log.info("4. socketOutputStreamWrapBufferList={}", socketOutputStreamWrapBufferList.toString());
-		// log.info("4. numberOfWrittenBytes={}", numberOfWrittenBytes);
+		//log.info("5. messageInputStreamLastByteBuffer={}", messageInputStreamLastByteBuffer.toString());
+		//log.info("6. socketOutputStreamWrapBufferList={}", socketOutputStreamWrapBufferList.toString());
+		//log.info("7. numberOfWrittenBytes={}", numberOfWrittenBytes);
 		
 		return new FreeSizeInputStream(dataPacketBufferMaxCntPerMessage, messageInputStreamWrapBufferList, streamCharsetDecoder, dataPacketBufferPoolManager);
 	}

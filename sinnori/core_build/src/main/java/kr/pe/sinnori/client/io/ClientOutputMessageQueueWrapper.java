@@ -19,7 +19,7 @@ package kr.pe.sinnori.client.io;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
-import kr.pe.sinnori.common.protocol.ReceivedLetter;
+import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,9 +33,9 @@ public class ClientOutputMessageQueueWrapper {
 	private Logger log = LoggerFactory.getLogger(ClientOutputMessageQueueWrapper.class);
 	
 	private boolean isInQueue = true;
-	private LinkedBlockingQueue<ReceivedLetter> outputMessageQueue = null;
+	private LinkedBlockingQueue<WrapReadableMiddleObject> outputMessageQueue = null;
 	
-	public ClientOutputMessageQueueWrapper(LinkedBlockingQueue<ReceivedLetter> outputMessageQueue) {
+	public ClientOutputMessageQueueWrapper(LinkedBlockingQueue<WrapReadableMiddleObject> outputMessageQueue) {
 		this.outputMessageQueue = outputMessageQueue;
 	}
 	
@@ -54,7 +54,7 @@ public class ClientOutputMessageQueueWrapper {
 		// lastCallerThrowable = null;
 		int i=0;
 		while (!outputMessageQueue.isEmpty()) {
-			ReceivedLetter receivedLetter = outputMessageQueue.poll();
+			WrapReadableMiddleObject receivedLetter = outputMessageQueue.poll();
 			if (null == receivedLetter) break;
 			log.warn(String.format("랩 출력 메시지큐를 큐에 반환하므로 가지고 있던 receivedLetter[%d][%s] 삭제", i++, receivedLetter.toString()));
 		}
@@ -79,7 +79,7 @@ public class ClientOutputMessageQueueWrapper {
 	 * 
 	 * @return 랩 출력 메시지큐가 감싸고 있는 출력 메시지큐
 	 */
-	public LinkedBlockingQueue<ReceivedLetter> getOutputMessageQueue() {
+	public LinkedBlockingQueue<WrapReadableMiddleObject> getOutputMessageQueue() {
 		return outputMessageQueue;
 	}
 

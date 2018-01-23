@@ -11,8 +11,7 @@ import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
 
-public class ItemTypeTest {
-	
+public class SingleItemTypeMangerTest {
 	Logger log = null;
 
 	final String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
@@ -35,31 +34,15 @@ public class ItemTypeTest {
 		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_LOGBACK_CONFIG_FILE,
 				logbackConfigFilePathString);
 
-		log = LoggerFactory.getLogger(ItemTypeTest.class);
-	}
-
-	@Test
-	public void test_ordinal와itemTypeID같은지검사() {
-		SingleItemType singleItemType = SingleItemType.UNSIGNED_SHORT;
-		
-		assertEquals("ItemTypeID 를 순차적으로 잘 정의했는지  테스트", singleItemType.ordinal(), singleItemType.getItemTypeID());
+		log = LoggerFactory.getLogger(SingleItemTypeMangerTest.class);
 	}
 	
-	
 	@Test
-	public void testGetItemTypeID_ItemTypeID를순차적으로잘정의했는지검사() {
-		SingleItemType[] singleItemTypes = SingleItemType.values();
-		for (int i=0; i < singleItemTypes.length; i++) {
-			SingleItemType singleItemType = singleItemTypes[i];
-			assertEquals("ItemTypeID 를 순차적으로 잘 정의했는지  테스트", i, singleItemType.getItemTypeID());
+	public void testGetSingleItemType_sigleItemID를통해얻은SigleItemType맞는지검사() {
+		for (SingleItemType expectedSingleItemType : SingleItemType.values()) {
+			SingleItemType actualSingleItemType = SingleItemTypeManger.getInstance().getSingleItemType(expectedSingleItemType.getItemTypeID());
+			
+			assertEquals("sigleItemID 를 통해 얻은 SigleItemType 맞는지 검사", expectedSingleItemType, actualSingleItemType);
 		}
-	}
-	
-	
-	@Test
-	public void test() {
-		SingleItemType singleItemType = SingleItemType.UNSIGNED_SHORT;
-		
-		log.info("singleItemType.name={}", singleItemType.name());
 	}
 }

@@ -19,6 +19,7 @@ package kr.pe.sinnori.common.protocol.thb;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
+import kr.pe.sinnori.common.io.FixedSizeOutputStream;
 import kr.pe.sinnori.common.io.FreeSizeInputStream;
 import kr.pe.sinnori.common.io.FreeSizeOutputStream;
 import kr.pe.sinnori.common.io.SocketInputStream;
@@ -39,7 +41,7 @@ import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
-import kr.pe.sinnori.common.protocol.ReceivedLetter;
+import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 import kr.pe.sinnori.common.protocol.thb.header.THBMessageHeader;
 
@@ -58,20 +60,27 @@ public class THBMessageProtocol implements MessageProtocolIF {
 	/** 메시지 헤더에 사용되는 문자열 메시지 식별자의 크기, 단위 byte */
 	private int messageIDFixedSize;
 	private int dataPacketBufferMaxCntPerMessage;
-	private CharsetEncoder streamCharsetEncoder;
+	private Charset streamCharset = null;
+	private CharsetEncoder streamCharsetEncoder;	
 	@SuppressWarnings("unused")
 	private CharsetDecoder streamCharsetDecoder;
 	private DataPacketBufferPoolManagerIF dataPacketBufferPoolManager = null;
 	
 	/** 메시지 헤더 크기, 단위 byte */
 	private int messageHeaderSize;
-	private THBSingleItemDecoder thbSingleItemDecoder = new THBSingleItemDecoder();;
-	private THBSingleItemEncoder thbSingleItemEncoder = new THBSingleItemEncoder();;
+	private THBSingleItemDecoder thbSingleItemDecoder = null;
+	
+	private THBSingleItemEncoder thbSingleItemEncoder = null;
+	
 	
 	private ByteOrder byteOrderOfProject = null;
 	
 	// private ClientObjectManager clientMessageController = ClientObjectManager.getInstance();
 	// private ServerObjectManager serverMessageController = ServerObjectManager.getInstance();
+	
+	private final Charset headerCharset = Charset.forName("ISO-8859-1");
+	private CharsetEncoder headerCharsetEncoder = null;
+	private CharsetDecoder headerCharsetDecoder = null;
 	
 	public THBMessageProtocol(
 			int messageIDFixedSize, 
@@ -79,6 +88,45 @@ public class THBMessageProtocol implements MessageProtocolIF {
 			CharsetEncoder streamCharsetEncoder,
 			CharsetDecoder streamCharsetDecoder,
 			DataPacketBufferPoolManagerIF dataPacketBufferPoolManager) {
+		if (messageIDFixedSize <= 0) {
+			String errorMessage = String.format("the parameter messageIDFixedSize[%d] is less than or equal to zero",
+					messageIDFixedSize);
+			throw new IllegalArgumentException(errorMessage);
+		}
+
+		if (dataPacketBufferMaxCntPerMessage <= 0) {
+			String errorMessage = String.format(
+					"the parameter dataPacketBufferMaxCntPerMessage[%d] is less than or equal to zero",
+					dataPacketBufferMaxCntPerMessage);
+			throw new IllegalArgumentException(errorMessage);
+		}
+
+		if (null == streamCharsetEncoder) {
+			throw new IllegalArgumentException("the parameter streamCharsetEncoder is null");
+		}
+
+		if (null == streamCharsetDecoder) {
+			throw new IllegalArgumentException("the parameter streamCharsetDecoder is null");
+		}
+
+		Charset streamCharsetOfEncoder = streamCharsetEncoder.charset();
+		Charset streamCharsetOfDecoder = streamCharsetDecoder.charset();
+
+		if (!streamCharsetOfEncoder.equals(streamCharsetOfDecoder)) {
+			String errorMessage = String.format(
+					"the parameter streamCharsetEncoder[%s] is not same to the parameter streamCharsetDecoder[%s]",
+					streamCharsetOfEncoder.name(), streamCharsetOfDecoder.name());
+
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		streamCharset = streamCharsetOfEncoder;
+
+		if (null == dataPacketBufferPoolManager) {
+
+			throw new IllegalArgumentException("the parameter dataPacketBufferPoolManager is null");
+		}
+		
 		this.messageIDFixedSize = messageIDFixedSize;
 		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
 		this.streamCharsetEncoder = streamCharsetEncoder;
@@ -88,6 +136,18 @@ public class THBMessageProtocol implements MessageProtocolIF {
 		
 		this.messageHeaderSize = THBMessageHeader.getMessageHeaderSize(messageIDFixedSize);
 		this.byteOrderOfProject = dataPacketBufferPoolManager.getByteOrder();
+		
+		thbSingleItemDecoder = new THBSingleItemDecoder(streamCharsetDecoder);
+		thbSingleItemEncoder = new THBSingleItemEncoder(streamCharsetEncoder);
+		
+		this.headerCharsetEncoder = headerCharset.newEncoder();
+		this.headerCharsetEncoder.onMalformedInput(streamCharsetEncoder.malformedInputAction());
+		this.headerCharsetEncoder.onUnmappableCharacter(streamCharsetEncoder.unmappableCharacterAction());
+		
+		
+		this.headerCharsetDecoder = headerCharset.newDecoder();
+		this.headerCharsetDecoder.onMalformedInput(streamCharsetDecoder.malformedInputAction());
+		this.headerCharsetEncoder.onUnmappableCharacter(streamCharsetDecoder.unmappableCharacterAction());
 	}
 	
 	@Override
@@ -100,7 +160,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 				new FreeSizeOutputStream(dataPacketBufferMaxCntPerMessage, streamCharsetEncoder, dataPacketBufferPoolManager);
 		
 		try {
-			messageEncoder.encode(messageObj, thbSingleItemEncoder, streamCharsetEncoder.charset(), bodyOutputStream);
+			messageEncoder.encode(messageObj, thbSingleItemEncoder, streamCharset, bodyOutputStream);
 		} catch (NoMoreDataPacketBufferException e) {
 			throw e;
 		} catch (BodyFormatException e) {
@@ -132,8 +192,9 @@ public class THBMessageProtocol implements MessageProtocolIF {
 		
 		ByteBuffer firstDupBuffer = firstWorkBuffer.duplicate();
 		firstDupBuffer.order(byteOrderOfProject);
+		FixedSizeOutputStream headerOutputStream = new FixedSizeOutputStream(firstDupBuffer, headerCharsetEncoder);
 		
-		messageHeader.toBuffer(firstDupBuffer, streamCharsetEncoder);
+		messageHeader.toOutputStream(headerOutputStream, headerCharsetEncoder);
 		
 		// log.debug(messageHeader.toString());
 		// log.debug(firstWorkBuffer.toString());
@@ -149,11 +210,11 @@ public class THBMessageProtocol implements MessageProtocolIF {
 
 	
 	@Override
-	public ArrayList<ReceivedLetter> S2MList(SocketOutputStream socketOutputStream) 
+	public ArrayList<WrapReadableMiddleObject> S2MList(SocketOutputStream socketOutputStream) 
 					throws HeaderFormatException, NoMoreDataPacketBufferException {		
 		THBMessageHeader messageHeader = (THBMessageHeader)socketOutputStream.getUserDefObject();		
 		
-		ArrayList<ReceivedLetter> receivedLetterList = new ArrayList<ReceivedLetter>();		
+		ArrayList<WrapReadableMiddleObject> receivedLetterList = new ArrayList<WrapReadableMiddleObject>();		
 		
 		boolean isMoreMessage = false;
 		SocketInputStream socketInputStream = socketOutputStream.createNewSocketInputStream();
@@ -166,7 +227,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 					/** 헤더 읽기 */
 					
 					THBMessageHeader workMessageHeader = new THBMessageHeader(messageIDFixedSize);
-					workMessageHeader.fromInputStream(socketInputStream);
+					workMessageHeader.fromInputStream(socketInputStream, headerCharsetDecoder);
 
 					if (workMessageHeader.bodySize < 0) {
 						// header format exception
@@ -199,8 +260,8 @@ public class THBMessageProtocol implements MessageProtocolIF {
 							System.exit(1);
 						}					
 
-						ReceivedLetter receivedLetter = 
-								new ReceivedLetter(messageHeader.messageID, 
+						WrapReadableMiddleObject receivedLetter = 
+								new WrapReadableMiddleObject(messageHeader.messageID, 
 										messageHeader.mailboxID, messageHeader.mailID, messageInputStream);
 						
 						receivedLetterList.add(receivedLetter);

@@ -50,7 +50,7 @@ import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
-import kr.pe.sinnori.common.protocol.ReceivedLetter;
+import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
 
 /**
@@ -107,7 +107,7 @@ public abstract class AbstractConnection {
 	/**
 	 * 서버에서 공지등 불특정 다수한테 메시지를 보낼때 출력 메시지를 담은 큐
 	 */
-	protected LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue = null;
+	protected LinkedBlockingQueue<WrapReadableMiddleObject> asynOutputMessageQueue = null;
 	
 	protected ClientObjectCacheManagerIF clientObjectCacheManager = null;
 	
@@ -130,7 +130,7 @@ public abstract class AbstractConnection {
 			Charset charsetOfProject,
 			long socketTimeOut,
 			boolean whetherToAutoConnect,
-			LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue,
+			LinkedBlockingQueue<WrapReadableMiddleObject> asynOutputMessageQueue,
 			MessageProtocolIF messageProtocol,
 			int dataPacketBufferMaxCntPerMessage,
 			DataPacketBufferPoolManagerIF dataPacketBufferPoolManager,
@@ -414,11 +414,11 @@ public abstract class AbstractConnection {
 			AbstractMessage inputMessage) throws ServerNotReadyException, SocketTimeoutException, 
 			NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException, NotSupportedException, InterruptedException;
 	
-	protected AbstractMessage getMessageFromMiddleReadObj(ClassLoader classLoader, ReceivedLetter receivedLetter) throws DynamicClassCallException, BodyFormatException, NoMoreDataPacketBufferException, ServerTaskException, NotLoginException {
+	protected AbstractMessage getMessageFromMiddleReadObj(ClassLoader classLoader, WrapReadableMiddleObject receivedLetter) throws DynamicClassCallException, BodyFormatException, NoMoreDataPacketBufferException, ServerTaskException, NotLoginException {
 		String messageID = receivedLetter.getMessageID();
 		int mailboxID = receivedLetter.getMailboxID();
 		int mailID = receivedLetter.getMailID();
-		Object middleReadObj = receivedLetter.getMiddleReadObj();
+		Object middleReadObj = receivedLetter.getReadableMiddleObject();
 		
 		MessageCodecIF messageCodec = clientObjectCacheManager.getClientCodec(classLoader, messageID);
 		

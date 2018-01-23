@@ -40,7 +40,7 @@ import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
-import kr.pe.sinnori.common.protocol.ReceivedLetter;
+import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
 /**
  * 클라이언트 출력 메시지 소켓 읽기 담당 쓰레드.
@@ -200,10 +200,10 @@ public class OutputMessageReaderThread extends Thread implements
 
 							asynConnection.setFinalReadTime();
 							
-							ArrayList<ReceivedLetter> receivedLetterList = messageProtocol.S2MList(socketOutputStream);
+							ArrayList<WrapReadableMiddleObject> receivedLetterList = messageProtocol.S2MList(socketOutputStream);
 							
 							
-							for (ReceivedLetter receivedLetter : receivedLetterList) {
+							for (WrapReadableMiddleObject receivedLetter : receivedLetterList) {
 								// FIXME!
 								// log.info("receivedLetter={}", receivedLetter.toString());
 								

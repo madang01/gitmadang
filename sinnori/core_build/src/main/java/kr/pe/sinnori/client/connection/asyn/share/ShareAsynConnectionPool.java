@@ -41,7 +41,7 @@ import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
-import kr.pe.sinnori.common.protocol.ReceivedLetter;
+import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
 /**
  * 클라이언트 공유 방식의 비동기 연결 클래스 {@link ShareAsynConnection} 를 원소로 가지는 폴 관리자 클래스<br/>
@@ -96,7 +96,7 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 	public ShareAsynConnectionPool(String projectName, String hostOfProject, int portOfProject,
 			Charset charsetOfProject, int connectionPoolSize, long connectionTimeout, long socketTimeOut, boolean whetherToAutoConnect,
 			int finishConnectMaxCall, long finishConnectWaittingTime, int mailBoxCnt,
-			ProjectPartConfiguration projectPart, LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue,
+			ProjectPartConfiguration projectPart, LinkedBlockingQueue<WrapReadableMiddleObject> asynOutputMessageQueue,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue, MessageProtocolIF messageProtocol,
 			AsynServerAdderIF outputMessageReaderPool,
 			ClientOutputMessageQueueQueueMangerIF syncOutputMessageQueueQueueManger,

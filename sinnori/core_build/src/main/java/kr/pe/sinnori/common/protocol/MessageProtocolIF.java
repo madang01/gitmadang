@@ -61,7 +61,7 @@ public interface MessageProtocolIF {
 	 * @throws HeaderFormatException 헤더 포맷 구성시 에러 발생시 던지는 예외
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷 버퍼가 없을때 던지는 예외
 	 */
-	public ArrayList<ReceivedLetter> S2MList(SocketOutputStream socketOutputStream) 
+	public ArrayList<WrapReadableMiddleObject> S2MList(SocketOutputStream socketOutputStream) 
 					throws HeaderFormatException, NoMoreDataPacketBufferException;
 	
 	public SingleItemDecoderIF getSingleItemDecoder();

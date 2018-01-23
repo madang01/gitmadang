@@ -47,7 +47,7 @@ import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
-import kr.pe.sinnori.common.protocol.ReceivedLetter;
+import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
 
 /**
@@ -86,7 +86,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 			Charset charsetOfProject,
 			long socketTimeOut,
 			boolean whetherToAutoConnect,
-			LinkedBlockingQueue<ReceivedLetter> serverOutputMessageQueue,
+			LinkedBlockingQueue<WrapReadableMiddleObject> serverOutputMessageQueue,
 			MessageProtocolIF messageProtocol,
 			int dataPacketBufferMaxCntPerMessage,
 			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager,
@@ -395,7 +395,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 			int numRead = socketOutputStream.read(serverSocket);
 		
 			
-			ArrayList<ReceivedLetter> receivedLetterList = null;
+			ArrayList<WrapReadableMiddleObject> receivedLetterList = null;
 			int receivedLetterListSize = 0;
 			while (-1 != numRead) {
 				setFinalReadTime();
@@ -414,7 +414,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 			if (receivedLetterListSize > 1) {
 				// FIXME! debug
 				int i=0;
-				for (ReceivedLetter receivedLetter : receivedLetterList) {
+				for (WrapReadableMiddleObject receivedLetter : receivedLetterList) {
 					outObj = getMessageFromMiddleReadObj(classLoader, receivedLetter);
 					
 					log.debug(String.format("비공유+동기화 연결에서 1개 이상 출력 메시지 추출 에러, outObj[%d]=[%s]", i++, outObj.toString()));
@@ -424,7 +424,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 				throw new HeaderFormatException(errorMessage);
 			}
 			
-			ReceivedLetter  receivedLetter  = receivedLetterList.get(0);
+			WrapReadableMiddleObject  receivedLetter  = receivedLetterList.get(0);
 			outObj = getMessageFromMiddleReadObj(classLoader, receivedLetter);
 			
 		} catch (HeaderFormatException e) {

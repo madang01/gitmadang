@@ -473,7 +473,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 					.newInstance("http://www.w3.org/2001/XMLSchema");	
 			
 			saxParserFactory.setSchema(schemaFactory
-					.newSchema(new Source[] { new StreamSource(ItemTypeManger.getInstance().getMesgXSLInputSream()) }));
+					.newSchema(new Source[] { new StreamSource(SingleItemTypeManger.getInstance().getMesgXSLInputSream()) }));
 			
 			saxParser = saxParserFactory.newSAXParser();
 		} catch (Exception | Error e) {

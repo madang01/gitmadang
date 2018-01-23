@@ -19,6 +19,7 @@ package kr.pe.sinnori.impl.message.SelfExn;
 import java.nio.charset.Charset;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.message.AbstractMessage;
+import kr.pe.sinnori.common.message.builder.info.SingleItemType;
 import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 
@@ -35,55 +36,51 @@ public final class SelfExnDecoder extends AbstractMessageDecoder {
 	 * </pre>
 	 * @param singleItemDecoder 단일항목 디코더
 	 * @param streamCharset 프로젝트 문자셋
-	 * @param middleReadObj 중간 다리 역활 읽기 객체
+	 * @param middleReadableObject 중간 다리 역활 읽기 객체
 	 * @return "단일항목 디코더"를 이용하여 "중간 다리 역활 읽기 객체" 에서 추출된 SelfExn 메시지
 	 * @throws OutOfMemoryError 메모리 확보 실패시 던지는 예외
 	 * @throws BodyFormatException 바디 디코딩 실패시 던지는 예외
 	 */
 	@Override
-	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Charset streamCharset, Object  middleReadObj) throws OutOfMemoryError, BodyFormatException {
+	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Charset streamCharset, Object  middleReadableObject) throws OutOfMemoryError, BodyFormatException {
 		SelfExn selfExn = new SelfExn();
 		String sigleItemPath0 = "SelfExn";
 
 		selfExn.setErrorPlace((String)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
+		singleItemDecoder.getValueFromReadableMiddleObject(sigleItemPath0
 		, "errorPlace" // itemName
-		, 7 // itemTypeID
-		, "ub pascal string" // itemTypeName
+		, SingleItemType.UB_PASCAL_STRING // itemType
 		, -1 // itemSize
 		, null // nativeItemCharset
 		, streamCharset
-		, middleReadObj));
+		, middleReadableObject));
 
 		selfExn.setErrorGubun((String)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
+		singleItemDecoder.getValueFromReadableMiddleObject(sigleItemPath0
 		, "errorGubun" // itemName
-		, 7 // itemTypeID
-		, "ub pascal string" // itemTypeName
+		, SingleItemType.UB_PASCAL_STRING // itemType
 		, -1 // itemSize
 		, null // nativeItemCharset
 		, streamCharset
-		, middleReadObj));
+		, middleReadableObject));
 
 		selfExn.setErrorMessageID((String)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
+		singleItemDecoder.getValueFromReadableMiddleObject(sigleItemPath0
 		, "errorMessageID" // itemName
-		, 7 // itemTypeID
-		, "ub pascal string" // itemTypeName
+		, SingleItemType.UB_PASCAL_STRING // itemType
 		, -1 // itemSize
 		, null // nativeItemCharset
 		, streamCharset
-		, middleReadObj));
+		, middleReadableObject));
 
 		selfExn.setErrorMessage((String)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
+		singleItemDecoder.getValueFromReadableMiddleObject(sigleItemPath0
 		, "errorMessage" // itemName
-		, 8 // itemTypeID
-		, "us pascal string" // itemTypeName
+		, SingleItemType.US_PASCAL_STRING // itemType
 		, -1 // itemSize
 		, null // nativeItemCharset
 		, streamCharset
-		, middleReadObj));
+		, middleReadableObject));
 		return selfExn;
 	}
 }

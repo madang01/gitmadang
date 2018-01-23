@@ -18,18 +18,20 @@ package kr.pe.sinnori.common.protocol.thb;
 
 import java.nio.BufferOverflowException;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
 import java.util.Arrays;
 
-import kr.pe.sinnori.common.etc.CharsetUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
 import kr.pe.sinnori.common.io.BinaryOutputStreamIF;
+import kr.pe.sinnori.common.message.builder.info.SingleItemType;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * THB 단일 항목 인코더
@@ -38,6 +40,17 @@ import org.slf4j.LoggerFactory;
  */
 public class THBSingleItemEncoder implements SingleItemEncoderIF {
 	private Logger log = LoggerFactory.getLogger(THBSingleItemEncoder.class);
+	
+	@SuppressWarnings("unused")
+	private CharsetEncoder systemCharsetEncoder = null;
+	private CodingErrorAction streamCodingErrorActionOnMalformedInput = null;
+	private CodingErrorAction streamCodingErrorActionOnUnmappableCharacter = null;
+	
+	public THBSingleItemEncoder(CharsetEncoder systemCharsetEncoder) {
+		this.systemCharsetEncoder = systemCharsetEncoder;
+		this.streamCodingErrorActionOnMalformedInput = systemCharsetEncoder.malformedInputAction();
+		this.streamCodingErrorActionOnUnmappableCharacter = systemCharsetEncoder.malformedInputAction();
+	}
 	
 	private interface THBTypeSingleItemEncoderIF {
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
@@ -250,8 +263,11 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 			if (null == itemCharset) {
 				binaryOutputStream.putFixedLengthString(itemSize, tempItemValue);
 			} else {
-				binaryOutputStream.putFixedLengthString(itemSize, tempItemValue,
-						CharsetUtil.createCharsetEncoder(itemCharset));
+				CharsetEncoder userDefinedCharsetEncoder =  itemCharset.newEncoder();
+				userDefinedCharsetEncoder.onMalformedInput(streamCodingErrorActionOnMalformedInput);
+				userDefinedCharsetEncoder.onUnmappableCharacter(streamCodingErrorActionOnUnmappableCharacter);
+				
+				binaryOutputStream.putFixedLengthString(itemSize, tempItemValue, userDefinedCharsetEncoder);
 			}
 
 		}
@@ -437,31 +453,31 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 	}
 
 	@Override
-	public void putValueToMiddleWriteObj(String path, String itemName,
-			int itemTypeID, String itemTypeName, Object itemValue,
+	public void putValueToWritableMiddleObject(String path, String itemName,
+			SingleItemType singleItemType, Object itemValue,
 			int itemSize, String nativeItemCharset,
-			Charset streamCharset, Object middleWriteObj) throws Exception {
-		if (!(middleWriteObj instanceof BinaryOutputStreamIF)) {
+			Charset streamCharset, Object writableMiddleObject) throws Exception {
+		if (!(writableMiddleObject instanceof BinaryOutputStreamIF)) {
 			String errorMessage = String.format(
 					"중간 다리역활 출력 객체[%s] 타입이 OutputStreamIF 이 아닙니다.",
-					middleWriteObj.getClass().getCanonicalName());
+					writableMiddleObject.getClass().getCanonicalName());
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
+		int itemTypeID = singleItemType.getItemTypeID();
+		String itemTypeName = singleItemType.getItemTypeName();
+		
 		Charset itemCharset = null;
-		if (null == nativeItemCharset) {
-			itemCharset = streamCharset;
-		} else {
+		
+		if (null != nativeItemCharset) {			
 			try {
 				itemCharset = Charset.forName(nativeItemCharset);
 			} catch(Exception e) {
 				log.warn(String.format("the parameter nativeItemCharset[%s] is not a bad charset name", nativeItemCharset), e);
-				
-				itemCharset = streamCharset;
 			}
 		}
 		
-		BinaryOutputStreamIF binaryOutputStream = (BinaryOutputStreamIF)middleWriteObj;		
+		BinaryOutputStreamIF binaryOutputStream = (BinaryOutputStreamIF)writableMiddleObject;		
 		try {
 			dhbTypeSingleItemEncoderList[itemTypeID].putValue(itemTypeID, itemName, itemValue, itemSize, itemCharset, binaryOutputStream);
 		} catch(IllegalArgumentException e) {
@@ -550,13 +566,13 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 	}
 
 	@Override
-	public Object getMiddleWriteObjFromArrayObj(String path, Object arrayObj, int inx) throws BodyFormatException {
+	public Object getWritableMiddleObjectjFromArrayObject(String path, Object arrayObj, int inx) throws BodyFormatException {
 		return arrayObj;
 	}
 	
 	@Override
-	public Object getArrayObjFromMiddleWriteObj(String path, String arrayName,
-			int arrayCntValue, Object middleWriteObj) throws BodyFormatException {
-		return middleWriteObj;
+	public Object getArrayObjectFromWritableMiddleObject(String path, String arrayName,
+			int arrayCntValue, Object writableMiddleObject) throws BodyFormatException {
+		return writableMiddleObject;
 	}
 }

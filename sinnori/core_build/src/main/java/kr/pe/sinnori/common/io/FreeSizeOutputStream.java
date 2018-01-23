@@ -44,7 +44,7 @@ import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
 public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 	private Logger log = LoggerFactory.getLogger(FreeSizeOutputStream.class);
 
-	private ArrayList<WrapBuffer> outputStreamWrapBufferList = null;
+	private final ArrayList<WrapBuffer> outputStreamWrapBufferList = new ArrayList<WrapBuffer>();;
 	private ByteOrder streamByteOrder = null;
 	private Charset streamCharset = null;
 	private CharsetEncoder streamCharsetEncoder = null;
@@ -81,7 +81,7 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 		this.streamCharsetEncoder = streamCharsetEncoder;
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 
-		outputStreamWrapBufferList = new ArrayList<WrapBuffer>();
+		// outputStreamWrapBufferList = new ArrayList<WrapBuffer>();
 		WrapBuffer wrapBuffer = dataPacketBufferQueueManager.pollDataPacketBuffer();
 		workBuffer = wrapBuffer.getByteBuffer();
 		outputStreamWrapBufferList.add(wrapBuffer);

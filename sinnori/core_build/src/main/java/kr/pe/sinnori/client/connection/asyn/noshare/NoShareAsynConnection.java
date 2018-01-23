@@ -46,7 +46,7 @@ import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
-import kr.pe.sinnori.common.protocol.ReceivedLetter;
+import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
 /**
  * 클라이언트 비공유 방식의 비동기 연결 클래스.<br/>
@@ -97,7 +97,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 	 */
 	public NoShareAsynConnection(String projectName, int index, String hostOfProject, int portOfProject,
 			Charset charsetOfProject, long socketTimeOut, boolean whetherToAutoConnect, int finishConnectMaxCall,
-			long finishConnectWaittingTime, LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue,
+			long finishConnectWaittingTime, LinkedBlockingQueue<WrapReadableMiddleObject> asynOutputMessageQueue,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue, MessageProtocolIF messageProtocol,
 			AsynServerAdderIF outputMessageReaderPool,
 			ClientOutputMessageQueueQueueMangerIF outputMessageQueueQueueManger,
@@ -326,7 +326,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 
 		LetterToServer letterToServer = null;
 
-		ReceivedLetter receivedLetter = null;
+		WrapReadableMiddleObject receivedLetter = null;
 
 		/**
 		 * <pre>
@@ -470,7 +470,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 	}
 
 	@Override
-	public void putToOutputMessageQueue(ReceivedLetter receivedLetter) {
+	public void putToOutputMessageQueue(WrapReadableMiddleObject receivedLetter) {
 		if (receivedLetter.getMailboxID() == CommonStaticFinalVars.ASYN_MAILBOX_ID) {
 			/** 서버에서 보내는 공지등 불특정 다수한테 보내는 출력 메시지 */
 			boolean result = false;

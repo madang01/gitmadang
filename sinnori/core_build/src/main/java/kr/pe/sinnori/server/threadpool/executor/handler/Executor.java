@@ -31,7 +31,7 @@ import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
-import kr.pe.sinnori.common.protocol.ReceivedLetter;
+import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
 import kr.pe.sinnori.server.ClientResource;
 import kr.pe.sinnori.server.LoginManagerIF;
@@ -103,22 +103,25 @@ public class Executor extends Thread {
 			while (!Thread.currentThread().isInterrupted()) {
 				LetterFromClient letterFromClient = inputMessageQueue.take();
 
-				SocketChannel clientSC = letterFromClient.getFromSC();
+				SocketChannel clientSC = letterFromClient.getClientSC();
 				ClientResource clientResource = letterFromClient.getClientResource();
-				ReceivedLetter receivedLetter = letterFromClient.getReceivedLetter();
-				String messageID = receivedLetter.getMessageID();
+				WrapReadableMiddleObject wrapReadableMiddleObject = letterFromClient.getWrapReadableMiddleObject();
+				String messageID = wrapReadableMiddleObject.getMessageID();
 				AbstractServerTask  serverTask = null;
 				
 				try {
 					serverTask = serverObjectCacheManager.getServerTask(messageID);
+					
+					serverTask.execute(index, projectName, charsetOfProject, ouputMessageQueue, messageProtocol,
+							clientSC, clientResource, wrapReadableMiddleObject, loginManager, serverObjectCacheManager);
 				} catch (DynamicClassCallException e) {
 					log.warn("DynamicClassCallException", e);
 					
 					String errorMessage = new StringBuilder("1.fail to load server task class that is dynamic class::").append(e.toString()).toString();
 					
 					SelfExn selfExnOutObj = new SelfExn();
-					selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
-					selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
+					selfExnOutObj.messageHeaderInfo.mailboxID = wrapReadableMiddleObject.getMailboxID();
+					selfExnOutObj.messageHeaderInfo.mailID = wrapReadableMiddleObject.getMailID();
 					
 					selfExnOutObj.setErrorPlace("S");
 					selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class));
@@ -133,7 +136,7 @@ public class Executor extends Thread {
 						System.exit(1);
 					}
 					
-					putToOutputMessageQueue(clientSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
+					putToOutputMessageQueue(clientSC, wrapReadableMiddleObject, selfExnOutObj, wrapBufferList, ouputMessageQueue);
 					continue;
 				} catch(Exception e) {
 					log.warn("unknown error", e);
@@ -141,8 +144,8 @@ public class Executor extends Thread {
 					String errorMessage = new StringBuilder("2.fail to load server task class that is dynamic class::").append(e.toString()).toString();
 					
 					SelfExn selfExnOutObj = new SelfExn();
-					selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
-					selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
+					selfExnOutObj.messageHeaderInfo.mailboxID = wrapReadableMiddleObject.getMailboxID();
+					selfExnOutObj.messageHeaderInfo.mailID = wrapReadableMiddleObject.getMailID();
 					// selfExnOutObj.setError("S", messageID, new DynamicClassCallException("알수 없는 에러 발생::"+e.getMessage()));
 					selfExnOutObj.setErrorPlace("S");
 					selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class));
@@ -153,7 +156,7 @@ public class Executor extends Thread {
 					try {
 						wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER);
 						
-						putToOutputMessageQueue(clientSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
+						putToOutputMessageQueue(clientSC, wrapReadableMiddleObject, selfExnOutObj, wrapBufferList, ouputMessageQueue);
 					} catch(Throwable e1) {
 						log.error("fail to convert 'SelfExn' message to stream", e1);
 						System.exit(1);
@@ -165,8 +168,8 @@ public class Executor extends Thread {
 					String errorMessage = new StringBuilder("3.fail to load server task class that is dynamic class::").append(e.toString()).toString();
 					
 					SelfExn selfExnOutObj = new SelfExn();
-					selfExnOutObj.messageHeaderInfo.mailboxID = receivedLetter.getMailboxID();
-					selfExnOutObj.messageHeaderInfo.mailID = receivedLetter.getMailID();
+					selfExnOutObj.messageHeaderInfo.mailboxID = wrapReadableMiddleObject.getMailboxID();
+					selfExnOutObj.messageHeaderInfo.mailID = wrapReadableMiddleObject.getMailID();
 					// selfExnOutObj.setError("S", messageID, new DynamicClassCallException("알수 없는 에러 발생::"+e.getMessage()));
 					selfExnOutObj.setErrorPlace("S");
 					selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class));
@@ -177,17 +180,22 @@ public class Executor extends Thread {
 					try {
 						wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER);
 						
-						putToOutputMessageQueue(clientSC, receivedLetter, selfExnOutObj, wrapBufferList, ouputMessageQueue);
+						putToOutputMessageQueue(clientSC, wrapReadableMiddleObject, selfExnOutObj, wrapBufferList, ouputMessageQueue);
 					} catch(Throwable e1) {
 						log.error("fail to convert 'SelfExn' message to stream", e1);
 						System.exit(1);
 					}
 					continue;
+				} finally {
+					/**
+					 * <pre>
+					 * MiddleReadableObject 가 가진 자원 반환을 하는 장소는  2군데이다.
+					 * 첫번째 장소는 메시지 추출 후 쓰임이 다해서 호출하는 AbstractMessageDecoder#decode 이며
+					 * 두번째 장소는 2번 연속 호출해도 무방하기때문에 안전하게 자원 반환을 보장하기위한 Executor#run 이다.
+					 * </pre>
+					 */
+					wrapReadableMiddleObject.closeReadableMiddleObject();
 				}
-				
-				serverTask.execute(index, projectName, charsetOfProject, ouputMessageQueue, messageProtocol,
-						clientSC, clientResource, receivedLetter, loginManager, serverObjectCacheManager);
-				
 			}
 			log.warn(String.format("%s ExecutorProcessor[%d] loop exit", projectName, index));
 		} catch (InterruptedException e) {
@@ -199,7 +207,7 @@ public class Executor extends Thread {
 	}
 	
 	private void putToOutputMessageQueue(SocketChannel clientSC, 
-			ReceivedLetter  receivedLetter,
+			WrapReadableMiddleObject  receivedLetter,
 			AbstractMessage wrapBufferMessage, List<WrapBuffer> wrapBufferList, 
 			LinkedBlockingQueue<LetterToClient> ouputMessageQueue) {
 		

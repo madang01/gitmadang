@@ -17,8 +17,12 @@
 package kr.pe.sinnori.common.protocol.dhb;
 
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
 
-import kr.pe.sinnori.common.etc.CharsetUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
@@ -26,18 +30,30 @@ import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
 import kr.pe.sinnori.common.exception.UnknownItemTypeException;
 import kr.pe.sinnori.common.io.BinaryInputStreamIF;
 import kr.pe.sinnori.common.message.ItemTypeManger;
+import kr.pe.sinnori.common.message.builder.info.SingleItemType;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * DHB 프로톨 단일 항목 디코더
  * @author "Won Jonghoon"
  *
  */
-public class DHBSingleItemDecoder implements SingleItemDecoderIF {
+public class DHBSingleItemDecoder implements SingleItemDecoderIF {	
 	private Logger log = LoggerFactory.getLogger(DHBSingleItemDecoder.class);
+	
+	@SuppressWarnings("unused")
+	private CharsetDecoder systemCharsetDecoder = null;
+	private CodingErrorAction streamCodingErrorActionOnMalformedInput = null;
+	private CodingErrorAction streamCodingErrorActionOnUnmappableCharacter = null;
+	
+	public DHBSingleItemDecoder(CharsetDecoder systemCharsetDecoder) {
+		if (null == systemCharsetDecoder) {
+			throw new IllegalArgumentException("the parameter systemCharsetDecoder is null");
+		}
+		this.systemCharsetDecoder = systemCharsetDecoder;
+		this.streamCodingErrorActionOnMalformedInput = systemCharsetDecoder.malformedInputAction();
+		this.streamCodingErrorActionOnUnmappableCharacter = systemCharsetDecoder.unmappableCharacterAction();
+	}
 	
 	private interface DHBTypeSingleItemDecoderIF {
 		public Object getValue(int itemTypeID, String itemName, int itemSize,
@@ -332,9 +348,12 @@ public class DHBSingleItemDecoder implements SingleItemDecoderIF {
 			}
 			
 			if (null == itemCharset) {
-				return binaryInputStream.getFixedLengthString(itemSize).trim();
+				return binaryInputStream.getFixedLengthString(itemSize);
 			} else {
-				return binaryInputStream.getFixedLengthString(itemSize, CharsetUtil.createCharsetDecoder(itemCharset)).trim();
+				CharsetDecoder userDefinedCharsetDecoder =  itemCharset.newDecoder();
+				userDefinedCharsetDecoder.onMalformedInput(streamCodingErrorActionOnMalformedInput);
+				userDefinedCharsetDecoder.onUnmappableCharacter(streamCodingErrorActionOnUnmappableCharacter);
+				return binaryInputStream.getFixedLengthString(itemSize, userDefinedCharsetDecoder);
 			}
 		}		
 	}
@@ -526,33 +545,31 @@ public class DHBSingleItemDecoder implements SingleItemDecoderIF {
 	
 
 	@Override
-	public Object getValueFromMiddleReadObj(String path, String itemName,
-			int itemTypeID, String itemTypeName, int itemSize,
+	public Object getValueFromReadableMiddleObject(String path, String itemName,
+			SingleItemType singleItemType, int itemSize,
 			String nativeItemCharset, Charset streamCharset,
-			Object middleReadObj) throws BodyFormatException {
-		if (!(middleReadObj instanceof BinaryInputStreamIF)) {
+			Object readableMiddleObject) throws BodyFormatException {
+		if (!(readableMiddleObject instanceof BinaryInputStreamIF)) {
 			String errorMessage = String.format(
 					"the parameter middleReadObj[%s] is not Inherited the BinaryInputStreamIF interface",
-					middleReadObj.getClass().getCanonicalName());
+					readableMiddleObject.getClass().getCanonicalName());
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
+		int itemTypeID = singleItemType.getItemTypeID();
+		String itemTypeName = singleItemType.getItemTypeName();
 		
 		Charset itemCharset = null;
-		if (null == nativeItemCharset) {
-			itemCharset = streamCharset;
-		} else {
+		
+		if (null != nativeItemCharset) {			
 			try {
 				itemCharset = Charset.forName(nativeItemCharset);
 			} catch(Exception e) {
 				log.warn(String.format("the parameter nativeItemCharset[%s] is not a bad charset name", nativeItemCharset), e);
-				
-				itemCharset = streamCharset;
 			}
-		}
+		}		
 		
-		
-		BinaryInputStreamIF binaryInputStream = (BinaryInputStreamIF)middleReadObj;
+		BinaryInputStreamIF binaryInputStream = (BinaryInputStreamIF)readableMiddleObject;
 		Object retObj = null;
 		try {
 			retObj = dhbTypeSingleItemDecoderList[itemTypeID].getValue(itemTypeID, itemName, itemSize, itemCharset, binaryInputStream);
@@ -658,28 +675,28 @@ public class DHBSingleItemDecoder implements SingleItemDecoderIF {
 	}
 
 	@Override
-	public Object getArrayObjFromMiddleReadObj(String path, String arrayName,
-			int arrayCntValue, Object middleReadObj)
+	public Object getArrayObjectFromReadableMiddleObject(String path, String arrayName,
+			int arrayCntValue, Object readableMiddleObject)
 			throws BodyFormatException {
-		return middleReadObj;
+		return readableMiddleObject;
 	}
 
 	@Override
-	public Object getMiddleReadObjFromArrayObj(String path, Object arrayObj, int inx) throws BodyFormatException {
+	public Object getReadableMiddleObjFromArrayObject(String path, Object arrayObj, int inx) throws BodyFormatException {
 		return arrayObj;
 	}
 	
 	@Override
-	public void finish(Object middleReadObj) throws BodyFormatException {
-		if (!(middleReadObj instanceof BinaryInputStreamIF)) {
+	public void closeReadableMiddleObjectWithValidCheck(Object readableMiddleObject) throws BodyFormatException {
+		if (!(readableMiddleObject instanceof BinaryInputStreamIF)) {
 			String errorMessage = String.format(
 					"스트림으로 부터 생성된 중간 다리역활 객체[%s]의 데이터 타입이 InputStreamIF 이 아닙니다.",
-					middleReadObj.getClass().getCanonicalName());
+					readableMiddleObject.getClass().getCanonicalName());
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		BinaryInputStreamIF binaryInputStream = (BinaryInputStreamIF)middleReadObj;
+		BinaryInputStreamIF binaryInputStream = (BinaryInputStreamIF)readableMiddleObject;
 		long remainingBytes = binaryInputStream.available();
 		
 		binaryInputStream.close();

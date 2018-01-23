@@ -25,7 +25,7 @@ import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
-import kr.pe.sinnori.common.protocol.ReceivedLetter;
+import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
 /**
  * 클라이언트 소켓 채널 블락킹 모드가 블락인 동기 연결 클래스의 부모 추상화 클래스<br/>
@@ -55,7 +55,7 @@ public abstract class AbstractSyncConnection extends AbstractConnection {
 			Charset charsetOfProject,
 			long socketTimeOut,
 			boolean whetherToAutoConnect,
-			LinkedBlockingQueue<ReceivedLetter> asynOutputMessageQueue,
+			LinkedBlockingQueue<WrapReadableMiddleObject> asynOutputMessageQueue,
 			MessageProtocolIF messageProtocol,
 			int dataPacketBufferMaxCntPerMessage,
 			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager,
