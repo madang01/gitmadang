@@ -148,8 +148,7 @@ public class DHBMessageProtocolTest {
 			
 			SocketOutputStream sos = null;
 			try {
-				sos = new SocketOutputStream(streamCharsetDecoder, dataPacketBufferMaxCntPerMessage, dataPacketBufferPoolManager);
-				sos.rebuildSocketOutputStream(wrapBufferListOfInputMessage);
+				sos = new SocketOutputStream(wrapBufferListOfInputMessage, streamCharsetDecoder, dataPacketBufferMaxCntPerMessage, dataPacketBufferPoolManager);
 			} catch (Exception e) {
 				String errorMessage = "error::"+e.getMessage();
 				log.warn(errorMessage, e);

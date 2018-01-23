@@ -80,9 +80,6 @@ public class SocketOutputStreamTest {
 		SocketOutputStream sos = null;
 		FreeSizeOutputStream fsos = null;
 		try {
-			sos = 
-					new SocketOutputStream(streamCharsetDecoder, dataPacketBufferMaxCount, dataPacketBufferPoolManager);
-			
 			{
 				long expectedSize = dataPacketBufferSize*3+42;
 				{
@@ -94,10 +91,8 @@ public class SocketOutputStreamTest {
 					
 					fsos.skip(expectedSize);
 					emptyOutputStreamWrapBufferList = fsos.getOutputStreamWrapBufferList();
-					
-					sos.rebuildSocketOutputStream(emptyOutputStreamWrapBufferList);
+					sos = new SocketOutputStream(emptyOutputStreamWrapBufferList, streamCharsetDecoder, dataPacketBufferMaxCount, dataPacketBufferPoolManager);
 				}
-				
 				
 				long actualSize = sos.getNumberOfWrittenBytesUsingList();
 				
@@ -184,8 +179,7 @@ public class SocketOutputStreamTest {
 			outputStreamWrapBufferListForTest = fsos.getOutputStreamWrapBufferList();
 			
 			sos = 
-					new SocketOutputStream(streamCharsetDecoder, dataPacketBufferMaxCount, dataPacketBufferPoolManager);
-			sos.rebuildSocketOutputStream(outputStreamWrapBufferListForTest);
+					new SocketOutputStream(outputStreamWrapBufferListForTest, streamCharsetDecoder, dataPacketBufferMaxCount, dataPacketBufferPoolManager);
 			
 			// log.info("sos.size={}", sos.size());
 			FreeSizeInputStream fsis = null;

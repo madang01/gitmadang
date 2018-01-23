@@ -33,6 +33,7 @@ public class SocketOutputStream {
 	
 	// private SocketChannel clientSC = null;
 	private int dataPacketBufferMaxCntPerMessage = -1;
+	
 	public SocketOutputStream(CharsetDecoder streamCharsetDecoder, 
 			int dataPacketBufferMaxCntPerMessage, 
 			DataPacketBufferPoolManagerIF dataPacketBufferPoolManager) throws NoMoreDataPacketBufferException {
@@ -56,6 +57,35 @@ public class SocketOutputStream {
 		addNewSocketOutputStreamWrapBuffer();
 	}
 	
+	
+	public SocketOutputStream(List<WrapBuffer> writtenWrapBufferList, CharsetDecoder streamCharsetDecoder, 
+			int dataPacketBufferMaxCntPerMessage, 
+			DataPacketBufferPoolManagerIF dataPacketBufferPoolManager) throws NoMoreDataPacketBufferException {
+		
+		// this.ownerSocketChannel =ownerSocketChannel;
+		this.streamCharsetDecoder = streamCharsetDecoder;
+		this.dataPacketBufferPoolManager = dataPacketBufferPoolManager;
+		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
+		
+		/*WrapBuffer lastWrapBuffer = dataPacketBufferPoolManager.pollDataPacketBuffer();
+		
+		log.info("In Construct, lastWrapBuffer hashcode={}", lastWrapBuffer.hashCode());
+		
+		socketOutputStreamWrapBufferList.add(lastWrapBuffer);*/
+		
+		streamByteOrder = dataPacketBufferPoolManager.getByteOrder();
+		dataPacketBufferSize = dataPacketBufferPoolManager.getDataPacketBufferSize();
+		
+		numberOfWrittenBytes = 0;
+		
+		// addNewSocketOutputStreamWrapBuffer();
+		// FIXME!
+		
+		for (WrapBuffer writtenWrapBuffer : writtenWrapBufferList) {
+			numberOfWrittenBytes += writtenWrapBuffer.getByteBuffer().duplicate().flip().remaining();
+			socketOutputStreamWrapBufferList.add(writtenWrapBuffer);
+		}
+	}
 
 	private boolean isFull() {
 		return (dataPacketBufferMaxCntPerMessage != socketOutputStreamWrapBufferList.size());
@@ -128,18 +158,7 @@ public class SocketOutputStream {
 				
 			}
 		}
-	}
-
-	public void rebuildSocketOutputStream(List<WrapBuffer> newSocketOutputStreamWrapBufferList) {
-		close();
-		
-		for (WrapBuffer newSocketOutputStreamWrapBuffer : newSocketOutputStreamWrapBufferList) {
-			numberOfWrittenBytes += newSocketOutputStreamWrapBuffer.getByteBuffer().duplicate().flip().remaining();
-			socketOutputStreamWrapBufferList.add(newSocketOutputStreamWrapBuffer);
-			
-			// log.info("add the new socketOutputStreamWrapBuffer[hashcode={}] from the data packet buffer pool to socketOutputStreamWrapBufferList", newSocketOutputStreamWrapBuffer.hashCode());
-		}
-	}
+	}	
 
 	public int read(SocketChannel readableSocketChannel) throws IOException, NoMoreDataPacketBufferException {
 		int numRead = 0;
