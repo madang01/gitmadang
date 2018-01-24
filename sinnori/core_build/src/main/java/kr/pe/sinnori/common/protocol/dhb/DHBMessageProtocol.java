@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.WrapBufferUtil;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
@@ -45,8 +44,8 @@ import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
-import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
+import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.common.protocol.dhb.header.DHBMessageHeader;
 import kr.pe.sinnori.common.util.HexUtil;
 
@@ -172,7 +171,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 
 	@Override
 	public List<WrapBuffer> M2S(AbstractMessage messageObj, AbstractMessageEncoder messageEncoder)
-			throws NoMoreDataPacketBufferException, BodyFormatException {
+			throws NoMoreDataPacketBufferException, BodyFormatException, HeaderFormatException {
 		if (null == messageObj) {
 			throw new IllegalArgumentException("the parameter messageObj is null");
 		}
@@ -199,8 +198,6 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 		try {
 			messageEncoder.encode(messageObj, dhbSingleItemEncoder, streamCharset, bodyOutputStream);
 		} catch (NoMoreDataPacketBufferException e) {
-			throw e;
-		} catch (BodyFormatException e) {
 			throw e;
 		} catch (OutOfMemoryError e) {
 			throw e;
@@ -254,28 +251,30 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 			headerOutputStream.putInt(mailID);
 			headerOutputStream.putLong(bodySize);
 			headerOutputStream.putBytes(bodyMD5Bytes);
+		} catch (NoMoreDataPacketBufferException e) {
+			throw e;
+		} catch (OutOfMemoryError e) {
+			throw e;
 		} catch (Exception e) {
-			String errorMessage = new StringBuilder("dhb header packaging error::").append(e.getMessage()).toString();
-			log.error(errorMessage, e);
-			System.exit(1);
+			String errorMessage = String.format("unknown error::messageObj=[%s]", messageObj.toString());
+			log.warn(errorMessage, e);
+
+			throw new HeaderFormatException(errorMessage);
 		}
 		
 		//log.info("5");
 		
-		List<WrapBuffer> wrapBufferListOfHeaderBodyOutputStream = headerOutputStream.getOutputStreamWrapBufferList();
-		
-		//log.info("4. wrapBufferListOfHeaderBodyOutputStream={}", wrapBufferListOfHeaderBodyOutputStream.toString());
-		
-		List<WrapBuffer> duplicatedAndReadableWrapBufferListOfHeaderBodyOutputStream 
-			= WrapBufferUtil.getDuplicatedAndReadableWrapBufferList(wrapBufferListOfHeaderBodyOutputStream);
+		List<WrapBuffer> wrapBufferListOfHeaderOutputStream = headerOutputStream.getOutputStreamWrapBufferList();
 		
 		md5.reset();
 		{
-			
-			for (WrapBuffer duplicatedAndReadableWrapBufferOfHeaderBodyOutputStream : duplicatedAndReadableWrapBufferListOfHeaderBodyOutputStream) {
-				ByteBuffer duplicatedAndReadableByteBufferOfHeaderBodyOutputStream = duplicatedAndReadableWrapBufferOfHeaderBodyOutputStream.getByteBuffer();
-				
-				md5.update(duplicatedAndReadableByteBufferOfHeaderBodyOutputStream);
+			/** header body md5 구하기 */
+			for (WrapBuffer wrapBufferOfHeaderBody : wrapBufferListOfHeaderOutputStream) {
+				ByteBuffer byteBufferOfHeaderBody = wrapBufferOfHeaderBody.getByteBuffer();
+				/** 버퍼 상태를 변경하지 않기 위해서 복사 버퍼로 md5 작업함 */
+				ByteBuffer duplicatedByteBufferOfHeaderBody = byteBufferOfHeaderBody.duplicate();
+				duplicatedByteBufferOfHeaderBody.flip();		
+				md5.update(duplicatedByteBufferOfHeaderBody);
 			}
 			
 			headerBodyMD5Bytes = md5.digest();
@@ -287,18 +286,22 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 
 		try {
 			headerOutputStream.putBytes(headerBodyMD5Bytes);
+		} catch (NoMoreDataPacketBufferException e) {
+			throw e;
+		} catch (OutOfMemoryError e) {
+			throw e;
 		} catch (Exception e) {
-			String errorMessage = new StringBuilder("dhb header packaging error::").append(e.getMessage()).toString();
-			log.error(errorMessage, e);
-			System.exit(1);
+			String errorMessage = String.format("unknown error::messageObj=[%s]", messageObj.toString());
+			log.warn(errorMessage, e);
+
+			throw new HeaderFormatException(errorMessage);
 		}
 		
-		//log.info("7");
+		headerOutputStream.flipAllOutputStreamWrapBuffer();
+		
 
-		List<WrapBuffer> readableWrapBufferListOfHeaderOutputStream = headerOutputStream.getReadableWrapBufferList();
-
-		List<WrapBuffer> messageReadableOutputStreamWrapBufferList = new ArrayList<WrapBuffer>();
-		messageReadableOutputStreamWrapBufferList.addAll(readableWrapBufferListOfHeaderOutputStream);
+		List<WrapBuffer> messageReadableOutputStreamWrapBufferList = wrapBufferListOfHeaderOutputStream;
+	
 		messageReadableOutputStreamWrapBufferList.addAll(readableWrapBufferListOfBodyOutputStream);
 
 		//log.info("8");

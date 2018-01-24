@@ -67,7 +67,7 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 	private ByteBuffer intBuffer = null;
 	private ByteBuffer longBuffer = null;
 
-	public FreeSizeInputStream(int dataPacketBufferMaxCount, List<WrapBuffer> dataPacketBufferList,
+	public FreeSizeInputStream(int dataPacketBufferMaxCount, List<WrapBuffer> readableWrapBufferList,
 			CharsetDecoder streamCharsetDecoder, DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) {
 		if (dataPacketBufferMaxCount <= 0) {
 			String errorMessage = String.format(
@@ -75,8 +75,8 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 					dataPacketBufferMaxCount);
 			throw new IllegalArgumentException(errorMessage);
 		}
-		if (null == dataPacketBufferList) {
-			String errorMessage = "the parameter dataPacketBufferList is null";
+		if (null == readableWrapBufferList) {
+			String errorMessage = "the parameter readableWrapBufferList is null";
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
@@ -87,14 +87,14 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 			throw new IllegalArgumentException(errorMessage);
 		}
 		this.dataPacketBufferMaxCount = dataPacketBufferMaxCount;
-		this.dataPacketBufferList = dataPacketBufferList;
+		this.dataPacketBufferList = readableWrapBufferList;
 		this.streamCharset = streamCharsetDecoder.charset();
 		this.streamCharsetDecoder = streamCharsetDecoder;
 		this.streamByteOrder = dataPacketBufferQueueManager.getByteOrder();
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 		this.streamBufferList = new ArrayList<ByteBuffer>();
 
-		for (WrapBuffer wrapBuffer : dataPacketBufferList) {
+		for (WrapBuffer wrapBuffer : readableWrapBufferList) {
 			this.streamBufferList.add(wrapBuffer.getByteBuffer());
 		}
 

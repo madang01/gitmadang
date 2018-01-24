@@ -123,4 +123,34 @@ public class ByteBufferTest {
 			log.info("결과:유효한부분만, streambuffer={}", streambuffer.toString());
 		}
 	}
+	
+	@Test
+	public void testReset_2번이상호출시에도마크한위치로이동하는지여부테스트() {
+		ByteBuffer streambuffer = ByteBuffer.allocate(12);
+		
+		streambuffer.putInt(12);
+		int markPosition = streambuffer.position();
+		streambuffer.mark();
+		
+		// log.info("1.streambuffer={}", streambuffer.toString());
+		
+		streambuffer.putInt(15);
+		// log.info("2.streambuffer={}", streambuffer.toString());
+		
+		streambuffer.reset();
+		
+		// log.info("3.streambuffer={}", streambuffer.toString());
+		
+		streambuffer.putLong(17L);
+		
+		// log.info("4.streambuffer={}", streambuffer.toString());
+		
+		streambuffer.reset();
+		
+		// log.info("5.streambuffer={}", streambuffer.toString());
+		
+		if (streambuffer.position() != markPosition) {
+			fail("2번째 reset 호출시 마크 위치로 이동 안함");
+		}
+	}
 }

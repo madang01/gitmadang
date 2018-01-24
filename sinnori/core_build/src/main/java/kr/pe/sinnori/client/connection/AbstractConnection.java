@@ -499,9 +499,7 @@ public abstract class AbstractConnection {
 		try {
 			wrapBufferList = messageProtocol.M2S(messageToClient, messageEncoder);
 		} catch(NoMoreDataPacketBufferException e) {
-			throw e;
-		} catch(DynamicClassCallException e) {
-			throw e;
+			throw e;		
 		} catch(BodyFormatException e) {
 			throw e;
 		} catch(Exception e) {

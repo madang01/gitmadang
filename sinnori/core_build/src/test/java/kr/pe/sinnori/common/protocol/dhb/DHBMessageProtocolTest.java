@@ -107,7 +107,7 @@ public class DHBMessageProtocolTest {
 		
 		beforeTime= new Date().getTime();
 		
-		int retryCount = 10;
+		int retryCount = 10000;
 		
 		int firstIndex = -1;
 		

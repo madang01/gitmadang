@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import kr.pe.sinnori.common.exception.BodyFormatException;
-import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.SocketOutputStream;
@@ -45,7 +44,7 @@ public interface MessageProtocolIF {
 	 * @throws BodyFormatException 바디 구성할때 에러 발생시 던지는 예외
 	 */
 	public List<WrapBuffer> M2S(AbstractMessage messageObj, AbstractMessageEncoder messageEncoder) 
-			throws NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException;
+			throws NoMoreDataPacketBufferException, BodyFormatException, HeaderFormatException;
 	
 	
 	/**

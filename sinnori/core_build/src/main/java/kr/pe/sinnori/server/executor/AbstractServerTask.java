@@ -475,23 +475,7 @@ public abstract class AbstractServerTask {
 						selfExnOutObj.toString());
 				return null;
 			}
-			return wrapBufferList;
-		} catch (DynamicClassCallException e) {
-			SelfExn selfExnOutObj = new SelfExn();
-			selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
-			selfExnOutObj.setErrorPlace("S");
-			selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class));
-			selfExnOutObj.setErrorMessageID(messageIDToClient);
-			selfExnOutObj.setErrorMessage(e.getMessage());
-
-			try {
-				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER);
-			} catch (Exception e1) {
-				log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, toSC={}, SelfExn={}", toSC.hashCode(),
-						selfExnOutObj.toString());
-				return null;
-			}
-			return wrapBufferList;
+			return wrapBufferList;		
 		} catch (BodyFormatException e) {
 			SelfExn selfExnOutObj = new SelfExn();
 			selfExnOutObj.messageHeaderInfo = messageToClient.messageHeaderInfo;
