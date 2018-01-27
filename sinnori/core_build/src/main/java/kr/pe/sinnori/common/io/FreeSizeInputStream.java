@@ -583,6 +583,56 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 	}
 
 	@Override
+	public String getUBPascalString()
+			throws SinnoriBufferUnderflowException, IllegalArgumentException, CharsetDecoderException {
+		return getUBPascalString(streamCharset);
+	}
+
+	@Override
+	public String getUBPascalString(Charset wantedCharset)
+			throws SinnoriBufferUnderflowException, IllegalArgumentException, CharsetDecoderException {
+		if (null == wantedCharset) {
+			throw new IllegalArgumentException("the parameter wantedCharset is null");
+		}
+		
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(1);
+		
+		int length = getUnsignedByte();
+		if (0 == length) {
+			return "";
+		}		
+		
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(length);
+	
+		return doGetString(length, wantedCharset);
+	}
+
+	@Override
+	public String getUSPascalString()
+			throws SinnoriBufferUnderflowException, IllegalArgumentException, CharsetDecoderException {				
+		return getUSPascalString(streamCharset);
+	}
+
+	public String getUSPascalString(Charset wantedCharset)
+			throws SinnoriBufferUnderflowException, IllegalArgumentException, CharsetDecoderException {
+		if (null == wantedCharset) {
+			throw new IllegalArgumentException("the parameter wantedCharset is null");
+		}
+		
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(2);
+		
+		int length = getUnsignedShort();
+		
+		if (0 == length) {
+			return "";
+		}
+		
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(length);
+		
+		return doGetString(length, wantedCharset);
+	}
+
+	@Override
 	public String getSIPascalString()
 			throws SinnoriBufferUnderflowException, IllegalArgumentException, CharsetDecoderException {
 		return getSIPascalString(streamCharset);
@@ -610,56 +660,6 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		
 		return doGetString(length, wantedCharset);
 		
-	}
-
-	@Override
-	public String getUSPascalString()
-			throws SinnoriBufferUnderflowException, IllegalArgumentException, CharsetDecoderException {				
-		return getUSPascalString(streamCharset);
-	}
-	
-	public String getUSPascalString(Charset wantedCharset)
-			throws SinnoriBufferUnderflowException, IllegalArgumentException, CharsetDecoderException {
-		if (null == wantedCharset) {
-			throw new IllegalArgumentException("the parameter wantedCharset is null");
-		}
-		
-		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(2);
-		
-		int length = getUnsignedShort();
-		
-		if (0 == length) {
-			return "";
-		}
-		
-		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(length);
-		
-		return doGetString(length, wantedCharset);
-	}	
-	
-	@Override
-	public String getUBPascalString()
-			throws SinnoriBufferUnderflowException, IllegalArgumentException, CharsetDecoderException {
-		return getUBPascalString(streamCharset);
-	}
-	
-	@Override
-	public String getUBPascalString(Charset wantedCharset)
-			throws SinnoriBufferUnderflowException, IllegalArgumentException, CharsetDecoderException {
-		if (null == wantedCharset) {
-			throw new IllegalArgumentException("the parameter wantedCharset is null");
-		}
-		
-		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(1);
-		
-		int length = getUnsignedByte();
-		if (0 == length) {
-			return "";
-		}
-		
-		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(length);
-
-		return doGetString(length, wantedCharset);
 	}
 
 	@Override

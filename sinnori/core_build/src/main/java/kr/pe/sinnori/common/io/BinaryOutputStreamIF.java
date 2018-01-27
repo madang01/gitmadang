@@ -70,13 +70,13 @@ public interface BinaryOutputStreamIF {
 	public void putLong(long value)
 			throws BufferOverflowException, SinnoriBufferOverflowException, NoMoreDataPacketBufferException;
 
-	public void putFixedLengthString(int fixedLength, String src, CharsetEncoder wantedCharsetEncoder)
-			throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException,
-			NoMoreDataPacketBufferException, CharsetEncoderException;
-
 	public void putFixedLengthString(int fixedLength, String src)
 			throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException,
 			NoMoreDataPacketBufferException, CharsetEncoderException;
+	
+	public void putFixedLengthString(int fixedLength, String src, CharsetEncoder wantedCharsetEncoder)
+			throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException,
+			NoMoreDataPacketBufferException, CharsetEncoderException;	
 
 	public void putStringAll(String src) throws BufferOverflowException, SinnoriBufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException, CharsetEncoderException;

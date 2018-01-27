@@ -68,7 +68,7 @@ public class DataPacketBufferPoolManager implements DataPacketBufferPoolManagerI
 			}
 			
 			
-			log.info("the wrap buffer hashcode set={}", allWrapBufferHashcodeSet.toString());
+			// log.info("the wrap buffer hashcode set={}", allWrapBufferHashcodeSet.toString());
 		} catch (OutOfMemoryError e) {
 			String errorMessage = "OutOfMemoryError";
 			log.error(errorMessage, e);
