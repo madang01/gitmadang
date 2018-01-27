@@ -16,8 +16,6 @@
  */
 package kr.pe.sinnori.common.protocol;
 
-import java.nio.charset.Charset;
-
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.message.builder.info.SingleItemType;
 
@@ -29,9 +27,7 @@ import kr.pe.sinnori.common.message.builder.info.SingleItemType;
 public interface SingleItemDecoderIF {
 	
 	public Object getValueFromReadableMiddleObject(String path, String itemName, SingleItemType singleItemType, 
-			int itemSize, String nativeItemCharset, 
-			Charset streamCharset,
-			Object middleReadObj)
+			int itemSize, String nativeItemCharset, Object middleReadObj)
 			throws BodyFormatException;
 	
 	/**

@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.common.exception.CharsetEncoderException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
 
@@ -85,14 +86,17 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 		WrapBuffer wrapBuffer = dataPacketBufferQueueManager.pollDataPacketBuffer();
 		workBuffer = wrapBuffer.getByteBuffer();
 		outputStreamWrapBufferList.add(wrapBuffer);
-
-		shortBuffer = ByteBuffer.allocate(2);
+		
+		byte twoBytes[] = new byte[2];
+		shortBuffer = ByteBuffer.wrap(twoBytes);
 		shortBuffer.order(streamByteOrder);
 
-		intBuffer = ByteBuffer.allocate(4);
+		byte fourBytes[] = new byte[4];
+		intBuffer = ByteBuffer.wrap(fourBytes);
 		intBuffer.order(streamByteOrder);
 
-		longBuffer = ByteBuffer.allocate(8);
+		byte eightBytes[] = new byte[8];
+		longBuffer = ByteBuffer.wrap(eightBytes);
 		longBuffer.order(streamByteOrder);
 
 		outputStreamMaxSize = dataPacketBufferMaxCount * dataPacketBufferQueueManager.getDataPacketBufferSize();
@@ -108,7 +112,7 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 	private void freeDataPacketBufferList() {
 		if (null != outputStreamWrapBufferList) {
 			for (WrapBuffer outputStreamWrapBuffer : outputStreamWrapBufferList) {
-				log.info("return the outputStreamWrapBuffer[hashcode={}] to the data packet buffer pool", outputStreamWrapBuffer.hashCode());
+				//log.info("return the outputStreamWrapBuffer[hashcode={}] to the data packet buffer pool", outputStreamWrapBuffer.hashCode());
 				
 				dataPacketBufferQueueManager.putDataPacketBuffer(outputStreamWrapBuffer);
 			}
@@ -480,14 +484,14 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 
 	@Override
 	public void putFixedLengthString(int fixedLength, String src) throws BufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
+			IllegalArgumentException, NoMoreDataPacketBufferException, SinnoriBufferOverflowException, CharsetEncoderException {
 		putFixedLengthString(fixedLength, src, streamCharsetEncoder);
 	}
 
 	@Override
 	public void putFixedLengthString(int fixedLength, String src, CharsetEncoder wantedCharsetEncoder)
 			throws BufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException,
-			SinnoriBufferOverflowException {
+			SinnoriBufferOverflowException, CharsetEncoderException {
 		if (fixedLength < 0) {
 			throw new IllegalArgumentException(
 					String.format("the parameter fixedLength[%d] is less than zero", fixedLength));
@@ -505,88 +509,249 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 		}	
 
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(fixedLength);
-
+		
+		byte strBytes[] = new byte[fixedLength];		
+		Arrays.fill(strBytes, CommonStaticFinalVars.ZERO_BYTE);
+		ByteBuffer strByteBuffer = ByteBuffer.wrap(strBytes);
+		
 		CharBuffer strCharBuffer = CharBuffer.wrap(src);
-
-		ByteBuffer strByteBuffer = null;
 		try {
-			strByteBuffer = ByteBuffer.allocate(fixedLength);
-		} catch (OutOfMemoryError e) {
-			log.warn("OutOfMemoryError", e);
-			throw e;
+			wantedCharsetEncoder.encode(strCharBuffer, strByteBuffer, true);
+		} catch (Exception e) {
+			String errorMessage = String.format("fail to get a charset[%s] bytes of the parameter src[%s]::%s", 
+					wantedCharsetEncoder.charset().name(), src, e.getMessage());
+			log.warn(errorMessage, e);
+			throw new CharsetEncoderException(errorMessage);
+		}
+		
+		// log.info("strBufer=[%s]", strBufer.toString());
+		
+		doPutBytes(strBytes, 0, strBytes.length);
+		
+		/*byte strBytes[] = src.getBytes(wantedCharsetEncoder.charset());
+		
+		
+		if (fixedLength > strBytes.length) {
+			// Arrays.fill(dstBytes, CommonStaticFinalVars.ZERO_BYTE);
+			doPutBytes(strBytes, 0, strBytes.length);
+			byte dstBytes[] = new byte[fixedLength - strBytes.length];
+			Arrays.fill(dstBytes, CommonStaticFinalVars.ZERO_BYTE);
+			doPutBytes(dstBytes, 0, dstBytes.length);
+		} else {
+			doPutBytes(strBytes, 0, fixedLength);
+		}*/	
+	}
+
+	@Override
+	public void putStringAll(String src) throws BufferOverflowException, IllegalArgumentException,
+			NoMoreDataPacketBufferException, SinnoriBufferOverflowException, CharsetEncoderException {
+		putStringAll(src, streamCharset);
+	}
+	
+	@Override
+	public void putStringAll(String src, Charset wantedCharset) throws BufferOverflowException, IllegalArgumentException,
+			NoMoreDataPacketBufferException, SinnoriBufferOverflowException, CharsetEncoderException {
+		if (src == null) {
+			throw new IllegalArgumentException("the parameter src is null");
+		}
+		
+		if (wantedCharset == null) {
+			throw new IllegalArgumentException("the parameter wantedCharset is null");
 		}
 
-		byte strBytes[] = strByteBuffer.array();
-		Arrays.fill(strBytes, CommonStaticFinalVars.ZERO_BYTE);
-		wantedCharsetEncoder.encode(strCharBuffer, strByteBuffer, true);
-		// log.info("strBufer=[%s]", strBufer.toString());
+		
+		
+		/*CharBuffer srcCharBuffer = CharBuffer.wrap(src);
+		ByteBuffer srcByteBuffer = null;
+		try {
+			srcByteBuffer = streamCharsetEncoder.encode(srcCharBuffer);
+		} catch (Exception e) {
+			log.warn(e.getMessage(), e);
+			throw new CharsetEncoderException("fail to call streamCharsetEncoder.encode::"+e.getMessage());
+		}
+		
+
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(srcByteBuffer.remaining());
+
+		doPutBytes(srcByteBuffer);*/
+		
+		byte strBytes[] = null;
+		try {
+			strBytes = src.getBytes(wantedCharset);
+		} catch (Exception e) {
+			String errorMessage = String.format("fail to get a charset[%s] bytes of the parameter src[%s]::%s", 
+					wantedCharset.name(), src, e.getMessage());
+			log.warn(errorMessage, e);
+			throw new CharsetEncoderException(errorMessage);
+		}
+		
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(strBytes.length);
 		
 		doPutBytes(strBytes, 0, strBytes.length);
 	}
 
 	@Override
-	public void putStringAll(String src) throws BufferOverflowException, IllegalArgumentException,
-			NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
-		if (src == null) {
-			throw new IllegalArgumentException("the parameter src is null");
-		}
-
-		byte strBytes[] = src.getBytes(streamCharset);
-
-		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(strBytes.length);
-
-		doPutBytes(strBytes, 0, strBytes.length);
-	}
-
-	@Override
 	public void putPascalString(String src) throws BufferOverflowException, IllegalArgumentException,
-			NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
-		putUBPascalString(src);
+			NoMoreDataPacketBufferException, SinnoriBufferOverflowException, CharsetEncoderException {
+		putUBPascalString(src, streamCharset);
+	}
+	
+	@Override
+	public void putPascalString(String src, Charset wantedCharset) throws BufferOverflowException, IllegalArgumentException,
+			NoMoreDataPacketBufferException, SinnoriBufferOverflowException, CharsetEncoderException {
+		putUBPascalString(src, wantedCharset);
 	}
 
 	@Override
 	public void putSIPascalString(String src) throws BufferOverflowException, IllegalArgumentException,
-			NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
+			NoMoreDataPacketBufferException, SinnoriBufferOverflowException, CharsetEncoderException {
+		putSIPascalString(src, streamCharset);
+	}
+	
+	@Override
+	public void putSIPascalString(String src, Charset wantedCharset) throws BufferOverflowException, IllegalArgumentException,
+			NoMoreDataPacketBufferException, SinnoriBufferOverflowException, CharsetEncoderException {
 		if (src == null) {
 			throw new IllegalArgumentException("the parameter src is null");
 		}
 
-		byte strBytes[] = src.getBytes(streamCharset);
+		if (wantedCharset == null) {
+			throw new IllegalArgumentException("the parameter wantedCharset is null");
+		}
 
-		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired((strBytes.length + 4));
+		/*CharBuffer srcCharBuffer = CharBuffer.wrap(src);
+		ByteBuffer srcByteBuffer = null;
+		try {
+			srcByteBuffer = streamCharsetEncoder.encode(srcCharBuffer);
+		} catch (Exception e) {
+			log.warn(e.getMessage(), e);
+			throw new CharsetEncoderException("fail to call streamCharsetEncoder.encode::"+e.getMessage());
+		}
 
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired((srcByteBuffer.remaining() + 4));
+
+		putInt(srcByteBuffer.remaining());
+		putBytes(srcByteBuffer);*/
+		
+		byte strBytes[] = null;
+		try {
+			strBytes = src.getBytes(wantedCharset);
+		} catch (Exception e) {
+			String errorMessage = String.format("fail to get a charset[%s] bytes of the parameter src[%s]::%s", 
+					wantedCharset.name(), src, e.getMessage());
+			log.warn(errorMessage, e);
+			throw new CharsetEncoderException(errorMessage);
+		}
+		
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(strBytes.length+4);
+		
 		putInt(strBytes.length);
-		putBytes(strBytes);
+		doPutBytes(strBytes, 0, strBytes.length);
 	}
 
 	@Override
 	public void putUSPascalString(String src) throws BufferOverflowException, IllegalArgumentException,
-			NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
+			NoMoreDataPacketBufferException, SinnoriBufferOverflowException, CharsetEncoderException {
+		putUSPascalString(src, streamCharset);
+	}
+	
+	@Override
+	public void putUSPascalString(String src, Charset wantedCharset) throws BufferOverflowException, IllegalArgumentException,
+			NoMoreDataPacketBufferException, SinnoriBufferOverflowException, CharsetEncoderException {
 		if (src == null) {
 			throw new IllegalArgumentException("the parameter src is null");
 		}
+		
+		if (wantedCharset == null) {
+			throw new IllegalArgumentException("the parameter wantedCharset is null");
+		}
 
-		byte strBytes[] = src.getBytes(streamCharset);		
+		/*CharBuffer srcCharBuffer = CharBuffer.wrap(src);
+		ByteBuffer srcByteBuffer = null;
+		try {
+			srcByteBuffer = streamCharsetEncoder.encode(srcCharBuffer);
+		} catch (Exception e) {
+			log.warn(e.getMessage(), e);
+			throw new CharsetEncoderException("fail to call streamCharsetEncoder.encode::"+e.getMessage());
+		}	
 
-		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired((strBytes.length + 2));
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired((srcByteBuffer.remaining() + 2));
 
-		putUnsignedShort(strBytes.length);
-		putBytes(strBytes);
+		putUnsignedShort(srcByteBuffer.remaining());
+		putBytes(srcByteBuffer);*/
+		
+		byte strBytes[] = null;
+		try {
+			strBytes = src.getBytes(wantedCharset);
+		} catch (Exception e) {
+			String errorMessage = String.format("fail to get a charset[%s] bytes of the parameter src[%s]::%s", 
+					wantedCharset.name(), src, e.getMessage());
+			log.warn(errorMessage, e);
+			throw new CharsetEncoderException(errorMessage);
+		}
+		
+		if (strBytes.length > CommonStaticFinalVars.UNSIGNED_SHORT_MAX) {
+			throw new IllegalArgumentException(String.format("파라미터 값[%d]은 unsigned short 최대값[%d]을 넘을 수 없습니다.", strBytes.length,
+					CommonStaticFinalVars.UNSIGNED_SHORT_MAX));
+		}
+		
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(strBytes.length+2);
+		
+		doPutUnsignedShort((short)strBytes.length);
+		doPutBytes(strBytes, 0, strBytes.length);
 	}
 
 	@Override
 	public void putUBPascalString(String src) throws BufferOverflowException, IllegalArgumentException,
-			NoMoreDataPacketBufferException, SinnoriBufferOverflowException {
+			NoMoreDataPacketBufferException, SinnoriBufferOverflowException, CharsetEncoderException {
+		putUBPascalString(src, streamCharset);
+	}
+	
+	@Override
+	public void putUBPascalString(String src, Charset wantedCharset) throws BufferOverflowException, IllegalArgumentException,
+			NoMoreDataPacketBufferException, SinnoriBufferOverflowException, CharsetEncoderException {
 		if (src == null) {
 			throw new IllegalArgumentException("the parameter src is null");
 		}
+		
+		if (wantedCharset == null) {
+			throw new IllegalArgumentException("the parameter wantedCharset is null");
+		}
 
-		byte strBytes[] = src.getBytes(streamCharset);		
+		/*CharBuffer srcCharBuffer = CharBuffer.wrap(src);
+		ByteBuffer srcByteBuffer = null;
+		try {
+			srcByteBuffer = streamCharsetEncoder.encode(srcCharBuffer);
+		} catch (Exception e) {
+			log.warn(e.getMessage(), e);
+			throw new CharsetEncoderException("fail to call streamCharsetEncoder.encode::"+e.getMessage());
+		}		
 
-		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired((strBytes.length + 1));
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired((srcByteBuffer.remaining() + 1));
 
-		putUnsignedByte(strBytes.length);
-		putBytes(strBytes);
+		putUnsignedByte(srcByteBuffer.remaining());
+		putBytes(srcByteBuffer);*/
+		
+		byte strBytes[] = null;
+		try {
+			strBytes = src.getBytes(wantedCharset);
+		} catch (Exception e) {
+			String errorMessage = String.format("fail to get a charset[%s] bytes of the parameter src[%s]::%s", 
+					wantedCharset.name(), src, e.getMessage());
+			log.warn(errorMessage, e);
+			throw new CharsetEncoderException(errorMessage);
+		}
+		
+		if (strBytes.length > CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {
+			throw new IllegalArgumentException(String.format(
+					"the parameter value[%d] is greater than the unsigned byte max[%d]", strBytes.length,
+					CommonStaticFinalVars.UNSIGNED_BYTE_MAX));
+		}
+		
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(strBytes.length+1);
+		
+		doPutUnsignedByte((byte)strBytes.length);
+		doPutBytes(strBytes, 0, strBytes.length);
 
 	}
 

@@ -18,13 +18,16 @@
 package kr.pe.sinnori.common.protocol.dhb.header;
 
 import java.nio.BufferOverflowException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CharsetEncoder;
+import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.common.exception.CharsetEncoderException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
@@ -69,10 +72,10 @@ public class DHBMessageHeader {
 	public byte bodyMD5Bytes[] = null;
 	/** headerMD5 : byte array 16byte */
 	public byte headerBodyMD5Bytes[] = null;
-
-	public void toOutputStream(BinaryOutputStreamIF headerOutputStream, int messageIDFixedSize,
-			CharsetEncoder headerCharsetEncoder) throws IllegalArgumentException, BufferOverflowException,
-			SinnoriBufferOverflowException, NoMoreDataPacketBufferException {
+	
+	public void onlyHeaderBodyPartToOutputStream(BinaryOutputStreamIF headerOutputStream, int messageIDFixedSize,
+			Charset headerCharset) throws IllegalArgumentException, BufferOverflowException,
+			SinnoriBufferOverflowException, NoMoreDataPacketBufferException, CharsetEncoderException {
 		if (null == headerOutputStream) {
 			throw new IllegalArgumentException("the parameter headerOutputStream is null");
 		}
@@ -101,6 +104,29 @@ public class DHBMessageHeader {
 			// log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
+		
+		byte[] messageIDBytes = messageID.getBytes(headerCharset);
+		if (messageIDBytes.length > messageIDFixedSize) {
+			String errorMessage= String.format("the var messageID[%s]'s charset bytes size[%d] is greater than the parameter messageIDFixedSize[%s]", 
+					messageID, messageIDBytes.length, messageIDFixedSize);
+			throw new IllegalArgumentException(errorMessage);
+		}
+		byte[] messageIDFixedSizeBuffer = new byte[messageIDFixedSize];
+		Arrays.fill(messageIDFixedSizeBuffer, CommonStaticFinalVars.ZERO_BYTE);
+		ByteBuffer messageIDFixedSizeByteBuffer = ByteBuffer.wrap(messageIDFixedSizeBuffer);
+		messageIDFixedSizeByteBuffer.put(messageIDBytes);		
+		headerOutputStream.putBytes(messageIDFixedSizeBuffer);
+		
+		headerOutputStream.putUnsignedShort(mailboxID);
+		headerOutputStream.putInt(mailID);
+		headerOutputStream.putLong(bodySize);
+		headerOutputStream.putBytes(bodyMD5Bytes);
+	}
+
+	public void toOutputStream(BinaryOutputStreamIF headerOutputStream, int messageIDFixedSize,
+			Charset headerCharset) throws IllegalArgumentException, BufferOverflowException,
+			SinnoriBufferOverflowException, NoMoreDataPacketBufferException, CharsetEncoderException {
+		onlyHeaderBodyPartToOutputStream(headerOutputStream, messageIDFixedSize, headerCharset);
 
 		if (null == headerBodyMD5Bytes) {
 			String errorMessage = "the var headerBodyMD5Bytes is null";
@@ -114,12 +140,8 @@ public class DHBMessageHeader {
 			// log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
-
-		headerOutputStream.putFixedLengthString(messageIDFixedSize, messageID, headerCharsetEncoder);
-		headerOutputStream.putUnsignedShort(mailboxID);
-		headerOutputStream.putInt(mailID);
-		headerOutputStream.putLong(bodySize);
-		headerOutputStream.putBytes(bodyMD5Bytes);
+		
+		
 		headerOutputStream.putBytes(headerBodyMD5Bytes);
 
 	}
@@ -135,7 +157,9 @@ public class DHBMessageHeader {
 	public void fromInputStream(BinaryInputStreamIF headerInputStream, int messageIDFixedSize,
 			CharsetDecoder headerCharsetDecoder) throws HeaderFormatException {
 		try {
-			this.messageID = headerInputStream.getFixedLengthString(messageIDFixedSize, headerCharsetDecoder).trim();
+			// this.messageID = headerInputStream.getFixedLengthString(messageIDFixedSize, headerCharsetDecoder).trim();
+			this.messageID = new String(headerInputStream.getBytes(messageIDFixedSize), headerCharsetDecoder.charset()).trim();
+			
 			this.mailboxID = headerInputStream.getUnsignedShort();
 			this.mailID = headerInputStream.getInt();
 			this.bodySize = headerInputStream.getLong();

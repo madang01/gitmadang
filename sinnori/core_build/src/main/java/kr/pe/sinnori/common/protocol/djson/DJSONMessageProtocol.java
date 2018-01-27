@@ -29,10 +29,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.exception.BodyFormatException;
+import kr.pe.sinnori.common.exception.CharsetDecoderException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
-import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.io.FreeSizeInputStream;
 import kr.pe.sinnori.common.io.FreeSizeOutputStream;
@@ -42,8 +42,8 @@ import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
-import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
+import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.common.protocol.djson.header.DJSONHeader;
 
 /**
@@ -70,8 +70,9 @@ public class DJSONMessageProtocol implements MessageProtocolIF {
 	private DataPacketBufferPoolManagerIF dataPacketBufferPoolManager = null;
 	
 	
-	private DJSONSingleItemDecoder jsonSingleItemDecoder = new DJSONSingleItemDecoder();;
-	private DJSONSingleItemEncoder jsonSingleItemEncoder = new DJSONSingleItemEncoder();;
+	private DJSONSingleItemDecoder jsonSingleItemDecoder = null;
+	private DJSONSingleItemEncoder jsonSingleItemEncoder = null;
+	
 	
 	
 	private JSONParser jsonParser = new JSONParser();	
@@ -86,6 +87,9 @@ public class DJSONMessageProtocol implements MessageProtocolIF {
 		this.streamCharsetEncoder = streamCharsetEncoder;
 		this.streamCharsetDecoder = streamCharsetDecoder;
 		this.dataPacketBufferPoolManager = dataPacketBufferPoolManager;
+		
+		this.jsonSingleItemEncoder = new DJSONSingleItemEncoder(streamCharsetEncoder);
+		this.jsonSingleItemDecoder = new DJSONSingleItemDecoder(streamCharsetDecoder);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -99,7 +103,7 @@ public class DJSONMessageProtocol implements MessageProtocolIF {
 		jsonWriteObj.put("mailID", messageObj.messageHeaderInfo.mailID);
 		
 		try {
-			messageEncoder.encode(messageObj, jsonSingleItemEncoder, streamCharsetEncoder.charset(), jsonWriteObj);
+			messageEncoder.encode(messageObj, jsonSingleItemEncoder, jsonWriteObj);
 		} catch (BodyFormatException e) {
 			throw e;
 		} catch (NoMoreDataPacketBufferException e) {
@@ -243,9 +247,9 @@ public class DJSONMessageProtocol implements MessageProtocolIF {
 							 * 신놀이 메시지 운영정보는 헤더 정보이므로 이를 정상적으로 얻지 못했기때문에 헤더 포맷 에러 처리를 한다.  
 							 */
 							throw new HeaderFormatException(errorMessage);
-						} catch (SinnoriCharsetCodingException e) {
+						} catch (CharsetDecoderException e) {
 							String errorMessage = e.getMessage();
-							log.warn(String.format("존슨 문자열 추출 실패::SinnoriCharsetCodingException::%s", errorMessage), e);
+							log.warn(String.format("존슨 문자열 추출 실패::CharsetDecoderException::%s", errorMessage), e);
 							/**
 							 * json 객체를 얻지 못하면 json 객체에 포함된 
 							 * 신놀이 메시지 운영정보(메시지 식별자, 메일 박스 식별자, 메일 식별자)를 얻을 수 없다.

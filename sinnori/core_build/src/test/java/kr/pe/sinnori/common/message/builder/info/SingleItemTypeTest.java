@@ -1,6 +1,8 @@
 package kr.pe.sinnori.common.message.builder.info;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.util.Arrays;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -11,7 +13,7 @@ import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
 
-public class SingleItemTypeMangerTest {
+public class SingleItemTypeTest {
 	Logger log = null;
 
 	final String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
@@ -38,12 +40,23 @@ public class SingleItemTypeMangerTest {
 	}
 	
 	@Test
-	public void testGetSingleItemType_sigleItemID를통해얻은SigleItemType맞는지검사() {
-		for (SingleItemType expectedSingleItemType : SingleItemType.values()) {
-			SingleItemType actualSingleItemType = SingleItemTypeManger.getInstance().getSingleItemType(expectedSingleItemType.getItemTypeID());
-			
-			assertEquals("sigleItemID 를 통해 얻은 SigleItemType 맞는지 검사", expectedSingleItemType, actualSingleItemType);
+	public void test_ItemTypeID가정말로키가맞는지그리고0부터순차적으로할당되었는지에대한테스트() {
+		SingleItemType[] singleItemTypes = SingleItemType.values();
+		int[] arrayOfSingleItemTypeID = new int[singleItemTypes.length];
+		Arrays.fill(arrayOfSingleItemTypeID, -1);
+		for (SingleItemType singleItemType : singleItemTypes) {
+			int singleItemTypeID = singleItemType.getItemTypeID();
+			try {
+				arrayOfSingleItemTypeID[singleItemTypeID]=singleItemTypeID;
+			} catch(IndexOutOfBoundsException e) {
+				fail(String.format("singleItemType[%s] is bad, singleItemTypeID[%d] is out of the range[0 ~ %d]", singleItemType.toString(), singleItemTypeID, singleItemTypes.length-1));
+			}
+		}
+		for (int i=0; i < arrayOfSingleItemTypeID.length; i++) {
+			int singleItemTypeID = arrayOfSingleItemTypeID[i];
+			if (-1 == singleItemTypeID) {
+				fail(String.format("the singleItemTypeID[%d] is not found", i));
+			}
 		}
 	}
-	
 }

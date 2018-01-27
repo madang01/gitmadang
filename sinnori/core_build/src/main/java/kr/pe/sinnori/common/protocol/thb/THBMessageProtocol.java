@@ -17,8 +17,6 @@
 
 package kr.pe.sinnori.common.protocol.thb;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
@@ -32,7 +30,6 @@ import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
-import kr.pe.sinnori.common.io.FixedSizeOutputStream;
 import kr.pe.sinnori.common.io.FreeSizeInputStream;
 import kr.pe.sinnori.common.io.FreeSizeOutputStream;
 import kr.pe.sinnori.common.io.SocketInputStream;
@@ -41,8 +38,8 @@ import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
-import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
+import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.common.protocol.thb.header.THBMessageHeader;
 
 /**
@@ -60,7 +57,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 	/** 메시지 헤더에 사용되는 문자열 메시지 식별자의 크기, 단위 byte */
 	private int messageIDFixedSize;
 	private int dataPacketBufferMaxCntPerMessage;
-	private Charset streamCharset = null;
+	// private Charset streamCharset = null;
 	private CharsetEncoder streamCharsetEncoder;	
 	@SuppressWarnings("unused")
 	private CharsetDecoder streamCharsetDecoder;
@@ -72,11 +69,6 @@ public class THBMessageProtocol implements MessageProtocolIF {
 	
 	private THBSingleItemEncoder thbSingleItemEncoder = null;
 	
-	
-	private ByteOrder byteOrderOfProject = null;
-	
-	// private ClientObjectManager clientMessageController = ClientObjectManager.getInstance();
-	// private ServerObjectManager serverMessageController = ServerObjectManager.getInstance();
 	
 	private final Charset headerCharset = Charset.forName("ISO-8859-1");
 	private CharsetEncoder headerCharsetEncoder = null;
@@ -120,7 +112,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		streamCharset = streamCharsetOfEncoder;
+		// streamCharset = streamCharsetOfEncoder;
 
 		if (null == dataPacketBufferPoolManager) {
 
@@ -134,8 +126,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 		
 		this.dataPacketBufferPoolManager = dataPacketBufferPoolManager;
 		
-		this.messageHeaderSize = THBMessageHeader.getMessageHeaderSize(messageIDFixedSize);
-		this.byteOrderOfProject = dataPacketBufferPoolManager.getByteOrder();
+		this.messageHeaderSize = messageIDFixedSize+ 2 + 4 + 8;
 		
 		thbSingleItemDecoder = new THBSingleItemDecoder(streamCharsetDecoder);
 		thbSingleItemEncoder = new THBSingleItemEncoder(streamCharsetEncoder);
@@ -152,15 +143,13 @@ public class THBMessageProtocol implements MessageProtocolIF {
 	
 	@Override
 	public List<WrapBuffer> M2S(AbstractMessage messageObj, AbstractMessageEncoder messageEncoder) 
-			throws NoMoreDataPacketBufferException, BodyFormatException {
-				
-		
+			throws NoMoreDataPacketBufferException, BodyFormatException, HeaderFormatException {
 		/** 바디 만들기 */
 		FreeSizeOutputStream bodyOutputStream = 
 				new FreeSizeOutputStream(dataPacketBufferMaxCntPerMessage, streamCharsetEncoder, dataPacketBufferPoolManager);
 		
 		try {
-			messageEncoder.encode(messageObj, thbSingleItemEncoder, streamCharset, bodyOutputStream);
+			messageEncoder.encode(messageObj, thbSingleItemEncoder, bodyOutputStream);
 		} catch (NoMoreDataPacketBufferException e) {
 			throw e;
 		} catch (BodyFormatException e) {
@@ -177,30 +166,39 @@ public class THBMessageProtocol implements MessageProtocolIF {
 		}
 
 		/** 데이터 헤더 만들기 */
-		THBMessageHeader messageHeader = new THBMessageHeader(messageIDFixedSize);
+		THBMessageHeader messageHeader = new THBMessageHeader();
 		messageHeader.messageID = messageObj.getMessageID();
 		messageHeader.mailboxID = messageObj.messageHeaderInfo.mailboxID;
 		messageHeader.mailID = messageObj.messageHeaderInfo.mailID;
-		messageHeader.bodySize =  bodyOutputStream.size() - messageHeaderSize;
+		messageHeader.bodySize =  bodyOutputStream.size();
 		
-		// FIXME!
-		//log.info(messageHeader.toString());
+		// log.info(messageHeader.toString());
 		
-		List<WrapBuffer> messageWrapBufferList = bodyOutputStream.getReadableWrapBufferList();
+		FreeSizeOutputStream headerOutputStream = new FreeSizeOutputStream(dataPacketBufferMaxCntPerMessage,
+				headerCharsetEncoder, dataPacketBufferPoolManager);
 		
-		ByteBuffer firstWorkBuffer = messageWrapBufferList.get(0).getByteBuffer();
+		try {
+			messageHeader.toOutputStream(headerOutputStream, messageIDFixedSize, headerCharset);
+		} catch (NoMoreDataPacketBufferException e) {
+			throw e;
+		} catch (OutOfMemoryError e) {
+			throw e;
+		} catch (Exception e) {
+			String errorMessage = String.format("unknown error::messageObj=[%s]", messageObj.toString());
+			log.warn(errorMessage, e);
+
+			throw new HeaderFormatException(errorMessage);
+		}
 		
-		ByteBuffer firstDupBuffer = firstWorkBuffer.duplicate();
-		firstDupBuffer.order(byteOrderOfProject);
-		FixedSizeOutputStream headerOutputStream = new FixedSizeOutputStream(firstDupBuffer, headerCharsetEncoder);
-		
-		messageHeader.toOutputStream(headerOutputStream, headerCharsetEncoder);
+		List<WrapBuffer> readbleWrapBufferListOfHeaderOutputStream = headerOutputStream.getReadableWrapBufferList();
+		List<WrapBuffer> readableWrapBufferListOfBodyOutputStream = bodyOutputStream.getReadableWrapBufferList();
+		readbleWrapBufferListOfHeaderOutputStream.addAll(readableWrapBufferListOfBodyOutputStream);
 		
 		// log.debug(messageHeader.toString());
 		// log.debug(firstWorkBuffer.toString());
 		
 		
-		return messageWrapBufferList;
+		return readbleWrapBufferListOfHeaderOutputStream;
 	}
 	
 	@Override
@@ -214,7 +212,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 					throws HeaderFormatException, NoMoreDataPacketBufferException {		
 		THBMessageHeader messageHeader = (THBMessageHeader)socketOutputStream.getUserDefObject();		
 		
-		ArrayList<WrapReadableMiddleObject> receivedLetterList = new ArrayList<WrapReadableMiddleObject>();		
+		ArrayList<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();		
 		
 		boolean isMoreMessage = false;
 		SocketInputStream socketInputStream = socketOutputStream.createNewSocketInputStream();
@@ -226,8 +224,8 @@ public class THBMessageProtocol implements MessageProtocolIF {
 						&& socketOutputStreamSize >= messageHeaderSize) {
 					/** 헤더 읽기 */
 					
-					THBMessageHeader workMessageHeader = new THBMessageHeader(messageIDFixedSize);
-					workMessageHeader.fromInputStream(socketInputStream, headerCharsetDecoder);
+					THBMessageHeader workMessageHeader = new THBMessageHeader();
+					workMessageHeader.fromInputStream(socketInputStream, messageIDFixedSize, headerCharsetDecoder);
 
 					if (workMessageHeader.bodySize < 0) {
 						// header format exception
@@ -245,7 +243,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 					/*log.info(String.format("3. inputStramSizeBeforeMessageWork[%d]", inputStramSizeBeforeMessageWork));*/
 					
 					
-					long messageFrameSize = messageHeader.messageHeaderSize
+					long messageFrameSize = messageHeaderSize
 							+ messageHeader.bodySize;
 
 					if (socketOutputStreamSize >= messageFrameSize) {
@@ -254,17 +252,17 @@ public class THBMessageProtocol implements MessageProtocolIF {
 								.cutMessageInputStreamFromStartingPosition(messageFrameSize);
 						
 						try {
-							messageInputStream.skip(messageHeader.messageHeaderSize);
+							messageInputStream.skip(messageHeaderSize);
 						} catch (Exception e) {
 							log.error("unknown error::"+e.getMessage());
 							System.exit(1);
-						}					
+						}
 
-						WrapReadableMiddleObject receivedLetter = 
+						WrapReadableMiddleObject wrapReadableMiddleObject = 
 								new WrapReadableMiddleObject(messageHeader.messageID, 
 										messageHeader.mailboxID, messageHeader.mailID, messageInputStream);
 						
-						receivedLetterList.add(receivedLetter);
+						wrapReadableMiddleObjectList.add(wrapReadableMiddleObject);
 
 
 						socketOutputStreamSize = socketOutputStream.size();
@@ -282,7 +280,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 		}
 		
 		
-		return receivedLetterList;
+		return wrapReadableMiddleObjectList;
 	}
 	
 	public int getMessageHeaderSize() {

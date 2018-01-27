@@ -22,6 +22,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 
+import kr.pe.sinnori.common.exception.CharsetEncoderException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
 
@@ -38,110 +39,86 @@ public interface BinaryOutputStreamIF {
 	 * @return 스트림 문자셋
 	 */
 	public Charset getCharset();
+
+	public void putByte(byte value)
+			throws BufferOverflowException, SinnoriBufferOverflowException, NoMoreDataPacketBufferException;
+
+	public void putUnsignedByte(short value) throws BufferOverflowException, SinnoriBufferOverflowException,
+			IllegalArgumentException, NoMoreDataPacketBufferException;
+
+	public void putUnsignedByte(int value) throws BufferOverflowException, SinnoriBufferOverflowException,
+			IllegalArgumentException, NoMoreDataPacketBufferException;
+
+	public void putUnsignedByte(long value) throws BufferOverflowException, SinnoriBufferOverflowException,
+			IllegalArgumentException, NoMoreDataPacketBufferException;
+
+	public void putShort(short value)
+			throws BufferOverflowException, SinnoriBufferOverflowException, NoMoreDataPacketBufferException;
+
+	public void putUnsignedShort(int value) throws BufferOverflowException, SinnoriBufferOverflowException,
+			IllegalArgumentException, NoMoreDataPacketBufferException;
+
+	public void putUnsignedShort(long value) throws BufferOverflowException, SinnoriBufferOverflowException,
+			IllegalArgumentException, NoMoreDataPacketBufferException;
+
+	public void putInt(int value)
+			throws BufferOverflowException, SinnoriBufferOverflowException, NoMoreDataPacketBufferException;
+
+	public void putUnsignedInt(long value) throws BufferOverflowException, SinnoriBufferOverflowException,
+			IllegalArgumentException, NoMoreDataPacketBufferException;
+
+	public void putLong(long value)
+			throws BufferOverflowException, SinnoriBufferOverflowException, NoMoreDataPacketBufferException;
+
+	public void putFixedLengthString(int fixedLength, String src, CharsetEncoder wantedCharsetEncoder)
+			throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException,
+			NoMoreDataPacketBufferException, CharsetEncoderException;
+
+	public void putFixedLengthString(int fixedLength, String src)
+			throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException,
+			NoMoreDataPacketBufferException, CharsetEncoderException;
+
+	public void putStringAll(String src) throws BufferOverflowException, SinnoriBufferOverflowException,
+			IllegalArgumentException, NoMoreDataPacketBufferException, CharsetEncoderException;
 	
+	public void putStringAll(String src, Charset wantedCharset) throws BufferOverflowException, SinnoriBufferOverflowException,
+	IllegalArgumentException, NoMoreDataPacketBufferException, CharsetEncoderException;
+
+	public void putPascalString(String src) throws BufferOverflowException, SinnoriBufferOverflowException,
+			IllegalArgumentException, NoMoreDataPacketBufferException, CharsetEncoderException;
 	
-	public void putByte(byte value) throws BufferOverflowException,
-	SinnoriBufferOverflowException,
+	public void putPascalString(String src, Charset wantedCharset) throws BufferOverflowException, SinnoriBufferOverflowException,
+	IllegalArgumentException, NoMoreDataPacketBufferException, CharsetEncoderException;
+
+	public void putSIPascalString(String src) throws BufferOverflowException, SinnoriBufferOverflowException,
+			IllegalArgumentException, NoMoreDataPacketBufferException, CharsetEncoderException;
+	
+	public void putSIPascalString(String src, Charset wantedCharset) throws BufferOverflowException, SinnoriBufferOverflowException,
+	IllegalArgumentException, NoMoreDataPacketBufferException, CharsetEncoderException;
+
+	public void putUSPascalString(String src) throws BufferOverflowException, SinnoriBufferOverflowException,
+			IllegalArgumentException, NoMoreDataPacketBufferException, CharsetEncoderException;
+	
+	public void putUSPascalString(String src, Charset wantedCharset) throws BufferOverflowException, SinnoriBufferOverflowException,
+	IllegalArgumentException, NoMoreDataPacketBufferException, CharsetEncoderException;
+
+	public void putUBPascalString(String src) throws BufferOverflowException, SinnoriBufferOverflowException,
+			IllegalArgumentException, NoMoreDataPacketBufferException, CharsetEncoderException;
+	
+	public void putUBPascalString(String src, Charset wantedCharset) throws BufferOverflowException, SinnoriBufferOverflowException,
+	IllegalArgumentException, NoMoreDataPacketBufferException, CharsetEncoderException;
+
+	public void putBytes(byte[] src, int offset, int length) throws BufferOverflowException, IllegalArgumentException,
+			SinnoriBufferOverflowException, NoMoreDataPacketBufferException;
+
+	public void putBytes(byte[] src) throws BufferOverflowException, SinnoriBufferOverflowException,
+			IllegalArgumentException, NoMoreDataPacketBufferException;
+
+	public void putBytes(ByteBuffer src) throws BufferOverflowException, SinnoriBufferOverflowException,
+			IllegalArgumentException, NoMoreDataPacketBufferException;
+
+	public void skip(int n) throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException,
 			NoMoreDataPacketBufferException;
-
-	
-	public void putUnsignedByte(short value) throws BufferOverflowException,
-	SinnoriBufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException;
-	
-	public void putUnsignedByte(int value) throws BufferOverflowException,
-	SinnoriBufferOverflowException,
-	IllegalArgumentException, NoMoreDataPacketBufferException;
-	
-	public void putUnsignedByte(long value) throws BufferOverflowException,
-	SinnoriBufferOverflowException,
-	IllegalArgumentException, NoMoreDataPacketBufferException;
-
-	
-	public void putShort(short value) throws BufferOverflowException,
-	SinnoriBufferOverflowException,
-			NoMoreDataPacketBufferException;
-
-	public void putUnsignedShort(int value) throws BufferOverflowException,
-	SinnoriBufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException;
-
-	public void putUnsignedShort(long value) throws BufferOverflowException, 
-	SinnoriBufferOverflowException, 
-	IllegalArgumentException, NoMoreDataPacketBufferException;
-	
-	
-	public void putInt(int value) throws BufferOverflowException,
-	SinnoriBufferOverflowException,
-			NoMoreDataPacketBufferException;
-
-	
-	public void putUnsignedInt(long value) throws BufferOverflowException,
-	SinnoriBufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException;
-
-
-	public void putLong(long value) throws BufferOverflowException,
-	SinnoriBufferOverflowException,
-			NoMoreDataPacketBufferException;
-
-
-	public void putFixedLengthString(int fixedLength, String src,
-			CharsetEncoder wantedCharsetEncoder)
-			throws BufferOverflowException, SinnoriBufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException;
-
-	
-	public void putFixedLengthString(int fixedLength, String src) throws BufferOverflowException,
-	SinnoriBufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException;
-
-	
-	public void putStringAll(String src) throws BufferOverflowException,
-	SinnoriBufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException;
-
-	
-	public void putPascalString(String src) throws BufferOverflowException,
-	SinnoriBufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException;
-
-	
-	public void putSIPascalString(String src) throws BufferOverflowException,
-	SinnoriBufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException;
-
-	
-	public void putUSPascalString(String src) throws BufferOverflowException,
-	SinnoriBufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException;
-
-	
-	public void putUBPascalString(String src) throws BufferOverflowException,
-	SinnoriBufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException;
-
-
-
-	public void putBytes(byte[] src, int offset, int length)
-			throws BufferOverflowException, IllegalArgumentException,
-			SinnoriBufferOverflowException,
-			NoMoreDataPacketBufferException;
-
-	public void putBytes(byte[] src) throws BufferOverflowException,
-	SinnoriBufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException;
-
-
-	public void putBytes(ByteBuffer src) throws BufferOverflowException,
-	SinnoriBufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException;
-
-
-	public void skip(int n) throws BufferOverflowException,
-	SinnoriBufferOverflowException,
-			IllegalArgumentException, NoMoreDataPacketBufferException;
-
 
 	public void close();
 }

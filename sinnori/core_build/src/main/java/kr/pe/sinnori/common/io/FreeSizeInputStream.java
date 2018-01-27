@@ -20,7 +20,6 @@ package kr.pe.sinnori.common.io;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.CharBuffer;
-import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
@@ -31,8 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.common.exception.CharsetDecoderException;
 import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
-import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
 import kr.pe.sinnori.common.util.HexUtil;
 
 /**
@@ -105,26 +104,6 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		if (streamBufferList.size() > 0) {
-			indexOfWorkBuffer = 0;
-			workBuffer = streamBufferList.get(indexOfWorkBuffer);
-
-			shortBuffer = ByteBuffer.allocate(2);
-			shortBuffer.order(streamByteOrder);
-			// bytesOfShortBuffer = shortBuffer.array();
-
-			intBuffer = ByteBuffer.allocate(4);
-			intBuffer.order(streamByteOrder);
-			bytesOfIntBuffer = intBuffer.array();
-
-			longBuffer = ByteBuffer.allocate(8);
-			longBuffer.order(streamByteOrder);
-			bytesOfLongBuffer = longBuffer.array();
-		} else {
-			indexOfWorkBuffer = -1;
-			workBuffer = null;
-		}
-
 		numberOfBytesRemaining = 0L;
 		for (ByteBuffer buffer : streamBufferList) {
 			numberOfBytesRemaining += buffer.remaining();
@@ -132,6 +111,26 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		}
 
 		inputStreamSize = numberOfBytesRemaining;
+
+		if (streamBufferList.isEmpty()) {
+			indexOfWorkBuffer = -1;
+			workBuffer = null;
+		} else {
+			indexOfWorkBuffer = 0;
+			workBuffer = streamBufferList.get(indexOfWorkBuffer);
+
+			byte twoBytes[] = new byte[2];
+			shortBuffer = ByteBuffer.wrap(twoBytes);
+			shortBuffer.order(streamByteOrder);
+
+			bytesOfIntBuffer = new byte[4];
+			intBuffer = ByteBuffer.wrap(bytesOfIntBuffer);
+			intBuffer.order(streamByteOrder);
+
+			bytesOfLongBuffer = new byte[8];
+			longBuffer = ByteBuffer.wrap(bytesOfLongBuffer);
+			longBuffer.order(streamByteOrder);
+		}
 
 		// log.info("limitedRemainingBytes={}, streamBufferList size={}",
 		// limitedRemainingBytes, streamBufferList.size());
@@ -163,6 +162,26 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		// workBuffer.capacity=[%d]", indexOfWorkBuffer, workBuffer.capacity()));
 	}
 
+	private String doGetString(int length, Charset stringCharset)
+			throws SinnoriBufferUnderflowException, CharsetDecoderException {
+		byte dstBytes[] = new byte[length];
+		doGetBytes(dstBytes);
+
+		String dst = null;
+
+		try {
+			dst = new String(dstBytes, stringCharset);
+		} catch (Exception e) {
+			String errorMessage = String.format("fail to get a new String. read data hex[%s], charset[%s]",
+					HexUtil.getHexStringFromByteArray(dstBytes), stringCharset.name());
+			// log.warn(errorMessage, e);
+			throw new CharsetDecoderException(errorMessage);
+		}
+
+		return dst;
+	}
+
+	@SuppressWarnings("unused")
 	private void doGetBytes(ByteBuffer dst) throws SinnoriBufferUnderflowException {
 		do {
 			if (!workBuffer.hasRemaining()) {
@@ -226,9 +245,9 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 	private void throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(long numberOfBytesRequired)
 			throws SinnoriBufferUnderflowException {
 		if (numberOfBytesRemaining < numberOfBytesRequired) {
-			throw new SinnoriBufferUnderflowException(
-					String.format("the number[%d] of bytes remaining in this input stream is less than [%d] byte(s) that is required",
-							numberOfBytesRemaining, numberOfBytesRequired));
+			throw new SinnoriBufferUnderflowException(String.format(
+					"the number[%d] of bytes remaining in this input stream is less than [%d] byte(s) that is required",
+					numberOfBytesRemaining, numberOfBytesRequired));
 		}
 	}
 
@@ -482,37 +501,31 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 
 	@Override
 	public String getFixedLengthString(final int fixedLength, final CharsetDecoder wantedCharsetDecoder)
-			throws SinnoriBufferUnderflowException, IllegalArgumentException, SinnoriCharsetCodingException {
+			throws SinnoriBufferUnderflowException, IllegalArgumentException, CharsetDecoderException {
 		if (fixedLength < 0) {
-			throw new IllegalArgumentException(String.format("the parameter fixedLength[%d] is less than zero", fixedLength));
+			throw new IllegalArgumentException(
+					String.format("the parameter fixedLength[%d] is less than zero", fixedLength));
 		}
-		
+
 		if (0 == fixedLength) {
 			return "";
 		}
 
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(fixedLength);
 
-		ByteBuffer dstBuffer = null;
-		try {
-			dstBuffer = ByteBuffer.allocate(fixedLength);
-		} catch (OutOfMemoryError e) {
-			log.warn("OutOfMemoryError", e);
-			throw e;
-		}
-
-		doGetBytes(dstBuffer);
-		dstBuffer.flip();
+		byte dstBytes[] = new byte[fixedLength];
+		ByteBuffer dstByteBuffer = ByteBuffer.wrap(dstBytes);
+		doGetBytes(dstBytes, 0, dstBytes.length);
 
 		CharBuffer dstCharBuffer = null;
 
 		try {
-			dstCharBuffer = wantedCharsetDecoder.decode(dstBuffer);
-		} catch (CharacterCodingException e) {
-			String errorMessage = String.format("read data hex[%s], charset[%s]",
-					HexUtil.getAllHexStringFromByteBuffer(dstBuffer), wantedCharsetDecoder.charset().name());
+			dstCharBuffer = wantedCharsetDecoder.decode(dstByteBuffer);
+		} catch (Exception e) {
+			String errorMessage = String.format("fail to get a new string, read data hex[%s], charset[%s]",
+					HexUtil.getHexStringFromByteArray(dstBytes), wantedCharsetDecoder.charset().name());
 			// log.warn(errorMessage, e);
-			throw new SinnoriCharsetCodingException(errorMessage);
+			throw new CharsetDecoderException(errorMessage);
 		}
 
 		return dstCharBuffer.toString();
@@ -520,65 +533,133 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 
 	@Override
 	public String getFixedLengthString(int fixedLength)
-			throws SinnoriBufferUnderflowException, IllegalArgumentException, SinnoriCharsetCodingException {
+			throws SinnoriBufferUnderflowException, IllegalArgumentException, CharsetDecoderException {
 		return getFixedLengthString(fixedLength, streamCharsetDecoder);
 	}
 
 	@Override
 	public String getStringAll()
-			throws SinnoriBufferUnderflowException, IllegalArgumentException, SinnoriCharsetCodingException {
-		// long remainingBytes = remaining();
+			throws SinnoriBufferUnderflowException, IllegalArgumentException, CharsetDecoderException {
+		return getStringAll(streamCharset);
+	}
+
+	@Override
+	public String getStringAll(Charset wantedCharset)
+			throws SinnoriBufferUnderflowException, IllegalArgumentException, CharsetDecoderException {
+		if (null == wantedCharset) {
+			throw new IllegalArgumentException("the parameter wantedCharset is null");
+		}
 
 		if (0 == numberOfBytesRemaining) {
 			return "";
 		}
-		 
+
 		if (numberOfBytesRemaining > Integer.MAX_VALUE) {
 			/**
 			 * 자바 문자열에 입력 가능한 바이트 배열의 크기는 Integer.MAX_VALUE 이다.
 			 */
-			throw new SinnoriBufferUnderflowException(
-					String.format("the number[%d] of bytes remaing in this input stream is greater than the maximum value[%d] of integer",
-							numberOfBytesRemaining, Integer.MAX_VALUE));
+			throw new SinnoriBufferUnderflowException(String.format(
+					"the number[%d] of bytes remaing in this input stream is greater than the maximum value[%d] of integer",
+					numberOfBytesRemaining, Integer.MAX_VALUE));
 		}
 
-		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired((int) numberOfBytesRemaining);
+		int length = (int) numberOfBytesRemaining;
 
-		return getFixedLengthString((int) numberOfBytesRemaining, streamCharsetDecoder);
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(length);
+
+		return doGetString(length, wantedCharset);
 	}
 
 	@Override
 	public String getPascalString()
-			throws SinnoriBufferUnderflowException, IllegalArgumentException, SinnoriCharsetCodingException {
-		return getUBPascalString();
+			throws SinnoriBufferUnderflowException, IllegalArgumentException, CharsetDecoderException {
+		return getUBPascalString(streamCharset);
+	}
+
+	@Override
+	public String getPascalString(Charset wantedCharset)
+			throws SinnoriBufferUnderflowException, IllegalArgumentException, CharsetDecoderException {
+		return getUBPascalString(wantedCharset);
 	}
 
 	@Override
 	public String getSIPascalString()
-			throws SinnoriBufferUnderflowException, IllegalArgumentException, SinnoriCharsetCodingException {
-
+			throws SinnoriBufferUnderflowException, IllegalArgumentException, CharsetDecoderException {
+		return getSIPascalString(streamCharset);
+	}
+	
+	@Override
+	public String getSIPascalString(Charset wantedCharset)
+			throws SinnoriBufferUnderflowException, IllegalArgumentException, CharsetDecoderException {
+		if (null == wantedCharset) {
+			throw new IllegalArgumentException("the parameter wantedCharset is null");
+		}
+		
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(4);
+		
 		int length = getInt();
 		if (length < 0)
 			throw new IllegalArgumentException(
 					String.format("the pascal string length[%d] whose type is integer is less than zero", length));
-
-		return getFixedLengthString(length, streamCharsetDecoder);
+		
+		if (0 == length) {
+			return "";
+		}
+		
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(length);
+		
+		return doGetString(length, wantedCharset);
+		
 	}
 
 	@Override
 	public String getUSPascalString()
-			throws SinnoriBufferUnderflowException, IllegalArgumentException, SinnoriCharsetCodingException {
+			throws SinnoriBufferUnderflowException, IllegalArgumentException, CharsetDecoderException {				
+		return getUSPascalString(streamCharset);
+	}
+	
+	public String getUSPascalString(Charset wantedCharset)
+			throws SinnoriBufferUnderflowException, IllegalArgumentException, CharsetDecoderException {
+		if (null == wantedCharset) {
+			throw new IllegalArgumentException("the parameter wantedCharset is null");
+		}
+		
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(2);
+		
 		int length = getUnsignedShort();
 		
-		return getFixedLengthString(length, streamCharsetDecoder);
-	}
-
+		if (0 == length) {
+			return "";
+		}
+		
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(length);
+		
+		return doGetString(length, wantedCharset);
+	}	
+	
 	@Override
 	public String getUBPascalString()
-			throws SinnoriBufferUnderflowException, IllegalArgumentException, SinnoriCharsetCodingException {
-		int length = getUnsignedByte();
+			throws SinnoriBufferUnderflowException, IllegalArgumentException, CharsetDecoderException {
+		return getUBPascalString(streamCharset);
+	}
+	
+	@Override
+	public String getUBPascalString(Charset wantedCharset)
+			throws SinnoriBufferUnderflowException, IllegalArgumentException, CharsetDecoderException {
+		if (null == wantedCharset) {
+			throw new IllegalArgumentException("the parameter wantedCharset is null");
+		}
 		
-		return getFixedLengthString(length, streamCharsetDecoder);
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(1);
+		
+		int length = getUnsignedByte();
+		if (0 == length) {
+			return "";
+		}
+		
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(length);
+
+		return doGetString(length, wantedCharset);
 	}
 
 	@Override
@@ -591,21 +672,21 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		if (offset < 0) {
 			throw new IllegalArgumentException(String.format("the parameter offset[%d] less than zero", offset));
 		}
-		
+
 		if (offset >= dst.length) {
 			throw new IllegalArgumentException(
-					String.format("the parameter offset[%d] greater than or equal to the dest buffer's length[%d]", offset,
-							dst.length));
+					String.format("the parameter offset[%d] greater than or equal to the dest buffer's length[%d]",
+							offset, dst.length));
 		}
 
 		if (length < 0) {
 			throw new IllegalArgumentException(String.format("the parameter length[%d] less than zero", length));
-		}		
+		}
 
-		long sumOfOffsetAndLength = ((long)offset + length);
+		long sumOfOffsetAndLength = ((long) offset + length);
 		if (sumOfOffsetAndLength > dst.length) {
 			throw new IllegalArgumentException(String.format(
-					"the sum[%d] of the parameter offset[%d] and the parameter length[%d] is greater than array.length[%d]", 
+					"the sum[%d] of the parameter offset[%d] and the parameter length[%d] is greater than array.length[%d]",
 					sumOfOffsetAndLength, offset, length, dst.length));
 		}
 
@@ -632,7 +713,7 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 	public void getBytes(byte[] dstBytes) throws SinnoriBufferUnderflowException, IllegalArgumentException {
 		if (null == dstBytes) {
 			throw new IllegalArgumentException("paramerter dstBytes is null");
-		}		
+		}
 
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(dstBytes.length);
 
@@ -675,7 +756,7 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 	}
 
 	@Override
-	public void skip(int n) throws SinnoriBufferUnderflowException, IllegalArgumentException {		
+	public void skip(int n) throws SinnoriBufferUnderflowException, IllegalArgumentException {
 		skip((long) n);
 	}
 
@@ -687,10 +768,8 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 			throw new IllegalArgumentException(String.format("the parameter n[%d] less than zero", n));
 		}
 
-		
-
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(n);
-		
+
 		int remainingBytesOfWorkBuffer = workBuffer.remaining();
 
 		if (0 == remainingBytesOfWorkBuffer) {
@@ -710,7 +789,7 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 			numberOfBytesRemaining -= remainingBytesOfWorkBuffer;
 
 			n -= remainingBytesOfWorkBuffer;
-			
+
 			nextBuffer();
 			remainingBytesOfWorkBuffer = workBuffer.remaining();
 		} while (n != 0);
@@ -814,9 +893,7 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 
 		return -1;
 	}
-	
-	
-	
+
 	/**
 	 * 스트림에서 지정된 크기만큼 MD5를 구한다. 복사된 스트림를 통해서 MD5를 구하기때문에 스트림 속성에 영향을 주지 않는다.
 	 * 
@@ -828,59 +905,48 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 	 * @throws IllegalArgumentException
 	 * @throws SinnoriBufferUnderflowException
 	 */
-	/*public byte[] getMD5FromDupStream(long size, java.security.MessageDigest md5)
-			throws IllegalArgumentException, SinnoriBufferUnderflowException {
-		if (size < 0) {
-			String errorMessage = new StringBuilder("parameter size[").append(size).append("] is less than zero")
-					.toString();
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-
-		if (size > numberOfBytesRemaining) {
-			String errorMessage = String.format("parameter size'[%d] greater than limitedRemainingBytes[%d]", size,
-					numberOfBytesRemaining);
-			log.info(errorMessage);
-			throw new SinnoriBufferUnderflowException(errorMessage);
-		}
-
-		int streamBufferListSize = streamBufferList.size();
-
-		byte md5Bytes[] = null;
-
-		for (int i = indexOfWorkBuffer; i < streamBufferListSize; i++) {
-			ByteBuffer dupByteBuffer = streamBufferList.get(i).duplicate();
-			dupByteBuffer.order(streamByteOrder);
-			// log.info(String.format("1.i[%d] spaceBytesOfHeaderMD5[%d] %s", i,
-			// spaceBytesOfHeaderMD5, dupByteBuffer.toString()));
-
-			int remainingBytesOfDupBuffer = dupByteBuffer.remaining();
-			if (size <= remainingBytesOfDupBuffer) {
-				dupByteBuffer.limit(dupByteBuffer.position() + (int) size);
-
-				// FIXME!
-				// log.info(String.format("3.i[%d] spaceBytesOfHeaderMD5[%d]", i,
-				// spaceBytesOfHeaderMD5));
-				// log.info(String.format("%s", dupByteBuffer.toString()));
-				// log.info(String.format("%s",
-				// HexUtil.byteBufferAvailableToHex(dupByteBuffer)));
-
-				md5.update(dupByteBuffer);
-				md5Bytes = md5.digest();
-
-				// log.info(String.format("3.%s", HexUtil.byteArrayAllToHex(headerMD5)));
-				break;
-			} else {
-				// FIXME!
-				// log.info(String.format("2.i[%d] spaceBytesOfHeaderMD5[%d] %s", i,
-				// spaceBytesOfHeaderMD5, dupByteBuffer.toString()));
-
-				md5.update(dupByteBuffer);
-				size -= remainingBytesOfDupBuffer;
-			}
-		}
-		return md5Bytes;
-	}	*/
+	/*
+	 * public byte[] getMD5FromDupStream(long size, java.security.MessageDigest md5)
+	 * throws IllegalArgumentException, SinnoriBufferUnderflowException { if (size <
+	 * 0) { String errorMessage = new
+	 * StringBuilder("parameter size[").append(size).append("] is less than zero")
+	 * .toString(); log.warn(errorMessage); throw new
+	 * IllegalArgumentException(errorMessage); }
+	 * 
+	 * if (size > numberOfBytesRemaining) { String errorMessage =
+	 * String.format("parameter size'[%d] greater than limitedRemainingBytes[%d]",
+	 * size, numberOfBytesRemaining); log.info(errorMessage); throw new
+	 * SinnoriBufferUnderflowException(errorMessage); }
+	 * 
+	 * int streamBufferListSize = streamBufferList.size();
+	 * 
+	 * byte md5Bytes[] = null;
+	 * 
+	 * for (int i = indexOfWorkBuffer; i < streamBufferListSize; i++) { ByteBuffer
+	 * dupByteBuffer = streamBufferList.get(i).duplicate();
+	 * dupByteBuffer.order(streamByteOrder); //
+	 * log.info(String.format("1.i[%d] spaceBytesOfHeaderMD5[%d] %s", i, //
+	 * spaceBytesOfHeaderMD5, dupByteBuffer.toString()));
+	 * 
+	 * int remainingBytesOfDupBuffer = dupByteBuffer.remaining(); if (size <=
+	 * remainingBytesOfDupBuffer) { dupByteBuffer.limit(dupByteBuffer.position() +
+	 * (int) size);
+	 * 
+	 * // FIXME! // log.info(String.format("3.i[%d] spaceBytesOfHeaderMD5[%d]", i,
+	 * // spaceBytesOfHeaderMD5)); // log.info(String.format("%s",
+	 * dupByteBuffer.toString())); // log.info(String.format("%s", //
+	 * HexUtil.byteBufferAvailableToHex(dupByteBuffer)));
+	 * 
+	 * md5.update(dupByteBuffer); md5Bytes = md5.digest();
+	 * 
+	 * // log.info(String.format("3.%s", HexUtil.byteArrayAllToHex(headerMD5)));
+	 * break; } else { // FIXME! //
+	 * log.info(String.format("2.i[%d] spaceBytesOfHeaderMD5[%d] %s", i, //
+	 * spaceBytesOfHeaderMD5, dupByteBuffer.toString()));
+	 * 
+	 * md5.update(dupByteBuffer); size -= remainingBytesOfDupBuffer; } } return
+	 * md5Bytes; }
+	 */
 
 	public final int getIndexOfWorkBuffer() {
 		return indexOfWorkBuffer;
@@ -892,12 +958,11 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		}
 		return workBuffer.position();
 	}
-	
+
 	public CharsetDecoder getStreamCharsetDecoder() {
 		return streamCharsetDecoder;
 	}
 
-	
 	@Override
 	public void close() {
 		/** 파라미터 데이터 패킷 버퍼목록 회수 2번 방지용 */
@@ -907,8 +972,9 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 
 		/** 파라미터 데이터 패킷 버퍼목록 회수 */
 		for (WrapBuffer inputStreamWrapBuffer : dataPacketBufferList) {
-			// log.info("return the inputStreamWrapBuffer[hashcode={}] to the data packet buffer pool", inputStreamWrapBuffer.hashCode());
-			
+			// log.info("return the inputStreamWrapBuffer[hashcode={}] to the data packet
+			// buffer pool", inputStreamWrapBuffer.hashCode());
+
 			dataPacketBufferQueueManager.putDataPacketBuffer(inputStreamWrapBuffer);
 		}
 		dataPacketBufferList.clear();

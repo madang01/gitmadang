@@ -50,15 +50,43 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 		this.systemCharsetEncoder = systemCharsetEncoder;
 		this.streamCodingErrorActionOnMalformedInput = systemCharsetEncoder.malformedInputAction();
 		this.streamCodingErrorActionOnUnmappableCharacter = systemCharsetEncoder.malformedInputAction();
+		
+		checkValidTHBTypeSingleItemEncoderList();
 	}
 	
-	private interface THBTypeSingleItemEncoderIF {
-		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
+	private void checkValidTHBTypeSingleItemEncoderList() {
+		SingleItemType[] singleItemTypes = SingleItemType.values();
+		
+		if (thbTypeSingleItemEncoderList.length != singleItemTypes.length) {
+			log.error("the var thbTypeSingleItemEncoderList.length[{}] is not differnet from the array var singleItemTypes.length[{}]", 
+					thbTypeSingleItemEncoderList.length, singleItemTypes.length);
+			System.exit(1);
+		}
+		
+		for (int i=0; i < singleItemTypes.length; i++) {
+			SingleItemType expectedSingleItemType = singleItemTypes[i];
+			SingleItemType actualSingleItemType = thbTypeSingleItemEncoderList[i].getSingleItemType();
+			if (! expectedSingleItemType.equals(actualSingleItemType)) {
+				log.error("the var thbTypeSingleItemEncoderList[{}]'s SingleItemType[{}] is not the expected SingleItemType[{}]", 
+						i, actualSingleItemType.toString(), expectedSingleItemType.toString());
+				System.exit(1);
+			}
+		}
+	}
+	
+	private abstract class abstractTHBTypeSingleItemEncoder {
+		abstract public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
 				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
 				throws Exception;
+		
+		protected void writeItemID(int itemTypeID, BinaryOutputStreamIF binaryOutputStream) throws BufferOverflowException, IllegalArgumentException, SinnoriBufferOverflowException, NoMoreDataPacketBufferException {
+			binaryOutputStream.putUnsignedByte(itemTypeID);
+		}
+		
+		abstract public SingleItemType getSingleItemType();
 	}
 	
-	private final THBTypeSingleItemEncoderIF[] dhbTypeSingleItemEncoderList = new THBTypeSingleItemEncoderIF[] { 
+	private final abstractTHBTypeSingleItemEncoder[] thbTypeSingleItemEncoderList = new abstractTHBTypeSingleItemEncoder[] { 
 			new THBByteSingleItemEncoder(), new THBUnsignedByteSingleItemEncoder(), 
 			new THBShortSingleItemEncoder(), new THBUnsignedShortSingleItemEncoder(),
 			new THBIntSingleItemEncoder(), new THBUnsignedIntSingleItemEncoder(), 
@@ -73,192 +101,245 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 
 		
 	/** THB 프로토콜의 byte 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class THBByteSingleItemEncoder implements THBTypeSingleItemEncoderIF {
+	private final class THBByteSingleItemEncoder extends abstractTHBTypeSingleItemEncoder {
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
 				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
-				throws BufferOverflowException, SinnoriBufferOverflowException, NoMoreDataPacketBufferException {
+				throws Exception {
 			
 			byte tempItemValue = 0;
 				
 			if (null != itemValue) {
 				tempItemValue = (Byte) itemValue;
 			}
-			binaryOutputStream.putUnsignedByte(itemTypeID);
+			writeItemID(itemTypeID, binaryOutputStream);
 			binaryOutputStream.putByte(tempItemValue);
+		}
+		
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.BYTE;
 		}
 	}
 
 	/** THB 프로토콜의 unsigned byte 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class THBUnsignedByteSingleItemEncoder implements THBTypeSingleItemEncoderIF {
+	private final class THBUnsignedByteSingleItemEncoder extends abstractTHBTypeSingleItemEncoder {
 
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
 				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
-				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
+				throws Exception {
 			short tempItemValue = 0;
 			
 			if (null != itemValue) {
 				tempItemValue = (Short) itemValue;
 			}
 			
-			binaryOutputStream.putUnsignedByte(itemTypeID);
+			writeItemID(itemTypeID, binaryOutputStream);
 			binaryOutputStream.putUnsignedByte(tempItemValue);
+		}
+		
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.UNSIGNED_BYTE;
 		}
 	}
 
 	/** THB 프로토콜의 short 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class THBShortSingleItemEncoder implements THBTypeSingleItemEncoderIF {
+	private final class THBShortSingleItemEncoder extends abstractTHBTypeSingleItemEncoder {
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
 				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
-				throws BufferOverflowException, SinnoriBufferOverflowException, NoMoreDataPacketBufferException {
+				throws Exception {
 			short tempItemValue = 0;
 			
 			if (null != itemValue) {
 				tempItemValue = (Short) itemValue;
 			}
 			
-			binaryOutputStream.putUnsignedByte(itemTypeID);
+			writeItemID(itemTypeID, binaryOutputStream);
 			binaryOutputStream.putShort(tempItemValue);
+		}
+		
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.SHORT;
 		}
 	}
 
 	/** THB 프로토콜의 unsigned short 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class THBUnsignedShortSingleItemEncoder implements THBTypeSingleItemEncoderIF {
+	private final class THBUnsignedShortSingleItemEncoder extends abstractTHBTypeSingleItemEncoder {
 		
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
 				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
-				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
+				throws Exception {
 			int tempItemValue = 0;	
 			
 			if (null != itemValue) {
 				tempItemValue = (Integer) itemValue;
 			}
 
-			binaryOutputStream.putUnsignedByte(itemTypeID);
+			writeItemID(itemTypeID, binaryOutputStream);
 			binaryOutputStream.putUnsignedShort(tempItemValue);
+		}
+		
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.UNSIGNED_SHORT;
 		}
 	}
 
 	/** THB 프로토콜의 integer 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class THBIntSingleItemEncoder implements THBTypeSingleItemEncoderIF {
+	private final class THBIntSingleItemEncoder extends abstractTHBTypeSingleItemEncoder {
 		
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
 				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
-				throws BufferOverflowException, SinnoriBufferOverflowException, NoMoreDataPacketBufferException {
+				throws Exception {
 			int tempItemValue = 0;
 			
 			if (null != itemValue) {
 				tempItemValue = (Integer) itemValue;
 			}
 			
-			binaryOutputStream.putUnsignedByte(itemTypeID);
+			writeItemID(itemTypeID, binaryOutputStream);
 			binaryOutputStream.putInt(tempItemValue);
+		}
+		
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.INTEGER;
 		}
 	}
 
 	/** THB 프로토콜의 unsigned integer 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class THBUnsignedIntSingleItemEncoder implements THBTypeSingleItemEncoderIF {
+	private final class THBUnsignedIntSingleItemEncoder extends abstractTHBTypeSingleItemEncoder {
 		
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
 				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
-				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
+				throws Exception {
 			long tempItemValue = 0;
 			
 			if (null != itemValue) {
 				tempItemValue = (Long) itemValue;
 			}
 			
-			binaryOutputStream.putUnsignedByte(itemTypeID);
+			writeItemID(itemTypeID, binaryOutputStream);
 			binaryOutputStream.putUnsignedInt(tempItemValue);
+		}
+		
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.UNSIGNED_INTEGER;
 		}
 	}
 
 	/** THB 프로토콜의 long 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class THBLongSingleItemEncoder implements THBTypeSingleItemEncoderIF {		
+	private final class THBLongSingleItemEncoder extends abstractTHBTypeSingleItemEncoder {		
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
 				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
-				throws BufferOverflowException, SinnoriBufferOverflowException, NoMoreDataPacketBufferException {
+				throws Exception {
 			long tempItemValue = 0;
 			
 			if (null != itemValue) {
 				tempItemValue = (Long) itemValue;
 			}
 			
-			binaryOutputStream.putUnsignedByte(itemTypeID);
+			writeItemID(itemTypeID, binaryOutputStream);
 			binaryOutputStream.putLong(tempItemValue);
+		}
+		
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.LONG;
 		}
 	}
 
 	/** THB 프로토콜의 ub pascal string 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class THBUBPascalStringSingleItemEncoder implements THBTypeSingleItemEncoderIF {		
+	private final class THBUBPascalStringSingleItemEncoder extends abstractTHBTypeSingleItemEncoder {		
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
 				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
-				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
+				throws Exception {
 			String tempItemValue = CommonStaticFinalVars.EMPTY_STRING;
 			
 			if (null != itemValue) {
 				tempItemValue = (String) itemValue;
 			}
 			
-			binaryOutputStream.putUnsignedByte(itemTypeID);
-			binaryOutputStream.putUBPascalString(tempItemValue);
+			writeItemID(itemTypeID, binaryOutputStream);
+			
+			if (null == itemCharset) {
+				binaryOutputStream.putUBPascalString(tempItemValue);
+			} else {
+				binaryOutputStream.putUBPascalString(tempItemValue, itemCharset);
+			}
+		}
+		
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.UB_PASCAL_STRING;
 		}
 	}
 
 	/** THB 프로토콜의 us pascal string 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class THBUSPascalStringSingleItemEncoder implements THBTypeSingleItemEncoderIF {
+	private final class THBUSPascalStringSingleItemEncoder extends abstractTHBTypeSingleItemEncoder {
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
 				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
-				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
+				throws Exception {
 			String tempItemValue = CommonStaticFinalVars.EMPTY_STRING;;
 			
 			if (null != itemValue) {
 				tempItemValue = (String) itemValue;
 			}
 			
-			binaryOutputStream.putUnsignedByte(itemTypeID);
-			binaryOutputStream.putUSPascalString(tempItemValue);
+			writeItemID(itemTypeID, binaryOutputStream);
+			if (null == itemCharset) {
+				binaryOutputStream.putUSPascalString(tempItemValue);
+			} else {
+				binaryOutputStream.putUSPascalString(tempItemValue, itemCharset);
+			}
+		}
+		
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.US_PASCAL_STRING;
 		}
 	}
 
 	/** THB 프로토콜의 si pascal string 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class THBSIPascalStringSingleItemEncoder implements THBTypeSingleItemEncoderIF {
+	private final class THBSIPascalStringSingleItemEncoder extends abstractTHBTypeSingleItemEncoder {
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
 				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
-				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
+				throws Exception {
 			String tempItemValue = CommonStaticFinalVars.EMPTY_STRING;;
 			
 			if (null != itemValue) {
 				tempItemValue = (String) itemValue;
 			}
 			
-			binaryOutputStream.putUnsignedByte(itemTypeID);
-			binaryOutputStream.putSIPascalString(tempItemValue);
+			writeItemID(itemTypeID, binaryOutputStream);
+			if (null == itemCharset) {
+				binaryOutputStream.putSIPascalString(tempItemValue);
+			} else {
+				binaryOutputStream.putSIPascalString(tempItemValue, itemCharset);
+			}
+		}
+		
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.SI_PASCAL_STRING;
 		}
 	}
 
 	/** THB 프로토콜의 fixed length string 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class THBFixedLengthStringSingleItemEncoder implements THBTypeSingleItemEncoderIF {
+	private final class THBFixedLengthStringSingleItemEncoder extends abstractTHBTypeSingleItemEncoder {
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
 				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
-				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
+				throws Exception {
 			String tempItemValue = CommonStaticFinalVars.EMPTY_STRING;;
 			
 			if (null != itemValue) {
 				tempItemValue = (String) itemValue;
 			}
 			
-			binaryOutputStream.putUnsignedByte(itemTypeID);
+			writeItemID(itemTypeID, binaryOutputStream);
 			
 			if (null == itemCharset) {
 				binaryOutputStream.putFixedLengthString(itemSize, tempItemValue);
@@ -271,17 +352,21 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 			}
 
 		}
+		
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.FIXED_LENGTH_STRING;
+		}
 	}
 
 	
 
 	/** THB 프로토콜의 ub variable length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class THBUBVariableLengthBytesSingleItemEncoder implements THBTypeSingleItemEncoderIF {
+	private final class THBUBVariableLengthBytesSingleItemEncoder extends abstractTHBTypeSingleItemEncoder {
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
 				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
-				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
-			binaryOutputStream.putUnsignedByte(itemTypeID);
+				throws Exception {
+			writeItemID(itemTypeID, binaryOutputStream);
 			
 			if (null == itemValue) {
 				binaryOutputStream.putUnsignedByte((short)0);
@@ -297,15 +382,19 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 				binaryOutputStream.putBytes(tempItemValue);
 			}
 		}
+		
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.UB_VARIABLE_LENGTH_BYTES;
+		}
 	}
 
 	/** THB 프로토콜의 us variable length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class THBUSVariableLengthBytesSingleItemEncoder implements THBTypeSingleItemEncoderIF {
+	private final class THBUSVariableLengthBytesSingleItemEncoder extends abstractTHBTypeSingleItemEncoder {
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
 				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
-				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
-			binaryOutputStream.putUnsignedByte(itemTypeID);
+				throws Exception {
+			writeItemID(itemTypeID, binaryOutputStream);
 			
 			if (null == itemValue) {
 				binaryOutputStream.putUnsignedShort(0);
@@ -315,16 +404,19 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 				binaryOutputStream.putBytes(tempItemValue);
 			}
 		}
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.US_VARIABLE_LENGTH_BYTES;
+		}
 	}
 	
 	/** THB 프로토콜의 si variable length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class THBSIVariableLengthBytesSingleItemEncoder implements THBTypeSingleItemEncoderIF {
+	private final class THBSIVariableLengthBytesSingleItemEncoder extends abstractTHBTypeSingleItemEncoder {
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
 				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
-				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
+				throws Exception {
 			
-			binaryOutputStream.putUnsignedByte(itemTypeID);
+			writeItemID(itemTypeID, binaryOutputStream);
 			
 			if (null == itemValue) {
 				binaryOutputStream.putInt(0);
@@ -335,15 +427,19 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 				binaryOutputStream.putBytes(tempItemValue);
 			}
 		}
+		
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.SI_VARIABLE_LENGTH_BYTES;
+		}
 	}
 	
 	/** THB 프로토콜의 fixed length byte[] 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class THBFixedLengthBytesSingleItemEncoder implements THBTypeSingleItemEncoderIF {
+	private final class THBFixedLengthBytesSingleItemEncoder extends abstractTHBTypeSingleItemEncoder {
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
 				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
-				throws BufferOverflowException, SinnoriBufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException {
-			binaryOutputStream.putUnsignedByte(itemTypeID);
+				throws Exception {
+			writeItemID(itemTypeID, binaryOutputStream);
 			
 			if (null == itemValue) {
 
@@ -364,10 +460,14 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 				binaryOutputStream.putBytes(tempItemValue);
 			}
 		}
+		
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.FIXED_LENGTH_BYTES;
+		}
 	}
 	
 	/** THB 프로토콜의 java sql date 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class  THBJavaSqlDateSingleItemEncoder implements THBTypeSingleItemEncoderIF {
+	private final class  THBJavaSqlDateSingleItemEncoder extends abstractTHBTypeSingleItemEncoder {
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue,
 				int itemSize, Charset itemCharset,
@@ -387,14 +487,18 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 			java.sql.Date javaSqlDateValue = (java.sql.Date)itemValue;
 			long javaSqlDateLongValue = javaSqlDateValue.getTime();
 			
-			binaryOutputStream.putUnsignedByte(itemTypeID);
+			writeItemID(itemTypeID, binaryOutputStream);
 			binaryOutputStream.putLong(javaSqlDateLongValue);
 			
+		}
+		
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.JAVA_SQL_DATE;
 		}
 	}
 	
 	/** THB 프로토콜의 java sql date 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class  THBJavaSqlTimestampSingleItemEncoder implements THBTypeSingleItemEncoderIF {
+	private final class  THBJavaSqlTimestampSingleItemEncoder extends abstractTHBTypeSingleItemEncoder {
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue,
 				int itemSize, Charset itemCharset,
@@ -414,13 +518,17 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 			java.sql.Timestamp javaSqlTimestampValue = (java.sql.Timestamp)itemValue;
 			long javaSqlTimestampLongValue = javaSqlTimestampValue.getTime();
 			
-			binaryOutputStream.putUnsignedByte(itemTypeID);
+			writeItemID(itemTypeID, binaryOutputStream);
 			binaryOutputStream.putLong(javaSqlTimestampLongValue);			
+		}
+		
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.JAVA_SQL_TIMESTAMP;
 		}
 	}
 	
 	/** THB 프로토콜의 boolean 타입 단일 항목 스트림 변환기 구현 클래스 */
-	private final class  THBBooleanSingleItemEncoder implements THBTypeSingleItemEncoderIF {
+	private final class  THBBooleanSingleItemEncoder extends abstractTHBTypeSingleItemEncoder {
 		@Override
 		public void putValue(int itemTypeID, String itemName, Object itemValue,
 				int itemSize, Charset itemCharset,
@@ -447,16 +555,27 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 				booleanByte = 0;
 			}
 						
-			binaryOutputStream.putUnsignedByte(itemTypeID);
+			writeItemID(itemTypeID, binaryOutputStream);
 			binaryOutputStream.putByte(booleanByte);				
+		}
+		
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.BOOLEAN;
 		}
 	}
 
 	@Override
 	public void putValueToWritableMiddleObject(String path, String itemName,
 			SingleItemType singleItemType, Object itemValue,
-			int itemSize, String nativeItemCharset,
-			Charset streamCharset, Object writableMiddleObject) throws Exception {
+			int itemSize, String nativeItemCharset, Object writableMiddleObject) throws Exception {
+		if (null == singleItemType) {
+			throw new IllegalArgumentException("the parameter singleItemType is null");
+		}
+		
+		if (null == itemValue) {
+			throw new IllegalArgumentException("the parameter itemValue is null");
+		}
+		
 		if (!(writableMiddleObject instanceof BinaryOutputStreamIF)) {
 			String errorMessage = String.format(
 					"중간 다리역활 출력 객체[%s] 타입이 OutputStreamIF 이 아닙니다.",
@@ -479,71 +598,13 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 		
 		BinaryOutputStreamIF binaryOutputStream = (BinaryOutputStreamIF)writableMiddleObject;		
 		try {
-			dhbTypeSingleItemEncoderList[itemTypeID].putValue(itemTypeID, itemName, itemValue, itemSize, itemCharset, binaryOutputStream);
-		} catch(IllegalArgumentException e) {
-			StringBuffer errorMessageBuilder = new StringBuffer("잘못된 파라미티터 에러::");
-			errorMessageBuilder.append(path);
-			errorMessageBuilder.append("={itemName=[");
-			errorMessageBuilder.append(itemName);
-			errorMessageBuilder.append("], itemType=[");
-			errorMessageBuilder.append(itemTypeName);
-			errorMessageBuilder.append("], itemValue=[");
-			errorMessageBuilder.append(itemValue);
-			errorMessageBuilder.append("], itemSize=[");
-			errorMessageBuilder.append(itemSize);
-			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(nativeItemCharset);
-			errorMessageBuilder.append("] }, errmsg=[");
-			errorMessageBuilder.append(e.getMessage());
-			errorMessageBuilder.append("]");
-			
-			String errorMessage = errorMessageBuilder.toString();
-			log.warn(errorMessage, e);
-			throw new BodyFormatException(errorMessage);
-		} catch(BufferOverflowException e) {
-			StringBuffer errorMessageBuilder = new StringBuffer("BufferOverflowException::");
-			errorMessageBuilder.append(path);
-			errorMessageBuilder.append("={itemName=[");
-			errorMessageBuilder.append(itemName);
-			errorMessageBuilder.append("], itemType=[");
-			errorMessageBuilder.append(itemTypeName);
-			errorMessageBuilder.append("], itemValue=[");
-			errorMessageBuilder.append(itemValue);
-			errorMessageBuilder.append("], itemSize=[");
-			errorMessageBuilder.append(itemSize);
-			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(nativeItemCharset);
-			errorMessageBuilder.append("] }, errmsg=[");
-			errorMessageBuilder.append(e.getMessage());
-			errorMessageBuilder.append("]");
-			
-			String errorMessage = errorMessageBuilder.toString();
-			log.warn(errorMessage, e);
-			throw new BodyFormatException(errorMessage);
+			thbTypeSingleItemEncoderList[itemTypeID].putValue(itemTypeID, itemName, itemValue, itemSize, itemCharset, binaryOutputStream);
 		} catch(NoMoreDataPacketBufferException e) {
-			StringBuffer errorMessageBuilder = new StringBuffer("NoMoreDataPacketBufferException::");
-			errorMessageBuilder.append(path);
-			errorMessageBuilder.append("={itemName=[");
-			errorMessageBuilder.append(itemName);
-			errorMessageBuilder.append("], itemType=[");
-			errorMessageBuilder.append(itemTypeName);
-			errorMessageBuilder.append("], itemValue=[");
-			errorMessageBuilder.append(itemValue);
-			errorMessageBuilder.append("], itemSize=[");
-			errorMessageBuilder.append(itemSize);
-			errorMessageBuilder.append("], itemCharset=[");
-			errorMessageBuilder.append(nativeItemCharset);
-			errorMessageBuilder.append("] }, errmsg=[");
-			errorMessageBuilder.append(e.getMessage());
-			errorMessageBuilder.append("]");
-			
-			String errorMessage = errorMessageBuilder.toString();
-			log.warn(errorMessage, e);
-			throw new NoMoreDataPacketBufferException(errorMessage);
+			throw e;
 		} catch(OutOfMemoryError e) {
 			throw e;
 		} catch(Exception e) {
-			StringBuffer errorMessageBuilder = new StringBuffer("알수없는에러::");
+			StringBuffer errorMessageBuilder = new StringBuffer("unknown error::");
 			errorMessageBuilder.append(path);
 			errorMessageBuilder.append("={itemName=[");
 			errorMessageBuilder.append(itemName);

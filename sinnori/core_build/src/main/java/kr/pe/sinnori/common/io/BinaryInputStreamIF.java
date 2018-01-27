@@ -21,8 +21,8 @@ import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
+import kr.pe.sinnori.common.exception.CharsetDecoderException;
 import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
-import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
 
 /**
  * 이진 스트림에서 각각의 데이터 타입별 읽기 기능 제공자 인터페이스
@@ -109,7 +109,7 @@ public interface BinaryInputStreamIF {
 	 * @throws SinnoriCharsetCodingException 문자셋 디코딩시 에러 발생시 던지는 예외
 	 */
 	public String getFixedLengthString(final int fixedLength, final CharsetDecoder wantedCharsetDecoder)
-			throws SinnoriBufferUnderflowException, IllegalArgumentException, SinnoriCharsetCodingException;
+			throws SinnoriBufferUnderflowException, IllegalArgumentException, CharsetDecoderException;
 
 	/**
 	 * 이진 스트림에서 지정된 길이의 데이터를 스트림 고유 문자셋으로 읽어서 얻은 문자열을 반환한다.
@@ -124,7 +124,7 @@ public interface BinaryInputStreamIF {
 	 * @throws SinnoriCharsetCodingException 문자셋 디코딩시 에러 발생시 던지는 예외
 	 */
 	public String getFixedLengthString(final int fixedLength) throws SinnoriBufferUnderflowException,
-			IllegalArgumentException, SinnoriCharsetCodingException;
+			IllegalArgumentException, CharsetDecoderException;
 
 	/**
 	 * 남아 있는 모든 데이터를 스트림 고유 문자셋으로 읽어서 얻은 문자열을 반환한다.
@@ -137,7 +137,10 @@ public interface BinaryInputStreamIF {
 	 * @throws SinnoriCharsetCodingException 문자셋 디코딩시 에러 발생시 던지는 예외
 	 */
 	public String getStringAll() throws SinnoriBufferUnderflowException,
-			IllegalArgumentException, SinnoriCharsetCodingException;
+			IllegalArgumentException, CharsetDecoderException;
+	
+	public String getStringAll(Charset wantedCharset) throws SinnoriBufferUnderflowException,
+	IllegalArgumentException, CharsetDecoderException;
 
 	/**
 	 * 문자열 길이 타입을 unsigned byte 로 하는 원조 파스칼 문자열을 반환한다.
@@ -150,7 +153,10 @@ public interface BinaryInputStreamIF {
 	 * @throws SinnoriCharsetCodingException 문자셋 디코딩시 에러 발생시 던지는 예외
 	 */
 	public String getPascalString() throws SinnoriBufferUnderflowException,
-			IllegalArgumentException, SinnoriCharsetCodingException;
+			IllegalArgumentException, CharsetDecoderException;
+	
+	public String getPascalString(Charset wantedCharset) throws SinnoriBufferUnderflowException,
+	IllegalArgumentException, CharsetDecoderException;
 
 	/**
 	 * 문자열 길이 타입을 integer 로 하는 파스칼 문자열을 반환한다.
@@ -163,7 +169,10 @@ public interface BinaryInputStreamIF {
 	 * @throws SinnoriCharsetCodingException 문자셋 디코딩시 에러 발생시 던지는 예외
 	 */
 	public String getSIPascalString() throws SinnoriBufferUnderflowException,
-			IllegalArgumentException, SinnoriCharsetCodingException;
+			IllegalArgumentException, CharsetDecoderException;
+	
+	public String getSIPascalString(Charset wantedCharset) throws SinnoriBufferUnderflowException,
+	IllegalArgumentException, CharsetDecoderException;
 
 	/**
 	 * 문자열 길이 타입을 unsigned short 로 하는 파스칼 문자열을 반환한다.
@@ -176,7 +185,10 @@ public interface BinaryInputStreamIF {
 	 * @throws SinnoriCharsetCodingException 문자셋 디코딩시 에러 발생시 던지는 예외
 	 */
 	public String getUSPascalString() throws SinnoriBufferUnderflowException,
-			IllegalArgumentException, SinnoriCharsetCodingException;
+			IllegalArgumentException, CharsetDecoderException;
+	
+	public String getUSPascalString(Charset wantedCharset) throws SinnoriBufferUnderflowException,
+	IllegalArgumentException, CharsetDecoderException;
 
 	/**
 	 * 문자열 길이 타입을 unsigned byte 로 하는 파스칼 문자열을 반환한다.
@@ -189,7 +201,10 @@ public interface BinaryInputStreamIF {
 	 * @throws SinnoriCharsetCodingException 문자셋 디코딩시 에러 발생시 던지는 예외
 	 */
 	public String getUBPascalString() throws SinnoriBufferUnderflowException,
-	IllegalArgumentException, SinnoriCharsetCodingException;
+	IllegalArgumentException, CharsetDecoderException;
+	
+	public String getUBPascalString(Charset wantedCharset) throws SinnoriBufferUnderflowException,
+	IllegalArgumentException, CharsetDecoderException;
 
 	/**
 	 * 이진 스트림에서 지정된 크기 만큼 읽어서 바이트 배열의 지정된 위치에 저장한다.

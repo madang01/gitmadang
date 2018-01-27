@@ -61,7 +61,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 	/** 메시지 헤더에 사용되는 문자열 메시지 식별자의 크기, 단위 byte */
 	private int messageIDFixedSize;
 	private int dataPacketBufferMaxCntPerMessage;
-	private Charset streamCharset = null;
+	// private Charset streamCharset = null;
 	private CharsetEncoder streamCharsetEncoder;
 	@SuppressWarnings("unused")
 	private CharsetDecoder streamCharsetDecoder;
@@ -77,7 +77,6 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 	private final Charset headerCharset = Charset.forName("ISO-8859-1");
 	private CharsetEncoder headerCharsetEncoder = null;
 	private CharsetDecoder headerCharsetDecoder = null;
-	
 
 	public DHBMessageProtocol(int messageIDFixedSize, int dataPacketBufferMaxCntPerMessage,
 			CharsetEncoder streamCharsetEncoder, CharsetDecoder streamCharsetDecoder,
@@ -114,8 +113,6 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		streamCharset = streamCharsetOfEncoder;
-
 		if (null == dataPacketBufferPoolManager) {
 
 			throw new IllegalArgumentException("the parameter dataPacketBufferPoolManager is null");
@@ -142,6 +139,8 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 		this.headerCharsetDecoder = headerCharset.newDecoder();
 		this.headerCharsetDecoder.onMalformedInput(streamCharsetDecoder.malformedInputAction());
 		this.headerCharsetEncoder.onUnmappableCharacter(streamCharsetDecoder.unmappableCharacterAction());
+		
+		
 	}
 
 	private void throwExceptionIfBodyChecksumIsInvalid(DHBMessageHeader workingDHBMessageHeader,
@@ -179,13 +178,19 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 		if (null == messageEncoder) {
 			throw new IllegalArgumentException("the parameter messageEncoder is null");
 		}
+		
+		DHBMessageHeader dhbMessageHeader = new DHBMessageHeader();
+		dhbMessageHeader.messageID = messageObj.getMessageID();
+		dhbMessageHeader.mailboxID = messageObj.messageHeaderInfo.mailboxID;
+		dhbMessageHeader.mailID = messageObj.messageHeaderInfo.mailID;
 
-		String messageID = messageObj.getMessageID();
-		int mailboxID = messageObj.messageHeaderInfo.mailboxID;
-		int mailID = messageObj.messageHeaderInfo.mailID;
-		long bodySize = -1;
-		byte[] bodyMD5Bytes = null;
-		byte[] headerBodyMD5Bytes = null;
+		java.security.MessageDigest md5 = null;
+		try {
+			md5 = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
 
 		//log.info("1");
 		
@@ -196,7 +201,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 		//log.info("2");
 
 		try {
-			messageEncoder.encode(messageObj, dhbSingleItemEncoder, streamCharset, bodyOutputStream);
+			messageEncoder.encode(messageObj, dhbSingleItemEncoder, bodyOutputStream);
 		} catch (NoMoreDataPacketBufferException e) {
 			throw e;
 		} catch (OutOfMemoryError e) {
@@ -210,19 +215,11 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 		
 		//log.info("3");
 
-		bodySize = bodyOutputStream.size();
+		dhbMessageHeader.bodySize = bodyOutputStream.size();
 
 		List<WrapBuffer> readableWrapBufferListOfBodyOutputStream = bodyOutputStream.getReadableWrapBufferList();
 		
-		
-		java.security.MessageDigest md5 = null;
-		try {
-			md5 = MessageDigest.getInstance("MD5");
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		
+		md5.reset();
 		{
 			
 			for (WrapBuffer readableWrapBufferOfBodyOutputStream : readableWrapBufferListOfBodyOutputStream) {
@@ -233,7 +230,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 				readableByteBufferOfBodyOutputStream.flip();
 			}
 			
-			bodyMD5Bytes = md5.digest();
+			dhbMessageHeader.bodyMD5Bytes = md5.digest();
 		}
 		
 		//log.info("2. readableWrapBufferListOfBodyOutputStream={}", readableWrapBufferListOfBodyOutputStream.toString());
@@ -245,12 +242,8 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 
 		FreeSizeOutputStream headerOutputStream = new FreeSizeOutputStream(dataPacketBufferMaxCntPerMessage,
 				headerCharsetEncoder, dataPacketBufferPoolManager);
-		try {
-			headerOutputStream.putFixedLengthString(messageIDFixedSize, messageID);
-			headerOutputStream.putUnsignedShort(mailboxID);
-			headerOutputStream.putInt(mailID);
-			headerOutputStream.putLong(bodySize);
-			headerOutputStream.putBytes(bodyMD5Bytes);
+		try {			
+			dhbMessageHeader.onlyHeaderBodyPartToOutputStream(headerOutputStream, messageIDFixedSize, headerCharset);				
 		} catch (NoMoreDataPacketBufferException e) {
 			throw e;
 		} catch (OutOfMemoryError e) {
@@ -277,7 +270,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 				md5.update(duplicatedByteBufferOfHeaderBody);
 			}
 			
-			headerBodyMD5Bytes = md5.digest();
+			dhbMessageHeader.headerBodyMD5Bytes = md5.digest();
 		}		
 		
 		//log.info("6");
@@ -285,7 +278,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 		//log.info("5. wrapBufferListOfHeaderBodyOutputStream={}", wrapBufferListOfHeaderBodyOutputStream.toString());
 
 		try {
-			headerOutputStream.putBytes(headerBodyMD5Bytes);
+			headerOutputStream.putBytes(dhbMessageHeader.headerBodyMD5Bytes);
 		} catch (NoMoreDataPacketBufferException e) {
 			throw e;
 		} catch (OutOfMemoryError e) {
@@ -299,17 +292,21 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 		
 		headerOutputStream.flipAllOutputStreamWrapBuffer();
 		
+		/*List<WrapBuffer> readableWrapBufferListOfHeaderOutputStream = wrapBufferListOfHeaderOutputStream;
+		
 
-		List<WrapBuffer> messageReadableOutputStreamWrapBufferList = wrapBufferListOfHeaderOutputStream;
+		List<WrapBuffer> messageWrapBufferList = readableWrapBufferListOfHeaderOutputStream;
 	
-		messageReadableOutputStreamWrapBufferList.addAll(readableWrapBufferListOfBodyOutputStream);
+		messageWrapBufferList.addAll(readableWrapBufferListOfBodyOutputStream);*/
+		
+		wrapBufferListOfHeaderOutputStream.addAll(readableWrapBufferListOfBodyOutputStream);
 
 		//log.info("8");
 		
 		// log.debug(messageHeader.toString());
 		// log.debug(firstWorkBuffer.toString());
 
-		return messageReadableOutputStreamWrapBufferList;
+		return wrapBufferListOfHeaderOutputStream;
 	}
 
 	@Override
@@ -324,90 +321,65 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 		ArrayList<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();
 		boolean isMoreMessage = false;
 		long socketOutputStreamSize = socketOutputStream.size();
+		
+		java.security.MessageDigest md5 = null;
+		try {
+			md5 = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
 
 		try {
 			do {
 				if (null == workingDHBMessageHeader && socketOutputStreamSize >= messageHeaderSize) {
 					SocketInputStream socketInputStream = socketOutputStream.createNewSocketInputStream();
-					byte[] headerBodyBytes = null;
-					byte[] headerBodyMD5Bytes = null;
+					byte[] headerBytes = null;
 					try {
-						headerBodyBytes = socketInputStream.getBytes(headerBodySize);
-						headerBodyMD5Bytes = socketInputStream.getBytes(CommonStaticFinalVars.MD5_BYTESIZE);
+						headerBytes = socketInputStream.getBytes(messageHeaderSize);
 					} catch (Exception e) {
 						log.error("unknown error::" + e.getMessage());
 						System.exit(1);
 					}
-
+					
 					byte[] actualHeaderBodyMD5Bytes = null;
-					{
-						java.security.MessageDigest md5 = null;
-						try {
-							md5 = MessageDigest.getInstance("MD5");
-						} catch (NoSuchAlgorithmException e) {
-							log.error("unknown error::" + e.getMessage());
-							System.exit(1);
-						}
-						md5.update(headerBodyBytes);
+					{	
+						md5.reset();
+						md5.update(headerBytes, 0, headerBodySize);
 						actualHeaderBodyMD5Bytes = md5.digest();
 					}
+					
+					byte[] headerBodyMD5Bytes = new byte[CommonStaticFinalVars.MD5_BYTESIZE];
+					
+					ByteBuffer headerByteBuffer = ByteBuffer.wrap(headerBytes);
+					headerByteBuffer.order(socketOutputStream.getStreamByteOrder());
+					headerByteBuffer.position(headerBodySize);
+					headerByteBuffer.get(headerBodyMD5Bytes);
 
 					boolean isValidHeaderBodyMD5 = java.util.Arrays.equals(actualHeaderBodyMD5Bytes,
 							headerBodyMD5Bytes);
 
 					if (!isValidHeaderBodyMD5) {
 						String errorMessage = String.format(
-								"dhb header::different header MD5, header body[%s]+header md5[%s], actual header body MD5[%s]",
-								HexUtil.getHexStringFromByteArray(headerBodyBytes),
-								HexUtil.getHexStringFromByteArray(headerBodyMD5Bytes),
+								"dhb header::different header MD5, header[%s], actual header body MD5[%s]",
+								HexUtil.getHexStringFromByteArray(headerBytes),
 								HexUtil.getHexStringFromByteArray(actualHeaderBodyMD5Bytes));
 
 						throw new HeaderFormatException(errorMessage);
 					}
 
-					ByteBuffer headerBodyByteBuffer = ByteBuffer.wrap(headerBodyBytes);
-					FixedSizeInputStream headerBodyInputStream = new FixedSizeInputStream(headerBodyByteBuffer,
+					// ByteBuffer headerBodyByteBuffer = ByteBuffer.wrap(headerBodyBytes);
+					headerByteBuffer.rewind();					
+					FixedSizeInputStream headerInputStream = new FixedSizeInputStream(headerByteBuffer,
 							headerCharsetDecoder);					
 
 					DHBMessageHeader dhbMessageHeader = new DHBMessageHeader();
 					try {
-						dhbMessageHeader.messageID = headerBodyInputStream
-								.getFixedLengthString(messageIDFixedSize, headerCharsetDecoder).trim();
-						dhbMessageHeader.mailboxID = headerBodyInputStream.getUnsignedShort();
-						dhbMessageHeader.mailID = headerBodyInputStream.getInt();
-						dhbMessageHeader.bodySize = headerBodyInputStream.getLong();
-						dhbMessageHeader.bodyMD5Bytes = headerBodyInputStream
-								.getBytes(CommonStaticFinalVars.MD5_BYTESIZE);
-						dhbMessageHeader.headerBodyMD5Bytes = headerBodyMD5Bytes;
+						dhbMessageHeader.fromInputStream(headerInputStream, messageIDFixedSize, headerCharsetDecoder);						
 					} catch (Exception e) {
 						String errorMessage = new StringBuilder("dhb header parsing error::").append(e.getMessage())
 								.toString();
 						log.warn(errorMessage, e);
-						throw new HeaderFormatException(errorMessage);
-					}
-					
-					/*socketInputStream = socketOutputStream.createNewSocketInputStream();
-					
-					DHBMessageHeader dhbMessageHeader = new DHBMessageHeader(messageIDFixedSize);
-					try {
-						dhbMessageHeader.messageID = socketInputStream
-								.getFixedLengthString(messageIDFixedSize, headerCharsetDecoder).trim();
-						dhbMessageHeader.mailboxID = socketInputStream.getUnsignedShort();
-						dhbMessageHeader.mailID = socketInputStream.getInt();
-						dhbMessageHeader.bodySize = socketInputStream.getLong();
-						dhbMessageHeader.bodyMD5Bytes = socketInputStream
-								.getBytes(CommonStaticFinalVars.MD5_BYTESIZE);
-						dhbMessageHeader.headerBodyMD5Bytes = headerBodyMD5Bytes;
-					} catch (Exception e) {
-						String errorMessage = new StringBuilder("dhb header parsing error::").append(e.getMessage())
-								.toString();
-						log.warn(errorMessage, e);
-						throw new HeaderFormatException(errorMessage);
-					}*/
-
-					if (dhbMessageHeader.bodySize < 0) {
-						String errorMessage = String.format("dhb header::body size less than zero %s",
-								dhbMessageHeader.toString());
 						throw new HeaderFormatException(errorMessage);
 					}
 

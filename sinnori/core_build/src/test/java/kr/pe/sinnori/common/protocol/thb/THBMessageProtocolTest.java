@@ -1,4 +1,4 @@
-package kr.pe.sinnori.common.protocol.dhb;
+package kr.pe.sinnori.common.protocol.thb;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -32,8 +32,7 @@ import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExnDecoder;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExnEncoder;
 
-public class DHBMessageProtocolTest {
-	
+public class THBMessageProtocolTest {
 	Logger log = null;
 
 	@Before
@@ -58,7 +57,7 @@ public class DHBMessageProtocolTest {
 		// SinnoriLogbackManger.getInstance().setup(sinnoriInstalledPathString,
 		// mainProjectName, logType);
 
-		log = LoggerFactory.getLogger(DHBMessageProtocolTest.class);
+		log = LoggerFactory.getLogger(THBMessageProtocolTest.class);
 	}
 	
 	
@@ -88,8 +87,8 @@ public class DHBMessageProtocolTest {
 			fail("unknown error::" + e.getMessage());
 		}
 		
-		DHBMessageProtocol dhbMessageProtocol = 
-				new DHBMessageProtocol(messageIDFixedSize, 
+		THBMessageProtocol thbMessageProtocol = 
+				new THBMessageProtocol(messageIDFixedSize, 
 						dataPacketBufferMaxCntPerMessage,
 						streamCharsetEncoder,
 						streamCharsetDecoder,
@@ -97,7 +96,7 @@ public class DHBMessageProtocolTest {
 		
 		SelfExnEncoder selfExnEncoder = new SelfExnEncoder();
 		SelfExnDecoder selfExnDecoder = new SelfExnDecoder();
-		DHBSingleItemDecoder dhbSingleItemDecoder = new DHBSingleItemDecoder(streamCharsetDecoder);
+		THBSingleItemDecoder dhbSingleItemDecoder = new THBSingleItemDecoder(streamCharsetDecoder);
 		
 		
 		// log.info("1");		
@@ -120,7 +119,7 @@ public class DHBMessageProtocolTest {
 		selfExnReq.setErrorPlace("sever");
 		selfExnReq.setErrorGubun("B");
 		selfExnReq.setErrorMessageID("Echo");
-		selfExnReq.setErrorMessage(testStringBuilder.toString());	
+		selfExnReq.setErrorMessage(testStringBuilder.toString());
 		
 		selfExnReq.messageHeaderInfo.mailboxID = 1;
 		selfExnReq.messageHeaderInfo.mailID = 3;
@@ -132,7 +131,7 @@ public class DHBMessageProtocolTest {
 			
 			List<WrapBuffer> wrapBufferListOfInputMessage = null;
 			try {
-				wrapBufferListOfInputMessage = dhbMessageProtocol.M2S(selfExnReq, selfExnEncoder);
+				wrapBufferListOfInputMessage = thbMessageProtocol.M2S(selfExnReq, selfExnEncoder);
 			} catch (Exception e) {
 				String errorMessage = "error::"+e.getMessage();
 				log.warn(errorMessage, e);
@@ -167,7 +166,7 @@ public class DHBMessageProtocolTest {
 			
 			ArrayList<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
 			try {
-				wrapReadableMiddleObjectList = dhbMessageProtocol.S2MList(sos);
+				wrapReadableMiddleObjectList = thbMessageProtocol.S2MList(sos);
 			} catch (Exception e) {
 				String errorMessage = "error::"+e.getMessage();
 				log.warn(errorMessage, e);
@@ -214,4 +213,3 @@ public class DHBMessageProtocolTest {
 		log.info("{} 번 시간차={} ms, 평균={} ms, firstIndex={}, differentCount={}", retryCount, (afterTime-beforeTime), (double)(afterTime-beforeTime)/retryCount, firstIndex, differentCount);
 	}
 }
-

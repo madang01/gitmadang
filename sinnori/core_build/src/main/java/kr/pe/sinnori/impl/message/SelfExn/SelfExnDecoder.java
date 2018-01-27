@@ -16,7 +16,6 @@
  */
 package kr.pe.sinnori.impl.message.SelfExn;
 
-import java.nio.charset.Charset;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.builder.info.SingleItemType;
@@ -35,14 +34,13 @@ public final class SelfExnDecoder extends AbstractMessageDecoder {
 	 *  "단일항목 디코더"를 이용하여 "중간 다리 역활 읽기 객체" 에서 추출된 SelfExn 메시지를 반환한다.
 	 * </pre>
 	 * @param singleItemDecoder 단일항목 디코더
-	 * @param streamCharset 프로젝트 문자셋
 	 * @param middleReadableObject 중간 다리 역활 읽기 객체
 	 * @return "단일항목 디코더"를 이용하여 "중간 다리 역활 읽기 객체" 에서 추출된 SelfExn 메시지
 	 * @throws OutOfMemoryError 메모리 확보 실패시 던지는 예외
 	 * @throws BodyFormatException 바디 디코딩 실패시 던지는 예외
 	 */
 	@Override
-	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Charset streamCharset, Object  middleReadableObject) throws OutOfMemoryError, BodyFormatException {
+	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object  middleReadableObject) throws OutOfMemoryError, BodyFormatException {
 		SelfExn selfExn = new SelfExn();
 		String sigleItemPath0 = "SelfExn";
 
@@ -51,8 +49,7 @@ public final class SelfExnDecoder extends AbstractMessageDecoder {
 		, "errorPlace" // itemName
 		, SingleItemType.UB_PASCAL_STRING // itemType
 		, -1 // itemSize
-		, null // nativeItemCharset
-		, streamCharset
+		, "ISO-8859-1" // nativeItemCharset
 		, middleReadableObject));
 
 		selfExn.setErrorGubun((String)
@@ -60,8 +57,7 @@ public final class SelfExnDecoder extends AbstractMessageDecoder {
 		, "errorGubun" // itemName
 		, SingleItemType.UB_PASCAL_STRING // itemType
 		, -1 // itemSize
-		, null // nativeItemCharset
-		, streamCharset
+		, "ISO-8859-1" // nativeItemCharset
 		, middleReadableObject));
 
 		selfExn.setErrorMessageID((String)
@@ -69,8 +65,7 @@ public final class SelfExnDecoder extends AbstractMessageDecoder {
 		, "errorMessageID" // itemName
 		, SingleItemType.UB_PASCAL_STRING // itemType
 		, -1 // itemSize
-		, null // nativeItemCharset
-		, streamCharset
+		, "ISO-8859-1" // nativeItemCharset
 		, middleReadableObject));
 
 		selfExn.setErrorMessage((String)
@@ -78,8 +73,7 @@ public final class SelfExnDecoder extends AbstractMessageDecoder {
 		, "errorMessage" // itemName
 		, SingleItemType.US_PASCAL_STRING // itemType
 		, -1 // itemSize
-		, null // nativeItemCharset
-		, streamCharset
+		, "utf8" // nativeItemCharset
 		, middleReadableObject));
 		return selfExn;
 	}

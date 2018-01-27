@@ -29,12 +29,12 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 			if (itemInfo.getMessageItemType() == CommonType.MESSAGE_ITEM_TYPE.SINGLE_ITEM) {
 				SingleItemInfo singleItemInfo = (SingleItemInfo)itemInfo;
 				
-				// singleItemEncoder.putValueToMiddleWriteObj(echo.getMessageID(), "randomInt"
+				// singleItemEncoder.putValueToWritableMiddleObject(echo.getMessageID(), "randomInt"
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				for (int i=0; i < depth; i++) {
 					stringBuilder.append("\t");
 				}
-				stringBuilder.append("\t\tsingleItemEncoder.putValueToMiddleWriteObj(");
+				stringBuilder.append("\t\tsingleItemEncoder.putValueToWritableMiddleObject(");
 				stringBuilder.append(varName);
 				stringBuilder.append("SingleItemPath, \"");
 				stringBuilder.append(singleItemInfo.getItemName());
@@ -96,41 +96,24 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 					stringBuilder.append("\t");
 				}
 				stringBuilder.append("\t\t\t\t\t, ");
-				
-				
-				
-				
-				/**
-				 * <pre>
-				 * 타입이 고정 문자열 크기일 경우만 문자셋을 지정할 수 있다.
-				 * 문자셋 이름이 null 값으로 넘어가면 
-				 * 프로토콜 단일 항목 인코더에서는 파라미터로 넘어가는 프로젝트 문자셋으로 지정되며,
-				 * 문자셋 이름이 null 이 아니면 
-				 * 프로토콜 단일 항목 인코더에서는 문자셋 객체로 변환된다.
-				 * 따라서 메시지 정보를 꾸릴때 문자셋 이름이 있을 경우 반듯이 문자셋 객체로 바꿀수 있는 바른 이름인지 검사를 수행해야 한다.  
-				 * </pre>
+				/*
+				 SingleItemType itemType = singleItemInfo.getItemType();
+				 if (itemType.equals(SingleItemType.FIXED_LENGTH_STRING) ||
+						itemType.equals(SingleItemType.UB_PASCAL_STRING) ||
+						itemType.equals(SingleItemType.US_PASCAL_STRING) ||
+						itemType.equals(SingleItemType.SI_PASCAL_STRING)) {
 				 */
-				
-				if (singleItemInfo.getItemTypeName().equals("fixed length string")) {
-					String nativeItemCharset = singleItemInfo.getNativeItemCharset();
-					if (null == nativeItemCharset) {
-						stringBuilder.append("null");
-					} else {
-						stringBuilder.append("\"");
-						stringBuilder.append(nativeItemCharset);
-						stringBuilder.append("\"");
-					}
-				} else {
+				String nativeItemCharset = singleItemInfo.getNativeItemCharset();
+				if (null == nativeItemCharset) {
 					stringBuilder.append("null");
+				} else {
+					stringBuilder.append("\"");
+					stringBuilder.append(nativeItemCharset);
+					stringBuilder.append("\"");
 				}
 				stringBuilder.append(" // nativeItemCharset");
 				
-				// streamCharset
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\t\t\t, streamCharset");
+				
 				
 				// middleWritableObject
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
@@ -591,8 +574,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		
 		
-		String importElements[] = {				
-				"import java.nio.charset.Charset;",
+		String importElements[] = {
 				"import java.util.LinkedList;",
 				"import kr.pe.sinnori.common.message.AbstractMessage;",
 				"import kr.pe.sinnori.common.message.builder.info.SingleItemType;",
@@ -622,7 +604,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("\t@Override");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\tpublic void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Charset streamCharset, Object middleWritableObject)");
+		stringBuilder.append("\tpublic void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject)");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("\t\t\tthrows Exception {");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
@@ -650,7 +632,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("\t\tencodeBody(");
 		stringBuilder.append(firstLowerMessageID);
-		stringBuilder.append(", singleItemEncoder, streamCharset, middleWritableObject);");
+		stringBuilder.append(", singleItemEncoder, middleWritableObject);");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("\t}");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
@@ -672,9 +654,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(" 입력 메시지");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("\t * @param singleItemEncoder 단일항목 인코더");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t * @param streamCharset 프로젝트 문자셋");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);		
 		stringBuilder.append("\t * @param middleWritableObject 중간 다리 역활 쓰기 객체");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("\t * @throws Exception \"입력/출력 메시지\"의 내용을 \"단일항목 인코더\"를 이용하여 \"중간 다리 역활 쓰기 객체\"에 저장할때 에러 발생시 던지는 예외");
@@ -685,7 +665,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(messageID);
 		stringBuilder.append(" ");
 		stringBuilder.append(firstLowerMessageID);
-		stringBuilder.append(", SingleItemEncoderIF singleItemEncoder, Charset streamCharset, Object middleWritableObject) throws Exception {");
+		stringBuilder.append(", SingleItemEncoderIF singleItemEncoder, Object middleWritableObject) throws Exception {");
 		
 		// String allDataTypeInObjSingleItemPath = "AllDataType";
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);

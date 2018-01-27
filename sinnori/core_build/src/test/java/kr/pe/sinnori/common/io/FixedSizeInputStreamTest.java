@@ -62,7 +62,7 @@ public class FixedSizeInputStreamTest {
 		} catch (SinnoriBufferUnderflowException e) {
 			String errorMessage = e.getMessage();
 			
-			log.info(errorMessage, e);
+			//log.info(errorMessage, e);
 			
 			String expectedMessage = "the remaining bytes is zero";
 

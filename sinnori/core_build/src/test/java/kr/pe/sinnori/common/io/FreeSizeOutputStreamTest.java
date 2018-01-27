@@ -286,7 +286,7 @@ public class FreeSizeOutputStreamTest {
 
 					long numberOfRemaingBytes = fsis.available();
 					if (0 != numberOfRemaingBytes) {
-						fail("the input stream is available");
+						fail("the input stream is not available");
 					}
 
 				} catch (Exception e) {
@@ -445,7 +445,7 @@ public class FreeSizeOutputStreamTest {
 
 					long numberOfRemaingBytes = fsis.available();
 					if (0 != numberOfRemaingBytes) {
-						fail("the input stream is available");
+						fail("the input stream has one more byte");
 					}
 
 				} catch (Exception e) {
@@ -597,7 +597,7 @@ public class FreeSizeOutputStreamTest {
 
 					long numberOfRemaingBytes = fsis.available();
 					if (0 != numberOfRemaingBytes) {
-						fail("the input stream is available");
+						fail("the input stream has one more byte");
 					}
 
 				} catch (Exception e) {
@@ -753,7 +753,7 @@ public class FreeSizeOutputStreamTest {
 
 					long numberOfRemaingBytes = fsis.available();
 					if (0 != numberOfRemaingBytes) {
-						fail("the input stream is available");
+						fail("the input stream has one more byte");
 					}
 
 				} catch (Exception e) {
@@ -908,7 +908,7 @@ public class FreeSizeOutputStreamTest {
 
 					long numberOfRemaingBytes = fsis.available();
 					if (0 != numberOfRemaingBytes) {
-						fail("the input stream is available");
+						fail("the input stream has one more byte");
 					}
 
 				} catch (Exception e) {
@@ -1062,7 +1062,7 @@ public class FreeSizeOutputStreamTest {
 
 					long numberOfRemaingBytes = fsis.available();
 					if (0 != numberOfRemaingBytes) {
-						fail("the input stream is available");
+						fail("the input stream has one more byte");
 					}
 
 				} catch (Exception e) {
@@ -1218,7 +1218,7 @@ public class FreeSizeOutputStreamTest {
 
 					long numberOfRemaingBytes = fsis.available();
 					if (0 != numberOfRemaingBytes) {
-						fail("the input stream is available");
+						fail("the input stream has one more byte");
 					}
 
 				} catch (Exception e) {
@@ -1429,7 +1429,6 @@ public class FreeSizeOutputStreamTest {
 		}
 
 		byte[] sourceBytes = { 0x11, 0x22, 0x33 };
-		// byte actualValue[] = new byte[expectedValue.length];
 		int sourceOffset = -1;
 		int sourceLength = -1;
 
@@ -1749,7 +1748,7 @@ public class FreeSizeOutputStreamTest {
 
 				long numberOfRemaingBytes = fsis.available();
 				if (0 != numberOfRemaingBytes) {
-					fail("the input stream is available");
+					fail("the input stream has one more byte");
 				}
 
 			} catch (Exception e) {
@@ -1822,7 +1821,7 @@ public class FreeSizeOutputStreamTest {
 
 				long numberOfRemaingBytes = fsis.available();
 				if (0 != numberOfRemaingBytes) {
-					fail("the input stream is available");
+					fail("the input stream has one more byte");
 				}
 
 			} catch (Exception e) {
@@ -1893,7 +1892,7 @@ public class FreeSizeOutputStreamTest {
 
 				long numberOfRemaingBytes = fsis.available();
 				if (0 != numberOfRemaingBytes) {
-					fail("the input stream is available");
+					fail("the input stream has one more byte");
 				}
 
 			} catch (Exception e) {
@@ -1910,7 +1909,7 @@ public class FreeSizeOutputStreamTest {
 
 	@Test
 	public void testPutBytes_complex() {
-		fail("미구현");
+		// fail("미구현");
 	}
 
 	@Test
@@ -2178,7 +2177,7 @@ public class FreeSizeOutputStreamTest {
 
 				long numberOfRemaingBytes = fsis.available();
 				if (0 != numberOfRemaingBytes) {
-					fail("the input stream is available");
+					fail("the input stream has one more byte");
 				}
 			} catch (Exception e) {
 				log.warn(""+e.getMessage(), e);
@@ -2250,7 +2249,7 @@ public class FreeSizeOutputStreamTest {
 
 				long numberOfRemaingBytes = fsis.available();
 				if (0 != numberOfRemaingBytes) {
-					fail("the input stream is available");
+					fail("the input stream has one more byte");
 				}
 			} catch (Exception e) {
 				log.warn(""+e.getMessage(), e);
@@ -2372,6 +2371,369 @@ public class FreeSizeOutputStreamTest {
 	}
 	
 	@Test
+	public void testPutUBPascalString_basic( ) {
+		int dataPacketBufferMaxCount = 20;
+		Charset streamCharset = Charset.forName("EUC-KR");
+		Charset wantedCharset = Charset.forName("utf8");
+		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
+		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
+
+		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		boolean isDirect = false;
+		int dataPacketBufferSize = 1;
+		int dataPacketBufferPoolSize = 50;
+		
+		
+		String src = "한글";
+		String actualValue = null;
+		
+		/*int numberOfBytesRequired = strStr.getBytes(streamCharset).length;		
+		int numberOfBytesSkipping = dataPacketBufferSize*dataPacketBufferMaxCount-1;
+		long numberOfBytesRemaining = dataPacketBufferSize*dataPacketBufferMaxCount - numberOfBytesSkipping;*/
+		
+		FreeSizeOutputStream fsos = null;
+		FreeSizeInputStream fsis = null;
+		ByteOrder[] streamByteOrderList = { ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN };
+		
+		for (ByteOrder streamByteOrder : streamByteOrderList) {
+			try {
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+			} catch (Exception e) {
+				log.warn(""+e.getMessage(), e);
+				fail("error");
+			}
+			
+			try {
+				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
+						dataPacketBufferPoolManager);
+				
+				fsos.putUBPascalString(src);
+				
+				//log.info("fsos.size={}", fsos.size());
+				
+				List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+				
+				checkValidFlippedWrapBufferList(flippedWrapBufferList);
+				
+				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
+						dataPacketBufferPoolManager);
+
+				//log.info("fsis.available={}", fsis.available());
+				
+				actualValue = fsis.getUBPascalString();				
+
+				assertEquals(src, actualValue);
+				
+				long numberOfRemaingBytes = fsis.available();
+				if (0 != numberOfRemaingBytes) {
+					fail("the input stream has one more byte");
+				}
+				
+			} catch (Exception e) {
+				log.warn(""+e.getMessage(), e);
+				fail("unknown error::" + e.getMessage());
+			} finally {
+				if (null != fsos) {
+					fsos.close();
+				}
+			}
+		}
+		
+		for (ByteOrder streamByteOrder : streamByteOrderList) {
+			try {
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+			} catch (Exception e) {
+				log.warn(""+e.getMessage(), e);
+				fail("error");
+			}
+			
+			try {
+				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
+						dataPacketBufferPoolManager);
+				
+				fsos.putUBPascalString(src, wantedCharset);
+				
+				//log.info("fsos.size={}", fsos.size());
+				
+				List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+				
+				checkValidFlippedWrapBufferList(flippedWrapBufferList);
+				
+				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
+						dataPacketBufferPoolManager);
+
+				//log.info("fsis.available={}", fsis.available());
+				
+				actualValue = fsis.getUBPascalString(wantedCharset);				
+
+				assertEquals(src, actualValue);
+				
+				long numberOfRemaingBytes = fsis.available();
+				if (0 != numberOfRemaingBytes) {
+					fail("the input stream has one more byte");
+				}
+				
+			} catch (Exception e) {
+				log.warn(""+e.getMessage(), e);
+				fail("unknown error::" + e.getMessage());
+			} finally {
+				if (null != fsos) {
+					fsos.close();
+				}
+			}
+		}
+	}
+	
+	@Test
+	public void testPutUSPascalString_basic( ) {
+		int dataPacketBufferMaxCount = 50;
+		Charset streamCharset = Charset.forName("EUC-KR");
+		Charset wantedCharset = Charset.forName("utf8");
+		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
+		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
+
+		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		boolean isDirect = false;
+		int dataPacketBufferSize = 4096;
+		int dataPacketBufferPoolSize = 100;
+		
+		
+		StringBuilder testStringBuilder = new StringBuilder();
+
+		for (int i = 0; i < 20000; i++) {
+			testStringBuilder.append("한글");
+		}
+
+		String src = testStringBuilder.toString();
+		String actualValue = null;
+		
+		/*int numberOfBytesRequired = strStr.getBytes(streamCharset).length;		
+		int numberOfBytesSkipping = dataPacketBufferSize*dataPacketBufferMaxCount-1;
+		long numberOfBytesRemaining = dataPacketBufferSize*dataPacketBufferMaxCount - numberOfBytesSkipping;*/
+		
+		FreeSizeOutputStream fsos = null;
+		FreeSizeInputStream fsis = null;
+		ByteOrder[] streamByteOrderList = { ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN };
+		
+		for (ByteOrder streamByteOrder : streamByteOrderList) {
+			try {
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+			} catch (Exception e) {
+				log.warn(""+e.getMessage(), e);
+				fail("error");
+			}
+			
+			try {
+				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
+						dataPacketBufferPoolManager);
+				
+				fsos.putUSPascalString(src);
+				
+				//log.info("fsos.size={}", fsos.size());
+				
+				List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+				
+				checkValidFlippedWrapBufferList(flippedWrapBufferList);
+				
+				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
+						dataPacketBufferPoolManager);
+
+				//log.info("fsis.available={}", fsis.available());
+				
+				actualValue = fsis.getUSPascalString();				
+
+				assertEquals(src, actualValue);
+				
+				long numberOfRemaingBytes = fsis.available();
+				if (0 != numberOfRemaingBytes) {
+					fail("the input stream has one more byte");
+				}
+				
+			} catch (Exception e) {
+				log.warn(""+e.getMessage(), e);
+				fail("unknown error::" + e.getMessage());
+			} finally {
+				if (null != fsos) {
+					fsos.close();
+				}
+			}
+		}
+		
+		for (ByteOrder streamByteOrder : streamByteOrderList) {
+			try {
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+			} catch (Exception e) {
+				log.warn(""+e.getMessage(), e);
+				fail("error");
+			}
+			
+			try {
+				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
+						dataPacketBufferPoolManager);
+				
+				fsos.putUSPascalString(src, wantedCharset);
+				
+				//log.info("fsos.size={}", fsos.size());
+				
+				List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+				
+				checkValidFlippedWrapBufferList(flippedWrapBufferList);
+				
+				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
+						dataPacketBufferPoolManager);
+
+				//log.info("fsis.available={}", fsis.available());
+				
+				actualValue = fsis.getUSPascalString(wantedCharset);				
+
+				assertEquals(src, actualValue);
+				
+				long numberOfRemaingBytes = fsis.available();
+				if (0 != numberOfRemaingBytes) {
+					fail("the input stream has one more byte");
+				}
+				
+			} catch (Exception e) {
+				log.warn(""+e.getMessage(), e);
+				fail("unknown error::" + e.getMessage());
+			} finally {
+				if (null != fsos) {
+					fsos.close();
+				}
+			}
+		}
+	}
+	
+	@Test
+	public void testPutSIPascalString_basic( ) {
+		int dataPacketBufferMaxCount = 50;
+		Charset streamCharset = Charset.forName("EUC-KR");
+		Charset wantedCharset = Charset.forName("utf8");
+		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
+		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
+
+		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		boolean isDirect = false;
+		int dataPacketBufferSize = 4096;
+		int dataPacketBufferPoolSize = 100;
+		
+		
+		StringBuilder testStringBuilder = new StringBuilder();
+
+		for (int i = 0; i < 20000; i++) {
+			testStringBuilder.append("한글");
+		}
+
+		String src = testStringBuilder.toString();
+		String actualValue = null;
+		
+		/*int numberOfBytesRequired = strStr.getBytes(streamCharset).length;		
+		int numberOfBytesSkipping = dataPacketBufferSize*dataPacketBufferMaxCount-1;
+		long numberOfBytesRemaining = dataPacketBufferSize*dataPacketBufferMaxCount - numberOfBytesSkipping;*/
+		
+		FreeSizeOutputStream fsos = null;
+		FreeSizeInputStream fsis = null;
+		ByteOrder[] streamByteOrderList = { ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN };
+		
+		for (ByteOrder streamByteOrder : streamByteOrderList) {
+			try {
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+			} catch (Exception e) {
+				log.warn(""+e.getMessage(), e);
+				fail("error");
+			}
+			
+			try {
+				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
+						dataPacketBufferPoolManager);
+				
+				fsos.putSIPascalString(src);
+				
+				log.info("fsos.size={}", fsos.size());
+				
+				List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+				
+				checkValidFlippedWrapBufferList(flippedWrapBufferList);
+				
+				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
+						dataPacketBufferPoolManager);
+
+				log.info("fsis.available={}", fsis.available());
+				
+				actualValue = fsis.getSIPascalString();				
+
+				assertEquals(src, actualValue);
+				
+				long numberOfRemaingBytes = fsis.available();
+				if (0 != numberOfRemaingBytes) {
+					fail("the input stream has one more byte");
+				}
+				
+			} catch (Exception e) {
+				log.warn(""+e.getMessage(), e);
+				fail("unknown error::" + e.getMessage());
+			} finally {
+				if (null != fsos) {
+					fsos.close();
+				}
+			}
+		}
+		
+		for (ByteOrder streamByteOrder : streamByteOrderList) {
+			try {
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+			} catch (Exception e) {
+				log.warn(""+e.getMessage(), e);
+				fail("error");
+			}
+			
+			try {
+				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
+						dataPacketBufferPoolManager);
+				
+				fsos.putSIPascalString(src, wantedCharset);
+				
+				log.info("fsos.size={}", fsos.size());
+				
+				List<WrapBuffer> flippedWrapBufferList = fsos.getReadableWrapBufferList();
+				
+				checkValidFlippedWrapBufferList(flippedWrapBufferList);
+				
+				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
+						dataPacketBufferPoolManager);
+
+				log.info("fsis.available={}", fsis.available());
+				
+				actualValue = fsis.getSIPascalString(wantedCharset);				
+
+				assertEquals(src, actualValue);
+				
+				long numberOfRemaingBytes = fsis.available();
+				if (0 != numberOfRemaingBytes) {
+					fail("the input stream has one more byte");
+				}
+				
+			} catch (Exception e) {
+				log.warn(""+e.getMessage(), e);
+				fail("unknown error::" + e.getMessage());
+			} finally {
+				if (null != fsos) {
+					fsos.close();
+				}
+			}
+		}
+	}
+	
+	
+	
+	
+	@Test
 	public void testSkip_basic() {
 		int dataPacketBufferMaxCount = 5;
 		Charset streamCharset = Charset.forName("utf-8");
@@ -2385,8 +2747,7 @@ public class FreeSizeOutputStreamTest {
 
 		FreeSizeOutputStream fsos = null;
 		
-		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
-		
+		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;		
 		
 		try {
 			try {

@@ -372,7 +372,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 				.getSystemClassLoader();
 		
 		private String projectName = null;
-		private Charset charsetOfProject = null;
+		// private Charset charsetOfProject = null;
 		
 
 		/**
@@ -391,7 +391,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 			this.asynOutputMessageTask = new DefaultAsynOutputMessageTask();
 			this.clientObjectCacheManager = clientObjectCacheManager;
 			this.projectName = projectName;
-			this.charsetOfProject = charsetOfProject;
+			// this.charsetOfProject = charsetOfProject;
 		}
 
 		private AbstractMessage getMessageFromMiddleReadObj(
@@ -427,8 +427,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 			AbstractMessage messageObj = null;
 			try {
 				messageObj = messageDecoder.decode(
-						messageProtocol.getSingleItemDecoder(), charsetOfProject,
-						middleReadObj);
+						messageProtocol.getSingleItemDecoder(), middleReadObj);
 				messageObj.messageHeaderInfo.mailboxID = mailboxID;
 				messageObj.messageHeaderInfo.mailID = mailID;
 			} catch (BodyFormatException e) {

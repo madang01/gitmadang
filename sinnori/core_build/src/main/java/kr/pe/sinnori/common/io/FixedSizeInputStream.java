@@ -20,7 +20,6 @@ package kr.pe.sinnori.common.io;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.CharBuffer;
-import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.Arrays;
@@ -29,8 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.common.exception.CharsetDecoderException;
 import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
-import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
 import kr.pe.sinnori.common.util.HexUtil;
 
 /**
@@ -83,13 +82,32 @@ public class FixedSizeInputStream implements BinaryInputStreamIF {
 		this.streamCharsetDecoder = streamCharsetDecoder;
 		streamByteOrder = streamBuffer.order();
 
-		intBuffer = ByteBuffer.allocate(4);
+		bytesOfIntBuffer = new byte[4];
+		intBuffer = ByteBuffer.wrap(bytesOfIntBuffer);
 		intBuffer.order(streamByteOrder);
-		bytesOfIntBuffer = intBuffer.array();
 
-		longBuffer = ByteBuffer.allocate(8);
+		bytesOfLongBuffer = new byte[8];
+		longBuffer = ByteBuffer.wrap(bytesOfLongBuffer);
 		longBuffer.order(streamByteOrder);		
-		bytesOfLongBuffer = longBuffer.array();
+		
+	}
+	
+	private String doGetString(int length, Charset stringCharset) throws SinnoriBufferUnderflowException, CharsetDecoderException {
+		byte dstBytes[] = new byte[length];
+		streamBuffer.get(dstBytes);
+		
+		String dst = null;
+		
+		try {
+			dst = new String(dstBytes, stringCharset);
+		} catch(Exception e) {
+			String errorMessage = String.format("fail to get a new String. read data hex[%s], charset[%s]",
+					HexUtil.getHexStringFromByteArray(dstBytes), stringCharset.name());
+			// log.warn(errorMessage, e);
+			throw new CharsetDecoderException(errorMessage);
+		}
+	
+		return dst;
 	}
 	
 	private void throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(int numberOfBytesRequired)
@@ -268,7 +286,7 @@ public class FixedSizeInputStream implements BinaryInputStreamIF {
 
 	@Override
 	public String getFixedLengthString(final int fixedLength, final CharsetDecoder wantedCharsetDecoder)
-			throws SinnoriBufferUnderflowException, IllegalArgumentException, SinnoriCharsetCodingException {
+			throws SinnoriBufferUnderflowException, IllegalArgumentException, CharsetDecoderException {
 		if (fixedLength < 0) {
 			throw new IllegalArgumentException(String.format(
 					"parameter fixedLength[%d] less than zero", fixedLength));
@@ -285,14 +303,8 @@ public class FixedSizeInputStream implements BinaryInputStreamIF {
 		
 		
 		ByteBuffer dstBuffer = null;
-		byte dstBytes[] = null;
-		try {
-			dstBuffer = ByteBuffer.allocate(fixedLength);
-		} catch (OutOfMemoryError e) {
-			log.warn("OutOfMemoryError", e);
-			throw e;
-		}
-		dstBytes = dstBuffer.array();
+		byte dstBytes[] = new byte[fixedLength];
+		dstBuffer = ByteBuffer.wrap(dstBytes);
 				
 		/*
 		 * ByteBuffer.get(Byte[]) 메소드는 내부적으로 ByteBuffer.get() 으로 동작하므로 버퍼 속성
@@ -304,10 +316,10 @@ public class FixedSizeInputStream implements BinaryInputStreamIF {
 		CharBuffer dstCharBuffer = null;
 		try {
 			dstCharBuffer = wantedCharsetDecoder.decode(dstBuffer);
-		} catch(CharacterCodingException e) {			
+		} catch(Exception e) {			
 			String errorMessage = String.format("read data hex[%s], charset[%s]", 
 					HexUtil.getAllHexStringFromByteBuffer(dstBuffer), wantedCharsetDecoder.charset().name());
-			throw new SinnoriCharsetCodingException(errorMessage);
+			throw new CharsetDecoderException(errorMessage);
 		}
 		
 		return dstCharBuffer.toString();
@@ -315,13 +327,23 @@ public class FixedSizeInputStream implements BinaryInputStreamIF {
 
 	@Override
 	public String getFixedLengthString(final int fixedLength) throws SinnoriBufferUnderflowException,
-			IllegalArgumentException, SinnoriCharsetCodingException {
+			IllegalArgumentException, CharsetDecoderException {
 		return getFixedLengthString(fixedLength, streamCharsetDecoder);
 	}
 
 	@Override
 	public String getStringAll() throws SinnoriBufferUnderflowException,
-			IllegalArgumentException, SinnoriCharsetCodingException {
+			IllegalArgumentException, CharsetDecoderException {
+		return getStringAll(streamCharset);
+	}
+	
+	@Override
+	public String getStringAll(Charset wantedCharset) throws SinnoriBufferUnderflowException,
+			IllegalArgumentException, CharsetDecoderException {
+		if (null == wantedCharset) {
+			throw new IllegalArgumentException("the parameter wantedCharset is null");
+		}
+		
 		long numberOfBytesRemaining = available();
 		
 		if (0 == numberOfBytesRemaining) {
@@ -337,58 +359,105 @@ public class FixedSizeInputStream implements BinaryInputStreamIF {
 							numberOfBytesRemaining, Integer.MAX_VALUE));
 		}
 		
-		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired((int) numberOfBytesRemaining);
+		int length = (int) numberOfBytesRemaining;
 		
-		return getFixedLengthString((int) numberOfBytesRemaining, streamCharsetDecoder);
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(length);
+		
+		return doGetString(length, wantedCharset);
 	}
 
 	@Override
 	public String getPascalString() throws SinnoriBufferUnderflowException,
-			IllegalArgumentException, SinnoriCharsetCodingException {
-		return getUBPascalString();
+			IllegalArgumentException, CharsetDecoderException {
+		return getUBPascalString(streamCharset);
+	}
+	
+	@Override
+	public String getPascalString(Charset wantedCharset) throws SinnoriBufferUnderflowException,
+			IllegalArgumentException, CharsetDecoderException {
+		return getUBPascalString(wantedCharset);
 	}
 
 	@Override
 	public String getSIPascalString() throws SinnoriBufferUnderflowException,
-			IllegalArgumentException, SinnoriCharsetCodingException {
+			IllegalArgumentException, CharsetDecoderException {
+		return getSIPascalString(streamCharset);
+	}
+	
+	@Override
+	public String getSIPascalString(Charset wantedCharset) throws SinnoriBufferUnderflowException,
+			IllegalArgumentException, CharsetDecoderException {
+		if (null == wantedCharset) {
+			throw new IllegalArgumentException("the parameter wantedCharset is null");
+		}
+		
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(4);
+		
 		int length = getInt();
-		if (length < 0)
+		if (length < 0) {
 			throw new IllegalArgumentException(String.format(
 					"the pascal string length[%d] whose type is integer is less than zero", length));
-
-		/*if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
-			throw new IllegalArgumentException(String.format(
-					"문자열 길이[%d]는  unsigned short 최대값[%d] 보다 작거나 같아야 합니다.", len,
-					CommonStaticFinal.MAX_UNSIGNED_SHORT));
-		}*/
+		}
 
 		if (0 == length) {
 			return "";
 		}
+		
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(length);
 
-		return getFixedLengthString(length, streamCharsetDecoder);
+		return doGetString(length, wantedCharset);
 	}
 
 	@Override
 	public String getUSPascalString() throws SinnoriBufferUnderflowException,
-			IllegalArgumentException, SinnoriCharsetCodingException {
+			IllegalArgumentException, CharsetDecoderException {
+		return getUSPascalString(streamCharset);
+	}
+	
+	@Override
+	public String getUSPascalString(Charset wantedCharset) throws SinnoriBufferUnderflowException,
+			IllegalArgumentException, CharsetDecoderException {
+		if (null == wantedCharset) {
+			throw new IllegalArgumentException("the parameter wantedCharset is null");
+		}
+		
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(2);
+		
 		int length = getUnsignedShort();
 		if (0 == length) {
 			return "";
 		}
-		return getFixedLengthString(length, streamCharsetDecoder);
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(length);
+		
+		return doGetString(length, wantedCharset);
 	}
 
 	@Override
 	public String getUBPascalString() throws SinnoriBufferUnderflowException,
-			IllegalArgumentException, SinnoriCharsetCodingException {
+			IllegalArgumentException, CharsetDecoderException {
+		return getUBPascalString(streamCharset);
+	}
+	
+	@Override
+	public String getUBPascalString(Charset wantedCharset) throws SinnoriBufferUnderflowException,
+			IllegalArgumentException, CharsetDecoderException {
+		if (null == wantedCharset) {
+			throw new IllegalArgumentException("the parameter wantedCharset is null");
+		}
+		
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(1);
+		
 		int length = getUnsignedByte();
 		if (0 == length) {
 			return "";
 		}
 		
-		return getFixedLengthString(length, streamCharsetDecoder);
+		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(length);
+		
+		return doGetString(length, wantedCharset);
 	}
+	
+	
 
 	@Override
 	public void getBytes(byte[] dst, int offset, int length)

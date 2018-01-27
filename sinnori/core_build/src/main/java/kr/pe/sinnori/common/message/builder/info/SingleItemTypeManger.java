@@ -23,17 +23,18 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
-import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.exception.UnknownItemTypeException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.common.exception.UnknownItemTypeException;
 
 
 /**
@@ -77,6 +78,8 @@ public class SingleItemTypeManger {
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 생성자
 	 */
 	private SingleItemTypeManger() {
+		
+		checkValidAllSingleItemType();
 		
 		for (SingleItemType singleItemType : singleItemTypes) {
 			int itemTypeID = singleItemType.getItemTypeID();
@@ -246,6 +249,31 @@ public class SingleItemTypeManger {
 		}
 	}
 	
+	/**
+	 * @return 정의된 모든 SingleItemType이 유효하면 true, 아니면 false 를 반환한다.
+	 */
+	private void checkValidAllSingleItemType() {
+		SingleItemType[] singleItemTypes = SingleItemType.values();
+		int[] arrayOfSingleItemTypeID = new int[singleItemTypes.length];
+		Arrays.fill(arrayOfSingleItemTypeID, -1);
+		for (SingleItemType singleItemType : singleItemTypes) {
+			int singleItemTypeID = singleItemType.getItemTypeID();
+			try {
+				arrayOfSingleItemTypeID[singleItemTypeID]=singleItemTypeID;
+			} catch(IndexOutOfBoundsException e) {
+				log.error("the SingleItemType[{}] has a wrong id, the id[{}] is out of the range[0 ~ {}]", singleItemType.toString(), singleItemTypeID, singleItemTypes.length-1);
+				System.exit(1);
+			}
+		}
+		for (int i=0; i < arrayOfSingleItemTypeID.length; i++) {
+			int singleItemTypeID = arrayOfSingleItemTypeID[i];
+			if (-1 == singleItemTypeID) {
+				log.error("the SingleItemType class don't define the SingleItemType id[{}]", i);
+				System.exit(1);
+			}
+		}
+	}
+	
 	public String getMessageXSLStr() {
 		return messageXSLStr;
 	}
@@ -282,7 +310,7 @@ public class SingleItemTypeManger {
 		return itemTypeName;
 	}
 	
-	public int getItemTypeCount() {
+	public int getAllSingleItemTypeCount() {
 		return singleItemTypes.length;
 	}
 	
@@ -300,6 +328,21 @@ public class SingleItemTypeManger {
 		return singleItemTypes[singleItemTypeID];
 	}
 	
+	public SingleItemType getSingleItemType(String itemTypeName) throws UnknownItemTypeException {
+		if (null == itemTypeName) {
+			throw new IllegalArgumentException("the parameter itemTypeName is null");
+		}
+		
+		Integer itemTypeID = itemTypeNameToIDHash.get(itemTypeName);
+		if (null == itemTypeID) {
+			String errorMessage = new StringBuilder("the parameter itemTypeName[")
+			.append(itemTypeName).append("] is not an element of item value type set")
+			.append(getUnmodifiableItemTypeNameSet().toString()).toString();
+			throw new UnknownItemTypeException(errorMessage);
+		}
+		
+		return singleItemTypes[itemTypeID];
+	}
 	
 	public Set<String> getUnmodifiableItemTypeNameSet() {
 		Set<String> itemTypeNameSet = Collections.unmodifiableSet(itemTypeNameToIDHash.keySet());

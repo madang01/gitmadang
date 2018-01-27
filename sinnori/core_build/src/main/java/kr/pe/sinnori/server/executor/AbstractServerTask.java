@@ -211,8 +211,7 @@ public abstract class AbstractServerTask {
 		}
 
 		try {
-			messageFromClient = messageDecoder.decode(messageProtocol.getSingleItemDecoder(), charsetOfProject,
-					wrapReadableMiddleObject.getReadableMiddleObject());
+			messageFromClient = messageDecoder.decode(messageProtocol.getSingleItemDecoder(), wrapReadableMiddleObject.getReadableMiddleObject());
 			messageFromClient.messageHeaderInfo.mailboxID = wrapReadableMiddleObject.getMailboxID();
 			messageFromClient.messageHeaderInfo.mailID = wrapReadableMiddleObject.getMailID();
 		} catch (BodyFormatException e) {

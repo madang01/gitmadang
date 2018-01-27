@@ -18,19 +18,19 @@
 package kr.pe.sinnori.common.protocol.thb.header;
 
 import java.nio.BufferOverflowException;
-import java.nio.BufferUnderflowException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CharsetEncoder;
-import java.util.regex.Pattern;
+import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.common.exception.CharsetEncoderException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
-import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
-import kr.pe.sinnori.common.exception.SinnoriCharsetCodingException;
 import kr.pe.sinnori.common.io.BinaryInputStreamIF;
 import kr.pe.sinnori.common.io.BinaryOutputStreamIF;
 
@@ -49,47 +49,12 @@ public class THBMessageHeader {
 	/** mailboxID : unsigned short 2byte */
 	public int mailboxID = -1;
 	/** mailID : int 4byte */
-	public int mailID= -1;
-	
+	public int mailID= -1;	
 	/** bodySize : long 8byte */
 	public long bodySize= -1;
 	
-	/** 메시지 헤더 정보에서 고정 크기를 갖는 메시지 식별자의 크기, 환경 변수를 통해 지정된다. */
-	public int messageIDFixedSize = -1;
-	/** 메시지 헤더 크기, 참고) 환경 변수로 지정되는 고정 크기를 갖는 메시지 식별자 크기 값으로 정해지는 크기이다. */
-	public int messageHeaderSize = -1;
 	
-	/**
-	 * 생성자
-	 * @param messageIDFixedSize 메시지 헤더의 고정 크기를 갖는 메시지 식별자 크기
-	 */
-	public THBMessageHeader(int messageIDFixedSize) {
-		this.messageIDFixedSize = messageIDFixedSize;
-		this.messageHeaderSize = getMessageHeaderSize(messageIDFixedSize); 
-	}
 	
-	/**
-	 * 지정된 메시지 식별자 크기를 갖는 THB 헤더 크기를 반환한다.
-	 * @param messageIDFixedSize 메시지 식별자 크기
-	 * @return 지정된 메시지 식별자 크기를 갖는 THB 헤더 크기
-	 */
-	public static int getMessageHeaderSize(int messageIDFixedSize) {
-		return (messageIDFixedSize+ 2 + 4 + 8);
-	}
-	/**
-	 * 입력 받은 메세지 식별자의 유효성을 판별해 준다. 단 크기에 대해서는 검사하지 않는다.
-	 * 
-	 * @param messageID
-	 *            메세지 식별자
-	 * @return 입력 받은 "메세지 식별자"의 유효성 여부
-	 */
-	public static boolean IsValidMessageID(String messageID) {
-		// 첫자는 영문으로 시작하며 이후 문자는 영문과 숫자로 구성되는 문자열임을 검사한다.
-		// 특수 문자 제거를 위해서임
-		Pattern p = Pattern.compile("[[a-zA-Z][a-zA-Z0-9]]+");
-		boolean isValid = p.matcher(messageID).matches();
-		return isValid;
-	}
 	
 	/**
 	 * 메시지 헤더의 내용을 목적지 버퍼에 저장한다. <br/>
@@ -99,8 +64,12 @@ public class THBMessageHeader {
 	 * @param streamCharset 문자셋
 	 * @param headerCharsetEncoder 문자셋 인코더
 	 * @throws IllegalArgumentException 잘못된 파라미터 값이 들어온 경우 던지는 예외
+	 * @throws CharsetEncoderException 
+	 * @throws NoMoreDataPacketBufferException 
+	 * @throws SinnoriBufferOverflowException 
+	 * @throws BufferOverflowException 
 	 */
-	public void toOutputStream(BinaryOutputStreamIF headerOutputStream, CharsetEncoder headerCharsetEncoder) throws IllegalArgumentException {
+	public void toOutputStream(BinaryOutputStreamIF headerOutputStream, int messageIDFixedSize, Charset headerCharset) throws IllegalArgumentException, CharsetEncoderException, BufferOverflowException, SinnoriBufferOverflowException, NoMoreDataPacketBufferException {
 		if (null == headerOutputStream) {
 			throw new IllegalArgumentException("the parameter headerOutputStream is null");
 		}
@@ -117,27 +86,22 @@ public class THBMessageHeader {
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		// FixedSizeOutputStream headerOutputStream = new FixedSizeOutputStream(dstBuffer, headerCharsetEncoder);
-		
-		try {
-			headerOutputStream.putFixedLengthString(messageIDFixedSize, messageID, headerCharsetEncoder);
-			headerOutputStream.putUnsignedShort(mailboxID);
-			headerOutputStream.putInt(mailID);
-			headerOutputStream.putLong(bodySize);
-		} catch (SinnoriBufferOverflowException e) {
-			log.error("SinnoriBufferOverflowException", e);
-			System.exit(1);
-		} catch (BufferOverflowException e) {
-			log.error("BufferOverflowException", e);
-			System.exit(1);
-		} catch (IllegalArgumentException e) {
-			log.error("IllegalArgumentException", e);
-			System.exit(1);
-		} catch (NoMoreDataPacketBufferException e) {
-			/** 고정 크기 출력 스트림은 NoMoreDataPacketBufferException 를 발생시키니 않는다. */
-			log.error("NoMoreDataPacketBufferException", e);
-			System.exit(1);
+		byte[] messageIDBytes = messageID.getBytes(headerCharset);
+		if (messageIDBytes.length > messageIDFixedSize) {
+			String errorMessage= String.format("the var messageID[%s]'s charset bytes size[%d] is greater than the parameter messageIDFixedSize[%s]", 
+					messageID, messageIDBytes.length, messageIDFixedSize);
+			throw new IllegalArgumentException(errorMessage);
 		}
+		byte[] messageIDFixedSizeBuffer = new byte[messageIDFixedSize];
+		Arrays.fill(messageIDFixedSizeBuffer, CommonStaticFinalVars.ZERO_BYTE);
+		ByteBuffer messageIDFixedSizeByteBuffer = ByteBuffer.wrap(messageIDFixedSizeBuffer);
+		messageIDFixedSizeByteBuffer.put(messageIDBytes);
+		
+		headerOutputStream.putBytes(messageIDFixedSizeBuffer);
+		headerOutputStream.putUnsignedShort(mailboxID);
+		headerOutputStream.putInt(mailID);
+		headerOutputStream.putLong(bodySize);
+		
 	}
 	
 	/**
@@ -145,26 +109,14 @@ public class THBMessageHeader {
 	 * @param headerInputStream 헤더 정보를 갖고 있는 입력 스트림
 	 * @throws HeaderFormatException 메시지 식별자 읽을때 문자셋 에러 발생시 던지는 예외
 	 */
-	public void fromInputStream(BinaryInputStreamIF headerInputStream, CharsetDecoder headerCharsetDecoder) throws HeaderFormatException {
-		
+	public void fromInputStream(BinaryInputStreamIF headerInputStream, int messageIDFixedSize, CharsetDecoder headerCharsetDecoder) throws HeaderFormatException {		
 		try {
-			this.messageID = headerInputStream
-					.getFixedLengthString( messageIDFixedSize,
-							headerCharsetDecoder).trim();
+			this.messageID = new String(headerInputStream.getBytes(messageIDFixedSize), headerCharsetDecoder.charset()).trim();
 			this.mailboxID = headerInputStream
 					.getUnsignedShort();
 			this.mailID = headerInputStream.getInt();
 			this.bodySize = headerInputStream.getLong();
-		} catch (IllegalArgumentException e) {
-			log.error("IllegalArgumentException", e);
-			System.exit(1);
-		} catch (SinnoriBufferUnderflowException e) {
-			log.error("SinnoriBufferUnderflowException", e);
-			System.exit(1);
-		} catch (BufferUnderflowException e) {
-			log.error("BufferUnderflowException", e);
-			System.exit(1);
-		} catch (SinnoriCharsetCodingException e) {
+		} catch (Exception e) {
 			String errorMessage = e.getMessage();
 			log.warn(errorMessage, e);
 			throw new HeaderFormatException(errorMessage);

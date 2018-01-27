@@ -1,13 +1,11 @@
 package kr.pe.sinnori.common.message.codec;
 
-import java.nio.charset.Charset;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class AbstractMessageDecoder {	
 	protected Logger log = LoggerFactory.getLogger(AbstractMessageDecoder.class);
@@ -32,7 +30,7 @@ public abstract class AbstractMessageDecoder {
 	 * @return "단일항목 디코더"를 이용하여 "중간 다리 역활 읽기 객체" 에서 추출된 메시지
 	 * @throws Exception "단일항목 디코더"를 이용하여 "중간 다리 역활 읽기 객체" 에서 추출할때 에러 발생시 던지는 예외
 	 */
-	public AbstractMessage decode(SingleItemDecoderIF singleItemDecoder, Charset streamCharset, Object readableMiddleObject) throws OutOfMemoryError, BodyFormatException {
+	public AbstractMessage decode(SingleItemDecoderIF singleItemDecoder, Object readableMiddleObject) throws OutOfMemoryError, BodyFormatException {
 		/**
 		 * <pre>
 		 * 중간 다리 역활 읽기 객체는 입력 스트림과 입력 메시지 간에 중간자 역활을 하며 프로토콜 별로 달라지게 된다.
@@ -44,7 +42,7 @@ public abstract class AbstractMessageDecoder {
 		// Object middleReadObj =argv[0];
 		AbstractMessage retObj = null;
 		try {
-			retObj = decodeBody(singleItemDecoder, streamCharset, readableMiddleObject);
+			retObj = decodeBody(singleItemDecoder, readableMiddleObject);
 		} catch(OutOfMemoryError e) {
 			throw e;
 		} catch(BodyFormatException e) {
@@ -73,5 +71,5 @@ public abstract class AbstractMessageDecoder {
 		return retObj;
 	}
 	
-	protected abstract AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Charset streamCharset, Object middleReadObj) throws OutOfMemoryError, BodyFormatException;
+	protected abstract AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object middleReadObj) throws OutOfMemoryError, BodyFormatException;
 }

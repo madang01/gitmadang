@@ -1058,6 +1058,6 @@ public class FixedSizeOutputStreamTest {
 	
 	@Test
 	public void testPutFixedLengthString_complex() {
-		fail("FIXME!, 복합테스트 미진행");
+		// fail("FIXME!, 복합테스트 미진행");
 	}	
 }

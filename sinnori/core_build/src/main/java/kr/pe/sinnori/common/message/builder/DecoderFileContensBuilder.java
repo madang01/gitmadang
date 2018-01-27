@@ -43,12 +43,12 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 				stringBuilder.append(singleItemInfo.getJavaLangClassCastingTypeOfItemType());
 				stringBuilder.append(")");
 				
-				// singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
+				// singleItemDecoder.getValueFromReadableMiddleObject(sigleItemPath0
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				for (int i=0; i < depth; i++) {
 					stringBuilder.append("\t");
 				}
-				stringBuilder.append("\t\tsingleItemDecoder.getValueFromMiddleReadObj(sigleItemPath");
+				stringBuilder.append("\t\tsingleItemDecoder.getValueFromReadableMiddleObject(sigleItemPath");
 				stringBuilder.append(depth);
 				
 				// , "byteVar1" // itemName
@@ -59,24 +59,6 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 				stringBuilder.append("\t\t, \"");
 				stringBuilder.append(singleItemInfo.getItemName());
 				stringBuilder.append("\" // itemName");
-				
-				/*// , 0 // itemTypeID
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t, ");
-				stringBuilder.append(singleItemInfo.getItemTypeID());
-				stringBuilder.append(" // itemTypeID");
-				
-				// itemTypeName
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t, \"");
-				stringBuilder.append(singleItemInfo.getItemTypeName());
-				stringBuilder.append("\" // itemTypeName");*/
 				
 				// itemType
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
@@ -104,42 +86,22 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 				for (int i=0; i < depth; i++) {
 					stringBuilder.append("\t");
 				}
-				stringBuilder.append("\t\t, ");
-				
-				
-				
-				
-				/**
-				 * <pre>
-				 * 타입이 고정 문자열 크기일 경우만 문자셋을 지정할 수 있다.
-				 * 문자셋 이름이 null 값으로 넘어가면 
-				 * 프로토콜 단일 항목 인코더에서는 파라미터로 넘어가는 프로젝트 문자셋으로 지정되며,
-				 * 문자셋 이름이 null 이 아니면 
-				 * 프로토콜 단일 항목 인코더에서는 문자셋 객체로 변환된다.
-				 * 따라서 메시지 정보를 꾸릴때 문자셋 이름이 있을 경우 반듯이 문자셋 객체로 바꿀수 있는 바른 이름인지 검사를 수행해야 한다.  
-				 * </pre>
-				 */
-				
-				if (singleItemInfo.getItemTypeName().equals("fixed length string")) {
-					String nativeItemCharset = singleItemInfo.getNativeItemCharset();
-					if (null == nativeItemCharset) {
-						stringBuilder.append("null");
-					} else {
-						stringBuilder.append("\"");
-						stringBuilder.append(nativeItemCharset);
-						stringBuilder.append("\"");
-					}
-				} else {
+				stringBuilder.append("\t\t, ");				
+				/*SingleItemType itemType = singleItemInfo.getItemType();
+				if (itemType.equals(SingleItemType.FIXED_LENGTH_STRING) ||
+						itemType.equals(SingleItemType.UB_PASCAL_STRING) ||
+						itemType.equals(SingleItemType.US_PASCAL_STRING) ||
+						itemType.equals(SingleItemType.SI_PASCAL_STRING)) {*/
+				String nativeItemCharset = singleItemInfo.getNativeItemCharset();
+				if (null == nativeItemCharset) {
 					stringBuilder.append("null");
-				}
+				} else {
+					stringBuilder.append("\"");
+					stringBuilder.append(nativeItemCharset);
+					stringBuilder.append("\"");
+				}				
 				stringBuilder.append(" // nativeItemCharset");
 				
-				// streamCharset
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t, streamCharset");
 				
 				// , middleReadableObject));
 				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
@@ -328,7 +290,6 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				
 		String importElements[] = {
-				"import java.nio.charset.Charset;",
 				"import kr.pe.sinnori.common.exception.BodyFormatException;",
 				"import kr.pe.sinnori.common.message.AbstractMessage;",
 				"import kr.pe.sinnori.common.message.builder.info.SingleItemType;",				
@@ -371,9 +332,7 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append("\t * </pre>");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("\t * @param singleItemDecoder 단일항목 디코더");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t * @param streamCharset 프로젝트 문자셋");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);		
 		stringBuilder.append("\t * @param middleReadableObject 중간 다리 역활 읽기 객체");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("\t * @return \"단일항목 디코더\"를 이용하여 \"중간 다리 역활 읽기 객체\" 에서 추출된 ");
@@ -388,7 +347,7 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("\t@Override");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\tprotected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Charset streamCharset, Object  middleReadableObject) throws OutOfMemoryError, BodyFormatException {");
+		stringBuilder.append("\tprotected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object  middleReadableObject) throws OutOfMemoryError, BodyFormatException {");
 		
 		// AllDataType allDataType = new AllDataType();
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);

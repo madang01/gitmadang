@@ -20,13 +20,13 @@ import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.UnknownItemTypeException;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 단일 항목 정보 클래스.
@@ -38,6 +38,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 	private final Logger log = LoggerFactory.getLogger(SingleItemInfo.class);
 
 	private String itemName;
+	private SingleItemType itemType;
 	private String itemTypeName;	
 	private String nativeItemDefaultValue;	
 	private String nativeItemSize;
@@ -88,11 +89,10 @@ public class SingleItemInfo extends AbstractItemInfo {
 	public SingleItemInfo(String itemName, String itemTypeName,
 			String nativeItemDefaultValue, String nativeItemSize, String nativeItemCharset)
 			throws IllegalArgumentException {
-		checkParmItemName(itemName);		
-		int itemTypeID = -1;
+		checkParmItemName(itemName);
 		
 		try {
-			itemTypeID = singleItemTypeManger.getItemTypeID(itemTypeName);
+			itemType = singleItemTypeManger.getSingleItemType(itemTypeName);
 		} catch(UnknownItemTypeException e) {
 			log.warn(e.toString(), e);
 			String errorMessage = new StringBuilder(
@@ -103,70 +103,125 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		if (itemTypeName.equals("byte")) {
-			makeByteTypeInformationAfterCheckingAdditionalInformation(itemName,
-					nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemTypeName.equals("unsigned byte")) {
-			makeUnsignedByteTypeInformationAfterCheckingAdditionalInformation(itemName,
-					nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemTypeName.equals("short")) {
-			makeShortTypeInformationAfterCheckingAdditionalInformation(itemName,
-					nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemTypeName.equals("unsigned short")) {
-			makeUnsignedShortTypeInformationAfterCheckingAdditionalInformation(itemName,
-					nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemTypeName.equals("integer")) {
-			makeIntegerTypeInformationAfterCheckingAdditionalInformation(itemName,
-					nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemTypeName.equals("unsigned integer")) {
-			makeUnsignedIntegerTypeInformationAfterCheckingAdditionalInformation(
-					itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemTypeName.equals("long")) {
-			makeLongTypeInformationAfterCheckingAdditionalInformation(itemName,
-					nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemTypeName.equals("ub pascal string")) {
-			makePascalStringTypeInformationAfterCheckingAdditionalInformation("ub",
-					itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemTypeName.equals("us pascal string")) {
-			makePascalStringTypeInformationAfterCheckingAdditionalInformation("us",
-					itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemTypeName.equals("si pascal string")) {
-			makePascalStringTypeInformationAfterCheckingAdditionalInformation("si",
-					itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemTypeName.equals("fixed length string")) {
-			makeFixedLengthStringTypeInformationAfterCheckingAdditionalInformation(
-					itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemTypeName.equals("ub variable length byte[]")) {
-			makeVariableLengthByteArrayTypeInformationAfterCheckingAdditionalInformation(
-					"ub", itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemTypeName.equals("us variable length byte[]")) {
-			makeVariableLengthByteArrayTypeInformationAfterCheckingAdditionalInformation(
-					"us", itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-
-		} else if (itemTypeName.equals("si variable length byte[]")) {
-			makeVariableLengthByteArrayTypeInformationAfterCheckingAdditionalInformation(
-					"si", itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemTypeName.equals("fixed length byte[]")) {
-			makeFixedLengthByteArrayTypeInformationAfterCheckingAdditionalInformation(
-					itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemTypeName.equals("java sql date")) {
-			makeJavaSqlDateTypeInformationAfterCheckingAdditionalInformation(
-					itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemTypeName.equals("java sql timestamp")) {
-			makeJavaSqlTimestampTypeInformationAfterCheckingAdditionalInformation(
-					itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else if (itemTypeName.equals("boolean")) {
-			makeBooleanTypeInformationAfterCheckingAdditionalInformation(
-					itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
-		} else {
-			String errorMessage = new StringBuilder("this single item[")
-					.append(itemName).append("]'s type[").append(itemTypeName)
-					.append("] is a unknown type").toString();
-			throw new IllegalArgumentException(errorMessage);
+		
+		
+		switch(itemType) {
+			case BYTE : {
+				makeByteTypeInformationAfterCheckingAdditionalInformation(itemName,
+						nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
+				break;
+			}
+			
+			case UNSIGNED_BYTE : {
+				makeUnsignedByteTypeInformationAfterCheckingAdditionalInformation(itemName,
+						nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
+				break;
+			}
+			
+			case SHORT : {
+				makeShortTypeInformationAfterCheckingAdditionalInformation(itemName,
+						nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
+				break;
+			}
+			
+			case UNSIGNED_SHORT : {
+				makeUnsignedShortTypeInformationAfterCheckingAdditionalInformation(itemName,
+						nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
+				break;
+			}
+			
+			case INTEGER : {
+				makeIntegerTypeInformationAfterCheckingAdditionalInformation(itemName,
+						nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
+				break;
+			}
+			
+			case UNSIGNED_INTEGER : {
+				makeUnsignedIntegerTypeInformationAfterCheckingAdditionalInformation(
+						itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
+				break;
+			}
+			
+			case LONG : {
+				makeLongTypeInformationAfterCheckingAdditionalInformation(itemName,
+						nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
+				break;
+			}
+			
+			case UB_PASCAL_STRING : {
+				makePascalStringTypeInformationAfterCheckingAdditionalInformation("ub",
+						itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
+				break;
+			}
+			
+			case US_PASCAL_STRING : {
+				makePascalStringTypeInformationAfterCheckingAdditionalInformation("us",
+						itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
+				break;
+			}
+			
+			case SI_PASCAL_STRING : {
+				makePascalStringTypeInformationAfterCheckingAdditionalInformation("si",
+						itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
+				break;
+			}
+			
+			case FIXED_LENGTH_STRING : {
+				makeFixedLengthStringTypeInformationAfterCheckingAdditionalInformation(
+						itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
+				break;
+			}
+			
+			case UB_VARIABLE_LENGTH_BYTES : {
+				makeVariableLengthByteArrayTypeInformationAfterCheckingAdditionalInformation(
+						"ub", itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
+				break;
+			}
+			
+			case US_VARIABLE_LENGTH_BYTES : {
+				makeVariableLengthByteArrayTypeInformationAfterCheckingAdditionalInformation(
+						"us", itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
+				break;
+			}
+			
+			case SI_VARIABLE_LENGTH_BYTES : {
+				makeVariableLengthByteArrayTypeInformationAfterCheckingAdditionalInformation(
+						"si", itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
+				break;
+			}
+			
+			case FIXED_LENGTH_BYTES : {
+				makeFixedLengthByteArrayTypeInformationAfterCheckingAdditionalInformation(
+						itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
+				break;
+			}
+			case JAVA_SQL_DATE : {
+				makeJavaSqlDateTypeInformationAfterCheckingAdditionalInformation(
+						itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
+				break;
+			}
+			
+			case JAVA_SQL_TIMESTAMP : {
+				makeJavaSqlTimestampTypeInformationAfterCheckingAdditionalInformation(
+						itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
+			}
+			
+			case BOOLEAN : {
+				makeBooleanTypeInformationAfterCheckingAdditionalInformation(
+						itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
+				break;
+			}
+			
+			default : {
+				String errorMessage = new StringBuilder("this single item[")
+						.append(itemName).append("]'s type[").append(itemTypeName)
+						.append("] is a unknown type").toString();
+				throw new IllegalArgumentException(errorMessage);
+			}
 		}
 		
 		this.itemName = itemName;
-		this.itemTypeID = itemTypeID;
+		this.itemTypeID = itemType.getItemTypeID();
 		this.firstUpperItemName = new StringBuilder(
 				itemName.substring(0, 1).toUpperCase())
 		.append(itemName.substring(1)).toString();
@@ -174,6 +229,10 @@ public class SingleItemInfo extends AbstractItemInfo {
 		this.nativeItemDefaultValue = nativeItemDefaultValue;
 		this.nativeItemSize = nativeItemSize;
 		this.nativeItemCharset = nativeItemCharset;
+	}
+	
+	public SingleItemType getItemType() {
+		return itemType;
 	}
 
 	public String getFirstUpperItemName() {

@@ -1,4 +1,4 @@
-package javapackage.java.nio.ByteBuffer;
+package javapackage.java.nio;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -6,6 +6,7 @@ import static org.junit.Assert.fail;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Date;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +34,43 @@ public class ByteBufferTest {
 		
 
 		SinnoriLogbackManger.getInstance().setup(sinnoriInstalledPathString, mainProjectName, logType);
+	}
+	
+	@Test
+	public void test_wrap과allocate속도비교() {
+		
+		int retryCount = 1000000;
+		int fixedLength = 16417;
+		{
+			long beforeTime= new Date().getTime();
+			for (int i=0; i < retryCount; i++) {
+				@SuppressWarnings("unused")
+				ByteBuffer strByteBuffer = null;
+				try {
+					strByteBuffer = ByteBuffer.allocate(fixedLength);
+				} catch (OutOfMemoryError e) {
+					log.warn("OutOfMemoryError", e);
+					throw e;
+				}
+			}
+			
+			long afterTime= new Date().getTime();
+			
+			log.info("{} 번 시간차={} ms, 평균={} ms", retryCount, (afterTime-beforeTime), (double)(afterTime-beforeTime)/retryCount);
+		}
+		
+		{
+			long beforeTime= new Date().getTime();
+			for (int i=0; i < retryCount; i++) {
+				byte srcBytes[] = new byte[fixedLength];
+				@SuppressWarnings("unused")
+				ByteBuffer strByteBuffer = ByteBuffer.wrap(srcBytes);
+			}
+			
+			long afterTime= new Date().getTime();
+			
+			log.info("{} 번 시간차={} ms, 평균={} ms", retryCount, (afterTime-beforeTime), (double)(afterTime-beforeTime)/retryCount);
+		}
 		
 	}
 	

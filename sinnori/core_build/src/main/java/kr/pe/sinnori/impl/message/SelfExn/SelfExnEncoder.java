@@ -16,7 +16,6 @@
  */
 package kr.pe.sinnori.impl.message.SelfExn;
 
-import java.nio.charset.Charset;
 import java.util.LinkedList;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.builder.info.SingleItemType;
@@ -30,7 +29,7 @@ import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
  */
 public final class SelfExnEncoder extends AbstractMessageEncoder {
 	@Override
-	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Charset streamCharset, Object middleWritableObject)
+	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject)
 			throws Exception {
 		if (!(messageObj instanceof SelfExn)) {
 			String errorMessage = String.format("메시지 객체 타입[%s]이 SelfExn 이(가) 아닙니다.", messageObj.getClass().getCanonicalName());
@@ -38,7 +37,7 @@ public final class SelfExnEncoder extends AbstractMessageEncoder {
 		}
 		
 		SelfExn selfExn = (SelfExn) messageObj;
-		encodeBody(selfExn, singleItemEncoder, streamCharset, middleWritableObject);
+		encodeBody(selfExn, singleItemEncoder, middleWritableObject);
 	}
 
 	/**
@@ -47,11 +46,10 @@ public final class SelfExnEncoder extends AbstractMessageEncoder {
 	 * </pre>
 	 * @param selfExn SelfExn 입력 메시지
 	 * @param singleItemEncoder 단일항목 인코더
-	 * @param streamCharset 프로젝트 문자셋
 	 * @param middleWritableObject 중간 다리 역활 쓰기 객체
 	 * @throws Exception "입력/출력 메시지"의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장할때 에러 발생시 던지는 예외
 	 */
-	private void encodeBody(SelfExn selfExn, SingleItemEncoderIF singleItemEncoder, Charset streamCharset, Object middleWritableObject) throws Exception {
+	private void encodeBody(SelfExn selfExn, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject) throws Exception {
 		String selfExnSingleItemPath = "SelfExn";
 		LinkedList<String> singleItemPathStatck = new LinkedList<String>();
 		singleItemPathStatck.push(selfExnSingleItemPath);
@@ -60,29 +58,25 @@ public final class SelfExnEncoder extends AbstractMessageEncoder {
 					, SingleItemType.UB_PASCAL_STRING // itemType
 					, selfExn.getErrorPlace() // itemValue
 					, -1 // itemSize
-					, null // nativeItemCharset
-					, streamCharset
+					, "ISO-8859-1" // nativeItemCharset
 					, middleWritableObject);
 		singleItemEncoder.putValueToWritableMiddleObject(selfExnSingleItemPath, "errorGubun"
 					, SingleItemType.UB_PASCAL_STRING // itemType
 					, selfExn.getErrorGubun() // itemValue
 					, -1 // itemSize
-					, null // nativeItemCharset
-					, streamCharset
+					, "ISO-8859-1" // nativeItemCharset
 					, middleWritableObject);
 		singleItemEncoder.putValueToWritableMiddleObject(selfExnSingleItemPath, "errorMessageID"
 					, SingleItemType.UB_PASCAL_STRING // itemType
 					, selfExn.getErrorMessageID() // itemValue
 					, -1 // itemSize
-					, null // nativeItemCharset
-					, streamCharset
+					, "ISO-8859-1" // nativeItemCharset
 					, middleWritableObject);
 		singleItemEncoder.putValueToWritableMiddleObject(selfExnSingleItemPath, "errorMessage"
 					, SingleItemType.US_PASCAL_STRING // itemType
 					, selfExn.getErrorMessage() // itemValue
 					, -1 // itemSize
-					, null // nativeItemCharset
-					, streamCharset
+					, "utf8" // nativeItemCharset
 					, middleWritableObject);
 	}
 }

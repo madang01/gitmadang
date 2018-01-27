@@ -437,7 +437,7 @@ public abstract class AbstractConnection {
 		
 		AbstractMessage messageObj = null;
 		try {
-			messageObj = messageDecoder.decode(messageProtocol.getSingleItemDecoder(), charsetOfProject, middleReadObj);
+			messageObj = messageDecoder.decode(messageProtocol.getSingleItemDecoder(), middleReadObj);
 			messageObj.messageHeaderInfo.mailboxID = mailboxID;
 			messageObj.messageHeaderInfo.mailID = mailID;
 		} catch (BodyFormatException e) {

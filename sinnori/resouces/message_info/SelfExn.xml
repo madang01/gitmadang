@@ -17,8 +17,8 @@
 <messageID>SelfExn</messageID>
 <direction>FROM_ALL_TO_ALL</direction>
 <desc>시스템 내부 에러 전달용 메시지</desc>
-<singleitem name="errorPlace" type="ub pascal string" />
-<singleitem name="errorGubun" type="ub pascal string" />
-<singleitem name="errorMessageID" type="ub pascal string" />
-<singleitem name="errorMessage" type="us pascal string" />
+<singleitem name="errorPlace" type="ub pascal string" charset="ISO-8859-1" />
+<singleitem name="errorGubun" type="ub pascal string" charset="ISO-8859-1" />
+<singleitem name="errorMessageID" type="ub pascal string" charset="ISO-8859-1" />
+<singleitem name="errorMessage" type="us pascal string" charset="utf8" />
 </sinnori_message>
