@@ -20,7 +20,6 @@ package kr.pe.sinnori.common.message.builder.info;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.Stack;
 
@@ -62,13 +61,14 @@ public class MessageInfoSAXParser extends DefaultHandler {
 	/** this member variables is initialized in constructor end */
 	
 	/** this member variables is initialized in parse(File) start */
+	private MessageInfo messageInfo = null;
 	private boolean isFileNameCheck = true;
 	private File messageInformationXMLFile = null;
 	private String messageIDOfXMLFile = null;	
 	private String rootTag = null;
 	private Stack<String> startTagStack = new Stack<String>();
 	private Stack<String> tagValueStack = new Stack<String>();
-	private Stack<ItemGroupIF> itemGroupInfoStack = new Stack<ItemGroupIF>();
+	private Stack<OrderedItemSet> itemSetStack = new Stack<OrderedItemSet>();
 	/** this member variables is initialized in parse(File) end */
 
 
@@ -125,7 +125,9 @@ public class MessageInfoSAXParser extends DefaultHandler {
 			return;
 
 		if (startTag.equals("singleitem")) {
-			ItemGroupIF workItemGroupInfo = itemGroupInfoStack.peek();
+			OrderedItemSet workingItemSet = itemSetStack.peek();
+			
+			
 
 			String itemName = attributes.getValue("name");
 			if (null == itemName) {
@@ -138,7 +140,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 				throw new SAXException(errorMessage);				
 			}
 
-			if (null != workItemGroupInfo.getItemInfo(itemName)) {
+			if (workingItemSet.isRegisted(itemName)) {
 				String errorMessage = new StringBuilder("this single item name[")
 				.append(itemName).append("] was duplicated, ")
 				.append(CommonStaticFinalVars.NEWLINE).append(getParsingResultFromItemGroupInfoStack()).toString();
@@ -174,9 +176,11 @@ public class MessageInfoSAXParser extends DefaultHandler {
 				.append(getParsingResultFromItemGroupInfoStack()).toString());
 			}
 			
-			workItemGroupInfo.addItemInfo(singleItemInfo);
+			workingItemSet.addItemInfo(singleItemInfo);
 		} else if (startTag.equals("array")) {
-			ItemGroupIF workItemGroupInfo = itemGroupInfoStack.peek();
+			OrderedItemSet workingItemSet = itemSetStack.peek();
+			
+			
 
 			String arrayName = attributes.getValue("name");
 
@@ -190,7 +194,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 				throw new SAXException(errorMessage);
 			}
 
-			if (null != workItemGroupInfo.getItemInfo(arrayName)) {
+			if (workingItemSet.isRegisted(arrayName)) {
 				String errorMessage = new StringBuilder("this array item name[")
 				.append(arrayName).append("] was duplicated, ")
 				.append(CommonStaticFinalVars.NEWLINE).append(getParsingResultFromItemGroupInfoStack()).toString();
@@ -227,7 +231,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 			}
 			
 			if (arrayCntType.equals("reference")) {
-				AbstractItemInfo itemInfoForArraySizeReferenceVariable = workItemGroupInfo
+				AbstractItemInfo itemInfoForArraySizeReferenceVariable = workingItemSet
 						.getItemInfo(arrayCntValue);
 
 				if (null == itemInfoForArraySizeReferenceVariable) {					
@@ -236,9 +240,9 @@ public class MessageInfoSAXParser extends DefaultHandler {
 					throw new SAXException(errorMessage);
 				}
 
-				CommonType.MESSAGE_ITEM_TYPE messageItemTypeOfArraySizeReferenceVariable = itemInfoForArraySizeReferenceVariable
-						.getMessageItemType();
-				if (CommonType.MESSAGE_ITEM_TYPE.ARRAY_ITEM == messageItemTypeOfArraySizeReferenceVariable) {					
+				ItemInfoType messageItemTypeOfArraySizeReferenceVariable = itemInfoForArraySizeReferenceVariable
+						.getItemInfoType();
+				if (messageItemTypeOfArraySizeReferenceVariable.equals(ItemInfoType.ARRAY)) {					
 					String errorMessage = new StringBuilder("the logical gubun of item that specifies this array item[")
 					.append(arrayName).append("]'s size must be only single").toString();
 					throw new SAXException(errorMessage);
@@ -267,7 +271,9 @@ public class MessageInfoSAXParser extends DefaultHandler {
 				.append(CommonStaticFinalVars.NEWLINE)
 				.append(getParsingResultFromItemGroupInfoStack()).toString());
 			}
-			itemGroupInfoStack.push(arrayInfo);
+			
+			workingItemSet.addItemInfo(arrayInfo);
+			itemSetStack.push(arrayInfo.getOrderedItemSet());
 		}
 	}
 
@@ -325,9 +331,9 @@ public class MessageInfoSAXParser extends DefaultHandler {
 			}
 			
 			
-			MessageInfo messageInfo = new MessageInfo(messageID, messageInformationXMLFile);
+			messageInfo = new MessageInfo(messageID, messageInformationXMLFile);
 
-			itemGroupInfoStack.push(messageInfo);
+			itemSetStack.push(messageInfo.getOrderedItemSet());
 			
 		} else if (endTag.equals("direction")) {
 			if (tagValueStack.empty()) {
@@ -339,7 +345,10 @@ public class MessageInfoSAXParser extends DefaultHandler {
 			
 			tagValue = tagValue.trim().toUpperCase();
 			
-			MessageInfo messageInfo = (MessageInfo)itemGroupInfoStack.peek();
+			if (null == messageInfo) {
+				log.error("the var messageInfo is null");
+				System.exit(1);
+			}
 			
 			if (tagValue.equals("FROM_NONE_TO_NONE")) {
 				messageInfo.setDirection(CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_NONE_TO_NONE);
@@ -355,30 +364,20 @@ public class MessageInfoSAXParser extends DefaultHandler {
 				throw new SAXException(errorMessage);
 			}
 		} else if (endTag.equals("array")) {
-			ArrayInfo arrayInfo = (ArrayInfo) itemGroupInfoStack.pop();
-			ItemGroupIF workItemGroupInfo = itemGroupInfoStack.peek();
-			workItemGroupInfo.addItemInfo(arrayInfo);
+			itemSetStack.pop();
+			// ArrayInfo arrayInfo = (ArrayInfo) itemInfoStack.pop();
+			/*ItemGroupIF workItemGroupInfo = itemInfoStack.peek();
+			workItemGroupInfo.addItemInfo(arrayInfo);*/
 		}
 	}
 	
 	private String getParsingResultFromItemGroupInfoStack() {
-		StringBuilder messageStringBuilder = new StringBuilder("parsing result=");
-		
-		Iterator<ItemGroupIF> iter = itemGroupInfoStack.iterator();
-		
-		if (iter.hasNext()) {
-			ItemGroupIF itemGroupInfo = iter.next();			
-			messageStringBuilder.append(itemGroupInfo.toString());
+		if (null == messageInfo) {
+			return "the var messageInfo is null";
 		}
 		
-		while (iter.hasNext()) {
-			messageStringBuilder.append(CommonStaticFinalVars.NEWLINE);
-			messageStringBuilder.append("incompletion=");
-			ItemGroupIF itemGroupInfo = iter.next();			
-			messageStringBuilder.append(itemGroupInfo.toString());
-			
-		}
-		
+		StringBuilder messageStringBuilder = new StringBuilder("parsing result=");			
+		messageStringBuilder.append(messageInfo.toString());
 		return messageStringBuilder.toString();
 	}
 
@@ -453,9 +452,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 			
 			try {
 				saxParser.parse(xmlFile, this);
-				
-				MessageInfo retMessageInfo = (MessageInfo) itemGroupInfoStack.pop();
-				return retMessageInfo;
+				return messageInfo;
 			} finally {
 				reset();	
 			}
@@ -488,7 +485,7 @@ public class MessageInfoSAXParser extends DefaultHandler {
 		this.rootTag = null;
 		this.startTagStack.clear();
 		this.tagValueStack.clear();
-		this.itemGroupInfoStack.clear();
+		this.itemSetStack.clear();
 		try {
 			saxParser.reset();
 		} catch (UnsupportedOperationException e) {

@@ -320,7 +320,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 				fileNickname = "the message class";
 				try {
 					CommonStaticUtil.saveFile(messageFile, ioFileSetContentsBuilderManager.getMessageSourceFileContents(
-							messageID, author, messageInfo), CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
+							 author, messageInfo), CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 				} catch (IOException e) {
 					String errorMessage = String.format("fail to save file[%s][%s]::%s", fileNickname,
 							messageFile.getAbsolutePath(), e.toString());
@@ -333,7 +333,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 				try {
 					CommonStaticUtil.saveFile(
 									messageEncoderFile, ioFileSetContentsBuilderManager
-											.getEncoderSourceFileContents(messageID, author, messageInfo),
+											.getEncoderSourceFileContents(author, messageInfo),
 									CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 				} catch (IOException e) {
 					String errorMessage = String.format("fail to save file[%s][%s]::%s", fileNickname,
@@ -347,7 +347,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 				try {
 					CommonStaticUtil.saveFile(
 									messageDecoderFile, ioFileSetContentsBuilderManager
-											.getDecoderSourceFileContents(messageID, author, messageInfo),
+											.getDecoderSourceFileContents(author, messageInfo),
 									CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 				} catch (IOException e) {
 					String errorMessage = String.format("fail to save file[%s][%s]::%s", fileNickname,

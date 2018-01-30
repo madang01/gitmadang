@@ -627,13 +627,19 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 	}
 
 	@Override
-	public Object getWritableMiddleObjectjFromArrayObject(String path, Object arrayObj, int inx) throws BodyFormatException {
+	public Object getWritableMiddleObjectjFromArrayMiddleObject(String path, Object arrayObj, int inx) throws BodyFormatException {
 		return arrayObj;
 	}
 	
 	@Override
-	public Object getArrayObjectFromWritableMiddleObject(String path, String arrayName,
+	public Object getArrayMiddleObjectFromWritableMiddleObject(String path, String arrayName,
 			int arrayCntValue, Object writableMiddleObject) throws BodyFormatException {
+		return writableMiddleObject;
+	}
+	
+	@Override
+	public Object getGroupMiddleObjectFromWritableMiddleObject(String path, String groupName, Object writableMiddleObject)
+			throws BodyFormatException {
 		return writableMiddleObject;
 	}
 }

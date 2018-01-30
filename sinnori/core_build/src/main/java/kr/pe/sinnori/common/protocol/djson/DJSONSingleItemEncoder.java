@@ -740,7 +740,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 	}
 	
 	@Override
-	public Object getWritableMiddleObjectjFromArrayObject(String path, Object arrayObj, int inx) throws BodyFormatException {
+	public Object getWritableMiddleObjectjFromArrayMiddleObject(String path, Object arrayObj, int inx) throws BodyFormatException {
 		if (null == path) {
 			String errorMessage = String.format(
 					"%s 경로에 대응하는 존슨 객체에서 존슨 배열의 항목 값을 얻어오는 과정에서 파라미터 path 의 값[%d] 이 null 입니다.",
@@ -784,7 +784,7 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public Object getArrayObjectFromWritableMiddleObject(String path, String arrayName,
+	public Object getArrayMiddleObjectFromWritableMiddleObject(String path, String arrayName,
 			int arrayCntValue, Object writableMiddleObject)
 			throws BodyFormatException {
 		if (!(writableMiddleObject instanceof JSONObject)) {
@@ -835,5 +835,37 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 		}
 		
 		return jsonArray;
+	}
+	
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public Object getGroupMiddleObjectFromWritableMiddleObject(String path, String groupName, Object writableMiddleObject)
+			throws BodyFormatException {
+		if (!(writableMiddleObject instanceof JSONObject)) {
+			String errorMessage = String.format(
+					"%s 경로에 대응하는 존슨 객체에서 존슨 그룹[%s]을 얻는 과정에서  파라미터 middleWriteObj[%s]의 데이터 타입이 JSONObject 이 아닙니다.",
+					path, groupName, writableMiddleObject.getClass().getCanonicalName());
+			throw new BodyFormatException(errorMessage);
+		}
+		
+		JSONObject jsonReadObj = (JSONObject)writableMiddleObject;
+		Object valueObj = jsonReadObj.get(groupName);
+
+		if (null == valueObj) {
+			JSONObject jsonGroup = new JSONObject();
+			
+			jsonReadObj.put(groupName, jsonGroup);
+			return jsonGroup;
+		}
+
+		if (!(valueObj instanceof JSONObject)) {
+			String errorMessage = String.format(
+					"%s 경로에 대응하는 존슨 객체에서 존슨 그룹[%s]의 값의 타입[%s]이 JSONObject 이 아닙니다.",
+					path, groupName, valueObj.getClass().getCanonicalName());
+			throw new BodyFormatException(errorMessage);
+		}
+		
+		return valueObj;
 	}
 }

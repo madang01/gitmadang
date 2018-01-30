@@ -129,11 +129,11 @@ public class EachIOFileTypeBuilder extends JPanel {
 		
 		String result = null;
 		if (messageRadioButton.isSelected()) {
-			result = sourceFileBuilderManager.getMessageSourceFileContents(messageInfo.getMessageID(), "", messageInfo);
+			result = sourceFileBuilderManager.getMessageSourceFileContents("", messageInfo);
 		} else if (encoderRadioButton.isSelected()) {
-			result = sourceFileBuilderManager.getEncoderSourceFileContents(messageInfo.getMessageID(), "", messageInfo);
+			result = sourceFileBuilderManager.getEncoderSourceFileContents("", messageInfo);
 		} else if (decoderRadioButton.isSelected()) {
-			result = sourceFileBuilderManager.getDecoderSourceFileContents(messageInfo.getMessageID(), "", messageInfo);
+			result = sourceFileBuilderManager.getDecoderSourceFileContents("", messageInfo);
 		} else if (serverCodecRadioButton.isSelected()) {
 			result = sourceFileBuilderManager.getServerCodecSourceFileContents(messageInfo.getDirection(), messageInfo.getMessageID(), "");
 		} else if (clientCodecRadioButton.isSelected()) {

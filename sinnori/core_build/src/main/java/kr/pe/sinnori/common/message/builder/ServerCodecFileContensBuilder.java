@@ -26,14 +26,14 @@ import kr.pe.sinnori.common.etc.CommonType;
  */
 public class ServerCodecFileContensBuilder extends AbstractSourceFileBuildre {
 	
-	public String getFileContents(CommonType.MESSAGE_TRANSFER_DIRECTION connectionDirectionMode, String messageID, String author) {
+	public String buildStringOfFileContents(CommonType.MESSAGE_TRANSFER_DIRECTION connectionDirectionMode, String messageID, String author) {
 		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append(getLincenseString());
+		stringBuilder.append(buildStringOfLincensePart());
 		
 		// pachage
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("package ");
-		stringBuilder.append(dynamicClassBasePackageName);
+		stringBuilder.append(PACKAGE_FULL_NAME_PREFIX);
 		stringBuilder.append(messageID);
 		stringBuilder.append(";");
 		

@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.UnknownItemTypeException;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 
@@ -314,8 +313,8 @@ public class SingleItemInfo extends AbstractItemInfo {
 	}
 
 	@Override
-	public CommonType.MESSAGE_ITEM_TYPE getMessageItemType() {
-		return CommonType.MESSAGE_ITEM_TYPE.SINGLE_ITEM;
+	public ItemInfoType getItemInfoType() {
+		return ItemInfoType.SINGLE;
 	}
 
 	/******************* AbstractItemInfo end ***********************/
@@ -1059,7 +1058,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 	@Override
 	public String toString() {
 		StringBuffer strBuff = new StringBuffer();
-		strBuff.append("{ itemName=[");
+		strBuff.append("{ sigleItemName=[");
 		strBuff.append(itemName);
 		strBuff.append("], itemType=[");
 		strBuff.append(itemTypeName);

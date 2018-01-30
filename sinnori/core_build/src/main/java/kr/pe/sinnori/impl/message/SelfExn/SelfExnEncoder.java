@@ -39,16 +39,7 @@ public final class SelfExnEncoder extends AbstractMessageEncoder {
 		SelfExn selfExn = (SelfExn) messageObj;
 		encodeBody(selfExn, singleItemEncoder, middleWritableObject);
 	}
-
-	/**
-	 * <pre>
-	 * SelfExn 입력 메시지의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장한다.
-	 * </pre>
-	 * @param selfExn SelfExn 입력 메시지
-	 * @param singleItemEncoder 단일항목 인코더
-	 * @param middleWritableObject 중간 다리 역활 쓰기 객체
-	 * @throws Exception "입력/출력 메시지"의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장할때 에러 발생시 던지는 예외
-	 */
+	
 	private void encodeBody(SelfExn selfExn, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject) throws Exception {
 		String selfExnSingleItemPath = "SelfExn";
 		LinkedList<String> singleItemPathStatck = new LinkedList<String>();

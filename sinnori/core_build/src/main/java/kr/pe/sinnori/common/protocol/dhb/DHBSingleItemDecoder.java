@@ -485,15 +485,21 @@ public class DHBSingleItemDecoder implements SingleItemDecoderIF {
 	}
 
 	@Override
-	public Object getArrayObjectFromReadableMiddleObject(String path, String arrayName,
+	public Object getArrayMiddleObjectFromReadableMiddleObject(String path, String arrayName,
 			int arrayCntValue, Object readableMiddleObject)
 			throws BodyFormatException {
 		return readableMiddleObject;
 	}
 
 	@Override
-	public Object getReadableMiddleObjFromArrayObject(String path, Object arrayObj, int inx) throws BodyFormatException {
+	public Object getReadableMiddleObjFromArrayMiddleObject(String path, Object arrayObj, int inx) throws BodyFormatException {
 		return arrayObj;
+	}
+	
+	@Override
+	public Object getGroupMiddleObjectFromReadableMiddleObject(String path, String groupName, Object readableMiddleObject)
+			throws BodyFormatException {
+		return readableMiddleObject;
 	}
 	
 	@Override

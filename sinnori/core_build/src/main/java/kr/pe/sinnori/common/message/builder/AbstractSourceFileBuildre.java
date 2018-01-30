@@ -1,11 +1,16 @@
 package kr.pe.sinnori.common.message.builder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 
 public abstract class AbstractSourceFileBuildre {
-	protected String dynamicClassBasePackageName = "kr.pe.sinnori.impl.message.";
+	protected final Logger log = LoggerFactory.getLogger(AbstractSourceFileBuildre.class);
 	
-	protected String getLincenseString() {
+	public static final String PACKAGE_FULL_NAME_PREFIX = "kr.pe.sinnori.impl.message.";
+	
+	public String buildStringOfLincensePart() {
 		StringBuilder licenseBuilder = new StringBuilder();
 		
 		licenseBuilder.append("/*");
@@ -43,14 +48,73 @@ public abstract class AbstractSourceFileBuildre {
 		return licenseBuilder.toString();
 	}
 	
-	protected String getImportPartString(String importElements[]) {
+	public String getPackagePartString(String messageID) {
+		StringBuilder packagePartStringBuilder = new StringBuilder();
+		
+		packagePartStringBuilder.append("package ");
+		packagePartStringBuilder.append(PACKAGE_FULL_NAME_PREFIX);
+		packagePartStringBuilder.append(messageID);
+		packagePartStringBuilder.append(";");
+		
+		return packagePartStringBuilder.toString();
+	}
+	
+	public String buildStringOfImportPart(String importElements[]) {
+		if (null == importElements) {
+			throw new IllegalArgumentException("the parameter importElements is null");
+		}
+		
+		// int importElementsSize = importElements.length;
+		if (0 == importElements.length) {
+			return "";
+		}
+		
 		StringBuilder ImportPartBuilder = new StringBuilder();
-		for (String importElement : importElements) {
-			ImportPartBuilder.append(importElement);
+		ImportPartBuilder.append(importElements[0]);
+		
+		for (int i=1; i < importElements.length; i++) {
 			ImportPartBuilder.append(CommonStaticFinalVars.NEWLINE);
+			ImportPartBuilder.append(importElements[i]);
 		}
 		
 		return ImportPartBuilder.toString();
 	}
-
+	
+	public String buildStringOfFileDescriptionPart(String messageID, String author, String fileDescription) {
+		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append("/**");
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(" * ");
+		stringBuilder.append(messageID);
+		stringBuilder.append(" ");
+		stringBuilder.append(fileDescription);
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(" * @author ");
+		stringBuilder.append(author);
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(" *");
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(" */");
+		
+		return stringBuilder.toString();
+	}	
+	
+	
+	public String getPrefixWithTabCharacters(int depth, int numberOfAdditionalTabs) {
+		if (depth < 0) {
+			String errorMessage = String.format("the parameter depth[%d] is less than zero", depth);
+			throw new IllegalArgumentException(errorMessage);
+		}
+		if (numberOfAdditionalTabs < 0) {
+			String errorMessage = String.format("the parameter numberOfAdditionalTabs[%d] is less than zero", numberOfAdditionalTabs);
+			throw new IllegalArgumentException(errorMessage);
+		}
+		StringBuilder stringBuilder = new StringBuilder();
+		
+		int numberOfTabCharacters = depth + numberOfAdditionalTabs;
+		for (int i=0; i < numberOfTabCharacters; i++) {
+			stringBuilder.append("\t");
+		}		
+		return stringBuilder.toString();
+	}
 }

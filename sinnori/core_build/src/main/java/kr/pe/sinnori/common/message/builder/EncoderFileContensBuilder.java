@@ -1,696 +1,739 @@
 package kr.pe.sinnori.common.message.builder;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.message.builder.info.AbstractItemInfo;
 import kr.pe.sinnori.common.message.builder.info.ArrayInfo;
-import kr.pe.sinnori.common.message.builder.info.ItemGroupIF;
+import kr.pe.sinnori.common.message.builder.info.GroupInfo;
+import kr.pe.sinnori.common.message.builder.info.ItemInfoType;
+import kr.pe.sinnori.common.message.builder.info.OrderedItemSet;
 import kr.pe.sinnori.common.message.builder.info.SingleItemInfo;
 import kr.pe.sinnori.common.message.builder.info.SingleItemTypeManger;
 
-
 public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
-	
-	private String getCountVarName(int depth) {
+
+	public String getCountVarName(int depth) {
 		StringBuilder countVarNameBuilder = new StringBuilder();
-		for (int i=0; i <= depth/2; i++) {
-			countVarNameBuilder.append("i");
-		}
+		countVarNameBuilder.append("i");
+		countVarNameBuilder.append(depth);
 		return countVarNameBuilder.toString();
 	}
-	
-	private String toBody(int depth, String path, String varName, ItemGroupIF arrayInfo, String middleObjVarName) {
+
+	public String getArrayMiddleObjVarName(int depth, String arrayName) {
 		StringBuilder stringBuilder = new StringBuilder();
-		
-		ArrayList<AbstractItemInfo> itemInfoList = arrayInfo.getItemInfoList();
-		for (AbstractItemInfo itemInfo:itemInfoList) {
-			if (itemInfo.getMessageItemType() == CommonType.MESSAGE_ITEM_TYPE.SINGLE_ITEM) {
-				SingleItemInfo singleItemInfo = (SingleItemInfo)itemInfo;
-				
-				// singleItemEncoder.putValueToWritableMiddleObject(echo.getMessageID(), "randomInt"
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\tsingleItemEncoder.putValueToWritableMiddleObject(");
-				stringBuilder.append(varName);
-				stringBuilder.append("SingleItemPath, \"");
-				stringBuilder.append(singleItemInfo.getItemName());
-				stringBuilder.append("\"");
-				
-				/*// itemTypeID
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\t\t\t, ");
-				stringBuilder.append(singleItemInfo.getItemTypeID());
-				stringBuilder.append(" // itemTypeID");	
-				
-				// itemTypeName
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\t\t\t, \"");
-				stringBuilder.append(singleItemInfo.getItemTypeName());
-				stringBuilder.append("\" // itemTypeName");*/
-				
-				// itemType
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\t\t\t, ");
-				stringBuilder.append("SingleItemType.");
-				stringBuilder.append(SingleItemTypeManger.getInstance()
-						.getSingleItemType(singleItemInfo.getItemTypeID()).name());
-				stringBuilder.append(" // itemType");
-				// , SingleItemType.UB_PASCAL_STRING
-				
-				// itemValue
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\t\t\t, ");
-				stringBuilder.append(varName);
-				stringBuilder.append(".get");
-				stringBuilder.append(singleItemInfo.getFirstUpperItemName());
-				stringBuilder.append("() // itemValue");
-				
-				// itemSize
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\t\t\t, ");
-				stringBuilder.append(singleItemInfo.getItemSize());
-				stringBuilder.append(" // itemSize");
-				
-				// itemCharset
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\t\t\t, ");
-				/*
-				 SingleItemType itemType = singleItemInfo.getItemType();
-				 if (itemType.equals(SingleItemType.FIXED_LENGTH_STRING) ||
-						itemType.equals(SingleItemType.UB_PASCAL_STRING) ||
-						itemType.equals(SingleItemType.US_PASCAL_STRING) ||
-						itemType.equals(SingleItemType.SI_PASCAL_STRING)) {
-				 */
-				String nativeItemCharset = singleItemInfo.getNativeItemCharset();
-				if (null == nativeItemCharset) {
-					stringBuilder.append("null");
-				} else {
-					stringBuilder.append("\"");
-					stringBuilder.append(nativeItemCharset);
-					stringBuilder.append("\"");
-				}
-				stringBuilder.append(" // nativeItemCharset");
-				
-				
-				
-				// middleWritableObject
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\t\t\t, ");
-				stringBuilder.append(middleObjVarName);
-				stringBuilder.append(");");
-			} else {
-				ArrayInfo arrayInfoOfChild = (ArrayInfo) itemInfo;
-				
-				// List<AllDataType.Member> memberList = allDataType.getMemberList();	
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\tjava.util.List<");
-				stringBuilder.append(path);
-				stringBuilder.append(".");
-				stringBuilder.append(arrayInfoOfChild.getFirstUpperItemName());
-				stringBuilder.append("> ");
-				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("List = ");
-				stringBuilder.append(varName);
-				stringBuilder.append(".get");
-				stringBuilder.append(arrayInfoOfChild.getFirstUpperItemName());
-				stringBuilder.append("List();");
-				
-				// /** 배열 정보와 배열 크기 일치 검사 */
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t/** 배열 정보와 배열 크기 일치 검사 */");
-				
-				
-				// if (null == memberList) {
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\tif (null == ");
-				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("List) {");
-				
-				if (arrayInfoOfChild.getArrayCntType().equals("reference")) {
-					// /** 배열 크기 지정 방식이 간접일 경우 참조하는 변수값이 0 일 경우만 배열 값으로 null 을 허용한다. */
-					stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-					for (int i=0; i < depth; i++) {
-						stringBuilder.append("\t");
-					}
-					stringBuilder.append("\t\t\t/** 배열 크기 지정 방식이 간접일 경우 참조하는 변수값이 0 일 경우만 배열 값으로 null 을 허용한다. */");
-					
-					// if (0 != allDataTypeInObj.getCnt()) {
-					stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-					for (int i=0; i < depth; i++) {
-						stringBuilder.append("\t");
-					}
-					stringBuilder.append("\t\t\tif (0 != ");
-					stringBuilder.append(varName);
-					stringBuilder.append(".get");
-					stringBuilder.append(arrayInfoOfChild.getArrayCntValue().substring(0, 1).toUpperCase());
-					stringBuilder.append(arrayInfoOfChild.getArrayCntValue().substring(1));
-					stringBuilder.append("()) {");
-					
-					// String errorMessage = new StringBuilder(allDataTypeSingleItemPath)
-					stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-					for (int i=0; i < depth; i++) {
-						stringBuilder.append("\t");
-					}
-					stringBuilder.append("\t\t\t\tString errorMessage = new StringBuilder(\"간접 참조 회수[\"");
-					stringBuilder.append(")");
-					
-					stringBuilder.append(CommonStaticFinalVars.NEWLINE);	
-					stringBuilder.append("\t\t\t\t.append(");
-					stringBuilder.append(varName);
-					stringBuilder.append(".get");
-					stringBuilder.append(arrayInfoOfChild.getArrayCntValue().substring(0, 1).toUpperCase());
-					stringBuilder.append(arrayInfoOfChild.getArrayCntValue().substring(1));
-					stringBuilder.append("()");
-					stringBuilder.append(")");
-					
-					stringBuilder.append(CommonStaticFinalVars.NEWLINE);	
-					stringBuilder.append("\t\t\t\t.append(");
-					stringBuilder.append("\"] is not zero but \")");
-					
-					stringBuilder.append(CommonStaticFinalVars.NEWLINE);	
-					stringBuilder.append("\t\t\t\t.append(");
-					stringBuilder.append(varName);
-					stringBuilder.append("SingleItemPath");
-					stringBuilder.append(")");
-					
-					// .append(".")
-					stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-					for (int i=0; i < depth; i++) {
-						stringBuilder.append("\t");
-					}
-					stringBuilder.append("\t\t\t\t.append(\".\")");
-					
-					// .append("memberList")
-					stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-					for (int i=0; i < depth; i++) {
-						stringBuilder.append("\t");
-					}
-					stringBuilder.append("\t\t\t\t.append(\"");
-					stringBuilder.append(arrayInfoOfChild.getItemName());
-					stringBuilder.append("List\")");
-					
-					// .append("is null").toString();
-					stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-					for (int i=0; i < depth; i++) {
-						stringBuilder.append("\t");
-					}
-					stringBuilder.append("\t\t\t\t.append(\"is null\").toString();");
-					
-					// throw new BodyFormatException(errorMessage);
-					stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-					for (int i=0; i < depth; i++) {
-						stringBuilder.append("\t");
-					}
-					stringBuilder.append("\t\t\t\tthrow new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);");
-					
-					// }
-					stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-					for (int i=0; i < depth; i++) {
-						stringBuilder.append("\t");
-					}
-					stringBuilder.append("\t\t\t}");
-					
-				} else {
-					// /** 배열 크기 지정 방식이 직접일 경우 배열 값으로 null 을 허용하지 않는다. */
-					stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-					for (int i=0; i < depth; i++) {
-						stringBuilder.append("\t");
-					}
-					stringBuilder.append("\t\t/** 배열 크기 지정 방식이 직접일 경우 배열 값으로 null 을 허용하지 않는다. */");
-					
-					// String errorMessage = new StringBuilder(allDataTypeInObjSingleItemPath)
-					stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-					for (int i=0; i < depth; i++) {
-						stringBuilder.append("\t");
-					}
-					stringBuilder.append("\t\tString errorMessage = new StringBuilder(");
-					stringBuilder.append(varName);
-					stringBuilder.append("SingleItemPath)");
-					
-					// .append(".")
-					stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-					for (int i=0; i < depth; i++) {
-						stringBuilder.append("\t");
-					}
-					stringBuilder.append("\t\t.append(\".\")");
-					
-					// .append("memberList")
-					stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-					for (int i=0; i < depth; i++) {
-						stringBuilder.append("\t");
-					}
-					stringBuilder.append("\t\t.append(\"");
-					stringBuilder.append(arrayInfoOfChild.getItemName());
-					stringBuilder.append("List\")");
-					
-					// .append("is null").toString();
-					stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-					for (int i=0; i < depth; i++) {
-						stringBuilder.append("\t");
-					}
-					stringBuilder.append("\t\t.append(\"is null\").toString();");
-					
-					// throw new BodyFormatException(errorMessage);
-					stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-					for (int i=0; i < depth; i++) {
-						stringBuilder.append("\t");
-					}
-					stringBuilder.append("\t\tthrow new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);");
-				}
-				
-				// } else {
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t} else {");
-				
-				// int memberListSize = memberList.size();
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\tint ");
-				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("ListSize = ");
-				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("List.size();");
-				
-				// /** 배열 값이 null 이 아닐때에는 배열 크기가 배열 정보에서 지정된 크기와 같은지 검사 */
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\t/** 배열 값이 null 이 아닐때에는 배열 크기가 배열 정보에서 지정된 크기와 같은지 검사 */");
-				
-				
-				// if (memberListSize != allDataTypeInObj.getCnt()) {
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\tif (");
-				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("ListSize != ");
-				
-				if (arrayInfoOfChild.getArrayCntType().equals("reference")) {
-					stringBuilder.append(varName);
-					stringBuilder.append(".get");
-					stringBuilder.append(arrayInfoOfChild.getArrayCntValue().substring(0, 1).toUpperCase());
-					stringBuilder.append(arrayInfoOfChild.getArrayCntValue().substring(1));
-					stringBuilder.append("()");
-				} else {
-					stringBuilder.append(arrayInfoOfChild.getArrayCntValue());
-				}				
-				
-				stringBuilder.append(") {");
-				
-				// String errorMessage = new StringBuilder(allDataTypeInObjSingleItemPath)
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\t\tString errorMessage = new StringBuilder(");
-				stringBuilder.append(varName);
-				stringBuilder.append("SingleItemPath");
-				stringBuilder.append(")");
-				
-				// .append(".")
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\t\t.append(\".\")");
-				
-				// .append("memberList")
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\t\t.append(\"");
-				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("List.length[\")");
-				
-				// .append(memberListSize)
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\t\t.append(");
-				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("ListSize)");
-				
-				// .append("] is not same to ")
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\t\t.append(\"] is not same to \")");
-				
-				// .append(allDataTypeInObjSingleItemPath)
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\t\t.append(");
-				stringBuilder.append(varName);
-				stringBuilder.append("SingleItemPath)");
-				
-				// .append(".")
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\t\t.append(\".\")");
-				
-				// .append("cnt")
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\t\t.append(\"");
-				stringBuilder.append(arrayInfoOfChild.getArrayCntValue());
-				stringBuilder.append("[\")");
-				
-				// .append(allDataTypeInObj.getCnt())
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\t\t.append(");
-				stringBuilder.append(varName);
-				stringBuilder.append(".get");
-				stringBuilder.append(arrayInfoOfChild.getArrayCntValue().substring(0, 1).toUpperCase());
-				stringBuilder.append(arrayInfoOfChild.getArrayCntValue().substring(1));
-				stringBuilder.append("())");
-				
-				// .append("]").toString();
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\t\t.append(\"]\").toString();");
-				
-				// throw new BodyFormatException(errorMessage);
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\t\tthrow new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);");
-				
-				// }
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\t}");
-				
-				// Object memberMiddleWriteArray = singleItemEncoder.getArrayObjFromMiddleWriteObj(allDataTypeInObjSingleItemPath, "member", memberList.length, middleWritableObject);
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\tObject ");
-				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("MiddleWriteArray = singleItemEncoder.getArrayObjFromMiddleWriteObj(");
-				stringBuilder.append(varName);
-				stringBuilder.append("SingleItemPath, \"");
-				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("\", ");
-				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("ListSize, ");
-				stringBuilder.append(middleObjVarName);
-				stringBuilder.append(");");
-				
-				// for (int i=0; i < memberListSize; i++) {
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\tfor (int ");
-				stringBuilder.append(getCountVarName(depth));
-				stringBuilder.append("=0; ");
-				stringBuilder.append(getCountVarName(depth));
-				stringBuilder.append(" < ");
-				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("ListSize; ");
-				stringBuilder.append(getCountVarName(depth));
-				stringBuilder.append("++) {");
-				
-				// singleItemPathStatck.push(new StringBuilder(singleItemPathStatck.getLast()).append(".").append("Member").append("[").append(i).append("]").toString());
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\t\tsingleItemPathStatck.push(new StringBuilder(singleItemPathStatck.getLast()).append(\".\").append(\"");
-				stringBuilder.append(arrayInfoOfChild.getFirstUpperItemName());
-				stringBuilder.append("\").append(\"[\").append(");
-				stringBuilder.append(getCountVarName(depth));
-				stringBuilder.append(").append(\"]\").toString());");
-				
-				// String memberSingleItemPath = singleItemPathStatck.getLast();
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\t\tString ");
-				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("SingleItemPath = singleItemPathStatck.getLast();");
-				
-				// Object memberMiddleWriteObj = singleItemEncoder.getMiddleWriteObjFromArrayObj(memberSingleItemPath, memberMiddleWriteArray, i);
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\t\tObject ");
-				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("MiddleWriteObj = singleItemEncoder.getMiddleWriteObjFromArrayObj(");
-				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("SingleItemPath, ");
-				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("MiddleWriteArray, ");
-				stringBuilder.append(getCountVarName(depth));
-				stringBuilder.append(");");
-				
-				// AllDataType.Member member = memberList.get(i);
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\t\t");
-				stringBuilder.append(path);
-				stringBuilder.append(".");
-				stringBuilder.append(arrayInfoOfChild.getFirstUpperItemName());
-				stringBuilder.append(" ");
-				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append(" = ");
-				stringBuilder.append(arrayInfoOfChild.getItemName());
-				stringBuilder.append("List.get(");
-				stringBuilder.append(getCountVarName(depth));
-				stringBuilder.append(");");
-				
-				// FIXME!
-				stringBuilder.append(toBody(depth+2, path+"."+arrayInfoOfChild.getFirstUpperItemName(), 
-						arrayInfoOfChild.getItemName(), arrayInfoOfChild, arrayInfoOfChild.getItemName()+"MiddleWriteObj"));
-				
-				// singleItemPathStatck.pop();
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\t\tsingleItemPathStatck.pop();");
-				
-				// }
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t\t}");
-				
-				// }
-				stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-				for (int i=0; i < depth; i++) {
-					stringBuilder.append("\t");
-				}
-				stringBuilder.append("\t\t}");
-			}
-		}
-		
+		stringBuilder.append(arrayName);
+		stringBuilder.append("$");
+		stringBuilder.append(depth);
+		stringBuilder.append("ArrayMiddleObject");
+		return stringBuilder.toString();
+	}
+
+	public String getElementObjVarNameOfArrayMiddleObject(int depth, String arrayName) {
+		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append(arrayName);
+		stringBuilder.append("$");
+		stringBuilder.append(depth);
+		stringBuilder.append("MiddleWritableObject");
+		return stringBuilder.toString();
+	}	
+
+	public String getArrayVarObjName(int depth, String arrayName) {
+		StringBuilder stringBuilder = new StringBuilder(arrayName);
+		stringBuilder.append("$");
+		stringBuilder.append(depth);
+		return stringBuilder.toString();
+	}
+
+	public String getArrayListVarObjName(int depth, String arrayName) {
+		StringBuilder stringBuilder = new StringBuilder(getArrayVarObjName(depth, arrayName));		
+		stringBuilder.append("List");
+		return stringBuilder.toString();
+	}
+
+	public String getArrayListSizeVarObjName(int depth, String arrayName) {
+		StringBuilder stringBuilder = new StringBuilder(getArrayListVarObjName(depth, arrayName));
+		stringBuilder.append("Size");
+		return stringBuilder.toString();
+	}
+
+	public String getGroupMiddleObjVarName(int depth, String groupName) {
+		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append(groupName);
+		stringBuilder.append("$");
+		stringBuilder.append(depth);
+		stringBuilder.append("WritableMiddleObject");
 		return stringBuilder.toString();
 	}
 	
-	public String getFileContents(String messageID,
-			String author,
-			kr.pe.sinnori.common.message.builder.info.MessageInfo messageInfo) {
+	public String getGroupVarObjName(int depth, String groupName) {
+		StringBuilder stringBuilder = new StringBuilder(groupName);
+		stringBuilder.append("$");
+		stringBuilder.append(depth);
+		return stringBuilder.toString();
+	}
+
+	public String buildStringOfSingleItemInfoPart(int depth, String path, String varNameOfSetOwner, String middleObjVarName,
+			SingleItemInfo singleItemInfo) {;
+		StringBuilder stringBuilder = new StringBuilder();
+
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append("singleItemEncoder.putValueToWritableMiddleObject(");
+		// the Parameter path
+		stringBuilder.append("pathStack.peek()");
+		stringBuilder.append(", \"");
+		// the parameter itemName
+		stringBuilder.append(singleItemInfo.getItemName());
+		stringBuilder.append("\"");
+		// the parameter singleItemType		
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(", ");
+		stringBuilder.append("SingleItemType.");
+		stringBuilder
+				.append(SingleItemTypeManger.getInstance().getSingleItemType(singleItemInfo.getItemTypeID()).name());
+		stringBuilder.append(" // itemType");
+
+		// the parameter itemValue
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(", ");
+		stringBuilder.append(varNameOfSetOwner);
+		stringBuilder.append(".get");
+		stringBuilder.append(singleItemInfo.getFirstUpperItemName());
+		stringBuilder.append("() // itemValue");
+
+		// the parameter itemSize
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(", ");
+		stringBuilder.append(singleItemInfo.getItemSize());
+		stringBuilder.append(" // itemSize");
+
+		// the parameter nativeItemCharset
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(", ");
+		String nativeItemCharset = singleItemInfo.getNativeItemCharset();
+		if (null == nativeItemCharset) {
+			stringBuilder.append("null");
+		} else {
+			stringBuilder.append("\"");
+			stringBuilder.append(nativeItemCharset);
+			stringBuilder.append("\"");
+		}
+		stringBuilder.append(" // nativeItemCharset");
 		
-		String firstLowerMessageID =  messageID.substring(0, 1).toLowerCase() + messageID.substring(1);
+		// the parameter writableMiddleObject
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(", ");
+		stringBuilder.append(middleObjVarName);
+		stringBuilder.append(");");
+
+		return stringBuilder.toString();
+	}
+
+	public String buildStringOfPartWhoseListIsNullAtArray(int depth, String varNameOfSetOwner, ArrayInfo arrayInfo) {
+		StringBuilder stringBuilder = new StringBuilder();
+
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append("/** 배열 크기 지정 방식이 간접일 경우 참조하는 변수값이 0 일 경우만 배열 값으로 null 을 허용한다. */");
+
+		if (arrayInfo.getArrayCntType().equals("reference")) {
+			/** 배열 크기 지정 방식이 간접일 경우 참조하는 변수값이 0 일 경우만 배열 값으로 null 을 허용한다. */
+			/**
+			 * <pre>
+			 * if (0 != <변수명>.get<첫문자자가 대문자인 참조변수명>()) {
+			 * </pre>
+			 */
+
+			// if (0 != allDataTypeInObj.getCnt()) {
+			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+			stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+			stringBuilder.append("if (0 != ");
+			// allItemTypeReq.getCnt()
+			stringBuilder.append(varNameOfSetOwner);
+			stringBuilder.append(".get");
+			stringBuilder.append(arrayInfo.getArrayCntValue().substring(0, 1).toUpperCase());
+			stringBuilder.append(arrayInfo.getArrayCntValue().substring(1));
+			stringBuilder.append("()");
+			///////////////////////////
+			stringBuilder.append(") {");			
+			
+			
+			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+			stringBuilder.append(getPrefixWithTabCharacters(depth, 2));
+			// String errorMessage = new StringBuilder("the var ").append("memberList").append("is null but the value referenced by the array size").append("[allItemTypeReq.getCnt()][").append(allItemTypeReq.getCnt()).append("] is not zero").toString();
+			stringBuilder.append("String errorMessage = new StringBuilder(\"the var \").append(\"");
+			stringBuilder.append(getArrayListVarObjName(depth, arrayInfo.getItemName()));
+			stringBuilder.append("\").append(\"is null but the value referenced by the array size\").append(\"[");
+			// allItemTypeReq.getCnt()
+			stringBuilder.append(varNameOfSetOwner);
+			stringBuilder.append(".get");
+			stringBuilder.append(arrayInfo.getArrayCntValue().substring(0, 1).toUpperCase());
+			stringBuilder.append(arrayInfo.getArrayCntValue().substring(1));
+			stringBuilder.append("()");
+						///////////////////////////	
+			stringBuilder.append("][\").append(");
+			// allItemTypeReq.getCnt()
+			stringBuilder.append(varNameOfSetOwner);
+			stringBuilder.append(".get");
+			stringBuilder.append(arrayInfo.getArrayCntValue().substring(0, 1).toUpperCase());
+			stringBuilder.append(arrayInfo.getArrayCntValue().substring(1));
+			stringBuilder.append("()");
+			///////////////////////////	
+			stringBuilder.append(").append(\"] is not zero\").toString();");
+
+			// throw new BodyFormatException(errorMessage);
+			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+			stringBuilder.append(getPrefixWithTabCharacters(depth, 2));
+			stringBuilder.append("throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);");
+
+			// }
+			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+			stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+			stringBuilder.append("}");
+
+		} else {
+			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+			stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+			stringBuilder.append("if (0 != ");
+			stringBuilder.append(arrayInfo.getArrayCntValue());
+			stringBuilder.append(") {");
+			
+			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+			stringBuilder.append(getPrefixWithTabCharacters(depth, 2));
+			// String errorMessage = new StringBuilder("the var ").append("memberList").append("is null but the value defined by array size").append("[10] is not zero").toString();
+			stringBuilder.append("String errorMessage = new StringBuilder(\"the var \").append(\"");
+			stringBuilder.append(getArrayListVarObjName(depth, arrayInfo.getItemName()));
+			stringBuilder.append("\").append(\"is null but the value defined by array size\").append(\"[");
+			stringBuilder.append(arrayInfo.getArrayCntValue());
+			stringBuilder.append("] is not zero\").toString();");
+			
+
+			// throw new BodyFormatException(errorMessage);
+			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+			stringBuilder.append(getPrefixWithTabCharacters(depth, 2));
+			stringBuilder.append("throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);");
+
+			// }
+			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+			stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+			stringBuilder.append("}");
+		}
+
+		return stringBuilder.toString();
+	}
+
+	/** 배열 크기가 메시지 정보에서 정의한 배열 크기와 같은지 검사 */
+	public String buildStringOfPartCheckingListSizeIsValid(int depth, String varNameOfSetOwner, ArrayInfo arrayInfo) {
+		StringBuilder stringBuilder = new StringBuilder();
+
+		// if (memberListSize != allDataTypeInObj.getCnt()) {
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append("if (");
+		stringBuilder.append(getArrayListSizeVarObjName(depth, arrayInfo.getArrayName()));
+		stringBuilder.append(" != ");
+
+		if (arrayInfo.getArrayCntType().equals("reference")) {
+			stringBuilder.append(varNameOfSetOwner);
+			stringBuilder.append(".get");
+			stringBuilder.append(arrayInfo.getArrayCntValue().substring(0, 1).toUpperCase());
+			stringBuilder.append(arrayInfo.getArrayCntValue().substring(1));
+			stringBuilder.append("()");
+		} else {
+			stringBuilder.append(arrayInfo.getArrayCntValue());
+		}
+
+		stringBuilder.append(") {");
+
+		// String errorMessage = new StringBuilder(allDataTypeInObjSingleItemPath)
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 2));
 		
+		if (arrayInfo.getArrayCntType().equals("reference")) {
+			// String errorMessage = new StringBuilder("the var ").append("memberListSize").append("[").append(memberListSize).append("] is not same to ").append("the value referenced by the array size[allItemTypeReq.getCnt()][").append(allItemTypeReq.getCnt()).append("]").toString();
+			stringBuilder.append("String errorMessage = new StringBuilder(\"the var \").append(\"");
+			stringBuilder.append(getArrayListSizeVarObjName(depth, arrayInfo.getItemName()));
+			stringBuilder.append("\").append(\"[\").append(");
+			stringBuilder.append(getArrayListSizeVarObjName(depth, arrayInfo.getItemName()));
+			stringBuilder.append(").append(\"] is not same to \").append(\"the value referenced by the array size[");
+			// allItemTypeReq.getCnt()
+			stringBuilder.append(varNameOfSetOwner);
+			stringBuilder.append(".get");
+			stringBuilder.append(arrayInfo.getArrayCntValue().substring(0, 1).toUpperCase());
+			stringBuilder.append(arrayInfo.getArrayCntValue().substring(1));
+			stringBuilder.append("()");
+			///////////////////////////	
+			stringBuilder.append("][\").append(");
+			// allItemTypeReq.getCnt()
+			stringBuilder.append(varNameOfSetOwner);
+			stringBuilder.append(".get");
+			stringBuilder.append(arrayInfo.getArrayCntValue().substring(0, 1).toUpperCase());
+			stringBuilder.append(arrayInfo.getArrayCntValue().substring(1));
+			stringBuilder.append("()");
+			///////////////////////////
+			stringBuilder.append(").append(\"]\").toString();");
+		} else {
+			stringBuilder.append("String errorMessage = new StringBuilder(\"the var \").append(\"");
+			stringBuilder.append(getArrayListSizeVarObjName(depth, arrayInfo.getItemName()));
+			stringBuilder.append("\").append(\"[\").append(");
+			stringBuilder.append(getArrayListSizeVarObjName(depth, arrayInfo.getItemName()));
+			stringBuilder.append(").append(\"] is not same to \").append(\"the value defined by array size[");
+			stringBuilder.append(arrayInfo.getArrayCntValue());
+			stringBuilder.append("]\").toString();");
+		}
+
+		// throw new BodyFormatException(errorMessage);
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 2));
+		stringBuilder.append("throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);");
+
+		// }
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append("}");
+
+		return stringBuilder.toString();
+	}
+
+	public String buildStringOfPartWhoseListIsNotNullAtArray(int depth, String path, String nameOfSetOwner,
+			String middleObjVarName, ArrayInfo arrayInfo) {
+		String newPath = new StringBuilder(path).append(".").append(arrayInfo.getFirstUpperItemName()).toString();
+
+		StringBuilder stringBuilder = new StringBuilder();
+
+		/** 배열 변수 선언및 정의 */
+		// int memberListSize = memberList.size();
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append("int ");
+		stringBuilder.append(getArrayListSizeVarObjName(depth, arrayInfo.getItemName()));
+		stringBuilder.append(" = ");
+		stringBuilder.append(getArrayListVarObjName(depth, arrayInfo.getItemName()));
+		stringBuilder.append(".size();");
+
+		/** 배열 값이 null 이 아닐때에는 배열 크기가 메시지 정보에서 정의한 배열 크기와 같은지 검사 */
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append("/** 배열 값이 null 이 아닐때에는 배열 크기가 배열 정보에서 지정된 크기와 같은지 검사 */");
+
+		/** 배열 크기가 메시지 정보에서 정의한 배열 크기와 같은지 검사 */
+		stringBuilder.append(buildStringOfPartCheckingListSizeIsValid(depth, nameOfSetOwner, arrayInfo));
+
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+
+		/** 이 배열을 위한 중간 객체 가져오기 */
+		// Object memberArrayMiddleObject =
+		// singleItemEncoder.getArrayMiddleObjectFromWritableMiddleObject(allDataTypeInObjSingleItemPath,
+		// "member", memberList.length, middleWritableObject);
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append("Object ");
+		/*
+		 * stringBuilder.append(arrayInfo.getItemName());
+		 * stringBuilder.append("MiddleWriteArray");
+		 */
+		stringBuilder.append(getArrayMiddleObjVarName(depth, arrayInfo.getItemName()));
+		stringBuilder.append(" = singleItemEncoder.getArrayMiddleObjectFromWritableMiddleObject(");		
+		// the parameter path
+		stringBuilder.append("pathStack.peek()");
+		stringBuilder.append(", ");
+		// the parameter arrayName
+		stringBuilder.append("\"");
+		stringBuilder.append(arrayInfo.getItemName());
+		stringBuilder.append("\", ");
+		// the parameter arrayCntValue
+		stringBuilder.append(getArrayListSizeVarObjName(depth, arrayInfo.getItemName()));
+		stringBuilder.append(", ");
+		// the parameter writableMiddleObject
+		stringBuilder.append(middleObjVarName);
+		stringBuilder.append(");");
+
+		// for (int i=0; i < memberListSize; i++) {
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append("for (int ");
+		stringBuilder.append(getCountVarName(depth));
+		stringBuilder.append("=0; ");
+		stringBuilder.append(getCountVarName(depth));
+		stringBuilder.append(" < ");
+		stringBuilder.append(getArrayListSizeVarObjName(depth, arrayInfo.getItemName()));
+		stringBuilder.append("; ");
+		stringBuilder.append(getCountVarName(depth));
+		stringBuilder.append("++) {");
+
+		
+		// pathStack.push(newStringBuilder(pathStack.peek()).append(".").append("Member").append("[").append(i).append("]").toString());
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 2));
+		stringBuilder.append("pathStack.push(new StringBuilder(pathStack.peek()).append(\".\").append(\"")
+				.append(arrayInfo.getFirstUpperItemName())
+				.append("\").append(\"[\").append(")
+				.append(getCountVarName(depth))
+				.append(").append(\"]\").toString());");
+
+		// Object memberMiddleWriteObj = singleItemEncoder.getMiddleWriteObjFromArrayObj(memberSingleItemPath, memberMiddleWriteArray, i);
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 2));
+		stringBuilder.append("Object ");
+		stringBuilder.append(getElementObjVarNameOfArrayMiddleObject(depth, arrayInfo.getItemName()));
+		stringBuilder.append(" = singleItemEncoder.getWritableMiddleObjectjFromArrayMiddleObject(");	
+		// the parameter path
+		stringBuilder.append("pathStack.peek(), ");
+		// the parameter arrayObj
+		stringBuilder.append(getArrayMiddleObjVarName(depth, arrayInfo.getItemName()));
+		stringBuilder.append(", ");
+		// the parameter inx
+		stringBuilder.append(getCountVarName(depth));
+		stringBuilder.append(");");
+
+		// AllDataType.Member member = memberList.get(i);
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 2));
+		/*
+		 * stringBuilder.append(path); stringBuilder.append(".");
+		 * stringBuilder.append(arrayInfo.getFirstUpperItemName());
+		 */
+		stringBuilder.append(newPath);
+		stringBuilder.append(" ");
+		stringBuilder.append(getArrayVarObjName(depth, arrayInfo.getItemName()));
+		stringBuilder.append(" = ");
+		stringBuilder.append(getArrayListVarObjName(depth, arrayInfo.getItemName()));
+		stringBuilder.append(".get(");
+		stringBuilder.append(getCountVarName(depth));
+		stringBuilder.append(");");
+
+		stringBuilder.append(buildStringOfOrderedItemSetPart(depth + 2
+				, newPath
+				, getArrayVarObjName(depth, arrayInfo.getItemName())
+				, getElementObjVarNameOfArrayMiddleObject(depth, arrayInfo.getItemName())
+				, arrayInfo.getOrderedItemSet()));
+
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		
+		// pathStack.pop();
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 2));
+		stringBuilder.append("pathStack.pop();");
+
+		// }
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append("}");
+		
+		return stringBuilder.toString();
+	}
+
+	public String buildStringOfArrayInfoPart(int depth, String path, String varNameOfSetOwner, String middleObjVarName,
+			ArrayInfo arrayInfo) {
 		StringBuilder stringBuilder = new StringBuilder();
 		
-		stringBuilder.append(getLincenseString());
+		/** 배열 변수 선언및 정의 */
+		// java.util.List<AllItemTypeReq.Member> member$0List =allItemTypeReq.getMemberList();
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("package ");
-		stringBuilder.append(dynamicClassBasePackageName);
-		stringBuilder.append(messageID);
-		stringBuilder.append(";");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);		
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append("java.util.List<");
+		stringBuilder.append(path);
+		stringBuilder.append(".");
+		stringBuilder.append(arrayInfo.getFirstUpperItemName());
+		stringBuilder.append("> ");
+		stringBuilder.append(getArrayListVarObjName(depth, arrayInfo.getItemName()));
+		stringBuilder.append(" = ");
+		stringBuilder.append(varNameOfSetOwner);
+		stringBuilder.append(".get");
+		stringBuilder.append(arrayInfo.getFirstUpperItemName());
+		stringBuilder.append("List();");
+
+		/** 배열 정보와 배열 크기 일치 검사 */
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+
+		/** 주석 */
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append("/** 배열 정보와 배열 크기 일치 검사 */");
+
+		/** if (null == memberList) { */
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append("if (null == ");
+		stringBuilder.append(getArrayListVarObjName(depth, arrayInfo.getItemName()));
+		stringBuilder.append(") {");
+
+		stringBuilder.append(buildStringOfPartWhoseListIsNullAtArray(depth, varNameOfSetOwner, arrayInfo));
+
+		// } else {
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append("} else {");
+
+		// buildStringOfPartWhoseListIsNotNullAtArray
+		stringBuilder.append(buildStringOfPartWhoseListIsNotNullAtArray(depth, path, varNameOfSetOwner,
+				middleObjVarName, arrayInfo));				
+
+		// }
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append("}");
+
+		return stringBuilder.toString();
+	}
+	
+	public String buildStringOfGroupInfoPart(int depth, String path, String varNameOfSetOwner, String middleObjVarName,
+			GroupInfo groupInfo) {
+
+		String newPath = new StringBuilder(path).append(".").append(groupInfo.getFirstUpperItemName()).toString();
+
+		StringBuilder stringBuilder = new StringBuilder();
+
+		
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append("pathStack.push(new StringBuilder(pathStack.peek()).append(\".\").append(\"");
+		stringBuilder.append(groupInfo.getFirstUpperItemName());
+		stringBuilder.append("\").toString());");
+
+		/**
+		 * 변수 선언
+		 */
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));		
+		stringBuilder.append(newPath);
+		stringBuilder.append(" ");
+		stringBuilder.append(getGroupVarObjName(depth, groupInfo.getItemName()));
+		stringBuilder.append(" = ");
+		stringBuilder.append(varNameOfSetOwner);
+		stringBuilder.append(".get");
+		stringBuilder.append(groupInfo.getFirstUpperItemName());
+		stringBuilder.append("();");
+
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append("Object ");
+		stringBuilder.append(getGroupMiddleObjVarName(depth, groupInfo.getItemName()));
+		stringBuilder.append(" = singleItemEncoder.getGroupMiddleObjectFromWritableMiddleObject(");
+		// the parameter path
+		stringBuilder.append("pathStack.peek(), ");
+		// the parameter groupName
+		stringBuilder.append("\"");
+		stringBuilder.append(groupInfo.getItemName());
+		stringBuilder.append("\", ");
+		// the parameter writableMiddleObject
+		stringBuilder.append(middleObjVarName);
+		stringBuilder.append(");");
+		
+		stringBuilder.append(buildStringOfOrderedItemSetPart(depth, newPath, getGroupVarObjName(depth, groupInfo.getItemName()),
+				getGroupMiddleObjVarName(depth, groupInfo.getItemName()), groupInfo.getOrderedItemSet()));
+		
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		
+		// pathStack.pop();
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append("pathStack.pop();");		
+
+		return stringBuilder.toString();
+	}
+
+
+	public String buildStringOfOrderedItemSetPart(int depth, String path, String varNameOfSetOwner,
+			String middleObjVarName, OrderedItemSet orderedItemSet) {
+		if (depth <= 0) {
+			String errorMessage = String.format("the parameter depth[%d] is less than or equal to zero", depth);
+			throw new IllegalArgumentException(errorMessage);
+		}
+		if (null == path) {
+			String errorMessage = "the parameter path is null";
+			throw new IllegalArgumentException(errorMessage);
+		}
 		
-		String importElements[] = {
-				"import java.util.LinkedList;",
-				"import kr.pe.sinnori.common.message.AbstractMessage;",
-				"import kr.pe.sinnori.common.message.builder.info.SingleItemType;",
-				"import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;",
-				"import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;"
-		};
-		stringBuilder.append(getImportPartString(importElements));
+		if (null == varNameOfSetOwner) {
+			String errorMessage = "the parameter varNameOfSetOwner is null";
+			throw new IllegalArgumentException(errorMessage);
+		}
 		
+		if (null == middleObjVarName) {
+			String errorMessage = "the parameter middleObjVarName is null";
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (null == orderedItemSet) {
+			String errorMessage = "the parameter orderedItemSet is null";
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		StringBuilder stringBuilder = new StringBuilder();
+
+		List<AbstractItemInfo> itemInfoList = orderedItemSet.getItemInfoList();
+		for (AbstractItemInfo itemInfo : itemInfoList) {
+			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+
+			ItemInfoType itemInfoType = itemInfo.getItemInfoType();
+			switch (itemInfoType) {
+			case SINGLE: {
+				SingleItemInfo singleItemInfo = (SingleItemInfo) itemInfo;
+				stringBuilder
+						.append(buildStringOfSingleItemInfoPart(depth, path, varNameOfSetOwner, middleObjVarName, singleItemInfo));
+				break;
+			}
+			case ARRAY: {
+				ArrayInfo arrayInfo = (ArrayInfo) itemInfo;
+				stringBuilder.append(buildStringOfArrayInfoPart(depth, path, varNameOfSetOwner, middleObjVarName, arrayInfo));
+				break;
+			}
+			case GROUP: {
+				GroupInfo groupInfo = (GroupInfo) itemInfo;
+				stringBuilder.append(buildStringOfGroupInfoPart(depth, path, varNameOfSetOwner, middleObjVarName, groupInfo));
+				break;
+			}
+			default: {
+				log.error("unknwon item type[{}]", itemInfoType.toString());
+				System.exit(1);
+			}
+			}
+		}
+
+		return stringBuilder.toString();
+	}
+
+	/**
+	 * @param messageID
+	 * @param firstLowerMessageID
+	 * @return encode(AbstractMessage, SingleItemEncoderIF, Object) 메소드 파트 문자열
+	 */
+	public String buildStringOfEncodeMethodPart(String messageID, String firstLowerMessageID) {
+		StringBuilder stringBuilder = new StringBuilder();
+
+		final int depth = 1;
 		
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("/**");
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append(
+				"public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Object writableMiddleObject) throws Exception {");
+
+		// AllItemTypeReq allItemTypeReq = (AllItemTypeReq)messageObj;
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(" * ");
-		stringBuilder.append(messageID);
-		stringBuilder.append(" 메시지 인코더");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(" * @author ");
-		stringBuilder.append(author);
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(" *");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(" */");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("public final class ");
-		stringBuilder.append(messageID);
-		stringBuilder.append("Encoder extends AbstractMessageEncoder {");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t@Override");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\tpublic void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject)");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t\t\tthrows Exception {");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t\tif (!(messageObj instanceof ");
-		stringBuilder.append(messageID);
-		stringBuilder.append(")) {");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t\t\tString errorMessage = String.format(\"메시지 객체 타입[%s]이 ");
-		stringBuilder.append(messageID);
-		stringBuilder.append(" 이(가) 아닙니다.\", messageObj.getClass().getCanonicalName());");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t\t\tthrow new IllegalArgumentException(errorMessage);");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t\t}");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t\t");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t\t");
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
 		stringBuilder.append(messageID);
 		stringBuilder.append(" ");
 		stringBuilder.append(firstLowerMessageID);
 		stringBuilder.append(" = (");
 		stringBuilder.append(messageID);
-		stringBuilder.append(") messageObj;");
+		stringBuilder.append(")messageObj;");
+		// encodeBody(allItemTypeReq, singleItemEncoder, writableMiddleObject);
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t\tencodeBody(");
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append("encodeBody(");
 		stringBuilder.append(firstLowerMessageID);
-		stringBuilder.append(", singleItemEncoder, middleWritableObject);");
+		stringBuilder.append(", singleItemEncoder, writableMiddleObject);");
+		// }
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t}");
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append("}");
+
+		return stringBuilder.toString();
+	}
+
+	public String buildStringOfEncodeBodyMethodPart(String messageID, String firstLowerMessageID,
+			String middleObjVarName, kr.pe.sinnori.common.message.builder.info.MessageInfo messageInfo) {
+		StringBuilder stringBuilder = new StringBuilder();
+
+		int depth = 1;
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t/**");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t * <pre>");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t * ");
-		stringBuilder.append(messageID);
-		stringBuilder.append(" 입력 메시지의 내용을 \"단일항목 인코더\"를 이용하여 \"중간 다리 역활 쓰기 객체\"에 저장한다.");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t * </pre>");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t * @param ");
-		stringBuilder.append(firstLowerMessageID);
-		stringBuilder.append(" ");
-		stringBuilder.append(messageID);
-		stringBuilder.append(" 입력 메시지");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t * @param singleItemEncoder 단일항목 인코더");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);		
-		stringBuilder.append("\t * @param middleWritableObject 중간 다리 역활 쓰기 객체");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t * @throws Exception \"입력/출력 메시지\"의 내용을 \"단일항목 인코더\"를 이용하여 \"중간 다리 역활 쓰기 객체\"에 저장할때 에러 발생시 던지는 예외");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t */");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\tprivate void encodeBody(");
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append("private void encodeBody(");
 		stringBuilder.append(messageID);
 		stringBuilder.append(" ");
 		stringBuilder.append(firstLowerMessageID);
-		stringBuilder.append(", SingleItemEncoderIF singleItemEncoder, Object middleWritableObject) throws Exception {");
+		stringBuilder.append(", SingleItemEncoderIF singleItemEncoder, Object ");
+		stringBuilder.append(middleObjVarName);
+		stringBuilder.append(") throws Exception {");
+
+		if (! messageInfo.getOrderedItemSet().getItemInfoList().isEmpty()) {
+			// Stack<String> pathStack = new Stack<String>();
+			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+			stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+			stringBuilder.append("Stack<String> pathStack = new Stack<String>();");
+
+			// pathStack.push("AllItemTypeReq");
+			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+			stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+			stringBuilder.append("pathStack.push(");
+			stringBuilder.append("\"");
+			stringBuilder.append(messageID);
+			stringBuilder.append("\");");
+			
+			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+			stringBuilder.append(buildStringOfOrderedItemSetPart(depth+1, messageID, firstLowerMessageID, middleObjVarName,
+					messageInfo.getOrderedItemSet()));
+			
+			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+			
+			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+			stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+			stringBuilder.append("pathStack.pop();");
+		}		
 		
-		// String allDataTypeInObjSingleItemPath = "AllDataType";
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t\tString ");
-		stringBuilder.append(firstLowerMessageID);
-		stringBuilder.append("SingleItemPath = \"");
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append("}");
+
+		/*stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append("}");*/
+
+		return stringBuilder.toString();
+	}
+
+	public String buildStringOfFileContents(String author,
+			kr.pe.sinnori.common.message.builder.info.MessageInfo messageInfo) {
+
+		final String middleObjVarName = "middleWritableObject";
+		final int depth = 0;
+
+		String messageID = messageInfo.getMessageID();
+		String firstLowerMessageID = messageInfo.getFirstLowerMessageID();
+
+		StringBuilder stringBuilder = new StringBuilder();
+
+		stringBuilder.append(buildStringOfLincensePart());
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPackagePartString(messageID));
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+
+		String importElements[] = { "import java.util.Stack;",
+				"import kr.pe.sinnori.common.message.AbstractMessage;",
+				"import kr.pe.sinnori.common.message.builder.info.SingleItemType;",
+				"import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;",
+				"import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;" };
+		stringBuilder.append(buildStringOfImportPart(importElements));
+
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(buildStringOfFileDescriptionPart(messageID, author, "메시지 인코더"));
+
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append("public final class ");
 		stringBuilder.append(messageID);
-		stringBuilder.append("\";");
-		
-		// LinkedList<String> singleItemPathStatck = new LinkedList<String>(); 
+		stringBuilder.append("Encoder extends AbstractMessageEncoder {");
+
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t\tLinkedList<String> singleItemPathStatck = new LinkedList<String>();");
-		
-		// singleItemPathStatck.push(allDataTypeInObjSingleItemPath);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append("@Override");
+		// encode(AbstractMessage, SingleItemEncoderIF, Object) 메소드 파트 문자열
+		stringBuilder.append(buildStringOfEncodeMethodPart(messageID, firstLowerMessageID));
+
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t\tsingleItemPathStatck.push(");
-		stringBuilder.append(firstLowerMessageID);
-		stringBuilder.append("SingleItemPath);");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		
-		stringBuilder.append(toBody(0, messageID, firstLowerMessageID, messageInfo, "middleWritableObject"));
-		
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t}");
-		
+		stringBuilder.append(
+				buildStringOfEncodeBodyMethodPart(messageID, firstLowerMessageID, middleObjVarName, messageInfo));
+
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append("}");
 		return stringBuilder.toString();

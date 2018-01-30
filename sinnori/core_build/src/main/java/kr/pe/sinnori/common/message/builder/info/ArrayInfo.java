@@ -17,22 +17,14 @@
 
 package kr.pe.sinnori.common.message.builder.info;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import kr.pe.sinnori.common.etc.CommonType;
-
-
 /**
  * 배열 정보 클래스. 배열 이름, 배열 크기, 배열에 속한 항목 그룹 정보를 가지고 있다.
  * 
  * @author Won Jonghoon
  * 
  */
-public class ArrayInfo extends AbstractItemInfo implements
-		ItemGroupIF {
-	private ArrayList<AbstractItemInfo> itemGroupInfoOfArray = new ArrayList<AbstractItemInfo>();
-	private HashMap<String, AbstractItemInfo> itemInfoHash = new HashMap<String, AbstractItemInfo>();
+public class ArrayInfo extends AbstractItemInfo {
+	private OrderedItemSet orderedItemSet = new OrderedItemSet();
 
 	private String arrayName = null;
 	
@@ -72,6 +64,11 @@ public class ArrayInfo extends AbstractItemInfo implements
 		}
 		if (null == arrayCntValue) {
 			throw new IllegalArgumentException("the parmamter arrayCntValue is null");
+		}
+		
+		if (arrayName.length() < 2) {
+			String errorMessage = String.format("the number[%d] of character of the parameter arrayName is less than two", arrayName.length());
+			throw new IllegalArgumentException(errorMessage);
 		}
 		
 		
@@ -145,7 +142,22 @@ public class ArrayInfo extends AbstractItemInfo implements
 		return arrayFirstUpperName;
 	}
 	
+	public OrderedItemSet getOrderedItemSet() {
+		return orderedItemSet;
+	}
 
+	/******************* AbstractItemInfo start ***********************/
+	@Override
+	public String getItemName() {
+		return arrayName;
+	}
+
+	@Override
+	public ItemInfoType getItemInfoType() {
+		return ItemInfoType.ARRAY;
+	}
+	/******************* AbstractItemInfo end ***********************/
+	
 	@Override
 	public String toString() {
 		StringBuffer strBuff = new StringBuffer();
@@ -155,63 +167,10 @@ public class ArrayInfo extends AbstractItemInfo implements
 		strBuff.append(arrayCntType);
 		strBuff.append("], arrayCntValue=[");
 		strBuff.append(arrayCntValue);
-		strBuff.append("], {\n");
-		
-		int itemInfoSize = itemGroupInfoOfArray.size();
-		for (int i = 0; i < itemInfoSize; i++) {
-			if (i > 0) {
-				strBuff.append(",");
-				strBuff.append("\n");
-			}
-			strBuff.append(arrayName);
-			strBuff.append("[");
-			strBuff.append(i);
-			strBuff.append("]=");
-			
-			AbstractItemInfo itemInfo = itemGroupInfoOfArray.get(i);
-			CommonType.MESSAGE_ITEM_TYPE messageItemType = itemInfo.getMessageItemType();
-			if (CommonType.MESSAGE_ITEM_TYPE.SINGLE_ITEM == messageItemType) {
-				SingleItemInfo singleItemInfo = (SingleItemInfo) itemInfo;
-				strBuff.append(singleItemInfo.toString());
-			} else {
-				ArrayInfo arrayInfo = (ArrayInfo) itemInfo;
-				strBuff.append(arrayInfo.toString());
-			}
-		}
-
+		strBuff.append("], {");		
+		strBuff.append(orderedItemSet.toString());
 		strBuff.append("}}");
 
 		return strBuff.toString();
 	}
-
-	/******************* ItemGroupInfoIF start ***********************/
-	@Override
-	public ArrayList<AbstractItemInfo> getItemInfoList() {
-		return itemGroupInfoOfArray;
-	}
-
-	@Override
-	public void addItemInfo(AbstractItemInfo itemInfo) {
-		itemGroupInfoOfArray.add(itemInfo);
-		itemInfoHash.put(itemInfo.getItemName(), itemInfo);
-	}
-
-	@Override
-	public AbstractItemInfo getItemInfo(String itemName) {
-		return itemInfoHash.get(itemName);
-	}
-
-	/******************* ItemGroupInfoIF end ***********************/
-
-	/******************* AbstractItemInfo start ***********************/
-	@Override
-	public String getItemName() {
-		return arrayName;
-	}
-
-	@Override
-	public CommonType.MESSAGE_ITEM_TYPE getMessageItemType() {
-		return CommonType.MESSAGE_ITEM_TYPE.ARRAY_ITEM;
-	}
-	/******************* AbstractItemInfo end ***********************/
 }

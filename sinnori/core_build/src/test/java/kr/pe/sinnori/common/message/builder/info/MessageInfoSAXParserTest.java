@@ -69,6 +69,30 @@ public class MessageInfoSAXParserTest {
 		}
 	}
 
+	/**
+	 * 메시지 정보 파싱 테스트를 위해 존재하는 경로에 있는 지정한 테스트 대상 메시지 정보 파일명 포함 전체 경로를 반환한다.
+	 * [신놀이설치경로]/core_build/src/test/resources/message_info_xml_testdata/[테스트 대상
+	 * 짧은 파일명]
+	 * 
+	 * @param sinnoriInstalledPathString
+	 *            신놀이 설치 경로
+	 * @param shortFileName
+	 *            테스트 대상 짧은 파일명
+	 * @return 테스트 대상 파일명 포함 전체 경로명
+	 */
+	private String getPathStringForJunitTest(
+			String sinnoriInstalledPathString, String shortFileName) {
+		String testDataXmlFilePathString = new StringBuilder(
+				sinnoriInstalledPathString).append(File.separator)
+				.append("core_build").append(File.separator).append("src")
+				.append(File.separator).append("test").append(File.separator)
+				.append("resources").append(File.separator)
+				.append("message_info_xml_testdata").append(File.separator)
+				.append(shortFileName).toString();
+	
+		return testDataXmlFilePathString;
+	}
+
 	@Ignore
 	@Test(expected = SAXException.class)
 	public void testConstructor() throws Exception {
@@ -229,30 +253,6 @@ public class MessageInfoSAXParserTest {
 		org.junit.Assert
 				.assertThat("the expected value comparison", returnedValue,
 						org.hamcrest.CoreMatchers.equalTo(expectedValue));
-	}
-
-	/**
-	 * 메시지 정보 파싱 테스트를 위해 존재하는 경로에 있는 지정한 테스트 대상 메시지 정보 파일명 포함 전체 경로를 반환한다.
-	 * [신놀이설치경로]/core_build/src/test/resources/message_info_xml_testdata/[테스트 대상
-	 * 짧은 파일명]
-	 * 
-	 * @param sinnoriInstalledPathString
-	 *            신놀이 설치 경로
-	 * @param shortFileName
-	 *            테스트 대상 짧은 파일명
-	 * @return 테스트 대상 파일명 포함 전체 경로명
-	 */
-	private String getPathStringForJunitTest(
-			String sinnoriInstalledPathString, String shortFileName) {
-		String testDataXmlFilePathString = new StringBuilder(
-				sinnoriInstalledPathString).append(File.separator)
-				.append("core_build").append(File.separator).append("src")
-				.append(File.separator).append("test").append(File.separator)
-				.append("resources").append(File.separator)
-				.append("message_info_xml_testdata").append(File.separator)
-				.append(shortFileName).toString();
-
-		return testDataXmlFilePathString;
 	}
 
 	@Test

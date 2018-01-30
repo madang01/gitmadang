@@ -30,7 +30,7 @@ public interface SingleItemEncoderIF {
 			Object itemValue, int itemSize, String nativeItemCharset, Object writableMiddleObject)
 			throws Exception;
 	
-	public Object getArrayObjectFromWritableMiddleObject(String path, String arrayName,
+	public Object getArrayMiddleObjectFromWritableMiddleObject(String path, String arrayName,
 			int arrayCntValue, Object writableMiddleObject)
 			throws BodyFormatException;
 			
@@ -42,7 +42,11 @@ public interface SingleItemEncoderIF {
 	 * @return "배열 객체" 로 부터 지정된 인덱스에 있는 객체
 	 * @throws Exception "배열 객체" 로 부터 지정된 인덱스에 있는 객체를 반환할때 에러 발생시 던지는 예외
 	 */
-	public Object getWritableMiddleObjectjFromArrayObject(String path, Object arrayObj, int inx) throws BodyFormatException;
+	public Object getWritableMiddleObjectjFromArrayMiddleObject(String path, Object arrayObj, int inx) throws BodyFormatException;
+	// getWritableMiddleObjectjFromArrayObject
+	
+	public Object getGroupMiddleObjectFromWritableMiddleObject(String path, String groupName, Object writableMiddleObject)
+			throws BodyFormatException;
 }
 
 

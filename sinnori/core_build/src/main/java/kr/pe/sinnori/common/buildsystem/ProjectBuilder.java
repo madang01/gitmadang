@@ -1016,7 +1016,7 @@ public class ProjectBuilder {
 
 		IOFileSetContentsBuilderManager ioFileSetContentsBuilderManager = IOFileSetContentsBuilderManager.getInstance();
 
-		String messageFileContnets = ioFileSetContentsBuilderManager.getMessageSourceFileContents(messageID, author,
+		String messageFileContnets = ioFileSetContentsBuilderManager.getMessageSourceFileContents(author,
 				messageInfo);
 
 		/**
@@ -1054,7 +1054,7 @@ public class ProjectBuilder {
 
 		IOFileSetContentsBuilderManager ioFileSetContentsBuilderManager = IOFileSetContentsBuilderManager.getInstance();
 
-		String decoderFileContnets = ioFileSetContentsBuilderManager.getDecoderSourceFileContents(messageID, author,
+		String decoderFileContnets = ioFileSetContentsBuilderManager.getDecoderSourceFileContents(author,
 				messageInfo);
 
 		/**
@@ -1092,7 +1092,7 @@ public class ProjectBuilder {
 
 		IOFileSetContentsBuilderManager ioFileSetContentsBuilderManager = IOFileSetContentsBuilderManager.getInstance();
 
-		String encoderFileContnets = ioFileSetContentsBuilderManager.getEncoderSourceFileContents(messageID, author,
+		String encoderFileContnets = ioFileSetContentsBuilderManager.getEncoderSourceFileContents(author,
 				messageInfo);
 
 		/**

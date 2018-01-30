@@ -44,7 +44,7 @@ public interface SingleItemDecoderIF {
 	 * @return  "중간 다리 역활 읽기 객체" 로 부터 배열 정보를 가지고 배열 객체
 	 * @throws Exception  "중간 다리 역활 읽기 객체" 로 부터 배열 정보를 가지고 배열 객체를 얻을때 에러 발생시 던지는 예외
 	 */
-	public Object getArrayObjectFromReadableMiddleObject(String path, String arrayName, int arrayCntValue, Object readableMiddleObject)
+	public Object getArrayMiddleObjectFromReadableMiddleObject(String path, String arrayName, int arrayCntValue, Object readableMiddleObject)
 			throws BodyFormatException;
 	
 	/**
@@ -55,7 +55,11 @@ public interface SingleItemDecoderIF {
 	 * @return "배열 객체" 로 부터 지정된 인덱스에 있는 객체
 	 * @throws Exception "배열 객체" 로 부터 지정된 인덱스에 있는 객체를 반환할때 에러 발생시 던지는 예외
 	 */
-	public Object getReadableMiddleObjFromArrayObject(String path, Object arrayObj, int inx) throws BodyFormatException;
+	public Object getReadableMiddleObjFromArrayMiddleObject(String path, Object arrayObj, int inx) throws BodyFormatException;
+	
+	
+	public Object getGroupMiddleObjectFromReadableMiddleObject(String path, String groupName, Object readableMiddleObject)
+			throws BodyFormatException;
 	
 	/**
 	 * <pre>

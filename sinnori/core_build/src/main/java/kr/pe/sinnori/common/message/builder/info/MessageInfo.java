@@ -19,8 +19,6 @@ package kr.pe.sinnori.common.message.builder.info;
 
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 import kr.pe.sinnori.common.etc.CommonType;
 
@@ -42,14 +40,12 @@ import kr.pe.sinnori.common.etc.CommonType;
  * @author Won Jonghoon
  * 
  */
-public class MessageInfo implements ItemGroupIF {
+public class MessageInfo {
 	private String messageID = null;
-	private java.util.Date lastModfied;
-	private String firstUpperMessageID = null;
+	private String firstLowerMessageID = null;
 	private CommonType.MESSAGE_TRANSFER_DIRECTION direction = null;
 	
-	private ArrayList<AbstractItemInfo> itemInfoList = new ArrayList<AbstractItemInfo>();
-	private HashMap<String, AbstractItemInfo> itemInfoHash = new HashMap<String, AbstractItemInfo>();
+	private OrderedItemSet messageOrderedItemSet = new OrderedItemSet();
 	
 	private File messageInfoXMLFile = null;
 		
@@ -61,8 +57,7 @@ public class MessageInfo implements ItemGroupIF {
 	public MessageInfo(String messageID, File messageInfoXMLFile) {		
 		this.messageID = messageID;
 		this.messageInfoXMLFile = messageInfoXMLFile;
-		this.lastModfied = new java.util.Date(messageInfoXMLFile.lastModified());
-		this.firstUpperMessageID = messageID.substring(0,1)+messageID.substring(1);
+		this.firstLowerMessageID = messageID.substring(0,1).toLowerCase()+messageID.substring(1);
 	}
 
 	public String getMessageID() {
@@ -70,7 +65,7 @@ public class MessageInfo implements ItemGroupIF {
 	}
 	
 	public java.util.Date getLastModified() {
-		return lastModfied;
+		return new java.util.Date(messageInfoXMLFile.lastModified());
 	}
 	
 	public void setDirection(CommonType.MESSAGE_TRANSFER_DIRECTION direction) {
@@ -81,27 +76,14 @@ public class MessageInfo implements ItemGroupIF {
 		return direction;
 	}
 	
-
-	/******************* ItemGroupInfoIF start ***********************/
-	@Override
-	public ArrayList<AbstractItemInfo> getItemInfoList() {
-		return itemInfoList;
+	public String getFirstLowerMessageID() {
+		return firstLowerMessageID;
 	}
-
-	@Override
-	public void addItemInfo(AbstractItemInfo itemInfo) {
-		itemInfoList.add(itemInfo);
-		itemInfoHash.put(itemInfo.getItemName(), itemInfo);
-	}
-
-	@Override
-	public AbstractItemInfo getItemInfo(String itemName) {
-
-		return itemInfoHash.get(itemName);
-	}
-
-	/******************* ItemGroupInfoIF end ***********************/
-
+	
+	public OrderedItemSet getOrderedItemSet() {
+		return messageOrderedItemSet;
+	}	
+	
 	public String toString() {
 		StringBuffer strBuff = new StringBuffer();
 		strBuff.append("{ messageID=");
@@ -109,41 +91,9 @@ public class MessageInfo implements ItemGroupIF {
 		strBuff.append(", direction=");
 		strBuff.append(direction.toString());
 		strBuff.append(", {");
-
-		// Iterator<AbstractItemInfo> itemInfoIter = getItemInfoList();
-		int itemInfoSize = itemInfoList.size();
-		for (int i = 0; i < itemInfoSize; i++) {
-		// for (int i = 0; itemInfoIter.hasNext(); i++) {
-			if (i > 0) {
-				strBuff.append(",");
-				strBuff.append("\n");
-			}
-			strBuff.append("순서[");
-			strBuff.append(i);
-			strBuff.append("]=");
-
-			AbstractItemInfo itemInfo = itemInfoList.get(i);
-			// AbstractItemInfo itemInfo = itemInfoIter.next();
-			
-			CommonType.MESSAGE_ITEM_TYPE messageItemType = itemInfo
-					.getMessageItemType();
-			if (CommonType.MESSAGE_ITEM_TYPE.SINGLE_ITEM == messageItemType) {
-				SingleItemInfo singleItemInfo = (SingleItemInfo) itemInfo;
-				strBuff.append(singleItemInfo.toString());
-			} else {
-				ArrayInfo arrayInfo = (ArrayInfo) itemInfo;
-				strBuff.append(arrayInfo.toString());
-			}
-		}
-
+		strBuff.append(messageOrderedItemSet.toString());
 		strBuff.append("}}");
 
 		return strBuff.toString();
 	}
-
-	@Override
-	public String getFirstUpperItemName() {
-		return firstUpperMessageID;
-	}
-
 }

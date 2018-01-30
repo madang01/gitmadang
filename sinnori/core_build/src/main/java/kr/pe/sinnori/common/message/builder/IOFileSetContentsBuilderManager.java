@@ -2,6 +2,7 @@ package kr.pe.sinnori.common.message.builder;
 
 import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.message.builder.info.MessageInfo;
 
 
 public class IOFileSetContentsBuilderManager {
@@ -33,29 +34,27 @@ public class IOFileSetContentsBuilderManager {
 		serverCodecFileContensBuilder = new ServerCodecFileContensBuilder();
 	}
 
-	public String getMessageSourceFileContents(String messageID, String author, kr.pe.sinnori.common.message.builder.info.MessageInfo messageInfo) {
-		return messageFileContensBuilder.getFileContents(messageID, author, messageInfo);
+	public String getMessageSourceFileContents(String author, MessageInfo messageInfo) {
+		return messageFileContensBuilder.buildStringOfFileContents(messageInfo.getMessageID(), author, messageInfo);
 	}
 	
-	public String getDecoderSourceFileContents(String messageID,
-			String author,
-			kr.pe.sinnori.common.message.builder.info.MessageInfo messageInfo) {		
-		return decoderFileContensBuilder.getFileContents(messageID, author, messageInfo);
+	public String getDecoderSourceFileContents(String author,
+			MessageInfo messageInfo) {		
+		return decoderFileContensBuilder.buildStringOfFileContents(author, messageInfo);
 	}
 
-	public String getEncoderSourceFileContents(String messageID,
-			String author,
-			kr.pe.sinnori.common.message.builder.info.MessageInfo messageInfo) {
-		return encoderFileContensBuilder.getFileContents(messageID, author, messageInfo);
+	public String getEncoderSourceFileContents(String author,
+			MessageInfo messageInfo) {
+		return encoderFileContensBuilder.buildStringOfFileContents(author, messageInfo);
 	}
 	
 	public String getClientCodecSourceFileContents(
 			CommonType.MESSAGE_TRANSFER_DIRECTION connectionDirectionMode,
 			String messageID, String author) {
-		return clientCodecFileContensBuilder.getFileContents(connectionDirectionMode, messageID, author);
+		return clientCodecFileContensBuilder.buildStringOfFileContents(connectionDirectionMode, messageID, author);
 	}
 
 	public String getServerCodecSourceFileContents(CommonType.MESSAGE_TRANSFER_DIRECTION connectionDirectionMode, String messageID, String author) {
-		return serverCodecFileContensBuilder.getFileContents(connectionDirectionMode, messageID, author);
+		return serverCodecFileContensBuilder.buildStringOfFileContents(connectionDirectionMode, messageID, author);
 	}
 }
