@@ -50,8 +50,10 @@ public class IOFileSetContentsBuilderManagerTest {
 	public void test_SelfExn메시지IO관련파일만들기() {
 		final String messageID = "SelfExn";
 
-		String messageInfoFilesPathString = BuildSystemPathSupporter
-				.getMessageInfoFilesPathString(sinnoriInstalledPathString);
+		String tmpPathString = BuildSystemPathSupporter.getSinnoriTempPathString(sinnoriInstalledPathString);
+		
+		/*String messageInfoFilesPathString = BuildSystemPathSupporter
+				.getMessageInfoFilesPathString(sinnoriInstalledPathString);*/
 
 		String messageInfoFilePathString = BuildSystemPathSupporter
 				.getMessageInfoFilePathString(sinnoriInstalledPathString, messageID);
@@ -85,7 +87,7 @@ public class IOFileSetContentsBuilderManagerTest {
 			String messageSourceFileContent = ioFileSetContentsBuilderManager.getMessageSourceFileContents(author,
 					messageInfo);
 
-			File messageSourceFile = new File(new StringBuilder(messageInfoFilesPathString).append(File.separator)
+			File messageSourceFile = new File(new StringBuilder(tmpPathString).append(File.separator)
 					.append(messageID).append(".java").toString());
 
 			try {
@@ -103,7 +105,7 @@ public class IOFileSetContentsBuilderManagerTest {
 			String encoderSourceFileContents = ioFileSetContentsBuilderManager.getEncoderSourceFileContents(author,
 					messageInfo);
 
-			File encoderSourceFile = new File(new StringBuilder(messageInfoFilesPathString).append(File.separator)
+			File encoderSourceFile = new File(new StringBuilder(tmpPathString).append(File.separator)
 					.append(messageID).append("Encoder.java").toString());
 
 			try {
@@ -121,7 +123,7 @@ public class IOFileSetContentsBuilderManagerTest {
 			String decoderSourceFileContents = ioFileSetContentsBuilderManager
 					.getDecoderSourceFileContents(author, messageInfo);
 
-			File decoderSourceFile = new File(new StringBuilder(messageInfoFilesPathString).append(File.separator)
+			File decoderSourceFile = new File(new StringBuilder(tmpPathString).append(File.separator)
 					.append(messageID).append("Decoder.java").toString());
 
 			try {
@@ -139,7 +141,7 @@ public class IOFileSetContentsBuilderManagerTest {
 			String clientCodecSourceFileContents = ioFileSetContentsBuilderManager.getClientCodecSourceFileContents(
 					CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL, messageID, author);
 
-			File clientCodecSourceFile = new File(new StringBuilder(messageInfoFilesPathString).append(File.separator)
+			File clientCodecSourceFile = new File(new StringBuilder(tmpPathString).append(File.separator)
 					.append(messageID).append("ClientCodec.java").toString());
 
 			try {
@@ -158,7 +160,7 @@ public class IOFileSetContentsBuilderManagerTest {
 			String serverCodecSourceFileContents = ioFileSetContentsBuilderManager.getServerCodecSourceFileContents(
 					CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL, messageID, author);
 
-			File serverCodecSourceFile = new File(new StringBuilder(messageInfoFilesPathString).append(File.separator)
+			File serverCodecSourceFile = new File(new StringBuilder(tmpPathString).append(File.separator)
 					.append(messageID).append("ServerCodec.java").toString());
 
 			try {
@@ -178,9 +180,8 @@ public class IOFileSetContentsBuilderManagerTest {
 	@Test
 	public void test_AllItemTypeReq_메시지IO관련파일만들기() {
 		final String messageID = "AllItemTypeReq";
-
-		String messageInfoFilesPathString = BuildSystemPathSupporter
-				.getMessageInfoFilesPathString(sinnoriInstalledPathString);
+		
+		String tmpPathString = BuildSystemPathSupporter.getSinnoriTempPathString(sinnoriInstalledPathString);
 
 		String messageInfoFilePathString = BuildSystemPathSupporter
 				.getMessageInfoFilePathString(sinnoriInstalledPathString, messageID);
@@ -213,7 +214,7 @@ public class IOFileSetContentsBuilderManagerTest {
 		{
 			String messageSourceFileContent = ioFileSetContentsBuilderManager.getMessageSourceFileContents(author, messageInfo);
 
-			File messageSourceFile = new File(new StringBuilder(messageInfoFilesPathString).append(File.separator)
+			File messageSourceFile = new File(new StringBuilder(tmpPathString).append(File.separator)
 					.append(messageID).append(".java").toString());
 
 			try {
@@ -230,7 +231,7 @@ public class IOFileSetContentsBuilderManagerTest {
 		{
 			String encoderSourceFileContents = ioFileSetContentsBuilderManager.getEncoderSourceFileContents(author, messageInfo);
 
-			File encoderSourceFile = new File(new StringBuilder(messageInfoFilesPathString).append(File.separator)
+			File encoderSourceFile = new File(new StringBuilder(tmpPathString).append(File.separator)
 					.append(messageID).append("Encoder.java").toString());
 			
 			// FIXME! TDD 위해서 core 소스 디렉토리에 바로 저장
@@ -251,7 +252,7 @@ public class IOFileSetContentsBuilderManagerTest {
 		{
 			String decoderSourceFileContents = ioFileSetContentsBuilderManager.getDecoderSourceFileContents(author, messageInfo);
 
-			File decoderSourceFile = new File(new StringBuilder(messageInfoFilesPathString).append(File.separator)
+			File decoderSourceFile = new File(new StringBuilder(tmpPathString).append(File.separator)
 					.append(messageID).append("Decoder.java").toString());
 			
 			// FIXME! TDD 위해서 core 소스 디렉토리에 바로 저장 
@@ -273,7 +274,7 @@ public class IOFileSetContentsBuilderManagerTest {
 			String clientCodecSourceFileContents = ioFileSetContentsBuilderManager.getClientCodecSourceFileContents(
 					CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL, messageID, author);
 
-			File clientCodecSourceFile = new File(new StringBuilder(messageInfoFilesPathString).append(File.separator)
+			File clientCodecSourceFile = new File(new StringBuilder(tmpPathString).append(File.separator)
 					.append(messageID).append("ClientCodec.java").toString());
 
 			try {
@@ -292,7 +293,7 @@ public class IOFileSetContentsBuilderManagerTest {
 			String serverCodecSourceFileContents = ioFileSetContentsBuilderManager.getServerCodecSourceFileContents(
 					CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL, messageID, author);
 
-			File serverCodecSourceFile = new File(new StringBuilder(messageInfoFilesPathString).append(File.separator)
+			File serverCodecSourceFile = new File(new StringBuilder(tmpPathString).append(File.separator)
 					.append(messageID).append("ServerCodec.java").toString());
 
 			try {

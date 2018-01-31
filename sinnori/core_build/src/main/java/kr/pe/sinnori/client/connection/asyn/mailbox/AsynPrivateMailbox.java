@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kr.pe.sinnori.client.connection.asyn.share.mailbox;
+package kr.pe.sinnori.client.connection.asyn.mailbox;
 
 import java.net.SocketTimeoutException;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -54,8 +54,8 @@ import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
  * @author Won Jonghoon
  * 
  */
-public class PrivateMailbox {
-	private Logger log = LoggerFactory.getLogger(PrivateMailbox.class);
+public class AsynPrivateMailbox {
+	private Logger log = LoggerFactory.getLogger(AsynPrivateMailbox.class);
 	
 	private final Object monitor = new Object();
 	
@@ -96,7 +96,7 @@ public class PrivateMailbox {
 	 * @param outputMessageQueueQueueManager 출력 메시지 큐를 원소로 가지는 큐 관리자
 	 * @throws NoMoreOutputMessageQueueException 출력 메시지 큐 부족시 던지는 예외
 	 */
-	public PrivateMailbox(AbstractAsynConnection serverConnection,
+	public AsynPrivateMailbox(AbstractAsynConnection serverConnection,
 			int mailboxID,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
 			ClientOutputMessageQueueQueueMangerIF syncOutputMessageQueueQueueManger

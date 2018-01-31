@@ -30,6 +30,9 @@ public class ClassFileFilter implements FilenameFilter {
 
 	@Override
 	public boolean accept(File dir, String name) {
+		if (null == name) {
+			throw new IllegalArgumentException("the parameter name is null");
+		}
 		return name.toLowerCase().endsWith(".class");
 	}
 }

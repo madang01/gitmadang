@@ -1,9 +1,9 @@
 package kr.pe.sinnori.common.io;
 
 import java.nio.ByteOrder;
+import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +16,7 @@ public class DataPacketBufferPoolManager implements DataPacketBufferPoolManagerI
 	/** 모니터 객체 */
 	private final Object dataPacketBufferPoolManagerMonitor = new Object();
 
-	private LinkedBlockingQueue<WrapBuffer> dataPacketBufferQueue = null;
+	private ArrayDeque<WrapBuffer> dataPacketBufferQueue = null;
 	private Set<Integer> queueOutWrapBufferHashcodeSet = new HashSet<Integer>();
 	private Set<Integer> allWrapBufferHashcodeSet = new HashSet<Integer>();
 	
@@ -45,16 +45,14 @@ public class DataPacketBufferPoolManager implements DataPacketBufferPoolManagerI
 		if (dataPacketBufferPoolSize <= 0) {
 			String errorMessage = String.format("the parameter dataPacketBufferPoolSize[%d] is less than or equal to zero", dataPacketBufferPoolSize);
 			throw new IllegalArgumentException(errorMessage);
-		}
-		
-	
+		}	
 		
 		this.isDirect = isDirect;
 		this.dataPacketBufferByteOrder = dataPacketBufferByteOrder;
 		this.dataPacketBufferSize = dataPacketBufferSize;
 		this.dataPacketBufferPoolSize = dataPacketBufferPoolSize;
 
-		dataPacketBufferQueue = new LinkedBlockingQueue<WrapBuffer>(dataPacketBufferPoolSize);
+		dataPacketBufferQueue = new ArrayDeque<WrapBuffer>();
 		
 		try {
 			

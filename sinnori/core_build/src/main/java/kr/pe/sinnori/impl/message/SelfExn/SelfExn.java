@@ -17,6 +17,7 @@
 package kr.pe.sinnori.impl.message.SelfExn;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
+
 /**
  * SelfExn 메시지
  * @author Won Jonghoon
@@ -60,7 +61,7 @@ public class SelfExn extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("class SelfExn[");
+		builder.append("class selfExn[");
 		builder.append("errorPlace=");
 		builder.append(errorPlace);
 		builder.append(", errorGubun=");

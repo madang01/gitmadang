@@ -16,7 +16,7 @@
  */
 package kr.pe.sinnori.impl.message.AllItemTypeReq;
 
-import java.util.Stack;
+import java.util.LinkedList;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.builder.info.SingleItemType;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
@@ -36,7 +36,7 @@ public final class AllItemTypeReqEncoder extends AbstractMessageEncoder {
 
 
 	private void encodeBody(AllItemTypeReq allItemTypeReq, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject) throws Exception {
-		Stack<String> pathStack = new Stack<String>();
+		LinkedList<String> pathStack = new LinkedList<String>();
 		pathStack.push("AllItemTypeReq");
 
 
@@ -249,14 +249,14 @@ public final class AllItemTypeReqEncoder extends AbstractMessageEncoder {
 		if (null == member$2List) {
 			/** 배열 크기 지정 방식이 간접일 경우 참조하는 변수값이 0 일 경우만 배열 값으로 null 을 허용한다. */
 			if (0 != allItemTypeReq.getCnt()) {
-				String errorMessage = new StringBuilder("the var ").append("member$2List").append("is null but the value referenced by the array size").append("[allItemTypeReq.getCnt()][").append(allItemTypeReq.getCnt()).append("] is not zero").toString();
+				String errorMessage = new StringBuilder("the var member$2List is null but the value referenced by the array size[allItemTypeReq.getCnt()][").append(allItemTypeReq.getCnt()).append("] is not zero").toString();
 				throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
 			}
 		} else {
 			int member$2ListSize = member$2List.size();
 			/** 배열 값이 null 이 아닐때에는 배열 크기가 배열 정보에서 지정된 크기와 같은지 검사 */
-			if (member$2ListSize != allItemTypeReq.getCnt()) {
-				String errorMessage = new StringBuilder("the var ").append("member$2ListSize").append("[").append(member$2ListSize).append("] is not same to ").append("the value referenced by the array size[allItemTypeReq.getCnt()][").append(allItemTypeReq.getCnt()).append("]").toString();
+			if (allItemTypeReq.getCnt() != member$2ListSize) {
+				String errorMessage = new StringBuilder("the var member$2ListSize[").append(member$2ListSize).append("] is not same to the value referenced by the array size[allItemTypeReq.getCnt()][").append(allItemTypeReq.getCnt()).append("]").toString();
 				throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
 			}
 
@@ -292,15 +292,15 @@ public final class AllItemTypeReqEncoder extends AbstractMessageEncoder {
 				/** 배열 정보와 배열 크기 일치 검사 */
 				if (null == item$4List) {
 					/** 배열 크기 지정 방식이 간접일 경우 참조하는 변수값이 0 일 경우만 배열 값으로 null 을 허용한다. */
-					if (0 != member$2.getCnt()) {
-						String errorMessage = new StringBuilder("the var ").append("item$4List").append("is null but the value referenced by the array size").append("[member$2.getCnt()][").append(member$2.getCnt()).append("] is not zero").toString();
+					if (0 != 3) {
+						String errorMessage = new StringBuilder("the var item$4List is null but the value defined by array size[3] is not zero").toString();
 						throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
 					}
 				} else {
 					int item$4ListSize = item$4List.size();
 					/** 배열 값이 null 이 아닐때에는 배열 크기가 배열 정보에서 지정된 크기와 같은지 검사 */
-					if (item$4ListSize != member$2.getCnt()) {
-						String errorMessage = new StringBuilder("the var ").append("item$4ListSize").append("[").append(item$4ListSize).append("] is not same to ").append("the value referenced by the array size[member$2.getCnt()][").append(member$2.getCnt()).append("]").toString();
+					if (3 != item$4ListSize) {
+						String errorMessage = new StringBuilder("the var item$4ListSize[").append(item$4ListSize).append("] is not same to the value defined by array size[3]").toString();
 						throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
 					}
 
@@ -330,6 +330,54 @@ public final class AllItemTypeReqEncoder extends AbstractMessageEncoder {
 							, -1 // itemSize
 							, null // nativeItemCharset
 							, item$4MiddleWritableObject);
+
+						java.util.List<AllItemTypeReq.Member.Item.SubItem> subItem$6List = item$4.getSubItemList();
+
+						/** 배열 정보와 배열 크기 일치 검사 */
+						if (null == subItem$6List) {
+							/** 배열 크기 지정 방식이 간접일 경우 참조하는 변수값이 0 일 경우만 배열 값으로 null 을 허용한다. */
+							if (0 != item$4.getItemCnt()) {
+								String errorMessage = new StringBuilder("the var subItem$6List is null but the value referenced by the array size[item$4.getItemCnt()][").append(item$4.getItemCnt()).append("] is not zero").toString();
+								throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
+							}
+						} else {
+							int subItem$6ListSize = subItem$6List.size();
+							/** 배열 값이 null 이 아닐때에는 배열 크기가 배열 정보에서 지정된 크기와 같은지 검사 */
+							if (item$4.getItemCnt() != subItem$6ListSize) {
+								String errorMessage = new StringBuilder("the var subItem$6ListSize[").append(subItem$6ListSize).append("] is not same to the value referenced by the array size[item$4.getItemCnt()][").append(item$4.getItemCnt()).append("]").toString();
+								throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
+							}
+
+							Object subItem$6ArrayMiddleObject = singleItemEncoder.getArrayMiddleObjectFromWritableMiddleObject(pathStack.peek(), "subItem", subItem$6ListSize, item$4MiddleWritableObject);
+							for (int i6=0; i6 < subItem$6ListSize; i6++) {
+								pathStack.push(new StringBuilder(pathStack.peek()).append(".").append("SubItem").append("[").append(i6).append("]").toString());
+								Object subItem$6MiddleWritableObject = singleItemEncoder.getWritableMiddleObjectjFromArrayMiddleObject(pathStack.peek(), subItem$6ArrayMiddleObject, i6);
+								AllItemTypeReq.Member.Item.SubItem subItem$6 = subItem$6List.get(i6);
+
+								singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "subItemID"
+									, SingleItemType.UB_PASCAL_STRING // itemType
+									, subItem$6.getSubItemID() // itemValue
+									, -1 // itemSize
+									, null // nativeItemCharset
+									, subItem$6MiddleWritableObject);
+
+								singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "subItemName"
+									, SingleItemType.US_PASCAL_STRING // itemType
+									, subItem$6.getSubItemName() // itemValue
+									, -1 // itemSize
+									, null // nativeItemCharset
+									, subItem$6MiddleWritableObject);
+
+								singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "itemCnt"
+									, SingleItemType.INTEGER // itemType
+									, subItem$6.getItemCnt() // itemValue
+									, -1 // itemSize
+									, null // nativeItemCharset
+									, subItem$6MiddleWritableObject);
+
+								pathStack.pop();
+							}
+						}
 
 						pathStack.pop();
 					}

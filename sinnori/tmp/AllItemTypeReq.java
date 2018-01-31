@@ -61,6 +61,49 @@ public class AllItemTypeReq extends AbstractMessage {
 			private String itemID;
 			private String itemName;
 			private int itemCnt;
+			public static class SubItem {
+				private String subItemID;
+				private String subItemName;
+				private int itemCnt;
+
+				public String getSubItemID() {
+					return subItemID;
+				}
+
+				public void setSubItemID(String subItemID) {
+					this.subItemID = subItemID;
+				}
+				public String getSubItemName() {
+					return subItemName;
+				}
+
+				public void setSubItemName(String subItemName) {
+					this.subItemName = subItemName;
+				}
+				public int getItemCnt() {
+					return itemCnt;
+				}
+
+				public void setItemCnt(int itemCnt) {
+					this.itemCnt = itemCnt;
+				}
+
+				@Override
+				public String toString() {
+					StringBuilder builder = new StringBuilder();
+					builder.append("SubItem[");
+					builder.append("subItemID=");
+					builder.append(subItemID);
+					builder.append(", subItemName=");
+					builder.append(subItemName);
+					builder.append(", itemCnt=");
+					builder.append(itemCnt);
+					builder.append("]");
+					return builder.toString();
+				}
+			}
+
+			private java.util.List<SubItem> subItemList;
 
 			public String getItemID() {
 				return itemID;
@@ -83,6 +126,13 @@ public class AllItemTypeReq extends AbstractMessage {
 			public void setItemCnt(int itemCnt) {
 				this.itemCnt = itemCnt;
 			}
+			public java.util.List<SubItem> getSubItemList() {
+				return subItemList;
+			}
+
+			public void setSubItemList(java.util.List<SubItem> subItemList) {
+				this.subItemList = subItemList;
+			}
 
 			@Override
 			public String toString() {
@@ -94,6 +144,30 @@ public class AllItemTypeReq extends AbstractMessage {
 				builder.append(itemName);
 				builder.append(", itemCnt=");
 				builder.append(itemCnt);
+				builder.append(", subItemList=");
+				if (null == subItemList) {
+					builder.append("null");
+				} else {
+					int subItemListSize = subItemList.size();
+			if (0 == subItemListSize) {
+						builder.append("empty");
+					} else {
+						builder.append("[");
+						for (int i=0; i < subItemListSize; i++) {
+							SubItem subItem = subItemList.get(i);
+							if (0 == i) {
+								builder.append("subItem[");
+							} else {
+								builder.append(", subItem[");
+							}
+							builder.append(i);
+							builder.append("]=");
+							builder.append(subItem.toString());
+						}
+						builder.append("]");
+					}
+				}
+		
 				builder.append("]");
 				return builder.toString();
 			}

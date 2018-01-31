@@ -33,10 +33,9 @@ import java.util.concurrent.TimeUnit;
 import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.client.ClientOutputMessageQueueQueueMangerIF;
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
-import kr.pe.sinnori.client.connection.asyn.share.mailbox.PrivateMailbox;
+import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.AsynServerAdderIF;
 import kr.pe.sinnori.client.io.LetterToServer;
-import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
@@ -60,15 +59,15 @@ import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
  * 자세한 내용은 기술 문서를 참고 하세요.<br/>
  * 참고) 소켓 채널을 감싸아 소켓 채널관련 서비스를 구현하는 클래스, 즉 소켓 채널 랩 클래스를 연결 클래스로 명명한다.
  * 
- * @see PrivateMailbox
+ * @see AsynPrivateMailbox
  * @author Won Jonghoon
  * 
  */
 public class ShareAsynConnection extends AbstractAsynConnection {
 	/** 개인 메일함 큐 */
-	private LinkedBlockingQueue<PrivateMailbox> PrivateMailboxWaitingQueue = null;
+	private LinkedBlockingQueue<AsynPrivateMailbox> PrivateMailboxWaitingQueue = null;
 	/** 메일 식별자를 키로 활성화된 메일함을 값으로 가지는 해쉬 */
-	private Map<Integer, PrivateMailbox> privateMailboxMap = new Hashtable<Integer, PrivateMailbox>();
+	private Map<Integer, AsynPrivateMailbox> privateMailboxMap = new Hashtable<Integer, AsynPrivateMailbox>();
 
 	private long connectionTimeout;
 	// private boolean isFailToGetMailbox = false;
@@ -111,7 +110,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 	 */
 	public ShareAsynConnection(String projectName, int index, String hostOfProject, int portOfProject,
 			Charset charsetOfProject, long connectionTimeout, long socketTimeOut, boolean whetherToAutoConnect, int finishConnectMaxCall,
-			long finishConnectWaittingTime, int mailBoxCnt, ProjectPartConfiguration projectPart,
+			long finishConnectWaittingTime, int mailBoxCnt, 
 			LinkedBlockingQueue<WrapReadableMiddleObject> asynOutputMessageQueue,
 			LinkedBlockingQueue<LetterToServer> inputMessageQueue, MessageProtocolIF messageProtocol,
 			AsynServerAdderIF outputMessageReaderPool,
@@ -128,7 +127,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 				index, mailBoxCnt));
 
 		// this.messageManger = messageManger;
-		this.PrivateMailboxWaitingQueue = new LinkedBlockingQueue<PrivateMailbox>(mailBoxCnt);
+		this.PrivateMailboxWaitingQueue = new LinkedBlockingQueue<AsynPrivateMailbox>(mailBoxCnt);
 		this.connectionTimeout = connectionTimeout;
 
 		boolean isInterrupted = false;
@@ -142,7 +141,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 		 */
 		for (int i = 0; i < mailBoxCnt; i++) {
 
-			PrivateMailbox mailBox = new PrivateMailbox(this, i + 1, inputMessageQueue, outputMessageQueueQueueManager);
+			AsynPrivateMailbox mailBox = new AsynPrivateMailbox(this, i + 1, inputMessageQueue, outputMessageQueueQueueManager);
 			
 			PrivateMailboxWaitingQueue.add(mailBox);
 		}
@@ -303,7 +302,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 				log.warn(errorMsg);
 			}
 		} else {
-			PrivateMailbox mailbox = privateMailboxMap.get(receivedLetter.getMailboxID());
+			AsynPrivateMailbox mailbox = privateMailboxMap.get(receivedLetter.getMailboxID());
 			if (null == mailbox) {
 
 				log.warn(String.format("no match mailid, projectName=[%s%02d], serverSC=[%d], receivedLetter=[%s]",
@@ -329,7 +328,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 
 		connectServerIfNoConnection();
 
-		PrivateMailbox mailbox = null;
+		AsynPrivateMailbox mailbox = null;
 
 		// boolean isInterrupted = false;
 
@@ -410,7 +409,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 
 		connectServerIfNoConnection();
 
-		PrivateMailbox mailbox = null;
+		AsynPrivateMailbox mailbox = null;
 		mailbox = PrivateMailboxWaitingQueue.poll(connectionTimeout, TimeUnit.MILLISECONDS);
 
 		ClassLoader classLoader = inObj.getClass().getClassLoader();

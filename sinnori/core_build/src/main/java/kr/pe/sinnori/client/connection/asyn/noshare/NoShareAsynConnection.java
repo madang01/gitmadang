@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.client.ClientOutputMessageQueueQueueMangerIF;
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
-import kr.pe.sinnori.client.connection.asyn.share.mailbox.PrivateMailbox;
+import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.AsynServerAdderIF;
 import kr.pe.sinnori.client.io.LetterToServer;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
@@ -63,38 +63,8 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 	/** 큐 등록 상태 */
 	private boolean isQueueIn = true;
 
-	private PrivateMailbox mailbox = null;
+	private AsynPrivateMailbox mailbox = null;
 
-	/**
-	 * 생성자
-	 * 
-	 * @param index
-	 *            연결 클래스 번호
-	 * @param socketTimeOut
-	 *            소켓 타임 아웃
-	 * @param whetherToAutoConnect
-	 *            자동 연결 여부
-	 * @param finishConnectMaxCall
-	 *            연결 확립 최대 시도 횟수
-	 * @param finishConnectWaittingTime
-	 *            연결 확립 재 시도 간격
-	 * @param asynOutputMessageQueue
-	 *            서버에서 보내는 공지등 불특정 다수한테 보내는 출력 메시지 큐
-	 * @param inputMessageQueue
-	 *            입력 메시지 큐
-	 * @param outputMessageQueueQueueManger
-	 *            출력 메시지 큐를 원소로 가지는 큐 관리자
-	 * @param outputMessageReaderPool
-	 *            서버에 접속한 소켓 채널을 균등하게 소켓 읽기 담당 쓰레드에 등록하기 위한 인터페이스
-	 * @param dataPacketBufferQueueManager
-	 *            데이터 패킷 버퍼 큐 관리자
-	 * @throws InterruptedException
-	 *             쓰레드 인터럽트
-	 * @throws NoMoreDataPacketBufferException
-	 *             데이터 패킷 버퍼를 할당 받지 못했을 경우 던지는 예외
-	 * @throws NoMoreOutputMessageQueueException
-	 *             출력 메시지 큐 부족시 실패시 던지는 예외
-	 */
 	public NoShareAsynConnection(String projectName, int index, String hostOfProject, int portOfProject,
 			Charset charsetOfProject, long socketTimeOut, boolean whetherToAutoConnect, int finishConnectMaxCall,
 			long finishConnectWaittingTime, LinkedBlockingQueue<WrapReadableMiddleObject> asynOutputMessageQueue,
@@ -111,7 +81,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 
 		// this.messageManger = messageManger;
 		// this.outputMessageQueue = outputMessageQueue;
-		mailbox = new PrivateMailbox(this, 1, inputMessageQueue, outputMessageQueueQueueManger);
+		mailbox = new AsynPrivateMailbox(this, 1, inputMessageQueue, outputMessageQueueQueueManger);
 
 		/*try {
 			reopenSocketChannel();

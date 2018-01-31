@@ -50,10 +50,15 @@
 	<singleitem name="memberID" type="fixed length string" size="30" defaultValue="king" />
 	<singleitem name="memberName" type="fixed length string" size="30" />
 	<singleitem name="cnt" type="integer" defaultValue="10" />
-	<array name="item" cnttype="reference" cntvalue="cnt">
+	<array name="item" cnttype="direct" cntvalue="3">		
 		<singleitem name="itemID" type="fixed length string" size="30" />		
 		<singleitem name="itemName" type="fixed length string" size="30" />
-		<singleitem name="itemCnt" type="integer" />		
+		<singleitem name="itemCnt" type="integer" />
+		<array name="subItem" cnttype="reference" cntvalue="itemCnt">
+			<singleitem name="subItemID" type="ub pascal string"  />		
+			<singleitem name="subItemName" type="us pascal string" />
+			<singleitem name="itemCnt" type="integer" />		
+		</array>		
 	</array>
 </array>
 <singleitem name="longVar4" type="long" />

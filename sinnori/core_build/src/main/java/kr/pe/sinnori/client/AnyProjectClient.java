@@ -197,7 +197,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 						connectionCount, connectionTimeout,
 						socketTimeOut, whetherToAutoConnect,
 						finishConnectMaxCall, finishConnectWaittingTime,
-						mailBoxCnt, projectPartConfiguration, asynOutputMessageQueue,
+						mailBoxCnt, asynOutputMessageQueue,
 						inputMessageQueue, messageProtocol,
 						outputMessageReaderPool, this, dataPacketBufferMaxCntPerMessage, this, this);
 			} else {

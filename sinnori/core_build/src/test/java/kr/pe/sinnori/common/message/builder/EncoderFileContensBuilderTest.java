@@ -40,7 +40,7 @@ public class EncoderFileContensBuilderTest {
 		// SinnoriLogbackManger.getInstance().setup(sinnoriInstalledPathString,
 		// mainProjectName, logType);
 
-		log = LoggerFactory.getLogger(MessageFileContensBuilderTest.class);
+		log = LoggerFactory.getLogger(EncoderFileContensBuilderTest.class);
 	}
 
 	@After
@@ -78,27 +78,57 @@ public class EncoderFileContensBuilderTest {
 		int depth = 1;
 		String varNameOfSetOwner = "allItemTypeReq";		
 		
-		String arrayName = "member";
-		String arrayCntType = "direct";
-		String arrayCntValue = "3";
-
-		ArrayInfo arrayInfo = new ArrayInfo(arrayName, arrayCntType, arrayCntValue);
-		OrderedItemSet arrayItemSet = arrayInfo.getOrderedItemSet();
 		{
-			String itemName = "ubBytes";
-			String itemTypeName = SingleItemType.UB_VARIABLE_LENGTH_BYTES.getItemTypeName();
-			String nativeItemDefaultValue = null;
-			String nativeItemSize = null;
-			String nativeItemCharset = null;
+			log.info("test case::direct");
+			
+			String arrayName = "member";
+			String arrayCntType = "direct";
+			String arrayCntValue = "3";
 
-			SingleItemInfo singleItemInfo = new SingleItemInfo(itemName, itemTypeName, nativeItemDefaultValue,
-					nativeItemSize, nativeItemCharset);
-			arrayItemSet.addItemInfo(singleItemInfo);
+			ArrayInfo arrayInfo = new ArrayInfo(arrayName, arrayCntType, arrayCntValue);
+			OrderedItemSet arrayItemSet = arrayInfo.getOrderedItemSet();
+			{
+				String itemName = "ubBytes";
+				String itemTypeName = SingleItemType.UB_VARIABLE_LENGTH_BYTES.getItemTypeName();
+				String nativeItemDefaultValue = null;
+				String nativeItemSize = null;
+				String nativeItemCharset = null;
+
+				SingleItemInfo singleItemInfo = new SingleItemInfo(itemName, itemTypeName, nativeItemDefaultValue,
+						nativeItemSize, nativeItemCharset);
+				arrayItemSet.addItemInfo(singleItemInfo);
+			}
+			
+			String result = encoderFileContensBuilder.buildStringOfPartWhoseListIsNullAtArray(depth, varNameOfSetOwner, arrayInfo);
+			
+			log.info(result);
 		}
 		
-		String result = encoderFileContensBuilder.buildStringOfPartWhoseListIsNullAtArray(depth, varNameOfSetOwner, arrayInfo);
-		
-		log.info(result);
+		{
+			log.info("test case::reference");
+			
+			String arrayName = "member";
+			String arrayCntType = "reference";
+			String arrayCntValue = "cnt";
+
+			ArrayInfo arrayInfo = new ArrayInfo(arrayName, arrayCntType, arrayCntValue);
+			OrderedItemSet arrayItemSet = arrayInfo.getOrderedItemSet();
+			{
+				String itemName = "ubBytes";
+				String itemTypeName = SingleItemType.UB_VARIABLE_LENGTH_BYTES.getItemTypeName();
+				String nativeItemDefaultValue = null;
+				String nativeItemSize = null;
+				String nativeItemCharset = null;
+
+				SingleItemInfo singleItemInfo = new SingleItemInfo(itemName, itemTypeName, nativeItemDefaultValue,
+						nativeItemSize, nativeItemCharset);
+				arrayItemSet.addItemInfo(singleItemInfo);
+			}
+			
+			String result = encoderFileContensBuilder.buildStringOfPartWhoseListIsNullAtArray(depth, varNameOfSetOwner, arrayInfo);
+			
+			log.info(result);
+		}
 	}
 	
 	@Test
@@ -108,27 +138,60 @@ public class EncoderFileContensBuilderTest {
 		int depth = 1;
 		String varNameOfSetOwner = "allItemTypeReq";		
 		
-		String arrayName = "member";
-		String arrayCntType = "direct";
-		String arrayCntValue = "3";
-
-		ArrayInfo arrayInfo = new ArrayInfo(arrayName, arrayCntType, arrayCntValue);
-		OrderedItemSet arrayItemSet = arrayInfo.getOrderedItemSet();
 		{
-			String itemName = "ubBytes";
-			String itemTypeName = SingleItemType.UB_VARIABLE_LENGTH_BYTES.getItemTypeName();
-			String nativeItemDefaultValue = null;
-			String nativeItemSize = null;
-			String nativeItemCharset = null;
+			log.info("test case:direct");
+			
+			String arrayName = "member";
+			String arrayCntType = "direct";
+			String arrayCntValue = "3";
 
-			SingleItemInfo singleItemInfo = new SingleItemInfo(itemName, itemTypeName, nativeItemDefaultValue,
-					nativeItemSize, nativeItemCharset);
-			arrayItemSet.addItemInfo(singleItemInfo);
+			ArrayInfo arrayInfo = new ArrayInfo(arrayName, arrayCntType, arrayCntValue);
+			OrderedItemSet arrayItemSet = arrayInfo.getOrderedItemSet();
+			{
+				String itemName = "ubBytes";
+				String itemTypeName = SingleItemType.UB_VARIABLE_LENGTH_BYTES.getItemTypeName();
+				String nativeItemDefaultValue = null;
+				String nativeItemSize = null;
+				String nativeItemCharset = null;
+
+				SingleItemInfo singleItemInfo = new SingleItemInfo(itemName, itemTypeName, nativeItemDefaultValue,
+						nativeItemSize, nativeItemCharset);
+				arrayItemSet.addItemInfo(singleItemInfo);
+			}
+			
+			String result = encoderFileContensBuilder.buildStringOfPartCheckingListSizeIsValid(depth, varNameOfSetOwner, arrayInfo);
+			
+			log.info(result);
+			
 		}
 		
-		String result = encoderFileContensBuilder.buildStringOfPartCheckingListSizeIsValid(depth, varNameOfSetOwner, arrayInfo);
+		{
+			log.info("test case:case:direct");
+			
+			String arrayName = "member";
+			String arrayCntType = "reference";
+			String arrayCntValue = "cnt";
+
+			ArrayInfo arrayInfo = new ArrayInfo(arrayName, arrayCntType, arrayCntValue);
+			OrderedItemSet arrayItemSet = arrayInfo.getOrderedItemSet();
+			{
+				String itemName = "ubBytes";
+				String itemTypeName = SingleItemType.UB_VARIABLE_LENGTH_BYTES.getItemTypeName();
+				String nativeItemDefaultValue = null;
+				String nativeItemSize = null;
+				String nativeItemCharset = null;
+
+				SingleItemInfo singleItemInfo = new SingleItemInfo(itemName, itemTypeName, nativeItemDefaultValue,
+						nativeItemSize, nativeItemCharset);
+				arrayItemSet.addItemInfo(singleItemInfo);
+			}
+			
+			String result = encoderFileContensBuilder.buildStringOfPartCheckingListSizeIsValid(depth, varNameOfSetOwner, arrayInfo);
+			
+			log.info(result);
+			
+		}
 		
-		log.info(result);
 	}
 	
 	@Test

@@ -40,21 +40,7 @@ public class CommonType {
 		NoShareAsyn, ShareAsyn, NoShareSync
 	};
 	
-	/**
-	 * 섹션키에서 대칭키 인코딩 방법 NONE : 인코딩 없음 BASE64 : 대칭키는 Base64 인코딩으로 되어있음. 
-	 * 참고) WEB 공개키 암호화 라이브러리에서 공개키로 암호화 할때 이진 데이터를 못받고 문자열만 받을 경우 부득이 Base64 인코딩해야함.
-	 */
-	// FIXME!
-	/*public enum SYMMETRIC_KEY_ENCODING_TYPE {
-		NONE, BASE64
-	};*/
-
-	/**
-	 * 메시지 항목 구분. SINGLE_ITEM : 단일 항목, ARRAY : 배열
-	 */
-	public enum MESSAGE_ITEM_TYPE {
-		SINGLE_ITEM, ARRAY_ITEM
-	};
+	
 
 	/**
 	 * 동작하는 곳 구분. SERVER : 서버, CLIENT : 클라이언트

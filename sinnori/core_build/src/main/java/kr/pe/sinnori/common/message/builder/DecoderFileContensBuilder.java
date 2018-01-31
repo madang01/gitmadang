@@ -171,8 +171,7 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 			String varvarNameOfSetOwner, String middleObjVarName,
 			ArrayInfo arrayInfo) {
 		String newPath = new StringBuilder(path).append(".").append(arrayInfo.getFirstUpperItemName()).toString();
-		
-		// FIXME!		
+				
 		StringBuilder stringBuilder = new StringBuilder();
 		
 		/** 배열 크기 변수 선언및 정의 */
@@ -186,7 +185,7 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append("Object ");
 		stringBuilder.append(getArrayMiddleObjVarName(depth, arrayInfo.getItemName()));
 		
-		stringBuilder.append("= singleItemDecoder.getArrayMiddleObjectFromReadableMiddleObject(");
+		stringBuilder.append(" = singleItemDecoder.getArrayMiddleObjectFromReadableMiddleObject(");
 		// the parameter path
 		stringBuilder.append("pathStack.peek()");
 		stringBuilder.append(", ");
@@ -297,12 +296,94 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 	
 	public String buildStringOfGroupInfoPart(int depth, String path, String varNameOfSetOwner, String middleObjVarName,
 			GroupInfo groupInfo) {
+		String newPath = new StringBuilder(path).append(".").append(groupInfo.getFirstUpperItemName()).toString();
+		
 		StringBuilder stringBuilder = new StringBuilder();
-		// FIXME!
+		/** 그룹 변수 선언  */
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append(newPath);
+		stringBuilder.append(" ");
+		stringBuilder.append(getGroupVarObjName(depth, groupInfo.getItemName()));
+		stringBuilder.append(" = new ");
+		stringBuilder.append(newPath);
+		stringBuilder.append("();");
+		
+		/** 그룹 중간 객체 변수 선언 */
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append("Object ");
+		stringBuilder.append(getGroupMiddleObjVarName(depth, groupInfo.getItemName()));		
+		stringBuilder.append(" = singleItemDecoder.getGroupMiddleObjectFromReadableMiddleObject(");
+		// the parameter path
+		stringBuilder.append("pathStack.peek()");
+		stringBuilder.append(", ");
+		// the parameter groupName
+		stringBuilder.append("\"");
+		stringBuilder.append(groupInfo.getItemName());		
+		stringBuilder.append("\"");
+		stringBuilder.append(", ");		
+		// the parameter readableMiddleObject
+		stringBuilder.append(middleObjVarName);
+		stringBuilder.append(");");
+		
+		/** path stack push */
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append("pathStack.push(new StringBuilder(pathStack.peek()).append(\".\").append(\"")
+				.append(groupInfo.getFirstUpperItemName())
+				.append("\").toString());");
+		
+		stringBuilder.append(buildStringOfOrderedItemSetPart(depth
+				, newPath
+				, getGroupVarObjName(depth, groupInfo.getItemName())
+				, getGroupMiddleObjVarName(depth, groupInfo.getItemName())
+				, groupInfo.getOrderedItemSet()));
+		
+		/** path stack pop */
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append("pathStack.pop();");
+		
+		/** allItemTypeReq.setVip(vip$1);  */
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append(varNameOfSetOwner);
+		stringBuilder.append(".set");
+		stringBuilder.append(groupInfo.getFirstUpperItemName());
+		stringBuilder.append("(");
+		stringBuilder.append(getGroupVarObjName(depth, groupInfo.getItemName()));
+		stringBuilder.append(");");
+		
 		return stringBuilder.toString();
 	}
 	
 	public String buildStringOfOrderedItemSetPart(int depth, String path, String varNameOfSetOwner, String middleObjVarName, OrderedItemSet orderedItemSet) {
+		if (depth < 0) {
+			String errorMessage = String.format("the parameter depth[%d] is less than zero", depth);
+			throw new IllegalArgumentException(errorMessage);
+		}
+		if (null == path) {
+			String errorMessage = "the parameter path is null";
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (null == varNameOfSetOwner) {
+			String errorMessage = "the parameter varNameOfSetOwner is null";
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (null == middleObjVarName) {
+			String errorMessage = "the parameter middleObjVarName is null";
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (null == orderedItemSet) {
+			String errorMessage = "the parameter orderedItemSet is null";
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
 		StringBuilder stringBuilder = new StringBuilder();
 		
 		List<AbstractItemInfo> itemInfoList = orderedItemSet.getItemInfoList();
@@ -356,7 +437,7 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				
 		String importElements[] = {
-				"import java.util.Stack;",
+				"import java.util.LinkedList;",
 				"import kr.pe.sinnori.common.exception.BodyFormatException;",
 				"import kr.pe.sinnori.common.message.AbstractMessage;",
 				"import kr.pe.sinnori.common.message.builder.info.SingleItemType;",				
@@ -396,7 +477,8 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 		if (! messageInfo.getOrderedItemSet().getItemInfoList().isEmpty()) {
 			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 			stringBuilder.append(getPrefixWithTabCharacters(depth, 2));
-			stringBuilder.append("Stack<String> pathStack = new Stack<String>();");
+			/** java.util.Stack is thread-safe but LinkedList is not thread-safe */
+			stringBuilder.append("LinkedList<String> pathStack = new LinkedList<String>();");
 
 			// pathStack.push("AllItemTypeReq");
 			stringBuilder.append(CommonStaticFinalVars.NEWLINE);

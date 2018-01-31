@@ -29,45 +29,45 @@ import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
  */
 public final class SelfExnEncoder extends AbstractMessageEncoder {
 	@Override
-	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject)
-			throws Exception {
-		if (!(messageObj instanceof SelfExn)) {
-			String errorMessage = String.format("메시지 객체 타입[%s]이 SelfExn 이(가) 아닙니다.", messageObj.getClass().getCanonicalName());
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		SelfExn selfExn = (SelfExn) messageObj;
-		encodeBody(selfExn, singleItemEncoder, middleWritableObject);
+	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Object writableMiddleObject) throws Exception {
+		SelfExn selfExn = (SelfExn)messageObj;
+		encodeBody(selfExn, singleItemEncoder, writableMiddleObject);
 	}
-	
-	private void encodeBody(SelfExn selfExn, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject) throws Exception {
-		String selfExnSingleItemPath = "SelfExn";
-		LinkedList<String> singleItemPathStatck = new LinkedList<String>();
-		singleItemPathStatck.push(selfExnSingleItemPath);
 
-		singleItemEncoder.putValueToWritableMiddleObject(selfExnSingleItemPath, "errorPlace"
-					, SingleItemType.UB_PASCAL_STRING // itemType
-					, selfExn.getErrorPlace() // itemValue
-					, -1 // itemSize
-					, "ISO-8859-1" // nativeItemCharset
-					, middleWritableObject);
-		singleItemEncoder.putValueToWritableMiddleObject(selfExnSingleItemPath, "errorGubun"
-					, SingleItemType.UB_PASCAL_STRING // itemType
-					, selfExn.getErrorGubun() // itemValue
-					, -1 // itemSize
-					, "ISO-8859-1" // nativeItemCharset
-					, middleWritableObject);
-		singleItemEncoder.putValueToWritableMiddleObject(selfExnSingleItemPath, "errorMessageID"
-					, SingleItemType.UB_PASCAL_STRING // itemType
-					, selfExn.getErrorMessageID() // itemValue
-					, -1 // itemSize
-					, "ISO-8859-1" // nativeItemCharset
-					, middleWritableObject);
-		singleItemEncoder.putValueToWritableMiddleObject(selfExnSingleItemPath, "errorMessage"
-					, SingleItemType.US_PASCAL_STRING // itemType
-					, selfExn.getErrorMessage() // itemValue
-					, -1 // itemSize
-					, "utf8" // nativeItemCharset
-					, middleWritableObject);
+
+	private void encodeBody(SelfExn selfExn, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject) throws Exception {
+		LinkedList<String> pathStack = new LinkedList<String>();
+		pathStack.push("SelfExn");
+
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "errorPlace"
+			, SingleItemType.UB_PASCAL_STRING // itemType
+			, selfExn.getErrorPlace() // itemValue
+			, -1 // itemSize
+			, "ISO-8859-1" // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "errorGubun"
+			, SingleItemType.UB_PASCAL_STRING // itemType
+			, selfExn.getErrorGubun() // itemValue
+			, -1 // itemSize
+			, "ISO-8859-1" // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "errorMessageID"
+			, SingleItemType.UB_PASCAL_STRING // itemType
+			, selfExn.getErrorMessageID() // itemValue
+			, -1 // itemSize
+			, "ISO-8859-1" // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "errorMessage"
+			, SingleItemType.US_PASCAL_STRING // itemType
+			, selfExn.getErrorMessage() // itemValue
+			, -1 // itemSize
+			, "utf8" // nativeItemCharset
+			, middleWritableObject);
+
+		pathStack.pop();
 	}
 }

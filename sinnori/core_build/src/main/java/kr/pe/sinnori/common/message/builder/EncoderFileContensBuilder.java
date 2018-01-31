@@ -73,6 +73,21 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		return stringBuilder.toString();
 	}
 
+	public String getReferenceVariableGetMethodString(String varNameOfSetOwner, String referenceCountVarName) {
+		if (referenceCountVarName.length() < 2) {
+			String errorMessage = String.format("the character number of the parameter referenceCountVarName[%s] is less than two", referenceCountVarName);
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append(varNameOfSetOwner);
+		stringBuilder.append(".get");
+		stringBuilder.append(referenceCountVarName.substring(0, 1).toUpperCase());
+		stringBuilder.append(referenceCountVarName.substring(1));
+		stringBuilder.append("()");
+		return stringBuilder.toString();
+	}
+
 	public String buildStringOfSingleItemInfoPart(int depth, String path, String varNameOfSetOwner, String middleObjVarName,
 			SingleItemInfo singleItemInfo) {;
 		StringBuilder stringBuilder = new StringBuilder();
@@ -134,7 +149,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 
 		return stringBuilder.toString();
 	}
-
+	
 	public String buildStringOfPartWhoseListIsNullAtArray(int depth, String varNameOfSetOwner, ArrayInfo arrayInfo) {
 		StringBuilder stringBuilder = new StringBuilder();
 
@@ -153,38 +168,19 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 			// if (0 != allDataTypeInObj.getCnt()) {
 			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 			stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
-			stringBuilder.append("if (0 != ");
-			// allItemTypeReq.getCnt()
-			stringBuilder.append(varNameOfSetOwner);
-			stringBuilder.append(".get");
-			stringBuilder.append(arrayInfo.getArrayCntValue().substring(0, 1).toUpperCase());
-			stringBuilder.append(arrayInfo.getArrayCntValue().substring(1));
-			stringBuilder.append("()");
-			///////////////////////////
+			stringBuilder.append("if (0 != ");			
+			stringBuilder.append(getReferenceVariableGetMethodString(varNameOfSetOwner, arrayInfo.getArrayCntValue()));
 			stringBuilder.append(") {");			
 			
 			
 			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-			stringBuilder.append(getPrefixWithTabCharacters(depth, 2));
-			// String errorMessage = new StringBuilder("the var ").append("memberList").append("is null but the value referenced by the array size").append("[allItemTypeReq.getCnt()][").append(allItemTypeReq.getCnt()).append("] is not zero").toString();
-			stringBuilder.append("String errorMessage = new StringBuilder(\"the var \").append(\"");
+			stringBuilder.append(getPrefixWithTabCharacters(depth, 2));			
+			stringBuilder.append("String errorMessage = new StringBuilder(\"the var ");
 			stringBuilder.append(getArrayListVarObjName(depth, arrayInfo.getItemName()));
-			stringBuilder.append("\").append(\"is null but the value referenced by the array size\").append(\"[");
-			// allItemTypeReq.getCnt()
-			stringBuilder.append(varNameOfSetOwner);
-			stringBuilder.append(".get");
-			stringBuilder.append(arrayInfo.getArrayCntValue().substring(0, 1).toUpperCase());
-			stringBuilder.append(arrayInfo.getArrayCntValue().substring(1));
-			stringBuilder.append("()");
-						///////////////////////////	
+			stringBuilder.append(" is null but the value referenced by the array size[");
+			stringBuilder.append(getReferenceVariableGetMethodString(varNameOfSetOwner, arrayInfo.getArrayCntValue()));
 			stringBuilder.append("][\").append(");
-			// allItemTypeReq.getCnt()
-			stringBuilder.append(varNameOfSetOwner);
-			stringBuilder.append(".get");
-			stringBuilder.append(arrayInfo.getArrayCntValue().substring(0, 1).toUpperCase());
-			stringBuilder.append(arrayInfo.getArrayCntValue().substring(1));
-			stringBuilder.append("()");
-			///////////////////////////	
+			stringBuilder.append(getReferenceVariableGetMethodString(varNameOfSetOwner, arrayInfo.getArrayCntValue()));
 			stringBuilder.append(").append(\"] is not zero\").toString();");
 
 			// throw new BodyFormatException(errorMessage);
@@ -206,10 +202,16 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 			
 			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 			stringBuilder.append(getPrefixWithTabCharacters(depth, 2));
-			// String errorMessage = new StringBuilder("the var ").append("memberList").append("is null but the value defined by array size").append("[10] is not zero").toString();
-			stringBuilder.append("String errorMessage = new StringBuilder(\"the var \").append(\"");
+			// String errorMessage = new StringBuilder("the var member$1List is null but the value defined by array size[3] is not zero").toString();
+			/*stringBuilder.append("String errorMessage = new StringBuilder(\"the var \").append(\"");
 			stringBuilder.append(getArrayListVarObjName(depth, arrayInfo.getItemName()));
 			stringBuilder.append("\").append(\"is null but the value defined by array size\").append(\"[");
+			stringBuilder.append(arrayInfo.getArrayCntValue());
+			stringBuilder.append("] is not zero\").toString();");*/
+			
+			stringBuilder.append("String errorMessage = new StringBuilder(\"the var ");
+			stringBuilder.append(getArrayListVarObjName(depth, arrayInfo.getItemName()));
+			stringBuilder.append(" is null but the value defined by array size[");
 			stringBuilder.append(arrayInfo.getArrayCntValue());
 			stringBuilder.append("] is not zero\").toString();");
 			
@@ -235,20 +237,14 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		// if (memberListSize != allDataTypeInObj.getCnt()) {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
-		stringBuilder.append("if (");
-		stringBuilder.append(getArrayListSizeVarObjName(depth, arrayInfo.getArrayName()));
-		stringBuilder.append(" != ");
-
+		stringBuilder.append("if (");		
 		if (arrayInfo.getArrayCntType().equals("reference")) {
-			stringBuilder.append(varNameOfSetOwner);
-			stringBuilder.append(".get");
-			stringBuilder.append(arrayInfo.getArrayCntValue().substring(0, 1).toUpperCase());
-			stringBuilder.append(arrayInfo.getArrayCntValue().substring(1));
-			stringBuilder.append("()");
+			stringBuilder.append(getReferenceVariableGetMethodString(varNameOfSetOwner, arrayInfo.getArrayCntValue()));			
 		} else {
 			stringBuilder.append(arrayInfo.getArrayCntValue());
-		}
-
+		}		
+		stringBuilder.append(" != ");
+		stringBuilder.append(getArrayListSizeVarObjName(depth, arrayInfo.getArrayName()));
 		stringBuilder.append(") {");
 
 		// String errorMessage = new StringBuilder(allDataTypeInObjSingleItemPath)
@@ -256,36 +252,27 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(getPrefixWithTabCharacters(depth, 2));
 		
 		if (arrayInfo.getArrayCntType().equals("reference")) {
-			// String errorMessage = new StringBuilder("the var ").append("memberListSize").append("[").append(memberListSize).append("] is not same to ").append("the value referenced by the array size[allItemTypeReq.getCnt()][").append(allItemTypeReq.getCnt()).append("]").toString();
-			stringBuilder.append("String errorMessage = new StringBuilder(\"the var \").append(\"");
+			// String errorMessage = new StringBuilder("the var member$1ListSize[").append(member$1ListSize).append("] is not same to the value referenced by the array size[allItemTypeReq.getCnt()][").append(allItemTypeReq.getCnt()).append("]").toString();			
+			stringBuilder.append("String errorMessage = new StringBuilder(\"the var ");
 			stringBuilder.append(getArrayListSizeVarObjName(depth, arrayInfo.getItemName()));
-			stringBuilder.append("\").append(\"[\").append(");
+			stringBuilder.append("[\").append(");
 			stringBuilder.append(getArrayListSizeVarObjName(depth, arrayInfo.getItemName()));
-			stringBuilder.append(").append(\"] is not same to \").append(\"the value referenced by the array size[");
-			// allItemTypeReq.getCnt()
-			stringBuilder.append(varNameOfSetOwner);
-			stringBuilder.append(".get");
-			stringBuilder.append(arrayInfo.getArrayCntValue().substring(0, 1).toUpperCase());
-			stringBuilder.append(arrayInfo.getArrayCntValue().substring(1));
-			stringBuilder.append("()");
-			///////////////////////////	
+			stringBuilder.append(").append(\"] is not same to the value referenced by the array size[");
+			stringBuilder.append(getReferenceVariableGetMethodString(varNameOfSetOwner, arrayInfo.getArrayCntValue()));
 			stringBuilder.append("][\").append(");
-			// allItemTypeReq.getCnt()
-			stringBuilder.append(varNameOfSetOwner);
-			stringBuilder.append(".get");
-			stringBuilder.append(arrayInfo.getArrayCntValue().substring(0, 1).toUpperCase());
-			stringBuilder.append(arrayInfo.getArrayCntValue().substring(1));
-			stringBuilder.append("()");
-			///////////////////////////
+			stringBuilder.append(getReferenceVariableGetMethodString(varNameOfSetOwner, arrayInfo.getArrayCntValue()));
 			stringBuilder.append(").append(\"]\").toString();");
+			
 		} else {
-			stringBuilder.append("String errorMessage = new StringBuilder(\"the var \").append(\"");
+			// String errorMessage = new StringBuilder("the var member$1ListSize[").append(member$1ListSize).append("] is not same to the value defined by array size[3]").toString();
+			stringBuilder.append("String errorMessage = new StringBuilder(\"the var ");
 			stringBuilder.append(getArrayListSizeVarObjName(depth, arrayInfo.getItemName()));
-			stringBuilder.append("\").append(\"[\").append(");
+			stringBuilder.append("[\").append(");
 			stringBuilder.append(getArrayListSizeVarObjName(depth, arrayInfo.getItemName()));
-			stringBuilder.append(").append(\"] is not same to \").append(\"the value defined by array size[");
+			stringBuilder.append(").append(\"] is not same to the value defined by array size[");
 			stringBuilder.append(arrayInfo.getArrayCntValue());
 			stringBuilder.append("]\").toString();");
+			
 		}
 
 		// throw new BodyFormatException(errorMessage);
@@ -488,18 +475,9 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 
 		String newPath = new StringBuilder(path).append(".").append(groupInfo.getFirstUpperItemName()).toString();
 
-		StringBuilder stringBuilder = new StringBuilder();
+		StringBuilder stringBuilder = new StringBuilder();		
 
-		
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
-		stringBuilder.append("pathStack.push(new StringBuilder(pathStack.peek()).append(\".\").append(\"");
-		stringBuilder.append(groupInfo.getFirstUpperItemName());
-		stringBuilder.append("\").toString());");
-
-		/**
-		 * 변수 선언
-		 */
+		/** 변수 선언 */
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));		
 		stringBuilder.append(newPath);
@@ -510,7 +488,29 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(".get");
 		stringBuilder.append(groupInfo.getFirstUpperItemName());
 		stringBuilder.append("();");
-
+		
+		/** if (null == group1$2) { */
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append("if (null == ");
+		stringBuilder.append(getGroupVarObjName(depth, groupInfo.getItemName()));
+		stringBuilder.append(") {");		
+		/** 	String errorMessage = "the var group1$1 is null"; */
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append("String errorMessage = \"the var ");
+		stringBuilder.append(getGroupVarObjName(depth, groupInfo.getItemName()));
+		stringBuilder.append(" is null\";");		
+		/** 	throw new BodyFormatException(errorMessage); */
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));		 
+		stringBuilder.append("throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);");
+		/** } */
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append("}");		
+		
+		/** group 쓰기 가능한 중간 객체 얻기 */
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
 		stringBuilder.append("Object ");
@@ -526,12 +526,19 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(middleObjVarName);
 		stringBuilder.append(");");
 		
+		/** path stack push */
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append("pathStack.push(new StringBuilder(pathStack.peek()).append(\".\").append(\"");
+		stringBuilder.append(groupInfo.getFirstUpperItemName());
+		stringBuilder.append("\").toString());");
+		
 		stringBuilder.append(buildStringOfOrderedItemSetPart(depth, newPath, getGroupVarObjName(depth, groupInfo.getItemName()),
 				getGroupMiddleObjVarName(depth, groupInfo.getItemName()), groupInfo.getOrderedItemSet()));
 		
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		
-		// pathStack.pop();
+		/** pathStack.pop(); */
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
 		stringBuilder.append("pathStack.pop();");		
@@ -542,8 +549,8 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 
 	public String buildStringOfOrderedItemSetPart(int depth, String path, String varNameOfSetOwner,
 			String middleObjVarName, OrderedItemSet orderedItemSet) {
-		if (depth <= 0) {
-			String errorMessage = String.format("the parameter depth[%d] is less than or equal to zero", depth);
+		if (depth < 0) {
+			String errorMessage = String.format("the parameter depth[%d] is less than zero", depth);
 			throw new IllegalArgumentException(errorMessage);
 		}
 		if (null == path) {
@@ -657,7 +664,8 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 			// Stack<String> pathStack = new Stack<String>();
 			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 			stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
-			stringBuilder.append("Stack<String> pathStack = new Stack<String>();");
+			/** java.util.Stack is thread-safe but LinkedList is not thread-safe */
+			stringBuilder.append("LinkedList<String> pathStack = new LinkedList<String>();");
 
 			// pathStack.push("AllItemTypeReq");
 			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
@@ -706,7 +714,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 
-		String importElements[] = { "import java.util.Stack;",
+		String importElements[] = { "import java.util.LinkedList;",
 				"import kr.pe.sinnori.common.message.AbstractMessage;",
 				"import kr.pe.sinnori.common.message.builder.info.SingleItemType;",
 				"import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;",

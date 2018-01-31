@@ -73,10 +73,10 @@ public class LetterToServer {
 		return mailID;
 	}
 	
-	/*public void setMailBox(int mailboxID, int mailID) {
+	public void setMailBox(int mailboxID, int mailID) {
 		this.mailboxID = mailboxID;
 		this.mailID = mailID;
-	}*/
+	}
 	
 	public List<WrapBuffer> getWrapBufferList() {
 		return wrapBufferList;

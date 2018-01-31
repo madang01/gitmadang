@@ -6,6 +6,25 @@ import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
 
 public abstract class BuildSystemPathSupporter {
+	
+	public static String getSinnoriTempPathString(
+			String sinnoriInstalledPathString) {
+		if (null == sinnoriInstalledPathString) {
+			throw new IllegalArgumentException(
+					"the parameter sinnoriInstalledPathString is null");
+		}
+
+		if (sinnoriInstalledPathString.equals("")) {
+			throw new IllegalArgumentException(
+					"the parameter sinnoriInstalledPathString is a empty string");
+		}
+
+		StringBuilder strBuilder = new StringBuilder(sinnoriInstalledPathString);
+		strBuilder.append(File.separator);
+		strBuilder.append("tmp");
+		return strBuilder.toString();
+	}
+	
 
 	/** sinnori resources path : <sinnnori installed path>/resources */
 	public static String getSinnoriResourcesPathString(
