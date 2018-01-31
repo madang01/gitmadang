@@ -214,8 +214,11 @@ public class IOFileSetContentsBuilderManagerTest {
 		{
 			String messageSourceFileContent = ioFileSetContentsBuilderManager.getMessageSourceFileContents(author, messageInfo);
 
-			File messageSourceFile = new File(new StringBuilder(tmpPathString).append(File.separator)
-					.append(messageID).append(".java").toString());
+			/*File messageSourceFile = new File(new StringBuilder(tmpPathString).append(File.separator)
+					.append(messageID).append(".java").toString());*/
+			
+			File messageSourceFile = new File(new StringBuilder("D:\\gitsinnori\\sinnori\\core_build\\src\\main\\java\\kr\\pe\\sinnori\\impl\\message\\AllItemTypeReq").append(File.separator)
+			.append(messageID).append(".java").toString());
 
 			try {
 				CommonStaticUtil.saveFile(messageSourceFile, messageSourceFileContent,

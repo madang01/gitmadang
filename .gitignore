@@ -8,6 +8,7 @@
 *.tar.gz
 *.jar
 sinnori/project/sample_test/**
+sinnori/tmp/**
 !sinnori/SinnoriHelper.jar
 !sinnori/core_build/lib/**/*.jar
 !sinnori/core_build/APP-INF/lib/*.jar

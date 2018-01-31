@@ -63,7 +63,7 @@ public class MessageFileContensBuilderTest {
 					nativeItemSize, nativeItemCharset);
 
 			String variableDelarationString = messageFileContensBuilder
-					.buildStringOfVariableDeclarationPart(0,singleItemInfo);
+					.buildStringOfVariableDeclarationPart(1,singleItemInfo);
 
 			log.info("SingleItemInfo::variableDelarationString=[{}]", variableDelarationString);
 		}
@@ -78,8 +78,8 @@ public class MessageFileContensBuilderTest {
 			SingleItemInfo singleItemInfo = new SingleItemInfo(itemName, itemTypeName, nativeItemDefaultValue,
 					nativeItemSize, nativeItemCharset);
 
-			String variableDelarationString = messageFileContensBuilder.buildStringOfVariableDeclarationPart(0,
-					singleItemInfo);
+			String variableDelarationString = messageFileContensBuilder
+					.buildStringOfVariableDeclarationPart(1, singleItemInfo);
 
 			log.info("SingleItemInfo::variableDelarationString=[{}]", variableDelarationString);
 		}
@@ -88,7 +88,6 @@ public class MessageFileContensBuilderTest {
 	@Test
 	public void testBuildStringOfVariableDeclarationPart_ArrayInfo() {
 		MessageFileContensBuilder messageFileContensBuilder = new MessageFileContensBuilder();
-
 		{
 			String arrayName = "array1";
 			String arrayCntType = "direct";
@@ -108,8 +107,8 @@ public class MessageFileContensBuilderTest {
 				arrayItemSet.addItemInfo(singleItemInfo);
 			}
 
-			String variableDelarationString = messageFileContensBuilder.buildStringOfVariableDeclarationPart(0,
-					arrayInfo);
+			String variableDelarationString = messageFileContensBuilder
+					.buildStringOfVariableDeclarationPart(0, arrayInfo);
 
 			log.info("ArrayInfo::variableDelarationString=[{}]", variableDelarationString);
 		}
@@ -354,7 +353,37 @@ public class MessageFileContensBuilderTest {
 			String toStringPartString = messageFileContensBuilder
 					.buildStringOfToStringPart(0, isFirstElement, arrayInfo);
 
-			log.info("SingleItemInfo::toStringPartString=[{}]", toStringPartString);
+			log.info("ArrayInfo::toStringPartString=[{}]", toStringPartString);
+		}
+	}
+	
+	@Test
+	public void testBuildStringOfToStringPart_Group() {
+		MessageFileContensBuilder messageFileContensBuilder = new MessageFileContensBuilder();
+
+		
+		boolean[] isFirstElements = {true, false};
+		for (boolean isFirstElement : isFirstElements) {
+			String groupName = "group1";
+
+			GroupInfo groupInfo = new GroupInfo(groupName);
+			OrderedItemSet groupItemSet = groupInfo.getOrderedItemSet();
+			{
+				String itemName = "ubBytes3";
+				String itemTypeName = SingleItemType.UB_VARIABLE_LENGTH_BYTES.getItemTypeName();
+				String nativeItemDefaultValue = null;
+				String nativeItemSize = null;
+				String nativeItemCharset = null;
+
+				SingleItemInfo singleItemInfo = new SingleItemInfo(itemName, itemTypeName, nativeItemDefaultValue,
+						nativeItemSize, nativeItemCharset);
+				groupItemSet.addItemInfo(singleItemInfo);
+			}
+
+			String toStringPartString = messageFileContensBuilder
+					.buildStringOfToStringPart(0, isFirstElement, groupInfo);
+
+			log.info("GroupInfo::toStringPartString=[{}]", toStringPartString);
 		}
 	}
 
