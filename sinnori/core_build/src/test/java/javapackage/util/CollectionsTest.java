@@ -6,7 +6,9 @@ import java.util.List;
 
 import org.junit.Test;
 
-public class CollectionsTest {
+import kr.pe.sinnori.common.AbstractJunitTest;
+
+public class CollectionsTest extends AbstractJunitTest {
 	
 	
 	@Test(expected=java.lang.UnsupportedOperationException.class)

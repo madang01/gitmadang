@@ -20,7 +20,7 @@ package kr.pe.sinnori.common.message.builder.info;
 
 import java.io.File;
 
-import kr.pe.sinnori.common.etc.CommonType;
+import kr.pe.sinnori.common.type.MessageTransferDirectionType;
 
 
 
@@ -43,7 +43,7 @@ import kr.pe.sinnori.common.etc.CommonType;
 public class MessageInfo {
 	private String messageID = null;
 	private String firstLowerMessageID = null;
-	private CommonType.MESSAGE_TRANSFER_DIRECTION direction = null;
+	private MessageTransferDirectionType messageTransferDirectionType = null;
 	
 	private OrderedItemSet messageOrderedItemSet = new OrderedItemSet();
 	
@@ -68,12 +68,12 @@ public class MessageInfo {
 		return new java.util.Date(messageInfoXMLFile.lastModified());
 	}
 	
-	public void setDirection(CommonType.MESSAGE_TRANSFER_DIRECTION direction) {
-		this.direction = direction;
+	public void setDirection(MessageTransferDirectionType messageTransferDirectionType) {
+		this.messageTransferDirectionType = messageTransferDirectionType;
 	}
 	
-	public CommonType.MESSAGE_TRANSFER_DIRECTION getDirection() {
-		return direction;
+	public MessageTransferDirectionType getDirection() {
+		return messageTransferDirectionType;
 	}
 	
 	public String getFirstLowerMessageID() {
@@ -89,7 +89,7 @@ public class MessageInfo {
 		strBuff.append("{ messageID=");
 		strBuff.append(messageID);
 		strBuff.append(", direction=");
-		strBuff.append(direction.toString());
+		strBuff.append(messageTransferDirectionType.toString());
 		strBuff.append(", {");
 		strBuff.append(messageOrderedItemSet.toString());
 		strBuff.append("}}");

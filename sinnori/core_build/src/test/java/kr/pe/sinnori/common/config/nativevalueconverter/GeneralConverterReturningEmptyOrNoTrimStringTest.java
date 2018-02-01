@@ -1,17 +1,16 @@
 package kr.pe.sinnori.common.config.nativevalueconverter;
 
 import static org.junit.Assert.fail;
-import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class GeneralConverterReturningEmptyOrNoTrimStringTest implements
+import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
+
+public class GeneralConverterReturningEmptyOrNoTrimStringTest extends AbstractJunitTest implements
 NativeValueConverterTestIF {
 	
-	Logger log = LoggerFactory.getLogger(GeneralConverterReturningEmptyOrNoTrimStringTest.class);
 
 	private GeneralConverterReturningEmptyOrNoTrimString nativeValueConverter = null;
 	private String returnedValue = null;
@@ -19,6 +18,8 @@ NativeValueConverterTestIF {
 	@Override
 	@Before
 	public void setup() {
+		super.setup();
+		
 		nativeValueConverter = new GeneralConverterReturningEmptyOrNoTrimString();
 	}
 	

@@ -4,16 +4,13 @@ import static org.junit.Assert.fail;
 
 import java.nio.ByteOrder;
 
-import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
-import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningByteOrder;
-
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class SetTypeConverterReturningByteOrderTest implements NativeValueConverterTestIF {
-	Logger log = LoggerFactory.getLogger(SetTypeConverterReturningByteOrderTest.class);
+import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
+
+public class SetTypeConverterReturningByteOrderTest extends AbstractJunitTest implements NativeValueConverterTestIF {
 	
 	private SetTypeConverterReturningByteOrder nativeValueConverter = null;
 	private ByteOrder returnedValue = null;	
@@ -22,6 +19,8 @@ public class SetTypeConverterReturningByteOrderTest implements NativeValueConver
 	@Override
 	@Before
 	public void setup() {
+		super.setup();
+		
 		try {
 			nativeValueConverter = new SetTypeConverterReturningByteOrder();
 		} catch (IllegalArgumentException e) {

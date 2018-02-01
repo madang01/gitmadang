@@ -39,8 +39,10 @@ import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturnin
 import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningMessageProtocol;
 import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningString;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
+import kr.pe.sinnori.common.type.ConnectionType;
+import kr.pe.sinnori.common.type.MessageProtocolType;
+import kr.pe.sinnori.common.type.SessionKey;
 import kr.pe.sinnori.common.util.SequencedProperties;
 
 /**
@@ -198,12 +200,12 @@ public class SinnoriItemIDInfoManger {
 
 			itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_SOURCE_ITEMID;
 			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY>(
+			itemIDInfo = new ItemIDInfo<SessionKey.RSAKeypairSourceType>(
 					ItemIDInfo.ConfigurationPart.COMMON,
 					ItemIDInfo.ViewType.SINGLE_SET,
 					itemID,
 					"세션키에 사용되는 공개키 키쌍 생성 방법, API:내부적으로 RSA 키쌍 생성, File:외부 파일를 읽어와서 RSA  키쌍을 생성",
-					CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY.SERVER.toString(), isDefaultValueCheck,
+					SessionKey.RSAKeypairSourceType.SERVER.toString(), isDefaultValueCheck,
 					new SetTypeConverterOfSessionKeyRSAKeypairSource());
 			addCommonPartItemIDInfo(itemIDInfo);
 
@@ -480,7 +482,7 @@ public class SinnoriItemIDInfoManger {
 
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_MESSAGE_PROTOCOL_ITEMID;
 			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<CommonType.MESSAGE_PROTOCOL_GUBUN>(
+			itemIDInfo = new ItemIDInfo<MessageProtocolType>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
 					ItemIDInfo.ViewType.SINGLE_SET, itemID,
 					"메시지 프로토콜, DHB:교차 md5 헤더+바디, DJSON:길이+존슨문자열, THB:길이+바디",
@@ -523,12 +525,12 @@ public class SinnoriItemIDInfoManger {
 
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_TYPE_ITEMID;
 			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<CommonType.CONNECTION_TYPE>(
+			itemIDInfo = new ItemIDInfo<ConnectionType>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
 					ItemIDInfo.ViewType.SINGLE_SET,
 					itemID,
-					"소캣 랩퍼 클래스인 연결 종류, NoShareAsyn:비공유+비동기, ShareAsyn:공유+비동기, NoShareSync:비공유+동기",
-					"NoShareAsyn", isDefaultValueCheck,
+					"소캣 랩퍼 클래스인 연결 종류, ASYN_PRIVATE:비공유+비동기, ASYN_SHARE:공유+비동기, SYNC_PRIVATE:비공유+동기",
+					"ASYN_PRIVATE", isDefaultValueCheck,
 					new SetTypeConverterReturningConnectionType());
 			addProjectPartItemIDInfo(itemIDInfo);
 
@@ -1283,7 +1285,7 @@ public class SinnoriItemIDInfoManger {
 							new RSAKeyFileDependOnSourceInActiveChecker(
 									dependentSourceItemIDInfo,
 									dependentTargetItemIDInfo,
-									new String[] { CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY.SERVER
+									new String[] { SessionKey.RSAKeypairSourceType.SERVER
 											.toString() }));
 		}
 		
@@ -1315,7 +1317,7 @@ public class SinnoriItemIDInfoManger {
 							new RSAKeyFileDependOnSourceInActiveChecker(
 									dependentSourceItemIDInfo,
 									dependentTargetItemIDInfo,
-									new String[] { CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY.SERVER
+									new String[] { SessionKey.RSAKeypairSourceType.SERVER
 											.toString() }));
 		}
 

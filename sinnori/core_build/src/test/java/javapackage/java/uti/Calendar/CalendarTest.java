@@ -4,11 +4,10 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class CalendarTest {
-	private Logger log = LoggerFactory.getLogger(CalendarTest.class);
+import kr.pe.sinnori.common.AbstractJunitTest;
+
+public class CalendarTest extends AbstractJunitTest {
 
 	@Test
 	public void testWeek() {

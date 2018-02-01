@@ -17,7 +17,7 @@
 package kr.pe.sinnori.common.message.builder;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.CommonType;
+import kr.pe.sinnori.common.type.MessageTransferDirectionType;
 
 /**
  * 서버 코덱 자바 소스 파일 빌더
@@ -26,7 +26,9 @@ import kr.pe.sinnori.common.etc.CommonType;
  */
 public class ServerCodecFileContensBuilder extends AbstractSourceFileBuildre {
 	
-	public String buildStringOfFileContents(CommonType.MESSAGE_TRANSFER_DIRECTION connectionDirectionMode, String messageID, String author) {
+	public String buildStringOfFileContents(MessageTransferDirectionType messageTransferDirectionType, String messageID, String author) {
+		final int depth = 0;
+		
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append(buildStringOfLincensePart());
 		
@@ -40,31 +42,23 @@ public class ServerCodecFileContensBuilder extends AbstractSourceFileBuildre {
 		// import
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("import kr.pe.sinnori.common.exception.DynamicClassCallException;");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("import kr.pe.sinnori.common.protocol.MessageCodecIF;");
+		
+		String importElements[] = {
+				"import kr.pe.sinnori.common.exception.DynamicClassCallException;",
+				"import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;",
+				"import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;",
+				"import kr.pe.sinnori.common.protocol.MessageCodecIF;"
+		};
+		stringBuilder.append(buildStringOfImportPart(importElements));		
+		
 		
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("/**");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(" * ");
-		stringBuilder.append(messageID);
-		stringBuilder.append(" 서버 코덱");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(" * @author ");
-		stringBuilder.append(author);
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(" *");
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(" */");
+		stringBuilder.append(buildStringOfFileDescriptionPart(messageID, author, "서버 코덱"));
 		
 		// public final class EchoServerCodec implements MessageCodecIF {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
 		stringBuilder.append("public final class ");
 		stringBuilder.append(messageID);
 		stringBuilder.append("ServerCodec implements MessageCodecIF {");
@@ -72,64 +66,83 @@ public class ServerCodecFileContensBuilder extends AbstractSourceFileBuildre {
 		// @Override
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t@Override");
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append("@Override");
 		
 		// public MessageDecoder getMessageDecoder() throws DynamicClassCallException {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\tpublic AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {");
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append("public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {");
 		
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		if ((connectionDirectionMode == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL) ||
-				(connectionDirectionMode == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_CLIENT_TO_SERVER)) {
-			/** 디코더가 필요한 경우 */
-			stringBuilder.append("\t\treturn new ");
-			stringBuilder.append(messageID);
-			stringBuilder.append("Decoder();");
-		} else {
-			/** 디코더가 필요 없는 경우 */
-			// throw new DynamicClassCallException("SelfExn 메시지는 클라이언트에서 서버로 전달하지 않는 메시지 입니다.");
-			stringBuilder.append("\t\tthrow new DynamicClassCallException(\"");
-			stringBuilder.append(messageID);
-			stringBuilder.append("메시지는 클라이언트에서 서버로 전달하지 않는 메시지 입니다.\");");
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 2));
+		switch(messageTransferDirectionType) {
+			case FROM_ALL_TO_ALL :
+			case FROM_CLIENT_TO_SERVER : {
+				/** 디코더가 필요한 경우 */
+				stringBuilder.append("return new ");
+				stringBuilder.append(messageID);
+				stringBuilder.append("Decoder();");
+				break;
+			}
+			default : {
+				/** 디코더가 필요 없는 경우 */
+				stringBuilder.append("throw new DynamicClassCallException(\"the server don't need a message decoder because it is a message[");
+				stringBuilder.append(messageID);
+				stringBuilder.append("] that is not sent from client to server\");");
+				break;
+			}
 		}
 		
 		
 		// }
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t}");
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append("}");
 		
 		
 		// @Override
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t@Override");
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append("@Override");
 		
 		// public MessageEncoder getMessageEncoder() throws DynamicClassCallException {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\tpublic AbstractMessageEncoder getMessageEncoder() throws DynamicClassCallException {");
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append("public AbstractMessageEncoder getMessageEncoder() throws DynamicClassCallException {");
 		
 		
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		if ((connectionDirectionMode == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL) ||
-				(connectionDirectionMode == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_SERVER_TO_CLINET)) {
-			/** 인코더가 필요한 경우 */
-			stringBuilder.append("\t\treturn new ");
-			stringBuilder.append(messageID);
-			stringBuilder.append("Encoder();");
-		} else {
-			/** 인코더가 필요 없는 경우 */
-			// throw new DynamicClassCallException("SelfExn 메시지는 클라이언트에서 서버로 전달하지 않는 메시지 입니다.");
-			stringBuilder.append("\t\tthrow new DynamicClassCallException(\"");
-			stringBuilder.append(messageID);
-			stringBuilder.append(" 메시지는 서버에서 클라이언트로 전달하지 않는 메시지 입니다.\");");
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 2));
+		
+		switch(messageTransferDirectionType) {
+			case FROM_ALL_TO_ALL :
+			case FROM_SERVER_TO_CLINET : {
+				/** 인코더가 필요한 경우 */
+				stringBuilder.append("return new ");
+				stringBuilder.append(messageID);
+				stringBuilder.append("Encoder();");
+				break;
+			}
+			default : {
+				/** 디코더가 필요 없는 경우 */
+				stringBuilder.append("throw new DynamicClassCallException(\"the server don't need a message encoder because it is a message[");
+				stringBuilder.append(messageID);
+				stringBuilder.append("] that is not sent from server to client\");");
+				break;
+			}
 		}
 		
-		// }
-		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append("\t}");
 		
 		// }
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append("}");
+		
+		// }
+		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
+		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
 		stringBuilder.append("}");
 		
 		return stringBuilder.toString();

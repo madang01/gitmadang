@@ -1,9 +1,8 @@
 package javapackage.sigleton;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import kr.pe.sinnori.common.AbstractJunitTest;
 
-public class sampleMiddle {
+public class sampleMiddle extends AbstractJunitTest {
 	public sampleMiddle() {
 		new SampleRefSingleton().test();
 	}
@@ -11,6 +10,6 @@ public class sampleMiddle {
 	
 	@Override
 	protected void finalize() throws Throwable {
-		Logger.getGlobal().log(Level.INFO, "call sampleMiddle.finalize()");
+		log.info("call sampleMiddle.finalize()");
 	}
 }

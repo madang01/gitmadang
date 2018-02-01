@@ -1,7 +1,7 @@
 package kr.pe.sinnori.common.config.nativevalueconverter;
 
 import kr.pe.sinnori.common.config.AbstractSetTypeNativeValueConverter;
-import kr.pe.sinnori.common.etc.CommonType;
+import kr.pe.sinnori.common.type.ConnectionType;
 
 /**
  * 소캣 랩퍼 클래스인 연결 종류 항목 값 유효성 검사기, NoShareAsyn:비공유+비동기, ShareAsyn:공유+비동기,
@@ -11,16 +11,15 @@ import kr.pe.sinnori.common.etc.CommonType;
  * 
  */
 public class SetTypeConverterReturningConnectionType extends
-		AbstractSetTypeNativeValueConverter<CommonType.CONNECTION_TYPE> {
+		AbstractSetTypeNativeValueConverter<ConnectionType> {
 
 	public SetTypeConverterReturningConnectionType() {
-		super(CommonType.CONNECTION_TYPE.class);
+		super(ConnectionType.class);
 	}
 
 	@Override
 	protected void initItemValueSet() {
-		CommonType.CONNECTION_TYPE[] nativeValues = CommonType.CONNECTION_TYPE
-				.values();
+		ConnectionType[] nativeValues = ConnectionType.values();
 		for (int i = 0; i < nativeValues.length; i++) {
 			itemValueSet.add(nativeValues[i].toString());
 		}
@@ -32,7 +31,7 @@ public class SetTypeConverterReturningConnectionType extends
 	}
 
 	@Override
-	public CommonType.CONNECTION_TYPE valueOf(String itemValue)
+	public ConnectionType valueOf(String itemValue)
 			throws IllegalArgumentException {
 		if (null == itemValue) {
 			String errorMessage = "parameter itemValue is null";
@@ -44,9 +43,9 @@ public class SetTypeConverterReturningConnectionType extends
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		CommonType.CONNECTION_TYPE returnValue = null;
+		ConnectionType returnValue = null;
 		try {
-			returnValue = CommonType.CONNECTION_TYPE.valueOf(itemValue);
+			returnValue = ConnectionType.valueOf(itemValue);
 		} catch (IllegalArgumentException e) {
 			String errorMessage = new StringBuilder("parameter itemValue[")
 					.append(itemValue).append("] is not an element of ")

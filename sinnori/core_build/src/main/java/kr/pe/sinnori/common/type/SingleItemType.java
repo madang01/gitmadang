@@ -1,4 +1,4 @@
-package kr.pe.sinnori.common.message.builder.info;
+package kr.pe.sinnori.common.type;
 
 public enum SingleItemType {
 	BYTE(0, "byte"),

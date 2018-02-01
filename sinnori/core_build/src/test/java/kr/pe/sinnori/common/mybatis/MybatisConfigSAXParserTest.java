@@ -24,9 +24,9 @@ import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDDefiner;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
-import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
 import kr.pe.sinnori.common.exception.BuildSystemException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
+import kr.pe.sinnori.common.type.LogType;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 import kr.pe.sinnori.common.util.SequencedProperties;
 import kr.pe.sinnori.common.util.SequencedPropertiesUtil;
@@ -34,14 +34,24 @@ import kr.pe.sinnori.common.util.SequencedPropertiesUtil;
 public class MybatisConfigSAXParserTest {
 	Logger log = null;	
 	
-	private String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
-	private String mainProjectName = "sample_test";
+	private final String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
+	private final String mainProjectName = "sample_test";
 	
 	private String serverMybatisConfigFileRelativePathString = "mybatis/mybatisConfig.xml";
 	private File mybatisConfigeFile = getMybatisConfigFile(serverMybatisConfigFileRelativePathString);
 	
 	@Before
 	public void setup() {
+		File sinnoriInstalledPath = new File(sinnoriInstalledPathString);
+		if (! sinnoriInstalledPath.exists()) {
+			String errorMessage = String.format("the sinnori installed path[%s] doesn't exist", sinnoriInstalledPathString);			
+			fail(errorMessage);
+		}
+
+		if (! sinnoriInstalledPath.isDirectory()) {
+			String errorMessage = String.format("the sinnori installed path[%s] is not a directory", sinnoriInstalledPathString);
+			fail(errorMessage);
+		}		
 		
 		System.setProperty(
 				CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME,
@@ -50,22 +60,8 @@ public class MybatisConfigSAXParserTest {
 				CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH,
 				sinnoriInstalledPathString);
 		
-		/*System.setProperty(
-				CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_LOGBACK_CONFIG_FILE,
-				BuildSystemPathSupporter.getLogbackConfigFilePathString(sinnoriInstalledPathString, mainProjectName));
-		System.setProperty(
-				CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_LOG_PATH,
-				BuildSystemPathSupporter.getLogPathString(sinnoriInstalledPathString, mainProjectName, LOG_TYPE.SERVER));*/
-		
 		/** Logback 로그 경로 지정에 비 의존하기 위해서 셋업 */		
-		LOG_TYPE logType = LOG_TYPE.SERVER;
-		
-		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH,
-				sinnoriInstalledPathString);
-		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME,
-				mainProjectName);		
-		
-
+		LogType logType = LogType.SERVER;
 		SinnoriLogbackManger.getInstance().setup(sinnoriInstalledPathString, mainProjectName, logType);
 		
 		log = LoggerFactory.getLogger(MybatisConfigSAXParserTest.class);

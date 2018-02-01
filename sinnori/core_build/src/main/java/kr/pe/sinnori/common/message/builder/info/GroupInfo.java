@@ -1,5 +1,7 @@
 package kr.pe.sinnori.common.message.builder.info;
 
+import kr.pe.sinnori.common.type.ItemInfoType;
+
 public class GroupInfo extends AbstractItemInfo {	
 	private OrderedItemSet orderedItemSet = new OrderedItemSet();
 	private String groupName = null;

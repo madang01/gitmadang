@@ -50,7 +50,7 @@ public abstract class AbstractFileResource {
 
 	private void noticeAddedFileData(int fileBlockNo) {
 		if (null != fileTranferProcessInformationDialog) {
-			FileBlockInformation fileBlockInformation = new FileBlockInformation(
+			FileTransferInformation fileBlockInformation = new FileTransferInformation(
 					sourceFileID,			
 					targetFileID,
 					sourceFileSize,
@@ -186,7 +186,7 @@ public abstract class AbstractFileResource {
 		this.targetFileSize = targetFileSize;
 		this.fileBlockSize = fileBlockSize;
 
-		long sourceFileBlockCount = FileBlockInformation.getFileBlockCountUsingBigDecimal(sourceFileSize, fileBlockSize);
+		long sourceFileBlockCount = FileTransferInformation.getFileBlockCountUsingBigDecimal(sourceFileSize, fileBlockSize);
 		this.endFileBlockNo = sourceFileBlockCount - 1;
 		this.workedFileBlockBitSet = new LimitedLongBitSet(sourceFileBlockCount);
 
@@ -195,7 +195,7 @@ public abstract class AbstractFileResource {
 			if (0 == targetFileSize) {
 				this.startFileBlockNo = 0;
 			} else {
-				long targetFileBlockCount = FileBlockInformation.getFileBlockCountUsingBigDecimal(targetFileSize, fileBlockSize);
+				long targetFileBlockCount = FileTransferInformation.getFileBlockCountUsingBigDecimal(targetFileSize, fileBlockSize);
 				this.startFileBlockNo = targetFileBlockCount - 1;			
 
 				/** 이어 받기를 시작하는 위치 전까지 데이터 읽기 여부를 참으로 설정한다. */
@@ -388,7 +388,7 @@ public abstract class AbstractFileResource {
 	
 	
 	public long getStartOffset() {
-		FileBlockInformation fileBlockInformation = new FileBlockInformation(
+		FileTransferInformation fileBlockInformation = new FileTransferInformation(
 				sourceFileID,			
 				targetFileID,
 				sourceFileSize,

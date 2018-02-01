@@ -3,8 +3,8 @@ package kr.pe.sinnori.common.config.itemvalue;
 import java.io.File;
 
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDDefiner;
-import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
+import kr.pe.sinnori.common.type.SessionKey;
 
 /**
  * Warning! 비활성한 항목의 값은 쓰레기값이므로 환경 설정 파일을 읽어와서 Value Object 에 저장할때 건너뛰어 초기값인 null 값을 갖게 된다.
@@ -23,7 +23,7 @@ public class CommonPartConfiguration {
 	private String webLayoutControlPage = null;
 	
 	
-	private CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY rsaKeypairSourceOfSessionKey = null;
+	private SessionKey.RSAKeypairSourceType rsaKeypairSourceOfSessionKey = null;
 	private File rsaPublickeyFileOfSessionKey = null;
 	private File rsaPrivatekeyFileOfSessionKey = null;
 	private Integer rsaKeySizeOfSessionKey = null;	
@@ -103,17 +103,17 @@ public class CommonPartConfiguration {
 			
 			this.webLayoutControlPage = (String) nativeValue;
 		} else if (itemID.equals(ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_SOURCE_ITEMID)) {			
-			if (null != nativeValue && !(nativeValue instanceof CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY)) {
+			if (null != nativeValue && !(nativeValue instanceof SessionKey.RSAKeypairSourceType)) {
 				String errorMessage = new StringBuilder("the generic type[")
 				.append(nativeValue.getClass().getName())
 				.append("] of the parameter itemIDInfo[")
 				.append(itemID).append("] is differnet from the mapped variable's type[")
-				.append(CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY.class.getName())
+				.append(SessionKey.RSAKeypairSourceType.class.getName())
 				.append("]").toString();
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 			
-			this.rsaKeypairSourceOfSessionKey = (CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY) nativeValue;
+			this.rsaKeypairSourceOfSessionKey = (SessionKey.RSAKeypairSourceType) nativeValue;
 		} else if (itemID.equals(ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_PUBLICKEY_FILE_ITEMID)) {
 			if (null != nativeValue && !(nativeValue instanceof File)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -264,7 +264,7 @@ public class CommonPartConfiguration {
 		return webLayoutControlPage;
 	}
 
-	public CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY getRsaKeypairSourceOfSessionKey() {
+	public SessionKey.RSAKeypairSourceType getRsaKeypairSourceOfSessionKey() {
 		return rsaKeypairSourceOfSessionKey;
 	}
 

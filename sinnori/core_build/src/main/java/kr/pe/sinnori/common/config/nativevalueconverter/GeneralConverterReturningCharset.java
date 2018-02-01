@@ -13,12 +13,12 @@ public class GeneralConverterReturningCharset extends AbstractNativeValueConvert
 	@Override
 	public Charset valueOf(String itemValue) throws IllegalArgumentException {
 		if (null == itemValue) {
-			String errorMessage = "parameter itemValue is null";
+			String errorMessage = "the parameter itemValue is null";
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
 		if (itemValue.equals("")) {
-			String errorMessage = "parameter itemValue is empty";
+			String errorMessage = "the parameter itemValue is empty";
 			throw new IllegalArgumentException(errorMessage);
 		}
 
@@ -26,7 +26,7 @@ public class GeneralConverterReturningCharset extends AbstractNativeValueConvert
 		try {
 			returnValue = Charset.forName(itemValue);
 		} catch(Exception e) {
-			String errorMessage = new StringBuilder("parameter itemValue[")
+			String errorMessage = new StringBuilder("the parameter itemValue[")
 			.append(itemValue)
 			.append("] is a bad charset name, errormessage=")
 			.append(e.getMessage()).toString();

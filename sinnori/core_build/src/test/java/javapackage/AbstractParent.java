@@ -1,11 +1,9 @@
 package javapackage;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
 
 public class AbstractParent {
-	protected Logger log = LoggerFactory.getLogger(AbstractParent.class);
-	
+	protected Logger log = java.util.logging.Logger.getGlobal();
 	public AbstractParent() {
 		log.info("call AbstractParent");
 	}

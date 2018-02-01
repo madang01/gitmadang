@@ -48,9 +48,9 @@ import kr.pe.sinnori.common.config.fileorpathstringgetter.AbstractFileOrPathStri
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.config.itemidinfo.SinnoriItemIDInfoManger;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.BuildSystemException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
+import kr.pe.sinnori.common.type.LineSeparatorType;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 import kr.pe.sinnori.common.util.SequencedProperties;
 import kr.pe.sinnori.gui.helper.lib.ScreenManagerIF;
@@ -1076,7 +1076,7 @@ public class MainProjectEditorPanel extends JPanel {
 	private void showMessageDialog(String message) {
 		JOptionPane.showMessageDialog(mainFrame, CommonStaticUtil
 				.splitString(message,
-						CommonType.LINE_SEPARATOR_GUBUN.NEWLINE, 100));
+						LineSeparatorType.NEWLINE, 100));
 	}
 
 	private void popupProjectIOManagerScreenActionPerformed(ActionEvent e) {		

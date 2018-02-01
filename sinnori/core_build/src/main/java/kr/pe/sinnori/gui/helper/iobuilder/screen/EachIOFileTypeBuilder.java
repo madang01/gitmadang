@@ -30,10 +30,10 @@ import org.xml.sax.SAXException;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
-import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.message.builder.IOFileSetContentsBuilderManager;
 import kr.pe.sinnori.common.message.builder.info.MessageInfo;
 import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
+import kr.pe.sinnori.common.type.LineSeparatorType;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 import kr.pe.sinnori.gui.helper.lib.ScreenManagerIF;
 
@@ -49,7 +49,7 @@ public class EachIOFileTypeBuilder extends JPanel {
 	private void showMessageDialog(String message) {
 		JOptionPane.showMessageDialog(mainFrame, 
 				CommonStaticUtil.splitString(message,
-						CommonType.LINE_SEPARATOR_GUBUN.NEWLINE, 100));
+						LineSeparatorType.NEWLINE, 100));
 	}
 	
 	public EachIOFileTypeBuilder(Frame mainFrame, ScreenManagerIF screenManagerIF) {

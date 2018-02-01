@@ -6,10 +6,10 @@ import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.builder.info.AbstractItemInfo;
 import kr.pe.sinnori.common.message.builder.info.ArrayInfo;
 import kr.pe.sinnori.common.message.builder.info.GroupInfo;
-import kr.pe.sinnori.common.message.builder.info.ItemInfoType;
 import kr.pe.sinnori.common.message.builder.info.OrderedItemSet;
 import kr.pe.sinnori.common.message.builder.info.SingleItemInfo;
 import kr.pe.sinnori.common.message.builder.info.SingleItemTypeManger;
+import kr.pe.sinnori.common.type.ItemInfoType;
 
 public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 
@@ -716,7 +716,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 
 		String importElements[] = { "import java.util.LinkedList;",
 				"import kr.pe.sinnori.common.message.AbstractMessage;",
-				"import kr.pe.sinnori.common.message.builder.info.SingleItemType;",
+				"import kr.pe.sinnori.common.type.SingleItemType;",
 				"import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;",
 				"import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;" };
 		stringBuilder.append(buildStringOfImportPart(importElements));

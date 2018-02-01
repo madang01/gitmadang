@@ -8,15 +8,13 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 
 
 
-public class SearchUtilTest {
-	private Logger log = LoggerFactory.getLogger(SearchUtilTest.class);
+public class SearchUtilTest extends AbstractJunitTest {
 	
 	/*@Test
 	public void testCharByteSize() {

@@ -9,7 +9,7 @@ public class FileBlockInformationTest {
 	@Test
 	public void testGetFileBlockCountUsingBigDecimal_parameter_fileSizeIsZero() {
 		try {
-			FileBlockInformation.getFileBlockCountUsingBigDecimal(0, 10);
+			FileTransferInformation.getFileBlockCountUsingBigDecimal(0, 10);
 			
 			fail("expected IllegalArgumentException");
 		} catch(IllegalArgumentException e) {
@@ -22,7 +22,7 @@ public class FileBlockInformationTest {
 	@Test
 	public void testGetFileBlockCountUsingBigDecimal_parameter_fileSizeLessThanZero() {
 		try {
-			FileBlockInformation.getFileBlockCountUsingBigDecimal(-10, 10);
+			FileTransferInformation.getFileBlockCountUsingBigDecimal(-10, 10);
 			
 			fail("expected IllegalArgumentException");
 		} catch(IllegalArgumentException e) {
@@ -35,7 +35,7 @@ public class FileBlockInformationTest {
 	@Test
 	public void testGetFileBlockCountUsingBigDecimal_parameter_fileBlockSizeIsZero() {
 		try {
-			FileBlockInformation.getFileBlockCountUsingBigDecimal(10, 0);
+			FileTransferInformation.getFileBlockCountUsingBigDecimal(10, 0);
 			
 			fail("expected IllegalArgumentException");
 		} catch(IllegalArgumentException e) {
@@ -48,7 +48,7 @@ public class FileBlockInformationTest {
 	@Test
 	public void testGetFileBlockCountUsingBigDecimal_parameter_fileBlockSizeLessThanZero() {
 		try {
-			FileBlockInformation.getFileBlockCountUsingBigDecimal(10, -20);
+			FileTransferInformation.getFileBlockCountUsingBigDecimal(10, -20);
 			
 			fail("expected IllegalArgumentException");
 		} catch(IllegalArgumentException e) {
@@ -63,7 +63,7 @@ public class FileBlockInformationTest {
 		long fileBlockCount =  -1;
 		long expectedFileBlockCount =  1;
 		try {
-			fileBlockCount = FileBlockInformation.getFileBlockCountUsingBigDecimal(10, 21);			
+			fileBlockCount = FileTransferInformation.getFileBlockCountUsingBigDecimal(10, 21);			
 			
 			org.junit.Assert.assertThat("the expected value comparison",
 					fileBlockCount, org.hamcrest.CoreMatchers.equalTo(expectedFileBlockCount));
@@ -78,7 +78,7 @@ public class FileBlockInformationTest {
 		long fileBlockCount =  -1;
 		long expectedFileBlockCount =  2;
 		try {
-			fileBlockCount = FileBlockInformation.getFileBlockCountUsingBigDecimal(42, 21);			
+			fileBlockCount = FileTransferInformation.getFileBlockCountUsingBigDecimal(42, 21);			
 			
 			org.junit.Assert.assertThat("the expected value comparison",
 					fileBlockCount, org.hamcrest.CoreMatchers.equalTo(expectedFileBlockCount));
@@ -93,7 +93,7 @@ public class FileBlockInformationTest {
 		long fileBlockCount =  -1;
 		long expectedFileBlockCount =  Long.MAX_VALUE;
 		try {
-			fileBlockCount = FileBlockInformation.getFileBlockCountUsingBigDecimal(Long.MAX_VALUE, 1);			
+			fileBlockCount = FileTransferInformation.getFileBlockCountUsingBigDecimal(Long.MAX_VALUE, 1);			
 			
 			org.junit.Assert.assertThat("the expected value comparison",
 					fileBlockCount, org.hamcrest.CoreMatchers.equalTo(expectedFileBlockCount));

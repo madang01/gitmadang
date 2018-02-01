@@ -244,7 +244,7 @@ public class LocalSourceFileResource extends AbstractFileResource {
 		}
 		/**************************** 방어 코드 종료 *****************/
 			
-		FileBlockInformation fileBlockInformation = new FileBlockInformation(
+		FileTransferInformation fileBlockInformation = new FileTransferInformation(
 				sourceFileID,			
 				targetFileID,
 				sourceFileSize,

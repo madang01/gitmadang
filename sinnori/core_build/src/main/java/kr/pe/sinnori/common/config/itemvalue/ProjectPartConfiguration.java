@@ -4,9 +4,10 @@ import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDDefiner;
-import kr.pe.sinnori.common.etc.CommonType;
-import kr.pe.sinnori.common.etc.CommonType.CONNECTION_TYPE;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
+import kr.pe.sinnori.common.type.ConnectionType;
+import kr.pe.sinnori.common.type.MessageProtocolType;
+import kr.pe.sinnori.common.type.ProjectType;
 
 /**
  * Warning! 비활성한 항목의 값은 쓰레기값이므로 환경 설정 파일을 읽어와서 Value Object 에 저장할때 건너뛰어 초기값인 null 값을 갖게 된다.
@@ -18,7 +19,7 @@ import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 public class ProjectPartConfiguration {	
 	// private Logger log = LoggerFactory.getLogger(ProjectPartValueObject.class);
 	private String projectName = null;
-	private CommonType.PROJECT_GUBUN projectGubun = null;
+	private ProjectType projectType = null;
 	private String prefexOfItemID = null;
 	
 	/************* common 변수 시작 ******************/	
@@ -32,7 +33,7 @@ public class ProjectPartConfiguration {
 	private Integer dataPacketBufferPoolSize = null;
 	private Integer messageIDFixedSize = null;	
 		
-	private CommonType.MESSAGE_PROTOCOL_GUBUN messageProtocol = null;
+	private MessageProtocolType messageProtocol = null;
 	
 	/***** 서버 동적 클래스 변수 시작 *****/
 	private String classLoaderClassPackagePrefixName = null;
@@ -47,7 +48,7 @@ public class ProjectPartConfiguration {
 	
 	/***** 연결 클래스 관련 환경 변수 시작 *****/
 	/** 연결 종류 */
-	private CONNECTION_TYPE connectionType = null;
+	private ConnectionType connectionType = null;
 	/** 소켓 타임 아웃 시간 */
 	private Long clientSocketTimeout = null;
 	/** 연결 생성시 자동 접속 여부 */
@@ -126,10 +127,10 @@ public class ProjectPartConfiguration {
 	/************* server 변수 종료 ******************/
 	
 	
-	public ProjectPartConfiguration(CommonType.PROJECT_GUBUN projectGubun, String projectName) {
+	public ProjectPartConfiguration(ProjectType projectGubun, String projectName) {
 		this.projectName = projectName;
-		this.projectGubun = projectGubun;
-		if (this.projectGubun.equals(CommonType.PROJECT_GUBUN.MAIN_PROJECT)) {
+		this.projectType = projectGubun;
+		if (this.projectType.equals(ProjectType.MAIN)) {
 			prefexOfItemID = new StringBuilder("mainproject.").toString();
 		} else {
 			prefexOfItemID = new StringBuilder("subproject.").append(projectName)
@@ -256,17 +257,17 @@ public class ProjectPartConfiguration {
 			
 			this.messageIDFixedSize = (Integer)nativeValue;			
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_MESSAGE_PROTOCOL_ITEMID)) {
-			if (!(nativeValue instanceof CommonType.MESSAGE_PROTOCOL_GUBUN)) {
+			if (!(nativeValue instanceof MessageProtocolType)) {
 				String errorMessage = new StringBuilder("the generic type[")
 				.append(nativeValue.getClass().getName())
 				.append("] of the parameter itemIDInfo[")
 				.append(itemID).append("] is differnet from the mapped variable's type[")
-				.append(CommonType.MESSAGE_PROTOCOL_GUBUN.class.getName())
+				.append(MessageProtocolType.class.getName())
 				.append("]").toString();
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 			
-			this.messageProtocol = (CommonType.MESSAGE_PROTOCOL_GUBUN)nativeValue;
+			this.messageProtocol = (MessageProtocolType)nativeValue;
 			
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_CLASSLOADER_PACKAGE_PREFIX_NAME_ITEMID)) {
 			if (!(nativeValue instanceof String)) {
@@ -319,17 +320,17 @@ public class ProjectPartConfiguration {
 			
 			this.clientSocketTimeout = (Long) nativeValue;
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_TYPE_ITEMID)) {
-			if (!(nativeValue instanceof CommonType.CONNECTION_TYPE)) {
+			if (!(nativeValue instanceof ConnectionType)) {
 				String errorMessage = new StringBuilder("the generic type[")
 				.append(nativeValue.getClass().getName())
 				.append("] of the parameter itemIDInfo[")
 				.append(itemID).append("] is differnet from the mapped variable's type[")
-				.append(CommonType.CONNECTION_TYPE.class.getName())
+				.append(ConnectionType.class.getName())
 				.append("]").toString();
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 			
-			this.connectionType = (CommonType.CONNECTION_TYPE) nativeValue;
+			this.connectionType = (ConnectionType) nativeValue;
 		
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_WHETHER_AUTO_CONNECTION_ITEMID)) {
 			if (!(nativeValue instanceof Boolean)) {
@@ -767,7 +768,7 @@ public class ProjectPartConfiguration {
 		return messageIDFixedSize;
 	}
 
-	public CommonType.MESSAGE_PROTOCOL_GUBUN getMessageProtocol() {
+	public MessageProtocolType getMessageProtocol() {
 		return messageProtocol;
 	}
 
@@ -775,7 +776,7 @@ public class ProjectPartConfiguration {
 		return classLoaderClassPackagePrefixName;
 	}
 
-	public CONNECTION_TYPE getConnectionType() {
+	public ConnectionType getConnectionType() {
 		return connectionType;
 	}
 

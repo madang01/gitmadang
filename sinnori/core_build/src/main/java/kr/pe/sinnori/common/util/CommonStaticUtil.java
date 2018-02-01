@@ -14,9 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.CommonType;
-import kr.pe.sinnori.common.etc.CommonType.READ_WRITE_MODE;
 import kr.pe.sinnori.common.exception.BuildSystemException;
+import kr.pe.sinnori.common.type.LineSeparatorType;
+import kr.pe.sinnori.common.type.ReadWriteMode;
 
 
 public abstract class CommonStaticUtil {	
@@ -70,11 +70,11 @@ public abstract class CommonStaticUtil {
 	/**
 	 * 지정한 칼럼수 단위로 지정한 방식에 맞는 구분 문자열을 추가한 문자열을 반환한다.
 	 * @param sourceString 변환을 원하는 문자열
-	 * @param lineSeparatorGubun 지정한 칼럼 마다 삽입을 원하는 문자열 구분, BR: <br/>, NEWLINE: newline
+	 * @param lineSeparatorType 지정한 칼럼 마다 삽입을 원하는 문자열 구분, BR: <br/>, NEWLINE: newline
 	 * @param wantedColumnSize 원하는 문자열 가로 칼럼수
 	 * @return 지정한 칼럼수 단위로 지정한 방식에 맞는 구분 문자열을 추가한 문자열
 	 */
-	public static String splitString(String sourceString, CommonType.LINE_SEPARATOR_GUBUN lineSeparatorGubun, int wantedColumnSize) {
+	public static String splitString(String sourceString, LineSeparatorType lineSeparatorType, int wantedColumnSize) {
 		if (null == sourceString) {
 			throw new IllegalArgumentException("the paramter sourceString is null");
 		}
@@ -87,7 +87,7 @@ public abstract class CommonStaticUtil {
 			throw new IllegalArgumentException("the paramter sourceString has leading or tailing white space");
 		}
 		
-		if (null == lineSeparatorGubun) {
+		if (null == lineSeparatorType) {
 			throw new IllegalArgumentException("the paramter lineSeparatorGubun is null");
 		}		
 		
@@ -96,7 +96,7 @@ public abstract class CommonStaticUtil {
 		}		
 		
 		String lineSeparator = null;
-		if (lineSeparatorGubun == CommonType.LINE_SEPARATOR_GUBUN.BR) {
+		if (lineSeparatorType == LineSeparatorType.BR) {
 			lineSeparator ="<br/>";
 		} else {
 			lineSeparator = CommonStaticFinalVars.NEWLINE;
@@ -119,7 +119,7 @@ public abstract class CommonStaticUtil {
 		}
 		
 		String tooltip = new StringBuilder("<html>")
-		.append(CommonStaticUtil.splitString(message, CommonType.LINE_SEPARATOR_GUBUN.BR, colSize))
+		.append(CommonStaticUtil.splitString(message, LineSeparatorType.BR, colSize))
 		.append("</html>").toString();
 		return tooltip;
 	}
@@ -162,7 +162,7 @@ public abstract class CommonStaticUtil {
 		}
 	}
 	
-	public static File getValidPath(String sourcePathString, READ_WRITE_MODE	readWriteMode) throws RuntimeException {
+	public static File getValidPath(String sourcePathString, ReadWriteMode readWriteMode) throws RuntimeException {
 		if (null == sourcePathString) {
 			throw new IllegalArgumentException("the parameter 'sourcePathString' is null");
 		}
@@ -179,7 +179,7 @@ public abstract class CommonStaticUtil {
 			throw new RuntimeException(errorMessage);
 		}
 
-		if (readWriteMode.equals(READ_WRITE_MODE.ONLY_READ) || readWriteMode.equals(READ_WRITE_MODE.READ_WRITE)) {
+		if (readWriteMode.equals(ReadWriteMode.ONLY_READ) || readWriteMode.equals(ReadWriteMode.READ_WRITE)) {
 			if (!sourcePath.canRead()) {
 				String errorMessage = String.format("The path[%s] has a permission to read", 
 						sourcePathString);
@@ -188,7 +188,7 @@ public abstract class CommonStaticUtil {
 		}
 		
 		
-		if (readWriteMode.equals(READ_WRITE_MODE.ONLY_WRITE) || readWriteMode.equals(READ_WRITE_MODE.READ_WRITE)) {
+		if (readWriteMode.equals(ReadWriteMode.ONLY_WRITE) || readWriteMode.equals(ReadWriteMode.READ_WRITE)) {
 			if (!sourcePath.canWrite()) {
 				String errorMessage = String.format("The path[%s] has a permission to write", 
 						sourcePathString);

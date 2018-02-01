@@ -5,18 +5,15 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.IOException;
 
-import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
-
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class GeneralConverterReturningRegularFileTest implements
+import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
+
+public class GeneralConverterReturningRegularFileTest extends AbstractJunitTest implements
 		NativeValueConverterTestIF {
-	Logger log = LoggerFactory
-			.getLogger(GeneralConverterReturningRegularFileTest.class);
 
 	private GeneralConverterReturningRegularFile nativeValueConverter = null;
 	private File returnedValue = null;
@@ -27,6 +24,7 @@ public class GeneralConverterReturningRegularFileTest implements
 	@Override
 	@Before
 	public void setup() {
+		super.setup();
 
 		boolean isWritePermissionChecking = true;
 

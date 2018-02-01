@@ -1,18 +1,15 @@
 package javapackage.java.util;
 
-import static org.junit.Assert.fail;
-
 import java.nio.ByteOrder;
 import java.util.BitSet;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 
-public class BitSetTest {
-	Logger log = LoggerFactory.getLogger(BitSetTest.class);
+public class BitSetTest extends AbstractJunitTest {
+	
 	
 	@Test
 	public void testConstructor__parameter_nbitsIsZero() {
@@ -46,10 +43,11 @@ public class BitSetTest {
 			
 			log.info("zeroBitSet.length={}, zeroBitSet.car={}, result={}", zeroBitSet.length(), zeroBitSet.cardinality(), result);
 			
-			fail("result="+result);
+			// fail("result="+result);
+			log.warn("IndexOutOfBoundsException 예외가 없다는 말은 java BitSet api 는 가변 길이를 갖는 BitSet라는 증거");
 			
 		} catch(IndexOutOfBoundsException e) {
-			log.info(e.getMessage(), e);
+			log.info("이 예외(=IndexOutOfBoundsException)가 발생했다면 java BitSet api 가 고정 길이를 갖는다는 증거 ", e);
 		}
 	}
 	

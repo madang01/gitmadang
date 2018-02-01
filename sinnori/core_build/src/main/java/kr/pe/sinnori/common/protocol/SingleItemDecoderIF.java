@@ -17,7 +17,7 @@
 package kr.pe.sinnori.common.protocol;
 
 import kr.pe.sinnori.common.exception.BodyFormatException;
-import kr.pe.sinnori.common.message.builder.info.SingleItemType;
+import kr.pe.sinnori.common.type.SingleItemType;
 
 /**
  * 단일 항목 디코더 인터페이스. 프로토콜별로 구현된다.

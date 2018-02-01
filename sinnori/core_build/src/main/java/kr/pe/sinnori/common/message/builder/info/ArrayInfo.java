@@ -17,6 +17,8 @@
 
 package kr.pe.sinnori.common.message.builder.info;
 
+import kr.pe.sinnori.common.type.ItemInfoType;
+
 /**
  * 배열 정보 클래스. 배열 이름, 배열 크기, 배열에 속한 항목 그룹 정보를 가지고 있다.
  * 

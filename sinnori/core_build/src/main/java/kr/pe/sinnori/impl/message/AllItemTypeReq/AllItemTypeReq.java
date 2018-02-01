@@ -76,7 +76,6 @@ public class AllItemTypeReq extends AbstractMessage {
 				public void setSubItemID(String subItemID) {
 					this.subItemID = subItemID;
 				}
-
 				public String getSubItemName() {
 					return subItemName;
 				}
@@ -84,7 +83,6 @@ public class AllItemTypeReq extends AbstractMessage {
 				public void setSubItemName(String subItemName) {
 					this.subItemName = subItemName;
 				}
-
 				public int getItemCnt() {
 					return itemCnt;
 				}
@@ -117,7 +115,6 @@ public class AllItemTypeReq extends AbstractMessage {
 			public void setItemID(String itemID) {
 				this.itemID = itemID;
 			}
-
 			public String getItemName() {
 				return itemName;
 			}
@@ -125,7 +122,6 @@ public class AllItemTypeReq extends AbstractMessage {
 			public void setItemName(String itemName) {
 				this.itemName = itemName;
 			}
-
 			public int getItemCnt() {
 				return itemCnt;
 			}
@@ -133,7 +129,6 @@ public class AllItemTypeReq extends AbstractMessage {
 			public void setItemCnt(int itemCnt) {
 				this.itemCnt = itemCnt;
 			}
-
 			public java.util.List<SubItem> getSubItemList() {
 				return subItemList;
 			}
@@ -190,7 +185,6 @@ public class AllItemTypeReq extends AbstractMessage {
 		public void setMemberID(String memberID) {
 			this.memberID = memberID;
 		}
-
 		public String getMemberName() {
 			return memberName;
 		}
@@ -198,7 +192,6 @@ public class AllItemTypeReq extends AbstractMessage {
 		public void setMemberName(String memberName) {
 			this.memberName = memberName;
 		}
-
 		public int getCnt() {
 			return cnt;
 		}
@@ -206,7 +199,6 @@ public class AllItemTypeReq extends AbstractMessage {
 		public void setCnt(int cnt) {
 			this.cnt = cnt;
 		}
-
 		public java.util.List<Item> getItemList() {
 			return itemList;
 		}
@@ -264,7 +256,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setByteVar1(byte byteVar1) {
 		this.byteVar1 = byteVar1;
 	}
-
 	public byte getByteVar2() {
 		return byteVar2;
 	}
@@ -272,7 +263,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setByteVar2(byte byteVar2) {
 		this.byteVar2 = byteVar2;
 	}
-
 	public byte getByteVar3() {
 		return byteVar3;
 	}
@@ -280,7 +270,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setByteVar3(byte byteVar3) {
 		this.byteVar3 = byteVar3;
 	}
-
 	public short getUnsignedByteVar1() {
 		return unsignedByteVar1;
 	}
@@ -288,7 +277,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setUnsignedByteVar1(short unsignedByteVar1) {
 		this.unsignedByteVar1 = unsignedByteVar1;
 	}
-
 	public short getUnsignedByteVar2() {
 		return unsignedByteVar2;
 	}
@@ -296,7 +284,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setUnsignedByteVar2(short unsignedByteVar2) {
 		this.unsignedByteVar2 = unsignedByteVar2;
 	}
-
 	public short getUnsignedByteVar3() {
 		return unsignedByteVar3;
 	}
@@ -304,7 +291,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setUnsignedByteVar3(short unsignedByteVar3) {
 		this.unsignedByteVar3 = unsignedByteVar3;
 	}
-
 	public short getShortVar1() {
 		return shortVar1;
 	}
@@ -312,7 +298,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setShortVar1(short shortVar1) {
 		this.shortVar1 = shortVar1;
 	}
-
 	public short getShortVar2() {
 		return shortVar2;
 	}
@@ -320,7 +305,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setShortVar2(short shortVar2) {
 		this.shortVar2 = shortVar2;
 	}
-
 	public short getShortVar3() {
 		return shortVar3;
 	}
@@ -328,7 +312,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setShortVar3(short shortVar3) {
 		this.shortVar3 = shortVar3;
 	}
-
 	public int getUnsignedShortVar1() {
 		return unsignedShortVar1;
 	}
@@ -336,7 +319,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setUnsignedShortVar1(int unsignedShortVar1) {
 		this.unsignedShortVar1 = unsignedShortVar1;
 	}
-
 	public int getUnsignedShortVar2() {
 		return unsignedShortVar2;
 	}
@@ -344,7 +326,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setUnsignedShortVar2(int unsignedShortVar2) {
 		this.unsignedShortVar2 = unsignedShortVar2;
 	}
-
 	public int getUnsignedShortVar3() {
 		return unsignedShortVar3;
 	}
@@ -352,7 +333,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setUnsignedShortVar3(int unsignedShortVar3) {
 		this.unsignedShortVar3 = unsignedShortVar3;
 	}
-
 	public int getIntVar1() {
 		return intVar1;
 	}
@@ -360,7 +340,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setIntVar1(int intVar1) {
 		this.intVar1 = intVar1;
 	}
-
 	public int getIntVar2() {
 		return intVar2;
 	}
@@ -368,7 +347,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setIntVar2(int intVar2) {
 		this.intVar2 = intVar2;
 	}
-
 	public int getIntVar3() {
 		return intVar3;
 	}
@@ -376,7 +354,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setIntVar3(int intVar3) {
 		this.intVar3 = intVar3;
 	}
-
 	public long getUnsignedIntVar1() {
 		return unsignedIntVar1;
 	}
@@ -384,7 +361,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setUnsignedIntVar1(long unsignedIntVar1) {
 		this.unsignedIntVar1 = unsignedIntVar1;
 	}
-
 	public long getUnsignedIntVar2() {
 		return unsignedIntVar2;
 	}
@@ -392,7 +368,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setUnsignedIntVar2(long unsignedIntVar2) {
 		this.unsignedIntVar2 = unsignedIntVar2;
 	}
-
 	public long getUnsignedIntVar3() {
 		return unsignedIntVar3;
 	}
@@ -400,7 +375,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setUnsignedIntVar3(long unsignedIntVar3) {
 		this.unsignedIntVar3 = unsignedIntVar3;
 	}
-
 	public long getLongVar1() {
 		return longVar1;
 	}
@@ -408,7 +382,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setLongVar1(long longVar1) {
 		this.longVar1 = longVar1;
 	}
-
 	public long getLongVar2() {
 		return longVar2;
 	}
@@ -416,7 +389,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setLongVar2(long longVar2) {
 		this.longVar2 = longVar2;
 	}
-
 	public long getLongVar3() {
 		return longVar3;
 	}
@@ -424,7 +396,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setLongVar3(long longVar3) {
 		this.longVar3 = longVar3;
 	}
-
 	public String getStrVar1() {
 		return strVar1;
 	}
@@ -432,7 +403,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setStrVar1(String strVar1) {
 		this.strVar1 = strVar1;
 	}
-
 	public String getStrVar2() {
 		return strVar2;
 	}
@@ -440,7 +410,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setStrVar2(String strVar2) {
 		this.strVar2 = strVar2;
 	}
-
 	public String getStrVar3() {
 		return strVar3;
 	}
@@ -448,7 +417,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setStrVar3(String strVar3) {
 		this.strVar3 = strVar3;
 	}
-
 	public byte[] getBytesVar1() {
 		return bytesVar1;
 	}
@@ -456,7 +424,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setBytesVar1(byte[] bytesVar1) {
 		this.bytesVar1 = bytesVar1;
 	}
-
 	public byte[] getBytesVar2() {
 		return bytesVar2;
 	}
@@ -464,7 +431,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setBytesVar2(byte[] bytesVar2) {
 		this.bytesVar2 = bytesVar2;
 	}
-
 	public java.sql.Date getSqldate() {
 		return sqldate;
 	}
@@ -472,7 +438,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setSqldate(java.sql.Date sqldate) {
 		this.sqldate = sqldate;
 	}
-
 	public boolean getSqltimestamp() {
 		return sqltimestamp;
 	}
@@ -480,7 +445,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setSqltimestamp(boolean sqltimestamp) {
 		this.sqltimestamp = sqltimestamp;
 	}
-
 	public int getCnt() {
 		return cnt;
 	}
@@ -488,7 +452,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setCnt(int cnt) {
 		this.cnt = cnt;
 	}
-
 	public java.util.List<Member> getMemberList() {
 		return memberList;
 	}
@@ -496,7 +459,6 @@ public class AllItemTypeReq extends AbstractMessage {
 	public void setMemberList(java.util.List<Member> memberList) {
 		this.memberList = memberList;
 	}
-
 	public long getLongVar4() {
 		return longVar4;
 	}

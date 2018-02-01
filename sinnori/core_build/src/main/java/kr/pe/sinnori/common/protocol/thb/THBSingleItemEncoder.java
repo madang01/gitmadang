@@ -30,8 +30,8 @@ import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
 import kr.pe.sinnori.common.io.BinaryOutputStreamIF;
-import kr.pe.sinnori.common.message.builder.info.SingleItemType;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
+import kr.pe.sinnori.common.type.SingleItemType;
 
 /**
  * THB 단일 항목 인코더

@@ -27,8 +27,8 @@ import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
 import kr.pe.sinnori.common.io.BinaryInputStreamIF;
-import kr.pe.sinnori.common.message.builder.info.SingleItemType;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
+import kr.pe.sinnori.common.type.SingleItemType;
 
 /**
  * THB 단일 항목 디코더

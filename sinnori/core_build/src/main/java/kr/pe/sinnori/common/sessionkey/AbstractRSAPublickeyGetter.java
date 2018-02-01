@@ -10,9 +10,9 @@ import org.slf4j.LoggerFactory;
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.itemvalue.CommonPartConfiguration;
-import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.exception.SymmetricException;
+import kr.pe.sinnori.common.type.SessionKey;
 
 public abstract class AbstractRSAPublickeyGetter {
 	
@@ -22,12 +22,12 @@ public abstract class AbstractRSAPublickeyGetter {
 				.getSinnoriRunningProjectConfiguration();
 		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
 
-		CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY rsaKeyPairSoureOfSessionkey = commonPart
+		SessionKey.RSAKeypairSourceType rsaKeyPairSoureOfSessionkey = commonPart
 				.getRsaKeypairSourceOfSessionKey();
 		
-		if (rsaKeyPairSoureOfSessionkey.equals(CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY.SERVER)) {
+		if (rsaKeyPairSoureOfSessionkey.equals(SessionKey.RSAKeypairSourceType.SERVER)) {
 			publicKeyBytes = getPublickeyBytesFromMainProjectServer();
-		} else if (rsaKeyPairSoureOfSessionkey.equals(CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY.FILE)) {
+		} else if (rsaKeyPairSoureOfSessionkey.equals(SessionKey.RSAKeypairSourceType.FILE)) {
 			publicKeyBytes = getPublickeyBytesFromFile();
 		} else {
 			new SymmetricException(new StringBuilder("unknown rsa keypair source[")

@@ -30,8 +30,8 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
 import kr.pe.sinnori.common.config.itemidinfo.SinnoriItemIDInfoManger;
-import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
+import kr.pe.sinnori.common.type.LineSeparatorType;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 import kr.pe.sinnori.common.util.SequencedProperties;
 import kr.pe.sinnori.gui.helper.projectmanager.table.configurationpart.ConfigurationPartTableModel;
@@ -55,7 +55,7 @@ public class DBCPPartEditorPopup extends JDialog {
 	private void showMessageDialog(String message) {
 		JOptionPane.showMessageDialog(this, 
 				CommonStaticUtil.splitString(message, 
-						CommonType.LINE_SEPARATOR_GUBUN.NEWLINE, 100));
+						LineSeparatorType.NEWLINE, 100));
 	}
 
 	private void okButtonActionPerformed(ActionEvent e) {

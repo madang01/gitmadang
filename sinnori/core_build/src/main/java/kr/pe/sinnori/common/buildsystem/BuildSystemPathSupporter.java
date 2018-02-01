@@ -3,7 +3,7 @@ package kr.pe.sinnori.common.buildsystem;
 import java.io.File;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
+import kr.pe.sinnori.common.type.LogType;
 
 public abstract class BuildSystemPathSupporter {
 	
@@ -120,7 +120,7 @@ public abstract class BuildSystemPathSupporter {
 	}
 	
 	/** log path : <project path>/log/<log type name> */
-	public static String getLogPathString(String sinnoriInstalledPathString, String mainProjectName, LOG_TYPE logType) {		
+	public static String getLogPathString(String sinnoriInstalledPathString, String mainProjectName, LogType logType) {		
 		if (null == logType) {
 			throw new IllegalArgumentException(
 					"the parameter logType is null");

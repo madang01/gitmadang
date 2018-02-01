@@ -3,9 +3,9 @@ package kr.pe.sinnori.common.buildsystem;
 import java.util.List;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
 import kr.pe.sinnori.common.mybatis.MybatisEnviroment;
 import kr.pe.sinnori.common.mybatis.MybatisMapper;
+import kr.pe.sinnori.common.type.LogType;
 
 public abstract class BuildSystemFileContents {
 
@@ -1200,7 +1200,7 @@ public abstract class BuildSystemFileContents {
 	 */
 	public static String getDosShellContents(String sinnoriInstalledPathString, String mainProjectName, 
 
-			String jvmOptions, LOG_TYPE logType, String workingPathString, String relativeExecutabeJarFileName) {
+			String jvmOptions, LogType logType, String workingPathString, String relativeExecutabeJarFileName) {
 		final String dosShellLineSeparator = "^";
 		
 		String commonPartOfShellContents = getCommonPartOfShellContents(sinnoriInstalledPathString, mainProjectName, 
@@ -1228,7 +1228,7 @@ public abstract class BuildSystemFileContents {
 	 */
 	public static String getUnixShellContents(String sinnoriInstalledPathString, String mainProjectName, 
 
-			String jvmOptions, LOG_TYPE logType, String workingPathString, String relativeExecutabeJarFileName) {
+			String jvmOptions, LogType logType, String workingPathString, String relativeExecutabeJarFileName) {
 
 		final String unixShellLineSeparator = "\\";
 		
@@ -1249,7 +1249,7 @@ public abstract class BuildSystemFileContents {
 
 	// FIXME!
 	private static String getCommonPartOfShellContents(String sinnoriInstalledPathString, String mainProjectName, 
-			String jvmOptions, String shellLineSeparator, LOG_TYPE logType, String relativeExecutabeJarFileName) {
+			String jvmOptions, String shellLineSeparator, LogType logType, String relativeExecutabeJarFileName) {
 		StringBuilder commandPartBuilder = new StringBuilder();
 
 		commandPartBuilder.append("java ");

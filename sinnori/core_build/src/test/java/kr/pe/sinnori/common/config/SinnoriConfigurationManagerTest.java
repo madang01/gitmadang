@@ -4,40 +4,18 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 
+import org.junit.Test;
+
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.config.itemvalue.AllDBCPPartConfiguration;
 import kr.pe.sinnori.common.config.itemvalue.AllSubProjectPartConfiguration;
 import kr.pe.sinnori.common.config.itemvalue.CommonPartConfiguration;
 import kr.pe.sinnori.common.config.itemvalue.DBCPParConfiguration;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
-import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.CommonType;
-import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
-import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
+import kr.pe.sinnori.common.type.SessionKey;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+public class SinnoriConfigurationManagerTest extends AbstractJunitTest {
 
-public class SinnoriConfigurationManagerTest {
-	Logger log = LoggerFactory
-			.getLogger(SinnoriConfigurationManagerTest.class);
-	
-	@Before
-	public void setup() {
-		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
-		String mainProjectName = "sample_base";
-		LOG_TYPE logType = LOG_TYPE.SERVER;
-		
-		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH,
-				sinnoriInstalledPathString);
-		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME,
-				mainProjectName);		
-		
-
-		SinnoriLogbackManger.getInstance().setup(sinnoriInstalledPathString, mainProjectName, logType);
-		
-	}
 	
 	@Test
 	public void testGetInstance() {
@@ -71,7 +49,7 @@ public class SinnoriConfigurationManagerTest {
 		
 		if (commonPart.toString().indexOf("null") >= 0) {
 			/** if RSA Keypair source is API, then rsaKeyPairPathOfSessionKey is null. so first null no problem. */
-			if (!commonPart.getRsaKeypairSourceOfSessionKey().equals(CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY.SERVER)) {
+			if (!commonPart.getRsaKeypairSourceOfSessionKey().equals(SessionKey.RSAKeypairSourceType.SERVER)) {
 				fail("Maybe common part's one more variables are null");
 			}
 			

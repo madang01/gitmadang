@@ -1,26 +1,23 @@
 package kr.pe.sinnori.common.config.nativevalueconverter;
 
 import static org.junit.Assert.fail;
-import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
-import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningMessageProtocol;
-import kr.pe.sinnori.common.etc.CommonType;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class SetTypeConverterReturningMessageProtocolTest implements
-		NativeValueConverterTestIF {
-	
-	Logger log = LoggerFactory.getLogger(SetTypeConverterReturningMessageProtocolTest.class);
-	
+import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
+import kr.pe.sinnori.common.type.MessageProtocolType;
+
+public class SetTypeConverterReturningMessageProtocolTest extends AbstractJunitTest implements
+		NativeValueConverterTestIF {	
 	private SetTypeConverterReturningMessageProtocol nativeValueConverter = null;
-	private CommonType.MESSAGE_PROTOCOL_GUBUN returnedValue = null;
+	private MessageProtocolType returnedValue = null;
 	
 	@Override
 	@Before
 	public void setup() {
+		super.setup();
 		nativeValueConverter = new SetTypeConverterReturningMessageProtocol();
 	}
 	
@@ -33,9 +30,9 @@ public class SetTypeConverterReturningMessageProtocolTest implements
 	@Override
 	@Test
 	public void testToNativeValue_ExpectedValueComparison() {
-		CommonType.MESSAGE_PROTOCOL_GUBUN expectedValue = null;
+		MessageProtocolType expectedValue = null;
 		
-		CommonType.MESSAGE_PROTOCOL_GUBUN[] messageProtocoles = CommonType.MESSAGE_PROTOCOL_GUBUN.values();
+		MessageProtocolType[] messageProtocoles = MessageProtocolType.values();
 		for (int i=0; i < messageProtocoles.length; i++) {
 			expectedValue = messageProtocoles[i];
 			try {

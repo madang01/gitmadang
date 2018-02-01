@@ -1,17 +1,14 @@
 package kr.pe.sinnori.common.config.nativevalueconverter;
 
 import static org.junit.Assert.fail;
-import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
-import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningInteger;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class SetTypeConverterReturningIntegerTest implements NativeValueConverterTestIF {
-	Logger log = LoggerFactory.getLogger(SetTypeConverterReturningIntegerTest.class);
+import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
 
+public class SetTypeConverterReturningIntegerTest extends AbstractJunitTest implements NativeValueConverterTestIF {
 	private SetTypeConverterReturningInteger nativeValueConverter = null;
 	private final Integer testIntegerSet[] = {123, 43};
 	private Integer returnedValue = null;
@@ -20,6 +17,8 @@ public class SetTypeConverterReturningIntegerTest implements NativeValueConverte
 	@Override
 	@Before
 	public void setup() {
+		super.setup();
+		
 		try {
 			nativeValueConverter = new SetTypeConverterReturningInteger(testIntegerSet[0].toString(), 
 					testIntegerSet[1].toString());

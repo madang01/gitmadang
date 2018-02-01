@@ -6,16 +6,13 @@ import java.util.Date;
 import java.util.Random;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.sessionkey.SymmetricKeyManager;
 
-public class SymmetricKeyManagerTest {
-	private Logger log = LoggerFactory.getLogger(SymmetricKeyManagerTest.class);
-	
+public class SymmetricKeyManagerTest extends AbstractJunitTest {	
 	
 	@Test
 	public void testEncrypt_paramter_symmetricKeyAlgorithm_null() {

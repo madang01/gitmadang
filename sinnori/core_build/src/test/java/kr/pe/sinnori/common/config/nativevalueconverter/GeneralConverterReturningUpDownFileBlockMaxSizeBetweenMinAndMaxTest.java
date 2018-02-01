@@ -1,19 +1,17 @@
 package kr.pe.sinnori.common.config.nativevalueconverter;
 
 import static org.junit.Assert.fail;
-import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
 
 // GeneralConverterReturningUpDownFileBlockMaxSize
 public class GeneralConverterReturningUpDownFileBlockMaxSizeBetweenMinAndMaxTest
-		implements NativeValueConverterTestIF {
-
-	Logger log = LoggerFactory
-			.getLogger(GeneralConverterReturningUpDownFileBlockMaxSizeBetweenMinAndMaxTest.class);
+extends AbstractJunitTest implements NativeValueConverterTestIF {
+	
 	private GeneralConverterReturningUpDownFileBlockMaxSizeBetweenMinAndMax nativeValueConverter = null;
 	private Integer returnedValue = null;
 	private Integer expectedValue = null;
@@ -21,6 +19,8 @@ public class GeneralConverterReturningUpDownFileBlockMaxSizeBetweenMinAndMaxTest
 	@Override
 	@Before
 	public void setup() {
+		super.setup();
+		
 		nativeValueConverter = new GeneralConverterReturningUpDownFileBlockMaxSizeBetweenMinAndMax(
 				600, 2048);
 	}

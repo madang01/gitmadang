@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.UnknownItemTypeException;
+import kr.pe.sinnori.common.type.SingleItemType;
 
 
 /**

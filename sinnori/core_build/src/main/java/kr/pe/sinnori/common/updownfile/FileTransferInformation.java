@@ -6,8 +6,8 @@ import java.math.RoundingMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FileBlockInformation {
-	private Logger log = LoggerFactory.getLogger(FileBlockInformation.class);
+public class FileTransferInformation {
+	private Logger log = LoggerFactory.getLogger(FileTransferInformation.class);
 	
 	private int sourceFileID;			
 	private int targetFileID;
@@ -15,7 +15,7 @@ public class FileBlockInformation {
 	private long currentStartOffset;
 	private int currentLength;
 	
-	public FileBlockInformation(
+	public FileTransferInformation(
 			int sourceFileID,			
 			int targetFileID,
 			long sourceFileSize,

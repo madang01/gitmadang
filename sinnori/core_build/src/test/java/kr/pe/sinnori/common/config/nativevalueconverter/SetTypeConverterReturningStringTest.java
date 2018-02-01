@@ -4,24 +4,21 @@ import static org.junit.Assert.fail;
 
 import java.util.Iterator;
 
-import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
-
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class SetTypeConverterReturningStringTest implements
-NativeValueConverterTestIF {
+import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
 
-Logger log = LoggerFactory.getLogger(SetTypeConverterReturningStringTest.class);
-	
+public class SetTypeConverterReturningStringTest extends AbstractJunitTest implements
+NativeValueConverterTestIF {	
 	private SetTypeConverterReturningString nativeValueConverter = null;
 	private String returnedValue = null;
 	
 	@Override
 	@Before
 	public void setup() {
+		super.setup();
 		nativeValueConverter = new SetTypeConverterReturningString("AES", "DESede", "DES");
 	}
 

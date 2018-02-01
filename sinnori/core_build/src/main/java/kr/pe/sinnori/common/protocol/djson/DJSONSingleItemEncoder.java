@@ -30,9 +30,9 @@ import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.FixedSizeOutputStream;
-import kr.pe.sinnori.common.message.builder.info.SingleItemType;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
 import kr.pe.sinnori.common.protocol.djson.header.DJSONHeader;
+import kr.pe.sinnori.common.type.SingleItemType;
 import kr.pe.sinnori.common.util.HexUtil;
 
 /**

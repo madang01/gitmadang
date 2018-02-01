@@ -34,8 +34,8 @@ import com.jgoodies.forms.layout.FormLayout;
 import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.buildsystem.BuildSystemSupporter;
 import kr.pe.sinnori.common.buildsystem.MainProjectBuildSystemState;
-import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.BuildSystemException;
+import kr.pe.sinnori.common.type.LineSeparatorType;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 import kr.pe.sinnori.gui.helper.lib.ScreenManagerIF;
 
@@ -203,7 +203,7 @@ public class AllMainProjectManagerPanel extends JPanel {
 
 	private void showMessageDialog(String message) {
 		JOptionPane.showMessageDialog(mainFrame,
-				CommonStaticUtil.splitString(message, CommonType.LINE_SEPARATOR_GUBUN.NEWLINE, 100));
+				CommonStaticUtil.splitString(message, LineSeparatorType.NEWLINE, 100));
 	}
 
 	private void projectNameAddButtonActionPerformed(ActionEvent e) {

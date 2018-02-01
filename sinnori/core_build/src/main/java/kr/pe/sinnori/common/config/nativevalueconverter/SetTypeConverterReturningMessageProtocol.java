@@ -1,7 +1,7 @@
 package kr.pe.sinnori.common.config.nativevalueconverter;
 
 import kr.pe.sinnori.common.config.AbstractSetTypeNativeValueConverter;
-import kr.pe.sinnori.common.etc.CommonType;
+import kr.pe.sinnori.common.type.MessageProtocolType;
 
 /**
  * 메시지 프로토콜 항목 값 유효성 검사기, DHB:교차 md5 헤더+바디, DJSON:길이+존슨문자열, THB:길이+바디
@@ -10,15 +10,15 @@ import kr.pe.sinnori.common.etc.CommonType;
  * 
  */
 public class SetTypeConverterReturningMessageProtocol extends
-		AbstractSetTypeNativeValueConverter<CommonType.MESSAGE_PROTOCOL_GUBUN> {
+		AbstractSetTypeNativeValueConverter<MessageProtocolType> {
 
 	public SetTypeConverterReturningMessageProtocol() {
-		super(CommonType.MESSAGE_PROTOCOL_GUBUN.class);
+		super(MessageProtocolType.class);
 	}
 
 	@Override
 	protected void initItemValueSet() {
-		CommonType.MESSAGE_PROTOCOL_GUBUN[] nativeValues = CommonType.MESSAGE_PROTOCOL_GUBUN
+		MessageProtocolType[] nativeValues = MessageProtocolType
 				.values();
 		for (int i = 0; i < nativeValues.length; i++) {
 			itemValueSet.add(nativeValues[i].toString());
@@ -31,7 +31,7 @@ public class SetTypeConverterReturningMessageProtocol extends
 	}
 
 	@Override
-	public CommonType.MESSAGE_PROTOCOL_GUBUN valueOf(String itemValue)
+	public MessageProtocolType valueOf(String itemValue)
 			throws IllegalArgumentException {
 		if (null == itemValue) {
 			String errorMessage = "parameter itemValue is null";
@@ -43,9 +43,9 @@ public class SetTypeConverterReturningMessageProtocol extends
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		CommonType.MESSAGE_PROTOCOL_GUBUN returnValue = null;
+		MessageProtocolType returnValue = null;
 		try {
-			returnValue = CommonType.MESSAGE_PROTOCOL_GUBUN.valueOf(itemValue);
+			returnValue = MessageProtocolType.valueOf(itemValue);
 		} catch (IllegalArgumentException e) {
 			String errorMessage = new StringBuilder("parameter itemValue[")
 					.append(itemValue).append("] is not an element of ")

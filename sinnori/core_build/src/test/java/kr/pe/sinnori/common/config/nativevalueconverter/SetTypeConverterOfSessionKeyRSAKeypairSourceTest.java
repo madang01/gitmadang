@@ -1,26 +1,25 @@
 package kr.pe.sinnori.common.config.nativevalueconverter;
 
 import static org.junit.Assert.fail;
-import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
-import kr.pe.sinnori.common.etc.CommonType;
-import kr.pe.sinnori.common.etc.CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class SetTypeConverterOfSessionKeyRSAKeypairSourceTest implements
+import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
+import kr.pe.sinnori.common.type.SessionKey;
+
+public class SetTypeConverterOfSessionKeyRSAKeypairSourceTest extends AbstractJunitTest implements
 NativeValueConverterTestIF {
 	
-	Logger log = LoggerFactory.getLogger(SetTypeConverterOfSessionKeyRSAKeypairSourceTest.class);
-	
 	private SetTypeConverterOfSessionKeyRSAKeypairSource nativeValueConverter = null;
-	private RSA_KEYPAIR_SOURCE_OF_SESSIONKEY returnedValue = null;
+	private SessionKey.RSAKeypairSourceType returnedValue = null;
 
 	@Override
 	@Before
 	public void setup() {
+		super.setup();
+		
 		nativeValueConverter = new SetTypeConverterOfSessionKeyRSAKeypairSource();
 	}
 	
@@ -32,8 +31,8 @@ NativeValueConverterTestIF {
 	@Override
 	@Test
 	public void testToNativeValue_ExpectedValueComparison() {
-		RSA_KEYPAIR_SOURCE_OF_SESSIONKEY[] nativeValues = CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY.values();
-		RSA_KEYPAIR_SOURCE_OF_SESSIONKEY expectedValue = null;
+		SessionKey.RSAKeypairSourceType[] nativeValues = SessionKey.RSAKeypairSourceType.values();
+		SessionKey.RSAKeypairSourceType expectedValue = null;
 		
 		for (int i=0; i < nativeValues.length; i++) {
 			expectedValue = nativeValues[i];

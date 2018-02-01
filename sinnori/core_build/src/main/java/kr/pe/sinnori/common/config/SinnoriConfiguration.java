@@ -24,8 +24,8 @@ import kr.pe.sinnori.common.config.itemvalue.CommonPartConfiguration;
 import kr.pe.sinnori.common.config.itemvalue.DBCPParConfiguration;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
+import kr.pe.sinnori.common.type.ProjectType;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 import kr.pe.sinnori.common.util.SequencedProperties;
 import kr.pe.sinnori.common.util.SequencedPropertiesUtil;
@@ -107,7 +107,7 @@ public class SinnoriConfiguration {
 		this.allDBCPPartConfiguration = new AllDBCPPartConfiguration();
 		this.commonPartConfiguration = new CommonPartConfiguration();
 		this.mainProjectPartConfiguration = new ProjectPartConfiguration(
-				CommonType.PROJECT_GUBUN.MAIN_PROJECT, mainProjectName);
+				ProjectType.MAIN, mainProjectName);
 		this.allSubProjectPartConfiguration = new AllSubProjectPartConfiguration();
 	}
 	
@@ -448,7 +448,7 @@ public class SinnoriConfiguration {
 					.append(subProjectName).append(".").toString();
 
 			ProjectPartConfiguration subProjectPartItems = new ProjectPartConfiguration(
-					CommonType.PROJECT_GUBUN.SUB_PROJECT, subProjectName);
+					ProjectType.SUB, subProjectName);
 			for (ItemIDInfo<?> itemIDInfo : projectItemIDInfoList) {
 				String itemID = itemIDInfo.getItemID();
 				String itemKey = new StringBuilder(prefixOfItemID).append(

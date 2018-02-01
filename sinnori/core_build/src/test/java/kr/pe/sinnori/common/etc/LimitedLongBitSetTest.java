@@ -4,15 +4,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.etc.LimitedLongBitSet.BadBitSetIndexException;
 import kr.pe.sinnori.common.etc.LimitedLongBitSet.FailedListFullException;
 
-public class LimitedLongBitSetTest {
-	Logger log = LoggerFactory.getLogger(LimitedLongBitSetTest.class);
-	
+public class LimitedLongBitSetTest extends AbstractJunitTest {
 	
 	@Test
 	public void test_normal() {

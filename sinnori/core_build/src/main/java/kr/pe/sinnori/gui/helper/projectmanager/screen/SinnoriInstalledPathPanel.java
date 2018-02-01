@@ -24,8 +24,8 @@ import org.slf4j.LoggerFactory;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
-import kr.pe.sinnori.common.etc.CommonType;
-import kr.pe.sinnori.common.etc.CommonType.READ_WRITE_MODE;
+import kr.pe.sinnori.common.type.LineSeparatorType;
+import kr.pe.sinnori.common.type.ReadWriteMode;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 import kr.pe.sinnori.gui.helper.lib.ScreenManagerIF;
 import kr.pe.sinnori.gui.util.PathSwingAction;
@@ -43,7 +43,7 @@ public class SinnoriInstalledPathPanel extends JPanel {
 	private void showMessageDialog(String message) {
 		JOptionPane.showMessageDialog(mainFrame, 
 				CommonStaticUtil.splitString(message,
-						CommonType.LINE_SEPARATOR_GUBUN.NEWLINE, 100));
+						LineSeparatorType.NEWLINE, 100));
 	}
 	
 
@@ -51,7 +51,7 @@ public class SinnoriInstalledPathPanel extends JPanel {
 	 * @param sourcePathTextField TextField whose value is path  
 	 * @return the writable and readable path. but if parameter sourceTextField's value is not a valid path then return null.
 	 */
-	private File getValidPathFromTextField(JTextField sourcePathTextField, READ_WRITE_MODE	readWriteMode) throws RuntimeException {
+	private File getValidPathFromTextField(JTextField sourcePathTextField, ReadWriteMode	readWriteMode) throws RuntimeException {
 		String sourcePathString = sourcePathTextField.getText();
 		if (null == sourcePathString) {
 			String errorMessage = String.format("parameter sourcePathTextField[%s]'s value is nul",
@@ -168,7 +168,7 @@ public class SinnoriInstalledPathPanel extends JPanel {
 	private void nextStepButtonActionPerformed(ActionEvent e) {
 		File sinnoriInstalledPath = null;
 		try {
-			sinnoriInstalledPath = getValidPathFromTextField(sinnoriInstalledPathTextField, READ_WRITE_MODE.READ_WRITE);
+			sinnoriInstalledPath = getValidPathFromTextField(sinnoriInstalledPathTextField, ReadWriteMode.READ_WRITE);
 		} catch(RuntimeException e1) {
 			String errorMessage = String.format("fail to get the valid Sinnori installed path::%s", e1.getMessage());
 			log.warn(errorMessage);

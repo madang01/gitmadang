@@ -9,51 +9,17 @@ import java.util.Locale;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
-import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
+import kr.pe.sinnori.common.AbstractJunitTest;
 
-public class MessageInfoSAXParserTest {
-	private Logger log = LoggerFactory
-			.getLogger(MessageInfoSAXParserTest.class);
-
-	MessageInfoSAXParser messageInfoSAXParser = null;
-	private String sinnoriInstalledPathString = null;
+public class MessageInfoSAXParserTest extends AbstractJunitTest {
+	MessageInfoSAXParser messageInfoSAXParser = null;	
 
 	@Before
 	public void setup() {
+		super.setup();
 		
-
-		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
-		File sinnoriInstalledPath = new File(sinnoriInstalledPathString);
-		if (!sinnoriInstalledPath.exists()) {
-			fail("sinnori installed path[" + sinnoriInstalledPathString
-					+ "] doesn't exist");
-		}
-
-		if (!sinnoriInstalledPath.isDirectory()) {
-			fail("sinnori installed path[" + sinnoriInstalledPathString
-					+ "] isn't a directory");
-		}
-
-		this.sinnoriInstalledPathString = sinnoriInstalledPathString;
-		
-		//String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
-		String mainProjectName = "sample_base";
-		LOG_TYPE logType = LOG_TYPE.SERVER;
-		
-		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH,
-				sinnoriInstalledPathString);
-		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME,
-				mainProjectName);		
-		
-
-		SinnoriLogbackManger.getInstance().setup(sinnoriInstalledPathString, mainProjectName, logType);
-
 		/**
 		 * Warning 로케일 설정 생략하지 말것. xml 파싱시 xsl에서 정의한 규칙에 어긋난 경우 로케일 설정에 따라 메시지를
 		 * 보여주기때문에, 상황에 맞는 메시지가 나왔는지 점검을 위해서 기준이 되는 로케일로 영문을 선택하였다.
@@ -67,12 +33,13 @@ public class MessageInfoSAXParserTest {
 			e.printStackTrace();
 			fail(e.getMessage());
 		}
+		
+		
 	}
 
 	/**
 	 * 메시지 정보 파싱 테스트를 위해 존재하는 경로에 있는 지정한 테스트 대상 메시지 정보 파일명 포함 전체 경로를 반환한다.
-	 * [신놀이설치경로]/core_build/src/test/resources/message_info_xml_testdata/[테스트 대상
-	 * 짧은 파일명]
+	 * [신놀이설치경로]/tmp/[테스트 대상짧은 파일명]
 	 * 
 	 * @param sinnoriInstalledPathString
 	 *            신놀이 설치 경로
@@ -80,14 +47,19 @@ public class MessageInfoSAXParserTest {
 	 *            테스트 대상 짧은 파일명
 	 * @return 테스트 대상 파일명 포함 전체 경로명
 	 */
-	private String getPathStringForJunitTest(
-			String sinnoriInstalledPathString, String shortFileName) {
-		String testDataXmlFilePathString = new StringBuilder(
-				sinnoriInstalledPathString).append(File.separator)
-				.append("core_build").append(File.separator).append("src")
-				.append(File.separator).append("test").append(File.separator)
-				.append("resources").append(File.separator)
-				.append("message_info_xml_testdata").append(File.separator)
+	private String getFilePathStringForJunitTestFile(String shortFileName) {
+		String testDataXmlFilePathString = new StringBuilder(sinnoriInstalledPathString)
+				.append(File.separator)
+				.append("core_build")
+				.append(File.separator)
+				.append("src")
+				.append(File.separator)
+				.append("test")
+				.append(File.separator)
+				.append("resources")
+				.append(File.separator)
+				.append("message_info_xml_testdata")
+				.append(File.separator)
 				.append(shortFileName).toString();
 	
 		return testDataXmlFilePathString;
@@ -259,8 +231,7 @@ public class MessageInfoSAXParserTest {
 	public void testParse_ok() {
 		String testTitle = "정상적인 경우";
 
-		File xmlFile = new File(getPathStringForJunitTest(
-				sinnoriInstalledPathString, "AllDataType.xml"));
+		File xmlFile = new File(getFilePathStringForJunitTestFile("AllDataType.xml"));
 		try {
 			MessageInfo messageInfo = messageInfoSAXParser.parse(xmlFile, true);
 
@@ -275,8 +246,7 @@ public class MessageInfoSAXParserTest {
 	@Test
 	public void testParse_XSLRuleError_파일크기0인파일() {
 		String testTitle = "파일 크기 0인 파일";
-		File xmlFile = new File(getPathStringForJunitTest(
-				sinnoriInstalledPathString, "Zero.xml"));
+		File xmlFile = new File(getFilePathStringForJunitTestFile("Zero.xml"));
 		String expectedMessage = "Premature end of file.";
 		try {
 			MessageInfo messageInfo = messageInfoSAXParser.parse(xmlFile, true);
@@ -299,8 +269,7 @@ public class MessageInfoSAXParserTest {
 	@Test
 	public void testParse_XSLRuleError_신놀이메시지ROOT태그가아닌것을ROOT태그로사용() {
 		String testTitle = "신놀이 메시지 ROOT 태그가 아닌것을 ROOT 태그로 사용";
-		File xmlFile = new File(getPathStringForJunitTest(
-				sinnoriInstalledPathString, "BadRootElement.xml"));
+		File xmlFile = new File(getFilePathStringForJunitTestFile("BadRootElement.xml"));
 		String expectedMessage = "Cannot find the declaration of element 'array'";
 		try {
 			MessageInfo messageInfo = messageInfoSAXParser.parse(xmlFile, true);
@@ -324,8 +293,7 @@ public class MessageInfoSAXParserTest {
 	@Test
 	public void testParse_XSLRuleError_messageID태그가없는경우() {
 		String testTitle = "messageID 태그가 없는 경우";
-		File xmlFile = new File(getPathStringForJunitTest(
-				sinnoriInstalledPathString, "NoMessageIDTag.xml"));
+		File xmlFile = new File(getFilePathStringForJunitTestFile("NoMessageIDTag.xml"));
 		String expectedMessage = "One of '{messageID}' is expected.";
 		try {
 			MessageInfo messageInfo = messageInfoSAXParser.parse(xmlFile, true);
@@ -349,8 +317,7 @@ public class MessageInfoSAXParserTest {
 	@Test
 	public void testParse_XSLRuleError_단일항목_이름속성생략() {
 		String testTitle = "단일 항목 이름 속성 생략";
-		File xmlFile = new File(getPathStringForJunitTest(
-				sinnoriInstalledPathString, "SingleItemNoNameAttribute.xml"));
+		File xmlFile = new File(getFilePathStringForJunitTestFile("SingleItemNoNameAttribute.xml"));
 		String expectedMessage = "Attribute 'name' must appear on element 'singleitem'.";
 		try {
 			MessageInfo messageInfo = messageInfoSAXParser.parse(xmlFile, true);
@@ -374,8 +341,7 @@ public class MessageInfoSAXParserTest {
 	@Test
 	public void testParse_XSLRuleError_단일항목_타입속성생략() {
 		String testTitle = "단일 항목 타입 속성 생략";
-		File xmlFile = new File(getPathStringForJunitTest(
-				sinnoriInstalledPathString, "SingleItemNoTypeAttribute.xml"));
+		File xmlFile = new File(getFilePathStringForJunitTestFile("SingleItemNoTypeAttribute.xml"));
 		String expectedMessage = "Attribute 'type' must appear on element 'singleitem'.";
 		try {
 			MessageInfo messageInfo = messageInfoSAXParser.parse(xmlFile, true);
@@ -400,9 +366,7 @@ public class MessageInfoSAXParserTest {
 	public void testParse_XSLRuleError_단일항목_2번중복되는이름속성() {
 		String testTitle = "단일 항목 2번 중복되는 이름 속성";
 		File xmlFile = new File(
-				getPathStringForJunitTest(
-						sinnoriInstalledPathString,
-						"SingleItemDoubleNameAttribute.xml"));
+				getFilePathStringForJunitTestFile("SingleItemDoubleNameAttribute.xml"));
 		String expectedMessage = "Attribute \"name\" was already specified for element \"singleitem\".";
 		try {
 			MessageInfo messageInfo = messageInfoSAXParser.parse(xmlFile, true);
@@ -426,9 +390,7 @@ public class MessageInfoSAXParserTest {
 	@Test
 	public void testParse_XSLRuleError_단일항목_2번중복되는디폴트값속성() {
 		String testTitle = "단일 항목 2번 중복되는 디폴트값 속성";
-		File xmlFile = new File(getPathStringForJunitTest(
-				sinnoriInstalledPathString,
-				"SingleItemDoubleDefaultValueAttribute.xml"));
+		File xmlFile = new File(getFilePathStringForJunitTestFile("SingleItemDoubleDefaultValueAttribute.xml"));
 		String expectedMessage = "Attribute \"defaultValue\" was already specified for element \"singleitem\".";
 		try {
 			MessageInfo messageInfo = messageInfoSAXParser.parse(xmlFile, true);
@@ -452,8 +414,7 @@ public class MessageInfoSAXParserTest {
 	@Test
 	public void testParse_XSLRuleError_배열_이름속성생략() {
 		String testTitle = "배열 이름 속성 생략";
-		File xmlFile = new File(getPathStringForJunitTest(
-				sinnoriInstalledPathString, "ArrayItemNoNameAttribute.xml"));
+		File xmlFile = new File(getFilePathStringForJunitTestFile("ArrayItemNoNameAttribute.xml"));
 		String expectedMessage = "Attribute 'name' must appear on element 'array'.";
 		try {
 			MessageInfo messageInfo = messageInfoSAXParser.parse(xmlFile, true);
@@ -477,8 +438,7 @@ public class MessageInfoSAXParserTest {
 	@Test
 	public void testParse_XSLRuleError_배열_반복횟수타입속성생략() {
 		String testTitle = "배열 '반복 횟수 타입' 속성 생략";
-		File xmlFile = new File(getPathStringForJunitTest(
-				sinnoriInstalledPathString, "ArrayItemNoCntTypeAttribute.xml"));
+		File xmlFile = new File(getFilePathStringForJunitTestFile("ArrayItemNoCntTypeAttribute.xml"));
 		String expectedMessage = "Attribute 'cnttype' must appear on element 'array'.";
 		try {
 			MessageInfo messageInfo = messageInfoSAXParser.parse(xmlFile, true);
@@ -502,8 +462,7 @@ public class MessageInfoSAXParserTest {
 	@Test
 	public void testParse_XSLRuleError_배열_반복횟수값속성생략() {
 		String testTitle = "배열 '반복 횟수 값' 속성 생략";
-		File xmlFile = new File(getPathStringForJunitTest(
-				sinnoriInstalledPathString, "ArrayItemNoCntValueAttribute.xml"));
+		File xmlFile = new File(getFilePathStringForJunitTestFile("ArrayItemNoCntValueAttribute.xml"));
 		String expectedMessage = "Attribute 'cntvalue' must appear on element 'array'.";
 		try {
 			MessageInfo messageInfo = messageInfoSAXParser.parse(xmlFile, true);
@@ -529,8 +488,7 @@ public class MessageInfoSAXParserTest {
 		String testTitle = "메시지 아이디 파일명과 messageID 태그의 값 불일치";
 		String messageIDTagValue = "IAmNotBadMessageID";
 		String messageIDOfFileName = "BadMessageID";
-		File xmlFile = new File(getPathStringForJunitTest(
-				sinnoriInstalledPathString, messageIDOfFileName + ".xml"));
+		File xmlFile = new File(getFilePathStringForJunitTestFile(messageIDOfFileName + ".xml"));
 		String expectedMessage = String
 				.format("The tag \"messageid\"'s value[%s] is different from message id[%s] of '<message id>.xml' format file[%s]",
 						messageIDTagValue, messageIDOfFileName,
@@ -557,8 +515,7 @@ public class MessageInfoSAXParserTest {
 	@Test
 	public void testParse_xsl만족하지만잘못된문서_잘못된통신방향성() {
 		String testTitle = "잘못된 통신 방향성";
-		File xmlFile = new File(getPathStringForJunitTest(
-				sinnoriInstalledPathString, "BadDirection.xml"));
+		File xmlFile = new File(getFilePathStringForJunitTestFile("BadDirection.xml"));
 		String expectedMessage = "is not a member of direction set[FROM_NONE_TO_NONE, FROM_SERVER_TO_CLINET, FROM_CLIENT_TO_SERVER, FROM_ALL_TO_ALL]";
 		try {
 			MessageInfo messageInfo = messageInfoSAXParser.parse(xmlFile, true);
@@ -582,8 +539,7 @@ public class MessageInfoSAXParserTest {
 	@Test
 	public void testParse_xsl만족하지만잘못된문서_단일항목_중복항목() {
 		String testTitle = "단일 항목-중복";
-		File xmlFile = new File(getPathStringForJunitTest(
-				sinnoriInstalledPathString, "SingleItemNameDuplication.xml"));
+		File xmlFile = new File(getFilePathStringForJunitTestFile("SingleItemNameDuplication.xml"));
 		String duplicationTagName = "itemID";
 		String expectedMessage = "this single item name[" + duplicationTagName
 				+ "] was duplicated";
@@ -609,9 +565,7 @@ public class MessageInfoSAXParserTest {
 	@Test
 	public void testParse_xsl만족하지만잘못된문서_단일항목_숫자형_디폴트값문자() {
 		String testTitle = "단일 항목-숫자형-디폴트값 문자";
-		File xmlFile = new File(getPathStringForJunitTest(
-				sinnoriInstalledPathString,
-				"SingleItemNumberTypeBadDefaultValue.xml"));
+		File xmlFile = new File(getFilePathStringForJunitTestFile("SingleItemNumberTypeBadDefaultValue.xml"));
 		String expectedMessage = "fail to parses the string argument(=this 'integer' type single item[itemCnt]'s attribute 'defaultValue' value[ab]) as a signed decimal integer";
 		try {
 			MessageInfo messageInfo = messageInfoSAXParser.parse(xmlFile, true);
@@ -635,8 +589,7 @@ public class MessageInfoSAXParserTest {
 	@Test
 	public void testParse_xsl만족하지만잘못된문서_배열항목_중복() {
 		String testTitle = "배열 항목-중복";
-		File xmlFile = new File(getPathStringForJunitTest(
-				sinnoriInstalledPathString, "ArrayItemNameDuplication.xml"));
+		File xmlFile = new File(getFilePathStringForJunitTestFile("ArrayItemNameDuplication.xml"));
 		String duplicationTagName = "byteVar1";
 		String expectedMessage = "this array item name[" + duplicationTagName
 				+ "] was duplicated";
@@ -662,9 +615,7 @@ public class MessageInfoSAXParserTest {
 	@Test
 	public void testParse_xsl만족하지만잘못된문서_배열항목_크기직접입력방식에서문자인크기() {
 		String testTitle = "배열 항목-크기 직접 입력 방식에서 문자인 크기";
-		File xmlFile = new File(getPathStringForJunitTest(
-				sinnoriInstalledPathString,
-				"ArrayItemDirectBadSize.xml"));
+		File xmlFile = new File(getFilePathStringForJunitTestFile("ArrayItemDirectBadSize.xml"));
 		String expectedMessage = "fail to parses the string argument(=this array item[item]'s attribute 'cntvalue' value[hello]) as a signed decimal integer";
 		try {
 			MessageInfo messageInfo = messageInfoSAXParser.parse(xmlFile, true);
@@ -697,8 +648,7 @@ public class MessageInfoSAXParserTest {
 			subTestTitle = "메시지 아이디 파일명과 messageID 태그의 값 불일치";
 			String messageIDTagValue = "IAmNotBadMessageID";
 			String messageIDOfFileName = "BadMessageID";
-			xmlFile = new File(getPathStringForJunitTest(
-					sinnoriInstalledPathString, messageIDOfFileName + ".xml"));
+			xmlFile = new File(getFilePathStringForJunitTestFile(messageIDOfFileName + ".xml"));
 			expectedMessage = String
 					.format("The tag \"messageid\"'s value[%s] is different from message id[%s] of '<message id>.xml' format file[%s]",
 							messageIDTagValue, messageIDOfFileName,
@@ -726,8 +676,7 @@ public class MessageInfoSAXParserTest {
 
 		while (true) {
 			subTestTitle = "첫번째 정상";
-			xmlFile = new File(getPathStringForJunitTest(
-					sinnoriInstalledPathString, "AllDataType.xml"));
+			xmlFile = new File(getFilePathStringForJunitTestFile("AllDataType.xml"));
 			try {
 				MessageInfo messageInfo = messageInfoSAXParser.parse(xmlFile,
 						true);
@@ -744,8 +693,7 @@ public class MessageInfoSAXParserTest {
 
 		while (true) {
 			subTestTitle = "신놀이 메시지 ROOT 태그가 아닌것을 ROOT 태그로 사용";
-			xmlFile = new File(getPathStringForJunitTest(
-					sinnoriInstalledPathString, "BadRootElement.xml"));
+			xmlFile = new File(getFilePathStringForJunitTestFile("BadRootElement.xml"));
 			expectedMessage = "Cannot find the declaration of element 'array'";
 			try {
 				MessageInfo messageInfo = messageInfoSAXParser.parse(xmlFile,
@@ -768,8 +716,7 @@ public class MessageInfoSAXParserTest {
 		}
 		while (true) {
 			subTestTitle = "두번째 정상";
-			xmlFile = new File(getPathStringForJunitTest(
-					sinnoriInstalledPathString, "Echo.xml"));
+			xmlFile = new File(getFilePathStringForJunitTestFile("Echo.xml"));
 			try {
 				MessageInfo messageInfo = messageInfoSAXParser.parse(xmlFile,
 						true);

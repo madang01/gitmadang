@@ -1,24 +1,24 @@
 package kr.pe.sinnori.common.config.nativevalueconverter;
 
 import static org.junit.Assert.fail;
-import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
-import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningConnectionType;
-import kr.pe.sinnori.common.etc.CommonType;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class SetTypeConverterReturningConnectionTypeTest implements NativeValueConverterTestIF {
-	Logger log = LoggerFactory.getLogger(SetTypeConverterReturningConnectionTypeTest.class);
+import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
+import kr.pe.sinnori.common.type.ConnectionType;
+
+public class SetTypeConverterReturningConnectionTypeTest extends AbstractJunitTest implements NativeValueConverterTestIF {
+	
 	
 	private SetTypeConverterReturningConnectionType nativeValueConverter = null;
-	private CommonType.CONNECTION_TYPE returnedValue = null;
+	private ConnectionType returnedValue = null;
 	
 	@Override
 	@Before
 	public void setup() {
+		super.setup();
 		nativeValueConverter = new SetTypeConverterReturningConnectionType();
 	}
 	
@@ -30,9 +30,9 @@ public class SetTypeConverterReturningConnectionTypeTest implements NativeValueC
 	@Override
 	@Test
 	public void testToNativeValue_ExpectedValueComparison() {
-		CommonType.CONNECTION_TYPE expectedValue = null;
+		ConnectionType expectedValue = null;
 		
-		CommonType.CONNECTION_TYPE[] conectionTypes = CommonType.CONNECTION_TYPE.values();
+		ConnectionType[] conectionTypes = ConnectionType.values();
 		for (int i=0; i < conectionTypes.length; i++) {
 			expectedValue = conectionTypes[i];
 			try {

@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CharsetUtil;
-import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.etc.ObjectCacheManager;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
@@ -37,6 +36,7 @@ import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.dhb.DHBMessageProtocol;
 import kr.pe.sinnori.common.protocol.djson.DJSONMessageProtocol;
 import kr.pe.sinnori.common.protocol.thb.THBMessageProtocol;
+import kr.pe.sinnori.common.type.MessageProtocolType;
 
 /**
  * 프로젝트 부모 추상화 클래스. 서버/클라이언트 프로젝트 공통 분모를 모은 추상화 클래스이다.
@@ -96,7 +96,7 @@ public abstract class AbstractProject implements DataPacketBufferPoolManagerIF {
 		
 		int messageIDFixedSize = projectPartConfiguration.getMessageIDFixedSize();		
 		dataPacketBufferPoolSize = projectPartConfiguration.getDataPacketBufferPoolSize();
-		CommonType.MESSAGE_PROTOCOL_GUBUN messageProtocolGubun = projectPartConfiguration.getMessageProtocol();
+		MessageProtocolType messageProtocolGubun = projectPartConfiguration.getMessageProtocol();
 		
 
 		switch (messageProtocolGubun) {

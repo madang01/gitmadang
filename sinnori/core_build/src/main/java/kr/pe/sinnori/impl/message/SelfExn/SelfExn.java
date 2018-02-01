@@ -61,7 +61,7 @@ public class SelfExn extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("class selfExn[");
+		builder.append("selfExn[");
 		builder.append("errorPlace=");
 		builder.append(errorPlace);
 		builder.append(", errorGubun=");
@@ -70,8 +70,6 @@ public class SelfExn extends AbstractMessage {
 		builder.append(errorMessageID);
 		builder.append(", errorMessage=");
 		builder.append(errorMessage);
-		builder.append(", messageHeaderInfo=");
-		builder.append(messageHeaderInfo.toString());
 		builder.append("]");
 		return builder.toString();
 	}

@@ -5,17 +5,15 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.IOException;
 
-import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
-
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class GeneralConverterReturningPathTest implements NativeValueConverterTestIF {
-	Logger log = LoggerFactory
-	.getLogger(GeneralConverterReturningPathTest.class);
+import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
+
+public class GeneralConverterReturningPathTest extends AbstractJunitTest implements NativeValueConverterTestIF {
+	
 	
 	private GeneralConverterReturningPath nativeValueConverter = null;
 	private File returnedValue = null;
@@ -26,6 +24,7 @@ public class GeneralConverterReturningPathTest implements NativeValueConverterTe
 	@Override
 	@Before
 	public void setup() {
+		super.setup();
 		
 		expectedValue = new File("./tempDir");
 		

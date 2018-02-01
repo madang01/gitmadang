@@ -16,7 +16,7 @@ import javax.swing.UIManager;
 
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo.ViewType;
-import kr.pe.sinnori.common.etc.CommonType;
+import kr.pe.sinnori.common.type.LineSeparatorType;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 import kr.pe.sinnori.gui.util.PathSwingAction;
 
@@ -132,7 +132,7 @@ public class ItemValuePanel extends JPanel {
 	private void showMessageDialog(String message) {
 		JOptionPane.showMessageDialog(mainFrame, 
 				CommonStaticUtil.splitString(message, 
-						CommonType.LINE_SEPARATOR_GUBUN.NEWLINE, 100));
+						LineSeparatorType.NEWLINE, 100));
 	}
 	
 	public void setSelected(boolean isSelected) {

@@ -18,8 +18,6 @@ import kr.pe.sinnori.common.config.itemvalue.AllDBCPPartConfiguration;
 import kr.pe.sinnori.common.config.itemvalue.AllSubProjectPartConfiguration;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.CommonType;
-import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
 import kr.pe.sinnori.common.exception.BuildSystemException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.message.builder.IOFileSetContentsBuilderManager;
@@ -28,6 +26,8 @@ import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
 import kr.pe.sinnori.common.mybatis.FileTypeResource;
 import kr.pe.sinnori.common.mybatis.FileTypeResourceManager;
 import kr.pe.sinnori.common.mybatis.MybatisConfigXMLFileSAXParser;
+import kr.pe.sinnori.common.type.LogType;
+import kr.pe.sinnori.common.type.MessageTransferDirectionType;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 import kr.pe.sinnori.common.util.SequencedProperties;
 import kr.pe.sinnori.common.util.SequencedPropertiesUtil;
@@ -737,7 +737,7 @@ public class ProjectBuilder {
 		String appClientBuildPathString = BuildSystemPathSupporter.getAppClientBuildPathString(sinnoriInstalledPathString, mainProjectName);
 
 		String appClientDosShellFileContents = BuildSystemFileContents.getDosShellContents(sinnoriInstalledPathString,
-				mainProjectName, JVM_OPTIONS_OF_APP_CLIENT, LOG_TYPE.APPCLIENT, appClientBuildPathString,
+				mainProjectName, JVM_OPTIONS_OF_APP_CLIENT, LogType.APPCLIENT, appClientBuildPathString,
 				relativeExecutabeJarFileName);
 
 		/** AppClient.bat */
@@ -771,7 +771,7 @@ public class ProjectBuilder {
 		String appClientBuildPathString = BuildSystemPathSupporter.getAppClientBuildPathString(sinnoriInstalledPathString, mainProjectName);
 
 		String appClientDosShellFileContents = BuildSystemFileContents.getDosShellContents(sinnoriInstalledPathString, mainProjectName,
-				JVM_OPTIONS_OF_APP_CLIENT, LOG_TYPE.APPCLIENT, appClientBuildPathString,
+				JVM_OPTIONS_OF_APP_CLIENT, LogType.APPCLIENT, appClientBuildPathString,
 				relativeExecutabeJarFileName);
 
 		/** AppClient.bat */
@@ -805,7 +805,7 @@ public class ProjectBuilder {
 		String appClientBuildPathString = BuildSystemPathSupporter.getAppClientBuildPathString(sinnoriInstalledPathString, mainProjectName);
 
 		String appClientUnixShellFileContents = BuildSystemFileContents.getUnixShellContents(sinnoriInstalledPathString, mainProjectName,
-				JVM_OPTIONS_OF_APP_CLIENT, LOG_TYPE.APPCLIENT, appClientBuildPathString, relativeExecutabeJarFileName);
+				JVM_OPTIONS_OF_APP_CLIENT, LogType.APPCLIENT, appClientBuildPathString, relativeExecutabeJarFileName);
 
 		/** AppClient.bat */
 		String appClientUnixShellFilePathString = new StringBuilder(appClientBuildPathString).append(File.separator)
@@ -838,7 +838,7 @@ public class ProjectBuilder {
 		String appClientBuildPathString = BuildSystemPathSupporter.getAppClientBuildPathString(sinnoriInstalledPathString, mainProjectName);
 
 		String appClientUnixShellFileContents = BuildSystemFileContents.getUnixShellContents(sinnoriInstalledPathString, mainProjectName,
-				JVM_OPTIONS_OF_APP_CLIENT, LOG_TYPE.APPCLIENT, appClientBuildPathString, relativeExecutabeJarFileName);
+				JVM_OPTIONS_OF_APP_CLIENT, LogType.APPCLIENT, appClientBuildPathString, relativeExecutabeJarFileName);
 
 		/** AppClient.bat */
 		String appClientUnixShellFilePathString = new StringBuilder(appClientBuildPathString).append(File.separator)
@@ -1130,7 +1130,7 @@ public class ProjectBuilder {
 		IOFileSetContentsBuilderManager ioFileSetContentsBuilderManager = IOFileSetContentsBuilderManager.getInstance();
 
 		String serverCodecFileContnets = ioFileSetContentsBuilderManager.getServerCodecSourceFileContents(
-				CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL, messageID, author);
+				MessageTransferDirectionType.FROM_ALL_TO_ALL, messageID, author);
 
 		/**
 		 * <build path>/src/main/java/kr/pe/sinnori/impl/message/<Message
@@ -1167,7 +1167,7 @@ public class ProjectBuilder {
 		IOFileSetContentsBuilderManager ioFileSetContentsBuilderManager = IOFileSetContentsBuilderManager.getInstance();
 
 		String clientCodecFileContnets = ioFileSetContentsBuilderManager.getClientCodecSourceFileContents(
-				CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL, messageID, author);
+				MessageTransferDirectionType.FROM_ALL_TO_ALL, messageID, author);
 
 		/**
 		 * <build path>/src/main/java/kr/pe/sinnori/impl/message/<Message
@@ -1238,7 +1238,7 @@ public class ProjectBuilder {
 		String serverBuildPathString = BuildSystemPathSupporter.getServerBuildPathString(sinnoriInstalledPathString, mainProjectName);
 
 		String serverDosShellFileContents = BuildSystemFileContents.getDosShellContents(sinnoriInstalledPathString, mainProjectName,
-				JVM_OPTIONS_OF_SERVER, LOG_TYPE.SERVER, serverBuildPathString, relativeExecutabeJarFileName);
+				JVM_OPTIONS_OF_SERVER, LogType.SERVER, serverBuildPathString, relativeExecutabeJarFileName);
 
 		/** Server.bat */
 		String serverDosShellFilePathString = new StringBuilder(serverBuildPathString).append(File.separator)
@@ -1270,7 +1270,7 @@ public class ProjectBuilder {
 		String serverBuildPathString = BuildSystemPathSupporter.getServerBuildPathString(sinnoriInstalledPathString, mainProjectName);
 
 		String serverDosShellFileContents = BuildSystemFileContents.getDosShellContents(sinnoriInstalledPathString, mainProjectName,
-				JVM_OPTIONS_OF_SERVER, LOG_TYPE.SERVER, serverBuildPathString, relativeExecutabeJarFileName);
+				JVM_OPTIONS_OF_SERVER, LogType.SERVER, serverBuildPathString, relativeExecutabeJarFileName);
 
 		/** Server.bat */
 		String serverDosShellFilePathString = new StringBuilder(serverBuildPathString).append(File.separator)
@@ -1302,7 +1302,7 @@ public class ProjectBuilder {
 		String serverBuildPathString = BuildSystemPathSupporter.getServerBuildPathString(sinnoriInstalledPathString, mainProjectName);
 
 		String serverUnixShellFileContents = BuildSystemFileContents.getUnixShellContents(sinnoriInstalledPathString, mainProjectName,
-				JVM_OPTIONS_OF_SERVER, LOG_TYPE.SERVER, serverBuildPathString, relativeExecutabeJarFileName);
+				JVM_OPTIONS_OF_SERVER, LogType.SERVER, serverBuildPathString, relativeExecutabeJarFileName);
 
 		String serverUnixShellFilePathString = new StringBuilder(serverBuildPathString).append(File.separator)
 				.append(mainProjectName).append("Server.sh").toString();
@@ -1334,7 +1334,7 @@ public class ProjectBuilder {
 		String serverBuildPathString = BuildSystemPathSupporter.getServerBuildPathString(sinnoriInstalledPathString, mainProjectName);
 
 		String serverUnixShellFileContents = BuildSystemFileContents.getUnixShellContents(sinnoriInstalledPathString, mainProjectName,
-				JVM_OPTIONS_OF_SERVER, LOG_TYPE.SERVER, serverBuildPathString, relativeExecutabeJarFileName);
+				JVM_OPTIONS_OF_SERVER, LogType.SERVER, serverBuildPathString, relativeExecutabeJarFileName);
 
 		String serverUnixShellFilePathString = new StringBuilder(serverBuildPathString).append(File.separator)
 				.append(mainProjectName).append("Server.sh").toString();

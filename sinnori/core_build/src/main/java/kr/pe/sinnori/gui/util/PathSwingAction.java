@@ -27,7 +27,7 @@ import javax.swing.JTextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.common.etc.CommonType.READ_WRITE_MODE;
+import kr.pe.sinnori.common.type.ReadWriteMode;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 
 /**
@@ -50,7 +50,7 @@ public class PathSwingAction extends AbstractAction {
 	 * @return the valid path
 	 * @throws RuntimeException if the file is not a valid path. then throw it
 	 */
-	private File getValidPathFromTextField(JTextField sourcePathTextField, READ_WRITE_MODE	readWriteMode) throws RuntimeException {
+	private File getValidPathFromTextField(JTextField sourcePathTextField, ReadWriteMode	readWriteMode) throws RuntimeException {
 		String sourcePathString = sourcePathTextField.getText();
 		if (null == sourcePathString) {
 			String errorMessage = String.format("parameter sourcePathTextField[%s]'s value is null",
@@ -90,7 +90,7 @@ public class PathSwingAction extends AbstractAction {
 	public void actionPerformed(ActionEvent e) {
 		File currrentWorkPath = null;
 		try {
-			currrentWorkPath = getValidPathFromTextField(pathTextField, READ_WRITE_MODE.ONLY_READ);
+			currrentWorkPath = getValidPathFromTextField(pathTextField, ReadWriteMode.ONLY_READ);
 		} catch(RuntimeException e1) {
 			String errorMessage = e1.getMessage();
 			log.info("this JFileChooser sets the current directory to current working directory because {}", errorMessage);

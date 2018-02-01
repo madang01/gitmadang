@@ -40,11 +40,12 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.CommonType;
-import kr.pe.sinnori.common.etc.CommonType.READ_WRITE_MODE;
 import kr.pe.sinnori.common.message.builder.IOFileSetContentsBuilderManager;
 import kr.pe.sinnori.common.message.builder.info.MessageInfo;
 import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
+import kr.pe.sinnori.common.type.LineSeparatorType;
+import kr.pe.sinnori.common.type.MessageTransferDirectionType;
+import kr.pe.sinnori.common.type.ReadWriteMode;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 import kr.pe.sinnori.common.util.FileLastModifiedComparator;
 import kr.pe.sinnori.common.util.XMLFileFilter;
@@ -139,7 +140,7 @@ public class IOFIleSetBuilderPanel extends JPanel implements FileFunctionManager
 
 	private void showMessageDialog(String message) {
 		JOptionPane.showMessageDialog(mainFrame,
-				CommonStaticUtil.splitString(message, CommonType.LINE_SEPARATOR_GUBUN.NEWLINE, 100));
+				CommonStaticUtil.splitString(message, LineSeparatorType.NEWLINE, 100));
 	}
 	
 	/**
@@ -149,7 +150,7 @@ public class IOFIleSetBuilderPanel extends JPanel implements FileFunctionManager
 	 * @return the valid path
 	 * @throws RuntimeException if the file is not a valid path. then throw it
 	 */
-	private File getValidPathFromTextField(JTextField sourcePathTextField, READ_WRITE_MODE	readWriteMode) throws RuntimeException {
+	private File getValidPathFromTextField(JTextField sourcePathTextField, ReadWriteMode readWriteMode) throws RuntimeException {
 		String sourcePathString = sourcePathTextField.getText();
 		if (null == sourcePathString) {
 			String errorMessage = String.format("parameter sourcePathTextField[%s]'s value is null",
@@ -183,7 +184,7 @@ public class IOFIleSetBuilderPanel extends JPanel implements FileFunctionManager
 			ArrayList<MessageInfo> messageInfoList = new ArrayList<MessageInfo>();
 			
 
-			File messageInfoPath = getValidPathFromTextField(messageInfoPathTextField,  CommonType.READ_WRITE_MODE.ONLY_READ);
+			File messageInfoPath = getValidPathFromTextField(messageInfoPathTextField,  ReadWriteMode.ONLY_READ);
 			
 			
 			File messageInfoXMLFiles[] = messageInfoPath.listFiles(new XMLFileFilter());
@@ -441,7 +442,7 @@ public class IOFIleSetBuilderPanel extends JPanel implements FileFunctionManager
 		if (firstPathSavingIOFileSetCheckBox.isSelected()) {
 			File firstPathSavingIOFileSet = null;
 			try {
-				firstPathSavingIOFileSet = getValidPathFromTextField(firstPathSavingIOFileSetTextField, READ_WRITE_MODE.READ_WRITE);
+				firstPathSavingIOFileSet = getValidPathFromTextField(firstPathSavingIOFileSetTextField, ReadWriteMode.READ_WRITE);
 			} catch(RuntimeException e) {
 				String errorMessage  = e.toString();
 				log.warn(errorMessage, e);
@@ -456,7 +457,7 @@ public class IOFIleSetBuilderPanel extends JPanel implements FileFunctionManager
 		if (secondPathSavingIOFileSetCheckBox.isSelected()) {
 			File secondPathSavingIOFileSet = null;
 			try {
-				secondPathSavingIOFileSet = getValidPathFromTextField(secondPathSavingIOFileSetTextField, READ_WRITE_MODE.READ_WRITE);
+				secondPathSavingIOFileSet = getValidPathFromTextField(secondPathSavingIOFileSetTextField, ReadWriteMode.READ_WRITE);
 			} catch(RuntimeException e) {
 				String errorMessage  = e.toString();
 				log.warn(errorMessage, e);				
@@ -470,7 +471,7 @@ public class IOFIleSetBuilderPanel extends JPanel implements FileFunctionManager
 		if (thirdPathSavingIOFileSetCheckBox.isSelected()) {
 			File thirdPathSavingIOFileSet = null;
 			try {
-				thirdPathSavingIOFileSet = getValidPathFromTextField(thirdPathSavingIOFileSetTextField,  READ_WRITE_MODE.READ_WRITE);
+				thirdPathSavingIOFileSet = getValidPathFromTextField(thirdPathSavingIOFileSetTextField,  ReadWriteMode.READ_WRITE);
 			} catch(RuntimeException e) {
 				String errorMessage  = e.toString();
 				log.warn(errorMessage, e);				
@@ -535,11 +536,11 @@ public class IOFIleSetBuilderPanel extends JPanel implements FileFunctionManager
 			String messageID = messageInfo.getMessageID();
 			values[i][0] = messageID;
 			values[i][1] = sdf.format(messageInfo.getLastModified());
-			if (messageInfo.getDirection() == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL) {
+			if (messageInfo.getDirection() == MessageTransferDirectionType.FROM_ALL_TO_ALL) {
 				values[i][2] = "client <-> server";
-			} else if (messageInfo.getDirection() == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_CLIENT_TO_SERVER) {
+			} else if (messageInfo.getDirection() == MessageTransferDirectionType.FROM_CLIENT_TO_SERVER) {
 				values[i][2] = "client -> server";
-			} else if (messageInfo.getDirection() == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_SERVER_TO_CLINET) {
+			} else if (messageInfo.getDirection() == MessageTransferDirectionType.FROM_SERVER_TO_CLINET) {
 				values[i][2] = "server -> client";
 			} else {
 				values[i][2] = "no direction";
@@ -584,11 +585,11 @@ public class IOFIleSetBuilderPanel extends JPanel implements FileFunctionManager
 	@Override
 	public void updateRowOfMessageInfoTableAccordingToNewMessageInfoUpdate(int row, MessageInfo newMessageInfo) {
 		String directionStr = null;
-		if (newMessageInfo.getDirection() == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL) {
+		if (newMessageInfo.getDirection() == MessageTransferDirectionType.FROM_ALL_TO_ALL) {
 			directionStr = "client <-> server";
-		} else if (newMessageInfo.getDirection() == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_CLIENT_TO_SERVER) {
+		} else if (newMessageInfo.getDirection() == MessageTransferDirectionType.FROM_CLIENT_TO_SERVER) {
 			directionStr = "client -> server";
-		} else if (newMessageInfo.getDirection() == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_SERVER_TO_CLINET) {
+		} else if (newMessageInfo.getDirection() == MessageTransferDirectionType.FROM_SERVER_TO_CLINET) {
 			directionStr = "server -> client";
 		} else {
 			directionStr = "no direction";

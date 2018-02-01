@@ -1,16 +1,14 @@
 package kr.pe.sinnori.common.config.nativevalueconverter;
 
 import static org.junit.Assert.fail;
-import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
-import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningBoolean;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class SetTypeConverterReturningBooleanTest implements NativeValueConverterTestIF {
-	Logger log = LoggerFactory.getLogger(SetTypeConverterReturningBooleanTest.class);
+import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
+
+public class SetTypeConverterReturningBooleanTest extends AbstractJunitTest implements NativeValueConverterTestIF {
 	
 	private SetTypeConverterReturningBoolean nativeValueConverter = null;
 	private Boolean returnedValue = null;
@@ -19,6 +17,8 @@ public class SetTypeConverterReturningBooleanTest implements NativeValueConverte
 	@Override
 	@Before
 	public void setup() {
+		super.setup();
+		
 		try {
 			nativeValueConverter = new SetTypeConverterReturningBoolean();
 		} catch (IllegalArgumentException e) {

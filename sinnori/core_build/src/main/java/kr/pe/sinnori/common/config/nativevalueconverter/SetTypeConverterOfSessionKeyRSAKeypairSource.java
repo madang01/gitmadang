@@ -1,19 +1,18 @@
 package kr.pe.sinnori.common.config.nativevalueconverter;
 
 import kr.pe.sinnori.common.config.AbstractSetTypeNativeValueConverter;
-import kr.pe.sinnori.common.etc.CommonType;
-import kr.pe.sinnori.common.etc.CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY;
+import kr.pe.sinnori.common.type.SessionKey;
 
 public class SetTypeConverterOfSessionKeyRSAKeypairSource 
-extends AbstractSetTypeNativeValueConverter<CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY> {
+extends AbstractSetTypeNativeValueConverter<SessionKey.RSAKeypairSourceType> {
 
 	public SetTypeConverterOfSessionKeyRSAKeypairSource() {
-		super(RSA_KEYPAIR_SOURCE_OF_SESSIONKEY.class);
+		super(SessionKey.RSAKeypairSourceType.class);
 	}
 
 	@Override
 	protected void initItemValueSet() {
-		RSA_KEYPAIR_SOURCE_OF_SESSIONKEY[] nativeValues = CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY.values();
+		SessionKey.RSAKeypairSourceType[] nativeValues = SessionKey.RSAKeypairSourceType.values();
 		for (int i=0; i < nativeValues.length; i++) {
 			itemValueSet.add(nativeValues[i].toString());
 		}
@@ -26,7 +25,7 @@ extends AbstractSetTypeNativeValueConverter<CommonType.RSA_KEYPAIR_SOURCE_OF_SES
 	}
 
 	@Override
-	public RSA_KEYPAIR_SOURCE_OF_SESSIONKEY valueOf(
+	public SessionKey.RSAKeypairSourceType valueOf(
 			String itemValue) throws IllegalArgumentException {
 		if (null == itemValue) {
 			String errorMessage = "parameter itemValue is null";
@@ -39,9 +38,9 @@ extends AbstractSetTypeNativeValueConverter<CommonType.RSA_KEYPAIR_SOURCE_OF_SES
 		}		
 		
 		
-		CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY returnValue = null;
+		SessionKey.RSAKeypairSourceType returnValue = null;
 		try {
-			returnValue = CommonType.RSA_KEYPAIR_SOURCE_OF_SESSIONKEY.valueOf(itemValue);
+			returnValue = SessionKey.RSAKeypairSourceType.valueOf(itemValue);
 		} catch(IllegalArgumentException e) {
 			String errorMessage = new StringBuilder("parameter itemValue[")
 			.append(itemValue)

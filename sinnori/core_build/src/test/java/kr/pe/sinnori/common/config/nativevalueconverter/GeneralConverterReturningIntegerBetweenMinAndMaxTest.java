@@ -1,31 +1,11 @@
 package kr.pe.sinnori.common.config.nativevalueconverter;
 
-import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
-import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
-
-import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class GeneralConverterReturningIntegerBetweenMinAndMaxTest {
-	protected Logger log = LoggerFactory.getLogger(this.getClass());
+import kr.pe.sinnori.common.AbstractJunitTest;
+
+public class GeneralConverterReturningIntegerBetweenMinAndMaxTest extends AbstractJunitTest {
 	
-	@Before
-	public void setup() {
-		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
-		String mainProjectName = "sample_base";
-		LOG_TYPE logType = LOG_TYPE.SERVER;
-		
-		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH,
-				sinnoriInstalledPathString);
-		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME,
-				mainProjectName);		
-		
-
-		SinnoriLogbackManger.getInstance().setup(sinnoriInstalledPathString, mainProjectName, logType);
-	}
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void testValueOf_NullParamter_itemValue() throws Exception {

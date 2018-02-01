@@ -2,39 +2,16 @@ package kr.pe.sinnori.common.seesionkey;
 
 import static org.junit.Assert.fail;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
-import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.sessionkey.ClientSessionKeyIF;
 import kr.pe.sinnori.common.sessionkey.ClientSessionKeyManager;
 import kr.pe.sinnori.common.sessionkey.ServerSessionkeyIF;
 import kr.pe.sinnori.common.sessionkey.ServerSessionkeyManager;
 
-public class SessionKeyTest {
-	Logger log = LoggerFactory
-			.getLogger(SessionKeyTest.class);
-	
-	@Before
-	public void setup() {		
-		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
-		String mainProjectName = "sample_test";
-		LOG_TYPE logType = LOG_TYPE.SERVER;
-		
-		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH,
-				sinnoriInstalledPathString);
-		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME,
-				mainProjectName);		
-		
-
-		SinnoriLogbackManger.getInstance().setup(sinnoriInstalledPathString, mainProjectName, logType);
-		
-	}
+public class SessionKeyTest extends AbstractJunitTest {
 	
 	@Test
 	public void testSessionKeyThreadSafe() {
@@ -65,7 +42,8 @@ public class SessionKeyTest {
 		}
 		
 		try {
-			Thread.sleep(1000L*60*10);
+			// Thread.sleep(1000L*60*10);
+			Thread.sleep(1000L);
 		} catch (InterruptedException e) {
 			log.warn(e.getMessage(), e);
 			fail(e.getMessage());

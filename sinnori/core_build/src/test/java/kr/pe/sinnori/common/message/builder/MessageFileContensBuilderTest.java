@@ -1,55 +1,19 @@
 package kr.pe.sinnori.common.message.builder;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
-import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.message.builder.info.ArrayInfo;
 import kr.pe.sinnori.common.message.builder.info.GroupInfo;
 import kr.pe.sinnori.common.message.builder.info.OrderedItemSet;
 import kr.pe.sinnori.common.message.builder.info.SingleItemInfo;
-import kr.pe.sinnori.common.message.builder.info.SingleItemType;
+import kr.pe.sinnori.common.type.SingleItemType;
 
-public class MessageFileContensBuilderTest {
-	Logger log = null;
-
-	@Before
-	public void setup() {
-		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
-		String mainProjectName = "sample_base";
-		LOG_TYPE logType = LOG_TYPE.SERVER;
-		String logbackConfigFilePathString = BuildSystemPathSupporter
-				.getLogbackConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
-		String sinnoriLogPathString = BuildSystemPathSupporter.getLogPathString(sinnoriInstalledPathString,
-				mainProjectName, logType);
-
-		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH,
-				sinnoriInstalledPathString);
-		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME,
-				mainProjectName);
-
-		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_LOG_PATH, sinnoriLogPathString);
-		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_LOGBACK_CONFIG_FILE,
-				logbackConfigFilePathString);
-
-		// SinnoriLogbackManger.getInstance().setup(sinnoriInstalledPathString,
-		// mainProjectName, logType);
-
-		log = LoggerFactory.getLogger(MessageFileContensBuilderTest.class);
-	}
-
-	@After
-	public void finish() {
-		System.gc();
-	}
+public class MessageFileContensBuilderTest extends AbstractJunitTest {
+	
 
 	@Test
-	public void testBuildStringOfVariableDeclarationPart_SingleItem() {
+	public void testBuildStringOfVariableDeclarationPartForSingleItemInfo() {
 		MessageFileContensBuilder messageFileContensBuilder = new MessageFileContensBuilder();
 
 		{
@@ -63,7 +27,7 @@ public class MessageFileContensBuilderTest {
 					nativeItemSize, nativeItemCharset);
 
 			String variableDelarationString = messageFileContensBuilder
-					.buildStringOfVariableDeclarationPart(1,singleItemInfo);
+					.buildStringOfVariableDeclarationPartForSingleItemInfo(1,singleItemInfo);
 
 			log.info("SingleItemInfo::variableDelarationString=[{}]", variableDelarationString);
 		}
@@ -79,14 +43,14 @@ public class MessageFileContensBuilderTest {
 					nativeItemSize, nativeItemCharset);
 
 			String variableDelarationString = messageFileContensBuilder
-					.buildStringOfVariableDeclarationPart(1, singleItemInfo);
+					.buildStringOfVariableDeclarationPartForSingleItemInfo(1, singleItemInfo);
 
 			log.info("SingleItemInfo::variableDelarationString=[{}]", variableDelarationString);
 		}
 	}
 
 	@Test
-	public void testBuildStringOfVariableDeclarationPart_ArrayInfo() {
+	public void testBuildStringOfVariableDeclarationPartForArrayInfo() {
 		MessageFileContensBuilder messageFileContensBuilder = new MessageFileContensBuilder();
 		{
 			String arrayName = "array1";
@@ -108,14 +72,14 @@ public class MessageFileContensBuilderTest {
 			}
 
 			String variableDelarationString = messageFileContensBuilder
-					.buildStringOfVariableDeclarationPart(0, arrayInfo);
+					.buildStringOfVariableDeclarationPartForArrayInfo(0, arrayInfo);
 
 			log.info("ArrayInfo::variableDelarationString=[{}]", variableDelarationString);
 		}
 	}
 
 	@Test
-	public void testBuildStringOfVariableDeclarationPart_GroupInfo() {
+	public void testBuildStringOfVariableDeclarationPartForGroupInfo() {
 		MessageFileContensBuilder messageFileContensBuilder = new MessageFileContensBuilder();
 
 		{
@@ -135,7 +99,7 @@ public class MessageFileContensBuilderTest {
 				groupItemSet.addItemInfo(singleItemInfo);
 			}
 
-			String variableDelarationString = messageFileContensBuilder.buildStringOfVariableDeclarationPart(0,
+			String variableDelarationString = messageFileContensBuilder.buildStringOfVariableDeclarationPartForGroupInfo(0,
 					groupInfo);
 
 			log.info("GroupInfo::variableDelarationString=[{}]", variableDelarationString);
@@ -144,7 +108,7 @@ public class MessageFileContensBuilderTest {
 	}
 
 	@Test
-	public void testBuildStringOfGetMethodDefinePart_SingleItem() {
+	public void testBuildStringOfGetMethodDefinePartForSingleItemInfo() {
 		MessageFileContensBuilder messageFileContensBuilder = new MessageFileContensBuilder();
 
 		{
@@ -158,14 +122,14 @@ public class MessageFileContensBuilderTest {
 					nativeItemSize, nativeItemCharset);
 
 			String getMethodDefinePartString = messageFileContensBuilder
-					.buildStringOfGetMethodDefinePart(0, singleItemInfo);
+					.buildStringOfGetMethodDefinePartForSingleItemInfo(0, singleItemInfo);
 
 			log.info("SingleItem::getMethodDefinePartString=[{}]", getMethodDefinePartString);
 		}
 	}
 
 	@Test
-	public void testBuildStringOfGetMethodDefinePart_ArrayInfo() {
+	public void testBuildStringOfGetMethodDefinePartForArrayInfo() {
 		MessageFileContensBuilder messageFileContensBuilder = new MessageFileContensBuilder();
 
 		{
@@ -188,7 +152,7 @@ public class MessageFileContensBuilderTest {
 			}
 
 			String getMethodDefinePartString = messageFileContensBuilder
-					.buildStringOfGetMethodDefinePart(0, arrayInfo);
+					.buildStringOfGetMethodDefinePartForArrayInfo(0, arrayInfo);
 
 			log.info("ArrayInfo::getMethodDefinePartString=[{}]", getMethodDefinePartString);
 		}
@@ -216,7 +180,7 @@ public class MessageFileContensBuilderTest {
 			}
 
 			String getMethodDefinePartString = messageFileContensBuilder
-					.buildStringOfGetMethodDefinePart(0, groupInfo);
+					.buildStringOfGetMethodDefinePartForGroupInfo(0, groupInfo);
 
 			log.info("GroupInfo::getMethodDefinePartString=[{}]", getMethodDefinePartString);
 		}
@@ -224,7 +188,7 @@ public class MessageFileContensBuilderTest {
 
 	////////////////
 	@Test
-	public void testBuildStringOfSetMethodDefinePart_SingleItem() {
+	public void testBuildStringOfSetMethodDefinePartForSingleItemInfo() {
 		MessageFileContensBuilder messageFileContensBuilder = new MessageFileContensBuilder();
 
 		{
@@ -238,14 +202,14 @@ public class MessageFileContensBuilderTest {
 					nativeItemSize, nativeItemCharset);
 
 			String setMethodDefinePartString = messageFileContensBuilder
-					.buildStringOfSetMethodDefinePart(0, singleItemInfo);
+					.buildStringOfSetMethodDefinePartForSingleItemInfo(0, singleItemInfo);
 
 			log.info("SingleItemInfo::setMethodDefinePartString=[{}]", setMethodDefinePartString);
 		}
 	}
 
 	@Test
-	public void testBuildStringOfSetMethodDefinePart_ArrayInfo() {
+	public void testBuildStringOfSetMethodDefinePartForArrayInfo() {
 		MessageFileContensBuilder messageFileContensBuilder = new MessageFileContensBuilder();
 
 		{
@@ -268,14 +232,14 @@ public class MessageFileContensBuilderTest {
 			}
 
 			String setMethodDefinePartString = messageFileContensBuilder
-					.buildStringOfSetMethodDefinePart(0, arrayInfo);
+					.buildStringOfSetMethodDefinePartForArrayInfo(0, arrayInfo);
 
 			log.info("ArrayInfo::setMethodDefinePartString=[{}]", setMethodDefinePartString);
 		}
 	}
 
 	@Test
-	public void testBuildStringOfSetMethodDefinePart_GroupInfo() {
+	public void testBuildStringOfSetMethodDefinePartForGroupInfo() {
 		MessageFileContensBuilder messageFileContensBuilder = new MessageFileContensBuilder();
 
 		{
@@ -296,14 +260,14 @@ public class MessageFileContensBuilderTest {
 			}
 
 			String setMethodDefinePartString = messageFileContensBuilder
-					.buildStringOfSetMethodDefinePart(0, groupInfo);
+					.buildStringOfSetMethodDefinePartForGroupInfo(0, groupInfo);
 
 			log.info("GroupInfo::setMethodDefinePartString=[{}]", setMethodDefinePartString);
 		}
 	}
 	
 	@Test
-	public void testBuildStringOfToStringPart_SingleItemInfo() {
+	public void testBuildStringOfToStringPartForSingleItemInfo() {
 		MessageFileContensBuilder messageFileContensBuilder = new MessageFileContensBuilder();
 
 		
@@ -319,14 +283,14 @@ public class MessageFileContensBuilderTest {
 					nativeItemSize, nativeItemCharset);
 
 			String toStringPartString = messageFileContensBuilder
-					.buildStringOfToStringPart(0, isFirstElement, singleItemInfo);
+					.buildStringOfToStringPartForSingleItemInfo(0, isFirstElement, singleItemInfo);
 
 			log.info("SingleItemInfo::toStringPartString=[{}]", toStringPartString);
 		}
 	}
 	
 	@Test
-	public void testBuildStringOfToStringPart_ArrayInfo() {
+	public void testBuildStringOfToStringPartForArrayInfo() {
 		MessageFileContensBuilder messageFileContensBuilder = new MessageFileContensBuilder();
 
 		
@@ -351,14 +315,14 @@ public class MessageFileContensBuilderTest {
 			}
 
 			String toStringPartString = messageFileContensBuilder
-					.buildStringOfToStringPart(0, isFirstElement, arrayInfo);
+					.buildStringOfToStringPartForArrayInfo(0, isFirstElement, arrayInfo);
 
 			log.info("ArrayInfo::toStringPartString=[{}]", toStringPartString);
 		}
 	}
 	
 	@Test
-	public void testBuildStringOfToStringPart_Group() {
+	public void testBuildStringOfToStringPartForGroupInfo() {
 		MessageFileContensBuilder messageFileContensBuilder = new MessageFileContensBuilder();
 
 		
@@ -381,7 +345,7 @@ public class MessageFileContensBuilderTest {
 			}
 
 			String toStringPartString = messageFileContensBuilder
-					.buildStringOfToStringPart(0, isFirstElement, groupInfo);
+					.buildStringOfToStringPartForGroupInfo(0, isFirstElement, groupInfo);
 
 			log.info("GroupInfo::toStringPartString=[{}]", toStringPartString);
 		}

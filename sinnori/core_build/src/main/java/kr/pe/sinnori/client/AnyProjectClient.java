@@ -34,7 +34,6 @@ import kr.pe.sinnori.client.io.ClientOutputMessageQueueWrapper;
 import kr.pe.sinnori.client.io.LetterToServer;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
-import kr.pe.sinnori.common.etc.CommonType.CONNECTION_TYPE;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.ConnectionPoolTimeoutException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
@@ -50,6 +49,7 @@ import kr.pe.sinnori.common.project.AbstractProject;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
+import kr.pe.sinnori.common.type.ConnectionType;
 
 /**
  * <pre>
@@ -121,7 +121,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 		long connectionTimeout = projectPartConfiguration.getClientConnectionTimeout();
 		boolean whetherToAutoConnect = projectPartConfiguration
 				.getClientWhetherAutoConnection();
-		CONNECTION_TYPE connectionType = projectPartConfiguration.getConnectionType();
+		ConnectionType connectionType = projectPartConfiguration.getConnectionType();
 		long clientMonitorTimeInterval = projectPartConfiguration
 				.getClientMonitorTimeInterval();
 		long clientMonitorReceptionTimeout = projectPartConfiguration
@@ -148,7 +148,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 				.getClientAsynOutputMessageExecutorThreadCnt();
 		int mailBoxCnt = projectPartConfiguration.getClientAsynShareMailboxCnt();
 
-		if (CONNECTION_TYPE.NoShareSync == connectionType) {
+		if (ConnectionType.SYNC_PRIVATE == connectionType) {
 			connectionPool = new NoShareSyncConnectionPool(projectName, hostOfProject,
 					portOfProject, charsetOfProject, connectionCount, connectionTimeout, 
 					socketTimeOut, whetherToAutoConnect,
@@ -176,7 +176,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 			inputMessageWriterPool.startAll();
 			outputMessageReaderPool.startAll();
 
-			if (CONNECTION_TYPE.ShareAsyn == connectionType) {
+			if (ConnectionType.ASYN_SHARE == connectionType) {
 
 				int outputMessageQueueQueueSize = mailBoxCnt * connectionCount;
 				syncOutputMessageQueueQueue = new LinkedBlockingQueue<ClientOutputMessageQueueWrapper>(

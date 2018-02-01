@@ -1,8 +1,8 @@
 package kr.pe.sinnori.common.message.builder;
 
-import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.message.builder.info.MessageInfo;
+import kr.pe.sinnori.common.type.MessageTransferDirectionType;
 
 
 public class IOFileSetContentsBuilderManager {
@@ -49,12 +49,12 @@ public class IOFileSetContentsBuilderManager {
 	}
 	
 	public String getClientCodecSourceFileContents(
-			CommonType.MESSAGE_TRANSFER_DIRECTION connectionDirectionMode,
+			MessageTransferDirectionType connectionDirectionMode,
 			String messageID, String author) {
 		return clientCodecFileContensBuilder.buildStringOfFileContents(connectionDirectionMode, messageID, author);
 	}
 
-	public String getServerCodecSourceFileContents(CommonType.MESSAGE_TRANSFER_DIRECTION connectionDirectionMode, String messageID, String author) {
+	public String getServerCodecSourceFileContents(MessageTransferDirectionType connectionDirectionMode, String messageID, String author) {
 		return serverCodecFileContensBuilder.buildStringOfFileContents(connectionDirectionMode, messageID, author);
 	}
 }

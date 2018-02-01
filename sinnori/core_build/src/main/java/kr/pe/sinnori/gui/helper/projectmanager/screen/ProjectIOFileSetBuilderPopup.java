@@ -43,11 +43,12 @@ import com.jgoodies.forms.layout.FormLayout;
 
 import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.CommonType;
-import kr.pe.sinnori.common.etc.CommonType.READ_WRITE_MODE;
 import kr.pe.sinnori.common.message.builder.IOFileSetContentsBuilderManager;
 import kr.pe.sinnori.common.message.builder.info.MessageInfo;
 import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
+import kr.pe.sinnori.common.type.LineSeparatorType;
+import kr.pe.sinnori.common.type.MessageTransferDirectionType;
+import kr.pe.sinnori.common.type.ReadWriteMode;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 import kr.pe.sinnori.common.util.FileLastModifiedComparator;
 import kr.pe.sinnori.common.util.XMLFileFilter;
@@ -139,7 +140,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 
 	private void showMessageDialog(String message) {
 		JOptionPane.showMessageDialog(ownerFrame,
-				CommonStaticUtil.splitString(message, CommonType.LINE_SEPARATOR_GUBUN.NEWLINE, 100));
+				CommonStaticUtil.splitString(message, LineSeparatorType.NEWLINE, 100));
 	}
 
 	private void rebuildMessageInfoTable(SEARCH_MODE searchMode) {
@@ -180,11 +181,11 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 			String messageID = messageInfo.getMessageID();
 			values[i][0] = messageID;
 			values[i][1] = sdf.format(messageInfo.getLastModified());
-			if (messageInfo.getDirection() == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL) {
+			if (messageInfo.getDirection() == MessageTransferDirectionType.FROM_ALL_TO_ALL) {
 				values[i][2] = "client <-> server";
-			} else if (messageInfo.getDirection() == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_CLIENT_TO_SERVER) {
+			} else if (messageInfo.getDirection() == MessageTransferDirectionType.FROM_CLIENT_TO_SERVER) {
 				values[i][2] = "client -> server";
-			} else if (messageInfo.getDirection() == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_SERVER_TO_CLINET) {
+			} else if (messageInfo.getDirection() == MessageTransferDirectionType.FROM_SERVER_TO_CLINET) {
 				values[i][2] = "server -> client";
 			} else {
 				values[i][2] = "no direction";
@@ -262,7 +263,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 	 * @return the valid path
 	 * @throws RuntimeException if the file is not a valid path. then throw it
 	 */
-	private File getValidPathFromTextField(JTextField sourcePathTextField, READ_WRITE_MODE	readWriteMode) throws RuntimeException {
+	private File getValidPathFromTextField(JTextField sourcePathTextField, ReadWriteMode	readWriteMode) throws RuntimeException {
 		String sourcePathString = sourcePathTextField.getText();
 		if (null == sourcePathString) {
 			String errorMessage = String.format("parameter sourcePathTextField[%s]'s value is null",
@@ -421,7 +422,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 		String serverIOSourcePathString = BuildSystemPathSupporter.getServerIOSourcePath(sinnoriInstalledPathString, selectedMainProjectName);
 		File serverIOSourcePath = null;
 		try {
-			serverIOSourcePath = CommonStaticUtil.getValidPath(serverIOSourcePathString, READ_WRITE_MODE.ONLY_WRITE);
+			serverIOSourcePath = CommonStaticUtil.getValidPath(serverIOSourcePathString, ReadWriteMode.ONLY_WRITE);
 			listOfPathSavingIOFileSet.add(serverIOSourcePath);
 		} catch (RuntimeException e) {
 			log.debug("the project[{}] has no the valid server IO source path::{}", selectedMainProjectName, e.getMessage());
@@ -432,7 +433,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 		File appClientIOSourcePath = null;
 		try {
 			appClientIOSourcePath = CommonStaticUtil.getValidPath(appClientIOSourcePathString,
-					READ_WRITE_MODE.ONLY_WRITE);
+					ReadWriteMode.ONLY_WRITE);
 
 			listOfPathSavingIOFileSet.add(appClientIOSourcePath);
 		} catch (RuntimeException e) {
@@ -444,7 +445,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 		File webClientIOSourcePath = null;
 		try {
 			webClientIOSourcePath = CommonStaticUtil.getValidPath(webClientIOSourcePathString,
-					READ_WRITE_MODE.ONLY_WRITE);
+					ReadWriteMode.ONLY_WRITE);
 			listOfPathSavingIOFileSet.add(webClientIOSourcePath);
 		} catch (RuntimeException e) {
 			log.info("the project[{}] has no the valid web-clent IO source path::{}", selectedMainProjectName, e.getMessage());
@@ -466,7 +467,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 			ArrayList<MessageInfo> messageInfoList = new ArrayList<MessageInfo>();
 
 			File messageInfoPath = getValidPathFromTextField(messageInfoPathTextField,
-					CommonType.READ_WRITE_MODE.ONLY_READ);
+					ReadWriteMode.ONLY_READ);
 
 			File messageInfoXMLFiles[] = messageInfoPath.listFiles(new XMLFileFilter());
 			if (0 == messageInfoXMLFiles.length) {
@@ -674,16 +675,27 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 
 	@Override
 	public void updateRowOfMessageInfoTableAccordingToNewMessageInfoUpdate(int row, MessageInfo newMessageInfo) {
-		String directionStr = null;
-		if (newMessageInfo.getDirection() == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL) {
-			directionStr = "client <-> server";
-		} else if (newMessageInfo.getDirection() == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_CLIENT_TO_SERVER) {
-			directionStr = "client -> server";
-		} else if (newMessageInfo.getDirection() == CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_SERVER_TO_CLINET) {
-			directionStr = "server -> client";
-		} else {
-			directionStr = "no direction";
+		String directionStr = null;		
+		
+		switch (newMessageInfo.getDirection()) {
+			case FROM_ALL_TO_ALL : {
+				directionStr = "client <-> server";
+				break;
+			}
+			case FROM_CLIENT_TO_SERVER : {
+				directionStr = "client -> server";
+				break;
+			}
+			case FROM_SERVER_TO_CLINET : {
+				directionStr = "server -> client";
+				break;
+			}
+			default: {
+				directionStr = "no direction";
+				break;
+			}		
 		}
+		
 		
 		messageInfoTableModel.setValueAt(directionStr, row, MessageInfoTableModelColumnOrder.DIRECTRION.ordinal());
 
@@ -981,7 +993,7 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 		File messageInfoSourcePath =null;
 		
 		try {
-			messageInfoSourcePath = CommonStaticUtil.getValidPath(messageInfoSourcePathString, CommonType.READ_WRITE_MODE.ONLY_READ);
+			messageInfoSourcePath = CommonStaticUtil.getValidPath(messageInfoSourcePathString, ReadWriteMode.ONLY_READ);
 		} catch(RuntimeException e1) {
 			String errorMessage = String.format("fail to get a valid path that is the main project[%s]'s message information path[%s]",
 					mainProjectName, messageInfoSourcePathString);

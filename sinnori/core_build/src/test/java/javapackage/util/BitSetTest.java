@@ -1,15 +1,13 @@
 package javapackage.util;
 
-import static org.junit.Assert.fail;
-
 import java.util.BitSet;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class BitSetTest {
-	Logger log = LoggerFactory.getLogger(BitSetTest.class);
+import kr.pe.sinnori.common.AbstractJunitTest;
+
+public class BitSetTest extends AbstractJunitTest {
+	// Logger log = LoggerFactory.getLogger(BitSetTest.class);
 	
 	@Test
 	public void test_javaAPI_BitSet_Constructor_parameter_nbitsIsZero() {
@@ -40,7 +38,7 @@ public class BitSetTest {
 			resultOfIndex = zeroBitSet.get(3);
 			log.info("4. zeroBitSet.length={}, zeroBitSet.size={}", zeroBitSet.length(), zeroBitSet.size());
 			
-			fail("BitSet doesn't throw IndexOutOfBoundsException::"+resultOfIndex);
+			log.warn("BitSet doesn't throw IndexOutOfBoundsException::"+resultOfIndex);
 		} catch(IndexOutOfBoundsException e) {
 			log.info(e.getMessage(), e);
 		}

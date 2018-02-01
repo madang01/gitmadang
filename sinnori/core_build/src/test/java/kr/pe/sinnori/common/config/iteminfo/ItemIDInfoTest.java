@@ -1,37 +1,16 @@
 package kr.pe.sinnori.common.config.iteminfo;
 
 
+import org.junit.Test;
+
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.config.AbstractNativeValueConverter;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo.ViewType;
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningNoTrimString;
-import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
-import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-public class ItemIDInfoTest {
-	Logger log = LoggerFactory
-			.getLogger(ItemIDInfoTest.class);
+public class ItemIDInfoTest extends AbstractJunitTest {
 	
-	@Before
-	public void setup() {
-		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
-		String mainProjectName = "sample_base";
-		LOG_TYPE logType = LOG_TYPE.SERVER;
-		
-		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH,
-				sinnoriInstalledPathString);
-		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME,
-				mainProjectName);		
-		
-
-		SinnoriLogbackManger.getInstance().setup(sinnoriInstalledPathString, mainProjectName, logType);
-	}
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void testConstructor_NullParameter_configPart() throws Exception {

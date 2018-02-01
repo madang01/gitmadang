@@ -12,7 +12,7 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
 import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
-import kr.pe.sinnori.common.etc.CommonType.LOG_TYPE;
+import kr.pe.sinnori.common.type.LogType;
 
 
 public class SinnoriLogbackManger {
@@ -35,7 +35,7 @@ public class SinnoriLogbackManger {
 		return SinnoriLogbackMangerHolder.singleton;
 	}
 	
-	public void setup(String sinnoriInstalledPathString, String mainProjectName, LOG_TYPE logType) {
+	public void setup(String sinnoriInstalledPathString, String mainProjectName, LogType logType) {
 		
 		String logbackConfigFilePathString = BuildSystemPathSupporter.getLogbackConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
 		String sinnoriLogPathString = BuildSystemPathSupporter.getLogPathString(sinnoriInstalledPathString, mainProjectName, logType);

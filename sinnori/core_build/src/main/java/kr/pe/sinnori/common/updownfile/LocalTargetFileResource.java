@@ -256,7 +256,7 @@ public class LocalTargetFileResource extends AbstractFileResource {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		FileBlockInformation fileBlockInformation = new FileBlockInformation(
+		FileTransferInformation fileBlockInformation = new FileTransferInformation(
 				sourceFileID,			
 				targetFileID,
 				sourceFileSize,

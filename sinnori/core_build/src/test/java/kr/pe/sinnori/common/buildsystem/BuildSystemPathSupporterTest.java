@@ -5,14 +5,11 @@ import static org.junit.Assert.fail;
 import java.io.File;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 
-public class BuildSystemPathSupporterTest {
-	private Logger log = LoggerFactory
-			.getLogger(BuildSystemPathSupporterTest.class);
+public class BuildSystemPathSupporterTest extends AbstractJunitTest {
+	
 	
 	@Test
 	public void testGetProjectBasePathString() {

@@ -37,8 +37,9 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.message.AbstractMessage;
+import kr.pe.sinnori.common.type.ItemInfoType;
+import kr.pe.sinnori.common.type.MessageTransferDirectionType;
 
 /**
  * XML로 작성된 메시지 정보 파일을 SAX 파싱하여 메시지 정보를 작성하는 클래스.<br/>
@@ -351,13 +352,13 @@ public class MessageInfoSAXParser extends DefaultHandler {
 			}
 			
 			if (tagValue.equals("FROM_NONE_TO_NONE")) {
-				messageInfo.setDirection(CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_NONE_TO_NONE);
+				messageInfo.setDirection(MessageTransferDirectionType.FROM_NONE_TO_NONE);
 			} else if (tagValue.equals("FROM_SERVER_TO_CLINET")) {
-				messageInfo.setDirection(CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_SERVER_TO_CLINET);
+				messageInfo.setDirection(MessageTransferDirectionType.FROM_SERVER_TO_CLINET);
 			} else if (tagValue.equals("FROM_CLIENT_TO_SERVER")) {
-				messageInfo.setDirection(CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_CLIENT_TO_SERVER);
+				messageInfo.setDirection(MessageTransferDirectionType.FROM_CLIENT_TO_SERVER);
 			} else if (tagValue.equals("FROM_ALL_TO_ALL")) {
-				messageInfo.setDirection(CommonType.MESSAGE_TRANSFER_DIRECTION.FROM_ALL_TO_ALL);
+				messageInfo.setDirection(MessageTransferDirectionType.FROM_ALL_TO_ALL);
 			} else {
 				String errorMessage = new StringBuilder("tag \"direction\"'s value[").append(tagValue)
 						.append("] is not a member of direction set[FROM_NONE_TO_NONE, FROM_SERVER_TO_CLINET, FROM_CLIENT_TO_SERVER, FROM_ALL_TO_ALL]").toString();

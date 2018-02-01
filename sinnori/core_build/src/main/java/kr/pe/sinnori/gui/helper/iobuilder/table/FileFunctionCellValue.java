@@ -13,9 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import kr.pe.sinnori.common.etc.CommonType;
 import kr.pe.sinnori.common.message.builder.info.MessageInfo;
 import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
+import kr.pe.sinnori.common.type.LineSeparatorType;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 import kr.pe.sinnori.gui.helper.iobuilder.screen.FileFunctionManagerIF;
 
@@ -35,7 +35,7 @@ public class FileFunctionCellValue extends JPanel {
 	private void showMessageDialog(String message) {
 		JOptionPane.showMessageDialog(parentComponent, 
 				CommonStaticUtil.splitString(message,
-						CommonType.LINE_SEPARATOR_GUBUN.NEWLINE, 100));
+						LineSeparatorType.NEWLINE, 100));
 	}
 	
 	class ViewButtonAction implements ActionListener {
