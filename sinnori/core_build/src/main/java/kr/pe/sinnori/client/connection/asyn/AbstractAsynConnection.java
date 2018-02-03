@@ -26,13 +26,10 @@ import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.AsynServerAdderIF;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReaderThread;
-import kr.pe.sinnori.client.io.LetterToServer;
-import kr.pe.sinnori.common.exception.BodyFormatException;
-import kr.pe.sinnori.common.exception.DynamicClassCallException;
+import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
-import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
@@ -44,7 +41,7 @@ import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
  */
 public abstract class AbstractAsynConnection extends AbstractConnection {
 	/** 입력 메시지 큐 */
-	protected LinkedBlockingQueue<LetterToServer> inputMessageQueue = null;
+	protected LinkedBlockingQueue<ToLetter> inputMessageQueue = null;
 
 	/** 연결 클래스에 제공된 selector 를 가지고 비동기 방식으로 출력 메시지의 소켓 읽기를 시도하는 핸들러 관리자 인터페이스 */
 	protected AsynServerAdderIF outputMessageReaderPool = null;
@@ -83,7 +80,7 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 			int maxCountFinishingConnect,
 			long intervalFinishingConnect,
 			LinkedBlockingQueue<WrapReadableMiddleObject> asynOutputMessageQueue,
-			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
+			LinkedBlockingQueue<ToLetter> inputMessageQueue,
 			MessageProtocolIF messageProtocol,
 			AsynServerAdderIF outputMessageReaderPool,
 			int dataPacketBufferMaxCntPerMessage,
@@ -178,14 +175,14 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 		hash.put(serverSC, this);
 	}
 	
-	protected LetterToServer getLetterToServer(ClassLoader classLoader, AbstractMessage messageToClient) 
+	/*protected ToLetter getLetterToServer(ClassLoader classLoader, AbstractMessage messageToClient) 
 			throws DynamicClassCallException, NoMoreDataPacketBufferException, BodyFormatException {
-		LetterToServer letterToServer = new LetterToServer(this, 
+		ToLetter letterToServer = new ToLetter(this, 
 				messageToClient.getMessageID()
 				, messageToClient.messageHeaderInfo.mailboxID, 
 				messageToClient.messageHeaderInfo.mailID,
 				getWrapBufferList(classLoader, messageToClient));
 		
 		return letterToServer;
-	}
+	}*/
 }

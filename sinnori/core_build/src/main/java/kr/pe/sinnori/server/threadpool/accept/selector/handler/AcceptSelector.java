@@ -26,7 +26,7 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import kr.pe.sinnori.server.ClientResourceManagerIF;
+import kr.pe.sinnori.server.SocketResourceManagerIF;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +51,7 @@ public class AcceptSelector extends Thread {
 	private long acceptSelectTimeout;
 	private int maxClients;
 	private LinkedBlockingQueue<SocketChannel> acceptQueue;
-	private ClientResourceManagerIF clientResourceManager;
+	private SocketResourceManagerIF socketResourceManager;
 
 	/**
 	 * 생성자
@@ -70,7 +70,7 @@ public class AcceptSelector extends Thread {
 	 *            생산자 접속 요청중인 소켓 채널 처리 쓰레드, 소비자 접속이 허용된 소켓 채널 등록 쓰레드인 큐
 	 */
 	public AcceptSelector(String projectName, String serverHost, int serverPort, long acceptSelectTimeout, int maxClients,
-			LinkedBlockingQueue<SocketChannel> acceptQueue, ClientResourceManagerIF clientResourceManager) {
+			LinkedBlockingQueue<SocketChannel> acceptQueue, SocketResourceManagerIF socketResourceManager) {
 
 		this.projectName = projectName;
 		this.serverHost = serverHost;
@@ -78,7 +78,7 @@ public class AcceptSelector extends Thread {
 		this.acceptSelectTimeout = acceptSelectTimeout;
 		this.maxClients = maxClients;
 		this.acceptQueue = acceptQueue;
-		this.clientResourceManager = clientResourceManager;
+		this.socketResourceManager = socketResourceManager;
 		
 		
 	}
@@ -133,7 +133,7 @@ public class AcceptSelector extends Thread {
 						
 						
 						// 최대 등록 가능한 client만 허용
-						if (clientResourceManager.getCntOfAllClients() < maxClients) {
+						if (socketResourceManager.getNumberOfSocketResources() < maxClients) {
 							log.info(String.format("new sc[%d]", sc.hashCode()));
 
 							acceptQueue.put(sc);

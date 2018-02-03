@@ -18,7 +18,6 @@
 package kr.pe.sinnori.client;
 
 import kr.pe.sinnori.client.io.ClientOutputMessageQueueWrapper;
-import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
 
 /**
  * 비동기 입출력 지원용 랩 출력 메시지 큐를 원소로 하는 큐 관리자 
@@ -30,7 +29,7 @@ public interface ClientOutputMessageQueueQueueMangerIF {
 	 * 랩 출력 메시지 큐를 원소로 하는 큐에서 랩 출력 메시지 큐를 얻어온다.
 	 * @return 데이터 패킷 버퍼
 	 */
-	public ClientOutputMessageQueueWrapper pollOutputMessageQueue() throws NoMoreOutputMessageQueueException;
+	// public ClientOutputMessageQueueWrapper pollOutputMessageQueue() throws NoMoreOutputMessageQueueException;
 
 	/**
 	 * 랩 출력 메시지 큐를 원소로 하는 큐에 랩 출력 메시지 큐를 반환한다.

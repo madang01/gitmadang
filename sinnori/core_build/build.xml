@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-<project name="sinnori_core" default="make.core" basedir=".">
+<project name="sinnori_core_build" default="make.core" basedir=".">
 	<description>Sinnori Core Library</description>
 	<!-- set global properties for this build -->
 	<property name="dir.src" location="src/main/java" />

@@ -33,7 +33,7 @@ public class ProjectPartConfiguration {
 	private Integer dataPacketBufferPoolSize = null;
 	private Integer messageIDFixedSize = null;	
 		
-	private MessageProtocolType messageProtocol = null;
+	private MessageProtocolType messageProtocolType = null;
 	
 	/***** 서버 동적 클래스 변수 시작 *****/
 	private String classLoaderClassPackagePrefixName = null;
@@ -256,7 +256,7 @@ public class ProjectPartConfiguration {
 			}
 			
 			this.messageIDFixedSize = (Integer)nativeValue;			
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_MESSAGE_PROTOCOL_ITEMID)) {
+		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_MESSAGE_PROTOCOL_TYPE_ITEMID)) {
 			if (!(nativeValue instanceof MessageProtocolType)) {
 				String errorMessage = new StringBuilder("the generic type[")
 				.append(nativeValue.getClass().getName())
@@ -267,7 +267,7 @@ public class ProjectPartConfiguration {
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 			
-			this.messageProtocol = (MessageProtocolType)nativeValue;
+			this.messageProtocolType = (MessageProtocolType)nativeValue;
 			
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_CLASSLOADER_PACKAGE_PREFIX_NAME_ITEMID)) {
 			if (!(nativeValue instanceof String)) {
@@ -768,8 +768,8 @@ public class ProjectPartConfiguration {
 		return messageIDFixedSize;
 	}
 
-	public MessageProtocolType getMessageProtocol() {
-		return messageProtocol;
+	public MessageProtocolType getMessageProtocolType() {
+		return messageProtocolType;
 	}
 
 	public String getClassLoaderClassPackagePrefixName() {
@@ -963,7 +963,7 @@ public class ProjectPartConfiguration {
 		builder.append(", messageIDFixedSize=");		
 		builder.append(messageIDFixedSize);
 		builder.append(", messageProtocol=");
-		builder.append(messageProtocol);
+		builder.append(messageProtocolType);
 		builder.append(", classLoaderClassPackagePrefixName=");
 		builder.append(classLoaderClassPackagePrefixName);
 		builder.append(", clientMonitorTimeInterval=");

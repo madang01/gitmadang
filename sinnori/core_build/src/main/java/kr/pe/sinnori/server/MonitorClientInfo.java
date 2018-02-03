@@ -27,7 +27,7 @@ import java.nio.channels.SocketChannel;
  */
 public class MonitorClientInfo {
 	public SocketChannel sc;
-	public ClientResource cr;
+	public SocketResource cr;
 	public int scHashCode;
 	public boolean isConnected;
 	/**

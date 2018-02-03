@@ -25,6 +25,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import kr.pe.sinnori.common.asyn.FromLetter;
+import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.SelfExnUtil;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
@@ -33,12 +35,9 @@ import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
-import kr.pe.sinnori.server.ClientResource;
-import kr.pe.sinnori.server.LoginManagerIF;
+import kr.pe.sinnori.server.ProjectLoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
-import kr.pe.sinnori.server.io.LetterFromClient;
-import kr.pe.sinnori.server.io.LetterToClient;
 
 /**
  * 서버 비지니스 로직 수행자 쓰레드<br/>
@@ -50,9 +49,9 @@ public class Executor extends Thread {
 	private Logger log = LoggerFactory.getLogger(Executor.class);
 	
 	private int index;
-	private LoginManagerIF loginManager = null;
-	private LinkedBlockingQueue<LetterFromClient> inputMessageQueue;
-	private LinkedBlockingQueue<LetterToClient> ouputMessageQueue;
+	private ProjectLoginManagerIF loginManager = null;
+	private LinkedBlockingQueue<FromLetter> inputMessageQueue;
+	private LinkedBlockingQueue<ToLetter> ouputMessageQueue;
 	private MessageProtocolIF messageProtocol = null;
 	
 	private ServerObjectCacheManagerIF serverObjectCacheManager = null;
@@ -77,9 +76,10 @@ public class Executor extends Thread {
 	public Executor(int index,
 			String projectName,	
 			Charset charsetOfProject,
-			LinkedBlockingQueue<LetterFromClient> inputMessageQueue,
-			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
-			MessageProtocolIF messageProtocol, LoginManagerIF loginManager,
+			LinkedBlockingQueue<FromLetter> inputMessageQueue,
+			LinkedBlockingQueue<ToLetter> ouputMessageQueue,
+			MessageProtocolIF messageProtocol, 
+			ProjectLoginManagerIF loginManager,
 			ServerObjectCacheManagerIF serverObjectCacheManager) {
 		this.index = index;	
 		this.loginManager = loginManager;
@@ -101,10 +101,10 @@ public class Executor extends Thread {
 		
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
-				LetterFromClient letterFromClient = inputMessageQueue.take();
+				FromLetter letterFromClient = inputMessageQueue.take();
 
-				SocketChannel clientSC = letterFromClient.getClientSC();
-				ClientResource clientResource = letterFromClient.getClientResource();
+				SocketChannel clientSC = letterFromClient.getFromSocketChannel();
+				// ClientResource clientResource = letterFromClient.getClientResource();
 				WrapReadableMiddleObject wrapReadableMiddleObject = letterFromClient.getWrapReadableMiddleObject();
 				String messageID = wrapReadableMiddleObject.getMessageID();
 				AbstractServerTask  serverTask = null;
@@ -113,7 +113,7 @@ public class Executor extends Thread {
 					serverTask = serverObjectCacheManager.getServerTask(messageID);
 					
 					serverTask.execute(index, projectName, charsetOfProject, ouputMessageQueue, messageProtocol,
-							clientSC, clientResource, wrapReadableMiddleObject, loginManager, serverObjectCacheManager);
+							clientSC, wrapReadableMiddleObject, loginManager, serverObjectCacheManager);
 				} catch (DynamicClassCallException e) {
 					log.warn("DynamicClassCallException", e);
 					
@@ -209,10 +209,12 @@ public class Executor extends Thread {
 	private void putToOutputMessageQueue(SocketChannel clientSC, 
 			WrapReadableMiddleObject  receivedLetter,
 			AbstractMessage wrapBufferMessage, List<WrapBuffer> wrapBufferList, 
-			LinkedBlockingQueue<LetterToClient> ouputMessageQueue) {
+			LinkedBlockingQueue<ToLetter> ouputMessageQueue) {
 		
-		LetterToClient letterToClient = new LetterToClient(clientSC,
-				wrapBufferMessage,
+		ToLetter letterToClient = new ToLetter(clientSC,
+				wrapBufferMessage.getMessageID(),
+				wrapBufferMessage.messageHeaderInfo.mailboxID,
+				wrapBufferMessage.messageHeaderInfo.mailID,
 				wrapBufferList);  
 		try {
 			ouputMessageQueue.put(letterToClient);

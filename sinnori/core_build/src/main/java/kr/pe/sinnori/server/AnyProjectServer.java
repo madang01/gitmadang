@@ -18,62 +18,35 @@
 package kr.pe.sinnori.server;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import kr.pe.sinnori.common.asyn.FromLetter;
+import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
-import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.project.AbstractProject;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
 import kr.pe.sinnori.server.classloader.ServerClassLoader;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
-import kr.pe.sinnori.server.io.LetterFromClient;
-import kr.pe.sinnori.server.io.LetterToClient;
 import kr.pe.sinnori.server.threadpool.accept.processor.AcceptProcessorPool;
 import kr.pe.sinnori.server.threadpool.accept.selector.handler.AcceptSelector;
 import kr.pe.sinnori.server.threadpool.executor.ExecutorPool;
 import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderPool;
 import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterPool;
 
-/**
- * <pre>
- * 서버 프로젝트 클래스. 프로젝트 소속 서버 기동과 자원을 전담 관리하는 클래스.
- * - 자원 목록 -
- * (1) 데이터 패킷 버퍼 큐
- * (2) 바디 버퍼 큐
- * (3) 클라이언트 자원 해쉬
- * (4) 클라이언트 접속 승인 쓰레드
- * (5) 클라이 언트 등록 담당 쓰레드 폴
- * (6) 입력 메시지 소켓 읽기 담당 쓰레드 폴
- * (7) 비지니스 로직 처리 담당 쓰레드 폴
- * (8) 출력 메시지 소켓 쓰기 담당 쓰레드 폴
- * (9)  접속 승인 큐
- *      클라이언트 접속 승인 쓰레드와 클라이 언트 등록 담당 쓰레드 폴 사이의 큐
- * (10) 입력 메시지 큐
- *      클라이 언트 등록 담당 쓰레드와 비지니스 로직 처리 담당 쓰레드 사이의 큐  
- * (11) 출력 메시지 큐 
- *      비지니스 로직 처리 담당 쓰레드와 출력 메시지 소켓 쓰기 담당 쓰레드 사이의 큐
- * (12) 메시지 정보 해쉬
- * </pre>
- * 
- * @author Won Jonghoon
- * 
- */
+
 public class AnyProjectServer extends AbstractProject implements
-		ClientResourceManagerIF, ServerObjectCacheManagerIF, LoginManagerIF {
+		ServerObjectCacheManagerIF {
 	private Logger log = LoggerFactory.getLogger(AnyProjectServer.class);
 
 	/** 모니터 객체 */
@@ -92,9 +65,9 @@ public class AnyProjectServer extends AbstractProject implements
 	/** 접속 승인 큐 */
 	private LinkedBlockingQueue<SocketChannel> acceptQueue = null;
 	/** 입력 메시지 큐 */
-	private LinkedBlockingQueue<LetterFromClient> inputMessageQueue = null;
+	private LinkedBlockingQueue<FromLetter> inputMessageQueue = null;
 	/** 출력 메시지 큐 */
-	private LinkedBlockingQueue<LetterToClient> outputMessageQueue = null;
+	private LinkedBlockingQueue<ToLetter> outputMessageQueue = null;
 
 	/** 클라이언트 접속 승인 쓰레드 */
 	private AcceptSelector acceptSelector = null;
@@ -107,16 +80,13 @@ public class AnyProjectServer extends AbstractProject implements
 	/** 출력 메시지 소켓 쓰기 담당 쓰레드 폴 */
 	private OutputMessageWriterPool outputMessageWriterPool = null;
 
-	// private SinnoriClassLoader classLoader = null;
-
-	/** 클라이언트 자원 해쉬 */
-	private Hashtable<SocketChannel, ClientResource> scToClientResourceHash = new Hashtable<SocketChannel, ClientResource>();
-
-	private Hashtable<String, ClientResource> loginIDToSCHash = new Hashtable<String, ClientResource>();
+	// private SinnoriClassLoader classLoader = null;	
 
 	private ServerProjectMonitor serverProjectMonitor = null;
-
 	
+	
+	private ProjectLoginManager projectLoginManager = null;
+	private SocketResourceManagerIF socketResourceManager = null;
 
 	/**
 	 * 생성자
@@ -148,77 +118,61 @@ public class AnyProjectServer extends AbstractProject implements
 		 	throw new SinnoriConfigurationException(errorMessage);
 		}
 		
-		long acceptSelectTimeout = projectPartConfiguration.getServerAcceptSelectorTimeout();
-		int maxClients = projectPartConfiguration.getServerMaxClients();
-		int acceptProcessorSize = projectPartConfiguration.getServerAcceptProcessorSize();
-		int acceptProcessorMaxSize = projectPartConfiguration
-				.getServerAcceptProcessorMaxSize();
-
-		int inputMessageReaderSize = projectPartConfiguration
-				.getServerInputMessageReaderSize();
-		int inputMessageReaderMaxSize = projectPartConfiguration
-				.getServerInputMessageReaderMaxSize();
-		long readSelectorWakeupInterval = projectPartConfiguration
-				.getServerReadSelectorWakeupInterval();
-
-		int executorProcessorSize = projectPartConfiguration
-				.getServerExecutorProcessorSize();
-		int executorProcessorMaxSize = projectPartConfiguration
-				.getServerExecutorProcessorMaxSize();
-
-		int outputMessageWriterSize = projectPartConfiguration
-				.getServerOutputMessageWriterSize();
-		int outputMessageWriterMaxSize = projectPartConfiguration
-				.getServerOutputMessageWriterMaxSize();
-
-		
-
-		int serverAcceptQueueSize = projectPartConfiguration.getServerAcceptQueueSize();
-		int serverInputMessageQueueSize = projectPartConfiguration
-				.getServerInputMessageQueueSize();
-		int serverOutputMessageQueueSize = projectPartConfiguration
-				.getServerOutputMessageQueueSize();
-
-		long serverMonitorTimeInterval = projectPartConfiguration
-				.getServerMonitorTimeInterval();
-		long serverMonitorReceptionTimeout = projectPartConfiguration
-				.getServerMonitorReceptionTimeout();
-
-		
-		workBaseClassLoader = new ServerClassLoader(projectName,
+		workBaseClassLoader = new ServerClassLoader(projectPartConfiguration.getProjectName(),
 				serverAPPINFPathString,
-				classLoaderClassPackagePrefixName);
+				projectPartConfiguration.getClassLoaderClassPackagePrefixName());
 
 		acceptQueue = new LinkedBlockingQueue<SocketChannel>(
-				serverAcceptQueueSize);
-		inputMessageQueue = new LinkedBlockingQueue<LetterFromClient>(
-				serverInputMessageQueueSize);
-		outputMessageQueue = new LinkedBlockingQueue<LetterToClient>(
-				serverOutputMessageQueueSize);
+				projectPartConfiguration.getServerAcceptQueueSize());
+		inputMessageQueue = new LinkedBlockingQueue<FromLetter>(
+				projectPartConfiguration.getServerInputMessageQueueSize());
+		outputMessageQueue = new LinkedBlockingQueue<ToLetter>(
+				projectPartConfiguration.getServerOutputMessageQueueSize());
+		
+		projectLoginManager = ProjectLoginManager.Builder.build();
+		socketResourceManager = SocketResourceManager.Builder
+				.build(charsetDecoderOfProject, 
+						projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(), 
+						dataPacketBufferPoolManager, projectLoginManager);
 
-		acceptSelector = new AcceptSelector(projectName, hostOfProject,
-				portOfProject, acceptSelectTimeout, maxClients, acceptQueue, this);
+		acceptSelector = new AcceptSelector(
+				projectPartConfiguration.getProjectName(), 
+				projectPartConfiguration.getServerHost(),
+				projectPartConfiguration.getServerPort(), 
+				projectPartConfiguration.getServerAcceptSelectorTimeout(), 
+				projectPartConfiguration.getServerMaxClients(), acceptQueue, socketResourceManager);
 
-		inputMessageReaderPool = new InputMessageReaderPool(projectName,
-				inputMessageReaderSize, inputMessageReaderMaxSize,
-				charsetOfProject, readSelectorWakeupInterval,
-				inputMessageQueue, messageProtocol, this, this);
+		inputMessageReaderPool = new InputMessageReaderPool(
+				projectPartConfiguration.getProjectName(),
+				projectPartConfiguration.getServerInputMessageReaderSize(), 
+				projectPartConfiguration.getServerInputMessageReaderMaxSize(),
+				projectPartConfiguration.getCharset(), 
+				projectPartConfiguration.getServerReadSelectorWakeupInterval(),
+				inputMessageQueue, messageProtocol, dataPacketBufferPoolManager, socketResourceManager);
 
-		acceptProcessorPool = new AcceptProcessorPool(projectName,
-				acceptProcessorSize, acceptProcessorMaxSize, acceptQueue,
+		acceptProcessorPool = new AcceptProcessorPool(projectPartConfiguration.getProjectName(),
+				projectPartConfiguration.getServerAcceptProcessorSize(), 
+				projectPartConfiguration.getServerAcceptProcessorMaxSize(), 
+				acceptQueue,
 				inputMessageReaderPool);
 
-		executorPool = new ExecutorPool(projectName, executorProcessorSize,
-				executorProcessorMaxSize, charsetOfProject,
-				inputMessageQueue, outputMessageQueue, messageProtocol, this,
+		executorPool = new ExecutorPool(
+				projectPartConfiguration.getProjectName(), 
+				projectPartConfiguration.getServerExecutorProcessorSize(),
+				projectPartConfiguration.getServerExecutorProcessorMaxSize(), 
+				projectPartConfiguration.getCharset(),
+				inputMessageQueue, outputMessageQueue, messageProtocol, projectLoginManager,
 				this);
 
-		outputMessageWriterPool = new OutputMessageWriterPool(projectName,
-				outputMessageWriterSize, outputMessageWriterMaxSize,
-				outputMessageQueue, this);
+		outputMessageWriterPool = new OutputMessageWriterPool(
+				projectPartConfiguration.getProjectName(),
+				projectPartConfiguration.getServerOutputMessageWriterSize(), 
+				projectPartConfiguration.getServerOutputMessageWriterMaxSize(),
+				outputMessageQueue, dataPacketBufferPoolManager);
 
 		serverProjectMonitor = new ServerProjectMonitor(
-				serverMonitorTimeInterval, serverMonitorReceptionTimeout);
+				projectPartConfiguration.getServerMonitorTimeInterval(), 
+				projectPartConfiguration.getServerMonitorReceptionTimeout());
 
 	}
 
@@ -284,88 +238,12 @@ public class AnyProjectServer extends AbstractProject implements
 		outputMessageWriterPool.stopAll();
 	}
 
-	@Override
-	public void addNewClient(SocketChannel clientSC)
-			throws NoMoreDataPacketBufferException {
-		// synchronized (clientResourceMonitor) {
-		ClientResource clientResource = scToClientResourceHash.get(clientSC);
-		if (null != clientResource) {
-			log.warn(String.format("클라이언트 자원에서 신규 클라이언트[%d] 등록시 중복 시도",
-					clientSC.hashCode()));
-			return;
-		}
-
-		clientResource = new ClientResource(clientSC, projectName,
-				new SocketOutputStream(charsetDecoderOfProject, dataPacketBufferMaxCntPerMessage, this));
-
-		scToClientResourceHash.put(clientSC, clientResource);
-		// }
-	}
-
-	@Override
-	public void removeClient(SocketChannel sc) {
-		// synchronized (clientResourceMonitor) {
-		try {
-			sc.close();
-		} catch (IOException e1) {
-			log.warn("IOException", e1);
-		}
-
-		ClientResource clientResource = scToClientResourceHash.get(sc);
-		if (null == clientResource) {
-			log.warn(String.format("클라이언트 자원에서 이미 삭제된 소켓 채널[%d]입니다.",
-					sc.hashCode()));
-			return;
-		}
-
-		/**
-		 * <pre>
-		 * 소켓이 끊어진 상태이기때문에 소켓 연결 여부와 로그인 아이디 null 여부 를 판단하는 
-		 * ClientResource::isLogin() 메소드를 호출할 수 없다.
-		 * </pre>
-		 */
-		String loginID = clientResource.getLoginID();
-		if (null != loginID) {
-			loginIDToSCHash.remove(loginID);
-			clientResource.logout();
-		}
-
-		scToClientResourceHash.remove(sc);
-		// }
-	}
-
-	// FIXME!
-	public void doLoginSuccess(String loginID, ClientResource clientResource) {
-		clientResource.setLoginID(loginID);
-
-		loginIDToSCHash.put(loginID, clientResource);
-	}
-
-	public boolean isLogin(String loginID) {
-		/*
-		 * ClientResource clientResource = loginIDToSCHash.get(loginID); if
-		 * (null != clientResource) { // FIXME! 소켓 상태 디버깅
-		 * log.info(clientResource.toString()); }
-		 */
-
-		return loginIDToSCHash.containsKey(loginID);
-	}
-
-	@Override
-	public ClientResource getClientResource(SocketChannel sc) {
-		ClientResource clientResout = scToClientResourceHash.get(sc);
-		return clientResout;
-	}
-
-	@Override
-	public int getCntOfAllClients() {
-		return scToClientResourceHash.size();
-	}
+	
 
 	public MessageCodecIF getServerCodec(ClassLoader classLoader,
 			String messageID) throws DynamicClassCallException {
 		String classFullName = new StringBuilder(
-				classLoaderClassPackagePrefixName).append("message.")
+				projectPartConfiguration.getClassLoaderClassPackagePrefixName()).append("message.")
 				.append(messageID).append(".").append(messageID)
 				.append("ServerCodec").toString();
 
@@ -494,7 +372,7 @@ public class AnyProjectServer extends AbstractProject implements
 			throws DynamicClassCallException {
 
 		String classFullName = new StringBuilder(
-				classLoaderClassPackagePrefixName).append("servertask.")
+				projectPartConfiguration.getClassLoaderClassPackagePrefixName()).append("servertask.")
 				.append(messageID).append("ServerTask").toString();
 		ServerTaskObjectInfo serverTaskObjectInfo = null;
 		synchronized (monitorOfServerTaskObj) {
@@ -508,9 +386,9 @@ public class AnyProjectServer extends AbstractProject implements
 			} else {
 				if (serverTaskObjectInfo.isModifed()) {
 					/** 새로운 서버 클래스 로더로 교체 */
-					workBaseClassLoader = new ServerClassLoader(projectName,
+					workBaseClassLoader = new ServerClassLoader(projectPartConfiguration.getProjectName(),
 							serverAPPINFPath.getAbsolutePath(),
-							classLoaderClassPackagePrefixName);
+							projectPartConfiguration.getClassLoaderClassPackagePrefixName());
 					serverTaskObjectInfo = getServerTaskFromWorkBaseClassload(classFullName);
 					className2ServerTaskObjectInfoHash.put(classFullName,
 							serverTaskObjectInfo);
@@ -527,23 +405,22 @@ public class AnyProjectServer extends AbstractProject implements
 	public MonitorServerProjectInfo getInfo(long requestTimeout) {
 		MonitorServerProjectInfo projectInfo = new MonitorServerProjectInfo();
 
-		projectInfo.projectName = projectName;
-		projectInfo.dataPacketBufferQueueSize = dataPacketBufferQueue.size();
+		projectInfo.projectName = projectPartConfiguration.getProjectName();
+		projectInfo.dataPacketBufferQueueSize = dataPacketBufferPoolManager.getDataPacketBufferPoolSize();
 
 		projectInfo.acceptQueueSize = acceptQueue.size();
 		projectInfo.inputMessageQueueSize = inputMessageQueue.size();
 		projectInfo.outputMessageQueueSize = outputMessageQueue.size();
 
-		projectInfo.clientCnt = scToClientResourceHash.size();
+		// projectInfo.clientCnt = scToClientResourceHash.size();
 
-		Iterator<SocketChannel> scKeyIterator = scToClientResourceHash.keySet()
-				.iterator();
+		/*Iterator<SocketChannel> scKeyIterator = scToClientResourceHash.keySet().iterator();
 		java.util.Date currentTime = new java.util.Date();
 
 		while (scKeyIterator.hasNext()) {
 			SocketChannel sc = scKeyIterator.next();
 
-			ClientResource cr = scToClientResourceHash.get(sc);
+			SocketResource cr = scToClientResourceHash.get(sc);
 
 			MonitorClientInfo monitorClientInfo = new MonitorClientInfo();
 			monitorClientInfo.sc = sc;
@@ -562,7 +439,7 @@ public class AnyProjectServer extends AbstractProject implements
 			}
 
 			projectInfo.monitorClientInfoList.add(monitorClientInfo);
-		}
+		}*/
 
 		return projectInfo;
 	}
@@ -614,15 +491,15 @@ public class AnyProjectServer extends AbstractProject implements
 				}
 				log.warn(String.format(
 						"server project[%s] ServerProjectMonitor loop exit",
-						projectName));
+						projectPartConfiguration.getProjectName()));
 			} catch (InterruptedException e) {
 				log.warn(String.format(
 						"server project[%s] ServerProjectMonitor interrupt",
-						projectName), e);
+						projectPartConfiguration.getProjectName()), e);
 			} catch (Exception e) {
 				log.warn(String.format(
 						"server project[%s] ServerProjectMonitor unknow error",
-						projectName), e);
+						projectPartConfiguration.getProjectName()), e);
 			}
 		}
 	}

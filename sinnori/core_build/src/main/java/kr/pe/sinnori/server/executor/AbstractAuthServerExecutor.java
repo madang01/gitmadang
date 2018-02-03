@@ -23,6 +23,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.SelfExnUtil;
 import kr.pe.sinnori.common.exception.NotLoginException;
@@ -30,10 +31,8 @@ import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
-import kr.pe.sinnori.server.ClientResource;
-import kr.pe.sinnori.server.LoginManagerIF;
+import kr.pe.sinnori.server.ProjectLoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
-import kr.pe.sinnori.server.io.LetterToClient;
 
 /**
  * <pre>
@@ -52,20 +51,19 @@ public abstract class AbstractAuthServerExecutor extends AbstractServerTask {
 	public void execute(int index, 
 			String projectName, 
 			Charset charsetOfProject,
-			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
+			LinkedBlockingQueue<ToLetter> ouputMessageQueue,
 			MessageProtocolIF messageProtocol,
-			SocketChannel clientSC,
-			ClientResource clientResource,
-			WrapReadableMiddleObject receivedLetter, LoginManagerIF loginManager,
+			SocketChannel fromSC,
+			WrapReadableMiddleObject receivedLetter, ProjectLoginManagerIF loginManager,
 			ServerObjectCacheManagerIF serverObjectCacheManager) {
 		
 		// CharsetEncoder charsetEncoderOfProject = CharsetUtil.createCharsetEncoder(charsetOfProject);
 		
-		if (!clientResource.isLogin()) {
+		if (!loginManager.isLogin(fromSC)) {
 			String messageID = receivedLetter.getMessageID();
 			
 			try {
-				log.info(String.format("비로그인 상태에서 로그인 서비스 접근::%s::socket addr=[%s]", receivedLetter.toString(), clientSC.getRemoteAddress().toString()));
+				log.info(String.format("비로그인 상태에서 로그인 서비스 접근::%s::socket addr=[%s]", receivedLetter.toString(), fromSC.getRemoteAddress().toString()));
 			} catch (Exception e) {
 				log.info(String.format("비로그인 상태에서 로그인 서비스 접근::%s::원격지 주소얻기실패=[%s]", receivedLetter.toString(), e.getMessage()));
 			}
@@ -86,8 +84,10 @@ public abstract class AbstractAuthServerExecutor extends AbstractServerTask {
 			try {
 				wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER);
 				
-				LetterToClient letterToClient = new LetterToClient(clientSC,
-						selfExnOutObj,
+				ToLetter letterToClient = new ToLetter(fromSC,
+						selfExnOutObj.getMessageID(),
+						selfExnOutObj.messageHeaderInfo.mailboxID,
+						selfExnOutObj.messageHeaderInfo.mailID,
 						wrapBufferList);
 				try {
 					ouputMessageQueue.put(letterToClient);
@@ -106,7 +106,7 @@ public abstract class AbstractAuthServerExecutor extends AbstractServerTask {
 			return;
 		}
 		super.execute(index, projectName, charsetOfProject, ouputMessageQueue, 
-				messageProtocol, clientSC, clientResource, receivedLetter, 
+				messageProtocol, fromSC, receivedLetter, 
 				loginManager, serverObjectCacheManager);
 	}
 }

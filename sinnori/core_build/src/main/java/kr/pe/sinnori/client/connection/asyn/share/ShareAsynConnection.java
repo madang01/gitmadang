@@ -35,7 +35,7 @@ import kr.pe.sinnori.client.ClientOutputMessageQueueQueueMangerIF;
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.AsynServerAdderIF;
-import kr.pe.sinnori.client.io.LetterToServer;
+import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
@@ -112,7 +112,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 			Charset charsetOfProject, long connectionTimeout, long socketTimeOut, boolean whetherToAutoConnect, int finishConnectMaxCall,
 			long finishConnectWaittingTime, int mailBoxCnt, 
 			LinkedBlockingQueue<WrapReadableMiddleObject> asynOutputMessageQueue,
-			LinkedBlockingQueue<LetterToServer> inputMessageQueue, MessageProtocolIF messageProtocol,
+			LinkedBlockingQueue<ToLetter> inputMessageQueue, MessageProtocolIF messageProtocol,
 			AsynServerAdderIF outputMessageReaderPool,
 			ClientOutputMessageQueueQueueMangerIF outputMessageQueueQueueManager,
 			int dataPacketBufferMaxCntPerMessage,
@@ -139,12 +139,12 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 		 * 입력 메시지 큐는 모든 연결 클래스간에 공유하며 , 출력 메시지 큐는 메일함마다 각각 존재한다.
 		 * </pre>
 		 */
-		for (int i = 0; i < mailBoxCnt; i++) {
+		/*for (int i = 0; i < mailBoxCnt; i++) {
 
 			AsynPrivateMailbox mailBox = new AsynPrivateMailbox(this, i + 1, inputMessageQueue, outputMessageQueueQueueManager);
 			
 			PrivateMailboxWaitingQueue.add(mailBox);
-		}
+		}*/
 
 		if (isInterrupted)
 			Thread.currentThread().interrupt();
@@ -309,7 +309,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 						projectName, index, serverSC.hashCode(), receivedLetter.toString()));
 				return;
 			}
-			mailbox.putToSyncOutputMessageQueue(receivedLetter);
+			//mailbox.putToSyncOutputMessageQueue(receivedLetter);
 		}
 	}
 
@@ -338,7 +338,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 		}
 
 		ClassLoader classLoader = inObj.getClass().getClassLoader();
-		LetterToServer letterToServer = null;
+		ToLetter letterToServer = null;
 
 		/**
 		 * <pre>
@@ -346,13 +346,19 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 		 * 비공유+비동기 연결 객체는 원칙적으로 공유할 수 없지만 직접 받을 수 있기때문에 동시 사용 가능이 가능하므로 synchronized (mailbox) 를 걸어주어야 한다.
 		 * </pre>
 		 */
-		synchronized (mailbox) {
+		/*synchronized (mailbox) {
 			try {
 				mailbox.setActive();
 
 				inObj.messageHeaderInfo.mailboxID = mailbox.getMailboxID();
 				inObj.messageHeaderInfo.mailID = mailbox.getMailID();
-				letterToServer = getLetterToServer(classLoader, inObj);
+				
+				// getWrapBufferList(classLoader, serverSC);
+				letterToServer = new ToLetter(serverSC, 
+						inObj.getMessageID(), 
+						inObj.messageHeaderInfo.mailboxID,
+						inObj.messageHeaderInfo.mailID,
+						getWrapBufferList(classLoader, inObj));
 
 				privateMailboxMap.put(inObj.messageHeaderInfo.mailboxID, mailbox);
 
@@ -385,7 +391,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 					}
 				}
 			}
-		}
+		}*/
 
 		AbstractMessage outObj = getMessageFromMiddleReadObj(classLoader, receivedLetter);
 
@@ -413,7 +419,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 		mailbox = PrivateMailboxWaitingQueue.poll(connectionTimeout, TimeUnit.MILLISECONDS);
 
 		ClassLoader classLoader = inObj.getClass().getClassLoader();
-		LetterToServer letterToServer = null;
+		
 
 		/**
 		 * <pre>
@@ -421,18 +427,22 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 		 * 비공유+비동기 연결 객체는 원칙적으로 공유할 수 없지만 직접 받을 수 있기때문에 동시 사용 가능이 가능하므로 synchronized (mailbox) 를 걸어주어야 한다.
 		 * </pre>
 		 */
-		synchronized (mailbox) {
+		/*synchronized (mailbox) {
 			try {
 				mailbox.setActive();
 
 				inObj.messageHeaderInfo.mailboxID = mailbox.getMailboxID();
 				inObj.messageHeaderInfo.mailID = mailbox.getMailID();
-				letterToServer = getLetterToServer(classLoader, inObj);
+				ToLetter toLetter = new ToLetter(serverSC, 
+						inObj.getMessageID(), 
+						inObj.messageHeaderInfo.mailboxID,
+						inObj.messageHeaderInfo.mailID,
+						getWrapBufferList(classLoader, inObj));
 
 				privateMailboxMap.put(mailbox.getMailboxID(), mailbox);
 
 				try {
-					mailbox.putAsynInputMessage(letterToServer);
+					mailbox.putAsynInputMessage(toLetter);
 				} catch (InterruptedException e) {
 					log.warn("fail to put the input message[{}] in the input message queue of mailbox becase this current thread was interrupted", inObj.toString());
 					throw e;
@@ -450,7 +460,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 				}
 				
 			}
-		}
+		}*/
 
 		endTime = new java.util.Date().getTime();
 		log.info(String.format("시간차=[%d]", (endTime - startTime)));

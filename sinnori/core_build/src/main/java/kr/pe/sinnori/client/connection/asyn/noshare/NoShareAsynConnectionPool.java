@@ -28,7 +28,7 @@ import kr.pe.sinnori.client.ClientOutputMessageQueueQueueMangerIF;
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.AbstractConnectionPool;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.AsynServerAdderIF;
-import kr.pe.sinnori.client.io.LetterToServer;
+import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.ConnectionPoolTimeoutException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
@@ -90,7 +90,7 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 			int finishConnectMaxCall,
 			long finishConnectWaittingTime,
 			LinkedBlockingQueue<WrapReadableMiddleObject> asynOutputMessageQueue,
-			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
+			LinkedBlockingQueue<ToLetter> inputMessageQueue,
 			MessageProtocolIF messageProtocol,
 			AsynServerAdderIF outputMessageReaderPool,
 			ClientOutputMessageQueueQueueMangerIF syncOutputMessageQueueQueueManger,

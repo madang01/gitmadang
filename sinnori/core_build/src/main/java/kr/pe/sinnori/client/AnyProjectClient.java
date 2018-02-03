@@ -25,13 +25,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.AbstractConnectionPool;
-import kr.pe.sinnori.client.connection.asyn.noshare.NoShareAsynConnectionPool;
-import kr.pe.sinnori.client.connection.asyn.share.ShareAsynConnectionPool;
 import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.InputMessageWriterPool;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderThreadPool;
 import kr.pe.sinnori.client.connection.sync.noshare.NoShareSyncConnectionPool;
 import kr.pe.sinnori.client.io.ClientOutputMessageQueueWrapper;
-import kr.pe.sinnori.client.io.LetterToServer;
+import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.exception.BodyFormatException;
@@ -75,7 +73,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 	private final Object outputMessageQueuerQueueMonitor = new Object();
 
 	/** 비동기 방식에서 사용되는 입력 메시지 큐 */
-	private LinkedBlockingQueue<LetterToServer> inputMessageQueue = null;
+	private LinkedBlockingQueue<ToLetter> inputMessageQueue = null;
 
 	/** 비동기 방식에서 사용되는 출력 메시지 큐를 원소로 가지는 큐 */
 	private LinkedBlockingQueue<ClientOutputMessageQueueWrapper> syncOutputMessageQueueQueue = null;
@@ -148,7 +146,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 				.getClientAsynOutputMessageExecutorThreadCnt();
 		int mailBoxCnt = projectPartConfiguration.getClientAsynShareMailboxCnt();
 
-		if (ConnectionType.SYNC_PRIVATE == connectionType) {
+		/*if (ConnectionType.SYNC_PRIVATE == connectionType) {
 			connectionPool = new NoShareSyncConnectionPool(projectName, hostOfProject,
 					portOfProject, charsetOfProject, connectionCount, connectionTimeout, 
 					socketTimeOut, whetherToAutoConnect,
@@ -157,7 +155,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 			asynOutputMessageQueue = new LinkedBlockingQueue<WrapReadableMiddleObject>(
 					outputMessageQueueSize);
 
-			inputMessageQueue = new LinkedBlockingQueue<LetterToServer>(
+			inputMessageQueue = new LinkedBlockingQueue<ToLetter>(
 					inputMessageQueueSize);
 
 			inputMessageWriterPool = new InputMessageWriterPool(
@@ -233,7 +231,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 
 		clientProjectMonitor = new ClientProjectMonitor(
 				clientMonitorTimeInterval, clientMonitorReceptionTimeout);
-		clientProjectMonitor.start();
+		clientProjectMonitor.start();*/
 	}
 
 	@Override
@@ -283,16 +281,15 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 		}
 	}
 
-	@Override
+	// @Override
 	public ClientOutputMessageQueueWrapper pollOutputMessageQueue()
 			throws NoMoreOutputMessageQueueException {
 
 		ClientOutputMessageQueueWrapper wrapOutputMessageQueue = syncOutputMessageQueueQueue
 				.poll();
 		if (null == wrapOutputMessageQueue) {
-			String errorMessage = String.format(
-					"클라이언트 프로젝트[%s]에서 랩 출력 메시지큐가 부족합니다.", projectName);
-			throw new NoMoreOutputMessageQueueException(errorMessage);
+			//String errorMessage = String.format("클라이언트 프로젝트[%s]에서 랩 출력 메시지큐가 부족합니다.", projectName);
+			// throw new NoMoreOutputMessageQueueException(errorMessage);
 		}
 
 		wrapOutputMessageQueue.queueOut();
@@ -326,9 +323,8 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 	 */
 	public ClientProjectMonitorInfo getInfo() {
 		ClientProjectMonitorInfo clientProjectMonitorInfo = new ClientProjectMonitorInfo();
-		clientProjectMonitorInfo.projectName = projectName;
-		clientProjectMonitorInfo.dataPacketBufferQueueSize = dataPacketBufferQueue
-				.size();
+		// clientProjectMonitorInfo.projectName = projectName;
+		// clientProjectMonitorInfo.dataPacketBufferQueueSize = dataPacketBufferQueue.size();
 
 		clientProjectMonitorInfo.usedMailboxCnt = connectionPool
 				.getUsedMailboxCnt();
@@ -570,10 +566,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 							continue;
 
 						if ((finalReadTime.getTime() - currentTime) > requestTimeout) {
-							log.info(String
-									.format("project[%s] requestTimeout[%d] over so socket close, conn[%s]",
-											projectName, requestTimeout,
-											conn.toString()));
+							// log.info(String.format("project[%s] requestTimeout[%d] over so socket close, conn[%s]",projectName, requestTimeout,conn.toString()));
 							conn.serverClose();
 						}
 					}
@@ -581,17 +574,11 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 					Thread.sleep(monitorInterval);
 				}
 
-				log.warn(String.format(
-						"client project[%s] ClientProjectMonitor loop exit",
-						projectName));
+				// log.warn(String.format("client project[%s] ClientProjectMonitor loop exit",projectName));
 			} catch (InterruptedException e) {
-				log.warn(String.format(
-						"client project[%s] ClientProjectMonitor interrupt",
-						projectName), e);
+				// log.warn(String.format("client project[%s] ClientProjectMonitor interrupt", projectName), e);
 			} catch (Exception e) {
-				log.warn(String.format(
-						"client project[%s] ClientProjectMonitor unknow error",
-						projectName), e);
+				// log.warn(String.format("client project[%s] ClientProjectMonitor unknow error", projectName), e);
 			}
 		}
 	}
@@ -602,7 +589,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 	}
 
 	public void stop() {
-		log.info(String.format("project[%s] client project stop", projectName));
+		// log.info(String.format("project[%s] client project stop", projectName));
 
 		stopAsynPool();
 		stopAsynOutputMessageExecutorThread();
@@ -617,10 +604,10 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 	@Override
 	public MessageCodecIF getClientCodec(ClassLoader classLoader,
 			String messageID) throws DynamicClassCallException {
-		String classFullName = new StringBuilder(
-				classLoaderClassPackagePrefixName).append("message.")
+		String classFullName = null;
+		/*new StringBuilder(classLoaderClassPackagePrefixName).append("message.")
 				.append(messageID).append(".").append(messageID)
-				.append("ClientCodec").toString();
+				.append("ClientCodec").toString();*/
 
 		MessageCodecIF messageCodec = null;
 

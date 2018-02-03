@@ -62,28 +62,16 @@ public class SocketOutputStream {
 			int dataPacketBufferMaxCntPerMessage, 
 			DataPacketBufferPoolManagerIF dataPacketBufferPoolManager) throws NoMoreDataPacketBufferException {
 		
-		// this.ownerSocketChannel =ownerSocketChannel;
 		this.streamCharsetDecoder = streamCharsetDecoder;
 		this.dataPacketBufferPoolManager = dataPacketBufferPoolManager;
 		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
-		
-		/*WrapBuffer lastWrapBuffer = dataPacketBufferPoolManager.pollDataPacketBuffer();
-		
-		log.info("In Construct, lastWrapBuffer hashcode={}", lastWrapBuffer.hashCode());
-		
-		socketOutputStreamWrapBufferList.add(lastWrapBuffer);*/
-		
-		streamByteOrder = dataPacketBufferPoolManager.getByteOrder();
-		dataPacketBufferSize = dataPacketBufferPoolManager.getDataPacketBufferSize();
-		
-		numberOfWrittenBytes = 0;
-		
-		// addNewSocketOutputStreamWrapBuffer();
-		// FIXME!
-		
+		this.streamByteOrder = dataPacketBufferPoolManager.getByteOrder();
+		this.dataPacketBufferSize = dataPacketBufferPoolManager.getDataPacketBufferSize();		
+		this.numberOfWrittenBytes = 0;
+
 		for (WrapBuffer writtenWrapBuffer : writtenWrapBufferList) {
-			numberOfWrittenBytes += writtenWrapBuffer.getByteBuffer().duplicate().flip().remaining();
-			socketOutputStreamWrapBufferList.add(writtenWrapBuffer);
+			this.numberOfWrittenBytes += writtenWrapBuffer.getByteBuffer().duplicate().flip().remaining();
+			this.socketOutputStreamWrapBufferList.add(writtenWrapBuffer);
 		}
 	}
 
@@ -227,23 +215,12 @@ public class SocketOutputStream {
 	}
 	
 	
-	public SocketInputStream createNewSocketInputStream() {		
-		/*LinkedList<WrapBuffer> dupFlippedDataPacketBufferList = new LinkedList<WrapBuffer>(); 
-		
-		for (WrapBuffer dataPacketWrapBuffer : socketOutputStreamWrapBufferList) {
-			ByteBuffer dupDataPacketByteBuffer = dataPacketWrapBuffer.getByteBuffer().duplicate();
-			dupDataPacketByteBuffer.order(streamByteOrder);
-			dupDataPacketByteBuffer.flip();
-			dupFlippedDataPacketBufferList.add(new WrapBuffer(dupDataPacketByteBuffer));
-		}*/		
-		
+	public SocketInputStream createNewSocketInputStream() {
 		List<WrapBuffer> duplicatedAndReadableWrapBufferList = WrapBufferUtil.getDuplicatedAndReadableWrapBufferList(socketOutputStreamWrapBufferList);
 		return new SocketInputStream(dataPacketBufferMaxCntPerMessage, duplicatedAndReadableWrapBufferList, streamCharsetDecoder, dataPacketBufferPoolManager);
 	}
 	
 	
-
-	// Extract 
 	public FreeSizeInputStream cutMessageInputStreamFromStartingPosition (long size) throws NoMoreDataPacketBufferException {
 		if (size <= 0) {
 			throw new IllegalArgumentException(String.format("the parameter size[%d] is less than or equal to zero", size));

@@ -21,9 +21,9 @@ package kr.pe.sinnori.server.threadpool.outputmessage;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
+import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
-import kr.pe.sinnori.server.io.LetterToClient;
 import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriter;
 
 /**
@@ -35,7 +35,7 @@ public class OutputMessageWriterPool extends AbstractThreadPool {
 	private String projectName = null;
 	private int maxHandler;
 	private DataPacketBufferPoolManagerIF dataPacketBufferQueueManger;
-	private LinkedBlockingQueue<LetterToClient> outputMessageQueue = null;
+	private LinkedBlockingQueue<ToLetter> outputMessageQueue = null;
 	
 	/**
 	 * 생성자
@@ -46,7 +46,7 @@ public class OutputMessageWriterPool extends AbstractThreadPool {
 	 * @param dataPacketBufferQueueManger 데이터 패킷 버퍼 큐 관리자
 	 */
 	public OutputMessageWriterPool(String projectName, int size, int max,
-			LinkedBlockingQueue<LetterToClient> outputMessageQueue,
+			LinkedBlockingQueue<ToLetter> outputMessageQueue,
 			DataPacketBufferPoolManagerIF dataPacketBufferQueueManger) {
 		if (size <= 0) {
 			throw new IllegalArgumentException(String.format("%s 파라미터 size 는 0보다 커야 합니다.", projectName));

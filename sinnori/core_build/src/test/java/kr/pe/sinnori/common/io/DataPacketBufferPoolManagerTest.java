@@ -24,7 +24,7 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitTest {
 		int dataPacketBufferPoolSize = 1000;
 		
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 					.build(isDirect, dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch(Exception e) {
 			log.warn(e.getMessage(), e);
@@ -70,7 +70,7 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitTest {
 		int dataPacketBufferPoolSize = 1000;
 		
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 					.build(isDirect, dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch(Exception e) {
 			log.warn(e.getMessage(), e);
@@ -106,7 +106,7 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitTest {
 		int dataPacketBufferPoolSize = 1000;
 		
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 					.build(isDirect, dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch(Exception e) {
 			log.warn(e.getMessage(), e);
@@ -143,7 +143,7 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitTest {
 		int dataPacketBufferPoolSize = 1000;
 		
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 					.build(isDirect, dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch(Exception e) {
 			log.warn(e.getMessage(), e);
@@ -193,7 +193,7 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitTest {
 		int dataPacketBufferPoolSize = 1000;
 		
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 					.build(isDirect, dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			
 			fail("no IllegalArgumentException");
@@ -219,7 +219,7 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitTest {
 		int dataPacketBufferPoolSize = 1000;
 		
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 					.build(isDirect, dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			
 			fail("no IllegalArgumentException");
@@ -236,7 +236,7 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitTest {
 		
 		dataPacketBufferSize = -1;
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 					.build(isDirect, dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			
 			fail("no IllegalArgumentException");
@@ -262,7 +262,7 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitTest {
 		int dataPacketBufferPoolSize = 0;
 		
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 					.build(isDirect, dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			
 			fail("no IllegalArgumentException");
@@ -280,7 +280,7 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitTest {
 		dataPacketBufferPoolSize = -1;
 		
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 					.build(isDirect, dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			
 			fail("no IllegalArgumentException");

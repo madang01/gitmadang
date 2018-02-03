@@ -20,12 +20,12 @@ package kr.pe.sinnori.server.threadpool.executor;
 import java.nio.charset.Charset;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import kr.pe.sinnori.common.asyn.FromLetter;
+import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
-import kr.pe.sinnori.server.LoginManagerIF;
+import kr.pe.sinnori.server.ProjectLoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
-import kr.pe.sinnori.server.io.LetterFromClient;
-import kr.pe.sinnori.server.io.LetterToClient;
 import kr.pe.sinnori.server.threadpool.executor.handler.Executor;
 
 /**
@@ -37,9 +37,9 @@ public class ExecutorPool extends AbstractThreadPool {
 	// execuate_processor_pool_max_size
 	
 	private int maxHandler;
-	private LoginManagerIF loginManager;
-	private LinkedBlockingQueue<LetterFromClient> inputMessageQueue;
-	private LinkedBlockingQueue<LetterToClient> ouputMessageQueue;
+	private ProjectLoginManagerIF loginManager;
+	private LinkedBlockingQueue<FromLetter> inputMessageQueue;
+	private LinkedBlockingQueue<ToLetter> ouputMessageQueue;
 	private MessageProtocolIF messageProtocol= null;
 	private ServerObjectCacheManagerIF serverObjectCacheManager = null;
 	
@@ -59,10 +59,10 @@ public class ExecutorPool extends AbstractThreadPool {
 	 */
 	public ExecutorPool(String projectName, int size, int max,			
 			Charset charsetOfProject,
-			LinkedBlockingQueue<LetterFromClient> inputMessageQueue,
-			LinkedBlockingQueue<LetterToClient> ouputMessageQueue,
+			LinkedBlockingQueue<FromLetter> inputMessageQueue,
+			LinkedBlockingQueue<ToLetter> ouputMessageQueue,
 			MessageProtocolIF messageProtocol,
-			LoginManagerIF loginManager,
+			ProjectLoginManagerIF loginManager,
 			ServerObjectCacheManagerIF serverObjectCacheManager) {
 		if (size <= 0) {
 			throw new IllegalArgumentException(String.format("%s 파라미터 size 는 0보다 커야 합니다.", projectName));

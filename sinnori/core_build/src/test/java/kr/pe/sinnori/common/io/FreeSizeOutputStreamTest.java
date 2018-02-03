@@ -202,7 +202,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
@@ -298,7 +298,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		try {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
@@ -356,7 +356,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -463,7 +463,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		try {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
@@ -521,7 +521,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -622,7 +622,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		try {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
@@ -682,7 +682,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
@@ -781,7 +781,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		try {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
@@ -840,7 +840,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
@@ -938,7 +938,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		try {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
@@ -998,7 +998,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -1097,7 +1097,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		try {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
@@ -1159,7 +1159,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -1259,7 +1259,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		try {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
@@ -1314,7 +1314,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		// FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -1429,7 +1429,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		// FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -1482,7 +1482,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		// FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -1538,7 +1538,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		// FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -1592,7 +1592,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		// FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -1651,7 +1651,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		// FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -1704,7 +1704,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			log.warn("" + e.getMessage(), e);
@@ -1950,7 +1950,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2001,7 +2001,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2086,7 +2086,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2137,7 +2137,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2256,7 +2256,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			log.warn("" + e.getMessage(), e);
@@ -2433,7 +2433,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			log.warn("" + e.getMessage(), e);
@@ -2481,7 +2481,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2542,7 +2542,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2657,7 +2657,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2742,7 +2742,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2800,7 +2800,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		final int numberOfBytesLength = 1;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2917,7 +2917,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2997,7 +2997,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		String src = srcStringBuilder.toString();
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -3075,7 +3075,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 					streamByteOrder);
 
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -3126,7 +3126,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 					streamByteOrder);
 
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -3188,7 +3188,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -3269,7 +3269,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -3323,7 +3323,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		final int numberOfBytesLength = 2;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -3440,7 +3440,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -3521,7 +3521,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		String src = srcStringBuilder.toString();
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -3602,7 +3602,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -3649,7 +3649,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -3711,7 +3711,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -3792,7 +3792,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -3846,7 +3846,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		final int numberOfBytesLength = 4;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -3975,7 +3975,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		String src = srcStringBuilder.toString();
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -4057,7 +4057,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -4104,7 +4104,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -4168,7 +4168,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		try {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);

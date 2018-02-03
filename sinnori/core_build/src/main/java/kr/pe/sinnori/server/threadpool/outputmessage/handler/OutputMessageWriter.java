@@ -28,9 +28,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.io.WrapBuffer;
-import kr.pe.sinnori.server.io.LetterToClient;
 
 /**
  * 서버 출력 메시지 소켓 쓰기 담당 쓰레드
@@ -44,7 +44,7 @@ public class OutputMessageWriter extends Thread {
 	private String projectName;
 	private int index;	
 	private DataPacketBufferPoolManagerIF dataPacketBufferQueueManager;
-	private LinkedBlockingQueue<LetterToClient> outputMessageQueue;	
+	private LinkedBlockingQueue<ToLetter> outputMessageQueue;	
 
 	/**
 	 * 생성자
@@ -55,7 +55,7 @@ public class OutputMessageWriter extends Thread {
 	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자
 	 */
 	public OutputMessageWriter(String projectName, int index, 
-			LinkedBlockingQueue<LetterToClient> outputMessageQueue,
+			LinkedBlockingQueue<ToLetter> outputMessageQueue,
 			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) {
 		this.index = index;
 		this.projectName = projectName;
@@ -73,7 +73,7 @@ public class OutputMessageWriter extends Thread {
 		try {
 			
 			while (!Thread.currentThread().isInterrupted()) {
-				LetterToClient toLetter = null;
+				ToLetter toLetter = null;
 				try {
 					toLetter = outputMessageQueue.take();
 				} catch (InterruptedException e) {
@@ -81,7 +81,7 @@ public class OutputMessageWriter extends Thread {
 					break;
 				}
 
-				SocketChannel toSC = toLetter.getToSC();	
+				SocketChannel toSC = toLetter.getToSocketChannel();	
 				List<WrapBuffer> outObjWrapBufferList = toLetter.getWrapBufferList();
 				
 				try {

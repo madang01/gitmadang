@@ -17,16 +17,17 @@
 package kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.NotYetConnectedException;
+import java.nio.channels.SocketChannel;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
-import kr.pe.sinnori.client.io.LetterToServer;
+import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.io.WrapBuffer;
@@ -45,7 +46,7 @@ public class InputMessageWriter extends Thread {
 	private int index;
 	
 	/** 입력 메시지 큐 */
-	private LinkedBlockingQueue<LetterToServer> inputMessageQueue = null;
+	private LinkedBlockingQueue<ToLetter> inputMessageQueue = null;
 	
 	// private MessageProtocolIF messageProtocol = null;
 	private DataPacketBufferPoolManagerIF dataPacketBufferQueueManager = null;
@@ -63,7 +64,7 @@ public class InputMessageWriter extends Thread {
 	 * @throws NoMoreDataPacketBufferException 
 	 */
 	public InputMessageWriter(String projectName, int index,
-			LinkedBlockingQueue<LetterToServer> inputMessageQueue,
+			LinkedBlockingQueue<ToLetter> inputMessageQueue,
 			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
 		this.projectName = projectName;
 		this.index = index;		
@@ -79,49 +80,59 @@ public class InputMessageWriter extends Thread {
 		// ByteBuffer inputMessageWriteBuffer = inputMessageWrapBuffer.getByteBuffer();
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
-				LetterToServer letterToServer = null;
+				ToLetter toLetter = null;
 				try {
-					letterToServer = inputMessageQueue.take();
+					toLetter = inputMessageQueue.take();
 				} catch (InterruptedException e) {
 					log.warn(String.format("%s index[%d] stop", projectName, index), e);
 					break;
 				}
-	
-				// log.info("1. In InputMessageWriter, letter=[%s]",
-				// letterToServer.toString());
-	
-				AbstractAsynConnection asynConnection = letterToServer
-						.getServerConnection();
-				// AbstractMessage inObj = letterToServer.getInputMessage();
-	
-				// SocketChannel toSC = noneBlockConnection.getSocketChannel();
 				
-				// Charset clientCharset = clientProjectConfig.getCharset();
-	
-				
-				
-				// inputMessageWriteBuffer.clear();
-				// inputMessageWriteBuffer.order(connByteOrder);
+				SocketChannel toSC = toLetter.getToSocketChannel();
 				
 				List<WrapBuffer> inObjWrapBufferList = null;
 				
 				try {
-					inObjWrapBufferList = letterToServer.getWrapBufferList();
+					inObjWrapBufferList = toLetter.getWrapBufferList();
 					
-					asynConnection.write(inObjWrapBufferList);
+					synchronized (toSC) {
+						/**
+						 * 2013.07.24 잔존 데이타 발생하므로 GatheringByteChannel 를 이용하는 바이트 버퍼 배열 쓰기 방식 포기.
+						 */			
+						/*for (int i=0; i < inObjWrapBufferListSize; i++) {
+							WrapBuffer wrapBuffer = inObjWrapBufferList.get(i);
+							ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
+							
+							do {
+								serverSC.write(byteBuffer);
+							} while(byteBuffer.hasRemaining());
+						}*/
+						// try {
+						for (WrapBuffer wrapBuffer : inObjWrapBufferList) {
+							ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
+							do {
+								int numberOfBytesWritten = toSC.write(byteBuffer);
+								if (0 == numberOfBytesWritten) {
+									try {
+										Thread.sleep(10);
+									} catch (InterruptedException e) {
+										log.warn("when the number of bytes written is zero,  this thread must sleep. but it fails.", e);
+									}
+								}
+							} while(byteBuffer.hasRemaining());
+						}
+					}
 				} catch (NotYetConnectedException e) {
-					log.warn(String.format("%s InputMessageWriter[%d] NotYetConnectedException::%s, letterToServer=[%s]", asynConnection.getSimpleConnectionInfo(), index, e.getMessage(), letterToServer.toString()), e);
+					log.warn(String.format("InputMessageWriter[%d] NotYetConnectedException::%s, letterToServer=[%s]", index, e.getMessage(), toLetter.toString()), e);
 					
 					// asynConnection.serverClose();
 					
 				} catch(ClosedChannelException e) {
-					log.warn(String.format("%s InputMessageWriter[%d] ClosedChannelException::%s, letterToServer=[%s]", asynConnection.getSimpleConnectionInfo(), index, e.getMessage(), letterToServer.toString()), e);
-					
-					asynConnection.serverClose();
+					log.warn(String.format("InputMessageWriter[%d] ClosedChannelException::%s, letterToServer=[%s]", index, e.getMessage(), toLetter.toString()), e);
 				} catch (IOException e) {
-					log.warn(String.format("%s InputMessageWriter[%d] IOException::%s, letterToServer=[%s]", asynConnection.getSimpleConnectionInfo(), index, e.getMessage(), letterToServer.toString()), e);
+					log.warn(String.format("InputMessageWriter[%d] IOException::%s, letterToServer=[%s]",index, e.getMessage(), toLetter.toString()), e);
 					
-					asynConnection.serverClose();
+					// asynConnection.serverClose();
 				} finally {
 					if (null != inObjWrapBufferList) {
 						/*int bodyWrapBufferListSiz = inObjWrapBufferList.size();
@@ -149,4 +160,6 @@ public class InputMessageWriter extends Thread {
 	public void finalize() {
 		log.warn(String.format("%s InputMessageWriter[%d] 소멸::[%s]", projectName, index, toString()));
 	}
+	
+	
 }

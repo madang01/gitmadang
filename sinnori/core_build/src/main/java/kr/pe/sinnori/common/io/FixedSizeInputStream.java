@@ -289,7 +289,7 @@ public class FixedSizeInputStream implements BinaryInputStreamIF {
 			throws SinnoriBufferUnderflowException, IllegalArgumentException, CharsetDecoderException {
 		if (fixedLength < 0) {
 			throw new IllegalArgumentException(String.format(
-					"parameter fixedLength[%d] less than zero", fixedLength));
+					"the parameter fixedLength[%d] less than zero", fixedLength));
 		}
 
 		/*if (len > CommonStaticFinal.MAX_UNSIGNED_SHORT) {
@@ -317,7 +317,7 @@ public class FixedSizeInputStream implements BinaryInputStreamIF {
 		try {
 			dstCharBuffer = wantedCharsetDecoder.decode(dstBuffer);
 		} catch(Exception e) {			
-			String errorMessage = String.format("read data hex[%s], charset[%s]", 
+			String errorMessage = String.format("charset decoding error:read data hex[%s], charset[%s]", 
 					HexUtil.getAllHexStringFromByteBuffer(dstBuffer), wantedCharsetDecoder.charset().name());
 			throw new CharsetDecoderException(errorMessage);
 		}

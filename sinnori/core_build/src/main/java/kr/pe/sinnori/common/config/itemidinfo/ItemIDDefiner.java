@@ -36,7 +36,7 @@ public abstract class ItemIDDefiner {
 		public static final String COMMON_DATA_PACKET_BUFFER_SIZE_ITEMID = "common.data_packet_buffer_size.value";
 		public static final String COMMON_DATA_PACKET_BUFFER_POOL_SIZE_ITEMID = "common.data_packet_buffer_pool_size.value";
 		public static final String COMMON_MESSAGE_ID_FIXED_SIZE_ITEMID = "common.message_id_fixed_size.value";
-		public static final String COMMON_MESSAGE_PROTOCOL_ITEMID = "common.message_protocol.value";
+		public static final String COMMON_MESSAGE_PROTOCOL_TYPE_ITEMID = "common.message_protocol_type.value";
 		public static final String COMMON_CLASSLOADER_PACKAGE_PREFIX_NAME_ITEMID = "common.classloader.package_prefix_name.value";
 		public static final String CLIENT_MONITOR_TIME_INTERVAL_ITEMID = "client.monitor.time_interval.value";
 		public static final String CLIENT_MONITOR_RECEPTION_TIMEOUT_ITEMID = "client.monitor.reception_timeout.value";

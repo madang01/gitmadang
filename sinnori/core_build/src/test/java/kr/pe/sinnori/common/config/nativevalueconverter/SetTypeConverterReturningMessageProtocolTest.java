@@ -11,14 +11,14 @@ import kr.pe.sinnori.common.type.MessageProtocolType;
 
 public class SetTypeConverterReturningMessageProtocolTest extends AbstractJunitTest implements
 		NativeValueConverterTestIF {	
-	private SetTypeConverterReturningMessageProtocol nativeValueConverter = null;
+	private SetTypeConverterReturningMessageProtocolType nativeValueConverter = null;
 	private MessageProtocolType returnedValue = null;
 	
 	@Override
 	@Before
 	public void setup() {
 		super.setup();
-		nativeValueConverter = new SetTypeConverterReturningMessageProtocol();
+		nativeValueConverter = new SetTypeConverterReturningMessageProtocolType();
 	}
 	
 	@Override

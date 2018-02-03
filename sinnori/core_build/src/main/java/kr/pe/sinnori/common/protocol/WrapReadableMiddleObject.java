@@ -16,10 +16,10 @@
  */
 package kr.pe.sinnori.common.protocol;
 
-import kr.pe.sinnori.common.io.FreeSizeInputStream;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import kr.pe.sinnori.common.io.FreeSizeInputStream;
 
 
 /**
@@ -34,6 +34,8 @@ public class WrapReadableMiddleObject {
 	private int mailboxID;
 	private int mailID;
 	private Object readableMiddleObject = null;
+	
+	// private Date timestamp = new Date();
 	
 	// Intermediate object between stream and message
 	public WrapReadableMiddleObject(String messageID, int mailboxID, int mailID, Object readableMiddleObject) {
@@ -58,6 +60,10 @@ public class WrapReadableMiddleObject {
 	public Object getReadableMiddleObject() {
 		return readableMiddleObject;
 	}
+	
+	/*public Date getTimestamp() {
+		return timestamp;
+	}*/
 	
 	/**
 	 * <pre>
@@ -93,8 +99,8 @@ public class WrapReadableMiddleObject {
 		builder.append(mailboxID);
 		builder.append(", mailID=");
 		builder.append(mailID);
-		builder.append(", readableMiddleObject hashCode=");
-		builder.append(readableMiddleObject.hashCode());
+		/*builder.append(", timestamp=");
+		builder.append(timestamp.toString());*/
 		builder.append("]");
 		return builder.toString();
 	}	

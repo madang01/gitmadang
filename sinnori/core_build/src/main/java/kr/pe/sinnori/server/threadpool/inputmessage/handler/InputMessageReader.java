@@ -36,15 +36,15 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
 import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
-import kr.pe.sinnori.server.ClientResource;
-import kr.pe.sinnori.server.ClientResourceManagerIF;
-import kr.pe.sinnori.server.io.LetterFromClient;
+import kr.pe.sinnori.server.SocketResource;
+import kr.pe.sinnori.server.SocketResourceManagerIF;
 
 /**
  * 서버 입력 메시지 소켓 읽기 담당 쓰레드
@@ -63,8 +63,8 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 	private long readSelectorWakeupInterval;	
 	private MessageProtocolIF messageProtocol;
 	
-	private ClientResourceManagerIF clientResourceManager;
-	private LinkedBlockingQueue<LetterFromClient> inputMessageQueue;
+	private SocketResourceManagerIF clientResourceManager;
+	private LinkedBlockingQueue<FromLetter> inputMessageQueue;
 	
 	// private final Set<SocketChannel> newClients = new HashSet<SocketChannel>();
 	private final Set<SocketChannel> newSocketChannelSetToRegisterWithReadOnlySelector = Collections.synchronizedSet(new HashSet<SocketChannel>());
@@ -86,10 +86,10 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 			int index, 
 			Charset charsetOfProject,
 			long readSelectorWakeupInterval,			 
-			LinkedBlockingQueue<LetterFromClient> inputMessageQueue,
+			LinkedBlockingQueue<FromLetter> inputMessageQueue,
 			MessageProtocolIF messageProtocol,
 			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager,
-			ClientResourceManagerIF clientResourceManager) {
+			SocketResourceManagerIF clientResourceManager) {
 		this.index = index;
 		this.readSelectorWakeupInterval = readSelectorWakeupInterval;
 		this.projectName = projectName;
@@ -111,7 +111,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 
 	@Override
 	public void addNewSocketChannelToRegisterWithReadOnlySelector(SocketChannel newSocketChannelToRegisterWithReadOnlySelector) throws NoMoreDataPacketBufferException {
-		clientResourceManager.addNewClient(newSocketChannelToRegisterWithReadOnlySelector);		
+		clientResourceManager.addNewSocketChannel(newSocketChannelToRegisterWithReadOnlySelector);		
 		newSocketChannelSetToRegisterWithReadOnlySelector.add(newSocketChannelToRegisterWithReadOnlySelector);
 		// waitingSCQueue.put(sc);
 
@@ -190,7 +190,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 						readableSelectionKeyIterator.remove();
 						SocketChannel readableSocketChannel = (SocketChannel) readableSelectionKey.channel();
 						// ByteBuffer lastInputStreamBuffer = null;
-						ClientResource clientResource = clientResourceManager
+						SocketResource clientResource = clientResourceManager
 								.getClientResource(readableSocketChannel);
 						
 						if (null == clientResource) {
@@ -231,7 +231,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 									messageProtocol.S2MList(clientSocketOutputStream);							
 
 							for (WrapReadableMiddleObject wrapReadableMiddleObject : wrapReadableMiddleObjectList) {
-								inputMessageQueue.put(new LetterFromClient(clientResource, wrapReadableMiddleObject));
+								inputMessageQueue.put(new FromLetter(readableSocketChannel, wrapReadableMiddleObject));
 							}
 						
 						} catch (NoMoreDataPacketBufferException e) {
@@ -275,6 +275,6 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 	private void closeClient(SelectionKey readableSelectionKey) {
 		readableSelectionKey.cancel();
 		SocketChannel readableSocketChannel = (SocketChannel) readableSelectionKey.channel();
-		clientResourceManager.removeClient(readableSocketChannel);
+		clientResourceManager.remove(readableSocketChannel);
 	}
 }

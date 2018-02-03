@@ -25,7 +25,7 @@ public class DataPacketBufferPoolManager implements DataPacketBufferPoolManagerI
 	private int dataPacketBufferSize;	
 	private int dataPacketBufferPoolSize;
 	
-	public static class DataPacketBufferPoolManagerBuilder {
+	public static class Builder {
 		public static DataPacketBufferPoolManager build(boolean isDirect, ByteOrder dataPacketBufferByteOrder, int dataPacketBufferSize, int dataPacketBufferPoolSize) {
             return new DataPacketBufferPoolManager(isDirect, dataPacketBufferByteOrder,dataPacketBufferSize, dataPacketBufferPoolSize);
         }
@@ -140,9 +140,6 @@ public class DataPacketBufferPoolManager implements DataPacketBufferPoolManagerI
 	public final int getDataPacketBufferSize() {
 		return dataPacketBufferSize;
 	}
-
-	
-	
 	
 	public String getQueueState() {		
 		StringBuilder strBuilder = new StringBuilder();

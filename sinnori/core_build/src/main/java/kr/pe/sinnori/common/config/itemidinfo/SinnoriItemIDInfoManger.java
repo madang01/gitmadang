@@ -36,7 +36,7 @@ import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturnin
 import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningByteOrder;
 import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningConnectionType;
 import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningInteger;
-import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningMessageProtocol;
+import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningMessageProtocolType;
 import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterReturningString;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
@@ -480,14 +480,14 @@ public class SinnoriItemIDInfoManger {
 							7, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_MESSAGE_PROTOCOL_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_MESSAGE_PROTOCOL_TYPE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<MessageProtocolType>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
 					ItemIDInfo.ViewType.SINGLE_SET, itemID,
 					"메시지 프로토콜, DHB:교차 md5 헤더+바디, DJSON:길이+존슨문자열, THB:길이+바디",
 					"DHB", isDefaultValueCheck,
-					new SetTypeConverterReturningMessageProtocol());
+					new SetTypeConverterReturningMessageProtocolType());
 			addProjectPartItemIDInfo(itemIDInfo);
 
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_CLASSLOADER_PACKAGE_PREFIX_NAME_ITEMID;

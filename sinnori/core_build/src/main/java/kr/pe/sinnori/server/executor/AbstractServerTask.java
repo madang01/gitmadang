@@ -25,6 +25,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.SelfExnUtil;
 import kr.pe.sinnori.common.exception.BodyFormatException;
@@ -39,10 +40,8 @@ import kr.pe.sinnori.common.protocol.MessageCodecIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
-import kr.pe.sinnori.server.ClientResource;
-import kr.pe.sinnori.server.LoginManagerIF;
+import kr.pe.sinnori.server.ProjectLoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
-import kr.pe.sinnori.server.io.LetterToClient;
 
 /**
  * <pre>
@@ -62,30 +61,11 @@ public abstract class AbstractServerTask {
 	private java.util.Hashtable<String, AbstractMessageDecoder> decoderHash = new java.util.Hashtable<String, AbstractMessageDecoder>(
 			1);
 
-	/**
-	 * Executor 에서 호출되는 메소드로 비지니스 로직 수행을 포함한 비지니스 로직 전후 작업을 수행한다.
-	 * 
-	 * @param index
-	 *            순번
-	 * @param ouputMessageQueue
-	 *            출력 메시지 큐
-	 * @param messageProtocol
-	 *            서버 프로젝트의 메시지 프로토콜
-	 * @param fromSC
-	 *            입력 메시지를 보낸 클라이언트
-	 * @param clientResource
-	 *            클라이언트 자원
-	 * @param wrapReadableMiddleObject
-	 *            수신 편지
-	 * @param loginManager
-	 *            로그인 관리자
-	 * @param serverObjectCacheManager
-	 *            서버 객체 캐쉬 관리자
-	 */
+	
 	public void execute(int index, String projectName, Charset charsetOfProject,
-			LinkedBlockingQueue<LetterToClient> ouputMessageQueue, MessageProtocolIF messageProtocol,
-			SocketChannel fromSC, ClientResource clientResource, WrapReadableMiddleObject wrapReadableMiddleObject,
-			LoginManagerIF loginManager, ServerObjectCacheManagerIF serverObjectCacheManager) {
+			LinkedBlockingQueue<ToLetter> ouputMessageQueue, MessageProtocolIF messageProtocol,
+			SocketChannel fromSC,  WrapReadableMiddleObject wrapReadableMiddleObject,
+			ProjectLoginManagerIF loginManager, ServerObjectCacheManagerIF serverObjectCacheManager) {
 		// FIXME!
 		// log.info("inputMessage=[%s]", inputMessage.toString());
 		// long firstErraseTime = new java.util.Date().getTime();
@@ -282,11 +262,10 @@ public abstract class AbstractServerTask {
 		}
 
 		// messageProtocol, projectCharset
-		LetterSender letterSender = new LetterSender(this, clientResource, messageFromClient, charsetOfProject,
-				ouputMessageQueue, messageProtocol, serverObjectCacheManager);
+		LetterCarrier letterCarrier = new LetterCarrier(this, fromSC, messageFromClient, ouputMessageQueue, messageProtocol, serverObjectCacheManager);
 
 		try {
-			doTask(projectName, loginManager, letterSender, messageFromClient);
+			doTask(projectName, loginManager, letterCarrier, messageFromClient);
 		} catch (java.lang.Error e) {
 			// FIXME!
 			log.warn("1.unknown error", e);
@@ -321,7 +300,7 @@ public abstract class AbstractServerTask {
 			/**
 			 * FIXME! 서버 타스크 수행중 받은 편지들 로그 남기기, 삭제할 필요는 없어 삭제는 하지 않음.
 			 */
-			letterSender.writeLogAll("1.서버 타스크 수행중 에러");
+			letterCarrier.writeLogAll("1.서버 타스크 수행중 에러");
 			return;
 		} catch (Exception e) {
 			// FIXME!
@@ -357,18 +336,18 @@ public abstract class AbstractServerTask {
 			/**
 			 * FIXME! 서버 타스크 수행중 받은 편지들 로그 남기기, 삭제할 필요는 없어 삭제는 하지 않음.
 			 */
-			letterSender.writeLogAll("2.서버 타스크 수행중 에러");
+			letterCarrier.writeLogAll("2.서버 타스크 수행중 에러");
 			return;
 		}
 
-		letterSender.directSendLetterToClientList();
+		letterCarrier.directSendLetterToClientList();
 
 		// long lastErraseTime = new java.util.Date().getTime() - firstErraseTime;
 		// log.info(String.format("수행 시간=[%f] ms", (float) lastErraseTime));
 	}
 
 	public List<WrapBuffer> getMessageStream(String messageIDFromClient, SocketChannel toSC,
-			AbstractMessage messageToClient, Charset charsetOfProject, MessageProtocolIF messageProtocol,
+			AbstractMessage messageToClient, MessageProtocolIF messageProtocol,
 			ServerObjectCacheManagerIF serverObjectCacheManager) {
 		String messageIDToClient = messageToClient.getMessageID();
 
@@ -514,11 +493,14 @@ public abstract class AbstractServerTask {
 
 	private void putToOutputMessageQueue(SocketChannel clientSC, AbstractMessage messageFromClient,
 			AbstractMessage wrapBufferMessage, List<WrapBuffer> wrapBufferList,
-			LinkedBlockingQueue<LetterToClient> ouputMessageQueue) {
+			LinkedBlockingQueue<ToLetter> ouputMessageQueue) {
 
 		// wrapBufferMessage.messageHeaderInfo = messageFromClient.messageHeaderInfo;
 
-		LetterToClient letterToClient = new LetterToClient(clientSC, wrapBufferMessage, wrapBufferList);
+		ToLetter letterToClient = new ToLetter(clientSC, 
+				wrapBufferMessage.getMessageID(),
+				wrapBufferMessage.messageHeaderInfo.mailboxID,
+				wrapBufferMessage.messageHeaderInfo.mailID, wrapBufferList);
 		try {
 			ouputMessageQueue.put(letterToClient);
 		} catch (InterruptedException e) {
@@ -534,7 +516,7 @@ public abstract class AbstractServerTask {
 
 	private void putToOutputMessageQueue(SocketChannel clientSC, WrapReadableMiddleObject wrapReadableMiddleObject,
 			AbstractMessage wrapBufferMessage, List<WrapBuffer> wrapBufferList,
-			LinkedBlockingQueue<LetterToClient> ouputMessageQueue) {
+			LinkedBlockingQueue<ToLetter> ouputMessageQueue) {
 
 		/*
 		 * wrapBufferMessage.messageHeaderInfo.mailboxID =
@@ -542,7 +524,10 @@ public abstract class AbstractServerTask {
 		 * receivedLetter.getMailID();
 		 */
 
-		LetterToClient letterToClient = new LetterToClient(clientSC, wrapBufferMessage, wrapBufferList);
+		ToLetter letterToClient = new ToLetter(clientSC, wrapBufferMessage.getMessageID(), 
+				wrapBufferMessage.messageHeaderInfo.mailboxID , 
+				wrapBufferMessage.messageHeaderInfo.mailID, 
+				wrapBufferList);
 		try {
 			ouputMessageQueue.put(letterToClient);
 		} catch (InterruptedException e) {
@@ -563,13 +548,13 @@ public abstract class AbstractServerTask {
 	 *            프로젝트 이름
 	 * @param loginManager
 	 *            로그인 관리자
-	 * @param letterSender
+	 * @param letterCarrier
 	 *            클라이언트로 보내는 편지 배달부
 	 * @param requestMessage
 	 *            요청 메시지
 	 * @throws Exception
 	 *             에러 발생시 던지는 예외
 	 */
-	abstract public void doTask(String projectName, LoginManagerIF loginManager, LetterSender letterSender,
+	abstract public void doTask(String projectName, ProjectLoginManagerIF loginManager, LetterCarrier letterCarrier,
 			AbstractMessage requestMessage) throws Exception;
 }

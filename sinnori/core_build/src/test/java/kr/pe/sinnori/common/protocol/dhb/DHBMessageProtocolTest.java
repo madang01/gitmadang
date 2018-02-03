@@ -43,7 +43,7 @@ public class DHBMessageProtocolTest extends AbstractJunitTest {
 		int dataPacketBufferPoolSize = 100;
 		
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.DataPacketBufferPoolManagerBuilder
+			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
 					.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			log.warn(""+e.getMessage(), e);
