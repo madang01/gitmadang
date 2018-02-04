@@ -17,21 +17,16 @@
 
 package kr.pe.sinnori.server.threadpool.inputmessage.handler;
 
-//import java.util.logging.Level;
-
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Set;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,64 +34,44 @@ import org.slf4j.LoggerFactory;
 import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
+import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.server.SocketResource;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
+import kr.pe.sinnori.server.threadpool.executor.handler.ExecutorIF;
 
-/**
- * 서버 입력 메시지 소켓 읽기 담당 쓰레드
- * 
- * @author Won Jonghoon
- * 
- */
+
 public class InputMessageReader extends Thread implements InputMessageReaderIF {
 	private Logger log = LoggerFactory.getLogger(InputMessageReader.class);
 	
-	// private final Object monitor = new Object();
+	private final Object monitor = new Object();
+	
+	
 	private String projectName = null; 
 	private int index;
-	@SuppressWarnings("unused")
-	private Charset charsetOfProject = null;
 	private long readSelectorWakeupInterval;	
 	private MessageProtocolIF messageProtocol;
 	
-	private SocketResourceManagerIF clientResourceManager;
-	private LinkedBlockingQueue<FromLetter> inputMessageQueue;
+	private SocketResourceManagerIF socketResourceManager;
 	
-	// private final Set<SocketChannel> newClients = new HashSet<SocketChannel>();
-	private final Set<SocketChannel> newSocketChannelSetToRegisterWithReadOnlySelector = Collections.synchronizedSet(new HashSet<SocketChannel>());
-	// private LinkedBlockingQueue<SocketChannel> waitingSCQueue = new LinkedBlockingQueue<SocketChannel>();
+	private final LinkedList<SocketChannel> notRegistedSocketChannelList = new LinkedList<SocketChannel>();
 	private Selector onlyReadableSelector = null;
 
-	/**
-	 * 생성자
-	 * @param index 순번
-	 * @param readSelectorWakeupInterval 입력 메시지 소켓 읽기 담당 쓰레드에서 블락된 읽기 이벤트 전용 selector 를 깨우는 주기
-	 * @param projectPart 프로젝트의 공통 포함한 서버 환경 변수 접근 인터페이스
-	 * @param inputMessageQueue 입력 메시지 큐
-	 * @param messageProtocol 메시지 교환 프로토콜
-	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자
-	 * @param clientResourceManager 클라이언트 자원 관리자
-	 */
+	
 	public InputMessageReader(
 			String projectName,			
-			int index, 
-			Charset charsetOfProject,
-			long readSelectorWakeupInterval,			 
-			LinkedBlockingQueue<FromLetter> inputMessageQueue,
+			int index,
+			long readSelectorWakeupInterval,
 			MessageProtocolIF messageProtocol,
-			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager,
-			SocketResourceManagerIF clientResourceManager) {
+			DataPacketBufferPoolIF dataPacketBufferQueueManager,
+			SocketResourceManagerIF socketResourceManager) {
 		this.index = index;
 		this.readSelectorWakeupInterval = readSelectorWakeupInterval;
 		this.projectName = projectName;
-		this.charsetOfProject  =charsetOfProject;
 		this.messageProtocol = messageProtocol;
-		this.clientResourceManager = clientResourceManager;
-		this.inputMessageQueue = inputMessageQueue;
+		this.socketResourceManager = socketResourceManager;
 
 		try {
 			onlyReadableSelector = Selector.open();
@@ -110,13 +85,17 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 	}
 
 	@Override
-	public void addNewSocketChannelToRegisterWithReadOnlySelector(SocketChannel newSocketChannelToRegisterWithReadOnlySelector) throws NoMoreDataPacketBufferException {
-		clientResourceManager.addNewSocketChannel(newSocketChannelToRegisterWithReadOnlySelector);		
-		newSocketChannelSetToRegisterWithReadOnlySelector.add(newSocketChannelToRegisterWithReadOnlySelector);
+	public void addNewSocket(SocketChannel newSC) {
+		// clientResourceManager.addNewSocketChannel(newSocketChannelToRegisterWithReadOnlySelector);	
+		synchronized (monitor) {
+			notRegistedSocketChannelList.addLast(newSC);
+		}
+		
 		// waitingSCQueue.put(sc);
 
-		if (getState().equals(Thread.State.NEW))
+		if (getState().equals(Thread.State.NEW)) {
 			return;
+		}
 
 		/**
 		 * <pre>
@@ -137,26 +116,32 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 				Thread.sleep(readSelectorWakeupInterval);
 			} catch (InterruptedException e) {
 			}
-		} while (newSocketChannelToRegisterWithReadOnlySelector.isConnected() && !newSocketChannelToRegisterWithReadOnlySelector.isRegistered());
+		} while (newSC.isConnected() && !newSC.isRegistered());
 	}
 
 	@Override
-	public int getCntOfClients() {
-		return (newSocketChannelSetToRegisterWithReadOnlySelector.size() + onlyReadableSelector.keys().size());
+	public int getNumberOfSocket() {
+		return (notRegistedSocketChannelList.size() + onlyReadableSelector.keys().size());
 	}
 
 	/**
-	 * 신규 client들을 selector에 등록한다.
+	 * 미 등록된 소켓 채널들을 selector 에 등록한다.
 	 */
 	private void processNewConnection() {
-		for (SocketChannel newSocketChannelToRegisterWithReadOnlySelector : newSocketChannelSetToRegisterWithReadOnlySelector) {
-			try {
-				newSocketChannelToRegisterWithReadOnlySelector.register(onlyReadableSelector, SelectionKey.OP_READ);
-			} catch (ClosedChannelException e) {
-				log.warn(String.format("%s InputMessageReader[%d] socket channel[%d] fail to register selector", projectName, index, newSocketChannelToRegisterWithReadOnlySelector.hashCode()), e);
+		synchronized (monitor) {
+			while (! notRegistedSocketChannelList.isEmpty()) {
+				SocketChannel notResigtedSocketChannel = notRegistedSocketChannelList.removeFirst();
+				try {
+					notResigtedSocketChannel.register(onlyReadableSelector, SelectionKey.OP_READ);
+				} catch (ClosedChannelException e) {
+					log.warn("{} InputMessageReader[{}] socket channel[{}] fail to register selector", 
+							projectName, index, notResigtedSocketChannel.hashCode());
+					
+					socketResourceManager.remove(notResigtedSocketChannel);
+				}
 			}
-			newSocketChannelSetToRegisterWithReadOnlySelector.remove(newSocketChannelToRegisterWithReadOnlySelector);
 		}
+		
 		
 		/*while(!waitingSCQueue.isEmpty()) {
 			SocketChannel sc = waitingSCQueue.poll();
@@ -190,15 +175,16 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 						readableSelectionKeyIterator.remove();
 						SocketChannel readableSocketChannel = (SocketChannel) readableSelectionKey.channel();
 						// ByteBuffer lastInputStreamBuffer = null;
-						SocketResource clientResource = clientResourceManager
-								.getClientResource(readableSocketChannel);
+						SocketResource fromSocketResource = socketResourceManager
+								.getSocketResource(readableSocketChannel);
 						
-						if (null == clientResource) {
+						if (null == fromSocketResource) {
 							log.warn(String.format("%s InputMessageReader[%d] socket channel[%d] is no match for ClientResource", projectName, index, readableSocketChannel.hashCode()));
 							continue;
 						}
 						
-						SocketOutputStream clientSocketOutputStream = clientResource.getSocketOutputStream();
+						SocketOutputStream fromSocketOutputStream = fromSocketResource.getSocketOutputStream();
+						ExecutorIF fromExecutor = fromSocketResource.getExecutorWithMinimumMumberOfSockets();
 						
 						
 						try {
@@ -214,7 +200,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 								}
 							} while(true);*/
 							
-							numRead = clientSocketOutputStream.read(readableSocketChannel);
+							numRead = fromSocketOutputStream.read(readableSocketChannel);
 							
 							if (numRead == -1) {
 								log.warn(String.format(
@@ -225,13 +211,13 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 							}
 							
 							
-							clientResource.setFinalReadTime();
+							fromSocketResource.setFinalReadTime();
 							
 							ArrayList<WrapReadableMiddleObject> wrapReadableMiddleObjectList = 
-									messageProtocol.S2MList(clientSocketOutputStream);							
+									messageProtocol.S2MList(fromSocketOutputStream);							
 
 							for (WrapReadableMiddleObject wrapReadableMiddleObject : wrapReadableMiddleObjectList) {
-								inputMessageQueue.put(new FromLetter(readableSocketChannel, wrapReadableMiddleObject));
+								fromExecutor.putIntoQueue(new FromLetter(readableSocketChannel, wrapReadableMiddleObject));
 							}
 						
 						} catch (NoMoreDataPacketBufferException e) {
@@ -275,6 +261,6 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 	private void closeClient(SelectionKey readableSelectionKey) {
 		readableSelectionKey.cancel();
 		SocketChannel readableSocketChannel = (SocketChannel) readableSelectionKey.channel();
-		clientResourceManager.remove(readableSocketChannel);
+		socketResourceManager.remove(readableSocketChannel);
 	}
 }

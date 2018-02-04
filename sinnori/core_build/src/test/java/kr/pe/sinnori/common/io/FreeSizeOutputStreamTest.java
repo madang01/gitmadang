@@ -64,7 +64,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 	public void testConstructor_theParameterDataPacketBufferMaxCount_lessThanOrEqualToZero() {
 		int dataPacketBufferMaxCount = 0;
 		CharsetEncoder streamCharsetEncoder = null;
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 
 		FreeSizeOutputStream fsos = null;
 		try {
@@ -122,7 +122,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 	public void testConstructor_theParameterStreamCharsetEncoder_null() {
 		int dataPacketBufferMaxCount = 10;
 		CharsetEncoder streamCharsetEncoder = null;
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 
 		FreeSizeOutputStream fsos = null;
 		try {
@@ -155,7 +155,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 
 		FreeSizeOutputStream fsos = null;
 
@@ -188,7 +188,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 1;
 		int dataPacketBufferPoolSize = 3;
@@ -202,7 +202,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+				dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
@@ -281,7 +281,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 512;
 		int dataPacketBufferPoolSize = 10;
@@ -298,7 +298,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		try {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+				dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
@@ -341,7 +341,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 1;
 		int dataPacketBufferPoolSize = 1;
@@ -356,7 +356,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+				dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -446,7 +446,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 512;
 		int dataPacketBufferPoolSize = 10;
@@ -463,7 +463,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		try {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+				dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
@@ -507,7 +507,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 1;
 		int dataPacketBufferPoolSize = 2;
@@ -521,7 +521,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+				dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -605,7 +605,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 512;
 		int dataPacketBufferPoolSize = 10;
@@ -622,7 +622,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		try {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+				dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
@@ -667,7 +667,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 1;
 		int dataPacketBufferPoolSize = 2;
@@ -682,7 +682,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+				dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
@@ -764,7 +764,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 512;
 		int dataPacketBufferPoolSize = 10;
@@ -781,7 +781,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		try {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+				dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
@@ -826,7 +826,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 1;
 		int dataPacketBufferPoolSize = 4;
@@ -840,7 +840,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+				dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
@@ -921,7 +921,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 512;
 		int dataPacketBufferPoolSize = 10;
@@ -938,7 +938,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		try {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+				dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
@@ -983,7 +983,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 1;
 		int dataPacketBufferPoolSize = 4;
@@ -998,7 +998,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+				dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -1080,7 +1080,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 512;
 		int dataPacketBufferPoolSize = 10;
@@ -1097,7 +1097,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		try {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+				dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
@@ -1145,7 +1145,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		CharsetUtil.createCharsetDecoder(streamCharset);
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 1;
 		int dataPacketBufferPoolSize = 8;
@@ -1159,7 +1159,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+				dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -1242,7 +1242,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 1;
 		int dataPacketBufferPoolSize = 15;
@@ -1259,7 +1259,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		try {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+				dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
@@ -1304,7 +1304,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -1314,7 +1314,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		// FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -1419,7 +1419,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -1429,7 +1429,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		// FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -1472,7 +1472,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -1482,7 +1482,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		// FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -1528,7 +1528,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 2;
@@ -1538,7 +1538,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		// FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -1582,7 +1582,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 2;
@@ -1592,7 +1592,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		// FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -1641,7 +1641,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -1651,7 +1651,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		// FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -1694,7 +1694,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -1704,7 +1704,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			log.warn("" + e.getMessage(), e);
@@ -1941,7 +1941,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1024;
@@ -1950,7 +1950,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -1992,7 +1992,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1024;
@@ -2001,7 +2001,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2077,7 +2077,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1024;
@@ -2086,7 +2086,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2127,7 +2127,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 512;
@@ -2137,7 +2137,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2246,7 +2246,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -2256,7 +2256,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			log.warn("" + e.getMessage(), e);
@@ -2424,7 +2424,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		Charset streamCharset = Charset.forName("EUC-KR");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -2433,7 +2433,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			log.warn("" + e.getMessage(), e);
@@ -2472,7 +2472,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		Charset streamCharset = Charset.forName("EUC-KR");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -2481,7 +2481,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2532,7 +2532,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -2542,7 +2542,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2648,7 +2648,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -2657,7 +2657,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2733,7 +2733,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -2742,7 +2742,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2789,7 +2789,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -2800,7 +2800,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		final int numberOfBytesLength = 1;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2908,7 +2908,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		Charset streamCharset = Charset.forName("UTF-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 4096;
@@ -2917,7 +2917,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2976,7 +2976,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		Charset streamCharset = Charset.forName("UTF-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		final int dataPacketBufferSize = 1;
@@ -2997,7 +2997,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		String src = srcStringBuilder.toString();
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -3051,7 +3051,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 1;
 		int dataPacketBufferPoolSize = 50;
@@ -3075,7 +3075,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 					streamByteOrder);
 
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+				dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -3126,7 +3126,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 					streamByteOrder);
 
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+				dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -3179,7 +3179,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -3188,7 +3188,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -3260,7 +3260,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -3269,7 +3269,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -3312,7 +3312,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -3323,7 +3323,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		final int numberOfBytesLength = 2;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -3431,7 +3431,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		Charset streamCharset = Charset.forName("UTF-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 4096;
@@ -3440,7 +3440,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -3500,7 +3500,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		Charset streamCharset = Charset.forName("UTF-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		final int dataPacketBufferSize = 1;
@@ -3521,7 +3521,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		String src = srcStringBuilder.toString();
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -3575,7 +3575,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 4096;
 		int dataPacketBufferPoolSize = 100;
@@ -3602,7 +3602,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+				dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -3649,7 +3649,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+				dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -3702,7 +3702,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -3711,7 +3711,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -3783,7 +3783,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -3792,7 +3792,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -3835,7 +3835,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -3846,7 +3846,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		final int numberOfBytesLength = 4;
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -3954,7 +3954,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		Charset streamCharset = Charset.forName("UTF-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		final int dataPacketBufferSize = 1;
@@ -3975,7 +3975,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		String src = srcStringBuilder.toString();
 
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder.build(isDirect,
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder.build(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -4030,7 +4030,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 4096;
 		int dataPacketBufferPoolSize = 100;
@@ -4057,7 +4057,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+				dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -4104,7 +4104,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+				dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
@@ -4157,7 +4157,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 512;
 		int dataPacketBufferPoolSize = 10;
@@ -4168,7 +4168,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 
 		try {
 			try {
-				dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+				dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 						.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);

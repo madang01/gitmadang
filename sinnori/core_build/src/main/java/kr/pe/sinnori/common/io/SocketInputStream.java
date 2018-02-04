@@ -12,7 +12,7 @@ import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
 public class SocketInputStream extends FreeSizeInputStream {
 
 	public SocketInputStream(int dataPacketBufferMaxCount, List<WrapBuffer> dataPacketBufferList,
-			CharsetDecoder streamCharsetDecoder, DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) {
+			CharsetDecoder streamCharsetDecoder, DataPacketBufferPoolIF dataPacketBufferQueueManager) {
 		super(dataPacketBufferMaxCount, dataPacketBufferList, streamCharsetDecoder, dataPacketBufferQueueManager);
 	}
 	

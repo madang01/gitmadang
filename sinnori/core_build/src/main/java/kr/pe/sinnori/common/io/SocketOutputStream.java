@@ -25,7 +25,7 @@ public class SocketOutputStream {
 	private Object userDefObject = null;
 	
 	private CharsetDecoder streamCharsetDecoder = null;
-	private DataPacketBufferPoolManagerIF dataPacketBufferPoolManager = null;
+	private DataPacketBufferPoolIF dataPacketBufferPoolManager = null;
 	private ByteOrder streamByteOrder = null;
 	private int dataPacketBufferSize = -1;
 	
@@ -36,7 +36,7 @@ public class SocketOutputStream {
 	
 	public SocketOutputStream(CharsetDecoder streamCharsetDecoder, 
 			int dataPacketBufferMaxCntPerMessage, 
-			DataPacketBufferPoolManagerIF dataPacketBufferPoolManager) throws NoMoreDataPacketBufferException {
+			DataPacketBufferPoolIF dataPacketBufferPoolManager) throws NoMoreDataPacketBufferException {
 		
 		// this.ownerSocketChannel =ownerSocketChannel;
 		this.streamCharsetDecoder = streamCharsetDecoder;
@@ -60,7 +60,7 @@ public class SocketOutputStream {
 	
 	public SocketOutputStream(List<WrapBuffer> writtenWrapBufferList, CharsetDecoder streamCharsetDecoder, 
 			int dataPacketBufferMaxCntPerMessage, 
-			DataPacketBufferPoolManagerIF dataPacketBufferPoolManager) throws NoMoreDataPacketBufferException {
+			DataPacketBufferPoolIF dataPacketBufferPoolManager) throws NoMoreDataPacketBufferException {
 		
 		this.streamCharsetDecoder = streamCharsetDecoder;
 		this.dataPacketBufferPoolManager = dataPacketBufferPoolManager;

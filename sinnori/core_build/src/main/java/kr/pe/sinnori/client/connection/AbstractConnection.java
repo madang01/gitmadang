@@ -42,7 +42,7 @@ import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
-import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
+import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
@@ -80,7 +80,7 @@ public abstract class AbstractConnection {
 	
 	
 	/** 데이터 패킷 버퍼 관리자 */
-	protected DataPacketBufferPoolManagerIF dataPacketBufferPoolManager = null;
+	protected DataPacketBufferPoolIF dataPacketBufferPoolManager = null;
 	/** */
 	protected MessageProtocolIF messageProtocol = null;
 	
@@ -133,7 +133,7 @@ public abstract class AbstractConnection {
 			LinkedBlockingQueue<WrapReadableMiddleObject> asynOutputMessageQueue,
 			MessageProtocolIF messageProtocol,
 			int dataPacketBufferMaxCntPerMessage,
-			DataPacketBufferPoolManagerIF dataPacketBufferPoolManager,
+			DataPacketBufferPoolIF dataPacketBufferPoolManager,
 			ClientObjectCacheManagerIF clientObjectCacheManager) throws NoMoreDataPacketBufferException, InterruptedException {
 		this.projectName = projectName;
 		this.index = index;

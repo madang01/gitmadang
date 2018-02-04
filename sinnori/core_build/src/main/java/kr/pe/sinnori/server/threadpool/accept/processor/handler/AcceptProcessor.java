@@ -22,11 +22,11 @@ import java.net.StandardSocketOptions;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderPoolIF;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import kr.pe.sinnori.server.SocketResourceManagerIF;
+import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderPoolIF;
 
 /**
  * 서버에 접속 승인된 클라이언트(=소켓 채널) 등록 처리 쓰레드
@@ -40,32 +40,26 @@ public class AcceptProcessor extends Thread {
 	private int index; // AcceptSelectorPool에서 생성한 순서
 	private String projectName;
 	private LinkedBlockingQueue<SocketChannel> acceptQueue;
-	private InputMessageReaderPoolIF inputMessageReaderPoolIF = null;
+	private SocketResourceManagerIF socketResourceManager = null;
 
-	/**
-	 * 생성자
-	 * @param index 쓰레드 순번
-	 * @param serverProjectConfig 프로젝트의 공통 포함한 서버 환경 변수 접근 인터페이스
-	 * @param acceptQueue 접속 요청 소켓 채널을 입력 받는 큐
-	 * @param inputMessageReaderPoolIF 접속 요청 소켓 채널 등록 처리할 입력 메시지 읽기 폴 인터페이스
-	 */
+
 	public AcceptProcessor(int index,
 			String projectName,
 			LinkedBlockingQueue<SocketChannel> acceptQueue,
-			InputMessageReaderPoolIF inputMessageReaderPoolIF) {
+			SocketResourceManagerIF socketResourceManager) {
 		this.index = index;
 		this.projectName = projectName;
 		this.acceptQueue = acceptQueue;
-		this.inputMessageReaderPoolIF = inputMessageReaderPoolIF;
+		this.socketResourceManager = socketResourceManager;
 	}
 
 	/**
 	 * <b>Accept Qeueue</b> 에서 OP_ACCEPT 이벤트 발생한 socket channel을 꺼내와서 <br/>
 	 * 비동기로 세팅후
-	 * {@link InputMessageReaderPoolIF#addNewClient(java.nio.channels.SocketChannel) }
+	 * {@link InputMessageReaderPoolIF#addNewClientFromAcceptProcessor(java.nio.channels.SocketChannel) }
 	 * 에게 전달한다.
 	 * 
-	 * @see InputMessageReaderPoolIF#addNewClient(java.nio.channels.SocketChannel)
+	 * @see InputMessageReaderPoolIF#addNewClientFromAcceptProcessor(java.nio.channels.SocketChannel)
 	 */
 	@Override
 	public void run() {
@@ -75,6 +69,8 @@ public class AcceptProcessor extends Thread {
 			while (!Thread.currentThread().isInterrupted()) {
 				SocketChannel clientSC = acceptQueue.take();
 				clientSC.configureBlocking(false);
+				
+				
 
 				/*Socket sc = clientSC.socket();
 				sc.setKeepAlive(true);
@@ -88,12 +84,14 @@ public class AcceptProcessor extends Thread {
 				clientSC.setOption(StandardSocketOptions.SO_SNDBUF, 65536);
 				// clientSC.setOption(StandardSocketOptions.SO_RCVBUF, serverProjectConfig.getDataPacketBufferSize());
 
-				try {
-					inputMessageReaderPoolIF.addNewClient(clientSC);
+				/*try {
+					inputMessageReaderPoolIF.addNewClientFromAcceptProcessor(clientSC);
 				} catch (NoMoreDataPacketBufferException e) {
 					log.warn("NoMoreDataPacketBufferException", e);
 					clientSC.close();
-				}
+				}*/
+				
+				socketResourceManager.addNewSocketChannel(clientSC);
 			}
 			log.warn(String.format("%s AcceptProcessor[%d] loop exit", projectName, index));
 		} catch (InterruptedException e) {

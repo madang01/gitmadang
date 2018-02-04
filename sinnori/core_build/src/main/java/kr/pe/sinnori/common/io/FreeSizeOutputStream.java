@@ -50,7 +50,7 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 	private Charset streamCharset = null;
 	private CharsetEncoder streamCharsetEncoder = null;
 	private int dataPacketBufferMaxCount;
-	private DataPacketBufferPoolManagerIF dataPacketBufferQueueManager = null;	
+	private DataPacketBufferPoolIF dataPacketBufferQueueManager = null;	
 
 	private ByteBuffer shortBuffer = null;
 	private ByteBuffer intBuffer = null;
@@ -61,7 +61,7 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 	private long outputStreamMaxSize = 0;
 
 	public FreeSizeOutputStream(int dataPacketBufferMaxCount, CharsetEncoder streamCharsetEncoder,
-			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
+			DataPacketBufferPoolIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
 		if (dataPacketBufferMaxCount <= 0) {
 			String errorMessage = String.format(
 					"the parameter dataPacketBufferMaxCount[%d] is less than or equal to zero",

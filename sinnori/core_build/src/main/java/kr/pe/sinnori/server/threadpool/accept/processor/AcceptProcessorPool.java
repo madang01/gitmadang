@@ -21,8 +21,8 @@ import java.nio.channels.SocketChannel;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
+import kr.pe.sinnori.server.SocketResourceManagerIF;
 import kr.pe.sinnori.server.threadpool.accept.processor.handler.AcceptProcessor;
-import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderPoolIF;
 
 /**
  * 서버에 접속 승인된 클라이언트(=소켓 채널) 등록 처리 쓰레드 폴.
@@ -32,29 +32,15 @@ import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderPoolIF;
  */
 public class AcceptProcessorPool extends AbstractThreadPool {
 	private LinkedBlockingQueue<SocketChannel> acceptQueue;
-	private int maxHandler;
-	private InputMessageReaderPoolIF inputMessageReaderPoolIF = null;
+	private int max;
+	private SocketResourceManagerIF socketResourceManager = null;
 
 	private String projectName = null;
 
-	/**
-	 * 생성자
-	 * 
-	 * @param size
-	 *            소켓 채널의 신규 등록 처리를 수행하는 쓰레드 갯수
-	 * @param max
-	 *            소켓 채널의 신규 등록 처리를 수행하는 쓰레드 최대 갯수
-	 * @param serverProjectConfig
-	 *            프로젝트의 공통 포함한 서버 환경 변수 접근 인터페이스
-	 * @param acceptQueue
-	 *            신규 등록할 소켓 채널을 받는 큐
-	 * @param inputMessageReaderPoolIF
-	 *            서버에 접속 승인된 클라이언트(=소켓 채널) 등록 처리 쓰레드가 바라보는 입력 메시지 소켓 읽기 담당 쓰레드 폴
-	 *            인터페이스
-	 */
+	
 	public AcceptProcessorPool(String projectName, int size, int max,
 			LinkedBlockingQueue<SocketChannel> acceptQueue,
-			InputMessageReaderPoolIF inputMessageReaderPoolIF) {
+			SocketResourceManagerIF socketResourceManager) {
 		if (size <= 0) {
 			throw new IllegalArgumentException(String.format(
 					"%s 파라미터 size 는 0보다 커야 합니다.", projectName));
@@ -71,9 +57,9 @@ public class AcceptProcessorPool extends AbstractThreadPool {
 		}
 
 		this.acceptQueue = acceptQueue;
-		this.maxHandler = max;
+		this.max = max;
 		this.projectName = projectName;
-		this.inputMessageReaderPoolIF = inputMessageReaderPoolIF;
+		this.socketResourceManager = socketResourceManager;
 
 		for (int i = 0; i < size; i++) {
 			addHandler();
@@ -84,23 +70,23 @@ public class AcceptProcessorPool extends AbstractThreadPool {
 	public void addHandler() {
 		synchronized (monitor) {
 			int size = pool.size();
-
-			if (size < maxHandler) {
-				try {
-					Thread handler = new AcceptProcessor(size, projectName,
-							acceptQueue, inputMessageReaderPoolIF);
-					pool.add(handler);
-				} catch (Exception e) {
-					String errorMessage = String.format(
-							"%s AcceptProcessor[%d] 등록 실패", projectName, size);
-					log.warn(errorMessage, e);
-					throw new RuntimeException(errorMessage);
-				}
-			} else {
+			
+			if (size > max) {
 				String errorMessage = String.format(
 						"%s AcceptProcessor 최대 갯수[%d]를 넘을 수 없습니다.",
-						projectName, maxHandler);
+						projectName, max);
 				log.warn(errorMessage);
+				throw new RuntimeException(errorMessage);
+			}
+			
+			try {
+				Thread acceptProcessor = new AcceptProcessor(size, projectName,
+						acceptQueue, socketResourceManager);
+				pool.add(acceptProcessor);
+			} catch (Exception e) {
+				String errorMessage = String.format(
+						"%s AcceptProcessor[%d] 등록 실패", projectName, size);
+				log.warn(errorMessage, e);
 				throw new RuntimeException(errorMessage);
 			}
 		}

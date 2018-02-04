@@ -33,7 +33,7 @@ import kr.pe.sinnori.common.exception.CharsetDecoderException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
-import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
+import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.io.FreeSizeInputStream;
 import kr.pe.sinnori.common.io.FreeSizeOutputStream;
 import kr.pe.sinnori.common.io.SocketInputStream;
@@ -67,7 +67,7 @@ public class DJSONMessageProtocol implements MessageProtocolIF {
 	private CharsetEncoder streamCharsetEncoder;
 	@SuppressWarnings("unused")
 	private CharsetDecoder streamCharsetDecoder;
-	private DataPacketBufferPoolManagerIF dataPacketBufferPoolManager = null;
+	private DataPacketBufferPoolIF dataPacketBufferPoolManager = null;
 	
 	
 	private DJSONSingleItemDecoder jsonSingleItemDecoder = null;
@@ -82,7 +82,7 @@ public class DJSONMessageProtocol implements MessageProtocolIF {
 	public DJSONMessageProtocol(int dataPacketBufferMaxCntPerMessage,
 			CharsetEncoder streamCharsetEncoder,
 			CharsetDecoder streamCharsetDecoder,
-			DataPacketBufferPoolManagerIF dataPacketBufferPoolManager) {
+			DataPacketBufferPoolIF dataPacketBufferPoolManager) {
 		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
 		this.streamCharsetEncoder = streamCharsetEncoder;
 		this.streamCharsetDecoder = streamCharsetDecoder;

@@ -22,14 +22,17 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SocketChannel;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.asyn.ToLetter;
-import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
+import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.io.WrapBuffer;
 
 /**
@@ -38,13 +41,15 @@ import kr.pe.sinnori.common.io.WrapBuffer;
  * @author Won Jonghoon
  * 
  */
-public class OutputMessageWriter extends Thread {
+public class OutputMessageWriter extends Thread implements OutputMessageWriterIF {
 	private Logger log = LoggerFactory.getLogger(OutputMessageWriter.class);
 	
 	private String projectName;
 	private int index;	
-	private DataPacketBufferPoolManagerIF dataPacketBufferQueueManager;
+	private DataPacketBufferPoolIF dataPacketBufferQueueManager;
 	private LinkedBlockingQueue<ToLetter> outputMessageQueue;	
+	
+	private final Set<SocketChannel> socketChannelSet = Collections.synchronizedSet(new HashSet<SocketChannel>());
 
 	/**
 	 * 생성자
@@ -56,7 +61,7 @@ public class OutputMessageWriter extends Thread {
 	 */
 	public OutputMessageWriter(String projectName, int index, 
 			LinkedBlockingQueue<ToLetter> outputMessageQueue,
-			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) {
+			DataPacketBufferPoolIF dataPacketBufferQueueManager) {
 		this.index = index;
 		this.projectName = projectName;
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
@@ -77,7 +82,7 @@ public class OutputMessageWriter extends Thread {
 				try {
 					toLetter = outputMessageQueue.take();
 				} catch (InterruptedException e) {
-					log.warn(String.format("%s index[%d] stop", projectName, index), e);
+					log.warn("project[{}] index[{}] InterruptedException", projectName, index);
 					break;
 				}
 
@@ -170,7 +175,23 @@ public class OutputMessageWriter extends Thread {
 		// log.warn(String.format("%s OutputMessageWriter[%d] thread end", commonProjectInfo.getProjectName(), index));
 	}
 	
-	public void finalize() {
-		log.warn(String.format("%s OutputMessageWriter[%d] destory", projectName, index));
+	@Override
+	public void addNewSocket(SocketChannel newSC) {
+		socketChannelSet.add(newSC);
+	}
+	
+	public void removeSocket(SocketChannel sc) {
+		socketChannelSet.remove(sc);
+	}
+
+
+	@Override
+	public int getNumberOfSocket() {
+		return socketChannelSet.size();
+	}
+	
+	@Override
+	public void putIntoQueue(ToLetter toLetter) throws InterruptedException {
+		outputMessageQueue.put(toLetter);
 	}
 }

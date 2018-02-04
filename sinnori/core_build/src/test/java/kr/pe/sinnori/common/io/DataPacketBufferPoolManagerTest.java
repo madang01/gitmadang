@@ -17,14 +17,14 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitTest {
 	
 	@Test
 	public void testPollDataPacketBuffer_NoMoreDataPacketBufferException() {
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder dataPacketByteOrder = ByteOrder.LITTLE_ENDIAN;
 		int dataPacketBufferSize = 4096;	
 		int dataPacketBufferPoolSize = 1000;
 		
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 					.build(isDirect, dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch(Exception e) {
 			log.warn(e.getMessage(), e);
@@ -63,14 +63,14 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitTest {
 	
 	@Test
 	public void testPutDataPacketBuffer_addNotRegistedButQueueInWrapBuffer() {
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder dataPacketByteOrder = ByteOrder.LITTLE_ENDIAN;
 		int dataPacketBufferSize = 4096;	
 		int dataPacketBufferPoolSize = 1000;
 		
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 					.build(isDirect, dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch(Exception e) {
 			log.warn(e.getMessage(), e);
@@ -99,14 +99,14 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitTest {
 	
 	@Test
 	public void testPutDataPacketBuffer_addNotRegistedButQueueOutWrapBuffer() {
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder dataPacketByteOrder = ByteOrder.LITTLE_ENDIAN;
 		int dataPacketBufferSize = 4096;	
 		int dataPacketBufferPoolSize = 1000;
 		
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 					.build(isDirect, dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch(Exception e) {
 			log.warn(e.getMessage(), e);
@@ -136,14 +136,14 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitTest {
 	
 	@Test
 	public void testPutDataPacketBuffer_putMoreThanTwice() {
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder dataPacketByteOrder = ByteOrder.LITTLE_ENDIAN;
 		int dataPacketBufferSize = 4096;	
 		int dataPacketBufferPoolSize = 1000;
 		
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 					.build(isDirect, dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch(Exception e) {
 			log.warn(e.getMessage(), e);
@@ -186,14 +186,14 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitTest {
 	@Test
 	public void testConstructor_theParameterByteOrder_null() {
 		@SuppressWarnings("unused")
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder dataPacketByteOrder = null;
 		int dataPacketBufferSize = 1;	
 		int dataPacketBufferPoolSize = 1000;
 		
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 					.build(isDirect, dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			
 			fail("no IllegalArgumentException");
@@ -212,14 +212,14 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitTest {
 	@Test
 	public void testConstructor_theParameterDataPacketBufferSize_lessThanOrEqualToZero() {
 		@SuppressWarnings("unused")
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder dataPacketByteOrder = ByteOrder.LITTLE_ENDIAN;
 		int dataPacketBufferSize = 0;	
 		int dataPacketBufferPoolSize = 1000;
 		
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 					.build(isDirect, dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			
 			fail("no IllegalArgumentException");
@@ -236,7 +236,7 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitTest {
 		
 		dataPacketBufferSize = -1;
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 					.build(isDirect, dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			
 			fail("no IllegalArgumentException");
@@ -255,14 +255,14 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitTest {
 	@Test
 	public void testConstructor_theParameterDataPacketBufferPoolSize_lessThanOrEqualToZero() {
 		@SuppressWarnings("unused")
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		ByteOrder dataPacketByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;	
 		int dataPacketBufferPoolSize = 0;
 		
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 					.build(isDirect, dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			
 			fail("no IllegalArgumentException");
@@ -280,7 +280,7 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitTest {
 		dataPacketBufferPoolSize = -1;
 		
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 					.build(isDirect, dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			
 			fail("no IllegalArgumentException");

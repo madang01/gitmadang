@@ -37,7 +37,7 @@ import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
-import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
+import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
@@ -100,7 +100,7 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 			AsynServerAdderIF outputMessageReaderPool,
 			ClientOutputMessageQueueQueueMangerIF syncOutputMessageQueueQueueManger,
 			int dataPacketBufferMaxCntPerMessage,
-			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager,
+			DataPacketBufferPoolIF dataPacketBufferQueueManager,
 			ClientObjectCacheManagerIF clientObjectCacheManager)
 			throws NoMoreDataPacketBufferException, InterruptedException, NoMoreOutputMessageQueueException {
 		super(asynOutputMessageQueue);

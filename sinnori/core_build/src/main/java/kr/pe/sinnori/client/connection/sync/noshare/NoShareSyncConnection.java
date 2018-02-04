@@ -43,7 +43,7 @@ import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
-import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
+import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
@@ -89,7 +89,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 			LinkedBlockingQueue<WrapReadableMiddleObject> serverOutputMessageQueue,
 			MessageProtocolIF messageProtocol,
 			int dataPacketBufferMaxCntPerMessage,
-			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager,
+			DataPacketBufferPoolIF dataPacketBufferQueueManager,
 			ClientObjectCacheManagerIF clientObjectCacheManager) throws InterruptedException, NoMoreDataPacketBufferException {
 		super(projectName, index, hostOfProject, portOfProject, charsetOfProject,
 				socketTimeOut, whetherToAutoConnect, serverOutputMessageQueue, messageProtocol, dataPacketBufferMaxCntPerMessage, dataPacketBufferQueueManager, clientObjectCacheManager);

@@ -20,18 +20,25 @@ package kr.pe.sinnori.server.executor;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.common.etc.SelfExnUtil;
+import kr.pe.sinnori.common.exception.BodyFormatException;
+import kr.pe.sinnori.common.exception.DynamicClassCallException;
+import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
+import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
+import kr.pe.sinnori.common.protocol.MessageCodecIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
+import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.SocketResource;
+import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriterIF;
 
 /**
  * 클라이언트로 보내는 편지 배달부. 서버 비지니스 로직 호출할때 마다 할당 된다. 
@@ -41,158 +48,271 @@ import kr.pe.sinnori.server.SocketResource;
 public class LetterCarrier {
 	private Logger log = LoggerFactory.getLogger(LetterCarrier.class);
 	
-	private AbstractServerTask serverTask = null;
-	private AbstractMessage messageFromClient;
-	private String messageIDFromClient = null;
-	private SocketResource clientResource  = null;
-	private LinkedBlockingQueue<ToLetter> ouputMessageQueue = null;
-	private MessageProtocolIF messageProtocol= null;
-	private ServerObjectCacheManagerIF serverObjectCacheManager = null;
-	private ArrayList<ToLetter> letterToClientList = new ArrayList<ToLetter>();
-	
 	private SocketChannel fromSC = null;
+	private AbstractMessage inputMessage;
+	private SocketResource clientResource  = null;
+	private OutputMessageWriterIF outputMessageWriter = null;
+	private MessageProtocolIF messageProtocol = null;
+	private ClassLoader classLoaderOfSererTask = null;
+	private ServerObjectCacheManagerIF serverObjectCacheManager = null;	
 	
-	/**
-	 * 생성자
-	 * @param inObjClientResource 입력 메시지 보낸 클라이언트의 자원
-	 * @param inObj 입력 메시지, 입력 메시지를 보낸 클라이언트 당사자한테 출력 메시지를 보낼때 입력 메시지의 메일박스 식별자와 메일 식별자가 필요하다.
-	 */
-	public LetterCarrier(AbstractServerTask serverTask, 
-			SocketChannel fromSC, 
-			AbstractMessage messageFromClient,
-			LinkedBlockingQueue<ToLetter> ouputMessageQueue,
+	private ArrayList<ToLetter> asynToLetterList = new ArrayList<ToLetter>();
+	
+	public LetterCarrier( SocketChannel fromSC, 
+			AbstractMessage inputMessage,
 			MessageProtocolIF messageProtocol,
-			ServerObjectCacheManagerIF serverObjectCacheManager) {
-		this.serverTask = serverTask;
+			ClassLoader classLoaderOfSererTask,
+			ServerObjectCacheManagerIF serverObjectCacheManager,
+			OutputMessageWriterIF outputMessageWriter) {
 		this.fromSC = fromSC;
-		this.messageFromClient = messageFromClient;
-		this.messageIDFromClient = messageFromClient.getMessageID();
-		this.ouputMessageQueue = ouputMessageQueue;
+		this.inputMessage = inputMessage;
 		this.messageProtocol = messageProtocol;
 		this.serverObjectCacheManager = serverObjectCacheManager;
-		
-		
+		this.outputMessageWriter = outputMessageWriter;
 	}
 	
-	/**
-	 * 출력 메시지를 비 익명으로 입력 메시지 보낸 클라이언트로 보낸다.
-	 * @param outObj 출력 메시지
-	 */
-	public void addSyncMessage(AbstractMessage messageToClient) {
-		messageToClient.messageHeaderInfo = messageFromClient.messageHeaderInfo;
+	
+	public void addSyncMessage(AbstractMessage outputMessage) {
+		outputMessage.messageHeaderInfo = inputMessage.messageHeaderInfo;
 		
-		if (letterToClientList.size() > 0) {
-			log.warn("동기 메시지는 1개만 가질 수 있습니다.  추가 취소된 메시지={}", messageToClient.toString());
+		if (asynToLetterList.size() > 0) {
+			log.warn("동기 메시지는 1개만 가질 수 있습니다.  추가 취소된 메시지={}", outputMessage.toString());
 			return;
 		}
 		
-		List<WrapBuffer> wrapBufferList = getMessageStream(serverTask, messageIDFromClient, messageToClient, messageProtocol, serverObjectCacheManager);
-		if (null != wrapBufferList) {
-			ToLetter letterToClient = getToLetter(messageToClient, wrapBufferList);
-			letterToClientList.add(letterToClient);
+		ToLetter toLetter = buildToLetter(fromSC, outputMessage, messageProtocol, outputMessageWriter);
+		if (null != toLetter) {
+			asynToLetterList.add(toLetter);
 		}
 	}
 	
-	private ToLetter getToLetter(AbstractMessage messageToClient, List<WrapBuffer> wrapBufferList) {		
-		ToLetter letterToClient = new ToLetter(fromSC, messageToClient.getMessageID(), 
-				messageToClient.messageHeaderInfo.mailboxID,
-				messageToClient.messageHeaderInfo.mailID,
-				wrapBufferList);		
-		return letterToClient;
-	}
-	
-	private List<WrapBuffer> getMessageStream(AbstractServerTask serverTask, String messageIDFromClient, 
-			AbstractMessage  messageToClient,
-			MessageProtocolIF messageProtocol,			
-			ServerObjectCacheManagerIF serverObjectCacheManager) {
-		return serverTask.getMessageStream(messageIDFromClient, fromSC, messageToClient, messageProtocol, serverObjectCacheManager);
-	}
-	
-	
-	/**
-	 * 출력 메시지를 익명으로 입력 메시지 보낸 클라이언트로 보낸다.
-	 * @param outObj
-	 */
-	public void addAsynMessage(AbstractMessage messageToClient) {
-		messageToClient.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
-		messageToClient.messageHeaderInfo.mailID = clientResource.getServerMailID();
+	public void addAsynMessage(AbstractMessage outputMessage) {
+		outputMessage.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
+		outputMessage.messageHeaderInfo.mailID = clientResource.getServerMailID();
 		
-		List<WrapBuffer> wrapBufferList = getMessageStream(serverTask, messageIDFromClient, messageToClient, messageProtocol, serverObjectCacheManager);
-		if (null != wrapBufferList) {
-			ToLetter letterToClient = getToLetter(messageToClient, wrapBufferList);
-			letterToClientList.add(letterToClient);
+		ToLetter toLetter = buildToLetter(fromSC, outputMessage, messageProtocol, outputMessageWriter);
+		if (null != toLetter) {
+			asynToLetterList.add(toLetter);
 		}
 	}
 	
-	public void addAsynMessage(AbstractMessage messageToClient, SocketChannel toSC) {
-		messageToClient.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
-		messageToClient.messageHeaderInfo.mailID = clientResource.getServerMailID();
+	public void addAsynMessage(AbstractMessage outputMessage, SocketChannel toSC) {
+		outputMessage.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
+		outputMessage.messageHeaderInfo.mailID = clientResource.getServerMailID();
 		
-		List<WrapBuffer> wrapBufferList = serverTask.getMessageStream(messageIDFromClient, toSC, messageToClient,  messageProtocol, serverObjectCacheManager);
-		if (null != wrapBufferList) {
-			ToLetter letterToClient = getToLetter(messageToClient, wrapBufferList);
-			letterToClientList.add(letterToClient);
+		ToLetter toLetter = buildToLetter(toSC, outputMessage, messageProtocol, outputMessageWriter);
+		if (null != toLetter) {
+			asynToLetterList.add(toLetter);
 		}
 	}
 	
-	public void directSendAsynMessage(AbstractMessage messageToClient, SocketChannel toSC) {
-		messageToClient.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
-		messageToClient.messageHeaderInfo.mailID = clientResource.getServerMailID();
+	public void putAsynOutputMessageToOutputMessageWriter(AbstractMessage outputMessage, SocketChannel toSC) {
+		outputMessage.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
+		outputMessage.messageHeaderInfo.mailID = clientResource.getServerMailID();
 		
-		List<WrapBuffer> wrapBufferList = serverTask.getMessageStream(messageIDFromClient, toSC, messageToClient, messageProtocol, serverObjectCacheManager);
-		if (null != wrapBufferList) {
-			ToLetter letterToClient = getToLetter(messageToClient, wrapBufferList);
+		ToLetter toLetter = buildToLetter(toSC, outputMessage, messageProtocol, outputMessageWriter);
+		if (null != toLetter) {
 			try {
-				ouputMessageQueue.put(letterToClient);
+				outputMessageWriter.putIntoQueue(toLetter);
 			} catch (InterruptedException e) {
 				try {
-					ouputMessageQueue.put(letterToClient);
+					outputMessageWriter.putIntoQueue(toLetter);
 				} catch (InterruptedException e1) {
 					log.error("재시도 과정에서 인터럽트 발생하여 종료, clientResource=[{}], messageFromClient=[{}], 전달 못한 송신 메시지=[{}]", 
-							clientResource.toString(), messageFromClient.toString(), letterToClient.toString());
+							clientResource.toString(), inputMessage.toString(), toLetter.toString());
 					Thread.interrupted();
 				}
 			}
 		}
 	}
 	
-	public void directSendAsynMessage(AbstractMessage messageToClient) {
-		messageToClient.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
-		messageToClient.messageHeaderInfo.mailID = clientResource.getServerMailID();
+	public void putAsynOutputMessageToOutputMessageWriter(AbstractMessage outputMessage) {
+		outputMessage.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
+		outputMessage.messageHeaderInfo.mailID = clientResource.getServerMailID();
 		
-		List<WrapBuffer> wrapBufferList = getMessageStream(serverTask, messageIDFromClient, messageToClient, messageProtocol, serverObjectCacheManager);
-		if (null != wrapBufferList) {
-			ToLetter letterToClient = getToLetter(messageToClient, wrapBufferList);
+		ToLetter toLetter = buildToLetter(fromSC, outputMessage, messageProtocol, outputMessageWriter);
+		if (null != toLetter) {
 			try {
-				ouputMessageQueue.put(letterToClient);
+				outputMessageWriter.putIntoQueue(toLetter);
 			} catch (InterruptedException e) {
 				try {
-					ouputMessageQueue.put(letterToClient);
+					outputMessageWriter.putIntoQueue(toLetter);
 				} catch (InterruptedException e1) {
 					log.error("재시도 과정에서 인터럽트 발생하여 종료, clientResource=[{}], messageFromClient=[{}], 전달 못한 송신 메시지=[{}]", 
-							clientResource.toString(), messageFromClient.toString(), letterToClient.toString());
+							clientResource.toString(), inputMessage.toString(), toLetter.toString());
 					Thread.interrupted();
 				}
 			}
 		}
 	}
 	
-	public void directSendLetterToClientList() {
-		for (ToLetter letterToClient : letterToClientList) {
+	public void putAsynToLetterListToOutputMessageWriter() {
+		for (ToLetter toLetter : asynToLetterList) {
 			try {
-				ouputMessageQueue.put(letterToClient);
+				outputMessageWriter.putIntoQueue(toLetter);
 			} catch (InterruptedException e) {
 				try {
-					ouputMessageQueue.put(letterToClient);
+					outputMessageWriter.putIntoQueue(toLetter);
 				} catch (InterruptedException e1) {
 					log.error("재시도 과정에서 인터럽트 발생하여 종료, clientResource=[{}], messageFromClient=[{}], 전달 못한 송신 메시지=[{}]", 
-							clientResource.toString(), messageFromClient.toString(), letterToClient.toString());
+							clientResource.toString(), inputMessage.toString(), toLetter.toString());
 					Thread.interrupted();
 				}
 			}
 		}
 	}
 	
+	private void sendSelfExnToClient(SocketChannel sc, int mailboxID, int mailID, String messageID,
+			String errorGuubun, 
+			String errorMessage, 
+			MessageProtocolIF messageProtocol,
+			OutputMessageWriterIF outputMessageWriter) {
+		
+		
+		SelfExn selfExnOutObj = new SelfExn();
+		selfExnOutObj.messageHeaderInfo.mailboxID = mailboxID;
+		selfExnOutObj.messageHeaderInfo.mailID = mailID;
+
+		selfExnOutObj.setErrorPlace("S");
+		selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class));
+
+		selfExnOutObj.setErrorMessageID(messageID);
+		selfExnOutObj.setErrorMessage(errorMessage);
+
+		List<WrapBuffer> wrapBufferList = null;
+		try {
+			wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER);
+		} catch (Exception e1) {
+			log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, sc={}, SelfExn={}", sc.hashCode(),
+					selfExnOutObj.toString());
+			System.exit(1);
+		}
+
+		ToLetter toLetter = new ToLetter(sc, 
+				selfExnOutObj.getMessageID(),
+				selfExnOutObj.messageHeaderInfo.mailboxID,
+				selfExnOutObj.messageHeaderInfo.mailID, wrapBufferList);
+		try {
+			outputMessageWriter.putIntoQueue(toLetter);
+		} catch (InterruptedException e) {
+			try {
+				outputMessageWriter.putIntoQueue(toLetter);
+			} catch (InterruptedException e1) {
+				log.error("재시도 과정에서 인터럽트 발생하여 종료, toSC hashCode=[{}], 전달 못한 송신 메시지=[{}]",
+						sc.hashCode(), selfExnOutObj.toString());
+				Thread.interrupted();
+			}
+		}
+	}
+	
+	
+	public ToLetter buildToLetter(SocketChannel toSC,
+			AbstractMessage outputMessage, 
+			MessageProtocolIF messageProtocol,
+			OutputMessageWriterIF outputMessageWriter) {
+		String messageIDToClient = outputMessage.getMessageID();
+
+		List<WrapBuffer> wrapBufferList = null;		
+		
+		MessageCodecIF messageCodec = null;
+		try {
+			messageCodec = serverObjectCacheManager.getServerCodec(classLoaderOfSererTask, messageIDToClient);
+		} catch (DynamicClassCallException e) {
+			
+			sendSelfExnToClient(toSC, 
+					outputMessage.messageHeaderInfo.mailboxID,
+					outputMessage.messageHeaderInfo.mailID,
+					outputMessage.getMessageID(),
+					SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class),
+					e.getMessage(),
+					messageProtocol,
+					outputMessageWriter);
+			
+			
+			return null;
+		} catch (Exception e) {
+			sendSelfExnToClient(toSC, 
+					outputMessage.messageHeaderInfo.mailboxID,
+					outputMessage.messageHeaderInfo.mailID,
+					outputMessage.getMessageID(),
+					SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class),
+					"fail to get the mesage codec::"+e.getMessage(),
+					messageProtocol,
+					outputMessageWriter);
+			return null;
+		}
+
+		AbstractMessageEncoder messageEncoder = null;
+		try {
+			messageEncoder = messageCodec.getMessageEncoder();
+		} catch (DynamicClassCallException e) {
+			sendSelfExnToClient(toSC, 
+					outputMessage.messageHeaderInfo.mailboxID,
+					outputMessage.messageHeaderInfo.mailID,
+					outputMessage.getMessageID(),
+					SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class),
+					e.getMessage(),
+					messageProtocol,
+					outputMessageWriter);
+			return null;
+		} catch (Exception e) {
+			sendSelfExnToClient(toSC, 
+					outputMessage.messageHeaderInfo.mailboxID,
+					outputMessage.messageHeaderInfo.mailID,
+					outputMessage.getMessageID(),
+					SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class),
+					"fail to get the mesage encoder::"+e.getMessage(),
+					messageProtocol,
+					outputMessageWriter);
+			return null;
+		}
+
+
+		/*log.info("classLoader[{}], serverTask[{}], create new messageEncoder of messageIDToClient={}",
+				classLoaderOfSererTask.hashCode(), inputMessageID, messageIDToClient);*/
+
+		try {
+			wrapBufferList = messageProtocol.M2S(outputMessage, messageEncoder);
+		} catch (NoMoreDataPacketBufferException e) {
+			sendSelfExnToClient(toSC, 
+					outputMessage.messageHeaderInfo.mailboxID,
+					outputMessage.messageHeaderInfo.mailID,
+					outputMessage.getMessageID(),
+					SelfExnUtil.getSelfExnErrorGubun(NoMoreDataPacketBufferException.class),
+					e.getMessage(),
+					messageProtocol,
+					outputMessageWriter);
+				return null;		
+		} catch (BodyFormatException e) {
+			sendSelfExnToClient(toSC, 
+					outputMessage.messageHeaderInfo.mailboxID,
+					outputMessage.messageHeaderInfo.mailID,
+					outputMessage.getMessageID(),
+					SelfExnUtil.getSelfExnErrorGubun(BodyFormatException.class),
+					e.getMessage(),
+					messageProtocol,
+					outputMessageWriter);
+				return null;
+		} catch (Exception e) {
+			sendSelfExnToClient(toSC, 
+					outputMessage.messageHeaderInfo.mailboxID,
+					outputMessage.messageHeaderInfo.mailID,
+					outputMessage.getMessageID(),
+					SelfExnUtil.getSelfExnErrorGubun(BodyFormatException.class),
+					"fail to output message stream::"+e.getMessage(),
+					messageProtocol,
+					outputMessageWriter);
+				return null;
+		}
+		
+		ToLetter toLetter = new ToLetter(toSC, 
+				outputMessage.getMessageID(),
+				outputMessage.messageHeaderInfo.mailboxID,
+				outputMessage.messageHeaderInfo.mailID, wrapBufferList);
+
+		return toLetter;
+	}
+
 	
 	/*public ArrayList<LetterToClient> getMessageToClientList() {
 		return letterToClientList;
@@ -202,7 +322,7 @@ public class LetterCarrier {
 	 * 전체 목록 삭제. 주의점) 로그 없다. 만약 로그 필요시 {@link #writeLog(String) } 호출할것
 	 */
 	public void clearMessageToClientList() {
-		letterToClientList.clear();
+		asynToLetterList.clear();
 	}
 
 	/**
@@ -214,10 +334,8 @@ public class LetterCarrier {
 	
 	public void writeLogAll(String title) {
 		int i=0;
-		for (ToLetter letterToClient : letterToClientList) {
-			log.info("%::전체삭제-잔존 메시지[{}]=[{}]", i++, letterToClient.toString());
+		for (ToLetter toLetter : asynToLetterList) {
+			log.info("%::전체삭제-잔존 메시지[{}]=[{}]", i++, toLetter.toString());
 		}
 	}
-	
-	
 }

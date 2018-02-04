@@ -38,6 +38,8 @@ import kr.pe.sinnori.common.project.AbstractProject;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
 import kr.pe.sinnori.server.classloader.ServerClassLoader;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
+import kr.pe.sinnori.server.threadpool.ServerThreadPoolManager;
+import kr.pe.sinnori.server.threadpool.ServerThreadPoolManagerIF;
 import kr.pe.sinnori.server.threadpool.accept.processor.AcceptProcessorPool;
 import kr.pe.sinnori.server.threadpool.accept.selector.handler.AcceptSelector;
 import kr.pe.sinnori.server.threadpool.executor.ExecutorPool;
@@ -130,10 +132,14 @@ public class AnyProjectServer extends AbstractProject implements
 				projectPartConfiguration.getServerOutputMessageQueueSize());
 		
 		projectLoginManager = ProjectLoginManager.Builder.build();
+		
+		ServerThreadPoolManagerIF serverThreadPoolManager = new ServerThreadPoolManager();
 		socketResourceManager = SocketResourceManager.Builder
 				.build(charsetDecoderOfProject, 
 						projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(), 
-						dataPacketBufferPoolManager, projectLoginManager);
+						dataPacketBufferPoolManager, 
+						projectLoginManager, 
+						serverThreadPoolManager);
 
 		acceptSelector = new AcceptSelector(
 				projectPartConfiguration.getProjectName(), 
@@ -142,26 +148,25 @@ public class AnyProjectServer extends AbstractProject implements
 				projectPartConfiguration.getServerAcceptSelectorTimeout(), 
 				projectPartConfiguration.getServerMaxClients(), acceptQueue, socketResourceManager);
 
-		inputMessageReaderPool = new InputMessageReaderPool(
-				projectPartConfiguration.getProjectName(),
-				projectPartConfiguration.getServerInputMessageReaderSize(), 
-				projectPartConfiguration.getServerInputMessageReaderMaxSize(),
-				projectPartConfiguration.getCharset(), 
-				projectPartConfiguration.getServerReadSelectorWakeupInterval(),
-				inputMessageQueue, messageProtocol, dataPacketBufferPoolManager, socketResourceManager);
-
+		
 		acceptProcessorPool = new AcceptProcessorPool(projectPartConfiguration.getProjectName(),
 				projectPartConfiguration.getServerAcceptProcessorSize(), 
 				projectPartConfiguration.getServerAcceptProcessorMaxSize(), 
 				acceptQueue,
-				inputMessageReaderPool);
+				socketResourceManager);
+		
+		inputMessageReaderPool = new InputMessageReaderPool(
+				projectPartConfiguration.getProjectName(),
+				projectPartConfiguration.getServerInputMessageReaderSize(), 
+				projectPartConfiguration.getServerInputMessageReaderMaxSize(),
+				projectPartConfiguration.getServerReadSelectorWakeupInterval(),
+				messageProtocol, dataPacketBufferPoolManager, socketResourceManager);		
 
 		executorPool = new ExecutorPool(
 				projectPartConfiguration.getProjectName(), 
 				projectPartConfiguration.getServerExecutorProcessorSize(),
-				projectPartConfiguration.getServerExecutorProcessorMaxSize(), 
-				projectPartConfiguration.getCharset(),
-				inputMessageQueue, outputMessageQueue, messageProtocol, projectLoginManager,
+				projectPartConfiguration.getServerExecutorProcessorMaxSize(),
+				inputMessageQueue, messageProtocol, socketResourceManager,
 				this);
 
 		outputMessageWriterPool = new OutputMessageWriterPool(
@@ -169,6 +174,8 @@ public class AnyProjectServer extends AbstractProject implements
 				projectPartConfiguration.getServerOutputMessageWriterSize(), 
 				projectPartConfiguration.getServerOutputMessageWriterMaxSize(),
 				outputMessageQueue, dataPacketBufferPoolManager);
+		
+		serverThreadPoolManager.register(inputMessageReaderPool, executorPool, outputMessageWriterPool);
 
 		serverProjectMonitor = new ServerProjectMonitor(
 				projectPartConfiguration.getServerMonitorTimeInterval(), 

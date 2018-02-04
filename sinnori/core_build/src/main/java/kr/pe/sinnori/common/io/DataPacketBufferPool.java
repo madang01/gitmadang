@@ -10,11 +10,10 @@ import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 
-public class DataPacketBufferPoolManager implements DataPacketBufferPoolManagerIF {
-	private Logger log = LoggerFactory.getLogger(DataPacketBufferPoolManager.class);
+public class DataPacketBufferPool implements DataPacketBufferPoolIF {
+	private Logger log = LoggerFactory.getLogger(DataPacketBufferPool.class);
 
-	/** 모니터 객체 */
-	private final Object dataPacketBufferPoolManagerMonitor = new Object();
+	private final Object monitor = new Object();
 
 	private ArrayDeque<WrapBuffer> dataPacketBufferQueue = null;
 	private Set<Integer> queueOutWrapBufferHashcodeSet = new HashSet<Integer>();
@@ -26,13 +25,13 @@ public class DataPacketBufferPoolManager implements DataPacketBufferPoolManagerI
 	private int dataPacketBufferPoolSize;
 	
 	public static class Builder {
-		public static DataPacketBufferPoolManager build(boolean isDirect, ByteOrder dataPacketBufferByteOrder, int dataPacketBufferSize, int dataPacketBufferPoolSize) {
-            return new DataPacketBufferPoolManager(isDirect, dataPacketBufferByteOrder,dataPacketBufferSize, dataPacketBufferPoolSize);
+		public static DataPacketBufferPool build(boolean isDirect, ByteOrder dataPacketBufferByteOrder, int dataPacketBufferSize, int dataPacketBufferPoolSize) {
+            return new DataPacketBufferPool(isDirect, dataPacketBufferByteOrder,dataPacketBufferSize, dataPacketBufferPoolSize);
         }
 	}
 	
 
-	private DataPacketBufferPoolManager(boolean isDirect, ByteOrder dataPacketBufferByteOrder, int dataPacketBufferSize, int dataPacketBufferPoolSize) {		
+	private DataPacketBufferPool(boolean isDirect, ByteOrder dataPacketBufferByteOrder, int dataPacketBufferSize, int dataPacketBufferPoolSize) {		
 		if (null == dataPacketBufferByteOrder) {
 			throw new IllegalArgumentException("the parameter dataPacketBufferByteOrder is null");
 		}
@@ -77,7 +76,7 @@ public class DataPacketBufferPoolManager implements DataPacketBufferPoolManagerI
 
 	@Override
 	public WrapBuffer pollDataPacketBuffer() throws NoMoreDataPacketBufferException {
-		synchronized (dataPacketBufferPoolManagerMonitor) {
+		synchronized (monitor) {
 			WrapBuffer dataPacketBuffer = dataPacketBufferQueue.poll();
 			if (null == dataPacketBuffer) {
 				String errorMessage = "no more wrap buffer in the wrap buffer polling queue";
@@ -108,7 +107,7 @@ public class DataPacketBufferPoolManager implements DataPacketBufferPoolManagerI
 		/**
 		 * 2번 연속 반환 막기
 		 */
-		synchronized (dataPacketBufferPoolManagerMonitor) {			
+		synchronized (monitor) {			
 			if (dataPacketBuffer.isInQueue()) {
 				String errorMessage = String.format("the parameter dataPacketBuffer[%d] was added to the wrap buffer polling queue",
 						dataPacketBufferHashcode);

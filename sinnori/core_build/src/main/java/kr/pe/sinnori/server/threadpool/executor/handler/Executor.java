@@ -18,8 +18,10 @@
 package kr.pe.sinnori.server.threadpool.executor.handler;
 
 import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
@@ -35,9 +37,12 @@ import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
-import kr.pe.sinnori.server.ProjectLoginManagerIF;
+import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
+import kr.pe.sinnori.server.SocketResource;
+import kr.pe.sinnori.server.SocketResourceManagerIF;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
+import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriterIF;
 
 /**
  * 서버 비지니스 로직 수행자 쓰레드<br/>
@@ -45,53 +50,34 @@ import kr.pe.sinnori.server.executor.AbstractServerTask;
  * 
  * @author Won Jonghoon
  */
-public class Executor extends Thread {
+public class Executor extends Thread implements ExecutorIF {
 	private Logger log = LoggerFactory.getLogger(Executor.class);
 	
+	// private final Object monitor = new Object();
+	
 	private int index;
-	private ProjectLoginManagerIF loginManager = null;
 	private LinkedBlockingQueue<FromLetter> inputMessageQueue;
-	private LinkedBlockingQueue<ToLetter> ouputMessageQueue;
 	private MessageProtocolIF messageProtocol = null;
 	
+	private SocketResourceManagerIF socketResourceManager = null;
 	private ServerObjectCacheManagerIF serverObjectCacheManager = null;
 	
 	private String projectName = null;
-	private Charset charsetOfProject = null;
-	// private CharsetDecoder charsetDecoderOfProject = null;
-	// private CharsetEncoder charsetEncoderOfProject = null;
 	
-	
-	/**
-	 * 생성자
-	 * @param index 순번
-	 * @param serverProjectConfig 프로젝트의 공통 포함한 서버 환경 변수
-	 * @param inputMessageQueue 입력 메시지 큐
-	 * @param ouputMessageQueue 출력 메시지 큐
-	 * @param messageProtocol 서버 프로젝트의 메시지 프로토콜
-	 * @param loginManager 로그인 관리자
-	 * @param serverObjectCacheManager 서버 객체 캐쉬 관리자
-	 * @param sqlSessionFactory 서버 프로젝트의 Mybatis SqlSessionFactory
-	 */
+	private final Set<SocketChannel> socketChannelSet = Collections.synchronizedSet(new HashSet<SocketChannel>());
+
 	public Executor(int index,
-			String projectName,	
-			Charset charsetOfProject,
+			String projectName,
 			LinkedBlockingQueue<FromLetter> inputMessageQueue,
-			LinkedBlockingQueue<ToLetter> ouputMessageQueue,
 			MessageProtocolIF messageProtocol, 
-			ProjectLoginManagerIF loginManager,
+			SocketResourceManagerIF socketResourceManager,
 			ServerObjectCacheManagerIF serverObjectCacheManager) {
-		this.index = index;	
-		this.loginManager = loginManager;
-		this.inputMessageQueue = inputMessageQueue;
-		this.ouputMessageQueue = ouputMessageQueue;
-		this.messageProtocol = messageProtocol;
-		this.serverObjectCacheManager = serverObjectCacheManager;
-		
+		this.index = index;		
 		this.projectName = projectName;
-		this.charsetOfProject = charsetOfProject;
-		// charsetDecoderOfProject = CharsetUtil.createCharsetDecoder(charsetOfProject);
-		// charsetEncoderOfProject = CharsetUtil.createCharsetEncoder(charsetOfProject);
+		this.inputMessageQueue = inputMessageQueue;
+		this.messageProtocol = messageProtocol;
+		this.socketResourceManager = socketResourceManager;
+		this.serverObjectCacheManager = serverObjectCacheManager;
 	}
 	
 
@@ -103,17 +89,21 @@ public class Executor extends Thread {
 			while (!Thread.currentThread().isInterrupted()) {
 				FromLetter letterFromClient = inputMessageQueue.take();
 
-				SocketChannel clientSC = letterFromClient.getFromSocketChannel();
-				// ClientResource clientResource = letterFromClient.getClientResource();
-				WrapReadableMiddleObject wrapReadableMiddleObject = letterFromClient.getWrapReadableMiddleObject();
-				String messageID = wrapReadableMiddleObject.getMessageID();
-				AbstractServerTask  serverTask = null;
+				SocketChannel fromSC = letterFromClient.getFromSocketChannel();
 				
+				WrapReadableMiddleObject wrapReadableMiddleObject = letterFromClient.getWrapReadableMiddleObject();
+				String messageID = wrapReadableMiddleObject.getMessageID();				
+				
+				SocketResource fromSocketResource = socketResourceManager.getSocketResource(fromSC);				
+				PersonalLoginManagerIF fromPersonalLoginManager = fromSocketResource.getPersonalLoginManager();
+				OutputMessageWriterIF fromOutputMessageWriter = fromSocketResource.getOutputMessageWriterWithMinimumMumberOfSockets();
+				
+				AbstractServerTask  serverTask = null;
 				try {
 					serverTask = serverObjectCacheManager.getServerTask(messageID);
 					
-					serverTask.execute(index, projectName, charsetOfProject, ouputMessageQueue, messageProtocol,
-							clientSC, wrapReadableMiddleObject, loginManager, serverObjectCacheManager);
+					serverTask.execute(index, projectName, fromOutputMessageWriter, messageProtocol,
+							fromSC, wrapReadableMiddleObject, fromPersonalLoginManager, serverObjectCacheManager);
 				} catch (DynamicClassCallException e) {
 					log.warn("DynamicClassCallException", e);
 					
@@ -136,7 +126,7 @@ public class Executor extends Thread {
 						System.exit(1);
 					}
 					
-					putToOutputMessageQueue(clientSC, wrapReadableMiddleObject, selfExnOutObj, wrapBufferList, ouputMessageQueue);
+					putToOutputMessageQueue(fromSC, wrapReadableMiddleObject, selfExnOutObj, wrapBufferList, fromOutputMessageWriter);
 					continue;
 				} catch(Exception e) {
 					log.warn("unknown error", e);
@@ -156,7 +146,7 @@ public class Executor extends Thread {
 					try {
 						wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER);
 						
-						putToOutputMessageQueue(clientSC, wrapReadableMiddleObject, selfExnOutObj, wrapBufferList, ouputMessageQueue);
+						putToOutputMessageQueue(fromSC, wrapReadableMiddleObject, selfExnOutObj, wrapBufferList, fromOutputMessageWriter);
 					} catch(Throwable e1) {
 						log.error("fail to convert 'SelfExn' message to stream", e1);
 						System.exit(1);
@@ -180,7 +170,7 @@ public class Executor extends Thread {
 					try {
 						wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER);
 						
-						putToOutputMessageQueue(clientSC, wrapReadableMiddleObject, selfExnOutObj, wrapBufferList, ouputMessageQueue);
+						putToOutputMessageQueue(fromSC, wrapReadableMiddleObject, selfExnOutObj, wrapBufferList, fromOutputMessageWriter);
 					} catch(Throwable e1) {
 						log.error("fail to convert 'SelfExn' message to stream", e1);
 						System.exit(1);
@@ -209,23 +199,44 @@ public class Executor extends Thread {
 	private void putToOutputMessageQueue(SocketChannel clientSC, 
 			WrapReadableMiddleObject  receivedLetter,
 			AbstractMessage wrapBufferMessage, List<WrapBuffer> wrapBufferList, 
-			LinkedBlockingQueue<ToLetter> ouputMessageQueue) {
+			OutputMessageWriterIF outputMessageWriter) {
 		
 		ToLetter letterToClient = new ToLetter(clientSC,
 				wrapBufferMessage.getMessageID(),
 				wrapBufferMessage.messageHeaderInfo.mailboxID,
 				wrapBufferMessage.messageHeaderInfo.mailID,
-				wrapBufferList);  
+				wrapBufferList);
 		try {
-			ouputMessageQueue.put(letterToClient);
+			outputMessageWriter.putIntoQueue(letterToClient);
 		} catch (InterruptedException e) {
 			try {
-				ouputMessageQueue.put(letterToClient);
+				outputMessageWriter.putIntoQueue(letterToClient);
 			} catch (InterruptedException e1) {
 				log.error("재시도 과정에서 인터럽트 발생하여 종료, clientSC hashCode=[{}], 입력 메시지[{}] 추출 실패, 전달 못한 송신 메시지=[{}]", 
 					clientSC.hashCode(), receivedLetter.toString(), wrapBufferMessage.toString());
 				Thread.interrupted();
 			}
 		}
+	}
+
+
+	@Override
+	public void addNewSocket(SocketChannel newSC) {
+		socketChannelSet.add(newSC);
+	}
+	
+	public void removeSocket(SocketChannel sc) {
+		socketChannelSet.remove(sc);
+	}
+
+
+	@Override
+	public int getNumberOfSocket() {
+		return socketChannelSet.size();
+	}
+	
+	@Override
+	public void putIntoQueue(FromLetter fromLetter) throws InterruptedException {
+		inputMessageQueue.put(fromLetter);
 	}
 }

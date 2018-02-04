@@ -29,7 +29,7 @@ import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CharsetUtil;
 import kr.pe.sinnori.common.etc.ObjectCacheManager;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.io.DataPacketBufferPoolManager;
+import kr.pe.sinnori.common.io.DataPacketBufferPool;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.dhb.DHBMessageProtocol;
 import kr.pe.sinnori.common.protocol.djson.DJSONMessageProtocol;
@@ -52,7 +52,7 @@ public abstract class AbstractProject {
 	protected MessageProtocolIF messageProtocol = null;
 	
 	
-	protected DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+	protected DataPacketBufferPool dataPacketBufferPoolManager = null;
 	
 	protected CharsetEncoder charsetEncoderOfProject = null;
 	
@@ -89,7 +89,7 @@ public abstract class AbstractProject {
 		MessageProtocolType messageProtocolGubun = projectPartConfiguration.getMessageProtocol();*/
 		
 		boolean isDirect = false;
-		this.dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+		this.dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 				.build(isDirect, projectPartConfiguration.getByteOrder()
 						, projectPartConfiguration.getDataPacketBufferSize()
 						, projectPartConfiguration.getDataPacketBufferPoolSize());

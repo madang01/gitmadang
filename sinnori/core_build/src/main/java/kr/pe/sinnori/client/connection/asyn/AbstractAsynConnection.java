@@ -29,7 +29,7 @@ import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.Out
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
-import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
+import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
@@ -84,7 +84,7 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 			MessageProtocolIF messageProtocol,
 			AsynServerAdderIF outputMessageReaderPool,
 			int dataPacketBufferMaxCntPerMessage,
-			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager,
+			DataPacketBufferPoolIF dataPacketBufferQueueManager,
 			ClientObjectCacheManagerIF clientObjectCacheManager) throws InterruptedException, NoMoreDataPacketBufferException {
 		super(projectName, index, 
 				hostOfProject, portOfProject, charsetOfProject, socketTimeOut, 

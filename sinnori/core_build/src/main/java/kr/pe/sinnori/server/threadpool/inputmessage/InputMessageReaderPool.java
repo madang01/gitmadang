@@ -17,13 +17,7 @@
 
 package kr.pe.sinnori.server.threadpool.inputmessage;
 
-import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
-import java.util.concurrent.LinkedBlockingQueue;
-
-import kr.pe.sinnori.common.asyn.FromLetter;
-import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
+import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
@@ -39,35 +33,20 @@ import kr.pe.sinnori.server.threadpool.inputmessage.handler.InputMessageReaderIF
 public class InputMessageReaderPool extends AbstractThreadPool implements
 		InputMessageReaderPoolIF {
 	private String projectName = null;
-	private Charset charsetOfProject = null;
-	private int maxHandler;
+	private int max;
 	private long readSelectorWakeupInterval;
-	private LinkedBlockingQueue<FromLetter> inputMessageQueue;
 	private MessageProtocolIF messageProtocol;
-	private DataPacketBufferPoolManagerIF dataPacketBufferQueueManager;
+	private DataPacketBufferPoolIF dataPacketBufferQueueManager;
 	private SocketResourceManagerIF clientResourceManager;
 	
 	
-	/**
-	 * 생성자
-	 * @param size 입력 메시지 소켓 읽기 담당 쓰레드 초기 크기
-	 * @param max 입력 메시지 소켓 읽기 담당 쓰레드 최대 크기
-	 * @param readSelectorWakeupInterval 입력 메시지 소켓 읽기 담당 쓰레드에서 블락된 읽기 이벤트 전용 selector 를 깨우는 주기
-	 * @param serverProjectConfig 프로젝트의 공통 포함한 서버 환경 변수 접근 인터페이스
-	 * @param inputMessageQueue 입력 메시지 큐
-	 * @param messageProtocol 메시지 교환 프로토콜
-	 * @param messageManger 메시지 관리자
-	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자
-	 * @param clientResourceManager 클라이언트 자원 관리자
-	 */
+	
 	public InputMessageReaderPool(String projectName, 
-			int size, int max,
-			Charset charsetOfProject, 
-			long readSelectorWakeupInterval,  
-			
-			LinkedBlockingQueue<FromLetter> inputMessageQueue,
+			int size, 
+			int max, 
+			long readSelectorWakeupInterval,
 			MessageProtocolIF messageProtocol,
-			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager,
+			DataPacketBufferPoolIF dataPacketBufferQueueManager,
 			SocketResourceManagerIF clientResourceManager) {
 		if (size <= 0) {
 			String errorMessage = String.format("%s 파라미터 size 는 0보다 커야 합니다.", projectName);
@@ -90,11 +69,9 @@ public class InputMessageReaderPool extends AbstractThreadPool implements
 		}
 
 		this.projectName = projectName;
-		this.charsetOfProject = charsetOfProject;
-		this.maxHandler = max;
+		this.max = max;
 		this.readSelectorWakeupInterval = readSelectorWakeupInterval;
 		this.projectName = projectName;
-		this.inputMessageQueue = inputMessageQueue;
 		this.messageProtocol = messageProtocol;
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 		this.clientResourceManager = clientResourceManager;		
@@ -108,41 +85,44 @@ public class InputMessageReaderPool extends AbstractThreadPool implements
 	public void addHandler() {
 		synchronized (monitor) {
 			int size = pool.size();
-
-			if (size < maxHandler) {
-				try {
-					Thread handler = new InputMessageReader(projectName, size, charsetOfProject, readSelectorWakeupInterval, 
-							inputMessageQueue, messageProtocol, 
-							dataPacketBufferQueueManager, clientResourceManager);
-					pool.add(handler);
-				} catch (Exception e) {
-					String errorMessage = String.format("%s InputMessageReader[%d] 등록 실패", projectName, size); 
-					log.warn(errorMessage, e);
-					throw new RuntimeException(errorMessage);
-				}
-			} else {
-				String errorMessage = String.format("%s InputMessageReader 최대 갯수[%d]를 넘을 수 없습니다.", projectName, maxHandler); 
+			
+			if (size > max) {
+				String errorMessage = String.format("%s InputMessageReader 최대 갯수[%d]를 넘을 수 없습니다.", projectName, max); 
 				log.warn(errorMessage);
 				throw new RuntimeException(errorMessage);
 			}
+			
+			try {
+				Thread inputMessageReader = new InputMessageReader(projectName, 
+						size, 
+						readSelectorWakeupInterval, 
+						messageProtocol, 
+						dataPacketBufferQueueManager, 
+						clientResourceManager);
+				pool.add(inputMessageReader);
+			} catch (Exception e) {
+				String errorMessage = String.format("%s InputMessageReader[%d] 등록 실패", projectName, size); 
+				log.warn(errorMessage, e);
+				throw new RuntimeException(errorMessage);
+			}
 		}
-	}
-
+	}	
+	
 	@Override
-	public void addNewClient(SocketChannel sc) throws InterruptedException,
-	NoMoreDataPacketBufferException {
-		InputMessageReaderIF minHandler = null;
-		int MIN_COUNT = Integer.MAX_VALUE;
+	public InputMessageReaderIF getInputMessageReaderWithMinimumMumberOfSockets() {
+		InputMessageReaderIF inputMessageReaderWithMinimumMumberOfSockets = null;
+		int minimumMumberOfSockets = Integer.MAX_VALUE;
 
 		int size = pool.size();
 		for (int i = 0; i < size; i++) {
 			InputMessageReaderIF handler = (InputMessageReaderIF) pool.get(i);
-			int cnt_of_clients = handler.getCntOfClients();
-			if (cnt_of_clients < MIN_COUNT) {
-				MIN_COUNT = cnt_of_clients;
-				minHandler = handler;
+			int numberOfSocket = handler.getNumberOfSocket();
+			if (numberOfSocket < minimumMumberOfSockets) {
+				minimumMumberOfSockets = numberOfSocket;
+				inputMessageReaderWithMinimumMumberOfSockets = handler;
 			}
 		}
-		minHandler.addNewSocketChannelToRegisterWithReadOnlySelector(sc); // 마지막으로 ReqeustHandler에 등록
+		
+		return inputMessageReaderWithMinimumMumberOfSockets;
 	}
 }

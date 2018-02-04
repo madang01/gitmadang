@@ -16,8 +16,8 @@ import org.junit.Test;
 
 import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.etc.CharsetUtil;
-import kr.pe.sinnori.common.io.DataPacketBufferPoolManager;
-import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
+import kr.pe.sinnori.common.io.DataPacketBufferPool;
+import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
@@ -37,13 +37,13 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = CharsetUtil.createCharsetEncoder(streamCharset);
 		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 		ByteOrder streamByteOrder = ByteOrder.LITTLE_ENDIAN;
-		DataPacketBufferPoolManagerIF dataPacketBufferPoolManager = null;
+		DataPacketBufferPoolIF dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 4096;
 		int dataPacketBufferPoolSize = 100;
 		
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 					.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			log.warn(""+e.getMessage(), e);

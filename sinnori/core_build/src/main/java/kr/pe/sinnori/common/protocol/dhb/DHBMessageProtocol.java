@@ -34,7 +34,7 @@ import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
-import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
+import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.io.FixedSizeInputStream;
 import kr.pe.sinnori.common.io.FreeSizeInputStream;
 import kr.pe.sinnori.common.io.FreeSizeOutputStream;
@@ -65,7 +65,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 	private CharsetEncoder streamCharsetEncoder;
 	@SuppressWarnings("unused")
 	private CharsetDecoder streamCharsetDecoder;
-	private DataPacketBufferPoolManagerIF dataPacketBufferPoolManager = null;
+	private DataPacketBufferPoolIF dataPacketBufferPoolManager = null;
 
 	/** 메시지 헤더 크기, 단위 byte */
 	private int messageHeaderSize;
@@ -80,7 +80,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 
 	public DHBMessageProtocol(int messageIDFixedSize, int dataPacketBufferMaxCntPerMessage,
 			CharsetEncoder streamCharsetEncoder, CharsetDecoder streamCharsetDecoder,
-			DataPacketBufferPoolManagerIF dataPacketBufferPoolManager) {
+			DataPacketBufferPoolIF dataPacketBufferPoolManager) {
 		if (messageIDFixedSize <= 0) {
 			String errorMessage = String.format("the parameter messageIDFixedSize[%d] is less than or equal to zero",
 					messageIDFixedSize);

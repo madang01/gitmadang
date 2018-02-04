@@ -50,7 +50,7 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 	private Charset streamCharset;
 	protected CharsetDecoder streamCharsetDecoder = null;
 	protected ByteOrder streamByteOrder = null;
-	protected DataPacketBufferPoolManagerIF dataPacketBufferQueueManager = null;
+	protected DataPacketBufferPoolIF dataPacketBufferQueueManager = null;
 
 	private ByteBuffer workBuffer;
 	private int indexOfWorkBuffer;
@@ -67,7 +67,7 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 	private ByteBuffer longBuffer = null;
 
 	public FreeSizeInputStream(int dataPacketBufferMaxCount, List<WrapBuffer> readableWrapBufferList,
-			CharsetDecoder streamCharsetDecoder, DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) {
+			CharsetDecoder streamCharsetDecoder, DataPacketBufferPoolIF dataPacketBufferQueueManager) {
 		if (dataPacketBufferMaxCount <= 0) {
 			String errorMessage = String.format(
 					"the parameter dataPacketBufferMaxCount[%d] is less than or equal to zero",

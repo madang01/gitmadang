@@ -22,19 +22,20 @@ package kr.pe.sinnori.server.threadpool.outputmessage;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.common.asyn.ToLetter;
-import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
+import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriter;
+import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriterIF;
 
 /**
  * 서버 출력 메시지 소켓 쓰기 담당 쓰레드 폴
  * 
  * @author Won Jonghoon
  */
-public class OutputMessageWriterPool extends AbstractThreadPool {
+public class OutputMessageWriterPool extends AbstractThreadPool implements OutputMessageWriterPoolIF {
 	private String projectName = null;
 	private int maxHandler;
-	private DataPacketBufferPoolManagerIF dataPacketBufferQueueManger;
+	private DataPacketBufferPoolIF dataPacketBufferQueueManger;
 	private LinkedBlockingQueue<ToLetter> outputMessageQueue = null;
 	
 	/**
@@ -47,7 +48,7 @@ public class OutputMessageWriterPool extends AbstractThreadPool {
 	 */
 	public OutputMessageWriterPool(String projectName, int size, int max,
 			LinkedBlockingQueue<ToLetter> outputMessageQueue,
-			DataPacketBufferPoolManagerIF dataPacketBufferQueueManger) {
+			DataPacketBufferPoolIF dataPacketBufferQueueManger) {
 		if (size <= 0) {
 			throw new IllegalArgumentException(String.format("%s 파라미터 size 는 0보다 커야 합니다.", projectName));
 		}
@@ -93,5 +94,23 @@ public class OutputMessageWriterPool extends AbstractThreadPool {
 				throw new RuntimeException(errorMessage);
 			}
 		}
+	}
+
+	@Override
+	public OutputMessageWriterIF getOutputMessageWriterWithMinimumMumberOfSockets() {
+		OutputMessageWriterIF outputMessageWriterWithMinimumMumberOfSockets = null;
+		int minimumMumberOfSockets = Integer.MAX_VALUE;
+
+		int size = pool.size();
+		for (int i = 0; i < size; i++) {
+			OutputMessageWriterIF handler = (OutputMessageWriterIF) pool.get(i);
+			int numberOfSocket = handler.getNumberOfSocket();
+			if (numberOfSocket < minimumMumberOfSockets) {
+				minimumMumberOfSockets = numberOfSocket;
+				outputMessageWriterWithMinimumMumberOfSockets = handler;
+			}
+		}
+		
+		return outputMessageWriterWithMinimumMumberOfSockets;
 	}
 }

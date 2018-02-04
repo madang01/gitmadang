@@ -40,7 +40,7 @@ public interface SocketResourceManagerIF {
 	 *            Client(=Socket Channel)
 	 * @return ClientResource
 	 */
-	public SocketResource getClientResource(SocketChannel sc);
+	public SocketResource getSocketResource(SocketChannel sc);
 	
 	/**
 	 * ClientManger가 관리하는 client 총수를 반환한다.

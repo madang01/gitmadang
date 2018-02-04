@@ -19,9 +19,7 @@
 package kr.pe.sinnori.server.executor;
 
 import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
@@ -31,8 +29,9 @@ import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
-import kr.pe.sinnori.server.ProjectLoginManagerIF;
+import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
+import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriterIF;
 
 /**
  * <pre>
@@ -50,24 +49,16 @@ public abstract class AbstractAuthServerExecutor extends AbstractServerTask {
 	@Override
 	public void execute(int index, 
 			String projectName, 
-			Charset charsetOfProject,
-			LinkedBlockingQueue<ToLetter> ouputMessageQueue,
+			OutputMessageWriterIF outputMessageWriter,
 			MessageProtocolIF messageProtocol,
 			SocketChannel fromSC,
-			WrapReadableMiddleObject receivedLetter, ProjectLoginManagerIF loginManager,
+			WrapReadableMiddleObject receivedLetter, 
+			PersonalLoginManagerIF personalLoginManager,
 			ServerObjectCacheManagerIF serverObjectCacheManager) {
-		
 		// CharsetEncoder charsetEncoderOfProject = CharsetUtil.createCharsetEncoder(charsetOfProject);
-		
-		if (!loginManager.isLogin(fromSC)) {
+
+		if (! personalLoginManager.isLogin()) {
 			String messageID = receivedLetter.getMessageID();
-			
-			try {
-				log.info(String.format("비로그인 상태에서 로그인 서비스 접근::%s::socket addr=[%s]", receivedLetter.toString(), fromSC.getRemoteAddress().toString()));
-			} catch (Exception e) {
-				log.info(String.format("비로그인 상태에서 로그인 서비스 접근::%s::원격지 주소얻기실패=[%s]", receivedLetter.toString(), e.getMessage()));
-			}
-			
 			
 			// new StringBuilder("로그인 요구 서비스입니다::").append(receivedLetter.toString()).toString()
 			SelfExn selfExnOutObj = new SelfExn();
@@ -90,10 +81,10 @@ public abstract class AbstractAuthServerExecutor extends AbstractServerTask {
 						selfExnOutObj.messageHeaderInfo.mailID,
 						wrapBufferList);
 				try {
-					ouputMessageQueue.put(letterToClient);
+					outputMessageWriter.putIntoQueue(letterToClient);
 				} catch (InterruptedException e) {
 					try {
-						ouputMessageQueue.put(letterToClient);
+						outputMessageWriter.putIntoQueue(letterToClient);
 					} catch (InterruptedException e1) {
 						log.error(new StringBuilder("재시도 과정에서 인터럽트 발생하여 종료::selfExnOutObj=[")
 						.append(selfExnOutObj.toString()).append("]").toString(), e1);					
@@ -105,8 +96,8 @@ public abstract class AbstractAuthServerExecutor extends AbstractServerTask {
 			}
 			return;
 		}
-		super.execute(index, projectName, charsetOfProject, ouputMessageQueue, 
+		super.execute(index, projectName, outputMessageWriter, 
 				messageProtocol, fromSC, receivedLetter, 
-				loginManager, serverObjectCacheManager);
+				personalLoginManager, serverObjectCacheManager);
 	}
 }

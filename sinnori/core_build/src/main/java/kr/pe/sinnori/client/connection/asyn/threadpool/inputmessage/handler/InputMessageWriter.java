@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.io.DataPacketBufferPoolManagerIF;
+import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.io.WrapBuffer;
 
 /**
@@ -49,7 +49,7 @@ public class InputMessageWriter extends Thread {
 	private LinkedBlockingQueue<ToLetter> inputMessageQueue = null;
 	
 	// private MessageProtocolIF messageProtocol = null;
-	private DataPacketBufferPoolManagerIF dataPacketBufferQueueManager = null;
+	private DataPacketBufferPoolIF dataPacketBufferQueueManager = null;
 	
 	
 
@@ -65,7 +65,7 @@ public class InputMessageWriter extends Thread {
 	 */
 	public InputMessageWriter(String projectName, int index,
 			LinkedBlockingQueue<ToLetter> inputMessageQueue,
-			DataPacketBufferPoolManagerIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
+			DataPacketBufferPoolIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
 		this.projectName = projectName;
 		this.index = index;		
 		this.inputMessageQueue = inputMessageQueue;

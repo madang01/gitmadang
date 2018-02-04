@@ -24,7 +24,7 @@ public class SocketOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 512;
 		int dataPacketBufferPoolSize = 15;
@@ -33,7 +33,7 @@ public class SocketOutputStreamTest extends AbstractJunitTest {
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 					.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			log.warn(""+e.getMessage(), e);
@@ -99,7 +99,7 @@ public class SocketOutputStreamTest extends AbstractJunitTest {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPoolManager dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPoolManager = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 6;
 		int dataPacketBufferPoolSize = 15;
@@ -108,7 +108,7 @@ public class SocketOutputStreamTest extends AbstractJunitTest {
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPoolManager.Builder
+			dataPacketBufferPoolManager = DataPacketBufferPool.Builder
 					.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			log.warn(""+e.getMessage(), e);
