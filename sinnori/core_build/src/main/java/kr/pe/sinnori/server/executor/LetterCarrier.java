@@ -18,7 +18,7 @@
 package kr.pe.sinnori.server.executor;
 
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -50,176 +50,84 @@ public class LetterCarrier {
 	
 	private SocketChannel fromSC = null;
 	private AbstractMessage inputMessage;
-	private SocketResource clientResource  = null;
-	private OutputMessageWriterIF outputMessageWriter = null;
+	
+	private SocketResource socketResourceOfFromSC  = null;	
+	
 	private MessageProtocolIF messageProtocol = null;
 	private ClassLoader classLoaderOfSererTask = null;
-	private ServerObjectCacheManagerIF serverObjectCacheManager = null;	
+	private ServerObjectCacheManagerIF serverObjectCacheManager = null;
+	private OutputMessageWriterIF outputMessageWriter = null;
 	
-	private ArrayList<ToLetter> asynToLetterList = new ArrayList<ToLetter>();
+	private LinkedList<ToLetter> toLetterList = new LinkedList<ToLetter>();
 	
 	public LetterCarrier( SocketChannel fromSC, 
 			AbstractMessage inputMessage,
+			SocketResource socketResourceOfFromSC,
 			MessageProtocolIF messageProtocol,
 			ClassLoader classLoaderOfSererTask,
-			ServerObjectCacheManagerIF serverObjectCacheManager,
-			OutputMessageWriterIF outputMessageWriter) {
-		this.fromSC = fromSC;
+			ServerObjectCacheManagerIF serverObjectCacheManager) {
+		this.fromSC = fromSC;		
 		this.inputMessage = inputMessage;
+		this.socketResourceOfFromSC = socketResourceOfFromSC;
 		this.messageProtocol = messageProtocol;
 		this.serverObjectCacheManager = serverObjectCacheManager;
-		this.outputMessageWriter = outputMessageWriter;
 	}
-	
-	
-	public void addSyncMessage(AbstractMessage outputMessage) {
-		outputMessage.messageHeaderInfo = inputMessage.messageHeaderInfo;
+
+	public void addSyncOutputMessage(AbstractMessage syncOutputMessage) throws InterruptedException {
+		if (null == syncOutputMessage) {
+			throw new IllegalArgumentException("the parameter syncOutputMessage is null");
+		}
+		if (CommonStaticFinalVars.ASYN_MAILBOX_ID == inputMessage.messageHeaderInfo.mailboxID) {
+			log.warn("입력 메시지가 비동기 메시지일 경우 동기 출력 메시지를 보낼 수 없습니다. 추가 취소된 메시지={}", syncOutputMessage.toString());
+			
+			throw new IllegalArgumentException("the synchronous output message can't be added becase the inputMessage is a asynchronous message");
+		}
+		syncOutputMessage.messageHeaderInfo = inputMessage.messageHeaderInfo;
 		
-		if (asynToLetterList.size() > 0) {
-			log.warn("동기 메시지는 1개만 가질 수 있습니다.  추가 취소된 메시지={}", outputMessage.toString());
-			return;
+		if (toLetterList.size() > 0) {
+			log.warn("동기 메시지는 1개만 가질 수 있습니다. 추가 취소된 메시지={}", syncOutputMessage.toString());
+			throw new IllegalArgumentException("the synchronous output message can't be added becase another synchronous message is already registered in the toLetter list");
 		}
 		
-		ToLetter toLetter = buildToLetter(fromSC, outputMessage, messageProtocol, outputMessageWriter);
+		ToLetter toLetter = buildToLetter(fromSC, syncOutputMessage, messageProtocol, outputMessageWriter);
 		if (null != toLetter) {
-			asynToLetterList.add(toLetter);
+			toLetterList.add(toLetter);
 		}
 	}
 	
-	public void addAsynMessage(AbstractMessage outputMessage) {
-		outputMessage.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
-		outputMessage.messageHeaderInfo.mailID = clientResource.getServerMailID();
+	public void addAsynOutputMessage(AbstractMessage outputMessage) throws InterruptedException {
+		if (null == outputMessage) {
+			throw new IllegalArgumentException("the parameter outputMessage is null");
+		}
 		
-		ToLetter toLetter = buildToLetter(fromSC, outputMessage, messageProtocol, outputMessageWriter);
-		if (null != toLetter) {
-			asynToLetterList.add(toLetter);
-		}
+		addAsynOutputMessage(outputMessage, fromSC);
 	}
 	
-	public void addAsynMessage(AbstractMessage outputMessage, SocketChannel toSC) {
+	public void addAsynOutputMessage(AbstractMessage outputMessage, SocketChannel toSC) throws InterruptedException {
 		outputMessage.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
-		outputMessage.messageHeaderInfo.mailID = clientResource.getServerMailID();
+		outputMessage.messageHeaderInfo.mailID = socketResourceOfFromSC.getServerMailID();
 		
 		ToLetter toLetter = buildToLetter(toSC, outputMessage, messageProtocol, outputMessageWriter);
 		if (null != toLetter) {
-			asynToLetterList.add(toLetter);
+			toLetterList.add(toLetter);
 		}
 	}
-	
-	public void putAsynOutputMessageToOutputMessageWriter(AbstractMessage outputMessage, SocketChannel toSC) {
-		outputMessage.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
-		outputMessage.messageHeaderInfo.mailID = clientResource.getServerMailID();
-		
-		ToLetter toLetter = buildToLetter(toSC, outputMessage, messageProtocol, outputMessageWriter);
-		if (null != toLetter) {
-			try {
-				outputMessageWriter.putIntoQueue(toLetter);
-			} catch (InterruptedException e) {
-				try {
-					outputMessageWriter.putIntoQueue(toLetter);
-				} catch (InterruptedException e1) {
-					log.error("재시도 과정에서 인터럽트 발생하여 종료, clientResource=[{}], messageFromClient=[{}], 전달 못한 송신 메시지=[{}]", 
-							clientResource.toString(), inputMessage.toString(), toLetter.toString());
-					Thread.interrupted();
-				}
-			}
-		}
-	}
-	
-	public void putAsynOutputMessageToOutputMessageWriter(AbstractMessage outputMessage) {
-		outputMessage.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
-		outputMessage.messageHeaderInfo.mailID = clientResource.getServerMailID();
-		
-		ToLetter toLetter = buildToLetter(fromSC, outputMessage, messageProtocol, outputMessageWriter);
-		if (null != toLetter) {
-			try {
-				outputMessageWriter.putIntoQueue(toLetter);
-			} catch (InterruptedException e) {
-				try {
-					outputMessageWriter.putIntoQueue(toLetter);
-				} catch (InterruptedException e1) {
-					log.error("재시도 과정에서 인터럽트 발생하여 종료, clientResource=[{}], messageFromClient=[{}], 전달 못한 송신 메시지=[{}]", 
-							clientResource.toString(), inputMessage.toString(), toLetter.toString());
-					Thread.interrupted();
-				}
-			}
-		}
-	}
-	
-	public void putAsynToLetterListToOutputMessageWriter() {
-		for (ToLetter toLetter : asynToLetterList) {
-			try {
-				outputMessageWriter.putIntoQueue(toLetter);
-			} catch (InterruptedException e) {
-				try {
-					outputMessageWriter.putIntoQueue(toLetter);
-				} catch (InterruptedException e1) {
-					log.error("재시도 과정에서 인터럽트 발생하여 종료, clientResource=[{}], messageFromClient=[{}], 전달 못한 송신 메시지=[{}]", 
-							clientResource.toString(), inputMessage.toString(), toLetter.toString());
-					Thread.interrupted();
-				}
-			}
-		}
-	}
-	
-	private void sendSelfExnToClient(SocketChannel sc, int mailboxID, int mailID, String messageID,
-			String errorGuubun, 
-			String errorMessage, 
-			MessageProtocolIF messageProtocol,
-			OutputMessageWriterIF outputMessageWriter) {
-		
-		
-		SelfExn selfExnOutObj = new SelfExn();
-		selfExnOutObj.messageHeaderInfo.mailboxID = mailboxID;
-		selfExnOutObj.messageHeaderInfo.mailID = mailID;
-
-		selfExnOutObj.setErrorPlace("S");
-		selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class));
-
-		selfExnOutObj.setErrorMessageID(messageID);
-		selfExnOutObj.setErrorMessage(errorMessage);
-
-		List<WrapBuffer> wrapBufferList = null;
-		try {
-			wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER);
-		} catch (Exception e1) {
-			log.error("시스템 내부 메시지 SelfExn 스트림 만들기 실패, sc={}, SelfExn={}", sc.hashCode(),
-					selfExnOutObj.toString());
-			System.exit(1);
-		}
-
-		ToLetter toLetter = new ToLetter(sc, 
-				selfExnOutObj.getMessageID(),
-				selfExnOutObj.messageHeaderInfo.mailboxID,
-				selfExnOutObj.messageHeaderInfo.mailID, wrapBufferList);
-		try {
-			outputMessageWriter.putIntoQueue(toLetter);
-		} catch (InterruptedException e) {
-			try {
-				outputMessageWriter.putIntoQueue(toLetter);
-			} catch (InterruptedException e1) {
-				log.error("재시도 과정에서 인터럽트 발생하여 종료, toSC hashCode=[{}], 전달 못한 송신 메시지=[{}]",
-						sc.hashCode(), selfExnOutObj.toString());
-				Thread.interrupted();
-			}
-		}
-	}
-	
 	
 	public ToLetter buildToLetter(SocketChannel toSC,
 			AbstractMessage outputMessage, 
 			MessageProtocolIF messageProtocol,
-			OutputMessageWriterIF outputMessageWriter) {
+			OutputMessageWriterIF outputMessageWriter) throws InterruptedException {
 		String messageIDToClient = outputMessage.getMessageID();
-
+	
 		List<WrapBuffer> wrapBufferList = null;		
 		
-		MessageCodecIF messageCodec = null;
+		MessageCodecIF messageServerCodec = null;
 		try {
-			messageCodec = serverObjectCacheManager.getServerCodec(classLoaderOfSererTask, messageIDToClient);
+			messageServerCodec = serverObjectCacheManager.getServerMessageCodec(classLoaderOfSererTask, messageIDToClient);
 		} catch (DynamicClassCallException e) {
+			log.warn(e.getMessage());
 			
-			sendSelfExnToClient(toSC, 
+			putSelfExnToOutputMessageQueue(toSC, 
 					outputMessage.messageHeaderInfo.mailboxID,
 					outputMessage.messageHeaderInfo.mailID,
 					outputMessage.getMessageID(),
@@ -231,22 +139,26 @@ public class LetterCarrier {
 			
 			return null;
 		} catch (Exception e) {
-			sendSelfExnToClient(toSC, 
+			log.warn(e.getMessage(), e);
+			
+			putSelfExnToOutputMessageQueue(toSC, 
 					outputMessage.messageHeaderInfo.mailboxID,
 					outputMessage.messageHeaderInfo.mailID,
 					outputMessage.getMessageID(),
 					SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class),
-					"fail to get the mesage codec::"+e.getMessage(),
+					"fail to get a output mesage server codec::"+e.getMessage(),
 					messageProtocol,
 					outputMessageWriter);
 			return null;
 		}
-
+	
 		AbstractMessageEncoder messageEncoder = null;
 		try {
-			messageEncoder = messageCodec.getMessageEncoder();
+			messageEncoder = messageServerCodec.getMessageEncoder();
 		} catch (DynamicClassCallException e) {
-			sendSelfExnToClient(toSC, 
+			log.warn(e.getMessage());
+			
+			putSelfExnToOutputMessageQueue(toSC, 
 					outputMessage.messageHeaderInfo.mailboxID,
 					outputMessage.messageHeaderInfo.mailID,
 					outputMessage.getMessageID(),
@@ -256,25 +168,29 @@ public class LetterCarrier {
 					outputMessageWriter);
 			return null;
 		} catch (Exception e) {
-			sendSelfExnToClient(toSC, 
+			log.warn(e.getMessage(), e);
+			
+			putSelfExnToOutputMessageQueue(toSC, 
 					outputMessage.messageHeaderInfo.mailboxID,
 					outputMessage.messageHeaderInfo.mailID,
 					outputMessage.getMessageID(),
 					SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class),
-					"fail to get the mesage encoder::"+e.getMessage(),
+					"fail to get a output mesage encoder::"+e.getMessage(),
 					messageProtocol,
 					outputMessageWriter);
 			return null;
 		}
-
-
+	
+	
 		/*log.info("classLoader[{}], serverTask[{}], create new messageEncoder of messageIDToClient={}",
 				classLoaderOfSererTask.hashCode(), inputMessageID, messageIDToClient);*/
-
+	
 		try {
 			wrapBufferList = messageProtocol.M2S(outputMessage, messageEncoder);
 		} catch (NoMoreDataPacketBufferException e) {
-			sendSelfExnToClient(toSC, 
+			log.warn(e.getMessage());
+			
+			putSelfExnToOutputMessageQueue(toSC, 
 					outputMessage.messageHeaderInfo.mailboxID,
 					outputMessage.messageHeaderInfo.mailID,
 					outputMessage.getMessageID(),
@@ -284,7 +200,9 @@ public class LetterCarrier {
 					outputMessageWriter);
 				return null;		
 		} catch (BodyFormatException e) {
-			sendSelfExnToClient(toSC, 
+			log.warn(e.getMessage());
+			
+			putSelfExnToOutputMessageQueue(toSC, 
 					outputMessage.messageHeaderInfo.mailboxID,
 					outputMessage.messageHeaderInfo.mailID,
 					outputMessage.getMessageID(),
@@ -293,13 +211,15 @@ public class LetterCarrier {
 					messageProtocol,
 					outputMessageWriter);
 				return null;
-		} catch (Exception e) {
-			sendSelfExnToClient(toSC, 
+		} catch (Exception | Error e) {
+			log.warn(e.getMessage(), e);
+			
+			putSelfExnToOutputMessageQueue(toSC, 
 					outputMessage.messageHeaderInfo.mailboxID,
 					outputMessage.messageHeaderInfo.mailID,
 					outputMessage.getMessageID(),
 					SelfExnUtil.getSelfExnErrorGubun(BodyFormatException.class),
-					"fail to output message stream::"+e.getMessage(),
+					"fail to a output message stream::"+e.getMessage(),
 					messageProtocol,
 					outputMessageWriter);
 				return null;
@@ -309,33 +229,87 @@ public class LetterCarrier {
 				outputMessage.getMessageID(),
 				outputMessage.messageHeaderInfo.mailboxID,
 				outputMessage.messageHeaderInfo.mailID, wrapBufferList);
-
+	
 		return toLetter;
 	}
 
-	
-	/*public ArrayList<LetterToClient> getMessageToClientList() {
-		return letterToClientList;
-	}*/
-	
-	/**
-	 * 전체 목록 삭제. 주의점) 로그 없다. 만약 로그 필요시 {@link #writeLog(String) } 호출할것
-	 */
-	public void clearMessageToClientList() {
-		asynToLetterList.clear();
-	}
-
-	/**
-	 * @return 입력 메시지를 보낸 클라이언트의 자원
-	 */
-	public SocketResource getClientResource() {
-		return clientResource;
-	}
-	
-	public void writeLogAll(String title) {
-		int i=0;
-		for (ToLetter toLetter : asynToLetterList) {
-			log.info("%::전체삭제-잔존 메시지[{}]=[{}]", i++, toLetter.toString());
+	public void putAllToLettersToOutputMessageWriter() throws InterruptedException {
+		while (! toLetterList.isEmpty()) {
+			ToLetter toLetter = toLetterList.removeFirst();
+			try {
+				outputMessageWriter.putIntoQueue(toLetter);
+			} catch (InterruptedException e) {
+				log.warn("InterruptedException 발생으로 출력 메시지[{}] 손실", toLetter.toString());
+				
+				while (! toLetterList.isEmpty()) {
+					toLetter = toLetterList.removeFirst();
+					log.warn("InterruptedException 발생으로 출력 메시지[{}] 손실", toLetter.toString());
+				}
+				
+				// Thread.currentThread().interrupt();
+				throw e;
+			}
 		}
 	}
+	
+	public static void putSelfExnToOutputMessageQueue(SocketChannel toSC, 
+			int mailboxIDOfSelfExn, 
+			int mailIDOfSelfExn, 
+			String errorMessageID,
+			String errorType, 
+			String errorMessage, 
+			MessageProtocolIF messageProtocol,
+			OutputMessageWriterIF outputMessageWriter) throws InterruptedException {
+		
+		Logger log = LoggerFactory.getLogger(LetterCarrier.class);
+		
+		
+		SelfExn selfExnOutObj = new SelfExn();
+		selfExnOutObj.messageHeaderInfo.mailboxID = mailboxIDOfSelfExn;
+		selfExnOutObj.messageHeaderInfo.mailID = mailIDOfSelfExn;
+		selfExnOutObj.setErrorPlace("S");
+		selfExnOutObj.setErrorGubun(errorType);
+
+		selfExnOutObj.setErrorMessageID(errorMessageID);
+		selfExnOutObj.setErrorMessage(errorMessage);
+
+		List<WrapBuffer> wrapBufferListOfSelfExn = null;
+		try {
+			wrapBufferListOfSelfExn = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER);
+		} catch (Exception e) {
+			String errorMessage2 = String.format("fail to get the output stream of SelfExn, sc={}, SelfExn={}", 
+					toSC.hashCode(),
+					selfExnOutObj.toString());
+			log.warn(errorMessage2, e);
+			return;
+		}
+
+		ToLetter toLetter = new ToLetter(toSC, 
+				selfExnOutObj.getMessageID(),
+				selfExnOutObj.messageHeaderInfo.mailboxID,
+				selfExnOutObj.messageHeaderInfo.mailID, wrapBufferListOfSelfExn);
+		try {
+			outputMessageWriter.putIntoQueue(toLetter);
+		} catch (InterruptedException e) {
+			log.warn("InterruptedException 발생으로 출력 메시지[{}] 손실", toLetter.toString());
+			throw e;
+		}
+	}
+
+	
+	
+	/*public void clearAllToLetterList() {
+		toLetterList.clear();
+	}
+	
+	public SocketResource getSocketResourceOfFromSC() {
+		return socketResourceOfFromSC;
+	}
+	
+	public void writeAllToLetterList(String title) {
+		int i=0;
+		for (ToLetter toLetter : toLetterList) {
+			log.info("%::전체삭제-잔존 메시지[{}]=[{}]", i++, toLetter.toString());
+		}
+	}*/
 }

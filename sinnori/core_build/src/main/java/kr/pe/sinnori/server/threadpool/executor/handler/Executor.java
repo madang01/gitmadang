@@ -20,7 +20,6 @@ package kr.pe.sinnori.server.threadpool.executor.handler;
 import java.nio.channels.SocketChannel;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -28,20 +27,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.asyn.FromLetter;
-import kr.pe.sinnori.common.asyn.ToLetter;
-import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.SelfExnUtil;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
-import kr.pe.sinnori.common.io.WrapBuffer;
-import kr.pe.sinnori.common.message.AbstractMessage;
+import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
-import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
-import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.SocketResource;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
+import kr.pe.sinnori.server.executor.LetterCarrier;
 import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriterIF;
 
 /**
@@ -94,88 +89,71 @@ public class Executor extends Thread implements ExecutorIF {
 				WrapReadableMiddleObject wrapReadableMiddleObject = letterFromClient.getWrapReadableMiddleObject();
 				String messageID = wrapReadableMiddleObject.getMessageID();				
 				
-				SocketResource fromSocketResource = socketResourceManager.getSocketResource(fromSC);				
-				PersonalLoginManagerIF fromPersonalLoginManager = fromSocketResource.getPersonalLoginManager();
-				OutputMessageWriterIF fromOutputMessageWriter = fromSocketResource.getOutputMessageWriterWithMinimumMumberOfSockets();
+				SocketResource socketResourceOfFromSC = socketResourceManager.getSocketResource(fromSC);
+				// OutputMessageWriterIF outputMessageWriter = socketResourceOfFromSC.getOutputMessageWriterWithMinimumMumberOfSockets();
+				OutputMessageWriterIF outputMessageWriterOfFromSC = socketResourceOfFromSC
+						.getOutputMessageWriterWithMinimumMumberOfSockets();
 				
 				AbstractServerTask  serverTask = null;
 				try {
-					serverTask = serverObjectCacheManager.getServerTask(messageID);
 					
-					serverTask.execute(index, projectName, fromOutputMessageWriter, messageProtocol,
-							fromSC, wrapReadableMiddleObject, fromPersonalLoginManager, serverObjectCacheManager);
-				} catch (DynamicClassCallException e) {
-					log.warn("DynamicClassCallException", e);
-					
-					String errorMessage = new StringBuilder("1.fail to load server task class that is dynamic class::").append(e.toString()).toString();
-					
-					SelfExn selfExnOutObj = new SelfExn();
-					selfExnOutObj.messageHeaderInfo.mailboxID = wrapReadableMiddleObject.getMailboxID();
-					selfExnOutObj.messageHeaderInfo.mailID = wrapReadableMiddleObject.getMailID();
-					
-					selfExnOutObj.setErrorPlace("S");
-					selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class));
-					selfExnOutObj.setErrorMessageID(messageID);
-					selfExnOutObj.setErrorMessage(errorMessage);
-					
-					List<WrapBuffer> wrapBufferList = null;
 					try {
-						wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER);
-					} catch(Throwable e1) {
-						log.error("fail to convert 'SelfExn' message to stream", e1);
-						System.exit(1);
-					}
-					
-					putToOutputMessageQueue(fromSC, wrapReadableMiddleObject, selfExnOutObj, wrapBufferList, fromOutputMessageWriter);
-					continue;
-				} catch(Exception e) {
-					log.warn("unknown error", e);
-					
-					String errorMessage = new StringBuilder("2.fail to load server task class that is dynamic class::").append(e.toString()).toString();
-					
-					SelfExn selfExnOutObj = new SelfExn();
-					selfExnOutObj.messageHeaderInfo.mailboxID = wrapReadableMiddleObject.getMailboxID();
-					selfExnOutObj.messageHeaderInfo.mailID = wrapReadableMiddleObject.getMailID();
-					// selfExnOutObj.setError("S", messageID, new DynamicClassCallException("알수 없는 에러 발생::"+e.getMessage()));
-					selfExnOutObj.setErrorPlace("S");
-					selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class));
-					selfExnOutObj.setErrorMessageID(messageID);
-					selfExnOutObj.setErrorMessage(errorMessage);
-					
-					List<WrapBuffer> wrapBufferList = null;
-					try {
-						wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER);
+						serverTask = serverObjectCacheManager.getServerTask(messageID);
+					} catch (DynamicClassCallException e) {
+						log.warn(e.getMessage());
 						
-						putToOutputMessageQueue(fromSC, wrapReadableMiddleObject, selfExnOutObj, wrapBufferList, fromOutputMessageWriter);
-					} catch(Throwable e1) {
-						log.error("fail to convert 'SelfExn' message to stream", e1);
-						System.exit(1);
-					}
-					continue;
-				} catch (Error e) {
-					log.warn("unknown error", e);
-					
-					String errorMessage = new StringBuilder("3.fail to load server task class that is dynamic class::").append(e.toString()).toString();
-					
-					SelfExn selfExnOutObj = new SelfExn();
-					selfExnOutObj.messageHeaderInfo.mailboxID = wrapReadableMiddleObject.getMailboxID();
-					selfExnOutObj.messageHeaderInfo.mailID = wrapReadableMiddleObject.getMailID();
-					// selfExnOutObj.setError("S", messageID, new DynamicClassCallException("알수 없는 에러 발생::"+e.getMessage()));
-					selfExnOutObj.setErrorPlace("S");
-					selfExnOutObj.setErrorGubun(SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class));
-					selfExnOutObj.setErrorMessageID(messageID);
-					selfExnOutObj.setErrorMessage(errorMessage);
-					
-					List<WrapBuffer> wrapBufferList = null;
-					try {
-						wrapBufferList = messageProtocol.M2S(selfExnOutObj, CommonStaticFinalVars.SELFEXN_ENCODER);
+						int mailboxIDOfSelfExn = wrapReadableMiddleObject.getMailboxID();
+						int mailIDOfSelfExn = wrapReadableMiddleObject.getMailID();
+						String errorMessageID = wrapReadableMiddleObject.getMessageID();
+						String errorMessage = e.getMessage();
+						LetterCarrier.putSelfExnToOutputMessageQueue(fromSC, 
+								mailboxIDOfSelfExn, mailIDOfSelfExn, 
+								errorMessageID, 
+								SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class), 
+								errorMessage, 
+								messageProtocol, 
+								outputMessageWriterOfFromSC);
+						continue;
+					} catch(Exception | Error e) {
+						log.warn("fail to get a input message server task", e);
 						
-						putToOutputMessageQueue(fromSC, wrapReadableMiddleObject, selfExnOutObj, wrapBufferList, fromOutputMessageWriter);
-					} catch(Throwable e1) {
-						log.error("fail to convert 'SelfExn' message to stream", e1);
-						System.exit(1);
+						int mailboxIDOfSelfExn = wrapReadableMiddleObject.getMailboxID();
+						int mailIDOfSelfExn = wrapReadableMiddleObject.getMailID();
+						String errorMessageID = wrapReadableMiddleObject.getMessageID();
+						String errorMessage = "fail to get a input message server task::" + e.getMessage();
+						LetterCarrier.putSelfExnToOutputMessageQueue(fromSC, 
+								mailboxIDOfSelfExn, 
+								mailIDOfSelfExn, 
+								errorMessageID, 
+								SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class),
+								errorMessage, messageProtocol, outputMessageWriterOfFromSC);
+						continue;
 					}
-					continue;
+					
+					try {
+						serverTask.execute(index, projectName, 
+								fromSC,
+								socketResourceOfFromSC, 
+								wrapReadableMiddleObject, 
+								messageProtocol, 
+								serverObjectCacheManager);
+					} catch(Exception | Error e) {
+						log.warn("unknwon error::fail to execute a input message server task", e);
+						
+						int mailboxIDOfSelfExn = wrapReadableMiddleObject.getMailboxID();
+						int mailIDOfSelfExn = wrapReadableMiddleObject.getMailID();
+						String errorMessageID = wrapReadableMiddleObject.getMessageID();
+						// String errorType = SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class);
+						String errorMessage = "unknwon error::fail to execute a input message server task::" + e.getMessage();
+						LetterCarrier.putSelfExnToOutputMessageQueue(fromSC, 
+								mailboxIDOfSelfExn, 
+								mailIDOfSelfExn, 
+								errorMessageID, 
+								SelfExnUtil.getSelfExnErrorGubun(ServerTaskException.class),
+								errorMessage, messageProtocol, outputMessageWriterOfFromSC);
+						continue;
+					}
+				
 				} finally {
 					/**
 					 * <pre>
@@ -193,32 +171,8 @@ public class Executor extends Thread implements ExecutorIF {
 		} catch (Exception e) {
 			log.warn(String.format("%s ExecutorProcessor[%d] unknown error", projectName, index), e);
 		}
-
 	}
 	
-	private void putToOutputMessageQueue(SocketChannel clientSC, 
-			WrapReadableMiddleObject  receivedLetter,
-			AbstractMessage wrapBufferMessage, List<WrapBuffer> wrapBufferList, 
-			OutputMessageWriterIF outputMessageWriter) {
-		
-		ToLetter letterToClient = new ToLetter(clientSC,
-				wrapBufferMessage.getMessageID(),
-				wrapBufferMessage.messageHeaderInfo.mailboxID,
-				wrapBufferMessage.messageHeaderInfo.mailID,
-				wrapBufferList);
-		try {
-			outputMessageWriter.putIntoQueue(letterToClient);
-		} catch (InterruptedException e) {
-			try {
-				outputMessageWriter.putIntoQueue(letterToClient);
-			} catch (InterruptedException e1) {
-				log.error("재시도 과정에서 인터럽트 발생하여 종료, clientSC hashCode=[{}], 입력 메시지[{}] 추출 실패, 전달 못한 송신 메시지=[{}]", 
-					clientSC.hashCode(), receivedLetter.toString(), wrapBufferMessage.toString());
-				Thread.interrupted();
-			}
-		}
-	}
-
 
 	@Override
 	public void addNewSocket(SocketChannel newSC) {

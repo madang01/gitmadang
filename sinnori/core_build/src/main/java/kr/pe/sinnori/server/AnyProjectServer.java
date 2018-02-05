@@ -247,7 +247,7 @@ public class AnyProjectServer extends AbstractProject implements
 
 	
 
-	public MessageCodecIF getServerCodec(ClassLoader classLoader,
+	public MessageCodecIF getServerMessageCodec(ClassLoader classLoader,
 			String messageID) throws DynamicClassCallException {
 		String classFullName = new StringBuilder(
 				projectPartConfiguration.getClassLoaderClassPackagePrefixName()).append("message.")
