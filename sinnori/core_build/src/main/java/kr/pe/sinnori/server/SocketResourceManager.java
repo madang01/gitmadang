@@ -7,7 +7,7 @@ import java.util.HashMap;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.io.SocketOutputStream;
-import kr.pe.sinnori.server.threadpool.ServerThreadPoolManagerIF;
+import kr.pe.sinnori.server.threadpool.IEOThreadPoolManagerIF;
 import kr.pe.sinnori.server.threadpool.executor.handler.ExecutorIF;
 import kr.pe.sinnori.server.threadpool.inputmessage.handler.InputMessageReaderIF;
 import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriterIF;
@@ -19,17 +19,17 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 	private int dataPacketBufferMaxCntPerMessage = 0;
 	private DataPacketBufferPoolIF dataPacketBufferPoolManager = null;
 	private ProjectLoginManagerIF projectLoginManager = null;
-	private ServerThreadPoolManagerIF serverThreadPoolManager = null;
+	private IEOThreadPoolManagerIF ieoThreadPoolManager = null;
 	
 	private HashMap<SocketChannel, SocketResource> socketChannel2SocketResourceHash 
 		= new HashMap<SocketChannel, SocketResource>(); 
 	
-	private SocketResourceManager( 
+	public SocketResourceManager( 
 			CharsetDecoder streamCharsetDecoder,
 			int dataPacketBufferMaxCntPerMessage,
 			DataPacketBufferPoolIF dataPacketBufferPoolManager,
 			ProjectLoginManagerIF projectLoginManager,
-			ServerThreadPoolManagerIF serverThreadPoolManager) {
+			IEOThreadPoolManagerIF ieoThreadPoolManager) {
 		if (null == streamCharsetDecoder) {
 			throw new IllegalArgumentException("the parameter streamCharsetDecoder is null");
 		}
@@ -42,37 +42,23 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 		if (null == dataPacketBufferPoolManager) {
 			throw new IllegalArgumentException("the parameter dataPacketBufferPoolManager is null");
 		}
-		if (null == serverThreadPoolManager) {
-			throw new IllegalArgumentException("the parameter serverThreadPoolManager is null");
+		if (null == ieoThreadPoolManager) {
+			throw new IllegalArgumentException("the parameter ieoThreadPoolManager is null");
 		}
 		
 		this.streamCharsetDecoder = streamCharsetDecoder;
 		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
 		this.dataPacketBufferPoolManager = dataPacketBufferPoolManager;
 		this.projectLoginManager = projectLoginManager;
-		this.serverThreadPoolManager = serverThreadPoolManager;
+		this.ieoThreadPoolManager = ieoThreadPoolManager;
 	}
 	
-	public static class Builder {
-		public static SocketResourceManager build(CharsetDecoder streamCharsetDecoder,
-				int dataPacketBufferMaxCntPerMessage,
-				DataPacketBufferPoolIF dataPacketBufferPoolManager,
-				ProjectLoginManagerIF projectLoginManager,
-				ServerThreadPoolManagerIF serverThreadPoolManager) {
-            return new SocketResourceManager(
-            		streamCharsetDecoder,
-            		dataPacketBufferMaxCntPerMessage,
-            		dataPacketBufferPoolManager,
-            		projectLoginManager, serverThreadPoolManager);
-        }
-	}
 
 	@Override
 	public void addNewSocketChannel(SocketChannel newSC) throws NoMoreDataPacketBufferException {
 		if (null == newSC) {
 			throw new IllegalArgumentException("the newSC ownerSC is null");
-		}
-		
+		}		
 		
 		InputMessageReaderIF inputMessageReaderWithMinimumMumberOfSockets = null;
 		ExecutorIF executorWithMinimumMumberOfSockets = null;
@@ -86,9 +72,9 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 		PersonalLoginManager personalLoginManager = 
 				new PersonalLoginManager(newSC, projectLoginManager);
 		
-		inputMessageReaderWithMinimumMumberOfSockets = serverThreadPoolManager.getInputMessageReaderWithMinimumMumberOfSockets();
-		executorWithMinimumMumberOfSockets = serverThreadPoolManager.getExecutorWithMinimumMumberOfSockets();
-		outputMessageWriterWithMinimumMumberOfSockets = serverThreadPoolManager.getOutputMessageWriterWithMinimumMumberOfSockets();
+		inputMessageReaderWithMinimumMumberOfSockets = ieoThreadPoolManager.getInputMessageReaderWithMinimumMumberOfSockets();
+		executorWithMinimumMumberOfSockets = ieoThreadPoolManager.getExecutorWithMinimumMumberOfSockets();
+		outputMessageWriterWithMinimumMumberOfSockets = ieoThreadPoolManager.getOutputMessageWriterWithMinimumMumberOfSockets();
 		
 		SocketResource socketResource = new SocketResource(
 				newSC, 
@@ -160,6 +146,5 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 	public int getNumberOfSocketResources() {
 		return socketChannel2SocketResourceHash.size();
 	}
-	
 	
 }

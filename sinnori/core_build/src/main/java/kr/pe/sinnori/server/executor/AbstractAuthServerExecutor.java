@@ -27,7 +27,6 @@ import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.SocketResource;
-import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriterIF;
 
 /**
  * <pre>
@@ -53,19 +52,12 @@ public abstract class AbstractAuthServerExecutor extends AbstractServerTask {
 		// CharsetEncoder charsetEncoderOfProject = CharsetUtil.createCharsetEncoder(charsetOfProject);
 
 		PersonalLoginManagerIF personalLoginManagerOfFromSC = socketResourceOfFromSC.getPersonalLoginManager();
-		OutputMessageWriterIF outputMessageWriterOfFromSC = socketResourceOfFromSC.getOutputMessageWriterWithMinimumMumberOfSockets();
 		
 		if (! personalLoginManagerOfFromSC.isLogin()) {
-			int mailboxIDOfSelfExn = wrapReadableMiddleObject.getMailboxID();
-			int mailIDOfSelfExn = wrapReadableMiddleObject.getMailID();
-			String errorMessageID = wrapReadableMiddleObject.getMessageID();
-			String errorMessage = "로그인을 요구하는 서비스입니다";
-			LetterCarrier.putSelfExnToOutputMessageQueue(fromSC, 
-					mailboxIDOfSelfExn, 
-					mailIDOfSelfExn, 
-					errorMessageID, 
+			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 					SelfExnUtil.getSelfExnErrorGubun(NotLoginException.class),
-					errorMessage, messageProtocol, outputMessageWriterOfFromSC);
+					"this service is a login service, you are not login state",
+					wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
 			
 			return;
 		}

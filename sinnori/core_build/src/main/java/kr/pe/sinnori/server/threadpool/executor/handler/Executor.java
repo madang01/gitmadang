@@ -32,12 +32,12 @@ import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
+import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.SocketResource;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
 import kr.pe.sinnori.server.executor.AbstractServerTask;
-import kr.pe.sinnori.server.executor.LetterCarrier;
-import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriterIF;
+import kr.pe.sinnori.server.executor.ToLetterCarrier;
 
 /**
  * 서버 비지니스 로직 수행자 쓰레드<br/>
@@ -78,7 +78,7 @@ public class Executor extends Thread implements ExecutorIF {
 
 	@Override
 	public void run() {
-		log.info(String.format("%s ExecutorProcessor[%d] start", projectName, index));
+		log.warn("{} ExecutorProcessor[{}] start", projectName, index);
 		
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
@@ -87,46 +87,42 @@ public class Executor extends Thread implements ExecutorIF {
 				SocketChannel fromSC = letterFromClient.getFromSocketChannel();
 				
 				WrapReadableMiddleObject wrapReadableMiddleObject = letterFromClient.getWrapReadableMiddleObject();
-				String messageID = wrapReadableMiddleObject.getMessageID();				
+				String messageID = wrapReadableMiddleObject.getMessageID();
 				
 				SocketResource socketResourceOfFromSC = socketResourceManager.getSocketResource(fromSC);
-				// OutputMessageWriterIF outputMessageWriter = socketResourceOfFromSC.getOutputMessageWriterWithMinimumMumberOfSockets();
-				OutputMessageWriterIF outputMessageWriterOfFromSC = socketResourceOfFromSC
-						.getOutputMessageWriterWithMinimumMumberOfSockets();
+				
+				
+				if (messageID.equals(SelfExn.class.getSimpleName())) {
+					fromSC.close();
+					log.warn("this message id[{}] is a system reserved message id. so the socket channel[hashCode={}] was closed", messageID, fromSC.hashCode());					
+					continue;
+				}
 				
 				AbstractServerTask  serverTask = null;
 				try {
 					
 					try {
-						serverTask = serverObjectCacheManager.getServerTask(messageID);
+						serverTask = serverObjectCacheManager.getServerTask(messageID);	
 					} catch (DynamicClassCallException e) {
 						log.warn(e.getMessage());
+
+						String errorType = SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class);
+						String errorReason = e.getMessage();			
+						ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
+								errorType,
+								errorReason,
+								wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
 						
-						int mailboxIDOfSelfExn = wrapReadableMiddleObject.getMailboxID();
-						int mailIDOfSelfExn = wrapReadableMiddleObject.getMailID();
-						String errorMessageID = wrapReadableMiddleObject.getMessageID();
-						String errorMessage = e.getMessage();
-						LetterCarrier.putSelfExnToOutputMessageQueue(fromSC, 
-								mailboxIDOfSelfExn, mailIDOfSelfExn, 
-								errorMessageID, 
-								SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class), 
-								errorMessage, 
-								messageProtocol, 
-								outputMessageWriterOfFromSC);
 						continue;
 					} catch(Exception | Error e) {
-						log.warn("fail to get a input message server task", e);
+						log.warn("unknown error::fail to get a input message server task", e);
 						
-						int mailboxIDOfSelfExn = wrapReadableMiddleObject.getMailboxID();
-						int mailIDOfSelfExn = wrapReadableMiddleObject.getMailID();
-						String errorMessageID = wrapReadableMiddleObject.getMessageID();
-						String errorMessage = "fail to get a input message server task::" + e.getMessage();
-						LetterCarrier.putSelfExnToOutputMessageQueue(fromSC, 
-								mailboxIDOfSelfExn, 
-								mailIDOfSelfExn, 
-								errorMessageID, 
-								SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class),
-								errorMessage, messageProtocol, outputMessageWriterOfFromSC);
+						String errorType = SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class);
+						String errorReason = "fail to get a input message server task::"+e.getMessage();			
+						ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
+								errorType,
+								errorReason,
+								wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
 						continue;
 					}
 					
@@ -137,20 +133,17 @@ public class Executor extends Thread implements ExecutorIF {
 								wrapReadableMiddleObject, 
 								messageProtocol, 
 								serverObjectCacheManager);
+					} catch (InterruptedException e) {
+						throw e;
 					} catch(Exception | Error e) {
-						log.warn("unknwon error::fail to execute a input message server task", e);
+						log.warn("unknwon error::fail to execute a input message server task", e);						
 						
-						int mailboxIDOfSelfExn = wrapReadableMiddleObject.getMailboxID();
-						int mailIDOfSelfExn = wrapReadableMiddleObject.getMailID();
-						String errorMessageID = wrapReadableMiddleObject.getMessageID();
-						// String errorType = SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class);
-						String errorMessage = "unknwon error::fail to execute a input message server task::" + e.getMessage();
-						LetterCarrier.putSelfExnToOutputMessageQueue(fromSC, 
-								mailboxIDOfSelfExn, 
-								mailIDOfSelfExn, 
-								errorMessageID, 
-								SelfExnUtil.getSelfExnErrorGubun(ServerTaskException.class),
-								errorMessage, messageProtocol, outputMessageWriterOfFromSC);
+						String errorType = SelfExnUtil.getSelfExnErrorGubun(ServerTaskException.class);
+						String errorReason = "fail to execute a input message server task::"+e.getMessage();			
+						ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
+								errorType,
+								errorReason,
+								wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
 						continue;
 					}
 				
@@ -165,14 +158,14 @@ public class Executor extends Thread implements ExecutorIF {
 					wrapReadableMiddleObject.closeReadableMiddleObject();
 				}
 			}
-			log.warn(String.format("%s ExecutorProcessor[%d] loop exit", projectName, index));
+			log.warn("{} ExecutorProcessor[{}] loop exit", projectName, index);
 		} catch (InterruptedException e) {
-			log.warn(String.format("%s ExecutorProcessor[%d] stop", projectName, index), e);
+			log.warn("{} ExecutorProcessor[{}] stop", projectName, index);
 		} catch (Exception e) {
-			log.warn(String.format("%s ExecutorProcessor[%d] unknown error", projectName, index), e);
+			log.warn("unknown error", e);
+			log.warn("{} ExecutorProcessor[{}] unknown error", projectName, index);
 		}
-	}
-	
+	}	
 
 	@Override
 	public void addNewSocket(SocketChannel newSC) {

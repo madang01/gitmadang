@@ -23,8 +23,7 @@ public class AsynMailboxMapperTest extends AbstractJunitTest {
 		LinkedBlockingQueue<WrapReadableMiddleObject> outputMessageQueue 
 			= new LinkedBlockingQueue<WrapReadableMiddleObject>(outputMessageQueueSize); 
 		
-		AsynMailboxMapper asynMailboxMapper = AsynMailboxMapper.Builder
-				.build(totalNumberOfAsynMailbox, socketTimeOut, outputMessageQueue);
+		AsynMailboxMapper asynMailboxMapper = new AsynMailboxMapper(totalNumberOfAsynMailbox, socketTimeOut, outputMessageQueue);
 		
 		int mailboxID = -1;
 		try {
@@ -53,8 +52,7 @@ public class AsynMailboxMapperTest extends AbstractJunitTest {
 		LinkedBlockingQueue<WrapReadableMiddleObject> outputMessageQueue 
 			= new LinkedBlockingQueue<WrapReadableMiddleObject>(outputMessageQueueSize); 
 		
-		AsynMailboxMapper asynMailboxManager = AsynMailboxMapper.Builder
-				.build(totalNumberOfAsynMailbox, socketTimeOut, outputMessageQueue);
+		AsynMailboxMapper asynMailboxManager = new AsynMailboxMapper(totalNumberOfAsynMailbox, socketTimeOut, outputMessageQueue);
 		
 		int mailboxID = totalNumberOfAsynMailbox;
 		try {
@@ -84,8 +82,7 @@ public class AsynMailboxMapperTest extends AbstractJunitTest {
 		LinkedBlockingQueue<WrapReadableMiddleObject> outputMessageQueue 
 			= new LinkedBlockingQueue<WrapReadableMiddleObject>(outputMessageQueueSize); 
 		
-		AsynMailboxMapper asynMailboxManager = AsynMailboxMapper.Builder
-				.build(totalNumberOfAsynMailbox, socketTimeOut, outputMessageQueue);		
+		AsynMailboxMapper asynMailboxManager = new AsynMailboxMapper(totalNumberOfAsynMailbox, socketTimeOut, outputMessageQueue);		
 		
 		try {
 			int actualTotalNumberOfAsynMailbox = asynMailboxManager.getTotalNumberOfAsynMailbox();

@@ -89,8 +89,8 @@ public abstract class AbstractProject {
 		MessageProtocolType messageProtocolGubun = projectPartConfiguration.getMessageProtocol();*/
 		
 		boolean isDirect = false;
-		this.dataPacketBufferPoolManager = DataPacketBufferPool.Builder
-				.build(isDirect, projectPartConfiguration.getByteOrder()
+		this.dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, 
+				projectPartConfiguration.getByteOrder()
 						, projectPartConfiguration.getDataPacketBufferSize()
 						, projectPartConfiguration.getDataPacketBufferPoolSize());
 		

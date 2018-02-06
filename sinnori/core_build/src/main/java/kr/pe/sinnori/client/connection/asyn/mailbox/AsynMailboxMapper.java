@@ -14,15 +14,7 @@ public class AsynMailboxMapper {
 	
 	private AsynMailboxIF[] asynMailboxes = null; 
 	
-	public static class Builder {
-		public static AsynMailboxMapper build(int totalNumberOfAsynMailbox, 
-				long socketTimeOut, 
-				LinkedBlockingQueue<WrapReadableMiddleObject> outputMessageQueue) {
-            return new AsynMailboxMapper(totalNumberOfAsynMailbox, socketTimeOut, outputMessageQueue);
-        }
-	}
-
-	private AsynMailboxMapper(int totalNumberOfAsynMailbox, 
+	public AsynMailboxMapper(int totalNumberOfAsynMailbox, 
 			long socketTimeOut, 
 			LinkedBlockingQueue<WrapReadableMiddleObject> outputMessageQueue) {
 		if (totalNumberOfAsynMailbox < 2) {

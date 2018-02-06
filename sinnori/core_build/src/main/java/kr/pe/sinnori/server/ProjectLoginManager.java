@@ -18,18 +18,7 @@ public class ProjectLoginManager implements ProjectLoginManagerIF {
 	= new HashMap<String, SocketChannel>(); 
 	
 	
-	private ProjectLoginManager() {
-		/*this.projectName = projectName;
-		this.streamCharsetDecoder = streamCharsetDecoder;
-		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
-		this.dataPacketBufferPoolManager = dataPacketBufferPoolManager;*/
-	}
 	
-	public static class Builder {
-		public static ProjectLoginManager build() {
-            return new ProjectLoginManager();
-        }
-	}
 
 	@Override
 	public void registerloginUser(SocketChannel sc, String loginID) {

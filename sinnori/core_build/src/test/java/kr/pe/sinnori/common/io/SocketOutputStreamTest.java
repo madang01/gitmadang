@@ -33,8 +33,7 @@ public class SocketOutputStreamTest extends AbstractJunitTest {
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPool.Builder
-					.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			log.warn(""+e.getMessage(), e);
 			fail("unknown error::" + e.getMessage());
@@ -108,8 +107,7 @@ public class SocketOutputStreamTest extends AbstractJunitTest {
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPool.Builder
-					.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			log.warn(""+e.getMessage(), e);
 			fail("unknown error::" + e.getMessage());

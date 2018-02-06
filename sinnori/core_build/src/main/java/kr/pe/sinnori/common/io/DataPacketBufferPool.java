@@ -24,14 +24,7 @@ public class DataPacketBufferPool implements DataPacketBufferPoolIF {
 	private int dataPacketBufferSize;	
 	private int dataPacketBufferPoolSize;
 	
-	public static class Builder {
-		public static DataPacketBufferPool build(boolean isDirect, ByteOrder dataPacketBufferByteOrder, int dataPacketBufferSize, int dataPacketBufferPoolSize) {
-            return new DataPacketBufferPool(isDirect, dataPacketBufferByteOrder,dataPacketBufferSize, dataPacketBufferPoolSize);
-        }
-	}
-	
-
-	private DataPacketBufferPool(boolean isDirect, ByteOrder dataPacketBufferByteOrder, int dataPacketBufferSize, int dataPacketBufferPoolSize) {		
+	public DataPacketBufferPool(boolean isDirect, ByteOrder dataPacketBufferByteOrder, int dataPacketBufferSize, int dataPacketBufferPoolSize) {		
 		if (null == dataPacketBufferByteOrder) {
 			throw new IllegalArgumentException("the parameter dataPacketBufferByteOrder is null");
 		}

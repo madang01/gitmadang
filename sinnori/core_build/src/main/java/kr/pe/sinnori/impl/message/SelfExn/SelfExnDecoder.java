@@ -59,7 +59,7 @@ public final class SelfExnDecoder extends AbstractMessageDecoder {
 			, "ISO-8859-1" // nativeItemCharset
 			, middleReadableObject));
 
-		selfExn.setErrorMessage((String)
+		selfExn.setErrorReason((String)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "errorMessage" // itemName
 			, SingleItemType.US_PASCAL_STRING // itemType

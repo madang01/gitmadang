@@ -26,8 +26,7 @@ public class AsynPrivateMailboxTest extends AbstractJunitTest {
 	
 		int socketTimeOut = 500;
 		
-		AsynMailboxMapper asynMailboxMapper = AsynMailboxMapper.Builder
-				.build(totalNumberOfAsynMailbox, socketTimeOut, outputMessageQueue);
+		AsynMailboxMapper asynMailboxMapper = new AsynMailboxMapper(totalNumberOfAsynMailbox, socketTimeOut, outputMessageQueue);
 		
 		AsynPrivateMailbox asynPrivateMailbox = (AsynPrivateMailbox)asynMailboxMapper.getAsynMailbox(1);
 		
@@ -73,8 +72,7 @@ public class AsynPrivateMailboxTest extends AbstractJunitTest {
 		
 		int socketTimeOut = 500;
 		
-		AsynMailboxMapper asynMailboxMapper = AsynMailboxMapper.Builder
-				.build(totalNumberOfAsynMailbox, socketTimeOut, outputMessageQueue);
+		AsynMailboxMapper asynMailboxMapper = new AsynMailboxMapper(totalNumberOfAsynMailbox, socketTimeOut, outputMessageQueue);
 		
 		
 		int maxSleepingTime = 5000;

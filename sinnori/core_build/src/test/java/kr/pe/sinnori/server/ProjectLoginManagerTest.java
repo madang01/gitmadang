@@ -32,7 +32,7 @@ public class ProjectLoginManagerTest extends AbstractJunitTest {
 	
 	@Test
 	public void test_synchronized블락에로그를넣어섞이는지테스트_로그수동추가및삭제필요함() {
-		ProjectLoginManagerIF projectLoginManager = ProjectLoginManager.Builder.build();
+		ProjectLoginManagerIF projectLoginManager = new ProjectLoginManager();
 		
 		List<LoginTest> LoginTestList = new ArrayList<LoginTest>();
 		for (int i=0; i < 3; i++) {

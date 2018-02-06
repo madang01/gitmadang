@@ -28,24 +28,8 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
  *
  */
 public interface SocketResourceManagerIF {	
-	public void addNewSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException; 
-	
-	
+	public void addNewSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException;
 	public void remove(SocketChannel sc);
-	
-	/**
-	 * 입력 받은 Client(=Socket Channel) 에 해당하는 ClientResource 를 반환한다.
-	 * 
-	 * @param sc
-	 *            Client(=Socket Channel)
-	 * @return ClientResource
-	 */
 	public SocketResource getSocketResource(SocketChannel sc);
-	
-	/**
-	 * ClientManger가 관리하는 client 총수를 반환한다.
-	 * 
-	 * @return ClientManger가 관리하는 client 총수
-	 */
 	public int getNumberOfSocketResources();
 }

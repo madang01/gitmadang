@@ -43,8 +43,7 @@ public class DHBMessageProtocolTest extends AbstractJunitTest {
 		int dataPacketBufferPoolSize = 100;
 		
 		try {
-			dataPacketBufferPoolManager = DataPacketBufferPool.Builder
-					.build(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			log.warn(""+e.getMessage(), e);
 			fail("unknown error::" + e.getMessage());
@@ -82,7 +81,7 @@ public class DHBMessageProtocolTest extends AbstractJunitTest {
 		selfExnReq.setErrorPlace("sever");
 		selfExnReq.setErrorGubun("B");
 		selfExnReq.setErrorMessageID("Echo");
-		selfExnReq.setErrorMessage(testStringBuilder.toString());	
+		selfExnReq.setErrorReason(testStringBuilder.toString());	
 		
 		selfExnReq.messageHeaderInfo.mailboxID = 1;
 		selfExnReq.messageHeaderInfo.mailID = 3;

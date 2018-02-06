@@ -24,6 +24,7 @@ import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
+import kr.pe.sinnori.server.threadpool.IEOThreadPoolManagerIF;
 import kr.pe.sinnori.server.threadpool.executor.handler.Executor;
 import kr.pe.sinnori.server.threadpool.executor.handler.ExecutorIF;
 
@@ -49,7 +50,8 @@ public class ExecutorPool extends AbstractThreadPool implements ExecutorPoolIF {
 			LinkedBlockingQueue<FromLetter> inputMessageQueue,
 			MessageProtocolIF messageProtocol,
 			SocketResourceManagerIF socketResourceManager,
-			ServerObjectCacheManagerIF serverObjectCacheManager) {
+			ServerObjectCacheManagerIF serverObjectCacheManager,
+			IEOThreadPoolManagerIF ieoThreadPoolManager) {
 		if (size <= 0) {
 			throw new IllegalArgumentException(String.format("%s 파라미터 size 는 0보다 커야 합니다.", projectName));
 		}
@@ -68,6 +70,8 @@ public class ExecutorPool extends AbstractThreadPool implements ExecutorPoolIF {
 		this.messageProtocol = messageProtocol;
 		this.socketResourceManager = socketResourceManager;
 		this.serverObjectCacheManager = serverObjectCacheManager;
+		
+		ieoThreadPoolManager.setExecutorPool(this);
 
 		for (int i = 0; i < size; i++) {
 			addHandler();

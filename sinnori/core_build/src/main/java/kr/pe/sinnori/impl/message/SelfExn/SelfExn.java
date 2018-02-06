@@ -27,7 +27,7 @@ public class SelfExn extends AbstractMessage {
 	private String errorPlace;
 	private String errorGubun;
 	private String errorMessageID;
-	private String errorMessage;
+	private String errorReason;
 
 	public String getErrorPlace() {
 		return errorPlace;
@@ -51,11 +51,11 @@ public class SelfExn extends AbstractMessage {
 		this.errorMessageID = errorMessageID;
 	}
 	public String getErrorMessage() {
-		return errorMessage;
+		return errorReason;
 	}
 
-	public void setErrorMessage(String errorMessage) {
-		this.errorMessage = errorMessage;
+	public void setErrorReason(String errorReason) {
+		this.errorReason = errorReason;
 	}
 
 	@Override
@@ -68,8 +68,8 @@ public class SelfExn extends AbstractMessage {
 		builder.append(errorGubun);
 		builder.append(", errorMessageID=");
 		builder.append(errorMessageID);
-		builder.append(", errorMessage=");
-		builder.append(errorMessage);
+		builder.append(", errorReason=");
+		builder.append(errorReason);
 		builder.append("]");
 		return builder.toString();
 	}

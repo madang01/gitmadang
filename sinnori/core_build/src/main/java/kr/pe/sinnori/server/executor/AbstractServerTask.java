@@ -34,7 +34,6 @@ import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.SocketResource;
-import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriterIF;
 
 /**
  * <pre>
@@ -58,74 +57,57 @@ public abstract class AbstractServerTask {
 			SocketResource socketResourceOfFromSC,
 			WrapReadableMiddleObject wrapReadableMiddleObject,
 			MessageProtocolIF messageProtocol, 
-			ServerObjectCacheManagerIF serverObjectCacheManager) throws InterruptedException {
+			ServerObjectCacheManagerIF serverObjectCacheManager) throws InterruptedException {		
 		
-		OutputMessageWriterIF outputMessageWriterOfFromSC = socketResourceOfFromSC.getOutputMessageWriterWithMinimumMumberOfSockets();				
-		MessageCodecIF serverMessageCodec = null;
+		MessageCodecIF serverInputMessageCodec = null;
 
 		try {
-			serverMessageCodec = serverObjectCacheManager.getServerMessageCodec(classLoaderOfSererTask, wrapReadableMiddleObject.getMessageID());
+			serverInputMessageCodec = serverObjectCacheManager.getServerMessageCodec(classLoaderOfSererTask, wrapReadableMiddleObject.getMessageID());
 		} catch (DynamicClassCallException e) {
 			log.warn(e.getMessage());
 			
-			int mailboxIDOfSelfExn = wrapReadableMiddleObject.getMailboxID();
-			int mailIDOfSelfExn = wrapReadableMiddleObject.getMailID();
-			String errorMessageID = wrapReadableMiddleObject.getMessageID();
-			String errorMessage = e.getMessage();
-			LetterCarrier.putSelfExnToOutputMessageQueue(fromSC, 
-					mailboxIDOfSelfExn, 
-					mailIDOfSelfExn, 
-					errorMessageID, 
-					SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class),
-					errorMessage, messageProtocol, outputMessageWriterOfFromSC);			
+			String errorType = SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class);
+			String errorReason = e.getMessage();			
+			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
+					errorType,
+					errorReason,
+					wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
 			return;
 		} catch (Exception e) {
-			int mailboxIDOfSelfExn = wrapReadableMiddleObject.getMailboxID();
-			int mailIDOfSelfExn = wrapReadableMiddleObject.getMailID();
-			String errorMessageID = wrapReadableMiddleObject.getMessageID();
-			String errorMessage = "fail to get a server message codec::" + e.getMessage();
-			LetterCarrier.putSelfExnToOutputMessageQueue(fromSC, 
-					mailboxIDOfSelfExn, 
-					mailIDOfSelfExn, 
-					errorMessageID, 
-					SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class),
-					errorMessage, messageProtocol, outputMessageWriterOfFromSC);				
+			log.warn("unknwon error::fail to get a input message server codec", e);			
+			String errorType = SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class);
+			String errorReason = "fail to get a input message server codec::"+e.getMessage();			
+			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
+					errorType,
+					errorReason,
+					wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
 			return;
 		}
 
-		AbstractMessageDecoder messageDecoder = null;
+		AbstractMessageDecoder inputMessageDecoder = null;
 		try {
-			messageDecoder = serverMessageCodec.getMessageDecoder();
+			inputMessageDecoder = serverInputMessageCodec.getMessageDecoder();
 		} catch (DynamicClassCallException e) {
 			log.warn(e.getMessage());
-
-			int mailboxIDOfSelfExn = wrapReadableMiddleObject.getMailboxID();
-			int mailIDOfSelfExn = wrapReadableMiddleObject.getMailID();
-			String errorMessageID = wrapReadableMiddleObject.getMessageID();
-			String errorMessage = e.getMessage();
-			LetterCarrier.putSelfExnToOutputMessageQueue(fromSC, 
-					mailboxIDOfSelfExn, 
-					mailIDOfSelfExn, 
-					errorMessageID, 
-					SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class),
-					errorMessage, messageProtocol, outputMessageWriterOfFromSC);	
+			
+			String errorType = SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class);
+			String errorReason = e.getMessage();			
+			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
+					errorType,
+					errorReason,
+					wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
 			return;
 		} catch(Exception | Error e) {
-			log.warn(e.getMessage(), e);
+			log.warn("unknwon error::fail to get a input message decoder", e);
 			
-			int mailboxIDOfSelfExn = wrapReadableMiddleObject.getMailboxID();
-			int mailIDOfSelfExn = wrapReadableMiddleObject.getMailID();
-			String errorMessageID = wrapReadableMiddleObject.getMessageID();
-			String errorMessage = "fail to get a input message decoder::" + e.getMessage();
-			LetterCarrier.putSelfExnToOutputMessageQueue(fromSC, 
-					mailboxIDOfSelfExn, 
-					mailIDOfSelfExn, 
-					errorMessageID, 
-					SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class),
-					errorMessage, messageProtocol, outputMessageWriterOfFromSC);	
+			String errorType = SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class);
+			String errorReason = "fail to get a input message decoder::"+e.getMessage();			
+			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
+					errorType,
+					errorReason,
+					wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
 			return;
 		}
-
 
 		/*log.info("classLoader[{}], serverTask[{}], create new messageDecoder", 
 				classLoaderOfSererTask.hashCode(),
@@ -133,40 +115,32 @@ public abstract class AbstractServerTask {
 			
 		AbstractMessage inputMessage = null;
 		try {
-			inputMessage = messageDecoder.decode(messageProtocol.getSingleItemDecoder(), wrapReadableMiddleObject.getReadableMiddleObject());
+			inputMessage = inputMessageDecoder.decode(messageProtocol.getSingleItemDecoder(), wrapReadableMiddleObject.getReadableMiddleObject());
 			inputMessage.messageHeaderInfo.mailboxID = wrapReadableMiddleObject.getMailboxID();
 			inputMessage.messageHeaderInfo.mailID = wrapReadableMiddleObject.getMailID();
 		} catch (BodyFormatException e) {
 			log.warn(e.getMessage());
 			
-			int mailboxIDOfSelfExn = wrapReadableMiddleObject.getMailboxID();
-			int mailIDOfSelfExn = wrapReadableMiddleObject.getMailID();
-			String errorMessageID = wrapReadableMiddleObject.getMessageID();
-			String errorMessage = e.getMessage();
-			LetterCarrier.putSelfExnToOutputMessageQueue(fromSC, 
-					mailboxIDOfSelfExn, 
-					mailIDOfSelfExn, 
-					errorMessageID, 
-					SelfExnUtil.getSelfExnErrorGubun(BodyFormatException.class),
-					errorMessage, messageProtocol, outputMessageWriterOfFromSC);		
-			return;
+			String errorType = SelfExnUtil.getSelfExnErrorGubun(BodyFormatException.class);
+			String errorReason = e.getMessage();			
+			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
+					errorType,
+					errorReason,
+					wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
+			return;		
 		} catch(Exception | Error e) {
-			log.warn(e.getMessage(), e);
+			log.warn("unknown error::fail to get a input message from readable middle object", e);
 			
-			int mailboxIDOfSelfExn = wrapReadableMiddleObject.getMailboxID();
-			int mailIDOfSelfExn = wrapReadableMiddleObject.getMailID();
-			String errorMessageID = wrapReadableMiddleObject.getMessageID();
-			String errorMessage = "fail to get a input message from readable middle object::" + e.getMessage();
-			LetterCarrier.putSelfExnToOutputMessageQueue(fromSC, 
-					mailboxIDOfSelfExn, 
-					mailIDOfSelfExn, 
-					errorMessageID, 
-					SelfExnUtil.getSelfExnErrorGubun(BodyFormatException.class),
-					errorMessage, messageProtocol, outputMessageWriterOfFromSC);	
+			String errorType = SelfExnUtil.getSelfExnErrorGubun(BodyFormatException.class);
+			String errorReason = "fail to get a input message from readable middle object::"+e.getMessage();			
+			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
+					errorType,
+					errorReason,
+					wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
 			return;
 		}
-		// SocketResource socketResourceOfFromSC
-		LetterCarrier letterCarrier = new LetterCarrier(fromSC, 
+		
+		ToLetterCarrier toLetterCarrier = new ToLetterCarrier(fromSC, 
 				inputMessage, 
 				socketResourceOfFromSC,
 				messageProtocol,
@@ -176,30 +150,33 @@ public abstract class AbstractServerTask {
 		PersonalLoginManagerIF personalLoginManagerOfFromSC = socketResourceOfFromSC.getPersonalLoginManager();		
 
 		try {
-			doTask(projectName, personalLoginManagerOfFromSC, letterCarrier, inputMessage);		
+			doTask(projectName, personalLoginManagerOfFromSC, toLetterCarrier, inputMessage);
+		} catch (InterruptedException e) {
+			throw e;
 		} catch (Exception | Error e) {
-			log.warn("fail to execuate task", e);
+			log.warn("unknown error::fail to execuate task", e);
 			
-			int mailboxIDOfSelfExn = wrapReadableMiddleObject.getMailboxID();
-			int mailIDOfSelfExn = wrapReadableMiddleObject.getMailID();
-			String errorMessageID = wrapReadableMiddleObject.getMessageID();
-			String errorMessage = "fail to execuate task::" + e.getMessage();
-			LetterCarrier.putSelfExnToOutputMessageQueue(fromSC, 
-					mailboxIDOfSelfExn, 
-					mailIDOfSelfExn, 
-					errorMessageID, 
-					SelfExnUtil.getSelfExnErrorGubun(ServerTaskException.class),
-					errorMessage, messageProtocol, outputMessageWriterOfFromSC);
+			
+			String errorType = SelfExnUtil.getSelfExnErrorGubun(ServerTaskException.class);
+			String errorReason = "fail to execuate task::"+e.getMessage();			
+			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
+					errorType,
+					errorReason,
+					wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
 			return;
 		}
 
-		letterCarrier.putAllToLettersToOutputMessageWriter();
+		toLetterCarrier.putAllInputMessageToOutputMessageQueue();
 
 		// long lastErraseTime = new java.util.Date().getTime() - firstErraseTime;
 		// log.info(String.format("수행 시간=[%f] ms", (float) lastErraseTime));
-	}	
+	}
+
+
+		
 	
 	
-	abstract public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, LetterCarrier letterCarrier,
-			AbstractMessage requestMessage) throws Exception;
+	abstract public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
+			AbstractMessage inputMessage) throws Exception;
+	
 }
