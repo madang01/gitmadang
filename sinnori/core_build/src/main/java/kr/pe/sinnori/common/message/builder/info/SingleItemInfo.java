@@ -107,108 +107,118 @@ public class SingleItemInfo extends AbstractItemInfo {
 		
 		
 		switch(itemType) {
+			case SELFEXN_ERROR_PLACE : {
+				makeSourceBuilderInformationOfSelfExnErrorPlace(itemName,
+						nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
+				break;
+			}
+			case SELFEXN_ERROR_TYPE : {
+				makeSourceBuilderInformationOfSelfExnErrorType(itemName,
+						nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
+				break;
+			}
 			case BYTE : {
-				makeByteTypeInformationAfterCheckingAdditionalInformation(itemName,
+				makeSourceBuilderInformationOfByte(itemName,
 						nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 				break;
 			}
 			
 			case UNSIGNED_BYTE : {
-				makeUnsignedByteTypeInformationAfterCheckingAdditionalInformation(itemName,
+				makeSourceBuilderInformationOfUnsignedByte(itemName,
 						nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 				break;
 			}
 			
 			case SHORT : {
-				makeShortTypeInformationAfterCheckingAdditionalInformation(itemName,
+				makeSourceBuilderInformationOfShort(itemName,
 						nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 				break;
 			}
 			
 			case UNSIGNED_SHORT : {
-				makeUnsignedShortTypeInformationAfterCheckingAdditionalInformation(itemName,
+				makeSourceBuilderInformationOfUnsignedShort(itemName,
 						nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 				break;
 			}
 			
 			case INTEGER : {
-				makeIntegerTypeInformationAfterCheckingAdditionalInformation(itemName,
+				makeSourceBuilderInformationOfInteger(itemName,
 						nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 				break;
 			}
 			
 			case UNSIGNED_INTEGER : {
-				makeUnsignedIntegerTypeInformationAfterCheckingAdditionalInformation(
+				makeSourceBuilderInformationOfUnsignedInteger(
 						itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 				break;
 			}
 			
 			case LONG : {
-				makeLongTypeInformationAfterCheckingAdditionalInformation(itemName,
+				makeSourceBuilderInformationOfLong(itemName,
 						nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 				break;
 			}
 			
 			case UB_PASCAL_STRING : {
-				makePascalStringTypeInformationAfterCheckingAdditionalInformation("ub",
+				makeSourceBuilderInformationOfPascalString("ub",
 						itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 				break;
 			}
 			
 			case US_PASCAL_STRING : {
-				makePascalStringTypeInformationAfterCheckingAdditionalInformation("us",
+				makeSourceBuilderInformationOfPascalString("us",
 						itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 				break;
 			}
 			
 			case SI_PASCAL_STRING : {
-				makePascalStringTypeInformationAfterCheckingAdditionalInformation("si",
+				makeSourceBuilderInformationOfPascalString("si",
 						itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 				break;
 			}
 			
 			case FIXED_LENGTH_STRING : {
-				makeFixedLengthStringTypeInformationAfterCheckingAdditionalInformation(
+				makeSourceBuilderInformationOfFixedLengthString(
 						itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 				break;
 			}
 			
 			case UB_VARIABLE_LENGTH_BYTES : {
-				makeVariableLengthByteArrayTypeInformationAfterCheckingAdditionalInformation(
+				makeSourceBuilderInformationOfVariableLengthByteArray(
 						"ub", itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 				break;
 			}
 			
 			case US_VARIABLE_LENGTH_BYTES : {
-				makeVariableLengthByteArrayTypeInformationAfterCheckingAdditionalInformation(
+				makeSourceBuilderInformationOfVariableLengthByteArray(
 						"us", itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 				break;
 			}
 			
 			case SI_VARIABLE_LENGTH_BYTES : {
-				makeVariableLengthByteArrayTypeInformationAfterCheckingAdditionalInformation(
+				makeSourceBuilderInformationOfVariableLengthByteArray(
 						"si", itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 				break;
 			}
 			
 			case FIXED_LENGTH_BYTES : {
-				makeFixedLengthByteArrayTypeInformationAfterCheckingAdditionalInformation(
+				makeSourceBuilderInformationOfFixedLengthByteArray(
 						itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 				break;
 			}
 			case JAVA_SQL_DATE : {
-				makeJavaSqlDateTypeInformationAfterCheckingAdditionalInformation(
+				makeSourceBuilderInformationOfJavaSqlDate(
 						itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 				break;
 			}
 			
 			case JAVA_SQL_TIMESTAMP : {
-				makeJavaSqlTimestampTypeInformationAfterCheckingAdditionalInformation(
+				makeSourceBuilderInformationOfJavaSqlTimestamp(
 						itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 			}
 			
 			case BOOLEAN : {
-				makeBooleanTypeInformationAfterCheckingAdditionalInformation(
+				makeSourceBuilderInformationOfBoolean(
 						itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
 				break;
 			}
@@ -380,8 +390,69 @@ public class SingleItemInfo extends AbstractItemInfo {
 			throw new IllegalArgumentException(errorMessage);
 		}
 	}
+	
+	private void makeSourceBuilderInformationOfSelfExnErrorPlace(
+			String itemName, String nativeItemDefaultValue, String nativeItemSize,
+			String nativeItemCharset) throws IllegalArgumentException {
+		if (null != nativeItemDefaultValue) {
+			String errorMessage = new StringBuilder(
+					"this 'selfexn error place' type single item[").append(itemName)
+					.append("] doesn't support attribute 'defaultValue'").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}	
 
-	private void makeByteTypeInformationAfterCheckingAdditionalInformation(
+		if (null != nativeItemSize) {
+			String errorMessage = new StringBuilder(
+					"this 'selfexn error place' type single item[").append(itemName)
+					.append("] doesn't support attribute 'size'").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+
+		if (null != nativeItemCharset) {
+			String errorMessage = new StringBuilder(
+					"this 'selfexn error place' type single item[").append(itemName)
+					.append("] doesn't support attribute 'charset'").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+
+		this.itemSize = -1;
+		this.defaultValueForVariableDeclarationPart = null;
+		this.javaLangTypeOfItemType = "kr.pe.sinnori.common.type.SelfExn.ErrorPlace";
+		this.JavaLangClassCastingTypeOfItemType = "kr.pe.sinnori.common.type.SelfExn.ErrorPlace";
+	}
+
+	
+	private void makeSourceBuilderInformationOfSelfExnErrorType(
+			String itemName, String nativeItemDefaultValue, String nativeItemSize,
+			String nativeItemCharset) throws IllegalArgumentException {
+		if (null != nativeItemDefaultValue) {
+			String errorMessage = new StringBuilder(
+					"this 'selfexn error place' type single item[").append(itemName)
+					.append("] doesn't support attribute 'defaultValue'").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}	
+
+		if (null != nativeItemSize) {
+			String errorMessage = new StringBuilder(
+					"this 'selfexn error place' type single item[").append(itemName)
+					.append("] doesn't support attribute 'size'").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+
+		if (null != nativeItemCharset) {
+			String errorMessage = new StringBuilder(
+					"this 'selfexn error place' type single item[").append(itemName)
+					.append("] doesn't support attribute 'charset'").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+
+		this.itemSize = -1;
+		this.defaultValueForVariableDeclarationPart = null;
+		this.javaLangTypeOfItemType = "kr.pe.sinnori.common.type.SelfExn.ErrorType";
+		this.JavaLangClassCastingTypeOfItemType = "kr.pe.sinnori.common.type.SelfExn.ErrorType";
+	}
+	
+	private void makeSourceBuilderInformationOfByte(
 			String itemName, String nativeItemDefaultValue, String nativeItemSize,
 			String nativeItemCharset) throws IllegalArgumentException {
 		if (null != nativeItemDefaultValue) {
@@ -420,7 +491,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 		this.JavaLangClassCastingTypeOfItemType = "Byte";
 	}
 
-	private void makeUnsignedByteTypeInformationAfterCheckingAdditionalInformation(
+	private void makeSourceBuilderInformationOfUnsignedByte(
 			String itemName, String nativeItemDefaultValue, String nativeItemSize,
 			String nativeItemCharset) throws IllegalArgumentException {
 		if (null != nativeItemDefaultValue) {
@@ -478,7 +549,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 		this.JavaLangClassCastingTypeOfItemType = "Short";
 	}
 
-	private void makeShortTypeInformationAfterCheckingAdditionalInformation(
+	private void makeSourceBuilderInformationOfShort(
 			String itemName, String nativeItemDefaultValue, String nativeItemSize,
 			String nativeItemCharset) throws IllegalArgumentException {
 		if (null != nativeItemDefaultValue) {
@@ -516,7 +587,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 		this.JavaLangClassCastingTypeOfItemType = "Short";
 	}
 
-	private void makeUnsignedShortTypeInformationAfterCheckingAdditionalInformation(
+	private void makeSourceBuilderInformationOfUnsignedShort(
 			String itemName, String nativeItemDefaultValue, String nativeItemSize,
 			String nativeItemCharset) throws IllegalArgumentException {
 		if (null != nativeItemDefaultValue) {
@@ -573,7 +644,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 		this.JavaLangClassCastingTypeOfItemType = "Integer";
 	}
 
-	private void makeIntegerTypeInformationAfterCheckingAdditionalInformation(
+	private void makeSourceBuilderInformationOfInteger(
 			String itemName, String nativeItemDefaultValue, String nativeItemSize,
 			String nativeItemCharset) throws IllegalArgumentException {
 		if (null != nativeItemDefaultValue) {
@@ -611,7 +682,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 		this.JavaLangClassCastingTypeOfItemType = "Integer";
 	}
 
-	private void makeUnsignedIntegerTypeInformationAfterCheckingAdditionalInformation(
+	private void makeSourceBuilderInformationOfUnsignedInteger(
 			String itemName, String nativeItemDefaultValue, String nativeItemSize,
 			String nativeItemCharset) throws IllegalArgumentException {
 		if (null != nativeItemDefaultValue) {
@@ -670,7 +741,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 		this.JavaLangClassCastingTypeOfItemType = "Long";
 	}
 
-	private void makeLongTypeInformationAfterCheckingAdditionalInformation(
+	private void makeSourceBuilderInformationOfLong(
 			String itemName, String nativeItemDefaultValue, String nativeItemSize,
 			String nativeItemCharset) throws IllegalArgumentException {
 		if (null != nativeItemDefaultValue) {
@@ -708,7 +779,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 		this.JavaLangClassCastingTypeOfItemType = "Long";
 	}
 
-	private void makePascalStringTypeInformationAfterCheckingAdditionalInformation(
+	private void makeSourceBuilderInformationOfPascalString(
 			String pascalStringGubun, String itemName, String nativeItemDefaultValue,
 			String nativeItemSize, String nativeItemCharset)
 			throws IllegalArgumentException {
@@ -774,7 +845,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 		JavaLangClassCastingTypeOfItemType = "String";
 	}
 
-	private void makeFixedLengthStringTypeInformationAfterCheckingAdditionalInformation(
+	private void makeSourceBuilderInformationOfFixedLengthString(
 			String itemName, String nativeItemDefaultValue, String nativeItemSize,
 			String nativeItemCharset) throws IllegalArgumentException {
 		if (null != nativeItemDefaultValue) {
@@ -851,11 +922,11 @@ public class SingleItemInfo extends AbstractItemInfo {
 		JavaLangClassCastingTypeOfItemType = "String";
 	}
 
-	private void makeVariableLengthByteArrayTypeInformationAfterCheckingAdditionalInformation(
-			String variableLengthByteArrayGubun, String itemName,
+	private void makeSourceBuilderInformationOfVariableLengthByteArray(
+			String variableLengthByteArrayType, String itemName,
 			String nativeItemDefaultValue, String nativeItemSize, String nativeItemCharset)
 			throws IllegalArgumentException {
-		if (null == variableLengthByteArrayGubun) {
+		if (null == variableLengthByteArrayType) {
 			throw new IllegalArgumentException("the parameter variableLengthByteArrayGubun is null");
 		}
 		if (null == itemName) {
@@ -866,13 +937,13 @@ public class SingleItemInfo extends AbstractItemInfo {
 		variableLengthByteArrayGubunSet.add("ub");
 		variableLengthByteArrayGubunSet.add("us");
 		variableLengthByteArrayGubunSet.add("si");
-		if (! variableLengthByteArrayGubunSet.contains(variableLengthByteArrayGubun)) {
+		if (! variableLengthByteArrayGubunSet.contains(variableLengthByteArrayType)) {
 			throw new IllegalArgumentException("the parameter variableLengthByteArrayGubun is not an element of variable length byte array gubun set[ub, us, si]");
 		}
 		
 		if (null != nativeItemDefaultValue) {
 			String errorMessage = new StringBuilder("this '")
-					.append(variableLengthByteArrayGubun)
+					.append(variableLengthByteArrayType)
 					.append(" variable length byte[]' type single item[")
 					.append(itemName)
 					.append("] doesn't support attribute 'defaultValue'")
@@ -881,7 +952,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 		}
 		if (null != nativeItemSize) {
 			String errorMessage = new StringBuilder("this '")
-					.append(variableLengthByteArrayGubun)
+					.append(variableLengthByteArrayType)
 					.append(" variable length byte[]' type single item[")
 					.append(itemName)
 					.append("] doesn't support attribute 'size'").toString();
@@ -890,7 +961,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 
 		if (null != nativeItemCharset) {
 			String errorMessage = new StringBuilder("this '")
-					.append(variableLengthByteArrayGubun)
+					.append(variableLengthByteArrayType)
 					.append(" variable length byte[]' type single item[")
 					.append(itemName)
 					.append("] doesn't support attribute 'charset'").toString();
@@ -903,7 +974,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 		JavaLangClassCastingTypeOfItemType = "byte[]";
 	}
 	
-	private void makeFixedLengthByteArrayTypeInformationAfterCheckingAdditionalInformation(
+	private void makeSourceBuilderInformationOfFixedLengthByteArray(
 			String itemName, String nativeItemDefaultValue, String nativeItemSize,
 			String nativeItemCharset) throws IllegalArgumentException {
 		if (null != nativeItemDefaultValue) {
@@ -955,7 +1026,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 		JavaLangClassCastingTypeOfItemType = "byte[]";
 	}
 	
-	private void makeJavaSqlDateTypeInformationAfterCheckingAdditionalInformation(
+	private void makeSourceBuilderInformationOfJavaSqlDate(
 			String itemName, String nativeItemDefaultValue, String nativeItemSize,
 			String nativeItemCharset) throws IllegalArgumentException {
 		if (null != nativeItemDefaultValue) {
@@ -987,7 +1058,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 		JavaLangClassCastingTypeOfItemType = "java.sql.Date";
 	}
 	
-	private void makeJavaSqlTimestampTypeInformationAfterCheckingAdditionalInformation(
+	private void makeSourceBuilderInformationOfJavaSqlTimestamp(
 			String itemName, String nativeItemDefaultValue, String nativeItemSize,
 			String nativeItemCharset) throws IllegalArgumentException {
 		if (null != nativeItemDefaultValue) {
@@ -1019,7 +1090,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 		JavaLangClassCastingTypeOfItemType = "java.sql.Timestamp";
 	}
 	
-	private void makeBooleanTypeInformationAfterCheckingAdditionalInformation(
+	private void makeSourceBuilderInformationOfBoolean(
 			String itemName, String nativeItemDefaultValue, String nativeItemSize,
 			String nativeItemCharset) throws IllegalArgumentException {
 		if (null != nativeItemDefaultValue) {

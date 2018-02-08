@@ -184,7 +184,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 						}
 						
 						SocketOutputStream fromSocketOutputStream = fromSocketResource.getSocketOutputStream();
-						ExecutorIF fromExecutor = fromSocketResource.getExecutorWithMinimumMumberOfSockets();
+						ExecutorIF fromExecutor = fromSocketResource.getExecutor();
 						
 						
 						try {

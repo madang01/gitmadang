@@ -22,9 +22,10 @@ import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
-import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
-import kr.pe.sinnori.impl.message.SelfExn.SelfExnDecoder;
-import kr.pe.sinnori.impl.message.SelfExn.SelfExnEncoder;
+import kr.pe.sinnori.common.type.SelfExn;
+import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
+import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnResDecoder;
+import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnResEncoder;
 
 public class DHBMessageProtocolTest extends AbstractJunitTest {	
 	
@@ -56,11 +57,10 @@ public class DHBMessageProtocolTest extends AbstractJunitTest {
 						streamCharsetDecoder,
 						dataPacketBufferPoolManager);
 		
-		SelfExnEncoder selfExnEncoder = new SelfExnEncoder();
-		SelfExnDecoder selfExnDecoder = new SelfExnDecoder();
+		SelfExnResEncoder selfExnEncoder = new SelfExnResEncoder();
+		SelfExnResDecoder selfExnDecoder = new SelfExnResDecoder();
 		DHBSingleItemDecoder dhbSingleItemDecoder = new DHBSingleItemDecoder(streamCharsetDecoder);
-		
-		
+
 		// log.info("1");		
 		long beforeTime = 0;
 		long afterTime = 0;
@@ -77,9 +77,9 @@ public class DHBMessageProtocolTest extends AbstractJunitTest {
 			testStringBuilder.append("한글");
 		}
 		
-		SelfExn selfExnReq = new SelfExn();
-		selfExnReq.setErrorPlace("sever");
-		selfExnReq.setErrorGubun("B");
+		SelfExnRes selfExnReq = new SelfExnRes();
+		selfExnReq.setErrorPlace(SelfExn.ErrorPlace.SERVER);
+		selfExnReq.setErrorType(SelfExn.ErrorType.BodyFormatException);
 		selfExnReq.setErrorMessageID("Echo");
 		selfExnReq.setErrorReason(testStringBuilder.toString());	
 		
@@ -149,7 +149,7 @@ public class DHBMessageProtocolTest extends AbstractJunitTest {
 						fail("resObj is not a instance of SelfExn class");
 					}*/
 					
-					SelfExn selfExnRes = (SelfExn)resObj;
+					SelfExnRes selfExnRes = (SelfExnRes)resObj;
 					
 					assertEquals("SelfExn 입력과 출력 메시지 비교", selfExnReq.toString(), selfExnRes.toString());
 				} catch (Exception e) {

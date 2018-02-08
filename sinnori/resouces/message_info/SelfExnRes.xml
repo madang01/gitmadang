@@ -14,11 +14,11 @@
 	(4) FROM_ALL_TO_ALL : 메시지는 서버에서 클라이언트로도 혹은 클라이언트에서 서버로 양쪽 모두에서 전송된다.
 -->
 <sinnori_message>
-<messageID>SelfExn</messageID>
+<messageID>SelfExnRes</messageID>
 <direction>FROM_SERVER_TO_CLINET</direction>
 <desc>시스템 내부 에러 전달용 메시지</desc>
-<singleitem name="errorPlace" type="ub pascal string" charset="ISO-8859-1" />
-<singleitem name="errorType" type="ub pascal string" charset="ISO-8859-1" />
+<singleitem name="errorPlace" type="selfexn error place" desc="S:서버, B:클라이언트" />
+<singleitem name="errorType" type="selfexn error type" desc="B : BodyFormatException, D: DynamicClassCallException, N : NoMoreDataPacketBufferException, S:ServerTaskException, A :AccessDeniedException" />
 <singleitem name="errorMessageID" type="ub pascal string" charset="ISO-8859-1" />
 <singleitem name="errorReason" type="us pascal string" charset="utf8" />
 </sinnori_message>

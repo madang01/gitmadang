@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kr.pe.sinnori.impl.message.AllItemTypeReq;
+package kr.pe.sinnori.impl.message.AllItemType;
 
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
@@ -22,19 +22,19 @@ import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
 
 /**
- * AllItemTypeReq 서버 코덱
+ * AllItemType 클라이언트 코덱
  * @author Won Jonghoon
  *
  */
-public final class AllItemTypeReqServerCodec implements MessageCodecIF {
+public final class AllItemTypeClientCodec implements MessageCodecIF {
 
 	@Override
 	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
-		return new AllItemTypeReqDecoder();
+		return new AllItemTypeDecoder();
 	}
 
 	@Override
 	public AbstractMessageEncoder getMessageEncoder() throws DynamicClassCallException {
-		return new AllItemTypeReqEncoder();
+		return new AllItemTypeEncoder();
 	}
 }

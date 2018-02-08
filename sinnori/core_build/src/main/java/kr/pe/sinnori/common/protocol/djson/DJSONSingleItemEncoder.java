@@ -32,6 +32,7 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.FixedSizeOutputStream;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
 import kr.pe.sinnori.common.protocol.djson.header.DJSONHeader;
+import kr.pe.sinnori.common.type.SelfExn;
 import kr.pe.sinnori.common.type.SingleItemType;
 import kr.pe.sinnori.common.util.HexUtil;
 
@@ -89,7 +90,8 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 		abstract public SingleItemType getSingleItemType();
 	}
 	
-	private final abstractDJSONTypeSingleItemEncoder[] djsonTypeSingleItemEncoderList = new abstractDJSONTypeSingleItemEncoder[] { 
+	private final abstractDJSONTypeSingleItemEncoder[] djsonTypeSingleItemEncoderList = new abstractDJSONTypeSingleItemEncoder[] {
+			new DJSONSelfExnErrorPlaceSingleItemEncoder(), new DJSONSelfExnErrorTypeSingleItemEncoder(),
 			new DJSONByteSingleItemEncoder(), new DJSONUnsignedByteSingleItemEncoder(), 
 			new DJSONShortSingleItemEncoder(), new DJSONUnsignedShortSingleItemEncoder(),
 			new DJSONIntSingleItemEncoder(), new DJSONUnsignedIntSingleItemEncoder(), 
@@ -102,6 +104,54 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 			new DJSONBooleanSingleItemEncoder()
 	};
 
+	
+	private final class DJSONSelfExnErrorPlaceSingleItemEncoder extends abstractDJSONTypeSingleItemEncoder {
+		@SuppressWarnings("unchecked")
+		@Override
+		public void putValue(String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, JSONObject jsonObjForOutputStream)
+				throws IllegalArgumentException {
+			if (!(itemValue instanceof SelfExn.ErrorPlace)) {
+				String errorMessage = 
+						String.format("항목의 값의 타입[%s]이 SelfExn.ErrorPlcae 가 아닙니다.", 
+								itemValue.getClass().getCanonicalName());
+				throw new IllegalArgumentException(errorMessage);
+			}
+			
+			SelfExn.ErrorPlace errorPalce = (SelfExn.ErrorPlace)itemValue;
+			
+			jsonObjForOutputStream.put(itemName, errorPalce.getErrorPlaceByte());
+		}
+		
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.SELFEXN_ERROR_PLACE;
+		}
+	}
+	
+	private final class DJSONSelfExnErrorTypeSingleItemEncoder extends abstractDJSONTypeSingleItemEncoder {
+		@SuppressWarnings("unchecked")
+		@Override
+		public void putValue(String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, JSONObject jsonObjForOutputStream)
+				throws IllegalArgumentException {
+			if (!(itemValue instanceof SelfExn.ErrorType)) {
+				String errorMessage = 
+						String.format("항목의 값의 타입[%s]이 SelfExn.ErrorType 가 아닙니다.", 
+								itemValue.getClass().getCanonicalName());
+				throw new IllegalArgumentException(errorMessage);
+			}
+			
+			SelfExn.ErrorType errorType = (SelfExn.ErrorType)itemValue;
+			
+			jsonObjForOutputStream.put(itemName, errorType.getErrorTypeByte());
+		}
+		
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.SELFEXN_ERROR_TYPE;
+		}
+	}
+	
+	
 	
 	/** DJSON 프로토콜의 byte 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DJSONByteSingleItemEncoder extends abstractDJSONTypeSingleItemEncoder {

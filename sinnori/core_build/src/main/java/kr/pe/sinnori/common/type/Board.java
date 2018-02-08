@@ -21,7 +21,7 @@ public abstract class Board {
 					return seqType;
 				}
 			}
-			throw new IllegalArgumentException("the bad parameter seqTypeID[" + seqTypeID + "] is a unknown seq type id");
+			throw new IllegalArgumentException("the parameter seqTypeID[" + seqTypeID + "] is a unknown seq type id");
 		}
 	}
 

@@ -10,6 +10,7 @@ import kr.pe.sinnori.common.message.builder.info.OrderedItemSet;
 import kr.pe.sinnori.common.message.builder.info.SingleItemInfo;
 import kr.pe.sinnori.common.message.builder.info.SingleItemTypeManger;
 import kr.pe.sinnori.common.type.ItemInfoType;
+import kr.pe.sinnori.common.util.CommonStaticUtil;
 
 public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 
@@ -93,7 +94,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		StringBuilder stringBuilder = new StringBuilder();
 
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 0));
 		stringBuilder.append("singleItemEncoder.putValueToWritableMiddleObject(");
 		// the Parameter path
 		stringBuilder.append("pathStack.peek()");
@@ -103,7 +104,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append("\"");
 		// the parameter singleItemType		
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 		stringBuilder.append(", ");
 		stringBuilder.append("SingleItemType.");
 		stringBuilder
@@ -112,7 +113,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 
 		// the parameter itemValue
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 		stringBuilder.append(", ");
 		stringBuilder.append(varNameOfSetOwner);
 		stringBuilder.append(".get");
@@ -121,14 +122,14 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 
 		// the parameter itemSize
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 		stringBuilder.append(", ");
 		stringBuilder.append(singleItemInfo.getItemSize());
 		stringBuilder.append(" // itemSize");
 
 		// the parameter nativeItemCharset
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 		stringBuilder.append(", ");
 		String nativeItemCharset = singleItemInfo.getNativeItemCharset();
 		if (null == nativeItemCharset) {
@@ -142,7 +143,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		
 		// the parameter writableMiddleObject
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 		stringBuilder.append(", ");
 		stringBuilder.append(middleObjVarName);
 		stringBuilder.append(");");
@@ -154,7 +155,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		StringBuilder stringBuilder = new StringBuilder();
 
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 		stringBuilder.append("/** 배열 크기 지정 방식이 간접일 경우 참조하는 변수값이 0 일 경우만 배열 값으로 null 을 허용한다. */");
 
 		if (arrayInfo.getArrayCntType().equals("reference")) {
@@ -167,14 +168,14 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 
 			// if (0 != allDataTypeInObj.getCnt()) {
 			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-			stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+			stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 			stringBuilder.append("if (0 != ");			
 			stringBuilder.append(getReferenceVariableGetMethodString(varNameOfSetOwner, arrayInfo.getArrayCntValue()));
 			stringBuilder.append(") {");			
 			
 			
 			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-			stringBuilder.append(getPrefixWithTabCharacters(depth, 2));			
+			stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 2));			
 			stringBuilder.append("String errorMessage = new StringBuilder(\"the var ");
 			stringBuilder.append(getArrayListVarObjName(depth, arrayInfo.getItemName()));
 			stringBuilder.append(" is null but the value referenced by the array size[");
@@ -185,23 +186,23 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 
 			// throw new BodyFormatException(errorMessage);
 			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-			stringBuilder.append(getPrefixWithTabCharacters(depth, 2));
+			stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 2));
 			stringBuilder.append("throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);");
 
 			// }
 			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-			stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+			stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 			stringBuilder.append("}");
 
 		} else {
 			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-			stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+			stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 			stringBuilder.append("if (0 != ");
 			stringBuilder.append(arrayInfo.getArrayCntValue());
 			stringBuilder.append(") {");
 			
 			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-			stringBuilder.append(getPrefixWithTabCharacters(depth, 2));
+			stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 2));
 			// String errorMessage = new StringBuilder("the var member$1List is null but the value defined by array size[3] is not zero").toString();
 			/*stringBuilder.append("String errorMessage = new StringBuilder(\"the var \").append(\"");
 			stringBuilder.append(getArrayListVarObjName(depth, arrayInfo.getItemName()));
@@ -218,12 +219,12 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 
 			// throw new BodyFormatException(errorMessage);
 			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-			stringBuilder.append(getPrefixWithTabCharacters(depth, 2));
+			stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 2));
 			stringBuilder.append("throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);");
 
 			// }
 			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-			stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+			stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 			stringBuilder.append("}");
 		}
 
@@ -236,7 +237,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 
 		// if (memberListSize != allDataTypeInObj.getCnt()) {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 		stringBuilder.append("if (");		
 		if (arrayInfo.getArrayCntType().equals("reference")) {
 			stringBuilder.append(getReferenceVariableGetMethodString(varNameOfSetOwner, arrayInfo.getArrayCntValue()));			
@@ -249,7 +250,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 
 		// String errorMessage = new StringBuilder(allDataTypeInObjSingleItemPath)
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 2));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 2));
 		
 		if (arrayInfo.getArrayCntType().equals("reference")) {
 			// String errorMessage = new StringBuilder("the var member$1ListSize[").append(member$1ListSize).append("] is not same to the value referenced by the array size[allItemTypeReq.getCnt()][").append(allItemTypeReq.getCnt()).append("]").toString();			
@@ -277,12 +278,12 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 
 		// throw new BodyFormatException(errorMessage);
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 2));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 2));
 		stringBuilder.append("throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);");
 
 		// }
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 		stringBuilder.append("}");
 
 		return stringBuilder.toString();
@@ -297,7 +298,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		/** 배열 변수 선언및 정의 */
 		// int memberListSize = memberList.size();
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 		stringBuilder.append("int ");
 		stringBuilder.append(getArrayListSizeVarObjName(depth, arrayInfo.getItemName()));
 		stringBuilder.append(" = ");
@@ -306,7 +307,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 
 		/** 배열 값이 null 이 아닐때에는 배열 크기가 메시지 정보에서 정의한 배열 크기와 같은지 검사 */
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 		stringBuilder.append("/** 배열 값이 null 이 아닐때에는 배열 크기가 배열 정보에서 지정된 크기와 같은지 검사 */");
 
 		/** 배열 크기가 메시지 정보에서 정의한 배열 크기와 같은지 검사 */
@@ -319,7 +320,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		// singleItemEncoder.getArrayMiddleObjectFromWritableMiddleObject(allDataTypeInObjSingleItemPath,
 		// "member", memberList.length, middleWritableObject);
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 		stringBuilder.append("Object ");
 		/*
 		 * stringBuilder.append(arrayInfo.getItemName());
@@ -343,7 +344,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 
 		// for (int i=0; i < memberListSize; i++) {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 		stringBuilder.append("for (int ");
 		stringBuilder.append(getCountVarName(depth));
 		stringBuilder.append("=0; ");
@@ -357,7 +358,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		
 		// pathStack.push(newStringBuilder(pathStack.peek()).append(".").append("Member").append("[").append(i).append("]").toString());
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 2));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 2));
 		stringBuilder.append("pathStack.push(new StringBuilder(pathStack.peek()).append(\".\").append(\"")
 				.append(arrayInfo.getFirstUpperItemName())
 				.append("\").append(\"[\").append(")
@@ -366,7 +367,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 
 		// Object memberMiddleWriteObj = singleItemEncoder.getMiddleWriteObjFromArrayObj(memberSingleItemPath, memberMiddleWriteArray, i);
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 2));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 2));
 		stringBuilder.append("Object ");
 		stringBuilder.append(getElementObjVarNameOfArrayMiddleObject(depth, arrayInfo.getItemName()));
 		stringBuilder.append(" = singleItemEncoder.getWritableMiddleObjectjFromArrayMiddleObject(");	
@@ -381,7 +382,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 
 		// AllDataType.Member member = memberList.get(i);
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 2));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 2));
 		/*
 		 * stringBuilder.append(path); stringBuilder.append(".");
 		 * stringBuilder.append(arrayInfo.getFirstUpperItemName());
@@ -405,12 +406,12 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		
 		// pathStack.pop();
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 2));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 2));
 		stringBuilder.append("pathStack.pop();");
 
 		// }
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 		stringBuilder.append("}");
 		
 		return stringBuilder.toString();
@@ -423,7 +424,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		/** 배열 변수 선언및 정의 */
 		// java.util.List<AllItemTypeReq.Member> member$0List =allItemTypeReq.getMemberList();
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 0));
 		stringBuilder.append("java.util.List<");
 		stringBuilder.append(path);
 		stringBuilder.append(".");
@@ -441,12 +442,12 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 
 		/** 주석 */
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 0));
 		stringBuilder.append("/** 배열 정보와 배열 크기 일치 검사 */");
 
 		/** if (null == memberList) { */
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 0));
 		stringBuilder.append("if (null == ");
 		stringBuilder.append(getArrayListVarObjName(depth, arrayInfo.getItemName()));
 		stringBuilder.append(") {");
@@ -455,7 +456,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 
 		// } else {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 0));
 		stringBuilder.append("} else {");
 
 		// buildStringOfPartWhoseListIsNotNullAtArray
@@ -464,7 +465,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 
 		// }
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 0));
 		stringBuilder.append("}");
 
 		return stringBuilder.toString();
@@ -479,7 +480,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 
 		/** 변수 선언 */
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));		
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 0));		
 		stringBuilder.append(newPath);
 		stringBuilder.append(" ");
 		stringBuilder.append(getGroupVarObjName(depth, groupInfo.getItemName()));
@@ -491,28 +492,28 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		
 		/** if (null == group1$2) { */
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 0));
 		stringBuilder.append("if (null == ");
 		stringBuilder.append(getGroupVarObjName(depth, groupInfo.getItemName()));
 		stringBuilder.append(") {");		
 		/** 	String errorMessage = "the var group1$1 is null"; */
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 		stringBuilder.append("String errorMessage = \"the var ");
 		stringBuilder.append(getGroupVarObjName(depth, groupInfo.getItemName()));
 		stringBuilder.append(" is null\";");		
 		/** 	throw new BodyFormatException(errorMessage); */
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));		 
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));		 
 		stringBuilder.append("throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);");
 		/** } */
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 0));
 		stringBuilder.append("}");		
 		
 		/** group 쓰기 가능한 중간 객체 얻기 */
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 0));
 		stringBuilder.append("Object ");
 		stringBuilder.append(getGroupMiddleObjVarName(depth, groupInfo.getItemName()));
 		stringBuilder.append(" = singleItemEncoder.getGroupMiddleObjectFromWritableMiddleObject(");
@@ -528,7 +529,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		
 		/** path stack push */
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 0));
 		stringBuilder.append("pathStack.push(new StringBuilder(pathStack.peek()).append(\".\").append(\"");
 		stringBuilder.append(groupInfo.getFirstUpperItemName());
 		stringBuilder.append("\").toString());");
@@ -540,7 +541,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		
 		/** pathStack.pop(); */
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 0));
 		stringBuilder.append("pathStack.pop();");		
 
 		return stringBuilder.toString();
@@ -618,13 +619,13 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		final int depth = 1;
 		
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 0));
 		stringBuilder.append(
 				"public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Object writableMiddleObject) throws Exception {");
 
 		// AllItemTypeReq allItemTypeReq = (AllItemTypeReq)messageObj;
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 		stringBuilder.append(messageID);
 		stringBuilder.append(" ");
 		stringBuilder.append(firstLowerMessageID);
@@ -633,13 +634,13 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(")messageObj;");
 		// encodeBody(allItemTypeReq, singleItemEncoder, writableMiddleObject);
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 		stringBuilder.append("encodeBody(");
 		stringBuilder.append(firstLowerMessageID);
 		stringBuilder.append(", singleItemEncoder, writableMiddleObject);");
 		// }
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 0));
 		stringBuilder.append("}");
 
 		return stringBuilder.toString();
@@ -651,7 +652,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 
 		int depth = 1;
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 0));
 		stringBuilder.append("private void encodeBody(");
 		stringBuilder.append(messageID);
 		stringBuilder.append(" ");
@@ -663,13 +664,13 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		if (! messageInfo.getOrderedItemSet().getItemInfoList().isEmpty()) {
 			// Stack<String> pathStack = new Stack<String>();
 			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-			stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+			stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 			/** java.util.Stack is thread-safe but LinkedList is not thread-safe */
 			stringBuilder.append("LinkedList<String> pathStack = new LinkedList<String>();");
 
 			// pathStack.push("AllItemTypeReq");
 			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-			stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+			stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 			stringBuilder.append("pathStack.push(");
 			stringBuilder.append("\"");
 			stringBuilder.append(messageID);
@@ -682,12 +683,12 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 			
 			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-			stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+			stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 			stringBuilder.append("pathStack.pop();");
 		}		
 		
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 0));
 		stringBuilder.append("}");
 
 		/*stringBuilder.append(CommonStaticFinalVars.NEWLINE);
@@ -732,7 +733,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append("Encoder extends AbstractMessageEncoder {");
 
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 		stringBuilder.append("@Override");
 		// encode(AbstractMessage, SingleItemEncoderIF, Object) 메소드 파트 문자열
 		stringBuilder.append(buildStringOfEncodeMethodPart(messageID, firstLowerMessageID));

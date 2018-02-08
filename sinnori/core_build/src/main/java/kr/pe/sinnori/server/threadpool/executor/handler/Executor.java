@@ -27,17 +27,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.asyn.FromLetter;
-import kr.pe.sinnori.common.etc.SelfExnUtil;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
-import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
+import kr.pe.sinnori.common.type.SelfExn;
+import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.SocketResource;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
-import kr.pe.sinnori.server.executor.AbstractServerTask;
-import kr.pe.sinnori.server.executor.ToLetterCarrier;
+import kr.pe.sinnori.server.task.AbstractServerTask;
+import kr.pe.sinnori.server.task.ToLetterCarrier;
 
 /**
  * 서버 비지니스 로직 수행자 쓰레드<br/>
@@ -92,7 +92,7 @@ public class Executor extends Thread implements ExecutorIF {
 				SocketResource socketResourceOfFromSC = socketResourceManager.getSocketResource(fromSC);
 				
 				
-				if (messageID.equals(SelfExn.class.getSimpleName())) {
+				if (messageID.equals(SelfExnRes.class.getSimpleName())) {
 					fromSC.close();
 					log.warn("this message id[{}] is a system reserved message id. so the socket channel[hashCode={}] was closed", messageID, fromSC.hashCode());					
 					continue;
@@ -106,7 +106,7 @@ public class Executor extends Thread implements ExecutorIF {
 					} catch (DynamicClassCallException e) {
 						log.warn(e.getMessage());
 
-						String errorType = SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class);
+						SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);						
 						String errorReason = e.getMessage();			
 						ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 								errorType,
@@ -117,7 +117,7 @@ public class Executor extends Thread implements ExecutorIF {
 					} catch(Exception | Error e) {
 						log.warn("unknown error::fail to get a input message server task", e);
 						
-						String errorType = SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class);
+						SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
 						String errorReason = "fail to get a input message server task::"+e.getMessage();			
 						ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 								errorType,
@@ -138,7 +138,7 @@ public class Executor extends Thread implements ExecutorIF {
 					} catch(Exception | Error e) {
 						log.warn("unknwon error::fail to execute a input message server task", e);						
 						
-						String errorType = SelfExnUtil.getSelfExnErrorGubun(ServerTaskException.class);
+						SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(ServerTaskException.class);
 						String errorReason = "fail to execute a input message server task::"+e.getMessage();			
 						ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 								errorType,

@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
+import kr.pe.sinnori.common.type.SelfExn;
 import kr.pe.sinnori.common.type.SingleItemType;
 import kr.pe.sinnori.common.util.HexUtil;
 
@@ -85,6 +86,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 	}
 	
 	private final abstractDJSONTypeSingleItemDecoder[] djsonTypeSingleItemDecoderList = new abstractDJSONTypeSingleItemDecoder[] { 
+			new DJSONSelfExnErrorPlaceSingleItemDecoder(), new DJSONSelfExnErrorTypeSingleItemDecoder(),
 			new DJSONByteSingleItemDecoder(), new DJSONUnsignedByteSingleItemDecoder(), 
 			new DJSONShortSingleItemDecoder(), new DJSONUnsignedShortSingleItemDecoder(),
 			new DJSONIntSingleItemDecoder(), new DJSONUnsignedIntSingleItemDecoder(), 
@@ -98,6 +100,87 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 	};
 	
 
+	private final class DJSONSelfExnErrorPlaceSingleItemDecoder extends abstractDJSONTypeSingleItemDecoder {
+		@Override
+		public Object getValue(String itemName, int itemSize,
+				Charset itemCharset, JSONObject jsonObjForInputStream)
+				throws Exception {
+			Object jsonValue = jsonObjForInputStream.get(itemName);
+			if (null == jsonValue) {
+				String errorMessage = 
+						String.format("JSON Object[%s]에 byte 타입 항목[%s]이 존재하지 않습니다.", 
+								jsonObjForInputStream.toJSONString(), itemName);
+				throw new BodyFormatException(errorMessage);
+			}
+			
+			if (!(jsonValue instanceof Long)) {
+				String errorMessage = 
+						String.format("JSON Object 로 부터 얻은 byte 타입 항목[%s]의 값의 타입[%s]이 Long 이 아닙니다.", 
+								itemName, jsonValue.getClass().getName());
+				throw new BodyFormatException(errorMessage);
+			}
+			
+			long tempItemValue = (long)jsonValue; 
+			if (tempItemValue < Byte.MIN_VALUE || tempItemValue > Byte.MAX_VALUE) {
+				String errorMessage = 
+						String.format("JSON Object 로 부터 얻은 byte 타입 항목[%s]의 값[%d]이 byte 값 범위를 벗어났습니다.", 
+								itemName, tempItemValue);
+				throw new BodyFormatException(errorMessage);
+			}
+			
+			byte value = (byte) tempItemValue;
+			
+			SelfExn.ErrorPlace errorPlace = SelfExn.ErrorPlace.valueOf(value); 
+			
+			return errorPlace;
+		}
+		
+		
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.SELFEXN_ERROR_PLACE;
+		}
+	}
+	
+	private final class DJSONSelfExnErrorTypeSingleItemDecoder extends abstractDJSONTypeSingleItemDecoder {
+		@Override
+		public Object getValue(String itemName, int itemSize,
+				Charset itemCharset, JSONObject jsonObjForInputStream)
+				throws Exception {
+			Object jsonValue = jsonObjForInputStream.get(itemName);
+			if (null == jsonValue) {
+				String errorMessage = 
+						String.format("JSON Object[%s]에 byte 타입 항목[%s]이 존재하지 않습니다.", 
+								jsonObjForInputStream.toJSONString(), itemName);
+				throw new BodyFormatException(errorMessage);
+			}
+			
+			if (!(jsonValue instanceof Long)) {
+				String errorMessage = 
+						String.format("JSON Object 로 부터 얻은 byte 타입 항목[%s]의 값의 타입[%s]이 Long 이 아닙니다.", 
+								itemName, jsonValue.getClass().getName());
+				throw new BodyFormatException(errorMessage);
+			}
+			
+			long tempItemValue = (long)jsonValue; 
+			if (tempItemValue < Byte.MIN_VALUE || tempItemValue > Byte.MAX_VALUE) {
+				String errorMessage = 
+						String.format("JSON Object 로 부터 얻은 byte 타입 항목[%s]의 값[%d]이 byte 값 범위를 벗어났습니다.", 
+								itemName, tempItemValue);
+				throw new BodyFormatException(errorMessage);
+			}
+			
+			byte value = (byte) tempItemValue;
+			
+			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(value); 
+			
+			return errorType;
+		}
+		
+		
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.SELFEXN_ERROR_TYPE;
+		}
+	}
 	
 	
 	

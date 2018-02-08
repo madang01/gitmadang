@@ -15,14 +15,13 @@
  * limitations under the License.
  */
 
-package kr.pe.sinnori.server.executor;
+package kr.pe.sinnori.server.task;
 
 import java.nio.channels.SocketChannel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.common.etc.SelfExnUtil;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
@@ -31,6 +30,7 @@ import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
+import kr.pe.sinnori.common.type.SelfExn;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.SocketResource;
@@ -66,8 +66,9 @@ public abstract class AbstractServerTask {
 		} catch (DynamicClassCallException e) {
 			log.warn(e.getMessage());
 			
-			String errorType = SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class);
-			String errorReason = e.getMessage();			
+			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
+			String errorReason = e.getMessage();
+			
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 					errorType,
 					errorReason,
@@ -75,7 +76,7 @@ public abstract class AbstractServerTask {
 			return;
 		} catch (Exception e) {
 			log.warn("unknwon error::fail to get a input message server codec", e);			
-			String errorType = SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class);
+			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
 			String errorReason = "fail to get a input message server codec::"+e.getMessage();			
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 					errorType,
@@ -90,7 +91,7 @@ public abstract class AbstractServerTask {
 		} catch (DynamicClassCallException e) {
 			log.warn(e.getMessage());
 			
-			String errorType = SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class);
+			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
 			String errorReason = e.getMessage();			
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 					errorType,
@@ -100,7 +101,7 @@ public abstract class AbstractServerTask {
 		} catch(Exception | Error e) {
 			log.warn("unknwon error::fail to get a input message decoder", e);
 			
-			String errorType = SelfExnUtil.getSelfExnErrorGubun(DynamicClassCallException.class);
+			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
 			String errorReason = "fail to get a input message decoder::"+e.getMessage();			
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 					errorType,
@@ -121,7 +122,7 @@ public abstract class AbstractServerTask {
 		} catch (BodyFormatException e) {
 			log.warn(e.getMessage());
 			
-			String errorType = SelfExnUtil.getSelfExnErrorGubun(BodyFormatException.class);
+			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(BodyFormatException.class);
 			String errorReason = e.getMessage();			
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 					errorType,
@@ -131,7 +132,7 @@ public abstract class AbstractServerTask {
 		} catch(Exception | Error e) {
 			log.warn("unknown error::fail to get a input message from readable middle object", e);
 			
-			String errorType = SelfExnUtil.getSelfExnErrorGubun(BodyFormatException.class);
+			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(BodyFormatException.class);
 			String errorReason = "fail to get a input message from readable middle object::"+e.getMessage();			
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 					errorType,
@@ -156,8 +157,7 @@ public abstract class AbstractServerTask {
 		} catch (Exception | Error e) {
 			log.warn("unknown error::fail to execuate task", e);
 			
-			
-			String errorType = SelfExnUtil.getSelfExnErrorGubun(ServerTaskException.class);
+			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(ServerTaskException.class);
 			String errorReason = "fail to execuate task::"+e.getMessage();			
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 					errorType,
@@ -171,12 +171,9 @@ public abstract class AbstractServerTask {
 		// long lastErraseTime = new java.util.Date().getTime() - firstErraseTime;
 		// log.info(String.format("수행 시간=[%f] ms", (float) lastErraseTime));
 	}
-
-
-		
-	
 	
 	abstract public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception;
+	
 	
 }

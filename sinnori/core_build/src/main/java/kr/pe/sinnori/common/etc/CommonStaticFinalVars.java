@@ -19,10 +19,10 @@ package kr.pe.sinnori.common.etc;
 
 import java.nio.charset.Charset;
 
-import kr.pe.sinnori.impl.message.SelfExn.SelfExnClientCodec;
-import kr.pe.sinnori.impl.message.SelfExn.SelfExnDecoder;
-import kr.pe.sinnori.impl.message.SelfExn.SelfExnEncoder;
-import kr.pe.sinnori.impl.message.SelfExn.SelfExnServerCodec;
+import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnResClientCodec;
+import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnResDecoder;
+import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnResEncoder;
+import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnResServerCodec;
 
 
 /**
@@ -70,11 +70,11 @@ public abstract class CommonStaticFinalVars {
 	
 	public static final String EMPTY_STRING = "";	
 		
-	public static final SelfExnEncoder SELFEXN_ENCODER = new SelfExnEncoder();
-	public static final SelfExnDecoder SELFEXN_DECODER= new SelfExnDecoder();
+	public static final SelfExnResEncoder SELFEXN_ENCODER = new SelfExnResEncoder();
+	public static final SelfExnResDecoder SELFEXN_DECODER= new SelfExnResDecoder();
 	
-	public static final SelfExnClientCodec SELFEXN_CLIENT_CODEC = new SelfExnClientCodec();
-	public static final SelfExnServerCodec SELFEXN_SERVER_CODEC= new SelfExnServerCodec();
+	public static final SelfExnResClientCodec SELFEXN_CLIENT_CODEC = new SelfExnResClientCodec();
+	public static final SelfExnResServerCodec SELFEXN_SERVER_CODEC= new SelfExnResServerCodec();
 
 	public static final Charset SINNORI_SOURCE_FILE_CHARSET = Charset.forName("UTF-8");
 	

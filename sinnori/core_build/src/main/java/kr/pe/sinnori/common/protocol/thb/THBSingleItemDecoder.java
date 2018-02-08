@@ -28,6 +28,7 @@ import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
 import kr.pe.sinnori.common.io.BinaryInputStreamIF;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
+import kr.pe.sinnori.common.type.SelfExn;
 import kr.pe.sinnori.common.type.SingleItemType;
 
 /**
@@ -91,6 +92,7 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 	}
 	
 	private final abstractTHBTypeSingleItemDecoder[] thbTypeSingleItemDecoderList = new abstractTHBTypeSingleItemDecoder[] { 
+			new THBSelfExnErrorPlaceSingleItemDecoder(), new THBSelfExnErrorTypeSingleItemDecoder(),
 			new THBByteSingleItemDecoder(), new THBUnsignedByteSingleItemDecoder(), 
 			new THBShortSingleItemDecoder(), new THBUnsignedShortSingleItemDecoder(),
 			new THBIntSingleItemDecoder(), new THBUnsignedIntSingleItemDecoder(), 
@@ -102,7 +104,39 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 			new THBJavaSqlDateSingleItemDecoder(), new THBJavaSqlTimestampSingleItemDecoder(),
 			new THBBooleanSingleItemDecoder()
 	};
-
+	
+	private final class THBSelfExnErrorPlaceSingleItemDecoder extends abstractTHBTypeSingleItemDecoder {
+		@Override
+		public Object getValue(int itemTypeID, String itemName, int itemSize,
+				Charset itemCharset, BinaryInputStreamIF binaryInputStream)
+				throws Exception  {
+			
+			throwExceptionIfItemTypeIsDifferent(itemTypeID, itemName, binaryInputStream);
+			
+			return SelfExn.ErrorPlace.valueOf(binaryInputStream.getByte());
+		}	
+		
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.SELFEXN_ERROR_PLACE;
+		}
+	}	
+	
+	
+	private final class THBSelfExnErrorTypeSingleItemDecoder extends abstractTHBTypeSingleItemDecoder {
+		@Override
+		public Object getValue(int itemTypeID, String itemName, int itemSize,
+				Charset itemCharset, BinaryInputStreamIF binaryInputStream)
+				throws Exception  {
+			
+			throwExceptionIfItemTypeIsDifferent(itemTypeID, itemName, binaryInputStream);
+			
+			return SelfExn.ErrorType.valueOf(binaryInputStream.getByte());
+		}	
+		
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.SELFEXN_ERROR_TYPE;
+		}
+	}
 	
 	
 	/** THB 프로토콜의 byte 타입 단일 항목 스트림 변환기 구현 클래스 */

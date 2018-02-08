@@ -35,11 +35,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.client.connection.sync.AbstractSyncConnection;
+import kr.pe.sinnori.common.exception.AccessDeniedException;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
@@ -48,7 +48,8 @@ import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
-import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
+import kr.pe.sinnori.common.type.SelfExn;
+import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 
 /**
  * 클라이언트 비공유 방식의 동기 연결 클래스.<br/>
@@ -290,7 +291,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inObj)
 			throws ServerNotReadyException, SocketTimeoutException,
 			NoMoreDataPacketBufferException, BodyFormatException, 
-			DynamicClassCallException, ServerTaskException, NotLoginException {
+			DynamicClassCallException, ServerTaskException, AccessDeniedException {
 		long startTime = 0;
 		long endTime = 0;
 		startTime = new java.util.Date().getTime();
@@ -369,17 +370,17 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 					inObj.toString());
 			log.warn(errorMessage, e);
 			
-			SelfExn selfExn = new SelfExn();
+			SelfExnRes selfExnRes = new SelfExnRes();
 
-			selfExn.messageHeaderInfo = inObj.messageHeaderInfo;
+			selfExnRes.messageHeaderInfo = inObj.messageHeaderInfo;
 			
-			selfExn.setErrorPlace("C");
-			selfExn.setErrorGubun("D");
-			selfExn.setErrorMessageID(inObj.getMessageID());
-			selfExn.setErrorPlace(e.getMessage());
+			selfExnRes.setErrorPlace(SelfExn.ErrorPlace.CLIENT);
+			selfExnRes.setErrorType(SelfExn.ErrorType.DynamicClassCallException);
+			selfExnRes.setErrorMessageID(inObj.getMessageID());
+			selfExnRes.setErrorReason(e.getMessage());
 			
 			//letterFromServer = new LetterFromServer(selfExn);
-			return selfExn;
+			return selfExnRes;
 		} finally {
 			if (null != inObjWrapBufferList) {
 				int inObjWrapBufferListSize = inObjWrapBufferList.size();

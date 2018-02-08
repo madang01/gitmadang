@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kr.pe.sinnori.impl.message.SelfExn;
+package kr.pe.sinnori.impl.message.Echo;
 
 import java.util.LinkedList;
 import kr.pe.sinnori.common.exception.BodyFormatException;
@@ -23,52 +23,36 @@ import kr.pe.sinnori.common.type.SingleItemType;
 import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 /**
- * SelfExn 메시지 디코더
+ * Echo 메시지 디코더
  * @author Won Jonghoon
  *
  */
-public final class SelfExnDecoder extends AbstractMessageDecoder {
+public final class EchoDecoder extends AbstractMessageDecoder {
 
 	@Override
 	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object  middleReadableObject) throws OutOfMemoryError, BodyFormatException {
-		SelfExn selfExn = new SelfExn();
+		Echo echo = new Echo();
 		LinkedList<String> pathStack = new LinkedList<String>();
-		pathStack.push("SelfExn");
+		pathStack.push("Echo");
 
-		selfExn.setErrorPlace((String)
+		echo.setRandomInt((Integer)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "errorPlace" // itemName
-			, SingleItemType.UB_PASCAL_STRING // itemType
+			, "randomInt" // itemName
+			, SingleItemType.INTEGER // itemType
 			, -1 // itemSize
-			, "ISO-8859-1" // nativeItemCharset
+			, null // nativeItemCharset
 			, middleReadableObject));
 
-		selfExn.setErrorGubun((String)
+		echo.setStartTime((Long)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "errorGubun" // itemName
-			, SingleItemType.UB_PASCAL_STRING // itemType
+			, "startTime" // itemName
+			, SingleItemType.LONG // itemType
 			, -1 // itemSize
-			, "ISO-8859-1" // nativeItemCharset
-			, middleReadableObject));
-
-		selfExn.setErrorMessageID((String)
-		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "errorMessageID" // itemName
-			, SingleItemType.UB_PASCAL_STRING // itemType
-			, -1 // itemSize
-			, "ISO-8859-1" // nativeItemCharset
-			, middleReadableObject));
-
-		selfExn.setErrorReason((String)
-		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "errorMessage" // itemName
-			, SingleItemType.US_PASCAL_STRING // itemType
-			, -1 // itemSize
-			, "utf8" // nativeItemCharset
+			, null // nativeItemCharset
 			, middleReadableObject));
 
 		pathStack.pop();
 
-		return selfExn;
+		return echo;
 	}
 }

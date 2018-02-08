@@ -14,34 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kr.pe.sinnori.impl.message.SelfExn;
+package kr.pe.sinnori.impl.message.SelfExnRes;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
 
 /**
- * SelfExn 메시지
+ * SelfExnRes 메시지
  * @author Won Jonghoon
  *
  */
-public class SelfExn extends AbstractMessage {
-	private String errorPlace;
-	private String errorGubun;
+public class SelfExnRes extends AbstractMessage {
+	private kr.pe.sinnori.common.type.SelfExn.ErrorPlace errorPlace;
+	private kr.pe.sinnori.common.type.SelfExn.ErrorType errorType;
 	private String errorMessageID;
 	private String errorReason;
 
-	public String getErrorPlace() {
+	public kr.pe.sinnori.common.type.SelfExn.ErrorPlace getErrorPlace() {
 		return errorPlace;
 	}
 
-	public void setErrorPlace(String errorPlace) {
+	public void setErrorPlace(kr.pe.sinnori.common.type.SelfExn.ErrorPlace errorPlace) {
 		this.errorPlace = errorPlace;
 	}
-	public String getErrorGubun() {
-		return errorGubun;
+	public kr.pe.sinnori.common.type.SelfExn.ErrorType getErrorType() {
+		return errorType;
 	}
 
-	public void setErrorGubun(String errorGubun) {
-		this.errorGubun = errorGubun;
+	public void setErrorType(kr.pe.sinnori.common.type.SelfExn.ErrorType errorType) {
+		this.errorType = errorType;
 	}
 	public String getErrorMessageID() {
 		return errorMessageID;
@@ -50,7 +50,7 @@ public class SelfExn extends AbstractMessage {
 	public void setErrorMessageID(String errorMessageID) {
 		this.errorMessageID = errorMessageID;
 	}
-	public String getErrorMessage() {
+	public String getErrorReason() {
 		return errorReason;
 	}
 
@@ -61,11 +61,11 @@ public class SelfExn extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("selfExn[");
+		builder.append("selfExnRes[");
 		builder.append("errorPlace=");
 		builder.append(errorPlace);
-		builder.append(", errorGubun=");
-		builder.append(errorGubun);
+		builder.append(", errorType=");
+		builder.append(errorType);
 		builder.append(", errorMessageID=");
 		builder.append(errorMessageID);
 		builder.append(", errorReason=");

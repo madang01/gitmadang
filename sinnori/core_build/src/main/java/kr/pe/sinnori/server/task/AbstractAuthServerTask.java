@@ -16,29 +16,20 @@
  */
 
 
-package kr.pe.sinnori.server.executor;
+package kr.pe.sinnori.server.task;
 
 import java.nio.channels.SocketChannel;
 
-import kr.pe.sinnori.common.etc.SelfExnUtil;
-import kr.pe.sinnori.common.exception.NotLoginException;
+import kr.pe.sinnori.common.exception.AccessDeniedException;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
+import kr.pe.sinnori.common.type.SelfExn;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.SocketResource;
 
-/**
- * <pre>
- * 로그인을 요구하는 서버 비지니스 로직 부모 클래스. 
- * 메시지는 자신만의 서버 비지니스를 갖는다. 
- * 개발자는 이 클래스를 상속 받은 메시지별 비지니스 로직을 개발하며, 
- * 이렇게 개발된 비지니스 로직 모듈은 동적으로 로딩된다.
- * </pre>
- * @author Won Jonghoon
- *
- */
-public abstract class AbstractAuthServerExecutor extends AbstractServerTask {
+
+public abstract class AbstractAuthServerTask extends AbstractServerTask {
 	
 	
 	@Override
@@ -49,13 +40,13 @@ public abstract class AbstractAuthServerExecutor extends AbstractServerTask {
 			WrapReadableMiddleObject wrapReadableMiddleObject,
 			MessageProtocolIF messageProtocol, 
 			ServerObjectCacheManagerIF serverObjectCacheManager) throws InterruptedException {
-		// CharsetEncoder charsetEncoderOfProject = CharsetUtil.createCharsetEncoder(charsetOfProject);
 
 		PersonalLoginManagerIF personalLoginManagerOfFromSC = socketResourceOfFromSC.getPersonalLoginManager();
 		
+		
 		if (! personalLoginManagerOfFromSC.isLogin()) {
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
-					SelfExnUtil.getSelfExnErrorGubun(NotLoginException.class),
+					SelfExn.ErrorType.valueOf(AccessDeniedException.class),
 					"this service is a login service, you are not login state",
 					wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
 			

@@ -7,7 +7,7 @@ import java.util.HashMap;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.io.SocketOutputStream;
-import kr.pe.sinnori.server.threadpool.IEOThreadPoolManagerIF;
+import kr.pe.sinnori.server.threadpool.IEOThreadPoolSetManagerIF;
 import kr.pe.sinnori.server.threadpool.executor.handler.ExecutorIF;
 import kr.pe.sinnori.server.threadpool.inputmessage.handler.InputMessageReaderIF;
 import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriterIF;
@@ -19,7 +19,7 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 	private int dataPacketBufferMaxCntPerMessage = 0;
 	private DataPacketBufferPoolIF dataPacketBufferPoolManager = null;
 	private ProjectLoginManagerIF projectLoginManager = null;
-	private IEOThreadPoolManagerIF ieoThreadPoolManager = null;
+	private IEOThreadPoolSetManagerIF ieoThreadPoolManager = null;
 	
 	private HashMap<SocketChannel, SocketResource> socketChannel2SocketResourceHash 
 		= new HashMap<SocketChannel, SocketResource>(); 
@@ -29,7 +29,7 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 			int dataPacketBufferMaxCntPerMessage,
 			DataPacketBufferPoolIF dataPacketBufferPoolManager,
 			ProjectLoginManagerIF projectLoginManager,
-			IEOThreadPoolManagerIF ieoThreadPoolManager) {
+			IEOThreadPoolSetManagerIF ieoThreadPoolManager) {
 		if (null == streamCharsetDecoder) {
 			throw new IllegalArgumentException("the parameter streamCharsetDecoder is null");
 		}
@@ -57,52 +57,54 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 	@Override
 	public void addNewSocketChannel(SocketChannel newSC) throws NoMoreDataPacketBufferException {
 		if (null == newSC) {
-			throw new IllegalArgumentException("the newSC ownerSC is null");
+			throw new IllegalArgumentException("the parameter newSC is null");
 		}		
 		
-		InputMessageReaderIF inputMessageReaderWithMinimumMumberOfSockets = null;
-		ExecutorIF executorWithMinimumMumberOfSockets = null;
-		OutputMessageWriterIF outputMessageWriterWithMinimumMumberOfSockets = null;
+		InputMessageReaderIF inputMessageReaderOfOwnerSC = 
+				ieoThreadPoolManager.getInputMessageReaderWithMinimumMumberOfSockets();		
 		
-		SocketOutputStream socketOutputStream = 
+		ExecutorIF executorOfOwnerSC = 
+				ieoThreadPoolManager.getExecutorWithMinimumMumberOfSockets();
+		
+		OutputMessageWriterIF outputMessageWriterOfOwnerSC = 
+				ieoThreadPoolManager.getOutputMessageWriterWithMinimumMumberOfSockets();
+		
+		SocketOutputStream socketOutputStreamOfOwnerSC = 
 				new SocketOutputStream(streamCharsetDecoder, 
 						dataPacketBufferMaxCntPerMessage, 
 						dataPacketBufferPoolManager);
 		
-		PersonalLoginManager personalLoginManager = 
+		PersonalLoginManager personalLoginManagerOfOwnerSC = 
 				new PersonalLoginManager(newSC, projectLoginManager);
-		
-		inputMessageReaderWithMinimumMumberOfSockets = ieoThreadPoolManager.getInputMessageReaderWithMinimumMumberOfSockets();
-		executorWithMinimumMumberOfSockets = ieoThreadPoolManager.getExecutorWithMinimumMumberOfSockets();
-		outputMessageWriterWithMinimumMumberOfSockets = ieoThreadPoolManager.getOutputMessageWriterWithMinimumMumberOfSockets();
 		
 		SocketResource socketResource = new SocketResource(
 				newSC, 
-				inputMessageReaderWithMinimumMumberOfSockets,
-				executorWithMinimumMumberOfSockets,
-				outputMessageWriterWithMinimumMumberOfSockets,
-				socketOutputStream, 
-				personalLoginManager);
+				inputMessageReaderOfOwnerSC,
+				executorOfOwnerSC,
+				outputMessageWriterOfOwnerSC,
+				socketOutputStreamOfOwnerSC, 
+				personalLoginManagerOfOwnerSC);
 		
-		synchronized (monitor) {			
+		synchronized (monitor) {
+			/** 소켓 자원 등록 작업 */
 			socketChannel2SocketResourceHash.put(newSC, socketResource);
 		}
 		
 		/**
 		 * <pre>
-		 * Warning! 첫번째) 반듯이 소켓 리소스 등록 후 해당 메시지 입력/처리/출력 담당 쓰레드에 신규 소켓을 등록 시켜야 한다.
-		 * 왜냐하면 '메시지 입력  담당 쓰레드'(=InputMessageReader)에 소켓 신규 등록시 
-		 * 읽기 전용 selector 에 등록되어 데이터를 읽어 메시지를 추출하여 
-		 * 등록된 소켓 리소스로 부터 얻은 '메시지 처리 담당 쓰레드'(=Executor) 로 넘기기때문이다.
+		 * Warning! 반듯이 신규 소켓을 '입력 메시지 담당 쓰레드'(InputMessageReader)에 등록 하기 앞서 소켓에 1:1로 할당되는 자원 등록 작업이 선행되어야 한다.
+		 * 왜냐하면 '입력 메시지 담당 쓰레드' 에 신규 소켓 등록시 소켓에 1:1 로 할당된 자원중 하나인 출력 스트림을 이용한 입력 메시지 추출 작업이 진행되기때문이다.
 		 * 
-		 * 두번째) 각 메시지 입력/처리/출력 담당 쓰레드에 신규  소켓 등록시 '메시지 입력  담당 쓰레드'는 맨 마지막으로 해야 한다.
-		 * 왜냐하면  '메시지 처리 담당 쓰레드'와 '메시지 출력 담당 쓰레드'(=OutputMessageWriter) 는 단순 등록일뿐이지만 
-		 * '메시지 입력  담당 쓰레드' 는 읽기 전용 selector 에 소켓을 등록해야 하는 부과 작업이 더 있기때문이다.
+		 * ps : '입력 메시지 담당 쓰레드'(InputMessageReader) 에 신규 소켓 등록 작업은 
+		 * '출력 메시지 담당 쓰레드'(OutputMessageWriter) 와 '입력 메시지 처리 담당 쓰레드'(Executor) 보다 늦게 등록하도록 한다.
+		 * 왜냐하면 '입력 메시지 담당 쓰레드'는  '출력 메시지 담당 쓰레드'와 '입력 메시지 처리 담당 쓰레드'와 달리 
+		 * 읽기 전용 selector 등록이라는 부가 작업이 더 있기 때문이다.
 		 * </pre>
 		 */
-		outputMessageWriterWithMinimumMumberOfSockets.addNewSocket(newSC);
-		executorWithMinimumMumberOfSockets.addNewSocket(newSC);
-		inputMessageReaderWithMinimumMumberOfSockets.addNewSocket(newSC);
+		outputMessageWriterOfOwnerSC.addNewSocket(newSC);
+		executorOfOwnerSC.addNewSocket(newSC);
+		/** '입력 메시지 담당 쓰레드' 신규 소켓 등록 작업 */
+		inputMessageReaderOfOwnerSC.addNewSocket(newSC);
 	}
 
 	@Override

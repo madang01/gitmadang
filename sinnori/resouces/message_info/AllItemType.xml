@@ -14,8 +14,8 @@
 	(4) FROM_ALL_TO_ALL : 메시지는 서버에서 클라이언트로도 혹은 클라이언트에서 서버로 양쪽 모두에서 전송된다.
 -->
 <sinnori_message>
-<messageID>AllItemTypeReq</messageID>
-<direction>FROM_SERVER_TO_CLINET</direction>
+<messageID>AllItemType</messageID>
+<direction>FROM_ALL_TO_ALL</direction>
 <desc>모든 항목 타입을 테스트 하기 위한 메시지</desc>
 <singleitem name="byteVar1" type="byte" />
 <singleitem name="byteVar2" type="byte" />	

@@ -31,6 +31,7 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
 import kr.pe.sinnori.common.io.BinaryOutputStreamIF;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
+import kr.pe.sinnori.common.type.SelfExn;
 import kr.pe.sinnori.common.type.SingleItemType;
 
 /**
@@ -87,6 +88,7 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 	}
 	
 	private final abstractDHBTypeSingleItemEncoder[] dhbTypeSingleItemEncoderList = new abstractDHBTypeSingleItemEncoder[] { 
+			new DHBSelfExnErrorPlaceSingleItemEncoder(), new DHBSelfExnErrorTypeSingleItemEncoder(),
 			new DHBByteSingleItemEncoder(), new DHBUnsignedByteSingleItemEncoder(), 
 			new DHBShortSingleItemEncoder(), new DHBUnsignedShortSingleItemEncoder(),
 			new DHBIntSingleItemEncoder(), new DHBUnsignedIntSingleItemEncoder(), 
@@ -98,6 +100,45 @@ public class DHBSingleItemEncoder implements SingleItemEncoderIF {
 			new DHBJavaSqlDateSingleItemEncoder(), new DHBJavaSqlTimestampSingleItemEncoder(),
 			new DHBBooleanSingleItemEncoder()
 	};
+	
+	private final class DHBSelfExnErrorPlaceSingleItemEncoder extends abstractDHBTypeSingleItemEncoder {
+		@Override
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
+				throws BufferOverflowException, SinnoriBufferOverflowException, NoMoreDataPacketBufferException {
+			if (null == itemValue) {
+				throw new IllegalArgumentException("the parameter itemValue is null, the value of the item type 'selfexn error place' must be not null");
+			}
+			SelfExn.ErrorPlace tempItemValue = (SelfExn.ErrorPlace) itemValue;
+
+			writeItemID(itemTypeID, binaryOutputStream);
+			binaryOutputStream.putByte(tempItemValue.getErrorPlaceByte());
+		}
+		
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.SELFEXN_ERROR_PLACE;
+		}
+	}
+	
+	private final class DHBSelfExnErrorTypeSingleItemEncoder extends abstractDHBTypeSingleItemEncoder {
+		@Override
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
+				throws BufferOverflowException, SinnoriBufferOverflowException, NoMoreDataPacketBufferException {
+			if (null == itemValue) {
+				throw new IllegalArgumentException("the parameter itemValue is null, the value of the item type 'selfexn error type' must be not null");
+			}
+			SelfExn.ErrorType tempItemValue = (SelfExn.ErrorType) itemValue;
+
+			writeItemID(itemTypeID, binaryOutputStream);
+			binaryOutputStream.putByte(tempItemValue.getErrorTypeByte());
+		}
+		
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.SELFEXN_ERROR_TYPE;
+		}
+	}
+	
 	
 	/** DHB 프로토콜의 byte 타입 단일 항목 스트림 변환기 구현 클래스 */
 	private final class DHBByteSingleItemEncoder extends abstractDHBTypeSingleItemEncoder {

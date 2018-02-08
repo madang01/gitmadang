@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kr.pe.sinnori.impl.message.SelfExn;
+package kr.pe.sinnori.impl.message.AllItemType;
 
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
@@ -22,19 +22,19 @@ import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
 
 /**
- * SelfExn 서버 코덱
+ * AllItemType 서버 코덱
  * @author Won Jonghoon
  *
  */
-public final class SelfExnServerCodec implements MessageCodecIF {
+public final class AllItemTypeServerCodec implements MessageCodecIF {
 
 	@Override
 	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
-		return new SelfExnDecoder();
+		return new AllItemTypeDecoder();
 	}
 
 	@Override
 	public AbstractMessageEncoder getMessageEncoder() throws DynamicClassCallException {
-		return new SelfExnEncoder();
+		return new AllItemTypeEncoder();
 	}
 }

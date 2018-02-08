@@ -20,8 +20,10 @@ public class IOFileSetContentsBuilderManagerTest extends AbstractJunitTest {
 	@Test
 	public void test_신놀이설치경로에있는메시지정보파일로부터메시지IO관련파일만들기() {
 		String[] targetMessageIDList = {
-				"SelfExn",
-				"AllItemTypeReq"
+				"SelfExnRes",
+				"AllItemType",
+				"Echo",
+				"Empty"
 		};
 		
 		final String author = "Won Jonghoon";

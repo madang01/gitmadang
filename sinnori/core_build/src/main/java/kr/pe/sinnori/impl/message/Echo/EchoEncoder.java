@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kr.pe.sinnori.impl.message.SelfExn;
+package kr.pe.sinnori.impl.message.Echo;
 
 import java.util.LinkedList;
 import kr.pe.sinnori.common.message.AbstractMessage;
@@ -23,49 +23,35 @@ import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
 
 /**
- * SelfExn 메시지 인코더
+ * Echo 메시지 인코더
  * @author Won Jonghoon
  *
  */
-public final class SelfExnEncoder extends AbstractMessageEncoder {
+public final class EchoEncoder extends AbstractMessageEncoder {
 	@Override
 	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Object writableMiddleObject) throws Exception {
-		SelfExn selfExn = (SelfExn)messageObj;
-		encodeBody(selfExn, singleItemEncoder, writableMiddleObject);
+		Echo echo = (Echo)messageObj;
+		encodeBody(echo, singleItemEncoder, writableMiddleObject);
 	}
 
 
-	private void encodeBody(SelfExn selfExn, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject) throws Exception {
+	private void encodeBody(Echo echo, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject) throws Exception {
 		LinkedList<String> pathStack = new LinkedList<String>();
-		pathStack.push("SelfExn");
+		pathStack.push("Echo");
 
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "errorPlace"
-			, SingleItemType.UB_PASCAL_STRING // itemType
-			, selfExn.getErrorPlace() // itemValue
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "randomInt"
+			, SingleItemType.INTEGER // itemType
+			, echo.getRandomInt() // itemValue
 			, -1 // itemSize
-			, "ISO-8859-1" // nativeItemCharset
+			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "errorGubun"
-			, SingleItemType.UB_PASCAL_STRING // itemType
-			, selfExn.getErrorGubun() // itemValue
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "startTime"
+			, SingleItemType.LONG // itemType
+			, echo.getStartTime() // itemValue
 			, -1 // itemSize
-			, "ISO-8859-1" // nativeItemCharset
-			, middleWritableObject);
-
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "errorMessageID"
-			, SingleItemType.UB_PASCAL_STRING // itemType
-			, selfExn.getErrorMessageID() // itemValue
-			, -1 // itemSize
-			, "ISO-8859-1" // nativeItemCharset
-			, middleWritableObject);
-
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "errorMessage"
-			, SingleItemType.US_PASCAL_STRING // itemType
-			, selfExn.getErrorMessage() // itemValue
-			, -1 // itemSize
-			, "utf8" // nativeItemCharset
+			, null // nativeItemCharset
 			, middleWritableObject);
 
 		pathStack.pop();

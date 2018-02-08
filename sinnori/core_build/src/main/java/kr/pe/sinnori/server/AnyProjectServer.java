@@ -37,9 +37,9 @@ import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.project.AbstractProject;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
 import kr.pe.sinnori.server.classloader.ServerClassLoader;
-import kr.pe.sinnori.server.executor.AbstractServerTask;
-import kr.pe.sinnori.server.threadpool.IEOThreadPoolManager;
-import kr.pe.sinnori.server.threadpool.IEOThreadPoolManagerIF;
+import kr.pe.sinnori.server.task.AbstractServerTask;
+import kr.pe.sinnori.server.threadpool.IEOThreadPoolSetManager;
+import kr.pe.sinnori.server.threadpool.IEOThreadPoolSetManagerIF;
 import kr.pe.sinnori.server.threadpool.accept.processor.AcceptProcessorPool;
 import kr.pe.sinnori.server.threadpool.accept.selector.handler.AcceptSelector;
 import kr.pe.sinnori.server.threadpool.executor.ExecutorPool;
@@ -133,7 +133,7 @@ public class AnyProjectServer extends AbstractProject implements
 		
 		projectLoginManager = new ProjectLoginManager();
 		
-		IEOThreadPoolManagerIF ieoThreadPoolManager = new IEOThreadPoolManager();
+		IEOThreadPoolSetManagerIF ieoThreadPoolManager = new IEOThreadPoolSetManager();
 		socketResourceManager = new SocketResourceManager(charsetDecoderOfProject, 
 						projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(), 
 						dataPacketBufferPoolManager, 
@@ -256,26 +256,19 @@ public class AnyProjectServer extends AbstractProject implements
 		MessageCodecIF messageCodec = null;
 
 		Object valueObj = null;
+		
 		try {
-			try {
-				valueObj = objectCacheManager.getCachedObject(classLoader,
-						classFullName);
-			} catch (Exception e) {
-				String errorMessage = String
-						.format("ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::%s",
-								classLoader.hashCode(), messageID,
-								classFullName, e.toString());
-				log.warn(errorMessage, e);
-				throw new DynamicClassCallException(errorMessage);
-			}
-		} catch (IllegalArgumentException e) {
+			valueObj = objectCacheManager.getCachedObject(classLoader,
+					classFullName);
+		} catch (Exception e) {
 			String errorMessage = String
-					.format("ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::IllegalArgumentException::%s",
-							classLoader.hashCode(), messageID, classFullName,
-							e.getMessage());
-			log.warn(errorMessage);
+					.format("fail to get cached object::ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]",
+							classLoader.hashCode(), messageID,
+							classFullName);
+			log.warn(errorMessage, e);
 			throw new DynamicClassCallException(errorMessage);
 		}
+		
 
 		/*
 		 * if (null == valueObj) { String errorMessage = String.format(

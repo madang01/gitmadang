@@ -18,7 +18,7 @@ package kr.pe.sinnori.server;
 
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
-import kr.pe.sinnori.server.executor.AbstractServerTask;
+import kr.pe.sinnori.server.task.AbstractServerTask;
 
 /**
  * 서버 운영에 필요한 동적 클래스 객체들에 대한 캐쉬 관리자 인터페이스

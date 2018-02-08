@@ -33,12 +33,11 @@ import org.slf4j.LoggerFactory;
 import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.common.etc.CharsetUtil;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.SelfExnUtil;
+import kr.pe.sinnori.common.exception.AccessDeniedException;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.MailboxTimeoutException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.exception.NotLoginException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
@@ -51,7 +50,8 @@ import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
-import kr.pe.sinnori.impl.message.SelfExn.SelfExn;
+import kr.pe.sinnori.common.type.SelfExn;
+import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 
 /**
  * 클라이언트 연결 클래스의 부모 추상화 클래스<br/>
@@ -397,7 +397,7 @@ public abstract class AbstractConnection {
 	abstract public AbstractMessage sendSyncInputMessage(
 			AbstractMessage inputMessage) throws ServerNotReadyException, SocketTimeoutException,
 			NoMoreDataPacketBufferException, BodyFormatException, 
-			DynamicClassCallException, ServerTaskException, NotLoginException, InterruptedException, MailboxTimeoutException;
+			DynamicClassCallException, ServerTaskException, AccessDeniedException, InterruptedException, MailboxTimeoutException;
 	
 	
 	/**
@@ -414,7 +414,7 @@ public abstract class AbstractConnection {
 			AbstractMessage inputMessage) throws ServerNotReadyException, SocketTimeoutException, 
 			NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException, NotSupportedException, InterruptedException;
 	
-	protected AbstractMessage getMessageFromMiddleReadObj(ClassLoader classLoader, WrapReadableMiddleObject receivedLetter) throws DynamicClassCallException, BodyFormatException, NoMoreDataPacketBufferException, ServerTaskException, NotLoginException {
+	protected AbstractMessage getMessageFromMiddleReadObj(ClassLoader classLoader, WrapReadableMiddleObject receivedLetter) throws DynamicClassCallException, BodyFormatException, NoMoreDataPacketBufferException, ServerTaskException, AccessDeniedException {
 		String messageID = receivedLetter.getMessageID();
 		int mailboxID = receivedLetter.getMailboxID();
 		int mailID = receivedLetter.getMailID();
@@ -454,10 +454,10 @@ public abstract class AbstractConnection {
 			throw new BodyFormatException(errorMessage);
 		}
 		
-		if (messageObj instanceof SelfExn) {
-			SelfExn selfExnOutObj =(SelfExn)messageObj;
-			log.warn(SelfExnUtil.getSelfExnReport(selfExnOutObj));
-			SelfExnUtil.throwSelfExnException(selfExnOutObj); 
+		if (messageObj instanceof SelfExnRes) {
+			SelfExnRes selfExnRes =(SelfExnRes)messageObj;
+			log.warn(selfExnRes.toString());
+			SelfExn.ErrorType.throwSelfExnException(selfExnRes);
 		}
 		
 		return messageObj;

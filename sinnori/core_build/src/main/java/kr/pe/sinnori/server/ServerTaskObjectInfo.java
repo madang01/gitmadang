@@ -2,7 +2,7 @@ package kr.pe.sinnori.server;
 
 import java.io.File;
 
-import kr.pe.sinnori.server.executor.AbstractServerTask;
+import kr.pe.sinnori.server.task.AbstractServerTask;
 
 public class ServerTaskObjectInfo {
 	private File serverTaskClassFile = null;

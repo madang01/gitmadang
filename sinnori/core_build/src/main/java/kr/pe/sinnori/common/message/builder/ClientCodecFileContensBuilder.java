@@ -2,6 +2,7 @@ package kr.pe.sinnori.common.message.builder;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.type.MessageTransferDirectionType;
+import kr.pe.sinnori.common.util.CommonStaticUtil;
 
 public class ClientCodecFileContensBuilder extends AbstractSourceFileBuildre {
 
@@ -38,7 +39,7 @@ public class ClientCodecFileContensBuilder extends AbstractSourceFileBuildre {
 
 		// public final class EchoClientCodec implements MessageCodecIF {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 0));
 		stringBuilder.append("public final class ");
 		stringBuilder.append(messageID);
 		stringBuilder.append("ClientCodec implements MessageCodecIF {");
@@ -46,18 +47,18 @@ public class ClientCodecFileContensBuilder extends AbstractSourceFileBuildre {
 		// @Override
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 		stringBuilder.append("@Override");
 
 		// public MessageDecoder getMessageDecoder() throws
 		// DynamicClassCallException {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 		stringBuilder
 				.append("public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {");
 
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 2));	
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 2));	
 		
 		switch (messageTransferDirectionType) {
 			case FROM_ALL_TO_ALL : 
@@ -79,24 +80,24 @@ public class ClientCodecFileContensBuilder extends AbstractSourceFileBuildre {
 
 		// }
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 		stringBuilder.append("}");
 
 		// @Override
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 		stringBuilder.append("@Override");
 
 		// public MessageEncoder getMessageEncoder() throws
 		// DynamicClassCallException {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 		stringBuilder
 				.append("public AbstractMessageEncoder getMessageEncoder() throws DynamicClassCallException {");
 
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 2));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 2));
 		
 		switch (messageTransferDirectionType) {
 			case FROM_ALL_TO_ALL : 
@@ -118,12 +119,12 @@ public class ClientCodecFileContensBuilder extends AbstractSourceFileBuildre {
 		
 		// }
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 1));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 		stringBuilder.append("}");
 
 		// }
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
-		stringBuilder.append(getPrefixWithTabCharacters(depth, 0));
+		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 0));
 		stringBuilder.append("}");
 
 		return stringBuilder.toString();

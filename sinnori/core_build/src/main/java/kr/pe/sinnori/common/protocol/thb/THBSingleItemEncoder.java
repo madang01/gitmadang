@@ -31,6 +31,7 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
 import kr.pe.sinnori.common.io.BinaryOutputStreamIF;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
+import kr.pe.sinnori.common.type.SelfExn;
 import kr.pe.sinnori.common.type.SingleItemType;
 
 /**
@@ -87,6 +88,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 	}
 	
 	private final abstractTHBTypeSingleItemEncoder[] thbTypeSingleItemEncoderList = new abstractTHBTypeSingleItemEncoder[] { 
+			new THBSelfExnErrorPlaceSingleItemEncoder(), new THBSelfExnErrorTypeSingleItemEncoder(),
 			new THBByteSingleItemEncoder(), new THBUnsignedByteSingleItemEncoder(), 
 			new THBShortSingleItemEncoder(), new THBUnsignedShortSingleItemEncoder(),
 			new THBIntSingleItemEncoder(), new THBUnsignedIntSingleItemEncoder(), 
@@ -98,6 +100,44 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 			new THBJavaSqlDateSingleItemEncoder(), new THBJavaSqlTimestampSingleItemEncoder(),
 			new THBBooleanSingleItemEncoder()
 	};
+	
+	private final class THBSelfExnErrorPlaceSingleItemEncoder extends abstractTHBTypeSingleItemEncoder {
+		@Override
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
+				throws BufferOverflowException, SinnoriBufferOverflowException, NoMoreDataPacketBufferException {
+			if (null == itemValue) {
+				throw new IllegalArgumentException("the parameter itemValue is null, the value of the signle item type 'selfexn error place' must be not null");
+			}
+			SelfExn.ErrorPlace tempItemValue = (SelfExn.ErrorPlace) itemValue;
+
+			writeItemID(itemTypeID, binaryOutputStream);
+			binaryOutputStream.putByte(tempItemValue.getErrorPlaceByte());
+		}
+		
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.SELFEXN_ERROR_PLACE;
+		}
+	}
+	
+	private final class THBSelfExnErrorTypeSingleItemEncoder extends abstractTHBTypeSingleItemEncoder {
+		@Override
+		public void putValue(int itemTypeID, String itemName, Object itemValue, int itemSize,
+				Charset itemCharset, BinaryOutputStreamIF binaryOutputStream)
+				throws BufferOverflowException, SinnoriBufferOverflowException, NoMoreDataPacketBufferException {
+			if (null == itemValue) {
+				throw new IllegalArgumentException("the parameter itemValue is null, the value of the single item type 'selfexn error type' must be not null");
+			}
+			SelfExn.ErrorType tempItemValue = (SelfExn.ErrorType) itemValue;
+
+			writeItemID(itemTypeID, binaryOutputStream);
+			binaryOutputStream.putByte(tempItemValue.getErrorTypeByte());
+		}
+		
+		public SingleItemType getSingleItemType() {
+			return SingleItemType.SELFEXN_ERROR_TYPE;
+		}
+	}
 
 		
 	/** THB 프로토콜의 byte 타입 단일 항목 스트림 변환기 구현 클래스 */

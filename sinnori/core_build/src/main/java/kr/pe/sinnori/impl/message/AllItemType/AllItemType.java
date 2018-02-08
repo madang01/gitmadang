@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kr.pe.sinnori.impl.message.AllItemTypeReq;
+package kr.pe.sinnori.impl.message.AllItemType;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
 
 /**
- * AllItemTypeReq 메시지
+ * AllItemType 메시지
  * @author Won Jonghoon
  *
  */
-public class AllItemTypeReq extends AbstractMessage {
+public class AllItemType extends AbstractMessage {
 	private byte byteVar1;
 	private byte byteVar2;
 	private byte byteVar3 = 123;
@@ -470,7 +470,7 @@ public class AllItemTypeReq extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("allItemTypeReq[");
+		builder.append("allItemType[");
 		builder.append("byteVar1=");
 		builder.append(byteVar1);
 		builder.append(", byteVar2=");

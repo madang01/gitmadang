@@ -10,8 +10,8 @@ import kr.pe.sinnori.server.threadpool.inputmessage.handler.InputMessageReaderIF
 import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterPoolIF;
 import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriterIF;
 
-public class IEOThreadPoolManager implements IEOThreadPoolManagerIF {
-	private Logger log = LoggerFactory.getLogger(IEOThreadPoolManager.class);
+public class IEOThreadPoolSetManager implements IEOThreadPoolSetManagerIF {
+	private Logger log = LoggerFactory.getLogger(IEOThreadPoolSetManager.class);
 	
 	private InputMessageReaderPoolIF inputMessageReaderPool = null;
 	private ExecutorPoolIF executorPool = null;

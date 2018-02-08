@@ -37,79 +37,75 @@ public class SocketResource {
 	@SuppressWarnings("unused")
 	private Logger log = LoggerFactory.getLogger(SocketResource.class);
 
-	/** 이 자원을 소유한 소켓 채널 */
 	private SocketChannel ownerSC = null;
+	private InputMessageReaderIF inputMessageReader = null;
+	private ExecutorIF executor = null;
+	private OutputMessageWriterIF outputMessageWriter = null;
+	private SocketOutputStream socketOutputStream = null;
+	private PersonalLoginManagerIF personalLoginManager = null;
 	
-	private InputMessageReaderIF inputMessageReaderWithMinimumMumberOfSockets = null;
-	private ExecutorIF executorWithMinimumMumberOfSockets = null;
-	private OutputMessageWriterIF outputMessageWriterWithMinimumMumberOfSockets = null;
 	
 	/** 최종 읽기를 수행한 시간. 초기값은 클라이언트(=SocketChannel) 생성시간이다 */
 	private java.util.Date finalReadTime = null;
-	
-	/** 소켓 채널 전용 읽기 자원 */
-	private SocketOutputStream socketOutputStream = null;
 	
 	private final Object monitorOfServerMailID = new Object();
 	/** 클라이언트에 할당되는 서버 편지 식별자 */
 	private int serverMailID = Integer.MIN_VALUE;
 	
-	private PersonalLoginManagerIF personalLoginManager = null;
-	
 	public SocketResource(SocketChannel ownerSC,
-			InputMessageReaderIF inputMessageReaderWithMinimumMumberOfSockets,
-			ExecutorIF executorWithMinimumMumberOfSockets,
-			OutputMessageWriterIF outputMessageWriterWithMinimumMumberOfSockets,
-			SocketOutputStream socketOutputStream,
-			PersonalLoginManagerIF personalLoginManager) {
+			InputMessageReaderIF inputMessageReaderOfOwnerSC,
+			ExecutorIF executorOfOwnerSC,
+			OutputMessageWriterIF outputMessageWriterOfOwnerSC,
+			SocketOutputStream socketOutputStreamOfOwnerSC,
+			PersonalLoginManagerIF personalLoginManagerOfOwnerSC) {
 		if (null == ownerSC) {
 			throw new IllegalArgumentException("the parameter ownerSC is null");
 		}
 		
-		if (null == inputMessageReaderWithMinimumMumberOfSockets) {
-			throw new IllegalArgumentException("the parameter inputMessageReaderWithMinimumMumberOfSockets is null");
+		if (null == inputMessageReaderOfOwnerSC) {
+			throw new IllegalArgumentException("the parameter inputMessageReaderOfOwnerSC is null");
 		}
 		
-		if (null == executorWithMinimumMumberOfSockets) {
-			throw new IllegalArgumentException("the parameter executorWithMinimumMumberOfSockets is null");
+		if (null == executorOfOwnerSC) {
+			throw new IllegalArgumentException("the parameter executorOfOwnerSC is null");
 		}
 		
-		if (null == outputMessageWriterWithMinimumMumberOfSockets) {
-			throw new IllegalArgumentException("the parameter outputMessageWriterWithMinimumMumberOfSockets is null");
+		if (null == outputMessageWriterOfOwnerSC) {
+			throw new IllegalArgumentException("the parameter outputMessageWriterOfOwnerSC is null");
 		}
 		
-		if (null == socketOutputStream) {
-			throw new IllegalArgumentException("the parameter socketOutputStream is null");
+		if (null == socketOutputStreamOfOwnerSC) {
+			throw new IllegalArgumentException("the parameter socketOutputStreamOfOwnerSC is null");
 		}
 		
-		if (null == personalLoginManager) {
-			throw new IllegalArgumentException("the parameter personalLoginManager is null");
-		}
-		
+		if (null == personalLoginManagerOfOwnerSC) {
+			throw new IllegalArgumentException("the parameter personalLoginManagerOfOwnerSC is null");
+		}		
 		
 		this.ownerSC = ownerSC;
-		this.inputMessageReaderWithMinimumMumberOfSockets = inputMessageReaderWithMinimumMumberOfSockets;
-		this.executorWithMinimumMumberOfSockets = executorWithMinimumMumberOfSockets;
-		this.outputMessageWriterWithMinimumMumberOfSockets = outputMessageWriterWithMinimumMumberOfSockets;
+		this.inputMessageReader = inputMessageReaderOfOwnerSC;
+		this.executor = executorOfOwnerSC;
+		this.outputMessageWriter = outputMessageWriterOfOwnerSC;
+		this.socketOutputStream = socketOutputStreamOfOwnerSC;
+		this.personalLoginManager = personalLoginManagerOfOwnerSC;
+		
 		this.finalReadTime = new java.util.Date();
-		this.socketOutputStream = socketOutputStream;
-		this.personalLoginManager = personalLoginManager;
 	}
 	
 	public SocketChannel getOwnerSC() {
 		return ownerSC;
 	}
 	
-	public InputMessageReaderIF getInputMessageReaderWithMinimumMumberOfSockets() {
-		return inputMessageReaderWithMinimumMumberOfSockets;
+	public InputMessageReaderIF getInputMessageReader() {
+		return inputMessageReader;
 	}
 	
-	public ExecutorIF getExecutorWithMinimumMumberOfSockets() {
-		return executorWithMinimumMumberOfSockets;
+	public ExecutorIF getExecutor() {
+		return executor;
 	}
 
-	public OutputMessageWriterIF getOutputMessageWriterWithMinimumMumberOfSockets() {
-		return outputMessageWriterWithMinimumMumberOfSockets;
+	public OutputMessageWriterIF getOutputMessageWriter() {
+		return outputMessageWriter;
 	}
 	
 	/**
@@ -135,9 +131,7 @@ public class SocketResource {
 	 */
 	public void setFinalReadTime() {
 		finalReadTime = new java.util.Date();
-	}
-
-	
+	}	
 
 	/**
 	 * 메일 식별자를 반환한다. 메일 식별자는 자동 증가된다.
@@ -167,8 +161,8 @@ public class SocketResource {
 		/**
 		 * 참고 : '메시지 입력 담당 쓰레드'(=InputMessageReader) 는 소켓이 닫히면 자동적으로 selector 에서 인지하여 제거되므로 따로 작업할 필요 없음
 		 */
-		executorWithMinimumMumberOfSockets.removeSocket(ownerSC);
-		outputMessageWriterWithMinimumMumberOfSockets.removeSocket(ownerSC);
+		executor.removeSocket(ownerSC);
+		outputMessageWriter.removeSocket(ownerSC);
 	}
 
 	@Override

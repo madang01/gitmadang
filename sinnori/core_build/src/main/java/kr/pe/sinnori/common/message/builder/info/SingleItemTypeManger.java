@@ -99,9 +99,16 @@ public class SingleItemTypeManger {
 		mesgXSLStringBuilder.append("\t\t<xs:choice>\n");
 		mesgXSLStringBuilder.append("\t\t\t<xs:element name=\"singleitem\">\n");
 		mesgXSLStringBuilder.append("\t\t\t\t<xs:complexType>\n");
-		mesgXSLStringBuilder.append("\t\t\t\t\t<xs:sequence>\n");
-		mesgXSLStringBuilder.append("\t\t\t\t\t\t<xs:element name=\"desc\" type=\"xs:string\" minOccurs=\"0\" maxOccurs=\"1\" />\n");
-		mesgXSLStringBuilder.append("\t\t\t\t\t</xs:sequence>\n");
+
+		mesgXSLStringBuilder.append("\t\t\t\t\t<xs:attribute name=\"desc\" use=\"optional\">\n");
+		mesgXSLStringBuilder.append("\t\t\t\t\t\t<xs:simpleType>\n");
+		mesgXSLStringBuilder.append("\t\t\t\t\t\t\t<xs:restriction base=\"xs:string\">\n");
+		mesgXSLStringBuilder.append("\t\t\t\t\t\t\t\t<xs:minLength value=\"1\" />\n");
+		mesgXSLStringBuilder.append("\t\t\t\t\t\t\t</xs:restriction>\n");
+		mesgXSLStringBuilder.append("\t\t\t\t\t\t</xs:simpleType>\n");
+		mesgXSLStringBuilder.append("\t\t\t\t\t</xs:attribute>\n");
+		
+		
 		mesgXSLStringBuilder.append("\t\t\t\t\t<xs:attribute name=\"name\" use=\"required\">\n");
 		mesgXSLStringBuilder.append("\t\t\t\t\t\t<xs:simpleType>\n");
 		mesgXSLStringBuilder.append("\t\t\t\t\t\t\t<xs:restriction base=\"xs:string\">\n");

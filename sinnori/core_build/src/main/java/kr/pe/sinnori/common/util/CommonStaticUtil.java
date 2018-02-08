@@ -371,4 +371,22 @@ public abstract class CommonStaticUtil {
 
 		}
 	}
+	
+	public static String getPrefixWithTabCharacters(int depth, int numberOfAdditionalTabs) {
+		if (depth < 0) {
+			String errorMessage = String.format("the parameter depth[%d] is less than zero", depth);
+			throw new IllegalArgumentException(errorMessage);
+		}
+		if (numberOfAdditionalTabs < 0) {
+			String errorMessage = String.format("the parameter numberOfAdditionalTabs[%d] is less than zero", numberOfAdditionalTabs);
+			throw new IllegalArgumentException(errorMessage);
+		}
+		StringBuilder stringBuilder = new StringBuilder();
+		
+		int numberOfTabCharacters = depth + numberOfAdditionalTabs;
+		for (int i=0; i < numberOfTabCharacters; i++) {
+			stringBuilder.append("\t");
+		}		
+		return stringBuilder.toString();
+	}
 }

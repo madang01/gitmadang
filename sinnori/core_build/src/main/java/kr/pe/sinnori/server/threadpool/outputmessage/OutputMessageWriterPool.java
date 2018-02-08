@@ -24,7 +24,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
-import kr.pe.sinnori.server.threadpool.IEOThreadPoolManagerIF;
+import kr.pe.sinnori.server.threadpool.IEOThreadPoolSetManagerIF;
 import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriter;
 import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriterIF;
 
@@ -43,7 +43,7 @@ public class OutputMessageWriterPool extends AbstractThreadPool implements Outpu
 	public OutputMessageWriterPool(String projectName, int size, int max,
 			LinkedBlockingQueue<ToLetter> outputMessageQueue,
 			DataPacketBufferPoolIF dataPacketBufferQueueManger,
-			IEOThreadPoolManagerIF ieoThreadPoolManager) {
+			IEOThreadPoolSetManagerIF ieoThreadPoolManager) {
 		if (size <= 0) {
 			throw new IllegalArgumentException(String.format("%s 파라미터 size 는 0보다 커야 합니다.", projectName));
 		}
