@@ -139,10 +139,10 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 			//log.info("5");
 			
 			for (WrapReadableMiddleObject wrapReadableMiddleObject :  wrapReadableMiddleObjectList) {
-				Object readablemiddleObj = wrapReadableMiddleObject.getReadableMiddleObject();				
+				Object readableMiddleObj = wrapReadableMiddleObject.getReadableMiddleObject();				
 				
 				try {
-					AbstractMessage resObj = selfExnDecoder.decode(dhbSingleItemDecoder, readablemiddleObj);
+					AbstractMessage resObj = selfExnDecoder.decode(dhbSingleItemDecoder, readableMiddleObj);
 					resObj.messageHeaderInfo.mailboxID = wrapReadableMiddleObject.getMailboxID();
 					resObj.messageHeaderInfo.mailID = wrapReadableMiddleObject.getMailID();
 					

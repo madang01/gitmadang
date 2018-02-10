@@ -64,20 +64,24 @@ public abstract class AbstractServerTask {
 		try {
 			serverInputMessageCodec = serverObjectCacheManager.getServerMessageCodec(classLoaderOfSererTask, wrapReadableMiddleObject.getMessageID());
 		} catch (DynamicClassCallException e) {
-			log.warn(e.getMessage());
-			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
-			String errorReason = e.getMessage();
+			String errorReason = String.format("fail to get a input message[%s] server codec", 
+					wrapReadableMiddleObject.toSimpleInformation());
+			
+			log.warn(errorReason);
 			
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 					errorType,
 					errorReason,
 					wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
 			return;
-		} catch (Exception e) {
-			log.warn("unknwon error::fail to get a input message server codec", e);			
+		} catch (Exception e) {						
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
-			String errorReason = "fail to get a input message server codec::"+e.getMessage();			
+			String errorReason = String.format("unknown error::fail to get a input message[%s] server codec::%s", 
+					wrapReadableMiddleObject.toSimpleInformation(), e.getMessage());
+			
+			log.warn(errorReason, e);
+			
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 					errorType,
 					errorReason,
@@ -89,20 +93,24 @@ public abstract class AbstractServerTask {
 		try {
 			inputMessageDecoder = serverInputMessageCodec.getMessageDecoder();
 		} catch (DynamicClassCallException e) {
-			log.warn(e.getMessage());
-			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
-			String errorReason = e.getMessage();			
+			String errorReason = String.format("fail to get a input message[%s] decoder", 
+					wrapReadableMiddleObject.toSimpleInformation());
+			
+			log.warn(errorReason);
+			
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 					errorType,
 					errorReason,
 					wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
 			return;
-		} catch(Exception | Error e) {
-			log.warn("unknwon error::fail to get a input message decoder", e);
-			
+		} catch(Exception | Error e) {			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
-			String errorReason = "fail to get a input message decoder::"+e.getMessage();			
+			String errorReason = String.format("unknown error::fail to get a input message[%s] decoder::%s", 
+					wrapReadableMiddleObject.toSimpleInformation(), e.getMessage());
+			
+			log.warn(errorReason, e);
+			
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 					errorType,
 					errorReason,
@@ -120,20 +128,24 @@ public abstract class AbstractServerTask {
 			inputMessage.messageHeaderInfo.mailboxID = wrapReadableMiddleObject.getMailboxID();
 			inputMessage.messageHeaderInfo.mailID = wrapReadableMiddleObject.getMailID();
 		} catch (BodyFormatException e) {
-			log.warn(e.getMessage());
-			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(BodyFormatException.class);
-			String errorReason = e.getMessage();			
+			String errorReason = String.format("fail to get a input message[%s] from readable middle object::%s", 
+					wrapReadableMiddleObject.toSimpleInformation(), e.getMessage());
+			
+			log.warn(errorReason);
+			
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 					errorType,
 					errorReason,
 					wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
 			return;		
-		} catch(Exception | Error e) {
-			log.warn("unknown error::fail to get a input message from readable middle object", e);
-			
+		} catch(Exception | Error e) {			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(BodyFormatException.class);
-			String errorReason = "fail to get a input message from readable middle object::"+e.getMessage();			
+			String errorReason = String.format("unknown error::fail to get a input message[%s] from readable middle object::%s", 
+					wrapReadableMiddleObject.toSimpleInformation(), e.getMessage());
+			
+			log.warn(errorReason, e);
+			
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 					errorType,
 					errorReason,
@@ -154,11 +166,13 @@ public abstract class AbstractServerTask {
 			doTask(projectName, personalLoginManagerOfFromSC, toLetterCarrier, inputMessage);
 		} catch (InterruptedException e) {
 			throw e;
-		} catch (Exception | Error e) {
-			log.warn("unknown error::fail to execuate task", e);
-			
+		} catch (Exception | Error e) {			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(ServerTaskException.class);
-			String errorReason = "fail to execuate task::"+e.getMessage();			
+			String errorReason = String.format("unknown error::fail to execuate the message[%s]'s task::%s", 
+					wrapReadableMiddleObject.toSimpleInformation(), e.getMessage());
+			
+			log.warn(errorReason, e);
+			
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 					errorType,
 					errorReason,
@@ -174,6 +188,7 @@ public abstract class AbstractServerTask {
 	
 	abstract public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception;
+	
 	
 	
 }

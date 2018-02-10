@@ -972,8 +972,7 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 
 		/** 파라미터 데이터 패킷 버퍼목록 회수 */
 		for (WrapBuffer inputStreamWrapBuffer : dataPacketBufferList) {
-			// log.info("return the inputStreamWrapBuffer[hashcode={}] to the data packet
-			// buffer pool", inputStreamWrapBuffer.hashCode());
+			// log.info("return the inputStreamWrapBuffer[hashcode={}] to the data packet buffer pool", inputStreamWrapBuffer.hashCode());
 
 			dataPacketBufferQueueManager.putDataPacketBuffer(inputStreamWrapBuffer);
 		}

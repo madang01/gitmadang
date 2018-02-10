@@ -5,7 +5,7 @@ import kr.pe.sinnori.common.message.builder.info.MessageInfo;
 import kr.pe.sinnori.common.type.MessageTransferDirectionType;
 
 
-public class IOFileSetContentsBuilderManager {
+public class IOPartDynamicClassFileContentsBuilderManager {
 	private MessageFileContensBuilder messageFileContensBuilder = null;
 	private DecoderFileContensBuilder decoderFileContensBuilder = null;
 	private EncoderFileContensBuilder encoderFileContensBuilder = null;
@@ -14,11 +14,11 @@ public class IOFileSetContentsBuilderManager {
 
 	/** 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스 */
 	private static final class MessageProcessFileContentsManagerHolder {
-		static final IOFileSetContentsBuilderManager singleton = new IOFileSetContentsBuilderManager();
+		static final IOPartDynamicClassFileContentsBuilderManager singleton = new IOPartDynamicClassFileContentsBuilderManager();
 	}
 
 	/** 동기화 쓰지 않는 싱글턴 구현 메소드 */
-	public static IOFileSetContentsBuilderManager getInstance() {
+	public static IOPartDynamicClassFileContentsBuilderManager getInstance() {
 		return MessageProcessFileContentsManagerHolder.singleton;
 	}
 
@@ -26,7 +26,7 @@ public class IOFileSetContentsBuilderManager {
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 생성자
 	 * @throws NoMoreDataPacketBufferException 
 	 */
-	private IOFileSetContentsBuilderManager() {
+	private IOPartDynamicClassFileContentsBuilderManager() {
 		messageFileContensBuilder = new MessageFileContensBuilder();
 		decoderFileContensBuilder = new DecoderFileContensBuilder();
 		encoderFileContensBuilder = new EncoderFileContensBuilder();

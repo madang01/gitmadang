@@ -40,7 +40,7 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.message.builder.IOFileSetContentsBuilderManager;
+import kr.pe.sinnori.common.message.builder.IOPartDynamicClassFileContentsBuilderManager;
 import kr.pe.sinnori.common.message.builder.info.MessageInfo;
 import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
 import kr.pe.sinnori.common.type.LineSeparatorType;
@@ -82,7 +82,7 @@ public class IOFIleSetBuilderPanel extends JPanel implements FileFunctionManager
 			FileFunctionCellValue.class, BuildFunctionCellValue.class };
 	/** MessageInfo Table Model end */
 
-	private IOFileSetContentsBuilderManager ioFileSetContentsBuilderManager = IOFileSetContentsBuilderManager
+	private IOPartDynamicClassFileContentsBuilderManager ioFileSetContentsBuilderManager = IOPartDynamicClassFileContentsBuilderManager
 			.getInstance();
 
 	private enum SEARCH_MODE {

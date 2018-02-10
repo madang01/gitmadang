@@ -30,7 +30,7 @@ import org.xml.sax.SAXException;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
-import kr.pe.sinnori.common.message.builder.IOFileSetContentsBuilderManager;
+import kr.pe.sinnori.common.message.builder.IOPartDynamicClassFileContentsBuilderManager;
 import kr.pe.sinnori.common.message.builder.info.MessageInfo;
 import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
 import kr.pe.sinnori.common.type.LineSeparatorType;
@@ -104,7 +104,7 @@ public class EachIOFileTypeBuilder extends JPanel {
 			}
 		}
 
-		IOFileSetContentsBuilderManager sourceFileBuilderManager = IOFileSetContentsBuilderManager.getInstance();
+		IOPartDynamicClassFileContentsBuilderManager sourceFileBuilderManager = IOPartDynamicClassFileContentsBuilderManager.getInstance();
 		MessageInfoSAXParser messageInfoSAXParser = null;
 		try {
 			messageInfoSAXParser = new MessageInfoSAXParser();

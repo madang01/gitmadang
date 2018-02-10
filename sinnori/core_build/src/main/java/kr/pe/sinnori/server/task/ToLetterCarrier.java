@@ -53,10 +53,13 @@ public class ToLetterCarrier {
 	private SocketChannel fromSC = null;
 	private AbstractMessage inputMessage;
 	
+	private AbstractMessage syncOutputMessage = null;
+	
+	
 	private SocketResource socketResourceOfFromSC  = null;	
 	
 	private MessageProtocolIF messageProtocol = null;
-	private ClassLoader classLoaderOfSererTask = null;
+	private ClassLoader classLoaderOfServerTask = null;
 	private ServerObjectCacheManagerIF serverObjectCacheManager = null;
 	
 	private LinkedList<ToLetter> toLetterList = new LinkedList<ToLetter>();
@@ -65,12 +68,13 @@ public class ToLetterCarrier {
 			AbstractMessage inputMessage,
 			SocketResource socketResourceOfFromSC,
 			MessageProtocolIF messageProtocol,
-			ClassLoader classLoaderOfSererTask,
+			ClassLoader classLoaderOfServerTask,
 			ServerObjectCacheManagerIF serverObjectCacheManager) {
 		this.fromSC = fromSC;		
 		this.inputMessage = inputMessage;
 		this.socketResourceOfFromSC = socketResourceOfFromSC;
 		this.messageProtocol = messageProtocol;
+		this.classLoaderOfServerTask = classLoaderOfServerTask;
 		this.serverObjectCacheManager = serverObjectCacheManager;		
 	}
 
@@ -109,7 +113,7 @@ public class ToLetterCarrier {
 		return toLetter;
 	}
 
-	private void addOutputMessage(SocketChannel toSC,			
+	private void doAddOutputMessage(SocketChannel toSC,			
 			AbstractMessage outputMessage, 
 			MessageProtocolIF messageProtocol) throws InterruptedException {
 		String messageIDToClient = outputMessage.getMessageID();
@@ -118,19 +122,19 @@ public class ToLetterCarrier {
 		
 		MessageCodecIF messageServerCodec = null;
 		try {
-			messageServerCodec = serverObjectCacheManager.getServerMessageCodec(classLoaderOfSererTask, messageIDToClient);
+			messageServerCodec = serverObjectCacheManager.getServerMessageCodec(classLoaderOfServerTask, messageIDToClient);
 		} catch (DynamicClassCallException e) {
 			log.warn(e.getMessage());
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
 			String errorReason = e.getMessage();
 			
-			addOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
+			doAddOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
 			return;
 		} catch (Exception e) {
 			log.warn("unknown error::fail to get a server output message codec"+e.getMessage(), e);			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
 			String errorReason = "fail to get a server output message codec::"+e.getMessage();
-			addOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
+			doAddOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
 			return;
 		}
 	
@@ -141,13 +145,13 @@ public class ToLetterCarrier {
 			log.warn(e.getMessage());
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
 			String errorReason = e.getMessage();
-			addOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
+			doAddOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
 			return;
 		} catch (Exception e) {
 			log.warn("unknown error::fail to get a output message encoder::"+e.getMessage(), e);			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
 			String errorReason = "fail to get a output message encoder::"+e.getMessage();
-			addOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
+			doAddOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
 			return;
 		}
 	
@@ -164,33 +168,40 @@ public class ToLetterCarrier {
 					outputMessage.getMessageID(),
 					outputMessage.messageHeaderInfo.mailboxID,
 					outputMessage.messageHeaderInfo.mailID, wrapBufferList);
-		} catch (NoMoreDataPacketBufferException e) {
-			log.warn(e.getMessage());
-			
+		} catch (NoMoreDataPacketBufferException e) {			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(NoMoreDataPacketBufferException.class);
-			String errorReason = e.getMessage();
-			addOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
+			String errorReason = String.format("fail to build a toLetter[%s]::%s", 
+					outputMessage.getMessageID(), e.getMessage());
+			
+			log.warn(errorReason);
+			
+			doAddOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
 			return;
 		} catch (BodyFormatException e) {
-			log.warn(e.getMessage());
-			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(BodyFormatException.class);
-			String errorReason = e.getMessage();
-			addOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
+			String errorReason = String.format("fail to build a toLetter[%s]::%s", 
+					outputMessage.getMessageID(), e.getMessage());
+			
+			log.warn(errorReason);
+			
+			doAddOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
 			return;			
-		} catch (Exception | Error e) {
-			log.warn("unknown error::fail to get a output message stream", e);
-			
+		} catch (Exception | Error e) {			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(BodyFormatException.class);
-			String errorReason = "fail to get a output message stream::" +e.getMessage();
-			addOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
+			String errorReason = String.format("unknown error::fail to build a toLetter[%s]::%s", 
+					outputMessage.getMessageID(), e.getMessage());
+			
+			
+			log.warn(errorReason, e);
+			
+			doAddOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
 			return;
 		}
 		
 		toLetterList.add(toLetter);
 	}
 
-	private void addOutputErrorMessageToToLetterList(SocketChannel toSC,
+	private void doAddOutputErrorMessageToToLetterList(SocketChannel toSC,
 			SelfExn.ErrorType errorType, 
 			String errorReason,
 			AbstractMessage outputMessage,			
@@ -205,12 +216,12 @@ public class ToLetterCarrier {
 		ToLetter toLetterOfSelfExn = null;
 		try {
 			toLetterOfSelfExn = buildToLetterOfSelfExn(toSC, selfExnRes, messageProtocol);
-		} catch (Exception e1) {
-			String errorMessage = String.format("fail to send the output stream of SelfExn[{}], fromSC hashcode={}, outputMessage={}", 
+		} catch (Exception e) {
+			String errorMessage = String.format("unknown error::fail to build the toLetter of SelfExn[%s], toSC[%d]::%s", 
 					selfExnRes.toString(),
-					fromSC.hashCode(),
-					outputMessage.toString());
-			log.warn(errorMessage, e1);
+					toSC.hashCode(),
+					e.getMessage());
+			log.warn(errorMessage, e);
 			return;
 		}
 		toLetterList.add(toLetterOfSelfExn);
@@ -220,19 +231,18 @@ public class ToLetterCarrier {
 		if (null == syncOutputMessage) {
 			throw new IllegalArgumentException("the parameter syncOutputMessage is null");
 		}
-		if (CommonStaticFinalVars.ASYN_MAILBOX_ID == inputMessage.messageHeaderInfo.mailboxID) {
-			log.warn("입력 메시지가 비동기 메시지일 경우 동기 출력 메시지를 보낼 수 없습니다. 추가 취소된 메시지={}", syncOutputMessage.toString());
-			
+		if (CommonStaticFinalVars.ASYN_MAILBOX_ID == inputMessage.messageHeaderInfo.mailboxID) {			
 			throw new IllegalArgumentException("the synchronous output message can't be added becase the inputMessage is a asynchronous message");
 		}
-		syncOutputMessage.messageHeaderInfo = inputMessage.messageHeaderInfo;
 		
-		if (toLetterList.size() > 0) {
-			log.warn("동기 메시지는 1개만 가질 수 있습니다. 추가 취소된 메시지={}", syncOutputMessage.toString());
-			throw new IllegalArgumentException("the synchronous output message can't be added becase another synchronous message is already registered in the toLetter list");
+		if (null != this.syncOutputMessage) {
+			throw new IllegalArgumentException("the synchronous output message can't be added becase another synchronous message is already registered in the toLetter list");	
 		}
 		
-		addOutputMessage(fromSC, syncOutputMessage, messageProtocol);
+		this.syncOutputMessage =  syncOutputMessage;
+		
+		syncOutputMessage.messageHeaderInfo = inputMessage.messageHeaderInfo;		
+		doAddOutputMessage(fromSC, syncOutputMessage, messageProtocol);
 	}
 	
 	public void addAsynOutputMessage(AbstractMessage asynOutputMessage) throws InterruptedException {
@@ -247,7 +257,7 @@ public class ToLetterCarrier {
 		outputMessage.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
 		outputMessage.messageHeaderInfo.mailID = socketResourceOfFromSC.getServerMailID();		
 		
-		addOutputMessage(toSC, outputMessage, messageProtocol);
+		doAddOutputMessage(toSC, outputMessage, messageProtocol);
 	}
 	
 	public void putAllInputMessageToOutputMessageQueue() throws InterruptedException {
@@ -258,14 +268,20 @@ public class ToLetterCarrier {
 			try {
 				outputMessageWriter.putIntoQueue(toLetter);
 			} catch (InterruptedException e) {
-				log.warn("InterruptedException 발생으로 출력 메시지[{}] 손실", toLetter.toString());
+				log.warn("the output message[{}] discarded due to an InterruptedException, fromSC hashcode={}, inputMessage={}", 
+						toLetter.toString(),
+						fromSC.hashCode(),
+						inputMessage.toString());
 				
 				while (! toLetterList.isEmpty()) {
 					toLetter = toLetterList.removeFirst();
-					log.warn("InterruptedException 발생으로 출력 메시지[{}] 손실", toLetter.toString());
+					log.warn("the output message[{}] discarded due to an InterruptedException, fromSC hashcode={}, inputMessage={}", 
+							toLetter.toString(),
+							fromSC.hashCode(),
+							inputMessage.toString());
+					
 				}
 				
-				// Thread.currentThread().interrupt();
 				throw e;
 			}
 		}
@@ -321,13 +337,14 @@ public class ToLetterCarrier {
 			outputMessageWriterOfFromSC.putIntoQueue(toLetterOfSelfExn);
 		} catch (InterruptedException e) {
 			Logger log = LoggerFactory.getLogger(ToLetterCarrier.class);
-			log.warn("InterruptedException 발생으로 SelfExn[{}] 손실 발생, SelfExn 원인 제공 메시지={}", 
-					toLetterOfSelfExn.toString(), 
+			log.warn("the SelfExn output message[{}] discarded due to an InterruptedException, fromSC hashcode={}, inputMessage={}", 
+					toLetterOfSelfExn.toString(),
+					fromSC.hashCode(),
 					wrapReadableMiddleObject.toString());
 			throw e;
 		} catch (Exception e) {
-			String errorMessage = String.format("fail to send the output stream of SelfExn[{}], fromSC hashcode={}, inputMessage={}", 
-					selfExnRes.toString(),
+			String errorMessage = String.format("fail to put the SelfExn output message into the output message queue, fromSC hashcode={}, inputMessage={}", 
+					toLetterOfSelfExn.toString(),
 					fromSC.hashCode(),
 					wrapReadableMiddleObject.toString());
 			Logger log = LoggerFactory.getLogger(ToLetterCarrier.class);

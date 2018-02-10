@@ -39,19 +39,8 @@ public abstract class AbstractMessageDecoder {
 		 * 흐름도) 입력 스트림 -> 중간 다리 역활 읽기 객체 -> 입력 메시지
 		 * </pre>
 		 */
-		// Object middleReadObj =argv[0];
-		AbstractMessage retObj = null;
-		try {
-			retObj = decodeBody(singleItemDecoder, readableMiddleObject);
-		} catch(OutOfMemoryError e) {
-			throw e;
-		} catch(BodyFormatException e) {
-			throw e;
-		} catch(Exception e) {
-			String errorMessage = "unknown error::"+e.getMessage();
-			log.warn(errorMessage, e);
-			new BodyFormatException(errorMessage);
-		}
+		AbstractMessage retObj = decodeBody(singleItemDecoder, readableMiddleObject);
+		
 		
 		/**
 		 * <pre>
@@ -59,13 +48,8 @@ public abstract class AbstractMessageDecoder {
 		 * 첫번째 장소는 메시지 추출 후 쓰임이 다해서 호출하는 AbstractMessageDecoder#decode 이며
 		 * 두번째 장소는 2번 연속 호출해도 무방하기때문에 안전하게 자원 반환을 보장하기위한 Executor#run 이다.
 		 * </pre>
-		 */
-		try {
-			singleItemDecoder.closeReadableMiddleObjectWithValidCheck(readableMiddleObject);
-		} catch(BodyFormatException e) {
-			log.warn("{}, 추출된 메시지=[{}]", e.getMessage(), retObj.toStringUsingReflection());
-			throw e;
-		}
+		 */		
+		singleItemDecoder.closeReadableMiddleObjectWithValidCheck(readableMiddleObject);
 		
 		
 		return retObj;

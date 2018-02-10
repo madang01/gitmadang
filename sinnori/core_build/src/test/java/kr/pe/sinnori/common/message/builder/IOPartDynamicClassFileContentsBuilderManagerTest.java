@@ -16,7 +16,7 @@ import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
 import kr.pe.sinnori.common.type.MessageTransferDirectionType;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 
-public class IOFileSetContentsBuilderManagerTest extends AbstractJunitTest {
+public class IOPartDynamicClassFileContentsBuilderManagerTest extends AbstractJunitTest {
 	@Test
 	public void test_신놀이설치경로에있는메시지정보파일로부터메시지IO관련파일만들기() {
 		String[] targetMessageIDList = {
@@ -60,7 +60,7 @@ public class IOFileSetContentsBuilderManagerTest extends AbstractJunitTest {
 				fail(errorMessage);
 			}
 			
-			IOFileSetContentsBuilderManager ioFileSetContentsBuilderManager = IOFileSetContentsBuilderManager.getInstance();
+			IOPartDynamicClassFileContentsBuilderManager ioFileSetContentsBuilderManager = IOPartDynamicClassFileContentsBuilderManager.getInstance();
 
 			{
 				String messageSourceFileContent = ioFileSetContentsBuilderManager.getMessageSourceFileContents(author,

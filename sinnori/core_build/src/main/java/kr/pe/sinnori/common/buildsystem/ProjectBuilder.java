@@ -20,7 +20,7 @@ import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BuildSystemException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
-import kr.pe.sinnori.common.message.builder.IOFileSetContentsBuilderManager;
+import kr.pe.sinnori.common.message.builder.IOPartDynamicClassFileContentsBuilderManager;
 import kr.pe.sinnori.common.message.builder.info.MessageInfo;
 import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
 import kr.pe.sinnori.common.mybatis.FileTypeResource;
@@ -1014,7 +1014,7 @@ public class ProjectBuilder {
 
 		MessageInfo messageInfo = getMessageInfo(messageID);
 
-		IOFileSetContentsBuilderManager ioFileSetContentsBuilderManager = IOFileSetContentsBuilderManager.getInstance();
+		IOPartDynamicClassFileContentsBuilderManager ioFileSetContentsBuilderManager = IOPartDynamicClassFileContentsBuilderManager.getInstance();
 
 		String messageFileContnets = ioFileSetContentsBuilderManager.getMessageSourceFileContents(author,
 				messageInfo);
@@ -1052,7 +1052,7 @@ public class ProjectBuilder {
 
 		MessageInfo messageInfo = getMessageInfo(messageID);
 
-		IOFileSetContentsBuilderManager ioFileSetContentsBuilderManager = IOFileSetContentsBuilderManager.getInstance();
+		IOPartDynamicClassFileContentsBuilderManager ioFileSetContentsBuilderManager = IOPartDynamicClassFileContentsBuilderManager.getInstance();
 
 		String decoderFileContnets = ioFileSetContentsBuilderManager.getDecoderSourceFileContents(author,
 				messageInfo);
@@ -1090,7 +1090,7 @@ public class ProjectBuilder {
 
 		MessageInfo messageInfo = getMessageInfo(messageID);
 
-		IOFileSetContentsBuilderManager ioFileSetContentsBuilderManager = IOFileSetContentsBuilderManager.getInstance();
+		IOPartDynamicClassFileContentsBuilderManager ioFileSetContentsBuilderManager = IOPartDynamicClassFileContentsBuilderManager.getInstance();
 
 		String encoderFileContnets = ioFileSetContentsBuilderManager.getEncoderSourceFileContents(author,
 				messageInfo);
@@ -1127,7 +1127,7 @@ public class ProjectBuilder {
 				messageIOSetBasedirectoryPathString);
 		// MessageInfo messageInfo = getMessageInfo(messageID);
 
-		IOFileSetContentsBuilderManager ioFileSetContentsBuilderManager = IOFileSetContentsBuilderManager.getInstance();
+		IOPartDynamicClassFileContentsBuilderManager ioFileSetContentsBuilderManager = IOPartDynamicClassFileContentsBuilderManager.getInstance();
 
 		String serverCodecFileContnets = ioFileSetContentsBuilderManager.getServerCodecSourceFileContents(
 				MessageTransferDirectionType.FROM_ALL_TO_ALL, messageID, author);
@@ -1164,7 +1164,7 @@ public class ProjectBuilder {
 				messageIOSetBasedirectoryPathString);
 		// MessageInfo messageInfo = getMessageInfo(messageID);
 
-		IOFileSetContentsBuilderManager ioFileSetContentsBuilderManager = IOFileSetContentsBuilderManager.getInstance();
+		IOPartDynamicClassFileContentsBuilderManager ioFileSetContentsBuilderManager = IOPartDynamicClassFileContentsBuilderManager.getInstance();
 
 		String clientCodecFileContnets = ioFileSetContentsBuilderManager.getClientCodecSourceFileContents(
 				MessageTransferDirectionType.FROM_ALL_TO_ALL, messageID, author);

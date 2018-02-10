@@ -26,7 +26,9 @@ import org.slf4j.LoggerFactory;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
+import kr.pe.sinnori.common.exception.UnknownItemTypeException;
 import kr.pe.sinnori.common.io.BinaryInputStreamIF;
+import kr.pe.sinnori.common.message.builder.info.SingleItemTypeManger;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 import kr.pe.sinnori.common.type.SelfExn;
 import kr.pe.sinnori.common.type.SingleItemType;
@@ -83,7 +85,25 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 				BinaryInputStreamIF binaryInputStream) throws SinnoriBufferUnderflowException, BodyFormatException {
 			int receivedItemTypeID = binaryInputStream.getUnsignedByte();
 			if (itemTypeID != receivedItemTypeID) {
-				String errorMesssage = String.format("this single item type[%d][%s] is different from the received item type[%d]", itemTypeID, itemName, receivedItemTypeID);
+				
+				String itemTypeName = "unknown";
+				try {
+					itemTypeName = SingleItemTypeManger.getInstance().getItemTypeName(itemTypeID);
+				} catch (UnknownItemTypeException e) {
+				}
+				
+				String receivedItemTypeName = "unknown";
+				try {
+					receivedItemTypeName = SingleItemTypeManger.getInstance().getItemTypeName(receivedItemTypeID);
+				} catch (UnknownItemTypeException e) {
+				}
+				
+				String errorMesssage = String.format("this single item type[id:%d, name:%s][%s] is different from the received item type[id:%d, name:%s]", 
+						itemTypeID,
+						itemTypeName,
+						itemName, 
+						receivedItemTypeID,
+						receivedItemTypeName);
 				throw new BodyFormatException(errorMesssage);
 			}
 		}	
@@ -488,7 +508,17 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 			try {
 				itemCharset = Charset.forName(nativeItemCharset);
 			} catch(Exception e) {
-				log.warn(String.format("the parameter nativeItemCharset[%s] is not a bad charset name", nativeItemCharset), e);
+				String errorMessage = new StringBuffer("the parameter nativeItemCharset[")
+						.append(nativeItemCharset).append("] is a bad charset name::")
+						.append("{ path=[")
+						.append(path)
+						.append("], itemName=[")
+						.append(itemName)
+						.append("], itemType=[")
+						.append(itemTypeName)
+						.append("]}").toString();
+						
+						log.warn(errorMessage);
 			}
 		}	
 		

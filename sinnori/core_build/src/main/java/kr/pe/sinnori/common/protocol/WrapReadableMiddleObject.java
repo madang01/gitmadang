@@ -104,4 +104,15 @@ public class WrapReadableMiddleObject {
 		builder.append("]");
 		return builder.toString();
 	}	
+	
+	public String toSimpleInformation() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("messageID=");
+		builder.append(messageID);
+		builder.append(", mailboxID=");
+		builder.append(mailboxID);
+		builder.append(", mailID=");
+		builder.append(mailID);
+		return builder.toString();
+	}	
 }
