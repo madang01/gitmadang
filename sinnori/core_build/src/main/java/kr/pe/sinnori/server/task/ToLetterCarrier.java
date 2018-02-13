@@ -40,6 +40,7 @@ import kr.pe.sinnori.common.type.SelfExn;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.SocketResource;
+import kr.pe.sinnori.server.SocketResourceManagerIF;
 import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriterIF;
 
 /**
@@ -56,7 +57,7 @@ public class ToLetterCarrier {
 	private AbstractMessage syncOutputMessage = null;
 	
 	
-	private SocketResource socketResourceOfFromSC  = null;	
+	private SocketResourceManagerIF socketResourceManager = null;
 	
 	private MessageProtocolIF messageProtocol = null;
 	private ClassLoader classLoaderOfServerTask = null;
@@ -66,16 +67,16 @@ public class ToLetterCarrier {
 	
 	public ToLetterCarrier( SocketChannel fromSC, 
 			AbstractMessage inputMessage,
-			SocketResource socketResourceOfFromSC,
+			SocketResourceManagerIF socketResourceManager,
 			MessageProtocolIF messageProtocol,
 			ClassLoader classLoaderOfServerTask,
 			ServerObjectCacheManagerIF serverObjectCacheManager) {
 		this.fromSC = fromSC;		
 		this.inputMessage = inputMessage;
-		this.socketResourceOfFromSC = socketResourceOfFromSC;
+		this.socketResourceManager = socketResourceManager;
 		this.messageProtocol = messageProtocol;
 		this.classLoaderOfServerTask = classLoaderOfServerTask;
-		this.serverObjectCacheManager = serverObjectCacheManager;		
+		this.serverObjectCacheManager = serverObjectCacheManager;
 	}
 
 	private static SelfExnRes buildSelfExn(SocketChannel toSC, 
@@ -254,17 +255,24 @@ public class ToLetterCarrier {
 	}
 	
 	public void addAsynOutputMessage(AbstractMessage outputMessage, SocketChannel toSC) throws InterruptedException {
+		SocketResource socketResource = 
+				socketResourceManager.getSocketResource(toSC);
+		
 		outputMessage.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
-		outputMessage.messageHeaderInfo.mailID = socketResourceOfFromSC.getServerMailID();		
+		outputMessage.messageHeaderInfo.mailID = socketResource.getServerMailID();		
 		
 		doAddOutputMessage(toSC, outputMessage, messageProtocol);
 	}
 	
-	public void putAllInputMessageToOutputMessageQueue() throws InterruptedException {
-		OutputMessageWriterIF outputMessageWriter = socketResourceOfFromSC.getOutputMessageWriter();
-		
+	public void putAllInputMessageToOutputMessageQueue() throws InterruptedException {		
 		while (! toLetterList.isEmpty()) {
 			ToLetter toLetter = toLetterList.removeFirst();
+			
+			SocketResource socketResource = 
+					socketResourceManager.getSocketResource(toLetter.getToSocketChannel());
+			
+			OutputMessageWriterIF outputMessageWriter = socketResource.getOutputMessageWriter();			
+			
 			try {
 				outputMessageWriter.putIntoQueue(toLetter);
 			} catch (InterruptedException e) {

@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynMailboxIF;
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynMailboxMapper;
+import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxMapper;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
@@ -15,10 +15,10 @@ public class AsynPrivateMailboxCustomerThread extends Thread {
 private Logger log = LoggerFactory.getLogger(AsynPrivateMailboxProducerThread.class);	
 	
 	private int maxSleepingTime = 0;
-	private AsynMailboxMapper asynMailboxMapper = null;
+	private AsynPrivateMailboxMapper asynMailboxMapper = null;
 	private LinkedBlockingQueue<ToLetter> toLetterQueue = null;
 	
-	public AsynPrivateMailboxCustomerThread(int maxSleepingTime, AsynMailboxMapper asynMailboxMapper, 
+	public AsynPrivateMailboxCustomerThread(int maxSleepingTime, AsynPrivateMailboxMapper asynMailboxMapper, 
 			LinkedBlockingQueue<ToLetter> toLetterQueue) {
 		if (maxSleepingTime < 0) {
 			String errorMessage = String.format("the parameter maxSleepingTime[%d] is less than zero", maxSleepingTime);

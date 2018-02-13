@@ -282,11 +282,13 @@ public class SinnoriConfiguration {
 				itemIDInfo = sinnoriItemIDInfoManger.getItemIDInfoFromKey(
 						itemKey, dbcpNameSet, subProjectNameSet);
 			} catch (IllegalArgumentException e) {
-				String errorMessage = new StringBuilder("the item key[")
-						.append(itemKey)
-						.append("] of the sinnori conifg file[")
+				// log.warn("", e);
+				
+				String errorMessage = new StringBuilder("error message=[")
+						.append(e.getMessage())
+						.append("], the sinnori conifg file[")
 						.append(sinnoriConfigFilePathString)
-						.append("] is wrong").toString();
+						.append("]").toString();
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 		}

@@ -17,11 +17,8 @@
 
 package kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage;
 
-import java.nio.charset.Charset;
-
-import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
+import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReaderIF;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReaderThread;
-import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.AsynReadOnlySelectorManagerIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 
@@ -31,24 +28,18 @@ import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
  * @see OutputMessageReaderThread
  * @author Won Jonghoon
  */
-public class OutputMessageReaderThreadPool extends AbstractThreadPool implements
-		AsynServerAdderIF {
+public class OutputMessageReaderPool extends AbstractThreadPool implements OutputMessageReaderPoolIF {
 	private String projectName = null;
 	private int maxHandler;
-	private Charset charsetOfProject = null;
 	private long readSelectorWakeupInterval;
 	private MessageProtocolIF messageProtocol = null;
 	
-	/**
-	 * 생성자
-	 * @param size 클라이언트 출력 메시지 소켓 읽기 담당 쓰레드 초기 갯수
-	 * @param max 클라이언트 출력 메시지 소켓 읽기 담당 쓰레드 최대 갯수
-	 * @param readSelectorWakeupInterval 출력 메시지 소켓 읽기 담당 쓰레드에서 블락된 읽기 이벤트 전용 selector 를 깨우는 주기
-	 * @param projectPart 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
-	 * @param messageProtocol 메시지 교환 프로토콜
-	 */
-	public OutputMessageReaderThreadPool(String projectName, int size, int max, 
-			Charset charsetOfProject,
+	
+	private int poolSize;
+	private int nextIndex;
+	
+	
+	public OutputMessageReaderPool(String projectName, int size, int max,
 			long readSelectorWakeupInterval, 			
 			MessageProtocolIF messageProtocol) {
 		if (size <= 0) {
@@ -65,9 +56,11 @@ public class OutputMessageReaderThreadPool extends AbstractThreadPool implements
 
 		this.projectName = projectName;
 		this.maxHandler = max;
-		this.charsetOfProject = charsetOfProject;
 		this.readSelectorWakeupInterval = readSelectorWakeupInterval;		
 		this.messageProtocol = messageProtocol;
+		
+		this.poolSize = size;
+		this.nextIndex = poolSize -1;
 
 		for (int i = 0; i < size; i++) {
 			addHandler();
@@ -81,7 +74,7 @@ public class OutputMessageReaderThreadPool extends AbstractThreadPool implements
 
 			if (size < maxHandler) {
 				try {
-					Thread handler = new OutputMessageReaderThread(projectName, size, charsetOfProject, readSelectorWakeupInterval, messageProtocol);
+					Thread handler = new OutputMessageReaderThread(projectName, size, readSelectorWakeupInterval, messageProtocol);
 					pool.add(handler);
 				} catch (Exception e) {
 					String errorMessage = String.format("%s OutputMessageReader[%d] 등록 실패", projectName, size); 
@@ -97,7 +90,13 @@ public class OutputMessageReaderThreadPool extends AbstractThreadPool implements
 	}
 
 	@Override
-	public void addNewServer(AbstractAsynConnection serverAsynConnection) {
+	public OutputMessageReaderIF getNextOutputMessageReader() {
+		nextIndex = (nextIndex + 1) % poolSize;
+		return (OutputMessageReaderIF)pool.get(nextIndex);
+	}
+
+	// @Override
+	/*public void addNewServer(AbstractAsynConnection serverAsynConnection) {
 		AsynReadOnlySelectorManagerIF minHandler = null;
 		int MIN_COUNT = Integer.MAX_VALUE;
 
@@ -112,5 +111,5 @@ public class OutputMessageReaderThreadPool extends AbstractThreadPool implements
 		}
 		// 읽기 전용 selector 에 최소로 등록된 소켓 채널을 가지고 있는 출력 메시지 읽기 처리 쓰레드에 연결 객체 등록 
 		minHandler.addNewServer(serverAsynConnection);
-	}
+	}*/
 }

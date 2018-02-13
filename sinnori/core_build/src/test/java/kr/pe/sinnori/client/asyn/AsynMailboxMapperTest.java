@@ -3,36 +3,29 @@ package kr.pe.sinnori.client.asyn;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.util.concurrent.LinkedBlockingQueue;
-
 import org.junit.Test;
 
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynMailboxMapper;
+import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxMapper;
 import kr.pe.sinnori.common.AbstractJunitTest;
-import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
 public class AsynMailboxMapperTest extends AbstractJunitTest {
 	
 	@Test
-	public void testGetAsynMailbox_theParameterMailBoxID_lessThanZero() {
+	public void testGetAsynMailbox_theParameterMailBoxID_lessThanOrEqualToZero() {
 		
 		int totalNumberOfAsynMailbox = 10;
 		int socketTimeOut = 1000;
-		int outputMessageQueueSize = 5;
+				
+		AsynPrivateMailboxMapper asynMailboxMapper = new AsynPrivateMailboxMapper(totalNumberOfAsynMailbox, socketTimeOut);
 		
-		LinkedBlockingQueue<WrapReadableMiddleObject> outputMessageQueue 
-			= new LinkedBlockingQueue<WrapReadableMiddleObject>(outputMessageQueueSize); 
-		
-		AsynMailboxMapper asynMailboxMapper = new AsynMailboxMapper(totalNumberOfAsynMailbox, socketTimeOut, outputMessageQueue);
-		
-		int mailboxID = -1;
+		int mailboxID = 0;
 		try {
 			asynMailboxMapper.getAsynMailbox(mailboxID);
 			
 			fail("no IndexOutOfBoundsException");
 		} catch (IndexOutOfBoundsException e){
 			String errorMessage = e.getMessage();
-			String expectedErrorMessage = String.format("the parameter mailboxID[%d] is less than zero", mailboxID);
+			String expectedErrorMessage = String.format("the parameter mailboxID[%d] is less than or equal to zero", mailboxID);
 			
 			assertEquals(expectedErrorMessage, errorMessage);
 		} catch (Exception e){
@@ -47,22 +40,19 @@ public class AsynMailboxMapperTest extends AbstractJunitTest {
 		
 		int totalNumberOfAsynMailbox = 10;
 		int socketTimeOut = 1000;
-		int outputMessageQueueSize = 5;
 		
-		LinkedBlockingQueue<WrapReadableMiddleObject> outputMessageQueue 
-			= new LinkedBlockingQueue<WrapReadableMiddleObject>(outputMessageQueueSize); 
 		
-		AsynMailboxMapper asynMailboxManager = new AsynMailboxMapper(totalNumberOfAsynMailbox, socketTimeOut, outputMessageQueue);
+		AsynPrivateMailboxMapper asynMailboxManager = new AsynPrivateMailboxMapper(totalNumberOfAsynMailbox, socketTimeOut);
 		
-		int mailboxID = totalNumberOfAsynMailbox;
+		int mailboxID = totalNumberOfAsynMailbox+1;
 		try {
 			asynMailboxManager.getAsynMailbox(mailboxID);
 			
 			fail("no IndexOutOfBoundsException");
 		} catch (IndexOutOfBoundsException e){
 			String errorMessage = e.getMessage();
-			String expectedErrorMessage = String.format("the parameter mailboxID[%d] is out of range(0 ~ [%d])", 
-					mailboxID, (totalNumberOfAsynMailbox - 1));
+			String expectedErrorMessage = String.format("the parameter mailboxID[%d] is out of range(1 ~ [%d])", 
+					mailboxID, totalNumberOfAsynMailbox);
 			
 			assertEquals(expectedErrorMessage, errorMessage);
 		} catch (Exception e){
@@ -77,15 +67,15 @@ public class AsynMailboxMapperTest extends AbstractJunitTest {
 		
 		int totalNumberOfAsynMailbox = 10;
 		int socketTimeOut = 1000;
-		int outputMessageQueueSize = 5;
+		/*int outputMessageQueueSize = 5;
 		
 		LinkedBlockingQueue<WrapReadableMiddleObject> outputMessageQueue 
-			= new LinkedBlockingQueue<WrapReadableMiddleObject>(outputMessageQueueSize); 
+			= new LinkedBlockingQueue<WrapReadableMiddleObject>(outputMessageQueueSize); */
 		
-		AsynMailboxMapper asynMailboxManager = new AsynMailboxMapper(totalNumberOfAsynMailbox, socketTimeOut, outputMessageQueue);		
+		AsynPrivateMailboxMapper asynMailboxManager = new AsynPrivateMailboxMapper(totalNumberOfAsynMailbox, socketTimeOut);		
 		
 		try {
-			int actualTotalNumberOfAsynMailbox = asynMailboxManager.getTotalNumberOfAsynMailbox();
+			int actualTotalNumberOfAsynMailbox = asynMailboxManager.getTotalNumberOfAsynPrivateMailboxs();
 			
 			assertEquals(totalNumberOfAsynMailbox, actualTotalNumberOfAsynMailbox);
 		} catch (Exception e){

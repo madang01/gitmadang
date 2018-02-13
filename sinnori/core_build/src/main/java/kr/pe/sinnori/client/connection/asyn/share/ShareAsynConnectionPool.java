@@ -16,31 +16,29 @@
  */
 package kr.pe.sinnori.client.connection.asyn.share;
 
+import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
-import kr.pe.sinnori.client.ClientOutputMessageQueueQueueMangerIF;
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.AbstractConnectionPool;
-import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.AsynServerAdderIF;
-import kr.pe.sinnori.common.asyn.ToLetter;
+import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxMapper;
+import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPublicMailbox;
+import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderPoolIF;
+import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReaderIF;
+import kr.pe.sinnori.common.exception.AccessDeniedException;
 import kr.pe.sinnori.common.exception.BodyFormatException;
-import kr.pe.sinnori.common.exception.ConnectionPoolTimeoutException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
-import kr.pe.sinnori.common.exception.AccessDeniedException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
-import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
+import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
-import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
 /**
  * 클라이언트 공유 방식의 비동기 연결 클래스 {@link ShareAsynConnection} 를 원소로 가지는 폴 관리자 클래스<br/>
@@ -56,68 +54,52 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 	private ArrayList<ShareAsynConnection> connectionList = null;
 	/** 순차적으로 할당하기 위해서 목록내에 반환할 연결 클래스를 가르키는 인덱스 */
 	private int indexOfConnection = 0;
-	private int mailBoxCnt = 0;
+	
 
-	/**
-	 * 생성자
-	 * 
-	 * @param connectionPoolSize
-	 *            연결 폴 크기
-	 * @param socketTimeOut
-	 *            소켓 타임 아웃
-	 * @param whetherToAutoConnect
-	 *            자동 연결 여부
-	 * @param finishConnectMaxCall
-	 *            비동기 연결 확립 시도 최대 횟수
-	 * @param finishConnectWaittingTime
-	 *            비동기 연결 확립 시도 간격
-	 * @param mailBoxCnt
-	 *            메일함 갯수
-	 * @param projectPart
-	 *            프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
-	 * @param asynOutputMessageQueue
-	 *            서버에서 보내는 불특정 출력 메시지를 받는 큐
-	 * @param inputMessageQueue
-	 *            입력 메시지 큐
-	 * @param syncOutputMessageQueueQueueManger
-	 *            출력 메시지 큐를 원소로 가지는 큐 관리자
-	 * @param outputMessageReaderPool
-	 *            서버에 접속한 소켓 채널을 균등하게 소켓 읽기 담당 쓰레드에 등록하기 위한 인터페이스
-	 * @param dataPacketBufferQueueManager
-	 *            데이터 패킷 버퍼 큐 관리자
-	 * @throws NoMoreDataPacketBufferException
-	 *             데이터 패킷 버퍼를 할당 받지 못했을 경우 던지는 예외
-	 * @throws InterruptedException
-	 *             쓰레드 인터럽트
-	 * @throws NoMoreOutputMessageQueueException
-	 *             출력 메시지 큐 부족시 실패시 던지는 예외
-	 */
-	public ShareAsynConnectionPool(String projectName, String hostOfProject, int portOfProject,
-			Charset charsetOfProject, int connectionPoolSize, long connectionTimeout, long socketTimeOut, boolean whetherToAutoConnect,
-			int finishConnectMaxCall, long finishConnectWaittingTime, int mailBoxCnt,
-			 LinkedBlockingQueue<WrapReadableMiddleObject> asynOutputMessageQueue,
-			LinkedBlockingQueue<ToLetter> inputMessageQueue, MessageProtocolIF messageProtocol,
-			AsynServerAdderIF outputMessageReaderPool,
-			ClientOutputMessageQueueQueueMangerIF syncOutputMessageQueueQueueManger,
+	
+	public ShareAsynConnectionPool(String projectName, 
+			String host, int port,
+			int connectionPoolSize, 
+			long socketTimeOut, 
+			boolean whetherToAutoConnect,
+			int numberOfAsynPrivateMailboxPerConnection,
+			AsynPublicMailbox asynPublicMailbox,			
 			int dataPacketBufferMaxCntPerMessage,
+			CharsetDecoder streamCharsetDecoder,
+			MessageProtocolIF messageProtocol,
+			OutputMessageReaderPoolIF outputMessageReaderPool,
 			DataPacketBufferPoolIF dataPacketBufferQueueManager,
 			ClientObjectCacheManagerIF clientObjectCacheManager)
 			throws NoMoreDataPacketBufferException, InterruptedException, NoMoreOutputMessageQueueException {
-		super(asynOutputMessageQueue);
+		super();
 		// log.info("create new MultiNoneBlockConnectionPool");
 
-		this.mailBoxCnt = mailBoxCnt;
+		
 
 		connectionList = new ArrayList<ShareAsynConnection>(connectionPoolSize);
 
 		for (int i = 0; i < connectionPoolSize; i++) {
+			OutputMessageReaderIF outputMessageReader = outputMessageReaderPool.getNextOutputMessageReader();
+			SocketOutputStream socketOutputStream = new SocketOutputStream(streamCharsetDecoder, 
+					dataPacketBufferMaxCntPerMessage, dataPacketBufferQueueManager);
+			
 			ShareAsynConnection serverConnection = null;
+			
+			AsynPrivateMailboxMapper asynPrivateMailboxMapper = 
+					new AsynPrivateMailboxMapper(numberOfAsynPrivateMailboxPerConnection,
+							socketTimeOut);
 
-			serverConnection = new ShareAsynConnection(projectName, i, hostOfProject, portOfProject, charsetOfProject,
-					connectionTimeout,
-					socketTimeOut, whetherToAutoConnect, finishConnectMaxCall, finishConnectWaittingTime, mailBoxCnt,
-					asynOutputMessageQueue, inputMessageQueue, messageProtocol, outputMessageReaderPool,
-					syncOutputMessageQueueQueueManger, dataPacketBufferMaxCntPerMessage, dataPacketBufferQueueManager, clientObjectCacheManager);
+			serverConnection = new ShareAsynConnection(projectName, i, 
+					host, port, 
+					socketTimeOut, 
+					whetherToAutoConnect, 
+					asynPublicMailbox,
+					asynPrivateMailboxMapper,
+					socketOutputStream,
+					messageProtocol, 
+					outputMessageReader,
+					dataPacketBufferQueueManager, 
+					clientObjectCacheManager);
 
 			connectionList.add(serverConnection);
 
@@ -127,30 +109,13 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 
 	}
 
-	@Override
-	public int getUsedMailboxCnt() {
-		int connectionPoolSize = connectionList.size();
-
-		int usedMailboxCnt = 0;
-		for (int i = 0; i < connectionPoolSize; i++) {
-			ShareAsynConnection shareAsynConnection = connectionList.get(i);
-			// shareAsynConnection.getSocketChannel();
-			usedMailboxCnt += shareAsynConnection.getUsedMailboxCnt();
-		}
-		return usedMailboxCnt;
-	}
-
-	@Override
-	public int getTotalMailbox() {
-		int connectionPoolSize = connectionList.size();
-		int totalClients = mailBoxCnt * connectionPoolSize;
-		return totalClients;
-	}
+	
 
 	@Override
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
-			throws ServerNotReadyException, SocketTimeoutException, NoMoreDataPacketBufferException,
-			BodyFormatException, DynamicClassCallException, ServerTaskException, AccessDeniedException, ConnectionPoolTimeoutException, InterruptedException {
+			throws IOException, NoMoreDataPacketBufferException,
+			BodyFormatException, DynamicClassCallException, ServerTaskException, AccessDeniedException, 
+			InterruptedException {
 		ShareAsynConnection conn = null;
 
 		synchronized (monitor) {
@@ -162,7 +127,7 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 	}
 
 	@Override
-	public AbstractConnection getConnection() throws InterruptedException, NotSupportedException, ConnectionPoolTimeoutException {
+	public AbstractConnection getConnection() throws InterruptedException, NotSupportedException, SocketTimeoutException {
 		throw new NotSupportedException("공유+비동기 연결 객체는 직접적으로 받을 수 없습니다.");
 	}
 
@@ -171,12 +136,5 @@ public class ShareAsynConnectionPool extends AbstractConnectionPool {
 		throw new NotSupportedException("공유+비동기 연결 객체를 직접 받지 않으므로 반환 기능도 없습니다.");
 	}
 
-	@Override
-	public List<AbstractConnection> getConnectionList() {
-		List<AbstractConnection> dupList = new ArrayList<AbstractConnection>();
-		for (ShareAsynConnection conn : connectionList) {
-			dupList.add(conn);
-		}
-		return dupList;
-	}
+	
 }

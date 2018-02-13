@@ -52,12 +52,12 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 	private String projectName = null; 
 	private int index;
 	private long readSelectorWakeupInterval;	
-	private MessageProtocolIF messageProtocol;
+	private MessageProtocolIF messageProtocol = null;
 	
-	private SocketResourceManagerIF socketResourceManager;
+	private SocketResourceManagerIF socketResourceManager = null;
 	
 	private final LinkedList<SocketChannel> notRegistedSocketChannelList = new LinkedList<SocketChannel>();
-	private Selector onlyReadableSelector = null;
+	private Selector readEventOnlySelector = null;
 
 	
 	public InputMessageReader(
@@ -74,7 +74,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 		this.socketResourceManager = socketResourceManager;
 
 		try {
-			onlyReadableSelector = Selector.open();
+			readEventOnlySelector = Selector.open();
 		} catch (IOException ioe) {
 			log.error(String.format("RequetProcessor[%d] selector open fail",
 					index), ioe);
@@ -111,7 +111,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 		 * </pre> 
 		 */
 		do {
-			onlyReadableSelector.wakeup();
+			readEventOnlySelector.wakeup();
 			try {
 				Thread.sleep(readSelectorWakeupInterval);
 			} catch (InterruptedException e) {
@@ -121,7 +121,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 
 	@Override
 	public int getNumberOfSocket() {
-		return (notRegistedSocketChannelList.size() + onlyReadableSelector.keys().size());
+		return (notRegistedSocketChannelList.size() + readEventOnlySelector.keys().size());
 	}
 
 	/**
@@ -132,7 +132,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 			while (! notRegistedSocketChannelList.isEmpty()) {
 				SocketChannel notResigtedSocketChannel = notRegistedSocketChannelList.removeFirst();
 				try {
-					notResigtedSocketChannel.register(onlyReadableSelector, SelectionKey.OP_READ);
+					notResigtedSocketChannel.register(readEventOnlySelector, SelectionKey.OP_READ);
 				} catch (ClosedChannelException e) {
 					log.warn("{} InputMessageReader[{}] socket channel[{}] fail to register selector", 
 							projectName, index, notResigtedSocketChannel.hashCode());
@@ -163,16 +163,16 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
 				processNewConnection();
-				int selectionKeyCount = onlyReadableSelector.select();
+				int selectionKeyCount = readEventOnlySelector.select();
 
 				if (selectionKeyCount > 0) {
-					Set<SelectionKey> readableSelectionKeySet = onlyReadableSelector
+					Set<SelectionKey> selectedKeySet = readEventOnlySelector
 							.selectedKeys();
-					Iterator<SelectionKey> readableSelectionKeyIterator = readableSelectionKeySet
+					Iterator<SelectionKey> selectionKeyIterator = selectedKeySet
 							.iterator();
-					while (readableSelectionKeyIterator.hasNext()) {
-						SelectionKey readableSelectionKey = readableSelectionKeyIterator.next();
-						readableSelectionKeyIterator.remove();
+					while (selectionKeyIterator.hasNext()) {
+						SelectionKey readableSelectionKey = selectionKeyIterator.next();
+						selectionKeyIterator.remove();
 						SocketChannel readableSocketChannel = (SocketChannel) readableSelectionKey.channel();
 						// ByteBuffer lastInputStreamBuffer = null;
 						SocketResource fromSocketResource = socketResourceManager

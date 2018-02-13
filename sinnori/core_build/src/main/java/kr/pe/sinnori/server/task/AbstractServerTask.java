@@ -34,6 +34,7 @@ import kr.pe.sinnori.common.type.SelfExn;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.SocketResource;
+import kr.pe.sinnori.server.SocketResourceManagerIF;
 
 /**
  * <pre>
@@ -54,10 +55,12 @@ public abstract class AbstractServerTask {
 	public void execute(int index, 
 			String projectName,
 			SocketChannel fromSC,
-			SocketResource socketResourceOfFromSC,
+			SocketResourceManagerIF socketResourceManager,
 			WrapReadableMiddleObject wrapReadableMiddleObject,
 			MessageProtocolIF messageProtocol, 
 			ServerObjectCacheManagerIF serverObjectCacheManager) throws InterruptedException {		
+		
+		SocketResource socketResourceOfFromSC = socketResourceManager.getSocketResource(fromSC);
 		
 		MessageCodecIF serverInputMessageCodec = null;
 
@@ -155,7 +158,7 @@ public abstract class AbstractServerTask {
 		
 		ToLetterCarrier toLetterCarrier = new ToLetterCarrier(fromSC, 
 				inputMessage, 
-				socketResourceOfFromSC,
+				socketResourceManager,
 				messageProtocol,
 				classLoaderOfSererTask,
 				serverObjectCacheManager);

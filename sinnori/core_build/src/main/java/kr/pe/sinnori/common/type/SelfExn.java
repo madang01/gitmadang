@@ -1,5 +1,7 @@
 package kr.pe.sinnori.common.type;
 
+import java.io.IOException;
+
 import kr.pe.sinnori.common.exception.AccessDeniedException;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
@@ -38,7 +40,8 @@ public abstract class SelfExn {
 		DynamicClassCallException((byte)'D'), 
 		NoMoreDataPacketBufferException((byte)'N'),
 		ServerTaskException((byte)'S'),
-		AccessDeniedException((byte)'A');
+		AccessDeniedException((byte)'A'),		
+		IOException((byte)'E');
 		
 		private byte errorTypeByte;
 		
@@ -76,6 +79,8 @@ public abstract class SelfExn {
 				return ServerTaskException;
 			} else if (errorTypeClass.equals(AccessDeniedException.class)) {
 				return AccessDeniedException;
+			} else if (errorTypeClass.equals(IOException.class)) {
+				return IOException;
 			} else {
 				String errorMessage = String.format("the parameter errorTypeClass[%s] is not 1: 1 class corresponding to error type", 
 						errorTypeClass.getCanonicalName());
@@ -86,7 +91,7 @@ public abstract class SelfExn {
 		public static void throwSelfExnException(SelfExnRes selfExnRes) 
 				throws BodyFormatException, DynamicClassCallException, 
 				NoMoreDataPacketBufferException, ServerTaskException,
-				AccessDeniedException {
+				AccessDeniedException, IOException {
 			ErrorType errorType = selfExnRes.getErrorType();
 			String errorMessage = selfExnRes.toString();
 			
@@ -101,6 +106,8 @@ public abstract class SelfExn {
 				throw new ServerTaskException(errorMessage);
 			case AccessDeniedException :
 				throw new AccessDeniedException(errorMessage);
+			case IOException :
+				throw new IOException(errorMessage);
 			default:
 				throw new IllegalArgumentException("unknown error type["+selfExnRes.toString()+"]");
 			}

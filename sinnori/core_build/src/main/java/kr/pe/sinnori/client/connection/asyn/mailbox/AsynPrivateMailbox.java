@@ -17,18 +17,14 @@
 package kr.pe.sinnori.client.connection.asyn.mailbox;
 
 import java.net.SocketTimeoutException;
-import java.nio.channels.SocketChannel;
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
 public class AsynPrivateMailbox implements AsynMailboxIF {
@@ -85,10 +81,14 @@ public class AsynPrivateMailbox implements AsynMailboxIF {
 		//}
 	}
 	
-	public ToLetter makeNewToLetter(SocketChannel toSocketChannel, String messageID, List<WrapBuffer> wrapBufferList) {
-		return new ToLetter(toSocketChannel, messageID, mailboxID, mailID, wrapBufferList);
+	public int getMailboxID () {
+		return mailboxID;
 	}
-
+	
+	public int getMailID() {
+		return mailID;
+	}
+	
 	public void putToSyncOutputMessageQueue(WrapReadableMiddleObject wrapReadableMiddleObject)
 			throws InterruptedException {
 		//log.info("putToSyncOutputMessageQueue::{}", wrapReadableMiddleObject.toString());

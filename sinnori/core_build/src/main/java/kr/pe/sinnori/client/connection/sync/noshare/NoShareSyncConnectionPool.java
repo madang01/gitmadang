@@ -16,25 +16,23 @@
  */
 package kr.pe.sinnori.client.connection.sync.noshare;
 
+import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.charset.CharsetDecoder;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.AbstractConnectionPool;
+import kr.pe.sinnori.common.exception.AccessDeniedException;
 import kr.pe.sinnori.common.exception.BodyFormatException;
-import kr.pe.sinnori.common.exception.ConnectionPoolTimeoutException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.exception.AccessDeniedException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
-import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
+import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 
@@ -48,77 +46,58 @@ import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 	/** Connection Pool 운영을 위한 변수 */
 	private LinkedBlockingQueue<NoShareSyncConnection> connectionQueue = null;
-	private ArrayList<NoShareSyncConnection> connectionList = new ArrayList<NoShareSyncConnection>();
-	private int connectionPoolSize;
-	private long connectionTimeout;
+	// private int connectionPoolSize;
+	private long socketTimeOut;
 	
-	/**
-	 * 생성자
-	 * @param connectionPoolSize 연결 폴 크기
-	 * @param connectionTimeout 비공유 연결 타임 아웃
-	 * @param socketTimeOut 소켓 타임 아웃
-	 * @param whetherToAutoConnect 자동 연결 여부
-	 * @param projectPart 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
-	 * @param messageProtocol 메시지 교환 프로토콜
-	 * @param dataPacketBufferQueueManager 데이터 패킷 큐 관리자
-	 * @throws NoMoreDataPacketBufferException 데이터 패킷을 할당 받지 못할을 경우 던지는 예외
-	 * @throws InterruptedException 쓰레드 인터럽트
-	 */
 	public NoShareSyncConnectionPool(String projectName,
-			String hostOfProject,
-			int portOfProject,
-			Charset charsetOfProject, int connectionPoolSize, long connectionTimeout, 
+			String host,
+			int port,
+			int connectionPoolSize, 
 			long socketTimeOut,
 			boolean whetherToAutoConnect,
-			MessageProtocolIF messageProtocol,
 			int dataPacketBufferMaxCntPerMessage,
+			CharsetDecoder streamCharsetDecoder,
+			MessageProtocolIF messageProtocol,
 			DataPacketBufferPoolIF dataPacketBufferQueueManager,
 			ClientObjectCacheManagerIF clientObjectCacheManager)
 			throws NoMoreDataPacketBufferException, InterruptedException {
-		super(null);
+		super();
 
 		// log.info("create new SingleBlockConnectionPool");
 
-		this.connectionPoolSize = connectionPoolSize;
-		this.connectionTimeout = connectionTimeout;
+		this.socketTimeOut = socketTimeOut;
+		// this.connectionPoolSize = connectionPoolSize;
 
 		connectionQueue = new LinkedBlockingQueue<NoShareSyncConnection>(
 				connectionPoolSize);
 
 		
 		for (int i = 0; i < connectionPoolSize; i++) {
+			SocketOutputStream socketOutputStream = new SocketOutputStream(streamCharsetDecoder, 
+					dataPacketBufferMaxCntPerMessage, dataPacketBufferQueueManager);
+			
 			NoShareSyncConnection serverConnection = new NoShareSyncConnection(
 					projectName,
-					i, hostOfProject, portOfProject, charsetOfProject, 
+					i, host, port,  
 					socketTimeOut, whetherToAutoConnect, 
-					serverOutputMessageQueue, messageProtocol, 
-					dataPacketBufferMaxCntPerMessage,
+					socketOutputStream,
+					messageProtocol,
 					dataPacketBufferQueueManager, clientObjectCacheManager);
 			connectionQueue.add(serverConnection);
-			connectionList.add(serverConnection);
 		}
 	}
 	
-	@Override
-	public int getUsedMailboxCnt() {
-		return connectionQueue.remainingCapacity();
-	}
-
-	@Override
-	public int getTotalMailbox() {
-		return connectionPoolSize;
-	}
 
 	@Override
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
-			throws ServerNotReadyException, SocketTimeoutException,
+			throws IOException, 
 			NoMoreDataPacketBufferException, BodyFormatException, 
-			DynamicClassCallException, ServerTaskException, AccessDeniedException, ConnectionPoolTimeoutException, InterruptedException {
+			DynamicClassCallException, ServerTaskException, AccessDeniedException, InterruptedException {
 		NoShareSyncConnection conn = null;
 		
-		conn = connectionQueue.poll(connectionTimeout, TimeUnit.MILLISECONDS);
+		conn = connectionQueue.poll(socketTimeOut, TimeUnit.MILLISECONDS);
 		if (null == conn) {
-			throw new ConnectionPoolTimeoutException("no share synchronized connection pool timeout");
+			throw new SocketTimeoutException("no share synchronized connection pool timeout");
 		}
 		
 		conn.queueOut();
@@ -140,13 +119,13 @@ public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 	}
 	
 	@Override
-	public AbstractConnection getConnection() throws InterruptedException, NotSupportedException, ConnectionPoolTimeoutException {
+	public AbstractConnection getConnection() throws InterruptedException, NotSupportedException, SocketTimeoutException {
 		
 		
 		synchronized (monitor) {
-			NoShareSyncConnection conn = connectionQueue.poll(connectionTimeout, TimeUnit.MILLISECONDS);
+			NoShareSyncConnection conn = connectionQueue.poll(socketTimeOut, TimeUnit.MILLISECONDS);
 			if (null == conn) {
-				throw new ConnectionPoolTimeoutException("no share synchronized connection pool timeout");
+				throw new SocketTimeoutException("no share synchronized connection pool timeout");
 			}
 			conn.queueOut();
 			return conn;
@@ -186,12 +165,4 @@ public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 		}
 	}
 	
-	@Override
-	public List<AbstractConnection> getConnectionList() {
-		List<AbstractConnection> dupList = new ArrayList<AbstractConnection>();
-		for (NoShareSyncConnection conn : connectionList) {
-			dupList.add(conn);
-		}
-		return dupList;
-	}
 }

@@ -20,26 +20,22 @@ package kr.pe.sinnori.client;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.nio.charset.Charset;
-import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.AbstractConnectionPool;
-import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.InputMessageWriterPool;
-import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderThreadPool;
+import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPublicMailbox;
+import kr.pe.sinnori.client.connection.asyn.noshare.NoShareAsynConnectionPool;
+import kr.pe.sinnori.client.connection.asyn.share.ShareAsynConnectionPool;
+import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderPool;
 import kr.pe.sinnori.client.connection.sync.noshare.NoShareSyncConnectionPool;
-import kr.pe.sinnori.client.io.ClientOutputMessageQueueWrapper;
-import kr.pe.sinnori.common.asyn.ToLetter;
-import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
+import kr.pe.sinnori.common.exception.AccessDeniedException;
 import kr.pe.sinnori.common.exception.BodyFormatException;
-import kr.pe.sinnori.common.exception.ConnectionPoolTimeoutException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
-import kr.pe.sinnori.common.exception.AccessDeniedException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
-import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
@@ -67,25 +63,15 @@ import kr.pe.sinnori.common.type.ConnectionType;
  * @author Won Jonghoon
  * 
  */
-public class AnyProjectClient extends AbstractProject implements ClientProjectIF,
-		ClientOutputMessageQueueQueueMangerIF, ClientObjectCacheManagerIF {
+public class AnyProjectClient extends AbstractProject implements ClientProjectIF, ClientObjectCacheManagerIF {
 	/** 모니터 객체 */
-	private final Object outputMessageQueuerQueueMonitor = new Object();
-
-	/** 비동기 방식에서 사용되는 입력 메시지 큐 */
-	private LinkedBlockingQueue<ToLetter> inputMessageQueue = null;
-
-	/** 비동기 방식에서 사용되는 출력 메시지 큐를 원소로 가지는 큐 */
-	private LinkedBlockingQueue<ClientOutputMessageQueueWrapper> syncOutputMessageQueueQueue = null;
+	//private final Object outputMessageQueuerQueueMonitor = new Object();
 
 	/** 서버에서 보내는 불특정 다수 메시지를 받는 큐 */
 	private LinkedBlockingQueue<WrapReadableMiddleObject> asynOutputMessageQueue = null;
 
-	/** 비동기 방식에서 사용되는 입력 메시지 쓰기 쓰레드 */
-	private InputMessageWriterPool inputMessageWriterPool = null;
-
 	/** 비동기 방식에서 사용되는 출력 메시지 읽기 쓰레드 */
-	private OutputMessageReaderThreadPool outputMessageReaderPool = null;
+	private OutputMessageReaderPool outputMessageReaderPool = null;
 
 	/** 프로젝트의 연결 클래스 폴 */
 	private AbstractConnectionPool connectionPool = null;
@@ -94,157 +80,103 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 	// private AsynOutputMessageExecutorThread asynOutputMessageExecutorThread =
 	// null;
 
-	private ClientProjectMonitor clientProjectMonitor = null;
+	// private ClientProjectMonitor clientProjectMonitor = null;
 
-	/**
-	 * 생성자
-	 * 
-	 * @param projectPartConfiguration
-	 *            프로젝트 파트 설정 내용
-	 * @throws NoMoreDataPacketBufferException
-	 *             프로젝트의 연결 클래스을 만들때 데이터 패킷 버퍼 부족시 던지는 예외
-	 * @throws NoMoreOutputMessageQueueException
-	 *             프로젝트의 연결 클래스을 만들때 바디 버퍼 부족시 던지는 예외
-	 * @throws InterruptedException
-	 *             쓰레드 인터럽트
-	 */
+	
 	public AnyProjectClient(ProjectPartConfiguration projectPartConfiguration)
 			throws NoMoreDataPacketBufferException,
 			NoMoreOutputMessageQueueException, InterruptedException {
 		super(projectPartConfiguration);
 
-		
-		int connectionCount = projectPartConfiguration.getClientConnectionCount();
-		long socketTimeOut = projectPartConfiguration.getClientSocketTimeout();
-		long connectionTimeout = projectPartConfiguration.getClientConnectionTimeout();
-		boolean whetherToAutoConnect = projectPartConfiguration
-				.getClientWhetherAutoConnection();
-		ConnectionType connectionType = projectPartConfiguration.getConnectionType();
-		long clientMonitorTimeInterval = projectPartConfiguration
-				.getClientMonitorTimeInterval();
-		long clientMonitorReceptionTimeout = projectPartConfiguration
-				.getClientMonitorReceptionTimeout();
-		int inputMessageQueueSize = projectPartConfiguration
-				.getClientAsynInputMessageQueueSize();
-		int outputMessageQueueSize = projectPartConfiguration
-				.getClientAsynOutputMessageQueueSize();
-		int finishConnectMaxCall = projectPartConfiguration
-				.getClientAsynFinishConnectMaxCall();
-		long finishConnectWaittingTime = projectPartConfiguration
-				.getClientFinishConnectWaittingTime();
-		long readSelectorWakeupInterval = projectPartConfiguration
-				.getClientReadSelectorWakeupInterval();
-		int clientAsynInputMessageWriterSize = projectPartConfiguration
-				.getClientAsynInputMessageWriterSize();
-		int clientAsynInputMessageWriterMaxSize = projectPartConfiguration
-				.getClientAsynInputMessageWriterMaxSize();
-		int clientAsynOutputMessageReaderSize = projectPartConfiguration
-				.getClientAsynOutputMessageReaderSize();
-		int clientAsynOutputMessageReaderMaxSize = projectPartConfiguration
-				.getClientAsynOutputMessageReaderMaxSize();
-		int clientAsynOutputMessageExecutorThreadCnt = projectPartConfiguration
-				.getClientAsynOutputMessageExecutorThreadCnt();
-		int mailBoxCnt = projectPartConfiguration.getClientAsynShareMailboxCnt();
-
-		/*if (ConnectionType.SYNC_PRIVATE == connectionType) {
-			connectionPool = new NoShareSyncConnectionPool(projectName, hostOfProject,
-					portOfProject, charsetOfProject, connectionCount, connectionTimeout, 
-					socketTimeOut, whetherToAutoConnect,
-					messageProtocol, dataPacketBufferMaxCntPerMessage, this, this);
+		if (projectPartConfiguration.getConnectionType().equals(ConnectionType.SYNC_PRIVATE)) {
+			connectionPool = new NoShareSyncConnectionPool(projectPartConfiguration.getProjectName(), 
+					projectPartConfiguration.getServerHost(),
+					projectPartConfiguration.getServerPort(), 
+					projectPartConfiguration.getClientConnectionCount(), 
+					projectPartConfiguration.getClientSocketTimeout(), 
+					projectPartConfiguration.getClientWhetherAutoConnection(),					
+					projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(),
+					charsetDecoderOfProject,					
+					messageProtocol,  
+					dataPacketBufferPoolManager, this);
 		} else {
 			asynOutputMessageQueue = new LinkedBlockingQueue<WrapReadableMiddleObject>(
-					outputMessageQueueSize);
+					projectPartConfiguration
+					.getClientAsynOutputMessageQueueSize());
+			
+			AsynPublicMailbox asynPublicMailbox = new AsynPublicMailbox(projectPartConfiguration.getClientSocketTimeout(), asynOutputMessageQueue);
 
-			inputMessageQueue = new LinkedBlockingQueue<ToLetter>(
-					inputMessageQueueSize);
+			
+			outputMessageReaderPool = new OutputMessageReaderPool(
+					projectPartConfiguration.getProjectName(),
+					projectPartConfiguration
+					.getClientAsynOutputMessageReaderSize(),
+					projectPartConfiguration
+					.getClientAsynOutputMessageReaderMaxSize(),
+					projectPartConfiguration
+					.getClientReadSelectorWakeupInterval(), 
+					messageProtocol);
 
-			inputMessageWriterPool = new InputMessageWriterPool(
-					projectName,
-					clientAsynInputMessageWriterSize,
-					clientAsynInputMessageWriterMaxSize,
-					inputMessageQueue, this);
-
-			outputMessageReaderPool = new OutputMessageReaderThreadPool(
-					projectName,
-					clientAsynOutputMessageReaderSize,
-					clientAsynOutputMessageReaderMaxSize,
-					charsetOfProject,
-					readSelectorWakeupInterval, messageProtocol);
-
-			inputMessageWriterPool.startAll();
 			outputMessageReaderPool.startAll();
 
-			if (ConnectionType.ASYN_SHARE == connectionType) {
+			if (projectPartConfiguration.getConnectionType().equals(ConnectionType.ASYN_SHARE)) {				
 
-				int outputMessageQueueQueueSize = mailBoxCnt * connectionCount;
-				syncOutputMessageQueueQueue = new LinkedBlockingQueue<ClientOutputMessageQueueWrapper>(
-						outputMessageQueueQueueSize);
-
-				for (int i = 0; i < connectionCount; i++) {
-					for (int j = 0; j < mailBoxCnt; j++) {
-						LinkedBlockingQueue<WrapReadableMiddleObject> outputMessageQueue = new LinkedBlockingQueue<WrapReadableMiddleObject>(
-								outputMessageQueueSize);
-						ClientOutputMessageQueueWrapper wrapOutputMessageQeuue = new ClientOutputMessageQueueWrapper(
-								outputMessageQueue);
-						syncOutputMessageQueueQueue.add(wrapOutputMessageQeuue);
-					}
-				}
-
-				connectionPool = new ShareAsynConnectionPool(projectName, hostOfProject,
-						portOfProject, charsetOfProject,
-						connectionCount, connectionTimeout,
-						socketTimeOut, whetherToAutoConnect,
-						finishConnectMaxCall, finishConnectWaittingTime,
-						mailBoxCnt, asynOutputMessageQueue,
-						inputMessageQueue, messageProtocol,
-						outputMessageReaderPool, this, dataPacketBufferMaxCntPerMessage, this, this);
+				connectionPool = new ShareAsynConnectionPool(projectPartConfiguration.getProjectName(), 
+						projectPartConfiguration.getServerHost(),
+						projectPartConfiguration.getServerPort(),
+						projectPartConfiguration.getClientConnectionCount(),
+						projectPartConfiguration.getClientSocketTimeout(), 
+						projectPartConfiguration.getClientWhetherAutoConnection(),						 
+						projectPartConfiguration.getClientAsynShareMailboxCnt(),
+						asynPublicMailbox,						
+						projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(),
+						charsetDecoderOfProject,
+						messageProtocol,
+						outputMessageReaderPool, 
+						dataPacketBufferPoolManager, this);
 			} else {
-				syncOutputMessageQueueQueue = new LinkedBlockingQueue<ClientOutputMessageQueueWrapper>(
-						connectionCount);
-				for (int i = 0; i < connectionCount; i++) {
-					LinkedBlockingQueue<WrapReadableMiddleObject> outputMessageQueue = new LinkedBlockingQueue<WrapReadableMiddleObject>(
-							outputMessageQueueSize);
-					ClientOutputMessageQueueWrapper wrapOutputMessageQeuue = new ClientOutputMessageQueueWrapper(
-							outputMessageQueue);
-					syncOutputMessageQueueQueue.add(wrapOutputMessageQeuue);
-				}
-
-				connectionPool = new NoShareAsynConnectionPool(projectName, hostOfProject,
-						portOfProject, charsetOfProject, connectionCount, connectionTimeout, 
-						socketTimeOut, whetherToAutoConnect,
-						finishConnectMaxCall, finishConnectWaittingTime,
-						asynOutputMessageQueue, inputMessageQueue,
-						messageProtocol, outputMessageReaderPool, this, 
-						dataPacketBufferMaxCntPerMessage, this,	this);
+				connectionPool = new NoShareAsynConnectionPool(projectPartConfiguration.getProjectName(), 
+						projectPartConfiguration.getServerHost(),
+						projectPartConfiguration.getServerPort(),
+						projectPartConfiguration.getClientConnectionCount(),  
+						projectPartConfiguration.getClientSocketTimeout(), 
+						projectPartConfiguration.getClientWhetherAutoConnection(),
+						asynPublicMailbox,						
+						projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(),
+						charsetDecoderOfProject,
+						messageProtocol, 
+						outputMessageReaderPool, 
+						dataPacketBufferPoolManager, this);
 			}
 
-			asynOutputMessageExecutorThreadList = new AsynOutputMessageExecutorThread[clientAsynOutputMessageExecutorThreadCnt];
+			asynOutputMessageExecutorThreadList = new AsynOutputMessageExecutorThread[projectPartConfiguration
+			                                                          				.getClientAsynOutputMessageExecutorThreadCnt()];
 
 			for (int i = 0; i < asynOutputMessageExecutorThreadList.length; i++) {
-				asynOutputMessageExecutorThreadList[i] = new AsynOutputMessageExecutorThread(projectName,
-						charsetOfProject,
+				asynOutputMessageExecutorThreadList[i] = new AsynOutputMessageExecutorThread(projectPartConfiguration.getProjectName(),
+						projectPartConfiguration.getCharset(),
 						this);
 				asynOutputMessageExecutorThreadList[i].start();
 			}
 
 		}
 
-		clientProjectMonitor = new ClientProjectMonitor(
+		/*clientProjectMonitor = new ClientProjectMonitor(
 				clientMonitorTimeInterval, clientMonitorReceptionTimeout);
 		clientProjectMonitor.start();*/
 	}
 
 	@Override
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
-			throws SocketTimeoutException, ServerNotReadyException,
+			throws IOException, 
 			NoMoreDataPacketBufferException, BodyFormatException,
-			DynamicClassCallException, ServerTaskException, AccessDeniedException, ConnectionPoolTimeoutException, InterruptedException {
+			DynamicClassCallException, ServerTaskException, AccessDeniedException, InterruptedException {
 		return connectionPool.sendSyncInputMessage(inputMessage);
 	}
 
 	@Override
 	public AbstractConnection getConnection() throws InterruptedException,
-			NotSupportedException, ConnectionPoolTimeoutException {
+			NotSupportedException, SocketTimeoutException {
 		return connectionPool.getConnection();
 	}
 
@@ -272,51 +204,15 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 	 * 비동기 입출력용 소켓 읽기/쓰기 쓰레드들을 중지한다. 동기 모드인 경우에 호출할 경우 아무 동작 없다.
 	 */
 	public void stopAsynPool() {
-		if (null != inputMessageWriterPool) {
-			inputMessageWriterPool.stopAll();
-		}
+		
 
 		if (null != outputMessageReaderPool) {
 			outputMessageReaderPool.stopAll();
 		}
 	}
 
-	// @Override
-	public ClientOutputMessageQueueWrapper pollOutputMessageQueue()
-			throws NoMoreOutputMessageQueueException {
 
-		ClientOutputMessageQueueWrapper wrapOutputMessageQueue = syncOutputMessageQueueQueue
-				.poll();
-		if (null == wrapOutputMessageQueue) {
-			//String errorMessage = String.format("클라이언트 프로젝트[%s]에서 랩 출력 메시지큐가 부족합니다.", projectName);
-			// throw new NoMoreOutputMessageQueueException(errorMessage);
-		}
-
-		wrapOutputMessageQueue.queueOut();
-
-		return wrapOutputMessageQueue;
-	}
-
-	@Override
-	public void putOutputMessageQueue(
-			ClientOutputMessageQueueWrapper wrapOutputMessageQueue) {
-		if (null == wrapOutputMessageQueue)
-			return;
-
-		/**
-		 * 2번 연속 반환 막기
-		 */
-		synchronized (outputMessageQueuerQueueMonitor) {
-			if (wrapOutputMessageQueue.isInQueue()) {				
-				log.warn("출력 메시지 큐 2번 연속 반환 시도");
-				return;
-			}
-			wrapOutputMessageQueue.queueIn();
-		}
-
-		syncOutputMessageQueueQueue.add(wrapOutputMessageQueue);
-
-	}
+	
 
 	/**
 	 * @return 클라이언트 프로젝트 정보
@@ -326,20 +222,16 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 		// clientProjectMonitorInfo.projectName = projectName;
 		// clientProjectMonitorInfo.dataPacketBufferQueueSize = dataPacketBufferQueue.size();
 
-		clientProjectMonitorInfo.usedMailboxCnt = connectionPool
+		/*clientProjectMonitorInfo.usedMailboxCnt = connectionPool
 				.getUsedMailboxCnt();
 		clientProjectMonitorInfo.totalMailbox = connectionPool
-				.getTotalMailbox();
+				.getTotalMailbox();*/
 
 		if (connectionPool instanceof NoShareSyncConnectionPool) {
 			clientProjectMonitorInfo.inputMessageQueueSize = -1;
 			clientProjectMonitorInfo.syncOutputMessageQueueQueueSize = -1;
 			clientProjectMonitorInfo.AsynOutputMessageQueueSize = -1;
 		} else {
-			clientProjectMonitorInfo.inputMessageQueueSize = inputMessageQueue
-					.size();
-			clientProjectMonitorInfo.syncOutputMessageQueueQueueSize = syncOutputMessageQueueQueue
-					.size();
 			clientProjectMonitorInfo.AsynOutputMessageQueueSize = asynOutputMessageQueue
 					.size();
 		}
@@ -536,64 +428,12 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 		}
 	}
 
-	// FIXME! 무엇을 모니터 할것인가? 검토하여 전체적인 보강 필요
-	private class ClientProjectMonitor extends Thread {
-		private long monitorInterval;
-		private long requestTimeout;
-
-		public ClientProjectMonitor(long monitorInterval, long requestTimeout) {
-			this.monitorInterval = monitorInterval;
-			this.requestTimeout = requestTimeout;
-		}
-
-		@Override
-		public void run() {
-
-			List<AbstractConnection> list = connectionPool
-					.getConnectionList();
-			int listSize = list.size();
-			try {
-				while (!Thread.currentThread().isInterrupted()) {
-					// log.info(getInfo().toString());
-
-					long currentTime = System.currentTimeMillis();
-
-					for (int i = 0; i < listSize; i++) {
-						AbstractConnection conn = list.get(i);
-
-						java.util.Date finalReadTime = conn.getFinalReadTime();
-						if (null == finalReadTime)
-							continue;
-
-						if ((finalReadTime.getTime() - currentTime) > requestTimeout) {
-							// log.info(String.format("project[%s] requestTimeout[%d] over so socket close, conn[%s]",projectName, requestTimeout,conn.toString()));
-							conn.serverClose();
-						}
-					}
-
-					Thread.sleep(monitorInterval);
-				}
-
-				// log.warn(String.format("client project[%s] ClientProjectMonitor loop exit",projectName));
-			} catch (InterruptedException e) {
-				// log.warn(String.format("client project[%s] ClientProjectMonitor interrupt", projectName), e);
-			} catch (Exception e) {
-				// log.warn(String.format("client project[%s] ClientProjectMonitor unknow error", projectName), e);
-			}
-		}
-	}
-
-	public void stopMonitor() {
-		if (null != clientProjectMonitor)
-			clientProjectMonitor.interrupt();
-	}
 
 	public void stop() {
 		// log.info(String.format("project[%s] client project stop", projectName));
 
 		stopAsynPool();
 		stopAsynOutputMessageExecutorThread();
-		stopMonitor();
 	}
 
 	@Override
@@ -655,7 +495,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 	
 	@Override
 	public void changeServerAddress(String newServerHost, int newServerPort) throws NotSupportedException {
-		List<AbstractConnection> connList = connectionPool.getConnectionList();
+		/*List<AbstractConnection> connList = connectionPool.getConnectionList();
 		for (AbstractConnection conn : connList) {			
 			conn.changeServerAddress(newServerHost, newServerPort);			
 		}
@@ -664,7 +504,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 			SinnoriConfigurationManager.getInstance().getSinnoriRunningProjectConfiguration().changeServerAddressIfDifferent(newServerHost, newServerPort);
 		} catch (IOException e) {
 			log.warn("It failed to save new server address to the Sinnori config file and Ignore this exception for quiet processing", e);
-		}
+		}*/
 	}
 
 	

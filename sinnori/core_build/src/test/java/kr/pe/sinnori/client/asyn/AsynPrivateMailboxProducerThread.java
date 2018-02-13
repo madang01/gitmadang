@@ -54,7 +54,7 @@ public class AsynPrivateMailboxProducerThread extends Thread {
 			}
 
 			try {
-				asynPrivateMailbox = asynPrivateMailboxPool.take();
+				asynPrivateMailbox = asynPrivateMailboxPool.poll(1000L);
 			} catch (InterruptedException e) {
 				String errorMessage = String.format("InterruptedException");
 				log.warn(errorMessage, e);
@@ -65,8 +65,12 @@ public class AsynPrivateMailboxProducerThread extends Thread {
 				SocketChannel toSocketChannel = SocketChannel.open();
 				String messageID = "Echo";
 				List<WrapBuffer> wrapBufferList = new ArrayList<WrapBuffer>();
-
-				ToLetter toLetter = asynPrivateMailbox.makeNewToLetter(toSocketChannel, messageID, wrapBufferList);
+				
+				ToLetter toLetter = new ToLetter(toSocketChannel, 
+						messageID,
+						asynPrivateMailbox.getMailboxID(),
+						asynPrivateMailbox.getMailID(),
+						wrapBufferList);				
 				
 				log.info("AsynPrivateMailboxProducerThread::toLetter={}", toLetter.toString());				
 				toLetterQueue.put(toLetter);
@@ -88,7 +92,7 @@ public class AsynPrivateMailboxProducerThread extends Thread {
 				break;
 			} finally {
 				if (null != asynPrivateMailbox) {
-					asynPrivateMailboxPool.put(asynPrivateMailbox);
+					asynPrivateMailboxPool.add(asynPrivateMailbox);
 				}
 			}
 		}

@@ -129,7 +129,7 @@ public class Executor extends Thread implements ExecutorIF {
 					try {
 						serverTask.execute(index, projectName, 
 								fromSC,
-								socketResourceOfFromSC, 
+								socketResourceManager, 
 								wrapReadableMiddleObject, 
 								messageProtocol, 
 								serverObjectCacheManager);

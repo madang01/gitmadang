@@ -6,8 +6,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynMailboxMapper;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox;
+import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxMapper;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxPool;
 import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.asyn.ToLetter;
@@ -20,13 +20,11 @@ public class AsynPrivateMailboxTest extends AbstractJunitTest {
 		int asynPrivateMailboxQueueSize = 1;		
 		int totalNumberOfAsynMailbox = asynPrivateMailboxQueueSize + 1;
 		
-		int outputMessageQueueSize = 5;
-		LinkedBlockingQueue<WrapReadableMiddleObject> outputMessageQueue 
-			= new LinkedBlockingQueue<WrapReadableMiddleObject>(outputMessageQueueSize); 
+		
 	
 		int socketTimeOut = 500;
 		
-		AsynMailboxMapper asynMailboxMapper = new AsynMailboxMapper(totalNumberOfAsynMailbox, socketTimeOut, outputMessageQueue);
+		AsynPrivateMailboxMapper asynMailboxMapper = new AsynPrivateMailboxMapper(totalNumberOfAsynMailbox, socketTimeOut);
 		
 		AsynPrivateMailbox asynPrivateMailbox = (AsynPrivateMailbox)asynMailboxMapper.getAsynMailbox(1);
 		
@@ -63,28 +61,17 @@ public class AsynPrivateMailboxTest extends AbstractJunitTest {
 		
 		int totalNumberOfAsynMailbox = totalNumberOfAsynPrivateMailbox + 1;
 		
-		int outputMessageQueueSize = 5;
-		LinkedBlockingQueue<WrapReadableMiddleObject> outputMessageQueue 
-			= new LinkedBlockingQueue<WrapReadableMiddleObject>(outputMessageQueueSize); 
-		
 		int toLetterQueueSize = 5;
 		LinkedBlockingQueue<ToLetter> toLetterQueue = new LinkedBlockingQueue<ToLetter>(toLetterQueueSize); 
 		
 		int socketTimeOut = 500;
 		
-		AsynMailboxMapper asynMailboxMapper = new AsynMailboxMapper(totalNumberOfAsynMailbox, socketTimeOut, outputMessageQueue);
+		AsynPrivateMailboxMapper asynMailboxMapper = new AsynPrivateMailboxMapper(totalNumberOfAsynMailbox, socketTimeOut);
 		
 		
-		int maxSleepingTime = 5000;
+		int maxSleepingTime = 5000;		
 		
-		List<AsynPrivateMailbox> asynPrivateMailboxList = new ArrayList<AsynPrivateMailbox>();
-		
-		for (int i=0; i < totalNumberOfAsynPrivateMailbox; i++) {
-			AsynPrivateMailbox asynPrivateMailbox = (AsynPrivateMailbox)asynMailboxMapper.getAsynMailbox(i+1);
-			asynPrivateMailboxList.add(asynPrivateMailbox);
-		}
-		
-		AsynPrivateMailboxPool asynPrivateMailboxPool = new AsynPrivateMailboxPool(asynPrivateMailboxList);
+		AsynPrivateMailboxPool asynPrivateMailboxPool = new AsynPrivateMailboxPool(asynMailboxMapper);
 		
 		for (int i=0; i < numbmerOfAsynPrivateMailboxProducerThread; i++) {
 			AsynPrivateMailboxProducerThread asynPrivateMailboxProducerThread 

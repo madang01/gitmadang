@@ -30,6 +30,7 @@ import kr.pe.sinnori.common.etc.CharsetUtil;
 import kr.pe.sinnori.common.etc.ObjectCacheManager;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.DataPacketBufferPool;
+import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.dhb.DHBMessageProtocol;
 import kr.pe.sinnori.common.protocol.djson.DJSONMessageProtocol;
@@ -52,7 +53,7 @@ public abstract class AbstractProject {
 	protected MessageProtocolIF messageProtocol = null;
 	
 	
-	protected DataPacketBufferPool dataPacketBufferPoolManager = null;
+	protected DataPacketBufferPoolIF dataPacketBufferPoolManager = null;
 	
 	protected CharsetEncoder charsetEncoderOfProject = null;
 	

@@ -17,33 +17,26 @@
 package kr.pe.sinnori.client.connection.sync.noshare;
 
 import java.io.IOException;
-import java.net.ConnectException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.net.StandardSocketOptions;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
-import java.nio.channels.ClosedByInterruptException;
-import java.nio.channels.ClosedChannelException;
-import java.nio.channels.NotYetConnectedException;
-import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
-import kr.pe.sinnori.client.connection.sync.AbstractSyncConnection;
+import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.common.exception.AccessDeniedException;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
-import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
+import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
@@ -59,41 +52,33 @@ import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
  * @author Won Jonghoon
  * 
  */
-public class NoShareSyncConnection extends AbstractSyncConnection {
-	/** 개인 메일함 번호. 참고) 메일함을 가상으로 운영하여 전체적으로 메일함 운영의 틀을 유지한다. */
-	private static final int ONLY_ONE_MAILBOX_ID = 1;
+public class NoShareSyncConnection extends AbstractConnection {
+	private Socket serverSocket = null;
+	private InputStream inputStreamOfSocket = null;
+	private OutputStream outputStreamOfSocket = null;
+	
+	private static final int MAILBOX_ID = 1;
+	
 	/** 메일 식별자 */
 	private int mailID = 0;	
 	
 	/** 큐 등록 상태 */
 	private boolean isQueueIn = true;
 	
-	private Socket serverSocket = null;
-	
-	
-
-	/**
-	 * 생성자
-	 * @param index 연결 클래스 번호
-	 * @param projectPart 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
-	 * @param serverOutputMessageQueue 서버에서 보내는 공지등 불특정 다수한테 보내는 출력 메시지 큐
-	 * @param messageProtocol 메시지 교환 프로토콜
-	 * @param dataPacketBufferQueueManager 클라이언트 프로젝트에 종속적인 데이터 패킷 버퍼 관리자
-	 * @throws NoMoreDataPacketBufferException 데이터 패킷 부족시 던지는 예외
-	 */
 	public NoShareSyncConnection(String projectName, int index, 
-			String hostOfProject,
-			int portOfProject,
-			Charset charsetOfProject,
+			String host,
+			int port,
 			long socketTimeOut,
 			boolean whetherToAutoConnect,
-			LinkedBlockingQueue<WrapReadableMiddleObject> serverOutputMessageQueue,
+			SocketOutputStream socketOutputStream,
 			MessageProtocolIF messageProtocol,
-			int dataPacketBufferMaxCntPerMessage,
 			DataPacketBufferPoolIF dataPacketBufferQueueManager,
 			ClientObjectCacheManagerIF clientObjectCacheManager) throws InterruptedException, NoMoreDataPacketBufferException {
-		super(projectName, index, hostOfProject, portOfProject, charsetOfProject,
-				socketTimeOut, whetherToAutoConnect, serverOutputMessageQueue, messageProtocol, dataPacketBufferMaxCntPerMessage, dataPacketBufferQueueManager, clientObjectCacheManager);
+		super(projectName, index, 
+				host, port, socketTimeOut, 
+				whetherToAutoConnect, 
+				socketOutputStream, messageProtocol,
+				dataPacketBufferQueueManager, clientObjectCacheManager);
 		
 		
 		this.messageProtocol = messageProtocol;
@@ -111,8 +96,8 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 		 */
 		if (whetherToAutoConnect) {
 			try {
-				connectServerIfNoConnection();
-			} catch (ServerNotReadyException e) {
+				connectServer();
+			} catch (IOException e) {
 				log.warn(String.format("project[%s] NoShareSyncConnection[%d] fail to connect server", projectName, index), e);
 				// System.exit(1);
 			}
@@ -125,22 +110,10 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 	 * 비공유 + 동기 연결 전용 소켓 채널 열기
 	 * @throws IOException 소켓 채널을 개방할때 혹은 비공유 + 동기 에 맞도록 설정할때 에러 발생시 던지는 예외 
 	 */
-	private void openSyncSocketChannel() throws IOException {
-		serverSC = SocketChannel.open();
-		serverSC.configureBlocking(true);
-		serverSC.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
-		serverSC.setOption(StandardSocketOptions.TCP_NODELAY, true);
-		serverSC.setOption(StandardSocketOptions.SO_LINGER, 0);
-		// serverSC.setOption(StandardSocketOptions.SO_SNDBUF, 65536);
-		// serverSC.setOption(StandardSocketOptions.SO_RCVBUF, 65536);
-		// serverSC.setOption(StandardSocketOptions.SO_RCVBUF, clientProjectConfig.getDataPacketBufferSize()*2);
-		
-		serverSocket = serverSC.socket();
-		// serverSocket.setKeepAlive(true);
-		// serverSocket.setTcpNoDelay(true);
-		serverSocket.setSoTimeout((int) socketTimeOut);
-		
-		serverSocket = serverSC.socket();
+	private void openSyncSocket() throws IOException {
+		serverSocket  = new Socket();
+		serverSocket.setKeepAlive(true);
+		serverSocket.setTcpNoDelay(true);
 		serverSocket.setSoTimeout((int) socketTimeOut);
 		
 		StringBuilder infoBuilder = null;
@@ -150,7 +123,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 		infoBuilder.append("] sync+noshare connection[");
 		infoBuilder.append(index);
 		infoBuilder.append("]");		
-		log.info(infoBuilder.append(" (re)open new serverSC=").append(serverSC.hashCode()).toString());
+		log.info(infoBuilder.append(" (re)open new serverSocket=").append(serverSocket.hashCode()).toString());
 	}
 	
 	/**
@@ -180,33 +153,19 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 	}
 	
 	@Override
-	public void connectServerIfNoConnection() throws ServerNotReadyException {
-		// log.info("projectName[%s%02d] call serverOpen start", projectName,
-		// index);
-		/**
-		 * <pre>
-		 * 서버와 연결하는 시간보다 연결 이후 시간이 훨씬 길기때문에,
-		 * 연결시 비용이 더 들어가도 연결후 비용을 더 줄일 수 만 있다면 좋을 것이다.
-		 * 아래와 같이 재연결을 판단하는 if 문을 2번 사용하여 이를 달성한다.
-		 * 그러면 소켓 채널이 서버와 연결된 후에는 동기화 비용 없어지고
-		 * 연결 할때만 if 문 중복 비용만 더 추가될 것이다.
-		 * </pre>
-		 */
-		
-		 
-		
+	public void connectServer() throws IOException {
 	
 		try {
 			// log.info("open start");
 			// synchronized (monitor) {
 			
-			if (null == serverSC || !serverSC.isOpen()) {
-				openSyncSocketChannel();
+			if (null == serverSocket) {
+				openSyncSocket();
 			}
 			
 			
 				// (재)연결 판단 로직, 2번이상 SocketChannel.open() 호출하는것을 막는 역활을 한다.
-				if (serverSC.isConnected()) {
+				if (serverSocket.isConnected()) {
 					//log.info(new StringBuilder(info).append(" connected").toString());
 					return;
 				}
@@ -216,8 +175,8 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 				finalReadTime = new java.util.Date();
 				
 				InetSocketAddress remoteAddr = new InetSocketAddress(
-						hostOfProject,
-						portOfProject);
+						host,
+						port);
 				
 				// log.info("111111 socketTimeOut=[%d]", socketTimeOut);
 				
@@ -228,59 +187,63 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 				 */
 				serverSocket.connect(remoteAddr, (int) socketTimeOut);
 	
-				initSocketResource();
 				
 				/** 소켓 스트림은 소켓 연결후에 만들어야 한다. */
 				try {
-					if (null != inputStream) {
-						inputStream.close();
+					if (null != inputStreamOfSocket  ) {
+						inputStreamOfSocket.close();
 					}
 				} catch (IOException e) {
 				}
 				
 				try {
-					this.inputStream = serverSocket.getInputStream();
+					this.inputStreamOfSocket  = serverSocket.getInputStream();
 				} catch (IOException e) {
 					try {
-						serverSC.close();
+						serverSocket.close();
 					} catch (IOException e1) {
 					}
 					throw e;
 				}
+				
+				
+				try {
+					if (null != outputStreamOfSocket  ) {
+						outputStreamOfSocket.close();
+					}
+				} catch (IOException e) {
+				}
+				
+				try {
+					this.outputStreamOfSocket  = serverSocket.getOutputStream();
+				} catch (IOException e) {
+					try {
+						outputStreamOfSocket.close();
+					} catch (IOException e1) {
+					}
+					throw e;
+				}
+				
+				
 				//log.info(new StringBuilder(info).append(" after connect").toString());
 			//}
-		} catch (ConnectException e) {
-			throw new ServerNotReadyException(String.format(
-					"ConnectException::%s conn index[%02d], host[%s], port[%d]",
-					projectName, index, hostOfProject,
-					portOfProject));
-		} catch (UnknownHostException e) {
-			throw new ServerNotReadyException(String.format(
-					"UnknownHostException::%s conn index[%02d], host[%s], port[%d]",
-					projectName, index, hostOfProject,
-					portOfProject));
-		} catch (ClosedChannelException e) {
-			throw new ServerNotReadyException(
-					String.format(
-							"ClosedChannelException::%s conn index[%02d], host[%s], port[%d]",
-							projectName, index, hostOfProject,
-							portOfProject));
+		
 		} catch (IOException e) {
-			serverClose();
+			closeSocket();
 			
-			throw new ServerNotReadyException(String.format(
+			throw new IOException(String.format(
 					"IOException::%s conn index[%02d], host[%s], port[%d]",
-					projectName, index, hostOfProject,
-					portOfProject));
+					projectName, index, host,
+					port));
 		} catch (Exception e) {
-			serverClose();
+			closeSocket();
 			
 			log.warn("unknown error", e);
-			throw new ServerNotReadyException(
+			throw new IOException(
 					String.format(
 							"unknown::%s conn index[%02d], host[%s], port[%d]",
-							projectName, index, hostOfProject,
-							portOfProject));
+							projectName, index, host,
+							port));
 		}
 		// log.info("projectName[%s%02d] call serverOpen end", projectName,
 		// index);
@@ -289,7 +252,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 	
 	@Override
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inObj)
-			throws ServerNotReadyException, SocketTimeoutException,
+			throws IOException, 
 			NoMoreDataPacketBufferException, BodyFormatException, 
 			DynamicClassCallException, ServerTaskException, AccessDeniedException {
 		long startTime = 0;
@@ -299,10 +262,10 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 		// String messageID = inObj.getMessageID();
 		// LetterFromServer letterFromServer = null;
 		
-		connectServerIfNoConnection();
+		connectServer();
 
 		ClassLoader classLoader = inObj.getClass().getClassLoader();
-		inObj.messageHeaderInfo.mailboxID = NoShareSyncConnection.ONLY_ONE_MAILBOX_ID;
+		inObj.messageHeaderInfo.mailboxID = MAILBOX_ID;
 		inObj.messageHeaderInfo.mailID = this.mailID;
 		
 		boolean isInterrupted = false;
@@ -312,7 +275,7 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 		AbstractMessage outObj = null;
 		
 		try {
-			inObjWrapBufferList = getWrapBufferList(classLoader, inObj);
+			inObjWrapBufferList = getWrapBufferListOfInputMessage(classLoader, inObj);
 			
 			// int inObjWrapBufferListSize = inObjWrapBufferList.size();
 			
@@ -323,47 +286,19 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 				ByteBuffer inObjBuffer = inObjWrapBufferList.get(i).getByteBuffer();*/
 			for (WrapBuffer wrapBuffer : inObjWrapBufferList) {
 				ByteBuffer inObjBuffer = wrapBuffer.getByteBuffer();
-				// log.debug(inObjBuffer.toString());
-				do {
-					try {
-						int numberOfBytesWritten= serverSC.write(inObjBuffer);
-						if (0 == numberOfBytesWritten) {
-							try {
-								Thread.sleep(10);
-							} catch (InterruptedException e) {
-								log.warn("when the number of bytes written is zero,  this thread must sleep. but it fails.", e);
-							}
-						}
-					} catch(ClosedByInterruptException e) {
-						log.warn("ClosedByInterruptException", e);
-						
-						try {
-							serverSC.write(inObjBuffer);
-						} catch(ClosedByInterruptException e1) {
-							log.error("ClosedByInterruptException", e1);
-							System.exit(1);
-						}
-						
-						Thread.currentThread().interrupt();
-					}
-				} while(inObjBuffer.hasRemaining());
+				
+				while (inObjBuffer.hasRemaining()) {
+					outputStreamOfSocket.write(inObjBuffer.get());
+				}
 			}
-
-		} catch (NotYetConnectedException e) {
-			String errorMessage = String.format("NotYetConnectedException::%s, inObj=[%s]", getSimpleConnectionInfo(), inObj.toString());
-			
-			// ClosedChannelException
-			log.warn(errorMessage, e);
-			serverClose();
-			
-			throw new ServerNotReadyException(errorMessage);
+		
 		} catch (IOException e) {
-			String errorMessage = String.format("IOException::%s, inObj=[%s]", getSimpleConnectionInfo(), inObj.toString()); 
+			String errorMessage = String.format("IOException::%s, inObj=[%s]", toString(), inObj.toString()); 
 			// ClosedChannelException
 			log.warn(errorMessage, e);
-			serverClose();
+			closeSocket();
 			
-			throw new ServerNotReadyException(errorMessage);
+			throw new IOException(errorMessage);
 		} catch (DynamicClassCallException e) {
 			String errorMessage = String.format(
 					"DynamicClassCallException::inObj=[%s]",
@@ -430,46 +365,18 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 			
 		} catch (HeaderFormatException e) {
 			log.warn(String.format("HeaderFormatException::%s", e.getMessage()), e);
-			if (null != inputStream) {
-				try {
-					inputStream.close();
-				} catch (IOException e1) {
-					log.warn("fail to close inputStream", e1);
-				}
-			}
-			serverClose();
+			
+			closeSocket();
 		} catch (SocketTimeoutException e) {
 			log.warn(String.format("SocketTimeoutException, inObj=[%s]",
 					inObj.toString()), e);
-			/**
-			 * <pre>
-			 * blocking mode 이므로 소켓 타임 아웃 걸리면 소켓을 닫을 수 밖에 없다. 
-			 * 소켓 입력 스트림에서 다음 메시지를 추출할 방법이 없기때문이다.
-			 * 참고) none-blocking mode 에서는 입/출력을 담당하는 쓰레드가 따로 있고 
-			 * SocketTimeoutException은 입/출력 큐에 타임 아웃 시간을 
-			 * 적용한 것 이기때문에 소켓을 닫을 필요는 없다.
-			 * </pre>
-			 */
-			if (null != inputStream) {
-				try {
-					inputStream.close();
-				} catch (IOException e1) {
-					log.warn("fail to close inputStream", e1);
-				}
-			}
-			serverClose();
+			
+			closeSocket();
 			throw e;
 		} catch (IOException e) {
 			log.error("IOException", e);
 			
-			if (null != inputStream) {
-				try {
-					inputStream.close();
-				} catch (IOException e1) {
-					log.warn("fail to close inputStream", e1);
-				}
-			}
-			serverClose();
+			closeSocket();
 			// System.exit(1);
 		} finally {
 			
@@ -499,17 +406,37 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 
 		// FIXME!
 		if (null == outObj) {
-			log.info(String.format("outObj is null, serverSC isConnected[%s]", serverSC.isConnected()));
+			log.info(String.format("outObj is null, isConnected[%s]", serverSocket.isConnected()));
 		}
-		
 
 		return outObj;
+	}
+	
+	private void closeSocket() {
+		if (null != serverSocket) {
+			try {
+				serverSocket.close();
+			} catch (IOException e) {
+			}
+			
+			try {
+				inputStreamOfSocket.close();
+			} catch (IOException e) {
+			}
+			
+			try {
+				outputStreamOfSocket.close();
+			} catch (IOException e) {
+			}
+			
+			serverSocket = null;
+		}
 	}
 	
 	
 	@Override
 	public void sendAsynInputMessage(AbstractMessage inObj) 
-			throws ServerNotReadyException, SocketTimeoutException, 
+			throws IOException, 
 			NoMoreDataPacketBufferException, BodyFormatException, 
 			DynamicClassCallException, NotSupportedException {		
 		throw new NotSupportedException("비공유+동기 연결은 출력 메시지를 받지 않고 입력 메시지만 보내는 기능을 지원하지 않습니다.");
@@ -521,6 +448,11 @@ public class NoShareSyncConnection extends AbstractSyncConnection {
 		socketOutputStream.close();
 		
 		log.warn(String.format("소멸::[%s]", toString()));
+	}
+
+	@Override
+	public boolean isConnected() {
+		return serverSocket.isConnected();
 	}
 
 }

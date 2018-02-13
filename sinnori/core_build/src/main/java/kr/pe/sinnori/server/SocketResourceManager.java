@@ -88,23 +88,22 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 		synchronized (monitor) {
 			/** 소켓 자원 등록 작업 */
 			socketChannel2SocketResourceHash.put(newSC, socketResource);
+			
+			/**
+			 * <pre>
+			 * Warning! 반듯이 신규 소켓을 '입력 메시지 담당 쓰레드'(InputMessageReader)에 등록 하기 앞서 소켓에 1:1로 할당되는 자원 등록 작업이 선행되어야 한다.
+			 * 왜냐하면 '입력 메시지 담당 쓰레드' 에 신규 소켓 등록시 소켓에 1:1 로 할당된 자원중 하나인 출력 스트림을 이용한 입력 메시지 추출 작업이 진행되기때문이다.
+			 * 
+			 * ps : '입력 메시지 담당 쓰레드'(InputMessageReader) 에 신규 소켓 등록 작업은 
+			 * '출력 메시지 담당 쓰레드'(OutputMessageWriter) 와 '입력 메시지 처리 담당 쓰레드'(Executor) 보다 늦게 등록하도록 한다.
+			 * 왜냐하면 '입력 메시지 담당 쓰레드'는  '출력 메시지 담당 쓰레드'와 '입력 메시지 처리 담당 쓰레드'와 달리 
+			 * 읽기 전용 selector 등록이라는 부가 작업이 더 있기 때문이다.
+			 * </pre>
+			 */
+			outputMessageWriterOfOwnerSC.addNewSocket(newSC);
+			executorOfOwnerSC.addNewSocket(newSC);
+			inputMessageReaderOfOwnerSC.addNewSocket(newSC);
 		}
-		
-		/**
-		 * <pre>
-		 * Warning! 반듯이 신규 소켓을 '입력 메시지 담당 쓰레드'(InputMessageReader)에 등록 하기 앞서 소켓에 1:1로 할당되는 자원 등록 작업이 선행되어야 한다.
-		 * 왜냐하면 '입력 메시지 담당 쓰레드' 에 신규 소켓 등록시 소켓에 1:1 로 할당된 자원중 하나인 출력 스트림을 이용한 입력 메시지 추출 작업이 진행되기때문이다.
-		 * 
-		 * ps : '입력 메시지 담당 쓰레드'(InputMessageReader) 에 신규 소켓 등록 작업은 
-		 * '출력 메시지 담당 쓰레드'(OutputMessageWriter) 와 '입력 메시지 처리 담당 쓰레드'(Executor) 보다 늦게 등록하도록 한다.
-		 * 왜냐하면 '입력 메시지 담당 쓰레드'는  '출력 메시지 담당 쓰레드'와 '입력 메시지 처리 담당 쓰레드'와 달리 
-		 * 읽기 전용 selector 등록이라는 부가 작업이 더 있기 때문이다.
-		 * </pre>
-		 */
-		outputMessageWriterOfOwnerSC.addNewSocket(newSC);
-		executorOfOwnerSC.addNewSocket(newSC);
-		/** '입력 메시지 담당 쓰레드' 신규 소켓 등록 작업 */
-		inputMessageReaderOfOwnerSC.addNewSocket(newSC);
 	}
 
 	@Override

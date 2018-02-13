@@ -1,45 +1,35 @@
 package kr.pe.sinnori.client.connection.asyn.mailbox;
 
-import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.concurrent.TimeUnit;
 
 public class AsynPrivateMailboxPool {
-	private Logger log = LoggerFactory.getLogger(AsynPrivateMailboxPool.class);
+	// private Logger log = LoggerFactory.getLogger(AsynPrivateMailboxPool.class);
 	// private final Object monitor = new Object();	
 	
 	private LinkedBlockingQueue<AsynPrivateMailbox> asynPrivateMailboxQueue = null;
 
-	public AsynPrivateMailboxPool(List<AsynPrivateMailbox> asynPrivateMailboxList) {
-		if (null == asynPrivateMailboxList) {
-			throw new IllegalArgumentException("the parameter asynPrivateMailboxList is null");
+	public AsynPrivateMailboxPool(AsynPrivateMailboxMapper asynPrivateMailboxMapper) {
+		if (null == asynPrivateMailboxMapper) {
+			throw new IllegalArgumentException("the parameter asynPrivateMailboxMapper is null");
 		}
 		
-		if (0 == asynPrivateMailboxList.size()) {
-			throw new IllegalArgumentException("the parameter asynPrivateMailboxList is empty");
-		}
-
+		int totalNumberOfAsynPrivateMailboxs = asynPrivateMailboxMapper.getTotalNumberOfAsynPrivateMailboxs();
+		
 		this.asynPrivateMailboxQueue 
-		= new LinkedBlockingQueue<AsynPrivateMailbox>(asynPrivateMailboxList.size());
+		= new LinkedBlockingQueue<AsynPrivateMailbox>(totalNumberOfAsynPrivateMailboxs);
 		
-		for (AsynPrivateMailbox asynPrivateMailbox : asynPrivateMailboxList) {
-			asynPrivateMailboxQueue.add(asynPrivateMailbox);
+		
+		for (int mailboxID=1; mailboxID <= totalNumberOfAsynPrivateMailboxs; mailboxID++) {
+			asynPrivateMailboxQueue.add(asynPrivateMailboxMapper.getAsynMailbox(mailboxID));
 		}
 	}
 	
-	public AsynPrivateMailbox take() throws InterruptedException {
-		return asynPrivateMailboxQueue.take();
+	public AsynPrivateMailbox poll(long timeout) throws InterruptedException {
+		return asynPrivateMailboxQueue.poll(timeout, TimeUnit.MILLISECONDS);
 	}
 	
-	public void put(AsynPrivateMailbox asynPrivateMailbox) {
-		boolean result = asynPrivateMailboxQueue.offer(asynPrivateMailbox);
-		if (! result) {
-			log.error(
-					"fail to insert asynPrivateMailbox[%s] into queue, 고정 갯수로 운영되는 LinkedBlockingQueue 에서 빼온 후 다시 넣는것을 실패할 수 없다. 원인 찾아 해결 필요",
-					asynPrivateMailbox.toString());
-			System.exit(1);
-		}
+	public void add(AsynPrivateMailbox asynPrivateMailbox) {
+		asynPrivateMailboxQueue.offer(asynPrivateMailbox);
 	}
 }

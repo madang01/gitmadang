@@ -48,6 +48,7 @@ import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.SocketResource;
+import kr.pe.sinnori.server.SocketResourceManagerIF;
 import kr.pe.sinnori.server.classloader.IOPartDynamicClassNameUtil;
 import kr.pe.sinnori.server.threadpool.executor.handler.ExecutorIF;
 import kr.pe.sinnori.server.threadpool.inputmessage.handler.InputMessageReaderIF;
@@ -230,6 +231,34 @@ public class ServerTaskTest extends AbstractJunitTest {
 					socketOutputStreamOfOwnerSC, 
 					personalLoginManagerOfOwnerSC);
 		}
+		
+		class SocketResourceManagerMock implements SocketResourceManagerIF {
+			private SocketResource socketResourceOfFromSC = null;
+			
+			public SocketResourceManagerMock(SocketResource socketResourceOfFromSC) {
+				this.socketResourceOfFromSC = socketResourceOfFromSC;
+			}
+
+			@Override
+			public void addNewSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException {
+			}
+
+			@Override
+			public void remove(SocketChannel sc) {
+			}
+
+			@Override
+			public SocketResource getSocketResource(SocketChannel sc) {
+				return socketResourceOfFromSC;
+			}
+
+			@Override
+			public int getNumberOfSocketResources() {
+				return 0;
+			}
+		}
+		
+		SocketResourceManagerIF socketResourceManager = new SocketResourceManagerMock(socketResourceOfFromSC);
 				
 
 		WrapReadableMiddleObject wrapReadableMiddleObject = null;
@@ -355,7 +384,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			serverTaskMock.execute(index, 
 					projectName, 
 					fromSC, 
-					socketResourceOfFromSC, 
+					socketResourceManager, 
 					wrapReadableMiddleObject, 
 					messageProtocol, serverObjectCacheManager);
 		} catch (InterruptedException e) {
@@ -524,7 +553,34 @@ public class ServerTaskTest extends AbstractJunitTest {
 					socketOutputStreamOfOwnerSC, 
 					personalLoginManagerOfOwnerSC);
 		}
-				
+		
+		class SocketResourceManagerMock implements SocketResourceManagerIF {
+			private SocketResource socketResourceOfFromSC = null;
+			
+			public SocketResourceManagerMock(SocketResource socketResourceOfFromSC) {
+				this.socketResourceOfFromSC = socketResourceOfFromSC;
+			}
+
+			@Override
+			public void addNewSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException {
+			}
+
+			@Override
+			public void remove(SocketChannel sc) {
+			}
+
+			@Override
+			public SocketResource getSocketResource(SocketChannel sc) {
+				return socketResourceOfFromSC;
+			}
+
+			@Override
+			public int getNumberOfSocketResources() {
+				return 0;
+			}
+		}
+		
+		SocketResourceManagerIF socketResourceManager = new SocketResourceManagerMock(socketResourceOfFromSC);
 
 		WrapReadableMiddleObject wrapReadableMiddleObject = null;
 		{
@@ -627,7 +683,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			serverTaskMock.execute(index, 
 					projectName, 
 					fromSC, 
-					socketResourceOfFromSC, 
+					socketResourceManager, 
 					wrapReadableMiddleObject, 
 					messageProtocol, serverObjectCacheManager);
 		} catch (InterruptedException e) {
@@ -795,6 +851,34 @@ public class ServerTaskTest extends AbstractJunitTest {
 					socketOutputStreamOfOwnerSC, 
 					personalLoginManagerOfOwnerSC);
 		}
+		
+		class SocketResourceManagerMock implements SocketResourceManagerIF {
+			private SocketResource socketResourceOfFromSC = null;
+			
+			public SocketResourceManagerMock(SocketResource socketResourceOfFromSC) {
+				this.socketResourceOfFromSC = socketResourceOfFromSC;
+			}
+
+			@Override
+			public void addNewSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException {
+			}
+
+			@Override
+			public void remove(SocketChannel sc) {
+			}
+
+			@Override
+			public SocketResource getSocketResource(SocketChannel sc) {
+				return socketResourceOfFromSC;
+			}
+
+			@Override
+			public int getNumberOfSocketResources() {
+				return 0;
+			}
+		}
+		
+		SocketResourceManagerIF socketResourceManager = new SocketResourceManagerMock(socketResourceOfFromSC);
 				
 
 		WrapReadableMiddleObject wrapReadableMiddleObject = null;
@@ -912,7 +996,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			serverTaskMock.execute(index, 
 					projectName, 
 					fromSC, 
-					socketResourceOfFromSC, 
+					socketResourceManager, 
 					wrapReadableMiddleObject, 
 					messageProtocol, serverObjectCacheManager);
 		} catch (InterruptedException e) {
@@ -1079,7 +1163,35 @@ public class ServerTaskTest extends AbstractJunitTest {
 					socketOutputStreamOfOwnerSC, 
 					personalLoginManagerOfOwnerSC);
 		}
-				
+		
+		
+		class SocketResourceManagerMock implements SocketResourceManagerIF {
+			private SocketResource socketResourceOfFromSC = null;
+			
+			public SocketResourceManagerMock(SocketResource socketResourceOfFromSC) {
+				this.socketResourceOfFromSC = socketResourceOfFromSC;
+			}
+
+			@Override
+			public void addNewSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException {
+			}
+
+			@Override
+			public void remove(SocketChannel sc) {
+			}
+
+			@Override
+			public SocketResource getSocketResource(SocketChannel sc) {
+				return socketResourceOfFromSC;
+			}
+
+			@Override
+			public int getNumberOfSocketResources() {
+				return 0;
+			}
+		}
+		
+		SocketResourceManagerIF socketResourceManager = new SocketResourceManagerMock(socketResourceOfFromSC);
 
 		WrapReadableMiddleObject wrapReadableMiddleObject = null;
 		{
@@ -1196,7 +1308,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			serverTaskMock.execute(index, 
 					projectName, 
 					fromSC, 
-					socketResourceOfFromSC, 
+					socketResourceManager, 
 					wrapReadableMiddleObject, 
 					messageProtocol, serverObjectCacheManager);
 		} catch (InterruptedException e) {
@@ -1362,7 +1474,35 @@ public class ServerTaskTest extends AbstractJunitTest {
 					socketOutputStreamOfOwnerSC, 
 					personalLoginManagerOfOwnerSC);
 		}
-				
+		
+		
+		class SocketResourceManagerMock implements SocketResourceManagerIF {
+			private SocketResource socketResourceOfFromSC = null;
+			
+			public SocketResourceManagerMock(SocketResource socketResourceOfFromSC) {
+				this.socketResourceOfFromSC = socketResourceOfFromSC;
+			}
+
+			@Override
+			public void addNewSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException {
+			}
+
+			@Override
+			public void remove(SocketChannel sc) {
+			}
+
+			@Override
+			public SocketResource getSocketResource(SocketChannel sc) {
+				return socketResourceOfFromSC;
+			}
+
+			@Override
+			public int getNumberOfSocketResources() {
+				return 0;
+			}
+		}
+		
+		SocketResourceManagerIF socketResourceManager = new SocketResourceManagerMock(socketResourceOfFromSC);
 
 		WrapReadableMiddleObject wrapReadableMiddleObject = null;
 		{
@@ -1493,7 +1633,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			serverTaskMock.execute(index, 
 					projectName, 
 					fromSC, 
-					socketResourceOfFromSC, 
+					socketResourceManager, 
 					wrapReadableMiddleObject, 
 					messageProtocol, serverObjectCacheManager);
 		} catch (InterruptedException e) {
@@ -1659,7 +1799,35 @@ public class ServerTaskTest extends AbstractJunitTest {
 					socketOutputStreamOfOwnerSC, 
 					personalLoginManagerOfOwnerSC);
 		}
-				
+		
+		
+		class SocketResourceManagerMock implements SocketResourceManagerIF {
+			private SocketResource socketResourceOfFromSC = null;
+			
+			public SocketResourceManagerMock(SocketResource socketResourceOfFromSC) {
+				this.socketResourceOfFromSC = socketResourceOfFromSC;
+			}
+
+			@Override
+			public void addNewSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException {
+			}
+
+			@Override
+			public void remove(SocketChannel sc) {
+			}
+
+			@Override
+			public SocketResource getSocketResource(SocketChannel sc) {
+				return socketResourceOfFromSC;
+			}
+
+			@Override
+			public int getNumberOfSocketResources() {
+				return 0;
+			}
+		}
+		
+		SocketResourceManagerIF socketResourceManager = new SocketResourceManagerMock(socketResourceOfFromSC);
 
 		WrapReadableMiddleObject wrapReadableMiddleObject = null;
 		{
@@ -1789,7 +1957,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			serverTaskMock.execute(index, 
 					projectName, 
 					fromSC, 
-					socketResourceOfFromSC, 
+					socketResourceManager, 
 					wrapReadableMiddleObject, 
 					messageProtocol, serverObjectCacheManager);
 		} catch (InterruptedException e) {
@@ -1959,6 +2127,34 @@ public class ServerTaskTest extends AbstractJunitTest {
 					socketOutputStreamOfOwnerSC, 
 					personalLoginManagerOfOwnerSC);
 		}
+		
+		class SocketResourceManagerMock implements SocketResourceManagerIF {
+			private SocketResource socketResourceOfFromSC = null;
+			
+			public SocketResourceManagerMock(SocketResource socketResourceOfFromSC) {
+				this.socketResourceOfFromSC = socketResourceOfFromSC;
+			}
+
+			@Override
+			public void addNewSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException {
+			}
+
+			@Override
+			public void remove(SocketChannel sc) {
+			}
+
+			@Override
+			public SocketResource getSocketResource(SocketChannel sc) {
+				return socketResourceOfFromSC;
+			}
+
+			@Override
+			public int getNumberOfSocketResources() {
+				return 0;
+			}
+		}
+		
+		SocketResourceManagerIF socketResourceManager = new SocketResourceManagerMock(socketResourceOfFromSC);
 				
 
 		WrapReadableMiddleObject wrapReadableMiddleObject = null;
@@ -2084,7 +2280,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			serverTaskMock.execute(index, 
 					projectName, 
 					fromSC, 
-					socketResourceOfFromSC, 
+					socketResourceManager, 
 					wrapReadableMiddleObject, 
 					messageProtocol, serverObjectCacheManager);
 		} catch (InterruptedException e) {
@@ -2255,7 +2451,35 @@ public class ServerTaskTest extends AbstractJunitTest {
 					socketOutputStreamOfOwnerSC, 
 					personalLoginManagerOfOwnerSC);
 		}
-				
+		
+		
+		class SocketResourceManagerMock implements SocketResourceManagerIF {
+			private SocketResource socketResourceOfFromSC = null;
+			
+			public SocketResourceManagerMock(SocketResource socketResourceOfFromSC) {
+				this.socketResourceOfFromSC = socketResourceOfFromSC;
+			}
+
+			@Override
+			public void addNewSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException {
+			}
+
+			@Override
+			public void remove(SocketChannel sc) {
+			}
+
+			@Override
+			public SocketResource getSocketResource(SocketChannel sc) {
+				return socketResourceOfFromSC;
+			}
+
+			@Override
+			public int getNumberOfSocketResources() {
+				return 0;
+			}
+		}
+		
+		SocketResourceManagerIF socketResourceManager = new SocketResourceManagerMock(socketResourceOfFromSC);
 
 		WrapReadableMiddleObject wrapReadableMiddleObject = null;
 		{
@@ -2379,7 +2603,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			serverTaskMock.execute(index, 
 					projectName, 
 					fromSC, 
-					socketResourceOfFromSC, 
+					socketResourceManager, 
 					wrapReadableMiddleObject, 
 					messageProtocol, serverObjectCacheManager);
 		} catch (InterruptedException e) {

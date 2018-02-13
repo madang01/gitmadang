@@ -126,11 +126,9 @@ public class AcceptSelector extends Thread {
 						iter.remove();
 
 						ServerSocketChannel readyChannel = (ServerSocketChannel) key
-								.channel();
+								.channel();						
 						
-						
-						SocketChannel sc = readyChannel.accept();
-						
+						SocketChannel sc = readyChannel.accept();						
 						
 						// 최대 등록 가능한 client만 허용
 						if (socketResourceManager.getNumberOfSocketResources() < maxClients) {
