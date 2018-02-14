@@ -33,6 +33,7 @@ import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.common.type.SelfExn;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
+import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.SocketResource;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
@@ -90,7 +91,13 @@ public class Executor extends Thread implements ExecutorIF {
 				String messageID = wrapReadableMiddleObject.getMessageID();
 				
 				SocketResource socketResourceOfFromSC = socketResourceManager.getSocketResource(fromSC);
+				if (null == socketResourceOfFromSC) {
+					log.warn("the socket channel[{}] sending a input message[{}] failed to get socket resources, so stop to do task",
+							fromSC.hashCode(), wrapReadableMiddleObject.toSimpleInformation());
+					continue;
+				}
 				
+				PersonalLoginManagerIF personalLoginManagerOfFromSC = socketResourceOfFromSC.getPersonalLoginManager();
 				
 				if (messageID.equals(SelfExnRes.class.getSimpleName())) {
 					fromSC.close();
@@ -111,7 +118,8 @@ public class Executor extends Thread implements ExecutorIF {
 						ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 								errorType,
 								errorReason,
-								wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
+								wrapReadableMiddleObject, 
+								socketResourceOfFromSC, messageProtocol);
 						
 						continue;
 					} catch(Exception | Error e) {
@@ -129,7 +137,9 @@ public class Executor extends Thread implements ExecutorIF {
 					try {
 						serverTask.execute(index, projectName, 
 								fromSC,
-								socketResourceManager, 
+								socketResourceManager,
+								socketResourceOfFromSC,
+								personalLoginManagerOfFromSC,
 								wrapReadableMiddleObject, 
 								messageProtocol, 
 								serverObjectCacheManager);

@@ -71,25 +71,8 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 		this.outputMessageReader = outputMessageReader;
 	}
 
-	public void serverClose() {
-		synchronized (monitor) {
-			try {
-				serverSC.shutdownInput();
-			} catch (Exception e) {
-				log.warn(String.format("server name[%s] socket channel shutdownInput fail", projectName), e);
-			}
-			try {
-				serverSC.shutdownOutput();
-			} catch (Exception e) {
-				log.warn(String.format("server name[%s] socket channel shutdownOutput fail", projectName), e);
-			}
-
-			try {
-				serverSC.close();
-			} catch (Exception e) {
-				log.warn(String.format("server name[%s] socket channel close fail", projectName), e);
-			}
-		}
+	public void closeSocket() throws IOException {
+		serverSC.close();
 	}
 
 	@Override
@@ -169,69 +152,65 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 		infoBuilder.append("]");
 		log.info(infoBuilder.append(" (re)open new serverSC=").append(serverSC.hashCode()).toString());
 	}
+	
+	
+	private void doConnect() throws IOException {
+		Selector connectionEventOnlySelector = Selector.open();
+
+		try {
+			serverSC.register(connectionEventOnlySelector, SelectionKey.OP_CONNECT);
+
+			InetSocketAddress remoteAddr = new InetSocketAddress(host, port);
+			if (! serverSC.connect(remoteAddr)) {
+				int numberOfKeys = connectionEventOnlySelector.select(socketTimeOut);
+
+				log.info("numberOfKeys={}", numberOfKeys);
+
+				Iterator<SelectionKey> selectionKeyIterator = connectionEventOnlySelector.selectedKeys().iterator();
+				if (!selectionKeyIterator.hasNext()) {
+
+					String errorMessage = String.format("1.the socket[sc hascode=%d] timeout", serverSC.hashCode());
+					throw new SocketTimeoutException(errorMessage);
+				}
+				
+				selectionKeyIterator.remove();
+
+				if (! serverSC.finishConnect()) {
+					String errorMessage = String.format("the socket[sc hascode=%d] has an error pending",
+							serverSC.hashCode());
+					throw new SocketTimeoutException(errorMessage);
+				}
+			}
+		} finally {
+			connectionEventOnlySelector.close();
+		}
+
+		// registerSocketToReadOnlySelector();
+		outputMessageReader.registerAsynConnection(this);
+
+		StringBuilder infoBuilder = null;
+
+		infoBuilder = new StringBuilder("projectName[");
+		infoBuilder.append(projectName);
+		infoBuilder.append("] asyn connection[");
+		infoBuilder.append(index);
+		infoBuilder.append("] serverSC[");
+		infoBuilder.append(serverSC.hashCode());
+		infoBuilder.append("]");
+		log.info(new StringBuilder(infoBuilder.toString()).append(" connect").toString());
+	}
 
 	@Override
 	public void connectServer() throws IOException, InterruptedException {
-
 		synchronized (monitor) {
-			if (null == serverSC || !serverSC.isOpen()) {
+			if (null == serverSC || ! serverSC.isConnected()) {
 				openAsynSocketChannel();
+				
+				doConnect();
+				
+				outputMessageReader.registerAsynConnection(this);
 			}
-
-			// (재)연결 판단 로직, 2번이상 SocketChannel.open() 호출하는것을 막는 역활을 한다.
-			if (serverSC.isConnected()) {
-				return;
-			}
-
-			Selector connectionEventOnlySelector = Selector.open();
-
-			try {
-				serverSC.register(connectionEventOnlySelector, SelectionKey.OP_CONNECT);
-
-				InetSocketAddress remoteAddr = new InetSocketAddress(host, port);
-				if (! serverSC.connect(remoteAddr)) {
-					int numberOfKeys = connectionEventOnlySelector.select(socketTimeOut);
-
-					log.info("numberOfKeys={}", numberOfKeys);
-
-					Iterator<SelectionKey> selectionKeyIterator = connectionEventOnlySelector.selectedKeys().iterator();
-					if (!selectionKeyIterator.hasNext()) {
-
-						String errorMessage = String.format("1.the socket[sc hascode=%d] timeout", serverSC.hashCode());
-						throw new SocketTimeoutException(errorMessage);
-					}
-					
-					selectionKeyIterator.remove();
-
-					if (!serverSC.finishConnect()) {
-						String errorMessage = String.format("the socket[sc hascode=%d] has an error pending",
-								serverSC.hashCode());
-						throw new SocketTimeoutException(errorMessage);
-					}
-				}
-			} finally {
-				connectionEventOnlySelector.close();
-			}
-
-			// registerSocketToReadOnlySelector();
-			outputMessageReader.registerAsynConnection(this);
-
-			StringBuilder infoBuilder = null;
-
-			infoBuilder = new StringBuilder("projectName[");
-			infoBuilder.append(projectName);
-			infoBuilder.append("] asyn connection[");
-			infoBuilder.append(index);
-			infoBuilder.append("] serverSC[");
-			infoBuilder.append(serverSC.hashCode());
-			infoBuilder.append("]");
-			log.info(new StringBuilder(infoBuilder.toString()).append(" connect").toString());
-			// log.info(new StringBuilder(info).append(" after
-			// connect").toString());
 		}
-
-		// log.info("projectName[%s%02d] call serverOpen end", projectName,
-		// index);
 	}
 
 	protected void writeInputMessageToSocketChannel(List<WrapBuffer> wrapBufferListOfInputMessage) throws IOException {
@@ -289,9 +268,7 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 		return serverSC;
 	}
 
-	public SocketOutputStream getSocketOutputStream() {
-		return socketOutputStream;
-	}
+	
 
 	public String getSimpleConnectionInfo() {
 		StringBuilder strBuffer = new StringBuilder();

@@ -20,6 +20,7 @@ package kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler.InputMessageWriter;
+import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler.InputMessageWriterIF;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
@@ -29,12 +30,16 @@ import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
  * 
  * @author Won Jonghoon
  */
-public class InputMessageWriterPool extends AbstractThreadPool {
+public class InputMessageWriterPool extends AbstractThreadPool implements InputMessageWriterPoolIF {
 	private String projectName = null;
 	private int maxHandler;
-	private LinkedBlockingQueue<ToLetter> inputMessageQueue;
+	// private LinkedBlockingQueue<ToLetter> inputMessageQueue;
+	private int inputMessageQueueSize;
 	private DataPacketBufferPoolIF dataPacketBufferQueueManager;
 	
+	
+	// private int poolSize;
+	private int nextIndex=-1;
 	
 	/**
 	 * 생성자
@@ -46,7 +51,8 @@ public class InputMessageWriterPool extends AbstractThreadPool {
 	 * @param dataPacketBufferQueueManager 데이터 패킷 큐 관리자
 	 */
 	public InputMessageWriterPool(String projectName, int size, int max,
-			LinkedBlockingQueue<ToLetter> inputMessageQueue,
+			// LinkedBlockingQueue<ToLetter> inputMessageQueue,
+			int inputMessageQueueSize,
 			DataPacketBufferPoolIF dataPacketBufferQueueManager) {
 		if (size <= 0) {
 			throw new IllegalArgumentException(String.format("%s 파라미터 size 는 0보다 커야 합니다.", projectName));
@@ -62,7 +68,7 @@ public class InputMessageWriterPool extends AbstractThreadPool {
 		
 		this.projectName = projectName;
 		this.maxHandler = max;		
-		this.inputMessageQueue = inputMessageQueue;
+		this.inputMessageQueueSize = inputMessageQueueSize;
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 		
 		for (int i = 0; i < size; i++) {
@@ -72,6 +78,8 @@ public class InputMessageWriterPool extends AbstractThreadPool {
 
 	@Override
 	public void addHandler() {
+		LinkedBlockingQueue<ToLetter> inputMessageQueue = new LinkedBlockingQueue<ToLetter>(inputMessageQueueSize);
+		
 		synchronized (monitor) {
 			int size = pool.size();
 
@@ -92,6 +100,12 @@ public class InputMessageWriterPool extends AbstractThreadPool {
 				throw new RuntimeException(errorMessage);
 			}
 		}
+	}
+
+	@Override
+	public InputMessageWriterIF getNextInputMessageWriter() {
+		nextIndex = (nextIndex + 1) % pool.size();
+		return (InputMessageWriterIF)pool.get(nextIndex);
 	}
 	
 }

@@ -26,8 +26,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.common.asyn.FromLetter;
-import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
@@ -67,9 +65,9 @@ public class AnyProjectServer extends AbstractProject implements
 	/** 접속 승인 큐 */
 	private LinkedBlockingQueue<SocketChannel> acceptQueue = null;
 	/** 입력 메시지 큐 */
-	private LinkedBlockingQueue<FromLetter> inputMessageQueue = null;
+	// private LinkedBlockingQueue<FromLetter> inputMessageQueue = null;
 	/** 출력 메시지 큐 */
-	private LinkedBlockingQueue<ToLetter> outputMessageQueue = null;
+	// private LinkedBlockingQueue<ToLetter> outputMessageQueue = null;
 
 	/** 클라이언트 접속 승인 쓰레드 */
 	private AcceptSelector acceptSelector = null;
@@ -126,10 +124,10 @@ public class AnyProjectServer extends AbstractProject implements
 
 		acceptQueue = new LinkedBlockingQueue<SocketChannel>(
 				projectPartConfiguration.getServerAcceptQueueSize());
-		inputMessageQueue = new LinkedBlockingQueue<FromLetter>(
-				projectPartConfiguration.getServerInputMessageQueueSize());
-		outputMessageQueue = new LinkedBlockingQueue<ToLetter>(
-				projectPartConfiguration.getServerOutputMessageQueueSize());
+		/*inputMessageQueue = new LinkedBlockingQueue<FromLetter>(
+				projectPartConfiguration.getServerInputMessageQueueSize());*/
+		/*outputMessageQueue = new LinkedBlockingQueue<ToLetter>(
+				projectPartConfiguration.getServerOutputMessageQueueSize());*/
 		
 		projectLoginManager = new ProjectLoginManager();
 		
@@ -166,7 +164,8 @@ public class AnyProjectServer extends AbstractProject implements
 				projectPartConfiguration.getProjectName(), 
 				projectPartConfiguration.getServerExecutorProcessorSize(),
 				projectPartConfiguration.getServerExecutorProcessorMaxSize(),
-				inputMessageQueue, messageProtocol, 
+				projectPartConfiguration.getServerInputMessageQueueSize(), 
+				messageProtocol, 
 				socketResourceManager,
 				this, ieoThreadPoolManager);
 
@@ -174,7 +173,8 @@ public class AnyProjectServer extends AbstractProject implements
 				projectPartConfiguration.getProjectName(),
 				projectPartConfiguration.getServerOutputMessageWriterSize(), 
 				projectPartConfiguration.getServerOutputMessageWriterMaxSize(),
-				outputMessageQueue, dataPacketBufferPoolManager, ieoThreadPoolManager);		
+				projectPartConfiguration.getServerOutputMessageQueueSize(), 
+				dataPacketBufferPoolManager, ieoThreadPoolManager);		
 
 		serverProjectMonitor = new ServerProjectMonitor(
 				projectPartConfiguration.getServerMonitorTimeInterval(), 
@@ -223,23 +223,10 @@ public class AnyProjectServer extends AbstractProject implements
 		acceptProcessorPool.stopAll();
 		inputMessageReaderPool.stopAll();
 
-		while (!inputMessageQueue.isEmpty()) {
-			try {
-				Thread.sleep(10);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-
+		
 		executorPool.stopAll();
 
-		while (!outputMessageQueue.isEmpty()) {
-			try {
-				Thread.sleep(10);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
+		
 
 		outputMessageWriterPool.stopAll();
 	}
@@ -408,8 +395,6 @@ public class AnyProjectServer extends AbstractProject implements
 		projectInfo.dataPacketBufferQueueSize = dataPacketBufferPoolManager.getDataPacketBufferPoolSize();
 
 		projectInfo.acceptQueueSize = acceptQueue.size();
-		projectInfo.inputMessageQueueSize = inputMessageQueue.size();
-		projectInfo.outputMessageQueueSize = outputMessageQueue.size();
 
 		// projectInfo.clientCnt = scToClientResourceHash.size();
 

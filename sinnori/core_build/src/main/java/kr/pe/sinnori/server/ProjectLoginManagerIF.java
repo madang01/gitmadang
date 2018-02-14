@@ -35,4 +35,6 @@ public interface ProjectLoginManagerIF {
 	 * @return 소켓 연결 여부에 상관 없이 로그인 등록되어 있다면 로그인 아이디를 반환하고 그렇지 않다면 null 을 반환
 	 */
 	public String getUserID(SocketChannel sc);
+	
+	public SocketChannel getSocketChannel(String loginUserID);
 }

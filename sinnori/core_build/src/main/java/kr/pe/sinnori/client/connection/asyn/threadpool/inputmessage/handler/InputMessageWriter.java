@@ -21,12 +21,14 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SocketChannel;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
@@ -38,8 +40,10 @@ import kr.pe.sinnori.common.io.WrapBuffer;
  * @author Won Jonghoon
  * 
  */
-public class InputMessageWriter extends Thread {
+public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 	private Logger log = LoggerFactory.getLogger(InputMessageWriter.class);
+	
+	// private final Object monitor = new Object();
 	
 	private String projectName = null;
 	/** 입력 메시지 쓰기 쓰레드 번호 */
@@ -51,6 +55,9 @@ public class InputMessageWriter extends Thread {
 	// private MessageProtocolIF messageProtocol = null;
 	private DataPacketBufferPoolIF dataPacketBufferQueueManager = null;
 	
+	
+	private Hashtable<SocketChannel, AbstractAsynConnection> sc2AsynAsynConnectionHash =
+			new Hashtable<SocketChannel, AbstractAsynConnection>();
 	
 
 	/**
@@ -157,9 +164,23 @@ public class InputMessageWriter extends Thread {
 		log.warn(String.format("%s InputMessageWriter[%d] thread end", projectName, index));
 	}
 
+	public void registerAsynConnection(AbstractAsynConnection asynConn) {
+		sc2AsynAsynConnectionHash.put(asynConn.getSocketChannel(), asynConn);
+	}
+	
+	public int getNumberOfSocket() {
+		return sc2AsynAsynConnectionHash.size();
+	}
+	
+	public void removeSocket(SocketChannel sc) {
+		sc2AsynAsynConnectionHash.remove(sc);
+	}
+	
+	public void putIntoQueue(ToLetter toLetter) throws InterruptedException {
+		inputMessageQueue.put(toLetter);
+	}
+	
 	public void finalize() {
 		log.warn(String.format("%s InputMessageWriter[%d] 소멸::[%s]", projectName, index, toString()));
 	}
-	
-	
 }

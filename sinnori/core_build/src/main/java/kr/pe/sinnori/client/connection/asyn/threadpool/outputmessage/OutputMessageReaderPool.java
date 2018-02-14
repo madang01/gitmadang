@@ -35,8 +35,8 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements Outpu
 	private MessageProtocolIF messageProtocol = null;
 	
 	
-	private int poolSize;
-	private int nextIndex;
+	// private int poolSize;
+	private int nextIndex=-1;
 	
 	
 	public OutputMessageReaderPool(String projectName, int size, int max,
@@ -59,8 +59,8 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements Outpu
 		this.readSelectorWakeupInterval = readSelectorWakeupInterval;		
 		this.messageProtocol = messageProtocol;
 		
-		this.poolSize = size;
-		this.nextIndex = poolSize -1;
+		
+		
 
 		for (int i = 0; i < size; i++) {
 			addHandler();
@@ -91,7 +91,7 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements Outpu
 
 	@Override
 	public OutputMessageReaderIF getNextOutputMessageReader() {
-		nextIndex = (nextIndex + 1) % poolSize;
+		nextIndex = (nextIndex + 1) % pool.size();
 		return (OutputMessageReaderIF)pool.get(nextIndex);
 	}
 

@@ -130,14 +130,14 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 	private void processNewConnection() {
 		synchronized (monitor) {
 			while (! notRegistedSocketChannelList.isEmpty()) {
-				SocketChannel notResigtedSocketChannel = notRegistedSocketChannelList.removeFirst();
+				SocketChannel notRegistedSocketChannel = notRegistedSocketChannelList.removeFirst();
 				try {
-					notResigtedSocketChannel.register(readEventOnlySelector, SelectionKey.OP_READ);
+					notRegistedSocketChannel.register(readEventOnlySelector, SelectionKey.OP_READ);
 				} catch (ClosedChannelException e) {
 					log.warn("{} InputMessageReader[{}] socket channel[{}] fail to register selector", 
-							projectName, index, notResigtedSocketChannel.hashCode());
+							projectName, index, notRegistedSocketChannel.hashCode());
 					
-					socketResourceManager.remove(notResigtedSocketChannel);
+					socketResourceManager.remove(notRegistedSocketChannel);
 				}
 			}
 		}

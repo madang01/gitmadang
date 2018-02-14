@@ -56,11 +56,11 @@ public abstract class AbstractServerTask {
 			String projectName,
 			SocketChannel fromSC,
 			SocketResourceManagerIF socketResourceManager,
+			SocketResource socketResourceOfFromSC,
+			PersonalLoginManagerIF personalLoginManagerOfFromSC,
 			WrapReadableMiddleObject wrapReadableMiddleObject,
 			MessageProtocolIF messageProtocol, 
-			ServerObjectCacheManagerIF serverObjectCacheManager) throws InterruptedException {		
-		
-		SocketResource socketResourceOfFromSC = socketResourceManager.getSocketResource(fromSC);
+			ServerObjectCacheManagerIF serverObjectCacheManager) throws InterruptedException {
 		
 		MessageCodecIF serverInputMessageCodec = null;
 
@@ -156,14 +156,15 @@ public abstract class AbstractServerTask {
 			return;
 		}
 		
+		// PersonalLoginManagerIF personalLoginManagerOfFromSC = socketResourceOfFromSC.getPersonalLoginManager();
+		
 		ToLetterCarrier toLetterCarrier = new ToLetterCarrier(fromSC, 
 				inputMessage, 
 				socketResourceManager,
+				personalLoginManagerOfFromSC,
 				messageProtocol,
 				classLoaderOfSererTask,
-				serverObjectCacheManager);
-		
-		PersonalLoginManagerIF personalLoginManagerOfFromSC = socketResourceOfFromSC.getPersonalLoginManager();		
+				serverObjectCacheManager);				
 
 		try {
 			doTask(projectName, personalLoginManagerOfFromSC, toLetterCarrier, inputMessage);

@@ -29,6 +29,7 @@ import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
+import kr.pe.sinnori.common.exception.LoginUserNotFoundException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
@@ -38,6 +39,7 @@ import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.common.type.SelfExn;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
+import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.SocketResource;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
@@ -58,6 +60,7 @@ public class ToLetterCarrier {
 	
 	
 	private SocketResourceManagerIF socketResourceManager = null;
+	private PersonalLoginManagerIF personalMemberManager = null;
 	
 	private MessageProtocolIF messageProtocol = null;
 	private ClassLoader classLoaderOfServerTask = null;
@@ -68,12 +71,14 @@ public class ToLetterCarrier {
 	public ToLetterCarrier( SocketChannel fromSC, 
 			AbstractMessage inputMessage,
 			SocketResourceManagerIF socketResourceManager,
+			PersonalLoginManagerIF personalMemberManager, 
 			MessageProtocolIF messageProtocol,
 			ClassLoader classLoaderOfServerTask,
 			ServerObjectCacheManagerIF serverObjectCacheManager) {
 		this.fromSC = fromSC;		
 		this.inputMessage = inputMessage;
 		this.socketResourceManager = socketResourceManager;
+		this.personalMemberManager = personalMemberManager;
 		this.messageProtocol = messageProtocol;
 		this.classLoaderOfServerTask = classLoaderOfServerTask;
 		this.serverObjectCacheManager = serverObjectCacheManager;
@@ -228,6 +233,15 @@ public class ToLetterCarrier {
 		toLetterList.add(toLetterOfSelfExn);
 	}
 
+	/*private void doAddAsynOutputMessage(AbstractMessage outputMessage, SocketChannel toSC) throws InterruptedException {		
+		SocketResource socketResource = 
+				socketResourceManager.getSocketResource(toSC);
+		outputMessage.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
+		outputMessage.messageHeaderInfo.mailID = socketResource.getServerMailID();		
+		
+		doAddOutputMessage(toSC, outputMessage, messageProtocol);
+	}*/
+
 	public void addSyncOutputMessage(AbstractMessage syncOutputMessage) throws InterruptedException {
 		if (null == syncOutputMessage) {
 			throw new IllegalArgumentException("the parameter syncOutputMessage is null");
@@ -251,17 +265,37 @@ public class ToLetterCarrier {
 			throw new IllegalArgumentException("the parameter asynOutputMessage is null");
 		}
 		
-		addAsynOutputMessage(asynOutputMessage, fromSC);
+		SocketResource socketResource = 
+				socketResourceManager.getSocketResource(fromSC);
+		asynOutputMessage.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
+		asynOutputMessage.messageHeaderInfo.mailID = socketResource.getServerMailID();	
+		
+		doAddOutputMessage(fromSC, asynOutputMessage, messageProtocol);
 	}
 	
-	public void addAsynOutputMessage(AbstractMessage outputMessage, SocketChannel toSC) throws InterruptedException {
+	public void addAsynOutputMessage(AbstractMessage asynOutputMessage, String loginUserID) throws InterruptedException, LoginUserNotFoundException {
+		if (null == asynOutputMessage) {
+			throw new IllegalArgumentException("the parameter asynOutputMessage is null");
+		}
+		
+		if (null == loginUserID) {
+			throw new IllegalArgumentException("the parameter loginUserID is null");
+		}
+		
+		SocketChannel toSC = personalMemberManager.getSocketChannel(loginUserID);
+		
+		if (null == toSC) {
+			String errorMessage = String.format("the parameter loginUserID[%s] is not a member or not a login user", loginUserID);
+			throw new LoginUserNotFoundException(errorMessage);
+		}
+		
 		SocketResource socketResource = 
 				socketResourceManager.getSocketResource(toSC);
 		
-		outputMessage.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
-		outputMessage.messageHeaderInfo.mailID = socketResource.getServerMailID();		
+		asynOutputMessage.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
+		asynOutputMessage.messageHeaderInfo.mailID = socketResource.getServerMailID();		
 		
-		doAddOutputMessage(toSC, outputMessage, messageProtocol);
+		doAddOutputMessage(toSC, asynOutputMessage, messageProtocol);
 	}
 	
 	public void putAllInputMessageToOutputMessageQueue() throws InterruptedException {		

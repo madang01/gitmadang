@@ -23,6 +23,7 @@ import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPublicMailbox;
+import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler.InputMessageWriterIF;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReaderIF;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.AccessDeniedException;
@@ -53,6 +54,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 
 	public NoShareAsynConnection(String projectName, int index, String host, int port, long socketTimeOut,
 			boolean whetherToAutoConnect, AsynPublicMailbox asynPublicMailbox,
+			InputMessageWriterIF inputMessageWriter,
 			OutputMessageReaderIF outputMessageReader, 
 			SocketOutputStream socketOutputStream,
 			MessageProtocolIF messageProtocol,
@@ -199,7 +201,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 	public void finalize() {
 		// MessageInputStreamResource messageInputStreamResource =
 		// getMessageInputStreamResource();
-		socketOutputStream.close();
+		releaseResources();
 		log.warn(String.format("NoShareAsynConnection 소멸::[%s]", toString()));
 	}
 

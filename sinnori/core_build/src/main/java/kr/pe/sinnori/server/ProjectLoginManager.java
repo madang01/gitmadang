@@ -15,9 +15,7 @@ public class ProjectLoginManager implements ProjectLoginManagerIF {
 	= new HashMap<SocketChannel, String>(); 
 	
 	private HashMap<String, SocketChannel> logingID2SocketChannelDHash 
-	= new HashMap<String, SocketChannel>(); 
-	
-	
+	= new HashMap<String, SocketChannel>();
 	
 
 	@Override
@@ -137,5 +135,14 @@ public class ProjectLoginManager implements ProjectLoginManagerIF {
 		}
 		
 		return loginID;
+	}
+
+	@Override
+	public SocketChannel getSocketChannel(String loginUserID) {
+		if (null == loginUserID) {
+			throw new IllegalArgumentException("the parameter loginUserID is null");
+		}
+		
+		return logingID2SocketChannelDHash.get(loginUserID);
 	}
 }

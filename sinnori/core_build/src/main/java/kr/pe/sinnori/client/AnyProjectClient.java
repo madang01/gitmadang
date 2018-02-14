@@ -27,6 +27,7 @@ import kr.pe.sinnori.client.connection.AbstractConnectionPool;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPublicMailbox;
 import kr.pe.sinnori.client.connection.asyn.noshare.NoShareAsynConnectionPool;
 import kr.pe.sinnori.client.connection.asyn.share.ShareAsynConnectionPool;
+import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.InputMessageWriterPool;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderPool;
 import kr.pe.sinnori.client.connection.sync.noshare.NoShareSyncConnectionPool;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
@@ -72,6 +73,8 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 
 	/** 비동기 방식에서 사용되는 출력 메시지 읽기 쓰레드 */
 	private OutputMessageReaderPool outputMessageReaderPool = null;
+	
+	private InputMessageWriterPool inputMessageWriterPool = null;
 
 	/** 프로젝트의 연결 클래스 폴 */
 	private AbstractConnectionPool connectionPool = null;
@@ -107,6 +110,11 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 			AsynPublicMailbox asynPublicMailbox = new AsynPublicMailbox(projectPartConfiguration.getClientSocketTimeout(), asynOutputMessageQueue);
 
 			
+			inputMessageWriterPool = new InputMessageWriterPool(projectPartConfiguration.getProjectName(),
+					projectPartConfiguration.getClientAsynInputMessageWriterSize(),
+					projectPartConfiguration.getClientAsynInputMessageWriterMaxSize(),
+					projectPartConfiguration.getClientAsynInputMessageQueueSize(), dataPacketBufferPoolManager);
+			
 			outputMessageReaderPool = new OutputMessageReaderPool(
 					projectPartConfiguration.getProjectName(),
 					projectPartConfiguration
@@ -132,6 +140,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 						projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(),
 						charsetDecoderOfProject,
 						messageProtocol,
+						inputMessageWriterPool,
 						outputMessageReaderPool, 
 						dataPacketBufferPoolManager, this);
 			} else {
@@ -145,6 +154,7 @@ public class AnyProjectClient extends AbstractProject implements ClientProjectIF
 						projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(),
 						charsetDecoderOfProject,
 						messageProtocol, 
+						inputMessageWriterPool,
 						outputMessageReaderPool, 
 						dataPacketBufferPoolManager, this);
 			}

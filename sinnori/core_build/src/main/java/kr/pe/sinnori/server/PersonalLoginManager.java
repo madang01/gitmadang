@@ -11,7 +11,7 @@ import kr.pe.sinnori.common.updownfile.LocalTargetFileResourceManager;
 public class PersonalLoginManager implements PersonalLoginManagerIF {
 	private Logger log = LoggerFactory.getLogger(PersonalLoginManager.class);
 	
-	private String loginID = null;
+	private String personalLoginID = null;
 	private SocketChannel personalSC = null;
 	private ProjectLoginManagerIF projectLoginManager = null;
 	
@@ -34,7 +34,7 @@ public class PersonalLoginManager implements PersonalLoginManagerIF {
 	}
 	
 	public void registerLoginUser(String loginID) {
-		this.loginID = loginID;
+		this.personalLoginID = loginID;
 		projectLoginManager.registerloginUser(personalSC, loginID);
 	}	
 	
@@ -53,11 +53,14 @@ public class PersonalLoginManager implements PersonalLoginManagerIF {
 		
 		projectLoginManager.removeLoginUser(personalSC);
 		
-		if (null != loginID) {
-			LocalSourceFileResourceManager.getInstance().removeUsingUserIDWithUnlockFile(loginID);
-			LocalTargetFileResourceManager.getInstance().removeUsingUserIDWithUnlockFile(loginID);
+		if (null != personalLoginID) {
+			LocalSourceFileResourceManager.getInstance().removeUsingUserIDWithUnlockFile(personalLoginID);
+			LocalTargetFileResourceManager.getInstance().removeUsingUserIDWithUnlockFile(personalLoginID);
 		}		
-	}	
-	
-	
+	}
+
+	@Override
+	public SocketChannel getSocketChannel(String loginUserID) {
+		return projectLoginManager.getSocketChannel(loginUserID);
+	}
 }

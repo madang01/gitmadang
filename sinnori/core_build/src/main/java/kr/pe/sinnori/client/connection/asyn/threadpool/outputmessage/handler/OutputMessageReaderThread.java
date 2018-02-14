@@ -19,7 +19,6 @@ package kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
-import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
@@ -47,38 +46,38 @@ import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
  */
 public class OutputMessageReaderThread extends Thread implements OutputMessageReaderIF {
 	private Logger log = LoggerFactory.getLogger(OutputMessageReaderThread.class);
-	
+
 	private final Object monitor = new Object();
-	
+
 	private String projectName = null;
 	/** 출력 메시지를 읽는 쓰레드 번호 */
 	private int index;
 	private MessageProtocolIF messageProtocol = null;
-	
-	
-	
+
 	/** selector 에 등록할 신규 소켓 채널을 담고 있는 그릇 */
 	private final LinkedList<SocketChannel> notRegistedSocketChannelList = new LinkedList<SocketChannel>();
-	
+
 	/** 읽기 전용 selecotr */
 	private Selector selector = null;
 
 	/** selector 를 깨우는 간격 */
 	private long readSelectorWakeupInterval;
-	
+
 	private Hashtable<SocketChannel, AbstractAsynConnection> scToAsynConnectionHash = new Hashtable<SocketChannel, AbstractAsynConnection>();
-	
-	
+
 	/**
 	 * 생성자
-	 * @param index 순번
-	 * @param readSelectorWakeupInterval 출력 메시지 소켓 읽기 담당 쓰레드에서 블락된 읽기 이벤트 전용 selector 를 깨우는 주기
-	 * @param projectPart 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
-	 * @param messageProtocol 메시지 교환 프로토콜
+	 * 
+	 * @param index
+	 *            순번
+	 * @param readSelectorWakeupInterval
+	 *            출력 메시지 소켓 읽기 담당 쓰레드에서 블락된 읽기 이벤트 전용 selector 를 깨우는 주기
+	 * @param projectPart
+	 *            프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
+	 * @param messageProtocol
+	 *            메시지 교환 프로토콜
 	 */
-	public OutputMessageReaderThread(String projectName, 
-			int index, 
-			long readSelectorWakeupInterval,
+	public OutputMessageReaderThread(String projectName, int index, long readSelectorWakeupInterval,
 			MessageProtocolIF messageProtocol) {
 		this.projectName = projectName;
 		this.index = index;
@@ -101,39 +100,35 @@ public class OutputMessageReaderThread extends Thread implements OutputMessageRe
 	 * 신규 채널를 selector 에 읽기 이벤트 등록한다.
 	 */
 	private void processNewConnection() {
-		/*while(!waitingSCQueue.isEmpty()) {
-			SocketChannel sc = waitingSCQueue.poll();
-			// if (null != sc) {
+		
+		synchronized (monitor) {
+			while (! notRegistedSocketChannelList.isEmpty()) {
+				SocketChannel notRegistedSocketChannel = notRegistedSocketChannelList.removeFirst();
 				try {
-					sc.register(selector, SelectionKey.OP_READ);
+					notRegistedSocketChannel.register(selector, SelectionKey.OP_READ);
 				} catch (ClosedChannelException e) {
-					log.warn(String.format("%s index[%d] socket channel[%d] fail to register selector", clientProjectConfig.getProjectName(), index, sc.hashCode()));
-					scToConnectionHash.remove(sc);
+					log.warn("{} InputMessageReader[{}] socket channel[{}] fail to register selector", 
+							projectName, index, notRegistedSocketChannel.hashCode());
+					
+					scToAsynConnectionHash.remove(notRegistedSocketChannel);
 				}
-			// }
-		}*/
-		for (SocketChannel sc : notRegistedSocketChannelList) {
-			try {
-				sc.register(selector, SelectionKey.OP_READ);
-			} catch (ClosedChannelException e) {
-				log.warn(String.format("%s index[%d] socket channel[%d] fail to register selector", projectName, index, sc.hashCode()));
 			}
-			notRegistedSocketChannelList.remove(sc);
 		}
 	}
-	
+
 	@Override
 	public void registerAsynConnection(AbstractAsynConnection asynConn) {
 		SocketChannel newSC = asynConn.getSocketChannel();
-		
+
 		scToAsynConnectionHash.put(newSC, asynConn);
 		
-		synchronized (monitor) {
+		synchronized (monitor) {			
 			notRegistedSocketChannelList.addLast(newSC);
 		}
 
-		if (getState().equals(Thread.State.NEW))
+		if (getState().equals(Thread.State.NEW)) {
 			return;
+		}
 
 		/**
 		 * <pre>
@@ -155,7 +150,7 @@ public class OutputMessageReaderThread extends Thread implements OutputMessageRe
 				Thread.sleep(readSelectorWakeupInterval);
 			} catch (InterruptedException e) {
 				// ignore
-			}		
+			}
 		} while (newSC.isConnected() && !newSC.isRegistered());
 	}
 
@@ -169,14 +164,12 @@ public class OutputMessageReaderThread extends Thread implements OutputMessageRe
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
 				processNewConnection();
-				
+
 				int keyReady = selector.select();
 
 				if (keyReady > 0) {
-					Set<SelectionKey> selectionKeySet = selector
-							.selectedKeys();
-					Iterator<SelectionKey> selectionKeyIter = selectionKeySet
-							.iterator();
+					Set<SelectionKey> selectionKeySet = selector.selectedKeys();
+					Iterator<SelectionKey> selectionKeyIter = selectionKeySet.iterator();
 					while (selectionKeyIter.hasNext()) {
 						SelectionKey selectionKey = selectionKeyIter.next();
 						selectionKeyIter.remove();
@@ -184,10 +177,11 @@ public class OutputMessageReaderThread extends Thread implements OutputMessageRe
 
 						// log.info("11111111111111111");
 
-						AbstractAsynConnection asynConnection = scToAsynConnectionHash
-								.get(serverSC);
+						AbstractAsynConnection asynConnection = scToAsynConnectionHash.get(serverSC);
 						if (null == asynConnection) {
-							log.warn(String.format("%s OutputMessageReader[%d] socket channel[%d] is no match for AbstractAsynConnection", projectName, index, serverSC.hashCode()));
+							log.warn(String.format(
+									"%s OutputMessageReader[%d] socket channel[%d] is no match for AbstractAsynConnection",
+									projectName, index, serverSC.hashCode()));
 							continue;
 						}
 
@@ -195,39 +189,41 @@ public class OutputMessageReaderThread extends Thread implements OutputMessageRe
 
 						try {
 							@SuppressWarnings("unused")
-							int numberOfReadBytes = socketOutputStream.read(serverSC);							
-							
+							int numberOfReadBytes = socketOutputStream.read(serverSC);
+
 							// FIXME! 한번에 읽는 바이트 추적용 로그
-							// log.info(String.format("totalReadBytes=[%d], %d", totalReadBytes, serverSC.getOption(StandardSocketOptions.SO_RCVBUF)));
-							// log.info(String.format("totalReadBytes=[%d], messageInputStreamResource.position=[%d]", totalReadBytes, messageInputStreamResource.position()));
+							// log.info(String.format("totalReadBytes=[%d], %d", totalReadBytes,
+							// serverSC.getOption(StandardSocketOptions.SO_RCVBUF)));
+							// log.info(String.format("totalReadBytes=[%d],
+							// messageInputStreamResource.position=[%d]", totalReadBytes,
+							// messageInputStreamResource.position()));
 
 							asynConnection.setFinalReadTime();
-							
-							ArrayList<WrapReadableMiddleObject> receivedLetterList = messageProtocol.S2MList(socketOutputStream);
-							
-							
+
+							ArrayList<WrapReadableMiddleObject> receivedLetterList = messageProtocol
+									.S2MList(socketOutputStream);
+
 							for (WrapReadableMiddleObject receivedLetter : receivedLetterList) {
 								// FIXME!
 								// log.info("receivedLetter={}", receivedLetter.toString());
-								
+
 								// asynConnection.putToOutputMessageQueue(new LetterFromServer(receivedLetter));
 								asynConnection.putToOutputMessageQueue(receivedLetter);
 							}
-						} catch (NotYetConnectedException e) {
-							log.warn(String.format("%s OutputMessageReader[%d]::%s", asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
-							closeServer(selectionKey, asynConnection);
-							continue;
 						} catch (IOException e) {
-							log.warn(String.format("%s OutputMessageReader[%d]::%s", asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
-							closeServer(selectionKey, asynConnection);
+							log.warn(String.format("%s OutputMessageReader[%d]::%s",
+									asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
+							closeSocket(selectionKey, asynConnection);
 							continue;
-						} catch(HeaderFormatException e) {
-							log.warn(String.format("%s OutputMessageReader[%d]::%s", asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
-							closeServer(selectionKey, asynConnection);
+						} catch (HeaderFormatException e) {
+							log.warn(String.format("%s OutputMessageReader[%d]::%s",
+									asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
+							closeSocket(selectionKey, asynConnection);
 							continue;
 						} catch (NoMoreDataPacketBufferException e) {
-							log.warn(String.format("%s OutputMessageReader[%d]::%s", asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
-							closeServer(selectionKey, asynConnection);
+							log.warn(String.format("%s OutputMessageReader[%d]::%s",
+									asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
+							closeSocket(selectionKey, asynConnection);
 							continue;
 						}
 					}
@@ -236,29 +232,49 @@ public class OutputMessageReaderThread extends Thread implements OutputMessageRe
 
 			log.warn(String.format("%s OutputMessageReader[%d] loop exit", projectName, index));
 		} catch (Exception e) {
-			log.error(String.format("%s OutputMessageReader[%d] unknown error", projectName,
-					index), e);
+			log.error(String.format("%s OutputMessageReader[%d] unknown error", projectName, index), e);
 			System.exit(1);
 		}
 
-		// log.warn(String.format("%s OutputMessageReader[%d] Thread end", clientProjectConfig.getProjectName(), index));
+		// log.warn(String.format("%s OutputMessageReader[%d] Thread end",
+		// clientProjectConfig.getProjectName(), index));
 	}
-	
 
 	/**
 	 * selector 로 얻는 SelectionKey 가 가진 소켓 채널을 닫고 selector 에서 제거한다.
 	 * 
 	 * @param selectionKey
 	 */
-	private void closeServer(SelectionKey selectionKey,
-			AbstractAsynConnection clientConnection) {
-		SocketChannel close_sc = null;
+	private void closeSocket(SelectionKey selectionKey, AbstractAsynConnection selectedAsynConnection) {
+
+		SocketChannel selectedSocketChannel = (SocketChannel) selectionKey.channel();
+
+		log.info("close the socket[{}]", selectedSocketChannel.hashCode());
+
 		selectionKey.cancel();
-		close_sc = (SocketChannel) selectionKey.channel();
-
-		scToAsynConnectionHash.remove(close_sc);
-		clientConnection.serverClose();
-
+		scToAsynConnectionHash.remove(selectedSocketChannel);
+		try {
+			selectedAsynConnection.closeSocket();
+		} catch (IOException e) {
+			log.warn("fail to close the socket[{}]", selectedSocketChannel.hashCode());
+		}
+		selectedAsynConnection.releaseResources();
 	}
+
+	/*private void closeFailedSocket(SocketChannel failedSocketChannel) {
+		log.info("2. close the socket[{}]", failedSocketChannel.hashCode());
+		
+		AbstractAsynConnection failedAsynConnection = scToAsynConnectionHash.get(failedSocketChannel);
+		if (null != failedAsynConnection) {
+			scToAsynConnectionHash.remove(failedSocketChannel);
+
+			try {
+				failedAsynConnection.closeSocket();
+			} catch (IOException e) {
+				log.warn("fail to close the socket[{}]", failedSocketChannel.hashCode());
+			}
+			failedAsynConnection.releaseResources();
+		}
+	}*/
 
 }

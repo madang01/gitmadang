@@ -69,11 +69,9 @@ public abstract class AbstractConnection {
 	protected DataPacketBufferPoolIF dataPacketBufferPoolManager = null;
 	protected MessageProtocolIF messageProtocol = null;
 	
-	// protected SocketOutputStream socketOutputStream = null;
 
 	protected ClientObjectCacheManagerIF clientObjectCacheManager = null;
 	
-	// protected int dataPacketBufferMaxCntPerMessage;
 	
 	protected java.util.Date finalReadTime = new java.util.Date();
 	
@@ -98,29 +96,10 @@ public abstract class AbstractConnection {
 		this.clientObjectCacheManager = clientObjectCacheManager;
 	}
 	
+	abstract public void closeSocket() throws IOException;
 
-	abstract public boolean isConnected();/* {
-		if (null == serverSC) {
-			return false;
-		}
-		return serverSC.isConnected();
-	}*/
+	abstract public boolean isConnected();
 	
-	
-	/*public boolean isOpen() {
-		if (null == serverSC) {
-			return false;
-		}
-		
-		return serverSC.isOpen();
-	}*/
-	
-	/**
-	 * @return 연결 작업중 여부
-	 */
-	/*public boolean isConnectionPending() {
-		return serverSC.isConnectionPending();
-	}*/
 	
 	/**
 	 * @return 임의 selector 에 등록 여부
@@ -192,32 +171,7 @@ public abstract class AbstractConnection {
 
 	
 
-	/**
-	 * FIXME! 테스트 못하였음. 사이드 이팩트 영향력 측정 못하였음. 소켓 채널을 닫는다.
-	 */
-	/*public void serverClose() {
-		synchronized (monitor) {
-			try {
-				serverSC.shutdownInput();
-			} catch (Exception e) {
-				log.warn(String.format("server name[%s] socket channel shutdownInput fail",
-						projectName), e);
-			}
-			try {
-				serverSC.shutdownOutput();
-			} catch (Exception e) {
-				log.warn(String.format("server name[%s] socket channel shutdownOutput fail",
-						projectName), e);
-			}
-			
-			try {
-				serverSC.close();
-			} catch (Exception e) {
-				log.warn(String.format("server name[%s] socket channel close fail",
-						projectName), e);
-			}
-		}
-	}*/
+	
 
 	/**
 	 * @return 프로젝트 이름
@@ -260,15 +214,19 @@ public abstract class AbstractConnection {
 		finalReadTime = new java.util.Date();
 	}
 
-	/**
-	 * 에코 메세지를 보낸 횟수를 반환한다. 미래 예약 변수임.
-	 * 
-	 * @return 에코 메세지를 보낸 횟수
-	 */
+	
 	/*public int getEchoMesgCount() {
 		return echoMesgCount;
 	}*/
 	
+	
+	public SocketOutputStream getSocketOutputStream() {
+		return socketOutputStream;
+	}
+	
+	public void releaseResources() {
+		socketOutputStream.close();
+	}
 	
 	abstract public AbstractMessage sendSyncInputMessage(
 			AbstractMessage inputMessage) throws IOException, 
@@ -330,8 +288,6 @@ public abstract class AbstractConnection {
 		
 		return messageObj;
 	}
-	
-	
 	
 	
 	protected List<WrapBuffer> getWrapBufferListOfInputMessage(ClassLoader classLoader, AbstractMessage inputMessage) throws DynamicClassCallException, NoMoreDataPacketBufferException, BodyFormatException {

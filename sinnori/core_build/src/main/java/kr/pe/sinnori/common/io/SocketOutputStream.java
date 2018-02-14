@@ -331,6 +331,7 @@ public class SocketOutputStream {
 		}
 		
 		numberOfWrittenBytes = 0;
+		userDefObject = null;
 	}
 	
 }

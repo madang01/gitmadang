@@ -26,6 +26,7 @@ import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxMapper;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxPool;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPublicMailbox;
+import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler.InputMessageWriterIF;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReaderIF;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.AccessDeniedException;
@@ -66,6 +67,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 			AsynPrivateMailboxMapper asynPrivateMailboxMapper,
 			SocketOutputStream socketOutputStream,
 			MessageProtocolIF messageProtocol,
+			InputMessageWriterIF inputMessageWriter,
 			OutputMessageReaderIF outputMessageReader,
 			DataPacketBufferPoolIF dataPacketBufferQueueManager,
 			ClientObjectCacheManagerIF clientObjectCacheManager)
@@ -178,7 +180,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 
 	@Override
 	public void finalize() {
-		socketOutputStream.close();
+		releaseResources();
 		log.warn("소멸::projectName[{}], ShareAsynConnection[{}], sc hashCode={}", 
 				projectName, index, serverSC.hashCode());
 	}

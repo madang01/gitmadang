@@ -120,6 +120,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 							dataPacketBufferPoolManager);
 		}		
 		
+		PersonalLoginManagerIF personalLoginManagerOfFromSC = mock(PersonalLoginManagerIF.class);
+		
 		SocketResource socketResourceOfFromSC = null;
 		{	
 			InputMessageReaderIF inputMessageReaderOfOwnerSC = mock(InputMessageReaderIF.class);
@@ -222,14 +224,12 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
 			}
 			
-			PersonalLoginManagerIF personalLoginManagerOfOwnerSC = mock(PersonalLoginManagerIF.class);
-			
 			socketResourceOfFromSC = new SocketResource(fromSC, 
 					inputMessageReaderOfOwnerSC, 
 					executorOfOwnerSC, 
 					outputMessageWriterOfOwnerSC,
 					socketOutputStreamOfOwnerSC, 
-					personalLoginManagerOfOwnerSC);
+					personalLoginManagerOfFromSC);
 		}
 		
 		class SocketResourceManagerMock implements SocketResourceManagerIF {
@@ -346,23 +346,6 @@ public class ServerTaskTest extends AbstractJunitTest {
 		
 		
 		ServerObjectCacheManagerIF serverObjectCacheManager = new ServerObjectCacheManagerMock();
-		
-		/*ServerObjectCacheManagerIF serverObjectCacheManager = mock(ServerObjectCacheManagerIF.class);
-		
-		Answer<MessageCodecIF> answerGetServerMessageCodec = new Answer<MessageCodecIF>() {
-	        public MessageCodecIF answer(InvocationOnMock invocation) throws Throwable {
-	        	String messageID = invocation.getArgument(1);
-	        	String errorMessage = String.format("fail to get the paramter messageID[%s]'s server message codec", messageID);
-				throw new DynamicClassCallException(errorMessage);
-	        }
-	    };
-	    
-	    try {
-			doAnswer(answerGetServerMessageCodec).when(serverObjectCacheManager)
-				.getServerMessageCodec(any(ClassLoader.class), anyString());
-		} catch (Exception e) {
-			fail("fail to create the AbstractServerTask class mock");
-		}*/
 
 		class AbstractServerTaskMock extends AbstractServerTask {
 
@@ -385,6 +368,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 					projectName, 
 					fromSC, 
 					socketResourceManager, 
+					socketResourceOfFromSC,
+					personalLoginManagerOfFromSC,
 					wrapReadableMiddleObject, 
 					messageProtocol, serverObjectCacheManager);
 		} catch (InterruptedException e) {
@@ -441,6 +426,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 							streamCharsetDecoder,
 							dataPacketBufferPoolManager);
 		}		
+		
+		PersonalLoginManagerIF personalLoginManagerOfFromSC = mock(PersonalLoginManagerIF.class);
 		
 		SocketResource socketResourceOfFromSC = null;
 		{	
@@ -544,14 +531,14 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
 			}
 			
-			PersonalLoginManagerIF personalLoginManagerOfOwnerSC = mock(PersonalLoginManagerIF.class);
+			
 			
 			socketResourceOfFromSC = new SocketResource(fromSC, 
 					inputMessageReaderOfOwnerSC, 
 					executorOfOwnerSC, 
 					outputMessageWriterOfOwnerSC,
 					socketOutputStreamOfOwnerSC, 
-					personalLoginManagerOfOwnerSC);
+					personalLoginManagerOfFromSC);
 		}
 		
 		class SocketResourceManagerMock implements SocketResourceManagerIF {
@@ -683,7 +670,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 			serverTaskMock.execute(index, 
 					projectName, 
 					fromSC, 
-					socketResourceManager, 
+					socketResourceManager,
+					socketResourceOfFromSC,
+					personalLoginManagerOfFromSC,
 					wrapReadableMiddleObject, 
 					messageProtocol, serverObjectCacheManager);
 		} catch (InterruptedException e) {
@@ -739,6 +728,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 							streamCharsetDecoder,
 							dataPacketBufferPoolManager);
 		}		
+		
+		PersonalLoginManagerIF personalLoginManagerOfFromSC = mock(PersonalLoginManagerIF.class);
 		
 		SocketResource socketResourceOfFromSC = null;
 		{	
@@ -842,14 +833,14 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
 			}
 			
-			PersonalLoginManagerIF personalLoginManagerOfOwnerSC = mock(PersonalLoginManagerIF.class);
+			
 			
 			socketResourceOfFromSC = new SocketResource(fromSC, 
 					inputMessageReaderOfOwnerSC, 
 					executorOfOwnerSC, 
 					outputMessageWriterOfOwnerSC,
 					socketOutputStreamOfOwnerSC, 
-					personalLoginManagerOfOwnerSC);
+					personalLoginManagerOfFromSC);
 		}
 		
 		class SocketResourceManagerMock implements SocketResourceManagerIF {
@@ -997,6 +988,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 					projectName, 
 					fromSC, 
 					socketResourceManager, 
+					socketResourceOfFromSC,
+					personalLoginManagerOfFromSC,
 					wrapReadableMiddleObject, 
 					messageProtocol, serverObjectCacheManager);
 		} catch (InterruptedException e) {
@@ -1051,6 +1044,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 							streamCharsetDecoder,
 							dataPacketBufferPoolManager);
 		}		
+		
+		PersonalLoginManagerIF personalLoginManagerOfFromSC = mock(PersonalLoginManagerIF.class);
 		
 		SocketResource socketResourceOfFromSC = null;
 		{	
@@ -1154,14 +1149,14 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
 			}
 			
-			PersonalLoginManagerIF personalLoginManagerOfOwnerSC = mock(PersonalLoginManagerIF.class);
+			
 			
 			socketResourceOfFromSC = new SocketResource(fromSC, 
 					inputMessageReaderOfOwnerSC, 
 					executorOfOwnerSC, 
 					outputMessageWriterOfOwnerSC,
 					socketOutputStreamOfOwnerSC, 
-					personalLoginManagerOfOwnerSC);
+					personalLoginManagerOfFromSC);
 		}
 		
 		
@@ -1308,7 +1303,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 			serverTaskMock.execute(index, 
 					projectName, 
 					fromSC, 
-					socketResourceManager, 
+					socketResourceManager,
+					socketResourceOfFromSC,
+					personalLoginManagerOfFromSC,
 					wrapReadableMiddleObject, 
 					messageProtocol, serverObjectCacheManager);
 		} catch (InterruptedException e) {
@@ -1321,7 +1318,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 	}
 	
 	@Test
-	public void testExecute_failToDcode_통제된에러() {
+	public void testExecute_failToDecodeBody_통제된에러() {
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = CharsetUtil.createCharsetEncoder(streamCharset);
 		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
@@ -1362,6 +1359,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 							streamCharsetDecoder,
 							dataPacketBufferPoolManager);
 		}		
+		
+		PersonalLoginManagerIF personalLoginManagerOfFromSC = mock(PersonalLoginManagerIF.class);
 		
 		SocketResource socketResourceOfFromSC = null;
 		{	
@@ -1465,14 +1464,14 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
 			}
 			
-			PersonalLoginManagerIF personalLoginManagerOfOwnerSC = mock(PersonalLoginManagerIF.class);
+			
 			
 			socketResourceOfFromSC = new SocketResource(fromSC, 
 					inputMessageReaderOfOwnerSC, 
 					executorOfOwnerSC, 
 					outputMessageWriterOfOwnerSC,
 					socketOutputStreamOfOwnerSC, 
-					personalLoginManagerOfOwnerSC);
+					personalLoginManagerOfFromSC);
 		}
 		
 		
@@ -1634,6 +1633,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 					projectName, 
 					fromSC, 
 					socketResourceManager, 
+					socketResourceOfFromSC,
+					personalLoginManagerOfFromSC,
 					wrapReadableMiddleObject, 
 					messageProtocol, serverObjectCacheManager);
 		} catch (InterruptedException e) {
@@ -1646,7 +1647,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 	}
 	
 	@Test
-	public void testExecute_failToDcode_통제벗어난에러() {
+	public void testExecute_failToDecodeBody_통제벗어난에러() {
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = CharsetUtil.createCharsetEncoder(streamCharset);
 		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
@@ -1687,6 +1688,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 							streamCharsetDecoder,
 							dataPacketBufferPoolManager);
 		}		
+		
+		PersonalLoginManagerIF personalLoginManagerOfFromSC = mock(PersonalLoginManagerIF.class);
 		
 		SocketResource socketResourceOfFromSC = null;
 		{	
@@ -1790,14 +1793,14 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
 			}
 			
-			PersonalLoginManagerIF personalLoginManagerOfOwnerSC = mock(PersonalLoginManagerIF.class);
+			
 			
 			socketResourceOfFromSC = new SocketResource(fromSC, 
 					inputMessageReaderOfOwnerSC, 
 					executorOfOwnerSC, 
 					outputMessageWriterOfOwnerSC,
 					socketOutputStreamOfOwnerSC, 
-					personalLoginManagerOfOwnerSC);
+					personalLoginManagerOfFromSC);
 		}
 		
 		
@@ -1958,6 +1961,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 					projectName, 
 					fromSC, 
 					socketResourceManager, 
+					socketResourceOfFromSC,
+					personalLoginManagerOfFromSC,
 					wrapReadableMiddleObject, 
 					messageProtocol, serverObjectCacheManager);
 		} catch (InterruptedException e) {
@@ -1970,7 +1975,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 	}
 	
 	@Test
-	public void testExecute_failToDoTask_2번이상동기출력메시지추가() {
+	public void testDoTask_2번이상동기출력메시지추가() {
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = CharsetUtil.createCharsetEncoder(streamCharset);
 		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
@@ -2011,6 +2016,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 							streamCharsetDecoder,
 							dataPacketBufferPoolManager);
 		}		
+		
+		PersonalLoginManagerIF personalLoginManagerOfFromSC = mock(PersonalLoginManagerIF.class);
 		
 		SocketResource socketResourceOfFromSC = null;
 		{	
@@ -2118,14 +2125,14 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
 			}
 			
-			PersonalLoginManagerIF personalLoginManagerOfOwnerSC = mock(PersonalLoginManagerIF.class);
+			
 			
 			socketResourceOfFromSC = new SocketResource(fromSC, 
 					inputMessageReaderOfOwnerSC, 
 					executorOfOwnerSC, 
 					outputMessageWriterOfOwnerSC,
 					socketOutputStreamOfOwnerSC, 
-					personalLoginManagerOfOwnerSC);
+					personalLoginManagerOfFromSC);
 		}
 		
 		class SocketResourceManagerMock implements SocketResourceManagerIF {
@@ -2281,6 +2288,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 					projectName, 
 					fromSC, 
 					socketResourceManager, 
+					socketResourceOfFromSC,
+					personalLoginManagerOfFromSC,
 					wrapReadableMiddleObject, 
 					messageProtocol, serverObjectCacheManager);
 		} catch (InterruptedException e) {
@@ -2293,7 +2302,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 	}
 	
 	@Test
-	public void testExecute_failToDoTask_비동기입력메시지에동기출력메시지추가() {
+	public void testDoTask_비동기입력메시지에동기출력메시지추가() {
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = CharsetUtil.createCharsetEncoder(streamCharset);
 		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
@@ -2334,6 +2343,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 							streamCharsetDecoder,
 							dataPacketBufferPoolManager);
 		}		
+		
+		PersonalLoginManagerIF personalLoginManagerOfFromSC = mock(PersonalLoginManagerIF.class);
 		
 		SocketResource socketResourceOfFromSC = null;
 		{	
@@ -2442,14 +2453,14 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("fail to build the instance of SocketOutputStream class becase there is no more buffer in the dataPacketBufferPool");
 			}
 			
-			PersonalLoginManagerIF personalLoginManagerOfOwnerSC = mock(PersonalLoginManagerIF.class);
+			
 			
 			socketResourceOfFromSC = new SocketResource(fromSC, 
 					inputMessageReaderOfOwnerSC, 
 					executorOfOwnerSC, 
 					outputMessageWriterOfOwnerSC,
 					socketOutputStreamOfOwnerSC, 
-					personalLoginManagerOfOwnerSC);
+					personalLoginManagerOfFromSC);
 		}
 		
 		
@@ -2604,6 +2615,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 					projectName, 
 					fromSC, 
 					socketResourceManager, 
+					socketResourceOfFromSC,
+					personalLoginManagerOfFromSC,
 					wrapReadableMiddleObject, 
 					messageProtocol, serverObjectCacheManager);
 		} catch (InterruptedException e) {

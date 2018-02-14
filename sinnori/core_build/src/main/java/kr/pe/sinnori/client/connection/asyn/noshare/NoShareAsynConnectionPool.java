@@ -27,6 +27,8 @@ import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.AbstractConnectionPool;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPublicMailbox;
+import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.InputMessageWriterPoolIF;
+import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler.InputMessageWriterIF;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderPoolIF;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReaderIF;
 import kr.pe.sinnori.common.exception.AccessDeniedException;
@@ -66,6 +68,7 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 			int dataPacketBufferMaxCntPerMessage,
 			CharsetDecoder streamCharsetDecoder,
 			MessageProtocolIF messageProtocol,
+			InputMessageWriterPoolIF inputMessageWriterPool,
 			OutputMessageReaderPoolIF outputMessageReaderPool,
 			DataPacketBufferPoolIF dataPacketBufferQueueManager,
 			ClientObjectCacheManagerIF clientObjectCacheManager)
@@ -82,6 +85,8 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 		 */
 		for (int i = 0; i < connectionPoolSize; i++) {
 			OutputMessageReaderIF outputMessageReader = outputMessageReaderPool.getNextOutputMessageReader();
+			InputMessageWriterIF inputMessageWriter = inputMessageWriterPool.getNextInputMessageWriter();
+			
 			SocketOutputStream socketOutputStream = new SocketOutputStream(streamCharsetDecoder, 
 					dataPacketBufferMaxCntPerMessage, dataPacketBufferQueueManager);
 			
@@ -93,6 +98,7 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 					socketTimeOut, 
 					whetherToAutoConnect,   
 					asynPublicMailbox,
+					inputMessageWriter,
 					outputMessageReader,
 					socketOutputStream,
 					messageProtocol,

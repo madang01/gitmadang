@@ -412,26 +412,7 @@ public class NoShareSyncConnection extends AbstractConnection {
 		return outObj;
 	}
 	
-	private void closeSocket() {
-		if (null != serverSocket) {
-			try {
-				serverSocket.close();
-			} catch (IOException e) {
-			}
-			
-			try {
-				inputStreamOfSocket.close();
-			} catch (IOException e) {
-			}
-			
-			try {
-				outputStreamOfSocket.close();
-			} catch (IOException e) {
-			}
-			
-			serverSocket = null;
-		}
-	}
+	
 	
 	
 	@Override
@@ -453,6 +434,10 @@ public class NoShareSyncConnection extends AbstractConnection {
 	@Override
 	public boolean isConnected() {
 		return serverSocket.isConnected();
+	}
+	
+	public void closeSocket() throws IOException {
+		serverSocket.close();
 	}
 
 }

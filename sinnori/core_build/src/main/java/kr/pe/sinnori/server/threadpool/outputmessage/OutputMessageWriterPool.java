@@ -37,11 +37,13 @@ public class OutputMessageWriterPool extends AbstractThreadPool implements Outpu
 	private String projectName = null;
 	private int maxHandler;
 	private DataPacketBufferPoolIF dataPacketBufferQueueManger;
-	private LinkedBlockingQueue<ToLetter> outputMessageQueue = null;
+	// private LinkedBlockingQueue<ToLetter> outputMessageQueue = null;
+	private int outputMessageQueueSize;
 	
 	
 	public OutputMessageWriterPool(String projectName, int size, int max,
-			LinkedBlockingQueue<ToLetter> outputMessageQueue,
+			// LinkedBlockingQueue<ToLetter> outputMessageQueue,
+			int outputMessageQueueSize,
 			DataPacketBufferPoolIF dataPacketBufferQueueManger,
 			IEOThreadPoolSetManagerIF ieoThreadPoolManager) {
 		if (size <= 0) {
@@ -58,7 +60,7 @@ public class OutputMessageWriterPool extends AbstractThreadPool implements Outpu
 
 		this.projectName = projectName;
 		this.maxHandler = max;
-		this.outputMessageQueue = outputMessageQueue;
+		this.outputMessageQueueSize = outputMessageQueueSize;
 		this.dataPacketBufferQueueManger = dataPacketBufferQueueManger;
 		
 		ieoThreadPoolManager.setOutputMessageWriterPool(this);
@@ -70,6 +72,7 @@ public class OutputMessageWriterPool extends AbstractThreadPool implements Outpu
 
 	@Override
 	public void addHandler() {
+		LinkedBlockingQueue<ToLetter> outputMessageQueue = new LinkedBlockingQueue<ToLetter>(outputMessageQueueSize);
 		synchronized (monitor) {
 			int size = pool.size();
 			

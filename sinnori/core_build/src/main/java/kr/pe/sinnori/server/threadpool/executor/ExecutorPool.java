@@ -37,7 +37,8 @@ public class ExecutorPool extends AbstractThreadPool implements ExecutorPoolIF {
 	// execuate_processor_pool_max_size
 	
 	private int maxHandler;
-	private LinkedBlockingQueue<FromLetter> inputMessageQueue;
+	// private LinkedBlockingQueue<FromLetter> inputMessageQueue;
+	private int inputMessageQueueSize;
 	private MessageProtocolIF messageProtocol= null;
 	private SocketResourceManagerIF socketResourceManager;
 	private ServerObjectCacheManagerIF serverObjectCacheManager = null;
@@ -47,7 +48,8 @@ public class ExecutorPool extends AbstractThreadPool implements ExecutorPoolIF {
 	public ExecutorPool(String projectName, 
 			int size, 
 			int max,
-			LinkedBlockingQueue<FromLetter> inputMessageQueue,
+			// LinkedBlockingQueue<FromLetter> inputMessageQueue,
+			int inputMessageQueueSize,
 			MessageProtocolIF messageProtocol,
 			SocketResourceManagerIF socketResourceManager,
 			ServerObjectCacheManagerIF serverObjectCacheManager,
@@ -66,7 +68,7 @@ public class ExecutorPool extends AbstractThreadPool implements ExecutorPoolIF {
 		
 		this.maxHandler = max;
 		this.projectName = projectName;		
-		this.inputMessageQueue = inputMessageQueue;
+		this.inputMessageQueueSize = inputMessageQueueSize;
 		this.messageProtocol = messageProtocol;
 		this.socketResourceManager = socketResourceManager;
 		this.serverObjectCacheManager = serverObjectCacheManager;
@@ -80,6 +82,9 @@ public class ExecutorPool extends AbstractThreadPool implements ExecutorPoolIF {
 
 	@Override
 	public void addHandler() {
+		LinkedBlockingQueue<FromLetter> inputMessageQueue = new
+				LinkedBlockingQueue<FromLetter>(inputMessageQueueSize);
+		
 		synchronized (monitor) {
 			int size = pool.size();
 

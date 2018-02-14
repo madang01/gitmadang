@@ -38,14 +38,11 @@ public abstract class AbstractAuthServerTask extends AbstractServerTask {
 			String projectName,
 			SocketChannel fromSC,
 			SocketResourceManagerIF socketResourceManager,
+			SocketResource socketResourceOfFromSC,
+			PersonalLoginManagerIF personalLoginManagerOfFromSC,
 			WrapReadableMiddleObject wrapReadableMiddleObject,
 			MessageProtocolIF messageProtocol, 
-			ServerObjectCacheManagerIF serverObjectCacheManager) throws InterruptedException {
-		
-		SocketResource socketResourceOfFromSC = socketResourceManager.getSocketResource(fromSC);
-
-		PersonalLoginManagerIF personalLoginManagerOfFromSC = socketResourceOfFromSC.getPersonalLoginManager();
-		
+			ServerObjectCacheManagerIF serverObjectCacheManager) throws InterruptedException {		
 		
 		if (! personalLoginManagerOfFromSC.isLogin()) {
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
@@ -57,6 +54,8 @@ public abstract class AbstractAuthServerTask extends AbstractServerTask {
 		}
 		super.execute(index, projectName, fromSC, 
 				socketResourceManager, 
+				socketResourceOfFromSC,
+				personalLoginManagerOfFromSC,
 				wrapReadableMiddleObject, 
 				messageProtocol, 
 				serverObjectCacheManager);
