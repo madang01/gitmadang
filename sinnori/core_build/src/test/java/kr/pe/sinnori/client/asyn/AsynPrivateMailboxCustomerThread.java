@@ -1,13 +1,15 @@
 package kr.pe.sinnori.client.asyn;
 
+import java.nio.channels.SocketChannel;
 import java.util.Random;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynMailboxIF;
+import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxIF;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxMapper;
+import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
@@ -55,7 +57,7 @@ private Logger log = LoggerFactory.getLogger(AsynPrivateMailboxProducerThread.cl
 				
 				int mailboxID = toLetter.getMailboxID();
 				
-				AsynMailboxIF asynMailbox = asynMailboxMapper.getAsynMailbox(mailboxID);
+				AsynPrivateMailboxIF asynMailbox = asynMailboxMapper.getAsynMailbox(mailboxID);
 				
 				//log.info("AsynPrivateMailboxCustomerThread::asynMailbox={}", asynMailbox.toString());
 				
@@ -66,10 +68,11 @@ private Logger log = LoggerFactory.getLogger(AsynPrivateMailboxProducerThread.cl
 				
 				Thread.sleep(random.nextInt(maxSleepingTime));
 				
+				FromLetter fromLetter = new FromLetter(SocketChannel.open(), wrapReadableMiddleObject);
 				
 				//log.info("AsynPrivateMailboxCustomerThread::before putToSyncOutputMessageQueue, {}", wrapReadableMiddleObject.toString());
 				
-				asynMailbox.putToSyncOutputMessageQueue(wrapReadableMiddleObject);
+				asynMailbox.putToSyncOutputMessageQueue(fromLetter);
 			} catch (Exception e) {
 				String errorMessage = String.format("예외 발생하여 Thread 종료::errorMessage=%s", e.getMessage());
 				log.warn(errorMessage, e);

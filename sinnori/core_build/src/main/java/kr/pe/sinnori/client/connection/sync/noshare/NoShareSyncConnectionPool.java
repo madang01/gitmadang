@@ -22,9 +22,13 @@ import java.nio.charset.CharsetDecoder;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.client.connection.AbstractConnection;
-import kr.pe.sinnori.client.connection.AbstractConnectionPool;
+import kr.pe.sinnori.client.connection.ConnectionPoolIF;
+import kr.pe.sinnori.client.connection.SocketResoruceIF;
 import kr.pe.sinnori.common.exception.AccessDeniedException;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
@@ -43,7 +47,11 @@ import kr.pe.sinnori.common.protocol.MessageProtocolIF;
  * @author Won Jonghoon
  * 
  */
-public class NoShareSyncConnectionPool extends AbstractConnectionPool {
+public class NoShareSyncConnectionPool implements ConnectionPoolIF {
+	private Logger log = LoggerFactory.getLogger(NoShareSyncConnectionPool.class);	
+	private final Object monitor = new Object();
+	
+	
 	/** Connection Pool 운영을 위한 변수 */
 	private LinkedBlockingQueue<NoShareSyncConnection> connectionQueue = null;
 	// private int connectionPoolSize;
@@ -60,7 +68,7 @@ public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 			MessageProtocolIF messageProtocol,
 			DataPacketBufferPoolIF dataPacketBufferQueueManager,
 			ClientObjectCacheManagerIF clientObjectCacheManager)
-			throws NoMoreDataPacketBufferException, InterruptedException {
+			throws NoMoreDataPacketBufferException, InterruptedException, IOException {
 		super();
 
 		// log.info("create new SingleBlockConnectionPool");
@@ -71,24 +79,38 @@ public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 		connectionQueue = new LinkedBlockingQueue<NoShareSyncConnection>(
 				connectionPoolSize);
 
-		
-		for (int i = 0; i < connectionPoolSize; i++) {
-			SocketOutputStream socketOutputStream = new SocketOutputStream(streamCharsetDecoder, 
-					dataPacketBufferMaxCntPerMessage, dataPacketBufferQueueManager);
-			
-			NoShareSyncConnection serverConnection = new NoShareSyncConnection(
-					projectName,
-					i, host, port,  
-					socketTimeOut, whetherToAutoConnect, 
-					socketOutputStream,
-					messageProtocol,
-					dataPacketBufferQueueManager, clientObjectCacheManager);
-			connectionQueue.add(serverConnection);
+		try {
+			for (int i = 0; i < connectionPoolSize; i++) {
+				SocketOutputStream socketOutputStream = new SocketOutputStream(streamCharsetDecoder, 
+						dataPacketBufferMaxCntPerMessage, dataPacketBufferQueueManager);
+				
+				SocketResoruceIF syncPrivateSocketResoruce = new SyncPrivateSocketResource(socketOutputStream);
+				
+				NoShareSyncConnection serverConnection = new NoShareSyncConnection(
+						projectName,  
+						host, port,
+						socketTimeOut,
+						whetherToAutoConnect, 
+						syncPrivateSocketResoruce,
+						dataPacketBufferQueueManager,
+						messageProtocol,
+						clientObjectCacheManager);
+				connectionQueue.add(serverConnection);
+			}
+		} catch(IOException e) {
+			while(! connectionQueue.isEmpty()) {
+				NoShareSyncConnection serverConnection = connectionQueue.poll(); 
+				try {
+					serverConnection.closeSocket();
+				} catch (IOException e1) {
+				}
+				serverConnection.releaseSocketResources();
+				
+			}
+			throw e;
 		}
 	}
-	
-
-	@Override
+		
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
 			throws IOException, 
 			NoMoreDataPacketBufferException, BodyFormatException, 
@@ -118,7 +140,7 @@ public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 		return retMessage;
 	}
 	
-	@Override
+	
 	public AbstractConnection getConnection() throws InterruptedException, NotSupportedException, SocketTimeoutException {
 		
 		
@@ -132,7 +154,7 @@ public class NoShareSyncConnectionPool extends AbstractConnectionPool {
 		}
 	}
 	
-	@Override
+	
 	public void release(AbstractConnection conn) throws NotSupportedException {
 		if (null == conn) {
 			String errorMessage = "the parameter conn is null";

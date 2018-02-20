@@ -40,7 +40,7 @@ import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.server.SocketResource;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
-import kr.pe.sinnori.server.threadpool.executor.handler.ExecutorIF;
+import kr.pe.sinnori.server.threadpool.executor.handler.ServerExecutorIF;
 
 
 public class InputMessageReader extends Thread implements InputMessageReaderIF {
@@ -184,7 +184,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 						}
 						
 						SocketOutputStream fromSocketOutputStream = fromSocketResource.getSocketOutputStream();
-						ExecutorIF fromExecutor = fromSocketResource.getExecutor();
+						ServerExecutorIF fromExecutor = fromSocketResource.getExecutor();
 						
 						
 						try {

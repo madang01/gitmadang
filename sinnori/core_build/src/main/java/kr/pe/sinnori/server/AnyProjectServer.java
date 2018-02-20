@@ -40,7 +40,7 @@ import kr.pe.sinnori.server.threadpool.IEOThreadPoolSetManager;
 import kr.pe.sinnori.server.threadpool.IEOThreadPoolSetManagerIF;
 import kr.pe.sinnori.server.threadpool.accept.processor.AcceptProcessorPool;
 import kr.pe.sinnori.server.threadpool.accept.selector.handler.AcceptSelector;
-import kr.pe.sinnori.server.threadpool.executor.ExecutorPool;
+import kr.pe.sinnori.server.threadpool.executor.ServerExecutorPool;
 import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderPool;
 import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterPool;
 
@@ -76,7 +76,7 @@ public class AnyProjectServer extends AbstractProject implements
 	/** 입력 메시지 소켓 읽기 담당 쓰레드 폴 */
 	private InputMessageReaderPool inputMessageReaderPool = null;
 	/** 비지니스 로직 처리 담당 쓰레드 폴 */
-	private ExecutorPool executorPool = null;
+	private ServerExecutorPool executorPool = null;
 	/** 출력 메시지 소켓 쓰기 담당 쓰레드 폴 */
 	private OutputMessageWriterPool outputMessageWriterPool = null;
 
@@ -87,6 +87,8 @@ public class AnyProjectServer extends AbstractProject implements
 	
 	private ProjectLoginManager projectLoginManager = null;
 	private SocketResourceManagerIF socketResourceManager = null;
+	
+	
 
 	/**
 	 * 생성자
@@ -99,6 +101,8 @@ public class AnyProjectServer extends AbstractProject implements
 	public AnyProjectServer(ProjectPartConfiguration projectPartConfiguration)
 			throws NoMoreDataPacketBufferException, SinnoriConfigurationException {
 		super(projectPartConfiguration);
+		
+		
 
 		String sinnoriInstalledPathString = System
 				.getProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH);
@@ -160,7 +164,7 @@ public class AnyProjectServer extends AbstractProject implements
 				messageProtocol, dataPacketBufferPoolManager, 
 				socketResourceManager, ieoThreadPoolManager);		
 
-		executorPool = new ExecutorPool(
+		executorPool = new ServerExecutorPool(
 				projectPartConfiguration.getProjectName(), 
 				projectPartConfiguration.getServerExecutorProcessorSize(),
 				projectPartConfiguration.getServerExecutorProcessorMaxSize(),
@@ -235,10 +239,12 @@ public class AnyProjectServer extends AbstractProject implements
 
 	public MessageCodecIF getServerMessageCodec(ClassLoader classLoader,
 			String messageID) throws DynamicClassCallException {
-		String classFullName = new StringBuilder(
+		/*String classFullName = new StringBuilder(
 				projectPartConfiguration.getClassLoaderClassPackagePrefixName()).append("message.")
 				.append(messageID).append(".").append(messageID)
-				.append("ServerCodec").toString();
+				.append("ServerCodec").toString();*/
+		
+		String classFullName = ioPartDynamicClassNameUtil.getServerMessageCodecClassFullName(messageID);
 
 		MessageCodecIF messageCodec = null;
 
@@ -357,9 +363,13 @@ public class AnyProjectServer extends AbstractProject implements
 	public AbstractServerTask getServerTask(String messageID)
 			throws DynamicClassCallException {
 
-		String classFullName = new StringBuilder(
+		/*String classFullName = new StringBuilder(
 				projectPartConfiguration.getClassLoaderClassPackagePrefixName()).append("servertask.")
-				.append(messageID).append("ServerTask").toString();
+				.append(messageID).append("ServerTask").toString();*/
+		
+		String classFullName = ioPartDynamicClassNameUtil.getServerTaskClassFullName(messageID);
+		
+		
 		ServerTaskObjectInfo serverTaskObjectInfo = null;
 		synchronized (monitorOfServerTaskObj) {
 			serverTaskObjectInfo = className2ServerTaskObjectInfoHash

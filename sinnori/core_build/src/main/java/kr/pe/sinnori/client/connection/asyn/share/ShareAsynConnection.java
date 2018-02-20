@@ -22,21 +22,18 @@ import java.util.List;
 
 import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
+import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceIF;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxMapper;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxPool;
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPublicMailbox;
-import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler.InputMessageWriterIF;
-import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReaderIF;
+import kr.pe.sinnori.common.asyn.FromLetter;
+import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.AccessDeniedException;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
-import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
-import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
@@ -59,130 +56,110 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 	private AsynPrivateMailboxPool asynPrivateMailboxPool = null;
 
 	
-	public ShareAsynConnection(String projectName, int index, 
+	public ShareAsynConnection(String projectName, 
 			String host, int port,
 			long socketTimeOut, 
 			boolean whetherToAutoConnect, 
-			AsynPublicMailbox asynPublicMailbox,
 			AsynPrivateMailboxMapper asynPrivateMailboxMapper,
-			SocketOutputStream socketOutputStream,
+			AsynSocketResourceIF asynSocketResource,
 			MessageProtocolIF messageProtocol,
-			InputMessageWriterIF inputMessageWriter,
-			OutputMessageReaderIF outputMessageReader,
-			DataPacketBufferPoolIF dataPacketBufferQueueManager,
 			ClientObjectCacheManagerIF clientObjectCacheManager)
-			throws InterruptedException, NoMoreDataPacketBufferException, NoMoreOutputMessageQueueException {
-		super(projectName, index, host, port, socketTimeOut, whetherToAutoConnect, asynPublicMailbox,
-				outputMessageReader, 
-				socketOutputStream, 
-				messageProtocol, dataPacketBufferQueueManager, clientObjectCacheManager);
+			throws InterruptedException, NoMoreDataPacketBufferException, IOException {
+		super(projectName, host, port, socketTimeOut, whetherToAutoConnect, 
+				asynSocketResource, messageProtocol, clientObjectCacheManager);
+
 
 		this.asynPrivateMailboxMapper = asynPrivateMailboxMapper;
-
-		// this.messageManger = messageManger;
 		this.asynPrivateMailboxPool = new AsynPrivateMailboxPool(asynPrivateMailboxMapper);
 				
-		/**
-		 * 연결 종류별로 설정이 모두 다르다 따라서 설정 변수 "소켓 자동접속 여부"에 따른 서버 연결은 연결별 설정후 수행해야 한다.
-		 */
-		if (whetherToAutoConnect) {
-			try {
-				connectServer();
-			} catch (IOException e) {
-				log.warn(
-						String.format("project[%s] ShareAsynConnection[%d] fail to connect server", projectName, index),
-						e);
-				// System.exit(1);
-			}
-		}
-
-		log.info(String.format("project[%s] ShareAsynConnection[%d] 생성자 end", projectName, index));
+		
+		log.info(String.format("project[%s] ShareAsynConnection[%d] 생성자 end", projectName, serverSC.hashCode()));
 	}
 
 	
 
 	@Override
-	public void putToOutputMessageQueue(WrapReadableMiddleObject wrapReadableMiddleObject) {
+	public void putToOutputMessageQueue(FromLetter fromLetter) throws InterruptedException {
+		WrapReadableMiddleObject wrapReadableMiddleObject = fromLetter.getWrapReadableMiddleObject();
+		
 		if (wrapReadableMiddleObject.getMailboxID() == CommonStaticFinalVars.ASYN_MAILBOX_ID) {
-			/** 서버에서 보내는 공지등 불특정 다수한테 보내는 출력 메시지 */
 			try {
-				asynPublicMailbox.putToSyncOutputMessageQueue(wrapReadableMiddleObject);
+				asynSocketResource.getClientExecutor().putIntoQueue(fromLetter);
 			} catch (InterruptedException e) {
-				// FIXME!, 메시지 버린것에 대한 로그 남기기 필요함
+				log.warn("인터럽트 발생에 의한 비동기 출력 메시지[{}] 버림", fromLetter.toString());
+				throw e;
 			}
 		} else {
-			
+
 			int mailboxID = wrapReadableMiddleObject.getMailboxID();
 			AsynPrivateMailbox asynPrivateMailbox = null;
 			try {
 				asynPrivateMailbox = asynPrivateMailboxMapper.getAsynMailbox(mailboxID);
-			} catch(IndexOutOfBoundsException e) {
-				// FIXME!, 메시지 버린것에 대한 로그 남기기 필요함
+			} catch (IndexOutOfBoundsException e) {
+				log.warn("비동기 출력 메시지[{}]와 매치하는 메일 박스가 없어 버림", fromLetter.toString());
+				return;
 			}
 
 			try {
-				asynPrivateMailbox.putToSyncOutputMessageQueue(wrapReadableMiddleObject);
+				asynPrivateMailbox.putToSyncOutputMessageQueue(fromLetter);
 			} catch (InterruptedException e) {
-				// FIXME!, 메시지 버린것에 대한 로그 남기기 필요함
+				log.warn("인터럽트 발생에 의한 동기 출력 메시지[{}] 버림", fromLetter.toString());
+				throw e;
 			}
 		}
 	}
 
-	@Override
+	//@Override
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inObj)
-			throws IOException, NoMoreDataPacketBufferException,
-			BodyFormatException, DynamicClassCallException, ServerTaskException, 
-			AccessDeniedException, InterruptedException {
+			throws IOException, NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException,
+			ServerTaskException, AccessDeniedException, InterruptedException {
 		long startTime = 0;
 		long endTime = 0;
 		startTime = new java.util.Date().getTime();
 
-		connectServer();
-
 		ClassLoader classLoader = inObj.getClass().getClassLoader();
 		WrapReadableMiddleObject receivedLetter = null;
-		
 
 		AsynPrivateMailbox asynPrivateMailbox = asynPrivateMailboxPool.poll(socketTimeOut);
-		
+
 		if (null == asynPrivateMailbox) {
-			String errorMessage = String.format("입력 메시지[%s] 처리시 지정한 시간안에 개인 메일함 가져오기 실패", 
-					inObj.getMessageID());
+			String errorMessage = String.format("입력 메시지[%s] 처리시 지정한 시간안에 개인 메일함 가져오기 실패", inObj.getMessageID());
 			throw new SocketTimeoutException(errorMessage);
 		}
-			
+
 		try {
-			
+
 			inObj.messageHeaderInfo.mailboxID = asynPrivateMailbox.getMailboxID();
 			inObj.messageHeaderInfo.mailID = asynPrivateMailbox.getMailID();
 
-			List<WrapBuffer> wrapBufferListOfInputMessage = getWrapBufferListOfInputMessage(classLoader, inObj);
-			
-							
-			writeInputMessageToSocketChannel(wrapBufferListOfInputMessage);
-			
-			receivedLetter = asynPrivateMailbox.getSyncOutputMessage();				
-			
+			List<WrapBuffer> wrapBufferListOfInputMessage = buildReadableWrapBufferList(classLoader, inObj);
+
+			// writeInputMessageToSocketChannel(serverSC, wrapBufferListOfInputMessage);
+			ToLetter toLetter = new ToLetter(serverSC, inObj.getMessageID(), 
+					inObj.messageHeaderInfo.mailboxID, 
+					inObj.messageHeaderInfo.mailID, 
+					wrapBufferListOfInputMessage);
+			asynSocketResource.getInputMessageWriter().putIntoQueue(toLetter);
+
+			receivedLetter = asynPrivateMailbox.getSyncOutputMessage();
+
 		} finally {
 			asynPrivateMailboxPool.add(asynPrivateMailbox);
 		}
-		
-		
-		AbstractMessage outObj = getMessageFromMiddleReadObj(classLoader, receivedLetter);
+
+		AbstractMessage outObj = buildOutputMessage(classLoader, receivedLetter);
 
 		endTime = new java.util.Date().getTime();
 		log.info(String.format("시간차=[%d]", (endTime - startTime)));
 
-		
 		return outObj;
 	}
 	
 
 	@Override
 	public void finalize() {
-		releaseResources();
-		log.warn("소멸::projectName[{}], ShareAsynConnection[{}], sc hashCode={}", 
-				projectName, index, serverSC.hashCode());
-	}
+		// releaseResources();
+		log.warn("소멸::projectName[{}], ShareAsynConnection[{}]", 
+				projectName, serverSC.hashCode());	}
 
 }

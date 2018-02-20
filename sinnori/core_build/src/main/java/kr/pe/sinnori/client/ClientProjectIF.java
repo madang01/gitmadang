@@ -28,7 +28,6 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 
 /**
  * 클라이언트 프로젝트 개발자 시선의 클라이언트용 서버 접속 API 인터페이스
@@ -45,30 +44,14 @@ public interface ClientProjectIF {
 	
 	public AbstractConnection getConnection() throws InterruptedException, NotSupportedException, SocketTimeoutException;
 	
-	/**
-	 * 연결 객체를 반환한다.
-	 * @param conn
-	 * @throws NotSupportedException
-	 */
 	public void releaseConnection(AbstractConnection conn) throws NotSupportedException;
 	
-	/**
-	 * 새로운 서버 익명 메시지 비지니스 로직으로 교체를 한다.
-	 * @param newAnonymousServerMessageTask 새로운 서버 익명 메시지 비지니스 로직
-	 */
-	public void changeAsynOutputMessageTask(AsynOutputMessageTaskIF newAnonymousServerMessageTask);
 	
-	/**
-	 * 클라이언트 프로젝트 중지
-	 */
-	public void stop();
+	// public void stop();
 	
-	/**
-	 * @return 메시지 스트림 변환 프로토콜
-	 */
-	public MessageProtocolIF getMessageProtocol();
 	
-	public void changeServerAddress(String newServerHost, int newServerPort) throws NotSupportedException;
+	
+	// public void changeServerAddress(String newServerHost, int newServerPort) throws NotSupportedException;
 	
 	// public void saveSinnoriConfiguration() throws IllegalArgumentException, SinnoriConfigurationException, IOException;
 }

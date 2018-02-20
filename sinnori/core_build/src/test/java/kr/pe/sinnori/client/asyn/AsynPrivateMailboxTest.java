@@ -1,5 +1,9 @@
 package kr.pe.sinnori.client.asyn;
 
+import static org.junit.Assert.fail;
+
+import java.io.IOException;
+import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -10,6 +14,7 @@ import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxMapper;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxPool;
 import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
@@ -31,8 +36,15 @@ public class AsynPrivateMailboxTest extends AbstractJunitTest {
 		WrapReadableMiddleObject wrapReadableMiddleObject = 
 				new WrapReadableMiddleObject("Echo", 1, Integer.MIN_VALUE, new Object());
 		
+		FromLetter fromLetter = null;
 		try {
-			asynPrivateMailbox.putToSyncOutputMessageQueue(wrapReadableMiddleObject);
+			fromLetter = new FromLetter(SocketChannel.open(), wrapReadableMiddleObject);
+		} catch (IOException e1) {
+			fail("fail to open a socket");
+		}
+		
+		try {
+			asynPrivateMailbox.putToSyncOutputMessageQueue(fromLetter);
 		} catch (InterruptedException e) {
 			log.warn("InterruptedException", e);
 		};
@@ -41,7 +53,7 @@ public class AsynPrivateMailboxTest extends AbstractJunitTest {
 				new WrapReadableMiddleObject("Echo", 1, Integer.MIN_VALUE, new Object());*/
 		
 		try {
-			asynPrivateMailbox.putToSyncOutputMessageQueue(wrapReadableMiddleObject);
+			asynPrivateMailbox.putToSyncOutputMessageQueue(fromLetter);
 		} catch (InterruptedException e) {
 			log.warn("InterruptedException", e);
 		};

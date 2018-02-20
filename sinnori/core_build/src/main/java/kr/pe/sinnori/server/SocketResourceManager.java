@@ -8,7 +8,7 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.server.threadpool.IEOThreadPoolSetManagerIF;
-import kr.pe.sinnori.server.threadpool.executor.handler.ExecutorIF;
+import kr.pe.sinnori.server.threadpool.executor.handler.ServerExecutorIF;
 import kr.pe.sinnori.server.threadpool.inputmessage.handler.InputMessageReaderIF;
 import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriterIF;
 
@@ -63,7 +63,7 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 		InputMessageReaderIF inputMessageReaderOfOwnerSC = 
 				ieoThreadPoolManager.getInputMessageReaderWithMinimumMumberOfSockets();		
 		
-		ExecutorIF executorOfOwnerSC = 
+		ServerExecutorIF executorOfOwnerSC = 
 				ieoThreadPoolManager.getExecutorWithMinimumMumberOfSockets();
 		
 		OutputMessageWriterIF outputMessageWriterOfOwnerSC = 

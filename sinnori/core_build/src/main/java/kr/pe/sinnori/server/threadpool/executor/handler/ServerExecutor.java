@@ -46,23 +46,25 @@ import kr.pe.sinnori.server.task.ToLetterCarrier;
  * 
  * @author Won Jonghoon
  */
-public class Executor extends Thread implements ExecutorIF {
-	private Logger log = LoggerFactory.getLogger(Executor.class);
+public class ServerExecutor extends Thread implements ServerExecutorIF {
+	private Logger log = LoggerFactory.getLogger(ServerExecutor.class);
 	
 	// private final Object monitor = new Object();
 	
 	private int index;
+	private String projectName = null;
+	
 	private LinkedBlockingQueue<FromLetter> inputMessageQueue;
 	private MessageProtocolIF messageProtocol = null;
 	
 	private SocketResourceManagerIF socketResourceManager = null;
 	private ServerObjectCacheManagerIF serverObjectCacheManager = null;
 	
-	private String projectName = null;
+	
 	
 	private final Set<SocketChannel> socketChannelSet = Collections.synchronizedSet(new HashSet<SocketChannel>());
 
-	public Executor(int index,
+	public ServerExecutor(int index,
 			String projectName,
 			LinkedBlockingQueue<FromLetter> inputMessageQueue,
 			MessageProtocolIF messageProtocol, 
@@ -79,7 +81,7 @@ public class Executor extends Thread implements ExecutorIF {
 
 	@Override
 	public void run() {
-		log.warn("{} ExecutorProcessor[{}] start", projectName, index);
+		log.warn("{} ServerExecutor[{}] start", projectName, index);
 		
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
@@ -168,12 +170,12 @@ public class Executor extends Thread implements ExecutorIF {
 					wrapReadableMiddleObject.closeReadableMiddleObject();
 				}
 			}
-			log.warn("{} ExecutorProcessor[{}] loop exit", projectName, index);
+			log.warn("{} ServerExecutor[{}] loop exit", projectName, index);
 		} catch (InterruptedException e) {
-			log.warn("{} ExecutorProcessor[{}] stop", projectName, index);
+			log.warn("{} ServerExecutor[{}] stop", projectName, index);
 		} catch (Exception e) {
 			log.warn("unknown error", e);
-			log.warn("{} ExecutorProcessor[{}] unknown error", projectName, index);
+			log.warn("{} ServerExecutor[{}] unknown error", projectName, index);
 		}
 	}	
 

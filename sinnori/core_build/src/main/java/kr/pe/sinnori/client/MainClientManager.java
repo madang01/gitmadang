@@ -20,16 +20,15 @@ package kr.pe.sinnori.client;
 import java.util.HashMap;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.itemvalue.AllSubProjectPartConfiguration;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
 import kr.pe.sinnori.common.exception.NotFoundProjectException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 클라이언트 프로젝트 관리자
@@ -70,9 +69,9 @@ public final class MainClientManager {
 		
 		try {
 			mainProjectClient = new AnyProjectClient(mainProjectPart);
-		} catch (NoMoreDataPacketBufferException | NoMoreOutputMessageQueueException | InterruptedException e) {
-			log.error("fail to make main client project instance", e);
-			System.exit(1);
+		} catch (Exception e) {
+			log.warn("fail to make main client project instance", e);
+			// System.exit(1);
 		}
 		
 		List<String> subProjectNamelist = allSubProjectPart.getSubProjectNamelist();
@@ -81,11 +80,11 @@ public final class MainClientManager {
 			AnyProjectClient subClientProject=null;
 			try {
 				subClientProject = new AnyProjectClient(allSubProjectPart.getSubProjectPartConfiguration(subProjectName));
-			} catch (NoMoreDataPacketBufferException | NoMoreOutputMessageQueueException | InterruptedException e) {
-				log.error("fail to make sub client project instance", e);
-				System.exit(1);
+				subProjectClientHash.put(subProjectName, subClientProject);
+			} catch (Exception e) {
+				log.warn("fail to make sub client project instance", e);
+				// System.exit(1);
 			}
-			subProjectClientHash.put(subProjectName, subClientProject);
 		}
 	}
 	
@@ -95,21 +94,29 @@ public final class MainClientManager {
 	 * @return 프로젝트 이름에 해당하는 외부 시각 클라이언트 프로젝트
 	 * @throws NotFoundProjectException 
 	 */
-	public AnyProjectClient getSubProjectClient(String subProjectName) throws NotFoundProjectException {
+	public AnyProjectClient getSubProjectClient(String subProjectName) throws IllegalStateException {
 		AnyProjectClient subProjectClient =  subProjectClientHash.get(subProjectName);
 		if (null == subProjectClient) {
 			StringBuilder errorBuilder = new StringBuilder("신놀이 프레임 워크 환경설정 파일에 찾고자 하는 클라이언트 프로젝트[");
 			errorBuilder.append(subProjectName);
-			errorBuilder.append("] 가 존재하지 않습니다.");
+			errorBuilder.append("] 가 존재하지 않습니다");
 			log.error(errorBuilder.toString());
-			throw new NotFoundProjectException(errorBuilder.toString());
+			throw new IllegalStateException(errorBuilder.toString());
 			// System.exit(1);
 		}
 		
 		return subProjectClient;
 	}
 	
-	public AnyProjectClient getMainProjectClient() {
+	public AnyProjectClient getMainProjectClient() throws IllegalStateException {
+		
+		if (null == mainProjectClient) {
+			StringBuilder errorBuilder = new StringBuilder("신놀이 프레임 워크 환경설정 파일에 찾고자 하는 메인 클라이언트 프로젝트가 존재하지 않습니다");
+			log.error(errorBuilder.toString());
+			throw new IllegalStateException(errorBuilder.toString());
+		}
+		
+		// IllegalStateException 
 		return mainProjectClient;
 	}
 }

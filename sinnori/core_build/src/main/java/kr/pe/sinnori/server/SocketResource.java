@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.io.SocketOutputStream;
-import kr.pe.sinnori.server.threadpool.executor.handler.ExecutorIF;
+import kr.pe.sinnori.server.threadpool.executor.handler.ServerExecutorIF;
 import kr.pe.sinnori.server.threadpool.inputmessage.handler.InputMessageReaderIF;
 import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriterIF;
 
@@ -39,7 +39,7 @@ public class SocketResource {
 
 	private SocketChannel ownerSC = null;
 	private InputMessageReaderIF inputMessageReader = null;
-	private ExecutorIF executor = null;
+	private ServerExecutorIF executor = null;
 	private OutputMessageWriterIF outputMessageWriter = null;
 	private SocketOutputStream socketOutputStream = null;
 	private PersonalLoginManagerIF personalLoginManager = null;
@@ -54,7 +54,7 @@ public class SocketResource {
 	
 	public SocketResource(SocketChannel ownerSC,
 			InputMessageReaderIF inputMessageReaderOfOwnerSC,
-			ExecutorIF executorOfOwnerSC,
+			ServerExecutorIF executorOfOwnerSC,
 			OutputMessageWriterIF outputMessageWriterOfOwnerSC,
 			SocketOutputStream socketOutputStreamOfOwnerSC,
 			PersonalLoginManagerIF personalLoginManagerOfOwnerSC) {
@@ -100,7 +100,7 @@ public class SocketResource {
 		return inputMessageReader;
 	}
 	
-	public ExecutorIF getExecutor() {
+	public ServerExecutorIF getExecutor() {
 		return executor;
 	}
 

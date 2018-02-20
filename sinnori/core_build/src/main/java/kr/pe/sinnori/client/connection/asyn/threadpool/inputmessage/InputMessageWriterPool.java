@@ -17,6 +17,8 @@
 
 package kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler.InputMessageWriter;
@@ -39,7 +41,7 @@ public class InputMessageWriterPool extends AbstractThreadPool implements InputM
 	
 	
 	// private int poolSize;
-	private int nextIndex=-1;
+	
 	
 	/**
 	 * 생성자
@@ -104,8 +106,28 @@ public class InputMessageWriterPool extends AbstractThreadPool implements InputM
 
 	@Override
 	public InputMessageWriterIF getNextInputMessageWriter() {
-		nextIndex = (nextIndex + 1) % pool.size();
-		return (InputMessageWriterIF)pool.get(nextIndex);
+		Iterator<Thread> poolIter = pool.iterator();
+		int min = Integer.MAX_VALUE;
+		
+		InputMessageWriterIF minInputMessageWriter = null;
+		
+		if (! poolIter.hasNext()) {
+			throw new NoSuchElementException("ClientExecutorPool empty");
+		}
+		
+		minInputMessageWriter = (InputMessageWriterIF)poolIter.next();
+		min = minInputMessageWriter.getNumberOfAsynConnection();
+		
+		while (poolIter.hasNext()) {
+			InputMessageWriterIF inputMessageWriter = (InputMessageWriterIF)poolIter.next();
+			int numberOfAsynConnection = inputMessageWriter.getNumberOfAsynConnection();
+			if (numberOfAsynConnection < min) {
+				minInputMessageWriter = inputMessageWriter;
+				min = numberOfAsynConnection;
+			}
+		}
+		
+		return minInputMessageWriter;
 	}
 	
 }

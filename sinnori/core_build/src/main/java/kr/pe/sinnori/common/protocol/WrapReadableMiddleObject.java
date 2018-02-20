@@ -99,6 +99,7 @@ public class WrapReadableMiddleObject {
 		builder.append(mailboxID);
 		builder.append(", mailID=");
 		builder.append(mailID);
+		
 		/*builder.append(", timestamp=");
 		builder.append(timestamp.toString());*/
 		builder.append("]");

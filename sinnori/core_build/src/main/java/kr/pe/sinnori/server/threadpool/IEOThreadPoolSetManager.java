@@ -3,8 +3,8 @@ package kr.pe.sinnori.server.threadpool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.server.threadpool.executor.ExecutorPoolIF;
-import kr.pe.sinnori.server.threadpool.executor.handler.ExecutorIF;
+import kr.pe.sinnori.server.threadpool.executor.ServerExecutorPoolIF;
+import kr.pe.sinnori.server.threadpool.executor.handler.ServerExecutorIF;
 import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderPoolIF;
 import kr.pe.sinnori.server.threadpool.inputmessage.handler.InputMessageReaderIF;
 import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterPoolIF;
@@ -14,7 +14,7 @@ public class IEOThreadPoolSetManager implements IEOThreadPoolSetManagerIF {
 	private Logger log = LoggerFactory.getLogger(IEOThreadPoolSetManager.class);
 	
 	private InputMessageReaderPoolIF inputMessageReaderPool = null;
-	private ExecutorPoolIF executorPool = null;
+	private ServerExecutorPoolIF executorPool = null;
 	private OutputMessageWriterPoolIF outputMessageWriterPool = null;
 
 	public void setInputMessageReaderPool(InputMessageReaderPoolIF inputMessageReaderPool) {
@@ -24,7 +24,7 @@ public class IEOThreadPoolSetManager implements IEOThreadPoolSetManagerIF {
 		this.inputMessageReaderPool = inputMessageReaderPool;
 	}
 	
-	public void setExecutorPool(ExecutorPoolIF executorPool) {
+	public void setExecutorPool(ServerExecutorPoolIF executorPool) {
 		if (null == executorPool) {
 			throw new IllegalArgumentException("the parameter executorPool is null");
 		}
@@ -48,7 +48,7 @@ public class IEOThreadPoolSetManager implements IEOThreadPoolSetManagerIF {
 		return inputMessageReaderPool.getInputMessageReaderWithMinimumMumberOfSockets();
 	}
 	
-	public ExecutorIF getExecutorWithMinimumMumberOfSockets() {
+	public ServerExecutorIF getExecutorWithMinimumMumberOfSockets() {
 		if (null == executorPool) {
 			log.error("the var executorPool is null");
 			System.exit(1);

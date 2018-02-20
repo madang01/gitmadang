@@ -25,15 +25,15 @@ import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
 import kr.pe.sinnori.server.threadpool.IEOThreadPoolSetManagerIF;
-import kr.pe.sinnori.server.threadpool.executor.handler.Executor;
-import kr.pe.sinnori.server.threadpool.executor.handler.ExecutorIF;
+import kr.pe.sinnori.server.threadpool.executor.handler.ServerExecutor;
+import kr.pe.sinnori.server.threadpool.executor.handler.ServerExecutorIF;
 
 /**
  * 서버 비지니스 로직 수행자 쓰레드 폴
  * 
  * @author Won Jonghoon
  */
-public class ExecutorPool extends AbstractThreadPool implements ExecutorPoolIF {
+public class ServerExecutorPool extends AbstractThreadPool implements ServerExecutorPoolIF {
 	// execuate_processor_pool_max_size
 	
 	private int maxHandler;
@@ -45,7 +45,7 @@ public class ExecutorPool extends AbstractThreadPool implements ExecutorPoolIF {
 	
 	private String projectName = null;
 	
-	public ExecutorPool(String projectName, 
+	public ServerExecutorPool(String projectName, 
 			int size, 
 			int max,
 			// LinkedBlockingQueue<FromLetter> inputMessageQueue,
@@ -95,7 +95,7 @@ public class ExecutorPool extends AbstractThreadPool implements ExecutorPoolIF {
 			}
 			
 			try {
-				Thread handler = new Executor(size, 
+				Thread handler = new ServerExecutor(size, 
 						projectName, 
 						inputMessageQueue, 
 						messageProtocol, 
@@ -111,13 +111,13 @@ public class ExecutorPool extends AbstractThreadPool implements ExecutorPoolIF {
 	}
 
 	@Override
-	public ExecutorIF getExecutorWithMinimumMumberOfSockets() {
-		ExecutorIF executorWithMinimumMumberOfSockets = null;
+	public ServerExecutorIF getExecutorWithMinimumMumberOfSockets() {
+		ServerExecutorIF executorWithMinimumMumberOfSockets = null;
 		int minimumMumberOfSockets = Integer.MAX_VALUE;
 
 		int size = pool.size();
 		for (int i = 0; i < size; i++) {
-			ExecutorIF handler = (ExecutorIF) pool.get(i);
+			ServerExecutorIF handler = (ServerExecutorIF) pool.get(i);
 			int numberOfSocket = handler.getNumberOfSocket();
 			if (numberOfSocket < minimumMumberOfSockets) {
 				minimumMumberOfSockets = numberOfSocket;

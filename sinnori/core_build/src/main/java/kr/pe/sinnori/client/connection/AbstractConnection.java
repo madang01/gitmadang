@@ -18,6 +18,8 @@
 package kr.pe.sinnori.client.connection;
 
 import java.io.IOException;
+import java.nio.channels.SelectableChannel;
+import java.nio.channels.SocketChannel;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -28,10 +30,7 @@ import kr.pe.sinnori.common.exception.AccessDeniedException;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
-import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
-import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
@@ -56,122 +55,58 @@ public abstract class AbstractConnection {
 	/** 모니터 전용 오브젝트 */
 	protected final Object monitor = new Object();
 	
-	
-	protected String projectName = null;	
-	protected int index;	
-	
+	protected String projectName = null;
 	protected String host = null;
 	protected int port;
 	protected long socketTimeOut;
 	protected boolean whetherToAutoConnect;
 	
-	protected SocketOutputStream socketOutputStream = null;
-	protected DataPacketBufferPoolIF dataPacketBufferPoolManager = null;
-	protected MessageProtocolIF messageProtocol = null;
+	protected SocketChannel serverSC = null;
 	
-
+	protected  MessageProtocolIF messageProtocol = null;
 	protected ClientObjectCacheManagerIF clientObjectCacheManager = null;
 	
 	
 	protected java.util.Date finalReadTime = new java.util.Date();
+	protected SelectableChannel serverSelectableChannel = null;
 	
-	public AbstractConnection(String projectName, int index, 
+	public AbstractConnection(String projectName,
 			String host,
 			int port,
 			long socketTimeOut,
 			boolean whetherToAutoConnect,
-			SocketOutputStream socketOutputStream,
 			MessageProtocolIF messageProtocol,
-			DataPacketBufferPoolIF dataPacketBufferPoolManager,
-			ClientObjectCacheManagerIF clientObjectCacheManager) throws NoMoreDataPacketBufferException, InterruptedException {
+			ClientObjectCacheManagerIF clientObjectCacheManager) throws NoMoreDataPacketBufferException, InterruptedException, IOException {
 		this.projectName = projectName;
-		this.index = index;
 		this.host = host;
 		this.port = port;
 		this.socketTimeOut = socketTimeOut;
 		this.whetherToAutoConnect = whetherToAutoConnect;
-		this.socketOutputStream = socketOutputStream;
-		this.messageProtocol = messageProtocol;
-		this.dataPacketBufferPoolManager = dataPacketBufferPoolManager;
+		this.messageProtocol = messageProtocol;		
 		this.clientObjectCacheManager = clientObjectCacheManager;
+		
+		openSocketChannel();
+		
+		doConnect();
 	}
 	
-	abstract public void closeSocket() throws IOException;
+	abstract protected void openSocketChannel() throws IOException;
+	abstract protected void doConnect() throws IOException;
+	abstract public void releaseSocketResources();
+	
+	public void closeSocket() throws IOException {
+		serverSC.close();
+	}
 
-	abstract public boolean isConnected();
+	public boolean isConnected() {
+		return serverSC.isConnected();
+	}
 	
 	
-	/**
-	 * @return 임의 selector 에 등록 여부
-	 */
-	/*public boolean isRegistered() {
-		return serverSC.isRegistered();
-	}*/
-	
-	/**
-	 * 입력 메시지 스트림이 담긴 WrapBuff 목록의 소켓 쓰기 
-	 * @param inObjWrapBufferList 입력 메시지 스트림이 담긴 WrapBuff 목록
-	 * @throws IOException 소켓 쓰기 에러 발생시 던지는 예외
-	 * @throws ClosedByInterruptException 
-	 */
-	/*public void write(List<WrapBuffer> inObjWrapBufferList) throws IOException {
-		// if (null == inObjWrapBufferList) return;
+	public boolean isBlocking() {
+		return serverSelectableChannel.isBlocking();
+	}
 		
-		 
-		
-		// int inObjWrapBufferListSize = inObjWrapBufferList.size();
-		
-		// long startTime = System.currentTimeMillis();
-		synchronized (serverSC) {
-			*//**
-			 * 2013.07.24 잔존 데이타 발생하므로 GatheringByteChannel 를 이용하는 바이트 버퍼 배열 쓰기 방식 포기.
-			 *//*			
-			for (int i=0; i < inObjWrapBufferListSize; i++) {
-				WrapBuffer wrapBuffer = inObjWrapBufferList.get(i);
-				ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
-				
-				do {
-					serverSC.write(byteBuffer);
-				} while(byteBuffer.hasRemaining());
-			}
-			// try {
-			for (WrapBuffer wrapBuffer : inObjWrapBufferList) {
-				ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
-				do {
-					int numberOfBytesWritten = serverSC.write(byteBuffer);
-					if (0 == numberOfBytesWritten) {
-						try {
-							Thread.sleep(10);
-						} catch (InterruptedException e) {
-							log.warn("when the number of bytes written is zero,  this thread must sleep. but it fails.", e);
-						}
-					}
-				} while(byteBuffer.hasRemaining());
-			}
-			} catch(ClosedByInterruptException e) {
-				serverClose();
-				log.error("this eorr is very serious so exist", e);
-				System.exit(1);
-			} catch(AsynchronousCloseException e) {
-				serverClose();
-				log.error("this eorr is very serious so exist", e);
-				System.exit(1);
-			} catch(ClosedChannelException e) {
-				serverClose();
-				throw e;
-			}
-		}
-		
-		long endTime = System.currentTimeMillis();
-		log.info(String.format("elapsed time=[%s]", endTime - startTime));
-	}*/
-	
-	
-	abstract public void connectServer() throws IOException, InterruptedException;
-
-	
-
-	
 
 	/**
 	 * @return 프로젝트 이름
@@ -186,16 +121,7 @@ public abstract class AbstractConnection {
 	public final long getSocketTimeOut() {
 		return socketTimeOut;
 	}
-	
-	/**
-	 * @return 소켓 채널 전용 읽기 자원
-	 */
-	/*public SocketOutputStream getSocketOutputStream() {
 		
-		return socketOutputStream;
-	}
-	*/
-	
 
 	/**
 	 * 마지막으로 읽은 시간을 반환한다.
@@ -220,119 +146,8 @@ public abstract class AbstractConnection {
 	}*/
 	
 	
-	public SocketOutputStream getSocketOutputStream() {
-		return socketOutputStream;
-	}
-	
-	public void releaseResources() {
-		socketOutputStream.close();
-	}
-	
-	abstract public AbstractMessage sendSyncInputMessage(
-			AbstractMessage inputMessage) throws IOException, 
-			NoMoreDataPacketBufferException, BodyFormatException, 
-			DynamicClassCallException, ServerTaskException, AccessDeniedException, InterruptedException;
 	
 	
-	
-	abstract public void sendAsynInputMessage(
-			AbstractMessage inputMessage) throws IOException,  
-			NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException, NotSupportedException, InterruptedException;
-	
-	protected AbstractMessage getMessageFromMiddleReadObj(ClassLoader classLoader, WrapReadableMiddleObject receivedLetter) throws DynamicClassCallException, 
-	BodyFormatException, NoMoreDataPacketBufferException, ServerTaskException, AccessDeniedException, IOException {
-		String messageID = receivedLetter.getMessageID();
-		int mailboxID = receivedLetter.getMailboxID();
-		int mailID = receivedLetter.getMailID();
-		Object middleReadObj = receivedLetter.getReadableMiddleObject();
-		
-		MessageCodecIF messageCodec = clientObjectCacheManager.getClientCodec(classLoader, messageID);
-		
-		AbstractMessageDecoder  messageDecoder  = null;
-		try {
-			messageDecoder = messageCodec.getMessageDecoder();
-		} catch (DynamicClassCallException e) {
-			String errorMessage = String.format("클라이언트에서 메시지 식별자[%s]에 해당하는 디코더를 얻는데 실패하였습니다.", messageID);
-			log.warn("{}, mailboxID=[{}], mailID=[{}]", errorMessage, mailboxID, mailID);
-			throw new DynamicClassCallException(errorMessage);
-		} catch (Exception e) {
-			String errorMessage = String.format("알 수 없는 원인으로 클라이언트에서 메시지 식별자[%s]에 해당하는 디코더를 얻는데 실패하였습니다.", messageID);
-			log.warn("{}, mailboxID=[{}], mailID=[{}]", errorMessage, mailboxID, mailID);
-			throw new DynamicClassCallException(errorMessage);
-		}
-		
-		AbstractMessage messageObj = null;
-		try {
-			messageObj = messageDecoder.decode(messageProtocol.getSingleItemDecoder(), middleReadObj);
-			messageObj.messageHeaderInfo.mailboxID = mailboxID;
-			messageObj.messageHeaderInfo.mailID = mailID;
-		} catch (BodyFormatException e) {
-			String errorMessage = String.format("클라이언트에서 메시지[messageID=[%s], mailboxID=[%d], mailID=[%d]] 바디 디코딩 실패, %s", messageID, mailboxID, mailID, e.getMessage());
-			log.warn(errorMessage);
-			throw new BodyFormatException(errorMessage);
-		} catch (OutOfMemoryError e) {
-			String errorMessage = String.format("메모리 부족으로 클라이언트에서 메시지[messageID=[%s], mailboxID=[%d], mailID=[%d]] 바디 디코딩 실패, %s", messageID, mailboxID, mailID, e.getMessage());
-			log.warn(errorMessage);
-			throw new BodyFormatException(errorMessage);
-		} catch (Exception e) {
-			String errorMessage = String.format("알 수 없는 원인으로 클라이언트에서 메시지[messageID=[%s], mailboxID=[%d], mailID=[%d]] 바디 디코딩 실패, %s", messageID, mailboxID, mailID, e.getMessage());
-			log.warn(errorMessage);
-			throw new BodyFormatException(errorMessage);
-		}
-		
-		if (messageObj instanceof SelfExnRes) {
-			SelfExnRes selfExnRes =(SelfExnRes)messageObj;
-			log.warn(selfExnRes.toString());
-			SelfExn.ErrorType.throwSelfExnException(selfExnRes);
-		}
-		
-		return messageObj;
-	}
-	
-	
-	protected List<WrapBuffer> getWrapBufferListOfInputMessage(ClassLoader classLoader, AbstractMessage inputMessage) throws DynamicClassCallException, NoMoreDataPacketBufferException, BodyFormatException {
-		MessageCodecIF messageCodec = null;
-		
-		try {
-			messageCodec = clientObjectCacheManager.getClientCodec(classLoader, inputMessage.getMessageID());
-		} catch (DynamicClassCallException e) {
-			log.warn(e.getMessage());
-			
-			throw e;
-		} catch(Exception e) {
-			log.warn(e.getMessage(), e);
-			
-			throw new DynamicClassCallException("unkown error::"+e.getMessage());
-		}
-		
-		AbstractMessageEncoder  messageEncoder  = null;
-		
-		try {
-			messageEncoder = messageCodec.getMessageEncoder();
-		} catch(DynamicClassCallException e) {
-			// log.warn(e.getMessage());
-			
-			// throw new DynamicClassCallException(e.getMessage());
-			throw e;
-		} catch(Exception e) {
-			log.warn(e.getMessage());
-			throw new DynamicClassCallException("unkown error::"+e.getMessage());
-		}
-		
-		List<WrapBuffer> wrapBufferList = null;	
-		try {
-			wrapBufferList = messageProtocol.M2S(inputMessage, messageEncoder);
-		} catch(NoMoreDataPacketBufferException e) {
-			throw e;		
-		} catch(BodyFormatException e) {
-			throw e;
-		} catch(Exception e) {
-			log.warn("unkown error", e);
-			throw new BodyFormatException("unkown error::"+e.getMessage());
-		}
-		
-		return wrapBufferList;
-	}
 	
 	/*public void changeServerAddress(String newServerHost, int newServerPort) throws NotSupportedException {
 		if (null == newServerHost) {
@@ -376,4 +191,125 @@ public abstract class AbstractConnection {
 		strBuffer.append("]");
 		return strBuffer.toString();
 	}*/
+	
+	protected AbstractMessage buildOutputMessage(ClassLoader classLoader, WrapReadableMiddleObject wrapReadableMiddleObject)
+			throws DynamicClassCallException, BodyFormatException, NoMoreDataPacketBufferException, ServerTaskException,
+			AccessDeniedException, IOException {
+		String messageID = wrapReadableMiddleObject.getMessageID();
+		int mailboxID = wrapReadableMiddleObject.getMailboxID();
+		int mailID = wrapReadableMiddleObject.getMailID();
+		Object middleReadObj = wrapReadableMiddleObject.getReadableMiddleObject();
+
+		MessageCodecIF messageCodec = clientObjectCacheManager.getClientMessageCodec(classLoader, messageID);
+
+		AbstractMessageDecoder messageDecoder = null;
+		try {
+			messageDecoder = messageCodec.getMessageDecoder();
+		} catch (DynamicClassCallException e) {
+			String errorMessage = new StringBuilder("fail to get the client message codec of the output message[")
+					.append(wrapReadableMiddleObject.toSimpleInformation())
+					.append("]").toString();
+			
+			log.warn(errorMessage);
+			throw new DynamicClassCallException(errorMessage);
+		} catch (Exception e) {
+			String errorMessage = new StringBuilder("unknwon error::fail to get the client message codec of the output message[")
+					.append(wrapReadableMiddleObject.toSimpleInformation())
+					.append("]::").append(e.getMessage()).toString();
+			
+			log.warn(errorMessage, e);
+			throw new DynamicClassCallException(errorMessage);
+		}
+
+		AbstractMessage messageObj = null;
+		try {
+			messageObj = messageDecoder.decode(messageProtocol.getSingleItemDecoder(), middleReadObj);
+			messageObj.messageHeaderInfo.mailboxID = mailboxID;
+			messageObj.messageHeaderInfo.mailID = mailID;
+		} catch (BodyFormatException e) {
+			String errorMessage = new StringBuilder("fail to get a output message[")
+					.append(wrapReadableMiddleObject.toSimpleInformation())
+					.append("] from readable middle object").toString();
+			
+			log.warn(errorMessage);
+			throw new BodyFormatException(errorMessage);	
+		} catch (Exception | Error e) {
+			String errorMessage = new StringBuilder("unknwon error::fail to get a output message[")
+					.append(wrapReadableMiddleObject.toSimpleInformation())
+					.append("] from readable middle object::").append(e.getMessage()).toString();
+			
+			log.warn(errorMessage, e);
+			throw new BodyFormatException(errorMessage);
+		}
+
+		if (messageObj instanceof SelfExnRes) {
+			SelfExnRes selfExnRes = (SelfExnRes) messageObj;
+			log.warn(selfExnRes.toString());
+			SelfExn.ErrorType.throwSelfExnException(selfExnRes);
+		}
+
+		return messageObj;
+	}
+
+	protected List<WrapBuffer> buildReadableWrapBufferList(ClassLoader classLoader, AbstractMessage inputMessage) 
+			throws DynamicClassCallException, NoMoreDataPacketBufferException, BodyFormatException {
+		MessageCodecIF messageCodec = null;
+
+		try {
+			messageCodec = clientObjectCacheManager.getClientMessageCodec(classLoader, inputMessage.getMessageID());
+		} catch (DynamicClassCallException e) {
+			String errorMessage = new StringBuilder("fail to get a client input message codec::").append(e.getMessage()).toString();
+			
+			log.warn(errorMessage);
+
+			throw e;
+		} catch (Exception e) {
+			String errorMessage = new StringBuilder("unknown error::fail to get a client input message codec::").append(e.getMessage()).toString();
+			log.warn(errorMessage, e);
+
+			throw new DynamicClassCallException(errorMessage);
+		}
+
+		AbstractMessageEncoder messageEncoder = null;
+
+		try {
+			messageEncoder = messageCodec.getMessageEncoder();
+		} catch (DynamicClassCallException e) {
+			String errorMessage = new StringBuilder("fail to get a input message encoder::").append(e.getMessage()).toString();
+			log.warn(errorMessage);
+			throw e;
+		} catch (Exception e) {
+			String errorMessage = new StringBuilder("unkown error::fail to get a input message encoder::").append(e.getMessage()).toString();
+			log.warn(errorMessage, e);
+			throw new DynamicClassCallException(errorMessage);
+		}
+
+		List<WrapBuffer> wrapBufferList = null;
+		try {
+			wrapBufferList = messageProtocol.M2S(inputMessage, messageEncoder);
+		} catch (NoMoreDataPacketBufferException e) {
+			String errorMessage = new StringBuilder("fail to build a input message stream[")
+					.append(inputMessage.getMessageID())
+					.append("]::").append(e.getMessage()).toString();
+			log.warn(errorMessage);
+			
+			throw e;
+		} catch (BodyFormatException e) {
+			String errorMessage = new StringBuilder("fail to build a input message stream[")
+					.append(inputMessage.getMessageID())
+					.append("]::").append(e.getMessage()).toString();
+			log.warn(errorMessage);
+			
+			throw e;
+		} catch (Exception e) {
+			String errorMessage = new StringBuilder("unknown error::fail to build a input message stream[")
+					.append(inputMessage.getMessageID())
+					.append("]::").append(e.getMessage()).toString();
+			log.warn(errorMessage, e);
+			
+			throw new BodyFormatException(errorMessage);
+		}
+
+		return wrapBufferList;
+	}
 }

@@ -1,9 +1,10 @@
-package kr.pe.sinnori.server.classloader;
+package kr.pe.sinnori.common.classloader;
 
 public class IOPartDynamicClassNameUtil {
 	private String classLoaderClassPackageFirstPrefixName = null;
 	private final String messageSecondPrefix = "message.";
-	private final String serverTaskSecondPrefix = "task.";
+	private final String serverTaskSecondPrefix = "task.server.";
+	private final String clientTaskSecondPrefix = "task.client.";
 	
 	public IOPartDynamicClassNameUtil(String classLoaderClassPackagePrefixName) {
 		this.classLoaderClassPackageFirstPrefixName = classLoaderClassPackagePrefixName;	
@@ -43,7 +44,7 @@ public class IOPartDynamicClassNameUtil {
 	
 	public String getServerTaskClassShortName(String messageID) {
 		String classFullName = new StringBuilder(messageID)
-				.append("ServerCodec").toString();
+				.append("ServerTask").toString();
 		return classFullName;
 	}
 	
@@ -56,6 +57,20 @@ public class IOPartDynamicClassNameUtil {
 		return classFullName;
 	}
 	
+	public String getClientTaskClassShortName(String messageID) {
+		String classFullName = new StringBuilder(messageID)
+				.append("ClientTask").toString();
+		return classFullName;
+	}
+	
+	public String getClientTaskClassFullName(String messageID) {
+		String classFullName = new StringBuilder(classLoaderClassPackageFirstPrefixName)
+				.append(clientTaskSecondPrefix)
+				.append(messageID)
+				.append(".")
+				.append(getClientTaskClassShortName(messageID)).toString();
+		return classFullName;
+	}
 	
 	public String getMessageDecoderClassShortName(String messageID) {
 		String classFullName = new StringBuilder(messageID)

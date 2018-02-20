@@ -4,5 +4,5 @@ import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 
 public interface OutputMessageReaderIF {
 	public void registerAsynConnection(AbstractAsynConnection asynConn);
-	public int getNumberOfSocket();
+	public int getNumberOfAsynConnection();
 }

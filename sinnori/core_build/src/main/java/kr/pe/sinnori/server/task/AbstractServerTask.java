@@ -67,9 +67,12 @@ public abstract class AbstractServerTask {
 		try {
 			serverInputMessageCodec = serverObjectCacheManager.getServerMessageCodec(classLoaderOfSererTask, wrapReadableMiddleObject.getMessageID());
 		} catch (DynamicClassCallException e) {
+			String errorMessage = new StringBuilder("fail to get the server message codec of the input message[")
+					.append(wrapReadableMiddleObject.toSimpleInformation())
+					.append("]").toString();
+			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
-			String errorReason = String.format("fail to get a input message[%s] server codec", 
-					wrapReadableMiddleObject.toSimpleInformation());
+			String errorReason = errorMessage;
 			
 			log.warn(errorReason);
 			
@@ -78,10 +81,13 @@ public abstract class AbstractServerTask {
 					errorReason,
 					wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
 			return;
-		} catch (Exception e) {						
+		} catch (Exception e) {
+			String errorMessage = new StringBuilder("unknwon error::fail to get the server message codec of the input message[")
+					.append(wrapReadableMiddleObject.toSimpleInformation())
+					.append("]::").append(e.getMessage()).toString();
+			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
-			String errorReason = String.format("unknown error::fail to get a input message[%s] server codec::%s", 
-					wrapReadableMiddleObject.toSimpleInformation(), e.getMessage());
+			String errorReason = errorMessage;
 			
 			log.warn(errorReason, e);
 			
@@ -131,9 +137,13 @@ public abstract class AbstractServerTask {
 			inputMessage.messageHeaderInfo.mailboxID = wrapReadableMiddleObject.getMailboxID();
 			inputMessage.messageHeaderInfo.mailID = wrapReadableMiddleObject.getMailID();
 		} catch (BodyFormatException e) {
+			String errorMessage = new StringBuilder("fail to get a input message[")
+					.append(wrapReadableMiddleObject.toSimpleInformation())
+					.append("] from readable middle object").toString();
+			
+			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(BodyFormatException.class);
-			String errorReason = String.format("fail to get a input message[%s] from readable middle object::%s", 
-					wrapReadableMiddleObject.toSimpleInformation(), e.getMessage());
+			String errorReason = errorMessage;
 			
 			log.warn(errorReason);
 			
@@ -142,10 +152,14 @@ public abstract class AbstractServerTask {
 					errorReason,
 					wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
 			return;		
-		} catch(Exception | Error e) {			
+		} catch(Exception | Error e) {
+			String errorMessage = new StringBuilder("unknown error::fail to get a input message[")
+					.append(wrapReadableMiddleObject.toSimpleInformation())
+					.append("] from readable middle object::")
+					.append(e.getMessage()).toString();			
+			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(BodyFormatException.class);
-			String errorReason = String.format("unknown error::fail to get a input message[%s] from readable middle object::%s", 
-					wrapReadableMiddleObject.toSimpleInformation(), e.getMessage());
+			String errorReason = errorMessage;
 			
 			log.warn(errorReason, e);
 			

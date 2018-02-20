@@ -25,6 +25,7 @@ import java.nio.charset.CharsetEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import kr.pe.sinnori.common.classloader.IOPartDynamicClassNameUtil;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CharsetUtil;
 import kr.pe.sinnori.common.etc.ObjectCacheManager;
@@ -58,6 +59,8 @@ public abstract class AbstractProject {
 	protected CharsetEncoder charsetEncoderOfProject = null;
 	
 	protected CharsetDecoder charsetDecoderOfProject = null;
+	
+	protected IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = null;
 	
 	
 
@@ -127,6 +130,9 @@ public abstract class AbstractProject {
 				System.exit(1);
 			}
 		}
+		
+		ioPartDynamicClassNameUtil = new IOPartDynamicClassNameUtil(projectPartConfiguration
+				.getClassLoaderClassPackagePrefixName());
 	}
 	
 	public final ByteOrder getByteOrder() {

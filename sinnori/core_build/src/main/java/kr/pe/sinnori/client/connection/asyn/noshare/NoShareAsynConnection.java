@@ -21,19 +21,16 @@ import java.util.List;
 
 import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
+import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceIF;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox;
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPublicMailbox;
-import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler.InputMessageWriterIF;
-import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReaderIF;
+import kr.pe.sinnori.common.asyn.FromLetter;
+import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.AccessDeniedException;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
-import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
-import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
@@ -50,48 +47,19 @@ import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 public class NoShareAsynConnection extends AbstractAsynConnection {
 
 	private boolean isQueueIn = true;
+	
+	
 	private final AsynPrivateMailbox asynPrivateMailbox = new AsynPrivateMailbox(1, socketTimeOut);
 
-	public NoShareAsynConnection(String projectName, int index, String host, int port, long socketTimeOut,
-			boolean whetherToAutoConnect, AsynPublicMailbox asynPublicMailbox,
-			InputMessageWriterIF inputMessageWriter,
-			OutputMessageReaderIF outputMessageReader, 
-			SocketOutputStream socketOutputStream,
-			MessageProtocolIF messageProtocol,
-			DataPacketBufferPoolIF dataPacketBufferQueueManager, ClientObjectCacheManagerIF clientObjectCacheManager)
-			throws InterruptedException, NoMoreDataPacketBufferException, NoMoreOutputMessageQueueException {
-		super(projectName, index, host, port, socketTimeOut, whetherToAutoConnect, 
-				asynPublicMailbox,
-				outputMessageReader, 
-				socketOutputStream,
-				messageProtocol, dataPacketBufferQueueManager, clientObjectCacheManager);
+	public NoShareAsynConnection(String projectName, String host, int port, long socketTimeOut,
+			boolean whetherToAutoConnect, AsynSocketResourceIF asynSocketResource,
+			MessageProtocolIF messageProtocol, 
+			ClientObjectCacheManagerIF clientObjectCacheManager)
+			throws InterruptedException, NoMoreDataPacketBufferException, IOException {
+		super(projectName, host, port, socketTimeOut, whetherToAutoConnect, 
+				asynSocketResource, messageProtocol, clientObjectCacheManager);
 
-		// this.messageManger = messageManger;
-		// this.outputMessageQueue = outputMessageQueue;
-		// mailbox = new AsynPrivateMailbox(this, 1, inputMessageQueue,
-		// outputMessageQueueQueueManger);
-
-		/*
-		 * try { reopenSocketChannel(); } catch (IOException e) { String errorMessage =
-		 * String.format(
-		 * "project[%s] NoShareAsynConnection[%d], fail to config a socket channel",
-		 * projectName, index); log.error(errorMessage, e); System.exit(1); }
-		 */
-
-		/**
-		 * 연결 종류별로 설정이 모두 다르다 따라서 설정 변수 "소켓 자동접속 여부"에 따른 서버 연결은 연결별 설정후 수행해야 한다.
-		 */
-		if (whetherToAutoConnect) {
-			try {
-				connectServer();
-			} catch (IOException e) {
-				log.warn(String.format("project[%s] NoShareAsynConnection[%d] fail to connect server", projectName,
-						index), e);
-				// System.exit(1);
-			}
-		}
-
-		log.info(String.format("project[%s] NoShareAsynConnection[%d] 생성자 end", projectName, index));
+		log.info(String.format("project[%s] NoShareAsynConnection 생성자 end", projectName));
 	}
 
 	/**
@@ -120,13 +88,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		log.info("get NoShareAsynConnection[{}] from the connection queue", monitor.hashCode());
 	}
 
-	/**
-	 * throws ServerNotReadyException, SocketTimeoutException,
-	 * NoMoreDataPacketBufferException, BodyFormatException,
-	 * DynamicClassCallException, ServerTaskException, AccessDeniedException
-	 */
-
-	@Override
+		
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inObj)
 			throws InterruptedException, IOException, NoMoreDataPacketBufferException,
 			BodyFormatException, DynamicClassCallException, ServerTaskException, AccessDeniedException {
@@ -137,7 +99,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 
 		// log.info("inputMessage=[%s]", inputMessage.toString());
 
-		connectServer();
+		
 
 		ClassLoader classLoader = inObj.getClass().getClassLoader();
 
@@ -146,9 +108,14 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		inObj.messageHeaderInfo.mailboxID = asynPrivateMailbox.getMailboxID();
 		inObj.messageHeaderInfo.mailID = asynPrivateMailbox.getMailID();
 
-		List<WrapBuffer> wrapBufferListOfInputMessage = getWrapBufferListOfInputMessage(classLoader, inObj);
+		List<WrapBuffer> wrapBufferListOfInputMessage = buildReadableWrapBufferList(classLoader, inObj);
 		
-		writeInputMessageToSocketChannel(wrapBufferListOfInputMessage);
+		ToLetter toLetter = new ToLetter(serverSC, inObj.getMessageID(), 
+				inObj.messageHeaderInfo.mailboxID, 
+				inObj.messageHeaderInfo.mailID, 
+				wrapBufferListOfInputMessage);
+		asynSocketResource.getInputMessageWriter().putIntoQueue(toLetter);
+		
 		
 		receivedLetter = asynPrivateMailbox.getSyncOutputMessage();
 
@@ -158,26 +125,24 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		 * Object middleReadObj = letterFromServer.getMiddleReadObj();
 		 */
 
-		AbstractMessage outObj = getMessageFromMiddleReadObj(classLoader, receivedLetter);
+		AbstractMessage outObj = buildOutputMessage(classLoader, receivedLetter);
 
 		endTime = new java.util.Date().getTime();
 		log.info(String.format("2.시간차=[%d]", (endTime - startTime)));
 
 		return outObj;
-	}	
-
-	@Override
-	public void putToOutputMessageQueue(WrapReadableMiddleObject wrapReadableMiddleObject) {
+	}
+	
+	public void putToOutputMessageQueue(FromLetter fromLetter) throws InterruptedException {
+		WrapReadableMiddleObject wrapReadableMiddleObject = fromLetter.getWrapReadableMiddleObject();
+		
 		if (wrapReadableMiddleObject.getMailboxID() == CommonStaticFinalVars.ASYN_MAILBOX_ID) {
 			/** 서버에서 보내는 공지등 불특정 다수한테 보내는 출력 메시지 */
-			// boolean result = false;
-
 			try {
-				// result = asynOutputMessageQueue.offer(wrapReadableMiddleObject,
-				// socketTimeOut, TimeUnit.MILLISECONDS);
-				asynPublicMailbox.putToSyncOutputMessageQueue(wrapReadableMiddleObject);
+				asynSocketResource.getClientExecutor().putIntoQueue(fromLetter);
 			} catch (InterruptedException e) {
-				// FIXME!, 메시지 버린것에 대한 로그 남기기 필요함
+				log.warn("인터럽트 발생에 의한 비동기 출력 메시지[{}] 버림", fromLetter.toString());
+				throw e;
 			}
 		} else {
 			if (isInQueue()) {
@@ -190,21 +155,20 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 			}
 
 			try {
-				asynPrivateMailbox.putToSyncOutputMessageQueue(wrapReadableMiddleObject);
+				asynPrivateMailbox.putToSyncOutputMessageQueue(fromLetter);
 			} catch (InterruptedException e) {
-				// FIXME!, 메시지 버린것에 대한 로그 남기기 필요함
+				log.warn("인터럽트 발생에 의한 동기 출력 메시지[{}] 버림", fromLetter.toString());
+				throw e;
 			}
 		}
 	}
 
 	@Override
 	public void finalize() {
-		// MessageInputStreamResource messageInputStreamResource =
-		// getMessageInputStreamResource();
-		releaseResources();
+		try {
+			serverSC.close();
+		} catch (IOException e) {
+		}
 		log.warn(String.format("NoShareAsynConnection 소멸::[%s]", toString()));
-	}
-
-	
-
+	}			
 }

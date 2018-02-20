@@ -16,6 +16,7 @@
  */
 package kr.pe.sinnori.client;
 
+import kr.pe.sinnori.client.connection.asyn.task.AbstractClientTask;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
 
@@ -25,12 +26,7 @@ import kr.pe.sinnori.common.protocol.MessageCodecIF;
  *
  */
 public interface ClientObjectCacheManagerIF {
-	/**
-	 * 지정된 클래스 로더에서 메시지 식별자와 1:1 대응하는 클라이언트 코덱 객체를 얻어 반환한다.
-	 * @param classLoader 클래스 로더
-	 * @param messageID 메시지 식별자
-	 * @return 지정된 클래스 로더에서 메시지 식별자와 1:1 대응하는 클라이언트 코덱 객체
-	 * @throws DynamicClassCallException 동적 클래스를 다룰때 에러 발생시 던지는 예외
-	 */
-	public MessageCodecIF getClientCodec(ClassLoader classLoader, String messageID) throws DynamicClassCallException;
+	public AbstractClientTask getClientTask(String messageID) throws DynamicClassCallException;
+	
+	public MessageCodecIF getClientMessageCodec(ClassLoader classLoader, String messageID) throws DynamicClassCallException;
 }

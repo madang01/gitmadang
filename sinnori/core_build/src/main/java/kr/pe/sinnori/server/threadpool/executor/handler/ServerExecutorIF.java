@@ -4,7 +4,7 @@ import java.nio.channels.SocketChannel;
 
 import kr.pe.sinnori.common.asyn.FromLetter;
 
-public interface ExecutorIF {
+public interface ServerExecutorIF {
 	public void addNewSocket(SocketChannel newSC);
 	public int getNumberOfSocket();	
 	public void removeSocket(SocketChannel sc);	

@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
+import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.SocketOutputStream;
@@ -44,8 +45,8 @@ import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
  * @author Won Jonghoon
  * 
  */
-public class OutputMessageReaderThread extends Thread implements OutputMessageReaderIF {
-	private Logger log = LoggerFactory.getLogger(OutputMessageReaderThread.class);
+public class OutputMessageReader extends Thread implements OutputMessageReaderIF {
+	private Logger log = LoggerFactory.getLogger(OutputMessageReader.class);
 
 	private final Object monitor = new Object();
 
@@ -77,7 +78,7 @@ public class OutputMessageReaderThread extends Thread implements OutputMessageRe
 	 * @param messageProtocol
 	 *            메시지 교환 프로토콜
 	 */
-	public OutputMessageReaderThread(String projectName, int index, long readSelectorWakeupInterval,
+	public OutputMessageReader(String projectName, int index, long readSelectorWakeupInterval,
 			MessageProtocolIF messageProtocol) {
 		this.projectName = projectName;
 		this.index = index;
@@ -92,7 +93,7 @@ public class OutputMessageReaderThread extends Thread implements OutputMessageRe
 	}
 
 	@Override
-	public int getNumberOfSocket() {
+	public int getNumberOfAsynConnection() {
 		return (notRegistedSocketChannelList.size() + selector.keys().size());
 	}
 
@@ -200,15 +201,16 @@ public class OutputMessageReaderThread extends Thread implements OutputMessageRe
 
 							asynConnection.setFinalReadTime();
 
-							ArrayList<WrapReadableMiddleObject> receivedLetterList = messageProtocol
+							ArrayList<WrapReadableMiddleObject> wrapReadableMiddleObjectList = messageProtocol
 									.S2MList(socketOutputStream);
 
-							for (WrapReadableMiddleObject receivedLetter : receivedLetterList) {
+							for (WrapReadableMiddleObject wrapReadableMiddleObject : wrapReadableMiddleObjectList) {
 								// FIXME!
 								// log.info("receivedLetter={}", receivedLetter.toString());
 
 								// asynConnection.putToOutputMessageQueue(new LetterFromServer(receivedLetter));
-								asynConnection.putToOutputMessageQueue(receivedLetter);
+								FromLetter fromLetter = new FromLetter(serverSC, wrapReadableMiddleObject);
+								asynConnection.putToOutputMessageQueue(fromLetter);
 							}
 						} catch (IOException e) {
 							log.warn(String.format("%s OutputMessageReader[%d]::%s",
@@ -258,7 +260,7 @@ public class OutputMessageReaderThread extends Thread implements OutputMessageRe
 		} catch (IOException e) {
 			log.warn("fail to close the socket[{}]", selectedSocketChannel.hashCode());
 		}
-		selectedAsynConnection.releaseResources();
+		selectedAsynConnection.done();
 	}
 
 	/*private void closeFailedSocket(SocketChannel failedSocketChannel) {

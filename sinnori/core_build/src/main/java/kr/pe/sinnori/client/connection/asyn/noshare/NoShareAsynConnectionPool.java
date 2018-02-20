@@ -19,14 +19,19 @@ package kr.pe.sinnori.client.connection.asyn.noshare;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.nio.charset.CharsetDecoder;
-import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.client.connection.AbstractConnection;
-import kr.pe.sinnori.client.connection.AbstractConnectionPool;
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPublicMailbox;
+import kr.pe.sinnori.client.connection.ConnectionPoolIF;
+import kr.pe.sinnori.client.connection.asyn.AsynSocketResource;
+import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceIF;
+import kr.pe.sinnori.client.connection.asyn.threadpool.executor.ClientExecutorPoolIF;
+import kr.pe.sinnori.client.connection.asyn.threadpool.executor.handler.ClientExecutorIF;
 import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.InputMessageWriterPoolIF;
 import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler.InputMessageWriterIF;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderPoolIF;
@@ -35,7 +40,6 @@ import kr.pe.sinnori.common.exception.AccessDeniedException;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.exception.NoMoreOutputMessageQueueException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
@@ -50,10 +54,13 @@ import kr.pe.sinnori.common.protocol.MessageProtocolIF;
  * @author Won Jonghoon
  * 
  */
-public class NoShareAsynConnectionPool extends AbstractConnectionPool {
+public class NoShareAsynConnectionPool implements ConnectionPoolIF {
+	private Logger log = LoggerFactory.getLogger(NoShareAsynConnectionPool.class);	
+	private final Object monitor = new Object();
+	
 	
 	private LinkedBlockingQueue<NoShareAsynConnection> connectionQueue = null;
-	private ArrayList<NoShareAsynConnection> connectionList = new ArrayList<NoShareAsynConnection>();
+	
 	// private int connectionPoolSize;
 	private long socketTimeOut;
 
@@ -64,15 +71,16 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 			int connectionPoolSize,			
 			long socketTimeOut,
 			boolean whetherToAutoConnect,
-			AsynPublicMailbox asynPublicMailbox,
-			int dataPacketBufferMaxCntPerMessage,
-			CharsetDecoder streamCharsetDecoder,
-			MessageProtocolIF messageProtocol,
+			// AsynPublicMailbox asynPublicMailbox,
 			InputMessageWriterPoolIF inputMessageWriterPool,
 			OutputMessageReaderPoolIF outputMessageReaderPool,
+			ClientExecutorPoolIF clientExecutorPool,
+			int dataPacketBufferMaxCntPerMessage,
+			CharsetDecoder streamCharsetDecoder,
+			MessageProtocolIF messageProtocol,			
 			DataPacketBufferPoolIF dataPacketBufferQueueManager,
 			ClientObjectCacheManagerIF clientObjectCacheManager)
-			throws NoMoreDataPacketBufferException, InterruptedException, NoMoreOutputMessageQueueException {		
+			throws NoMoreDataPacketBufferException, InterruptedException, IOException {		
 		// this.connectionPoolSize = connectionPoolSize;
 		this.socketTimeOut = socketTimeOut;
 		
@@ -83,34 +91,45 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 		 * 비동기 비 공유 연결 클래스는 입력 메시지 큐 1개와 출력 메시지큐 1개를 할당 받는다.
 		 * 입력 메시지 큐는 모든 연결 클래스간에 공유하며, 출력 메시지 큐는 연결 클래스 각각 존재한다.
 		 */
-		for (int i = 0; i < connectionPoolSize; i++) {
-			OutputMessageReaderIF outputMessageReader = outputMessageReaderPool.getNextOutputMessageReader();
-			InputMessageWriterIF inputMessageWriter = inputMessageWriterPool.getNextInputMessageWriter();
-			
-			SocketOutputStream socketOutputStream = new SocketOutputStream(streamCharsetDecoder, 
-					dataPacketBufferMaxCntPerMessage, dataPacketBufferQueueManager);
-			
-			NoShareAsynConnection serverConnection = new NoShareAsynConnection(
-					projectName,
-					i, 
-					host, 
-					port, 
-					socketTimeOut, 
-					whetherToAutoConnect,   
-					asynPublicMailbox,
-					inputMessageWriter,
-					outputMessageReader,
-					socketOutputStream,
-					messageProtocol,
-					dataPacketBufferQueueManager, 
-					clientObjectCacheManager);
-			connectionQueue.add(serverConnection);
-			connectionList.add(serverConnection);
+		try {
+			for (int i = 0; i < connectionPoolSize; i++) {
+				OutputMessageReaderIF outputMessageReader = outputMessageReaderPool.getNextOutputMessageReader();
+				InputMessageWriterIF inputMessageWriter = inputMessageWriterPool.getNextInputMessageWriter();
+				ClientExecutorIF clientExecutor = clientExecutorPool.getNextClientExecutor();
+				
+				SocketOutputStream socketOutputStream = new SocketOutputStream(streamCharsetDecoder, 
+						dataPacketBufferMaxCntPerMessage, dataPacketBufferQueueManager);
+				
+				AsynSocketResourceIF asynSocketResource = new AsynSocketResource(socketOutputStream,
+						inputMessageWriter, outputMessageReader, clientExecutor);
+				
+				
+				NoShareAsynConnection serverConnection = new NoShareAsynConnection(
+						projectName,
+						host, 
+						port, 
+						socketTimeOut, 
+						whetherToAutoConnect,   
+						asynSocketResource,
+						messageProtocol, 
+						clientObjectCacheManager);
+				connectionQueue.add(serverConnection);
+				
+			}
+		} catch(IOException e) {
+			while(! connectionQueue.isEmpty()) {
+				try {
+					connectionQueue.poll().closeSocket();
+				} catch (IOException e1) {
+				}
+			}
+			throw e;
 		}
+		
 	}
 	
 
-	@Override
+	
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
 			throws IOException, SocketTimeoutException,
 			NoMoreDataPacketBufferException, BodyFormatException, 
@@ -144,7 +163,7 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 		return outObj;
 	}	
 	
-	@Override
+	
 	public AbstractConnection getConnection() throws InterruptedException, NotSupportedException, SocketTimeoutException {
 		
 		//synchronized (monitor) {
@@ -157,7 +176,7 @@ public class NoShareAsynConnectionPool extends AbstractConnectionPool {
 		//}
 	}
 	
-	@Override
+	
 	public void release(AbstractConnection conn) throws NotSupportedException {
 		if (null == conn) {
 			String errorMessage = "the parameter conn is null";

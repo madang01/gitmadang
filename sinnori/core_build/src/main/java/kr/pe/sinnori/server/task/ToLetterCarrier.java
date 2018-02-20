@@ -130,16 +130,20 @@ public class ToLetterCarrier {
 		try {
 			messageServerCodec = serverObjectCacheManager.getServerMessageCodec(classLoaderOfServerTask, messageIDToClient);
 		} catch (DynamicClassCallException e) {
-			log.warn(e.getMessage());
+			String errorMessage = new StringBuilder("fail to get a server output message codec::").append(e.getMessage()).toString();
+			
+			log.warn(errorMessage);
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
 			String errorReason = e.getMessage();
 			
 			doAddOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
 			return;
 		} catch (Exception e) {
-			log.warn("unknown error::fail to get a server output message codec"+e.getMessage(), e);			
+			String errorMessage = new StringBuilder("unknown error::fail to get a server output message codec::").append(e.getMessage()).toString();
+			
+			log.warn(errorMessage, e);			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
-			String errorReason = "fail to get a server output message codec::"+e.getMessage();
+			String errorReason = errorMessage;
 			doAddOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
 			return;
 		}
@@ -148,15 +152,19 @@ public class ToLetterCarrier {
 		try {
 			messageEncoder = messageServerCodec.getMessageEncoder();
 		} catch (DynamicClassCallException e) {
-			log.warn(e.getMessage());
+			String errorMessage = new StringBuilder("fail to get a output message encoder::").append(e.getMessage()).toString();
+			
+			log.warn(errorMessage);
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
 			String errorReason = e.getMessage();
 			doAddOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
 			return;
 		} catch (Exception e) {
-			log.warn("unknown error::fail to get a output message encoder::"+e.getMessage(), e);			
+			String errorMessage = new StringBuilder("unknown error::fail to get a output message encoder::").append(e.getMessage()).toString();
+			
+			log.warn(errorMessage, e);			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
-			String errorReason = "fail to get a output message encoder::"+e.getMessage();
+			String errorReason = errorMessage;
 			doAddOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
 			return;
 		}
@@ -165,37 +173,39 @@ public class ToLetterCarrier {
 		/*log.info("classLoader[{}], serverTask[{}], create new messageEncoder of messageIDToClient={}",
 				classLoaderOfSererTask.hashCode(), inputMessageID, messageIDToClient);*/
 		
-		ToLetter toLetter = null;
-	
 		try {
 			wrapBufferList = messageProtocol.M2S(outputMessage, messageEncoder);
+		} catch (NoMoreDataPacketBufferException e) {
+			String errorMessage = new StringBuilder("fail to build a output message stream[")
+					.append(outputMessage.getMessageID())
+					.append("]::").append(e.getMessage()).toString();
 			
-			toLetter = new ToLetter(toSC, 
-					outputMessage.getMessageID(),
-					outputMessage.messageHeaderInfo.mailboxID,
-					outputMessage.messageHeaderInfo.mailID, wrapBufferList);
-		} catch (NoMoreDataPacketBufferException e) {			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(NoMoreDataPacketBufferException.class);
-			String errorReason = String.format("fail to build a toLetter[%s]::%s", 
-					outputMessage.getMessageID(), e.getMessage());
+			String errorReason = errorMessage;
 			
 			log.warn(errorReason);
 			
 			doAddOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
 			return;
 		} catch (BodyFormatException e) {
+			String errorMessage = new StringBuilder("fail to build a output message stream[")
+					.append(outputMessage.getMessageID())
+					.append("]::").append(e.getMessage()).toString();
+			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(BodyFormatException.class);
-			String errorReason = String.format("fail to build a toLetter[%s]::%s", 
-					outputMessage.getMessageID(), e.getMessage());
+			String errorReason = errorMessage;
 			
 			log.warn(errorReason);
 			
 			doAddOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
 			return;			
-		} catch (Exception | Error e) {			
+		} catch (Exception | Error e) {	
+			String errorMessage = new StringBuilder("unknown error::fail to build a output message stream[")
+					.append(outputMessage.getMessageID())
+					.append("]::").append(e.getMessage()).toString();
+			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(BodyFormatException.class);
-			String errorReason = String.format("unknown error::fail to build a toLetter[%s]::%s", 
-					outputMessage.getMessageID(), e.getMessage());
+			String errorReason = errorMessage;
 			
 			
 			log.warn(errorReason, e);
@@ -203,6 +213,11 @@ public class ToLetterCarrier {
 			doAddOutputErrorMessageToToLetterList(toSC, errorType, errorReason, outputMessage, messageProtocol);
 			return;
 		}
+		
+		ToLetter toLetter = new ToLetter(toSC, 
+				outputMessage.getMessageID(),
+				outputMessage.messageHeaderInfo.mailboxID,
+				outputMessage.messageHeaderInfo.mailID, wrapBufferList);
 		
 		toLetterList.add(toLetter);
 	}

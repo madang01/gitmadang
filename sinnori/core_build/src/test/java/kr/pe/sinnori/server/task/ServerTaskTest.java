@@ -24,6 +24,7 @@ import org.mockito.stubbing.Answer;
 
 import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.asyn.ToLetter;
+import kr.pe.sinnori.common.classloader.IOPartDynamicClassNameUtil;
 import kr.pe.sinnori.common.etc.CharsetUtil;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BodyFormatException;
@@ -49,8 +50,7 @@ import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.SocketResource;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
-import kr.pe.sinnori.server.classloader.IOPartDynamicClassNameUtil;
-import kr.pe.sinnori.server.threadpool.executor.handler.ExecutorIF;
+import kr.pe.sinnori.server.threadpool.executor.handler.ServerExecutorIF;
 import kr.pe.sinnori.server.threadpool.inputmessage.handler.InputMessageReaderIF;
 import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriterIF;
 
@@ -125,7 +125,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 		SocketResource socketResourceOfFromSC = null;
 		{	
 			InputMessageReaderIF inputMessageReaderOfOwnerSC = mock(InputMessageReaderIF.class);
-			ExecutorIF executorOfOwnerSC = mock(ExecutorIF.class);
+			ServerExecutorIF executorOfOwnerSC = mock(ServerExecutorIF.class);
 			
 			class OutputMessageWriterMock implements OutputMessageWriterIF {
 				private CharsetDecoder streamCharsetDecoder = null;
@@ -432,7 +432,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 		SocketResource socketResourceOfFromSC = null;
 		{	
 			InputMessageReaderIF inputMessageReaderOfOwnerSC = mock(InputMessageReaderIF.class);
-			ExecutorIF executorOfOwnerSC = mock(ExecutorIF.class);
+			ServerExecutorIF executorOfOwnerSC = mock(ServerExecutorIF.class);
 			
 			class OutputMessageWriterMock implements OutputMessageWriterIF {
 				private CharsetDecoder streamCharsetDecoder = null;
@@ -734,7 +734,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 		SocketResource socketResourceOfFromSC = null;
 		{	
 			InputMessageReaderIF inputMessageReaderOfOwnerSC = mock(InputMessageReaderIF.class);
-			ExecutorIF executorOfOwnerSC = mock(ExecutorIF.class);
+			ServerExecutorIF executorOfOwnerSC = mock(ServerExecutorIF.class);
 			
 			class OutputMessageWriterMock implements OutputMessageWriterIF {
 				private CharsetDecoder streamCharsetDecoder = null;
@@ -1050,7 +1050,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 		SocketResource socketResourceOfFromSC = null;
 		{	
 			InputMessageReaderIF inputMessageReaderOfOwnerSC = mock(InputMessageReaderIF.class);
-			ExecutorIF executorOfOwnerSC = mock(ExecutorIF.class);
+			ServerExecutorIF executorOfOwnerSC = mock(ServerExecutorIF.class);
 			
 			class OutputMessageWriterMock implements OutputMessageWriterIF {
 				private CharsetDecoder streamCharsetDecoder = null;
@@ -1365,7 +1365,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 		SocketResource socketResourceOfFromSC = null;
 		{	
 			InputMessageReaderIF inputMessageReaderOfOwnerSC = mock(InputMessageReaderIF.class);
-			ExecutorIF executorOfOwnerSC = mock(ExecutorIF.class);
+			ServerExecutorIF executorOfOwnerSC = mock(ServerExecutorIF.class);
 			
 			class OutputMessageWriterMock implements OutputMessageWriterIF {
 				private CharsetDecoder streamCharsetDecoder = null;
@@ -1694,7 +1694,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 		SocketResource socketResourceOfFromSC = null;
 		{	
 			InputMessageReaderIF inputMessageReaderOfOwnerSC = mock(InputMessageReaderIF.class);
-			ExecutorIF executorOfOwnerSC = mock(ExecutorIF.class);
+			ServerExecutorIF executorOfOwnerSC = mock(ServerExecutorIF.class);
 			
 			class OutputMessageWriterMock implements OutputMessageWriterIF {
 				private CharsetDecoder streamCharsetDecoder = null;
@@ -2022,7 +2022,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 		SocketResource socketResourceOfFromSC = null;
 		{	
 			InputMessageReaderIF inputMessageReaderOfOwnerSC = mock(InputMessageReaderIF.class);
-			ExecutorIF executorOfOwnerSC = mock(ExecutorIF.class);
+			ServerExecutorIF executorOfOwnerSC = mock(ServerExecutorIF.class);
 			
 			class OutputMessageWriterMock implements OutputMessageWriterIF {
 				private CharsetDecoder streamCharsetDecoder = null;
@@ -2349,7 +2349,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 		SocketResource socketResourceOfFromSC = null;
 		{	
 			InputMessageReaderIF inputMessageReaderOfOwnerSC = mock(InputMessageReaderIF.class);
-			ExecutorIF executorOfOwnerSC = mock(ExecutorIF.class);
+			ServerExecutorIF executorOfOwnerSC = mock(ServerExecutorIF.class);
 			
 			class OutputMessageWriterMock implements OutputMessageWriterIF {
 				private CharsetDecoder streamCharsetDecoder = null;

@@ -21,7 +21,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SocketChannel;
-import java.util.Hashtable;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -56,8 +56,8 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 	private DataPacketBufferPoolIF dataPacketBufferQueueManager = null;
 	
 	
-	private Hashtable<SocketChannel, AbstractAsynConnection> sc2AsynAsynConnectionHash =
-			new Hashtable<SocketChannel, AbstractAsynConnection>();
+	private HashSet<AbstractAsynConnection> asynConnectionSet =
+			new HashSet<AbstractAsynConnection>();
 	
 
 	/**
@@ -165,15 +165,15 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 	}
 
 	public void registerAsynConnection(AbstractAsynConnection asynConn) {
-		sc2AsynAsynConnectionHash.put(asynConn.getSocketChannel(), asynConn);
+		asynConnectionSet.add(asynConn);
 	}
 	
-	public int getNumberOfSocket() {
-		return sc2AsynAsynConnectionHash.size();
+	public int getNumberOfAsynConnection() {
+		return asynConnectionSet.size();
 	}
 	
-	public void removeSocket(SocketChannel sc) {
-		sc2AsynAsynConnectionHash.remove(sc);
+	public void removeAsynConnection(AbstractAsynConnection asynConn) {
+		asynConnectionSet.remove(asynConn);
 	}
 	
 	public void putIntoQueue(ToLetter toLetter) throws InterruptedException {

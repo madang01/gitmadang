@@ -17,15 +17,18 @@
 
 package kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReader;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReaderIF;
-import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReaderThread;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 
 /**
  * 클라이언트 출력 메시지 소켓 읽기 담당 쓰레드 폴
  * 
- * @see OutputMessageReaderThread
+ * @see OutputMessageReader
  * @author Won Jonghoon
  */
 public class OutputMessageReaderPool extends AbstractThreadPool implements OutputMessageReaderPoolIF {
@@ -35,8 +38,6 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements Outpu
 	private MessageProtocolIF messageProtocol = null;
 	
 	
-	// private int poolSize;
-	private int nextIndex=-1;
 	
 	
 	public OutputMessageReaderPool(String projectName, int size, int max,
@@ -74,7 +75,7 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements Outpu
 
 			if (size < maxHandler) {
 				try {
-					Thread handler = new OutputMessageReaderThread(projectName, size, readSelectorWakeupInterval, messageProtocol);
+					Thread handler = new OutputMessageReader(projectName, size, readSelectorWakeupInterval, messageProtocol);
 					pool.add(handler);
 				} catch (Exception e) {
 					String errorMessage = String.format("%s OutputMessageReader[%d] 등록 실패", projectName, size); 
@@ -91,25 +92,27 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements Outpu
 
 	@Override
 	public OutputMessageReaderIF getNextOutputMessageReader() {
-		nextIndex = (nextIndex + 1) % pool.size();
-		return (OutputMessageReaderIF)pool.get(nextIndex);
-	}
-
-	// @Override
-	/*public void addNewServer(AbstractAsynConnection serverAsynConnection) {
-		AsynReadOnlySelectorManagerIF minHandler = null;
-		int MIN_COUNT = Integer.MAX_VALUE;
-
-		int size = pool.size();
-		for (int i = 0; i < size; i++) {
-			AsynReadOnlySelectorManagerIF handler = (AsynReadOnlySelectorManagerIF) pool.get(i);
-			int cnt_of_clients = handler.getCntOfServers();
-			if (cnt_of_clients < MIN_COUNT) {
-				MIN_COUNT = cnt_of_clients;
-				minHandler = handler;
+		Iterator<Thread> poolIter = pool.iterator();
+		int min = Integer.MAX_VALUE;
+		
+		OutputMessageReaderIF minOutputMessageReader = null;
+		
+		if (! poolIter.hasNext()) {
+			throw new NoSuchElementException("ClientExecutorPool empty");
+		}
+		
+		minOutputMessageReader = (OutputMessageReaderIF)poolIter.next();
+		min = minOutputMessageReader.getNumberOfAsynConnection();
+		
+		while (poolIter.hasNext()) {
+			OutputMessageReaderIF outputMessageReader = (OutputMessageReaderIF)poolIter.next();
+			int numberOfAsynConnection = outputMessageReader.getNumberOfAsynConnection();
+			if (numberOfAsynConnection < min) {
+				minOutputMessageReader = outputMessageReader;
+				min = numberOfAsynConnection;
 			}
 		}
-		// 읽기 전용 selector 에 최소로 등록된 소켓 채널을 가지고 있는 출력 메시지 읽기 처리 쓰레드에 연결 객체 등록 
-		minHandler.addNewServer(serverAsynConnection);
-	}*/
+		
+		return minOutputMessageReader;
+	}
 }

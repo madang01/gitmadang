@@ -5,20 +5,31 @@ import java.nio.channels.SocketChannel;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
 public class FromLetter {
-	private SocketChannel fromSocketChannel;
+	private SocketChannel fromSC;
 	private WrapReadableMiddleObject wrapReadableMiddleObject;
 	
-	public FromLetter(SocketChannel fromSocketChannel, WrapReadableMiddleObject wrapReadableMiddleObject) {
-		this.fromSocketChannel = fromSocketChannel;
+	public FromLetter(SocketChannel fromSC, WrapReadableMiddleObject wrapReadableMiddleObject) {
+		this.fromSC = fromSC;
 		this.wrapReadableMiddleObject = wrapReadableMiddleObject;
 	}
 
 	public SocketChannel getFromSocketChannel() {
-		return fromSocketChannel;
+		return fromSC;
 	}
 
 	public WrapReadableMiddleObject getWrapReadableMiddleObject() {
 		return wrapReadableMiddleObject;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("FromLetter [fromSC=");
+		builder.append(fromSC.hashCode());
+		builder.append(", wrapReadableMiddleObject[");		
+		builder.append(wrapReadableMiddleObject.toSimpleInformation());
+		builder.append("]]");
+		return builder.toString();
 	}
 	
 	
