@@ -47,7 +47,7 @@ public class PersonalLoginManager {
 	
 	public void releaseLoginUserResources() {
 		try {
-			conn.closeSocket();
+			conn.close();
 		} catch (IOException e) {
 			log.warn("fail to close connection[{}]", conn.hashCode());
 		}

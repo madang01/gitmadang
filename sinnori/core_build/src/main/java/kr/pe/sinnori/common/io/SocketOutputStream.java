@@ -36,11 +36,11 @@ public class SocketOutputStream {
 	
 	public SocketOutputStream(CharsetDecoder streamCharsetDecoder, 
 			int dataPacketBufferMaxCntPerMessage, 
-			DataPacketBufferPoolIF dataPacketBufferPoolManager) throws NoMoreDataPacketBufferException {
+			DataPacketBufferPoolIF dataPacketBufferPool) throws NoMoreDataPacketBufferException {
 		
 		// this.ownerSocketChannel =ownerSocketChannel;
 		this.streamCharsetDecoder = streamCharsetDecoder;
-		this.dataPacketBufferPoolManager = dataPacketBufferPoolManager;
+		this.dataPacketBufferPoolManager = dataPacketBufferPool;
 		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
 		
 		/*WrapBuffer lastWrapBuffer = dataPacketBufferPoolManager.pollDataPacketBuffer();
@@ -49,8 +49,8 @@ public class SocketOutputStream {
 		
 		socketOutputStreamWrapBufferList.add(lastWrapBuffer);*/
 		
-		streamByteOrder = dataPacketBufferPoolManager.getByteOrder();
-		dataPacketBufferSize = dataPacketBufferPoolManager.getDataPacketBufferSize();
+		streamByteOrder = dataPacketBufferPool.getByteOrder();
+		dataPacketBufferSize = dataPacketBufferPool.getDataPacketBufferSize();
 		
 		numberOfWrittenBytes = 0;
 		

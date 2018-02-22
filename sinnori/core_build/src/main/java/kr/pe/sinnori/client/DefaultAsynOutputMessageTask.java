@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link AnyProjectClient} 에서 지정하는 디폴트 익명 메시지 처리자로 단순 로그만 찍는다. 
+ * {@link AnyProjectConnectionPool} 에서 지정하는 디폴트 익명 메시지 처리자로 단순 로그만 찍는다. 
  * @author Won Jonghoon
  *
  */
@@ -33,6 +33,6 @@ public class DefaultAsynOutputMessageTask implements AsynOutputMessageTaskIF {
 	
 	@Override
 	public void doTask(AbstractMessage outObj) {
-		log.info(String.format("main projectName[%s] %s", MainClientManager.getInstance().getMainProjectClient().getProjectName(), outObj.toString()));
+		log.info(String.format("main projectName[%s] %s", ProjectConnectionPoolManager.getInstance().getMainProjectConnectionPool().getProjectName(), outObj.toString()));
 	}
 }

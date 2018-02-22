@@ -1,13 +1,30 @@
 package kr.pe.sinnori.common.classloader;
 
 public class IOPartDynamicClassNameUtil {
-	private String classLoaderClassPackageFirstPrefixName = null;
+	private String firstPrefixDynamicClassFullName = null;
 	private final String messageSecondPrefix = "message.";
 	private final String serverTaskSecondPrefix = "task.server.";
 	private final String clientTaskSecondPrefix = "task.client.";
 	
-	public IOPartDynamicClassNameUtil(String classLoaderClassPackagePrefixName) {
-		this.classLoaderClassPackageFirstPrefixName = classLoaderClassPackagePrefixName;	
+	public IOPartDynamicClassNameUtil(String firstPrefixDynamicClassFullName) {
+		if (null == firstPrefixDynamicClassFullName) {
+			throw new IllegalArgumentException("the parameter classLoaderClassPackagePrefixName is null");
+		}
+		
+		this.firstPrefixDynamicClassFullName = firstPrefixDynamicClassFullName;	
+	}
+	
+	public String getMessageClassShortName(String messageID) {
+		return messageID;
+	}
+	public String getMessageClassFullName(String messageID) {
+		String classFullName = new StringBuilder(firstPrefixDynamicClassFullName)
+				.append(messageSecondPrefix)
+				.append(messageID)
+				.append(".")
+				.append(getMessageClassShortName(messageID))
+				.toString();
+		return classFullName;
 	}
 	
 	public String getClientMessageCodecClassShortName(String messageID) {
@@ -17,7 +34,7 @@ public class IOPartDynamicClassNameUtil {
 	}
 	
 	public String getClientMessageCodecClassFullName(String messageID) {
-		String classFullName = new StringBuilder(classLoaderClassPackageFirstPrefixName)
+		String classFullName = new StringBuilder(firstPrefixDynamicClassFullName)
 				.append(messageSecondPrefix)
 				.append(messageID)
 				.append(".")
@@ -33,7 +50,7 @@ public class IOPartDynamicClassNameUtil {
 	}
 	
 	public String getServerMessageCodecClassFullName(String messageID) {
-		String classFullName = new StringBuilder(classLoaderClassPackageFirstPrefixName)
+		String classFullName = new StringBuilder(firstPrefixDynamicClassFullName)
 				.append(messageSecondPrefix)
 				.append(messageID)
 				.append(".")
@@ -49,10 +66,8 @@ public class IOPartDynamicClassNameUtil {
 	}
 	
 	public String getServerTaskClassFullName(String messageID) {
-		String classFullName = new StringBuilder(classLoaderClassPackageFirstPrefixName)
+		String classFullName = new StringBuilder(firstPrefixDynamicClassFullName)
 				.append(serverTaskSecondPrefix)
-				.append(messageID)
-				.append(".")
 				.append(getServerTaskClassShortName(messageID)).toString();
 		return classFullName;
 	}
@@ -64,10 +79,8 @@ public class IOPartDynamicClassNameUtil {
 	}
 	
 	public String getClientTaskClassFullName(String messageID) {
-		String classFullName = new StringBuilder(classLoaderClassPackageFirstPrefixName)
+		String classFullName = new StringBuilder(firstPrefixDynamicClassFullName)
 				.append(clientTaskSecondPrefix)
-				.append(messageID)
-				.append(".")
 				.append(getClientTaskClassShortName(messageID)).toString();
 		return classFullName;
 	}
@@ -79,7 +92,7 @@ public class IOPartDynamicClassNameUtil {
 	}
 	
 	public String getMessageDecoderClassFullName(String messageID) {
-		String classFullName = new StringBuilder(classLoaderClassPackageFirstPrefixName)
+		String classFullName = new StringBuilder(firstPrefixDynamicClassFullName)
 				.append(messageSecondPrefix)
 				.append(messageID)
 				.append(".")
@@ -94,11 +107,15 @@ public class IOPartDynamicClassNameUtil {
 	}
 	
 	public String getMessageEncoderClassFullName(String messageID) {
-		String classFullName = new StringBuilder(classLoaderClassPackageFirstPrefixName)
+		String classFullName = new StringBuilder(firstPrefixDynamicClassFullName)
 				.append(messageSecondPrefix)
 				.append(messageID)
 				.append(".")
 				.append(getMessageEncoderClassShortName(messageID)).toString();
 		return classFullName;
+	}
+
+	public String getFirstPrefixDynamicClassFullName() {
+		return firstPrefixDynamicClassFullName;
 	}
 }

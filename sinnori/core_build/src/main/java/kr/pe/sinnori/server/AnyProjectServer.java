@@ -26,9 +26,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
-import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
@@ -59,7 +57,6 @@ public class AnyProjectServer extends AbstractProject implements
 	private ServerClassLoader workBaseClassLoader = null;
 	private HashMap<String, ServerTaskObjectInfo> className2ServerTaskObjectInfoHash = new HashMap<String, ServerTaskObjectInfo>();
 
-	private File serverAPPINFPath = null;
 	/** 동적 클래스인 서버 타스크 객체 운영에 관련된 변수 종료 */
 
 	/** 접속 승인 큐 */
@@ -101,30 +98,10 @@ public class AnyProjectServer extends AbstractProject implements
 	public AnyProjectServer(ProjectPartConfiguration projectPartConfiguration)
 			throws NoMoreDataPacketBufferException, SinnoriConfigurationException {
 		super(projectPartConfiguration);
-		
-		
-
-		String sinnoriInstalledPathString = System
-				.getProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH);
-		
-		String serverAPPINFPathString = BuildSystemPathSupporter
-				.getServerAPPINFPathString(sinnoriInstalledPathString, projectPartConfiguration.getProjectName());
-
-		this.serverAPPINFPath = new File(serverAPPINFPathString);
-		
-		if (!serverAPPINFPath.exists()) {
-			String errorMessage = String.format("the server APP-INF path[%s] doesn't exist", serverAPPINFPathString);
-		 	throw new SinnoriConfigurationException(errorMessage);
-		}
-		
-		if (!serverAPPINFPath.isDirectory()) {
-			String errorMessage = String.format("the server APP-INF path[%s] isn't a directory", serverAPPINFPathString);
-		 	throw new SinnoriConfigurationException(errorMessage);
-		}
+				
 		
 		workBaseClassLoader = new ServerClassLoader(projectPartConfiguration.getProjectName(),
-				serverAPPINFPathString,
-				projectPartConfiguration.getClassLoaderClassPackagePrefixName());
+				ioPartDynamicClassNameUtil);
 
 		acceptQueue = new LinkedBlockingQueue<SocketChannel>(
 				projectPartConfiguration.getServerAcceptQueueSize());
@@ -138,7 +115,7 @@ public class AnyProjectServer extends AbstractProject implements
 		IEOThreadPoolSetManagerIF ieoThreadPoolManager = new IEOThreadPoolSetManager();
 		socketResourceManager = new SocketResourceManager(charsetDecoderOfProject, 
 						projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(), 
-						dataPacketBufferPoolManager, 
+						dataPacketBufferPool, 
 						projectLoginManager, 
 						ieoThreadPoolManager);
 
@@ -161,7 +138,7 @@ public class AnyProjectServer extends AbstractProject implements
 				projectPartConfiguration.getServerInputMessageReaderSize(), 
 				projectPartConfiguration.getServerInputMessageReaderMaxSize(),
 				projectPartConfiguration.getServerReadSelectorWakeupInterval(),
-				messageProtocol, dataPacketBufferPoolManager, 
+				messageProtocol, dataPacketBufferPool, 
 				socketResourceManager, ieoThreadPoolManager);		
 
 		executorPool = new ServerExecutorPool(
@@ -178,7 +155,7 @@ public class AnyProjectServer extends AbstractProject implements
 				projectPartConfiguration.getServerOutputMessageWriterSize(), 
 				projectPartConfiguration.getServerOutputMessageWriterMaxSize(),
 				projectPartConfiguration.getServerOutputMessageQueueSize(), 
-				dataPacketBufferPoolManager, ieoThreadPoolManager);		
+				dataPacketBufferPool, ieoThreadPoolManager);		
 
 		serverProjectMonitor = new ServerProjectMonitor(
 				projectPartConfiguration.getServerMonitorTimeInterval(), 
@@ -287,15 +264,26 @@ public class AnyProjectServer extends AbstractProject implements
 			String classFullName) throws DynamicClassCallException {
 		Class<?> retClass = null;
 		AbstractServerTask serverTask = null;
-		try {
-			retClass = workBaseClassLoader.loadClass(classFullName);
-		} catch (ClassNotFoundException e) {
-			// String errorMessage =
-			// String.format("ServerClassLoader hashCode=[%d], classFullName=[%s]::ClassNotFoundException",
-			// this.hashCode(), classFullName);
-			// log.warn("ClassNotFoundException", e);
-			throw new DynamicClassCallException(e.getMessage());
+		String classFileName = null;
+		
+		
+		synchronized (monitorOfServerTaskObj) {
+			try {
+				retClass = workBaseClassLoader.loadClass(classFullName);
+			} catch (ClassNotFoundException e) {
+				// String errorMessage =
+				// String.format("ServerClassLoader hashCode=[%d], classFullName=[%s]::ClassNotFoundException",
+				// this.hashCode(), classFullName);
+				// log.warn("ClassNotFoundException", e);
+				throw new DynamicClassCallException(e.getMessage());
+			}
+			
+			classFileName = workBaseClassLoader
+					.getClassFileName(classFullName);
 		}
+		
+		
+		
 
 		Object retObject = null;
 		try {			
@@ -350,8 +338,7 @@ public class AnyProjectServer extends AbstractProject implements
 		 */
 		serverTask = (AbstractServerTask) retObject;
 
-		String classFileName = workBaseClassLoader
-				.getClassFileName(classFullName);
+		
 
 		// log.info("classFileName={}", classFileName);
 
@@ -382,9 +369,12 @@ public class AnyProjectServer extends AbstractProject implements
 			} else {
 				if (serverTaskObjectInfo.isModifed()) {
 					/** 새로운 서버 클래스 로더로 교체 */
-					workBaseClassLoader = new ServerClassLoader(projectPartConfiguration.getProjectName(),
-							serverAPPINFPath.getAbsolutePath(),
-							projectPartConfiguration.getClassLoaderClassPackagePrefixName());
+					try {
+						workBaseClassLoader = new ServerClassLoader(projectPartConfiguration.getProjectName(),
+								ioPartDynamicClassNameUtil);
+					} catch (SinnoriConfigurationException e) {
+						/** dead code */
+					}
 					serverTaskObjectInfo = getServerTaskFromWorkBaseClassload(classFullName);
 					className2ServerTaskObjectInfoHash.put(classFullName,
 							serverTaskObjectInfo);
@@ -402,7 +392,7 @@ public class AnyProjectServer extends AbstractProject implements
 		MonitorServerProjectInfo projectInfo = new MonitorServerProjectInfo();
 
 		projectInfo.projectName = projectPartConfiguration.getProjectName();
-		projectInfo.dataPacketBufferQueueSize = dataPacketBufferPoolManager.getDataPacketBufferPoolSize();
+		projectInfo.dataPacketBufferQueueSize = dataPacketBufferPool.getDataPacketBufferPoolSize();
 
 		projectInfo.acceptQueueSize = acceptQueue.size();
 

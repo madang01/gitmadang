@@ -36,7 +36,7 @@ public class ProjectPartConfiguration {
 	private MessageProtocolType messageProtocolType = null;
 	
 	/***** 서버 동적 클래스 변수 시작 *****/
-	private String classLoaderClassPackagePrefixName = null;
+	private String firstPrefixDynamicClassFullName = null;
 	/***** 서버 동적 클래스 변수 종료 *****/
 	/************* common 변수 종료 ******************/
 	
@@ -51,41 +51,34 @@ public class ProjectPartConfiguration {
 	private ConnectionType connectionType = null;
 	/** 소켓 타임 아웃 시간 */
 	private Long clientSocketTimeout = null;
-	/** 연결 생성시 자동 접속 여부 */
-	private Boolean clientWhetherAutoConnection = null;
+	
 	/** 연결 클래스 갯수 */
 	private Integer  clientConnectionCount = null;
+	
+	private Integer  clientConnectionMaxCount = null;
+	
 	/** 비 공유 연결 타임 아웃 */
 	private Long  clientConnectionTimeout = null;
 	/** 데이터 패킷 버퍼 수 */
 	private Integer  clientDataPacketBufferCnt = null;
 	
-	/***** 연결 클래스 관련 환경 변수 종료 *****/
-	
-	/***** 비동기 입출력 지원용 자원 관련 환경 변수 시작 *****/
-	/** 클라이언트 비동기 소켓 채널의 연결 확립 최대 시도 횟수 */
-	private Integer  clientAsynFinishConnectMaxCall = null;
-	/** 클라이언트 비동기 소켓 채널의 연결 확립을 재 시도 간격 */
-	private Long clientFinishConnectWaittingTime = null;	
-	/***** 비동기 입출력 지원용 자원 관련 환경 변수 종료 *****/	
+	/***** 연결 클래스 관련 환경 변수 종료 *****/	
+		
 	/** 비동기 출력 메시지 처리자 쓰레드 갯수 */
-	private Integer  clientAsynOutputMessageExecutorThreadCnt = null;
+	private Integer  clientAsynExecutorPoolSize = null;
 	/** 메일함 갯수 */
-	private Integer  clientAsynShareMailboxCnt = null;	
+	private Integer  clientAsynPirvateMailboxCntPerPublicConnection = null;	
 	/** 입력 메시지 큐 크기 */
 	private Integer  clientAsynInputMessageQueueSize = null;
 	
-	/** 입력 메시지 소켓 쓰기 담당 쓰레드 최대 갯수 */
-	private Integer  clientAsynInputMessageWriterMaxSize = null;
 	/** 입력 메시지 소켓 쓰기 담당 쓰레드 초기 갯수 */
-	private Integer  clientAsynInputMessageWriterSize = null;
+	private Integer  clientAsynInputMessageWriterPoolSize = null;
 	
-	/** 출력 메시지 큐 크기 */
-	private Integer  clientAsynOutputMessageQueueSize = null;	
-	/** 출력 메시지 소켓 읽기 담당 쓰레드 최대 갯수 */
-	private Integer  clientAsynOutputMessageReaderMaxSize = null;
+	
+	private Integer  clientAsynOutputMessageQueueSize = null;
+	
 	/** 출력 메시지 소켓 읽기 담당 쓰레드 갯수 */
-	private Integer  clientAsynOutputMessageReaderSize = null;
+	private Integer  clientAsynOutputMessageReaderPoolSize = null;
 	
 	/** 출력 메시지 소켓 읽기 담당 쓰레드에서 블락된 읽기 이벤트 전용 selector 를 깨우는 주기 */
 	private Long clientReadSelectorWakeupInterval = null;	
@@ -269,7 +262,7 @@ public class ProjectPartConfiguration {
 			
 			this.messageProtocolType = (MessageProtocolType)nativeValue;
 			
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_CLASSLOADER_PACKAGE_PREFIX_NAME_ITEMID)) {
+		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_FIRST_PREFIX_DYNAMIC_CLASS_FULL_NAME_ITEMID)) {
 			if (!(nativeValue instanceof String)) {
 				String errorMessage = new StringBuilder("the generic type[")
 				.append(nativeValue.getClass().getName())
@@ -280,7 +273,7 @@ public class ProjectPartConfiguration {
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 			
-			this.classLoaderClassPackagePrefixName = (String)nativeValue;
+			this.firstPrefixDynamicClassFullName = (String)nativeValue;
 			
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_MONITOR_TIME_INTERVAL_ITEMID)) {
 			if (!(nativeValue instanceof Long)) {
@@ -332,18 +325,6 @@ public class ProjectPartConfiguration {
 			
 			this.connectionType = (ConnectionType) nativeValue;
 		
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_WHETHER_AUTO_CONNECTION_ITEMID)) {
-			if (!(nativeValue instanceof Boolean)) {
-				String errorMessage = new StringBuilder("the generic type[")
-				.append(nativeValue.getClass().getName())
-				.append("] of the parameter itemIDInfo[")
-				.append(itemID).append("] is differnet from the mapped variable's type[")
-				.append(Boolean.class.getName())
-				.append("]").toString();
-				throw new SinnoriConfigurationException(errorMessage);
-			}
-			
-			this.clientWhetherAutoConnection = (Boolean) nativeValue;	
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_COUNT_ITEMID)) {
 			if (!(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -356,6 +337,18 @@ public class ProjectPartConfiguration {
 			}
 			
 			this.clientConnectionCount = (Integer) nativeValue;
+		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_MAX_COUNT_ITEMID)) {
+			if (!(nativeValue instanceof Integer)) {
+				String errorMessage = new StringBuilder("the generic type[")
+				.append(nativeValue.getClass().getName())
+				.append("] of the parameter itemIDInfo[")
+				.append(itemID).append("] is differnet from the mapped variable's type[")
+				.append(Integer.class.getName())
+				.append("]").toString();
+				throw new SinnoriConfigurationException(errorMessage);
+			}
+			
+			this.clientConnectionMaxCount = (Integer) nativeValue;
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_TIMEOUT_ITEMID)) {
 			if (!(nativeValue instanceof Long)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -379,8 +372,9 @@ public class ProjectPartConfiguration {
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 			
-			this.clientDataPacketBufferCnt = (Integer) nativeValue;
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_FINISH_CONNECT_MAX_CALL_ITEMID)) {
+			this.clientDataPacketBufferCnt = (Integer) nativeValue;		
+		
+		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_PIRVATE_MAILBOX_CNT_PER_PUBLIC_CONNECTION_ITEMID)) {
 			if (!(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
 				.append(nativeValue.getClass().getName())
@@ -391,43 +385,7 @@ public class ProjectPartConfiguration {
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 			
-			this.clientAsynFinishConnectMaxCall = (Integer) nativeValue;
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_FINISH_CONNECT_WAITTING_TIME_ITEMID)) {
-			if (!(nativeValue instanceof Long)) {
-				String errorMessage = new StringBuilder("the generic type[")
-				.append(nativeValue.getClass().getName())
-				.append("] of the parameter itemIDInfo[")
-				.append(itemID).append("] is differnet from the mapped variable's type[")
-				.append(Long.class.getName())
-				.append("]").toString();
-				throw new SinnoriConfigurationException(errorMessage);
-			}
-			
-			this.clientFinishConnectWaittingTime = (Long) nativeValue;
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_EXECUTOR_THREAD_CNT_ITEMID)) {
-			if (!(nativeValue instanceof Integer)) {
-				String errorMessage = new StringBuilder("the generic type[")
-				.append(nativeValue.getClass().getName())
-				.append("] of the parameter itemIDInfo[")
-				.append(itemID).append("] is differnet from the mapped variable's type[")
-				.append(Integer.class.getName())
-				.append("]").toString();
-				throw new SinnoriConfigurationException(errorMessage);
-			}
-			
-			this.clientAsynOutputMessageExecutorThreadCnt = (Integer) nativeValue;
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_SHARE_MAILBOX_CNT_ITEMID)) {
-			if (!(nativeValue instanceof Integer)) {
-				String errorMessage = new StringBuilder("the generic type[")
-				.append(nativeValue.getClass().getName())
-				.append("] of the parameter itemIDInfo[")
-				.append(itemID).append("] is differnet from the mapped variable's type[")
-				.append(Integer.class.getName())
-				.append("]").toString();
-				throw new SinnoriConfigurationException(errorMessage);
-			}
-			
-			this.clientAsynShareMailboxCnt = (Integer) nativeValue;
+			this.clientAsynPirvateMailboxCntPerPublicConnection = (Integer) nativeValue;
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_INPUT_MESSAGE_QUEUE_SIZE_ITEMID)) {
 			if (!(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -440,7 +398,8 @@ public class ProjectPartConfiguration {
 			}
 			
 			this.clientAsynInputMessageQueueSize = (Integer) nativeValue;
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_INPUT_MESSAGE_WRITER_MAX_SIZE_ITEMID)) {
+		
+		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_INPUT_MESSAGE_WRITER_POOL_SIZE_ITEMID)) {
 			if (!(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
 				.append(nativeValue.getClass().getName())
@@ -451,19 +410,7 @@ public class ProjectPartConfiguration {
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 			
-			this.clientAsynInputMessageWriterMaxSize = (Integer) nativeValue;
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_INPUT_MESSAGE_WRITER_SIZE_ITEMID)) {
-			if (!(nativeValue instanceof Integer)) {
-				String errorMessage = new StringBuilder("the generic type[")
-				.append(nativeValue.getClass().getName())
-				.append("] of the parameter itemIDInfo[")
-				.append(itemID).append("] is differnet from the mapped variable's type[")
-				.append(Integer.class.getName())
-				.append("]").toString();
-				throw new SinnoriConfigurationException(errorMessage);
-			}
-			
-			this.clientAsynInputMessageWriterSize = (Integer) nativeValue;
+			this.clientAsynInputMessageWriterPoolSize = (Integer) nativeValue;
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_QUEUE_SIZE_ITEMID)) {
 			if (!(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -476,7 +423,9 @@ public class ProjectPartConfiguration {
 			}
 			
 			this.clientAsynOutputMessageQueueSize = (Integer) nativeValue;	
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_READER_MAX_SIZE_ITEMID)) {
+		
+		
+		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_READER_POOL_SIZE_ITEMID)) {
 			if (!(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
 				.append(nativeValue.getClass().getName())
@@ -487,19 +436,7 @@ public class ProjectPartConfiguration {
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 			
-			this.clientAsynOutputMessageReaderMaxSize = (Integer) nativeValue;
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_READER_SIZE_ITEMID)) {
-			if (!(nativeValue instanceof Integer)) {
-				String errorMessage = new StringBuilder("the generic type[")
-				.append(nativeValue.getClass().getName())
-				.append("] of the parameter itemIDInfo[")
-				.append(itemID).append("] is differnet from the mapped variable's type[")
-				.append(Integer.class.getName())
-				.append("]").toString();
-				throw new SinnoriConfigurationException(errorMessage);
-			}
-			
-			this.clientAsynOutputMessageReaderSize = (Integer) nativeValue;
+			this.clientAsynOutputMessageReaderPoolSize = (Integer) nativeValue;
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_READ_SELECTOR_WAKEUP_INTERVAL_ITEMID)) {
 			if (!(nativeValue instanceof Long)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -512,6 +449,18 @@ public class ProjectPartConfiguration {
 			}
 			
 			this.clientReadSelectorWakeupInterval = (Long) nativeValue;
+		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_EXECUTOR_POOL_SIZE_ITEMID)) {
+			if (!(nativeValue instanceof Integer)) {
+				String errorMessage = new StringBuilder("the generic type[")
+				.append(nativeValue.getClass().getName())
+				.append("] of the parameter itemIDInfo[")
+				.append(itemID).append("] is differnet from the mapped variable's type[")
+				.append(Integer.class.getName())
+				.append("]").toString();
+				throw new SinnoriConfigurationException(errorMessage);
+			}
+			
+			this.clientAsynExecutorPoolSize = (Integer) nativeValue;
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_MONITOR_TIME_INTERVAL_ITEMID)) {
 			if (!(nativeValue instanceof Long)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -772,8 +721,8 @@ public class ProjectPartConfiguration {
 		return messageProtocolType;
 	}
 
-	public String getClassLoaderClassPackagePrefixName() {
-		return classLoaderClassPackagePrefixName;
+	public String getFirstPrefixDynamicClassFullName() {
+		return firstPrefixDynamicClassFullName;
 	}
 
 	public ConnectionType getConnectionType() {
@@ -784,53 +733,46 @@ public class ProjectPartConfiguration {
 		return clientConnectionCount;
 	}
 	
+	public int getClientConnectionMaxCount() {
+		return clientConnectionMaxCount;
+	}
+	
 	public long getClientConnectionTimeout() {
 		return clientConnectionTimeout;
 	}
 
-	public boolean isClientWhetherToAutoConnect() {
-		return clientWhetherAutoConnection;
-	}
+	
 
 	public long getClientSocketTimeout() {
 		return clientSocketTimeout;
 	}
 
-	public int getClientAsynFinishConnectMaxCall() {
-		return clientAsynFinishConnectMaxCall;
-	}
+	
 
-	public long getClientFinishConnectWaittingTime() {
-		return clientFinishConnectWaittingTime;
-	}
-
-	public int getClientAsynOutputMessageExecutorThreadCnt() {
-		return clientAsynOutputMessageExecutorThreadCnt;
+	public int getClientAsynExecutorPoolSize() {
+		return clientAsynExecutorPoolSize;
 	}
 
 	public int getClientAsynOutputMessageQueueSize() {
 		return clientAsynOutputMessageQueueSize;
 	}
+	
 
-	public int getClientAsynShareMailboxCnt() {
-		return clientAsynShareMailboxCnt;
+	public int getClientAsynPirvateMailboxCntPerPublicConnection() {
+		return clientAsynPirvateMailboxCntPerPublicConnection;
 	}
 
-	public int getClientAsynInputMessageWriterSize() {
-		return clientAsynInputMessageWriterSize;
+	public int getClientAsynInputMessageWriterPoolSize() {
+		return clientAsynInputMessageWriterPoolSize;
 	}
 
-	public int getClientAsynInputMessageWriterMaxSize() {
-		return clientAsynInputMessageWriterMaxSize;
+	
+
+	public int getClientAsynOutputMessageReaderPoolSize() {
+		return clientAsynOutputMessageReaderPoolSize;
 	}
 
-	public int getClientAsynOutputMessageReaderSize() {
-		return clientAsynOutputMessageReaderSize;
-	}
 
-	public int getClientAsynOutputMessageReaderMaxSize() {
-		return clientAsynOutputMessageReaderMaxSize;
-	}
 
 	public long getClientReadSelectorWakeupInterval() {
 		return clientReadSelectorWakeupInterval;
@@ -924,9 +866,7 @@ public class ProjectPartConfiguration {
 		return serverMybatisConfigFileRelativePathString;
 	}
 
-	public Boolean getClientWhetherAutoConnection() {
-		return clientWhetherAutoConnection;
-	}
+	
 
 	public Integer getServerMaxClients() {
 		return serverMaxClients;
@@ -964,8 +904,8 @@ public class ProjectPartConfiguration {
 		builder.append(messageIDFixedSize);
 		builder.append(", messageProtocol=");
 		builder.append(messageProtocolType);
-		builder.append(", classLoaderClassPackagePrefixName=");
-		builder.append(classLoaderClassPackagePrefixName);
+		builder.append(", firstPrefixDynamicClassFullName=");
+		builder.append(firstPrefixDynamicClassFullName);
 		builder.append(", clientMonitorTimeInterval=");
 		builder.append(clientMonitorTimeInterval);
 		builder.append(", clientMonitorReceptionTimeout=");
@@ -974,34 +914,26 @@ public class ProjectPartConfiguration {
 		builder.append(connectionType);
 		builder.append(", clientSocketTimeout=");
 		builder.append(clientSocketTimeout);
-		builder.append(", clientWhetherAutoConnection=");
-		builder.append(clientWhetherAutoConnection);
 		builder.append(", clientConnectionCount=");
 		builder.append(clientConnectionCount);
+		builder.append(", clientConnectionMaxCount=");
+		builder.append(clientConnectionMaxCount);
 		builder.append(", clientDataPacketBufferCnt=");
-		builder.append(clientDataPacketBufferCnt);
-		builder.append(", clientAsynFinishConnectMaxCall=");
-		builder.append(clientAsynFinishConnectMaxCall);
-		builder.append(", clientFinishConnectWaittingTime=");
-		builder.append(clientFinishConnectWaittingTime);
-		builder.append(", clientAsynOutputMessageExecutorThreadCnt=");
-		builder.append(clientAsynOutputMessageExecutorThreadCnt);
-		builder.append(", clientAsynShareMailboxCnt=");
-		builder.append(clientAsynShareMailboxCnt);
+		builder.append(clientDataPacketBufferCnt);		
+		builder.append(", clientAsynPirvateMailboxCntPerPublicConnection=");
+		builder.append(clientAsynPirvateMailboxCntPerPublicConnection);
 		builder.append(", clientAsynInputMessageQueueSize=");
 		builder.append(clientAsynInputMessageQueueSize);
-		builder.append(", clientAsynInputMessageWriterMaxSize=");
-		builder.append(clientAsynInputMessageWriterMaxSize);
-		builder.append(", clientAsynInputMessageWriterSize=");
-		builder.append(clientAsynInputMessageWriterSize);
-		builder.append(", clientAsynOutputMessageQueueSize=");
-		builder.append(clientAsynOutputMessageQueueSize);
-		builder.append(", clientAsynOutputMessageReaderMaxSize=");
-		builder.append(clientAsynOutputMessageReaderMaxSize);
-		builder.append(", clientAsynOutputMessageReaderSize=");
-		builder.append(clientAsynOutputMessageReaderSize);
+		builder.append(", clientAsynInputMessageWriterPoolSize=");
+		builder.append(clientAsynInputMessageWriterPoolSize);
+		builder.append(", clientAsynPrivateOutputMessageQueueSize=");
+		builder.append(clientAsynOutputMessageQueueSize);		
+		builder.append(", clientAsynOutputMessageReaderPoolSize=");
+		builder.append(clientAsynOutputMessageReaderPoolSize);
 		builder.append(", clientrReadSelectorWakeupInterval=");
 		builder.append(clientReadSelectorWakeupInterval);
+		builder.append(", clientAsynExecutorPoolSize=");
+		builder.append(clientAsynExecutorPoolSize);
 		builder.append(", serverMonitorTimeInterval=");
 		builder.append(serverMonitorTimeInterval);
 		builder.append(", serverMonitorReceptionTimeout=");

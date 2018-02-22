@@ -17,7 +17,7 @@ public class ClientExecutorPool extends AbstractThreadPool implements ClientExec
 	private MessageProtocolIF messageProtocol = null;
 	private ClientObjectCacheManagerIF clientObjectCacheManager = null;
 	
-	public ClientExecutorPool(String projectName, int size, int max,
+	public ClientExecutorPool(String projectName, int size, 
 			int outputMessageQueueSize,
 			MessageProtocolIF messageProtocol,			
 			ClientObjectCacheManagerIF clientObjectCacheManager) {
@@ -25,6 +25,10 @@ public class ClientExecutorPool extends AbstractThreadPool implements ClientExec
 		this.outputMessageQueueSize = outputMessageQueueSize;
 		this.messageProtocol = messageProtocol;
 		this.clientObjectCacheManager = clientObjectCacheManager;
+		
+		for (int i=0; i < size; i++) {
+			addHandler();
+		}
 	}
 
 	@Override
@@ -56,16 +60,18 @@ public class ClientExecutorPool extends AbstractThreadPool implements ClientExec
 
 	@Override
 	public void addHandler() {
-		int size = pool.size();
-		
-		LinkedBlockingQueue<FromLetter> outputMessageQueue = new LinkedBlockingQueue<FromLetter>(outputMessageQueueSize); 
-		
-		ClientExecutor clientExecutor = new ClientExecutor(projectName, size,
-				outputMessageQueue,
-				messageProtocol,
-				clientObjectCacheManager);
-		
-		pool.add(clientExecutor);
+		synchronized (monitor) {
+			int size = pool.size();
+			
+			LinkedBlockingQueue<FromLetter> outputMessageQueue = new LinkedBlockingQueue<FromLetter>(outputMessageQueueSize); 
+			
+			ClientExecutor clientExecutor = new ClientExecutor(projectName, size,
+					outputMessageQueue,
+					messageProtocol,
+					clientObjectCacheManager);
+			
+			pool.add(clientExecutor);
+		}
 	}
 
 }

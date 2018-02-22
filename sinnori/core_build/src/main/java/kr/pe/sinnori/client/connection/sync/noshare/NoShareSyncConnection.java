@@ -69,12 +69,11 @@ public class NoShareSyncConnection extends AbstractConnection {
 	public NoShareSyncConnection(String projectName,  
 			String host, int port,
 			long socketTimeOut,
-			boolean whetherToAutoConnect,
 			SocketResoruceIF syncPrivateSocketResoruce,
 			DataPacketBufferPoolIF dataPacketBufferPool,
 			MessageProtocolIF messageProtocol,
 			ClientObjectCacheManagerIF clientObjectCacheManager) throws InterruptedException, NoMoreDataPacketBufferException, IOException {
-		super(projectName, host, port, socketTimeOut, whetherToAutoConnect, messageProtocol, clientObjectCacheManager);
+		super(projectName, host, port, socketTimeOut, messageProtocol, clientObjectCacheManager);
 		
 		this.dataPacketBufferPool = dataPacketBufferPool;
 		this.syncPrivateSocketResoruce = syncPrivateSocketResoruce;
@@ -185,7 +184,7 @@ public class NoShareSyncConnection extends AbstractConnection {
 			String errorMessage = String.format("IOException::%s, inObj=[%s]", toString(), inObj.toString()); 
 			// ClosedChannelException
 			log.warn(errorMessage, e);
-			closeSocket();
+			close();
 			
 			throw new IOException(errorMessage);
 		} catch (DynamicClassCallException e) {
@@ -257,17 +256,17 @@ public class NoShareSyncConnection extends AbstractConnection {
 		} catch (HeaderFormatException e) {
 			log.warn(String.format("HeaderFormatException::%s", e.getMessage()), e);
 			
-			closeSocket();
+			close();
 		} catch (SocketTimeoutException e) {
 			log.warn(String.format("SocketTimeoutException, inObj=[%s]",
 					inObj.toString()), e);
 			
-			closeSocket();
+			close();
 			throw e;
 		} catch (IOException e) {
 			log.error("IOException", e);
 			
-			closeSocket();
+			close();
 			// System.exit(1);
 		} finally {
 			
@@ -307,25 +306,25 @@ public class NoShareSyncConnection extends AbstractConnection {
 			throws IOException, 
 			NoMoreDataPacketBufferException, BodyFormatException, 
 			DynamicClassCallException, NotSupportedException {		
-		throw new NotSupportedException("비공유+동기 연결은 출력 메시지를 받지 않고 입력 메시지만 보내는 기능을 지원하지 않습니다.");
+		throw new NotSupportedException("this synchronous connection doesn't support this method 'sendAsynInputMessage'");
 	}
 	
 	@Override
 	public void finalize() {
-		// MessageInputStreamResource messageInputStreamResource = getMessageInputStreamResource();
 		try {
-			serverSC.close();
+			close();
 		} catch (IOException e) {
+			
 		}
-		
-		syncPrivateSocketResoruce.releaseSocketResources();
 		
 		log.warn(String.format("소멸::[%s]", toString()));
 	}
 
 
-	public void releaseSocketResources() {
+	protected void doReleaseSocketResources() {
 		syncPrivateSocketResoruce.releaseSocketResources();
 	}
+
+
 
 }

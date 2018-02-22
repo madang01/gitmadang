@@ -58,14 +58,13 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 	
 	public ShareAsynConnection(String projectName, 
 			String host, int port,
-			long socketTimeOut, 
-			boolean whetherToAutoConnect, 
+			long socketTimeOut,  
 			AsynPrivateMailboxMapper asynPrivateMailboxMapper,
 			AsynSocketResourceIF asynSocketResource,
 			MessageProtocolIF messageProtocol,
 			ClientObjectCacheManagerIF clientObjectCacheManager)
 			throws InterruptedException, NoMoreDataPacketBufferException, IOException {
-		super(projectName, host, port, socketTimeOut, whetherToAutoConnect, 
+		super(projectName, host, port, socketTimeOut, 
 				asynSocketResource, messageProtocol, clientObjectCacheManager);
 
 
@@ -158,8 +157,17 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 
 	@Override
 	public void finalize() {
+		try {
+			close();
+		} catch (IOException e) {
+			
+		}
+		
+		releaseSocketResources();
+		
 		// releaseResources();
 		log.warn("소멸::projectName[{}], ShareAsynConnection[{}]", 
-				projectName, serverSC.hashCode());	}
+				projectName, serverSC.hashCode());	
+	}
 
 }

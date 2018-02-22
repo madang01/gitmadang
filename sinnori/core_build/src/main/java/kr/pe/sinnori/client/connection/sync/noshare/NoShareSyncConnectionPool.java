@@ -28,163 +28,208 @@ import org.slf4j.LoggerFactory;
 import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.ConnectionPoolIF;
+import kr.pe.sinnori.client.connection.ConnectionPoolManagerIF;
 import kr.pe.sinnori.client.connection.SocketResoruceIF;
-import kr.pe.sinnori.common.exception.AccessDeniedException;
-import kr.pe.sinnori.common.exception.BodyFormatException;
-import kr.pe.sinnori.common.exception.DynamicClassCallException;
+import kr.pe.sinnori.common.exception.ConnectionPoolException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.exception.NotSupportedException;
-import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.io.SocketOutputStream;
-import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 
 /**
- * 클라이언트 비공유 방식의 동기 연결 클래스 {@link NoShareSyncConnection} 를 원소로 가지는 폴 관리자 클래스<br/>
+ * 클라이언트 비공유 방식의 동기 연결 클래스 {@link NoShareSyncConnection} 를 원소로 가지는 폴 관리자
+ * 클래스<br/>
  * 다른 쓰레드간에 연결 클래스를 공유 시키지 않기 위해서 폴 원소는 큐로 관리한다.
  * 
  * @author Won Jonghoon
  * 
  */
 public class NoShareSyncConnectionPool implements ConnectionPoolIF {
-	private Logger log = LoggerFactory.getLogger(NoShareSyncConnectionPool.class);	
+	private Logger log = LoggerFactory.getLogger(NoShareSyncConnectionPool.class);
 	private final Object monitor = new Object();
-	
-	
-	/** Connection Pool 운영을 위한 변수 */
-	private LinkedBlockingQueue<NoShareSyncConnection> connectionQueue = null;
-	// private int connectionPoolSize;
+
+	private String projectName = null;
+	private String host = null;
+	private int port;
+	private int connectionPoolSize;
+	private int connectionPoolMaxSize;
 	private long socketTimeOut;
-	
-	public NoShareSyncConnectionPool(String projectName,
-			String host,
-			int port,
-			int connectionPoolSize, 
-			long socketTimeOut,
-			boolean whetherToAutoConnect,
-			int dataPacketBufferMaxCntPerMessage,
-			CharsetDecoder streamCharsetDecoder,
-			MessageProtocolIF messageProtocol,
-			DataPacketBufferPoolIF dataPacketBufferQueueManager,
-			ClientObjectCacheManagerIF clientObjectCacheManager)
-			throws NoMoreDataPacketBufferException, InterruptedException, IOException {
+	private int dataPacketBufferMaxCntPerMessage;
+	private CharsetDecoder streamCharsetDecoder = null;
+	private MessageProtocolIF messageProtocol = null;
+	private DataPacketBufferPoolIF dataPacketBufferPool = null;
+	private ClientObjectCacheManagerIF clientObjectCacheManager = null;
+
+	private LinkedBlockingQueue<NoShareSyncConnection> connectionQueue = null;
+	private transient int numberOfConnection = 0;
+	private ConnectionPoolManagerIF poolManager = null;
+
+	public NoShareSyncConnectionPool(String projectName, String host, int port, int connectionPoolSize,
+			int connectionPoolMaxSize, long socketTimeOut, int dataPacketBufferMaxCntPerMessage,
+			CharsetDecoder streamCharsetDecoder, MessageProtocolIF messageProtocol,
+			DataPacketBufferPoolIF dataPacketBufferPool, ClientObjectCacheManagerIF clientObjectCacheManager)
+			throws NoMoreDataPacketBufferException, InterruptedException, IOException, ConnectionPoolException {
 		super();
 
 		// log.info("create new SingleBlockConnectionPool");
 
+		this.projectName = projectName;
+		this.host = host;
+		this.port = port;
+		this.connectionPoolSize = connectionPoolSize;
+		this.connectionPoolMaxSize = connectionPoolMaxSize;
 		this.socketTimeOut = socketTimeOut;
-		// this.connectionPoolSize = connectionPoolSize;
+		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
+		this.streamCharsetDecoder = streamCharsetDecoder;
+		this.messageProtocol = messageProtocol;
+		this.dataPacketBufferPool = dataPacketBufferPool;
+		this.clientObjectCacheManager = clientObjectCacheManager;
 
-		connectionQueue = new LinkedBlockingQueue<NoShareSyncConnection>(
-				connectionPoolSize);
+		connectionQueue = new LinkedBlockingQueue<NoShareSyncConnection>(connectionPoolMaxSize);
 
 		try {
 			for (int i = 0; i < connectionPoolSize; i++) {
-				SocketOutputStream socketOutputStream = new SocketOutputStream(streamCharsetDecoder, 
-						dataPacketBufferMaxCntPerMessage, dataPacketBufferQueueManager);
-				
-				SocketResoruceIF syncPrivateSocketResoruce = new SyncPrivateSocketResource(socketOutputStream);
-				
-				NoShareSyncConnection serverConnection = new NoShareSyncConnection(
-						projectName,  
-						host, port,
-						socketTimeOut,
-						whetherToAutoConnect, 
-						syncPrivateSocketResoruce,
-						dataPacketBufferQueueManager,
-						messageProtocol,
-						clientObjectCacheManager);
-				connectionQueue.add(serverConnection);
+				addConnection();
 			}
-		} catch(IOException e) {
-			while(! connectionQueue.isEmpty()) {
-				NoShareSyncConnection serverConnection = connectionQueue.poll(); 
+		} catch (IOException e) {
+			while (!connectionQueue.isEmpty()) {
+				NoShareSyncConnection conn = connectionQueue.poll();
 				try {
-					serverConnection.closeSocket();
+					conn.close();
 				} catch (IOException e1) {
 				}
-				serverConnection.releaseSocketResources();
-				
+				conn.doReleaseSocketResources();
+
 			}
 			throw e;
 		}
 	}
-		
-	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
-			throws IOException, 
-			NoMoreDataPacketBufferException, BodyFormatException, 
-			DynamicClassCallException, ServerTaskException, AccessDeniedException, InterruptedException {
-		NoShareSyncConnection conn = null;
-		
-		conn = connectionQueue.poll(socketTimeOut, TimeUnit.MILLISECONDS);
-		if (null == conn) {
-			throw new SocketTimeoutException("no share synchronized connection pool timeout");
-		}
-		
-		conn.queueOut();
 
-		AbstractMessage retMessage = null;
-		try {
-			retMessage = conn.sendSyncInputMessage(inputMessage);
-		} finally {
-			
-			conn.queueIn();
-			boolean isSuccess = connectionQueue.offer(conn);
-			if (!isSuccess) {
-				log.error("fail to put NoShareSyncConnection[{}] in the connection queue becase of bug, you need to check and fix bug", conn.hashCode());
-				System.exit(1);
-			}
-			
-		}
-		return retMessage;
-	}
-	
-	
-	public AbstractConnection getConnection() throws InterruptedException, NotSupportedException, SocketTimeoutException {
-		
-		
+	public void addConnection()
+			throws InterruptedException, NoMoreDataPacketBufferException, IOException, ConnectionPoolException {
 		synchronized (monitor) {
-			NoShareSyncConnection conn = connectionQueue.poll(socketTimeOut, TimeUnit.MILLISECONDS);
-			if (null == conn) {
-				throw new SocketTimeoutException("no share synchronized connection pool timeout");
+			if (numberOfConnection >= connectionPoolMaxSize) {
+				throw new ConnectionPoolException("fail to add a connection because this connection pool is full");
 			}
-			conn.queueOut();
-			return conn;
+
+			SocketOutputStream socketOutputStream = new SocketOutputStream(streamCharsetDecoder,
+					dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
+
+			SocketResoruceIF syncPrivateSocketResoruce = new SyncPrivateSocketResource(socketOutputStream);
+
+			NoShareSyncConnection conn = new NoShareSyncConnection(projectName, host, port, socketTimeOut,
+					syncPrivateSocketResoruce, dataPacketBufferPool, messageProtocol, clientObjectCacheManager);
+
+			connectionQueue.add(conn);
+			numberOfConnection++;
+			
+			connectionPoolSize = Math.max(numberOfConnection, connectionPoolSize);
 		}
 	}
-	
-	
-	public void release(AbstractConnection conn) throws NotSupportedException {
+
+	/*
+	 * public int getNumberOfConnection() { return numberOfConnection; }
+	 */
+
+	/*
+	 * public int getConnectionPoolSize() { return connectionPoolSize; }
+	 */
+	/*
+	 * public int getConnectionPoolMaxSize() { return connectionPoolMaxSize; }
+	 */
+
+	public boolean whetherConnectionIsMissing() {
+		return (numberOfConnection != connectionPoolSize);
+	}
+
+	public AbstractConnection getConnection() throws InterruptedException, SocketTimeoutException, ConnectionPoolException {
+
+		NoShareSyncConnection syncPrivateConnection = null;
+		boolean loop = false;
+		
+		synchronized (monitor) {			
+			do {
+				if (0 == numberOfConnection) {
+					throw new ConnectionPoolException("check server alive");
+				}
+				
+				syncPrivateConnection = connectionQueue.poll(socketTimeOut, TimeUnit.MILLISECONDS);
+				if (null == syncPrivateConnection) {
+					throw new SocketTimeoutException("no share synchronized connection pool timeout");
+				}
+				syncPrivateConnection.queueOut();
+
+				if (syncPrivateConnection.isConnected()) {
+					loop = false;
+				} else {
+					loop = true;
+					
+					String reasonForLoss = new StringBuilder("폴에서 꺼낸 동기 비공유 연결[")
+							.append(syncPrivateConnection.hashCode()).append("]이 닫혀있어 폐기").toString();
+
+					numberOfConnection--;
+
+					log.warn("{}, 총 연결수[{}]", reasonForLoss, numberOfConnection);
+
+					poolManager.notice(reasonForLoss);		
+				}
+			} while (loop);
+
+			return syncPrivateConnection;
+		}
+	}
+
+	public void release(AbstractConnection conn) throws ConnectionPoolException {
 		if (null == conn) {
 			String errorMessage = "the parameter conn is null";
 			log.warn(errorMessage, new Throwable());
 			throw new IllegalArgumentException(errorMessage);
 		}
-		
-		if (! (conn instanceof NoShareSyncConnection)) {
+
+		if (!(conn instanceof NoShareSyncConnection)) {
 			String errorMessage = "the parameter conn is not instace of NoShareSyncConnection class";
 			log.warn(errorMessage, new Throwable());
 			throw new IllegalArgumentException(errorMessage);
 		}
-		
-		NoShareSyncConnection serverConnection = (NoShareSyncConnection)conn;
+
+		NoShareSyncConnection syncPrivateConnection = (NoShareSyncConnection) conn;
 		synchronized (monitor) {
 			/**
 			 * 연속 2회 큐 입력 방지
 			 */
-			if (serverConnection.isInQueue()) {
-				String errorMessage = String.format("the paramter conn[%d] that is NoShareSyncConnection  allready was in connection queue", conn.hashCode());
+			if (syncPrivateConnection.isInQueue()) {
+				String errorMessage = String.format(
+						"the paramter conn[%d] that is NoShareSyncConnection  allready was in connection queue",
+						conn.hashCode());
 				log.warn(errorMessage, new Throwable());
+				throw new ConnectionPoolException(errorMessage);
+			}
+
+			if (!syncPrivateConnection.isConnected()) {
+				numberOfConnection--;
+
+				String reasonForLoss = new StringBuilder("반환된 동기 비공유 연결[").append(syncPrivateConnection.hashCode())
+						.append("]이 닫혀있어 폐기").toString();
+
+				log.warn("{}, 총 연결수[{}]", reasonForLoss, numberOfConnection);
+
+				poolManager.notice(reasonForLoss);
 				return;
 			}
-			serverConnection.queueIn();
-			boolean isSuccess = connectionQueue.offer(serverConnection);
+
+			syncPrivateConnection.queueIn();
+			boolean isSuccess = connectionQueue.offer(syncPrivateConnection);
 			if (!isSuccess) {
-				log.error("fail to offer NoShareSyncConnection[{}] to connection queue becase of bug, you need to check and fix bug", conn.hashCode());
+				log.error("fail to offer NoShareSyncConnection[{}] to queue, you need to check and fix bug",
+						conn.hashCode());
 				System.exit(1);
 			}
 		}
 	}
-	
+
+	@Override
+	public void registerPoolManager(ConnectionPoolManagerIF poolManager) {
+		this.poolManager = poolManager;
+	}
+
 }

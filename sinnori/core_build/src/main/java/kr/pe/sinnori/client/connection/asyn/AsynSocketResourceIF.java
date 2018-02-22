@@ -6,8 +6,7 @@ import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler.Inpu
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReaderIF;
 
 public interface AsynSocketResourceIF extends SocketResoruceIF {
-	/** 비동기 소켓의 경우 실질적인 자원 해제 */
-	public void done();
+	public void releaseSocketResources();
 	public InputMessageWriterIF getInputMessageWriter();
 	public OutputMessageReaderIF getOutputMessageReader();
 	public ClientExecutorIF getClientExecutor();

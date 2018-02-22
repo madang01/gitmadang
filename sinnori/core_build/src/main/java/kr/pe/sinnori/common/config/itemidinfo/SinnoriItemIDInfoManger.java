@@ -216,7 +216,7 @@ public class SinnoriItemIDInfoManger {
 					ItemIDInfo.ViewType.FILE,
 					itemID,
 					"세션키에 사용되는 RSA 공개키 파일",
-					"[sinnnori installed path]/project/[main project name]/resouces/rsa_keypair/sinnori.publickey",
+					"<sinnnori installed path>/project/<main project name>/resouces/rsa_keypair/sinnori.publickey",
 					isDefaultValueCheck,
 					new GeneralConverterReturningRegularFile(false));
 			addCommonPartItemIDInfo(itemIDInfo);
@@ -228,7 +228,7 @@ public class SinnoriItemIDInfoManger {
 					ItemIDInfo.ViewType.FILE,
 					itemID,
 					"세션키에 사용되는 RSA 개인키 파일",
-					"[sinnnori installed path]/project/[main project name]/resouces/rsa_keypair/sinnori.privatekey",
+					"<sinnnori installed path>/project/<main project name>/resouces/rsa_keypair/sinnori.privatekey",
 					isDefaultValueCheck,
 					new GeneralConverterReturningRegularFile(false));
 			addCommonPartItemIDInfo(itemIDInfo);
@@ -358,7 +358,7 @@ public class SinnoriItemIDInfoManger {
 						ItemIDInfo.ViewType.FILE,
 						itemID,
 						"dbcp 설정 파일 경로명",
-						"[sinnori installed path]/project/[main project name]/config/[dbcp name].properties",
+						"<sinnori installed path>/project/<main project name>/config/<dbcp name>.properties",
 						isDefaultValueCheck,
 						new GeneralConverterReturningRegularFile(
 								isWritePermissionChecking));
@@ -490,7 +490,7 @@ public class SinnoriItemIDInfoManger {
 					new SetTypeConverterReturningMessageProtocolType());
 			addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_CLASSLOADER_PACKAGE_PREFIX_NAME_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_FIRST_PREFIX_DYNAMIC_CLASS_FULL_NAME_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<String>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -542,16 +542,7 @@ public class SinnoriItemIDInfoManger {
 					isDefaultValueCheck,
 					new GeneralConverterReturningLongBetweenMinAndMax(
 							1000L, (long) Integer.MAX_VALUE));
-			addProjectPartItemIDInfo(itemIDInfo);
-
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_WHETHER_AUTO_CONNECTION_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<Boolean>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.SINGLE_SET, itemID, "연결 생성시 자동 접속 여부",
-					"false", isDefaultValueCheck,
-					new SetTypeConverterReturningBoolean());
-			addProjectPartItemIDInfo(itemIDInfo);
+			addProjectPartItemIDInfo(itemIDInfo);			
 
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_COUNT_ITEMID;
 			isDefaultValueCheck = true;
@@ -560,7 +551,20 @@ public class SinnoriItemIDInfoManger {
 					ItemIDInfo.ViewType.TEXT,
 					itemID,
 					"연결 갯수",
-					"4",
+					"1",
+					isDefaultValueCheck,
+					new GeneralConverterReturningIntegerBetweenMinAndMax(
+							1, Integer.MAX_VALUE));
+			addProjectPartItemIDInfo(itemIDInfo);
+			
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_MAX_COUNT_ITEMID;
+			isDefaultValueCheck = true;
+			itemIDInfo = new ItemIDInfo<Integer>(
+					ItemIDInfo.ConfigurationPart.PROJECT,
+					ItemIDInfo.ViewType.TEXT,
+					itemID,
+					"연결 최대 갯수",
+					"5",
 					isDefaultValueCheck,
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1, Integer.MAX_VALUE));
@@ -587,33 +591,9 @@ public class SinnoriItemIDInfoManger {
 					isDefaultValueCheck,
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1, Integer.MAX_VALUE));
-			addProjectPartItemIDInfo(itemIDInfo);
+			addProjectPartItemIDInfo(itemIDInfo);			
 
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_FINISH_CONNECT_MAX_CALL_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<Integer>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.TEXT,
-					itemID,
-					"클라이언트 비동기 소켓 채널의 연결 확립 최대 시도 횟수",
-					"10",
-					isDefaultValueCheck,
-					new GeneralConverterReturningIntegerBetweenMinAndMax(
-							1, Integer.MAX_VALUE));
-			addProjectPartItemIDInfo(itemIDInfo);
-
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_FINISH_CONNECT_WAITTING_TIME_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<Long>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.TEXT, itemID,
-					"클라이언트 비동기 소켓 채널의 연결 확립을 재 시도 간격", "10",
-					isDefaultValueCheck,
-					new GeneralConverterReturningLongBetweenMinAndMax(
-							0L, (long) Integer.MAX_VALUE));
-			addProjectPartItemIDInfo(itemIDInfo);
-
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_EXECUTOR_THREAD_CNT_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_EXECUTOR_POOL_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -626,7 +606,7 @@ public class SinnoriItemIDInfoManger {
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_SHARE_MAILBOX_CNT_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_PIRVATE_MAILBOX_CNT_PER_PUBLIC_CONNECTION_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -652,20 +632,9 @@ public class SinnoriItemIDInfoManger {
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
 
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_INPUT_MESSAGE_WRITER_MAX_SIZE_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<Integer>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.TEXT,
-					itemID,
-					"클라이언트 비동기 입출력 지원용 입력 메시지 소켓 쓰기 담당 쓰레드 최대 갯수",
-					"2",
-					isDefaultValueCheck,
-					new GeneralConverterReturningIntegerBetweenMinAndMax(
-							1, Integer.MAX_VALUE));
-			addProjectPartItemIDInfo(itemIDInfo);
+			
 
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_INPUT_MESSAGE_WRITER_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_INPUT_MESSAGE_WRITER_POOL_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -684,27 +653,15 @@ public class SinnoriItemIDInfoManger {
 					ItemIDInfo.ConfigurationPart.PROJECT,
 					ItemIDInfo.ViewType.TEXT,
 					itemID,
-					"출력 메시지 큐 크기",
+					"비동기 메시지에 대한 1:1 비지니스 로직 처리기(ClientExecutor) 가  갖는 출력 메시지 큐 크기",
 					"10",
 					isDefaultValueCheck,
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1, Integer.MAX_VALUE));
-			addProjectPartItemIDInfo(itemIDInfo);
+			addProjectPartItemIDInfo(itemIDInfo);			
+			
 
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_READER_MAX_SIZE_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<Integer>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.TEXT,
-					itemID,
-					"클라이언트 비동기 입출력 지원용 입력 메시지 소켓 읽기 담당 쓰레드 최대 갯수",
-					"4",
-					isDefaultValueCheck,
-					new GeneralConverterReturningIntegerBetweenMinAndMax(
-							1, Integer.MAX_VALUE));
-			addProjectPartItemIDInfo(itemIDInfo);
-
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_READER_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_READER_POOL_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -1084,8 +1041,9 @@ public class SinnoriItemIDInfoManger {
 							
 							Long.class));
 		}
+		
 		{
-			String dependentTargetItemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_READER_MAX_SIZE_ITEMID;
+			String dependentTargetItemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_MAX_COUNT_ITEMID;
 			ItemIDInfo<?> dependentTargetItemIDInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentTargetItemIDInfo) {
 				String errorMessage = new StringBuilder(
@@ -1095,7 +1053,7 @@ public class SinnoriItemIDInfoManger {
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 
-			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_READER_SIZE_ITEMID;
+			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_COUNT_ITEMID;
 			ItemIDInfo<?> dependentSourceitemIDConfigInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentSourceitemIDConfigInfo) {
 				String errorMessage = new StringBuilder(
@@ -1112,34 +1070,7 @@ public class SinnoriItemIDInfoManger {
 									(ItemIDInfo<Integer>) dependentTargetItemIDInfo,
 									Integer.class));
 		}
-		{
-			String dependentTargetItemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_INPUT_MESSAGE_WRITER_MAX_SIZE_ITEMID;
-			ItemIDInfo<?> dependentTargetItemIDInfo = getItemIDInfo(dependentTargetItemID);
-			if (null == dependentTargetItemIDInfo) {
-				String errorMessage = new StringBuilder(
-						"dependentTargetItemID[").append(dependentTargetItemID)
-						.append("]'s itemIDConfigInfo not ready").toString();
-				// log.error(errorMessage);
-				throw new SinnoriConfigurationException(errorMessage);
-			}
-
-			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_INPUT_MESSAGE_WRITER_SIZE_ITEMID;
-			ItemIDInfo<?> dependentSourceitemIDConfigInfo = getItemIDInfo(dependentTargetItemID);
-			if (null == dependentSourceitemIDConfigInfo) {
-				String errorMessage = new StringBuilder(
-						"dependentSourceItemID[").append(dependentSourceItemID)
-						.append("]'s itemIDConfigInfo not ready").toString();
-				// log.error(errorMessage);
-				throw new SinnoriConfigurationException(errorMessage);
-			}
-
-			dependencyValidationHash
-					.put(dependentSourceItemID,
-							new MinAndMaxDependencyValidator<Integer>(
-									(ItemIDInfo<Integer>) dependentSourceitemIDConfigInfo,
-									(ItemIDInfo<Integer>) dependentTargetItemIDInfo,
-									Integer.class));
-		}
+		
 
 		{
 			String dependentTargetItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_ACCEPT_PROCESSOR_MAX_SIZE_ITEMID;

@@ -33,35 +33,18 @@ import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
  */
 public class OutputMessageReaderPool extends AbstractThreadPool implements OutputMessageReaderPoolIF {
 	private String projectName = null;
-	private int maxHandler;
 	private long readSelectorWakeupInterval;
 	private MessageProtocolIF messageProtocol = null;
-	
-	
-	
-	
-	public OutputMessageReaderPool(String projectName, int size, int max,
-			long readSelectorWakeupInterval, 			
+
+	public OutputMessageReaderPool(String projectName, int size, long readSelectorWakeupInterval,
 			MessageProtocolIF messageProtocol) {
 		if (size <= 0) {
 			throw new IllegalArgumentException(String.format("%s 파라미터 size 는 0보다 커야 합니다.", projectName));
 		}
-		if (max <= 0) {
-			throw new IllegalArgumentException(String.format("%s 파라미터 max 는 0보다 커야 합니다.", projectName));
-		}
-
-		if (size > max) {
-			throw new IllegalArgumentException(String.format(
-					"%s 파라미터 size[%d]는 파라미터 max[%d]보다 작거나 같아야 합니다.", projectName, size, max));
-		}
 
 		this.projectName = projectName;
-		this.maxHandler = max;
-		this.readSelectorWakeupInterval = readSelectorWakeupInterval;		
+		this.readSelectorWakeupInterval = readSelectorWakeupInterval;
 		this.messageProtocol = messageProtocol;
-		
-		
-		
 
 		for (int i = 0; i < size; i++) {
 			addHandler();
@@ -73,20 +56,16 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements Outpu
 		synchronized (monitor) {
 			int size = pool.size();
 
-			if (size < maxHandler) {
-				try {
-					Thread handler = new OutputMessageReader(projectName, size, readSelectorWakeupInterval, messageProtocol);
-					pool.add(handler);
-				} catch (Exception e) {
-					String errorMessage = String.format("%s OutputMessageReader[%d] 등록 실패", projectName, size); 
-					log.warn(errorMessage, e);
-					throw new RuntimeException(errorMessage);
-				}
-			} else {
-				String errorMessage = String.format("%s OutputMessageReader 최대 갯수[%d]를 넘을 수 없습니다.", projectName, maxHandler); 
-				log.warn(errorMessage);
+			try {
+				Thread handler = new OutputMessageReader(projectName, size, readSelectorWakeupInterval,
+						messageProtocol);
+				pool.add(handler);
+			} catch (Exception e) {
+				String errorMessage = String.format("%s OutputMessageReader[%d] 등록 실패", projectName, size);
+				log.warn(errorMessage, e);
 				throw new RuntimeException(errorMessage);
 			}
+
 		}
 	}
 
@@ -94,25 +73,25 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements Outpu
 	public OutputMessageReaderIF getNextOutputMessageReader() {
 		Iterator<Thread> poolIter = pool.iterator();
 		int min = Integer.MAX_VALUE;
-		
+
 		OutputMessageReaderIF minOutputMessageReader = null;
-		
-		if (! poolIter.hasNext()) {
+
+		if (!poolIter.hasNext()) {
 			throw new NoSuchElementException("ClientExecutorPool empty");
 		}
-		
-		minOutputMessageReader = (OutputMessageReaderIF)poolIter.next();
+
+		minOutputMessageReader = (OutputMessageReaderIF) poolIter.next();
 		min = minOutputMessageReader.getNumberOfAsynConnection();
-		
+
 		while (poolIter.hasNext()) {
-			OutputMessageReaderIF outputMessageReader = (OutputMessageReaderIF)poolIter.next();
+			OutputMessageReaderIF outputMessageReader = (OutputMessageReaderIF) poolIter.next();
 			int numberOfAsynConnection = outputMessageReader.getNumberOfAsynConnection();
 			if (numberOfAsynConnection < min) {
 				minOutputMessageReader = outputMessageReader;
 				min = numberOfAsynConnection;
 			}
 		}
-		
+
 		return minOutputMessageReader;
 	}
 }

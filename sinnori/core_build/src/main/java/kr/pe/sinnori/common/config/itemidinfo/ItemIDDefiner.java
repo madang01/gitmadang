@@ -37,26 +37,28 @@ public abstract class ItemIDDefiner {
 		public static final String COMMON_DATA_PACKET_BUFFER_POOL_SIZE_ITEMID = "common.data_packet_buffer_pool_size.value";
 		public static final String COMMON_MESSAGE_ID_FIXED_SIZE_ITEMID = "common.message_id_fixed_size.value";
 		public static final String COMMON_MESSAGE_PROTOCOL_TYPE_ITEMID = "common.message_protocol_type.value";
-		public static final String COMMON_CLASSLOADER_PACKAGE_PREFIX_NAME_ITEMID = "common.classloader.package_prefix_name.value";
+		public static final String COMMON_FIRST_PREFIX_DYNAMIC_CLASS_FULL_NAME_ITEMID = "common.first_prefix_dynamic_class_full_name.value";
 		public static final String CLIENT_MONITOR_TIME_INTERVAL_ITEMID = "client.monitor.time_interval.value";
 		public static final String CLIENT_MONITOR_RECEPTION_TIMEOUT_ITEMID = "client.monitor.reception_timeout.value";
 		public static final String CLIENT_SOCKET_TIMEOUT_ITEMID = "client.socket.timeout.value";
-		public static final String CLIENT_CONNECTION_TYPE_ITEMID = "client.connection.type.value";		
-		public static final String CLIENT_CONNECTION_WHETHER_AUTO_CONNECTION_ITEMID = "client.connection.whether_auto_connection.value";
+		public static final String CLIENT_CONNECTION_TYPE_ITEMID = "client.connection.type.value";
+		public static final String CLIENT_CONNECTION_MAX_COUNT_ITEMID = "client.connection.max_count.value";
 		public static final String CLIENT_CONNECTION_COUNT_ITEMID = "client.connection.count.value";
 		public static final String CLIENT_CONNECTION_TIMEOUT_ITEMID = "client.connection.timeout.value";
 		public static final String CLIENT_DATA_PACKET_BUFFER_CNT_ITEMID = "client.data_packet_buffer_cnt.value";
-		public static final String CLIENT_ASYN_FINISH_CONNECT_MAX_CALL_ITEMID = "client.asyn.finish_connect.max_call.value";
-		public static final String CLIENT_ASYN_FINISH_CONNECT_WAITTING_TIME_ITEMID = "client.asyn.finish_connect.waitting_time.value";
-		public static final String CLIENT_ASYN_OUTPUT_MESSAGE_EXECUTOR_THREAD_CNT_ITEMID = "client.asyn.output_message_executor_thread_cnt.value";
-		public static final String CLIENT_ASYN_SHARE_MAILBOX_CNT_ITEMID = "client.asyn.share.mailbox_cnt.value";
-		public static final String CLIENT_ASYN_INPUT_MESSAGE_QUEUE_SIZE_ITEMID = "client.asyn.input_message_queue_size.value";
-		public static final String CLIENT_ASYN_INPUT_MESSAGE_WRITER_MAX_SIZE_ITEMID = "client.asyn.input_message_writer.max_size.value";
-		public static final String CLIENT_ASYN_INPUT_MESSAGE_WRITER_SIZE_ITEMID = "client.asyn.input_message_writer.size.value";
-		public static final String CLIENT_ASYN_OUTPUT_MESSAGE_QUEUE_SIZE_ITEMID = "client.asyn.output_message_queue_size.value";
-		public static final String CLIENT_ASYN_OUTPUT_MESSAGE_READER_MAX_SIZE_ITEMID = "client.asyn.output_message_reader.max_size.value";
-		public static final String CLIENT_ASYN_OUTPUT_MESSAGE_READER_SIZE_ITEMID = "client.asyn.output_message_reader.size.value";
-		public static final String CLIENT_ASYN_READ_SELECTOR_WAKEUP_INTERVAL_ITEMID = "client.asyn.read_selector_wakeup_interval.value";
+		
+		public static final String CLIENT_ASYN_PIRVATE_MAILBOX_CNT_PER_PUBLIC_CONNECTION_ITEMID = "client.asyn.public.private_mailbox_cnt_per_connection.value";
+		
+		public static final String CLIENT_ASYN_INPUT_MESSAGE_QUEUE_SIZE_ITEMID 			= "client.asyn.input_message_queue_size.value";
+		public static final String CLIENT_ASYN_OUTPUT_MESSAGE_QUEUE_SIZE_ITEMID 	= "client.asyn.output_message_queue_size.value";
+		
+		
+		public static final String CLIENT_ASYN_INPUT_MESSAGE_WRITER_POOL_SIZE_ITEMID 		= "client.asyn.input_message_writer.pool_size.value";
+		public static final String CLIENT_ASYN_OUTPUT_MESSAGE_READER_POOL_SIZE_ITEMID 		= "client.asyn.output_message_reader.pool_size.value";
+		public static final String CLIENT_ASYN_EXECUTOR_POOL_SIZE_ITEMID = "client.asyn.executor.pool_size.value";
+		
+		public static final String CLIENT_ASYN_READ_SELECTOR_WAKEUP_INTERVAL_ITEMID 	= "client.asyn.read_selector_wakeup_interval.value";
+		
 		public static final String SERVER_MONITOR_TIME_INTERVAL_ITEMID = "server.monitor.time_interval.value";
 		public static final String SERVER_MONITOR_RECEPTION_TIMEOUT_ITEMID = "server.monitor.reception_timeout.value";
 		public static final String SERVER_MAX_CLIENTS_ITEMID = "server.max_clients.value";		

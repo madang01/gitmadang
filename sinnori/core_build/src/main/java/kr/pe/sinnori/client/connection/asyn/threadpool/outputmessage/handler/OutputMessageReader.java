@@ -256,11 +256,11 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 		selectionKey.cancel();
 		scToAsynConnectionHash.remove(selectedSocketChannel);
 		try {
-			selectedAsynConnection.closeSocket();
+			selectedAsynConnection.close();
 		} catch (IOException e) {
 			log.warn("fail to close the socket[{}]", selectedSocketChannel.hashCode());
 		}
-		selectedAsynConnection.done();
+		selectedAsynConnection.releaseSocketResources();
 	}
 
 	/*private void closeFailedSocket(SocketChannel failedSocketChannel) {

@@ -51,49 +51,29 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 	protected AsynSocketResourceIF asynSocketResource = null;
 
 	public AbstractAsynConnection(String projectName, String host, int port, long socketTimeOut,
-			boolean whetherToAutoConnect, AsynSocketResourceIF asynSocketResource,
+			AsynSocketResourceIF asynSocketResource,
 			MessageProtocolIF messageProtocol, 
 			ClientObjectCacheManagerIF clientObjectCacheManager)
 			throws InterruptedException, NoMoreDataPacketBufferException, IOException {
-		super(projectName, host, port, socketTimeOut, whetherToAutoConnect, messageProtocol, clientObjectCacheManager);
+		super(projectName, host, port, socketTimeOut, messageProtocol, clientObjectCacheManager);
 		
 		this.asynSocketResource = asynSocketResource;
 		asynSocketResource.setOwnerAsynConnection(this);
 	}
 	
-	abstract public void putToOutputMessageQueue(FromLetter fromLetter) throws InterruptedException;
-	
-	public SocketOutputStream getSocketOutputStream() {
-		return asynSocketResource.getSocketOutputStream();
-	}
-	
-	/**
-	 * 비동기 소켓에서는 아무 동작을 하지 않고 실질적인 자원 해제는 메소드 {@link #done()} 에서 한다. 
-	 */
-	public void releaseSocketResources() {
+	protected void doReleaseSocketResources() {
 		/**  nothing */
 	}
-	
-	/**
-	 * <pre>
-	 * 비동기 소켓에서 실질적인 자원 해제 메소드로 {@link OutputMessageReader#run()} 에서 소켓이 닫혔을때 딱 1번 호출된다.
-	 * 이는 OP_READ 전용 selector 는 소켓이 닫히면 OP_READ 이벤트를 발생하는 특성을 이용한것이다.
-	 * </pre> 
-	 */
-	public void done() {
-		asynSocketResource.done();
-	}
 
-	
 	protected void openSocketChannel() throws IOException {
 		serverSC = SocketChannel.open();
 		serverSelectableChannel = serverSC.configureBlocking(false);
 		serverSC.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
 		serverSC.setOption(StandardSocketOptions.TCP_NODELAY, true);
 		serverSC.setOption(StandardSocketOptions.SO_LINGER, 0);		
-
+	
 		StringBuilder infoBuilder = null;
-
+	
 		infoBuilder = new StringBuilder("projectName[");
 		infoBuilder.append(projectName);
 		infoBuilder.append("] create a new asyn connection[");
@@ -101,29 +81,29 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 		infoBuilder.append("]");
 		
 		log.info(infoBuilder.toString());
-	}	
-	
+	}
+
 	protected void doConnect() throws IOException {
 		Selector connectionEventOnlySelector = Selector.open();
-
+	
 		try {
 			serverSC.register(connectionEventOnlySelector, SelectionKey.OP_CONNECT);
-
+	
 			InetSocketAddress remoteAddr = new InetSocketAddress(host, port);
 			if (! serverSC.connect(remoteAddr)) {
 				int numberOfKeys = connectionEventOnlySelector.select(socketTimeOut);
-
+	
 				log.info("numberOfKeys={}", numberOfKeys);
-
+	
 				Iterator<SelectionKey> selectionKeyIterator = connectionEventOnlySelector.selectedKeys().iterator();
 				if (!selectionKeyIterator.hasNext()) {
-
+	
 					String errorMessage = String.format("1.the socket[sc hascode=%d] timeout", serverSC.hashCode());
 					throw new SocketTimeoutException(errorMessage);
 				}
 				
 				selectionKeyIterator.remove();
-
+	
 				if (! serverSC.finishConnect()) {
 					String errorMessage = String.format("the socket[sc hascode=%d] has an error pending",
 							serverSC.hashCode());
@@ -133,12 +113,12 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 		} finally {
 			connectionEventOnlySelector.close();
 		}
-
+	
 		// registerSocketToReadOnlySelector();
 		asynSocketResource.getOutputMessageReader().registerAsynConnection(this);
-
+	
 		StringBuilder infoBuilder = null;
-
+	
 		infoBuilder = new StringBuilder("projectName[");
 		infoBuilder.append(projectName);
 		infoBuilder.append("] asyn connection[");		
@@ -146,8 +126,26 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 		infoBuilder.append("]");
 		log.info(new StringBuilder(infoBuilder.toString()).append(" connected").toString());
 	}
+
+	abstract public void putToOutputMessageQueue(FromLetter fromLetter) throws InterruptedException;
 	
-	public void sendAsynInputMessage(SocketChannel serverSC, AbstractMessage inObj)
+	public SocketOutputStream getSocketOutputStream() {
+		return asynSocketResource.getSocketOutputStream();
+	}
+	
+	
+	/**
+	 * <pre>
+	 * 비동기 소켓에서 실질적인 자원 해제 메소드로 {@link OutputMessageReader#run()} 에서 소켓이 닫혔을때 딱 1번 호출된다.
+	 * 이는 OP_READ 전용 selector 는 소켓이 닫히면 OP_READ 이벤트를 발생하는 특성을 이용한것이다.
+	 * </pre> 
+	 */
+	public void releaseSocketResources() {
+		asynSocketResource.releaseSocketResources();
+	}
+
+	
+	public void sendAsynInputMessage(AbstractMessage inObj)
 			throws NotSupportedException, IOException, 
 			NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException,
 			InterruptedException {
@@ -177,24 +175,9 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 		endTime = new java.util.Date().getTime();
 		log.info(String.format("시간차=[%d]", (endTime - startTime)));
 	}
-
-
-	public SocketChannel getSocketChannel() {
-		return serverSC;
-	}
-	
-	
 	
 
-	public String getSimpleConnectionInfo() {
-		StringBuilder strBuffer = new StringBuilder();
-		strBuffer.append("projectName=[");
-		strBuffer.append(projectName);
-		strBuffer.append("], NoShareAsynConnection[");
-		strBuffer.append(serverSC.hashCode());
-		strBuffer.append("]");
-		return strBuffer.toString();
-	}
+	
 	
 	public int hashCode() {
 		return serverSC.hashCode();

@@ -21,7 +21,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SocketChannel;
-import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -56,28 +56,17 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 	private DataPacketBufferPoolIF dataPacketBufferQueueManager = null;
 	
 	
-	private HashSet<AbstractAsynConnection> asynConnectionSet =
-			new HashSet<AbstractAsynConnection>();
+	private Hashtable<SocketChannel, AbstractAsynConnection> sc2AsynConnectionHash = 
+			new Hashtable<SocketChannel, AbstractAsynConnection>();
 	
-
-	/**
-	 * 생성자
-	 * @param index 순번
-	 * @param projectPart 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
-	 * @param inputMessageQueue 입력 메시지 큐
-	 * @param messageProtocol 메시지 교환 프로프로콜
-	 * @param messageManger 메시지 관리자
-	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자
-	 * @throws NoMoreDataPacketBufferException 
-	 */
+	
 	public InputMessageWriter(String projectName, int index,
 			LinkedBlockingQueue<ToLetter> inputMessageQueue,
 			DataPacketBufferPoolIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
 		this.projectName = projectName;
 		this.index = index;		
 		this.inputMessageQueue = inputMessageQueue;
-		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-		
+		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;		
 	}
 
 	@Override
@@ -164,16 +153,16 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 		log.warn(String.format("%s InputMessageWriter[%d] thread end", projectName, index));
 	}
 
-	public void registerAsynConnection(AbstractAsynConnection asynConn) {
-		asynConnectionSet.add(asynConn);
+	public void registerAsynConnection(AbstractAsynConnection asynConnection) {
+		sc2AsynConnectionHash.put(asynConnection.getSocketChannel(), asynConnection);
 	}
 	
 	public int getNumberOfAsynConnection() {
-		return asynConnectionSet.size();
+		return sc2AsynConnectionHash.size();
 	}
 	
-	public void removeAsynConnection(AbstractAsynConnection asynConn) {
-		asynConnectionSet.remove(asynConn);
+	public void removeAsynConnection(AbstractAsynConnection asynConnection) {
+		sc2AsynConnectionHash.remove(asynConnection.getSocketChannel());
 	}
 	
 	public void putIntoQueue(ToLetter toLetter) throws InterruptedException {

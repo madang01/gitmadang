@@ -54,7 +54,7 @@ public abstract class AbstractProject {
 	protected MessageProtocolIF messageProtocol = null;
 	
 	
-	protected DataPacketBufferPoolIF dataPacketBufferPoolManager = null;
+	protected DataPacketBufferPoolIF dataPacketBufferPool = null;
 	
 	protected CharsetEncoder charsetEncoderOfProject = null;
 	
@@ -93,7 +93,7 @@ public abstract class AbstractProject {
 		MessageProtocolType messageProtocolGubun = projectPartConfiguration.getMessageProtocol();*/
 		
 		boolean isDirect = false;
-		this.dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, 
+		this.dataPacketBufferPool = new DataPacketBufferPool(isDirect, 
 				projectPartConfiguration.getByteOrder()
 						, projectPartConfiguration.getDataPacketBufferSize()
 						, projectPartConfiguration.getDataPacketBufferPoolSize());
@@ -105,7 +105,7 @@ public abstract class AbstractProject {
 						projectPartConfiguration.getMessageIDFixedSize(), 
 						projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(),
 						charsetEncoderOfProject, charsetDecoderOfProject, 
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 	
 				break;
 			}
@@ -113,14 +113,14 @@ public abstract class AbstractProject {
 				messageProtocol = new DJSONMessageProtocol(
 						projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(), 
 						charsetEncoderOfProject, charsetDecoderOfProject, 
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 				break;
 			}
 			case THB: {
 				messageProtocol = new THBMessageProtocol(
 						projectPartConfiguration.getMessageIDFixedSize(), 
 						projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(), 
-						charsetEncoderOfProject, charsetDecoderOfProject, dataPacketBufferPoolManager);
+						charsetEncoderOfProject, charsetDecoderOfProject, dataPacketBufferPool);
 				break;
 			}
 			default: {
@@ -132,7 +132,7 @@ public abstract class AbstractProject {
 		}
 		
 		ioPartDynamicClassNameUtil = new IOPartDynamicClassNameUtil(projectPartConfiguration
-				.getClassLoaderClassPackagePrefixName());
+				.getFirstPrefixDynamicClassFullName());
 	}
 	
 	public final ByteOrder getByteOrder() {

@@ -18,14 +18,12 @@
 package kr.pe.sinnori.client;
 
 import java.io.IOException;
-import java.net.SocketTimeoutException;
 
-import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.common.exception.AccessDeniedException;
 import kr.pe.sinnori.common.exception.BodyFormatException;
+import kr.pe.sinnori.common.exception.ConnectionPoolException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.message.AbstractMessage;
 
@@ -39,12 +37,12 @@ public interface ClientProjectIF {
 	public AbstractMessage sendSyncInputMessage(
 			AbstractMessage inputMessage) throws IOException,  
 			NoMoreDataPacketBufferException, BodyFormatException, 
-			DynamicClassCallException, ServerTaskException, AccessDeniedException,  InterruptedException;
+			DynamicClassCallException, ServerTaskException, AccessDeniedException,  ConnectionPoolException, InterruptedException;
 		
-	
+	/*
 	public AbstractConnection getConnection() throws InterruptedException, NotSupportedException, SocketTimeoutException;
 	
-	public void releaseConnection(AbstractConnection conn) throws NotSupportedException;
+	public void releaseConnection(AbstractConnection conn) throws NotSupportedException;*/
 	
 	
 	// public void stop();

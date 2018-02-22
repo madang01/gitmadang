@@ -34,45 +34,20 @@ import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
  */
 public class InputMessageWriterPool extends AbstractThreadPool implements InputMessageWriterPoolIF {
 	private String projectName = null;
-	private int maxHandler;
-	// private LinkedBlockingQueue<ToLetter> inputMessageQueue;
 	private int inputMessageQueueSize;
 	private DataPacketBufferPoolIF dataPacketBufferQueueManager;
-	
-	
-	// private int poolSize;
-	
-	
-	/**
-	 * 생성자
-	 * @param size 클라이언트 입력 메시지 소켓 쓰기 담당 쓰레드 초기 갯수
-	 * @param max 클라이언트 입력 메시지 소켓 쓰기 담당 쓰레드 최대 갯수
-	 * @param clientProjectConfig 프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
-	 * @param inputMessageQueue 입력 메시지 큐
-	 * @param messageProtocol 메시지 교환 프로프로콜
-	 * @param dataPacketBufferQueueManager 데이터 패킷 큐 관리자
-	 */
-	public InputMessageWriterPool(String projectName, int size, int max,
+
+	public InputMessageWriterPool(String projectName, int size,
 			// LinkedBlockingQueue<ToLetter> inputMessageQueue,
-			int inputMessageQueueSize,
-			DataPacketBufferPoolIF dataPacketBufferQueueManager) {
+			int inputMessageQueueSize, DataPacketBufferPoolIF dataPacketBufferQueueManager) {
 		if (size <= 0) {
 			throw new IllegalArgumentException(String.format("%s 파라미터 size 는 0보다 커야 합니다.", projectName));
 		}
-		if (max <= 0) {
-			throw new IllegalArgumentException(String.format("%s 파라미터 max 는 0보다 커야 합니다.", projectName));
-		}
 
-		if (size > max) {
-			throw new IllegalArgumentException(String.format(
-					"%s 파라미터 size[%d]는 파라미터 max[%d]보다 작거나 같아야 합니다.", projectName, size, max));
-		}
-		
 		this.projectName = projectName;
-		this.maxHandler = max;		
 		this.inputMessageQueueSize = inputMessageQueueSize;
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-		
+
 		for (int i = 0; i < size; i++) {
 			addHandler();
 		}
@@ -81,26 +56,21 @@ public class InputMessageWriterPool extends AbstractThreadPool implements InputM
 	@Override
 	public void addHandler() {
 		LinkedBlockingQueue<ToLetter> inputMessageQueue = new LinkedBlockingQueue<ToLetter>(inputMessageQueueSize);
-		
+
 		synchronized (monitor) {
 			int size = pool.size();
 
-			if (size < maxHandler) {
-				try {
-					Thread handler = new InputMessageWriter(projectName, size, 
-							inputMessageQueue, dataPacketBufferQueueManager);
-					
-					pool.add(handler);
-				} catch (Exception e) {
-					String errorMessage = String.format("%s InputMessageWriter[%d] 등록 실패", projectName, size); 
-					log.warn(errorMessage, e);
-					throw new RuntimeException(errorMessage);
-				}
-			} else {
-				String errorMessage = String.format("%s InputMessageWriter 최대 갯수[%d]를 넘을 수 없습니다.", projectName, maxHandler); 
-				log.warn(errorMessage);
+			try {
+				Thread handler = new InputMessageWriter(projectName, size, inputMessageQueue,
+						dataPacketBufferQueueManager);
+
+				pool.add(handler);
+			} catch (Exception e) {
+				String errorMessage = String.format("%s InputMessageWriter[%d] 등록 실패", projectName, size);
+				log.warn(errorMessage, e);
 				throw new RuntimeException(errorMessage);
 			}
+
 		}
 	}
 
@@ -108,26 +78,26 @@ public class InputMessageWriterPool extends AbstractThreadPool implements InputM
 	public InputMessageWriterIF getNextInputMessageWriter() {
 		Iterator<Thread> poolIter = pool.iterator();
 		int min = Integer.MAX_VALUE;
-		
+
 		InputMessageWriterIF minInputMessageWriter = null;
-		
-		if (! poolIter.hasNext()) {
+
+		if (!poolIter.hasNext()) {
 			throw new NoSuchElementException("ClientExecutorPool empty");
 		}
-		
-		minInputMessageWriter = (InputMessageWriterIF)poolIter.next();
+
+		minInputMessageWriter = (InputMessageWriterIF) poolIter.next();
 		min = minInputMessageWriter.getNumberOfAsynConnection();
-		
+
 		while (poolIter.hasNext()) {
-			InputMessageWriterIF inputMessageWriter = (InputMessageWriterIF)poolIter.next();
+			InputMessageWriterIF inputMessageWriter = (InputMessageWriterIF) poolIter.next();
 			int numberOfAsynConnection = inputMessageWriter.getNumberOfAsynConnection();
 			if (numberOfAsynConnection < min) {
 				minInputMessageWriter = inputMessageWriter;
 				min = numberOfAsynConnection;
 			}
 		}
-		
+
 		return minInputMessageWriter;
 	}
-	
+
 }

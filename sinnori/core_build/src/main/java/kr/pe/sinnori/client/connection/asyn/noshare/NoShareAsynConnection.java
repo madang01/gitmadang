@@ -52,11 +52,11 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 	private final AsynPrivateMailbox asynPrivateMailbox = new AsynPrivateMailbox(1, socketTimeOut);
 
 	public NoShareAsynConnection(String projectName, String host, int port, long socketTimeOut,
-			boolean whetherToAutoConnect, AsynSocketResourceIF asynSocketResource,
+			AsynSocketResourceIF asynSocketResource,
 			MessageProtocolIF messageProtocol, 
 			ClientObjectCacheManagerIF clientObjectCacheManager)
 			throws InterruptedException, NoMoreDataPacketBufferException, IOException {
-		super(projectName, host, port, socketTimeOut, whetherToAutoConnect, 
+		super(projectName, host, port, socketTimeOut, 
 				asynSocketResource, messageProtocol, clientObjectCacheManager);
 
 		log.info(String.format("project[%s] NoShareAsynConnection 생성자 end", projectName));
@@ -147,8 +147,8 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		} else {
 			if (isInQueue()) {
 				String errorMessage = String.format(
-						"연결 클래스가 사용중이 아닙니다. 연결 클래스 큐 대기중, serverConnection=[%s], receivedLetter=[%s]",
-						this.getSimpleConnectionInfo(), wrapReadableMiddleObject.toString());
+						"연결 클래스가 큐 대기중 상태입니다. fromLetter=[%s]",
+						fromLetter.toString());
 
 				log.warn(errorMessage);
 				return;
@@ -169,6 +169,9 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 			serverSC.close();
 		} catch (IOException e) {
 		}
+		
+		releaseSocketResources();
+		
 		log.warn(String.format("NoShareAsynConnection 소멸::[%s]", toString()));
 	}			
 }

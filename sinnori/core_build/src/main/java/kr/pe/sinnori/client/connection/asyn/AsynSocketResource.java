@@ -32,11 +32,11 @@ public class AsynSocketResource implements AsynSocketResourceIF {
 		this.ownerAsynConnection = ownerAsynConnection;
 	}
 	
-	public void releaseSocketResources() {
-		/** do nothing because #doReleaseSocketResources() called from OutputmessageReader#run when socket closed */
-	}
+	/*public void releaseSocketResources() {
+		*//** do nothing because #doReleaseSocketResources() called from OutputmessageReader#run when socket closed *//*
+	}*/
 	
-	public void done() {
+	public void releaseSocketResources() {
 		socketOutputStream.close();
 		inputMessageWriter.removeAsynConnection(ownerAsynConnection);
 		clientExecutor.removeAsynConnection(ownerAsynConnection);

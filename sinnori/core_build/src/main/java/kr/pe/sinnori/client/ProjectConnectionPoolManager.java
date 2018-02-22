@@ -36,23 +36,25 @@ import kr.pe.sinnori.common.exception.NotFoundProjectException;
  * @author Won Jonghoon
  * 
  */
-public final class MainClientManager {
-	private Logger log = LoggerFactory.getLogger(MainClientManager.class);
+public final class ProjectConnectionPoolManager {
+	private Logger log = LoggerFactory.getLogger(ProjectConnectionPoolManager.class);
 	
 	/** 모니터 객체 */
 	// private final Object monitor = new Object();
 	
-	private HashMap<String, AnyProjectClient> subProjectClientHash = new HashMap<String, AnyProjectClient>();
+	private HashMap<String, AnyProjectConnectionPool> subProjectClientHash = new HashMap<String, AnyProjectConnectionPool>();
 	
-	private AnyProjectClient mainProjectClient = null;
+	private AnyProjectConnectionPool mainProjectConnectionPool = null;
+	
+	private String mainPorjectName = null;
 	
 	/** 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스 */
 	private static final class ClientProjectManagerHolder {
-		static final MainClientManager singleton = new MainClientManager();
+		static final ProjectConnectionPoolManager singleton = new ProjectConnectionPoolManager();
 	}
 
 	/** 동기화 쓰지 않는 싱글턴 구현 메소드 */
-	public static MainClientManager getInstance() {
+	public static ProjectConnectionPoolManager getInstance() {
 		return ClientProjectManagerHolder.singleton;
 	}
 	
@@ -60,29 +62,36 @@ public final class MainClientManager {
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 생성자
 	 * @throws NoMoreDataPacketBufferException 
 	 */
-	private MainClientManager() {
+	private ProjectConnectionPoolManager() {
 		SinnoriConfiguration sinnoriRunningProjectConfiguration = 
 				SinnoriConfigurationManager.getInstance()
 				.getSinnoriRunningProjectConfiguration();
 		ProjectPartConfiguration mainProjectPart = sinnoriRunningProjectConfiguration.getMainProjectPartConfiguration();
 		AllSubProjectPartConfiguration allSubProjectPart = sinnoriRunningProjectConfiguration.getAllSubProjectPartConfiguration();
 		
+		mainPorjectName = mainProjectPart.getProjectName();
+		
 		try {
-			mainProjectClient = new AnyProjectClient(mainProjectPart);
+			mainProjectConnectionPool = new AnyProjectConnectionPool(mainProjectPart);
 		} catch (Exception e) {
-			log.warn("fail to make main client project instance", e);
+			String errorMessage = new StringBuilder("fail to initialize a main project connection pool[")
+					.append(mainPorjectName).append("]").toString();
+			log.warn(errorMessage, e);
 			// System.exit(1);
 		}
 		
 		List<String> subProjectNamelist = allSubProjectPart.getSubProjectNamelist();
 				
 		for (String subProjectName : subProjectNamelist) {
-			AnyProjectClient subClientProject=null;
+			AnyProjectConnectionPool subClientProject=null;
 			try {
-				subClientProject = new AnyProjectClient(allSubProjectPart.getSubProjectPartConfiguration(subProjectName));
+				subClientProject = new AnyProjectConnectionPool(allSubProjectPart.getSubProjectPartConfiguration(subProjectName));
 				subProjectClientHash.put(subProjectName, subClientProject);
 			} catch (Exception e) {
-				log.warn("fail to make sub client project instance", e);
+				String errorMessage = new StringBuilder("fail to initialize a sub project connection pool[")
+						.append(subProjectName).append("] of main project[").append(mainPorjectName)
+						.append("]").toString();
+				log.warn(errorMessage, e);
 				// System.exit(1);
 			}
 		}
@@ -94,29 +103,26 @@ public final class MainClientManager {
 	 * @return 프로젝트 이름에 해당하는 외부 시각 클라이언트 프로젝트
 	 * @throws NotFoundProjectException 
 	 */
-	public AnyProjectClient getSubProjectClient(String subProjectName) throws IllegalStateException {
-		AnyProjectClient subProjectClient =  subProjectClientHash.get(subProjectName);
-		if (null == subProjectClient) {
-			StringBuilder errorBuilder = new StringBuilder("신놀이 프레임 워크 환경설정 파일에 찾고자 하는 클라이언트 프로젝트[");
-			errorBuilder.append(subProjectName);
-			errorBuilder.append("] 가 존재하지 않습니다");
-			log.error(errorBuilder.toString());
-			throw new IllegalStateException(errorBuilder.toString());
-			// System.exit(1);
+	public AnyProjectConnectionPool getSubProjectConnectionPool(String subProjectName) throws IllegalStateException {
+		AnyProjectConnectionPool subProjectConnectionPool =  subProjectClientHash.get(subProjectName);
+		if (null == subProjectConnectionPool) {
+			String errorMessage = new StringBuilder("fail to initialize a sub project connection pool[")
+					.append(subProjectName).append("] of main project[").append(mainPorjectName)
+					.append("]").toString();
+			throw new IllegalStateException(errorMessage);
 		}
 		
-		return subProjectClient;
+		return subProjectConnectionPool;
 	}
 	
-	public AnyProjectClient getMainProjectClient() throws IllegalStateException {
+	public AnyProjectConnectionPool getMainProjectConnectionPool() throws IllegalStateException {
 		
-		if (null == mainProjectClient) {
-			StringBuilder errorBuilder = new StringBuilder("신놀이 프레임 워크 환경설정 파일에 찾고자 하는 메인 클라이언트 프로젝트가 존재하지 않습니다");
-			log.error(errorBuilder.toString());
-			throw new IllegalStateException(errorBuilder.toString());
+		if (null == mainProjectConnectionPool) {
+			String errorMessage = new StringBuilder("fail to initialize a main project connection pool[")
+					.append(mainPorjectName).append("]").toString();
+			throw new IllegalStateException(errorMessage);
 		}
 		
-		// IllegalStateException 
-		return mainProjectClient;
+		return mainProjectConnectionPool;
 	}
 }

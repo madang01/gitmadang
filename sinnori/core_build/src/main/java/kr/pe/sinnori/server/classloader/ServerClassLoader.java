@@ -21,9 +21,15 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.HashSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
+import kr.pe.sinnori.common.classloader.IOPartDynamicClassNameUtil;
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 
 /**
  * 서버용 동적 클래스들 로딩및 관리를 담당하는 "동적 클래스 로더". @{link ServerObjectManager } 에 종속 된다.
@@ -34,48 +40,94 @@ import org.slf4j.LoggerFactory;
 public class ServerClassLoader extends ClassLoader {
 	private Logger log = LoggerFactory.getLogger(ServerClassLoader.class);
 
-	private final Object monitor = new Object();
-	// private ClassLoader parent = null;
-	private final ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
-	// private static final String mybatisPackageName =
-	// "kr.pe.sinnori.impl.mybatis.";
+	//private final Object monitor = new Object();
 
 	private String projectName = null;
+	private String firstPrefixDynamicClassFullName = null;
+	
 
-	private String appInfBasePathString = null;
-	private String classLoaderClassPackagePrefixName = null;
-
-	private String classPathString = null;
-	// private String libraryPath = null;
-	// private String resourcesPathString = null;
-
-	/**
-	 * 생성자
-	 * 
-	 * @param parent
-	 *            부모 클래스 로더
-	 * @param classNameRegex
-	 *            동적 클래스 로딩 대상 클래스 이름 검사용 클래스 이름 정규식
-	 */
-	public ServerClassLoader(String projectName, String appINFBasePathString,
-			String classLoaderClassPackagePrefixName) {
+	private final ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
+	private String classPathString = null;	
+	private HashSet<String> systemloaderClassFullNameSet = new HashSet<String>();
+	
+	
+	public ServerClassLoader(String projectName, 
+			IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil) throws SinnoriConfigurationException {
 		super(ClassLoader.getSystemClassLoader());
 
-		// this.parent = parent;
 		this.projectName = projectName;
-		this.appInfBasePathString = appINFBasePathString;
-		this.classLoaderClassPackagePrefixName = classLoaderClassPackagePrefixName;
-
-		classPathString = new StringBuilder(this.appInfBasePathString).append(File.separator).append("classes")
+		this.firstPrefixDynamicClassFullName = ioPartDynamicClassNameUtil.getFirstPrefixDynamicClassFullName();
+		
+		String sinnoriInstalledPathString = System
+				.getProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH);
+		
+		if (null == sinnoriInstalledPathString) {
+			String errorMessage = String.format("the system environment variable[%s] for the path where Sinnori is installed is not defined. -D%s not defined",
+					CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH, 
+					CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH);
+			throw new SinnoriConfigurationException(errorMessage);
+		}
+		
+		String serverAPPINFPathString = BuildSystemPathSupporter
+				.getServerAPPINFPathString(sinnoriInstalledPathString, projectName);
+		
+		File serverAPPINFPath = new File(serverAPPINFPathString);
+		
+		if (!serverAPPINFPath.exists()) {
+			String errorMessage = String.format("the server APP-INF path[%s] doesn't exist", serverAPPINFPathString);
+		 	throw new SinnoriConfigurationException(errorMessage);
+		}
+		
+		if (!serverAPPINFPath.isDirectory()) {
+			String errorMessage = String.format("the server APP-INF path[%s] isn't a directory", serverAPPINFPathString);
+		 	throw new SinnoriConfigurationException(errorMessage);
+		}
+		
+		this.classPathString = new StringBuilder(serverAPPINFPathString).append(File.separator).append("classes")
 				.toString();
-		// libraryPath = this.appInfBasePath + File.separator + "lib";
-		/*
-		 * resourcesPathString = new StringBuilder(this.appInfBasePathString)
-		 * .append(File.separator).append("resources").toString();
-		 */
-
-		// Throwable t = new Throwable();
-		log.info("SinnoriClassLoader hashCode=[{}] create", this.hashCode());
+		
+		String[] noTaskMessageIDListForSystemloader = {
+				"SelfExnRes"
+		};
+		
+		for (String messageIDForSystemloader : noTaskMessageIDListForSystemloader) {
+			systemloaderClassFullNameSet.add(ioPartDynamicClassNameUtil
+					.getMessageClassFullName(messageIDForSystemloader));
+			systemloaderClassFullNameSet.add(ioPartDynamicClassNameUtil
+					.getClientMessageCodecClassFullName(messageIDForSystemloader));
+			systemloaderClassFullNameSet.add(ioPartDynamicClassNameUtil
+					.getMessageDecoderClassFullName(messageIDForSystemloader));
+			systemloaderClassFullNameSet.add(ioPartDynamicClassNameUtil
+					.getMessageEncoderClassFullName(messageIDForSystemloader));
+			systemloaderClassFullNameSet.add(ioPartDynamicClassNameUtil
+					.getServerMessageCodecClassFullName(messageIDForSystemloader));
+		}
+		
+		String[] taskMessageIDListForSystemloader = {
+				"Empty"
+		};
+		
+		for (String messageIDForSystemloader : taskMessageIDListForSystemloader) {
+			systemloaderClassFullNameSet.add(ioPartDynamicClassNameUtil
+					.getMessageClassFullName(messageIDForSystemloader));
+			systemloaderClassFullNameSet.add(ioPartDynamicClassNameUtil
+					.getClientMessageCodecClassFullName(messageIDForSystemloader));
+			systemloaderClassFullNameSet.add(ioPartDynamicClassNameUtil
+					.getMessageDecoderClassFullName(messageIDForSystemloader));
+			systemloaderClassFullNameSet.add(ioPartDynamicClassNameUtil
+					.getMessageEncoderClassFullName(messageIDForSystemloader));
+			systemloaderClassFullNameSet.add(ioPartDynamicClassNameUtil
+					.getServerMessageCodecClassFullName(messageIDForSystemloader));
+			
+			systemloaderClassFullNameSet.add(ioPartDynamicClassNameUtil
+					.getClientTaskClassFullName(messageIDForSystemloader));
+			
+			systemloaderClassFullNameSet.add(ioPartDynamicClassNameUtil
+					.getServerTaskClassFullName(messageIDForSystemloader));
+		}
+		
+		
+		log.info("projectName[{}] ServerClassLoader hashCode=[{}] create", projectName, this.hashCode());
 	}
 
 	/**
@@ -92,7 +144,7 @@ public class ServerClassLoader extends ClassLoader {
 	}
 
 	/**
-	 * 직접적으로 Class<?> loadClass(String classFullName) 를 호출 지향할것.
+	 * Warning! 효율을 위해서 이 메소드는 thread safe 를 지원하지 않는다. 하여 외부에서 이를 보장해야 한다.  
 	 */
 	@Override
 	public Class<?> loadClass(String classFullName) throws ClassNotFoundException {
@@ -104,17 +156,16 @@ public class ServerClassLoader extends ClassLoader {
 
 		Class<?> retClass = null;
 		// try {
-		synchronized (monitor) {
+		//synchronized (monitor) {
 			retClass = findLoadedClass(classFullName);
 			if (null == retClass) {
 
-				if (-1 == classFullName.indexOf(classLoaderClassPackagePrefixName)) {
+				if (-1 == classFullName.indexOf(firstPrefixDynamicClassFullName)) {
 					/** 서버 동적 클래스 비 대상 클래스 */
 					return systemClassLoader.loadClass(classFullName);
 				}
-
-				if (classFullName.startsWith("kr.pe.sinnori.impl.message.SelfExn.")) {
-					/** 시스템 클래스 */
+				
+				if (systemloaderClassFullNameSet.contains(classFullName)) {
 					return systemClassLoader.loadClass(classFullName);
 				}
 
@@ -165,7 +216,7 @@ public class ServerClassLoader extends ClassLoader {
 			} else {
 				log.info("retClass[{}] is not null", classFullName);
 			}
-		}
+		//}
 		/*
 		 * } finally { log.
 		 * info("SinnoriClassLoader hashCode=[{}], classFullName=[{}]::end loadClass(String)"
