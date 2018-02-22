@@ -16,10 +16,8 @@
  */
 package kr.pe.sinnori.impl.message.Echo;
 
-import java.util.LinkedList;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.type.SingleItemType;
 import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 /**
@@ -32,13 +30,13 @@ public final class EchoDecoder extends AbstractMessageDecoder {
 	@Override
 	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object  middleReadableObject) throws OutOfMemoryError, BodyFormatException {
 		Echo echo = new Echo();
-		LinkedList<String> pathStack = new LinkedList<String>();
+		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
 		pathStack.push("Echo");
 
 		echo.setRandomInt((Integer)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "randomInt" // itemName
-			, SingleItemType.INTEGER // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.INTEGER // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));
@@ -46,7 +44,7 @@ public final class EchoDecoder extends AbstractMessageDecoder {
 		echo.setStartTime((Long)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "startTime" // itemName
-			, SingleItemType.LONG // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.LONG // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));

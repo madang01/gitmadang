@@ -70,8 +70,10 @@ public class ClientExecutor extends Thread implements ClientExecutorIF {
 		} catch (InterruptedException e) {
 			log.warn("{} ClientExecutor[{}] stop", projectName, index);
 		} catch (Exception e) {
-			log.warn("unknown error", e);
-			log.warn("{} ClientExecutor[{}] unknown error", projectName, index);
+			String errorMessage = new StringBuilder(projectName)
+					.append(" ClientExecutor[").append(index)
+					.append("] unknown error::").append(e.getMessage()).toString();
+			log.warn(errorMessage, e);
 		}
 	}
 	

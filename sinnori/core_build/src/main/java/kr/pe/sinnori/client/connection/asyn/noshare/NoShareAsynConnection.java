@@ -75,7 +75,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 	/**
 	 * 큐 속에 들어갈때 상태 변경 메소드
 	 */
-	public void queueIn() {
+	protected void queueIn() {
 		isQueueIn = true;
 		log.info("get NoShareAsynConnection[{}] from the connection queue", monitor.hashCode());
 	}
@@ -83,7 +83,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 	/**
 	 * 큐 밖으로 나갈때 상태 변경 메소드
 	 */
-	public void queueOut() {
+	protected void queueOut() {
 		isQueueIn = false;
 		log.info("get NoShareAsynConnection[{}] from the connection queue", monitor.hashCode());
 	}
@@ -172,6 +172,8 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		
 		releaseSocketResources();
 		
-		log.warn(String.format("NoShareAsynConnection 소멸::[%s]", toString()));
+		if (! isQueueIn) {
+			log.warn("큐로 복귀 못한 비동기 비공유 연결[{}]", hashCode());
+		}
 	}			
 }

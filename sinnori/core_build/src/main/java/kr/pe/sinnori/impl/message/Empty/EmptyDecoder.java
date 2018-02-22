@@ -16,10 +16,8 @@
  */
 package kr.pe.sinnori.impl.message.Empty;
 
-import java.util.LinkedList;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.type.SingleItemType;
 import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 /**

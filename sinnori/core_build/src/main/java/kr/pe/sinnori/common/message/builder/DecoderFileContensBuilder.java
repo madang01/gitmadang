@@ -104,7 +104,7 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 		stringBuilder.append(", ");
-		stringBuilder.append("SingleItemType.");
+		stringBuilder.append("kr.pe.sinnori.common.type.SingleItemType.");
 		stringBuilder.append(SingleItemTypeManger.getInstance()
 				.getSingleItemType(singleItemInfo.getItemTypeID()).name());
 		stringBuilder.append(" // itemType");
@@ -438,10 +438,8 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 				
 		String importElements[] = {
-				"import java.util.LinkedList;",
 				"import kr.pe.sinnori.common.exception.BodyFormatException;",
-				"import kr.pe.sinnori.common.message.AbstractMessage;",
-				"import kr.pe.sinnori.common.type.SingleItemType;",				
+				"import kr.pe.sinnori.common.message.AbstractMessage;",		
 				"import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;",
 				"import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;"
 		};
@@ -479,7 +477,7 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 			stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 2));
 			/** java.util.Stack is thread-safe but LinkedList is not thread-safe */
-			stringBuilder.append("LinkedList<String> pathStack = new LinkedList<String>();");
+			stringBuilder.append("java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();");
 
 			// pathStack.push("AllItemTypeReq");
 			stringBuilder.append(CommonStaticFinalVars.NEWLINE);

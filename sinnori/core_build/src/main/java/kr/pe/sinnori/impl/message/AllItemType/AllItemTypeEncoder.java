@@ -16,9 +16,7 @@
  */
 package kr.pe.sinnori.impl.message.AllItemType;
 
-import java.util.LinkedList;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.type.SingleItemType;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
 
@@ -36,208 +34,208 @@ public final class AllItemTypeEncoder extends AbstractMessageEncoder {
 
 
 	private void encodeBody(AllItemType allItemType, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject) throws Exception {
-		LinkedList<String> pathStack = new LinkedList<String>();
+		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
 		pathStack.push("AllItemType");
 
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "byteVar1"
-			, SingleItemType.BYTE // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.BYTE // itemType
 			, allItemType.getByteVar1() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "byteVar2"
-			, SingleItemType.BYTE // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.BYTE // itemType
 			, allItemType.getByteVar2() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "byteVar3"
-			, SingleItemType.BYTE // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.BYTE // itemType
 			, allItemType.getByteVar3() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "unsignedByteVar1"
-			, SingleItemType.UNSIGNED_BYTE // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_BYTE // itemType
 			, allItemType.getUnsignedByteVar1() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "unsignedByteVar2"
-			, SingleItemType.UNSIGNED_BYTE // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_BYTE // itemType
 			, allItemType.getUnsignedByteVar2() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "unsignedByteVar3"
-			, SingleItemType.UNSIGNED_BYTE // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_BYTE // itemType
 			, allItemType.getUnsignedByteVar3() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "shortVar1"
-			, SingleItemType.SHORT // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.SHORT // itemType
 			, allItemType.getShortVar1() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "shortVar2"
-			, SingleItemType.SHORT // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.SHORT // itemType
 			, allItemType.getShortVar2() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "shortVar3"
-			, SingleItemType.SHORT // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.SHORT // itemType
 			, allItemType.getShortVar3() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "unsignedShortVar1"
-			, SingleItemType.UNSIGNED_SHORT // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_SHORT // itemType
 			, allItemType.getUnsignedShortVar1() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "unsignedShortVar2"
-			, SingleItemType.UNSIGNED_SHORT // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_SHORT // itemType
 			, allItemType.getUnsignedShortVar2() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "unsignedShortVar3"
-			, SingleItemType.UNSIGNED_SHORT // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_SHORT // itemType
 			, allItemType.getUnsignedShortVar3() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "intVar1"
-			, SingleItemType.INTEGER // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.INTEGER // itemType
 			, allItemType.getIntVar1() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "intVar2"
-			, SingleItemType.INTEGER // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.INTEGER // itemType
 			, allItemType.getIntVar2() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "intVar3"
-			, SingleItemType.INTEGER // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.INTEGER // itemType
 			, allItemType.getIntVar3() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "unsignedIntVar1"
-			, SingleItemType.UNSIGNED_INTEGER // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
 			, allItemType.getUnsignedIntVar1() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "unsignedIntVar2"
-			, SingleItemType.UNSIGNED_INTEGER // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
 			, allItemType.getUnsignedIntVar2() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "unsignedIntVar3"
-			, SingleItemType.UNSIGNED_INTEGER // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
 			, allItemType.getUnsignedIntVar3() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "longVar1"
-			, SingleItemType.LONG // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.LONG // itemType
 			, allItemType.getLongVar1() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "longVar2"
-			, SingleItemType.LONG // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.LONG // itemType
 			, allItemType.getLongVar2() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "longVar3"
-			, SingleItemType.LONG // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.LONG // itemType
 			, allItemType.getLongVar3() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "strVar1"
-			, SingleItemType.UB_PASCAL_STRING // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
 			, allItemType.getStrVar1() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "strVar2"
-			, SingleItemType.US_PASCAL_STRING // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.US_PASCAL_STRING // itemType
 			, allItemType.getStrVar2() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "strVar3"
-			, SingleItemType.SI_PASCAL_STRING // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.SI_PASCAL_STRING // itemType
 			, allItemType.getStrVar3() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "bytesVar1"
-			, SingleItemType.FIXED_LENGTH_BYTES // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.FIXED_LENGTH_BYTES // itemType
 			, allItemType.getBytesVar1() // itemValue
 			, 7 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "bytesVar2"
-			, SingleItemType.SI_VARIABLE_LENGTH_BYTES // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.SI_VARIABLE_LENGTH_BYTES // itemType
 			, allItemType.getBytesVar2() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "sqldate"
-			, SingleItemType.JAVA_SQL_DATE // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.JAVA_SQL_DATE // itemType
 			, allItemType.getSqldate() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "sqltimestamp"
-			, SingleItemType.JAVA_SQL_TIMESTAMP // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
 			, allItemType.getSqltimestamp() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "cnt"
-			, SingleItemType.INTEGER // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.INTEGER // itemType
 			, allItemType.getCnt() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
@@ -267,21 +265,21 @@ public final class AllItemTypeEncoder extends AbstractMessageEncoder {
 				AllItemType.Member member$2 = member$2List.get(i2);
 
 				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "memberID"
-					, SingleItemType.FIXED_LENGTH_STRING // itemType
+					, kr.pe.sinnori.common.type.SingleItemType.FIXED_LENGTH_STRING // itemType
 					, member$2.getMemberID() // itemValue
 					, 30 // itemSize
 					, null // nativeItemCharset
 					, member$2MiddleWritableObject);
 
 				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "memberName"
-					, SingleItemType.FIXED_LENGTH_STRING // itemType
+					, kr.pe.sinnori.common.type.SingleItemType.FIXED_LENGTH_STRING // itemType
 					, member$2.getMemberName() // itemValue
 					, 30 // itemSize
 					, null // nativeItemCharset
 					, member$2MiddleWritableObject);
 
 				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "cnt"
-					, SingleItemType.INTEGER // itemType
+					, kr.pe.sinnori.common.type.SingleItemType.INTEGER // itemType
 					, member$2.getCnt() // itemValue
 					, -1 // itemSize
 					, null // nativeItemCharset
@@ -311,21 +309,21 @@ public final class AllItemTypeEncoder extends AbstractMessageEncoder {
 						AllItemType.Member.Item item$4 = item$4List.get(i4);
 
 						singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "itemID"
-							, SingleItemType.FIXED_LENGTH_STRING // itemType
+							, kr.pe.sinnori.common.type.SingleItemType.FIXED_LENGTH_STRING // itemType
 							, item$4.getItemID() // itemValue
 							, 30 // itemSize
 							, null // nativeItemCharset
 							, item$4MiddleWritableObject);
 
 						singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "itemName"
-							, SingleItemType.FIXED_LENGTH_STRING // itemType
+							, kr.pe.sinnori.common.type.SingleItemType.FIXED_LENGTH_STRING // itemType
 							, item$4.getItemName() // itemValue
 							, 30 // itemSize
 							, null // nativeItemCharset
 							, item$4MiddleWritableObject);
 
 						singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "itemCnt"
-							, SingleItemType.INTEGER // itemType
+							, kr.pe.sinnori.common.type.SingleItemType.INTEGER // itemType
 							, item$4.getItemCnt() // itemValue
 							, -1 // itemSize
 							, null // nativeItemCharset
@@ -355,21 +353,21 @@ public final class AllItemTypeEncoder extends AbstractMessageEncoder {
 								AllItemType.Member.Item.SubItem subItem$6 = subItem$6List.get(i6);
 
 								singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "subItemID"
-									, SingleItemType.UB_PASCAL_STRING // itemType
+									, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
 									, subItem$6.getSubItemID() // itemValue
 									, -1 // itemSize
 									, null // nativeItemCharset
 									, subItem$6MiddleWritableObject);
 
 								singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "subItemName"
-									, SingleItemType.US_PASCAL_STRING // itemType
+									, kr.pe.sinnori.common.type.SingleItemType.US_PASCAL_STRING // itemType
 									, subItem$6.getSubItemName() // itemValue
 									, -1 // itemSize
 									, null // nativeItemCharset
 									, subItem$6MiddleWritableObject);
 
 								singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "itemCnt"
-									, SingleItemType.INTEGER // itemType
+									, kr.pe.sinnori.common.type.SingleItemType.INTEGER // itemType
 									, subItem$6.getItemCnt() // itemValue
 									, -1 // itemSize
 									, null // nativeItemCharset
@@ -388,7 +386,7 @@ public final class AllItemTypeEncoder extends AbstractMessageEncoder {
 		}
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "longVar4"
-			, SingleItemType.LONG // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.LONG // itemType
 			, allItemType.getLongVar4() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset

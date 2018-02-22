@@ -20,18 +20,28 @@ package kr.pe.sinnori.server;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
 import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import kr.pe.sinnori.common.classloader.IOPartDynamicClassNameUtil;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
+import kr.pe.sinnori.common.etc.CharsetUtil;
+import kr.pe.sinnori.common.etc.ObjectCacheManager;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
-import kr.pe.sinnori.common.project.AbstractProject;
+import kr.pe.sinnori.common.io.DataPacketBufferPool;
+import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
+import kr.pe.sinnori.common.protocol.MessageProtocolIF;
+import kr.pe.sinnori.common.protocol.dhb.DHBMessageProtocol;
+import kr.pe.sinnori.common.protocol.djson.DJSONMessageProtocol;
+import kr.pe.sinnori.common.protocol.thb.THBMessageProtocol;
 import kr.pe.sinnori.server.classloader.ServerClassLoader;
 import kr.pe.sinnori.server.task.AbstractServerTask;
 import kr.pe.sinnori.server.threadpool.IEOThreadPoolSetManager;
@@ -43,9 +53,25 @@ import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderPool;
 import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterPool;
 
 
-public class AnyProjectServer extends AbstractProject implements
+public class AnyProjectServer implements
 		ServerObjectCacheManagerIF {
 	private Logger log = LoggerFactory.getLogger(AnyProjectServer.class);
+	
+	private ProjectPartConfiguration projectPartConfiguration = null;
+	
+	private ObjectCacheManager objectCacheManager = ObjectCacheManager
+			.getInstance();	
+	
+	private MessageProtocolIF messageProtocol = null;
+	
+	
+	private DataPacketBufferPoolIF dataPacketBufferPool = null;
+	
+	private CharsetEncoder charsetEncoderOfProject = null;
+	
+	private CharsetDecoder charsetDecoderOfProject = null;
+	
+	private IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = null;
 
 	/** 모니터 객체 */
 	// private final Object clientResourceMonitor = new Object();
@@ -61,10 +87,6 @@ public class AnyProjectServer extends AbstractProject implements
 
 	/** 접속 승인 큐 */
 	private LinkedBlockingQueue<SocketChannel> acceptQueue = null;
-	/** 입력 메시지 큐 */
-	// private LinkedBlockingQueue<FromLetter> inputMessageQueue = null;
-	/** 출력 메시지 큐 */
-	// private LinkedBlockingQueue<ToLetter> outputMessageQueue = null;
 
 	/** 클라이언트 접속 승인 쓰레드 */
 	private AcceptSelector acceptSelector = null;
@@ -77,27 +99,75 @@ public class AnyProjectServer extends AbstractProject implements
 	/** 출력 메시지 소켓 쓰기 담당 쓰레드 폴 */
 	private OutputMessageWriterPool outputMessageWriterPool = null;
 
-	// private SinnoriClassLoader classLoader = null;	
-
 	private ServerProjectMonitor serverProjectMonitor = null;
 	
 	
 	private ProjectLoginManager projectLoginManager = null;
 	private SocketResourceManagerIF socketResourceManager = null;
 	
-	
-
-	/**
-	 * 생성자
-	 * 
-	 * @param projectPartConfiguration
-	 *            프로젝트 파트 설정 내용
-	 * @throws NoMoreDataPacketBufferException
-	 *             데이터 패킷 버퍼 부족시 던지는 예외
-	 */
 	public AnyProjectServer(ProjectPartConfiguration projectPartConfiguration)
 			throws NoMoreDataPacketBufferException, SinnoriConfigurationException {
-		super(projectPartConfiguration);
+		this.projectPartConfiguration = projectPartConfiguration;		
+		
+		charsetEncoderOfProject = CharsetUtil.createCharsetEncoder(projectPartConfiguration.getCharset());
+		charsetDecoderOfProject = CharsetUtil.createCharsetDecoder(projectPartConfiguration.getCharset());
+		
+		/*projectName = projectPartConfiguration.getProjectName();
+		hostOfProject = projectPartConfiguration.getServerHost();
+		portOfProject = projectPartConfiguration.getServerPort();
+		byteOrderOfProject = projectPartConfiguration.getByteOrder();
+		charsetOfProject = projectPartConfiguration.getCharset();
+		charsetEncoderOfProject = CharsetUtil.createCharsetEncoder(charsetOfProject);
+		charsetDecoderOfProject = CharsetUtil.createCharsetDecoder(charsetOfProject);
+		classLoaderClassPackagePrefixName = projectPartConfiguration.getClassLoaderClassPackagePrefixName();
+		int dataPacketBufferSize = projectPartConfiguration.getDataPacketBufferSize();
+		dataPacketBufferMaxCntPerMessage = projectPartConfiguration.getDataPacketBufferMaxCntPerMessage();
+		
+		int messageIDFixedSize = projectPartConfiguration.getMessageIDFixedSize();		
+		int dataPacketBufferPoolSize = projectPartConfiguration.getDataPacketBufferPoolSize();
+		MessageProtocolType messageProtocolGubun = projectPartConfiguration.getMessageProtocol();*/
+		
+		boolean isDirect = false;
+		this.dataPacketBufferPool = new DataPacketBufferPool(isDirect, 
+				projectPartConfiguration.getByteOrder()
+						, projectPartConfiguration.getDataPacketBufferSize()
+						, projectPartConfiguration.getDataPacketBufferPoolSize());
+		
+
+		switch (projectPartConfiguration.getMessageProtocolType()) {
+			case DHB: {
+				messageProtocol = new DHBMessageProtocol(
+						projectPartConfiguration.getMessageIDFixedSize(), 
+						projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(),
+						charsetEncoderOfProject, charsetDecoderOfProject, 
+						dataPacketBufferPool);
+	
+				break;
+			}
+			case DJSON: {
+				messageProtocol = new DJSONMessageProtocol(
+						projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(), 
+						charsetEncoderOfProject, charsetDecoderOfProject, 
+						dataPacketBufferPool);
+				break;
+			}
+			case THB: {
+				messageProtocol = new THBMessageProtocol(
+						projectPartConfiguration.getMessageIDFixedSize(), 
+						projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(), 
+						charsetEncoderOfProject, charsetDecoderOfProject, dataPacketBufferPool);
+				break;
+			}
+			default: {
+				log.error(String.format("project[%s] 지원하지 않는 메시지 프로토콜[%s] 입니다.",
+						projectPartConfiguration.getProjectName(), projectPartConfiguration
+								.getMessageProtocolType().toString()));
+				System.exit(1);
+			}
+		}
+		
+		ioPartDynamicClassNameUtil = new IOPartDynamicClassNameUtil(projectPartConfiguration
+				.getFirstPrefixDynamicClassFullName());
 				
 		
 		workBaseClassLoader = new ServerClassLoader(projectPartConfiguration.getProjectName(),

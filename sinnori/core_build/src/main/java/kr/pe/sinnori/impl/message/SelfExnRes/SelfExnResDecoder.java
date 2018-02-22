@@ -16,10 +16,8 @@
  */
 package kr.pe.sinnori.impl.message.SelfExnRes;
 
-import java.util.LinkedList;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.type.SingleItemType;
 import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 /**
@@ -32,13 +30,13 @@ public final class SelfExnResDecoder extends AbstractMessageDecoder {
 	@Override
 	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object  middleReadableObject) throws OutOfMemoryError, BodyFormatException {
 		SelfExnRes selfExnRes = new SelfExnRes();
-		LinkedList<String> pathStack = new LinkedList<String>();
+		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
 		pathStack.push("SelfExnRes");
 
 		selfExnRes.setErrorPlace((kr.pe.sinnori.common.type.SelfExn.ErrorPlace)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "errorPlace" // itemName
-			, SingleItemType.SELFEXN_ERROR_PLACE // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.SELFEXN_ERROR_PLACE // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));
@@ -46,7 +44,7 @@ public final class SelfExnResDecoder extends AbstractMessageDecoder {
 		selfExnRes.setErrorType((kr.pe.sinnori.common.type.SelfExn.ErrorType)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "errorType" // itemName
-			, SingleItemType.SELFEXN_ERROR_TYPE // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.SELFEXN_ERROR_TYPE // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));
@@ -54,7 +52,7 @@ public final class SelfExnResDecoder extends AbstractMessageDecoder {
 		selfExnRes.setErrorMessageID((String)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "errorMessageID" // itemName
-			, SingleItemType.UB_PASCAL_STRING // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
 			, -1 // itemSize
 			, "ISO-8859-1" // nativeItemCharset
 			, middleReadableObject));
@@ -62,7 +60,7 @@ public final class SelfExnResDecoder extends AbstractMessageDecoder {
 		selfExnRes.setErrorReason((String)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "errorReason" // itemName
-			, SingleItemType.US_PASCAL_STRING // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.US_PASCAL_STRING // itemType
 			, -1 // itemSize
 			, "utf8" // nativeItemCharset
 			, middleReadableObject));

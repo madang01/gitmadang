@@ -19,8 +19,7 @@ package kr.pe.sinnori.client.connection.asyn.noshare;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.nio.charset.CharsetDecoder;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
+import java.util.LinkedList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +69,7 @@ public class NoShareAsynConnectionPool implements ConnectionPoolIF {
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	private ClientObjectCacheManagerIF clientObjectCacheManager = null;
 
-	private LinkedBlockingQueue<NoShareAsynConnection> connectionQueue = null;
+	private LinkedList<NoShareAsynConnection> connectionList = null;
 	private transient int numberOfConnection = 0;
 	private ConnectionPoolManagerIF poolManager = null;
 
@@ -96,7 +95,7 @@ public class NoShareAsynConnectionPool implements ConnectionPoolIF {
 		this.dataPacketBufferPool = dataPacketBufferPool;
 		this.clientObjectCacheManager = clientObjectCacheManager;
 
-		connectionQueue = new LinkedBlockingQueue<NoShareAsynConnection>(connectionPoolMaxSize);
+		connectionList = new LinkedList<NoShareAsynConnection>();
 
 		/**
 		 * 비동기 비 공유 연결 클래스는 입력 메시지 큐 1개와 출력 메시지큐 1개를 할당 받는다. 입력 메시지 큐는 모든 연결 클래스간에 공유하며,
@@ -108,9 +107,11 @@ public class NoShareAsynConnectionPool implements ConnectionPoolIF {
 
 			}
 		} catch (IOException e) {
-			while (! connectionQueue.isEmpty()) {
+			
+			while (! connectionList.isEmpty()) {
+				
 				try {
-					connectionQueue.poll().close();
+					connectionList.remove().close();
 				} catch (IOException e1) {
 				}
 			}
@@ -138,8 +139,7 @@ public class NoShareAsynConnectionPool implements ConnectionPoolIF {
 
 			NoShareAsynConnection serverConnection = new NoShareAsynConnection(projectName, host, port, socketTimeOut,
 					asynSocketResource, messageProtocol, clientObjectCacheManager);
-			connectionQueue.add(serverConnection);
-			
+			connectionList.addLast(serverConnection);			
 			numberOfConnection++;			
 			connectionPoolSize = Math.max(numberOfConnection, connectionPoolSize);
 		}
@@ -156,16 +156,25 @@ public class NoShareAsynConnectionPool implements ConnectionPoolIF {
 					throw new ConnectionPoolException("check server alive");
 				}
 				
-				asynPrivateConnection = connectionQueue.poll(socketTimeOut, TimeUnit.MILLISECONDS);
-				if (null == asynPrivateConnection) {
-					throw new SocketTimeoutException("no share synchronized connection pool timeout");
+				if (connectionList.isEmpty()) {
+					monitor.wait(socketTimeOut);
+					
+					if (connectionList.isEmpty()) {
+						throw new SocketTimeoutException("asynchronized private connection pool timeout");
+					}
 				}
-				asynPrivateConnection.queueOut();
+				
+				asynPrivateConnection = connectionList.removeFirst();
 
 				if (asynPrivateConnection.isConnected()) {
+					asynPrivateConnection.queueOut();
 					loop = false;
 				} else {
 					loop = true;
+					
+					/**
+					 * Warning! 큐에 반환 되지 않고 가비지 대상이 될 경우 그 원인을 추적해야 하므로 반듯이 큐 안이라는 상태에서 연결을 폐기해야 한다
+					 */
 					
 					String reasonForLoss = new StringBuilder("폴에서 꺼낸 비동기 비공유 연결[")
 							.append(asynPrivateConnection.hashCode()).append("]이 닫혀있어 폐기").toString();
@@ -208,8 +217,14 @@ public class NoShareAsynConnectionPool implements ConnectionPoolIF {
 				log.warn(errorMessage, new Throwable());
 				throw new ConnectionPoolException(errorMessage);
 			}
+			
+			asynPrivateConnection.queueIn();
 
 			if (!asynPrivateConnection.isConnected()) {
+				/**
+				 * Warning! 큐에 반환 되지 않고 가비지 대상이 될 경우 그 원인을 추적해야 하므로 반듯이 큐 안이라는 상태에서 연결을 폐기해야 한다
+				 */
+				
 				numberOfConnection--;
 
 				String reasonForLoss = new StringBuilder("반환된 비동기 비공유 연결[").append(asynPrivateConnection.hashCode())
@@ -220,15 +235,9 @@ public class NoShareAsynConnectionPool implements ConnectionPoolIF {
 				poolManager.notice(reasonForLoss);
 				return;
 			}
-
-			asynPrivateConnection.queueIn();
-			boolean isSuccess = connectionQueue.offer(asynPrivateConnection);
-			if (!isSuccess) {
-				log.error(
-						"fail to offer NoShareAsynConnection[{}] to connection queue becase of bug, you need to check and fix bug",
-						conn.hashCode());
-				System.exit(1);
-			}
+			
+			connectionList.addLast(asynPrivateConnection);
+			monitor.notify();
 		}
 	}
 

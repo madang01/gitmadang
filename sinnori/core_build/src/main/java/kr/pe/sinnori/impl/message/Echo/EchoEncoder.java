@@ -16,9 +16,7 @@
  */
 package kr.pe.sinnori.impl.message.Echo;
 
-import java.util.LinkedList;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.type.SingleItemType;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
 
@@ -36,19 +34,19 @@ public final class EchoEncoder extends AbstractMessageEncoder {
 
 
 	private void encodeBody(Echo echo, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject) throws Exception {
-		LinkedList<String> pathStack = new LinkedList<String>();
+		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
 		pathStack.push("Echo");
 
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "randomInt"
-			, SingleItemType.INTEGER // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.INTEGER // itemType
 			, echo.getRandomInt() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "startTime"
-			, SingleItemType.LONG // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.LONG // itemType
 			, echo.getStartTime() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
