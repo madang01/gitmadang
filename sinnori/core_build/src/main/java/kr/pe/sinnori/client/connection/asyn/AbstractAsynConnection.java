@@ -58,7 +58,10 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 		super(projectName, host, port, socketTimeOut, messageProtocol, clientObjectCacheManager);
 		
 		this.asynSocketResource = asynSocketResource;
+		
 		asynSocketResource.setOwnerAsynConnection(this);
+		
+		doConnect();
 	}
 	
 	protected void doReleaseSocketResources() {
@@ -91,9 +94,10 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 	
 			InetSocketAddress remoteAddr = new InetSocketAddress(host, port);
 			if (! serverSC.connect(remoteAddr)) {
+				@SuppressWarnings("unused")
 				int numberOfKeys = connectionEventOnlySelector.select(socketTimeOut);
 	
-				log.info("numberOfKeys={}", numberOfKeys);
+				// log.info("numberOfKeys={}", numberOfKeys);
 	
 				Iterator<SelectionKey> selectionKeyIterator = connectionEventOnlySelector.selectedKeys().iterator();
 				if (!selectionKeyIterator.hasNext()) {
@@ -102,7 +106,8 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 					throw new SocketTimeoutException(errorMessage);
 				}
 				
-				selectionKeyIterator.remove();
+				SelectionKey selectionKey = selectionKeyIterator.next();
+				selectionKey.cancel();
 	
 				if (! serverSC.finishConnect()) {
 					String errorMessage = String.format("the socket[sc hascode=%d] has an error pending",
@@ -114,7 +119,6 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 			connectionEventOnlySelector.close();
 		}
 	
-		// registerSocketToReadOnlySelector();
 		asynSocketResource.getOutputMessageReader().registerAsynConnection(this);
 	
 		StringBuilder infoBuilder = null;

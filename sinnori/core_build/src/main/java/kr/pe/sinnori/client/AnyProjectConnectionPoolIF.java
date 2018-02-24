@@ -19,11 +19,13 @@ package kr.pe.sinnori.client;
 
 import java.io.IOException;
 
+import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.common.exception.AccessDeniedException;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.ConnectionPoolException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.message.AbstractMessage;
 
@@ -32,24 +34,16 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  * @author Won Jonghoon
  *
  */
-public interface ClientProjectIF {
+public interface AnyProjectConnectionPoolIF {
 	
-	public AbstractMessage sendSyncInputMessage(
-			AbstractMessage inputMessage) throws IOException,  
-			NoMoreDataPacketBufferException, BodyFormatException, 
-			DynamicClassCallException, ServerTaskException, AccessDeniedException,  ConnectionPoolException, InterruptedException;
+	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
+			throws IOException, NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException,
+			ServerTaskException, AccessDeniedException, InterruptedException, ConnectionPoolException;
+	
+	public void sendAsynInputMessage(AbstractMessage inputMessage)
+			throws InterruptedException, ConnectionPoolException, NotSupportedException, IOException,
+			NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException;
 		
-	/*
-	public AbstractConnection getConnection() throws InterruptedException, NotSupportedException, SocketTimeoutException;
-	
-	public void releaseConnection(AbstractConnection conn) throws NotSupportedException;*/
-	
-	
-	// public void stop();
-	
-	
-	
-	// public void changeServerAddress(String newServerHost, int newServerPort) throws NotSupportedException;
-	
-	// public void saveSinnoriConfiguration() throws IllegalArgumentException, SinnoriConfigurationException, IOException;
+	public AbstractConnection createConnection(String host, int port)
+			throws NoMoreDataPacketBufferException, InterruptedException, IOException;
 }

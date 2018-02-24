@@ -32,19 +32,14 @@ public class ClientExecutorPool extends AbstractThreadPool implements ClientExec
 	}
 
 	@Override
-	public ClientExecutorIF getNextClientExecutor() {
-		
+	public ClientExecutorIF getClientExecutorWithMinimumNumberOfConnetion() {		
 		Iterator<Thread> poolIter = pool.iterator();
-		int min = Integer.MAX_VALUE;
-		
-		ClientExecutorIF minClientExecutor = null;
-		
 		if (! poolIter.hasNext()) {
 			throw new NoSuchElementException("ClientExecutorPool empty");
-		}
+		}		
 		
-		minClientExecutor = (ClientExecutorIF)poolIter.next();
-		min = minClientExecutor.getNumberOfAsynConnection();
+		ClientExecutorIF minClientExecutor = (ClientExecutorIF)poolIter.next();
+		int min = minClientExecutor.getNumberOfAsynConnection();
 		
 		while (poolIter.hasNext()) {
 			ClientExecutorIF clientExecutor = (ClientExecutorIF)poolIter.next();
@@ -59,7 +54,7 @@ public class ClientExecutorPool extends AbstractThreadPool implements ClientExec
 	}
 
 	@Override
-	public void addHandler() {
+	public void addHandler() throws IllegalStateException {
 		synchronized (monitor) {
 			int size = pool.size();
 			

@@ -17,9 +17,12 @@
 
 package kr.pe.sinnori.server.threadpool.executor;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.common.asyn.FromLetter;
+import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
@@ -36,7 +39,7 @@ import kr.pe.sinnori.server.threadpool.executor.handler.ServerExecutorIF;
 public class ServerExecutorPool extends AbstractThreadPool implements ServerExecutorPoolIF {
 	// execuate_processor_pool_max_size
 	
-	private int maxHandler;
+	private int max;
 	// private LinkedBlockingQueue<FromLetter> inputMessageQueue;
 	private int inputMessageQueueSize;
 	private MessageProtocolIF messageProtocol= null;
@@ -48,12 +51,11 @@ public class ServerExecutorPool extends AbstractThreadPool implements ServerExec
 	public ServerExecutorPool(String projectName, 
 			int size, 
 			int max,
-			// LinkedBlockingQueue<FromLetter> inputMessageQueue,
-			int inputMessageQueueSize,
+			int inputMessageQueueSize,			
 			MessageProtocolIF messageProtocol,
 			SocketResourceManagerIF socketResourceManager,
 			ServerObjectCacheManagerIF serverObjectCacheManager,
-			IEOThreadPoolSetManagerIF ieoThreadPoolManager) {
+			IEOThreadPoolSetManagerIF ieoThreadPoolManager) throws SinnoriConfigurationException {
 		if (size <= 0) {
 			throw new IllegalArgumentException(String.format("%s 파라미터 size 는 0보다 커야 합니다.", projectName));
 		}
@@ -66,12 +68,15 @@ public class ServerExecutorPool extends AbstractThreadPool implements ServerExec
 					"%s 파라미터 size[%d]는 파라미터 max[%d]보다 작거나 같아야 합니다.", projectName, size, max));
 		}
 		
-		this.maxHandler = max;
+		this.max = max;
 		this.projectName = projectName;		
 		this.inputMessageQueueSize = inputMessageQueueSize;
 		this.messageProtocol = messageProtocol;
 		this.socketResourceManager = socketResourceManager;
-		this.serverObjectCacheManager = serverObjectCacheManager;
+		
+		/*this.serverObjectCacheManager = new ServerObjectCacheManager(projectName,
+				firstPrefixDynamicClassFullName);*/
+		this.serverObjectCacheManager =  serverObjectCacheManager;
 		
 		ieoThreadPoolManager.setExecutorPool(this);
 
@@ -81,17 +86,17 @@ public class ServerExecutorPool extends AbstractThreadPool implements ServerExec
 	}
 
 	@Override
-	public void addHandler() {
+	public void addHandler() throws IllegalStateException {
 		LinkedBlockingQueue<FromLetter> inputMessageQueue = new
 				LinkedBlockingQueue<FromLetter>(inputMessageQueueSize);
 		
 		synchronized (monitor) {
 			int size = pool.size();
 
-			if (size > maxHandler) {
-				String errorMessage = String.format("%s ExecutorProcessor 최대 갯수[%d]를 넘을 수 없습니다.", projectName, maxHandler); 
+			if (size > max) {
+				String errorMessage = String.format("%s ExecutorProcessor 최대 갯수[%d]를 넘을 수 없습니다.", projectName, max); 
 				log.warn(errorMessage);
-				throw new RuntimeException(errorMessage);
+				throw new IllegalStateException(errorMessage);
 			}
 			
 			try {
@@ -105,26 +110,31 @@ public class ServerExecutorPool extends AbstractThreadPool implements ServerExec
 			} catch (Exception e) {
 				String errorMessage = String.format("%s ExecutorProcessor[%d] 등록 실패", projectName, size); 
 				log.warn(errorMessage, e);
-				throw new RuntimeException(errorMessage);
+				throw new IllegalStateException(errorMessage);
 			}
 		}
 	}
 
 	@Override
-	public ServerExecutorIF getExecutorWithMinimumMumberOfSockets() {
-		ServerExecutorIF executorWithMinimumMumberOfSockets = null;
-		int minimumMumberOfSockets = Integer.MAX_VALUE;
-
-		int size = pool.size();
-		for (int i = 0; i < size; i++) {
-			ServerExecutorIF handler = (ServerExecutorIF) pool.get(i);
-			int numberOfSocket = handler.getNumberOfSocket();
-			if (numberOfSocket < minimumMumberOfSockets) {
-				minimumMumberOfSockets = numberOfSocket;
-				executorWithMinimumMumberOfSockets = handler;
-			}
+	public ServerExecutorIF getExecutorWithMinimumNumberOfSockets() {
+		Iterator<Thread> poolIter = pool.iterator();
+		
+		if (! poolIter.hasNext()) {
+			throw new NoSuchElementException("ServerExecutorPool empty");
 		}
 		
-		return executorWithMinimumMumberOfSockets;
+		ServerExecutorIF minServerExecutor = (ServerExecutorIF)poolIter.next();
+		int min = minServerExecutor.getNumberOfSocket();
+		
+		while (poolIter.hasNext()) {
+			ServerExecutorIF serverExecutor = (ServerExecutorIF) poolIter.next();
+			int numberOfSocket = serverExecutor.getNumberOfSocket();
+			if (numberOfSocket < min) {
+				min = numberOfSocket;
+				minServerExecutor = serverExecutor;
+			}
+		}
+
+		return minServerExecutor;
 	}
 }

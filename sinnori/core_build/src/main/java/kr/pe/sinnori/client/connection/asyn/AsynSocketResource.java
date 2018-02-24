@@ -22,6 +22,22 @@ public class AsynSocketResource implements AsynSocketResourceIF {
 			InputMessageWriterIF inputMessageWriter,
 			OutputMessageReaderIF outputMessageReader,
 			ClientExecutorIF clientExecutor) {
+		if (null == socketOutputStream) {
+			throw new IllegalArgumentException("the parameter socketOutputStream is null");
+		}
+		
+		if (null == inputMessageWriter) {
+			throw new IllegalArgumentException("the parameter inputMessageWriter is null");
+		}
+		
+		if (null == outputMessageReader) {
+			throw new IllegalArgumentException("the parameter outputMessageReader is null");
+		}
+		
+		if (null == clientExecutor) {
+			throw new IllegalArgumentException("the parameter clientExecutor is null");
+		}		
+		
 		this.socketOutputStream = socketOutputStream;
 		this.inputMessageWriter = inputMessageWriter;
 		this.outputMessageReader = outputMessageReader;

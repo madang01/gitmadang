@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.ConnectionPoolIF;
-import kr.pe.sinnori.client.connection.ConnectionPoolManagerIF;
+import kr.pe.sinnori.client.connection.ConnectionPoolSupporterIF;
 import kr.pe.sinnori.client.connection.SocketResoruceIF;
 import kr.pe.sinnori.common.exception.ConnectionPoolException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
@@ -50,7 +50,7 @@ public class NoShareSyncConnectionPool implements ConnectionPoolIF {
 	private String projectName = null;
 	private String host = null;
 	private int port;
-	private int connectionPoolSize;
+	private transient int connectionPoolSize;
 	private int connectionPoolMaxSize;
 	private long socketTimeOut;
 	private int dataPacketBufferMaxCntPerMessage;
@@ -61,7 +61,7 @@ public class NoShareSyncConnectionPool implements ConnectionPoolIF {
 
 	private LinkedList<NoShareSyncConnection> connectionList = null;
 	private transient int numberOfConnection = 0;
-	private ConnectionPoolManagerIF poolManager = null;
+	private ConnectionPoolSupporterIF connectionPoolSupporter = null;
 
 	public NoShareSyncConnectionPool(String projectName, String host, int port, int connectionPoolSize,
 			int connectionPoolMaxSize, long socketTimeOut, int dataPacketBufferMaxCntPerMessage,
@@ -104,25 +104,47 @@ public class NoShareSyncConnectionPool implements ConnectionPoolIF {
 		}
 	}
 
-	public void addConnection()
+	private void addConnection()
 			throws InterruptedException, NoMoreDataPacketBufferException, IOException, ConnectionPoolException {
+
+		if (numberOfConnection >= connectionPoolMaxSize) {
+			throw new ConnectionPoolException("fail to add a connection because this connection pool is full");
+		}
+
+		SocketOutputStream socketOutputStream = new SocketOutputStream(streamCharsetDecoder,
+				dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
+
+		SocketResoruceIF syncPrivateSocketResoruce = new SyncPrivateSocketResource(socketOutputStream);
+
+		NoShareSyncConnection conn = new NoShareSyncConnection(projectName, host, port, socketTimeOut,
+				syncPrivateSocketResoruce, dataPacketBufferPool, messageProtocol, clientObjectCacheManager);
+
 		synchronized (monitor) {
-			if (numberOfConnection >= connectionPoolMaxSize) {
-				throw new ConnectionPoolException("fail to add a connection because this connection pool is full");
-			}
-
-			SocketOutputStream socketOutputStream = new SocketOutputStream(streamCharsetDecoder,
-					dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
-
-			SocketResoruceIF syncPrivateSocketResoruce = new SyncPrivateSocketResource(socketOutputStream);
-
-			NoShareSyncConnection conn = new NoShareSyncConnection(projectName, host, port, socketTimeOut,
-					syncPrivateSocketResoruce, dataPacketBufferPool, messageProtocol, clientObjectCacheManager);
-
 			connectionList.addLast(conn);
-			numberOfConnection++;			
+			numberOfConnection++;
 			connectionPoolSize = Math.max(numberOfConnection, connectionPoolSize);
 		}
+
+	}
+
+	private boolean whetherConnectionIsMissing() {
+		return (numberOfConnection != connectionPoolSize);
+	}
+
+	public void addAllLostConnections() throws InterruptedException {
+
+		while (whetherConnectionIsMissing()) {
+			try {
+				addConnection();
+				log.info("결손된 비동기 비공유 연결 추가 작업 완료");
+			} catch (InterruptedException e) {
+				throw e;
+			} catch (Exception e) {
+				log.warn("에러 발생에 따른 결손된 비동기 비공유 연결 추가 작업 잠시 중지 ", e);
+				break;
+			}
+		}
+
 	}
 
 	/*
@@ -136,49 +158,49 @@ public class NoShareSyncConnectionPool implements ConnectionPoolIF {
 	 * public int getConnectionPoolMaxSize() { return connectionPoolMaxSize; }
 	 */
 
-	public AbstractConnection getConnection() throws InterruptedException, SocketTimeoutException, ConnectionPoolException {
-	
+	public AbstractConnection getConnection()
+			throws InterruptedException, SocketTimeoutException, ConnectionPoolException {
+
 		NoShareSyncConnection syncPrivateConnection = null;
 		boolean loop = false;
-		
-		synchronized (monitor) {			
+
+		synchronized (monitor) {
 			do {
 				if (0 == numberOfConnection) {
 					throw new ConnectionPoolException("check server alive");
 				}
-				
+
 				if (connectionList.isEmpty()) {
 					monitor.wait(socketTimeOut);
-					
+
 					if (connectionList.isEmpty()) {
 						throw new SocketTimeoutException("synchronized private connection pool timeout");
 					}
 				}
-				
-				syncPrivateConnection = connectionList.removeFirst();				
-				
-	
+
+				syncPrivateConnection = connectionList.removeFirst();
+
 				if (syncPrivateConnection.isConnected()) {
 					syncPrivateConnection.queueOut();
 					loop = false;
 				} else {
 					loop = true;
-					
+
 					/**
 					 * Warning! 큐에 반환 되지 않고 가비지 대상이 될 경우 그 원인을 추적해야 하므로 반듯이 큐 안이라는 상태에서 연결을 폐기해야 한다
 					 */
-					
+
 					String reasonForLoss = new StringBuilder("폴에서 꺼낸 동기 비공유 연결[")
 							.append(syncPrivateConnection.hashCode()).append("]이 닫혀있어 폐기").toString();
-	
+
 					numberOfConnection--;
-	
+
 					log.warn("{}, 총 연결수[{}]", reasonForLoss, numberOfConnection);
-	
-					poolManager.notice(reasonForLoss);		
+
+					connectionPoolSupporter.notice(reasonForLoss);
 				}
 			} while (loop);
-	
+
 			return syncPrivateConnection;
 		}
 	}
@@ -189,13 +211,13 @@ public class NoShareSyncConnectionPool implements ConnectionPoolIF {
 			log.warn(errorMessage, new Throwable());
 			throw new IllegalArgumentException(errorMessage);
 		}
-	
+
 		if (!(conn instanceof NoShareSyncConnection)) {
 			String errorMessage = "the parameter conn is not instace of NoShareSyncConnection class";
 			log.warn(errorMessage, new Throwable());
 			throw new IllegalArgumentException(errorMessage);
 		}
-	
+
 		NoShareSyncConnection syncPrivateConnection = (NoShareSyncConnection) conn;
 		synchronized (monitor) {
 			/**
@@ -208,36 +230,32 @@ public class NoShareSyncConnectionPool implements ConnectionPoolIF {
 				log.warn(errorMessage, new Throwable());
 				throw new ConnectionPoolException(errorMessage);
 			}
-			
+
 			syncPrivateConnection.queueIn();
-	
+
 			if (!syncPrivateConnection.isConnected()) {
 				/**
 				 * Warning! 큐에 반환 되지 않고 가비지 대상이 될 경우 그 원인을 추적해야 하므로 반듯이 큐 안이라는 상태에서 연결을 폐기해야 한다
 				 */
 				numberOfConnection--;
-	
+
 				String reasonForLoss = new StringBuilder("반환된 동기 비공유 연결[").append(syncPrivateConnection.hashCode())
 						.append("]이 닫혀있어 폐기").toString();
-	
+
 				log.warn("{}, 총 연결수[{}]", reasonForLoss, numberOfConnection);
-	
-				poolManager.notice(reasonForLoss);
+
+				connectionPoolSupporter.notice(reasonForLoss);
 				return;
 			}
-			
+
 			connectionList.addLast(syncPrivateConnection);
 			monitor.notify();
 		}
 	}
 
-	public boolean whetherConnectionIsMissing() {
-		return (numberOfConnection != connectionPoolSize);
-	}
-
 	@Override
-	public void registerPoolManager(ConnectionPoolManagerIF poolManager) {
-		this.poolManager = poolManager;
+	public void registerConnectionPoolSupporter(ConnectionPoolSupporterIF connectionPoolSupporter) {
+		this.connectionPoolSupporter = connectionPoolSupporter;
 	}
 
 }

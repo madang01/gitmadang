@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.ConnectionPoolIF;
-import kr.pe.sinnori.client.connection.ConnectionPoolManagerIF;
+import kr.pe.sinnori.client.connection.ConnectionPoolSupporterIF;
 import kr.pe.sinnori.client.connection.asyn.AsynSocketResource;
 import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceIF;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxMapper;
@@ -52,13 +52,13 @@ import kr.pe.sinnori.common.protocol.MessageProtocolIF;
  */
 public class ShareAsynConnectionPool implements ConnectionPoolIF {
 	private Logger log = LoggerFactory.getLogger(ShareAsynConnectionPool.class);
-	
+
 	private final Object monitor = new Object();
 
 	private String projectName = null;
 	private String host = null;
 	private int port;
-	private int connectionPoolSize;
+	private transient int connectionPoolSize;
 	private int connectionPoolMaxSize;
 	private long socketTimeOut;
 	private InputMessageWriterPoolIF inputMessageWriterPool = null;
@@ -76,7 +76,7 @@ public class ShareAsynConnectionPool implements ConnectionPoolIF {
 	 */
 	private LinkedList<ShareAsynConnection> connectionList = null;
 	private transient int numberOfConnection = 0;
-	private ConnectionPoolManagerIF poolManager = null;
+	private ConnectionPoolSupporterIF connectionPoolSupporter = null;
 	private int currentWorkingIndex = -1;
 
 	public ShareAsynConnectionPool(String projectName, String host, int port, int connectionPoolSize,
@@ -121,67 +121,90 @@ public class ShareAsynConnectionPool implements ConnectionPoolIF {
 		// log.info("connectionList size=[%d]", connectionList.size());
 	}
 
-	public void addConnection()
+	private void addConnection()
 			throws InterruptedException, NoMoreDataPacketBufferException, IOException, ConnectionPoolException {
+
+		if (numberOfConnection >= connectionPoolMaxSize) {
+			throw new ConnectionPoolException("fail to add a connection because this connection pool is full");
+		}
+
+		OutputMessageReaderIF outputMessageReader = outputMessageReaderPool
+				.getOutputMessageReaderWithMinimumNumberOfConnetion();
+		InputMessageWriterIF inputMessageWriter = inputMessageWriterPool
+				.getInputMessageWriterWithMinimumNumberOfConnetion();
+		ClientExecutorIF clientExecutor = clientExecutorPool.getClientExecutorWithMinimumNumberOfConnetion();
+
+		SocketOutputStream socketOutputStream = new SocketOutputStream(streamCharsetDecoder,
+				dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
+
+		ShareAsynConnection serverConnection = null;
+
+		AsynPrivateMailboxMapper asynPrivateMailboxMapper = new AsynPrivateMailboxMapper(
+				numberOfAsynPrivateMailboxPerConnection, socketTimeOut);
+
+		AsynSocketResourceIF asynSocketResource = new AsynSocketResource(socketOutputStream, inputMessageWriter,
+				outputMessageReader, clientExecutor);
+
+		serverConnection = new ShareAsynConnection(projectName, host, port, socketTimeOut, asynPrivateMailboxMapper,
+				asynSocketResource, messageProtocol, clientObjectCacheManager);
+
 		synchronized (monitor) {
-			if (numberOfConnection >= connectionPoolMaxSize) {
-				throw new ConnectionPoolException("fail to add a connection because this connection pool is full");
-			}
-
-			OutputMessageReaderIF outputMessageReader = outputMessageReaderPool.getNextOutputMessageReader();
-			InputMessageWriterIF inputMessageWriter = inputMessageWriterPool.getNextInputMessageWriter();
-			ClientExecutorIF clientExecutor = clientExecutorPool.getNextClientExecutor();
-
-			SocketOutputStream socketOutputStream = new SocketOutputStream(streamCharsetDecoder,
-					dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
-
-			ShareAsynConnection serverConnection = null;
-
-			AsynPrivateMailboxMapper asynPrivateMailboxMapper = new AsynPrivateMailboxMapper(
-					numberOfAsynPrivateMailboxPerConnection, socketTimeOut);
-
-			AsynSocketResourceIF asynSocketResource = new AsynSocketResource(socketOutputStream, inputMessageWriter,
-					outputMessageReader, clientExecutor);
-
-			serverConnection = new ShareAsynConnection(projectName, host, port, socketTimeOut, asynPrivateMailboxMapper,
-					asynSocketResource, messageProtocol, clientObjectCacheManager);
-
 			connectionList.add(serverConnection);
-			
-			numberOfConnection++;			
+
+			numberOfConnection++;
 			connectionPoolSize = Math.max(numberOfConnection, connectionPoolSize);
+		}
+	}
+
+	private boolean whetherConnectionIsMissing() {
+		return (numberOfConnection != connectionPoolSize);
+	}
+
+	public void addAllLostConnections() throws InterruptedException {
+
+		while (whetherConnectionIsMissing()) {
+			try {
+				addConnection();
+				log.info("결손된 비동기 공유 연결 추가 작업 완료");
+			} catch (InterruptedException e) {
+				throw e;
+			} catch (Exception e) {
+				log.warn("에러 발생에 따른 결손된 비동기 공유 연결 추가 작업 잠시 중지 ", e);
+				break;
+			}
 		}
 
 	}
 
-	public AbstractConnection getConnection() throws InterruptedException, SocketTimeoutException, ConnectionPoolException {
+	public AbstractConnection getConnection()
+			throws InterruptedException, SocketTimeoutException, ConnectionPoolException {
 		boolean loop = false;
 		ShareAsynConnection conn = null;
-		
-		synchronized (monitor) {			
+
+		synchronized (monitor) {
 			do {
 				if (connectionList.isEmpty()) {
 					throw new ConnectionPoolException("check server alive");
 				}
-				
+
 				currentWorkingIndex = (currentWorkingIndex + 1) % connectionList.size();
-				
+
 				conn = connectionList.get(currentWorkingIndex);
 
 				if (conn.isConnected()) {
 					loop = false;
 				} else {
 					loop = true;
-					
-					String reasonForLoss = new StringBuilder("다음 차례의 비동기 공유 연결[")
-							.append(conn.hashCode()).append("]이 닫혀있어 폐기").toString();
+
+					String reasonForLoss = new StringBuilder("다음 차례의 비동기 공유 연결[").append(conn.hashCode())
+							.append("]이 닫혀있어 폐기").toString();
 
 					numberOfConnection--;
 
 					log.warn("{}, 총 연결수[{}]", reasonForLoss, numberOfConnection);
-					
-					poolManager.notice(reasonForLoss);
-					
+
+					connectionPoolSupporter.notice(reasonForLoss);
+
 					connectionList.remove(conn);
 				}
 			} while (loop);
@@ -191,43 +214,38 @@ public class ShareAsynConnectionPool implements ConnectionPoolIF {
 	}
 
 	public void release(AbstractConnection conn) {
-		
+
 		if (null == conn) {
 			String errorMessage = "the parameter conn is null";
 			log.warn(errorMessage, new Throwable());
 			throw new IllegalArgumentException(errorMessage);
 		}
-		
+
 		if (!(conn instanceof ShareAsynConnection)) {
 			String errorMessage = "the parameter conn is not instace of ShareAsynConnection class";
 			log.warn(errorMessage, new Throwable());
 			throw new IllegalArgumentException(errorMessage);
 		}
-		
+
 		synchronized (monitor) {
 			if (!conn.isConnected()) {
-				String reasonForLoss = new StringBuilder("반환된 비동기 공유 연결[")
-						.append(conn.hashCode()).append("]이 닫혀있어 폐기").toString();
+				String reasonForLoss = new StringBuilder("반환된 비동기 공유 연결[").append(conn.hashCode()).append("]이 닫혀있어 폐기")
+						.toString();
 
 				numberOfConnection--;
 
 				log.warn("{}, 총 연결수[{}]", reasonForLoss, numberOfConnection);
-				
-				poolManager.notice(reasonForLoss);
-				
+
+				connectionPoolSupporter.notice(reasonForLoss);
+
 				connectionList.remove(conn);
 			}
 		}
 	}
-	
-	@Override
-	public boolean whetherConnectionIsMissing() {
-		return (numberOfConnection != connectionPoolSize);
-	}
 
 	@Override
-	public void registerPoolManager(ConnectionPoolManagerIF poolManager) {
-		this.poolManager = poolManager;
+	public void registerConnectionPoolSupporter(ConnectionPoolSupporterIF connectionPoolSupporter) {
+		this.connectionPoolSupporter = connectionPoolSupporter;
 	}
 
 }

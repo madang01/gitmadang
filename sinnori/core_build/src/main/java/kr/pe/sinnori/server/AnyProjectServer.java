@@ -18,32 +18,26 @@
 package kr.pe.sinnori.server;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.common.classloader.IOPartDynamicClassNameUtil;
+import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CharsetUtil;
-import kr.pe.sinnori.common.etc.ObjectCacheManager;
-import kr.pe.sinnori.common.exception.DynamicClassCallException;
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.io.DataPacketBufferPool;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
-import kr.pe.sinnori.common.protocol.MessageCodecIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.dhb.DHBMessageProtocol;
 import kr.pe.sinnori.common.protocol.djson.DJSONMessageProtocol;
 import kr.pe.sinnori.common.protocol.thb.THBMessageProtocol;
-import kr.pe.sinnori.server.classloader.ServerClassLoader;
-import kr.pe.sinnori.server.task.AbstractServerTask;
 import kr.pe.sinnori.server.threadpool.IEOThreadPoolSetManager;
 import kr.pe.sinnori.server.threadpool.IEOThreadPoolSetManagerIF;
 import kr.pe.sinnori.server.threadpool.accept.processor.AcceptProcessorPool;
@@ -53,38 +47,13 @@ import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderPool;
 import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterPool;
 
 
-public class AnyProjectServer implements
-		ServerObjectCacheManagerIF {
+public class AnyProjectServer {
 	private Logger log = LoggerFactory.getLogger(AnyProjectServer.class);
 	
 	private ProjectPartConfiguration projectPartConfiguration = null;
 	
-	private ObjectCacheManager objectCacheManager = ObjectCacheManager
-			.getInstance();	
-	
-	private MessageProtocolIF messageProtocol = null;
-	
-	
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	
-	private CharsetEncoder charsetEncoderOfProject = null;
-	
-	private CharsetDecoder charsetDecoderOfProject = null;
-	
-	private IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = null;
-
-	/** 모니터 객체 */
-	// private final Object clientResourceMonitor = new Object();
-
-	/** 동적 클래스인 서버 타스크 객체 운영에 관련된 변수 시작 */
-	private final Object monitorOfServerTaskObj = new Object();
-	// private final ClassLoader sytemClassLoader =
-	// ClassLoader.getSystemClassLoader();
-	private ServerClassLoader workBaseClassLoader = null;
-	private HashMap<String, ServerTaskObjectInfo> className2ServerTaskObjectInfoHash = new HashMap<String, ServerTaskObjectInfo>();
-
-	/** 동적 클래스인 서버 타스크 객체 운영에 관련된 변수 종료 */
-
 	/** 접속 승인 큐 */
 	private LinkedBlockingQueue<SocketChannel> acceptQueue = null;
 
@@ -97,35 +66,21 @@ public class AnyProjectServer implements
 	/** 비지니스 로직 처리 담당 쓰레드 폴 */
 	private ServerExecutorPool executorPool = null;
 	/** 출력 메시지 소켓 쓰기 담당 쓰레드 폴 */
-	private OutputMessageWriterPool outputMessageWriterPool = null;
-
+	private OutputMessageWriterPool outputMessageWriterPool = null;	
+	
+	private ServerObjectCacheManager serverObjectCacheManager = null;
+	
 	private ServerProjectMonitor serverProjectMonitor = null;
-	
-	
-	private ProjectLoginManager projectLoginManager = null;
-	private SocketResourceManagerIF socketResourceManager = null;
 	
 	public AnyProjectServer(ProjectPartConfiguration projectPartConfiguration)
 			throws NoMoreDataPacketBufferException, SinnoriConfigurationException {
-		this.projectPartConfiguration = projectPartConfiguration;		
+		this.projectPartConfiguration = projectPartConfiguration;
 		
-		charsetEncoderOfProject = CharsetUtil.createCharsetEncoder(projectPartConfiguration.getCharset());
-		charsetDecoderOfProject = CharsetUtil.createCharsetDecoder(projectPartConfiguration.getCharset());
 		
-		/*projectName = projectPartConfiguration.getProjectName();
-		hostOfProject = projectPartConfiguration.getServerHost();
-		portOfProject = projectPartConfiguration.getServerPort();
-		byteOrderOfProject = projectPartConfiguration.getByteOrder();
-		charsetOfProject = projectPartConfiguration.getCharset();
-		charsetEncoderOfProject = CharsetUtil.createCharsetEncoder(charsetOfProject);
-		charsetDecoderOfProject = CharsetUtil.createCharsetDecoder(charsetOfProject);
-		classLoaderClassPackagePrefixName = projectPartConfiguration.getClassLoaderClassPackagePrefixName();
-		int dataPacketBufferSize = projectPartConfiguration.getDataPacketBufferSize();
-		dataPacketBufferMaxCntPerMessage = projectPartConfiguration.getDataPacketBufferMaxCntPerMessage();
 		
-		int messageIDFixedSize = projectPartConfiguration.getMessageIDFixedSize();		
-		int dataPacketBufferPoolSize = projectPartConfiguration.getDataPacketBufferPoolSize();
-		MessageProtocolType messageProtocolGubun = projectPartConfiguration.getMessageProtocol();*/
+		
+		CharsetEncoder charsetEncoderOfProject = CharsetUtil.createCharsetEncoder(projectPartConfiguration.getCharset());
+		CharsetDecoder charsetDecoderOfProject = CharsetUtil.createCharsetDecoder(projectPartConfiguration.getCharset());
 		
 		boolean isDirect = false;
 		this.dataPacketBufferPool = new DataPacketBufferPool(isDirect, 
@@ -134,6 +89,7 @@ public class AnyProjectServer implements
 						, projectPartConfiguration.getDataPacketBufferPoolSize());
 		
 
+		MessageProtocolIF messageProtocol = null;
 		switch (projectPartConfiguration.getMessageProtocolType()) {
 			case DHB: {
 				messageProtocol = new DHBMessageProtocol(
@@ -166,27 +122,23 @@ public class AnyProjectServer implements
 			}
 		}
 		
-		ioPartDynamicClassNameUtil = new IOPartDynamicClassNameUtil(projectPartConfiguration
-				.getFirstPrefixDynamicClassFullName());
-				
 		
-		workBaseClassLoader = new ServerClassLoader(projectPartConfiguration.getProjectName(),
-				ioPartDynamicClassNameUtil);
-
+		
+		
+		/*ServerObjectCacheManagerIF serverObjectCacheManager = new ServerObjectCacheManager(projectPartConfiguration.getProjectName(),
+				projectPartConfiguration
+				.getFirstPrefixDynamicClassFullName());*/
+		
 		acceptQueue = new LinkedBlockingQueue<SocketChannel>(
 				projectPartConfiguration.getServerAcceptQueueSize());
-		/*inputMessageQueue = new LinkedBlockingQueue<FromLetter>(
-				projectPartConfiguration.getServerInputMessageQueueSize());*/
-		/*outputMessageQueue = new LinkedBlockingQueue<ToLetter>(
-				projectPartConfiguration.getServerOutputMessageQueueSize());*/
 		
-		projectLoginManager = new ProjectLoginManager();
+		
+		
 		
 		IEOThreadPoolSetManagerIF ieoThreadPoolManager = new IEOThreadPoolSetManager();
-		socketResourceManager = new SocketResourceManager(charsetDecoderOfProject, 
+		SocketResourceManagerIF socketResourceManager = new SocketResourceManager(charsetDecoderOfProject, 
 						projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(), 
-						dataPacketBufferPool, 
-						projectLoginManager, 
+						dataPacketBufferPool,
 						ieoThreadPoolManager);
 
 		acceptSelector = new AcceptSelector(
@@ -209,7 +161,11 @@ public class AnyProjectServer implements
 				projectPartConfiguration.getServerInputMessageReaderMaxSize(),
 				projectPartConfiguration.getServerReadSelectorWakeupInterval(),
 				messageProtocol, dataPacketBufferPool, 
-				socketResourceManager, ieoThreadPoolManager);		
+				socketResourceManager, ieoThreadPoolManager);
+		
+		
+		serverObjectCacheManager = createNewServerObjectCacheManager(projectPartConfiguration
+				.getFirstPrefixDynamicClassFullName());		
 
 		executorPool = new ServerExecutorPool(
 				projectPartConfiguration.getProjectName(), 
@@ -218,7 +174,8 @@ public class AnyProjectServer implements
 				projectPartConfiguration.getServerInputMessageQueueSize(), 
 				messageProtocol, 
 				socketResourceManager,
-				this, ieoThreadPoolManager);
+				serverObjectCacheManager,
+				ieoThreadPoolManager);
 
 		outputMessageWriterPool = new OutputMessageWriterPool(
 				projectPartConfiguration.getProjectName(),
@@ -233,11 +190,40 @@ public class AnyProjectServer implements
 
 	}
 
+	private ServerObjectCacheManager createNewServerObjectCacheManager(String firstPrefixDynamicClassFullName) throws SinnoriConfigurationException {
+		String sinnoriInstalledPathString = System
+				.getProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH);
+		
+		if (null == sinnoriInstalledPathString) {
+			String errorMessage = String.format("the system environment variable[%s] for the path where Sinnori is installed is not defined. -D%s not defined",
+					CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH, 
+					CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH);
+			throw new SinnoriConfigurationException(errorMessage);
+		}
+		
+		String serverAPPINFClassPathString = BuildSystemPathSupporter
+				.getServerAPPINFClassPathString(sinnoriInstalledPathString, projectPartConfiguration.getProjectName());
+		
+		File serverAPPINFClassPath = new File(serverAPPINFClassPathString);
+		
+		if (!serverAPPINFClassPath.exists()) {
+			String errorMessage = String.format("the server APP-INF class path[%s] doesn't exist", serverAPPINFClassPathString);
+		 	throw new SinnoriConfigurationException(errorMessage);
+		}
+		
+		if (!serverAPPINFClassPath.isDirectory()) {
+			String errorMessage = String.format("the server APP-INF class path[%s] isn't a directory", serverAPPINFClassPathString);
+		 	throw new SinnoriConfigurationException(errorMessage);
+		}
+		
+		return new ServerObjectCacheManager(serverAPPINFClassPathString, firstPrefixDynamicClassFullName);
+	}
+	
 	/**
 	 * 서버 시작
 	 */	
 	synchronized public void startServer() {		
-		serverProjectMonitor.start();
+		// serverProjectMonitor.start();
 		outputMessageWriterPool.startAll();
 		executorPool.startAll();
 		inputMessageReaderPool.startAll();
@@ -245,11 +231,6 @@ public class AnyProjectServer implements
 		if (!acceptSelector.isAlive()) {
 			acceptSelector.start();
 		}
-		/*
-		 * while (!acceptSelector.isAlive()) { try { Thread.sleep(100); } catch
-		 * (InterruptedException e) { e.printStackTrace(); } }
-		 */
-
 	}
 
 	/**
@@ -263,13 +244,13 @@ public class AnyProjectServer implements
 
 		acceptSelector.interrupt();
 
-		while (!acceptQueue.isEmpty()) {
+		/*while (!acceptQueue.isEmpty()) {
 			try {
 				Thread.sleep(10);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-		}
+		}*/
 
 		acceptProcessorPool.stopAll();
 		inputMessageReaderPool.stopAll();
@@ -284,175 +265,6 @@ public class AnyProjectServer implements
 
 	
 
-	public MessageCodecIF getServerMessageCodec(ClassLoader classLoader,
-			String messageID) throws DynamicClassCallException {
-		/*String classFullName = new StringBuilder(
-				projectPartConfiguration.getClassLoaderClassPackagePrefixName()).append("message.")
-				.append(messageID).append(".").append(messageID)
-				.append("ServerCodec").toString();*/
-		
-		String classFullName = ioPartDynamicClassNameUtil.getServerMessageCodecClassFullName(messageID);
-
-		MessageCodecIF messageCodec = null;
-
-		Object valueObj = null;
-		
-		try {
-			valueObj = objectCacheManager.getCachedObject(classLoader,
-					classFullName);
-		} catch (Exception e) {
-			String errorMessage = String
-					.format("fail to get cached object::ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]",
-							classLoader.hashCode(), messageID,
-							classFullName);
-			log.warn(errorMessage, e);
-			throw new DynamicClassCallException(errorMessage);
-		}
-		
-
-		/*
-		 * if (null == valueObj) { String errorMessage = String.format(
-		 * "ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::valueObj is null"
-		 * , classLoader.hashCode(), messageID, classFullName);
-		 * log.warn(errorMessage); new DynamicClassCallException(errorMessage);
-		 * }
-		 * 
-		 * if (!(valueObj instanceof MessageCodecIF)) { String errorMessage =
-		 * String.format(
-		 * "ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::valueObj type[%s] is not  MessageCodecIF"
-		 * , classLoader.hashCode(), messageID, classFullName,
-		 * valueObj.getClass().getCanonicalName()); log.warn(errorMessage); new
-		 * DynamicClassCallException(errorMessage); }
-		 */
-
-		messageCodec = (MessageCodecIF) valueObj;
-
-		return messageCodec;
-	}
-
-	private ServerTaskObjectInfo getServerTaskFromWorkBaseClassload(
-			String classFullName) throws DynamicClassCallException {
-		Class<?> retClass = null;
-		AbstractServerTask serverTask = null;
-		String classFileName = null;
-		
-		
-		synchronized (monitorOfServerTaskObj) {
-			try {
-				retClass = workBaseClassLoader.loadClass(classFullName);
-			} catch (ClassNotFoundException e) {
-				// String errorMessage =
-				// String.format("ServerClassLoader hashCode=[%d], classFullName=[%s]::ClassNotFoundException",
-				// this.hashCode(), classFullName);
-				// log.warn("ClassNotFoundException", e);
-				throw new DynamicClassCallException(e.getMessage());
-			}
-			
-			classFileName = workBaseClassLoader
-					.getClassFileName(classFullName);
-		}
-		
-		
-		
-
-		Object retObject = null;
-		try {			
-			retObject = retClass.getDeclaredConstructor().newInstance();
-		} catch (InstantiationException e) {
-			String errorMessage = String
-					.format("ServerClassLoader hashCode=[%d], classFullName=[%s]::InstantiationException",
-							this.hashCode(), classFullName);
-			log.warn(errorMessage);
-			throw new DynamicClassCallException(errorMessage);
-		} catch (IllegalAccessException e) {
-			String errorMessage = String
-					.format("ServerClassLoader hashCode=[%d], classFullName=[%s]::IllegalAccessException",
-							this.hashCode(), classFullName);
-			log.warn(errorMessage);
-			throw new DynamicClassCallException(errorMessage);
-		} catch (IllegalArgumentException e) {
-			String errorMessage = String
-					.format("ServerClassLoader hashCode=[%d], classFullName=[%s]::IllegalArgumentException",
-							this.hashCode(), classFullName);
-			log.warn(errorMessage);
-			throw new DynamicClassCallException(errorMessage);
-		} catch (InvocationTargetException e) {
-			String errorMessage = String
-					.format("ServerClassLoader hashCode=[%d], classFullName=[%s]::InvocationTargetException",
-							this.hashCode(), classFullName);
-			log.warn(errorMessage);
-			throw new DynamicClassCallException(errorMessage);
-		} catch (NoSuchMethodException e) {
-			String errorMessage = String
-					.format("ServerClassLoader hashCode=[%d], classFullName=[%s]::NoSuchMethodException",
-							this.hashCode(), classFullName);
-			log.warn(errorMessage);
-			throw new DynamicClassCallException(errorMessage);
-		} catch (SecurityException e) {
-			String errorMessage = String
-					.format("ServerClassLoader hashCode=[%d], classFullName=[%s]::SecurityException",
-							this.hashCode(), classFullName);
-			log.warn(errorMessage);
-			throw new DynamicClassCallException(errorMessage);
-		}
-
-		/*
-		 * if (! (retObject instanceof AbstractServerTask)) { // FIXME! 죽은 코드
-		 * 이어여함, 발생시 원인 제거 필요함 String errorMessage =
-		 * String.format("ServerClassLoader hashCode=[%d], classFullName=[%s]" +
-		 * "::클래스명으로 얻은 객체 타입[%s]이 AbstractServerTask 가 아닙니다.", this.hashCode(),
-		 * classFullName, retObject.getClass().getCanonicalName());
-		 * 
-		 * log.warn(errorMessage); throw new
-		 * DynamicClassCallException(errorMessage); }
-		 */
-		serverTask = (AbstractServerTask) retObject;
-
-		
-
-		// log.info("classFileName={}", classFileName);
-
-		File serverTaskClassFile = new File(classFileName);
-
-		return new ServerTaskObjectInfo(serverTaskClassFile, serverTask);
-	}
-
-	public AbstractServerTask getServerTask(String messageID)
-			throws DynamicClassCallException {
-
-		/*String classFullName = new StringBuilder(
-				projectPartConfiguration.getClassLoaderClassPackagePrefixName()).append("servertask.")
-				.append(messageID).append("ServerTask").toString();*/
-		
-		String classFullName = ioPartDynamicClassNameUtil.getServerTaskClassFullName(messageID);
-		
-		
-		ServerTaskObjectInfo serverTaskObjectInfo = null;
-		synchronized (monitorOfServerTaskObj) {
-			serverTaskObjectInfo = className2ServerTaskObjectInfoHash
-					.get(classFullName);
-			if (null == serverTaskObjectInfo) {
-				serverTaskObjectInfo = getServerTaskFromWorkBaseClassload(classFullName);
-
-				className2ServerTaskObjectInfoHash.put(classFullName,
-						serverTaskObjectInfo);
-			} else {
-				if (serverTaskObjectInfo.isModifed()) {
-					/** 새로운 서버 클래스 로더로 교체 */
-					try {
-						workBaseClassLoader = new ServerClassLoader(projectPartConfiguration.getProjectName(),
-								ioPartDynamicClassNameUtil);
-					} catch (SinnoriConfigurationException e) {
-						/** dead code */
-					}
-					serverTaskObjectInfo = getServerTaskFromWorkBaseClassload(classFullName);
-					className2ServerTaskObjectInfoHash.put(classFullName,
-							serverTaskObjectInfo);
-				}
-			}
-		}
-		return serverTaskObjectInfo.getServerTask();
-	}
 	
 
 	/**

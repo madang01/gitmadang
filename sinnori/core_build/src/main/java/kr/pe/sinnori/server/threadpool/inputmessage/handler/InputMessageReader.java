@@ -51,7 +51,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 	
 	private String projectName = null; 
 	private int index;
-	private long readSelectorWakeupInterval;	
+	private long readOnlySelectorWakeupInterval;	
 	private MessageProtocolIF messageProtocol = null;
 	
 	private SocketResourceManagerIF socketResourceManager = null;
@@ -63,12 +63,12 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 	public InputMessageReader(
 			String projectName,			
 			int index,
-			long readSelectorWakeupInterval,
+			long readOnlySelectorWakeupInterval,
 			MessageProtocolIF messageProtocol,
 			DataPacketBufferPoolIF dataPacketBufferQueueManager,
 			SocketResourceManagerIF socketResourceManager) {
 		this.index = index;
-		this.readSelectorWakeupInterval = readSelectorWakeupInterval;
+		this.readOnlySelectorWakeupInterval = readOnlySelectorWakeupInterval;
 		this.projectName = projectName;
 		this.messageProtocol = messageProtocol;
 		this.socketResourceManager = socketResourceManager;
@@ -85,7 +85,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 	}
 
 	@Override
-	public void addNewSocket(SocketChannel newSC) {
+	public void addNewSocket(SocketChannel newSC) throws InterruptedException {
 		// clientResourceManager.addNewSocketChannel(newSocketChannelToRegisterWithReadOnlySelector);	
 		synchronized (monitor) {
 			notRegistedSocketChannelList.addLast(newSC);
@@ -112,10 +112,14 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 		 */
 		do {
 			readEventOnlySelector.wakeup();
+			
 			try {
-				Thread.sleep(readSelectorWakeupInterval);
-			} catch (InterruptedException e) {
+				Thread.sleep(readOnlySelectorWakeupInterval);
+			} catch(InterruptedException e) {
+				log.warn("인터럽트 발생하여 소켓[{}]의 read only selector 등록 확인 포기", newSC.hashCode());
+				throw e;
 			}
+			
 		} while (newSC.isConnected() && !newSC.isRegistered());
 	}
 

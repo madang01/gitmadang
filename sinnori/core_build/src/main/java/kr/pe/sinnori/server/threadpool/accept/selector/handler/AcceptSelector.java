@@ -81,6 +81,10 @@ public class AcceptSelector extends Thread {
 		this.socketResourceManager = socketResourceManager;
 		
 		
+		// FIXME!
+		/*log.info("projectName={}, serverHost={}, serverPort={}, acceptSelectTimeout={}, maxClients={}", 
+				projectName, serverHost, serverPort, acceptSelectTimeout, maxClients);*/
+		
 	}
 
 	/**
@@ -130,16 +134,13 @@ public class AcceptSelector extends Thread {
 						
 						SocketChannel sc = readyChannel.accept();						
 						
-						// 최대 등록 가능한 client만 허용
 						if (socketResourceManager.getNumberOfSocketResources() < maxClients) {
-							log.info(String.format("new sc[%d]", sc.hashCode()));
-
+							// log.info("accepted socket channel=[{}]", sc.hashCode());
 							acceptQueue.put(sc);
 						} else {
 							sc.close();
-							log.warn(String.format(
-									"MAX CLIENTS 도달로 소켓 닫기 sc[%d], max clients=[%d]",
-									sc.hashCode(), maxClients));
+							log.warn("최대 소켓수[{}] 도달에 따른 소켓 닫기 sc[{}]",
+									maxClients, sc.hashCode());
 						}
 					}
 				}

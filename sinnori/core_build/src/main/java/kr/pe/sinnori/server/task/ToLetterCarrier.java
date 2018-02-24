@@ -256,6 +256,14 @@ public class ToLetterCarrier {
 		
 		doAddOutputMessage(toSC, outputMessage, messageProtocol);
 	}*/
+	
+	public void addBypassOutputMessage(AbstractMessage bypassOutputMessage) throws InterruptedException {		
+		if (inputMessage.messageHeaderInfo.mailboxID == CommonStaticFinalVars.ASYN_MAILBOX_ID) {
+			addAsynOutputMessage(bypassOutputMessage);
+		} else {
+			addSyncOutputMessage(bypassOutputMessage);
+		}
+	}
 
 	public void addSyncOutputMessage(AbstractMessage syncOutputMessage) throws InterruptedException {
 		if (null == syncOutputMessage) {

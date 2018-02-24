@@ -61,23 +61,11 @@
 	  <!-- this server project dynamic classloader's resource directory -->
 		<delete dir="${dir.appinf}/classes" />
 		<mkdir dir="${dir.appinf}/classes" />
-		<mkdir dir="${dir.appinf}/lib" />
 		<mkdir dir="${dir.appinf}/resources" />
 		
-		<copy todir="${dir.appinf}/lib" verbose="true" overwrite="false">
-			<fileset dir="${dir.core.build}/APP-INF/lib/" />
+		<copy todir="${dir.appinf}/resources" verbose="true" overwrite="false">
+			<fileset dir="${dir.core.build}/APP-INF/resources/" />
 		</copy>
-
-    <!-- Except for the sample class file that inherits the UnpooledDataSourceFactory class and gets a db connection pool from the DBCPManager class -->
-		<copy todir="${dir.src}/kr/pe/sinnori/impl/server/mybatis/" verbose="true" overwrite="false">
-		  <!-- the SqlSessionFactoryManger class depends on the server dynimic class loader -->
-			<fileset file="${dir.core.build}/src/main/java/kr/pe/sinnori/impl/server/mybatis/SampleBaseDBSourceFactory.java.txt" />
-		</copy>
-		
-		<copy todir="${dir.appinf}/classes" verbose="true" overwrite="false">
-		  <!-- the SqlSessionFactoryManger class depends on the server dynimic class loader -->
-			<fileset dir="${dir.core.build}/build/appinf/" />
-		</copy>		
 	</target>
 	
 	<target name="compile.main" depends="copy.appinf">
@@ -100,9 +88,7 @@
 				<fileset dir="${dir.mainlib}/in">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${dir.appinf}/lib">
-					<include name="**/*.jar" />
-				</fileset>
+
 			</classpath>
 		</javac>
 	</target>
@@ -119,8 +105,11 @@
 	</target>
 	
 	<path id="build.classpath">
-		<fileset dir="${basedir}">
-			<include name="dist/lib/*.jar"/>
+		<fileset dir="${dir.core.build}">
+			<include name="lib/main/ex/*.jar"/>
+		</fileset>
+		<fileset dir="${dir.mainlib}">
+			<include name="ex/*.jar"/>
 		</fileset>
 	</path>
 	
@@ -171,9 +160,6 @@
 					<include name="**/*.jar" />
 				</fileset>
 				<fileset dir="${dir.mainlib}/in">
-					<include name="**/*.jar" />
-				</fileset>
-				<fileset dir="${dir.appinf}/lib">
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>

@@ -251,6 +251,14 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 	
+	/** APP-INF class path : <APP-INF path>/classes */
+	public static String getServerAPPINFClassPathString(String sinnoriInstalledPathString, String mainProjectName) {
+		StringBuilder strBuilder = new StringBuilder(getServerAPPINFPathString(sinnoriInstalledPathString, mainProjectName));
+		strBuilder.append(File.separator);
+		strBuilder.append("classes");		
+		return strBuilder.toString();
+	}
+	
 	/*public static String getServerAPPINFResourcesPathString(String sinnoriInstalledPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getServerAPPINFPathString(sinnoriInstalledPathString, mainProjectName));
 		strBuilder.append(File.separator);

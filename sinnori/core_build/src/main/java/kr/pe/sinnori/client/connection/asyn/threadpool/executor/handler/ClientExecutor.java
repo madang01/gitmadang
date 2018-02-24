@@ -81,6 +81,8 @@ public class ClientExecutor extends Thread implements ClientExecutorIF {
 
 	@Override
 	public void addNewAsynConnection(AbstractAsynConnection asynConnection) {
+		log.info("add asynConnection[{}]", asynConnection.hashCode());		
+		
 		sc2AsynConnectionHash.put(asynConnection.getSocketChannel(), asynConnection);
 	}
 

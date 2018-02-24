@@ -59,7 +59,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		super(projectName, host, port, socketTimeOut, 
 				asynSocketResource, messageProtocol, clientObjectCacheManager);
 
-		log.info(String.format("project[%s] NoShareAsynConnection 생성자 end", projectName));
+		// log.info(String.format("project[%s] NoShareAsynConnection 생성자 end", projectName));
 	}
 
 	/**
@@ -77,7 +77,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 	 */
 	protected void queueIn() {
 		isQueueIn = true;
-		log.info("get NoShareAsynConnection[{}] from the connection queue", monitor.hashCode());
+		// log.info("NoShareAsynConnection[{}] queue in", this.hashCode());
 	}
 
 	/**
@@ -85,7 +85,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 	 */
 	protected void queueOut() {
 		isQueueIn = false;
-		log.info("get NoShareAsynConnection[{}] from the connection queue", monitor.hashCode());
+		// log.info("NoShareAsynConnection[{}] queue out", this.hashCode());
 	}
 
 		

@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.ConnectionPoolIF;
-import kr.pe.sinnori.client.connection.ConnectionPoolManager;
+import kr.pe.sinnori.client.connection.ConnectionPoolSupporter;
 import kr.pe.sinnori.client.connection.SocketResoruceIF;
 import kr.pe.sinnori.client.connection.asyn.AsynSocketResource;
 import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceIF;
@@ -35,7 +35,6 @@ import kr.pe.sinnori.client.connection.asyn.noshare.NoShareAsynConnection;
 import kr.pe.sinnori.client.connection.asyn.noshare.NoShareAsynConnectionPool;
 import kr.pe.sinnori.client.connection.asyn.share.ShareAsynConnection;
 import kr.pe.sinnori.client.connection.asyn.share.ShareAsynConnectionPool;
-import kr.pe.sinnori.client.connection.asyn.task.AbstractClientTask;
 import kr.pe.sinnori.client.connection.asyn.threadpool.executor.ClientExecutorPool;
 import kr.pe.sinnori.client.connection.asyn.threadpool.executor.handler.ClientExecutorIF;
 import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.InputMessageWriterPool;
@@ -48,7 +47,6 @@ import kr.pe.sinnori.client.connection.sync.noshare.SyncPrivateSocketResource;
 import kr.pe.sinnori.common.classloader.IOPartDynamicClassNameUtil;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CharsetUtil;
-import kr.pe.sinnori.common.etc.ObjectCacheManager;
 import kr.pe.sinnori.common.exception.AccessDeniedException;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.ConnectionPoolException;
@@ -60,7 +58,6 @@ import kr.pe.sinnori.common.io.DataPacketBufferPool;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.protocol.MessageCodecIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.dhb.DHBMessageProtocol;
 import kr.pe.sinnori.common.protocol.djson.DJSONMessageProtocol;
@@ -85,13 +82,12 @@ import kr.pe.sinnori.common.type.ConnectionType;
  * @author Won Jonghoon
  * 
  */
-public class AnyProjectConnectionPool implements ClientProjectIF, ClientObjectCacheManagerIF {
+public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 	private Logger log = LoggerFactory.getLogger(AnyProjectConnectionPool.class);
 	
 	private ProjectPartConfiguration projectPartConfiguration = null;
 	
-	private ObjectCacheManager objectCacheManager = ObjectCacheManager
-			.getInstance();	
+	
 	
 	private MessageProtocolIF messageProtocol = null;
 	
@@ -104,6 +100,8 @@ public class AnyProjectConnectionPool implements ClientProjectIF, ClientObjectCa
 	
 	private IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = null;
 	
+	private ClientObjectCacheManagerIF clientObjectCacheManager = null;
+	
 
 	/** 비동기 방식에서 사용되는 출력 메시지 읽기 쓰레드 */
 	private OutputMessageReaderPool outputMessageReaderPool = null;
@@ -115,8 +113,7 @@ public class AnyProjectConnectionPool implements ClientProjectIF, ClientObjectCa
 	/** 프로젝트의 연결 클래스 폴 */
 	private ConnectionPoolIF connectionPool = null;
 
-	private ConnectionPoolManager connectionPoolManager = null;
-	
+	private ConnectionPoolSupporter connectionPoolSupporter = null;	
 
 	public AnyProjectConnectionPool(ProjectPartConfiguration projectPartConfiguration)
 			throws NoMoreDataPacketBufferException, InterruptedException, IOException, ConnectionPoolException {
@@ -167,8 +164,9 @@ public class AnyProjectConnectionPool implements ClientProjectIF, ClientObjectCa
 		ioPartDynamicClassNameUtil = new IOPartDynamicClassNameUtil(projectPartConfiguration
 				.getFirstPrefixDynamicClassFullName());
 		
+		clientObjectCacheManager = new ClientObjectCacheManager(ioPartDynamicClassNameUtil);
 		
-
+		
 		if (projectPartConfiguration.getConnectionType().equals(ConnectionType.SYNC_PRIVATE)) {
 			connectionPool = new NoShareSyncConnectionPool(projectPartConfiguration.getProjectName(),
 					projectPartConfiguration.getServerHost(), projectPartConfiguration.getServerPort(),
@@ -176,7 +174,7 @@ public class AnyProjectConnectionPool implements ClientProjectIF, ClientObjectCa
 					projectPartConfiguration.getClientConnectionMaxCount(),
 					projectPartConfiguration.getClientSocketTimeout(),
 					projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(), charsetDecoderOfProject,
-					messageProtocol, dataPacketBufferPool, this);
+					messageProtocol, dataPacketBufferPool, clientObjectCacheManager);
 		} else {
 			inputMessageWriterPool = new InputMessageWriterPool(projectPartConfiguration.getProjectName(),
 					projectPartConfiguration.getClientAsynInputMessageWriterPoolSize(),
@@ -188,7 +186,7 @@ public class AnyProjectConnectionPool implements ClientProjectIF, ClientObjectCa
 
 			clientExecutorPool = new ClientExecutorPool(projectPartConfiguration.getProjectName(),
 					projectPartConfiguration.getClientAsynExecutorPoolSize(),
-					projectPartConfiguration.getClientAsynOutputMessageQueueSize(), messageProtocol, this);
+					projectPartConfiguration.getClientAsynOutputMessageQueueSize(), messageProtocol, clientObjectCacheManager);
 
 			inputMessageWriterPool.startAll();
 			clientExecutorPool.startAll();
@@ -204,7 +202,7 @@ public class AnyProjectConnectionPool implements ClientProjectIF, ClientObjectCa
 						outputMessageReaderPool, clientExecutorPool,
 						projectPartConfiguration.getClientAsynPirvateMailboxCntPerPublicConnection(),
 						projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(), charsetDecoderOfProject,
-						messageProtocol, dataPacketBufferPool, this);
+						messageProtocol, dataPacketBufferPool, clientObjectCacheManager);
 			} else {
 				connectionPool = new NoShareAsynConnectionPool(projectPartConfiguration.getProjectName(),
 						projectPartConfiguration.getServerHost(), projectPartConfiguration.getServerPort(),
@@ -215,15 +213,15 @@ public class AnyProjectConnectionPool implements ClientProjectIF, ClientObjectCa
 						projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(), charsetDecoderOfProject,
 						messageProtocol,
 
-						dataPacketBufferPool, this);
+						dataPacketBufferPool, clientObjectCacheManager);
 			}
 
 		}
 
 		/** FIXME! 신놀이 환경 변수 '연결 폴 관리자 수행 간격' 설정 필요함 */
-		connectionPoolManager = new ConnectionPoolManager(connectionPool, 1000L * 60 * 10);
+		connectionPoolSupporter = new ConnectionPoolSupporter(connectionPool, 1000L * 60 * 10);
 
-		connectionPoolManager.start();
+		connectionPoolSupporter.start();
 
 		/*
 		 * clientProjectMonitor = new ClientProjectMonitor( clientMonitorTimeInterval,
@@ -268,12 +266,12 @@ public class AnyProjectConnectionPool implements ClientProjectIF, ClientObjectCa
 
 			conn = new NoShareSyncConnection(projectPartConfiguration.getProjectName(), host, port,
 					projectPartConfiguration.getClientSocketTimeout(), syncPrivateSocketResoruce, dataPacketBufferPool,
-					messageProtocol, this);
+					messageProtocol, clientObjectCacheManager);
 		} else {
 			if (projectPartConfiguration.getConnectionType().equals(ConnectionType.ASYN_SHARE)) {
-				OutputMessageReaderIF outputMessageReader = outputMessageReaderPool.getNextOutputMessageReader();
-				InputMessageWriterIF inputMessageWriter = inputMessageWriterPool.getNextInputMessageWriter();
-				ClientExecutorIF clientExecutor = clientExecutorPool.getNextClientExecutor();
+				OutputMessageReaderIF outputMessageReader = outputMessageReaderPool.getOutputMessageReaderWithMinimumNumberOfConnetion();
+				InputMessageWriterIF inputMessageWriter = inputMessageWriterPool.getInputMessageWriterWithMinimumNumberOfConnetion();
+				ClientExecutorIF clientExecutor = clientExecutorPool.getClientExecutorWithMinimumNumberOfConnetion();
 
 				SocketOutputStream socketOutputStream = new SocketOutputStream(charsetDecoderOfProject,
 						projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(), dataPacketBufferPool);
@@ -287,11 +285,11 @@ public class AnyProjectConnectionPool implements ClientProjectIF, ClientObjectCa
 
 				conn = new ShareAsynConnection(projectPartConfiguration.getProjectName(), host, port,
 						projectPartConfiguration.getClientSocketTimeout(), asynPrivateMailboxMapper, asynSocketResource,
-						messageProtocol, this);
+						messageProtocol, clientObjectCacheManager);
 			} else {
-				OutputMessageReaderIF outputMessageReader = outputMessageReaderPool.getNextOutputMessageReader();
-				InputMessageWriterIF inputMessageWriter = inputMessageWriterPool.getNextInputMessageWriter();
-				ClientExecutorIF clientExecutor = clientExecutorPool.getNextClientExecutor();
+				OutputMessageReaderIF outputMessageReader = outputMessageReaderPool.getOutputMessageReaderWithMinimumNumberOfConnetion();
+				InputMessageWriterIF inputMessageWriter = inputMessageWriterPool.getInputMessageWriterWithMinimumNumberOfConnetion();
+				ClientExecutorIF clientExecutor = clientExecutorPool.getClientExecutorWithMinimumNumberOfConnetion();
 
 				SocketOutputStream socketOutputStream = new SocketOutputStream(charsetDecoderOfProject,
 						projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(), dataPacketBufferPool);
@@ -300,105 +298,11 @@ public class AnyProjectConnectionPool implements ClientProjectIF, ClientObjectCa
 						outputMessageReader, clientExecutor);
 
 				conn = new NoShareAsynConnection(projectPartConfiguration.getProjectName(), host, port,
-						projectPartConfiguration.getClientSocketTimeout(), asynSocketResource, messageProtocol, this);
+						projectPartConfiguration.getClientSocketTimeout(), asynSocketResource, messageProtocol, clientObjectCacheManager);
 			}
 		}
 
 		return conn;
 	}
-
-	public MessageCodecIF getClientMessageCodec(ClassLoader classLoader, String messageID)
-			throws DynamicClassCallException {
-		/*
-		 * String classFullName = new
-		 * StringBuilder(classLoaderClassPackagePrefixName).append("message.")
-		 * .append(messageID).append(".").append(messageID)
-		 * .append("ClientCodec").toString();
-		 */
-
-		String classFullName = ioPartDynamicClassNameUtil.getClientMessageCodecClassFullName(messageID);
-
-		MessageCodecIF messageCodec = null;
-
-		Object valueObj = null;
-		try {
-			try {
-				valueObj = objectCacheManager.getCachedObject(classLoader, classFullName);
-			} catch (Exception e) {
-				String errorMessage = String.format("ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::%s",
-						classLoader.hashCode(), messageID, classFullName, e.toString());
-				log.warn(errorMessage, e);
-				throw new DynamicClassCallException(errorMessage);
-			}
-		} catch (IllegalArgumentException e) {
-			String errorMessage = String.format(
-					"ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::IllegalArgumentException::%s",
-					classLoader.hashCode(), messageID, classFullName, e.getMessage());
-			log.warn(errorMessage);
-			throw new DynamicClassCallException(errorMessage);
-		}
-
-		/*
-		 * if (null == valueObj) { String errorMessage = String.format(
-		 * "ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::valueObj is null"
-		 * , classLoader.hashCode(), messageID, classFullName); log.warn(errorMessage);
-		 * new DynamicClassCallException(errorMessage); }
-		 * 
-		 * if (!(valueObj instanceof MessageCodecIF)) { String errorMessage =
-		 * String.format(
-		 * "ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::valueObj type[%s] is not  MessageCodecIF"
-		 * , classLoader.hashCode(), messageID, classFullName,
-		 * valueObj.getClass().getCanonicalName()); log.warn(errorMessage); new
-		 * DynamicClassCallException(errorMessage); }
-		 */
-
-		messageCodec = (MessageCodecIF) valueObj;
-
-		return messageCodec;
-	}
-
-	@Override
-	public AbstractClientTask getClientTask(String messageID) throws DynamicClassCallException {
-		String classFullName = ioPartDynamicClassNameUtil.getClientTaskClassFullName(messageID);
-
-		AbstractClientTask clientTask = null;
-
-		ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-
-		Object valueObj = null;
-		try {
-			try {
-				valueObj = objectCacheManager.getCachedObject(classLoader, classFullName);
-			} catch (Exception e) {
-				String errorMessage = String.format("ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::%s",
-						classLoader.hashCode(), messageID, classFullName, e.toString());
-				log.warn(errorMessage, e);
-				throw new DynamicClassCallException(errorMessage);
-			}
-		} catch (IllegalArgumentException e) {
-			String errorMessage = String.format(
-					"ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::IllegalArgumentException::%s",
-					classLoader.hashCode(), messageID, classFullName, e.getMessage());
-			log.warn(errorMessage);
-			throw new DynamicClassCallException(errorMessage);
-		}
-
-		/*
-		 * if (null == valueObj) { String errorMessage = String.format(
-		 * "ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::valueObj is null"
-		 * , classLoader.hashCode(), messageID, classFullName); log.warn(errorMessage);
-		 * new DynamicClassCallException(errorMessage); }
-		 * 
-		 * if (!(valueObj instanceof MessageCodecIF)) { String errorMessage =
-		 * String.format(
-		 * "ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::valueObj type[%s] is not  MessageCodecIF"
-		 * , classLoader.hashCode(), messageID, classFullName,
-		 * valueObj.getClass().getCanonicalName()); log.warn(errorMessage); new
-		 * DynamicClassCallException(errorMessage); }
-		 */
-
-		clientTask = (AbstractClientTask) valueObj;
-
-		return clientTask;
-	}
+	
 }

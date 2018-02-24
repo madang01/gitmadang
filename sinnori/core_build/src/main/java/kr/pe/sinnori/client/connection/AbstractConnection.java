@@ -84,8 +84,6 @@ public abstract class AbstractConnection {
 		this.clientObjectCacheManager = clientObjectCacheManager;
 		
 		openSocketChannel();
-		
-		doConnect();
 	}
 	
 	abstract protected void openSocketChannel() throws IOException;

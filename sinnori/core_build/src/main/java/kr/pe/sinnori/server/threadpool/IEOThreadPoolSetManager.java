@@ -45,7 +45,7 @@ public class IEOThreadPoolSetManager implements IEOThreadPoolSetManagerIF {
 			log.error("the var inputMessageReaderPool is null");
 			System.exit(1);
 		}
-		return inputMessageReaderPool.getInputMessageReaderWithMinimumMumberOfSockets();
+		return inputMessageReaderPool.getInputMessageReaderWithMinimumNumberOfSockets();
 	}
 	
 	public ServerExecutorIF getExecutorWithMinimumMumberOfSockets() {
@@ -55,7 +55,7 @@ public class IEOThreadPoolSetManager implements IEOThreadPoolSetManagerIF {
 		}
 		
 		
-		return executorPool.getExecutorWithMinimumMumberOfSockets();
+		return executorPool.getExecutorWithMinimumNumberOfSockets();
 	}
 	
 	public OutputMessageWriterIF getOutputMessageWriterWithMinimumMumberOfSockets() {
@@ -64,6 +64,6 @@ public class IEOThreadPoolSetManager implements IEOThreadPoolSetManagerIF {
 			System.exit(1);
 		}		
 		
-		return outputMessageWriterPool.getOutputMessageWriterWithMinimumMumberOfSockets();
+		return outputMessageWriterPool.getOutputMessageWriterWithMinimumNumberOfSockets();
 	}
 }

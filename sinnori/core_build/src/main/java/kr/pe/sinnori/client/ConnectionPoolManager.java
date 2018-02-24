@@ -36,25 +36,25 @@ import kr.pe.sinnori.common.exception.NotFoundProjectException;
  * @author Won Jonghoon
  * 
  */
-public final class ProjectConnectionPoolManager {
-	private Logger log = LoggerFactory.getLogger(ProjectConnectionPoolManager.class);
+public final class ConnectionPoolManager {
+	private Logger log = LoggerFactory.getLogger(ConnectionPoolManager.class);
 	
 	/** 모니터 객체 */
 	// private final Object monitor = new Object();
 	
-	private HashMap<String, AnyProjectConnectionPool> subProjectClientHash = new HashMap<String, AnyProjectConnectionPool>();
+	private HashMap<String, AnyProjectConnectionPoolIF> subProjectConnectionPoolHash = new HashMap<String, AnyProjectConnectionPoolIF>();
 	
-	private AnyProjectConnectionPool mainProjectConnectionPool = null;
+	private AnyProjectConnectionPoolIF mainProjectConnectionPool = null;
 	
 	private String mainPorjectName = null;
 	
 	/** 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스 */
 	private static final class ClientProjectManagerHolder {
-		static final ProjectConnectionPoolManager singleton = new ProjectConnectionPoolManager();
+		static final ConnectionPoolManager singleton = new ConnectionPoolManager();
 	}
 
 	/** 동기화 쓰지 않는 싱글턴 구현 메소드 */
-	public static ProjectConnectionPoolManager getInstance() {
+	public static ConnectionPoolManager getInstance() {
 		return ClientProjectManagerHolder.singleton;
 	}
 	
@@ -62,7 +62,7 @@ public final class ProjectConnectionPoolManager {
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 생성자
 	 * @throws NoMoreDataPacketBufferException 
 	 */
-	private ProjectConnectionPoolManager() {
+	private ConnectionPoolManager() {
 		SinnoriConfiguration sinnoriRunningProjectConfiguration = 
 				SinnoriConfigurationManager.getInstance()
 				.getSinnoriRunningProjectConfiguration();
@@ -86,7 +86,7 @@ public final class ProjectConnectionPoolManager {
 			AnyProjectConnectionPool subClientProject=null;
 			try {
 				subClientProject = new AnyProjectConnectionPool(allSubProjectPart.getSubProjectPartConfiguration(subProjectName));
-				subProjectClientHash.put(subProjectName, subClientProject);
+				subProjectConnectionPoolHash.put(subProjectName, subClientProject);
 			} catch (Exception e) {
 				String errorMessage = new StringBuilder("fail to initialize a sub project connection pool[")
 						.append(subProjectName).append("] of main project[").append(mainPorjectName)
@@ -103,8 +103,8 @@ public final class ProjectConnectionPoolManager {
 	 * @return 프로젝트 이름에 해당하는 외부 시각 클라이언트 프로젝트
 	 * @throws NotFoundProjectException 
 	 */
-	public AnyProjectConnectionPool getSubProjectConnectionPool(String subProjectName) throws IllegalStateException {
-		AnyProjectConnectionPool subProjectConnectionPool =  subProjectClientHash.get(subProjectName);
+	public AnyProjectConnectionPoolIF getSubProjectConnectionPool(String subProjectName) throws IllegalStateException {
+		AnyProjectConnectionPoolIF subProjectConnectionPool =  subProjectConnectionPoolHash.get(subProjectName);
 		if (null == subProjectConnectionPool) {
 			String errorMessage = new StringBuilder("fail to initialize a sub project connection pool[")
 					.append(subProjectName).append("] of main project[").append(mainPorjectName)
@@ -115,7 +115,7 @@ public final class ProjectConnectionPoolManager {
 		return subProjectConnectionPool;
 	}
 	
-	public AnyProjectConnectionPool getMainProjectConnectionPool() throws IllegalStateException {
+	public AnyProjectConnectionPoolIF getMainProjectConnectionPool() throws IllegalStateException {
 		
 		if (null == mainProjectConnectionPool) {
 			String errorMessage = new StringBuilder("fail to initialize a main project connection pool[")

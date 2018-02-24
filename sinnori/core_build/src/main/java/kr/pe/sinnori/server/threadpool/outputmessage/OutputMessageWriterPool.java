@@ -17,6 +17,9 @@
 
 package kr.pe.sinnori.server.threadpool.outputmessage;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 //import java.util.logging.Level;
 
 import java.util.concurrent.LinkedBlockingQueue;
@@ -71,46 +74,51 @@ public class OutputMessageWriterPool extends AbstractThreadPool implements Outpu
 	}
 
 	@Override
-	public void addHandler() {
+	public void addHandler() throws IllegalStateException {
 		LinkedBlockingQueue<ToLetter> outputMessageQueue = new LinkedBlockingQueue<ToLetter>(outputMessageQueueSize);
 		synchronized (monitor) {
 			int size = pool.size();
 			
-			if (size < maxHandler) {
-				try {
-					Thread handler = new OutputMessageWriter(projectName, size,
-							outputMessageQueue,   
-							dataPacketBufferQueueManger);
-					
-					pool.add(handler);
-				} catch (Exception e) {
-					String errorMessage = String.format("%s OutputMessageWriter[%d] 등록 실패", projectName, size); 
-					log.warn(errorMessage, e);
-					throw new RuntimeException(errorMessage);
-				}
-			} else {
+			if (size > maxHandler) {
 				String errorMessage = String.format("%s OutputMessageWriter 최대 갯수[%d]를 넘을 수 없습니다.", projectName, maxHandler); 
 				log.warn(errorMessage);
-				throw new RuntimeException(errorMessage);
+				throw new IllegalStateException(errorMessage);
+				
+			}
+			try {
+				Thread handler = new OutputMessageWriter(projectName, size,
+						outputMessageQueue,   
+						dataPacketBufferQueueManger);
+				
+				pool.add(handler);
+			} catch (Exception e) {
+				String errorMessage = String.format("%s OutputMessageWriter[%d] 등록 실패", projectName, size); 
+				log.warn(errorMessage, e);
+				throw new IllegalStateException(errorMessage);
 			}
 		}
 	}
 
 	@Override
-	public OutputMessageWriterIF getOutputMessageWriterWithMinimumMumberOfSockets() {
-		OutputMessageWriterIF outputMessageWriterWithMinimumMumberOfSockets = null;
-		int minimumMumberOfSockets = Integer.MAX_VALUE;
-
-		int size = pool.size();
-		for (int i = 0; i < size; i++) {
-			OutputMessageWriterIF handler = (OutputMessageWriterIF) pool.get(i);
-			int numberOfSocket = handler.getNumberOfSocket();
-			if (numberOfSocket < minimumMumberOfSockets) {
-				minimumMumberOfSockets = numberOfSocket;
-				outputMessageWriterWithMinimumMumberOfSockets = handler;
+	public OutputMessageWriterIF getOutputMessageWriterWithMinimumNumberOfSockets() {
+		Iterator<Thread> poolIter = pool.iterator();
+		
+		if (! poolIter.hasNext()) {
+			throw new NoSuchElementException("OutputMessageWriterPool empty");
+		}
+		
+		OutputMessageWriterIF minOutputMessageWriter = (OutputMessageWriterIF)poolIter.next();
+		int min = minOutputMessageWriter.getNumberOfSocket();
+	
+		while (poolIter.hasNext()) {
+			OutputMessageWriterIF outputMessageWriter = (OutputMessageWriterIF) poolIter.next();
+			int numberOfSocket = outputMessageWriter.getNumberOfSocket();
+			if (numberOfSocket < min) {
+				min = numberOfSocket;
+				minOutputMessageWriter = outputMessageWriter;
 			}
 		}
 		
-		return outputMessageWriterWithMinimumMumberOfSockets;
+		return minOutputMessageWriter;
 	}
 }

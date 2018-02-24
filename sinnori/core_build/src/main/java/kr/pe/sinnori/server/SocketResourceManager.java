@@ -17,18 +17,18 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 	
 	private CharsetDecoder streamCharsetDecoder = null;
 	private int dataPacketBufferMaxCntPerMessage = 0;
-	private DataPacketBufferPoolIF dataPacketBufferPoolManager = null;
-	private ProjectLoginManagerIF projectLoginManager = null;
+	private DataPacketBufferPoolIF dataPacketBufferPoolManager = null;	
 	private IEOThreadPoolSetManagerIF ieoThreadPoolManager = null;
 	
 	private HashMap<SocketChannel, SocketResource> socketChannel2SocketResourceHash 
 		= new HashMap<SocketChannel, SocketResource>(); 
 	
+	private ProjectLoginManagerIF projectLoginManager =  new ProjectLoginManager();;
+	
 	public SocketResourceManager( 
 			CharsetDecoder streamCharsetDecoder,
 			int dataPacketBufferMaxCntPerMessage,
 			DataPacketBufferPoolIF dataPacketBufferPoolManager,
-			ProjectLoginManagerIF projectLoginManager,
 			IEOThreadPoolSetManagerIF ieoThreadPoolManager) {
 		if (null == streamCharsetDecoder) {
 			throw new IllegalArgumentException("the parameter streamCharsetDecoder is null");
@@ -49,13 +49,12 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 		this.streamCharsetDecoder = streamCharsetDecoder;
 		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
 		this.dataPacketBufferPoolManager = dataPacketBufferPoolManager;
-		this.projectLoginManager = projectLoginManager;
 		this.ieoThreadPoolManager = ieoThreadPoolManager;
 	}
 	
 
 	@Override
-	public void addNewSocketChannel(SocketChannel newSC) throws NoMoreDataPacketBufferException {
+	public void addNewSocketChannel(SocketChannel newSC) throws NoMoreDataPacketBufferException, InterruptedException {
 		if (null == newSC) {
 			throw new IllegalArgumentException("the parameter newSC is null");
 		}		

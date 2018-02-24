@@ -84,6 +84,9 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 					break;
 				}
 				
+				// FIXME!
+				// log.info("toLetter={}", toLetter.toString());
+				
 				SocketChannel toSC = toLetter.getToSocketChannel();
 				
 				List<WrapBuffer> inObjWrapBufferList = null;

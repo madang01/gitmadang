@@ -30,5 +30,5 @@ public interface InputMessageReaderPoolIF {
 	NoMoreDataPacketBufferException;*/
 	
 	
-	public InputMessageReaderIF getInputMessageReaderWithMinimumMumberOfSockets();
+	public InputMessageReaderIF getInputMessageReaderWithMinimumNumberOfSockets();
 }

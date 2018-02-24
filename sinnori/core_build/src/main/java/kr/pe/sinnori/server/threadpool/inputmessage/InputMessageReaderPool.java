@@ -17,6 +17,9 @@
 
 package kr.pe.sinnori.server.threadpool.inputmessage;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
@@ -39,8 +42,6 @@ public class InputMessageReaderPool extends AbstractThreadPool implements
 	private MessageProtocolIF messageProtocol;
 	private DataPacketBufferPoolIF dataPacketBufferQueueManager;
 	private SocketResourceManagerIF clientResourceManager;
-	
-	
 	
 	public InputMessageReaderPool(String projectName, 
 			int size, 
@@ -88,14 +89,14 @@ public class InputMessageReaderPool extends AbstractThreadPool implements
 	}
 
 	@Override
-	public void addHandler() {
+	public void addHandler() throws IllegalStateException {
 		synchronized (monitor) {
 			int size = pool.size();
 			
 			if (size > max) {
 				String errorMessage = String.format("%s InputMessageReader 최대 갯수[%d]를 넘을 수 없습니다.", projectName, max); 
 				log.warn(errorMessage);
-				throw new RuntimeException(errorMessage);
+				throw new IllegalStateException(errorMessage);
 			}
 			
 			try {
@@ -109,26 +110,31 @@ public class InputMessageReaderPool extends AbstractThreadPool implements
 			} catch (Exception e) {
 				String errorMessage = String.format("%s InputMessageReader[%d] 등록 실패", projectName, size); 
 				log.warn(errorMessage, e);
-				throw new RuntimeException(errorMessage);
+				throw new IllegalStateException(errorMessage);
 			}
 		}
 	}	
 	
 	@Override
-	public InputMessageReaderIF getInputMessageReaderWithMinimumMumberOfSockets() {
-		InputMessageReaderIF inputMessageReaderWithMinimumMumberOfSockets = null;
-		int minimumMumberOfSockets = Integer.MAX_VALUE;
-
-		int size = pool.size();
-		for (int i = 0; i < size; i++) {
-			InputMessageReaderIF handler = (InputMessageReaderIF) pool.get(i);
-			int numberOfSocket = handler.getNumberOfSocket();
-			if (numberOfSocket < minimumMumberOfSockets) {
-				minimumMumberOfSockets = numberOfSocket;
-				inputMessageReaderWithMinimumMumberOfSockets = handler;
+	public InputMessageReaderIF getInputMessageReaderWithMinimumNumberOfSockets() {
+		Iterator<Thread> poolIter = pool.iterator();
+		
+		if (! poolIter.hasNext()) {
+			throw new NoSuchElementException("InputMessageReaderPool empty");
+		}
+		
+		InputMessageReaderIF minInputMessageReader = (InputMessageReaderIF)poolIter.next();
+		int min = minInputMessageReader.getNumberOfSocket();
+		
+		while (poolIter.hasNext()) {
+			InputMessageReaderIF inputMessageReader = (InputMessageReaderIF) poolIter.next();
+			int numberOfSocket = inputMessageReader.getNumberOfSocket();
+			if (numberOfSocket < min) {
+				min = numberOfSocket;
+				minInputMessageReader = inputMessageReader;
 			}
 		}
 		
-		return inputMessageReaderWithMinimumMumberOfSockets;
+		return minInputMessageReader;
 	}
 }

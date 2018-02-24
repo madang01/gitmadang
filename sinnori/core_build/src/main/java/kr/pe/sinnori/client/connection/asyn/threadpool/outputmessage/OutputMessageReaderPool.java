@@ -52,7 +52,7 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements Outpu
 	}
 
 	@Override
-	public void addHandler() {
+	public void addHandler() throws IllegalStateException {
 		synchronized (monitor) {
 			int size = pool.size();
 
@@ -63,25 +63,22 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements Outpu
 			} catch (Exception e) {
 				String errorMessage = String.format("%s OutputMessageReader[%d] 등록 실패", projectName, size);
 				log.warn(errorMessage, e);
-				throw new RuntimeException(errorMessage);
+				throw new IllegalStateException(errorMessage);
 			}
 
 		}
 	}
 
 	@Override
-	public OutputMessageReaderIF getNextOutputMessageReader() {
+	public OutputMessageReaderIF getOutputMessageReaderWithMinimumNumberOfConnetion() {
 		Iterator<Thread> poolIter = pool.iterator();
-		int min = Integer.MAX_VALUE;
-
-		OutputMessageReaderIF minOutputMessageReader = null;
-
-		if (!poolIter.hasNext()) {
-			throw new NoSuchElementException("ClientExecutorPool empty");
+		if (! poolIter.hasNext()) {
+			throw new NoSuchElementException("OutputMessageReaderPool empty");
 		}
 
-		minOutputMessageReader = (OutputMessageReaderIF) poolIter.next();
-		min = minOutputMessageReader.getNumberOfAsynConnection();
+		OutputMessageReaderIF minOutputMessageReader = (OutputMessageReaderIF) poolIter.next();;
+		int min = minOutputMessageReader.getNumberOfAsynConnection();
+		
 
 		while (poolIter.hasNext()) {
 			OutputMessageReaderIF outputMessageReader = (OutputMessageReaderIF) poolIter.next();

@@ -6,8 +6,8 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConnectionPoolManager extends Thread implements ConnectionPoolManagerIF {
-	protected Logger log = LoggerFactory.getLogger(ConnectionPoolManager.class);
+public class ConnectionPoolSupporter extends Thread implements ConnectionPoolSupporterIF {
+	protected Logger log = LoggerFactory.getLogger(ConnectionPoolSupporter.class);
 	
 	
 	private ConnectionPoolIF pool = null;
@@ -15,27 +15,18 @@ public class ConnectionPoolManager extends Thread implements ConnectionPoolManag
 	
 	private SynchronousQueue<String> synchronousQueue = new SynchronousQueue<String>();
 
-	public ConnectionPoolManager(ConnectionPoolIF pool, long interval) {
+	public ConnectionPoolSupporter(ConnectionPoolIF pool, long interval) {
 		this.pool = pool;
 		this.interval = interval;
+		
+		pool.registerConnectionPoolSupporter(this);
 	}
 
 	public void run() {
 		String reasonForLoss = null;
 		try {
-			while (!this.isInterrupted()) {
-				while (pool.whetherConnectionIsMissing()) {
-					try {
-						pool.addConnection();
-						log.info("결손된 동기 개인 연결 추가 작업 완료");
-						
-					} catch (InterruptedException e) {
-						throw e;
-					} catch (Exception e) {
-						log.warn("에러 발생에 따른 결손된 동기 개인 연결 추가 작업 잠시 중지 ", e);
-						break;
-					}
-				}
+			while (!this.isInterrupted()) {				
+				pool.addAllLostConnections();
 
 				
 				reasonForLoss = synchronousQueue.poll(interval, TimeUnit.MILLISECONDS);

@@ -54,7 +54,7 @@ public class InputMessageWriterPool extends AbstractThreadPool implements InputM
 	}
 
 	@Override
-	public void addHandler() {
+	public void addHandler() throws IllegalStateException {
 		LinkedBlockingQueue<ToLetter> inputMessageQueue = new LinkedBlockingQueue<ToLetter>(inputMessageQueueSize);
 
 		synchronized (monitor) {
@@ -68,24 +68,21 @@ public class InputMessageWriterPool extends AbstractThreadPool implements InputM
 			} catch (Exception e) {
 				String errorMessage = String.format("%s InputMessageWriter[%d] 등록 실패", projectName, size);
 				log.warn(errorMessage, e);
-				throw new RuntimeException(errorMessage);
+				throw new IllegalStateException(errorMessage);
 			}
 
 		}
 	}
 
 	@Override
-	public InputMessageWriterIF getNextInputMessageWriter() {
+	public InputMessageWriterIF getInputMessageWriterWithMinimumNumberOfConnetion() {
 		Iterator<Thread> poolIter = pool.iterator();
-		int min = Integer.MAX_VALUE;
-
-		InputMessageWriterIF minInputMessageWriter = null;
-
-		if (!poolIter.hasNext()) {
-			throw new NoSuchElementException("ClientExecutorPool empty");
+		if (! poolIter.hasNext()) {
+			throw new NoSuchElementException("InputMessageWriterPool empty");
 		}
-
-		minInputMessageWriter = (InputMessageWriterIF) poolIter.next();
+		
+		int min = Integer.MAX_VALUE;
+		InputMessageWriterIF minInputMessageWriter = (InputMessageWriterIF) poolIter.next();
 		min = minInputMessageWriter.getNumberOfAsynConnection();
 
 		while (poolIter.hasNext()) {

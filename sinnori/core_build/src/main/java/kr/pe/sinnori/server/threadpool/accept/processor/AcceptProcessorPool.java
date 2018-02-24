@@ -67,7 +67,7 @@ public class AcceptProcessorPool extends AbstractThreadPool {
 	}
 
 	@Override
-	public void addHandler() {
+	public void addHandler() throws IllegalStateException{
 		synchronized (monitor) {
 			int size = pool.size();
 			
@@ -76,7 +76,7 @@ public class AcceptProcessorPool extends AbstractThreadPool {
 						"%s AcceptProcessor 최대 갯수[%d]를 넘을 수 없습니다.",
 						projectName, max);
 				log.warn(errorMessage);
-				throw new RuntimeException(errorMessage);
+				throw new IllegalStateException(errorMessage);
 			}
 			
 			try {
@@ -87,7 +87,7 @@ public class AcceptProcessorPool extends AbstractThreadPool {
 				String errorMessage = String.format(
 						"%s AcceptProcessor[%d] 등록 실패", projectName, size);
 				log.warn(errorMessage, e);
-				throw new RuntimeException(errorMessage);
+				throw new IllegalStateException(errorMessage);
 			}
 		}
 	}

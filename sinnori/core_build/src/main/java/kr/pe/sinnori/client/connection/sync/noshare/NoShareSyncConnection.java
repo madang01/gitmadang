@@ -78,6 +78,8 @@ public class NoShareSyncConnection extends AbstractConnection {
 		this.dataPacketBufferPool = dataPacketBufferPool;
 		this.syncPrivateSocketResoruce = syncPrivateSocketResoruce;
 		
+		doConnect();
+		
 		log.info(String.format("project[%s] NoShareSyncConnection[%d] 생성자 end", projectName, serverSC.hashCode()));
 	}
 	

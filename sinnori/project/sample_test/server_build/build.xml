@@ -65,7 +65,8 @@
 		
 		<copy todir="${dir.appinf}/resources" verbose="true" overwrite="false">
 			<fileset dir="${dir.core.build}/APP-INF/resources/" />
-		</copy>	</target>
+		</copy>
+	</target>
 	
 	<target name="compile.main" depends="copy.appinf">
 	  <!-- this server project build directory -->

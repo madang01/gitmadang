@@ -20,16 +20,15 @@ package kr.pe.sinnori.server;
 import java.util.HashMap;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.itemvalue.AllSubProjectPartConfiguration;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.exception.NotFoundProjectException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 
@@ -99,26 +98,26 @@ public final class MainServerManager {
 	 * 프로젝터 이름에 1:1 대응하는 서버 프로젝트를 반환한다.
 	 * @param projectName 프로젝트 이름
 	 * @return 프로젝터 이름에 1:1 대응하는 서버 프로젝트 {@link AnyProjectServer}
-	 * @throws NotFoundProjectException 
+	 * @throws IllegalStateException 
 	 */
-	public AnyProjectServer getSubProjectServer(String subProjectName) throws NotFoundProjectException {
+	public AnyProjectServer getSubProjectServer(String subProjectName) throws IllegalStateException {
 		AnyProjectServer subProjectServer =  subProjectServerHash.get(subProjectName);
 		if (null == subProjectServer) {
 			StringBuilder errorBuilder = new StringBuilder("신놀이 프레임 워크 환경설정 파일에 찾고자 하는 서버 프로젝트[");
 			errorBuilder.append(subProjectName);
 			errorBuilder.append("] 가 존재하지 않습니다.");
 			log.error(errorBuilder.toString());
-			throw new NotFoundProjectException(errorBuilder.toString());
+			throw new IllegalStateException(errorBuilder.toString());
 		}
 		
 		return subProjectServer;
 	}
 	
-	public AnyProjectServer getMainProjectServer() throws NotFoundProjectException {
+	public AnyProjectServer getMainProjectServer() throws IllegalStateException {
 		if (null == mainProjectServer) {
 			StringBuilder errorBuilder = new StringBuilder("신놀이 프레임 워크 환경설정 파일에 찾고자 하는 메인 프로젝트가 존재하지 않습니다.");
 			log.error(errorBuilder.toString());
-			throw new NotFoundProjectException(errorBuilder.toString());
+			throw new IllegalStateException(errorBuilder.toString());
 		}
 		
 		return mainProjectServer;

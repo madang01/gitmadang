@@ -28,7 +28,7 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
  *
  */
 public interface SocketResourceManagerIF {	
-	public void addNewSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException;
+	public void addNewSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException, InterruptedException;
 	public void remove(SocketChannel sc);
 	public SocketResource getSocketResource(SocketChannel sc);
 	public int getNumberOfSocketResources();

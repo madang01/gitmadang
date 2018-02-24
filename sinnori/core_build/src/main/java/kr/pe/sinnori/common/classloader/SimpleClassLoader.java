@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kr.pe.sinnori.server.classloader;
+package kr.pe.sinnori.common.classloader;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,65 +26,28 @@ import java.util.HashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
-import kr.pe.sinnori.common.classloader.IOPartDynamicClassNameUtil;
-import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 
-/**
- * 서버용 동적 클래스들 로딩및 관리를 담당하는 "동적 클래스 로더". @{link ServerObjectManager } 에 종속 된다.
- * 
- * @author Won Jonghoon
- * 
- */
-public class ServerClassLoader extends ClassLoader {
-	private Logger log = LoggerFactory.getLogger(ServerClassLoader.class);
+public class SimpleClassLoader extends ClassLoader {
+	private Logger log = LoggerFactory.getLogger(SimpleClassLoader.class);
 
 	//private final Object monitor = new Object();
 
-	private String projectName = null;
-	private String firstPrefixDynamicClassFullName = null;
 	
-
-	private final ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
-	private String classPathString = null;	
+	private String classloaderClassPathString = null;
+	
+	
+	private String firstPrefixDynamicClassFullName = null;
+	private final ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();		
 	private HashSet<String> systemloaderClassFullNameSet = new HashSet<String>();
 	
 	
-	public ServerClassLoader(String projectName, 
-			IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil) throws SinnoriConfigurationException {
+	public SimpleClassLoader(String classloaderClassPathString,
+			IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil) {
 		super(ClassLoader.getSystemClassLoader());
 
-		this.projectName = projectName;
+		this.classloaderClassPathString = classloaderClassPathString;		
+		
 		this.firstPrefixDynamicClassFullName = ioPartDynamicClassNameUtil.getFirstPrefixDynamicClassFullName();
-		
-		String sinnoriInstalledPathString = System
-				.getProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH);
-		
-		if (null == sinnoriInstalledPathString) {
-			String errorMessage = String.format("the system environment variable[%s] for the path where Sinnori is installed is not defined. -D%s not defined",
-					CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH, 
-					CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH);
-			throw new SinnoriConfigurationException(errorMessage);
-		}
-		
-		String serverAPPINFPathString = BuildSystemPathSupporter
-				.getServerAPPINFPathString(sinnoriInstalledPathString, projectName);
-		
-		File serverAPPINFPath = new File(serverAPPINFPathString);
-		
-		if (!serverAPPINFPath.exists()) {
-			String errorMessage = String.format("the server APP-INF path[%s] doesn't exist", serverAPPINFPathString);
-		 	throw new SinnoriConfigurationException(errorMessage);
-		}
-		
-		if (!serverAPPINFPath.isDirectory()) {
-			String errorMessage = String.format("the server APP-INF path[%s] isn't a directory", serverAPPINFPathString);
-		 	throw new SinnoriConfigurationException(errorMessage);
-		}
-		
-		this.classPathString = new StringBuilder(serverAPPINFPathString).append(File.separator).append("classes")
-				.toString();
 		
 		String[] noTaskMessageIDListForSystemloader = {
 				"SelfExnRes"
@@ -127,7 +90,7 @@ public class ServerClassLoader extends ClassLoader {
 		}
 		
 		
-		log.info("projectName[{}] ServerClassLoader hashCode=[{}] create", projectName, this.hashCode());
+		log.info("SimpleClassLoader hashCode=[{}] create", this.hashCode());
 	}
 
 	/**
@@ -138,7 +101,7 @@ public class ServerClassLoader extends ClassLoader {
 	 * @return 주어진 클래스 이름을 가지는 클래스 파일 경로
 	 */
 	public String getClassFileName(String classFullName) {
-		String classFileName = new StringBuilder(classPathString).append(File.separator)
+		String classFileName = new StringBuilder(classloaderClassPathString).append(File.separator)
 				.append(classFullName.replace(".", File.separator)).append(".class").toString();
 		return classFileName;
 	}
@@ -371,9 +334,5 @@ public class ServerClassLoader extends ClassLoader {
 	protected void finalize() throws Throwable {
 		// FIXME! 메모리 회수 확인용으로 삭제하지 마세요!
 		log.info("ServerClassLoader[{}] destroy", this.hashCode());
-	}
-
-	public String getProjectName() {
-		return projectName;
 	}
 }

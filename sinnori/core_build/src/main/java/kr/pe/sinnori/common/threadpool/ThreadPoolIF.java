@@ -32,7 +32,7 @@ public interface ThreadPoolIF {
 	/**
 	 * 폴에 쓰레드 추가
 	 */
-	public void addHandler();
+	public void addHandler() throws IllegalStateException;
 
 	/**
 	 * 폴에 등록된 모든 쓰레드 시작
