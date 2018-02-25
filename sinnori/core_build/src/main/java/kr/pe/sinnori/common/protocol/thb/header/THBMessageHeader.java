@@ -21,7 +21,6 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
-import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,6 +73,16 @@ public class THBMessageHeader {
 			throw new IllegalArgumentException("the parameter headerOutputStream is null");
 		}
 		
+		if (messageIDFixedSize <= 0) {
+			String errorMessage = String.format("the parameter messageIDFixedSize[%d] is less than or equal to zero", messageIDFixedSize);
+			log.warn(errorMessage);
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (null == headerCharset) {
+			throw new IllegalArgumentException("the parameter headerCharset is null");
+		}
+		
 		if (null == messageID) {
 			String errorMessage = "메시지 헤더 정보의 메시지 식별자 값이 null 입니다.";
 			log.warn(errorMessage);
@@ -92,12 +101,16 @@ public class THBMessageHeader {
 					messageID, messageIDBytes.length, messageIDFixedSize);
 			throw new IllegalArgumentException(errorMessage);
 		}
-		byte[] messageIDFixedSizeBuffer = new byte[messageIDFixedSize];
-		Arrays.fill(messageIDFixedSizeBuffer, CommonStaticFinalVars.ZERO_BYTE);
-		ByteBuffer messageIDFixedSizeByteBuffer = ByteBuffer.wrap(messageIDFixedSizeBuffer);
-		messageIDFixedSizeByteBuffer.put(messageIDBytes);
+		ByteBuffer messageIDWrapBuffer = ByteBuffer.wrap(messageIDBytes);
 		
-		headerOutputStream.putBytes(messageIDFixedSizeBuffer);
+		for (int i=0; i < messageIDFixedSize; i++) {
+			if (messageIDWrapBuffer.hasRemaining()) {
+				headerOutputStream.putByte(messageIDWrapBuffer.get());
+			} else {
+				headerOutputStream.putByte(CommonStaticFinalVars.ZERO_BYTE);
+			}
+		}
+		
 		headerOutputStream.putUnsignedShort(mailboxID);
 		headerOutputStream.putInt(mailID);
 		headerOutputStream.putLong(bodySize);

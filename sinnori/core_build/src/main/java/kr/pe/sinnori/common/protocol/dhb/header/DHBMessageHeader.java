@@ -21,7 +21,6 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
-import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,6 +78,16 @@ public class DHBMessageHeader {
 		if (null == headerOutputStream) {
 			throw new IllegalArgumentException("the parameter headerOutputStream is null");
 		}
+		
+		if (messageIDFixedSize <= 0) {
+			String errorMessage = String.format("the parameter messageIDFixedSize[%d] is less than or equal to zero", messageIDFixedSize);
+			log.warn(errorMessage);
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (null == headerCharset) {
+			throw new IllegalArgumentException("the parameter headerCharset is null");
+		}
 
 		if (null == messageID) {
 			String errorMessage = "the var messageID is null";
@@ -111,11 +120,17 @@ public class DHBMessageHeader {
 					messageID, messageIDBytes.length, messageIDFixedSize);
 			throw new IllegalArgumentException(errorMessage);
 		}
-		byte[] messageIDFixedSizeBuffer = new byte[messageIDFixedSize];
-		Arrays.fill(messageIDFixedSizeBuffer, CommonStaticFinalVars.ZERO_BYTE);
-		ByteBuffer messageIDFixedSizeByteBuffer = ByteBuffer.wrap(messageIDFixedSizeBuffer);
-		messageIDFixedSizeByteBuffer.put(messageIDBytes);		
-		headerOutputStream.putBytes(messageIDFixedSizeBuffer);
+		
+		ByteBuffer messageIDWrapBuffer = ByteBuffer.wrap(messageIDBytes);
+		
+		for (int i=0; i < messageIDFixedSize; i++) {
+			if (messageIDWrapBuffer.hasRemaining()) {
+				headerOutputStream.putByte(messageIDWrapBuffer.get());
+			} else {
+				headerOutputStream.putByte(CommonStaticFinalVars.ZERO_BYTE);
+			}
+		}
+		
 		
 		headerOutputStream.putUnsignedShort(mailboxID);
 		headerOutputStream.putInt(mailID);

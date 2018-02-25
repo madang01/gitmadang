@@ -67,7 +67,7 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 		long afterTime = 0;
 		
 		
-		int retryCount = 1;
+		int retryCount = 10;
 		
 		int firstIndex = -1;
 		int differentCount = 0;
