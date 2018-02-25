@@ -61,7 +61,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 	private CharsetEncoder streamCharsetEncoder;	
 	@SuppressWarnings("unused")
 	private CharsetDecoder streamCharsetDecoder;
-	private DataPacketBufferPoolIF dataPacketBufferPoolManager = null;
+	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	
 	/** 메시지 헤더 크기, 단위 byte */
 	private int messageHeaderSize;
@@ -79,7 +79,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 			int dataPacketBufferMaxCntPerMessage,
 			CharsetEncoder streamCharsetEncoder,
 			CharsetDecoder streamCharsetDecoder,
-			DataPacketBufferPoolIF dataPacketBufferPoolManager) {
+			DataPacketBufferPoolIF dataPacketBufferPool) {
 		if (messageIDFixedSize <= 0) {
 			String errorMessage = String.format("the parameter messageIDFixedSize[%d] is less than or equal to zero",
 					messageIDFixedSize);
@@ -114,7 +114,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 		
 		// streamCharset = streamCharsetOfEncoder;
 
-		if (null == dataPacketBufferPoolManager) {
+		if (null == dataPacketBufferPool) {
 
 			throw new IllegalArgumentException("the parameter dataPacketBufferPoolManager is null");
 		}
@@ -124,7 +124,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 		this.streamCharsetEncoder = streamCharsetEncoder;
 		this.streamCharsetDecoder = streamCharsetDecoder;
 		
-		this.dataPacketBufferPoolManager = dataPacketBufferPoolManager;
+		this.dataPacketBufferPool = dataPacketBufferPool;
 		
 		this.messageHeaderSize = messageIDFixedSize+ 2 + 4 + 8;
 		
@@ -146,15 +146,11 @@ public class THBMessageProtocol implements MessageProtocolIF {
 			throws NoMoreDataPacketBufferException, BodyFormatException, HeaderFormatException {
 		/** 바디 만들기 */
 		FreeSizeOutputStream bodyOutputStream = 
-				new FreeSizeOutputStream(dataPacketBufferMaxCntPerMessage, streamCharsetEncoder, dataPacketBufferPoolManager);
+				new FreeSizeOutputStream(dataPacketBufferMaxCntPerMessage, streamCharsetEncoder, dataPacketBufferPool);
 		
 		try {
 			messageEncoder.encode(messageObj, thbSingleItemEncoder, bodyOutputStream);
 		} catch (NoMoreDataPacketBufferException e) {
-			throw e;
-		} catch (BodyFormatException e) {
-			throw e;
-		} catch (OutOfMemoryError e) {
 			throw e;
 		} catch (Exception e) {
 			String errorMessage = String.format(
@@ -175,13 +171,11 @@ public class THBMessageProtocol implements MessageProtocolIF {
 		// log.info(messageHeader.toString());
 		
 		FreeSizeOutputStream headerOutputStream = new FreeSizeOutputStream(dataPacketBufferMaxCntPerMessage,
-				headerCharsetEncoder, dataPacketBufferPoolManager);
+				headerCharsetEncoder, dataPacketBufferPool);
 		
 		try {
 			messageHeader.toOutputStream(headerOutputStream, messageIDFixedSize, headerCharset);
 		} catch (NoMoreDataPacketBufferException e) {
-			throw e;
-		} catch (OutOfMemoryError e) {
 			throw e;
 		} catch (Exception e) {
 			String errorMessage = String.format("unknown error::messageObj=[%s]", messageObj.toString());

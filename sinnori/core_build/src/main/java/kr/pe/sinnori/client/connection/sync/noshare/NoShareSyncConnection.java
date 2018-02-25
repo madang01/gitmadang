@@ -18,28 +18,25 @@ package kr.pe.sinnori.client.connection.sync.noshare;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.SocketTimeoutException;
 import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
 
-import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.client.connection.AbstractConnection;
+import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
 import kr.pe.sinnori.client.connection.SocketResoruceIF;
 import kr.pe.sinnori.common.exception.AccessDeniedException;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
-import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
-import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
+import kr.pe.sinnori.common.io.FreeSizeInputStream;
 import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.common.type.SelfExn;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
@@ -54,7 +51,6 @@ import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
  */
 public class NoShareSyncConnection extends AbstractConnection {
 	private SocketResoruceIF syncPrivateSocketResoruce = null;
-	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	
 	private static final int MAILBOX_ID = 1;
 	
@@ -69,13 +65,10 @@ public class NoShareSyncConnection extends AbstractConnection {
 	public NoShareSyncConnection(String projectName,  
 			String host, int port,
 			long socketTimeOut,
-			SocketResoruceIF syncPrivateSocketResoruce,
-			DataPacketBufferPoolIF dataPacketBufferPool,
-			MessageProtocolIF messageProtocol,
-			ClientObjectCacheManagerIF clientObjectCacheManager) throws InterruptedException, NoMoreDataPacketBufferException, IOException {
-		super(projectName, host, port, socketTimeOut, messageProtocol, clientObjectCacheManager);
+			ClientMessageUtilityIF clientMessageUtility,
+			SocketResoruceIF syncPrivateSocketResoruce) throws InterruptedException, NoMoreDataPacketBufferException, IOException {
+		super(projectName, host, port, socketTimeOut, clientMessageUtility);
 		
-		this.dataPacketBufferPool = dataPacketBufferPool;
 		this.syncPrivateSocketResoruce = syncPrivateSocketResoruce;
 		
 		doConnect();
@@ -117,7 +110,6 @@ public class NoShareSyncConnection extends AbstractConnection {
 		serverSC.setOption(StandardSocketOptions.SO_LINGER, 0);		
 
 		StringBuilder infoBuilder = null;
-
 		infoBuilder = new StringBuilder("projectName[");
 		infoBuilder.append(projectName);
 		infoBuilder.append("] asyn+share connection[");
@@ -136,9 +128,8 @@ public class NoShareSyncConnection extends AbstractConnection {
 	}
 	
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inObj)
-			throws IOException, 
-			NoMoreDataPacketBufferException, BodyFormatException, 
-			DynamicClassCallException, ServerTaskException, AccessDeniedException {
+			throws InterruptedException, NoMoreDataPacketBufferException,  
+			DynamicClassCallException, ServerTaskException, AccessDeniedException, BodyFormatException, IOException {
 		long startTime = 0;
 		long endTime = 0;
 		startTime = new java.util.Date().getTime();
@@ -151,14 +142,11 @@ public class NoShareSyncConnection extends AbstractConnection {
 		inObj.messageHeaderInfo.mailboxID = MAILBOX_ID;
 		inObj.messageHeaderInfo.mailID = this.mailID;
 		
-		boolean isInterrupted = false;
-		
-		List<WrapBuffer> inObjWrapBufferList = null;
-		ArrayList<WrapBuffer> inputStreamWrapBufferList = null;
+		List<WrapBuffer> warpBufferList = null;
 		AbstractMessage outObj = null;
 		
 		try {
-			inObjWrapBufferList = buildReadableWrapBufferList(classLoader, inObj);
+			warpBufferList = clientMessageUtility.buildReadableWrapBufferList(classLoader, inObj);
 			
 			// int inObjWrapBufferListSize = inObjWrapBufferList.size();
 			
@@ -166,30 +154,25 @@ public class NoShareSyncConnection extends AbstractConnection {
 			 * 2013.07.24 잔존 데이타 발생하므로 GatheringByteChannel 를 이용하는 바이트 버퍼 배열 쓰기 방식 포기.
 			 */
 			int numberOfBytesWritten = 0;
-			for (WrapBuffer wrapBuffer : inObjWrapBufferList) {
-				ByteBuffer inObjBuffer = wrapBuffer.getByteBuffer();
-				while (inObjBuffer.hasRemaining()) {
+			for (WrapBuffer wrapBuffer : warpBufferList) {
+				ByteBuffer byteBufferOfInputMessage = wrapBuffer.getByteBuffer();
+				while (byteBufferOfInputMessage.hasRemaining()) {
 					 
-					numberOfBytesWritten = serverSC.write(inObjBuffer);
+					numberOfBytesWritten = serverSC.write(byteBufferOfInputMessage);
 					if (0 == numberOfBytesWritten) {
-						try {
-							Thread.sleep(10);
-						} catch (InterruptedException e) {
-							log.warn("when the number of bytes written is zero,  this thread must sleep. but it fails.",
-									e);
-						}
+						
+						Thread.sleep(10);
+						
 					}
 				}
 			}
-		
-		} catch (IOException e) {
-			String errorMessage = String.format("IOException::%s, inObj=[%s]", toString(), inObj.toString()); 
-			// ClosedChannelException
-			log.warn(errorMessage, e);
-			close();
+		} catch(InterruptedException e) {
+			throw e;
+		} catch (Exception e) {
+			log.warn("Exception", e);
 			
-			throw new IOException(errorMessage);
-		} catch (DynamicClassCallException e) {
+			throw new IOException("fail to write input message to socket channel");
+		/*} catch (DynamicClassCallException e) {
 			String errorMessage = String.format(
 					"DynamicClassCallException::inObj=[%s]",
 					inObj.toString());
@@ -205,109 +188,84 @@ public class NoShareSyncConnection extends AbstractConnection {
 			selfExnRes.setErrorReason(e.getMessage());
 			
 			//letterFromServer = new LetterFromServer(selfExn);
-			return selfExnRes;
+			return selfExnRes;*/
 		} finally {
-			if (null != inObjWrapBufferList) {
-				int inObjWrapBufferListSize = inObjWrapBufferList.size();
-				for (int i=0; i < inObjWrapBufferListSize; i++) {
-					WrapBuffer wrapBuffer = inObjWrapBufferList.get(0);
-					inObjWrapBufferList.remove(0);
-					dataPacketBufferPool.putDataPacketBuffer(wrapBuffer);
-				}
-			}
+			clientMessageUtility.releaseWrapBufferList(warpBufferList);
 		}
 		
 		SocketOutputStream socketOutputStream = syncPrivateSocketResoruce.getSocketOutputStream();
-		
+	
 		try {
-			int numRead = socketOutputStream.read(serverSC);
-		
+			ArrayList<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
+			int wrapReadableMiddleObjectListSize = 0;
 			
-			ArrayList<WrapReadableMiddleObject> receivedLetterList = null;
-			int receivedLetterListSize = 0;
-			while (-1 != numRead) {
+			boolean loop = true;
+			while (loop) {
+				int numRead = socketOutputStream.read(serverSC);
+				
+				if (numRead == 0) {
+					Thread.sleep(10);
+					continue;
+				}
+				
 				setFinalReadTime();
-				
-				receivedLetterList = messageProtocol.S2MList(socketOutputStream);
-				
-				
-				receivedLetterListSize = receivedLetterList.size();
-				if (receivedLetterListSize != 0) {
-					break;
+				wrapReadableMiddleObjectList = clientMessageUtility.getWrapReadableMiddleObjectList(socketOutputStream);
+				wrapReadableMiddleObjectListSize = wrapReadableMiddleObjectList.size();
+				if (wrapReadableMiddleObjectListSize > 0) {
+					loop = false;
 				}
-
-				numRead = socketOutputStream.read(serverSC);
-			}			
+								
+			}
 			
-			if (receivedLetterListSize > 1) {
-				// FIXME! debug
-				int i=0;
-				for (WrapReadableMiddleObject receivedLetter : receivedLetterList) {
-					outObj = buildOutputMessage(classLoader, receivedLetter);
-					
-					log.debug(String.format("비공유+동기화 연결에서 1개 이상 출력 메시지 추출 에러, outObj[%d]=[%s]", i++, outObj.toString()));
+			List<AbstractMessage> messageList = new ArrayList<AbstractMessage>();			
+			try {
+				for (WrapReadableMiddleObject wrapReadableMiddleObject : wrapReadableMiddleObjectList) {
+					messageList.add(clientMessageUtility.buildOutputMessage(classLoader, wrapReadableMiddleObject));
 				}
+			} finally {
+				for (WrapReadableMiddleObject wrapReadableMiddleObject : wrapReadableMiddleObjectList) {
+					Object readableMiddleObject = wrapReadableMiddleObject.getReadableMiddleObject();
+					if (readableMiddleObject instanceof FreeSizeInputStream) {
+						FreeSizeInputStream  fsis = (FreeSizeInputStream)readableMiddleObject;
+						fsis.close();
+					}
+				}
+			}
+			
+			if (wrapReadableMiddleObjectListSize > 1) {				
+				log.info(messageList.toString());
 				
 				String errorMessage = "비공유 + 동기 연결 클래스는 오직 1개 입력 메시지에 1개 출력 메시지만 처리할 수 있습니다. 2개 이상 출력 메시지 검출 되었습니다.";
-				throw new HeaderFormatException(errorMessage);
+				throw new IOException(errorMessage);
 			}
 			
-			WrapReadableMiddleObject  receivedLetter  = receivedLetterList.get(0);
-			outObj = buildOutputMessage(classLoader, receivedLetter);
+			outObj = messageList.get(0);
 			
-		} catch (HeaderFormatException e) {
-			log.warn(String.format("HeaderFormatException::%s", e.getMessage()), e);
-			
-			close();
-		} catch (SocketTimeoutException e) {
-			log.warn(String.format("SocketTimeoutException, inObj=[%s]",
-					inObj.toString()), e);
-			
-			close();
-			throw e;
-		} catch (IOException e) {
-			log.error("IOException", e);
-			
-			close();
-			// System.exit(1);
+			if (outObj instanceof SelfExnRes) {
+				SelfExnRes selfExnRes = (SelfExnRes) outObj;
+				log.warn(selfExnRes.toString());
+				SelfExn.ErrorType.throwSelfExnException(selfExnRes);
+			}
+		
+		
 		} finally {
 			
-			
-			if (null != inputStreamWrapBufferList) {
-				int inputStreamWrapBufferListSize = inputStreamWrapBufferList.size();
-				for (int i=1; i < inputStreamWrapBufferListSize; i++) {
-					WrapBuffer outputMessageWrapBuffer = inputStreamWrapBufferList.get(0);
-					inputStreamWrapBufferList.remove(0);
-					dataPacketBufferPool.putDataPacketBuffer(outputMessageWrapBuffer);
-				}
-	
-				WrapBuffer outputMessageWrapBuffer = inputStreamWrapBufferList.get(0);
-				outputMessageWrapBuffer.getByteBuffer().clear();
+			if (Integer.MAX_VALUE == mailID) {
+				mailID = Integer.MIN_VALUE;
+			} else {
+				mailID++;
 			}
 			
-			if (Integer.MAX_VALUE == mailID)
-				mailID = Integer.MIN_VALUE;
-			else
-				mailID++;
-			
-			if (isInterrupted) Thread.currentThread().interrupt();
 			
 			endTime = new java.util.Date().getTime();
 			log.info(String.format("시간차=[%d]", (endTime - startTime)));
-		}
-
-		
-		if (null == outObj) {
-			log.info(String.format("outObj is null, isConnected[%s]", serverSC.isConnected()));
-		}
+		}		
 
 		return outObj;
 	}	
 	
 	public void sendAsynInputMessage(AbstractMessage inObj) 
-			throws IOException, 
-			NoMoreDataPacketBufferException, BodyFormatException, 
-			DynamicClassCallException, NotSupportedException {		
+			throws NotSupportedException {		
 		throw new NotSupportedException("this synchronous connection doesn't support this method 'sendAsynInputMessage'");
 	}
 	

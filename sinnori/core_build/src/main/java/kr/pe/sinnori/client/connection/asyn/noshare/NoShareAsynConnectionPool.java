@@ -18,29 +18,19 @@ package kr.pe.sinnori.client.connection.asyn.noshare;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.nio.charset.CharsetDecoder;
 import java.util.LinkedList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.client.connection.AbstractConnection;
+import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
 import kr.pe.sinnori.client.connection.ConnectionPoolIF;
 import kr.pe.sinnori.client.connection.ConnectionPoolSupporterIF;
-import kr.pe.sinnori.client.connection.asyn.AsynSocketResource;
+import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceFactoryIF;
 import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceIF;
-import kr.pe.sinnori.client.connection.asyn.threadpool.executor.ClientExecutorPoolIF;
-import kr.pe.sinnori.client.connection.asyn.threadpool.executor.handler.ClientExecutorIF;
-import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.InputMessageWriterPoolIF;
-import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler.InputMessageWriterIF;
-import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderPoolIF;
-import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReaderIF;
 import kr.pe.sinnori.common.exception.ConnectionPoolException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
-import kr.pe.sinnori.common.io.SocketOutputStream;
-import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 
 /**
  * 클라이언트 비공유 방식의 비동기 연결 클래스 {@link NoShareAsynConnection} 를 원소로 가지는 폴 관리자
@@ -57,45 +47,41 @@ public class NoShareAsynConnectionPool implements ConnectionPoolIF {
 	private String projectName = null;
 	private String host = null;
 	private int port;
-	private transient int connectionPoolSize = 0;
-	private int connectionPoolMaxSize;
 	private long socketTimeOut;
-	private InputMessageWriterPoolIF inputMessageWriterPool = null;
-	private OutputMessageReaderPoolIF outputMessageReaderPool = null;
-	private ClientExecutorPoolIF clientExecutorPool = null;
-	private int dataPacketBufferMaxCntPerMessage;
-	private CharsetDecoder streamCharsetDecoder = null;
-	private MessageProtocolIF messageProtocol = null;
-	private DataPacketBufferPoolIF dataPacketBufferPool = null;
-	private ClientObjectCacheManagerIF clientObjectCacheManager = null;
+	private ClientMessageUtilityIF clientMessageUtility = null;
+	
+	
+	private transient int connectionPoolSize = 0;
+	private int connectionPoolMaxSize;	
+	
+	// private IEOClientThreadPoolSetManagerIF ieoClientThreadPoolSetManager = null;	
+	// private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;
+	private AsynSocketResourceFactoryIF asynSocketResourceFactory = null;
+	
 
 	private LinkedList<NoShareAsynConnection> connectionList = null;
 	private transient int numberOfConnection = 0;
 	private ConnectionPoolSupporterIF connectionPoolSupporter = null;
 
-	public NoShareAsynConnectionPool(String projectName, String host, int port, int connectionPoolSize,
-			int connectionPoolMaxSize, long socketTimeOut, InputMessageWriterPoolIF inputMessageWriterPool,
-			OutputMessageReaderPoolIF outputMessageReaderPool, ClientExecutorPoolIF clientExecutorPool,
-			int dataPacketBufferMaxCntPerMessage, CharsetDecoder streamCharsetDecoder,
-			MessageProtocolIF messageProtocol, DataPacketBufferPoolIF dataPacketBufferPool,
-			ClientObjectCacheManagerIF clientObjectCacheManager)
+	public NoShareAsynConnectionPool(String projectName, 
+			String host, int port, 
+			long socketTimeOut,
+			ClientMessageUtilityIF clientMessageUtility,			
+			int connectionPoolSize,			
+			int connectionPoolMaxSize,
+			AsynSocketResourceFactoryIF asynSocketResourceFactory)
 			throws NoMoreDataPacketBufferException, InterruptedException, IOException, ConnectionPoolException {
 		this.projectName = projectName;
 		this.host = host;
 		this.port = port;
+		this.socketTimeOut = socketTimeOut;		
+		this.clientMessageUtility = clientMessageUtility;		
 		this.connectionPoolSize = connectionPoolSize;
 		this.connectionPoolMaxSize = connectionPoolMaxSize;
-		this.socketTimeOut = socketTimeOut;
-		this.inputMessageWriterPool = inputMessageWriterPool;
-		this.outputMessageReaderPool = outputMessageReaderPool;
-		this.clientExecutorPool = clientExecutorPool;
-		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
-		this.streamCharsetDecoder = streamCharsetDecoder;
-		this.messageProtocol = messageProtocol;
-		this.dataPacketBufferPool = dataPacketBufferPool;
-		this.clientObjectCacheManager = clientObjectCacheManager;
+		this.asynSocketResourceFactory = asynSocketResourceFactory;
+		
 
-		connectionList = new LinkedList<NoShareAsynConnection>();
+		this.connectionList = new LinkedList<NoShareAsynConnection>();
 
 		/**
 		 * 비동기 비 공유 연결 클래스는 입력 메시지 큐 1개와 출력 메시지큐 1개를 할당 받는다. 입력 메시지 큐는 모든 연결 클래스간에 공유하며,
@@ -111,7 +97,7 @@ public class NoShareAsynConnectionPool implements ConnectionPoolIF {
 			while (!connectionList.isEmpty()) {
 
 				try {
-					connectionList.remove().close();
+					connectionList.removeFirst().close();
 				} catch (IOException e1) {
 				}
 			}
@@ -127,20 +113,11 @@ public class NoShareAsynConnectionPool implements ConnectionPoolIF {
 			throw new ConnectionPoolException("fail to add a connection because this connection pool is full");
 		}
 
-		OutputMessageReaderIF outputMessageReader = outputMessageReaderPool
-				.getOutputMessageReaderWithMinimumNumberOfConnetion();
-		InputMessageWriterIF inputMessageWriter = inputMessageWriterPool
-				.getInputMessageWriterWithMinimumNumberOfConnetion();
-		ClientExecutorIF clientExecutor = clientExecutorPool.getClientExecutorWithMinimumNumberOfConnetion();
-
-		SocketOutputStream socketOutputStream = new SocketOutputStream(streamCharsetDecoder,
-				dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
-
-		AsynSocketResourceIF asynSocketResource = new AsynSocketResource(socketOutputStream, inputMessageWriter,
-				outputMessageReader, clientExecutor);
+		AsynSocketResourceIF asynSocketResource = asynSocketResourceFactory.makeNewAsynSocketResource();
 
 		NoShareAsynConnection serverConnection = new NoShareAsynConnection(projectName, host, port, socketTimeOut,
-				asynSocketResource, messageProtocol, clientObjectCacheManager);
+				clientMessageUtility,
+				asynSocketResource);
 		
 		synchronized (monitor) {
 			connectionList.addLast(serverConnection);

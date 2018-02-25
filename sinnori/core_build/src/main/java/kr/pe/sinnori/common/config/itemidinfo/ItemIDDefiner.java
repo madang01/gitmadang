@@ -39,13 +39,10 @@ public abstract class ItemIDDefiner {
 		public static final String COMMON_MESSAGE_PROTOCOL_TYPE_ITEMID = "common.message_protocol_type.value";
 		public static final String COMMON_FIRST_PREFIX_DYNAMIC_CLASS_FULL_NAME_ITEMID = "common.first_prefix_dynamic_class_full_name.value";
 		public static final String CLIENT_MONITOR_TIME_INTERVAL_ITEMID = "client.monitor.time_interval.value";
-		public static final String CLIENT_MONITOR_RECEPTION_TIMEOUT_ITEMID = "client.monitor.reception_timeout.value";
 		public static final String CLIENT_SOCKET_TIMEOUT_ITEMID = "client.socket.timeout.value";
 		public static final String CLIENT_CONNECTION_TYPE_ITEMID = "client.connection.type.value";
 		public static final String CLIENT_CONNECTION_MAX_COUNT_ITEMID = "client.connection.max_count.value";
 		public static final String CLIENT_CONNECTION_COUNT_ITEMID = "client.connection.count.value";
-		public static final String CLIENT_CONNECTION_TIMEOUT_ITEMID = "client.connection.timeout.value";
-		public static final String CLIENT_DATA_PACKET_BUFFER_CNT_ITEMID = "client.data_packet_buffer_cnt.value";
 		
 		public static final String CLIENT_ASYN_PIRVATE_MAILBOX_CNT_PER_PUBLIC_CONNECTION_ITEMID = "client.asyn.public.private_mailbox_cnt_per_connection.value";
 		
@@ -60,12 +57,10 @@ public abstract class ItemIDDefiner {
 		public static final String CLIENT_ASYN_READ_SELECTOR_WAKEUP_INTERVAL_ITEMID 	= "client.asyn.read_selector_wakeup_interval.value";
 		
 		public static final String SERVER_MONITOR_TIME_INTERVAL_ITEMID = "server.monitor.time_interval.value";
-		public static final String SERVER_MONITOR_RECEPTION_TIMEOUT_ITEMID = "server.monitor.reception_timeout.value";
 		public static final String SERVER_MAX_CLIENTS_ITEMID = "server.max_clients.value";		
 		public static final String SERVER_POOL_ACCEPT_QUEUE_SIZE_ITEMID = "server.pool.accept_queue_size.value";
 		public static final String SERVER_POOL_INPUT_MESSAGE_QUEUE_SIZE_ITEMID = "server.pool.input_message_queue_size.value";
 		public static final String SERVER_POOL_OUTPUT_MESSAGE_QUEUE_SIZE_ITEMID = "server.pool.output_message_queue_size.value";
-		public static final String SERVER_ACCEPT_SELECTOR_TIMEOUT_ITEMID = "server.accept_selector_timeout.value";
 		public static final String SERVER_POOL_READ_SELECTOR_WAKEUP_INTERVAL_ITEMID = "server.pool.read_selector_wakeup_interval.value";
 		public static final String SERVER_POOL_ACCEPT_PROCESSOR_MAX_SIZE_ITEMID = "server.pool.accept_processor.max_size.value";
 		public static final String SERVER_POOL_ACCEPT_PROCESSOR_SIZE_ITEMID = "server.pool.accept_processor.size.value";

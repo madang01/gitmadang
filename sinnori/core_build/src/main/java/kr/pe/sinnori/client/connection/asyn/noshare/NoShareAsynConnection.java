@@ -19,7 +19,7 @@ package kr.pe.sinnori.client.connection.asyn.noshare;
 import java.io.IOException;
 import java.util.List;
 
-import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
+import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceIF;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox;
@@ -33,8 +33,9 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
+import kr.pe.sinnori.common.type.SelfExn;
+import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 
 /**
  * 클라이언트 비공유 방식의 비동기 연결 클래스.<br/>
@@ -52,12 +53,12 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 	private final AsynPrivateMailbox asynPrivateMailbox = new AsynPrivateMailbox(1, socketTimeOut);
 
 	public NoShareAsynConnection(String projectName, String host, int port, long socketTimeOut,
-			AsynSocketResourceIF asynSocketResource,
-			MessageProtocolIF messageProtocol, 
-			ClientObjectCacheManagerIF clientObjectCacheManager)
+			ClientMessageUtilityIF clientMessageUtility,
+			AsynSocketResourceIF asynSocketResource)
 			throws InterruptedException, NoMoreDataPacketBufferException, IOException {
 		super(projectName, host, port, socketTimeOut, 
-				asynSocketResource, messageProtocol, clientObjectCacheManager);
+				clientMessageUtility,
+				asynSocketResource);
 
 		// log.info(String.format("project[%s] NoShareAsynConnection 생성자 end", projectName));
 	}
@@ -90,25 +91,23 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 
 		
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inObj)
-			throws InterruptedException, IOException, NoMoreDataPacketBufferException,
-			BodyFormatException, DynamicClassCallException, ServerTaskException, AccessDeniedException {
+			throws InterruptedException, NoMoreDataPacketBufferException,
+			DynamicClassCallException, ServerTaskException, AccessDeniedException, BodyFormatException, IOException {
 
 		long startTime = 0;
 		long endTime = 0;
 		startTime = new java.util.Date().getTime();
 
-		// log.info("inputMessage=[%s]", inputMessage.toString());
-
-		
+		// log.info("inputMessage=[%s]", inputMessage.toString());	
 
 		ClassLoader classLoader = inObj.getClass().getClassLoader();
 
-		WrapReadableMiddleObject receivedLetter = null;
+		WrapReadableMiddleObject wrapReadableMiddleObject = null;
 
 		inObj.messageHeaderInfo.mailboxID = asynPrivateMailbox.getMailboxID();
 		inObj.messageHeaderInfo.mailID = asynPrivateMailbox.getMailID();
 
-		List<WrapBuffer> wrapBufferListOfInputMessage = buildReadableWrapBufferList(classLoader, inObj);
+		List<WrapBuffer> wrapBufferListOfInputMessage = clientMessageUtility.buildReadableWrapBufferList(classLoader, inObj);
 		
 		ToLetter toLetter = new ToLetter(serverSC, inObj.getMessageID(), 
 				inObj.messageHeaderInfo.mailboxID, 
@@ -117,7 +116,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		asynSocketResource.getInputMessageWriter().putIntoQueue(toLetter);
 		
 		
-		receivedLetter = asynPrivateMailbox.getSyncOutputMessage();
+		wrapReadableMiddleObject = asynPrivateMailbox.getSyncOutputMessage();
 
 		/*
 		 * String messageID = letterFromServer.getMessageID(); int mailboxID =
@@ -125,7 +124,12 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		 * Object middleReadObj = letterFromServer.getMiddleReadObj();
 		 */
 
-		AbstractMessage outObj = buildOutputMessage(classLoader, receivedLetter);
+		AbstractMessage outObj = clientMessageUtility.buildOutputMessage(classLoader, wrapReadableMiddleObject);
+		if (outObj instanceof SelfExnRes) {
+			SelfExnRes selfExnRes = (SelfExnRes) outObj;
+			log.warn(selfExnRes.toString());
+			SelfExn.ErrorType.throwSelfExnException(selfExnRes);
+		}
 
 		endTime = new java.util.Date().getTime();
 		log.info(String.format("2.시간차=[%d]", (endTime - startTime)));
@@ -170,7 +174,7 @@ public class NoShareAsynConnection extends AbstractAsynConnection {
 		} catch (IOException e) {
 		}
 		
-		releaseSocketResources();
+		noticeThisConnectionWasRemovedFromReadyOnleySelector();
 		
 		if (! isQueueIn) {
 			log.warn("큐로 복귀 못한 비동기 비공유 연결[{}]", hashCode());

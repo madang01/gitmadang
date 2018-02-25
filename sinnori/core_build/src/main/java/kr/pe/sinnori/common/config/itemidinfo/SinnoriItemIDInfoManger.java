@@ -379,12 +379,12 @@ public class SinnoriItemIDInfoManger {
 		/** DBCP end */
 	}
 	
-	public void addAllProjectPartItemIDInfo()
+	private void addAllProjectPartItemIDInfo()
 			throws IllegalArgumentException, SinnoriConfigurationException {
 		ItemIDInfo<?> itemIDInfo = null;
 		String itemID = null;
 		boolean isDefaultValueCheck = false;
-
+	
 		try {
 			/** 프로젝트 공통 설정 부분 */
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_HOST_ITEMID;
@@ -395,7 +395,7 @@ public class SinnoriItemIDInfoManger {
 					"localhost", isDefaultValueCheck,
 					new GeneralConverterReturningNoTrimString());
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_PORT_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
@@ -408,7 +408,7 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1024, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_BYTEORDER_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<ByteOrder>(
@@ -418,7 +418,7 @@ public class SinnoriItemIDInfoManger {
 					"LITTLE_ENDIAN", isDefaultValueCheck,
 					new SetTypeConverterReturningByteOrder());
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_CHARSET_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Charset>(
@@ -426,7 +426,7 @@ public class SinnoriItemIDInfoManger {
 					ItemIDInfo.ViewType.TEXT, itemID, "문자셋", "UTF-8",
 					isDefaultValueCheck, new GeneralConverterReturningCharset());
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_DATA_PACKET_BUFFER_MAX_CNT_PER_MESSAGE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
@@ -439,7 +439,7 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_DATA_PACKET_BUFFER_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
@@ -465,7 +465,7 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			/** 메시지 식별자 크기의 최소 크기는 내부적으로 사용하는 SelfExn 메시지를 기준으로 정했음. */
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_MESSAGE_ID_FIXED_SIZE_ITEMID;
 			isDefaultValueCheck = true;
@@ -479,7 +479,7 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							7, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_MESSAGE_PROTOCOL_TYPE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<MessageProtocolType>(
@@ -489,7 +489,7 @@ public class SinnoriItemIDInfoManger {
 					"DHB", isDefaultValueCheck,
 					new SetTypeConverterReturningMessageProtocolType());
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_FIRST_PREFIX_DYNAMIC_CLASS_FULL_NAME_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<String>(
@@ -499,7 +499,7 @@ public class SinnoriItemIDInfoManger {
 					"kr.pe.sinnori.impl.", isDefaultValueCheck,
 					new GeneralConverterReturningNoTrimString());
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			/** 프로젝트 클라이언트 설정 부분 */
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_MONITOR_TIME_INTERVAL_ITEMID;
 			isDefaultValueCheck = true;
@@ -510,19 +510,9 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningLongBetweenMinAndMax(
 							1000L, (long) Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_MONITOR_RECEPTION_TIMEOUT_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<Long>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.TEXT,
-					itemID,
-					"데이터를 수신하지 않고 기다려주는 최대 시간, 최소값은 소켓 타임아웃 시간에 종속, 권장 값은 소켓 타임 아웃 시간*2, 단위 ms",
-					"20000", isDefaultValueCheck,
-					new GeneralConverterReturningLongBetweenMinAndMax(
-							1000L, (long) Integer.MAX_VALUE));
-			addProjectPartItemIDInfo(itemIDInfo);
-
+	
+			
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_TYPE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<ConnectionType>(
@@ -533,7 +523,7 @@ public class SinnoriItemIDInfoManger {
 					"ASYN_PRIVATE", isDefaultValueCheck,
 					new SetTypeConverterReturningConnectionType());
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_SOCKET_TIMEOUT_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Long>(
@@ -543,7 +533,7 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningLongBetweenMinAndMax(
 							1000L, (long) Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);			
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_COUNT_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
@@ -569,30 +559,8 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-			
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_TIMEOUT_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<Long>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.TEXT, itemID, "연결 타임아웃, 단위 ms", "5000",
-					isDefaultValueCheck,
-					new GeneralConverterReturningLongBetweenMinAndMax(
-							1000L, 1000L*60*10));
-			addProjectPartItemIDInfo(itemIDInfo);
-
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_DATA_PACKET_BUFFER_CNT_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<Integer>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.TEXT,
-					itemID,
-					"클라이언트 프로젝트가 가지는 데이터 패킷 버퍼 갯수",
-					"1000",
-					isDefaultValueCheck,
-					new GeneralConverterReturningIntegerBetweenMinAndMax(
-							1, Integer.MAX_VALUE));
-			addProjectPartItemIDInfo(itemIDInfo);			
-
+								
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_EXECUTOR_POOL_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
@@ -605,7 +573,7 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_PIRVATE_MAILBOX_CNT_PER_PUBLIC_CONNECTION_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
@@ -618,7 +586,7 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_INPUT_MESSAGE_QUEUE_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
@@ -631,9 +599,9 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_INPUT_MESSAGE_WRITER_POOL_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
@@ -646,7 +614,7 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_QUEUE_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
@@ -660,7 +628,7 @@ public class SinnoriItemIDInfoManger {
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);			
 			
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_READER_POOL_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
@@ -673,7 +641,7 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_READ_SELECTOR_WAKEUP_INTERVAL_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Long>(
@@ -685,7 +653,7 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningLongBetweenMinAndMax(
 							1L, (long) Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			/** 프로젝트 서버 설정 부분 */
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_MONITOR_TIME_INTERVAL_ITEMID;
 			isDefaultValueCheck = true;
@@ -696,18 +664,9 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningLongBetweenMinAndMax(
 							1000L, (long) Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_MONITOR_RECEPTION_TIMEOUT_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<Long>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.TEXT, itemID,
-					"데이터를 수신하지 않고 기다려주는 최대 시간, 권장 값은 소켓 타임 아웃 시간*2, 단위 ms",
-					"20000", isDefaultValueCheck,
-					new GeneralConverterReturningLongBetweenMinAndMax(
-							1000L, (long) Integer.MAX_VALUE));
-			addProjectPartItemIDInfo(itemIDInfo);
-
+	
+			
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_MAX_CLIENTS_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
@@ -720,9 +679,9 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_ACCEPT_QUEUE_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
@@ -735,7 +694,7 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							10, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_QUEUE_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
@@ -748,7 +707,7 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							10, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_QUEUE_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
@@ -761,18 +720,7 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							10, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_ACCEPT_SELECTOR_TIMEOUT_ITEMID;
-			isDefaultValueCheck = true;
-			itemIDInfo = new ItemIDInfo<Long>(
-					ItemIDInfo.ConfigurationPart.PROJECT,
-					ItemIDInfo.ViewType.TEXT, itemID,
-					"접속 이벤트 전용 selector 에서 접속 이벤트 최대 대기 시간, 단위 ms", "10",
-					isDefaultValueCheck,
-					new GeneralConverterReturningLongBetweenMinAndMax(
-							10L, (long) Integer.MAX_VALUE));
-			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_READ_SELECTOR_WAKEUP_INTERVAL_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Long>(
@@ -784,7 +732,7 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningLongBetweenMinAndMax(
 							10L, (long) Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_ACCEPT_PROCESSOR_MAX_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
@@ -797,7 +745,7 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_ACCEPT_PROCESSOR_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
@@ -810,7 +758,7 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_READER_MAX_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
@@ -823,7 +771,7 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_READER_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
@@ -836,7 +784,7 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_PROCESSOR_MAX_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
@@ -849,7 +797,7 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_PROCESSOR_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
@@ -862,7 +810,7 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_WRITER_MAX_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
@@ -875,7 +823,7 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_WRITER_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
@@ -888,7 +836,7 @@ public class SinnoriItemIDInfoManger {
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_STRING_ITEMID;
 			isDefaultValueCheck = false;
 			itemIDInfo = new ItemIDInfo<String>(
@@ -899,22 +847,18 @@ public class SinnoriItemIDInfoManger {
 					"", isDefaultValueCheck,
 					new GeneralConverterReturningEmptyOrNoTrimString());
 			addProjectPartItemIDInfo(itemIDInfo);
-
+	
 		} catch (SinnoriConfigurationException | IllegalArgumentException e) {
 			String errorMessage = new StringBuilder(
 					"fail to add project part item identification[")
 					.append(itemID).append("] information").toString();
-
+	
 			log.info(errorMessage, e);
-
+	
 			throw new SinnoriConfigurationException(new StringBuilder(errorMessage)
 					.append(", errrorMessage=").append(e.getMessage())
 					.toString());
 		}
-	}
-	
-	public ItemIDInfo<?> getItemIDInfo(String itemID) {
-		return itemIDInfoHash.get(itemID);
 	}
 
 	private void addItemIDInfo(ItemIDInfo<?> itemIDInfo)
@@ -924,24 +868,24 @@ public class SinnoriItemIDInfoManger {
 					"the paramter itemIDInfo is null").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
-
+	
 		ItemIDInfo<?> olditemIDConfigInfo = itemIDInfoHash.get(itemIDInfo
 				.getItemID());
 		if (null != olditemIDConfigInfo) {
 			String errorMessage = new StringBuilder("the item id[")
 					.append(itemIDInfo.getItemID()).append("] is registed")
 					.toString();
-
+	
 			// log.warn(errorMessage);
-
+	
 			throw new IllegalArgumentException(errorMessage);
 		}
-
+	
 		itemIDInfoHash.put(itemIDInfo.getItemID(), itemIDInfo);
 		itemIDInfoList.add(itemIDInfo);
-
+	
 		ConfigurationPart itemConfigPart = itemIDInfo.getConfigurationPart();
-
+	
 		if (ItemIDInfo.ConfigurationPart.DBCP == itemConfigPart) {
 			dbcpPartItemIDInfoList.add(itemIDInfo);
 		} else if (ItemIDInfo.ConfigurationPart.COMMON == itemConfigPart) {
@@ -951,7 +895,6 @@ public class SinnoriItemIDInfoManger {
 		}
 	}
 
-	
 	private void addDBCPPartItemIDInfo(ItemIDInfo<?> itemIDInfo)
 			throws IllegalArgumentException, UnsupportedOperationException {
 		if (null == itemIDInfo) {
@@ -969,7 +912,6 @@ public class SinnoriItemIDInfoManger {
 		addItemIDInfo(itemIDInfo);
 	}
 
-	
 	private void addCommonPartItemIDInfo(ItemIDInfo<?> itemIDInfo)
 			throws IllegalArgumentException, UnsupportedOperationException {
 		if (null == itemIDInfo) {
@@ -977,7 +919,7 @@ public class SinnoriItemIDInfoManger {
 					"the paramter itemIDInfo is null").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
-
+	
 		if (!itemIDInfo.getConfigurationPart().equals(
 				ItemIDInfo.ConfigurationPart.COMMON)) {
 			String errorMessage = new StringBuilder("the parameter itemIDInfo[")
@@ -988,7 +930,6 @@ public class SinnoriItemIDInfoManger {
 		addItemIDInfo(itemIDInfo);
 	}
 
-	
 	private void addProjectPartItemIDInfo(ItemIDInfo<?> itemIDInfo)
 			throws IllegalArgumentException, UnsupportedOperationException {
 		if (null == itemIDInfo) {
@@ -996,7 +937,7 @@ public class SinnoriItemIDInfoManger {
 					"the paramter itemIDInfo is null").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
-
+	
 		if (!itemIDInfo.getConfigurationPart().equals(
 				ItemIDInfo.ConfigurationPart.PROJECT)) {
 			String errorMessage = new StringBuilder("the parameter itemIDInfo[")
@@ -1005,42 +946,13 @@ public class SinnoriItemIDInfoManger {
 					.toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
-
+	
 		addItemIDInfo(itemIDInfo);
 	}
 
 	@SuppressWarnings("unchecked")
 	private void addDependencyValidation() throws IllegalArgumentException,
 			SinnoriConfigurationException {
-		{
-			String dependentTargetItemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_MONITOR_RECEPTION_TIMEOUT_ITEMID;
-			ItemIDInfo<?> dependentTargetItemIDInfo = getItemIDInfo(dependentTargetItemID);
-			if (null == dependentTargetItemIDInfo) {
-				String errorMessage = new StringBuilder(
-						"dependentTargetItemID[").append(dependentTargetItemID)
-						.append("]'s itemIDConfigInfo not ready").toString();
-				// log.error(errorMessage);
-				throw new SinnoriConfigurationException(errorMessage);
-			}
-
-			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_SOCKET_TIMEOUT_ITEMID;
-			ItemIDInfo<?> dependentSourceitemIDConfigInfo = getItemIDInfo(dependentTargetItemID);
-			if (null == dependentSourceitemIDConfigInfo) {
-				String errorMessage = new StringBuilder(
-						"dependentSourceItemID[").append(dependentSourceItemID)
-						.append("]'s itemIDConfigInfo not ready").toString();
-				// log.error(errorMessage);
-				throw new SinnoriConfigurationException(errorMessage);
-			}
-
-			
-			dependencyValidationHash.put(dependentSourceItemID,
-					new MinAndMaxDependencyValidator<Long>(
-							(ItemIDInfo<Long>) dependentSourceitemIDConfigInfo,
-							(ItemIDInfo<Long>) dependentTargetItemIDInfo,
-							
-							Long.class));
-		}
 		
 		{
 			String dependentTargetItemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_MAX_COUNT_ITEMID;
@@ -1052,7 +964,7 @@ public class SinnoriItemIDInfoManger {
 				// log.error(errorMessage);
 				throw new SinnoriConfigurationException(errorMessage);
 			}
-
+	
 			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_COUNT_ITEMID;
 			ItemIDInfo<?> dependentSourceitemIDConfigInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentSourceitemIDConfigInfo) {
@@ -1062,7 +974,7 @@ public class SinnoriItemIDInfoManger {
 				// log.error(errorMessage);
 				throw new SinnoriConfigurationException(errorMessage);
 			}
-
+	
 			dependencyValidationHash
 					.put(dependentSourceItemID,
 							new MinAndMaxDependencyValidator<Integer>(
@@ -1071,7 +983,7 @@ public class SinnoriItemIDInfoManger {
 									Integer.class));
 		}
 		
-
+	
 		{
 			String dependentTargetItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_ACCEPT_PROCESSOR_MAX_SIZE_ITEMID;
 			ItemIDInfo<?> dependentTargetItemIDInfo = getItemIDInfo(dependentTargetItemID);
@@ -1082,7 +994,7 @@ public class SinnoriItemIDInfoManger {
 				// log.error(errorMessage);
 				throw new SinnoriConfigurationException(errorMessage);
 			}
-
+	
 			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_ACCEPT_PROCESSOR_SIZE_ITEMID;
 			ItemIDInfo<?> dependentSourceitemIDConfigInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentSourceitemIDConfigInfo) {
@@ -1092,7 +1004,7 @@ public class SinnoriItemIDInfoManger {
 				// log.error(errorMessage);
 				throw new SinnoriConfigurationException(errorMessage);
 			}
-
+	
 			dependencyValidationHash
 					.put(dependentSourceItemID,
 							new MinAndMaxDependencyValidator<Integer>(
@@ -1110,7 +1022,7 @@ public class SinnoriItemIDInfoManger {
 				// log.error(errorMessage);
 				throw new SinnoriConfigurationException(errorMessage);
 			}
-
+	
 			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_READER_SIZE_ITEMID;
 			ItemIDInfo<?> dependentSourceitemIDConfigInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentSourceitemIDConfigInfo) {
@@ -1120,7 +1032,7 @@ public class SinnoriItemIDInfoManger {
 				// log.error(errorMessage);
 				throw new SinnoriConfigurationException(errorMessage);
 			}
-
+	
 			dependencyValidationHash
 					.put(dependentSourceItemID,
 							new MinAndMaxDependencyValidator<Integer>(
@@ -1138,7 +1050,7 @@ public class SinnoriItemIDInfoManger {
 				// log.error(errorMessage);
 				throw new SinnoriConfigurationException(errorMessage);
 			}
-
+	
 			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_PROCESSOR_SIZE_ITEMID;
 			ItemIDInfo<?> dependentSourceitemIDConfigInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentSourceitemIDConfigInfo) {
@@ -1148,7 +1060,7 @@ public class SinnoriItemIDInfoManger {
 				// log.error(errorMessage);
 				throw new SinnoriConfigurationException(errorMessage);
 			}
-
+	
 			dependencyValidationHash
 					.put(dependentSourceItemID,
 							new MinAndMaxDependencyValidator<Integer>(
@@ -1166,7 +1078,7 @@ public class SinnoriItemIDInfoManger {
 				// log.error(errorMessage);
 				throw new SinnoriConfigurationException(errorMessage);
 			}
-
+	
 			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_WRITER_SIZE_ITEMID;
 			ItemIDInfo<?> dependentSourceitemIDConfigInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentSourceitemIDConfigInfo) {
@@ -1176,7 +1088,7 @@ public class SinnoriItemIDInfoManger {
 				// log.error(errorMessage);
 				throw new SinnoriConfigurationException(errorMessage);
 			}
-
+	
 			dependencyValidationHash
 					.put(dependentSourceItemID,
 							new MinAndMaxDependencyValidator<Integer>(
@@ -1191,7 +1103,7 @@ public class SinnoriItemIDInfoManger {
 		{
 			String dependentSourceItemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_PUBLICKEY_FILE_ITEMID;
 			String dependentTargetItemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_SOURCE_ITEMID;
-
+	
 			ItemIDInfo<?> dependentSourceItemIDInfo = getItemIDInfo(dependentSourceItemID);
 			if (null == dependentSourceItemIDInfo) {
 				String errorMessage = new StringBuilder(
@@ -1200,7 +1112,7 @@ public class SinnoriItemIDInfoManger {
 						.append("] information is not ready").toString();
 				throw new SinnoriConfigurationException(errorMessage);
 			}
-
+	
 			ItemIDInfo<?> dependentTargetItemIDInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentTargetItemIDInfo) {
 				String errorMessage = new StringBuilder(
@@ -1210,7 +1122,7 @@ public class SinnoriItemIDInfoManger {
 				// log.error(errorMessage);
 				throw new SinnoriConfigurationException(errorMessage);
 			}
-
+	
 			inactiveCheckerHash
 					.put(dependentSourceItemID,
 							new RSAKeyFileDependOnSourceInActiveChecker(
@@ -1223,7 +1135,7 @@ public class SinnoriItemIDInfoManger {
 		{
 			String dependentSourceItemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_PRIVATEKEY_FILE_ITEMID;
 			String dependentTargetItemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_SOURCE_ITEMID;
-
+	
 			ItemIDInfo<?> dependentSourceItemIDInfo = getItemIDInfo(dependentSourceItemID);
 			if (null == dependentSourceItemIDInfo) {
 				String errorMessage = new StringBuilder(
@@ -1232,7 +1144,7 @@ public class SinnoriItemIDInfoManger {
 						.append("] information is not ready").toString();
 				throw new SinnoriConfigurationException(errorMessage);
 			}
-
+	
 			ItemIDInfo<?> dependentTargetItemIDInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentTargetItemIDInfo) {
 				String errorMessage = new StringBuilder(
@@ -1242,7 +1154,7 @@ public class SinnoriItemIDInfoManger {
 				// log.error(errorMessage);
 				throw new SinnoriConfigurationException(errorMessage);
 			}
-
+	
 			inactiveCheckerHash
 					.put(dependentSourceItemID,
 							new RSAKeyFileDependOnSourceInActiveChecker(
@@ -1251,10 +1163,9 @@ public class SinnoriItemIDInfoManger {
 									new String[] { SessionKey.RSAKeypairSourceType.SERVER
 											.toString() }));
 		}
-
+	
 	}
 
-	
 	private void addFileOrPathStringGetter() throws IllegalArgumentException,
 	SinnoriConfigurationException {
 		String itemID = null;
@@ -1269,9 +1180,11 @@ public class SinnoriItemIDInfoManger {
 		itemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_PRIVATEKEY_FILE_ITEMID;
 		fileOrPathStringGetterHash.put(itemID, new SessionkeyRSAPrivatekeyFilePathStringGetter(itemID));
 	}
-	
-	
-	
+
+	private ItemIDInfo<?> getItemIDInfo(String itemID) {
+		return itemIDInfoHash.get(itemID);
+	}
+
 	/**
 	 * 구축한 항목 식별자 정보를 바탕으로 주어진 메인 프로젝트 이름과 설치 경로에 맞도록 신규 생성된 신놀이 설정 시퀀스 프로퍼티를
 	 * 반환한다.
@@ -1422,284 +1335,253 @@ public class SinnoriItemIDInfoManger {
 		String firstToken = stringTokenizer.nextToken();
 
 		if (firstToken.equals("mainproject")) {
-			if (!stringTokenizer.hasMoreTokens()) {
-				String errorMessage = new StringBuilder(
-						"second token does not exist in the parameter itemKey[")
-						.append(itemKey).append("]").toString();
-				throw new IllegalArgumentException(errorMessage);
-			}
-			
-			String subPartName = stringTokenizer.nextToken();
-			if (subPartName.equals("")) {
-				String errorMessage = new StringBuilder(
-						"subPartName is a empty string in the parameter itemKey[")
-						.append(itemKey).append("]").toString();
-				throw new IllegalArgumentException(errorMessage);
-			}
+			itemID = getItemIDOfMainProjectPart(itemKey, stringTokenizer, firstToken);
 
-			if (!subPartName.equals("common") && !subPartName.equals("client")
-					&& !subPartName.equals("server")) {
-				String errorMessage = new StringBuilder("the sub part[")
-						.append(subPartName)
-						.append("] of the parameter itemKey[")
-						.append(itemKey)
-						.append("]'s itemID is bad, it must have one element of set {'common', 'client', 'server'}")
-						.toString();
-				throw new IllegalArgumentException(errorMessage);
-			}
-
-			if (!stringTokenizer.hasMoreTokens()) {
-				String errorMessage = new StringBuilder(
-						"third token does not exist in the parameter itemKey[")
-						.append(itemKey).append("]").toString();
-				throw new IllegalArgumentException(errorMessage);
-			}
-
-			String thirdToken = stringTokenizer.nextToken();
-			if (thirdToken.equals("")) {
-				String errorMessage = new StringBuilder(
-						"third Token is a empty string in the parameter itemKey[")
-						.append(itemKey).append("]").toString();
-				throw new IllegalArgumentException(errorMessage);
-			}
-			
-			String prefixOfItemID = firstToken + ".";
-			itemID = itemKey.substring(prefixOfItemID.length());
-
-			itemIDInfo = itemIDInfoHash.get(itemID);
-			if (null == itemIDInfo) {
-				String errorMessage = new StringBuilder(
-						"the parameter itemKey[").append(itemKey)
-						.append("]'s itemID is not registed, check it")
-						.toString();
-				throw new IllegalArgumentException(errorMessage);
-			}
+			itemIDInfo = getItemID(itemKey, itemID);
 
 			/** 파트를 달리한 항목 식별자 사용 방지를 위해서 파트 검사 필요 */
-			ItemIDInfo.ConfigurationPart configPart = itemIDInfo
-					.getConfigurationPart();
-			if (!configPart.equals(ItemIDInfo.ConfigurationPart.PROJECT)) {
-				String errorMessage = new StringBuilder(
-						"the configuration part[")
-						.append(configPart.toString())
-						.append("] of the parameter itemKey[").append(itemKey)
-						.append("]'s itemID is not a project part").toString();
-				throw new IllegalArgumentException(errorMessage);
-			}			
+			throwExceptionIfInvalidConfigurationPart(itemKey, itemIDInfo, ItemIDInfo.ConfigurationPart.PROJECT);		
 		} else if (firstToken.equals("subproject")) {
 			/** project part */
-			if (!stringTokenizer.hasMoreTokens()) {
-				String errorMessage = new StringBuilder(
-						"second token does not exist in the parameter itemKey[")
-						.append(itemKey).append("]").toString();
-				throw new IllegalArgumentException(errorMessage);
-			}
+			itemID = getItemIDOfSubProjectPart(itemKey, subProjectNameSet, stringTokenizer, firstToken);
 
-			String projectName = stringTokenizer.nextToken();
-			if (projectName.equals("")) {
-				String errorMessage = "project name is an empty string at the project part of the parameter sinnoriConfigSequencedProperties";
-				throw new IllegalArgumentException(errorMessage);
-			}
-
-			if (null != subProjectNameSet) {
-				if (!subProjectNameSet.contains(projectName)) {
-					String errorMessage = new StringBuilder("the item key[")
-							.append(itemKey)
-							.append("] has a wrong project name not existing in the parameter projectNameList[")
-							.append(subProjectNameSet.toString()).append("]")
-							.toString();
-					throw new IllegalArgumentException(errorMessage);
-				}
-			}
-
-			if (!stringTokenizer.hasMoreTokens()) {
-				String errorMessage = new StringBuilder(
-						"third token does not exist in the parameter itemKey[")
-						.append(itemKey).append("]").toString();
-				throw new IllegalArgumentException(errorMessage);
-			}
-
-			String subPartName = stringTokenizer.nextToken();
-			if (subPartName.equals("")) {
-				String errorMessage = new StringBuilder(
-						"subPartName is a empty string in the parameter itemKey[")
-						.append(itemKey).append("]").toString();
-				throw new IllegalArgumentException(errorMessage);
-			}
-
-			if (!subPartName.equals("common") && !subPartName.equals("client")
-					&& !subPartName.equals("server")) {
-				String errorMessage = new StringBuilder("the sub part[")
-						.append(subPartName)
-						.append("] of the parameter itemKey[")
-						.append(itemKey)
-						.append("]'s itemID is bad, it must have one element of set {'common', 'client', 'server'}")
-						.toString();
-				throw new IllegalArgumentException(errorMessage);
-			}
-
-			if (!stringTokenizer.hasMoreTokens()) {
-				String errorMessage = new StringBuilder(
-						"fourth token does not exist in the parameter itemKey[")
-						.append(itemKey).append("]").toString();
-				throw new IllegalArgumentException(errorMessage);
-			}
-
-			String fourthToken = stringTokenizer.nextToken();
-			if (fourthToken.equals("")) {
-				String errorMessage = new StringBuilder(
-						"fourth Token is a empty string in the parameter itemKey[")
-						.append(itemKey).append("]").toString();
-				throw new IllegalArgumentException(errorMessage);
-			}
-
-			String prefixOfItemID = firstToken + "." + projectName + ".";
-			itemID = itemKey.substring(prefixOfItemID.length());
-
-			itemIDInfo = itemIDInfoHash.get(itemID);
-			if (null == itemIDInfo) {
-				String errorMessage = new StringBuilder(
-						"the parameter itemKey[").append(itemKey)
-						.append("]'s itemID is not registed, check it")
-						.toString();
-
-				/*
-				 * log.info(
-				 * "item id is not registed, itemKey=[{}], prefixOfItemID=[{}], itemI=[{}]"
-				 * , itemKey, prefixOfItemID, itemID);
-				 */
-
-				throw new IllegalArgumentException(errorMessage);
-			}
+			itemIDInfo = getItemID(itemKey, itemID);
 
 			/** 파트를 달리한 항목 식별자 사용 방지를 위해서 파트 검사 필요 */
-			ItemIDInfo.ConfigurationPart configPart = itemIDInfo
-					.getConfigurationPart();
-			if (!configPart.equals(ItemIDInfo.ConfigurationPart.PROJECT)) {
-				String errorMessage = new StringBuilder(
-						"the configuration part[")
-						.append(configPart.toString())
-						.append("] of the parameter itemKey[").append(itemKey)
-						.append("]'s itemID is not a project part").toString();
-				throw new IllegalArgumentException(errorMessage);
-			}
+			throwExceptionIfInvalidConfigurationPart(itemKey, itemIDInfo, ItemIDInfo.ConfigurationPart.PROJECT);
 
 		} else if (firstToken.equals("dbcp")) {
 			/** dbcp part */
-			if (!stringTokenizer.hasMoreTokens()) {
-				String errorMessage = new StringBuilder(
-						"second token does not exist in the parameter itemKey[")
-						.append(itemKey).append("]").toString();
-				throw new IllegalArgumentException(errorMessage);
-			}
+			itemID = getItemIDOfDBCPPart(itemKey, dbcpNameSet, stringTokenizer, firstToken);
 
-			String dbcpName = stringTokenizer.nextToken();
-
-			if (null != dbcpNameSet) {
-				if (!dbcpNameSet.contains(dbcpName)) {
-					String errorMessage = new StringBuilder("the item key[")
-							.append(itemKey)
-							.append("] has a wrong dbcp name not existing in the parameter dbcpNameList[")
-							.append(dbcpNameSet.toString()).append("]")
-							.toString();
-					throw new IllegalArgumentException(errorMessage);
-				}
-			}
-
-			if (!stringTokenizer.hasMoreTokens()) {
-				String errorMessage = new StringBuilder(
-						"third token does not exist in the parameter itemKey[")
-						.append(itemKey).append("]").toString();
-				throw new IllegalArgumentException(errorMessage);
-			}
-
-			String thirdToken = stringTokenizer.nextToken();
-			if (thirdToken.equals("")) {
-				String errorMessage = new StringBuilder(
-						"third token is a empty string in the parameter itemKey[")
-						.append(itemKey).append("]").toString();
-				throw new IllegalArgumentException(errorMessage);
-			}
-
-			String prefixOfItemID = firstToken + "." + dbcpName + ".";
-			itemID = itemKey.substring(prefixOfItemID.length());
-
-			itemIDInfo = itemIDInfoHash.get(itemID);
-			if (null == itemIDInfo) {
-				String errorMessage = new StringBuilder(
-						"the parameter itemKey[").append(itemKey)
-						.append("]'s itemID is not registed, check it")
-						.toString();
-
-				/*
-				 * log.info(
-				 * "item id is not registed, itemKey=[{}], prefixOfItemID=[{}], itemI=[{}]"
-				 * , itemKey, prefixOfItemID, itemID);
-				 */
-
-				throw new IllegalArgumentException(errorMessage);
-			}
+			itemIDInfo = getItemID(itemKey, itemID);
 
 			/** 파트를 달리한 항목 식별자 사용 방지를 위해서 파트 검사 필요 */
-			ItemIDInfo.ConfigurationPart configPart = itemIDInfo
-					.getConfigurationPart();
-			if (!configPart.equals(ItemIDInfo.ConfigurationPart.DBCP)) {
-				String errorMessage = new StringBuilder(
-						"the configuration part[")
-						.append(configPart.toString())
-						.append("] of the parameter itemKey[").append(itemKey)
-						.append("]'s itemID is not a dbcp part").toString();
-				throw new IllegalArgumentException(errorMessage);
-			}
+			throwExceptionIfInvalidConfigurationPart(itemKey, itemIDInfo, ItemIDInfo.ConfigurationPart.DBCP);
 		} else {
 			/** common part */
-			if (!stringTokenizer.hasMoreTokens()) {
-				String errorMessage = new StringBuilder(
-						"second token does not exist in the parameter itemKey[")
-						.append(itemKey).append("]").toString();
-				throw new IllegalArgumentException(errorMessage);
-			}
+			itemID = getItemIDOfCommonPart(itemKey, stringTokenizer);
 
-			String secondToken = stringTokenizer.nextToken();
-			if (secondToken.equals("")) {
-				String errorMessage = new StringBuilder(
-						"second token is a empty string in the parameter itemKey[")
-						.append(itemKey).append("]").toString();
-				throw new IllegalArgumentException(errorMessage);
-			}
-
-			itemID = itemKey;
-
-			itemIDInfo = itemIDInfoHash.get(itemID);
-			if (null == itemIDInfo) {
-				String errorMessage = new StringBuilder(
-						"the parameter itemKey[").append(itemKey)
-						.append("]'s itemID is not registed, check it")
-						.toString();
-
-				/*
-				 * log.info(
-				 * "item id is not registed, itemKey=[{}], prefixOfItemID=[{}], itemI=[{}]"
-				 * , itemKey, "", itemID);
-				 */
-
-				throw new IllegalArgumentException(errorMessage);
-			}
+			itemIDInfo = getItemID(itemKey, itemID);
 
 			/** 파트를 달리한 항목 식별자 사용 방지를 위해서 파트 검사 필요 */
-			ItemIDInfo.ConfigurationPart configPart = itemIDInfo
-					.getConfigurationPart();
-			if (!configPart.equals(ItemIDInfo.ConfigurationPart.COMMON)) {
-				String errorMessage = new StringBuilder(
-						"the configuration part[")
-						.append(configPart.toString())
-						.append("] of the parameter itemKey[").append(itemKey)
-						.append("]'s itemID is not a common part").toString();
+			throwExceptionIfInvalidConfigurationPart(itemKey, itemIDInfo, ItemIDInfo.ConfigurationPart.COMMON);
+		}
+
+		return itemIDInfo;
+	}
+
+	private void throwExceptionIfInvalidConfigurationPart(String itemKey, ItemIDInfo<?> itemIDInfo, ItemIDInfo.ConfigurationPart wantedConfigurationPart) {
+		ItemIDInfo.ConfigurationPart configPartOfItemID = itemIDInfo
+				.getConfigurationPart();
+		if (!configPartOfItemID.equals(wantedConfigurationPart)) {
+			String errorMessage = new StringBuilder(
+					"the configuration part[")
+					.append(configPartOfItemID.toString())
+					.append("] of the var itemIDInfo getting from the parameter itemKey[").append(itemKey)
+					.append("] is not same to the wanted configuration part[")
+					.append(wantedConfigurationPart.toString())
+					.append("]").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+	}
+
+	private String getItemIDOfCommonPart(String itemKey, StringTokenizer stringTokenizer) {
+		String itemID;
+		if (!stringTokenizer.hasMoreTokens()) {
+			String errorMessage = new StringBuilder(
+					"second token does not exist in the parameter itemKey[")
+					.append(itemKey).append("]").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+
+		String secondToken = stringTokenizer.nextToken();
+		if (secondToken.equals("")) {
+			String errorMessage = new StringBuilder(
+					"second token is a empty string in the parameter itemKey[")
+					.append(itemKey).append("]").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+
+		itemID = itemKey;
+		return itemID;
+	}
+
+	private ItemIDInfo<?> getItemID(String itemKey, String itemID) {
+		ItemIDInfo<?> itemIDInfo;
+		itemIDInfo = itemIDInfoHash.get(itemID);
+		if (null == itemIDInfo) {
+			String errorMessage = new StringBuilder(
+					"the parameter itemKey[").append(itemKey)
+					.append("]'s itemID is not registed, check it")
+					.toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+		return itemIDInfo;
+	}
+
+	private String getItemIDOfDBCPPart(String itemKey, Set<String> dbcpNameSet, StringTokenizer stringTokenizer,
+			String firstToken) {
+		String itemID;
+		if (!stringTokenizer.hasMoreTokens()) {
+			String errorMessage = new StringBuilder(
+					"second token does not exist in the parameter itemKey[")
+					.append(itemKey).append("]").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+
+		String dbcpName = stringTokenizer.nextToken();
+
+		if (null != dbcpNameSet) {
+			if (!dbcpNameSet.contains(dbcpName)) {
+				String errorMessage = new StringBuilder("the item key[")
+						.append(itemKey)
+						.append("] has a wrong dbcp name not existing in the parameter dbcpNameList[")
+						.append(dbcpNameSet.toString()).append("]")
+						.toString();
 				throw new IllegalArgumentException(errorMessage);
 			}
 		}
 
-		return itemIDInfo;
+		if (!stringTokenizer.hasMoreTokens()) {
+			String errorMessage = new StringBuilder(
+					"third token does not exist in the parameter itemKey[")
+					.append(itemKey).append("]").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+
+		String thirdToken = stringTokenizer.nextToken();
+		if (thirdToken.equals("")) {
+			String errorMessage = new StringBuilder(
+					"third token is a empty string in the parameter itemKey[")
+					.append(itemKey).append("]").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+
+		String prefixOfItemID = firstToken + "." + dbcpName + ".";
+		itemID = itemKey.substring(prefixOfItemID.length());
+		return itemID;
+	}
+
+	private String getItemIDOfSubProjectPart(String itemKey, Set<String> subProjectNameSet,
+			StringTokenizer stringTokenizer, String firstToken) {
+		String itemID;
+		if (!stringTokenizer.hasMoreTokens()) {
+			String errorMessage = new StringBuilder(
+					"second token does not exist in the parameter itemKey[")
+					.append(itemKey).append("]").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+
+		String projectName = stringTokenizer.nextToken();
+		if (projectName.equals("")) {
+			String errorMessage = "project name is an empty string at the project part of the parameter sinnoriConfigSequencedProperties";
+			throw new IllegalArgumentException(errorMessage);
+		}
+
+		if (null != subProjectNameSet) {
+			if (!subProjectNameSet.contains(projectName)) {
+				String errorMessage = new StringBuilder("the item key[")
+						.append(itemKey)
+						.append("] has a wrong project name not existing in the parameter projectNameList[")
+						.append(subProjectNameSet.toString()).append("]")
+						.toString();
+				throw new IllegalArgumentException(errorMessage);
+			}
+		}
+
+		if (!stringTokenizer.hasMoreTokens()) {
+			String errorMessage = new StringBuilder(
+					"third token does not exist in the parameter itemKey[")
+					.append(itemKey).append("]").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+
+		String subPartName = stringTokenizer.nextToken();
+		if (subPartName.equals("")) {
+			String errorMessage = new StringBuilder(
+					"subPartName is a empty string in the parameter itemKey[")
+					.append(itemKey).append("]").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+
+		if (!subPartName.equals("common") && !subPartName.equals("client")
+				&& !subPartName.equals("server")) {
+			String errorMessage = new StringBuilder("the sub part[")
+					.append(subPartName)
+					.append("] of the parameter itemKey[")
+					.append(itemKey)
+					.append("]'s itemID is bad, it must have one element of set {'common', 'client', 'server'}")
+					.toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+
+		if (!stringTokenizer.hasMoreTokens()) {
+			String errorMessage = new StringBuilder(
+					"fourth token does not exist in the parameter itemKey[")
+					.append(itemKey).append("]").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+
+		String fourthToken = stringTokenizer.nextToken();
+		if (fourthToken.equals("")) {
+			String errorMessage = new StringBuilder(
+					"fourth Token is a empty string in the parameter itemKey[")
+					.append(itemKey).append("]").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+
+		String prefixOfItemID = firstToken + "." + projectName + ".";
+		itemID = itemKey.substring(prefixOfItemID.length());
+		return itemID;
+	}
+
+	private String getItemIDOfMainProjectPart(String itemKey, StringTokenizer stringTokenizer, String firstToken) {
+		String itemID;
+		if (!stringTokenizer.hasMoreTokens()) {
+			String errorMessage = new StringBuilder(
+					"second token does not exist in the parameter itemKey[")
+					.append(itemKey).append("]").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		String subPartName = stringTokenizer.nextToken();
+		if (subPartName.equals("")) {
+			String errorMessage = new StringBuilder(
+					"subPartName is a empty string in the parameter itemKey[")
+					.append(itemKey).append("]").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+
+		if (!subPartName.equals("common") && !subPartName.equals("client")
+				&& !subPartName.equals("server")) {
+			String errorMessage = new StringBuilder("the sub part[")
+					.append(subPartName)
+					.append("] of the parameter itemKey[")
+					.append(itemKey)
+					.append("]'s itemID is bad, it must have one element of set {'common', 'client', 'server'}")
+					.toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+
+		if (!stringTokenizer.hasMoreTokens()) {
+			String errorMessage = new StringBuilder(
+					"third token does not exist in the parameter itemKey[")
+					.append(itemKey).append("]").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+
+		String thirdToken = stringTokenizer.nextToken();
+		if (thirdToken.equals("")) {
+			String errorMessage = new StringBuilder(
+					"third Token is a empty string in the parameter itemKey[")
+					.append(itemKey).append("]").toString();
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		String prefixOfItemID = firstToken + ".";
+		itemID = itemKey.substring(prefixOfItemID.length());
+		return itemID;
 	}
 
 	public Object getNativeValueAfterValidChecker(String itemKey,

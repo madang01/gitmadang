@@ -8,11 +8,15 @@ public class AsynPrivateMailboxPool {
 	// private final Object monitor = new Object();	
 	
 	private LinkedBlockingQueue<AsynPrivateMailbox> asynPrivateMailboxQueue = null;
+	
+	private AsynPrivateMailboxMapper asynPrivateMailboxMapper = null;
 
 	public AsynPrivateMailboxPool(AsynPrivateMailboxMapper asynPrivateMailboxMapper) {
 		if (null == asynPrivateMailboxMapper) {
 			throw new IllegalArgumentException("the parameter asynPrivateMailboxMapper is null");
 		}
+		
+		this.asynPrivateMailboxMapper = asynPrivateMailboxMapper;
 		
 		int totalNumberOfAsynPrivateMailboxs = asynPrivateMailboxMapper.getTotalNumberOfAsynPrivateMailboxs();
 		
@@ -32,4 +36,9 @@ public class AsynPrivateMailboxPool {
 	public void add(AsynPrivateMailbox asynPrivateMailbox) {
 		asynPrivateMailboxQueue.offer(asynPrivateMailbox);
 	}
+
+	public AsynPrivateMailboxMapper getAsynPrivateMailboxMapper() {
+		return asynPrivateMailboxMapper;
+	}
+	
 }

@@ -18,30 +18,20 @@ package kr.pe.sinnori.client.connection.asyn.share;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.nio.charset.CharsetDecoder;
 import java.util.LinkedList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.client.connection.AbstractConnection;
+import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
 import kr.pe.sinnori.client.connection.ConnectionPoolIF;
 import kr.pe.sinnori.client.connection.ConnectionPoolSupporterIF;
-import kr.pe.sinnori.client.connection.asyn.AsynSocketResource;
+import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceFactoryIF;
 import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceIF;
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxMapper;
-import kr.pe.sinnori.client.connection.asyn.threadpool.executor.ClientExecutorPoolIF;
-import kr.pe.sinnori.client.connection.asyn.threadpool.executor.handler.ClientExecutorIF;
-import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.InputMessageWriterPoolIF;
-import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler.InputMessageWriterIF;
-import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderPoolIF;
-import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReaderIF;
+import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxPool;
 import kr.pe.sinnori.common.exception.ConnectionPoolException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
-import kr.pe.sinnori.common.io.SocketOutputStream;
-import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 
 /**
  * 클라이언트 공유 방식의 비동기 연결 클래스 {@link ShareAsynConnection} 를 원소로 가지는 폴 관리자 클래스<br/>
@@ -58,19 +48,14 @@ public class ShareAsynConnectionPool implements ConnectionPoolIF {
 	private String projectName = null;
 	private String host = null;
 	private int port;
-	private transient int connectionPoolSize;
-	private int connectionPoolMaxSize;
 	private long socketTimeOut;
-	private InputMessageWriterPoolIF inputMessageWriterPool = null;
-	private OutputMessageReaderPoolIF outputMessageReaderPool = null;
-	private ClientExecutorPoolIF clientExecutorPool = null;
-	private int numberOfAsynPrivateMailboxPerConnection;
-	private int dataPacketBufferMaxCntPerMessage;
-	private CharsetDecoder streamCharsetDecoder = null;
-	private MessageProtocolIF messageProtocol = null;
-	private DataPacketBufferPoolIF dataPacketBufferPool = null;
-	private ClientObjectCacheManagerIF clientObjectCacheManager = null;
-
+	private ClientMessageUtilityIF clientMessageUtility = null;	
+	private transient int connectionPoolSize;
+	private int connectionPoolMaxSize;	
+	// private int numberOfAsynPrivateMailboxPerConnection;
+	private AsynPrivateMailboxPoolFactoryIF asynPrivateMailboxPoolFactory = null;
+	private AsynSocketResourceFactoryIF asynSocketResourceFactory = null;
+	
 	/**
 	 * 공유방식으로 비동기 방식의 소켓 채널을 소유한 연결 클래스 목록. 쓰레드 공유하기 위해서 순차적으로 할당한다.
 	 */
@@ -79,12 +64,14 @@ public class ShareAsynConnectionPool implements ConnectionPoolIF {
 	private ConnectionPoolSupporterIF connectionPoolSupporter = null;
 	private int currentWorkingIndex = -1;
 
-	public ShareAsynConnectionPool(String projectName, String host, int port, int connectionPoolSize,
-			int connectionPoolMaxSize, long socketTimeOut, InputMessageWriterPoolIF inputMessageWriterPool,
-			OutputMessageReaderPoolIF outputMessageReaderPool, ClientExecutorPoolIF clientExecutorPool,
-			int numberOfAsynPrivateMailboxPerConnection, int dataPacketBufferMaxCntPerMessage,
-			CharsetDecoder streamCharsetDecoder, MessageProtocolIF messageProtocol,
-			DataPacketBufferPoolIF dataPacketBufferPool, ClientObjectCacheManagerIF clientObjectCacheManager)
+	public ShareAsynConnectionPool(String projectName, String host, int port, 
+			long socketTimeOut,
+			ClientMessageUtilityIF clientMessageUtility,			
+			int connectionPoolSize,
+			int connectionPoolMaxSize,
+			// int numberOfAsynPrivateMailboxPerConnection,
+			AsynPrivateMailboxPoolFactoryIF asynPrivateMailboxPoolFactory,
+			AsynSocketResourceFactoryIF asynSocketResourceFactory)
 			throws NoMoreDataPacketBufferException, InterruptedException, IOException, ConnectionPoolException {
 		this.projectName = projectName;
 		this.host = host;
@@ -92,24 +79,19 @@ public class ShareAsynConnectionPool implements ConnectionPoolIF {
 		this.connectionPoolSize = connectionPoolSize;
 		this.connectionPoolMaxSize = connectionPoolMaxSize;
 		this.socketTimeOut = socketTimeOut;
-		this.inputMessageWriterPool = inputMessageWriterPool;
-		this.outputMessageReaderPool = outputMessageReaderPool;
-		this.clientExecutorPool = clientExecutorPool;
-		this.numberOfAsynPrivateMailboxPerConnection = numberOfAsynPrivateMailboxPerConnection;
-		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
-		this.streamCharsetDecoder = streamCharsetDecoder;
-		this.messageProtocol = messageProtocol;
-		this.dataPacketBufferPool = dataPacketBufferPool;
-		this.clientObjectCacheManager = clientObjectCacheManager;
+		this.clientMessageUtility = clientMessageUtility;		
+		// this.numberOfAsynPrivateMailboxPerConnection = numberOfAsynPrivateMailboxPerConnection;
+		this.asynPrivateMailboxPoolFactory = asynPrivateMailboxPoolFactory;
+		this.asynSocketResourceFactory = asynSocketResourceFactory;
 
-		connectionList = new LinkedList<ShareAsynConnection>();
+		this.connectionList = new LinkedList<ShareAsynConnection>();
 		try {
 			for (int i = 0; i < connectionPoolSize; i++) {
 				addConnection();
 			}
 
 		} catch (IOException e) {
-			while (!connectionList.isEmpty()) {
+			while (! connectionList.isEmpty()) {
 				try {
 					connectionList.removeFirst().close();
 				} catch (IOException e1) {
@@ -127,26 +109,15 @@ public class ShareAsynConnectionPool implements ConnectionPoolIF {
 		if (numberOfConnection >= connectionPoolMaxSize) {
 			throw new ConnectionPoolException("fail to add a connection because this connection pool is full");
 		}
+		
+		AsynSocketResourceIF asynSocketResource = asynSocketResourceFactory.makeNewAsynSocketResource();
+		
+		AsynPrivateMailboxPool asynPrivateMailboxPool =asynPrivateMailboxPoolFactory.makeNewAsynPrivateMailboxPool();
 
-		OutputMessageReaderIF outputMessageReader = outputMessageReaderPool
-				.getOutputMessageReaderWithMinimumNumberOfConnetion();
-		InputMessageWriterIF inputMessageWriter = inputMessageWriterPool
-				.getInputMessageWriterWithMinimumNumberOfConnetion();
-		ClientExecutorIF clientExecutor = clientExecutorPool.getClientExecutorWithMinimumNumberOfConnetion();
-
-		SocketOutputStream socketOutputStream = new SocketOutputStream(streamCharsetDecoder,
-				dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
-
-		ShareAsynConnection serverConnection = null;
-
-		AsynPrivateMailboxMapper asynPrivateMailboxMapper = new AsynPrivateMailboxMapper(
-				numberOfAsynPrivateMailboxPerConnection, socketTimeOut);
-
-		AsynSocketResourceIF asynSocketResource = new AsynSocketResource(socketOutputStream, inputMessageWriter,
-				outputMessageReader, clientExecutor);
-
-		serverConnection = new ShareAsynConnection(projectName, host, port, socketTimeOut, asynPrivateMailboxMapper,
-				asynSocketResource, messageProtocol, clientObjectCacheManager);
+		ShareAsynConnection serverConnection = new ShareAsynConnection(projectName, host, port, socketTimeOut, 
+				clientMessageUtility,
+				asynPrivateMailboxPool,
+				asynSocketResource);
 
 		synchronized (monitor) {
 			connectionList.add(serverConnection);

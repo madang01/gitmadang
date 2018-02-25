@@ -4,27 +4,23 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
+import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
 import kr.pe.sinnori.client.connection.asyn.threadpool.executor.handler.ClientExecutor;
 import kr.pe.sinnori.client.connection.asyn.threadpool.executor.handler.ClientExecutorIF;
 import kr.pe.sinnori.common.asyn.FromLetter;
-import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 
 public class ClientExecutorPool extends AbstractThreadPool implements ClientExecutorPoolIF {
 	private String projectName = null;
 	private int outputMessageQueueSize;
-	private MessageProtocolIF messageProtocol = null;
-	private ClientObjectCacheManagerIF clientObjectCacheManager = null;
+	private ClientMessageUtilityIF clientMessageUtility = null;
 	
 	public ClientExecutorPool(String projectName, int size, 
 			int outputMessageQueueSize,
-			MessageProtocolIF messageProtocol,			
-			ClientObjectCacheManagerIF clientObjectCacheManager) {
+			ClientMessageUtilityIF clientMessageUtility) {
 		this.projectName = projectName;
 		this.outputMessageQueueSize = outputMessageQueueSize;
-		this.messageProtocol = messageProtocol;
-		this.clientObjectCacheManager = clientObjectCacheManager;
+		this.clientMessageUtility = clientMessageUtility;
 		
 		for (int i=0; i < size; i++) {
 			addHandler();
@@ -62,8 +58,7 @@ public class ClientExecutorPool extends AbstractThreadPool implements ClientExec
 			
 			ClientExecutor clientExecutor = new ClientExecutor(projectName, size,
 					outputMessageQueue,
-					messageProtocol,
-					clientObjectCacheManager);
+					clientMessageUtility);
 			
 			pool.add(clientExecutor);
 		}

@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.asyn.FromLetter;
-import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.io.SocketOutputStream;
@@ -225,21 +224,19 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 							}
 						
 						} catch (NoMoreDataPacketBufferException e) {
-							log.warn(String.format("%s InputMessageReader[%d] NoMoreDataPacketBufferException::%s", 
-									projectName, index, e.getMessage()), e);
+							String errorMessage = String.format("%s InputMessageReader[%d] NoMoreDataPacketBufferException::%s", 
+									projectName, index, e.getMessage());
+							log.warn(errorMessage, e);
 							closeClient(readableSelectionKey);
-							continue;
-						} catch (HeaderFormatException e) {
-							log.warn(String.format("%s InputMessageReader[%d] HeaderFormatException::%s", 
-									projectName, index, e.getMessage()), e);
-							closeClient(readableSelectionKey);
-							continue;
+							continue;						
 						} catch (NotYetConnectedException e) {
 							log.warn("io error", e);
 							closeClient(readableSelectionKey);
 							continue;
 						} catch (IOException e) {
-							log.warn(String.format("%s InputMessageReader[%d] error", projectName, index), e);
+							String errorMessage = String.format("%s InputMessageReader[%d] IOException::%s", 
+									projectName, index, e.getMessage());
+							log.warn(errorMessage, e);
 							closeClient(readableSelectionKey);
 							continue;
 						}

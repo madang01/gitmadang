@@ -1,13 +1,12 @@
 package kr.pe.sinnori.server;
 
 import java.nio.channels.SocketChannel;
-import java.nio.charset.CharsetDecoder;
 import java.util.HashMap;
 
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.io.SocketOutputStream;
-import kr.pe.sinnori.server.threadpool.IEOThreadPoolSetManagerIF;
+import kr.pe.sinnori.common.io.SocketOutputStreamFactoryIF;
+import kr.pe.sinnori.server.threadpool.IEOServerThreadPoolSetManagerIF;
 import kr.pe.sinnori.server.threadpool.executor.handler.ServerExecutorIF;
 import kr.pe.sinnori.server.threadpool.inputmessage.handler.InputMessageReaderIF;
 import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriterIF;
@@ -15,10 +14,8 @@ import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriter
 public class SocketResourceManager implements SocketResourceManagerIF {
 	private final Object monitor = new Object();	
 	
-	private CharsetDecoder streamCharsetDecoder = null;
-	private int dataPacketBufferMaxCntPerMessage = 0;
-	private DataPacketBufferPoolIF dataPacketBufferPoolManager = null;	
-	private IEOThreadPoolSetManagerIF ieoThreadPoolManager = null;
+	private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;
+	private IEOServerThreadPoolSetManagerIF ieoThreadPoolManager = null;
 	
 	private HashMap<SocketChannel, SocketResource> socketChannel2SocketResourceHash 
 		= new HashMap<SocketChannel, SocketResource>(); 
@@ -26,29 +23,17 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 	private ProjectLoginManagerIF projectLoginManager =  new ProjectLoginManager();;
 	
 	public SocketResourceManager( 
-			CharsetDecoder streamCharsetDecoder,
-			int dataPacketBufferMaxCntPerMessage,
-			DataPacketBufferPoolIF dataPacketBufferPoolManager,
-			IEOThreadPoolSetManagerIF ieoThreadPoolManager) {
-		if (null == streamCharsetDecoder) {
-			throw new IllegalArgumentException("the parameter streamCharsetDecoder is null");
+			SocketOutputStreamFactoryIF socketOutputStreamFactory,
+			IEOServerThreadPoolSetManagerIF ieoThreadPoolManager) {
+		if (null == socketOutputStreamFactory) {
+			throw new IllegalArgumentException("the parameter socketOutputStreamFactory is null");
 		}
 		
-		if (dataPacketBufferMaxCntPerMessage <= 0) {
-			String errorMessage = String.format("the parameter dataPacketBufferMaxCntPerMessage is less than or equal to zero", dataPacketBufferMaxCntPerMessage);
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		if (null == dataPacketBufferPoolManager) {
-			throw new IllegalArgumentException("the parameter dataPacketBufferPoolManager is null");
-		}
 		if (null == ieoThreadPoolManager) {
 			throw new IllegalArgumentException("the parameter ieoThreadPoolManager is null");
 		}
 		
-		this.streamCharsetDecoder = streamCharsetDecoder;
-		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
-		this.dataPacketBufferPoolManager = dataPacketBufferPoolManager;
+		this.socketOutputStreamFactory = socketOutputStreamFactory;
 		this.ieoThreadPoolManager = ieoThreadPoolManager;
 	}
 	
@@ -68,10 +53,7 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 		OutputMessageWriterIF outputMessageWriterOfOwnerSC = 
 				ieoThreadPoolManager.getOutputMessageWriterWithMinimumMumberOfSockets();
 		
-		SocketOutputStream socketOutputStreamOfOwnerSC = 
-				new SocketOutputStream(streamCharsetDecoder, 
-						dataPacketBufferMaxCntPerMessage, 
-						dataPacketBufferPoolManager);
+		SocketOutputStream socketOutputStreamOfOwnerSC = socketOutputStreamFactory.makeNewSocketOutputStream();
 		
 		PersonalLoginManager personalLoginManagerOfOwnerSC = 
 				new PersonalLoginManager(newSC, projectLoginManager);

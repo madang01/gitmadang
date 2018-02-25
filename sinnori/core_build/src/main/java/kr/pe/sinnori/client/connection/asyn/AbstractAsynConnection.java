@@ -26,20 +26,20 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.List;
 
-import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.client.connection.AbstractConnection;
+import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPublicMailbox;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReader;
 import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
+import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 
 /**
  * 클라이언트 소켓 채널 블락킹 모드가 넌블락인 비동기 연결 클래스의 부모 추상화 클래스<br/>
@@ -51,21 +51,19 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 	protected AsynSocketResourceIF asynSocketResource = null;
 
 	public AbstractAsynConnection(String projectName, String host, int port, long socketTimeOut,
-			AsynSocketResourceIF asynSocketResource,
-			MessageProtocolIF messageProtocol, 
-			ClientObjectCacheManagerIF clientObjectCacheManager)
+			ClientMessageUtilityIF clientMessageUtility, AsynSocketResourceIF asynSocketResource)
 			throws InterruptedException, NoMoreDataPacketBufferException, IOException {
-		super(projectName, host, port, socketTimeOut, messageProtocol, clientObjectCacheManager);
-		
+		super(projectName, host, port, socketTimeOut, clientMessageUtility);
+
 		this.asynSocketResource = asynSocketResource;
-		
+
 		asynSocketResource.setOwnerAsynConnection(this);
-		
+
 		doConnect();
 	}
-	
+
 	protected void doReleaseSocketResources() {
-		/**  nothing */
+		/** nothing */
 	}
 
 	protected void openSocketChannel() throws IOException {
@@ -73,43 +71,43 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 		serverSelectableChannel = serverSC.configureBlocking(false);
 		serverSC.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
 		serverSC.setOption(StandardSocketOptions.TCP_NODELAY, true);
-		serverSC.setOption(StandardSocketOptions.SO_LINGER, 0);		
-	
+		serverSC.setOption(StandardSocketOptions.SO_LINGER, 0);
+
 		StringBuilder infoBuilder = null;
-	
+
 		infoBuilder = new StringBuilder("projectName[");
 		infoBuilder.append(projectName);
 		infoBuilder.append("] create a new asyn connection[");
 		infoBuilder.append(serverSC.hashCode());
 		infoBuilder.append("]");
-		
+
 		log.info(infoBuilder.toString());
 	}
 
 	protected void doConnect() throws IOException {
 		Selector connectionEventOnlySelector = Selector.open();
-	
+
 		try {
 			serverSC.register(connectionEventOnlySelector, SelectionKey.OP_CONNECT);
-	
+
 			InetSocketAddress remoteAddr = new InetSocketAddress(host, port);
-			if (! serverSC.connect(remoteAddr)) {
+			if (!serverSC.connect(remoteAddr)) {
 				@SuppressWarnings("unused")
 				int numberOfKeys = connectionEventOnlySelector.select(socketTimeOut);
-	
+
 				// log.info("numberOfKeys={}", numberOfKeys);
-	
+
 				Iterator<SelectionKey> selectionKeyIterator = connectionEventOnlySelector.selectedKeys().iterator();
 				if (!selectionKeyIterator.hasNext()) {
-	
+
 					String errorMessage = String.format("1.the socket[sc hascode=%d] timeout", serverSC.hashCode());
 					throw new SocketTimeoutException(errorMessage);
 				}
-				
+
 				SelectionKey selectionKey = selectionKeyIterator.next();
 				selectionKey.cancel();
-	
-				if (! serverSC.finishConnect()) {
+
+				if (!serverSC.finishConnect()) {
 					String errorMessage = String.format("the socket[sc hascode=%d] has an error pending",
 							serverSC.hashCode());
 					throw new SocketTimeoutException(errorMessage);
@@ -118,41 +116,37 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 		} finally {
 			connectionEventOnlySelector.close();
 		}
-	
+
 		asynSocketResource.getOutputMessageReader().registerAsynConnection(this);
-	
+
 		StringBuilder infoBuilder = null;
-	
+
 		infoBuilder = new StringBuilder("projectName[");
 		infoBuilder.append(projectName);
-		infoBuilder.append("] asyn connection[");		
+		infoBuilder.append("] asyn connection[");
 		infoBuilder.append(serverSC.hashCode());
 		infoBuilder.append("]");
 		log.info(new StringBuilder(infoBuilder.toString()).append(" connected").toString());
 	}
 
 	abstract public void putToOutputMessageQueue(FromLetter fromLetter) throws InterruptedException;
-	
+
 	public SocketOutputStream getSocketOutputStream() {
 		return asynSocketResource.getSocketOutputStream();
 	}
-	
-	
+
 	/**
 	 * <pre>
 	 * 비동기 소켓에서 실질적인 자원 해제 메소드로 {@link OutputMessageReader#run()} 에서 소켓이 닫혔을때 딱 1번 호출된다.
 	 * 이는 OP_READ 전용 selector 는 소켓이 닫히면 OP_READ 이벤트를 발생하는 특성을 이용한것이다.
-	 * </pre> 
+	 * </pre>
 	 */
-	public void releaseSocketResources() {
+	public void noticeThisConnectionWasRemovedFromReadyOnleySelector() {
 		asynSocketResource.releaseSocketResources();
 	}
 
-	
-	public void sendAsynInputMessage(AbstractMessage inObj)
-			throws NotSupportedException, IOException, 
-			NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException,
-			InterruptedException {
+	public void sendAsynInputMessage(AbstractMessage inObj) throws NotSupportedException, InterruptedException,
+			DynamicClassCallException, NoMoreDataPacketBufferException, BodyFormatException, HeaderFormatException {
 		long startTime = 0;
 		long endTime = 0;
 		startTime = new java.util.Date().getTime();
@@ -164,14 +158,12 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 		inObj.messageHeaderInfo.mailboxID = AsynPublicMailbox.getMailboxID();
 		inObj.messageHeaderInfo.mailID = AsynPublicMailbox.getNextMailID();
 
-		List<WrapBuffer> wrapBufferListOfInputMessage = buildReadableWrapBufferList(classLoader, inObj);
-		
-		ToLetter toLetter = new ToLetter(serverSC, inObj.getMessageID(), 
-				inObj.messageHeaderInfo.mailboxID, 
-				inObj.messageHeaderInfo.mailID, 
-				wrapBufferListOfInputMessage);
-		
-		
+		List<WrapBuffer> wrapBufferListOfInputMessage = clientMessageUtility.buildReadableWrapBufferList(classLoader,
+				inObj);
+
+		ToLetter toLetter = new ToLetter(serverSC, inObj.getMessageID(), inObj.messageHeaderInfo.mailboxID,
+				inObj.messageHeaderInfo.mailID, wrapBufferListOfInputMessage);
+
 		asynSocketResource.getInputMessageWriter().putIntoQueue(toLetter);
 
 		// writeInputMessageToSocketChannel(serverSC, wrapBufferListOfInputMessage);
@@ -179,10 +171,7 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 		endTime = new java.util.Date().getTime();
 		log.info(String.format("시간차=[%d]", (endTime - startTime)));
 	}
-	
 
-	
-	
 	public int hashCode() {
 		return serverSC.hashCode();
 	}

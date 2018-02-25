@@ -7,7 +7,7 @@ import kr.pe.sinnori.server.threadpool.inputmessage.handler.InputMessageReaderIF
 import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterPoolIF;
 import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriterIF;
 
-public interface IEOThreadPoolSetManagerIF {
+public interface IEOServerThreadPoolSetManagerIF {
 	
 	public void setInputMessageReaderPool(InputMessageReaderPoolIF inputMessageReaderPool);
 	public void setExecutorPool(ServerExecutorPoolIF executorPool);

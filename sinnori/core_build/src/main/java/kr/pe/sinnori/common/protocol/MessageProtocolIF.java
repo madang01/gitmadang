@@ -41,7 +41,6 @@ public interface MessageProtocolIF {
 	 * @param clientCharset 문자셋
 	 * @return 메시지 내용이 담긴 데이터 패킷 버퍼 목록
 	 * @throws NoMoreDataPacketBufferException 데이터 패킷 버퍼가 없을때 던지는 예외
-	 * @throws BodyFormatException 바디 구성할때 에러 발생시 던지는 예외
 	 */
 	public List<WrapBuffer> M2S(AbstractMessage messageObj, AbstractMessageEncoder messageEncoder) 
 			throws NoMoreDataPacketBufferException, BodyFormatException, HeaderFormatException;

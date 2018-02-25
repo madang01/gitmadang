@@ -67,7 +67,7 @@ public class DJSONMessageProtocol implements MessageProtocolIF {
 	private CharsetEncoder streamCharsetEncoder;
 	@SuppressWarnings("unused")
 	private CharsetDecoder streamCharsetDecoder;
-	private DataPacketBufferPoolIF dataPacketBufferPoolManager = null;
+	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	
 	
 	private DJSONSingleItemDecoder jsonSingleItemDecoder = null;
@@ -82,11 +82,11 @@ public class DJSONMessageProtocol implements MessageProtocolIF {
 	public DJSONMessageProtocol(int dataPacketBufferMaxCntPerMessage,
 			CharsetEncoder streamCharsetEncoder,
 			CharsetDecoder streamCharsetDecoder,
-			DataPacketBufferPoolIF dataPacketBufferPoolManager) {
+			DataPacketBufferPoolIF dataPacketBufferPool) {
 		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
 		this.streamCharsetEncoder = streamCharsetEncoder;
 		this.streamCharsetDecoder = streamCharsetDecoder;
-		this.dataPacketBufferPoolManager = dataPacketBufferPoolManager;
+		this.dataPacketBufferPool = dataPacketBufferPool;
 		
 		this.jsonSingleItemEncoder = new DJSONSingleItemEncoder(streamCharsetEncoder);
 		this.jsonSingleItemDecoder = new DJSONSingleItemDecoder(streamCharsetDecoder);
@@ -95,7 +95,7 @@ public class DJSONMessageProtocol implements MessageProtocolIF {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<WrapBuffer> M2S(AbstractMessage messageObj, AbstractMessageEncoder messageEncoder)
-			throws NoMoreDataPacketBufferException, BodyFormatException {
+			throws NoMoreDataPacketBufferException, HeaderFormatException, BodyFormatException {
 
 		JSONObject jsonWriteObj = new JSONObject();
 		jsonWriteObj.put("messageID", messageObj.getMessageID());
@@ -104,19 +104,15 @@ public class DJSONMessageProtocol implements MessageProtocolIF {
 		
 		try {
 			messageEncoder.encode(messageObj, jsonSingleItemEncoder, jsonWriteObj);
-		} catch (BodyFormatException e) {
-			throw e;
+		
 		} catch (NoMoreDataPacketBufferException e) {
-			throw e;
-		} catch (OutOfMemoryError e) {
 			throw e;
 		} catch (Exception e) {
 			String errorMessage = String.format(
 					"unknown error::header=[%s]",
 					messageObj.toString());
-			log.warn(errorMessage, e);
-			
-			throw new BodyFormatException(errorMessage);
+			log.error(errorMessage, e);			
+			System.exit(1);
 		}
 		
 		// String jsonStr = messageObj.toJSONString();
@@ -127,7 +123,7 @@ public class DJSONMessageProtocol implements MessageProtocolIF {
 		// log.info(jsonStr);
 		
 		FreeSizeOutputStream bodyOutputStream = 
-				new FreeSizeOutputStream(dataPacketBufferMaxCntPerMessage, streamCharsetEncoder, dataPacketBufferPoolManager);
+				new FreeSizeOutputStream(dataPacketBufferMaxCntPerMessage, streamCharsetEncoder, dataPacketBufferPool);
 		
 		byte[] jsonStrBytes = jsonStr.getBytes(DJSONHeader.JSON_STRING_CHARSET);
 		try {

@@ -18,12 +18,14 @@
 package kr.pe.sinnori.client;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.common.exception.AccessDeniedException;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.ConnectionPoolException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
+import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
@@ -41,8 +43,8 @@ public interface AnyProjectConnectionPoolIF {
 			ServerTaskException, AccessDeniedException, InterruptedException, ConnectionPoolException;
 	
 	public void sendAsynInputMessage(AbstractMessage inputMessage)
-			throws InterruptedException, ConnectionPoolException, NotSupportedException, IOException,
-			NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException;
+			throws InterruptedException, ConnectionPoolException, NotSupportedException, SocketTimeoutException,
+			NoMoreDataPacketBufferException, BodyFormatException, HeaderFormatException, DynamicClassCallException;
 		
 	public AbstractConnection createConnection(String host, int port)
 			throws NoMoreDataPacketBufferException, InterruptedException, IOException;

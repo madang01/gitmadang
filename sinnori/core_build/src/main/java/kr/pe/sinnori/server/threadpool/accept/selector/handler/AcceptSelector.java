@@ -48,34 +48,17 @@ public class AcceptSelector extends Thread {
 	private String projectName;
 	private String serverHost;
 	private int serverPort;
-	private long acceptSelectTimeout;
 	private int maxClients;
 	private LinkedBlockingQueue<SocketChannel> acceptQueue;
 	private SocketResourceManagerIF socketResourceManager;
 
-	/**
-	 * 생성자
-	 * 
-	 * @param projectName
-	 *            서버명
-	 * @param serverHost
-	 *            호스트
-	 * @param serverPort
-	 *            포트
-	 * @param acceptSelectTimeout
-	 *            소켓 채널 받아 들이기 타임 아웃
-	 * @param maxClients
-	 *            최대 연결 소켓 채널 수
-	 * @param acceptQueue
-	 *            생산자 접속 요청중인 소켓 채널 처리 쓰레드, 소비자 접속이 허용된 소켓 채널 등록 쓰레드인 큐
-	 */
-	public AcceptSelector(String projectName, String serverHost, int serverPort, long acceptSelectTimeout, int maxClients,
+	
+	public AcceptSelector(String projectName, String serverHost, int serverPort,  int maxClients,
 			LinkedBlockingQueue<SocketChannel> acceptQueue, SocketResourceManagerIF socketResourceManager) {
 
 		this.projectName = projectName;
 		this.serverHost = serverHost;
 		this.serverPort = serverPort;
-		this.acceptSelectTimeout = acceptSelectTimeout;
 		this.maxClients = maxClients;
 		this.acceptQueue = acceptQueue;
 		this.socketResourceManager = socketResourceManager;
@@ -120,7 +103,7 @@ public class AcceptSelector extends Thread {
 
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
-				int keyReady = selector.select(acceptSelectTimeout);
+				int keyReady = selector.select();
 				if (keyReady > 0) {
 					Iterator<SelectionKey> iter = selector.selectedKeys()
 							.iterator();

@@ -24,7 +24,7 @@ import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
-import kr.pe.sinnori.server.threadpool.IEOThreadPoolSetManagerIF;
+import kr.pe.sinnori.server.threadpool.IEOServerThreadPoolSetManagerIF;
 import kr.pe.sinnori.server.threadpool.inputmessage.handler.InputMessageReader;
 import kr.pe.sinnori.server.threadpool.inputmessage.handler.InputMessageReaderIF;
 
@@ -50,7 +50,7 @@ public class InputMessageReaderPool extends AbstractThreadPool implements
 			MessageProtocolIF messageProtocol,
 			DataPacketBufferPoolIF dataPacketBufferQueueManager,
 			SocketResourceManagerIF socketResourceManager,
-			IEOThreadPoolSetManagerIF ieoThreadPoolManager) {
+			IEOServerThreadPoolSetManagerIF ieoThreadPoolManager) {
 		if (size <= 0) {
 			String errorMessage = String.format("%s 파라미터 size 는 0보다 커야 합니다.", projectName);
 			log.warn(errorMessage);
@@ -78,10 +78,6 @@ public class InputMessageReaderPool extends AbstractThreadPool implements
 		this.messageProtocol = messageProtocol;
 		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
 		this.clientResourceManager = socketResourceManager;		
-		
-		
-		ieoThreadPoolManager.setInputMessageReaderPool(this);
-		
 
 		for (int i = 0; i < size; i++) {
 			addHandler();

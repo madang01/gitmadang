@@ -16,10 +16,7 @@
  */
 package kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
-import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SocketChannel;
 import java.util.Hashtable;
 import java.util.List;
@@ -28,11 +25,17 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
+import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.asyn.ToLetter;
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.io.WrapBuffer;
+import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
+import kr.pe.sinnori.common.type.SelfExn.ErrorPlace;
+import kr.pe.sinnori.common.type.SelfExn.ErrorType;
+import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 
 /**
  * 클라이언트 입력 메시지 소켓 쓰기 담당 쓰레드(=핸들러)
@@ -42,136 +45,121 @@ import kr.pe.sinnori.common.io.WrapBuffer;
  */
 public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 	private Logger log = LoggerFactory.getLogger(InputMessageWriter.class);
-	
+
 	// private final Object monitor = new Object();
-	
+
 	private String projectName = null;
 	/** 입력 메시지 쓰기 쓰레드 번호 */
 	private int index;
-	
+
 	/** 입력 메시지 큐 */
 	private LinkedBlockingQueue<ToLetter> inputMessageQueue = null;
-	
+
 	// private MessageProtocolIF messageProtocol = null;
-	private DataPacketBufferPoolIF dataPacketBufferQueueManager = null;
-	
-	
-	private Hashtable<SocketChannel, AbstractAsynConnection> sc2AsynConnectionHash = 
-			new Hashtable<SocketChannel, AbstractAsynConnection>();
-	
-	
-	public InputMessageWriter(String projectName, int index,
-			LinkedBlockingQueue<ToLetter> inputMessageQueue,
-			DataPacketBufferPoolIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
+	private ClientMessageUtilityIF clientMessageUtility = null;
+	// private DataPacketBufferPoolIF dataPacketBufferQueueManager = null;
+
+	private Hashtable<SocketChannel, AbstractAsynConnection> sc2AsynConnectionHash = new Hashtable<SocketChannel, AbstractAsynConnection>();
+
+	public InputMessageWriter(String projectName, int index, LinkedBlockingQueue<ToLetter> inputMessageQueue,
+			ClientMessageUtilityIF clientMessageUtility) throws NoMoreDataPacketBufferException {
 		this.projectName = projectName;
-		this.index = index;		
+		this.index = index;
 		this.inputMessageQueue = inputMessageQueue;
-		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;		
+		this.clientMessageUtility = clientMessageUtility;
 	}
 
 	@Override
 	public void run() {
 		log.info(String.format("InputMessageWriter[%d] start", index));
-
-		// ByteBuffer inputMessageWriteBuffer = inputMessageWrapBuffer.getByteBuffer();
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
-				ToLetter toLetter = null;
-				try {
-					toLetter = inputMessageQueue.take();
-				} catch (InterruptedException e) {
-					log.warn(String.format("%s index[%d] stop", projectName, index), e);
-					break;
-				}
+				ToLetter toLetter = inputMessageQueue.take();
 				
+
 				// FIXME!
 				// log.info("toLetter={}", toLetter.toString());
-				
-				SocketChannel toSC = toLetter.getToSocketChannel();
-				
-				List<WrapBuffer> inObjWrapBufferList = null;
-				
-				try {
-					inObjWrapBufferList = toLetter.getWrapBufferList();
-					
-					synchronized (toSC) {
-						/**
-						 * 2013.07.24 잔존 데이타 발생하므로 GatheringByteChannel 를 이용하는 바이트 버퍼 배열 쓰기 방식 포기.
-						 */			
-						/*for (int i=0; i < inObjWrapBufferListSize; i++) {
-							WrapBuffer wrapBuffer = inObjWrapBufferList.get(i);
-							ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
-							
-							do {
-								serverSC.write(byteBuffer);
-							} while(byteBuffer.hasRemaining());
-						}*/
-						// try {
-						for (WrapBuffer wrapBuffer : inObjWrapBufferList) {
-							ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
-							do {
-								int numberOfBytesWritten = toSC.write(byteBuffer);
-								if (0 == numberOfBytesWritten) {
-									try {
-										Thread.sleep(10);
-									} catch (InterruptedException e) {
-										log.warn("when the number of bytes written is zero,  this thread must sleep. but it fails.", e);
-									}
-								}
-							} while(byteBuffer.hasRemaining());
-						}
-					}
-				} catch (NotYetConnectedException e) {
-					log.warn(String.format("InputMessageWriter[%d] NotYetConnectedException::%s, letterToServer=[%s]", index, e.getMessage(), toLetter.toString()), e);
-					
-					// asynConnection.serverClose();
-					
-				} catch(ClosedChannelException e) {
-					log.warn(String.format("InputMessageWriter[%d] ClosedChannelException::%s, letterToServer=[%s]", index, e.getMessage(), toLetter.toString()), e);
-				} catch (IOException e) {
-					log.warn(String.format("InputMessageWriter[%d] IOException::%s, letterToServer=[%s]",index, e.getMessage(), toLetter.toString()), e);
-					
-					// asynConnection.serverClose();
-				} finally {
-					if (null != inObjWrapBufferList) {
-						/*int bodyWrapBufferListSiz = inObjWrapBufferList.size();
-						for (int i=0; i < bodyWrapBufferListSiz; i++) {
-							WrapBuffer wrapBuffer = inObjWrapBufferList.get(0);
-							inObjWrapBufferList.remove(0);
-							dataPacketBufferQueueManager.putDataPacketBuffer(wrapBuffer);
-						}*/
-						
-						for (WrapBuffer wrapBuffer : inObjWrapBufferList) {
-							dataPacketBufferQueueManager.putDataPacketBuffer(wrapBuffer);
-						}
-					}
-				}			
-			}
-			
-			log.warn(String.format("%s InputMessageWriter[%d] loop exit", projectName, index));
-		} catch (Exception e) {
-			log.warn(String.format("%s InputMessageWriter[%d] unknown error::%s", projectName, index, e.getMessage()), e);
-		}
 
-		log.warn(String.format("%s InputMessageWriter[%d] thread end", projectName, index));
+				SocketChannel toSC = toLetter.getToSocketChannel();
+
+				List<WrapBuffer> warpBufferList = null;
+
+				try {
+					warpBufferList = toLetter.getWrapBufferList();
+					
+					for (WrapBuffer wrapBuffer : warpBufferList) {
+						ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
+						do {
+							int numberOfBytesWritten = toSC.write(byteBuffer);
+							if (0 == numberOfBytesWritten) {
+								
+									Thread.sleep(10);
+								
+							}
+						} while (byteBuffer.hasRemaining());
+					}
+
+				} catch(InterruptedException e) {
+					throw e;
+				} catch (Exception e) {
+					String errorMessage = String.format("InputMessageWriter[%d] Exception::%s, letterToServer=[%s]",
+							index, e.getMessage(), toLetter.toString());
+					log.warn(errorMessage, e);
+					
+					AbstractAsynConnection asynConnection = sc2AsynConnectionHash.get(toSC);
+					
+					if (toLetter.getMailboxID() != CommonStaticFinalVars.ASYN_MAILBOX_ID) {
+						SelfExnRes selfExnRes = new SelfExnRes();
+						selfExnRes.messageHeaderInfo.mailboxID = toLetter.getMailboxID();
+						selfExnRes.messageHeaderInfo.mailID = toLetter.getMailID();
+						selfExnRes.setErrorMessageID(toLetter.getMessageID());
+						selfExnRes.setErrorPlace(ErrorPlace.CLIENT);
+						selfExnRes.setErrorType(ErrorType.ClientIOException);
+						selfExnRes.setErrorReason("IOException::"+e.getMessage());						
+						
+						WrapReadableMiddleObject wrapReadableMiddleObject 
+						= new WrapReadableMiddleObject(toLetter.getMessageID(), 
+								toLetter.getMailboxID(), toLetter.getMailID(), selfExnRes);
+								
+						
+						FromLetter fromLetter = new FromLetter(toLetter.getToSocketChannel(), wrapReadableMiddleObject);
+						asynConnection.putToOutputMessageQueue(fromLetter);
+					} else {
+						/** 비동기일때에는 그냥 닫는다 */
+						asynConnection.close();
+					}
+					
+				} finally {
+					clientMessageUtility.releaseWrapBufferList(warpBufferList);
+
+				}
+			}
+
+			log.warn(String.format("%s InputMessageWriter[%d] loop exit", projectName, index));
+		} catch(InterruptedException e) {
+			log.warn(String.format("%s InputMessageWriter[%d] stop", projectName, index));
+		} catch (Exception e) {
+			log.warn(String.format("%s InputMessageWriter[%d] unknown error::%s", projectName, index, e.getMessage()),
+					e);
+		}
 	}
 
 	public void registerAsynConnection(AbstractAsynConnection asynConnection) {
 		sc2AsynConnectionHash.put(asynConnection.getSocketChannel(), asynConnection);
 	}
-	
+
 	public int getNumberOfAsynConnection() {
 		return sc2AsynConnectionHash.size();
 	}
-	
+
 	public void removeAsynConnection(AbstractAsynConnection asynConnection) {
 		sc2AsynConnectionHash.remove(asynConnection.getSocketChannel());
 	}
-	
+
 	public void putIntoQueue(ToLetter toLetter) throws InterruptedException {
 		inputMessageQueue.put(toLetter);
 	}
-	
+
 	public void finalize() {
 		log.warn(String.format("%s InputMessageWriter[%d] 소멸::[%s]", projectName, index, toString()));
 	}

@@ -20,27 +20,18 @@ package kr.pe.sinnori.client.connection;
 import java.io.IOException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SocketChannel;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.common.exception.AccessDeniedException;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
+import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
-import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
-import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
-import kr.pe.sinnori.common.protocol.MessageCodecIF;
-import kr.pe.sinnori.common.protocol.MessageProtocolIF;
-import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
-import kr.pe.sinnori.common.type.SelfExn;
-import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 
 /**
  * 클라이언트 연결 클래스의 부모 추상화 클래스<br/>
@@ -60,13 +51,10 @@ public abstract class AbstractConnection {
 	protected String host = null;
 	protected int port;
 	protected long socketTimeOut;
+	protected ClientMessageUtilityIF clientMessageUtility = null;
+	
 	
 	protected SocketChannel serverSC = null;
-	
-	protected  MessageProtocolIF messageProtocol = null;
-	protected ClientObjectCacheManagerIF clientObjectCacheManager = null;
-	
-	
 	protected java.util.Date finalReadTime = new java.util.Date();
 	protected SelectableChannel serverSelectableChannel = null;
 	
@@ -74,14 +62,12 @@ public abstract class AbstractConnection {
 			String host,
 			int port,
 			long socketTimeOut,
-			MessageProtocolIF messageProtocol,
-			ClientObjectCacheManagerIF clientObjectCacheManager) throws NoMoreDataPacketBufferException, InterruptedException, IOException {
+			ClientMessageUtilityIF clientMessageUtility) throws NoMoreDataPacketBufferException, InterruptedException, IOException {
 		this.projectName = projectName;
 		this.host = host;
 		this.port = port;
 		this.socketTimeOut = socketTimeOut;
-		this.messageProtocol = messageProtocol;		
-		this.clientObjectCacheManager = clientObjectCacheManager;
+		this.clientMessageUtility = clientMessageUtility;
 		
 		openSocketChannel();
 	}
@@ -91,144 +77,27 @@ public abstract class AbstractConnection {
 	/**
 	 * {@link #close} 에서 사용되는 내부 메소드로 동기 성격의 연결에서는 실질적인 소켓 자원을 반환하지만  비동기 성격의 연결의 경우 아무것도 안한다.
 	 */
-	abstract protected void doReleaseSocketResources();	
+	abstract protected void doReleaseSocketResources();		
 	
-	protected AbstractMessage buildOutputMessage(ClassLoader classLoader, WrapReadableMiddleObject wrapReadableMiddleObject)
-			throws DynamicClassCallException, BodyFormatException, NoMoreDataPacketBufferException, ServerTaskException,
-			AccessDeniedException, IOException {
-		String messageID = wrapReadableMiddleObject.getMessageID();
-		int mailboxID = wrapReadableMiddleObject.getMailboxID();
-		int mailID = wrapReadableMiddleObject.getMailID();
-		Object middleReadObj = wrapReadableMiddleObject.getReadableMiddleObject();
-	
-		MessageCodecIF messageCodec = clientObjectCacheManager.getClientMessageCodec(classLoader, messageID);
-	
-		AbstractMessageDecoder messageDecoder = null;
-		try {
-			messageDecoder = messageCodec.getMessageDecoder();
-		} catch (DynamicClassCallException e) {
-			String errorMessage = new StringBuilder("fail to get the client message codec of the output message[")
-					.append(wrapReadableMiddleObject.toSimpleInformation())
-					.append("]").toString();
-			
-			log.warn(errorMessage);
-			throw new DynamicClassCallException(errorMessage);
-		} catch (Exception e) {
-			String errorMessage = new StringBuilder("unknwon error::fail to get the client message codec of the output message[")
-					.append(wrapReadableMiddleObject.toSimpleInformation())
-					.append("]::").append(e.getMessage()).toString();
-			
-			log.warn(errorMessage, e);
-			throw new DynamicClassCallException(errorMessage);
-		}
-	
-		AbstractMessage messageObj = null;
-		try {
-			messageObj = messageDecoder.decode(messageProtocol.getSingleItemDecoder(), middleReadObj);
-			messageObj.messageHeaderInfo.mailboxID = mailboxID;
-			messageObj.messageHeaderInfo.mailID = mailID;
-		} catch (BodyFormatException e) {
-			String errorMessage = new StringBuilder("fail to get a output message[")
-					.append(wrapReadableMiddleObject.toSimpleInformation())
-					.append("] from readable middle object").toString();
-			
-			log.warn(errorMessage);
-			throw new BodyFormatException(errorMessage);	
-		} catch (Exception | Error e) {
-			String errorMessage = new StringBuilder("unknwon error::fail to get a output message[")
-					.append(wrapReadableMiddleObject.toSimpleInformation())
-					.append("] from readable middle object::").append(e.getMessage()).toString();
-			
-			log.warn(errorMessage, e);
-			throw new BodyFormatException(errorMessage);
-		}
-	
-		if (messageObj instanceof SelfExnRes) {
-			SelfExnRes selfExnRes = (SelfExnRes) messageObj;
-			log.warn(selfExnRes.toString());
-			SelfExn.ErrorType.throwSelfExnException(selfExnRes);
-		}
-	
-		return messageObj;
-	}
-
-	protected List<WrapBuffer> buildReadableWrapBufferList(ClassLoader classLoader, AbstractMessage inputMessage) 
-			throws DynamicClassCallException, NoMoreDataPacketBufferException, BodyFormatException {
-		MessageCodecIF messageCodec = null;
-	
-		try {
-			messageCodec = clientObjectCacheManager.getClientMessageCodec(classLoader, inputMessage.getMessageID());
-		} catch (DynamicClassCallException e) {
-			String errorMessage = new StringBuilder("fail to get a client input message codec::").append(e.getMessage()).toString();
-			
-			log.warn(errorMessage);
-	
-			throw e;
-		} catch (Exception e) {
-			String errorMessage = new StringBuilder("unknown error::fail to get a client input message codec::").append(e.getMessage()).toString();
-			log.warn(errorMessage, e);
-	
-			throw new DynamicClassCallException(errorMessage);
-		}
-	
-		AbstractMessageEncoder messageEncoder = null;
-	
-		try {
-			messageEncoder = messageCodec.getMessageEncoder();
-		} catch (DynamicClassCallException e) {
-			String errorMessage = new StringBuilder("fail to get a input message encoder::").append(e.getMessage()).toString();
-			log.warn(errorMessage);
-			throw e;
-		} catch (Exception e) {
-			String errorMessage = new StringBuilder("unkown error::fail to get a input message encoder::").append(e.getMessage()).toString();
-			log.warn(errorMessage, e);
-			throw new DynamicClassCallException(errorMessage);
-		}
-	
-		List<WrapBuffer> wrapBufferList = null;
-		try {
-			wrapBufferList = messageProtocol.M2S(inputMessage, messageEncoder);
-		} catch (NoMoreDataPacketBufferException e) {
-			String errorMessage = new StringBuilder("fail to build a input message stream[")
-					.append(inputMessage.getMessageID())
-					.append("]::").append(e.getMessage()).toString();
-			log.warn(errorMessage);
-			
-			throw e;
-		} catch (BodyFormatException e) {
-			String errorMessage = new StringBuilder("fail to build a input message stream[")
-					.append(inputMessage.getMessageID())
-					.append("]::").append(e.getMessage()).toString();
-			log.warn(errorMessage);
-			
-			throw e;
-		} catch (Exception e) {
-			String errorMessage = new StringBuilder("unknown error::fail to build a input message stream[")
-					.append(inputMessage.getMessageID())
-					.append("]::").append(e.getMessage()).toString();
-			log.warn(errorMessage, e);
-			
-			throw new BodyFormatException(errorMessage);
-		}
-	
-		return wrapBufferList;
-	}
 
 	abstract public AbstractMessage sendSyncInputMessage(AbstractMessage inObj)
-			throws IOException, NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException,
-			ServerTaskException, AccessDeniedException, InterruptedException;
+			throws NoMoreDataPacketBufferException, DynamicClassCallException,
+			ServerTaskException, AccessDeniedException, InterruptedException, BodyFormatException, IOException;
 	
 	abstract public void sendAsynInputMessage(AbstractMessage inObj)
-			throws NotSupportedException, IOException, 
-			NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException,
-			InterruptedException;
+			throws NotSupportedException, NoMoreDataPacketBufferException, DynamicClassCallException,
+			InterruptedException, BodyFormatException, HeaderFormatException;
 	
 	public SocketChannel getSocketChannel() {
 		return serverSC;
 	}
 	
 	/**
-	 * 소켓을 닫고 할당한 자원을 반환한다. 단 자원 반환은 비동기 성격의 연결은 제외되며 동기 성격의 연결에만 국한한다.       
+	 * <pre>
+	 * 소켓을 닫고 할당한 자원을 반환한다. 
+	 * 단 자원 반환은 비동기 성격의 연결은 따로 자원 반환을 처리하므로 따로 하는 일 없으며 
+	 * 오직 동기 성격의 연결에서만 실질적으로 수행한다.
+	 * </pre>       
 	 * @throws IOException
 	 */
 	public void close() throws IOException {

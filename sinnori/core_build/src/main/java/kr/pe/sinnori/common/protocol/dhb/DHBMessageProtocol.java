@@ -65,7 +65,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 	private CharsetEncoder streamCharsetEncoder;
 	@SuppressWarnings("unused")
 	private CharsetDecoder streamCharsetDecoder;
-	private DataPacketBufferPoolIF dataPacketBufferPoolManager = null;
+	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 
 	/** 메시지 헤더 크기, 단위 byte */
 	private int messageHeaderSize;
@@ -80,7 +80,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 
 	public DHBMessageProtocol(int messageIDFixedSize, int dataPacketBufferMaxCntPerMessage,
 			CharsetEncoder streamCharsetEncoder, CharsetDecoder streamCharsetDecoder,
-			DataPacketBufferPoolIF dataPacketBufferPoolManager) {
+			DataPacketBufferPoolIF dataPacketBufferPool) {
 		if (messageIDFixedSize <= 0) {
 			String errorMessage = String.format("the parameter messageIDFixedSize[%d] is less than or equal to zero",
 					messageIDFixedSize);
@@ -113,7 +113,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		if (null == dataPacketBufferPoolManager) {
+		if (null == dataPacketBufferPool) {
 
 			throw new IllegalArgumentException("the parameter dataPacketBufferPoolManager is null");
 		}
@@ -122,7 +122,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
 		this.streamCharsetEncoder = streamCharsetEncoder;
 		this.streamCharsetDecoder = streamCharsetDecoder;
-		this.dataPacketBufferPoolManager = dataPacketBufferPoolManager;
+		this.dataPacketBufferPool = dataPacketBufferPool;
 
 		
 		this.headerBodySize = messageIDFixedSize + 2 + 4 + 8 + CommonStaticFinalVars.MD5_BYTESIZE;
@@ -188,7 +188,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 		try {
 			md5 = MessageDigest.getInstance("MD5");
 		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
+			log.error("MD5 initialization failed");
 			System.exit(1);
 		}
 
@@ -196,7 +196,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 		
 		/** 바디 만들기 */
 		FreeSizeOutputStream bodyOutputStream = new FreeSizeOutputStream(dataPacketBufferMaxCntPerMessage,
-				streamCharsetEncoder, dataPacketBufferPoolManager);
+				streamCharsetEncoder, dataPacketBufferPool);
 		
 		//log.info("2");
 
@@ -204,12 +204,9 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 			messageEncoder.encode(messageObj, dhbSingleItemEncoder, bodyOutputStream);
 		} catch (NoMoreDataPacketBufferException e) {
 			throw e;
-		} catch (OutOfMemoryError e) {
-			throw e;
 		} catch (Exception e) {
 			String errorMessage = String.format("unknown error::messageObj=[%s]", messageObj.toString());
 			log.warn(errorMessage, e);
-
 			throw new BodyFormatException(errorMessage);
 		}
 		
@@ -241,17 +238,14 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 		//log.info("3. readableWrapBufferListOfBodyOutputStream={}", readableWrapBufferListOfBodyOutputStream.toString());
 
 		FreeSizeOutputStream headerOutputStream = new FreeSizeOutputStream(dataPacketBufferMaxCntPerMessage,
-				headerCharsetEncoder, dataPacketBufferPoolManager);
+				headerCharsetEncoder, dataPacketBufferPool);
 		try {			
 			dhbMessageHeader.onlyHeaderBodyPartToOutputStream(headerOutputStream, messageIDFixedSize, headerCharset);				
 		} catch (NoMoreDataPacketBufferException e) {
 			throw e;
-		} catch (OutOfMemoryError e) {
-			throw e;
 		} catch (Exception e) {
 			String errorMessage = String.format("unknown error::messageObj=[%s]", messageObj.toString());
 			log.warn(errorMessage, e);
-
 			throw new HeaderFormatException(errorMessage);
 		}
 		
@@ -281,12 +275,9 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 			headerOutputStream.putBytes(dhbMessageHeader.headerBodyMD5Bytes);
 		} catch (NoMoreDataPacketBufferException e) {
 			throw e;
-		} catch (OutOfMemoryError e) {
-			throw e;
 		} catch (Exception e) {
 			String errorMessage = String.format("unknown error::messageObj=[%s]", messageObj.toString());
 			log.warn(errorMessage, e);
-
 			throw new HeaderFormatException(errorMessage);
 		}
 		
@@ -326,7 +317,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 		try {
 			md5 = MessageDigest.getInstance("MD5");
 		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
+			log.error("MD5 initialization failed");
 			System.exit(1);
 		}
 

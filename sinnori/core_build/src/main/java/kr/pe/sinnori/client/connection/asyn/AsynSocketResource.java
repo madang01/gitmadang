@@ -1,5 +1,6 @@
 package kr.pe.sinnori.client.connection.asyn;
 
+import kr.pe.sinnori.client.connection.asyn.threadpool.IEOClientThreadPoolSetManagerIF;
 import kr.pe.sinnori.client.connection.asyn.threadpool.executor.handler.ClientExecutorIF;
 import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler.InputMessageWriterIF;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReaderIF;
@@ -19,29 +20,22 @@ public class AsynSocketResource implements AsynSocketResourceIF {
 	private AbstractAsynConnection ownerAsynConnection = null;
 	
 	public AsynSocketResource(SocketOutputStream socketOutputStream,
-			InputMessageWriterIF inputMessageWriter,
-			OutputMessageReaderIF outputMessageReader,
-			ClientExecutorIF clientExecutor) {
+			IEOClientThreadPoolSetManagerIF ieoClientThreadPoolSetManager) {
 		if (null == socketOutputStream) {
 			throw new IllegalArgumentException("the parameter socketOutputStream is null");
 		}
 		
-		if (null == inputMessageWriter) {
-			throw new IllegalArgumentException("the parameter inputMessageWriter is null");
+		if (null == ieoClientThreadPoolSetManager) {
+			throw new IllegalArgumentException("the parameter ieoClientThreadPoolSetManager is null");
 		}
 		
-		if (null == outputMessageReader) {
-			throw new IllegalArgumentException("the parameter outputMessageReader is null");
-		}
 		
-		if (null == clientExecutor) {
-			throw new IllegalArgumentException("the parameter clientExecutor is null");
-		}		
 		
-		this.socketOutputStream = socketOutputStream;
-		this.inputMessageWriter = inputMessageWriter;
-		this.outputMessageReader = outputMessageReader;
-		this.clientExecutor = clientExecutor;
+		this.socketOutputStream = socketOutputStream;		
+		
+		this.inputMessageWriter = ieoClientThreadPoolSetManager.getInputMessageWriterWithMinimumNumberOfConnetion();
+		this.outputMessageReader = ieoClientThreadPoolSetManager.getOutputMessageReaderWithMinimumNumberOfConnetion();
+		this.clientExecutor = ieoClientThreadPoolSetManager.getClientExecutorWithMinimumNumberOfConnetion();
 	}	
 	
 	public void setOwnerAsynConnection(AbstractAsynConnection ownerAsynConnection) {

@@ -19,7 +19,7 @@ public class ConnectionPoolSupporter extends Thread implements ConnectionPoolSup
 		this.pool = pool;
 		this.interval = interval;
 		
-		pool.registerConnectionPoolSupporter(this);
+		// pool.registerConnectionPoolSupporter(this);
 	}
 
 	public void run() {

@@ -191,6 +191,12 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 						try {
 							@SuppressWarnings("unused")
 							int numberOfReadBytes = socketOutputStream.read(serverSC);
+						} catch(Exception e) {
+							log.warn(String.format("%s OutputMessageReader[%d]::%s",
+									asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
+							closeSocket(selectionKey, asynConnection);
+							continue;
+						}
 
 							// FIXME! 한번에 읽는 바이트 추적용 로그
 							// log.info(String.format("totalReadBytes=[%d], %d", totalReadBytes,
@@ -198,7 +204,7 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 							// log.info(String.format("totalReadBytes=[%d],
 							// messageInputStreamResource.position=[%d]", totalReadBytes,
 							// messageInputStreamResource.position()));
-
+						try {
 							asynConnection.setFinalReadTime();
 
 							ArrayList<WrapReadableMiddleObject> wrapReadableMiddleObjectList = messageProtocol
@@ -212,11 +218,6 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 								FromLetter fromLetter = new FromLetter(serverSC, wrapReadableMiddleObject);
 								asynConnection.putToOutputMessageQueue(fromLetter);
 							}
-						} catch (IOException e) {
-							log.warn(String.format("%s OutputMessageReader[%d]::%s",
-									asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
-							closeSocket(selectionKey, asynConnection);
-							continue;
 						} catch (HeaderFormatException e) {
 							log.warn(String.format("%s OutputMessageReader[%d]::%s",
 									asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
@@ -260,7 +261,7 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 		} catch (IOException e) {
 			log.warn("fail to close the socket[{}]", selectedSocketChannel.hashCode());
 		}
-		selectedAsynConnection.releaseSocketResources();
+		selectedAsynConnection.noticeThisConnectionWasRemovedFromReadyOnleySelector();
 	}
 
 	/*private void closeFailedSocket(SocketChannel failedSocketChannel) {

@@ -27,7 +27,7 @@ import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
-import kr.pe.sinnori.server.threadpool.IEOThreadPoolSetManagerIF;
+import kr.pe.sinnori.server.threadpool.IEOServerThreadPoolSetManagerIF;
 import kr.pe.sinnori.server.threadpool.executor.handler.ServerExecutor;
 import kr.pe.sinnori.server.threadpool.executor.handler.ServerExecutorIF;
 
@@ -55,7 +55,7 @@ public class ServerExecutorPool extends AbstractThreadPool implements ServerExec
 			MessageProtocolIF messageProtocol,
 			SocketResourceManagerIF socketResourceManager,
 			ServerObjectCacheManagerIF serverObjectCacheManager,
-			IEOThreadPoolSetManagerIF ieoThreadPoolManager) throws SinnoriConfigurationException {
+			IEOServerThreadPoolSetManagerIF ieoThreadPoolManager) throws SinnoriConfigurationException {
 		if (size <= 0) {
 			throw new IllegalArgumentException(String.format("%s 파라미터 size 는 0보다 커야 합니다.", projectName));
 		}
@@ -78,8 +78,6 @@ public class ServerExecutorPool extends AbstractThreadPool implements ServerExec
 				firstPrefixDynamicClassFullName);*/
 		this.serverObjectCacheManager =  serverObjectCacheManager;
 		
-		ieoThreadPoolManager.setExecutorPool(this);
-
 		for (int i = 0; i < size; i++) {
 			addHandler();
 		}

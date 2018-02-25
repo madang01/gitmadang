@@ -21,10 +21,10 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
 import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler.InputMessageWriter;
 import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler.InputMessageWriterIF;
 import kr.pe.sinnori.common.asyn.ToLetter;
-import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 
 /**
@@ -35,18 +35,18 @@ import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 public class InputMessageWriterPool extends AbstractThreadPool implements InputMessageWriterPoolIF {
 	private String projectName = null;
 	private int inputMessageQueueSize;
-	private DataPacketBufferPoolIF dataPacketBufferQueueManager;
+	private ClientMessageUtilityIF clientMessageUtility = null;
 
 	public InputMessageWriterPool(String projectName, int size,
 			// LinkedBlockingQueue<ToLetter> inputMessageQueue,
-			int inputMessageQueueSize, DataPacketBufferPoolIF dataPacketBufferQueueManager) {
+			int inputMessageQueueSize, ClientMessageUtilityIF clientMessageUtility) {
 		if (size <= 0) {
 			throw new IllegalArgumentException(String.format("%s 파라미터 size 는 0보다 커야 합니다.", projectName));
 		}
 
 		this.projectName = projectName;
 		this.inputMessageQueueSize = inputMessageQueueSize;
-		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
+		this.clientMessageUtility = clientMessageUtility;
 
 		for (int i = 0; i < size; i++) {
 			addHandler();
@@ -62,7 +62,7 @@ public class InputMessageWriterPool extends AbstractThreadPool implements InputM
 
 			try {
 				Thread handler = new InputMessageWriter(projectName, size, inputMessageQueue,
-						dataPacketBufferQueueManager);
+						clientMessageUtility);
 
 				pool.add(handler);
 			} catch (Exception e) {

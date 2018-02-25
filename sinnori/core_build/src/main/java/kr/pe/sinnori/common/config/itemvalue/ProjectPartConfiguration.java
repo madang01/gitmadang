@@ -43,7 +43,6 @@ public class ProjectPartConfiguration {
 	/************* client 변수 시작 ******************/
 	/***** 모니터 환경 변수 시작 *****/
 	private Long clientMonitorTimeInterval = null;
-	private Long clientMonitorReceptionTimeout = null;
 	/***** 모니터 환경 변수 종료 *****/
 	
 	/***** 연결 클래스 관련 환경 변수 시작 *****/
@@ -56,11 +55,6 @@ public class ProjectPartConfiguration {
 	private Integer  clientConnectionCount = null;
 	
 	private Integer  clientConnectionMaxCount = null;
-	
-	/** 비 공유 연결 타임 아웃 */
-	private Long  clientConnectionTimeout = null;
-	/** 데이터 패킷 버퍼 수 */
-	private Integer  clientDataPacketBufferCnt = null;
 	
 	/***** 연결 클래스 관련 환경 변수 종료 *****/	
 		
@@ -87,7 +81,6 @@ public class ProjectPartConfiguration {
 	/************* server 변수 시작 ******************/
 	/***** 모니터 환경 변수 시작 *****/
 	private Long serverMonitorTimeInterval = null;
-	private Long serverMonitorReceptionTimeout = null;
 	/***** 모니터 환경 변수 종료 *****/
 	
 	private Integer serverMaxClients = null;		
@@ -97,7 +90,7 @@ public class ProjectPartConfiguration {
 	private Integer  serverInputMessageQueueSize = null;
 	private Integer  serverOutputMessageQueueSize = null;
 	
-	private Long serverAcceptSelectorTimeout = null;
+	// private Long serverAcceptSelectorTimeout = null;
 	private Long serverReadSelectorWakeupInterval = null;
 	private Integer  serverAcceptProcessorMaxSize = null;
 	private Integer  serverAcceptProcessorSize = null;
@@ -120,9 +113,9 @@ public class ProjectPartConfiguration {
 	/************* server 변수 종료 ******************/
 	
 	
-	public ProjectPartConfiguration(ProjectType projectGubun, String projectName) {
+	public ProjectPartConfiguration(ProjectType projectType, String projectName) {
 		this.projectName = projectName;
-		this.projectType = projectGubun;
+		this.projectType = projectType;
 		if (this.projectType.equals(ProjectType.MAIN)) {
 			prefexOfItemID = new StringBuilder("mainproject.").toString();
 		} else {
@@ -288,18 +281,7 @@ public class ProjectPartConfiguration {
 			
 			this.clientMonitorTimeInterval = (Long)nativeValue;
 			
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_MONITOR_RECEPTION_TIMEOUT_ITEMID)) {
-			if (!(nativeValue instanceof Long)) {
-				String errorMessage = new StringBuilder("the generic type[")
-				.append(nativeValue.getClass().getName())
-				.append("] of the parameter itemIDInfo[")
-				.append(itemID).append("] is differnet from the mapped variable's type[")
-				.append(Long.class.getName())
-				.append("]").toString();
-				throw new SinnoriConfigurationException(errorMessage);
-			}
-			
-			this.clientMonitorReceptionTimeout = (Long) nativeValue;
+		
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_SOCKET_TIMEOUT_ITEMID)) {
 			if (!(nativeValue instanceof Long)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -348,31 +330,8 @@ public class ProjectPartConfiguration {
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 			
-			this.clientConnectionMaxCount = (Integer) nativeValue;
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_TIMEOUT_ITEMID)) {
-			if (!(nativeValue instanceof Long)) {
-				String errorMessage = new StringBuilder("the generic type[")
-				.append(nativeValue.getClass().getName())
-				.append("] of the parameter itemIDInfo[")
-				.append(itemID).append("] is differnet from the mapped variable's type[")
-				.append(Integer.class.getName())
-				.append("]").toString();
-				throw new SinnoriConfigurationException(errorMessage);
-			}
-			
-			this.clientConnectionTimeout = (Long) nativeValue;
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_DATA_PACKET_BUFFER_CNT_ITEMID)) {
-			if (!(nativeValue instanceof Integer)) {
-				String errorMessage = new StringBuilder("the generic type[")
-				.append(nativeValue.getClass().getName())
-				.append("] of the parameter itemIDInfo[")
-				.append(itemID).append("] is differnet from the mapped variable's type[")
-				.append(Integer.class.getName())
-				.append("]").toString();
-				throw new SinnoriConfigurationException(errorMessage);
-			}
-			
-			this.clientDataPacketBufferCnt = (Integer) nativeValue;		
+			this.clientConnectionMaxCount = (Integer) nativeValue;		
+		
 		
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_PIRVATE_MAILBOX_CNT_PER_PUBLIC_CONNECTION_ITEMID)) {
 			if (!(nativeValue instanceof Integer)) {
@@ -473,18 +432,7 @@ public class ProjectPartConfiguration {
 			}
 			
 			this.serverMonitorTimeInterval = (Long) nativeValue;
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_MONITOR_RECEPTION_TIMEOUT_ITEMID)) {
-			if (!(nativeValue instanceof Long)) {
-				String errorMessage = new StringBuilder("the generic type[")
-				.append(nativeValue.getClass().getName())
-				.append("] of the parameter itemIDInfo[")
-				.append(itemID).append("] is differnet from the mapped variable's type[")
-				.append(Long.class.getName())
-				.append("]").toString();
-				throw new SinnoriConfigurationException(errorMessage);
-			}
-			
-			this.serverMonitorReceptionTimeout = (Long) nativeValue;
+		
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_MAX_CLIENTS_ITEMID)) {
 			if (!(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -533,18 +481,7 @@ public class ProjectPartConfiguration {
 			}
 			
 			this.serverOutputMessageQueueSize = (Integer) nativeValue;
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_ACCEPT_SELECTOR_TIMEOUT_ITEMID)) {
-			if (!(nativeValue instanceof Long)) {
-				String errorMessage = new StringBuilder("the generic type[")
-				.append(nativeValue.getClass().getName())
-				.append("] of the parameter itemIDInfo[")
-				.append(itemID).append("] is differnet from the mapped variable's type[")
-				.append(Long.class.getName())
-				.append("]").toString();
-				throw new SinnoriConfigurationException(errorMessage);
-			}
-			
-			this.serverAcceptSelectorTimeout = (Long) nativeValue;
+		
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_READ_SELECTOR_WAKEUP_INTERVAL_ITEMID)) {
 			if (!(nativeValue instanceof Long)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -737,11 +674,6 @@ public class ProjectPartConfiguration {
 		return clientConnectionMaxCount;
 	}
 	
-	public long getClientConnectionTimeout() {
-		return clientConnectionTimeout;
-	}
-
-	
 
 	public long getClientSocketTimeout() {
 		return clientSocketTimeout;
@@ -782,20 +714,10 @@ public class ProjectPartConfiguration {
 		return clientAsynInputMessageQueueSize;
 	}
 
-	public int getClientDataPacketBufferCnt() {
-		return clientDataPacketBufferCnt;
-	}
+	
 
 	public long getClientMonitorTimeInterval() {
 		return clientMonitorTimeInterval;
-	}
-
-	public long getClientMonitorReceptionTimeout() {
-		return clientMonitorReceptionTimeout;
-	}
-
-	public long getServerAcceptSelectorTimeout() {
-		return serverAcceptSelectorTimeout;
 	}
 
 	public int getServerAcceptProcessorSize() {
@@ -854,13 +776,6 @@ public class ProjectPartConfiguration {
 		return serverMonitorTimeInterval;
 	}
 
-	public long getServerMonitorReceptionTimeout() {
-		return serverMonitorReceptionTimeout;
-	}
-
-	/*public File getServerClassloaderAPPINFPath() {
-		return serverClassloaderAPPINFPath;
-	}*/
 
 	public String getServerMybatisConfigFileRelativePathString() {
 		return serverMybatisConfigFileRelativePathString;
@@ -908,8 +823,6 @@ public class ProjectPartConfiguration {
 		builder.append(firstPrefixDynamicClassFullName);
 		builder.append(", clientMonitorTimeInterval=");
 		builder.append(clientMonitorTimeInterval);
-		builder.append(", clientMonitorReceptionTimeout=");
-		builder.append(clientMonitorReceptionTimeout);
 		builder.append(", connectionType=");
 		builder.append(connectionType);
 		builder.append(", clientSocketTimeout=");
@@ -917,9 +830,7 @@ public class ProjectPartConfiguration {
 		builder.append(", clientConnectionCount=");
 		builder.append(clientConnectionCount);
 		builder.append(", clientConnectionMaxCount=");
-		builder.append(clientConnectionMaxCount);
-		builder.append(", clientDataPacketBufferCnt=");
-		builder.append(clientDataPacketBufferCnt);		
+		builder.append(clientConnectionMaxCount);		
 		builder.append(", clientAsynPirvateMailboxCntPerPublicConnection=");
 		builder.append(clientAsynPirvateMailboxCntPerPublicConnection);
 		builder.append(", clientAsynInputMessageQueueSize=");
@@ -936,8 +847,6 @@ public class ProjectPartConfiguration {
 		builder.append(clientAsynExecutorPoolSize);
 		builder.append(", serverMonitorTimeInterval=");
 		builder.append(serverMonitorTimeInterval);
-		builder.append(", serverMonitorReceptionTimeout=");
-		builder.append(serverMonitorReceptionTimeout);
 		builder.append(", serverMaxClients=");
 		builder.append(serverMaxClients);		
 		builder.append(", serverAcceptQueueSize=");
@@ -946,8 +855,6 @@ public class ProjectPartConfiguration {
 		builder.append(serverInputMessageQueueSize);
 		builder.append(", serverOutputMessageQueueSize=");
 		builder.append(serverOutputMessageQueueSize);
-		builder.append(", serverAcceptSelectorTimeout=");
-		builder.append(serverAcceptSelectorTimeout);
 		builder.append(", serverReadSelectorWakeupInterval=");
 		builder.append(serverReadSelectorWakeupInterval);
 		builder.append(", serverAcceptProcessorMaxSize=");
@@ -966,8 +873,6 @@ public class ProjectPartConfiguration {
 		builder.append(serverOutputMessageWriterMaxSize);
 		builder.append(", serverOutputMessageWriterSize=");
 		builder.append(serverOutputMessageWriterSize);
-		/*builder.append(", serverClassLoaderAPPINFPath=");
-		builder.append(serverClassloaderAPPINFPath);*/
 		builder.append(", serverMybatisConfigFileRelativePath=");
 		builder.append(serverMybatisConfigFileRelativePathString);
 		builder.append("]");

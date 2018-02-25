@@ -17,6 +17,8 @@
 
 package kr.pe.sinnori.common.exception;
 
+import java.io.IOException;
+
 /**
  * 헤더 구성 실패시 던지는 예외
  * 
@@ -25,7 +27,7 @@ package kr.pe.sinnori.common.exception;
  */
 
 @SuppressWarnings("serial")
-public class HeaderFormatException extends Exception {
+public class HeaderFormatException extends IOException {
 
 	/**
 	 * 생성자

@@ -21,8 +21,7 @@ public abstract class SelfExn {
 		
 		public byte getErrorPlaceByte() {
 			return errorPlaceByte;
-		}
-		
+		}		
 		
 		public static ErrorPlace valueOf(byte nativeErrorPlace) {
 			ErrorPlace[] errorPlcaes = ErrorPlace.values();
@@ -40,8 +39,8 @@ public abstract class SelfExn {
 		DynamicClassCallException((byte)'D'), 
 		NoMoreDataPacketBufferException((byte)'N'),
 		ServerTaskException((byte)'S'),
-		AccessDeniedException((byte)'A'),		
-		IOException((byte)'E');
+		AccessDeniedException((byte)'A'),
+		ClientIOException((byte)'E');
 		
 		private byte errorTypeByte;
 		
@@ -80,7 +79,7 @@ public abstract class SelfExn {
 			} else if (errorTypeClass.equals(AccessDeniedException.class)) {
 				return AccessDeniedException;
 			} else if (errorTypeClass.equals(IOException.class)) {
-				return IOException;
+				return ClientIOException;
 			} else {
 				String errorMessage = String.format("the parameter errorTypeClass[%s] is not 1: 1 class corresponding to error type", 
 						errorTypeClass.getCanonicalName());
@@ -89,9 +88,9 @@ public abstract class SelfExn {
 		}
 		
 		public static void throwSelfExnException(SelfExnRes selfExnRes) 
-				throws BodyFormatException, DynamicClassCallException, 
+				throws DynamicClassCallException, 
 				NoMoreDataPacketBufferException, ServerTaskException,
-				AccessDeniedException, IOException {
+				AccessDeniedException, BodyFormatException, IOException {
 			ErrorType errorType = selfExnRes.getErrorType();
 			String errorMessage = selfExnRes.toString();
 			
@@ -106,8 +105,9 @@ public abstract class SelfExn {
 				throw new ServerTaskException(errorMessage);
 			case AccessDeniedException :
 				throw new AccessDeniedException(errorMessage);
-			case IOException :
+			case ClientIOException :
 				throw new IOException(errorMessage);
+		
 			default:
 				throw new IllegalArgumentException("unknown error type["+selfExnRes.toString()+"]");
 			}

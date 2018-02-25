@@ -25,7 +25,7 @@ public class SocketOutputStream {
 	private Object userDefObject = null;
 	
 	private CharsetDecoder streamCharsetDecoder = null;
-	private DataPacketBufferPoolIF dataPacketBufferPoolManager = null;
+	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	private ByteOrder streamByteOrder = null;
 	private int dataPacketBufferSize = -1;
 	
@@ -40,7 +40,7 @@ public class SocketOutputStream {
 		
 		// this.ownerSocketChannel =ownerSocketChannel;
 		this.streamCharsetDecoder = streamCharsetDecoder;
-		this.dataPacketBufferPoolManager = dataPacketBufferPool;
+		this.dataPacketBufferPool = dataPacketBufferPool;
 		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
 		
 		/*WrapBuffer lastWrapBuffer = dataPacketBufferPoolManager.pollDataPacketBuffer();
@@ -63,7 +63,7 @@ public class SocketOutputStream {
 			DataPacketBufferPoolIF dataPacketBufferPoolManager) throws NoMoreDataPacketBufferException {
 		
 		this.streamCharsetDecoder = streamCharsetDecoder;
-		this.dataPacketBufferPoolManager = dataPacketBufferPoolManager;
+		this.dataPacketBufferPool = dataPacketBufferPoolManager;
 		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
 		this.streamByteOrder = dataPacketBufferPoolManager.getByteOrder();
 		this.dataPacketBufferSize = dataPacketBufferPoolManager.getDataPacketBufferSize();		
@@ -88,7 +88,7 @@ public class SocketOutputStream {
 			throw new NoMoreDataPacketBufferException(errorMessage);
 		}
 		
-		WrapBuffer newSocketOutputStreamWrapBuffer = dataPacketBufferPoolManager.pollDataPacketBuffer();
+		WrapBuffer newSocketOutputStreamWrapBuffer = dataPacketBufferPool.pollDataPacketBuffer();
 		
 		
 		// log.info("add the new socketOutputStreamWrapBuffer[hashcode={}] from the data packet buffer pool to socketOutputStreamWrapBufferList", newSocketOutputStreamWrapBuffer.hashCode());
@@ -106,7 +106,7 @@ public class SocketOutputStream {
 			oldOutputStreamWrapBufferList.add(outputStreamWrapBuffer);
 		}
 		
-		WrapBuffer outputStreamFirstWrapBuffer = dataPacketBufferPoolManager.pollDataPacketBuffer(); 
+		WrapBuffer outputStreamFirstWrapBuffer = dataPacketBufferPool.pollDataPacketBuffer(); 
 		outputStreamFirstWrapBuffer.getByteBuffer().put(byteBufferHavingRemainingDataAfterCuttingMessageInputStream);
 		
 		/** renew socketOutputStreamWrapBufferList */
@@ -142,7 +142,7 @@ public class SocketOutputStream {
 				
 				// log.info("return the old socketOutputStreamWrapBuffer[hashcode={}] to the data packet buffer pool", oldOutputStreamFirstWrapBuffer.hashCode());
 				
-				dataPacketBufferPoolManager.putDataPacketBuffer(oldOutputStreamFirstWrapBuffer);
+				dataPacketBufferPool.putDataPacketBuffer(oldOutputStreamFirstWrapBuffer);
 				
 			}
 		}
@@ -217,7 +217,7 @@ public class SocketOutputStream {
 	
 	public SocketInputStream createNewSocketInputStream() {
 		List<WrapBuffer> duplicatedAndReadableWrapBufferList = WrapBufferUtil.getDuplicatedAndReadableWrapBufferList(socketOutputStreamWrapBufferList);
-		return new SocketInputStream(dataPacketBufferMaxCntPerMessage, duplicatedAndReadableWrapBufferList, streamCharsetDecoder, dataPacketBufferPoolManager);
+		return new SocketInputStream(dataPacketBufferMaxCntPerMessage, duplicatedAndReadableWrapBufferList, streamCharsetDecoder, dataPacketBufferPool);
 	}
 	
 	
@@ -273,7 +273,7 @@ public class SocketOutputStream {
 		//log.info("6. socketOutputStreamWrapBufferList={}", socketOutputStreamWrapBufferList.toString());
 		//log.info("7. numberOfWrittenBytes={}", numberOfWrittenBytes);
 		
-		return new FreeSizeInputStream(dataPacketBufferMaxCntPerMessage, messageInputStreamWrapBufferList, streamCharsetDecoder, dataPacketBufferPoolManager);
+		return new FreeSizeInputStream(dataPacketBufferMaxCntPerMessage, messageInputStreamWrapBufferList, streamCharsetDecoder, dataPacketBufferPool);
 	}
 	
 	/**
@@ -318,6 +318,8 @@ public class SocketOutputStream {
 	public ByteOrder getStreamByteOrder() {
 		return streamByteOrder;
 	}
+	
+	
  
 	public void close() {
 		// log.info("call close");
@@ -327,7 +329,7 @@ public class SocketOutputStream {
 			
 			// log.info("return the socketOutputStreamWrapBuffer[hashcode={}] to the data packet buffer pool", socketOutputStreamWrapBuffer.hashCode());
 			
-			dataPacketBufferPoolManager.putDataPacketBuffer(socketOutputStreamWrapBuffer);
+			dataPacketBufferPool.putDataPacketBuffer(socketOutputStreamWrapBuffer);
 		}
 		
 		numberOfWrittenBytes = 0;

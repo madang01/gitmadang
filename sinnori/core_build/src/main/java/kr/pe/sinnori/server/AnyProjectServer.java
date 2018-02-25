@@ -34,12 +34,14 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.io.DataPacketBufferPool;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
+import kr.pe.sinnori.common.io.SocketOutputStreamFactory;
+import kr.pe.sinnori.common.io.SocketOutputStreamFactoryIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.dhb.DHBMessageProtocol;
 import kr.pe.sinnori.common.protocol.djson.DJSONMessageProtocol;
 import kr.pe.sinnori.common.protocol.thb.THBMessageProtocol;
-import kr.pe.sinnori.server.threadpool.IEOThreadPoolSetManager;
-import kr.pe.sinnori.server.threadpool.IEOThreadPoolSetManagerIF;
+import kr.pe.sinnori.server.threadpool.IEOServerThreadPoolSetManager;
+import kr.pe.sinnori.server.threadpool.IEOServerThreadPoolSetManagerIF;
 import kr.pe.sinnori.server.threadpool.accept.processor.AcceptProcessorPool;
 import kr.pe.sinnori.server.threadpool.accept.selector.handler.AcceptSelector;
 import kr.pe.sinnori.server.threadpool.executor.ServerExecutorPool;
@@ -135,17 +137,21 @@ public class AnyProjectServer {
 		
 		
 		
-		IEOThreadPoolSetManagerIF ieoThreadPoolManager = new IEOThreadPoolSetManager();
-		SocketResourceManagerIF socketResourceManager = new SocketResourceManager(charsetDecoderOfProject, 
-						projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(), 
-						dataPacketBufferPool,
-						ieoThreadPoolManager);
+		IEOServerThreadPoolSetManagerIF ieoThreadPoolManager = new IEOServerThreadPoolSetManager();
+		
+		SocketOutputStreamFactoryIF socketOutputStreamFactory = 
+				new SocketOutputStreamFactory(charsetDecoderOfProject,
+						projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(),
+						dataPacketBufferPool);
+		
+		
+		SocketResourceManagerIF socketResourceManager = 
+				new SocketResourceManager(socketOutputStreamFactory, ieoThreadPoolManager);
 
 		acceptSelector = new AcceptSelector(
 				projectPartConfiguration.getProjectName(), 
 				projectPartConfiguration.getServerHost(),
-				projectPartConfiguration.getServerPort(), 
-				projectPartConfiguration.getServerAcceptSelectorTimeout(), 
+				projectPartConfiguration.getServerPort(),  
 				projectPartConfiguration.getServerMaxClients(), acceptQueue, socketResourceManager);
 
 		
@@ -161,7 +167,8 @@ public class AnyProjectServer {
 				projectPartConfiguration.getServerInputMessageReaderMaxSize(),
 				projectPartConfiguration.getServerReadSelectorWakeupInterval(),
 				messageProtocol, dataPacketBufferPool, 
-				socketResourceManager, ieoThreadPoolManager);
+				socketResourceManager, ieoThreadPoolManager);		
+		ieoThreadPoolManager.setInputMessageReaderPool(inputMessageReaderPool);
 		
 		
 		serverObjectCacheManager = createNewServerObjectCacheManager(projectPartConfiguration
@@ -176,17 +183,18 @@ public class AnyProjectServer {
 				socketResourceManager,
 				serverObjectCacheManager,
 				ieoThreadPoolManager);
+		ieoThreadPoolManager.setExecutorPool(executorPool);
 
 		outputMessageWriterPool = new OutputMessageWriterPool(
 				projectPartConfiguration.getProjectName(),
 				projectPartConfiguration.getServerOutputMessageWriterSize(), 
 				projectPartConfiguration.getServerOutputMessageWriterMaxSize(),
 				projectPartConfiguration.getServerOutputMessageQueueSize(), 
-				dataPacketBufferPool, ieoThreadPoolManager);		
+				dataPacketBufferPool, ieoThreadPoolManager);
+		ieoThreadPoolManager.setOutputMessageWriterPool(outputMessageWriterPool);
 
 		serverProjectMonitor = new ServerProjectMonitor(
-				projectPartConfiguration.getServerMonitorTimeInterval(), 
-				projectPartConfiguration.getServerMonitorReceptionTimeout());
+				projectPartConfiguration.getServerMonitorTimeInterval());
 
 	}
 
@@ -239,11 +247,10 @@ public class AnyProjectServer {
 	synchronized public void stopServer() {
 		serverProjectMonitor.interrupt();
 
-		if (acceptSelector.isInterrupted())
-			return;
-
-		acceptSelector.interrupt();
-
+		if (! acceptSelector.isInterrupted()) {
+			acceptSelector.interrupt();
+		}
+	
 		/*while (!acceptQueue.isEmpty()) {
 			try {
 				Thread.sleep(10);
@@ -322,7 +329,7 @@ public class AnyProjectServer {
 
 		// private long requestTimeout;
 
-		public ServerProjectMonitor(long monitorInterval, long requestTimeout) {
+		public ServerProjectMonitor(long monitorInterval) {
 			this.monitorInterval = monitorInterval;
 			// this.requestTimeout = requestTimeout;
 		}

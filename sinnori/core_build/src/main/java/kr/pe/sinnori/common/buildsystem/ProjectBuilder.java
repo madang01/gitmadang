@@ -1410,60 +1410,6 @@ public class ProjectBuilder {
 		log.info("main project[{}]'s config file creation task end", mainProjectName);
 	}
 	
-	public void overwriteSinnoriConfigFile(SequencedProperties modifiedSinnoriConfigSequencedProperties) throws BuildSystemException {
-		log.info("main project[{}]'s config file overwrite task start", mainProjectName);
-		
-		String sinnoriConfigFilePathString = BuildSystemPathSupporter.getSinnoriConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
-		try {
-			
-			
-			SequencedPropertiesUtil.overwriteSequencedPropertiesFile(modifiedSinnoriConfigSequencedProperties,
-					SinnoriConfiguration.getSinnoriConfigPropertiesTitle(mainProjectName), 
-					sinnoriConfigFilePathString, CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
-		} catch (IllegalArgumentException e) {
-			String errorMessage = new StringBuilder("fail to save the main project[").append(mainProjectName)
-					.append("]'s sinnori configuration file").toString();
-
-			log.warn(errorMessage, e);
-
-			throw new BuildSystemException(
-					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
-		} catch (IOException e) {			
-			String errorMessage = new StringBuilder("fail to overwrite the main project's sinnori configuration file").append(sinnoriConfigFilePathString)
-					.append("]").toString();
-
-			log.warn(errorMessage, e);
-
-			throw new BuildSystemException(
-					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
-		}
-		
-		log.info("main project[{}]'s config file overwrite task end", mainProjectName);
-	}
-	
-	public SequencedProperties loadSinnoriConfigPropertiesFile() throws BuildSystemException {
-		SinnoriConfiguration sinnoriConfiguration = null;
-		
-		try {
-			sinnoriConfiguration = new SinnoriConfiguration(sinnoriInstalledPathString, mainProjectName);
-		} catch (IllegalArgumentException e) {
-			log.warn(e.getMessage(), e);
-			throw new BuildSystemException(e.getMessage());
-		} catch (FileNotFoundException e) {
-			log.warn(e.getMessage(), e);
-			throw new BuildSystemException(e.getMessage());
-		} catch (IOException e) {
-			log.warn(e.getMessage(), e);
-			throw new BuildSystemException(e.getMessage());
-		} catch (SinnoriConfigurationException e) {
-			log.warn(e.getMessage(), e);
-			throw new BuildSystemException(e.getMessage());
-		}
-		
-		return sinnoriConfiguration.getSinnoriConfigurationSequencedPropties();
-		
-	}
-	
 	private void createNewWebClientAntPropertiesFile(String servletSystemLibraryPathString)
 			throws BuildSystemException {
 		log.info("main project[{}]'s web client ant properties file creation task start", mainProjectName);
@@ -1613,38 +1559,6 @@ log.info("main project[{}]'s web client ant properties file modification task st
 		}		
 		
 		return webClientAntProperties;
-	}
-	
-	public void applySinnoriInstalledPath() throws BuildSystemException {
-		applySinnoriInstalledPathToConfigFile();
-		
-		if (File.separator.equals("/")) {				
-			/** unix shell */
-			if (isValidServerAntBuildXMLFile()) {
-				overwriteServerUnixShellFile();
-			} else {
-				createNewServerAntBuildXMLFile();
-			}
-			if (isValidAppClientAntBuildXMLFile()) {
-				overwriteAppClientUnixShellFile();
-			} else {
-				createNewAppClientUnixShellFile();
-			}
-		} else {
-			/** dos shell */
-			if (isValidServerAntBuildXMLFile()) {
-				overwriteServerDosShellFile();
-			} else {
-				createNewServerDosShellFile();
-			}
-			if (isValidAppClientAntBuildXMLFile()) {
-				overwriteAppClientDosShellFile();
-			} else {
-				createNewAppClientDosShellFile();
-			}
-		}
-		
-		applySinnoriInstalledPathToAllMybatisDTDFilePath();
 	}
 	
 	private String getServerMybatisConfigFileRelativePathString() throws BuildSystemException {
@@ -1840,6 +1754,92 @@ log.info("main project[{}]'s web client ant properties file modification task st
 		}
 	}
 		
+
+	public void applySinnoriInstalledPath() throws BuildSystemException {
+		applySinnoriInstalledPathToConfigFile();
+		
+		if (File.separator.equals("/")) {				
+			/** unix shell */
+			if (isValidServerAntBuildXMLFile()) {
+				overwriteServerUnixShellFile();
+			} else {
+				createNewServerAntBuildXMLFile();
+			}
+			if (isValidAppClientAntBuildXMLFile()) {
+				overwriteAppClientUnixShellFile();
+			} else {
+				createNewAppClientUnixShellFile();
+			}
+		} else {
+			/** dos shell */
+			if (isValidServerAntBuildXMLFile()) {
+				overwriteServerDosShellFile();
+			} else {
+				createNewServerDosShellFile();
+			}
+			if (isValidAppClientAntBuildXMLFile()) {
+				overwriteAppClientDosShellFile();
+			} else {
+				createNewAppClientDosShellFile();
+			}
+		}
+		
+		applySinnoriInstalledPathToAllMybatisDTDFilePath();
+	}
+
+	public void overwriteSinnoriConfigFile(SequencedProperties modifiedSinnoriConfigSequencedProperties) throws BuildSystemException {
+		log.info("main project[{}]'s config file overwrite task start", mainProjectName);
+		
+		String sinnoriConfigFilePathString = BuildSystemPathSupporter.getSinnoriConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
+		try {
+			
+			
+			SequencedPropertiesUtil.overwriteSequencedPropertiesFile(modifiedSinnoriConfigSequencedProperties,
+					SinnoriConfiguration.getSinnoriConfigPropertiesTitle(mainProjectName), 
+					sinnoriConfigFilePathString, CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
+		} catch (IllegalArgumentException e) {
+			String errorMessage = new StringBuilder("fail to save the main project[").append(mainProjectName)
+					.append("]'s sinnori configuration file").toString();
+	
+			log.warn(errorMessage, e);
+	
+			throw new BuildSystemException(
+					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
+		} catch (IOException e) {			
+			String errorMessage = new StringBuilder("fail to overwrite the main project's sinnori configuration file").append(sinnoriConfigFilePathString)
+					.append("]").toString();
+	
+			log.warn(errorMessage, e);
+	
+			throw new BuildSystemException(
+					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
+		}
+		
+		log.info("main project[{}]'s config file overwrite task end", mainProjectName);
+	}
+
+	public SequencedProperties loadSinnoriConfigPropertiesFile() throws BuildSystemException {
+		SinnoriConfiguration sinnoriConfiguration = null;
+		
+		try {
+			sinnoriConfiguration = new SinnoriConfiguration(sinnoriInstalledPathString, mainProjectName);
+		} catch (IllegalArgumentException e) {
+			log.warn(e.getMessage(), e);
+			throw new BuildSystemException(e.getMessage());
+		} catch (FileNotFoundException e) {
+			log.warn(e.getMessage(), e);
+			throw new BuildSystemException(e.getMessage());
+		} catch (IOException e) {
+			log.warn(e.getMessage(), e);
+			throw new BuildSystemException(e.getMessage());
+		} catch (SinnoriConfigurationException e) {
+			log.warn(e.getMessage(), e);
+			throw new BuildSystemException(e.getMessage());
+		}
+		
+		return sinnoriConfiguration.getSinnoriConfigurationSequencedPropties();
+		
+	}
 
 	public void changeProjectState(boolean isServer, boolean isAppClient, 
 			boolean isWebClient, String servletSystemLibraryPathString, 

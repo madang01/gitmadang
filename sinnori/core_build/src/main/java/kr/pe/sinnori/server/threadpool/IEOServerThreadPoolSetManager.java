@@ -10,11 +10,11 @@ import kr.pe.sinnori.server.threadpool.inputmessage.handler.InputMessageReaderIF
 import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterPoolIF;
 import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriterIF;
 
-public class IEOThreadPoolSetManager implements IEOThreadPoolSetManagerIF {
-	private Logger log = LoggerFactory.getLogger(IEOThreadPoolSetManager.class);
+public class IEOServerThreadPoolSetManager implements IEOServerThreadPoolSetManagerIF {
+	private Logger log = LoggerFactory.getLogger(IEOServerThreadPoolSetManager.class);
 	
 	private InputMessageReaderPoolIF inputMessageReaderPool = null;
-	private ServerExecutorPoolIF executorPool = null;
+	private ServerExecutorPoolIF serverExecutorPool = null;
 	private OutputMessageWriterPoolIF outputMessageWriterPool = null;
 
 	public void setInputMessageReaderPool(InputMessageReaderPoolIF inputMessageReaderPool) {
@@ -24,12 +24,12 @@ public class IEOThreadPoolSetManager implements IEOThreadPoolSetManagerIF {
 		this.inputMessageReaderPool = inputMessageReaderPool;
 	}
 	
-	public void setExecutorPool(ServerExecutorPoolIF executorPool) {
-		if (null == executorPool) {
-			throw new IllegalArgumentException("the parameter executorPool is null");
+	public void setExecutorPool(ServerExecutorPoolIF serverExecutorPool) {
+		if (null == serverExecutorPool) {
+			throw new IllegalArgumentException("the parameter serverExecutorPool is null");
 		}
 		
-		this.executorPool = executorPool;
+		this.serverExecutorPool = serverExecutorPool;
 	}
 	
 	public void setOutputMessageWriterPool(OutputMessageWriterPoolIF outputMessageWriterPool) {
@@ -49,13 +49,13 @@ public class IEOThreadPoolSetManager implements IEOThreadPoolSetManagerIF {
 	}
 	
 	public ServerExecutorIF getExecutorWithMinimumMumberOfSockets() {
-		if (null == executorPool) {
-			log.error("the var executorPool is null");
+		if (null == serverExecutorPool) {
+			log.error("the var serverExecutorPool is null");
 			System.exit(1);
 		}
 		
 		
-		return executorPool.getExecutorWithMinimumNumberOfSockets();
+		return serverExecutorPool.getExecutorWithMinimumNumberOfSockets();
 	}
 	
 	public OutputMessageWriterIF getOutputMessageWriterWithMinimumMumberOfSockets() {
