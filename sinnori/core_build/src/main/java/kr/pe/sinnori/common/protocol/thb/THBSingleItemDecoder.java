@@ -525,10 +525,8 @@ public class THBSingleItemDecoder implements SingleItemDecoderIF {
 		BinaryInputStreamIF binaryInputStream = (BinaryInputStreamIF)middleReadObj;
 		Object retObj = null;
 		try {
-			retObj = thbTypeSingleItemDecoderList[itemTypeID].getValue(itemTypeID, itemName, itemSize, itemCharset, binaryInputStream);		
-		} catch(OutOfMemoryError e) {
-			throw e;
-		} catch(Exception e) {
+			retObj = thbTypeSingleItemDecoderList[itemTypeID].getValue(itemTypeID, itemName, itemSize, itemCharset, binaryInputStream);
+		} catch(Exception | OutOfMemoryError e) {
 			StringBuffer errorMessageBuilder = new StringBuffer("unknown error::");
 			errorMessageBuilder.append("{ path=[");
 			errorMessageBuilder.append(path);

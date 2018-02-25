@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BodyFormatException;
-import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.FixedSizeOutputStream;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
 import kr.pe.sinnori.common.protocol.djson.header.DJSONHeader;
@@ -755,17 +754,12 @@ public class DJSONSingleItemEncoder implements SingleItemEncoderIF {
 				
 				itemCharset = streamCharset;
 			}
-		}
-		
+		}		
 		
 		JSONObject jsonObjForOutputStream = (JSONObject)writableMiddleObject;
 		try {
-			djsonTypeSingleItemEncoderList[itemTypeID].putValue(itemName, itemValue, itemSize, itemCharset, jsonObjForOutputStream);
-		} catch(NoMoreDataPacketBufferException e) {
-			throw e;
-		} catch(OutOfMemoryError e) {
-			throw e;
-		} catch(Exception e) {
+			djsonTypeSingleItemEncoderList[itemTypeID].putValue(itemName, itemValue, itemSize, itemCharset, jsonObjForOutputStream);		
+		} catch(Exception | OutOfMemoryError e) {
 			StringBuffer errorMessageBuilder = new StringBuffer("unknown error::");
 			errorMessageBuilder.append(path);
 			errorMessageBuilder.append("={itemName=[");

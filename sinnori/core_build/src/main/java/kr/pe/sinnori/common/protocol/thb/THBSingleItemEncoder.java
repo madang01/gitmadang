@@ -641,9 +641,7 @@ public class THBSingleItemEncoder implements SingleItemEncoderIF {
 			thbTypeSingleItemEncoderList[itemTypeID].putValue(itemTypeID, itemName, itemValue, itemSize, itemCharset, binaryOutputStream);
 		} catch(NoMoreDataPacketBufferException e) {
 			throw e;
-		} catch(OutOfMemoryError e) {
-			throw e;
-		} catch(Exception e) {
+		} catch(Exception | OutOfMemoryError e) {
 			StringBuffer errorMessageBuilder = new StringBuffer("unknown error::");
 			errorMessageBuilder.append(path);
 			errorMessageBuilder.append("={itemName=[");

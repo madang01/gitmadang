@@ -958,9 +958,7 @@ public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
 		Object retObj = null;
 		try {
 			retObj = djsonTypeSingleItemDecoderList[itemTypeID].getValue(itemName, itemSize, itemCharset, jsonReadObj);		
-		} catch(OutOfMemoryError e) {
-			throw e;
-		} catch(Exception e) {
+		} catch(Exception | OutOfMemoryError e) {
 			StringBuffer errorMessageBuilder = new StringBuffer("unknown error::");
 			errorMessageBuilder.append("{ path=[");
 			errorMessageBuilder.append(path);
