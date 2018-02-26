@@ -16,8 +16,6 @@
  */
 package kr.pe.sinnori.impl.message.Echo;
 
-import java.nio.charset.Charset;
-import java.util.LinkedList;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
@@ -29,47 +27,31 @@ import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
  */
 public final class EchoEncoder extends AbstractMessageEncoder {
 	@Override
-	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj)
-			throws Exception {
-		if (!(messageObj instanceof Echo)) {
-			String errorMessage = String.format("메시지 객체 타입[%s]이 Echo 이(가) 아닙니다.", messageObj.getClass().getCanonicalName());
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		Echo echo = (Echo) messageObj;
-		encodeBody(echo, singleItemEncoder, charsetOfProject, middleWriteObj);
+	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Object writableMiddleObject) throws Exception {
+		Echo echo = (Echo)messageObj;
+		encodeBody(echo, singleItemEncoder, writableMiddleObject);
 	}
 
-	/**
-	 * <pre>
-	 * Echo 입력 메시지의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장한다.
-	 * </pre>
-	 * @param echo Echo 입력 메시지
-	 * @param singleItemEncoder 단일항목 인코더
-	 * @param charsetOfProject 프로젝트 문자셋
-	 * @param middleWriteObj 중간 다리 역활 쓰기 객체
-	 * @throws Exception "입력/출력 메시지"의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장할때 에러 발생시 던지는 예외
-	 */
-	private void encodeBody(Echo echo, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj) throws Exception {
-		String echoSingleItemPath = "Echo";
-		LinkedList<String> singleItemPathStatck = new LinkedList<String>();
-		singleItemPathStatck.push(echoSingleItemPath);
 
-		singleItemEncoder.putValueToMiddleWriteObj(echoSingleItemPath, "randomInt"
-					, 4 // itemTypeID
-					, "integer" // itemTypeName
-					, echo.getRandomInt() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(echoSingleItemPath, "startTime"
-					, 6 // itemTypeID
-					, "long" // itemTypeName
-					, echo.getStartTime() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
+	private void encodeBody(Echo echo, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject) throws Exception {
+		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
+		pathStack.push("Echo");
+
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "randomInt"
+			, kr.pe.sinnori.common.type.SingleItemType.INTEGER // itemType
+			, echo.getRandomInt() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "startTime"
+			, kr.pe.sinnori.common.type.SingleItemType.LONG // itemType
+			, echo.getStartTime() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		pathStack.pop();
 	}
 }

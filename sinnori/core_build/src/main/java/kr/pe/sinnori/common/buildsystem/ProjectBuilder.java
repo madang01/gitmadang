@@ -1435,7 +1435,7 @@ public class ProjectBuilder {
 		// antBuiltInProperties.setProperty(CommonStaticFinalVars.IS_TOMCAT_KEY, isTomcat ? "true" : "false");
 
 		antBuiltInProperties.setProperty(CommonStaticFinalVars.SERVLET_SYSTEM_LIBRARY_PATH_KEY,
-				servletSystemLibraryPathString);
+				servletSystemLibraryPathString.replaceAll("\\\\", "\\\\\\\\"));
 
 		
 		try {

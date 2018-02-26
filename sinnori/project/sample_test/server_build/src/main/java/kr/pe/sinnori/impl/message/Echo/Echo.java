@@ -17,6 +17,7 @@
 package kr.pe.sinnori.impl.message.Echo;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
+
 /**
  * Echo 메시지
  * @author Won Jonghoon
@@ -44,13 +45,11 @@ public class Echo extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("class Echo[");
+		builder.append("echo[");
 		builder.append("randomInt=");
 		builder.append(randomInt);
 		builder.append(", startTime=");
 		builder.append(startTime);
-		builder.append(", messageHeaderInfo=");
-		builder.append(messageHeaderInfo.toString());
 		builder.append("]");
 		return builder.toString();
 	}

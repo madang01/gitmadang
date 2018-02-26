@@ -30,7 +30,7 @@ public abstract class AbstractMessageDecoder {
 	 * @return "단일항목 디코더"를 이용하여 "중간 다리 역활 읽기 객체" 에서 추출된 메시지
 	 * @throws Exception "단일항목 디코더"를 이용하여 "중간 다리 역활 읽기 객체" 에서 추출할때 에러 발생시 던지는 예외
 	 */
-	public AbstractMessage decode(SingleItemDecoderIF singleItemDecoder, Object readableMiddleObject) throws OutOfMemoryError, BodyFormatException {
+	public AbstractMessage decode(SingleItemDecoderIF singleItemDecoder, Object readableMiddleObject) throws BodyFormatException {
 		/**
 		 * <pre>
 		 * 중간 다리 역활 읽기 객체는 입력 스트림과 입력 메시지 간에 중간자 역활을 하며 프로토콜 별로 달라지게 된다.
@@ -55,5 +55,5 @@ public abstract class AbstractMessageDecoder {
 		return retObj;
 	}
 	
-	protected abstract AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object middleReadObj) throws OutOfMemoryError, BodyFormatException;
+	protected abstract AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object middleReadObj) throws BodyFormatException;
 }

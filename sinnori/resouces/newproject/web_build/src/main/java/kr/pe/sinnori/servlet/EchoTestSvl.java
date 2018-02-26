@@ -20,8 +20,8 @@ package kr.pe.sinnori.servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import kr.pe.sinnori.client.AnyProjectClient;
-import kr.pe.sinnori.client.MainClientManager;
+import kr.pe.sinnori.client.AnyProjectConnectionPoolIF;
+import kr.pe.sinnori.client.ConnectionPoolManager;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.Echo.Echo;
 import kr.pe.sinnori.weblib.jdf.AbstractServlet;
@@ -41,13 +41,13 @@ public class EchoTestSvl extends AbstractServlet {
 
 		java.util.Random random = new java.util.Random();
 			
-		Echo echoInObj = new Echo();
+		Echo echoReq = new Echo();
 		
-		echoInObj.setRandomInt(random.nextInt());
-		echoInObj.setStartTime(new java.util.Date().getTime());
+		echoReq.setRandomInt(random.nextInt());
+		echoReq.setStartTime(new java.util.Date().getTime());
 
-		AnyProjectClient mainProjectClient = MainClientManager.getInstance().getMainProjectClient();
-		AbstractMessage messageFromServer = mainProjectClient.sendSyncInputMessage(echoInObj);
+		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
+		AbstractMessage messageFromServer = mainProjectConnectionPool.sendSyncInputMessage(echoReq);
 		
 		boolean isSame = false;
 		String errorMessage = "";
@@ -56,11 +56,11 @@ public class EchoTestSvl extends AbstractServlet {
 		if (messageFromServer instanceof Echo) {
 			Echo echoOutObj = (Echo)messageFromServer;
 			
-			erraseTime = new java.util.Date().getTime() - echoInObj.getStartTime();
+			erraseTime = new java.util.Date().getTime() - echoReq.getStartTime();
 			
-			if ((echoOutObj.getRandomInt() == echoInObj
+			if ((echoOutObj.getRandomInt() == echoReq
 					.getRandomInt())
-					&& (echoOutObj.getStartTime() == echoInObj.getStartTime())) {
+					&& (echoOutObj.getStartTime() == echoReq.getStartTime())) {
 				isSame = true;
 				//log.info("성공::echo 메시지 입력/출력 동일함");
 			} else {
@@ -77,7 +77,7 @@ public class EchoTestSvl extends AbstractServlet {
 		req.setAttribute("isSame", isSame);
 		req.setAttribute("erraseTime", ""+erraseTime);
 		req.setAttribute("errorMessage", errorMessage);
-		req.setAttribute("echoInObj", echoInObj);
+		req.setAttribute("echoInObj", echoReq);
 		
 		printJspPage(req, res, goPage);	
 		

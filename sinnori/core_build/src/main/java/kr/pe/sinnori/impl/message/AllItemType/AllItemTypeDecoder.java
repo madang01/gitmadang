@@ -28,7 +28,7 @@ import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 public final class AllItemTypeDecoder extends AbstractMessageDecoder {
 
 	@Override
-	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object  middleReadableObject) throws OutOfMemoryError, BodyFormatException {
+	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object  middleReadableObject) throws BodyFormatException {
 		AllItemType allItemType = new AllItemType();
 		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
 		pathStack.push("AllItemType");

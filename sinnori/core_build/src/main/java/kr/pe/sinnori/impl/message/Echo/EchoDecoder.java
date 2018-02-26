@@ -28,7 +28,7 @@ import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 public final class EchoDecoder extends AbstractMessageDecoder {
 
 	@Override
-	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object  middleReadableObject) throws OutOfMemoryError, BodyFormatException {
+	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object  middleReadableObject) throws BodyFormatException {
 		Echo echo = new Echo();
 		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
 		pathStack.push("Echo");

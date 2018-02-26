@@ -28,7 +28,7 @@ import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 public final class EmptyDecoder extends AbstractMessageDecoder {
 
 	@Override
-	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object  middleReadableObject) throws OutOfMemoryError, BodyFormatException {
+	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object  middleReadableObject) throws BodyFormatException {
 		Empty empty = new Empty();
 
 		return empty;

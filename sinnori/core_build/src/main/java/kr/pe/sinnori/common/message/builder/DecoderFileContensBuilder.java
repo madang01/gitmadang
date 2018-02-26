@@ -461,7 +461,7 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append("@Override");
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
-		stringBuilder.append("protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object  middleReadableObject) throws OutOfMemoryError, BodyFormatException {");
+		stringBuilder.append("protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object  middleReadableObject) throws BodyFormatException {");
 		
 		// AllDataType allDataType = new AllDataType();
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);

@@ -32,7 +32,8 @@
 		
 		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}/core_common">
 			<include name="kr/pe/sinnori/common/**" />
-      <include name="kr/pe/sinnori/impl/message/SelfExn/**" />
+			<include name="kr/pe/sinnori/impl/message/SelfExnRes/**" />
+			<include name="kr/pe/sinnori/impl/message/Empty/**" />
      
 			<classpath>
 				<fileset dir="${dir.mainlib}/in">

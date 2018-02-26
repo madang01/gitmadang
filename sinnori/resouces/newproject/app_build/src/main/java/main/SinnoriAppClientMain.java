@@ -1,19 +1,10 @@
 package main;
 
-import java.net.SocketTimeoutException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.applib.sessionkey.RSAPublickeyGetterBuilder;
-import kr.pe.sinnori.client.AnyProjectClient;
-import kr.pe.sinnori.client.MainClientManager;
-import kr.pe.sinnori.common.exception.BodyFormatException;
-import kr.pe.sinnori.common.exception.DynamicClassCallException;
-import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.exception.NotLoginException;
-import kr.pe.sinnori.common.exception.ServerNotReadyException;
-import kr.pe.sinnori.common.exception.ServerTaskException;
+import kr.pe.sinnori.client.ConnectionPoolManager;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.sessionkey.ClientSessionKeyManager;
@@ -30,15 +21,13 @@ public class SinnoriAppClientMain {
 		
 		try {
 			ClientSessionKeyManager.getInstance().getMainProjectClientSessionKey(RSAPublickeyGetterBuilder.build());
-		} catch (SymmetricException e) {
+		} catch (SymmetricException | InterruptedException e) {
 			log.warn("fail to getting the main project's instance of the ClientSessionKey class", e);
 			System.exit(1);
 		}
 		
 		log.info("successfully getting the main project's instance of the ClientSessionKey class");
-		
-		MainClientManager mainClientManager = MainClientManager.getInstance();
-		AnyProjectClient mainProjectClient = mainClientManager.getMainProjectClient();			
+				
 		
 		java.util.Random random = new java.util.Random();
 		
@@ -48,7 +37,7 @@ public class SinnoriAppClientMain {
 				
 		AbstractMessage messageFromServer = null;
 		try {
-			messageFromServer = mainProjectClient.sendSyncInputMessage(echoInObj);
+			messageFromServer = ConnectionPoolManager.getInstance().getMainProjectConnectionPool().sendSyncInputMessage(echoInObj);
 			
 			if (messageFromServer instanceof Echo) {
 				Echo echoOutObj = (Echo)messageFromServer;
@@ -62,20 +51,8 @@ public class SinnoriAppClientMain {
 			}
 			
 			System.exit(0);
-		} catch (SocketTimeoutException e) {
-			log.warn("SocketTimeoutException", e);
-		} catch (ServerNotReadyException e) {
-			log.warn("ServerNotReadyException", e);
-		} catch (NoMoreDataPacketBufferException e) {
-			log.warn("NoMoreDataPacketBufferException", e);
-		} catch (BodyFormatException e) {
-			log.warn("BodyFormatException", e);
-		} catch (DynamicClassCallException e) {
-			log.warn("DynamicClassCallException", e);
-		} catch (ServerTaskException e) {
-			log.warn("ServerTaskException", e);
-		} catch (NotLoginException e) {
-			log.warn("NotLoginException", e);
+		} catch (Exception e) {
+			log.warn("Exception", e);
 		}
 		
 		System.exit(1);

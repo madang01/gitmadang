@@ -806,7 +806,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t  <echo message=\"is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t<echo message=\"servlet.systemlib.path=${servlet.systemlib.path}\" />");
+		stringBuilder.append("\t\t<echo message=\"servlet.systemlib.path=${servlet.systemlib.path}\"/>");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -997,7 +997,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t\t</fileset>");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\t<fileset dir=\"${servlet.systemlib.path}/\">");
+		stringBuilder.append("\t\t\t\t<fileset dir=\"${servlet.systemlib.path}\">");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t\t\t<include name=\"*-api.jar\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -1059,7 +1059,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t\t</fileset>");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\t<fileset dir=\"${servlet.systemlib.path}/\">");
+		stringBuilder.append("\t\t\t\t<fileset dir=\"${servlet.systemlib.path}\">");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t\t\t<include name=\"*-api.jar\" />");
 		stringBuilder.append(System.getProperty("line.separator"));

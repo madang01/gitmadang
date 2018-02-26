@@ -1,18 +1,17 @@
 package kr.pe.sinnori.applib.sessionkey;
 
-import java.net.SocketTimeoutException;
+import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.client.AnyProjectClient;
-import kr.pe.sinnori.client.MainClientManager;
+import kr.pe.sinnori.client.AnyProjectConnectionPoolIF;
+import kr.pe.sinnori.client.ConnectionPoolManager;
+import kr.pe.sinnori.common.exception.AccessDeniedException;
 import kr.pe.sinnori.common.exception.BodyFormatException;
+import kr.pe.sinnori.common.exception.ConnectionPoolException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.exception.NotFoundProjectException;
-import kr.pe.sinnori.common.exception.NotLoginException;
-import kr.pe.sinnori.common.exception.ServerNotReadyException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.message.AbstractMessage;
@@ -38,13 +37,12 @@ public class RSAPublickeyGetterBuilder extends AbstractRSAPublickeyGetter {
 	protected byte[] getPublickeyBytesFromMainProjectServer() throws SymmetricException {
 		Logger log = LoggerFactory.getLogger(RSAPublickeyGetterBuilder.class);
 
-		AnyProjectClient mainClientProject = MainClientManager.getInstance().getMainProjectClient();
+		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
 
 		byte[] publicKeyBytes = null;
 		try {
-			publicKeyBytes = getPublickeyFromServer(mainClientProject);
-		} catch (SocketTimeoutException | ServerNotReadyException | NoMoreDataPacketBufferException
-				| BodyFormatException | DynamicClassCallException | ServerTaskException | NotLoginException e) {
+			publicKeyBytes = getPublickeyFromServer(mainProjectConnectionPool);
+		} catch (Exception e) {
 			String errorMessage = e.getMessage();
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
@@ -56,10 +54,10 @@ public class RSAPublickeyGetterBuilder extends AbstractRSAPublickeyGetter {
 	public byte[] getSubProjectPublickeyBytes(String subProjectName) throws SymmetricException {
 		Logger log = LoggerFactory.getLogger(RSAPublickeyGetterBuilder.class);
 
-		AnyProjectClient subClientProject = null;
+		AnyProjectConnectionPoolIF subProjectConnectionPoo = null;
 		try {
-			subClientProject = MainClientManager.getInstance().getSubProjectClient(subProjectName);
-		} catch (NotFoundProjectException e) {
+			subProjectConnectionPoo = ConnectionPoolManager.getInstance().getSubProjectConnectionPool(subProjectName);
+		} catch (IllegalStateException e) {
 			String errorMessage = e.getMessage();
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
@@ -67,9 +65,8 @@ public class RSAPublickeyGetterBuilder extends AbstractRSAPublickeyGetter {
 
 		byte[] publicKeyBytes = null;
 		try {
-			publicKeyBytes = getPublickeyFromServer(subClientProject);
-		} catch (SocketTimeoutException | ServerNotReadyException | NoMoreDataPacketBufferException
-				| BodyFormatException | DynamicClassCallException | ServerTaskException | NotLoginException e) {
+			publicKeyBytes = getPublickeyFromServer(subProjectConnectionPoo);
+		} catch (Exception e) {
 			String errorMessage = e.getMessage();
 			log.warn(errorMessage, e);
 			throw new SymmetricException(errorMessage);
@@ -78,12 +75,10 @@ public class RSAPublickeyGetterBuilder extends AbstractRSAPublickeyGetter {
 		return publicKeyBytes;
 	}
 
-	private byte[] getPublickeyFromServer(AnyProjectClient clientProject)
-			throws SymmetricException, SocketTimeoutException, ServerNotReadyException, NoMoreDataPacketBufferException,
-			BodyFormatException, DynamicClassCallException, ServerTaskException, NotLoginException {
+	private byte[] getPublickeyFromServer(AnyProjectConnectionPoolIF anyProjectConnectionPool) throws IOException, NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException, ServerTaskException, AccessDeniedException, InterruptedException, ConnectionPoolException {
 		PublicKeyReq publicKeyReq = new PublicKeyReq();		
 
-		AbstractMessage outObj = clientProject.sendSyncInputMessage(publicKeyReq);
+		AbstractMessage outObj = anyProjectConnectionPool.sendSyncInputMessage(publicKeyReq);
 		PublicKeyRes publicKeyRes = (PublicKeyRes) outObj;
 
 		return publicKeyRes.getPublicKeyBytes();
