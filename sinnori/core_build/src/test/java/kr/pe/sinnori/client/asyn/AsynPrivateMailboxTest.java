@@ -11,8 +11,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.junit.Test;
 
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox;
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxMapper;
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxPool;
+import kr.pe.sinnori.client.connection.asyn.share.AsynPrivateMailboxMapper;
+import kr.pe.sinnori.client.connection.asyn.share.AsynPrivateMailboxPool;
 import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.asyn.ToLetter;

@@ -1,16 +1,17 @@
-package kr.pe.sinnori.client.connection.asyn.mailbox;
+package kr.pe.sinnori.client.connection.asyn.share;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AsynPrivateMailboxMapper {
+import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox;
+import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxIF;
+
+public class AsynPrivateMailboxMapper implements AsynPrivateMailboxMapperIF {
 	@SuppressWarnings("unused")
-	private Logger log = LoggerFactory.getLogger(AsynPrivateMailboxMapper.class);	
-	// private final Object monitor = new Object();
+	private Logger log = LoggerFactory.getLogger(AsynPrivateMailboxMapper.class);
 	
-	private AsynPrivateMailbox[] asynPrivateMailboxs = null;
+	private AsynPrivateMailboxIF[] asynPrivateMailboxs = null;
 	
-	// LinkedBlockingQueue<WrapReadableMiddleObject> outputMessageQueue
 	public AsynPrivateMailboxMapper(int totalNumberOfAsynPrivateMailboxs, 
 			long socketTimeOut) {
 		if (totalNumberOfAsynPrivateMailboxs < 1) {
@@ -35,7 +36,7 @@ public class AsynPrivateMailboxMapper {
 		}
 	}
 	
-	public AsynPrivateMailbox getAsynMailbox(int mailboxID) {
+	public AsynPrivateMailboxIF getAsynMailbox(int mailboxID) {
 		if (mailboxID <= 0) {
 			String errorMessage = String.format("the parameter mailboxID[%d] is less than or equal to zero", mailboxID);
 			throw new IndexOutOfBoundsException(errorMessage);

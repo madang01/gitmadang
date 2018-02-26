@@ -34,20 +34,20 @@ import kr.pe.sinnori.client.connection.SocketResoruceIF;
 import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceFactory;
 import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceFactoryIF;
 import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceIF;
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxPool;
-import kr.pe.sinnori.client.connection.asyn.noshare.NoShareAsynConnection;
-import kr.pe.sinnori.client.connection.asyn.noshare.NoShareAsynConnectionPool;
+import kr.pe.sinnori.client.connection.asyn.noshare.AsynPrivateConnection;
+import kr.pe.sinnori.client.connection.asyn.noshare.AsynPrivateConnectionPool;
 import kr.pe.sinnori.client.connection.asyn.share.AsynPrivateMailboxPoolFactory;
 import kr.pe.sinnori.client.connection.asyn.share.AsynPrivateMailboxPoolFactoryIF;
-import kr.pe.sinnori.client.connection.asyn.share.ShareAsynConnection;
-import kr.pe.sinnori.client.connection.asyn.share.ShareAsynConnectionPool;
+import kr.pe.sinnori.client.connection.asyn.share.AsynPrivateMailboxPoolIF;
+import kr.pe.sinnori.client.connection.asyn.share.AsynPublicConnection;
+import kr.pe.sinnori.client.connection.asyn.share.AsynPublicConnectionPool;
 import kr.pe.sinnori.client.connection.asyn.threadpool.IEOClientThreadPoolSetManager;
 import kr.pe.sinnori.client.connection.asyn.threadpool.IEOClientThreadPoolSetManagerIF;
 import kr.pe.sinnori.client.connection.asyn.threadpool.executor.ClientExecutorPool;
 import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.InputMessageWriterPool;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderPool;
-import kr.pe.sinnori.client.connection.sync.noshare.NoShareSyncConnection;
-import kr.pe.sinnori.client.connection.sync.noshare.NoShareSyncConnectionPool;
+import kr.pe.sinnori.client.connection.sync.noshare.SyncPrivateConnection;
+import kr.pe.sinnori.client.connection.sync.noshare.SyncPrivateConnectionPool;
 import kr.pe.sinnori.client.connection.sync.noshare.SyncPrivateSocketResourceFactory;
 import kr.pe.sinnori.client.connection.sync.noshare.SyncPrivateSocketResourceFactoryIF;
 import kr.pe.sinnori.common.classloader.IOPartDynamicClassNameUtil;
@@ -171,7 +171,7 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 		if (projectPartConfiguration.getConnectionType().equals(ConnectionType.SYNC_PRIVATE)) {
 			syncPrivateSocketResourceFactory = new SyncPrivateSocketResourceFactory(socketOutputStreamFactory);
 
-			connectionPool = new NoShareSyncConnectionPool(projectPartConfiguration.getProjectName(),
+			connectionPool = new SyncPrivateConnectionPool(projectPartConfiguration.getProjectName(),
 					projectPartConfiguration.getServerHost(), projectPartConfiguration.getServerPort(),
 					projectPartConfiguration.getClientSocketTimeout(), clientMessageUtility,
 					projectPartConfiguration.getClientConnectionCount(),
@@ -206,14 +206,14 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 						projectPartConfiguration.getClientAsynPirvateMailboxCntPerPublicConnection(),
 						projectPartConfiguration.getClientSocketTimeout());
 
-				connectionPool = new ShareAsynConnectionPool(projectPartConfiguration.getProjectName(),
+				connectionPool = new AsynPublicConnectionPool(projectPartConfiguration.getProjectName(),
 						projectPartConfiguration.getServerHost(), projectPartConfiguration.getServerPort(),
 						projectPartConfiguration.getClientSocketTimeout(), clientMessageUtility,
 						projectPartConfiguration.getClientConnectionCount(),
 						projectPartConfiguration.getClientConnectionMaxCount(), asynPrivateMailboxPoolFactory,
 						asynSocketResourceFactory);
 			} else {
-				connectionPool = new NoShareAsynConnectionPool(projectPartConfiguration.getProjectName(),
+				connectionPool = new AsynPrivateConnectionPool(projectPartConfiguration.getProjectName(),
 						projectPartConfiguration.getServerHost(), projectPartConfiguration.getServerPort(),
 						projectPartConfiguration.getClientSocketTimeout(), clientMessageUtility,
 						projectPartConfiguration.getClientConnectionCount(),
@@ -274,20 +274,20 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 			SocketResoruceIF syncPrivateSocketResoruce = syncPrivateSocketResourceFactory
 					.makeNewSyncPrivateSocketResource();
 
-			conn = new NoShareSyncConnection(projectPartConfiguration.getProjectName(), host, port,
+			conn = new SyncPrivateConnection(projectPartConfiguration.getProjectName(), host, port,
 					projectPartConfiguration.getClientSocketTimeout(), clientMessageUtility, syncPrivateSocketResoruce);
 		} else {
 			AsynSocketResourceIF asynSocketResource = asynSocketResourceFactory.makeNewAsynSocketResource();
 
 			if (projectPartConfiguration.getConnectionType().equals(ConnectionType.ASYN_SHARE)) {
-				AsynPrivateMailboxPool asynPrivateMailboxPool = asynPrivateMailboxPoolFactory
+				AsynPrivateMailboxPoolIF asynPrivateMailboxPool = asynPrivateMailboxPoolFactory
 						.makeNewAsynPrivateMailboxPool();
 
-				conn = new ShareAsynConnection(projectPartConfiguration.getProjectName(), host, port,
+				conn = new AsynPublicConnection(projectPartConfiguration.getProjectName(), host, port,
 						projectPartConfiguration.getClientSocketTimeout(), clientMessageUtility, asynPrivateMailboxPool,
 						asynSocketResource);
 			} else {
-				conn = new NoShareAsynConnection(projectPartConfiguration.getProjectName(), host, port,
+				conn = new AsynPrivateConnection(projectPartConfiguration.getProjectName(), host, port,
 						projectPartConfiguration.getClientSocketTimeout(), clientMessageUtility, asynSocketResource);
 			}
 		}

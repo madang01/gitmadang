@@ -1,8 +1,5 @@
 package kr.pe.sinnori.client.connection.asyn.share;
 
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxMapper;
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxPool;
-
 public class AsynPrivateMailboxPoolFactory implements AsynPrivateMailboxPoolFactoryIF {
 
 	private int totalNumberOfAsynPrivateMailboxs;
@@ -15,7 +12,7 @@ public class AsynPrivateMailboxPoolFactory implements AsynPrivateMailboxPoolFact
 	
 
 	@Override
-	public AsynPrivateMailboxPool makeNewAsynPrivateMailboxPool() {
+	public AsynPrivateMailboxPoolIF makeNewAsynPrivateMailboxPool() {
 		AsynPrivateMailboxMapper asynPrivateMailboxMapper = 
 				new AsynPrivateMailboxMapper(totalNumberOfAsynPrivateMailboxs, socketTimeOut);
 		return new AsynPrivateMailboxPool(asynPrivateMailboxMapper);

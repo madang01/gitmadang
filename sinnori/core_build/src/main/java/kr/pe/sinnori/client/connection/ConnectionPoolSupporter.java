@@ -13,35 +13,32 @@ public class ConnectionPoolSupporter extends Thread implements ConnectionPoolSup
 	private ConnectionPoolIF pool = null;
 	private long interval;
 	
-	private SynchronousQueue<String> synchronousQueue = new SynchronousQueue<String>();
+	private SynchronousQueue<String> wakeupEventQueue = new SynchronousQueue<String>();
 
 	public ConnectionPoolSupporter(ConnectionPoolIF pool, long interval) {
 		this.pool = pool;
 		this.interval = interval;
-		
-		// pool.registerConnectionPoolSupporter(this);
 	}
 
 	public void run() {
-		String reasonForLoss = null;
+		String reasonForWakingUp = null;
 		try {
-			while (!this.isInterrupted()) {				
+			while (! this.isInterrupted()) {				
 				pool.addAllLostConnections();
-
 				
-				reasonForLoss = synchronousQueue.poll(interval, TimeUnit.MILLISECONDS);
-				if (null != reasonForLoss) {
-					log.info("연결 폴 관리자 작업을 일찍 실행하는 사유[{}] 발생", reasonForLoss);
+				reasonForWakingUp = wakeupEventQueue.poll(interval, TimeUnit.MILLISECONDS);
+				if (null != reasonForWakingUp) {
+					log.info("연결 폴 후원자 작업을 일찍 실행하는 사유[{}] 발생", reasonForWakingUp);
 				}
 				
 			}
-			log.warn("연결 폴 관리자::루프 종료");
+			log.warn("연결 폴 후원자::루프 종료");
 		} catch(InterruptedException e) {
-			log.warn("연결 폴 관리자::인터럽트에 의한 종료");
+			log.warn("연결 폴 후원자::인터럽트에 의한 종료");
 		}
 	}
 	
-	public void notice(String reason) {
-		synchronousQueue.offer(reason);
+	public void notice(String reasonForWakingUp) {
+		wakeupEventQueue.offer(reasonForWakingUp);
 	}
 }

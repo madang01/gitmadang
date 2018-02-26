@@ -1,17 +1,19 @@
-package kr.pe.sinnori.client.connection.asyn.mailbox;
+package kr.pe.sinnori.client.connection.asyn.share;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-public class AsynPrivateMailboxPool {
+import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxIF;
+
+public class AsynPrivateMailboxPool implements AsynPrivateMailboxPoolIF {
 	// private Logger log = LoggerFactory.getLogger(AsynPrivateMailboxPool.class);
 	// private final Object monitor = new Object();	
 	
-	private LinkedBlockingQueue<AsynPrivateMailbox> asynPrivateMailboxQueue = null;
+	private LinkedBlockingQueue<AsynPrivateMailboxIF> asynPrivateMailboxQueue = null;
 	
-	private AsynPrivateMailboxMapper asynPrivateMailboxMapper = null;
+	private AsynPrivateMailboxMapperIF asynPrivateMailboxMapper = null;
 
-	public AsynPrivateMailboxPool(AsynPrivateMailboxMapper asynPrivateMailboxMapper) {
+	public AsynPrivateMailboxPool(AsynPrivateMailboxMapperIF asynPrivateMailboxMapper) {
 		if (null == asynPrivateMailboxMapper) {
 			throw new IllegalArgumentException("the parameter asynPrivateMailboxMapper is null");
 		}
@@ -21,7 +23,7 @@ public class AsynPrivateMailboxPool {
 		int totalNumberOfAsynPrivateMailboxs = asynPrivateMailboxMapper.getTotalNumberOfAsynPrivateMailboxs();
 		
 		this.asynPrivateMailboxQueue 
-		= new LinkedBlockingQueue<AsynPrivateMailbox>(totalNumberOfAsynPrivateMailboxs);
+		= new LinkedBlockingQueue<AsynPrivateMailboxIF>(totalNumberOfAsynPrivateMailboxs);
 		
 		
 		for (int mailboxID=1; mailboxID <= totalNumberOfAsynPrivateMailboxs; mailboxID++) {
@@ -29,15 +31,15 @@ public class AsynPrivateMailboxPool {
 		}
 	}
 	
-	public AsynPrivateMailbox poll(long timeout) throws InterruptedException {
+	public AsynPrivateMailboxIF poll(long timeout) throws InterruptedException {
 		return asynPrivateMailboxQueue.poll(timeout, TimeUnit.MILLISECONDS);
 	}
 	
-	public void add(AsynPrivateMailbox asynPrivateMailbox) {
-		asynPrivateMailboxQueue.offer(asynPrivateMailbox);
+	public boolean offer(AsynPrivateMailboxIF asynPrivateMailbox) {
+		return asynPrivateMailboxQueue.offer(asynPrivateMailbox);
 	}
 
-	public AsynPrivateMailboxMapper getAsynPrivateMailboxMapper() {
+	public AsynPrivateMailboxMapperIF getAsynPrivateMailboxMapper() {
 		return asynPrivateMailboxMapper;
 	}
 	

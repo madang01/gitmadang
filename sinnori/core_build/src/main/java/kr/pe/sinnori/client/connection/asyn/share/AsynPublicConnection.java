@@ -23,9 +23,7 @@ import java.util.List;
 import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceIF;
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox;
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxMapper;
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxPool;
+import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxIF;
 import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
@@ -40,24 +38,13 @@ import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.common.type.SelfExn;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 
-/**
- * 클라이언트 공유 방식의 비동기 연결 클래스.<br/>
- * 참고) 공유 방식은 목록으로 관리되며 순차적으로 공유 방식의 비동기 연결 클래스를 배정한다. <br/>
- * 이렇게 배정 받은 공유 방식의 비동기 연결 클래스는 메시지 송수신 순간에 <br/>
- * 메일함 큐에서 메일함을 할당받아 메일함을 통해서 메시지 교환을 수행한다.<br/>
- * 자세한 내용은 기술 문서를 참고 하세요.<br/>
- * 참고) 소켓 채널을 감싸아 소켓 채널관련 서비스를 구현하는 클래스, 즉 소켓 채널 랩 클래스를 연결 클래스로 명명한다.
- * 
- * @see AsynPrivateMailbox
- * @author Won Jonghoon
- * 
- */
-public class ShareAsynConnection extends AbstractAsynConnection {
-	private AsynPrivateMailboxMapper asynPrivateMailboxMapper = null;
-	private AsynPrivateMailboxPool asynPrivateMailboxPool = null;
 
-	public ShareAsynConnection(String projectName, String host, int port, long socketTimeOut,
-			ClientMessageUtilityIF clientMessageUtility, AsynPrivateMailboxPool asynPrivateMailboxPool,
+public class AsynPublicConnection extends AbstractAsynConnection {
+	private AsynPrivateMailboxMapperIF asynPrivateMailboxMapper = null;
+	private AsynPrivateMailboxPoolIF asynPrivateMailboxPool = null;
+
+	public AsynPublicConnection(String projectName, String host, int port, long socketTimeOut,
+			ClientMessageUtilityIF clientMessageUtility, AsynPrivateMailboxPoolIF asynPrivateMailboxPool,
 			AsynSocketResourceIF asynSocketResource)
 			throws InterruptedException, NoMoreDataPacketBufferException, IOException {
 		super(projectName, host, port, socketTimeOut, clientMessageUtility, asynSocketResource);
@@ -83,7 +70,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 		} else {
 
 			int mailboxID = wrapReadableMiddleObject.getMailboxID();
-			AsynPrivateMailbox asynPrivateMailbox = null;
+			AsynPrivateMailboxIF asynPrivateMailbox = null;
 			try {
 				asynPrivateMailbox = asynPrivateMailboxMapper.getAsynMailbox(mailboxID);
 			} catch (IndexOutOfBoundsException e) {
@@ -111,7 +98,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 		ClassLoader classLoader = inObj.getClass().getClassLoader();
 		WrapReadableMiddleObject wrapReadableMiddleObject = null;
 
-		AsynPrivateMailbox asynPrivateMailbox = asynPrivateMailboxPool.poll(socketTimeOut);
+		AsynPrivateMailboxIF asynPrivateMailbox = asynPrivateMailboxPool.poll(socketTimeOut);
 
 		if (null == asynPrivateMailbox) {
 			String errorMessage = String.format("입력 메시지[%s] 처리시 지정한 시간안에 개인 메일함 가져오기 실패", inObj.getMessageID());
@@ -134,7 +121,7 @@ public class ShareAsynConnection extends AbstractAsynConnection {
 			wrapReadableMiddleObject = asynPrivateMailbox.getSyncOutputMessage();
 
 		} finally {
-			asynPrivateMailboxPool.add(asynPrivateMailbox);
+			asynPrivateMailboxPool.offer(asynPrivateMailbox);
 		}
 
 		AbstractMessage outObj = clientMessageUtility.buildOutputMessage(classLoader, wrapReadableMiddleObject);

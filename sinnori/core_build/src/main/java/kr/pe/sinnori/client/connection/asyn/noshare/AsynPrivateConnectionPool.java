@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kr.pe.sinnori.client.connection.asyn.share;
+package kr.pe.sinnori.client.connection.asyn.noshare;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
@@ -29,69 +29,66 @@ import kr.pe.sinnori.client.connection.ConnectionPoolIF;
 import kr.pe.sinnori.client.connection.ConnectionPoolSupporterIF;
 import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceFactoryIF;
 import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceIF;
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxPool;
 import kr.pe.sinnori.common.exception.ConnectionPoolException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 
-/**
- * 클라이언트 공유 방식의 비동기 연결 클래스 {@link ShareAsynConnection} 를 원소로 가지는 폴 관리자 클래스<br/>
- * 다른 쓰레드간에 연결 클래스를 공유하기 위해서 목록으로 관리되며 순차적으로 순환 할당한다.
- * 
- * @author Won Jonghoon
- * 
- */
-public class ShareAsynConnectionPool implements ConnectionPoolIF {
-	private Logger log = LoggerFactory.getLogger(ShareAsynConnectionPool.class);
 
+public class AsynPrivateConnectionPool implements ConnectionPoolIF {
+	private Logger log = LoggerFactory.getLogger(AsynPrivateConnectionPool.class);
 	private final Object monitor = new Object();
 
 	private String projectName = null;
 	private String host = null;
 	private int port;
 	private long socketTimeOut;
-	private ClientMessageUtilityIF clientMessageUtility = null;	
-	private transient int connectionPoolSize;
+	private ClientMessageUtilityIF clientMessageUtility = null;
+	
+	
+	private transient int connectionPoolSize = 0;
 	private int connectionPoolMaxSize;	
-	// private int numberOfAsynPrivateMailboxPerConnection;
-	private AsynPrivateMailboxPoolFactoryIF asynPrivateMailboxPoolFactory = null;
+	
+	// private IEOClientThreadPoolSetManagerIF ieoClientThreadPoolSetManager = null;	
+	// private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;
 	private AsynSocketResourceFactoryIF asynSocketResourceFactory = null;
 	
-	/**
-	 * 공유방식으로 비동기 방식의 소켓 채널을 소유한 연결 클래스 목록. 쓰레드 공유하기 위해서 순차적으로 할당한다.
-	 */
-	private LinkedList<ShareAsynConnection> connectionList = null;
+
+	private LinkedList<AsynPrivateConnection> connectionList = null;
 	private transient int numberOfConnection = 0;
 	private ConnectionPoolSupporterIF connectionPoolSupporter = null;
-	private int currentWorkingIndex = -1;
 
-	public ShareAsynConnectionPool(String projectName, String host, int port, 
+	public AsynPrivateConnectionPool(String projectName, 
+			String host, int port, 
 			long socketTimeOut,
 			ClientMessageUtilityIF clientMessageUtility,			
-			int connectionPoolSize,
+			int connectionPoolSize,			
 			int connectionPoolMaxSize,
-			// int numberOfAsynPrivateMailboxPerConnection,
-			AsynPrivateMailboxPoolFactoryIF asynPrivateMailboxPoolFactory,
 			AsynSocketResourceFactoryIF asynSocketResourceFactory)
 			throws NoMoreDataPacketBufferException, InterruptedException, IOException, ConnectionPoolException {
 		this.projectName = projectName;
 		this.host = host;
 		this.port = port;
+		this.socketTimeOut = socketTimeOut;		
+		this.clientMessageUtility = clientMessageUtility;		
 		this.connectionPoolSize = connectionPoolSize;
 		this.connectionPoolMaxSize = connectionPoolMaxSize;
-		this.socketTimeOut = socketTimeOut;
-		this.clientMessageUtility = clientMessageUtility;		
-		// this.numberOfAsynPrivateMailboxPerConnection = numberOfAsynPrivateMailboxPerConnection;
-		this.asynPrivateMailboxPoolFactory = asynPrivateMailboxPoolFactory;
 		this.asynSocketResourceFactory = asynSocketResourceFactory;
+		
 
-		this.connectionList = new LinkedList<ShareAsynConnection>();
+		this.connectionList = new LinkedList<AsynPrivateConnection>();
+
+		/**
+		 * 비동기 비 공유 연결 클래스는 입력 메시지 큐 1개와 출력 메시지큐 1개를 할당 받는다. 입력 메시지 큐는 모든 연결 클래스간에 공유하며,
+		 * 출력 메시지 큐는 연결 클래스 각각 존재한다.
+		 */
 		try {
 			for (int i = 0; i < connectionPoolSize; i++) {
 				addConnection();
-			}
 
+			}
 		} catch (IOException e) {
-			while (! connectionList.isEmpty()) {
+
+			while (!connectionList.isEmpty()) {
+
 				try {
 					connectionList.removeFirst().close();
 				} catch (IOException e1) {
@@ -100,7 +97,6 @@ public class ShareAsynConnectionPool implements ConnectionPoolIF {
 			throw e;
 		}
 
-		// log.info("connectionList size=[%d]", connectionList.size());
 	}
 
 	private void addConnection()
@@ -109,19 +105,15 @@ public class ShareAsynConnectionPool implements ConnectionPoolIF {
 		if (numberOfConnection >= connectionPoolMaxSize) {
 			throw new ConnectionPoolException("fail to add a connection because this connection pool is full");
 		}
-		
+
 		AsynSocketResourceIF asynSocketResource = asynSocketResourceFactory.makeNewAsynSocketResource();
-		
-		AsynPrivateMailboxPool asynPrivateMailboxPool =asynPrivateMailboxPoolFactory.makeNewAsynPrivateMailboxPool();
 
-		ShareAsynConnection serverConnection = new ShareAsynConnection(projectName, host, port, socketTimeOut, 
+		AsynPrivateConnection serverConnection = new AsynPrivateConnection(projectName, host, port, socketTimeOut,
 				clientMessageUtility,
-				asynPrivateMailboxPool,
 				asynSocketResource);
-
+		
 		synchronized (monitor) {
-			connectionList.add(serverConnection);
-
+			connectionList.addLast(serverConnection);
 			numberOfConnection++;
 			connectionPoolSize = Math.max(numberOfConnection, connectionPoolSize);
 		}
@@ -132,85 +124,115 @@ public class ShareAsynConnectionPool implements ConnectionPoolIF {
 	}
 
 	public void addAllLostConnections() throws InterruptedException {
-
-		while (whetherConnectionIsMissing()) {
-			try {
-				addConnection();
-				log.info("결손된 비동기 공유 연결 추가 작업 완료");
-			} catch (InterruptedException e) {
-				throw e;
-			} catch (Exception e) {
-				log.warn("에러 발생에 따른 결손된 비동기 공유 연결 추가 작업 잠시 중지 ", e);
-				break;
+		
+			while (whetherConnectionIsMissing()) {
+				try {
+					addConnection();
+					log.info("결손된 비동기 비공유 연결 추가 작업 완료");
+				} catch (InterruptedException e) {
+					throw e;
+				} catch (Exception e) {
+					log.warn("에러 발생에 따른 결손된 비동기 비공유 연결 추가 작업 잠시 중지 ", e);
+					break;
+				}
 			}
-		}
-
+		// }
 	}
 
 	public AbstractConnection getConnection()
 			throws InterruptedException, SocketTimeoutException, ConnectionPoolException {
+
+		AsynPrivateConnection asynPrivateConnection = null;
 		boolean loop = false;
-		ShareAsynConnection conn = null;
 
 		synchronized (monitor) {
 			do {
-				if (connectionList.isEmpty()) {
+				if (0 == numberOfConnection) {
 					throw new ConnectionPoolException("check server alive");
 				}
 
-				currentWorkingIndex = (currentWorkingIndex + 1) % connectionList.size();
+				if (connectionList.isEmpty()) {
+					monitor.wait(socketTimeOut);
 
-				conn = connectionList.get(currentWorkingIndex);
+					if (connectionList.isEmpty()) {
+						throw new SocketTimeoutException("asynchronized private connection pool timeout");
+					}
+				}
 
-				if (conn.isConnected()) {
+				asynPrivateConnection = connectionList.removeFirst();
+
+				if (asynPrivateConnection.isConnected()) {
+					asynPrivateConnection.queueOut();
 					loop = false;
 				} else {
 					loop = true;
 
-					String reasonForLoss = new StringBuilder("다음 차례의 비동기 공유 연결[").append(conn.hashCode())
-							.append("]이 닫혀있어 폐기").toString();
+					/**
+					 * Warning! 큐에 반환 되지 않고 가비지 대상이 될 경우 그 원인을 추적해야 하므로 반듯이 큐 안이라는 상태에서 연결을 폐기해야 한다
+					 */
+
+					String reasonForLoss = new StringBuilder("폴에서 꺼낸 비동기 비공유 연결[")
+							.append(asynPrivateConnection.hashCode()).append("]이 닫혀있어 폐기").toString();
 
 					numberOfConnection--;
 
 					log.warn("{}, 총 연결수[{}]", reasonForLoss, numberOfConnection);
 
 					connectionPoolSupporter.notice(reasonForLoss);
-
-					connectionList.remove(conn);
 				}
+
 			} while (loop);
 
-			return conn;
+			return asynPrivateConnection;
 		}
 	}
 
-	public void release(AbstractConnection conn) {
-
+	public void release(AbstractConnection conn) throws ConnectionPoolException {
 		if (null == conn) {
 			String errorMessage = "the parameter conn is null";
 			log.warn(errorMessage, new Throwable());
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		if (!(conn instanceof ShareAsynConnection)) {
-			String errorMessage = "the parameter conn is not instace of ShareAsynConnection class";
+		if (!(conn instanceof AsynPrivateConnection)) {
+			String errorMessage = "the parameter conn is not instace of NoShareAsynConnection class";
 			log.warn(errorMessage, new Throwable());
 			throw new IllegalArgumentException(errorMessage);
 		}
 
+		AsynPrivateConnection asynPrivateConnection = (AsynPrivateConnection) conn;
+
 		synchronized (monitor) {
-			if (!conn.isConnected()) {
-				String reasonForLoss = new StringBuilder("반환된 비동기 공유 연결[").append(conn.hashCode()).append("]이 닫혀있어 폐기")
-						.toString();
+			/**
+			 * 연속 2회 큐 입력 방지
+			 */
+			if (asynPrivateConnection.isInQueue()) {
+				String errorMessage = String.format("the paramter conn[%d] allready was in connection queue",
+						conn.hashCode());
+				log.warn(errorMessage, new Throwable());
+				throw new ConnectionPoolException(errorMessage);
+			}
+
+			asynPrivateConnection.queueIn();
+
+			if (!asynPrivateConnection.isConnected()) {
+				/**
+				 * Warning! 큐에 반환 되지 않고 가비지 대상이 될 경우 그 원인을 추적해야 하므로 반듯이 큐 안이라는 상태에서 연결을 폐기해야 한다
+				 */
 
 				numberOfConnection--;
+
+				String reasonForLoss = new StringBuilder("반환된 비동기 비공유 연결[").append(asynPrivateConnection.hashCode())
+						.append("]이 닫혀있어 폐기").toString();
 
 				log.warn("{}, 총 연결수[{}]", reasonForLoss, numberOfConnection);
 
 				connectionPoolSupporter.notice(reasonForLoss);
-
-				connectionList.remove(conn);
+				return;
 			}
+
+			connectionList.addLast(asynPrivateConnection);
+			monitor.notify();
 		}
 	}
 

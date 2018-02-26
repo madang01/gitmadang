@@ -9,8 +9,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox;
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxPool;
+import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxIF;
+import kr.pe.sinnori.client.connection.asyn.share.AsynPrivateMailboxPool;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
@@ -45,56 +45,62 @@ public class AsynPrivateMailboxProducerThread extends Thread {
 	}
 
 	public void run() {
-		AsynPrivateMailbox asynPrivateMailbox = null;
-		for (int i = 0; i < numberOfExecution; i++) {
+		AsynPrivateMailboxIF asynPrivateMailbox = null;
+		
+		try {
+			for (int i = 0; i < numberOfExecution; i++) {
 
-			if (this.isInterrupted()) {
-				log.info("this thread에 interrupt 발생하여 종료");
-				break;
-			}
-
-			try {
+				if (this.isInterrupted()) {
+					log.info("this thread에 interrupt 발생하여 종료");
+					break;
+				}
+				
 				asynPrivateMailbox = asynPrivateMailboxPool.poll(1000L);
-			} catch (InterruptedException e) {
-				String errorMessage = String.format("InterruptedException");
-				log.warn(errorMessage, e);
-				break;
-			}
+				if (null == asynPrivateMailbox) {
+					log.info("소켓 타임 아웃 발생");
+					continue;
+				}
 
-			try {
-				SocketChannel toSocketChannel = SocketChannel.open();
-				String messageID = "Echo";
-				List<WrapBuffer> wrapBufferList = new ArrayList<WrapBuffer>();
-				
-				ToLetter toLetter = new ToLetter(toSocketChannel, 
-						messageID,
-						asynPrivateMailbox.getMailboxID(),
-						asynPrivateMailbox.getMailID(),
-						wrapBufferList);				
-				
-				log.info("AsynPrivateMailboxProducerThread::toLetter={}", toLetter.toString());				
-				toLetterQueue.put(toLetter);
-				
-				//Thread.sleep(5000);
-				
 				try {
-					WrapReadableMiddleObject wrapReadableMiddleObject = asynPrivateMailbox.getSyncOutputMessage();
+					SocketChannel toSocketChannel = SocketChannel.open();
+					String messageID = "Echo";
+					List<WrapBuffer> wrapBufferList = new ArrayList<WrapBuffer>();
 					
-					log.info("메시지 수신 성공, {}", wrapReadableMiddleObject.toString());
-				} catch(SocketTimeoutException e) {
-					// log.info(e.getMessage(), e);
-					log.warn(e.getMessage());
-				}		
+					ToLetter toLetter = new ToLetter(toSocketChannel, 
+							messageID,
+							asynPrivateMailbox.getMailboxID(),
+							asynPrivateMailbox.getMailID(),
+							wrapBufferList);				
+					
+					log.info("AsynPrivateMailboxProducerThread::toLetter={}", toLetter.toString());				
+					toLetterQueue.put(toLetter);
+					
+					//Thread.sleep(5000);
+					
+					try {
+						WrapReadableMiddleObject wrapReadableMiddleObject = asynPrivateMailbox.getSyncOutputMessage();
+						
+						log.info("메시지 수신 성공, {}", wrapReadableMiddleObject.toString());
+					} catch(SocketTimeoutException e) {
+						// log.info(e.getMessage(), e);
+						log.warn(e.getMessage());
+					}		
 
-			} catch (Exception e) {
-				String errorMessage = String.format("예외 발생하여 Thread 종료::errorMessage=%s", e.getMessage());
-				log.warn(errorMessage, e);
-				break;
-			} finally {
-				if (null != asynPrivateMailbox) {
-					asynPrivateMailboxPool.add(asynPrivateMailbox);
+				} catch (Exception e) {
+					String errorMessage = String.format("예외 발생하여 Thread 종료::errorMessage=%s", e.getMessage());
+					log.warn(errorMessage, e);
+					break;
+				} finally {
+					if (null != asynPrivateMailbox) {
+						
+						asynPrivateMailboxPool.offer(asynPrivateMailbox);
+						
+					}
 				}
 			}
+		} catch(InterruptedException e) {
+			String errorMessage = String.format("인터럽트 발생, 루프 횟수[%d] 만에 강제 종료", numberOfExecution);
+			log.warn(errorMessage, e);
 		}
 	}
 }

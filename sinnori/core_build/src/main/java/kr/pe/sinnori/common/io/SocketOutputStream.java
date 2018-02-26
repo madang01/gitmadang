@@ -17,39 +17,26 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 public class SocketOutputStream {
 	private Logger log = LoggerFactory.getLogger(SocketOutputStream.class);	
 	
+	private CharsetDecoder streamCharsetDecoder = null;
+	private DataPacketBufferPoolIF dataPacketBufferPool = null;
+	private int dataPacketBufferMaxCntPerMessage = -1;
+	
+	private ByteOrder streamByteOrder = null;	
+	private long numberOfWrittenBytes = 0;
+	
 	/** 소켓 채널 전용 출력 메시지 읽기 전용 버퍼 목록, 참고) 언제나 읽기가 가능 하도록 최소 크기가 1이다. */
 	private LinkedList<WrapBuffer> socketOutputStreamWrapBufferList = new  LinkedList<WrapBuffer>();
 	/** 메시지를 추출시 생기는 부가 정보를  */
 	private Object userDefObject = null;
 	
-	private CharsetDecoder streamCharsetDecoder = null;
-	private DataPacketBufferPoolIF dataPacketBufferPool = null;
-	private ByteOrder streamByteOrder = null;
-	// private int dataPacketBufferSize = -1;
-	
-	private long numberOfWrittenBytes = 0;
-	
-	// private SocketChannel clientSC = null;
-	private int dataPacketBufferMaxCntPerMessage = -1;
-	
 	public SocketOutputStream(CharsetDecoder streamCharsetDecoder, 
 			int dataPacketBufferMaxCntPerMessage, 
 			DataPacketBufferPoolIF dataPacketBufferPool) throws NoMoreDataPacketBufferException {
-		
-		// this.ownerSocketChannel =ownerSocketChannel;
 		this.streamCharsetDecoder = streamCharsetDecoder;
 		this.dataPacketBufferPool = dataPacketBufferPool;
 		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
 		
-		/*WrapBuffer lastWrapBuffer = dataPacketBufferPoolManager.pollDataPacketBuffer();
-		
-		log.info("In Construct, lastWrapBuffer hashcode={}", lastWrapBuffer.hashCode());
-		
-		socketOutputStreamWrapBufferList.add(lastWrapBuffer);*/
-		
-		streamByteOrder = dataPacketBufferPool.getByteOrder();
-		// dataPacketBufferSize = dataPacketBufferPool.getDataPacketBufferSize();
-		
+		streamByteOrder = dataPacketBufferPool.getByteOrder();		
 		numberOfWrittenBytes = 0;
 		
 		addNewSocketOutputStreamWrapBuffer();
@@ -63,8 +50,7 @@ public class SocketOutputStream {
 		this.streamCharsetDecoder = streamCharsetDecoder;
 		this.dataPacketBufferPool = dataPacketBufferPoolManager;
 		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
-		this.streamByteOrder = dataPacketBufferPoolManager.getByteOrder();
-		// this.dataPacketBufferSize = dataPacketBufferPoolManager.getDataPacketBufferSize();		
+		this.streamByteOrder = dataPacketBufferPoolManager.getByteOrder();		
 		this.numberOfWrittenBytes = 0;
 
 		for (WrapBuffer writtenWrapBuffer : writtenWrapBufferList) {

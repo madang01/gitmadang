@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxIF;
-import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxMapper;
+import kr.pe.sinnori.client.connection.asyn.share.AsynPrivateMailboxMapper;
 import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
