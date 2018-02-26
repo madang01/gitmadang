@@ -1,8 +1,6 @@
 package kr.pe.sinnori.common.io;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.SocketChannel;
@@ -27,7 +25,7 @@ public class SocketOutputStream {
 	private CharsetDecoder streamCharsetDecoder = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	private ByteOrder streamByteOrder = null;
-	private int dataPacketBufferSize = -1;
+	// private int dataPacketBufferSize = -1;
 	
 	private long numberOfWrittenBytes = 0;
 	
@@ -50,7 +48,7 @@ public class SocketOutputStream {
 		socketOutputStreamWrapBufferList.add(lastWrapBuffer);*/
 		
 		streamByteOrder = dataPacketBufferPool.getByteOrder();
-		dataPacketBufferSize = dataPacketBufferPool.getDataPacketBufferSize();
+		// dataPacketBufferSize = dataPacketBufferPool.getDataPacketBufferSize();
 		
 		numberOfWrittenBytes = 0;
 		
@@ -66,7 +64,7 @@ public class SocketOutputStream {
 		this.dataPacketBufferPool = dataPacketBufferPoolManager;
 		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
 		this.streamByteOrder = dataPacketBufferPoolManager.getByteOrder();
-		this.dataPacketBufferSize = dataPacketBufferPoolManager.getDataPacketBufferSize();		
+		// this.dataPacketBufferSize = dataPacketBufferPoolManager.getDataPacketBufferSize();		
 		this.numberOfWrittenBytes = 0;
 
 		for (WrapBuffer writtenWrapBuffer : writtenWrapBufferList) {
@@ -151,13 +149,16 @@ public class SocketOutputStream {
 	public int read(SocketChannel readableSocketChannel) throws IOException, NoMoreDataPacketBufferException {
 		int numRead = 0;
 		
-		WrapBuffer lastWrapBuffer = socketOutputStreamWrapBufferList.getLast();
+		ByteBuffer lastByteBuffer = null;
+		WrapBuffer lastWrapBuffer = null;
 		
-		if (null == lastWrapBuffer) {
+		if (socketOutputStreamWrapBufferList.isEmpty()) {
 			lastWrapBuffer = addNewSocketOutputStreamWrapBuffer();
+		} else {
+			lastWrapBuffer = socketOutputStreamWrapBufferList.peekLast();
 		}
 		
-		ByteBuffer lastByteBuffer = lastWrapBuffer.getByteBuffer();
+		lastByteBuffer = lastWrapBuffer.getByteBuffer();
 		
 		do {
 			if (! lastByteBuffer.hasRemaining()) {
@@ -172,22 +173,20 @@ public class SocketOutputStream {
 				break;
 			}
 			
-			numberOfWrittenBytes += numRead;
-			
-			// Thread.sleep(retryTimeGap);
+			numberOfWrittenBytes += numRead;			
 			
 		} while(true);
 		
 		return numRead;
 	}
 	
-	public int read(Socket readableSocket) throws IOException, NoMoreDataPacketBufferException {
+	/*public int read(Socket readableSocket) throws IOException, NoMoreDataPacketBufferException {
 		int numRead = 0;
 		
 		InputStream inputStream = readableSocket.getInputStream();
 		byte recvBytes[] = new byte[dataPacketBufferSize];	
 		
-		WrapBuffer lastWrapBuffer = socketOutputStreamWrapBufferList.getLast();
+		WrapBuffer lastWrapBuffer = socketOutputStreamWrapBufferList.pollLast();
 		
 		if (null == lastWrapBuffer) {
 			lastWrapBuffer = addNewSocketOutputStreamWrapBuffer();
@@ -212,7 +211,7 @@ public class SocketOutputStream {
 		}
 		
 		return numRead;
-	}
+	}*/
 	
 	
 	public SocketInputStream createNewSocketInputStream() {

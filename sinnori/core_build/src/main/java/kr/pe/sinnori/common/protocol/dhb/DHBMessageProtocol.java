@@ -24,6 +24,7 @@ import java.nio.charset.CharsetEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -215,22 +216,25 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 		dhbMessageHeader.bodySize = bodyOutputStream.size();
 
 		List<WrapBuffer> readableWrapBufferListOfBodyOutputStream = bodyOutputStream.getReadableWrapBufferList();
-		
-		md5.reset();
-		{
-			
-			for (WrapBuffer readableWrapBufferOfBodyOutputStream : readableWrapBufferListOfBodyOutputStream) {
-				ByteBuffer readableByteBufferOfBodyOutputStream = readableWrapBufferOfBodyOutputStream.getByteBuffer();
+		if (0 == dhbMessageHeader.bodySize) {
+			dhbMessageHeader.bodyMD5Bytes = new byte[CommonStaticFinalVars.MD5_BYTESIZE];
+			Arrays.fill(dhbMessageHeader.bodyMD5Bytes, CommonStaticFinalVars.ZERO_BYTE);
+		} else {
+			md5.reset();
+			{	
+				for (WrapBuffer readableWrapBufferOfBodyOutputStream : readableWrapBufferListOfBodyOutputStream) {
+					ByteBuffer readableByteBufferOfBodyOutputStream = readableWrapBufferOfBodyOutputStream.getByteBuffer();
+					
+					md5.update(readableByteBufferOfBodyOutputStream);
+					
+					readableByteBufferOfBodyOutputStream.flip();
+				}
 				
-				md5.update(readableByteBufferOfBodyOutputStream);
-				
-				readableByteBufferOfBodyOutputStream.flip();
+				dhbMessageHeader.bodyMD5Bytes = md5.digest();
 			}
-			
-			dhbMessageHeader.bodyMD5Bytes = md5.digest();
 		}
 		
-		//log.info("2. readableWrapBufferListOfBodyOutputStream={}", readableWrapBufferListOfBodyOutputStream.toString());
+		// log.info("2. bodyMD5Bytes=[{}]", HexUtil.getHexStringFromByteArray(dhbMessageHeader.bodyMD5Bytes));
 		
 		
 		//log.info("4");
@@ -325,6 +329,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 			do {
 				if (null == workingDHBMessageHeader && socketOutputStreamSize >= messageHeaderSize) {
 					SocketInputStream socketInputStream = socketOutputStream.createNewSocketInputStream();
+					
 					byte[] headerBytes = null;
 					try {
 						headerBytes = socketInputStream.getBytes(messageHeaderSize);

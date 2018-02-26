@@ -129,8 +129,7 @@ public class DHBMessageHeader {
 			} else {
 				headerOutputStream.putByte(CommonStaticFinalVars.ZERO_BYTE);
 			}
-		}
-		
+		}		
 		
 		headerOutputStream.putUnsignedShort(mailboxID);
 		headerOutputStream.putInt(mailID);

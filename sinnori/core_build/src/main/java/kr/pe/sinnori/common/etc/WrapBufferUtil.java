@@ -8,10 +8,9 @@ import kr.pe.sinnori.common.io.WrapBuffer;
 
 public abstract class WrapBufferUtil {
 	public static List<WrapBuffer> getDuplicatedAndReadableWrapBufferList(List<WrapBuffer> sourceWrapBufferList) {
-		List<WrapBuffer> duplicatedWrapBufferList = new ArrayList<WrapBuffer>();		
-		int sourceWrapBufferListSize = sourceWrapBufferList.size();
-		for (int i=0; i < sourceWrapBufferListSize; i++) {
-			WrapBuffer sourceWrapBuffer = sourceWrapBufferList.get(i);
+		List<WrapBuffer> duplicatedWrapBufferList = new ArrayList<WrapBuffer>();
+		
+		for (WrapBuffer sourceWrapBuffer : sourceWrapBufferList) {
 			ByteBuffer sourceByteBuffer = sourceWrapBuffer.getByteBuffer();
 			ByteBuffer duplicatedByteBuffer = sourceByteBuffer.duplicate();			
 			duplicatedByteBuffer.flip();
@@ -19,6 +18,7 @@ public abstract class WrapBufferUtil {
 			WrapBuffer duplicatedWrapBuffer = new WrapBuffer(duplicatedByteBuffer);
 			duplicatedWrapBufferList.add(duplicatedWrapBuffer);
 		}
+		
 		return duplicatedWrapBufferList;
 	}
 }
