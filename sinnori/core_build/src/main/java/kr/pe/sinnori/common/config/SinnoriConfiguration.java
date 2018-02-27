@@ -575,7 +575,8 @@ public class SinnoriConfiguration {
 				if (null != fileOrPathStringGetter) {
 					String itemValue = fileOrPathStringGetter
 							.getFileOrPathStringDependingOnSinnoriInstalledPath(
-									mainProjectName, sinnoriInstalledPathString);
+									sinnoriInstalledPathString, mainProjectName);
+					
 					sinnoriConfigSequencedProperties.put(itemKey, itemValue);
 				}
 			}

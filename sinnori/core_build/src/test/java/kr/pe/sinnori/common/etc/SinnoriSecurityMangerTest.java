@@ -8,9 +8,9 @@ import java.lang.reflect.InvocationTargetException;
 import org.junit.Test;
 
 import junitlib.JunitUtil;
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 
-public class SinnoriSecurityMangerTest extends AbstractJunitTest {
+public class SinnoriSecurityMangerTest extends AbstractJunitSupporter {
 	
 	
 	/**

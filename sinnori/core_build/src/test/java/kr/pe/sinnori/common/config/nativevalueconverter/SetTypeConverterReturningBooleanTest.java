@@ -1,14 +1,15 @@
 package kr.pe.sinnori.common.config.nativevalueconverter;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
 
-public class SetTypeConverterReturningBooleanTest extends AbstractJunitTest implements NativeValueConverterTestIF {
+public class SetTypeConverterReturningBooleanTest extends AbstractJunitSupporter implements NativeValueConverterTestIF {
 	
 	private SetTypeConverterReturningBoolean nativeValueConverter = null;
 	private Boolean returnedValue = null;
@@ -50,8 +51,7 @@ public class SetTypeConverterReturningBooleanTest extends AbstractJunitTest impl
 				fail(e.getMessage());
 			}
 			
-			org.junit.Assert.assertThat("the expected value comparison",
-					returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+			assertEquals("the expected value comparison", returnedValue, expectedValue);
 		}
 	}
 	

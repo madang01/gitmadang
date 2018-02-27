@@ -9,10 +9,10 @@ import java.nio.charset.CharsetDecoder;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
 
-public class FixedSizeInputStreamTest extends AbstractJunitTest {
+public class FixedSizeInputStreamTest extends AbstractJunitSupporter {
 	
 	
 	@Test

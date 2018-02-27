@@ -1,8 +1,9 @@
 package kr.pe.sinnori.common.config.nativevalueconverter;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
 
 import org.junit.Before;
@@ -10,7 +11,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GeneralConverterReturningNoTrimStringTest extends AbstractJunitTest implements
+public class GeneralConverterReturningNoTrimStringTest extends AbstractJunitSupporter implements
 NativeValueConverterTestIF {
 	
 	Logger log = LoggerFactory.getLogger(GeneralConverterReturningNoTrimStringTest.class);
@@ -44,8 +45,7 @@ NativeValueConverterTestIF {
 			fail(e.getMessage());
 		}
 		
-		org.junit.Assert.assertThat("the expected value comparison",
-				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		assertEquals("the expected value comparison", returnedValue, expectedValue);
 	}
 
 	@Override

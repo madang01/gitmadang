@@ -1,10 +1,12 @@
 package kr.pe.sinnori.common.config.nativevalueconverter;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 
-public class GeneralConverterReturningIntegerBetweenMinAndMaxTest extends AbstractJunitTest {
+public class GeneralConverterReturningIntegerBetweenMinAndMaxTest extends AbstractJunitSupporter {
 	
 	
 	@Test(expected=IllegalArgumentException.class)
@@ -69,7 +71,6 @@ public class GeneralConverterReturningIntegerBetweenMinAndMaxTest extends Abstra
 		expectedValue = 12;
 		returnedValue = minMaxConverter.valueOf(String.valueOf(expectedValue));
 		
-		org.junit.Assert.assertThat("the expected value comparison",
-				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));		
+		assertEquals("the expected value comparison", returnedValue, expectedValue);		
 	}
 }

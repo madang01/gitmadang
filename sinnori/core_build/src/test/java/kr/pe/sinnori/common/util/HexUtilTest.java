@@ -8,10 +8,10 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 
-public class HexUtilTest extends AbstractJunitTest {
+public class HexUtilTest extends AbstractJunitSupporter {
 	
 	
 

@@ -5,11 +5,11 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 import kr.pe.sinnori.common.etc.LimitedLongBitSet.BadBitSetIndexException;
 import kr.pe.sinnori.common.etc.LimitedLongBitSet.FailedListFullException;
 
-public class LimitedLongBitSetTest extends AbstractJunitTest {
+public class LimitedLongBitSetTest extends AbstractJunitSupporter {
 	
 	@Test
 	public void test_normal() {

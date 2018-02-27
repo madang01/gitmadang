@@ -1,5 +1,6 @@
 package kr.pe.sinnori.common.config.nativevalueconverter;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.nio.charset.Charset;
@@ -7,10 +8,10 @@ import java.nio.charset.Charset;
 import org.junit.Before;
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
 
-public class GeneralConverterReturningCharsetTest extends AbstractJunitTest implements
+public class GeneralConverterReturningCharsetTest extends AbstractJunitSupporter implements
 		NativeValueConverterTestIF {
 
 	private GeneralConverterReturningCharset nativeValueConverter = null;
@@ -54,14 +55,8 @@ public class GeneralConverterReturningCharsetTest extends AbstractJunitTest impl
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
 		}
-
-		/*
-		 * if (!returnedValue.name().equals(defaultCharset.name())) { fail(
-		 * "error, the wanted result is a default charset but it is not a default charset"
-		 * ); }
-		 */
-		org.junit.Assert.assertThat("the expected value comparison",
-				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		
+		assertEquals("the expected value comparison", returnedValue, expectedValue);
 	}
 
 	@Test
@@ -80,13 +75,8 @@ public class GeneralConverterReturningCharsetTest extends AbstractJunitTest impl
 			fail(e.getMessage());
 		}
 
-		/*
-		 * if (!returnedValue.name().equals(utf8Charset.name())) { fail(
-		 * "error, the wanted result is a utf8 charset but it is not a utf8 charset"
-		 * ); }
-		 */
-		org.junit.Assert.assertThat("the expected value comparison",
-				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		
+		assertEquals("the expected value comparison", returnedValue, expectedValue);
 
 		try {
 			returnedValue = nativeValueConverter.valueOf("unicode-1-1-utf-8");
@@ -98,13 +88,8 @@ public class GeneralConverterReturningCharsetTest extends AbstractJunitTest impl
 			fail(e.getMessage());
 		}
 
-		/*
-		 * if (!returnedValue.name().equals(utf8Charset.name())) { fail(
-		 * "error, the wanted result is a utf8 charset but it is not a utf8 charset"
-		 * ); }
-		 */
-		org.junit.Assert.assertThat("the expected value comparison",
-				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		
+		assertEquals("the expected value comparison", returnedValue, expectedValue);
 
 		/** alias test end */
 	}
@@ -125,14 +110,8 @@ public class GeneralConverterReturningCharsetTest extends AbstractJunitTest impl
 		} catch (IllegalArgumentException e) {
 			fail(e.getMessage());
 		}
-
-		/*
-		 * if (!returnedValue.name().equals(utf8Charset.name())) { fail(
-		 * "error, the wanted result is a utf8 charset but it is not a utf8 charset"
-		 * ); }
-		 */
-		org.junit.Assert.assertThat("the expected value comparison",
-				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		
+		assertEquals("the expected value comparison", returnedValue, expectedValue);
 
 		try {
 			returnedValue = nativeValueConverter.valueOf("uTF-8");
@@ -144,13 +123,8 @@ public class GeneralConverterReturningCharsetTest extends AbstractJunitTest impl
 			fail(e.getMessage());
 		}
 
-		/*
-		 * if (!returnedValue.name().equals(utf8Charset.name())) { fail(
-		 * "error, the wanted result is a utf8 charset but it is not a utf8 charset"
-		 * ); }
-		 */
-		org.junit.Assert.assertThat("the expected value comparison",
-				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		
+		assertEquals("the expected value comparison", returnedValue, expectedValue);
 		/** 대소문자 구분 여부 테스트 종료 */
 	}
 

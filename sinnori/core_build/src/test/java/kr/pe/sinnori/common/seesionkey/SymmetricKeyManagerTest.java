@@ -7,12 +7,12 @@ import java.util.Random;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.sessionkey.SymmetricKeyManager;
 
-public class SymmetricKeyManagerTest extends AbstractJunitTest {	
+public class SymmetricKeyManagerTest extends AbstractJunitSupporter {	
 	
 	@Test
 	public void testEncrypt_paramter_symmetricKeyAlgorithm_null() {

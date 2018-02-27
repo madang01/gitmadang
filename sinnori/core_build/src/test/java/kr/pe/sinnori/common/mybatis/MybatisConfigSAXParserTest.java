@@ -69,7 +69,7 @@ public class MybatisConfigSAXParserTest {
 		boolean isServer = true;
 		boolean isAppClient = true;
 		boolean isWebClient = true;
-		String servletSystemLibraryPathString = "D:\\apache-tomcat-8.5.11\\lib";
+		String servletSystemLibraryPathString = "D:\\apache-tomcat-8.5.15\\lib";
 		
 		try {
 			ProjectBuilder projectBuilder = new ProjectBuilder(sinnoriInstalledPathString, mainProjectName);			

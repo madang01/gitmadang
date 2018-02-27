@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.classloader.IOPartDynamicClassNameUtil;
 import kr.pe.sinnori.common.etc.CharsetUtil;
@@ -54,7 +54,7 @@ import kr.pe.sinnori.server.threadpool.executor.handler.ServerExecutorIF;
 import kr.pe.sinnori.server.threadpool.inputmessage.handler.InputMessageReaderIF;
 import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriterIF;
 
-public class ServerTaskTest extends AbstractJunitTest {
+public class ServerTaskTest extends AbstractJunitSupporter {
 	
 	/*@Test
 	public void testSelfExn() {

@@ -68,7 +68,8 @@ public class SequencedProperties extends Properties {
     	for (Object key : keyList) {
     		writer.append((String)key);
     		writer.append("=");
-    		writer.append(getProperty((String)key));
+    		String tempValue = getProperty((String)key);
+    		writer.append(tempValue.replaceAll("\\\\", "\\\\\\\\"));
     		writer.append(System.getProperty("line.separator"));
     	}
     	

@@ -1,8 +1,8 @@
 package javapackage.sigleton;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 
-public class sampleMiddle extends AbstractJunitTest {
+public class sampleMiddle extends AbstractJunitSupporter {
 	public sampleMiddle() {
 		new SampleRefSingleton().test();
 	}

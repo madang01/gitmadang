@@ -13,12 +13,12 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 import kr.pe.sinnori.common.etc.CharsetUtil;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
 
-public class FreeSizeOutputStreamTest extends AbstractJunitTest {
+public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 	
 
 	private void checkValidFlippedWrapBufferList(List<WrapBuffer> flippedWrapBufferList) {

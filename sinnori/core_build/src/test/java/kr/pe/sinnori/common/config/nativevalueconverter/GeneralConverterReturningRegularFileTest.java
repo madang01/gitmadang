@@ -1,5 +1,6 @@
 package kr.pe.sinnori.common.config.nativevalueconverter;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -9,10 +10,10 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
 
-public class GeneralConverterReturningRegularFileTest extends AbstractJunitTest implements
+public class GeneralConverterReturningRegularFileTest extends AbstractJunitSupporter implements
 		NativeValueConverterTestIF {
 
 	private GeneralConverterReturningRegularFile nativeValueConverter = null;
@@ -86,9 +87,7 @@ public class GeneralConverterReturningRegularFileTest extends AbstractJunitTest 
 		 * compared has same path.
 		 */
 		try {
-			org.junit.Assert.assertThat("the expected value comparison",
-					returnedValue.getCanonicalPath(), org.hamcrest.CoreMatchers
-							.equalTo(expectedValue.getCanonicalPath()));
+			assertEquals("the expected value comparison", returnedValue.getCanonicalPath(), expectedValue.getCanonicalPath());			
 		} catch (IOException e) {
 			fail(e.getMessage());
 		}

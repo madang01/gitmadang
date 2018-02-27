@@ -6,9 +6,9 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 
 import kr.pe.sinnori.client.connection.asyn.share.AsynPrivateMailboxMapper;
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 
-public class AsynMailboxMapperTest extends AbstractJunitTest {
+public class AsynMailboxMapperTest extends AbstractJunitSupporter {
 	
 	@Test
 	public void testGetAsynMailbox_theParameterMailBoxID_lessThanOrEqualToZero() {

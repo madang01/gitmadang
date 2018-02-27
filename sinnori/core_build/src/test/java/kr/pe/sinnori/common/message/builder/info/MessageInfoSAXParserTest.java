@@ -1,5 +1,6 @@
 package kr.pe.sinnori.common.message.builder.info;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -11,9 +12,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 
-public class MessageInfoSAXParserTest extends AbstractJunitTest {
+public class MessageInfoSAXParserTest extends AbstractJunitSupporter {
 	MessageInfoSAXParser messageInfoSAXParser = null;	
 
 	@Before
@@ -222,9 +223,7 @@ public class MessageInfoSAXParserTest extends AbstractJunitTest {
 			fail(e.getMessage());
 		}
 
-		org.junit.Assert
-				.assertThat("the expected value comparison", returnedValue,
-						org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		assertEquals("the expected value comparison", returnedValue, expectedValue);
 	}
 
 	@Test

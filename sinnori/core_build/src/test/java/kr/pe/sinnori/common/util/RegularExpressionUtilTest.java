@@ -2,9 +2,9 @@ package kr.pe.sinnori.common.util;
 
 import org.junit.Before;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 
-public class RegularExpressionUtilTest extends AbstractJunitTest {
+public class RegularExpressionUtilTest extends AbstractJunitSupporter {
 	boolean returnedValue;
 
 	boolean expectedValue;
@@ -41,9 +41,7 @@ public class RegularExpressionUtilTest extends AbstractJunitTest {
 		for (int i=0; i < validCaseStringArray.length; i++) {
 			returnedValue = RegularExpressionUtil.hasLeadingOrTailingWhiteSpace(validCaseStringArray[i]);
 
-			org.junit.Assert
-					.assertThat("the index "+ i+" valid string's expected value comparison", returnedValue,
-							org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		assertEquals("the index "+ i+" valid string's expected value comparison", returnedValue, expectedValue);			
 		}
 		
 	}
@@ -54,10 +52,8 @@ public class RegularExpressionUtilTest extends AbstractJunitTest {
 		
 		for (int i=0; i < invalidCaseStringArray.length; i++) {
 			returnedValue = RegularExpressionUtil.hasLeadingOrTailingWhiteSpace(invalidCaseStringArray[i]);
-
-			org.junit.Assert
-					.assertThat("the index "+ i+" invalid string's expected value comparison", returnedValue,
-							org.hamcrest.CoreMatchers.equalTo(expectedValue));
+							
+			assertEquals("the index "+ i+" invalid string's expected value comparison", returnedValue, expectedValue);				
 		}
 		
 	}

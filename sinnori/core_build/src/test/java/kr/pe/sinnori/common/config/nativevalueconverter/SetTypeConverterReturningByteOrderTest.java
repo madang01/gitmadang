@@ -1,5 +1,6 @@
 package kr.pe.sinnori.common.config.nativevalueconverter;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.nio.ByteOrder;
@@ -7,10 +8,10 @@ import java.nio.ByteOrder;
 import org.junit.Before;
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
 
-public class SetTypeConverterReturningByteOrderTest extends AbstractJunitTest implements NativeValueConverterTestIF {
+public class SetTypeConverterReturningByteOrderTest extends AbstractJunitSupporter implements NativeValueConverterTestIF {
 	
 	private SetTypeConverterReturningByteOrder nativeValueConverter = null;
 	private ByteOrder returnedValue = null;	
@@ -52,8 +53,7 @@ public class SetTypeConverterReturningByteOrderTest extends AbstractJunitTest im
 				fail(e.getMessage());
 			}
 			
-			org.junit.Assert.assertThat("the expected value comparison",
-					returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+			assertEquals("the expected value comparison", returnedValue, expectedValue);
 		}
 	}
 	

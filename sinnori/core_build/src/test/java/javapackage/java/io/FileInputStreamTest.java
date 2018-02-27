@@ -9,9 +9,9 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 
-public class FileInputStreamTest extends AbstractJunitTest {
+public class FileInputStreamTest extends AbstractJunitSupporter {
 	
 	
 	@Test

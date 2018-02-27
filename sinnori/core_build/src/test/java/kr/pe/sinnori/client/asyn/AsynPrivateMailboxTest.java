@@ -13,12 +13,12 @@ import org.junit.Test;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox;
 import kr.pe.sinnori.client.connection.asyn.share.AsynPrivateMailboxMapper;
 import kr.pe.sinnori.client.connection.asyn.share.AsynPrivateMailboxPool;
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
-public class AsynPrivateMailboxTest extends AbstractJunitTest {
+public class AsynPrivateMailboxTest extends AbstractJunitSupporter {
 	
 	@Test
 	public void testputToSyncOutputMessageQueue_2번연속호출하여큐를비우는로직테스트() {

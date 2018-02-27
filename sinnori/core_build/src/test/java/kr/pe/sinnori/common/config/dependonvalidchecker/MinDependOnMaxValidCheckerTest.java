@@ -1,5 +1,6 @@
 package kr.pe.sinnori.common.config.dependonvalidchecker;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.nio.charset.Charset;
@@ -472,8 +473,7 @@ public class MinDependOnMaxValidCheckerTest {
 		}
 		
 		
-		org.junit.Assert.assertThat("the expected value comparison",
-				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		assertEquals("the expected value comparison", returnedValue, expectedValue);
 	}
 	
 	

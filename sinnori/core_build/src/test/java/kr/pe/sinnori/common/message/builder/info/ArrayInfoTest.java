@@ -4,9 +4,9 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 
-public class ArrayInfoTest extends AbstractJunitTest {
+public class ArrayInfoTest extends AbstractJunitSupporter {
 	
 	@Test
 	public void testConstructor_배열크기직접입력방식_문자인배열크기() {

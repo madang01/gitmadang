@@ -1,15 +1,16 @@
 package kr.pe.sinnori.common.config.nativevalueconverter;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
 import kr.pe.sinnori.common.type.SessionKey;
 
-public class SetTypeConverterOfSessionKeyRSAKeypairSourceTest extends AbstractJunitTest implements
+public class SetTypeConverterOfSessionKeyRSAKeypairSourceTest extends AbstractJunitSupporter implements
 NativeValueConverterTestIF {
 	
 	private SetTypeConverterOfSessionKeyRSAKeypairSource nativeValueConverter = null;
@@ -44,8 +45,7 @@ NativeValueConverterTestIF {
 				fail(e.getMessage());
 			}
 			
-			org.junit.Assert.assertThat("the expected value comparison",
-					returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+			assertEquals("the expected value comparison", returnedValue, expectedValue);
 		}
 	}
 

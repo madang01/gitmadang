@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite errors="0" failures="0" hostname="madang02-pc" name="kr.pe.sinnori.common.buildsystem.BuildSystemSupporterTest" skipped="0" tests="1" time="0.779" timestamp="2018-02-27T00:45:28">
+  <properties>
+    <property name="java.vendor" value="Oracle Corporation" />
+    <property name="dir.build" value="D:\gitsinnori\sinnori\core_build\build" />
+    <property name="sun.java.launcher" value="SUN_STANDARD" />
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers" />
+    <property name="dir.dist" value="D:\gitsinnori\sinnori\core_build\dist" />
+    <property name="os.name" value="Windows 10" />
+    <property name="sun.boot.class.path" value="C:\Program Files\Java\jdk1.8.0_131\jre\lib\resources.jar;C:\Program Files\Java\jdk1.8.0_131\jre\lib\rt.jar;C:\Program Files\Java\jdk1.8.0_131\jre\lib\sunrsasign.jar;C:\Program Files\Java\jdk1.8.0_131\jre\lib\jsse.jar;C:\Program Files\Java\jdk1.8.0_131\jre\lib\jce.jar;C:\Program Files\Java\jdk1.8.0_131\jre\lib\charsets.jar;C:\Program Files\Java\jdk1.8.0_131\jre\lib\jfr.jar;C:\Program Files\Java\jdk1.8.0_131\jre\classes" />
+    <property name="sun.desktop" value="windows" />
+    <property name="java.vm.specification.vendor" value="Oracle Corporation" />
+    <property name="ant.home" value="D:\apache-ant-1.10.0\bin\.." />
+    <property name="java.runtime.version" value="1.8.0_131-b11" />
+    <property name="user.name" value="madang03" />
+    <property name="dir.report" value="D:\gitsinnori\sinnori\core_build\report" />
+    <property name="user.language" value="ko" />
+    <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk1.8.0_131\jre\bin" />
+    <property name="ant.project.default-target" value="make.core" />
+    <property name="ant.project.name" value="sinnori_core_build" />
+    <property name="java.version" value="1.8.0_131" />
+    <property name="user.timezone" value="" />
+    <property name="java.complile.option.debug" value="on" />
+    <property name="sun.arch.data.model" value="64" />
+    <property name="java.endorsed.dirs" value="C:\Program Files\Java\jdk1.8.0_131\jre\lib\endorsed" />
+    <property name="sun.cpu.isalist" value="amd64" />
+    <property name="sun.jnu.encoding" value="MS949" />
+    <property name="file.encoding.pkg" value="sun.io" />
+    <property name="file.separator" value="\" />
+    <property name="dir.appinf" value="D:\gitsinnori\sinnori\core_build\APP-INF" />
+    <property name="java.specification.name" value="Java Platform API Specification" />
+    <property name="java.class.version" value="52.0" />
+    <property name="dir.testlib" value="D:\gitsinnori\sinnori\core_build\lib\test" />
+    <property name="user.country" value="KR" />
+    <property name="java.home" value="C:\Program Files\Java\jdk1.8.0_131\jre" />
+    <property name="ant.file.sinnori_core_build" value="D:\gitsinnori\sinnori\core_build\build.xml" />
+    <property name="java.vm.info" value="mixed mode" />
+    <property name="ant.file" value="D:\gitsinnori\sinnori\core_build\build.xml" />
+    <property name="os.version" value="10.0" />
+    <property name="path.separator" value=";" />
+    <property name="java.vm.version" value="25.131-b11" />
+    <property name="user.variant" value="" />
+    <property name="ant.library.dir" value="D:\apache-ant-1.10.0\lib" />
+    <property name="java.awt.printerjob" value="sun.awt.windows.WPrinterJob" />
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle" />
+    <property name="awt.toolkit" value="sun.awt.windows.WToolkit" />
+    <property name="sun.stdout.encoding" value="ms949" />
+    <property name="user.script" value="" />
+    <property name="user.home" value="C:\Users\user" />
+    <property name="java.specification.vendor" value="Oracle Corporation" />
+    <property name="java.library.path" value="C:\Program Files\Java\jdk1.8.0_131\jre\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\ProgramData\Oracle\Java\javapath;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Java\jdk1.8.0_131\bin;C:\Program Files\Git\cmd;D:\apache-ant-1.10.0\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;D:\gradle-4.5\bin;C:\Users\user\AppData\Local\Microsoft\WindowsApps;;." />
+    <property name="java.vendor.url" value="http://java.oracle.com/" />
+    <property name="ant.file.type.sinnori_core_build" value="file" />
+    <property name="java.vm.vendor" value="Oracle Corporation" />
+    <property name="dir.src" value="D:\gitsinnori\sinnori\core_build\src\main\java" />
+    <property name="java.runtime.name" value="Java(TM) SE Runtime Environment" />
+    <property name="sun.java.command" value="org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner kr.pe.sinnori.common.buildsystem.BuildSystemSupporterTest skipNonTests=false filtertrace=true haltOnError=true haltOnFailure=true formatter=org.apache.tools.ant.taskdefs.optional.junit.SummaryJUnitResultFormatter showoutput=true outputtoformatters=true logfailedtests=true threadid=0 logtestlistenerevents=false formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,D:\gitsinnori\sinnori\core_build\report\TEST-kr.pe.sinnori.common.buildsystem.BuildSystemSupporterTest.xml crashfile=D:\gitsinnori\sinnori\core_build\junitvmwatcher8772415867574872614.properties propsfile=D:\gitsinnori\sinnori\core_build\junit6311618713197135654.properties" />
+    <property name="java.class.path" value="D:\gitsinnori\sinnori\core_build\dist\sinnori-core.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\commons-codec-1.9.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\commons-collections4-4.1.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\commons-dbcp2-2.0.1.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\commons-io-2.5.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\commons-pool2-2.2.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\jcl-over-slf4j-1.7.7.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\json-simple-1.1.1.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\logback-classic-1.1.2.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\logback-core-1.1.2.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\mybatis-3.3.0-SNAPSHOT.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\mysql-connector-java-5.1.37-bin.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\slf4j-api-1.7.7.jar;D:\gitsinnori\sinnori\core_build\lib\test\byte-buddy-1.7.9.jar;D:\gitsinnori\sinnori\core_build\lib\test\byte-buddy-agent-1.7.9.jar;D:\gitsinnori\sinnori\core_build\lib\test\commons-exec-1.3.jar;D:\gitsinnori\sinnori\core_build\lib\test\hamcrest-core-1.3.jar;D:\gitsinnori\sinnori\core_build\lib\test\junit-4.12.jar;D:\gitsinnori\sinnori\core_build\lib\test\mockito-core-2.13.4.jar;D:\gitsinnori\sinnori\core_build\lib\test\objenesis-2.6.jar;D:\gitsinnori\sinnori\core_build\build\test;D:\apache-ant-1.10.0\lib\ant-launcher.jar;D:\apache-ant-1.10.0\lib\ant.jar;D:\apache-ant-1.10.0\lib\ant-junit.jar;D:\apache-ant-1.10.0\lib\ant-junit4.jar" />
+    <property name="ant.version" value="Apache Ant(TM) version 1.10.0 compiled on December 27 2016" />
+    <property name="dir.testsrc" value="D:\gitsinnori\sinnori\core_build\src\test\java" />
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification" />
+    <property name="ant.file.type" value="file" />
+    <property name="java.vm.specification.version" value="1.8" />
+    <property name="sun.cpu.endian" value="little" />
+    <property name="sun.os.patch.level" value="" />
+    <property name="dir.mainlib" value="D:\gitsinnori\sinnori\core_build\lib\main" />
+    <property name="java.io.tmpdir" value="C:\Users\user\AppData\Local\Temp\" />
+    <property name="java.vendor.url.bug" value="http://bugreport.sun.com/bugreport/" />
+    <property name="os.arch" value="amd64" />
+    <property name="java.awt.graphicsenv" value="sun.awt.Win32GraphicsEnvironment" />
+    <property name="java.ext.dirs" value="C:\Program Files\Java\jdk1.8.0_131\jre\lib\ext;C:\WINDOWS\Sun\Java\lib\ext" />
+    <property name="user.dir" value="D:\gitsinnori\sinnori\core_build" />
+    <property name="line.separator" value="&#xd;&#xa;" />
+    <property name="java.vm.name" value="Java HotSpot(TM) 64-Bit Server VM" />
+    <property name="basedir" value="D:\gitsinnori\sinnori\core_build" />
+    <property name="ant.java.version" value="1.8" />
+    <property name="ant.core.lib" value="D:\apache-ant-1.10.0\lib\ant.jar" />
+    <property name="dir.guilib" value="D:\gitsinnori\sinnori\core_build\guilib" />
+    <property name="file.encoding" value="MS949" />
+    <property name="sun.stderr.encoding" value="ms949" />
+    <property name="java.specification.version" value="1.8" />
+    <property name="ant.project.invoked-targets" value="test" />
+  </properties>
+  <testcase classname="kr.pe.sinnori.common.buildsystem.BuildSystemSupporterTest" name="testCreateNewMainProjectBuildSystem" time="0.741" />
+  <system-out><![CDATA[09:45:28.747 [main] INFO  k.p.s.c.b.BuildSystemSupporter - new main project drop task stat
+09:45:28.783 [main] INFO  k.p.s.c.b.BuildSystemSupporter - new main project drop task end
+09:45:28.783 [main] INFO  k.p.s.c.b.BuildSystemSupporter - new main project creation task stat
+09:45:28.784 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s child direcotry creation task start
+09:45:28.785 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s common child direcotry creation task start
+09:45:28.786 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][config] was created successfully
+09:45:28.787 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][resources/dbcp] was created successfully
+09:45:28.787 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][resources/message_info] was created successfully
+09:45:28.788 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][resources/rsa_keypair] was created successfully
+09:45:28.788 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][log/apache] was created successfully
+09:45:28.788 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][log/client] was created successfully
+09:45:28.789 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][log/server] was created successfully
+09:45:28.789 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][log/servlet] was created successfully
+09:45:28.789 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s common child direcotry creation task end
+09:45:28.789 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s application build child direcotry creation task start
+09:45:28.790 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][client_build/app_build/corelib/ex] was created successfully
+09:45:28.791 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][client_build/app_build/corelib/in] was created successfully
+09:45:28.792 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][client_build/app_build/lib/main/ex] was created successfully
+09:45:28.792 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][client_build/app_build/lib/main/in] was created successfully
+09:45:28.792 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][client_build/app_build/lib/test] was created successfully
+09:45:28.795 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][client_build/app_build/src/main/java/kr/pe/sinnori/impl/message] was created successfully
+09:45:28.796 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][client_build/app_build/src/main/java/main] was created successfully
+09:45:28.797 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][client_build/app_build/src/test/java] was created successfully
+09:45:28.797 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][client_build/app_build/build] was created successfully
+09:45:28.797 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][client_build/app_build/dist] was created successfully
+09:45:28.825 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s application build child direcotry creation task end
+09:45:28.825 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s web build child direcotry creation task start
+09:45:28.827 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][client_build/web_build/corelib/ex] was created successfully
+09:45:28.827 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][client_build/web_build/corelib/in] was created successfully
+09:45:28.828 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][client_build/web_build/lib/main/ex] was created successfully
+09:45:28.829 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][client_build/web_build/lib/main/in] was created successfully
+09:45:28.829 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][client_build/web_build/lib/test] was created successfully
+09:45:28.832 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][client_build/web_build/src/main/java/kr/pe/sinnori/impl/message] was created successfully
+09:45:28.833 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][client_build/web_build/src/main/java//kr/pe/sinnori/servlet] was created successfully
+09:45:28.833 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][client_build/web_build/src/main/java/kr/pe/sinnori/weblib/common] was created successfully
+09:45:28.834 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][client_build/web_build/src/main/java/kr/pe/sinnori/weblib/htmlstring] was created successfully
+09:45:28.834 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][client_build/web_build/src/main/java/kr/pe/sinnori/weblib/jdf] was created successfully
+09:45:28.835 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][client_build/web_build/src/test/java] was created successfully
+09:45:28.835 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][client_build/web_build/build] was created successfully
+09:45:28.835 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][client_build/web_build/dist] was created successfully
+09:45:28.835 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s web build child direcotry creation task end
+09:45:28.835 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s web root child direcotry creation task start
+09:45:28.836 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][web_app_base/upload] was created successfully
+09:45:28.837 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][web_app_base/ROOT/WEB-INF/classes] was created successfully
+09:45:28.837 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test][web_app_base/ROOT/WEB-INF/lib] was created successfully
+09:45:28.837 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s web root child direcotry creation task end
+09:45:28.837 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s child direcotry creation task end
+09:45:28.838 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s file creation task start
+09:45:28.838 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s config file creation task start
+09:45:28.856 [main] INFO  k.p.s.c.util.SequencedPropertiesUtil - the sequenced properties file[D:\gitsinnori\sinnori\project\sample_test\config\sinnori.properties] was created
+09:45:28.864 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s config file creation task end
+09:45:28.864 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - the mainproject[sample_test]'s resources directory copy task start
+09:45:28.889 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - the mainproject[sample_test]'s resources directory copy task end
+09:45:28.889 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - mainproject[sample_test]'s application client build system files creation task start
+09:45:28.889 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s application client ant build.xml file creation task start
+09:45:28.892 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s application client ant build.xml file creation task end
+09:45:28.892 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s application client dos shell file creation task start
+09:45:28.897 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s application client dos shell file creation task end
+09:45:28.897 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s application client unix shell file creation task start
+09:45:28.900 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s application client unix shell file creation task end
+09:45:28.900 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - application client sample source files copy task start
+09:45:28.914 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - application client sample source files copy task end
+09:45:28.914 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s application client message io file set creation task start
+09:45:28.915 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message][Echo] was created successfully
+09:45:28.915 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message file[Echo][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.000 [main] INFO  k.p.s.c.m.b.i.SingleItemTypeManger - the sinnori message information .xsl temporary file[C:\Users\user\AppData\Local\Temp\SinnoriMsgXSL6482810387789158442.tmp] was created successfully
+09:45:29.046 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message file[Echo][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.047 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message decoder file[Echo][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.056 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message decoder file[Echo][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.056 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message encoder file[Echo][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.066 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message encoder file[Echo][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.066 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message server codec file[Echo][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.068 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message server codec file[Echo][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.068 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message client codec file[Echo][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.070 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message client codec file[Echo][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.070 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message][PublicKeyReq] was created successfully
+09:45:29.070 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message file[PublicKeyReq][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.077 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message file[PublicKeyReq][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.078 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message decoder file[PublicKeyReq][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.084 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message decoder file[PublicKeyReq][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.085 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message encoder file[PublicKeyReq][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.092 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message encoder file[PublicKeyReq][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.092 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message server codec file[PublicKeyReq][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.098 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message server codec file[PublicKeyReq][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.098 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message client codec file[PublicKeyReq][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.104 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message client codec file[PublicKeyReq][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.105 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message][PublicKeyRes] was created successfully
+09:45:29.162 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message file[PublicKeyRes][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.183 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message file[PublicKeyRes][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.184 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message decoder file[PublicKeyRes][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.196 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message decoder file[PublicKeyRes][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.196 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message encoder file[PublicKeyRes][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.208 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message encoder file[PublicKeyRes][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.208 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message server codec file[PublicKeyRes][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.210 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message server codec file[PublicKeyRes][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.210 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message client codec file[PublicKeyRes][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.213 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message client codec file[PublicKeyRes][D:\gitsinnori\sinnori\project\sample_test\client_build\app_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.213 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s application client message io file set creation task end
+09:45:29.213 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - mainproject[sample_test]'s application client build system files creation task end
+09:45:29.214 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s web client build system files creation task start
+09:45:29.214 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s web client ant build.xml file creation task start
+09:45:29.217 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s web client ant build.xml file creation task end
+09:45:29.217 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s web client ant properties file creation task start
+09:45:29.218 [main] INFO  k.p.s.c.util.SequencedPropertiesUtil - the sequenced properties file[D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\webAnt.properties] was created
+09:45:29.222 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s web client ant properties file creation task end
+09:45:29.223 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s web client message io file set creation task start
+09:45:29.223 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message][Echo] was created successfully
+09:45:29.224 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message file[Echo][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.231 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message file[Echo][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.231 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message decoder file[Echo][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.237 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message decoder file[Echo][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.238 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message encoder file[Echo][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.243 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message encoder file[Echo][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.244 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message server codec file[Echo][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.245 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message server codec file[Echo][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.245 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message client codec file[Echo][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.246 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message client codec file[Echo][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.246 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message][PublicKeyReq] was created successfully
+09:45:29.246 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message file[PublicKeyReq][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.251 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message file[PublicKeyReq][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.251 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message decoder file[PublicKeyReq][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.258 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message decoder file[PublicKeyReq][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.319 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message encoder file[PublicKeyReq][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.325 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message encoder file[PublicKeyReq][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.325 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message server codec file[PublicKeyReq][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.327 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message server codec file[PublicKeyReq][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.327 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message client codec file[PublicKeyReq][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.330 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message client codec file[PublicKeyReq][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.331 [main] INFO  k.p.s.common.util.CommonStaticUtil - the new child relative direcotry[D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message][PublicKeyRes] was created successfully
+09:45:29.331 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message file[PublicKeyRes][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.340 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message file[PublicKeyRes][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.340 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message decoder file[PublicKeyRes][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.353 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message decoder file[PublicKeyRes][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.354 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message encoder file[PublicKeyRes][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.360 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message encoder file[PublicKeyRes][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.360 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message server codec file[PublicKeyRes][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.362 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message server codec file[PublicKeyRes][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.363 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message client codec file[PublicKeyRes][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task start
+09:45:29.365 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s message client codec file[PublicKeyRes][D:\gitsinnori\sinnori\project\sample_test\client_build\web_build\src\main\java\kr\pe\sinnori\impl\message] creation task end
+09:45:29.365 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s web client message io file set creation task end
+09:45:29.365 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - mainproject[sample_test]'s web client sample source files copy task start
+09:45:29.460 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - mainproject[sample_test]'s web client sample source files copy task end
+09:45:29.460 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s web client build system files creation task end
+09:45:29.460 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s web root sample files creation task start
+09:45:29.460 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s web root sample files copy task start
+09:45:29.485 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s web root sample files copy task end
+09:45:29.485 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s web root sample files creation task end
+09:45:29.485 [main] INFO  k.p.s.c.buildsystem.ProjectBuilder - main project[sample_test]'s file creation task end
+09:45:29.485 [main] INFO  k.p.s.c.b.BuildSystemSupporter - new main project creation task end
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -2,11 +2,11 @@ package kr.pe.sinnori.common.config.iteminfo;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 import kr.pe.sinnori.common.config.itemidinfo.SinnoriItemIDInfoManger;
 import kr.pe.sinnori.common.util.SequencedProperties;
 
-public class SinnoriItemIDInfoMangerTest extends AbstractJunitTest {
+public class SinnoriItemIDInfoMangerTest extends AbstractJunitSupporter {
 	
 	
 	@Test

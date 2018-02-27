@@ -1,14 +1,15 @@
 package kr.pe.sinnori.common.buildsystem;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.io.File;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 
-public class BuildSystemPathSupporterTest extends AbstractJunitTest {
+public class BuildSystemPathSupporterTest extends AbstractJunitSupporter {
 	
 	
 	@Test
@@ -30,8 +31,7 @@ public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 		String returnedValue = BuildSystemPathSupporter
 				.getProjectBasePathString(sinnoriInstalledPathString);
 		
-		org.junit.Assert.assertThat("the expected value comparison",
-				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		assertEquals("the expected value comparison", returnedValue, expectedValue);
 	}
 	
 	@Test
@@ -50,8 +50,7 @@ public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 		String returnedValue = BuildSystemPathSupporter
 				.getProjectPathString(sinnoriInstalledPathString, mainProjectName);
 		
-		org.junit.Assert.assertThat("the expected value comparison",
-				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		assertEquals("the expected value comparison", returnedValue, expectedValue);
 	}
 	
 	@Test
@@ -70,8 +69,7 @@ public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 		String returnedValue = BuildSystemPathSupporter
 				.getSinnoriConfigPathString(sinnoriInstalledPathString, mainProjectName);
 		
-		org.junit.Assert.assertThat("the expected value comparison",
-				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		assertEquals("the expected value comparison", returnedValue, expectedValue);
 	}
 	
 	@Test
@@ -90,8 +88,7 @@ public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 		String returnedValue = BuildSystemPathSupporter
 				.getSinnoriConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
 		
-		org.junit.Assert.assertThat("the expected value comparison",
-				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		assertEquals("the expected value comparison", returnedValue, expectedValue);
 	}
 	
 	@Test
@@ -110,8 +107,7 @@ public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 		String returnedValue = BuildSystemPathSupporter
 				.getLogbackConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
 		
-		org.junit.Assert.assertThat("the expected value comparison",
-				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		assertEquals("the expected value comparison", returnedValue, expectedValue);
 	}
 	
 	@Test
@@ -131,8 +127,7 @@ public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 		String returnedValue = BuildSystemPathSupporter
 				.getMessageInfoFilesPathString(sinnoriInstalledPathString, mainProjectName);
 		
-		org.junit.Assert.assertThat("the expected value comparison",
-				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		assertEquals("the expected value comparison", returnedValue, expectedValue);
 	}
 	
 	@Test
@@ -151,8 +146,7 @@ public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 		String returnedValue = BuildSystemPathSupporter
 				.getWebClientAntPropertiesFilePath(sinnoriInstalledPathString, mainProjectName);
 		
-		org.junit.Assert.assertThat("the expected value comparison",
-				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		assertEquals("the expected value comparison", returnedValue, expectedValue);
 	}
 	
 	
@@ -173,8 +167,7 @@ public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 		String returnedValue = BuildSystemPathSupporter
 				.getSessionKeyRSAKeypairPathString(sinnoriInstalledPathString, mainProjectName);
 		
-		org.junit.Assert.assertThat("the expected value comparison",
-				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		assertEquals("the expected value comparison", returnedValue, expectedValue);
 	}
 	
 	@Test
@@ -194,8 +187,7 @@ public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 		String returnedValue = BuildSystemPathSupporter
 				.getServerBuildPathString(sinnoriInstalledPathString, mainProjectName);
 		
-		org.junit.Assert.assertThat("the expected value comparison",
-				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		assertEquals("the expected value comparison", returnedValue, expectedValue);
 	}
 	
 	@Test
@@ -215,8 +207,7 @@ public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 		String returnedValue = BuildSystemPathSupporter
 				.getServerAntBuildXMLFilePathString(sinnoriInstalledPathString, mainProjectName);
 		
-		org.junit.Assert.assertThat("the expected value comparison",
-				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		assertEquals("the expected value comparison", returnedValue, expectedValue);
 	}
 	
 	@Test
@@ -236,8 +227,7 @@ public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 		String returnedValue = BuildSystemPathSupporter
 				.getServerAPPINFPathString(sinnoriInstalledPathString, mainProjectName);
 		
-		org.junit.Assert.assertThat("the expected value comparison",
-				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		assertEquals("the expected value comparison", returnedValue, expectedValue);
 	}
 	
 	@Test
@@ -257,8 +247,7 @@ public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 		String returnedValue = BuildSystemPathSupporter
 				.getDBCPConfigFilePathString(sinnoriInstalledPathString, mainProjectName, "sample_base_db");
 		
-		org.junit.Assert.assertThat("the expected value comparison",
-				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		assertEquals("the expected value comparison", returnedValue, expectedValue);
 	}
 	
 	@Test
@@ -278,8 +267,7 @@ public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 		String returnedValue = BuildSystemPathSupporter
 				.getClientBuildBasePathString(sinnoriInstalledPathString, mainProjectName);
 		
-		org.junit.Assert.assertThat("the expected value comparison",
-				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		assertEquals("the expected value comparison", returnedValue, expectedValue);
 	}
 	
 	@Test
@@ -299,8 +287,7 @@ public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 		String returnedValue = BuildSystemPathSupporter
 				.getAppClientBuildPathString(sinnoriInstalledPathString, mainProjectName);
 		
-		org.junit.Assert.assertThat("the expected value comparison",
-				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		assertEquals("the expected value comparison", returnedValue, expectedValue);
 	}
 	
 	@Test
@@ -320,8 +307,7 @@ public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 		String returnedValue = BuildSystemPathSupporter
 				.getAppClientAntBuildXMLFilePathString(sinnoriInstalledPathString, mainProjectName);
 		
-		org.junit.Assert.assertThat("the expected value comparison",
-				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		assertEquals("the expected value comparison", returnedValue, expectedValue);
 	}
 	
 	@Test
@@ -344,8 +330,7 @@ public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 		String returnedValue = BuildSystemPathSupporter
 				.getWebClientBuildPathString(sinnoriInstalledPathString, mainProjectName);
 		
-		org.junit.Assert.assertThat("the expected value comparison",
-				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		assertEquals("the expected value comparison", returnedValue, expectedValue);
 	}
 		
 	@Test
@@ -365,7 +350,6 @@ public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 		String returnedValue = BuildSystemPathSupporter
 				.getWebClientAntBuildXMLFilePathString(sinnoriInstalledPathString, mainProjectName);
 		
-		org.junit.Assert.assertThat("the expected value comparison",
-				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		assertEquals("the expected value comparison", returnedValue, expectedValue);
 	}
 }

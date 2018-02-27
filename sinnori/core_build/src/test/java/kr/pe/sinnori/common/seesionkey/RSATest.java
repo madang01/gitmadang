@@ -4,12 +4,12 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.sessionkey.ClientRSA;
 import kr.pe.sinnori.common.sessionkey.ServerRSA;
 
-public class RSATest extends AbstractJunitTest {
+public class RSATest extends AbstractJunitSupporter {
 	
 	
 	@Test

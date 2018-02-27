@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import kr.pe.sinnori.client.AnyProjectConnectionPoolIF;
 import kr.pe.sinnori.client.ConnectionPoolManager;
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDDefiner;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
@@ -18,7 +18,7 @@ import kr.pe.sinnori.common.type.MessageProtocolType;
 import kr.pe.sinnori.common.type.ProjectType;
 import kr.pe.sinnori.impl.message.Empty.Empty;
 
-public class MainServerManagerTest extends AbstractJunitTest {
+public class MainServerManagerTest extends AbstractJunitSupporter {
 	
 	@Test
 	public void testEmpty메시지송수신() {

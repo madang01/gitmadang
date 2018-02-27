@@ -1,5 +1,6 @@
 package kr.pe.sinnori.common.updownfile;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
@@ -65,8 +66,7 @@ public class FileBlockInformationTest {
 		try {
 			fileBlockCount = FileTransferInformation.getFileBlockCountUsingBigDecimal(10, 21);			
 			
-			org.junit.Assert.assertThat("the expected value comparison",
-					fileBlockCount, org.hamcrest.CoreMatchers.equalTo(expectedFileBlockCount));
+			assertEquals("the expected value comparison", fileBlockCount, expectedFileBlockCount);			
 			
 		} catch(IllegalArgumentException e) {
 			fail(e.getMessage());
@@ -80,8 +80,7 @@ public class FileBlockInformationTest {
 		try {
 			fileBlockCount = FileTransferInformation.getFileBlockCountUsingBigDecimal(42, 21);			
 			
-			org.junit.Assert.assertThat("the expected value comparison",
-					fileBlockCount, org.hamcrest.CoreMatchers.equalTo(expectedFileBlockCount));
+			assertEquals("the expected value comparison", fileBlockCount, expectedFileBlockCount);			
 			
 		} catch(IllegalArgumentException e) {
 			fail(e.getMessage());
@@ -95,8 +94,7 @@ public class FileBlockInformationTest {
 		try {
 			fileBlockCount = FileTransferInformation.getFileBlockCountUsingBigDecimal(Long.MAX_VALUE, 1);			
 			
-			org.junit.Assert.assertThat("the expected value comparison",
-					fileBlockCount, org.hamcrest.CoreMatchers.equalTo(expectedFileBlockCount));
+			assertEquals("the expected value comparison", fileBlockCount, expectedFileBlockCount);			
 			
 		} catch(IllegalArgumentException e) {
 			fail(e.getMessage());

@@ -14,7 +14,7 @@ import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
 import kr.pe.sinnori.common.type.LogType;
 
-public abstract class AbstractJunitTest {
+public abstract class AbstractJunitSupporter {
 	protected Logger log = null;
 	
 	protected String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
@@ -54,7 +54,7 @@ public abstract class AbstractJunitTest {
 		LogType logType = LogType.SERVER;
 		SinnoriLogbackManger.getInstance().setup(sinnoriInstalledPathString, mainProjectName, logType);
 
-		log = LoggerFactory.getLogger(AbstractJunitTest.class);
+		log = LoggerFactory.getLogger(AbstractJunitSupporter.class);
 	}
 
 	@After

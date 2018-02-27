@@ -1,14 +1,15 @@
 package kr.pe.sinnori.common.config.nativevalueconverter;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
 
-public class SetTypeConverterReturningIntegerTest extends AbstractJunitTest implements NativeValueConverterTestIF {
+public class SetTypeConverterReturningIntegerTest extends AbstractJunitSupporter implements NativeValueConverterTestIF {
 	private SetTypeConverterReturningInteger nativeValueConverter = null;
 	private final Integer testIntegerSet[] = {123, 43};
 	private Integer returnedValue = null;
@@ -50,8 +51,7 @@ public class SetTypeConverterReturningIntegerTest extends AbstractJunitTest impl
 		/*if (wantedValue != returnedValue) {
 			fail(String.format("원하는 결과[%d]와 얻은 결과[%d]가 다름", wantedValue, returnedValue));
 		}*/
-		org.junit.Assert.assertThat("the expected value comparison",
-				returnedValue, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		assertEquals("the expected value comparison", returnedValue, expectedValue);
 	}	
 	
 	@Override

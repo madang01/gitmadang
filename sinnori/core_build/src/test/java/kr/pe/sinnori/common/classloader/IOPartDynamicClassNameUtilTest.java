@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 import kr.pe.sinnori.impl.message.Empty.Empty;
 import kr.pe.sinnori.impl.message.Empty.EmptyClientCodec;
 import kr.pe.sinnori.impl.message.Empty.EmptyDecoder;
@@ -13,7 +13,7 @@ import kr.pe.sinnori.impl.message.Empty.EmptyServerCodec;
 import kr.pe.sinnori.impl.task.client.EmptyClientTask;
 import kr.pe.sinnori.impl.task.server.EmptyServerTask;
 
-public class IOPartDynamicClassNameUtilTest extends AbstractJunitTest {
+public class IOPartDynamicClassNameUtilTest extends AbstractJunitSupporter {
 
 	@Test
 	public void testAllIOPartDynamicClassFullNameIsValid() {

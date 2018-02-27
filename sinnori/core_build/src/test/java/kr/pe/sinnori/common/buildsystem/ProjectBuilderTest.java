@@ -472,7 +472,7 @@ public class ProjectBuilderTest {
 			boolean isServer = true;
 			boolean isAppClient = false;
 			boolean isWebClient = false;
-			String servletSystemLibraryPathString = "D:\\apache-tomcat-8.5.11\\lib";
+			String servletSystemLibraryPathString = "D:\\apache-tomcat-8.5.15\\lib";
 
 			projectBuilder.createProject(isServer, isAppClient, isWebClient, servletSystemLibraryPathString);
 		} catch (BuildSystemException e) {
@@ -520,7 +520,7 @@ public class ProjectBuilderTest {
 			boolean isServer = false;
 			boolean isAppClient = false;
 			boolean isWebClient = true;
-			String servletSystemLibraryPathString = "D:\\apache-tomcat-8.5.11\\lib";
+			String servletSystemLibraryPathString = "D:\\apache-tomcat-8.5.15\\lib";
 
 			projectBuilder.createProject(isServer, isAppClient, isWebClient, servletSystemLibraryPathString);
 		} catch (BuildSystemException e) {
@@ -545,7 +545,7 @@ public class ProjectBuilderTest {
 			boolean isServer = true;
 			boolean isAppClient = false;
 			boolean isWebClient = false;
-			String servletSystemLibraryPathString = "D:\\apache-tomcat-8.5.11\\lib";
+			String servletSystemLibraryPathString = "D:\\apache-tomcat-8.5.15\\lib";
 			projectBuilder.createProject(isServer, isAppClient, isWebClient, servletSystemLibraryPathString);
 
 			boolean isValidSeverAntBuildXMLFile = projectBuilder.isValidServerAntBuildXMLFile();
@@ -759,7 +759,7 @@ public class ProjectBuilderTest {
 		boolean isServer = true;
 		boolean isAppClient = true;
 		boolean isWebClient = true;
-		String servletSystemLibraryPathString = "D:\\apache-tomcat-7.0.57\\lib";
+		String servletSystemLibraryPathString = "D:\\apache-tomcat-8.5.15\\lib";
 		
 		try {
 			ProjectBuilder projectBuilder = new ProjectBuilder(sinnoriInstalledPathString, mainProjectName);
@@ -770,11 +770,8 @@ public class ProjectBuilderTest {
 
 			projectBuilder.createProject(isServer, isAppClient, isWebClient, servletSystemLibraryPathString);
 			
-			SequencedProperties sequencedPropertiesForBackup = projectBuilder.loadSinnoriConfigPropertiesFile();
-			
 			SequencedProperties sequencedPropertiesForModify = projectBuilder.loadSinnoriConfigPropertiesFile();
 			
-			// FIXME!
 			sequencedPropertiesForModify.setProperty(ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_PRIVATEKEY_FILE_ITEMID, "aaaa");
 			sequencedPropertiesForModify.setProperty(ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_PUBLICKEY_FILE_ITEMID, "bbbb");
 			
@@ -788,8 +785,15 @@ public class ProjectBuilderTest {
 			SequencedProperties sequencedPropertiesForResult = projectBuilder.loadSinnoriConfigPropertiesFile();
 			
 			
-			if (!sequencedPropertiesForBackup.equals(sequencedPropertiesForResult)) {
-				// log.info("sequencedPropertiesForResult={}", sequencedPropertiesForResult.toString());
+			if (! BuildSystemPathSupporter
+					.getSessionKeyRSAPrivatekeyFilePathString(sinnoriInstalledPathString, mainProjectName)
+					.equals(sequencedPropertiesForResult
+							.getProperty(ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_PRIVATEKEY_FILE_ITEMID)) || 
+					! BuildSystemPathSupporter
+					.getSessionKeyRSAPublickeyFilePathString(sinnoriInstalledPathString, mainProjectName)
+					.equals(sequencedPropertiesForResult
+							.getProperty(ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_PUBLICKEY_FILE_ITEMID))) {				
+				
 				fail(String.format("the backup seq properties is not same to the modified seq properties applying Sinnori installed path"));
 			}
 			

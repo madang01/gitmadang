@@ -14,7 +14,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 import kr.pe.sinnori.common.etc.CharsetUtil;
 import kr.pe.sinnori.common.io.DataPacketBufferPool;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
@@ -27,7 +27,7 @@ import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnResDecoder;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnResEncoder;
 
-public class DHBMessageProtocolTest extends AbstractJunitTest {	
+public class DHBMessageProtocolTest extends AbstractJunitSupporter {	
 	
 	
 	@Test

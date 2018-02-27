@@ -9,10 +9,10 @@ import java.util.List;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 
-public class DataPacketBufferPoolManagerTest extends AbstractJunitTest {
+public class DataPacketBufferPoolManagerTest extends AbstractJunitSupporter {
 	
 	
 	@Test

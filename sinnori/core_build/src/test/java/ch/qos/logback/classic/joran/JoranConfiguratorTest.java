@@ -10,14 +10,14 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 
 /**
  * 로그 설정 파일 내장 테스트
  * @author Won Jonghoon
  *
  */
-public class JoranConfiguratorTest extends AbstractJunitTest {
+public class JoranConfiguratorTest extends AbstractJunitSupporter {
 	@Test
 	public void testDoConfigure() {
 		

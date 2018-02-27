@@ -13,13 +13,13 @@ import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 import kr.pe.sinnori.common.etc.CharsetUtil;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
 import kr.pe.sinnori.common.util.HexUtil;
 
-public class FixedSizeOutputStreamTest extends AbstractJunitTest {
+public class FixedSizeOutputStreamTest extends AbstractJunitSupporter {
 	
 
 	@Test

@@ -1,12 +1,14 @@
 package javapackage.util;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.BitSet;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.AbstractJunitSupporter;
 
-public class BitSetTest extends AbstractJunitTest {
+public class BitSetTest extends AbstractJunitSupporter {
 	// Logger log = LoggerFactory.getLogger(BitSetTest.class);
 	
 	@Test
@@ -18,8 +20,7 @@ public class BitSetTest extends AbstractJunitTest {
 		
 		int result = zeroBitSet.length();
 		int expectedValue = 0;
-		org.junit.Assert.assertThat("the expected value comparison",
-				result, org.hamcrest.CoreMatchers.equalTo(expectedValue));
+		assertEquals("the expected value comparison", expectedValue, result);
 	}
 	
 	@Test
