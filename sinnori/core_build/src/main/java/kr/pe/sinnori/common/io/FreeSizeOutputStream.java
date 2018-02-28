@@ -50,7 +50,7 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 	private Charset streamCharset = null;
 	private CharsetEncoder streamCharsetEncoder = null;
 	private int dataPacketBufferMaxCount;
-	private DataPacketBufferPoolIF dataPacketBufferQueueManager = null;	
+	private DataPacketBufferPoolIF dataPacketBufferPool = null;	
 
 	private ByteBuffer shortBuffer = null;
 	private ByteBuffer intBuffer = null;
@@ -61,7 +61,7 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 	private long outputStreamMaxSize = 0;
 
 	public FreeSizeOutputStream(int dataPacketBufferMaxCount, CharsetEncoder streamCharsetEncoder,
-			DataPacketBufferPoolIF dataPacketBufferQueueManager) throws NoMoreDataPacketBufferException {
+			DataPacketBufferPoolIF dataPacketBufferPool) throws NoMoreDataPacketBufferException {
 		if (dataPacketBufferMaxCount <= 0) {
 			String errorMessage = String.format(
 					"the parameter dataPacketBufferMaxCount[%d] is less than or equal to zero",
@@ -72,18 +72,18 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 		if (null == streamCharsetEncoder) {
 			throw new IllegalArgumentException("the parameter streamCharsetEncoder is null");
 		}
-		if (null == dataPacketBufferQueueManager) {
-			throw new IllegalArgumentException("the parameter dataPacketBufferQueueManager is null");
+		if (null == dataPacketBufferPool) {
+			throw new IllegalArgumentException("the parameter dataPacketBufferPool is null");
 		}
 
 		this.dataPacketBufferMaxCount = dataPacketBufferMaxCount;
-		this.streamByteOrder = dataPacketBufferQueueManager.getByteOrder();
+		this.streamByteOrder = dataPacketBufferPool.getByteOrder();
 		this.streamCharset = streamCharsetEncoder.charset();
 		this.streamCharsetEncoder = streamCharsetEncoder;
-		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
+		this.dataPacketBufferPool = dataPacketBufferPool;
 
 		// outputStreamWrapBufferList = new ArrayList<WrapBuffer>();
-		WrapBuffer wrapBuffer = dataPacketBufferQueueManager.pollDataPacketBuffer();
+		WrapBuffer wrapBuffer = dataPacketBufferPool.pollDataPacketBuffer();
 		workBuffer = wrapBuffer.getByteBuffer();
 		outputStreamWrapBufferList.add(wrapBuffer);
 		
@@ -99,7 +99,7 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 		longBuffer = ByteBuffer.wrap(eightBytes);
 		longBuffer.order(streamByteOrder);
 
-		outputStreamMaxSize = dataPacketBufferMaxCount * dataPacketBufferQueueManager.getDataPacketBufferSize();
+		outputStreamMaxSize = dataPacketBufferMaxCount * dataPacketBufferPool.getDataPacketBufferSize();
 	}
 
 	/**
@@ -110,8 +110,9 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 			for (WrapBuffer outputStreamWrapBuffer : outputStreamWrapBufferList) {
 				//log.info("return the outputStreamWrapBuffer[hashcode={}] to the data packet buffer pool", outputStreamWrapBuffer.hashCode());
 				
-				dataPacketBufferQueueManager.putDataPacketBuffer(outputStreamWrapBuffer);
+				dataPacketBufferPool.putDataPacketBuffer(outputStreamWrapBuffer);
 			}
+			outputStreamWrapBufferList.clear();
 		}
 	}
 
@@ -139,7 +140,7 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 		/** 새로운 바디 버퍼 받아 오기 */
 		WrapBuffer newWrapBuffer = null;
 		try {
-			newWrapBuffer = dataPacketBufferQueueManager.pollDataPacketBuffer();
+			newWrapBuffer = dataPacketBufferPool.pollDataPacketBuffer();
 		} catch (NoMoreDataPacketBufferException e) {
 			// freeDataPacketBufferList();
 			throw e;
@@ -213,7 +214,7 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 	}
 
 	private void throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(long numberOfBytesRequired)
-			throws SinnoriBufferOverflowException {
+			throws SinnoriBufferOverflowException {		
 		long numberOfBytesRemaining = remaining();
 		if (numberOfBytesRemaining < numberOfBytesRequired) {
 			throw new SinnoriBufferOverflowException(
