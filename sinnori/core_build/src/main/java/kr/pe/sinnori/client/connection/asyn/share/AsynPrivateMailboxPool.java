@@ -1,6 +1,6 @@
 package kr.pe.sinnori.client.connection.asyn.share;
 
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxIF;
@@ -9,7 +9,7 @@ public class AsynPrivateMailboxPool implements AsynPrivateMailboxPoolIF {
 	// private Logger log = LoggerFactory.getLogger(AsynPrivateMailboxPool.class);
 	// private final Object monitor = new Object();	
 	
-	private LinkedBlockingQueue<AsynPrivateMailboxIF> asynPrivateMailboxQueue = null;
+	private ArrayBlockingQueue<AsynPrivateMailboxIF> asynPrivateMailboxQueue = null;
 	
 	private AsynPrivateMailboxMapperIF asynPrivateMailboxMapper = null;
 
@@ -23,7 +23,7 @@ public class AsynPrivateMailboxPool implements AsynPrivateMailboxPoolIF {
 		int totalNumberOfAsynPrivateMailboxs = asynPrivateMailboxMapper.getTotalNumberOfAsynPrivateMailboxs();
 		
 		this.asynPrivateMailboxQueue 
-		= new LinkedBlockingQueue<AsynPrivateMailboxIF>(totalNumberOfAsynPrivateMailboxs);
+		= new ArrayBlockingQueue<AsynPrivateMailboxIF>(totalNumberOfAsynPrivateMailboxs);
 		
 		
 		for (int mailboxID=1; mailboxID <= totalNumberOfAsynPrivateMailboxs; mailboxID++) {

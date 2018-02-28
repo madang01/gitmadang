@@ -148,6 +148,8 @@ public class THBMessageProtocol implements MessageProtocolIF {
 		FreeSizeOutputStream bodyOutputStream = 
 				new FreeSizeOutputStream(dataPacketBufferMaxCntPerMessage, streamCharsetEncoder, dataPacketBufferPool);
 		
+		
+		
 		try {
 			messageEncoder.encode(messageObj, thbSingleItemEncoder, bodyOutputStream);
 		} catch (NoMoreDataPacketBufferException e) {
@@ -160,6 +162,8 @@ public class THBMessageProtocol implements MessageProtocolIF {
 			
 			throw new BodyFormatException(errorMessage);
 		}
+		
+		
 
 		/** 데이터 헤더 만들기 */
 		THBMessageHeader messageHeader = new THBMessageHeader();
@@ -168,10 +172,14 @@ public class THBMessageProtocol implements MessageProtocolIF {
 		messageHeader.mailID = messageObj.messageHeaderInfo.mailID;
 		messageHeader.bodySize =  bodyOutputStream.size();
 		
+		
+		
 		// log.info(messageHeader.toString());
 		
 		FreeSizeOutputStream headerOutputStream = new FreeSizeOutputStream(dataPacketBufferMaxCntPerMessage,
 				headerCharsetEncoder, dataPacketBufferPool);
+		
+		
 		
 		try {
 			messageHeader.toOutputStream(headerOutputStream, messageIDFixedSize, headerCharset);
@@ -183,6 +191,9 @@ public class THBMessageProtocol implements MessageProtocolIF {
 
 			throw new HeaderFormatException(errorMessage);
 		}
+		
+		
+		
 		
 		List<WrapBuffer> readbleWrapBufferListOfHeaderOutputStream = headerOutputStream.getReadableWrapBufferList();
 		List<WrapBuffer> readableWrapBufferListOfBodyOutputStream = bodyOutputStream.getReadableWrapBufferList();
@@ -209,7 +220,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 		ArrayList<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();		
 		
 		boolean isMoreMessage = false;
-		SocketInputStream socketInputStream = socketOutputStream.createNewSocketInputStream();
+		
 		long socketOutputStreamSize = socketOutputStream.size();
 		
 		try {
@@ -217,9 +228,14 @@ public class THBMessageProtocol implements MessageProtocolIF {
 				if (null == messageHeader
 						&& socketOutputStreamSize >= messageHeaderSize) {
 					/** 헤더 읽기 */
-					
 					THBMessageHeader workMessageHeader = new THBMessageHeader();
-					workMessageHeader.fromInputStream(socketInputStream, messageIDFixedSize, headerCharsetDecoder);
+					
+					SocketInputStream socketInputStream = socketOutputStream.createNewSocketInputStream();					
+					try {
+						workMessageHeader.fromInputStream(socketInputStream, messageIDFixedSize, headerCharsetDecoder);
+					} finally {
+						socketInputStream.close();
+					}
 
 					if (workMessageHeader.bodySize < 0) {
 						// header format exception
@@ -265,7 +281,8 @@ public class THBMessageProtocol implements MessageProtocolIF {
 						}
 						
 						messageHeader = null;
-						socketInputStream = socketOutputStream.createNewSocketInputStream();
+						/*socketInputStream.close();
+						socketInputStream = socketOutputStream.createNewSocketInputStream();*/
 					}
 				}
 			} while (isMoreMessage);			

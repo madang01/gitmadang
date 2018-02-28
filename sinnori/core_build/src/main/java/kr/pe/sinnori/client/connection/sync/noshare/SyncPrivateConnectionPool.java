@@ -18,7 +18,7 @@ package kr.pe.sinnori.client.connection.sync.noshare;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.util.LinkedList;
+import java.util.ArrayDeque;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +45,7 @@ public class SyncPrivateConnectionPool implements ConnectionPoolIF {
 	private int connectionPoolMaxSize;
 	private SyncPrivateSocketResourceFactoryIF syncPrivateSocketResourceFactory = null;
 
-	private LinkedList<SyncPrivateConnection> connectionList = null;
+	private ArrayDeque<SyncPrivateConnection> connectionQueue = null;
 	private transient int numberOfConnection = 0;
 	private ConnectionPoolSupporterIF connectionPoolSupporter = null;
 
@@ -65,16 +65,16 @@ public class SyncPrivateConnectionPool implements ConnectionPoolIF {
 		this.connectionPoolMaxSize = connectionPoolMaxSize;		
 		this.syncPrivateSocketResourceFactory = syncPrivateSocketResourceFactory;		
 
-		this.connectionList = new LinkedList<SyncPrivateConnection>();
+		this.connectionQueue = new ArrayDeque<SyncPrivateConnection>();
 
 		try {
 			for (int i = 0; i < connectionPoolSize; i++) {
 				addConnection();
 			}
 		} catch (IOException e) {
-			while (! connectionList.isEmpty()) {
+			while (! connectionQueue.isEmpty()) {
 				try {
-					connectionList.removeFirst().close();
+					connectionQueue.removeFirst().close();
 				} catch (IOException e1) {
 				}
 			}
@@ -97,7 +97,7 @@ public class SyncPrivateConnectionPool implements ConnectionPoolIF {
 				, syncPrivateSocketResoruce);
 
 		synchronized (monitor) {
-			connectionList.addLast(conn);
+			connectionQueue.addLast(conn);
 			numberOfConnection++;
 			connectionPoolSize = Math.max(numberOfConnection, connectionPoolSize);
 		}
@@ -137,15 +137,15 @@ public class SyncPrivateConnectionPool implements ConnectionPoolIF {
 					throw new ConnectionPoolException("check server alive");
 				}
 
-				if (connectionList.isEmpty()) {
+				if (connectionQueue.isEmpty()) {
 					monitor.wait(socketTimeOut);
 
-					if (connectionList.isEmpty()) {
+					if (connectionQueue.isEmpty()) {
 						throw new SocketTimeoutException("synchronized private connection pool timeout");
 					}
 				}
 
-				syncPrivateConnection = connectionList.removeFirst();
+				syncPrivateConnection = connectionQueue.removeFirst();
 
 				if (syncPrivateConnection.isConnected()) {
 					syncPrivateConnection.queueOut();
@@ -215,7 +215,7 @@ public class SyncPrivateConnectionPool implements ConnectionPoolIF {
 				return;
 			}
 
-			connectionList.addLast(syncPrivateConnection);
+			connectionQueue.addLast(syncPrivateConnection);
 			monitor.notify();
 		}
 	}

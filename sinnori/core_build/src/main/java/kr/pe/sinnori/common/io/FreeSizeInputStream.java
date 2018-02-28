@@ -45,12 +45,12 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 	protected Logger log = LoggerFactory.getLogger(FreeSizeInputStream.class);
 
 	private int dataPacketBufferMaxCount;
-	private List<WrapBuffer> dataPacketBufferList = null;
+	protected List<WrapBuffer> readableWrapBufferList = null;
 	private List<ByteBuffer> streamBufferList = null;
 	private Charset streamCharset;
 	protected CharsetDecoder streamCharsetDecoder = null;
 	protected ByteOrder streamByteOrder = null;
-	protected DataPacketBufferPoolIF dataPacketBufferQueueManager = null;
+	protected DataPacketBufferPoolIF dataPacketBufferPool = null;
 
 	private ByteBuffer workBuffer;
 	private int indexOfWorkBuffer;
@@ -67,7 +67,7 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 	private ByteBuffer longBuffer = null;
 
 	public FreeSizeInputStream(int dataPacketBufferMaxCount, List<WrapBuffer> readableWrapBufferList,
-			CharsetDecoder streamCharsetDecoder, DataPacketBufferPoolIF dataPacketBufferQueueManager) {
+			CharsetDecoder streamCharsetDecoder, DataPacketBufferPoolIF dataPacketBufferPool) {
 		if (dataPacketBufferMaxCount <= 0) {
 			String errorMessage = String.format(
 					"the parameter dataPacketBufferMaxCount[%d] is less than or equal to zero",
@@ -79,30 +79,39 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
+		
+		if (readableWrapBufferList.size() > dataPacketBufferMaxCount) {
+			String errorMessage = String.format(
+					"the parameter readableWrapBufferList's size is greater than The maximum number[%d] of buffers that can be assigned per one message",
+					streamBufferList.size(), dataPacketBufferMaxCount);
+			throw new IllegalArgumentException(errorMessage);
+		}
 
 		if (null == streamCharsetDecoder) {
 			String errorMessage = "the parameter streamCharsetDecoder is null";
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
+		
+		if (null == dataPacketBufferPool) {
+			String errorMessage = "the parameter dataPacketBufferPool is null";
+			log.warn(errorMessage);
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		
+		
 		this.dataPacketBufferMaxCount = dataPacketBufferMaxCount;
-		this.dataPacketBufferList = readableWrapBufferList;
+		this.readableWrapBufferList = readableWrapBufferList;
 		this.streamCharset = streamCharsetDecoder.charset();
 		this.streamCharsetDecoder = streamCharsetDecoder;
-		this.streamByteOrder = dataPacketBufferQueueManager.getByteOrder();
-		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
-		this.streamBufferList = new ArrayList<ByteBuffer>();
+		this.streamByteOrder = dataPacketBufferPool.getByteOrder();
+		this.dataPacketBufferPool = dataPacketBufferPool;
+		this.streamBufferList = new ArrayList<ByteBuffer>(readableWrapBufferList.size());
 
 		for (WrapBuffer wrapBuffer : readableWrapBufferList) {
 			this.streamBufferList.add(wrapBuffer.getByteBuffer());
-		}
-
-		if (streamBufferList.size() > dataPacketBufferMaxCount) {
-			String errorMessage = String.format(
-					"the parameter streamBufferList's size is greater than The maximum number[%d] of buffers that can be assigned per one message",
-					streamBufferList.size(), dataPacketBufferMaxCount);
-			throw new IllegalArgumentException(errorMessage);
-		}
+		}		
 
 		numberOfBytesRemaining = 0L;
 		for (ByteBuffer buffer : streamBufferList) {
@@ -165,7 +174,7 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 	private String doGetString(int length, Charset stringCharset)
 			throws SinnoriBufferUnderflowException, CharsetDecoderException {
 		byte dstBytes[] = new byte[length];
-		doGetBytes(dstBytes);
+		doGetBytes(dstBytes, 0, dstBytes.length);
 
 		String dst = null;
 
@@ -181,28 +190,8 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		return dst;
 	}
 
-	@SuppressWarnings("unused")
-	private void doGetBytes(ByteBuffer dst) throws SinnoriBufferUnderflowException {
-		do {
-			if (!workBuffer.hasRemaining()) {
-				nextBuffer();
-			}
-
-			dst.put(workBuffer.get());
-			numberOfBytesRemaining--;
-
-		} while (dst.hasRemaining());
-	}
-
-	/**
-	 * 목적지 바이트 배열 크기 만큼 목적지 바이트 배열에 스트림의 내용을 읽어 저장한다.
-	 * 
-	 * @param dstBytes
-	 *            목적지 바이트 버퍼
-	 */
-	private void doGetBytes(byte[] dstBytes) throws SinnoriBufferUnderflowException {
-		doGetBytes(dstBytes, 0, dstBytes.length);
-	}
+	
+	
 
 	/**
 	 * 목적지 바이트 배열에 지정된 시작위치에 지정된 크기 만큼 스트림의 내용을 읽어와서 저장한다.
@@ -564,6 +553,7 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		}
 
 		int length = (int) numberOfBytesRemaining;
+		
 
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(length);
 
@@ -689,6 +679,10 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 					"the sum[%d] of the parameter offset[%d] and the parameter length[%d] is greater than array.length[%d]",
 					sumOfOffsetAndLength, offset, length, dst.length));
 		}
+		
+		if (0 == length) {
+			return;
+		}
 
 		/*
 		 * if (null == workBuffer) { String errorMessage = "input stream closed";
@@ -714,18 +708,26 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		if (null == dstBytes) {
 			throw new IllegalArgumentException("paramerter dstBytes is null");
 		}
+		
+		if (0 == dstBytes.length) {
+			return;
+		}
 
 		throwExceptionIfNumberOfBytesRemainingIsLessThanNumberOfBytesRequired(dstBytes.length);
 
 		// log.info(String.format("limitedRemainingBytes=[%d]", limitedRemainingBytes));
 
-		doGetBytes(dstBytes);
+		doGetBytes(dstBytes, 0, dstBytes.length);
 	}
 
 	@Override
 	public byte[] getBytes(int len) throws SinnoriBufferUnderflowException, IllegalArgumentException {
 		if (len < 0) {
 			throw new IllegalArgumentException(String.format("parameter len[%d] less than zero", len));
+		}
+		
+		if (0 == len) {
+			return new byte[0];
 		}
 
 		/*
@@ -751,7 +753,7 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 			log.warn("OutOfMemoryError", e);
 			throw e;
 		}
-		doGetBytes(srcBytes);
+		doGetBytes(srcBytes, 0, srcBytes.length);
 		return srcBytes;
 	}
 
@@ -761,8 +763,9 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 	}
 
 	public void skip(long n) throws SinnoriBufferUnderflowException, IllegalArgumentException {
-		if (0 == n)
+		if (0 == n) {
 			return;
+		}
 
 		if (n < 0) {
 			throw new IllegalArgumentException(String.format("the parameter n[%d] less than zero", n));
@@ -893,61 +896,7 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 
 		return -1;
 	}
-
-	/**
-	 * 스트림에서 지정된 크기만큼 MD5를 구한다. 복사된 스트림를 통해서 MD5를 구하기때문에 스트림 속성에 영향을 주지 않는다.
-	 * 
-	 * @param size
-	 *            md5 를 구하고자 하는 스트림 내의 크기, 단 제한된 잔존 크기
-	 * @param md5
-	 *            객체 생성 비용을 줄이기 위해 받은 md5 객체
-	 * @return
-	 * @throws IllegalArgumentException
-	 * @throws SinnoriBufferUnderflowException
-	 */
-	/*
-	 * public byte[] getMD5FromDupStream(long size, java.security.MessageDigest md5)
-	 * throws IllegalArgumentException, SinnoriBufferUnderflowException { if (size <
-	 * 0) { String errorMessage = new
-	 * StringBuilder("parameter size[").append(size).append("] is less than zero")
-	 * .toString(); log.warn(errorMessage); throw new
-	 * IllegalArgumentException(errorMessage); }
-	 * 
-	 * if (size > numberOfBytesRemaining) { String errorMessage =
-	 * String.format("parameter size'[%d] greater than limitedRemainingBytes[%d]",
-	 * size, numberOfBytesRemaining); log.info(errorMessage); throw new
-	 * SinnoriBufferUnderflowException(errorMessage); }
-	 * 
-	 * int streamBufferListSize = streamBufferList.size();
-	 * 
-	 * byte md5Bytes[] = null;
-	 * 
-	 * for (int i = indexOfWorkBuffer; i < streamBufferListSize; i++) { ByteBuffer
-	 * dupByteBuffer = streamBufferList.get(i).duplicate();
-	 * dupByteBuffer.order(streamByteOrder); //
-	 * log.info(String.format("1.i[%d] spaceBytesOfHeaderMD5[%d] %s", i, //
-	 * spaceBytesOfHeaderMD5, dupByteBuffer.toString()));
-	 * 
-	 * int remainingBytesOfDupBuffer = dupByteBuffer.remaining(); if (size <=
-	 * remainingBytesOfDupBuffer) { dupByteBuffer.limit(dupByteBuffer.position() +
-	 * (int) size);
-	 * 
-	 * // FIXME! // log.info(String.format("3.i[%d] spaceBytesOfHeaderMD5[%d]", i,
-	 * // spaceBytesOfHeaderMD5)); // log.info(String.format("%s",
-	 * dupByteBuffer.toString())); // log.info(String.format("%s", //
-	 * HexUtil.byteBufferAvailableToHex(dupByteBuffer)));
-	 * 
-	 * md5.update(dupByteBuffer); md5Bytes = md5.digest();
-	 * 
-	 * // log.info(String.format("3.%s", HexUtil.byteArrayAllToHex(headerMD5)));
-	 * break; } else { // FIXME! //
-	 * log.info(String.format("2.i[%d] spaceBytesOfHeaderMD5[%d] %s", i, //
-	 * spaceBytesOfHeaderMD5, dupByteBuffer.toString()));
-	 * 
-	 * md5.update(dupByteBuffer); size -= remainingBytesOfDupBuffer; } } return
-	 * md5Bytes; }
-	 */
-
+	
 	public final int getIndexOfWorkBuffer() {
 		return indexOfWorkBuffer;
 	}
@@ -971,12 +920,12 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		}
 
 		/** 파라미터 데이터 패킷 버퍼목록 회수 */
-		for (WrapBuffer inputStreamWrapBuffer : dataPacketBufferList) {
+		for (WrapBuffer inputStreamWrapBuffer : readableWrapBufferList) {
 			// log.info("return the inputStreamWrapBuffer[hashcode={}] to the data packet buffer pool", inputStreamWrapBuffer.hashCode());
 
-			dataPacketBufferQueueManager.putDataPacketBuffer(inputStreamWrapBuffer);
+			dataPacketBufferPool.putDataPacketBuffer(inputStreamWrapBuffer);
 		}
-		dataPacketBufferList.clear();
+		readableWrapBufferList.clear();
 		streamBufferList.clear();
 		indexOfWorkBuffer = -1;
 		workBuffer = null;

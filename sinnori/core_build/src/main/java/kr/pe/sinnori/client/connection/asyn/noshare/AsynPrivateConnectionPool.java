@@ -18,7 +18,7 @@ package kr.pe.sinnori.client.connection.asyn.noshare;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.util.LinkedList;
+import java.util.ArrayDeque;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +52,7 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 	private AsynSocketResourceFactoryIF asynSocketResourceFactory = null;
 	
 
-	private LinkedList<AsynPrivateConnection> connectionList = null;
+	private ArrayDeque<AsynPrivateConnection> connectionQueue = null;
 	private transient int numberOfConnection = 0;
 	private ConnectionPoolSupporterIF connectionPoolSupporter = null;
 
@@ -74,7 +74,7 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 		this.asynSocketResourceFactory = asynSocketResourceFactory;
 		
 
-		this.connectionList = new LinkedList<AsynPrivateConnection>();
+		this.connectionQueue = new ArrayDeque<AsynPrivateConnection>(connectionPoolMaxSize);
 
 		/**
 		 * 비동기 비 공유 연결 클래스는 입력 메시지 큐 1개와 출력 메시지큐 1개를 할당 받는다. 입력 메시지 큐는 모든 연결 클래스간에 공유하며,
@@ -87,10 +87,10 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 			}
 		} catch (IOException e) {
 
-			while (!connectionList.isEmpty()) {
+			while (!connectionQueue.isEmpty()) {
 
 				try {
-					connectionList.removeFirst().close();
+					connectionQueue.removeFirst().close();
 				} catch (IOException e1) {
 				}
 			}
@@ -113,7 +113,7 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 				asynSocketResource);
 		
 		synchronized (monitor) {
-			connectionList.addLast(serverConnection);
+			connectionQueue.addLast(serverConnection);
 			numberOfConnection++;
 			connectionPoolSize = Math.max(numberOfConnection, connectionPoolSize);
 		}
@@ -151,15 +151,15 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 					throw new ConnectionPoolException("check server alive");
 				}
 
-				if (connectionList.isEmpty()) {
+				if (connectionQueue.isEmpty()) {
 					monitor.wait(socketTimeOut);
 
-					if (connectionList.isEmpty()) {
+					if (connectionQueue.isEmpty()) {
 						throw new SocketTimeoutException("asynchronized private connection pool timeout");
 					}
 				}
 
-				asynPrivateConnection = connectionList.removeFirst();
+				asynPrivateConnection = connectionQueue.removeFirst();
 
 				if (asynPrivateConnection.isConnected()) {
 					asynPrivateConnection.queueOut();
@@ -231,7 +231,7 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 				return;
 			}
 
-			connectionList.addLast(asynPrivateConnection);
+			connectionQueue.addLast(asynPrivateConnection);
 			monitor.notify();
 		}
 	}

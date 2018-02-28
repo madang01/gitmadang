@@ -11,7 +11,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.common.etc.WrapBufferUtil;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 
 public class SocketOutputStream {
@@ -200,9 +199,16 @@ public class SocketOutputStream {
 	}*/
 	
 	
-	public SocketInputStream createNewSocketInputStream() {
-		List<WrapBuffer> duplicatedAndReadableWrapBufferList = WrapBufferUtil.getDuplicatedAndReadableWrapBufferList(socketOutputStreamWrapBufferList);
-		return new SocketInputStream(dataPacketBufferMaxCntPerMessage, duplicatedAndReadableWrapBufferList, streamCharsetDecoder, dataPacketBufferPool);
+	public SocketInputStream createNewSocketInputStream() throws NoMoreDataPacketBufferException {
+		changeReadableWrapBufferList();		
+		return new SocketInputStream(dataPacketBufferMaxCntPerMessage, socketOutputStreamWrapBufferList, streamCharsetDecoder, dataPacketBufferPool);
+	}
+	
+	private void changeReadableWrapBufferList() throws NoMoreDataPacketBufferException {
+		for (WrapBuffer sourceWrapBuffer : socketOutputStreamWrapBufferList) {
+			ByteBuffer sourceByteBuffer = sourceWrapBuffer.getByteBuffer();
+			sourceByteBuffer.flip();
+		}
 	}
 	
 	

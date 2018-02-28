@@ -16,8 +16,6 @@ import kr.pe.sinnori.common.AbstractJunitSupporter;
 
 public class CharsetTest extends AbstractJunitSupporter {
 
-	
-
 	@Test
 	public void test() {
 		StringBuilder testStringBuilder = new StringBuilder();
@@ -180,30 +178,30 @@ public class CharsetTest extends AbstractJunitSupporter {
 
 		for (int i = 0; i < retryCount; i++) {
 			for (int j = 0; j < 8; j++) {
-				//for (int k = 0; k < 8; k++) {
-					{
-						ByteBuffer srcByteBuffer = null;
-						try {
-							srcByteBuffer = charsetEncoder.encode(CharBuffer.wrap(src));
-						} catch (CharacterCodingException e) {
-							log.warn(e.getMessage(), e);
-							fail("fail to call CharsetEncoder.encode");
-						}
+				// for (int k = 0; k < 8; k++) {
+				{
+					ByteBuffer srcByteBuffer = null;
+					try {
+						srcByteBuffer = charsetEncoder.encode(CharBuffer.wrap(src));
+					} catch (CharacterCodingException e) {
+						log.warn(e.getMessage(), e);
+						fail("fail to call CharsetEncoder.encode");
+					}
 
-						numberOfEncodingBytes = srcByteBuffer.remaining();
+					numberOfEncodingBytes = srcByteBuffer.remaining();
 
-						CharBuffer dstCharBuffer = null;
-						try {
-							dstCharBuffer = charsetDecoder.decode(srcByteBuffer);
-						} catch (CharacterCodingException e) {
-							log.warn(e.getMessage(), e);
-							fail("fail to call CharsetDecoder.decode");
-						}
-						@SuppressWarnings("unused")
-						String dst = dstCharBuffer.toString();
+					CharBuffer dstCharBuffer = null;
+					try {
+						dstCharBuffer = charsetDecoder.decode(srcByteBuffer);
+					} catch (CharacterCodingException e) {
+						log.warn(e.getMessage(), e);
+						fail("fail to call CharsetDecoder.decode");
+					}
+					@SuppressWarnings("unused")
+					String dst = dstCharBuffer.toString();
 
-						// assertEquals("원본 문자열과 인코딩과 디코딩 과정후 얻은 문자열 비교", src, dst);
-					//}
+					// assertEquals("원본 문자열과 인코딩과 디코딩 과정후 얻은 문자열 비교", src, dst);
+					// }
 				}
 			}
 
@@ -255,5 +253,33 @@ public class CharsetTest extends AbstractJunitSupporter {
 
 		log.info("인코딩 데이터 크기={}::반복 횟수={}, 시간차={} ms, 평균={} ms", numberOfEncodingBytes, retryCount,
 				(afterTime - beforeTime), (double) (afterTime - beforeTime) / retryCount);
+	}
+
+	@Test
+	public void test4() {
+		Charset myCharset = Charset.forName("utf8");
+		
+		StringBuilder testStringBuilder = new StringBuilder();
+
+		for (int i = 0; i < 2500; i++) {
+			testStringBuilder.append("한글");
+		}
+
+		int retryCount = 1000000;
+
+		long beforeTime = new Date().getTime();
+
+		for (int i = 0; i < retryCount; i++) {
+
+			byte encodingBytes[] = testStringBuilder.toString().getBytes(myCharset);
+
+			@SuppressWarnings("unused")
+			String dst = new String(encodingBytes, myCharset);
+		}
+
+		long afterTime = new Date().getTime();
+
+		log.info("반복 횟수={}, 시간차={} ms, 평균={} ms", retryCount, (afterTime - beforeTime),
+				(double) (afterTime - beforeTime) / retryCount);
 	}
 }

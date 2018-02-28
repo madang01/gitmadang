@@ -285,7 +285,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 			throw new HeaderFormatException(errorMessage);
 		}
 		
-		headerOutputStream.flipAllOutputStreamWrapBuffer();
+		headerOutputStream.changeReadableWrapBufferList();
 		
 		/*List<WrapBuffer> readableWrapBufferListOfHeaderOutputStream = wrapBufferListOfHeaderOutputStream;
 		
@@ -329,14 +329,17 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 			do {
 				if (null == workingDHBMessageHeader && socketOutputStreamSize >= messageHeaderSize) {
 					SocketInputStream socketInputStream = socketOutputStream.createNewSocketInputStream();
-					
 					byte[] headerBytes = null;
+					
 					try {
 						headerBytes = socketInputStream.getBytes(messageHeaderSize);
 					} catch (Exception e) {
 						log.error("unknown error::" + e.getMessage());
 						System.exit(1);
-					}
+					} finally {
+						socketInputStream.close();
+					}					
+					
 					
 					byte[] actualHeaderBodyMD5Bytes = null;
 					{	
@@ -392,14 +395,16 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 
 					if (socketOutputStreamSize >= messageFrameSize) {						
 						SocketInputStream socketInputStream = socketOutputStream.createNewSocketInputStream();
-						try {
-							socketInputStream.skip(messageHeaderSize);
+						try {							
+							socketInputStream.skip(messageHeaderSize);							
+							throwExceptionIfBodyChecksumIsInvalid(workingDHBMessageHeader, socketInputStream);
 						} catch (Exception e) {
 							String errorMessage = e.getMessage();
 							log.error(errorMessage, e);
-							System.exit(1);
-						}
-						throwExceptionIfBodyChecksumIsInvalid(workingDHBMessageHeader, socketInputStream);
+							System.exit(1);						
+						} finally {
+							socketInputStream.close();
+						}						
 
 						FreeSizeInputStream messageInputStream = socketOutputStream
 								.cutMessageInputStreamFromStartingPosition(messageFrameSize);

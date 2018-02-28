@@ -32,19 +32,19 @@ public class THBMessageProtocolTest extends AbstractJunitSupporter {
 	
 	@Test
 	public void testM2S_basic() {
-		int messageIDFixedSize = 25;
+		int messageIDFixedSize = 20;
 		int dataPacketBufferMaxCntPerMessage = 10;
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = CharsetUtil.createCharsetEncoder(streamCharset);
 		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
 		ByteOrder streamByteOrder = ByteOrder.LITTLE_ENDIAN;
-		DataPacketBufferPoolIF dataPacketBufferPoolManager = null;
+		DataPacketBufferPoolIF dataPacketBufferPool = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 4096;
 		int dataPacketBufferPoolSize = 100;
 		
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			log.warn(""+e.getMessage(), e);
 			fail("unknown error::" + e.getMessage());
@@ -55,7 +55,7 @@ public class THBMessageProtocolTest extends AbstractJunitSupporter {
 						dataPacketBufferMaxCntPerMessage,
 						streamCharsetEncoder,
 						streamCharsetDecoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 		
 		SelfExnResEncoder selfExnEncoder = new SelfExnResEncoder();
 		SelfExnResDecoder selfExnDecoder = new SelfExnResDecoder();
@@ -67,7 +67,7 @@ public class THBMessageProtocolTest extends AbstractJunitSupporter {
 		long afterTime = 0;
 		
 		
-		int retryCount = 10;
+		int retryCount = 1000000;
 		
 		int firstIndex = -1;
 		int differentCount = 0;
@@ -89,6 +89,8 @@ public class THBMessageProtocolTest extends AbstractJunitSupporter {
 		
 		beforeTime= new Date().getTime();
 		
+		
+		
 		for (int i=0; i < retryCount; i++) {			
 			long beforeLocalTime= new Date().getTime();			
 			
@@ -101,6 +103,9 @@ public class THBMessageProtocolTest extends AbstractJunitSupporter {
 				fail(errorMessage);
 			}
 			
+			
+			
+			
 			//log.info("2");
 			
 			for (WrapBuffer inputMessageWrapBuffer : wrapBufferListOfInputMessage) {
@@ -112,16 +117,22 @@ public class THBMessageProtocolTest extends AbstractJunitSupporter {
 				inputMessageByteBuffer.position(inputMessageByteBuffer.limit());
 			}
 			
+			
+						
+			
+			
 			//log.info("3");
 			
 			SocketOutputStream sos = null;
 			try {
-				sos = new SocketOutputStream(wrapBufferListOfInputMessage, streamCharsetDecoder, dataPacketBufferMaxCntPerMessage, dataPacketBufferPoolManager);
+				sos = new SocketOutputStream(wrapBufferListOfInputMessage, streamCharsetDecoder, dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
 			} catch (Exception e) {
 				String errorMessage = "error::"+e.getMessage();
 				log.warn(errorMessage, e);
 				fail(errorMessage);
 			}
+			
+			
 			
 			// log.info("sos.size={}", sos.size());
 			
@@ -159,6 +170,7 @@ public class THBMessageProtocolTest extends AbstractJunitSupporter {
 					fail(errorMessage);
 				}
 			}
+						
 			
 			long afterLocalTime= new Date().getTime();
 			if ((-1 == firstIndex) && (afterLocalTime == beforeLocalTime)) {

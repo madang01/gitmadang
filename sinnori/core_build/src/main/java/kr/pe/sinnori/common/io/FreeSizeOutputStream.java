@@ -824,12 +824,12 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 	}
 
 	public List<WrapBuffer> getReadableWrapBufferList() {
-		flipAllOutputStreamWrapBuffer();
+		changeReadableWrapBufferList();
 
 		return outputStreamWrapBufferList;
 	}
 	
-	public void flipAllOutputStreamWrapBuffer() {
+	public void changeReadableWrapBufferList() {
 		/** flip all buffer */
 		for (WrapBuffer outputStreamWrapBuffer : outputStreamWrapBufferList) {
 			outputStreamWrapBuffer.getByteBuffer().flip();

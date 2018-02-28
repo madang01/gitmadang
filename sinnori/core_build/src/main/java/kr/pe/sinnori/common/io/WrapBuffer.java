@@ -40,6 +40,7 @@ public class WrapBuffer {
 	private boolean isInQueue = true;
 	private ByteOrder byteOrderOfBuffer = null;
 	// private Throwable lastCallerThrowable = null;
+	private boolean isPoolBuffer = false;
 
 	/**
 	 * 생성자
@@ -54,6 +55,9 @@ public class WrapBuffer {
 		}
 		buffer.order(byteOrderOfBuffer);
 		this.byteOrderOfBuffer = byteOrderOfBuffer;
+		
+		// FIXME!
+		// log.info("추적용 로그", new Throwable());
 	}
 	
 	
@@ -62,6 +66,14 @@ public class WrapBuffer {
 		
 		this.buffer  = buffer;
 		this.byteOrderOfBuffer = buffer.order();
+	}
+	
+	protected void setPoolBuffer(boolean isPoolBuffer) {		
+		this.isPoolBuffer = isPoolBuffer;
+	}
+	
+	protected boolean isPoolBuffer() {
+		return isPoolBuffer;
 	}
 	
 	/**
@@ -74,7 +86,7 @@ public class WrapBuffer {
 	/**
 	 * 큐에 들어갈대 준비로 버퍼 초기화및 큐 등록 상태로 변경한다.
 	 */
-	public void queueIn() {
+	protected void queueIn() {
 		isInQueue = true;
 		buffer.clear();
 		buffer.order(byteOrderOfBuffer);
@@ -85,16 +97,21 @@ public class WrapBuffer {
 	/**
 	 * 큐에서 나올때 상태 변화를 주는 클래스
 	 */
-	public void queueOut() {
+	protected void queueOut() {
 		isInQueue = false;
 		// lastCallerThrowable = new Throwable();
 	}
 
 	@Override
 	public void finalize() {
-		if (! isInQueue) {
-			log.warn("this wrap buffer[hashcode={}] was destroyed outside the queue", hashCode());
+		if (isPoolBuffer) {
+			if (! isInQueue) {
+				log.warn("this wrap buffer[hashcode={}] was destroyed outside the queue", hashCode());
+			}
+		} else {
+			log.warn("this wrap buffer[hashcode={}] was destroyed", hashCode());
 		}
+		
 	}
 
 	/**

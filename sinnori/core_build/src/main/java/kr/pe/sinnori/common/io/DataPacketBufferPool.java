@@ -2,8 +2,6 @@ package kr.pe.sinnori.common.io;
 
 import java.nio.ByteOrder;
 import java.util.ArrayDeque;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,56 +14,59 @@ public class DataPacketBufferPool implements DataPacketBufferPoolIF {
 	private final Object monitor = new Object();
 
 	private ArrayDeque<WrapBuffer> dataPacketBufferQueue = null;
-	private Set<Integer> queueOutWrapBufferHashcodeSet = new HashSet<Integer>();
-	private Set<Integer> allWrapBufferHashcodeSet = new HashSet<Integer>();
-	
+	/*
+	 * private Set<Integer> queueOutWrapBufferHashcodeSet = new HashSet<Integer>();
+	 * private Set<Integer> allWrapBufferHashcodeSet = new HashSet<Integer>();
+	 */
+
 	private boolean isDirect;
 	private ByteOrder dataPacketBufferByteOrder = null;
-	private int dataPacketBufferSize;	
+	private int dataPacketBufferSize;
 	private int dataPacketBufferPoolSize;
-	
-	public DataPacketBufferPool(boolean isDirect, ByteOrder dataPacketBufferByteOrder, int dataPacketBufferSize, int dataPacketBufferPoolSize) {		
+
+	public DataPacketBufferPool(boolean isDirect, ByteOrder dataPacketBufferByteOrder, int dataPacketBufferSize,
+			int dataPacketBufferPoolSize) {
 		if (null == dataPacketBufferByteOrder) {
 			throw new IllegalArgumentException("the parameter dataPacketBufferByteOrder is null");
 		}
-		
+
 		if (dataPacketBufferSize <= 0) {
-			String errorMessage = String.format("the parameter dataPacketBufferSize[%d] is less than or equal to zero", dataPacketBufferSize);
+			String errorMessage = String.format("the parameter dataPacketBufferSize[%d] is less than or equal to zero",
+					dataPacketBufferSize);
 			throw new IllegalArgumentException(errorMessage);
 		}
-		
+
 		if (dataPacketBufferPoolSize <= 0) {
-			String errorMessage = String.format("the parameter dataPacketBufferPoolSize[%d] is less than or equal to zero", dataPacketBufferPoolSize);
+			String errorMessage = String.format(
+					"the parameter dataPacketBufferPoolSize[%d] is less than or equal to zero",
+					dataPacketBufferPoolSize);
 			throw new IllegalArgumentException(errorMessage);
-		}	
-		
+		}
+
 		this.isDirect = isDirect;
 		this.dataPacketBufferByteOrder = dataPacketBufferByteOrder;
 		this.dataPacketBufferSize = dataPacketBufferSize;
 		this.dataPacketBufferPoolSize = dataPacketBufferPoolSize;
 
 		dataPacketBufferQueue = new ArrayDeque<WrapBuffer>();
-		
+
 		try {
-			
+
 			for (int i = 0; i < dataPacketBufferPoolSize; i++) {
 				WrapBuffer dataPacketBuffer = new WrapBuffer(isDirect, dataPacketBufferSize, dataPacketBufferByteOrder);
+				dataPacketBuffer.setPoolBuffer(true);
 				dataPacketBufferQueue.add(dataPacketBuffer);
-
-				
-				
-				allWrapBufferHashcodeSet.add(dataPacketBuffer.hashCode());
+				// allWrapBufferHashcodeSet.add(dataPacketBuffer.hashCode());
 			}
-			
-			
-			// log.info("the wrap buffer hashcode set={}", allWrapBufferHashcodeSet.toString());
+
+			// log.info("the wrap buffer hashcode set={}",
+			// allWrapBufferHashcodeSet.toString());
 		} catch (OutOfMemoryError e) {
 			String errorMessage = "OutOfMemoryError";
 			log.error(errorMessage, e);
 			System.exit(1);
 		}
 	}
-	
 
 	@Override
 	public WrapBuffer pollDataPacketBuffer() throws NoMoreDataPacketBufferException {
@@ -78,13 +79,15 @@ public class DataPacketBufferPool implements DataPacketBufferPoolIF {
 
 			dataPacketBuffer.queueOut();
 
-			queueOutWrapBufferHashcodeSet.add(dataPacketBuffer.hashCode());
-			
+			// queueOutWrapBufferHashcodeSet.add(dataPacketBuffer.hashCode());
+
 			// FIXME!, 테스트후 삭제 필요
-			/*{
-				String infoMessage = String.format("the WrapBuffer[%d] is removed from the wrap buffer polling queue", dataPacketBuffer.hashCode());
-				log.info(infoMessage, new Throwable(infoMessage));
-			}*/
+			/*
+			 * { String infoMessage = String.
+			 * format("the WrapBuffer[%d] is removed from the wrap buffer polling queue",
+			 * dataPacketBuffer.hashCode()); log.info(infoMessage, new
+			 * Throwable(infoMessage)); }
+			 */
 
 			return dataPacketBuffer;
 		}
@@ -92,55 +95,56 @@ public class DataPacketBufferPool implements DataPacketBufferPoolIF {
 
 	@Override
 	public void putDataPacketBuffer(WrapBuffer dataPacketBuffer) {
-		if (null == dataPacketBuffer)
+		if (null == dataPacketBuffer) {
 			return;
-
-		int dataPacketBufferHashcode = dataPacketBuffer.hashCode();
+		}
 
 		/**
 		 * 2번 연속 반환 막기
 		 */
-		synchronized (monitor) {			
-			if (dataPacketBuffer.isInQueue()) {
-				String errorMessage = String.format("the parameter dataPacketBuffer[%d] was added to the wrap buffer polling queue",
+		synchronized (monitor) {
+			if (!dataPacketBuffer.isPoolBuffer()) {
+				int dataPacketBufferHashcode = dataPacketBuffer.hashCode();
+				String errorMessage = String.format("the parameter dataPacketBuffer[%d] is not a pool wrap buffer",
 						dataPacketBufferHashcode);
 				log.warn(errorMessage, new Throwable(errorMessage));
 				throw new IllegalArgumentException(errorMessage);
 			}
-			
-			if (! queueOutWrapBufferHashcodeSet.contains(dataPacketBufferHashcode)) {
-				String errorMessage = String.format("the parameter dataPacketBuffer[%d] is not a element of the queue-out state set",
-						dataPacketBufferHashcode);
-				log.warn(errorMessage, new Throwable(errorMessage));
-				throw new IllegalArgumentException(errorMessage);
-			}
-			dataPacketBuffer.queueIn();
-			queueOutWrapBufferHashcodeSet.remove(dataPacketBufferHashcode);
-			dataPacketBufferQueue.add(dataPacketBuffer);
-			
-			// FIXME!, 테스트후 삭제 필요
-			/*{
-				String infoMessage = String.format("the parameter dataPacketBuffer[%d] is added to the wrap buffer polling queue", dataPacketBuffer.hashCode());
-				log.info(infoMessage, new Throwable(infoMessage));
-			}*/
-		}
-		
-	}
 
+			if (dataPacketBuffer.isInQueue()) {
+				int dataPacketBufferHashcode = dataPacketBuffer.hashCode();
+				String errorMessage = String.format(
+						"the parameter dataPacketBuffer[%d] was added to the wrap buffer polling queue",
+						dataPacketBufferHashcode);
+				log.warn(errorMessage, new Throwable(errorMessage));
+				throw new IllegalArgumentException(errorMessage);
+			}
+
+			dataPacketBuffer.queueIn();
+			dataPacketBufferQueue.add(dataPacketBuffer);
+
+			// FIXME!, 테스트후 삭제 필요
+			/*
+			 * { String infoMessage = String.
+			 * format("the parameter dataPacketBuffer[%d] is added to the wrap buffer polling queue"
+			 * , dataPacketBuffer.hashCode()); log.info(infoMessage, new
+			 * Throwable(infoMessage)); }
+			 */
+		}
+
+	}
 
 	@Override
 	public final int getDataPacketBufferSize() {
 		return dataPacketBufferSize;
 	}
-	
-	public String getQueueState() {		
+
+	public String getQueueState() {
 		StringBuilder strBuilder = new StringBuilder();
 		strBuilder.append("dataPacketBufferPoolSize=[");
-		strBuilder.append(dataPacketBufferPoolSize);		
-		strBuilder.append("], DataPacketBufferQueue size=[");
+		strBuilder.append(dataPacketBufferPoolSize);
+		strBuilder.append("], remaing size=[");
 		strBuilder.append(dataPacketBufferQueue.size());
-		strBuilder.append("], the queue-out state set size[");
-		strBuilder.append(queueOutWrapBufferHashcodeSet.size());
 		strBuilder.append("]");
 		return strBuilder.toString();
 	}
@@ -149,12 +153,11 @@ public class DataPacketBufferPool implements DataPacketBufferPoolIF {
 	public final ByteOrder getByteOrder() {
 		return dataPacketBufferByteOrder;
 	}
-	
-	
+
 	public final int getDataPacketBufferPoolSize() {
 		return dataPacketBufferPoolSize;
 	}
-	
+
 	public boolean isDirect() {
 		return isDirect;
 	}

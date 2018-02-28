@@ -1,5 +1,6 @@
 package kr.pe.sinnori.common.io;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.CharsetDecoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -16,12 +17,12 @@ public class SocketInputStream extends FreeSizeInputStream {
 		super(dataPacketBufferMaxCount, dataPacketBufferList, streamCharsetDecoder, dataPacketBufferQueueManager);
 	}
 	
-	/**
-	 * nothing
-	 */
 	public void close() {
-		
-	}	
+		for (WrapBuffer sourceWrapBuffer : readableWrapBufferList) {			
+			ByteBuffer sourceByteBuffer = sourceWrapBuffer.getByteBuffer();
+			sourceByteBuffer.position(sourceByteBuffer.limit());
+		}
+	}
 	
 	public byte[] getMD5(long size, int blockSize)
 			throws IllegalArgumentException, SinnoriBufferUnderflowException {
@@ -84,27 +85,5 @@ public class SocketInputStream extends FreeSizeInputStream {
 		md5Bytes = md5.digest();		
 		return md5Bytes;
 	}
-	
-	
-	/*public SocketInputStream getDuplicatedStream() {
-		// List<WrapBuffer> dataPacketBufferList;
-		// indexOfWorkBuffer
-		
-		int dataPacketBufferListSize = dataPacketBufferList.size();
-		// int duplicatedListSize = dataPacketBufferListSize - indexOfWorkBuffer;
-		
-		List<WrapBuffer> duplicatedList = new ArrayList<WrapBuffer>();
-		for (int i=getIndexOfWorkBuffer(); i < dataPacketBufferListSize; i++) {
-			WrapBuffer originalWrapBuffer = dataPacketBufferList.get(i);
-			ByteBuffer originalByteBuffer = originalWrapBuffer.getByteBuffer();
-			ByteBuffer duplicatedByteBuffer = originalByteBuffer.duplicate();
-			duplicatedByteBuffer.order(originalByteBuffer.order());
-			WrapBuffer duplicatedWrapBuffer = new WrapBuffer(duplicatedByteBuffer);
-			duplicatedList.add(duplicatedWrapBuffer);
-		}
-		
-		
-		return new SocketInputStream(dataPacketBufferMaxCount, duplicatedList, streamCharsetDecoder, dataPacketBufferQueueManager);
-	}*/
 	
 }
