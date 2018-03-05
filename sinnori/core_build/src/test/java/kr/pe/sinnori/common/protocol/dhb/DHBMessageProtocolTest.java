@@ -14,7 +14,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.etc.CharsetUtil;
 import kr.pe.sinnori.common.io.DataPacketBufferPool;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
@@ -22,12 +22,15 @@ import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
+import kr.pe.sinnori.common.protocol.thb.THBSingleItemDecoder;
+import kr.pe.sinnori.common.protocol.thb.THBSingleItemDecoderMatcher;
+import kr.pe.sinnori.common.protocol.thb.THBSingleItemDecoderMatcherIF;
 import kr.pe.sinnori.common.type.SelfExn;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnResDecoder;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnResEncoder;
 
-public class DHBMessageProtocolTest extends AbstractJunitSupporter {	
+public class DHBMessageProtocolTest extends AbstractJunitTest {	
 	
 	
 	@Test
@@ -59,7 +62,9 @@ public class DHBMessageProtocolTest extends AbstractJunitSupporter {
 		
 		SelfExnResEncoder selfExnEncoder = new SelfExnResEncoder();
 		SelfExnResDecoder selfExnDecoder = new SelfExnResDecoder();
-		DHBSingleItemDecoder dhbSingleItemDecoder = new DHBSingleItemDecoder(streamCharsetDecoder);
+		
+		THBSingleItemDecoderMatcherIF thbSingleItemDecoderMatcher = new THBSingleItemDecoderMatcher(streamCharsetDecoder);
+		THBSingleItemDecoder thbSingleItemDecoder = new THBSingleItemDecoder(thbSingleItemDecoderMatcher);
 
 		// log.info("1");		
 		long beforeTime = 0;
@@ -141,7 +146,7 @@ public class DHBMessageProtocolTest extends AbstractJunitSupporter {
 				Object readablemiddleObj = wrapReadableMiddleObject.getReadableMiddleObject();				
 				
 				try {
-					AbstractMessage resObj = selfExnDecoder.decode(dhbSingleItemDecoder, readablemiddleObj);
+					AbstractMessage resObj = selfExnDecoder.decode(thbSingleItemDecoder, readablemiddleObj);
 					resObj.messageHeaderInfo.mailboxID = wrapReadableMiddleObject.getMailboxID();
 					resObj.messageHeaderInfo.mailID = wrapReadableMiddleObject.getMailID();
 					

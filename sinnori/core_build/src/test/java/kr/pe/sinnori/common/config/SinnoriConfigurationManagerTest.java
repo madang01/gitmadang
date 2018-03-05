@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.config.itemvalue.AllDBCPPartConfiguration;
 import kr.pe.sinnori.common.config.itemvalue.AllSubProjectPartConfiguration;
 import kr.pe.sinnori.common.config.itemvalue.CommonPartConfiguration;
@@ -14,7 +14,7 @@ import kr.pe.sinnori.common.config.itemvalue.DBCPParConfiguration;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.type.SessionKey;
 
-public class SinnoriConfigurationManagerTest extends AbstractJunitSupporter {
+public class SinnoriConfigurationManagerTest extends AbstractJunitTest {
 
 	
 	@Test

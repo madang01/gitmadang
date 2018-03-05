@@ -61,7 +61,7 @@ public class MybatisConfigXMLFileSAXParser extends DefaultHandler {
 		return saxParser;
 	}
 	
-	public FileTypeResourceManager parse(File mybatisConfigFile) 
+	public MybatisFileTypeResourceModificationChecker parse(File mybatisConfigFile) 
 			throws IllegalArgumentException, SAXException, IOException {
 		if (null == mybatisConfigFile) {
 			throw new IllegalArgumentException("the parameter mybatisConfigFile is null");
@@ -91,7 +91,7 @@ public class MybatisConfigXMLFileSAXParser extends DefaultHandler {
 		// fileTypeResource2FileList.add(xmlFile);
 		// mybatisConfigFile = xmlFile;
 		
-		FileTypeResourceManager fileTypeResourceManger = new FileTypeResourceManager(mybatisConfigFile);
+		MybatisFileTypeResourceModificationChecker mybatisFileTypeResourceModificationChecker = new MybatisFileTypeResourceModificationChecker(mybatisConfigFile);
 		
 		try {
 			saxParser.parse(mybatisConfigFile, this);
@@ -99,13 +99,13 @@ public class MybatisConfigXMLFileSAXParser extends DefaultHandler {
 			 * Warning! copy list before reset
 			 */
 			for (File fileTypeResource2File : mapperFileList) {
-				fileTypeResourceManger.addMapperFile(fileTypeResource2File);
+				mybatisFileTypeResourceModificationChecker.addMapperFile(fileTypeResource2File);
 			}
 		} finally {
 			reset();	
 		}	
 		
-		return fileTypeResourceManger;
+		return mybatisFileTypeResourceModificationChecker;
 	}
 	
 	private void reset() throws SAXException {
@@ -345,16 +345,18 @@ public class MybatisConfigXMLFileSAXParser extends DefaultHandler {
 				}
 				
 				mapperFileList.add(mapperURLFile);
+				
+				
+				log.info("successfully the file type url resource[{}] was added to the mapper file list", mapperURLValue);
 				return;
 			}
 			
-			if (null != mapperResourceValue) {
+			if (null != mapperResourceValue) {				
 				String mainProjectResourcesPathString = BuildSystemPathSupporter.getProjectResourcesPathString(sinnoriInstalledPathString, mainProjectName);
 				
 				String mapperResourceFilePathString = CommonStaticUtil.getFilePathStringFromResourcePathAndRelativePathOfFile(mainProjectResourcesPathString, mapperResourceValue);
 				
-				// FIXME!
-				log.info("mapperResourceFilePathString=[{}]", mapperResourceFilePathString);
+				
 				
 				File mapperResourceFile  = new File(mapperResourceFilePathString);
 				
@@ -377,6 +379,8 @@ public class MybatisConfigXMLFileSAXParser extends DefaultHandler {
 				}
 				
 				mapperFileList.add(mapperResourceFile);
+				
+				log.info("successfully the file type resource[{}] was added to the mapper file list", mapperResourceValue);
 				return;
 			}			
 			

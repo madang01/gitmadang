@@ -12,9 +12,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 
-public class MessageInfoSAXParserTest extends AbstractJunitSupporter {
+public class MessageInfoSAXParserTest extends AbstractJunitTest {
 	MessageInfoSAXParser messageInfoSAXParser = null;	
 
 	@Before

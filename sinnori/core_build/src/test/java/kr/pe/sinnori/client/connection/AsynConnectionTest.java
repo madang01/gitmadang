@@ -9,9 +9,9 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 
-public class AsynConnectionTest  extends AbstractJunitSupporter {
+public class AsynConnectionTest  extends AbstractJunitTest {
 
 	@Test
 	public void test() {

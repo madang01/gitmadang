@@ -13,12 +13,12 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.etc.CharsetUtil;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
 
-public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
+public class FreeSizeOutputStreamTest extends AbstractJunitTest {
 	
 
 	private void checkValidFlippedWrapBufferList(List<WrapBuffer> flippedWrapBufferList) {
@@ -64,13 +64,13 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 	public void testConstructor_theParameterDataPacketBufferMaxCount_lessThanOrEqualToZero() {
 		int dataPacketBufferMaxCount = 0;
 		CharsetEncoder streamCharsetEncoder = null;
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 
 		FreeSizeOutputStream fsos = null;
 		try {
 
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fail("no IllegalArgumentException");
 		} catch (IllegalArgumentException e) {
@@ -96,7 +96,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		try {
 
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fail("no IllegalArgumentException");
 		} catch (IllegalArgumentException e) {
@@ -122,13 +122,13 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 	public void testConstructor_theParameterStreamCharsetEncoder_null() {
 		int dataPacketBufferMaxCount = 10;
 		CharsetEncoder streamCharsetEncoder = null;
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 
 		FreeSizeOutputStream fsos = null;
 		try {
 
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fail("no IllegalArgumentException");
 		} catch (IllegalArgumentException e) {
@@ -155,18 +155,18 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPoolIF dataPacketBufferPool = null;
 
 		FreeSizeOutputStream fsos = null;
 
 		try {
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fail("no IllegalArgumentException");
 		} catch (IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
-			String expectedMessage = "the parameter dataPacketBufferQueueManager is null";
+			String expectedMessage = "the parameter dataPacketBufferPool is null";
 
 			assertEquals(expectedMessage, errorMessage);
 		} catch (Exception e) {
@@ -188,7 +188,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 1;
 		int dataPacketBufferPoolSize = 3;
@@ -202,7 +202,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, 
+				dataPacketBufferPool = new DataPacketBufferPool(isDirect, 
 						streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
@@ -212,7 +212,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 			for (byte expectedValue : byteTypeExpectedValueList) {
 				try {
 					fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-							dataPacketBufferPoolManager);
+							dataPacketBufferPool);
 
 					fsos.putByte(expectedValue);
 
@@ -239,7 +239,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 					}
 
 					fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList,
-							streamCharsetDecoder, dataPacketBufferPoolManager);
+							streamCharsetDecoder, dataPacketBufferPool);
 
 					actualValue = fsis.getByte();
 
@@ -281,7 +281,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 512;
 		int dataPacketBufferPoolSize = 10;
@@ -298,14 +298,14 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		try {
 			try {
-				dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+				dataPacketBufferPool = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
 				fail("error");
 			}
 
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fsos.skip(numberOfBytesSkipping);
 
@@ -340,7 +340,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 1;
 		int dataPacketBufferPoolSize = 1;
@@ -355,7 +355,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+				dataPacketBufferPool = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
@@ -365,7 +365,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 			for (short expectedValue : shortTypeExpectedValueList) {
 				try {
 					fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-							dataPacketBufferPoolManager);
+							dataPacketBufferPool);
 
 					fsos.putUnsignedByte(expectedValue);
 
@@ -399,7 +399,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 					// workingWrapBuffer.getByteBuffer().rewind();
 
 					fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList,
-							streamCharsetDecoder, dataPacketBufferPoolManager);
+							streamCharsetDecoder, dataPacketBufferPool);
 
 					actualValue = fsis.getUnsignedByte();
 
@@ -444,7 +444,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 512;
 		int dataPacketBufferPoolSize = 10;
@@ -461,14 +461,14 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		try {
 			try {
-				dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+				dataPacketBufferPool = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
 				fail("error");
 			}
 
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fsos.skip(numberOfBytesSkipping);
 
@@ -504,7 +504,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 1;
 		int dataPacketBufferPoolSize = 2;
@@ -518,7 +518,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+				dataPacketBufferPool = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
@@ -528,7 +528,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 			for (short expectedValue : shortTypeExpectedValueList) {
 				try {
 					fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-							dataPacketBufferPoolManager);
+							dataPacketBufferPool);
 
 					fsos.putShort(expectedValue);
 
@@ -557,7 +557,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 					}
 
 					fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList,
-							streamCharsetDecoder, dataPacketBufferPoolManager);
+							streamCharsetDecoder, dataPacketBufferPool);
 
 					actualValue = fsis.getShort();
 
@@ -601,7 +601,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 512;
 		int dataPacketBufferPoolSize = 10;
@@ -618,14 +618,14 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		try {
 			try {
-				dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+				dataPacketBufferPool = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
 				fail("error");
 			}
 
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fsos.skip(numberOfBytesSkipping);
 
@@ -662,7 +662,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 1;
 		int dataPacketBufferPoolSize = 2;
@@ -677,7 +677,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+				dataPacketBufferPool = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
 				fail("error");
@@ -686,7 +686,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 			for (int expectedValue : integerTypeExpectedValueList) {
 				try {
 					fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-							dataPacketBufferPoolManager);
+							dataPacketBufferPool);
 
 					fsos.putUnsignedShort(expectedValue);
 
@@ -715,7 +715,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 					}
 
 					fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList,
-							streamCharsetDecoder, dataPacketBufferPoolManager);
+							streamCharsetDecoder, dataPacketBufferPool);
 
 					actualValue = fsis.getUnsignedShort();
 
@@ -758,7 +758,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 512;
 		int dataPacketBufferPoolSize = 10;
@@ -775,14 +775,14 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		try {
 			try {
-				dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+				dataPacketBufferPool = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
 				fail("error");
 			}
 
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fsos.skip(numberOfBytesSkipping);
 
@@ -819,7 +819,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 1;
 		int dataPacketBufferPoolSize = 4;
@@ -833,7 +833,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+				dataPacketBufferPool = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
 				fail("error");
@@ -842,7 +842,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 			for (int expectedValue : integerTypeExpectedValueList) {
 				try {
 					fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-							dataPacketBufferPoolManager);
+							dataPacketBufferPool);
 
 					fsos.putInt(expectedValue);
 
@@ -871,7 +871,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 					}
 
 					fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList,
-							streamCharsetDecoder, dataPacketBufferPoolManager);
+							streamCharsetDecoder, dataPacketBufferPool);
 
 					actualValue = fsis.getInt();
 
@@ -913,7 +913,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 512;
 		int dataPacketBufferPoolSize = 10;
@@ -930,14 +930,14 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		try {
 			try {
-				dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+				dataPacketBufferPool = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
 				fail("error");
 			}
 
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fsos.skip(numberOfBytesSkipping);
 
@@ -974,7 +974,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 1;
 		int dataPacketBufferPoolSize = 4;
@@ -989,7 +989,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+				dataPacketBufferPool = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
@@ -999,7 +999,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 			for (long expectedValue : longTypeExpectedValueList) {
 				try {
 					fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-							dataPacketBufferPoolManager);
+							dataPacketBufferPool);
 
 					fsos.putUnsignedInt(expectedValue);
 
@@ -1028,7 +1028,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 					}
 
 					fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList,
-							streamCharsetDecoder, dataPacketBufferPoolManager);
+							streamCharsetDecoder, dataPacketBufferPool);
 
 					actualValue = fsis.getUnsignedInt();
 
@@ -1070,7 +1070,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 512;
 		int dataPacketBufferPoolSize = 10;
@@ -1087,14 +1087,14 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		try {
 			try {
-				dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+				dataPacketBufferPool = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
 				fail("error");
 			}
 
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fsos.skip(numberOfBytesSkipping);
 
@@ -1134,7 +1134,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		CharsetUtil.createCharsetDecoder(streamCharset);
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 1;
 		int dataPacketBufferPoolSize = 8;
@@ -1148,7 +1148,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+				dataPacketBufferPool = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
@@ -1158,7 +1158,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 			for (long expectedValue : longTypeExpectedValueList) {
 				try {
 					fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-							dataPacketBufferPoolManager);
+							dataPacketBufferPool);
 
 					fsos.putLong(expectedValue);
 
@@ -1187,7 +1187,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 					}
 
 					fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList,
-							streamCharsetDecoder, dataPacketBufferPoolManager);
+							streamCharsetDecoder, dataPacketBufferPool);
 
 					actualValue = fsis.getLong();
 
@@ -1230,7 +1230,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 1;
 		int dataPacketBufferPoolSize = 15;
@@ -1247,14 +1247,14 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		try {
 			try {
-				dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+				dataPacketBufferPool = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
 				fail("error");
 			}
 
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fsos.skip(numberOfBytesSkipping);
 
@@ -1291,7 +1291,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -1301,7 +1301,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		// FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -1315,7 +1315,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 			byte[] sourceBytes = null;
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putBytes(sourceBytes);
 
@@ -1347,7 +1347,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putBytes(sourceBytes, sourceOffset, sourceLength);
 
@@ -1376,7 +1376,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putBytes(sourceByteBuffer);
 
@@ -1406,7 +1406,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -1416,7 +1416,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		// FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -1430,7 +1430,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		try {
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fsos.putBytes(sourceBytes, sourceOffset, sourceLength);
 
@@ -1459,7 +1459,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -1469,7 +1469,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		// FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -1484,7 +1484,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		try {
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fsos.putBytes(sourceBytes, sourceOffset, sourceLength);
 
@@ -1515,7 +1515,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 2;
@@ -1525,7 +1525,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		// FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -1540,7 +1540,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		try {
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fsos.putBytes(sourceBytes, sourceOffset, sourceLength);
 
@@ -1569,7 +1569,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 2;
@@ -1579,7 +1579,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		// FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -1594,7 +1594,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		try {
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fsos.putBytes(sourceBytes, sourceOffset, sourceLength);
 
@@ -1628,7 +1628,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -1638,7 +1638,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		// FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -1651,7 +1651,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		try {
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fsos.putBytes(expectedValue);
 
@@ -1681,7 +1681,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -1691,7 +1691,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			log.warn("" + e.getMessage(), e);
@@ -1706,7 +1706,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putBytes(sourceBytes);
 
@@ -1740,7 +1740,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 				}
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, wrapBufferList, streamCharsetDecoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 				// fsis = fsos.getFreeSizeInputStream(streamCharsetDecoder);
 
 				destinationBytes = fsis.getBytes(sourceBytes.length);
@@ -1782,7 +1782,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putBytes(sourceBytes, sourceOffset, sourceLength);
 
@@ -1816,7 +1816,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 				}
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, wrapBufferList, streamCharsetDecoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 				// fsis = fsos.getFreeSizeInputStream(streamCharsetDecoder);
 
 				destinationBytes = fsis.getBytes(sourceLength);
@@ -1856,7 +1856,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putBytes(sourceByteBuffer);
 
@@ -1890,7 +1890,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 				}
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, wrapBufferList, streamCharsetDecoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 				// fsis = fsos.getFreeSizeInputStream(streamCharsetDecoder);
 
 				destinationBytes = fsis.getBytes(sourceBytes.length);
@@ -1928,7 +1928,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1024;
@@ -1937,7 +1937,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -1953,7 +1953,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		try {
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fsos.putFixedLengthString(fixedLength, strStr, wantedCharsetEncoder);
 		} catch (IllegalArgumentException e) {
@@ -1979,7 +1979,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1024;
@@ -1988,7 +1988,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2008,7 +2008,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putFixedLengthString(fixedLength, strStr, wantedCharsetEncoder);
 			} catch (IllegalArgumentException e) {
@@ -2037,7 +2037,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putFixedLengthString(fixedLength, strStr);
 			} catch (IllegalArgumentException e) {
@@ -2064,7 +2064,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1024;
@@ -2073,7 +2073,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2087,7 +2087,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		try {
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fsos.putFixedLengthString(fixedLength, strStr, wantedCharsetEncoder);
 		} catch (IllegalArgumentException e) {
@@ -2114,7 +2114,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 512;
@@ -2124,7 +2124,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2148,7 +2148,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putFixedLengthString(fixedLength, src);
 
@@ -2161,7 +2161,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 				checkValidFlippedWrapBufferList(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				// log.info("fsis.available={}", fsis.available());
 
@@ -2192,7 +2192,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putFixedLengthString(fixedLength, src, wantedCharsetEncoder);
 
@@ -2205,7 +2205,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 				checkValidFlippedWrapBufferList(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				// log.info("fsis.available={}", fsis.available());
 
@@ -2233,7 +2233,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -2243,7 +2243,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			log.warn("" + e.getMessage(), e);
@@ -2264,7 +2264,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putFixedLengthString(fixedLength, strStr);
 
@@ -2292,7 +2292,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 				}
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 				// fsis = fsos.getFreeSizeInputStream(streamCharsetDecoder);
 
 				/*
@@ -2339,7 +2339,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putFixedLengthString(fixedLength, strStr, wantedCharsetEncoder);
 
@@ -2367,7 +2367,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 				}
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 				// fsis = fsos.getFreeSizeInputStream(streamCharsetDecoder);
 
 				/*
@@ -2411,7 +2411,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		Charset streamCharset = Charset.forName("EUC-KR");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -2420,7 +2420,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			log.warn("" + e.getMessage(), e);
@@ -2431,7 +2431,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		try {
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fsos.putStringAll(strStr);
 
@@ -2459,7 +2459,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		Charset streamCharset = Charset.forName("EUC-KR");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -2468,7 +2468,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2484,7 +2484,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		try {
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fsos.skip(numberOfBytesSkipping);
 
@@ -2519,7 +2519,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -2529,7 +2529,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		FreeSizeInputStream fsis = null;
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2552,7 +2552,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putStringAll(src);
 
@@ -2565,7 +2565,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 				checkValidFlippedWrapBufferList(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				// log.info("fsis.available={}", fsis.available());
 
@@ -2595,7 +2595,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putStringAll(src, wantedCharset);
 
@@ -2608,7 +2608,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 				checkValidFlippedWrapBufferList(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				// log.info("fsis.available={}", fsis.available());
 
@@ -2635,7 +2635,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -2644,7 +2644,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2665,7 +2665,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putUBPascalString(src);
 
@@ -2692,7 +2692,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putUBPascalString(src, wantedCharset);
 
@@ -2720,7 +2720,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -2729,7 +2729,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2748,7 +2748,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		{
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putUBPascalString(src, wantedCharset);
 
@@ -2776,7 +2776,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -2787,7 +2787,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		final int numberOfBytesLength = 1;
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2810,7 +2810,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putUBPascalString(src);
 
@@ -2823,7 +2823,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 				checkValidFlippedWrapBufferList(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsis.skip(numberOfBytesLength);
 
@@ -2855,7 +2855,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putUBPascalString(src, wantedCharset);
 
@@ -2868,7 +2868,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 				checkValidFlippedWrapBufferList(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				// log.info("fsis.available={}", fsis.available());
 				fsis.skip(numberOfBytesLength);
@@ -2895,7 +2895,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		Charset streamCharset = Charset.forName("UTF-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 4096;
@@ -2904,7 +2904,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2922,7 +2922,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		try {
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fsos.putUBPascalString(src);
 			
@@ -2933,7 +2933,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 			src = srcStringBuilder.toString(); 
 			
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fsos.putUBPascalString(src);
 
@@ -2963,7 +2963,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		Charset streamCharset = Charset.forName("UTF-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		final int dataPacketBufferSize = 1;
@@ -2984,7 +2984,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		String src = srcStringBuilder.toString();
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -2994,7 +2994,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		try {
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fsos.putUBPascalString(src);
 			
@@ -3005,7 +3005,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 			src = srcStringBuilder.toString(); 
 			
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 			
 			
 			numberOfBytesRequired = src.getBytes(streamCharset).length+numberOfBytesLength;
@@ -3038,7 +3038,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 1;
 		int dataPacketBufferPoolSize = 50;
@@ -3062,7 +3062,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 					streamByteOrder);
 
 			try {
-				dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+				dataPacketBufferPool = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
@@ -3071,7 +3071,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putUBPascalString(src);
 
@@ -3082,7 +3082,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 				checkValidFlippedWrapBufferList(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				// log.info("fsis.available={}", fsis.available());
 
@@ -3112,7 +3112,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 					streamByteOrder);
 
 			try {
-				dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+				dataPacketBufferPool = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
@@ -3121,7 +3121,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putUBPascalString(src, wantedCharset);
 
@@ -3132,7 +3132,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 				checkValidFlippedWrapBufferList(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				// log.info("fsis.available={}", fsis.available());
 
@@ -3164,7 +3164,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -3173,7 +3173,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -3190,7 +3190,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putUSPascalString(src);
 
@@ -3217,7 +3217,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putUSPascalString(src, wantedCharset);
 
@@ -3245,7 +3245,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -3254,7 +3254,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -3269,7 +3269,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		{
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putUSPascalString(src, wantedCharset);
 
@@ -3297,7 +3297,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -3308,7 +3308,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		final int numberOfBytesLength = 2;
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -3331,7 +3331,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putUSPascalString(src);
 
@@ -3344,7 +3344,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 				checkValidFlippedWrapBufferList(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsis.skip(numberOfBytesLength);
 
@@ -3376,7 +3376,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putUSPascalString(src, wantedCharset);
 
@@ -3389,7 +3389,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 				checkValidFlippedWrapBufferList(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				// log.info("fsis.available={}", fsis.available());
 				fsis.skip(numberOfBytesLength);
@@ -3416,7 +3416,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		Charset streamCharset = Charset.forName("UTF-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 4096;
@@ -3425,7 +3425,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -3443,7 +3443,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		try {
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fsos.putUSPascalString(src);
 			
@@ -3454,7 +3454,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 			src = srcStringBuilder.toString(); 
 			
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fsos.putUSPascalString(src);
 
@@ -3485,7 +3485,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		Charset streamCharset = Charset.forName("UTF-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		final int dataPacketBufferSize = 1;
@@ -3506,7 +3506,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		String src = srcStringBuilder.toString();
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -3516,7 +3516,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		try {
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fsos.putUSPascalString(src);
 			
@@ -3527,7 +3527,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 			src = srcStringBuilder.toString(); 
 			
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 			
 			
 			numberOfBytesRequired = src.getBytes(streamCharset).length+numberOfBytesLength;
@@ -3560,7 +3560,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 4096;
 		int dataPacketBufferPoolSize = 100;
@@ -3587,7 +3587,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+				dataPacketBufferPool = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
@@ -3596,7 +3596,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putUSPascalString(src);
 
@@ -3607,7 +3607,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 				checkValidFlippedWrapBufferList(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				// log.info("fsis.available={}", fsis.available());
 
@@ -3633,7 +3633,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+				dataPacketBufferPool = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
@@ -3642,7 +3642,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putUSPascalString(src, wantedCharset);
 
@@ -3653,7 +3653,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 				checkValidFlippedWrapBufferList(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				// log.info("fsis.available={}", fsis.available());
 
@@ -3685,7 +3685,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -3694,7 +3694,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -3711,7 +3711,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putSIPascalString(src);
 
@@ -3738,7 +3738,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putSIPascalString(src, wantedCharset);
 
@@ -3766,7 +3766,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -3775,7 +3775,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		FreeSizeOutputStream fsos = null;
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -3790,7 +3790,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		{
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putSIPascalString(src, wantedCharset);
 
@@ -3818,7 +3818,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;
@@ -3829,7 +3829,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		final int numberOfBytesLength = 4;
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -3852,7 +3852,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putSIPascalString(src);
 
@@ -3865,7 +3865,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 				checkValidFlippedWrapBufferList(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsis.skip(numberOfBytesLength);
 
@@ -3897,7 +3897,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putSIPascalString(src, wantedCharset);
 
@@ -3910,7 +3910,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 				checkValidFlippedWrapBufferList(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				// log.info("fsis.available={}", fsis.available());
 				fsis.skip(numberOfBytesLength);
@@ -3937,7 +3937,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		Charset streamCharset = Charset.forName("UTF-8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder streamByteOrder = ByteOrder.BIG_ENDIAN;
 		final int dataPacketBufferSize = 1;
@@ -3958,7 +3958,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		String src = srcStringBuilder.toString();
 
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect,
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect,
 					streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch (Exception e) {
 			String errorMessage = "error::" + e.getMessage();
@@ -3968,7 +3968,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		try {
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fsos.putSIPascalString(src);
 			
@@ -3979,7 +3979,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 			src = srcStringBuilder.toString(); 
 			
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 			
 			
 			numberOfBytesRequired = src.getBytes(streamCharset).length+numberOfBytesLength;
@@ -4013,7 +4013,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 4096;
 		int dataPacketBufferPoolSize = 100;
@@ -4040,7 +4040,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+				dataPacketBufferPool = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
@@ -4049,7 +4049,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putSIPascalString(src);
 
@@ -4060,7 +4060,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 				checkValidFlippedWrapBufferList(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				// log.info("fsis.available={}", fsis.available());
 
@@ -4086,7 +4086,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		for (ByteOrder streamByteOrder : streamByteOrderList) {
 			try {
-				dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+				dataPacketBufferPool = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
@@ -4095,7 +4095,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 			try {
 				fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				fsos.putSIPascalString(src, wantedCharset);
 
@@ -4106,7 +4106,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 				checkValidFlippedWrapBufferList(flippedWrapBufferList);
 
 				fsis = new FreeSizeInputStream(dataPacketBufferMaxCount, flippedWrapBufferList, streamCharsetDecoder,
-						dataPacketBufferPoolManager);
+						dataPacketBufferPool);
 
 				// log.info("fsis.available={}", fsis.available());
 
@@ -4138,7 +4138,7 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
 
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		int dataPacketBufferSize = 512;
 		int dataPacketBufferPoolSize = 10;
@@ -4149,14 +4149,14 @@ public class FreeSizeOutputStreamTest extends AbstractJunitSupporter {
 
 		try {
 			try {
-				dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+				dataPacketBufferPool = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			} catch (Exception e) {
 				log.warn("" + e.getMessage(), e);
 				fail("error");
 			}
 
 			fsos = new FreeSizeOutputStream(dataPacketBufferMaxCount, streamCharsetEncoder,
-					dataPacketBufferPoolManager);
+					dataPacketBufferPool);
 
 			fsos.skip(dataPacketBufferSize * dataPacketBufferMaxCount);
 

@@ -12,9 +12,9 @@ import java.util.Date;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 
-public class CharsetTest extends AbstractJunitSupporter {
+public class CharsetTest extends AbstractJunitTest {
 
 	@Test
 	public void test() {

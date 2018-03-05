@@ -40,7 +40,6 @@ import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
-import kr.pe.sinnori.common.protocol.thb.header.THBMessageHeader;
 
 /**
  * THB 메시지 프로토콜<br/> 
@@ -65,8 +64,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 	
 	/** 메시지 헤더 크기, 단위 byte */
 	private int messageHeaderSize;
-	private THBSingleItemDecoder thbSingleItemDecoder = null;
-	
+	private THBSingleItemDecoder thbSingleItemDecoder = null;	
 	private THBSingleItemEncoder thbSingleItemEncoder = null;
 	
 	
@@ -128,8 +126,12 @@ public class THBMessageProtocol implements MessageProtocolIF {
 		
 		this.messageHeaderSize = messageIDFixedSize+ 2 + 4 + 8;
 		
-		thbSingleItemDecoder = new THBSingleItemDecoder(streamCharsetDecoder);
-		thbSingleItemEncoder = new THBSingleItemEncoder(streamCharsetEncoder);
+		THBSingleItemDecoderMatcherIF thbSingleItemDecoderMatcher = new THBSingleItemDecoderMatcher(streamCharsetDecoder);
+		thbSingleItemDecoder = new THBSingleItemDecoder(thbSingleItemDecoderMatcher);
+		
+		
+		THBSingleItemEncoderMatcherIF thbSingleItemEncoderMatcher = new THBSingleItemEncoderMatcher(streamCharsetEncoder);		
+		thbSingleItemEncoder = new THBSingleItemEncoder(thbSingleItemEncoderMatcher);
 		
 		this.headerCharsetEncoder = headerCharset.newEncoder();
 		this.headerCharsetEncoder.onMalformedInput(streamCharsetEncoder.malformedInputAction());
@@ -138,7 +140,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 		
 		this.headerCharsetDecoder = headerCharset.newDecoder();
 		this.headerCharsetDecoder.onMalformedInput(streamCharsetDecoder.malformedInputAction());
-		this.headerCharsetEncoder.onUnmappableCharacter(streamCharsetDecoder.unmappableCharacterAction());
+		this.headerCharsetDecoder.onUnmappableCharacter(streamCharsetDecoder.unmappableCharacterAction());
 	}
 	
 	@Override
@@ -281,8 +283,6 @@ public class THBMessageProtocol implements MessageProtocolIF {
 						}
 						
 						messageHeader = null;
-						/*socketInputStream.close();
-						socketInputStream = socketOutputStream.createNewSocketInputStream();*/
 					}
 				}
 			} while (isMoreMessage);			

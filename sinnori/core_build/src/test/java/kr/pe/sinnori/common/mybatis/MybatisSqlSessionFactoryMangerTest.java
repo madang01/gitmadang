@@ -5,6 +5,7 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -30,6 +31,7 @@ import kr.pe.sinnori.common.exception.BuildSystemException;
 import kr.pe.sinnori.common.exception.MybatisException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.type.LogType;
+import kr.pe.sinnori.common.type.MybatisMapperType;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 import kr.pe.sinnori.common.util.SequencedProperties;
 import kr.pe.sinnori.common.util.SequencedPropertiesUtil;
@@ -37,10 +39,10 @@ import kr.pe.sinnori.common.util.SequencedPropertiesUtil;
 public class MybatisSqlSessionFactoryMangerTest {
 	Logger log = null;	
 	
-	private String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
+	private final String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
 	private String mainProjectName = "sample_test";
-	private String serverMybatisConfigFileRelativePathString = "mybatis/mybatisConfig.xml";
-	private File mybatisConfigeFile = getMybatisConfigFile(serverMybatisConfigFileRelativePathString);
+	private final String serverMybatisConfigFileRelativePathString = "mybatis/mybatisConfig.xml";
+	private File mybatisConfigeFile = null;	
 	
 	
 	@Before
@@ -66,9 +68,12 @@ public class MybatisSqlSessionFactoryMangerTest {
 		
 		/** Logback 로그 경로 지정에 비 의존하기 위해서 셋업 */	
 		LogType logType = LogType.SERVER;
-		SinnoriLogbackManger.getInstance().setup(sinnoriInstalledPathString, mainProjectName, logType);
+		SinnoriLogbackManger.getInstance().setup(sinnoriInstalledPathString, "sample_base", logType);
 		
 		log = LoggerFactory.getLogger(MybatisConfigSAXParserTest.class);
+		
+		
+		mybatisConfigeFile = getMybatisConfigFile(serverMybatisConfigFileRelativePathString);
 		
 		boolean isServer = true;
 		boolean isAppClient = true;
@@ -89,16 +94,45 @@ public class MybatisSqlSessionFactoryMangerTest {
 		}
 		
 		
+		String mybatisConfigDTDFilePathString = BuildSystemPathSupporter.getMybatisConfigDTDFilePathString(sinnoriInstalledPathString);
 		final String defaultDBCPName = "sample_base_db";
-		List<MybatisEnviroment> mybatisEnviromentList = new ArrayList<MybatisEnviroment>();
-		mybatisEnviromentList.add(new MybatisEnviroment(
-				sinnoriInstalledPathString, mainProjectName, defaultDBCPName, "kr.pe.sinnori.common.mybatis.SampleBaseDBDataSourceFactory"));
+		String dbcpConfigFilePathString = BuildSystemPathSupporter.getDBCPConfigFilePathString(sinnoriInstalledPathString, mainProjectName, defaultDBCPName);
 		
-		List<MybatisMapper> mybatisMapperList = new ArrayList<MybatisMapper>();
-		mybatisMapperList.add(new MybatisMapper(sinnoriInstalledPathString, mainProjectName, 
+		List<MybatisEnviroment> mybatisEnviromentList = new ArrayList<MybatisEnviroment>();
+		
+		
+		
+		mybatisEnviromentList.add(new MybatisEnviroment(defaultDBCPName, dbcpConfigFilePathString, "kr.pe.sinnori.common.mybatis.SampleBaseDBDataSourceFactory"));
+		
+		List<MybatisFileTypeMapper> mybatisMapperList = new ArrayList<MybatisFileTypeMapper>();
+		mybatisMapperList.add(new MybatisFileTypeMapper(MybatisMapperType.RESOURCE, 
+				sinnoriInstalledPathString, mainProjectName, 
 				"mybatis/mybatisMapper.xml"));
+		
+		
+		{
+			String mainProjectResorucesPathString = BuildSystemPathSupporter.getProjectResourcesPathString(sinnoriInstalledPathString, mainProjectName);
+			String mybatisMapperFilePathString = CommonStaticUtil
+					.getFilePathStringFromResourcePathAndRelativePathOfFile(mainProjectResorucesPathString, "mybatis/mybatisMapper2.xml");
 			
-		String mybatisConfigFileContents = BuildSystemFileContents.getMybatisConfigFileContents(sinnoriInstalledPathString, defaultDBCPName,
+			File urlTypeMapperFile = new File(mybatisMapperFilePathString);
+			
+			String mapperTypeValue = null;
+			
+			try {
+				mapperTypeValue = urlTypeMapperFile.toURI().toURL().toString();
+			} catch (MalformedURLException e) {
+				log.warn("fail to get a url string", e);
+			}
+			
+			mybatisMapperList.add(new MybatisFileTypeMapper(MybatisMapperType.URL, 
+					sinnoriInstalledPathString, mainProjectName, 
+					mapperTypeValue));
+		}
+		
+		
+			
+		String mybatisConfigFileContents = BuildSystemFileContents.getMybatisConfigFileContents(mybatisConfigDTDFilePathString, defaultDBCPName,
 				mybatisEnviromentList,
 				mybatisMapperList);
 		
@@ -109,7 +143,7 @@ public class MybatisSqlSessionFactoryMangerTest {
 			fail(e.getMessage());
 		}
 		
-		for (MybatisMapper mybatisMapper : mybatisMapperList) {
+		for (MybatisFileTypeMapper mybatisMapper : mybatisMapperList) {
 			File mybatisMapperFile = mybatisMapper.getMybatisMapperFile();
 			
 			String emptyMybatisMapperFileContents = BuildSystemFileContents
@@ -216,7 +250,7 @@ public class MybatisSqlSessionFactoryMangerTest {
 	}
 	
 	@Test
-	public void testGetSqlSessionFactory() {
+	public void testGetSqlSessionFactory_파일타입리로스수정시새롭게갱신되는지테스트() {
 		MybatisSqlSessionFactoryManger mybatisSqlSessionFactoryManger = MybatisSqlSessionFactoryManger.getInstance();
 		
 		String enviromentID = "sample_base_db";
@@ -244,7 +278,7 @@ public class MybatisSqlSessionFactoryMangerTest {
 			}
 		}
 		
-		FileTypeResourceManager fileTypeResourceManger = null;
+		MybatisFileTypeResourceModificationChecker fileTypeResourceManger = null;
 		
 		MybatisConfigXMLFileSAXParser mybatisConfigSAXParser = null;
 		try {
@@ -292,7 +326,11 @@ public class MybatisSqlSessionFactoryMangerTest {
 		
 		int newHashCode = sqlSessionFactory.hashCode();
 		
-		log.info("oldHashCode=[{}], newHashCode=[{}]", oldHashCode, newHashCode);
+		if (oldHashCode == newHashCode) {
+			fail("no SqlSessionFactory renewal");
+		}
+		
+		// log.info("oldHashCode=[{}], newHashCode=[{}]", oldHashCode, newHashCode);
 		
 	}
 }

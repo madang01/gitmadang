@@ -10,10 +10,10 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
 
-public class GeneralConverterReturningPathTest extends AbstractJunitSupporter implements NativeValueConverterTestIF {
+public class GeneralConverterReturningPathTest extends AbstractJunitTest implements NativeValueConverterTestIF {
 	
 	
 	private GeneralConverterReturningPath nativeValueConverter = null;

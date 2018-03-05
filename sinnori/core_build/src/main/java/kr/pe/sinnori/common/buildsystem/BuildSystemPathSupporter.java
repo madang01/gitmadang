@@ -192,6 +192,8 @@ public abstract class BuildSystemPathSupporter {
 				.append("message_info");
 		return strBuilder.toString();
 	}
+	
+	
 
 	/** message info path : <project path>/resources/message_info/<message id>.xml */
 	public static String getMessageInfoFilePathString(String sinnoriInstalledPathString, String mainProjectName, String messageID) {
@@ -259,12 +261,8 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}
 	
-	/*public static String getServerAPPINFResourcesPathString(String sinnoriInstalledPathString, String mainProjectName) {
-		StringBuilder strBuilder = new StringBuilder(getServerAPPINFPathString(sinnoriInstalledPathString, mainProjectName));
-		strBuilder.append(File.separator);
-		strBuilder.append("resources");
-		return strBuilder.toString();
-	}*/
+	
+	
 	
 	/**
 	 * @return src/main/java/kr/pe/sinnori/impl/message, the relative path where message I / O files are located based on 'Ant build path'

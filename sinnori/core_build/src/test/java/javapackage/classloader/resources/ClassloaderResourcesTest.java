@@ -7,11 +7,11 @@ import java.io.InputStream;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.exception.MybatisException;
 import kr.pe.sinnori.common.mybatis.MybatisSqlSessionFactoryManger;
 
-public class ClassloaderResourcesTest extends AbstractJunitSupporter {
+public class ClassloaderResourcesTest extends AbstractJunitTest {
 	
 	@Test
 	public void classpathResourcesTest() {

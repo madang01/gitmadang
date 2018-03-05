@@ -4,7 +4,7 @@ import java.util.List;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.mybatis.MybatisEnviroment;
-import kr.pe.sinnori.common.mybatis.MybatisMapper;
+import kr.pe.sinnori.common.mybatis.MybatisFileTypeMapper;
 import kr.pe.sinnori.common.type.LogType;
 
 public abstract class BuildSystemFileContents {
@@ -1185,15 +1185,15 @@ public abstract class BuildSystemFileContents {
 	/**
 	 * <project>/resources/mybatis/mybatisConfig.xml
 	 */
-	public static String getMybatisConfigFileContents(String sinnoriInstalledPathString, 
+	public static String getMybatisConfigFileContents(String mybatisConfigDTDFilePathString, 
 			String defaultDBCPName,
 			List<MybatisEnviroment> mybatisEnviromentList,
-			List<MybatisMapper> mybatisMapperList) {
+			List<MybatisFileTypeMapper> mybatisMapperList) {
 		StringBuilder mybatisConfigStringBuidler = new StringBuilder();
 		mybatisConfigStringBuidler.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 		mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
 		mybatisConfigStringBuidler.append("<!DOCTYPE configuration SYSTEM \"");
-		mybatisConfigStringBuidler.append(BuildSystemPathSupporter.getMybatisConfigDTDFilePathString(sinnoriInstalledPathString));
+		mybatisConfigStringBuidler.append(mybatisConfigDTDFilePathString);
 		mybatisConfigStringBuidler.append("\">");
 		mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
 		mybatisConfigStringBuidler.append("<configuration>");
@@ -1223,9 +1223,11 @@ public abstract class BuildSystemFileContents {
 		mybatisConfigStringBuidler.append("<mappers>");
 		mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
 		
-		for (MybatisMapper mybatisMapper : mybatisMapperList) {
-			mybatisConfigStringBuidler.append("<mapper resource=\"");
-			mybatisConfigStringBuidler.append(mybatisMapper.getMybatisMapperFileRelativePathString());
+		for (MybatisFileTypeMapper mybatisMapper : mybatisMapperList) {
+			mybatisConfigStringBuidler.append("<mapper ");
+			mybatisConfigStringBuidler.append(mybatisMapper.getMapperTypeName());
+			mybatisConfigStringBuidler.append("=\"");
+			mybatisConfigStringBuidler.append(mybatisMapper.getMapperTypeValue());
 			mybatisConfigStringBuidler.append("\" />");
 			mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
 		}		

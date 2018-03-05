@@ -3,13 +3,13 @@ package kr.pe.sinnori.common.config.iteminfo;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.config.AbstractNativeValueConverter;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo.ViewType;
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningNoTrimString;
 
-public class ItemIDInfoTest extends AbstractJunitSupporter {
+public class ItemIDInfoTest extends AbstractJunitTest {
 	
 	
 	@Test(expected=IllegalArgumentException.class)

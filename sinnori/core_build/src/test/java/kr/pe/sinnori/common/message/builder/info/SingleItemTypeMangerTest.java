@@ -4,10 +4,10 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.type.SingleItemType;
 
-public class SingleItemTypeMangerTest extends AbstractJunitSupporter {
+public class SingleItemTypeMangerTest extends AbstractJunitTest {
 	
 	
 	@Test

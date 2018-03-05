@@ -4,9 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 
-public class GeneralConverterReturningIntegerBetweenMinAndMaxTest extends AbstractJunitSupporter {
+public class GeneralConverterReturningIntegerBetweenMinAndMaxTest extends AbstractJunitTest {
 	
 	
 	@Test(expected=IllegalArgumentException.class)

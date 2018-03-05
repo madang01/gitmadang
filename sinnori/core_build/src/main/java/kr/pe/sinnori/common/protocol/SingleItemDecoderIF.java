@@ -27,7 +27,7 @@ import kr.pe.sinnori.common.type.SingleItemType;
 public interface SingleItemDecoderIF {
 	
 	public Object getValueFromReadableMiddleObject(String path, String itemName, SingleItemType singleItemType, 
-			int itemSize, String nativeItemCharset, Object middleReadObj)
+			int itemSize, String nativeItemCharset, Object readableMiddleObject)
 			throws BodyFormatException;
 	
 	/**

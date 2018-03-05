@@ -5,9 +5,9 @@ import java.util.TimeZone;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 
-public class CalendarTest extends AbstractJunitSupporter {
+public class CalendarTest extends AbstractJunitTest {
 
 	@Test
 	public void testWeek() {

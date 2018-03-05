@@ -4,14 +4,14 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.sessionkey.ClientSessionKeyIF;
 import kr.pe.sinnori.common.sessionkey.ClientSessionKeyManager;
 import kr.pe.sinnori.common.sessionkey.ServerSessionkeyIF;
 import kr.pe.sinnori.common.sessionkey.ServerSessionkeyManager;
 
-public class SessionKeyTest extends AbstractJunitSupporter {
+public class SessionKeyTest extends AbstractJunitTest {
 	
 	@Test
 	public void testSessionKeyThreadSafe() {

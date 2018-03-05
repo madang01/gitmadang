@@ -6,12 +6,12 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
 
 // GeneralConverterReturningUpDownFileBlockMaxSize
 public class GeneralConverterReturningUpDownFileBlockMaxSizeBetweenMinAndMaxTest
-extends AbstractJunitSupporter implements NativeValueConverterTestIF {
+extends AbstractJunitTest implements NativeValueConverterTestIF {
 	
 	private GeneralConverterReturningUpDownFileBlockMaxSizeBetweenMinAndMax nativeValueConverter = null;
 	private Integer returnedValue = null;

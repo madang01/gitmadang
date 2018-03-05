@@ -7,12 +7,12 @@ import java.util.Random;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.sessionkey.SymmetricKeyManager;
 
-public class SymmetricKeyManagerTest extends AbstractJunitSupporter {	
+public class SymmetricKeyManagerTest extends AbstractJunitTest {	
 	
 	@Test
 	public void testEncrypt_paramter_symmetricKeyAlgorithm_null() {
@@ -208,7 +208,7 @@ RSA/ECB/OAEPWithSHA-256AndMGF1Padding (1024, 2048)
 		}
 		
 		try {
-			Thread.sleep(1000L*60*10);
+			Thread.sleep(1000L*60*2);
 		} catch (InterruptedException e) {
 			fail(e.getMessage());
 		}

@@ -2,11 +2,11 @@ package kr.pe.sinnori.common.mybatis;
 
 import java.io.File;
 
-public class FileTypeResource {
+public class FileModificationChecker {
 	private File sourceFile = null;
 	private long lastModifiedTime = 0;
 	
-	public FileTypeResource(File sourceFile) {
+	public FileModificationChecker(File sourceFile) {
 		this.sourceFile = sourceFile;
 		this.lastModifiedTime = sourceFile.lastModified();		
 	}
@@ -24,7 +24,7 @@ public class FileTypeResource {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("FileTypeResource [sourceFile=");
+		builder.append("MybatisFileTypeResource.java [sourceFile=");
 		builder.append(sourceFile);
 		builder.append(", lastModifiedTime=");
 		builder.append(lastModifiedTime);

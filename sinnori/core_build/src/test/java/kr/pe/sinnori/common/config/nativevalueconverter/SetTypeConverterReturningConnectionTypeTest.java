@@ -6,11 +6,11 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
 import kr.pe.sinnori.common.type.ConnectionType;
 
-public class SetTypeConverterReturningConnectionTypeTest extends AbstractJunitSupporter implements NativeValueConverterTestIF {
+public class SetTypeConverterReturningConnectionTypeTest extends AbstractJunitTest implements NativeValueConverterTestIF {
 	
 	
 	private SetTypeConverterReturningConnectionType nativeValueConverter = null;

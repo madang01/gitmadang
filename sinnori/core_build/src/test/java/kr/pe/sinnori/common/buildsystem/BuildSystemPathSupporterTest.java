@@ -7,9 +7,9 @@ import java.io.File;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 
-public class BuildSystemPathSupporterTest extends AbstractJunitSupporter {
+public class BuildSystemPathSupporterTest extends AbstractJunitTest {
 	
 	
 	@Test

@@ -23,9 +23,9 @@ import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -55,7 +55,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 	
 	private SocketResourceManagerIF socketResourceManager = null;
 	
-	private final LinkedList<SocketChannel> notRegistedSocketChannelList = new LinkedList<SocketChannel>();
+	private final ArrayDeque<SocketChannel> notRegistedSocketChannelList = new ArrayDeque<SocketChannel>();
 	private Selector readEventOnlySelector = null;
 
 	
@@ -140,6 +140,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 					log.warn("{} InputMessageReader[{}] socket channel[{}] fail to register selector", 
 							projectName, index, notRegistedSocketChannel.hashCode());
 					
+					socketResourceManager.getSocketResource(notRegistedSocketChannel).close();					
 					socketResourceManager.remove(notRegistedSocketChannel);
 				}
 			}
@@ -174,9 +175,9 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 					Iterator<SelectionKey> selectionKeyIterator = selectedKeySet
 							.iterator();
 					while (selectionKeyIterator.hasNext()) {
-						SelectionKey readableSelectionKey = selectionKeyIterator.next();
+						SelectionKey selectedKey = selectionKeyIterator.next();
 						selectionKeyIterator.remove();
-						SocketChannel readableSocketChannel = (SocketChannel) readableSelectionKey.channel();
+						SocketChannel readableSocketChannel = (SocketChannel) selectedKey.channel();
 						// ByteBuffer lastInputStreamBuffer = null;
 						SocketResource fromSocketResource = socketResourceManager
 								.getSocketResource(readableSocketChannel);
@@ -209,7 +210,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 								log.warn(String.format(
 										"%s InputMessageReader[%d] socket channel read -1, remove client",
 										projectName, index));
-								closeClient(readableSelectionKey);
+								closeClient(selectedKey, fromSocketResource);
 								continue;
 							}
 							
@@ -227,17 +228,17 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 							String errorMessage = String.format("%s InputMessageReader[%d] NoMoreDataPacketBufferException::%s", 
 									projectName, index, e.getMessage());
 							log.warn(errorMessage, e);
-							closeClient(readableSelectionKey);
+							closeClient(selectedKey, fromSocketResource);
 							continue;						
 						} catch (NotYetConnectedException e) {
 							log.warn("io error", e);
-							closeClient(readableSelectionKey);
+							closeClient(selectedKey, fromSocketResource);
 							continue;
 						} catch (IOException e) {
 							String errorMessage = String.format("%s InputMessageReader[%d] IOException::%s", 
 									projectName, index, e.getMessage());
 							log.warn(errorMessage, e);
-							closeClient(readableSelectionKey);
+							closeClient(selectedKey, fromSocketResource);
 							continue;
 						}
 					}
@@ -251,17 +252,23 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 			log.warn(String.format("%s InputMessageReader[%d] unknown error", projectName, index), e);
 		}
 	}
-
-	/**
-	 * client 접속이 끊겼거나, socket 읽기시 IO 에러, 인코딩 에러로 client 작업대상에서 제외할때 호출
-	 * 
-	 * @param readableSelectionKey
-	 *            selector 에서 얻는 SelectionKey로 작업대상에서 제외할 client
-	 * @see ClientResouceManager#removeClient(java.nio.channels.SocketChannel)
-	 */
-	private void closeClient(SelectionKey readableSelectionKey) {
-		readableSelectionKey.cancel();
-		SocketChannel readableSocketChannel = (SocketChannel) readableSelectionKey.channel();
-		socketResourceManager.remove(readableSocketChannel);
+	
+	private void closeClient(SelectionKey selectedKey, SocketResource fromSocketResource) {
+		SocketChannel selectedSocketChannel = (SocketChannel) selectedKey.channel();
+		
+		log.info("close the socket[{}]", selectedSocketChannel.hashCode());
+		
+		
+		selectedKey.cancel();
+		
+		try {
+			selectedSocketChannel.close();
+		} catch (IOException e) {
+			log.warn("fail to close the socket[{}]", selectedSocketChannel.hashCode());
+		}
+		
+		fromSocketResource.close();
+		
+		socketResourceManager.remove(selectedSocketChannel);
 	}
 }

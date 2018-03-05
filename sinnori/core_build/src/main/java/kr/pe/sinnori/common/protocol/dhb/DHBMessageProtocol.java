@@ -47,7 +47,12 @@ import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
-import kr.pe.sinnori.common.protocol.dhb.header.DHBMessageHeader;
+import kr.pe.sinnori.common.protocol.thb.THBSingleItemDecoder;
+import kr.pe.sinnori.common.protocol.thb.THBSingleItemDecoderMatcher;
+import kr.pe.sinnori.common.protocol.thb.THBSingleItemDecoderMatcherIF;
+import kr.pe.sinnori.common.protocol.thb.THBSingleItemEncoder;
+import kr.pe.sinnori.common.protocol.thb.THBSingleItemEncoderMatcher;
+import kr.pe.sinnori.common.protocol.thb.THBSingleItemEncoderMatcherIF;
 import kr.pe.sinnori.common.util.HexUtil;
 
 /**
@@ -72,8 +77,8 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 	private int messageHeaderSize;
 	private int headerBodySize;
 
-	private DHBSingleItemDecoder dhbSingleItemDecoder = null;
-	private DHBSingleItemEncoder dhbSingleItemEncoder = null;
+	private THBSingleItemDecoder thbSingleItemDecoder = null;
+	private THBSingleItemEncoder thbSingleItemEncoder = null;
 	
 	private final Charset headerCharset = Charset.forName("ISO-8859-1");
 	private CharsetEncoder headerCharsetEncoder = null;
@@ -129,8 +134,12 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 		this.headerBodySize = messageIDFixedSize + 2 + 4 + 8 + CommonStaticFinalVars.MD5_BYTESIZE;
 		this.messageHeaderSize = headerBodySize + CommonStaticFinalVars.MD5_BYTESIZE;
 		
-		this.dhbSingleItemDecoder = new DHBSingleItemDecoder(streamCharsetDecoder);
-		this.dhbSingleItemEncoder = new DHBSingleItemEncoder(streamCharsetEncoder);
+		THBSingleItemDecoderMatcherIF thbSingleItemDecoderMatcher = new THBSingleItemDecoderMatcher(streamCharsetDecoder);
+		this.thbSingleItemDecoder = new THBSingleItemDecoder(thbSingleItemDecoderMatcher);
+		
+		
+		THBSingleItemEncoderMatcherIF thbSingleItemEncoderMatcher = new THBSingleItemEncoderMatcher(streamCharsetEncoder);
+		this.thbSingleItemEncoder = new THBSingleItemEncoder(thbSingleItemEncoderMatcher);
 		
 		this.headerCharsetEncoder = headerCharset.newEncoder();
 		this.headerCharsetEncoder.onMalformedInput(streamCharsetEncoder.malformedInputAction());
@@ -202,7 +211,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 		//log.info("2");
 
 		try {
-			messageEncoder.encode(messageObj, dhbSingleItemEncoder, bodyOutputStream);
+			messageEncoder.encode(messageObj, thbSingleItemEncoder, bodyOutputStream);
 		} catch (NoMoreDataPacketBufferException e) {
 			throw e;
 		} catch (Exception e) {
@@ -444,6 +453,6 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 
 	@Override
 	public SingleItemDecoderIF getSingleItemDecoder() {
-		return dhbSingleItemDecoder;
+		return thbSingleItemDecoder;
 	}
 }

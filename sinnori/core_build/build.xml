@@ -37,6 +37,7 @@
 			<include name="kr/pe/sinnori/common/**" />
 			<include name="kr/pe/sinnori/impl/message/SelfExnRes/**" />
 			<include name="kr/pe/sinnori/impl/message/Empty/**" />
+			<include name="kr/pe/sinnori/impl/task/**/Empty*" />
      
 			<classpath>
 				<fileset dir="${dir.mainlib}/in">
@@ -139,18 +140,16 @@
 		</jar>
 	</target>
 	
-	<target name="compile.test">
+	
+	<target name="clean.test">
 		<delete dir="${dir.report}" />
 		<mkdir dir="${dir.report}" />
 		<delete dir="${dir.build}/test" />
 		<mkdir dir="${dir.build}/test" />
+	</target>
 	
-		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" destdir="${dir.build}/test">			
-			<src path="${dir.testsrc}" />
-			<src path="${dir.src}/kr/pe/sinnori/impl/message"/>
-			<src path="${dir.src}/kr/pe/sinnori/impl/task/client" />
-			<src path="${dir.src}/kr/pe/sinnori/impl/task/server" />
-			
+	<target name="compile.test">	
+		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.testsrc}" destdir="${dir.build}/test">			
 			<classpath>				
 				<fileset file="${dir.dist}/sinnori-core.jar" />
 				<fileset dir="${dir.mainlib}/ex">
@@ -184,7 +183,10 @@
 			</classpath>
 			
 			<batchtest todir="${dir.report}"> 
-				 <fileset dir="${dir.testsrc}" includes="kr/pe/sinnori/**/*Test.java" />
+				 <fileset dir="${dir.testsrc}">
+					<include name="kr/pe/sinnori/**/*Test.java"/>
+					<exclude name="kr/pe/sinnori/common/AbstractJunitTest.java" />
+				 </fileset>
 			</batchtest>
 			
 		</junit>

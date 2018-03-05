@@ -9,9 +9,9 @@ import java.util.Date;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 
-public class ByteBufferTest extends AbstractJunitSupporter {
+public class ByteBufferTest extends AbstractJunitTest {
 	
 	
 	@Test

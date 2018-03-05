@@ -296,13 +296,13 @@ public class ToLetterCarrier {
 		doAddOutputMessage(fromSC, asynOutputMessage, messageProtocol);
 	}
 	
-	public void addAsynOutputMessage(AbstractMessage asynOutputMessage, String loginUserID) throws InterruptedException, LoginUserNotFoundException {
-		if (null == asynOutputMessage) {
-			throw new IllegalArgumentException("the parameter asynOutputMessage is null");
-		}
-		
+	public void addAsynOutputMessage(String loginUserID, AbstractMessage asynOutputMessage) throws InterruptedException, LoginUserNotFoundException {
 		if (null == loginUserID) {
 			throw new IllegalArgumentException("the parameter loginUserID is null");
+		}
+		
+		if (null == asynOutputMessage) {
+			throw new IllegalArgumentException("the parameter asynOutputMessage is null");
 		}
 		
 		SocketChannel toSC = personalMemberManager.getSocketChannel(loginUserID);

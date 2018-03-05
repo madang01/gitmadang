@@ -4,12 +4,12 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.sessionkey.ClientRSA;
 import kr.pe.sinnori.common.sessionkey.ServerRSA;
 
-public class RSATest extends AbstractJunitSupporter {
+public class RSATest extends AbstractJunitTest {
 	
 	
 	@Test
@@ -39,7 +39,7 @@ public class RSATest extends AbstractJunitSupporter {
 		}
 		
 		try {
-			Thread.sleep(1000L*60*10);
+			Thread.sleep(1000L*60*2);
 		} catch (InterruptedException e) {
 			log.warn(e.getMessage(), e);
 			fail(e.getMessage());

@@ -7,10 +7,10 @@ import java.util.BitSet;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 
-public class BitSetTest extends AbstractJunitSupporter {
+public class BitSetTest extends AbstractJunitTest {
 	
 	
 	@Test

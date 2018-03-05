@@ -8,7 +8,7 @@ import java.io.IOException;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.builder.info.MessageInfo;
@@ -16,7 +16,7 @@ import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
 import kr.pe.sinnori.common.type.MessageTransferDirectionType;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 
-public class IOPartDynamicClassFileContentsBuilderManagerTest extends AbstractJunitSupporter {
+public class IOPartDynamicClassFileContentsBuilderManagerTest extends AbstractJunitTest {
 	@Test
 	public void test_신놀이설치경로에있는메시지정보파일로부터메시지IO관련파일만들기() {
 		String[] targetMessageIDList = {

@@ -9,12 +9,12 @@ import java.nio.ByteBuffer;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 
 
 
-public class SearchUtilTest extends AbstractJunitSupporter {
+public class SearchUtilTest extends AbstractJunitTest {
 	
 	/*@Test
 	public void testCharByteSize() {

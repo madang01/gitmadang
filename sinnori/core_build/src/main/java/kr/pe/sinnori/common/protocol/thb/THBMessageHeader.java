@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package kr.pe.sinnori.common.protocol.thb.header;
+package kr.pe.sinnori.common.protocol.thb;
 
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;

@@ -4,9 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
 
+import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.slf4j.Logger;
@@ -14,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
+import kr.pe.sinnori.common.classloader.IOPartDynamicClassNameUtil;
+import kr.pe.sinnori.common.classloader.SimpleClassLoader;
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.itemvalue.AllDBCPPartConfiguration;
@@ -32,9 +35,11 @@ public class MybatisSqlSessionFactoryManger {
 			.getLogger(MybatisSqlSessionFactoryManger.class);
 
 	private MybatisConfigXMLFileSAXParser mybatisConfigXMLFileSAXParser = null;
-	private Hashtable<String, SqlSessionFactory> enviromentID2SqlSessionFactoryHash = new Hashtable<String, SqlSessionFactory>();
-	private FileTypeResourceManager fileTypeResourceManager = null;
+	private HashMap<String, SqlSessionFactory> enviromentID2SqlSessionFactoryHash = new HashMap<String, SqlSessionFactory>();
+	private MybatisFileTypeResourceModificationChecker currentMybatisFileTypeResourceModificationChecker = null;
 	private File mybatisConfigeFile = null;
+	
+	private SimpleClassLoader simpleClassLoader = null;
 
 	/**
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 생성자.
@@ -47,42 +52,54 @@ public class MybatisSqlSessionFactoryManger {
 
 		AllDBCPPartConfiguration allDBCPPartConfiguration = sinnoriConfiguration
 				.getAllDBCPPartConfiguration();
-		ProjectPartConfiguration mainProjetPartConfiguration = sinnoriConfiguration
-				.getMainProjectPartConfiguration();
+		
+		{	
+			String sinnoriInstalledPathString = sinnoriConfiguration
+					.getSinnoriInstalledPathString();
+			String mainProjectName = sinnoriConfiguration.getMainProjectName();
+			
+			ProjectPartConfiguration mainProjetPartConfiguration = sinnoriConfiguration
+					.getMainProjectPartConfiguration();
+			
+			
+			String serverAPPINFClassPathString = BuildSystemPathSupporter
+					.getServerAPPINFClassPathString(sinnoriInstalledPathString, mainProjectName);
+			String projectResourcesPathString = BuildSystemPathSupporter.getProjectResourcesPathString(sinnoriInstalledPathString, mainProjectName);
+			IOPartDynamicClassNameUtil  ioPartDynamicClassNameUtil= new IOPartDynamicClassNameUtil(mainProjetPartConfiguration
+					.getFirstPrefixDynamicClassFullName());
+			
+			this.simpleClassLoader = new SimpleClassLoader(serverAPPINFClassPathString, projectResourcesPathString, ioPartDynamicClassNameUtil);
+			
+			Resources.setDefaultClassLoader(simpleClassLoader);
+				
+			String mainProjectResorucesPathString = BuildSystemPathSupporter
+					.getProjectResourcesPathString(sinnoriInstalledPathString,
+							mainProjectName);
+			
+			String mybatisConfigeFilePathString = CommonStaticUtil
+					.getFilePathStringFromResourcePathAndRelativePathOfFile(
+							mainProjectResorucesPathString,
+							mainProjetPartConfiguration
+							.getServerMybatisConfigFileRelativePathString());
+			
+			mybatisConfigeFile = new File(mybatisConfigeFilePathString);
+			
+			if (! mybatisConfigeFile.exists()) {
+				log.warn(
+						"the main project's mybatis config file[{}] doesn't exist",
+						mybatisConfigeFilePathString);
+				mybatisConfigeFile = null;
+				return;
+			}
 
-		String serverMybatisConfigFileRelativePathString = mainProjetPartConfiguration
-				.getServerMybatisConfigFileRelativePathString();
-
-		String sinnoriInstalledPathString = sinnoriConfiguration
-				.getSinnoriInstalledPathString();
-		String mainProjectName = sinnoriConfiguration.getMainProjectName();
-
-		String mainProjectResorucesPathString = BuildSystemPathSupporter
-				.getProjectResourcesPathString(sinnoriInstalledPathString,
-						mainProjectName);
-
-		String mybatisConfigeFilePathString = CommonStaticUtil
-				.getFilePathStringFromResourcePathAndRelativePathOfFile(
-						mainProjectResorucesPathString,
-						serverMybatisConfigFileRelativePathString);
-
-		mybatisConfigeFile = new File(mybatisConfigeFilePathString);
-
-		if (!mybatisConfigeFile.exists()) {
-			log.warn(
-					"the main project's mybatis config file[{}] doesn't exist",
-					mybatisConfigeFilePathString);
-			mybatisConfigeFile = null;
-			return;
-		}
-
-		if (!mybatisConfigeFile.isFile()) {
-			log.warn(
-					"the main project's mybatis config file[{}] is not a regular file",
-					mybatisConfigeFilePathString);
-			mybatisConfigeFile = null;
-			return;
-		}
+			if (! mybatisConfigeFile.isFile()) {
+				log.warn(
+						"the main project's mybatis config file[{}] is not a regular file",
+						mybatisConfigeFilePathString);
+				mybatisConfigeFile = null;
+				return;
+			}
+		}		
 
 		try {
 			mybatisConfigXMLFileSAXParser = new MybatisConfigXMLFileSAXParser();
@@ -92,7 +109,7 @@ public class MybatisSqlSessionFactoryManger {
 		}
 
 		try {
-			fileTypeResourceManager = mybatisConfigXMLFileSAXParser
+			currentMybatisFileTypeResourceModificationChecker = mybatisConfigXMLFileSAXParser
 					.parse(mybatisConfigeFile);
 		} catch (IllegalArgumentException | SAXException | IOException e) {
 			log.warn("2.SAXException", e);
@@ -101,26 +118,24 @@ public class MybatisSqlSessionFactoryManger {
 		}
 
 		List<String> dbcpNameList = allDBCPPartConfiguration.getDBCPNameList();
-
+		
 		for (String dbcpName : dbcpNameList) {
 			try {
-				SqlSessionFactory newSqlSessionFactory = getNewInstanceOfSqlSessionFactory(dbcpName);
-				registerNewSqlSessionFactory(dbcpName, newSqlSessionFactory);								
+				SqlSessionFactory newSqlSessionFactory = buildNewInstanceOfSqlSessionFactory(mybatisConfigeFile, dbcpName);
+				enviromentID2SqlSessionFactoryHash.put(dbcpName, newSqlSessionFactory);		
+				log.info("successfully SqlSessionFactory[{}] was registed", dbcpName);							
 			} catch (Exception e) {
-				log.warn(
-						"it failed to rebuild the new SqlSessionFactory[{}] class instance reapplied mybatis config file[{}], errormessage={}",
+				String errorMessage = String.format("it failed to rebuild the new SqlSessionFactory[%s] class instance reapplied mybatis config file[%s], errormessage=%s",
 						dbcpName,
 						mybatisConfigeFile.getAbsolutePath(), e.getMessage());
+				log.warn(errorMessage, e);
 				continue;
 			}
 		}
 	}
 
 	
-	private void registerNewSqlSessionFactory(String dbcpName, SqlSessionFactory newSqlSessionFactory) throws Exception {		
-		enviromentID2SqlSessionFactoryHash.put(dbcpName, newSqlSessionFactory);		
-		log.info("successfully SqlSessionFactory[{}] was registed", dbcpName);
-	}
+	
 
 	/**
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스
@@ -138,7 +153,7 @@ public class MybatisSqlSessionFactoryManger {
 		return SqlSessionFactoryMangerHolder.singleton;
 	}
 
-	private SqlSessionFactory getNewInstanceOfSqlSessionFactory(String enviromentID)
+	private SqlSessionFactory buildNewInstanceOfSqlSessionFactory(File mybatisConfigeFile, String enviromentID)
 			throws Exception {
 		SqlSessionFactory sqlSessionFactory = null;
 
@@ -146,6 +161,7 @@ public class MybatisSqlSessionFactoryManger {
 		try {
 			is = new FileInputStream(mybatisConfigeFile);
 
+			// Resources.setDefaultClassLoader(
 			sqlSessionFactory = new SqlSessionFactoryBuilder().build(is,
 					enviromentID);			
 		} finally {
@@ -161,6 +177,34 @@ public class MybatisSqlSessionFactoryManger {
 		}
 
 		return sqlSessionFactory;
+	}
+
+	private SqlSessionFactory renewSqlSessionFactory(String enviromentID)
+			throws MybatisException {
+		SqlSessionFactory newSqlSessionFactory = null;
+		try {
+			MybatisFileTypeResourceModificationChecker newFileTypeResourceManager = mybatisConfigXMLFileSAXParser
+					.parse(mybatisConfigeFile);
+			
+			newSqlSessionFactory = buildNewInstanceOfSqlSessionFactory(mybatisConfigeFile, enviromentID);
+			
+				
+			enviromentID2SqlSessionFactoryHash.put(enviromentID, newSqlSessionFactory);
+			
+			
+			this.currentMybatisFileTypeResourceModificationChecker = newFileTypeResourceManager;
+			
+			log.info("successfully SqlSessionFactory[{}] was renewed", enviromentID);
+		} catch (Exception e) {
+			String errorMessage = String
+					.format("It failed to rebuild the new SqlSessionFactory[%s] class instance reapplied mybatis config file[%s], errormessage=%s",
+					enviromentID,
+					mybatisConfigeFile.getAbsolutePath(),
+					e.getMessage());
+			log.warn(errorMessage, e);
+			throw new MybatisException(errorMessage);
+		}
+		return newSqlSessionFactory;
 	}
 
 	/**
@@ -189,11 +233,10 @@ public class MybatisSqlSessionFactoryManger {
 		}
 
 		synchronized (enviromentID2SqlSessionFactoryHash) {
-			if (null == fileTypeResourceManager) {
+			if (null == currentMybatisFileTypeResourceModificationChecker) {
 				try {
-					FileTypeResourceManager newFileTypeResourceManager = mybatisConfigXMLFileSAXParser
+					this.currentMybatisFileTypeResourceModificationChecker = mybatisConfigXMLFileSAXParser
 							.parse(mybatisConfigeFile);
-					this.fileTypeResourceManager = newFileTypeResourceManager;
 				} catch (Exception e) {
 					String errorMessage = String
 							.format("it failed to recreate a file type resource manger class instance from my batis config file[%s], errormessage=%s",
@@ -203,7 +246,7 @@ public class MybatisSqlSessionFactoryManger {
 					throw new MybatisException(errorMessage);
 				}
 			}
-
+			
 			SqlSessionFactory sqlSessionFactory = enviromentID2SqlSessionFactoryHash
 					.get(enviromentID);
 			if (null == sqlSessionFactory) {
@@ -214,56 +257,11 @@ public class MybatisSqlSessionFactoryManger {
 				throw new MybatisException(errorMessage);
 			}
 
-			if (fileTypeResourceManager.isModified()) {				
-				try {
-					sqlSessionFactory = rebuildSqlSessionFactory(enviromentID);
-				} catch (Exception e) {
-					String errorMessage = String
-							.format("It failed to rebuild the new SqlSessionFactory[%s] class instance reapplied mybatis config file[%s], errormessage=%s",
-							enviromentID,
-							mybatisConfigeFile.getAbsolutePath(),
-							e.getMessage());
-					log.warn(errorMessage, e);
-					throw new MybatisException(errorMessage);
-				}
+			if (currentMybatisFileTypeResourceModificationChecker.isModified()) {
+				sqlSessionFactory = renewSqlSessionFactory(enviromentID);
 			}
 
 			return sqlSessionFactory;
 		}
 	}
-
-	/**
-	 * <pre>
-	 * 마이베티스 설정 관련 파일들이 변경될 경우 로직은 크게 3부분으로 구성된다.
-	 * 
-	 * 첫번째 변경된 마이베티스 설정 파일의 파일 타입 리소스 관리자 얻기
-	 * 두번째 두번째 변경된 마이베티스 설정 파일의 SqlSessionFactory 얻은후 등록
-	 * 마지막 세번째는 구 파일 타입 리소스 관리자를 변경된 마이베티스 설정 파일의 파일 타입 리소스 관리자로 교체
-	 * 
-	 * 변경된 마이베티스 설정 파일의 파일 타입 리소스 관리자 얻기를
-	 * 두번째 변경된 마이베티스 설정 파일의 SqlSessionFactory 얻은후 등록보다 선행하는 이유는
-	 * 마이베티스 설정 파일에 대한 신놀이 제약 사항을 먼저 점검하기 위함이다.
-	 * </pre>
-	 * 
-	 * @param enviromentID dbcp 이름과 1:1 매치되는 mybatis enviromentID
-	 * @return 변경된 설정 파일들을 반영한 신규 SqlSessionFactory 인스턴스
-	 * @throws Exception 에러 발생시 던지는 예외
-	 */
-	private SqlSessionFactory rebuildSqlSessionFactory(String enviromentID)
-			throws Exception {		
-		/** 첫번째 변경된 마이베티스 설정 파일의 파일 타입 리소스 관리자 얻기  */
-		FileTypeResourceManager newFileTypeResourceManager = mybatisConfigXMLFileSAXParser
-				.parse(mybatisConfigeFile);
-		
-		/** 두번째 변경된 마이베티스 설정 파일의 SqlSessionFactory 얻은후 등록  */
-		SqlSessionFactory newSqlSessionFactory = getNewInstanceOfSqlSessionFactory(enviromentID);
-		registerNewSqlSessionFactory(enviromentID, newSqlSessionFactory);
-							
-		/** 마지막 세번째는 구 파일 타입 리소스 관리자를 변경된 마이베티스 설정 파일의 파일 타입 리소스 관리자로 교체 */
-		this.fileTypeResourceManager = newFileTypeResourceManager;
-		
-		log.info("successfully SqlSessionFactory[{}] was modifyed", enviromentID);
-		return newSqlSessionFactory;
-	}
-
 }

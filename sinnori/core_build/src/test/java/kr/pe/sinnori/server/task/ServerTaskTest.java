@@ -14,15 +14,13 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Random;
 
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.classloader.IOPartDynamicClassNameUtil;
 import kr.pe.sinnori.common.etc.CharsetUtil;
@@ -44,7 +42,7 @@ import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.common.protocol.thb.THBMessageProtocol;
 import kr.pe.sinnori.common.type.SelfExn;
-import kr.pe.sinnori.impl.message.Echo.Echo;
+import kr.pe.sinnori.impl.message.Empty.Empty;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
@@ -54,7 +52,7 @@ import kr.pe.sinnori.server.threadpool.executor.handler.ServerExecutorIF;
 import kr.pe.sinnori.server.threadpool.inputmessage.handler.InputMessageReaderIF;
 import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriterIF;
 
-public class ServerTaskTest extends AbstractJunitSupporter {
+public class ServerTaskTest extends AbstractJunitTest {
 	
 	/*@Test
 	public void testSelfExn() {
@@ -263,13 +261,11 @@ public class ServerTaskTest extends AbstractJunitSupporter {
 
 		WrapReadableMiddleObject wrapReadableMiddleObject = null;
 		{
-			Echo echoReq = new Echo();
-			echoReq.setStartTime(new Date().getTime());;
-			echoReq.setRandomInt(new Random().nextInt());
-			echoReq.messageHeaderInfo.mailboxID = 1;
-			echoReq.messageHeaderInfo.mailID = 3;
+			Empty emptyReq = new Empty();
+			emptyReq.messageHeaderInfo.mailboxID = 1;
+			emptyReq.messageHeaderInfo.mailID = 3;
 			
-			AbstractMessage message = echoReq;
+			AbstractMessage message = emptyReq;
 			
 			AbstractMessageEncoder messageEncoder = null;
 			try {
@@ -571,13 +567,11 @@ public class ServerTaskTest extends AbstractJunitSupporter {
 
 		WrapReadableMiddleObject wrapReadableMiddleObject = null;
 		{
-			Echo echoReq = new Echo();
-			echoReq.setStartTime(new Date().getTime());;
-			echoReq.setRandomInt(new Random().nextInt());
-			echoReq.messageHeaderInfo.mailboxID = 1;
-			echoReq.messageHeaderInfo.mailID = 3;
+			Empty emptyReq = new Empty();
+			emptyReq.messageHeaderInfo.mailboxID = 1;
+			emptyReq.messageHeaderInfo.mailID = 3;
 			
-			AbstractMessage message = echoReq;
+			AbstractMessage message = emptyReq;
 			
 			AbstractMessageEncoder messageEncoder = null;
 			try {
@@ -874,13 +868,11 @@ public class ServerTaskTest extends AbstractJunitSupporter {
 
 		WrapReadableMiddleObject wrapReadableMiddleObject = null;
 		{
-			Echo echoReq = new Echo();
-			echoReq.setStartTime(new Date().getTime());;
-			echoReq.setRandomInt(new Random().nextInt());
-			echoReq.messageHeaderInfo.mailboxID = 1;
-			echoReq.messageHeaderInfo.mailID = 3;
+			Empty emptyReq = new Empty();
+			emptyReq.messageHeaderInfo.mailboxID = 1;
+			emptyReq.messageHeaderInfo.mailID = 3;
 			
-			AbstractMessage message = echoReq;
+			AbstractMessage message = emptyReq;
 			
 			AbstractMessageEncoder messageEncoder = null;
 			try {
@@ -1190,13 +1182,11 @@ public class ServerTaskTest extends AbstractJunitSupporter {
 
 		WrapReadableMiddleObject wrapReadableMiddleObject = null;
 		{
-			Echo echoReq = new Echo();
-			echoReq.setStartTime(new Date().getTime());;
-			echoReq.setRandomInt(new Random().nextInt());
-			echoReq.messageHeaderInfo.mailboxID = 1;
-			echoReq.messageHeaderInfo.mailID = 3;
+			Empty emptyReq = new Empty();
+			emptyReq.messageHeaderInfo.mailboxID = 1;
+			emptyReq.messageHeaderInfo.mailID = 3;
 			
-			AbstractMessage message = echoReq;
+			AbstractMessage message = emptyReq;
 			
 			AbstractMessageEncoder messageEncoder = null;
 			try {
@@ -1505,13 +1495,11 @@ public class ServerTaskTest extends AbstractJunitSupporter {
 
 		WrapReadableMiddleObject wrapReadableMiddleObject = null;
 		{
-			Echo echoReq = new Echo();
-			echoReq.setStartTime(new Date().getTime());;
-			echoReq.setRandomInt(new Random().nextInt());
-			echoReq.messageHeaderInfo.mailboxID = 1;
-			echoReq.messageHeaderInfo.mailID = 3;
+			Empty emptyReq = new Empty();
+			emptyReq.messageHeaderInfo.mailboxID = 1;
+			emptyReq.messageHeaderInfo.mailID = 3;
 			
-			AbstractMessage message = echoReq;
+			AbstractMessage message = emptyReq;
 			
 			AbstractMessageEncoder messageEncoder = null;
 			try {
@@ -1834,9 +1822,7 @@ public class ServerTaskTest extends AbstractJunitSupporter {
 
 		WrapReadableMiddleObject wrapReadableMiddleObject = null;
 		{
-			Echo echoReq = new Echo();
-			echoReq.setStartTime(new Date().getTime());;
-			echoReq.setRandomInt(new Random().nextInt());
+			Empty echoReq = new Empty();
 			echoReq.messageHeaderInfo.mailboxID = 1;
 			echoReq.messageHeaderInfo.mailID = 3;
 			
@@ -2166,9 +2152,7 @@ public class ServerTaskTest extends AbstractJunitSupporter {
 
 		WrapReadableMiddleObject wrapReadableMiddleObject = null;
 		{
-			Echo echoReq = new Echo();
-			echoReq.setStartTime(new Date().getTime());;
-			echoReq.setRandomInt(new Random().nextInt());
+			Empty echoReq = new Empty();
 			echoReq.messageHeaderInfo.mailboxID = 1;
 			echoReq.messageHeaderInfo.mailID = 3;
 			
@@ -2494,13 +2478,11 @@ public class ServerTaskTest extends AbstractJunitSupporter {
 
 		WrapReadableMiddleObject wrapReadableMiddleObject = null;
 		{
-			Echo echoReq = new Echo();
-			echoReq.setStartTime(new Date().getTime());;
-			echoReq.setRandomInt(new Random().nextInt());
-			echoReq.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
-			echoReq.messageHeaderInfo.mailID = 3;
+			Empty emptyReq = new Empty();
+			emptyReq.messageHeaderInfo.mailboxID = CommonStaticFinalVars.ASYN_MAILBOX_ID;
+			emptyReq.messageHeaderInfo.mailID = 3;
 			
-			AbstractMessage message = echoReq;
+			AbstractMessage message = emptyReq;
 			
 			AbstractMessageEncoder messageEncoder = null;
 			try {

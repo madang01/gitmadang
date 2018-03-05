@@ -12,9 +12,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 
-public class FileProtocolURL2FileTest extends AbstractJunitSupporter {
+public class FileProtocolURL2FileTest extends AbstractJunitTest {
 	
 	@Test
 	public void fileProcolURL2FileTest_파일프로토콜_URL_host주소부가들어가있는경우() {

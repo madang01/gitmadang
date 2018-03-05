@@ -5,10 +5,9 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Random;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +26,7 @@ import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
 import kr.pe.sinnori.common.exception.BuildSystemException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.type.LogType;
+import kr.pe.sinnori.common.type.MybatisMapperType;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 import kr.pe.sinnori.common.util.SequencedProperties;
 import kr.pe.sinnori.common.util.SequencedPropertiesUtil;
@@ -35,10 +35,11 @@ public class MybatisConfigSAXParserTest {
 	Logger log = null;	
 	
 	private final String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
-	private final String mainProjectName = "sample_test";
+	private String mainProjectName = "sample_test";
 	
-	private String serverMybatisConfigFileRelativePathString = "mybatis/mybatisConfig.xml";
-	private File mybatisConfigeFile = getMybatisConfigFile(serverMybatisConfigFileRelativePathString);
+	private final String serverMybatisConfigFileRelativePathString = "mybatis/mybatisConfig.xml";
+	private File mybatisConfigeFile = null;
+	
 	
 	@Before
 	public void setup() {
@@ -60,11 +61,14 @@ public class MybatisConfigSAXParserTest {
 				CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH,
 				sinnoriInstalledPathString);
 		
-		/** Logback 로그 경로 지정에 비 의존하기 위해서 셋업 */		
-		LogType logType = LogType.SERVER;
-		SinnoriLogbackManger.getInstance().setup(sinnoriInstalledPathString, mainProjectName, logType);
+		/** Logback 로그 경로 지정에 비 의존하기 위해서 셋업 */
+		SinnoriLogbackManger.getInstance().setup(sinnoriInstalledPathString, "sample_base", LogType.SERVER);
 		
 		log = LoggerFactory.getLogger(MybatisConfigSAXParserTest.class);
+		
+		
+		mybatisConfigeFile = getMybatisConfigFile(serverMybatisConfigFileRelativePathString);
+		
 		
 		boolean isServer = true;
 		boolean isAppClient = true;
@@ -78,25 +82,52 @@ public class MybatisConfigSAXParserTest {
 				projectBuilder.dropProject();
 			}
 			
-			projectBuilder.createProject(isServer, isAppClient, isWebClient, servletSystemLibraryPathString);			
+			projectBuilder.createProject(isServer, isAppClient, isWebClient, servletSystemLibraryPathString);
+						
 		} catch (BuildSystemException e) {
 			log.warn(e.getMessage(), e);
 			fail(e.getMessage());
 		}
 		
 		
-		final String defaultDBCPName = "sample_base_db";
-		List<MybatisEnviroment> mybatisEnviromentList = new ArrayList<MybatisEnviroment>();
-		mybatisEnviromentList.add(new MybatisEnviroment(
-				sinnoriInstalledPathString, mainProjectName, defaultDBCPName, "kr.pe.sinnori.common.mybatis.SampleBaseDBDataSourceFactory"));
 		
-		List<MybatisMapper> mybatisMapperList = new ArrayList<MybatisMapper>();
-		mybatisMapperList.add(new MybatisMapper(sinnoriInstalledPathString, mainProjectName, 
+		String mybatisConfigDTDFilePathString = BuildSystemPathSupporter.getMybatisConfigDTDFilePathString(sinnoriInstalledPathString);
+		final String defaultDBCPName = "sample_base_db";
+		String dbcpConfigFilePathString = BuildSystemPathSupporter.getDBCPConfigFilePathString(sinnoriInstalledPathString, mainProjectName, defaultDBCPName);
+		
+		
+		List<MybatisEnviroment> mybatisEnviromentList = new ArrayList<MybatisEnviroment>();
+		
+		
+		mybatisEnviromentList.add(new MybatisEnviroment(defaultDBCPName, dbcpConfigFilePathString, "kr.pe.sinnori.common.mybatis.SampleBaseDBDataSourceFactory"));
+		
+		List<MybatisFileTypeMapper> mybatisMapperList = new ArrayList<MybatisFileTypeMapper>();
+		mybatisMapperList.add(new MybatisFileTypeMapper(MybatisMapperType.RESOURCE,
+				sinnoriInstalledPathString, mainProjectName, 
 				"mybatis/mybatisMapper.xml"));
 		
+		{
+			String mainProjectResorucesPathString = BuildSystemPathSupporter.getProjectResourcesPathString(sinnoriInstalledPathString, mainProjectName);
+			String mybatisMapperFilePathString = CommonStaticUtil
+					.getFilePathStringFromResourcePathAndRelativePathOfFile(mainProjectResorucesPathString, "mybatis/mybatisMapper2.xml");
 			
+			File urlTypeMapperFile = new File(mybatisMapperFilePathString);
 			
-		String mybatisConfigFileContents = BuildSystemFileContents.getMybatisConfigFileContents(sinnoriInstalledPathString, defaultDBCPName,
+			String mapperTypeValue = null;
+			
+			try {
+				mapperTypeValue = urlTypeMapperFile.toURI().toURL().toString();
+			} catch (MalformedURLException e) {
+				log.warn("fail to get a url string", e);
+			}
+			
+			mybatisMapperList.add(new MybatisFileTypeMapper(MybatisMapperType.URL, 
+					sinnoriInstalledPathString, mainProjectName, 
+					mapperTypeValue));
+		}
+		
+			
+		String mybatisConfigFileContents = BuildSystemFileContents.getMybatisConfigFileContents(mybatisConfigDTDFilePathString, defaultDBCPName,
 				mybatisEnviromentList,
 				mybatisMapperList);
 		
@@ -107,7 +138,7 @@ public class MybatisConfigSAXParserTest {
 			fail(e.getMessage());
 		}
 		
-		for (MybatisMapper mybatisMapper : mybatisMapperList) {
+		for (MybatisFileTypeMapper mybatisMapper : mybatisMapperList) {
 			File mybatisMapperFile = mybatisMapper.getMybatisMapperFile();
 			
 			String emptyMybatisMapperFileContents = BuildSystemFileContents
@@ -159,71 +190,6 @@ public class MybatisConfigSAXParserTest {
 		}
 	}
 	
-	@Test
-	public void testParse() {
-		// fail("FIXME!, you need create the sample files for test");		
-		FileTypeResourceManager fileTypeResourceManger = null;
-		
-		MybatisConfigXMLFileSAXParser mybatisConfigSAXParser = null;
-		try {
-			mybatisConfigSAXParser = new MybatisConfigXMLFileSAXParser();
-		} catch (SAXException e) {
-			log.warn(e.getMessage(), e);
-			fail(e.getMessage());
-		}	
-		try {
-			fileTypeResourceManger = mybatisConfigSAXParser.parse(mybatisConfigeFile);
-		} catch (IllegalArgumentException | SAXException | IOException e) {
-			log.warn("2.SAXException", e);
-			
-			fail(e.getMessage());
-		}
-				
-		boolean beforeIsModified = fileTypeResourceManger.isModified();
-		log.info("beforeIsModified={}", beforeIsModified);
-		
-		if (beforeIsModified) {
-			fail("수정전인데 수정했다고 함. 점검 필요");
-		}
-		
-		
-		
-		List<File> mapperFileList = fileTypeResourceManger.getMapperFileList();
-		
-		if (0 == mapperFileList.size()) {
-			fail("mapper file list size is zero");
-		}
-		
-		File targetFile = null;
-		if (1 == mapperFileList.size()) {
-			targetFile =  mapperFileList.get(0);
-		} else {
-			Random random = new Random();
-			int targetIndex = random.nextInt(mapperFileList.size()-1);
-			targetFile =  mapperFileList.get(targetIndex);
-		}
-		
-		boolean modifiedResult = targetFile.setLastModified(new Date().getTime());
-		if (!modifiedResult) {
-			String errorMessage = String.format("fali to set last modified time of the mapper file[%s]", 
-					targetFile.getAbsolutePath());
-			fail(errorMessage);
-		}
-		
-		// FIXME!
-		log.info("mapperFileList.size()={}", mapperFileList.size());
-		
-		
-		
-		boolean afterIsModified = fileTypeResourceManger.isModified();
-		log.info("afterIsModified={}", afterIsModified);
-		
-		
-		if (!afterIsModified) {
-			fail("첫번째 mapper 파일 수정했는데 수정안했다고 함. 점검 필요");
-		}
-	}
-
 	private File getMybatisConfigFile(String serverMybatisConfigFileRelativePathString) {
 		File mybatisConfigeFile  = null;
 		{			
@@ -233,18 +199,17 @@ public class MybatisConfigSAXParserTest {
 			String mybatisConfigeFilePathString = CommonStaticUtil
 					.getFilePathStringFromResourcePathAndRelativePathOfFile(
 							mainProjectResorucesPathString,
-							serverMybatisConfigFileRelativePathString);			
+							serverMybatisConfigFileRelativePathString);
+			
 			mybatisConfigeFile = new File(mybatisConfigeFilePathString);		
 		}
 		return mybatisConfigeFile;
 	}
 
-	
-
 	private void createDBCPConfigFIle(String sinnoriInstalledPathString, 
 			String mainProjectName, final String dbcpName) {
 		String dbcpSampleConfigFilePathString = BuildSystemPathSupporter.getDBCPConfigFilePathString(sinnoriInstalledPathString, mainProjectName, dbcpName); 
-
+	
 		
 		File dbcpSampleConfigFile = new File(dbcpSampleConfigFilePathString);
 		
@@ -279,4 +244,44 @@ public class MybatisConfigSAXParserTest {
 		}
 		// return dbcpSampleConfigFilePathString;
 	}
+
+	@Test
+	public void testParse() {		
+		MybatisFileTypeResourceModificationChecker mybatisFileTypeResourceModificationChecker = null;
+		
+		MybatisConfigXMLFileSAXParser mybatisConfigSAXParser = null;
+		try {
+			mybatisConfigSAXParser = new MybatisConfigXMLFileSAXParser();
+		} catch (SAXException e) {
+			log.warn(e.getMessage(), e);
+			fail(e.getMessage());
+		}	
+		try {
+			mybatisFileTypeResourceModificationChecker = mybatisConfigSAXParser.parse(mybatisConfigeFile);
+		} catch (IllegalArgumentException | SAXException | IOException e) {
+			log.warn("2.SAXException", e);
+			
+			fail(e.getMessage());
+		}
+				
+		boolean beforeIsModified = mybatisFileTypeResourceModificationChecker.isModified();
+		log.info("beforeIsModified={}", beforeIsModified);
+		
+		if (beforeIsModified) {
+			fail("수정전인데 수정했다고 함. 점검 필요");
+		}			
+		
+		List<File> mapperFileList = mybatisFileTypeResourceModificationChecker.getMapperFileList();
+		
+		if (0 == mapperFileList.size()) {
+			fail("mapper file list size is zero");
+		}
+		
+		for (File mapplerFile : mapperFileList) {
+			log.info("mapplerFile={}", mapplerFile.getAbsolutePath());
+		}
+		
+	}
+	
+	
 }

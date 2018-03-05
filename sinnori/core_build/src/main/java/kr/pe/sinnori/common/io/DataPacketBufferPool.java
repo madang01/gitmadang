@@ -48,7 +48,7 @@ public class DataPacketBufferPool implements DataPacketBufferPoolIF {
 		this.dataPacketBufferSize = dataPacketBufferSize;
 		this.dataPacketBufferPoolSize = dataPacketBufferPoolSize;
 
-		dataPacketBufferQueue = new ArrayDeque<WrapBuffer>();
+		dataPacketBufferQueue = new ArrayDeque<WrapBuffer>(dataPacketBufferPoolSize);
 
 		try {
 
@@ -103,19 +103,17 @@ public class DataPacketBufferPool implements DataPacketBufferPoolIF {
 		 * 2번 연속 반환 막기
 		 */
 		synchronized (monitor) {
-			if (!dataPacketBuffer.isPoolBuffer()) {
-				int dataPacketBufferHashcode = dataPacketBuffer.hashCode();
+			if (! dataPacketBuffer.isPoolBuffer()) {
 				String errorMessage = String.format("the parameter dataPacketBuffer[%d] is not a pool wrap buffer",
-						dataPacketBufferHashcode);
+						dataPacketBuffer.hashCode());
 				log.warn(errorMessage, new Throwable(errorMessage));
 				throw new IllegalArgumentException(errorMessage);
 			}
 
 			if (dataPacketBuffer.isInQueue()) {
-				int dataPacketBufferHashcode = dataPacketBuffer.hashCode();
 				String errorMessage = String.format(
 						"the parameter dataPacketBuffer[%d] was added to the wrap buffer polling queue",
-						dataPacketBufferHashcode);
+						dataPacketBuffer.hashCode());
 				log.warn(errorMessage, new Throwable(errorMessage));
 				throw new IllegalArgumentException(errorMessage);
 			}

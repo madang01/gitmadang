@@ -6,9 +6,9 @@ import java.util.Random;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 
-public class ProjectLoginManagerTest extends AbstractJunitSupporter {
+public class ProjectLoginManagerTest extends AbstractJunitTest {
 
 	public static class LoginTest extends Thread {
 		private ProjectLoginManagerIF projectLoginManager;

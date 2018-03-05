@@ -93,20 +93,8 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 			throw new IllegalArgumentException("the parameter ownerSC is null");
 		}
 		
-		boolean isRegisted = false;
-		SocketResource socketResource = null;
 		synchronized (monitor) {
-			socketResource = socketChannel2SocketResourceHash.get(ownerSC);
-			isRegisted = (null != socketResource);
-			
-			if (isRegisted) {
-				socketChannel2SocketResourceHash.remove(ownerSC);
-			}
-			
-		}
-		
-		if (isRegisted) {
-			socketResource.close();
+			socketChannel2SocketResourceHash.remove(ownerSC);
 		}
 	}
 

@@ -6,10 +6,10 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.type.SingleItemType;
 
-public class SingleItemTypeTest extends AbstractJunitSupporter {
+public class SingleItemTypeTest extends AbstractJunitTest {
 	
 	@Test
 	public void test_ItemTypeID가정말로키가맞는지그리고0부터순차적으로할당되었는지에대한테스트() {

@@ -8,10 +8,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 
-public class RegularExpressTest extends AbstractJunitSupporter {
+public class RegularExpressTest extends AbstractJunitTest {
 	@Test
 	public void testRegularExpressMybatisConfigDTDFilePathString() {
 		

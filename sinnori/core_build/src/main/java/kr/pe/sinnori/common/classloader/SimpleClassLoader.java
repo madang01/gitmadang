@@ -19,6 +19,7 @@ package kr.pe.sinnori.common.classloader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.HashSet;
@@ -26,70 +27,65 @@ import java.util.HashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import kr.pe.sinnori.common.util.CommonStaticUtil;
 
 public class SimpleClassLoader extends ClassLoader {
 	private Logger log = LoggerFactory.getLogger(SimpleClassLoader.class);
 
-	//private final Object monitor = new Object();
+	// private final Object monitor = new Object();
 
-	
 	private String classloaderClassPathString = null;
-	
-	
+	private String classloaderReousrcesPathString = null;
+
 	private String firstPrefixDynamicClassFullName = null;
-	private final ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();		
-	private HashSet<String> systemloaderClassFullNameSet = new HashSet<String>();
-	
-	
-	public SimpleClassLoader(String classloaderClassPathString,
+	private final ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
+	private HashSet<String> systemClassLoaderTargetClassFullNameSet = new HashSet<String>();
+
+	public SimpleClassLoader(String classloaderClassPathString, String classloaderReousrcesPathString,
 			IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil) {
 		super(ClassLoader.getSystemClassLoader());
 
-		this.classloaderClassPathString = classloaderClassPathString;		
-		
+		this.classloaderClassPathString = classloaderClassPathString;
+		this.classloaderReousrcesPathString = classloaderReousrcesPathString;
+
 		this.firstPrefixDynamicClassFullName = ioPartDynamicClassNameUtil.getFirstPrefixDynamicClassFullName();
-		
-		String[] noTaskMessageIDListForSystemloader = {
-				"SelfExnRes"
-		};
-		
-		for (String messageIDForSystemloader : noTaskMessageIDListForSystemloader) {
-			systemloaderClassFullNameSet.add(ioPartDynamicClassNameUtil
-					.getMessageClassFullName(messageIDForSystemloader));
-			systemloaderClassFullNameSet.add(ioPartDynamicClassNameUtil
-					.getClientMessageCodecClassFullName(messageIDForSystemloader));
-			systemloaderClassFullNameSet.add(ioPartDynamicClassNameUtil
-					.getMessageDecoderClassFullName(messageIDForSystemloader));
-			systemloaderClassFullNameSet.add(ioPartDynamicClassNameUtil
-					.getMessageEncoderClassFullName(messageIDForSystemloader));
-			systemloaderClassFullNameSet.add(ioPartDynamicClassNameUtil
-					.getServerMessageCodecClassFullName(messageIDForSystemloader));
+
+		String[] noTaskSystemClassLoaderTargetMessageIDList = { "SelfExnRes" };
+
+		for (String systemClassLoaderTargetMessageID : noTaskSystemClassLoaderTargetMessageIDList) {
+			systemClassLoaderTargetClassFullNameSet
+					.add(ioPartDynamicClassNameUtil.getMessageClassFullName(systemClassLoaderTargetMessageID));
+			systemClassLoaderTargetClassFullNameSet.add(
+					ioPartDynamicClassNameUtil.getClientMessageCodecClassFullName(systemClassLoaderTargetMessageID));
+			systemClassLoaderTargetClassFullNameSet
+					.add(ioPartDynamicClassNameUtil.getMessageDecoderClassFullName(systemClassLoaderTargetMessageID));
+			systemClassLoaderTargetClassFullNameSet
+					.add(ioPartDynamicClassNameUtil.getMessageEncoderClassFullName(systemClassLoaderTargetMessageID));
+			systemClassLoaderTargetClassFullNameSet.add(
+					ioPartDynamicClassNameUtil.getServerMessageCodecClassFullName(systemClassLoaderTargetMessageID));
 		}
-		
-		String[] taskMessageIDListForSystemloader = {
-				"Empty"
-		};
-		
-		for (String messageIDForSystemloader : taskMessageIDListForSystemloader) {
-			systemloaderClassFullNameSet.add(ioPartDynamicClassNameUtil
-					.getMessageClassFullName(messageIDForSystemloader));
-			systemloaderClassFullNameSet.add(ioPartDynamicClassNameUtil
-					.getClientMessageCodecClassFullName(messageIDForSystemloader));
-			systemloaderClassFullNameSet.add(ioPartDynamicClassNameUtil
-					.getMessageDecoderClassFullName(messageIDForSystemloader));
-			systemloaderClassFullNameSet.add(ioPartDynamicClassNameUtil
-					.getMessageEncoderClassFullName(messageIDForSystemloader));
-			systemloaderClassFullNameSet.add(ioPartDynamicClassNameUtil
-					.getServerMessageCodecClassFullName(messageIDForSystemloader));
-			
-			systemloaderClassFullNameSet.add(ioPartDynamicClassNameUtil
-					.getClientTaskClassFullName(messageIDForSystemloader));
-			
-			systemloaderClassFullNameSet.add(ioPartDynamicClassNameUtil
-					.getServerTaskClassFullName(messageIDForSystemloader));
+
+		String[] taskSystemClassLoaderTargetMessageIDList = { "Empty" };
+
+		for (String systemClassLoaderTargetMessageID : taskSystemClassLoaderTargetMessageIDList) {
+			systemClassLoaderTargetClassFullNameSet
+					.add(ioPartDynamicClassNameUtil.getMessageClassFullName(systemClassLoaderTargetMessageID));
+			systemClassLoaderTargetClassFullNameSet.add(
+					ioPartDynamicClassNameUtil.getClientMessageCodecClassFullName(systemClassLoaderTargetMessageID));
+			systemClassLoaderTargetClassFullNameSet
+					.add(ioPartDynamicClassNameUtil.getMessageDecoderClassFullName(systemClassLoaderTargetMessageID));
+			systemClassLoaderTargetClassFullNameSet
+					.add(ioPartDynamicClassNameUtil.getMessageEncoderClassFullName(systemClassLoaderTargetMessageID));
+			systemClassLoaderTargetClassFullNameSet.add(
+					ioPartDynamicClassNameUtil.getServerMessageCodecClassFullName(systemClassLoaderTargetMessageID));
+
+			systemClassLoaderTargetClassFullNameSet
+					.add(ioPartDynamicClassNameUtil.getClientTaskClassFullName(systemClassLoaderTargetMessageID));
+
+			systemClassLoaderTargetClassFullNameSet
+					.add(ioPartDynamicClassNameUtil.getServerTaskClassFullName(systemClassLoaderTargetMessageID));
 		}
-		
-		
+
 		log.info("SimpleClassLoader hashCode=[{}] create", this.hashCode());
 	}
 
@@ -107,7 +103,7 @@ public class SimpleClassLoader extends ClassLoader {
 	}
 
 	/**
-	 * Warning! 효율을 위해서 이 메소드는 thread safe 를 지원하지 않는다. 하여 외부에서 이를 보장해야 한다.  
+	 * Warning! 효율을 위해서 이 메소드는 thread safe 를 지원하지 않는다. 하여 외부에서 이를 보장해야 한다.
 	 */
 	@Override
 	public Class<?> loadClass(String classFullName) throws ClassNotFoundException {
@@ -119,67 +115,67 @@ public class SimpleClassLoader extends ClassLoader {
 
 		Class<?> retClass = null;
 		// try {
-		//synchronized (monitor) {
-			retClass = findLoadedClass(classFullName);
-			if (null == retClass) {
+		// synchronized (monitor) {
+		retClass = findLoadedClass(classFullName);
+		if (null == retClass) {
 
-				if (-1 == classFullName.indexOf(firstPrefixDynamicClassFullName)) {
-					/** 서버 동적 클래스 비 대상 클래스 */
-					return systemClassLoader.loadClass(classFullName);
-				}
-				
-				if (systemloaderClassFullNameSet.contains(classFullName)) {
-					return systemClassLoader.loadClass(classFullName);
-				}
-
-				// log.info("SinnoriClassLoader hashCode=[{}], messageID=[{}],
-				// classFullName=[{}]::주어진 클래스명은 서버 동적 클래스 대상", this.hashCode(),
-				// messageID, classFullName);
-
-				// log.info("classFullName 파일 경로 변환 문자열={}",
-				// classFullName.replace(".", File.separator));
-
-				String classFileName = getClassFileName(classFullName);
-
-				// log.info("classFileName={}", classFileName);
-
-				File classFileObj = new File(classFileName);
-				if (!classFileObj.exists()) {
-					String errorMessage = String.format(
-							"SinnoriClassLoader hashCode=[%d], classFullName=[%s]" + "::클래스 파일[%s]이 존재하지 않습니다.",
-							this.hashCode(), classFullName, classFileName);
-
-					log.warn(errorMessage);
-
-					throw new ClassNotFoundException(errorMessage);
-				}
-
-				if (classFileObj.isDirectory()) {
-					// String errorMessage = String.format("클래스 파일[%s]이 일반 파일이
-					// 아닌 경로입니다.", classFileName);
-					String errorMessage = String.format(
-							"SinnoriClassLoader hashCode=[%d], classFullName=[%s]" + "::클래스 파일[%s]이 일반 파일이 아닌 경로입니다.",
-							this.hashCode(), classFullName, classFileName);
-					log.warn(errorMessage);
-					throw new ClassNotFoundException(errorMessage);
-				}
-
-				if (!classFileObj.canRead()) {
-					// String errorMessage = String.format("클래스 파일[%s]이 일반 파일이
-					// 아닌 경로입니다.", classFileName);
-					String errorMessage = String.format(
-							"SinnoriClassLoader hashCode=[%d], classFullName=[%s]" + "::클래스 파일[%s]을 읽을 수 없습니다.",
-							this.hashCode(), classFullName, classFileName);
-
-					log.warn(errorMessage);
-					throw new ClassNotFoundException(errorMessage);
-				}
-
-				retClass = loadClass(classFullName, classFileObj);
-			} else {
-				log.info("retClass[{}] is not null", classFullName);
+			if (-1 == classFullName.indexOf(firstPrefixDynamicClassFullName)) {
+				/** 서버 동적 클래스 비 대상 클래스 */
+				return systemClassLoader.loadClass(classFullName);
 			}
-		//}
+
+			if (systemClassLoaderTargetClassFullNameSet.contains(classFullName)) {
+				return systemClassLoader.loadClass(classFullName);
+			}
+
+			// log.info("SinnoriClassLoader hashCode=[{}], messageID=[{}],
+			// classFullName=[{}]::주어진 클래스명은 서버 동적 클래스 대상", this.hashCode(),
+			// messageID, classFullName);
+
+			// log.info("classFullName 파일 경로 변환 문자열={}",
+			// classFullName.replace(".", File.separator));
+
+			String classFileName = getClassFileName(classFullName);
+
+			// log.info("classFileName={}", classFileName);
+
+			File classFileObj = new File(classFileName);
+			if (!classFileObj.exists()) {
+				String errorMessage = String.format(
+						"SinnoriClassLoader hashCode=[%d], classFullName=[%s]" + "::클래스 파일[%s]이 존재하지 않습니다.",
+						this.hashCode(), classFullName, classFileName);
+
+				log.warn(errorMessage);
+
+				throw new ClassNotFoundException(errorMessage);
+			}
+
+			if (classFileObj.isDirectory()) {
+				// String errorMessage = String.format("클래스 파일[%s]이 일반 파일이
+				// 아닌 경로입니다.", classFileName);
+				String errorMessage = String.format(
+						"SinnoriClassLoader hashCode=[%d], classFullName=[%s]" + "::클래스 파일[%s]이 일반 파일이 아닌 경로입니다.",
+						this.hashCode(), classFullName, classFileName);
+				log.warn(errorMessage);
+				throw new ClassNotFoundException(errorMessage);
+			}
+
+			if (!classFileObj.canRead()) {
+				// String errorMessage = String.format("클래스 파일[%s]이 일반 파일이
+				// 아닌 경로입니다.", classFileName);
+				String errorMessage = String.format(
+						"SinnoriClassLoader hashCode=[%d], classFullName=[%s]" + "::클래스 파일[%s]을 읽을 수 없습니다.",
+						this.hashCode(), classFullName, classFileName);
+
+				log.warn(errorMessage);
+				throw new ClassNotFoundException(errorMessage);
+			}
+
+			retClass = loadClass(classFullName, classFileObj);
+		} else {
+			log.info("retClass[{}] is not null", classFullName);
+		}
+		// }
 		/*
 		 * } finally { log.
 		 * info("SinnoriClassLoader hashCode=[{}], classFullName=[{}]::end loadClass(String)"
@@ -215,9 +211,8 @@ public class SimpleClassLoader extends ClassLoader {
 		 * </pre>
 		 */
 		/*
-		 * if (null == classFullName) { String errorMessage =
-		 * "파라미터 클래스명이 널입니다."; log.warn(errorMessage); throw new
-		 * IllegalArgumentException(errorMessage); }
+		 * if (null == classFullName) { String errorMessage = "파라미터 클래스명이 널입니다.";
+		 * log.warn(errorMessage); throw new IllegalArgumentException(errorMessage); }
 		 */
 
 		Class<?> retClass = null;
@@ -250,9 +245,8 @@ public class SimpleClassLoader extends ClassLoader {
 
 			/*
 			 * Message2ClassFileInfo messageClassGroupInfo =
-			 * messageID2InfoHash.get(messageID); if (null ==
-			 * messageClassGroupInfo) { messageClassGroupInfo = new
-			 * Message2ClassFileInfo(messageID); }
+			 * messageID2InfoHash.get(messageID); if (null == messageClassGroupInfo) {
+			 * messageClassGroupInfo = new Message2ClassFileInfo(messageID); }
 			 * 
 			 * messageClassGroupInfo.addClassFile(classFullName, classFile);
 			 */
@@ -279,56 +273,63 @@ public class SimpleClassLoader extends ClassLoader {
 		/*
 		 * } finally { log.
 		 * info("SinnoriClassLoader hashCode=[{}], messageID=[{}], classFullName=[{}], classFile=[{}]::end loadClass(String, File)"
-		 * , this.hashCode(), messageID, classFullName,
-		 * classFile.getAbsolutePath()); }
+		 * , this.hashCode(), messageID, classFullName, classFile.getAbsolutePath()); }
 		 */
 
 		return retClass;
 	}
 
-	/**
-	 * <pre>
-	 * kr/pe/sinnori/impl/mybatis/memberMapper.xml 로 시작되는 mybatis 리소스 파일의 InputStream 을 반환한다.
-	 * </pre>
-	 */
-	// @Override
-	/*
-	 * public InputStream getResourceAsStream(String name) { InputStream is =
-	 * null;
-	 * 
-	 * String realResourceFilePathString =
-	 * CommonStaticUtil.getFilePathStringFromResourcePathAndRelativePathOfFile(
-	 * resourcesPathString, name); File realResourceFile = new
-	 * File(realResourceFilePathString);
-	 * 
-	 * if (realResourceFile.exists()) { try { is = new
-	 * FileInputStream(realResourceFile); } catch (Exception e) { log.warn(new
-	 * StringBuilder("the resource[") .append(name).append("] file[")
-	 * .append(realResourceFilePathString)
-	 * .append("] fail to get a object of FileInputStream").toString(), e);
-	 * return null; } } else { is = super.getResourceAsStream(name); }
-	 * 
-	 * return is; }
-	 */
+	public InputStream getResourceAsStream(String name) {
+		InputStream is = null;
 
-	/*
-	 * public URL getResource(String name) { URL url = null;
-	 * 
-	 * String realResourceFilePathString =
-	 * CommonStaticUtil.getFilePathStringFromResourcePathAndRelativePathOfFile(
-	 * resourcesPathString, name); File realResourceFile = new
-	 * File(realResourceFilePathString);
-	 * 
-	 * if (realResourceFile.exists()) { try { url =
-	 * realResourceFile.toURI().toURL(); } catch (Exception e) { log.warn(new
-	 * StringBuilder("the resource[") .append(name).append("] file[")
-	 * .append(realResourceFilePathString)
-	 * .append("] fail to convert to url").toString(), e); return null; } } else
-	 * { url = super.getResource(name); }
-	 * 
-	 * 
-	 * return url; }
-	 */
+		String realResourceFilePathString = CommonStaticUtil
+				.getFilePathStringFromResourcePathAndRelativePathOfFile(classloaderReousrcesPathString, name);
+		
+		// log.info("realResourceFilePathString=[{}]", realResourceFilePathString);
+		
+		
+		File realResourceFile = new File(realResourceFilePathString);
+
+		if (realResourceFile.exists()) {
+			try {
+				is = new FileInputStream(realResourceFile);
+			} catch (Exception e) {
+				String errorMessage = new StringBuilder("fail to get a input stream of the resource[").append(name).append("][")
+						.append(realResourceFilePathString).append("]")
+						.toString();
+				log.warn(errorMessage, e);
+				return null;
+			}
+		} else {
+			is = super.getResourceAsStream(name);
+		}
+
+		return is;
+	}
+
+	/*public URL getResource(String name) {
+		URL url = null;
+
+		String realResourceFilePathString = CommonStaticUtil
+				.getFilePathStringFromResourcePathAndRelativePathOfFile(classloaderReousrcesPathString, name);
+		File realResourceFile = new File(realResourceFilePathString);
+
+		if (realResourceFile.exists()) {
+			try {
+				url = realResourceFile.toURI().toURL();
+			} catch (Exception e) {
+				log.warn(new StringBuilder("the resource[").append(name).append("] file[")
+						.append(realResourceFilePathString).append("] fail to convert to url").toString(), e);
+				return null;
+			}
+		} else {
+			url = super.getResource(name);
+		}
+
+		return url;
+	}*/
+	
+	
 
 	@Override
 	protected void finalize() throws Throwable {

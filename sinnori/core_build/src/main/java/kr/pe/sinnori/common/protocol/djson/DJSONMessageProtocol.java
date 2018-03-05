@@ -44,7 +44,6 @@ import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
-import kr.pe.sinnori.common.protocol.djson.header.DJSONHeader;
 
 /**
  * JSON 메시지 프로토콜<br/>
@@ -59,8 +58,6 @@ import kr.pe.sinnori.common.protocol.djson.header.DJSONHeader;
  */
 public class DJSONMessageProtocol implements MessageProtocolIF {
 	private Logger log = LoggerFactory.getLogger(DJSONMessageProtocol.class);
-	
-	
 	
 	
 	private int dataPacketBufferMaxCntPerMessage;
@@ -88,8 +85,13 @@ public class DJSONMessageProtocol implements MessageProtocolIF {
 		this.streamCharsetDecoder = streamCharsetDecoder;
 		this.dataPacketBufferPool = dataPacketBufferPool;
 		
-		this.jsonSingleItemEncoder = new DJSONSingleItemEncoder(streamCharsetEncoder);
-		this.jsonSingleItemDecoder = new DJSONSingleItemDecoder(streamCharsetDecoder);
+		DJSONSingleItemEncoderMatcherIF djsonSingleItemEncoderMatcher 
+			= new DJSONSingleItemEncoderMatcher(streamCharsetEncoder); 
+		this.jsonSingleItemEncoder = new DJSONSingleItemEncoder(djsonSingleItemEncoderMatcher);
+		
+		DJSONSingleItemDecoderMatcherIF djsonSingleItemDecoderMatcher =
+				new DJSONSingleItemDecoderMatcher(streamCharsetDecoder);
+		this.jsonSingleItemDecoder = new DJSONSingleItemDecoder(djsonSingleItemDecoderMatcher);
 	}
 	
 	@SuppressWarnings("unchecked")

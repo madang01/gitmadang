@@ -6,9 +6,9 @@ import java.util.BitSet;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 
-public class BitSetTest extends AbstractJunitSupporter {
+public class BitSetTest extends AbstractJunitTest {
 	// Logger log = LoggerFactory.getLogger(BitSetTest.class);
 	
 	@Test

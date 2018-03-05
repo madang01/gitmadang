@@ -7,9 +7,9 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 
-public class ByteArrayInputStreamTest extends AbstractJunitSupporter {
+public class ByteArrayInputStreamTest extends AbstractJunitTest {
 	
 	
 	@Test

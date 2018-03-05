@@ -2,9 +2,9 @@ package kr.pe.sinnori.common.util;
 
 import org.junit.Before;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 
-public class RegularExpressionUtilTest extends AbstractJunitSupporter {
+public class RegularExpressionUtilTest extends AbstractJunitTest {
 	boolean returnedValue;
 
 	boolean expectedValue;

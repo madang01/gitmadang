@@ -22,10 +22,10 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -56,7 +56,7 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 	private MessageProtocolIF messageProtocol = null;
 
 	/** selector 에 등록할 신규 소켓 채널을 담고 있는 그릇 */
-	private final LinkedList<SocketChannel> notRegistedSocketChannelList = new LinkedList<SocketChannel>();
+	private final ArrayDeque<SocketChannel> notRegistedSocketChannelList = new ArrayDeque<SocketChannel>();
 
 	/** 읽기 전용 selecotr */
 	private Selector selector = null;
@@ -111,6 +111,7 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 					log.warn("{} InputMessageReader[{}] socket channel[{}] fail to register selector", 
 							projectName, index, notRegistedSocketChannel.hashCode());
 					
+					scToAsynConnectionHash.get(notRegistedSocketChannel).noticeThisConnectionWasRemovedFromReadyOnleySelector();					
 					scToAsynConnectionHash.remove(notRegistedSocketChannel);
 				}
 			}
@@ -169,12 +170,12 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 				int keyReady = selector.select();
 
 				if (keyReady > 0) {
-					Set<SelectionKey> selectionKeySet = selector.selectedKeys();
-					Iterator<SelectionKey> selectionKeyIter = selectionKeySet.iterator();
-					while (selectionKeyIter.hasNext()) {
-						SelectionKey selectionKey = selectionKeyIter.next();
-						selectionKeyIter.remove();
-						SocketChannel serverSC = (SocketChannel) selectionKey.channel();
+					Set<SelectionKey> selectedKeySet = selector.selectedKeys();
+					Iterator<SelectionKey> selectedKeyIterator = selectedKeySet.iterator();
+					while (selectedKeyIterator.hasNext()) {
+						SelectionKey selectedKey = selectedKeyIterator.next();
+						selectedKeyIterator.remove();
+						SocketChannel serverSC = (SocketChannel) selectedKey.channel();
 
 						// log.info("11111111111111111");
 
@@ -194,7 +195,7 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 						} catch(Exception e) {
 							log.warn(String.format("%s OutputMessageReader[%d]::%s",
 									asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
-							closeSocket(selectionKey, asynConnection);
+							closeSocket(selectedKey, asynConnection);
 							continue;
 						}
 
@@ -221,12 +222,12 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 						} catch (HeaderFormatException e) {
 							log.warn(String.format("%s OutputMessageReader[%d]::%s",
 									asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
-							closeSocket(selectionKey, asynConnection);
+							closeSocket(selectedKey, asynConnection);
 							continue;
 						} catch (NoMoreDataPacketBufferException e) {
 							log.warn(String.format("%s OutputMessageReader[%d]::%s",
 									asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
-							closeSocket(selectionKey, asynConnection);
+							closeSocket(selectedKey, asynConnection);
 							continue;
 						}
 					}
@@ -246,22 +247,23 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 	/**
 	 * selector 로 얻는 SelectionKey 가 가진 소켓 채널을 닫고 selector 에서 제거한다.
 	 * 
-	 * @param selectionKey
+	 * @param selectedKey
 	 */
-	private void closeSocket(SelectionKey selectionKey, AbstractAsynConnection selectedAsynConnection) {
-
-		SocketChannel selectedSocketChannel = (SocketChannel) selectionKey.channel();
+	private void closeSocket(SelectionKey selectedKey, AbstractAsynConnection selectedAsynConnection) {
+		SocketChannel selectedSocketChannel = (SocketChannel) selectedKey.channel();
 
 		log.info("close the socket[{}]", selectedSocketChannel.hashCode());
 
-		selectionKey.cancel();
-		scToAsynConnectionHash.remove(selectedSocketChannel);
+		selectedKey.cancel();
+		
 		try {
-			selectedAsynConnection.close();
+			selectedSocketChannel.close();
 		} catch (IOException e) {
 			log.warn("fail to close the socket[{}]", selectedSocketChannel.hashCode());
 		}
 		selectedAsynConnection.noticeThisConnectionWasRemovedFromReadyOnleySelector();
+		
+		scToAsynConnectionHash.remove(selectedSocketChannel);
 	}
 
 	/*private void closeFailedSocket(SocketChannel failedSocketChannel) {

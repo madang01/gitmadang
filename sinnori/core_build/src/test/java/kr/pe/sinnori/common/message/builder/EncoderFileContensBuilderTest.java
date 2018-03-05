@@ -2,14 +2,14 @@ package kr.pe.sinnori.common.message.builder;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.message.builder.info.ArrayInfo;
 import kr.pe.sinnori.common.message.builder.info.GroupInfo;
 import kr.pe.sinnori.common.message.builder.info.OrderedItemSet;
 import kr.pe.sinnori.common.message.builder.info.SingleItemInfo;
 import kr.pe.sinnori.common.type.SingleItemType;
 
-public class EncoderFileContensBuilderTest extends AbstractJunitSupporter {	
+public class EncoderFileContensBuilderTest extends AbstractJunitTest {	
 
 	@Test
 	public void testBuildStringOfSingleItemInfoPart() {

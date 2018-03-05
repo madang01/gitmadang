@@ -9,34 +9,33 @@ import java.util.List;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 
-public class DataPacketBufferPoolManagerTest extends AbstractJunitSupporter {
-	
-	
+public class DataPacketBufferPoolManagerTest extends AbstractJunitTest {
+
 	@Test
 	public void testPollDataPacketBuffer_NoMoreDataPacketBufferException() {
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder dataPacketByteOrder = ByteOrder.LITTLE_ENDIAN;
 		int dataPacketBufferSize = 4096;	
 		int dataPacketBufferPoolSize = 1000;
 		
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, 
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect, 
 					dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch(Exception e) {
 			log.warn(e.getMessage(), e);
 			fail("error");
 		}
 		
-		int warpBufferPoolSize = dataPacketBufferPoolManager.getDataPacketBufferPoolSize();
+		int warpBufferPoolSize = dataPacketBufferPool.getDataPacketBufferPoolSize();
 		List<WrapBuffer> wrapBufferList = new ArrayList<WrapBuffer>();
 		try {
 			for (int i=0; i < warpBufferPoolSize; i++) {
 				try {
-					WrapBuffer wrapBuffer = dataPacketBufferPoolManager.pollDataPacketBuffer();
+					WrapBuffer wrapBuffer = dataPacketBufferPool.pollDataPacketBuffer();
 					wrapBufferList.add(wrapBuffer);
 				} catch (NoMoreDataPacketBufferException e) {
 					fail("this code is a dead block but error::"+e.getMessage());
@@ -44,7 +43,7 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitSupporter {
 			}
 			
 			try {
-				dataPacketBufferPoolManager.pollDataPacketBuffer();
+				dataPacketBufferPool.pollDataPacketBuffer();
 				
 				fail("no NoMoreDataPacketBufferException");
 			} catch (NoMoreDataPacketBufferException e) {
@@ -55,58 +54,22 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitSupporter {
 			}
 		} finally {
 			for (WrapBuffer wrapBuffer : wrapBufferList) {
-				dataPacketBufferPoolManager.putDataPacketBuffer(wrapBuffer);
+				dataPacketBufferPool.putDataPacketBuffer(wrapBuffer);
 			}
 		}
 		
 	}
 	
 	@Test
-	public void testPutDataPacketBuffer_addNotRegistedButQueueInWrapBuffer() {
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+	public void testPutDataPacketBuffer_addNotRegistedWrapBuffer() {
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder dataPacketByteOrder = ByteOrder.LITTLE_ENDIAN;
 		int dataPacketBufferSize = 4096;	
 		int dataPacketBufferPoolSize = 1000;
 		
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, 
-					dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
-		} catch(Exception e) {
-			log.warn(e.getMessage(), e);
-			fail("error");
-		}
-		
-		WrapBuffer notRegistedWrapBuffer = new WrapBuffer(isDirect, 1024, ByteOrder.BIG_ENDIAN);		
-		
-		notRegistedWrapBuffer.queueIn();
-		try {
-			dataPacketBufferPoolManager.putDataPacketBuffer(notRegistedWrapBuffer);
-			
-			fail("no IllegalArgumentException");
-		} catch(IllegalArgumentException e) {
-			String errorMessage = e.getMessage();
-			
-			String expectedMessage =  String.format("the parameter dataPacketBuffer[%d] was added to the wrap buffer polling queue",
-					notRegistedWrapBuffer.hashCode());			
-
-			assertEquals(expectedMessage, errorMessage);
-		} catch(Exception e) {
-			log.warn(e.getMessage(), e);
-			fail("error");
-		}
-	}
-	
-	@Test
-	public void testPutDataPacketBuffer_addNotRegistedButQueueOutWrapBuffer() {
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
-		boolean isDirect = false;
-		ByteOrder dataPacketByteOrder = ByteOrder.LITTLE_ENDIAN;
-		int dataPacketBufferSize = 4096;	
-		int dataPacketBufferPoolSize = 1000;
-		
-		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, 
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect, 
 					dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch(Exception e) {
 			log.warn(e.getMessage(), e);
@@ -114,16 +77,16 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitSupporter {
 		}
 		
 		WrapBuffer notRegistedWrapBuffer = new WrapBuffer(isDirect, 1024, ByteOrder.BIG_ENDIAN);
-		notRegistedWrapBuffer.queueOut();
+		
 		try {
-			dataPacketBufferPoolManager.putDataPacketBuffer(notRegistedWrapBuffer);
+			dataPacketBufferPool.putDataPacketBuffer(notRegistedWrapBuffer);
 			
 			fail("no IllegalArgumentException");
 		} catch(IllegalArgumentException e) {
 			String errorMessage = e.getMessage();
 			
-			String expectedMessage =  String.format("the parameter dataPacketBuffer[%d] is not a element of the queue-out state set",
-					notRegistedWrapBuffer.hashCode());			
+			String expectedMessage =  String.format("the parameter dataPacketBuffer[%d] is not a pool wrap buffer",
+					notRegistedWrapBuffer.hashCode());		
 
 			assertEquals(expectedMessage, errorMessage);
 		} catch(Exception e) {
@@ -135,15 +98,15 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitSupporter {
 	}
 	
 	@Test
-	public void testPutDataPacketBuffer_putMoreThanTwice() {
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+	public void testPutDataPacketBuffer_addMoreThanTwice() {
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder dataPacketByteOrder = ByteOrder.LITTLE_ENDIAN;
 		int dataPacketBufferSize = 4096;	
 		int dataPacketBufferPoolSize = 1000;
 		
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, 
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect, 
 					dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 		} catch(Exception e) {
 			log.warn(e.getMessage(), e);
@@ -152,21 +115,16 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitSupporter {
 		
 		WrapBuffer wrapBuffer = null;
 		try {
-			wrapBuffer = dataPacketBufferPoolManager.pollDataPacketBuffer();
+			wrapBuffer = dataPacketBufferPool.pollDataPacketBuffer();
 		} catch (Exception e) {
 			log.warn(e.getMessage(), e);
 			fail("error");
 		}
 		
 		try {
-			dataPacketBufferPoolManager.putDataPacketBuffer(wrapBuffer);
-		} catch (Exception e) {
-			log.warn(e.getMessage(), e);
-			fail("error");
-		}
+			dataPacketBufferPool.putDataPacketBuffer(wrapBuffer);
 		
-		try {
-			dataPacketBufferPoolManager.putDataPacketBuffer(wrapBuffer);
+			dataPacketBufferPool.putDataPacketBuffer(wrapBuffer);
 			
 			fail("no IllegalArgumentException");
 		} catch(IllegalArgumentException e) {
@@ -186,14 +144,14 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitSupporter {
 	@Test
 	public void testConstructor_theParameterByteOrder_null() {
 		@SuppressWarnings("unused")
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder dataPacketByteOrder = null;
 		int dataPacketBufferSize = 1;	
 		int dataPacketBufferPoolSize = 1000;
 		
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, 
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect, 
 					dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			
 			fail("no IllegalArgumentException");
@@ -212,14 +170,14 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitSupporter {
 	@Test
 	public void testConstructor_theParameterDataPacketBufferSize_lessThanOrEqualToZero() {
 		@SuppressWarnings("unused")
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder dataPacketByteOrder = ByteOrder.LITTLE_ENDIAN;
 		int dataPacketBufferSize = 0;	
 		int dataPacketBufferPoolSize = 1000;
 		
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, 
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect, 
 					dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			
 			fail("no IllegalArgumentException");
@@ -236,7 +194,7 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitSupporter {
 		
 		dataPacketBufferSize = -1;
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, 
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect, 
 					dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			
 			fail("no IllegalArgumentException");
@@ -255,14 +213,14 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitSupporter {
 	@Test
 	public void testConstructor_theParameterDataPacketBufferPoolSize_lessThanOrEqualToZero() {
 		@SuppressWarnings("unused")
-		DataPacketBufferPool dataPacketBufferPoolManager = null;
+		DataPacketBufferPool dataPacketBufferPool = null;
 		boolean isDirect = false;
 		ByteOrder dataPacketByteOrder = ByteOrder.BIG_ENDIAN;
 		int dataPacketBufferSize = 1;	
 		int dataPacketBufferPoolSize = 0;
 		
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, 
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect, 
 					dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			
 			fail("no IllegalArgumentException");
@@ -280,7 +238,7 @@ public class DataPacketBufferPoolManagerTest extends AbstractJunitSupporter {
 		dataPacketBufferPoolSize = -1;
 		
 		try {
-			dataPacketBufferPoolManager = new DataPacketBufferPool(isDirect, 
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect, 
 					dataPacketByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
 			
 			fail("no IllegalArgumentException");

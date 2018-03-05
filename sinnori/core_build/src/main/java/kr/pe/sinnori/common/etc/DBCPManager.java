@@ -132,9 +132,8 @@ public final class DBCPManager {
 			
 			dbcpName2BasicDataSourceHash.put(dbcpName, basicDataSource);
 			basicDataSource2dbcpConnectionPoolNameHash.put(basicDataSource, dbcpName);
-
-			// FIXME!
-			log.info("dbcp[{}] was registed successfully", dbcpName);			
+			
+			log.info("successfully dbcp[{}] was registed", dbcpName);			
 		}
 	}
 	

@@ -17,7 +17,6 @@
 
 package kr.pe.sinnori.server;
 
-import java.io.File;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
@@ -26,10 +25,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
+import kr.pe.sinnori.common.classloader.IOPartDynamicClassNameUtil;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CharsetUtil;
-import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.io.DataPacketBufferPool;
@@ -53,9 +51,9 @@ public class AnyProjectServer {
 	private Logger log = LoggerFactory.getLogger(AnyProjectServer.class);
 	
 	private ProjectPartConfiguration projectPartConfiguration = null;
+	 
 	
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
-	
 	/** 접속 승인 큐 */
 	private LinkedBlockingQueue<SocketChannel> acceptQueue = null;
 
@@ -77,6 +75,7 @@ public class AnyProjectServer {
 	public AnyProjectServer(ProjectPartConfiguration projectPartConfiguration)
 			throws NoMoreDataPacketBufferException, SinnoriConfigurationException {
 		this.projectPartConfiguration = projectPartConfiguration;
+		
 		
 		
 		
@@ -127,10 +126,6 @@ public class AnyProjectServer {
 		
 		
 		
-		/*ServerObjectCacheManagerIF serverObjectCacheManager = new ServerObjectCacheManager(projectPartConfiguration.getProjectName(),
-				projectPartConfiguration
-				.getFirstPrefixDynamicClassFullName());*/
-		
 		acceptQueue = new LinkedBlockingQueue<SocketChannel>(
 				projectPartConfiguration.getServerAcceptQueueSize());
 		
@@ -171,8 +166,7 @@ public class AnyProjectServer {
 		ieoThreadPoolManager.setInputMessageReaderPool(inputMessageReaderPool);
 		
 		
-		serverObjectCacheManager = createNewServerObjectCacheManager(projectPartConfiguration
-				.getFirstPrefixDynamicClassFullName());		
+		serverObjectCacheManager = createNewServerObjectCacheManager();		
 
 		executorPool = new ServerExecutorPool(
 				projectPartConfiguration.getProjectName(), 
@@ -198,33 +192,15 @@ public class AnyProjectServer {
 
 	}
 
-	private ServerObjectCacheManager createNewServerObjectCacheManager(String firstPrefixDynamicClassFullName) throws SinnoriConfigurationException {
-		String sinnoriInstalledPathString = System
-				.getProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH);
+	private ServerObjectCacheManager createNewServerObjectCacheManager() throws SinnoriConfigurationException {
 		
-		if (null == sinnoriInstalledPathString) {
-			String errorMessage = String.format("the system environment variable[%s] for the path where Sinnori is installed is not defined. -D%s not defined",
-					CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH, 
-					CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH);
-			throw new SinnoriConfigurationException(errorMessage);
-		}
+		IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = new IOPartDynamicClassNameUtil(projectPartConfiguration
+				.getFirstPrefixDynamicClassFullName());
 		
-		String serverAPPINFClassPathString = BuildSystemPathSupporter
-				.getServerAPPINFClassPathString(sinnoriInstalledPathString, projectPartConfiguration.getProjectName());
+		ServerClassLoaderBuilder serverSimpleClassLoaderBuilder = 
+				new ServerClassLoaderBuilder(ioPartDynamicClassNameUtil);
 		
-		File serverAPPINFClassPath = new File(serverAPPINFClassPathString);
-		
-		if (!serverAPPINFClassPath.exists()) {
-			String errorMessage = String.format("the server APP-INF class path[%s] doesn't exist", serverAPPINFClassPathString);
-		 	throw new SinnoriConfigurationException(errorMessage);
-		}
-		
-		if (!serverAPPINFClassPath.isDirectory()) {
-			String errorMessage = String.format("the server APP-INF class path[%s] isn't a directory", serverAPPINFClassPathString);
-		 	throw new SinnoriConfigurationException(errorMessage);
-		}
-		
-		return new ServerObjectCacheManager(serverAPPINFClassPathString, firstPrefixDynamicClassFullName);
+		return new ServerObjectCacheManager(serverSimpleClassLoaderBuilder, ioPartDynamicClassNameUtil);
 	}
 	
 	/**

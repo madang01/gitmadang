@@ -11,9 +11,9 @@ import java.util.List;
 
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 
-public class SocketOutputStreamTest extends AbstractJunitSupporter {
+public class SocketOutputStreamTest extends AbstractJunitTest {
 	
 	
 	

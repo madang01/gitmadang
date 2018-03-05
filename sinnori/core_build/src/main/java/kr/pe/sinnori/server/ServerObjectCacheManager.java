@@ -19,7 +19,7 @@ public class ServerObjectCacheManager implements ServerObjectCacheManagerIF {
 		
 	private final Object monitor = new Object();
 	
-	private String serverAPPINFClassPathString = null;
+	private ServerClassLoaderBuilder serverClassLoaderBuilder = null;
 	
 	private final ObjectCacheManager objectCacheManager = ObjectCacheManager
 			.getInstance();
@@ -28,16 +28,13 @@ public class ServerObjectCacheManager implements ServerObjectCacheManagerIF {
 	
 	private final HashMap<String, ServerTaskObjectInfo> className2ServerTaskObjectInfoHash = new HashMap<String, ServerTaskObjectInfo>();
 	
-	public ServerObjectCacheManager(String serverAPPINFClassPathString, String firstPrefixDynamicClassFullName) {
-		this.serverAPPINFClassPathString = serverAPPINFClassPathString;
+	public ServerObjectCacheManager(ServerClassLoaderBuilder serverClassLoaderBuilder, IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil) {
+		this.serverClassLoaderBuilder = serverClassLoaderBuilder;
+		this.ioPartDynamicClassNameUtil = ioPartDynamicClassNameUtil;
 		
-		this.ioPartDynamicClassNameUtil = new IOPartDynamicClassNameUtil(firstPrefixDynamicClassFullName);
-		this.workBaseClassLoader = createNewServerClassLoader(serverAPPINFClassPathString);
+		this.workBaseClassLoader = serverClassLoaderBuilder.build();
 	}
 	
-	private SimpleClassLoader createNewServerClassLoader(String serverAPPINFClassPathString) {
-		return new SimpleClassLoader(serverAPPINFClassPathString, ioPartDynamicClassNameUtil);
-	}
 
 	private ServerTaskObjectInfo getServerTaskFromWorkBaseClassload(
 			String classFullName) throws DynamicClassCallException {
@@ -189,7 +186,7 @@ public class ServerObjectCacheManager implements ServerObjectCacheManagerIF {
 			} else {
 				if (serverTaskObjectInfo.isModifed()) {
 					/** 새로운 서버 클래스 로더로 교체 */
-					workBaseClassLoader = createNewServerClassLoader(serverAPPINFClassPathString);
+					workBaseClassLoader = serverClassLoaderBuilder.build();
 					serverTaskObjectInfo = getServerTaskFromWorkBaseClassload(classFullName);
 					className2ServerTaskObjectInfoHash.put(classFullName,
 							serverTaskObjectInfo);

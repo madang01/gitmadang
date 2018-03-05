@@ -8,10 +8,10 @@ import java.nio.charset.Charset;
 import org.junit.Before;
 import org.junit.Test;
 
-import kr.pe.sinnori.common.AbstractJunitSupporter;
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
 
-public class GeneralConverterReturningCharsetTest extends AbstractJunitSupporter implements
+public class GeneralConverterReturningCharsetTest extends AbstractJunitTest implements
 		NativeValueConverterTestIF {
 
 	private GeneralConverterReturningCharset nativeValueConverter = null;
