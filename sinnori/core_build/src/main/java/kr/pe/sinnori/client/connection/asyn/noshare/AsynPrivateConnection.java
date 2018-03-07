@@ -17,7 +17,9 @@
 package kr.pe.sinnori.client.connection.asyn.noshare;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
@@ -89,7 +91,7 @@ public class AsynPrivateConnection extends AbstractAsynConnection {
 
 		long startTime = 0;
 		long endTime = 0;
-		startTime = new java.util.Date().getTime();
+		startTime = System.nanoTime();
 
 		// log.info("inputMessage=[%s]", inputMessage.toString());	
 
@@ -106,16 +108,17 @@ public class AsynPrivateConnection extends AbstractAsynConnection {
 				inObj.messageHeaderInfo.mailboxID, 
 				inObj.messageHeaderInfo.mailID, 
 				wrapBufferListOfInputMessage);
-		asynSocketResource.getInputMessageWriter().putIntoQueue(toLetter);
+		asynSocketResource.getInputMessageWriter().putIntoQueue(toLetter);		
 		
 		
-		wrapReadableMiddleObject = asynPrivateMailbox.getSyncOutputMessage();
-
-		/*
-		 * String messageID = letterFromServer.getMessageID(); int mailboxID =
-		 * letterFromServer.getMailboxID(); int mailID = letterFromServer.getMailID();
-		 * Object middleReadObj = letterFromServer.getMiddleReadObj();
-		 */
+		try {
+			wrapReadableMiddleObject = asynPrivateMailbox.getSyncOutputMessage();
+		} catch(SocketTimeoutException e) {
+			String errorMessage = new StringBuilder("timeout for the input message[")
+					.append(e.getMessage()).append("][")
+					.append(inObj.toString()).append("]").toString();
+			throw new SocketTimeoutException(errorMessage);
+		}		
 
 		AbstractMessage outObj = clientMessageUtility.buildOutputMessage(classLoader, wrapReadableMiddleObject);
 		if (outObj instanceof SelfExnRes) {
@@ -124,13 +127,17 @@ public class AsynPrivateConnection extends AbstractAsynConnection {
 			SelfExn.ErrorType.throwSelfExnException(selfExnRes);
 		}
 
-		endTime = new java.util.Date().getTime();
-		log.info(String.format("2.시간차=[%d]", (endTime - startTime)));
+		endTime = System.nanoTime();
+		log.info("시간차[{}]", TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
 
 		return outObj;
 	}
 	
 	public void putToOutputMessageQueue(FromLetter fromLetter) throws InterruptedException {
+		// FIXME!
+		// log.info("fromLetter={}", fromLetter.toString());
+		
+		
 		WrapReadableMiddleObject wrapReadableMiddleObject = fromLetter.getWrapReadableMiddleObject();
 		
 		if (wrapReadableMiddleObject.getMailboxID() == CommonStaticFinalVars.ASYN_MAILBOX_ID) {

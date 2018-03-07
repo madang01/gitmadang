@@ -12,6 +12,9 @@ public class EmptyServerTask extends AbstractServerTask {
 			PersonalLoginManagerIF personalLoginManager, 
 			ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
+		
+		//log.info("inputMessage messageHeaderInfo={}", inputMessage.messageHeaderInfo.toString());
+		
 		toLetterCarrier.addBypassOutputMessage(inputMessage);
 	}
 }

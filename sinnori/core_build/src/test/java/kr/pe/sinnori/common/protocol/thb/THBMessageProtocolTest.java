@@ -23,6 +23,9 @@ import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.common.type.SelfExn;
+import kr.pe.sinnori.impl.message.Empty.Empty;
+import kr.pe.sinnori.impl.message.Empty.EmptyDecoder;
+import kr.pe.sinnori.impl.message.Empty.EmptyEncoder;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnResDecoder;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnResEncoder;
@@ -70,7 +73,7 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 		long afterTime = 0;
 		
 		
-		int retryCount = 1000000;
+		int retryCount = 1;
 		
 		int firstIndex = -1;
 		int differentCount = 0;
@@ -105,9 +108,6 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 				log.warn(errorMessage, e);
 				fail(errorMessage);
 			}
-			
-			
-			
 			
 			//log.info("2");
 			
@@ -167,6 +167,150 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 					SelfExnRes selfExnRes = (SelfExnRes)resObj;
 					
 					assertEquals("SelfExn 입력과 출력 메시지 비교", selfExnReq.toString(), selfExnRes.toString());
+				} catch (Exception e) {
+					String errorMessage = "error::"+e.getMessage();
+					log.warn(errorMessage, e);
+					fail(errorMessage);
+				}
+			}
+						
+			
+			long afterLocalTime= new Date().getTime();
+			if ((-1 == firstIndex) && (afterLocalTime == beforeLocalTime)) {
+				firstIndex = i;
+			}
+			
+			if (afterLocalTime != beforeLocalTime) {
+				// log.info("case[{}]::afterLocalTime != beforeLocalTime", i);
+				differentCount++;
+			}
+		}
+		
+		afterTime= new Date().getTime();
+		
+		log.info("{} 번 시간차={} ms, 평균={} ms, firstIndex={}, differentCount={}", retryCount, (afterTime-beforeTime), (double)(afterTime-beforeTime)/retryCount, firstIndex, differentCount);
+	}
+	
+	@Test
+	public void testM2S_basic2() {
+		int messageIDFixedSize = 20;
+		int dataPacketBufferMaxCntPerMessage = 10;
+		Charset streamCharset = Charset.forName("utf-8");
+		CharsetEncoder streamCharsetEncoder = CharsetUtil.createCharsetEncoder(streamCharset);
+		CharsetDecoder streamCharsetDecoder = CharsetUtil.createCharsetDecoder(streamCharset);
+		ByteOrder streamByteOrder = ByteOrder.LITTLE_ENDIAN;
+		DataPacketBufferPoolIF dataPacketBufferPool = null;
+		boolean isDirect = false;
+		int dataPacketBufferSize = 4096;
+		int dataPacketBufferPoolSize = 100;
+		
+		try {
+			dataPacketBufferPool = new DataPacketBufferPool(isDirect, streamByteOrder, dataPacketBufferSize, dataPacketBufferPoolSize);
+		} catch (Exception e) {
+			log.warn(""+e.getMessage(), e);
+			fail("unknown error::" + e.getMessage());
+		}
+		
+		THBMessageProtocol thbMessageProtocol = 
+				new THBMessageProtocol(messageIDFixedSize, 
+						dataPacketBufferMaxCntPerMessage,
+						streamCharsetEncoder,
+						streamCharsetDecoder,
+						dataPacketBufferPool);
+		
+		EmptyEncoder emptyEncoder = new EmptyEncoder();
+		EmptyDecoder emptyDecoder = new EmptyDecoder();
+		
+		THBSingleItemDecoderMatcherIF thbSingleItemDecoderMatcher = new THBSingleItemDecoderMatcher(streamCharsetDecoder);
+		
+		THBSingleItemDecoder dhbSingleItemDecoder = new THBSingleItemDecoder(thbSingleItemDecoderMatcher);
+		
+		
+		// log.info("1");		
+		long beforeTime = 0;
+		long afterTime = 0;
+		
+		
+		int retryCount = 1;
+		
+		int firstIndex = -1;
+		int differentCount = 0;
+		
+		
+		Empty emptyReq = new Empty();		
+		emptyReq.messageHeaderInfo.mailboxID = 1;
+		emptyReq.messageHeaderInfo.mailID = 3;
+		
+		beforeTime= new Date().getTime();
+		
+		
+		
+		for (int i=0; i < retryCount; i++) {			
+			long beforeLocalTime= new Date().getTime();			
+			
+			List<WrapBuffer> wrapBufferListOfInputMessage = null;
+			try {
+				wrapBufferListOfInputMessage = thbMessageProtocol.M2S(emptyReq, emptyEncoder);
+			} catch (Exception e) {
+				String errorMessage = "error::"+e.getMessage();
+				log.warn(errorMessage, e);
+				fail(errorMessage);
+			}
+			
+			//log.info("2");
+			
+			for (WrapBuffer inputMessageWrapBuffer : wrapBufferListOfInputMessage) {
+				if (inputMessageWrapBuffer.isInQueue()) {
+					fail("bad wrap buffer where is in of queue");
+				}
+				
+				ByteBuffer inputMessageByteBuffer = inputMessageWrapBuffer.getByteBuffer();
+				inputMessageByteBuffer.position(inputMessageByteBuffer.limit());
+			}
+			
+			//log.info("3");
+			
+			SocketOutputStream sos = null;
+			try {
+				sos = new SocketOutputStream(wrapBufferListOfInputMessage, streamCharsetDecoder, dataPacketBufferMaxCntPerMessage, dataPacketBufferPool);
+			} catch (Exception e) {
+				String errorMessage = "error::"+e.getMessage();
+				log.warn(errorMessage, e);
+				fail(errorMessage);
+			}
+			
+			
+			
+			// log.info("sos.size={}", sos.size());
+			
+			//log.info("4");
+			
+			ArrayList<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
+			try {
+				wrapReadableMiddleObjectList = thbMessageProtocol.S2MList(sos);
+			} catch (Exception e) {
+				String errorMessage = "error::"+e.getMessage();
+				log.warn(errorMessage, e);
+				fail(errorMessage);
+			}
+			
+			//log.info("5");
+			
+			for (WrapReadableMiddleObject wrapReadableMiddleObject :  wrapReadableMiddleObjectList) {
+				Object readableMiddleObj = wrapReadableMiddleObject.getReadableMiddleObject();				
+				
+				try {
+					AbstractMessage resObj = emptyDecoder.decode(dhbSingleItemDecoder, readableMiddleObj);
+					resObj.messageHeaderInfo.mailboxID = wrapReadableMiddleObject.getMailboxID();
+					resObj.messageHeaderInfo.mailID = wrapReadableMiddleObject.getMailID();
+					
+					/*if (! (resObj instanceof SelfExn)) {
+						fail("resObj is not a instance of SelfExn class");
+					}*/
+					
+					Empty emptyRes = (Empty)resObj;
+					
+					assertEquals("Empty 입력과 출력 메시지 비교", emptyReq.messageHeaderInfo, emptyRes.messageHeaderInfo);
 				} catch (Exception e) {
 					String errorMessage = "error::"+e.getMessage();
 					log.warn(errorMessage, e);

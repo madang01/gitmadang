@@ -16,8 +16,6 @@ import kr.pe.sinnori.common.type.SingleItemType;
 public class THBSingleItemDecoderMatcher implements THBSingleItemDecoderMatcherIF {
 	private Logger log = LoggerFactory.getLogger(THBSingleItemDecoderMatcher.class);
 	
-	
-	@SuppressWarnings("unused")
 	private CharsetDecoder streamCharsetDecoder = null;
 	private CodingErrorAction streamCodingErrorActionOnMalformedInput = null;
 	private CodingErrorAction streamCodingErrorActionOnUnmappableCharacter = null;

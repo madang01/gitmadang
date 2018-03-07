@@ -100,14 +100,15 @@ public abstract class AbstractConnection {
 	 * </pre>       
 	 * @throws IOException
 	 */
-	public void close() throws IOException {
+	public void close() throws IOException {		
 		serverSC.close();
 		
 		doReleaseSocketResources();
 	}
 
+	/** isOpen & isConnected */
 	public boolean isConnected() {
-		return serverSC.isConnected();
+		return serverSC.isOpen() && serverSC.isConnected();
 	}
 	
 	

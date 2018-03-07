@@ -257,6 +257,7 @@ public class THBMessageProtocol implements MessageProtocolIF {
 					
 					long messageFrameSize = messageHeaderSize
 							+ messageHeader.bodySize;
+					
 
 					if (socketOutputStreamSize >= messageFrameSize) {
 						/** 메시지 추출 */

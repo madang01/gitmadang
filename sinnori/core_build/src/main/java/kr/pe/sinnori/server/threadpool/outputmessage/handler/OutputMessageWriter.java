@@ -19,14 +19,14 @@ package kr.pe.sinnori.server.threadpool.outputmessage.handler;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.ClosedByInterruptException;
-import java.nio.channels.NotYetConnectedException;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +47,7 @@ public class OutputMessageWriter extends Thread implements OutputMessageWriterIF
 	private String projectName;
 	private int index;	
 	private DataPacketBufferPoolIF dataPacketBufferQueueManager;
-	private LinkedBlockingQueue<ToLetter> outputMessageQueue;	
+	private ArrayBlockingQueue<ToLetter> outputMessageQueue;	
 	
 	private final Set<SocketChannel> socketChannelSet = Collections.synchronizedSet(new HashSet<SocketChannel>());
 
@@ -60,7 +60,7 @@ public class OutputMessageWriter extends Thread implements OutputMessageWriterIF
 	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자
 	 */
 	public OutputMessageWriter(String projectName, int index, 
-			LinkedBlockingQueue<ToLetter> outputMessageQueue,
+			ArrayBlockingQueue<ToLetter> outputMessageQueue,
 			DataPacketBufferPoolIF dataPacketBufferQueueManager) {
 		this.index = index;
 		this.projectName = projectName;
@@ -75,8 +75,7 @@ public class OutputMessageWriter extends Thread implements OutputMessageWriterIF
 	public void run() {
 		log.info(String.format("%s OutputMessageWriter[%d] start", projectName, index));
 		
-		try {
-			
+		try {			
 			while (!Thread.currentThread().isInterrupted()) {
 				ToLetter toLetter = null;
 				try {
@@ -85,64 +84,51 @@ public class OutputMessageWriter extends Thread implements OutputMessageWriterIF
 					log.warn("project[{}] index[{}] InterruptedException", projectName, index);
 					break;
 				}
+				
+				//log.info("toLetter={}", toLetter.toString());
 
-				SocketChannel toSC = toLetter.getToSocketChannel();	
-				List<WrapBuffer> outObjWrapBufferList = toLetter.getWrapBufferList();
+				SocketChannel toSC = toLetter.getToSocketChannel();
+				List<WrapBuffer> warpBufferList = toLetter.getWrapBufferList();
+				int indexOfWorkingBuffer = 0;
+				int warpBufferListSize = warpBufferList.size();
+				
+				Selector writeEventOnlySelector = Selector.open();
 				
 				try {
-					// int outObjWrapBufferListSize = outObjWrapBufferList.size();
+					toSC.register(writeEventOnlySelector, SelectionKey.OP_WRITE);
 					
-					// long startTime = System.currentTimeMillis();
-					synchronized (toSC) {
-						/**
-						 * 2013.07.24 잔존 데이타 발생하므로 GatheringByteChannel 를 이용하는 바이트 버퍼 배열 쓰기 방식 포기.
-						 */
-						/*for (int i=0; i < outObjWrapBufferListSize; i++) {
-							WrapBuffer wrapBuffer = outObjWrapBufferList.get(i);
-							ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
-
-							do {
-								toSC.write(byteBuffer);
-							} while(byteBuffer.hasRemaining());
-						}*/
-						
-						for (WrapBuffer wrapBuffer : outObjWrapBufferList) {
-							ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
-							do {
-								int numberOfBytesWritten = toSC.write(byteBuffer);
-								if (0 == numberOfBytesWritten) {
-									try {
-										Thread.sleep(10);
-									} catch (InterruptedException e) {
-										log.warn("when the number of bytes written is zero,  this thread must sleep. but it fails.", e);
-									}
-								}
-							} while(byteBuffer.hasRemaining());
+					WrapBuffer workingWrapBuffer = null;
+					ByteBuffer workingByteBuffer = null;
+					boolean loop = true;
+					while (loop) {
+						@SuppressWarnings("unused")
+						int numberOfKeys =  writeEventOnlySelector.select();
+						 
+						workingWrapBuffer = warpBufferList.get(indexOfWorkingBuffer);
+						workingByteBuffer = workingWrapBuffer.getByteBuffer();
+							
+						if (! workingByteBuffer.hasRemaining()) {
+							if ((indexOfWorkingBuffer+1) == warpBufferListSize) {
+								loop = false;
+								break;
+							}
+							indexOfWorkingBuffer++;
+							workingWrapBuffer = warpBufferList.get(indexOfWorkingBuffer);
+							workingByteBuffer = workingWrapBuffer.getByteBuffer();
 						}
-					}
-					//long endTime = System.currentTimeMillis();
-					//log.info(String.format("elapsed time=[%s]", endTime - startTime));
-				} catch (NotYetConnectedException e) {
-					// ClosedChannelException
-					log.warn(String.format("%s OutputMessageWriter[%d] toSC[%d] NotYetConnectedException",
-							projectName, index, toSC.hashCode()), e);
-					try {
-						toSC.close();
-					} catch (IOException e1) {
-					}
-				} catch(ClosedByInterruptException e) {
-					/** ClosedByInterruptException 는 IOException 상속 받기때문에 따로 처리  */
-					log.warn(String.format("%s OutputMessageWriter[%d] toSC[%d] ClosedByInterruptException",
-							projectName, index, toSC.hashCode()), e);
-					try {
-						toSC.close();
-					} catch (IOException e1) {
+						toSC.write(workingByteBuffer);
 					}
 					
-					throw e;
-				} catch (IOException e) {
-					log.warn(String.format("%s OutputMessageWriter[%d] toSC[%d] IOException",
-							projectName, index, toSC.hashCode()), e);
+				} catch (Exception e) {
+					String errorMessage = new StringBuilder("fail to write a output message, ")
+							.append(projectName)
+							.append(" OutputMessageWriter[")
+							.append(index)
+							.append("] toSC[")
+							.append(toSC.hashCode())
+							.append("], errmsg=")
+							.append(e.getMessage()).toString();
+					log.warn(errorMessage, e);
 					
 					try {
 						toSC.close();
@@ -150,24 +136,15 @@ public class OutputMessageWriter extends Thread implements OutputMessageWriterIF
 						
 					}
 				} finally {
-					if (null != outObjWrapBufferList) {
-						/*int bodyWrapBufferListSiz = outObjWrapBufferList.size();
-						for (int i=0; i < bodyWrapBufferListSiz; i++) {
-							WrapBuffer wrapBuffer = outObjWrapBufferList.get(0);
-							outObjWrapBufferList.remove(0);
-							dataPacketBufferQueueManager.putDataPacketBuffer(wrapBuffer);
-						}*/
-						
-						for (WrapBuffer wrapBuffer : outObjWrapBufferList) {
-							dataPacketBufferQueueManager.putDataPacketBuffer(wrapBuffer);
-						}
+					writeEventOnlySelector.close();					
+					for (WrapBuffer wrapBuffer : warpBufferList) {
+						dataPacketBufferQueueManager.putDataPacketBuffer(wrapBuffer);
 					}
 				}
 			}
 		
-			log.warn(String.format("%s OutputMessageWriter[%d] loop exit", projectName, index));		
-		} catch(ClosedByInterruptException e) {
-			/** 이미 로그를 찍은 상태로 nothing */
+			log.warn(String.format("%s OutputMessageWriter[%d] loop exit", projectName, index));	
+		
 		} catch (Exception e) {
 			log.warn(String.format("%s OutputMessageWriter[%d] unknown error", projectName, index), e);
 		}

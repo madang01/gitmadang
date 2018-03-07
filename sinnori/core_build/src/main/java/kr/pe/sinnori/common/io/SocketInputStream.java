@@ -17,11 +17,11 @@ public class SocketInputStream extends FreeSizeInputStream {
 		super(dataPacketBufferMaxCount, dataPacketBufferList, streamCharsetDecoder, dataPacketBufferQueueManager);
 	}
 	
-	public void close() {
-		for (WrapBuffer sourceWrapBuffer : readableWrapBufferList) {			
-			ByteBuffer sourceByteBuffer = sourceWrapBuffer.getByteBuffer();
+	public void close() {		
+		for (; indexOfWorkBuffer < readableWrapBufferListSize; indexOfWorkBuffer++) {			
+			ByteBuffer sourceByteBuffer = streamBufferList.get(indexOfWorkBuffer);
 			sourceByteBuffer.position(sourceByteBuffer.limit());
-		}
+		}	
 	}
 	
 	public byte[] getMD5(long size, int blockSize)

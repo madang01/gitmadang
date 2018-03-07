@@ -135,8 +135,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 		this.messageHeaderSize = headerBodySize + CommonStaticFinalVars.MD5_BYTESIZE;
 		
 		THBSingleItemDecoderMatcherIF thbSingleItemDecoderMatcher = new THBSingleItemDecoderMatcher(streamCharsetDecoder);
-		this.thbSingleItemDecoder = new THBSingleItemDecoder(thbSingleItemDecoderMatcher);
-		
+		this.thbSingleItemDecoder = new THBSingleItemDecoder(thbSingleItemDecoderMatcher);		
 		
 		THBSingleItemEncoderMatcherIF thbSingleItemEncoderMatcher = new THBSingleItemEncoderMatcher(streamCharsetEncoder);
 		this.thbSingleItemEncoder = new THBSingleItemEncoder(thbSingleItemEncoderMatcher);

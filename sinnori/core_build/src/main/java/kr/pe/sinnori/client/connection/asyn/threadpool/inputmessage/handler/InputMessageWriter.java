@@ -17,10 +17,12 @@
 package kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler;
 
 import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +55,7 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 	private int index;
 
 	/** 입력 메시지 큐 */
-	private LinkedBlockingQueue<ToLetter> inputMessageQueue = null;
+	private ArrayBlockingQueue<ToLetter> inputMessageQueue = null;
 
 	// private MessageProtocolIF messageProtocol = null;
 	private ClientMessageUtilityIF clientMessageUtility = null;
@@ -61,7 +63,7 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 
 	private Hashtable<SocketChannel, AbstractAsynConnection> sc2AsynConnectionHash = new Hashtable<SocketChannel, AbstractAsynConnection>();
 
-	public InputMessageWriter(String projectName, int index, LinkedBlockingQueue<ToLetter> inputMessageQueue,
+	public InputMessageWriter(String projectName, int index, ArrayBlockingQueue<ToLetter> inputMessageQueue,
 			ClientMessageUtilityIF clientMessageUtility) throws NoMoreDataPacketBufferException {
 		this.projectName = projectName;
 		this.index = index;
@@ -72,36 +74,45 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 	@Override
 	public void run() {
 		log.info(String.format("InputMessageWriter[%d] start", index));
+		
+		
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
 				ToLetter toLetter = inputMessageQueue.take();
 				
-
-				// FIXME!
-				// log.info("toLetter={}", toLetter.toString());
-
 				SocketChannel toSC = toLetter.getToSocketChannel();
-
-				List<WrapBuffer> warpBufferList = null;
-
+				
+				List<WrapBuffer> warpBufferList = toLetter.getWrapBufferList();
+				int indexOfWorkingBuffer = 0;
+				int warpBufferListSize = warpBufferList.size();
+				
+				Selector writeEventOnlySelector = Selector.open();
+				
 				try {
-					warpBufferList = toLetter.getWrapBufferList();
-					
-					for (WrapBuffer wrapBuffer : warpBufferList) {
-						ByteBuffer byteBuffer = wrapBuffer.getByteBuffer();
-						do {
-							int numberOfBytesWritten = toSC.write(byteBuffer);
-							if (0 == numberOfBytesWritten) {
-								
-									Thread.sleep(10);
-								
+					toSC.register(writeEventOnlySelector, SelectionKey.OP_WRITE);
+						
+					WrapBuffer workingWrapBuffer = null;
+					ByteBuffer workingByteBuffer = null;
+					boolean loop = true;
+					while (loop) {
+						@SuppressWarnings("unused")
+						int numberOfKeys =  writeEventOnlySelector.select();
+						 
+						workingWrapBuffer = warpBufferList.get(indexOfWorkingBuffer);
+						workingByteBuffer = workingWrapBuffer.getByteBuffer();
+							
+						if (! workingByteBuffer.hasRemaining()) {
+							if ((indexOfWorkingBuffer+1) == warpBufferListSize) {
+								loop = false;
+								break;
 							}
-						} while (byteBuffer.hasRemaining());
+							indexOfWorkingBuffer++;
+							workingWrapBuffer = warpBufferList.get(indexOfWorkingBuffer);
+							workingByteBuffer = workingWrapBuffer.getByteBuffer();
+						}
+						toSC.write(workingByteBuffer);
 					}
-
-				} catch(InterruptedException e) {
-					throw e;
-				} catch (Exception e) {
+				} catch(Exception e) {
 					String errorMessage = String.format("InputMessageWriter[%d] Exception::%s, letterToServer=[%s]",
 							index, e.getMessage(), toLetter.toString());
 					log.warn(errorMessage, e);
@@ -128,10 +139,9 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 						/** 비동기일때에는 그냥 닫는다 */
 						asynConnection.close();
 					}
-					
 				} finally {
+					writeEventOnlySelector.close();
 					clientMessageUtility.releaseWrapBufferList(warpBufferList);
-
 				}
 			}
 

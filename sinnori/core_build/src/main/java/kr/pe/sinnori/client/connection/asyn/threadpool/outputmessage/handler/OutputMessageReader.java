@@ -22,8 +22,9 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
@@ -33,8 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.common.asyn.FromLetter;
-import kr.pe.sinnori.common.exception.HeaderFormatException;
-import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
@@ -48,7 +47,7 @@ import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 public class OutputMessageReader extends Thread implements OutputMessageReaderIF {
 	private Logger log = LoggerFactory.getLogger(OutputMessageReader.class);
 
-	private final Object monitor = new Object();
+	// private final Object monitor = new Object();
 
 	private String projectName = null;
 	/** 출력 메시지를 읽는 쓰레드 번호 */
@@ -56,7 +55,9 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 	private MessageProtocolIF messageProtocol = null;
 
 	/** selector 에 등록할 신규 소켓 채널을 담고 있는 그릇 */
-	private final ArrayDeque<SocketChannel> notRegistedSocketChannelList = new ArrayDeque<SocketChannel>();
+	// private final ArrayDeque<SocketChannel> notRegistedSocketChannelList = new ArrayDeque<SocketChannel>();
+	private final Set<SocketChannel> notRegistedSocketChannelList = Collections
+			.synchronizedSet(new HashSet<SocketChannel>());
 
 	/** 읽기 전용 selecotr */
 	private Selector selector = null;
@@ -102,9 +103,12 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 	 */
 	private void processNewConnection() {
 		
-		synchronized (monitor) {
-			while (! notRegistedSocketChannelList.isEmpty()) {
-				SocketChannel notRegistedSocketChannel = notRegistedSocketChannelList.removeFirst();
+		Iterator<SocketChannel> notRegistedSocketChannelIterator = notRegistedSocketChannelList.iterator();
+
+		while (notRegistedSocketChannelIterator.hasNext()) {
+			SocketChannel notRegistedSocketChannel = notRegistedSocketChannelIterator.next();
+			notRegistedSocketChannelIterator.remove();
+			
 				try {
 					notRegistedSocketChannel.register(selector, SelectionKey.OP_READ);
 				} catch (ClosedChannelException e) {
@@ -115,7 +119,7 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 					scToAsynConnectionHash.remove(notRegistedSocketChannel);
 				}
 			}
-		}
+		// }
 	}
 
 	@Override
@@ -124,9 +128,9 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 
 		scToAsynConnectionHash.put(newSC, asynConn);
 		
-		synchronized (monitor) {			
-			notRegistedSocketChannelList.addLast(newSC);
-		}
+					
+		notRegistedSocketChannelList.add(newSC);
+		
 
 		if (getState().equals(Thread.State.NEW)) {
 			return;
@@ -190,22 +194,15 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 						SocketOutputStream socketOutputStream = asynConnection.getSocketOutputStream();
 
 						try {
-							@SuppressWarnings("unused")
-							int numberOfReadBytes = socketOutputStream.read(serverSC);
-						} catch(Exception e) {
-							log.warn(String.format("%s OutputMessageReader[%d]::%s",
-									asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
-							closeSocket(selectedKey, asynConnection);
-							continue;
-						}
-
-							// FIXME! 한번에 읽는 바이트 추적용 로그
-							// log.info(String.format("totalReadBytes=[%d], %d", totalReadBytes,
-							// serverSC.getOption(StandardSocketOptions.SO_RCVBUF)));
-							// log.info(String.format("totalReadBytes=[%d],
-							// messageInputStreamResource.position=[%d]", totalReadBytes,
-							// messageInputStreamResource.position()));
-						try {
+							int numRead = socketOutputStream.read(serverSC);
+							
+							if (numRead == -1) {
+								log.warn(String.format("%s OutputMessageReader[%d]",
+										asynConnection.getSimpleConnectionInfo(), index));
+								closeSocket(selectedKey, asynConnection);
+								continue;
+							}
+							
 							asynConnection.setFinalReadTime();
 
 							ArrayList<WrapReadableMiddleObject> wrapReadableMiddleObjectList = messageProtocol
@@ -213,18 +210,13 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 
 							for (WrapReadableMiddleObject wrapReadableMiddleObject : wrapReadableMiddleObjectList) {
 								// FIXME!
-								// log.info("receivedLetter={}", receivedLetter.toString());
+								// log.info("wrapReadableMiddleObject={}", wrapReadableMiddleObject.toString());
 
 								// asynConnection.putToOutputMessageQueue(new LetterFromServer(receivedLetter));
 								FromLetter fromLetter = new FromLetter(serverSC, wrapReadableMiddleObject);
 								asynConnection.putToOutputMessageQueue(fromLetter);
 							}
-						} catch (HeaderFormatException e) {
-							log.warn(String.format("%s OutputMessageReader[%d]::%s",
-									asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
-							closeSocket(selectedKey, asynConnection);
-							continue;
-						} catch (NoMoreDataPacketBufferException e) {
+						} catch (Exception e) {
 							log.warn(String.format("%s OutputMessageReader[%d]::%s",
 									asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
 							closeSocket(selectedKey, asynConnection);

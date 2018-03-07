@@ -243,10 +243,12 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 		try {
 			outObj = conn.sendSyncInputMessage(inputMessage);
 		} catch (IOException e) {
+			log.warn("IOException", e);
 			try {
 				conn.close();
 			} catch (IOException e1) {
 			}
+			
 			throw e;
 		} finally {
 			connectionPool.release(conn);

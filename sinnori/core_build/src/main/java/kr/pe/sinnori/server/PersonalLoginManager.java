@@ -2,14 +2,11 @@ package kr.pe.sinnori.server;
 
 import java.nio.channels.SocketChannel;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import kr.pe.sinnori.common.updownfile.LocalSourceFileResourceManager;
 import kr.pe.sinnori.common.updownfile.LocalTargetFileResourceManager;
 
-public class PersonalLoginManager implements PersonalLoginManagerIF {
-	private Logger log = LoggerFactory.getLogger(PersonalLoginManager.class);
+public class PersonalLoginManager implements PersonalLoginManagerIF {	
+	// private Logger log = LoggerFactory.getLogger(PersonalLoginManager.class);
 	
 	private String personalLoginID = null;
 	private SocketChannel personalSC = null;
@@ -48,12 +45,8 @@ public class PersonalLoginManager implements PersonalLoginManagerIF {
 	
 	/** 로그 아웃시 할당 받은 자원을 해제한다. */
 	public void releaseLoginUserResource() {
-		// FIXME!
-		log.info("personalSC[{}] logout", personalSC.hashCode());
-		
-		projectLoginManager.removeLoginUser(personalSC);
-		
 		if (null != personalLoginID) {
+			projectLoginManager.removeLoginUser(personalSC);
 			LocalSourceFileResourceManager.getInstance().removeUsingUserIDWithUnlockFile(personalLoginID);
 			LocalTargetFileResourceManager.getInstance().removeUsingUserIDWithUnlockFile(personalLoginID);
 		}		

@@ -42,4 +42,25 @@ public class MessageHeaderInfo {
 		strBuffer.append("]");
 		return strBuffer.toString();
 	}
+	
+	public boolean equals(Object o) {
+		if (null == o) {
+			return false;
+		}
+		if (! (o instanceof MessageHeaderInfo)) {
+			return false;
+		}
+		
+		MessageHeaderInfo dst = (MessageHeaderInfo)o;
+		
+		if (this.mailboxID != dst.mailboxID) {
+			return false;
+		}
+		
+		if (this.mailID != dst.mailID) {
+			return false;
+		}
+		
+		return true;
+	}
 }

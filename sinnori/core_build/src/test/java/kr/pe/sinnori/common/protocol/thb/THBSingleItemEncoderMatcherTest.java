@@ -1145,7 +1145,7 @@ public class THBSingleItemEncoderMatcherTest extends AbstractJunitTest {
 	}
 	
 	@Test
-	public void test_0보다작은크기() {
+	public void test_잘못된크기지정() {
 		Charset streamCharset = Charset.forName("utf8");
 		CharsetEncoder streamCharsetEncoder = streamCharset.newEncoder();
 		// CharsetDecoder streamCharsetDecoder = streamCharset.newDecoder();
@@ -1261,6 +1261,7 @@ public class THBSingleItemEncoderMatcherTest extends AbstractJunitTest {
 		
 		BinaryOutputStreamIF binaryOutputStream = new FixedSizeOutputStream(streamByteBuffer, streamCharsetEncoder);
 		
+		final int typeSize=1;
 		
 		for (SingleItemType testSingleItemType : testSingleItemTypes) {
 			streamByteBuffer.clear();
@@ -1280,6 +1281,26 @@ public class THBSingleItemEncoderMatcherTest extends AbstractJunitTest {
 			
 			Object actualValue = null;
 			BinaryInputStreamIF binaryInputStream = new FixedSizeInputStream(streamByteBuffer, streamCharsetDecoder);
+			
+			int exepectedSize = -1;
+			
+			if (testSingleItemType.equals(SingleItemType.UB_PASCAL_STRING)) {
+				int stringLengthSize = 1;
+				exepectedSize = typeSize +  stringLengthSize + itemSize;
+			} else if (testSingleItemType.equals(SingleItemType.US_PASCAL_STRING)) {
+				int stringLengthSize = 2;
+				exepectedSize = typeSize +  stringLengthSize + itemSize;
+			} else if (testSingleItemType.equals(SingleItemType.SI_PASCAL_STRING)) {
+				int stringLengthSize = 4;
+				exepectedSize = typeSize +  stringLengthSize + itemSize;
+			} else {
+				exepectedSize = typeSize +  itemSize;
+			}
+			
+			if (exepectedSize != binaryInputStream.available()) {
+				log.info("사용자 정의 문자셋을 적용했을 경우 예측한 스트림 크기={}, 실제 크기={}", exepectedSize, binaryInputStream.available());
+				fail("사용자 정의 문자셋을 적용했을 경우 예측한 스트림 크기가 다릅니다");
+			}
 
 			try {
 				actualValue = thbSingleItemDecoder.getValue(itemTypeID, itemName, itemSize, nativeItemCharset, binaryInputStream);

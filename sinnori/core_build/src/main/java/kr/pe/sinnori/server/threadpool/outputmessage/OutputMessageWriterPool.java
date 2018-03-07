@@ -19,10 +19,7 @@ package kr.pe.sinnori.server.threadpool.outputmessage;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-
-//import java.util.logging.Level;
-
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
@@ -73,7 +70,7 @@ public class OutputMessageWriterPool extends AbstractThreadPool implements Outpu
 
 	@Override
 	public void addHandler() throws IllegalStateException {
-		LinkedBlockingQueue<ToLetter> outputMessageQueue = new LinkedBlockingQueue<ToLetter>(outputMessageQueueSize);
+		ArrayBlockingQueue<ToLetter> outputMessageQueue = new ArrayBlockingQueue<ToLetter>(outputMessageQueueSize);
 		synchronized (monitor) {
 			int size = pool.size();
 			

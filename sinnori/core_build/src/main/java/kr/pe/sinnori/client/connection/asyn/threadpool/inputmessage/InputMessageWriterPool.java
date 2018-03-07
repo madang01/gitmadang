@@ -19,7 +19,7 @@ package kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
 import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler.InputMessageWriter;
@@ -55,7 +55,7 @@ public class InputMessageWriterPool extends AbstractThreadPool implements InputM
 
 	@Override
 	public void addHandler() throws IllegalStateException {
-		LinkedBlockingQueue<ToLetter> inputMessageQueue = new LinkedBlockingQueue<ToLetter>(inputMessageQueueSize);
+		ArrayBlockingQueue<ToLetter> inputMessageQueue = new ArrayBlockingQueue<ToLetter>(inputMessageQueueSize);
 
 		synchronized (monitor) {
 			int size = pool.size();

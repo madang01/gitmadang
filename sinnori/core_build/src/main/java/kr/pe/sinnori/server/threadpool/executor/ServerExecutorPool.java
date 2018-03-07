@@ -19,7 +19,7 @@ package kr.pe.sinnori.server.threadpool.executor;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
@@ -85,8 +85,8 @@ public class ServerExecutorPool extends AbstractThreadPool implements ServerExec
 
 	@Override
 	public void addHandler() throws IllegalStateException {
-		LinkedBlockingQueue<FromLetter> inputMessageQueue = new
-				LinkedBlockingQueue<FromLetter>(inputMessageQueueSize);
+		ArrayBlockingQueue<FromLetter> inputMessageQueue = new
+				ArrayBlockingQueue<FromLetter>(inputMessageQueueSize);
 		
 		synchronized (monitor) {
 			int size = pool.size();

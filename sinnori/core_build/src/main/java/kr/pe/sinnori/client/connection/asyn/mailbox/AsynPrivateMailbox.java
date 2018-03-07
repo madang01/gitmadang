@@ -17,7 +17,6 @@
 package kr.pe.sinnori.client.connection.asyn.mailbox;
 
 import java.net.SocketTimeoutException;
-import java.util.Date;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -35,18 +34,18 @@ public class AsynPrivateMailbox implements AsynPrivateMailboxIF {
 
 	private int mailboxID;
 	// FromLetter fromLetter
-	private SynchronousQueue<FromLetter> outputMessageQueue = 
-			new SynchronousQueue<FromLetter>();
+	private SynchronousQueue<FromLetter> outputMessageQueue = new SynchronousQueue<FromLetter>();
 	private long socketTimeOut;
 
 	private transient int mailID = Integer.MIN_VALUE;
 
 	public AsynPrivateMailbox(int mailboxID, long socketTimeOut) {
 		if (0 == mailboxID) {
-			String errorMessage = String.format("the parameter mailboxID[%d] is equal to zero that is a public mail box's id", mailboxID);
+			String errorMessage = String
+					.format("the parameter mailboxID[%d] is equal to zero that is a public mail box's id", mailboxID);
 			throw new IllegalArgumentException(errorMessage);
 		}
-		
+
 		if (mailboxID < 0) {
 			String errorMessage = String.format("the parameter mailboxID[%d] is less than zero", mailboxID);
 			throw new IllegalArgumentException(errorMessage);
@@ -56,7 +55,7 @@ public class AsynPrivateMailbox implements AsynPrivateMailboxIF {
 			String errorMessage = String.format("the parameter mailboxID[%d] is greater than unsinged short max[%d]",
 					mailboxID, CommonStaticFinalVars.UNSIGNED_SHORT_MAX);
 			throw new IllegalArgumentException(errorMessage);
-		}		
+		}
 
 		if (socketTimeOut < 0) {
 			String errorMessage = String.format("the parameter socketTimeOut[%d] is less than zero", socketTimeOut);
@@ -67,138 +66,99 @@ public class AsynPrivateMailbox implements AsynPrivateMailboxIF {
 		this.socketTimeOut = socketTimeOut;
 	}
 
-	
-	/*private int getMailboxID() {
-		return mailboxID;
-	}*/
+	/*
+	 * private int getMailboxID() { return mailboxID; }
+	 */
 
 	private void nextMailID() {
-		//synchronized (monitor) {
-			if (Integer.MAX_VALUE == mailID) {
-				mailID = Integer.MIN_VALUE;
-			} else {
-				mailID++;
-			}
-		//}
+		// synchronized (monitor) {
+		if (Integer.MAX_VALUE == mailID) {
+			mailID = Integer.MIN_VALUE;
+		} else {
+			mailID++;
+		}
+		// }
 	}
-	
-	public int getMailboxID () {
+
+	public int getMailboxID() {
 		return mailboxID;
 	}
-	
+
 	public int getMailID() {
 		return mailID;
 	}
-	
-	public void putToSyncOutputMessageQueue(FromLetter fromLetter)
-			throws InterruptedException {
+
+	public void putToSyncOutputMessageQueue(FromLetter fromLetter) throws InterruptedException {
 		if (null == fromLetter) {
 			throw new IllegalArgumentException("the parameter fromLetter is null");
 		}
-		//log.info("putToSyncOutputMessageQueue::{}", wrapReadableMiddleObject.toString());
-		//synchronized (monitor) {
+		// log.info("putToSyncOutputMessageQueue::{}",
+		// wrapReadableMiddleObject.toString());
+		// synchronized (monitor) {
 		WrapReadableMiddleObject wrapReadableMiddleObject = fromLetter.getWrapReadableMiddleObject();
-		
-			int fromMailboxID = wrapReadableMiddleObject.getMailboxID();
-			if (mailboxID != fromMailboxID) {
-				log.warn("the mailbox id of the received message[{}] is not same to this mail box id[%{}]", 
-						wrapReadableMiddleObject.toString(), mailboxID);
-				//System.exit(1);
-				return;
-			}
 
-			int fromMailID = wrapReadableMiddleObject.getMailID();
+		int fromMailboxID = wrapReadableMiddleObject.getMailboxID();
+		if (mailboxID != fromMailboxID) {
+			log.warn("drop the received message[{}] because it's mailbox id is different form this mailbox id[{}]",
+					fromLetter.toString(), mailboxID);
+			return;
+		}
 
-			if (mailID != fromMailID) {
-				log.warn("drop the received message[{}] because it's mail id is different form this mailbox's mail id[{}]", 
-						wrapReadableMiddleObject.toString(), mailID);
-				return;
-			}
-			
-			// boolean result = false;
+		int fromMailID = wrapReadableMiddleObject.getMailID();
 
-			// log.info("1.putToSyncOutputMessageQueue::outputMessageQueue.offer::isEmpty={}", outputMessageQueue.isEmpty());
-			if (! outputMessageQueue.isEmpty()) {
-				log.info("putToSyncOutputMessageQueue::큐가 꽉 차 있어 큐를 비움::outputMessageQueue.poll");
-				FromLetter odlFromLetter = outputMessageQueue.poll();
-				if (null == odlFromLetter) {
-					log.error("큐가 가득찬 상태라서 비우기 위해 큐에서 가져온 원소가 널임, 원인 파악하여 제거 필요함, 입력 메시지[{}]", fromLetter.toString());
-					System.exit(1);
-				}
-			}
-			
-			// log.info("putToSyncOutputMessageQueue::outputMessageQueue.offer");			
-			boolean result = outputMessageQueue.offer(fromLetter);
-			if (! result) {
-				log.warn("drop the received message[{}] because it was failed to insert the received message into outputmessage-queue[isEmpty={}]", wrapReadableMiddleObject.toString(), outputMessageQueue.isEmpty());
-			}
-		//}
+		if (mailID != fromMailID) {
+			log.warn("drop the received message[{}] because it's mail id is different form this mailbox's mail id[{}]",
+					fromLetter.toString(), mailID);
+			return;
+		}
+
+		// log.info("putToSyncOutputMessageQueue::outputMessageQueue.offer");
+		boolean result = outputMessageQueue.offer(fromLetter, 500L, TimeUnit.MICROSECONDS);
+		if (!result) {
+			log.warn(
+					"drop the received message[{}] because it was failed to insert the received message into outputmessage-queue[isEmpty={}]",
+					fromLetter.toString(), outputMessageQueue.isEmpty());
+		}
+		// }
 	}
 
 	public WrapReadableMiddleObject getSyncOutputMessage() throws SocketTimeoutException, InterruptedException {
-		//synchronized (monitor) {
-		try {
-			long startTime = new Date().getTime();
-			long elapsedTime =  0;
-			
-			//log.info("1.getSyncOutputMessage::outputMessageQueue.poll");
-			FromLetter fromLetter = outputMessageQueue.poll(socketTimeOut, TimeUnit.MILLISECONDS);
-			
-			 
-			if (null == fromLetter) {
-				String errorMessage = String.format("1.서버 응답 시간[%d]이 초과되었습니다. mailboxID=[%d], mailID=[%d]", socketTimeOut,
-						mailboxID, mailID);
-				// log.warn(errorMessage);
-				
-				/*// FIXME!
-				Thread.sleep(1000);*/
-				
-				throw new SocketTimeoutException(errorMessage);
-			}
-			
-			WrapReadableMiddleObject wrapReadableMiddleObject = fromLetter.getWrapReadableMiddleObject();
-			
-			while (wrapReadableMiddleObject.getMailID() != mailID) {
-				log.info("큐로 부터 얻어온 출력 메시지[{}]의 메시지 식별자가 이 메일 박스의 메일 식별자[{}]와 달라 폐기", 
-						wrapReadableMiddleObject.toString(), mailID);
-				
-				elapsedTime = startTime - new Date().getTime();
-				
-				if (elapsedTime > socketTimeOut) {
-					String errorMessage = String.format("2.서버 응답 시간[%d]이 초과되었습니다. mailboxID=[%d], mailID=[%d]", socketTimeOut,
-							mailboxID, mailID);
-					log.warn(errorMessage);
-					throw new SocketTimeoutException(errorMessage);
-				}
-				
-				//log.info("2.getSyncOutputMessage::outputMessageQueue.poll");
-				fromLetter = 
-						outputMessageQueue.poll(socketTimeOut - elapsedTime, TimeUnit.MILLISECONDS);
-				
-				if (null == fromLetter) {
-					String errorMessage = String.format("3.서버 응답 시간[%d]이 초과되었습니다. mailboxID=[%d], mailID=[%d]", socketTimeOut,
-							mailboxID, mailID);
-					log.warn(errorMessage);
-					throw new SocketTimeoutException(errorMessage);
-				}
-				
-				wrapReadableMiddleObject = fromLetter.getWrapReadableMiddleObject();
-			} 
+		// synchronized (monitor) {
 
-			
-			// log.info("getSyncOutputMessage::{}", wrapReadableMiddleObject.toString());
-			return wrapReadableMiddleObject;
+		WrapReadableMiddleObject wrapReadableMiddleObject = null;
+
+		boolean loop = false;
+		try {
+			do {				
+				FromLetter fromLetter = outputMessageQueue.poll(socketTimeOut, TimeUnit.MILLISECONDS);
+				if (null == fromLetter) {
+					String errorMessage = new StringBuilder("mailboxID=").append(mailboxID).append(", mailID=")
+							.append(mailID).toString();
+					throw new SocketTimeoutException(errorMessage);
+				}
+
+				wrapReadableMiddleObject = fromLetter.getWrapReadableMiddleObject();
+
+				loop = (wrapReadableMiddleObject.getMailID() != mailID);
+				if (loop) {
+					log.warn(
+							"drop the received message[{}] because it's mail id is different form this mailbox's mail id[{}]",
+							fromLetter.toString(), mailID);
+				}
+			} while (loop);
 		} finally {
 			nextMailID();
 		}
-		//}
-	}	
 
-	/*public int hashCode() {
-		return monitor.hashCode();
-	}*/
-	
-	
+		return wrapReadableMiddleObject;
+
+		// }
+	}
+
+	/*
+	 * public int hashCode() { return monitor.hashCode(); }
+	 */
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -211,5 +171,5 @@ public class AsynPrivateMailbox implements AsynPrivateMailboxIF {
 		builder.append("]");
 		return builder.toString();
 	}
-	
+
 }

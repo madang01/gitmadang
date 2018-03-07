@@ -45,15 +45,16 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 	protected Logger log = LoggerFactory.getLogger(FreeSizeInputStream.class);
 
 	private int dataPacketBufferMaxCount;
-	protected List<WrapBuffer> readableWrapBufferList = null;
-	private List<ByteBuffer> streamBufferList = null;
+	private List<WrapBuffer> readableWrapBufferList = null;
+	protected int readableWrapBufferListSize;
+	protected List<ByteBuffer> streamBufferList = null;
 	private Charset streamCharset;
-	protected CharsetDecoder streamCharsetDecoder = null;
-	protected ByteOrder streamByteOrder = null;
-	protected DataPacketBufferPoolIF dataPacketBufferPool = null;
+	private CharsetDecoder streamCharsetDecoder = null;
+	private ByteOrder streamByteOrder = null;
+	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 
 	private ByteBuffer workBuffer;
-	private int indexOfWorkBuffer;
+	protected int indexOfWorkBuffer;
 
 	private long numberOfBytesRemaining = -1;
 	private long inputStreamSize = 0;
@@ -102,17 +103,21 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		
 		
 		this.dataPacketBufferMaxCount = dataPacketBufferMaxCount;
-		this.readableWrapBufferList = readableWrapBufferList;
-		this.streamCharset = streamCharsetDecoder.charset();
+		this.readableWrapBufferList = readableWrapBufferList;		
 		this.streamCharsetDecoder = streamCharsetDecoder;
-		this.streamByteOrder = dataPacketBufferPool.getByteOrder();
 		this.dataPacketBufferPool = dataPacketBufferPool;
-		this.streamBufferList = new ArrayList<ByteBuffer>(readableWrapBufferList.size());
+		
+		readableWrapBufferListSize = readableWrapBufferList.size();
+		streamCharset = streamCharsetDecoder.charset();
+		streamByteOrder = dataPacketBufferPool.getByteOrder();
+		
+		streamBufferList = new ArrayList<ByteBuffer>(readableWrapBufferListSize);
 
 		for (WrapBuffer wrapBuffer : readableWrapBufferList) {
 			this.streamBufferList.add(wrapBuffer.getByteBuffer());
 		}		
 
+		
 		numberOfBytesRemaining = 0L;
 		for (ByteBuffer buffer : streamBufferList) {
 			numberOfBytesRemaining += buffer.remaining();

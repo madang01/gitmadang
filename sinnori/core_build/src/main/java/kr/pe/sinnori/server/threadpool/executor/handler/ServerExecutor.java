@@ -21,7 +21,7 @@ import java.nio.channels.SocketChannel;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,19 +54,17 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 	private int index;
 	private String projectName = null;
 	
-	private LinkedBlockingQueue<FromLetter> inputMessageQueue;
+	private ArrayBlockingQueue<FromLetter> inputMessageQueue;
 	private MessageProtocolIF messageProtocol = null;
 	
 	private SocketResourceManagerIF socketResourceManager = null;
-	private ServerObjectCacheManagerIF serverObjectCacheManager = null;
-	
-	
+	private ServerObjectCacheManagerIF serverObjectCacheManager = null;	
 	
 	private final Set<SocketChannel> socketChannelSet = Collections.synchronizedSet(new HashSet<SocketChannel>());
 
 	public ServerExecutor(int index,
 			String projectName,
-			LinkedBlockingQueue<FromLetter> inputMessageQueue,
+			ArrayBlockingQueue<FromLetter> inputMessageQueue,
 			MessageProtocolIF messageProtocol, 
 			SocketResourceManagerIF socketResourceManager,
 			ServerObjectCacheManagerIF serverObjectCacheManager) {
@@ -86,7 +84,7 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
 				FromLetter letterFromClient = inputMessageQueue.take();
-
+				
 				SocketChannel fromSC = letterFromClient.getFromSocketChannel();
 				
 				WrapReadableMiddleObject wrapReadableMiddleObject = letterFromClient.getWrapReadableMiddleObject();

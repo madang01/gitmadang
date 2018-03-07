@@ -474,7 +474,7 @@ public class SinnoriItemIDInfoManger {
 					ItemIDInfo.ViewType.TEXT,
 					itemID,
 					"데이터 송수신시 메시지 식별자 크기",
-					"50",
+					"20",
 					isDefaultValueCheck,
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
 							7, Integer.MAX_VALUE));

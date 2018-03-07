@@ -32,7 +32,6 @@ import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceIF;
 import kr.pe.sinnori.common.exception.ConnectionPoolException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 
-
 public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 	private Logger log = LoggerFactory.getLogger(AsynPrivateConnectionPool.class);
 	private final Object monitor = new Object();
@@ -42,40 +41,33 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 	private int port;
 	private long socketTimeOut;
 	private ClientMessageUtilityIF clientMessageUtility = null;
-	
-	
+
 	private transient int connectionPoolSize = 0;
-	private int connectionPoolMaxSize;	
-	
-	// private IEOClientThreadPoolSetManagerIF ieoClientThreadPoolSetManager = null;	
+	private int connectionPoolMaxSize;
+
+	// private IEOClientThreadPoolSetManagerIF ieoClientThreadPoolSetManager = null;
 	// private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;
 	private AsynSocketResourceFactoryIF asynSocketResourceFactory = null;
-	
 
 	private ArrayDeque<AsynPrivateConnection> connectionQueue = null;
 	private transient int numberOfConnection = 0;
 	private ConnectionPoolSupporterIF connectionPoolSupporter = null;
 
-	public AsynPrivateConnectionPool(String projectName, 
-			String host, int port, 
-			long socketTimeOut,
-			ClientMessageUtilityIF clientMessageUtility,			
-			int connectionPoolSize,			
-			int connectionPoolMaxSize,
+	public AsynPrivateConnectionPool(String projectName, String host, int port, long socketTimeOut,
+			ClientMessageUtilityIF clientMessageUtility, int connectionPoolSize, int connectionPoolMaxSize,
 			AsynSocketResourceFactoryIF asynSocketResourceFactory)
 			throws NoMoreDataPacketBufferException, InterruptedException, IOException, ConnectionPoolException {
 		this.projectName = projectName;
 		this.host = host;
 		this.port = port;
-		this.socketTimeOut = socketTimeOut;		
-		this.clientMessageUtility = clientMessageUtility;		
+		this.socketTimeOut = socketTimeOut;
+		this.clientMessageUtility = clientMessageUtility;
 		this.connectionPoolSize = connectionPoolSize;
 		this.connectionPoolMaxSize = connectionPoolMaxSize;
 		this.asynSocketResourceFactory = asynSocketResourceFactory;
-		
 
 		this.connectionQueue = new ArrayDeque<AsynPrivateConnection>(connectionPoolMaxSize);
-
+		
 		/**
 		 * 비동기 비 공유 연결 클래스는 입력 메시지 큐 1개와 출력 메시지큐 1개를 할당 받는다. 입력 메시지 큐는 모든 연결 클래스간에 공유하며,
 		 * 출력 메시지 큐는 연결 클래스 각각 존재한다.
@@ -109,9 +101,8 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 		AsynSocketResourceIF asynSocketResource = asynSocketResourceFactory.makeNewAsynSocketResource();
 
 		AsynPrivateConnection serverConnection = new AsynPrivateConnection(projectName, host, port, socketTimeOut,
-				clientMessageUtility,
-				asynSocketResource);
-		
+				clientMessageUtility, asynSocketResource);
+
 		synchronized (monitor) {
 			connectionQueue.addLast(serverConnection);
 			numberOfConnection++;
@@ -124,18 +115,18 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 	}
 
 	public void addAllLostConnections() throws InterruptedException {
-		
-			while (whetherConnectionIsMissing()) {
-				try {
-					addConnection();
-					log.info("결손된 비동기 비공유 연결 추가 작업 완료");
-				} catch (InterruptedException e) {
-					throw e;
-				} catch (Exception e) {
-					log.warn("에러 발생에 따른 결손된 비동기 비공유 연결 추가 작업 잠시 중지 ", e);
-					break;
-				}
+
+		while (whetherConnectionIsMissing()) {
+			try {
+				addConnection();
+				log.info("결손된 비동기 비공유 연결 추가 작업 완료");
+			} catch (InterruptedException e) {
+				throw e;
+			} catch (Exception e) {
+				log.warn("에러 발생에 따른 결손된 비동기 비공유 연결 추가 작업 잠시 중지 ", e);
+				break;
 			}
+		}
 		// }
 	}
 
@@ -147,6 +138,8 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 
 		synchronized (monitor) {
 			do {
+				// log.info("111111111");
+
 				if (0 == numberOfConnection) {
 					throw new ConnectionPoolException("check server alive");
 				}
@@ -182,12 +175,14 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 				}
 
 			} while (loop);
-
-			return asynPrivateConnection;
 		}
+
+		return asynPrivateConnection;
+
 	}
 
 	public void release(AbstractConnection conn) throws ConnectionPoolException {
+
 		if (null == conn) {
 			String errorMessage = "the parameter conn is null";
 			log.warn(errorMessage, new Throwable());
@@ -215,7 +210,7 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 
 			asynPrivateConnection.queueIn();
 
-			if (!asynPrivateConnection.isConnected()) {
+			if (! asynPrivateConnection.isConnected()) {
 				/**
 				 * Warning! 큐에 반환 되지 않고 가비지 대상이 될 경우 그 원인을 추적해야 하므로 반듯이 큐 안이라는 상태에서 연결을 폐기해야 한다
 				 */
@@ -234,6 +229,7 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 			connectionQueue.addLast(asynPrivateConnection);
 			monitor.notify();
 		}
+
 	}
 
 	@Override

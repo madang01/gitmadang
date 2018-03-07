@@ -23,8 +23,7 @@ public class AsynPrivateMailboxTest extends AbstractJunitTest {
 	@Test
 	public void testputToSyncOutputMessageQueue_2번연속호출하여큐를비우는로직테스트() {
 		int asynPrivateMailboxQueueSize = 1;		
-		int totalNumberOfAsynMailbox = asynPrivateMailboxQueueSize + 1;
-		
+		int totalNumberOfAsynMailbox = asynPrivateMailboxQueueSize + 1;	
 		
 	
 		int socketTimeOut = 500;
