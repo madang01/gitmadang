@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.pr.sinnori.testweb">
+	<!--  아이디와 일치하는 회원 검색  -->
+    <select id="getMemberByID" parameterType="String" resultType="hashmap">
+select 
+user_id as userId, 
+nickname,
+pwd_base64 as pwdBase64,
+pwd_salt_base64 as pwdSaltBase64,
+member_gb as memberGubun,
+member_st as memberState,
+pwd_hint as pwdHint,
+pwd_answer as pwdAnswer,
+pwd_fail_cnt as pwdFailCount,
+reg_dt as registerDate,
+mod_dt as modifiedDate
+from TW_MEMBER_TB where user_id=#{userId}
+    </select>
+    
+    <!-- 별명과 일치하는 회원 검색,  -->
+    <select id="getMemeberByNickname" parameterType="String" resultType="hashmap">
+select 
+user_id as userId, 
+nickname,
+pwd_base64 as pwdBase64,
+pwd_salt_base64 as pwdSaltBase64,
+member_gb as memberGubun,
+member_st as memberState,
+pwd_hint as pwdHint,
+pwd_answer as pwdAnswer,
+pwd_fail_cnt as pwdFailCount,
+reg_dt as registerDate,
+mod_dt as modifiedDate
+from TW_MEMBER_TB where nickname=#{nickname}
+    </select>
+    
+	<!--  일반 회원 가입, status 0:정상, 1:탈퇴, member_gb 0:관리자, 1:일반회원, 2:불량회원 -->
+	<insert id="insertMember" parameterType="hashmap">
+        insert into TW_MEMBER_TB  
+(`user_id`,
+`nickname`,
+`pwd_base64`,
+`pwd_salt_base64`,
+`member_gb`,
+`member_st`,
+`pwd_hint`,
+`pwd_answer`,
+`pwd_fail_cnt`,
+`reg_dt`,
+`mod_dt`) 
+values(#{userId}, #{nickname}, #{pwdBase64}, #{pwdSaltBase64}, 1, 0, #{pwdHint}, #{pwdAnswer}, 0, sysdate(), reg_dt)
+    </insert>
+
+	<!--  일반 회원 혹은 불량 회원만 삭제, 관리자 제외. member_gb 0:관리자, 1:일반회원, 2:불량회원 -->
+    <!--  >delete id="deleteMember" parameterType="java.lang.String">
+        delete from member where userid=#{userId} and (member_gb=1 or member_gb=2)
+    </delete -->
+
+	   
+    <!--  아이디와 일치하는 레코드에 읽기/쓰기 락을 거는 회원 검색, 로그인시 비밀번호 틀린 횟수를 1 증가시킬때 트랜잰션 처리를 위해 읽기/쓰기 락이 필요하다.  -->
+    <select id="getMemberByIDInLock" parameterType="String" resultType="hashmap">
+select 
+user_id as userId, 
+nickname,
+pwd_base64 as pwdBase64,
+pwd_salt_base64 as pwdSaltBase64,
+member_gb as memberGubun,
+member_st as memberState,
+pwd_hint as pwdHint,
+pwd_answer as pwdAnswer,
+pwd_fail_cnt as pwdFailCount,
+reg_dt as registerDate,
+mod_dt as modifiedDate
+from TW_MEMBER_TB where user_id=#{userId} for update
+    </select>
+    
+    <!--  정상 상태인 일반 회원 로그인시 비밀번호 실패 카운터 설정, status 0:정상, 1:탈퇴, member_gb 0:관리자, 1:일반회원, 2:불량회원  -->
+    <update id="updatePwdFailCnt" parameterType="hashmap">
+        update TW_MEMBER_TB set pwd_fail_cnt=#{pwdFailCount}, mod_dt=sysdate() where user_id=#{userId} and member_gb=1 and member_st=0
+    </update>
+    
+    <!--  정상 상태인 일반 혹은 관리자 회원 정보(비밀번호, 질문, 답변) 변경, status 0:정상, 1:탈퇴, member_gb 0:관리자, 1:일반회원, 2:불량회원  -->
+    <update id="updateMemberInfo" parameterType="hashmap">
+        update TW_MEMBER_TB set password=#{password}, pwd_question=#{pwdHint}, pwd_answer=#{pwdAnswer}, mod_dt=sysdate() where user_id=#{userId} and (member_gb=0 or member_gb=1) and member_st=0
+    </update>
+       
+    
+    <!--    
+    지정한 게시판에서 정상 상태인 회원들의 글 목록 가져오기
+    게시판 종류 식별자(board.board_id) 1:공지 2:자유게시판
+    회원상태(member.status) 0:정상, 1:블락, 2:탈퇴
+    -->
+    <select id="getTotalOfBoard" parameterType="long" resultType="int">
+		select count(*) from board, member where board.board_id = #{boardId} 
+			and board.userid = member.userid and member.status = 0 
+    </select>
+    
+    <!-- mariadb sql 페이징 최적화, FIXME! resultSetType="SCROLL_SENSITIVE" 와 비교 필요함
+    		resultSetType="SCROLL_SENSITIVE" 도입시		
+			로직에서는 RowBounds rowBounds = new RowBounds(offset, limt) 생성후
+			selectList("getBoardList", "hashmap", rowBounds) 로 호출 -->
+    <select id="getBoardList" parameterType="long" resultType="hashmap" resultSetType="SCROLL_SENSITIVE">
+select 
+board_no as boardNo,
+group_no as groupNo,
+parent_no as parentNo,
+group_sq as groupSeq,
+depth,
+board_id as boardId,
+title,
+contents,
+reg_id as regId,
+view_cnt as viewCount,
+votes,
+del_fl as deleteFlag,
+reg_dt as registerDate,
+mod_dt as modifiedDate,
+member_gb as memberGubun
+from join (select board.*, member.member_gb from board, member where board.board_id = #{boardId} 
+and board.userid = member.userid and member.status = 0 
+order by group_no desc, group_seq asc 
+limit #{startNo}, #{pageCount} ) as t using(board_no)	
+    </select>
+    
+    <!--  본문글 검색 -->
+    <select id="getBoardDetail" parameterType="long" resultType="hashmap">
+		select board.*, member.member_gb, member.status from board, member where board.board_no = #{boardNo} 
+			and board.userid = member.userid 
+    </select>
+    
+    <!--  부모글 없는 최상위 글 등록 -->
+    <insert id="insertRootBoard" parameterType="hashmap">    
+ INSERT INTO `sinnoridb`.`board`
+(`board_no`,
+`group_no`,
+`parent_no`,
+`group_sq`,
+`depth`,
+`board_id`,
+`title`,
+`contents`,
+`reg_id`,
+`view_cnt`,
+`votes`,
+`del_fl`,
+`reg_dt`,
+`mod_dt`)
+VALUES
+(0,
+board_no,
+0,
+1,
+0,
+#{boardId},
+#{title},
+#{contents},
+#{userId},
+0,
+0,
+'N',
+curdate(),
+reg_dt)
+	</insert>
+	
+	<!--  댓글 등록시 삽입하고자 하는 위치 이후 seq 모두 업데이트 락  -->
+    <select id="getBoardListByGroupAndSeqInLock" parameterType="hashmap" resultType="hashmap">
+select
+board_no as boardNo,
+group_no as groupNo,
+parent_no as parentNo,
+group_sq as groupSeq,
+depth,
+board_id as boardId,
+title,
+contents,
+reg_id as regId,
+view_cnt as viewCount,
+votes,
+del_fl as deleteFlag,
+reg_dt as registerDate,
+mod_dt as modifiedDate
+from board where group_no=#{groupNo} and group_sq >= #{groupSeq} for update
+    </select>
+    
+    <!--  댓글 등록시 삽입하고자 하는 위치 이후 seq 모두 업데이트 -->
+	<update id="updateReplyBoard" parameterType="hashmap">
+        update board set group_seq=group_seq+1 where group_no=#{groupNo} and group_sq >= #{groupSeq}
+    </update>
+    
+	<!--  댓글 등록 -->
+    <insert id="insertReplyBoard" parameterType="hashmap">    
+ INSERT INTO `sinnoridb`.`board`
+(`board_no`,
+`group_no`,
+`parent_no`,
+`group_sq`,
+`depth`,
+`board_id`,
+`title`,
+`contents`,
+`reg_id`,
+`view_cnt`,
+`votes`,
+`del_fl`,
+`reg_dt`,
+`mod_dt`)
+VALUES
+(0,
+#{groupNo},
+#{parentNo},
+#{groupSeq},
+#{depth},
+#{boardId},
+#{title},
+#{contents},
+#{userId},
+0,
+0,
+'N',
+curdate(),
+reg_dt)
+	</insert>
+    
+    
+</mapper>

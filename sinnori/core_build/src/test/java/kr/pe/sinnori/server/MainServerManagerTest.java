@@ -143,6 +143,7 @@ public class MainServerManagerTest extends AbstractJunitTest {
 
 		try {
 			projectPartConfigurationForTest = getMainProjectPartConfiguration(testProjectName,
+					"172.30.1.16",  9090,
 					messageProtocolTypeForTest, connectionTypeForTest);
 
 		} catch (Exception e) {
@@ -194,14 +195,15 @@ public class MainServerManagerTest extends AbstractJunitTest {
 	}
 
 	private ProjectPartConfiguration getMainProjectPartConfiguration(String projectName,
+			String host, int port,
 			MessageProtocolType messageProtocolTypeForTest, ConnectionType connectionTypeForTest)
 			throws SinnoriConfigurationException {
 		ProjectPartConfiguration projectPartConfigurationForTest = new ProjectPartConfiguration(ProjectType.MAIN,
 				projectName);
 		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_HOST_ITEMID).toString(), "localhost");
+				.append(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_HOST_ITEMID).toString(), host);
 		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_PORT_ITEMID).toString(), 9090);
+				.append(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_PORT_ITEMID).toString(), port);
 		projectPartConfigurationForTest
 				.mapping(
 						new StringBuilder("mainproject.")
