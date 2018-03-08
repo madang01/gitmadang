@@ -17,7 +17,8 @@
 package kr.pe.sinnori.client.connection.asyn.mailbox;
 
 import java.net.SocketTimeoutException;
-import java.util.concurrent.SynchronousQueue;
+import java.util.NoSuchElementException;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -34,7 +35,7 @@ public class AsynPrivateMailbox implements AsynPrivateMailboxIF {
 
 	private int mailboxID;
 	// FromLetter fromLetter
-	private SynchronousQueue<FromLetter> outputMessageQueue = new SynchronousQueue<FromLetter>();
+	private ArrayBlockingQueue<FromLetter> outputMessageQueue = new ArrayBlockingQueue<FromLetter>(1);
 	private long socketTimeOut;
 
 	private transient int mailID = Integer.MIN_VALUE;
@@ -111,14 +112,25 @@ public class AsynPrivateMailbox implements AsynPrivateMailboxIF {
 					fromLetter.toString(), mailID);
 			return;
 		}
+		
+		if (! outputMessageQueue.isEmpty()) {
+			try {
+				FromLetter oldFromLetter = outputMessageQueue.remove();
+				log.warn("clear the old received message[{}] from the ouputmessage queue of this mailbox[mailID={}] becase new message recevied", 
+						oldFromLetter.toString(),
+						mailID);
+			} catch(NoSuchElementException e) {
+			}
+		}
 
 		// log.info("putToSyncOutputMessageQueue::outputMessageQueue.offer");
-		boolean result = outputMessageQueue.offer(fromLetter, 500L, TimeUnit.MICROSECONDS);
-		if (!result) {
+		@SuppressWarnings("unused")
+		boolean result = outputMessageQueue.offer(fromLetter);
+		/*if (!result) {
 			log.warn(
-					"drop the received message[{}] because it was failed to insert the received message into outputmessage-queue[isEmpty={}]",
-					fromLetter.toString(), outputMessageQueue.isEmpty());
-		}
+					"drop the received message[{}] because it was failed to insert the received message into the output message queue of this mailbox",
+					fromLetter.toString());
+		}*/
 		// }
 	}
 

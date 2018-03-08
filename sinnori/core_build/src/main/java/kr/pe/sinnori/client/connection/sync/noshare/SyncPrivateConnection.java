@@ -18,11 +18,17 @@ package kr.pe.sinnori.client.connection.sync.noshare;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
@@ -33,7 +39,6 @@ import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
-import kr.pe.sinnori.common.io.FreeSizeInputStream;
 import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
@@ -55,6 +60,7 @@ public class SyncPrivateConnection extends AbstractConnection {
 	
 	
 	
+	
 	public SyncPrivateConnection(String projectName,  
 			String host, int port,
 			long socketTimeOut,
@@ -66,7 +72,7 @@ public class SyncPrivateConnection extends AbstractConnection {
 		
 		doConnect();
 		
-		log.info(String.format("project[%s] NoShareSyncConnection[%d] 생성자 end", projectName, serverSC.hashCode()));
+		//log.info(String.format("project[%s] NoShareSyncConnection[%d] 생성자 end", projectName, serverSC.hashCode()));
 	}
 	
 	
@@ -82,7 +88,7 @@ public class SyncPrivateConnection extends AbstractConnection {
 	 */
 	protected void queueIn() {
 		isQueueIn = true;
-		log.info("put NoShareSyncConnection[{}] in the connection queue", monitor.hashCode());
+		// log.info("put NoShareSyncConnection[{}] in the connection queue", monitor.hashCode());
 	}
 
 	/**
@@ -90,34 +96,65 @@ public class SyncPrivateConnection extends AbstractConnection {
 	 */
 	protected void queueOut() {
 		isQueueIn = false;
-		log.info("get NoShareSyncConnection[{}] from the connection queue", monitor.hashCode());
+		// log.info("get NoShareSyncConnection[{}] from the connection queue", monitor.hashCode());
 	}
 	
 
 	@Override
 	protected void openSocketChannel() throws IOException {
 		serverSC = SocketChannel.open();
-		serverSelectableChannel = serverSC.configureBlocking(true);
+		serverSelectableChannel = serverSC.configureBlocking(false);
 		serverSC.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
 		serverSC.setOption(StandardSocketOptions.TCP_NODELAY, true);
 		serverSC.setOption(StandardSocketOptions.SO_LINGER, 0);		
 
-		StringBuilder infoBuilder = null;
+		/*StringBuilder infoBuilder = null;
 		infoBuilder = new StringBuilder("projectName[");
 		infoBuilder.append(projectName);
-		infoBuilder.append("] asyn+share connection[");
+		infoBuilder.append("] sync private connection[");
 		infoBuilder.append(serverSC.hashCode());
 		infoBuilder.append("]");
-		log.info(infoBuilder.toString());
+		log.info(infoBuilder.toString());*/
+		
+		log.info("projectName[{}] sync private connection[{}] created", projectName, serverSC.hashCode());
+		
 	}
 
 	@Override
 	protected void doConnect() throws IOException {
-		InetSocketAddress remoteAddr = new InetSocketAddress(host, port);
-		if (! serverSC.connect(remoteAddr)) {
-			String errorMessage = String.format("fail to connect the remote address[host:{}, post:{}]", host, port);
-			throw new IOException(errorMessage);
+		Selector connectionEventOnlySelector = Selector.open();
+
+		try {
+			serverSC.register(connectionEventOnlySelector, SelectionKey.OP_CONNECT);
+
+			InetSocketAddress remoteAddr = new InetSocketAddress(host, port);
+			if (! serverSC.connect(remoteAddr)) {
+				@SuppressWarnings("unused")
+				int numberOfKeys = connectionEventOnlySelector.select(socketTimeOut);
+
+				// log.info("numberOfKeys={}", numberOfKeys);
+
+				Iterator<SelectionKey> selectionKeyIterator = connectionEventOnlySelector.selectedKeys().iterator();
+				if (!selectionKeyIterator.hasNext()) {
+
+					String errorMessage = String.format("1.the socket[sc hascode=%d] timeout", serverSC.hashCode());
+					throw new SocketTimeoutException(errorMessage);
+				}
+
+				SelectionKey selectionKey = selectionKeyIterator.next();
+				selectionKey.cancel();
+
+				if (!serverSC.finishConnect()) {
+					String errorMessage = String.format("the socket[sc hascode=%d] has an error pending",
+							serverSC.hashCode());
+					throw new SocketTimeoutException(errorMessage);
+				}
+			}
+		} finally {
+			connectionEventOnlySelector.close();
 		}
+
+		log.info("projectName[{}] sync private connection[{}] connected", projectName, serverSC.hashCode());
 	}
 	
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inObj)
@@ -125,7 +162,7 @@ public class SyncPrivateConnection extends AbstractConnection {
 			DynamicClassCallException, ServerTaskException, AccessDeniedException, BodyFormatException, IOException {
 		long startTime = 0;
 		long endTime = 0;
-		startTime = new java.util.Date().getTime();
+		startTime = System.nanoTime();
 		
 		// String messageID = inObj.getMessageID();
 		// LetterFromServer letterFromServer = null;
@@ -135,113 +172,67 @@ public class SyncPrivateConnection extends AbstractConnection {
 		inObj.messageHeaderInfo.mailboxID = MAILBOX_ID;
 		inObj.messageHeaderInfo.mailID = this.mailID;
 		
-		List<WrapBuffer> warpBufferList = null;
+		
 		AbstractMessage outObj = null;
 		
-		try {
-			warpBufferList = clientMessageUtility.buildReadableWrapBufferList(classLoader, inObj);
-			
-			// int inObjWrapBufferListSize = inObjWrapBufferList.size();
-			
-			/**
-			 * 2013.07.24 잔존 데이타 발생하므로 GatheringByteChannel 를 이용하는 바이트 버퍼 배열 쓰기 방식 포기.
-			 */
-			int numberOfBytesWritten = 0;
-			for (WrapBuffer wrapBuffer : warpBufferList) {
-				ByteBuffer byteBufferOfInputMessage = wrapBuffer.getByteBuffer();
-				while (byteBufferOfInputMessage.hasRemaining()) {
-					 
-					numberOfBytesWritten = serverSC.write(byteBufferOfInputMessage);
-					if (0 == numberOfBytesWritten) {
-						
-						Thread.sleep(10);
-						
-					}
-				}
-			}
-		} catch(InterruptedException e) {
-			throw e;
-		} catch (Exception e) {
-			log.warn("Exception", e);
-			
-			throw new IOException("fail to write input message to socket channel");
-		/*} catch (DynamicClassCallException e) {
-			String errorMessage = String.format(
-					"DynamicClassCallException::inObj=[%s]",
-					inObj.toString());
-			log.warn(errorMessage, e);
-			
-			SelfExnRes selfExnRes = new SelfExnRes();
-
-			selfExnRes.messageHeaderInfo = inObj.messageHeaderInfo;
-			
-			selfExnRes.setErrorPlace(SelfExn.ErrorPlace.CLIENT);
-			selfExnRes.setErrorType(SelfExn.ErrorType.DynamicClassCallException);
-			selfExnRes.setErrorMessageID(inObj.getMessageID());
-			selfExnRes.setErrorReason(e.getMessage());
-			
-			//letterFromServer = new LetterFromServer(selfExn);
-			return selfExnRes;*/
-		} finally {
-			clientMessageUtility.releaseWrapBufferList(warpBufferList);
-		}
+		Selector ioEventOnlySelector = Selector.open();
 		
-		SocketOutputStream socketOutputStream = syncPrivateSocketResoruce.getSocketOutputStream();
-	
 		try {
-			ArrayList<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
-			int wrapReadableMiddleObjectListSize = 0;
+			serverSC.register(ioEventOnlySelector, SelectionKey.OP_WRITE);
 			
-			boolean loop = true;
-			while (loop) {
-				int numRead = socketOutputStream.read(serverSC);
-				
-				if (numRead == 0) {
-					Thread.sleep(10);
-					continue;
-				}
-				
-				setFinalReadTime();
-				wrapReadableMiddleObjectList = clientMessageUtility.getWrapReadableMiddleObjectList(socketOutputStream);
-				wrapReadableMiddleObjectListSize = wrapReadableMiddleObjectList.size();
-				if (wrapReadableMiddleObjectListSize > 0) {
-					loop = false;
-				}
-								
-			}
-			
-			List<AbstractMessage> messageList = new ArrayList<AbstractMessage>();			
+			List<WrapBuffer> warpBufferList = null;
 			try {
-				for (WrapReadableMiddleObject wrapReadableMiddleObject : wrapReadableMiddleObjectList) {
-					messageList.add(clientMessageUtility.buildOutputMessage(classLoader, wrapReadableMiddleObject));
-				}
-			} finally {
-				for (WrapReadableMiddleObject wrapReadableMiddleObject : wrapReadableMiddleObjectList) {
-					Object readableMiddleObject = wrapReadableMiddleObject.getReadableMiddleObject();
-					if (readableMiddleObject instanceof FreeSizeInputStream) {
-						FreeSizeInputStream  fsis = (FreeSizeInputStream)readableMiddleObject;
-						fsis.close();
-					}
-				}
-			}
-			
-			if (wrapReadableMiddleObjectListSize > 1) {				
-				log.info(messageList.toString());
+				warpBufferList = clientMessageUtility.buildReadableWrapBufferList(classLoader, inObj);
 				
-				String errorMessage = "비공유 + 동기 연결 클래스는 오직 1개 입력 메시지에 1개 출력 메시지만 처리할 수 있습니다. 2개 이상 출력 메시지 검출 되었습니다.";
+				int indexOfWorkingBuffer = 0;
+				int warpBufferListSize = warpBufferList.size();
+				
+				
+				// WrapBuffer workingWrapBuffer = null;
+				// ByteBuffer workingByteBuffer = null;
+				WrapBuffer workingWrapBuffer = warpBufferList.get(indexOfWorkingBuffer);
+				ByteBuffer workingByteBuffer = workingWrapBuffer.getByteBuffer();
+				
+				boolean loop = true;
+				do {
+					int numberOfKeys =  ioEventOnlySelector.select(socketTimeOut);
+					if (0 == numberOfKeys) {
+						String errorMessage = new StringBuilder("this sync private connection[")
+								.append(serverSC.hashCode())
+								.append("] timeout").toString();
+						throw new SocketTimeoutException(errorMessage);
+					}
+					
+					ioEventOnlySelector.selectedKeys().clear();
+					
+					serverSC.write(workingByteBuffer);
+					
+					if (! workingByteBuffer.hasRemaining()) {
+						if ((indexOfWorkingBuffer+1) == warpBufferListSize) {
+							loop = false;
+							break;
+						}
+						indexOfWorkingBuffer++;
+						workingWrapBuffer = warpBufferList.get(indexOfWorkingBuffer);
+						workingByteBuffer = workingWrapBuffer.getByteBuffer();
+					}
+				} while (loop);
+				
+			} catch (Exception e) {
+				String errorMessage = new StringBuilder("fail to write a input message in this sync private connection[")
+						.append(serverSC.hashCode())
+						.append("], errmsg=")
+						.append(e.getMessage()).toString();
+				log.warn(errorMessage, e);
+				log.warn("this input message[sc={}][{}] has dropped becase of write failure", 
+						serverSC.hashCode(), inObj.toString());
+				
 				throw new IOException(errorMessage);
+			} finally {
+				if (null != warpBufferList) {
+					clientMessageUtility.releaseWrapBufferList(warpBufferList);
+				}
 			}
-			
-			outObj = messageList.get(0);
-			
-			if (outObj instanceof SelfExnRes) {
-				SelfExnRes selfExnRes = (SelfExnRes) outObj;
-				log.warn(selfExnRes.toString());
-				SelfExn.ErrorType.throwSelfExnException(selfExnRes);
-			}
-		
-		
-		} finally {
 			
 			if (Integer.MAX_VALUE == mailID) {
 				mailID = Integer.MIN_VALUE;
@@ -249,10 +240,78 @@ public class SyncPrivateConnection extends AbstractConnection {
 				mailID++;
 			}
 			
+			SocketOutputStream socketOutputStream = syncPrivateSocketResoruce.getSocketOutputStream();
+			serverSC.keyFor(ioEventOnlySelector).interestOps(SelectionKey.OP_READ);			
 			
-			endTime = new java.util.Date().getTime();
-			log.info(String.format("시간차=[%d]", (endTime - startTime)));
+			boolean loop = true;
+			do {
+				int numberOfKeys =  ioEventOnlySelector.select(socketTimeOut);
+				if (0 == numberOfKeys) {
+					String errorMessage = new StringBuilder("this sync private connection[")
+							.append(serverSC.hashCode())
+							.append("] timeout").toString();
+					throw new SocketTimeoutException(errorMessage);
+				}
+				
+				ioEventOnlySelector.selectedKeys().clear();
+				
+				try {
+					int numRead = socketOutputStream.read(serverSC);
+					
+					if (numRead == -1) {
+						String errorMessage = new StringBuilder("this socket channel[")
+								.append(serverSC.hashCode())
+								.append("] has reached end-of-stream").toString();
+						throw new IOException(errorMessage);
+					}
+					
+					setFinalReadTime();					
+					
+					ArrayList<WrapReadableMiddleObject> wrapReadableMiddleObjectList = clientMessageUtility
+							.getWrapReadableMiddleObjectList(socketOutputStream);
+					
+					
+					if (wrapReadableMiddleObjectList.size() ==  1) {
+						WrapReadableMiddleObject wrapReadableMiddleObject = wrapReadableMiddleObjectList.get(0);
+						outObj = clientMessageUtility.buildOutputMessage(classLoader, wrapReadableMiddleObject);
+						loop = false;
+						break;
+					} else if (wrapReadableMiddleObjectList.size() > 1) {
+						String errorMessage = new StringBuilder("this sync private connection[")
+								.append(serverSC.hashCode())
+								.append("] has a one more message").toString();
+						throw new SocketException(errorMessage);
+					}
+
+				} catch (Exception e) {
+					String errorMessage = new StringBuilder("fail to read a output message")							
+							.append(" in this sync private connection[")
+							.append(serverSC.hashCode())
+							.append("], errmsg=")
+							.append(e.getMessage()).toString();
+					log.warn(errorMessage, e);
+					log.warn("this input message[sc={}][{}] has dropped becase of read failure", 
+							serverSC.hashCode(), inObj.toString());
+					
+					throw new IOException(errorMessage);
+				}
+			} while (loop);		
+			
+		} finally {
+			try {
+				ioEventOnlySelector.close();
+			} catch(IOException e) {
+			}
 		}		
+		
+		if (outObj instanceof SelfExnRes) {
+			SelfExnRes selfExnRes = (SelfExnRes) outObj;
+			log.warn(selfExnRes.toString());
+			SelfExn.ErrorType.throwSelfExnException(selfExnRes);
+		}		
+		
+		endTime = System.nanoTime();
+		log.debug("시간차[{}]", TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
 
 		return outObj;
 	}	

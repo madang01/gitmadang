@@ -161,15 +161,15 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 					while (selectionKeyIterator.hasNext()) {
 						SelectionKey selectedKey = selectionKeyIterator.next();
 						selectionKeyIterator.remove();
-						SocketChannel readableSocketChannel = (SocketChannel) selectedKey.channel();
+						SocketChannel selectedSocketChannel = (SocketChannel) selectedKey.channel();
 						// ByteBuffer lastInputStreamBuffer = null;
 						SocketResource fromSocketResource = socketResourceManager
-								.getSocketResource(readableSocketChannel);
+								.getSocketResource(selectedSocketChannel);
 
 						if (null == fromSocketResource) {
 							log.warn(String.format(
 									"%s InputMessageReader[%d] socket channel[%d] is no match for ClientResource",
-									projectName, index, readableSocketChannel.hashCode()));
+									projectName, index, selectedSocketChannel.hashCode()));
 							continue;
 						}
 
@@ -189,12 +189,11 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 							 * while(true);
 							 */
 
-							numRead = fromSocketOutputStream.read(readableSocketChannel);
+							numRead = fromSocketOutputStream.read(selectedSocketChannel);
 
-							if (numRead == -1) {
-								log.warn(
-										String.format("%s InputMessageReader[%d] socket channel read -1, remove client",
-												projectName, index));
+							if (numRead == -1) {								
+								log.warn("{} InputMessageReader[{}] this socket channel[{}] has reached end-of-stream",
+												projectName, index, selectedSocketChannel.hashCode());
 								closeClient(selectedKey, fromSocketResource);
 								continue;
 							}
@@ -206,7 +205,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 
 							for (WrapReadableMiddleObject wrapReadableMiddleObject : wrapReadableMiddleObjectList) {
 								fromExecutor
-										.putIntoQueue(new FromLetter(readableSocketChannel, wrapReadableMiddleObject));
+										.putIntoQueue(new FromLetter(selectedSocketChannel, wrapReadableMiddleObject));
 							}
 
 						} catch (NoMoreDataPacketBufferException e) {

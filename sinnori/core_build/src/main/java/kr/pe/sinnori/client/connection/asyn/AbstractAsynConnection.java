@@ -73,7 +73,7 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 		serverSC.setOption(StandardSocketOptions.TCP_NODELAY, true);
 		serverSC.setOption(StandardSocketOptions.SO_LINGER, 0);
 
-		StringBuilder infoBuilder = null;
+		/*StringBuilder infoBuilder = null;
 
 		infoBuilder = new StringBuilder("projectName[");
 		infoBuilder.append(projectName);
@@ -81,7 +81,9 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 		infoBuilder.append(serverSC.hashCode());
 		infoBuilder.append("]");
 
-		log.info(infoBuilder.toString());
+		log.info(infoBuilder.toString());*/
+		
+		log.info("projectName[{}] asyn connection[{}] created", projectName, serverSC.hashCode());
 	}
 
 	protected void doConnect() throws IOException {
@@ -91,7 +93,7 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 			serverSC.register(connectionEventOnlySelector, SelectionKey.OP_CONNECT);
 
 			InetSocketAddress remoteAddr = new InetSocketAddress(host, port);
-			if (!serverSC.connect(remoteAddr)) {
+			if (! serverSC.connect(remoteAddr)) {
 				@SuppressWarnings("unused")
 				int numberOfKeys = connectionEventOnlySelector.select(socketTimeOut);
 
@@ -119,14 +121,15 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 
 		asynSocketResource.getOutputMessageReader().registerAsynConnection(this);
 
-		StringBuilder infoBuilder = null;
+		/*StringBuilder infoBuilder = null;
 
 		infoBuilder = new StringBuilder("projectName[");
 		infoBuilder.append(projectName);
 		infoBuilder.append("] asyn connection[");
 		infoBuilder.append(serverSC.hashCode());
 		infoBuilder.append("]");
-		log.info(new StringBuilder(infoBuilder.toString()).append(" connected").toString());
+		log.info(new StringBuilder(infoBuilder.toString()).append(" connected").toString());*/
+		log.info("projectName[{}] asyn connection[{}] connected", projectName, serverSC.hashCode());
 	}
 
 	abstract public void putToOutputMessageQueue(FromLetter fromLetter) throws InterruptedException;

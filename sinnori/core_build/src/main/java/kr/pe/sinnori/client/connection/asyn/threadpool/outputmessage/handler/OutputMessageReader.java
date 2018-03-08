@@ -171,34 +171,38 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 			while (!Thread.currentThread().isInterrupted()) {
 				processNewConnection();
 
-				int keyReady = selector.select();
+				int numberOfKeys = selector.select();
 
-				if (keyReady > 0) {
+				if (numberOfKeys > 0) {
 					Set<SelectionKey> selectedKeySet = selector.selectedKeys();
 					Iterator<SelectionKey> selectedKeyIterator = selectedKeySet.iterator();
 					while (selectedKeyIterator.hasNext()) {
 						SelectionKey selectedKey = selectedKeyIterator.next();
 						selectedKeyIterator.remove();
-						SocketChannel serverSC = (SocketChannel) selectedKey.channel();
+						SocketChannel selectedSocketChannel = (SocketChannel) selectedKey.channel();
 
 						// log.info("11111111111111111");
 
-						AbstractAsynConnection asynConnection = scToAsynConnectionHash.get(serverSC);
+						AbstractAsynConnection asynConnection = scToAsynConnectionHash.get(selectedSocketChannel);
 						if (null == asynConnection) {
-							log.warn(String.format(
-									"%s OutputMessageReader[%d] socket channel[%d] is no match for AbstractAsynConnection",
-									projectName, index, serverSC.hashCode()));
+							log.warn("{} OutputMessageReader[{}] this socket channel[{}] has reached end-of-stream",
+									projectName, index, selectedSocketChannel.hashCode());
 							continue;
 						}
 
 						SocketOutputStream socketOutputStream = asynConnection.getSocketOutputStream();
 
 						try {
-							int numRead = socketOutputStream.read(serverSC);
+							int numRead = socketOutputStream.read(selectedSocketChannel);
 							
 							if (numRead == -1) {
-								log.warn(String.format("%s OutputMessageReader[%d]",
-										asynConnection.getSimpleConnectionInfo(), index));
+								String errorMessage = new StringBuilder("this socket channel[")										
+										.append(selectedSocketChannel.hashCode())
+										.append("] has reached end-of-stream in OutputMessageReader[")
+										.append(index)
+										.append("]").toString();
+								
+								log.warn(errorMessage);
 								closeSocket(selectedKey, asynConnection);
 								continue;
 							}
@@ -213,7 +217,7 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 								// log.info("wrapReadableMiddleObject={}", wrapReadableMiddleObject.toString());
 
 								// asynConnection.putToOutputMessageQueue(new LetterFromServer(receivedLetter));
-								FromLetter fromLetter = new FromLetter(serverSC, wrapReadableMiddleObject);
+								FromLetter fromLetter = new FromLetter(selectedSocketChannel, wrapReadableMiddleObject);
 								asynConnection.putToOutputMessageQueue(fromLetter);
 							}
 						} catch (Exception e) {

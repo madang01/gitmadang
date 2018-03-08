@@ -108,8 +108,7 @@ public class AsynPrivateConnection extends AbstractAsynConnection {
 				inObj.messageHeaderInfo.mailboxID, 
 				inObj.messageHeaderInfo.mailID, 
 				wrapBufferListOfInputMessage);
-		asynSocketResource.getInputMessageWriter().putIntoQueue(toLetter);		
-		
+		asynSocketResource.getInputMessageWriter().putIntoQueue(toLetter);
 		
 		try {
 			wrapReadableMiddleObject = asynPrivateMailbox.getSyncOutputMessage();
@@ -128,7 +127,7 @@ public class AsynPrivateConnection extends AbstractAsynConnection {
 		}
 
 		endTime = System.nanoTime();
-		log.info("시간차[{}]", TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
+		log.debug("시간차[{}]", TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
 
 		return outObj;
 	}

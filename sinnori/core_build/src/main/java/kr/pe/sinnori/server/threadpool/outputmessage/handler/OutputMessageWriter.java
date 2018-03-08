@@ -97,16 +97,17 @@ public class OutputMessageWriter extends Thread implements OutputMessageWriterIF
 				try {
 					toSC.register(writeEventOnlySelector, SelectionKey.OP_WRITE);
 					
-					WrapBuffer workingWrapBuffer = null;
-					ByteBuffer workingByteBuffer = null;
+					WrapBuffer workingWrapBuffer = warpBufferList.get(indexOfWorkingBuffer);
+					ByteBuffer workingByteBuffer = workingWrapBuffer.getByteBuffer();
 					boolean loop = true;
-					while (loop) {
+					do {
 						@SuppressWarnings("unused")
 						int numberOfKeys =  writeEventOnlySelector.select();
-						 
-						workingWrapBuffer = warpBufferList.get(indexOfWorkingBuffer);
-						workingByteBuffer = workingWrapBuffer.getByteBuffer();
-							
+						
+						writeEventOnlySelector.selectedKeys().clear();
+						
+						toSC.write(workingByteBuffer);
+						
 						if (! workingByteBuffer.hasRemaining()) {
 							if ((indexOfWorkingBuffer+1) == warpBufferListSize) {
 								loop = false;
@@ -116,8 +117,7 @@ public class OutputMessageWriter extends Thread implements OutputMessageWriterIF
 							workingWrapBuffer = warpBufferList.get(indexOfWorkingBuffer);
 							workingByteBuffer = workingWrapBuffer.getByteBuffer();
 						}
-						toSC.write(workingByteBuffer);
-					}
+					} while (loop);
 					
 				} catch (Exception e) {
 					String errorMessage = new StringBuilder("fail to write a output message, ")
@@ -136,9 +136,12 @@ public class OutputMessageWriter extends Thread implements OutputMessageWriterIF
 						
 					}
 				} finally {
-					writeEventOnlySelector.close();					
 					for (WrapBuffer wrapBuffer : warpBufferList) {
 						dataPacketBufferQueueManager.putDataPacketBuffer(wrapBuffer);
+					}
+					try {
+						writeEventOnlySelector.close();
+					} catch(IOException e) {
 					}
 				}
 			}

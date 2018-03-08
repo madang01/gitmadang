@@ -16,6 +16,8 @@
  */
 package kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler;
 
+import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -54,17 +56,16 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 	/** 입력 메시지 쓰기 쓰레드 번호 */
 	private int index;
 
-	/** 입력 메시지 큐 */
-	private ArrayBlockingQueue<ToLetter> inputMessageQueue = null;
-
-	// private MessageProtocolIF messageProtocol = null;
+	
+	private ArrayBlockingQueue<ToLetter> inputMessageQueue = null;	
 	private ClientMessageUtilityIF clientMessageUtility = null;
-	// private DataPacketBufferPoolIF dataPacketBufferQueueManager = null;
+	private long socketTimeOut;
 
 	private Hashtable<SocketChannel, AbstractAsynConnection> sc2AsynConnectionHash = new Hashtable<SocketChannel, AbstractAsynConnection>();
 
 	public InputMessageWriter(String projectName, int index, ArrayBlockingQueue<ToLetter> inputMessageQueue,
-			ClientMessageUtilityIF clientMessageUtility) throws NoMoreDataPacketBufferException {
+			ClientMessageUtilityIF clientMessageUtility,
+			long socketTimeOut) throws NoMoreDataPacketBufferException {
 		this.projectName = projectName;
 		this.index = index;
 		this.inputMessageQueue = inputMessageQueue;
@@ -91,16 +92,21 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 				try {
 					toSC.register(writeEventOnlySelector, SelectionKey.OP_WRITE);
 						
-					WrapBuffer workingWrapBuffer = null;
-					ByteBuffer workingByteBuffer = null;
+					WrapBuffer workingWrapBuffer = warpBufferList.get(indexOfWorkingBuffer);
+					ByteBuffer workingByteBuffer = workingWrapBuffer.getByteBuffer();
 					boolean loop = true;
-					while (loop) {
-						@SuppressWarnings("unused")
-						int numberOfKeys =  writeEventOnlySelector.select();
-						 
-						workingWrapBuffer = warpBufferList.get(indexOfWorkingBuffer);
-						workingByteBuffer = workingWrapBuffer.getByteBuffer();
-							
+					do {
+						int numberOfKeys =  writeEventOnlySelector.select(socketTimeOut);
+						if (0 == numberOfKeys) {
+							String errorMessage = new StringBuilder("this socket channel[")
+									.append(toSC.hashCode())
+									.append("] timeout").toString();
+							throw new SocketTimeoutException(errorMessage);
+						}						
+						writeEventOnlySelector.selectedKeys().clear();
+						
+						toSC.write(workingByteBuffer);
+						
 						if (! workingByteBuffer.hasRemaining()) {
 							if ((indexOfWorkingBuffer+1) == warpBufferListSize) {
 								loop = false;
@@ -110,11 +116,10 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 							workingWrapBuffer = warpBufferList.get(indexOfWorkingBuffer);
 							workingByteBuffer = workingWrapBuffer.getByteBuffer();
 						}
-						toSC.write(workingByteBuffer);
-					}
+					} while (loop);
 				} catch(Exception e) {
-					String errorMessage = String.format("InputMessageWriter[%d] Exception::%s, letterToServer=[%s]",
-							index, e.getMessage(), toLetter.toString());
+					String errorMessage = String.format("InputMessageWriter[%d] letterToServer=[%s], errmsg=%s",
+							index, toLetter.toString(), e.getMessage());
 					log.warn(errorMessage, e);
 					
 					AbstractAsynConnection asynConnection = sc2AsynConnectionHash.get(toSC);
@@ -140,8 +145,12 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 						asynConnection.close();
 					}
 				} finally {
-					writeEventOnlySelector.close();
 					clientMessageUtility.releaseWrapBufferList(warpBufferList);
+					try {
+						writeEventOnlySelector.close();
+					} catch(IOException e) {
+						
+					}
 				}
 			}
 

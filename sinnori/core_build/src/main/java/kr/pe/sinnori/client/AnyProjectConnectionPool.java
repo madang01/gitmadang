@@ -180,7 +180,9 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 			InputMessageWriterPool inputMessageWriterPool = new InputMessageWriterPool(
 					projectPartConfiguration.getProjectName(),
 					projectPartConfiguration.getClientAsynInputMessageWriterPoolSize(),
-					projectPartConfiguration.getClientAsynInputMessageQueueSize(), clientMessageUtility);
+					projectPartConfiguration.getClientAsynInputMessageQueueSize(), 
+					clientMessageUtility,
+					projectPartConfiguration.getClientSocketTimeout());
 
 			OutputMessageReaderPool outputMessageReaderPool = new OutputMessageReaderPool(
 					projectPartConfiguration.getProjectName(),
@@ -201,7 +203,7 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 			clientExecutorPool.startAll();
 			outputMessageReaderPool.startAll();
 
-			if (projectPartConfiguration.getConnectionType().equals(ConnectionType.ASYN_SHARE)) {
+			if (projectPartConfiguration.getConnectionType().equals(ConnectionType.ASYN_PUBLIC)) {
 				asynPrivateMailboxPoolFactory = new AsynPrivateMailboxPoolFactory(
 						projectPartConfiguration.getClientAsynPirvateMailboxCntPerPublicConnection(),
 						projectPartConfiguration.getClientSocketTimeout());
@@ -277,11 +279,12 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 					.makeNewSyncPrivateSocketResource();
 
 			conn = new SyncPrivateConnection(projectPartConfiguration.getProjectName(), host, port,
-					projectPartConfiguration.getClientSocketTimeout(), clientMessageUtility, syncPrivateSocketResoruce);
+					projectPartConfiguration.getClientSocketTimeout(), 
+					clientMessageUtility, syncPrivateSocketResoruce);
 		} else {
 			AsynSocketResourceIF asynSocketResource = asynSocketResourceFactory.makeNewAsynSocketResource();
 
-			if (projectPartConfiguration.getConnectionType().equals(ConnectionType.ASYN_SHARE)) {
+			if (projectPartConfiguration.getConnectionType().equals(ConnectionType.ASYN_PUBLIC)) {
 				AsynPrivateMailboxPoolIF asynPrivateMailboxPool = asynPrivateMailboxPoolFactory
 						.makeNewAsynPrivateMailboxPool();
 

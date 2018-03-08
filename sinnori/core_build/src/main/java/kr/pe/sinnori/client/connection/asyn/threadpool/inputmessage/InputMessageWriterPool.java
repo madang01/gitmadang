@@ -36,10 +36,11 @@ public class InputMessageWriterPool extends AbstractThreadPool implements InputM
 	private String projectName = null;
 	private int inputMessageQueueSize;
 	private ClientMessageUtilityIF clientMessageUtility = null;
+	private long socketTimeOut;
 
 	public InputMessageWriterPool(String projectName, int size,
-			// LinkedBlockingQueue<ToLetter> inputMessageQueue,
-			int inputMessageQueueSize, ClientMessageUtilityIF clientMessageUtility) {
+			int inputMessageQueueSize, ClientMessageUtilityIF clientMessageUtility,
+			long socketTimeOut) {
 		if (size <= 0) {
 			throw new IllegalArgumentException(String.format("%s 파라미터 size 는 0보다 커야 합니다.", projectName));
 		}
@@ -47,6 +48,7 @@ public class InputMessageWriterPool extends AbstractThreadPool implements InputM
 		this.projectName = projectName;
 		this.inputMessageQueueSize = inputMessageQueueSize;
 		this.clientMessageUtility = clientMessageUtility;
+		this.socketTimeOut = socketTimeOut;
 
 		for (int i = 0; i < size; i++) {
 			addHandler();
@@ -62,7 +64,7 @@ public class InputMessageWriterPool extends AbstractThreadPool implements InputM
 
 			try {
 				Thread handler = new InputMessageWriter(projectName, size, inputMessageQueue,
-						clientMessageUtility);
+						clientMessageUtility, socketTimeOut);
 
 				pool.add(handler);
 			} catch (Exception e) {

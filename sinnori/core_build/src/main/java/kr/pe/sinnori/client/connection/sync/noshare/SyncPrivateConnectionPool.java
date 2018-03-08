@@ -63,7 +63,7 @@ public class SyncPrivateConnectionPool implements ConnectionPoolIF {
 		this.clientMessageUtility = clientMessageUtility;
 		this.connectionPoolSize = connectionPoolSize;
 		this.connectionPoolMaxSize = connectionPoolMaxSize;		
-		this.syncPrivateSocketResourceFactory = syncPrivateSocketResourceFactory;		
+		this.syncPrivateSocketResourceFactory = syncPrivateSocketResourceFactory;
 
 		this.connectionQueue = new ArrayDeque<SyncPrivateConnection>();
 
@@ -93,8 +93,8 @@ public class SyncPrivateConnectionPool implements ConnectionPoolIF {
 
 		SyncPrivateConnection conn = new SyncPrivateConnection(projectName, 
 				host, port, socketTimeOut, 
-				clientMessageUtility
-				, syncPrivateSocketResoruce);
+				clientMessageUtility, 
+				syncPrivateSocketResoruce);
 
 		synchronized (monitor) {
 			connectionQueue.addLast(conn);
