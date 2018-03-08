@@ -2,7 +2,11 @@ package kr.pe.sinnori.server;
 
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.nio.ByteOrder;
+import java.nio.channels.Selector;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
@@ -106,6 +110,28 @@ public class MainServerManagerTest extends AbstractJunitTest {
 	 * } catch (Exception e) { log.warn("Exception", e);
 	 * fail("error::"+e.getMessage()); } }
 	 */
+	
+	@Test 
+	public void test4() {
+		List<Selector> selectorList = new LinkedList<Selector>();
+		try {
+			for (int i=0; i < 10000; i++) {
+				Selector tempSelector = Selector.open();
+				selectorList.add(tempSelector);
+			}
+		} catch(Exception e) {
+			log.warn("error", e);
+			fail("error");
+		} finally {
+			for (Selector tempSelector : selectorList) {
+				try {
+					tempSelector.close();
+				} catch (IOException e) {
+				}
+			}
+		}
+		
+	}
 
 	@Test
 	public void test2() {

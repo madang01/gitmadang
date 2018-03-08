@@ -150,12 +150,6 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 
 	public void sendAsynInputMessage(AbstractMessage inObj) throws NotSupportedException, InterruptedException,
 			DynamicClassCallException, NoMoreDataPacketBufferException, BodyFormatException, HeaderFormatException {
-		long startTime = 0;
-		long endTime = 0;
-		startTime = new java.util.Date().getTime();
-
-		// connectServer();
-
 		ClassLoader classLoader = inObj.getClass().getClassLoader();
 
 		inObj.messageHeaderInfo.mailboxID = AsynPublicMailbox.getMailboxID();
@@ -168,11 +162,6 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 				inObj.messageHeaderInfo.mailID, wrapBufferListOfInputMessage);
 
 		asynSocketResource.getInputMessageWriter().putIntoQueue(toLetter);
-
-		// writeInputMessageToSocketChannel(serverSC, wrapBufferListOfInputMessage);
-
-		endTime = new java.util.Date().getTime();
-		log.info(String.format("시간차=[%d]", (endTime - startTime)));
 	}
 
 	public int hashCode() {

@@ -19,7 +19,6 @@ package kr.pe.sinnori.client.connection.asyn.share;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
@@ -92,10 +91,6 @@ public class AsynPublicConnection extends AbstractAsynConnection {
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inObj)
 			throws InterruptedException, NoMoreDataPacketBufferException, DynamicClassCallException, 
 			ServerTaskException, AccessDeniedException, BodyFormatException, IOException {
-		long startTime = 0;
-		long endTime = 0;
-		startTime = System.nanoTime();
-
 		ClassLoader classLoader = inObj.getClass().getClassLoader();
 		WrapReadableMiddleObject wrapReadableMiddleObject = null;
 
@@ -132,9 +127,6 @@ public class AsynPublicConnection extends AbstractAsynConnection {
 			log.warn(selfExnRes.toString());
 			SelfExn.ErrorType.throwSelfExnException(selfExnRes);
 		}
-
-		endTime = System.nanoTime();
-		log.info("시간차[{}]", TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
 
 		return outObj;
 	}

@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -239,7 +240,10 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inputMessage)
 			throws NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException, ServerTaskException,
 			AccessDeniedException, InterruptedException, ConnectionPoolException, IOException {
-
+		long startTime = 0;
+		long endTime = 0;
+		startTime = System.nanoTime();
+		
 		AbstractMessage outObj = null;
 		AbstractConnection conn = connectionPool.getConnection();
 		try {
@@ -255,6 +259,9 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 		} finally {
 			connectionPool.release(conn);
 		}
+		
+		endTime = System.nanoTime();
+		log.debug("시간차[{}]", TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
 
 		return outObj;
 	}
@@ -262,12 +269,19 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 	public void sendAsynInputMessage(AbstractMessage inputMessage)
 			throws InterruptedException, ConnectionPoolException, SocketTimeoutException, NotSupportedException,
 			NoMoreDataPacketBufferException, BodyFormatException, HeaderFormatException, DynamicClassCallException {
+		long startTime = 0;
+		long endTime = 0;
+		startTime = System.nanoTime();
+		
 		AbstractConnection conn = connectionPool.getConnection();
 		try {
 			conn.sendAsynInputMessage(inputMessage);
 		} finally {
 			connectionPool.release(conn);
 		}
+		
+		endTime = System.nanoTime();
+		log.debug("시간차[{}]", TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
 	}
 
 	public AbstractConnection createConnection(String host, int port)

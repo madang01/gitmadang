@@ -28,7 +28,6 @@ import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
@@ -50,6 +49,9 @@ import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 public class SyncPrivateConnection extends AbstractConnection {
 	private SocketResoruceIF syncPrivateSocketResoruce = null;
 	
+	private SocketOutputStream socketOutputStream = null;
+	
+	
 	private static final int MAILBOX_ID = 1;
 	
 	/** 메일 식별자 */
@@ -69,6 +71,8 @@ public class SyncPrivateConnection extends AbstractConnection {
 		super(projectName, host, port, socketTimeOut, clientMessageUtility);
 		
 		this.syncPrivateSocketResoruce = syncPrivateSocketResoruce;
+		
+		socketOutputStream = syncPrivateSocketResoruce.getSocketOutputStream();
 		
 		doConnect();
 		
@@ -160,9 +164,7 @@ public class SyncPrivateConnection extends AbstractConnection {
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inObj)
 			throws InterruptedException, NoMoreDataPacketBufferException,  
 			DynamicClassCallException, ServerTaskException, AccessDeniedException, BodyFormatException, IOException {
-		long startTime = 0;
-		long endTime = 0;
-		startTime = System.nanoTime();
+		
 		
 		// String messageID = inObj.getMessageID();
 		// LetterFromServer letterFromServer = null;
@@ -187,9 +189,6 @@ public class SyncPrivateConnection extends AbstractConnection {
 				int indexOfWorkingBuffer = 0;
 				int warpBufferListSize = warpBufferList.size();
 				
-				
-				// WrapBuffer workingWrapBuffer = null;
-				// ByteBuffer workingByteBuffer = null;
 				WrapBuffer workingWrapBuffer = warpBufferList.get(indexOfWorkingBuffer);
 				ByteBuffer workingByteBuffer = workingWrapBuffer.getByteBuffer();
 				
@@ -240,10 +239,9 @@ public class SyncPrivateConnection extends AbstractConnection {
 				mailID++;
 			}
 			
-			SocketOutputStream socketOutputStream = syncPrivateSocketResoruce.getSocketOutputStream();
-			serverSC.keyFor(ioEventOnlySelector).interestOps(SelectionKey.OP_READ);			
 			
-			boolean loop = true;
+			serverSC.keyFor(ioEventOnlySelector).interestOps(SelectionKey.OP_READ);
+			
 			do {
 				int numberOfKeys =  ioEventOnlySelector.select(socketTimeOut);
 				if (0 == numberOfKeys) {
@@ -274,12 +272,16 @@ public class SyncPrivateConnection extends AbstractConnection {
 					if (wrapReadableMiddleObjectList.size() ==  1) {
 						WrapReadableMiddleObject wrapReadableMiddleObject = wrapReadableMiddleObjectList.get(0);
 						outObj = clientMessageUtility.buildOutputMessage(classLoader, wrapReadableMiddleObject);
-						loop = false;
 						break;
 					} else if (wrapReadableMiddleObjectList.size() > 1) {
 						String errorMessage = new StringBuilder("this sync private connection[")
 								.append(serverSC.hashCode())
-								.append("] has a one more message").toString();
+								.append("] has recevied one more messages in this sendSyncInputMessage method").toString();
+						
+						for (WrapReadableMiddleObject wrapReadableMiddleObject : wrapReadableMiddleObjectList) {
+							log.warn("drop the output message[{}] becase {}",
+									wrapReadableMiddleObject.toString(), errorMessage);
+						}
 						throw new SocketException(errorMessage);
 					}
 
@@ -295,7 +297,7 @@ public class SyncPrivateConnection extends AbstractConnection {
 					
 					throw new IOException(errorMessage);
 				}
-			} while (loop);		
+			} while (true);		
 			
 		} finally {
 			try {
@@ -308,11 +310,8 @@ public class SyncPrivateConnection extends AbstractConnection {
 			SelfExnRes selfExnRes = (SelfExnRes) outObj;
 			log.warn(selfExnRes.toString());
 			SelfExn.ErrorType.throwSelfExnException(selfExnRes);
-		}		
+		}
 		
-		endTime = System.nanoTime();
-		log.debug("시간차[{}]", TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
-
 		return outObj;
 	}	
 	

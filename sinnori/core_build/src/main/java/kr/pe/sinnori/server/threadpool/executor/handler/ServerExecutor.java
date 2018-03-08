@@ -79,7 +79,7 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 
 	@Override
 	public void run() {
-		log.warn("{} ServerExecutor[{}] start", projectName, index);
+		log.info("{} ServerExecutor[{}] start", projectName, index);
 		
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
