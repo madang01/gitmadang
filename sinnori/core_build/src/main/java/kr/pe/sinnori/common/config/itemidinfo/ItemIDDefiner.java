@@ -61,13 +61,13 @@ public abstract class ItemIDDefiner {
 		public static final String SERVER_POOL_ACCEPT_QUEUE_SIZE_ITEMID = "server.pool.accept_queue_size.value";
 		public static final String SERVER_POOL_INPUT_MESSAGE_QUEUE_SIZE_ITEMID = "server.pool.input_message_queue_size.value";
 		public static final String SERVER_POOL_OUTPUT_MESSAGE_QUEUE_SIZE_ITEMID = "server.pool.output_message_queue_size.value";
-		public static final String SERVER_POOL_READ_SELECTOR_WAKEUP_INTERVAL_ITEMID = "server.pool.read_selector_wakeup_interval.value";
+		public static final String SERVER_POOL_READ_ONLY_SELECTOR_WAKEUP_INTERVAL_ITEMID = "server.pool.read_selector_wakeup_interval.value";
 		public static final String SERVER_POOL_ACCEPT_PROCESSOR_MAX_SIZE_ITEMID = "server.pool.accept_processor.max_size.value";
 		public static final String SERVER_POOL_ACCEPT_PROCESSOR_SIZE_ITEMID = "server.pool.accept_processor.size.value";
 		public static final String SERVER_POOL_INPUT_MESSAGE_READER_MAX_SIZE_ITEMID = "server.pool.input_message_reader.max_size.value";
 		public static final String SERVER_POOL_INPUT_MESSAGE_READER_SIZE_ITEMID = "server.pool.input_message_reader.size.value";
-		public static final String SERVER_POOL_EXECUTOR_PROCESSOR_MAX_SIZE_ITEMID = "server.pool.executor_processor.max_size.value";
-		public static final String SERVER_POOL_EXECUTOR_PROCESSOR_SIZE_ITEMID = "server.pool.executor_processor.size.value";
+		public static final String SERVER_POOL_EXECUTOR_MAX_SIZE_ITEMID = "server.pool.executor.max_size.value";
+		public static final String SERVER_POOL_EXECUTOR_SIZE_ITEMID = "server.pool.executor.size.value";
 		public static final String SERVER_POOL_OUTPUT_MESSAGE_WRITER_MAX_SIZE_ITEMID = "server.pool.output_message_writer.max_size.value";
 		public static final String SERVER_POOL_OUTPUT_MESSAGE_WRITER_SIZE_ITEMID = "server.pool.output_message_writer.size.value";
 		public static final String SERVER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_STRING_ITEMID = "server.mybatis.config_file_relative_path.value";

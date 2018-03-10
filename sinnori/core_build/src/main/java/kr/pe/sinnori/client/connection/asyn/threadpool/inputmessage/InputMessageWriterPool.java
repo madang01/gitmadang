@@ -22,8 +22,6 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
-import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler.InputMessageWriter;
-import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler.InputMessageWriterIF;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 
@@ -51,12 +49,12 @@ public class InputMessageWriterPool extends AbstractThreadPool implements InputM
 		this.socketTimeOut = socketTimeOut;
 
 		for (int i = 0; i < size; i++) {
-			addHandler();
+			addTask();
 		}
 	}
 
 	@Override
-	public void addHandler() throws IllegalStateException {
+	public void addTask() throws IllegalStateException {
 		ArrayBlockingQueue<ToLetter> inputMessageQueue = new ArrayBlockingQueue<ToLetter>(inputMessageQueueSize);
 
 		synchronized (monitor) {

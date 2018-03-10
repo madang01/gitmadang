@@ -24,7 +24,7 @@ import kr.pe.sinnori.common.message.builder.IOPartDynamicClassFileContentsBuilde
 import kr.pe.sinnori.common.message.builder.info.MessageInfo;
 import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
 import kr.pe.sinnori.common.mybatis.FileModificationChecker;
-import kr.pe.sinnori.common.mybatis.MybatisFileTypeResourceModificationChecker;
+import kr.pe.sinnori.common.mybatis.MybatisParsingInformationForModification;
 import kr.pe.sinnori.common.mybatis.MybatisConfigXMLFileSAXParser;
 import kr.pe.sinnori.common.type.LogType;
 import kr.pe.sinnori.common.type.MessageTransferDirectionType;
@@ -1597,7 +1597,7 @@ log.info("main project[{}]'s web client ant properties file modification task st
 		return mybatisConfigeFile;
 	}
 	
-	private MybatisFileTypeResourceModificationChecker getFileTypeResourceManager(File mybatisConfigeFile) throws BuildSystemException {
+	private MybatisParsingInformationForModification getFileTypeResourceManager(File mybatisConfigeFile) throws BuildSystemException {
 		MybatisConfigXMLFileSAXParser mybatisConfigXMLFileSAXParser = null;
 		try {
 			mybatisConfigXMLFileSAXParser  = new MybatisConfigXMLFileSAXParser();
@@ -1612,7 +1612,7 @@ log.info("main project[{}]'s web client ant properties file modification task st
 					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
 		}
 		
-		MybatisFileTypeResourceModificationChecker fileTypeResourceManager = null;
+		MybatisParsingInformationForModification fileTypeResourceManager = null;
 		try {
 			fileTypeResourceManager = mybatisConfigXMLFileSAXParser.parse(mybatisConfigeFile);
 		} catch (IllegalArgumentException | SAXException | IOException e) {
@@ -1698,7 +1698,7 @@ log.info("main project[{}]'s web client ant properties file modification task st
 		if (serverMybatisConfigFileRelativePathString.equals("")) return;
 		
 		File mybatisConfigeFile = getMybatisConfigFIle(serverMybatisConfigFileRelativePathString);		
-		MybatisFileTypeResourceModificationChecker fileTypeResourceManager = getFileTypeResourceManager(mybatisConfigeFile);		
+		MybatisParsingInformationForModification fileTypeResourceManager = getFileTypeResourceManager(mybatisConfigeFile);		
 		
 		FileModificationChecker mybatisConfigFileTypeResource = fileTypeResourceManager.getMybatisConfigFileModificationChecker();
 		

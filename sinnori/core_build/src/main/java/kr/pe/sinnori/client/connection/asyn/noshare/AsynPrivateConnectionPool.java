@@ -42,11 +42,9 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 	private long socketTimeOut;
 	private ClientMessageUtilityIF clientMessageUtility = null;
 
-	private transient int connectionPoolSize = 0;
-	private int connectionPoolMaxSize;
+	private transient int size = 0;
+	private int max;
 
-	// private IEOClientThreadPoolSetManagerIF ieoClientThreadPoolSetManager = null;
-	// private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;
 	private AsynSocketResourceFactoryIF asynSocketResourceFactory = null;
 
 	private ArrayDeque<AsynPrivateConnection> connectionQueue = null;
@@ -54,26 +52,42 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 	private ConnectionPoolSupporterIF connectionPoolSupporter = null;
 
 	public AsynPrivateConnectionPool(String projectName, String host, int port, long socketTimeOut,
-			ClientMessageUtilityIF clientMessageUtility, int connectionPoolSize, int connectionPoolMaxSize,
+			ClientMessageUtilityIF clientMessageUtility, int size, int max,
 			AsynSocketResourceFactoryIF asynSocketResourceFactory)
 			throws NoMoreDataPacketBufferException, InterruptedException, IOException, ConnectionPoolException {
+		if (size <= 0) {
+			String errorMessage = String.format("the parameter size[%d] is less than or equal to zero", size); 
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (max <= 0) {
+			String errorMessage = String.format("the parameter max[%d] is less than or equal to zero", max); 
+			throw new IllegalArgumentException(errorMessage);
+		}
+
+		if (size > max) {
+			String errorMessage = String.format("the parameter size[%d] is greater than the parameter max[%d]", size, max); 
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		
 		this.projectName = projectName;
 		this.host = host;
 		this.port = port;
 		this.socketTimeOut = socketTimeOut;
 		this.clientMessageUtility = clientMessageUtility;
-		this.connectionPoolSize = connectionPoolSize;
-		this.connectionPoolMaxSize = connectionPoolMaxSize;
+		this.size = size;
+		this.max = max;
 		this.asynSocketResourceFactory = asynSocketResourceFactory;
 
-		this.connectionQueue = new ArrayDeque<AsynPrivateConnection>(connectionPoolMaxSize);
+		this.connectionQueue = new ArrayDeque<AsynPrivateConnection>(max);
 		
 		/**
 		 * 비동기 비 공유 연결 클래스는 입력 메시지 큐 1개와 출력 메시지큐 1개를 할당 받는다. 입력 메시지 큐는 모든 연결 클래스간에 공유하며,
 		 * 출력 메시지 큐는 연결 클래스 각각 존재한다.
 		 */
 		try {
-			for (int i = 0; i < connectionPoolSize; i++) {
+			for (int i = 0; i < size; i++) {
 				addConnection();
 
 			}
@@ -94,7 +108,7 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 	private void addConnection()
 			throws InterruptedException, NoMoreDataPacketBufferException, IOException, ConnectionPoolException {
 
-		if (numberOfConnection >= connectionPoolMaxSize) {
+		if (numberOfConnection >= max) {
 			throw new ConnectionPoolException("fail to add a connection because this connection pool is full");
 		}
 
@@ -106,12 +120,12 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 		synchronized (monitor) {
 			connectionQueue.addLast(serverConnection);
 			numberOfConnection++;
-			connectionPoolSize = Math.max(numberOfConnection, connectionPoolSize);
+			size = Math.max(numberOfConnection, size);
 		}
 	}
 
 	private boolean whetherConnectionIsMissing() {
-		return (numberOfConnection != connectionPoolSize);
+		return (numberOfConnection != size);
 	}
 
 	public void addAllLostConnections() throws InterruptedException {

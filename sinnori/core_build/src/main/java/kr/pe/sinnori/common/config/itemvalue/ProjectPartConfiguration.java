@@ -91,15 +91,15 @@ public class ProjectPartConfiguration {
 	private Integer  serverOutputMessageQueueSize = null;
 	
 	// private Long serverAcceptSelectorTimeout = null;
-	private Long serverReadSelectorWakeupInterval = null;
+	private Long serverWakeupIntervalOfSelectorForReadEventOnly = null;
 	private Integer  serverAcceptProcessorMaxSize = null;
 	private Integer  serverAcceptProcessorSize = null;
-	private Integer  serverInputMessageReaderMaxSize = null;
-	private Integer  serverInputMessageReaderSize = null;	
-	private Integer  serverExecutorProcessorMaxSize = null;
-	private Integer  serverExecutorProcessorSize = null;
-	private Integer  serverOutputMessageWriterMaxSize = null;
-	private Integer  serverOutputMessageWriterSize = null;		
+	private Integer  serverInputMessageReaderPoolMaxSize = null;
+	private Integer  serverInputMessageReaderPoolSize = null;	
+	private Integer  serverExecutorPoolMaxSize = null;
+	private Integer  serverExecutorPoolSize = null;
+	private Integer  serverOutputMessageWriterPoolMaxSize = null;
+	private Integer  serverOutputMessageWriterPoolSize = null;		
 	/***** 서버 비동기 입출력 지원용 자원 종료 *****/
 
 	/***** 서버 동적 클래스 변수 시작 *****/
@@ -482,7 +482,7 @@ public class ProjectPartConfiguration {
 			
 			this.serverOutputMessageQueueSize = (Integer) nativeValue;
 		
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_READ_SELECTOR_WAKEUP_INTERVAL_ITEMID)) {
+		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_READ_ONLY_SELECTOR_WAKEUP_INTERVAL_ITEMID)) {
 			if (!(nativeValue instanceof Long)) {
 				String errorMessage = new StringBuilder("the generic type[")
 				.append(nativeValue.getClass().getName())
@@ -493,7 +493,7 @@ public class ProjectPartConfiguration {
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 			
-			this.serverReadSelectorWakeupInterval = (Long) nativeValue;
+			this.serverWakeupIntervalOfSelectorForReadEventOnly = (Long) nativeValue;
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_ACCEPT_PROCESSOR_MAX_SIZE_ITEMID)) {
 			if (!(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -530,7 +530,7 @@ public class ProjectPartConfiguration {
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 			
-			this.serverInputMessageReaderMaxSize = (Integer) nativeValue;
+			this.serverInputMessageReaderPoolMaxSize = (Integer) nativeValue;
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_READER_SIZE_ITEMID)) {
 			if (!(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -542,8 +542,8 @@ public class ProjectPartConfiguration {
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 			
-			this.serverInputMessageReaderSize = (Integer) nativeValue;
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_PROCESSOR_MAX_SIZE_ITEMID)) {
+			this.serverInputMessageReaderPoolSize = (Integer) nativeValue;
+		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_MAX_SIZE_ITEMID)) {
 			if (!(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
 				.append(nativeValue.getClass().getName())
@@ -554,8 +554,8 @@ public class ProjectPartConfiguration {
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 			
-			this.serverExecutorProcessorMaxSize = (Integer) nativeValue;
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_PROCESSOR_SIZE_ITEMID)) {
+			this.serverExecutorPoolMaxSize = (Integer) nativeValue;
+		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_SIZE_ITEMID)) {
 			if (!(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
 				.append(nativeValue.getClass().getName())
@@ -566,7 +566,7 @@ public class ProjectPartConfiguration {
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 			
-			this.serverExecutorProcessorSize = (Integer) nativeValue;
+			this.serverExecutorPoolSize = (Integer) nativeValue;
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_WRITER_MAX_SIZE_ITEMID)) {
 			if (!(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -578,7 +578,7 @@ public class ProjectPartConfiguration {
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 			
-			this.serverOutputMessageWriterMaxSize = (Integer) nativeValue;
+			this.serverOutputMessageWriterPoolMaxSize = (Integer) nativeValue;
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_WRITER_SIZE_ITEMID)) {
 			if (!(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -590,7 +590,7 @@ public class ProjectPartConfiguration {
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 			
-			this.serverOutputMessageWriterSize = (Integer) nativeValue;
+			this.serverOutputMessageWriterPoolSize = (Integer) nativeValue;
 		/*} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_CLASSLOADER_APPINF_PATH_ITEMID)) {
 			if (!(nativeValue instanceof File)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -728,32 +728,32 @@ public class ProjectPartConfiguration {
 		return serverAcceptProcessorMaxSize;
 	}
 
-	public int getServerInputMessageReaderSize() {
-		return serverInputMessageReaderSize;
+	public int getServerInputMessageReaderPoolSize() {
+		return serverInputMessageReaderPoolSize;
 	}
 
-	public int getServerInputMessageReaderMaxSize() {
-		return serverInputMessageReaderMaxSize;
+	public int getServerInputMessageReaderPoolMaxSize() {
+		return serverInputMessageReaderPoolMaxSize;
 	}
 
-	public long getServerReadSelectorWakeupInterval() {
-		return serverReadSelectorWakeupInterval;
+	public long getServerWakeupIntervalOfSelectorForReadEventOnly() {
+		return serverWakeupIntervalOfSelectorForReadEventOnly;
 	}
 
-	public int getServerExecutorProcessorSize() {
-		return serverExecutorProcessorSize;
+	public int getServerExecutorPoolSize() {
+		return serverExecutorPoolSize;
 	}
 
-	public int getServerExecutorProcessorMaxSize() {
-		return serverExecutorProcessorMaxSize;
+	public int getServerExecutorPoolMaxSize() {
+		return serverExecutorPoolMaxSize;
 	}
 
-	public int getServerOutputMessageWriterSize() {
-		return serverOutputMessageWriterSize;
+	public int getServerOutputMessageWriterPoolSize() {
+		return serverOutputMessageWriterPoolSize;
 	}
 
-	public int getServerOutputMessageWriterMaxSize() {
-		return serverOutputMessageWriterMaxSize;
+	public int getServerOutputMessageWriterPoolMaxSize() {
+		return serverOutputMessageWriterPoolMaxSize;
 	}
 
 	public int getServerAcceptQueueSize() {
@@ -855,24 +855,24 @@ public class ProjectPartConfiguration {
 		builder.append(serverInputMessageQueueSize);
 		builder.append(", serverOutputMessageQueueSize=");
 		builder.append(serverOutputMessageQueueSize);
-		builder.append(", serverReadSelectorWakeupInterval=");
-		builder.append(serverReadSelectorWakeupInterval);
+		builder.append(", serverWakeupIntervalOfSelectorForReadEventOnly=");
+		builder.append(serverWakeupIntervalOfSelectorForReadEventOnly);
 		builder.append(", serverAcceptProcessorMaxSize=");
 		builder.append(serverAcceptProcessorMaxSize);
 		builder.append(", serverAcceptProcessorSize=");
 		builder.append(serverAcceptProcessorSize);
-		builder.append(", serverInputMessageReaderMaxSize=");
-		builder.append(serverInputMessageReaderMaxSize);
-		builder.append(", serverInputMessageReaderSize=");
-		builder.append(serverInputMessageReaderSize);
-		builder.append(", serverExecutorProcessorMaxSize=");
-		builder.append(serverExecutorProcessorMaxSize);
-		builder.append(", serverExecutorProcessorSize=");
-		builder.append(serverExecutorProcessorSize);
-		builder.append(", serverOutputMessageWriterMaxSize=");
-		builder.append(serverOutputMessageWriterMaxSize);
-		builder.append(", serverOutputMessageWriterSize=");
-		builder.append(serverOutputMessageWriterSize);
+		builder.append(", serverInputMessageReaderPoolMaxSize=");
+		builder.append(serverInputMessageReaderPoolMaxSize);
+		builder.append(", serverInputMessageReaderPoolSize=");
+		builder.append(serverInputMessageReaderPoolSize);
+		builder.append(", serverExecutorPoolMaxSize=");
+		builder.append(serverExecutorPoolMaxSize);
+		builder.append(", serverExecutorPoolSize=");
+		builder.append(serverExecutorPoolSize);
+		builder.append(", serverOutputMessageWriterPoolMaxSize=");
+		builder.append(serverOutputMessageWriterPoolMaxSize);
+		builder.append(", serverOutputMessageWriterPoolSize=");
+		builder.append(serverOutputMessageWriterPoolSize);
 		builder.append(", serverMybatisConfigFileRelativePath=");
 		builder.append(serverMybatisConfigFileRelativePathString);
 		builder.append("]");

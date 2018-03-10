@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package kr.pe.sinnori.server.threadpool.inputmessage.handler;
+package kr.pe.sinnori.server.threadpool.inputmessage;
 
 import java.nio.channels.SocketChannel;
 

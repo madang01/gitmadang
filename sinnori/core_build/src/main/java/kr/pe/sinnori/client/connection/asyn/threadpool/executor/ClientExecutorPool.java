@@ -5,8 +5,6 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
-import kr.pe.sinnori.client.connection.asyn.threadpool.executor.handler.ClientExecutor;
-import kr.pe.sinnori.client.connection.asyn.threadpool.executor.handler.ClientExecutorIF;
 import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 
@@ -23,7 +21,7 @@ public class ClientExecutorPool extends AbstractThreadPool implements ClientExec
 		this.clientMessageUtility = clientMessageUtility;
 		
 		for (int i=0; i < size; i++) {
-			addHandler();
+			addTask();
 		}
 	}
 
@@ -50,7 +48,7 @@ public class ClientExecutorPool extends AbstractThreadPool implements ClientExec
 	}
 
 	@Override
-	public void addHandler() throws IllegalStateException {
+	public void addTask() throws IllegalStateException {
 		synchronized (monitor) {
 			int size = pool.size();
 			

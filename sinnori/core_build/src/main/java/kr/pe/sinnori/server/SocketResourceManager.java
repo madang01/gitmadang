@@ -7,9 +7,9 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.io.SocketOutputStreamFactoryIF;
 import kr.pe.sinnori.server.threadpool.IEOServerThreadPoolSetManagerIF;
-import kr.pe.sinnori.server.threadpool.executor.handler.ServerExecutorIF;
-import kr.pe.sinnori.server.threadpool.inputmessage.handler.InputMessageReaderIF;
-import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriterIF;
+import kr.pe.sinnori.server.threadpool.executor.ServerExecutorIF;
+import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderIF;
+import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterIF;
 
 public class SocketResourceManager implements SocketResourceManagerIF {
 	private final Object monitor = new Object();	
@@ -39,9 +39,9 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 	
 
 	@Override
-	public void addNewSocketChannel(SocketChannel newSC) throws NoMoreDataPacketBufferException, InterruptedException {
-		if (null == newSC) {
-			throw new IllegalArgumentException("the parameter newSC is null");
+	public void addNewAcceptedSocketChannel(SocketChannel newAcceptedSC) throws NoMoreDataPacketBufferException, InterruptedException {
+		if (null == newAcceptedSC) {
+			throw new IllegalArgumentException("the parameter newAcceptedSC is null");
 		}		
 		
 		InputMessageReaderIF inputMessageReaderOfOwnerSC = 
@@ -56,10 +56,10 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 		SocketOutputStream socketOutputStreamOfOwnerSC = socketOutputStreamFactory.makeNewSocketOutputStream();
 		
 		PersonalLoginManager personalLoginManagerOfOwnerSC = 
-				new PersonalLoginManager(newSC, projectLoginManager);
+				new PersonalLoginManager(newAcceptedSC, projectLoginManager);
 		
 		SocketResource socketResource = new SocketResource(
-				newSC, 
+				newAcceptedSC, 
 				inputMessageReaderOfOwnerSC,
 				executorOfOwnerSC,
 				outputMessageWriterOfOwnerSC,
@@ -68,7 +68,7 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 		
 		synchronized (monitor) {
 			/** 소켓 자원 등록 작업 */
-			socketChannel2SocketResourceHash.put(newSC, socketResource);
+			socketChannel2SocketResourceHash.put(newAcceptedSC, socketResource);
 			
 			/**
 			 * <pre>
@@ -81,9 +81,9 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 			 * 읽기 전용 selector 등록이라는 부가 작업이 더 있기 때문이다.
 			 * </pre>
 			 */
-			outputMessageWriterOfOwnerSC.addNewSocket(newSC);
-			executorOfOwnerSC.addNewSocket(newSC);
-			inputMessageReaderOfOwnerSC.addNewSocket(newSC);
+			outputMessageWriterOfOwnerSC.addNewSocket(newAcceptedSC);
+			executorOfOwnerSC.addNewSocket(newAcceptedSC);
+			inputMessageReaderOfOwnerSC.addNewSocket(newAcceptedSC);
 		}
 	}
 

@@ -134,8 +134,12 @@ public class AsynPrivateConnection extends AbstractAsynConnection {
 			/** 서버에서 보내는 공지등 불특정 다수한테 보내는 출력 메시지 */
 			try {
 				asynSocketResource.getClientExecutor().putIntoQueue(fromLetter);
-			} catch (InterruptedException e) {
+			} catch (InterruptedException e) {				
 				log.warn("인터럽트 발생에 의한 비동기 출력 메시지[{}] 버림", fromLetter.toString());
+			
+				wrapReadableMiddleObject.closeReadableMiddleObject();
+			
+				
 				throw e;
 			}
 		} else {
@@ -152,6 +156,9 @@ public class AsynPrivateConnection extends AbstractAsynConnection {
 				asynPrivateMailbox.putToSyncOutputMessageQueue(fromLetter);
 			} catch (InterruptedException e) {
 				log.warn("인터럽트 발생에 의한 동기 출력 메시지[{}] 버림", fromLetter.toString());
+				
+				wrapReadableMiddleObject.closeReadableMiddleObject();
+				
 				throw e;
 			}
 		}

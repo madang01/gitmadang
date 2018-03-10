@@ -2,11 +2,7 @@ package kr.pe.sinnori.server;
 
 import static org.junit.Assert.fail;
 
-import java.io.IOException;
 import java.nio.ByteOrder;
-import java.nio.channels.Selector;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
@@ -46,7 +42,7 @@ public class MainServerManagerTest extends AbstractJunitTest {
 		long startTime = System.nanoTime();
 
 		try {
-			for (int i = 0; i < 10000; i++) {
+			for (int i = 0; i < 1; i++) {
 				Empty emptyReq = new Empty();
 				AbstractMessage emptyRes = mainProjectConnectionPool.sendSyncInputMessage(emptyReq);
 
@@ -111,27 +107,7 @@ public class MainServerManagerTest extends AbstractJunitTest {
 	 * fail("error::"+e.getMessage()); } }
 	 */
 	
-	@Test 
-	public void test4() {
-		List<Selector> selectorList = new LinkedList<Selector>();
-		try {
-			for (int i=0; i < 10000; i++) {
-				Selector tempSelector = Selector.open();
-				selectorList.add(tempSelector);
-			}
-		} catch(Exception e) {
-			log.warn("error", e);
-			fail("error");
-		} finally {
-			for (Selector tempSelector : selectorList) {
-				try {
-					tempSelector.close();
-				} catch (IOException e) {
-				}
-			}
-		}
-		
-	}
+	
 
 	@Test
 	public void test2() {
@@ -139,11 +115,15 @@ public class MainServerManagerTest extends AbstractJunitTest {
 		ProjectPartConfiguration projectPartConfigurationForTest = null;
 
 		MessageProtocolType messageProtocolTypeForTest = MessageProtocolType.DHB;
-		ConnectionType connectionTypeForTest = ConnectionType.SYNC_PRIVATE;
+		ConnectionType connectionTypeForTest = ConnectionType.ASYN_PRIVATE;
 
+		String host = null;
+		// host = "172.30.1.16";
+		host = "localhost";
+		
 		try {
 			projectPartConfigurationForTest = getMainProjectPartConfiguration(testProjectName,
-					"172.30.1.16",  9090,
+					host,  9091,
 					messageProtocolTypeForTest, connectionTypeForTest);
 
 		} catch (Exception e) {
@@ -165,7 +145,7 @@ public class MainServerManagerTest extends AbstractJunitTest {
 					projectPartConfigurationForTest);
 
 			long startTime = System.nanoTime();
-
+			
 			for (int i = 0; i < 10000; i++) {
 				Empty emptyReq = new Empty();
 				AbstractMessage emptyRes = anyProjectConnectionPoolForTest.sendSyncInputMessage(emptyReq);
@@ -259,7 +239,7 @@ public class MainServerManagerTest extends AbstractJunitTest {
 				3);
 
 		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_COUNT_ITEMID).toString(), 1);
+				.append(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_COUNT_ITEMID).toString(), 2);
 
 		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.").append(
 				ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_PIRVATE_MAILBOX_CNT_PER_PUBLIC_CONNECTION_ITEMID)
@@ -310,7 +290,7 @@ public class MainServerManagerTest extends AbstractJunitTest {
 				5);
 
 		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_READ_SELECTOR_WAKEUP_INTERVAL_ITEMID)
+				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_READ_ONLY_SELECTOR_WAKEUP_INTERVAL_ITEMID)
 				.toString(), 10L);
 
 		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
@@ -329,11 +309,11 @@ public class MainServerManagerTest extends AbstractJunitTest {
 				2);
 
 		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_PROCESSOR_MAX_SIZE_ITEMID)
+				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_MAX_SIZE_ITEMID)
 				.toString(), 3);
 
 		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_PROCESSOR_SIZE_ITEMID).toString(),
+				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_SIZE_ITEMID).toString(),
 				2);
 
 		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")

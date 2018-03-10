@@ -36,7 +36,7 @@ public abstract class AbstractThreadPool implements ThreadPoolIF {
 	protected final Object monitor = new Object();
 
 	@Override
-	public int size() {
+	public int getPoolSize() {
 		// synchronized (monitor) {
 			return pool.size();
 		// }

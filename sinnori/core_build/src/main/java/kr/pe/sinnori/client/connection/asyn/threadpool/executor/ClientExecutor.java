@@ -1,4 +1,4 @@
-package kr.pe.sinnori.client.connection.asyn.threadpool.executor.handler;
+package kr.pe.sinnori.client.connection.asyn.threadpool.executor;
 
 import java.nio.channels.SocketChannel;
 import java.util.Hashtable;
@@ -21,27 +21,21 @@ public class ClientExecutor extends Thread implements ClientExecutorIF {
 
 	private LinkedBlockingQueue<FromLetter> outputMessageQueue;
 
-	// private MessageProtocolIF messageProtocol = null;
-	// private ClientObjectCacheManagerIF clientObjectCacheManager = null;
-
 	private ClientMessageUtilityIF clientMessageUtility = null;
 
 	private Hashtable<SocketChannel, AbstractAsynConnection> sc2AsynConnectionHash = new Hashtable<SocketChannel, AbstractAsynConnection>();
 
-	public ClientExecutor(String projectName, int index, LinkedBlockingQueue<FromLetter> outputMessageQueue,
-			// MessageProtocolIF messageProtocol,
-			// ClientObjectCacheManagerIF clientObjectCacheManager
+	public ClientExecutor(String projectName, int index, 
+			LinkedBlockingQueue<FromLetter> outputMessageQueue,
 			ClientMessageUtilityIF clientMessageUtility) {
 		this.projectName = projectName;
 		this.index = index;
 		this.outputMessageQueue = outputMessageQueue;
-		// this.messageProtocol = messageProtocol;
-		// this.clientObjectCacheManager = clientObjectCacheManager;
 		this.clientMessageUtility = clientMessageUtility;
 	}
 
 	public void run() {
-		log.warn("{} ClientExecutor[{}] start", projectName, index);
+		log.info("{} ClientExecutor[{}] start", projectName, index);
 
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
@@ -74,8 +68,8 @@ public class ClientExecutor extends Thread implements ClientExecutorIF {
 	}
 
 	@Override
-	public void addNewAsynConnection(AbstractAsynConnection asynConnection) {
-		log.info("add asynConnection[{}]", asynConnection.hashCode());
+	public void registerAsynConnection(AbstractAsynConnection asynConnection) {
+		// log.info("add asynConnection[{}]", asynConnection.hashCode());
 
 		sc2AsynConnectionHash.put(asynConnection.getSocketChannel(), asynConnection);
 	}

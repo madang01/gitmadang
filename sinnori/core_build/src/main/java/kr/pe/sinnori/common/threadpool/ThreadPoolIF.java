@@ -27,12 +27,12 @@ public interface ThreadPoolIF {
 	 * 
 	 * @return 폴 크기
 	 */
-	public int size();
+	public int getPoolSize();
 
 	/**
 	 * 폴에 쓰레드 추가
 	 */
-	public void addHandler() throws IllegalStateException;
+	public void addTask() throws IllegalStateException;
 
 	/**
 	 * 폴에 등록된 모든 쓰레드 시작

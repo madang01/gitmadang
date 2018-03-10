@@ -36,7 +36,7 @@ public class MybatisSqlSessionFactoryManger {
 
 	private MybatisConfigXMLFileSAXParser mybatisConfigXMLFileSAXParser = null;
 	private HashMap<String, SqlSessionFactory> enviromentID2SqlSessionFactoryHash = new HashMap<String, SqlSessionFactory>();
-	private MybatisFileTypeResourceModificationChecker currentMybatisFileTypeResourceModificationChecker = null;
+	private MybatisParsingInformationForModification currentMybatisParsingInformationForModification = null;
 	private File mybatisConfigeFile = null;
 	
 	private SimpleClassLoader simpleClassLoader = null;
@@ -109,7 +109,7 @@ public class MybatisSqlSessionFactoryManger {
 		}
 
 		try {
-			currentMybatisFileTypeResourceModificationChecker = mybatisConfigXMLFileSAXParser
+			currentMybatisParsingInformationForModification = mybatisConfigXMLFileSAXParser
 					.parse(mybatisConfigeFile);
 		} catch (IllegalArgumentException | SAXException | IOException e) {
 			log.warn("2.SAXException", e);
@@ -183,7 +183,7 @@ public class MybatisSqlSessionFactoryManger {
 			throws MybatisException {
 		SqlSessionFactory newSqlSessionFactory = null;
 		try {
-			MybatisFileTypeResourceModificationChecker newFileTypeResourceManager = mybatisConfigXMLFileSAXParser
+			MybatisParsingInformationForModification newMybatisParsingInformationForModification = mybatisConfigXMLFileSAXParser
 					.parse(mybatisConfigeFile);
 			
 			newSqlSessionFactory = buildNewInstanceOfSqlSessionFactory(mybatisConfigeFile, enviromentID);
@@ -192,7 +192,7 @@ public class MybatisSqlSessionFactoryManger {
 			enviromentID2SqlSessionFactoryHash.put(enviromentID, newSqlSessionFactory);
 			
 			
-			this.currentMybatisFileTypeResourceModificationChecker = newFileTypeResourceManager;
+			this.currentMybatisParsingInformationForModification = newMybatisParsingInformationForModification;
 			
 			log.info("successfully SqlSessionFactory[{}] was renewed", enviromentID);
 		} catch (Exception e) {
@@ -233,9 +233,9 @@ public class MybatisSqlSessionFactoryManger {
 		}
 
 		synchronized (enviromentID2SqlSessionFactoryHash) {
-			if (null == currentMybatisFileTypeResourceModificationChecker) {
+			if (null == currentMybatisParsingInformationForModification) {
 				try {
-					this.currentMybatisFileTypeResourceModificationChecker = mybatisConfigXMLFileSAXParser
+					this.currentMybatisParsingInformationForModification = mybatisConfigXMLFileSAXParser
 							.parse(mybatisConfigeFile);
 				} catch (Exception e) {
 					String errorMessage = String
@@ -257,7 +257,7 @@ public class MybatisSqlSessionFactoryManger {
 				throw new MybatisException(errorMessage);
 			}
 
-			if (currentMybatisFileTypeResourceModificationChecker.isModified()) {
+			if (currentMybatisParsingInformationForModification.isAllFileTypeResourceModified()) {
 				sqlSessionFactory = renewSqlSessionFactory(enviromentID);
 			}
 

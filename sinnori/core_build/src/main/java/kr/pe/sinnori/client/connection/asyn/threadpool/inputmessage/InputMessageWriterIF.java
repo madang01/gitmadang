@@ -1,4 +1,4 @@
-package kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler;
+package kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage;
 
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.common.asyn.ToLetter;

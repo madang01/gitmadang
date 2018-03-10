@@ -721,7 +721,7 @@ public class SinnoriItemIDInfoManger {
 							10, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
 	
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_READ_SELECTOR_WAKEUP_INTERVAL_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_READ_ONLY_SELECTOR_WAKEUP_INTERVAL_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Long>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -785,7 +785,7 @@ public class SinnoriItemIDInfoManger {
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
 	
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_PROCESSOR_MAX_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_MAX_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -798,7 +798,7 @@ public class SinnoriItemIDInfoManger {
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
 	
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_PROCESSOR_SIZE_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_SIZE_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Integer>(
 					ItemIDInfo.ConfigurationPart.PROJECT,
@@ -1041,7 +1041,7 @@ public class SinnoriItemIDInfoManger {
 									Integer.class));
 		}
 		{
-			String dependentTargetItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_PROCESSOR_MAX_SIZE_ITEMID;
+			String dependentTargetItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_MAX_SIZE_ITEMID;
 			ItemIDInfo<?> dependentTargetItemIDInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentTargetItemIDInfo) {
 				String errorMessage = new StringBuilder(
@@ -1051,7 +1051,7 @@ public class SinnoriItemIDInfoManger {
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 	
-			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_PROCESSOR_SIZE_ITEMID;
+			String dependentSourceItemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_SIZE_ITEMID;
 			ItemIDInfo<?> dependentSourceitemIDConfigInfo = getItemIDInfo(dependentTargetItemID);
 			if (null == dependentSourceitemIDConfigInfo) {
 				String errorMessage = new StringBuilder(

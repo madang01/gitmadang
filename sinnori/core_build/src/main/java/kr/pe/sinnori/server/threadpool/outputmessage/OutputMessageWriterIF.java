@@ -1,4 +1,4 @@
-package kr.pe.sinnori.server.threadpool.outputmessage.handler;
+package kr.pe.sinnori.server.threadpool.outputmessage;
 
 import java.nio.channels.SocketChannel;
 

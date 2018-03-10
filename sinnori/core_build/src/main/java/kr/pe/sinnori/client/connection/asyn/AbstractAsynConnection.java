@@ -17,19 +17,12 @@
 package kr.pe.sinnori.client.connection.asyn;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.SocketTimeoutException;
-import java.net.StandardSocketOptions;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.SocketChannel;
-import java.util.Iterator;
 import java.util.List;
 
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPublicMailbox;
-import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReader;
+import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReader;
 import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.exception.BodyFormatException;
@@ -41,12 +34,7 @@ import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 
-/**
- * 클라이언트 소켓 채널 블락킹 모드가 넌블락인 비동기 연결 클래스의 부모 추상화 클래스<br/>
- * 참고) 소켓 채널관련 서비스관련 구현을 하는 클래스를 연결 클래스로 명명한다.
- * 
- * @author Won Jonghoon
- */
+
 public abstract class AbstractAsynConnection extends AbstractConnection {
 	protected AsynSocketResourceIF asynSocketResource = null;
 
@@ -58,79 +46,16 @@ public abstract class AbstractAsynConnection extends AbstractConnection {
 		this.asynSocketResource = asynSocketResource;
 
 		asynSocketResource.setOwnerAsynConnection(this);
-
-		doConnect();
+		asynSocketResource.getInputMessageWriter().registerAsynConnection(this);
+		asynSocketResource.getClientExecutor().registerAsynConnection(this);
+		asynSocketResource.getOutputMessageReader().registerAsynConnection(this);
 	}
 
 	protected void doReleaseSocketResources() {
 		/** nothing */
 	}
 
-	protected void openSocketChannel() throws IOException {
-		serverSC = SocketChannel.open();
-		serverSelectableChannel = serverSC.configureBlocking(false);
-		serverSC.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
-		serverSC.setOption(StandardSocketOptions.TCP_NODELAY, true);
-		serverSC.setOption(StandardSocketOptions.SO_LINGER, 0);
-
-		/*StringBuilder infoBuilder = null;
-
-		infoBuilder = new StringBuilder("projectName[");
-		infoBuilder.append(projectName);
-		infoBuilder.append("] create a new asyn connection[");
-		infoBuilder.append(serverSC.hashCode());
-		infoBuilder.append("]");
-
-		log.info(infoBuilder.toString());*/
-		
-		log.info("projectName[{}] asyn connection[{}] created", projectName, serverSC.hashCode());
-	}
-
-	protected void doConnect() throws IOException {
-		Selector connectionEventOnlySelector = Selector.open();
-
-		try {
-			serverSC.register(connectionEventOnlySelector, SelectionKey.OP_CONNECT);
-
-			InetSocketAddress remoteAddr = new InetSocketAddress(host, port);
-			if (! serverSC.connect(remoteAddr)) {
-				@SuppressWarnings("unused")
-				int numberOfKeys = connectionEventOnlySelector.select(socketTimeOut);
-
-				// log.info("numberOfKeys={}", numberOfKeys);
-
-				Iterator<SelectionKey> selectionKeyIterator = connectionEventOnlySelector.selectedKeys().iterator();
-				if (!selectionKeyIterator.hasNext()) {
-
-					String errorMessage = String.format("1.the socket[sc hascode=%d] timeout", serverSC.hashCode());
-					throw new SocketTimeoutException(errorMessage);
-				}
-
-				SelectionKey selectionKey = selectionKeyIterator.next();
-				selectionKey.cancel();
-
-				if (!serverSC.finishConnect()) {
-					String errorMessage = String.format("the socket[sc hascode=%d] has an error pending",
-							serverSC.hashCode());
-					throw new SocketTimeoutException(errorMessage);
-				}
-			}
-		} finally {
-			connectionEventOnlySelector.close();
-		}
-
-		asynSocketResource.getOutputMessageReader().registerAsynConnection(this);
-
-		/*StringBuilder infoBuilder = null;
-
-		infoBuilder = new StringBuilder("projectName[");
-		infoBuilder.append(projectName);
-		infoBuilder.append("] asyn connection[");
-		infoBuilder.append(serverSC.hashCode());
-		infoBuilder.append("]");
-		log.info(new StringBuilder(infoBuilder.toString()).append(" connected").toString());*/
-		log.info("projectName[{}] asyn connection[{}] connected", projectName, serverSC.hashCode());
-	}
+	
 
 	abstract public void putToOutputMessageQueue(FromLetter fromLetter) throws InterruptedException;
 

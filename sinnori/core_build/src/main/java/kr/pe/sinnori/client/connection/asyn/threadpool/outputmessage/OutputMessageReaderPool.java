@@ -20,8 +20,6 @@ package kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReader;
-import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReaderIF;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 
@@ -47,12 +45,12 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements Outpu
 		this.messageProtocol = messageProtocol;
 
 		for (int i = 0; i < size; i++) {
-			addHandler();
+			addTask();
 		}
 	}
 
 	@Override
-	public void addHandler() throws IllegalStateException {
+	public void addTask() throws IllegalStateException {
 		synchronized (monitor) {
 			int size = pool.size();
 

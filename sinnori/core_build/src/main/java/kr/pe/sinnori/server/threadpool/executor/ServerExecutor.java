@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package kr.pe.sinnori.server.threadpool.executor.handler;
+package kr.pe.sinnori.server.threadpool.executor;
 
 import java.nio.channels.SocketChannel;
 import java.util.Collections;
@@ -194,6 +194,12 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 	
 	@Override
 	public void putIntoQueue(FromLetter fromLetter) throws InterruptedException {
+		try {
 		inputMessageQueue.put(fromLetter);
+		} catch(InterruptedException e) {
+			WrapReadableMiddleObject wrapReadableMiddleObject = fromLetter.getWrapReadableMiddleObject();
+			log.info("drop the input message[{}] becase of InterruptedException", wrapReadableMiddleObject.toString());
+			throw e;
+		}
 	}
 }

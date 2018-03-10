@@ -61,7 +61,7 @@ public class MybatisConfigXMLFileSAXParser extends DefaultHandler {
 		return saxParser;
 	}
 	
-	public MybatisFileTypeResourceModificationChecker parse(File mybatisConfigFile) 
+	public MybatisParsingInformationForModification parse(File mybatisConfigFile) 
 			throws IllegalArgumentException, SAXException, IOException {
 		if (null == mybatisConfigFile) {
 			throw new IllegalArgumentException("the parameter mybatisConfigFile is null");
@@ -91,7 +91,7 @@ public class MybatisConfigXMLFileSAXParser extends DefaultHandler {
 		// fileTypeResource2FileList.add(xmlFile);
 		// mybatisConfigFile = xmlFile;
 		
-		MybatisFileTypeResourceModificationChecker mybatisFileTypeResourceModificationChecker = new MybatisFileTypeResourceModificationChecker(mybatisConfigFile);
+		MybatisParsingInformationForModification mybatisFileTypeResourceModificationChecker = new MybatisParsingInformationForModification(mybatisConfigFile);
 		
 		try {
 			saxParser.parse(mybatisConfigFile, this);

@@ -15,18 +15,17 @@
  * limitations under the License.
  */
 
-package kr.pe.sinnori.server.threadpool.inputmessage.handler;
+package kr.pe.sinnori.server.threadpool.inputmessage;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
-import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -34,13 +33,12 @@ import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.server.SocketResource;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
-import kr.pe.sinnori.server.threadpool.executor.handler.ServerExecutorIF;
+import kr.pe.sinnori.server.threadpool.executor.ServerExecutorIF;
 
 public class InputMessageReader extends Thread implements InputMessageReaderIF {
 	private Logger log = LoggerFactory.getLogger(InputMessageReader.class);
@@ -59,10 +57,10 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 	private final Set<SocketChannel> notRegistedSocketChannelList = Collections
 			.synchronizedSet(new HashSet<SocketChannel>());
 
-	private Selector readEventOnlySelector = null;
+	private Selector selectorForReadEventOnly = null;
 
 	public InputMessageReader(String projectName, int index, long readOnlySelectorWakeupInterval,
-			MessageProtocolIF messageProtocol, DataPacketBufferPoolIF dataPacketBufferQueueManager,
+			MessageProtocolIF messageProtocol,
 			SocketResourceManagerIF socketResourceManager) {
 		this.index = index;
 		this.readOnlySelectorWakeupInterval = readOnlySelectorWakeupInterval;
@@ -71,7 +69,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 		this.socketResourceManager = socketResourceManager;
 
 		try {
-			readEventOnlySelector = Selector.open();
+			selectorForReadEventOnly = Selector.open();
 		} catch (IOException ioe) {
 			log.error(String.format("RequetProcessor[%d] selector open fail", index), ioe);
 			System.exit(1);
@@ -106,7 +104,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 		 * </pre>
 		 */
 		do {
-			readEventOnlySelector.wakeup();
+			selectorForReadEventOnly.wakeup();
 
 			try {
 				Thread.sleep(readOnlySelectorWakeupInterval);
@@ -120,7 +118,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 
 	@Override
 	public int getNumberOfSocket() {
-		return (notRegistedSocketChannelList.size() + readEventOnlySelector.keys().size());
+		return (notRegistedSocketChannelList.size() + selectorForReadEventOnly.keys().size());
 	}
 
 	/**
@@ -134,7 +132,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 			notRegistedSocketChannelIterator.remove();
 
 			try {
-				notRegistedSocketChannel.register(readEventOnlySelector, SelectionKey.OP_READ);
+				notRegistedSocketChannel.register(selectorForReadEventOnly, SelectionKey.OP_READ);
 			} catch (ClosedChannelException e) {
 				log.warn("{} InputMessageReader[{}] socket channel[{}] fail to register selector", projectName, index,
 						notRegistedSocketChannel.hashCode());
@@ -153,10 +151,10 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
 				processNewConnection();
-				int selectionKeyCount = readEventOnlySelector.select();
+				int selectionKeyCount = selectorForReadEventOnly.select();
 
 				if (selectionKeyCount > 0) {
-					Set<SelectionKey> selectedKeySet = readEventOnlySelector.selectedKeys();
+					Set<SelectionKey> selectedKeySet = selectorForReadEventOnly.selectedKeys();
 					Iterator<SelectionKey> selectionKeyIterator = selectedKeySet.iterator();
 					while (selectionKeyIterator.hasNext()) {
 						SelectionKey selectedKey = selectionKeyIterator.next();
@@ -200,12 +198,30 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 							
 							fromSocketResource.setFinalReadTime();
 
-							ArrayList<WrapReadableMiddleObject> wrapReadableMiddleObjectList = messageProtocol
+							List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = messageProtocol
 									.S2MList(fromSocketOutputStream);
-
-							for (WrapReadableMiddleObject wrapReadableMiddleObject : wrapReadableMiddleObjectList) {
-								fromExecutor
-										.putIntoQueue(new FromLetter(selectedSocketChannel, wrapReadableMiddleObject));
+							
+							Iterator<WrapReadableMiddleObject> wrapReadableMiddleObjectIterator =
+									wrapReadableMiddleObjectList.iterator();
+							
+							try {
+								while (wrapReadableMiddleObjectIterator.hasNext()) {
+									WrapReadableMiddleObject wrapReadableMiddleObject = wrapReadableMiddleObjectIterator.next();
+									
+									fromExecutor
+											.putIntoQueue(new FromLetter(selectedSocketChannel, wrapReadableMiddleObject));
+									
+									
+								}
+							} catch(InterruptedException e) {
+								while (wrapReadableMiddleObjectIterator.hasNext()) {
+									WrapReadableMiddleObject wrapReadableMiddleObject = wrapReadableMiddleObjectIterator.next();
+									
+									log.info("drop the input message[{}] becase of InterruptedException", wrapReadableMiddleObject.toString());
+									
+									wrapReadableMiddleObject.closeReadableMiddleObject();								
+								}
+								throw e;
 							}
 
 						} catch (NoMoreDataPacketBufferException e) {
@@ -214,11 +230,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 									e.getMessage());
 							log.warn(errorMessage, e);
 							closeClient(selectedKey, fromSocketResource);
-							continue;
-						} catch (NotYetConnectedException e) {
-							log.warn("io error", e);
-							closeClient(selectedKey, fromSocketResource);
-							continue;
+							continue;						
 						} catch (IOException e) {
 							String errorMessage = String.format("%s InputMessageReader[%d] IOException::%s",
 									projectName, index, e.getMessage());

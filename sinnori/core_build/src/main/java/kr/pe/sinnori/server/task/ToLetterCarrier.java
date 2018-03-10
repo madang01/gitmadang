@@ -43,7 +43,7 @@ import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.SocketResource;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
-import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriterIF;
+import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterIF;
 
 /**
  * 클라이언트로 보내는 편지 배달부. 서버 비지니스 로직 호출할때 마다 할당 된다. 

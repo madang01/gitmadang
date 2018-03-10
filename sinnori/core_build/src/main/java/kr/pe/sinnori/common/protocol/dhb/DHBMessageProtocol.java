@@ -23,8 +23,8 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -313,7 +313,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 	}
 
 	@Override
-	public ArrayList<WrapReadableMiddleObject> S2MList(SocketOutputStream socketOutputStream)
+	public List<WrapReadableMiddleObject> S2MList(SocketOutputStream socketOutputStream)
 			throws HeaderFormatException, NoMoreDataPacketBufferException {
 		if (null == socketOutputStream) {
 			throw new IllegalArgumentException("the parameter socketOutputStream is null");
@@ -321,7 +321,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 
 		DHBMessageHeader workingDHBMessageHeader = (DHBMessageHeader) socketOutputStream.getUserDefObject();
 
-		ArrayList<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();
+		List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new LinkedList<WrapReadableMiddleObject>();
 		boolean isMoreMessage = false;
 		long socketOutputStreamSize = socketOutputStream.size();
 		

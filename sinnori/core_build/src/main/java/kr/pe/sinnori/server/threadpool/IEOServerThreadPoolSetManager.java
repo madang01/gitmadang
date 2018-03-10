@@ -3,12 +3,12 @@ package kr.pe.sinnori.server.threadpool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import kr.pe.sinnori.server.threadpool.executor.ServerExecutorIF;
 import kr.pe.sinnori.server.threadpool.executor.ServerExecutorPoolIF;
-import kr.pe.sinnori.server.threadpool.executor.handler.ServerExecutorIF;
+import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderIF;
 import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderPoolIF;
-import kr.pe.sinnori.server.threadpool.inputmessage.handler.InputMessageReaderIF;
+import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterIF;
 import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterPoolIF;
-import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriterIF;
 
 public class IEOServerThreadPoolSetManager implements IEOServerThreadPoolSetManagerIF {
 	private Logger log = LoggerFactory.getLogger(IEOServerThreadPoolSetManager.class);

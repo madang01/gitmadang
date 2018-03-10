@@ -17,16 +17,11 @@
 package kr.pe.sinnori.client.connection.sync.noshare;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import kr.pe.sinnori.client.connection.AbstractConnection;
@@ -73,9 +68,6 @@ public class SyncPrivateConnection extends AbstractConnection {
 		this.syncPrivateSocketResoruce = syncPrivateSocketResoruce;
 		
 		socketOutputStream = syncPrivateSocketResoruce.getSocketOutputStream();
-		
-		doConnect();
-		
 		//log.info(String.format("project[%s] NoShareSyncConnection[%d] 생성자 end", projectName, serverSC.hashCode()));
 	}
 	
@@ -101,64 +93,6 @@ public class SyncPrivateConnection extends AbstractConnection {
 	protected void queueOut() {
 		isQueueIn = false;
 		// log.info("get NoShareSyncConnection[{}] from the connection queue", monitor.hashCode());
-	}
-	
-
-	@Override
-	protected void openSocketChannel() throws IOException {
-		serverSC = SocketChannel.open();
-		serverSelectableChannel = serverSC.configureBlocking(false);
-		serverSC.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
-		serverSC.setOption(StandardSocketOptions.TCP_NODELAY, true);
-		serverSC.setOption(StandardSocketOptions.SO_LINGER, 0);		
-
-		/*StringBuilder infoBuilder = null;
-		infoBuilder = new StringBuilder("projectName[");
-		infoBuilder.append(projectName);
-		infoBuilder.append("] sync private connection[");
-		infoBuilder.append(serverSC.hashCode());
-		infoBuilder.append("]");
-		log.info(infoBuilder.toString());*/
-		
-		log.info("projectName[{}] sync private connection[{}] created", projectName, serverSC.hashCode());
-		
-	}
-
-	@Override
-	protected void doConnect() throws IOException {
-		Selector connectionEventOnlySelector = Selector.open();
-
-		try {
-			serverSC.register(connectionEventOnlySelector, SelectionKey.OP_CONNECT);
-
-			InetSocketAddress remoteAddr = new InetSocketAddress(host, port);
-			if (! serverSC.connect(remoteAddr)) {
-				@SuppressWarnings("unused")
-				int numberOfKeys = connectionEventOnlySelector.select(socketTimeOut);
-
-				// log.info("numberOfKeys={}", numberOfKeys);
-
-				Iterator<SelectionKey> selectionKeyIterator = connectionEventOnlySelector.selectedKeys().iterator();
-				if (!selectionKeyIterator.hasNext()) {
-
-					String errorMessage = String.format("1.the socket[sc hascode=%d] timeout", serverSC.hashCode());
-					throw new SocketTimeoutException(errorMessage);
-				}
-
-				SelectionKey selectionKey = selectionKeyIterator.next();
-				selectionKey.cancel();
-
-				if (!serverSC.finishConnect()) {
-					String errorMessage = String.format("the socket[sc hascode=%d] has an error pending",
-							serverSC.hashCode());
-					throw new SocketTimeoutException(errorMessage);
-				}
-			}
-		} finally {
-			connectionEventOnlySelector.close();
-		}
-
-		log.info("projectName[{}] sync private connection[{}] connected", projectName, serverSC.hashCode());
 	}
 	
 	public AbstractMessage sendSyncInputMessage(AbstractMessage inObj)
@@ -253,6 +187,8 @@ public class SyncPrivateConnection extends AbstractConnection {
 				
 				ioEventOnlySelector.selectedKeys().clear();
 				
+				List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
+				
 				try {
 					int numRead = socketOutputStream.read(serverSC);
 					
@@ -265,26 +201,30 @@ public class SyncPrivateConnection extends AbstractConnection {
 					
 					setFinalReadTime();					
 					
-					ArrayList<WrapReadableMiddleObject> wrapReadableMiddleObjectList = clientMessageUtility
+					wrapReadableMiddleObjectList = clientMessageUtility
 							.getWrapReadableMiddleObjectList(socketOutputStream);
 					
+					int wrapReadableMiddleObjectListSize = wrapReadableMiddleObjectList.size();
 					
-					if (wrapReadableMiddleObjectList.size() ==  1) {
-						WrapReadableMiddleObject wrapReadableMiddleObject = wrapReadableMiddleObjectList.get(0);
+					if (1 == wrapReadableMiddleObjectListSize) {
+						WrapReadableMiddleObject wrapReadableMiddleObject = wrapReadableMiddleObjectList.get(0);						
 						outObj = clientMessageUtility.buildOutputMessage(classLoader, wrapReadableMiddleObject);
-						break;
-					} else if (wrapReadableMiddleObjectList.size() > 1) {
+						break;						
+					} else if (wrapReadableMiddleObjectListSize > 1) {
 						String errorMessage = new StringBuilder("this sync private connection[")
 								.append(serverSC.hashCode())
 								.append("] has recevied one more messages in this sendSyncInputMessage method").toString();
 						
-						for (WrapReadableMiddleObject wrapReadableMiddleObject : wrapReadableMiddleObjectList) {
+						for (WrapReadableMiddleObject wrapReadableMiddleObject : wrapReadableMiddleObjectList) {							
 							log.warn("drop the output message[{}] becase {}",
 									wrapReadableMiddleObject.toString(), errorMessage);
+							
+							wrapReadableMiddleObject.closeReadableMiddleObject();
 						}
+						
 						throw new SocketException(errorMessage);
 					}
-
+					
 				} catch (Exception e) {
 					String errorMessage = new StringBuilder("fail to read a output message")							
 							.append(" in this sync private connection[")
@@ -292,8 +232,17 @@ public class SyncPrivateConnection extends AbstractConnection {
 							.append("], errmsg=")
 							.append(e.getMessage()).toString();
 					log.warn(errorMessage, e);
-					log.warn("this input message[sc={}][{}] has dropped becase of read failure", 
+					log.warn("fail to read a output message for the input message[sc={}][{}]", 
 							serverSC.hashCode(), inObj.toString());
+					
+					if (null != wrapReadableMiddleObjectList) {
+						for (WrapReadableMiddleObject wrapReadableMiddleObject : wrapReadableMiddleObjectList) {							
+							log.warn("drop the output message[{}] becase {}",
+									wrapReadableMiddleObject.toString(), errorMessage);
+							
+							wrapReadableMiddleObject.closeReadableMiddleObject();
+						}
+					}
 					
 					throw new IOException(errorMessage);
 				}

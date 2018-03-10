@@ -20,7 +20,7 @@ package kr.pe.sinnori.common.protocol.thb;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -215,11 +215,11 @@ public class THBMessageProtocol implements MessageProtocolIF {
 
 	
 	@Override
-	public ArrayList<WrapReadableMiddleObject> S2MList(SocketOutputStream socketOutputStream) 
+	public List<WrapReadableMiddleObject> S2MList(SocketOutputStream socketOutputStream) 
 					throws HeaderFormatException, NoMoreDataPacketBufferException {		
 		THBMessageHeader messageHeader = (THBMessageHeader)socketOutputStream.getUserDefObject();		
 		
-		ArrayList<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();		
+		List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new LinkedList<WrapReadableMiddleObject>();		
 		
 		boolean isMoreMessage = false;
 		

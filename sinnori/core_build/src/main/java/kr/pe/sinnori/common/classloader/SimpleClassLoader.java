@@ -278,7 +278,7 @@ public class SimpleClassLoader extends ClassLoader {
 
 		return retClass;
 	}
-
+	
 	public InputStream getResourceAsStream(String name) {
 		InputStream is = null;
 

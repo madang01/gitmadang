@@ -4,12 +4,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MybatisFileTypeResourceModificationChecker {	
+public class MybatisParsingInformationForModification {	
 	private FileModificationChecker mybatisConfigFileModificationChecker = null;
 	
 	private List<FileModificationChecker> mapperFileModificationCheckerList = new ArrayList<FileModificationChecker>();
 	
-	public MybatisFileTypeResourceModificationChecker(File mybatisConfigFile) {
+	public MybatisParsingInformationForModification(File mybatisConfigFile) {
 		if (null == mybatisConfigFile) {
 			throw new IllegalArgumentException("the parameter mybatisConfigFile is null");
 		}
@@ -26,7 +26,7 @@ public class MybatisFileTypeResourceModificationChecker {
 	}
 	
 	
-	public boolean isModified() {
+	public boolean isAllFileTypeResourceModified() {
 		if (mybatisConfigFileModificationChecker.isModified()) return true;
 		
 		for (FileModificationChecker fileTypeResource : mapperFileModificationCheckerList) {

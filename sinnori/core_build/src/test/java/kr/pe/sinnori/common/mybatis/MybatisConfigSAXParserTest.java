@@ -247,7 +247,7 @@ public class MybatisConfigSAXParserTest {
 
 	@Test
 	public void testParse() {		
-		MybatisFileTypeResourceModificationChecker mybatisFileTypeResourceModificationChecker = null;
+		MybatisParsingInformationForModification mybatisFileTypeResourceModificationChecker = null;
 		
 		MybatisConfigXMLFileSAXParser mybatisConfigSAXParser = null;
 		try {
@@ -264,7 +264,7 @@ public class MybatisConfigSAXParserTest {
 			fail(e.getMessage());
 		}
 				
-		boolean beforeIsModified = mybatisFileTypeResourceModificationChecker.isModified();
+		boolean beforeIsModified = mybatisFileTypeResourceModificationChecker.isAllFileTypeResourceModified();
 		log.info("beforeIsModified={}", beforeIsModified);
 		
 		if (beforeIsModified) {

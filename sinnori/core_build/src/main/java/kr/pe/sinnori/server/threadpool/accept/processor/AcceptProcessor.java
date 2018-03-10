@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package kr.pe.sinnori.server.threadpool.accept.processor.handler;
+package kr.pe.sinnori.server.threadpool.accept.processor;
 
 // import java.util.logging.Level;
 import java.net.StandardSocketOptions;
@@ -68,30 +68,14 @@ public class AcceptProcessor extends Thread {
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
 				SocketChannel clientSC = acceptQueue.take();
+				
 				clientSC.configureBlocking(false);
-				
-				
-
-				/*Socket sc = clientSC.socket();
-				sc.setKeepAlive(true);
-				sc.setTcpNoDelay(true);*/
-				// sc.setSendBufferSize(io_buffer_size);
-				// sc.setReceiveBufferSize(io_buffer_size);
-				
 				clientSC.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
 				clientSC.setOption(StandardSocketOptions.TCP_NODELAY, true);
 				clientSC.setOption(StandardSocketOptions.SO_LINGER, 0);
-				clientSC.setOption(StandardSocketOptions.SO_SNDBUF, 65536);
-				// clientSC.setOption(StandardSocketOptions.SO_RCVBUF, serverProjectConfig.getDataPacketBufferSize());
-
-				/*try {
-					inputMessageReaderPoolIF.addNewClientFromAcceptProcessor(clientSC);
-				} catch (NoMoreDataPacketBufferException e) {
-					log.warn("NoMoreDataPacketBufferException", e);
-					clientSC.close();
-				}*/
+				clientSC.setOption(StandardSocketOptions.SO_SNDBUF, 65536);				
 				
-				socketResourceManager.addNewSocketChannel(clientSC);
+				socketResourceManager.addNewAcceptedSocketChannel(clientSC);
 			}
 			log.warn(String.format("%s AcceptProcessor[%d] loop exit", projectName, index));
 		} catch (InterruptedException e) {

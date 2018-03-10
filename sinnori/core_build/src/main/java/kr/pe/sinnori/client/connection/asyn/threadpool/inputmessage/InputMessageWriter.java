@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler;
+package kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
@@ -33,7 +33,6 @@ import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.asyn.ToLetter;
-import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
@@ -75,21 +74,21 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 	@Override
 	public void run() {
 		log.info(String.format("InputMessageWriter[%d] start", index));
-		
-		
+
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
 				ToLetter toLetter = inputMessageQueue.take();
-				
 				SocketChannel toSC = toLetter.getToSocketChannel();
 				
-				List<WrapBuffer> warpBufferList = toLetter.getWrapBufferList();
-				int indexOfWorkingBuffer = 0;
-				int warpBufferListSize = warpBufferList.size();
-				
-				Selector writeEventOnlySelector = Selector.open();
-				
+				List<WrapBuffer> warpBufferList = null;
+				Selector writeEventOnlySelector = null;				
 				try {
+					warpBufferList = toLetter.getWrapBufferList();
+					writeEventOnlySelector = Selector.open();
+					
+					int warpBufferListSize = warpBufferList.size();
+					int indexOfWorkingBuffer = 0;
+					
 					toSC.register(writeEventOnlySelector, SelectionKey.OP_WRITE);
 						
 					WrapBuffer workingWrapBuffer = warpBufferList.get(indexOfWorkingBuffer);
@@ -117,49 +116,66 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 							workingByteBuffer = workingWrapBuffer.getByteBuffer();
 						}
 					} while (loop);
-				} catch(Exception e) {
-					String errorMessage = String.format("InputMessageWriter[%d] letterToServer=[%s], errmsg=%s",
-							index, toLetter.toString(), e.getMessage());
+				} catch(IOException e) {
+					String errorMessage = String.format("%s InputMessageWriter[%d] toLetter=[%s], errmsg=%s",
+							projectName, index, toLetter.toString(), e.getMessage());
 					log.warn(errorMessage, e);
 					
 					AbstractAsynConnection asynConnection = sc2AsynConnectionHash.get(toSC);
 					
-					if (toLetter.getMailboxID() != CommonStaticFinalVars.ASYN_MAILBOX_ID) {
-						SelfExnRes selfExnRes = new SelfExnRes();
-						selfExnRes.messageHeaderInfo.mailboxID = toLetter.getMailboxID();
-						selfExnRes.messageHeaderInfo.mailID = toLetter.getMailID();
-						selfExnRes.setErrorMessageID(toLetter.getMessageID());
-						selfExnRes.setErrorPlace(ErrorPlace.CLIENT);
-						selfExnRes.setErrorType(ErrorType.ClientIOException);
-						selfExnRes.setErrorReason("IOException::"+e.getMessage());						
-						
-						WrapReadableMiddleObject wrapReadableMiddleObject 
-						= new WrapReadableMiddleObject(toLetter.getMessageID(), 
-								toLetter.getMailboxID(), toLetter.getMailID(), selfExnRes);
-								
-						
-						FromLetter fromLetter = new FromLetter(toLetter.getToSocketChannel(), wrapReadableMiddleObject);
-						asynConnection.putToOutputMessageQueue(fromLetter);
-					} else {
-						/** 비동기일때에는 그냥 닫는다 */
-						asynConnection.close();
+					if (null == asynConnection) {
+						log.warn("this sc2AsynConnectionHash contains no mapping for the key[socket channel={}]", toSC.hashCode());
+						continue;
 					}
-				} finally {
-					clientMessageUtility.releaseWrapBufferList(warpBufferList);
-					try {
-						writeEventOnlySelector.close();
-					} catch(IOException e) {
+					
+					/*if (toLetter.getMailboxID() != CommonStaticFinalVars.ASYN_MAILBOX_ID) {
 						
+					} else {
+						*//** 비동기일때에는 그냥 닫는다 *//*
+						try {
+							asynConnection.close();
+						} catch(IOException e1) {
+						}
+						
+					}*/
+					
+					SelfExnRes selfExnRes = new SelfExnRes();
+					selfExnRes.messageHeaderInfo.mailboxID = toLetter.getMailboxID();
+					selfExnRes.messageHeaderInfo.mailID = toLetter.getMailID();
+					selfExnRes.setErrorMessageID(toLetter.getMessageID());
+					selfExnRes.setErrorPlace(ErrorPlace.CLIENT);
+					selfExnRes.setErrorType(ErrorType.ClientIOException);
+					selfExnRes.setErrorReason("IOException::"+e.getMessage());						
+					
+					WrapReadableMiddleObject wrapReadableMiddleObject 
+					= new WrapReadableMiddleObject(toLetter.getMessageID(), 
+							toLetter.getMailboxID(), toLetter.getMailID(), selfExnRes);
+					
+					FromLetter fromLetter = new FromLetter(toLetter.getToSocketChannel(), wrapReadableMiddleObject);
+					asynConnection.putToOutputMessageQueue(fromLetter);
+				} finally {
+					if (null != warpBufferList) {
+						clientMessageUtility.releaseWrapBufferList(warpBufferList);	
+					}
+					
+					if (null != writeEventOnlySelector) {
+						try {
+							writeEventOnlySelector.close();
+						} catch(IOException e) {
+							
+						}
 					}
 				}
 			}
 
-			log.warn(String.format("%s InputMessageWriter[%d] loop exit", projectName, index));
-		} catch(InterruptedException e) {
-			log.warn(String.format("%s InputMessageWriter[%d] stop", projectName, index));
+			log.warn("{} InputMessageWriter[{}] loop exit", projectName, index);
+		} catch(InterruptedException e) { 
+			log.warn("{} InputMessageWriter[{}] stop", projectName, index);
 		} catch (Exception e) {
-			log.warn(String.format("%s InputMessageWriter[%d] unknown error::%s", projectName, index, e.getMessage()),
-					e);
+			String errorMessage = String.format("%s InputMessageWriter[%d] unknown error::%s", projectName, index, e.getMessage());
+			log.warn(errorMessage,e);
+		} finally {
+			
 		}
 	}
 
@@ -176,7 +192,14 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 	}
 
 	public void putIntoQueue(ToLetter toLetter) throws InterruptedException {
-		inputMessageQueue.put(toLetter);
+		try {
+			inputMessageQueue.put(toLetter);
+		} catch(InterruptedException e) {
+			log.info("drop the input message[{}]", toLetter.toString());
+			clientMessageUtility.releaseWrapBufferList(toLetter.getWrapBufferList());
+			
+			throw e;
+		}
 	}
 
 	public void finalize() {

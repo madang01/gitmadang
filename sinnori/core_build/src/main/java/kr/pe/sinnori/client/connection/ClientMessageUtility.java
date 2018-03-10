@@ -1,6 +1,5 @@
 package kr.pe.sinnori.client.connection;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -114,7 +113,7 @@ public class ClientMessageUtility implements ClientMessageUtilityIF {
 		return outputMessage;
 	}
 
-	public ArrayList<WrapReadableMiddleObject> getWrapReadableMiddleObjectList(SocketOutputStream socketOutputStream)
+	public List<WrapReadableMiddleObject> getWrapReadableMiddleObjectList(SocketOutputStream socketOutputStream)
 			throws HeaderFormatException, NoMoreDataPacketBufferException {
 		return messageProtocol.S2MList(socketOutputStream);
 	}

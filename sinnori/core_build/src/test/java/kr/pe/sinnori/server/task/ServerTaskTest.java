@@ -13,7 +13,6 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -48,9 +47,9 @@ import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.SocketResource;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
-import kr.pe.sinnori.server.threadpool.executor.handler.ServerExecutorIF;
-import kr.pe.sinnori.server.threadpool.inputmessage.handler.InputMessageReaderIF;
-import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriterIF;
+import kr.pe.sinnori.server.threadpool.executor.ServerExecutorIF;
+import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderIF;
+import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterIF;
 
 public class ServerTaskTest extends AbstractJunitTest {
 	
@@ -238,7 +237,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}
 
 			@Override
-			public void addNewSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException {
+			public void addNewAcceptedSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException {
 			}
 
 			@Override
@@ -309,7 +308,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			
 			//log.info("4");
 			
-			ArrayList<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
+			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
 			try {
 				wrapReadableMiddleObjectList = messageProtocol.S2MList(sos);
 			} catch (Exception e) {
@@ -545,7 +544,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}
 
 			@Override
-			public void addNewSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException {
+			public void addNewAcceptedSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException {
 			}
 
 			@Override
@@ -615,7 +614,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			
 			//log.info("4");
 			
-			ArrayList<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
+			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
 			try {
 				wrapReadableMiddleObjectList = messageProtocol.S2MList(sos);
 			} catch (Exception e) {
@@ -845,7 +844,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}
 
 			@Override
-			public void addNewSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException {
+			public void addNewAcceptedSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException {
 			}
 
 			@Override
@@ -916,7 +915,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			
 			//log.info("4");
 			
-			ArrayList<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
+			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
 			try {
 				wrapReadableMiddleObjectList = messageProtocol.S2MList(sos);
 			} catch (Exception e) {
@@ -1160,7 +1159,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}
 
 			@Override
-			public void addNewSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException {
+			public void addNewAcceptedSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException {
 			}
 
 			@Override
@@ -1230,7 +1229,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			
 			//log.info("4");
 			
-			ArrayList<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
+			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
 			try {
 				wrapReadableMiddleObjectList = messageProtocol.S2MList(sos);
 			} catch (Exception e) {
@@ -1473,7 +1472,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}
 
 			@Override
-			public void addNewSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException {
+			public void addNewAcceptedSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException {
 			}
 
 			@Override
@@ -1543,7 +1542,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			
 			//log.info("4");
 			
-			ArrayList<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
+			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
 			try {
 				wrapReadableMiddleObjectList = messageProtocol.S2MList(sos);
 			} catch (Exception e) {
@@ -1800,7 +1799,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}
 
 			@Override
-			public void addNewSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException {
+			public void addNewAcceptedSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException {
 			}
 
 			@Override
@@ -1870,7 +1869,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			
 			//log.info("4");
 			
-			ArrayList<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
+			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
 			try {
 				wrapReadableMiddleObjectList = messageProtocol.S2MList(sos);
 			} catch (Exception e) {
@@ -2129,7 +2128,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}
 
 			@Override
-			public void addNewSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException {
+			public void addNewAcceptedSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException {
 			}
 
 			@Override
@@ -2200,7 +2199,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			
 			//log.info("4");
 			
-			ArrayList<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
+			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
 			try {
 				wrapReadableMiddleObjectList = messageProtocol.S2MList(sos);
 			} catch (Exception e) {
@@ -2456,7 +2455,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			}
 
 			@Override
-			public void addNewSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException {
+			public void addNewAcceptedSocketChannel(SocketChannel sc) throws NoMoreDataPacketBufferException {
 			}
 
 			@Override
@@ -2526,7 +2525,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 			
 			//log.info("4");
 			
-			ArrayList<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
+			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
 			try {
 				wrapReadableMiddleObjectList = messageProtocol.S2MList(sos);
 			} catch (Exception e) {

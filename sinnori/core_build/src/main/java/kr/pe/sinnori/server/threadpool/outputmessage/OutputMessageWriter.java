@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package kr.pe.sinnori.server.threadpool.outputmessage.handler;
+package kr.pe.sinnori.server.threadpool.outputmessage;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -46,25 +46,18 @@ public class OutputMessageWriter extends Thread implements OutputMessageWriterIF
 	
 	private String projectName;
 	private int index;	
-	private DataPacketBufferPoolIF dataPacketBufferQueueManager;
+	private DataPacketBufferPoolIF dataPacketBufferPool;
 	private ArrayBlockingQueue<ToLetter> outputMessageQueue;	
 	
 	private final Set<SocketChannel> socketChannelSet = Collections.synchronizedSet(new HashSet<SocketChannel>());
 
-	/**
-	 * 생성자
-	 * @param index 순번
-	 * @param serverProjectConfig 프로젝트의 공통 포함한 서버 환경 변수 접근 인터페이스 
-	 * @param outputMessageQueue 출력 메시지 큐
-	 * @param messageProtocol 메시지 교환 프로토콜
-	 * @param dataPacketBufferQueueManager 데이터 패킷 버퍼 큐 관리자
-	 */
+	
 	public OutputMessageWriter(String projectName, int index, 
 			ArrayBlockingQueue<ToLetter> outputMessageQueue,
-			DataPacketBufferPoolIF dataPacketBufferQueueManager) {
+			DataPacketBufferPoolIF dataPacketBufferPool) {
 		this.index = index;
 		this.projectName = projectName;
-		this.dataPacketBufferQueueManager = dataPacketBufferQueueManager;
+		this.dataPacketBufferPool = dataPacketBufferPool;
 		this.outputMessageQueue = outputMessageQueue;
 	}
 
@@ -137,7 +130,7 @@ public class OutputMessageWriter extends Thread implements OutputMessageWriterIF
 					}
 				} finally {
 					for (WrapBuffer wrapBuffer : warpBufferList) {
-						dataPacketBufferQueueManager.putDataPacketBuffer(wrapBuffer);
+						dataPacketBufferPool.putDataPacketBuffer(wrapBuffer);
 					}
 					try {
 						writeEventOnlySelector.close();
@@ -172,6 +165,14 @@ public class OutputMessageWriter extends Thread implements OutputMessageWriterIF
 	
 	@Override
 	public void putIntoQueue(ToLetter toLetter) throws InterruptedException {
-		outputMessageQueue.put(toLetter);
+		try {
+			outputMessageQueue.put(toLetter);
+		} catch(InterruptedException e) {
+			log.info("drop the output message[{}] becase of InterruptedException", toLetter.toString());
+			for (WrapBuffer wrapBuffer : toLetter.getWrapBufferList()) {
+				dataPacketBufferPool.putDataPacketBuffer(wrapBuffer);
+			}
+		}
+		
 	}
 }

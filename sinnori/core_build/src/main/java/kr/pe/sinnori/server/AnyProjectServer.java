@@ -41,7 +41,7 @@ import kr.pe.sinnori.common.protocol.thb.THBMessageProtocol;
 import kr.pe.sinnori.server.threadpool.IEOServerThreadPoolSetManager;
 import kr.pe.sinnori.server.threadpool.IEOServerThreadPoolSetManagerIF;
 import kr.pe.sinnori.server.threadpool.accept.processor.AcceptProcessorPool;
-import kr.pe.sinnori.server.threadpool.accept.selector.handler.AcceptSelector;
+import kr.pe.sinnori.server.threadpool.accept.selector.AcceptSelector;
 import kr.pe.sinnori.server.threadpool.executor.ServerExecutorPool;
 import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderPool;
 import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterPool;
@@ -74,11 +74,7 @@ public class AnyProjectServer {
 	
 	public AnyProjectServer(ProjectPartConfiguration projectPartConfiguration)
 			throws NoMoreDataPacketBufferException, SinnoriConfigurationException {
-		this.projectPartConfiguration = projectPartConfiguration;
-		
-		
-		
-		
+		this.projectPartConfiguration = projectPartConfiguration;		
 		
 		CharsetEncoder charsetEncoderOfProject = CharsetUtil.createCharsetEncoder(projectPartConfiguration.getCharset());
 		CharsetDecoder charsetDecoderOfProject = CharsetUtil.createCharsetDecoder(projectPartConfiguration.getCharset());
@@ -150,42 +146,39 @@ public class AnyProjectServer {
 				projectPartConfiguration.getServerMaxClients(), acceptQueue, socketResourceManager);
 
 		
-		acceptProcessorPool = new AcceptProcessorPool(projectPartConfiguration.getProjectName(),
+		acceptProcessorPool = new AcceptProcessorPool(
 				projectPartConfiguration.getServerAcceptProcessorSize(), 
-				projectPartConfiguration.getServerAcceptProcessorMaxSize(), 
+				projectPartConfiguration.getServerAcceptProcessorMaxSize(),
+				projectPartConfiguration.getProjectName(),
 				acceptQueue,
 				socketResourceManager);
 		
 		inputMessageReaderPool = new InputMessageReaderPool(
+				projectPartConfiguration.getServerInputMessageReaderPoolSize(), 
+				projectPartConfiguration.getServerInputMessageReaderPoolMaxSize(),
 				projectPartConfiguration.getProjectName(),
-				projectPartConfiguration.getServerInputMessageReaderSize(), 
-				projectPartConfiguration.getServerInputMessageReaderMaxSize(),
-				projectPartConfiguration.getServerReadSelectorWakeupInterval(),
-				messageProtocol, dataPacketBufferPool, 
+				projectPartConfiguration.getServerWakeupIntervalOfSelectorForReadEventOnly(),
+				messageProtocol, 
 				socketResourceManager, ieoThreadPoolManager);		
-		ieoThreadPoolManager.setInputMessageReaderPool(inputMessageReaderPool);
-		
 		
 		serverObjectCacheManager = createNewServerObjectCacheManager();		
 
-		executorPool = new ServerExecutorPool(
-				projectPartConfiguration.getProjectName(), 
-				projectPartConfiguration.getServerExecutorProcessorSize(),
-				projectPartConfiguration.getServerExecutorProcessorMaxSize(),
+		executorPool = new ServerExecutorPool(				 
+				projectPartConfiguration.getServerExecutorPoolSize(),
+				projectPartConfiguration.getServerExecutorPoolMaxSize(),
+				projectPartConfiguration.getProjectName(),
 				projectPartConfiguration.getServerInputMessageQueueSize(), 
 				messageProtocol, 
 				socketResourceManager,
 				serverObjectCacheManager,
 				ieoThreadPoolManager);
-		ieoThreadPoolManager.setExecutorPool(executorPool);
 
 		outputMessageWriterPool = new OutputMessageWriterPool(
+				projectPartConfiguration.getServerOutputMessageWriterPoolSize(), 
+				projectPartConfiguration.getServerOutputMessageWriterPoolMaxSize(),
 				projectPartConfiguration.getProjectName(),
-				projectPartConfiguration.getServerOutputMessageWriterSize(), 
-				projectPartConfiguration.getServerOutputMessageWriterMaxSize(),
 				projectPartConfiguration.getServerOutputMessageQueueSize(), 
 				dataPacketBufferPool, ieoThreadPoolManager);
-		ieoThreadPoolManager.setOutputMessageWriterPool(outputMessageWriterPool);
 
 		serverProjectMonitor = new ServerProjectMonitor(
 				projectPartConfiguration.getServerMonitorTimeInterval());

@@ -18,8 +18,14 @@
 package kr.pe.sinnori.client.connection;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketTimeoutException;
+import java.net.StandardSocketOptions;
 import java.nio.channels.SelectableChannel;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,10 +76,58 @@ public abstract class AbstractConnection {
 		this.clientMessageUtility = clientMessageUtility;
 		
 		openSocketChannel();
+		
+		doConnect();
 	}
 	
-	abstract protected void openSocketChannel() throws IOException;
-	abstract protected void doConnect() throws IOException;
+	private void openSocketChannel() throws IOException {
+		serverSC = SocketChannel.open();
+		serverSelectableChannel = serverSC.configureBlocking(false);
+		serverSC.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
+		serverSC.setOption(StandardSocketOptions.TCP_NODELAY, true);
+		serverSC.setOption(StandardSocketOptions.SO_LINGER, 0);
+		
+		log.info("{} connection[{}] created", projectName, serverSC.hashCode());
+	}
+	
+	
+	private void doConnect() throws IOException {
+		Selector connectionEventOnlySelector = Selector.open();
+
+		try {
+			serverSC.register(connectionEventOnlySelector, SelectionKey.OP_CONNECT);
+
+			InetSocketAddress remoteAddr = new InetSocketAddress(host, port);
+			if (! serverSC.connect(remoteAddr)) {
+				@SuppressWarnings("unused")
+				int numberOfKeys = connectionEventOnlySelector.select(socketTimeOut);
+
+				// log.info("numberOfKeys={}", numberOfKeys);
+
+				Iterator<SelectionKey> selectionKeyIterator = connectionEventOnlySelector.selectedKeys().iterator();
+				if (!selectionKeyIterator.hasNext()) {
+
+					String errorMessage = String.format("1.the socket[sc hascode=%d] timeout", serverSC.hashCode());
+					throw new SocketTimeoutException(errorMessage);
+				}
+
+				SelectionKey selectionKey = selectionKeyIterator.next();
+				selectionKey.cancel();
+
+				if (!serverSC.finishConnect()) {
+					String errorMessage = String.format("the socket[sc hascode=%d] has an error pending",
+							serverSC.hashCode());
+					throw new SocketTimeoutException(errorMessage);
+				}
+			}
+		} finally {
+			connectionEventOnlySelector.close();
+		}
+
+		log.info("{} connection[{}] {}:{} connected", 
+				projectName, serverSC.hashCode(),
+				host, port);
+	}
 	/**
 	 * {@link #close} 에서 사용되는 내부 메소드로 동기 성격의 연결에서는 실질적인 소켓 자원을 반환하지만  비동기 성격의 연결의 경우 아무것도 안한다.
 	 */

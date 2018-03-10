@@ -23,9 +23,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.io.SocketOutputStream;
-import kr.pe.sinnori.server.threadpool.executor.handler.ServerExecutorIF;
-import kr.pe.sinnori.server.threadpool.inputmessage.handler.InputMessageReaderIF;
-import kr.pe.sinnori.server.threadpool.outputmessage.handler.OutputMessageWriterIF;
+import kr.pe.sinnori.server.threadpool.executor.ServerExecutorIF;
+import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderIF;
+import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterIF;
 
 /**
  * 서버에 접속하는 클라이언트 자원 클래스.

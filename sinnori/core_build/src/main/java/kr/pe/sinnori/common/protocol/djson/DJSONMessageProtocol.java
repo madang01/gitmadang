@@ -19,7 +19,7 @@ package kr.pe.sinnori.common.protocol.djson;
 import java.nio.BufferOverflowException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.json.simple.JSONObject;
@@ -171,12 +171,12 @@ public class DJSONMessageProtocol implements MessageProtocolIF {
 	}
 	
 	@Override
-	public ArrayList<WrapReadableMiddleObject> S2MList(SocketOutputStream socketOutputStream) throws HeaderFormatException,
+	public List<WrapReadableMiddleObject> S2MList(SocketOutputStream socketOutputStream) throws HeaderFormatException,
 			NoMoreDataPacketBufferException {
 		
 		DJSONHeader messageHeader = (DJSONHeader)socketOutputStream.getUserDefObject();
 		
-		ArrayList<WrapReadableMiddleObject> receivedLetterList = new ArrayList<WrapReadableMiddleObject>();
+		List<WrapReadableMiddleObject> receivedLetterList = new LinkedList<WrapReadableMiddleObject>();
 		
 		boolean isMoreMessage = false;
 		

@@ -278,7 +278,7 @@ public class MybatisSqlSessionFactoryMangerTest {
 			}
 		}
 		
-		MybatisFileTypeResourceModificationChecker fileTypeResourceManger = null;
+		MybatisParsingInformationForModification fileTypeResourceManger = null;
 		
 		MybatisConfigXMLFileSAXParser mybatisConfigSAXParser = null;
 		try {

@@ -1,9 +1,9 @@
 package kr.pe.sinnori.client.connection.asyn;
 
 import kr.pe.sinnori.client.connection.asyn.threadpool.IEOClientThreadPoolSetManagerIF;
-import kr.pe.sinnori.client.connection.asyn.threadpool.executor.handler.ClientExecutorIF;
-import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.handler.InputMessageWriterIF;
-import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler.OutputMessageReaderIF;
+import kr.pe.sinnori.client.connection.asyn.threadpool.executor.ClientExecutorIF;
+import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.InputMessageWriterIF;
+import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderIF;
 import kr.pe.sinnori.common.io.SocketOutputStream;
 
 public class AsynSocketResource implements AsynSocketResourceIF {

@@ -65,6 +65,7 @@ public class AsynPublicConnection extends AbstractAsynConnection {
 				asynSocketResource.getClientExecutor().putIntoQueue(fromLetter);
 			} catch (InterruptedException e) {
 				log.warn("인터럽트 발생에 의한 비동기 출력 메시지[{}] 버림", fromLetter.toString());
+				wrapReadableMiddleObject.closeReadableMiddleObject();
 				throw e;
 			}
 		} else {
@@ -82,6 +83,7 @@ public class AsynPublicConnection extends AbstractAsynConnection {
 				asynPrivateMailbox.putToSyncOutputMessageQueue(fromLetter);
 			} catch (InterruptedException e) {
 				log.warn("인터럽트 발생에 의한 동기 출력 메시지[{}] 버림", fromLetter.toString());
+				wrapReadableMiddleObject.closeReadableMiddleObject();
 				throw e;
 			}
 		}
@@ -112,6 +114,7 @@ public class AsynPublicConnection extends AbstractAsynConnection {
 			// writeInputMessageToSocketChannel(serverSC, wrapBufferListOfInputMessage);
 			ToLetter toLetter = new ToLetter(serverSC, inObj.getMessageID(), inObj.messageHeaderInfo.mailboxID,
 					inObj.messageHeaderInfo.mailID, wrapBufferListOfInputMessage);
+			
 			asynSocketResource.getInputMessageWriter().putIntoQueue(toLetter);
 
 			wrapReadableMiddleObject = asynPrivateMailbox.getSyncOutputMessage();

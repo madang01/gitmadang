@@ -15,18 +15,18 @@
  * limitations under the License.
  */
 
-package kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.handler;
+package kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.common.asyn.FromLetter;
+import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
@@ -60,33 +61,22 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 			.synchronizedSet(new HashSet<SocketChannel>());
 
 	/** 읽기 전용 selecotr */
-	private Selector selector = null;
+	private Selector selectorForReadEventOnly = null;
 
 	/** selector 를 깨우는 간격 */
-	private long readSelectorWakeupInterval;
+	private long wakeupIntervalOfSelectorForReadEventOnley;
 
 	private Hashtable<SocketChannel, AbstractAsynConnection> scToAsynConnectionHash = new Hashtable<SocketChannel, AbstractAsynConnection>();
 
-	/**
-	 * 생성자
-	 * 
-	 * @param index
-	 *            순번
-	 * @param readSelectorWakeupInterval
-	 *            출력 메시지 소켓 읽기 담당 쓰레드에서 블락된 읽기 이벤트 전용 selector 를 깨우는 주기
-	 * @param projectPart
-	 *            프로젝트의 공통 포함 클라이언트 환경 변수 접근 인터페이스
-	 * @param messageProtocol
-	 *            메시지 교환 프로토콜
-	 */
-	public OutputMessageReader(String projectName, int index, long readSelectorWakeupInterval,
+	
+	public OutputMessageReader(String projectName, int index, long wakeupIntervalOfSelectorForReadEventOnley,
 			MessageProtocolIF messageProtocol) {
 		this.projectName = projectName;
 		this.index = index;
-		this.readSelectorWakeupInterval = readSelectorWakeupInterval;
+		this.wakeupIntervalOfSelectorForReadEventOnley = wakeupIntervalOfSelectorForReadEventOnley;
 		this.messageProtocol = messageProtocol;
 		try {
-			selector = Selector.open();
+			selectorForReadEventOnly = Selector.open();
 		} catch (IOException ioe) {
 			log.error("selector open fail", ioe);
 			System.exit(1);
@@ -95,7 +85,7 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 
 	@Override
 	public int getNumberOfAsynConnection() {
-		return (notRegistedSocketChannelList.size() + selector.keys().size());
+		return (notRegistedSocketChannelList.size() + selectorForReadEventOnly.keys().size());
 	}
 
 	/**
@@ -110,7 +100,7 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 			notRegistedSocketChannelIterator.remove();
 			
 				try {
-					notRegistedSocketChannel.register(selector, SelectionKey.OP_READ);
+					notRegistedSocketChannel.register(selectorForReadEventOnly, SelectionKey.OP_READ);
 				} catch (ClosedChannelException e) {
 					log.warn("{} InputMessageReader[{}] socket channel[{}] fail to register selector", 
 							projectName, index, notRegistedSocketChannel.hashCode());
@@ -150,10 +140,10 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 		 * </pre>
 		 */
 		do {
-			selector.wakeup();
+			selectorForReadEventOnly.wakeup();
 
 			try {
-				Thread.sleep(readSelectorWakeupInterval);
+				Thread.sleep(wakeupIntervalOfSelectorForReadEventOnley);
 			} catch (InterruptedException e) {
 				// ignore
 			}
@@ -171,10 +161,10 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 			while (!Thread.currentThread().isInterrupted()) {
 				processNewConnection();
 
-				int numberOfKeys = selector.select();
+				int numberOfKeys = selectorForReadEventOnly.select();
 
 				if (numberOfKeys > 0) {
-					Set<SelectionKey> selectedKeySet = selector.selectedKeys();
+					Set<SelectionKey> selectedKeySet = selectorForReadEventOnly.selectedKeys();
 					Iterator<SelectionKey> selectedKeyIterator = selectedKeySet.iterator();
 					while (selectedKeyIterator.hasNext()) {
 						SelectionKey selectedKey = selectedKeyIterator.next();
@@ -209,18 +199,34 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 							
 							asynConnection.setFinalReadTime();
 
-							ArrayList<WrapReadableMiddleObject> wrapReadableMiddleObjectList = messageProtocol
+							List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = messageProtocol
 									.S2MList(socketOutputStream);
-
-							for (WrapReadableMiddleObject wrapReadableMiddleObject : wrapReadableMiddleObjectList) {
-								// FIXME!
-								// log.info("wrapReadableMiddleObject={}", wrapReadableMiddleObject.toString());
-
-								// asynConnection.putToOutputMessageQueue(new LetterFromServer(receivedLetter));
-								FromLetter fromLetter = new FromLetter(selectedSocketChannel, wrapReadableMiddleObject);
-								asynConnection.putToOutputMessageQueue(fromLetter);
+							
+							Iterator<WrapReadableMiddleObject> wrapReadableMiddleObjectIterator =
+									wrapReadableMiddleObjectList.iterator();
+							
+							try {
+								while (wrapReadableMiddleObjectIterator.hasNext()) {
+									WrapReadableMiddleObject wrapReadableMiddleObject = wrapReadableMiddleObjectIterator.next();								
+									FromLetter fromLetter = new FromLetter(selectedSocketChannel, wrapReadableMiddleObject);
+									asynConnection.putToOutputMessageQueue(fromLetter);
+								}
+							} catch(InterruptedException e) {
+								while (wrapReadableMiddleObjectIterator.hasNext()) {
+									WrapReadableMiddleObject wrapReadableMiddleObject = wrapReadableMiddleObjectIterator.next();
+									
+									log.info("drop the input message[{}] becase of InterruptedException", wrapReadableMiddleObject.toString());
+									
+									wrapReadableMiddleObject.closeReadableMiddleObject();								
+								}
+								throw e;
 							}
-						} catch (Exception e) {
+						} catch (NoMoreDataPacketBufferException e) {
+							log.warn(String.format("%s OutputMessageReader[%d]::%s",
+									asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
+							closeSocket(selectedKey, asynConnection);
+							continue;
+						} catch (IOException e) {
 							log.warn(String.format("%s OutputMessageReader[%d]::%s",
 									asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
 							closeSocket(selectedKey, asynConnection);
@@ -231,9 +237,10 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 			}
 
 			log.warn(String.format("%s OutputMessageReader[%d] loop exit", projectName, index));
+		} catch(InterruptedException e) {
+			log.warn(String.format("%s OutputMessageReader[%d] stop", projectName, index), e);
 		} catch (Exception e) {
-			log.error(String.format("%s OutputMessageReader[%d] unknown error", projectName, index), e);
-			System.exit(1);
+			log.warn(String.format("%s OutputMessageReader[%d] unknown error", projectName, index), e);
 		}
 
 		// log.warn(String.format("%s OutputMessageReader[%d] Thread end",

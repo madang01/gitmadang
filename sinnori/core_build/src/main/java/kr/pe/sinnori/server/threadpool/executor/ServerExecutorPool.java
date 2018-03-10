@@ -28,8 +28,6 @@ import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
 import kr.pe.sinnori.server.threadpool.IEOServerThreadPoolSetManagerIF;
-import kr.pe.sinnori.server.threadpool.executor.handler.ServerExecutor;
-import kr.pe.sinnori.server.threadpool.executor.handler.ServerExecutorIF;
 
 /**
  * 서버 비지니스 로직 수행자 쓰레드 폴
@@ -39,74 +37,102 @@ import kr.pe.sinnori.server.threadpool.executor.handler.ServerExecutorIF;
 public class ServerExecutorPool extends AbstractThreadPool implements ServerExecutorPoolIF {
 	// execuate_processor_pool_max_size
 	
-	private int max;
-	// private LinkedBlockingQueue<FromLetter> inputMessageQueue;
+	private int poolMaxSize;
+	private String projectName = null;
 	private int inputMessageQueueSize;
 	private MessageProtocolIF messageProtocol= null;
 	private SocketResourceManagerIF socketResourceManager;
 	private ServerObjectCacheManagerIF serverObjectCacheManager = null;
 	
-	private String projectName = null;
 	
-	public ServerExecutorPool(String projectName, 
-			int size, 
-			int max,
+	
+	public ServerExecutorPool( 
+			int poolSize, 
+			int poolMaxSize,
+			String projectName,
 			int inputMessageQueueSize,			
 			MessageProtocolIF messageProtocol,
 			SocketResourceManagerIF socketResourceManager,
 			ServerObjectCacheManagerIF serverObjectCacheManager,
 			IEOServerThreadPoolSetManagerIF ieoThreadPoolManager) throws SinnoriConfigurationException {
-		if (size <= 0) {
-			throw new IllegalArgumentException(String.format("%s 파라미터 size 는 0보다 커야 합니다.", projectName));
-		}
-		if (max <= 0) {
-			throw new IllegalArgumentException(String.format("%s 파라미터 max 는 0보다 커야 합니다.", projectName));
-		}
-
-		if (size > max) {
-			throw new IllegalArgumentException(String.format(
-					"%s 파라미터 size[%d]는 파라미터 max[%d]보다 작거나 같아야 합니다.", projectName, size, max));
+		if (poolSize <= 0) {
+			String errorMessage = String.format("the parameter poolSize[%d] is less than or equal to zero", poolSize); 
+			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		this.max = max;
+		if (poolMaxSize <= 0) {
+			String errorMessage = String.format("the parameter poolMaxSize[%d] is less than or equal to zero", poolMaxSize); 
+			throw new IllegalArgumentException(errorMessage);
+		}
+
+		if (poolSize > poolMaxSize) {
+			String errorMessage = String.format("the parameter poolSize[%d] is greater than the parameter poolMaxSize[%d]", poolSize, poolMaxSize); 
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (null == projectName) {
+			throw new IllegalArgumentException("the parameter projectName is null");
+		}
+		
+		if (inputMessageQueueSize <= 0) {
+			String errorMessage = String.format("the parameter inputMessageQueueSize[%d] is less than or equal to zero", inputMessageQueueSize); 
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (null == messageProtocol) {
+			throw new IllegalArgumentException("the parameter messageProtocol is null");
+		}
+		
+		if (null == socketResourceManager) {
+			throw new IllegalArgumentException("the parameter socketResourceManager is null");
+		}
+		
+		if (null == serverObjectCacheManager) {
+			throw new IllegalArgumentException("the parameter serverObjectCacheManager is null");
+		}
+		
+		if (null == ieoThreadPoolManager) {
+			throw new IllegalArgumentException("the parameter ieoThreadPoolManager is null");
+		}
+		
+		this.poolMaxSize = poolMaxSize;
 		this.projectName = projectName;		
 		this.inputMessageQueueSize = inputMessageQueueSize;
 		this.messageProtocol = messageProtocol;
 		this.socketResourceManager = socketResourceManager;
-		
-		/*this.serverObjectCacheManager = new ServerObjectCacheManager(projectName,
-				firstPrefixDynamicClassFullName);*/
 		this.serverObjectCacheManager =  serverObjectCacheManager;
 		
-		for (int i = 0; i < size; i++) {
-			addHandler();
+		ieoThreadPoolManager.setExecutorPool(this);		
+		
+		for (int i = 0; i < poolSize; i++) {
+			addTask();
 		}
 	}
 
 	@Override
-	public void addHandler() throws IllegalStateException {
+	public void addTask() throws IllegalStateException {
 		ArrayBlockingQueue<FromLetter> inputMessageQueue = new
 				ArrayBlockingQueue<FromLetter>(inputMessageQueueSize);
 		
 		synchronized (monitor) {
 			int size = pool.size();
 
-			if (size > max) {
-				String errorMessage = String.format("%s ExecutorProcessor 최대 갯수[%d]를 넘을 수 없습니다.", projectName, max); 
+			if (size >= poolMaxSize) {
+				String errorMessage = String.format("can't add any more tasks becase the number of %s ServerExecutorPool's tasks reached the maximum[%d] number", projectName, poolMaxSize); 
 				log.warn(errorMessage);
 				throw new IllegalStateException(errorMessage);
 			}
 			
 			try {
-				Thread handler = new ServerExecutor(size, 
+				Thread task = new ServerExecutor(size, 
 						projectName, 
 						inputMessageQueue, 
 						messageProtocol, 
 						socketResourceManager, 
 						serverObjectCacheManager);
-				pool.add(handler);
+				pool.add(task);
 			} catch (Exception e) {
-				String errorMessage = String.format("%s ExecutorProcessor[%d] 등록 실패", projectName, size); 
+				String errorMessage = String.format("failed to add a %s ServerExecutorPool's task becase error occured::errmsg={}", projectName, e.getMessage()); 
 				log.warn(errorMessage, e);
 				throw new IllegalStateException(errorMessage);
 			}
