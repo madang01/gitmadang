@@ -32,7 +32,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
+import kr.pe.sinnori.client.connection.asyn.IOEAsynConnectionIF;
 import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.SocketOutputStream;
@@ -66,7 +66,7 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 	/** selector 를 깨우는 간격 */
 	private long wakeupIntervalOfSelectorForReadEventOnley;
 
-	private Hashtable<SocketChannel, AbstractAsynConnection> scToAsynConnectionHash = new Hashtable<SocketChannel, AbstractAsynConnection>();
+	private Hashtable<SocketChannel, IOEAsynConnectionIF> scToAsynConnectionHash = new Hashtable<SocketChannel, IOEAsynConnectionIF>();
 
 	
 	public OutputMessageReader(String projectName, int index, long wakeupIntervalOfSelectorForReadEventOnley,
@@ -105,18 +105,23 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 					log.warn("{} InputMessageReader[{}] socket channel[{}] fail to register selector", 
 							projectName, index, notRegistedSocketChannel.hashCode());
 					
-					scToAsynConnectionHash.get(notRegistedSocketChannel).noticeThisConnectionWasRemovedFromReadyOnleySelector();					
-					scToAsynConnectionHash.remove(notRegistedSocketChannel);
+					IOEAsynConnectionIF asynConnection = scToAsynConnectionHash.get(notRegistedSocketChannel);
+					if (null == asynConnection) {
+						log.warn("this scToAsynConnectionHash contains no mapping for the key[{}] that is the socket channel failed to be registered with the given selector", notRegistedSocketChannel.hashCode());
+					} else {
+						asynConnection.noticeThisConnectionWasRemovedFromReadyOnleySelector();					
+						scToAsynConnectionHash.remove(notRegistedSocketChannel);
+					}
 				}
 			}
 		// }
 	}
 
 	@Override
-	public void registerAsynConnection(AbstractAsynConnection asynConn) {
-		SocketChannel newSC = asynConn.getSocketChannel();
+	public void registerAsynConnection(IOEAsynConnectionIF asynConnection) throws InterruptedException {
+		SocketChannel newSC = asynConnection.getSocketChannel();
 
-		scToAsynConnectionHash.put(newSC, asynConn);
+		scToAsynConnectionHash.put(newSC, asynConnection);
 		
 					
 		notRegistedSocketChannelList.add(newSC);
@@ -125,29 +130,32 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 		if (getState().equals(Thread.State.NEW)) {
 			return;
 		}
-
-		/**
-		 * <pre>
-		 * (1) 소켓 채널을 selector 에 등록한다. 
-		 * (2) 소켓 채널을 등록한 selector 를 깨우는 신호를 보낸후 
-		 * (3) 설정 파일에서 지정된 시간 만큼 대기 후
-		 * (4) 소켓 채널이 계속 연결된 상태이고 selector 에 등록이 안되었다면 
-		 *     (2) 번항에서 부터 다시 반복한다. 
-		 * (5) 소켓 채널이 계속 연결된 상태가 아니거나 혹은 selector 에 등록되었다면 루프를 종료한다.
-		 * 참고) (3) 항을 수행하는 순간 selector 가 깨어나 있어 
-		 *       소켓 읽기를 수행하는 과정에서 헤더 포맷 에러를 만날 경우 소켓을 닫고 동시에 selector 에 등록 취소한다.
-		 *       이것이 소켓 채널이 연결된 상태인지를 검사해야 하는 이유이다.
-		 * </pre>
-		 */
+	
+		boolean loop = false;
 		do {
 			selectorForReadEventOnly.wakeup();
 
 			try {
 				Thread.sleep(wakeupIntervalOfSelectorForReadEventOnley);
 			} catch (InterruptedException e) {
-				// ignore
+				log.info("give up the test checking whether the new AsynConnection[{}] is registered with the Selector because the interrupt has occurred", asynConnection.hashCode());
+				throw e;
 			}
-		} while (newSC.isConnected() && !newSC.isRegistered());
+			if (! newSC.isOpen()) {
+				log.info("give up the test checking whether the new AsynConnection[{}] is registered with the Selector because the connection is not open", asynConnection.hashCode());
+				return;
+			}
+			
+			if (! newSC.isConnected()) {
+				log.info("give up the test checking whether the new AsynConnection[{}] is registered with the Selector because the connection is not connected", asynConnection.hashCode());
+				return;
+			}
+			
+			loop = ! newSC.isRegistered();
+			
+		} while (loop);
+		
+		log.debug("{} OutputMessageReader[{}] new AsynConnection[{}][{}] added", projectName, index, asynConnection.hashCode());
 	}
 
 	@Override
@@ -173,7 +181,7 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 
 						// log.info("11111111111111111");
 
-						AbstractAsynConnection asynConnection = scToAsynConnectionHash.get(selectedSocketChannel);
+						IOEAsynConnectionIF asynConnection = scToAsynConnectionHash.get(selectedSocketChannel);
 						if (null == asynConnection) {
 							log.warn("{} OutputMessageReader[{}] this socket channel[{}] has reached end-of-stream",
 									projectName, index, selectedSocketChannel.hashCode());
@@ -222,13 +230,15 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 								throw e;
 							}
 						} catch (NoMoreDataPacketBufferException e) {
-							log.warn(String.format("%s OutputMessageReader[%d]::%s",
-									asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
+							String errorMessage = String.format("%s OutputMessageReader[%d]::%s",
+									asynConnection.getSimpleConnectionInfo(), index, e.getMessage());
+							log.warn(errorMessage, e);
 							closeSocket(selectedKey, asynConnection);
 							continue;
 						} catch (IOException e) {
-							log.warn(String.format("%s OutputMessageReader[%d]::%s",
-									asynConnection.getSimpleConnectionInfo(), index, e.getMessage()), e);
+							String errorMesage = String.format("%s OutputMessageReader[%d]::%s",
+									asynConnection.getSimpleConnectionInfo(), index, e.getMessage());
+							log.warn(errorMesage, e);
 							closeSocket(selectedKey, asynConnection);
 							continue;
 						}
@@ -236,11 +246,12 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 				}
 			}
 
-			log.warn(String.format("%s OutputMessageReader[%d] loop exit", projectName, index));
+			log.warn("{} OutputMessageReader[{}] loop exit", projectName, index);
 		} catch(InterruptedException e) {
-			log.warn(String.format("%s OutputMessageReader[%d] stop", projectName, index), e);
+			log.warn("{} OutputMessageReader[{}] stop", projectName, index);
 		} catch (Exception e) {
-			log.warn(String.format("%s OutputMessageReader[%d] unknown error", projectName, index), e);
+			String errorMessage = String.format("%s OutputMessageReader[%d] unknown error", projectName, index);
+			log.warn(errorMessage, e);
 		}
 
 		// log.warn(String.format("%s OutputMessageReader[%d] Thread end",
@@ -252,7 +263,7 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 	 * 
 	 * @param selectedKey
 	 */
-	private void closeSocket(SelectionKey selectedKey, AbstractAsynConnection selectedAsynConnection) {
+	private void closeSocket(SelectionKey selectedKey, IOEAsynConnectionIF selectedAsynConnection) {
 		SocketChannel selectedSocketChannel = (SocketChannel) selectedKey.channel();
 
 		log.info("close the socket[{}]", selectedSocketChannel.hashCode());

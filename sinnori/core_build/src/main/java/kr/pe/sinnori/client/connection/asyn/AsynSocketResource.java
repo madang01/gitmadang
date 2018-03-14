@@ -27,8 +27,7 @@ public class AsynSocketResource implements AsynSocketResourceIF {
 		
 		if (null == ieoClientThreadPoolSetManager) {
 			throw new IllegalArgumentException("the parameter ieoClientThreadPoolSetManager is null");
-		}
-		
+		}		
 		
 		
 		this.socketOutputStream = socketOutputStream;		
@@ -41,10 +40,6 @@ public class AsynSocketResource implements AsynSocketResourceIF {
 	public void setOwnerAsynConnection(AbstractAsynConnection ownerAsynConnection) {
 		this.ownerAsynConnection = ownerAsynConnection;
 	}
-	
-	/*public void releaseSocketResources() {
-		*//** do nothing because #doReleaseSocketResources() called from OutputmessageReader#run when socket closed *//*
-	}*/
 	
 	public void releaseSocketResources() {
 		socketOutputStream.close();

@@ -16,6 +16,8 @@
  */
 package kr.pe.sinnori.common.threadpool;
 
+import kr.pe.sinnori.common.exception.NotSupportedException;
+
 /**
  * 쓰레드 폴 인터페이스
  * 
@@ -32,7 +34,7 @@ public interface ThreadPoolIF {
 	/**
 	 * 폴에 쓰레드 추가
 	 */
-	public void addTask() throws IllegalStateException;
+	public void addTask() throws IllegalStateException, NotSupportedException;
 
 	/**
 	 * 폴에 등록된 모든 쓰레드 시작

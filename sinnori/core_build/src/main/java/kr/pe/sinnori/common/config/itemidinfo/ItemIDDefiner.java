@@ -54,14 +54,14 @@ public abstract class ItemIDDefiner {
 		public static final String CLIENT_ASYN_OUTPUT_MESSAGE_READER_POOL_SIZE_ITEMID 		= "client.asyn.output_message_reader.pool_size.value";
 		public static final String CLIENT_ASYN_EXECUTOR_POOL_SIZE_ITEMID = "client.asyn.executor.pool_size.value";
 		
-		public static final String CLIENT_ASYN_READ_SELECTOR_WAKEUP_INTERVAL_ITEMID 	= "client.asyn.read_selector_wakeup_interval.value";
+		public static final String CLIENT_ASYN_READ_ONLY_SELECTOR_WAKEUP_INTERVAL_ITEMID 	= "client.asyn.read_only_selector.wakeup_interval.value";
 		
 		public static final String SERVER_MONITOR_TIME_INTERVAL_ITEMID = "server.monitor.time_interval.value";
 		public static final String SERVER_MAX_CLIENTS_ITEMID = "server.max_clients.value";		
 		public static final String SERVER_POOL_ACCEPT_QUEUE_SIZE_ITEMID = "server.pool.accept_queue_size.value";
 		public static final String SERVER_POOL_INPUT_MESSAGE_QUEUE_SIZE_ITEMID = "server.pool.input_message_queue_size.value";
 		public static final String SERVER_POOL_OUTPUT_MESSAGE_QUEUE_SIZE_ITEMID = "server.pool.output_message_queue_size.value";
-		public static final String SERVER_POOL_READ_ONLY_SELECTOR_WAKEUP_INTERVAL_ITEMID = "server.pool.read_selector_wakeup_interval.value";
+		public static final String SERVER_POOL_READ_ONLY_SELECTOR_WAKEUP_INTERVAL_ITEMID = "server.pool.read_only_selector.wakeup_interval.value";
 		public static final String SERVER_POOL_ACCEPT_PROCESSOR_MAX_SIZE_ITEMID = "server.pool.accept_processor.max_size.value";
 		public static final String SERVER_POOL_ACCEPT_PROCESSOR_SIZE_ITEMID = "server.pool.accept_processor.size.value";
 		public static final String SERVER_POOL_INPUT_MESSAGE_READER_MAX_SIZE_ITEMID = "server.pool.input_message_reader.max_size.value";

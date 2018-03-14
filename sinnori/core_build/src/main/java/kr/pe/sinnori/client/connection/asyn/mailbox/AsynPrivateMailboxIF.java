@@ -11,7 +11,7 @@ public interface AsynPrivateMailboxIF {
 	
 	// public ToLetter makeNewToLetter(SocketChannel toSocketChannel, String messageID, List<WrapBuffer> wrapBufferList);
 	
-	public void putToSyncOutputMessageQueue(FromLetter fromLetter)
+	public void putSyncOutputMessage(FromLetter fromLetter)
 			throws InterruptedException;
 	
 	public WrapReadableMiddleObject getSyncOutputMessage() throws SocketTimeoutException, InterruptedException;

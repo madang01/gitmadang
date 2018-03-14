@@ -1,10 +1,11 @@
 package kr.pe.sinnori.client.connection.asyn.task;
 
+import java.nio.channels.SocketChannel;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
-import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.message.AbstractMessage;
@@ -16,12 +17,9 @@ protected Logger log = LoggerFactory.getLogger(AbstractClientTask.class);
 	private ClassLoader classLoaderOfSererTask = this.getClass().getClassLoader();
 	
 	public void execute(int index, String projectName,
-			AbstractAsynConnection asynConnection,
+			SocketChannel fromSC,
 			WrapReadableMiddleObject wrapReadableMiddleObject,
-			// MessageProtocolIF messageProtocol, 
-			// ClientObjectCacheManagerIF clientObjectCacheManager
-			ClientMessageUtilityIF clientMessageUtility
-			) throws InterruptedException {
+			ClientMessageUtilityIF clientMessageUtility) throws InterruptedException {
 		
 		AbstractMessage outputMessage = null;	
 		try {
@@ -38,7 +36,7 @@ protected Logger log = LoggerFactory.getLogger(AbstractClientTask.class);
 						
 
 		try {
-			doTask(projectName, outputMessage);
+			doTask(projectName, fromSC, outputMessage);
 		} catch (InterruptedException e) {
 			throw e;
 		} catch (Exception | Error e) {
@@ -54,5 +52,5 @@ protected Logger log = LoggerFactory.getLogger(AbstractClientTask.class);
 		// log.info(String.format("수행 시간=[%f] ms", (float) lastErraseTime));
 	}
 	
-	abstract public void doTask(String projectName, AbstractMessage outputMessage) throws Exception;
+	abstract public void doTask(String projectName, SocketChannel fromSC, AbstractMessage outputMessage) throws Exception;
 }

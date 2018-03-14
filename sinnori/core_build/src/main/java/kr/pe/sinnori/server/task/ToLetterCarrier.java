@@ -326,7 +326,7 @@ public class ToLetterCarrier {
 			ToLetter toLetter = toLetterList.removeFirst();
 			
 			SocketResource socketResource = 
-					socketResourceManager.getSocketResource(toLetter.getToSocketChannel());
+					socketResourceManager.getSocketResource(toLetter.getToSC());
 			
 			OutputMessageWriterIF outputMessageWriter = socketResource.getOutputMessageWriter();			
 			

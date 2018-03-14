@@ -29,5 +29,6 @@ public class AsynSocketResourceFactory implements AsynSocketResourceFactoryIF {
 		SocketOutputStream socketOutputStream = socketOutputStreamFactory.makeNewSocketOutputStream();
 		
 		return new AsynSocketResource(socketOutputStream, ieoClientThreadPoolSetManager);
-	}	
+	}
+
 }

@@ -20,6 +20,7 @@ package kr.pe.sinnori.server.threadpool.accept.processor;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
 
@@ -74,12 +75,17 @@ public class AcceptProcessorPool extends AbstractThreadPool {
 		this.socketResourceManager = socketResourceManager;
 
 		for (int i = 0; i < poolSize; i++) {
-			addTask();
+			try {
+				addTask();
+			} catch (IllegalStateException | NotSupportedException e) {
+				log.error(e.getMessage(), e);
+				System.exit(1);
+			}
 		}
 	}
 
 	@Override
-	public void addTask() throws IllegalStateException{
+	public void addTask() throws IllegalStateException, NotSupportedException {
 		synchronized (monitor) {
 			int size = pool.size();
 			
@@ -94,8 +100,7 @@ public class AcceptProcessorPool extends AbstractThreadPool {
 						acceptQueue, socketResourceManager);
 				pool.add(acceptProcessor);
 			} catch (Exception e) {
-				String errorMessage = String.format(
-						"%s AcceptProcessor[%d] 등록 실패", projectName, size);
+				String errorMessage = String.format("failed to add a %s AcceptProcessorPool's task becase error occured::errmsg={}", projectName, e.getMessage()); 
 				log.warn(errorMessage, e);
 				throw new IllegalStateException(errorMessage);
 			}

@@ -56,4 +56,6 @@ public interface DataPacketBufferPoolIF {
 	
 	
 	public int getDataPacketBufferPoolSize();
+	
+	public int size();
 }

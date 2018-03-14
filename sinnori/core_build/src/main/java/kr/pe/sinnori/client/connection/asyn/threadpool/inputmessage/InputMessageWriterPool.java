@@ -23,6 +23,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
 import kr.pe.sinnori.common.asyn.ToLetter;
+import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 
 /**
@@ -34,43 +35,58 @@ public class InputMessageWriterPool extends AbstractThreadPool implements InputM
 	private String projectName = null;
 	private int inputMessageQueueSize;
 	private ClientMessageUtilityIF clientMessageUtility = null;
-	private long socketTimeOut;
 
-	public InputMessageWriterPool(String projectName, int size,
-			int inputMessageQueueSize, ClientMessageUtilityIF clientMessageUtility,
-			long socketTimeOut) {
-		if (size <= 0) {
-			throw new IllegalArgumentException(String.format("%s 파라미터 size 는 0보다 커야 합니다.", projectName));
+	public InputMessageWriterPool(int poolSize,
+			String projectName, 
+			int inputMessageQueueSize, 
+			ClientMessageUtilityIF clientMessageUtility) {
+		if (poolSize <= 0) {
+			String errorMessage = String.format("the parameter poolSize[%d] is less than or equal to zero", poolSize); 
+			throw new IllegalArgumentException(errorMessage);
 		}
+		
+		if (null == projectName) {
+			throw new IllegalArgumentException("the parameter projectName is null");
+		}
+		
+		if (inputMessageQueueSize <= 0) {
+			String errorMessage = String.format("the parameter inputMessageQueueSize[%d] is less than or equal to zero", inputMessageQueueSize); 
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (null == clientMessageUtility) {
+			throw new IllegalArgumentException("the parameter clientMessageUtility is null");
+		}
+		
 
 		this.projectName = projectName;
 		this.inputMessageQueueSize = inputMessageQueueSize;
 		this.clientMessageUtility = clientMessageUtility;
-		this.socketTimeOut = socketTimeOut;
 
-		for (int i = 0; i < size; i++) {
-			addTask();
+		for (int i = 0; i < poolSize; i++) {
+			try {
+				innserAddTask();
+			} catch (IllegalStateException e) {
+				log.error(e.getMessage(), e);
+				System.exit(1);
+			}
 		}
 	}
-
-	@Override
-	public void addTask() throws IllegalStateException {
+	
+	private void innserAddTask() throws IllegalStateException {
 		ArrayBlockingQueue<ToLetter> inputMessageQueue = new ArrayBlockingQueue<ToLetter>(inputMessageQueueSize);
+		
+		int size = pool.size();
 
-		synchronized (monitor) {
-			int size = pool.size();
+		try {
+			Thread handler = new InputMessageWriter(projectName, size, inputMessageQueue,
+					clientMessageUtility);
 
-			try {
-				Thread handler = new InputMessageWriter(projectName, size, inputMessageQueue,
-						clientMessageUtility, socketTimeOut);
-
-				pool.add(handler);
-			} catch (Exception e) {
-				String errorMessage = String.format("%s InputMessageWriter[%d] 등록 실패", projectName, size);
-				log.warn(errorMessage, e);
-				throw new IllegalStateException(errorMessage);
-			}
-
+			pool.add(handler);
+		} catch (Exception e) {
+			String errorMessage = String.format("%s InputMessageWriter[%d] 등록 실패", projectName, size);
+			log.warn(errorMessage, e);
+			throw new IllegalStateException(errorMessage);
 		}
 	}
 
@@ -95,6 +111,13 @@ public class InputMessageWriterPool extends AbstractThreadPool implements InputM
 		}
 
 		return minInputMessageWriter;
+	}
+
+
+	@Override
+	public void addTask() throws IllegalStateException, NotSupportedException {
+		String errorMessage = "this InputMessageWriterPool dosn't support this addTask method";
+		throw new NotSupportedException(errorMessage);
 	}
 
 }

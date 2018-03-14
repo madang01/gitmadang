@@ -20,6 +20,7 @@ package kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 
@@ -31,52 +32,67 @@ import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
  */
 public class OutputMessageReaderPool extends AbstractThreadPool implements OutputMessageReaderPoolIF {
 	private String projectName = null;
-	private long readSelectorWakeupInterval;
+	private long wakeupIntervalOfSelectorForReadEventOnly;
 	private MessageProtocolIF messageProtocol = null;
 
-	public OutputMessageReaderPool(String projectName, int size, long readSelectorWakeupInterval,
+	public OutputMessageReaderPool(int poolSize, 
+			String projectName, long wakeupIntervalOfSelectorForReadEventOnly,
 			MessageProtocolIF messageProtocol) {
-		if (size <= 0) {
-			throw new IllegalArgumentException(String.format("%s 파라미터 size 는 0보다 커야 합니다.", projectName));
+		if (poolSize <= 0) {
+			String errorMessage = String.format("the parameter poolSize[%d] is less than or equal to zero", poolSize); 
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (null == projectName) {
+			throw new IllegalArgumentException("the parameter projectName is null");
+		}
+		
+		if (wakeupIntervalOfSelectorForReadEventOnly < 0) {
+			String errorMessage = String.format("the parameter wakeupIntervalOfSelectorForReadEventOnly[%d] is less than zero", wakeupIntervalOfSelectorForReadEventOnly); 
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (null == messageProtocol) {
+			throw new IllegalArgumentException("the parameter messageProtocol is null");
 		}
 
 		this.projectName = projectName;
-		this.readSelectorWakeupInterval = readSelectorWakeupInterval;
+		this.wakeupIntervalOfSelectorForReadEventOnly = wakeupIntervalOfSelectorForReadEventOnly;
 		this.messageProtocol = messageProtocol;
 
-		for (int i = 0; i < size; i++) {
-			addTask();
+		for (int i = 0; i < poolSize; i++) {
+			try {
+				innerAddTask();
+			} catch (IllegalStateException e) {
+				log.error(e.getMessage(), e);
+				System.exit(1);
+			}
 		}
 	}
 
-	@Override
-	public void addTask() throws IllegalStateException {
-		synchronized (monitor) {
-			int size = pool.size();
+	private void innerAddTask() throws IllegalStateException {
+		int size = pool.size();
 
-			try {
-				Thread handler = new OutputMessageReader(projectName, size, readSelectorWakeupInterval,
-						messageProtocol);
-				pool.add(handler);
-			} catch (Exception e) {
-				String errorMessage = String.format("%s OutputMessageReader[%d] 등록 실패", projectName, size);
-				log.warn(errorMessage, e);
-				throw new IllegalStateException(errorMessage);
-			}
-
+		try {
+			Thread handler = new OutputMessageReader(projectName, size, wakeupIntervalOfSelectorForReadEventOnly, messageProtocol);
+			pool.add(handler);
+		} catch (Exception e) {
+			String errorMessage = String.format("%s OutputMessageReader[%d] 등록 실패", projectName, size);
+			log.warn(errorMessage, e);
+			throw new IllegalStateException(errorMessage);
 		}
 	}
 
 	@Override
 	public OutputMessageReaderIF getOutputMessageReaderWithMinimumNumberOfConnetion() {
 		Iterator<Thread> poolIter = pool.iterator();
-		if (! poolIter.hasNext()) {
+		if (!poolIter.hasNext()) {
 			throw new NoSuchElementException("OutputMessageReaderPool empty");
 		}
 
-		OutputMessageReaderIF minOutputMessageReader = (OutputMessageReaderIF) poolIter.next();;
+		OutputMessageReaderIF minOutputMessageReader = (OutputMessageReaderIF) poolIter.next();
+		;
 		int min = minOutputMessageReader.getNumberOfAsynConnection();
-		
 
 		while (poolIter.hasNext()) {
 			OutputMessageReaderIF outputMessageReader = (OutputMessageReaderIF) poolIter.next();
@@ -88,5 +104,11 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements Outpu
 		}
 
 		return minOutputMessageReader;
+	}
+
+	@Override
+	public void addTask() throws IllegalStateException, NotSupportedException {
+		String errorMessage = "this OutputMessageReaderPool dosn't support this addTask method";
+		throw new NotSupportedException(errorMessage);
 	}
 }

@@ -17,7 +17,6 @@
 package kr.pe.sinnori.client.connection.asyn.mailbox;
 
 import java.net.SocketTimeoutException;
-import java.util.NoSuchElementException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -28,7 +27,7 @@ import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
-public class AsynPrivateMailbox implements AsynPrivateMailboxIF {
+public final class AsynPrivateMailbox implements AsynPrivateMailboxIF {
 	private Logger log = LoggerFactory.getLogger(AsynPrivateMailbox.class);
 
 	// private final Object monitor = new Object();
@@ -89,7 +88,7 @@ public class AsynPrivateMailbox implements AsynPrivateMailboxIF {
 		return mailID;
 	}
 
-	public void putToSyncOutputMessageQueue(FromLetter fromLetter) throws InterruptedException {
+	public void putSyncOutputMessage(FromLetter fromLetter) throws InterruptedException {
 		if (null == fromLetter) {
 			throw new IllegalArgumentException("the parameter fromLetter is null");
 		}
@@ -114,12 +113,11 @@ public class AsynPrivateMailbox implements AsynPrivateMailboxIF {
 		}
 		
 		if (! outputMessageQueue.isEmpty()) {
-			try {
-				FromLetter oldFromLetter = outputMessageQueue.remove();
+			FromLetter oldFromLetter = outputMessageQueue.poll();
+			if (null != oldFromLetter) {
 				log.warn("clear the old received message[{}] from the ouputmessage queue of this mailbox[mailID={}] becase new message recevied", 
 						oldFromLetter.toString(),
 						mailID);
-			} catch(NoSuchElementException e) {
 			}
 		}
 
@@ -138,11 +136,13 @@ public class AsynPrivateMailbox implements AsynPrivateMailboxIF {
 		// synchronized (monitor) {
 
 		WrapReadableMiddleObject wrapReadableMiddleObject = null;
-
 		boolean loop = false;
+		
+		long workingTimeOut = socketTimeOut;
+		long startTime = System.currentTimeMillis();
 		try {
 			do {				
-				FromLetter fromLetter = outputMessageQueue.poll(socketTimeOut, TimeUnit.MILLISECONDS);
+				FromLetter fromLetter = outputMessageQueue.poll(workingTimeOut, TimeUnit.MILLISECONDS);
 				if (null == fromLetter) {
 					String errorMessage = new StringBuilder("mailboxID=").append(mailboxID).append(", mailID=")
 							.append(mailID).toString();
@@ -156,7 +156,14 @@ public class AsynPrivateMailbox implements AsynPrivateMailboxIF {
 					log.warn(
 							"drop the received message[{}] because it's mail id is different form this mailbox's mail id[{}]",
 							fromLetter.toString(), mailID);
-				}
+					
+					workingTimeOut -= (startTime - System.currentTimeMillis());
+					if (workingTimeOut <= 0) {
+						String errorMessage = new StringBuilder("mailboxID=").append(mailboxID).append(", mailID=")
+								.append(mailID).toString();
+						throw new SocketTimeoutException(errorMessage);
+					}
+				}				
 			} while (loop);
 		} finally {
 			nextMailID();

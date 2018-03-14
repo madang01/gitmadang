@@ -22,6 +22,7 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import kr.pe.sinnori.common.asyn.FromLetter;
+import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
@@ -105,12 +106,17 @@ public class ServerExecutorPool extends AbstractThreadPool implements ServerExec
 		ieoThreadPoolManager.setExecutorPool(this);		
 		
 		for (int i = 0; i < poolSize; i++) {
-			addTask();
+			try {
+				addTask();
+			} catch (IllegalStateException | NotSupportedException e) {
+				log.error(e.getMessage(), e);
+				System.exit(1);
+			}
 		}
 	}
 
 	@Override
-	public void addTask() throws IllegalStateException {
+	public void addTask() throws IllegalStateException, NotSupportedException {
 		ArrayBlockingQueue<FromLetter> inputMessageQueue = new
 				ArrayBlockingQueue<FromLetter>(inputMessageQueueSize);
 		

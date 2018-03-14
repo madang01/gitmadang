@@ -29,19 +29,21 @@ import org.slf4j.LoggerFactory;
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.ClientMessageUtility;
 import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
+import kr.pe.sinnori.client.connection.ConnectionFixedParameter;
 import kr.pe.sinnori.client.connection.ConnectionPoolIF;
 import kr.pe.sinnori.client.connection.ConnectionPoolSupporter;
-import kr.pe.sinnori.client.connection.SocketResoruceIF;
 import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceFactory;
 import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceFactoryIF;
 import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceIF;
 import kr.pe.sinnori.client.connection.asyn.noshare.AsynPrivateConnection;
 import kr.pe.sinnori.client.connection.asyn.noshare.AsynPrivateConnectionPool;
+import kr.pe.sinnori.client.connection.asyn.noshare.AsynPrivateConnectionPoolParameter;
 import kr.pe.sinnori.client.connection.asyn.share.AsynPrivateMailboxPoolFactory;
 import kr.pe.sinnori.client.connection.asyn.share.AsynPrivateMailboxPoolFactoryIF;
 import kr.pe.sinnori.client.connection.asyn.share.AsynPrivateMailboxPoolIF;
 import kr.pe.sinnori.client.connection.asyn.share.AsynPublicConnection;
 import kr.pe.sinnori.client.connection.asyn.share.AsynPublicConnectionPool;
+import kr.pe.sinnori.client.connection.asyn.share.AsynPublicConnectionPoolParameter;
 import kr.pe.sinnori.client.connection.asyn.threadpool.IEOClientThreadPoolSetManager;
 import kr.pe.sinnori.client.connection.asyn.threadpool.IEOClientThreadPoolSetManagerIF;
 import kr.pe.sinnori.client.connection.asyn.threadpool.executor.ClientExecutorPool;
@@ -49,6 +51,8 @@ import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.InputMessage
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderPool;
 import kr.pe.sinnori.client.connection.sync.noshare.SyncPrivateConnection;
 import kr.pe.sinnori.client.connection.sync.noshare.SyncPrivateConnectionPool;
+import kr.pe.sinnori.client.connection.sync.noshare.SyncPrivateConnectionPoolParameter;
+import kr.pe.sinnori.client.connection.sync.noshare.SyncPrivateSocketResource;
 import kr.pe.sinnori.client.connection.sync.noshare.SyncPrivateSocketResourceFactory;
 import kr.pe.sinnori.client.connection.sync.noshare.SyncPrivateSocketResourceFactoryIF;
 import kr.pe.sinnori.common.classloader.IOPartDynamicClassNameUtil;
@@ -96,15 +100,8 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 
 	private ProjectPartConfiguration projectPartConfiguration = null;
 
-	private MessageProtocolIF messageProtocol = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
-	private CharsetEncoder charsetEncoderOfProject = null;
-	private CharsetDecoder charsetDecoderOfProject = null;
-
-	private IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = null;
-	private ClientObjectCacheManagerIF clientObjectCacheManager = null;
-	private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;
-	private ClientMessageUtilityIF clientMessageUtility = null;
+	private IEOClientThreadPoolSetManagerIF ieoClientThreadPoolSetManager = null;
 
 	/** 비동기 방식에서 사용되는 변수 시작 */
 	private AsynSocketResourceFactoryIF asynSocketResourceFactory = null;
@@ -116,16 +113,19 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 	/** 동기 방식에서 사용되는 변수 종료 */
 
 	/** 프로젝트의 연결 클래스 폴 */
-	private ConnectionPoolIF connectionPool = null;
-
-	private ConnectionPoolSupporter connectionPoolSupporter = null;
+	private ConnectionPoolIF connectionPool = null;	
+	private ConnectionFixedParameter connectionFixedParameter = null;
+	
+	 
 
 	public AnyProjectConnectionPool(ProjectPartConfiguration projectPartConfiguration)
 			throws NoMoreDataPacketBufferException, InterruptedException, IOException, ConnectionPoolException {
 		this.projectPartConfiguration = projectPartConfiguration;
 
-		charsetEncoderOfProject = CharsetUtil.createCharsetEncoder(projectPartConfiguration.getCharset());
-		charsetDecoderOfProject = CharsetUtil.createCharsetDecoder(projectPartConfiguration.getCharset());
+		CharsetEncoder charsetEncoderOfProject = CharsetUtil.createCharsetEncoder(projectPartConfiguration.getCharset());
+		CharsetDecoder charsetDecoderOfProject = CharsetUtil.createCharsetDecoder(projectPartConfiguration.getCharset());
+		
+		MessageProtocolIF messageProtocol = null;
 
 		boolean isDirect = false;
 		this.dataPacketBufferPool = new DataPacketBufferPool(isDirect, projectPartConfiguration.getByteOrder(),
@@ -158,43 +158,53 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 		}
 		}
 
-		ioPartDynamicClassNameUtil = new IOPartDynamicClassNameUtil(
+		IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = new IOPartDynamicClassNameUtil(
 				projectPartConfiguration.getFirstPrefixDynamicClassFullName());
 
-		clientObjectCacheManager = new ClientObjectCacheManager(ioPartDynamicClassNameUtil);
+		ClientObjectCacheManagerIF clientObjectCacheManager = new ClientObjectCacheManager(ioPartDynamicClassNameUtil);
 
-		socketOutputStreamFactory = new SocketOutputStreamFactory(charsetDecoderOfProject,
+		SocketOutputStreamFactoryIF socketOutputStreamFactory = new SocketOutputStreamFactory(charsetDecoderOfProject,
 				projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(), dataPacketBufferPool);
 
-		clientMessageUtility = new ClientMessageUtility(messageProtocol, clientObjectCacheManager,
+		ClientMessageUtilityIF clientMessageUtility = new ClientMessageUtility(messageProtocol, clientObjectCacheManager,
 				dataPacketBufferPool);
-
+		
+		ConnectionPoolSupporter connectionPoolSupporter = new ConnectionPoolSupporter(1000L * 60 * 10);
+		
+		connectionFixedParameter 
+			= new ConnectionFixedParameter(projectPartConfiguration.getProjectName(),
+					projectPartConfiguration.getServerHost(),
+					projectPartConfiguration.getServerPort(),
+					projectPartConfiguration.getClientSocketTimeout(),
+					clientMessageUtility);
+		
 		if (projectPartConfiguration.getConnectionType().equals(ConnectionType.SYNC_PRIVATE)) {
 			syncPrivateSocketResourceFactory = new SyncPrivateSocketResourceFactory(socketOutputStreamFactory);
+			
+			SyncPrivateConnectionPoolParameter syncPrivateConnectionPoolParameter 
+				= new SyncPrivateConnectionPoolParameter(projectPartConfiguration.getClientConnectionCount(),
+						projectPartConfiguration.getClientConnectionMaxCount(),
+						connectionPoolSupporter, syncPrivateSocketResourceFactory);
 
-			connectionPool = new SyncPrivateConnectionPool(projectPartConfiguration.getProjectName(),
-					projectPartConfiguration.getServerHost(), projectPartConfiguration.getServerPort(),
-					projectPartConfiguration.getClientSocketTimeout(), clientMessageUtility,
-					projectPartConfiguration.getClientConnectionCount(),
-					projectPartConfiguration.getClientConnectionMaxCount(), syncPrivateSocketResourceFactory);
+			connectionPool = new SyncPrivateConnectionPool(syncPrivateConnectionPoolParameter,					
+					connectionFixedParameter);
 		} else {
 			InputMessageWriterPool inputMessageWriterPool = new InputMessageWriterPool(
-					projectPartConfiguration.getProjectName(),
 					projectPartConfiguration.getClientAsynInputMessageWriterPoolSize(),
-					projectPartConfiguration.getClientAsynInputMessageQueueSize(), 
-					clientMessageUtility,
-					projectPartConfiguration.getClientSocketTimeout());
-
-			OutputMessageReaderPool outputMessageReaderPool = new OutputMessageReaderPool(
 					projectPartConfiguration.getProjectName(),
-					projectPartConfiguration.getClientAsynOutputMessageReaderPoolSize(),
-					projectPartConfiguration.getClientReadSelectorWakeupInterval(), messageProtocol);
+					projectPartConfiguration.getClientAsynInputMessageQueueSize(), clientMessageUtility);
 
-			ClientExecutorPool clientExecutorPool = new ClientExecutorPool(projectPartConfiguration.getProjectName(),
-					projectPartConfiguration.getClientAsynExecutorPoolSize(),
+			OutputMessageReaderPool outputMessageReaderPool = new OutputMessageReaderPool(					
+					projectPartConfiguration.getClientAsynOutputMessageReaderPoolSize(),
+					projectPartConfiguration.getProjectName(),
+					projectPartConfiguration.getClientWakeupIntervalOfSelectorForReadEventOnly(), messageProtocol);
+
+			ClientExecutorPool clientExecutorPool = new ClientExecutorPool(
+					projectPartConfiguration.getClientAsynExecutorPoolSize(), 
+					projectPartConfiguration.getProjectName(),
 					projectPartConfiguration.getClientAsynOutputMessageQueueSize(), clientMessageUtility);
 
-			IEOClientThreadPoolSetManagerIF ieoClientThreadPoolSetManager = new IEOClientThreadPoolSetManager(
+			ieoClientThreadPoolSetManager = new IEOClientThreadPoolSetManager(
 					inputMessageWriterPool, outputMessageReaderPool, clientExecutorPool);
 
 			asynSocketResourceFactory = new AsynSocketResourceFactory(socketOutputStreamFactory,
@@ -209,27 +219,24 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 						projectPartConfiguration.getClientAsynPirvateMailboxCntPerPublicConnection(),
 						projectPartConfiguration.getClientSocketTimeout());
 
-				connectionPool = new AsynPublicConnectionPool(projectPartConfiguration.getProjectName(),
-						projectPartConfiguration.getServerHost(), projectPartConfiguration.getServerPort(),
-						projectPartConfiguration.getClientSocketTimeout(), clientMessageUtility,
-						projectPartConfiguration.getClientConnectionCount(),
-						projectPartConfiguration.getClientConnectionMaxCount(), asynPrivateMailboxPoolFactory,
-						asynSocketResourceFactory);
+				AsynPublicConnectionPoolParameter asynPublicConnectionPoolParameter =
+						new AsynPublicConnectionPoolParameter(projectPartConfiguration.getClientConnectionCount(),
+								projectPartConfiguration.getClientConnectionMaxCount(),
+								connectionPoolSupporter, asynSocketResourceFactory, asynPrivateMailboxPoolFactory);
+				
+				connectionPool = new AsynPublicConnectionPool(asynPublicConnectionPoolParameter,
+						connectionFixedParameter);
 			} else {
-				connectionPool = new AsynPrivateConnectionPool(projectPartConfiguration.getProjectName(),
-						projectPartConfiguration.getServerHost(), projectPartConfiguration.getServerPort(),
-						projectPartConfiguration.getClientSocketTimeout(), clientMessageUtility,
-						projectPartConfiguration.getClientConnectionCount(),
-						projectPartConfiguration.getClientConnectionMaxCount(), asynSocketResourceFactory);
+				AsynPrivateConnectionPoolParameter  asynPrivateConnectionPoolParameter 
+				= new AsynPrivateConnectionPoolParameter(projectPartConfiguration.getClientConnectionCount(),
+						projectPartConfiguration.getClientConnectionMaxCount(),
+						connectionPoolSupporter, asynSocketResourceFactory); 
+				
+				connectionPool = new AsynPrivateConnectionPool(asynPrivateConnectionPoolParameter,
+						connectionFixedParameter);
 			}
 
 		}
-
-		/** FIXME! 신놀이 환경 변수 '연결 폴 관리자 수행 간격' 설정 필요함 */
-		connectionPoolSupporter = new ConnectionPoolSupporter(connectionPool, 1000L * 60 * 10);
-		connectionPool.registerConnectionPoolSupporter(connectionPoolSupporter);
-
-		connectionPoolSupporter.start();
 
 		/*
 		 * clientProjectMonitor = new ClientProjectMonitor( clientMonitorTimeInterval,
@@ -243,7 +250,7 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 		long startTime = 0;
 		long endTime = 0;
 		startTime = System.nanoTime();
-		
+
 		AbstractMessage outObj = null;
 		AbstractConnection conn = connectionPool.getConnection();
 		try {
@@ -254,12 +261,12 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 				conn.close();
 			} catch (IOException e1) {
 			}
-			
+
 			throw e;
 		} finally {
 			connectionPool.release(conn);
 		}
-		
+
 		endTime = System.nanoTime();
 		log.debug("시간차[{}]", TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
 
@@ -272,14 +279,14 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 		long startTime = 0;
 		long endTime = 0;
 		startTime = System.nanoTime();
-		
+
 		AbstractConnection conn = connectionPool.getConnection();
 		try {
 			conn.sendAsynInputMessage(inputMessage);
 		} finally {
 			connectionPool.release(conn);
 		}
-		
+
 		endTime = System.nanoTime();
 		log.debug("시간차[{}]", TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
 	}
@@ -289,29 +296,44 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 		AbstractConnection conn = null;
 
 		if (projectPartConfiguration.getConnectionType().equals(ConnectionType.SYNC_PRIVATE)) {
-			SocketResoruceIF syncPrivateSocketResoruce = syncPrivateSocketResourceFactory
-					.makeNewSyncPrivateSocketResource();
+			SyncPrivateSocketResource syncPrivateSocketResource = syncPrivateSocketResourceFactory.makeNewSyncPrivateSocketResource();
 
-			conn = new SyncPrivateConnection(projectPartConfiguration.getProjectName(), host, port,
-					projectPartConfiguration.getClientSocketTimeout(), 
-					clientMessageUtility, syncPrivateSocketResoruce);
+			conn = new SyncPrivateConnection(connectionFixedParameter,
+					syncPrivateSocketResource);
 		} else {
 			AsynSocketResourceIF asynSocketResource = asynSocketResourceFactory.makeNewAsynSocketResource();
 
 			if (projectPartConfiguration.getConnectionType().equals(ConnectionType.ASYN_PUBLIC)) {
-				AsynPrivateMailboxPoolIF asynPrivateMailboxPool = asynPrivateMailboxPoolFactory
-						.makeNewAsynPrivateMailboxPool();
-
-				conn = new AsynPublicConnection(projectPartConfiguration.getProjectName(), host, port,
-						projectPartConfiguration.getClientSocketTimeout(), clientMessageUtility, asynPrivateMailboxPool,
+				
+				AsynPrivateMailboxPoolIF asynPrivateMailboxPool
+					=	asynPrivateMailboxPoolFactory.makeNewAsynPrivateMailboxPool();	
+				
+				conn = new AsynPublicConnection(connectionFixedParameter,						
+						asynSocketResource,
+						asynPrivateMailboxPool);
+			} else {				
+				conn = new AsynPrivateConnection(connectionFixedParameter, 
 						asynSocketResource);
-			} else {
-				conn = new AsynPrivateConnection(projectPartConfiguration.getProjectName(), host, port,
-						projectPartConfiguration.getClientSocketTimeout(), clientMessageUtility, asynSocketResource);
 			}
 		}
 
 		return conn;
+	}
+	
+	/**
+	 * this method for junit test
+	 * @return the connection poll defined as specified in the configuration file
+	 */
+	public ConnectionPoolIF getconnectionPool() {
+		return connectionPool;
+	}
+	
+	/**
+	 * this method for junit test
+	 * @return the client input/executor/output thread pool set manager defined as specified in the configuration file
+	 */
+	public IEOClientThreadPoolSetManagerIF getIEOClientThreadPoolSetManager() {
+		return ieoClientThreadPoolSetManager;
 	}
 
 }

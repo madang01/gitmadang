@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.client.connection.AbstractConnection;
-import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
+import kr.pe.sinnori.client.connection.ConnectionFixedParameter;
 import kr.pe.sinnori.client.connection.ConnectionPoolIF;
 import kr.pe.sinnori.client.connection.ConnectionPoolSupporterIF;
 import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceFactoryIF;
@@ -38,47 +38,52 @@ public class AsynPublicConnectionPool implements ConnectionPoolIF {
 
 	private final Object monitor = new Object();
 
-	private String projectName = null;
-	private String host = null;
-	private int port;
-	private long socketTimeOut;
-	private ClientMessageUtilityIF clientMessageUtility = null;	
-	private transient int connectionPoolSize;
-	private int connectionPoolMaxSize;
-	private AsynPrivateMailboxPoolFactoryIF asynPrivateMailboxPoolFactory = null;
+	private transient int poolSize;
+	private int poolMaxSize;
+	private ConnectionPoolSupporterIF connectionPoolSupporter = null;	
 	private AsynSocketResourceFactoryIF asynSocketResourceFactory = null;
+	private AsynPrivateMailboxPoolFactoryIF asynPrivateMailboxPoolFactory = null;
+	
+	private String projectName = null;
+	
+	private ConnectionFixedParameter connectionFixedParameter = null;
+	
 	
 	/**
 	 * 공유방식으로 비동기 방식의 소켓 채널을 소유한 연결 클래스 목록. 쓰레드 공유하기 위해서 순차적으로 할당한다.
 	 */
 	private LinkedList<AsynPublicConnection> connectionList = null;
-	private transient int numberOfConnection = 0;
-	private ConnectionPoolSupporterIF connectionPoolSupporter = null;
+	private transient int numberOfConnection = 0;	
 	private int currentWorkingIndex = -1;
 
-	public AsynPublicConnectionPool(String projectName, String host, int port, 
-			long socketTimeOut,
-			ClientMessageUtilityIF clientMessageUtility,			
-			int connectionPoolSize,
-			int connectionPoolMaxSize,
-			// int numberOfAsynPrivateMailboxPerConnection,
-			AsynPrivateMailboxPoolFactoryIF asynPrivateMailboxPoolFactory,
-			AsynSocketResourceFactoryIF asynSocketResourceFactory)
+	public AsynPublicConnectionPool(
+			AsynPublicConnectionPoolParameter asynPublicConnectionPoolParameter,
+			ConnectionFixedParameter connectionFixedParameter)
 			throws NoMoreDataPacketBufferException, InterruptedException, IOException, ConnectionPoolException {
-		this.projectName = projectName;
-		this.host = host;
-		this.port = port;
-		this.connectionPoolSize = connectionPoolSize;
-		this.connectionPoolMaxSize = connectionPoolMaxSize;
-		this.socketTimeOut = socketTimeOut;
-		this.clientMessageUtility = clientMessageUtility;		
-		// this.numberOfAsynPrivateMailboxPerConnection = numberOfAsynPrivateMailboxPerConnection;
-		this.asynPrivateMailboxPoolFactory = asynPrivateMailboxPoolFactory;
-		this.asynSocketResourceFactory = asynSocketResourceFactory;
+		if (null == asynPublicConnectionPoolParameter) {
+			String errorMessage = "the parameter asynPublicConnectionPoolParameter is null"; 
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		if (null == connectionFixedParameter) {
+			String errorMessage = "the parameter connectionFixedParameter is null"; 
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		this.connectionFixedParameter = connectionFixedParameter;
+		
+		poolSize = asynPublicConnectionPoolParameter.getPoolSize();
+		poolMaxSize = asynPublicConnectionPoolParameter.getPoolMaxSize();
+		connectionPoolSupporter = asynPublicConnectionPoolParameter.getConnectionPoolSupporter();
+		asynSocketResourceFactory = asynPublicConnectionPoolParameter.getAsynSocketResourceFactory();
+		asynPrivateMailboxPoolFactory = asynPublicConnectionPoolParameter.getAsynPrivateMailboxPoolFactory();
+		
+		projectName = connectionFixedParameter.getProjectName();
+		
 
-		this.connectionList = new LinkedList<AsynPublicConnection>();
+		connectionList = new LinkedList<AsynPublicConnection>();
 		try {
-			for (int i = 0; i < connectionPoolSize; i++) {
+			for (int i = 0; i < poolSize; i++) {
 				addConnection();
 			}
 
@@ -92,51 +97,62 @@ public class AsynPublicConnectionPool implements ConnectionPoolIF {
 			throw e;
 		}
 
+		connectionPoolSupporter.registerPool(this);
+		connectionPoolSupporter.start();
 		// log.info("connectionList size=[%d]", connectionList.size());
 	}
 
 	private void addConnection()
 			throws InterruptedException, NoMoreDataPacketBufferException, IOException, ConnectionPoolException {
 
-		if (numberOfConnection >= connectionPoolMaxSize) {
+		if (numberOfConnection >= poolMaxSize) {
 			throw new ConnectionPoolException("fail to add a connection because this connection pool is full");
 		}
 		
 		AsynSocketResourceIF asynSocketResource = asynSocketResourceFactory.makeNewAsynSocketResource();
 		
-		AsynPrivateMailboxPoolIF asynPrivateMailboxPool = asynPrivateMailboxPoolFactory.makeNewAsynPrivateMailboxPool();
+		AsynPrivateMailboxPoolIF asynPrivateMailboxPool
+			=	asynPrivateMailboxPoolFactory.makeNewAsynPrivateMailboxPool();		
 
-		AsynPublicConnection serverConnection = new AsynPublicConnection(projectName, host, port, socketTimeOut, 
-				clientMessageUtility,
-				asynPrivateMailboxPool,
-				asynSocketResource);
+		AsynPublicConnection conn = new AsynPublicConnection(connectionFixedParameter,
+				asynSocketResource, asynPrivateMailboxPool);
 
 		synchronized (monitor) {
-			connectionList.add(serverConnection);
+			connectionList.add(conn);
 
 			numberOfConnection++;
-			connectionPoolSize = Math.max(numberOfConnection, connectionPoolSize);
+			poolSize = Math.max(numberOfConnection, poolSize);
 		}
+		
+		log.info("{} new AsynPublicConnection[{}] added", projectName, conn.hashCode());
 	}
 
 	private boolean whetherConnectionIsMissing() {
-		return (numberOfConnection != connectionPoolSize);
+		return (numberOfConnection != poolSize);
 	}
 
 	public void addAllLostConnections() throws InterruptedException {
+		log.info("{} 결손된 연결 추가 작업 시작", projectName);
 
 		while (whetherConnectionIsMissing()) {
 			try {
 				addConnection();
-				log.info("결손된 비동기 공유 연결 추가 작업 완료");
 			} catch (InterruptedException e) {
+				String errorMessage = new StringBuilder(projectName)
+						.append(" 인터럽트 발생에 따른 결손된 연결 추가 작업 중지").toString();
+				log.warn(errorMessage, e);
+				
 				throw e;
 			} catch (Exception e) {
-				log.warn("에러 발생에 따른 결손된 비동기 공유 연결 추가 작업 잠시 중지 ", e);
+				String errorMessage = new StringBuilder(projectName)
+						.append(" 에러 발생에 따른 결손된 연결 추가 작업 중지, errmsg={}")
+						.append(e.getMessage()).toString();
+				
+				log.warn(errorMessage, e);
 				break;
 			}
 		}
-
+		log.info("{} 결손된 연결 추가 작업 종료", projectName);
 	}
 
 	public AbstractConnection getConnection()
@@ -159,12 +175,13 @@ public class AsynPublicConnectionPool implements ConnectionPoolIF {
 				} else {
 					loop = true;
 
-					String reasonForLoss = new StringBuilder("다음 차례의 비동기 공유 연결[").append(conn.hashCode())
+					String reasonForLoss = new StringBuilder("폴에서 꺼낸 연결[")
+							.append(conn.hashCode())
 							.append("]이 닫혀있어 폐기").toString();
 
 					numberOfConnection--;
 
-					log.warn("{}, 총 연결수[{}]", reasonForLoss, numberOfConnection);
+					log.warn("{} {}, 총 연결수[{}]", projectName, reasonForLoss, numberOfConnection);
 
 					connectionPoolSupporter.notice(reasonForLoss);
 
@@ -192,12 +209,13 @@ public class AsynPublicConnectionPool implements ConnectionPoolIF {
 
 		synchronized (monitor) {
 			if (!conn.isConnected()) {
-				String reasonForLoss = new StringBuilder("반환된 비동기 공유 연결[").append(conn.hashCode()).append("]이 닫혀있어 폐기")
+				String reasonForLoss = new StringBuilder("반환된 연결[")
+						.append(conn.hashCode()).append("]이 닫혀있어 폐기")
 						.toString();
 
 				numberOfConnection--;
 
-				log.warn("{}, 총 연결수[{}]", reasonForLoss, numberOfConnection);
+				log.warn("{} {}, 총 연결수[{}]", projectName, reasonForLoss, numberOfConnection);
 
 				connectionPoolSupporter.notice(reasonForLoss);
 
@@ -206,9 +224,6 @@ public class AsynPublicConnectionPool implements ConnectionPoolIF {
 		}
 	}
 
-	@Override
-	public void registerConnectionPoolSupporter(ConnectionPoolSupporterIF connectionPoolSupporter) {
-		this.connectionPoolSupporter = connectionPoolSupporter;
-	}
+	
 
 }

@@ -168,12 +168,13 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 					wrapReadableMiddleObject.closeReadableMiddleObject();
 				}
 			}
+			
 			log.warn("{} ServerExecutor[{}] loop exit", projectName, index);
 		} catch (InterruptedException e) {
 			log.warn("{} ServerExecutor[{}] stop", projectName, index);
 		} catch (Exception e) {
-			log.warn("unknown error", e);
-			log.warn("{} ServerExecutor[{}] unknown error", projectName, index);
+			String errorMessage = String.format("%s ServerExecutor[%d] unknown error", projectName, index); 
+			log.warn(errorMessage, e);
 		}
 	}	
 

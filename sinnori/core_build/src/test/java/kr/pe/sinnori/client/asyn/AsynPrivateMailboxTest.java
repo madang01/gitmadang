@@ -43,7 +43,7 @@ public class AsynPrivateMailboxTest extends AbstractJunitTest {
 		}
 		
 		try {
-			asynPrivateMailbox.putToSyncOutputMessageQueue(fromLetter);
+			asynPrivateMailbox.putSyncOutputMessage(fromLetter);
 		} catch (InterruptedException e) {
 			log.warn("InterruptedException", e);
 		};
@@ -52,7 +52,7 @@ public class AsynPrivateMailboxTest extends AbstractJunitTest {
 				new WrapReadableMiddleObject("Echo", 1, Integer.MIN_VALUE, new Object());*/
 		
 		try {
-			asynPrivateMailbox.putToSyncOutputMessageQueue(fromLetter);
+			asynPrivateMailbox.putSyncOutputMessage(fromLetter);
 		} catch (InterruptedException e) {
 			log.warn("InterruptedException", e);
 		};

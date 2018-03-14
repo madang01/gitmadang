@@ -1,31 +1,50 @@
-package kr.pe.sinnori.server;
+package kr.pe.sinnori.client.connection.asyn.noshare;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.nio.ByteOrder;
-import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
 import kr.pe.sinnori.client.AnyProjectConnectionPool;
-import kr.pe.sinnori.client.AnyProjectConnectionPoolIF;
-import kr.pe.sinnori.client.ConnectionPoolManager;
+import kr.pe.sinnori.client.connection.ConnectionPoolIF;
+import kr.pe.sinnori.client.connection.asyn.threadpool.IEOClientThreadPoolSetManagerIF;
+import kr.pe.sinnori.client.connection.asyn.threadpool.executor.ClientExecutor;
+import kr.pe.sinnori.client.connection.asyn.threadpool.executor.ClientExecutorIF;
+import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.InputMessageWriter;
+import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.InputMessageWriterIF;
+import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReader;
+import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderIF;
 import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDDefiner;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
-import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.type.ConnectionType;
 import kr.pe.sinnori.common.type.MessageProtocolType;
 import kr.pe.sinnori.common.type.ProjectType;
-import kr.pe.sinnori.impl.message.Empty.Empty;
+import kr.pe.sinnori.server.AnyProjectServer;
 
-public class MainServerManagerTest extends AbstractJunitTest {
+public class AsynPrivateConnectionPoolTest extends AbstractJunitTest {
+	/**
+	 * 지정한 연결 수 만큼 클라이언트 IEO 담당 쓰레드 수를 일치시킨 프로젝트 부분 환경 설정을 반환한다 
+	 * 
+	 * @param projectName 프로젝트 이름
+	 * @param host 호스트 주소
+	 * @param port 포트 번호
+	 * @param numberOfConnection 연결수
+	 * @param messageProtocolType 프로토콜
+	 * @return 지정한 연결 수 만큼 클라이언트 IEO 담당 쓰레드 수를 일치시킨 프로젝트 부분 환경 설정
+	 * @throws SinnoriConfigurationException
+	 */
 	private ProjectPartConfiguration getMainProjectPartConfiguration(String projectName,
 			String host, int port,
-			MessageProtocolType messageProtocolTypeForTest, ConnectionType connectionTypeForTest)
-			throws SinnoriConfigurationException {
+			int numberOfConnection,
+			MessageProtocolType messageProtocolType)
+			throws SinnoriConfigurationException {		
+		final ConnectionType connectionType = ConnectionType.ASYN_PRIVATE; 
+		
 		ProjectPartConfiguration projectPartConfigurationForTest = new ProjectPartConfiguration(ProjectType.MAIN,
 				projectName);
 		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
@@ -62,7 +81,7 @@ public class MainServerManagerTest extends AbstractJunitTest {
 		projectPartConfigurationForTest.mapping(
 				new StringBuilder("mainproject.")
 						.append(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_MESSAGE_PROTOCOL_TYPE_ITEMID).toString(),
-				messageProtocolTypeForTest);
+				messageProtocolType);
 
 		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
 				.append(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_FIRST_PREFIX_DYNAMIC_CLASS_FULL_NAME_ITEMID)
@@ -79,7 +98,7 @@ public class MainServerManagerTest extends AbstractJunitTest {
 		projectPartConfigurationForTest.mapping(
 				new StringBuilder("mainproject.")
 						.append(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_TYPE_ITEMID).toString(),
-				connectionTypeForTest);
+						connectionType);
 
 		projectPartConfigurationForTest.mapping(
 				new StringBuilder("mainproject.")
@@ -87,7 +106,7 @@ public class MainServerManagerTest extends AbstractJunitTest {
 				3);
 
 		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_COUNT_ITEMID).toString(), 2);
+				.append(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_COUNT_ITEMID).toString(), numberOfConnection);
 
 		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.").append(
 				ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_PIRVATE_MAILBOX_CNT_PER_PUBLIC_CONNECTION_ITEMID)
@@ -103,14 +122,14 @@ public class MainServerManagerTest extends AbstractJunitTest {
 
 		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
 				.append(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_INPUT_MESSAGE_WRITER_POOL_SIZE_ITEMID)
-				.toString(), 2);
+				.toString(), numberOfConnection);
 
 		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
 				.append(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_READER_POOL_SIZE_ITEMID)
-				.toString(), 2);
+				.toString(), numberOfConnection);
 
 		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_EXECUTOR_POOL_SIZE_ITEMID).toString(), 2);
+				.append(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_EXECUTOR_POOL_SIZE_ITEMID).toString(), numberOfConnection);
 
 		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
 				.append(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_READ_ONLY_SELECTOR_WAKEUP_INTERVAL_ITEMID)
@@ -179,112 +198,28 @@ public class MainServerManagerTest extends AbstractJunitTest {
 		return projectPartConfigurationForTest;
 	}
 	
-
-	@Test
-	public void testEmpty메시지송수신() {
-
-		AnyProjectServer anyProjectServer = null;
-
-		try {
-			anyProjectServer = MainServerManager.getInstance().getMainProjectServer();
-		} catch (IllegalStateException e) {
-			fail(e.getMessage());
-		}
-
-		anyProjectServer.startServer();
-
-		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance()
-				.getMainProjectConnectionPool();
-
-		long startTime = System.nanoTime();
-
-		try {
-			for (int i = 0; i < 1; i++) {
-				Empty emptyReq = new Empty();
-				AbstractMessage emptyRes = mainProjectConnectionPool.sendSyncInputMessage(emptyReq);
-
-				if (!(emptyRes instanceof Empty)) {
-					fail("empty 메시지 수신 실패");
-				}
-
-				if (!emptyReq.messageHeaderInfo.equals(emptyRes.messageHeaderInfo)) {
-					fail("수신한 empty 메시지의 메시지 헤더가 송신한 empty 메시지의 메시지 헤더와 다릅니다");
-				}
-
-				// log.info("[{}] 번째 메시지 완료", i);
-			}
-
-		} catch (Exception e) {
-			log.warn("error", e);
-
-			String errorMessage = String.format(
-					"fail to get a output message::%s",
-					e.getMessage());
-			
-			fail(errorMessage);
-		}
-
-		long endTime = System.nanoTime();
-		log.info("시간차[{}]", TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
-
-	}
-
-	/*
-	 * public void test3() {
-	 * 
-	 * AnyProjectServer anyProjectServer = null;
-	 * 
-	 * try { anyProjectServer =
-	 * MainServerManager.getInstance().getMainProjectServer(); } catch
-	 * (IllegalStateException e) { fail(e.getMessage()); }
-	 * 
-	 * anyProjectServer.startServer();
-	 * 
-	 * String host = "localhost"; int port = 9090;
-	 * 
-	 * try { Selector selector = Selector.open();
-	 * 
-	 * InetSocketAddress remoteAddr = new InetSocketAddress(host, port);
-	 * 
-	 * SocketChannel serverSC = SocketChannel.open(); SelectableChannel
-	 * serverSelectableChannel = serverSC.configureBlocking(true);
-	 * serverSC.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
-	 * serverSC.setOption(StandardSocketOptions.TCP_NODELAY, true);
-	 * serverSC.setOption(StandardSocketOptions.SO_LINGER, 0);
-	 * 
-	 * if (! serverSC.connect(remoteAddr)) { String errorMessage =
-	 * String.format("fail to connect the remote address[host:{}, post:{}]", host,
-	 * port); throw new IOException(errorMessage); }
-	 * 
-	 * serverSC.register(selector, SelectionKey.OP_WRITE);
-	 * 
-	 * selector.close();
-	 * 
-	 * } catch (Exception e) { log.warn("Exception", e);
-	 * fail("error::"+e.getMessage()); } }
-	 */
 	
-	
-
 	@Test
-	public void test2() {
+	public void testConstructor_연결수검사() {
 		String testProjectName = "sample_test";
 		ProjectPartConfiguration projectPartConfigurationForTest = null;
 
 		MessageProtocolType messageProtocolTypeForTest = MessageProtocolType.DHB;
-		ConnectionType connectionTypeForTest = ConnectionType.SYNC_PRIVATE;
 
 		String host = null;
 		int port;
 		
 		// host = "172.30.1.16";
 		host = "localhost";
-		port = 9091;
+		port = 9092;
+		
+		int numberOfConnection = 2;
 		
 		try {
 			projectPartConfigurationForTest = getMainProjectPartConfiguration(testProjectName,
 					host,  port,
-					messageProtocolTypeForTest, connectionTypeForTest);
+					numberOfConnection,
+					messageProtocolTypeForTest);
 
 		} catch (Exception e) {
 			log.warn("error", e);
@@ -303,24 +238,26 @@ public class MainServerManagerTest extends AbstractJunitTest {
 
 			AnyProjectConnectionPool anyProjectConnectionPoolForTest = new AnyProjectConnectionPool(
 					projectPartConfigurationForTest);
-
-			long startTime = System.nanoTime();
 			
-			for (int i = 0; i < 1; i++) {
-				Empty emptyReq = new Empty();
-				AbstractMessage emptyRes = anyProjectConnectionPoolForTest.sendSyncInputMessage(emptyReq);
-
-				if (!(emptyRes instanceof Empty)) {
-					fail("empty 메시지 수신 실패");
-				}
-
-				if (!emptyReq.messageHeaderInfo.equals(emptyRes.messageHeaderInfo)) {
-					fail("수신한 empty 메시지의 메시지 헤더가 송신한 empty 메시지의 메시지 헤더와 다릅니다");
-				}
+			ConnectionPoolIF connectionPool = anyProjectConnectionPoolForTest.getconnectionPool();
+			
+			if (! (connectionPool instanceof AsynPrivateConnectionPool)) {
+				fail("the var connectionPool is not a instance of AsynPrivateConnectionPool class");
 			}
+			
+			AsynPrivateConnectionPool asynPrivateConnectionPool = (AsynPrivateConnectionPool)connectionPool;
 
-			long endTime = System.nanoTime();
-			log.info("시간차[{}]", TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
+			asynPrivateConnectionPool.size();
+			asynPrivateConnectionPool.getQueueSize();
+			
+			assertEquals("연결 폴 크기 점검",  numberOfConnection, asynPrivateConnectionPool.size());
+			assertEquals("연결 폴의 큐 크기 점검",  numberOfConnection, asynPrivateConnectionPool.getQueueSize());
+			
+			IEOClientThreadPoolSetManagerIF ieoClientThreadPoolSetManager = anyProjectConnectionPoolForTest
+				.getIEOClientThreadPoolSetManager();
+						
+			ieoClientThreadPoolSetManager.getClientExecutorWithMinimumNumberOfConnetion();
+			
 		} catch (Exception e) {
 			log.warn("error", e);
 
@@ -330,9 +267,81 @@ public class MainServerManagerTest extends AbstractJunitTest {
 
 			fail(errorMessage);
 		}
-
-		// log.info(projectPartConfigurationForTest.toString());
 	}
-
 	
+	/**
+	 * <pre>
+	 * 이 테스트는 비동기+비공유 연결 폴의 연결들이 클라이언트 IEO 담당 쓰레드에 각 1개씩 균등하게 받는것을  검사한다.
+	 *   
+	 * 참고1) IEO 담당 쓰레드 목록
+	 *       {@link ClientExecutor}
+	 *       {@link InputMessageWriter}
+	 *       {@link OutputMessageReader}
+	 * 
+	 * 참고2) 테스트 환경 구축을 위한 메소드
+	 * {@link #getMainProjectPartConfiguration(String, String, int, int, MessageProtocolType) }  
+	 * </pre>
+	 */
+	@Test
+	public void testConstructor_IEO쓰레드균등할당검사() {
+		String testProjectName = "sample_test";
+		ProjectPartConfiguration projectPartConfigurationForTest = null;
+
+		MessageProtocolType messageProtocolTypeForTest = MessageProtocolType.DHB;
+
+		String host = null;
+		int port;
+		
+		// host = "172.30.1.16";
+		host = "localhost";
+		port = 9093;
+		
+		int numberOfConnection = 2;
+				
+		try {
+			projectPartConfigurationForTest = getMainProjectPartConfiguration(testProjectName,
+					host,  port,
+					numberOfConnection,
+					messageProtocolTypeForTest);
+
+		} catch (Exception e) {
+			log.warn("error", e);
+
+			String errorMessage = String.format(
+					"fail to mapping configuration's item value to ProjectPartConfiguration's item value::%s",
+					e.getMessage());
+
+			fail(errorMessage);
+		}
+
+		try {
+			AnyProjectServer anyProjectServerForTest = new AnyProjectServer(projectPartConfigurationForTest);
+
+			anyProjectServerForTest.startServer();
+
+			AnyProjectConnectionPool anyProjectConnectionPoolForTest = new AnyProjectConnectionPool(
+					projectPartConfigurationForTest);
+						
+			
+			IEOClientThreadPoolSetManagerIF ieoClientThreadPoolSetManager = anyProjectConnectionPoolForTest
+				.getIEOClientThreadPoolSetManager();
+						
+			ClientExecutorIF minClientExecutor = ieoClientThreadPoolSetManager.getClientExecutorWithMinimumNumberOfConnetion();
+			InputMessageWriterIF minInputMessageWriter = ieoClientThreadPoolSetManager.getInputMessageWriterWithMinimumNumberOfConnetion();
+			OutputMessageReaderIF minOutputMessageReader = ieoClientThreadPoolSetManager.getOutputMessageReaderWithMinimumNumberOfConnetion();
+						
+			assertEquals("ClientExecutor 쓰레드에 균등 분배 검사", 1, minClientExecutor.getNumberOfAsynConnection());
+			assertEquals("InputMessageWriter 쓰레드에 균등 분배 검사", 1, minInputMessageWriter.getNumberOfAsynConnection());
+			assertEquals("OutputMessageReader 쓰레드에 균등 분배 검사", 1, minOutputMessageReader.getNumberOfAsynConnection());
+			
+		} catch (Exception e) {
+			log.warn("error", e);
+
+			String errorMessage = String.format(
+					"fail to get a output message::%s",
+					e.getMessage());
+
+			fail(errorMessage);
+		}
+	}
 }

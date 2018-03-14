@@ -14,11 +14,7 @@ public class DataPacketBufferPool implements DataPacketBufferPoolIF {
 	private final Object monitor = new Object();
 
 	private ArrayDeque<WrapBuffer> dataPacketBufferQueue = null;
-	/*
-	 * private Set<Integer> queueOutWrapBufferHashcodeSet = new HashSet<Integer>();
-	 * private Set<Integer> allWrapBufferHashcodeSet = new HashSet<Integer>();
-	 */
-
+	
 	private boolean isDirect;
 	private ByteOrder dataPacketBufferByteOrder = null;
 	private int dataPacketBufferSize;
@@ -158,5 +154,9 @@ public class DataPacketBufferPool implements DataPacketBufferPoolIF {
 
 	public boolean isDirect() {
 		return isDirect;
+	}
+	
+	public int size() {
+		return dataPacketBufferQueue.size();
 	}
 }

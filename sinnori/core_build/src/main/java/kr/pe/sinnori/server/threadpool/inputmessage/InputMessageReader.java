@@ -47,7 +47,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 
 	private String projectName = null;
 	private int index;
-	private long readOnlySelectorWakeupInterval;
+	private long wakeupIntervalOfSelectorForReadEventOnley;
 	private MessageProtocolIF messageProtocol = null;
 
 	private SocketResourceManagerIF socketResourceManager = null;
@@ -59,11 +59,11 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 
 	private Selector selectorForReadEventOnly = null;
 
-	public InputMessageReader(String projectName, int index, long readOnlySelectorWakeupInterval,
+	public InputMessageReader(String projectName, int index, long wakeupIntervalOfSelectorForReadEventOnley,
 			MessageProtocolIF messageProtocol,
 			SocketResourceManagerIF socketResourceManager) {
 		this.index = index;
-		this.readOnlySelectorWakeupInterval = readOnlySelectorWakeupInterval;
+		this.wakeupIntervalOfSelectorForReadEventOnley = wakeupIntervalOfSelectorForReadEventOnley;
 		this.projectName = projectName;
 		this.messageProtocol = messageProtocol;
 		this.socketResourceManager = socketResourceManager;
@@ -89,31 +89,32 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 		if (getState().equals(Thread.State.NEW)) {
 			return;
 		}
-
-		/**
-		 * <pre>
-		 * (1) 소켓 채널을 selector 에 등록한다. 
-		 * (2) 소켓 채널을 등록한 selector 를 깨우는 신호를 보낸후 
-		 * (3) 설정 파일에서 지정된 시간 만큼 대기 후
-		 * (4) 소켓 채널이 계속 연결된 상태이고 selector 에 등록이 안되었다면 
-		 *     (2) 번항에서 부터 다시 반복한다. 
-		 * (5) 소켓 채널이 계속 연결된 상태가 아니거나 혹은 selector 에 등록되었다면 루프를 종료한다.
-		 * 참고) (3) 항을 수행하는 순간 selector 가 깨어나 있어 
-		 *       소켓 읽기를 수행하는 과정에서 헤더 포맷 에러를 만날 경우 소켓을 닫고 동시에 selector 에 등록 취소한다.
-		 *       이것이 소켓 채널이 연결된 상태인지를 검사해야 하는 이유이다.
-		 * </pre>
-		 */
+		
+		boolean loop = false;
 		do {
 			selectorForReadEventOnly.wakeup();
 
 			try {
-				Thread.sleep(readOnlySelectorWakeupInterval);
+				Thread.sleep(wakeupIntervalOfSelectorForReadEventOnley);
 			} catch (InterruptedException e) {
-				log.warn("인터럽트 발생하여 소켓[{}]의 read only selector 등록 확인 포기", newSC.hashCode());
+				log.info("give up the test checking whether the new socket[{}] is registered with the Selector because the socket has occurred", newSC.hashCode());
 				throw e;
 			}
-
-		} while (newSC.isConnected() && !newSC.isRegistered());
+			if (! newSC.isOpen()) {
+				log.info("give up the test checking whether the new socket[{}] is registered with the Selector because the socket is not open", newSC.hashCode());
+				return;
+			}
+			
+			if (! newSC.isConnected()) {
+				log.info("give up the test checking whether the new socket[{}] is registered with the Selector because the socket is not connected", newSC.hashCode());
+				return;
+			}
+			
+			loop = ! newSC.isRegistered();
+			
+		} while (loop);
+		
+		log.debug("{} InputMessageReader[{}] new newSC[{}] added", projectName, index, newSC.hashCode());
 	}
 
 	@Override
@@ -137,8 +138,14 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 				log.warn("{} InputMessageReader[{}] socket channel[{}] fail to register selector", projectName, index,
 						notRegistedSocketChannel.hashCode());
 
-				socketResourceManager.getSocketResource(notRegistedSocketChannel).close();
-				socketResourceManager.remove(notRegistedSocketChannel);
+				SocketResource failedSocketResource = socketResourceManager.getSocketResource(notRegistedSocketChannel);
+				if (null == failedSocketResource) {
+					log.warn("this scToAsynConnectionHash contains no mapping for the key[{}] that is the socket channel failed to be registered with the given selector", notRegistedSocketChannel.hashCode());
+				} else {
+					failedSocketResource.close();
+					socketResourceManager.remove(notRegistedSocketChannel);
+				}
+				
 			}
 		}
 	}
@@ -242,11 +249,12 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 				}
 			}
 
-			log.warn(String.format("%s InputMessageReader[%d] loop exit", projectName, index));
+			log.warn("{} InputMessageReader[{}] loop exit", projectName, index);
 		} catch (InterruptedException e) {
-			log.warn(String.format("%s InputMessageReader[%d] stop", projectName, index), e);
+			log.warn("{} InputMessageReader[{}] stop", projectName, index);			
 		} catch (Exception e) {
-			log.warn(String.format("%s InputMessageReader[%d] unknown error", projectName, index), e);
+			String errorMessage = String.format("%s InputMessageReader[%d] unknown error", projectName, index); 
+			log.warn(errorMessage, e);
 		}
 	}
 

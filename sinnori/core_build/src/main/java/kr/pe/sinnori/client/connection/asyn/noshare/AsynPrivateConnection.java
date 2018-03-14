@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.List;
 
-import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
+import kr.pe.sinnori.client.connection.ConnectionFixedParameter;
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceIF;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox;
@@ -46,12 +46,10 @@ public class AsynPrivateConnection extends AbstractAsynConnection {
 	
 	private final AsynPrivateMailbox asynPrivateMailbox = new AsynPrivateMailbox(1, socketTimeOut);
 
-	public AsynPrivateConnection(String projectName, String host, int port, long socketTimeOut,
-			ClientMessageUtilityIF clientMessageUtility,
+	public AsynPrivateConnection(ConnectionFixedParameter connectionFixedParameter,
 			AsynSocketResourceIF asynSocketResource)
 			throws InterruptedException, NoMoreDataPacketBufferException, IOException {
-		super(projectName, host, port, socketTimeOut, 
-				clientMessageUtility,
+		super(connectionFixedParameter,
 				asynSocketResource);
 
 		// log.info(String.format("project[%s] NoShareAsynConnection 생성자 end", projectName));
@@ -133,7 +131,7 @@ public class AsynPrivateConnection extends AbstractAsynConnection {
 		if (wrapReadableMiddleObject.getMailboxID() == CommonStaticFinalVars.ASYN_MAILBOX_ID) {
 			/** 서버에서 보내는 공지등 불특정 다수한테 보내는 출력 메시지 */
 			try {
-				asynSocketResource.getClientExecutor().putIntoQueue(fromLetter);
+				asynSocketResource.getClientExecutor().putAsynOutputMessage(fromLetter);
 			} catch (InterruptedException e) {				
 				log.warn("인터럽트 발생에 의한 비동기 출력 메시지[{}] 버림", fromLetter.toString());
 			
@@ -153,7 +151,7 @@ public class AsynPrivateConnection extends AbstractAsynConnection {
 			}
 
 			try {
-				asynPrivateMailbox.putToSyncOutputMessageQueue(fromLetter);
+				asynPrivateMailbox.putSyncOutputMessage(fromLetter);
 			} catch (InterruptedException e) {
 				log.warn("인터럽트 발생에 의한 동기 출력 메시지[{}] 버림", fromLetter.toString());
 				

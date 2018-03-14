@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
-import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
+import kr.pe.sinnori.client.connection.asyn.IOEAsynConnectionIF;
 import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
@@ -60,11 +60,10 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 	private ClientMessageUtilityIF clientMessageUtility = null;
 	private long socketTimeOut;
 
-	private Hashtable<SocketChannel, AbstractAsynConnection> sc2AsynConnectionHash = new Hashtable<SocketChannel, AbstractAsynConnection>();
+	private Hashtable<SocketChannel, IOEAsynConnectionIF> sc2AsynConnectionHash = new Hashtable<SocketChannel, IOEAsynConnectionIF>();
 
 	public InputMessageWriter(String projectName, int index, ArrayBlockingQueue<ToLetter> inputMessageQueue,
-			ClientMessageUtilityIF clientMessageUtility,
-			long socketTimeOut) throws NoMoreDataPacketBufferException {
+			ClientMessageUtilityIF clientMessageUtility) throws NoMoreDataPacketBufferException {
 		this.projectName = projectName;
 		this.index = index;
 		this.inputMessageQueue = inputMessageQueue;
@@ -73,17 +72,16 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 
 	@Override
 	public void run() {
-		log.info(String.format("InputMessageWriter[%d] start", index));
+		log.info("{} InputMessageWriter[%d] start", projectName, index);
 
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
 				ToLetter toLetter = inputMessageQueue.take();
-				SocketChannel toSC = toLetter.getToSocketChannel();
+				SocketChannel toSC = toLetter.getToSC();
 				
-				List<WrapBuffer> warpBufferList = null;
+				List<WrapBuffer> warpBufferList = toLetter.getWrapBufferList();
 				Selector writeEventOnlySelector = null;				
 				try {
-					warpBufferList = toLetter.getWrapBufferList();
 					writeEventOnlySelector = Selector.open();
 					
 					int warpBufferListSize = warpBufferList.size();
@@ -98,7 +96,7 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 						int numberOfKeys =  writeEventOnlySelector.select(socketTimeOut);
 						if (0 == numberOfKeys) {
 							String errorMessage = new StringBuilder("this socket channel[")
-									.append(toSC.hashCode())
+									.append(toLetter.toString())
 									.append("] timeout").toString();
 							throw new SocketTimeoutException(errorMessage);
 						}						
@@ -121,10 +119,10 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 							projectName, index, toLetter.toString(), e.getMessage());
 					log.warn(errorMessage, e);
 					
-					AbstractAsynConnection asynConnection = sc2AsynConnectionHash.get(toSC);
+					IOEAsynConnectionIF asynConnection = sc2AsynConnectionHash.get(toSC);
 					
 					if (null == asynConnection) {
-						log.warn("this sc2AsynConnectionHash contains no mapping for the key[socket channel={}]", toSC.hashCode());
+						log.warn("this sc2AsynConnectionHash contains no mapping for the key[socket channel={}] that is the socket channel failed to write a input message", toSC.hashCode());
 						continue;
 					}
 					
@@ -151,12 +149,10 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 					= new WrapReadableMiddleObject(toLetter.getMessageID(), 
 							toLetter.getMailboxID(), toLetter.getMailID(), selfExnRes);
 					
-					FromLetter fromLetter = new FromLetter(toLetter.getToSocketChannel(), wrapReadableMiddleObject);
+					FromLetter fromLetter = new FromLetter(toLetter.getToSC(), wrapReadableMiddleObject);
 					asynConnection.putToOutputMessageQueue(fromLetter);
 				} finally {
-					if (null != warpBufferList) {
-						clientMessageUtility.releaseWrapBufferList(warpBufferList);	
-					}
+					clientMessageUtility.releaseWrapBufferList(warpBufferList);
 					
 					if (null != writeEventOnlySelector) {
 						try {
@@ -179,15 +175,17 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 		}
 	}
 
-	public void registerAsynConnection(AbstractAsynConnection asynConnection) {
+	public void registerAsynConnection(IOEAsynConnectionIF asynConnection) {
 		sc2AsynConnectionHash.put(asynConnection.getSocketChannel(), asynConnection);
+		
+		log.debug("{} InputMessageWriter[{}] new AsynConnection[{}] added", projectName, index, asynConnection.hashCode());
 	}
 
 	public int getNumberOfAsynConnection() {
 		return sc2AsynConnectionHash.size();
 	}
 
-	public void removeAsynConnection(AbstractAsynConnection asynConnection) {
+	public void removeAsynConnection(IOEAsynConnectionIF asynConnection) {
 		sc2AsynConnectionHash.remove(asynConnection.getSocketChannel());
 	}
 

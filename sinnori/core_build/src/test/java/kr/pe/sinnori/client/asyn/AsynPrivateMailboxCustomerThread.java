@@ -72,7 +72,7 @@ private Logger log = LoggerFactory.getLogger(AsynPrivateMailboxProducerThread.cl
 				
 				//log.info("AsynPrivateMailboxCustomerThread::before putToSyncOutputMessageQueue, {}", wrapReadableMiddleObject.toString());
 				
-				asynMailbox.putToSyncOutputMessageQueue(fromLetter);
+				asynMailbox.putSyncOutputMessage(fromLetter);
 			} catch (Exception e) {
 				String errorMessage = String.format("예외 발생하여 Thread 종료::errorMessage=%s", e.getMessage());
 				log.warn(errorMessage, e);

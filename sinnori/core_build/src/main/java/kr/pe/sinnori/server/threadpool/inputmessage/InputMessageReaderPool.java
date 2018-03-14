@@ -20,6 +20,7 @@ package kr.pe.sinnori.server.threadpool.inputmessage;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
@@ -93,12 +94,17 @@ public class InputMessageReaderPool extends AbstractThreadPool implements
 		ieoThreadPoolManager.setInputMessageReaderPool(this);
 
 		for (int i = 0; i < poolSize; i++) {
-			addTask();
+			try {
+				addTask();
+			} catch (IllegalStateException | NotSupportedException e) {
+				log.error(e.getMessage(), e);
+				System.exit(1);
+			}
 		}
 	}
 
 	@Override
-	public void addTask() throws IllegalStateException {
+	public void addTask() throws IllegalStateException, NotSupportedException {
 		synchronized (monitor) {
 			int size = pool.size();
 			

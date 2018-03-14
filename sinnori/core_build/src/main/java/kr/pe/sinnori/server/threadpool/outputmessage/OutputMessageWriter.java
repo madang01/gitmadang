@@ -68,26 +68,25 @@ public class OutputMessageWriter extends Thread implements OutputMessageWriterIF
 	public void run() {
 		log.info(String.format("%s OutputMessageWriter[%d] start", projectName, index));
 		
-		try {			
+		try {
 			while (!Thread.currentThread().isInterrupted()) {
 				ToLetter toLetter = null;
-				try {
-					toLetter = outputMessageQueue.take();
-				} catch (InterruptedException e) {
-					log.warn("project[{}] index[{}] InterruptedException", projectName, index);
-					break;
-				}
+				
+				toLetter = outputMessageQueue.take();
+				
 				
 				//log.info("toLetter={}", toLetter.toString());
 
-				SocketChannel toSC = toLetter.getToSocketChannel();
+				SocketChannel toSC = toLetter.getToSC();
 				List<WrapBuffer> warpBufferList = toLetter.getWrapBufferList();
-				int indexOfWorkingBuffer = 0;
-				int warpBufferListSize = warpBufferList.size();
-				
-				Selector writeEventOnlySelector = Selector.open();
-				
+				Selector writeEventOnlySelector = null;
+
 				try {
+					writeEventOnlySelector = Selector.open();
+					
+					int indexOfWorkingBuffer = 0;
+					int warpBufferListSize = warpBufferList.size();
+					
 					toSC.register(writeEventOnlySelector, SelectionKey.OP_WRITE);
 					
 					WrapBuffer workingWrapBuffer = warpBufferList.get(indexOfWorkingBuffer);
@@ -112,7 +111,7 @@ public class OutputMessageWriter extends Thread implements OutputMessageWriterIF
 						}
 					} while (loop);
 					
-				} catch (Exception e) {
+				} catch (IOException e) {
 					String errorMessage = new StringBuilder("fail to write a output message, ")
 							.append(projectName)
 							.append(" OutputMessageWriter[")
@@ -125,24 +124,29 @@ public class OutputMessageWriter extends Thread implements OutputMessageWriterIF
 					
 					try {
 						toSC.close();
-					} catch (IOException e1) {
-						
+					} catch (IOException e1) {						
 					}
 				} finally {
 					for (WrapBuffer wrapBuffer : warpBufferList) {
 						dataPacketBufferPool.putDataPacketBuffer(wrapBuffer);
 					}
-					try {
-						writeEventOnlySelector.close();
-					} catch(IOException e) {
+					
+					if (null != writeEventOnlySelector) {
+						try {
+							writeEventOnlySelector.close();
+						} catch(IOException e) {
+						}
 					}
 				}
 			}
 		
-			log.warn(String.format("%s OutputMessageWriter[%d] loop exit", projectName, index));	
-		
+			
+			log.warn("{} OutputMessageWriter[{}] loop exit", projectName, index);
+		} catch(InterruptedException e) {
+			log.warn("{} OutputMessageWriter[{}] stop", projectName, index);
 		} catch (Exception e) {
-			log.warn(String.format("%s OutputMessageWriter[%d] unknown error", projectName, index), e);
+			String errorMessage = String.format("%s OutputMessageWriter[%d] unknown error", projectName, index);
+			log.warn(errorMessage, e);
 		}
 		
 		// log.warn(String.format("%s OutputMessageWriter[%d] thread end", commonProjectInfo.getProjectName(), index));

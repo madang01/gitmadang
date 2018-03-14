@@ -334,6 +334,6 @@ public class SimpleClassLoader extends ClassLoader {
 	@Override
 	protected void finalize() throws Throwable {
 		// FIXME! 메모리 회수 확인용으로 삭제하지 마세요!
-		log.info("ServerClassLoader[{}] destroy", this.hashCode());
+		log.info("SimpleClassLoader[{}] destroy", this.hashCode());
 	}
 }

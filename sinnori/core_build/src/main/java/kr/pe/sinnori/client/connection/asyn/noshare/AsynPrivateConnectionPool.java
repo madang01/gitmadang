@@ -19,12 +19,13 @@ package kr.pe.sinnori.client.connection.asyn.noshare;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayDeque;
+import java.util.NoSuchElementException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.client.connection.AbstractConnection;
-import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
+import kr.pe.sinnori.client.connection.ConnectionFixedParameter;
 import kr.pe.sinnori.client.connection.ConnectionPoolIF;
 import kr.pe.sinnori.client.connection.ConnectionPoolSupporterIF;
 import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceFactoryIF;
@@ -35,113 +36,118 @@ import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 	private Logger log = LoggerFactory.getLogger(AsynPrivateConnectionPool.class);
 	private final Object monitor = new Object();
-
+	
+	private transient int poolSize = 0;
+	private int poolMaxSize;
+	private ConnectionPoolSupporterIF connectionPoolSupporter = null;
+	private AsynSocketResourceFactoryIF asynSocketResourceFactory = null;	
+	
 	private String projectName = null;
-	private String host = null;
-	private int port;
 	private long socketTimeOut;
-	private ClientMessageUtilityIF clientMessageUtility = null;
-
-	private transient int size = 0;
-	private int max;
-
-	private AsynSocketResourceFactoryIF asynSocketResourceFactory = null;
-
+		
+	private ConnectionFixedParameter connectionFixedParameter = null;	
+	
 	private ArrayDeque<AsynPrivateConnection> connectionQueue = null;
 	private transient int numberOfConnection = 0;
-	private ConnectionPoolSupporterIF connectionPoolSupporter = null;
 
-	public AsynPrivateConnectionPool(String projectName, String host, int port, long socketTimeOut,
-			ClientMessageUtilityIF clientMessageUtility, int size, int max,
-			AsynSocketResourceFactoryIF asynSocketResourceFactory)
+	public AsynPrivateConnectionPool(AsynPrivateConnectionPoolParameter asynPrivateConnectionPoolParameter,
+			ConnectionFixedParameter connectionFixedParameter)
 			throws NoMoreDataPacketBufferException, InterruptedException, IOException, ConnectionPoolException {
-		if (size <= 0) {
-			String errorMessage = String.format("the parameter size[%d] is less than or equal to zero", size); 
-			throw new IllegalArgumentException(errorMessage);
+		if (null == asynPrivateConnectionPoolParameter) {
+			throw new IllegalArgumentException("the parameter asynPrivateConnectionPoolParameter is null");
 		}
 		
-		if (max <= 0) {
-			String errorMessage = String.format("the parameter max[%d] is less than or equal to zero", max); 
-			throw new IllegalArgumentException(errorMessage);
-		}
-
-		if (size > max) {
-			String errorMessage = String.format("the parameter size[%d] is greater than the parameter max[%d]", size, max); 
-			throw new IllegalArgumentException(errorMessage);
+		if (null == connectionFixedParameter) {
+			throw new IllegalArgumentException("the parameter connectionFixedParameter is null");
 		}
 		
+		this.connectionFixedParameter = connectionFixedParameter;
 		
-		this.projectName = projectName;
-		this.host = host;
-		this.port = port;
-		this.socketTimeOut = socketTimeOut;
-		this.clientMessageUtility = clientMessageUtility;
-		this.size = size;
-		this.max = max;
-		this.asynSocketResourceFactory = asynSocketResourceFactory;
-
-		this.connectionQueue = new ArrayDeque<AsynPrivateConnection>(max);
+		poolSize = asynPrivateConnectionPoolParameter.getPoolSize();
+		poolMaxSize = asynPrivateConnectionPoolParameter.getPoolMaxSize();
+		connectionPoolSupporter = asynPrivateConnectionPoolParameter.getConnectionPoolSupporter();
+		asynSocketResourceFactory = asynPrivateConnectionPoolParameter.getAsynSocketResourceFactory();
+		
+		projectName = connectionFixedParameter.getProjectName();
+		socketTimeOut = connectionFixedParameter.getSocketTimeOut();		
+		
+		connectionQueue = new ArrayDeque<AsynPrivateConnection>(poolMaxSize);
 		
 		/**
 		 * 비동기 비 공유 연결 클래스는 입력 메시지 큐 1개와 출력 메시지큐 1개를 할당 받는다. 입력 메시지 큐는 모든 연결 클래스간에 공유하며,
 		 * 출력 메시지 큐는 연결 클래스 각각 존재한다.
 		 */
 		try {
-			for (int i = 0; i < size; i++) {
+			for (int i = 0; i < poolSize; i++) {
 				addConnection();
-
 			}
-		} catch (IOException e) {
-
-			while (!connectionQueue.isEmpty()) {
-
+		} catch (IOException e) {			
+			while (! connectionQueue.isEmpty()) {
 				try {
 					connectionQueue.removeFirst().close();
+				} catch(NoSuchElementException e1) {
+					log.error("dead code enter");
+					System.exit(1);
 				} catch (IOException e1) {
 				}
 			}
 			throw e;
 		}
-
+		
+		connectionPoolSupporter.registerPool(this);
+		connectionPoolSupporter.start();
 	}
 
 	private void addConnection()
 			throws InterruptedException, NoMoreDataPacketBufferException, IOException, ConnectionPoolException {
 
-		if (numberOfConnection >= max) {
+		if (numberOfConnection >= poolMaxSize) {
 			throw new ConnectionPoolException("fail to add a connection because this connection pool is full");
 		}
 
+		
 		AsynSocketResourceIF asynSocketResource = asynSocketResourceFactory.makeNewAsynSocketResource();
 
-		AsynPrivateConnection serverConnection = new AsynPrivateConnection(projectName, host, port, socketTimeOut,
-				clientMessageUtility, asynSocketResource);
+		AsynPrivateConnection conn = 
+				new AsynPrivateConnection(connectionFixedParameter,
+						asynSocketResource);
 
 		synchronized (monitor) {
-			connectionQueue.addLast(serverConnection);
+			connectionQueue.addLast(conn);
 			numberOfConnection++;
-			size = Math.max(numberOfConnection, size);
+			poolSize = Math.max(numberOfConnection, poolSize);
 		}
+		
+		log.debug("{} new AsynPrivateConnection[{}] added", projectName, conn.hashCode());
 	}
 
 	private boolean whetherConnectionIsMissing() {
-		return (numberOfConnection != size);
+		return (numberOfConnection != poolSize);
 	}
 
 	public void addAllLostConnections() throws InterruptedException {
+		log.debug("{} missing connection refill work start", projectName);
 
 		while (whetherConnectionIsMissing()) {
 			try {
-				addConnection();
-				log.info("결손된 비동기 비공유 연결 추가 작업 완료");
+				addConnection();				
 			} catch (InterruptedException e) {
+				String errorMessage = new StringBuilder(projectName)
+						.append(" 인터럽트 발생에 따른 결손된 연결 충원 작업 중지").toString();
+				log.warn(errorMessage, e);
+				
 				throw e;
 			} catch (Exception e) {
-				log.warn("에러 발생에 따른 결손된 비동기 비공유 연결 추가 작업 잠시 중지 ", e);
+				String errorMessage = new StringBuilder(projectName)
+						.append(" 에러 발생에 따른 결손된 연결 충원 작업 중지, errmsg={}")
+						.append(e.getMessage()).toString();
+				
+				log.warn(errorMessage, e);
 				break;
 			}
 		}
 		// }
+		log.debug("{} missing connection refill work end", projectName);
 	}
 
 	public AbstractConnection getConnection()
@@ -172,18 +178,21 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 					asynPrivateConnection.queueOut();
 					loop = false;
 				} else {
-					loop = true;
+					loop = true;					
 
 					/**
-					 * Warning! 큐에 반환 되지 않고 가비지 대상이 될 경우 그 원인을 추적해야 하므로 반듯이 큐 안이라는 상태에서 연결을 폐기해야 한다
+					 * <pre>
+					 * 폴에서 꺼낸 연결이 닫힌 경우 폐기한다. 단  이러한 작업은 큐에 넣어진 상태에서 이루어 져야 한다.
+					 * 왜냐하면 연결은 참조 포인트가 없어 gc 될때 큐에 넣어진 상태가 아니면 로그를 남기는데
+					 * 사용자 한테 넘기기전 폐기이므로 gc 될때 로그를 남기지 말아야 하기때문이다.  
+					 * </pre>   
 					 */
-
-					String reasonForLoss = new StringBuilder("폴에서 꺼낸 비동기 비공유 연결[")
+					String reasonForLoss = new StringBuilder("폴에서 꺼낸 연결[")							
 							.append(asynPrivateConnection.hashCode()).append("]이 닫혀있어 폐기").toString();
 
 					numberOfConnection--;
 
-					log.warn("{}, 총 연결수[{}]", reasonForLoss, numberOfConnection);
+					log.warn("{} {}, numberOfConnection[{}]", projectName, reasonForLoss, numberOfConnection);
 
 					connectionPoolSupporter.notice(reasonForLoss);
 				}
@@ -196,7 +205,6 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 	}
 
 	public void release(AbstractConnection conn) throws ConnectionPoolException {
-
 		if (null == conn) {
 			String errorMessage = "the parameter conn is null";
 			log.warn(errorMessage, new Throwable());
@@ -222,19 +230,26 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 				throw new ConnectionPoolException(errorMessage);
 			}
 
+			/**
+			 * 큐에 넣어진 상태로 변경
+			 */
 			asynPrivateConnection.queueIn();
 
 			if (! asynPrivateConnection.isConnected()) {
 				/**
-				 * Warning! 큐에 반환 되지 않고 가비지 대상이 될 경우 그 원인을 추적해야 하므로 반듯이 큐 안이라는 상태에서 연결을 폐기해야 한다
+				 * <pre>
+				 * 반환된 연결이 닫힌 경우 폐기한다. 단  이러한 작업은 큐에 넣어진 상태에서 이루어 져야 한다.
+				 * 왜냐하면 연결은 참조 포인트가 없어 gc 될때 큐에 넣어진 상태가 아니면 로그를 남기는데
+				 * 정상적인 반환이므로 gc 될때 로그를 남기지 말아야 하기때문이다.  
+				 * </pre>   
 				 */
-
 				numberOfConnection--;
 
-				String reasonForLoss = new StringBuilder("반환된 비동기 비공유 연결[").append(asynPrivateConnection.hashCode())
+				String reasonForLoss = new StringBuilder("반환된 연결[")
+						.append(asynPrivateConnection.hashCode())
 						.append("]이 닫혀있어 폐기").toString();
 
-				log.warn("{}, 총 연결수[{}]", reasonForLoss, numberOfConnection);
+				log.warn("{} {}, numberOfConnection[{}]", projectName, reasonForLoss, numberOfConnection);
 
 				connectionPoolSupporter.notice(reasonForLoss);
 				return;
@@ -243,12 +258,13 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 			connectionQueue.addLast(asynPrivateConnection);
 			monitor.notify();
 		}
+	}	
 
+	public int size() {
+		return numberOfConnection;
 	}
-
-	@Override
-	public void registerConnectionPoolSupporter(ConnectionPoolSupporterIF connectionPoolSupporter) {
-		this.connectionPoolSupporter = connectionPoolSupporter;
+	
+	public int getQueueSize() {
+		return connectionQueue.size();
 	}
-
 }

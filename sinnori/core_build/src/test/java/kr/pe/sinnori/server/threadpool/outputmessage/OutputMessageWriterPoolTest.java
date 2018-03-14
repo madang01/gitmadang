@@ -17,7 +17,7 @@ import kr.pe.sinnori.server.threadpool.IEOServerThreadPoolSetManagerIF;
 public class OutputMessageWriterPoolTest extends AbstractJunitTest {
 
 	@Test
-	public void testConstuctor_theParameterPoolSize_lessThanOne() {
+	public void testConstructor_theParameterPoolSize_lessThanOne() {
 		int poolSize = 0;
 		int poolMaxSize = 10;
 		String projectName = "sample_test";
@@ -49,7 +49,7 @@ public class OutputMessageWriterPoolTest extends AbstractJunitTest {
 	}
 	
 	@Test
-	public void testConstuctor_theParameterPoolMaxSize_lessThanOne() {
+	public void testConstructor_theParameterPoolMaxSize_lessThanOne() {
 		int poolSize = 1;
 		int poolMaxSize = 0;
 		String projectName = "sample_test";
@@ -81,7 +81,7 @@ public class OutputMessageWriterPoolTest extends AbstractJunitTest {
 	}
 	
 	@Test
-	public void testConstuctor_theParameterPoolSizeIsGreaterThanTheParameterPoolMaxSize() {
+	public void testConstructor_theParameterPoolSizeIsGreaterThanTheParameterPoolMaxSize() {
 		int poolSize = 2;
 		int poolMaxSize = 1;
 		String projectName = "sample_test";
@@ -113,7 +113,7 @@ public class OutputMessageWriterPoolTest extends AbstractJunitTest {
 	}
 	
 	@Test
-	public void testConstuctor_theParameterProjectName_null() {
+	public void testConstructor_theParameterProjectName_null() {
 		int poolSize = 1;
 		int poolMaxSize = 2;
 		String projectName = null;
@@ -145,7 +145,7 @@ public class OutputMessageWriterPoolTest extends AbstractJunitTest {
 	}
 	
 	@Test
-	public void testConstuctor_theParameterOutputMessageQueueSize_lessThanOne() {
+	public void testConstructor_theParameterOutputMessageQueueSize_lessThanOne() {
 		int poolSize = 1;
 		int poolMaxSize = 2;
 		String projectName = "sample_test";
@@ -177,7 +177,7 @@ public class OutputMessageWriterPoolTest extends AbstractJunitTest {
 	}
 	
 	@Test
-	public void testConstuctor_theParameterDataPacketBufferQueueManger_null() {
+	public void testConstructor_theParameterDataPacketBufferQueueManger_null() {
 		int poolSize = 1;
 		int poolMaxSize = 2;
 		String projectName = "sample_test";
@@ -209,7 +209,7 @@ public class OutputMessageWriterPoolTest extends AbstractJunitTest {
 	}
 	
 	@Test
-	public void testConstuctor_theParameterIEOThreadPoolManager_null() {
+	public void testConstructor_theParameterIEOThreadPoolManager_null() {
 		int poolSize = 1;
 		int poolMaxSize = 2;
 		String projectName = "sample_test";
@@ -241,7 +241,7 @@ public class OutputMessageWriterPoolTest extends AbstractJunitTest {
 	}
 	
 	@Test
-	public void testConstuctor_theMethodSetOutputMessageWriterPool_1번호출여부() {
+	public void testConstructor_theMethodSetOutputMessageWriterPool_1번호출여부() {
 		int poolSize = 1;
 		int poolMaxSize = 2;
 		String projectName = "sample_test";
@@ -267,7 +267,7 @@ public class OutputMessageWriterPoolTest extends AbstractJunitTest {
 	}
 	
 	@Test
-	public void testConstuctor_TheRealPoolSizeIsSameToTheParameterPoolSize() {
+	public void testConstructor_TheRealPoolSizeIsSameToTheParameterPoolSize() {
 		int poolSize = 1;
 		int poolMaxSize = 2;
 		String projectName = "sample_test";

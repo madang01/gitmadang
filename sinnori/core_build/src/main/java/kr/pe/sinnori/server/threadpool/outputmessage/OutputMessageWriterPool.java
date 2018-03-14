@@ -22,6 +22,7 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import kr.pe.sinnori.common.asyn.ToLetter;
+import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
 import kr.pe.sinnori.server.threadpool.IEOServerThreadPoolSetManagerIF;
@@ -82,12 +83,17 @@ public class OutputMessageWriterPool extends AbstractThreadPool implements Outpu
 		ieoThreadPoolManager.setOutputMessageWriterPool(this);
 		
 		for (int i = 0; i < poolSize; i++) {
-			addTask();
+			try {
+				addTask();
+			} catch (IllegalStateException | NotSupportedException e) {
+				log.error(e.getMessage(), e);
+				System.exit(1);
+			}
 		}
 	}
 
 	@Override
-	public void addTask() throws IllegalStateException {
+	public void addTask() throws IllegalStateException, NotSupportedException {
 		ArrayBlockingQueue<ToLetter> outputMessageQueue = new ArrayBlockingQueue<ToLetter>(outputMessageQueueSize);
 		synchronized (monitor) {
 			int size = pool.size();

@@ -642,7 +642,7 @@ public class SinnoriItemIDInfoManger {
 							1, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
 	
-			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_READ_SELECTOR_WAKEUP_INTERVAL_ITEMID;
+			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_READ_ONLY_SELECTOR_WAKEUP_INTERVAL_ITEMID;
 			isDefaultValueCheck = true;
 			itemIDInfo = new ItemIDInfo<Long>(
 					ItemIDInfo.ConfigurationPart.PROJECT,

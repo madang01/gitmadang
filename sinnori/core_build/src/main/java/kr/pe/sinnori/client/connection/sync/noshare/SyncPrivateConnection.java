@@ -25,7 +25,7 @@ import java.nio.channels.Selector;
 import java.util.List;
 
 import kr.pe.sinnori.client.connection.AbstractConnection;
-import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
+import kr.pe.sinnori.client.connection.ConnectionFixedParameter;
 import kr.pe.sinnori.client.connection.SocketResoruceIF;
 import kr.pe.sinnori.common.exception.AccessDeniedException;
 import kr.pe.sinnori.common.exception.BodyFormatException;
@@ -53,20 +53,19 @@ public class SyncPrivateConnection extends AbstractConnection {
 	private int mailID = 0;	
 	
 	/** 큐 등록 상태 */
-	private boolean isQueueIn = true;
+	private boolean isQueueIn = true;	
 	
-	
-	
-	
-	public SyncPrivateConnection(String projectName,  
-			String host, int port,
-			long socketTimeOut,
-			ClientMessageUtilityIF clientMessageUtility,
-			SocketResoruceIF syncPrivateSocketResoruce) throws InterruptedException, NoMoreDataPacketBufferException, IOException {
-		super(projectName, host, port, socketTimeOut, clientMessageUtility);
+	public SyncPrivateConnection(ConnectionFixedParameter connectionFixedParameter,
+			SyncPrivateSocketResource syncPrivateSocketResource) throws InterruptedException, NoMoreDataPacketBufferException, IOException {
+		super(connectionFixedParameter);
 		
-		this.syncPrivateSocketResoruce = syncPrivateSocketResoruce;
+		if (null == syncPrivateSocketResource) {
+			String errorMessage = "the parameter syncPrivateSocketResource is null"; 
+			throw new IllegalArgumentException(errorMessage);
+		}
 		
+		
+		this.syncPrivateSocketResoruce = syncPrivateSocketResource;
 		socketOutputStream = syncPrivateSocketResoruce.getSocketOutputStream();
 		//log.info(String.format("project[%s] NoShareSyncConnection[%d] 생성자 end", projectName, serverSC.hashCode()));
 	}

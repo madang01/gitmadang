@@ -1,14 +1,16 @@
 package kr.pe.sinnori.client.connection.asyn.threadpool.executor;
 
 import java.nio.channels.SocketChannel;
-import java.util.Hashtable;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
-import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
+import kr.pe.sinnori.client.connection.asyn.IOEAsynConnectionIF;
 import kr.pe.sinnori.client.connection.asyn.task.AbstractClientTask;
 import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
@@ -23,7 +25,7 @@ public class ClientExecutor extends Thread implements ClientExecutorIF {
 
 	private ClientMessageUtilityIF clientMessageUtility = null;
 
-	private Hashtable<SocketChannel, AbstractAsynConnection> sc2AsynConnectionHash = new Hashtable<SocketChannel, AbstractAsynConnection>();
+	private final Set<IOEAsynConnectionIF> socketChannelSet = Collections.synchronizedSet(new HashSet<IOEAsynConnectionIF>());
 
 	public ClientExecutor(String projectName, int index, 
 			LinkedBlockingQueue<FromLetter> outputMessageQueue,
@@ -42,20 +44,12 @@ public class ClientExecutor extends Thread implements ClientExecutorIF {
 				FromLetter fromLetter = outputMessageQueue.take();
 
 				SocketChannel fromSC = fromLetter.getFromSocketChannel();
-
-				AbstractAsynConnection asynConnection = sc2AsynConnectionHash.get(fromSC);
-				if (null == asynConnection) {
-					log.warn("fail to get a asyn connection[isConnected={}] from hash, fromLetter={}",
-							fromSC.isConnected(), fromLetter.toString());
-					continue;
-				}
-
 				WrapReadableMiddleObject wrapReadableMiddleObject = fromLetter.getWrapReadableMiddleObject();
 				String messageID = wrapReadableMiddleObject.getMessageID();
 
 				AbstractClientTask clientTask = clientMessageUtility.getClientTask(messageID);
 
-				clientTask.execute(index, messageID, asynConnection, wrapReadableMiddleObject, clientMessageUtility);
+				clientTask.execute(index, projectName, fromSC, wrapReadableMiddleObject, clientMessageUtility);
 			}
 			log.warn("{} ClientExecutor[{}] loop exit", projectName, index);
 		} catch (InterruptedException e) {
@@ -68,24 +62,25 @@ public class ClientExecutor extends Thread implements ClientExecutorIF {
 	}
 
 	@Override
-	public void registerAsynConnection(AbstractAsynConnection asynConnection) {
+	public void registerAsynConnection(IOEAsynConnectionIF asynConnection) {
 		// log.info("add asynConnection[{}]", asynConnection.hashCode());
-
-		sc2AsynConnectionHash.put(asynConnection.getSocketChannel(), asynConnection);
+		socketChannelSet.add(asynConnection);
+		
+		log.debug("{} ClientExecutor[{}] new AsynConnection[{}][{}] added", projectName, index, asynConnection.hashCode());
 	}
 
 	@Override
 	public int getNumberOfAsynConnection() {
-		return sc2AsynConnectionHash.size();
+		return socketChannelSet.size();
 	}
 
 	@Override
-	public void removeAsynConnection(AbstractAsynConnection asynConnection) {
-		sc2AsynConnectionHash.remove(asynConnection.getSocketChannel());
+	public void removeAsynConnection(IOEAsynConnectionIF asynConnection) {
+		socketChannelSet.remove(asynConnection);
 	}
 
 	@Override
-	public void putIntoQueue(FromLetter fromLetter) throws InterruptedException {
+	public void putAsynOutputMessage(FromLetter fromLetter) throws InterruptedException {
 		outputMessageQueue.put(fromLetter);
 	}
 

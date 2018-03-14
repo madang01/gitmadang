@@ -17,7 +17,6 @@
 
 package kr.pe.sinnori.server.threadpool.accept.processor;
 
-// import java.util.logging.Level;
 import java.net.StandardSocketOptions;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -26,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.server.SocketResourceManagerIF;
-import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderPoolIF;
 
 /**
  * 서버에 접속 승인된 클라이언트(=소켓 채널) 등록 처리 쓰레드
@@ -37,7 +35,7 @@ import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderPoolIF;
 public class AcceptProcessor extends Thread {
 	private Logger log = LoggerFactory.getLogger(AcceptProcessor.class);
 	
-	private int index; // AcceptSelectorPool에서 생성한 순서
+	private int index;
 	private String projectName;
 	private LinkedBlockingQueue<SocketChannel> acceptQueue;
 	private SocketResourceManagerIF socketResourceManager = null;
@@ -53,14 +51,7 @@ public class AcceptProcessor extends Thread {
 		this.socketResourceManager = socketResourceManager;
 	}
 
-	/**
-	 * <b>Accept Qeueue</b> 에서 OP_ACCEPT 이벤트 발생한 socket channel을 꺼내와서 <br/>
-	 * 비동기로 세팅후
-	 * {@link InputMessageReaderPoolIF#addNewClientFromAcceptProcessor(java.nio.channels.SocketChannel) }
-	 * 에게 전달한다.
-	 * 
-	 * @see InputMessageReaderPoolIF#addNewClientFromAcceptProcessor(java.nio.channels.SocketChannel)
-	 */
+	
 	@Override
 	public void run() {
 		log.info(String.format("%s AcceptProcessor[%d] start", projectName, index));
@@ -73,7 +64,8 @@ public class AcceptProcessor extends Thread {
 				clientSC.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
 				clientSC.setOption(StandardSocketOptions.TCP_NODELAY, true);
 				clientSC.setOption(StandardSocketOptions.SO_LINGER, 0);
-				clientSC.setOption(StandardSocketOptions.SO_SNDBUF, 65536);				
+				clientSC.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+				//clientSC.setOption(StandardSocketOptions.SO_SNDBUF, 65536);
 				
 				socketResourceManager.addNewAcceptedSocketChannel(clientSC);
 			}

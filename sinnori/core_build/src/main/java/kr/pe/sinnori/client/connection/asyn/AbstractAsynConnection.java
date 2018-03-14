@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.List;
 
 import kr.pe.sinnori.client.connection.AbstractConnection;
-import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
+import kr.pe.sinnori.client.connection.ConnectionFixedParameter;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPublicMailbox;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReader;
 import kr.pe.sinnori.common.asyn.FromLetter;
@@ -35,13 +35,17 @@ import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
 
 
-public abstract class AbstractAsynConnection extends AbstractConnection {
+public abstract class AbstractAsynConnection extends AbstractConnection implements IOEAsynConnectionIF {
 	protected AsynSocketResourceIF asynSocketResource = null;
 
-	public AbstractAsynConnection(String projectName, String host, int port, long socketTimeOut,
-			ClientMessageUtilityIF clientMessageUtility, AsynSocketResourceIF asynSocketResource)
+	public AbstractAsynConnection(ConnectionFixedParameter connectionFixedParameter, AsynSocketResourceIF asynSocketResource)
 			throws InterruptedException, NoMoreDataPacketBufferException, IOException {
-		super(projectName, host, port, socketTimeOut, clientMessageUtility);
+		super(connectionFixedParameter);
+		
+		if (null == asynSocketResource) {
+			throw new IllegalArgumentException("the parameter asynSocketResource is null");
+		}
+		
 
 		this.asynSocketResource = asynSocketResource;
 

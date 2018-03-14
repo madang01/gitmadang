@@ -22,30 +22,37 @@ import java.util.List;
 
 import kr.pe.sinnori.common.io.WrapBuffer;
 
-/**
- * 서버로 보내는 입력 메시지와 연결 클래스를 담은 클래스.
- * 
- * @author Won Jonghoon
- * 
- */
+
 public class ToLetter {
-	private SocketChannel toSocketChannel = null;
+	private SocketChannel toSC = null;
 	private String messageID = null;
 	private int mailboxID;
 	private int mailID;
 	private List<WrapBuffer> wrapBufferList = null;
 
 
-	public ToLetter(SocketChannel toSocketChannel, String messageID, int mailboxID, int mailID, List<WrapBuffer> wrapBufferList) {
-		this.toSocketChannel = toSocketChannel;
+	public ToLetter(SocketChannel toSC, String messageID, int mailboxID, int mailID, List<WrapBuffer> wrapBufferList) {
+		if (null == toSC) {
+			throw new IllegalArgumentException("the parameter toSC is null");
+		}
+		
+		if (null == messageID) {
+			throw new IllegalArgumentException("the parameter messageID is null");
+		}
+		
+		if (null == wrapBufferList) {
+			throw new IllegalArgumentException("the parameter wrapBufferList is null");
+		}
+		
+		this.toSC = toSC;
 		this.messageID = messageID;
 		this.mailboxID = mailboxID;
 		this.mailID = mailID;
 		this.wrapBufferList = wrapBufferList;
 	}
 	
-	public SocketChannel getToSocketChannel() {
-		return toSocketChannel;
+	public SocketChannel getToSC() {
+		return toSC;
 	}
 	
 	public String getMessageID() {
@@ -60,22 +67,15 @@ public class ToLetter {
 		return mailID;
 	}
 	
-	/*public void setMailBox(int mailboxID, int mailID) {
-		this.mailboxID = mailboxID;
-		this.mailID = mailID;
-	}*/
-	
 	public List<WrapBuffer> getWrapBufferList() {
 		return wrapBufferList;
 	}
-	
-	
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("LetterToServer [toSocketChannel=");
-		builder.append(toSocketChannel.hashCode());
+		builder.append("LetterToServer [toSC=");
+		builder.append(toSC.hashCode());
 		builder.append(", messageID=");
 		builder.append(messageID);
 		builder.append(", mailboxID=");

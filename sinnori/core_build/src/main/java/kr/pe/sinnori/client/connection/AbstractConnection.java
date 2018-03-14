@@ -64,16 +64,15 @@ public abstract class AbstractConnection {
 	protected java.util.Date finalReadTime = new java.util.Date();
 	protected SelectableChannel serverSelectableChannel = null;
 	
-	public AbstractConnection(String projectName,
-			String host,
-			int port,
-			long socketTimeOut,
-			ClientMessageUtilityIF clientMessageUtility) throws NoMoreDataPacketBufferException, InterruptedException, IOException {
-		this.projectName = projectName;
-		this.host = host;
-		this.port = port;
-		this.socketTimeOut = socketTimeOut;
-		this.clientMessageUtility = clientMessageUtility;
+	public AbstractConnection(ConnectionFixedParameter connectionFixedParameter) throws NoMoreDataPacketBufferException, InterruptedException, IOException {
+		if (null == connectionFixedParameter) {
+			throw new IllegalArgumentException("the parameter connectionFixedParameter is null");
+		}
+		this.projectName = connectionFixedParameter.getProjectName();
+		this.host = connectionFixedParameter.getHost();
+		this.port = connectionFixedParameter.getPort();
+		this.socketTimeOut = connectionFixedParameter.getSocketTimeOut();
+		this.clientMessageUtility = connectionFixedParameter.getClientMessageUtility();	
 		
 		openSocketChannel();
 		
@@ -86,8 +85,10 @@ public abstract class AbstractConnection {
 		serverSC.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
 		serverSC.setOption(StandardSocketOptions.TCP_NODELAY, true);
 		serverSC.setOption(StandardSocketOptions.SO_LINGER, 0);
+		serverSC.setOption(StandardSocketOptions.SO_REUSEADDR, true);		
+		//setReuseAddress
 		
-		log.info("{} connection[{}] created", projectName, serverSC.hashCode());
+		//log.info("{} connection[{}] created", projectName, serverSC.hashCode());
 	}
 	
 	

@@ -75,7 +75,7 @@ public class ProjectPartConfiguration {
 	private Integer  clientAsynOutputMessageReaderPoolSize = null;
 	
 	/** 출력 메시지 소켓 읽기 담당 쓰레드에서 블락된 읽기 이벤트 전용 selector 를 깨우는 주기 */
-	private Long clientReadSelectorWakeupInterval = null;	
+	private Long clientWakeupIntervalOfSelectorForReadEventOnly = null;	
 	/************* client 변수 종료 ******************/
 	
 	/************* server 변수 시작 ******************/
@@ -396,7 +396,7 @@ public class ProjectPartConfiguration {
 			}
 			
 			this.clientAsynOutputMessageReaderPoolSize = (Integer) nativeValue;
-		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_READ_SELECTOR_WAKEUP_INTERVAL_ITEMID)) {
+		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_READ_ONLY_SELECTOR_WAKEUP_INTERVAL_ITEMID)) {
 			if (!(nativeValue instanceof Long)) {
 				String errorMessage = new StringBuilder("the generic type[")
 				.append(nativeValue.getClass().getName())
@@ -407,7 +407,7 @@ public class ProjectPartConfiguration {
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 			
-			this.clientReadSelectorWakeupInterval = (Long) nativeValue;
+			this.clientWakeupIntervalOfSelectorForReadEventOnly = (Long) nativeValue;
 		} else if (itemID.equals(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_EXECUTOR_POOL_SIZE_ITEMID)) {
 			if (!(nativeValue instanceof Integer)) {
 				String errorMessage = new StringBuilder("the generic type[")
@@ -706,8 +706,8 @@ public class ProjectPartConfiguration {
 
 
 
-	public long getClientReadSelectorWakeupInterval() {
-		return clientReadSelectorWakeupInterval;
+	public long getClientWakeupIntervalOfSelectorForReadEventOnly() {
+		return clientWakeupIntervalOfSelectorForReadEventOnly;
 	}
 
 	public int getClientAsynInputMessageQueueSize() {
@@ -841,8 +841,8 @@ public class ProjectPartConfiguration {
 		builder.append(clientAsynOutputMessageQueueSize);		
 		builder.append(", clientAsynOutputMessageReaderPoolSize=");
 		builder.append(clientAsynOutputMessageReaderPoolSize);
-		builder.append(", clientrReadSelectorWakeupInterval=");
-		builder.append(clientReadSelectorWakeupInterval);
+		builder.append(", clientWakeupIntervalOfSelectorForReadEventOnly=");
+		builder.append(clientWakeupIntervalOfSelectorForReadEventOnly);
 		builder.append(", clientAsynExecutorPoolSize=");
 		builder.append(clientAsynExecutorPoolSize);
 		builder.append(", serverMonitorTimeInterval=");
