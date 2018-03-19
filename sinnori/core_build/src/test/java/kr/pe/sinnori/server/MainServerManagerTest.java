@@ -3,6 +3,7 @@ package kr.pe.sinnori.server;
 import static org.junit.Assert.fail;
 
 import java.nio.ByteOrder;
+import java.nio.charset.Charset;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
@@ -11,7 +12,6 @@ import kr.pe.sinnori.client.AnyProjectConnectionPool;
 import kr.pe.sinnori.client.AnyProjectConnectionPoolIF;
 import kr.pe.sinnori.client.ConnectionPoolManager;
 import kr.pe.sinnori.common.AbstractJunitTest;
-import kr.pe.sinnori.common.config.itemidinfo.ItemIDDefiner;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
@@ -24,10 +24,85 @@ import kr.pe.sinnori.impl.message.Empty.Empty;
 public class MainServerManagerTest extends AbstractJunitTest {
 	private ProjectPartConfiguration getMainProjectPartConfiguration(String projectName,
 			String host, int port,
-			MessageProtocolType messageProtocolTypeForTest, ConnectionType connectionTypeForTest)
+			MessageProtocolType messageProtocolType, ConnectionType connectionType)
 			throws SinnoriConfigurationException {
 		ProjectPartConfiguration projectPartConfigurationForTest = new ProjectPartConfiguration(ProjectType.MAIN,
 				projectName);
+		
+		
+		ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+		Charset charset = CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET;
+		int dataPacketBufferMaxCntPerMessage=50;
+		int dataPacketBufferSize=4096;
+		int dataPacketBufferPoolSize=1000;
+		int messageIDFixedSize=20;
+		// MessageProtocolType messageProtocolType;
+		String firstPrefixDynamicClassFullName="kr.pe.sinnori.impl.";			
+		long clientMonitorTimeInterval = 60*1000*5L;
+		// final ConnectionType connectionType = ConnectionType.ASYN_PRIVATE;
+		long clientSocketTimeout = 6000L;			
+		int clientConnectionCount = 1;
+		int clientConnectionMaxCount = 1;
+		int clientAsynPirvateMailboxCntPerPublicConnection = 1;
+		int clientAsynInputMessageQueueSize = 5;
+		int clientAsynOutputMessageQueueSize = 5;
+		long clientWakeupIntervalOfSelectorForReadEventOnly = 100L;			
+		int clientAsynInputMessageWriterPoolSize = 2;			
+		int clientAsynOutputMessageReaderPoolSize = 2;			
+		int clientAsynExecutorPoolSize =2;
+		long serverMonitorTimeInterval = 5000L;
+		int serverMaxClients = clientConnectionCount*2;
+		int serverAcceptQueueSize = 5;
+		int serverInputMessageQueueSize = 5;
+		int serverOutputMessageQueueSize = 5;
+		long serverWakeupIntervalOfSelectorForReadEventOnly = 5000L;			
+		int serverAcceptProcessorSize = 2; 
+		int serverAcceptProcessorMaxSize = serverAcceptProcessorSize;			
+		int serverInputMessageReaderPoolSize = 2;
+		int serverInputMessageReaderPoolMaxSize = serverInputMessageReaderPoolSize;
+		int serverExecutorPoolSize = 2;
+		int serverExecutorPoolMaxSize = serverExecutorPoolSize;
+		int serverOutputMessageWriterPoolSize = 2;
+		int serverOutputMessageWriterPoolMaxSize = serverOutputMessageWriterPoolSize;	
+		String serverMybatisConfigFileRelativePathString = "kr/pe/sinnori/impl/mybatis/mybatisConfig.xml";
+		
+		projectPartConfigurationForTest.build(host, port, 
+				byteOrder, 
+				charset, 
+				dataPacketBufferMaxCntPerMessage, 
+				dataPacketBufferSize, 
+				dataPacketBufferPoolSize, 
+				messageIDFixedSize, 
+				messageProtocolType, 
+				firstPrefixDynamicClassFullName, 
+				clientMonitorTimeInterval, 
+				connectionType, 
+				clientSocketTimeout, 
+				clientConnectionCount, 
+				clientConnectionMaxCount, 
+				clientAsynPirvateMailboxCntPerPublicConnection, 
+				clientAsynInputMessageQueueSize, 
+				clientAsynOutputMessageQueueSize, 
+				clientWakeupIntervalOfSelectorForReadEventOnly, 
+				clientAsynInputMessageWriterPoolSize, 
+				clientAsynOutputMessageReaderPoolSize, 
+				clientAsynExecutorPoolSize, 
+				serverMonitorTimeInterval, 
+				serverMaxClients, 
+				serverAcceptQueueSize, 
+				serverInputMessageQueueSize, 
+				serverOutputMessageQueueSize, 
+				serverWakeupIntervalOfSelectorForReadEventOnly, 
+				serverAcceptProcessorSize, 
+				serverAcceptProcessorMaxSize, 
+				serverInputMessageReaderPoolSize, 
+				serverInputMessageReaderPoolMaxSize, 
+				serverExecutorPoolSize, 
+				serverExecutorPoolMaxSize, 
+				serverOutputMessageWriterPoolSize, 
+				serverOutputMessageWriterPoolMaxSize, 
+				serverMybatisConfigFileRelativePathString);
+		/*
 		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
 				.append(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_HOST_ITEMID).toString(), host);
 		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
@@ -174,7 +249,7 @@ public class MainServerManagerTest extends AbstractJunitTest {
 
 		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
 				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_STRING_ITEMID)
-				.toString(), "kr/pe/sinnori/impl/mybatis/mybatisConfig.xml");
+				.toString(), "kr/pe/sinnori/impl/mybatis/mybatisConfig.xml");*/
 
 		return projectPartConfigurationForTest;
 	}
@@ -267,72 +342,87 @@ public class MainServerManagerTest extends AbstractJunitTest {
 	
 
 	@Test
-	public void test2() {
+	public void test_프로토콜종류별_그리고_연결종류별검사() {
 		String testProjectName = "sample_test";
 		ProjectPartConfiguration projectPartConfigurationForTest = null;
 
-		MessageProtocolType messageProtocolTypeForTest = MessageProtocolType.DHB;
-		ConnectionType connectionTypeForTest = ConnectionType.SYNC_PRIVATE;
-
+		MessageProtocolType[] MessageProtocolTypeList = {
+				MessageProtocolType.DHB,
+				MessageProtocolType.THB
+		};
+		
+		ConnectionType[] ConnectionTypeList = {
+				ConnectionType.ASYN_PRIVATE,
+				ConnectionType.ASYN_PUBLIC,
+				ConnectionType.SYNC_PRIVATE
+		};
+		
 		String host = null;
 		int port;
 		
 		// host = "172.30.1.16";
 		host = "localhost";
-		port = 9091;
+		port = 9090;
 		
-		try {
-			projectPartConfigurationForTest = getMainProjectPartConfiguration(testProjectName,
-					host,  port,
-					messageProtocolTypeForTest, connectionTypeForTest);
+		
+		for (MessageProtocolType messageProtocolTypeForTest : MessageProtocolTypeList) {
+			for (ConnectionType connectionTypeForTest : ConnectionTypeList) {
+				port++;
+				
+				try {
+					projectPartConfigurationForTest = getMainProjectPartConfiguration(testProjectName,
+							host,  port,
+							messageProtocolTypeForTest, connectionTypeForTest);
 
-		} catch (Exception e) {
-			log.warn("error", e);
+				} catch (Exception e) {
+					log.warn("error", e);
 
-			String errorMessage = String.format(
-					"fail to mapping configuration's item value to ProjectPartConfiguration's item value::%s",
-					e.getMessage());
+					String errorMessage = String.format(
+							"fail to mapping configuration's item value to ProjectPartConfiguration's item value::%s",
+							e.getMessage());
 
-			fail(errorMessage);
-		}
-
-		try {
-			AnyProjectServer anyProjectServerForTest = new AnyProjectServer(projectPartConfigurationForTest);
-
-			anyProjectServerForTest.startServer();
-
-			AnyProjectConnectionPool anyProjectConnectionPoolForTest = new AnyProjectConnectionPool(
-					projectPartConfigurationForTest);
-
-			long startTime = System.nanoTime();
-			
-			for (int i = 0; i < 1; i++) {
-				Empty emptyReq = new Empty();
-				AbstractMessage emptyRes = anyProjectConnectionPoolForTest.sendSyncInputMessage(emptyReq);
-
-				if (!(emptyRes instanceof Empty)) {
-					fail("empty 메시지 수신 실패");
+					fail(errorMessage);
 				}
+				
+				try {
+					AnyProjectServer anyProjectServerForTest = new AnyProjectServer(projectPartConfigurationForTest);
 
-				if (!emptyReq.messageHeaderInfo.equals(emptyRes.messageHeaderInfo)) {
-					fail("수신한 empty 메시지의 메시지 헤더가 송신한 empty 메시지의 메시지 헤더와 다릅니다");
+					anyProjectServerForTest.startServer();
+					
+					AnyProjectConnectionPool anyProjectConnectionPoolForTest = new AnyProjectConnectionPool(
+							projectPartConfigurationForTest);
+
+					long startTime = System.nanoTime();
+					
+					for (int i = 0; i < 1; i++) {
+						Empty emptyReq = new Empty();
+						AbstractMessage emptyRes = anyProjectConnectionPoolForTest.sendSyncInputMessage(emptyReq);
+
+						if (!(emptyRes instanceof Empty)) {
+							fail("empty 메시지 수신 실패");
+						}
+
+						if (!emptyReq.messageHeaderInfo.equals(emptyRes.messageHeaderInfo)) {
+							fail("수신한 empty 메시지의 메시지 헤더가 송신한 empty 메시지의 메시지 헤더와 다릅니다");
+						}
+					}
+
+					long endTime = System.nanoTime();
+					log.info("시간차[{}]", TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
+				} catch (Exception e) {
+					log.warn("error", e);
+
+					String errorMessage = String.format(
+							"fail to get a output message::%s",
+							e.getMessage());
+
+					fail(errorMessage);
 				}
+				
+				log.info("프로토콜 {} 에서 연결 {} 테스트 이상무", 
+						messageProtocolTypeForTest.toString(),
+						connectionTypeForTest.toString());
 			}
-
-			long endTime = System.nanoTime();
-			log.info("시간차[{}]", TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
-		} catch (Exception e) {
-			log.warn("error", e);
-
-			String errorMessage = String.format(
-					"fail to get a output message::%s",
-					e.getMessage());
-
-			fail(errorMessage);
 		}
-
-		// log.info(projectPartConfigurationForTest.toString());
-	}
-
-	
+	}	
 }

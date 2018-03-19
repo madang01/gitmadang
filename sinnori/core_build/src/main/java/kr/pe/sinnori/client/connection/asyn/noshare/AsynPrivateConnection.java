@@ -104,7 +104,7 @@ public class AsynPrivateConnection extends AbstractAsynConnection {
 		
 		try {
 			wrapReadableMiddleObject = asynPrivateMailbox.getSyncOutputMessage();
-		} catch(SocketTimeoutException e) {
+		} catch(SocketTimeoutException e) {			
 			String errorMessage = new StringBuilder("timeout for the input message[")
 					.append(e.getMessage()).append("][")
 					.append(inObj.toString()).append("]").toString();

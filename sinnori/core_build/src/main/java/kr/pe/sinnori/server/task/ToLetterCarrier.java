@@ -328,6 +328,11 @@ public class ToLetterCarrier {
 			SocketResource socketResource = 
 					socketResourceManager.getSocketResource(toLetter.getToSC());
 			
+			if (null == socketResource) {
+				/** 연결 끊겨 제거 됨 */
+				continue;
+			}
+			
 			OutputMessageWriterIF outputMessageWriter = socketResource.getOutputMessageWriter();			
 			
 			try {

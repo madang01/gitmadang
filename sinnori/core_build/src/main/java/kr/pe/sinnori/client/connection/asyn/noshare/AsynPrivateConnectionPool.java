@@ -161,11 +161,13 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 				// log.info("111111111");
 
 				if (0 == numberOfConnection) {
-					throw new ConnectionPoolException("check server alive");
+					throw new ConnectionPoolException("check server alive or something is bad");
 				}
 
 				if (connectionQueue.isEmpty()) {
+					// log.info("111111111");
 					monitor.wait(socketTimeOut);
+					// log.info("2222222222");
 
 					if (connectionQueue.isEmpty()) {
 						throw new SocketTimeoutException("asynchronized private connection pool timeout");
@@ -256,8 +258,10 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 			}
 
 			connectionQueue.addLast(asynPrivateConnection);
-			monitor.notify();
+			monitor.notifyAll();
 		}
+		
+		log.info("conn[{}] releaed", conn.hashCode());
 	}	
 
 	public int size() {

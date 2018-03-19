@@ -30,15 +30,14 @@ import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 public final class AsynPrivateMailbox implements AsynPrivateMailboxIF {
 	private Logger log = LoggerFactory.getLogger(AsynPrivateMailbox.class);
 
-	// private final Object monitor = new Object();
+	private final Object monitor = new Object();
 
-	private int mailboxID;
-	// FromLetter fromLetter
+	private int mailboxID;	
 	private ArrayBlockingQueue<FromLetter> outputMessageQueue = new ArrayBlockingQueue<FromLetter>(1);
 	private long socketTimeOut;
 
 	private transient int mailID = Integer.MIN_VALUE;
-
+	
 	public AsynPrivateMailbox(int mailboxID, long socketTimeOut) {
 		if (0 == mailboxID) {
 			String errorMessage = String
@@ -61,6 +60,7 @@ public final class AsynPrivateMailbox implements AsynPrivateMailboxIF {
 			String errorMessage = String.format("the parameter socketTimeOut[%d] is less than zero", socketTimeOut);
 			throw new IllegalArgumentException(errorMessage);
 		}
+		
 
 		this.mailboxID = mailboxID;
 		this.socketTimeOut = socketTimeOut;
@@ -71,13 +71,13 @@ public final class AsynPrivateMailbox implements AsynPrivateMailboxIF {
 	 */
 
 	private void nextMailID() {
-		// synchronized (monitor) {
-		if (Integer.MAX_VALUE == mailID) {
-			mailID = Integer.MIN_VALUE;
-		} else {
-			mailID++;
+		synchronized (monitor) {
+			if (Integer.MAX_VALUE == mailID) {
+				mailID = Integer.MIN_VALUE;
+			} else {
+				mailID++;
+			}
 		}
-		// }
 	}
 
 	public int getMailboxID() {
@@ -99,37 +99,38 @@ public final class AsynPrivateMailbox implements AsynPrivateMailboxIF {
 
 		int fromMailboxID = wrapReadableMiddleObject.getMailboxID();
 		if (mailboxID != fromMailboxID) {
-			log.warn("drop the received message[{}] because it's mailbox id is different form this mailbox id[{}]",
+			log.warn("drop the received letter[{}] because it's mailbox id is different form this mailbox id[{}]",
 					fromLetter.toString(), mailboxID);
 			return;
 		}
 
-		int fromMailID = wrapReadableMiddleObject.getMailID();
+		int fromMailID = wrapReadableMiddleObject.getMailID();		
 
-		if (mailID != fromMailID) {
-			log.warn("drop the received message[{}] because it's mail id is different form this mailbox's mail id[{}]",
-					fromLetter.toString(), mailID);
-			return;
-		}
+		synchronized (monitor) {
+			if (mailID != fromMailID) {
+				log.warn("drop the received letter[{}] because it's mail id is different form this mailbox's mail id[{}]",
+						fromLetter.toString(), mailID);
+				return;
+			}
+		}		
+
+		// Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 		
 		if (! outputMessageQueue.isEmpty()) {
 			FromLetter oldFromLetter = outputMessageQueue.poll();
 			if (null != oldFromLetter) {
-				log.warn("clear the old received message[{}] from the ouputmessage queue of this mailbox[mailID={}] becase new message recevied", 
-						oldFromLetter.toString(),
-						mailID);
+				log.warn(
+						"clear the old received message[{}] from the ouputmessage queue of this mailbox[mailID={}] becase new message recevied",
+						oldFromLetter.toString(), mailID);
 			}
 		}
-
-		// log.info("putToSyncOutputMessageQueue::outputMessageQueue.offer");
-		@SuppressWarnings("unused")
-		boolean result = outputMessageQueue.offer(fromLetter);
-		/*if (!result) {
-			log.warn(
-					"drop the received message[{}] because it was failed to insert the received message into the output message queue of this mailbox",
-					fromLetter.toString());
-		}*/
-		// }
+		
+		boolean result = outputMessageQueue.offer(fromLetter);		
+		if (!result) {
+			log.warn("drop the received letter[{}] because it was failed to insert the received letter into the output message queue of this mailbox"
+		  , fromLetter.toString()); 
+		}
+		 
 	}
 
 	public WrapReadableMiddleObject getSyncOutputMessage() throws SocketTimeoutException, InterruptedException {
@@ -137,12 +138,13 @@ public final class AsynPrivateMailbox implements AsynPrivateMailboxIF {
 
 		WrapReadableMiddleObject wrapReadableMiddleObject = null;
 		boolean loop = false;
-		
+
 		long workingTimeOut = socketTimeOut;
 		long startTime = System.currentTimeMillis();
 		try {
-			do {				
+			 do {
 				FromLetter fromLetter = outputMessageQueue.poll(workingTimeOut, TimeUnit.MILLISECONDS);
+				
 				if (null == fromLetter) {
 					String errorMessage = new StringBuilder("mailboxID=").append(mailboxID).append(", mailID=")
 							.append(mailID).toString();
@@ -150,28 +152,26 @@ public final class AsynPrivateMailbox implements AsynPrivateMailboxIF {
 				}
 
 				wrapReadableMiddleObject = fromLetter.getWrapReadableMiddleObject();
-
+				
 				loop = (wrapReadableMiddleObject.getMailID() != mailID);
 				if (loop) {
 					log.warn(
 							"drop the received message[{}] because it's mail id is different form this mailbox's mail id[{}]",
 							fromLetter.toString(), mailID);
-					
+
 					workingTimeOut -= (startTime - System.currentTimeMillis());
 					if (workingTimeOut <= 0) {
 						String errorMessage = new StringBuilder("mailboxID=").append(mailboxID).append(", mailID=")
 								.append(mailID).toString();
 						throw new SocketTimeoutException(errorMessage);
 					}
-				}				
+				}
 			} while (loop);
 		} finally {
 			nextMailID();
 		}
 
 		return wrapReadableMiddleObject;
-
-		// }
 	}
 
 	/*

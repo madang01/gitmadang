@@ -132,6 +132,9 @@ public class SyncPrivateConnection extends AbstractConnection {
 						String errorMessage = new StringBuilder("this sync private connection[")
 								.append(serverSC.hashCode())
 								.append("] timeout").toString();
+						
+						log.info(errorMessage);
+						
 						throw new SocketTimeoutException(errorMessage);
 					}
 					
@@ -181,6 +184,9 @@ public class SyncPrivateConnection extends AbstractConnection {
 					String errorMessage = new StringBuilder("this sync private connection[")
 							.append(serverSC.hashCode())
 							.append("] timeout").toString();
+					
+					log.info(errorMessage);
+					
 					throw new SocketTimeoutException(errorMessage);
 				}
 				

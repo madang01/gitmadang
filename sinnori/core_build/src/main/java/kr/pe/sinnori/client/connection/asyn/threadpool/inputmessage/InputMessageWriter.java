@@ -72,7 +72,7 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 
 	@Override
 	public void run() {
-		log.info("{} InputMessageWriter[%d] start", projectName, index);
+		log.info("{} InputMessageWriter[{}] start", projectName, index);
 
 		try {
 			while (!Thread.currentThread().isInterrupted()) {

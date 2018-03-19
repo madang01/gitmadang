@@ -56,6 +56,14 @@ public class ClientMessageUtility implements ClientMessageUtilityIF {
 	public AbstractMessage buildOutputMessage(ClassLoader classLoader,
 			WrapReadableMiddleObject wrapReadableMiddleObject)
 			throws DynamicClassCallException, BodyFormatException {
+		if (null == classLoader) {
+			throw new IllegalArgumentException("the parameter classLoader is null");
+		}
+		
+		if (null == wrapReadableMiddleObject) {
+			throw new IllegalArgumentException("the parameter wrapReadableMiddleObject is null");
+		}
+		
 		String messageID = wrapReadableMiddleObject.getMessageID();
 		int mailboxID = wrapReadableMiddleObject.getMailboxID();
 		int mailID = wrapReadableMiddleObject.getMailID();
