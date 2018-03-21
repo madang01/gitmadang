@@ -255,6 +255,8 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 		AbstractConnection conn = connectionPool.getConnection();
 		try {
 			outObj = conn.sendSyncInputMessage(inputMessage);
+		} catch (BodyFormatException e) {
+			throw e;
 		} catch (IOException e) {
 			// log.warn("IOException", e);
 			try {
@@ -332,7 +334,15 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 	 * this method for junit test
 	 * @return the client input/executor/output thread pool set manager defined as specified in the configuration file
 	 */
-	public IEOClientThreadPoolSetManagerIF getIEOClientThreadPoolSetManager() {
+	public IEOClientThreadPoolSetManagerIF getIEOClientThreadPoolSetManager() throws NotSupportedException {
+		if (null == ieoClientThreadPoolSetManager) {
+			String errorMessage = new StringBuilder("this project[")
+					.append(projectPartConfiguration.getProjectName())
+					.append("]'s connection type[")
+					.append(projectPartConfiguration.getConnectionType())
+					.append("] doesn't support this method").toString();
+			throw new NotSupportedException(errorMessage);
+		}
 		return ieoClientThreadPoolSetManager;
 	}
 

@@ -12,6 +12,8 @@ import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderIF;
 import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterIF;
 
 public class SocketResourceManager implements SocketResourceManagerIF {
+	// private Logger log = LoggerFactory.getLogger(SocketResourceManager.class);
+	
 	private final Object monitor = new Object();	
 	
 	private SocketOutputStreamFactoryIF socketOutputStreamFactory = null;
@@ -114,6 +116,18 @@ public class SocketResourceManager implements SocketResourceManagerIF {
 
 	@Override
 	public int getNumberOfSocketResources() {
+		/*int count=0;
+		Iterator<SocketChannel> keyIterator = socketChannel2SocketResourceHash.keySet().iterator();
+		while(keyIterator.hasNext()) {
+			SocketChannel key = keyIterator.next();
+			if (key.isOpen() && key.isConnected()) {
+				count++;
+			}
+		}
+		
+		log.info("count={}, size={}", count, socketChannel2SocketResourceHash.size());
+		return count;*/
+		
 		return socketChannel2SocketResourceHash.size();
 	}
 	

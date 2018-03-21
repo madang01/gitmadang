@@ -42,6 +42,15 @@ import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 public class AsynPublicConnection extends AbstractAsynConnection {
 	private AsynPrivateMailboxMapperIF asynPrivateMailboxMapper = null;
 	private AsynPrivateMailboxPoolIF asynPrivateMailboxPool = null;
+	
+	private boolean isDropped = false;
+	public boolean isDropped() {
+		return isDropped;
+	}
+	
+	public void drop() {
+		isDropped = true;
+	}
 
 	public AsynPublicConnection(ConnectionFixedParameter connectionFixedParameter,
 			AsynSocketResourceIF asynSocketResource,
@@ -146,7 +155,7 @@ public class AsynPublicConnection extends AbstractAsynConnection {
 		noticeThisConnectionWasRemovedFromReadyOnleySelector();
 
 		// releaseResources();
-		log.warn("소멸::projectName[{}], ShareAsynConnection[{}]", projectName, serverSC.hashCode());
+		log.warn("소멸::projectName[{}], AsynPublicConnection[{}]", projectName, serverSC.hashCode());
 	}
 
 }

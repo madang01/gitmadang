@@ -1,4 +1,4 @@
-package kr.pe.sinnori.client.connection.asyn.noshare;
+package kr.pe.sinnori.client.connection.sync.noshare;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -13,13 +13,6 @@ import org.junit.Test;
 import kr.pe.sinnori.client.AnyProjectConnectionPool;
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.ConnectionPoolIF;
-import kr.pe.sinnori.client.connection.asyn.threadpool.IEOClientThreadPoolSetManagerIF;
-import kr.pe.sinnori.client.connection.asyn.threadpool.executor.ClientExecutor;
-import kr.pe.sinnori.client.connection.asyn.threadpool.executor.ClientExecutorIF;
-import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.InputMessageWriter;
-import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.InputMessageWriterIF;
-import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReader;
-import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReaderIF;
 import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
@@ -32,7 +25,7 @@ import kr.pe.sinnori.common.type.ProjectType;
 import kr.pe.sinnori.impl.message.Empty.Empty;
 import kr.pe.sinnori.server.AnyProjectServer;
 
-public class AsynPrivateConnectionPoolTest extends AbstractJunitTest {
+public class SyncPrivateConnectionPoolTest extends AbstractJunitTest {
 	
 	private ProjectPartConfiguration buildMainProjectPartConfiguration(String projectName,
 			String host, int port,
@@ -53,23 +46,23 @@ public class AsynPrivateConnectionPoolTest extends AbstractJunitTest {
 		// MessageProtocolType messageProtocolType;
 		String firstPrefixDynamicClassFullName="kr.pe.sinnori.impl.";			
 		long clientMonitorTimeInterval = 60*1000*5L;
-		final ConnectionType connectionType = ConnectionType.ASYN_PRIVATE;
+		final ConnectionType connectionType = ConnectionType.SYNC_PRIVATE;
 		long clientSocketTimeout = 5000L;			
 		int clientConnectionCount = numberOfConnection;
 		int clientConnectionMaxCount = numberOfConnection;
 		int clientAsynPirvateMailboxCntPerPublicConnection = 2;
 		int clientAsynInputMessageQueueSize = 5;
 		int clientAsynOutputMessageQueueSize = 5;
-		long clientWakeupIntervalOfSelectorForReadEventOnly = 2L;			
+		long clientWakeupIntervalOfSelectorForReadEventOnly = 10L;			
 		int clientAsynInputMessageWriterPoolSize = 2;			
 		int clientAsynOutputMessageReaderPoolSize = 2;			
 		int clientAsynExecutorPoolSize =2;
 		long serverMonitorTimeInterval = 5000L;
-		int serverMaxClients = numberOfConnection+4;
+		int serverMaxClients = numberOfConnection*2;
 		int serverAcceptQueueSize = 5;
 		int serverInputMessageQueueSize = 5;
 		int serverOutputMessageQueueSize = 5;
-		long serverWakeupIntervalOfSelectorForReadEventOnly = 2L;			
+		long serverWakeupIntervalOfSelectorForReadEventOnly = 10L;			
 		int serverAcceptProcessorSize = 2; 
 		int serverAcceptProcessorMaxSize = serverAcceptProcessorSize;			
 		int serverInputMessageReaderPoolSize = 2;
@@ -116,154 +109,6 @@ public class AsynPrivateConnectionPoolTest extends AbstractJunitTest {
 				serverOutputMessageWriterPoolSize, 
 				serverOutputMessageWriterPoolMaxSize, 
 				serverMybatisConfigFileRelativePathString);
-		
-		/*projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_HOST_ITEMID).toString(), host);
-		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_PORT_ITEMID).toString(), port);
-		projectPartConfigurationForTest
-				.mapping(
-						new StringBuilder("mainproject.")
-								.append(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_BYTEORDER_ITEMID).toString(),
-						ByteOrder.BIG_ENDIAN);
-		projectPartConfigurationForTest
-				.mapping(
-						new StringBuilder("mainproject.")
-								.append(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_CHARSET_ITEMID).toString(),
-						CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
-
-		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_DATA_PACKET_BUFFER_MAX_CNT_PER_MESSAGE_ITEMID)
-				.toString(), 1000);
-
-		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_DATA_PACKET_BUFFER_SIZE_ITEMID).toString(), 4096);
-
-		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_DATA_PACKET_BUFFER_POOL_SIZE_ITEMID).toString(),
-				1000);
-
-		projectPartConfigurationForTest.mapping(
-				new StringBuilder("mainproject.")
-						.append(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_MESSAGE_ID_FIXED_SIZE_ITEMID).toString(),
-				20);
-
-		projectPartConfigurationForTest.mapping(
-				new StringBuilder("mainproject.")
-						.append(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_MESSAGE_PROTOCOL_TYPE_ITEMID).toString(),
-				messageProtocolType);
-
-		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.COMMON_FIRST_PREFIX_DYNAMIC_CLASS_FULL_NAME_ITEMID)
-				.toString(), "kr.pe.sinnori.impl.");
-
-		projectPartConfigurationForTest.mapping(
-				new StringBuilder("mainproject.")
-						.append(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_MONITOR_TIME_INTERVAL_ITEMID).toString(),
-				1000L);
-
-		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_SOCKET_TIMEOUT_ITEMID).toString(), 5000L);
-
-		projectPartConfigurationForTest.mapping(
-				new StringBuilder("mainproject.")
-						.append(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_TYPE_ITEMID).toString(),
-						connectionType);
-
-		projectPartConfigurationForTest.mapping(
-				new StringBuilder("mainproject.")
-						.append(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_MAX_COUNT_ITEMID).toString(),
-				3);
-
-		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_COUNT_ITEMID).toString(), numberOfConnection);
-
-		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.").append(
-				ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_PIRVATE_MAILBOX_CNT_PER_PUBLIC_CONNECTION_ITEMID)
-				.toString(), 2);
-
-		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_INPUT_MESSAGE_QUEUE_SIZE_ITEMID).toString(),
-				10);
-
-		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_QUEUE_SIZE_ITEMID).toString(),
-				10);
-
-		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_INPUT_MESSAGE_WRITER_POOL_SIZE_ITEMID)
-				.toString(), numberOfConnection);
-
-		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_OUTPUT_MESSAGE_READER_POOL_SIZE_ITEMID)
-				.toString(), numberOfConnection);
-
-		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_EXECUTOR_POOL_SIZE_ITEMID).toString(), numberOfConnection);
-
-		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_ASYN_READ_ONLY_SELECTOR_WAKEUP_INTERVAL_ITEMID)
-				.toString(), 5000L);
-
-		projectPartConfigurationForTest.mapping(
-				new StringBuilder("mainproject.")
-						.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_MONITOR_TIME_INTERVAL_ITEMID).toString(),
-				1000L);
-
-		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_MAX_CLIENTS_ITEMID).toString(), 5);
-
-		projectPartConfigurationForTest.mapping(
-				new StringBuilder("mainproject.")
-						.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_ACCEPT_QUEUE_SIZE_ITEMID).toString(),
-				5);
-
-		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_QUEUE_SIZE_ITEMID).toString(),
-				5);
-
-		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_QUEUE_SIZE_ITEMID).toString(),
-				5);
-
-		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_READ_ONLY_SELECTOR_WAKEUP_INTERVAL_ITEMID)
-				.toString(), 10L);
-
-		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_ACCEPT_PROCESSOR_MAX_SIZE_ITEMID).toString(),
-				2);
-
-		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_ACCEPT_PROCESSOR_SIZE_ITEMID).toString(), 1);
-
-		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_READER_MAX_SIZE_ITEMID)
-				.toString(), 3);
-
-		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_INPUT_MESSAGE_READER_SIZE_ITEMID).toString(),
-				2);
-
-		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_MAX_SIZE_ITEMID)
-				.toString(), 3);
-
-		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_EXECUTOR_SIZE_ITEMID).toString(),
-				2);
-
-		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_WRITER_MAX_SIZE_ITEMID)
-				.toString(), 3);
-
-		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_OUTPUT_MESSAGE_WRITER_SIZE_ITEMID)
-				.toString(), 2);
-
-		projectPartConfigurationForTest.mapping(new StringBuilder("mainproject.")
-				.append(ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_MYBATIS_CONFIG_FILE_RELATIVE_PATH_STRING_ITEMID)
-				.toString(), "kr/pe/sinnori/impl/mybatis/mybatisConfig.xml");*/
 
 		return projectPartConfigurationForTest;
 	}
@@ -281,7 +126,7 @@ public class AsynPrivateConnectionPoolTest extends AbstractJunitTest {
 		
 		// host = "172.30.1.16";
 		host = "localhost";
-		port = 9190;
+		port = 9290;
 		
 		int numberOfConnection = 2;
 		
@@ -311,90 +156,15 @@ public class AsynPrivateConnectionPoolTest extends AbstractJunitTest {
 			
 			ConnectionPoolIF connectionPool = anyProjectConnectionPoolForTest.getconnectionPool();
 			
-			if (! (connectionPool instanceof AsynPrivateConnectionPool)) {
-				fail("the var connectionPool is not a instance of AsynPrivateConnectionPool class");
+			if (! (connectionPool instanceof SyncPrivateConnectionPool)) {
+				fail("the var connectionPool is not a instance of SyncPrivateConnectionPool class");
 			}
 			
-			AsynPrivateConnectionPool asynPrivateConnectionPool = (AsynPrivateConnectionPool)connectionPool;
+			SyncPrivateConnectionPool syncPrivateConnectionPool = (SyncPrivateConnectionPool)connectionPool;
+
 			
-			assertEquals("연결 폴 크기 점검",  numberOfConnection, asynPrivateConnectionPool.size());
-			assertEquals("연결 폴의 큐 크기 점검",  numberOfConnection, asynPrivateConnectionPool.getQueueSize());
-			
-		} catch (Exception e) {
-			log.warn("error", e);
-
-			String errorMessage = String.format(
-					"fail to get a output message::%s",
-					e.getMessage());
-
-			fail(errorMessage);
-		}
-	}
-	
-	/**
-	 * <pre>
-	 * 이 테스트는 비동기+비공유 연결 폴의 연결들이 클라이언트 IEO 담당 쓰레드에 각 1개씩 균등하게 받는것을  검사한다.
-	 *   
-	 * 참고1) IEO 담당 쓰레드 목록
-	 *       {@link ClientExecutor}
-	 *       {@link InputMessageWriter}
-	 *       {@link OutputMessageReader}
-	 * 
-	 * 참고2) 테스트 환경 구축을 위한 메소드
-	 * {@link #buildMainProjectPartConfiguration(String, String, int, int, MessageProtocolType) }  
-	 * </pre>
-	 */
-	@Test
-	public void testConstructor_IEO쓰레드균등할당검사() {
-		String testProjectName = "sample_test";
-		ProjectPartConfiguration projectPartConfigurationForTest = null;
-
-		MessageProtocolType messageProtocolTypeForTest = MessageProtocolType.DHB;
-
-		String host = null;
-		int port;
-		
-		// host = "172.30.1.16";
-		host = "localhost";
-		port = 9191;
-		
-		int numberOfConnection = 2;
-				
-		try {
-			projectPartConfigurationForTest = buildMainProjectPartConfiguration(testProjectName,
-					host,  port,
-					numberOfConnection,
-					messageProtocolTypeForTest);
-
-		} catch (Exception e) {
-			log.warn("error", e);
-
-			String errorMessage = String.format(
-					"fail to mapping configuration's item value to ProjectPartConfiguration's item value::%s",
-					e.getMessage());
-
-			fail(errorMessage);
-		}
-
-		try {
-			AnyProjectServer anyProjectServerForTest = new AnyProjectServer(projectPartConfigurationForTest);
-
-			anyProjectServerForTest.startServer();
-
-			AnyProjectConnectionPool anyProjectConnectionPoolForTest = new AnyProjectConnectionPool(
-					projectPartConfigurationForTest);
-						
-			
-			IEOClientThreadPoolSetManagerIF ieoClientThreadPoolSetManager = anyProjectConnectionPoolForTest
-				.getIEOClientThreadPoolSetManager();
-						
-			ClientExecutorIF minClientExecutor = ieoClientThreadPoolSetManager.getClientExecutorWithMinimumNumberOfConnetion();
-			InputMessageWriterIF minInputMessageWriter = ieoClientThreadPoolSetManager.getInputMessageWriterWithMinimumNumberOfConnetion();
-			OutputMessageReaderIF minOutputMessageReader = ieoClientThreadPoolSetManager.getOutputMessageReaderWithMinimumNumberOfConnetion();
-						
-			assertEquals("ClientExecutor 쓰레드에 균등 분배 검사", 1, minClientExecutor.getNumberOfAsynConnection());
-			assertEquals("InputMessageWriter 쓰레드에 균등 분배 검사", 1, minInputMessageWriter.getNumberOfAsynConnection());
-			assertEquals("OutputMessageReader 쓰레드에 균등 분배 검사", 1, minOutputMessageReader.getNumberOfAsynConnection());
+			assertEquals("연결 폴 크기 점검",  numberOfConnection, syncPrivateConnectionPool.size());
+			assertEquals("연결 폴의 큐 크기 점검",  numberOfConnection, syncPrivateConnectionPool.getQueueSize());
 			
 		} catch (Exception e) {
 			log.warn("error", e);
@@ -419,7 +189,7 @@ public class AsynPrivateConnectionPoolTest extends AbstractJunitTest {
 		
 		// host = "172.30.1.16";
 		host = "localhost";
-		port = 9192;
+		port = 9292;
 		
 		int numberOfConnection = 2;
 		
@@ -471,7 +241,7 @@ public class AsynPrivateConnectionPoolTest extends AbstractJunitTest {
 					try {
 						conn = connectionPool.getConnection();
 						
-						//log.info("conn[{}]={}", i, conn.hashCode());
+						// log.info("conn[{}]={}", i, conn.hashCode());
 						
 					} catch(Exception e) {
 						log.warn(i+"::error", e);
@@ -521,7 +291,7 @@ public class AsynPrivateConnectionPoolTest extends AbstractJunitTest {
 		
 		// host = "172.30.1.16";
 		host = "localhost";
-		port = 9193;
+		port = 9293;
 		
 		int numberOfConnection = 2;
 		
@@ -639,7 +409,7 @@ public class AsynPrivateConnectionPoolTest extends AbstractJunitTest {
 		
 		// host = "172.30.1.16";
 		host = "localhost";
-		port = 9194;
+		port = 9294;
 		
 		int numberOfConnection = 2;
 		
@@ -692,7 +462,7 @@ public class AsynPrivateConnectionPoolTest extends AbstractJunitTest {
 					try {
 						conn = connectionPool.getConnection();
 						
-						//log.info("conn[{}]={}", i, conn.hashCode());
+						log.info("conn[{}]={}", i, conn.hashCode());
 						
 						long sleepTime = ThreadLocalRandom.current().nextLong(1000L, 5001L); 
 						
@@ -746,7 +516,7 @@ public class AsynPrivateConnectionPoolTest extends AbstractJunitTest {
 		
 		// host = "172.30.1.16";
 		host = "localhost";
-		port = 9195;
+		port = 9295;
 		
 		int numberOfConnection = 2;
 		

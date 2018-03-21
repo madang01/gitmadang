@@ -93,7 +93,5 @@ public abstract class AbstractAsynConnection extends AbstractConnection implemen
 		asynSocketResource.getInputMessageWriter().putIntoQueue(toLetter);
 	}
 
-	public int hashCode() {
-		return serverSC.hashCode();
-	}
+	
 }

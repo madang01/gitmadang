@@ -232,4 +232,8 @@ public abstract class AbstractConnection {
 		strBuffer.append("]");
 		return strBuffer.toString();
 	}
+	
+	public int hashCode() {
+		return serverSC.hashCode();
+	}
 }

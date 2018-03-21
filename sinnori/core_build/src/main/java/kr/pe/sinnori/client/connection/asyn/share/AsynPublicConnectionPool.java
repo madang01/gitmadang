@@ -114,17 +114,25 @@ public class AsynPublicConnectionPool implements ConnectionPoolIF {
 		AsynPrivateMailboxPoolIF asynPrivateMailboxPool
 			=	asynPrivateMailboxPoolFactory.makeNewAsynPrivateMailboxPool();		
 
-		AsynPublicConnection conn = new AsynPublicConnection(connectionFixedParameter,
+		AsynPublicConnection conn = null;
+		
+		try {
+		conn = new AsynPublicConnection(connectionFixedParameter,
 				asynSocketResource, asynPrivateMailboxPool);
+		} catch(Exception e) {
+			asynSocketResource.releaseSocketResources();
+			throw e;
+		}
 
-		synchronized (monitor) {
+		// synchronized (monitor) {
+			
 			connectionList.add(conn);
 
 			numberOfConnection++;
 			poolSize = Math.max(numberOfConnection, poolSize);
-		}
+		//}
 		
-		log.info("{} new AsynPublicConnection[{}] added", projectName, conn.hashCode());
+		log.debug("{} new AsynPublicConnection[{}] added", projectName, conn.hashCode());
 	}
 
 	private boolean whetherConnectionIsMissing() {
@@ -132,27 +140,29 @@ public class AsynPublicConnectionPool implements ConnectionPoolIF {
 	}
 
 	public void addAllLostConnections() throws InterruptedException {
-		log.info("{} 결손된 연결 추가 작업 시작", projectName);
+		log.debug("{} 결손된 연결 추가 작업 시작", projectName);
 
-		while (whetherConnectionIsMissing()) {
-			try {
-				addConnection();
-			} catch (InterruptedException e) {
-				String errorMessage = new StringBuilder(projectName)
-						.append(" 인터럽트 발생에 따른 결손된 연결 추가 작업 중지").toString();
-				log.warn(errorMessage, e);
-				
-				throw e;
-			} catch (Exception e) {
-				String errorMessage = new StringBuilder(projectName)
-						.append(" 에러 발생에 따른 결손된 연결 추가 작업 중지, errmsg={}")
-						.append(e.getMessage()).toString();
-				
-				log.warn(errorMessage, e);
-				break;
+		synchronized (monitor) {
+			while (whetherConnectionIsMissing()) {
+				try {
+					addConnection();
+				} catch (InterruptedException e) {
+					String errorMessage = new StringBuilder(projectName)
+							.append(" 인터럽트 발생에 따른 결손된 연결 추가 작업 중지").toString();
+					log.warn(errorMessage, e);
+					
+					throw e;
+				} catch (Exception e) {
+					String errorMessage = new StringBuilder(projectName)
+							.append(" 에러 발생에 따른 결손된 연결 추가 작업 중지, errmsg=")
+							.append(e.getMessage()).toString();
+					
+					log.warn(errorMessage, e);
+					break;
+				}
 			}
 		}
-		log.info("{} 결손된 연결 추가 작업 종료", projectName);
+		log.debug("{} 결손된 연결 추가 작업 종료", projectName);
 	}
 
 	public AbstractConnection getConnection()
@@ -206,12 +216,15 @@ public class AsynPublicConnectionPool implements ConnectionPoolIF {
 			log.warn(errorMessage, new Throwable());
 			throw new IllegalArgumentException(errorMessage);
 		}
+		AsynPublicConnection asynPublicConnection = (AsynPublicConnection) conn;
 
 		synchronized (monitor) {
-			if (!conn.isConnected()) {
+			if (asynPublicConnection.isDropped()) return;
+			
+			if (! asynPublicConnection.isConnected()) {
 				String reasonForLoss = new StringBuilder("반환된 연결[")
 						.append(conn.hashCode()).append("]이 닫혀있어 폐기")
-						.toString();
+						.toString();				
 
 				numberOfConnection--;
 
@@ -220,10 +233,18 @@ public class AsynPublicConnectionPool implements ConnectionPoolIF {
 				connectionPoolSupporter.notice(reasonForLoss);
 
 				connectionList.remove(conn);
+				
+				asynPublicConnection.drop();
 			}
 		}
 	}
 
+	public int size() {
+		return numberOfConnection;
+	}
 	
+	public int getListSize() {
+		return connectionList.size();
+	}
 
 }

@@ -46,7 +46,7 @@ public class MainServerManagerTest extends AbstractJunitTest {
 		int clientAsynPirvateMailboxCntPerPublicConnection = 1;
 		int clientAsynInputMessageQueueSize = 5;
 		int clientAsynOutputMessageQueueSize = 5;
-		long clientWakeupIntervalOfSelectorForReadEventOnly = 100L;			
+		long clientWakeupIntervalOfSelectorForReadEventOnly = 10L;			
 		int clientAsynInputMessageWriterPoolSize = 2;			
 		int clientAsynOutputMessageReaderPoolSize = 2;			
 		int clientAsynExecutorPoolSize =2;
@@ -55,7 +55,7 @@ public class MainServerManagerTest extends AbstractJunitTest {
 		int serverAcceptQueueSize = 5;
 		int serverInputMessageQueueSize = 5;
 		int serverOutputMessageQueueSize = 5;
-		long serverWakeupIntervalOfSelectorForReadEventOnly = 5000L;			
+		long serverWakeupIntervalOfSelectorForReadEventOnly = 10L;			
 		int serverAcceptProcessorSize = 2; 
 		int serverAcceptProcessorMaxSize = serverAcceptProcessorSize;			
 		int serverInputMessageReaderPoolSize = 2;

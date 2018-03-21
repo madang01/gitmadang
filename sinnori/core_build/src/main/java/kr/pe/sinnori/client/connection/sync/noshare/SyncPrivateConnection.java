@@ -292,6 +292,6 @@ public class SyncPrivateConnection extends AbstractConnection {
 		syncPrivateSocketResoruce.releaseSocketResources();
 	}
 
-
+	
 
 }

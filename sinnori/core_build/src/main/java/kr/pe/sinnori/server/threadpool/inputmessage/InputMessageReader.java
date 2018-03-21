@@ -112,6 +112,8 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 			
 			loop = ! newSC.isRegistered();
 			
+			// log.info("loop={}", loop);
+			
 		} while (loop);
 		
 		log.debug("{} InputMessageReader[{}] new newSC[{}] added", projectName, index, newSC.hashCode());
@@ -177,6 +179,8 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 									projectName, index, selectedSocketChannel.hashCode()));
 							continue;
 						}
+						
+						// log.info("getNumberOfSocketResources={}", socketResourceManager.getNumberOfSocketResources());
 
 						SocketOutputStream fromSocketOutputStream = fromSocketResource.getSocketOutputStream();
 						ServerExecutorIF fromExecutor = fromSocketResource.getExecutor();

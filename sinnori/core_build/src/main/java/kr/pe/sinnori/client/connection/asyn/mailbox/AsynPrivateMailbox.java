@@ -173,10 +173,7 @@ public final class AsynPrivateMailbox implements AsynPrivateMailboxIF {
 
 		return wrapReadableMiddleObject;
 	}
-
-	/*
-	 * public int hashCode() { return monitor.hashCode(); }
-	 */
+	
 
 	@Override
 	public String toString() {

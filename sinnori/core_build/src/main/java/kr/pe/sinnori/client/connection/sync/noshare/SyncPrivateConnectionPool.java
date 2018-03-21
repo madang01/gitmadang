@@ -30,7 +30,6 @@ import kr.pe.sinnori.client.connection.ConnectionPoolSupporterIF;
 import kr.pe.sinnori.common.exception.ConnectionPoolException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 
-
 public class SyncPrivateConnectionPool implements ConnectionPoolIF {
 	private Logger log = LoggerFactory.getLogger(SyncPrivateConnectionPool.class);
 	private final Object monitor = new Object();
@@ -38,48 +37,46 @@ public class SyncPrivateConnectionPool implements ConnectionPoolIF {
 	private transient int poolSize;
 	private int poolMaxSize;
 	private ConnectionPoolSupporterIF connectionPoolSupporter = null;
-	private SyncPrivateSocketResourceFactoryIF syncPrivateSocketResourceFactory = null;	
-	
+	private SyncPrivateSocketResourceFactoryIF syncPrivateSocketResourceFactory = null;
+
 	private String projectName = null;
 	private long socketTimeOut;
-	
+
 	private ConnectionFixedParameter connectionFixedParameter = null;
 
 	private ArrayDeque<SyncPrivateConnection> connectionQueue = null;
 	private transient int numberOfConnection = 0;
-	
 
-	public SyncPrivateConnectionPool(
-			SyncPrivateConnectionPoolParameter syncPrivateConnectionPoolParameter,
+	public SyncPrivateConnectionPool(SyncPrivateConnectionPoolParameter syncPrivateConnectionPoolParameter,
 			ConnectionFixedParameter connectionFixedParameter)
 			throws NoMoreDataPacketBufferException, InterruptedException, IOException, ConnectionPoolException {
 		if (null == syncPrivateConnectionPoolParameter) {
-			String errorMessage = "the parameter syncPrivateConnectionPoolParameter is null"; 
+			String errorMessage = "the parameter syncPrivateConnectionPoolParameter is null";
 			throw new IllegalArgumentException(errorMessage);
 		}
-		
+
 		if (null == connectionFixedParameter) {
 			throw new IllegalArgumentException("the parameter connectionFixedParameter is null");
 		}
-		
+
 		this.connectionFixedParameter = connectionFixedParameter;
-		
+
 		poolSize = syncPrivateConnectionPoolParameter.getPoolSize();
 		poolMaxSize = syncPrivateConnectionPoolParameter.getPoolMaxSize();
 		connectionPoolSupporter = syncPrivateConnectionPoolParameter.getConnectionPoolSupporter();
 		syncPrivateSocketResourceFactory = syncPrivateConnectionPoolParameter.getSyncPrivateSocketResourceFactory();
-		
+
 		projectName = connectionFixedParameter.getProjectName();
 		socketTimeOut = connectionFixedParameter.getSocketTimeOut();
-		
+
 		connectionQueue = new ArrayDeque<SyncPrivateConnection>(poolMaxSize);
-		
+
 		try {
 			for (int i = 0; i < poolSize; i++) {
 				addConnection();
 			}
 		} catch (IOException e) {
-			while (! connectionQueue.isEmpty()) {
+			while (!connectionQueue.isEmpty()) {
 				try {
 					connectionQueue.removeFirst().close();
 				} catch (IOException e1) {
@@ -87,8 +84,8 @@ public class SyncPrivateConnectionPool implements ConnectionPoolIF {
 			}
 			throw e;
 		}
-		
-		connectionPoolSupporter.registerPool(this);		
+
+		connectionPoolSupporter.registerPool(this);
 		connectionPoolSupporter.start();
 	}
 
@@ -98,19 +95,26 @@ public class SyncPrivateConnectionPool implements ConnectionPoolIF {
 		if (numberOfConnection >= poolMaxSize) {
 			throw new ConnectionPoolException("fail to add a connection because this connection pool is full");
 		}
-				
-		SyncPrivateSocketResource syncPrivateSocketResource = syncPrivateSocketResourceFactory.makeNewSyncPrivateSocketResource();
 
-		SyncPrivateConnection conn = new SyncPrivateConnection(connectionFixedParameter,
-				syncPrivateSocketResource);
+		SyncPrivateSocketResource syncPrivateSocketResource = syncPrivateSocketResourceFactory
+				.makeNewSyncPrivateSocketResource();
 
-		synchronized (monitor) {
-			connectionQueue.addLast(conn);
-			numberOfConnection++;
-			poolSize = Math.max(numberOfConnection, poolSize);
+		SyncPrivateConnection conn = null;
+		
+		try {
+			conn = new SyncPrivateConnection(connectionFixedParameter, syncPrivateSocketResource);
+		} catch(Exception e) {
+			syncPrivateSocketResource.releaseSocketResources();
+			throw e;
 		}
 
-		log.info("{} new SyncPrivateConnection[{}] added", projectName, conn.hashCode());
+		// synchronized (monitor) {
+		connectionQueue.addLast(conn);
+		numberOfConnection++;
+		poolSize = Math.max(numberOfConnection, poolSize);
+		// }
+
+		log.debug("{} new SyncPrivateConnection[{}] added", projectName, conn.hashCode());
 	}
 
 	private boolean whetherConnectionIsMissing() {
@@ -118,28 +122,28 @@ public class SyncPrivateConnectionPool implements ConnectionPoolIF {
 	}
 
 	public void addAllLostConnections() throws InterruptedException {
-		log.info("{} 결손된 연결 추가 작업 시작", projectName);
+		log.debug("{} 결손된 연결 추가 작업 시작", projectName);
 
-		while (whetherConnectionIsMissing()) {
-			try {
-				addConnection();
-			} catch (InterruptedException e) {
-				String errorMessage = new StringBuilder(projectName)
-						.append(" 인터럽트 발생에 따른 결손된 연결 추가 작업 중지").toString();
-				log.warn(errorMessage, e);
-				throw e;
-			} catch (Exception e) {
-				String errorMessage = new StringBuilder(projectName)
-						.append(" 에러 발생에 따른 결손된 연결 추가 작업 중지, errmsg={}")
-						.append(e.getMessage()).toString();
-				log.warn(errorMessage, e);
-				break;
+		synchronized (monitor) {
+			while (whetherConnectionIsMissing()) {
+				try {
+					addConnection();
+				} catch (InterruptedException e) {
+					String errorMessage = new StringBuilder(projectName).append(" 인터럽트 발생에 따른 결손된 연결 추가 작업 중지")
+							.toString();
+					log.warn(errorMessage, e);
+					throw e;
+				} catch (Exception e) {
+					String errorMessage = new StringBuilder(projectName).append(" 에러 발생에 따른 결손된 연결 추가 작업 중지, errmsg={}")
+							.append(e.getMessage()).toString();
+					log.warn(errorMessage, e);
+					break;
+				}
 			}
 		}
 
-		log.info("{} 결손된 연결 추가 작업 종료", projectName);
+		log.debug("{} 결손된 연결 추가 작업 종료", projectName);
 	}
-
 
 	public AbstractConnection getConnection()
 			throws InterruptedException, SocketTimeoutException, ConnectionPoolException {
@@ -150,13 +154,16 @@ public class SyncPrivateConnectionPool implements ConnectionPoolIF {
 		synchronized (monitor) {
 			do {
 				if (0 == numberOfConnection) {
-					throw new ConnectionPoolException("check server alive");
+					throw new ConnectionPoolException("check server is alive or something is bad");
 				}
 
-				if (connectionQueue.isEmpty()) {
+				long startTime = System.currentTimeMillis();
+				while (connectionQueue.isEmpty()) {
 					monitor.wait(socketTimeOut);
 
-					if (connectionQueue.isEmpty()) {
+					long endTime = System.currentTimeMillis();
+
+					if ((endTime - startTime) >= socketTimeOut) {
 						throw new SocketTimeoutException("synchronized private connection pool timeout");
 					}
 				}
@@ -173,8 +180,8 @@ public class SyncPrivateConnectionPool implements ConnectionPoolIF {
 					 * Warning! 큐에 반환 되지 않고 가비지 대상이 될 경우 그 원인을 추적해야 하므로 반듯이 큐 안이라는 상태에서 연결을 폐기해야 한다
 					 */
 
-					String reasonForLoss = new StringBuilder("폴에서 꺼낸 연결[")
-							.append(syncPrivateConnection.hashCode()).append("]이 닫혀있어 폐기").toString();
+					String reasonForLoss = new StringBuilder("폴에서 꺼낸 연결[").append(syncPrivateConnection.hashCode())
+							.append("]이 닫혀있어 폐기").toString();
 
 					numberOfConnection--;
 
@@ -196,7 +203,7 @@ public class SyncPrivateConnectionPool implements ConnectionPoolIF {
 		}
 
 		if (!(conn instanceof SyncPrivateConnection)) {
-			String errorMessage = "the parameter conn is not instace of NoShareSyncConnection class";
+			String errorMessage = "the parameter conn is not instace of SyncPrivateConnection class";
 			log.warn(errorMessage, new Throwable());
 			throw new IllegalArgumentException(errorMessage);
 		}
@@ -207,8 +214,7 @@ public class SyncPrivateConnectionPool implements ConnectionPoolIF {
 			 * 연속 2회 큐 입력 방지
 			 */
 			if (syncPrivateConnection.isInQueue()) {
-				String errorMessage = String.format(
-						"the paramter conn[%d] that is NoShareSyncConnection  allready was in connection queue",
+				String errorMessage = String.format("the paramter conn[%d] allready was in connection queue",
 						conn.hashCode());
 				log.warn(errorMessage, new Throwable());
 				throw new ConnectionPoolException(errorMessage);
@@ -222,8 +228,7 @@ public class SyncPrivateConnectionPool implements ConnectionPoolIF {
 				 */
 				numberOfConnection--;
 
-				String reasonForLoss = new StringBuilder("반환된 연결[")
-						.append(syncPrivateConnection.hashCode())
+				String reasonForLoss = new StringBuilder("반환된 연결[").append(syncPrivateConnection.hashCode())
 						.append("]이 닫혀있어 폐기").toString();
 
 				log.warn("{} {}, 총 연결수[{}]", projectName, reasonForLoss, numberOfConnection);
@@ -233,9 +238,15 @@ public class SyncPrivateConnectionPool implements ConnectionPoolIF {
 			}
 
 			connectionQueue.addLast(syncPrivateConnection);
-			monitor.notify();
+			monitor.notifyAll();
 		}
 	}
-	
 
+	public int size() {
+		return numberOfConnection;
+	}
+
+	public int getQueueSize() {
+		return connectionQueue.size();
+	}
 }

@@ -19,6 +19,7 @@ package kr.pe.sinnori.server.threadpool.accept.selector;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.StandardSocketOptions;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -82,8 +83,9 @@ public class AcceptSelector extends Thread {
 
 			ssc = ServerSocketChannel.open();
 			ssc.configureBlocking(false); // non block 설정
+			ssc.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+			
 			InetSocketAddress address = new InetSocketAddress(serverHost, serverPort);
-
 			ssc.socket().bind(address);
 
 			ssc.register(selector, SelectionKey.OP_ACCEPT);
@@ -113,17 +115,25 @@ public class AcceptSelector extends Thread {
 						iter.remove();
 
 						ServerSocketChannel readyChannel = (ServerSocketChannel) key
-								.channel();						
+								.channel();		
 						
-						SocketChannel sc = readyChannel.accept();						
+						SocketChannel sc = readyChannel.accept();
 						
-						if (socketResourceManager.getNumberOfSocketResources() < maxClients) {
+						if (null == sc) {
+							log.error("sc is null");
+							System.exit(1);
+						}
+						
+						int numberOfSocketResources = socketResourceManager.getNumberOfSocketResources();
+						
+						if (numberOfSocketResources < maxClients) {								
 							// log.info("accepted socket channel=[{}]", sc.hashCode());
 							acceptQueue.put(sc);
 						} else {
 							sc.close();
 							log.warn("최대 소켓수[{}] 도달에 따른 소켓 닫기 sc[{}]",
 									maxClients, sc.hashCode());
+							
 						}
 					}
 				}

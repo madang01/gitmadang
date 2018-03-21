@@ -30,7 +30,7 @@ public class AsynConnectionTest  extends AbstractJunitTest {
 			else {
 			    boolean exit = false;
 			    while (!exit) {
-			    	log.info("11111111111");
+			    	// log.info("11111111111");
 			    	
 			        if (sel.select(100) == 0) // Did something happen on some registered Channels during the last 100ms?
 			            continue; // No, wait some more

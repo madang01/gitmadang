@@ -108,15 +108,22 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 		
 		AsynSocketResourceIF asynSocketResource = asynSocketResourceFactory.makeNewAsynSocketResource();
 
-		AsynPrivateConnection conn = 
-				new AsynPrivateConnection(connectionFixedParameter,
-						asynSocketResource);
+		AsynPrivateConnection conn = null;
+		
+		try {
+			conn = new AsynPrivateConnection(connectionFixedParameter,
+					asynSocketResource);
+		} catch(Exception e) {
+			asynSocketResource.releaseSocketResources();
+			throw e;
+		}
+				
 
-		synchronized (monitor) {
+		// synchronized (monitor) {
 			connectionQueue.addLast(conn);
 			numberOfConnection++;
 			poolSize = Math.max(numberOfConnection, poolSize);
-		}
+		// }
 		
 		log.debug("{} new AsynPrivateConnection[{}] added", projectName, conn.hashCode());
 	}
@@ -128,25 +135,26 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 	public void addAllLostConnections() throws InterruptedException {
 		log.debug("{} missing connection refill work start", projectName);
 
-		while (whetherConnectionIsMissing()) {
-			try {
-				addConnection();				
-			} catch (InterruptedException e) {
-				String errorMessage = new StringBuilder(projectName)
-						.append(" 인터럽트 발생에 따른 결손된 연결 충원 작업 중지").toString();
-				log.warn(errorMessage, e);
-				
-				throw e;
-			} catch (Exception e) {
-				String errorMessage = new StringBuilder(projectName)
-						.append(" 에러 발생에 따른 결손된 연결 충원 작업 중지, errmsg={}")
-						.append(e.getMessage()).toString();
-				
-				log.warn(errorMessage, e);
-				break;
+		synchronized (monitor) {
+			while (whetherConnectionIsMissing()) {
+				try {
+					addConnection();				
+				} catch (InterruptedException e) {
+					String errorMessage = new StringBuilder(projectName)
+							.append(" 인터럽트 발생에 따른 결손된 연결 충원 작업 중지").toString();
+					log.warn(errorMessage, e);
+					
+					throw e;
+				} catch (Exception e) {
+					String errorMessage = new StringBuilder(projectName)
+							.append(" 에러 발생에 따른 결손된 연결 충원 작업 중지, errmsg={}")
+							.append(e.getMessage()).toString();
+					
+					log.warn(errorMessage, e);
+					break;
+				}
 			}
 		}
-		// }
 		log.debug("{} missing connection refill work end", projectName);
 	}
 
@@ -161,19 +169,21 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 				// log.info("111111111");
 
 				if (0 == numberOfConnection) {
-					throw new ConnectionPoolException("check server alive or something is bad");
+					throw new ConnectionPoolException("check server is alive or something is bad");
 				}
 
-				if (connectionQueue.isEmpty()) {
-					// log.info("111111111");
-					monitor.wait(socketTimeOut);
-					// log.info("2222222222");
-
-					if (connectionQueue.isEmpty()) {
+				long startTime = System.currentTimeMillis();
+				
+				while (connectionQueue.isEmpty()) {
+					monitor.wait(10L);
+					
+					long endTime = System.currentTimeMillis();
+					
+					if ( (endTime-startTime) >= socketTimeOut) {
 						throw new SocketTimeoutException("asynchronized private connection pool timeout");
 					}
 				}
-
+				
 				asynPrivateConnection = connectionQueue.removeFirst();
 
 				if (asynPrivateConnection.isConnected()) {
@@ -214,7 +224,7 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 		}
 
 		if (!(conn instanceof AsynPrivateConnection)) {
-			String errorMessage = "the parameter conn is not instace of NoShareAsynConnection class";
+			String errorMessage = "the parameter conn is not instace of AsynPrivateConnection class";
 			log.warn(errorMessage, new Throwable());
 			throw new IllegalArgumentException(errorMessage);
 		}
@@ -261,7 +271,7 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 			monitor.notifyAll();
 		}
 		
-		log.info("conn[{}] releaed", conn.hashCode());
+		// log.info("conn[{}] releaed", conn.hashCode());
 	}	
 
 	public int size() {
