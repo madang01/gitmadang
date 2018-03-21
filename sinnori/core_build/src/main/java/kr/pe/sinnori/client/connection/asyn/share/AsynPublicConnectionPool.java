@@ -87,7 +87,7 @@ public class AsynPublicConnectionPool implements ConnectionPoolIF {
 				addConnection();
 			}
 
-		} catch (IOException e) {
+		} catch (Exception e) {
 			while (! connectionList.isEmpty()) {
 				try {
 					connectionList.removeFirst().close();
@@ -109,11 +109,10 @@ public class AsynPublicConnectionPool implements ConnectionPoolIF {
 			throw new ConnectionPoolException("fail to add a connection because this connection pool is full");
 		}
 		
-		AsynSocketResourceIF asynSocketResource = asynSocketResourceFactory.makeNewAsynSocketResource();
-		
 		AsynPrivateMailboxPoolIF asynPrivateMailboxPool
 			=	asynPrivateMailboxPoolFactory.makeNewAsynPrivateMailboxPool();		
 
+		AsynSocketResourceIF asynSocketResource = asynSocketResourceFactory.makeNewAsynSocketResource();
 		AsynPublicConnection conn = null;
 		
 		try {

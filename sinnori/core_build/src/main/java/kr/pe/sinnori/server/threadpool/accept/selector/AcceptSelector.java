@@ -130,6 +130,7 @@ public class AcceptSelector extends Thread {
 							// log.info("accepted socket channel=[{}]", sc.hashCode());
 							acceptQueue.put(sc);
 						} else {
+							sc.setOption(StandardSocketOptions.SO_LINGER, 0);
 							sc.close();
 							log.warn("최대 소켓수[{}] 도달에 따른 소켓 닫기 sc[{}]",
 									maxClients, sc.hashCode());

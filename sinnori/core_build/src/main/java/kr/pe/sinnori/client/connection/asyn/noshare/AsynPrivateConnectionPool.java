@@ -81,7 +81,7 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 			for (int i = 0; i < poolSize; i++) {
 				addConnection();
 			}
-		} catch (IOException e) {			
+		} catch (Exception e) {			
 			while (! connectionQueue.isEmpty()) {
 				try {
 					connectionQueue.removeFirst().close();
