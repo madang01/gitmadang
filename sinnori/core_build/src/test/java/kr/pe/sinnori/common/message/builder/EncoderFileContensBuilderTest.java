@@ -16,8 +16,8 @@ public class EncoderFileContensBuilderTest extends AbstractJunitTest {
 		EncoderFileContensBuilder encoderFileContensBuilder = new EncoderFileContensBuilder();
 		
 		int depth = 1;
-		String path = "AllItemTypeReq";
-		String varNameOfSetOwner = "allItemTypeReq";
+		String path = "Empty";
+		String varNameOfSetOwner = "empty";
 		String middleObjVarName = "middleWritableObject";		
 		
 		String itemName = "ubBytes";
@@ -39,7 +39,7 @@ public class EncoderFileContensBuilderTest extends AbstractJunitTest {
 		EncoderFileContensBuilder encoderFileContensBuilder = new EncoderFileContensBuilder();
 		
 		int depth = 1;
-		String varNameOfSetOwner = "allItemTypeReq";		
+		String varNameOfSetOwner = "empty";		
 		
 		{
 			log.info("test case::direct");
@@ -99,7 +99,7 @@ public class EncoderFileContensBuilderTest extends AbstractJunitTest {
 		EncoderFileContensBuilder encoderFileContensBuilder = new EncoderFileContensBuilder();
 		
 		int depth = 1;
-		String varNameOfSetOwner = "allItemTypeReq";		
+		String varNameOfSetOwner = "empty";		
 		
 		{
 			log.info("test case:direct");
@@ -162,8 +162,8 @@ public class EncoderFileContensBuilderTest extends AbstractJunitTest {
 		EncoderFileContensBuilder encoderFileContensBuilder = new EncoderFileContensBuilder();
 		
 		int depth = 1;
-		String path = "AllItemTypeReq";
-		String varNameOfSetOwner = "allItemTypeReq";
+		String path = "Empty";
+		String varNameOfSetOwner = "empty";
 		String middleObjVarName = "middleWritableObject";
 		
 		String arrayName = "member";
@@ -198,8 +198,8 @@ public class EncoderFileContensBuilderTest extends AbstractJunitTest {
 		EncoderFileContensBuilder encoderFileContensBuilder = new EncoderFileContensBuilder();
 		
 		int depth = 2;
-		String path = "AllItemTypeReq";
-		String varNameOfSetOwner = "allItemTypeReq";
+		String path = "Empty";
+		String varNameOfSetOwner = "empty";
 		String middleObjVarName = "middleWritableObject";
 		
 		String arrayName = "member";
@@ -234,8 +234,8 @@ public class EncoderFileContensBuilderTest extends AbstractJunitTest {
 		EncoderFileContensBuilder encoderFileContensBuilder = new EncoderFileContensBuilder();
 		
 		int depth = 2;
-		String path = "AllItemTypeReq";
-		String varNameOfSetOwner = "allItemTypeReq";
+		String path = "Empty";
+		String varNameOfSetOwner = "empty";
 		String middleObjVarName = "middleWritableObject";
 		
 

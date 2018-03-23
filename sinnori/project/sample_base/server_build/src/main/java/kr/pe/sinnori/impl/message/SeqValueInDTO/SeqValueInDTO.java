@@ -17,6 +17,7 @@
 package kr.pe.sinnori.impl.message.SeqValueInDTO;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
+
 /**
  * SeqValueInDTO 메시지
  * @author Won Jonghoon
@@ -44,13 +45,11 @@ public class SeqValueInDTO extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("class SeqValueInDTO[");
+		builder.append("seqValueInDTO[");
 		builder.append("seqTypeId=");
 		builder.append(seqTypeId);
 		builder.append(", wantedSize=");
 		builder.append(wantedSize);
-		builder.append(", messageHeaderInfo=");
-		builder.append(messageHeaderInfo.toString());
 		builder.append("]");
 		return builder.toString();
 	}

@@ -16,12 +16,10 @@
  */
 package kr.pe.sinnori.impl.message.MessageResult;
 
-import java.nio.charset.Charset;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
-
 /**
  * MessageResult 메시지 디코더
  * @author Won Jonghoon
@@ -29,51 +27,38 @@ import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
  */
 public final class MessageResultDecoder extends AbstractMessageDecoder {
 
-	/**
-	 * <pre>
-	 *  "단일항목 디코더"를 이용하여 "중간 다리 역활 읽기 객체" 에서 추출된 MessageResult 메시지를 반환한다.
-	 * </pre>
-	 * @param singleItemDecoder 단일항목 디코더
-	 * @param charsetOfProject 프로젝트 문자셋
-	 * @param middleReadObj 중간 다리 역활 읽기 객체
-	 * @return "단일항목 디코더"를 이용하여 "중간 다리 역활 읽기 객체" 에서 추출된 MessageResult 메시지
-	 * @throws OutOfMemoryError 메모리 확보 실패시 던지는 예외
-	 * @throws BodyFormatException 바디 디코딩 실패시 던지는 예외
-	 */
 	@Override
-	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Charset charsetOfProject, Object  middleReadObj) throws OutOfMemoryError, BodyFormatException {
+	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object  middleReadableObject) throws BodyFormatException {
 		MessageResult messageResult = new MessageResult();
-		String sigleItemPath0 = "MessageResult";
+		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
+		pathStack.push("MessageResult");
 
 		messageResult.setTaskMessageID((String)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "taskMessageID" // itemName
-		, 7 // itemTypeID
-		, "ub pascal string" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "taskMessageID" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
 
 		messageResult.setIsSuccess((java.lang.Boolean)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "isSuccess" // itemName
-		, 17 // itemTypeID
-		, "boolean" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "isSuccess" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.BOOLEAN // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
 
 		messageResult.setResultMessage((String)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "resultMessage" // itemName
-		, 7 // itemTypeID
-		, "ub pascal string" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "resultMessage" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
+		pathStack.pop();
+
 		return messageResult;
 	}
 }

@@ -30,11 +30,11 @@ public final class BoardFileInfoDTOClientCodec implements MessageCodecIF {
 
 	@Override
 	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
-		throw new DynamicClassCallException("BoardFileInfoDTO 메시지는 서버에서 클라이언트로 전달하지 않는 메시지 입니다.");
+		throw new DynamicClassCallException("the client don't need a message decoder because it is a message[BoardFileInfoDTO] that is not sent from server to client");
 	}
 
 	@Override
 	public AbstractMessageEncoder getMessageEncoder() throws DynamicClassCallException {
-		throw new DynamicClassCallException("BoardFileInfoDTO메시지는 클라이언트에서 서버로 전달하지 않는 메시지 입니다.");
+		throw new DynamicClassCallException("the client don't need a message encoder because it is a message[BoardFileInfoDTO] that is not sent from client to server");
 	}
 }

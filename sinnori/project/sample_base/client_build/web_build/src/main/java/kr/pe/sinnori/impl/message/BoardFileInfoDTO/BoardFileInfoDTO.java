@@ -17,6 +17,7 @@
 package kr.pe.sinnori.impl.message.BoardFileInfoDTO;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
+
 /**
  * BoardFileInfoDTO 메시지
  * @author Won Jonghoon
@@ -26,8 +27,8 @@ public class BoardFileInfoDTO extends AbstractMessage {
 	private long attachId;
 	private String ownerId;
 	private String ip;
-	private java.sql.Timestamp registerDate;
-	private java.sql.Timestamp modifiedDate;
+	private boolean registerDate;
+	private boolean modifiedDate;
 
 	public long getAttachId() {
 		return attachId;
@@ -50,25 +51,25 @@ public class BoardFileInfoDTO extends AbstractMessage {
 	public void setIp(String ip) {
 		this.ip = ip;
 	}
-	public java.sql.Timestamp getRegisterDate() {
+	public boolean getRegisterDate() {
 		return registerDate;
 	}
 
-	public void setRegisterDate(java.sql.Timestamp registerDate) {
+	public void setRegisterDate(boolean registerDate) {
 		this.registerDate = registerDate;
 	}
-	public java.sql.Timestamp getModifiedDate() {
+	public boolean getModifiedDate() {
 		return modifiedDate;
 	}
 
-	public void setModifiedDate(java.sql.Timestamp modifiedDate) {
+	public void setModifiedDate(boolean modifiedDate) {
 		this.modifiedDate = modifiedDate;
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("class BoardFileInfoDTO[");
+		builder.append("boardFileInfoDTO[");
 		builder.append("attachId=");
 		builder.append(attachId);
 		builder.append(", ownerId=");
@@ -79,8 +80,6 @@ public class BoardFileInfoDTO extends AbstractMessage {
 		builder.append(registerDate);
 		builder.append(", modifiedDate=");
 		builder.append(modifiedDate);
-		builder.append(", messageHeaderInfo=");
-		builder.append(messageHeaderInfo.toString());
 		builder.append("]");
 		return builder.toString();
 	}

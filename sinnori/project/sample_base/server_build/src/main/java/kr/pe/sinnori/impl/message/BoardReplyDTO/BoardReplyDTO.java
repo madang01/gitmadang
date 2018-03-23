@@ -17,6 +17,7 @@
 package kr.pe.sinnori.impl.message.BoardReplyDTO;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
+
 /**
  * BoardReplyDTO 메시지
  * @author Won Jonghoon
@@ -108,7 +109,7 @@ public class BoardReplyDTO extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("class BoardReplyDTO[");
+		builder.append("boardReplyDTO[");
 		builder.append("boardId=");
 		builder.append(boardId);
 		builder.append(", groupNo=");
@@ -129,8 +130,6 @@ public class BoardReplyDTO extends AbstractMessage {
 		builder.append(writerId);
 		builder.append(", ip=");
 		builder.append(ip);
-		builder.append(", messageHeaderInfo=");
-		builder.append(messageHeaderInfo.toString());
 		builder.append("]");
 		return builder.toString();
 	}

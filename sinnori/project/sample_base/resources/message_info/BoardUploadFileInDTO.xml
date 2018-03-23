@@ -19,9 +19,7 @@
 <desc>게시판 업로드 파일 DB 처리 요청, Mybatis DTO</desc>
 <singleitem name="userId" type="ub pascal string" />
 <singleitem name="ip" type="ub pascal string" />
-<singleitem name="attachId" type="unsigned integer">
-	<desc>신규 등록시 0으로 고정, 수정시 0 보다 큰값</desc>
-</singleitem>
+<singleitem name="attachId" type="unsigned integer" />
 <singleitem name="selectedOldAttachFileCnt" type="integer" />
 <array name="selectedOldAttachFile" cnttype="reference" cntvalue="selectedOldAttachFileCnt">
 	<singleitem name="attachSeq" type="unsigned byte" />

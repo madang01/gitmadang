@@ -16,12 +16,10 @@
  */
 package kr.pe.sinnori.impl.message.BoardWriteInDTO;
 
-import java.nio.charset.Charset;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
-
 /**
  * BoardWriteInDTO 메시지 디코더
  * @author Won Jonghoon
@@ -29,81 +27,62 @@ import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
  */
 public final class BoardWriteInDTODecoder extends AbstractMessageDecoder {
 
-	/**
-	 * <pre>
-	 *  "단일항목 디코더"를 이용하여 "중간 다리 역활 읽기 객체" 에서 추출된 BoardWriteInDTO 메시지를 반환한다.
-	 * </pre>
-	 * @param singleItemDecoder 단일항목 디코더
-	 * @param charsetOfProject 프로젝트 문자셋
-	 * @param middleReadObj 중간 다리 역활 읽기 객체
-	 * @return "단일항목 디코더"를 이용하여 "중간 다리 역활 읽기 객체" 에서 추출된 BoardWriteInDTO 메시지
-	 * @throws OutOfMemoryError 메모리 확보 실패시 던지는 예외
-	 * @throws BodyFormatException 바디 디코딩 실패시 던지는 예외
-	 */
 	@Override
-	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Charset charsetOfProject, Object  middleReadObj) throws OutOfMemoryError, BodyFormatException {
+	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object  middleReadableObject) throws BodyFormatException {
 		BoardWriteInDTO boardWriteInDTO = new BoardWriteInDTO();
-		String sigleItemPath0 = "BoardWriteInDTO";
+		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
+		pathStack.push("BoardWriteInDTO");
 
 		boardWriteInDTO.setBoardId((Long)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "boardId" // itemName
-		, 6 // itemTypeID
-		, "long" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "boardId" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.LONG // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
 
 		boardWriteInDTO.setSubject((String)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "subject" // itemName
-		, 8 // itemTypeID
-		, "us pascal string" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "subject" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.US_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
 
 		boardWriteInDTO.setContent((String)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "content" // itemName
-		, 8 // itemTypeID
-		, "us pascal string" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "content" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.US_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
 
 		boardWriteInDTO.setAttachId((Long)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "attachId" // itemName
-		, 5 // itemTypeID
-		, "unsigned integer" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "attachId" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
 
 		boardWriteInDTO.setUserId((String)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "userId" // itemName
-		, 7 // itemTypeID
-		, "ub pascal string" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "userId" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
 
 		boardWriteInDTO.setIp((String)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "ip" // itemName
-		, 7 // itemTypeID
-		, "ub pascal string" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "ip" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
+		pathStack.pop();
+
 		return boardWriteInDTO;
 	}
 }

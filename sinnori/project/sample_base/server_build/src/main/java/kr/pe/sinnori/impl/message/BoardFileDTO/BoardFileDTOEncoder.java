@@ -16,8 +16,6 @@
  */
 package kr.pe.sinnori.impl.message.BoardFileDTO;
 
-import java.nio.charset.Charset;
-import java.util.LinkedList;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
@@ -29,63 +27,45 @@ import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
  */
 public final class BoardFileDTOEncoder extends AbstractMessageEncoder {
 	@Override
-	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj)
-			throws Exception {
-		if (!(messageObj instanceof BoardFileDTO)) {
-			String errorMessage = String.format("메시지 객체 타입[%s]이 BoardFileDTO 이(가) 아닙니다.", messageObj.getClass().getCanonicalName());
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		BoardFileDTO boardFileDTO = (BoardFileDTO) messageObj;
-		encodeBody(boardFileDTO, singleItemEncoder, charsetOfProject, middleWriteObj);
+	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Object writableMiddleObject) throws Exception {
+		BoardFileDTO boardFileDTO = (BoardFileDTO)messageObj;
+		encodeBody(boardFileDTO, singleItemEncoder, writableMiddleObject);
 	}
 
-	/**
-	 * <pre>
-	 * BoardFileDTO 입력 메시지의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장한다.
-	 * </pre>
-	 * @param boardFileDTO BoardFileDTO 입력 메시지
-	 * @param singleItemEncoder 단일항목 인코더
-	 * @param charsetOfProject 프로젝트 문자셋
-	 * @param middleWriteObj 중간 다리 역활 쓰기 객체
-	 * @throws Exception "입력/출력 메시지"의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장할때 에러 발생시 던지는 예외
-	 */
-	private void encodeBody(BoardFileDTO boardFileDTO, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj) throws Exception {
-		String boardFileDTOSingleItemPath = "BoardFileDTO";
-		LinkedList<String> singleItemPathStatck = new LinkedList<String>();
-		singleItemPathStatck.push(boardFileDTOSingleItemPath);
 
-		singleItemEncoder.putValueToMiddleWriteObj(boardFileDTOSingleItemPath, "attachId"
-					, 5 // itemTypeID
-					, "unsigned integer" // itemTypeName
-					, boardFileDTO.getAttachId() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(boardFileDTOSingleItemPath, "attachSeq"
-					, 1 // itemTypeID
-					, "unsigned byte" // itemTypeName
-					, boardFileDTO.getAttachSeq() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(boardFileDTOSingleItemPath, "attachFileName"
-					, 8 // itemTypeID
-					, "us pascal string" // itemTypeName
-					, boardFileDTO.getAttachFileName() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(boardFileDTOSingleItemPath, "systemFileName"
-					, 8 // itemTypeID
-					, "us pascal string" // itemTypeName
-					, boardFileDTO.getSystemFileName() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
+	private void encodeBody(BoardFileDTO boardFileDTO, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject) throws Exception {
+		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
+		pathStack.push("BoardFileDTO");
+
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachId"
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
+			, boardFileDTO.getAttachId() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachSeq"
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+			, boardFileDTO.getAttachSeq() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachFileName"
+			, kr.pe.sinnori.common.type.SingleItemType.US_PASCAL_STRING // itemType
+			, boardFileDTO.getAttachFileName() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "systemFileName"
+			, kr.pe.sinnori.common.type.SingleItemType.US_PASCAL_STRING // itemType
+			, boardFileDTO.getSystemFileName() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		pathStack.pop();
 	}
 }

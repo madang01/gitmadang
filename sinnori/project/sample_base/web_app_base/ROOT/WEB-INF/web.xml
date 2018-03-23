@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+﻿<?xml version="1.0" encoding="ISO-8859-1"?>
 <!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
 	license agreements. See the NOTICE file distributed with this work for additional 
 	information regarding copyright ownership. The ASF licenses this file to 
@@ -110,7 +110,7 @@
 		<url-pattern>/servlet/JDFLoginTest</url-pattern>
 	</servlet-mapping>
 
-	<!-- 로그인 -->
+	<!-- 濡쒓렇??-->
 	<servlet>
 		<servlet-name>Login</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.LoginSvl</servlet-class>
@@ -120,7 +120,7 @@
 		<url-pattern>/servlet/Login</url-pattern>
 	</servlet-mapping>
 
-	<!-- 게시판 목록 조회 : 디폴트 자유 게시판 -->
+	<!-- 寃뚯떆??紐⑸줉 議고쉶 : ?뷀뤃???먯쑀 寃뚯떆??-->
 	<servlet>
 		<servlet-name>BoardList</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.BoardListSvl</servlet-class>
@@ -130,7 +130,7 @@
 		<url-pattern>/servlet/BoardList</url-pattern>
 	</servlet-mapping>
 
-	<!-- 게시판 글 추천 처리 -->
+	<!-- 寃뚯떆??湲 異붿쿇 泥섎━ -->
 	<servlet>
 		<servlet-name>BoardVote</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.BoardVoteSvl</servlet-class>
@@ -140,7 +140,7 @@
 		<url-pattern>/servlet/BoardVote</url-pattern>
 	</servlet-mapping>
 
-	<!-- 게시판 상세 조회 -->
+	<!-- 寃뚯떆???곸꽭 議고쉶 -->
 	<servlet>
 		<servlet-name>BoardDetail</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.BoardDetailSvl</servlet-class>
@@ -151,7 +151,7 @@
 	</servlet-mapping>
 
 
-	<!-- 게시판 최상의 글 등록 처리 -->
+	<!-- 寃뚯떆??理쒖긽??湲 ?깅줉 泥섎━ -->
 	<servlet>
 		<servlet-name>BoardWrite</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.BoardWriteSvl</servlet-class>
@@ -161,7 +161,7 @@
 		<url-pattern>/servlet/BoardWrite</url-pattern>
 	</servlet-mapping>
 
-	<!-- 게시판 댓글 등록 처리 -->
+	<!-- 寃뚯떆???볤? ?깅줉 泥섎━ -->
 	<servlet>
 		<servlet-name>BoardReply</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.BoardReplySvl</servlet-class>
@@ -171,7 +171,7 @@
 		<url-pattern>/servlet/BoardReply</url-pattern>
 	</servlet-mapping>
 
-	<!-- 게시판 수정 처리 -->
+	<!-- 寃뚯떆???섏젙 泥섎━ -->
 	<servlet>
 		<servlet-name>BoardModify</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.BoardModifySvl</servlet-class>
@@ -181,7 +181,7 @@
 		<url-pattern>/servlet/BoardModify</url-pattern>
 	</servlet-mapping>
 
-	<!-- 게시판 첨부 파일 처리 -->
+	<!-- 寃뚯떆??泥⑤? ?뚯씪 泥섎━ -->
 	<servlet>
 		<servlet-name>BoardUpload</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.BoardUploadSvl</servlet-class>
@@ -191,7 +191,7 @@
 		<url-pattern>/servlet/BoardUpload</url-pattern>
 	</servlet-mapping>
 
-	<!-- 게시판 첨부 파일 처리 -->
+	<!-- 寃뚯떆??泥⑤? ?뚯씪 泥섎━ -->
 	<servlet>
 		<servlet-name>BoardDownload</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.BoardDownloadSvl</servlet-class>

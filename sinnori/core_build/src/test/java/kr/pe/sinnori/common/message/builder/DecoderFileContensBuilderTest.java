@@ -16,8 +16,8 @@ public class DecoderFileContensBuilderTest extends AbstractJunitTest {
 			DecoderFileContensBuilder decoderFileContensBuilder = new DecoderFileContensBuilder();
 			
 			int depth = 1;
-			String path = "AllItemTypeReq";
-			String varNameOfSetOwner = "allItemTypeReq";
+			String path = "Empty";
+			String varNameOfSetOwner = "empty";
 			String middleObjVarName = "middleWritableObject";		
 			
 			String itemName = "ubBytes";
@@ -39,9 +39,7 @@ public class DecoderFileContensBuilderTest extends AbstractJunitTest {
 			DecoderFileContensBuilder decoderFileContensBuilder = new DecoderFileContensBuilder();
 			
 			int depth = 1;
-			// String path = "AllItemTypeReq";
-			String varNameOfSetOwner = "allItemTypeReq";
-			// String middleObjVarName = "middleWritableObject";		
+			String varNameOfSetOwner = "empty";	
 			
 			String arrayName = "member";
 			String arrayCntType = "direct";
@@ -72,8 +70,8 @@ public class DecoderFileContensBuilderTest extends AbstractJunitTest {
 			DecoderFileContensBuilder decoderFileContensBuilder = new DecoderFileContensBuilder();
 			
 			int depth = 1;
-			String path = "AllItemTypeReq";
-			String varNameOfSetOwner = "allItemTypeReq";
+			String path = "Empty";
+			String varNameOfSetOwner = "empty";
 			String middleObjVarName = "middleWritableObject";		
 			
 			String arrayName = "member";
@@ -104,8 +102,8 @@ public class DecoderFileContensBuilderTest extends AbstractJunitTest {
 			DecoderFileContensBuilder decoderFileContensBuilder = new DecoderFileContensBuilder();
 			
 			int depth = 1;
-			String path = "AllItemTypeReq";
-			String varNameOfSetOwner = "allItemTypeReq";
+			String path = "Empty";
+			String varNameOfSetOwner = "empty";
 			String middleObjVarName = "middleWritableObject";		
 			
 			String groupName = "vip";

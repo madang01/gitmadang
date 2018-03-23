@@ -17,6 +17,7 @@
 package kr.pe.sinnori.impl.message.BoardFileDTO;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
+
 /**
  * BoardFileDTO 메시지
  * @author Won Jonghoon
@@ -60,7 +61,7 @@ public class BoardFileDTO extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("class BoardFileDTO[");
+		builder.append("boardFileDTO[");
 		builder.append("attachId=");
 		builder.append(attachId);
 		builder.append(", attachSeq=");
@@ -69,8 +70,6 @@ public class BoardFileDTO extends AbstractMessage {
 		builder.append(attachFileName);
 		builder.append(", systemFileName=");
 		builder.append(systemFileName);
-		builder.append(", messageHeaderInfo=");
-		builder.append(messageHeaderInfo.toString());
 		builder.append("]");
 		return builder.toString();
 	}

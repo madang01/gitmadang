@@ -17,6 +17,7 @@
 package kr.pe.sinnori.impl.message.LoginWithSessionKey;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
+
 /**
  * LoginWithSessionKey 메시지
  * @author Won Jonghoon
@@ -60,7 +61,7 @@ public class LoginWithSessionKey extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("class LoginWithSessionKey[");
+		builder.append("loginWithSessionKey[");
 		builder.append("idCipherBase64=");
 		builder.append(idCipherBase64);
 		builder.append(", pwdCipherBase64=");
@@ -69,8 +70,6 @@ public class LoginWithSessionKey extends AbstractMessage {
 		builder.append(sessionKeyBase64);
 		builder.append(", ivBase64=");
 		builder.append(ivBase64);
-		builder.append(", messageHeaderInfo=");
-		builder.append(messageHeaderInfo.toString());
 		builder.append("]");
 		return builder.toString();
 	}

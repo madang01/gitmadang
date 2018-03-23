@@ -17,6 +17,7 @@
 package kr.pe.sinnori.impl.message.BoardDetailOutDTO;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
+
 /**
  * BoardDetailOutDTO 메시지
  * @author Won Jonghoon
@@ -37,10 +38,11 @@ public class BoardDetailOutDTO extends AbstractMessage {
 	private int votes;
 	private String deleteFlag;
 	private String ip;
-	private java.sql.Timestamp registerDate;
-	private java.sql.Timestamp modifiedDate;
+	private boolean registerDate;
+	private boolean modifiedDate;
 	private long attachId;
 	private int attachFileCnt;
+
 	public static class AttachFile {
 		private short attachSeq;
 		private String attachFileName;
@@ -71,7 +73,8 @@ public class BoardDetailOutDTO extends AbstractMessage {
 			builder.append("]");
 			return builder.toString();
 		}
-	};
+	}
+
 	private java.util.List<AttachFile> attachFileList;
 	private String memberGubunName;
 	private byte memberState;
@@ -174,18 +177,18 @@ public class BoardDetailOutDTO extends AbstractMessage {
 	public void setIp(String ip) {
 		this.ip = ip;
 	}
-	public java.sql.Timestamp getRegisterDate() {
+	public boolean getRegisterDate() {
 		return registerDate;
 	}
 
-	public void setRegisterDate(java.sql.Timestamp registerDate) {
+	public void setRegisterDate(boolean registerDate) {
 		this.registerDate = registerDate;
 	}
-	public java.sql.Timestamp getModifiedDate() {
+	public boolean getModifiedDate() {
 		return modifiedDate;
 	}
 
-	public void setModifiedDate(java.sql.Timestamp modifiedDate) {
+	public void setModifiedDate(boolean modifiedDate) {
 		this.modifiedDate = modifiedDate;
 	}
 	public long getAttachId() {
@@ -202,7 +205,6 @@ public class BoardDetailOutDTO extends AbstractMessage {
 	public void setAttachFileCnt(int attachFileCnt) {
 		this.attachFileCnt = attachFileCnt;
 	}
-
 	public java.util.List<AttachFile> getAttachFileList() {
 		return attachFileList;
 	}
@@ -228,7 +230,7 @@ public class BoardDetailOutDTO extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("class BoardDetailOutDTO[");
+		builder.append("boardDetailOutDTO[");
 		builder.append("boardNo=");
 		builder.append(boardNo);
 		builder.append(", boardId=");
@@ -265,6 +267,7 @@ public class BoardDetailOutDTO extends AbstractMessage {
 		builder.append(attachId);
 		builder.append(", attachFileCnt=");
 		builder.append(attachFileCnt);
+
 		builder.append(", attachFileList=");
 		if (null == attachFileList) {
 			builder.append("null");
@@ -288,13 +291,10 @@ public class BoardDetailOutDTO extends AbstractMessage {
 				builder.append("]");
 			}
 		}
-
 		builder.append(", memberGubunName=");
 		builder.append(memberGubunName);
 		builder.append(", memberState=");
 		builder.append(memberState);
-		builder.append(", messageHeaderInfo=");
-		builder.append(messageHeaderInfo.toString());
 		builder.append("]");
 		return builder.toString();
 	}

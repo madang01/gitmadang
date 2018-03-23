@@ -20,8 +20,8 @@ package kr.pe.sinnori.servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import kr.pe.sinnori.client.ClientProject;
-import kr.pe.sinnori.client.ClientProjectManager;
+import kr.pe.sinnori.client.AnyProjectConnectionPoolIF;
+import kr.pe.sinnori.client.ConnectionPoolManager;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.Echo.Echo;
 import kr.pe.sinnori.weblib.jdf.AbstractServlet;
@@ -40,14 +40,15 @@ public class EchoTestSvl extends AbstractServlet {
 		String goPage = "/EchoTest01.jsp";
 
 		java.util.Random random = new java.util.Random();
-			
 		Echo echoInObj = new Echo();
 		
 		echoInObj.setRandomInt(random.nextInt());
 		echoInObj.setStartTime(new java.util.Date().getTime());
+		
+		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
 
-		ClientProject clientProject = ClientProjectManager.getInstance().getMainClientProject();
-		AbstractMessage messageFromServer = clientProject.sendSyncInputMessage(echoInObj);
+		
+		AbstractMessage messageFromServer = mainProjectConnectionPool.sendSyncInputMessage(echoInObj);
 		
 		boolean isSame = false;
 		String errorMessage = "";

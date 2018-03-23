@@ -17,6 +17,7 @@
 package kr.pe.sinnori.impl.message.BoardVoteInDTO;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
+
 /**
  * BoardVoteInDTO 메시지
  * @author Won Jonghoon
@@ -60,7 +61,7 @@ public class BoardVoteInDTO extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("class BoardVoteInDTO[");
+		builder.append("boardVoteInDTO[");
 		builder.append("boardId=");
 		builder.append(boardId);
 		builder.append(", boardNo=");
@@ -69,8 +70,6 @@ public class BoardVoteInDTO extends AbstractMessage {
 		builder.append(userId);
 		builder.append(", ip=");
 		builder.append(ip);
-		builder.append(", messageHeaderInfo=");
-		builder.append(messageHeaderInfo.toString());
 		builder.append("]");
 		return builder.toString();
 	}

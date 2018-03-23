@@ -17,6 +17,7 @@
 package kr.pe.sinnori.impl.message.BinaryPublicKey;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
+
 /**
  * BinaryPublicKey 메시지
  * @author Won Jonghoon
@@ -36,11 +37,9 @@ public class BinaryPublicKey extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("class BinaryPublicKey[");
+		builder.append("binaryPublicKey[");
 		builder.append("publicKeyBytes=");
 		builder.append(kr.pe.sinnori.common.util.HexUtil.getHexStringFromByteArray(publicKeyBytes, 0, Math.min(publicKeyBytes.length, 7)));
-		builder.append(", messageHeaderInfo=");
-		builder.append(messageHeaderInfo.toString());
 		builder.append("]");
 		return builder.toString();
 	}

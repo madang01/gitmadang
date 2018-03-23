@@ -17,6 +17,7 @@
 package kr.pe.sinnori.impl.message.BoardListInDTO;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
+
 /**
  * BoardListInDTO 메시지
  * @author Won Jonghoon
@@ -52,15 +53,13 @@ public class BoardListInDTO extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("class BoardListInDTO[");
+		builder.append("boardListInDTO[");
 		builder.append("boardId=");
 		builder.append(boardId);
 		builder.append(", startNo=");
 		builder.append(startNo);
 		builder.append(", pageSize=");
 		builder.append(pageSize);
-		builder.append(", messageHeaderInfo=");
-		builder.append(messageHeaderInfo.toString());
 		builder.append("]");
 		return builder.toString();
 	}

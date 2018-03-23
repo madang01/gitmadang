@@ -1,6 +1,6 @@
 package kr.pe.sinnori.weblib.htmlstring;
 
-import kr.pe.sinnori.common.etc.CommonType;
+import kr.pe.sinnori.common.type.LineSeparatorType;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 import kr.pe.sinnori.weblib.htmlstring.StringReplacementActorUtil.STRING_REPLACEMENT_ACTOR_TYPE;
 
@@ -36,7 +36,7 @@ public class HtmlStringUtil {
 	 */
 	public static String toHtml4BRString(String sourceString, int wantedColumnSize) {
 		sourceString = CommonStaticUtil.splitString(sourceString, 
-				CommonType.LINE_SEPARATOR_GUBUN.NEWLINE, wantedColumnSize);
+				LineSeparatorType.BR, wantedColumnSize);
 		
 		return StringReplacementActorUtil.replace(sourceString, 
 				STRING_REPLACEMENT_ACTOR_TYPE.ESCAPEHTML4,

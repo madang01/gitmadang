@@ -16,12 +16,10 @@
  */
 package kr.pe.sinnori.impl.message.BoardFileInfoDTO;
 
-import java.nio.charset.Charset;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
-
 /**
  * BoardFileInfoDTO 메시지 디코더
  * @author Won Jonghoon
@@ -29,71 +27,54 @@ import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
  */
 public final class BoardFileInfoDTODecoder extends AbstractMessageDecoder {
 
-	/**
-	 * <pre>
-	 *  "단일항목 디코더"를 이용하여 "중간 다리 역활 읽기 객체" 에서 추출된 BoardFileInfoDTO 메시지를 반환한다.
-	 * </pre>
-	 * @param singleItemDecoder 단일항목 디코더
-	 * @param charsetOfProject 프로젝트 문자셋
-	 * @param middleReadObj 중간 다리 역활 읽기 객체
-	 * @return "단일항목 디코더"를 이용하여 "중간 다리 역활 읽기 객체" 에서 추출된 BoardFileInfoDTO 메시지
-	 * @throws OutOfMemoryError 메모리 확보 실패시 던지는 예외
-	 * @throws BodyFormatException 바디 디코딩 실패시 던지는 예외
-	 */
 	@Override
-	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Charset charsetOfProject, Object  middleReadObj) throws OutOfMemoryError, BodyFormatException {
+	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object  middleReadableObject) throws BodyFormatException {
 		BoardFileInfoDTO boardFileInfoDTO = new BoardFileInfoDTO();
-		String sigleItemPath0 = "BoardFileInfoDTO";
+		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
+		pathStack.push("BoardFileInfoDTO");
 
 		boardFileInfoDTO.setAttachId((Long)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "attachId" // itemName
-		, 5 // itemTypeID
-		, "unsigned integer" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "attachId" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
 
 		boardFileInfoDTO.setOwnerId((String)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "ownerId" // itemName
-		, 7 // itemTypeID
-		, "ub pascal string" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "ownerId" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
 
 		boardFileInfoDTO.setIp((String)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "ip" // itemName
-		, 7 // itemTypeID
-		, "ub pascal string" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "ip" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
 
-		boardFileInfoDTO.setRegisterDate((java.sql.Timestamp)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "registerDate" // itemName
-		, 16 // itemTypeID
-		, "java sql timestamp" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		boardFileInfoDTO.setRegisterDate((java.lang.Boolean)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "registerDate" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
 
-		boardFileInfoDTO.setModifiedDate((java.sql.Timestamp)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "modifiedDate" // itemName
-		, 16 // itemTypeID
-		, "java sql timestamp" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		boardFileInfoDTO.setModifiedDate((java.lang.Boolean)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "modifiedDate" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
+		pathStack.pop();
+
 		return boardFileInfoDTO;
 	}
 }

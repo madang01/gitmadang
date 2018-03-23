@@ -1,19 +1,11 @@
 package main;
-import java.net.SocketTimeoutException;
-
-import kr.pe.sinnori.client.ClientProject;
-import kr.pe.sinnori.client.ClientProjectManager;
-import kr.pe.sinnori.common.exception.BodyFormatException;
-import kr.pe.sinnori.common.exception.DynamicClassCallException;
-import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
-import kr.pe.sinnori.common.exception.NotLoginException;
-import kr.pe.sinnori.common.exception.ServerNotReadyException;
-import kr.pe.sinnori.common.exception.ServerTaskException;
-import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.impl.message.Echo.Echo;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import kr.pe.sinnori.client.AnyProjectConnectionPoolIF;
+import kr.pe.sinnori.client.ConnectionPoolManager;
+import kr.pe.sinnori.common.message.AbstractMessage;
+import kr.pe.sinnori.impl.message.Echo.Echo;
 
 
 public class SinnoriAppClientMain {
@@ -23,9 +15,7 @@ public class SinnoriAppClientMain {
 		
 		log.info("start");
 		
-		ClientProjectManager clientProjectManager = ClientProjectManager.getInstance();
-		ClientProject mainClientProject = clientProjectManager.getMainClientProject();
-		
+		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
 		
 		java.util.Random random = new java.util.Random();
 		
@@ -35,7 +25,7 @@ public class SinnoriAppClientMain {
 				
 		AbstractMessage messageFromServer = null;
 		try {
-			messageFromServer = mainClientProject.sendSyncInputMessage(echoInObj);
+			messageFromServer = mainProjectConnectionPool.sendSyncInputMessage(echoInObj);
 			
 			if (messageFromServer instanceof Echo) {
 				Echo echoOutObj = (Echo)messageFromServer;
@@ -47,20 +37,8 @@ public class SinnoriAppClientMain {
 			} else {
 				log.warn("messageFromServer={}", messageFromServer.toString());
 			}
-		} catch (SocketTimeoutException e) {
+		} catch (Exception e) {
 			log.warn("SocketTimeoutException", e);
-		} catch (ServerNotReadyException e) {
-			log.warn("ServerNotReadyException", e);
-		} catch (NoMoreDataPacketBufferException e) {
-			log.warn("NoMoreDataPacketBufferException", e);
-		} catch (BodyFormatException e) {
-			log.warn("BodyFormatException", e);
-		} catch (DynamicClassCallException e) {
-			log.warn("DynamicClassCallException", e);
-		} catch (ServerTaskException e) {
-			log.warn("ServerTaskException", e);
-		} catch (NotLoginException e) {
-			log.warn("NotLoginException", e);
-		}		
+		}
 	}
 }

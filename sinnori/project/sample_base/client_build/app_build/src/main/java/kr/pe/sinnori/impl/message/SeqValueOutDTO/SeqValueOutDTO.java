@@ -17,6 +17,7 @@
 package kr.pe.sinnori.impl.message.SeqValueOutDTO;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
+
 /**
  * SeqValueOutDTO 메시지
  * @author Won Jonghoon
@@ -44,13 +45,11 @@ public class SeqValueOutDTO extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("class SeqValueOutDTO[");
+		builder.append("seqValueOutDTO[");
 		builder.append("seqValue=");
 		builder.append(seqValue);
 		builder.append(", wantedSize=");
 		builder.append(wantedSize);
-		builder.append(", messageHeaderInfo=");
-		builder.append(messageHeaderInfo.toString());
 		builder.append("]");
 		return builder.toString();
 	}

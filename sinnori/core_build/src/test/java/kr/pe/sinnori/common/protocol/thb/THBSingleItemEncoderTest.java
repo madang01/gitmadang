@@ -28,7 +28,7 @@ public class THBSingleItemEncoderTest extends AbstractJunitTest {
 		THBSingleItemEncoder thbSingleItemEncoder = new THBSingleItemEncoder(thbSingleItemEncoderMatcher);
 		
 		
-		String path = "AllItemType";
+		String path = "Empty";
 		String itemName = "strVar1";
 		SingleItemType singleItemType = SingleItemType.UB_PASCAL_STRING;
 		Object nativeItemValue = "한글";
@@ -65,7 +65,7 @@ public class THBSingleItemEncoderTest extends AbstractJunitTest {
 		THBSingleItemEncoder thbSingleItemEncoder = new THBSingleItemEncoder(thbSingleItemEncoderMatcher);
 		
 		
-		String path = "AllItemType";
+		String path = "Empty";
 		String itemName = "strVar1";
 		SingleItemType singleItemType = SingleItemType.FIXED_LENGTH_STRING;
 		Object nativeItemValue = "한글";
@@ -130,7 +130,7 @@ public class THBSingleItemEncoderTest extends AbstractJunitTest {
 		THBSingleItemEncoder thbSingleItemEncoder = new THBSingleItemEncoder(thbSingleItemEncoderMatcher);
 		
 		
-		String path = "AllItemType";
+		String path = "Empty";
 		String itemName = "strVar1";
 		SingleItemType singleItemType = SingleItemType.FIXED_LENGTH_STRING;
 		Object nativeItemValue = "한글";
@@ -193,7 +193,7 @@ public class THBSingleItemEncoderTest extends AbstractJunitTest {
 		THBSingleItemEncoder thbSingleItemEncoder = new THBSingleItemEncoder(thbSingleItemEncoderMatcher);
 		
 		
-		String path = "AllItemType";
+		String path = "Empty";
 		String itemName = "strVar1";
 		SingleItemType singleItemType = SingleItemType.FIXED_LENGTH_STRING;
 		Object nativeItemValue = "한글";

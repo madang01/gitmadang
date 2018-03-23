@@ -17,6 +17,7 @@
 package kr.pe.sinnori.impl.message.MessageResult;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
+
 /**
  * MessageResult 메시지
  * @author Won Jonghoon
@@ -52,15 +53,13 @@ public class MessageResult extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("class MessageResult[");
+		builder.append("messageResult[");
 		builder.append("taskMessageID=");
 		builder.append(taskMessageID);
 		builder.append(", isSuccess=");
 		builder.append(isSuccess);
 		builder.append(", resultMessage=");
 		builder.append(resultMessage);
-		builder.append(", messageHeaderInfo=");
-		builder.append(messageHeaderInfo.toString());
 		builder.append("]");
 		return builder.toString();
 	}

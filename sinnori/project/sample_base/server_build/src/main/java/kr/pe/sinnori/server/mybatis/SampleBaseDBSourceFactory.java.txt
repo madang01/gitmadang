@@ -1,0 +1,17 @@
+package kr.pe.sinnori.impl.server.mybatis;
+
+import kr.pe.sinnori.common.etc.DBCPManager;
+import kr.pe.sinnori.common.exception.DBNotReadyException;
+
+import org.apache.ibatis.datasource.unpooled.UnpooledDataSourceFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class SampleBaseDBSourceFactory extends AbstractUnpooledDataSourceFactory {
+	// private Logger log = LoggerFactory.getLogger(SampleBaseDBDataSourceFactory.class);
+
+	@Override
+	public String getDBCPConnectionPoolName() {
+		return "sample_base_db";
+	}	
+}

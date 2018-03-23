@@ -17,6 +17,7 @@
 package kr.pe.sinnori.impl.message.BigUByte;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
+
 /**
  * BigUByte 메시지
  * @author Won Jonghoon
@@ -52,15 +53,13 @@ public class BigUByte extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("class BigUByte[");
+		builder.append("bigUByte[");
 		builder.append("filler1=");
 		builder.append(kr.pe.sinnori.common.util.HexUtil.getHexStringFromByteArray(filler1, 0, Math.min(filler1.length, 7)));
 		builder.append(", value1=");
 		builder.append(value1);
 		builder.append(", value2=");
 		builder.append(value2);
-		builder.append(", messageHeaderInfo=");
-		builder.append(messageHeaderInfo.toString());
 		builder.append("]");
 		return builder.toString();
 	}

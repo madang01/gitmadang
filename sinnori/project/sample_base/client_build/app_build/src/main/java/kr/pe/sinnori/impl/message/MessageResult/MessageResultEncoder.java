@@ -16,8 +16,6 @@
  */
 package kr.pe.sinnori.impl.message.MessageResult;
 
-import java.nio.charset.Charset;
-import java.util.LinkedList;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
@@ -29,55 +27,38 @@ import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
  */
 public final class MessageResultEncoder extends AbstractMessageEncoder {
 	@Override
-	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj)
-			throws Exception {
-		if (!(messageObj instanceof MessageResult)) {
-			String errorMessage = String.format("메시지 객체 타입[%s]이 MessageResult 이(가) 아닙니다.", messageObj.getClass().getCanonicalName());
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		MessageResult messageResult = (MessageResult) messageObj;
-		encodeBody(messageResult, singleItemEncoder, charsetOfProject, middleWriteObj);
+	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Object writableMiddleObject) throws Exception {
+		MessageResult messageResult = (MessageResult)messageObj;
+		encodeBody(messageResult, singleItemEncoder, writableMiddleObject);
 	}
 
-	/**
-	 * <pre>
-	 * MessageResult 입력 메시지의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장한다.
-	 * </pre>
-	 * @param messageResult MessageResult 입력 메시지
-	 * @param singleItemEncoder 단일항목 인코더
-	 * @param charsetOfProject 프로젝트 문자셋
-	 * @param middleWriteObj 중간 다리 역활 쓰기 객체
-	 * @throws Exception "입력/출력 메시지"의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장할때 에러 발생시 던지는 예외
-	 */
-	private void encodeBody(MessageResult messageResult, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj) throws Exception {
-		String messageResultSingleItemPath = "MessageResult";
-		LinkedList<String> singleItemPathStatck = new LinkedList<String>();
-		singleItemPathStatck.push(messageResultSingleItemPath);
 
-		singleItemEncoder.putValueToMiddleWriteObj(messageResultSingleItemPath, "taskMessageID"
-					, 7 // itemTypeID
-					, "ub pascal string" // itemTypeName
-					, messageResult.getTaskMessageID() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(messageResultSingleItemPath, "isSuccess"
-					, 17 // itemTypeID
-					, "boolean" // itemTypeName
-					, messageResult.getIsSuccess() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(messageResultSingleItemPath, "resultMessage"
-					, 7 // itemTypeID
-					, "ub pascal string" // itemTypeName
-					, messageResult.getResultMessage() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
+	private void encodeBody(MessageResult messageResult, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject) throws Exception {
+		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
+		pathStack.push("MessageResult");
+
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "taskMessageID"
+			, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, messageResult.getTaskMessageID() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "isSuccess"
+			, kr.pe.sinnori.common.type.SingleItemType.BOOLEAN // itemType
+			, messageResult.getIsSuccess() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "resultMessage"
+			, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, messageResult.getResultMessage() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		pathStack.pop();
 	}
 }

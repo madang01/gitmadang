@@ -16,12 +16,10 @@
  */
 package kr.pe.sinnori.impl.message.BoardUploadFileInDTO;
 
-import java.nio.charset.Charset;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
-
 /**
  * BoardUploadFileInDTO 메시지 디코더
  * @author Won Jonghoon
@@ -29,123 +27,106 @@ import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
  */
 public final class BoardUploadFileInDTODecoder extends AbstractMessageDecoder {
 
-	/**
-	 * <pre>
-	 *  "단일항목 디코더"를 이용하여 "중간 다리 역활 읽기 객체" 에서 추출된 BoardUploadFileInDTO 메시지를 반환한다.
-	 * </pre>
-	 * @param singleItemDecoder 단일항목 디코더
-	 * @param charsetOfProject 프로젝트 문자셋
-	 * @param middleReadObj 중간 다리 역활 읽기 객체
-	 * @return "단일항목 디코더"를 이용하여 "중간 다리 역활 읽기 객체" 에서 추출된 BoardUploadFileInDTO 메시지
-	 * @throws OutOfMemoryError 메모리 확보 실패시 던지는 예외
-	 * @throws BodyFormatException 바디 디코딩 실패시 던지는 예외
-	 */
 	@Override
-	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Charset charsetOfProject, Object  middleReadObj) throws OutOfMemoryError, BodyFormatException {
+	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object  middleReadableObject) throws BodyFormatException {
 		BoardUploadFileInDTO boardUploadFileInDTO = new BoardUploadFileInDTO();
-		String sigleItemPath0 = "BoardUploadFileInDTO";
+		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
+		pathStack.push("BoardUploadFileInDTO");
 
 		boardUploadFileInDTO.setUserId((String)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "userId" // itemName
-		, 7 // itemTypeID
-		, "ub pascal string" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "userId" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
 
 		boardUploadFileInDTO.setIp((String)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "ip" // itemName
-		, 7 // itemTypeID
-		, "ub pascal string" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "ip" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
 
 		boardUploadFileInDTO.setAttachId((Long)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "attachId" // itemName
-		, 5 // itemTypeID
-		, "unsigned integer" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "attachId" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
 
 		boardUploadFileInDTO.setSelectedOldAttachFileCnt((Integer)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "selectedOldAttachFileCnt" // itemName
-		, 4 // itemTypeID
-		, "integer" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
-
-		int selectedOldAttachFileListSize = boardUploadFileInDTO.getSelectedOldAttachFileCnt();
-		Object selectedOldAttachFileMiddleReadArray = singleItemDecoder.getArrayObjFromMiddleReadObj(sigleItemPath0, "selectedOldAttachFile", selectedOldAttachFileListSize, middleReadObj);
-		java.util.List<BoardUploadFileInDTO.SelectedOldAttachFile> selectedOldAttachFileList = new java.util.ArrayList<BoardUploadFileInDTO.SelectedOldAttachFile>();
-		for (int i=0; i < selectedOldAttachFileListSize; i++) {
-			String sigleItemPath1 = new StringBuilder(sigleItemPath0).append(".").append("SelectedOldAttachFile[").append(i).append("]").toString();
-			Object selectedOldAttachFileMiddleReadObj = singleItemDecoder.getMiddleReadObjFromArrayObj(sigleItemPath1, selectedOldAttachFileMiddleReadArray, i);
-			BoardUploadFileInDTO.SelectedOldAttachFile selectedOldAttachFile = new BoardUploadFileInDTO.SelectedOldAttachFile();
-			selectedOldAttachFileList.add(selectedOldAttachFile);
-
-			selectedOldAttachFile.setAttachSeq((Short)
-			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
-			, "attachSeq" // itemName
-			, 1 // itemTypeID
-			, "unsigned byte" // itemTypeName
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "selectedOldAttachFileCnt" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.INTEGER // itemType
 			, -1 // itemSize
-			, null // itemCharset,
-			, charsetOfProject
-			, selectedOldAttachFileMiddleReadObj));
+			, null // nativeItemCharset
+			, middleReadableObject));
+
+		int selectedOldAttachFile$2ListSize = boardUploadFileInDTO.getSelectedOldAttachFileCnt();
+		Object selectedOldAttachFile$2ArrayMiddleObject = singleItemDecoder.getArrayMiddleObjectFromReadableMiddleObject(pathStack.peek(), "selectedOldAttachFile", selectedOldAttachFile$2ListSize, middleReadableObject);
+		java.util.List<BoardUploadFileInDTO.SelectedOldAttachFile> selectedOldAttachFile$2List = new java.util.ArrayList<BoardUploadFileInDTO.SelectedOldAttachFile>();
+		for (int i2=0; i2 < selectedOldAttachFile$2ListSize; i2++) {
+			pathStack.push(new StringBuilder(pathStack.peek()).append(".").append("SelectedOldAttachFile").append("[").append(i2).append("]").toString());
+			Object selectedOldAttachFile$2MiddleWritableObject= singleItemDecoder.getReadableMiddleObjFromArrayMiddleObject(pathStack.peek(), selectedOldAttachFile$2ArrayMiddleObject, i2);
+			BoardUploadFileInDTO.SelectedOldAttachFile selectedOldAttachFile$2 = new BoardUploadFileInDTO.SelectedOldAttachFile();
+			selectedOldAttachFile$2List.add(selectedOldAttachFile$2);
+
+			selectedOldAttachFile$2.setAttachSeq((Short)
+			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+				, "attachSeq" // itemName
+				, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+				, -1 // itemSize
+				, null // nativeItemCharset
+				, selectedOldAttachFile$2MiddleWritableObject));
+
+			pathStack.pop();
 		}
-		boardUploadFileInDTO.setSelectedOldAttachFileList(selectedOldAttachFileList);
+
+		boardUploadFileInDTO.setSelectedOldAttachFileList(selectedOldAttachFile$2List);
 
 		boardUploadFileInDTO.setNewAttachFileCnt((Integer)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "newAttachFileCnt" // itemName
-		, 4 // itemTypeID
-		, "integer" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
-
-		int newAttachFileListSize = boardUploadFileInDTO.getNewAttachFileCnt();
-		Object newAttachFileMiddleReadArray = singleItemDecoder.getArrayObjFromMiddleReadObj(sigleItemPath0, "newAttachFile", newAttachFileListSize, middleReadObj);
-		java.util.List<BoardUploadFileInDTO.NewAttachFile> newAttachFileList = new java.util.ArrayList<BoardUploadFileInDTO.NewAttachFile>();
-		for (int i=0; i < newAttachFileListSize; i++) {
-			String sigleItemPath1 = new StringBuilder(sigleItemPath0).append(".").append("NewAttachFile[").append(i).append("]").toString();
-			Object newAttachFileMiddleReadObj = singleItemDecoder.getMiddleReadObjFromArrayObj(sigleItemPath1, newAttachFileMiddleReadArray, i);
-			BoardUploadFileInDTO.NewAttachFile newAttachFile = new BoardUploadFileInDTO.NewAttachFile();
-			newAttachFileList.add(newAttachFile);
-
-			newAttachFile.setAttachFileName((String)
-			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
-			, "attachFileName" // itemName
-			, 8 // itemTypeID
-			, "us pascal string" // itemTypeName
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "newAttachFileCnt" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.INTEGER // itemType
 			, -1 // itemSize
-			, null // itemCharset,
-			, charsetOfProject
-			, newAttachFileMiddleReadObj));
+			, null // nativeItemCharset
+			, middleReadableObject));
 
-			newAttachFile.setSystemFileName((String)
-			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
-			, "systemFileName" // itemName
-			, 8 // itemTypeID
-			, "us pascal string" // itemTypeName
-			, -1 // itemSize
-			, null // itemCharset,
-			, charsetOfProject
-			, newAttachFileMiddleReadObj));
+		int newAttachFile$2ListSize = boardUploadFileInDTO.getNewAttachFileCnt();
+		Object newAttachFile$2ArrayMiddleObject = singleItemDecoder.getArrayMiddleObjectFromReadableMiddleObject(pathStack.peek(), "newAttachFile", newAttachFile$2ListSize, middleReadableObject);
+		java.util.List<BoardUploadFileInDTO.NewAttachFile> newAttachFile$2List = new java.util.ArrayList<BoardUploadFileInDTO.NewAttachFile>();
+		for (int i2=0; i2 < newAttachFile$2ListSize; i2++) {
+			pathStack.push(new StringBuilder(pathStack.peek()).append(".").append("NewAttachFile").append("[").append(i2).append("]").toString());
+			Object newAttachFile$2MiddleWritableObject= singleItemDecoder.getReadableMiddleObjFromArrayMiddleObject(pathStack.peek(), newAttachFile$2ArrayMiddleObject, i2);
+			BoardUploadFileInDTO.NewAttachFile newAttachFile$2 = new BoardUploadFileInDTO.NewAttachFile();
+			newAttachFile$2List.add(newAttachFile$2);
+
+			newAttachFile$2.setAttachFileName((String)
+			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+				, "attachFileName" // itemName
+				, kr.pe.sinnori.common.type.SingleItemType.US_PASCAL_STRING // itemType
+				, -1 // itemSize
+				, null // nativeItemCharset
+				, newAttachFile$2MiddleWritableObject));
+
+			newAttachFile$2.setSystemFileName((String)
+			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+				, "systemFileName" // itemName
+				, kr.pe.sinnori.common.type.SingleItemType.US_PASCAL_STRING // itemType
+				, -1 // itemSize
+				, null // nativeItemCharset
+				, newAttachFile$2MiddleWritableObject));
+
+			pathStack.pop();
 		}
-		boardUploadFileInDTO.setNewAttachFileList(newAttachFileList);
+
+		boardUploadFileInDTO.setNewAttachFileList(newAttachFile$2List);
+
+		pathStack.pop();
+
 		return boardUploadFileInDTO;
 	}
 }

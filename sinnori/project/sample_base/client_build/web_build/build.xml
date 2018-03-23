@@ -1,5 +1,6 @@
 <project name="sample_base_webclient" default="compile.webclass.only" basedir=".">
 	<!-- set global properties for this build -->
+	<property name="debuglevel" value="source,lines,vars"/>
 	<property name="dir.src" location="src/main/java" />
 	<property name="dir.build" location="build" />
 	<property name="dir.dist" location="dist" />
@@ -68,7 +69,7 @@
 		<delete dir="${dir.build}/weblib" />		
 		<mkdir dir="${dir.build}/weblib" />
 				
-		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}/weblib">
+		<javac debug="${java.complile.option.debug}" debuglevel="${debuglevel}" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}/weblib">
 			<include name="kr/pe/sinnori/weblib/**" />
 			<classpath>		  
 				<pathelement location="${dir.webclass}" />
@@ -118,7 +119,7 @@
 		<delete dir="${dir.webclass}" />
 		<mkdir dir="${dir.webclass}" />
 		
-		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" 
+		<javac debug="${java.complile.option.debug}" debuglevel="${debuglevel}" encoding="UTF-8" 
 		includeantruntime="false" srcdir="${dir.src}" destdir="${dir.webclass}"
 		excludes="kr/pe/sinnori/weblib/**" >
 			<classpath>
@@ -148,7 +149,7 @@
 	</target>
 	
 <target name="compile.webclass.only" depends="init.var">
-		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" 
+		<javac debug="${java.complile.option.debug}" debuglevel="${debuglevel}" encoding="UTF-8" 
 		includeantruntime="false" srcdir="${dir.src}" destdir="${dir.webclass}"
 		excludes="kr/pe/sinnori/common/**" >
 			<classpath>

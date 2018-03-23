@@ -17,6 +17,7 @@
 package kr.pe.sinnori.impl.message.BoardReplyRequest;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
+
 /**
  * BoardReplyRequest 메시지
  * @author Won Jonghoon
@@ -84,7 +85,7 @@ public class BoardReplyRequest extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("class BoardReplyRequest[");
+		builder.append("boardReplyRequest[");
 		builder.append("boardId=");
 		builder.append(boardId);
 		builder.append(", parentBoardNo=");
@@ -99,8 +100,6 @@ public class BoardReplyRequest extends AbstractMessage {
 		builder.append(userId);
 		builder.append(", ip=");
 		builder.append(ip);
-		builder.append(", messageHeaderInfo=");
-		builder.append(messageHeaderInfo.toString());
 		builder.append("]");
 		return builder.toString();
 	}

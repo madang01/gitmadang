@@ -35,6 +35,6 @@ public final class MemberRegisterWithSessionKeyServerCodec implements MessageCod
 
 	@Override
 	public AbstractMessageEncoder getMessageEncoder() throws DynamicClassCallException {
-		throw new DynamicClassCallException("MemberRegisterWithSessionKey 메시지는 서버에서 클라이언트로 전달하지 않는 메시지 입니다.");
+		throw new DynamicClassCallException("the server don't need a message encoder because it is a message[MemberRegisterWithSessionKey] that is not sent from server to client");
 	}
 }

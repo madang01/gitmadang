@@ -30,7 +30,7 @@ public final class BoardListOutDTOServerCodec implements MessageCodecIF {
 
 	@Override
 	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
-		throw new DynamicClassCallException("BoardListOutDTO메시지는 클라이언트에서 서버로 전달하지 않는 메시지 입니다.");
+		throw new DynamicClassCallException("the server don't need a message decoder because it is a message[BoardListOutDTO] that is not sent from client to server");
 	}
 
 	@Override

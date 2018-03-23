@@ -17,6 +17,7 @@
 package kr.pe.sinnori.impl.message.BoardDownloadFileInDTO;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
+
 /**
  * BoardDownloadFileInDTO 메시지
  * @author Won Jonghoon
@@ -44,13 +45,11 @@ public class BoardDownloadFileInDTO extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("class BoardDownloadFileInDTO[");
+		builder.append("boardDownloadFileInDTO[");
 		builder.append("attachId=");
 		builder.append(attachId);
 		builder.append(", attachSeq=");
 		builder.append(attachSeq);
-		builder.append(", messageHeaderInfo=");
-		builder.append(messageHeaderInfo.toString());
 		builder.append("]");
 		return builder.toString();
 	}

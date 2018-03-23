@@ -16,8 +16,6 @@
  */
 package kr.pe.sinnori.impl.message.SeqValueOutDTO;
 
-import java.nio.charset.Charset;
-import java.util.LinkedList;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
@@ -29,47 +27,31 @@ import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
  */
 public final class SeqValueOutDTOEncoder extends AbstractMessageEncoder {
 	@Override
-	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj)
-			throws Exception {
-		if (!(messageObj instanceof SeqValueOutDTO)) {
-			String errorMessage = String.format("메시지 객체 타입[%s]이 SeqValueOutDTO 이(가) 아닙니다.", messageObj.getClass().getCanonicalName());
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		SeqValueOutDTO seqValueOutDTO = (SeqValueOutDTO) messageObj;
-		encodeBody(seqValueOutDTO, singleItemEncoder, charsetOfProject, middleWriteObj);
+	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Object writableMiddleObject) throws Exception {
+		SeqValueOutDTO seqValueOutDTO = (SeqValueOutDTO)messageObj;
+		encodeBody(seqValueOutDTO, singleItemEncoder, writableMiddleObject);
 	}
 
-	/**
-	 * <pre>
-	 * SeqValueOutDTO 입력 메시지의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장한다.
-	 * </pre>
-	 * @param seqValueOutDTO SeqValueOutDTO 입력 메시지
-	 * @param singleItemEncoder 단일항목 인코더
-	 * @param charsetOfProject 프로젝트 문자셋
-	 * @param middleWriteObj 중간 다리 역활 쓰기 객체
-	 * @throws Exception "입력/출력 메시지"의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장할때 에러 발생시 던지는 예외
-	 */
-	private void encodeBody(SeqValueOutDTO seqValueOutDTO, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj) throws Exception {
-		String seqValueOutDTOSingleItemPath = "SeqValueOutDTO";
-		LinkedList<String> singleItemPathStatck = new LinkedList<String>();
-		singleItemPathStatck.push(seqValueOutDTOSingleItemPath);
 
-		singleItemEncoder.putValueToMiddleWriteObj(seqValueOutDTOSingleItemPath, "seqValue"
-					, 5 // itemTypeID
-					, "unsigned integer" // itemTypeName
-					, seqValueOutDTO.getSeqValue() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(seqValueOutDTOSingleItemPath, "wantedSize"
-					, 1 // itemTypeID
-					, "unsigned byte" // itemTypeName
-					, seqValueOutDTO.getWantedSize() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
+	private void encodeBody(SeqValueOutDTO seqValueOutDTO, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject) throws Exception {
+		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
+		pathStack.push("SeqValueOutDTO");
+
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "seqValue"
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
+			, seqValueOutDTO.getSeqValue() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "wantedSize"
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+			, seqValueOutDTO.getWantedSize() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		pathStack.pop();
 	}
 }

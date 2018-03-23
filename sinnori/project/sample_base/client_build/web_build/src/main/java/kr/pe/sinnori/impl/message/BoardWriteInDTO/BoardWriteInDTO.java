@@ -17,6 +17,7 @@
 package kr.pe.sinnori.impl.message.BoardWriteInDTO;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
+
 /**
  * BoardWriteInDTO 메시지
  * @author Won Jonghoon
@@ -76,7 +77,7 @@ public class BoardWriteInDTO extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("class BoardWriteInDTO[");
+		builder.append("boardWriteInDTO[");
 		builder.append("boardId=");
 		builder.append(boardId);
 		builder.append(", subject=");
@@ -89,8 +90,6 @@ public class BoardWriteInDTO extends AbstractMessage {
 		builder.append(userId);
 		builder.append(", ip=");
 		builder.append(ip);
-		builder.append(", messageHeaderInfo=");
-		builder.append(messageHeaderInfo.toString());
 		builder.append("]");
 		return builder.toString();
 	}

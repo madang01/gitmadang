@@ -17,6 +17,7 @@
 package kr.pe.sinnori.impl.message.BoardListOutDTO;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
+
 /**
  * BoardListOutDTO 메시지
  * @author Won Jonghoon
@@ -28,6 +29,7 @@ public class BoardListOutDTO extends AbstractMessage {
 	private int pageSize;
 	private long total;
 	private int cnt;
+
 	public static class Board {
 		private long boardNo;
 		private long groupNo;
@@ -40,8 +42,8 @@ public class BoardListOutDTO extends AbstractMessage {
 		private int viewCount;
 		private int votes;
 		private String deleteFlag;
-		private java.sql.Timestamp registerDate;
-		private java.sql.Timestamp modifiedDate;
+		private boolean registerDate;
+		private boolean modifiedDate;
 		private String memberGubunName;
 
 		public long getBoardNo() {
@@ -121,18 +123,18 @@ public class BoardListOutDTO extends AbstractMessage {
 		public void setDeleteFlag(String deleteFlag) {
 			this.deleteFlag = deleteFlag;
 		}
-		public java.sql.Timestamp getRegisterDate() {
+		public boolean getRegisterDate() {
 			return registerDate;
 		}
 
-		public void setRegisterDate(java.sql.Timestamp registerDate) {
+		public void setRegisterDate(boolean registerDate) {
 			this.registerDate = registerDate;
 		}
-		public java.sql.Timestamp getModifiedDate() {
+		public boolean getModifiedDate() {
 			return modifiedDate;
 		}
 
-		public void setModifiedDate(java.sql.Timestamp modifiedDate) {
+		public void setModifiedDate(boolean modifiedDate) {
 			this.modifiedDate = modifiedDate;
 		}
 		public String getMemberGubunName() {
@@ -178,7 +180,8 @@ public class BoardListOutDTO extends AbstractMessage {
 			builder.append("]");
 			return builder.toString();
 		}
-	};
+	}
+
 	private java.util.List<Board> boardList;
 
 	public long getBoardId() {
@@ -216,7 +219,6 @@ public class BoardListOutDTO extends AbstractMessage {
 	public void setCnt(int cnt) {
 		this.cnt = cnt;
 	}
-
 	public java.util.List<Board> getBoardList() {
 		return boardList;
 	}
@@ -228,7 +230,7 @@ public class BoardListOutDTO extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("class BoardListOutDTO[");
+		builder.append("boardListOutDTO[");
 		builder.append("boardId=");
 		builder.append(boardId);
 		builder.append(", startNo=");
@@ -239,6 +241,7 @@ public class BoardListOutDTO extends AbstractMessage {
 		builder.append(total);
 		builder.append(", cnt=");
 		builder.append(cnt);
+
 		builder.append(", boardList=");
 		if (null == boardList) {
 			builder.append("null");
@@ -262,9 +265,6 @@ public class BoardListOutDTO extends AbstractMessage {
 				builder.append("]");
 			}
 		}
-
-		builder.append(", messageHeaderInfo=");
-		builder.append(messageHeaderInfo.toString());
 		builder.append("]");
 		return builder.toString();
 	}

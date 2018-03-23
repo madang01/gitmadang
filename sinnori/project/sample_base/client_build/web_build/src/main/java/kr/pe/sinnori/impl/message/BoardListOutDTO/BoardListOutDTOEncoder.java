@@ -16,8 +16,6 @@
  */
 package kr.pe.sinnori.impl.message.BoardListOutDTO;
 
-import java.nio.charset.Charset;
-import java.util.LinkedList;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
@@ -29,225 +27,177 @@ import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
  */
 public final class BoardListOutDTOEncoder extends AbstractMessageEncoder {
 	@Override
-	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj)
-			throws Exception {
-		if (!(messageObj instanceof BoardListOutDTO)) {
-			String errorMessage = String.format("메시지 객체 타입[%s]이 BoardListOutDTO 이(가) 아닙니다.", messageObj.getClass().getCanonicalName());
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		BoardListOutDTO boardListOutDTO = (BoardListOutDTO) messageObj;
-		encodeBody(boardListOutDTO, singleItemEncoder, charsetOfProject, middleWriteObj);
+	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Object writableMiddleObject) throws Exception {
+		BoardListOutDTO boardListOutDTO = (BoardListOutDTO)messageObj;
+		encodeBody(boardListOutDTO, singleItemEncoder, writableMiddleObject);
 	}
 
-	/**
-	 * <pre>
-	 * BoardListOutDTO 입력 메시지의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장한다.
-	 * </pre>
-	 * @param boardListOutDTO BoardListOutDTO 입력 메시지
-	 * @param singleItemEncoder 단일항목 인코더
-	 * @param charsetOfProject 프로젝트 문자셋
-	 * @param middleWriteObj 중간 다리 역활 쓰기 객체
-	 * @throws Exception "입력/출력 메시지"의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장할때 에러 발생시 던지는 예외
-	 */
-	private void encodeBody(BoardListOutDTO boardListOutDTO, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj) throws Exception {
-		String boardListOutDTOSingleItemPath = "BoardListOutDTO";
-		LinkedList<String> singleItemPathStatck = new LinkedList<String>();
-		singleItemPathStatck.push(boardListOutDTOSingleItemPath);
 
-		singleItemEncoder.putValueToMiddleWriteObj(boardListOutDTOSingleItemPath, "boardId"
-					, 5 // itemTypeID
-					, "unsigned integer" // itemTypeName
-					, boardListOutDTO.getBoardId() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(boardListOutDTOSingleItemPath, "startNo"
-					, 5 // itemTypeID
-					, "unsigned integer" // itemTypeName
-					, boardListOutDTO.getStartNo() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(boardListOutDTOSingleItemPath, "pageSize"
-					, 3 // itemTypeID
-					, "unsigned short" // itemTypeName
-					, boardListOutDTO.getPageSize() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(boardListOutDTOSingleItemPath, "total"
-					, 5 // itemTypeID
-					, "unsigned integer" // itemTypeName
-					, boardListOutDTO.getTotal() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(boardListOutDTOSingleItemPath, "cnt"
-					, 4 // itemTypeID
-					, "integer" // itemTypeName
-					, boardListOutDTO.getCnt() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
+	private void encodeBody(BoardListOutDTO boardListOutDTO, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject) throws Exception {
+		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
+		pathStack.push("BoardListOutDTO");
 
-		java.util.List<BoardListOutDTO.Board> boardList = boardListOutDTO.getBoardList();
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardId"
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
+			, boardListOutDTO.getBoardId() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "startNo"
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
+			, boardListOutDTO.getStartNo() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "pageSize"
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_SHORT // itemType
+			, boardListOutDTO.getPageSize() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "total"
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
+			, boardListOutDTO.getTotal() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "cnt"
+			, kr.pe.sinnori.common.type.SingleItemType.INTEGER // itemType
+			, boardListOutDTO.getCnt() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		java.util.List<BoardListOutDTO.Board> board$2List = boardListOutDTO.getBoardList();
 
 		/** 배열 정보와 배열 크기 일치 검사 */
-		if (null == boardList) {
+		if (null == board$2List) {
 			/** 배열 크기 지정 방식이 간접일 경우 참조하는 변수값이 0 일 경우만 배열 값으로 null 을 허용한다. */
 			if (0 != boardListOutDTO.getCnt()) {
-				String errorMessage = new StringBuilder("간접 참조 회수[")
-				.append(boardListOutDTO.getCnt())
-				.append("] is not zero but ")
-				.append(boardListOutDTOSingleItemPath)
-				.append(".")
-				.append("boardList")
-				.append("is null").toString();
+				String errorMessage = new StringBuilder("the var board$2List is null but the value referenced by the array size[boardListOutDTO.getCnt()][").append(boardListOutDTO.getCnt()).append("] is not zero").toString();
 				throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
 			}
 		} else {
-			int boardListSize = boardList.size();
+			int board$2ListSize = board$2List.size();
 			/** 배열 값이 null 이 아닐때에는 배열 크기가 배열 정보에서 지정된 크기와 같은지 검사 */
-			if (boardListSize != boardListOutDTO.getCnt()) {
-				String errorMessage = new StringBuilder(boardListOutDTOSingleItemPath)
-				.append(".")
-				.append("boardList.length[")
-				.append(boardListSize)
-				.append("] is not same to ")
-				.append(boardListOutDTOSingleItemPath)
-				.append(".")
-				.append("cnt[")
-				.append(boardListOutDTO.getCnt())
-				.append("]").toString();
+			if (boardListOutDTO.getCnt() != board$2ListSize) {
+				String errorMessage = new StringBuilder("the var board$2ListSize[").append(board$2ListSize).append("] is not same to the value referenced by the array size[boardListOutDTO.getCnt()][").append(boardListOutDTO.getCnt()).append("]").toString();
 				throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
 			}
 
-			Object boardMiddleWriteArray = singleItemEncoder.getArrayObjFromMiddleWriteObj(boardListOutDTOSingleItemPath, "board", boardListSize, middleWriteObj);
-			for (int i=0; i < boardListSize; i++) {
-				singleItemPathStatck.push(new StringBuilder(singleItemPathStatck.getLast()).append(".").append("Board").append("[").append(i).append("]").toString());
-				String boardSingleItemPath = singleItemPathStatck.getLast();
-				Object boardMiddleWriteObj = singleItemEncoder.getMiddleWriteObjFromArrayObj(boardSingleItemPath, boardMiddleWriteArray, i);
-				BoardListOutDTO.Board board = boardList.get(i);
-				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "boardNo"
-							, 5 // itemTypeID
-							, "unsigned integer" // itemTypeName
-							, board.getBoardNo() // itemValue
-							, -1 // itemSize
-							, null // itemCharset,
-							, charsetOfProject
-							, boardMiddleWriteObj);
-				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "groupNo"
-							, 5 // itemTypeID
-							, "unsigned integer" // itemTypeName
-							, board.getGroupNo() // itemValue
-							, -1 // itemSize
-							, null // itemCharset,
-							, charsetOfProject
-							, boardMiddleWriteObj);
-				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "groupSeq"
-							, 3 // itemTypeID
-							, "unsigned short" // itemTypeName
-							, board.getGroupSeq() // itemValue
-							, -1 // itemSize
-							, null // itemCharset,
-							, charsetOfProject
-							, boardMiddleWriteObj);
-				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "parentNo"
-							, 5 // itemTypeID
-							, "unsigned integer" // itemTypeName
-							, board.getParentNo() // itemValue
-							, -1 // itemSize
-							, null // itemCharset,
-							, charsetOfProject
-							, boardMiddleWriteObj);
-				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "depth"
-							, 1 // itemTypeID
-							, "unsigned byte" // itemTypeName
-							, board.getDepth() // itemValue
-							, -1 // itemSize
-							, null // itemCharset,
-							, charsetOfProject
-							, boardMiddleWriteObj);
-				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "subject"
-							, 7 // itemTypeID
-							, "ub pascal string" // itemTypeName
-							, board.getSubject() // itemValue
-							, -1 // itemSize
-							, null // itemCharset,
-							, charsetOfProject
-							, boardMiddleWriteObj);
-				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "writerId"
-							, 7 // itemTypeID
-							, "ub pascal string" // itemTypeName
-							, board.getWriterId() // itemValue
-							, -1 // itemSize
-							, null // itemCharset,
-							, charsetOfProject
-							, boardMiddleWriteObj);
-				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "nickname"
-							, 7 // itemTypeID
-							, "ub pascal string" // itemTypeName
-							, board.getNickname() // itemValue
-							, -1 // itemSize
-							, null // itemCharset,
-							, charsetOfProject
-							, boardMiddleWriteObj);
-				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "viewCount"
-							, 4 // itemTypeID
-							, "integer" // itemTypeName
-							, board.getViewCount() // itemValue
-							, -1 // itemSize
-							, null // itemCharset,
-							, charsetOfProject
-							, boardMiddleWriteObj);
-				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "votes"
-							, 4 // itemTypeID
-							, "integer" // itemTypeName
-							, board.getVotes() // itemValue
-							, -1 // itemSize
-							, null // itemCharset,
-							, charsetOfProject
-							, boardMiddleWriteObj);
-				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "deleteFlag"
-							, 7 // itemTypeID
-							, "ub pascal string" // itemTypeName
-							, board.getDeleteFlag() // itemValue
-							, -1 // itemSize
-							, null // itemCharset,
-							, charsetOfProject
-							, boardMiddleWriteObj);
-				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "registerDate"
-							, 16 // itemTypeID
-							, "java sql timestamp" // itemTypeName
-							, board.getRegisterDate() // itemValue
-							, -1 // itemSize
-							, null // itemCharset,
-							, charsetOfProject
-							, boardMiddleWriteObj);
-				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "modifiedDate"
-							, 16 // itemTypeID
-							, "java sql timestamp" // itemTypeName
-							, board.getModifiedDate() // itemValue
-							, -1 // itemSize
-							, null // itemCharset,
-							, charsetOfProject
-							, boardMiddleWriteObj);
-				singleItemEncoder.putValueToMiddleWriteObj(boardSingleItemPath, "memberGubunName"
-							, 7 // itemTypeID
-							, "ub pascal string" // itemTypeName
-							, board.getMemberGubunName() // itemValue
-							, -1 // itemSize
-							, null // itemCharset,
-							, charsetOfProject
-							, boardMiddleWriteObj);
-				singleItemPathStatck.pop();
+			Object board$2ArrayMiddleObject = singleItemEncoder.getArrayMiddleObjectFromWritableMiddleObject(pathStack.peek(), "board", board$2ListSize, middleWritableObject);
+			for (int i2=0; i2 < board$2ListSize; i2++) {
+				pathStack.push(new StringBuilder(pathStack.peek()).append(".").append("Board").append("[").append(i2).append("]").toString());
+				Object board$2MiddleWritableObject = singleItemEncoder.getWritableMiddleObjectjFromArrayMiddleObject(pathStack.peek(), board$2ArrayMiddleObject, i2);
+				BoardListOutDTO.Board board$2 = board$2List.get(i2);
+
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardNo"
+					, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
+					, board$2.getBoardNo() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, board$2MiddleWritableObject);
+
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "groupNo"
+					, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
+					, board$2.getGroupNo() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, board$2MiddleWritableObject);
+
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "groupSeq"
+					, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_SHORT // itemType
+					, board$2.getGroupSeq() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, board$2MiddleWritableObject);
+
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "parentNo"
+					, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
+					, board$2.getParentNo() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, board$2MiddleWritableObject);
+
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "depth"
+					, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+					, board$2.getDepth() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, board$2MiddleWritableObject);
+
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "subject"
+					, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+					, board$2.getSubject() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, board$2MiddleWritableObject);
+
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "writerId"
+					, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+					, board$2.getWriterId() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, board$2MiddleWritableObject);
+
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "nickname"
+					, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+					, board$2.getNickname() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, board$2MiddleWritableObject);
+
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "viewCount"
+					, kr.pe.sinnori.common.type.SingleItemType.INTEGER // itemType
+					, board$2.getViewCount() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, board$2MiddleWritableObject);
+
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "votes"
+					, kr.pe.sinnori.common.type.SingleItemType.INTEGER // itemType
+					, board$2.getVotes() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, board$2MiddleWritableObject);
+
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "deleteFlag"
+					, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+					, board$2.getDeleteFlag() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, board$2MiddleWritableObject);
+
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "registerDate"
+					, kr.pe.sinnori.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
+					, board$2.getRegisterDate() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, board$2MiddleWritableObject);
+
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "modifiedDate"
+					, kr.pe.sinnori.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
+					, board$2.getModifiedDate() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, board$2MiddleWritableObject);
+
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "memberGubunName"
+					, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+					, board$2.getMemberGubunName() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, board$2MiddleWritableObject);
+
+				pathStack.pop();
 			}
 		}
+
+		pathStack.pop();
 	}
 }

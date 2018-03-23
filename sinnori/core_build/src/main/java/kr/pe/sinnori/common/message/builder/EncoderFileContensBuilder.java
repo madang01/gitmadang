@@ -252,8 +252,7 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 2));
 		
-		if (arrayInfo.getArrayCntType().equals("reference")) {
-			// String errorMessage = new StringBuilder("the var member$1ListSize[").append(member$1ListSize).append("] is not same to the value referenced by the array size[allItemTypeReq.getCnt()][").append(allItemTypeReq.getCnt()).append("]").toString();			
+		if (arrayInfo.getArrayCntType().equals("reference")) {			
 			stringBuilder.append("String errorMessage = new StringBuilder(\"the var ");
 			stringBuilder.append(getArrayListSizeVarObjName(depth, arrayInfo.getItemName()));
 			stringBuilder.append("[\").append(");
@@ -422,7 +421,6 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		StringBuilder stringBuilder = new StringBuilder();
 		
 		/** 배열 변수 선언및 정의 */
-		// java.util.List<AllItemTypeReq.Member> member$0List =allItemTypeReq.getMemberList();
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 0));
 		stringBuilder.append("java.util.List<");
@@ -623,7 +621,6 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(
 				"public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Object writableMiddleObject) throws Exception {");
 
-		// AllItemTypeReq allItemTypeReq = (AllItemTypeReq)messageObj;
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 		stringBuilder.append(messageID);
@@ -632,7 +629,6 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(" = (");
 		stringBuilder.append(messageID);
 		stringBuilder.append(")messageObj;");
-		// encodeBody(allItemTypeReq, singleItemEncoder, writableMiddleObject);
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 		stringBuilder.append("encodeBody(");
@@ -668,7 +664,6 @@ public class EncoderFileContensBuilder extends AbstractSourceFileBuildre {
 			/** java.util.Stack is thread-safe but LinkedList is not thread-safe */
 			stringBuilder.append("java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();");
 
-			// pathStack.push("AllItemTypeReq");
 			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 			stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 1));
 			stringBuilder.append("pathStack.push(");

@@ -16,12 +16,10 @@
  */
 package kr.pe.sinnori.impl.message.MemberRegisterWithSessionKey;
 
-import java.nio.charset.Charset;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
-
 /**
  * MemberRegisterWithSessionKey 메시지 디코더
  * @author Won Jonghoon
@@ -29,91 +27,70 @@ import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
  */
 public final class MemberRegisterWithSessionKeyDecoder extends AbstractMessageDecoder {
 
-	/**
-	 * <pre>
-	 *  "단일항목 디코더"를 이용하여 "중간 다리 역활 읽기 객체" 에서 추출된 MemberRegisterWithSessionKey 메시지를 반환한다.
-	 * </pre>
-	 * @param singleItemDecoder 단일항목 디코더
-	 * @param charsetOfProject 프로젝트 문자셋
-	 * @param middleReadObj 중간 다리 역활 읽기 객체
-	 * @return "단일항목 디코더"를 이용하여 "중간 다리 역활 읽기 객체" 에서 추출된 MemberRegisterWithSessionKey 메시지
-	 * @throws OutOfMemoryError 메모리 확보 실패시 던지는 예외
-	 * @throws BodyFormatException 바디 디코딩 실패시 던지는 예외
-	 */
 	@Override
-	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Charset charsetOfProject, Object  middleReadObj) throws OutOfMemoryError, BodyFormatException {
+	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object  middleReadableObject) throws BodyFormatException {
 		MemberRegisterWithSessionKey memberRegisterWithSessionKey = new MemberRegisterWithSessionKey();
-		String sigleItemPath0 = "MemberRegisterWithSessionKey";
+		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
+		pathStack.push("MemberRegisterWithSessionKey");
 
 		memberRegisterWithSessionKey.setIdCipherBase64((String)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "idCipherBase64" // itemName
-		, 9 // itemTypeID
-		, "si pascal string" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "idCipherBase64" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.SI_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
 
 		memberRegisterWithSessionKey.setPwdCipherBase64((String)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "pwdCipherBase64" // itemName
-		, 9 // itemTypeID
-		, "si pascal string" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "pwdCipherBase64" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.SI_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
 
 		memberRegisterWithSessionKey.setNicknameCipherBase64((String)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "nicknameCipherBase64" // itemName
-		, 9 // itemTypeID
-		, "si pascal string" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "nicknameCipherBase64" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.SI_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
 
 		memberRegisterWithSessionKey.setHintCipherBase64((String)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "hintCipherBase64" // itemName
-		, 9 // itemTypeID
-		, "si pascal string" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "hintCipherBase64" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.SI_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
 
 		memberRegisterWithSessionKey.setAnswerCipherBase64((String)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "answerCipherBase64" // itemName
-		, 9 // itemTypeID
-		, "si pascal string" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "answerCipherBase64" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.SI_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
 
 		memberRegisterWithSessionKey.setSessionKeyBase64((String)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "sessionKeyBase64" // itemName
-		, 9 // itemTypeID
-		, "si pascal string" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "sessionKeyBase64" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.SI_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
 
 		memberRegisterWithSessionKey.setIvBase64((String)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "ivBase64" // itemName
-		, 9 // itemTypeID
-		, "si pascal string" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "ivBase64" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.SI_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
+
+		pathStack.pop();
+
 		return memberRegisterWithSessionKey;
 	}
 }

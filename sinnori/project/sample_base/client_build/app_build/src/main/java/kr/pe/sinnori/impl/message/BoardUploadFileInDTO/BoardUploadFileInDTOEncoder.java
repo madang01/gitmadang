@@ -16,8 +16,6 @@
  */
 package kr.pe.sinnori.impl.message.BoardUploadFileInDTO;
 
-import java.nio.charset.Charset;
-import java.util.LinkedList;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
@@ -29,179 +27,127 @@ import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
  */
 public final class BoardUploadFileInDTOEncoder extends AbstractMessageEncoder {
 	@Override
-	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj)
-			throws Exception {
-		if (!(messageObj instanceof BoardUploadFileInDTO)) {
-			String errorMessage = String.format("메시지 객체 타입[%s]이 BoardUploadFileInDTO 이(가) 아닙니다.", messageObj.getClass().getCanonicalName());
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		BoardUploadFileInDTO boardUploadFileInDTO = (BoardUploadFileInDTO) messageObj;
-		encodeBody(boardUploadFileInDTO, singleItemEncoder, charsetOfProject, middleWriteObj);
+	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Object writableMiddleObject) throws Exception {
+		BoardUploadFileInDTO boardUploadFileInDTO = (BoardUploadFileInDTO)messageObj;
+		encodeBody(boardUploadFileInDTO, singleItemEncoder, writableMiddleObject);
 	}
 
-	/**
-	 * <pre>
-	 * BoardUploadFileInDTO 입력 메시지의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장한다.
-	 * </pre>
-	 * @param boardUploadFileInDTO BoardUploadFileInDTO 입력 메시지
-	 * @param singleItemEncoder 단일항목 인코더
-	 * @param charsetOfProject 프로젝트 문자셋
-	 * @param middleWriteObj 중간 다리 역활 쓰기 객체
-	 * @throws Exception "입력/출력 메시지"의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장할때 에러 발생시 던지는 예외
-	 */
-	private void encodeBody(BoardUploadFileInDTO boardUploadFileInDTO, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj) throws Exception {
-		String boardUploadFileInDTOSingleItemPath = "BoardUploadFileInDTO";
-		LinkedList<String> singleItemPathStatck = new LinkedList<String>();
-		singleItemPathStatck.push(boardUploadFileInDTOSingleItemPath);
 
-		singleItemEncoder.putValueToMiddleWriteObj(boardUploadFileInDTOSingleItemPath, "userId"
-					, 7 // itemTypeID
-					, "ub pascal string" // itemTypeName
-					, boardUploadFileInDTO.getUserId() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(boardUploadFileInDTOSingleItemPath, "ip"
-					, 7 // itemTypeID
-					, "ub pascal string" // itemTypeName
-					, boardUploadFileInDTO.getIp() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(boardUploadFileInDTOSingleItemPath, "attachId"
-					, 5 // itemTypeID
-					, "unsigned integer" // itemTypeName
-					, boardUploadFileInDTO.getAttachId() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(boardUploadFileInDTOSingleItemPath, "selectedOldAttachFileCnt"
-					, 4 // itemTypeID
-					, "integer" // itemTypeName
-					, boardUploadFileInDTO.getSelectedOldAttachFileCnt() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
+	private void encodeBody(BoardUploadFileInDTO boardUploadFileInDTO, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject) throws Exception {
+		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
+		pathStack.push("BoardUploadFileInDTO");
 
-		java.util.List<BoardUploadFileInDTO.SelectedOldAttachFile> selectedOldAttachFileList = boardUploadFileInDTO.getSelectedOldAttachFileList();
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "userId"
+			, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, boardUploadFileInDTO.getUserId() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "ip"
+			, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, boardUploadFileInDTO.getIp() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachId"
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
+			, boardUploadFileInDTO.getAttachId() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "selectedOldAttachFileCnt"
+			, kr.pe.sinnori.common.type.SingleItemType.INTEGER // itemType
+			, boardUploadFileInDTO.getSelectedOldAttachFileCnt() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		java.util.List<BoardUploadFileInDTO.SelectedOldAttachFile> selectedOldAttachFile$2List = boardUploadFileInDTO.getSelectedOldAttachFileList();
 
 		/** 배열 정보와 배열 크기 일치 검사 */
-		if (null == selectedOldAttachFileList) {
+		if (null == selectedOldAttachFile$2List) {
 			/** 배열 크기 지정 방식이 간접일 경우 참조하는 변수값이 0 일 경우만 배열 값으로 null 을 허용한다. */
 			if (0 != boardUploadFileInDTO.getSelectedOldAttachFileCnt()) {
-				String errorMessage = new StringBuilder("간접 참조 회수[")
-				.append(boardUploadFileInDTO.getSelectedOldAttachFileCnt())
-				.append("] is not zero but ")
-				.append(boardUploadFileInDTOSingleItemPath)
-				.append(".")
-				.append("selectedOldAttachFileList")
-				.append("is null").toString();
+				String errorMessage = new StringBuilder("the var selectedOldAttachFile$2List is null but the value referenced by the array size[boardUploadFileInDTO.getSelectedOldAttachFileCnt()][").append(boardUploadFileInDTO.getSelectedOldAttachFileCnt()).append("] is not zero").toString();
 				throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
 			}
 		} else {
-			int selectedOldAttachFileListSize = selectedOldAttachFileList.size();
+			int selectedOldAttachFile$2ListSize = selectedOldAttachFile$2List.size();
 			/** 배열 값이 null 이 아닐때에는 배열 크기가 배열 정보에서 지정된 크기와 같은지 검사 */
-			if (selectedOldAttachFileListSize != boardUploadFileInDTO.getSelectedOldAttachFileCnt()) {
-				String errorMessage = new StringBuilder(boardUploadFileInDTOSingleItemPath)
-				.append(".")
-				.append("selectedOldAttachFileList.length[")
-				.append(selectedOldAttachFileListSize)
-				.append("] is not same to ")
-				.append(boardUploadFileInDTOSingleItemPath)
-				.append(".")
-				.append("selectedOldAttachFileCnt[")
-				.append(boardUploadFileInDTO.getSelectedOldAttachFileCnt())
-				.append("]").toString();
+			if (boardUploadFileInDTO.getSelectedOldAttachFileCnt() != selectedOldAttachFile$2ListSize) {
+				String errorMessage = new StringBuilder("the var selectedOldAttachFile$2ListSize[").append(selectedOldAttachFile$2ListSize).append("] is not same to the value referenced by the array size[boardUploadFileInDTO.getSelectedOldAttachFileCnt()][").append(boardUploadFileInDTO.getSelectedOldAttachFileCnt()).append("]").toString();
 				throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
 			}
 
-			Object selectedOldAttachFileMiddleWriteArray = singleItemEncoder.getArrayObjFromMiddleWriteObj(boardUploadFileInDTOSingleItemPath, "selectedOldAttachFile", selectedOldAttachFileListSize, middleWriteObj);
-			for (int i=0; i < selectedOldAttachFileListSize; i++) {
-				singleItemPathStatck.push(new StringBuilder(singleItemPathStatck.getLast()).append(".").append("SelectedOldAttachFile").append("[").append(i).append("]").toString());
-				String selectedOldAttachFileSingleItemPath = singleItemPathStatck.getLast();
-				Object selectedOldAttachFileMiddleWriteObj = singleItemEncoder.getMiddleWriteObjFromArrayObj(selectedOldAttachFileSingleItemPath, selectedOldAttachFileMiddleWriteArray, i);
-				BoardUploadFileInDTO.SelectedOldAttachFile selectedOldAttachFile = selectedOldAttachFileList.get(i);
-				singleItemEncoder.putValueToMiddleWriteObj(selectedOldAttachFileSingleItemPath, "attachSeq"
-							, 1 // itemTypeID
-							, "unsigned byte" // itemTypeName
-							, selectedOldAttachFile.getAttachSeq() // itemValue
-							, -1 // itemSize
-							, null // itemCharset,
-							, charsetOfProject
-							, selectedOldAttachFileMiddleWriteObj);
-				singleItemPathStatck.pop();
+			Object selectedOldAttachFile$2ArrayMiddleObject = singleItemEncoder.getArrayMiddleObjectFromWritableMiddleObject(pathStack.peek(), "selectedOldAttachFile", selectedOldAttachFile$2ListSize, middleWritableObject);
+			for (int i2=0; i2 < selectedOldAttachFile$2ListSize; i2++) {
+				pathStack.push(new StringBuilder(pathStack.peek()).append(".").append("SelectedOldAttachFile").append("[").append(i2).append("]").toString());
+				Object selectedOldAttachFile$2MiddleWritableObject = singleItemEncoder.getWritableMiddleObjectjFromArrayMiddleObject(pathStack.peek(), selectedOldAttachFile$2ArrayMiddleObject, i2);
+				BoardUploadFileInDTO.SelectedOldAttachFile selectedOldAttachFile$2 = selectedOldAttachFile$2List.get(i2);
+
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachSeq"
+					, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+					, selectedOldAttachFile$2.getAttachSeq() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, selectedOldAttachFile$2MiddleWritableObject);
+
+				pathStack.pop();
 			}
 		}
-		singleItemEncoder.putValueToMiddleWriteObj(boardUploadFileInDTOSingleItemPath, "newAttachFileCnt"
-					, 4 // itemTypeID
-					, "integer" // itemTypeName
-					, boardUploadFileInDTO.getNewAttachFileCnt() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
 
-		java.util.List<BoardUploadFileInDTO.NewAttachFile> newAttachFileList = boardUploadFileInDTO.getNewAttachFileList();
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "newAttachFileCnt"
+			, kr.pe.sinnori.common.type.SingleItemType.INTEGER // itemType
+			, boardUploadFileInDTO.getNewAttachFileCnt() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		java.util.List<BoardUploadFileInDTO.NewAttachFile> newAttachFile$2List = boardUploadFileInDTO.getNewAttachFileList();
 
 		/** 배열 정보와 배열 크기 일치 검사 */
-		if (null == newAttachFileList) {
+		if (null == newAttachFile$2List) {
 			/** 배열 크기 지정 방식이 간접일 경우 참조하는 변수값이 0 일 경우만 배열 값으로 null 을 허용한다. */
 			if (0 != boardUploadFileInDTO.getNewAttachFileCnt()) {
-				String errorMessage = new StringBuilder("간접 참조 회수[")
-				.append(boardUploadFileInDTO.getNewAttachFileCnt())
-				.append("] is not zero but ")
-				.append(boardUploadFileInDTOSingleItemPath)
-				.append(".")
-				.append("newAttachFileList")
-				.append("is null").toString();
+				String errorMessage = new StringBuilder("the var newAttachFile$2List is null but the value referenced by the array size[boardUploadFileInDTO.getNewAttachFileCnt()][").append(boardUploadFileInDTO.getNewAttachFileCnt()).append("] is not zero").toString();
 				throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
 			}
 		} else {
-			int newAttachFileListSize = newAttachFileList.size();
+			int newAttachFile$2ListSize = newAttachFile$2List.size();
 			/** 배열 값이 null 이 아닐때에는 배열 크기가 배열 정보에서 지정된 크기와 같은지 검사 */
-			if (newAttachFileListSize != boardUploadFileInDTO.getNewAttachFileCnt()) {
-				String errorMessage = new StringBuilder(boardUploadFileInDTOSingleItemPath)
-				.append(".")
-				.append("newAttachFileList.length[")
-				.append(newAttachFileListSize)
-				.append("] is not same to ")
-				.append(boardUploadFileInDTOSingleItemPath)
-				.append(".")
-				.append("newAttachFileCnt[")
-				.append(boardUploadFileInDTO.getNewAttachFileCnt())
-				.append("]").toString();
+			if (boardUploadFileInDTO.getNewAttachFileCnt() != newAttachFile$2ListSize) {
+				String errorMessage = new StringBuilder("the var newAttachFile$2ListSize[").append(newAttachFile$2ListSize).append("] is not same to the value referenced by the array size[boardUploadFileInDTO.getNewAttachFileCnt()][").append(boardUploadFileInDTO.getNewAttachFileCnt()).append("]").toString();
 				throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
 			}
 
-			Object newAttachFileMiddleWriteArray = singleItemEncoder.getArrayObjFromMiddleWriteObj(boardUploadFileInDTOSingleItemPath, "newAttachFile", newAttachFileListSize, middleWriteObj);
-			for (int i=0; i < newAttachFileListSize; i++) {
-				singleItemPathStatck.push(new StringBuilder(singleItemPathStatck.getLast()).append(".").append("NewAttachFile").append("[").append(i).append("]").toString());
-				String newAttachFileSingleItemPath = singleItemPathStatck.getLast();
-				Object newAttachFileMiddleWriteObj = singleItemEncoder.getMiddleWriteObjFromArrayObj(newAttachFileSingleItemPath, newAttachFileMiddleWriteArray, i);
-				BoardUploadFileInDTO.NewAttachFile newAttachFile = newAttachFileList.get(i);
-				singleItemEncoder.putValueToMiddleWriteObj(newAttachFileSingleItemPath, "attachFileName"
-							, 8 // itemTypeID
-							, "us pascal string" // itemTypeName
-							, newAttachFile.getAttachFileName() // itemValue
-							, -1 // itemSize
-							, null // itemCharset,
-							, charsetOfProject
-							, newAttachFileMiddleWriteObj);
-				singleItemEncoder.putValueToMiddleWriteObj(newAttachFileSingleItemPath, "systemFileName"
-							, 8 // itemTypeID
-							, "us pascal string" // itemTypeName
-							, newAttachFile.getSystemFileName() // itemValue
-							, -1 // itemSize
-							, null // itemCharset,
-							, charsetOfProject
-							, newAttachFileMiddleWriteObj);
-				singleItemPathStatck.pop();
+			Object newAttachFile$2ArrayMiddleObject = singleItemEncoder.getArrayMiddleObjectFromWritableMiddleObject(pathStack.peek(), "newAttachFile", newAttachFile$2ListSize, middleWritableObject);
+			for (int i2=0; i2 < newAttachFile$2ListSize; i2++) {
+				pathStack.push(new StringBuilder(pathStack.peek()).append(".").append("NewAttachFile").append("[").append(i2).append("]").toString());
+				Object newAttachFile$2MiddleWritableObject = singleItemEncoder.getWritableMiddleObjectjFromArrayMiddleObject(pathStack.peek(), newAttachFile$2ArrayMiddleObject, i2);
+				BoardUploadFileInDTO.NewAttachFile newAttachFile$2 = newAttachFile$2List.get(i2);
+
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachFileName"
+					, kr.pe.sinnori.common.type.SingleItemType.US_PASCAL_STRING // itemType
+					, newAttachFile$2.getAttachFileName() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, newAttachFile$2MiddleWritableObject);
+
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "systemFileName"
+					, kr.pe.sinnori.common.type.SingleItemType.US_PASCAL_STRING // itemType
+					, newAttachFile$2.getSystemFileName() // itemValue
+					, -1 // itemSize
+					, null // nativeItemCharset
+					, newAttachFile$2MiddleWritableObject);
+
+				pathStack.pop();
 			}
 		}
+
+		pathStack.pop();
 	}
 }

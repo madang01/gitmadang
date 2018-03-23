@@ -25,8 +25,8 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.SymmetricException;
-import kr.pe.sinnori.server.sessionkey.ServerSessionkey;
-import kr.pe.sinnori.server.sessionkey.ServerSessionkeyManager;
+import kr.pe.sinnori.common.sessionkey.ServerSessionkeyIF;
+import kr.pe.sinnori.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
 
 /**
@@ -241,9 +241,10 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		log.info(String.format("parm parmSessionKeyBase64=[%s]", parmSessionKeyBase64));
 		log.info(String.format("parm parmIVBase64=[%s]", parmIVBase64));
 		
-		ServerSessionkeyManager sessionkeyServerManger = null;
+		ServerSessionkeyIF serverSessionkey  = null;
 		try {
-			sessionkeyServerManger = ServerSessionkeyManager.getInstance();
+			ServerSessionkeyManager serverSessionkeyManager = ServerSessionkeyManager.getInstance();
+			serverSessionkey = serverSessionkeyManager.getMainProjectServerSessionkey();			
 		} catch (SymmetricException e) {
 			log.warn("ServerSessionkeyManger instance init error, errormessage=[{}]", e.getMessage());
 			
@@ -251,9 +252,9 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 			String debugMessage = String.format("ServerSessionkeyManger instance init error, errormessage=[%s]", e.getMessage());
 			printMessagePage(req, res, errorMessage, debugMessage);
 			return;
-		}		
-		ServerSessionkey webServerSessionkey = sessionkeyServerManger.getServerSessionkey();		
-		String modulusHexString = webServerSessionkey.getModulusHexStrForWeb();
+		}
+				
+		String modulusHexString = serverSessionkey.getModulusHexStrForWeb();
 		
 		if (null == parmSessionKeyBase64 || null == parmIVBase64) {			
 			java.io.PrintWriter out = res.getWriter();
@@ -289,7 +290,7 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		req.setAttribute("parmSessionKeyBase64", parmSessionKeyBase64);
 		req.setAttribute("parmIVBase64", parmIVBase64);
 		req.setAttribute("modulusHexString", modulusHexString);
-		req.setAttribute("webServerSymmetricKey", webServerSessionkey.getNewInstanceOfServerSymmetricKey(sessionkeyBytes, ivBytes));
+		req.setAttribute("webServerSymmetricKey", serverSessionkey.getNewInstanceOfServerSymmetricKey(sessionkeyBytes, ivBytes));
 		performTask(req,res);
 	}
 }

@@ -17,16 +17,8 @@
 <messageID>LoginWithSessionKey</messageID>
 <direction>FROM_CLIENT_TO_SERVER</direction>
 <desc>로그인 입력 메시지</desc>
-<singleitem name="idCipherBase64" type="si pascal string">
-	<desc>아이디를 암호한후 Base64로 인코딩한 값</desc>
-</singleitem>
-<singleitem name="pwdCipherBase64" type="si pascal string">
-	<desc>비밀번호를 암호한후 Base64로 인코딩한 값</desc>
-</singleitem>
-<singleitem name="sessionKeyBase64" type="si pascal string">
-	<desc>Base64로 인코딩된 session key</desc>
-</singleitem>
-<singleitem name="ivBase64" type="si pascal string">
-	<desc>Base64로 인코딩된 iv</desc>
-</singleitem>
+<singleitem name="idCipherBase64" type="si pascal string" />
+<singleitem name="pwdCipherBase64" type="si pascal string" />
+<singleitem name="sessionKeyBase64" type="si pascal string" />
+<singleitem name="ivBase64" type="si pascal string" />
 </sinnori_message>

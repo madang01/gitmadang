@@ -16,8 +16,6 @@
  */
 package kr.pe.sinnori.impl.message.BoardDownloadFileInDTO;
 
-import java.nio.charset.Charset;
-import java.util.LinkedList;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
@@ -29,47 +27,31 @@ import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
  */
 public final class BoardDownloadFileInDTOEncoder extends AbstractMessageEncoder {
 	@Override
-	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj)
-			throws Exception {
-		if (!(messageObj instanceof BoardDownloadFileInDTO)) {
-			String errorMessage = String.format("메시지 객체 타입[%s]이 BoardDownloadFileInDTO 이(가) 아닙니다.", messageObj.getClass().getCanonicalName());
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		BoardDownloadFileInDTO boardDownloadFileInDTO = (BoardDownloadFileInDTO) messageObj;
-		encodeBody(boardDownloadFileInDTO, singleItemEncoder, charsetOfProject, middleWriteObj);
+	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Object writableMiddleObject) throws Exception {
+		BoardDownloadFileInDTO boardDownloadFileInDTO = (BoardDownloadFileInDTO)messageObj;
+		encodeBody(boardDownloadFileInDTO, singleItemEncoder, writableMiddleObject);
 	}
 
-	/**
-	 * <pre>
-	 * BoardDownloadFileInDTO 입력 메시지의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장한다.
-	 * </pre>
-	 * @param boardDownloadFileInDTO BoardDownloadFileInDTO 입력 메시지
-	 * @param singleItemEncoder 단일항목 인코더
-	 * @param charsetOfProject 프로젝트 문자셋
-	 * @param middleWriteObj 중간 다리 역활 쓰기 객체
-	 * @throws Exception "입력/출력 메시지"의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장할때 에러 발생시 던지는 예외
-	 */
-	private void encodeBody(BoardDownloadFileInDTO boardDownloadFileInDTO, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj) throws Exception {
-		String boardDownloadFileInDTOSingleItemPath = "BoardDownloadFileInDTO";
-		LinkedList<String> singleItemPathStatck = new LinkedList<String>();
-		singleItemPathStatck.push(boardDownloadFileInDTOSingleItemPath);
 
-		singleItemEncoder.putValueToMiddleWriteObj(boardDownloadFileInDTOSingleItemPath, "attachId"
-					, 5 // itemTypeID
-					, "unsigned integer" // itemTypeName
-					, boardDownloadFileInDTO.getAttachId() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(boardDownloadFileInDTOSingleItemPath, "attachSeq"
-					, 1 // itemTypeID
-					, "unsigned byte" // itemTypeName
-					, boardDownloadFileInDTO.getAttachSeq() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
+	private void encodeBody(BoardDownloadFileInDTO boardDownloadFileInDTO, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject) throws Exception {
+		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
+		pathStack.push("BoardDownloadFileInDTO");
+
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachId"
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
+			, boardDownloadFileInDTO.getAttachId() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachSeq"
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+			, boardDownloadFileInDTO.getAttachSeq() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		pathStack.pop();
 	}
 }

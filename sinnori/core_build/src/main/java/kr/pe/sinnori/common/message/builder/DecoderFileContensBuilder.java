@@ -176,7 +176,6 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 		StringBuilder stringBuilder = new StringBuilder();
 		
 		/** 배열 크기 변수 선언및 정의 */
-		// int memberListSize = allItemTypeReq.getCnt();
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);		
 		stringBuilder.append(buildStringOfArraySizeVarDeclarationPart(depth, varvarNameOfSetOwner, arrayInfo));
 
@@ -347,7 +346,6 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 0));
 		stringBuilder.append("pathStack.pop();");
 		
-		/** allItemTypeReq.setVip(vip$1);  */
 		stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 		stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 0));
 		stringBuilder.append(varNameOfSetOwner);
@@ -479,7 +477,6 @@ public class DecoderFileContensBuilder extends AbstractSourceFileBuildre {
 			/** java.util.Stack is thread-safe but LinkedList is not thread-safe */
 			stringBuilder.append("java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();");
 
-			// pathStack.push("AllItemTypeReq");
 			stringBuilder.append(CommonStaticFinalVars.NEWLINE);
 			stringBuilder.append(CommonStaticUtil.getPrefixWithTabCharacters(depth, 2));
 			stringBuilder.append("pathStack.push(");

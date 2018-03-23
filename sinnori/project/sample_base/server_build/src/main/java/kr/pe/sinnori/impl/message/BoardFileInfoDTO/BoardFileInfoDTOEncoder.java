@@ -16,8 +16,6 @@
  */
 package kr.pe.sinnori.impl.message.BoardFileInfoDTO;
 
-import java.nio.charset.Charset;
-import java.util.LinkedList;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
@@ -29,71 +27,52 @@ import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
  */
 public final class BoardFileInfoDTOEncoder extends AbstractMessageEncoder {
 	@Override
-	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj)
-			throws Exception {
-		if (!(messageObj instanceof BoardFileInfoDTO)) {
-			String errorMessage = String.format("메시지 객체 타입[%s]이 BoardFileInfoDTO 이(가) 아닙니다.", messageObj.getClass().getCanonicalName());
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		BoardFileInfoDTO boardFileInfoDTO = (BoardFileInfoDTO) messageObj;
-		encodeBody(boardFileInfoDTO, singleItemEncoder, charsetOfProject, middleWriteObj);
+	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Object writableMiddleObject) throws Exception {
+		BoardFileInfoDTO boardFileInfoDTO = (BoardFileInfoDTO)messageObj;
+		encodeBody(boardFileInfoDTO, singleItemEncoder, writableMiddleObject);
 	}
 
-	/**
-	 * <pre>
-	 * BoardFileInfoDTO 입력 메시지의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장한다.
-	 * </pre>
-	 * @param boardFileInfoDTO BoardFileInfoDTO 입력 메시지
-	 * @param singleItemEncoder 단일항목 인코더
-	 * @param charsetOfProject 프로젝트 문자셋
-	 * @param middleWriteObj 중간 다리 역활 쓰기 객체
-	 * @throws Exception "입력/출력 메시지"의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장할때 에러 발생시 던지는 예외
-	 */
-	private void encodeBody(BoardFileInfoDTO boardFileInfoDTO, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj) throws Exception {
-		String boardFileInfoDTOSingleItemPath = "BoardFileInfoDTO";
-		LinkedList<String> singleItemPathStatck = new LinkedList<String>();
-		singleItemPathStatck.push(boardFileInfoDTOSingleItemPath);
 
-		singleItemEncoder.putValueToMiddleWriteObj(boardFileInfoDTOSingleItemPath, "attachId"
-					, 5 // itemTypeID
-					, "unsigned integer" // itemTypeName
-					, boardFileInfoDTO.getAttachId() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(boardFileInfoDTOSingleItemPath, "ownerId"
-					, 7 // itemTypeID
-					, "ub pascal string" // itemTypeName
-					, boardFileInfoDTO.getOwnerId() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(boardFileInfoDTOSingleItemPath, "ip"
-					, 7 // itemTypeID
-					, "ub pascal string" // itemTypeName
-					, boardFileInfoDTO.getIp() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(boardFileInfoDTOSingleItemPath, "registerDate"
-					, 16 // itemTypeID
-					, "java sql timestamp" // itemTypeName
-					, boardFileInfoDTO.getRegisterDate() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(boardFileInfoDTOSingleItemPath, "modifiedDate"
-					, 16 // itemTypeID
-					, "java sql timestamp" // itemTypeName
-					, boardFileInfoDTO.getModifiedDate() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
+	private void encodeBody(BoardFileInfoDTO boardFileInfoDTO, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject) throws Exception {
+		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
+		pathStack.push("BoardFileInfoDTO");
+
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachId"
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
+			, boardFileInfoDTO.getAttachId() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "ownerId"
+			, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, boardFileInfoDTO.getOwnerId() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "ip"
+			, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, boardFileInfoDTO.getIp() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "registerDate"
+			, kr.pe.sinnori.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
+			, boardFileInfoDTO.getRegisterDate() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "modifiedDate"
+			, kr.pe.sinnori.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
+			, boardFileInfoDTO.getModifiedDate() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		pathStack.pop();
 	}
 }

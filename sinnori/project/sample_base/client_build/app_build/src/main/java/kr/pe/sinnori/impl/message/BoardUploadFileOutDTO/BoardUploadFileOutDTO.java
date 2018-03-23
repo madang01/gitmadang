@@ -17,6 +17,7 @@
 package kr.pe.sinnori.impl.message.BoardUploadFileOutDTO;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
+
 /**
  * BoardUploadFileOutDTO 메시지
  * @author Won Jonghoon
@@ -26,9 +27,10 @@ public class BoardUploadFileOutDTO extends AbstractMessage {
 	private long attachId;
 	private String ownerId;
 	private String ip;
-	private java.sql.Timestamp registerDate;
-	private java.sql.Timestamp modifiedDate;
+	private boolean registerDate;
+	private boolean modifiedDate;
 	private int attachFileCnt;
+
 	public static class AttachFile {
 		private short attachSeq;
 		private String attachFileName;
@@ -69,7 +71,8 @@ public class BoardUploadFileOutDTO extends AbstractMessage {
 			builder.append("]");
 			return builder.toString();
 		}
-	};
+	}
+
 	private java.util.List<AttachFile> attachFileList;
 
 	public long getAttachId() {
@@ -93,18 +96,18 @@ public class BoardUploadFileOutDTO extends AbstractMessage {
 	public void setIp(String ip) {
 		this.ip = ip;
 	}
-	public java.sql.Timestamp getRegisterDate() {
+	public boolean getRegisterDate() {
 		return registerDate;
 	}
 
-	public void setRegisterDate(java.sql.Timestamp registerDate) {
+	public void setRegisterDate(boolean registerDate) {
 		this.registerDate = registerDate;
 	}
-	public java.sql.Timestamp getModifiedDate() {
+	public boolean getModifiedDate() {
 		return modifiedDate;
 	}
 
-	public void setModifiedDate(java.sql.Timestamp modifiedDate) {
+	public void setModifiedDate(boolean modifiedDate) {
 		this.modifiedDate = modifiedDate;
 	}
 	public int getAttachFileCnt() {
@@ -114,7 +117,6 @@ public class BoardUploadFileOutDTO extends AbstractMessage {
 	public void setAttachFileCnt(int attachFileCnt) {
 		this.attachFileCnt = attachFileCnt;
 	}
-
 	public java.util.List<AttachFile> getAttachFileList() {
 		return attachFileList;
 	}
@@ -126,7 +128,7 @@ public class BoardUploadFileOutDTO extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("class BoardUploadFileOutDTO[");
+		builder.append("boardUploadFileOutDTO[");
 		builder.append("attachId=");
 		builder.append(attachId);
 		builder.append(", ownerId=");
@@ -139,6 +141,7 @@ public class BoardUploadFileOutDTO extends AbstractMessage {
 		builder.append(modifiedDate);
 		builder.append(", attachFileCnt=");
 		builder.append(attachFileCnt);
+
 		builder.append(", attachFileList=");
 		if (null == attachFileList) {
 			builder.append("null");
@@ -162,9 +165,6 @@ public class BoardUploadFileOutDTO extends AbstractMessage {
 				builder.append("]");
 			}
 		}
-
-		builder.append(", messageHeaderInfo=");
-		builder.append(messageHeaderInfo.toString());
 		builder.append("]");
 		return builder.toString();
 	}

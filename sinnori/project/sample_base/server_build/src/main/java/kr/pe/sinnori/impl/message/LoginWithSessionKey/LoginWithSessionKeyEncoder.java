@@ -16,8 +16,6 @@
  */
 package kr.pe.sinnori.impl.message.LoginWithSessionKey;
 
-import java.nio.charset.Charset;
-import java.util.LinkedList;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
@@ -29,63 +27,45 @@ import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
  */
 public final class LoginWithSessionKeyEncoder extends AbstractMessageEncoder {
 	@Override
-	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj)
-			throws Exception {
-		if (!(messageObj instanceof LoginWithSessionKey)) {
-			String errorMessage = String.format("메시지 객체 타입[%s]이 LoginWithSessionKey 이(가) 아닙니다.", messageObj.getClass().getCanonicalName());
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		LoginWithSessionKey loginWithSessionKey = (LoginWithSessionKey) messageObj;
-		encodeBody(loginWithSessionKey, singleItemEncoder, charsetOfProject, middleWriteObj);
+	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Object writableMiddleObject) throws Exception {
+		LoginWithSessionKey loginWithSessionKey = (LoginWithSessionKey)messageObj;
+		encodeBody(loginWithSessionKey, singleItemEncoder, writableMiddleObject);
 	}
 
-	/**
-	 * <pre>
-	 * LoginWithSessionKey 입력 메시지의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장한다.
-	 * </pre>
-	 * @param loginWithSessionKey LoginWithSessionKey 입력 메시지
-	 * @param singleItemEncoder 단일항목 인코더
-	 * @param charsetOfProject 프로젝트 문자셋
-	 * @param middleWriteObj 중간 다리 역활 쓰기 객체
-	 * @throws Exception "입력/출력 메시지"의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장할때 에러 발생시 던지는 예외
-	 */
-	private void encodeBody(LoginWithSessionKey loginWithSessionKey, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj) throws Exception {
-		String loginWithSessionKeySingleItemPath = "LoginWithSessionKey";
-		LinkedList<String> singleItemPathStatck = new LinkedList<String>();
-		singleItemPathStatck.push(loginWithSessionKeySingleItemPath);
 
-		singleItemEncoder.putValueToMiddleWriteObj(loginWithSessionKeySingleItemPath, "idCipherBase64"
-					, 9 // itemTypeID
-					, "si pascal string" // itemTypeName
-					, loginWithSessionKey.getIdCipherBase64() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(loginWithSessionKeySingleItemPath, "pwdCipherBase64"
-					, 9 // itemTypeID
-					, "si pascal string" // itemTypeName
-					, loginWithSessionKey.getPwdCipherBase64() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(loginWithSessionKeySingleItemPath, "sessionKeyBase64"
-					, 9 // itemTypeID
-					, "si pascal string" // itemTypeName
-					, loginWithSessionKey.getSessionKeyBase64() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(loginWithSessionKeySingleItemPath, "ivBase64"
-					, 9 // itemTypeID
-					, "si pascal string" // itemTypeName
-					, loginWithSessionKey.getIvBase64() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
+	private void encodeBody(LoginWithSessionKey loginWithSessionKey, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject) throws Exception {
+		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
+		pathStack.push("LoginWithSessionKey");
+
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "idCipherBase64"
+			, kr.pe.sinnori.common.type.SingleItemType.SI_PASCAL_STRING // itemType
+			, loginWithSessionKey.getIdCipherBase64() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "pwdCipherBase64"
+			, kr.pe.sinnori.common.type.SingleItemType.SI_PASCAL_STRING // itemType
+			, loginWithSessionKey.getPwdCipherBase64() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "sessionKeyBase64"
+			, kr.pe.sinnori.common.type.SingleItemType.SI_PASCAL_STRING // itemType
+			, loginWithSessionKey.getSessionKeyBase64() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "ivBase64"
+			, kr.pe.sinnori.common.type.SingleItemType.SI_PASCAL_STRING // itemType
+			, loginWithSessionKey.getIvBase64() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		pathStack.pop();
 	}
 }

@@ -4,10 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.exception.NotFoundProjectException;
-import kr.pe.sinnori.common.serverlib.AbstractDBCommand;
-import kr.pe.sinnori.common.serverlib.SampleBaseDB;
 import kr.pe.sinnori.server.AnyProjectServer;
-import kr.pe.sinnori.server.ProjectServerManager;
+import kr.pe.sinnori.server.MainServerManager;
+import kr.pe.sinnori.server.lib.AbstractDBCommand;
+import kr.pe.sinnori.server.lib.SampleBaseDB;
 
 public class SinnoriServerMain {	
 	
@@ -28,8 +28,8 @@ public class SinnoriServerMain {
 		sinnoriServerMain.InitSimplebaseServer();
 		
 		try {
-			AnyProjectServer mainProjectServer = ProjectServerManager
-					.getInstance().getRunningMainProjectServer();
+			AnyProjectServer mainProjectServer = MainServerManager
+					.getInstance().getMainProjectServer();
 			mainProjectServer.startServer();
 		} catch (Throwable e) {
 			log.warn("unknown error", e);

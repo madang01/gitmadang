@@ -17,6 +17,7 @@
 package kr.pe.sinnori.impl.message.BoardUploadFileInDTO;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
+
 /**
  * BoardUploadFileInDTO 메시지
  * @author Won Jonghoon
@@ -27,6 +28,7 @@ public class BoardUploadFileInDTO extends AbstractMessage {
 	private String ip;
 	private long attachId;
 	private int selectedOldAttachFileCnt;
+
 	public static class SelectedOldAttachFile {
 		private short attachSeq;
 
@@ -47,9 +49,11 @@ public class BoardUploadFileInDTO extends AbstractMessage {
 			builder.append("]");
 			return builder.toString();
 		}
-	};
+	}
+
 	private java.util.List<SelectedOldAttachFile> selectedOldAttachFileList;
 	private int newAttachFileCnt;
+
 	public static class NewAttachFile {
 		private String attachFileName;
 		private String systemFileName;
@@ -80,7 +84,8 @@ public class BoardUploadFileInDTO extends AbstractMessage {
 			builder.append("]");
 			return builder.toString();
 		}
-	};
+	}
+
 	private java.util.List<NewAttachFile> newAttachFileList;
 
 	public String getUserId() {
@@ -111,7 +116,6 @@ public class BoardUploadFileInDTO extends AbstractMessage {
 	public void setSelectedOldAttachFileCnt(int selectedOldAttachFileCnt) {
 		this.selectedOldAttachFileCnt = selectedOldAttachFileCnt;
 	}
-
 	public java.util.List<SelectedOldAttachFile> getSelectedOldAttachFileList() {
 		return selectedOldAttachFileList;
 	}
@@ -126,7 +130,6 @@ public class BoardUploadFileInDTO extends AbstractMessage {
 	public void setNewAttachFileCnt(int newAttachFileCnt) {
 		this.newAttachFileCnt = newAttachFileCnt;
 	}
-
 	public java.util.List<NewAttachFile> getNewAttachFileList() {
 		return newAttachFileList;
 	}
@@ -138,7 +141,7 @@ public class BoardUploadFileInDTO extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("class BoardUploadFileInDTO[");
+		builder.append("boardUploadFileInDTO[");
 		builder.append("userId=");
 		builder.append(userId);
 		builder.append(", ip=");
@@ -147,6 +150,7 @@ public class BoardUploadFileInDTO extends AbstractMessage {
 		builder.append(attachId);
 		builder.append(", selectedOldAttachFileCnt=");
 		builder.append(selectedOldAttachFileCnt);
+
 		builder.append(", selectedOldAttachFileList=");
 		if (null == selectedOldAttachFileList) {
 			builder.append("null");
@@ -170,9 +174,9 @@ public class BoardUploadFileInDTO extends AbstractMessage {
 				builder.append("]");
 			}
 		}
-
 		builder.append(", newAttachFileCnt=");
 		builder.append(newAttachFileCnt);
+
 		builder.append(", newAttachFileList=");
 		if (null == newAttachFileList) {
 			builder.append("null");
@@ -196,9 +200,6 @@ public class BoardUploadFileInDTO extends AbstractMessage {
 				builder.append("]");
 			}
 		}
-
-		builder.append(", messageHeaderInfo=");
-		builder.append(messageHeaderInfo.toString());
 		builder.append("]");
 		return builder.toString();
 	}

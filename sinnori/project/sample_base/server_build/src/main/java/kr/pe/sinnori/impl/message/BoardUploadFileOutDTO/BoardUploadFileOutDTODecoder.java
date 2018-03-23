@@ -16,12 +16,10 @@
  */
 package kr.pe.sinnori.impl.message.BoardUploadFileOutDTO;
 
-import java.nio.charset.Charset;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageDecoder;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
-
 /**
  * BoardUploadFileOutDTO 메시지 디코더
  * @author Won Jonghoon
@@ -29,122 +27,100 @@ import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
  */
 public final class BoardUploadFileOutDTODecoder extends AbstractMessageDecoder {
 
-	/**
-	 * <pre>
-	 *  "단일항목 디코더"를 이용하여 "중간 다리 역활 읽기 객체" 에서 추출된 BoardUploadFileOutDTO 메시지를 반환한다.
-	 * </pre>
-	 * @param singleItemDecoder 단일항목 디코더
-	 * @param charsetOfProject 프로젝트 문자셋
-	 * @param middleReadObj 중간 다리 역활 읽기 객체
-	 * @return "단일항목 디코더"를 이용하여 "중간 다리 역활 읽기 객체" 에서 추출된 BoardUploadFileOutDTO 메시지
-	 * @throws OutOfMemoryError 메모리 확보 실패시 던지는 예외
-	 * @throws BodyFormatException 바디 디코딩 실패시 던지는 예외
-	 */
 	@Override
-	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Charset charsetOfProject, Object  middleReadObj) throws OutOfMemoryError, BodyFormatException {
+	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object  middleReadableObject) throws BodyFormatException {
 		BoardUploadFileOutDTO boardUploadFileOutDTO = new BoardUploadFileOutDTO();
-		String sigleItemPath0 = "BoardUploadFileOutDTO";
+		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
+		pathStack.push("BoardUploadFileOutDTO");
 
 		boardUploadFileOutDTO.setAttachId((Long)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "attachId" // itemName
-		, 5 // itemTypeID
-		, "unsigned integer" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "attachId" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
 
 		boardUploadFileOutDTO.setOwnerId((String)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "ownerId" // itemName
-		, 7 // itemTypeID
-		, "ub pascal string" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "ownerId" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
 
 		boardUploadFileOutDTO.setIp((String)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "ip" // itemName
-		, 7 // itemTypeID
-		, "ub pascal string" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "ip" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
 
-		boardUploadFileOutDTO.setRegisterDate((java.sql.Timestamp)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "registerDate" // itemName
-		, 16 // itemTypeID
-		, "java sql timestamp" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		boardUploadFileOutDTO.setRegisterDate((java.lang.Boolean)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "registerDate" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
 
-		boardUploadFileOutDTO.setModifiedDate((java.sql.Timestamp)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "modifiedDate" // itemName
-		, 16 // itemTypeID
-		, "java sql timestamp" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
+		boardUploadFileOutDTO.setModifiedDate((java.lang.Boolean)
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "modifiedDate" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleReadableObject));
 
 		boardUploadFileOutDTO.setAttachFileCnt((Integer)
-		singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath0
-		, "attachFileCnt" // itemName
-		, 4 // itemTypeID
-		, "integer" // itemTypeName
-		, -1 // itemSize
-		, null // itemCharset,
-		, charsetOfProject
-		, middleReadObj));
-
-		int attachFileListSize = boardUploadFileOutDTO.getAttachFileCnt();
-		Object attachFileMiddleReadArray = singleItemDecoder.getArrayObjFromMiddleReadObj(sigleItemPath0, "attachFile", attachFileListSize, middleReadObj);
-		java.util.List<BoardUploadFileOutDTO.AttachFile> attachFileList = new java.util.ArrayList<BoardUploadFileOutDTO.AttachFile>();
-		for (int i=0; i < attachFileListSize; i++) {
-			String sigleItemPath1 = new StringBuilder(sigleItemPath0).append(".").append("AttachFile[").append(i).append("]").toString();
-			Object attachFileMiddleReadObj = singleItemDecoder.getMiddleReadObjFromArrayObj(sigleItemPath1, attachFileMiddleReadArray, i);
-			BoardUploadFileOutDTO.AttachFile attachFile = new BoardUploadFileOutDTO.AttachFile();
-			attachFileList.add(attachFile);
-
-			attachFile.setAttachSeq((Short)
-			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
-			, "attachSeq" // itemName
-			, 1 // itemTypeID
-			, "unsigned byte" // itemTypeName
+		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+			, "attachFileCnt" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.INTEGER // itemType
 			, -1 // itemSize
-			, null // itemCharset,
-			, charsetOfProject
-			, attachFileMiddleReadObj));
+			, null // nativeItemCharset
+			, middleReadableObject));
 
-			attachFile.setAttachFileName((String)
-			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
-			, "attachFileName" // itemName
-			, 8 // itemTypeID
-			, "us pascal string" // itemTypeName
-			, -1 // itemSize
-			, null // itemCharset,
-			, charsetOfProject
-			, attachFileMiddleReadObj));
+		int attachFile$2ListSize = boardUploadFileOutDTO.getAttachFileCnt();
+		Object attachFile$2ArrayMiddleObject = singleItemDecoder.getArrayMiddleObjectFromReadableMiddleObject(pathStack.peek(), "attachFile", attachFile$2ListSize, middleReadableObject);
+		java.util.List<BoardUploadFileOutDTO.AttachFile> attachFile$2List = new java.util.ArrayList<BoardUploadFileOutDTO.AttachFile>();
+		for (int i2=0; i2 < attachFile$2ListSize; i2++) {
+			pathStack.push(new StringBuilder(pathStack.peek()).append(".").append("AttachFile").append("[").append(i2).append("]").toString());
+			Object attachFile$2MiddleWritableObject= singleItemDecoder.getReadableMiddleObjFromArrayMiddleObject(pathStack.peek(), attachFile$2ArrayMiddleObject, i2);
+			BoardUploadFileOutDTO.AttachFile attachFile$2 = new BoardUploadFileOutDTO.AttachFile();
+			attachFile$2List.add(attachFile$2);
 
-			attachFile.setSystemFileName((String)
-			singleItemDecoder.getValueFromMiddleReadObj(sigleItemPath1
-			, "systemFileName" // itemName
-			, 8 // itemTypeID
-			, "us pascal string" // itemTypeName
-			, -1 // itemSize
-			, null // itemCharset,
-			, charsetOfProject
-			, attachFileMiddleReadObj));
+			attachFile$2.setAttachSeq((Short)
+			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+				, "attachSeq" // itemName
+				, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+				, -1 // itemSize
+				, null // nativeItemCharset
+				, attachFile$2MiddleWritableObject));
+
+			attachFile$2.setAttachFileName((String)
+			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+				, "attachFileName" // itemName
+				, kr.pe.sinnori.common.type.SingleItemType.US_PASCAL_STRING // itemType
+				, -1 // itemSize
+				, null // nativeItemCharset
+				, attachFile$2MiddleWritableObject));
+
+			attachFile$2.setSystemFileName((String)
+			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
+				, "systemFileName" // itemName
+				, kr.pe.sinnori.common.type.SingleItemType.US_PASCAL_STRING // itemType
+				, -1 // itemSize
+				, null // nativeItemCharset
+				, attachFile$2MiddleWritableObject));
+
+			pathStack.pop();
 		}
-		boardUploadFileOutDTO.setAttachFileList(attachFileList);
+
+		boardUploadFileOutDTO.setAttachFileList(attachFile$2List);
+
+		pathStack.pop();
+
 		return boardUploadFileOutDTO;
 	}
 }

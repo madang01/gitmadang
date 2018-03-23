@@ -28,7 +28,7 @@ public class THBSingleItemDecoderTest extends AbstractJunitTest {
 		
 		SingleItemDecoderIF thbSingleItemDecoder = new THBSingleItemDecoder(thbSingleItemDecoderMatcher);
 		
-		String path = "AllItemType";
+		String path = "Empty";
 		String itemName = "strVar1";
 		SingleItemType singleItemType = SingleItemType.UB_PASCAL_STRING;
 		@SuppressWarnings("unused")
@@ -67,7 +67,7 @@ public class THBSingleItemDecoderTest extends AbstractJunitTest {
 		
 		SingleItemDecoderIF thbSingleItemDecoder = new THBSingleItemDecoder(thbSingleItemDecoderMatcher);
 		
-		String path = "AllItemType";
+		String path = "Empty";
 		String itemName = "strVar1";
 		SingleItemType singleItemType = SingleItemType.FIXED_LENGTH_STRING;
 		@SuppressWarnings("unused")
@@ -133,7 +133,7 @@ public class THBSingleItemDecoderTest extends AbstractJunitTest {
 		
 		SingleItemDecoderIF thbSingleItemDecoder = new THBSingleItemDecoder(thbSingleItemDecoderMatcher);
 		
-		String path = "AllItemType";
+		String path = "Empty";
 		String itemName = "strVar1";
 		SingleItemType singleItemType = SingleItemType.FIXED_LENGTH_STRING;
 		@SuppressWarnings("unused")
@@ -200,7 +200,7 @@ public class THBSingleItemDecoderTest extends AbstractJunitTest {
 		
 		SingleItemDecoderIF thbSingleItemDecoder = new THBSingleItemDecoder(thbSingleItemDecoderMatcher);
 		
-		String path = "AllItemType";
+		String path = "Empty";
 		String itemName = "strVar1";
 		SingleItemType singleItemType = SingleItemType.FIXED_LENGTH_STRING;
 		@SuppressWarnings("unused")

@@ -16,8 +16,6 @@
  */
 package kr.pe.sinnori.impl.message.BigInt;
 
-import java.nio.charset.Charset;
-import java.util.LinkedList;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
@@ -29,55 +27,38 @@ import kr.pe.sinnori.common.protocol.SingleItemEncoderIF;
  */
 public final class BigIntEncoder extends AbstractMessageEncoder {
 	@Override
-	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj)
-			throws Exception {
-		if (!(messageObj instanceof BigInt)) {
-			String errorMessage = String.format("메시지 객체 타입[%s]이 BigInt 이(가) 아닙니다.", messageObj.getClass().getCanonicalName());
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		BigInt bigInt = (BigInt) messageObj;
-		encodeBody(bigInt, singleItemEncoder, charsetOfProject, middleWriteObj);
+	public void encode(AbstractMessage messageObj, SingleItemEncoderIF singleItemEncoder, Object writableMiddleObject) throws Exception {
+		BigInt bigInt = (BigInt)messageObj;
+		encodeBody(bigInt, singleItemEncoder, writableMiddleObject);
 	}
 
-	/**
-	 * <pre>
-	 * BigInt 입력 메시지의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장한다.
-	 * </pre>
-	 * @param bigInt BigInt 입력 메시지
-	 * @param singleItemEncoder 단일항목 인코더
-	 * @param charsetOfProject 프로젝트 문자셋
-	 * @param middleWriteObj 중간 다리 역활 쓰기 객체
-	 * @throws Exception "입력/출력 메시지"의 내용을 "단일항목 인코더"를 이용하여 "중간 다리 역활 쓰기 객체"에 저장할때 에러 발생시 던지는 예외
-	 */
-	private void encodeBody(BigInt bigInt, SingleItemEncoderIF singleItemEncoder, Charset charsetOfProject, Object middleWriteObj) throws Exception {
-		String bigIntSingleItemPath = "BigInt";
-		LinkedList<String> singleItemPathStatck = new LinkedList<String>();
-		singleItemPathStatck.push(bigIntSingleItemPath);
 
-		singleItemEncoder.putValueToMiddleWriteObj(bigIntSingleItemPath, "filler1"
-					, 13 // itemTypeID
-					, "si variable length byte[]" // itemTypeName
-					, bigInt.getFiller1() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(bigIntSingleItemPath, "value1"
-					, 4 // itemTypeID
-					, "integer" // itemTypeName
-					, bigInt.getValue1() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
-		singleItemEncoder.putValueToMiddleWriteObj(bigIntSingleItemPath, "value2"
-					, 4 // itemTypeID
-					, "integer" // itemTypeName
-					, bigInt.getValue2() // itemValue
-					, -1 // itemSize
-					, null // itemCharset,
-					, charsetOfProject
-					, middleWriteObj);
+	private void encodeBody(BigInt bigInt, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject) throws Exception {
+		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
+		pathStack.push("BigInt");
+
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "filler1"
+			, kr.pe.sinnori.common.type.SingleItemType.SI_VARIABLE_LENGTH_BYTES // itemType
+			, bigInt.getFiller1() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "value1"
+			, kr.pe.sinnori.common.type.SingleItemType.INTEGER // itemType
+			, bigInt.getValue1() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "value2"
+			, kr.pe.sinnori.common.type.SingleItemType.INTEGER // itemType
+			, bigInt.getValue2() // itemValue
+			, -1 // itemSize
+			, null // nativeItemCharset
+			, middleWritableObject);
+
+		pathStack.pop();
 	}
 }

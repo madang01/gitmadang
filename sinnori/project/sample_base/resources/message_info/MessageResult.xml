@@ -15,13 +15,7 @@
 <messageID>MessageResult</messageID>
 <direction>FROM_SERVER_TO_CLINET</direction>
 <desc>수행 결과를 알려주는 메시지</desc>
-<singleitem name="taskMessageID" type="ub pascal string">
-	<desc>결과를 부른 입력 메세지 식별자</desc>
-</singleitem>
-<singleitem name="isSuccess" type="boolean">
-	<desc>메시지 1:1 대응 비지니스 로직 수행 후 성공여부</desc>
-</singleitem>
-<singleitem name="resultMessage" type="ub pascal string">
-	<desc>결과 메세지</desc>
-</singleitem>
+<singleitem name="taskMessageID" type="ub pascal string"/>
+<singleitem name="isSuccess" type="boolean"/>
+<singleitem name="resultMessage" type="ub pascal string"/>
 </sinnori_message>
