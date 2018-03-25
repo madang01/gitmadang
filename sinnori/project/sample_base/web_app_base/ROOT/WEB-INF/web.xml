@@ -84,12 +84,12 @@
 	</servlet-mapping>
 
 	<servlet>
-		<servlet-name>AllDataTypeTest</servlet-name>
-		<servlet-class>kr.pe.sinnori.servlet.AllDataTypeTestSvl</servlet-class>
+		<servlet-name>AllItemTypeTest</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.AllItemTypeTestSvl</servlet-class>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>AllDataTypeTest</servlet-name>
-		<url-pattern>/servlet/AllDataTypeTest</url-pattern>
+		<servlet-name>AllItemTypeTest</servlet-name>
+		<url-pattern>/servlet/AllItemTypeTest</url-pattern>
 	</servlet-mapping>
 
 	<servlet>
@@ -110,7 +110,7 @@
 		<url-pattern>/servlet/JDFLoginTest</url-pattern>
 	</servlet-mapping>
 
-	<!-- 濡쒓렇??-->
+	<!-- �?��??-->
 	<servlet>
 		<servlet-name>Login</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.LoginSvl</servlet-class>
@@ -120,7 +120,7 @@
 		<url-pattern>/servlet/Login</url-pattern>
 	</servlet-mapping>
 
-	<!-- 寃뚯떆??紐⑸줉 議고쉶 : ?뷀뤃???먯쑀 寃뚯떆??-->
+	<!-- �????목�? 조�? : ???????? �????-->
 	<servlet>
 		<servlet-name>BoardList</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.BoardListSvl</servlet-class>
@@ -130,7 +130,7 @@
 		<url-pattern>/servlet/BoardList</url-pattern>
 	</servlet-mapping>
 
-	<!-- 寃뚯떆??湲 異붿쿇 泥섎━ -->
+	<!-- �????글 �?? �?�� -->
 	<servlet>
 		<servlet-name>BoardVote</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.BoardVoteSvl</servlet-class>
@@ -140,7 +140,7 @@
 		<url-pattern>/servlet/BoardVote</url-pattern>
 	</servlet-mapping>
 
-	<!-- 寃뚯떆???곸꽭 議고쉶 -->
+	<!-- �??????? 조�? -->
 	<servlet>
 		<servlet-name>BoardDetail</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.BoardDetailSvl</servlet-class>
@@ -151,7 +151,7 @@
 	</servlet-mapping>
 
 
-	<!-- 寃뚯떆??理쒖긽??湲 ?깅줉 泥섎━ -->
+	<!-- �????�????글 ?��? �?�� -->
 	<servlet>
 		<servlet-name>BoardWrite</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.BoardWriteSvl</servlet-class>
@@ -161,7 +161,7 @@
 		<url-pattern>/servlet/BoardWrite</url-pattern>
 	</servlet-mapping>
 
-	<!-- 寃뚯떆???볤? ?깅줉 泥섎━ -->
+	<!-- �??????? ?��? �?�� -->
 	<servlet>
 		<servlet-name>BoardReply</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.BoardReplySvl</servlet-class>
@@ -171,7 +171,7 @@
 		<url-pattern>/servlet/BoardReply</url-pattern>
 	</servlet-mapping>
 
-	<!-- 寃뚯떆???섏젙 泥섎━ -->
+	<!-- �??????? �?�� -->
 	<servlet>
 		<servlet-name>BoardModify</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.BoardModifySvl</servlet-class>
@@ -181,7 +181,7 @@
 		<url-pattern>/servlet/BoardModify</url-pattern>
 	</servlet-mapping>
 
-	<!-- 寃뚯떆??泥⑤? ?뚯씪 泥섎━ -->
+	<!-- �????첨�? ??? �?�� -->
 	<servlet>
 		<servlet-name>BoardUpload</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.BoardUploadSvl</servlet-class>
@@ -191,7 +191,7 @@
 		<url-pattern>/servlet/BoardUpload</url-pattern>
 	</servlet-mapping>
 
-	<!-- 寃뚯떆??泥⑤? ?뚯씪 泥섎━ -->
+	<!-- �????첨�? ??? �?�� -->
 	<servlet>
 		<servlet-name>BoardDownload</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.BoardDownloadSvl</servlet-class>

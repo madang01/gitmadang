@@ -32,7 +32,9 @@ public class ConnectionPoolSupporter extends Thread implements ConnectionPoolSup
 					log.info("연결 폴 후원자 작업을 일찍 실행하는 사유[{}] 발생", reasonForWakingUp);
 				}
 				
+				log.debug("start the work adding the all missing connection");
 				connectionPool.addAllLostConnections();
+				log.debug("end the work adding the all missing connection");
 			}
 			log.warn("연결 폴 후원자::루프 종료");
 		} catch(InterruptedException e) {

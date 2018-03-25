@@ -215,6 +215,7 @@ public class SingleItemInfo extends AbstractItemInfo {
 			case JAVA_SQL_TIMESTAMP : {
 				makeSourceBuilderInformationOfJavaSqlTimestamp(
 						itemName, nativeItemDefaultValue, nativeItemSize, nativeItemCharset);
+				break;
 			}
 			
 			case BOOLEAN : {

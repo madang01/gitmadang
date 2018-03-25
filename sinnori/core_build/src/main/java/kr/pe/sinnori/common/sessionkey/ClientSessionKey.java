@@ -10,14 +10,14 @@ import kr.pe.sinnori.common.config.itemvalue.CommonPartConfiguration;
 import kr.pe.sinnori.common.exception.SymmetricException;
 
 public class ClientSessionKey implements ClientSessionKeyIF {
-	private ClientRSAIF clientRSAPublickey = null;
+	private ClientRSAIF clientRSA = null;
 	private ClientSymmetricKeyIF clientSymmetricKey = null;
 	
 	private byte[] sessionKeyBytes = null;
 	private byte[] ivBytes = null;
 	
 	public ClientSessionKey(ClientRSAIF clientRSA) throws SymmetricException {
-		this.clientRSAPublickey = clientRSA;
+		this.clientRSA = clientRSA;
 		
 		SinnoriConfiguration sinnoriRunningProjectConfiguration = 
 				SinnoriConfigurationManager.getInstance()
@@ -46,8 +46,9 @@ public class ClientSessionKey implements ClientSessionKeyIF {
 	}
 	
 	public byte[] getDupPublicKeyBytes() {
-		return clientRSAPublickey.getDupPublicKeyBytes();
+		return clientRSA.getDupPublicKeyBytes();
 	}
+	
 	
 	public byte[] getDupIVBytes() {
 		return Arrays.copyOf(ivBytes, ivBytes.length);

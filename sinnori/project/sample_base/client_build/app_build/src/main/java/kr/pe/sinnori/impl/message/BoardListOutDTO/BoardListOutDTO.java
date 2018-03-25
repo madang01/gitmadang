@@ -42,8 +42,8 @@ public class BoardListOutDTO extends AbstractMessage {
 		private int viewCount;
 		private int votes;
 		private String deleteFlag;
-		private boolean registerDate;
-		private boolean modifiedDate;
+		private java.sql.Timestamp registerDate;
+		private java.sql.Timestamp modifiedDate;
 		private String memberGubunName;
 
 		public long getBoardNo() {
@@ -123,18 +123,18 @@ public class BoardListOutDTO extends AbstractMessage {
 		public void setDeleteFlag(String deleteFlag) {
 			this.deleteFlag = deleteFlag;
 		}
-		public boolean getRegisterDate() {
+		public java.sql.Timestamp getRegisterDate() {
 			return registerDate;
 		}
 
-		public void setRegisterDate(boolean registerDate) {
+		public void setRegisterDate(java.sql.Timestamp registerDate) {
 			this.registerDate = registerDate;
 		}
-		public boolean getModifiedDate() {
+		public java.sql.Timestamp getModifiedDate() {
 			return modifiedDate;
 		}
 
-		public void setModifiedDate(boolean modifiedDate) {
+		public void setModifiedDate(java.sql.Timestamp modifiedDate) {
 			this.modifiedDate = modifiedDate;
 		}
 		public String getMemberGubunName() {

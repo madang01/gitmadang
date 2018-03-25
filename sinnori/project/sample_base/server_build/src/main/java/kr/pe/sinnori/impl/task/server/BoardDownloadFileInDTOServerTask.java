@@ -34,7 +34,8 @@ public class BoardDownloadFileInDTOServerTask extends AbstractServerTask {
 			sqlSessionFactory = SqlSessionFactoryManger.getInstance()
 					.getSqlSessionFactory("tw_sinnoridb");
 		}*/
-		SqlSessionFactory sqlSessionFactory = MybatisSqlSessionFactoryManger.getInstance().getSqlSessionFactory(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
+		SqlSessionFactory sqlSessionFactory = MybatisSqlSessionFactoryManger.getInstance()
+				.getSqlSessionFactory(this.getClass().getClassLoader(), ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
 
 		BoardDownloadFileOutDTO boardDownloadFileOutObj = null;
 

@@ -13,7 +13,14 @@ import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 
 public class HexUtilTest extends AbstractJunitTest {
 	
-	
+	@Test
+	public void test() {
+		String tmp1 = "allItemType[byteVar1=127, byteVar2=-128, byteVar3=96, unsignedByteVar1=0, unsignedByteVar2=255, unsignedByteVar3=101, shortVar1=32767, shortVar2=-32768, shortVar3=31, unsignedShortVar1=0, unsignedShortVar2=65535, unsignedShortVar3=32, intVar1=2147483647, intVar2=-2147483648, intVar3=1800946891, unsignedIntVar1=0, unsignedIntVar2=2147483647, unsignedIntVar3=2147484647, longVar1=9223372036854775807, longVar2=-9223372036854775808, longVar3=7305730154326879330, strVar1=testHH, strVar2=1234, strVar3=uiop, bytesVar1=778880817e7fff, bytesVar2=00000000000000, sqldate=2018-03-25, sqltimestamp=2018-03-25 09:44:28.211, cnt=2, memberList=[member[0]=Member[memberID=test01ID, memberName=test01Name, cnt=1, itemList=[item[0]=Item[itemID=1, itemName=최강의검, itemCnt=1, subItemList=[subItem[0]=SubItem[subItemID=sub01, subItemName=칼집, itemCnt=1]]]]], member[1]=Member[memberID=test01ID, memberName=test01Name, cnt=2, itemList=[item[0]=Item[itemID=2, itemName=살살검, itemCnt=5, subItemList=[subItem[0]=SubItem[subItemID=sub02, subItemName=신발, itemCnt=1], subItem[1]=SubItem[subItemID=sub03, subItemName=모자, itemCnt=2], subItem[2]=SubItem[subItemID=sub04, subItemName=장갑, itemCnt=1], subItem[3]=SubItem[subItemID=sub05, subItemName=배낭, itemCnt=1], subItem[4]=SubItem[subItemID=sub06, subItemName=배낭, itemCnt=1]]], item[1]=Item[itemID=3, itemName=안좋은검, itemCnt=0, subItemList=empty]]]], longVar4=0]";
+
+		String tmp2 = "allItemType[byteVar1=127, byteVar2=-128, byteVar3=96, unsignedByteVar1=0, unsignedByteVar2=255, unsignedByteVar3=101, shortVar1=32767, shortVar2=-32768, shortVar3=31, unsignedShortVar1=0, unsignedShortVar2=65535, unsignedShortVar3=32, intVar1=2147483647, intVar2=-2147483648, intVar3=1800946891, unsignedIntVar1=0, unsignedIntVar2=2147483647, unsignedIntVar3=2147484647, longVar1=9223372036854775807, longVar2=-9223372036854775808, longVar3=7305730154326879330, strVar1=testHH, strVar2=1234, strVar3=uiop, bytesVar1=778880817e7fff, bytesVar2=00000000000000, sqldate=2018-03-25, sqltimestamp=2018-03-25 09:44:28.211, cnt=2, memberList=[member[0]=Member[memberID=test01ID, memberName=test01Name, cnt=1, itemList=[item[0]=Item[itemID=1, itemName=최강의검, itemCnt=1, subItemList=[subItem[0]=SubItem[subItemID=sub01, subItemName=칼집, itemCnt=1]]]]], member[1]=Member[memberID=test01ID, memberName=test01Name, cnt=2, itemList=[item[0]=Item[itemID=2, itemName=살살검, itemCnt=5, subItemList=[subItem[0]=SubItem[subItemID=sub02, subItemName=신발, itemCnt=1], subItem[1]=SubItem[subItemID=sub03, subItemName=모자, itemCnt=2], subItem[2]=SubItem[subItemID=sub04, subItemName=장갑, itemCnt=1], subItem[3]=SubItem[subItemID=sub05, subItemName=배낭, itemCnt=1], subItem[4]=SubItem[subItemID=sub06, subItemName=배낭, itemCnt=1]]], item[1]=Item[itemID=3, itemName=안좋은검, itemCnt=0, subItemList=empty]]]], longVar4=0]";
+
+		assertEquals(tmp1, tmp2);
+	}
 
 	@Test
 	public void testGetByteArrayFromHexString() {

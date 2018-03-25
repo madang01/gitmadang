@@ -730,7 +730,7 @@ public class SinnoriItemIDInfoManger {
 					"입력 메시지 소켓 읽기 담당 쓰레드에서 블락된 읽기 이벤트 전용 selector 를 깨우는 주기. 단위 ms",
 					"10", isDefaultValueCheck,
 					new GeneralConverterReturningLongBetweenMinAndMax(
-							10L, (long) Integer.MAX_VALUE));
+							1L, (long) Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
 	
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.SERVER_POOL_ACCEPT_PROCESSOR_MAX_SIZE_ITEMID;

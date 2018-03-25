@@ -31,7 +31,7 @@ public class MemberRegisterWithSessionKeyServerTask extends AbstractServerTask {
 		MemberRegisterWithSessionKey inObj = (MemberRegisterWithSessionKey) inputMessage;
 
 		SqlSessionFactory sqlSessionFactory = MybatisSqlSessionFactoryManger.getInstance()
-				.getSqlSessionFactory(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
+				.getSqlSessionFactory(this.getClass().getClassLoader(), ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
 
 		String idCipherBase64 = inObj.getIdCipherBase64();
 		String sessionKeyBase64 = inObj.getSessionKeyBase64();

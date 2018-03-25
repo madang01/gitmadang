@@ -270,7 +270,7 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 		}
 
 		endTime = System.nanoTime();
-		log.debug("시간차[{}]", TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
+		log.debug("elapsed={}", TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
 
 		return outObj;
 	}
@@ -290,7 +290,7 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 		}
 
 		endTime = System.nanoTime();
-		log.debug("시간차[{}]", TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
+		log.debug("elapsed={}", TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
 	}
 
 	public AbstractConnection createConnection(String host, int port)

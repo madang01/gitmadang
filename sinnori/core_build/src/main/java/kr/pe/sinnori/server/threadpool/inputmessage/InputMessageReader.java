@@ -79,6 +79,8 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 
 	@Override
 	public void addNewSocket(SocketChannel newSC) throws InterruptedException {
+		// log.info("call newSC={}", newSC.hashCode());
+		
 		// clientResourceManager.addNewSocketChannel(newSocketChannelToRegisterWithReadOnlySelector);
 		// synchronized (monitor) {
 		notRegistedSocketChannelList.add(newSC);

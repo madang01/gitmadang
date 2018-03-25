@@ -51,7 +51,7 @@ public class AllItemType extends AbstractMessage {
 	private byte[] bytesVar1;
 	private byte[] bytesVar2;
 	private java.sql.Date sqldate;
-	private boolean sqltimestamp;
+	private java.sql.Timestamp sqltimestamp;
 	private int cnt;
 
 	public static class Member {
@@ -438,11 +438,11 @@ public class AllItemType extends AbstractMessage {
 	public void setSqldate(java.sql.Date sqldate) {
 		this.sqldate = sqldate;
 	}
-	public boolean getSqltimestamp() {
+	public java.sql.Timestamp getSqltimestamp() {
 		return sqltimestamp;
 	}
 
-	public void setSqltimestamp(boolean sqltimestamp) {
+	public void setSqltimestamp(java.sql.Timestamp sqltimestamp) {
 		this.sqltimestamp = sqltimestamp;
 	}
 	public int getCnt() {

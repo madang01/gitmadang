@@ -133,8 +133,6 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 	}
 
 	public void addAllLostConnections() throws InterruptedException {
-		log.debug("{} missing connection refill work start", projectName);
-
 		synchronized (monitor) {
 			while (whetherConnectionIsMissing()) {
 				try {
@@ -155,7 +153,6 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 				}
 			}
 		}
-		log.debug("{} missing connection refill work end", projectName);
 	}
 
 	public AbstractConnection getConnection()
@@ -169,6 +166,7 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 				// log.info("111111111");
 
 				if (0 == numberOfConnection) {
+					connectionPoolSupporter.notice("no more connection");
 					throw new ConnectionPoolException("check server is alive or something is bad");
 				}
 

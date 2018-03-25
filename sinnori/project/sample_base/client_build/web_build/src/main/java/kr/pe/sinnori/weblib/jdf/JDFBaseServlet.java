@@ -223,11 +223,17 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 		
 		String modulusHex = serverSessionkeyManger.getModulusHexStrForWeb();
 		req.setAttribute("modulusHex", modulusHex);*/
+		
+		String leftmenu = req.getRequestURI();
+		req.setAttribute("leftmenu", leftmenu);
+		
 
+		req.getRequestURI();
+		
 		try {
 			performPreTask(req, res);
 		} catch (Exception | java.lang.Error e) {
-			log.warn("서블릿 실행 에러", e);
+			log.warn("unknown error", e);
 
 			java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
 			java.io.PrintWriter writer = new java.io.PrintWriter(bos);
@@ -295,7 +301,7 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 		try {
 			res.sendRedirect(location);
 		} catch (IOException e) {
-			log.warn("서블릿 정적 페이지 이동 에러", e);
+			log.warn("fail to call method sendRedirect", e);
 
 			StringBuilder debugMessageBuilder = new StringBuilder(
 					"IOException::File Not Found, location=").append(location);
@@ -326,7 +332,7 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 
 			dispatcher.forward(req, res);
 		} catch (Exception |  Error e) {
-			log.warn("서블릿 동적 페이지 이동 에러", e);
+			log.warn("fail to call method forward", e);
 
 			try {
 				java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
@@ -380,7 +386,7 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 					}
 				}
 			} catch (Exception ex) {
-				log.warn("서블릿 동적 페이지 이동 에러 처리 실패", ex);
+				log.warn("unkwon error", ex);
 			}
 		}
 	}

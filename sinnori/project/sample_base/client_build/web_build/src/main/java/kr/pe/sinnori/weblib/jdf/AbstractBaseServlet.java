@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractBaseServlet extends HttpServlet {
 	protected Logger log = LoggerFactory
 			.getLogger(AbstractBaseServlet.class);
-	
 
 	/**
 	 * 로그인 여부를 반환한다.

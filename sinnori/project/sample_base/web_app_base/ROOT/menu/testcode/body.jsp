@@ -5,5 +5,5 @@
 </p>
 </session>
 <script>
-goURL("/servlet/JDFNotLoginTest");
+top.document.location.href = "/servlet/JDFNotLoginTest";
 </script>

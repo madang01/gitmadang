@@ -22,9 +22,12 @@ import org.xml.sax.SAXException;
 import kr.pe.sinnori.common.buildsystem.BuildSystemFileContents;
 import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.buildsystem.ProjectBuilder;
+import kr.pe.sinnori.common.classloader.IOPartDynamicClassNameUtil;
+import kr.pe.sinnori.common.classloader.SimpleClassLoader;
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDDefiner;
+import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
 import kr.pe.sinnori.common.exception.BuildSystemException;
@@ -249,14 +252,66 @@ public class MybatisSqlSessionFactoryMangerTest {
 		// return dbcpSampleConfigFilePathString;
 	}
 	
+	private SimpleClassLoader getSimpleClassLoader() throws SinnoriConfigurationException {
+		SinnoriConfiguration sinnoriRunningProjectConfiguration =  SinnoriConfigurationManager.getInstance().getSinnoriRunningProjectConfiguration();
+		
+		String mainProjectName = sinnoriRunningProjectConfiguration.getMainProjectName();
+		String sinnoriInstalledPathString = sinnoriRunningProjectConfiguration.getSinnoriInstalledPathString();
+		
+		
+		String serverAPPINFClassPathString = BuildSystemPathSupporter
+				.getServerAPPINFClassPathString(sinnoriInstalledPathString, mainProjectName);
+		
+		File serverAPPINFClassPath = new File(serverAPPINFClassPathString);
+		
+		if (!serverAPPINFClassPath.exists()) {
+			String errorMessage = String.format("the server APP-INF class path[%s] doesn't exist", serverAPPINFClassPathString);
+		 	throw new SinnoriConfigurationException(errorMessage);
+		}
+		
+		if (!serverAPPINFClassPath.isDirectory()) {
+			String errorMessage = String.format("the server APP-INF class path[%s] isn't a directory", serverAPPINFClassPathString);
+		 	throw new SinnoriConfigurationException(errorMessage);
+		}
+		
+		String projectResourcesPathString = BuildSystemPathSupporter.getProjectResourcesPathString(sinnoriInstalledPathString, mainProjectName);
+		
+		File projectResourcesPath = new File(projectResourcesPathString);
+		
+		if (! projectResourcesPath.exists()) {
+			String errorMessage = String.format("the project resources path[%s] doesn't exist", projectResourcesPathString);
+		 	throw new SinnoriConfigurationException(errorMessage);
+		}
+		
+		if (! projectResourcesPath.isDirectory()) {
+			String errorMessage = String.format("the project resources path[%s] isn't a directory", projectResourcesPathString);
+		 	throw new SinnoriConfigurationException(errorMessage);
+		}
+		
+		ProjectPartConfiguration mainProjectPart = sinnoriRunningProjectConfiguration.getMainProjectPartConfiguration();
+		
+		IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = new IOPartDynamicClassNameUtil(mainProjectPart
+				.getFirstPrefixDynamicClassFullName());
+		
+		return new SimpleClassLoader(serverAPPINFClassPathString, projectResourcesPathString, ioPartDynamicClassNameUtil);
+	}
+	
 	@Test
 	public void testGetSqlSessionFactory_파일타입리로스수정시새롭게갱신되는지테스트() {
+		SimpleClassLoader simpleClassLoader = null;
+		try {
+			simpleClassLoader = getSimpleClassLoader();
+		} catch (SinnoriConfigurationException e) {
+			log.warn(e.getMessage(), e);
+			fail(e.getMessage());
+		}
+		
 		MybatisSqlSessionFactoryManger mybatisSqlSessionFactoryManger = MybatisSqlSessionFactoryManger.getInstance();
 		
 		String enviromentID = "sample_base_db";
 		SqlSessionFactory sqlSessionFactory = null;
 		try {
-			sqlSessionFactory = mybatisSqlSessionFactoryManger.getSqlSessionFactory(enviromentID);
+			sqlSessionFactory = mybatisSqlSessionFactoryManger.getSqlSessionFactory(simpleClassLoader, enviromentID);
 		} catch (MybatisException e) {
 			log.warn(e.getMessage(), e);
 			fail(e.getMessage());
@@ -318,7 +373,7 @@ public class MybatisSqlSessionFactoryMangerTest {
 		}
 		
 		try {
-			sqlSessionFactory = mybatisSqlSessionFactoryManger.getSqlSessionFactory(enviromentID);
+			sqlSessionFactory = mybatisSqlSessionFactoryManger.getSqlSessionFactory(simpleClassLoader, enviromentID);
 		} catch (MybatisException e) {
 			log.warn(e.getMessage(), e);
 			fail(e.getMessage());

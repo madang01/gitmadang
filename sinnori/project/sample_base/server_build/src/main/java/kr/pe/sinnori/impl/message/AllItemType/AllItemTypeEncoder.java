@@ -290,15 +290,15 @@ public final class AllItemTypeEncoder extends AbstractMessageEncoder {
 				/** 배열 정보와 배열 크기 일치 검사 */
 				if (null == item$4List) {
 					/** 배열 크기 지정 방식이 간접일 경우 참조하는 변수값이 0 일 경우만 배열 값으로 null 을 허용한다. */
-					if (0 != 3) {
-						String errorMessage = new StringBuilder("the var item$4List is null but the value defined by array size[3] is not zero").toString();
+					if (0 != member$2.getCnt()) {
+						String errorMessage = new StringBuilder("the var item$4List is null but the value referenced by the array size[member$2.getCnt()][").append(member$2.getCnt()).append("] is not zero").toString();
 						throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
 					}
 				} else {
 					int item$4ListSize = item$4List.size();
 					/** 배열 값이 null 이 아닐때에는 배열 크기가 배열 정보에서 지정된 크기와 같은지 검사 */
-					if (3 != item$4ListSize) {
-						String errorMessage = new StringBuilder("the var item$4ListSize[").append(item$4ListSize).append("] is not same to the value defined by array size[3]").toString();
+					if (member$2.getCnt() != item$4ListSize) {
+						String errorMessage = new StringBuilder("the var item$4ListSize[").append(item$4ListSize).append("] is not same to the value referenced by the array size[member$2.getCnt()][").append(member$2.getCnt()).append("]").toString();
 						throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
 					}
 

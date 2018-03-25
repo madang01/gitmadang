@@ -170,7 +170,7 @@ public final class BoardListOutDTODecoder extends AbstractMessageDecoder {
 				, null // nativeItemCharset
 				, board$2MiddleWritableObject));
 
-			board$2.setRegisterDate((java.lang.Boolean)
+			board$2.setRegisterDate((java.sql.Timestamp)
 			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 				, "registerDate" // itemName
 				, kr.pe.sinnori.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
@@ -178,7 +178,7 @@ public final class BoardListOutDTODecoder extends AbstractMessageDecoder {
 				, null // nativeItemCharset
 				, board$2MiddleWritableObject));
 
-			board$2.setModifiedDate((java.lang.Boolean)
+			board$2.setModifiedDate((java.sql.Timestamp)
 			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 				, "modifiedDate" // itemName
 				, kr.pe.sinnori.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType

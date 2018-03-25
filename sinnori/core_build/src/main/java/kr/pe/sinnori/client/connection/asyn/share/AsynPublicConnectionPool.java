@@ -139,8 +139,6 @@ public class AsynPublicConnectionPool implements ConnectionPoolIF {
 	}
 
 	public void addAllLostConnections() throws InterruptedException {
-		log.debug("{} 결손된 연결 추가 작업 시작", projectName);
-
 		synchronized (monitor) {
 			while (whetherConnectionIsMissing()) {
 				try {
@@ -161,7 +159,6 @@ public class AsynPublicConnectionPool implements ConnectionPoolIF {
 				}
 			}
 		}
-		log.debug("{} 결손된 연결 추가 작업 종료", projectName);
 	}
 
 	public AbstractConnection getConnection()
@@ -172,6 +169,7 @@ public class AsynPublicConnectionPool implements ConnectionPoolIF {
 		synchronized (monitor) {
 			do {
 				if (connectionList.isEmpty()) {
+					connectionPoolSupporter.notice("no more connection");
 					throw new ConnectionPoolException("check server alive");
 				}
 

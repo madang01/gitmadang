@@ -57,7 +57,7 @@ public final class BoardFileInfoDTODecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardFileInfoDTO.setRegisterDate((java.lang.Boolean)
+		boardFileInfoDTO.setRegisterDate((java.sql.Timestamp)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "registerDate" // itemName
 			, kr.pe.sinnori.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
@@ -65,7 +65,7 @@ public final class BoardFileInfoDTODecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardFileInfoDTO.setModifiedDate((java.lang.Boolean)
+		boardFileInfoDTO.setModifiedDate((java.sql.Timestamp)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "modifiedDate" // itemName
 			, kr.pe.sinnori.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType

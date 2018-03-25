@@ -1,29 +1,99 @@
 <%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
 %><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
-%><jsp:useBean id="reqHeaderInfo" class="kr.pe.sinnori.impl.javabeans.ReqHeaderInfoBean" scope="request" />
-<h1>JDF 테스트 - 비 로그인</h1>
+%><jsp:useBean id="headerInformationHash" class="java.util.Hashtable" scope="request" /><%
+
+	request.setAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME, SITE_TOPMENU_TYPE.TEST_EXAMPLE);	
+	
+%><!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<title><%=WebCommonStaticFinalVars.WEBSITE_TITLE%></title>
+<meta name="Author" content="SinnoriTeam - website / Design by Ian Smith - N-vent Design Services LLC - www.n-vent.com" />
+<meta name="distribution" content="global" />
+<meta name="rating" content="general" />
+<meta name="Keywords" content="" />
+<meta name="ICBM" content=""/> <!-- see geourl.org -->
+<meta name="DC.title" content="Your Company"/>
+<link rel="shortcut icon" href="favicon.ico"/> <!-- see favicon.com -->
+<link rel="stylesheet" type="text/css" href="/css/style.css" />
+<script type="text/javascript">
+    function goURL(bodyurl) {
+		/*
+		var inx = bodyurl.indexOf("/servlet/");	
+		if (0 == inx) {
+			var f = document.directgofrm;
+			f.action = bodyurl;
+			f.submit();		
+		} else {
+			top.document.location.href = bodyurl;
+		}
+		*/
+		top.document.location.href = bodyurl;		
+    }
+</script>
+</head>
+<body>
+<form name="directgofrm" method="post">
+<input type="hidden" name="topmenu" value="<%=getCurrentTopMenuIndex(request)%>"/>
+</form>
+<!-- The ultra77 template is designed and released by Ian Smith - N-vent Design Services LLC - www.n-vent.com. Feel free to use this, but please don't sell it and kindly leave the credits intact. Muchas Gracias! -->
+<div id="wrapper">
+<a name="top"></a>
+<!-- header -->
+<div id="header">
+	<div id="pagedescription"><h1>Sinnori Framework::공사중</h1><br /><h2> Sinnori Framework is an open software<br/> that help to create a server/client application.</h2><%
+	if (! isLogin(request)) {
+%><a href="/servlet/Login?topmenu=<%=getCurrentTopMenuIndex(request)%>">login</a><%		
+	} else {
+%><a href="/menu/member/logout.jsp?topmenu=<%=SITE_TOPMENU_TYPE.MEMBER.getTopMenuIndex()%>">logout</a><%
+	}
+%>
+	
+	</div>
+	<div id="branding"><p><span class="templogo"><!-- your logo here -->Sinnori Framework</span><br />of the developer, by the developer, for the developer</p></div>
+</div>
+
+<!-- top menu -->
+<div id="menu">
+	<ul><%= buildTopMenuPartString(request) %></ul>
+</div> <!-- end top menu -->
+<!-- bodywrap -->
+<div id="bodytop">&nbsp;</div>
+<div id="bodywrap">
+	<div id="contentbody">
+	<h1>JDF 테스트 - 비 로그인</h1>
 <script type="text/javascript">
 	function trim(str) {
 		return str.replace(/^\s+|\s+$/gm,'');
 	}
-
 </script>
 <ul>
-<li>이 페이지는 AbstractServlet 를 상속 받은 페이지입니다.<br/>
-모든 서블릿이 상속 받는 AbstractServlet 는 JDF 기본 상속 서블릿입니다.</li>
+<li>이 페이지는 JDF 를 기반으로 개발되었으며 servlet+jsp 조합인 MVC model2 를 따릅니다.<br/>
+모든 서블릿은 JDF 기본 상속 서블릿 AbstractServlet 를 상속 받습니다.<br/>
+이 JSP 페이지는 AbstractJSP 를 상속 받았습니다.</li>
 <li>
-
-title=[<%=reqHeaderInfo.title%>]<br/>
-headerInfoSize=[<%=reqHeaderInfo.headerInfoSize%>]<br/>
-<%
-		for (int i=0; i < reqHeaderInfo.headerInfoSize; i++) {
-			String headerKey = reqHeaderInfo.headerInfoList[i].headerKey;
-			String headerValue = reqHeaderInfo.headerInfoList[i].headerValue;
-%>
-index[<%=i%>].headerKey=[<%=HtmlStringUtil.toHtml4BRString(headerKey)%>]<br/>
-index[<%=i%>].headerValue=[<%=HtmlStringUtil.toHtml4BRString(headerValue)%>]<br/><br/><%
-		}
-%>
+<%= headerInformationHash.toString().replaceAll(", ", ", <br/>") %>
 </li>
 </ul>
+	</div>
+</div> <!-- end bodywrap -->
+<div id="bodybottom">&nbsp;</div>
+
+
+<!-- footer -->
+<div id="footer">
+<p><jsp:include page="/footer.html"  flush="false" />. Design by <a href="http://www.n-vent.com" title="The ultra77 template is designed and released by N-vent Design Services LLC">N-vent</a></p>
+<ul>
+<li><a href="http://www.oswd.org" title="Open Source Web Design">Open Source Web Design</a></li>
+
+</ul>
+</div> <!-- end footer -->
+
+<!-- side menu  --><%= buildLeftMenuPartString(request) %><!-- end side menu -->
+
+</div> <!-- end wrapper -->
+</body>
+</html>
+

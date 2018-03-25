@@ -6,5 +6,4 @@ public interface ClientSessionKeyIF {
 	public byte[] getDupPublicKeyBytes();
 	
 	public byte[] getDupIVBytes();
-	
 }

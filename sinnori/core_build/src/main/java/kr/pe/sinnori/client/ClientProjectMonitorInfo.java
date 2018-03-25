@@ -36,7 +36,7 @@ public class ClientProjectMonitorInfo {
 	
 	
 	@Override
-	public String toString() {
+	public String toString() {		
 		StringBuilder builder = new StringBuilder();
 		builder.append("ClientProjectInfo [projectName=");
 		builder.append(projectName);

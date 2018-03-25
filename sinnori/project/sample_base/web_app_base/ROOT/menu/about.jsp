@@ -1,53 +1,87 @@
-<%@ page language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<h1>신놀이 프레임워크</h1>
+<%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+%><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
+	request.setAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME, SITE_TOPMENU_TYPE.INTRODUCE);
+%><!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<title><%=WebCommonStaticFinalVars.WEBSITE_TITLE%></title>
+<meta name="Author" content="SinnoriTeam - website / Design by Ian Smith - N-vent Design Services LLC - www.n-vent.com" />
+<meta name="distribution" content="global" />
+<meta name="rating" content="general" />
+<meta name="Keywords" content="" />
+<meta name="ICBM" content=""/> <!-- see geourl.org -->
+<meta name="DC.title" content="Your Company"/>
+<link rel="shortcut icon" href="favicon.ico"/> <!-- see favicon.com -->
+<link rel="stylesheet" type="text/css" href="/css/style.css" />
+<script type="text/javascript">
+    function goURL(bodyurl) {
+		/*
+		var inx = bodyurl.indexOf("/servlet/");	
+		if (0 == inx) {
+			var f = document.directgofrm;
+			f.action = bodyurl;
+			f.submit();		
+		} else {
+			top.document.location.href = bodyurl;
+		}
+		*/
+		top.document.location.href = bodyurl;		
+    }
+</script>
+</head>
+<body>
+<form name="directgofrm" method="post">
+<input type="hidden" name="topmenu" value="<%=getCurrentTopMenuIndex(request)%>"/>
+</form>
+<!-- The ultra77 template is designed and released by Ian Smith - N-vent Design Services LLC - www.n-vent.com. Feel free to use this, but please don't sell it and kindly leave the credits intact. Muchas Gracias! -->
+<div id="wrapper">
+<a name="top"></a>
+<!-- header -->
+<div id="header">
+	<div id="pagedescription"><h1>Sinnori Framework::공사중</h1><br /><h2> Sinnori Framework is an open software<br/> that help to create a server/client application.</h2><%
+	if (! isLogin(request)) {
+%><a href="/servlet/Login?topmenu=<%=getCurrentTopMenuIndex(request)%>">login</a><%		
+	} else {
+%><a href="/menu/member/logout.jsp?topmenu=<%=SITE_TOPMENU_TYPE.MEMBER.getTopMenuIndex()%>">logout</a><%
+	}
+%>
+	
+	</div>
+	<div id="branding"><p><span class="templogo"><!-- your logo here -->Sinnori Framework</span><br />of the developer, by the developer, for the developer</p></div>
+</div>
+
+<!-- top menu -->
+<div id="menu">
+	<ul><%= buildTopMenuPartString(request) %></ul>
+</div> <!-- end top menu -->
+<!-- bodywrap -->
+<div id="bodytop">&nbsp;</div>
+<div id="bodywrap">
+	<div id="contentbody">
+	<h1>신놀이 프레임워크</h1>
 <ol>
 <li>
 	<dl>
-		<dt>신놀이 프레임워크란? 22222</dt>
-			<dd> "신놀이" 이름은 "신명나게 놀아 보자" 라는 뜻입니다.<br/>
-			신놀이 프레임워크는 서버/클라이언트 응용프로그램을 만들수 있도록 도와주는 도구입니다. <br/>
-			신놀이 프레임워크 목표는 개발자가 메시지와 비지니스 로직에 전념할 수 있는 환경을 제공하여 <br/>
-			응용 프로그램을 빠르게 구축시키는데 있습니다.<br/><br/>
-
-			신놀이 개발 모델은 함수로 입력을 넣으면 비지니스 로직을 수행후 결과를 반환합니다.<br/><br/>
-			(1) 동기 메시지 함수(동기 입력메시지) {<br/>
-			&nbsp;&nbsp;&nbsp;&nbsp;비지니스 로직 수행<br/>
-			&nbsp;&nbsp;&nbsp;&nbsp;return 동기 출력 메시지<br/>
-			}<br/> 
-			(2) 비동기 메시지 함수(비동기 입력메시지) {<br/>
-			&nbsp;&nbsp;&nbsp;&nbsp;비지니스 로직 수행<br/>
-			&nbsp;&nbsp;&nbsp;&nbsp;return 비동기 출력 메시지(들)<br/>
-			}<br/><br/> 
-			
-			신놀이 프레임워크는 자바언어로 구현한 개발 프레임워크로 <br/>
-			아래 2가지 요소(신놀이 서버, 클라이언트 서버 접속 라이브러리)로 구성되어 있습니다.<br/>&nbsp;
-			</dd>
-	</dl>
-	<ol>
-	<li>
-	<dl>
-		<dt>신놀이 서버</dt>
-		<dd>한빛미디어 김성박/송지훈님의 "자바 I/O & NIO 네트워크 프로그래밍" 에서 소개한 AdvancedChatServer 기반으로 만들었습니다.</dd>
-	</dl>
-	</li>
-	<li>
-	<dl>
-		<dt>서버 접속용 클라이언트 라이브러리</dt>
-		<dd>신놀이 서버에 연결하여 메세지를 주고 받을 수 있는 클라이언트 라이브러리<br/>
-		현재 자바 신놀이 클라이언트 라이브러리만 제공된다.<br/>
-		연결 폴의 종류는 3가지이며 그중 하나는 다른 사용자와 소캣 자원을 공유하는 방법을 제공하는것이 특색이다.</dd>
-	</dl>
-		<ol>
-			<li><dl>
-		<dt>신놀이 자바-클라이언트 라이브러리</dt>
-		<dd>자바 언어로 만든 비동기 통신방식으로 신놀이 서버와 연결하는 신놀이 클라이언트 라이브러리이다.</dd>
-	</dl></li>
-		</ol>
-	</li>
-	</ol>
-	
+		<dt>신놀이 프레임워크란?</dt>
+		<dd> 자바로 개발된 메시지 주도 개발 프레임워크입니다.<br/>
+		아래 2가지 요소(신놀이 서버, 클라이언트 서버 접속 라이브러리)로 구성되어 있습니다.
+			<ol>
+				<li>
+					<dl>
+						<dt>신놀이 서버</dt>
+						<dd>한빛미디어 김성박/송지훈님의 "자바 I/O & NIO 네트워크 프로그래밍" 에서 소개한 AdvancedChatServer 기반으로 만들었습니다.</dd>
+					</dl>
+				</li>
+				<li>
+					<dl><dt>서버 접속용 클라이언트 라이브러리</dt>
+						<dd>신놀이 서버에 연결하여 메세지를 주고 받을 수 있는 클라이언트 라이브러리</dd>
+					</dl>	
+				</li>
+			</ol>	
+		</dd>
+	</dl>	
 </li>
-<br/>
 <li>
 	<dl>
 		<dt>개발한것을 아파치 라이센스 2.0 으로 공개하는 특별한 이유?</dt>
@@ -56,33 +90,51 @@
 		</dd>
 	</dl>
 </li>
-<br/>
 <li>
 	<dl>
 		<dt>개발을 하게된 동기및 목표</dt>
-		<dd>신놀이 프레임 워크 개발 동기는 윷놀이 서버/클라이언트 게임을 만들고자 시작되었습니다. <br/>
-		처음엔 공개된 프레임 워크를 통하면 쉽게 만들수있겠지라는 안일한 생각을 가지고 시작했습니다.<br/>
-		이러 저러한 메시지를 이렇게 저렇게 교환을 하면 되겠다.<br/>
-		DB table 을 만들었고 서버와 클라이언트 사이에서 주고받을 메시지를 정의했습니다.<br/>
-		공개용 프로그램중 제가 찾은 유사한 형태는<br/>
-		Apache Mina(or Apache Netty) + Google protocol buffer 입니다.<br/>
-		제가 만든 신놀이와 가장 큰 차이점은 <br/>
-		Apache Mina(or Apache Netty) + Google protocol buffer 는<br/>
-		유화물감+다양한 종류의 붓+ 깨끗한 종이이며,<br/>
-		신놀이는 밑그림 그려진 종이에 크레용으로 색칠만 하는 된다는 점입니다.<br/>
-		이런 차이가 있는것은 저의 servlet/jsp 개발자 경력과 무관하지 않습니다.<br/>
-		예를 들면 tomcat  만 설치되면 servlet 은 설정파일때문에 번거롭지만<br/>
-		jsp 는 변경된 내용이 바로 바로 웹 브라우저를 통해서 확인 할 수 있습니다.<br/>
-		신놀이를  이용한 개발시<br/>		
-		서버 개발자는 클라이언트 개발자랑 의논해서 IO 를 정의한후<br/>
-		IO 에 맞추어서 입력/출력 메시지를 만들거나 혹은<br/>
-		클라이언트 개발자가 만든 입력/출력 메시지를 공유한후<br/>
-		입력 메시지 1:1 대응하는 서버 비지니스 로직만 작성하면 되고,<br/>
-		클라이언트 개발자는 서버 개발자랑 의논하여 IO 를 정의한후<br/>
-		IO 에 맞추어서 신놀이 입력/출력메시지를 만들거나 <br/>
-		혹은 서버 개발자가만든것을 공유한후 <br/>
-		입력 메시지를 서버로 보내어 출력 메시지를 얻어 클라이언트 로직을 작성하면 됩니다.
+		<dd>메시지 주도 개발 프레임워크를 이용하여 원하는 클라이언트/서버 기반으로하는 서비스<br/>
+		(ex 파일 송수신 서비스, 윷놀이 게임 서비스, 웹서비스) 구축을 위해서 만들었습니다.
 		</dd>
 	</dl>
 </li>
+<li>
+	<dl>
+		<dt>메시지 주도 개발 프레임워크의 장점과 단점</dt>
+		<dd>
+			<ol>
+				<li>메시지 주도 개발 프레임워크는 응답 메시지를 서버의 비지니스 로직 완료를 기다릴 필요 없이 가상으로 만들어서 클라이언트 개발을 진행할 수 있는 장점을 갖습니다.
+				이러한 점은 전체 개발 시간을 단축시키며 서버/클라이언트 각자 독립적으로 반복적 테스트를 가능하게 하여 결국 품질 개선을 이끌게 합니다.
+				다만 시스템이 커지면서 메시지와 비지니스 로직 양이 많아 관리가 어려워 지는데, 설상가상으로 의존 관계가 점점 더 꼬여 이해가 어려워져 더더욱 관리가 어렵게 되는 단점이 있습니다.
+				</li>
+				
+				<li>메시지 주도 개발 프레임워크 서버의 비지니스 로직은 콤포넌트 특성을 갖습니다. 조립하여 새로운 서비스를 제공할 수 있습니다.
+		단점으로는 공통 모듈처럼 의존 관계가 생겨 유지 보수를 어렵게 하며 1번 호출이 아닌 여러번 호출로 하나의 서비스를 완성하기때문에 네트워크 비용이 낭비 됩니다.
+		그렇다고 네트워크 비용 낭비를 방지하기 위해 1번 호출하기위해서 비지니스 로직들을 통합하여 제공할 경우 나뉘어져 있는것과 통합 모듈을 동시에 잘 관리해야 하기때문에 유지 보수 난이도가 상승합니다.
+				</li>
+			</ol>
+		</dd>
+	</dl>
+</li>
+
 </ol>
+	</div>
+</div> <!-- end bodywrap -->
+<div id="bodybottom">&nbsp;</div>
+
+
+<!-- footer -->
+<div id="footer">
+<p><jsp:include page="/footer.html"  flush="false" />. Design by <a href="http://www.n-vent.com" title="The ultra77 template is designed and released by N-vent Design Services LLC">N-vent</a></p>
+<ul>
+<li><a href="http://www.oswd.org" title="Open Source Web Design">Open Source Web Design</a></li>
+
+</ul>
+</div> <!-- end footer -->
+
+<!-- side menu  --><%= buildLeftMenuPartString(request) %><!-- end side menu -->
+
+</div> <!-- end wrapper -->
+</body>
+</html>
+

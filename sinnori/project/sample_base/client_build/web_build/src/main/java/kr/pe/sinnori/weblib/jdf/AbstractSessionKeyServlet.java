@@ -42,7 +42,7 @@ import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
 @SuppressWarnings("serial")
 public abstract class AbstractSessionKeyServlet extends AbstractServlet {	
 
-	private String getRedirectPageStringGettingSessionkey(HttpServletRequest req, String modulusHexString) {
+	protected String getRedirectPageStringGettingSessionkey(HttpServletRequest req, String modulusHexString) {
 		String requestURI = req.getRequestURI();
 		
 		StringBuilder pageStrBuilder = new StringBuilder("<!DOCTYPE html><html><head>");
@@ -118,8 +118,6 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME);
 		pageStrBuilder.append("', CryptoJS.enc.Base64.stringify(webUserPrivateKey)); // key-value 형식으로 저장");
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-		
-		
 				
 		pageStrBuilder.append("\t\t\t\tvar rsa = new RSAKey();");
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
@@ -140,8 +138,6 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		pageStrBuilder.append("\t\t\t} catch (e) {");
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 		
-		
-		
 		pageStrBuilder.append("\t\t\t\t\tsessionStorage.removeItem('");
 		pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME);
 		pageStrBuilder.append("');");
@@ -158,8 +154,6 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		pageStrBuilder.append("\t\t\t\t\treturn;");
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 		
-		
-		
 		pageStrBuilder.append("\t\t\t}");
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 		
@@ -170,7 +164,7 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 		pageStrBuilder.append("\t\tg.action = targeturl;");
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-
+		
 		pageStrBuilder.append("\t\tg.sessionkeyBase64.value = sessionStorage.getItem('");
 		pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_SESSIONKEY_NAME);
 		pageStrBuilder.append("');");
@@ -183,8 +177,7 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		
 		pageStrBuilder.append("\t\tg.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);");
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-		
-		// FIXME!
+				
 		pageStrBuilder.append("\t\tg.submit();");
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 		pageStrBuilder.append("\t}");
@@ -204,8 +197,10 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		pageStrBuilder.append("<form name=gofrm method='post'>");
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 		
+		
 		pageStrBuilder.append("<input type=hidden name=\"sessionkeyBase64\" />");
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
+		 
 		
 		pageStrBuilder.append("<input type=hidden name=\"ivBase64\" />");
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
@@ -229,6 +224,8 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		pageStrBuilder.append("</body>");
 		pageStrBuilder.append("</html>");
 		
+		//log.info(pageStrBuilder.toString());
+		
 		return pageStrBuilder.toString();
 	}
 	
@@ -238,13 +235,13 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		String parmIVBase64 = req.getParameter("ivBase64");
 		
 		
-		log.info(String.format("parm parmSessionKeyBase64=[%s]", parmSessionKeyBase64));
-		log.info(String.format("parm parmIVBase64=[%s]", parmIVBase64));
+		//log.info("parmSessionKeyBase64=[{}]", parmSessionKeyBase64);
+		//log.info("parmIVBase64=[{}]", parmIVBase64);		
 		
-		ServerSessionkeyIF serverSessionkey  = null;
+		ServerSessionkeyIF webServerSessionkey  = null;
 		try {
 			ServerSessionkeyManager serverSessionkeyManager = ServerSessionkeyManager.getInstance();
-			serverSessionkey = serverSessionkeyManager.getMainProjectServerSessionkey();			
+			webServerSessionkey = serverSessionkeyManager.getMainProjectServerSessionkey();			
 		} catch (SymmetricException e) {
 			log.warn("ServerSessionkeyManger instance init error, errormessage=[{}]", e.getMessage());
 			
@@ -254,14 +251,17 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 			return;
 		}
 				
-		String modulusHexString = serverSessionkey.getModulusHexStrForWeb();
+		String modulusHexString = webServerSessionkey.getModulusHexStrForWeb();
 		
 		if (null == parmSessionKeyBase64 || null == parmIVBase64) {			
 			java.io.PrintWriter out = res.getWriter();
 			out.write(getRedirectPageStringGettingSessionkey(req, modulusHexString));
+			out.flush();
 			out.close();
 			return;
 		}
+		
+		//log.info("modulusHexString=[{}]", modulusHexString);
 		
 		byte[] sessionkeyBytes = null;
 		try {
@@ -287,10 +287,13 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 			return;
 		}		
 		
+		//log.info("sessionkeyBytes=[{}]", HexUtil.getHexStringFromByteArray(sessionkeyBytes));
+		//log.info("ivBytes=[{}]", HexUtil.getHexStringFromByteArray(ivBytes));
+		
 		req.setAttribute("parmSessionKeyBase64", parmSessionKeyBase64);
 		req.setAttribute("parmIVBase64", parmIVBase64);
 		req.setAttribute("modulusHexString", modulusHexString);
-		req.setAttribute("webServerSymmetricKey", serverSessionkey.getNewInstanceOfServerSymmetricKey(sessionkeyBytes, ivBytes));
+		req.setAttribute(WebCommonStaticFinalVars.WEB_SERVER_SYMMETRIC_KEY, webServerSessionkey.getNewInstanceOfServerSymmetricKey(true, sessionkeyBytes, ivBytes));
 		performTask(req,res);
 	}
 }

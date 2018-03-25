@@ -27,8 +27,8 @@ public class BoardFileInfoDTO extends AbstractMessage {
 	private long attachId;
 	private String ownerId;
 	private String ip;
-	private boolean registerDate;
-	private boolean modifiedDate;
+	private java.sql.Timestamp registerDate;
+	private java.sql.Timestamp modifiedDate;
 
 	public long getAttachId() {
 		return attachId;
@@ -51,18 +51,18 @@ public class BoardFileInfoDTO extends AbstractMessage {
 	public void setIp(String ip) {
 		this.ip = ip;
 	}
-	public boolean getRegisterDate() {
+	public java.sql.Timestamp getRegisterDate() {
 		return registerDate;
 	}
 
-	public void setRegisterDate(boolean registerDate) {
+	public void setRegisterDate(java.sql.Timestamp registerDate) {
 		this.registerDate = registerDate;
 	}
-	public boolean getModifiedDate() {
+	public java.sql.Timestamp getModifiedDate() {
 		return modifiedDate;
 	}
 
-	public void setModifiedDate(boolean modifiedDate) {
+	public void setModifiedDate(java.sql.Timestamp modifiedDate) {
 		this.modifiedDate = modifiedDate;
 	}
 

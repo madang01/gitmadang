@@ -70,7 +70,7 @@ public class AnyProjectServer {
 	
 	private ServerObjectCacheManager serverObjectCacheManager = null;
 	
-	private ServerProjectMonitor serverProjectMonitor = null;
+	//private ServerProjectMonitor serverProjectMonitor = null;
 	
 	public AnyProjectServer(ProjectPartConfiguration projectPartConfiguration)
 			throws NoMoreDataPacketBufferException, SinnoriConfigurationException {
@@ -180,8 +180,8 @@ public class AnyProjectServer {
 				projectPartConfiguration.getServerOutputMessageQueueSize(), 
 				dataPacketBufferPool, ieoThreadPoolManager);
 
-		serverProjectMonitor = new ServerProjectMonitor(
-				projectPartConfiguration.getServerMonitorTimeInterval());
+		/*serverProjectMonitor = new ServerProjectMonitor(
+				projectPartConfiguration.getServerMonitorTimeInterval());*/
 
 	}
 
@@ -214,20 +214,12 @@ public class AnyProjectServer {
 	 * 서버 종료
 	 */
 	synchronized public void stopServer() {
-		serverProjectMonitor.interrupt();
+		// serverProjectMonitor.interrupt();
 
 		if (! acceptSelector.isInterrupted()) {
 			acceptSelector.interrupt();
 		}
 	
-		/*while (!acceptQueue.isEmpty()) {
-			try {
-				Thread.sleep(10);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}*/
-
 		acceptProcessorPool.stopAll();
 		inputMessageReaderPool.stopAll();
 

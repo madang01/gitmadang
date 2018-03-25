@@ -50,7 +50,7 @@ import kr.pe.sinnori.server.SocketResourceManagerIF;
 public abstract class AbstractServerTask {
 	protected Logger log = LoggerFactory.getLogger(AbstractServerTask.class);
 	
-	private ClassLoader classLoaderOfSererTask = this.getClass().getClassLoader();
+	private final ClassLoader classLoaderOfSererTask = this.getClass().getClassLoader();
 	
 	public void execute(int index, 
 			String projectName,

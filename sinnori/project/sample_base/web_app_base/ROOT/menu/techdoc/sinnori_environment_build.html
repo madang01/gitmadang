@@ -4,8 +4,7 @@
 이 문서는 git 를 이용한 최신 버전을 기준으로 설명하기때문에 
 다운로드하여 받은 배포 버전과 차이가 있을 수 있습니다.</h2>
 
-1. 신놀이 개발 프레임워크 시작하기
-	
+1. 신놀이 개발 프레임워크 시작하기	
 	1.다운로드
 		신놀이를 이용하기 위해 가장 먼저 해야할 일입니다. 
 		다운 로드 방법부터 설명하겠습니다.
@@ -194,8 +193,13 @@ http://forum.falinux.com/zbxe/index.php?document_srl=588283&mid=lecture_tip
 	생략
 
 2. Tomcat 사전 지식
-tomcat 정책상 setenv.sh 혹은 setenv.bat 은 CATALINA_BASE/bin 에 위
-치한다. 
+tomcat 정책상 setenv.sh 혹은 setenv.bat 은 CATALINA_BASE/bin 에 위치한다. 
+신놀이는 소스 파일포함 모든 텍스트 파일들의 문자셋이 UTF8 이다.
+그렇기때문에 우분투/데비안은 기본 문자셋이 UTF8 이기때문에 따로 설정이 필요 없지만 
+윈도우는 기본 문자셋이 MS949 이므로 
+tomcat 에서 UTF8 문자셋 파일을 읽기 위해서는 JAVA_OPTS 에서 
+자바 가상머신 환경 변수(file.encoding, file.client.encoding, client.encoding.override)들 값을 UTF-8 로 지정해야 한다.
+
 ----------- 우분투 CATALINA_HOME/bin/catalina.sh 부분 인용
 #   Do not set the variables in this script. Instead put them into a script
 #   setenv.sh in CATALINA_BASE/bin to keep your customizations separate.
@@ -203,7 +207,7 @@ tomcat 정책상 setenv.sh 혹은 setenv.bat 은 CATALINA_BASE/bin 에 위
 3. tomcat 에 신놀이 프레임워크 환경 변수 지정법
 	1. 우분투
 	우분투에서 CATALINA_BASE 는 /var/lib/tomcat7 이다. CATALINA_BASE/bin 디렉토리에서 root 권한으로 chmod a+x 로 setenv.sh 파일을 아래 내용으로 생성 한다.
------------- /var/lib/tomcat7/bin/setenv.sh
+------------ /var/lib/tomcat7/bin/setenv.sh ==> utf8 지정이 필요 없다.
 madang01@madang01-TZ68K:/var/lib/tomcat7/bin$ cat setenv.sh
 #!/bin/sh
 export SINNORI_CORELIB_PATH=/home/madang01/gitsinnori/sinnori/project/sample_test/client_build/web_build/corelib/ex
@@ -224,7 +228,22 @@ export JAVA_OPTS="$JAVA_OPTS \
 
 
 	2. 윈도7
-	생략
+----- D:\apache-tomcat-8.5.15\bin\setenv.bat ===> utf8 지정이 필요하다.
+REM for %%f in (D:\sinnori_framework\core_build\lib\ex\*.jar) do set CLASSPATH=%CLASSPATH%;%%f
+REM 이 동작하지 않았는데 REM 이에 대한 해결 방법을 아래 사이트에서 얻음.
+REM 해결 방법 제시 참고 사이트 : http://alvinalexander.com/blog/post/page-1/thu-mar-9-2006-dynamically-build-environment-variables-in-dos-c
+
+SET SINNORI_HOME=D:\gitsinnori\sinnori
+SET PROJECT_NAME=sample_base
+SET SAMPLE_BASE_WEB_BUILD_HOME=%SINNORI_HOME%\project\%PROJECT_NAME%\client_build\web_build
+SET CLASSPATH=
+for %%f in (%SAMPLE_BASE_WEB_BUILD_HOME%\corelib\ex\*.jar) do call CPAPPEND.BAT %%f
+echo classpath=%CLASSPATH%
+
+set JAVA_OPTS=-Dsinnori.projectName=%PROJECT_NAME% -Dsinnori.installedPath=%SINNORI_HOME% -Dfile.encoding=UTF-8 -Dfile.client.encoding=UTF-8 -Dclient.encoding.override=UTF-8
+
+echo JAVA_OPTS=%JAVA_OPTS%
+	
 </textarea>
 
 

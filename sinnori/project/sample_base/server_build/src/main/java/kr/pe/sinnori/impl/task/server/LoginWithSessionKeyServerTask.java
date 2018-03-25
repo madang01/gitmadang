@@ -34,7 +34,8 @@ public class LoginWithSessionKeyServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(inObj.toString());		
 		
-		SqlSessionFactory sqlSessionFactory = MybatisSqlSessionFactoryManger.getInstance().getSqlSessionFactory(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);	
+		SqlSessionFactory sqlSessionFactory = MybatisSqlSessionFactoryManger.getInstance()
+				.getSqlSessionFactory(this.getClass().getClassLoader(), ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);	
 		
 		MessageResult messageResultOutObj = new MessageResult();
 		messageResultOutObj.setIsSuccess(false);

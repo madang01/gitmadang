@@ -1,44 +1,35 @@
-<%@ page language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+<%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
-final String arryTopMenuPage[][] =	{ 
-		{ "소개", null, "/menu/about.jsp"},
-		{ "시작하기", null, "/menu/stepbystep/main.jsp"},
-		{ "다운로드", null, "/menu/download/main.jsp"},
-		{ "사랑방", "/menu/board/leftmenu.jsp", "/menu/board/body.jsp"},
-		{ "문서", "/menu/techdoc/leftmenu.jsp", "/menu/techdoc/body.jsp"},
-		{ "회원", "/menu/member/leftmenu.jsp", "/menu/member/body.jsp"}, 
-		{ "실험과 검증", "/menu/testcode/leftmenu.jsp" , "/menu/testcode/body.jsp"}
-	};
 
-
-	String topMenu = request.getParameter("topmenu");
-	if (null == topMenu) {
-		topMenu = (String)request.getAttribute("topmenu");
-		if (null == topMenu) {
-			topMenu = "";
-		}
+	String parmTopmenu = request.getParameter("topmenu");
+	if (null == parmTopmenu) {
+		parmTopmenu = String.valueOf(SITE_TOPMENU_TYPE.MEMBER.getTopMenuIndex());
 	}
-	topMenu = topMenu.trim();	
-	if (topMenu.equals("")) topMenu="0";
+	parmTopmenu = parmTopmenu.trim();	
+	if (parmTopmenu.equals("")) parmTopmenu=String.valueOf(SITE_TOPMENU_TYPE.MEMBER.getTopMenuIndex());
+	
+	System.out.println("parmTopmenu="+parmTopmenu);
 	
 	int nTopMenu = 0;
 	
 	try {
-		nTopMenu = Integer.parseInt(topMenu);
+		nTopMenu = Integer.parseInt(parmTopmenu);
 	} catch (NumberFormatException num_e) {
 		// num_e.prin
 	}
-	if (nTopMenu < 0 || nTopMenu >= arryTopMenuPage.length) nTopMenu=0;
+	
+	SITE_TOPMENU_TYPE targetSiteTopMenuType = SITE_TOPMENU_TYPE.matchIndex(nTopMenu);
+	
+	request.setAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME, targetSiteTopMenuType);
 	
 	String bodyurl = request.getParameter("bodyurl");
 	if (null == bodyurl) {
-		bodyurl = (String)request.getAttribute("bodyurl");
-		if (null == bodyurl) {		
-			bodyurl = arryTopMenuPage[nTopMenu][2];
-		}
+		bodyurl = "";
 	}
-
-	String userID = (String)session.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_USERID_NAME);%><!DOCTYPE html>
+	
+	request.setAttribute(WebCommonStaticFinalVars.SITE_LEFTMENU_REQUEST_KEY_NAME, bodyurl);
+	
+%><!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
@@ -67,7 +58,7 @@ final String arryTopMenuPage[][] =	{
 </head>
 <body>
 <form name="directgofrm" method="post">
-<input type="hidden" name="topmenu" value="<%=nTopMenu%>"/>
+<input type="hidden" name="topmenu" value="<%=getCurrentTopMenuIndex(request)%>"/>
 </form>
 <!-- The ultra77 template is designed and released by Ian Smith - N-vent Design Services LLC - www.n-vent.com. Feel free to use this, but please don't sell it and kindly leave the credits intact. Muchas Gracias! -->
 <div id="wrapper">
@@ -75,10 +66,10 @@ final String arryTopMenuPage[][] =	{
 <!-- header -->
 <div id="header">
 	<div id="pagedescription"><h1>Sinnori Framework::공사중</h1><br /><h2> Sinnori Framework is an open software<br/> that help to create a server/client application.</h2><%
-	if (null == userID) {
-%><a href="/servlet/Login?topmenu=<%=topMenu%>">login</a><%		
+	if (! isLogin(request)) {
+%><a href="/servlet/Login?topmenu=<%=getCurrentTopMenuIndex(request)%>">login</a><%		
 	} else {
-%><a href="/PageJump.jsp?topmenu=4&bodyurl=/menu/member/logout.jsp">logout</a><%
+%><a href="/menu/member/logout.jsp?topmenu=<%=SITE_TOPMENU_TYPE.MEMBER.getTopMenuIndex()%>">logout</a><%
 	}
 %>
 	
@@ -88,13 +79,7 @@ final String arryTopMenuPage[][] =	{
 
 <!-- top menu -->
 <div id="menu">
-	<ul><%
-	for (int i=0; i < arryTopMenuPage.length; i++) {
-%>
-		<li<% if (i == nTopMenu) out.print(" class=\"active\""); %>><a href="/PageJump.jsp?topmenu=<%=i%>"><%=arryTopMenuPage[i][0]%></a></li><%
-	}
-%>
-	</ul>
+	<ul><%= buildTopMenuPartString(request) %></ul>
 </div> <!-- end top menu -->
 <!-- bodywrap -->
 <div id="bodytop">&nbsp;</div>
@@ -117,7 +102,7 @@ final String arryTopMenuPage[][] =	{
 <!-- content here 
 ============================================================ -->
 <jsp:include page="<%=bodyurl%>"  flush="false">
-	<jsp:param name="topmenu" value="<%=topMenu%>" />
+	<jsp:param name="topmenu" value="<%=getCurrentTopMenuIndex(request)%>" />
 	<jsp:param name="bodyurl" value="<%=bodyurl%>" />
 </jsp:include><%
 		} else {
@@ -138,14 +123,7 @@ final String arryTopMenuPage[][] =	{
 </ul>
 </div> <!-- end footer -->
 
-<!-- side menu  --><%
-	if (null != arryTopMenuPage[nTopMenu][1]) {
-%><jsp:include page="<%=arryTopMenuPage[nTopMenu][1]%>" flush="false">
-	<jsp:param name="topmenu" value="<%=topMenu%>" />
-	<jsp:param name="bodyurl" value="<%=bodyurl%>" />
-</jsp:include><%
-	}
-%> <!-- end side menu -->
+<!-- side menu  --><%= buildLeftMenuPartString(request) %><!-- end side menu -->
 
 </div> <!-- end wrapper -->
 </body>

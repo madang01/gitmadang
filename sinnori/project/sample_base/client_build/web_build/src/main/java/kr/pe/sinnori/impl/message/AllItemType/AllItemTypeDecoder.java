@@ -249,7 +249,7 @@ public final class AllItemTypeDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		allItemType.setSqltimestamp((java.lang.Boolean)
+		allItemType.setSqltimestamp((java.sql.Timestamp)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "sqltimestamp" // itemName
 			, kr.pe.sinnori.common.type.SingleItemType.JAVA_SQL_TIMESTAMP // itemType
@@ -298,7 +298,7 @@ public final class AllItemTypeDecoder extends AbstractMessageDecoder {
 				, null // nativeItemCharset
 				, member$2MiddleWritableObject));
 
-			int item$3ListSize = 3;
+			int item$3ListSize = member$2.getCnt();
 			Object item$3ArrayMiddleObject = singleItemDecoder.getArrayMiddleObjectFromReadableMiddleObject(pathStack.peek(), "item", item$3ListSize, member$2MiddleWritableObject);
 			java.util.List<AllItemType.Member.Item> item$3List = new java.util.ArrayList<AllItemType.Member.Item>();
 			for (int i3=0; i3 < item$3ListSize; i3++) {

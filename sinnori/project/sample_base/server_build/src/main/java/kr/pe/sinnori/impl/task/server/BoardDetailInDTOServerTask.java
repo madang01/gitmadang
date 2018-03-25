@@ -30,7 +30,8 @@ public class BoardDetailInDTOServerTask extends AbstractServerTask {
 	private void doWork(String projectName,
 			ToLetterCarrier toLetterCarrier, BoardDetailInDTO boardDetailInObj)
 			throws Exception {		
-		SqlSessionFactory sqlSessionFactory = MybatisSqlSessionFactoryManger.getInstance().getSqlSessionFactory(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
+		SqlSessionFactory sqlSessionFactory = MybatisSqlSessionFactoryManger.getInstance()
+				.getSqlSessionFactory(this.getClass().getClassLoader(), ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
 
 		BoardDetailOutDTO boardDetailOutObj = null;
 		

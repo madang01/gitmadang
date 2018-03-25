@@ -3,6 +3,12 @@ package kr.pe.sinnori.weblib.common;
 import java.io.File;
 
 public abstract class WebCommonStaticFinalVars {
+	public static final String WEB_SERVER_SYMMETRIC_KEY = "webServerSymmetricKey";
+	
+	public static final String SITE_TOPMENU_REQUEST_KEY_NAME = "topmenu";
+	public static final String SITE_LEFTMENU_REQUEST_KEY_NAME = "leftmenu";
+	
+	
 	public static final String WEBSITE_TITLE = "Sinnori Home";
 	
 	public static final String HTTPSESSION_KEY_USERID_NAME = "userID";

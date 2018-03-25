@@ -26,7 +26,8 @@ public class BoardReplyRequestServerTask extends AbstractServerTask {
 		// FIXME!
 		log.info(inputMessage.toString());		
 		
-		SqlSessionFactory sqlSessionFactory = MybatisSqlSessionFactoryManger.getInstance().getSqlSessionFactory(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
+		SqlSessionFactory sqlSessionFactory = MybatisSqlSessionFactoryManger.getInstance()
+				.getSqlSessionFactory(this.getClass().getClassLoader(), ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
 		
 		BoardReplyRequest inObj = (BoardReplyRequest)inputMessage;		
 		
