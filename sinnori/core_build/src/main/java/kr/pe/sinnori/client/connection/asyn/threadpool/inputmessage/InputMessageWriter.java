@@ -186,9 +186,6 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 	}
 
 	public void removeAsynConnection(IOEAsynConnectionIF asynConnection) {
-		if (null == asynConnection) {
-			log.warn("the parameter asynConnection is null", new Throwable());
-		}
 		sc2AsynConnectionHash.remove(asynConnection.getSocketChannel());
 	}
 

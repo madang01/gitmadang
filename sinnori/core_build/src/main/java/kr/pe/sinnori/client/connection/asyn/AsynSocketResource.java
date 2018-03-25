@@ -43,6 +43,19 @@ public class AsynSocketResource implements AsynSocketResourceIF {
 	
 	public void releaseSocketResources() {
 		socketOutputStream.close();
+		if (null == ownerAsynConnection) {
+			/**
+			 * <pre> 
+			 * 비동기 연결 객체 생성 실패시 미리 만든 이 비동기 자원을 해지하는 경우 이 자원을 소유한  비동기 연결을 뜻하는 변수 ownerAsynConnection 는  null 이다.
+			 * 비동기 연결 객체가 생성될때  비동기 입력/출력/처리 담당 쓰레드에 연결이 등록된다.
+			 * 비동기 연결 객체 실패시 즉   ownerAsynConnection 이 null 인 경우
+			 * 비동기 입력/출력/처리 담당 쓰레드에 비동기 연결이 미등록 되어 있으므로 따로 삭제할 필요 없다.
+			 *  
+			 * </pre>
+			 */
+			return;
+		}
+		
 		inputMessageWriter.removeAsynConnection(ownerAsynConnection);
 		clientExecutor.removeAsynConnection(ownerAsynConnection);
 	}
