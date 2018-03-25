@@ -1,5 +1,6 @@
 <%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
+%><jsp:useBean id="successURL" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="modulusHexString" class="java.lang.String" scope="request" /><%
 	String parmTopmenu = request.getParameter("topmenu");
 	if (null == parmTopmenu) {
@@ -211,6 +212,24 @@
 		<input type="hidden" name="ivBase64" />
 		<input type="hidden" name="id" />
 		<input type="hidden" name="pwd" />
+		<input type="hidden" name="successURL" value="<%=successURL%>" /><%
+		java.util.Enumeration<String> parmEnum = request.getParameterNames();
+		while(parmEnum.hasMoreElements()) {
+			String parmName = parmEnum.nextElement();
+			
+			if ("sessionkeyBase64".equals(parmName) || "ivBase64".equals(parmName)
+				|| "id".equals(parmName) || "pwd".equals(parmName)
+				|| "successURL".equals(parmName) || "pageGubun".equals(parmName) || "topmenu".equals(parmName)) {
+				continue;
+			}
+			
+			String parmValue = request.getParameter(parmName);			
+		%><input type=hidden name="<%=org.apache.commons.lang3.StringEscapeUtils.escapeHtml4(parmName)%>" value="<%=org.apache.commons.lang3.StringEscapeUtils.escapeHtml4(parmValue)%>" />
+
+<%
+		
+	}
+%>
 		</form>
 		<form method="post" name="frm" onsubmit="return false;">
 		<table style="board:0">

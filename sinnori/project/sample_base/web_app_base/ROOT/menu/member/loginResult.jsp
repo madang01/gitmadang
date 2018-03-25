@@ -28,7 +28,9 @@
 
 	// String resultMessage = messageResultOutObj.getResultMessage();
 	boolean isSuccess = messageResultOutObj.getIsSuccess();
-
+	
+	
+	String successURL = request.getParameter("successURL");
 	
 %><!DOCTYPE html>
 <html>
@@ -91,6 +93,24 @@
 		<script type="text/javascript" src="/js/cryptoJS/rollups/aes.js"></script>
 		<script type="text/javascript" src="/js/cryptoJS/components/core-min.js"></script>
 		<script type="text/javascript" src="/js/cryptoJS/components/cipher-core-min.js"></script>
+		<form name=gofrm method=get action="<%=successURL%>"><%
+		java.util.Enumeration<String> parmEnum = request.getParameterNames();
+		while(parmEnum.hasMoreElements()) {
+			String parmName = parmEnum.nextElement();
+			
+			if ("sessionkeyBase64".equals(parmName) || "ivBase64".equals(parmName)
+				|| "id".equals(parmName) || "pwd".equals(parmName)
+				|| "successURL".equals(parmName) || "pageGubun".equals(parmName)) {
+				continue;
+			}
+			
+			
+			String parmValue = request.getParameter(parmName);			
+		%>
+			<input type=hidden name="<%=org.apache.commons.lang3.StringEscapeUtils.escapeHtml4(parmName)%>" value="<%=org.apache.commons.lang3.StringEscapeUtils.escapeHtml4(parmValue)%>" />
+<%		
+	}
+%>		</form>
 		<table>
 			<tr><td><h1>로그인 결과</h1></td></tr>
 			<tr>
@@ -131,6 +151,7 @@
 
 			window.onload = init;
 			
+			document.gofrm.submit();			
 		//-->
 		</script>
 	</div>

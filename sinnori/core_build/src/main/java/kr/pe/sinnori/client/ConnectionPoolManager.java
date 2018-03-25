@@ -118,9 +118,20 @@ public final class ConnectionPoolManager {
 	public AnyProjectConnectionPoolIF getMainProjectConnectionPool() throws IllegalStateException {
 		
 		if (null == mainProjectConnectionPool) {
-			String errorMessage = new StringBuilder("fail to initialize a main project connection pool[")
-					.append(mainPorjectName).append("]").toString();
-			throw new IllegalStateException(errorMessage);
+			try {
+				SinnoriConfiguration sinnoriRunningProjectConfiguration = 
+						SinnoriConfigurationManager.getInstance()
+						.getSinnoriRunningProjectConfiguration();
+				ProjectPartConfiguration mainProjectPart = sinnoriRunningProjectConfiguration.getMainProjectPartConfiguration();
+				mainProjectConnectionPool = new AnyProjectConnectionPool(mainProjectPart);
+			} catch (Exception e) {
+				String errorMessage = new StringBuilder("fail to initialize a main project connection pool[")
+						.append(mainPorjectName).append("]").toString();
+				log.warn(errorMessage, e);
+				
+				throw new IllegalStateException(errorMessage);
+			}
+			
 		}
 		
 		return mainProjectConnectionPool;
