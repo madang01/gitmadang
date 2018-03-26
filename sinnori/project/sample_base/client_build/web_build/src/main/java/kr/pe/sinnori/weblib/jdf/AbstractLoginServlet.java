@@ -6,14 +6,16 @@ import javax.servlet.http.HttpServletResponse;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.sessionkey.ServerSessionkeyIF;
 import kr.pe.sinnori.common.sessionkey.ServerSessionkeyManager;
+import kr.pe.sinnori.weblib.sitemenu.SiteTopMenuType;
 
 @SuppressWarnings("serial")
 public abstract class AbstractLoginServlet extends AbstractSessionKeyServlet {	
 
 	protected void performPreTask(HttpServletRequest req, HttpServletResponse res) throws Exception  {
-		if (! isLogin(req)) {
-			String requestURI = req.getRequestURI();
+		if (! isLogin(req)) {			
+			setSiteTopMenuRequestAtrributeMatchingTopMenuParameter(req, SiteTopMenuType.INTRODUCE);
 			
+			String requestURI = req.getRequestURI();			
 			// log.info("requestURI={}", requestURI);
 			
 			

@@ -1,13 +1,9 @@
-<%@page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%>
 <%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
-%><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
+%><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
 %><jsp:useBean id="allDataTypeInObj" class="kr.pe.sinnori.impl.message.AllItemType.AllItemType" scope="request" /><%
 %><jsp:useBean id="allDataTypeOutObj" class="kr.pe.sinnori.impl.message.AllItemType.AllItemType" scope="request" /><%
-%><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%	
-	request.setAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME, SITE_TOPMENU_TYPE.TEST_EXAMPLE);
-
+%><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%
 	Boolean isSame = (Boolean) request.getAttribute("isSame");	
 %><!DOCTYPE html>
 <html>
@@ -51,7 +47,7 @@
 	if (! isLogin(request)) {
 %><a href="/servlet/Login?topmenu=<%=getCurrentTopMenuIndex(request)%>">login</a><%		
 	} else {
-%><a href="/menu/member/logout.jsp?topmenu=<%=SITE_TOPMENU_TYPE.MEMBER.getTopMenuIndex()%>">logout</a><%
+%><a href="/menu/member/logout.jsp?topmenu=<%=getCurrentTopMenuIndex(request)%>">logout</a><%
 	}
 %>
 	

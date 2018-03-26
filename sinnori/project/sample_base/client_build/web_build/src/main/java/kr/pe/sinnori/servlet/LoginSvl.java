@@ -38,6 +38,8 @@ import kr.pe.sinnori.impl.message.LoginWithSessionKey.LoginWithSessionKey;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
 import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.sinnori.weblib.jdf.AbstractServlet;
+import kr.pe.sinnori.weblib.sitemenu.SiteMenuManger;
+import kr.pe.sinnori.weblib.sitemenu.SiteTopMenuType;
 
 /**
  * 로그인
@@ -50,6 +52,8 @@ public class LoginSvl extends AbstractServlet {
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
+		SiteTopMenuType targetSiteTopMenuType = setSiteTopMenuRequestAtrributeMatchingTopMenuParameter(req, SiteTopMenuType.MEMBER);
+		
 		String pageGubun = req.getParameter("pageGubun");
 		
 		if (null == pageGubun || !pageGubun.equals("step2")) {
@@ -69,6 +73,7 @@ public class LoginSvl extends AbstractServlet {
 			
 			String modulusHexString = webServerSessionkey.getModulusHexStrForWeb();
 			
+			req.setAttribute("successURL", SiteMenuManger.getInstance().getBodyURL(targetSiteTopMenuType));
 			req.setAttribute("modulusHexString", modulusHexString);
 			printJspPage(req, res, "/menu/member/login.jsp");
 			return;
@@ -79,11 +84,13 @@ public class LoginSvl extends AbstractServlet {
 			String parmId = req.getParameter("id");
 			String parmPwd = req.getParameter("pwd");
 			
-			log.info(String.format("parm sessionkeyBase64=[%s]", parmSessionKeyBase64));
-			log.info(String.format("parm ivBase64=[%s]", parmIVBase64));
-
-			log.info(String.format("parm id=[%s]", parmId));
-			log.info(String.format("parm pwd=[%s]", parmPwd));
+			String successURL = req.getParameter("successURL");
+			
+			log.info("parm sessionkeyBase64=[{}]", parmSessionKeyBase64);
+			log.info("parm ivBase64=[{}]", parmIVBase64);
+			log.info("parm id=[{}]", parmId);
+			log.info("parm pwd=[{}}]", parmPwd);
+			log.info("parm successURL=[{}}]", successURL);
 			
 			// req.setAttribute("isSuccess", Boolean.FALSE);
 			
@@ -189,6 +196,7 @@ public class LoginSvl extends AbstractServlet {
 				
 			}
 			
+			req.setAttribute("successURL", successURL);
 			req.setAttribute("messageResultOutObj", messageResultOutObj);
 			req.setAttribute(WebCommonStaticFinalVars.WEB_SERVER_SYMMETRIC_KEY, webServerSymmetricKey);
 			req.setAttribute("parmIVBase64", parmIVBase64);

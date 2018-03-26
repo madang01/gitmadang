@@ -24,6 +24,8 @@ public class BoardVoteSvl extends AbstractLoginServlet {
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
+		req.setAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME, 
+				kr.pe.sinnori.weblib.sitemenu.SiteTopMenuType.COMMUNITY);
 		
 		String goPage = "/menu/board/BoardVote01.jsp";
 		

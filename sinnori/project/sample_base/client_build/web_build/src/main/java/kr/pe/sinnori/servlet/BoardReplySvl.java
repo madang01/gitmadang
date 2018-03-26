@@ -26,6 +26,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.BoardReplyRequest.BoardReplyRequest;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
+import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.sinnori.weblib.jdf.AbstractLoginServlet;
 
 /**
@@ -39,6 +40,9 @@ public class BoardReplySvl extends AbstractLoginServlet {
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
+		req.setAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME, 
+				kr.pe.sinnori.weblib.sitemenu.SiteTopMenuType.COMMUNITY);
+		
 		String goPage = null;		
 		
 		String parmPageMode = req.getParameter("pageMode");

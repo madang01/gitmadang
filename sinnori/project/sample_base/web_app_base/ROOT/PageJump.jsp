@@ -1,26 +1,8 @@
 <%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
+%><%@ page import="kr.pe.sinnori.weblib.sitemenu.SiteTopMenuType" %><%
 
-	String parmTopmenu = request.getParameter("topmenu");
-	if (null == parmTopmenu) {
-		parmTopmenu = String.valueOf(SITE_TOPMENU_TYPE.MEMBER.getTopMenuIndex());
-	}
-	parmTopmenu = parmTopmenu.trim();	
-	if (parmTopmenu.equals("")) parmTopmenu=String.valueOf(SITE_TOPMENU_TYPE.MEMBER.getTopMenuIndex());
-	
-	System.out.println("parmTopmenu="+parmTopmenu);
-	
-	int nTopMenu = 0;
-	
-	try {
-		nTopMenu = Integer.parseInt(parmTopmenu);
-	} catch (NumberFormatException num_e) {
-		// num_e.prin
-	}
-	
-	SITE_TOPMENU_TYPE targetSiteTopMenuType = SITE_TOPMENU_TYPE.matchIndex(nTopMenu);
-	
-	request.setAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME, targetSiteTopMenuType);
+	setSiteTopMenuRequestAtrributeMatchingTopMenuParameter(request, SiteTopMenuType.INTRODUCE);
 	
 	String bodyurl = request.getParameter("bodyurl");
 	if (null == bodyurl) {
@@ -69,7 +51,7 @@
 	if (! isLogin(request)) {
 %><a href="/servlet/Login?topmenu=<%=getCurrentTopMenuIndex(request)%>">login</a><%		
 	} else {
-%><a href="/menu/member/logout.jsp?topmenu=<%=SITE_TOPMENU_TYPE.MEMBER.getTopMenuIndex()%>">logout</a><%
+%><a href="/menu/member/logout.jsp?topmenu=<%=getCurrentTopMenuIndex(request)%>">logout</a><%
 	}
 %>
 	

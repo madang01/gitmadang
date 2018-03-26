@@ -18,6 +18,7 @@ import kr.pe.sinnori.impl.message.BoardDownloadFileInDTO.BoardDownloadFileInDTO;
 import kr.pe.sinnori.impl.message.BoardDownloadFileOutDTO.BoardDownloadFileOutDTO;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
+import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.sinnori.weblib.jdf.AbstractServlet;
 
 @SuppressWarnings("serial")
@@ -26,6 +27,10 @@ public class BoardDownloadSvl extends AbstractServlet {
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
+		req.setAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME, 
+				kr.pe.sinnori.weblib.sitemenu.SiteTopMenuType.COMMUNITY);
+		
+		
 		String goPage = "/menu/board/BoardDownload01.jsp";
 		
 		if (! isLogin(req)) {

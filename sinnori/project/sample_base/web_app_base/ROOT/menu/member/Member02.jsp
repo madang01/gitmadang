@@ -1,13 +1,9 @@
 <%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
 %><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
-%><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="parmIVBase64" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="modulusHex" class="java.lang.String" scope="request" /><%
+%><jsp:useBean id="modulusHexString" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="messageResultOutObj" class="kr.pe.sinnori.impl.message.MessageResult.MessageResult" scope="request" /><%
-	request.setAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME, SITE_TOPMENU_TYPE.MEMBER);
-
 	String resultMessage = messageResultOutObj.getResultMessage();
 	boolean isSuccess = messageResultOutObj.getIsSuccess();
 %><!DOCTYPE html>
@@ -52,7 +48,7 @@
 	if (! isLogin(request)) {
 %><a href="/servlet/Login?topmenu=<%=getCurrentTopMenuIndex(request)%>">login</a><%		
 	} else {
-%><a href="/menu/member/logout.jsp?topmenu=<%=SITE_TOPMENU_TYPE.MEMBER.getTopMenuIndex()%>">logout</a><%
+%><a href="/menu/member/logout.jsp?topmenu=<%=getCurrentTopMenuIndex(request)%>">logout</a><%
 	}
 %>
 	
@@ -91,7 +87,7 @@
 				var privateKey = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE%>);
 				
 				var rsa = new RSAKey();
-				rsa.setPublic("<%=modulusHex%>", "10001");
+				rsa.setPublic("<%=modulusHexString%>", "10001");
 					
 				var sessionKeyHex = rsa.encrypt(CryptoJS.enc.Base64.stringify(privateKey));		
 				var sessionkeyBase64 = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex));

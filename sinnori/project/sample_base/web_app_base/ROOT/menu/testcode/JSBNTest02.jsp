@@ -4,7 +4,6 @@
 %><jsp:useBean id="orignalPlainText" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="decryptedPlainText" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="resultMessage" class="java.lang.String" scope="request" /><%
-	request.setAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME, SITE_TOPMENU_TYPE.TEST_EXAMPLE);
 %><!DOCTYPE html>
 <html>
 <head>
@@ -47,7 +46,7 @@
 	if (! isLogin(request)) {
 %><a href="/servlet/Login?topmenu=<%=getCurrentTopMenuIndex(request)%>">login</a><%		
 	} else {
-%><a href="/menu/member/logout.jsp?topmenu=<%=SITE_TOPMENU_TYPE.MEMBER.getTopMenuIndex()%>">logout</a><%
+%><a href="/menu/member/logout.jsp?topmenu=<%=getCurrentTopMenuIndex(request)%>">logout</a><%
 	}
 %>
 	

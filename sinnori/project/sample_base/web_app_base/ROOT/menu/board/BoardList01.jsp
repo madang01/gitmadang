@@ -2,15 +2,11 @@
 %><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
 %><%@ page import="kr.pe.sinnori.impl.message.BoardListOutDTO.BoardListOutDTO" %><%
-%><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="modulusHex" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="parmBoardId" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="boardListOutDTO" class="kr.pe.sinnori.impl.message.BoardListOutDTO.BoardListOutDTO" scope="request" /><%
 %><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%
-	
-	request.setAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME, SITE_TOPMENU_TYPE.COMMUNITY);	
-	
+
 %><!DOCTYPE html>
 <html>
 <head>
@@ -53,7 +49,7 @@
 	if (! isLogin(request)) {
 %><a href="/servlet/Login?topmenu=<%=getCurrentTopMenuIndex(request)%>">login</a><%		
 	} else {
-%><a href="/menu/member/logout.jsp?topmenu=<%=SITE_TOPMENU_TYPE.MEMBER.getTopMenuIndex()%>">logout</a><%
+%><a href="/menu/member/logout.jsp?topmenu=<%=getCurrentTopMenuIndex(request) %>">logout</a><%
 	}
 %>
 	
@@ -135,7 +131,6 @@ tbody {
 	}
 </script>
 <form name=goWriteForm method="post" action="/servlet/BoardWrite">
-<input type="hidden" name="topmenu" value="<%=topmenu%>" />
 <input type="hidden" name="pageMode" value="view" />
 <input type="hidden" name="boardId" value="<%=parmBoardId%>" />
 <input type="hidden" name="sessionkeyBase64" />
@@ -144,7 +139,6 @@ tbody {
 
 
 <form name=goDetailForm method="post" action="/servlet/BoardDetail">
-<input type="hidden" name="topmenu" value="<%=topmenu%>" />
 <input type="hidden" name="pageMode" value="view" />
 <input type="hidden" name="boardId" value="<%=parmBoardId%>" />
 <input type="hidden" name="boardNo" />
@@ -153,7 +147,6 @@ tbody {
 </form>
 
 <form name=gofrm method="post" action="/servlet/BoardList">
-<input type="hidden" name="topmenu" value="<%=topmenu%>" />
 <input type="hidden" name="boardId" value="<%=parmBoardId%>" />
 <input type="hidden" name="pageNo" />
 <input type="hidden" name="sessionkeyBase64" />

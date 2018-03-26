@@ -1,11 +1,8 @@
 <%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
 %><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
-%><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="modulusHex" class="java.lang.String" scope="request" /><%
-	request.setAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME, SITE_TOPMENU_TYPE.MEMBER);
+%><jsp:useBean id="modulusHexString" class="java.lang.String" scope="request" /><%
 %><!DOCTYPE html>
 <html>
 <head>
@@ -48,7 +45,7 @@
 	if (! isLogin(request)) {
 %><a href="/servlet/Login?topmenu=<%=getCurrentTopMenuIndex(request)%>">login</a><%		
 	} else {
-%><a href="/menu/member/logout.jsp?topmenu=<%=SITE_TOPMENU_TYPE.MEMBER.getTopMenuIndex()%>">logout</a><%
+%><a href="/menu/member/logout.jsp?topmenu=<%=getCurrentTopMenuIndex(request)%>">logout</a><%
 	}
 %>
 	
@@ -205,20 +202,11 @@
 				
 				
 				var rsa = new RSAKey();
-				rsa.setPublic("<%=modulusHex%>", "10001");
+				rsa.setPublic("<%=modulusHexString%>", "10001");
 				
 				// FIXME!
-				var sessionKeyHex = rsa.encrypt(CryptoJS.enc.Base64.stringify(privateKey));
-				// var sessionKeyHex =  "54f5499e2f6c40ec9a35361c4348d798acc3c31310ae949ae2f4e468ab9275aa34fe2452b194c0994d351d6124dd00eb6fdab614add4e661603e56dcccedf8704328f8ae907d4e8529d6457a628402bee0eb641860b10a0c31ceb6c535aeb86c7afa8534d2b486fb383f448394a8630b3620c8938c6b69d410e1d8f7f3ed1d62";
-				
-				// g.privateKey.value = CryptoJS.enc.Hex.stringify(privateKey);
-				// g.sessionKeyHex.value = sessionKeyHex;
-				g.sessionkeyBase64.value = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex));
-				// g.sessionKey.value = CryptoJS.enc.Base64.stringify(rsa.encrypt(privateKey));
-				
-				// alert(sessionKeyHex);		
-				// alert(g.sessionKey.value);
-				// alert((ttmp == sessionKeyHex));
+				var sessionKeyHex = rsa.encrypt(CryptoJS.enc.Base64.stringify(privateKey));				
+				g.sessionkeyBase64.value = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex));				
 
 				sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME%>', CryptoJS.enc.Base64.stringify(privateKey));
 				sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_SESSIONKEY_NAME%>', g.sessionkeyBase64.value);
@@ -253,7 +241,6 @@
 		//-->
 		</script>
 		<form method="post" name="gofrm" action="/servlet/Member">
-		<input type="hidden" name="topmenu" value="<%=topmenu%>" />
 		<input type="hidden" name="pageMode" value="proc" />
 		<input type="hidden" name="sessionkeyBase64" />
 		<input type="hidden" name="ivBase64" />

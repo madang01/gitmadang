@@ -23,6 +23,7 @@ import java.util.Hashtable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.sinnori.weblib.jdf.AbstractServlet;
 
 
@@ -35,6 +36,9 @@ import kr.pe.sinnori.weblib.jdf.AbstractServlet;
 public class JDFNotLoginTestSvl extends AbstractServlet {
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
+		req.setAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME, 
+				kr.pe.sinnori.weblib.sitemenu.SiteTopMenuType.TEST_EXAMPLE);
+		
 		// String title = "Not Login Test:MVC2 model ok";
 		
 		Enumeration<String> headerNames = req.getHeaderNames();

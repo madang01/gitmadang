@@ -1,6 +1,7 @@
 <%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
-	request.setAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_KEY_NAME, SITE_TOPMENU_TYPE.DOWNLOAD);
+%><%@ page import="kr.pe.sinnori.weblib.sitemenu.SiteTopMenuType" %><%
+	request.setAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME, SiteTopMenuType.DOWNLOAD);
 %><!DOCTYPE html>
 <html>
 <head>
@@ -43,7 +44,7 @@
 	if (! isLogin(request)) {
 %><a href="/servlet/Login?topmenu=<%=getCurrentTopMenuIndex(request)%>">login</a><%		
 	} else {
-%><a href="/menu/member/logout.jsp?topmenu=<%=SITE_TOPMENU_TYPE.MEMBER.getTopMenuIndex()%>">logout</a><%
+%><a href="/menu/member/logout.jsp?topmenu=<%=getCurrentTopMenuIndex(request)%>">logout</a><%
 	}
 %>
 	

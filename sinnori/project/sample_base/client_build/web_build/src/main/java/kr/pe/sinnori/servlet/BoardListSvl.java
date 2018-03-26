@@ -19,6 +19,8 @@ public class BoardListSvl extends AbstractServlet {
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
+		req.setAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME, 
+				kr.pe.sinnori.weblib.sitemenu.SiteTopMenuType.COMMUNITY);
 		
 		String goPage = "/menu/board/BoardList01.jsp";
 		

@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
+import kr.pe.sinnori.weblib.sitemenu.SiteTopMenuType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +74,34 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 		attachSystemFullFileNameBuilder.append(WebCommonStaticFinalVars.WEBSITE_FILEUPLOAD_SUFFIX);
 		
 		return attachSystemFullFileNameBuilder.toString();
+	}
+	
+	public SiteTopMenuType setSiteTopMenuRequestAtrributeMatchingTopMenuParameter(HttpServletRequest req, SiteTopMenuType defaultSiteTopMenuType) {
+		if (null == req) {
+			throw new IllegalArgumentException("the parameter req is null");
+		}
+		if (null == defaultSiteTopMenuType) {
+			throw new IllegalArgumentException("the parameter defaultSiteTopMenuType is null");
+		}
+		String parmTopmenu = req.getParameter("topmenu");
+		if (null == parmTopmenu) {
+			parmTopmenu = String.valueOf(defaultSiteTopMenuType.getTopMenuIndex());
+		}
+		parmTopmenu = parmTopmenu.trim();	
+		if (parmTopmenu.equals("")) parmTopmenu=String.valueOf(defaultSiteTopMenuType.getTopMenuIndex());
+		
+		int nTopMenu = 0;
+		
+		try {
+			nTopMenu = Integer.parseInt(parmTopmenu);
+		} catch (NumberFormatException num_e) {
+			// num_e.prin
+		}
+		
+		SiteTopMenuType targetSiteTopMenuType = SiteTopMenuType.match(nTopMenu);
+		
+		req.setAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME, targetSiteTopMenuType);
+		return targetSiteTopMenuType;
 	}
 
 }

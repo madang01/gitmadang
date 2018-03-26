@@ -53,6 +53,10 @@ public class MemberSvl extends AbstractServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
+		req.setAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME, 
+				kr.pe.sinnori.weblib.sitemenu.SiteTopMenuType.MEMBER);
+		
+		
 		String goPage = null;
 		
 		String parmPageMode = req.getParameter("pageMode");
@@ -85,11 +89,11 @@ public class MemberSvl extends AbstractServlet {
 			return;
 		}
 		
-		String modulusHex = webServerSessionkey.getModulusHexStrForWeb();
-		req.setAttribute("modulusHex", modulusHex);
+		String modulusHexString = webServerSessionkey.getModulusHexStrForWeb();
+		req.setAttribute("modulusHexString", modulusHexString);
 		
 		if (parmPageMode.equals("view")) {
-			goPage = "/menu/member/Member01.jsp";			
+			goPage = "/menu/member/Member01.jsp";
 		} else {
 			goPage = "/menu/member/Member02.jsp";
 			
@@ -207,7 +211,7 @@ public class MemberSvl extends AbstractServlet {
 
 			ServerSymmetricKeyIF webServerSymmetricKey = null;
 			try {
-				webServerSymmetricKey = webServerSessionkey.getNewInstanceOfServerSymmetricKey(sessionkeyBytes, ivBytes);
+				webServerSymmetricKey = webServerSessionkey.getNewInstanceOfServerSymmetricKey(true, sessionkeyBytes, ivBytes);
 			} catch(IllegalArgumentException e) {
 				String errorMessage = e.getMessage();
 				log.warn(errorMessage);
@@ -346,8 +350,8 @@ public class MemberSvl extends AbstractServlet {
 				memberRegisterWithSessionKeyInObj.setNicknameCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(nicknameBytes)));
 				memberRegisterWithSessionKeyInObj.setHintCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(pwdHintBytes)));
 				memberRegisterWithSessionKeyInObj.setAnswerCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(pwdAnswerBytes)));
-				memberRegisterWithSessionKeyInObj.setSessionKeyBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(sessionKeyBytesOfServer)));
-				memberRegisterWithSessionKeyInObj.setIvBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(ivBytesOfServer)));				
+				memberRegisterWithSessionKeyInObj.setSessionKeyBase64(Base64.encodeBase64String(sessionKeyBytesOfServer));
+				memberRegisterWithSessionKeyInObj.setIvBase64(Base64.encodeBase64String(ivBytesOfServer));				
 
 				messageFromServer = mainProjectConnectionPool.sendSyncInputMessage(memberRegisterWithSessionKeyInObj);					
 				if (messageFromServer instanceof MessageResult) {
