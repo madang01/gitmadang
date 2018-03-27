@@ -1,14 +1,34 @@
+>> Introduction
+
+(1) English version
+
+ Sinnori framework is a message driven development framework with a simple structure of server / client based input -> processing -> output.
+
+Message driven development is a development method in which roles and responsibilities are separated between the server and the client 
+
+so that the server and the client can work independently, 
+
+although the disadvantage is that the maintenance increases exponentially as the number of messages to manage increases.
+
+For example, a client can perform tasks necessary for a client as a virtual output message autonomously generated independently of the server.
+
+The server can also perform logic validation with a virtual input message created by itself, independent of the client.
+
+Finally, the message-driven development method has the disadvantage of overhead due to multiple invocations, but it is easy to assemble and use business logic as a component.
+
+
+
+(2) Korea version
  신놀이 프레임워크는 서버/클라이언트 기반의 입력 -> 처리 -> 출력이라는 단순한 구조를 갖는 메시지 주도 개발 프레임워크입니다.
  
-메시지 주도 개발 방법은 관리해야할 메시지가 증가할수록 유지 보수가 기하 급수적으로 어려워지는 단점이 있지만
+메시지 주도 개발 방법은 비록 관리해야할 메시지가 증가할수록 유지 보수가 기하 급수적으로 어려워지는 단점이 있지만 
 
-서버와 클라이언트 간의 롤과 책임이 분리되어 각자 병행 작업할 수 있어 개발 시간을 단축하는데 도움을 줍니다.
+서버와 클라이언트 각자 독립적으로 작업할 수 있도록 서버와 클라이언트 간의 롤과 책임이 분리되어 있는 개발 방법입니다.
 
-예를 들면 클라이언트는 입력 메시지에 대응하는 출력 메시지를 가상하여 필요한 작업을 선행하여 작업을 할 수 있으며
+예를 들어 클라이언트는 서버와 독립적으로 자체적으로 생성 된 가상 출력 메시지로 클라이언트에 필요한 작업을 수행 할 수 있습니다.
 
-서버 또한 가상의 입력 메시지를 넣어 로직 검증을 할 수 있습니다.
+서버 또한 클라이언트와 별개로 자체적으로 만든 가상의 입력 메시지로 로직 검증을 할 수 있습니다.
 
-그리고 여러번 호출로 오버헤드가 있고 의존성이 증가하여 유지보수를 어렵게하는 단점이 있지만 비지니스 로직을 콤포넌트 처럼 조립하여 새로운 서비스를 만든는데 용이합니다.
 
 
 >> 앞으로의 목표
