@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.slf4j.Logger;
@@ -15,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
-import kr.pe.sinnori.common.classloader.SimpleClassLoader;
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.itemvalue.AllDBCPPartConfiguration;
@@ -33,11 +31,7 @@ public class MybatisSqlSession {
 	private MybatisParsingInformationForModification currentMybatisParsingInformationForModification = null;
 	private File mybatisConfigeFile = null;
 	
-	private SimpleClassLoader ownerSimpleClassLoader = null;
-	
-	public MybatisSqlSession(final SimpleClassLoader simpleClassLoader) {
-		this.ownerSimpleClassLoader = simpleClassLoader;
-		Resources.setDefaultClassLoader(ownerSimpleClassLoader);
+	public MybatisSqlSession() {
 		init();
 	}
 	
@@ -222,9 +216,5 @@ public class MybatisSqlSession {
 			throw new MybatisException(errorMessage);
 		}
 		return newSqlSessionFactory;
-	}
-
-	public SimpleClassLoader getOwnerSimpleClassLoader() {
-		return ownerSimpleClassLoader;
 	}
 }

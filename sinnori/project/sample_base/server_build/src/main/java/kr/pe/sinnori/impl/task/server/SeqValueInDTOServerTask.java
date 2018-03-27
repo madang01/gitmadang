@@ -4,10 +4,10 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.mybatis.MybatisSqlSessionFactoryManger;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
 import kr.pe.sinnori.impl.message.SeqValueInDTO.SeqValueInDTO;
 import kr.pe.sinnori.impl.message.SeqValueOutDTO.SeqValueOutDTO;
+import kr.pe.sinnori.impl.mybatis.MybatisSqlSessionFactoryManger;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.sinnori.server.task.AbstractServerTask;
@@ -22,7 +22,7 @@ public class SeqValueInDTOServerTask extends AbstractServerTask {
 		log.info(inputMessage.toString());
 		
 		SqlSessionFactory sqlSessionFactory = MybatisSqlSessionFactoryManger.getInstance()
-				.getSqlSessionFactory(this.getClass().getClassLoader(), ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
+				.getSqlSessionFactory(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
 		SeqValueInDTO inObj = (SeqValueInDTO)inputMessage;
 		
 		SeqValueOutDTO outObj = null;

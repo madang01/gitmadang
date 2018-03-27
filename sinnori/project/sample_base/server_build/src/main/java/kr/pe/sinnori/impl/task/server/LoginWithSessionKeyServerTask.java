@@ -11,12 +11,12 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.mybatis.MybatisSqlSessionFactoryManger;
 import kr.pe.sinnori.common.sessionkey.ServerSessionkeyIF;
 import kr.pe.sinnori.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.sinnori.common.sessionkey.ServerSymmetricKeyIF;
 import kr.pe.sinnori.impl.message.LoginWithSessionKey.LoginWithSessionKey;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
+import kr.pe.sinnori.impl.mybatis.MybatisSqlSessionFactoryManger;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.sinnori.server.lib.ValueChecker;
@@ -35,7 +35,7 @@ public class LoginWithSessionKeyServerTask extends AbstractServerTask {
 		log.info(inObj.toString());		
 		
 		SqlSessionFactory sqlSessionFactory = MybatisSqlSessionFactoryManger.getInstance()
-				.getSqlSessionFactory(this.getClass().getClassLoader(), ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);	
+				.getSqlSessionFactory(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);	
 		
 		MessageResult messageResultOutObj = new MessageResult();
 		messageResultOutObj.setIsSuccess(false);

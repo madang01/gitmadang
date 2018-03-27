@@ -4,10 +4,10 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.mybatis.MybatisSqlSessionFactoryManger;
 import kr.pe.sinnori.impl.message.BoardDownloadFileInDTO.BoardDownloadFileInDTO;
 import kr.pe.sinnori.impl.message.BoardDownloadFileOutDTO.BoardDownloadFileOutDTO;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
+import kr.pe.sinnori.impl.mybatis.MybatisSqlSessionFactoryManger;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.sinnori.server.task.AbstractServerTask;
@@ -35,7 +35,7 @@ public class BoardDownloadFileInDTOServerTask extends AbstractServerTask {
 					.getSqlSessionFactory("tw_sinnoridb");
 		}*/
 		SqlSessionFactory sqlSessionFactory = MybatisSqlSessionFactoryManger.getInstance()
-				.getSqlSessionFactory(this.getClass().getClassLoader(), ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
+				.getSqlSessionFactory(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
 
 		BoardDownloadFileOutDTO boardDownloadFileOutObj = null;
 

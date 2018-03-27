@@ -46,8 +46,7 @@ public class MybatisSqlSessionFactoryMangerTest {
 	private String mainProjectName = "sample_test";
 	private final String serverMybatisConfigFileRelativePathString = "mybatis/mybatisConfig.xml";
 	private File mybatisConfigeFile = null;	
-	
-	
+		
 	@Before
 	public void setup() {
 		File sinnoriInstalledPath = new File(sinnoriInstalledPathString);
@@ -306,12 +305,22 @@ public class MybatisSqlSessionFactoryMangerTest {
 			fail(e.getMessage());
 		}
 		
-		MybatisSqlSessionFactoryManger mybatisSqlSessionFactoryManger = MybatisSqlSessionFactoryManger.getInstance();
+		
+		MybatisSqlSession mybatisSqlSession = null;
+		try {
+			@SuppressWarnings("unchecked")
+			Class<MybatisSqlSession> t = (Class<MybatisSqlSession>)simpleClassLoader.loadClass(MybatisSqlSession.class.getCanonicalName());
+						
+			mybatisSqlSession = t.newInstance();
+		} catch (Exception e) {
+			log.warn(e.getMessage(), e);
+			fail(e.getMessage());
+		}
 		
 		String enviromentID = "sample_base_db";
 		SqlSessionFactory sqlSessionFactory = null;
 		try {
-			sqlSessionFactory = mybatisSqlSessionFactoryManger.getSqlSessionFactory(simpleClassLoader, enviromentID);
+			sqlSessionFactory = mybatisSqlSession.getSqlSessionFactory(enviromentID);
 		} catch (MybatisException e) {
 			log.warn(e.getMessage(), e);
 			fail(e.getMessage());
@@ -373,7 +382,7 @@ public class MybatisSqlSessionFactoryMangerTest {
 		}
 		
 		try {
-			sqlSessionFactory = mybatisSqlSessionFactoryManger.getSqlSessionFactory(simpleClassLoader, enviromentID);
+			sqlSessionFactory = mybatisSqlSession.getSqlSessionFactory(enviromentID);
 		} catch (MybatisException e) {
 			log.warn(e.getMessage(), e);
 			fail(e.getMessage());

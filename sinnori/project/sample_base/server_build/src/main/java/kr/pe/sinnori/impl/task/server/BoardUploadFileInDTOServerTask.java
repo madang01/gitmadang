@@ -6,7 +6,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.mybatis.MybatisSqlSessionFactoryManger;
 import kr.pe.sinnori.impl.message.BoardFileDTO.BoardFileDTO;
 import kr.pe.sinnori.impl.message.BoardFileInfoDTO.BoardFileInfoDTO;
 import kr.pe.sinnori.impl.message.BoardUploadFileInDTO.BoardUploadFileInDTO;
@@ -14,6 +13,7 @@ import kr.pe.sinnori.impl.message.BoardUploadFileInDTO.BoardUploadFileInDTO.NewA
 import kr.pe.sinnori.impl.message.BoardUploadFileInDTO.BoardUploadFileInDTO.SelectedOldAttachFile;
 import kr.pe.sinnori.impl.message.BoardUploadFileOutDTO.BoardUploadFileOutDTO;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
+import kr.pe.sinnori.impl.mybatis.MybatisSqlSessionFactoryManger;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.sinnori.server.lib.ValueChecker;
@@ -30,7 +30,7 @@ public class BoardUploadFileInDTOServerTask extends AbstractServerTask {
 		log.info(inputMessage.toString());
 		
 		SqlSessionFactory sqlSessionFactory = MybatisSqlSessionFactoryManger.getInstance()
-				.getSqlSessionFactory(this.getClass().getClassLoader(), ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
+				.getSqlSessionFactory(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
 		BoardUploadFileInDTO inObj = (BoardUploadFileInDTO)inputMessage;
 		
 		try {

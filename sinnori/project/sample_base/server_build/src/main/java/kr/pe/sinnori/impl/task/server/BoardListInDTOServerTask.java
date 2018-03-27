@@ -4,10 +4,10 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.common.mybatis.MybatisSqlSessionFactoryManger;
 import kr.pe.sinnori.impl.message.BoardListInDTO.BoardListInDTO;
 import kr.pe.sinnori.impl.message.BoardListOutDTO.BoardListOutDTO;
 import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
+import kr.pe.sinnori.impl.mybatis.MybatisSqlSessionFactoryManger;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.sinnori.server.task.AbstractServerTask;
@@ -25,7 +25,7 @@ public class BoardListInDTOServerTask extends AbstractServerTask {
 		log.info(inputMessage.toString());		
 		
 		SqlSessionFactory sqlSessionFactory = MybatisSqlSessionFactoryManger.getInstance()
-				.getSqlSessionFactory(this.getClass().getClassLoader(), ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
+				.getSqlSessionFactory(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
 		
 		BoardListInDTO inObj = (BoardListInDTO)inputMessage;
 		

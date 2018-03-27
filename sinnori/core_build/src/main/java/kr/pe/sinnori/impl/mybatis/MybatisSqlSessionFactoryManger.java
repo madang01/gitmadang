@@ -1,11 +1,13 @@
-package kr.pe.sinnori.common.mybatis;
+package kr.pe.sinnori.impl.mybatis;
 
-import java.util.HashMap;
-
+import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.classloader.SimpleClassLoader;
 import kr.pe.sinnori.common.exception.MybatisException;
+import kr.pe.sinnori.common.mybatis.MybatisSqlSession;
 
 /**
  * MyBatis SqlSessionFactory 관리자
@@ -14,13 +16,11 @@ import kr.pe.sinnori.common.exception.MybatisException;
  * 
  */
 public class MybatisSqlSessionFactoryManger {
-	// private final Logger log = LoggerFactory.getLogger(MybatisSqlSessionFactoryManger.class);
+	private final Logger log = LoggerFactory.getLogger(MybatisSqlSessionFactoryManger.class);
 	
-	private final Object monitor = new Object();
+	// private final Object monitor = new Object();
 	
-	private HashMap<Integer, MybatisSqlSession> simpleClassLoader2MybatisSqlSessionHash = new HashMap<Integer, MybatisSqlSession>();
-
-	
+	private MybatisSqlSession mybatisSqlSession = null;	
 
 	/**
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 생성자.
@@ -28,10 +28,18 @@ public class MybatisSqlSessionFactoryManger {
 	 * @throws MybatisException
 	 */
 	private MybatisSqlSessionFactoryManger() {
-	}
-
-	
-	
+		ClassLoader contextClassloader =  MybatisSqlSessionFactoryManger.class.getClassLoader();
+		
+		if (!(contextClassloader instanceof SimpleClassLoader)) {
+			log.error("the var contextClassloader is not a instance of SimpleClassLoader");
+			System.exit(1);
+		}
+		
+		synchronized (Resources.class) {
+			Resources.setDefaultClassLoader(contextClassloader);
+			mybatisSqlSession = new MybatisSqlSession();
+		}
+	}	
 
 	/**
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스
@@ -57,33 +65,11 @@ public class MybatisSqlSessionFactoryManger {
 	 * @return
 	 * @throws MybatisException
 	 */
-	public SqlSessionFactory getSqlSessionFactory(final ClassLoader targetClassLoader, String enviromentID)
+	public SqlSessionFactory getSqlSessionFactory(String enviromentID)
 			throws MybatisException {
-		if (null == targetClassLoader) {
-			throw new IllegalArgumentException("the parameter targetClassLoader is null");
-		}
-		
-		if (! (targetClassLoader instanceof SimpleClassLoader)) {
-			throw new IllegalArgumentException("the parameter targetClassLoader is not a instance of SimpleClassLoader class");
-		}
-		
-		
 		
 		if (null == enviromentID) {
 			throw new IllegalArgumentException("the parameter enviromentID is null");
-		}
-		
-		SimpleClassLoader simpleClassLoader = (SimpleClassLoader)targetClassLoader;
-		
-		MybatisSqlSession mybatisSqlSession  = null;
-		synchronized (monitor) {
-			mybatisSqlSession = simpleClassLoader2MybatisSqlSessionHash.get(simpleClassLoader.hashCode());
-			
-			if (null == mybatisSqlSession) {
-				
-				mybatisSqlSession = new MybatisSqlSession(simpleClassLoader);
-				simpleClassLoader2MybatisSqlSessionHash.put(simpleClassLoader.hashCode(), mybatisSqlSession);
-			}
 		}
 		
 		SqlSessionFactory sqlSessionFactory = mybatisSqlSession.getSqlSessionFactory(enviromentID);
