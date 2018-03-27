@@ -31,7 +31,7 @@ public class BoardFileInfoDTO extends AbstractMessage {
 	private java.sql.Timestamp modifiedDate;
 
 	public long getAttachId() {
-		return attachId;
+		return attachId;		
 	}
 
 	public void setAttachId(long attachId) {

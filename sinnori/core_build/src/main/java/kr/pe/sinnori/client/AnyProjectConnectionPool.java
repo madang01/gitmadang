@@ -134,7 +134,7 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 
 		switch (projectPartConfiguration.getMessageProtocolType()) {
 		case DHB: {
-			messageProtocol = new DHBMessageProtocol(projectPartConfiguration.getMessageIDFixedSize(),
+			messageProtocol = new DHBMessageProtocol(
 					projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(), charsetEncoderOfProject,
 					charsetDecoderOfProject, dataPacketBufferPool);
 
@@ -146,8 +146,7 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 			break;
 		}
 		case THB: {
-			messageProtocol = new THBMessageProtocol(projectPartConfiguration.getMessageIDFixedSize(),
-					projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(), charsetEncoderOfProject,
+			messageProtocol = new THBMessageProtocol(projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(), charsetEncoderOfProject,
 					charsetDecoderOfProject, dataPacketBufferPool);
 			break;
 		}

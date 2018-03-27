@@ -108,9 +108,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 		
 		MessageProtocolIF messageProtocol = null;
 		{
-			int messageIDFixedSize = 25;
+		
 			messageProtocol = 
-					new THBMessageProtocol(messageIDFixedSize, 
+					new THBMessageProtocol( 
 							dataPacketBufferMaxCntPerMessage,
 							streamCharsetEncoder,
 							streamCharsetDecoder,
@@ -175,6 +175,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 					
 					try {
 						fsis.skip(messageProtocol.getMessageHeaderSize());
+						fsis.getUBPascalString();
+						fsis.getUnsignedShort();
+						fsis.getInt();
 						
 						AbstractMessageDecoder messageDecoder  = (AbstractMessageDecoder)Class.forName(ioPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID)).newInstance();
 					
@@ -413,10 +416,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 		
 		MessageProtocolIF messageProtocol = null;
 		{
-			int messageIDFixedSize = 25;
 			messageProtocol = 
-					new THBMessageProtocol(messageIDFixedSize, 
-							dataPacketBufferMaxCntPerMessage,
+					new THBMessageProtocol(dataPacketBufferMaxCntPerMessage,
 							streamCharsetEncoder,
 							streamCharsetDecoder,
 							dataPacketBufferPoolManager);
@@ -480,6 +481,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 					
 					try {
 						fsis.skip(messageProtocol.getMessageHeaderSize());
+						fsis.getUBPascalString();
+						fsis.getUnsignedShort();
+						fsis.getInt();
 						
 						AbstractMessageDecoder messageDecoder  = (AbstractMessageDecoder)Class.forName(ioPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID)).newInstance();
 					
@@ -713,10 +717,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 		
 		MessageProtocolIF messageProtocol = null;
 		{
-			int messageIDFixedSize = 25;
+			
 			messageProtocol = 
-					new THBMessageProtocol(messageIDFixedSize, 
-							dataPacketBufferMaxCntPerMessage,
+					new THBMessageProtocol(dataPacketBufferMaxCntPerMessage,
 							streamCharsetEncoder,
 							streamCharsetDecoder,
 							dataPacketBufferPoolManager);
@@ -780,6 +783,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 					
 					try {
 						fsis.skip(messageProtocol.getMessageHeaderSize());
+						fsis.getUBPascalString();
+						fsis.getUnsignedShort();
+						fsis.getInt();
 						
 						AbstractMessageDecoder messageDecoder  = (AbstractMessageDecoder)Class.forName(ioPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID)).newInstance();
 					
@@ -1027,10 +1033,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 		
 		MessageProtocolIF messageProtocol = null;
 		{
-			int messageIDFixedSize = 25;
 			messageProtocol = 
-					new THBMessageProtocol(messageIDFixedSize, 
-							dataPacketBufferMaxCntPerMessage,
+					new THBMessageProtocol(dataPacketBufferMaxCntPerMessage,
 							streamCharsetEncoder,
 							streamCharsetDecoder,
 							dataPacketBufferPoolManager);
@@ -1094,6 +1098,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 					
 					try {
 						fsis.skip(messageProtocol.getMessageHeaderSize());
+						fsis.getUBPascalString();
+						fsis.getUnsignedShort();
+						fsis.getInt();
 						
 						AbstractMessageDecoder messageDecoder  = (AbstractMessageDecoder)Class.forName(ioPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID)).newInstance();
 					
@@ -1340,10 +1347,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 		
 		MessageProtocolIF messageProtocol = null;
 		{
-			int messageIDFixedSize = 25;
 			messageProtocol = 
-					new THBMessageProtocol(messageIDFixedSize, 
-							dataPacketBufferMaxCntPerMessage,
+					new THBMessageProtocol(dataPacketBufferMaxCntPerMessage,
 							streamCharsetEncoder,
 							streamCharsetDecoder,
 							dataPacketBufferPoolManager);
@@ -1407,6 +1412,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 					
 					try {
 						fsis.skip(messageProtocol.getMessageHeaderSize());
+						fsis.getUBPascalString();
+						fsis.getUnsignedShort();
+						fsis.getInt();
 						
 						AbstractMessageDecoder messageDecoder  = (AbstractMessageDecoder)Class.forName(ioPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID)).newInstance();
 					
@@ -1667,10 +1675,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 		
 		MessageProtocolIF messageProtocol = null;
 		{
-			int messageIDFixedSize = 25;
 			messageProtocol = 
-					new THBMessageProtocol(messageIDFixedSize, 
-							dataPacketBufferMaxCntPerMessage,
+					new THBMessageProtocol(dataPacketBufferMaxCntPerMessage,
 							streamCharsetEncoder,
 							streamCharsetDecoder,
 							dataPacketBufferPoolManager);
@@ -1734,6 +1740,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 					
 					try {
 						fsis.skip(messageProtocol.getMessageHeaderSize());
+						fsis.getUBPascalString();
+						fsis.getUnsignedShort();
+						fsis.getInt();
 						
 						AbstractMessageDecoder messageDecoder  = (AbstractMessageDecoder)Class.forName(ioPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID)).newInstance();
 					
@@ -1993,10 +2002,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 		
 		MessageProtocolIF messageProtocol = null;
 		{
-			int messageIDFixedSize = 25;
 			messageProtocol = 
-					new THBMessageProtocol(messageIDFixedSize, 
-							dataPacketBufferMaxCntPerMessage,
+					new THBMessageProtocol(dataPacketBufferMaxCntPerMessage,
 							streamCharsetEncoder,
 							streamCharsetDecoder,
 							dataPacketBufferPoolManager);
@@ -2060,6 +2067,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 					
 					try {
 						fsis.skip(messageProtocol.getMessageHeaderSize());
+						fsis.getUBPascalString();
+						fsis.getUnsignedShort();
+						fsis.getInt();
 						
 						AbstractMessageDecoder messageDecoder  = (AbstractMessageDecoder)Class.forName(ioPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID)).newInstance();
 					
@@ -2318,10 +2328,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 		
 		MessageProtocolIF messageProtocol = null;
 		{
-			int messageIDFixedSize = 25;
 			messageProtocol = 
-					new THBMessageProtocol(messageIDFixedSize, 
-							dataPacketBufferMaxCntPerMessage,
+					new THBMessageProtocol(dataPacketBufferMaxCntPerMessage,
 							streamCharsetEncoder,
 							streamCharsetDecoder,
 							dataPacketBufferPoolManager);
@@ -2385,6 +2393,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 					
 					try {
 						fsis.skip(messageProtocol.getMessageHeaderSize());
+						fsis.getUBPascalString();
+						fsis.getUnsignedShort();
+						fsis.getInt();
 						
 						AbstractMessageDecoder messageDecoder  = (AbstractMessageDecoder)Class.forName(ioPartDynamicClassNameUtil.getMessageDecoderClassFullName(messageID)).newInstance();
 					

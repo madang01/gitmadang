@@ -39,7 +39,7 @@ public class BoardUploadFileOutDTO extends AbstractMessage {
 		public short getAttachSeq() {
 			return attachSeq;
 		}
-
+		
 		public void setAttachSeq(short attachSeq) {
 			this.attachSeq = attachSeq;
 		}

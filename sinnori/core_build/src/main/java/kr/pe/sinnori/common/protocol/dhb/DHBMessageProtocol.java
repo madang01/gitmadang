@@ -63,9 +63,7 @@ import kr.pe.sinnori.common.util.HexUtil;
  */
 public class DHBMessageProtocol implements MessageProtocolIF {
 	private Logger log = LoggerFactory.getLogger(DHBMessageProtocol.class);
-
-	/** 메시지 헤더에 사용되는 문자열 메시지 식별자의 크기, 단위 byte */
-	private int messageIDFixedSize;
+	
 	private int dataPacketBufferMaxCntPerMessage;
 	// private Charset streamCharset = null;
 	private CharsetEncoder streamCharsetEncoder;
@@ -80,18 +78,14 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 	private THBSingleItemDecoder thbSingleItemDecoder = null;
 	private THBSingleItemEncoder thbSingleItemEncoder = null;
 	
-	private final Charset headerCharset = Charset.forName("ISO-8859-1");
+	private final Charset headerCharset = Charset.forName("UTF-8");
 	private CharsetEncoder headerCharsetEncoder = null;
 	private CharsetDecoder headerCharsetDecoder = null;
 
-	public DHBMessageProtocol(int messageIDFixedSize, int dataPacketBufferMaxCntPerMessage,
+	public DHBMessageProtocol(int dataPacketBufferMaxCntPerMessage,
 			CharsetEncoder streamCharsetEncoder, CharsetDecoder streamCharsetDecoder,
 			DataPacketBufferPoolIF dataPacketBufferPool) {
-		if (messageIDFixedSize <= 0) {
-			String errorMessage = String.format("the parameter messageIDFixedSize[%d] is less than or equal to zero",
-					messageIDFixedSize);
-			throw new IllegalArgumentException(errorMessage);
-		}
+		
 
 		if (dataPacketBufferMaxCntPerMessage <= 0) {
 			String errorMessage = String.format(
@@ -124,14 +118,13 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 			throw new IllegalArgumentException("the parameter dataPacketBufferPoolManager is null");
 		}
 
-		this.messageIDFixedSize = messageIDFixedSize;
 		this.dataPacketBufferMaxCntPerMessage = dataPacketBufferMaxCntPerMessage;
 		this.streamCharsetEncoder = streamCharsetEncoder;
 		this.streamCharsetDecoder = streamCharsetDecoder;
 		this.dataPacketBufferPool = dataPacketBufferPool;
 
 		
-		this.headerBodySize = messageIDFixedSize + 2 + 4 + 8 + CommonStaticFinalVars.MD5_BYTESIZE;
+		this.headerBodySize = 8 + CommonStaticFinalVars.MD5_BYTESIZE;
 		this.messageHeaderSize = headerBodySize + CommonStaticFinalVars.MD5_BYTESIZE;
 		
 		THBSingleItemDecoderMatcherIF thbSingleItemDecoderMatcher = new THBSingleItemDecoderMatcher(streamCharsetDecoder);
@@ -178,10 +171,10 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 	}
 
 	@Override
-	public List<WrapBuffer> M2S(AbstractMessage messageObj, AbstractMessageEncoder messageEncoder)
+	public List<WrapBuffer> M2S(AbstractMessage inputMessage, AbstractMessageEncoder messageEncoder)
 			throws NoMoreDataPacketBufferException, BodyFormatException, HeaderFormatException {
-		if (null == messageObj) {
-			throw new IllegalArgumentException("the parameter messageObj is null");
+		if (null == inputMessage) {
+			throw new IllegalArgumentException("the parameter inputMessage is null");
 		}
 
 		if (null == messageEncoder) {
@@ -189,9 +182,9 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 		}
 		
 		DHBMessageHeader dhbMessageHeader = new DHBMessageHeader();
-		dhbMessageHeader.messageID = messageObj.getMessageID();
-		dhbMessageHeader.mailboxID = messageObj.messageHeaderInfo.mailboxID;
-		dhbMessageHeader.mailID = messageObj.messageHeaderInfo.mailID;
+		String messageID = inputMessage.getMessageID();
+		int mailboxID = inputMessage.messageHeaderInfo.mailboxID;
+		int mailID = inputMessage.messageHeaderInfo.mailID;
 
 		java.security.MessageDigest md5 = null;
 		try {
@@ -205,16 +198,29 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 		
 		/** 바디 만들기 */
 		FreeSizeOutputStream bodyOutputStream = new FreeSizeOutputStream(dataPacketBufferMaxCntPerMessage,
-				streamCharsetEncoder, dataPacketBufferPool);
+				streamCharsetEncoder, dataPacketBufferPool);		
+		try {
+			bodyOutputStream.putUBPascalString(messageID, headerCharset);
+			bodyOutputStream.putUnsignedShort(mailboxID);
+			bodyOutputStream.putInt(mailID);
+		} catch (NoMoreDataPacketBufferException e) {
+			throw e;
+		} catch (Exception e) {
+			String errorMessage = new StringBuilder("fail to make a body header of the the parameter inputMessage[")
+					.append(inputMessage.toString())
+					.append("], errmsg=").append(e.getMessage()).toString();
+			log.warn(errorMessage, e);
+			throw new HeaderFormatException(errorMessage);
+		}
 		
 		//log.info("2");
 
 		try {
-			messageEncoder.encode(messageObj, thbSingleItemEncoder, bodyOutputStream);
+			messageEncoder.encode(inputMessage, thbSingleItemEncoder, bodyOutputStream);
 		} catch (NoMoreDataPacketBufferException e) {
 			throw e;
 		} catch (Exception e) {
-			String errorMessage = String.format("unknown error::messageObj=[%s]", messageObj.toString());
+			String errorMessage = String.format("unknown error::messageObj=[%s]", inputMessage.toString());
 			log.warn(errorMessage, e);
 			throw new BodyFormatException(errorMessage);
 		}
@@ -252,11 +258,11 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 		FreeSizeOutputStream headerOutputStream = new FreeSizeOutputStream(dataPacketBufferMaxCntPerMessage,
 				headerCharsetEncoder, dataPacketBufferPool);
 		try {			
-			dhbMessageHeader.onlyHeaderBodyPartToOutputStream(headerOutputStream, messageIDFixedSize, headerCharset);				
+			dhbMessageHeader.onlyHeaderBodyPartToOutputStream(headerOutputStream, headerCharset);				
 		} catch (NoMoreDataPacketBufferException e) {
 			throw e;
 		} catch (Exception e) {
-			String errorMessage = String.format("unknown error::messageObj=[%s]", messageObj.toString());
+			String errorMessage = String.format("unknown error::messageObj=[%s]", inputMessage.toString());
 			log.warn(errorMessage, e);
 			throw new HeaderFormatException(errorMessage);
 		}
@@ -288,7 +294,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 		} catch (NoMoreDataPacketBufferException e) {
 			throw e;
 		} catch (Exception e) {
-			String errorMessage = String.format("unknown error::messageObj=[%s]", messageObj.toString());
+			String errorMessage = String.format("unknown error::messageObj=[%s]", inputMessage.toString());
 			log.warn(errorMessage, e);
 			throw new HeaderFormatException(errorMessage);
 		}
@@ -382,7 +388,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 
 					DHBMessageHeader dhbMessageHeader = new DHBMessageHeader();
 					try {
-						dhbMessageHeader.fromInputStream(headerInputStream, messageIDFixedSize, headerCharsetDecoder);						
+						dhbMessageHeader.fromInputStream(headerInputStream, headerCharsetDecoder);						
 					} catch (Exception e) {
 						String errorMessage = new StringBuilder("dhb header parsing error::").append(e.getMessage())
 								.toString();
@@ -424,9 +430,24 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 							log.error(errorMessage, e);
 							System.exit(1);
 						}
+						
+						String messageID = null;
+						int mailboxID;
+						int mailID;
+						try {
+							messageID = messageInputStream.getUBPascalString(headerCharset);
+							mailboxID = messageInputStream.getUnsignedShort();
+							mailID = messageInputStream.getInt();
+						} catch (Exception e) {
+							String errorMessage = new StringBuilder("fail to read a body header from the output stream, , errmsg=")
+									.append(e.getMessage()).toString();
+							log.warn(errorMessage, e);
+							
+							throw new HeaderFormatException(errorMessage);
+						}						
 
-						WrapReadableMiddleObject wrapReadableMiddleObject= new WrapReadableMiddleObject(workingDHBMessageHeader.messageID,
-								workingDHBMessageHeader.mailboxID, workingDHBMessageHeader.mailID, messageInputStream);
+						WrapReadableMiddleObject wrapReadableMiddleObject= new WrapReadableMiddleObject(messageID,
+								mailboxID, mailID, messageInputStream);
 
 						wrapReadableMiddleObjectList.add(wrapReadableMiddleObject);
 

@@ -15,9 +15,14 @@ import org.junit.Test;
 import kr.pe.sinnori.common.AbstractJunitTest;
 
 public class CharsetTest extends AbstractJunitTest {
+	
+	@Test 
+	public void testDefaultCharset() {
+		log.info("defaultCharset={}", Charset.defaultCharset());
+	}
 
 	@Test
-	public void test() {
+	public void test_문자열인코딩디코딩시간측정() {
 		StringBuilder testStringBuilder = new StringBuilder();
 
 		for (int i = 0; i < 2500; i++) {

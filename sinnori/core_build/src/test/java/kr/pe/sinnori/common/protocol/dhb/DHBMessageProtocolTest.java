@@ -34,7 +34,6 @@ public class DHBMessageProtocolTest extends AbstractJunitTest {
 	
 	@Test
 	public void testM2S_basic() {
-		int messageIDFixedSize = 25;
 		int dataPacketBufferMaxCntPerMessage = 10;
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = CharsetUtil.createCharsetEncoder(streamCharset);
@@ -53,7 +52,7 @@ public class DHBMessageProtocolTest extends AbstractJunitTest {
 		}
 		
 		DHBMessageProtocol dhbMessageProtocol = 
-				new DHBMessageProtocol(messageIDFixedSize, 
+				new DHBMessageProtocol( 
 						dataPacketBufferMaxCntPerMessage,
 						streamCharsetEncoder,
 						streamCharsetDecoder,

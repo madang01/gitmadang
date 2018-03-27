@@ -18,7 +18,7 @@ public class MybatisSqlSessionFactoryManger {
 	
 	private final Object monitor = new Object();
 	
-	private HashMap<SimpleClassLoader, MybatisSqlSession> simpleClassLoader2MybatisSqlSessionHash = new HashMap<SimpleClassLoader, MybatisSqlSession>();
+	private HashMap<Integer, MybatisSqlSession> simpleClassLoader2MybatisSqlSessionHash = new HashMap<Integer, MybatisSqlSession>();
 
 	
 
@@ -75,18 +75,18 @@ public class MybatisSqlSessionFactoryManger {
 		
 		SimpleClassLoader simpleClassLoader = (SimpleClassLoader)targetClassLoader;
 		
-		SqlSessionFactory sqlSessionFactory = null;
+		MybatisSqlSession mybatisSqlSession  = null;
 		synchronized (monitor) {
-			MybatisSqlSession mybatisSqlSession = simpleClassLoader2MybatisSqlSessionHash.get(simpleClassLoader);
+			mybatisSqlSession = simpleClassLoader2MybatisSqlSessionHash.get(simpleClassLoader.hashCode());
 			
 			if (null == mybatisSqlSession) {
 				
 				mybatisSqlSession = new MybatisSqlSession(simpleClassLoader);
-				simpleClassLoader2MybatisSqlSessionHash.put(simpleClassLoader, mybatisSqlSession);
+				simpleClassLoader2MybatisSqlSessionHash.put(simpleClassLoader.hashCode(), mybatisSqlSession);
 			}
-			
-			sqlSessionFactory = mybatisSqlSession.getSqlSessionFactory(enviromentID);
 		}
+		
+		SqlSessionFactory sqlSessionFactory = mybatisSqlSession.getSqlSessionFactory(enviromentID);
 		
 		return sqlSessionFactory;
 	}

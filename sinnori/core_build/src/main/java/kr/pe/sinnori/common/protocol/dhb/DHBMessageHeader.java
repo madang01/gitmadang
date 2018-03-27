@@ -18,7 +18,6 @@
 package kr.pe.sinnori.common.protocol.dhb;
 
 import java.nio.BufferOverflowException;
-import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
@@ -59,11 +58,11 @@ public class DHBMessageHeader {
 	private Logger log = LoggerFactory.getLogger(DHBMessageHeader.class);
 
 	/** messageID : String */
-	public String messageID = null;
+	// public String messageID = null;
 	/** mailboxID : unsigned short 2byte */
-	public int mailboxID = -1;
+	// public int mailboxID = -1;
 	/** mailID : int 4byte */
-	public int mailID = -1;
+	// public int mailID = -1;
 
 	/** bodySize : long 8byte */
 	public long bodySize = -1;
@@ -72,24 +71,17 @@ public class DHBMessageHeader {
 	/** headerMD5 : byte array 16byte */
 	public byte headerBodyMD5Bytes[] = null;
 	
-	public void onlyHeaderBodyPartToOutputStream(BinaryOutputStreamIF headerOutputStream, int messageIDFixedSize,
-			Charset headerCharset) throws IllegalArgumentException, BufferOverflowException,
+	public void onlyHeaderBodyPartToOutputStream(BinaryOutputStreamIF headerOutputStream, Charset headerCharset) throws IllegalArgumentException, BufferOverflowException,
 			SinnoriBufferOverflowException, NoMoreDataPacketBufferException, CharsetEncoderException {
 		if (null == headerOutputStream) {
 			throw new IllegalArgumentException("the parameter headerOutputStream is null");
-		}
-		
-		if (messageIDFixedSize <= 0) {
-			String errorMessage = String.format("the parameter messageIDFixedSize[%d] is less than or equal to zero", messageIDFixedSize);
-			log.warn(errorMessage);
-			throw new IllegalArgumentException(errorMessage);
 		}
 		
 		if (null == headerCharset) {
 			throw new IllegalArgumentException("the parameter headerCharset is null");
 		}
 
-		if (null == messageID) {
+		/*if (null == messageID) {
 			String errorMessage = "the var messageID is null";
 			// log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
@@ -99,7 +91,7 @@ public class DHBMessageHeader {
 			String errorMessage = String.format("the var mailboxID[%d] is less than zero", mailboxID);
 			// log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
-		}
+		}*/
 
 		if (null == bodyMD5Bytes) {
 			String errorMessage = "the var bodyMD5Bytes is null";
@@ -114,7 +106,7 @@ public class DHBMessageHeader {
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		byte[] messageIDBytes = messageID.getBytes(headerCharset);
+		/*byte[] messageIDBytes = messageID.getBytes(headerCharset);
 		if (messageIDBytes.length > messageIDFixedSize) {
 			String errorMessage= String.format("the var messageID[%s]'s charset bytes size[%d] is greater than the parameter messageIDFixedSize[%s]", 
 					messageID, messageIDBytes.length, messageIDFixedSize);
@@ -132,15 +124,15 @@ public class DHBMessageHeader {
 		}		
 		
 		headerOutputStream.putUnsignedShort(mailboxID);
-		headerOutputStream.putInt(mailID);
+		headerOutputStream.putInt(mailID);*/
 		headerOutputStream.putLong(bodySize);
 		headerOutputStream.putBytes(bodyMD5Bytes);
 	}
 
-	public void toOutputStream(BinaryOutputStreamIF headerOutputStream, int messageIDFixedSize,
+	public void toOutputStream(BinaryOutputStreamIF headerOutputStream, 
 			Charset headerCharset) throws IllegalArgumentException, BufferOverflowException,
 			SinnoriBufferOverflowException, NoMoreDataPacketBufferException, CharsetEncoderException {
-		onlyHeaderBodyPartToOutputStream(headerOutputStream, messageIDFixedSize, headerCharset);
+		onlyHeaderBodyPartToOutputStream(headerOutputStream, headerCharset);
 
 		if (null == headerBodyMD5Bytes) {
 			String errorMessage = "the var headerBodyMD5Bytes is null";
@@ -160,22 +152,15 @@ public class DHBMessageHeader {
 
 	}
 
-	/**
-	 * 헤더 정보를 갖고 있는 입력 스트림으로 부터 DHB 헤더 정보를 읽어 내용을 채운다.
-	 * 
-	 * @param headerInputStream
-	 *            헤더 정보를 갖고 있는 입력 스트림
-	 * @throws HeaderFormatException
-	 *             메시지 식별자 읽을때 문자셋 에러 발생시 던지는 예외
-	 */
-	public void fromInputStream(BinaryInputStreamIF headerInputStream, int messageIDFixedSize,
+	
+	public void fromInputStream(BinaryInputStreamIF headerInputStream, 
 			CharsetDecoder headerCharsetDecoder) throws HeaderFormatException {
 		try {
-			// this.messageID = headerInputStream.getFixedLengthString(messageIDFixedSize, headerCharsetDecoder).trim();
+			/*// this.messageID = headerInputStream.getFixedLengthString(messageIDFixedSize, headerCharsetDecoder).trim();
 			this.messageID = new String(headerInputStream.getBytes(messageIDFixedSize), headerCharsetDecoder.charset()).trim();
 			
 			this.mailboxID = headerInputStream.getUnsignedShort();
-			this.mailID = headerInputStream.getInt();
+			this.mailID = headerInputStream.getInt();*/
 			this.bodySize = headerInputStream.getLong();
 			this.bodyMD5Bytes = headerInputStream.getBytes(CommonStaticFinalVars.MD5_BYTESIZE);
 			this.headerBodyMD5Bytes = headerInputStream.getBytes(CommonStaticFinalVars.MD5_BYTESIZE);
@@ -189,13 +174,7 @@ public class DHBMessageHeader {
 	@Override
 	public String toString() {
 		StringBuffer headerInfo = new StringBuffer();
-		headerInfo.append("DHBMessageHeader={messageID=[");
-		headerInfo.append(messageID);
-		headerInfo.append("], mailboxID=[");
-		headerInfo.append(mailboxID);
-		headerInfo.append("], mailID=[");
-		headerInfo.append(mailID);
-		headerInfo.append("], body data size=[");
+		headerInfo.append("DHBMessageHeader={body data size=[");
 		headerInfo.append(bodySize);
 		headerInfo.append("]");
 		if (null != bodyMD5Bytes) {

@@ -34,7 +34,6 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 	
 	@Test
 	public void testM2S_basic() {
-		int messageIDFixedSize = 20;
 		int dataPacketBufferMaxCntPerMessage = 10;
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = CharsetUtil.createCharsetEncoder(streamCharset);
@@ -53,8 +52,7 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 		}
 		
 		THBMessageProtocol thbMessageProtocol = 
-				new THBMessageProtocol(messageIDFixedSize, 
-						dataPacketBufferMaxCntPerMessage,
+				new THBMessageProtocol(dataPacketBufferMaxCntPerMessage,
 						streamCharsetEncoder,
 						streamCharsetDecoder,
 						dataPacketBufferPool);
@@ -72,7 +70,7 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 		long afterTime = 0;
 		
 		
-		int retryCount = 1;
+		int retryCount = 1000000;
 		
 		int firstIndex = -1;
 		int differentCount = 0;
@@ -192,7 +190,6 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 	
 	@Test
 	public void testM2S_basic2() {
-		int messageIDFixedSize = 20;
 		int dataPacketBufferMaxCntPerMessage = 10;
 		Charset streamCharset = Charset.forName("utf-8");
 		CharsetEncoder streamCharsetEncoder = CharsetUtil.createCharsetEncoder(streamCharset);
@@ -211,8 +208,7 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 		}
 		
 		THBMessageProtocol thbMessageProtocol = 
-				new THBMessageProtocol(messageIDFixedSize, 
-						dataPacketBufferMaxCntPerMessage,
+				new THBMessageProtocol(dataPacketBufferMaxCntPerMessage,
 						streamCharsetEncoder,
 						streamCharsetDecoder,
 						dataPacketBufferPool);
@@ -240,9 +236,7 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 		emptyReq.messageHeaderInfo.mailboxID = 1;
 		emptyReq.messageHeaderInfo.mailID = 3;
 		
-		beforeTime= new Date().getTime();
-		
-		
+		beforeTime= new Date().getTime();		
 		
 		for (int i=0; i < retryCount; i++) {			
 			long beforeLocalTime= new Date().getTime();			

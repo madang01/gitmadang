@@ -89,8 +89,7 @@ public class AnyProjectServer {
 		MessageProtocolIF messageProtocol = null;
 		switch (projectPartConfiguration.getMessageProtocolType()) {
 			case DHB: {
-				messageProtocol = new DHBMessageProtocol(
-						projectPartConfiguration.getMessageIDFixedSize(), 
+				messageProtocol = new DHBMessageProtocol( 
 						projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(),
 						charsetEncoderOfProject, charsetDecoderOfProject, 
 						dataPacketBufferPool);
@@ -105,8 +104,7 @@ public class AnyProjectServer {
 				break;
 			}
 			case THB: {
-				messageProtocol = new THBMessageProtocol(
-						projectPartConfiguration.getMessageIDFixedSize(), 
+				messageProtocol = new THBMessageProtocol( 
 						projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(), 
 						charsetEncoderOfProject, charsetDecoderOfProject, dataPacketBufferPool);
 				break;
@@ -284,7 +282,7 @@ public class AnyProjectServer {
 	 * @author Won Jonghoon
 	 * 
 	 */
-	private class ServerProjectMonitor extends Thread {
+	/*private class ServerProjectMonitor extends Thread {
 
 		private long monitorInterval;
 
@@ -300,14 +298,14 @@ public class AnyProjectServer {
 			try {
 				while (!Thread.currentThread().isInterrupted()) {
 
-					/*
+					
 					 * MonitorServerProjectInfo projectInfo =
 					 * getInfo(requestTimeout);
 					 * 
 					 * log.info(projectInfo.toString());
-					 */
+					 
 
-					/*
+					
 					 * int size = projectInfo.monitorClientInfoList.size();
 					 * 
 					 * for (int i=0; i < size; i++) { MonitorClientInfo
@@ -319,7 +317,7 @@ public class AnyProjectServer {
 					 * projectName, monitorClientInfo.cr.toString())); //
 					 * monitorClientInfo.scHashCode
 					 * removeClient(monitorClientInfo.sc); } }
-					 */
+					 
 
 					Thread.sleep(monitorInterval);
 				}
@@ -336,6 +334,6 @@ public class AnyProjectServer {
 						projectPartConfiguration.getProjectName()), e);
 			}
 		}
-	}
+	}*/
 
 }
