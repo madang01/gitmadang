@@ -19,6 +19,7 @@ Finally, the message-driven development method has the disadvantage of overhead 
 
 
 (2) Korea version
+
  신놀이 프레임워크는 서버/클라이언트 기반의 입력 -> 처리 -> 출력이라는 단순한 구조를 갖는 메시지 주도 개발 프레임워크입니다.
  
 메시지 주도 개발 방법은 비록 관리해야할 메시지가 증가할수록 유지 보수가 기하 급수적으로 어려워지는 단점이 있지만 
