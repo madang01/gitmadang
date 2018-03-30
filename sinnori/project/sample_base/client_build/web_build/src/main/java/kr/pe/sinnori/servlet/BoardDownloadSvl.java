@@ -16,7 +16,7 @@ import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.BoardDownloadFileInDTO.BoardDownloadFileInDTO;
 import kr.pe.sinnori.impl.message.BoardDownloadFileOutDTO.BoardDownloadFileOutDTO;
-import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
+import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.sinnori.weblib.jdf.AbstractServlet;
@@ -136,8 +136,8 @@ public class BoardDownloadSvl extends AbstractServlet {
 		if (! (messageFromServer instanceof BoardDownloadFileOutDTO)) {
 			String errorMessage = null;
 			
-			if (messageFromServer instanceof MessageResult) {				
-				errorMessage = ((MessageResult)messageFromServer).getResultMessage();
+			if (messageFromServer instanceof MessageResultRes) {				
+				errorMessage = ((MessageResultRes)messageFromServer).getResultMessage();
 				
 				log.warn("입력 메시지[{}]의 응답 메시지로 MessageResult 메시지 도착, 응답 메시지=[{}], userId={}, ip={}", 
 						bardDownloadFileInDTO.toString(), messageFromServer.toString(), getUserId(req), req.getRemoteAddr());

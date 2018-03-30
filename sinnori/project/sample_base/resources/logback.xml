@@ -23,9 +23,8 @@
 	<logger name="kr.pe.sinnori" level="INFO">
 		<appender-ref ref="logfile"/>
 	</logger>
-
-	<!-- "mapper" tag's attribute namespace in the mybatis mapper xml file -->
-	<logger name="kr.pr.sinnori.testweb" level="DEBUG">
+	
+	<logger name="org.jooq" level="DEBUG">
 		<appender-ref ref="logfile"/>
 	</logger>
 </configuration>

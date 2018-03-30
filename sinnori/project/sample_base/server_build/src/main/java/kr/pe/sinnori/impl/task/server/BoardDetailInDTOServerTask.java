@@ -3,11 +3,12 @@ package kr.pe.sinnori.impl.task.server;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
+import kr.pe.sinnori.common.etc.DBCPManager;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.BoardDetailInDTO.BoardDetailInDTO;
 import kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO;
 import kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO.AttachFile;
-import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
+import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.sinnori.impl.mybatis.MybatisSqlSessionFactoryManger;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.lib.ServerCommonStaticFinalVars;
@@ -29,7 +30,9 @@ public class BoardDetailInDTOServerTask extends AbstractServerTask {
 	}
 	private void doWork(String projectName,
 			ToLetterCarrier toLetterCarrier, BoardDetailInDTO boardDetailInObj)
-			throws Exception {		
+			throws Exception {
+		DBCPManager.getInstance().getBasicDataSource(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
+		
 		SqlSessionFactory sqlSessionFactory = MybatisSqlSessionFactoryManger.getInstance()
 				.getSqlSessionFactory(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
 
@@ -45,7 +48,7 @@ public class BoardDetailInDTOServerTask extends AbstractServerTask {
 				String errorMessage = String.format("게시판 상세 조회 얻기 실패, boardDetailInObj=[%s]", boardDetailInObj.toString());
 				log.warn(errorMessage);
 				
-				MessageResult messageResultOutObj = new MessageResult();
+				MessageResultRes messageResultOutObj = new MessageResultRes();
 				messageResultOutObj.setIsSuccess(false);
 				messageResultOutObj.setTaskMessageID(boardDetailInObj.getMessageID());
 				messageResultOutObj.setResultMessage("게시판 상세 조회 얻기 실패");
@@ -66,7 +69,7 @@ public class BoardDetailInDTOServerTask extends AbstractServerTask {
 					String errorMessage = "게시판 상세 조회 결과로 얻은 게시판 식별자와 입력으로 받은 게시판 식별자가 상이합니다.";
 					log.warn("{}, boardDetailInObj=", errorMessage, boardDetailInObj.toString());
 					
-					MessageResult messageResultOutObj = new MessageResult();
+					MessageResultRes messageResultOutObj = new MessageResultRes();
 					messageResultOutObj.setIsSuccess(false);
 					messageResultOutObj.setTaskMessageID(boardDetailInObj.getMessageID());
 					messageResultOutObj.setResultMessage(errorMessage);
@@ -88,7 +91,7 @@ public class BoardDetailInDTOServerTask extends AbstractServerTask {
 						String errorMessage = "게시판 상세 조회후 조회수 증가 실패";
 						log.warn("{}, boardDetailInObj=", errorMessage, boardDetailInObj.toString());
 						
-						MessageResult messageResultOutObj = new MessageResult();
+						MessageResultRes messageResultOutObj = new MessageResultRes();
 						messageResultOutObj.setIsSuccess(false);
 						messageResultOutObj.setTaskMessageID(boardDetailInObj.getMessageID());
 						messageResultOutObj.setResultMessage(errorMessage);
@@ -101,7 +104,7 @@ public class BoardDetailInDTOServerTask extends AbstractServerTask {
 			session.rollback();
 			log.warn("unknown error", e);
 			
-			MessageResult messageResultOutObj = new MessageResult();
+			MessageResultRes messageResultOutObj = new MessageResultRes();
 			messageResultOutObj.setTaskMessageID(boardDetailInObj.getMessageID());
 			messageResultOutObj.setIsSuccess(false);
 			messageResultOutObj.setResultMessage("알 수 없는 이유로 게시판 조회가 실패하였습니다.");

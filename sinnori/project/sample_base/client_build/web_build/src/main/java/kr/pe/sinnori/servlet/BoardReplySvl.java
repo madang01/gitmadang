@@ -24,7 +24,7 @@ import kr.pe.sinnori.client.ConnectionPoolManager;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.BoardReplyRequest.BoardReplyRequest;
-import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
+import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.sinnori.weblib.jdf.AbstractLoginServlet;
@@ -236,8 +236,8 @@ public class BoardReplySvl extends AbstractLoginServlet {
 			
 			AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
 			AbstractMessage messageFromServer = mainProjectConnectionPool.sendSyncInputMessage(inObj);
-			if (messageFromServer instanceof MessageResult) {
-				MessageResult outObj = (MessageResult)messageFromServer;
+			if (messageFromServer instanceof MessageResultRes) {
+				MessageResultRes outObj = (MessageResultRes)messageFromServer;
 				
 				
 				req.setAttribute("messageResultOutObj", outObj);

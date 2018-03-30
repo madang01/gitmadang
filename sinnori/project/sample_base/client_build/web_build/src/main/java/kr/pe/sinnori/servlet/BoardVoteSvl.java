@@ -7,8 +7,8 @@ import javax.servlet.http.HttpSession;
 import kr.pe.sinnori.client.AnyProjectConnectionPoolIF;
 import kr.pe.sinnori.client.ConnectionPoolManager;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.impl.message.BoardVoteInDTO.BoardVoteInDTO;
-import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
+import kr.pe.sinnori.impl.message.BoardVoteReq.BoardVoteReq;
+import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.sinnori.weblib.jdf.AbstractLoginServlet;
@@ -112,7 +112,7 @@ public class BoardVoteSvl extends AbstractLoginServlet {
 		String userId = (String) httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_USERID_NAME);
 		
 		
-		BoardVoteInDTO inObj =  new BoardVoteInDTO();
+		BoardVoteReq inObj =  new BoardVoteReq();
 		inObj.setBoardId(boardId);
 		inObj.setBoardNo(boardNo);
 		inObj.setUserId(userId);
@@ -122,8 +122,8 @@ public class BoardVoteSvl extends AbstractLoginServlet {
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
 		AbstractMessage messageFromServer = mainProjectConnectionPool.sendSyncInputMessage(inObj);
 		
-		if (messageFromServer instanceof MessageResult) {
-			MessageResult messageResultOutObj = (MessageResult)messageFromServer;
+		if (messageFromServer instanceof MessageResultRes) {
+			MessageResultRes messageResultOutObj = (MessageResultRes)messageFromServer;
 			
 			req.setAttribute("messageResultOutObj", messageResultOutObj);		
 			

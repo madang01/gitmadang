@@ -7,7 +7,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.BoardModifyInDTO.BoardModifyInDTO;
-import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
+import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.sinnori.impl.mybatis.MybatisSqlSessionFactoryManger;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.lib.ServerCommonStaticFinalVars;
@@ -29,7 +29,7 @@ public class BoardModifyInDTOServerTask extends AbstractServerTask {
 		
 		BoardModifyInDTO inObj = (BoardModifyInDTO)inputMessage;
 		
-		MessageResult messageResultOutObj = new MessageResult();
+		MessageResultRes messageResultOutObj = new MessageResultRes();
 		messageResultOutObj.setIsSuccess(false);
 		messageResultOutObj.setTaskMessageID(inObj.getMessageID());
 		

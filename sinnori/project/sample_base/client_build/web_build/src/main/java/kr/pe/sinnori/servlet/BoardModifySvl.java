@@ -26,7 +26,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.BoardDetailInDTO.BoardDetailInDTO;
 import kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO;
 import kr.pe.sinnori.impl.message.BoardModifyInDTO.BoardModifyInDTO;
-import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
+import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.sinnori.weblib.jdf.AbstractLoginServlet;
@@ -154,8 +154,8 @@ public class BoardModifySvl extends AbstractLoginServlet {
 				
 				req.setAttribute("boardDetailOutDTO", outObj);
 			} else {				
-				if (messageFromServer instanceof MessageResult) {
-					MessageResult messageResultOutObj = (MessageResult)messageFromServer;
+				if (messageFromServer instanceof MessageResultRes) {
+					MessageResultRes messageResultOutObj = (MessageResultRes)messageFromServer;
 					errorMessage = messageResultOutObj.getResultMessage();
 					
 					log.warn("입력 메시지[{}]의 응답 메시지[{}]로 MessageResult 메시지 도착, userId={}, ip={}", inObj.toString(), messageFromServer.toString(), getUserId(req), req.getRemoteAddr());
@@ -310,8 +310,8 @@ public class BoardModifySvl extends AbstractLoginServlet {
 			
 			AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
 			AbstractMessage messageFromServer = mainProjectConnectionPool.sendSyncInputMessage(inObj);
-			if (messageFromServer instanceof MessageResult) {
-				MessageResult outObj = (MessageResult)messageFromServer;					
+			if (messageFromServer instanceof MessageResultRes) {
+				MessageResultRes outObj = (MessageResultRes)messageFromServer;					
 				req.setAttribute("messageResultOutObj", outObj);
 			} else {				
 				errorMessage = "게시판 글 수정 처리가 실패하였습니다.";

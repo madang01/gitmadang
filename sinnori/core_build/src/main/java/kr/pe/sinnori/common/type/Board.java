@@ -51,21 +51,21 @@ public abstract class Board {
 	
 	/** 회원 상태 ,  0:정상, 1:블락, 2:탈퇴 */
 	public enum MemberStateType {
-		OK(0), BLOCK(1), MEMBER_LEAVE(2);
+		OK((byte)0), BLOCK((byte)1), MEMBER_LEAVE((byte)2);
 		
-		private int memeberStateTypeID;
+		private byte memeberStateTypeID;
 		
-		private MemberStateType(int memeberStateTypeID) {
+		private MemberStateType(byte memeberStateTypeID) {
 			this.memeberStateTypeID = memeberStateTypeID;
 		}
-		public int getMemeberStateTypeID() {
+		public byte getID() {
 			return memeberStateTypeID;
 		}
 		
 		public static MemberStateType valueOf(int memeberStateTypeID) {
 			MemberStateType[] memeberStateTypes = MemberStateType.values();
 			for (MemberStateType memeberStateType : memeberStateTypes) {
-				if (memeberStateType.getMemeberStateTypeID() == memeberStateTypeID) {
+				if (memeberStateType.getID() == memeberStateTypeID) {
 					return memeberStateType;
 				}
 			}	

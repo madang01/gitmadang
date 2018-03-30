@@ -5,7 +5,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.sessionkey.ServerSessionkeyIF;
 import kr.pe.sinnori.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.sinnori.impl.message.BinaryPublicKey.BinaryPublicKey;
-import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
+import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.task.AbstractServerTask;
 import kr.pe.sinnori.server.task.ToLetterCarrier;
@@ -31,7 +31,7 @@ public class BinaryPublicKeyServerTask extends AbstractServerTask {
 			
 			String debugMessage = String.format("ServerSessionkeyManger instance init error, errormessage=[%s]", e.getMessage());
 			
-			MessageResult messageResult = new MessageResult();
+			MessageResultRes messageResult = new MessageResultRes();
 			messageResult.setIsSuccess(false);
 			messageResult.setTaskMessageID(binaryPublicKey.getMessageID());
 			messageResult.setResultMessage(debugMessage);			

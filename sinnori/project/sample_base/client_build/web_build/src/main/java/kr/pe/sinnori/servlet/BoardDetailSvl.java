@@ -8,7 +8,7 @@ import kr.pe.sinnori.client.ConnectionPoolManager;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.BoardDetailInDTO.BoardDetailInDTO;
 import kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO;
-import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
+import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.sinnori.weblib.jdf.AbstractServlet;
@@ -101,8 +101,8 @@ public class BoardDetailSvl extends AbstractServlet {
 			
 			req.setAttribute("boardDetailOutDTO", outObj);
 		} else {				
-			if (messageFromServer instanceof MessageResult) {
-				MessageResult messageResultOutObj = (MessageResult)messageFromServer;
+			if (messageFromServer instanceof MessageResultRes) {
+				MessageResultRes messageResultOutObj = (MessageResultRes)messageFromServer;
 				errorMessage = messageResultOutObj.getResultMessage();
 				
 				log.warn("입력 메시지[{}]의 응답 메시지로 MessageResult 메시지 도착, 응답 메시지=[{}], userId={}, ip={}", 

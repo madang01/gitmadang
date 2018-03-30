@@ -24,8 +24,8 @@ import kr.pe.sinnori.client.AnyProjectConnectionPoolIF;
 import kr.pe.sinnori.client.ConnectionPoolManager;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.impl.message.BoardWriteInDTO.BoardWriteInDTO;
-import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
+import kr.pe.sinnori.impl.message.BoardWriteReq.BoardWriteReq;
+import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.sinnori.weblib.jdf.AbstractLoginServlet;
@@ -189,7 +189,7 @@ public class BoardWriteSvl extends AbstractLoginServlet {
 			String errorMessage = "";
 			HttpSession httpSession = req.getSession();
 			String userId = (String) httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_USERID_NAME);
-			BoardWriteInDTO inObj = new BoardWriteInDTO();
+			BoardWriteReq inObj = new BoardWriteReq();
 			inObj.setBoardId(boardId);
 			inObj.setSubject(parmSubject);
 			inObj.setContent(parmContent);
@@ -202,8 +202,8 @@ public class BoardWriteSvl extends AbstractLoginServlet {
 			
 			AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
 			AbstractMessage messageFromServer = mainProjectConnectionPool.sendSyncInputMessage(inObj);
-			if (messageFromServer instanceof MessageResult) {
-				MessageResult messageResultOutObj = (MessageResult)messageFromServer;					
+			if (messageFromServer instanceof MessageResultRes) {
+				MessageResultRes messageResultOutObj = (MessageResultRes)messageFromServer;					
 				req.setAttribute("messageResultOutObj", messageResultOutObj);
 			} else {				
 				errorMessage = "게시판 최상의 글 등록이 실패하였습니다.";

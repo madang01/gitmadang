@@ -16,16 +16,12 @@ import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.itemidinfo.SinnoriItemIDInfoManger;
 import kr.pe.sinnori.common.config.itemvalue.AllDBCPPartConfiguration;
 import kr.pe.sinnori.common.config.itemvalue.AllSubProjectPartConfiguration;
-import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BuildSystemException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.message.builder.IOPartDynamicClassFileContentsBuilderManager;
 import kr.pe.sinnori.common.message.builder.info.MessageInfo;
 import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
-import kr.pe.sinnori.common.mybatis.FileModificationChecker;
-import kr.pe.sinnori.common.mybatis.MybatisParsingInformationForModification;
-import kr.pe.sinnori.common.mybatis.MybatisConfigXMLFileSAXParser;
 import kr.pe.sinnori.common.type.LogType;
 import kr.pe.sinnori.common.type.MessageTransferDirectionType;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
@@ -1561,153 +1557,6 @@ log.info("main project[{}]'s web client ant properties file modification task st
 		return webClientAntProperties;
 	}
 	
-	private String getServerMybatisConfigFileRelativePathString() throws BuildSystemException {
-		SinnoriConfiguration sinnoriConfiguration = null;
-		
-		try {
-			sinnoriConfiguration = new SinnoriConfiguration(sinnoriInstalledPathString, mainProjectName);
-		} catch (Exception e) {
-			String errorMessage = new StringBuilder("fail to get the main project[").append(sinnoriInstalledPathString)
-					.append("][")
-					.append(mainProjectName).append("]'s Sinnori configuration").toString();
-
-			log.warn(errorMessage, e);
-
-			throw new BuildSystemException(
-					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
-		}
-		
-		ProjectPartConfiguration mainProjectPartConfiguration = sinnoriConfiguration.getMainProjectPartConfiguration();
-		String serverMybatisConfigFileRelativePathString = mainProjectPartConfiguration.getServerMybatisConfigFileRelativePathString();
-		
-		return serverMybatisConfigFileRelativePathString;
-	}
-	
-	private File getMybatisConfigFIle(String serverMybatisConfigFileRelativePathString) {
-		String mainProjectResorucesPathString = BuildSystemPathSupporter
-				.getProjectResourcesPathString(sinnoriInstalledPathString, mainProjectName);
-		
-		String mybatisConfigeFilePathString = CommonStaticUtil
-				.getFilePathStringFromResourcePathAndRelativePathOfFile(
-						mainProjectResorucesPathString,
-						serverMybatisConfigFileRelativePathString);		
-		
-		File mybatisConfigeFile = new File(mybatisConfigeFilePathString);
-		
-		return mybatisConfigeFile;
-	}
-	
-	private MybatisParsingInformationForModification getFileTypeResourceManager(File mybatisConfigeFile) throws BuildSystemException {
-		MybatisConfigXMLFileSAXParser mybatisConfigXMLFileSAXParser = null;
-		try {
-			mybatisConfigXMLFileSAXParser  = new MybatisConfigXMLFileSAXParser();
-		} catch (SAXException e) {
-			String errorMessage = new StringBuilder("fail to get the main project[").append(sinnoriInstalledPathString)
-					.append("][")
-					.append(mainProjectName).append("]'s MybatisConfigXMLFileSAXParser instance").toString();
-
-			log.warn(errorMessage, e);
-
-			throw new BuildSystemException(
-					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
-		}
-		
-		MybatisParsingInformationForModification fileTypeResourceManager = null;
-		try {
-			fileTypeResourceManager = mybatisConfigXMLFileSAXParser.parse(mybatisConfigeFile);
-		} catch (IllegalArgumentException | SAXException | IOException e) {
-			String errorMessage = new StringBuilder("fail to parse the main project[").append(sinnoriInstalledPathString)
-					.append("][")
-					.append(mainProjectName).append("]'s mybatis config file[")
-					.append(mybatisConfigeFile.getAbsolutePath())
-					.append("]").toString();
-
-			log.warn(errorMessage, e);
-
-			throw new BuildSystemException(
-					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
-		}
-		
-		return fileTypeResourceManager;
-	}
-	
-	private void applySinnoriInstalledPathToMybatisConfigFile(File mybatisConfigFile)
-			throws BuildSystemException {
-					
-		
-		try {
-			String mybatisConfigFileContents = FileUtils.readFileToString(mybatisConfigFile, CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
-			
-			String mybatisConfigDTDFilePathString = BuildSystemPathSupporter.getMybatisConfigDTDFilePathString(sinnoriInstalledPathString);
-			
-			if (File.separator.equals("\\")) {
-				mybatisConfigDTDFilePathString = mybatisConfigDTDFilePathString.replaceAll("\\\\", "\\\\\\\\");
-			}
-			
-			String mybatisConfigFileContentsAppliedSinnoriInstalledPath = mybatisConfigFileContents.replaceAll("SYSTEM\\p{Blank}+\".*\"", 
-					new StringBuilder("SYSTEM \")")
-							.append(mybatisConfigDTDFilePathString).append("\"").toString());
-			
-			FileUtils.writeStringToFile(mybatisConfigFile, mybatisConfigFileContentsAppliedSinnoriInstalledPath, CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
-			
-		} catch (IOException e) {
-			String errorMessage = new StringBuilder("fail to apply Sinnori installed path to the main project[").append(sinnoriInstalledPathString)
-					.append("][")
-					.append(mainProjectName).append("]'s mybatis config file[")
-					.append(mybatisConfigFile.getAbsolutePath())
-					.append("]").toString();
-
-			log.warn(errorMessage, e);
-			
-			throw new BuildSystemException(
-					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
-		}
-	}
-	
-	private void applySinnoriInstalledPathToAllMybatisMapperFiles(List<File> mapperFileList) {		
-		for (File mapperFile : mapperFileList) {			
-			try {
-				String mapperFileContents = FileUtils.readFileToString(mapperFile, CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
-				
-				String mybatisMapperDTDFilePathString = BuildSystemPathSupporter.getMybatisMapperDTDFilePathString(sinnoriInstalledPathString);
-				
-				if (File.separator.equals("\\")) {
-					mybatisMapperDTDFilePathString = mybatisMapperDTDFilePathString.replaceAll("\\\\", "\\\\\\\\");
-				}
-				
-				String mapperFileContentsAppliedSinnoriInstalledPath = mapperFileContents.replaceAll("SYSTEM\\p{Blank}+\".*\"", 
-						new StringBuilder("SYSTEM \"")
-								.append(mybatisMapperDTDFilePathString).append("\"").toString());
-				
-				FileUtils.writeStringToFile(mapperFile, mapperFileContentsAppliedSinnoriInstalledPath, CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
-			} catch (IOException e) {
-				String errorMessage = new StringBuilder("fail to apply Sinnori installed path to the main project[").append(sinnoriInstalledPathString)
-						.append("][")
-						.append(mainProjectName).append("]'s mybatis mapper file[")
-						.append(mapperFile.getAbsolutePath())
-						.append("]").toString();
-
-				log.warn(errorMessage, e);
-				continue;
-			}
-		}
-	}
-	
-	private void applySinnoriInstalledPathToAllMybatisDTDFilePath() throws BuildSystemException {
-		String serverMybatisConfigFileRelativePathString = getServerMybatisConfigFileRelativePathString();		
-		if (serverMybatisConfigFileRelativePathString.equals("")) return;
-		
-		File mybatisConfigeFile = getMybatisConfigFIle(serverMybatisConfigFileRelativePathString);		
-		MybatisParsingInformationForModification fileTypeResourceManager = getFileTypeResourceManager(mybatisConfigeFile);		
-		
-		FileModificationChecker mybatisConfigFileTypeResource = fileTypeResourceManager.getMybatisConfigFileModificationChecker();
-		
-		File mybatisConfigFile = mybatisConfigFileTypeResource.getFile();
-		List<File> mapperFileList = fileTypeResourceManager.getMapperFileList();
-		
-		applySinnoriInstalledPathToMybatisConfigFile(mybatisConfigFile);
-		applySinnoriInstalledPathToAllMybatisMapperFiles(mapperFileList);
-	}	
 
 	private void applySinnoriInstalledPathToConfigFile() throws BuildSystemException {
 		String sinnoriConfigFilePathString = BuildSystemPathSupporter.getSinnoriConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
@@ -1783,8 +1632,6 @@ log.info("main project[{}]'s web client ant properties file modification task st
 				createNewAppClientDosShellFile();
 			}
 		}
-		
-		applySinnoriInstalledPathToAllMybatisDTDFilePath();
 	}
 
 	public void overwriteSinnoriConfigFile(SequencedProperties modifiedSinnoriConfigSequencedProperties) throws BuildSystemException {

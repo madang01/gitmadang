@@ -1,10 +1,6 @@
 package kr.pe.sinnori.common.buildsystem;
 
-import java.util.List;
-
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.mybatis.MybatisEnviroment;
-import kr.pe.sinnori.common.mybatis.MybatisFileTypeMapper;
 import kr.pe.sinnori.common.type.LogType;
 
 public abstract class BuildSystemFileContents {
@@ -1182,62 +1178,7 @@ public abstract class BuildSystemFileContents {
 		return commandPartBuilder.toString();
 	}
 	
-	/**
-	 * <project>/resources/mybatis/mybatisConfig.xml
-	 */
-	public static String getMybatisConfigFileContents(String mybatisConfigDTDFilePathString, 
-			String defaultDBCPName,
-			List<MybatisEnviroment> mybatisEnviromentList,
-			List<MybatisFileTypeMapper> mybatisMapperList) {
-		StringBuilder mybatisConfigStringBuidler = new StringBuilder();
-		mybatisConfigStringBuidler.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-		mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
-		mybatisConfigStringBuidler.append("<!DOCTYPE configuration SYSTEM \"");
-		mybatisConfigStringBuidler.append(mybatisConfigDTDFilePathString);
-		mybatisConfigStringBuidler.append("\">");
-		mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
-		mybatisConfigStringBuidler.append("<configuration>");
-		mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
-		mybatisConfigStringBuidler.append("<environments default=\"");
-		mybatisConfigStringBuidler.append(defaultDBCPName);
-		mybatisConfigStringBuidler.append("\">");
-		mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
-		
-		for (MybatisEnviroment mybatisEnviroment : mybatisEnviromentList) {
-			mybatisConfigStringBuidler.append("<environment id=\"");
-			mybatisConfigStringBuidler.append(mybatisEnviroment.getDBCPName());
-			mybatisConfigStringBuidler.append("\">");
-			mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
-			mybatisConfigStringBuidler.append("<transactionManager type=\"JDBC\" />");
-			mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
-			mybatisConfigStringBuidler.append("<dataSource type=\"");
-			mybatisConfigStringBuidler.append(mybatisEnviroment.getDataSourceFacotryClassFullName());
-			mybatisConfigStringBuidler.append("\"></dataSource>");
-			mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
-			mybatisConfigStringBuidler.append("</environment>");
-			mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
-		}		
-		
-		mybatisConfigStringBuidler.append("</environments>");
-		mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
-		mybatisConfigStringBuidler.append("<mappers>");
-		mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
-		
-		for (MybatisFileTypeMapper mybatisMapper : mybatisMapperList) {
-			mybatisConfigStringBuidler.append("<mapper ");
-			mybatisConfigStringBuidler.append(mybatisMapper.getMapperTypeName());
-			mybatisConfigStringBuidler.append("=\"");
-			mybatisConfigStringBuidler.append(mybatisMapper.getMapperTypeValue());
-			mybatisConfigStringBuidler.append("\" />");
-			mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
-		}		
-		
-		mybatisConfigStringBuidler.append("</mappers>");
-		mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
-		mybatisConfigStringBuidler.append("</configuration>");
-		
-		return mybatisConfigStringBuidler.toString();
-	}
+	
 	
 	public static String getSample1MybatisMapperFileContents(String sinnoriInstalledPathString, String nameSpace) {
 		StringBuilder mybatisConfigStringBuidler = new StringBuilder();

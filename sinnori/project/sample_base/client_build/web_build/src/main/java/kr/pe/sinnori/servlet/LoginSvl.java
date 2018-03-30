@@ -34,8 +34,8 @@ import kr.pe.sinnori.common.sessionkey.ServerSessionkeyIF;
 import kr.pe.sinnori.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.sinnori.common.sessionkey.ServerSymmetricKeyIF;
 import kr.pe.sinnori.impl.message.BinaryPublicKey.BinaryPublicKey;
-import kr.pe.sinnori.impl.message.LoginWithSessionKey.LoginWithSessionKey;
-import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
+import kr.pe.sinnori.impl.message.LoginReq.LoginReq;
+import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.sinnori.weblib.jdf.AbstractServlet;
 import kr.pe.sinnori.weblib.sitemenu.SiteMenuManger;
@@ -144,7 +144,7 @@ public class LoginSvl extends AbstractServlet {
 			
 			// log.info("id=[{}], password=[{}]", userId, password);
 			
-			MessageResult messageResultOutObj = new MessageResult();
+			MessageResultRes messageResultOutObj = new MessageResultRes();
 			messageResultOutObj.setTaskMessageID("");
 			messageResultOutObj.setIsSuccess(false);
 			messageResultOutObj.setResultMessage("로그인 실패하였습니다.");
@@ -165,17 +165,17 @@ public class LoginSvl extends AbstractServlet {
 				byte sessionKeyBytesOfServer[] = clientSessionKey.getDupSessionKeyBytes();								
 				byte ivBytesOfServer[] = clientSessionKey.getDupIVBytes();
 				ClientSymmetricKeyIF clientSymmetricKey = clientSessionKey.getClientSymmetricKey();
-				LoginWithSessionKey loginInObj = new LoginWithSessionKey();
+				LoginReq loginReq = new LoginReq();
 				
 				
-				loginInObj.setIdCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(idBytes)));
-				loginInObj.setPwdCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(passwordBytes)));
-				loginInObj.setSessionKeyBase64(Base64.encodeBase64String(sessionKeyBytesOfServer));
-				loginInObj.setIvBase64(Base64.encodeBase64String(ivBytesOfServer));				
+				loginReq.setIdCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(idBytes)));
+				loginReq.setPwdCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(passwordBytes)));
+				loginReq.setSessionKeyBase64(Base64.encodeBase64String(sessionKeyBytesOfServer));
+				loginReq.setIvBase64(Base64.encodeBase64String(ivBytesOfServer));				
 
-				messageFromServer = mainProjectConnectionPool.sendSyncInputMessage(loginInObj);					
-				if (messageFromServer instanceof MessageResult) {
-					messageResultOutObj = (MessageResult)messageFromServer;
+				messageFromServer = mainProjectConnectionPool.sendSyncInputMessage(loginReq);					
+				if (messageFromServer instanceof MessageResultRes) {
+					messageResultOutObj = (MessageResultRes)messageFromServer;
 					if (messageResultOutObj.getIsSuccess()){
 						HttpSession httpSession = req.getSession();
 						httpSession.setAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_USERID_NAME, userId);

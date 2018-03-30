@@ -16,12 +16,12 @@ import kr.pe.sinnori.client.AnyProjectConnectionPoolIF;
 import kr.pe.sinnori.client.ConnectionPoolManager;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.impl.message.BoardUploadFileInDTO.BoardUploadFileInDTO;
-import kr.pe.sinnori.impl.message.BoardUploadFileOutDTO.BoardUploadFileOutDTO;
-import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
+import kr.pe.sinnori.impl.message.BoardUploadFileReq.BoardUploadFileReq;
+import kr.pe.sinnori.impl.message.BoardUploadFileRes.BoardUploadFileRes;
+import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
-import kr.pe.sinnori.impl.message.SeqValueInDTO.SeqValueInDTO;
-import kr.pe.sinnori.impl.message.SeqValueOutDTO.SeqValueOutDTO;
+import kr.pe.sinnori.impl.message.SeqValueReq.SeqValueReq;
+import kr.pe.sinnori.impl.message.SeqValueRes.SeqValueRes;
 import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.sinnori.weblib.jdf.AbstractServlet;
 
@@ -80,10 +80,10 @@ public class BoardUploadSvl extends AbstractServlet {
 			// int fileItemListSize = fileItemList.size();		
 			
 			int newAttachFileListSize = 0;	
-			List<BoardUploadFileInDTO.NewAttachFile> newAttachFileList = new ArrayList<BoardUploadFileInDTO.NewAttachFile>();
+			List<BoardUploadFileReq.NewAttachFile> newAttachFileList = new ArrayList<BoardUploadFileReq.NewAttachFile>();
 					
 			int selectedOldAttachFileListSize = 0;
-			List<BoardUploadFileInDTO.SelectedOldAttachFile> selectedOldAttachFileList = new ArrayList<BoardUploadFileInDTO.SelectedOldAttachFile>();
+			List<BoardUploadFileReq.SelectedOldAttachFile> selectedOldAttachFileList = new ArrayList<BoardUploadFileReq.SelectedOldAttachFile>();
 			
 			List<FileItem> newAttachFileItemList = new ArrayList<FileItem>();
 			
@@ -113,8 +113,8 @@ public class BoardUploadSvl extends AbstractServlet {
 							return;
 						}
 						
-						BoardUploadFileInDTO.SelectedOldAttachFile selectedOldAttachFile = 
-								new BoardUploadFileInDTO.SelectedOldAttachFile();
+						BoardUploadFileReq.SelectedOldAttachFile selectedOldAttachFile = 
+								new BoardUploadFileReq.SelectedOldAttachFile();
 						
 						selectedOldAttachFile.setAttachSeq(selectedOldAttachSeq);
 						
@@ -173,7 +173,7 @@ public class BoardUploadSvl extends AbstractServlet {
 					}
 					
 					
-					BoardUploadFileInDTO.NewAttachFile newAttachFile = new BoardUploadFileInDTO.NewAttachFile();
+					BoardUploadFileReq.NewAttachFile newAttachFile = new BoardUploadFileReq.NewAttachFile();
 					newAttachFile.setAttachFileName(fileName);
 					newAttachFileList.add(newAttachFile);
 					
@@ -296,39 +296,39 @@ public class BoardUploadSvl extends AbstractServlet {
 				}
 			}			
 			
-			BoardUploadFileInDTO bardUploadFileInDTO = new BoardUploadFileInDTO();
-			bardUploadFileInDTO.setUserId(getUserId(req));
-			bardUploadFileInDTO.setIp(req.getRemoteAddr());
-			bardUploadFileInDTO.setAttachId(attachId);
-			bardUploadFileInDTO.setNewAttachFileCnt(newAttachFileListSize);
-			bardUploadFileInDTO.setNewAttachFileList(newAttachFileList);
-			bardUploadFileInDTO.setSelectedOldAttachFileCnt(selectedOldAttachFileListSize);
-			bardUploadFileInDTO.setSelectedOldAttachFileList(selectedOldAttachFileList);
+			BoardUploadFileReq boardUploadFileReq = new BoardUploadFileReq();
+			boardUploadFileReq.setUserId(getUserId(req));
+			boardUploadFileReq.setIp(req.getRemoteAddr());
+			boardUploadFileReq.setAttachId(attachId);
+			boardUploadFileReq.setNewAttachFileCnt(newAttachFileListSize);
+			boardUploadFileReq.setNewAttachFileList(newAttachFileList);
+			boardUploadFileReq.setSelectedOldAttachFileCnt(selectedOldAttachFileListSize);
+			boardUploadFileReq.setSelectedOldAttachFileList(selectedOldAttachFileList);
 						
 			// FIXME!
-			log.info("1.{}", bardUploadFileInDTO.toString());			
+			log.info("1.{}", boardUploadFileReq.toString());			
 					
 			AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
 			String errorMessage = "";
 			AbstractMessage messageFromServer = null;
 			
 			if (newAttachFileListSize > 0) {
-				SeqValueInDTO seqValueInDTO = new SeqValueInDTO();
+				SeqValueReq seqValueInDTO = new SeqValueReq();
 				seqValueInDTO.setSeqTypeId(WebCommonStaticFinalVars.UPLOAD_FILENAME_SEQ_TYPE_ID);
 				seqValueInDTO.setWantedSize((short)newAttachFileListSize);
 				
 				// FIXME!
-				log.info("seqValueInDTO={}, bardUploadFileInDTO={}", seqValueInDTO.toString(), bardUploadFileInDTO.toString());
+				log.info("seqValueInDTO={}, bardUploadFileInDTO={}", seqValueInDTO.toString(), boardUploadFileReq.toString());
 				
 				messageFromServer = mainProjectConnectionPool.sendSyncInputMessage(seqValueInDTO);			
 							
-				if (messageFromServer instanceof SeqValueOutDTO) {
-					SeqValueOutDTO seqValueOutDTO = (SeqValueOutDTO)messageFromServer;
+				if (messageFromServer instanceof SeqValueRes) {
+					SeqValueRes seqValueOutDTO = (SeqValueRes)messageFromServer;
 					long uploadFileNameSeqValue = seqValueOutDTO.getSeqValue();				
 					// for (FileItem fileItem : avaiableFileItemList) {
 					
 					for (int i=0; i < newAttachFileListSize; i++) {
-						BoardUploadFileInDTO.NewAttachFile newAttachFile = newAttachFileList.get(i);
+						BoardUploadFileReq.NewAttachFile newAttachFile = newAttachFileList.get(i);
 						FileItem newAttachFileItem = newAttachFileItemList.get(i);
 								
 						String attachSystemFullFileName = getAttachSystemFullFileName(uploadFileNameSeqValue);
@@ -358,14 +358,14 @@ public class BoardUploadSvl extends AbstractServlet {
 					}	
 					
 					// FIXME!
-					log.info("2.bardUploadFileInDTO={}", bardUploadFileInDTO.toString());
+					log.info("2.bardUploadFileInDTO={}", boardUploadFileReq.toString());
 				} else {
 					errorMessage = "파일명 시퀀스 조회가 실패하였습니다.";
 					
 					if (messageFromServer instanceof SelfExnRes) {
-						log.warn("입력 메시지[{}]의 응답 메시지로 SelfExn 메시지 도착, 응답 메시지=[{}]", bardUploadFileInDTO.toString(), messageFromServer.toString());
+						log.warn("입력 메시지[{}]의 응답 메시지로 SelfExn 메시지 도착, 응답 메시지=[{}]", boardUploadFileReq.toString(), messageFromServer.toString());
 					} else {
-						log.warn("입력 메시지[{}]의 응답 메시지로 알 수 없는 메시지 도착, 응답 메시지=[{}]", bardUploadFileInDTO.toString(), messageFromServer.toString());
+						log.warn("입력 메시지[{}]의 응답 메시지로 알 수 없는 메시지 도착, 응답 메시지=[{}]", boardUploadFileReq.toString(), messageFromServer.toString());
 					}
 					
 					req.setAttribute("errorMessage", errorMessage);
@@ -374,24 +374,24 @@ public class BoardUploadSvl extends AbstractServlet {
 				}
 			}			
 						
-			messageFromServer = mainProjectConnectionPool.sendSyncInputMessage(bardUploadFileInDTO);		
+			messageFromServer = mainProjectConnectionPool.sendSyncInputMessage(boardUploadFileReq);		
 			
-			if (messageFromServer instanceof BoardUploadFileOutDTO) {
-				BoardUploadFileOutDTO boardUploadFileOutDTO = (BoardUploadFileOutDTO)messageFromServer;
+			if (messageFromServer instanceof BoardUploadFileRes) {
+				BoardUploadFileRes boardUploadFileOutDTO = (BoardUploadFileRes)messageFromServer;
 				req.setAttribute("boardUploadFileOutDTO", boardUploadFileOutDTO);				
 			} else {				
 				// log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
-				if (messageFromServer instanceof MessageResult) {
-					MessageResult messageResultOutObj = (MessageResult)messageFromServer;
+				if (messageFromServer instanceof MessageResultRes) {
+					MessageResultRes messageResultOutObj = (MessageResultRes)messageFromServer;
 					errorMessage = messageResultOutObj.getResultMessage();
 					log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
 				} else {
 					errorMessage = "게시판 업로드 파일 처리가 실패하였습니다.";
 					
 					if (messageFromServer instanceof SelfExnRes) {
-						log.warn("입력 메시지[{}]의 응답 메시지로 SelfExn 메시지 도착, 응답 메시지=[{}]", bardUploadFileInDTO.toString(), messageFromServer.toString());
+						log.warn("입력 메시지[{}]의 응답 메시지로 SelfExn 메시지 도착, 응답 메시지=[{}]", boardUploadFileReq.toString(), messageFromServer.toString());
 					} else {
-						log.warn("입력 메시지[{}]의 응답 메시지로 알 수 없는 메시지 도착, 응답 메시지=[{}]", bardUploadFileInDTO.toString(), messageFromServer.toString());
+						log.warn("입력 메시지[{}]의 응답 메시지로 알 수 없는 메시지 도착, 응답 메시지=[{}]", boardUploadFileReq.toString(), messageFromServer.toString());
 					}
 				}							
 			}		

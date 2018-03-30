@@ -6,9 +6,9 @@ import javax.servlet.http.HttpServletResponse;
 import kr.pe.sinnori.client.AnyProjectConnectionPoolIF;
 import kr.pe.sinnori.client.ConnectionPoolManager;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.impl.message.BoardListInDTO.BoardListInDTO;
-import kr.pe.sinnori.impl.message.BoardListOutDTO.BoardListOutDTO;
-import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
+import kr.pe.sinnori.impl.message.BoardListReq.BoardListReq;
+import kr.pe.sinnori.impl.message.BoardListRes.BoardListRes;
+import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.sinnori.weblib.jdf.AbstractServlet;
@@ -75,7 +75,7 @@ public class BoardListSvl extends AbstractServlet {
 		// int pageSize = 20;
 		String errorMessage = "";
 		
-		BoardListInDTO inObj = new BoardListInDTO();
+		BoardListReq inObj = new BoardListReq();
 		inObj.setBoardId(boardId);
 		inObj.setStartNo((pageNo - 1) * WebCommonStaticFinalVars.WEBSITE_BOARD_PAGESIZE);
 		inObj.setPageSize(WebCommonStaticFinalVars.WEBSITE_BOARD_PAGESIZE);
@@ -83,12 +83,12 @@ public class BoardListSvl extends AbstractServlet {
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
 		AbstractMessage messageFromServer = mainProjectConnectionPool.sendSyncInputMessage(inObj);
 		
-		if (messageFromServer instanceof BoardListOutDTO) {
-			BoardListOutDTO boardListOutDTO = (BoardListOutDTO)messageFromServer;
+		if (messageFromServer instanceof BoardListRes) {
+			BoardListRes boardListOutDTO = (BoardListRes)messageFromServer;
 			req.setAttribute("boardListOutDTO", boardListOutDTO);
 		} else {			
-			if (messageFromServer instanceof MessageResult) {				
-				errorMessage = ((MessageResult)messageFromServer).getResultMessage();
+			if (messageFromServer instanceof MessageResultRes) {				
+				errorMessage = ((MessageResultRes)messageFromServer).getResultMessage();
 				
 				log.warn("입력 메시지[{}]의 응답 메시지로 MessageResult 메시지 도착, 응답 메시지=[{}], userId={}, ip={}", 
 						inObj.toString(), messageFromServer.toString(), getUserId(req), req.getRemoteAddr());

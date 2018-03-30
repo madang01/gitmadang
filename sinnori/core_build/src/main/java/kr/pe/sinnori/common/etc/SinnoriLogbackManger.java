@@ -55,14 +55,8 @@ public class SinnoriLogbackManger {
 			}
 		}
 		
-		/*System.out.printf("isValid=%s", isValid);
-		System.out.println();
-		
-		System.out.printf("sinnoriLogPathString=%s", sinnoriLogPathString);
-		System.out.println();
-		
-		System.out.printf("logbackConfigFilePathString=%s", logbackConfigFilePathString);
-		System.out.println();*/
+		//System.out.println("isValid="+isValid);
+		//System.out.println("logbackConfigFilePathString="+logbackConfigFilePathString);
 		
 		if (isValid) {
 			System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_LOG_PATH,

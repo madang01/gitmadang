@@ -34,8 +34,8 @@ import kr.pe.sinnori.common.sessionkey.ServerSessionkeyIF;
 import kr.pe.sinnori.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.sinnori.common.sessionkey.ServerSymmetricKeyIF;
 import kr.pe.sinnori.impl.message.BinaryPublicKey.BinaryPublicKey;
-import kr.pe.sinnori.impl.message.MemberRegisterWithSessionKey.MemberRegisterWithSessionKey;
-import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
+import kr.pe.sinnori.impl.message.MemberRegisterReq.MemberRegisterReq;
+import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.sinnori.weblib.jdf.AbstractServlet;
 import nl.captcha.Captcha;
@@ -204,7 +204,7 @@ public class MemberSvl extends AbstractServlet {
 			}	
 			
 			
-			MessageResult messageResultOutObj = new MessageResult();
+			MessageResultRes messageResultOutObj = new MessageResultRes();
 			messageResultOutObj.setTaskMessageID("");
 			messageResultOutObj.setIsSuccess(false);
 			messageResultOutObj.setResultMessage("회원 가입이 실패하였습니다.");
@@ -343,19 +343,19 @@ public class MemberSvl extends AbstractServlet {
 				
 				
 
-				MemberRegisterWithSessionKey memberRegisterWithSessionKeyInObj = new MemberRegisterWithSessionKey();
+				MemberRegisterReq sessionKeyMemberRegisterReq = new MemberRegisterReq();
 				
-				memberRegisterWithSessionKeyInObj.setIdCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(userIdBytes)));
-				memberRegisterWithSessionKeyInObj.setPwdCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(passwordBytes)));
-				memberRegisterWithSessionKeyInObj.setNicknameCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(nicknameBytes)));
-				memberRegisterWithSessionKeyInObj.setHintCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(pwdHintBytes)));
-				memberRegisterWithSessionKeyInObj.setAnswerCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(pwdAnswerBytes)));
-				memberRegisterWithSessionKeyInObj.setSessionKeyBase64(Base64.encodeBase64String(sessionKeyBytesOfServer));
-				memberRegisterWithSessionKeyInObj.setIvBase64(Base64.encodeBase64String(ivBytesOfServer));				
+				sessionKeyMemberRegisterReq.setIdCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(userIdBytes)));
+				sessionKeyMemberRegisterReq.setPwdCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(passwordBytes)));
+				sessionKeyMemberRegisterReq.setNicknameCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(nicknameBytes)));
+				sessionKeyMemberRegisterReq.setHintCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(pwdHintBytes)));
+				sessionKeyMemberRegisterReq.setAnswerCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(pwdAnswerBytes)));
+				sessionKeyMemberRegisterReq.setSessionKeyBase64(Base64.encodeBase64String(sessionKeyBytesOfServer));
+				sessionKeyMemberRegisterReq.setIvBase64(Base64.encodeBase64String(ivBytesOfServer));				
 
-				messageFromServer = mainProjectConnectionPool.sendSyncInputMessage(memberRegisterWithSessionKeyInObj);					
-				if (messageFromServer instanceof MessageResult) {
-					messageResultOutObj = (MessageResult)messageFromServer;
+				messageFromServer = mainProjectConnectionPool.sendSyncInputMessage(sessionKeyMemberRegisterReq);					
+				if (messageFromServer instanceof MessageResultRes) {
+					messageResultOutObj = (MessageResultRes)messageFromServer;
 					/*if (outObj.getTaskResult().equals("N")) {
 						errorMessage = outObj.getResultMessage();
 						log.warn(errorMessage);

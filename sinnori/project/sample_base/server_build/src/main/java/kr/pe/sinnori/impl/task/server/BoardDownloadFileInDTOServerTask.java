@@ -6,7 +6,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.BoardDownloadFileInDTO.BoardDownloadFileInDTO;
 import kr.pe.sinnori.impl.message.BoardDownloadFileOutDTO.BoardDownloadFileOutDTO;
-import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
+import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.sinnori.impl.mybatis.MybatisSqlSessionFactoryManger;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.lib.ServerCommonStaticFinalVars;
@@ -49,7 +49,7 @@ public class BoardDownloadFileInDTOServerTask extends AbstractServerTask {
 				String errorMessage = "다운로드 파일 정보 얻기 실패";
 				log.warn("{}, inObj={}", errorMessage, boardDownloadFileInObj.toString());
 
-				MessageResult messageResultOutObj = new MessageResult();
+				MessageResultRes messageResultOutObj = new MessageResultRes();
 				messageResultOutObj.setIsSuccess(false);
 				messageResultOutObj.setTaskMessageID(boardDownloadFileInObj.getMessageID());
 				messageResultOutObj.setResultMessage(errorMessage);
@@ -63,7 +63,7 @@ public class BoardDownloadFileInDTOServerTask extends AbstractServerTask {
 			session.rollback();
 			log.warn("unknown error", e);
 
-			MessageResult messageResultOutObj = new MessageResult();
+			MessageResultRes messageResultOutObj = new MessageResultRes();
 			messageResultOutObj.setTaskMessageID(boardDownloadFileInObj.getMessageID());
 			messageResultOutObj.setIsSuccess(false);
 			messageResultOutObj.setResultMessage("알 수 없는 이유로 게시판 조회가 실패하였습니다.");

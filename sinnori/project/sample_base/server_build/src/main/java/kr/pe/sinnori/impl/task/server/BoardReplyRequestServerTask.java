@@ -9,7 +9,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.BoardReplyDTO.BoardReplyDTO;
 import kr.pe.sinnori.impl.message.BoardReplyRequest.BoardReplyRequest;
-import kr.pe.sinnori.impl.message.MessageResult.MessageResult;
+import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.sinnori.impl.mybatis.MybatisSqlSessionFactoryManger;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.lib.ServerCommonStaticFinalVars;
@@ -31,7 +31,7 @@ public class BoardReplyRequestServerTask extends AbstractServerTask {
 		
 		BoardReplyRequest inObj = (BoardReplyRequest)inputMessage;		
 		
-		MessageResult messageResultOutObj = new MessageResult();
+		MessageResultRes messageResultOutObj = new MessageResultRes();
 		messageResultOutObj.setIsSuccess(false);
 		messageResultOutObj.setTaskMessageID(inObj.getMessageID());
 		
