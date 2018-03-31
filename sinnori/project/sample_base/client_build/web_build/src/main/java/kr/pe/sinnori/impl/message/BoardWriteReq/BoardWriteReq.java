@@ -19,23 +19,23 @@ package kr.pe.sinnori.impl.message.BoardWriteReq;
 import kr.pe.sinnori.common.message.AbstractMessage;
 
 /**
- * BoardWriteInDTO 메시지
+ * BoardWriteReq 메시지
  * @author Won Jonghoon
  *
  */
 public class BoardWriteReq extends AbstractMessage {
-	private long boardId;
+	private short boardId;
 	private String subject;
 	private String content;
 	private long attachId;
 	private String userId;
 	private String ip;
 
-	public long getBoardId() {
+	public short getBoardId() {
 		return boardId;
 	}
 
-	public void setBoardId(long boardId) {
+	public void setBoardId(short boardId) {
 		this.boardId = boardId;
 	}
 	public String getSubject() {
@@ -77,7 +77,7 @@ public class BoardWriteReq extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("boardWriteInDTO[");
+		builder.append("boardWriteReq[");
 		builder.append("boardId=");
 		builder.append(boardId);
 		builder.append(", subject=");

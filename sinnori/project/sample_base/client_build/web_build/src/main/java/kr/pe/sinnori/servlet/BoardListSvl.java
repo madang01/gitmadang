@@ -28,9 +28,9 @@ public class BoardListSvl extends AbstractServlet {
 		if (null == parmBoardId) parmBoardId = "2";
 		
 		
-		long boardId = 2L;		
+		short boardId = 2;		
 		try {
-			boardId = Long.parseLong(parmBoardId);
+			boardId = Short.parseShort(parmBoardId);
 		}catch (NumberFormatException nfe) {
 			String errorMessage = new StringBuilder("자바 long 타입 변수인 게시판 식별자(boardId) 값[")
 			.append(parmBoardId).append("]이 잘못되었습니다.").toString();

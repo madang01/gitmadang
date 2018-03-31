@@ -7,6 +7,10 @@ import org.jooq.impl.DSL;
 import org.jooq.types.UInteger;
 
 public abstract class JooqSqlUtil {
+	
+	public static Field<UInteger> getFieldOfAttachID(Class<UInteger> type, Field<UInteger> attachIDField) {
+		return DSL.field("if ({0} is null, 0, {0})", type, attachIDField);
+	}
 
 	public static Field<UInteger> getFieldOfLastInsertID(Class<UInteger> type) {
 		return DSL.field("LAST_INSERT_ID()", type);

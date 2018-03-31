@@ -19,7 +19,7 @@ package kr.pe.sinnori.impl.message.MemberRegisterReq;
 import kr.pe.sinnori.common.message.AbstractMessage;
 
 /**
- * MemberRegisterWithSessionKey 메시지
+ * MemberRegisterReq 메시지
  * @author Won Jonghoon
  *
  */
@@ -85,7 +85,7 @@ public class MemberRegisterReq extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("memberRegisterWithSessionKey[");
+		builder.append("memberRegisterReq[");
 		builder.append("idCipherBase64=");
 		builder.append(idCipherBase64);
 		builder.append(", pwdCipherBase64=");

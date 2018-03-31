@@ -26,6 +26,7 @@ import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
  *
  */
 public final class BoardFileInfoDTODecoder extends AbstractMessageDecoder {
+
 	@Override
 	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object  middleReadableObject) throws BodyFormatException {
 		BoardFileInfoDTO boardFileInfoDTO = new BoardFileInfoDTO();

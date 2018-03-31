@@ -36,6 +36,7 @@ import kr.pe.sinnori.server.task.AbstractServerTask;
 import kr.pe.sinnori.server.task.ToLetterCarrier;
 
 public class MemberRegisterReqServerTask extends AbstractServerTask {
+	
 	private void sendErrorOutputtMessageForCommit(String errorMessage,
 			Connection conn,			
 			ToLetterCarrier toLetterCarrier,
@@ -75,19 +76,15 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 		toLetterCarrier.addSyncOutputMessage(messageResultRes);
 	}
 	
-	private void sendSuccessOutputMessageForCommit(String successMessage, Connection conn,
-			ToLetterCarrier toLetterCarrier,
-			AbstractMessage inputMessage) throws InterruptedException {		
+	private void sendSuccessOutputMessageForCommit(AbstractMessage outputMessage, Connection conn,
+			ToLetterCarrier toLetterCarrier) throws InterruptedException {		
 		try {
 			conn.commit();
 		} catch (Exception e) {
 			log.warn("fail to commit");
 		}
-		MessageResultRes messageResultRes = new MessageResultRes();
-		messageResultRes.setTaskMessageID(inputMessage.getMessageID());
-		messageResultRes.setIsSuccess(true);		
-		messageResultRes.setResultMessage(successMessage);
-		toLetterCarrier.addSyncOutputMessage(messageResultRes);
+		
+		toLetterCarrier.addSyncOutputMessage(outputMessage);
 	}
 	
 	private String getDecryptedString(byte[] cipherBytes, ServerSymmetricKeyIF serverSymmetricKey)
@@ -381,12 +378,16 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 			
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
 			
-			int countOfSameIDMember = create.selectCount()
+			boolean isSameIDMember = create.fetchExists(create.select().from(SB_MEMBER_TB)
+					.where(SB_MEMBER_TB.USER_ID.eq(userID)));
+			
+			/*int countOfSameIDMember = create.selectCount()
 				.from(SB_MEMBER_TB)
 				.where(SB_MEMBER_TB.USER_ID.eq(userID))
-			.fetchOne(0, Integer.class);
+			.fetchOne(0, Integer.class);*/
 			
-			if (0 != countOfSameIDMember) {
+			// if (0 != countOfSameIDMember) {
+			if (isSameIDMember) {
 				String errorMessage = new StringBuilder("기존 회원과 중복되는 아이디[")
 						.append(userID)
 						.append("] 입니다").toString();
@@ -394,12 +395,17 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 				return;
 			}
 			
-			int countOfSameNicknameMember = create.selectCount()
+			boolean isSameNicknameMember = create.fetchExists(create.select()
+					.from(SB_MEMBER_TB)
+					.where(SB_MEMBER_TB.NICKNAME.eq(nickname)));
+			
+			/*int countOfSameNicknameMember = create.selectCount()
 					.from(SB_MEMBER_TB)
 					.where(SB_MEMBER_TB.NICKNAME.eq(nickname))
 			.fetchOne(0, Integer.class);
 			
-			if (0 != countOfSameNicknameMember) {
+			if (0 != countOfSameNicknameMember) {*/
+			if (isSameNicknameMember) {
 				String errorMessage = new StringBuilder("기존 회원과 중복되는 별명[")
 						.append(nickname)
 						.append("] 입니다").toString();
@@ -440,7 +446,12 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 				return;
 			}
 			
-			sendSuccessOutputMessageForCommit("회원 가입 성공하였습니다", conn, toLetterCarrier, memberRegisterReq);
+			MessageResultRes messageResultRes = new MessageResultRes();
+			messageResultRes.setTaskMessageID(memberRegisterReq.getMessageID());
+			messageResultRes.setIsSuccess(true);		
+			messageResultRes.setResultMessage("회원 가입 성공하였습니다");
+			
+			sendSuccessOutputMessageForCommit(messageResultRes, conn, toLetterCarrier);
 			return;		
 		} catch (Exception e) {
 			String errorMessage = new StringBuilder("unknown error, inObj=")

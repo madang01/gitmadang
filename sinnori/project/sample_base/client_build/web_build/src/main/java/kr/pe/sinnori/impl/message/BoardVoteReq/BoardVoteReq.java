@@ -19,7 +19,7 @@ package kr.pe.sinnori.impl.message.BoardVoteReq;
 import kr.pe.sinnori.common.message.AbstractMessage;
 
 /**
- * BoardVoteInDTO 메시지
+ * BoardVoteReq 메시지
  * @author Won Jonghoon
  *
  */
@@ -61,7 +61,7 @@ public class BoardVoteReq extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("boardVoteInDTO[");
+		builder.append("boardVoteReq[");
 		builder.append("boardId=");
 		builder.append(boardId);
 		builder.append(", boardNo=");

@@ -74,19 +74,15 @@ public class LoginReqServerTask extends AbstractServerTask {
 		toLetterCarrier.addSyncOutputMessage(messageResultRes);
 	}
 	
-	private void sendSuccessOutputMessageForCommit(String successMessage, Connection conn,
-			ToLetterCarrier toLetterCarrier,
-			AbstractMessage inputMessage) throws InterruptedException {		
+	private void sendSuccessOutputMessageForCommit(AbstractMessage outputMessage, Connection conn,
+			ToLetterCarrier toLetterCarrier) throws InterruptedException {		
 		try {
 			conn.commit();
 		} catch (Exception e) {
 			log.warn("fail to commit");
 		}
-		MessageResultRes messageResultRes = new MessageResultRes();
-		messageResultRes.setTaskMessageID(inputMessage.getMessageID());
-		messageResultRes.setIsSuccess(true);		
-		messageResultRes.setResultMessage(successMessage);
-		toLetterCarrier.addSyncOutputMessage(messageResultRes);
+		
+		toLetterCarrier.addSyncOutputMessage(outputMessage);
 	}
 	
 	private String getDecryptedString(byte[] cipherBytes, ServerSymmetricKeyIF serverSymmetricKey)
@@ -261,8 +257,7 @@ public class LoginReqServerTask extends AbstractServerTask {
 					SB_MEMBER_TB.PWD_SALT_BASE64)
 				.from(SB_MEMBER_TB)
 				.where(SB_MEMBER_TB.USER_ID.eq(userId))
-				.forUpdate()
-			.fetchOne();
+				.forUpdate().fetchOne();
 			
 			if (null == resultOfMember) {
 				String errorMessage = new StringBuilder("아이디[")
@@ -415,7 +410,11 @@ public class LoginReqServerTask extends AbstractServerTask {
 				}
 			}
 			
-			sendSuccessOutputMessageForCommit("로그인 성공하셨습니다", conn, toLetterCarrier, loginReq);
+			MessageResultRes messageResultRes = new MessageResultRes();
+			messageResultRes.setTaskMessageID(loginReq.getMessageID());
+			messageResultRes.setIsSuccess(true);		
+			messageResultRes.setResultMessage("로그인 성공하셨습니다");
+			sendSuccessOutputMessageForCommit(messageResultRes, conn, toLetterCarrier);
 			return;
 		} catch (Exception e) {
 			String errorMessage = new StringBuilder("unknown error, inObj=")

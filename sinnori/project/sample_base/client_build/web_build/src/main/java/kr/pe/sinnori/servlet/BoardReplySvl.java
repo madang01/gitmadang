@@ -23,7 +23,7 @@ import kr.pe.sinnori.client.AnyProjectConnectionPoolIF;
 import kr.pe.sinnori.client.ConnectionPoolManager;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.impl.message.BoardReplyRequest.BoardReplyRequest;
+import kr.pe.sinnori.impl.message.BoardReplyReq.BoardReplyReq;
 import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
@@ -225,7 +225,7 @@ public class BoardReplySvl extends AbstractLoginServlet {
 				
 			String errorMessage = "";
 			String userId = getUserId(req);
-			BoardReplyRequest inObj = new BoardReplyRequest();
+			BoardReplyReq inObj = new BoardReplyReq();
 			inObj.setBoardId(boardId);
 			inObj.setParentBoardNo(parentBoardNo);
 			inObj.setSubject(parmSubject);

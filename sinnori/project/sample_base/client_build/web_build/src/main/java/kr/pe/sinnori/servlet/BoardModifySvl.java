@@ -23,9 +23,9 @@ import kr.pe.sinnori.client.AnyProjectConnectionPoolIF;
 import kr.pe.sinnori.client.ConnectionPoolManager;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.impl.message.BoardDetailInDTO.BoardDetailInDTO;
-import kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO;
-import kr.pe.sinnori.impl.message.BoardModifyInDTO.BoardModifyInDTO;
+import kr.pe.sinnori.impl.message.BoardDetailReq.BoardDetailReq;
+import kr.pe.sinnori.impl.message.BoardDetailRes.BoardDetailRes;
+import kr.pe.sinnori.impl.message.BoardModifyReq.BoardModifyReq;
 import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
@@ -78,9 +78,9 @@ public class BoardModifySvl extends AbstractLoginServlet {
 				return;
 			}
 			
-			long boardId = 0L;
+			short boardId = 0;
 			try {
-				boardId = Long.parseLong(parmBoardId);
+				boardId = Short.parseShort(parmBoardId);
 			}catch (NumberFormatException nfe) {
 				String errorMessage = new StringBuilder("자바 long 타입 변수인 게시판 식별자 값[")
 				.append(parmBoardId).append("]이 잘못되었습니다.").toString();
@@ -135,7 +135,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 				return;
 			}
 			
-			BoardDetailInDTO inObj = new BoardDetailInDTO();
+			BoardDetailReq inObj = new BoardDetailReq();
 			inObj.setBoardId(boardId);
 			inObj.setBoardNo(boardNo);
 			
@@ -149,8 +149,8 @@ public class BoardModifySvl extends AbstractLoginServlet {
 			// FIXME!
 			log.debug("inObj={}, messageFromServer={}, userId={}, ip={}", inObj.toString(), messageFromServer.toString(), getUserId(req), req.getRemoteAddr());
 			
-			if (messageFromServer instanceof BoardDetailOutDTO) {
-				BoardDetailOutDTO outObj = (BoardDetailOutDTO)messageFromServer;				
+			if (messageFromServer instanceof BoardDetailRes) {
+				BoardDetailRes outObj = (BoardDetailRes)messageFromServer;				
 				
 				req.setAttribute("boardDetailOutDTO", outObj);
 			} else {				
@@ -190,9 +190,9 @@ public class BoardModifySvl extends AbstractLoginServlet {
 				return;
 			}
 			
-			long boardId = 2L;
+			short boardId = 2;
 			try {
-				boardId = Long.parseLong(parmBoardId);
+				boardId = Short.parseShort(parmBoardId);
 			}catch (NumberFormatException nfe) {
 				String errorMessage = new StringBuilder("자바 long 타입 변수인 게시판 식별자 값[")
 				.append(parmBoardId).append("]이 잘못되었습니다.").toString();
@@ -296,7 +296,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 			
 			
 			String errorMessage = "";			
-			BoardModifyInDTO inObj = new BoardModifyInDTO();
+			BoardModifyReq inObj = new BoardModifyReq();
 			inObj.setBoardId(boardId);
 			inObj.setBoardNo(boardNo);
 			inObj.setSubject(parmSubject);

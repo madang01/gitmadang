@@ -19,7 +19,7 @@ package kr.pe.sinnori.impl.message.BoardUploadFileReq;
 import kr.pe.sinnori.common.message.AbstractMessage;
 
 /**
- * BoardUploadFileInDTO 메시지
+ * BoardUploadFileReq 메시지
  * @author Won Jonghoon
  *
  */
@@ -141,7 +141,7 @@ public class BoardUploadFileReq extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("boardUploadFileInDTO[");
+		builder.append("boardUploadFileReq[");
 		builder.append("userId=");
 		builder.append(userId);
 		builder.append(", ip=");

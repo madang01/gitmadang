@@ -19,7 +19,7 @@ package kr.pe.sinnori.impl.message.SeqValueRes;
 import kr.pe.sinnori.common.message.AbstractMessage;
 
 /**
- * SeqValueOutDTO 메시지
+ * SeqValueRes 메시지
  * @author Won Jonghoon
  *
  */
@@ -45,7 +45,7 @@ public class SeqValueRes extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("seqValueOutDTO[");
+		builder.append("seqValueRes[");
 		builder.append("seqValue=");
 		builder.append(seqValue);
 		builder.append(", wantedSize=");

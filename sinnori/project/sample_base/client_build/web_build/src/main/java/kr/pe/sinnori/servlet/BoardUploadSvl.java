@@ -331,7 +331,7 @@ public class BoardUploadSvl extends AbstractServlet {
 						BoardUploadFileReq.NewAttachFile newAttachFile = newAttachFileList.get(i);
 						FileItem newAttachFileItem = newAttachFileItemList.get(i);
 								
-						String attachSystemFullFileName = getAttachSystemFullFileName(uploadFileNameSeqValue);
+						String attachSystemFullFileName = getAttachSystemFullFileName(uploadFileNameSeqValue+i);
 						File uploadFile = new File(attachSystemFullFileName);
 						try {
 							newAttachFileItem.write(uploadFile);

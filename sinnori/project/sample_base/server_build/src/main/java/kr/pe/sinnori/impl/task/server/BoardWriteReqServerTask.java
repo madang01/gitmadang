@@ -1,5 +1,7 @@
 package kr.pe.sinnori.impl.task.server;
 
+import static kr.pe.sinnori.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
+
 import java.sql.Connection;
 import java.sql.Timestamp;
 
@@ -15,11 +17,11 @@ import org.jooq.types.UShort;
 
 import kr.pe.sinnori.common.etc.DBCPManager;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import static kr.pe.sinnori.impl.jooq.tables.SbBoardTb.SB_BOARD_TB;
 import kr.pe.sinnori.impl.jooq.tables.records.SbBoardTbRecord;
 import kr.pe.sinnori.impl.message.BoardWriteReq.BoardWriteReq;
 import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
+import kr.pe.sinnori.server.lib.BoardType;
 import kr.pe.sinnori.server.lib.DeleteFlag;
 import kr.pe.sinnori.server.lib.JooqSqlUtil;
 import kr.pe.sinnori.server.lib.ServerCommonStaticFinalVars;
@@ -28,54 +30,112 @@ import kr.pe.sinnori.server.task.AbstractServerTask;
 import kr.pe.sinnori.server.task.ToLetterCarrier;
 
 public class BoardWriteReqServerTask extends AbstractServerTask {	
+	
+	@SuppressWarnings("unused")
+	private void sendErrorOutputtMessageForCommit(String errorMessage,
+			Connection conn,			
+			ToLetterCarrier toLetterCarrier,
+			AbstractMessage inputMessage) throws InterruptedException {
+		try {
+			conn.commit();
+		} catch (Exception e) {
+			log.warn("fail to commit");
+		}
+		sendErrorOutputMessage(errorMessage, toLetterCarrier, inputMessage);
+	}
+	
+	private void sendErrorOutputMessageForRollback(String errorMessage,
+			Connection conn,			
+			ToLetterCarrier toLetterCarrier,
+			AbstractMessage inputMessage) throws InterruptedException {
+		log.warn("{}, inObj={}", errorMessage, inputMessage.toString());
+		if (null != conn) {
+			try {
+				conn.rollback();
+			} catch (Exception e) {
+				log.warn("fail to rollback");
+			}
+		}		
+		sendErrorOutputMessage(errorMessage, toLetterCarrier, inputMessage);
+	}
+	
+	private void sendErrorOutputMessage(String errorMessage,			
+			ToLetterCarrier toLetterCarrier,
+			AbstractMessage inputMessage) throws InterruptedException {
+		log.warn("{}, inObj={}", errorMessage, inputMessage.toString());
+		
+		MessageResultRes messageResultRes = new MessageResultRes();
+		messageResultRes.setTaskMessageID(inputMessage.getMessageID());
+		messageResultRes.setIsSuccess(false);		
+		messageResultRes.setResultMessage(errorMessage);
+		toLetterCarrier.addSyncOutputMessage(messageResultRes);
+	}
+	
+	private void sendSuccessOutputMessageForCommit(AbstractMessage outputMessage, Connection conn,
+			ToLetterCarrier toLetterCarrier) throws InterruptedException {		
+		try {
+			conn.commit();
+		} catch (Exception e) {
+			log.warn("fail to commit");
+		}
+		
+		toLetterCarrier.addSyncOutputMessage(outputMessage);
+	}
+	
 	@Override
 	public void doTask(String projectName, 
 			PersonalLoginManagerIF personalLoginManager, 
 			ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
+		doWork(projectName, personalLoginManager, toLetterCarrier, (BoardWriteReq)inputMessage);
+	}
+	
+	public void doWork(String projectName, 
+			PersonalLoginManagerIF personalLoginManager, 
+			ToLetterCarrier toLetterCarrier,
+			BoardWriteReq boardWriteReq) throws Exception {
 		// FIXME!
-		log.info(inputMessage.toString());	
+		log.info(boardWriteReq.toString());	
 		
-		BoardWriteReq boardWriteReq = (BoardWriteReq) inputMessage;
-		
-		MessageResultRes messageResultRes = new MessageResultRes();
-		messageResultRes.setIsSuccess(false);
-		messageResultRes.setTaskMessageID(boardWriteReq.getMessageID());
+		// boardWriteReq.getBoardId()
+		try {
+			BoardType.valueOf(boardWriteReq.getBoardId());
+		} catch(IllegalArgumentException e) {
+			log.warn(e.getMessage(), e);
+			sendErrorOutputMessage("잘못된 게시판 종류입니다", toLetterCarrier, boardWriteReq);
+			return;
+		}
 		
 		try {
 			ValueChecker.checkValidSubject(boardWriteReq.getSubject());
-		} catch(RuntimeException e) {
+		} catch(IllegalArgumentException e) {
 			log.warn(e.getMessage(), e);
-			messageResultRes.setResultMessage(e.getMessage());
-			toLetterCarrier.addSyncOutputMessage(messageResultRes);
+			sendErrorOutputMessage(e.getMessage(), toLetterCarrier, boardWriteReq);
 			return;
 		}
 		
 		try {
 			ValueChecker.checkValidContent(boardWriteReq.getContent());
-		} catch(RuntimeException e) {
+		} catch(IllegalArgumentException e) {
 			log.warn(e.getMessage(), e);
-			messageResultRes.setResultMessage(e.getMessage());
-			toLetterCarrier.addSyncOutputMessage(messageResultRes);
+			sendErrorOutputMessage(e.getMessage(), toLetterCarrier, boardWriteReq);
 			return;
 		}
 		
 		try {
 			ValueChecker.checkValidWriterId(boardWriteReq.getUserId());
-		} catch(RuntimeException e) {
+		} catch(IllegalArgumentException e) {
 			log.warn(e.getMessage(), e);
-			messageResultRes.setResultMessage(e.getMessage());
-			toLetterCarrier.addSyncOutputMessage(messageResultRes);
+			sendErrorOutputMessage(e.getMessage(), toLetterCarrier, boardWriteReq);
 			return;
 		}
 		
 		
 		try {
 			ValueChecker.checkValidIP(boardWriteReq.getIp());
-		} catch(RuntimeException e) {
+		} catch(IllegalArgumentException e) {
 			log.warn(e.getMessage(), e);
-			messageResultRes.setResultMessage(e.getMessage());
-			toLetterCarrier.addSyncOutputMessage(messageResultRes);
+			sendErrorOutputMessage(e.getMessage(), toLetterCarrier, boardWriteReq);
 			return;
 		}
 		
@@ -128,8 +188,7 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 			
 			if (0 == resultOfInsert) {
 				conn.rollback();				
-				messageResultRes.setResultMessage("1.게시판 최상의 글 등록이 실패하였습니다.");
-				toLetterCarrier.addSyncOutputMessage(messageResultRes);
+				sendErrorOutputMessageForRollback("1.게시판 최상의 글 등록이 실패하였습니다.", conn, toLetterCarrier, boardWriteReq);
 				return;
 			}
 
@@ -137,33 +196,24 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 				.set(SB_BOARD_TB.GROUP_NO, SB_BOARD_TB.BOARD_NO)
 			.where(SB_BOARD_TB.BOARD_NO.eq(DSL.field("LAST_INSERT_ID()", UInteger.class))).execute();
 			
-			if (0 == countOfUpdate) {
-				conn.rollback();
-				messageResultRes.setResultMessage("1.게시판 최상의 글 등록이 실패하였습니다.");
-				toLetterCarrier.addSyncOutputMessage(messageResultRes);
+			if (0 == countOfUpdate) {				
+				sendErrorOutputMessageForRollback("2.게시판 최상의 글 등록이 실패하였습니다.", conn, toLetterCarrier, boardWriteReq);
 				return;
 				
 				
 			}
 			
 			// log.info("입력 메시지[{}] 게시판 최상의 글 등록 성공여부[{}]", boardWriteReq.toString(), messageResultRes.getIsSuccess());
-			conn.commit();
+			
+			MessageResultRes messageResultRes = new MessageResultRes();
+			messageResultRes.setTaskMessageID(boardWriteReq.getMessageID());
 			messageResultRes.setIsSuccess(true);
 			messageResultRes.setResultMessage("게시판 최상의 글 등록이 성공하였습니다.");
-			toLetterCarrier.addSyncOutputMessage(messageResultRes);
+			sendSuccessOutputMessageForCommit(messageResultRes, conn, toLetterCarrier);
 			return;			
 		} catch (Exception e) {
 			log.warn("unknown error", e);
-
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback", e1);
-				}
-			}
-			messageResultRes.setResultMessage("알 수 없는 이유로 게시판 조회가 실패하였습니다.");
-			toLetterCarrier.addSyncOutputMessage(messageResultRes);
+			sendErrorOutputMessageForRollback("3.게시판 최상의 글 등록이 실패하였습니다.", conn, toLetterCarrier, boardWriteReq);
 			return;
 
 		} finally {

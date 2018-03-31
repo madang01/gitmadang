@@ -17,7 +17,7 @@
 <messageID>BoardWriteReq</messageID>
 <direction>FROM_CLIENT_TO_SERVER</direction>
 <desc>게시판 최상의 글 등록 요청 메시지, Mybatis DTO</desc>
-<singleitem name="boardId" type="long" />
+<singleitem name="boardId" type="unsigned byte" />
 <singleitem name="subject" type="us pascal string" />
 <singleitem name="content" type="us pascal string" />
 <singleitem name="attachId" type="unsigned integer" />

@@ -1,66 +1,61 @@
 package kr.pe.sinnori.impl.task.server;
 
-import java.util.ArrayList;
-
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.impl.message.BoardFileDTO.BoardFileDTO;
-import kr.pe.sinnori.impl.message.BoardFileInfoDTO.BoardFileInfoDTO;
 import kr.pe.sinnori.impl.message.BoardUploadFileReq.BoardUploadFileReq;
-import kr.pe.sinnori.impl.message.BoardUploadFileReq.BoardUploadFileReq.NewAttachFile;
-import kr.pe.sinnori.impl.message.BoardUploadFileReq.BoardUploadFileReq.SelectedOldAttachFile;
-import kr.pe.sinnori.impl.message.BoardUploadFileRes.BoardUploadFileRes;
 import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
-import kr.pe.sinnori.impl.mybatis.MybatisSqlSessionFactoryManger;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
-import kr.pe.sinnori.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.sinnori.server.lib.ValueChecker;
 import kr.pe.sinnori.server.task.AbstractServerTask;
 import kr.pe.sinnori.server.task.ToLetterCarrier;
 
 public class BoardUploadFileReqServerTask extends AbstractServerTask {
+	
 	@Override
 	public void doTask(String projectName, 
 			PersonalLoginManagerIF personalLoginManager, 
 			ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
+		doWork(projectName, personalLoginManager, toLetterCarrier, (BoardUploadFileReq)inputMessage);
+	}
+	
+	public void doWork(String projectName, 
+			PersonalLoginManagerIF personalLoginManager, 
+			ToLetterCarrier toLetterCarrier,
+			BoardUploadFileReq boardUploadFileReq) throws Exception {
 		// FIXME!
-		log.info(inputMessage.toString());
+		log.info(boardUploadFileReq.toString());
 		
-		SqlSessionFactory sqlSessionFactory = MybatisSqlSessionFactoryManger.getInstance()
-				.getSqlSessionFactory(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
-		BoardUploadFileReq inObj = (BoardUploadFileReq)inputMessage;
+		
 		
 		try {
-			ValueChecker.checkValidUserId(inObj.getUserId());
+			ValueChecker.checkValidUserId(boardUploadFileReq.getUserId());
 		} catch(RuntimeException e) {
 			log.warn(e.getMessage(), e);
 			MessageResultRes messageResultOutObj = new MessageResultRes();
 			messageResultOutObj.setIsSuccess(false);
-			messageResultOutObj.setTaskMessageID(inObj.getMessageID());
+			messageResultOutObj.setTaskMessageID(boardUploadFileReq.getMessageID());
 			messageResultOutObj.setResultMessage(e.getMessage());
 			toLetterCarrier.addSyncOutputMessage(messageResultOutObj);
 			return;
 		}		
 		
 		try {
-			ValueChecker.checkValidIP(inObj.getIp());
+			ValueChecker.checkValidIP(boardUploadFileReq.getIp());
 		} catch(RuntimeException e) {
 			log.warn(e.getMessage(), e);
 			MessageResultRes messageResultOutObj = new MessageResultRes();
 			messageResultOutObj.setIsSuccess(false);
-			messageResultOutObj.setTaskMessageID(inObj.getMessageID());
+			messageResultOutObj.setTaskMessageID(boardUploadFileReq.getMessageID());
 			messageResultOutObj.setResultMessage(e.getMessage());
 			toLetterCarrier.addSyncOutputMessage(messageResultOutObj);
 			return;
 		}
 		
 		
+		
 		// long attachId = inObj.getAttachId();
-		int selectedOldAttachFileCnt = inObj.getSelectedOldAttachFileCnt();
-		int newAttachFileCnt = inObj.getNewAttachFileCnt();
+		int selectedOldAttachFileCnt = boardUploadFileReq.getSelectedOldAttachFileCnt();
+		int newAttachFileCnt = boardUploadFileReq.getNewAttachFileCnt();
 		
 		/*if (0 > selectedOldAttachFileCnt) {
 			String errorMessage = new StringBuilder("업로드했던 파일들에 대한 사용자 선택 갯수[")
@@ -88,10 +83,13 @@ public class BoardUploadFileReqServerTask extends AbstractServerTask {
 			return;
 		}*/
 		
-		long attachId = inObj.getAttachId();
+		long attachId = boardUploadFileReq.getAttachId();
 		
+		
+		/*SqlSessionFactory sqlSessionFactory = MybatisSqlSessionFactoryManger.getInstance()
+				.getSqlSessionFactory(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
 		if (0 == attachId) {
-			/** 업로드 신규 등록 */
+			*//** 업로드 신규 등록 *//*
 			if (0 != selectedOldAttachFileCnt) {
 				String errorMessage = "업로드 신규 등록:업로드했던 파일들에 대한 사용자 선택 목록이 존재합니다.";
 				log.warn("{}, inObj=", errorMessage, inObj.toString());
@@ -191,6 +189,8 @@ public class BoardUploadFileReqServerTask extends AbstractServerTask {
 			}
 			
 			BoardUploadFileRes outObj = null;
+			
+			
 			
 			SqlSession session = sqlSessionFactory.openSession(false);
 			try {			
@@ -300,11 +300,11 @@ public class BoardUploadFileReqServerTask extends AbstractServerTask {
 			}
 			
 		} else {
-			/** 업로드 수정 */
+			*//** 업로드 수정 *//*
 			
 			int totalAttachFile = newAttachFileCnt + selectedOldAttachFileCnt;
 			
-			/*if (0 == totalAttachFile) {
+			if (0 == totalAttachFile) {
 				String errorMessage = new StringBuilder("업로드 수정:업로드 파일이 존재하지 않습니다.").toString();
 				log.warn("{}, inObj={}", errorMessage, inObj.toString());
 				
@@ -314,7 +314,7 @@ public class BoardUploadFileReqServerTask extends AbstractServerTask {
 				messageResultOutObj.setResultMessage(errorMessage);
 				toLetterCarrier.addSyncOutputMessage(messageResultOutObj);
 				return;
-			}*/	
+			}	
 			
 			if (ServerCommonStaticFinalVars.WEBSITE_FILEUPLOAD_MAX_COUNT < totalAttachFile) {
 				String errorMessage = new StringBuilder("업로드 수정:기존 업로드 파일등중 사용자가 선택한 갯수[")
@@ -416,7 +416,7 @@ public class BoardUploadFileReqServerTask extends AbstractServerTask {
 				// FIXME!
 				log.info("업로드 수정:변경전 업로드 파일 정보={}, inObj={}", boardFileInfoDTO.toString(), inObj.toString());
 				
-				/** 소유자 검사 */
+				*//** 소유자 검사 *//*
 				if (! boardFileInfoDTO.getOwnerId().equals(inObj.getUserId())) {
 					session.rollback();
 					
@@ -562,6 +562,6 @@ public class BoardUploadFileReqServerTask extends AbstractServerTask {
 			} finally {
 				session.close();
 			}
-		}
+		}*/
 	}
 }

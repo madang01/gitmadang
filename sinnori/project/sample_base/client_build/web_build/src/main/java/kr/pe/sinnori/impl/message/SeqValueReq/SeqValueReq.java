@@ -19,7 +19,7 @@ package kr.pe.sinnori.impl.message.SeqValueReq;
 import kr.pe.sinnori.common.message.AbstractMessage;
 
 /**
- * SeqValueInDTO 메시지
+ * SeqValueReq 메시지
  * @author Won Jonghoon
  *
  */
@@ -45,7 +45,7 @@ public class SeqValueReq extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("seqValueInDTO[");
+		builder.append("seqValueReq[");
 		builder.append("seqTypeId=");
 		builder.append(seqTypeId);
 		builder.append(", wantedSize=");

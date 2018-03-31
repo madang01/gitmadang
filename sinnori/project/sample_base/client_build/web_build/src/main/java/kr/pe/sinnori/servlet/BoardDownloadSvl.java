@@ -14,8 +14,8 @@ import kr.pe.sinnori.client.AnyProjectConnectionPoolIF;
 import kr.pe.sinnori.client.ConnectionPoolManager;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.AbstractMessage;
-import kr.pe.sinnori.impl.message.BoardDownloadFileInDTO.BoardDownloadFileInDTO;
-import kr.pe.sinnori.impl.message.BoardDownloadFileOutDTO.BoardDownloadFileOutDTO;
+import kr.pe.sinnori.impl.message.BoardDownloadFileReq.BoardDownloadFileReq;
+import kr.pe.sinnori.impl.message.BoardDownloadFileRes.BoardDownloadFileRes;
 import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
@@ -120,7 +120,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 			return;
 		}		
 		
-		BoardDownloadFileInDTO bardDownloadFileInDTO = new BoardDownloadFileInDTO();
+		BoardDownloadFileReq bardDownloadFileInDTO = new BoardDownloadFileReq();
 		bardDownloadFileInDTO.setAttachId(attachId);
 		bardDownloadFileInDTO.setAttachSeq(attachSeq);
 		
@@ -133,7 +133,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 		
 		AbstractMessage messageFromServer = mainProjectConnectionPool.sendSyncInputMessage(bardDownloadFileInDTO);
 		
-		if (! (messageFromServer instanceof BoardDownloadFileOutDTO)) {
+		if (! (messageFromServer instanceof BoardDownloadFileRes)) {
 			String errorMessage = null;
 			
 			if (messageFromServer instanceof MessageResultRes) {				
@@ -155,7 +155,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 			return;
 		}
 				
-		BoardDownloadFileOutDTO boardDownloadFileOutDTO = (BoardDownloadFileOutDTO) messageFromServer;
+		BoardDownloadFileRes boardDownloadFileOutDTO = (BoardDownloadFileRes) messageFromServer;
 		
 		/*String ownerId = boardDownloadFileOutDTO.getOwnerId();
 		

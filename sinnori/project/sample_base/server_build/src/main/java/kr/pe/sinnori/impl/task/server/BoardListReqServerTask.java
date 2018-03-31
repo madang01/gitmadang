@@ -32,29 +32,80 @@ import kr.pe.sinnori.server.lib.DeleteFlag;
 import kr.pe.sinnori.server.lib.JooqSqlUtil;
 import kr.pe.sinnori.server.lib.MemberStateType;
 import kr.pe.sinnori.server.lib.ServerCommonStaticFinalVars;
+import kr.pe.sinnori.server.lib.ValueChecker;
 import kr.pe.sinnori.server.task.AbstractServerTask;
 import kr.pe.sinnori.server.task.ToLetterCarrier;
 
 public class BoardListReqServerTask extends AbstractServerTask {
+	
+	@SuppressWarnings("unused")
+	private void sendErrorOutputtMessageForCommit(String errorMessage,
+			Connection conn,			
+			ToLetterCarrier toLetterCarrier,
+			AbstractMessage inputMessage) throws InterruptedException {
+		try {
+			conn.commit();
+		} catch (Exception e) {
+			log.warn("fail to commit");
+		}
+		sendErrorOutputMessage(errorMessage, toLetterCarrier, inputMessage);
+	}
+	
+	
+	private void sendErrorOutputMessageForRollback(String errorMessage,
+			Connection conn,			
+			ToLetterCarrier toLetterCarrier,
+			AbstractMessage inputMessage) throws InterruptedException {
+		log.warn("{}, inObj={}", errorMessage, inputMessage.toString());
+		if (null != conn) {
+			try {
+				conn.rollback();
+			} catch (Exception e) {
+				log.warn("fail to rollback");
+			}
+		}		
+		sendErrorOutputMessage(errorMessage, toLetterCarrier, inputMessage);
+	}
+	
+	private void sendErrorOutputMessage(String errorMessage,			
+			ToLetterCarrier toLetterCarrier,
+			AbstractMessage inputMessage) throws InterruptedException {
+		log.warn("{}, inObj={}", errorMessage, inputMessage.toString());
+		
+		MessageResultRes messageResultRes = new MessageResultRes();
+		messageResultRes.setTaskMessageID(inputMessage.getMessageID());
+		messageResultRes.setIsSuccess(false);		
+		messageResultRes.setResultMessage(errorMessage);
+		toLetterCarrier.addSyncOutputMessage(messageResultRes);
+	}
+	
+	private void sendSuccessOutputMessageForCommit(AbstractMessage outputMessage, Connection conn,
+			ToLetterCarrier toLetterCarrier) throws InterruptedException {		
+		try {
+			conn.commit();
+		} catch (Exception e) {
+			log.warn("fail to commit");
+		}
+		
+		toLetterCarrier.addSyncOutputMessage(outputMessage);
+	}
 
 	@Override
 	public void doTask(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws Exception {
+		doWork(projectName, personalLoginManager, toLetterCarrier, (BoardListReq)inputMessage);
+	}
+	
+	public void doWork(String projectName, PersonalLoginManagerIF personalLoginManager, ToLetterCarrier toLetterCarrier,
+			BoardListReq boardListReq) throws Exception {
 		// FIXME!
-		log.info(inputMessage.toString());
-
-		BoardListReq boardListReq = (BoardListReq) inputMessage;
-
-		long boardID = boardListReq.getBoardId();
-
-		if (boardID <= 0) {
-			String errorMessage = new StringBuilder("게시판 식별자(boardId) 값[").append(boardID).append("]은 0 보다 커야합니다.")
-					.toString();
-			MessageResultRes messageResultOutObj = new MessageResultRes();
-			messageResultOutObj.setTaskMessageID(boardListReq.getMessageID());
-			messageResultOutObj.setIsSuccess(false);
-			messageResultOutObj.setResultMessage(errorMessage);
-			toLetterCarrier.addSyncOutputMessage(messageResultOutObj);
+		log.info(boardListReq.toString());
+		
+		try {
+			ValueChecker.checkValidBoardId(boardListReq.getBoardId());
+		} catch(IllegalArgumentException e) {
+			log.warn(e.getMessage(), e);
+			sendErrorOutputMessage(e.getMessage(), toLetterCarrier, boardListReq);
 			return;
 		}
 		
@@ -120,7 +171,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 					SB_MEMBER_TB.NICKNAME,
 					SB_MEMBER_TB.MEMBER_GB)
 			.from(SB_BOARD_TB).join(SB_MEMBER_TB)
-			.on(SB_MEMBER_TB.USER_ID.eq(SB_BOARD_TB.WRITER_ID))
+			.on(SB_BOARD_TB.WRITER_ID.eq(SB_MEMBER_TB.USER_ID))
 			.where(SB_BOARD_TB.BOARD_ID.eq(UByte.valueOf(boardListReq.getBoardId())))
 			.and(SB_MEMBER_TB.MEMBER_ST.eq(MemberStateType.OK.getValue()))
 			.and(SB_BOARD_TB.DEL_FL.eq(DeleteFlag.NO.getValue())).asTable("nested");
@@ -180,28 +231,15 @@ public class BoardListReqServerTask extends AbstractServerTask {
 			}
 			
 
+			boardListRes.setCnt(boardList.size());
 			boardListRes.setBoardList(boardList);
 			
-			// log.info(boardListRes.toString());
-			
-			toLetterCarrier.addSyncOutputMessage(boardListRes);
+			// log.info(boardListRes.toString());			
+			sendSuccessOutputMessageForCommit(boardListRes, conn, toLetterCarrier);
 			return;
 		} catch (Exception e) {
 			log.warn("unknown error", e);
-
-			if (null != conn) {
-				try {
-					conn.rollback();
-				} catch (Exception e1) {
-					log.warn("fail to rollback", e1);
-				}
-			}
-
-			MessageResultRes messageResultOutObj = new MessageResultRes();
-			messageResultOutObj.setTaskMessageID(boardListReq.getMessageID());
-			messageResultOutObj.setIsSuccess(false);
-			messageResultOutObj.setResultMessage("알 수 없는 이유로 게시판 조회가 실패하였습니다.");
-			toLetterCarrier.addSyncOutputMessage(messageResultOutObj);
+			sendErrorOutputMessageForRollback("게시판 조회가 실패하였습니다", conn, toLetterCarrier, boardListReq);
 			return;
 
 		} finally {

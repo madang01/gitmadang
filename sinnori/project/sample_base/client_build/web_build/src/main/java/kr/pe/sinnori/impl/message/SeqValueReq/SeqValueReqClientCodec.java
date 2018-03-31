@@ -22,7 +22,7 @@ import kr.pe.sinnori.common.message.codec.AbstractMessageEncoder;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
 
 /**
- * SeqValueInDTO 클라이언트 코덱
+ * SeqValueReq 클라이언트 코덱
  * @author Won Jonghoon
  *
  */
@@ -30,11 +30,11 @@ public final class SeqValueReqClientCodec implements MessageCodecIF {
 
 	@Override
 	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
-		throw new DynamicClassCallException("the client don't need a message decoder because it is a message[SeqValueInDTO] that is not sent from server to client");
+		throw new DynamicClassCallException("the client don't need a message decoder because it is a message[SeqValueReq] that is not sent from server to client");
 	}
 
 	@Override
 	public AbstractMessageEncoder getMessageEncoder() throws DynamicClassCallException {
-		return new SeqValueInDTOEncoder();
+		return new SeqValueReqEncoder();
 	}
 }

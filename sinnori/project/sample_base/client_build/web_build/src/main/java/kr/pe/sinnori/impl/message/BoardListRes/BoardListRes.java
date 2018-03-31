@@ -19,12 +19,12 @@ package kr.pe.sinnori.impl.message.BoardListRes;
 import kr.pe.sinnori.common.message.AbstractMessage;
 
 /**
- * BoardListOutDTO 메시지
+ * BoardListRes 메시지
  * @author Won Jonghoon
  *
  */
 public class BoardListRes extends AbstractMessage {
-	private long boardId;
+	private short boardId;
 	private long startNo;
 	private int pageSize;
 	private long total;
@@ -184,11 +184,11 @@ public class BoardListRes extends AbstractMessage {
 
 	private java.util.List<Board> boardList;
 
-	public long getBoardId() {
+	public short getBoardId() {
 		return boardId;
 	}
 
-	public void setBoardId(long boardId) {
+	public void setBoardId(short boardId) {
 		this.boardId = boardId;
 	}
 	public long getStartNo() {
@@ -230,7 +230,7 @@ public class BoardListRes extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("boardListOutDTO[");
+		builder.append("boardListRes[");
 		builder.append("boardId=");
 		builder.append(boardId);
 		builder.append(", startNo=");

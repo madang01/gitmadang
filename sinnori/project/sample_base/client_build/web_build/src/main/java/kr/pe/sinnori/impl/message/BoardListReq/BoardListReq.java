@@ -19,20 +19,20 @@ package kr.pe.sinnori.impl.message.BoardListReq;
 import kr.pe.sinnori.common.message.AbstractMessage;
 
 /**
- * BoardListInDTO 메시지
+ * BoardListReq 메시지
  * @author Won Jonghoon
  *
  */
 public class BoardListReq extends AbstractMessage {
-	private long boardId;
+	private short boardId;
 	private long startNo;
 	private int pageSize;
 
-	public long getBoardId() {
+	public short getBoardId() {
 		return boardId;
 	}
 
-	public void setBoardId(long boardId) {
+	public void setBoardId(short boardId) {
 		this.boardId = boardId;
 	}
 	public long getStartNo() {
@@ -53,7 +53,7 @@ public class BoardListReq extends AbstractMessage {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("boardListInDTO[");
+		builder.append("boardListReq[");
 		builder.append("boardId=");
 		builder.append(boardId);
 		builder.append(", startNo=");
