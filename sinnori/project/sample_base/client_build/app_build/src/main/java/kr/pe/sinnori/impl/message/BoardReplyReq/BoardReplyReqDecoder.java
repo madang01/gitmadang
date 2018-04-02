@@ -33,10 +33,10 @@ public final class BoardReplyReqDecoder extends AbstractMessageDecoder {
 		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
 		pathStack.push("BoardReplyReq");
 
-		boardReplyReq.setBoardId((Long)
+		boardReplyReq.setBoardId((Short)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "boardId" // itemName
-			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_BYTE // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));

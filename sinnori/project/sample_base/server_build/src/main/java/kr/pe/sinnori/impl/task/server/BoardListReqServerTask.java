@@ -12,8 +12,9 @@ import javax.sql.DataSource;
 
 import org.jooq.DSLContext;
 import org.jooq.Record;
-import org.jooq.Record14;
-import org.jooq.Record15;
+import org.jooq.Record13;
+import org.jooq.Record16;
+import org.jooq.Record17;
 import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.jooq.Table;
@@ -28,7 +29,7 @@ import kr.pe.sinnori.impl.message.BoardListReq.BoardListReq;
 import kr.pe.sinnori.impl.message.BoardListRes.BoardListRes;
 import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
-import kr.pe.sinnori.server.lib.DeleteFlag;
+import kr.pe.sinnori.server.lib.BoardStateType;
 import kr.pe.sinnori.server.lib.JooqSqlUtil;
 import kr.pe.sinnori.server.lib.MemberStateType;
 import kr.pe.sinnori.server.lib.ServerCommonStaticFinalVars;
@@ -130,33 +131,13 @@ public class BoardListReqServerTask extends AbstractServerTask {
 			.on(SB_MEMBER_TB.USER_ID.eq(SB_BOARD_TB.WRITER_ID))
 			.where(SB_BOARD_TB.BOARD_ID.eq(UByte.valueOf(boardListReq.getBoardId())))
 			.and(SB_MEMBER_TB.MEMBER_ST.eq(MemberStateType.OK.getValue()))
-			.and(SB_BOARD_TB.DEL_FL.eq(DeleteFlag.NO.getValue())).fetchOne(0, int.class);
+			.and(SB_BOARD_TB.DEL_FL.eq(BoardStateType.NO.getValue())).fetchOne(0, int.class);
 	
 			boardListRes.setTotal(total);
 			
-			// outObj.setCnt(resultOfBoardList.size());
-			/*select t.*, count(SB_BOARD_VOTE_TB.user_id) as votes from SB_BOARD_VOTE_TB right join (
-			select t.*
-			from SB_BOARD_TB join  (
-				select
-					SB_BOARD_TB.*, 
-					SB_MEMBER_TB.nickname, 		
-					if (SB_MEMBER_TB.member_gb = 1, '일반회원', if (SB_MEMBER_TB.member_gb = 0, '관리자', '알수없음')) as member_gb_nm
-				from SB_BOARD_TB, SB_MEMBER_TB
-				where SB_BOARD_TB.board_id = #{boardId}
-				and SB_BOARD_TB.writer_id = SB_MEMBER_TB.user_id
-				and SB_MEMBER_TB.member_st=0 and SB_BOARD_TB.del_fl = 'N'
-			) as t on SB_BOARD_TB.board_no=t.board_no	
-		) as t on SB_BOARD_VOTE_TB.board_no = t.board_no
-		group by t.board_no
-		order by t.group_no desc, t.group_sq asc
-		limit #{startNo}, #{pageSize}*/
-
-			// Result<Record3<UByte, Long, Integer>> resultOfBoardList =
-			
-			
-			Table<Record14<UByte, UInteger, UInteger, UShort, UInteger, UByte, String, String, Integer, String, Timestamp, Timestamp, String, Byte>> nested = create
-			.select(SB_BOARD_TB.BOARD_ID,
+			Table<Record13<UByte, UInteger, UInteger, UShort, UInteger, UByte, String, String, Integer, String, String, Timestamp, Timestamp>>  
+			a =	create.select(
+					SB_BOARD_TB.BOARD_ID,
 					SB_BOARD_TB.BOARD_NO,
 					SB_BOARD_TB.GROUP_NO,
 					SB_BOARD_TB.GROUP_SQ,
@@ -166,66 +147,109 @@ public class BoardListReqServerTask extends AbstractServerTask {
 					SB_BOARD_TB.WRITER_ID,
 					SB_BOARD_TB.VIEW_CNT,
 					SB_BOARD_TB.DEL_FL,
+					SB_BOARD_TB.IP,
 					SB_BOARD_TB.REG_DT,
-					SB_BOARD_TB.MOD_DT,
-					SB_MEMBER_TB.NICKNAME,
-					SB_MEMBER_TB.MEMBER_GB)
-			.from(SB_BOARD_TB).join(SB_MEMBER_TB)
-			.on(SB_BOARD_TB.WRITER_ID.eq(SB_MEMBER_TB.USER_ID))
+					SB_BOARD_TB.MOD_DT).from(SB_BOARD_TB.useIndex("tw_board_02_idx"))
 			.where(SB_BOARD_TB.BOARD_ID.eq(UByte.valueOf(boardListReq.getBoardId())))
-			.and(SB_MEMBER_TB.MEMBER_ST.eq(MemberStateType.OK.getValue()))
-			.and(SB_BOARD_TB.DEL_FL.eq(DeleteFlag.NO.getValue())).asTable("nested");
-			
-			 
-			Result<Record15<UByte, UInteger, UInteger, UShort, UInteger, UByte, String, String, Integer, String, Timestamp, Timestamp, Integer, String, String>>  
-			resultOfBoardList = create.select(nested.field(SB_BOARD_TB.BOARD_ID),
-					nested.field(SB_BOARD_TB.BOARD_NO),
-					nested.field(SB_BOARD_TB.GROUP_NO),
-					nested.field(SB_BOARD_TB.GROUP_SQ),
-					nested.field(SB_BOARD_TB.PARENT_NO),
-					nested.field(SB_BOARD_TB.DEPTH),
-					nested.field(SB_BOARD_TB.SUBJECT),
-					nested.field(SB_BOARD_TB.WRITER_ID),
-					nested.field(SB_BOARD_TB.VIEW_CNT),
-					nested.field(SB_BOARD_TB.DEL_FL),
-					nested.field(SB_BOARD_TB.REG_DT),
-					nested.field(SB_BOARD_TB.MOD_DT),
-					DSL.count(SB_BOARD_VOTE_TB.BOARD_NO).as("votes"),
-					nested.field(SB_MEMBER_TB.NICKNAME),
-					JooqSqlUtil.getFieldOfMemberGbNm(nested.field(SB_MEMBER_TB.MEMBER_GB)).as("member_gb_nm"))
-			.from(nested)
-			.leftJoin(SB_BOARD_VOTE_TB)
-			.on(nested.field(SB_BOARD_TB.BOARD_NO).eq(SB_BOARD_VOTE_TB.BOARD_NO))
-			.groupBy(nested.field(SB_BOARD_TB.BOARD_NO))
-			.orderBy(nested.field(SB_BOARD_TB.BOARD_NO).desc(),
-					nested.field(SB_BOARD_TB.GROUP_SQ).asc())
+			.and(SB_BOARD_TB.GROUP_NO.gt(UInteger.valueOf(0)))
+			.and(SB_BOARD_TB.DEL_FL.eq(BoardStateType.NO.getValue()))
+			.orderBy(SB_BOARD_TB.field(SB_BOARD_TB.GROUP_NO).desc(),
+					SB_BOARD_TB.field(SB_BOARD_TB.GROUP_SQ).asc())
+			.offset(boardListReq.getStartNo())
 			.limit(boardListReq.getPageSize())
-			.offset((int)boardListReq.getStartNo())
-			.fetch();
+			.asTable("a");		
 			
-			// log.info("sql={}", sql);
-						// outObj.setCnt(resultOfBoardList.size());
+						
+			Table<Record13<UByte, UInteger, UInteger, UShort, UInteger, UByte, String, String, Integer, String, String, Timestamp, Timestamp>> 
+			c =	create.select(
+					SB_BOARD_TB.BOARD_ID,
+					SB_BOARD_TB.BOARD_NO,
+					SB_BOARD_TB.GROUP_NO,
+					SB_BOARD_TB.GROUP_SQ,
+					SB_BOARD_TB.PARENT_NO,
+					SB_BOARD_TB.DEPTH,
+					SB_BOARD_TB.SUBJECT,
+					SB_BOARD_TB.WRITER_ID,
+					SB_BOARD_TB.VIEW_CNT,
+					SB_BOARD_TB.DEL_FL,
+					SB_BOARD_TB.IP,
+					SB_BOARD_TB.REG_DT,
+					SB_BOARD_TB.MOD_DT)
+			.from(a)
+			.join(SB_BOARD_TB).on(a.field(SB_BOARD_TB.BOARD_NO).eq(SB_BOARD_TB.BOARD_NO))
+			.asTable("c");			
+			
+			Table<Record16<UByte, UInteger, UInteger, UShort, UInteger, UByte, String, String, Integer, String, String, Timestamp, Timestamp, String, Byte, Byte>> 
+			t =	create.select(
+					c.field(SB_BOARD_TB.BOARD_ID),
+					c.field(SB_BOARD_TB.BOARD_NO),					
+					c.field(SB_BOARD_TB.GROUP_NO),
+					c.field(SB_BOARD_TB.GROUP_SQ),
+					c.field(SB_BOARD_TB.PARENT_NO),
+					c.field(SB_BOARD_TB.DEPTH),
+					c.field(SB_BOARD_TB.SUBJECT),
+					c.field(SB_BOARD_TB.WRITER_ID),
+					c.field(SB_BOARD_TB.VIEW_CNT),
+					c.field(SB_BOARD_TB.DEL_FL),
+					c.field(SB_BOARD_TB.IP),
+					c.field(SB_BOARD_TB.REG_DT),
+					c.field(SB_BOARD_TB.MOD_DT),
+					SB_MEMBER_TB.NICKNAME,
+					SB_MEMBER_TB.MEMBER_GB,
+					SB_MEMBER_TB.MEMBER_ST)
+			.from(c)
+			.join(SB_MEMBER_TB)
+			.on(c.field(SB_BOARD_TB.WRITER_ID).eq(SB_MEMBER_TB.USER_ID)).asTable("t");
+			
+			Result<Record17<UByte, UInteger, UInteger, UShort, UInteger, UByte, String, String, Integer, String, String, Timestamp, Timestamp, String, Byte, String, Integer>>
+			boardListResult = create.select(
+					t.field(SB_BOARD_TB.BOARD_ID),
+					t.field(SB_BOARD_TB.BOARD_NO),	
+					t.field(SB_BOARD_TB.GROUP_NO),
+					t.field(SB_BOARD_TB.GROUP_SQ),
+					t.field(SB_BOARD_TB.PARENT_NO),
+					t.field(SB_BOARD_TB.DEPTH),
+					t.field(SB_BOARD_TB.SUBJECT),
+					t.field(SB_BOARD_TB.WRITER_ID),
+					t.field(SB_BOARD_TB.VIEW_CNT),
+					t.field(SB_BOARD_TB.DEL_FL),
+					t.field(SB_BOARD_TB.IP),
+					t.field(SB_BOARD_TB.REG_DT),
+					t.field(SB_BOARD_TB.MOD_DT),
+					JooqSqlUtil.getFieldOfMemberGbNm(t.field(SB_MEMBER_TB.MEMBER_GB)).as("member_gb_nm"),
+					t.field(SB_MEMBER_TB.MEMBER_ST),
+					t.field(SB_MEMBER_TB.NICKNAME),
+					DSL.count(SB_BOARD_VOTE_TB.BOARD_NO).as("votes")
+			) .from(t).leftJoin(SB_BOARD_VOTE_TB)
+			.on(t.field(SB_BOARD_TB.BOARD_NO).eq(SB_BOARD_VOTE_TB.BOARD_NO))
+			.groupBy(t.field(SB_BOARD_TB.BOARD_NO))
+			.orderBy(t.field(SB_BOARD_TB.GROUP_NO).desc(),
+					t.field(SB_BOARD_TB.GROUP_SQ).asc()).fetch();
+			
 			
 			java.util.List<BoardListRes.Board> boardList = new ArrayList<BoardListRes.Board>();
 			  
-			if (null != resultOfBoardList) {
-				for (Record r : resultOfBoardList) {
+			if (null != boardListResult) {
+				for (Record r : boardListResult) {
 					BoardListRes.Board board = new BoardListRes.Board();				
-					board.setBoardNo(r.getValue(nested.field(SB_BOARD_TB.BOARD_NO)).longValue());
-					board.setGroupNo(r.getValue(nested.field(SB_BOARD_TB.GROUP_NO)).longValue());
-					board.setGroupSeq(r.getValue(nested.field(SB_BOARD_TB.GROUP_SQ)).intValue());
-					board.setParentNo(r.getValue(nested.field(SB_BOARD_TB.PARENT_NO)).longValue());
-					board.setDepth(r.getValue(nested.field(SB_BOARD_TB.DEPTH)).shortValue());
-					board.setSubject(r.get(nested.field(SB_BOARD_TB.SUBJECT)));
-					board.setWriterId(r.get(nested.field(SB_BOARD_TB.WRITER_ID)));
-					board.setViewCount(r.get(nested.field(SB_BOARD_TB.VIEW_CNT)));
-					board.setDeleteFlag(r.get(nested.field(SB_BOARD_TB.DEL_FL)));
-					board.setRegisterDate(r.get(nested.field(SB_BOARD_TB.REG_DT)));
-					board.setModifiedDate(r.get(nested.field(SB_BOARD_TB.MOD_DT)));
+					board.setBoardNo(r.getValue(SB_BOARD_TB.BOARD_NO).longValue());
+					board.setGroupNo(r.getValue(SB_BOARD_TB.GROUP_NO).longValue());
+					board.setGroupSeq(r.getValue(SB_BOARD_TB.GROUP_SQ).intValue());
+					board.setParentNo(r.getValue(SB_BOARD_TB.PARENT_NO).longValue());
+					board.setDepth(r.getValue(SB_BOARD_TB.DEPTH).shortValue());
+					board.setSubject(r.get(SB_BOARD_TB.SUBJECT));
+					board.setWriterId(r.get(SB_BOARD_TB.WRITER_ID));
+					board.setViewCount(r.get(SB_BOARD_TB.VIEW_CNT));
+					board.setDeleteFlag(r.get(SB_BOARD_TB.DEL_FL));
+					board.setRegisterDate(r.get(SB_BOARD_TB.REG_DT));
+					board.setModifiedDate(r.get(SB_BOARD_TB.MOD_DT));
 					board.setVotes(r.get("votes", Integer.class));
-					board.setNickname(r.get(nested.field(SB_MEMBER_TB.NICKNAME)));
-					board.setMemberGubunName(r.get("member_gb_nm", String.class));
+					board.setNickname(r.get(SB_MEMBER_TB.NICKNAME));
+					board.setMemberGubunName(r.get("member_gb_nm", String.class));	
 					
+					// FIXME!
+					
+					log.info(board.toString());
 					boardList.add(board);
 				}
 			}
@@ -234,7 +258,8 @@ public class BoardListReqServerTask extends AbstractServerTask {
 			boardListRes.setCnt(boardList.size());
 			boardListRes.setBoardList(boardList);
 			
-			// log.info(boardListRes.toString());			
+			// log.info(boardListRes.toString());
+			
 			sendSuccessOutputMessageForCommit(boardListRes, conn, toLetterCarrier);
 			return;
 		} catch (Exception e) {

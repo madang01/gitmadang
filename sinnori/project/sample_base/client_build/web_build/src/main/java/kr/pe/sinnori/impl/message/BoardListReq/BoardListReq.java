@@ -25,7 +25,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  */
 public class BoardListReq extends AbstractMessage {
 	private short boardId;
-	private long startNo;
+	private int startNo;
 	private int pageSize;
 
 	public short getBoardId() {
@@ -35,11 +35,11 @@ public class BoardListReq extends AbstractMessage {
 	public void setBoardId(short boardId) {
 		this.boardId = boardId;
 	}
-	public long getStartNo() {
+	public int getStartNo() {
 		return startNo;
 	}
 
-	public void setStartNo(long startNo) {
+	public void setStartNo(int startNo) {
 		this.startNo = startNo;
 	}
 	public int getPageSize() {

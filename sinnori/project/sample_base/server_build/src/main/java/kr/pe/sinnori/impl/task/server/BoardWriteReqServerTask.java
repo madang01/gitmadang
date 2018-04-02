@@ -22,7 +22,7 @@ import kr.pe.sinnori.impl.message.BoardWriteReq.BoardWriteReq;
 import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.lib.BoardType;
-import kr.pe.sinnori.server.lib.DeleteFlag;
+import kr.pe.sinnori.server.lib.BoardStateType;
 import kr.pe.sinnori.server.lib.JooqSqlUtil;
 import kr.pe.sinnori.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.sinnori.server.lib.ValueChecker;
@@ -174,7 +174,8 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 			.set(SB_BOARD_TB.SUBJECT, boardWriteReq.getSubject())
 			.set(SB_BOARD_TB.CONTENT, boardWriteReq.getContent())
 			.set(SB_BOARD_TB.VIEW_CNT, Integer.valueOf(0))
-			.set(SB_BOARD_TB.DEL_FL, DeleteFlag.NO.getValue())
+			.set(SB_BOARD_TB.DEL_FL, BoardStateType.NO.getValue())
+			.set(SB_BOARD_TB.IP, boardWriteReq.getIp())
 			.set(SB_BOARD_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))
 			.set(SB_BOARD_TB.MOD_DT, SB_BOARD_TB.REG_DT);
 			

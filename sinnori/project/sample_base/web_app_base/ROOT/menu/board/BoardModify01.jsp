@@ -213,9 +213,12 @@
 		}		
 	}
 	
-	function init() {<%java.util.List<kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO.AttachFile> attachFileList = boardDetailOutDTO.getAttachFileList();
-		if (attachFileList.size() > 0) {%>
-		boardUploadFileOutDTO = {isError:false, attachId:<%=boardDetailOutDTO.getAttachId()%>, oldAttachFileList : [<%for (kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO.AttachFile attachFile : attachFileList) {
+	function init() {<%
+	java.util.List<kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO.AttachFile> attachFileList = boardDetailOutDTO.getAttachFileList();
+		if (attachFileList.size() > 0) {
+%>
+		boardUploadFileOutDTO = {isError:false, attachId:<%=boardDetailOutDTO.getAttachId()%>, oldAttachFileList : [<%
+			for (kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO.AttachFile attachFile : attachFileList) {
 				out.print("{");
 				out.print("attachSeq:");
 				out.print(attachFile.getAttachSeq());
@@ -224,16 +227,21 @@
 				out.print(HtmlStringUtil.toScriptString(attachFile.getAttachFileName()));
 				out.print("\"");
 				out.print("}, ");
-			}%>]};
+			}
+%>]};
 		removeAllOldAttachFiles();
 		removeAllNewAttachFiles();
 		addNewAttachFile();
 		var d = document.getElementById('oldFileMenuDiv');
 		d.style.visibility = "visible";
-		restoreOldFiles();<%} else {%>
+		restoreOldFiles();<%
+		} else {
+%>
 	removeAllOldAttachFiles();
 	removeAllNewAttachFiles();
-	addNewAttachFile();<%}%>
+	addNewAttachFile();<%
+		}
+%>
 	}
 
 	window.onload=init;

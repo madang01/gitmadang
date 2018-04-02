@@ -205,9 +205,9 @@ public final class BoardDetailResEncoder extends AbstractMessageEncoder {
 			}
 		}
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "memberGubunName"
-			, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-			, boardDetailRes.getMemberGubunName() // itemValue
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "membershipLevel"
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+			, boardDetailRes.getMembershipLevel() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);

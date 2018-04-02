@@ -30,7 +30,7 @@ import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.lib.JooqSqlUtil;
 import kr.pe.sinnori.server.lib.MemberStateType;
-import kr.pe.sinnori.server.lib.MembershipType;
+import kr.pe.sinnori.server.lib.MembershipLevel;
 import kr.pe.sinnori.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.sinnori.server.lib.ValueChecker;
 import kr.pe.sinnori.server.task.AbstractServerTask;
@@ -276,7 +276,7 @@ public class LoginReqServerTask extends AbstractServerTask {
 			
 			try {
 				@SuppressWarnings("unused")
-				MembershipType membershipType = MembershipType.valueOf(memberGb);
+				MembershipLevel membershipType = MembershipLevel.valueOf(memberGb);
 			} catch(IllegalArgumentException e) {
 				String errorMessage = new StringBuilder("회원[")
 						.append(userId)

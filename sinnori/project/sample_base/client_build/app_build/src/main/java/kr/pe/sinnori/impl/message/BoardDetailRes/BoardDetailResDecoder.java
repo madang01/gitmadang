@@ -207,10 +207,10 @@ public final class BoardDetailResDecoder extends AbstractMessageDecoder {
 
 		boardDetailRes.setAttachFileList(attachFile$2List);
 
-		boardDetailRes.setMemberGubunName((String)
+		boardDetailRes.setMembershipLevel((Short)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "memberGubunName" // itemName
-			, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
+			, "membershipLevel" // itemName
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_BYTE // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));

@@ -46,7 +46,7 @@ public final class BoardListReqEncoder extends AbstractMessageEncoder {
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "startNo"
-			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_SHORT // itemType
 			, boardListReq.getStartNo() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset

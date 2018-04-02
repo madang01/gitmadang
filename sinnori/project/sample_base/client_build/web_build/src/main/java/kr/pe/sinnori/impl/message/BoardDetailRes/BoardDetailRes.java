@@ -76,7 +76,7 @@ public class BoardDetailRes extends AbstractMessage {
 	}
 
 	private java.util.List<AttachFile> attachFileList;
-	private String memberGubunName;
+	private short membershipLevel;
 	private byte memberState;
 
 	public long getBoardNo() {
@@ -212,12 +212,12 @@ public class BoardDetailRes extends AbstractMessage {
 	public void setAttachFileList(java.util.List<AttachFile> attachFileList) {
 		this.attachFileList = attachFileList;
 	}
-	public String getMemberGubunName() {
-		return memberGubunName;
+	public short getMembershipLevel() {
+		return membershipLevel;
 	}
 
-	public void setMemberGubunName(String memberGubunName) {
-		this.memberGubunName = memberGubunName;
+	public void setMembershipLevel(short membershipLevel) {
+		this.membershipLevel = membershipLevel;
 	}
 	public byte getMemberState() {
 		return memberState;
@@ -291,8 +291,8 @@ public class BoardDetailRes extends AbstractMessage {
 				builder.append("]");
 			}
 		}
-		builder.append(", memberGubunName=");
-		builder.append(memberGubunName);
+		builder.append(", membershipLevel=");
+		builder.append(membershipLevel);
 		builder.append(", memberState=");
 		builder.append(memberState);
 		builder.append("]");

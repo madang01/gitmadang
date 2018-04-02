@@ -39,6 +39,6 @@
 	<singleitem name="attachSeq" type="unsigned byte" />
 	<singleitem name="attachFileName" type="us pascal string" />
 </array>
-<singleitem name="memberGubunName" type="ub pascal string" />
+<singleitem name="membershipLevel" type="unsigned byte" />
 <singleitem name="memberState" type="byte" />
 </sinnori_message>

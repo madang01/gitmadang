@@ -29,11 +29,11 @@ public class BoardUploadFileRes extends AbstractMessage {
 	private String ip;
 	private java.sql.Timestamp registerDate;
 	private java.sql.Timestamp modifiedDate;
-	private int attachFileCnt;
+	private int attachedFileCnt;
 
-	public static class AttachFile {
+	public static class AttachedFile {
 		private short attachSeq;
-		private String attachFileName;
+		private String attachedFileName;
 		private String systemFileName;
 
 		public short getAttachSeq() {
@@ -43,12 +43,12 @@ public class BoardUploadFileRes extends AbstractMessage {
 		public void setAttachSeq(short attachSeq) {
 			this.attachSeq = attachSeq;
 		}
-		public String getAttachFileName() {
-			return attachFileName;
+		public String getAttachedFileName() {
+			return attachedFileName;
 		}
 
-		public void setAttachFileName(String attachFileName) {
-			this.attachFileName = attachFileName;
+		public void setAttachedFileName(String attachedFileName) {
+			this.attachedFileName = attachedFileName;
 		}
 		public String getSystemFileName() {
 			return systemFileName;
@@ -61,11 +61,11 @@ public class BoardUploadFileRes extends AbstractMessage {
 		@Override
 		public String toString() {
 			StringBuilder builder = new StringBuilder();
-			builder.append("AttachFile[");
+			builder.append("AttachedFile[");
 			builder.append("attachSeq=");
 			builder.append(attachSeq);
-			builder.append(", attachFileName=");
-			builder.append(attachFileName);
+			builder.append(", attachedFileName=");
+			builder.append(attachedFileName);
 			builder.append(", systemFileName=");
 			builder.append(systemFileName);
 			builder.append("]");
@@ -73,7 +73,7 @@ public class BoardUploadFileRes extends AbstractMessage {
 		}
 	}
 
-	private java.util.List<AttachFile> attachFileList;
+	private java.util.List<AttachedFile> attachedFileList;
 
 	public long getAttachId() {
 		return attachId;
@@ -110,19 +110,19 @@ public class BoardUploadFileRes extends AbstractMessage {
 	public void setModifiedDate(java.sql.Timestamp modifiedDate) {
 		this.modifiedDate = modifiedDate;
 	}
-	public int getAttachFileCnt() {
-		return attachFileCnt;
+	public int getAttachedFileCnt() {
+		return attachedFileCnt;
 	}
 
-	public void setAttachFileCnt(int attachFileCnt) {
-		this.attachFileCnt = attachFileCnt;
+	public void setAttachedFileCnt(int attachedFileCnt) {
+		this.attachedFileCnt = attachedFileCnt;
 	}
-	public java.util.List<AttachFile> getAttachFileList() {
-		return attachFileList;
+	public java.util.List<AttachedFile> getAttachedFileList() {
+		return attachedFileList;
 	}
 
-	public void setAttachFileList(java.util.List<AttachFile> attachFileList) {
-		this.attachFileList = attachFileList;
+	public void setAttachedFileList(java.util.List<AttachedFile> attachedFileList) {
+		this.attachedFileList = attachedFileList;
 	}
 
 	@Override
@@ -139,28 +139,28 @@ public class BoardUploadFileRes extends AbstractMessage {
 		builder.append(registerDate);
 		builder.append(", modifiedDate=");
 		builder.append(modifiedDate);
-		builder.append(", attachFileCnt=");
-		builder.append(attachFileCnt);
+		builder.append(", attachedFileCnt=");
+		builder.append(attachedFileCnt);
 
-		builder.append(", attachFileList=");
-		if (null == attachFileList) {
+		builder.append(", attachedFileList=");
+		if (null == attachedFileList) {
 			builder.append("null");
 		} else {
-			int attachFileListSize = attachFileList.size();
-			if (0 == attachFileListSize) {
+			int attachedFileListSize = attachedFileList.size();
+			if (0 == attachedFileListSize) {
 				builder.append("empty");
 			} else {
 				builder.append("[");
-				for (int i=0; i < attachFileListSize; i++) {
-					AttachFile attachFile = attachFileList.get(i);
+				for (int i=0; i < attachedFileListSize; i++) {
+					AttachedFile attachedFile = attachedFileList.get(i);
 					if (0 == i) {
-						builder.append("attachFile[");
+						builder.append("attachedFile[");
 					} else {
-						builder.append(", attachFile[");
+						builder.append(", attachedFile[");
 					}
 					builder.append(i);
 					builder.append("]=");
-					builder.append(attachFile.toString());
+					builder.append(attachedFile.toString());
 				}
 				builder.append("]");
 			}

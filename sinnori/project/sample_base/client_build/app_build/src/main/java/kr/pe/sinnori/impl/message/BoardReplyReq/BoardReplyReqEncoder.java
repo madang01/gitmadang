@@ -39,7 +39,7 @@ public final class BoardReplyReqEncoder extends AbstractMessageEncoder {
 
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardId"
-			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_BYTE // itemType
 			, boardReplyReq.getBoardId() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset

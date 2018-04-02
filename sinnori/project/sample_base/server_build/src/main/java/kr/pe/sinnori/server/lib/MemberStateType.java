@@ -1,16 +1,16 @@
 package kr.pe.sinnori.server.lib;
 
 public enum MemberStateType {
-	OK((byte)0, "정상"), BLOCK((byte)1, "블락"), WITHDRAWAL((byte)2, "탈퇴");
+	OK("Y", "정상"), BLOCK("B", "블락"), WITHDRAWAL("W", "탈퇴");
 	
-	private byte memberStateTypeValue;
+	private String memberStateTypeValue;
 	private String memberStateTypeName;
 	
-	private MemberStateType(byte memberStateTypeValue, String memberStateTypeName) {
+	private MemberStateType(String memberStateTypeValue, String memberStateTypeName) {
 		this.memberStateTypeValue = memberStateTypeValue;
 		this.memberStateTypeName = memberStateTypeName;
 	}
-	public byte getValue() {
+	public String getValue() {
 		return memberStateTypeValue;
 	}
 	
@@ -18,10 +18,18 @@ public enum MemberStateType {
 		return memberStateTypeName;
 	}
 	
-	public static MemberStateType valueOf(byte memberStateTypeValue) {		
+	public static MemberStateType valueOf(String memberStateTypeValue, boolean isSuper) {
+		if (null == memberStateTypeValue) {
+			throw new IllegalArgumentException("the parameter memberStateTypeValue is null");
+		}
+		
+		if (isSuper) {
+			return valueOf(memberStateTypeValue);
+		}
+		
 		MemberStateType[] memeberStateTypes = MemberStateType.values();
 		for (MemberStateType memeberStateType : memeberStateTypes) {
-			if (memeberStateType.getValue() == memberStateTypeValue) {
+			if (memeberStateType.getValue().equals(memberStateTypeValue)) {
 				return memeberStateType;
 			}
 		}	

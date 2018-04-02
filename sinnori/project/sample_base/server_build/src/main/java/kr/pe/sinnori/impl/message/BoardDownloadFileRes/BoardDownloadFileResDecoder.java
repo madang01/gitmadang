@@ -57,9 +57,9 @@ public final class BoardDownloadFileResDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardDownloadFileRes.setAttachFileName((String)
+		boardDownloadFileRes.setAttachFiledName((String)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "attachFileName" // itemName
+			, "attachFiledName" // itemName
 			, kr.pe.sinnori.common.type.SingleItemType.US_PASCAL_STRING // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset

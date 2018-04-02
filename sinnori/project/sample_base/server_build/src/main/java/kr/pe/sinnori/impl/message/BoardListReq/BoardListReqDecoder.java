@@ -41,10 +41,10 @@ public final class BoardListReqDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardListReq.setStartNo((Long)
+		boardListReq.setStartNo((Integer)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "startNo" // itemName
-			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_SHORT // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));

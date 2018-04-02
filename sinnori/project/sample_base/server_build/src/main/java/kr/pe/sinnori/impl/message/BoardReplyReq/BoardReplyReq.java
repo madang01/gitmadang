@@ -24,7 +24,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  *
  */
 public class BoardReplyReq extends AbstractMessage {
-	private long boardId;
+	private short boardId;
 	private long parentBoardNo;
 	private String subject;
 	private String content;
@@ -32,11 +32,11 @@ public class BoardReplyReq extends AbstractMessage {
 	private String userId;
 	private String ip;
 
-	public long getBoardId() {
+	public short getBoardId() {
 		return boardId;
 	}
 
-	public void setBoardId(long boardId) {
+	public void setBoardId(short boardId) {
 		this.boardId = boardId;
 	}
 	public long getParentBoardNo() {

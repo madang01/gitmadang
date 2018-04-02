@@ -22,10 +22,10 @@
 <singleitem name="ip" type="ub pascal string" />
 <singleitem name="registerDate" type="java sql timestamp" />
 <singleitem name="modifiedDate" type="java sql timestamp" />
-<singleitem name="attachFileCnt" type="integer" />
-<array name="attachFile" cnttype="reference" cntvalue="attachFileCnt">
+<singleitem name="attachedFileCnt" type="integer" />
+<array name="attachedFile" cnttype="reference" cntvalue="attachedFileCnt">
 	<singleitem name="attachSeq" type="unsigned byte" />
-	<singleitem name="attachFileName" type="us pascal string" />
+	<singleitem name="attachedFileName" type="us pascal string" />
 	<singleitem name="systemFileName" type="us pascal string" />
 </array>
 </sinnori_message>

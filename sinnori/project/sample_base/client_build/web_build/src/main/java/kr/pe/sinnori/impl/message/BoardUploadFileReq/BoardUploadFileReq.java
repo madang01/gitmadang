@@ -27,9 +27,9 @@ public class BoardUploadFileReq extends AbstractMessage {
 	private String userId;
 	private String ip;
 	private long attachId;
-	private int selectedOldAttachFileCnt;
+	private int oldAttachedFileCnt;
 
-	public static class SelectedOldAttachFile {
+	public static class OldAttachedFile {
 		private short attachSeq;
 
 		public short getAttachSeq() {
@@ -43,7 +43,7 @@ public class BoardUploadFileReq extends AbstractMessage {
 		@Override
 		public String toString() {
 			StringBuilder builder = new StringBuilder();
-			builder.append("SelectedOldAttachFile[");
+			builder.append("OldAttachedFile[");
 			builder.append("attachSeq=");
 			builder.append(attachSeq);
 			builder.append("]");
@@ -51,19 +51,19 @@ public class BoardUploadFileReq extends AbstractMessage {
 		}
 	}
 
-	private java.util.List<SelectedOldAttachFile> selectedOldAttachFileList;
-	private int newAttachFileCnt;
+	private java.util.List<OldAttachedFile> oldAttachedFileList;
+	private int newAttachedFileCnt;
 
-	public static class NewAttachFile {
-		private String attachFileName;
+	public static class NewAttachedFile {
+		private String attachedFileName;
 		private String systemFileName;
 
-		public String getAttachFileName() {
-			return attachFileName;
+		public String getAttachedFileName() {
+			return attachedFileName;
 		}
 
-		public void setAttachFileName(String attachFileName) {
-			this.attachFileName = attachFileName;
+		public void setAttachedFileName(String attachedFileName) {
+			this.attachedFileName = attachedFileName;
 		}
 		public String getSystemFileName() {
 			return systemFileName;
@@ -76,9 +76,9 @@ public class BoardUploadFileReq extends AbstractMessage {
 		@Override
 		public String toString() {
 			StringBuilder builder = new StringBuilder();
-			builder.append("NewAttachFile[");
-			builder.append("attachFileName=");
-			builder.append(attachFileName);
+			builder.append("NewAttachedFile[");
+			builder.append("attachedFileName=");
+			builder.append(attachedFileName);
 			builder.append(", systemFileName=");
 			builder.append(systemFileName);
 			builder.append("]");
@@ -86,7 +86,7 @@ public class BoardUploadFileReq extends AbstractMessage {
 		}
 	}
 
-	private java.util.List<NewAttachFile> newAttachFileList;
+	private java.util.List<NewAttachedFile> newAttachedFileList;
 
 	public String getUserId() {
 		return userId;
@@ -109,33 +109,33 @@ public class BoardUploadFileReq extends AbstractMessage {
 	public void setAttachId(long attachId) {
 		this.attachId = attachId;
 	}
-	public int getSelectedOldAttachFileCnt() {
-		return selectedOldAttachFileCnt;
+	public int getOldAttachedFileCnt() {
+		return oldAttachedFileCnt;
 	}
 
-	public void setSelectedOldAttachFileCnt(int selectedOldAttachFileCnt) {
-		this.selectedOldAttachFileCnt = selectedOldAttachFileCnt;
+	public void setOldAttachedFileCnt(int oldAttachedFileCnt) {
+		this.oldAttachedFileCnt = oldAttachedFileCnt;
 	}
-	public java.util.List<SelectedOldAttachFile> getSelectedOldAttachFileList() {
-		return selectedOldAttachFileList;
-	}
-
-	public void setSelectedOldAttachFileList(java.util.List<SelectedOldAttachFile> selectedOldAttachFileList) {
-		this.selectedOldAttachFileList = selectedOldAttachFileList;
-	}
-	public int getNewAttachFileCnt() {
-		return newAttachFileCnt;
+	public java.util.List<OldAttachedFile> getOldAttachedFileList() {
+		return oldAttachedFileList;
 	}
 
-	public void setNewAttachFileCnt(int newAttachFileCnt) {
-		this.newAttachFileCnt = newAttachFileCnt;
+	public void setOldAttachedFileList(java.util.List<OldAttachedFile> oldAttachedFileList) {
+		this.oldAttachedFileList = oldAttachedFileList;
 	}
-	public java.util.List<NewAttachFile> getNewAttachFileList() {
-		return newAttachFileList;
+	public int getNewAttachedFileCnt() {
+		return newAttachedFileCnt;
 	}
 
-	public void setNewAttachFileList(java.util.List<NewAttachFile> newAttachFileList) {
-		this.newAttachFileList = newAttachFileList;
+	public void setNewAttachedFileCnt(int newAttachedFileCnt) {
+		this.newAttachedFileCnt = newAttachedFileCnt;
+	}
+	public java.util.List<NewAttachedFile> getNewAttachedFileList() {
+		return newAttachedFileList;
+	}
+
+	public void setNewAttachedFileList(java.util.List<NewAttachedFile> newAttachedFileList) {
+		this.newAttachedFileList = newAttachedFileList;
 	}
 
 	@Override
@@ -148,54 +148,54 @@ public class BoardUploadFileReq extends AbstractMessage {
 		builder.append(ip);
 		builder.append(", attachId=");
 		builder.append(attachId);
-		builder.append(", selectedOldAttachFileCnt=");
-		builder.append(selectedOldAttachFileCnt);
+		builder.append(", oldAttachedFileCnt=");
+		builder.append(oldAttachedFileCnt);
 
-		builder.append(", selectedOldAttachFileList=");
-		if (null == selectedOldAttachFileList) {
+		builder.append(", oldAttachedFileList=");
+		if (null == oldAttachedFileList) {
 			builder.append("null");
 		} else {
-			int selectedOldAttachFileListSize = selectedOldAttachFileList.size();
-			if (0 == selectedOldAttachFileListSize) {
+			int oldAttachedFileListSize = oldAttachedFileList.size();
+			if (0 == oldAttachedFileListSize) {
 				builder.append("empty");
 			} else {
 				builder.append("[");
-				for (int i=0; i < selectedOldAttachFileListSize; i++) {
-					SelectedOldAttachFile selectedOldAttachFile = selectedOldAttachFileList.get(i);
+				for (int i=0; i < oldAttachedFileListSize; i++) {
+					OldAttachedFile oldAttachedFile = oldAttachedFileList.get(i);
 					if (0 == i) {
-						builder.append("selectedOldAttachFile[");
+						builder.append("oldAttachedFile[");
 					} else {
-						builder.append(", selectedOldAttachFile[");
+						builder.append(", oldAttachedFile[");
 					}
 					builder.append(i);
 					builder.append("]=");
-					builder.append(selectedOldAttachFile.toString());
+					builder.append(oldAttachedFile.toString());
 				}
 				builder.append("]");
 			}
 		}
-		builder.append(", newAttachFileCnt=");
-		builder.append(newAttachFileCnt);
+		builder.append(", newAttachedFileCnt=");
+		builder.append(newAttachedFileCnt);
 
-		builder.append(", newAttachFileList=");
-		if (null == newAttachFileList) {
+		builder.append(", newAttachedFileList=");
+		if (null == newAttachedFileList) {
 			builder.append("null");
 		} else {
-			int newAttachFileListSize = newAttachFileList.size();
-			if (0 == newAttachFileListSize) {
+			int newAttachedFileListSize = newAttachedFileList.size();
+			if (0 == newAttachedFileListSize) {
 				builder.append("empty");
 			} else {
 				builder.append("[");
-				for (int i=0; i < newAttachFileListSize; i++) {
-					NewAttachFile newAttachFile = newAttachFileList.get(i);
+				for (int i=0; i < newAttachedFileListSize; i++) {
+					NewAttachedFile newAttachedFile = newAttachedFileList.get(i);
 					if (0 == i) {
-						builder.append("newAttachFile[");
+						builder.append("newAttachedFile[");
 					} else {
-						builder.append(", newAttachFile[");
+						builder.append(", newAttachedFile[");
 					}
 					builder.append(i);
 					builder.append("]=");
-					builder.append(newAttachFile.toString());
+					builder.append(newAttachedFile.toString());
 				}
 				builder.append("]");
 			}

@@ -251,31 +251,6 @@ public abstract class AbstractDBCommand {
 		return tableName;
 	}
 	
-	/**
-	 * �뀒�씠釉� �깮�꽦 荑쇰━臾몄쓣 紐⑸줉�뿉 異붽��븳�떎. �떒 �깮�꽦�븷 �뀒�씠釉� 以묐났�떆 醫낅즺�맂�떎.
-	 * @param creatingTableSql �뀒�씠釉� �깮�꽦 荑쇰━臾�
-	 */
-	public void addCreatingTableSql(String creatingTableSql) throws IllegalArgumentException {
-		if (null == schemaName) {
-			log.error("schemaName is null, you moust call super() that is AbstractDBCommand()");
-			System.exit(1);
-		}
-		String tableName = getTableNameFromCreatingTableSql(creatingTableSql, schemaName);
-		
-		if (tableNameList.contains(tableName)) {
-			String errorMessage = new StringBuilder("The creating table sql[")
-			.append(creatingTableSql)
-			.append("]'s table[")
-			.append(tableName)
-			.append("] has already been created").toString();
-			
-			throw new IllegalArgumentException(errorMessage);
-		}
-		
-		tableNameList.add(tableName);
-		creatingTableSqlList.add(creatingTableSql);
-	}
-	
 	
 	public enum EXECUTION_MODE {
 		CREATION_IF_NOT_EXIST, CREATION, DELETION

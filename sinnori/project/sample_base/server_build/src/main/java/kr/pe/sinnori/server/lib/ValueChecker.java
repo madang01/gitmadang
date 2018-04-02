@@ -266,7 +266,7 @@ public class ValueChecker {
 				
 		boolean isValid = pwdAnswer.matches(regexMinMax);
 		if (!isValid) {			
-			String errorMessage = new StringBuilder("비밀번호 분실 답변은 한글, 영문, 숫자 조합으로 최소 ")
+			String errorMessage = new StringBuilder("비밀번호 분실 답변은 한글, 영문, 숫자, 공백문자 조합으로 최소 ")
 					.append(ServerCommonStaticFinalVars.MIN_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
 					.append("자 최대 ")
 					.append(ServerCommonStaticFinalVars.MAX_NUMBER_OF_PASSWORD_HINT_CHARRACTERS)
@@ -389,6 +389,26 @@ public class ValueChecker {
 		}
 	}
 	
-	
+	public static void checkNoTrimString(String str) throws IllegalArgumentException {
+		if (null == str) {
+			throw new IllegalArgumentException("the parameter str is null");
+		}
+				
+		boolean isValid = false;
+		
+		String regexPrefixSpace = "^\\s.*$"; 
+		isValid = str.matches(regexPrefixSpace);
+		if (!isValid) {	
+			String errorMessage = "공백으로 시작하는 문자열입니다";
+			throw new IllegalArgumentException(errorMessage);
+		}
+		
+		String regexSuffixSpace = "^.*\\s$"; 
+		isValid = str.matches(regexSuffixSpace);
+		if (!isValid) {	
+			String errorMessage = "공백으로 끝나는 문자열입니다";
+			throw new IllegalArgumentException(errorMessage);
+		}
+	}
 	
 }

@@ -20,13 +20,13 @@
 <singleitem name="userId" type="ub pascal string" />
 <singleitem name="ip" type="ub pascal string" />
 <singleitem name="attachId" type="unsigned integer" />
-<singleitem name="selectedOldAttachFileCnt" type="integer" />
-<array name="selectedOldAttachFile" cnttype="reference" cntvalue="selectedOldAttachFileCnt">
+<singleitem name="oldAttachedFileCnt" type="integer" />
+<array name="oldAttachedFile" cnttype="reference" cntvalue="oldAttachedFileCnt">
 	<singleitem name="attachSeq" type="unsigned byte" />
 </array>
-<singleitem name="newAttachFileCnt" type="integer" />
-<array name="newAttachFile" cnttype="reference" cntvalue="newAttachFileCnt">
-	<singleitem name="attachFileName" type="us pascal string" />
+<singleitem name="newAttachedFileCnt" type="integer" />
+<array name="newAttachedFile" cnttype="reference" cntvalue="newAttachedFileCnt">
+	<singleitem name="attachedFileName" type="us pascal string" />
 	<singleitem name="systemFileName" type="us pascal string" />
 </array>
 </sinnori_message>

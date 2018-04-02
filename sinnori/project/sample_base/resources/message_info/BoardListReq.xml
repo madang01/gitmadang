@@ -18,6 +18,6 @@
 <direction>FROM_CLIENT_TO_SERVER</direction>
 <desc>게시판 목록 요청 메시지, Mybatis DTO</desc>
 <singleitem name="boardId" type="unsigned byte" />
-<singleitem name="startNo" type="unsigned integer" />
+<singleitem name="startNo" type="unsigned short" />
 <singleitem name="pageSize" type="unsigned short" />
 </sinnori_message>

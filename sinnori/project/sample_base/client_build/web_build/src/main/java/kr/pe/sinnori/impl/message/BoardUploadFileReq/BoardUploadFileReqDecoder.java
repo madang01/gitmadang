@@ -57,73 +57,73 @@ public final class BoardUploadFileReqDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardUploadFileReq.setSelectedOldAttachFileCnt((Integer)
+		boardUploadFileReq.setOldAttachedFileCnt((Integer)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "selectedOldAttachFileCnt" // itemName
+			, "oldAttachedFileCnt" // itemName
 			, kr.pe.sinnori.common.type.SingleItemType.INTEGER // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		int selectedOldAttachFile$2ListSize = boardUploadFileReq.getSelectedOldAttachFileCnt();
-		Object selectedOldAttachFile$2ArrayMiddleObject = singleItemDecoder.getArrayMiddleObjectFromReadableMiddleObject(pathStack.peek(), "selectedOldAttachFile", selectedOldAttachFile$2ListSize, middleReadableObject);
-		java.util.List<BoardUploadFileReq.SelectedOldAttachFile> selectedOldAttachFile$2List = new java.util.ArrayList<BoardUploadFileReq.SelectedOldAttachFile>();
-		for (int i2=0; i2 < selectedOldAttachFile$2ListSize; i2++) {
-			pathStack.push(new StringBuilder(pathStack.peek()).append(".").append("SelectedOldAttachFile").append("[").append(i2).append("]").toString());
-			Object selectedOldAttachFile$2MiddleWritableObject= singleItemDecoder.getReadableMiddleObjFromArrayMiddleObject(pathStack.peek(), selectedOldAttachFile$2ArrayMiddleObject, i2);
-			BoardUploadFileReq.SelectedOldAttachFile selectedOldAttachFile$2 = new BoardUploadFileReq.SelectedOldAttachFile();
-			selectedOldAttachFile$2List.add(selectedOldAttachFile$2);
+		int oldAttachedFile$2ListSize = boardUploadFileReq.getOldAttachedFileCnt();
+		Object oldAttachedFile$2ArrayMiddleObject = singleItemDecoder.getArrayMiddleObjectFromReadableMiddleObject(pathStack.peek(), "oldAttachedFile", oldAttachedFile$2ListSize, middleReadableObject);
+		java.util.List<BoardUploadFileReq.OldAttachedFile> oldAttachedFile$2List = new java.util.ArrayList<BoardUploadFileReq.OldAttachedFile>();
+		for (int i2=0; i2 < oldAttachedFile$2ListSize; i2++) {
+			pathStack.push(new StringBuilder(pathStack.peek()).append(".").append("OldAttachedFile").append("[").append(i2).append("]").toString());
+			Object oldAttachedFile$2MiddleWritableObject= singleItemDecoder.getReadableMiddleObjFromArrayMiddleObject(pathStack.peek(), oldAttachedFile$2ArrayMiddleObject, i2);
+			BoardUploadFileReq.OldAttachedFile oldAttachedFile$2 = new BoardUploadFileReq.OldAttachedFile();
+			oldAttachedFile$2List.add(oldAttachedFile$2);
 
-			selectedOldAttachFile$2.setAttachSeq((Short)
+			oldAttachedFile$2.setAttachSeq((Short)
 			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 				, "attachSeq" // itemName
 				, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_BYTE // itemType
 				, -1 // itemSize
 				, null // nativeItemCharset
-				, selectedOldAttachFile$2MiddleWritableObject));
+				, oldAttachedFile$2MiddleWritableObject));
 
 			pathStack.pop();
 		}
 
-		boardUploadFileReq.setSelectedOldAttachFileList(selectedOldAttachFile$2List);
+		boardUploadFileReq.setOldAttachedFileList(oldAttachedFile$2List);
 
-		boardUploadFileReq.setNewAttachFileCnt((Integer)
+		boardUploadFileReq.setNewAttachedFileCnt((Integer)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "newAttachFileCnt" // itemName
+			, "newAttachedFileCnt" // itemName
 			, kr.pe.sinnori.common.type.SingleItemType.INTEGER // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		int newAttachFile$2ListSize = boardUploadFileReq.getNewAttachFileCnt();
-		Object newAttachFile$2ArrayMiddleObject = singleItemDecoder.getArrayMiddleObjectFromReadableMiddleObject(pathStack.peek(), "newAttachFile", newAttachFile$2ListSize, middleReadableObject);
-		java.util.List<BoardUploadFileReq.NewAttachFile> newAttachFile$2List = new java.util.ArrayList<BoardUploadFileReq.NewAttachFile>();
-		for (int i2=0; i2 < newAttachFile$2ListSize; i2++) {
-			pathStack.push(new StringBuilder(pathStack.peek()).append(".").append("NewAttachFile").append("[").append(i2).append("]").toString());
-			Object newAttachFile$2MiddleWritableObject= singleItemDecoder.getReadableMiddleObjFromArrayMiddleObject(pathStack.peek(), newAttachFile$2ArrayMiddleObject, i2);
-			BoardUploadFileReq.NewAttachFile newAttachFile$2 = new BoardUploadFileReq.NewAttachFile();
-			newAttachFile$2List.add(newAttachFile$2);
+		int newAttachedFile$2ListSize = boardUploadFileReq.getNewAttachedFileCnt();
+		Object newAttachedFile$2ArrayMiddleObject = singleItemDecoder.getArrayMiddleObjectFromReadableMiddleObject(pathStack.peek(), "newAttachedFile", newAttachedFile$2ListSize, middleReadableObject);
+		java.util.List<BoardUploadFileReq.NewAttachedFile> newAttachedFile$2List = new java.util.ArrayList<BoardUploadFileReq.NewAttachedFile>();
+		for (int i2=0; i2 < newAttachedFile$2ListSize; i2++) {
+			pathStack.push(new StringBuilder(pathStack.peek()).append(".").append("NewAttachedFile").append("[").append(i2).append("]").toString());
+			Object newAttachedFile$2MiddleWritableObject= singleItemDecoder.getReadableMiddleObjFromArrayMiddleObject(pathStack.peek(), newAttachedFile$2ArrayMiddleObject, i2);
+			BoardUploadFileReq.NewAttachedFile newAttachedFile$2 = new BoardUploadFileReq.NewAttachedFile();
+			newAttachedFile$2List.add(newAttachedFile$2);
 
-			newAttachFile$2.setAttachFileName((String)
+			newAttachedFile$2.setAttachedFileName((String)
 			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-				, "attachFileName" // itemName
+				, "attachedFileName" // itemName
 				, kr.pe.sinnori.common.type.SingleItemType.US_PASCAL_STRING // itemType
 				, -1 // itemSize
 				, null // nativeItemCharset
-				, newAttachFile$2MiddleWritableObject));
+				, newAttachedFile$2MiddleWritableObject));
 
-			newAttachFile$2.setSystemFileName((String)
+			newAttachedFile$2.setSystemFileName((String)
 			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 				, "systemFileName" // itemName
 				, kr.pe.sinnori.common.type.SingleItemType.US_PASCAL_STRING // itemType
 				, -1 // itemSize
 				, null // nativeItemCharset
-				, newAttachFile$2MiddleWritableObject));
+				, newAttachedFile$2MiddleWritableObject));
 
 			pathStack.pop();
 		}
 
-		boardUploadFileReq.setNewAttachFileList(newAttachFile$2List);
+		boardUploadFileReq.setNewAttachedFileList(newAttachedFile$2List);
 
 		pathStack.pop();
 

@@ -59,90 +59,90 @@ public final class BoardUploadFileReqEncoder extends AbstractMessageEncoder {
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "selectedOldAttachFileCnt"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "oldAttachedFileCnt"
 			, kr.pe.sinnori.common.type.SingleItemType.INTEGER // itemType
-			, boardUploadFileReq.getSelectedOldAttachFileCnt() // itemValue
+			, boardUploadFileReq.getOldAttachedFileCnt() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		java.util.List<BoardUploadFileReq.SelectedOldAttachFile> selectedOldAttachFile$2List = boardUploadFileReq.getSelectedOldAttachFileList();
+		java.util.List<BoardUploadFileReq.OldAttachedFile> oldAttachedFile$2List = boardUploadFileReq.getOldAttachedFileList();
 
 		/** 배열 정보와 배열 크기 일치 검사 */
-		if (null == selectedOldAttachFile$2List) {
+		if (null == oldAttachedFile$2List) {
 			/** 배열 크기 지정 방식이 간접일 경우 참조하는 변수값이 0 일 경우만 배열 값으로 null 을 허용한다. */
-			if (0 != boardUploadFileReq.getSelectedOldAttachFileCnt()) {
-				String errorMessage = new StringBuilder("the var selectedOldAttachFile$2List is null but the value referenced by the array size[boardUploadFileReq.getSelectedOldAttachFileCnt()][").append(boardUploadFileReq.getSelectedOldAttachFileCnt()).append("] is not zero").toString();
+			if (0 != boardUploadFileReq.getOldAttachedFileCnt()) {
+				String errorMessage = new StringBuilder("the var oldAttachedFile$2List is null but the value referenced by the array size[boardUploadFileReq.getOldAttachedFileCnt()][").append(boardUploadFileReq.getOldAttachedFileCnt()).append("] is not zero").toString();
 				throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
 			}
 		} else {
-			int selectedOldAttachFile$2ListSize = selectedOldAttachFile$2List.size();
+			int oldAttachedFile$2ListSize = oldAttachedFile$2List.size();
 			/** 배열 값이 null 이 아닐때에는 배열 크기가 배열 정보에서 지정된 크기와 같은지 검사 */
-			if (boardUploadFileReq.getSelectedOldAttachFileCnt() != selectedOldAttachFile$2ListSize) {
-				String errorMessage = new StringBuilder("the var selectedOldAttachFile$2ListSize[").append(selectedOldAttachFile$2ListSize).append("] is not same to the value referenced by the array size[boardUploadFileReq.getSelectedOldAttachFileCnt()][").append(boardUploadFileReq.getSelectedOldAttachFileCnt()).append("]").toString();
+			if (boardUploadFileReq.getOldAttachedFileCnt() != oldAttachedFile$2ListSize) {
+				String errorMessage = new StringBuilder("the var oldAttachedFile$2ListSize[").append(oldAttachedFile$2ListSize).append("] is not same to the value referenced by the array size[boardUploadFileReq.getOldAttachedFileCnt()][").append(boardUploadFileReq.getOldAttachedFileCnt()).append("]").toString();
 				throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
 			}
 
-			Object selectedOldAttachFile$2ArrayMiddleObject = singleItemEncoder.getArrayMiddleObjectFromWritableMiddleObject(pathStack.peek(), "selectedOldAttachFile", selectedOldAttachFile$2ListSize, middleWritableObject);
-			for (int i2=0; i2 < selectedOldAttachFile$2ListSize; i2++) {
-				pathStack.push(new StringBuilder(pathStack.peek()).append(".").append("SelectedOldAttachFile").append("[").append(i2).append("]").toString());
-				Object selectedOldAttachFile$2MiddleWritableObject = singleItemEncoder.getWritableMiddleObjectjFromArrayMiddleObject(pathStack.peek(), selectedOldAttachFile$2ArrayMiddleObject, i2);
-				BoardUploadFileReq.SelectedOldAttachFile selectedOldAttachFile$2 = selectedOldAttachFile$2List.get(i2);
+			Object oldAttachedFile$2ArrayMiddleObject = singleItemEncoder.getArrayMiddleObjectFromWritableMiddleObject(pathStack.peek(), "oldAttachedFile", oldAttachedFile$2ListSize, middleWritableObject);
+			for (int i2=0; i2 < oldAttachedFile$2ListSize; i2++) {
+				pathStack.push(new StringBuilder(pathStack.peek()).append(".").append("OldAttachedFile").append("[").append(i2).append("]").toString());
+				Object oldAttachedFile$2MiddleWritableObject = singleItemEncoder.getWritableMiddleObjectjFromArrayMiddleObject(pathStack.peek(), oldAttachedFile$2ArrayMiddleObject, i2);
+				BoardUploadFileReq.OldAttachedFile oldAttachedFile$2 = oldAttachedFile$2List.get(i2);
 
 				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachSeq"
 					, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_BYTE // itemType
-					, selectedOldAttachFile$2.getAttachSeq() // itemValue
+					, oldAttachedFile$2.getAttachSeq() // itemValue
 					, -1 // itemSize
 					, null // nativeItemCharset
-					, selectedOldAttachFile$2MiddleWritableObject);
+					, oldAttachedFile$2MiddleWritableObject);
 
 				pathStack.pop();
 			}
 		}
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "newAttachFileCnt"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "newAttachedFileCnt"
 			, kr.pe.sinnori.common.type.SingleItemType.INTEGER // itemType
-			, boardUploadFileReq.getNewAttachFileCnt() // itemValue
+			, boardUploadFileReq.getNewAttachedFileCnt() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		java.util.List<BoardUploadFileReq.NewAttachFile> newAttachFile$2List = boardUploadFileReq.getNewAttachFileList();
+		java.util.List<BoardUploadFileReq.NewAttachedFile> newAttachedFile$2List = boardUploadFileReq.getNewAttachedFileList();
 
 		/** 배열 정보와 배열 크기 일치 검사 */
-		if (null == newAttachFile$2List) {
+		if (null == newAttachedFile$2List) {
 			/** 배열 크기 지정 방식이 간접일 경우 참조하는 변수값이 0 일 경우만 배열 값으로 null 을 허용한다. */
-			if (0 != boardUploadFileReq.getNewAttachFileCnt()) {
-				String errorMessage = new StringBuilder("the var newAttachFile$2List is null but the value referenced by the array size[boardUploadFileReq.getNewAttachFileCnt()][").append(boardUploadFileReq.getNewAttachFileCnt()).append("] is not zero").toString();
+			if (0 != boardUploadFileReq.getNewAttachedFileCnt()) {
+				String errorMessage = new StringBuilder("the var newAttachedFile$2List is null but the value referenced by the array size[boardUploadFileReq.getNewAttachedFileCnt()][").append(boardUploadFileReq.getNewAttachedFileCnt()).append("] is not zero").toString();
 				throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
 			}
 		} else {
-			int newAttachFile$2ListSize = newAttachFile$2List.size();
+			int newAttachedFile$2ListSize = newAttachedFile$2List.size();
 			/** 배열 값이 null 이 아닐때에는 배열 크기가 배열 정보에서 지정된 크기와 같은지 검사 */
-			if (boardUploadFileReq.getNewAttachFileCnt() != newAttachFile$2ListSize) {
-				String errorMessage = new StringBuilder("the var newAttachFile$2ListSize[").append(newAttachFile$2ListSize).append("] is not same to the value referenced by the array size[boardUploadFileReq.getNewAttachFileCnt()][").append(boardUploadFileReq.getNewAttachFileCnt()).append("]").toString();
+			if (boardUploadFileReq.getNewAttachedFileCnt() != newAttachedFile$2ListSize) {
+				String errorMessage = new StringBuilder("the var newAttachedFile$2ListSize[").append(newAttachedFile$2ListSize).append("] is not same to the value referenced by the array size[boardUploadFileReq.getNewAttachedFileCnt()][").append(boardUploadFileReq.getNewAttachedFileCnt()).append("]").toString();
 				throw new kr.pe.sinnori.common.exception.BodyFormatException(errorMessage);
 			}
 
-			Object newAttachFile$2ArrayMiddleObject = singleItemEncoder.getArrayMiddleObjectFromWritableMiddleObject(pathStack.peek(), "newAttachFile", newAttachFile$2ListSize, middleWritableObject);
-			for (int i2=0; i2 < newAttachFile$2ListSize; i2++) {
-				pathStack.push(new StringBuilder(pathStack.peek()).append(".").append("NewAttachFile").append("[").append(i2).append("]").toString());
-				Object newAttachFile$2MiddleWritableObject = singleItemEncoder.getWritableMiddleObjectjFromArrayMiddleObject(pathStack.peek(), newAttachFile$2ArrayMiddleObject, i2);
-				BoardUploadFileReq.NewAttachFile newAttachFile$2 = newAttachFile$2List.get(i2);
+			Object newAttachedFile$2ArrayMiddleObject = singleItemEncoder.getArrayMiddleObjectFromWritableMiddleObject(pathStack.peek(), "newAttachedFile", newAttachedFile$2ListSize, middleWritableObject);
+			for (int i2=0; i2 < newAttachedFile$2ListSize; i2++) {
+				pathStack.push(new StringBuilder(pathStack.peek()).append(".").append("NewAttachedFile").append("[").append(i2).append("]").toString());
+				Object newAttachedFile$2MiddleWritableObject = singleItemEncoder.getWritableMiddleObjectjFromArrayMiddleObject(pathStack.peek(), newAttachedFile$2ArrayMiddleObject, i2);
+				BoardUploadFileReq.NewAttachedFile newAttachedFile$2 = newAttachedFile$2List.get(i2);
 
-				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachFileName"
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachedFileName"
 					, kr.pe.sinnori.common.type.SingleItemType.US_PASCAL_STRING // itemType
-					, newAttachFile$2.getAttachFileName() // itemValue
+					, newAttachedFile$2.getAttachedFileName() // itemValue
 					, -1 // itemSize
 					, null // nativeItemCharset
-					, newAttachFile$2MiddleWritableObject);
+					, newAttachedFile$2MiddleWritableObject);
 
 				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "systemFileName"
 					, kr.pe.sinnori.common.type.SingleItemType.US_PASCAL_STRING // itemType
-					, newAttachFile$2.getSystemFileName() // itemValue
+					, newAttachedFile$2.getSystemFileName() // itemValue
 					, -1 // itemSize
 					, null // nativeItemCharset
-					, newAttachFile$2MiddleWritableObject);
+					, newAttachedFile$2MiddleWritableObject);
 
 				pathStack.pop();
 			}

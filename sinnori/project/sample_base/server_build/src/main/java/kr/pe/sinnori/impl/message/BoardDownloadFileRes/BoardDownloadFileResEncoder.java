@@ -59,9 +59,9 @@ public final class BoardDownloadFileResEncoder extends AbstractMessageEncoder {
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachFileName"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachFiledName"
 			, kr.pe.sinnori.common.type.SingleItemType.US_PASCAL_STRING // itemType
-			, boardDownloadFileRes.getAttachFileName() // itemValue
+			, boardDownloadFileRes.getAttachFiledName() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);

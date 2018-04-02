@@ -27,7 +27,7 @@ public class BoardDownloadFileRes extends AbstractMessage {
 	private String ownerId;
 	private long attachId;
 	private short attachSeq;
-	private String attachFileName;
+	private String attachFiledName;
 	private String systemFileName;
 
 	public String getOwnerId() {
@@ -51,12 +51,12 @@ public class BoardDownloadFileRes extends AbstractMessage {
 	public void setAttachSeq(short attachSeq) {
 		this.attachSeq = attachSeq;
 	}
-	public String getAttachFileName() {
-		return attachFileName;
+	public String getAttachFiledName() {
+		return attachFiledName;
 	}
 
-	public void setAttachFileName(String attachFileName) {
-		this.attachFileName = attachFileName;
+	public void setAttachFiledName(String attachFiledName) {
+		this.attachFiledName = attachFiledName;
 	}
 	public String getSystemFileName() {
 		return systemFileName;
@@ -76,8 +76,8 @@ public class BoardDownloadFileRes extends AbstractMessage {
 		builder.append(attachId);
 		builder.append(", attachSeq=");
 		builder.append(attachSeq);
-		builder.append(", attachFileName=");
-		builder.append(attachFileName);
+		builder.append(", attachFiledName=");
+		builder.append(attachFiledName);
 		builder.append(", systemFileName=");
 		builder.append(systemFileName);
 		builder.append("]");
