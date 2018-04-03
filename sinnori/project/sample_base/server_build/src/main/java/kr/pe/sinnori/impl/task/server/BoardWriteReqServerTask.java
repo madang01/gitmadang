@@ -174,7 +174,7 @@ public class BoardWriteReqServerTask extends AbstractServerTask {
 			.set(SB_BOARD_TB.SUBJECT, boardWriteReq.getSubject())
 			.set(SB_BOARD_TB.CONTENT, boardWriteReq.getContent())
 			.set(SB_BOARD_TB.VIEW_CNT, Integer.valueOf(0))
-			.set(SB_BOARD_TB.DEL_FL, BoardStateType.NO.getValue())
+			.set(SB_BOARD_TB.BOARD_ST, BoardStateType.OK.getValue())
 			.set(SB_BOARD_TB.IP, boardWriteReq.getIp())
 			.set(SB_BOARD_TB.REG_DT, JooqSqlUtil.getFieldOfSysDate(Timestamp.class))
 			.set(SB_BOARD_TB.MOD_DT, SB_BOARD_TB.REG_DT);

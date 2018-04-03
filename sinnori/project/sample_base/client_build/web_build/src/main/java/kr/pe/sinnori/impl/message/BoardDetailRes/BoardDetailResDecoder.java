@@ -129,9 +129,9 @@ public final class BoardDetailResDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardDetailRes.setDeleteFlag((String)
+		boardDetailRes.setBoardSate((String)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-			, "deleteFlag" // itemName
+			, "boardSate" // itemName
 			, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
@@ -186,10 +186,10 @@ public final class BoardDetailResDecoder extends AbstractMessageDecoder {
 			BoardDetailRes.AttachFile attachFile$2 = new BoardDetailRes.AttachFile();
 			attachFile$2List.add(attachFile$2);
 
-			attachFile$2.setAttachSeq((Short)
+			attachFile$2.setAttachSeq((Long)
 			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 				, "attachSeq" // itemName
-				, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+				, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
 				, -1 // itemSize
 				, null // nativeItemCharset
 				, attachFile$2MiddleWritableObject));
@@ -215,10 +215,10 @@ public final class BoardDetailResDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardDetailRes.setMemberState((Byte)
+		boardDetailRes.setMemberState((String)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "memberState" // itemName
-			, kr.pe.sinnori.common.type.SingleItemType.BYTE // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.US_PASCAL_STRING // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));

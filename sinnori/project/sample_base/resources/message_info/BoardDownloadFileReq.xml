@@ -18,5 +18,5 @@
 <direction>FROM_CLIENT_TO_SERVER</direction>
 <desc>게시판 다운로드 파일 처리를 위한 정보 조회 요청, Mybatis DTO</desc>
 <singleitem name="attachId" type="unsigned integer" />
-<singleitem name="attachSeq" type="unsigned byte" />
+<singleitem name="attachSeq" type="unsigned integer" />
 </sinnori_message>

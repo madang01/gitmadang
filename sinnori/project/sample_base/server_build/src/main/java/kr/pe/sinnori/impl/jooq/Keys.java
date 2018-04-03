@@ -15,7 +15,7 @@ import kr.pe.sinnori.impl.jooq.tables.SbBoardVoteTb;
 import kr.pe.sinnori.impl.jooq.tables.SbGroupInfoTb;
 import kr.pe.sinnori.impl.jooq.tables.SbGroupTb;
 import kr.pe.sinnori.impl.jooq.tables.SbMemberTb;
-import kr.pe.sinnori.impl.jooq.tables.SbSeqManagerTb;
+import kr.pe.sinnori.impl.jooq.tables.SbSeqTb;
 import kr.pe.sinnori.impl.jooq.tables.records.OaMemberTbRecord;
 import kr.pe.sinnori.impl.jooq.tables.records.SbBoardFileinfoTbRecord;
 import kr.pe.sinnori.impl.jooq.tables.records.SbBoardFilelistTbRecord;
@@ -25,7 +25,7 @@ import kr.pe.sinnori.impl.jooq.tables.records.SbBoardVoteTbRecord;
 import kr.pe.sinnori.impl.jooq.tables.records.SbGroupInfoTbRecord;
 import kr.pe.sinnori.impl.jooq.tables.records.SbGroupTbRecord;
 import kr.pe.sinnori.impl.jooq.tables.records.SbMemberTbRecord;
-import kr.pe.sinnori.impl.jooq.tables.records.SbSeqManagerTbRecord;
+import kr.pe.sinnori.impl.jooq.tables.records.SbSeqTbRecord;
 
 import org.jooq.ForeignKey;
 import org.jooq.Identity;
@@ -68,22 +68,22 @@ public class Keys {
     public static final UniqueKey<SbGroupInfoTbRecord> KEY_SB_GROUP_INFO_TB_PRIMARY = UniqueKeys0.KEY_SB_GROUP_INFO_TB_PRIMARY;
     public static final UniqueKey<SbGroupTbRecord> KEY_SB_GROUP_TB_PRIMARY = UniqueKeys0.KEY_SB_GROUP_TB_PRIMARY;
     public static final UniqueKey<SbMemberTbRecord> KEY_SB_MEMBER_TB_PRIMARY = UniqueKeys0.KEY_SB_MEMBER_TB_PRIMARY;
-    public static final UniqueKey<SbMemberTbRecord> KEY_SB_MEMBER_TB_TW_MEMBER_01_IDX = UniqueKeys0.KEY_SB_MEMBER_TB_TW_MEMBER_01_IDX;
-    public static final UniqueKey<SbSeqManagerTbRecord> KEY_SB_SEQ_MANAGER_TB_PRIMARY = UniqueKeys0.KEY_SB_SEQ_MANAGER_TB_PRIMARY;
+    public static final UniqueKey<SbMemberTbRecord> KEY_SB_MEMBER_TB_SB_MEMBER_IDX1 = UniqueKeys0.KEY_SB_MEMBER_TB_SB_MEMBER_IDX1;
+    public static final UniqueKey<SbSeqTbRecord> KEY_SB_SEQ_TB_PRIMARY = UniqueKeys0.KEY_SB_SEQ_TB_PRIMARY;
 
     // -------------------------------------------------------------------------
     // FOREIGN KEY definitions
     // -------------------------------------------------------------------------
 
-    public static final ForeignKey<SbBoardFileinfoTbRecord, SbMemberTbRecord> FK_SB_BOARD_FILEINFO_01 = ForeignKeys0.FK_SB_BOARD_FILEINFO_01;
-    public static final ForeignKey<SbBoardFilelistTbRecord, SbBoardFileinfoTbRecord> FK_SB_BOARD_FILELIST_01 = ForeignKeys0.FK_SB_BOARD_FILELIST_01;
-    public static final ForeignKey<SbBoardTbRecord, SbBoardInfoTbRecord> FK_SB_BOARD_02 = ForeignKeys0.FK_SB_BOARD_02;
-    public static final ForeignKey<SbBoardTbRecord, SbMemberTbRecord> FK_SB_BOARD_01 = ForeignKeys0.FK_SB_BOARD_01;
-    public static final ForeignKey<SbBoardTbRecord, SbBoardFileinfoTbRecord> FK_SB_BOARD_03 = ForeignKeys0.FK_SB_BOARD_03;
-    public static final ForeignKey<SbBoardVoteTbRecord, SbBoardTbRecord> FK_SB_BOARD_VOTE_01 = ForeignKeys0.FK_SB_BOARD_VOTE_01;
-    public static final ForeignKey<SbBoardVoteTbRecord, SbMemberTbRecord> FK_SB_BOARD_VOTE_02 = ForeignKeys0.FK_SB_BOARD_VOTE_02;
-    public static final ForeignKey<SbGroupTbRecord, SbGroupInfoTbRecord> FK_SB_GROUP_01 = ForeignKeys0.FK_SB_GROUP_01;
-    public static final ForeignKey<SbGroupTbRecord, SbMemberTbRecord> FK_SB_GROUP_02 = ForeignKeys0.FK_SB_GROUP_02;
+    public static final ForeignKey<SbBoardFileinfoTbRecord, SbMemberTbRecord> SB_BOARD_FILEINFO_FK1 = ForeignKeys0.SB_BOARD_FILEINFO_FK1;
+    public static final ForeignKey<SbBoardFilelistTbRecord, SbBoardFileinfoTbRecord> SB_BOARD_FILELIST_FK1 = ForeignKeys0.SB_BOARD_FILELIST_FK1;
+    public static final ForeignKey<SbBoardTbRecord, SbBoardInfoTbRecord> SB_BOARD_FK1 = ForeignKeys0.SB_BOARD_FK1;
+    public static final ForeignKey<SbBoardTbRecord, SbMemberTbRecord> SB_BOARD_FK2 = ForeignKeys0.SB_BOARD_FK2;
+    public static final ForeignKey<SbBoardTbRecord, SbBoardFileinfoTbRecord> SB_BOARD_FK3 = ForeignKeys0.SB_BOARD_FK3;
+    public static final ForeignKey<SbBoardVoteTbRecord, SbBoardTbRecord> SB_BOARD_VOTE_FK1 = ForeignKeys0.SB_BOARD_VOTE_FK1;
+    public static final ForeignKey<SbBoardVoteTbRecord, SbMemberTbRecord> SB_BOARD_VOTE_FK2 = ForeignKeys0.SB_BOARD_VOTE_FK2;
+    public static final ForeignKey<SbGroupTbRecord, SbGroupInfoTbRecord> SB_GROUP_FK1 = ForeignKeys0.SB_GROUP_FK1;
+    public static final ForeignKey<SbGroupTbRecord, SbMemberTbRecord> SB_GROUP_FK2 = ForeignKeys0.SB_GROUP_FK2;
 
     // -------------------------------------------------------------------------
     // [#1459] distribute members to avoid static initialisers > 64kb
@@ -97,26 +97,26 @@ public class Keys {
     private static class UniqueKeys0 {
         public static final UniqueKey<OaMemberTbRecord> KEY_OA_MEMBER_TB_PRIMARY = Internal.createUniqueKey(OaMemberTb.OA_MEMBER_TB, "KEY_OA_MEMBER_TB_PRIMARY", OaMemberTb.OA_MEMBER_TB.ID);
         public static final UniqueKey<SbBoardFileinfoTbRecord> KEY_SB_BOARD_FILEINFO_TB_PRIMARY = Internal.createUniqueKey(SbBoardFileinfoTb.SB_BOARD_FILEINFO_TB, "KEY_SB_BOARD_FILEINFO_TB_PRIMARY", SbBoardFileinfoTb.SB_BOARD_FILEINFO_TB.ATTACH_ID);
-        public static final UniqueKey<SbBoardFilelistTbRecord> KEY_SB_BOARD_FILELIST_TB_PRIMARY = Internal.createUniqueKey(SbBoardFilelistTb.SB_BOARD_FILELIST_TB, "KEY_SB_BOARD_FILELIST_TB_PRIMARY", SbBoardFilelistTb.SB_BOARD_FILELIST_TB.ATTACH_SQ, SbBoardFilelistTb.SB_BOARD_FILELIST_TB.ATTACH_ID);
+        public static final UniqueKey<SbBoardFilelistTbRecord> KEY_SB_BOARD_FILELIST_TB_PRIMARY = Internal.createUniqueKey(SbBoardFilelistTb.SB_BOARD_FILELIST_TB, "KEY_SB_BOARD_FILELIST_TB_PRIMARY", SbBoardFilelistTb.SB_BOARD_FILELIST_TB.ATTACH_ID, SbBoardFilelistTb.SB_BOARD_FILELIST_TB.ATTACH_SQ);
         public static final UniqueKey<SbBoardInfoTbRecord> KEY_SB_BOARD_INFO_TB_PRIMARY = Internal.createUniqueKey(SbBoardInfoTb.SB_BOARD_INFO_TB, "KEY_SB_BOARD_INFO_TB_PRIMARY", SbBoardInfoTb.SB_BOARD_INFO_TB.BOARD_ID);
         public static final UniqueKey<SbBoardTbRecord> KEY_SB_BOARD_TB_PRIMARY = Internal.createUniqueKey(SbBoardTb.SB_BOARD_TB, "KEY_SB_BOARD_TB_PRIMARY", SbBoardTb.SB_BOARD_TB.BOARD_NO);
         public static final UniqueKey<SbBoardVoteTbRecord> KEY_SB_BOARD_VOTE_TB_PRIMARY = Internal.createUniqueKey(SbBoardVoteTb.SB_BOARD_VOTE_TB, "KEY_SB_BOARD_VOTE_TB_PRIMARY", SbBoardVoteTb.SB_BOARD_VOTE_TB.BOARD_NO, SbBoardVoteTb.SB_BOARD_VOTE_TB.USER_ID);
         public static final UniqueKey<SbGroupInfoTbRecord> KEY_SB_GROUP_INFO_TB_PRIMARY = Internal.createUniqueKey(SbGroupInfoTb.SB_GROUP_INFO_TB, "KEY_SB_GROUP_INFO_TB_PRIMARY", SbGroupInfoTb.SB_GROUP_INFO_TB.GROUP_ID);
         public static final UniqueKey<SbGroupTbRecord> KEY_SB_GROUP_TB_PRIMARY = Internal.createUniqueKey(SbGroupTb.SB_GROUP_TB, "KEY_SB_GROUP_TB_PRIMARY", SbGroupTb.SB_GROUP_TB.GROUP_ID, SbGroupTb.SB_GROUP_TB.USER_ID);
         public static final UniqueKey<SbMemberTbRecord> KEY_SB_MEMBER_TB_PRIMARY = Internal.createUniqueKey(SbMemberTb.SB_MEMBER_TB, "KEY_SB_MEMBER_TB_PRIMARY", SbMemberTb.SB_MEMBER_TB.USER_ID);
-        public static final UniqueKey<SbMemberTbRecord> KEY_SB_MEMBER_TB_TW_MEMBER_01_IDX = Internal.createUniqueKey(SbMemberTb.SB_MEMBER_TB, "KEY_SB_MEMBER_TB_tw_member_01_idx", SbMemberTb.SB_MEMBER_TB.NICKNAME);
-        public static final UniqueKey<SbSeqManagerTbRecord> KEY_SB_SEQ_MANAGER_TB_PRIMARY = Internal.createUniqueKey(SbSeqManagerTb.SB_SEQ_MANAGER_TB, "KEY_SB_SEQ_MANAGER_TB_PRIMARY", SbSeqManagerTb.SB_SEQ_MANAGER_TB.SQ_TYPE_ID);
+        public static final UniqueKey<SbMemberTbRecord> KEY_SB_MEMBER_TB_SB_MEMBER_IDX1 = Internal.createUniqueKey(SbMemberTb.SB_MEMBER_TB, "KEY_SB_MEMBER_TB_sb_member_idx1", SbMemberTb.SB_MEMBER_TB.NICKNAME);
+        public static final UniqueKey<SbSeqTbRecord> KEY_SB_SEQ_TB_PRIMARY = Internal.createUniqueKey(SbSeqTb.SB_SEQ_TB, "KEY_SB_SEQ_TB_PRIMARY", SbSeqTb.SB_SEQ_TB.SQ_ID);
     }
 
     private static class ForeignKeys0 {
-        public static final ForeignKey<SbBoardFileinfoTbRecord, SbMemberTbRecord> FK_SB_BOARD_FILEINFO_01 = Internal.createForeignKey(kr.pe.sinnori.impl.jooq.Keys.KEY_SB_MEMBER_TB_PRIMARY, SbBoardFileinfoTb.SB_BOARD_FILEINFO_TB, "fk_sb_board_fileinfo_01", SbBoardFileinfoTb.SB_BOARD_FILEINFO_TB.OWNER_ID);
-        public static final ForeignKey<SbBoardFilelistTbRecord, SbBoardFileinfoTbRecord> FK_SB_BOARD_FILELIST_01 = Internal.createForeignKey(kr.pe.sinnori.impl.jooq.Keys.KEY_SB_BOARD_FILEINFO_TB_PRIMARY, SbBoardFilelistTb.SB_BOARD_FILELIST_TB, "fk_sb_board_filelist_01", SbBoardFilelistTb.SB_BOARD_FILELIST_TB.ATTACH_ID);
-        public static final ForeignKey<SbBoardTbRecord, SbBoardInfoTbRecord> FK_SB_BOARD_02 = Internal.createForeignKey(kr.pe.sinnori.impl.jooq.Keys.KEY_SB_BOARD_INFO_TB_PRIMARY, SbBoardTb.SB_BOARD_TB, "fk_sb_board_02", SbBoardTb.SB_BOARD_TB.BOARD_ID);
-        public static final ForeignKey<SbBoardTbRecord, SbMemberTbRecord> FK_SB_BOARD_01 = Internal.createForeignKey(kr.pe.sinnori.impl.jooq.Keys.KEY_SB_MEMBER_TB_PRIMARY, SbBoardTb.SB_BOARD_TB, "fk_sb_board_01", SbBoardTb.SB_BOARD_TB.WRITER_ID);
-        public static final ForeignKey<SbBoardTbRecord, SbBoardFileinfoTbRecord> FK_SB_BOARD_03 = Internal.createForeignKey(kr.pe.sinnori.impl.jooq.Keys.KEY_SB_BOARD_FILEINFO_TB_PRIMARY, SbBoardTb.SB_BOARD_TB, "fk_sb_board_03", SbBoardTb.SB_BOARD_TB.ATTACH_ID);
-        public static final ForeignKey<SbBoardVoteTbRecord, SbBoardTbRecord> FK_SB_BOARD_VOTE_01 = Internal.createForeignKey(kr.pe.sinnori.impl.jooq.Keys.KEY_SB_BOARD_TB_PRIMARY, SbBoardVoteTb.SB_BOARD_VOTE_TB, "fk_sb_board_vote_01", SbBoardVoteTb.SB_BOARD_VOTE_TB.BOARD_NO);
-        public static final ForeignKey<SbBoardVoteTbRecord, SbMemberTbRecord> FK_SB_BOARD_VOTE_02 = Internal.createForeignKey(kr.pe.sinnori.impl.jooq.Keys.KEY_SB_MEMBER_TB_PRIMARY, SbBoardVoteTb.SB_BOARD_VOTE_TB, "fk_sb_board_vote_02", SbBoardVoteTb.SB_BOARD_VOTE_TB.USER_ID);
-        public static final ForeignKey<SbGroupTbRecord, SbGroupInfoTbRecord> FK_SB_GROUP_01 = Internal.createForeignKey(kr.pe.sinnori.impl.jooq.Keys.KEY_SB_GROUP_INFO_TB_PRIMARY, SbGroupTb.SB_GROUP_TB, "fk_sb_group_01", SbGroupTb.SB_GROUP_TB.GROUP_ID);
-        public static final ForeignKey<SbGroupTbRecord, SbMemberTbRecord> FK_SB_GROUP_02 = Internal.createForeignKey(kr.pe.sinnori.impl.jooq.Keys.KEY_SB_MEMBER_TB_PRIMARY, SbGroupTb.SB_GROUP_TB, "fk_sb_group_02", SbGroupTb.SB_GROUP_TB.USER_ID);
+        public static final ForeignKey<SbBoardFileinfoTbRecord, SbMemberTbRecord> SB_BOARD_FILEINFO_FK1 = Internal.createForeignKey(kr.pe.sinnori.impl.jooq.Keys.KEY_SB_MEMBER_TB_PRIMARY, SbBoardFileinfoTb.SB_BOARD_FILEINFO_TB, "sb_board_fileinfo_fk1", SbBoardFileinfoTb.SB_BOARD_FILEINFO_TB.OWNER_ID);
+        public static final ForeignKey<SbBoardFilelistTbRecord, SbBoardFileinfoTbRecord> SB_BOARD_FILELIST_FK1 = Internal.createForeignKey(kr.pe.sinnori.impl.jooq.Keys.KEY_SB_BOARD_FILEINFO_TB_PRIMARY, SbBoardFilelistTb.SB_BOARD_FILELIST_TB, "sb_board_filelist_fk1", SbBoardFilelistTb.SB_BOARD_FILELIST_TB.ATTACH_ID);
+        public static final ForeignKey<SbBoardTbRecord, SbBoardInfoTbRecord> SB_BOARD_FK1 = Internal.createForeignKey(kr.pe.sinnori.impl.jooq.Keys.KEY_SB_BOARD_INFO_TB_PRIMARY, SbBoardTb.SB_BOARD_TB, "sb_board_fk1", SbBoardTb.SB_BOARD_TB.BOARD_ID);
+        public static final ForeignKey<SbBoardTbRecord, SbMemberTbRecord> SB_BOARD_FK2 = Internal.createForeignKey(kr.pe.sinnori.impl.jooq.Keys.KEY_SB_MEMBER_TB_PRIMARY, SbBoardTb.SB_BOARD_TB, "sb_board_fk2", SbBoardTb.SB_BOARD_TB.WRITER_ID);
+        public static final ForeignKey<SbBoardTbRecord, SbBoardFileinfoTbRecord> SB_BOARD_FK3 = Internal.createForeignKey(kr.pe.sinnori.impl.jooq.Keys.KEY_SB_BOARD_FILEINFO_TB_PRIMARY, SbBoardTb.SB_BOARD_TB, "sb_board_fk3", SbBoardTb.SB_BOARD_TB.ATTACH_ID);
+        public static final ForeignKey<SbBoardVoteTbRecord, SbBoardTbRecord> SB_BOARD_VOTE_FK1 = Internal.createForeignKey(kr.pe.sinnori.impl.jooq.Keys.KEY_SB_BOARD_TB_PRIMARY, SbBoardVoteTb.SB_BOARD_VOTE_TB, "sb_board_vote_fk1", SbBoardVoteTb.SB_BOARD_VOTE_TB.BOARD_NO);
+        public static final ForeignKey<SbBoardVoteTbRecord, SbMemberTbRecord> SB_BOARD_VOTE_FK2 = Internal.createForeignKey(kr.pe.sinnori.impl.jooq.Keys.KEY_SB_MEMBER_TB_PRIMARY, SbBoardVoteTb.SB_BOARD_VOTE_TB, "sb_board_vote_fk2", SbBoardVoteTb.SB_BOARD_VOTE_TB.USER_ID);
+        public static final ForeignKey<SbGroupTbRecord, SbGroupInfoTbRecord> SB_GROUP_FK1 = Internal.createForeignKey(kr.pe.sinnori.impl.jooq.Keys.KEY_SB_GROUP_INFO_TB_PRIMARY, SbGroupTb.SB_GROUP_TB, "sb_group_fk1", SbGroupTb.SB_GROUP_TB.GROUP_ID);
+        public static final ForeignKey<SbGroupTbRecord, SbMemberTbRecord> SB_GROUP_FK2 = Internal.createForeignKey(kr.pe.sinnori.impl.jooq.Keys.KEY_SB_MEMBER_TB_PRIMARY, SbGroupTb.SB_GROUP_TB, "sb_group_fk2", SbGroupTb.SB_GROUP_TB.USER_ID);
     }
 }

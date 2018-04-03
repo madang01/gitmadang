@@ -15,7 +15,7 @@ import kr.pe.sinnori.impl.jooq.tables.SbBoardVoteTb;
 import kr.pe.sinnori.impl.jooq.tables.SbGroupInfoTb;
 import kr.pe.sinnori.impl.jooq.tables.SbGroupTb;
 import kr.pe.sinnori.impl.jooq.tables.SbMemberTb;
-import kr.pe.sinnori.impl.jooq.tables.SbSeqManagerTb;
+import kr.pe.sinnori.impl.jooq.tables.SbSeqTb;
 
 import org.jooq.Index;
 import org.jooq.OrderField;
@@ -40,25 +40,24 @@ public class Indexes {
     // -------------------------------------------------------------------------
 
     public static final Index OA_MEMBER_TB_PRIMARY = Indexes0.OA_MEMBER_TB_PRIMARY;
-    public static final Index SB_BOARD_FILEINFO_TB_FK_BOARD_FILEINFO_01_IDX = Indexes0.SB_BOARD_FILEINFO_TB_FK_BOARD_FILEINFO_01_IDX;
     public static final Index SB_BOARD_FILEINFO_TB_PRIMARY = Indexes0.SB_BOARD_FILEINFO_TB_PRIMARY;
-    public static final Index SB_BOARD_FILELIST_TB_FK_TW_BOARD_FILELIST_01_IDX = Indexes0.SB_BOARD_FILELIST_TB_FK_TW_BOARD_FILELIST_01_IDX;
+    public static final Index SB_BOARD_FILEINFO_TB_SB_BOARD_FILEINFO_FK1_IDX = Indexes0.SB_BOARD_FILEINFO_TB_SB_BOARD_FILEINFO_FK1_IDX;
     public static final Index SB_BOARD_FILELIST_TB_PRIMARY = Indexes0.SB_BOARD_FILELIST_TB_PRIMARY;
     public static final Index SB_BOARD_INFO_TB_PRIMARY = Indexes0.SB_BOARD_INFO_TB_PRIMARY;
-    public static final Index SB_BOARD_TB_FK_TW_BOARD_03_IDX = Indexes0.SB_BOARD_TB_FK_TW_BOARD_03_IDX;
     public static final Index SB_BOARD_TB_PRIMARY = Indexes0.SB_BOARD_TB_PRIMARY;
-    public static final Index SB_BOARD_TB_TW_BOARD_01_IDX = Indexes0.SB_BOARD_TB_TW_BOARD_01_IDX;
-    public static final Index SB_BOARD_TB_TW_BOARD_02_IDX = Indexes0.SB_BOARD_TB_TW_BOARD_02_IDX;
-    public static final Index SB_BOARD_TB_TW_BOARD_03_IDX = Indexes0.SB_BOARD_TB_TW_BOARD_03_IDX;
+    public static final Index SB_BOARD_TB_SB_BOARD_FK1_IDX = Indexes0.SB_BOARD_TB_SB_BOARD_FK1_IDX;
+    public static final Index SB_BOARD_TB_SB_BOARD_FK2_IDX = Indexes0.SB_BOARD_TB_SB_BOARD_FK2_IDX;
+    public static final Index SB_BOARD_TB_SB_BOARD_FK3_IDX = Indexes0.SB_BOARD_TB_SB_BOARD_FK3_IDX;
+    public static final Index SB_BOARD_TB_SB_BOARD_IDX1 = Indexes0.SB_BOARD_TB_SB_BOARD_IDX1;
     public static final Index SB_BOARD_VOTE_TB_PRIMARY = Indexes0.SB_BOARD_VOTE_TB_PRIMARY;
-    public static final Index SB_BOARD_VOTE_TB_TW_BOARD_VOTE_01_IDX = Indexes0.SB_BOARD_VOTE_TB_TW_BOARD_VOTE_01_IDX;
+    public static final Index SB_BOARD_VOTE_TB_SB_BOARD_VOTE_FK2_IDX = Indexes0.SB_BOARD_VOTE_TB_SB_BOARD_VOTE_FK2_IDX;
     public static final Index SB_GROUP_INFO_TB_PRIMARY = Indexes0.SB_GROUP_INFO_TB_PRIMARY;
-    public static final Index SB_GROUP_TB_FK_SB_MEMBER_TB_02_IDX = Indexes0.SB_GROUP_TB_FK_SB_MEMBER_TB_02_IDX;
     public static final Index SB_GROUP_TB_PRIMARY = Indexes0.SB_GROUP_TB_PRIMARY;
+    public static final Index SB_GROUP_TB_SB_GROUP_FK2_IDX = Indexes0.SB_GROUP_TB_SB_GROUP_FK2_IDX;
     public static final Index SB_MEMBER_TB_PRIMARY = Indexes0.SB_MEMBER_TB_PRIMARY;
-    public static final Index SB_MEMBER_TB_TW_MEMBER_01_IDX = Indexes0.SB_MEMBER_TB_TW_MEMBER_01_IDX;
-    public static final Index SB_MEMBER_TB_TW_MEMBER_02_IDX = Indexes0.SB_MEMBER_TB_TW_MEMBER_02_IDX;
-    public static final Index SB_SEQ_MANAGER_TB_PRIMARY = Indexes0.SB_SEQ_MANAGER_TB_PRIMARY;
+    public static final Index SB_MEMBER_TB_SB_MEMBER_IDX1 = Indexes0.SB_MEMBER_TB_SB_MEMBER_IDX1;
+    public static final Index SB_MEMBER_TB_SB_MEMBER_IDX2 = Indexes0.SB_MEMBER_TB_SB_MEMBER_IDX2;
+    public static final Index SB_SEQ_TB_PRIMARY = Indexes0.SB_SEQ_TB_PRIMARY;
 
     // -------------------------------------------------------------------------
     // [#1459] distribute members to avoid static initialisers > 64kb
@@ -66,24 +65,23 @@ public class Indexes {
 
     private static class Indexes0 {
         public static Index OA_MEMBER_TB_PRIMARY = Internal.createIndex("PRIMARY", OaMemberTb.OA_MEMBER_TB, new OrderField[] { OaMemberTb.OA_MEMBER_TB.ID }, true);
-        public static Index SB_BOARD_FILEINFO_TB_FK_BOARD_FILEINFO_01_IDX = Internal.createIndex("fk_board_fileinfo_01_idx", SbBoardFileinfoTb.SB_BOARD_FILEINFO_TB, new OrderField[] { SbBoardFileinfoTb.SB_BOARD_FILEINFO_TB.OWNER_ID }, false);
         public static Index SB_BOARD_FILEINFO_TB_PRIMARY = Internal.createIndex("PRIMARY", SbBoardFileinfoTb.SB_BOARD_FILEINFO_TB, new OrderField[] { SbBoardFileinfoTb.SB_BOARD_FILEINFO_TB.ATTACH_ID }, true);
-        public static Index SB_BOARD_FILELIST_TB_FK_TW_BOARD_FILELIST_01_IDX = Internal.createIndex("fk_tw_board_filelist_01_idx", SbBoardFilelistTb.SB_BOARD_FILELIST_TB, new OrderField[] { SbBoardFilelistTb.SB_BOARD_FILELIST_TB.ATTACH_ID }, false);
-        public static Index SB_BOARD_FILELIST_TB_PRIMARY = Internal.createIndex("PRIMARY", SbBoardFilelistTb.SB_BOARD_FILELIST_TB, new OrderField[] { SbBoardFilelistTb.SB_BOARD_FILELIST_TB.ATTACH_SQ, SbBoardFilelistTb.SB_BOARD_FILELIST_TB.ATTACH_ID }, true);
+        public static Index SB_BOARD_FILEINFO_TB_SB_BOARD_FILEINFO_FK1_IDX = Internal.createIndex("sb_board_fileinfo_fk1_idx", SbBoardFileinfoTb.SB_BOARD_FILEINFO_TB, new OrderField[] { SbBoardFileinfoTb.SB_BOARD_FILEINFO_TB.OWNER_ID }, false);
+        public static Index SB_BOARD_FILELIST_TB_PRIMARY = Internal.createIndex("PRIMARY", SbBoardFilelistTb.SB_BOARD_FILELIST_TB, new OrderField[] { SbBoardFilelistTb.SB_BOARD_FILELIST_TB.ATTACH_ID, SbBoardFilelistTb.SB_BOARD_FILELIST_TB.ATTACH_SQ }, true);
         public static Index SB_BOARD_INFO_TB_PRIMARY = Internal.createIndex("PRIMARY", SbBoardInfoTb.SB_BOARD_INFO_TB, new OrderField[] { SbBoardInfoTb.SB_BOARD_INFO_TB.BOARD_ID }, true);
-        public static Index SB_BOARD_TB_FK_TW_BOARD_03_IDX = Internal.createIndex("fk_tw_board_03_idx", SbBoardTb.SB_BOARD_TB, new OrderField[] { SbBoardTb.SB_BOARD_TB.ATTACH_ID }, false);
         public static Index SB_BOARD_TB_PRIMARY = Internal.createIndex("PRIMARY", SbBoardTb.SB_BOARD_TB, new OrderField[] { SbBoardTb.SB_BOARD_TB.BOARD_NO }, true);
-        public static Index SB_BOARD_TB_TW_BOARD_01_IDX = Internal.createIndex("tw_board_01_idx", SbBoardTb.SB_BOARD_TB, new OrderField[] { SbBoardTb.SB_BOARD_TB.WRITER_ID }, false);
-        public static Index SB_BOARD_TB_TW_BOARD_02_IDX = Internal.createIndex("tw_board_02_idx", SbBoardTb.SB_BOARD_TB, new OrderField[] { SbBoardTb.SB_BOARD_TB.BOARD_ID }, false);
-        public static Index SB_BOARD_TB_TW_BOARD_03_IDX = Internal.createIndex("tw_board_03_idx", SbBoardTb.SB_BOARD_TB, new OrderField[] { SbBoardTb.SB_BOARD_TB.GROUP_NO, SbBoardTb.SB_BOARD_TB.GROUP_SQ }, false);
+        public static Index SB_BOARD_TB_SB_BOARD_FK1_IDX = Internal.createIndex("sb_board_fk1_idx", SbBoardTb.SB_BOARD_TB, new OrderField[] { SbBoardTb.SB_BOARD_TB.BOARD_ID }, false);
+        public static Index SB_BOARD_TB_SB_BOARD_FK2_IDX = Internal.createIndex("sb_board_fk2_idx", SbBoardTb.SB_BOARD_TB, new OrderField[] { SbBoardTb.SB_BOARD_TB.WRITER_ID }, false);
+        public static Index SB_BOARD_TB_SB_BOARD_FK3_IDX = Internal.createIndex("sb_board_fk3_idx", SbBoardTb.SB_BOARD_TB, new OrderField[] { SbBoardTb.SB_BOARD_TB.ATTACH_ID }, false);
+        public static Index SB_BOARD_TB_SB_BOARD_IDX1 = Internal.createIndex("sb_board_idx1", SbBoardTb.SB_BOARD_TB, new OrderField[] { SbBoardTb.SB_BOARD_TB.BOARD_ID, SbBoardTb.SB_BOARD_TB.GROUP_NO }, false);
         public static Index SB_BOARD_VOTE_TB_PRIMARY = Internal.createIndex("PRIMARY", SbBoardVoteTb.SB_BOARD_VOTE_TB, new OrderField[] { SbBoardVoteTb.SB_BOARD_VOTE_TB.BOARD_NO, SbBoardVoteTb.SB_BOARD_VOTE_TB.USER_ID }, true);
-        public static Index SB_BOARD_VOTE_TB_TW_BOARD_VOTE_01_IDX = Internal.createIndex("tw_board_vote_01_idx", SbBoardVoteTb.SB_BOARD_VOTE_TB, new OrderField[] { SbBoardVoteTb.SB_BOARD_VOTE_TB.USER_ID }, false);
+        public static Index SB_BOARD_VOTE_TB_SB_BOARD_VOTE_FK2_IDX = Internal.createIndex("sb_board_vote_fk2_idx", SbBoardVoteTb.SB_BOARD_VOTE_TB, new OrderField[] { SbBoardVoteTb.SB_BOARD_VOTE_TB.USER_ID }, false);
         public static Index SB_GROUP_INFO_TB_PRIMARY = Internal.createIndex("PRIMARY", SbGroupInfoTb.SB_GROUP_INFO_TB, new OrderField[] { SbGroupInfoTb.SB_GROUP_INFO_TB.GROUP_ID }, true);
-        public static Index SB_GROUP_TB_FK_SB_MEMBER_TB_02_IDX = Internal.createIndex("fk_sb_member_tb_02_idx", SbGroupTb.SB_GROUP_TB, new OrderField[] { SbGroupTb.SB_GROUP_TB.USER_ID }, false);
         public static Index SB_GROUP_TB_PRIMARY = Internal.createIndex("PRIMARY", SbGroupTb.SB_GROUP_TB, new OrderField[] { SbGroupTb.SB_GROUP_TB.GROUP_ID, SbGroupTb.SB_GROUP_TB.USER_ID }, true);
+        public static Index SB_GROUP_TB_SB_GROUP_FK2_IDX = Internal.createIndex("sb_group_fk2_idx", SbGroupTb.SB_GROUP_TB, new OrderField[] { SbGroupTb.SB_GROUP_TB.USER_ID }, false);
         public static Index SB_MEMBER_TB_PRIMARY = Internal.createIndex("PRIMARY", SbMemberTb.SB_MEMBER_TB, new OrderField[] { SbMemberTb.SB_MEMBER_TB.USER_ID }, true);
-        public static Index SB_MEMBER_TB_TW_MEMBER_01_IDX = Internal.createIndex("tw_member_01_idx", SbMemberTb.SB_MEMBER_TB, new OrderField[] { SbMemberTb.SB_MEMBER_TB.NICKNAME }, true);
-        public static Index SB_MEMBER_TB_TW_MEMBER_02_IDX = Internal.createIndex("tw_member_02_idx", SbMemberTb.SB_MEMBER_TB, new OrderField[] { SbMemberTb.SB_MEMBER_TB.MEMBER_ST }, false);
-        public static Index SB_SEQ_MANAGER_TB_PRIMARY = Internal.createIndex("PRIMARY", SbSeqManagerTb.SB_SEQ_MANAGER_TB, new OrderField[] { SbSeqManagerTb.SB_SEQ_MANAGER_TB.SQ_TYPE_ID }, true);
+        public static Index SB_MEMBER_TB_SB_MEMBER_IDX1 = Internal.createIndex("sb_member_idx1", SbMemberTb.SB_MEMBER_TB, new OrderField[] { SbMemberTb.SB_MEMBER_TB.NICKNAME }, true);
+        public static Index SB_MEMBER_TB_SB_MEMBER_IDX2 = Internal.createIndex("sb_member_idx2", SbMemberTb.SB_MEMBER_TB, new OrderField[] { SbMemberTb.SB_MEMBER_TB.MEMBER_ST }, false);
+        public static Index SB_SEQ_TB_PRIMARY = Internal.createIndex("PRIMARY", SbSeqTb.SB_SEQ_TB, new OrderField[] { SbSeqTb.SB_SEQ_TB.SQ_ID }, true);
     }
 }

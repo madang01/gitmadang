@@ -40,7 +40,7 @@ import org.jooq.types.UByte;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbMemberTb extends TableImpl<SbMemberTbRecord> {
 
-    private static final long serialVersionUID = -1811257752;
+    private static final long serialVersionUID = 1239296486;
 
     /**
      * The reference instance of <code>SB_DB.SB_MEMBER_TB</code>
@@ -76,14 +76,14 @@ public class SbMemberTb extends TableImpl<SbMemberTbRecord> {
     public final TableField<SbMemberTbRecord, String> PWD_SALT_BASE64 = createField("pwd_salt_base64", org.jooq.impl.SQLDataType.VARCHAR(12), this, "비밀번호를 해쉬로 바꿀때 역 추적 방해를 목적으로 함께 사용하는 랜덤 값");
 
     /**
-     * The column <code>SB_DB.SB_MEMBER_TB.member_gb</code>. 회원 구분, 0:관리자, 1:일반회원
+     * The column <code>SB_DB.SB_MEMBER_TB.level</code>. 회원 등급, 0:관리자, 1:일반회원
      */
-    public final TableField<SbMemberTbRecord, Byte> MEMBER_GB = createField("member_gb", org.jooq.impl.SQLDataType.TINYINT, this, "회원 구분, 0:관리자, 1:일반회원");
+    public final TableField<SbMemberTbRecord, Byte> LEVEL = createField("level", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "회원 등급, 0:관리자, 1:일반회원");
 
     /**
-     * The column <code>SB_DB.SB_MEMBER_TB.member_st</code>. 회원 상태, 0:정상, 1:블락, 2:탈퇴
+     * The column <code>SB_DB.SB_MEMBER_TB.member_st</code>. 회원 상태, Y : 정상, B:블락, W:탈퇴
      */
-    public final TableField<SbMemberTbRecord, Byte> MEMBER_ST = createField("member_st", org.jooq.impl.SQLDataType.TINYINT, this, "회원 상태, 0:정상, 1:블락, 2:탈퇴");
+    public final TableField<SbMemberTbRecord, String> MEMBER_ST = createField("member_st", org.jooq.impl.SQLDataType.CHAR(1), this, "회원 상태, Y : 정상, B:블락, W:탈퇴");
 
     /**
      * The column <code>SB_DB.SB_MEMBER_TB.pwd_hint</code>. 비밀번호 힌트, 비밀번호 분실시 답변 유도용 사용자한테 보여주는 힌트
@@ -152,7 +152,7 @@ public class SbMemberTb extends TableImpl<SbMemberTbRecord> {
      */
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.SB_MEMBER_TB_PRIMARY, Indexes.SB_MEMBER_TB_TW_MEMBER_01_IDX, Indexes.SB_MEMBER_TB_TW_MEMBER_02_IDX);
+        return Arrays.<Index>asList(Indexes.SB_MEMBER_TB_PRIMARY, Indexes.SB_MEMBER_TB_SB_MEMBER_IDX1, Indexes.SB_MEMBER_TB_SB_MEMBER_IDX2);
     }
 
     /**
@@ -168,7 +168,7 @@ public class SbMemberTb extends TableImpl<SbMemberTbRecord> {
      */
     @Override
     public List<UniqueKey<SbMemberTbRecord>> getKeys() {
-        return Arrays.<UniqueKey<SbMemberTbRecord>>asList(Keys.KEY_SB_MEMBER_TB_PRIMARY, Keys.KEY_SB_MEMBER_TB_TW_MEMBER_01_IDX);
+        return Arrays.<UniqueKey<SbMemberTbRecord>>asList(Keys.KEY_SB_MEMBER_TB_PRIMARY, Keys.KEY_SB_MEMBER_TB_SB_MEMBER_IDX1);
     }
 
     /**

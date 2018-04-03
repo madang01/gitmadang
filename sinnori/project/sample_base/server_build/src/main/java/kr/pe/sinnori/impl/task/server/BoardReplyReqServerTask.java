@@ -210,7 +210,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 			int countOfInsert = create.insertInto(SB_BOARD_TB, SB_BOARD_TB.BOARD_NO , SB_BOARD_TB.GROUP_NO , SB_BOARD_TB.GROUP_SQ 
 					, SB_BOARD_TB.PARENT_NO , SB_BOARD_TB.DEPTH , SB_BOARD_TB.BOARD_ID
 					, SB_BOARD_TB.WRITER_ID, SB_BOARD_TB.SUBJECT, SB_BOARD_TB.CONTENT
-					, SB_BOARD_TB.VIEW_CNT, SB_BOARD_TB.DEL_FL, 
+					, SB_BOARD_TB.VIEW_CNT, SB_BOARD_TB.BOARD_ST, 
 					SB_BOARD_TB.REG_DT, SB_BOARD_TB.MOD_DT)
 			.select(create.select(DSL.val(UInteger.valueOf(0)).as(SB_BOARD_TB.BOARD_NO.getName())
 					, SB_BOARD_TB.GROUP_NO
@@ -222,7 +222,7 @@ public class BoardReplyReqServerTask extends AbstractServerTask {
 					, DSL.val(boardReplyReq.getSubject()).as(SB_BOARD_TB.SUBJECT.getName())
 					, DSL.val(boardReplyReq.getContent()).as(SB_BOARD_TB.CONTENT.getName())
 					, DSL.val(0).as(SB_BOARD_TB.VIEW_CNT.getName())
-					, DSL.val(BoardStateType.NO.getValue()).as(SB_BOARD_TB.DEL_FL.getName())
+					, DSL.val(BoardStateType.OK.getValue()).as(SB_BOARD_TB.BOARD_ST.getName())
 					, regetedTimestamp.as(SB_BOARD_TB.REG_DT.getName())
 					, regetedTimestamp.as(SB_BOARD_TB.MOD_DT.getName()))
 			.from(SB_BOARD_TB)

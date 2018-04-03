@@ -38,7 +38,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbGroupInfoTb extends TableImpl<SbGroupInfoTbRecord> {
 
-    private static final long serialVersionUID = -1403307149;
+    private static final long serialVersionUID = -319560571;
 
     /**
      * The reference instance of <code>SB_DB.SB_GROUP_INFO_TB</code>
@@ -54,9 +54,9 @@ public class SbGroupInfoTb extends TableImpl<SbGroupInfoTbRecord> {
     }
 
     /**
-     * The column <code>SB_DB.SB_GROUP_INFO_TB.group_id</code>. 그룹 식별자, 0:admin, 1:joho
+     * The column <code>SB_DB.SB_GROUP_INFO_TB.group_id</code>. 그룹 식별자
      */
-    public final TableField<SbGroupInfoTbRecord, Byte> GROUP_ID = createField("group_id", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "그룹 식별자, 0:admin, 1:joho");
+    public final TableField<SbGroupInfoTbRecord, Byte> GROUP_ID = createField("group_id", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "그룹 식별자");
 
     /**
      * The column <code>SB_DB.SB_GROUP_INFO_TB.group_name</code>.

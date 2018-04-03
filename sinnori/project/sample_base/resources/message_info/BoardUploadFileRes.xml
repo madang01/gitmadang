@@ -24,7 +24,7 @@
 <singleitem name="modifiedDate" type="java sql timestamp" />
 <singleitem name="attachedFileCnt" type="integer" />
 <array name="attachedFile" cnttype="reference" cntvalue="attachedFileCnt">
-	<singleitem name="attachSeq" type="unsigned byte" />
+	<singleitem name="attachSeq" type="unsigned integer" />	
 	<singleitem name="attachedFileName" type="us pascal string" />
 	<singleitem name="systemFileName" type="us pascal string" />
 </array>

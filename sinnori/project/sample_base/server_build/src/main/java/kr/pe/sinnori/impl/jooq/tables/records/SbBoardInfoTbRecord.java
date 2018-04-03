@@ -29,11 +29,11 @@ import org.jooq.types.UByte;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardInfoTbRecord extends UpdatableRecordImpl<SbBoardInfoTbRecord> implements Record3<UByte, String, String> {
 
-    private static final long serialVersionUID = -682798475;
+    private static final long serialVersionUID = 1688006573;
 
     /**
      * Setter for <code>SB_DB.SB_BOARD_INFO_TB.board_id</code>. 게시판 식별자,
-0 : 공지, 1:자유
+0 : 공지, 1:자유, 2:FAQ
      */
     public void setBoardId(UByte value) {
         set(0, value);
@@ -41,7 +41,7 @@ public class SbBoardInfoTbRecord extends UpdatableRecordImpl<SbBoardInfoTbRecord
 
     /**
      * Getter for <code>SB_DB.SB_BOARD_INFO_TB.board_id</code>. 게시판 식별자,
-0 : 공지, 1:자유
+0 : 공지, 1:자유, 2:FAQ
      */
     public UByte getBoardId() {
         return (UByte) get(0);

@@ -33,7 +33,7 @@
 	<singleitem name="nickname" type="ub pascal string" />
 	<singleitem name="viewCount" type="integer" />
 	<singleitem name="votes" type="integer" />
-	<singleitem name="deleteFlag" type="ub pascal string" />
+	<singleitem name="boardSate" type="ub pascal string" />
 	<singleitem name="registerDate" type="java sql timestamp" />
 	<singleitem name="modifiedDate" type="java sql timestamp" />
 	<singleitem name="memberGubunName" type="ub pascal string" />

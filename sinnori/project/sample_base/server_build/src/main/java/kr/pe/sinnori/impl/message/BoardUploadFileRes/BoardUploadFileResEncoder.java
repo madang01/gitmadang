@@ -104,7 +104,7 @@ public final class BoardUploadFileResEncoder extends AbstractMessageEncoder {
 				BoardUploadFileRes.AttachedFile attachedFile$2 = attachedFile$2List.get(i2);
 
 				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachSeq"
-					, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+					, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
 					, attachedFile$2.getAttachSeq() // itemValue
 					, -1 // itemSize
 					, null // nativeItemCharset

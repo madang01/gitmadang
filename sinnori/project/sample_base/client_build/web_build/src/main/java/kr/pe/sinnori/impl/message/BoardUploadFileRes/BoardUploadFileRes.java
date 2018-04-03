@@ -32,15 +32,15 @@ public class BoardUploadFileRes extends AbstractMessage {
 	private int attachedFileCnt;
 
 	public static class AttachedFile {
-		private short attachSeq;
+		private long attachSeq;
 		private String attachedFileName;
 		private String systemFileName;
 
-		public short getAttachSeq() {
+		public long getAttachSeq() {
 			return attachSeq;
 		}
 
-		public void setAttachSeq(short attachSeq) {
+		public void setAttachSeq(long attachSeq) {
 			this.attachSeq = attachSeq;
 		}
 		public String getAttachedFileName() {

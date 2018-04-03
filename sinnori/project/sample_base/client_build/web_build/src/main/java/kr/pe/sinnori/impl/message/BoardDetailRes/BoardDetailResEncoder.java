@@ -122,9 +122,9 @@ public final class BoardDetailResEncoder extends AbstractMessageEncoder {
 			, null // nativeItemCharset
 			, middleWritableObject);
 
-		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "deleteFlag"
+		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardSate"
 			, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-			, boardDetailRes.getDeleteFlag() // itemValue
+			, boardDetailRes.getBoardSate() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleWritableObject);
@@ -188,7 +188,7 @@ public final class BoardDetailResEncoder extends AbstractMessageEncoder {
 				BoardDetailRes.AttachFile attachFile$2 = attachFile$2List.get(i2);
 
 				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachSeq"
-					, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+					, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
 					, attachFile$2.getAttachSeq() // itemValue
 					, -1 // itemSize
 					, null // nativeItemCharset
@@ -213,7 +213,7 @@ public final class BoardDetailResEncoder extends AbstractMessageEncoder {
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "memberState"
-			, kr.pe.sinnori.common.type.SingleItemType.BYTE // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.US_PASCAL_STRING // itemType
 			, boardDetailRes.getMemberState() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset

@@ -36,7 +36,7 @@ public class BoardDetailRes extends AbstractMessage {
 	private String nickname;
 	private int viewCount;
 	private int votes;
-	private String deleteFlag;
+	private String boardSate;
 	private String ip;
 	private java.sql.Timestamp registerDate;
 	private java.sql.Timestamp modifiedDate;
@@ -44,14 +44,14 @@ public class BoardDetailRes extends AbstractMessage {
 	private int attachFileCnt;
 
 	public static class AttachFile {
-		private short attachSeq;
+		private long attachSeq;
 		private String attachFileName;
 
-		public short getAttachSeq() {
+		public long getAttachSeq() {
 			return attachSeq;
 		}
 
-		public void setAttachSeq(short attachSeq) {
+		public void setAttachSeq(long attachSeq) {
 			this.attachSeq = attachSeq;
 		}
 		public String getAttachFileName() {
@@ -77,7 +77,7 @@ public class BoardDetailRes extends AbstractMessage {
 
 	private java.util.List<AttachFile> attachFileList;
 	private short membershipLevel;
-	private byte memberState;
+	private String memberState;
 
 	public long getBoardNo() {
 		return boardNo;
@@ -163,12 +163,12 @@ public class BoardDetailRes extends AbstractMessage {
 	public void setVotes(int votes) {
 		this.votes = votes;
 	}
-	public String getDeleteFlag() {
-		return deleteFlag;
+	public String getBoardSate() {
+		return boardSate;
 	}
 
-	public void setDeleteFlag(String deleteFlag) {
-		this.deleteFlag = deleteFlag;
+	public void setBoardSate(String boardSate) {
+		this.boardSate = boardSate;
 	}
 	public String getIp() {
 		return ip;
@@ -219,11 +219,11 @@ public class BoardDetailRes extends AbstractMessage {
 	public void setMembershipLevel(short membershipLevel) {
 		this.membershipLevel = membershipLevel;
 	}
-	public byte getMemberState() {
+	public String getMemberState() {
 		return memberState;
 	}
 
-	public void setMemberState(byte memberState) {
+	public void setMemberState(String memberState) {
 		this.memberState = memberState;
 	}
 
@@ -255,8 +255,8 @@ public class BoardDetailRes extends AbstractMessage {
 		builder.append(viewCount);
 		builder.append(", votes=");
 		builder.append(votes);
-		builder.append(", deleteFlag=");
-		builder.append(deleteFlag);
+		builder.append(", boardSate=");
+		builder.append(boardSate);
 		builder.append(", ip=");
 		builder.append(ip);
 		builder.append(", registerDate=");

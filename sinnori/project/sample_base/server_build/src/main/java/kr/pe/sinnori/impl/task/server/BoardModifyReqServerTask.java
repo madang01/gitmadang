@@ -151,7 +151,7 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 		from SB_BOARD_TB 
 		where board_no=#{boardNo} for update*/			
 			
-			Record3<UByte, String, Byte> boardRecord = create.select(SB_BOARD_TB.BOARD_ID
+			Record3<UByte, String, String> boardRecord = create.select(SB_BOARD_TB.BOARD_ID
 					, SB_BOARD_TB.WRITER_ID					
 					, SB_MEMBER_TB.MEMBER_ST)
 			.from(SB_BOARD_TB)
@@ -208,8 +208,8 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 				return;
 			}
 			
-			byte memberStateTypeValue = boardRecord.get(SB_MEMBER_TB.MEMBER_ST);
-			MemberStateType memberStateType =  MemberStateType.valueOf(memberStateTypeValue);
+			String nativeMemberStateType = boardRecord.get(SB_MEMBER_TB.MEMBER_ST);
+			MemberStateType memberStateType =  MemberStateType.valueOf(nativeMemberStateType, false);
 			if (! memberStateType.equals(MemberStateType.OK)) {
 				String errorMessage = new StringBuilder("비 정상 회원[")
 						.append(memberStateType.getName())

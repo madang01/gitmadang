@@ -250,7 +250,7 @@ public class LoginReqServerTask extends AbstractServerTask {
 			*/
 			
 			Record resultOfMember = create.select(
-					SB_MEMBER_TB.MEMBER_GB,
+					SB_MEMBER_TB.LEVEL,
 					SB_MEMBER_TB.MEMBER_ST,
 					SB_MEMBER_TB.PWD_FAIL_CNT,
 					SB_MEMBER_TB.PWD_BASE64,
@@ -268,20 +268,20 @@ public class LoginReqServerTask extends AbstractServerTask {
 				return;
 			}
 			
-			byte memberGb = resultOfMember.get(SB_MEMBER_TB.MEMBER_GB);
-			byte memberState = resultOfMember.get(SB_MEMBER_TB.MEMBER_ST);
+			byte nativeMembershipLevel = resultOfMember.get(SB_MEMBER_TB.LEVEL);
+			String memberState = resultOfMember.get(SB_MEMBER_TB.MEMBER_ST);
 			short pwdFailedCount = resultOfMember.get(SB_MEMBER_TB.PWD_FAIL_CNT).shortValue();
 			String pwdMDBase64 =  resultOfMember.get(SB_MEMBER_TB.PWD_BASE64);
 			String pwdSaltBase64 = resultOfMember.get(SB_MEMBER_TB.PWD_SALT_BASE64);			
 			
 			try {
 				@SuppressWarnings("unused")
-				MembershipLevel membershipType = MembershipLevel.valueOf(memberGb);
+				MembershipLevel membershipLevel = MembershipLevel.valueOf(nativeMembershipLevel);
 			} catch(IllegalArgumentException e) {
 				String errorMessage = new StringBuilder("회원[")
 						.append(userId)
 						.append("]의 멤버 구분[")
-						.append(memberGb)
+						.append(nativeMembershipLevel)
 						.append("]이 잘못되었습니다").toString();
 				
 				// log.warn(errorMessage);
@@ -292,7 +292,7 @@ public class LoginReqServerTask extends AbstractServerTask {
 			
 			MemberStateType memberStateType = null;
 			try {
-				memberStateType = MemberStateType.valueOf(memberState);
+				memberStateType = MemberStateType.valueOf(memberState, false);
 			} catch(IllegalArgumentException e) {
 				String errorMessage = new StringBuilder("회원[")
 						.append(userId)

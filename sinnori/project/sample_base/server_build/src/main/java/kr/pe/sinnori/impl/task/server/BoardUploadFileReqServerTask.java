@@ -15,10 +15,8 @@ import javax.sql.DataSource;
 
 import org.jooq.DSLContext;
 import org.jooq.Record1;
-import org.jooq.Record2;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
-import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 
 import kr.pe.sinnori.common.etc.DBCPManager;
@@ -143,12 +141,12 @@ public class BoardUploadFileReqServerTask extends AbstractServerTask {
 			}
 		}
 		
-		Set<Short> attachSeqSet = new HashSet<Short>();
+		Set<Long> oldAttachSeqSet = new HashSet<Long>();
 		for (BoardUploadFileReq.OldAttachedFile selectedOldAttachedFile : boardUploadFileReq.getOldAttachedFileList()) {
-			attachSeqSet.add(selectedOldAttachedFile.getAttachSeq());
+			oldAttachSeqSet.add(selectedOldAttachedFile.getAttachSeq());
 		}
 		
-		if (attachSeqSet.size() != boardUploadFileReq.getOldAttachedFileList().size()) {
+		if (oldAttachSeqSet.size() != boardUploadFileReq.getOldAttachedFileList().size()) {
 			String errorMessage = "업로드 했던 파일들중 선택한 목록에서 중복된 원소가 있습니다";	
 			sendErrorOutputMessage(errorMessage, toLetterCarrier, boardUploadFileReq);
 			return;
@@ -218,12 +216,12 @@ public class BoardUploadFileReqServerTask extends AbstractServerTask {
 				List<BoardUploadFileRes.AttachedFile> attachedFileList = new ArrayList<BoardUploadFileRes.AttachedFile>();
 				boardUploadFileRes.setAttachedFileList(attachedFileList);
 				
-				short newAttachSeq = 0;
+				long newAttachSeq = 0;
 				for (BoardUploadFileReq.NewAttachedFile newAttachedFile : boardUploadFileReq.getNewAttachedFileList()) {
 
 					int countOfFileListInsert = create.insertInto(SB_BOARD_FILELIST_TB)
 					.set(SB_BOARD_FILELIST_TB.ATTACH_ID, newAttachID)
-					.set(SB_BOARD_FILELIST_TB.ATTACH_SQ, UByte.valueOf(newAttachSeq))
+					.set(SB_BOARD_FILELIST_TB.ATTACH_SQ, UInteger.valueOf(newAttachSeq))
 					.set(SB_BOARD_FILELIST_TB.ATTACH_FNAME, newAttachedFile.getAttachedFileName())
 					.set(SB_BOARD_FILELIST_TB.SYS_FNAME, newAttachedFile.getSystemFileName())
 					.execute();
@@ -306,107 +304,17 @@ public class BoardUploadFileReqServerTask extends AbstractServerTask {
 							.toString();
 					sendErrorOutputMessageForRollback(errorMessage, conn, toLetterCarrier, boardUploadFileReq);
 					return;
-				}
-				
-				class OldAttachedFile {
-					private short attachSeq;
-					private String attachedFileName;
-					private String systemFileName;
-					
-					
-					@SuppressWarnings("unused")
-					public short getAttachSeq() {
-						return attachSeq;
-					}
-					public void setAttachSeq(short attachSeq) {
-						this.attachSeq = attachSeq;
-					}
-					public String getAttachedFileName() {
-						return attachedFileName;
-					}
-					public void setAttachedFileName(String attachedFileName) {
-						this.attachedFileName = attachedFileName;
-					}
-					public String getSystemFileName() {
-						return systemFileName;
-					}
-					public void setSystemFileName(String systemFileName) {
-						this.systemFileName = systemFileName;
-					}
-					@Override
-					public String toString() {
-						StringBuilder builder = new StringBuilder();
-						builder.append("OldAttachedFile [attachSeq=");
-						builder.append(attachSeq);
-						builder.append(", attachedFileName=");
-						builder.append(attachedFileName);
-						builder.append(", systemFileName=");
-						builder.append(systemFileName);
-						builder.append("]");
-						return builder.toString();
-					}
-				}
-				
-				List<OldAttachedFile> oldAttachedFileList = new ArrayList<OldAttachedFile>();
-				
-				for (BoardUploadFileReq.OldAttachedFile selectedOldAttachedFile : boardUploadFileReq.getOldAttachedFileList()) {
-					
-					Record2<String, String> attachFileListRecord = create.select(SB_BOARD_FILELIST_TB.ATTACH_FNAME, SB_BOARD_FILELIST_TB.SYS_FNAME)
-					.from(SB_BOARD_FILELIST_TB)
-					.where(SB_BOARD_FILELIST_TB.ATTACH_ID.eq(targetAttachId))
-					.and(SB_BOARD_FILELIST_TB.ATTACH_SQ.eq(UByte.valueOf(selectedOldAttachedFile.getAttachSeq())))
-					.fetchOne();
-					
-					if (null == attachFileListRecord) {
-						String errorMessage = new StringBuilder("업로드 했던 파일[")
-								.append(boardUploadFileReq.getAttachId())
-								.append("][")
-								.append(selectedOldAttachedFile.getAttachSeq())
-								.append("]이 업로드 파일 목록에 존재하지 않습니다")
-								.toString();
-						sendErrorOutputMessageForRollback(errorMessage, conn, toLetterCarrier, boardUploadFileReq);
-						return;
-					}
-					
-					OldAttachedFile oldAttachedFile = new OldAttachedFile();
-					oldAttachedFile.setAttachSeq(selectedOldAttachedFile.getAttachSeq());
-					oldAttachedFile.setAttachedFileName(attachFileListRecord.getValue(SB_BOARD_FILELIST_TB.ATTACH_FNAME));
-					oldAttachedFile.setSystemFileName(attachFileListRecord.getValue(SB_BOARD_FILELIST_TB.SYS_FNAME));
-					
-					oldAttachedFileList.add(oldAttachedFile);
-				}
+				}				
 				
 				create.delete(SB_BOARD_FILELIST_TB)
-				.where(SB_BOARD_FILELIST_TB.ATTACH_ID
-						.eq(targetAttachId)).execute();
-				
-				
-				short newAttachSeq = 0;
-				
-				for (OldAttachedFile oldAttachedFile : oldAttachedFileList) {
-					int countOfFileListInsert = create.insertInto(SB_BOARD_FILELIST_TB)
-					.set(SB_BOARD_FILELIST_TB.ATTACH_ID, targetAttachId)
-					.set(SB_BOARD_FILELIST_TB.ATTACH_SQ, UByte.valueOf(newAttachSeq))
-					.set(SB_BOARD_FILELIST_TB.ATTACH_FNAME, oldAttachedFile.getAttachedFileName())
-					.set(SB_BOARD_FILELIST_TB.SYS_FNAME, oldAttachedFile.getSystemFileName())
-					.execute();
-					
-					if (0 == countOfFileListInsert) {
-						String errorMessage = new StringBuilder("업로드 파일 목록에 선택한 기존 업로드 파일 레코드[")
-								.append(oldAttachedFile.toString())
-								.append("]를 추가하는데 실패하였습니다")
-								.toString();
-						sendErrorOutputMessageForRollback(errorMessage, conn, toLetterCarrier, boardUploadFileReq);
-						return;
-					}
-					
-					newAttachSeq++;
-				}				
+				.where(SB_BOARD_FILELIST_TB.ATTACH_ID.eq(targetAttachId))
+				.and(SB_BOARD_FILELIST_TB.ATTACH_ID.notIn(oldAttachSeqSet))
+				.execute();
 				
 				for (BoardUploadFileReq.NewAttachedFile newAttachedFile : boardUploadFileReq.getNewAttachedFileList()) {
 					int countOfFileListInsert = create.insertInto(SB_BOARD_FILELIST_TB)
 							.set(SB_BOARD_FILELIST_TB.ATTACH_ID, targetAttachId)
-							.set(SB_BOARD_FILELIST_TB.ATTACH_SQ, UByte.valueOf(newAttachSeq))
+							.set(SB_BOARD_FILELIST_TB.ATTACH_SQ, UInteger.valueOf(0))
 							.set(SB_BOARD_FILELIST_TB.ATTACH_FNAME, newAttachedFile.getAttachedFileName())
 							.set(SB_BOARD_FILELIST_TB.SYS_FNAME, newAttachedFile.getSystemFileName())
 							.execute();
@@ -418,8 +326,7 @@ public class BoardUploadFileReqServerTask extends AbstractServerTask {
 										.toString();
 								sendErrorOutputMessageForRollback(errorMessage, conn, toLetterCarrier, boardUploadFileReq);
 								return;
-							}					
-					newAttachSeq++;
+							}
 				}
 			}
 		} catch (Exception e) {

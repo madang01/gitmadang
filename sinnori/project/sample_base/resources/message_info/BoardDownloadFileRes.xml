@@ -19,7 +19,7 @@
 <desc>게시판 다운로드 파일 처리를 위한 정보 조회 결과, Mybatis DTO</desc>
 <singleitem name="ownerId" type="ub pascal string" />
 <singleitem name="attachId" type="unsigned integer" />
-<singleitem name="attachSeq" type="unsigned byte" />
+<singleitem name="attachSeq" type="unsigned integer" />
 <singleitem name="attachFiledName" type="us pascal string" />
 <singleitem name="systemFileName" type="us pascal string" />
 </sinnori_message>

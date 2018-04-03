@@ -22,7 +22,7 @@
 <singleitem name="attachId" type="unsigned integer" />
 <singleitem name="oldAttachedFileCnt" type="integer" />
 <array name="oldAttachedFile" cnttype="reference" cntvalue="oldAttachedFileCnt">
-	<singleitem name="attachSeq" type="unsigned byte" />
+	<singleitem name="attachSeq" type="unsigned integer" />
 </array>
 <singleitem name="newAttachedFileCnt" type="integer" />
 <array name="newAttachedFile" cnttype="reference" cntvalue="newAttachedFileCnt">

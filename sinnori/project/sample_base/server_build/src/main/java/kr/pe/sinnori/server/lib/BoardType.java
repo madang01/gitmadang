@@ -1,7 +1,7 @@
 package kr.pe.sinnori.server.lib;
 
 public enum BoardType {
-	NOTICE((short)0, "공지"), FREE((short)1, "자유"), FAQ((short)2, "질문과답변");
+	NOTICE((short)0, "공지"), FREE((short)1, "자유"), FAQ((short)2, "FAQ");
 	
 	private short boardTypeValue;
 	private String boardTypeName;

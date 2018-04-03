@@ -24,7 +24,6 @@ import org.jooq.TableField;
 import org.jooq.UniqueKey;
 import org.jooq.impl.DSL;
 import org.jooq.impl.TableImpl;
-import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 
 
@@ -41,7 +40,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardFilelistTb extends TableImpl<SbBoardFilelistTbRecord> {
 
-    private static final long serialVersionUID = 562561609;
+    private static final long serialVersionUID = -1059327565;
 
     /**
      * The reference instance of <code>SB_DB.SB_BOARD_FILELIST_TB</code>
@@ -64,7 +63,7 @@ public class SbBoardFilelistTb extends TableImpl<SbBoardFilelistTbRecord> {
     /**
      * The column <code>SB_DB.SB_BOARD_FILELIST_TB.attach_sq</code>. 첨부 파일 순번, 자동 증가
      */
-    public final TableField<SbBoardFilelistTbRecord, UByte> ATTACH_SQ = createField("attach_sq", org.jooq.impl.SQLDataType.TINYINTUNSIGNED.nullable(false), this, "첨부 파일 순번, 자동 증가");
+    public final TableField<SbBoardFilelistTbRecord, UInteger> ATTACH_SQ = createField("attach_sq", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false).defaultValue(org.jooq.impl.DSL.inline("0", org.jooq.impl.SQLDataType.INTEGERUNSIGNED)), this, "첨부 파일 순번, 자동 증가");
 
     /**
      * The column <code>SB_DB.SB_BOARD_FILELIST_TB.attach_fname</code>. 첨부 파일 이름
@@ -118,7 +117,7 @@ public class SbBoardFilelistTb extends TableImpl<SbBoardFilelistTbRecord> {
      */
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.SB_BOARD_FILELIST_TB_FK_TW_BOARD_FILELIST_01_IDX, Indexes.SB_BOARD_FILELIST_TB_PRIMARY);
+        return Arrays.<Index>asList(Indexes.SB_BOARD_FILELIST_TB_PRIMARY);
     }
 
     /**
@@ -142,7 +141,7 @@ public class SbBoardFilelistTb extends TableImpl<SbBoardFilelistTbRecord> {
      */
     @Override
     public List<ForeignKey<SbBoardFilelistTbRecord, ?>> getReferences() {
-        return Arrays.<ForeignKey<SbBoardFilelistTbRecord, ?>>asList(Keys.FK_SB_BOARD_FILELIST_01);
+        return Arrays.<ForeignKey<SbBoardFilelistTbRecord, ?>>asList(Keys.SB_BOARD_FILELIST_FK1);
     }
 
     /**

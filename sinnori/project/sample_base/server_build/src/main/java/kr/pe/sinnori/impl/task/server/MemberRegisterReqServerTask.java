@@ -432,7 +432,7 @@ public class MemberRegisterReqServerTask extends AbstractServerTask {
 			.set(SB_MEMBER_TB.NICKNAME, nickname)
 			.set(SB_MEMBER_TB.PWD_BASE64, pwdBase64)
 			.set(SB_MEMBER_TB.PWD_SALT_BASE64, pwdSaltBase64)
-			.set(SB_MEMBER_TB.MEMBER_GB, MembershipLevel.USER.getValue())
+			.set(SB_MEMBER_TB.LEVEL, MembershipLevel.USER.getValue())
 			.set(SB_MEMBER_TB.MEMBER_ST, MemberStateType.OK.getValue())
 			.set(SB_MEMBER_TB.PWD_HINT, pwdHint)
 			.set(SB_MEMBER_TB.PWD_ANSWER, pwdAnswer)

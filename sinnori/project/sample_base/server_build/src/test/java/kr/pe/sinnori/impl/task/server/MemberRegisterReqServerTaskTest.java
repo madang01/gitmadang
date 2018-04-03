@@ -48,13 +48,13 @@ public class MemberRegisterReqServerTaskTest extends AbstractJunitTest {
 					fail("fail to login");
 				}
 				
-				log.info("login success", syncOutputMessage.toString());
+				log.info("member register success", syncOutputMessage.toString());
 			}
 		}
 		PersonalLoginManagerIF personalLoginManagerMock = Mockito.mock(PersonalLoginManagerIF.class);				
 		ToLetterCarrier toLetterCarrierMock = new ToLetterCarrierMock(null, null, null, null, null, null, null);
 				
-		String userID = "testMember";
+		String userID = "test00";
 		byte[] passwordBytes = {(byte)'t', (byte)'e', (byte)'s', (byte)'t', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'$'};
 		String nickname = "임시가입자";
 		String pwdHint = "힌트 그것이 알고싶다";

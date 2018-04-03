@@ -90,10 +90,10 @@ public final class BoardUploadFileResDecoder extends AbstractMessageDecoder {
 			BoardUploadFileRes.AttachedFile attachedFile$2 = new BoardUploadFileRes.AttachedFile();
 			attachedFile$2List.add(attachedFile$2);
 
-			attachedFile$2.setAttachSeq((Short)
+			attachedFile$2.setAttachSeq((Long)
 			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 				, "attachSeq" // itemName
-				, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+				, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
 				, -1 // itemSize
 				, null // nativeItemCharset
 				, attachedFile$2MiddleWritableObject));

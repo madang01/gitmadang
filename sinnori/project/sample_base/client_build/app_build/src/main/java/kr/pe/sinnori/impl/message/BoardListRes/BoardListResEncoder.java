@@ -166,9 +166,9 @@ public final class BoardListResEncoder extends AbstractMessageEncoder {
 					, null // nativeItemCharset
 					, board$2MiddleWritableObject);
 
-				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "deleteFlag"
+				singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "boardSate"
 					, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
-					, board$2.getDeleteFlag() // itemValue
+					, board$2.getBoardSate() // itemValue
 					, -1 // itemSize
 					, null // nativeItemCharset
 					, board$2MiddleWritableObject);

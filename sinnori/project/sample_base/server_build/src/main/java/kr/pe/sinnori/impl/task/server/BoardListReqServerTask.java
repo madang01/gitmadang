@@ -131,7 +131,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 			.on(SB_MEMBER_TB.USER_ID.eq(SB_BOARD_TB.WRITER_ID))
 			.where(SB_BOARD_TB.BOARD_ID.eq(UByte.valueOf(boardListReq.getBoardId())))
 			.and(SB_MEMBER_TB.MEMBER_ST.eq(MemberStateType.OK.getValue()))
-			.and(SB_BOARD_TB.DEL_FL.eq(BoardStateType.NO.getValue())).fetchOne(0, int.class);
+			.and(SB_BOARD_TB.BOARD_ST.eq(BoardStateType.OK.getValue())).fetchOne(0, int.class);
 	
 			boardListRes.setTotal(total);
 			
@@ -146,13 +146,13 @@ public class BoardListReqServerTask extends AbstractServerTask {
 					SB_BOARD_TB.SUBJECT,
 					SB_BOARD_TB.WRITER_ID,
 					SB_BOARD_TB.VIEW_CNT,
-					SB_BOARD_TB.DEL_FL,
+					SB_BOARD_TB.BOARD_ST,
 					SB_BOARD_TB.IP,
 					SB_BOARD_TB.REG_DT,
-					SB_BOARD_TB.MOD_DT).from(SB_BOARD_TB.useIndex("tw_board_02_idx"))
+					SB_BOARD_TB.MOD_DT).from(SB_BOARD_TB.useIndex("sb_board_idx1"))
 			.where(SB_BOARD_TB.BOARD_ID.eq(UByte.valueOf(boardListReq.getBoardId())))
 			.and(SB_BOARD_TB.GROUP_NO.gt(UInteger.valueOf(0)))
-			.and(SB_BOARD_TB.DEL_FL.eq(BoardStateType.NO.getValue()))
+			.and(SB_BOARD_TB.BOARD_ST.eq(BoardStateType.OK.getValue()))
 			.orderBy(SB_BOARD_TB.field(SB_BOARD_TB.GROUP_NO).desc(),
 					SB_BOARD_TB.field(SB_BOARD_TB.GROUP_SQ).asc())
 			.offset(boardListReq.getStartNo())
@@ -171,7 +171,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 					SB_BOARD_TB.SUBJECT,
 					SB_BOARD_TB.WRITER_ID,
 					SB_BOARD_TB.VIEW_CNT,
-					SB_BOARD_TB.DEL_FL,
+					SB_BOARD_TB.BOARD_ST,
 					SB_BOARD_TB.IP,
 					SB_BOARD_TB.REG_DT,
 					SB_BOARD_TB.MOD_DT)
@@ -179,7 +179,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 			.join(SB_BOARD_TB).on(a.field(SB_BOARD_TB.BOARD_NO).eq(SB_BOARD_TB.BOARD_NO))
 			.asTable("c");			
 			
-			Table<Record16<UByte, UInteger, UInteger, UShort, UInteger, UByte, String, String, Integer, String, String, Timestamp, Timestamp, String, Byte, Byte>> 
+			Table<Record16<UByte, UInteger, UInteger, UShort, UInteger, UByte, String, String, Integer, String, String, Timestamp, Timestamp, String, Byte, String>> 
 			t =	create.select(
 					c.field(SB_BOARD_TB.BOARD_ID),
 					c.field(SB_BOARD_TB.BOARD_NO),					
@@ -190,18 +190,18 @@ public class BoardListReqServerTask extends AbstractServerTask {
 					c.field(SB_BOARD_TB.SUBJECT),
 					c.field(SB_BOARD_TB.WRITER_ID),
 					c.field(SB_BOARD_TB.VIEW_CNT),
-					c.field(SB_BOARD_TB.DEL_FL),
+					c.field(SB_BOARD_TB.BOARD_ST),
 					c.field(SB_BOARD_TB.IP),
 					c.field(SB_BOARD_TB.REG_DT),
 					c.field(SB_BOARD_TB.MOD_DT),
 					SB_MEMBER_TB.NICKNAME,
-					SB_MEMBER_TB.MEMBER_GB,
+					SB_MEMBER_TB.LEVEL,
 					SB_MEMBER_TB.MEMBER_ST)
 			.from(c)
 			.join(SB_MEMBER_TB)
 			.on(c.field(SB_BOARD_TB.WRITER_ID).eq(SB_MEMBER_TB.USER_ID)).asTable("t");
 			
-			Result<Record17<UByte, UInteger, UInteger, UShort, UInteger, UByte, String, String, Integer, String, String, Timestamp, Timestamp, String, Byte, String, Integer>>
+			Result<Record17<UByte, UInteger, UInteger, UShort, UInteger, UByte, String, String, Integer, String, String, Timestamp, Timestamp, String, String, String, Integer>>
 			boardListResult = create.select(
 					t.field(SB_BOARD_TB.BOARD_ID),
 					t.field(SB_BOARD_TB.BOARD_NO),	
@@ -212,11 +212,11 @@ public class BoardListReqServerTask extends AbstractServerTask {
 					t.field(SB_BOARD_TB.SUBJECT),
 					t.field(SB_BOARD_TB.WRITER_ID),
 					t.field(SB_BOARD_TB.VIEW_CNT),
-					t.field(SB_BOARD_TB.DEL_FL),
+					t.field(SB_BOARD_TB.BOARD_ST),
 					t.field(SB_BOARD_TB.IP),
 					t.field(SB_BOARD_TB.REG_DT),
 					t.field(SB_BOARD_TB.MOD_DT),
-					JooqSqlUtil.getFieldOfMemberGbNm(t.field(SB_MEMBER_TB.MEMBER_GB)).as("member_gb_nm"),
+					JooqSqlUtil.getFieldOfMemberGbNm(t.field(SB_MEMBER_TB.LEVEL)).as("member_gb_nm"),
 					t.field(SB_MEMBER_TB.MEMBER_ST),
 					t.field(SB_MEMBER_TB.NICKNAME),
 					DSL.count(SB_BOARD_VOTE_TB.BOARD_NO).as("votes")
@@ -240,7 +240,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 					board.setSubject(r.get(SB_BOARD_TB.SUBJECT));
 					board.setWriterId(r.get(SB_BOARD_TB.WRITER_ID));
 					board.setViewCount(r.get(SB_BOARD_TB.VIEW_CNT));
-					board.setDeleteFlag(r.get(SB_BOARD_TB.DEL_FL));
+					board.setBoardSate(r.get(SB_BOARD_TB.BOARD_ST));
 					board.setRegisterDate(r.get(SB_BOARD_TB.REG_DT));
 					board.setModifiedDate(r.get(SB_BOARD_TB.MOD_DT));
 					board.setVotes(r.get("votes", Integer.class));

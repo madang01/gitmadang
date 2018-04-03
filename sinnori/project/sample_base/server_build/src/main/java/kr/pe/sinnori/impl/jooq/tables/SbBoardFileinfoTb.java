@@ -42,7 +42,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardFileinfoTb extends TableImpl<SbBoardFileinfoTbRecord> {
 
-    private static final long serialVersionUID = 1198182092;
+    private static final long serialVersionUID = -1653439324;
 
     /**
      * The reference instance of <code>SB_DB.SB_BOARD_FILEINFO_TB</code>
@@ -124,7 +124,7 @@ public class SbBoardFileinfoTb extends TableImpl<SbBoardFileinfoTbRecord> {
      */
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.SB_BOARD_FILEINFO_TB_FK_BOARD_FILEINFO_01_IDX, Indexes.SB_BOARD_FILEINFO_TB_PRIMARY);
+        return Arrays.<Index>asList(Indexes.SB_BOARD_FILEINFO_TB_PRIMARY, Indexes.SB_BOARD_FILEINFO_TB_SB_BOARD_FILEINFO_FK1_IDX);
     }
 
     /**
@@ -156,7 +156,7 @@ public class SbBoardFileinfoTb extends TableImpl<SbBoardFileinfoTbRecord> {
      */
     @Override
     public List<ForeignKey<SbBoardFileinfoTbRecord, ?>> getReferences() {
-        return Arrays.<ForeignKey<SbBoardFileinfoTbRecord, ?>>asList(Keys.FK_SB_BOARD_FILEINFO_01);
+        return Arrays.<ForeignKey<SbBoardFileinfoTbRecord, ?>>asList(Keys.SB_BOARD_FILEINFO_FK1);
     }
 
     /**

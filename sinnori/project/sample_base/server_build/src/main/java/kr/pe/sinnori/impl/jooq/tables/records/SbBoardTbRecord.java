@@ -33,7 +33,7 @@ import org.jooq.types.UShort;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardTbRecord extends UpdatableRecordImpl<SbBoardTbRecord> implements Record15<UInteger, UInteger, UShort, UInteger, UByte, UByte, String, String, String, UInteger, Integer, String, String, Timestamp, Timestamp> {
 
-    private static final long serialVersionUID = -2126700983;
+    private static final long serialVersionUID = -1494578971;
 
     /**
      * Setter for <code>SB_DB.SB_BOARD_TB.board_no</code>. 글 번호
@@ -190,16 +190,16 @@ public class SbBoardTbRecord extends UpdatableRecordImpl<SbBoardTbRecord> implem
     }
 
     /**
-     * Setter for <code>SB_DB.SB_BOARD_TB.del_fl</code>. Y : 삭제된 게시글, N : 삭제 되지 않은 정상 게시글
+     * Setter for <code>SB_DB.SB_BOARD_TB.board_st</code>. 게시판 상태, B : 블락, D : 삭제된 게시글, Y : 정상 게시글
      */
-    public void setDelFl(String value) {
+    public void setBoardSt(String value) {
         set(11, value);
     }
 
     /**
-     * Getter for <code>SB_DB.SB_BOARD_TB.del_fl</code>. Y : 삭제된 게시글, N : 삭제 되지 않은 정상 게시글
+     * Getter for <code>SB_DB.SB_BOARD_TB.board_st</code>. 게시판 상태, B : 블락, D : 삭제된 게시글, Y : 정상 게시글
      */
-    public String getDelFl() {
+    public String getBoardSt() {
         return (String) get(11);
     }
 
@@ -370,7 +370,7 @@ public class SbBoardTbRecord extends UpdatableRecordImpl<SbBoardTbRecord> implem
      */
     @Override
     public Field<String> field12() {
-        return SbBoardTb.SB_BOARD_TB.DEL_FL;
+        return SbBoardTb.SB_BOARD_TB.BOARD_ST;
     }
 
     /**
@@ -490,7 +490,7 @@ public class SbBoardTbRecord extends UpdatableRecordImpl<SbBoardTbRecord> implem
      */
     @Override
     public String component12() {
-        return getDelFl();
+        return getBoardSt();
     }
 
     /**
@@ -610,7 +610,7 @@ public class SbBoardTbRecord extends UpdatableRecordImpl<SbBoardTbRecord> implem
      */
     @Override
     public String value12() {
-        return getDelFl();
+        return getBoardSt();
     }
 
     /**
@@ -741,7 +741,7 @@ public class SbBoardTbRecord extends UpdatableRecordImpl<SbBoardTbRecord> implem
      */
     @Override
     public SbBoardTbRecord value12(String value) {
-        setDelFl(value);
+        setBoardSt(value);
         return this;
     }
 
@@ -809,7 +809,7 @@ public class SbBoardTbRecord extends UpdatableRecordImpl<SbBoardTbRecord> implem
     /**
      * Create a detached, initialised SbBoardTbRecord
      */
-    public SbBoardTbRecord(UInteger boardNo, UInteger groupNo, UShort groupSq, UInteger parentNo, UByte depth, UByte boardId, String writerId, String subject, String content, UInteger attachId, Integer viewCnt, String delFl, String ip, Timestamp regDt, Timestamp modDt) {
+    public SbBoardTbRecord(UInteger boardNo, UInteger groupNo, UShort groupSq, UInteger parentNo, UByte depth, UByte boardId, String writerId, String subject, String content, UInteger attachId, Integer viewCnt, String boardSt, String ip, Timestamp regDt, Timestamp modDt) {
         super(SbBoardTb.SB_BOARD_TB);
 
         set(0, boardNo);
@@ -823,7 +823,7 @@ public class SbBoardTbRecord extends UpdatableRecordImpl<SbBoardTbRecord> implem
         set(8, content);
         set(9, attachId);
         set(10, viewCnt);
-        set(11, delFl);
+        set(11, boardSt);
         set(12, ip);
         set(13, regDt);
         set(14, modDt);

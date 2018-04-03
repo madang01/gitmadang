@@ -30,13 +30,13 @@ public class BoardUploadFileReq extends AbstractMessage {
 	private int oldAttachedFileCnt;
 
 	public static class OldAttachedFile {
-		private short attachSeq;
+		private long attachSeq;
 
-		public short getAttachSeq() {
+		public long getAttachSeq() {
 			return attachSeq;
 		}
 
-		public void setAttachSeq(short attachSeq) {
+		public void setAttachSeq(long attachSeq) {
 			this.attachSeq = attachSeq;
 		}
 

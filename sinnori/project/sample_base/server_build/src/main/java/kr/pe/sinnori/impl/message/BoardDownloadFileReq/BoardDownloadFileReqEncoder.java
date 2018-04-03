@@ -46,7 +46,7 @@ public final class BoardDownloadFileReqEncoder extends AbstractMessageEncoder {
 			, middleWritableObject);
 
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "attachSeq"
-			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
 			, boardDownloadFileReq.getAttachSeq() // itemValue
 			, -1 // itemSize
 			, null // nativeItemCharset

@@ -19,7 +19,7 @@ import kr.pe.sinnori.impl.jooq.tables.SbBoardVoteTb;
 import kr.pe.sinnori.impl.jooq.tables.SbGroupInfoTb;
 import kr.pe.sinnori.impl.jooq.tables.SbGroupTb;
 import kr.pe.sinnori.impl.jooq.tables.SbMemberTb;
-import kr.pe.sinnori.impl.jooq.tables.SbSeqManagerTb;
+import kr.pe.sinnori.impl.jooq.tables.SbSeqTb;
 
 import org.jooq.Catalog;
 import org.jooq.Table;
@@ -39,7 +39,7 @@ import org.jooq.impl.SchemaImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbDb extends SchemaImpl {
 
-    private static final long serialVersionUID = -1545035612;
+    private static final long serialVersionUID = 506629316;
 
     /**
      * The reference instance of <code>SB_DB</code>
@@ -92,9 +92,9 @@ public class SbDb extends SchemaImpl {
     public final SbMemberTb SB_MEMBER_TB = kr.pe.sinnori.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 
     /**
-     * The table <code>SB_DB.SB_SEQ_MANAGER_TB</code>.
+     * The table <code>SB_DB.SB_SEQ_TB</code>.
      */
-    public final SbSeqManagerTb SB_SEQ_MANAGER_TB = kr.pe.sinnori.impl.jooq.tables.SbSeqManagerTb.SB_SEQ_MANAGER_TB;
+    public final SbSeqTb SB_SEQ_TB = kr.pe.sinnori.impl.jooq.tables.SbSeqTb.SB_SEQ_TB;
 
     /**
      * No further instances allowed
@@ -130,6 +130,6 @@ public class SbDb extends SchemaImpl {
             SbGroupInfoTb.SB_GROUP_INFO_TB,
             SbGroupTb.SB_GROUP_TB,
             SbMemberTb.SB_MEMBER_TB,
-            SbSeqManagerTb.SB_SEQ_MANAGER_TB);
+            SbSeqTb.SB_SEQ_TB);
     }
 }

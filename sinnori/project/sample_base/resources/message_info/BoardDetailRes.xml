@@ -29,16 +29,16 @@
 <singleitem name="nickname" type="ub pascal string" />
 <singleitem name="viewCount" type="integer" />
 <singleitem name="votes" type="integer" />
-<singleitem name="deleteFlag" type="ub pascal string" />
+<singleitem name="boardSate" type="ub pascal string" />
 <singleitem name="ip" type="ub pascal string" />
 <singleitem name="registerDate" type="java sql timestamp" />
 <singleitem name="modifiedDate" type="java sql timestamp" />
 <singleitem name="attachId" type="unsigned integer" />
 <singleitem name="attachFileCnt" type="integer" />
 <array name="attachFile" cnttype="reference" cntvalue="attachFileCnt">
-	<singleitem name="attachSeq" type="unsigned byte" />
+	<singleitem name="attachSeq" type="unsigned integer" />	
 	<singleitem name="attachFileName" type="us pascal string" />
 </array>
 <singleitem name="membershipLevel" type="unsigned byte" />
-<singleitem name="memberState" type="byte" />
+<singleitem name="memberState" type="us pascal string" />
 </sinnori_message>

@@ -39,7 +39,7 @@ import org.jooq.types.UByte;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardInfoTb extends TableImpl<SbBoardInfoTbRecord> {
 
-    private static final long serialVersionUID = -2069836937;
+    private static final long serialVersionUID = -351356003;
 
     /**
      * The reference instance of <code>SB_DB.SB_BOARD_INFO_TB</code>
@@ -56,9 +56,9 @@ public class SbBoardInfoTb extends TableImpl<SbBoardInfoTbRecord> {
 
     /**
      * The column <code>SB_DB.SB_BOARD_INFO_TB.board_id</code>. 게시판 식별자,
-0 : 공지, 1:자유
+0 : 공지, 1:자유, 2:FAQ
      */
-    public final TableField<SbBoardInfoTbRecord, UByte> BOARD_ID = createField("board_id", org.jooq.impl.SQLDataType.TINYINTUNSIGNED.nullable(false), this, "게시판 식별자,\n0 : 공지, 1:자유");
+    public final TableField<SbBoardInfoTbRecord, UByte> BOARD_ID = createField("board_id", org.jooq.impl.SQLDataType.TINYINTUNSIGNED.nullable(false), this, "게시판 식별자,\n0 : 공지, 1:자유, 2:FAQ");
 
     /**
      * The column <code>SB_DB.SB_BOARD_INFO_TB.board_name</code>. 게시판 이름

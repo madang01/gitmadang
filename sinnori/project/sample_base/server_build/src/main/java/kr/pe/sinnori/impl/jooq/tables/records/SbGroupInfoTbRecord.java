@@ -28,17 +28,17 @@ import org.jooq.impl.UpdatableRecordImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbGroupInfoTbRecord extends UpdatableRecordImpl<SbGroupInfoTbRecord> implements Record3<Byte, String, String> {
 
-    private static final long serialVersionUID = -1557058984;
+    private static final long serialVersionUID = -1680344090;
 
     /**
-     * Setter for <code>SB_DB.SB_GROUP_INFO_TB.group_id</code>. 그룹 식별자, 0:admin, 1:joho
+     * Setter for <code>SB_DB.SB_GROUP_INFO_TB.group_id</code>. 그룹 식별자
      */
     public void setGroupId(Byte value) {
         set(0, value);
     }
 
     /**
-     * Getter for <code>SB_DB.SB_GROUP_INFO_TB.group_id</code>. 그룹 식별자, 0:admin, 1:joho
+     * Getter for <code>SB_DB.SB_GROUP_INFO_TB.group_id</code>. 그룹 식별자
      */
     public Byte getGroupId() {
         return (Byte) get(0);

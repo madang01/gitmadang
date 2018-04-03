@@ -162,9 +162,9 @@ public final class BoardListResDecoder extends AbstractMessageDecoder {
 				, null // nativeItemCharset
 				, board$2MiddleWritableObject));
 
-			board$2.setDeleteFlag((String)
+			board$2.setBoardSate((String)
 			singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
-				, "deleteFlag" // itemName
+				, "boardSate" // itemName
 				, kr.pe.sinnori.common.type.SingleItemType.UB_PASCAL_STRING // itemType
 				, -1 // itemSize
 				, null // nativeItemCharset

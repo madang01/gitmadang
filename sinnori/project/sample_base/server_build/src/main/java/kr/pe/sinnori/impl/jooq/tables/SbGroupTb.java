@@ -40,7 +40,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbGroupTb extends TableImpl<SbGroupTbRecord> {
 
-    private static final long serialVersionUID = -1312737414;
+    private static final long serialVersionUID = 811213757;
 
     /**
      * The reference instance of <code>SB_DB.SB_GROUP_TB</code>
@@ -112,7 +112,7 @@ public class SbGroupTb extends TableImpl<SbGroupTbRecord> {
      */
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.SB_GROUP_TB_FK_SB_MEMBER_TB_02_IDX, Indexes.SB_GROUP_TB_PRIMARY);
+        return Arrays.<Index>asList(Indexes.SB_GROUP_TB_PRIMARY, Indexes.SB_GROUP_TB_SB_GROUP_FK2_IDX);
     }
 
     /**
@@ -136,7 +136,7 @@ public class SbGroupTb extends TableImpl<SbGroupTbRecord> {
      */
     @Override
     public List<ForeignKey<SbGroupTbRecord, ?>> getReferences() {
-        return Arrays.<ForeignKey<SbGroupTbRecord, ?>>asList(Keys.FK_SB_GROUP_01, Keys.FK_SB_GROUP_02);
+        return Arrays.<ForeignKey<SbGroupTbRecord, ?>>asList(Keys.SB_GROUP_FK1, Keys.SB_GROUP_FK2);
     }
 
     /**

@@ -6,6 +6,8 @@ import java.nio.channels.SocketChannel;
 import java.util.Arrays;
 
 import org.apache.commons.codec.binary.Base64;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -26,6 +28,17 @@ import kr.pe.sinnori.server.SocketResourceManagerIF;
 import kr.pe.sinnori.server.task.ToLetterCarrier;
 
 public class LoginReqServerTaskTest extends AbstractJunitTest {
+	
+	@Before 
+	public void setUp() throws Exception { 
+		 
+	}
+	
+	@After 
+	public void tearDown() throws Exception { 
+		 
+	} 
+	
 	
 	/** FIXME! 미구현 */
 	public void testDoTask_비밀번호실패() {

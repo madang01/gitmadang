@@ -1,6 +1,6 @@
 package kr.pe.sinnori.impl.task.server;
 
-import static kr.pe.sinnori.impl.jooq.tables.SbSeqManagerTb.SB_SEQ_MANAGER_TB;
+import static kr.pe.sinnori.impl.jooq.tables.SbSeqTb.SB_SEQ_TB;
 
 import java.sql.Connection;
 
@@ -18,6 +18,7 @@ import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.sinnori.impl.message.SeqValueReq.SeqValueReq;
 import kr.pe.sinnori.impl.message.SeqValueRes.SeqValueRes;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
+import kr.pe.sinnori.server.lib.SequenceType;
 import kr.pe.sinnori.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.sinnori.server.task.AbstractServerTask;
 import kr.pe.sinnori.server.task.ToLetterCarrier;
@@ -90,18 +91,25 @@ public class SeqValueReqServerTask extends AbstractServerTask {
 			conn = dataSource.getConnection();
 			conn.setAutoCommit(false);
 			
-			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
+			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);			
+			
+			try {
+				SequenceType.valueOf(seqValueReq.getSeqTypeId());
+			} catch(IllegalArgumentException e) {
+				String errorMessage = "요청한 시퀀스 종류 식별자가 잘못되었습니다";
+				sendErrorOutputMessage(errorMessage, toLetterCarrier, seqValueReq);
+			}
 			
 			/*
 			select 
 			sq_value as seqValue, #{wantedSize}
-		from SB_SEQ_MANAGER_TB
+		from SB_SEQ_TB
 		where sq_type_id = #{seqTypeId} for update*/
 			
 			Record resultOfSeqManager = create.select(
-					SB_SEQ_MANAGER_TB.SQ_VALUE)
-				.from(SB_SEQ_MANAGER_TB)
-				.where(SB_SEQ_MANAGER_TB.SQ_TYPE_ID.eq(UByte.valueOf(seqValueReq.getSeqTypeId())))
+					SB_SEQ_TB.SQ_VALUE)
+				.from(SB_SEQ_TB)
+				.where(SB_SEQ_TB.SQ_ID.eq(UByte.valueOf(seqValueReq.getSeqTypeId())))
 				.forUpdate().fetchOne();
 			
 			if (null == resultOfSeqManager) {
@@ -112,11 +120,11 @@ public class SeqValueReqServerTask extends AbstractServerTask {
 				return;
 			}
 			
-			// update SB_SEQ_MANAGER_TB set sq_value = sq_value + #{wantedSize} where sq_type_id = #{seqTypeId}
+			// update SB_SEQ_TB set sq_value = sq_value + #{wantedSize} where sq_type_id = #{seqTypeId}
 			
-			int countOfUpdate = create.update(SB_SEQ_MANAGER_TB)
-					.set(SB_SEQ_MANAGER_TB.SQ_VALUE, SB_SEQ_MANAGER_TB.SQ_VALUE.add(seqValueReq.getWantedSize()))
-					.where(SB_SEQ_MANAGER_TB.SQ_TYPE_ID.eq(UByte.valueOf(seqValueReq.getSeqTypeId())))
+			int countOfUpdate = create.update(SB_SEQ_TB)
+					.set(SB_SEQ_TB.SQ_VALUE, SB_SEQ_TB.SQ_VALUE.add(seqValueReq.getWantedSize()))
+					.where(SB_SEQ_TB.SQ_ID.eq(UByte.valueOf(seqValueReq.getSeqTypeId())))
 				.execute();
 			
 			if (0 == countOfUpdate) {
@@ -127,7 +135,7 @@ public class SeqValueReqServerTask extends AbstractServerTask {
 				return;
 			}
 			
-			long seqValue = resultOfSeqManager.get(SB_SEQ_MANAGER_TB.SQ_VALUE).longValue();
+			long seqValue = resultOfSeqManager.get(SB_SEQ_TB.SQ_VALUE).longValue();
 			
 			SeqValueRes seqValueRes = new SeqValueRes();
 			seqValueRes.setSeqValue(seqValue);
@@ -149,68 +157,5 @@ public class SeqValueReqServerTask extends AbstractServerTask {
 				}
 			}
 		}
-		
-		/*
-		
-		SqlSessionFactory sqlSessionFactory = MybatisSqlSessionFactoryManger.getInstance()
-				.getSqlSessionFactory(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
-		SeqValueReq inObj = (SeqValueReq)inputMessage;
-		
-		SeqValueRes outObj = null;
-		
-		SqlSession session = sqlSessionFactory.openSession(false);
-		try {
-			outObj = session.selectOne("getSeqValueInLock", inObj);
-			if (null == outObj) {
-				session.rollback();
-				
-				String errorMessage = "업로드 파일명 시퀀스 조회가 실패하였습니다.";
-				
-				log.warn("{}, inObj={}", errorMessage, inObj.toString());
-				
-				MessageResultRes messageResultOutObj = new MessageResultRes();
-				messageResultOutObj.setIsSuccess(false);
-				messageResultOutObj.setTaskMessageID(inObj.getMessageID());
-				messageResultOutObj.setResultMessage(errorMessage);
-				toLetterCarrier.addSyncOutputMessage(messageResultOutObj);
-				return;
-			} else {
-				int cntOfUpdateSeqValue = session.update("updateSeqValue", inObj);
-				if (0 == cntOfUpdateSeqValue) {
-					session.rollback();
-					
-					String errorMessage = "업로드 파일명 시퀀스 +1 증가 수정이 실패하였습니다";
-					
-					log.warn("{}, inObj={}", errorMessage, inObj.toString());
-					
-					MessageResultRes messageResultOutObj = new MessageResultRes();
-					messageResultOutObj.setIsSuccess(false);
-					messageResultOutObj.setTaskMessageID(inObj.getMessageID());
-					messageResultOutObj.setResultMessage(errorMessage);
-					toLetterCarrier.addSyncOutputMessage(messageResultOutObj);
-					return;
-				}
-				
-				session.commit();
-				
-				toLetterCarrier.addSyncOutputMessage(outObj);
-				return;
-			}
-		} catch(Exception e) {
-			session.rollback();
-			
-			String errorMessage = new StringBuilder("알수 없는 이유로 시퀀스 조회가 실패하였습니다. inObj=")
-			.append(inObj.toString().toString()).toString();
-			log.warn(errorMessage, e);
-			
-			MessageResultRes messageResultOutObj = new MessageResultRes();
-			messageResultOutObj.setTaskMessageID(inObj.getMessageID());
-			messageResultOutObj.setIsSuccess(false);
-			messageResultOutObj.setResultMessage(errorMessage);
-			toLetterCarrier.addSyncOutputMessage(messageResultOutObj);
-			return;
-		} finally {
-			session.close();
-		}*/
 	}
 }

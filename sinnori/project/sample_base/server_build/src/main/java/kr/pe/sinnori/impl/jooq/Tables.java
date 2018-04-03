@@ -15,7 +15,7 @@ import kr.pe.sinnori.impl.jooq.tables.SbBoardVoteTb;
 import kr.pe.sinnori.impl.jooq.tables.SbGroupInfoTb;
 import kr.pe.sinnori.impl.jooq.tables.SbGroupTb;
 import kr.pe.sinnori.impl.jooq.tables.SbMemberTb;
-import kr.pe.sinnori.impl.jooq.tables.SbSeqManagerTb;
+import kr.pe.sinnori.impl.jooq.tables.SbSeqTb;
 
 
 /**
@@ -77,7 +77,7 @@ public class Tables {
     public static final SbMemberTb SB_MEMBER_TB = kr.pe.sinnori.impl.jooq.tables.SbMemberTb.SB_MEMBER_TB;
 
     /**
-     * The table <code>SB_DB.SB_SEQ_MANAGER_TB</code>.
+     * The table <code>SB_DB.SB_SEQ_TB</code>.
      */
-    public static final SbSeqManagerTb SB_SEQ_MANAGER_TB = kr.pe.sinnori.impl.jooq.tables.SbSeqManagerTb.SB_SEQ_MANAGER_TB;
+    public static final SbSeqTb SB_SEQ_TB = kr.pe.sinnori.impl.jooq.tables.SbSeqTb.SB_SEQ_TB;
 }

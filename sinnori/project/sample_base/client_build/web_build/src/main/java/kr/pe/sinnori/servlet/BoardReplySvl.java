@@ -112,7 +112,7 @@ public class BoardReplySvl extends AbstractLoginServlet {
 			
 			goPage = "/menu/board/BoardReply02.jsp";
 			
-			long boardId = 2L;
+			short boardId = 2;
 			long parentBoardNo = 0L;
 			
 			String parmBoardId = req.getParameter("boardId");
@@ -125,7 +125,7 @@ public class BoardReplySvl extends AbstractLoginServlet {
 			
 			
 			try {
-				boardId = Long.parseLong(parmBoardId);
+				boardId = Short.parseShort(parmBoardId);
 			}catch (NumberFormatException nfe) {
 				String errorMessage = new StringBuilder("자바 long 타입 변수인 게시판 식별자 값[")
 				.append(parmBoardId).append("]이 잘못되었습니다.").toString();

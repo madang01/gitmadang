@@ -44,7 +44,7 @@ import org.jooq.types.UShort;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
 
-    private static final long serialVersionUID = 410939622;
+    private static final long serialVersionUID = -1218912419;
 
     /**
      * The reference instance of <code>SB_DB.SB_BOARD_TB</code>
@@ -115,9 +115,9 @@ public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
     public final TableField<SbBoardTbRecord, Integer> VIEW_CNT = createField("view_cnt", org.jooq.impl.SQLDataType.INTEGER, this, "조회수");
 
     /**
-     * The column <code>SB_DB.SB_BOARD_TB.del_fl</code>. Y : 삭제된 게시글, N : 삭제 되지 않은 정상 게시글
+     * The column <code>SB_DB.SB_BOARD_TB.board_st</code>. 게시판 상태, B : 블락, D : 삭제된 게시글, Y : 정상 게시글
      */
-    public final TableField<SbBoardTbRecord, String> DEL_FL = createField("del_fl", org.jooq.impl.SQLDataType.CHAR(1), this, "Y : 삭제된 게시글, N : 삭제 되지 않은 정상 게시글");
+    public final TableField<SbBoardTbRecord, String> BOARD_ST = createField("board_st", org.jooq.impl.SQLDataType.CHAR(1), this, "게시판 상태, B : 블락, D : 삭제된 게시글, Y : 정상 게시글");
 
     /**
      * The column <code>SB_DB.SB_BOARD_TB.ip</code>.
@@ -176,7 +176,7 @@ public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
      */
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.SB_BOARD_TB_FK_TW_BOARD_03_IDX, Indexes.SB_BOARD_TB_PRIMARY, Indexes.SB_BOARD_TB_TW_BOARD_01_IDX, Indexes.SB_BOARD_TB_TW_BOARD_02_IDX, Indexes.SB_BOARD_TB_TW_BOARD_03_IDX);
+        return Arrays.<Index>asList(Indexes.SB_BOARD_TB_PRIMARY, Indexes.SB_BOARD_TB_SB_BOARD_FK1_IDX, Indexes.SB_BOARD_TB_SB_BOARD_FK2_IDX, Indexes.SB_BOARD_TB_SB_BOARD_FK3_IDX, Indexes.SB_BOARD_TB_SB_BOARD_IDX1);
     }
 
     /**
@@ -208,7 +208,7 @@ public class SbBoardTb extends TableImpl<SbBoardTbRecord> {
      */
     @Override
     public List<ForeignKey<SbBoardTbRecord, ?>> getReferences() {
-        return Arrays.<ForeignKey<SbBoardTbRecord, ?>>asList(Keys.FK_SB_BOARD_02, Keys.FK_SB_BOARD_01, Keys.FK_SB_BOARD_03);
+        return Arrays.<ForeignKey<SbBoardTbRecord, ?>>asList(Keys.SB_BOARD_FK1, Keys.SB_BOARD_FK2, Keys.SB_BOARD_FK3);
     }
 
     /**

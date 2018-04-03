@@ -109,38 +109,16 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 			conn.setAutoCommit(false);
 
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
-
-			/**
-			 * 
-			 * select `SB_DB`.`SB_BOARD_TB`.`board_no`, `SB_DB`.`SB_BOARD_TB`.`board_id`,
-			 * `SB_DB`.`SB_BOARD_TB`.`group_no`, `SB_DB`.`SB_BOARD_TB`.`group_sq`,
-			 * `SB_DB`.`SB_BOARD_TB`.`parent_no`, `SB_DB`.`SB_BOARD_TB`.`depth`,
-			 * `SB_DB`.`SB_BOARD_TB`.`subject`, `SB_DB`.`SB_BOARD_TB`.`content`,
-			 * `SB_DB`.`SB_BOARD_TB`.`writer_id`, `SB_DB`.`SB_BOARD_TB`.`view_cnt`,
-			 * `SB_DB`.`SB_BOARD_TB`.`del_fl`, `SB_DB`.`SB_BOARD_TB`.`ip`,
-			 * `SB_DB`.`SB_BOARD_TB`.`reg_dt`, `SB_DB`.`SB_BOARD_TB`.`mod_dt`, if
-			 * (`SB_DB`.`SB_BOARD_TB`.`attach_id` is null, 0,
-			 * `SB_DB`.`SB_BOARD_TB`.`attach_id`) as `attach_id`,
-			 * `SB_DB`.`SB_MEMBER_TB`.`nickname`, (select count(*) from
-			 * `SB_DB`.`SB_BOARD_VOTE_TB` where `SB_DB`.`SB_BOARD_VOTE_TB`.`board_no` =
-			 * `SB_DB`.`SB_BOARD_TB`.`board_no`) as `votes`, if
-			 * (`SB_DB`.`SB_MEMBER_TB`.`member_gb` = 1, '일반회원', if
-			 * (`SB_DB`.`SB_MEMBER_TB`.`member_gb` = 0, '관리자', '알수없음')) as `member_gb_nm`,
-			 * `SB_DB`.`SB_MEMBER_TB`.`member_st` from `SB_DB`.`SB_BOARD_TB` join
-			 * `SB_DB`.`SB_MEMBER_TB` on `SB_DB`.`SB_BOARD_TB`.`writer_id` =
-			 * `SB_DB`.`SB_MEMBER_TB`.`user_id` where `SB_DB`.`SB_BOARD_TB`.`board_no` = 6
-			 */
-
-			Record19<UInteger, UByte, UInteger, UShort, UInteger, UByte, String, String, String, Integer, String, String, Timestamp, Timestamp, UInteger, String, Object, Byte, Byte> boardRecord = create
-					.select(SB_BOARD_TB.BOARD_NO, SB_BOARD_TB.BOARD_ID, SB_BOARD_TB.GROUP_NO, SB_BOARD_TB.GROUP_SQ,
+			Record19<UInteger, UByte, UInteger, UShort, UInteger, UByte, String, String, String, Integer, String, String, Timestamp, Timestamp, UInteger, String, Object, Byte, String> 
+			boardRecord = create.select(SB_BOARD_TB.BOARD_NO, SB_BOARD_TB.BOARD_ID, SB_BOARD_TB.GROUP_NO, SB_BOARD_TB.GROUP_SQ,
 							SB_BOARD_TB.PARENT_NO, SB_BOARD_TB.DEPTH, SB_BOARD_TB.SUBJECT, SB_BOARD_TB.CONTENT,
-							SB_BOARD_TB.WRITER_ID, SB_BOARD_TB.VIEW_CNT, SB_BOARD_TB.DEL_FL, SB_BOARD_TB.IP,
+							SB_BOARD_TB.WRITER_ID, SB_BOARD_TB.VIEW_CNT, SB_BOARD_TB.BOARD_ST, SB_BOARD_TB.IP,
 							SB_BOARD_TB.REG_DT, SB_BOARD_TB.MOD_DT,
 							JooqSqlUtil.getFieldOfAttachID(SB_BOARD_TB.ATTACH_ID).as(SB_BOARD_TB.ATTACH_ID.getName()),
 							SB_MEMBER_TB.NICKNAME,
 							create.selectCount().from(SB_BOARD_VOTE_TB)
 									.where(SB_BOARD_VOTE_TB.BOARD_NO.eq(SB_BOARD_TB.BOARD_NO)).asField("votes"),
-							SB_MEMBER_TB.MEMBER_GB, SB_MEMBER_TB.MEMBER_ST)
+							SB_MEMBER_TB.LEVEL, SB_MEMBER_TB.MEMBER_ST)
 					.from(SB_BOARD_TB).join(SB_MEMBER_TB).on(SB_BOARD_TB.WRITER_ID.eq(SB_MEMBER_TB.USER_ID))
 					.where(SB_BOARD_TB.BOARD_NO.eq(UInteger.valueOf(boardDetailReq.getBoardNo()))).forUpdate()
 					.fetchOne();
@@ -182,11 +160,11 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 			boardDetailRes.setNickname(boardRecord.get(SB_MEMBER_TB.NICKNAME));
 			boardDetailRes.setViewCount(boardRecord.get(SB_BOARD_TB.VIEW_CNT));
 			boardDetailRes.setVotes(boardRecord.get("votes", Integer.class));
-			boardDetailRes.setDeleteFlag(boardRecord.get(SB_BOARD_TB.DEL_FL));
+			boardDetailRes.setBoardSate(boardRecord.get(SB_BOARD_TB.BOARD_ST));
 			boardDetailRes.setIp(boardRecord.get(SB_BOARD_TB.IP));
 			boardDetailRes.setRegisterDate(boardRecord.get(SB_BOARD_TB.REG_DT));
 			boardDetailRes.setModifiedDate(boardRecord.get(SB_BOARD_TB.MOD_DT));
-			boardDetailRes.setMembershipLevel(boardRecord.get(SB_MEMBER_TB.MEMBER_GB));
+			boardDetailRes.setMembershipLevel(boardRecord.get(SB_MEMBER_TB.LEVEL));
 			boardDetailRes.setMemberState(boardRecord.get(SB_MEMBER_TB.MEMBER_ST));
 			boardDetailRes.setAttachId(boardRecord.get(SB_BOARD_TB.ATTACH_ID).longValue());
 

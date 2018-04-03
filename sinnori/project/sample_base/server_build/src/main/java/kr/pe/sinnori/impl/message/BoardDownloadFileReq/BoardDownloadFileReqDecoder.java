@@ -41,10 +41,10 @@ public final class BoardDownloadFileReqDecoder extends AbstractMessageDecoder {
 			, null // nativeItemCharset
 			, middleReadableObject));
 
-		boardDownloadFileReq.setAttachSeq((Short)
+		boardDownloadFileReq.setAttachSeq((Long)
 		singleItemDecoder.getValueFromReadableMiddleObject(pathStack.peek()
 			, "attachSeq" // itemName
-			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_BYTE // itemType
+			, kr.pe.sinnori.common.type.SingleItemType.UNSIGNED_INTEGER // itemType
 			, -1 // itemSize
 			, null // nativeItemCharset
 			, middleReadableObject));

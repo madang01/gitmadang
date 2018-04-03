@@ -41,7 +41,7 @@ public class BoardListRes extends AbstractMessage {
 		private String nickname;
 		private int viewCount;
 		private int votes;
-		private String deleteFlag;
+		private String boardSate;
 		private java.sql.Timestamp registerDate;
 		private java.sql.Timestamp modifiedDate;
 		private String memberGubunName;
@@ -116,12 +116,12 @@ public class BoardListRes extends AbstractMessage {
 		public void setVotes(int votes) {
 			this.votes = votes;
 		}
-		public String getDeleteFlag() {
-			return deleteFlag;
+		public String getBoardSate() {
+			return boardSate;
 		}
 
-		public void setDeleteFlag(String deleteFlag) {
-			this.deleteFlag = deleteFlag;
+		public void setBoardSate(String boardSate) {
+			this.boardSate = boardSate;
 		}
 		public java.sql.Timestamp getRegisterDate() {
 			return registerDate;
@@ -169,8 +169,8 @@ public class BoardListRes extends AbstractMessage {
 			builder.append(viewCount);
 			builder.append(", votes=");
 			builder.append(votes);
-			builder.append(", deleteFlag=");
-			builder.append(deleteFlag);
+			builder.append(", boardSate=");
+			builder.append(boardSate);
 			builder.append(", registerDate=");
 			builder.append(registerDate);
 			builder.append(", modifiedDate=");

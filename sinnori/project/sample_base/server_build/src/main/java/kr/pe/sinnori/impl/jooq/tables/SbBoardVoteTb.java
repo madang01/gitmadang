@@ -41,7 +41,7 @@ import org.jooq.types.UInteger;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class SbBoardVoteTb extends TableImpl<SbBoardVoteTbRecord> {
 
-    private static final long serialVersionUID = 698391645;
+    private static final long serialVersionUID = -660889293;
 
     /**
      * The reference instance of <code>SB_DB.SB_BOARD_VOTE_TB</code>
@@ -118,7 +118,7 @@ public class SbBoardVoteTb extends TableImpl<SbBoardVoteTbRecord> {
      */
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.SB_BOARD_VOTE_TB_PRIMARY, Indexes.SB_BOARD_VOTE_TB_TW_BOARD_VOTE_01_IDX);
+        return Arrays.<Index>asList(Indexes.SB_BOARD_VOTE_TB_PRIMARY, Indexes.SB_BOARD_VOTE_TB_SB_BOARD_VOTE_FK2_IDX);
     }
 
     /**
@@ -142,7 +142,7 @@ public class SbBoardVoteTb extends TableImpl<SbBoardVoteTbRecord> {
      */
     @Override
     public List<ForeignKey<SbBoardVoteTbRecord, ?>> getReferences() {
-        return Arrays.<ForeignKey<SbBoardVoteTbRecord, ?>>asList(Keys.FK_SB_BOARD_VOTE_01, Keys.FK_SB_BOARD_VOTE_02);
+        return Arrays.<ForeignKey<SbBoardVoteTbRecord, ?>>asList(Keys.SB_BOARD_VOTE_FK1, Keys.SB_BOARD_VOTE_FK2);
     }
 
     /**

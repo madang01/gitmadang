@@ -26,7 +26,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
 public class BoardDownloadFileRes extends AbstractMessage {
 	private String ownerId;
 	private long attachId;
-	private short attachSeq;
+	private long attachSeq;
 	private String attachFiledName;
 	private String systemFileName;
 
@@ -44,11 +44,11 @@ public class BoardDownloadFileRes extends AbstractMessage {
 	public void setAttachId(long attachId) {
 		this.attachId = attachId;
 	}
-	public short getAttachSeq() {
+	public long getAttachSeq() {
 		return attachSeq;
 	}
 
-	public void setAttachSeq(short attachSeq) {
+	public void setAttachSeq(long attachSeq) {
 		this.attachSeq = attachSeq;
 	}
 	public String getAttachFiledName() {
