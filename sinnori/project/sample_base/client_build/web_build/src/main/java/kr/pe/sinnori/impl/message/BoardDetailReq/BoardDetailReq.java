@@ -30,7 +30,7 @@ public class BoardDetailReq extends AbstractMessage {
 	public short getBoardId() {
 		return boardId;
 	}
-
+	
 	public void setBoardId(short boardId) {
 		this.boardId = boardId;
 	}

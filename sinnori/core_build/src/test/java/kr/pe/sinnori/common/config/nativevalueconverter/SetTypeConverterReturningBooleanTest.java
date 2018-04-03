@@ -18,8 +18,6 @@ public class SetTypeConverterReturningBooleanTest extends AbstractJunitTest impl
 	@Override
 	@Before
 	public void setup() {
-		super.setup();
-		
 		try {
 			nativeValueConverter = new SetTypeConverterReturningBoolean();
 		} catch (IllegalArgumentException e) {

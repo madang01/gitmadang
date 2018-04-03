@@ -20,8 +20,6 @@ public class SetTypeConverterReturningByteOrderTest extends AbstractJunitTest im
 	@Override
 	@Before
 	public void setup() {
-		super.setup();
-		
 		try {
 			nativeValueConverter = new SetTypeConverterReturningByteOrder();
 		} catch (IllegalArgumentException e) {

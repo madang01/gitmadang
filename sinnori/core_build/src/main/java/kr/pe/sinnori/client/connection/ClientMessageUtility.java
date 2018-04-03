@@ -1,6 +1,5 @@
 package kr.pe.sinnori.client.connection;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -196,9 +195,7 @@ public class ClientMessageUtility implements ClientMessageUtilityIF {
 
 	public void releaseWrapBufferList(List<WrapBuffer> warpBufferList) {
 		if (null != warpBufferList) {
-			Iterator<WrapBuffer> wrapBufferIterator = warpBufferList.iterator();
-			while (wrapBufferIterator.hasNext()) {
-				WrapBuffer wrapBuffer = wrapBufferIterator.next();
+			for (WrapBuffer wrapBuffer : warpBufferList) {
 				dataPacketBufferPool.putDataPacketBuffer(wrapBuffer);
 			}
 		}

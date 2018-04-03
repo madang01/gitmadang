@@ -163,7 +163,7 @@ public class OutputMessageWriter extends Thread implements OutputMessageWriterIF
 
 
 	@Override
-	public int getNumberOfSocket() {
+	public int getNumberOfConnection() {
 		return socketChannelSet.size();
 	}
 	

@@ -25,8 +25,6 @@ public class GeneralConverterReturningRegularFileTest extends AbstractJunitTest 
 	@Override
 	@Before
 	public void setup() {
-		super.setup();
-
 		boolean isWritePermissionChecking = true;
 
 		try {

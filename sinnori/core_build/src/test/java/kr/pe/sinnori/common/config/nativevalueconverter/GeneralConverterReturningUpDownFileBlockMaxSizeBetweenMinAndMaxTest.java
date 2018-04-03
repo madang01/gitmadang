@@ -20,8 +20,6 @@ extends AbstractJunitTest implements NativeValueConverterTestIF {
 	@Override
 	@Before
 	public void setup() {
-		super.setup();
-		
 		nativeValueConverter = new GeneralConverterReturningUpDownFileBlockMaxSizeBetweenMinAndMax(
 				600, 2048);
 	}

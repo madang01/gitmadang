@@ -19,10 +19,9 @@ NativeValueConverterTestIF {
 	private GeneralConverterReturningNoTrimString nativeValueConverter = null;
 	private String returnedValue = null;
 
-	@Override
+	
 	@Before
 	public void setup() {
-		super.setup();
 		nativeValueConverter = new GeneralConverterReturningNoTrimString();
 	}
 

@@ -19,7 +19,6 @@ NativeValueConverterTestIF {
 	@Override
 	@Before
 	public void setup() {
-		super.setup();
 		nativeValueConverter = new SetTypeConverterReturningString("AES", "DESede", "DES");
 	}
 

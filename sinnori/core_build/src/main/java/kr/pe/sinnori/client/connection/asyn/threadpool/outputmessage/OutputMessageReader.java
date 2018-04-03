@@ -84,7 +84,7 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 	}
 
 	@Override
-	public int getNumberOfAsynConnection() {
+	public int getNumberOfConnection() {
 		return (notRegistedSocketChannelList.size() + selectorForReadEventOnly.keys().size());
 	}
 
@@ -92,13 +92,11 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 	 * 신규 채널를 selector 에 읽기 이벤트 등록한다.
 	 */
 	private void processNewConnection() {
-
-		Iterator<SocketChannel> notRegistedSocketChannelIterator = notRegistedSocketChannelList.iterator();
-
-		while (notRegistedSocketChannelIterator.hasNext()) {
-			SocketChannel notRegistedSocketChannel = notRegistedSocketChannelIterator.next();
-			notRegistedSocketChannelIterator.remove();
-
+		if (notRegistedSocketChannelList.isEmpty()) {
+			return;
+		}
+		
+		for (SocketChannel notRegistedSocketChannel : notRegistedSocketChannelList) {			
 			try {
 				notRegistedSocketChannel.register(selectorForReadEventOnly, SelectionKey.OP_READ);
 			} catch (ClosedChannelException e) {
@@ -116,6 +114,8 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 				}
 			}
 		}
+		
+		notRegistedSocketChannelList.clear();		
 	}
 
 	@Override
@@ -180,10 +180,8 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 
 				if (numberOfKeys > 0) {
 					Set<SelectionKey> selectedKeySet = selectorForReadEventOnly.selectedKeys();
-					Iterator<SelectionKey> selectedKeyIterator = selectedKeySet.iterator();
-					while (selectedKeyIterator.hasNext()) {
-						SelectionKey selectedKey = selectedKeyIterator.next();
-						selectedKeyIterator.remove();
+					
+					for (SelectionKey selectedKey : selectedKeySet) {
 						SocketChannel selectedSocketChannel = (SocketChannel) selectedKey.channel();
 
 						// log.info("11111111111111111");
@@ -253,6 +251,8 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 							continue;
 						}
 					}
+					
+					selectedKeySet.clear();
 				}
 			}
 

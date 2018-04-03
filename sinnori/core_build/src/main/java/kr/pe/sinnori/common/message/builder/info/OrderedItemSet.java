@@ -2,7 +2,6 @@ package kr.pe.sinnori.common.message.builder.info;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
@@ -46,19 +45,18 @@ public class OrderedItemSet {
 	public String toString() {
 		StringBuffer toStringStringBuffer = new StringBuffer();
 		
-		Iterator<AbstractItemInfo> itemInfoIterator = itemInfoList.iterator();
-		
-		if (itemInfoIterator.hasNext()) {
-			AbstractItemInfo itemInfo = itemInfoIterator.next();
-			toStringStringBuffer.append(CommonStaticFinalVars.NEWLINE);
-			toStringStringBuffer.append(itemInfo.toString());
-		}
-		while (itemInfoIterator.hasNext()) {
-			AbstractItemInfo itemInfo = itemInfoIterator.next();
-			toStringStringBuffer.append(", ");
+		boolean isFirst = true;
+		for (AbstractItemInfo itemInfo : itemInfoList) {
+			if (isFirst) {
+				isFirst  = false;
+			} else {
+				toStringStringBuffer.append(", ");
+			}
+			
 			toStringStringBuffer.append(CommonStaticFinalVars.NEWLINE);			
 			toStringStringBuffer.append(itemInfo.toString());
 		}
+		
 		return toStringStringBuffer.toString();
 	}
 }

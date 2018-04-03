@@ -18,8 +18,6 @@ public class SetTypeConverterReturningIntegerTest extends AbstractJunitTest impl
 	@Override
 	@Before
 	public void setup() {
-		super.setup();
-		
 		try {
 			nativeValueConverter = new SetTypeConverterReturningInteger(testIntegerSet[0].toString(), 
 					testIntegerSet[1].toString());

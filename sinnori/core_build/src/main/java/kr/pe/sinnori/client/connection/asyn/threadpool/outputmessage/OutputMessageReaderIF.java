@@ -4,5 +4,8 @@ import kr.pe.sinnori.client.connection.asyn.IOEAsynConnectionIF;
 
 public interface OutputMessageReaderIF {
 	public void registerAsynConnection(IOEAsynConnectionIF asynConn) throws InterruptedException;
-	public int getNumberOfAsynConnection();
+	public int getNumberOfConnection();
+	public boolean isAlive();
+	public void start();
+	public void interrupt();
 }

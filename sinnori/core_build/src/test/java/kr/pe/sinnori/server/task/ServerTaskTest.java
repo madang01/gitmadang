@@ -148,7 +148,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				}
 
 				@Override
-				public int getNumberOfSocket() {
+				public int getNumberOfConnection() {
 					return 0;
 				}
 
@@ -206,6 +206,19 @@ public class ServerTaskTest extends AbstractJunitTest {
 					} finally {
 						fsis.close();
 					}
+				}
+
+				@Override
+				public boolean isAlive() {
+					return false;
+				}
+
+				@Override
+				public void start() {					
+				}
+
+				@Override
+				public void interrupt() {
 				} 			
 			}
 			
@@ -454,7 +467,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				}
 
 				@Override
-				public int getNumberOfSocket() {
+				public int getNumberOfConnection() {
 					return 0;
 				}
 
@@ -512,7 +525,19 @@ public class ServerTaskTest extends AbstractJunitTest {
 					} finally {
 						fsis.close();
 					}
-				} 			
+				}
+				@Override
+				public boolean isAlive() {
+					return false;
+				}
+
+				@Override
+				public void start() {					
+				}
+
+				@Override
+				public void interrupt() {
+				}
 			}
 			
 			OutputMessageWriterIF outputMessageWriterOfOwnerSC = 
@@ -756,7 +781,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				}
 
 				@Override
-				public int getNumberOfSocket() {
+				public int getNumberOfConnection() {
 					return 0;
 				}
 
@@ -814,7 +839,20 @@ public class ServerTaskTest extends AbstractJunitTest {
 					} finally {
 						fsis.close();
 					}
-				} 			
+				} 	
+				
+				@Override
+				public boolean isAlive() {
+					return false;
+				}
+
+				@Override
+				public void start() {					
+				}
+
+				@Override
+				public void interrupt() {
+				}
 			}
 			
 			OutputMessageWriterIF outputMessageWriterOfOwnerSC = 
@@ -1071,7 +1109,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				}
 
 				@Override
-				public int getNumberOfSocket() {
+				public int getNumberOfConnection() {
 					return 0;
 				}
 
@@ -1129,7 +1167,20 @@ public class ServerTaskTest extends AbstractJunitTest {
 					} finally {
 						fsis.close();
 					}
-				} 			
+				} 	
+				
+				@Override
+				public boolean isAlive() {
+					return false;
+				}
+
+				@Override
+				public void start() {					
+				}
+
+				@Override
+				public void interrupt() {
+				}
 			}
 			
 			OutputMessageWriterIF outputMessageWriterOfOwnerSC = 
@@ -1385,7 +1436,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				}
 
 				@Override
-				public int getNumberOfSocket() {
+				public int getNumberOfConnection() {
 					return 0;
 				}
 
@@ -1443,7 +1494,20 @@ public class ServerTaskTest extends AbstractJunitTest {
 					} finally {
 						fsis.close();
 					}
-				} 			
+				} 	
+				
+				@Override
+				public boolean isAlive() {
+					return false;
+				}
+
+				@Override
+				public void start() {					
+				}
+
+				@Override
+				public void interrupt() {
+				}
 			}
 			
 			OutputMessageWriterIF outputMessageWriterOfOwnerSC = 
@@ -1713,7 +1777,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				}
 
 				@Override
-				public int getNumberOfSocket() {
+				public int getNumberOfConnection() {
 					return 0;
 				}
 
@@ -1771,7 +1835,19 @@ public class ServerTaskTest extends AbstractJunitTest {
 					} finally {
 						fsis.close();
 					}
-				} 			
+				}
+				@Override
+				public boolean isAlive() {
+					return false;
+				}
+
+				@Override
+				public void start() {					
+				}
+
+				@Override
+				public void interrupt() {
+				}
 			}
 			
 			OutputMessageWriterIF outputMessageWriterOfOwnerSC = 
@@ -2040,7 +2116,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				}
 
 				@Override
-				public int getNumberOfSocket() {
+				public int getNumberOfConnection() {
 					return 0;
 				}
 
@@ -2102,7 +2178,20 @@ public class ServerTaskTest extends AbstractJunitTest {
 					} finally {
 						fsis.close();
 					}
-				} 			
+				}
+				
+				@Override
+				public boolean isAlive() {
+					return false;
+				}
+
+				@Override
+				public void start() {					
+				}
+
+				@Override
+				public void interrupt() {
+				}
 			}
 			
 			OutputMessageWriterIF outputMessageWriterOfOwnerSC = 
@@ -2366,7 +2455,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				}
 
 				@Override
-				public int getNumberOfSocket() {
+				public int getNumberOfConnection() {
 					return 0;
 				}
 
@@ -2429,7 +2518,20 @@ public class ServerTaskTest extends AbstractJunitTest {
 					} finally {
 						fsis.close();
 					}
-				} 			
+				}
+				
+				@Override
+				public boolean isAlive() {
+					return false;
+				}
+
+				@Override
+				public void start() {					
+				}
+
+				@Override
+				public void interrupt() {
+				}
 			}
 			
 			OutputMessageWriterIF outputMessageWriterOfOwnerSC = 

@@ -25,7 +25,6 @@ import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,20 +99,16 @@ public abstract class AbstractConnection {
 
 			InetSocketAddress remoteAddr = new InetSocketAddress(host, port);
 			if (! serverSC.connect(remoteAddr)) {
-				@SuppressWarnings("unused")
 				int numberOfKeys = connectionEventOnlySelector.select(socketTimeOut);
 
-				// log.info("numberOfKeys={}", numberOfKeys);
-
-				Iterator<SelectionKey> selectionKeyIterator = connectionEventOnlySelector.selectedKeys().iterator();
-				if (!selectionKeyIterator.hasNext()) {
-
+				// log.info("numberOfKeys={}", numberOfKeys);				
+				// Set<SelectionKey> selectedKeySet = connectionEventOnlySelector.selectedKeys();
+				
+				// if (selectedKeySet.isEmpty()) {
+				if (0 == numberOfKeys) {
 					String errorMessage = String.format("1.the socket[sc hascode=%d] timeout", serverSC.hashCode());
 					throw new SocketTimeoutException(errorMessage);
-				}
-
-				SelectionKey selectionKey = selectionKeyIterator.next();
-				selectionKey.cancel();
+				}				
 
 				if (!serverSC.finishConnect()) {
 					String errorMessage = String.format("the socket[sc hascode=%d] has an error pending",

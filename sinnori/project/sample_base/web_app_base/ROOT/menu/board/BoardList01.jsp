@@ -1,11 +1,13 @@
 <%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
-%><%@ page import="kr.pe.sinnori.impl.message.BoardListOutDTO.BoardListOutDTO" %><%
+%><%@ page import="kr.pe.sinnori.impl.message.BoardListRes.BoardListRes" %><%
 %><jsp:useBean id="modulusHex" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="parmBoardId" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="boardListOutDTO" class="kr.pe.sinnori.impl.message.BoardListOutDTO.BoardListOutDTO" scope="request" /><%
+%><jsp:useBean id="boardListRes" class="kr.pe.sinnori.impl.message.BoardListRes.BoardListRes" scope="request" /><%
 %><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%
+
+	System.out.println(boardListRes.toString());
 
 %><!DOCTYPE html>
 <html>
@@ -162,13 +164,13 @@ tbody {
 		<input type=button onClick="goWrite()" value="글 작성하기" />
 		</div><%
 	if (null == errorMessage || errorMessage.equals("")) {
-		long total = boardListOutDTO.getTotal();
-		int pageSize = boardListOutDTO.getPageSize();
+		long total = boardListRes.getTotal();
+		int pageSize = boardListRes.getPageSize();
 		long totalPage = (total + pageSize - 1) / pageSize;
 
 		if (totalPage > 1) {
 
-			long pageNo = boardListOutDTO.getStartNo() / pageSize+1;
+			long pageNo = boardListRes.getStartNo() / pageSize+1;
 			int pageListSize = 2;
 
 			long startPageNo = 1 + pageListSize*(long)((pageNo -1 ) / pageListSize);
@@ -217,7 +219,7 @@ tbody {
 	<td colspan="8"><%=HtmlStringUtil.toHtml4BRString(errorMessage)%></td>
 </tr><%
 	} else {
-		java.util.List<BoardListOutDTO.Board> boardList = boardListOutDTO.getBoardList();
+		java.util.List<BoardListRes.Board> boardList = boardListRes.getBoardList();
 
 		if (null == boardList) {
 %>
@@ -226,7 +228,7 @@ tbody {
 	</tr><%
 		} else {
 
-		for (BoardListOutDTO.Board board : boardList) {
+		for (BoardListRes.Board board : boardList) {
 			int depth = board.getDepth();
 	%>
 <tr>
@@ -257,12 +259,12 @@ tbody {
 		<input type=button onClick="goWrite()" value="글 작성하기" />
 		</div><%
 	if (null == errorMessage || errorMessage.equals("")) {
-		long total = boardListOutDTO.getTotal();
-		int pageSize = boardListOutDTO.getPageSize();
+		long total = boardListRes.getTotal();
+		int pageSize = boardListRes.getPageSize();
 		long totalPage = (total + pageSize - 1) / pageSize;
 
 		if (totalPage > 1) {
-			long pageNo = boardListOutDTO.getStartNo() / pageSize+1;
+			long pageNo = boardListRes.getStartNo() / pageSize+1;
 			int pageListSize = 2;
 			long startPageNo = 1 + pageListSize*(long)((pageNo -1 ) / pageListSize);
 %><div style="text-align:right; float:right; width:400px;">페이지 이동 : <%

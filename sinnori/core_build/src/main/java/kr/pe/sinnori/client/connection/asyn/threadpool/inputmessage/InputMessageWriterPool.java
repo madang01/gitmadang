@@ -17,21 +17,29 @@
 
 package kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage;
 
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ArrayBlockingQueue;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.exception.NotSupportedException;
-import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
+import kr.pe.sinnori.common.threadpool.ThreadPoolIF;
 
 /**
  * 클라이언트 입력 메시지 소켓 쓰기 담당 쓰레드 폴.
  * 
  * @author Won Jonghoon
  */
-public class InputMessageWriterPool extends AbstractThreadPool implements InputMessageWriterPoolIF {
+public class InputMessageWriterPool implements ThreadPoolIF, InputMessageWriterPoolIF {
+	private Logger log = LoggerFactory.getLogger(InputMessageWriterPool.class);
+	private final List<InputMessageWriterIF> pool = new ArrayList<InputMessageWriterIF>();
+	
+	
 	private String projectName = null;
 	private int inputMessageQueueSize;
 	private ClientMessageUtilityIF clientMessageUtility = null;
@@ -79,7 +87,7 @@ public class InputMessageWriterPool extends AbstractThreadPool implements InputM
 		int size = pool.size();
 
 		try {
-			Thread handler = new InputMessageWriter(projectName, size, inputMessageQueue,
+			InputMessageWriterIF handler = new InputMessageWriter(projectName, size, inputMessageQueue,
 					clientMessageUtility);
 
 			pool.add(handler);
@@ -92,20 +100,17 @@ public class InputMessageWriterPool extends AbstractThreadPool implements InputM
 
 	@Override
 	public InputMessageWriterIF getInputMessageWriterWithMinimumNumberOfConnetion() {
-		Iterator<Thread> poolIter = pool.iterator();
-		if (! poolIter.hasNext()) {
+		if (pool.isEmpty()) {
 			throw new NoSuchElementException("InputMessageWriterPool empty");
 		}
 		
 		int min = Integer.MAX_VALUE;
-		InputMessageWriterIF minInputMessageWriter = (InputMessageWriterIF) poolIter.next();
-		min = minInputMessageWriter.getNumberOfAsynConnection();
+		InputMessageWriterIF minInputMessageWriter = null;
 
-		while (poolIter.hasNext()) {
-			InputMessageWriterIF inputMessageWriter = (InputMessageWriterIF) poolIter.next();
-			int numberOfAsynConnection = inputMessageWriter.getNumberOfAsynConnection();
+		for (InputMessageWriterIF handler : pool) {
+			int numberOfAsynConnection = handler.getNumberOfConnection();
 			if (numberOfAsynConnection < min) {
-				minInputMessageWriter = inputMessageWriter;
+				minInputMessageWriter = handler;
 				min = numberOfAsynConnection;
 			}
 		}
@@ -120,4 +125,24 @@ public class InputMessageWriterPool extends AbstractThreadPool implements InputM
 		throw new NotSupportedException(errorMessage);
 	}
 
+	@Override
+	public int getPoolSize() {
+		return pool.size();
+	}
+
+	@Override
+	public void startAll() {
+		for (InputMessageWriterIF handler: pool) {			
+			if (handler.isAlive()) continue;
+			handler.start();
+		}
+	}
+
+	@Override
+	public void stopAll() {
+		for (InputMessageWriterIF handler: pool) {			
+			if (handler.isAlive()) continue;
+			handler.interrupt();
+		}
+	}
 }

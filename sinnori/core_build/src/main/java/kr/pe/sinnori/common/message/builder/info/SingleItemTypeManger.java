@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
@@ -121,13 +120,11 @@ public class SingleItemTypeManger {
 		mesgXSLStringBuilder.append("\t\t\t\t\t\t<xs:simpleType>\n");
 		mesgXSLStringBuilder.append("\t\t\t\t\t\t\t<xs:restriction base=\"xs:string\">\n");
 		
-		Iterator<String> itemTypeNameIter = itemTypeNameToIDHash.keySet().iterator();
-
-		while (itemTypeNameIter.hasNext()) {
+		for (String itemTypeName : itemTypeNameToIDHash.keySet()) {
 			mesgXSLStringBuilder.append("\t\t\t\t\t\t\t\t<xs:enumeration value=\"");
-			mesgXSLStringBuilder.append(itemTypeNameIter.next());
+			mesgXSLStringBuilder.append(itemTypeName);
 			mesgXSLStringBuilder.append("\" />\n");
-		}
+		}		
 		
 		mesgXSLStringBuilder.append("\t\t\t\t\t\t\t</xs:restriction>\n");
 		mesgXSLStringBuilder.append("\t\t\t\t\t\t</xs:simpleType>\n");

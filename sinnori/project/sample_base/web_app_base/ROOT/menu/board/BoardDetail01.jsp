@@ -9,8 +9,7 @@
 %><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%	
 %><jsp:useBean id="parmBoardId" class="java.lang.String" scope="request" /><%	
 %><jsp:useBean id="parmBoardNo" class="java.lang.String" scope="request" /><%	
-%><jsp:useBean id="boardDetailOutDTO"
-	class="kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO"
+%><jsp:useBean id="boardDetailRes" class="kr.pe.sinnori.impl.message.BoardDetailRes.BoardDetailRes"
 	scope="request" />
 <style>
 <!--
@@ -172,7 +171,7 @@ tbody {
 			if (isLogin(request)) {
 				String userId = getUserId(request);
 		%><input type=button onClick="goReply()" value="댓글" />&nbsp;<%
-			if (userId.equals(boardDetailOutDTO.getWriterId())) {
+			if (userId.equals(boardDetailRes.getWriterId())) {
 		%><input type="button" onClick="goModify()" value="편집" />&nbsp;<%
 			} else {
 		%><input type=button onClick="goVote()" value="추천" />&nbsp;<%
@@ -186,21 +185,21 @@ tbody {
 			<tbody>
 				<tr>
 					<td style="width: 90px">글번호</td>
-					<td style="width: 70px"><%=boardDetailOutDTO.getBoardNo()%></td>
+					<td style="width: 70px"><%=boardDetailRes.getBoardNo()%></td>
 					<td style="width: 90px">작성자</td>
-					<td colspan=3 style="width: 350px"><%=HtmlStringUtil.toHtml4BRString( boardDetailOutDTO.getNickname())%></td>					
+					<td colspan=3 style="width: 350px"><%=HtmlStringUtil.toHtml4BRString( boardDetailRes.getNickname())%></td>					
 				</tr>
 				<tr>
 					<td style="width: 70px">조회수</td>
-					<td><%=boardDetailOutDTO.getViewCount()%></td>
+					<td><%=boardDetailRes.getViewCount()%></td>
 					<td style="width: 70px">추천수</td>
-					<td style="width: 70px" id="voteTxt"><%=boardDetailOutDTO.getVotes()%></td>
+					<td style="width: 70px" id="voteTxt"><%=boardDetailRes.getVotes()%></td>
 					<td style="width: 90px">최근 수정일</td>
-					<td><%=boardDetailOutDTO.getModifiedDate()%></td>
+					<td><%=boardDetailRes.getModifiedDate()%></td>
 				</tr>
 
 				<%
-					java.util.List<kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO.AttachFile> attachFileList = boardDetailOutDTO
+					java.util.List<kr.pe.sinnori.impl.message.BoardDetailRes.BoardDetailRes.AttachFile> attachFileList = boardDetailRes
 														.getAttachFileList();
 												if (null != attachFileList) {
 				%>
@@ -209,9 +208,9 @@ tbody {
 					<td colspan="5" style="text-align: left;">
 						<div>
 							<%
-								for (kr.pe.sinnori.impl.message.BoardDetailOutDTO.BoardDetailOutDTO.AttachFile attachFile : attachFileList) {
+								for (kr.pe.sinnori.impl.message.BoardDetailRes.BoardDetailRes.AttachFile attachFile : attachFileList) {
 																								if (isLogin(request)) {
-							%><a href="#" onClick="goDownload(<%=boardDetailOutDTO.getAttachId()%>, <%=attachFile.getAttachSeq()%>)"><%=HtmlStringUtil.toHtml4BRString(attachFile.getAttachFileName())%></a><br /><%
+							%><a href="#" onClick="goDownload(<%=boardDetailRes.getAttachId()%>, <%=attachFile.getAttachSeq()%>)"><%=HtmlStringUtil.toHtml4BRString(attachFile.getAttachFileName())%></a><br /><%
 								} else {
 							%><%=HtmlStringUtil.toHtml4BRString(attachFile.getAttachFileName())%>&nbsp;<%
 								}
@@ -225,11 +224,11 @@ tbody {
 				%>
 				<tr>
 					<td>제목</td>
-					<td colspan="5" style="text-align: left;"><%=HtmlStringUtil.toHtml4BRString(boardDetailOutDTO.getSubject())%></td>
+					<td colspan="5" style="text-align: left;"><%=HtmlStringUtil.toHtml4BRString(boardDetailRes.getSubject())%></td>
 				</tr>
 				<tr>
 					<td>내용</td>
-					<td colspan="5" style="text-align: left;"><%=HtmlStringUtil.toHtml4BRString(boardDetailOutDTO.getContent())%></td>
+					<td colspan="5" style="text-align: left;"><%=HtmlStringUtil.toHtml4BRString(boardDetailRes.getContent())%></td>
 				</tr>
 			</tbody>
 		</table>
@@ -240,7 +239,7 @@ tbody {
 			if (isLogin(request)) {
 					String userId = getUserId(request);
 		%><input type=button onClick="goReply()" value="댓글" />&nbsp;<%
-			if (userId.equals(boardDetailOutDTO.getWriterId())) {
+			if (userId.equals(boardDetailRes.getWriterId())) {
 		%><input type="button" onClick="goModify()" value="편집" />&nbsp;<%
 			} else {
 		%><input type=button onClick="goVote()" value="추천" />&nbsp;<%

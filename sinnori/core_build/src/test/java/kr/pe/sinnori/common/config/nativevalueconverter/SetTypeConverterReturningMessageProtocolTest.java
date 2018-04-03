@@ -13,12 +13,11 @@ import kr.pe.sinnori.common.type.MessageProtocolType;
 public class SetTypeConverterReturningMessageProtocolTest extends AbstractJunitTest implements
 		NativeValueConverterTestIF {	
 	private SetTypeConverterReturningMessageProtocolType nativeValueConverter = null;
-	private MessageProtocolType returnedValue = null;
+	
 	
 	@Override
 	@Before
 	public void setup() {
-		super.setup();
 		nativeValueConverter = new SetTypeConverterReturningMessageProtocolType();
 	}
 	
@@ -32,6 +31,7 @@ public class SetTypeConverterReturningMessageProtocolTest extends AbstractJunitT
 	@Test
 	public void testToNativeValue_ExpectedValueComparison() {
 		MessageProtocolType expectedValue = null;
+		MessageProtocolType returnedValue = null;
 		
 		MessageProtocolType[] messageProtocoles = MessageProtocolType.values();
 		for (int i=0; i < messageProtocoles.length; i++) {
@@ -49,6 +49,8 @@ public class SetTypeConverterReturningMessageProtocolTest extends AbstractJunitT
 	@Override
 	@Test(expected = IllegalArgumentException.class)
 	public void testToNativeValue_NullParameter() {
+		@SuppressWarnings("unused")
+		MessageProtocolType returnedValue = null;
 		try {
 			returnedValue = nativeValueConverter.valueOf(null);
 			
@@ -63,6 +65,8 @@ public class SetTypeConverterReturningMessageProtocolTest extends AbstractJunitT
 	@Override
 	@Test(expected = IllegalArgumentException.class)
 	public void testToNativeValue_EmptyStringParameter() {
+		@SuppressWarnings("unused")
+		MessageProtocolType returnedValue = null;
 		try {
 			returnedValue = nativeValueConverter.valueOf("");
 			
@@ -89,6 +93,7 @@ public class SetTypeConverterReturningMessageProtocolTest extends AbstractJunitT
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void testToNativeValue_ValidButBadParameter_NotCaseSensitive() throws Exception {
+		MessageProtocolType returnedValue = null;
 		try {
 			returnedValue = nativeValueConverter.valueOf("dHB");
 			
@@ -102,6 +107,7 @@ public class SetTypeConverterReturningMessageProtocolTest extends AbstractJunitT
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void testToNativeValue_ValidButBadParameter_NotElementOfSet() throws Exception {
+		MessageProtocolType returnedValue = null;
 		try {
 			returnedValue = nativeValueConverter.valueOf("aabbcc");
 			

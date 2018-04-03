@@ -27,5 +27,8 @@ import java.nio.channels.SocketChannel;
  */
 public interface InputMessageReaderIF {	
 	public void addNewSocket(SocketChannel newSC) throws InterruptedException;
-	public int getNumberOfSocket();
+	public int getNumberOfConnection();
+	public boolean isAlive();
+	public void start();
+	public void interrupt();
 }

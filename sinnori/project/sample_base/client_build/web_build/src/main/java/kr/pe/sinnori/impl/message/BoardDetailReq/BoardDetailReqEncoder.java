@@ -31,7 +31,7 @@ public final class BoardDetailReqEncoder extends AbstractMessageEncoder {
 		BoardDetailReq boardDetailReq = (BoardDetailReq)messageObj;
 		encodeBody(boardDetailReq, singleItemEncoder, writableMiddleObject);
 	}
-
+	
 
 	private void encodeBody(BoardDetailReq boardDetailReq, SingleItemEncoderIF singleItemEncoder, Object middleWritableObject) throws Exception {
 		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();

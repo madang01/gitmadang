@@ -17,14 +17,18 @@
 
 package kr.pe.sinnori.server.threadpool.outputmessage;
 
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ArrayBlockingQueue;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
-import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
+import kr.pe.sinnori.common.threadpool.ThreadPoolIF;
 import kr.pe.sinnori.server.threadpool.IEOServerThreadPoolSetManagerIF;
 
 /**
@@ -32,7 +36,10 @@ import kr.pe.sinnori.server.threadpool.IEOServerThreadPoolSetManagerIF;
  * 
  * @author Won Jonghoon
  */
-public class OutputMessageWriterPool extends AbstractThreadPool implements OutputMessageWriterPoolIF {
+public class OutputMessageWriterPool implements ThreadPoolIF, OutputMessageWriterPoolIF {
+	private Logger log = LoggerFactory.getLogger(OutputMessageWriterPool.class);
+	private final Object monitor = new Object();
+	private final List<OutputMessageWriterIF> pool = new ArrayList<OutputMessageWriterIF>();
 	
 	private int poolMaxSize;
 	private String projectName = null;
@@ -107,7 +114,7 @@ public class OutputMessageWriterPool extends AbstractThreadPool implements Outpu
 				
 			}
 			try {
-				Thread handler = new OutputMessageWriter(projectName, size,
+				OutputMessageWriterIF handler = new OutputMessageWriter(projectName, size,
 						outputMessageQueue,   
 						dataPacketBufferPool);
 				
@@ -122,24 +129,42 @@ public class OutputMessageWriterPool extends AbstractThreadPool implements Outpu
 
 	@Override
 	public OutputMessageWriterIF getOutputMessageWriterWithMinimumNumberOfSockets() {
-		Iterator<Thread> poolIter = pool.iterator();
-		
-		if (! poolIter.hasNext()) {
+		if (pool.isEmpty()) {
 			throw new NoSuchElementException("OutputMessageWriterPool empty");
-		}
+		}		
 		
-		OutputMessageWriterIF minOutputMessageWriter = (OutputMessageWriterIF)poolIter.next();
-		int min = minOutputMessageWriter.getNumberOfSocket();
+		int min = Integer.MAX_VALUE;
+		OutputMessageWriterIF minOutputMessageWriter = null;
 	
-		while (poolIter.hasNext()) {
-			OutputMessageWriterIF outputMessageWriter = (OutputMessageWriterIF) poolIter.next();
-			int numberOfSocket = outputMessageWriter.getNumberOfSocket();
+		for (OutputMessageWriterIF handler : pool) {
+			int numberOfSocket = handler.getNumberOfConnection();
 			if (numberOfSocket < min) {
 				min = numberOfSocket;
-				minOutputMessageWriter = outputMessageWriter;
+				minOutputMessageWriter = handler;
 			}
 		}
 		
 		return minOutputMessageWriter;
+	}
+	
+	@Override
+	public int getPoolSize() {
+		return pool.size();
+	}
+
+	@Override
+	public void startAll() {
+		for (OutputMessageWriterIF handler: pool) {			
+			if (handler.isAlive()) continue;
+			handler.start();
+		}
+	}
+
+	@Override
+	public void stopAll() {
+		for (OutputMessageWriterIF handler: pool) {			
+			if (handler.isAlive()) continue;
+			handler.interrupt();
+		}
 	}
 }

@@ -17,12 +17,16 @@
 
 package kr.pe.sinnori.server.threadpool.inputmessage;
 
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
-import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
+import kr.pe.sinnori.common.threadpool.ThreadPoolIF;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
 import kr.pe.sinnori.server.threadpool.IEOServerThreadPoolSetManagerIF;
 
@@ -32,8 +36,12 @@ import kr.pe.sinnori.server.threadpool.IEOServerThreadPoolSetManagerIF;
  * @author Won Jonghoon
  * 
  */
-public class InputMessageReaderPool extends AbstractThreadPool implements
-		InputMessageReaderPoolIF {
+public class InputMessageReaderPool implements ThreadPoolIF, InputMessageReaderPoolIF {
+	private Logger log = LoggerFactory.getLogger(InputMessageReaderPool.class);
+	private final Object monitor = new Object();
+	private final List<InputMessageReaderIF> pool = new ArrayList<InputMessageReaderIF>();
+	
+	
 	private int poolMaxSize;
 	private String projectName = null;	
 	private long wakeupIntervalOfSelectorFoReadEventOnly;
@@ -115,12 +123,12 @@ public class InputMessageReaderPool extends AbstractThreadPool implements
 			}
 			
 			try {
-				Thread inputMessageReader = new InputMessageReader(projectName, 
+				InputMessageReaderIF handler = new InputMessageReader(projectName, 
 						size, 
 						wakeupIntervalOfSelectorFoReadEventOnly, 
 						messageProtocol,  
 						socketResourceManager);
-				pool.add(inputMessageReader);
+				pool.add(handler);
 			} catch (Exception e) {
 				String errorMessage = String.format("failed to add a %s InputMessageReaderPool's task becase error occured::errmsg={}", projectName, e.getMessage()); 
 				log.warn(errorMessage, e);
@@ -131,24 +139,42 @@ public class InputMessageReaderPool extends AbstractThreadPool implements
 	
 	@Override
 	public InputMessageReaderIF getInputMessageReaderWithMinimumNumberOfSockets() {
-		Iterator<Thread> poolIter = pool.iterator();
-		
-		if (! poolIter.hasNext()) {
+		if (pool.isEmpty()) {
 			throw new NoSuchElementException("InputMessageReaderPool empty");
 		}
 		
-		InputMessageReaderIF minInputMessageReader = (InputMessageReaderIF)poolIter.next();
-		int min = minInputMessageReader.getNumberOfSocket();
-		
-		while (poolIter.hasNext()) {
-			InputMessageReaderIF inputMessageReader = (InputMessageReaderIF) poolIter.next();
-			int numberOfSocket = inputMessageReader.getNumberOfSocket();
+		int min = Integer.MAX_VALUE;
+		InputMessageReaderIF minInputMessageReader = null;
+				
+		for (InputMessageReaderIF handler : pool) {
+			int numberOfSocket = handler.getNumberOfConnection();
 			if (numberOfSocket < min) {
 				min = numberOfSocket;
-				minInputMessageReader = inputMessageReader;
+				minInputMessageReader = handler;
 			}
 		}
 		
 		return minInputMessageReader;
+	}
+	
+	@Override
+	public int getPoolSize() {
+		return pool.size();
+	}
+
+	@Override
+	public void startAll() {
+		for (InputMessageReaderIF handler: pool) {			
+			if (handler.isAlive()) continue;
+			handler.start();
+		}
+	}
+
+	@Override
+	public void stopAll() {
+		for (InputMessageReaderIF handler: pool) {			
+			if (handler.isAlive()) continue;
+			handler.interrupt();
+		}
 	}
 }

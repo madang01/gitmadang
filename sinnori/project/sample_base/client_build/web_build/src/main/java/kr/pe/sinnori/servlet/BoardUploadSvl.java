@@ -80,10 +80,10 @@ public class BoardUploadSvl extends AbstractServlet {
 			// int fileItemListSize = fileItemList.size();		
 			
 			int newAttachFileListSize = 0;	
-			List<BoardUploadFileReq.NewAttachFile> newAttachFileList = new ArrayList<BoardUploadFileReq.NewAttachFile>();
+			List<BoardUploadFileReq.NewAttachedFile> newAttachFileList = new ArrayList<BoardUploadFileReq.NewAttachedFile>();
 					
 			int selectedOldAttachFileListSize = 0;
-			List<BoardUploadFileReq.SelectedOldAttachFile> selectedOldAttachFileList = new ArrayList<BoardUploadFileReq.SelectedOldAttachFile>();
+			List<BoardUploadFileReq.OldAttachedFile> selectedOldAttachFileList = new ArrayList<BoardUploadFileReq.OldAttachedFile>();
 			
 			List<FileItem> newAttachFileItemList = new ArrayList<FileItem>();
 			
@@ -113,8 +113,8 @@ public class BoardUploadSvl extends AbstractServlet {
 							return;
 						}
 						
-						BoardUploadFileReq.SelectedOldAttachFile selectedOldAttachFile = 
-								new BoardUploadFileReq.SelectedOldAttachFile();
+						BoardUploadFileReq.OldAttachedFile selectedOldAttachFile = 
+								new BoardUploadFileReq.OldAttachedFile();
 						
 						selectedOldAttachFile.setAttachSeq(selectedOldAttachSeq);
 						
@@ -173,8 +173,8 @@ public class BoardUploadSvl extends AbstractServlet {
 					}
 					
 					
-					BoardUploadFileReq.NewAttachFile newAttachFile = new BoardUploadFileReq.NewAttachFile();
-					newAttachFile.setAttachFileName(fileName);
+					BoardUploadFileReq.NewAttachedFile newAttachFile = new BoardUploadFileReq.NewAttachedFile();
+					newAttachFile.setAttachedFileName(fileName);
 					newAttachFileList.add(newAttachFile);
 					
 					newAttachFileItemList.add(fileItem);
@@ -300,10 +300,10 @@ public class BoardUploadSvl extends AbstractServlet {
 			boardUploadFileReq.setUserId(getUserId(req));
 			boardUploadFileReq.setIp(req.getRemoteAddr());
 			boardUploadFileReq.setAttachId(attachId);
-			boardUploadFileReq.setNewAttachFileCnt(newAttachFileListSize);
-			boardUploadFileReq.setNewAttachFileList(newAttachFileList);
-			boardUploadFileReq.setSelectedOldAttachFileCnt(selectedOldAttachFileListSize);
-			boardUploadFileReq.setSelectedOldAttachFileList(selectedOldAttachFileList);
+			boardUploadFileReq.setNewAttachedFileCnt(newAttachFileListSize);
+			boardUploadFileReq.setNewAttachedFileList(newAttachFileList);
+			boardUploadFileReq.setOldAttachedFileCnt(selectedOldAttachFileListSize);
+			boardUploadFileReq.setOldAttachedFileList(selectedOldAttachFileList);
 						
 			// FIXME!
 			log.info("1.{}", boardUploadFileReq.toString());			
@@ -328,7 +328,7 @@ public class BoardUploadSvl extends AbstractServlet {
 					// for (FileItem fileItem : avaiableFileItemList) {
 					
 					for (int i=0; i < newAttachFileListSize; i++) {
-						BoardUploadFileReq.NewAttachFile newAttachFile = newAttachFileList.get(i);
+						BoardUploadFileReq.NewAttachedFile newAttachFile = newAttachFileList.get(i);
 						FileItem newAttachFileItem = newAttachFileItemList.get(i);
 								
 						String attachSystemFullFileName = getAttachSystemFullFileName(uploadFileNameSeqValue+i);

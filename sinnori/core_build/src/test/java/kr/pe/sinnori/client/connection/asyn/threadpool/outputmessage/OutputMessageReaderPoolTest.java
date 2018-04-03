@@ -223,27 +223,27 @@ public class OutputMessageReaderPoolTest extends AbstractJunitTest {
 			asynConnection = new AsynConnectionMock();
 			minOutputMessageReader.registerAsynConnection(asynConnection);
 			
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 1, minOutputMessageReader.getNumberOfAsynConnection());
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 1, minOutputMessageReader.getNumberOfConnection());
 			
 			minOutputMessageReader = outputMessageReaderPool.getOutputMessageReaderWithMinimumNumberOfConnetion();
 			asynConnection = new AsynConnectionMock();
 			minOutputMessageReader.registerAsynConnection(asynConnection);
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 1, minOutputMessageReader.getNumberOfAsynConnection());
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 1, minOutputMessageReader.getNumberOfConnection());
 			
 			minOutputMessageReader = outputMessageReaderPool.getOutputMessageReaderWithMinimumNumberOfConnetion();
 			asynConnection = new AsynConnectionMock();
 			minOutputMessageReader.registerAsynConnection(asynConnection);
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 2, minOutputMessageReader.getNumberOfAsynConnection());			
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 2, minOutputMessageReader.getNumberOfConnection());			
 			
 			minOutputMessageReader = outputMessageReaderPool.getOutputMessageReaderWithMinimumNumberOfConnetion();
 			asynConnection = new AsynConnectionMock();
 			minOutputMessageReader.registerAsynConnection(asynConnection);
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 2, minOutputMessageReader.getNumberOfAsynConnection());			
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 2, minOutputMessageReader.getNumberOfConnection());			
 			
 			minOutputMessageReader = outputMessageReaderPool.getOutputMessageReaderWithMinimumNumberOfConnetion();
 			asynConnection = new AsynConnectionMock();
 			minOutputMessageReader.registerAsynConnection(asynConnection);
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 3, minOutputMessageReader.getNumberOfAsynConnection());	
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 3, minOutputMessageReader.getNumberOfConnection());	
 			
 			
 		} catch (Exception e) {

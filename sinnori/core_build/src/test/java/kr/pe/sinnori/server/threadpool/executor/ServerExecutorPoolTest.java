@@ -513,28 +513,28 @@ public class ServerExecutorPoolTest extends AbstractJunitTest {
 			ServerExecutorIF minServerExecutor = executorPool.getExecutorWithMinimumNumberOfSockets();
 			minServerExecutor.addNewSocket(SocketChannel.open());
 			
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 1, minServerExecutor.getNumberOfSocket());
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 1, minServerExecutor.getNumberOfConnection());
 			
 			minServerExecutor = executorPool.getExecutorWithMinimumNumberOfSockets();
 			minServerExecutor.addNewSocket(SocketChannel.open());
 			
 			// int num01 = minServerExecutor01.getNumberOfSocket();
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 1, minServerExecutor.getNumberOfSocket());
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 1, minServerExecutor.getNumberOfConnection());
 			
 			minServerExecutor = executorPool.getExecutorWithMinimumNumberOfSockets();
 			minServerExecutor.addNewSocket(SocketChannel.open());
 			
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 2, minServerExecutor.getNumberOfSocket());
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 2, minServerExecutor.getNumberOfConnection());
 			
 			minServerExecutor = executorPool.getExecutorWithMinimumNumberOfSockets();
 			minServerExecutor.addNewSocket(SocketChannel.open());
 			
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 2, minServerExecutor.getNumberOfSocket());
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 2, minServerExecutor.getNumberOfConnection());
 			
 			minServerExecutor = executorPool.getExecutorWithMinimumNumberOfSockets();
 			minServerExecutor.addNewSocket(SocketChannel.open());
 			
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 3, minServerExecutor.getNumberOfSocket());			
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 3, minServerExecutor.getNumberOfConnection());			
 			
 		} catch (Exception e) {
 			log.warn("error", e);

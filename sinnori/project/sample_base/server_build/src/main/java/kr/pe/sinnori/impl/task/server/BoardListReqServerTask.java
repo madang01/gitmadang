@@ -110,10 +110,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 			return;
 		}
 		
-		BoardListRes boardListRes = new BoardListRes();
-		boardListRes.setBoardId(boardListReq.getBoardId());
-		boardListRes.setStartNo(boardListReq.getStartNo());
-		boardListRes.setPageSize(boardListReq.getPageSize());
+		
 
 		DataSource dataSource = DBCPManager.getInstance()
 				.getBasicDataSource(ServerCommonStaticFinalVars.SB_CONNECTION_POOL_NAME);
@@ -125,7 +122,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 			
 			DSLContext create = DSL.using(conn, SQLDialect.MYSQL);
 			
-			int total = create
+			final int total = create
 			.selectCount()
 			.from(SB_BOARD_TB).join(SB_MEMBER_TB)
 			.on(SB_MEMBER_TB.USER_ID.eq(SB_BOARD_TB.WRITER_ID))
@@ -133,7 +130,7 @@ public class BoardListReqServerTask extends AbstractServerTask {
 			.and(SB_MEMBER_TB.MEMBER_ST.eq(MemberStateType.OK.getValue()))
 			.and(SB_BOARD_TB.BOARD_ST.eq(BoardStateType.OK.getValue())).fetchOne(0, int.class);
 	
-			boardListRes.setTotal(total);
+			
 			
 			Table<Record13<UByte, UInteger, UInteger, UShort, UInteger, UByte, String, String, Integer, String, String, Timestamp, Timestamp>>  
 			a =	create.select(
@@ -254,10 +251,13 @@ public class BoardListReqServerTask extends AbstractServerTask {
 				}
 			}
 			
-
+			BoardListRes boardListRes = new BoardListRes();
+			boardListRes.setBoardId(boardListReq.getBoardId());
+			boardListRes.setStartNo(boardListReq.getStartNo());
+			boardListRes.setPageSize(boardListReq.getPageSize());
+			boardListRes.setTotal(total);
 			boardListRes.setCnt(boardList.size());
 			boardListRes.setBoardList(boardList);
-			
 			// log.info(boardListRes.toString());
 			
 			sendSuccessOutputMessageForCommit(boardListRes, conn, toLetterCarrier);

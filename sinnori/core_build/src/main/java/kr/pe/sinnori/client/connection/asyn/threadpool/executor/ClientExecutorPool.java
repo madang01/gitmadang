@@ -1,15 +1,22 @@
 package kr.pe.sinnori.client.connection.asyn.threadpool.executor;
 
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
 import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.exception.NotSupportedException;
-import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
+import kr.pe.sinnori.common.threadpool.ThreadPoolIF;
 
-public class ClientExecutorPool extends AbstractThreadPool implements ClientExecutorPoolIF {
+public class ClientExecutorPool implements ThreadPoolIF, ClientExecutorPoolIF {
+	private Logger log = LoggerFactory.getLogger(ClientExecutorPool.class);
+	private final List<ClientExecutorIF> pool = new ArrayList<ClientExecutorIF>();
+	
 	private String projectName = null;
 	private int outputMessageQueueSize;
 	private ClientMessageUtilityIF clientMessageUtility = null;
@@ -64,23 +71,21 @@ public class ClientExecutorPool extends AbstractThreadPool implements ClientExec
 
 	@Override
 	public ClientExecutorIF getClientExecutorWithMinimumNumberOfConnetion() {
-		Iterator<Thread> poolIter = pool.iterator();
-		if (!poolIter.hasNext()) {
+		if (pool.isEmpty()) {
 			throw new NoSuchElementException("ClientExecutorPool empty");
 		}
+		
+		int min = Integer.MAX_VALUE;
+		ClientExecutorIF minClientExecutor = null;		
 
-		ClientExecutorIF minClientExecutor = (ClientExecutorIF) poolIter.next();
-		int min = minClientExecutor.getNumberOfAsynConnection();
-
-		while (poolIter.hasNext()) {
-			ClientExecutorIF clientExecutor = (ClientExecutorIF) poolIter.next();
-			int numberOfAsynConnection = clientExecutor.getNumberOfAsynConnection();
+		for (ClientExecutorIF handler : pool) {
+			int numberOfAsynConnection = handler.getNumberOfConnection();
 			if (numberOfAsynConnection < min) {
-				minClientExecutor = clientExecutor;
+				minClientExecutor = handler;
 				min = numberOfAsynConnection;
 			}
-		}
-
+		}		
+		
 		return minClientExecutor;
 	}
 
@@ -90,4 +95,24 @@ public class ClientExecutorPool extends AbstractThreadPool implements ClientExec
 		throw new NotSupportedException(errorMessage);
 	}
 
+	@Override
+	public int getPoolSize() {
+		return pool.size();
+	}
+
+	@Override
+	public void startAll() {
+		for (ClientExecutorIF handler: pool) {			
+			if (handler.isAlive()) continue;
+			handler.start();
+		}
+	}
+
+	@Override
+	public void stopAll() {
+		for (ClientExecutorIF handler: pool) {			
+			if (handler.isAlive()) continue;
+			handler.interrupt();
+		}
+	}
 }

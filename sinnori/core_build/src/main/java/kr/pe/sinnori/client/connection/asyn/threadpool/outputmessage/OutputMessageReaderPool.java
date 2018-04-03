@@ -17,12 +17,16 @@
 
 package kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage;
 
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
-import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
+import kr.pe.sinnori.common.threadpool.ThreadPoolIF;
 
 /**
  * 클라이언트 출력 메시지 소켓 읽기 담당 쓰레드 폴
@@ -30,7 +34,11 @@ import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
  * @see OutputMessageReader
  * @author Won Jonghoon
  */
-public class OutputMessageReaderPool extends AbstractThreadPool implements OutputMessageReaderPoolIF {
+public class OutputMessageReaderPool implements ThreadPoolIF, OutputMessageReaderPoolIF {
+	private Logger log = LoggerFactory.getLogger(OutputMessageReaderPool.class);
+	private final List<OutputMessageReaderIF> pool = new ArrayList<OutputMessageReaderIF>();
+	
+	
 	private String projectName = null;
 	private long wakeupIntervalOfSelectorForReadEventOnly;
 	private MessageProtocolIF messageProtocol = null;
@@ -74,7 +82,7 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements Outpu
 		int size = pool.size();
 
 		try {
-			Thread handler = new OutputMessageReader(projectName, size, wakeupIntervalOfSelectorForReadEventOnly, messageProtocol);
+			OutputMessageReaderIF handler = new OutputMessageReader(projectName, size, wakeupIntervalOfSelectorForReadEventOnly, messageProtocol);
 			pool.add(handler);
 		} catch (Exception e) {
 			String errorMessage = String.format("%s OutputMessageReader[%d] 등록 실패", projectName, size);
@@ -85,20 +93,19 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements Outpu
 
 	@Override
 	public OutputMessageReaderIF getOutputMessageReaderWithMinimumNumberOfConnetion() {
-		Iterator<Thread> poolIter = pool.iterator();
-		if (!poolIter.hasNext()) {
+		
+		if (pool.isEmpty()) {
 			throw new NoSuchElementException("OutputMessageReaderPool empty");
 		}
 
-		OutputMessageReaderIF minOutputMessageReader = (OutputMessageReaderIF) poolIter.next();
-		;
-		int min = minOutputMessageReader.getNumberOfAsynConnection();
+		int min = Integer.MAX_VALUE;
+		OutputMessageReaderIF minOutputMessageReader = null;	
+		
 
-		while (poolIter.hasNext()) {
-			OutputMessageReaderIF outputMessageReader = (OutputMessageReaderIF) poolIter.next();
-			int numberOfAsynConnection = outputMessageReader.getNumberOfAsynConnection();
+		for (OutputMessageReaderIF handler : pool) {
+			int numberOfAsynConnection = handler.getNumberOfConnection();
 			if (numberOfAsynConnection < min) {
-				minOutputMessageReader = outputMessageReader;
+				minOutputMessageReader = handler;
 				min = numberOfAsynConnection;
 			}
 		}
@@ -110,5 +117,26 @@ public class OutputMessageReaderPool extends AbstractThreadPool implements Outpu
 	public void addTask() throws IllegalStateException, NotSupportedException {
 		String errorMessage = "this OutputMessageReaderPool dosn't support this addTask method";
 		throw new NotSupportedException(errorMessage);
+	}
+	
+	@Override
+	public int getPoolSize() {
+		return pool.size();
+	}
+
+	@Override
+	public void startAll() {
+		for (OutputMessageReaderIF handler: pool) {			
+			if (handler.isAlive()) continue;
+			handler.start();
+		}
+	}
+
+	@Override
+	public void stopAll() {
+		for (OutputMessageReaderIF handler: pool) {			
+			if (handler.isAlive()) continue;
+			handler.interrupt();
+		}
 	}
 }

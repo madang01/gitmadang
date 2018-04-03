@@ -242,36 +242,7 @@ public class AnyProjectServer {
 		projectInfo.projectName = projectPartConfiguration.getProjectName();
 		projectInfo.dataPacketBufferQueueSize = dataPacketBufferPool.getDataPacketBufferPoolSize();
 
-		projectInfo.acceptQueueSize = acceptQueue.size();
-
-		// projectInfo.clientCnt = scToClientResourceHash.size();
-
-		/*Iterator<SocketChannel> scKeyIterator = scToClientResourceHash.keySet().iterator();
-		java.util.Date currentTime = new java.util.Date();
-
-		while (scKeyIterator.hasNext()) {
-			SocketChannel sc = scKeyIterator.next();
-
-			SocketResource cr = scToClientResourceHash.get(sc);
-
-			MonitorClientInfo monitorClientInfo = new MonitorClientInfo();
-			monitorClientInfo.sc = sc;
-			monitorClientInfo.cr = cr;
-			monitorClientInfo.scHashCode = sc.hashCode();
-			monitorClientInfo.isConnected = sc.isConnected();
-
-			java.util.Date finalReadTime = cr.getFinalReadTime();
-
-			long elapsedTime = currentTime.getTime() - finalReadTime.getTime();
-			if (elapsedTime >= requestTimeout) {
-				// 지금은 로그로만 지켜보지만 나중에는 삭제할 것이다.
-				monitorClientInfo.timeout = elapsedTime;
-			} else {
-				monitorClientInfo.timeout = -1;
-			}
-
-			projectInfo.monitorClientInfoList.add(monitorClientInfo);
-		}*/
+		projectInfo.acceptQueueSize = acceptQueue.size();		
 
 		return projectInfo;
 	}

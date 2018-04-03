@@ -70,7 +70,7 @@ public class ClientExecutor extends Thread implements ClientExecutorIF {
 	}
 
 	@Override
-	public int getNumberOfAsynConnection() {
+	public int getNumberOfConnection() {
 		return socketChannelSet.size();
 	}
 
@@ -82,6 +82,6 @@ public class ClientExecutor extends Thread implements ClientExecutorIF {
 	@Override
 	public void putAsynOutputMessage(FromLetter fromLetter) throws InterruptedException {
 		outputMessageQueue.put(fromLetter);
-	}
+	}	
 
 }

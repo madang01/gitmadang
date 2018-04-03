@@ -84,8 +84,8 @@ public class BoardListSvl extends AbstractServlet {
 		AbstractMessage messageFromServer = mainProjectConnectionPool.sendSyncInputMessage(inObj);
 		
 		if (messageFromServer instanceof BoardListRes) {
-			BoardListRes boardListOutDTO = (BoardListRes)messageFromServer;
-			req.setAttribute("boardListOutDTO", boardListOutDTO);
+			BoardListRes boardListRes = (BoardListRes)messageFromServer;
+			req.setAttribute("boardListRes", boardListRes);
 		} else {			
 			if (messageFromServer instanceof MessageResultRes) {				
 				errorMessage = ((MessageResultRes)messageFromServer).getResultMessage();

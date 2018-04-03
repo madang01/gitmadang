@@ -4,8 +4,8 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,13 +15,13 @@ import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
 import kr.pe.sinnori.common.type.LogType;
 
 public abstract class AbstractJunitTest {
-	protected Logger log = null;
+	protected static Logger log = null;
 	
-	protected String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
-	protected String mainProjectName = "sample_base";
+	protected final static String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
+	protected final static String mainProjectName = "sample_base";
 	
-	@Before
-	public void setup() {
+	@BeforeClass
+	 public static void setUpBeforeClass() throws Exception {
 		File sinnoriInstalledPath = new File(sinnoriInstalledPathString);
 		if (! sinnoriInstalledPath.exists()) {
 			String errorMessage = String.format("the sinnori installed path[%s] doesn't exist", sinnoriInstalledPathString);			
@@ -57,8 +57,8 @@ public abstract class AbstractJunitTest {
 		log = LoggerFactory.getLogger(AbstractJunitTest.class);
 	}
 
-	@After
-	public void finish() {
+	@AfterClass
+    public static void tearDownAfterClass() throws Exception {
 		System.gc();
 	}
 }

@@ -392,9 +392,9 @@ public class AsynPrivateConnectionPoolTest extends AbstractJunitTest {
 			InputMessageWriterIF minInputMessageWriter = ieoClientThreadPoolSetManager.getInputMessageWriterWithMinimumNumberOfConnetion();
 			OutputMessageReaderIF minOutputMessageReader = ieoClientThreadPoolSetManager.getOutputMessageReaderWithMinimumNumberOfConnetion();
 						
-			assertEquals("ClientExecutor 쓰레드에 균등 분배 검사", 1, minClientExecutor.getNumberOfAsynConnection());
-			assertEquals("InputMessageWriter 쓰레드에 균등 분배 검사", 1, minInputMessageWriter.getNumberOfAsynConnection());
-			assertEquals("OutputMessageReader 쓰레드에 균등 분배 검사", 1, minOutputMessageReader.getNumberOfAsynConnection());
+			assertEquals("ClientExecutor 쓰레드에 균등 분배 검사", 1, minClientExecutor.getNumberOfConnection());
+			assertEquals("InputMessageWriter 쓰레드에 균등 분배 검사", 1, minInputMessageWriter.getNumberOfConnection());
+			assertEquals("OutputMessageReader 쓰레드에 균등 분배 검사", 1, minOutputMessageReader.getNumberOfConnection());
 			
 		} catch (Exception e) {
 			log.warn("error", e);

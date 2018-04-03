@@ -148,7 +148,8 @@
 		<mkdir dir="${dir.build}/test" />
 	</target>
 	
-	<target name="compile.test">	
+	<target name="compile.test">
+		<mkdir dir="${dir.build}/test" />
 		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.testsrc}" destdir="${dir.build}/test">			
 			<classpath>				
 				<fileset file="${dir.dist}/sinnori-core.jar" />

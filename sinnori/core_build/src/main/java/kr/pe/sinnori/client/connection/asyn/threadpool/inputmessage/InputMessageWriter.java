@@ -181,7 +181,7 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 		log.debug("{} InputMessageWriter[{}] new AsynConnection[{}] added", projectName, index, asynConnection.hashCode());
 	}
 
-	public int getNumberOfAsynConnection() {
+	public int getNumberOfConnection() {
 		return sc2AsynConnectionHash.size();
 	}
 

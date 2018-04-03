@@ -441,28 +441,28 @@ public class InputMessageReaderPoolTest extends AbstractJunitTest {
 			InputMessageReaderIF minInputMessageReader = inputMessageReaderPool.getInputMessageReaderWithMinimumNumberOfSockets();
 			minInputMessageReader.addNewSocket(SocketChannel.open());
 			
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 1, minInputMessageReader.getNumberOfSocket());
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 1, minInputMessageReader.getNumberOfConnection());
 			
 			minInputMessageReader = inputMessageReaderPool.getInputMessageReaderWithMinimumNumberOfSockets();
 			minInputMessageReader.addNewSocket(SocketChannel.open());
 			
 			// int num01 = minServerExecutor01.getNumberOfSocket();
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 1, minInputMessageReader.getNumberOfSocket());
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 1, minInputMessageReader.getNumberOfConnection());
 			
 			minInputMessageReader = inputMessageReaderPool.getInputMessageReaderWithMinimumNumberOfSockets();
 			minInputMessageReader.addNewSocket(SocketChannel.open());
 			
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 2, minInputMessageReader.getNumberOfSocket());
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 2, minInputMessageReader.getNumberOfConnection());
 			
 			minInputMessageReader = inputMessageReaderPool.getInputMessageReaderWithMinimumNumberOfSockets();
 			minInputMessageReader.addNewSocket(SocketChannel.open());
 			
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 2, minInputMessageReader.getNumberOfSocket());
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 2, minInputMessageReader.getNumberOfConnection());
 			
 			minInputMessageReader = inputMessageReaderPool.getInputMessageReaderWithMinimumNumberOfSockets();
 			minInputMessageReader.addNewSocket(SocketChannel.open());
 			
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 3, minInputMessageReader.getNumberOfSocket());			
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 3, minInputMessageReader.getNumberOfConnection());			
 			
 		} catch (Exception e) {
 			log.warn("error", e);

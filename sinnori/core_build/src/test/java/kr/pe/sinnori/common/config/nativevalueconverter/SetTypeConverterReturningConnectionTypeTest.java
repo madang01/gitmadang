@@ -19,7 +19,6 @@ public class SetTypeConverterReturningConnectionTypeTest extends AbstractJunitTe
 	@Override
 	@Before
 	public void setup() {
-		super.setup();
 		nativeValueConverter = new SetTypeConverterReturningConnectionType();
 	}
 	

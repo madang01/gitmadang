@@ -30,7 +30,7 @@ public final class SelfExnResServerCodec implements MessageCodecIF {
 
 	@Override
 	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
-		return new SelfExnResDecoder();
+		throw new DynamicClassCallException("the server don't need a message decoder because it is a message[SelfExnRes] that is not sent from client to server");
 	}
 
 	@Override

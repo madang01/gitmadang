@@ -222,27 +222,27 @@ public class ClientExecutorPoolTest extends AbstractJunitTest {
 			asynConnection = new AsynConnectionMock();
 			minClientExecutor.registerAsynConnection(asynConnection);
 			
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 1, minClientExecutor.getNumberOfAsynConnection());
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 1, minClientExecutor.getNumberOfConnection());
 			
 			minClientExecutor = clientExecutorPool.getClientExecutorWithMinimumNumberOfConnetion();
 			asynConnection = new AsynConnectionMock();
 			minClientExecutor.registerAsynConnection(asynConnection);
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 1, minClientExecutor.getNumberOfAsynConnection());
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 1, minClientExecutor.getNumberOfConnection());
 			
 			minClientExecutor = clientExecutorPool.getClientExecutorWithMinimumNumberOfConnetion();
 			asynConnection = new AsynConnectionMock();
 			minClientExecutor.registerAsynConnection(asynConnection);
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 2, minClientExecutor.getNumberOfAsynConnection());			
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 2, minClientExecutor.getNumberOfConnection());			
 			
 			minClientExecutor = clientExecutorPool.getClientExecutorWithMinimumNumberOfConnetion();
 			asynConnection = new AsynConnectionMock();
 			minClientExecutor.registerAsynConnection(asynConnection);
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 2, minClientExecutor.getNumberOfAsynConnection());			
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 2, minClientExecutor.getNumberOfConnection());			
 			
 			minClientExecutor = clientExecutorPool.getClientExecutorWithMinimumNumberOfConnetion();
 			asynConnection = new AsynConnectionMock();
 			minClientExecutor.registerAsynConnection(asynConnection);
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 3, minClientExecutor.getNumberOfAsynConnection());	
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 3, minClientExecutor.getNumberOfConnection());	
 			
 			
 		} catch (Exception e) {

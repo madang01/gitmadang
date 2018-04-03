@@ -18,9 +18,7 @@ public class MessageInfoSAXParserTest extends AbstractJunitTest {
 	MessageInfoSAXParser messageInfoSAXParser = null;	
 
 	@Before
-	public void setup() {
-		super.setup();
-		
+	public void setup() {		
 		/**
 		 * Warning 로케일 설정 생략하지 말것. xml 파싱시 xsl에서 정의한 규칙에 어긋난 경우 로케일 설정에 따라 메시지를
 		 * 보여주기때문에, 상황에 맞는 메시지가 나왔는지 점검을 위해서 기준이 되는 로케일로 영문을 선택하였다.

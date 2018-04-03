@@ -18,10 +18,15 @@
 package kr.pe.sinnori.server.threadpool.accept.processor;
 
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kr.pe.sinnori.common.exception.NotSupportedException;
-import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
+import kr.pe.sinnori.common.threadpool.ThreadPoolIF;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
 
 /**
@@ -30,7 +35,12 @@ import kr.pe.sinnori.server.SocketResourceManagerIF;
  * @author Won Jonghoon
  * 
  */
-public class AcceptProcessorPool extends AbstractThreadPool {
+public class AcceptProcessorPool implements ThreadPoolIF {
+	private Logger log = LoggerFactory.getLogger(AcceptProcessorPool.class);
+	private final Object monitor = new Object();		
+	private final List<AcceptProcessor> pool = new ArrayList<AcceptProcessor>();
+	
+	
 	
 	private int poolMaxSize;
 	private String projectName = null;
@@ -96,7 +106,7 @@ public class AcceptProcessorPool extends AbstractThreadPool {
 			}
 			
 			try {
-				Thread acceptProcessor = new AcceptProcessor(size, projectName,
+				AcceptProcessor acceptProcessor = new AcceptProcessor(size, projectName,
 						acceptQueue, socketResourceManager);
 				pool.add(acceptProcessor);
 			} catch (Exception e) {
@@ -104,6 +114,27 @@ public class AcceptProcessorPool extends AbstractThreadPool {
 				log.warn(errorMessage, e);
 				throw new IllegalStateException(errorMessage);
 			}
+		}
+	}
+	
+	@Override
+	public int getPoolSize() {
+		return pool.size();
+	}
+
+	@Override
+	public void startAll() {
+		for (AcceptProcessor handler: pool) {			
+			if (handler.isAlive()) continue;
+			handler.start();
+		}
+	}
+
+	@Override
+	public void stopAll() {
+		for (AcceptProcessor handler: pool) {			
+			if (handler.isAlive()) continue;
+			handler.interrupt();
 		}
 	}
 }

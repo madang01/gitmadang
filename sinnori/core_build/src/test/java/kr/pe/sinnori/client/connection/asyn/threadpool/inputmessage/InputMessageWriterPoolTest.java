@@ -223,27 +223,27 @@ public class InputMessageWriterPoolTest extends AbstractJunitTest {
 			asynConnection = new AsynConnectionMock();
 			minInputMessageWriter.registerAsynConnection(asynConnection);
 			
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 1, minInputMessageWriter.getNumberOfAsynConnection());
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 1, minInputMessageWriter.getNumberOfConnection());
 			
 			minInputMessageWriter = inputMessageWriterPool.getInputMessageWriterWithMinimumNumberOfConnetion();
 			asynConnection = new AsynConnectionMock();
 			minInputMessageWriter.registerAsynConnection(asynConnection);
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 1, minInputMessageWriter.getNumberOfAsynConnection());
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 1, minInputMessageWriter.getNumberOfConnection());
 			
 			minInputMessageWriter = inputMessageWriterPool.getInputMessageWriterWithMinimumNumberOfConnetion();
 			asynConnection = new AsynConnectionMock();
 			minInputMessageWriter.registerAsynConnection(asynConnection);
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 2, minInputMessageWriter.getNumberOfAsynConnection());			
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 2, minInputMessageWriter.getNumberOfConnection());			
 			
 			minInputMessageWriter = inputMessageWriterPool.getInputMessageWriterWithMinimumNumberOfConnetion();
 			asynConnection = new AsynConnectionMock();
 			minInputMessageWriter.registerAsynConnection(asynConnection);
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 2, minInputMessageWriter.getNumberOfAsynConnection());			
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 2, minInputMessageWriter.getNumberOfConnection());			
 			
 			minInputMessageWriter = inputMessageWriterPool.getInputMessageWriterWithMinimumNumberOfConnetion();
 			asynConnection = new AsynConnectionMock();
 			minInputMessageWriter.registerAsynConnection(asynConnection);
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 3, minInputMessageWriter.getNumberOfAsynConnection());	
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 3, minInputMessageWriter.getNumberOfConnection());	
 			
 			
 		} catch (Exception e) {

@@ -4,9 +4,9 @@
 %><jsp:useBean id="successURL" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="parmIVBase64" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="modulusHex" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="messageResultOutObj" class="kr.pe.sinnori.impl.message.MessageResult.MessageResult" scope="request" /><%
-	// String resultMessage = messageResultOutObj.getResultMessage();
-	boolean isSuccess = messageResultOutObj.getIsSuccess();
+%><jsp:useBean id="messageResultRes" class="kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes" scope="request" /><%
+	// String resultMessage = messageResultRes.getResultMessage();
+	boolean isSuccess = messageResultRes.getIsSuccess();
 	
 %><!DOCTYPE html>
 <html>
@@ -109,7 +109,7 @@
 				var pageIV = CryptoJS.enc.Base64.parse("<%=parmIVBase64%>");
 				var privateKey = CryptoJS.enc.Base64.parse(sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME%>'));
 
-				var resultMessage = CryptoJS.AES.decrypt("<%=getCipheredBase64String(request, messageResultOutObj.toString())%>", privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: pageIV });
+				var resultMessage = CryptoJS.AES.decrypt("<%=getCipheredBase64String(request, messageResultRes.toString())%>", privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: pageIV });
 				document.getElementById('idTxtResultMessage').innerHTML = resultMessage.toString(CryptoJS.enc.Utf8);
 
 				<!-- 보안을 위해서 로그인시 생성한 비밀키와 세션키 덮어쓰기 -->

@@ -155,7 +155,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 			return;
 		}
 				
-		BoardDownloadFileRes boardDownloadFileOutDTO = (BoardDownloadFileRes) messageFromServer;
+		BoardDownloadFileRes boardDownloadFileRes = (BoardDownloadFileRes) messageFromServer;
 		
 		/*String ownerId = boardDownloadFileOutDTO.getOwnerId();
 		
@@ -179,14 +179,14 @@ public class BoardDownloadSvl extends AbstractServlet {
 		 * Posted in Tomcat & JSP by 흔들리는내마음
 		 */
 
-		File downloadFile = new File(boardDownloadFileOutDTO.getSystemFileName());
+		File downloadFile = new File(boardDownloadFileRes.getSystemFileName());
 		// SecureCoding 파일명을 받는 경우 ../ 에 대한 체크가 필요하다.(지정디렉토리 이외의 디렉토리 금지 루틴)
 
 		// 브라우저 별 처리
 		if (downloadFile.exists()) {
 			// 1. content-type의 세팅
 			res.setContentType("application/octet-stream;charset=UTF-8");
-			String filename = boardDownloadFileOutDTO.getAttachFileName();
+			String filename = boardDownloadFileRes.getAttachFiledName();
 
 			System.out.println("");
 			// 브라우저별 한글 인코딩

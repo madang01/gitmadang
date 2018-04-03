@@ -3,7 +3,7 @@
 %><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
 %><jsp:useBean id="parmIVBase64" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="modulusHexString" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="messageResultOutObj" class="kr.pe.sinnori.impl.message.MessageResult.MessageResult" scope="request" /><%
+%><jsp:useBean id="messageResultOutObj" class="kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes" scope="request" /><%
 	String resultMessage = messageResultOutObj.getResultMessage();
 	boolean isSuccess = messageResultOutObj.getIsSuccess();
 %><!DOCTYPE html>

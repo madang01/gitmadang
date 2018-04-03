@@ -17,15 +17,19 @@
 
 package kr.pe.sinnori.server.threadpool.executor;
 
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ArrayBlockingQueue;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
-import kr.pe.sinnori.common.threadpool.AbstractThreadPool;
+import kr.pe.sinnori.common.threadpool.ThreadPoolIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
 import kr.pe.sinnori.server.threadpool.IEOServerThreadPoolSetManagerIF;
@@ -35,8 +39,10 @@ import kr.pe.sinnori.server.threadpool.IEOServerThreadPoolSetManagerIF;
  * 
  * @author Won Jonghoon
  */
-public class ServerExecutorPool extends AbstractThreadPool implements ServerExecutorPoolIF {
-	// execuate_processor_pool_max_size
+public class ServerExecutorPool implements ThreadPoolIF, ServerExecutorPoolIF {
+	private Logger log = LoggerFactory.getLogger(ServerExecutorPool.class);
+	private final Object monitor = new Object();
+	private final List<ServerExecutorIF> pool = new ArrayList<ServerExecutorIF>();
 	
 	private int poolMaxSize;
 	private String projectName = null;
@@ -130,13 +136,13 @@ public class ServerExecutorPool extends AbstractThreadPool implements ServerExec
 			}
 			
 			try {
-				Thread task = new ServerExecutor(size, 
+				ServerExecutorIF handler = new ServerExecutor(size, 
 						projectName, 
 						inputMessageQueue, 
 						messageProtocol, 
 						socketResourceManager, 
 						serverObjectCacheManager);
-				pool.add(task);
+				pool.add(handler);
 			} catch (Exception e) {
 				String errorMessage = String.format("failed to add a %s ServerExecutorPool's task becase error occured::errmsg={}", projectName, e.getMessage()); 
 				log.warn(errorMessage, e);
@@ -145,20 +151,17 @@ public class ServerExecutorPool extends AbstractThreadPool implements ServerExec
 		}
 	}
 
-	@Override
+	
 	public ServerExecutorIF getExecutorWithMinimumNumberOfSockets() {
-		Iterator<Thread> poolIter = pool.iterator();
-		
-		if (! poolIter.hasNext()) {
+		if (pool.isEmpty()) {
 			throw new NoSuchElementException("ServerExecutorPool empty");
 		}
 		
-		ServerExecutorIF minServerExecutor = (ServerExecutorIF)poolIter.next();
-		int min = minServerExecutor.getNumberOfSocket();
-		
-		while (poolIter.hasNext()) {
-			ServerExecutorIF serverExecutor = (ServerExecutorIF) poolIter.next();
-			int numberOfSocket = serverExecutor.getNumberOfSocket();
+		int min = Integer.MAX_VALUE;
+		ServerExecutorIF minServerExecutor = null;
+
+		for (ServerExecutorIF serverExecutor : pool) {
+			int numberOfSocket = serverExecutor.getNumberOfConnection();
 			if (numberOfSocket < min) {
 				min = numberOfSocket;
 				minServerExecutor = serverExecutor;
@@ -166,5 +169,26 @@ public class ServerExecutorPool extends AbstractThreadPool implements ServerExec
 		}
 
 		return minServerExecutor;
+	}
+	
+	@Override
+	public int getPoolSize() {
+		return pool.size();
+	}
+
+	@Override
+	public void startAll() {
+		for (ServerExecutorIF handler: pool) {			
+			if (handler.isAlive()) continue;
+			handler.start();
+		}
+	}
+
+	@Override
+	public void stopAll() {
+		for (ServerExecutorIF handler: pool) {			
+			if (handler.isAlive()) continue;
+			handler.interrupt();
+		}
 	}
 }

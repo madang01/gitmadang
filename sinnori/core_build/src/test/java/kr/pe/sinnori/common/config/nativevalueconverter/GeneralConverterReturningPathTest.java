@@ -25,8 +25,6 @@ public class GeneralConverterReturningPathTest extends AbstractJunitTest impleme
 	@Override
 	@Before
 	public void setup() {
-		super.setup();
-		
 		expectedValue = new File("./tempDir");
 		
 		expectedValue.mkdir();

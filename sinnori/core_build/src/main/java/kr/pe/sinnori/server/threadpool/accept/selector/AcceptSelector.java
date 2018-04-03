@@ -24,13 +24,13 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.Iterator;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import kr.pe.sinnori.server.SocketResourceManagerIF;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import kr.pe.sinnori.server.SocketResourceManagerIF;
 
 /**
  * 서버에 접속하는 클라이언트 접속 승인 처리 쓰레드<br/>
@@ -107,35 +107,37 @@ public class AcceptSelector extends Thread {
 			while (!Thread.currentThread().isInterrupted()) {
 				int keyReady = selector.select();
 				if (keyReady > 0) {
-					Iterator<SelectionKey> iter = selector.selectedKeys()
-							.iterator();
+					
+					Set<SelectionKey>  selectedKeySet = selector.selectedKeys();
+					
+					try {
+						for (SelectionKey key: selectedKeySet)  {
 
-					while (iter.hasNext()) {
-						SelectionKey key = iter.next();
-						iter.remove();
-
-						ServerSocketChannel readyChannel = (ServerSocketChannel) key
-								.channel();		
-						
-						SocketChannel sc = readyChannel.accept();
-						
-						if (null == sc) {
-							log.error("sc is null");
-							System.exit(1);
-						}
-						
-						int numberOfSocketResources = socketResourceManager.getNumberOfSocketResources();
-						
-						if (numberOfSocketResources < maxClients) {								
-							// log.info("accepted socket channel=[{}]", sc.hashCode());
-							acceptQueue.put(sc);
-						} else {
-							sc.setOption(StandardSocketOptions.SO_LINGER, 0);
-							sc.close();
-							log.warn("최대 소켓수[{}] 도달에 따른 소켓 닫기 sc[{}]",
-									maxClients, sc.hashCode());
+							ServerSocketChannel readyChannel = (ServerSocketChannel) key
+									.channel();		
 							
+							SocketChannel sc = readyChannel.accept();
+							
+							if (null == sc) {
+								log.error("sc is null");
+								System.exit(1);
+							}
+							
+							int numberOfSocketResources = socketResourceManager.getNumberOfSocketResources();
+							
+							if (numberOfSocketResources < maxClients) {								
+								// log.info("accepted socket channel=[{}]", sc.hashCode());
+								acceptQueue.put(sc);
+							} else {
+								sc.setOption(StandardSocketOptions.SO_LINGER, 0);
+								sc.close();
+								log.warn("최대 소켓수[{}] 도달에 따른 소켓 닫기 sc[{}]",
+										maxClients, sc.hashCode());
+								
+							}
 						}
+					} finally {
+						selectedKeySet.clear();
 					}
 				}
 			}

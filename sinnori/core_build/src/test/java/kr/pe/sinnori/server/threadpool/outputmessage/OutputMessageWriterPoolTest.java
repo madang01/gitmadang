@@ -379,28 +379,28 @@ public class OutputMessageWriterPoolTest extends AbstractJunitTest {
 			OutputMessageWriterIF minOutputMessageWriter = outputMessageWriterPool.getOutputMessageWriterWithMinimumNumberOfSockets();
 			minOutputMessageWriter.addNewSocket(SocketChannel.open());
 			
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 1, minOutputMessageWriter.getNumberOfSocket());
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 1, minOutputMessageWriter.getNumberOfConnection());
 			
 			minOutputMessageWriter = outputMessageWriterPool.getOutputMessageWriterWithMinimumNumberOfSockets();
 			minOutputMessageWriter.addNewSocket(SocketChannel.open());
 			
 			// int num01 = minServerExecutor01.getNumberOfSocket();
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 1, minOutputMessageWriter.getNumberOfSocket());
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 1, minOutputMessageWriter.getNumberOfConnection());
 			
 			minOutputMessageWriter = outputMessageWriterPool.getOutputMessageWriterWithMinimumNumberOfSockets();
 			minOutputMessageWriter.addNewSocket(SocketChannel.open());
 			
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 2, minOutputMessageWriter.getNumberOfSocket());
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 2, minOutputMessageWriter.getNumberOfConnection());
 			
 			minOutputMessageWriter = outputMessageWriterPool.getOutputMessageWriterWithMinimumNumberOfSockets();
 			minOutputMessageWriter.addNewSocket(SocketChannel.open());
 			
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 2, minOutputMessageWriter.getNumberOfSocket());
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 2, minOutputMessageWriter.getNumberOfConnection());
 			
 			minOutputMessageWriter = outputMessageWriterPool.getOutputMessageWriterWithMinimumNumberOfSockets();
 			minOutputMessageWriter.addNewSocket(SocketChannel.open());
 			
-			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 3, minOutputMessageWriter.getNumberOfSocket());			
+			assertEquals("균등 분배에 따라 예상되는 소캣수 검사", 3, minOutputMessageWriter.getNumberOfConnection());			
 			
 		} catch (Exception e) {
 			log.warn("error", e);

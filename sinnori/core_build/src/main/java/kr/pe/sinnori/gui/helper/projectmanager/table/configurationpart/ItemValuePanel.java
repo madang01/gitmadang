@@ -2,7 +2,6 @@ package kr.pe.sinnori.gui.helper.projectmanager.table.configurationpart;
 
 import java.awt.Dimension;
 import java.awt.Frame;
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.swing.ComboBoxModel;
@@ -96,14 +95,13 @@ public class ItemValuePanel extends JPanel {
 			
 			valueComboBox = new JComboBox<String>();
 			
-			Iterator<String> iter = itemSet.iterator();
-			while (iter.hasNext()) {
-				String itemValueOfSet = iter.next();
+			for (String itemValueOfSet: itemSet) {
 				valueComboBox.addItem(itemValueOfSet);
 				if (itemValueOfSet.equals(itemValue)) {
 					selectedIndex= valueComboBox.getComponentCount() - 1;
-				}				
+				}
 			}
+			
 			valueComboBox.setSelectedIndex(0);
 			add(valueComboBox);			
 			

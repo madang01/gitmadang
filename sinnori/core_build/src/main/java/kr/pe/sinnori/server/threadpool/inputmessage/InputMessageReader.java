@@ -122,7 +122,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 	}
 
 	@Override
-	public int getNumberOfSocket() {
+	public int getNumberOfConnection() {
 		return (notRegistedSocketChannelList.size() + selectorForReadEventOnly.keys().size());
 	}
 
@@ -130,12 +130,11 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 	 * 미 등록된 소켓 채널들을 selector 에 등록한다.
 	 */
 	private void processNewConnection() {
-		Iterator<SocketChannel> notRegistedSocketChannelIterator = notRegistedSocketChannelList.iterator();
-
-		while (notRegistedSocketChannelIterator.hasNext()) {
-			SocketChannel notRegistedSocketChannel = notRegistedSocketChannelIterator.next();
-			notRegistedSocketChannelIterator.remove();
-
+		if (notRegistedSocketChannelList.isEmpty()) {
+			return;
+		}
+		
+		for (SocketChannel notRegistedSocketChannel : notRegistedSocketChannelList) {
 			try {
 				notRegistedSocketChannel.register(selectorForReadEventOnly, SelectionKey.OP_READ);
 			} catch (ClosedChannelException e) {
@@ -152,6 +151,8 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 				
 			}
 		}
+		
+		notRegistedSocketChannelList.clear();
 	}
 
 	@Override
@@ -166,10 +167,8 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 
 				if (selectionKeyCount > 0) {
 					Set<SelectionKey> selectedKeySet = selectorForReadEventOnly.selectedKeys();
-					Iterator<SelectionKey> selectionKeyIterator = selectedKeySet.iterator();
-					while (selectionKeyIterator.hasNext()) {
-						SelectionKey selectedKey = selectionKeyIterator.next();
-						selectionKeyIterator.remove();
+					
+					for (SelectionKey selectedKey : selectedKeySet) {
 						SocketChannel selectedSocketChannel = (SocketChannel) selectedKey.channel();
 						// ByteBuffer lastInputStreamBuffer = null;
 						SocketResource fromSocketResource = socketResourceManager
@@ -252,6 +251,8 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 							continue;
 						}
 					}
+					
+					selectedKeySet.clear();
 				}
 			}
 

@@ -32,7 +32,6 @@ import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.common.type.SelfExn;
-import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.SocketResource;
@@ -99,15 +98,9 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 				
 				PersonalLoginManagerIF personalLoginManagerOfFromSC = socketResourceOfFromSC.getPersonalLoginManager();
 				
-				if (messageID.equals(SelfExnRes.class.getSimpleName())) {
-					fromSC.close();
-					log.warn("this message id[{}] is a system reserved message id. so the socket channel[hashCode={}] was closed", messageID, fromSC.hashCode());					
-					continue;
-				}
 				
-				AbstractServerTask  serverTask = null;
 				try {
-					
+					AbstractServerTask  serverTask = null;
 					try {
 						serverTask = serverObjectCacheManager.getServerTask(messageID);	
 					} catch (DynamicClassCallException e) {
@@ -189,7 +182,7 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 
 
 	@Override
-	public int getNumberOfSocket() {
+	public int getNumberOfConnection() {
 		return socketChannelSet.size();
 	}
 	

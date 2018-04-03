@@ -18,13 +18,9 @@ public class GeneralConverterReturningCharsetTest extends AbstractJunitTest impl
 	private Charset returnedValue = null;
 	private Charset defaultCharset = Charset.defaultCharset();
 	private Charset utf8Charset = Charset.forName("UTF8");
-
 	
-	@Override
 	@Before
 	public void setup() {
-		super.setup();
-		
 		nativeValueConverter = new GeneralConverterReturningCharset();
 	}
 	
