@@ -1,6 +1,5 @@
 <%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
-%><jsp:useBean id="parmIVBase64" class="java.lang.String" scope="request" /><%
 	String orignalMessage = "원문에 있는 이 문구가 복호문에서 잘 보시이면 AbstractSessionKeyServlet 모듈 테스트 통과 안보이면 실패";
 %><!DOCTYPE html>
 <html>
@@ -16,24 +15,25 @@
 <link rel="shortcut icon" href="favicon.ico"/> <!-- see favicon.com -->
 <link rel="stylesheet" type="text/css" href="/css/style.css" />
 <script type="text/javascript">
-    function goURL(bodyurl) {
-		/*
-		var inx = bodyurl.indexOf("/servlet/");	
-		if (0 == inx) {
-			var f = document.directgofrm;
-			f.action = bodyurl;
-			f.submit();		
-		} else {
-			top.document.location.href = bodyurl;
-		}
-		*/
+    function goURL(bodyurl) {		
 		top.document.location.href = bodyurl;		
     }
+    
+    function init() {
+		var pageIV = CryptoJS.enc.Base64.parse("<%= getParameterIVBase64Value(request) %>");
+		var privateKey = CryptoJS.enc.Base64.parse(sessionStorage.getItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY %>'));
+
+		var resultMessage = CryptoJS.AES.decrypt("<%=getCipheredBase64String(request, orignalMessage)%>", privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: pageIV });
+
+		document.getElementById('idTxtResultMessage').innerHTML = resultMessage.toString(CryptoJS.enc.Utf8);
+	}
+
+	window.onload = init;
 </script>
 </head>
 <body>
 <form name="directgofrm" method="post">
-<input type="hidden" name="topmenu" value="<%=getCurrentTopMenuIndex(request)%>"/>
+<input type="hidden" name="topmenu" value="<%= getCurrentTopMenuIndex(request) %>"/>
 </form>
 <!-- The ultra77 template is designed and released by Ian Smith - N-vent Design Services LLC - www.n-vent.com. Feel free to use this, but please don't sell it and kindly leave the credits intact. Muchas Gracias! -->
 <div id="wrapper">
@@ -84,22 +84,7 @@
 				</tr>
 				</table>
 			</li>
-		</ul>
-		<script type="text/javascript">
-		<!--
-			function init() {
-				var pageIV = CryptoJS.enc.Base64.parse("<%=parmIVBase64%>");
-				var privateKey = CryptoJS.enc.Base64.parse(sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME%>'));
-
-				var resultMessage = CryptoJS.AES.decrypt("<%=getCipheredBase64String(request, orignalMessage)%>", privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: pageIV });
-
-				document.getElementById('idTxtResultMessage').innerHTML = resultMessage.toString(CryptoJS.enc.Utf8);
-			}
-
-			window.onload = init;
-
-		//-->
-		</script>
+		</ul>		
 	</div>
 </div> <!-- end bodywrap -->
 <div id="bodybottom">&nbsp;</div>

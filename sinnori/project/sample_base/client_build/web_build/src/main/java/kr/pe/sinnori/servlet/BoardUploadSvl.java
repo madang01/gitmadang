@@ -31,14 +31,14 @@ public class BoardUploadSvl extends AbstractServlet {
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
-		req.setAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME, 
+		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU, 
 				kr.pe.sinnori.weblib.sitemenu.SiteTopMenuType.COMMUNITY);
 		
 		String goPage = "/menu/board/BoardUpload01.jsp";
 		
 		if (! isLogin(req)) {
 			String errorMessage = new StringBuilder("파일 업로드는 로그인 서비스 입니다. 로그인 하시기 바랍니다.").toString();		
-			log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
+			log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
 			
 			req.setAttribute("errorMessage", errorMessage);
 			printJspPage(req, res, goPage);			
@@ -48,7 +48,7 @@ public class BoardUploadSvl extends AbstractServlet {
 		boolean isMultipart = ServletFileUpload.isMultipartContent(req);
 		if (!isMultipart) {
 			String errorMessage = new StringBuilder("Form Type is not multipart").toString();		
-			log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
+			log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
 			
 			req.setAttribute("errorMessage", errorMessage);
 			printJspPage(req, res, goPage);			
@@ -91,7 +91,7 @@ public class BoardUploadSvl extends AbstractServlet {
 			
 			for (FileItem fileItem : fileItemList) {
 				// FIXME!
-				log.debug("fileItem={}, userId={}, ip={}", fileItem.toString(), getUserId(req), req.getRemoteAddr());
+				log.debug("fileItem={}, userId={}, ip={}", fileItem.toString(), getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
 				
 				if (fileItem.isFormField()) {
 					String name = fileItem.getFieldName();
@@ -106,7 +106,7 @@ public class BoardUploadSvl extends AbstractServlet {
 						} catch(NumberFormatException e) {
 							String errorMessage = new StringBuilder("자바 short 타입 변수인 업로드 파일 순번(attachSeq) 값[")
 							.append(value).append("]이 잘못되었습니다.").toString();
-							log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
+							log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
 							
 							req.setAttribute("errorMessage", errorMessage);
 							printJspPage(req, res, goPage);
@@ -137,7 +137,7 @@ public class BoardUploadSvl extends AbstractServlet {
 					
 					if (sizeInBytes == 0) {
 						// FIXME!, 파일 크기 0 인 경우 디버깅용으로 남김
-						log.info("file size is zero, fileItem={}, userId={}, ip={}", fileItem.toString(), getUserId(req), req.getRemoteAddr());
+						log.info("file size is zero, fileItem={}, userId={}, ip={}", fileItem.toString(), getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
 						continue;
 					}
 					
@@ -150,7 +150,7 @@ public class BoardUploadSvl extends AbstractServlet {
 						String errorMessage = new StringBuilder("업로드 파일[")
 						.append(fileName)
 						.append("]의 확장자는 jpg, gif, png 만 올 수 있습니다.").toString();
-						log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
+						log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
 						
 						req.setAttribute("errorMessage", errorMessage);
 						printJspPage(req, res, goPage);
@@ -165,7 +165,7 @@ public class BoardUploadSvl extends AbstractServlet {
 						.append("][")
 						.append(contentType)
 						.append("]는 이미지 jpg, gif, png 만 올 수 있습니다.").toString();
-						log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
+						log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
 						
 						req.setAttribute("errorMessage", errorMessage);
 						printJspPage(req, res, goPage);
@@ -184,7 +184,7 @@ public class BoardUploadSvl extends AbstractServlet {
 			String parmAttachId = (String)parmHash.get("attachId");
 			if (null == parmAttachId) {
 				String errorMessage = "자바 long 타입 변수인 업로드 파일 식별자(attachId) 값을 넣어주세요.";
-				log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
+				log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
 				
 				req.setAttribute("errorMessage", errorMessage);
 				printJspPage(req, res, goPage);
@@ -198,7 +198,7 @@ public class BoardUploadSvl extends AbstractServlet {
 			}catch (NumberFormatException nfe) {
 				String errorMessage = new StringBuilder("자바 long 타입 변수인 업로드 파일 식별자(attachId) 값[")
 				.append(parmAttachId).append("]이 잘못되었습니다.").toString();
-				log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
+				log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
 				
 				req.setAttribute("errorMessage", errorMessage);
 				printJspPage(req, res, goPage);
@@ -207,7 +207,7 @@ public class BoardUploadSvl extends AbstractServlet {
 			if (0 > attachId) {
 				String errorMessage = new StringBuilder("업로드 파일 식별자(attachId) 값[")
 				.append(parmAttachId).append("]은 0 보다 크거나 같아야 합니다.").toString();
-				log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
+				log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
 				
 				req.setAttribute("errorMessage", errorMessage);
 				printJspPage(req, res, goPage);
@@ -219,7 +219,7 @@ public class BoardUploadSvl extends AbstractServlet {
 				.append(parmAttachId).append("]은 ")
 				.append(CommonStaticFinalVars.UNSIGNED_INTEGER_MAX)
 				.append(" 값 보다 작거나 같아야합니다.").toString();
-				log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
+				log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
 				
 				req.setAttribute("errorMessage", errorMessage);
 				printJspPage(req, res, goPage);
@@ -236,7 +236,7 @@ public class BoardUploadSvl extends AbstractServlet {
 					String errorMessage = new StringBuilder("신규 추가중에는 기존 업로드 파일들에 대한 사용자 선택을 할 수 없습니다.")
 					.append("기존 업로드 파일들에 대한 사용자 선택 갯수=")
 					.append(selectedOldAttachFileListSize).toString();
-					log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
+					log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
 					
 					req.setAttribute("errorMessage", errorMessage);
 					printJspPage(req, res, goPage);
@@ -245,7 +245,7 @@ public class BoardUploadSvl extends AbstractServlet {
 				
 				if (newAttachFileListSize == 0) {
 					String errorMessage = new StringBuilder("1.업로드 파일이 없습니다. 1개 이상 요구됩니다.").toString();
-					log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
+					log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
 					
 					req.setAttribute("errorMessage", errorMessage);
 					printJspPage(req, res, goPage);
@@ -258,7 +258,7 @@ public class BoardUploadSvl extends AbstractServlet {
 					.append("]가 최대 업로드 파일 갯수[")
 					.append(WebCommonStaticFinalVars.WEBSITE_FILEUPLOAD_MAX_COUNT)
 					.append("]를 초과 하였습니다.").toString();
-					log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
+					log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
 					
 					req.setAttribute("errorMessage", errorMessage);
 					printJspPage(req, res, goPage);
@@ -288,7 +288,7 @@ public class BoardUploadSvl extends AbstractServlet {
 					.append("]의 합이 최대 업로드 파일 개수[")
 					.append(WebCommonStaticFinalVars.WEBSITE_FILEUPLOAD_MAX_COUNT)
 					.append("]를 초과 하였습니다.").toString();
-					log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
+					log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
 					
 					req.setAttribute("errorMessage", errorMessage);
 					printJspPage(req, res, goPage);
@@ -297,7 +297,7 @@ public class BoardUploadSvl extends AbstractServlet {
 			}			
 			
 			BoardUploadFileReq boardUploadFileReq = new BoardUploadFileReq();
-			boardUploadFileReq.setUserId(getUserId(req));
+			boardUploadFileReq.setUserId(getLoginUserIDFromHttpSession(req));
 			boardUploadFileReq.setIp(req.getRemoteAddr());
 			boardUploadFileReq.setAttachId(attachId);
 			boardUploadFileReq.setNewAttachedFileCnt(newAttachFileListSize);
@@ -342,7 +342,7 @@ public class BoardUploadSvl extends AbstractServlet {
 							
 							log.warn("{} 번째 게시판 개별 업로드 파일[attachSystemFullFileName={}][{}] 저장 실패, userId={}, ip={}", 
 									i, attachSystemFullFileName, newAttachFileItem.toString(), 
-									getUserId(req), req.getRemoteAddr());
+									getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
 							req.setAttribute("errorMessage", errorMessage);
 							printJspPage(req, res, goPage);
 							return;
@@ -352,7 +352,7 @@ public class BoardUploadSvl extends AbstractServlet {
 						
 						log.debug("{}/{} 번째 게시판 개별 업로드 파일[attachSystemFullFileName={}][{}] 저장 성공, userId={}, ip={}", 
 								i, newAttachFileListSize, attachSystemFullFileName, newAttachFileItem.toString(), 
-								getUserId(req), req.getRemoteAddr());
+								getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
 						
 						uploadFileNameSeqValue++;
 					}	
@@ -384,7 +384,7 @@ public class BoardUploadSvl extends AbstractServlet {
 				if (messageFromServer instanceof MessageResultRes) {
 					MessageResultRes messageResultOutObj = (MessageResultRes)messageFromServer;
 					errorMessage = messageResultOutObj.getResultMessage();
-					log.warn("{}, userId={}, ip={}", errorMessage, getUserId(req), req.getRemoteAddr());
+					log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
 				} else {
 					errorMessage = "게시판 업로드 파일 처리가 실패하였습니다.";
 					

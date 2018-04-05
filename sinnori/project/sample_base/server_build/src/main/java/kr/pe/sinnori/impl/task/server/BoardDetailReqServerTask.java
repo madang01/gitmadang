@@ -149,7 +149,7 @@ public class BoardDetailReqServerTask extends AbstractServerTask {
 
 			BoardDetailRes boardDetailRes = new BoardDetailRes();
 			boardDetailRes.setBoardNo(boardRecord.get(SB_BOARD_TB.BOARD_NO).longValue());
-			boardDetailRes.setBoardId(boardRecord.get(SB_BOARD_TB.BOARD_ID).longValue());
+			boardDetailRes.setBoardId(boardRecord.get(SB_BOARD_TB.BOARD_ID).shortValue());
 			boardDetailRes.setGroupNo(boardRecord.get(SB_BOARD_TB.GROUP_NO).longValue());
 			boardDetailRes.setGroupSeq(boardRecord.get(SB_BOARD_TB.GROUP_SQ).intValue());
 			boardDetailRes.setParentNo(boardRecord.get(SB_BOARD_TB.PARENT_NO).longValue());

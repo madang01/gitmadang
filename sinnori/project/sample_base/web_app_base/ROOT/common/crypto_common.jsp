@@ -14,7 +14,7 @@
 <script type="text/javascript" src="/js/cryptoJS/components/cipher-core-min.js"></script>
 <script type="text/javascript">
 	function getSessionkeyBase64() {
-		var sessionkeyBase64 = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_SESSIONKEY_NAME%>');
+		var sessionkeyBase64 = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_SESSIONKEY%>');
 		if (typeof(sessionKey) == 'undefined') {
 			var privateKey = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE%>);
 		
@@ -24,8 +24,8 @@
 			var sessionKeyHex = rsa.encrypt(CryptoJS.enc.Base64.stringify(privateKey));		
 			sessionkeyBase64 = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex));
 
-			sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME%>', CryptoJS.enc.Base64.stringify(privateKey));
-			sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_SESSIONKEY_NAME%>', sessionkeyBase64);
+			sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY%>', CryptoJS.enc.Base64.stringify(privateKey));
+			sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_SESSIONKEY%>', sessionkeyBase64);
 		}
 
 		return sessionkeyBase64;

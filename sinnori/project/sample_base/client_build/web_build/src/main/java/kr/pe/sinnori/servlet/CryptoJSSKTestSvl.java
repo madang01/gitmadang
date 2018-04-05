@@ -50,108 +50,151 @@ public class CryptoJSSKTestSvl extends AbstractServlet {
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
-		req.setAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME, 
+		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU, 
 				kr.pe.sinnori.weblib.sitemenu.SiteTopMenuType.TEST_EXAMPLE);
 		
-		String pageGubun = req.getParameter("pagegubun");
-		log.info(String.format("pageGubun[%s]", pageGubun));		
-		
-		String goPage=null;
-		
-		if (null == pageGubun || pageGubun.equals("step1")) {
-			goPage = arryPageURL[0];
-		} else {
-			String algorithm = req.getParameter("algorithm");
-			
-			String privateKeyHex = req.getParameter("privateKey");
-			String ivHex = req.getParameter("iv");
-			String plainText = req.getParameter("plainText");
-			String encryptedBytesHex = req.getParameter("encryptedBytes");
-			
-			
-			
-			log.info(String.format("privateKey[%s]", privateKeyHex));
-			log.info(String.format("iv[%s]", ivHex));
-			log.info(String.format("plainText[%s]", plainText));
-			log.info(String.format("encryptedBytes[%s]", encryptedBytesHex));
-			
-			Hashtable<String,String> symmetricKeyTransformationHash = null;
-			symmetricKeyTransformationHash = new Hashtable<String,String>();
-			symmetricKeyTransformationHash.put("AES", "AES/CBC/PKCS5Padding");		
-			symmetricKeyTransformationHash.put("DES", "DES/CBC/PKCS5Padding");
-			symmetricKeyTransformationHash.put("DESede", "DESede/CBC/PKCS5Padding");
-			
-			String transformation = symmetricKeyTransformationHash.get(algorithm);
-			
-			if (null == transformation) {
-				throw new RuntimeException(String.format("don't support the algorithm[%s]", algorithm));
-			}
-			
-			byte[] privateKeyBytes = HexUtil.getByteArrayFromHexString(privateKeyHex);
-			byte[] ivBytes = HexUtil.getByteArrayFromHexString(ivHex);
-			byte[] encryptedBytes = HexUtil.getByteArrayFromHexString(encryptedBytesHex);
-			
-			Cipher symmetricKeyCipher = null;		
-			try {
-				symmetricKeyCipher = Cipher.getInstance(transformation);
-			} catch (NoSuchAlgorithmException e) {
-				log.warn("NoSuchAlgorithmException", e);
-				throw new RuntimeException("NoSuchAlgorithmException");
-			} catch (NoSuchPaddingException e) {
-				log.warn("NoSuchPaddingException", e);
-				throw new RuntimeException("NoSuchPaddingException");
-			}
-			
-			SecretKeySpec symmetricKey = new SecretKeySpec(privateKeyBytes, algorithm);
-			
-			IvParameterSpec iv = new IvParameterSpec(ivBytes);
-			try {
-				symmetricKeyCipher.init(Cipher.DECRYPT_MODE, symmetricKey, iv);
-			} catch (InvalidKeyException e1) {
-				log.warn("InvalidKeyException", e1);
-				throw new RuntimeException("InvalidKeyException");
-			} catch (InvalidAlgorithmParameterException e1) {
-				log.warn("InvalidAlgorithmParameterException", e1);
-				throw new RuntimeException("InvalidAlgorithmParameterException");
-			}
-			
-			log.info("Cipher.init with IV");
-			
-			byte[] decryptedBytes;
-			try {
-				decryptedBytes = symmetricKeyCipher.doFinal(encryptedBytes);
-			} catch (IllegalBlockSizeException e) {
-				log.warn("IllegalBlockSizeException", e);
-				throw new RuntimeException("IllegalBlockSizeException");
-			} catch (BadPaddingException e) {
-				log.warn("BadPaddingException", e);
-				throw new RuntimeException("BadPaddingException");
-			}
-			
-			String plainTextHex = HexUtil.getHexStringFromByteArray(plainText.getBytes());
-			String decryptedBytesHex = HexUtil.getHexStringFromByteArray(decryptedBytes);
-			log.info("plainTextHex[{}], decryptedBytes[{}]", plainTextHex, decryptedBytesHex);
-			
-			
-			String decryptedPlainText = new String(decryptedBytes);
-			String resultMessage = String.format("%s", decryptedPlainText.equals(plainText));			
-			goPage = arryPageURL[1];
-			
-			req.setAttribute("plainText", plainText);
-			req.setAttribute("algorithm", algorithm);
-			req.setAttribute("privateKey", privateKeyHex);
-			req.setAttribute("iv", ivHex);
-			req.setAttribute("encryptedBytesHex", encryptedBytesHex);
-			req.setAttribute("plainTextHex", plainTextHex);
-			req.setAttribute("decryptedBytesHex", decryptedBytesHex);
-			req.setAttribute("decryptedPlainText", decryptedPlainText);
-			req.setAttribute("resultMessage", resultMessage);
+		String parmRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
+		if (null == parmRequestType) {		
+			firstPage(req, res);			
+			return;
 		}
 		
-		log.info(String.format("goPage[%s]", goPage));
-		
-		printJspPage(req, res, goPage);	
-		
+		if (parmRequestType.equals("view")) {
+			firstPage(req, res);
+			return;
+		} else if (parmRequestType.equals("proc")) {		
+			processPage(req, res);
+			return;
+		} else {
+			String errorMessage = "파라미터 '요청종류'의 값이 잘못되었습니다";
+			String debugMessage = new StringBuilder("the web parameter \"")
+					.append(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE)
+					.append("\"")
+					.append("'s value[")
+					.append(parmRequestType)			
+					.append("] is not a elment of request type set[view, proc]").toString();
+			
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
 	}
-
+	
+	private void firstPage(HttpServletRequest req, HttpServletResponse res) {
+		printJspPage(req, res, "/menu/testcode/CryptoJSSKTest01.jsp");	
+	}
+	
+	private void processPage(HttpServletRequest req, HttpServletResponse res) {
+		String parmAlgorithm = req.getParameter("algorithm");		
+		String parmPrivateKeyHex = req.getParameter("privateKey");
+		String parmIVHex = req.getParameter("iv");
+		String parmPlainText = req.getParameter("plainText");
+		String parmEncryptedBytesHex = req.getParameter("encryptedBytes");
+		
+		log.info("parmAlgorithm=[{}]", parmAlgorithm);
+		log.info("parmPrivateKeyHex=[{}]", parmPrivateKeyHex);
+		log.info("parmIVHex=[{}]", parmIVHex);
+		log.info("parmPlainText=[{}]", parmPlainText);
+		log.info("parmEncryptedBytesHex=[{}]", parmEncryptedBytesHex);
+		
+		Hashtable<String,String> symmetricKeyTransformationHash = null;
+		symmetricKeyTransformationHash = new Hashtable<String,String>();
+		symmetricKeyTransformationHash.put("AES", "AES/CBC/PKCS5Padding");		
+		symmetricKeyTransformationHash.put("DES", "DES/CBC/PKCS5Padding");
+		symmetricKeyTransformationHash.put("DESede", "DESede/CBC/PKCS5Padding");
+		
+		String transformation = symmetricKeyTransformationHash.get(parmAlgorithm);
+		
+		if (null == transformation) {
+			throw new RuntimeException(String.format("don't support the algorithm[%s]", parmAlgorithm));
+		}
+		
+		byte[] privateKeyBytes = HexUtil.getByteArrayFromHexString(parmPrivateKeyHex);
+		byte[] ivBytes = HexUtil.getByteArrayFromHexString(parmIVHex);
+		byte[] encryptedBytes = HexUtil.getByteArrayFromHexString(parmEncryptedBytesHex);
+		
+		Cipher symmetricKeyCipher = null;		
+		try {
+			symmetricKeyCipher = Cipher.getInstance(transformation);
+		} catch (NoSuchAlgorithmException e) {
+			String errorMessage = "fail to get a Cipher class instance";
+			log.warn(errorMessage, e);			
+			
+			String debugMessage = e.getMessage();
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		} catch (NoSuchPaddingException e) {
+			String errorMessage = "fail to get a Cipher class instance";
+			log.warn(errorMessage, e);			
+			
+			String debugMessage = e.getMessage();
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		SecretKeySpec symmetricKey = new SecretKeySpec(privateKeyBytes, parmAlgorithm);
+		
+		IvParameterSpec iv = new IvParameterSpec(ivBytes);
+		try {
+			symmetricKeyCipher.init(Cipher.DECRYPT_MODE, symmetricKey, iv);
+		} catch (InvalidKeyException e) {
+			String errorMessage = "fail to initialize a Cipher class instance with a key and a set of algorithm parameters";
+			log.warn(errorMessage, e);			
+			
+			String debugMessage = new StringBuilder("parmAlgorithm=[")
+					.append(parmAlgorithm)
+					.append("], parmPrivateKeyHex=")
+					.append(parmPrivateKeyHex)
+					.append("], parmIVHex=[")
+					.append(parmIVHex)
+					.append("], errmsg=").append(e.getMessage()).toString();
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		} catch (InvalidAlgorithmParameterException e) {
+			String errorMessage = "fail to initialize a Cipher class instance with a key and a set of algorithm parameters";
+			log.warn(errorMessage, e);			
+			
+			String debugMessage = new StringBuilder("parmAlgorithm=[")
+					.append(parmAlgorithm)
+					.append("], parmPrivateKeyHex=")
+					.append(parmPrivateKeyHex)
+					.append("], parmIVHex=[")
+					.append(parmIVHex)
+					.append("], errmsg=").append(e.getMessage()).toString();
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		log.info("Cipher.init with IV");
+		
+		byte[] decryptedBytes;
+		try {
+			decryptedBytes = symmetricKeyCipher.doFinal(encryptedBytes);
+		} catch (IllegalBlockSizeException e) {
+			log.warn("IllegalBlockSizeException", e);
+			throw new RuntimeException("IllegalBlockSizeException");
+		} catch (BadPaddingException e) {
+			log.warn("BadPaddingException", e);
+			throw new RuntimeException("BadPaddingException");
+		}
+		
+		String plainTextHex = HexUtil.getHexStringFromByteArray(parmPlainText.getBytes());
+		String decryptedBytesHex = HexUtil.getHexStringFromByteArray(decryptedBytes);
+		log.info("plainTextHex[{}], decryptedBytes[{}]", plainTextHex, decryptedBytesHex);
+		
+		
+		String decryptedPlainText = new String(decryptedBytes);
+		String isSame = String.valueOf(decryptedPlainText.equals(parmPlainText));			
+		
+		
+		req.setAttribute("plainText", parmPlainText);
+		req.setAttribute("algorithm", parmAlgorithm);
+		req.setAttribute("privateKey", parmPrivateKeyHex);
+		req.setAttribute("iv", parmIVHex);
+		req.setAttribute("encryptedBytesHex", parmEncryptedBytesHex);
+		req.setAttribute("plainTextHex", plainTextHex);
+		req.setAttribute("decryptedBytesHex", decryptedBytesHex);
+		req.setAttribute("decryptedPlainText", decryptedPlainText);
+		req.setAttribute("isSame", isSame);
+		printJspPage(req, res, "/menu/testcode/CryptoJSSKTest02.jsp");
+	}
 }

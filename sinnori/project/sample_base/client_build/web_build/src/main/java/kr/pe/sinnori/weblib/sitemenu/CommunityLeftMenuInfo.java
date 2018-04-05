@@ -1,6 +1,24 @@
 package kr.pe.sinnori.weblib.sitemenu;
 
+import kr.pe.sinnori.weblib.common.BoardType;
+
 public class CommunityLeftMenuInfo extends AbstractLeftMenuInfoOfTopMenu {
+	public static final String[] BOARD_LEFTMENU_BASE_URL_LIST = {
+			"/servlet/BoardList",
+			"/servlet/BoardWrite",
+			"/servlet/BoardDetail",
+			"/servlet/BoardModify",
+			"/servlet/BoardReply"
+	};
+	
+	
+	
+	private String buildFreeBoardURL(String baseURL, BoardType targetBoardType) {
+		return new StringBuilder(baseURL)
+				.append("?boardId=")
+				.append(targetBoardType.getValue()).toString();
+	}
+	
 	protected void build() {
 		/** 0:좌측 메뉴명, 1:주 좌측 메뉴 링크 */
 		/*final String[][] leftMenuInfoList = {
@@ -19,12 +37,19 @@ public class CommunityLeftMenuInfo extends AbstractLeftMenuInfoOfTopMenu {
 		
 		SiteLeftMenuInfo siteLeftMenuInfo = null;
 		
-		siteLeftMenuInfo = addSiteLeftMenuInfo("자유 게시판", "/servlet/BoardList");		
-		addSiteLeftMenuGroup(siteLeftMenuInfo, "/servlet/BoardList");
-		addSiteLeftMenuGroup(siteLeftMenuInfo, "/servlet/BoardWrite");
-		addSiteLeftMenuGroup(siteLeftMenuInfo, "/servlet/BoardDetail");
-		addSiteLeftMenuGroup(siteLeftMenuInfo, "/servlet/BoardModify");
-		addSiteLeftMenuGroup(siteLeftMenuInfo, "/servlet/BoardReply");
-		// siteLeftMenuGroupList.add(new SiteLeftMenuGroup(siteLeftMenuInfo, "/servlet/BoardVote"));
+		siteLeftMenuInfo = addSiteLeftMenuInfo(new StringBuilder(BoardType.FREE.getName())
+				.append(" 게시판").toString(), 
+				buildFreeBoardURL("/servlet/BoardList", BoardType.FREE));	
+		
+		for (String boardBaseURL : BOARD_LEFTMENU_BASE_URL_LIST) {
+			addSiteLeftMenuGroup(siteLeftMenuInfo, buildFreeBoardURL(boardBaseURL, BoardType.FREE));
+		}		
+		
+		siteLeftMenuInfo = addSiteLeftMenuInfo(new StringBuilder(BoardType.FAQ.getName())
+				.append(" 게시판").toString(), 
+				buildFreeBoardURL("/servlet/BoardList", BoardType.FAQ));		
+		for (String boardBaseURL : BOARD_LEFTMENU_BASE_URL_LIST) {
+			addSiteLeftMenuGroup(siteLeftMenuInfo, buildFreeBoardURL(boardBaseURL, BoardType.FAQ));
+		}
 	}
 }

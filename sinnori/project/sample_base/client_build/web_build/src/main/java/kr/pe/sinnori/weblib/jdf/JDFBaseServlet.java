@@ -26,8 +26,10 @@ import javax.servlet.http.HttpServletResponse;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.itemvalue.CommonPartConfiguration;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.weblib.common.BoardType;
 import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil;
+import kr.pe.sinnori.weblib.sitemenu.CommunityLeftMenuInfo;
 
 /**
  * <pre>
@@ -208,32 +210,45 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 			start = System.currentTimeMillis();
 			log.info("{}:calling", traceLogBaseMsg);
 		}
-
-		/*String topmenu = req.getParameter("topmenu");
-		// if (null == topmenu) topmenu="";
-
-		String leftmenu = req.getRequestURI();
-		// if (null == leftmenu) leftmenu = req.getRequestURI();
-
-		req.setAttribute("topmenu", topmenu);
-		req.setAttribute("leftmenu", leftmenu);*/
 		
 		
-		/*ServerSessionkeyManger serverSessionkeyManger = ServerSessionkeyManger.getInstance();
+		String siteLeftMenuURL = req.getRequestURI();
 		
-		String modulusHex = serverSessionkeyManger.getModulusHexStrForWeb();
-		req.setAttribute("modulusHex", modulusHex);*/
+		for (String boardBaseURL : CommunityLeftMenuInfo.BOARD_LEFTMENU_BASE_URL_LIST) {
+			if (siteLeftMenuURL.equals(boardBaseURL)) {
+				short boardID;
+				String parmBoardId = req.getParameter("boardId");
+				if (null == parmBoardId) {
+					break;
+				}
+				try {
+					boardID = Short.parseShort(parmBoardId);
+				}catch (NumberFormatException nfe) {
+					break;
+				}
+				
+				try {
+					BoardType.valueOf(boardID);
+				} catch(IllegalArgumentException e) {
+					break;
+				}
+				siteLeftMenuURL = new StringBuilder(siteLeftMenuURL)
+						.append("?boardId=")
+						.append(parmBoardId).toString();
+			}
+		}
+			
+		setSiteLeftMenu(req, siteLeftMenuURL);
+			
+			
 		
-		String leftmenu = req.getRequestURI();
-		req.setAttribute("leftmenu", leftmenu);
 		
-
-		req.getRequestURI();
 		
 		try {
 			performPreTask(req, res);
 		} catch (Exception | java.lang.Error e) {
 			log.warn("unknown error", e);
+			e.printStackTrace();
 
 			java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
 			java.io.PrintWriter writer = new java.io.PrintWriter(bos);
@@ -256,7 +271,7 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 					.append(CommonStaticFinalVars.NEWLINE).append(errorMessgae)
 					.toString();
 
-			printMessagePage(req, res, "서블릿 실행시 에러가 발생하였습니다.",
+			printErrorMessagePage(req, res, "에러가 발생하였습니다",
 					debugMessage);
 		}
 
@@ -305,7 +320,7 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 
 			StringBuilder debugMessageBuilder = new StringBuilder(
 					"IOException::File Not Found, location=").append(location);
-			printMessagePage(req, res,
+			printErrorMessagePage(req, res,
 					" 에러가 발생하여 서블릿 정적 페이지 이동이 실패하였습니다.",
 					debugMessageBuilder.toString());
 		}
@@ -484,6 +499,6 @@ public abstract class JDFBaseServlet extends AbstractBaseServlet {
 	 * @param debugMessage
 	 *            개발시점에서 개발자가 Debugging을 위해 보는 메세지, 통상 운영시는 보이지 않도록 함.
 	 */
-	protected abstract void printMessagePage(HttpServletRequest req,
+	protected abstract void printErrorMessagePage(HttpServletRequest req,
 			HttpServletResponse res, String userMessage, String debugMessage);	
 }

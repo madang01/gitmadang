@@ -3,18 +3,27 @@ package kr.pe.sinnori.weblib.common;
 import java.io.File;
 
 public abstract class WebCommonStaticFinalVars {
-	public static final String WEB_SERVER_SYMMETRIC_KEY = "webServerSymmetricKey";
+	/** 사이트 최상위 메뉴는 2가지 용도로 사용된다. 첫번째  REQUEST 속성 키 이름, 마지막 두번째  파라미터 키 이름 */
+	public static final String REQUEST_KEY_NAME_OF_SITE_TOPMENU = "topmenu";
+	/** request attribute key and parameter key name */
+	public static final String REQUEST_KEY_NAME_OF_SITE_LEFTMENU = "leftmenu";
 	
-	public static final String SITE_TOPMENU_REQUEST_KEY_NAME = "topmenu";
-	public static final String SITE_LEFTMENU_REQUEST_KEY_NAME = "leftmenu";
+	public static final String REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY = "webServerSymmetricKey";
+	public static final String REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING = "modulusHexString";
+	
+	
+	public static final String PARAMETER_KEY_NAME_OF_REQUEST_TYPE = "requestType";
+	public static final String PARAMETER_KEY_NAME_OF_BODYURL_FOR_PAGEWRAPPER = "bodyurl";
+	public static final String PARAMETER_KEY_NAME_OF_SESSION_KEY = "sessionkeyBase64";
+	public static final String PARAMETER_KEY_NAME_OF_SESSION_KEY_IV = "ivBase64";
 	
 	
 	public static final String WEBSITE_TITLE = "Sinnori Home";
 	
-	public static final String HTTPSESSION_KEY_USERID_NAME = "userID";
-	// public static final String HTTPSESSION_USERGUBUN_NAME = "userGubun";
-	public static final String SESSIONSTORAGE_KEY_SESSIONKEY_NAME = "kr.pe.sinnori.sessionkey";
-	public static final String SESSIONSTORAGE_KEY_PRIVATEKEY_NAME = "kr.pe.sinnori.privatekey";
+	
+	public static final String HTTPSESSION_KEY_NAME_OF_LOGIN_USERID = "userID";
+	public static final String SESSIONSTORAGE_KEY_NAME_OF_SESSIONKEY = "kr.pe.sinnori.sessionkey";
+	public static final String SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY = "kr.pe.sinnori.privatekey";
 	
 	/**
 	 * <pre>
@@ -64,4 +73,6 @@ public abstract class WebCommonStaticFinalVars {
 	public static final Long GENERAL_BOARD_TYPE_ID = 2L;
 	public static final Long NOTICE_BOARD_TYPE_ID = 1L;
 	public static final short UPLOAD_FILENAME_SEQ_TYPE_ID = 1;
+	
+	
 }

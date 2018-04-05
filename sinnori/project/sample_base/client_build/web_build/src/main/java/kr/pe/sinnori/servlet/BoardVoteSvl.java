@@ -24,7 +24,7 @@ public class BoardVoteSvl extends AbstractLoginServlet {
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
-		req.setAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME, 
+		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU, 
 				kr.pe.sinnori.weblib.sitemenu.SiteTopMenuType.COMMUNITY);
 		
 		String goPage = "/menu/board/BoardVote01.jsp";
@@ -109,7 +109,7 @@ public class BoardVoteSvl extends AbstractLoginServlet {
 		}
 		
 		HttpSession httpSession = req.getSession();
-		String userId = (String) httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_USERID_NAME);
+		String userId = (String) httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGIN_USERID);
 		
 		
 		BoardVoteReq inObj =  new BoardVoteReq();

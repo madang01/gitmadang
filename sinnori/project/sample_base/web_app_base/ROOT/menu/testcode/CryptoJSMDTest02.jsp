@@ -5,7 +5,7 @@
 %><jsp:useBean id="javascriptMDHex" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="serverMDHex" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="decryptedPlainText" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="resultMessage" class="java.lang.String" scope="request" /><%
+%><jsp:useBean id="isSame" class="java.lang.String" scope="request" /><%
 %><!DOCTYPE html>
 <html>
 <head>
@@ -80,7 +80,7 @@
 			</tr>
 			<tr>
 				<td>비교결과</td>
-				<td><%=HtmlStringUtil.toHtml4BRString(resultMessage)%></td> 
+				<td><%=HtmlStringUtil.toHtml4BRString(isSame)%></td> 
 			</tr>
 		</table>
 	</div>

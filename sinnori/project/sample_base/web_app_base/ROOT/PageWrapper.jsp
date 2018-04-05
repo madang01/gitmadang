@@ -2,15 +2,15 @@
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
 %><%@ page import="kr.pe.sinnori.weblib.sitemenu.SiteTopMenuType" %><%
 
-	setSiteTopMenuRequestAtrributeMatchingTopMenuParameter(request, SiteTopMenuType.INTRODUCE);
+	SiteTopMenuType targetSiteTopMenuType = getSiteTopMenuTypeFromParameter(request, SiteTopMenuType.INTRODUCE);
+	setSiteTopMenu(request, targetSiteTopMenuType);
 	
-	String bodyurl = request.getParameter("bodyurl");
+	String bodyurl = request.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_BODYURL_FOR_PAGEWRAPPER);
 	if (null == bodyurl) {
 		bodyurl = "";
 	}
 	
-	request.setAttribute(WebCommonStaticFinalVars.SITE_LEFTMENU_REQUEST_KEY_NAME, bodyurl);
-	
+	setSiteLeftMenu(request, bodyurl);
 %><!DOCTYPE html>
 <html>
 <head>

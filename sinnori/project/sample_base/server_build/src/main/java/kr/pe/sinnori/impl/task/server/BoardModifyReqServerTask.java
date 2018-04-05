@@ -29,14 +29,13 @@ import kr.pe.sinnori.server.task.AbstractServerTask;
 import kr.pe.sinnori.server.task.ToLetterCarrier;
 
 public class BoardModifyReqServerTask extends AbstractServerTask {
-	@SuppressWarnings("unused")
 	private void sendErrorOutputMessageForCommit(String errorMessage,
 			Connection conn,			
 			ToLetterCarrier toLetterCarrier,
 			AbstractMessage inputMessage) throws InterruptedException {		
 		try {
 			conn.commit();
-		} catch (Exception e) {
+		} catch (Exception e) {			
 			log.warn("fail to commit");
 		}
 		sendErrorOutputMessage(errorMessage, toLetterCarrier, inputMessage);
@@ -233,9 +232,13 @@ public class BoardModifyReqServerTask extends AbstractServerTask {
 			int countOfUpdate;
 			
 			if (0 == boardModifyReq.getAttachId()) {
-				countOfUpdate = boardUpdateSetMoreStep.set(SB_BOARD_TB.ATTACH_ID, (UInteger)null).execute();
+				countOfUpdate = boardUpdateSetMoreStep.set(SB_BOARD_TB.ATTACH_ID, (UInteger)null)
+						.where(SB_BOARD_TB.BOARD_NO.eq(UInteger.valueOf(boardModifyReq.getBoardNo())))
+						.execute();
 			} else {
-				countOfUpdate = boardUpdateSetMoreStep.set(SB_BOARD_TB.ATTACH_ID, UInteger.valueOf(boardModifyReq.getAttachId())).execute();
+				countOfUpdate = boardUpdateSetMoreStep.set(SB_BOARD_TB.ATTACH_ID, UInteger.valueOf(boardModifyReq.getAttachId()))
+						.where(SB_BOARD_TB.BOARD_NO.eq(UInteger.valueOf(boardModifyReq.getBoardNo())))
+						.execute();
 			}
 			
 			if (0 == countOfUpdate) {

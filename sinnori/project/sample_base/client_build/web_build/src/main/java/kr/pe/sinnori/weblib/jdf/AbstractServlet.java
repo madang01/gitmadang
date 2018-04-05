@@ -44,7 +44,7 @@ public abstract class AbstractServlet extends JDFBaseServlet {
 	protected abstract void performTask (HttpServletRequest req, HttpServletResponse res) throws Exception;	
 	
 	@Override
-	protected void printMessagePage (HttpServletRequest req, HttpServletResponse res, String userMessage, String debugMessage) {		
+	protected void printErrorMessagePage (HttpServletRequest req, HttpServletResponse res, String userMessage, String debugMessage) {		
 				
 		if (null == userMessage) {
 			userMessage = "user messsage is null";

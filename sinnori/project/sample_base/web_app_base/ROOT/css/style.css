@@ -21,7 +21,7 @@ body {
 	padding: 0;
 	margin: 0 auto;
 	width: 821px;
-	background: url(/images/bgpng) repeat-y;
+	background: url(/images/bg.png) repeat-y;
 	}
 #wrapper:after {
 	content: ".";
@@ -284,7 +284,6 @@ a:hover {
     }
 #footer a:visited {
 	color: gray;
-	text-decoration: none;
     }
 #footer a:hover {
 	color: #000;

@@ -1,9 +1,6 @@
 <%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
-%><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="parmIVBase64" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="parmBoardId" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="parmBoardNo" class="java.lang.String" scope="request" /><%

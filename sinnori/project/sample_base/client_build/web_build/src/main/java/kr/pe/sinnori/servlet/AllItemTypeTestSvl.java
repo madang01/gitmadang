@@ -26,7 +26,6 @@ import kr.pe.sinnori.client.AnyProjectConnectionPoolIF;
 import kr.pe.sinnori.client.ConnectionPoolManager;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.AllItemType.AllItemType;
-import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.sinnori.weblib.jdf.AbstractServlet;
 
@@ -40,46 +39,43 @@ public class AllItemTypeTestSvl extends AbstractServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {		
-		req.setAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME, 
+		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU, 
 				kr.pe.sinnori.weblib.sitemenu.SiteTopMenuType.TEST_EXAMPLE);
-		
-		
-		String goPage = "/menu/testcode/AllItemType01.jsp";
-
+	
 		java.util.Random random = new java.util.Random();
 		
-		AllItemType allDataTypeInObj = new AllItemType();
+		AllItemType allDataTypeReq = new AllItemType();
 
-		allDataTypeInObj.setByteVar1(Byte.MAX_VALUE);
-		allDataTypeInObj.setByteVar2(Byte.MIN_VALUE);
-		allDataTypeInObj.setByteVar3((byte) 0x60);
-		allDataTypeInObj.setUnsignedByteVar1((short) 0);
-		allDataTypeInObj.setUnsignedByteVar2((short) 0xff);
-		allDataTypeInObj.setUnsignedByteVar3((short) 0x65);
-		allDataTypeInObj.setShortVar1(Short.MAX_VALUE);
-		allDataTypeInObj.setShortVar2(Short.MIN_VALUE);
-		allDataTypeInObj.setShortVar3((short) 31);
-		allDataTypeInObj.setUnsignedShortVar1(0);
-		allDataTypeInObj.setUnsignedShortVar2((int)0xffff);
-		allDataTypeInObj.setUnsignedShortVar3((int) 32);
-		allDataTypeInObj.setIntVar1(Integer.MAX_VALUE);
-		allDataTypeInObj.setIntVar2(Integer.MIN_VALUE);
-		allDataTypeInObj.setIntVar3(random.nextInt());
-		allDataTypeInObj.setUnsignedIntVar1((long) 0);
-		allDataTypeInObj.setUnsignedIntVar2((long) 0x7fffffff);
-		allDataTypeInObj.setUnsignedIntVar3(Integer.MAX_VALUE  + 1000L);
-		allDataTypeInObj.setLongVar1(Long.MAX_VALUE);
-		allDataTypeInObj.setLongVar2(Long.MIN_VALUE);
-		allDataTypeInObj.setLongVar3(random.nextLong());
-		allDataTypeInObj.setStrVar1("testHH");
-		allDataTypeInObj.setStrVar2("1234");
-		allDataTypeInObj.setStrVar3("uiop");
-		allDataTypeInObj.setBytesVar1(new byte[] { (byte) 0x77, (byte) 0x88, -128, -127, 126, 127, -1});
-		allDataTypeInObj.setBytesVar2(ByteBuffer.allocate(30000).array());
-		allDataTypeInObj.setSqldate(new java.sql.Date(new java.util.Date().getTime()));
-		allDataTypeInObj.setSqltimestamp(new java.sql.Timestamp(new java.util.Date().getTime()));
+		allDataTypeReq.setByteVar1(Byte.MAX_VALUE);
+		allDataTypeReq.setByteVar2(Byte.MIN_VALUE);
+		allDataTypeReq.setByteVar3((byte) 0x60);
+		allDataTypeReq.setUnsignedByteVar1((short) 0);
+		allDataTypeReq.setUnsignedByteVar2((short) 0xff);
+		allDataTypeReq.setUnsignedByteVar3((short) 0x65);
+		allDataTypeReq.setShortVar1(Short.MAX_VALUE);
+		allDataTypeReq.setShortVar2(Short.MIN_VALUE);
+		allDataTypeReq.setShortVar3((short) 31);
+		allDataTypeReq.setUnsignedShortVar1(0);
+		allDataTypeReq.setUnsignedShortVar2((int)0xffff);
+		allDataTypeReq.setUnsignedShortVar3((int) 32);
+		allDataTypeReq.setIntVar1(Integer.MAX_VALUE);
+		allDataTypeReq.setIntVar2(Integer.MIN_VALUE);
+		allDataTypeReq.setIntVar3(random.nextInt());
+		allDataTypeReq.setUnsignedIntVar1((long) 0);
+		allDataTypeReq.setUnsignedIntVar2((long) 0x7fffffff);
+		allDataTypeReq.setUnsignedIntVar3(Integer.MAX_VALUE  + 1000L);
+		allDataTypeReq.setLongVar1(Long.MAX_VALUE);
+		allDataTypeReq.setLongVar2(Long.MIN_VALUE);
+		allDataTypeReq.setLongVar3(random.nextLong());
+		allDataTypeReq.setStrVar1("testHH");
+		allDataTypeReq.setStrVar2("1234");
+		allDataTypeReq.setStrVar3("uiop");
+		allDataTypeReq.setBytesVar1(new byte[] { (byte) 0x77, (byte) 0x88, -128, -127, 126, 127, -1});
+		allDataTypeReq.setBytesVar2(ByteBuffer.allocate(30000).array());
+		allDataTypeReq.setSqldate(new java.sql.Date(new java.util.Date().getTime()));
+		allDataTypeReq.setSqltimestamp(new java.sql.Timestamp(new java.util.Date().getTime()));
 		
-		allDataTypeInObj.setCnt(2);
+		allDataTypeReq.setCnt(2);
 		
 		//int memberListSize = allDataTypeInObj.getCnt();
 		java.util.List<AllItemType.Member> memberList = new java.util.ArrayList<AllItemType.Member>();
@@ -202,21 +198,19 @@ public class AllItemTypeTestSvl extends AbstractServlet {
 			memberList.add(member);
 		}
 		
-		allDataTypeInObj.setMemberList(memberList);
+		allDataTypeReq.setMemberList(memberList);
 			
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
-		AbstractMessage messageFromServer = mainProjectConnectionPool.sendSyncInputMessage(allDataTypeInObj);
-
-		String errorMessage = "";
+		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(allDataTypeReq);		
 		
 		boolean isSame = false;
-		if (messageFromServer instanceof AllItemType) {
-			AllItemType allDataTypeOutObj = (AllItemType)messageFromServer;
+		if (outputMessage instanceof AllItemType) {
+			AllItemType allItemTypeRes = (AllItemType)outputMessage;
 			
-			String allDataTypeInObjStr = allDataTypeInObj.toString();
+			String allDataTypeInObjStr = allDataTypeReq.toString();
 			
 			
-			java.util.List<AllItemType.Member> receviedMemberList = allDataTypeOutObj.getMemberList();
+			java.util.List<AllItemType.Member> receviedMemberList = allItemTypeRes.getMemberList();
 			
 			for (AllItemType.Member member : receviedMemberList) {
 				member.setMemberID(member.getMemberID().trim());
@@ -229,31 +223,34 @@ public class AllItemTypeTestSvl extends AbstractServlet {
 				}
 			}
 			
-			String allDataTypeOutObjStr = allDataTypeOutObj.toString();
-			
-			//log.info("allDataTypeInObjStr={}",allDataTypeInObjStr);
-			// log.info("allDataTypeOutObjStr={}",allDataTypeOutObjStr);
-			
+			String allDataTypeOutObjStr = allItemTypeRes.toString();			
 			isSame = allDataTypeInObjStr.equals(allDataTypeOutObjStr);
 			
-			// log.info("isSame={}",isSame);
-			
-			req.setAttribute("allDataTypeOutObj", allDataTypeOutObj);			
+			doFirstPage(req, res, allDataTypeReq, isSame, allItemTypeRes);
 		} else {
-			errorMessage = "모든 데이터 타입 응답 메시지를 얻는데 실패하였습니다.";
+			String errorMessage = "모든 데이터 타입 응답 메시지를 얻는데 실패하였습니다.";
+			String debugMessage = new StringBuilder("입력 메시지[")
+					.append(allDataTypeReq.getMessageID())
+					.append("]에 대한 비 정상 출력 메시지[")
+					.append(outputMessage.toString())
+					.append("] 도착").toString();
 			
-			if (!(messageFromServer instanceof SelfExnRes)) {
-				log.warn("입력 메시지[{}]의 응답 메시지로 알 수 없는 메시지 도착, 응답 메시지=[{}]", allDataTypeInObj.toString(), messageFromServer.toString());
-			} else {
-				log.warn("입력 메시지[{}]의 응답 메시지로 SelfExn 메시지 도착, 응답 메시지=[{}]", allDataTypeInObj.toString(), messageFromServer.toString());
-			}
+			log.error(debugMessage);
+
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
 		}		
 		
-		req.setAttribute("isSame", isSame);
-		req.setAttribute("errorMessage", errorMessage);
-		req.setAttribute("allDataTypeInObj", allDataTypeInObj);
 		
-		
-		printJspPage(req, res, goPage);		
 	}	
+	
+	private void doFirstPage(HttpServletRequest req, HttpServletResponse res,
+			AllItemType allDataTypeReq,
+			boolean isSame,
+			AllItemType allItemTypeRes) {
+		req.setAttribute("allDataTypeReq", allDataTypeReq);
+		req.setAttribute("isSame", isSame);		
+		req.setAttribute("allItemTypeRes", allItemTypeRes);
+		printJspPage(req, res, "/menu/testcode/AllItemType01.jsp");
+	}
 }

@@ -1,21 +1,11 @@
 <%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
 %><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
-%><jsp:useBean id="echoInObj" class="kr.pe.sinnori.impl.message.Echo.Echo" scope="request" /><%
-	// kr.pe.sinnori.impl.message.Echo.Echo echoInObj = (kr.pe.sinnori.impl.message.Echo.Echo)request.getAttribute("echoInObj");
+%><jsp:useBean id="isSame" class="java.lang.String" scope="request" /><%
+%><jsp:useBean id="echoRes" class="kr.pe.sinnori.impl.message.Echo.Echo" scope="request" /><%
+	// kr.pe.sinnori.impl.message.Echo.Echo echoRes = (kr.pe.sinnori.impl.message.Echo.Echo)request.getAttribute("echoRes");
 		
 	String erraseTime = (String)request.getAttribute("erraseTime");
-	Boolean isSame = (Boolean)request.getAttribute("isSame");
-	if (null == isSame) isSame = false;
-	
-	
-	Integer randomInt = echoInObj.getRandomInt();
-	Long startTime = echoInObj.getStartTime();
-	
-	String errorMessage = (String) request.getAttribute("errorMessage");
-	
-	// errorMessage = "test error message";
-	
 
 %><!DOCTYPE html>
 <html>
@@ -98,34 +88,19 @@
 			</tr>
 			<tr>
 				<td style="text-align:left">랜덤 32bit 부호화 정수</td>
-				<td style="text-align:right"><%= randomInt %></td>
+				<td style="text-align:right"><%= echoRes.getRandomInt() %></td>
 			</tr>
 			<tr>
 				<td style="text-align:left">the number of milliseconds since January 1, 1970, 00:00:00<br/>GMT represented</td>
-				<td style="text-align:right"><%= startTime %></td>
-			</tr><%
-				if (null != errorMessage && !errorMessage.equals("")) {
-			%>
-			<tr>
-				<td colspan=2><%=HtmlStringUtil.toHtml4BRString(errorMessage)%></td>
-			</tr><%	
-				} else {
-			%>
+				<td style="text-align:right"><%= echoRes.getStartTime() %></td>
+			</tr>
 			<tr>
 				<td style="text-align:left">경과시간(milliseconds)</td>
 				<td style="text-align:right"><%=erraseTime%> ms</td>
 			</tr>
 			<tr>
-				<td style="text-align:left">출력 비교 결과</td><%
-					if (isSame) {
-			%><td style="color:blue;text-align:center">성공</td><%
-					} else {
-			%><td style="color:red;text-align:center">실패</td><%
-					}
-			%>
-			</tr><%
-				}
-			%>
+				<td style="text-align:left">출력 비교 결과</td><%= isSame %>
+			</tr>
 		</table>
 	</div>
 </div> <!-- end bodywrap -->

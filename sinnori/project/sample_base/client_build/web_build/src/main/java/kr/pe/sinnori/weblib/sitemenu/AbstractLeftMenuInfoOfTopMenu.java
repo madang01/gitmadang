@@ -38,23 +38,32 @@ public abstract class AbstractLeftMenuInfoOfTopMenu {
 		return siteLeftMenuGroupList;
 	}	
 	
-	public SiteLeftMenuInfo match(String leftMenuURL) {
+	/**
+	 * @param leftmenuURL if leftmenuURL is null then ignore
+	 * @return
+	 */
+	public SiteLeftMenuInfo match(String leftmenuURL) {
 		for (SiteLeftMenuGroup siteLeftMenuGroup : siteLeftMenuGroupList) {			
-			if (siteLeftMenuGroup.getSiteLeftMenuURL().equals(leftMenuURL)) {
+			if (siteLeftMenuGroup.getSiteLeftMenuURL().equals(leftmenuURL)) {
 				return siteLeftMenuGroup.getSiteLeftMenuInfo();
 			}
 		}
 		return null;
 	}
 	
-	public String getLeftMenuPartString(String leftmenu) {
+	/**
+	 * 
+	 * @param leftmenuURL if leftmenuURL is null then ignore
+	 * @return
+	 */
+	public String getLeftMenuPartString(String leftmenuURL) {
 		if (siteLeftMenuInfoList.size() == 0) {
 			return "";
 		}
 		
 		StringBuilder leftMenuPartStringBuilder = new StringBuilder();
 		
-		SiteLeftMenuInfo targetSiteLeftMenuInfo = match(leftmenu);
+		SiteLeftMenuInfo targetSiteLeftMenuInfo = match(leftmenuURL);
 		
 		leftMenuPartStringBuilder.append("<div id=\"sidemenu\">");
 		leftMenuPartStringBuilder.append(CommonStaticFinalVars.NEWLINE);

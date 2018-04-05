@@ -96,7 +96,7 @@
 		</script>
 
 		<form method="post" name="gofrm" target="_top">
-		<input type="hidden" name="pagegubun" value="step2" />
+		<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE %>" value="proc" />
 		<input type="hidden" name="algorithm" />
 		<input type="hidden" name="javascriptMD" />
 		<input type="hidden" name="plainText" />

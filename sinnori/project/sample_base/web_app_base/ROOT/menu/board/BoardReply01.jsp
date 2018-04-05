@@ -1,34 +1,60 @@
 <%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
-%><jsp:useBean id="topmenu" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="leftmenu" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="modulusHex" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="parmIVBase64" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%
+%><%@ page import="kr.pe.sinnori.weblib.common.BoardType"%><%
 %><jsp:useBean id="parmBoardId" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="parmParentBoardNo" class="java.lang.String" scope="request" /><%
-%><jsp:include page="/common/crypto_common.jsp" flush="false">
-	<jsp:param name="modulusHex" value="<%=modulusHex%>" />
-</jsp:include><%
-%><h1>자유 게시판 - 댓글 작성하기</h1>
-<br/><%
-	if (null != errorMessage && !errorMessage.equals("")) {
-%>
-	<div>
-		<ul>
-		<li>
-			<dl>
-				<dt>에러</dt>
-				<dd><%=HtmlStringUtil.toHtml4BRString(errorMessage)%></dd>
-			</dl>
-		</li>
-		</ul>		
-	</div><%
-	} else {
-%>
-<script type="text/javascript">	
-	function save() {
+%><!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<title><%=WebCommonStaticFinalVars.WEBSITE_TITLE%></title>
+<meta name="Author" content="SinnoriTeam - website / Design by Ian Smith - N-vent Design Services LLC - www.n-vent.com" />
+<meta name="distribution" content="global" />
+<meta name="rating" content="general" />
+<meta name="Keywords" content="" />
+<meta name="ICBM" content=""/> <!-- see geourl.org -->
+<meta name="DC.title" content="Your Company"/>
+<link rel="shortcut icon" href="favicon.ico"/> <!-- see favicon.com -->
+<link rel="stylesheet" type="text/css" href="/css/style.css" />
+<script type="text/javascript" src="/js/jsbn/jsbn.js"></script>
+<script type="text/javascript" src="/js/jsbn/jsbn2.js"></script>
+<script type="text/javascript" src="/js/jsbn/prng4.js"></script>
+<script type="text/javascript" src="/js/jsbn/rng.js"></script>
+<script type="text/javascript" src="/js/jsbn/rsa.js"></script>
+<script type="text/javascript" src="/js/jsbn/rsa2.js"></script>
+<script type="text/javascript" src="/js/cryptoJS/rollups/sha256.js"></script>
+<script type="text/javascript" src="/js/cryptoJS/rollups/aes.js"></script>
+<script type="text/javascript" src="/js/cryptoJS/components/core-min.js"></script>
+<script type="text/javascript" src="/js/cryptoJS/components/cipher-core-min.js"></script>
+<script type="text/javascript">
+	function goURL(bodyurl) {
+		top.document.location.href = bodyurl;		
+	}
+
+	function getSessionkeyBase64() {
+		var sessionkeyBase64 = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_SESSIONKEY%>');
+		if (typeof(sessionKey) == 'undefined') {
+			var privateKey = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE%>);
+		
+			var rsa = new RSAKey();
+			rsa.setPublic("<%= getModulusHexString(request) %>", "10001");
+			
+			var sessionKeyHex = rsa.encrypt(CryptoJS.enc.Base64.stringify(privateKey));		
+			sessionkeyBase64 = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex));
+	
+			sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY%>', CryptoJS.enc.Base64.stringify(privateKey));
+			sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_SESSIONKEY%>', sessionkeyBase64);
+		}
+	
+		return sessionkeyBase64;
+	}
+
+    function goURL(bodyurl) {
+		top.document.location.href = bodyurl;
+    }
+    
+    function save() {
 		if(typeof(sessionStorage) == "undefined") {
 		    alert("Sorry! No HTML5 sessionStorage support..");
 		    return;
@@ -217,8 +243,8 @@
 			d.removeChild(olddiv);
 		}		
 	}
-
-	function init() {
+    
+    function init() {
 		removeAllOldAttachFiles();
 		removeAllNewAttachFiles();
 		addNewAttachFile();
@@ -226,21 +252,54 @@
 
 	window.onload=init;
 </script>
+</head>
+<body>
+<form name="directgofrm" method="post">
+<input type="hidden" name="topmenu" value="<%=getCurrentTopMenuIndex(request)%>"/>
+</form>
+<!-- The ultra77 template is designed and released by Ian Smith - N-vent Design Services LLC - www.n-vent.com. Feel free to use this, but please don't sell it and kindly leave the credits intact. Muchas Gracias! -->
+<div id="wrapper">
+<a name="top"></a>
+<!-- header -->
+<div id="header">
+	<div id="pagedescription"><h1>Sinnori Framework::공사중</h1><br /><h2> Sinnori Framework is an open software<br/> that help to create a server/client application.</h2><%
+	if (! isLogin(request)) {
+%><a href="/servlet/Login?topmenu=<%=getCurrentTopMenuIndex(request)%>">login</a><%		
+	} else {
+%><a href="/menu/member/logout.jsp?topmenu=<%=getCurrentTopMenuIndex(request)%>">logout</a><%
+	}
+%>
+	
+	</div>
+	<div id="branding"><p><span class="templogo"><!-- your logo here -->Sinnori Framework</span><br />of the developer, by the developer, for the developer</p></div>
+</div>
+
+<!-- top menu -->
+<div id="menu">
+	<ul><%= buildTopMenuPartString(request) %></ul>
+</div> <!-- end top menu -->
+<!-- bodywrap -->
+<div id="bodytop">&nbsp;</div>
+<div id="bodywrap">
+	<div id="contentbody">
+
+<h1><%= BoardType.valueOf(Short.parseShort(parmBoardId)).getName() %> 게시판 - 댓글 작성하기</h1>
+<br/>
 <form name=gofrm method="post" action="/servlet/BoardReply">
-<input type="hidden" name="topmenu" value="<%=topmenu%>" />
-<input type="hidden" name="pageMode" value="proc" />
-<input type="hidden" name="boardId" value="<%=parmBoardId%>" />
-<input type="hidden" name="parentBoardNo" value="<%=parmParentBoardNo%>" />
+<input type="hidden" name="topmenu" value="<%= getCurrentTopMenuIndex(request) %>" />
+<input type="hidden" name="<%=WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE%>" value="proc" />
+<input type="hidden" name="boardId" value="<%= parmBoardId %>" />
+<input type="hidden" name="parentBoardNo" value="<%= parmParentBoardNo %>" />
 <input type="hidden" name="subject" />
 <input type="hidden" name="content" />
 <input type="hidden" name="attachId" />
-<input type="hidden" name="sessionkeyBase64" />
-<input type="hidden" name="ivBase64" />
+<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
+<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />
 </form>
 
 <form name=listfrm method="post" action="/servlet/BoardList">
-<input type="hidden" name="topmenu" value="<%=topmenu%>" />
-<input type="hidden" name="boardId" value="<%=parmBoardId%>" />
+<input type="hidden" name="topmenu" value="<%= getCurrentTopMenuIndex(request) %>" />
+<input type="hidden" name="boardId" value="<%= parmBoardId %>" />
 </form>
 <form name=frm onSubmit="return false">
 	<div>
@@ -278,6 +337,24 @@
 
 	<input type="submit" value="서버에 첨부 파일 변경 내역 반영" />
 </form>
-<iframe name="uploadResultFrame" width="0" height="0" ></iframe><%
-	}
-%>
+<iframe name="uploadResultFrame" width="0" height="0" ></iframe>
+
+	</div>
+</div> <!-- end bodywrap -->
+<div id="bodybottom">&nbsp;</div>
+
+
+<!-- footer -->
+<div id="footer">
+<p><jsp:include page="/footer.html"  flush="false" />. Design by <a href="http://www.n-vent.com" title="The ultra77 template is designed and released by N-vent Design Services LLC">N-vent</a></p>
+<ul>
+<li><a href="http://www.oswd.org" title="Open Source Web Design">Open Source Web Design</a></li>
+
+</ul>
+</div> <!-- end footer -->
+
+<!-- side menu  --><%= buildLeftMenuPartString(request) %><!-- end side menu -->
+
+</div> <!-- end wrapper -->
+</body>
+</html>

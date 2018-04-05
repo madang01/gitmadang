@@ -3,7 +3,7 @@
 %><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
 %><jsp:useBean id="orignalPlainText" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="decryptedPlainText" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="resultMessage" class="java.lang.String" scope="request" /><%
+%><jsp:useBean id="isSame" class="java.lang.String" scope="request" /><%
 %><!DOCTYPE html>
 <html>
 <head>
@@ -19,16 +19,6 @@
 <link rel="stylesheet" type="text/css" href="/css/style.css" />
 <script type="text/javascript">
     function goURL(bodyurl) {
-		/*
-		var inx = bodyurl.indexOf("/servlet/");	
-		if (0 == inx) {
-			var f = document.directgofrm;
-			f.action = bodyurl;
-			f.submit();		
-		} else {
-			top.document.location.href = bodyurl;
-		}
-		*/
 		top.document.location.href = bodyurl;		
     }
 </script>
@@ -74,7 +64,7 @@
 			</tr>
 			<tr>
 				<td>비교결과</td>
-				<td><%=HtmlStringUtil.toHtml4BRString(resultMessage)%></td> 
+				<td><%=HtmlStringUtil.toHtml4BRString(isSame)%></td> 
 			</tr>
 		</table>
 	</div>

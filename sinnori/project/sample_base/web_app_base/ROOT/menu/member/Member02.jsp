@@ -1,11 +1,9 @@
 <%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
 %><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
-%><jsp:useBean id="parmIVBase64" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="modulusHexString" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="messageResultOutObj" class="kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes" scope="request" /><%
-	String resultMessage = messageResultOutObj.getResultMessage();
-	boolean isSuccess = messageResultOutObj.getIsSuccess();
+%><jsp:useBean id="messageResultRes" class="kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes" scope="request" /><%
+	String resultMessage = messageResultRes.getResultMessage();
+	boolean isSuccess = messageResultRes.getIsSuccess();
 %><!DOCTYPE html>
 <html>
 <head>
@@ -21,18 +19,28 @@
 <link rel="stylesheet" type="text/css" href="/css/style.css" />
 <script type="text/javascript">
     function goURL(bodyurl) {
-		/*
-		var inx = bodyurl.indexOf("/servlet/");	
-		if (0 == inx) {
-			var f = document.directgofrm;
-			f.action = bodyurl;
-			f.submit();		
-		} else {
-			top.document.location.href = bodyurl;
-		}
-		*/
 		top.document.location.href = bodyurl;		
     }
+    
+    function init() {
+		var pageIV = CryptoJS.enc.Base64.parse("<%= getParameterIVBase64Value(request) %>");
+		var privateKey = CryptoJS.enc.Base64.parse(sessionStorage.getItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY %>'));
+
+		var resultMessage = CryptoJS.AES.decrypt("<%= getCipheredBase64String(request, messageResultRes.getResultMessage()) %>", privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: pageIV });
+		document.getElementById('idTxtResultMessage').innerHTML = resultMessage.toString(CryptoJS.enc.Utf8);
+
+		<!-- 보안을 위해서 회원가입시 생성한 비밀키와 세션키 덮어쓰기 -->
+		var privateKey = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE %>);		
+		var rsa = new RSAKey();
+		rsa.setPublic("<%= getModulusHexString(request) %>", "10001");
+		var sessionKeyHex = rsa.encrypt(CryptoJS.enc.Base64.stringify(privateKey));		
+		var sessionkeyBase64 = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex));
+
+		sessionStorage.setItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY %>', CryptoJS.enc.Base64.stringify(privateKey));
+		sessionStorage.setItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_SESSIONKEY %>', sessionkeyBase64);
+	}
+
+	window.onload = init;
 </script>
 </head>
 <body>
@@ -73,33 +81,6 @@
 				<td id="idTxtResultMessage"></td> 
 			</tr>	
 		</table>
-
-		<script type="text/javascript">
-		<!--
-			function init() {
-				var pageIV = CryptoJS.enc.Base64.parse("<%=parmIVBase64%>");
-				var privateKey = CryptoJS.enc.Base64.parse(sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME%>'));
-
-				var resultMessage = CryptoJS.AES.decrypt("<%=getCipheredBase64String(request, resultMessage)%>", privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: pageIV });
-				document.getElementById('idTxtResultMessage').innerHTML = resultMessage.toString(CryptoJS.enc.Utf8);
-
-				<!-- 보안을 위해서 로그인시 생성한 비밀키와 세션키 덮어쓰기 -->
-				var privateKey = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE%>);
-				
-				var rsa = new RSAKey();
-				rsa.setPublic("<%=modulusHexString%>", "10001");
-					
-				var sessionKeyHex = rsa.encrypt(CryptoJS.enc.Base64.stringify(privateKey));		
-				var sessionkeyBase64 = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex));
-
-				sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME%>', CryptoJS.enc.Base64.stringify(privateKey));
-				sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_SESSIONKEY_NAME%>', sessionkeyBase64);
-			}
-
-			window.onload = init;
-			
-		//-->
-		</script>
 	</div>
 </div> <!-- end bodywrap -->
 <div id="bodybottom">&nbsp;</div>

@@ -30,6 +30,46 @@ public class SiteMenuManger {
 	private SiteMenuManger() {
 	}
 	
+	/** FIXME! 나중에 사이트 메뉴 DB 로 옮긴 경우 로직 구현 필요 */ 
+	/* class DBLeftMenuInfoOfTopMenu extends AbstractLeftMenuInfoOfTopMenu {
+		private SiteTopMenuType targetSiteTopMenuType = null;
+		public DBLeftMenuInfoOfTopMenu(SiteTopMenuType targetSiteTopMenuType) {
+			super();
+			
+			if (null == targetSiteTopMenuType) {
+				throw new IllegalArgumentException("the parameter targetSiteTopMenuType is null");
+			}
+			
+			this.targetSiteTopMenuType = targetSiteTopMenuType;
+		}
+		
+		@Override
+		protected void build() {
+		}
+	}*/
+	
+	private AbstractSiteMenuInfo getSiteMenuInfo() {
+		return siteMenuInfo;
+	}
+
+	private AbstractLeftMenuInfoOfTopMenu getLeftMenuInfoOfTopMenu(SiteTopMenuType targetSiteTopMenuType) {
+		if (null == targetSiteTopMenuType) {
+			throw new IllegalArgumentException("the parameter targetSiteTopMenuType is null");
+		}
+		
+		if (targetSiteTopMenuType.equals(SiteTopMenuType.COMMUNITY)) {			
+			return communityLeftMenuInfo;
+		} else if (targetSiteTopMenuType.equals(SiteTopMenuType.TECH_DOCUMENT)) {			
+			return techDocumentLeftMenuInfo;
+		} else if (targetSiteTopMenuType.equals(SiteTopMenuType.MEMBER)) {
+			return memberLeftMenuInfo;
+		} else if (targetSiteTopMenuType.equals(SiteTopMenuType.TEST_EXAMPLE)) {
+			return testExampleLeftMenuInfo;
+		} else {
+			return defulatLeftMenuInfoOfTopMenu;
+		}
+	}
+
 	public String getTopMenuPartString(SiteTopMenuType selectedSiteTopMenuType) {
 		if (null == selectedSiteTopMenuType) {
 			throw new IllegalArgumentException("the parameter selectedSiteTopMenuType is null");
@@ -59,53 +99,46 @@ public class SiteMenuManger {
 		return getSiteMenuInfo().getSiteTopMenuInfoList().get(selectedSiteTopMenuType.getTopMenuIndex()).getBodyURL();
 	}
 	
-	public String getLeftMenuPartString(SiteTopMenuType selectedSiteTopMenuType, String leftmenu) {
+	/**
+	 * @param selectedSiteTopMenuType
+	 * @param leftmenuURL if leftmenuURL is null then ignore
+	 * @return
+	 */
+	public String getLeftMenuPartString(SiteTopMenuType selectedSiteTopMenuType, String leftmenuURL) {
 		if (null == selectedSiteTopMenuType) {
 			throw new IllegalArgumentException("the parameter selectedSiteTopMenuType is null");
 		}
 		
 		AbstractLeftMenuInfoOfTopMenu leftMenuInfoOfTopMenu = getLeftMenuInfoOfTopMenu(selectedSiteTopMenuType);
 		
-		return leftMenuInfoOfTopMenu.getLeftMenuPartString(leftmenu);
+		return leftMenuInfoOfTopMenu.getLeftMenuPartString(leftmenuURL);
 	}
 	
-	/** FIXME! 나중에 사이트 메뉴 DB 로 옮긴 경우 로직 구현 필요 */ 
-	/* class DBLeftMenuInfoOfTopMenu extends AbstractLeftMenuInfoOfTopMenu {
-		private SiteTopMenuType targetSiteTopMenuType = null;
-		public DBLeftMenuInfoOfTopMenu(SiteTopMenuType targetSiteTopMenuType) {
-			super();
-			
-			if (null == targetSiteTopMenuType) {
-				throw new IllegalArgumentException("the parameter targetSiteTopMenuType is null");
-			}
-			
-			this.targetSiteTopMenuType = targetSiteTopMenuType;
-		}
- 		
-		@Override
-		protected void build() {
-		}
-	}*/
-	
-	private AbstractSiteMenuInfo getSiteMenuInfo() {
-		return siteMenuInfo;
-	}
-	
-	private AbstractLeftMenuInfoOfTopMenu getLeftMenuInfoOfTopMenu(SiteTopMenuType targetSiteTopMenuType) {
-		if (null == targetSiteTopMenuType) {
-			throw new IllegalArgumentException("the parameter targetSiteTopMenuType is null");
+	public SiteTopMenuType getTopMenuFromLeftmenuURL(String leftmenuURL) {
+		if (null == leftmenuURL) {
+			throw new IllegalArgumentException("the parameter leftmenuURL is null");
 		}
 		
-		if (targetSiteTopMenuType.equals(SiteTopMenuType.COMMUNITY)) {			
-			return communityLeftMenuInfo;
-		} else if (targetSiteTopMenuType.equals(SiteTopMenuType.TECH_DOCUMENT)) {			
-			return techDocumentLeftMenuInfo;
-		} else if (targetSiteTopMenuType.equals(SiteTopMenuType.MEMBER)) {
-			return memberLeftMenuInfo;
-		} else if (targetSiteTopMenuType.equals(SiteTopMenuType.TEST_EXAMPLE)) {
-			return testExampleLeftMenuInfo;
-		} else {
-			return defulatLeftMenuInfoOfTopMenu;
+		SiteLeftMenuInfo leftMenuInfo = communityLeftMenuInfo.match(leftmenuURL);
+		if (null != leftMenuInfo) {
+			return SiteTopMenuType.COMMUNITY;
 		}
+		
+		leftMenuInfo = testExampleLeftMenuInfo.match(leftmenuURL);
+		if (null != leftMenuInfo) {
+			return SiteTopMenuType.TEST_EXAMPLE;
+		}
+		
+		leftMenuInfo = memberLeftMenuInfo.match(leftmenuURL);
+		if (null != leftMenuInfo) {
+			return SiteTopMenuType.MEMBER;
+		}
+		
+		leftMenuInfo = techDocumentLeftMenuInfo.match(leftmenuURL);
+		if (null != leftMenuInfo) {
+			return SiteTopMenuType.TECH_DOCUMENT;
+		}		
+		
+		return SiteTopMenuType.INTRODUCE;
 	}
 }

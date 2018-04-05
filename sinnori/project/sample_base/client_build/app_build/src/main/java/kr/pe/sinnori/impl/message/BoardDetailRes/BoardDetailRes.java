@@ -25,7 +25,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  */
 public class BoardDetailRes extends AbstractMessage {
 	private long boardNo;
-	private long boardId;
+	private short boardId;
 	private long groupNo;
 	private int groupSeq;
 	private long parentNo;
@@ -86,11 +86,11 @@ public class BoardDetailRes extends AbstractMessage {
 	public void setBoardNo(long boardNo) {
 		this.boardNo = boardNo;
 	}
-	public long getBoardId() {
+	public short getBoardId() {
 		return boardId;
 	}
 
-	public void setBoardId(long boardId) {
+	public void setBoardId(short boardId) {
 		this.boardId = boardId;
 	}
 	public long getGroupNo() {

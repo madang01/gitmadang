@@ -1,7 +1,7 @@
 <%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
 %><%@ page import="kr.pe.sinnori.weblib.sitemenu.SiteTopMenuType" %><%
-	request.setAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME, SiteTopMenuType.INTRODUCE);
+	setSiteTopMenu(request, SiteTopMenuType.INTRODUCE);
 %><!DOCTYPE html>
 <html>
 <head>
@@ -16,17 +16,7 @@
 <link rel="shortcut icon" href="favicon.ico"/> <!-- see favicon.com -->
 <link rel="stylesheet" type="text/css" href="/css/style.css" />
 <script type="text/javascript">
-    function goURL(bodyurl) {
-		/*
-		var inx = bodyurl.indexOf("/servlet/");	
-		if (0 == inx) {
-			var f = document.directgofrm;
-			f.action = bodyurl;
-			f.submit();		
-		} else {
-			top.document.location.href = bodyurl;
-		}
-		*/
+    function goURL(bodyurl) {		
 		top.document.location.href = bodyurl;		
     }
 </script>

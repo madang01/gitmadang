@@ -20,6 +20,7 @@ package kr.pe.sinnori.servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.sessionkey.ServerSessionkeyIF;
 import kr.pe.sinnori.common.sessionkey.ServerSessionkeyManager;
@@ -31,93 +32,128 @@ import kr.pe.sinnori.weblib.jdf.AbstractServlet;
 
 @SuppressWarnings("serial")
 public class JSBNTestSvl extends AbstractServlet {
-	
-	final String arryPageURL[] = {
-			"/menu/testcode/JSBNTest01.jsp", "/menu/testcode/JSBNTest02.jsp"
-	};
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
-		req.setAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME, 
+		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU, 
 				kr.pe.sinnori.weblib.sitemenu.SiteTopMenuType.TEST_EXAMPLE);
 		
-		String pageGubun = req.getParameter("pagegubun");
 		
-		
-		log.info(String.format("pageGubun[%s]", pageGubun));
-		
-		
-		
-		String goPage=null;
-		
-		if (null == pageGubun || pageGubun.equals("step1")) {
-			ServerSessionkeyIF serverSessionkey  = null;
-			try {
-				ServerSessionkeyManager serverSessionkeyManager = ServerSessionkeyManager.getInstance();
-				serverSessionkey = serverSessionkeyManager.getMainProjectServerSessionkey();			
-			} catch (SymmetricException e) {
-				log.warn("ServerSessionkeyManger instance init error, errormessage=[{}]", e.getMessage());
-				
-				String errorMessage = "ServerSessionkeyManger instance init error";
-				String debugMessage = String.format("ServerSessionkeyManger instance init error, errormessage=[%s]", e.getMessage());
-				printMessagePage(req, res, errorMessage, debugMessage);
-				return;
-			}
-			
-			String modulusHex = serverSessionkey.getModulusHexStrForWeb(); 
-			req.setAttribute("modulusHex", modulusHex);
-			
-			goPage = arryPageURL[0];
-		} else {
-			String encryptedBytesWithPublicKeyHex = req.getParameter("encryptedBytesWithPublicKey");
-			String plainText = req.getParameter("plainText");
-			
-			
-			String plainTextHex = HexUtil.getHexStringFromByteArray(plainText.getBytes());
-			
-			log.info(String.format("encryptedBytesWithPublicKeyHex[%s]", encryptedBytesWithPublicKeyHex));
-			log.info(String.format("plainText[%s]", plainText));
-			log.info(String.format("plainText hex[%s]", plainTextHex));
-			
-			
-			// String sessionKeyHex =  new String(HexUtil.hexToByteArray(sessionKeyDoubleHex));
-			//log.info("sessionKeyHex=[%s]", sessionKeyHex);
-			byte encryptedBytesWithPublicKey[] = HexUtil.getByteArrayFromHexString(encryptedBytesWithPublicKeyHex);
-						
-			ServerSessionkeyIF serverSessionkey  = null;
-			try {
-				ServerSessionkeyManager serverSessionkeyManager = ServerSessionkeyManager.getInstance();
-				serverSessionkey = serverSessionkeyManager.getMainProjectServerSessionkey();			
-				
-			} catch (SymmetricException e) {
-				log.warn("ServerSessionkeyManger instance init error, errormessage=[{}]", e.getMessage());
-				
-				String errorMessage = "ServerSessionkeyManger instance init error";
-				String debugMessage = String.format("ServerSessionkeyManger instance init error, errormessage=[%s]", e.getMessage());
-				printMessagePage(req, res, errorMessage, debugMessage);
-				return;
-			}
-			
-			byte decryptUsingPrivateKey[] = serverSessionkey.decryptUsingPrivateKey(encryptedBytesWithPublicKey);			
-			String decryptUsingPrivateKeyHex = HexUtil.getHexStringFromByteArray(decryptUsingPrivateKey);
-			log.info(String.format("decryptUsingPrivateKey=[%s]", decryptUsingPrivateKeyHex));
-			
-			String resultMessage = String.format("%s", plainTextHex.equals(decryptUsingPrivateKeyHex));
-			log.info(String.format("resultMessage=[%s]", resultMessage));
-			
-			goPage = arryPageURL[1];
-			
-			String decryptedPlainText = new String(decryptUsingPrivateKey);
-			
-			req.setAttribute("orignalPlainText", plainText);
-			req.setAttribute("decryptedPlainText", decryptedPlainText);
-			req.setAttribute("resultMessage", resultMessage);
+		String parmRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
+		if (null == parmRequestType) {		
+			firstPage(req, res);			
+			return;
 		}
 		
-		log.info(String.format("goPage[%s]", goPage));
+		if (parmRequestType.equals("view")) {
+			firstPage(req, res);
+			return;
+		} else if (parmRequestType.equals("proc")) {		
+			processPage(req, res);
+			return;
+		} else {
+			String errorMessage = "파라미터 '요청종류'의 값이 잘못되었습니다";
+			String debugMessage = new StringBuilder("the web parameter \"")
+					.append(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE)
+					.append("\"")
+					.append("'s value[")
+					.append(parmRequestType)			
+					.append("] is not a elment of request type set[view, proc]").toString();
+			
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+	}
 		
-		printJspPage(req, res, goPage);	
+	private void firstPage(HttpServletRequest req, HttpServletResponse res) {
+		ServerSessionkeyIF webServerSessionkey = null;
+		try {
+			ServerSessionkeyManager serverSessionkeyManager = ServerSessionkeyManager.getInstance();
+			webServerSessionkey = serverSessionkeyManager.getMainProjectServerSessionkey();
+		} catch (SymmetricException e) {
+			String errorMessage = "fail to get a ServerSessionkeyManger class instance";
+			log.warn(errorMessage, e);			
+			
+			String debugMessage = e.getMessage();
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
+				webServerSessionkey.getModulusHexStrForWeb());
+		
+		printJspPage(req, res, "/menu/testcode/JSBNTest01.jsp");
+	}
+	
+	private void processPage(HttpServletRequest req, HttpServletResponse res) {
+		
+		String parmEncryptedBytesWithPublicKeyHex = req.getParameter("encryptedBytesWithPublicKey");
+		String parmPlainText = req.getParameter("plainText");
+		
+		log.info("parmEncryptedBytesWithPublicKeyHex[{}]", parmEncryptedBytesWithPublicKeyHex);
+		log.info("parmPlainText[{}]", parmPlainText);
+		
+		if (null == parmEncryptedBytesWithPublicKeyHex) {
+			String errorMessage = "공개키로 암호화한 암호문을 입력해 주세요";
+			String debugMessage = "the web parameter 'encryptedBytesWithPublicKey' is null";
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		if (null == parmPlainText) {
+			String errorMessage = "평문을 입력해 주세요";
+			String debugMessage = "the web parameter 'plainText' is null";
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		ServerSessionkeyIF webServerSessionkey = null;
+		try {
+			ServerSessionkeyManager serverSessionkeyManager = ServerSessionkeyManager.getInstance();
+			webServerSessionkey = serverSessionkeyManager.getMainProjectServerSessionkey();
+		} catch (SymmetricException e) {
+			String errorMessage = "fail to get a ServerSessionkeyManger class instance";
+			log.warn(errorMessage, e);			
+			
+			String debugMessage = e.getMessage();
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		
+		String plainTextHex = HexUtil
+				.getHexStringFromByteArray(parmPlainText.getBytes(CommonStaticFinalVars.SINNORI_CIPHER_CHARSET));		
+		//log.info("plainText hex[%s]", plainTextHex);
+		// String sessionKeyHex =  new String(HexUtil.hexToByteArray(sessionKeyDoubleHex));
+		//log.info("sessionKeyHex=[%s]", sessionKeyHex);
+		byte encryptedBytesWithPublicKey[] = HexUtil.getByteArrayFromHexString(parmEncryptedBytesWithPublicKeyHex);
+		
+		byte decryptUsingPrivateKey[] = null;
+		try {
+			decryptUsingPrivateKey = webServerSessionkey.decryptUsingPrivateKey(encryptedBytesWithPublicKey);
+		} catch (SymmetricException e) {
+			String errorMessage = "fail to initialize a Cipher class instance with a key and a set of algorithm parameters";
+			log.warn(errorMessage, e);			
+			
+			String debugMessage = new StringBuilder("parmEncryptedBytesWithPublicKeyHex=[")
+					.append(parmEncryptedBytesWithPublicKeyHex)					
+					.append("], errmsg=").append(e.getMessage()).toString();
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+		}			
+		String decryptUsingPrivateKeyHex = HexUtil.getHexStringFromByteArray(decryptUsingPrivateKey);
+		//log.info(String.format("decryptUsingPrivateKey=[%s]", decryptUsingPrivateKeyHex));
+		
+		boolean isSame = plainTextHex.equals(decryptUsingPrivateKeyHex);
+		//log.info(String.format("resultMessage=[%s]", resultMessage));
+		
+		
+		String decryptedPlainText = new String(decryptUsingPrivateKey);
+		
+		req.setAttribute("orignalPlainText", parmPlainText);
+		req.setAttribute("decryptedPlainText", decryptedPlainText);
+		req.setAttribute("isSame", String.valueOf(isSame));		
+		printJspPage(req, res, "/menu/testcode/JSBNTest02.jsp");	
 	}
 	
 }

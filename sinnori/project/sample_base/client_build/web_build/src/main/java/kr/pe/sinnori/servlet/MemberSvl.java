@@ -16,6 +16,8 @@
  */
 package kr.pe.sinnori.servlet;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -25,6 +27,12 @@ import org.apache.commons.codec.binary.Base64;
 import kr.pe.sinnori.client.AnyProjectConnectionPoolIF;
 import kr.pe.sinnori.client.ConnectionPoolManager;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
+import kr.pe.sinnori.common.exception.AccessDeniedException;
+import kr.pe.sinnori.common.exception.BodyFormatException;
+import kr.pe.sinnori.common.exception.ConnectionPoolException;
+import kr.pe.sinnori.common.exception.DynamicClassCallException;
+import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
+import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.sessionkey.ClientSessionKeyIF;
@@ -33,6 +41,7 @@ import kr.pe.sinnori.common.sessionkey.ClientSymmetricKeyIF;
 import kr.pe.sinnori.common.sessionkey.ServerSessionkeyIF;
 import kr.pe.sinnori.common.sessionkey.ServerSessionkeyManager;
 import kr.pe.sinnori.common.sessionkey.ServerSymmetricKeyIF;
+import kr.pe.sinnori.common.util.HexUtil;
 import kr.pe.sinnori.impl.message.BinaryPublicKey.BinaryPublicKey;
 import kr.pe.sinnori.impl.message.MemberRegisterReq.MemberRegisterReq;
 import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
@@ -53,27 +62,145 @@ public class MemberSvl extends AbstractServlet {
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res) throws Exception {
-		req.setAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME, 
+		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU, 
 				kr.pe.sinnori.weblib.sitemenu.SiteTopMenuType.MEMBER);
 		
-		
-		String goPage = null;
-		
-		String parmPageMode = req.getParameter("pageMode");
-		if (null == parmPageMode) {
-			parmPageMode = "view";
+		String parmRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
+		if (null == parmRequestType) {		
+			firstPage(req, res);			
+			return;
 		}
 		
-		if (!parmPageMode.equals("view") && !parmPageMode.equals("proc")) {
-			goPage = "/menu/member/Member01.jsp";
-			String errorMessage = new StringBuilder("페이지 모드는 2가지(view, proc) 입니다.")
-			.append(CommonStaticFinalVars.NEWLINE)
-			.append("페이지 모드 값[").append(parmPageMode).append("]이 잘못 되었습니다.").toString();
-			req.setAttribute("errorMessage", errorMessage);
-			printJspPage(req, res, goPage);
+		if (parmRequestType.equals("view")) {
+			firstPage(req, res);
 			return;
-		}		
-
+		} else if (parmRequestType.equals("proc")) {		
+			processPage(req, res);
+			return;
+		} else {
+			String errorMessage = "파라미터 '요청종류'의 값이 잘못되었습니다";
+			String debugMessage = new StringBuilder("the web parameter \"")
+					.append(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE)
+					.append("\"")
+					.append("'s value[")
+					.append(parmRequestType)			
+					.append("] is not a elment of request type set[view, proc]").toString();
+			
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+	}
+		
+	private void firstPage(HttpServletRequest req, HttpServletResponse res) {
+		ServerSessionkeyIF webServerSessionkey = null;
+		try {
+			ServerSessionkeyManager serverSessionkeyManager = ServerSessionkeyManager.getInstance();
+			webServerSessionkey = serverSessionkeyManager.getMainProjectServerSessionkey();
+		} catch (SymmetricException e) {
+			String errorMessage = "fail to get a ServerSessionkeyManger class instance";
+			log.warn(errorMessage, e);			
+			
+			String debugMessage = e.getMessage();
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
+				webServerSessionkey.getModulusHexStrForWeb());
+		
+		printJspPage(req, res, "/menu/member/Member01.jsp");
+	}
+		
+	private void processPage(HttpServletRequest req, HttpServletResponse res) throws IllegalArgumentException, SymmetricException, IOException, NoMoreDataPacketBufferException, BodyFormatException, DynamicClassCallException, ServerTaskException, AccessDeniedException, InterruptedException, ConnectionPoolException {
+		String parmSessionKeyBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY);
+		String parmIVBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV);
+	
+		String parmId = req.getParameter("id");
+		String parmPwd = req.getParameter("pwd");
+		String parmNickname = req.getParameter("nickname");
+		String parmPwdHint = req.getParameter("pwdHint");
+		String parmPwdAnswer = req.getParameter("pwdAnswer");
+		String parmCaptchaAnswer = req.getParameter("answer");
+		
+		log.info("parm sessionkeyBase64=[{}], parm ivBase64=[{}], " +
+				"parm id=[{}], parm pwd=[{}], parm nickname=[{}], " +
+				"parm pwdHint=[{}], parm pwdAnswer=[{}], parm answer=[{}]", 
+				parmSessionKeyBase64, parmIVBase64, 
+				parmId, parmPwd, parmNickname, 
+				parmPwdHint, parmPwdAnswer, parmCaptchaAnswer);
+		
+		if (null == parmSessionKeyBase64) {
+			String errorMessage = "세션키 값을 입력해 주세요";
+			printErrorMessagePage(req, res, errorMessage, "");
+			return;
+		}
+		
+		if (null == parmIVBase64) {
+			String errorMessage = "IV 값을 입력해 주세요";
+			printErrorMessagePage(req, res, errorMessage, "");
+			return;
+		}
+		
+		if (null == parmId) {
+			String errorMessage = "아이디 값을 입력해 주세요";
+			printErrorMessagePage(req, res, errorMessage, "");
+			return;
+		}
+		
+		if (null == parmPwd) {
+			String errorMessage = "비밀번호 값을 입력해 주세요";
+			printErrorMessagePage(req, res, errorMessage, "");
+			return;
+		}
+		
+		if (null == parmNickname) {
+			String errorMessage = "별명 값을 입력해 주세요";
+			printErrorMessagePage(req, res, errorMessage, "");
+			return;
+		}
+		
+		if (null == parmPwdHint) {
+			String errorMessage = "비밀번호 분실시 힌트 값을 입력해 주세요";
+			printErrorMessagePage(req, res, errorMessage, "");
+			return;
+		}
+		
+		if (null == parmPwdAnswer) {
+			String errorMessage = "비밀번호 분실시 답변 값을 입력해 주세요";
+			printErrorMessagePage(req, res, errorMessage, "");
+			return;
+		}
+		
+		if (null == parmCaptchaAnswer) {
+			String errorMessage = "Captcha 값을 입력해 주세요";
+			printErrorMessagePage(req, res, errorMessage, "");
+			return;
+		}
+		
+		byte[] sessionkeyBytes = null;
+		try {
+			sessionkeyBytes = org.apache.commons.codec.binary.Base64.decodeBase64(parmSessionKeyBase64);
+		} catch(Exception e) {
+			log.warn("base64 encoding error for the parameter parmSessionKeyBase64[{}], errormessage=[{}]", parmSessionKeyBase64, e.getMessage());
+			
+			String errorMessage = "세션키 파라미터가 잘못되었습니다";
+			String debugMessage = String.format("check whether the parameter parmSessionKeyBase64[%s] is a base64 encoding string, errormessage=[%s]", parmSessionKeyBase64, e.getMessage());
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		byte[] ivBytes = null;
+		try {
+			ivBytes = org.apache.commons.codec.binary.Base64.decodeBase64(parmIVBase64);
+		} catch(Exception e) {
+			log.warn("base64 encoding error for the parameter parmIVBase64[{}], errormessage=[{}]", parmIVBase64, e.getMessage());
+			
+			String errorMessage = "세션키 소금 파라미터가 잘못되었습니다";
+			String debugMessage = String.format("check whether the parameter parmIVBase64[%s] is a base64 encoding string, errormessage=[%s]", parmIVBase64, e.getMessage());
+			
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}	
+		
 		ServerSessionkeyIF webServerSessionkey = null;
 		// ServerSymmetricKeyIF serverSymmetricKey = null;
 		try {
@@ -81,313 +208,151 @@ public class MemberSvl extends AbstractServlet {
 			webServerSessionkey = serverSessionkeyManager.getMainProjectServerSessionkey();			
 			// serverSymmetricKey = serverSessionkey.getNewInstanceOfServerSymmetricKey(sessionkeyBytes, ivBytes);
 		} catch (SymmetricException e) {
-			log.warn("ServerSessionkeyManger instance init error, errormessage=[{}]", e.getMessage());
+			String errorMessage = "fail to get a ServerSessionkeyManger class instance";
+			log.warn(errorMessage, e);			
 			
-			String errorMessage = "ServerSessionkeyManger instance init error";
-			String debugMessage = String.format("ServerSessionkeyManger instance init error, errormessage=[%s]", e.getMessage());
-			printMessagePage(req, res, errorMessage, debugMessage);
+			String debugMessage = e.getMessage();
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
-		String modulusHexString = webServerSessionkey.getModulusHexStrForWeb();
-		req.setAttribute("modulusHexString", modulusHexString);
+		ServerSymmetricKeyIF webServerSymmetricKey = null;
+		try {
+			webServerSymmetricKey = webServerSessionkey.getNewInstanceOfServerSymmetricKey(true, sessionkeyBytes, ivBytes);
+		} catch(IllegalArgumentException e) {
+			String errorMessage = "웹 세션키 인스턴스 생성 실패";
+			log.warn(errorMessage, e);
+			
+			String debugMessage = new StringBuilder("sessionkeyBytes=[")
+					.append(HexUtil.getHexStringFromByteArray(sessionkeyBytes))
+					.append("], ivBytes=[")
+					.append(HexUtil.getHexStringFromByteArray(ivBytes))
+					.append("]").toString();
+			
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		} catch(SymmetricException e) {
+			String errorMessage = "웹 세션키 인스턴스 생성 실패";
+			log.warn(errorMessage, e);
+			
+			String debugMessage = new StringBuilder("sessionkeyBytes=[")
+					.append(HexUtil.getHexStringFromByteArray(sessionkeyBytes))
+					.append("], ivBytes=[")
+					.append(HexUtil.getHexStringFromByteArray(ivBytes))
+					.append("]").toString();
+			
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+	
+		byte[] userIdBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(parmId));
+		byte[] passwordBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(parmPwd));
+		byte[] nicknameBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(parmNickname));
+		byte[] pwdHintBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(parmPwdHint));
+		byte[] pwdAnswerBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(parmPwdAnswer));
+		byte[] answerBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(parmCaptchaAnswer));
 		
-		if (parmPageMode.equals("view")) {
-			goPage = "/menu/member/Member01.jsp";
-		} else {
-			goPage = "/menu/member/Member02.jsp";
+		String answer = new String(answerBytes, CommonStaticFinalVars.SINNORI_CIPHER_CHARSET);
+		
+		HttpSession httpSession = req.getSession();
+		Captcha captcha = (Captcha) httpSession.getAttribute(Captcha.NAME);
+		if (!captcha.isCorrect(answer)) {
 			
-			String parmSessionKeyBase64 = req.getParameter("sessionkeyBase64");
-			String parmIVBase64 = req.getParameter("ivBase64");
+			String errorMessage = String.format("사용자가 입력한 Captcha 값[%s]과 내부 Captcha 값[%s]이 다릅니다.", answer, captcha.getAnswer());
+			log.warn(errorMessage);
+			
+			printErrorMessagePage(req, res, "입력한 Captcha 값이 틀렸습니다.", errorMessage);
+			return;
+		}
+		
+		httpSession.removeAttribute(Captcha.NAME);
+	
+		// log.info("userId=[{}]", userId);
+	
+		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
+		
+		
+		BinaryPublicKey binaryPublicKeyReq = new BinaryPublicKey();			
+		binaryPublicKeyReq.setPublicKeyBytes(webServerSessionkey.getDupPublicKeyBytes());
+		
+		AbstractMessage binaryPublicKeyOutputMessage = mainProjectConnectionPool.sendSyncInputMessage(binaryPublicKeyReq);					
+		if (binaryPublicKeyOutputMessage instanceof BinaryPublicKey) {
+			BinaryPublicKey binaryPublicKeyOutObj = (BinaryPublicKey) binaryPublicKeyOutputMessage;
+			byte[] binaryPublicKeyBytes = binaryPublicKeyOutObj.getPublicKeyBytes();
+			ClientSessionKeyIF clientSessionKey = ClientSessionKeyManager.getInstance().getNewClientSessionKey(binaryPublicKeyBytes);
+			
+			
+			byte sessionKeyBytesOfServer[] = clientSessionKey.getDupSessionKeyBytes();								
+			byte ivBytesOfServer[] = clientSessionKey.getDupIVBytes();
+			ClientSymmetricKeyIF clientSymmetricKey = clientSessionKey.getClientSymmetricKey();
+	
+			MemberRegisterReq memberRegisterReq = new MemberRegisterReq();
+			
+			memberRegisterReq.setIdCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(userIdBytes)));
+			memberRegisterReq.setPwdCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(passwordBytes)));
+			memberRegisterReq.setNicknameCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(nicknameBytes)));
+			memberRegisterReq.setHintCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(pwdHintBytes)));
+			memberRegisterReq.setAnswerCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(pwdAnswerBytes)));
+			memberRegisterReq.setSessionKeyBase64(Base64.encodeBase64String(sessionKeyBytesOfServer));
+			memberRegisterReq.setIvBase64(Base64.encodeBase64String(ivBytesOfServer));				
+	
+			AbstractMessage memberRegisterOutputMessage = mainProjectConnectionPool.sendSyncInputMessage(memberRegisterReq);					
+			if (memberRegisterOutputMessage instanceof MessageResultRes) {
+				MessageResultRes messageResultRes = (MessageResultRes)memberRegisterOutputMessage;
+				
+				if (! messageResultRes.getMessageID().equals(memberRegisterReq.getMessageID())) {
+					String errorMessage = "회원 가입이 실패했습니다";
+					String debugMessage = new StringBuilder("입력 메시지[")
+							.append(memberRegisterReq.getMessageID())
+							.append("]에 대한 비 정상 출력 메시지[")
+							.append(memberRegisterOutputMessage.toString())
+							.append("] 도착").toString();					
+					log.error(debugMessage);
 
-			String parmId = req.getParameter("id");
-			String parmPwd = req.getParameter("pwd");
-			String parmNickname = req.getParameter("nickname");
-			String parmPwdHint = req.getParameter("pwdHint");
-			String parmPwdAnswer = req.getParameter("pwdAnswer");
-			String parmCaptchaAnswer = req.getParameter("answer");
-			
-			log.info("parm sessionkeyBase64=[{}], parm ivBase64=[{}], " +
-					"parm id=[{}], parm pwd=[{}], parm nickname=[{}], " +
-					"parm pwdHint=[{}], parm pwdAnswer=[{}], parm answer=[{}]", 
-					parmSessionKeyBase64, parmIVBase64, 
-					parmId, parmPwd, parmNickname, 
-					parmPwdHint, parmPwdAnswer, parmCaptchaAnswer);
-			
-			if (null == parmSessionKeyBase64) {
-				String errorMessage = "세션키 값을 입력해 주세요.";
-				log.warn(errorMessage);
+					printErrorMessagePage(req, res, errorMessage, debugMessage);
+					return;
+				}
 				
-				req.setAttribute("errorMessage", errorMessage);
-				printJspPage(req, res, goPage);
+				doProcessPage(req, res, webServerSymmetricKey, webServerSessionkey, messageResultRes);
 				return;
-			}
-			
-			if (null == parmIVBase64) {
-				String errorMessage = "IV 값을 입력해 주세요.";
-				log.warn(errorMessage);
+			} else {
+				String errorMessage = "회원 가입이 실패했습니다";
+				String debugMessage = new StringBuilder("입력 메시지[")
+						.append(memberRegisterReq.getMessageID())
+						.append("]에 대한 비 정상 출력 메시지[")
+						.append(memberRegisterOutputMessage.toString())
+						.append("] 도착").toString();
 				
-				printMessagePage(req, res, errorMessage, errorMessage);
-				return;
-			}
-			
-			if (null == parmId) {
-				String errorMessage = "아이디 값을 입력해 주세요.";
-				log.warn(errorMessage);
-				
-				printMessagePage(req, res, errorMessage, errorMessage);
-				return;
-			}
-			
-			if (null == parmPwd) {
-				String errorMessage = "비밀번호 값을 입력해 주세요.";
-				log.warn(errorMessage);
-				
-				printMessagePage(req, res, errorMessage, errorMessage);
-				return;
-			}
-			
-			if (null == parmNickname) {
-				String errorMessage = "별명 값을 입력해 주세요.";
-				log.warn(errorMessage);
-				
-				printMessagePage(req, res, errorMessage, errorMessage);
-				return;
-			}
-			
-			if (null == parmPwdHint) {
-				String errorMessage = "비밀번호 분실시 힌트 값을 입력해 주세요.";
-				log.warn(errorMessage);
-				
-				printMessagePage(req, res, errorMessage, errorMessage);
-				return;
-			}
-			
-			if (null == parmPwdAnswer) {
-				String errorMessage = "비밀번호 분실시 답변 값을 입력해 주세요.";
-				log.warn(errorMessage);
-				
-				printMessagePage(req, res, errorMessage, errorMessage);
-				return;
-			}
-			
-			if (null == parmCaptchaAnswer) {
-				String errorMessage = "Captcha 값을 입력해 주세요.";
-				log.warn(errorMessage);
-				
-				printMessagePage(req, res, errorMessage, errorMessage);
-				return;
-			}
-			
-			byte[] sessionkeyBytes = null;
-			try {
-				sessionkeyBytes = org.apache.commons.codec.binary.Base64.decodeBase64(parmSessionKeyBase64);
-			} catch(Exception e) {
-				log.warn("parmSessionKeyBase64[{}] base64 decode error, errormessage=[{}]", parmSessionKeyBase64, e.getMessage());
-				
-				String errorMessage = "the parameter parmSessionKeyBase64 is not a base64 string";
-				String debugMessage = String.format("parmSessionKeyBase64[%s] base64 decode error, errormessage=[%s]", parmSessionKeyBase64, e.getMessage());
-				printMessagePage(req, res, errorMessage, debugMessage);
-				return;
-			}
-			byte[] ivBytes = null;
-			try {
-				ivBytes = org.apache.commons.codec.binary.Base64.decodeBase64(parmIVBase64);
-			} catch(Exception e) {
-				log.warn("parmIVBase64[{}] base64 decode error, errormessage=[{}]", parmIVBase64, e.getMessage());
-				
-				String errorMessage = "the parameter parmIVBase64 is not a base64 string";
-				String debugMessage = String.format("parmIVBase64[%s] base64 decode error, errormessage=[%s]", parmIVBase64, e.getMessage());
-				
-				printMessagePage(req, res, errorMessage, debugMessage);
+				log.error(debugMessage);
+
+				printErrorMessagePage(req, res, errorMessage, debugMessage);
 				return;
 			}	
+		} else {
+			String errorMessage = "회원 가입이 실패했습니다";
+			String debugMessage = new StringBuilder("입력 메시지[")
+					.append(binaryPublicKeyReq.getMessageID())
+					.append("]에 대한 비 정상 출력 메시지[")
+					.append(binaryPublicKeyOutputMessage.toString())
+					.append("] 도착").toString();
 			
-			
-			MessageResultRes messageResultOutObj = new MessageResultRes();
-			messageResultOutObj.setTaskMessageID("");
-			messageResultOutObj.setIsSuccess(false);
-			messageResultOutObj.setResultMessage("회원 가입이 실패하였습니다.");
+			log.error(debugMessage);
 
-			ServerSymmetricKeyIF webServerSymmetricKey = null;
-			try {
-				webServerSymmetricKey = webServerSessionkey.getNewInstanceOfServerSymmetricKey(true, sessionkeyBytes, ivBytes);
-			} catch(IllegalArgumentException e) {
-				String errorMessage = e.getMessage();
-				log.warn(errorMessage);
-				
-				printMessagePage(req, res, errorMessage, errorMessage);
-				return;
-			} catch(SymmetricException e) {
-				String errorMessage = e.getMessage();
-				log.warn(errorMessage);
-				printMessagePage(req, res, errorMessage, errorMessage);
-				return;
-			}
-
-			// String errorMessage = "";
-			byte[] userIdBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(parmId));
-			byte[] passwordBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(parmPwd));
-			byte[] nicknameBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(parmNickname));
-			byte[] pwdHintBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(parmPwdHint));
-			byte[] pwdAnswerBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(parmPwdAnswer));
-			byte[] answerBytes = webServerSymmetricKey.decrypt(Base64.decodeBase64(parmCaptchaAnswer));
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
 			
-			String userId = new String(userIdBytes, CommonStaticFinalVars.SINNORI_CIPHER_CHARSET);
-			String answer = new String(answerBytes, CommonStaticFinalVars.SINNORI_CIPHER_CHARSET);
-			
-			/*
-			String userId = webUserSymmetricKey.decryptStringBase64(parmId);
-			String password = webUserSymmetricKey.decryptStringBase64(parmPwd);
-			String nickname = webUserSymmetricKey
-					.decryptStringBase64(parmNickname);
-			String pwdHint = webUserSymmetricKey
-					.decryptStringBase64(parmPwdHint);
-			String pwdAnswer = webUserSymmetricKey.decryptStringBase64(parmPwdAnswer);
-			
-			String answer = webUserSymmetricKey.decryptStringBase64(parmCaptchaAnswer);
-			
-			
-			
-			
-			if (userId.equals("")) {
-				String errorMessage = "아이디 값을 입력해 주세요.";
-				log.warn(errorMessage);
-				
-				printMessagePage(req, res, errorMessage, errorMessage);
-				return;
-			}
-			
-			if (password.equals("")) {
-				String errorMessage = "비밀번호 값을 입력해 주세요.";
-				log.warn(errorMessage);
-				
-				printMessagePage(req, res, errorMessage, errorMessage);
-				return;
-			}
-			
-			if (nickname.equals("")) {
-				String errorMessage = "별명 값을 입력해 주세요.";
-				log.warn(errorMessage);
-				
-				printMessagePage(req, res, errorMessage, errorMessage);
-				return;
-			}
-			
-			if (pwdHint.equals("")) {
-				String errorMessage = "비밀번호 분실시 힌트 값을 입력해 주세요.";
-				log.warn(errorMessage);
-				
-				printMessagePage(req, res, errorMessage, errorMessage);
-				return;
-			}
-			
-			if (pwdAnswer.equals("")) {
-				String errorMessage = "비밀번호 분실시 답변 값을 입력해 주세요.";
-				log.warn(errorMessage);
-				
-				printMessagePage(req, res, errorMessage, errorMessage);
-				return;
-			}
-			
-			if (answer.equals("")) {
-				String errorMessage = "Captcha 값을 입력해 주세요.";
-				log.warn(errorMessage);
-				
-				printMessagePage(req, res, errorMessage, errorMessage);
-				return;
-			}
-			*/
-			HttpSession httpSession = req.getSession();
-			Captcha captcha = (Captcha) httpSession.getAttribute(Captcha.NAME);
-			if (!captcha.isCorrect(answer)) {
-				
-				String errorMessage = String.format("사용자가 입력한 Captcha 값[%s]과 내부 Captcha 값[%s]이 다릅니다.", answer, captcha.getAnswer());
-				log.warn(errorMessage);
-				
-				printMessagePage(req, res, "입력한 Captcha 값이 틀렸습니다.", errorMessage);
-				return;
-			}
-			
-			httpSession.removeAttribute(Captcha.NAME);
-
-			log.info("userId=[{}]", userId);
-
-			// HttpSession session = req.getSession();
-
-			// ClientSessionKeyManager sessionKeyClientManager =
-			// ClientSessionKeyManager.getInstance();		
-
-			// String defaultServerName =
-			// (String)conf.getResource("default_server_name");
-			// getConnectionPool
-			// ServerResource defaultServerResource =
-			// SinnoriClientManager.getInstance().getServerResource(defaultServerName);
-
-			AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
-			
-			
-			BinaryPublicKey binaryPublicKeyInObj = new BinaryPublicKey();			
-			binaryPublicKeyInObj.setPublicKeyBytes(webServerSessionkey.getDupPublicKeyBytes());
-			
-			AbstractMessage messageFromServer = mainProjectConnectionPool.sendSyncInputMessage(binaryPublicKeyInObj);					
-			if (messageFromServer instanceof BinaryPublicKey) {
-				BinaryPublicKey binaryPublicKeyOutObj = (BinaryPublicKey) messageFromServer;
-				byte[] binaryPublicKeyBytes = binaryPublicKeyOutObj.getPublicKeyBytes();
-				ClientSessionKeyIF clientSessionKey = ClientSessionKeyManager.getInstance().getNewClientSessionKey(binaryPublicKeyBytes);
-				
-				
-				byte sessionKeyBytesOfServer[] = clientSessionKey.getDupSessionKeyBytes();								
-				byte ivBytesOfServer[] = clientSessionKey.getDupIVBytes();
-				ClientSymmetricKeyIF clientSymmetricKey = clientSessionKey.getClientSymmetricKey();
-				
-				
-
-				MemberRegisterReq sessionKeyMemberRegisterReq = new MemberRegisterReq();
-				
-				sessionKeyMemberRegisterReq.setIdCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(userIdBytes)));
-				sessionKeyMemberRegisterReq.setPwdCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(passwordBytes)));
-				sessionKeyMemberRegisterReq.setNicknameCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(nicknameBytes)));
-				sessionKeyMemberRegisterReq.setHintCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(pwdHintBytes)));
-				sessionKeyMemberRegisterReq.setAnswerCipherBase64(Base64.encodeBase64String(clientSymmetricKey.encrypt(pwdAnswerBytes)));
-				sessionKeyMemberRegisterReq.setSessionKeyBase64(Base64.encodeBase64String(sessionKeyBytesOfServer));
-				sessionKeyMemberRegisterReq.setIvBase64(Base64.encodeBase64String(ivBytesOfServer));				
-
-				messageFromServer = mainProjectConnectionPool.sendSyncInputMessage(sessionKeyMemberRegisterReq);					
-				if (messageFromServer instanceof MessageResultRes) {
-					messageResultOutObj = (MessageResultRes)messageFromServer;
-					/*if (outObj.getTaskResult().equals("N")) {
-						errorMessage = outObj.getResultMessage();
-						log.warn(errorMessage);
-					}*/			
-					
-				} else {
-					// errorMessage = messageFromServer.toString();
-					// FIXME!
-					log.warn(messageFromServer.toString());
-					
-					messageResultOutObj.setResultMessage("서버에서 회원 가입 처리가 실패하였습니다.");
-				}	
-			} else {
-				// FIXME!
-				log.warn(messageFromServer.toString());
-				
-				messageResultOutObj.setResultMessage("서버로 부터 공개키 바이트 배열을 얻는데 실패하였습니다.");
-				
-			}
-
-			// error 처리르 위한 loop문 종료
-			// log.info(String.format("9. errorMessage=[%s]", errorMessage));
-			
-			// FIXME!
-			log.warn(messageResultOutObj.toString());
-
-			req.setAttribute("messageResultOutObj", messageResultOutObj);
-			req.setAttribute(WebCommonStaticFinalVars.WEB_SERVER_SYMMETRIC_KEY, webServerSymmetricKey);
-			// req.setAttribute("errorMessage", errorMessage);
-			req.setAttribute("parmIVBase64", parmIVBase64);
-		}		
+		}	
+	}
+	
+	private void doProcessPage(HttpServletRequest req, HttpServletResponse res,
+			ServerSymmetricKeyIF webServerSymmetricKey, ServerSessionkeyIF webServerSessionkey,
+			MessageResultRes messageResultRes) {
+		req.setAttribute("messageResultRes", messageResultRes);
 		
-		printJspPage(req, res, goPage);
+		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY, webServerSymmetricKey);
+		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
+				webServerSessionkey.getModulusHexStrForWeb());
+		
+		printJspPage(req, res, "/menu/member/Member02.jsp");
 	}
 }

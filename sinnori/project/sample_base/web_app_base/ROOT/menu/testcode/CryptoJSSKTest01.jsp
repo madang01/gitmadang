@@ -15,16 +15,6 @@
 <link rel="stylesheet" type="text/css" href="/css/style.css" />
 <script type="text/javascript">
     function goURL(bodyurl) {
-		/*
-		var inx = bodyurl.indexOf("/servlet/");	
-		if (0 == inx) {
-			var f = document.directgofrm;
-			f.action = bodyurl;
-			f.submit();		
-		} else {
-			top.document.location.href = bodyurl;
-		}
-		*/
 		top.document.location.href = bodyurl;		
     }
 </script>
@@ -107,7 +97,7 @@
 		</script>
 
 		<form method="post" name="gofrm" target="_top">
-		<input type="hidden" name="pagegubun" value="step2" />
+		<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE %>" value="proc" />
 		<input type="hidden" name="algorithm" />
 		<input type="hidden" name="privateKey" />
 		<input type="hidden" name="iv" />

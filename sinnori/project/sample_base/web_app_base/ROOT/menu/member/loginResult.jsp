@@ -2,17 +2,14 @@
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
 %><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
 %><jsp:useBean id="successURL" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="parmIVBase64" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="modulusHex" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="messageResultRes" class="kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes" scope="request" /><%
 	// String resultMessage = messageResultRes.getResultMessage();
-	boolean isSuccess = messageResultRes.getIsSuccess();
-	
+	boolean isSuccess = messageResultRes.getIsSuccess();	
 %><!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-<title><%=WebCommonStaticFinalVars.WEBSITE_TITLE%></title>
+<title><%= WebCommonStaticFinalVars.WEBSITE_TITLE %></title>
 <meta name="Author" content="SinnoriTeam - website / Design by Ian Smith - N-vent Design Services LLC - www.n-vent.com" />
 <meta name="distribution" content="global" />
 <meta name="rating" content="general" />
@@ -22,19 +19,33 @@
 <link rel="shortcut icon" href="favicon.ico"/> <!-- see favicon.com -->
 <link rel="stylesheet" type="text/css" href="/css/style.css" />
 <script type="text/javascript">
-    function goURL(bodyurl) {
-		/*
-		var inx = bodyurl.indexOf("/servlet/");	
-		if (0 == inx) {
-			var f = document.directgofrm;
-			f.action = bodyurl;
-			f.submit();		
-		} else {
-			top.document.location.href = bodyurl;
-		}
-		*/
+    function goURL(bodyurl) {		
 		top.document.location.href = bodyurl;		
     }
+    
+    function init() {
+		var pageIV = CryptoJS.enc.Base64.parse("<%= getParameterIVBase64Value(request) %>");
+		var privateKey = CryptoJS.enc.Base64.parse(sessionStorage.getItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY %>'));
+
+		var resultMessage = CryptoJS.AES.decrypt("<%= getCipheredBase64String(request, messageResultRes.toString()) %>", privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: pageIV });
+		document.getElementById('idTxtResultMessage').innerHTML = resultMessage.toString(CryptoJS.enc.Utf8);
+
+		<!-- 보안을 위해서 로그인시 생성한 비밀키와 세션키 덮어쓰기 -->
+		var privateKey = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE %>);
+		
+		var rsa = new RSAKey();
+		rsa.setPublic("<%= getModulusHexString(request) %>", "10001");
+			
+		var sessionKeyHex = rsa.encrypt(CryptoJS.enc.Base64.stringify(privateKey));		
+		var sessionkeyBase64 = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex));
+
+		sessionStorage.setItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY %>', CryptoJS.enc.Base64.stringify(privateKey));
+		sessionStorage.setItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_SESSIONKEY %>', sessionkeyBase64);
+	
+		document.gofrm.submit();
+	}
+
+	window.onload = init;
 </script>
 </head>
 <body>
@@ -66,17 +77,27 @@
 <div id="bodytop">&nbsp;</div>
 <div id="bodywrap">
 	<div id="contentbody">
-		<script type="text/javascript" src="/js/cryptoJS/rollups/aes.js"></script>
-		<script type="text/javascript" src="/js/cryptoJS/components/core-min.js"></script>
-		<script type="text/javascript" src="/js/cryptoJS/components/cipher-core-min.js"></script>
+
+<script type="text/javascript" src="/js/jsbn/jsbn.js"></script>
+<script type="text/javascript" src="/js/jsbn/jsbn2.js"></script>
+<script type="text/javascript" src="/js/jsbn/prng4.js"></script>
+<script type="text/javascript" src="/js/jsbn/rng.js"></script>
+<script type="text/javascript" src="/js/jsbn/rsa.js"></script>
+<script type="text/javascript" src="/js/jsbn/rsa2.js"></script>
+<script type="text/javascript" src="/js/cryptoJS/rollups/sha256.js"></script>
+<script type="text/javascript" src="/js/cryptoJS/rollups/aes.js"></script>
+<script type="text/javascript" src="/js/cryptoJS/components/core-min.js"></script>
+<script type="text/javascript" src="/js/cryptoJS/components/cipher-core-min.js"></script>
 		<form name=gofrm method=get action="<%=successURL%>"><%
 		java.util.Enumeration<String> parmEnum = request.getParameterNames();
 		while(parmEnum.hasMoreElements()) {
 			String parmName = parmEnum.nextElement();
 			
-			if ("sessionkeyBase64".equals(parmName) || "ivBase64".equals(parmName)
+			if (WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY.equals(parmName) 
+					|| WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV.equals(parmName)
 				|| "id".equals(parmName) || "pwd".equals(parmName)
-				|| "successURL".equals(parmName) || "pageGubun".equals(parmName)) {
+				|| "successURL".equals(parmName) 
+				|| WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE.equals(parmName)) {
 				continue;
 			}
 			
@@ -102,34 +123,6 @@
 		%></td>
 			</tr>
 		</table>
-
-		<script type="text/javascript">
-		<!--
-			function init() {
-				var pageIV = CryptoJS.enc.Base64.parse("<%=parmIVBase64%>");
-				var privateKey = CryptoJS.enc.Base64.parse(sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME%>'));
-
-				var resultMessage = CryptoJS.AES.decrypt("<%=getCipheredBase64String(request, messageResultRes.toString())%>", privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: pageIV });
-				document.getElementById('idTxtResultMessage').innerHTML = resultMessage.toString(CryptoJS.enc.Utf8);
-
-				<!-- 보안을 위해서 로그인시 생성한 비밀키와 세션키 덮어쓰기 -->
-				var privateKey = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE%>);
-				
-				var rsa = new RSAKey();
-				rsa.setPublic("<%=modulusHex%>", "10001");
-					
-				var sessionKeyHex = rsa.encrypt(CryptoJS.enc.Base64.stringify(privateKey));		
-				var sessionkeyBase64 = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex));
-
-				sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME%>', CryptoJS.enc.Base64.stringify(privateKey));
-				sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_SESSIONKEY_NAME%>', sessionkeyBase64);
-			}
-
-			window.onload = init;
-			
-			document.gofrm.submit();			
-		//-->
-		</script>
 	</div>
 </div> <!-- end bodywrap -->
 <div id="bodybottom">&nbsp;</div>

@@ -380,13 +380,19 @@ public class ValueChecker {
 			throw new IllegalArgumentException("the parameter ip is null");
 		}
 		
-		String regexIP = "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$";
-		boolean isValid = ip.matches(regexIP);
+		String regexIPV4 = "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$";
+		boolean isValid = ip.matches(regexIPV4);
 		if (!isValid) {
-			String errorMessage = new StringBuilder("IP 값[")
-			.append(ip).append("]이 IP4 주소 포맷 xxx.xxx.xxx.xx 가 아닙니다").toString();
-			throw new IllegalArgumentException(errorMessage);
-		}
+			
+			String regexIPV6 = "^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]).){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]).){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$";
+			isValid = ip.matches(regexIPV6);		
+			
+			if (! isValid) {
+				String errorMessage = new StringBuilder("IP 값[")
+						.append(ip).append("]이 IP 주소 포맷이 아닙니다").toString();
+						throw new IllegalArgumentException(errorMessage);
+			}
+		}		
 	}
 	
 	public static void checkNoTrimString(String str) throws IllegalArgumentException {

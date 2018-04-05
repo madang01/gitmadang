@@ -1,8 +1,6 @@
 <%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
 %><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
-%><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="modulusHexString" class="java.lang.String" scope="request" /><%
 %><!DOCTYPE html>
 <html>
 <head>
@@ -18,16 +16,6 @@
 <link rel="stylesheet" type="text/css" href="/css/style.css" />
 <script type="text/javascript">
     function goURL(bodyurl) {
-		/*
-		var inx = bodyurl.indexOf("/servlet/");	
-		if (0 == inx) {
-			var f = document.directgofrm;
-			f.action = bodyurl;
-			f.submit();		
-		} else {
-			top.document.location.href = bodyurl;
-		}
-		*/
 		top.document.location.href = bodyurl;		
     }
 </script>
@@ -47,8 +35,7 @@
 	} else {
 %><a href="/menu/member/logout.jsp?topmenu=<%=getCurrentTopMenuIndex(request)%>">logout</a><%
 	}
-%>
-	
+%>	
 	</div>
 	<div id="branding"><p><span class="templogo"><!-- your logo here -->Sinnori Framework</span><br />of the developer, by the developer, for the developer</p></div>
 </div>
@@ -190,35 +177,34 @@
 					alert("Captcha 답변을 넣어주세요.");
 					f.answer.focus();
 					return;
-				}
-					
+				}					
 				
 				// FIXME!
-				var privateKey = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE%>);		
+				var privateKey = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE %>);		
 				// var privateKey = CryptoJS.enc.Hex.parse("cf5553bdbe3a6240a0a89fdd9be4e64c");
-				
-				
-				// alert(privateKey.length);
-				
+								
+				// alert(privateKey.length);				
 				
 				var rsa = new RSAKey();
-				rsa.setPublic("<%=modulusHexString%>", "10001");
+				rsa.setPublic("<%= getModulusHexString(request) %>", "10001");
 				
 				// FIXME!
-				var sessionKeyHex = rsa.encrypt(CryptoJS.enc.Base64.stringify(privateKey));				
-				g.sessionkeyBase64.value = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex));				
+				var sessionKeyHex = rsa.encrypt(CryptoJS.enc.Base64.stringify(privateKey));		
+				var sessionkeyBase64 = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex));				
 
-				sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME%>', CryptoJS.enc.Base64.stringify(privateKey));
-				sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_SESSIONKEY_NAME%>', g.sessionkeyBase64.value);
+				sessionStorage.setItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY %>', CryptoJS.enc.Base64.stringify(privateKey));
+				sessionStorage.setItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_SESSIONKEY %>', sessionkeyBase64);
 				
 			
-				var iv = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_IV_SIZE%>);
-				g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);
+				var iv = CryptoJS.lib.WordArray.random(<%= WebCommonStaticFinalVars.WEBSITE_IV_SIZE %>);
+				// alert(g.ivBase64.value);				
+				var symmetricKeyObj = CryptoJS.<%= WebCommonStaticFinalVars.WEBSITE_JAVASCRIPT_SYMMETRIC_KEY_ALGORITHM_NAME %>;
 
-				// alert(g.ivBase64.value);
+				g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value 
+					= sessionkeyBase64;
+				g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value 
+					= CryptoJS.enc.Base64.stringify(iv);
 				
-				var symmetricKeyObj = CryptoJS.<%=WebCommonStaticFinalVars.WEBSITE_JAVASCRIPT_SYMMETRIC_KEY_ALGORITHM_NAME%>;
-
 				g.id.value = symmetricKeyObj.encrypt(f.id.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
 				g.pwd.value = symmetricKeyObj.encrypt(f.pwd.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
 				g.nickname.value = symmetricKeyObj.encrypt(f.nickname.value, privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: iv });
@@ -241,9 +227,9 @@
 		//-->
 		</script>
 		<form method="post" name="gofrm" action="/servlet/Member">
-		<input type="hidden" name="pageMode" value="proc" />
-		<input type="hidden" name="sessionkeyBase64" />
-		<input type="hidden" name="ivBase64" />
+		<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE %>" value="proc" />
+		<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
+		<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />
 		<input type="hidden" name="id" />
 		<input type="hidden" name="pwd" />
 		<input type="hidden" name="nickname" />
@@ -255,14 +241,7 @@
 			<table style="border:0">
 			<tr>
 				<td colspan="2" align="center" style="font-size:24px">신놀이 회원 가입</td>
-			</tr><%
-			if (null != errorMessage && !errorMessage.equals("")) {
-		%>
-			<tr>
-				<td colspan="2"><%=HtmlStringUtil.toHtml4BRString(errorMessage)%></td>
-			</tr><%
-			} else {
-		%>
+			</tr>
 			<tr>
 				<td>아이디</td>
 				<td><input type="text" name="id" size="15" maxlength="15" /></td> 
@@ -298,10 +277,7 @@
 
 			<tr> 
 				<td colspan="2" align="center"><input type="button" onClick="chkform()" value="확인" /></td>
-			</tr><%
-			}
-		%>
-			
+			</tr>			
 			</table>
 		</form>
 	</div>

@@ -1,7 +1,6 @@
 <%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
 %><jsp:useBean id="successURL" class="java.lang.String" scope="request" /><%
-%><jsp:useBean id="modulusHexString" class="java.lang.String" scope="request" /><%	
 %><!DOCTYPE html>
 <html>
 <head>
@@ -17,16 +16,6 @@
 <link rel="stylesheet" type="text/css" href="/css/style.css" />
 <script type="text/javascript">
     function goURL(bodyurl) {
-		/*
-		var inx = bodyurl.indexOf("/servlet/");	
-		if (0 == inx) {
-			var f = document.directgofrm;
-			f.action = bodyurl;
-			f.submit();		
-		} else {
-			top.document.location.href = bodyurl;
-		}
-		*/
 		top.document.location.href = bodyurl;		
     }
 </script>
@@ -81,7 +70,7 @@
 
 			window.onload = init;
 
-			function chkform() {	
+			function chkform() {				
 				var f = document.frm;
 				var g = document.gofrm;
 				
@@ -159,16 +148,18 @@
 				var privateKey = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE%>);
 				
 				var rsa = new RSAKey();
-				rsa.setPublic("<%=modulusHexString%>", "10001");
+				rsa.setPublic("<%= getModulusHexString(request) %>", "10001");
 					
 				var sessionKeyHex = rsa.encrypt(CryptoJS.enc.Base64.stringify(privateKey));		
-				g.sessionkeyBase64.value = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex));
+				g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>.value 
+					= CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex));
 
-				sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME%>', CryptoJS.enc.Base64.stringify(privateKey));
-				sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_SESSIONKEY_NAME%>', g.sessionkeyBase64.value);
+				sessionStorage.setItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_SESSIONKEY %>', CryptoJS.enc.Base64.stringify(privateKey));
+				sessionStorage.setItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY %>', g.sessionkeyBase64.value);
 
 				var iv = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_IV_SIZE%>);
-				g.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);
+				g.<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>.value 
+					= CryptoJS.enc.Base64.stringify(iv);
 
 				
 				var symmetricKeyObj = CryptoJS.<%=WebCommonStaticFinalVars.WEBSITE_JAVASCRIPT_SYMMETRIC_KEY_ALGORITHM_NAME%>;
@@ -188,9 +179,9 @@
 		</script>
 		<form method="post" name="gofrm" action="/servlet/Login">
 		<input type="hidden" name="topmenu" value="<%=getCurrentTopMenuIndex(request)%>" />
-		<input type="hidden" name="pageGubun" value="step2" />
-		<input type="hidden" name="sessionkeyBase64" />
-		<input type="hidden" name="ivBase64" />
+		<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE %>" value="proc" />
+		<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
+		<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />
 		<input type="hidden" name="id" />
 		<input type="hidden" name="pwd" />
 		<input type="hidden" name="successURL" value="<%=successURL%>" /><%
@@ -198,9 +189,12 @@
 		while(parmEnum.hasMoreElements()) {
 			String parmName = parmEnum.nextElement();
 			
-			if ("sessionkeyBase64".equals(parmName) || "ivBase64".equals(parmName)
+			if (WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY.equals(parmName) 
+					|| WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV.equals(parmName)
 				|| "id".equals(parmName) || "pwd".equals(parmName)
-				|| "successURL".equals(parmName) || "pageGubun".equals(parmName) || "topmenu".equals(parmName)) {
+				|| "successURL".equals(parmName) 
+				|| WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE.equals(parmName) 
+				|| "topmenu".equals(parmName)) {
 				continue;
 			}
 			

@@ -6,16 +6,20 @@ import javax.servlet.http.HttpServletResponse;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.sessionkey.ServerSessionkeyIF;
 import kr.pe.sinnori.common.sessionkey.ServerSessionkeyManager;
+import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
+import kr.pe.sinnori.weblib.sitemenu.SiteMenuManger;
 import kr.pe.sinnori.weblib.sitemenu.SiteTopMenuType;
 
 @SuppressWarnings("serial")
 public abstract class AbstractLoginServlet extends AbstractSessionKeyServlet {	
 
 	protected void performPreTask(HttpServletRequest req, HttpServletResponse res) throws Exception  {
-		if (! isLogin(req)) {			
-			setSiteTopMenuRequestAtrributeMatchingTopMenuParameter(req, SiteTopMenuType.INTRODUCE);
+		if (! isLogin(req)) {
+			String requestURI = req.getRequestURI();
 			
-			String requestURI = req.getRequestURI();			
+			SiteTopMenuType targetSiteTopMenuType = SiteMenuManger.getInstance().getTopMenuFromLeftmenuURL(requestURI);
+			setSiteTopMenu(req, targetSiteTopMenuType);
+						
 			// log.info("requestURI={}", requestURI);
 			
 			
@@ -28,14 +32,13 @@ public abstract class AbstractLoginServlet extends AbstractSessionKeyServlet {
 				
 				String errorMessage = "ServerSessionkeyManger instance init error";
 				String debugMessage = String.format("ServerSessionkeyManger instance init error, errormessage=[%s]", e.getMessage());
-				printMessagePage(req, res, errorMessage, debugMessage);
+				printErrorMessagePage(req, res, errorMessage, debugMessage);
 				return;
 			}
-					
-			String modulusHexString = webServerSessionkey.getModulusHexStrForWeb();
-
+			
 			req.setAttribute("successURL", requestURI);
-			req.setAttribute("modulusHexString", modulusHexString);
+			req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING,
+					webServerSessionkey.getModulusHexStrForWeb());
 			printJspPage(req, res, JDF_LOGIN_PAGE);
 			return;
 		} else {

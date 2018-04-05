@@ -84,7 +84,7 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		pageStrBuilder.append("\t\tif (typeof(sessionStorage) == 'undefined' ) {");
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 		
-		pageStrBuilder.append("\t\t\talert('당신의 브라우저는 HTML5 sessionStorage 를 지원하지 않습니다. 브라우저를 업그레이드하세요.');");
+		pageStrBuilder.append("\t\t\talert('Your browser does not support HTML5 sessionStorage. Please Upgrade your browser.');");
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 		
 		pageStrBuilder.append("\t\t\treturn;");
@@ -94,7 +94,7 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 		
 		pageStrBuilder.append("\t\tvar webUserPrivateKeyBase64 = sessionStorage.getItem('");
-		pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME);
+		pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY);
 		pageStrBuilder.append("');");
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 		
@@ -115,7 +115,7 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		
 		
 		pageStrBuilder.append("\t\t\t\tsessionStorage.setItem('");
-		pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME);
+		pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY);
 		pageStrBuilder.append("', CryptoJS.enc.Base64.stringify(webUserPrivateKey)); // key-value 형식으로 저장");
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 				
@@ -131,7 +131,7 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 		
 		pageStrBuilder.append("\t\t\t\tsessionStorage.setItem('");
-		pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_SESSIONKEY_NAME);
+		pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_SESSIONKEY);
 		pageStrBuilder.append("', CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex))); // key-value 형식으로 저장");
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 		
@@ -139,12 +139,12 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 		
 		pageStrBuilder.append("\t\t\t\t\tsessionStorage.removeItem('");
-		pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME);
+		pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY);
 		pageStrBuilder.append("');");
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 		
 		pageStrBuilder.append("\t\t\t\t\tsessionStorage.removeItem('");
-		pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_SESSIONKEY_NAME);
+		pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_SESSIONKEY);
 		pageStrBuilder.append("');");
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 		
@@ -165,8 +165,12 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		pageStrBuilder.append("\t\tg.action = targeturl;");
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 		
-		pageStrBuilder.append("\t\tg.sessionkeyBase64.value = sessionStorage.getItem('");
-		pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_SESSIONKEY_NAME);
+		pageStrBuilder.append("\t\tg.");
+		pageStrBuilder.append(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY);
+		pageStrBuilder.append(".value = sessionStorage.getItem('");		
+		
+		
+		pageStrBuilder.append(WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_SESSIONKEY);
 		pageStrBuilder.append("');");
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 		
@@ -175,9 +179,12 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		pageStrBuilder.append(");");
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 		
-		pageStrBuilder.append("\t\tg.ivBase64.value = CryptoJS.enc.Base64.stringify(iv);");
+		pageStrBuilder.append("\t\tg.");
+		pageStrBuilder.append(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV);
+		pageStrBuilder.append(".value = CryptoJS.enc.Base64.stringify(iv);");
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
-				
+			
+		
 		pageStrBuilder.append("\t\tg.submit();");
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 		pageStrBuilder.append("\t}");
@@ -198,11 +205,17 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 		
 		
-		pageStrBuilder.append("<input type=hidden name=\"sessionkeyBase64\" />");
+		pageStrBuilder.append("<input type=hidden name=\"");
+		pageStrBuilder.append(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY);
+		pageStrBuilder.append("\" />");
+				
+		
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 		 
 		
-		pageStrBuilder.append("<input type=hidden name=\"ivBase64\" />");
+		pageStrBuilder.append("<input type=hidden name=\"");
+		pageStrBuilder.append(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV);
+		pageStrBuilder.append("\" />");
 		pageStrBuilder.append(CommonStaticFinalVars.NEWLINE);
 		
 		
@@ -231,12 +244,14 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 	
 	
 	protected void performPreTask(HttpServletRequest req, HttpServletResponse res) throws Exception  {		
-		String parmSessionKeyBase64 = req.getParameter("sessionkeyBase64");
-		String parmIVBase64 = req.getParameter("ivBase64");
-		
+		String parmSessionKeyBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY);
+		String parmIVBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV);
 		
 		//log.info("parmSessionKeyBase64=[{}]", parmSessionKeyBase64);
-		//log.info("parmIVBase64=[{}]", parmIVBase64);		
+		//log.info("parmIVBase64=[{}]", parmIVBase64);
+		//System.out.println("parmSessionKeyBase64="+parmSessionKeyBase64);
+		// System.out.println("parmIVBase64="+parmIVBase64);
+		
 		
 		ServerSessionkeyIF webServerSessionkey  = null;
 		try {
@@ -247,7 +262,7 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 			
 			String errorMessage = "ServerSessionkeyManger instance init error";
 			String debugMessage = String.format("ServerSessionkeyManger instance init error, errormessage=[%s]", e.getMessage());
-			printMessagePage(req, res, errorMessage, debugMessage);
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 				
@@ -271,7 +286,7 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 			
 			String errorMessage = "the parameter parmSessionKeyBase64 is not a base64 string";
 			String debugMessage = String.format("parmSessionKeyBase64[%s] base64 decode error, errormessage=[%s]", parmSessionKeyBase64, e.getMessage());
-			printMessagePage(req, res, errorMessage, debugMessage);
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		byte[] ivBytes = null;
@@ -283,17 +298,15 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 			String errorMessage = "the parameter parmIVBase64 is not a base64 string";
 			String debugMessage = String.format("parmIVBase64[%s] base64 decode error, errormessage=[%s]", parmIVBase64, e.getMessage());
 			
-			printMessagePage(req, res, errorMessage, debugMessage);
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}		
 		
 		//log.info("sessionkeyBytes=[{}]", HexUtil.getHexStringFromByteArray(sessionkeyBytes));
 		//log.info("ivBytes=[{}]", HexUtil.getHexStringFromByteArray(ivBytes));
-		
-		req.setAttribute("parmSessionKeyBase64", parmSessionKeyBase64);
-		req.setAttribute("parmIVBase64", parmIVBase64);
-		req.setAttribute("modulusHexString", modulusHexString);
-		req.setAttribute(WebCommonStaticFinalVars.WEB_SERVER_SYMMETRIC_KEY, webServerSessionkey.getNewInstanceOfServerSymmetricKey(true, sessionkeyBytes, ivBytes));
+		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING, 
+				webServerSessionkey.getModulusHexStrForWeb());		
+		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY, webServerSessionkey.getNewInstanceOfServerSymmetricKey(true, sessionkeyBytes, ivBytes));
 		performTask(req,res);
 	}
 }

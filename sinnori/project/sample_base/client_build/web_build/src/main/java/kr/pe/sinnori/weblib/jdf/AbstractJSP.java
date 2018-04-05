@@ -82,12 +82,12 @@ public abstract class AbstractJSP extends AbstractBaseServlet implements HttpJsp
 		}
 		
 		
-		ServerSymmetricKeyIF webServerSymmetricKey = (ServerSymmetricKeyIF)req.getAttribute(WebCommonStaticFinalVars.WEB_SERVER_SYMMETRIC_KEY);
+		ServerSymmetricKeyIF webServerSymmetricKey = (ServerSymmetricKeyIF)req.getAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY);
 		if (null == webServerSymmetricKey) {
 			/*String errorMessage = new StringBuilder("the jsp request's attribute[")
 					.append(WebCommonStaticFinalVars.WEB_SERVER_SYMMETRIC_KEY)
 					.append("] doesn't exist").toString();*/
-			log.warn("the jsp request's attribute[{}] doesn't exist", WebCommonStaticFinalVars.WEB_SERVER_SYMMETRIC_KEY);
+			log.warn("the jsp request's attribute[{}] doesn't exist", WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_WEB_SERVER_SYMMETRIC_KEY);
 			return "";
 		}
 		return Base64.encodeBase64String(webServerSymmetricKey.encrypt(painText.getBytes(CommonStaticFinalVars.SINNORI_CIPHER_CHARSET)));
@@ -100,7 +100,7 @@ public abstract class AbstractJSP extends AbstractBaseServlet implements HttpJsp
 			throw new IllegalArgumentException("the parameter req is null");
 		}
 		
-		Object siteTopMenuRequstValue = req.getAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME);
+		Object siteTopMenuRequstValue = req.getAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU);
 		
 		SiteTopMenuType targetSiteTopMenuType = SiteTopMenuType.INTRODUCE;
 		if (null != siteTopMenuRequstValue) {
@@ -110,8 +110,12 @@ public abstract class AbstractJSP extends AbstractBaseServlet implements HttpJsp
 		return targetSiteTopMenuType.getTopMenuIndex();
 	}
 	
-	protected String buildTopMenuPartString(HttpServletRequest req) {		
-		Object siteTopMenuRequstValue = req.getAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME);
+	protected String buildTopMenuPartString(HttpServletRequest req) {	
+		if (null == req) {
+			throw new IllegalArgumentException("the parameter req is null");
+		}
+		
+		Object siteTopMenuRequstValue = req.getAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU);
 		
 		SiteTopMenuType targetSiteTopMenuType = SiteTopMenuType.INTRODUCE;
 		if (null != siteTopMenuRequstValue) {
@@ -126,14 +130,15 @@ public abstract class AbstractJSP extends AbstractBaseServlet implements HttpJsp
 			throw new IllegalArgumentException("the parameter req is null");
 		}
 		
-		Object siteTopMenuRequestValue = req.getAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME);
+		Object siteTopMenuRequestValue = req.getAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU);
 		
 		SiteTopMenuType targetSiteTopMenuType = SiteTopMenuType.INTRODUCE;
 		if (null != siteTopMenuRequestValue) {
 			targetSiteTopMenuType = (SiteTopMenuType)siteTopMenuRequestValue;
-		}		
+		}
 		
-		Object siteLeftMenuRequestKeyValue = req.getAttribute(WebCommonStaticFinalVars.SITE_LEFTMENU_REQUEST_KEY_NAME);
+		
+		Object siteLeftMenuRequestKeyValue = req.getAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_LEFTMENU);
 		
 		String leftmenu = null;
 		if (null != siteLeftMenuRequestKeyValue) {
@@ -141,5 +146,21 @@ public abstract class AbstractJSP extends AbstractBaseServlet implements HttpJsp
 		}		
 		
 		return SiteMenuManger.getInstance().getLeftMenuPartString(targetSiteTopMenuType, leftmenu);
-	}	
+	}
+	
+	protected String getParameterIVBase64Value(HttpServletRequest req) {
+		String parmIVBase64 = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV);
+		if (null == parmIVBase64) {
+			return "";
+		}
+		return parmIVBase64;
+	}
+	
+	protected String getModulusHexString(HttpServletRequest req) {
+		Object modulusHexStringValue = req.getAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_MODULUS_HEX_STRING);
+		if (null == modulusHexStringValue) {
+			return "";
+		}
+		return (String)modulusHexStringValue;
+	}
 }

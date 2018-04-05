@@ -18,6 +18,7 @@ package kr.pe.sinnori.servlet;
 
 
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,59 +36,106 @@ import kr.pe.sinnori.weblib.jdf.AbstractServlet;
  */
 @SuppressWarnings("serial")
 public class CryptoJSMDTestSvl extends AbstractServlet {
-	final String arryPageURL[] = {
-			"/menu/testcode/CryptoJSMDTest01.jsp", "/menu/testcode/CryptoJSMDTest02.jsp"
-	};
 
 	@Override
 	protected void performTask(HttpServletRequest req, HttpServletResponse res)
 			throws Exception {
-		req.setAttribute(WebCommonStaticFinalVars.SITE_TOPMENU_REQUEST_KEY_NAME, 
+		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU, 
 				kr.pe.sinnori.weblib.sitemenu.SiteTopMenuType.TEST_EXAMPLE);
 		
-		String pageGubun = req.getParameter("pagegubun");
-		log.info(String.format("pageGubun[%s]", pageGubun));		
-		
-		
-		String goPage=null;
-		
-		if (null == pageGubun || pageGubun.equals("step1")) {
-			goPage = arryPageURL[0];
-		} else {
-			String algorithm = req.getParameter("algorithm");
-			
-			String javascriptMDHex = req.getParameter("javascriptMD");
-			
-			String plainText = req.getParameter("plainText");
-			
-			
-			log.info(String.format("algorithm[%s]", algorithm));
-			log.info(String.format("javascrpt digestMessage[%s]", javascriptMDHex));
-			log.info(String.format("plainText[%s]", plainText));
-			
-			byte[] javascriptMD = HexUtil.getByteArrayFromHexString(javascriptMDHex);
-			
-			
-			MessageDigest md = MessageDigest.getInstance(algorithm);
-			
-			md.update(plainText.replaceAll("\r\n", "\n").getBytes());
-			
-			byte serverMD[] =  md.digest();
-			
-			log.info(String.format("server digestMessage[%s]", HexUtil.getHexStringFromByteArray(serverMD)));
-			
-			String resultMessage = String.format("%s", Arrays.equals(javascriptMD, serverMD));
-			
-			goPage = arryPageURL[1];
-			
-			req.setAttribute("plainText", plainText);
-			req.setAttribute("javascriptMDHex", javascriptMDHex);
-			req.setAttribute("serverMDHex", HexUtil.getHexStringFromByteArray(serverMD));
-			req.setAttribute("resultMessage", resultMessage);
+		String parmRequestType = req.getParameter(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE);
+		if (null == parmRequestType) {		
+			firstPage(req, res);			
+			return;
 		}
 		
-		log.info(String.format("goPage[%s]", goPage));
+		if (parmRequestType.equals("view")) {
+			firstPage(req, res);
+			return;
+		} else if (parmRequestType.equals("proc")) {		
+			processPage(req, res);
+			return;
+		} else {
+			String errorMessage = "파라미터 '요청종류'의 값이 잘못되었습니다";
+			String debugMessage = new StringBuilder("the web parameter \"")
+					.append(WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE)
+					.append("\"")
+					.append("'s value[")
+					.append(parmRequestType)			
+					.append("] is not a elment of request type set[view, proc]").toString();
+			
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+	}
+	
+	private void firstPage(HttpServletRequest req, HttpServletResponse res) {
+		printJspPage(req, res, "/menu/testcode/CryptoJSMDTest01.jsp");	
+	}
+	
+	private void processPage(HttpServletRequest req, HttpServletResponse res) {
+		String parmAlgorithm = req.getParameter("algorithm");		
+		String parmJavascriptMDHex = req.getParameter("javascriptMD");
+		String parmPlainText = req.getParameter("plainText");
 		
-		printJspPage(req, res, goPage);	
+		log.info("parmAlgorithm[{}]", parmAlgorithm);
+		log.info("parmJavascriptMDHex[{}]", parmJavascriptMDHex);
+		log.info("parmPlainText[{}]", parmPlainText);
+		
+		if (null == parmAlgorithm) {
+			String errorMessage = "알고리즘을 입력해 주세요";
+			String debugMessage = "the web parameter 'algorithm' is null";
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		if (null == parmJavascriptMDHex) {
+			String errorMessage = "알고리즘을 입력해 주세요";
+			String debugMessage = "the web parameter 'javascriptMD' is null";
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		if (null == parmPlainText) {
+			String errorMessage = "평문을 입력해 주세요";
+			String debugMessage = "the web parameter 'plainText' is null";
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		
+		byte[] javascriptMD = HexUtil.getByteArrayFromHexString(parmJavascriptMDHex);
+		
+		
+		MessageDigest md = null;
+		try {
+			md = MessageDigest.getInstance(parmAlgorithm);
+		} catch (NoSuchAlgorithmException e) {
+			String errorMessage = "fail to get a MessageDigest class instance";
+			log.warn(errorMessage, e);			
+			
+			String debugMessage = new StringBuilder("the web parameter 'algorithm'[")
+					.append(parmAlgorithm)
+					.append("], errmsg=")
+					.append(e.getMessage()).toString();
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}
+		
+		md.update(parmPlainText.replaceAll("\r\n", "\n").getBytes());
+		
+		byte serverMD[] =  md.digest();
+		
+		// log.info(String.format("server digestMessage[%s]", HexUtil.getHexStringFromByteArray(serverMD)));
+		
+		String isSame = String.valueOf(Arrays.equals(javascriptMD, serverMD));
+		
+		req.setAttribute("plainText", parmPlainText);
+		req.setAttribute("javascriptMDHex", parmJavascriptMDHex);
+		req.setAttribute("serverMDHex", HexUtil.getHexStringFromByteArray(serverMD));
+		req.setAttribute("isSame", isSame);
+		
+		
+		printJspPage(req, res, "/menu/testcode/CryptoJSMDTest02.jsp");
 	}
 }

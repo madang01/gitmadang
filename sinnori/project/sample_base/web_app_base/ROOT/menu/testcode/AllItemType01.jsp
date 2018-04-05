@@ -1,9 +1,8 @@
 <%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
 %><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
-%><jsp:useBean id="allDataTypeInObj" class="kr.pe.sinnori.impl.message.AllItemType.AllItemType" scope="request" /><%
-%><jsp:useBean id="allDataTypeOutObj" class="kr.pe.sinnori.impl.message.AllItemType.AllItemType" scope="request" /><%
-%><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%
+%><jsp:useBean id="allDataTypeReq" class="kr.pe.sinnori.impl.message.AllItemType.AllItemType" scope="request" /><%
+%><jsp:useBean id="allItemTypeRes" class="kr.pe.sinnori.impl.message.AllItemType.AllItemType" scope="request" /><%
 	Boolean isSame = (Boolean) request.getAttribute("isSame");	
 %><!DOCTYPE html>
 <html>
@@ -77,15 +76,8 @@
 				<td colspan=2 style="text-align:center">AllDataType 입력메세지</td>
 			</tr>
 			<tr>
-				<td colspan=2 style="text-align:left"><%=HtmlStringUtil.toHtml4BRString(allDataTypeInObj.toString())%></td>
-			</tr><%
-				if (null != errorMessage && !errorMessage.equals("")) {
-			%>
-			<tr>
-				<td colspan="2"><%=errorMessage%></td>
-			</tr><%
-				} else {
-			%>
+				<td colspan=2 style="text-align:left"><%=HtmlStringUtil.toHtml4BRString(allDataTypeReq.toString())%></td>
+			</tr>
 			<tr>
 				<td style="text-align:center">출력 비교 결과</td><%
 					if (isSame) {
@@ -100,10 +92,8 @@
 				<td colspan=2 style="text-align:center">AllDataType 출력메세지</td>
 			</tr>
 			<tr>
-				<td colspan=2 style="text-align:left"><%=HtmlStringUtil.toHtml4BRString(allDataTypeOutObj.toString())%></td>
-			</tr><%
-				}
-			%>
+				<td colspan=2 style="text-align:left"><%=HtmlStringUtil.toHtml4BRString(allItemTypeRes.toString())%></td>
+			</tr>
 		</table>
 	</div>
 </div> <!-- end bodywrap -->

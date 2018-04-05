@@ -1,6 +1,5 @@
 <%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
-%><jsp:useBean id="modulusHex" class="java.lang.String" scope="request" /><%
 %><!DOCTYPE html>
 <html>
 <head>
@@ -16,16 +15,6 @@
 <link rel="stylesheet" type="text/css" href="/css/style.css" />
 <script type="text/javascript">
     function goURL(bodyurl) {
-		/*
-		var inx = bodyurl.indexOf("/servlet/");	
-		if (0 == inx) {
-			var f = document.directgofrm;
-			f.action = bodyurl;
-			f.submit();		
-		} else {
-			top.document.location.href = bodyurl;
-		}
-		*/
 		top.document.location.href = bodyurl;		
     }
 </script>
@@ -65,6 +54,10 @@
 		<script type="text/javascript" src="/js/jsbn/rng.js"></script>
 		<script type="text/javascript" src="/js/jsbn/rsa.js"></script>
 		<script type="text/javascript" src="/js/jsbn/rsa2.js"></script>
+		<script type="text/javascript" src="/js/cryptoJS/rollups/sha256.js"></script>
+		<script type="text/javascript" src="/js/cryptoJS/rollups/aes.js"></script>
+		<script type="text/javascript" src="/js/cryptoJS/components/core-min.js"></script>
+		<script type="text/javascript" src="/js/cryptoJS/components/cipher-core-min.js"></script>
 		<script type="text/javascript">
 		<!--
 			function chkform() {
@@ -73,7 +66,7 @@
 				var g = document.gofrm;
 				
 				var rsa = new RSAKey();
-				rsa.setPublic("<%=modulusHex%>", "10001");		
+				rsa.setPublic("<%= getModulusHexString(request) %>", "10001");		
 				g.plainText.value = f.plainText.value;
 				g.encryptedBytesWithPublicKey.value = rsa.encrypt(f.plainText.value);
 				g.submit();
@@ -84,7 +77,7 @@
 		</script>
 
 		<form method="post" name="gofrm" target="_top">
-		<input type="hidden" name="pagegubun" value="step2" />
+		<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE %>" value="proc" />
 		<input type="hidden" name="encryptedBytesWithPublicKey" />
 		<input type="hidden" name="plainText" />
 		</form>

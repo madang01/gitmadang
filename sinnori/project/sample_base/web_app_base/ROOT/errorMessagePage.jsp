@@ -1,11 +1,8 @@
 <%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
 %><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
-
-	String userMessage = (String)request.getAttribute("userMessage");
-	if (null == userMessage) userMessage="";
-	String debugMessage = (String)request.getAttribute("debugMessage");
-	
+%><jsp:useBean id="userMessage" class="java.lang.String" scope="request" /><%
+%><jsp:useBean id="debugMessage" class="java.lang.String" scope="request" /><%
 %><!DOCTYPE html>
 <html>
 <head>
@@ -65,7 +62,7 @@
 <div id="bodywrap">
 	<div id="contentbody">
 		userMessage=[<%=HtmlStringUtil.toHtml4BRString(userMessage)%>]<br/><%
-	if (null != debugMessage) {
+	if (null != debugMessage && debugMessage.trim().equals("")) {
 %>
 		debugMessage=[<%=HtmlStringUtil.toHtml4BRString(debugMessage)%>]<br/><%
 	}

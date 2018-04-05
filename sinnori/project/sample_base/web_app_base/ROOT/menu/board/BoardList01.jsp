@@ -1,11 +1,10 @@
 <%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><%@ page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
+%><%@ page import="kr.pe.sinnori.weblib.common.BoardType"%><%
 %><%@ page import="kr.pe.sinnori.impl.message.BoardListRes.BoardListRes" %><%
-%><jsp:useBean id="modulusHex" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="parmBoardId" class="java.lang.String" scope="request" /><%
 %><jsp:useBean id="boardListRes" class="kr.pe.sinnori.impl.message.BoardListRes.BoardListRes" scope="request" /><%
-%><jsp:useBean id="errorMessage" class="java.lang.String" scope="request" /><%
 
 	System.out.println(boardListRes.toString());
 
@@ -22,20 +21,55 @@
 <meta name="DC.title" content="Your Company"/>
 <link rel="shortcut icon" href="favicon.ico"/> <!-- see favicon.com -->
 <link rel="stylesheet" type="text/css" href="/css/style.css" />
+<style>
+<!--
+table {
+	border:solid 1px;
+	border-color:black;
+	border-collapse:collapse;
+}
+thead {
+	height : 30px;
+	text-align:center;
+}
+tbody {
+	height : 20px;
+	text-align:center;
+}
+-->
+</style>
+<script type="text/javascript" src="/js/jsbn/jsbn.js"></script>
+<script type="text/javascript" src="/js/jsbn/jsbn2.js"></script>
+<script type="text/javascript" src="/js/jsbn/prng4.js"></script>
+<script type="text/javascript" src="/js/jsbn/rng.js"></script>
+<script type="text/javascript" src="/js/jsbn/rsa.js"></script>
+<script type="text/javascript" src="/js/jsbn/rsa2.js"></script>
+<script type="text/javascript" src="/js/cryptoJS/rollups/sha256.js"></script>
+<script type="text/javascript" src="/js/cryptoJS/rollups/aes.js"></script>
+<script type="text/javascript" src="/js/cryptoJS/components/core-min.js"></script>
+<script type="text/javascript" src="/js/cryptoJS/components/cipher-core-min.js"></script>
 <script type="text/javascript">
-    function goURL(bodyurl) {
-		/*
-		var inx = bodyurl.indexOf("/servlet/");	
-		if (0 == inx) {
-			var f = document.directgofrm;
-			f.action = bodyurl;
-			f.submit();		
-		} else {
-			top.document.location.href = bodyurl;
-		}
-		*/
+	function goURL(bodyurl) {
 		top.document.location.href = bodyurl;		
-    }
+	}
+
+	function getSessionkeyBase64() {
+		var sessionkeyBase64 = sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_SESSIONKEY%>');
+		if (typeof(sessionKey) == 'undefined') {
+			var privateKey = CryptoJS.lib.WordArray.random(<%=WebCommonStaticFinalVars.WEBSITE_PRIVATEKEY_SIZE%>);
+		
+			var rsa = new RSAKey();
+			rsa.setPublic("<%= getModulusHexString(request) %>", "10001");
+			
+			var sessionKeyHex = rsa.encrypt(CryptoJS.enc.Base64.stringify(privateKey));		
+			sessionkeyBase64 = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(sessionKeyHex));
+	
+			sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY%>', CryptoJS.enc.Base64.stringify(privateKey));
+			sessionStorage.setItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_SESSIONKEY%>', sessionkeyBase64);
+		}
+	
+		return sessionkeyBase64;
+	}
 </script>
 </head>
 <body>
@@ -67,29 +101,9 @@
 <div id="bodytop">&nbsp;</div>
 <div id="bodywrap">
 	<div id="contentbody">
-<jsp:include page="/common/crypto_common.jsp" flush="false">
-	<jsp:param name="modulusHex" value="<%=modulusHex%>" />
-</jsp:include>	
-	
-<style>
-<!--
-table {
-	border:solid 1px;
-	border-color:black;
-	border-collapse:collapse;
-}
-thead {
-	height : 30px;
-	text-align:center;
-}
-tbody {
-	height : 20px;
-	text-align:center;
-}
--->
-</style>
+
 <script type="text/javascript">
-	function goWrite() {
+	function goWritePage() {
 		if(typeof(sessionStorage) == "undefined") {
 		    alert("Sorry! No HTML5 sessionStorage support..");
 		    return;
@@ -103,7 +117,7 @@ tbody {
 	}
 
 
-	function goDetail(boardNo) {
+	function goDetailPage(boardNo) {
 		if(typeof(sessionStorage) == "undefined") {
 		    alert("Sorry! No HTML5 sessionStorage support..");
 		    return;
@@ -118,7 +132,7 @@ tbody {
 	}
 
 
-	function goPage(pageNo) {
+	function goListPage(pageNo) {
 		if(typeof(sessionStorage) == "undefined") {
 		    alert("Sorry! No HTML5 sessionStorage support..");
 		    return;
@@ -133,43 +147,42 @@ tbody {
 	}
 </script>
 <form name=goWriteForm method="post" action="/servlet/BoardWrite">
-<input type="hidden" name="pageMode" value="view" />
+<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE%>" value="view" />
 <input type="hidden" name="boardId" value="<%=parmBoardId%>" />
-<input type="hidden" name="sessionkeyBase64" />
-<input type="hidden" name="ivBase64" />
+<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
+<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />
 </form>
 
 
 <form name=goDetailForm method="post" action="/servlet/BoardDetail">
-<input type="hidden" name="pageMode" value="view" />
+<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_REQUEST_TYPE %>" value="view" />
 <input type="hidden" name="boardId" value="<%=parmBoardId%>" />
 <input type="hidden" name="boardNo" />
-<input type="hidden" name="sessionkeyBase64" />
-<input type="hidden" name="ivBase64" />
+<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
+<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />
 </form>
 
 <form name=gofrm method="post" action="/servlet/BoardList">
 <input type="hidden" name="boardId" value="<%=parmBoardId%>" />
 <input type="hidden" name="pageNo" />
-<input type="hidden" name="sessionkeyBase64" />
-<input type="hidden" name="ivBase64" />
+<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY %>" />
+<input type="hidden" name="<%= WebCommonStaticFinalVars.PARAMETER_KEY_NAME_OF_SESSION_KEY_IV %>" />
 </form>
 
-<h1>자유 게시판</h1>
+<h1><%= BoardType.valueOf(boardListRes.getBoardId()).getName() %> 게시판</h1>
 <br/>
 <form name=frm onsubmit="return false">
 <div style="width:600px; margin:0 auto; pading:10px;">
 	<div style="clear:both; height:40px;">
 		<div style="float:left; width:200px;">
-		<input type=button onClick="goWrite()" value="글 작성하기" />
+		<input type=button onClick="goWritePage()" value="글 작성하기" />
 		</div><%
-	if (null == errorMessage || errorMessage.equals("")) {
+	
 		long total = boardListRes.getTotal();
 		int pageSize = boardListRes.getPageSize();
 		long totalPage = (total + pageSize - 1) / pageSize;
 
 		if (totalPage > 1) {
-
 			long pageNo = boardListRes.getStartNo() / pageSize+1;
 			int pageListSize = 2;
 
@@ -177,7 +190,7 @@ tbody {
 %><div style="text-align:right; float:right; width:400px;">페이지 이동 : <%
 
 			if (startPageNo > 1) {
-%><a href="#" onClick="goPage('<%=startPageNo-1%>')">prev</a> &nbsp;<%
+%><a href="#" onClick="goListPage('<%=startPageNo-1%>')">prev</a> &nbsp;<%
 			}
 
 			for (int i=0; i < pageListSize; i++) {
@@ -187,17 +200,17 @@ tbody {
 				if (workPageNo == pageNo) {
 %><b><%=workPageNo%></b>&nbsp;<%	
 				} else {
-%><a href="#" onClick="goPage('<%=workPageNo%>')"><%=workPageNo%></a>&nbsp;<%	
+%><a href="#" onClick="goListPage('<%=workPageNo%>')"><%=workPageNo%></a>&nbsp;<%	
 				}
 		
 			}
 
 			if (startPageNo+pageListSize <= totalPage) {
-%>&nbsp;<a href="#" onClick="goPage('<%=startPageNo+pageListSize%>')">next</a><%
+%>&nbsp;<a href="#" onClick="goListPage('<%=startPageNo+pageListSize%>')">next</a><%
 			}
 %></div><%
 		}
-	}
+	
 %>
 	</div>
 	<div style="clear:both; height:100%">
@@ -213,40 +226,32 @@ tbody {
 </tr>
 </thead>
 <tbody><%
-	if (null != errorMessage && !errorMessage.equals("")) {
-%>
-<tr>
-	<td colspan="8"><%=HtmlStringUtil.toHtml4BRString(errorMessage)%></td>
-</tr><%
-	} else {
 		java.util.List<BoardListRes.Board> boardList = boardListRes.getBoardList();
 
-		if (null == boardList) {
+	if (null == boardList) {
 %>
 	<tr>
 	<td colspan="8">&nbsp;</td>
 	</tr><%
-		} else {
-
+	} else {
 		for (BoardListRes.Board board : boardList) {
 			int depth = board.getDepth();
 	%>
 <tr>
 	<td><%=board.getBoardNo()%></td>
 	<td align="left">&nbsp;&nbsp;<%
-		if (depth > 0) {
-			for (int i=0; i < depth; i++) {
-		out.print("&nbsp;&nbsp;&nbsp;&nbsp;");
+			if (depth > 0) {
+				for (int i=0; i < depth; i++) {
+			out.print("&nbsp;&nbsp;&nbsp;&nbsp;");
+				}
+				out.print("ㄴ");
 			}
-			out.print("ㄴ");
-		}
-	%><a href="#" onClick="goDetail('<%=board.getBoardNo()%>')"><%=HtmlStringUtil.toHtml4BRString(board.getSubject())%></a></td>
+	%><a href="#" onClick="goDetailPage('<%=board.getBoardNo()%>')"><%=HtmlStringUtil.toHtml4BRString(board.getSubject())%></a></td>
 	<td><%=HtmlStringUtil.toHtml4BRString(board.getNickname())%></td>
 	<td><%=board.getViewCount() %></td>
 	<td><%=board.getVotes() %></td>
 	<td><%=board.getModifiedDate() %></td>
 </tr><%
-			}
 		}
 	}
 %>
@@ -256,40 +261,34 @@ tbody {
 <br/>
 	<div style="clear:both; height:30px;">
 		<div style="float:left; width:200px;">
-		<input type=button onClick="goWrite()" value="글 작성하기" />
+		<input type=button onClick="goWritePage()" value="글 작성하기" />
 		</div><%
-	if (null == errorMessage || errorMessage.equals("")) {
-		long total = boardListRes.getTotal();
-		int pageSize = boardListRes.getPageSize();
-		long totalPage = (total + pageSize - 1) / pageSize;
-
-		if (totalPage > 1) {
-			long pageNo = boardListRes.getStartNo() / pageSize+1;
-			int pageListSize = 2;
-			long startPageNo = 1 + pageListSize*(long)((pageNo -1 ) / pageListSize);
+	if (totalPage > 1) {
+		long pageNo = boardListRes.getStartNo() / pageSize+1;
+		int pageListSize = 2;
+		long startPageNo = 1 + pageListSize*(long)((pageNo -1 ) / pageListSize);
 %><div style="text-align:right; float:right; width:400px;">페이지 이동 : <%
 
-			if (startPageNo > 1) {
-%><a href="#" onClick="goPage('<%=startPageNo-1%>')">prev</a>&nbsp;<%
-			}
-
-			for (int i=0; i < pageListSize; i++) {
-				long workPageNo = startPageNo + i;
-				if (workPageNo > totalPage) break;
-
-				if (workPageNo == pageNo) {
-%><b><%=workPageNo%></b>&nbsp;<%	
-				} else {
-%><a href="#" onClick="goPage('<%=workPageNo%>')"><%=workPageNo%></a>&nbsp;<%	
-				}
-		
-			}
-
-			if (startPageNo+pageListSize <= totalPage) {
-%>&nbsp;<a href="#" onClick="goPage('<%=startPageNo+pageListSize%>')">next</a><%
-			}
-%></div><%
+		if (startPageNo > 1) {
+%><a href="#" onClick="goListPage('<%=startPageNo-1%>')">prev</a>&nbsp;<%
 		}
+
+		for (int i=0; i < pageListSize; i++) {
+			long workPageNo = startPageNo + i;
+			if (workPageNo > totalPage) break;
+
+			if (workPageNo == pageNo) {
+%><b><%=workPageNo%></b>&nbsp;<%	
+			} else {
+%><a href="#" onClick="goListPage('<%=workPageNo%>')"><%=workPageNo%></a>&nbsp;<%	
+			}
+		
+		}
+
+		if (startPageNo+pageListSize <= totalPage) {
+%>&nbsp;<a href="#" onClick="goListPage('<%=startPageNo+pageListSize%>')">next</a><%
+		}
+%></div><%
 	}
 %>
 	</div>

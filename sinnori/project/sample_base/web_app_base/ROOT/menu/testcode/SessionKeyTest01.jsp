@@ -1,7 +1,6 @@
 <%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
 %><%@page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
-%><jsp:useBean id="parmIVBase64" class="java.lang.String" scope="request" /><%	
 	String orignalMessage = "원문에 있는 이 문구가 복호문에서 잘 보시이면 " 
 + "AbstractSessionKeyServlet 모듈 테스트 통과 안보이면 실패\n<script type=\"text/javascript\">alert(\"hello\");</script>";
 
@@ -88,9 +87,9 @@
 		</ul>
 		<script type="text/javascript">
 		<!--
-			var pageIV = CryptoJS.enc.Base64.parse("<%=parmIVBase64%>");	
+			var pageIV = CryptoJS.enc.Base64.parse("<%= getParameterIVBase64Value(request) %>");	
 			
-			var privateKey = CryptoJS.enc.Base64.parse(sessionStorage.getItem('<%=WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_PRIVATEKEY_NAME%>'));
+			var privateKey = CryptoJS.enc.Base64.parse(sessionStorage.getItem('<%= WebCommonStaticFinalVars.SESSIONSTORAGE_KEY_NAME_OF_PRIVATEKEY %>'));
 			
 			var messageTxt = CryptoJS.AES.decrypt("<%= getCipheredBase64String(request, HtmlStringUtil.toHtml4BRString(orignalMessage)) %>", privateKey, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7, iv: pageIV });
 				
