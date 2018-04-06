@@ -45,6 +45,11 @@ public final class EchoServerTask extends AbstractServerTask {
 		echoOutObj.setRandomInt(echoInObj.getRandomInt());
 		echoOutObj.setStartTime(echoInObj.getStartTime());
 		
-		toLetterCarrier.addSyncOutputMessage(echoOutObj);
+		toLetterCarrier.addBypassOutputMessage(echoOutObj);
 	}	
+	
+	@Override
+	public void finalize() {
+		log.info("call finalize222222222");
+	}
 }

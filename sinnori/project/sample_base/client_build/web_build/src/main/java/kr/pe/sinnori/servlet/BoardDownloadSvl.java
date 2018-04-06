@@ -17,7 +17,6 @@ import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.BoardDownloadFileReq.BoardDownloadFileReq;
 import kr.pe.sinnori.impl.message.BoardDownloadFileRes.BoardDownloadFileRes;
 import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
-import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.sinnori.weblib.jdf.AbstractServlet;
 
@@ -30,15 +29,11 @@ public class BoardDownloadSvl extends AbstractServlet {
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU, 
 				kr.pe.sinnori.weblib.sitemenu.SiteTopMenuType.COMMUNITY);
 		
-		
-		String goPage = "/menu/board/BoardDownload01.jsp";
-		
 		if (! isLogin(req)) {
 			String errorMessage = new StringBuilder("파일 업로드는 로그인 서비스 입니다. 로그인 하시기 바랍니다.").toString();		
 			log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
 			
-			req.setAttribute("errorMessage", errorMessage);
-			printJspPage(req, res, goPage);			
+			doDownloadErrorAlertPage(req, res, errorMessage);			
 			return;
 		}
 		
@@ -47,8 +42,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 			String errorMessage = "업로드 식별자를 넣어주세요.";
 			log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
 			
-			req.setAttribute("errorMessage", errorMessage);
-			printJspPage(req, res, goPage);
+			doDownloadErrorAlertPage(req, res, errorMessage);
 			return;
 		}
 		
@@ -60,8 +54,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 			.append(parmAttachId).append("]이 잘못되었습니다.").toString();
 			log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
 			
-			req.setAttribute("errorMessage", errorMessage);
-			printJspPage(req, res, goPage);
+			doDownloadErrorAlertPage(req, res, errorMessage);
 			return;
 		}
 		
@@ -70,8 +63,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 			.append(parmAttachId).append("]은 0 보다 커야합니다.").toString();
 			log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
 			
-			req.setAttribute("errorMessage", errorMessage);
-			printJspPage(req, res, goPage);
+			doDownloadErrorAlertPage(req, res, errorMessage);
 			return;
 		}
 		
@@ -80,8 +72,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 			String errorMessage = "업로드 파일 순번를 넣어주세요.";
 			log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
 			
-			req.setAttribute("errorMessage", errorMessage);
-			printJspPage(req, res, goPage);
+			doDownloadErrorAlertPage(req, res, errorMessage);
 			return;
 		}		
 		
@@ -93,8 +84,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 			.append(parmAttachSeq).append("]이 잘못되었습니다.").toString();
 			log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
 			
-			req.setAttribute("errorMessage", errorMessage);
-			printJspPage(req, res, goPage);
+			doDownloadErrorAlertPage(req, res, errorMessage);
 			return;
 		}
 		
@@ -103,8 +93,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 			.append(parmAttachSeq).append("]은 0 보다 작거나 커야합니다.").toString();
 			log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
 			
-			req.setAttribute("errorMessage", errorMessage);
-			printJspPage(req, res, goPage);
+			doDownloadErrorAlertPage(req, res, errorMessage);
 			return;
 		}
 		
@@ -115,47 +104,56 @@ public class BoardDownloadSvl extends AbstractServlet {
 			.append(" 값 보다 작거나 같아야 합니다.").toString();
 			log.warn("{}, userId={}, ip={}", errorMessage, getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
 			
-			req.setAttribute("errorMessage", errorMessage);
-			printJspPage(req, res, goPage);
+			doDownloadErrorAlertPage(req, res, errorMessage);
 			return;
 		}		
 		
-		BoardDownloadFileReq bardDownloadFileInDTO = new BoardDownloadFileReq();
-		bardDownloadFileInDTO.setAttachId(attachId);
-		bardDownloadFileInDTO.setAttachSeq(attachSeq);
+		BoardDownloadFileReq boardDownloadFileReq = new BoardDownloadFileReq();
+		boardDownloadFileReq.setAttachId(attachId);
+		boardDownloadFileReq.setAttachSeq(attachSeq);
 		
 		// FIXME!
-		log.debug("inObj={},  userId={}, ip={}", bardDownloadFileInDTO.toString(), getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
+		log.debug("inObj={},  userId={}, ip={}", boardDownloadFileReq.toString(), getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
 		
 	
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
 		
 		
-		AbstractMessage messageFromServer = mainProjectConnectionPool.sendSyncInputMessage(bardDownloadFileInDTO);
+		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(boardDownloadFileReq);
 		
-		if (! (messageFromServer instanceof BoardDownloadFileRes)) {
+		if (! (outputMessage instanceof BoardDownloadFileRes)) {
 			String errorMessage = null;
 			
-			if (messageFromServer instanceof MessageResultRes) {				
-				errorMessage = ((MessageResultRes)messageFromServer).getResultMessage();
+			if (outputMessage instanceof MessageResultRes) {
+				MessageResultRes messageResultRes = (MessageResultRes)outputMessage;
 				
-				log.warn("입력 메시지[{}]의 응답 메시지로 MessageResult 메시지 도착, 응답 메시지=[{}], userId={}, ip={}", 
-						bardDownloadFileInDTO.toString(), messageFromServer.toString(), getLoginUserIDFromHttpSession(req), req.getRemoteAddr());
-			} else {
-				errorMessage = "게시판 목록 메시지를 얻는데 실패하였습니다.";
+				errorMessage = messageResultRes.getResultMessage();
 				
-				if (messageFromServer instanceof SelfExnRes) {
-					log.warn("입력 메시지[{}]의 응답 메시지로 SelfExn 메시지 도착, 응답 메시지=[{}]", bardDownloadFileInDTO.toString(), messageFromServer.toString());
-				} else {
-					log.warn("입력 메시지[{}]의 응답 메시지로 알 수 없는 메시지 도착, 응답 메시지=[{}]", bardDownloadFileInDTO.toString(), messageFromServer.toString());
+				if (! messageResultRes.getMessageID().equals(boardDownloadFileReq.getMessageID())) {
+					String debugMessage = new StringBuilder("입력 메시지[")
+							.append(boardDownloadFileReq.getMessageID())
+							.append("]에 대한 비 정상 출력 메시지[")
+							.append(outputMessage.toString())
+							.append("] 도착").toString();
+					
+					log.error(debugMessage);
 				}
+			} else {
+				errorMessage = "다운 로드 파일 정보를 얻는데 실패하였습니다";
+				
+				String debugMessage = new StringBuilder("입력 메시지[")
+						.append(boardDownloadFileReq.getMessageID())
+						.append("]에 대한 비 정상 출력 메시지[")
+						.append(outputMessage.toString())
+						.append("] 도착").toString();
+				
+				log.error(debugMessage);
 			}
-			req.setAttribute("errorMessage", errorMessage);	
-			printJspPage(req, res, goPage);
+			doDownloadErrorAlertPage(req, res, errorMessage);
 			return;
 		}
 				
-		BoardDownloadFileRes boardDownloadFileRes = (BoardDownloadFileRes) messageFromServer;
+		BoardDownloadFileRes boardDownloadFileRes = (BoardDownloadFileRes) outputMessage;
 		
 		/*String ownerId = boardDownloadFileOutDTO.getOwnerId();
 		
@@ -227,7 +225,7 @@ public class BoardDownloadSvl extends AbstractServlet {
 					i = bis.read(bytes);
 				}
 			} catch(IOException e) {
-				log.warn("다운로드 파일[{}] 처리중 입출력 에러 발생", bardDownloadFileInDTO.toString());
+				log.warn("다운로드 파일[{}] 처리중 입출력 에러 발생", boardDownloadFileReq.toString());
 			} finally {
 				try {
 					bis.close();
@@ -239,6 +237,11 @@ public class BoardDownloadSvl extends AbstractServlet {
 				}
 			}	
 		}
+	}
+
+	private void doDownloadErrorAlertPage(HttpServletRequest req, HttpServletResponse res, String errorMessage) {
+		req.setAttribute("errorMessage", errorMessage);
+		printJspPage(req, res, "/menu/board/BoardDownload01.jsp");
 	}
 
 	// HTTP/1.1 헤더로부터 브라우저를 가져온다.

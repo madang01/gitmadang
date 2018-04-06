@@ -55,6 +55,9 @@ public class TestExampleLeftMenuInfo extends AbstractLeftMenuInfoOfTopMenu {
 		siteLeftMenuInfo = addSiteLeftMenuInfo("모든 데이터 타입 검증", "/servlet/AllItemTypeTest");
 		addSiteLeftMenuGroup(siteLeftMenuInfo, "/servlet/AllItemTypeTest");		
 		
+		siteLeftMenuInfo = addSiteLeftMenuInfo("Java GC", "/servlet/JavaGarbageCollection");
+		addSiteLeftMenuGroup(siteLeftMenuInfo, "/servlet/JavaGarbageCollection");
+		
 		siteLeftMenuInfo = addSiteLeftMenuInfo("동적 클래스 호출 실패", "#");
 	}
 }

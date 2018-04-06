@@ -2,14 +2,13 @@ package kr.pe.sinnori.servlet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import kr.pe.sinnori.client.AnyProjectConnectionPoolIF;
 import kr.pe.sinnori.client.ConnectionPoolManager;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.BoardVoteReq.BoardVoteReq;
 import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
-import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
+import kr.pe.sinnori.weblib.common.BoardType;
 import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.sinnori.weblib.jdf.AbstractLoginServlet;
 
@@ -27,120 +26,96 @@ public class BoardVoteSvl extends AbstractLoginServlet {
 		req.setAttribute(WebCommonStaticFinalVars.REQUEST_KEY_NAME_OF_SITE_TOPMENU, 
 				kr.pe.sinnori.weblib.sitemenu.SiteTopMenuType.COMMUNITY);
 		
-		String goPage = "/menu/board/BoardVote01.jsp";
-		
-		/*int pageNo = 1;
-		
-		String parmPageNo = req.getParameter("pageNo");
-		if (null == parmPageNo) {
-			parmPageNo = "1";
-		}
-		
-		try {
-			pageNo = Integer.parseInt(parmPageNo);
-		}catch (NumberFormatException nfe) {
-			String errorMessage = "parameter pageNo type is a not integer";
-			req.setAttribute("errorMessage", errorMessage);
-			printJspPage(req, res, goPage);
-			return;
-		}	
-		
-		
-		if (pageNo <= 0) {
-			String errorMessage = "parameter pageNo is less than or equal to zero";
-			req.setAttribute("errorMessage", errorMessage);
-			printJspPage(req, res, goPage);
-			return;
-		}*/
-		
 		String parmBoardId = req.getParameter("boardId");
 		if (null == parmBoardId) {
-			String errorMessage = "게시판 식별자를 넣어주세요.";
-			req.setAttribute("errorMessage", errorMessage);
-			printJspPage(req, res, goPage);
+			String errorMessage = "게시판 식별자 값을 넣어 주세요";
+			String debugMessage = "the web parameter 'boardId' is null";
+			printErrorMessagePage(req, res, errorMessage, debugMessage);	
 			return;
 		}
 		
-		long boardId = 0L;
+		short boardId = 0;
 		try {
-			boardId = Long.parseLong(parmBoardId);
+			boardId = Short.parseShort(parmBoardId);
 		}catch (NumberFormatException nfe) {
-			String errorMessage = new StringBuilder("자바 long 타입 변수인 게시판 식별자 값[")
-			.append(parmBoardId).append("]이 잘못되었습니다.").toString();
-			req.setAttribute("errorMessage", errorMessage);
-			printJspPage(req, res, goPage);
+			String errorMessage = "잘못된 게시판 식별자 입니다";
+			String debugMessage = new StringBuilder("the web parameter 'boardId'[")
+					.append(parmBoardId).append("] is not a short").toString();
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
-		if (boardId <= 0) {
-			String errorMessage = new StringBuilder("게시판 식별자 값[")
-			.append(parmBoardId).append("]은 0 보다 커야합니다.").toString();
-			req.setAttribute("errorMessage", errorMessage);
-			printJspPage(req, res, goPage);
+		try {
+			BoardType.valueOf(boardId);
+		} catch(IllegalArgumentException e) {
+			String errorMessage = "알 수 없는 게시판 식별자 입니다";
+			String debugMessage = new StringBuilder("the web parameter 'boardId'[")
+					.append(parmBoardId).append("] is not a element of set[")
+					.append(BoardType.getSetString())
+					.append("]").toString();
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
 		String parmBoardNo = req.getParameter("boardNo");
 		if (null == parmBoardNo) {
-			String errorMessage = "게시판 번호를 넣어주세요.";
-			req.setAttribute("errorMessage", errorMessage);
-			printJspPage(req, res, goPage);
+			String errorMessage = "게시판 번호를 입력해 주세요";
+			String debugMessage = "the web parameter 'boardNo' is null";
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
-		}
-		
+		}		
 		
 		long boardNo = 0L;
 		try {
 			boardNo = Long.parseLong(parmBoardNo);
 		}catch (NumberFormatException nfe) {
-			String errorMessage = new StringBuilder("자바 long 타입 변수인 게시판 번호 값[")
-			.append(parmBoardId).append("]이 잘못되었습니다.").toString();
-			req.setAttribute("errorMessage", errorMessage);
-			printJspPage(req, res, goPage);
+			String errorMessage = "잘못된 게시판 번호입니다";
+			String debugMessage = new StringBuilder("the web parameter \"boardN\"'s value[")
+					.append(parmBoardNo)
+					.append("] is a Long").toString();
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
 		
 		if (boardNo <= 0) {
-			String errorMessage = new StringBuilder("게시판 번호 값[")
-			.append(parmBoardId).append("]은 0 보다 커야합니다.").toString();
-			req.setAttribute("errorMessage", errorMessage);
-			printJspPage(req, res, goPage);
+			String errorMessage = "게시판 번호 값은 0 보다 커야합니다.";
+			String debugMessage = new StringBuilder("the web parameter \"boardN\"'s value[")
+					.append(parmBoardNo)
+					.append("] is less than or equal to zero").toString();
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
 			return;
 		}
-		
-		HttpSession httpSession = req.getSession();
-		String userId = (String) httpSession.getAttribute(WebCommonStaticFinalVars.HTTPSESSION_KEY_NAME_OF_LOGIN_USERID);
-		
 		
 		BoardVoteReq inObj =  new BoardVoteReq();
 		inObj.setBoardId(boardId);
 		inObj.setBoardNo(boardNo);
-		inObj.setUserId(userId);
+		inObj.setUserId(getLoginUserIDFromHttpSession(req));
 		inObj.setIp(req.getRemoteAddr());
 		
-		String errorMessage = "";
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
-		AbstractMessage messageFromServer = mainProjectConnectionPool.sendSyncInputMessage(inObj);
+		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(inObj);
 		
-		if (messageFromServer instanceof MessageResultRes) {
-			MessageResultRes messageResultOutObj = (MessageResultRes)messageFromServer;
+		if (outputMessage instanceof MessageResultRes) {
+			MessageResultRes messageResultRes = (MessageResultRes)outputMessage;
 			
-			req.setAttribute("messageResultOutObj", messageResultOutObj);		
-			
-			log.warn("입력 메시지[{}]의 응답 메시지로 MessageResult 메시지 도착, 응답 메시지=[{}]", inObj.toString(), messageFromServer.toString());
+			doVotePage(req, res, parmBoardId, parmBoardNo, messageResultRes);
+			return;
 		} else {
-			errorMessage = "게시판 상세 조회가 실패하였습니다.";
+			String errorMessage = "게시판 추천이 실패했습니다";
+			String debugMessage = String.format("입력 메시지[%s]에 대한 비 정상 출력 메시지[%s] 도착", inObj.getMessageID(), outputMessage.toString());
 			
-			if (messageFromServer instanceof SelfExnRes) {
-				log.warn("입력 메시지[{}]의 응답 메시지로 SelfExn 메시지 도착, 응답 메시지=[{}]", inObj.toString(), messageFromServer.toString());
-			} else {
-				log.warn("입력 메시지[{}]의 응답 메시지로 알 수 없는 메시지 도착, 응답 메시지=[{}]", inObj.toString(), messageFromServer.toString());
-			}
-		}
-		
+			log.error(debugMessage);
+
+			printErrorMessagePage(req, res, errorMessage, debugMessage);
+			return;
+		}	
+	}
+
+	private void doVotePage(HttpServletRequest req, HttpServletResponse res, String parmBoardId, String parmBoardNo,
+			MessageResultRes messageResultRes) {
 		req.setAttribute("parmBoardId", parmBoardId);
 		req.setAttribute("parmBoardNo", parmBoardNo);
-		req.setAttribute("errorMessage", errorMessage);	
-		printJspPage(req, res, goPage);		
+		req.setAttribute("messageResultRes", messageResultRes);
+		printJspPage(req, res, "/menu/board/BoardVote01.jsp");
 	}
 }

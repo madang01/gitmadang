@@ -110,7 +110,6 @@
 		<url-pattern>/servlet/JDFLoginTest</url-pattern>
 	</servlet-mapping>
 
-	<!-- ë¡?·¸??-->
 	<servlet>
 		<servlet-name>Login</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.LoginSvl</servlet-class>
@@ -120,7 +119,6 @@
 		<url-pattern>/servlet/Login</url-pattern>
 	</servlet-mapping>
 
-	<!-- ê²????ëª©ë? ì¡°í? : ???????? ê²????-->
 	<servlet>
 		<servlet-name>BoardList</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.BoardListSvl</servlet-class>
@@ -130,7 +128,6 @@
 		<url-pattern>/servlet/BoardList</url-pattern>
 	</servlet-mapping>
 
-	<!-- ê²????ê¸€ ì¶?? ì²?¦¬ -->
 	<servlet>
 		<servlet-name>BoardVote</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.BoardVoteSvl</servlet-class>
@@ -140,7 +137,6 @@
 		<url-pattern>/servlet/BoardVote</url-pattern>
 	</servlet-mapping>
 
-	<!-- ê²??????? ì¡°í? -->
 	<servlet>
 		<servlet-name>BoardDetail</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.BoardDetailSvl</servlet-class>
@@ -151,7 +147,6 @@
 	</servlet-mapping>
 
 
-	<!-- ê²????ìµ????ê¸€ ?±ë? ì²?¦¬ -->
 	<servlet>
 		<servlet-name>BoardWrite</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.BoardWriteSvl</servlet-class>
@@ -161,7 +156,6 @@
 		<url-pattern>/servlet/BoardWrite</url-pattern>
 	</servlet-mapping>
 
-	<!-- ê²??????? ?±ë? ì²?¦¬ -->
 	<servlet>
 		<servlet-name>BoardReply</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.BoardReplySvl</servlet-class>
@@ -171,7 +165,6 @@
 		<url-pattern>/servlet/BoardReply</url-pattern>
 	</servlet-mapping>
 
-	<!-- ê²??????? ì²?¦¬ -->
 	<servlet>
 		<servlet-name>BoardModify</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.BoardModifySvl</servlet-class>
@@ -181,7 +174,6 @@
 		<url-pattern>/servlet/BoardModify</url-pattern>
 	</servlet-mapping>
 
-	<!-- ê²????ì²¨ë? ??? ì²?¦¬ -->
 	<servlet>
 		<servlet-name>BoardUpload</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.BoardUploadSvl</servlet-class>
@@ -191,7 +183,6 @@
 		<url-pattern>/servlet/BoardUpload</url-pattern>
 	</servlet-mapping>
 
-	<!-- ê²????ì²¨ë? ??? ì²?¦¬ -->
 	<servlet>
 		<servlet-name>BoardDownload</servlet-name>
 		<servlet-class>kr.pe.sinnori.servlet.BoardDownloadSvl</servlet-class>
@@ -200,7 +191,16 @@
 		<servlet-name>BoardDownload</servlet-name>
 		<url-pattern>/servlet/BoardDownload</url-pattern>
 	</servlet-mapping>
-
+	
+	
+	<servlet>
+		<servlet-name>JavaGarbageCollection</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.JavaGarbageCollectionSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>JavaGarbageCollection</servlet-name>
+		<url-pattern>/servlet/JavaGarbageCollection</url-pattern>
+	</servlet-mapping>
 
 	<!-- Simple Captcha start -->
 	<servlet>

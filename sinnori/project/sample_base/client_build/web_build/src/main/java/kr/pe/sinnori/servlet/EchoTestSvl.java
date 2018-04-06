@@ -73,7 +73,7 @@ public class EchoTestSvl extends AbstractServlet {
 			doFirstPage(req, res, isSame, erraseTime, echoRes);
 			return;
 		} else {
-			String errorMessage = "모든 데이터 타입 응답 메시지를 얻는데 실패하였습니다.";
+			String errorMessage = "모든 데이터 타입 응답 메시지를 얻는데 실패하였습니다";
 			
 			String debugMessage = new StringBuilder("입력 메시지[")
 					.append(echoReq.getMessageID())

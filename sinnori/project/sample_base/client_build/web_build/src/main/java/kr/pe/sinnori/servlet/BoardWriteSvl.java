@@ -210,29 +210,33 @@ public class BoardWriteSvl extends AbstractLoginServlet {
 		
 		String userId = (String) userIDValue;	
 		
-		BoardWriteReq inObj = new BoardWriteReq();
-		inObj.setBoardId(boardId);
-		inObj.setSubject(parmSubject);
-		inObj.setContent(parmContent);
-		inObj.setAttachId(attachId);
-		inObj.setUserId(userId);
-		inObj.setIp(req.getRemoteAddr());
+		BoardWriteReq boardWriteReq = new BoardWriteReq();
+		boardWriteReq.setBoardId(boardId);
+		boardWriteReq.setSubject(parmSubject);
+		boardWriteReq.setContent(parmContent);
+		boardWriteReq.setAttachId(attachId);
+		boardWriteReq.setUserId(userId);
+		boardWriteReq.setIp(req.getRemoteAddr());
 		
 		// FIXME!
-		log.info("inObj={}", inObj.toString());
+		log.info("inObj={}", boardWriteReq.toString());
 		
-		System.out.println(inObj.toString());
+		System.out.println(boardWriteReq.toString());
 		
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
-		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(inObj);
+		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(boardWriteReq);
 		if (outputMessage instanceof MessageResultRes) {
 			MessageResultRes messageResultRes = (MessageResultRes)outputMessage;					
 			
 			doProcessPage(req, res, parmBoardId, messageResultRes);
 			return;
 		} else {			
-			String errorMessage = "게시판 쓰기가 실패했습니다";
-			String debugMessage = String.format("입력 메시지[%s]에 대한 비 정상 출력 메시지[%s] 도착", inObj.getMessageID(), outputMessage.toString());
+			String errorMessage = "게시판 쓰기가 실패했습니다";			
+			String debugMessage = new StringBuilder("입력 메시지[")
+					.append(boardWriteReq.getMessageID())
+					.append("]에 대한 비 정상 출력 메시지[")
+					.append(outputMessage.toString())
+					.append("] 도착").toString();
 			
 			log.error(debugMessage);
 

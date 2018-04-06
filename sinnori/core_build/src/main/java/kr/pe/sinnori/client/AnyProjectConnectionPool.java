@@ -114,9 +114,12 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 
 	/** 프로젝트의 연결 클래스 폴 */
 	private ConnectionPoolIF connectionPool = null;	
-	private ConnectionFixedParameter connectionFixedParameter = null;
+	private ConnectionFixedParameter connectionFixedParameter = null; 
 	
-	 
+	private ConnectionPoolSupporter connectionPoolSupporter = null;
+	private InputMessageWriterPool inputMessageWriterPool = null;
+	private OutputMessageReaderPool outputMessageReaderPool = null;
+	private ClientExecutorPool clientExecutorPool = null;
 
 	public AnyProjectConnectionPool(ProjectPartConfiguration projectPartConfiguration)
 			throws NoMoreDataPacketBufferException, InterruptedException, IOException, ConnectionPoolException {
@@ -168,7 +171,7 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 		ClientMessageUtilityIF clientMessageUtility = new ClientMessageUtility(messageProtocol, clientObjectCacheManager,
 				dataPacketBufferPool);
 		
-		ConnectionPoolSupporter connectionPoolSupporter = new ConnectionPoolSupporter(1000L * 60 * 10);
+		connectionPoolSupporter = new ConnectionPoolSupporter(1000L * 60 * 10);
 		
 		connectionFixedParameter 
 			= new ConnectionFixedParameter(projectPartConfiguration.getProjectName(),
@@ -188,17 +191,17 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 			connectionPool = new SyncPrivateConnectionPool(syncPrivateConnectionPoolParameter,					
 					connectionFixedParameter);
 		} else {
-			InputMessageWriterPool inputMessageWriterPool = new InputMessageWriterPool(
+			inputMessageWriterPool = new InputMessageWriterPool(
 					projectPartConfiguration.getClientAsynInputMessageWriterPoolSize(),
 					projectPartConfiguration.getProjectName(),
 					projectPartConfiguration.getClientAsynInputMessageQueueSize(), clientMessageUtility);
 
-			OutputMessageReaderPool outputMessageReaderPool = new OutputMessageReaderPool(					
+			outputMessageReaderPool = new OutputMessageReaderPool(					
 					projectPartConfiguration.getClientAsynOutputMessageReaderPoolSize(),
 					projectPartConfiguration.getProjectName(),
 					projectPartConfiguration.getClientWakeupIntervalOfSelectorForReadEventOnly(), messageProtocol);
 
-			ClientExecutorPool clientExecutorPool = new ClientExecutorPool(
+			clientExecutorPool = new ClientExecutorPool(
 					projectPartConfiguration.getClientAsynExecutorPoolSize(), 
 					projectPartConfiguration.getProjectName(),
 					projectPartConfiguration.getClientAsynOutputMessageQueueSize(), clientMessageUtility);

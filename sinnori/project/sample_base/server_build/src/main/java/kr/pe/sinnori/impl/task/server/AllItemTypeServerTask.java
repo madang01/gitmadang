@@ -18,6 +18,6 @@ public class AllItemTypeServerTask extends AbstractServerTask {
 	private void doWork(String projectName,
 			ToLetterCarrier toLetterCarrier, AllItemType allDataTypeInObj)
 			throws Exception {
-		toLetterCarrier.addSyncOutputMessage(allDataTypeInObj);
+		toLetterCarrier.addBypassOutputMessage(allDataTypeInObj);
 	}
 }
