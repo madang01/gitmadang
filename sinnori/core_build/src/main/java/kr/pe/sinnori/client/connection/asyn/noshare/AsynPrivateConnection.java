@@ -24,6 +24,7 @@ import kr.pe.sinnori.client.connection.ConnectionFixedParameter;
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceIF;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox;
+import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.InputMessageWriterIF;
 import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
@@ -100,7 +101,8 @@ public class AsynPrivateConnection extends AbstractAsynConnection {
 				inObj.messageHeaderInfo.mailboxID, 
 				inObj.messageHeaderInfo.mailID, 
 				wrapBufferListOfInputMessage);
-		asynSocketResource.getInputMessageWriter().putIntoQueue(toLetter);
+		InputMessageWriterIF  inputMessageWriter  = asynSocketResource.getInputMessageWriter();
+		inputMessageWriter.putIntoQueue(toLetter);
 		
 		try {
 			wrapReadableMiddleObject = asynPrivateMailbox.getSyncOutputMessage();

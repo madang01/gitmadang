@@ -4,7 +4,7 @@ import java.net.SocketTimeoutException;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,11 +20,11 @@ public class AsynPrivateMailboxProducerThread extends Thread {
 
 	private int numberOfExecution;
 	private AsynPrivateMailboxPool asynPrivateMailboxPool = null;
-	private LinkedBlockingQueue<ToLetter> toLetterQueue = null;
+	private ArrayBlockingQueue<ToLetter> toLetterQueue = null;
 
 	public AsynPrivateMailboxProducerThread(int numberOfExecutions,
 			AsynPrivateMailboxPool asynPrivateMailboxPool,
-			LinkedBlockingQueue<ToLetter> toLetterQueue) {
+			ArrayBlockingQueue<ToLetter> toLetterQueue) {
 		if (numberOfExecutions < 0) {
 			String errorMessage = String.format("the parameter numberOfExecutions[%d] is less than zero",
 					numberOfExecutions);

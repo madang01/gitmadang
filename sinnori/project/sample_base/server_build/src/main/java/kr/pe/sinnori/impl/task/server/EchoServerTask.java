@@ -50,6 +50,6 @@ public final class EchoServerTask extends AbstractServerTask {
 	
 	@Override
 	public void finalize() {
-		log.info("call finalize222222222");
+		log.info("call finalize, hello");
 	}
 }

@@ -1,6 +1,6 @@
 package kr.pe.sinnori.common.sessionkey;
 
-import java.util.Hashtable;
+import java.util.concurrent.ConcurrentHashMap;
 
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
@@ -8,7 +8,7 @@ import kr.pe.sinnori.common.exception.SymmetricException;
 
 public final class ClientSessionKeyManager {
 	private static ClientSessionKeyIF mainClientSessionKey = null;	
-	private static Hashtable<String, ClientSessionKeyIF> subProjectNameToClientSessionKeyHash = new Hashtable<String, ClientSessionKeyIF>();
+	private static ConcurrentHashMap<String, ClientSessionKeyIF> subProjectNameToClientSessionKeyHash = new ConcurrentHashMap<String, ClientSessionKeyIF>();
 	
 	/** 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스 */
 	private static final class ClientSessionKeyManagerHolder {

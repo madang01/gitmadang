@@ -25,7 +25,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Set;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,12 +50,12 @@ public class AcceptSelector extends Thread {
 	private String serverHost;
 	private int serverPort;
 	private int maxClients;
-	private LinkedBlockingQueue<SocketChannel> acceptQueue;
+	private ArrayBlockingQueue<SocketChannel> acceptQueue;
 	private SocketResourceManagerIF socketResourceManager;
 
 	
 	public AcceptSelector(String projectName, String serverHost, int serverPort,  int maxClients,
-			LinkedBlockingQueue<SocketChannel> acceptQueue, SocketResourceManagerIF socketResourceManager) {
+			ArrayBlockingQueue<SocketChannel> acceptQueue, SocketResourceManagerIF socketResourceManager) {
 
 		this.projectName = projectName;
 		this.serverHost = serverHost;

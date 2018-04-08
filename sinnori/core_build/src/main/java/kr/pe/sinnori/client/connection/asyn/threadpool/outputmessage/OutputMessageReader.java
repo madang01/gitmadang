@@ -22,12 +22,11 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Hashtable;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,8 +57,8 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 	/** selector 에 등록할 신규 소켓 채널을 담고 있는 그릇 */
 	// private final ArrayDeque<SocketChannel> notRegistedSocketChannelList = new
 	// ArrayDeque<SocketChannel>();
-	private final Set<SocketChannel> notRegistedSocketChannelList = Collections
-			.synchronizedSet(new HashSet<SocketChannel>());
+	private final ConcurrentHashMap<SocketChannel, SocketChannel> notRegistedSocketChannelHash 
+	= new ConcurrentHashMap<SocketChannel, SocketChannel>();
 
 	/** 읽기 전용 selecotr */
 	private Selector selectorForReadEventOnly = null;
@@ -67,7 +66,7 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 	/** selector 를 깨우는 간격 */
 	private long wakeupIntervalOfSelectorForReadEventOnley;
 
-	private Hashtable<SocketChannel, IOEAsynConnectionIF> scToAsynConnectionHash = new Hashtable<SocketChannel, IOEAsynConnectionIF>();
+	private ConcurrentHashMap<SocketChannel, IOEAsynConnectionIF> scToAsynConnectionHash = new ConcurrentHashMap<SocketChannel, IOEAsynConnectionIF>();
 
 	public OutputMessageReader(String projectName, int index, long wakeupIntervalOfSelectorForReadEventOnley,
 			MessageProtocolIF messageProtocol) {
@@ -85,18 +84,24 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 
 	@Override
 	public int getNumberOfConnection() {
-		return (notRegistedSocketChannelList.size() + selectorForReadEventOnly.keys().size());
+		return (notRegistedSocketChannelHash.size() + selectorForReadEventOnly.keys().size());
 	}
 
 	/**
 	 * 신규 채널를 selector 에 읽기 이벤트 등록한다.
 	 */
 	private void processNewConnection() {
-		if (notRegistedSocketChannelList.isEmpty()) {
+		if (notRegistedSocketChannelHash.isEmpty()) {
 			return;
 		}
 		
-		for (SocketChannel notRegistedSocketChannel : notRegistedSocketChannelList) {			
+		Enumeration<SocketChannel> notRegistedSocketChannelEnumeration = notRegistedSocketChannelHash.keys();
+		
+		while (notRegistedSocketChannelEnumeration.hasMoreElements()) {
+			SocketChannel notRegistedSocketChannel = notRegistedSocketChannelEnumeration.nextElement();
+			
+			notRegistedSocketChannelHash.remove(notRegistedSocketChannel);
+			
 			try {
 				notRegistedSocketChannel.register(selectorForReadEventOnly, SelectionKey.OP_READ);
 			} catch (ClosedChannelException e) {
@@ -113,9 +118,7 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 					scToAsynConnectionHash.remove(notRegistedSocketChannel);
 				}
 			}
-		}
-		
-		notRegistedSocketChannelList.clear();		
+		}	
 	}
 
 	@Override
@@ -124,7 +127,7 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 
 		scToAsynConnectionHash.put(newSC, asynConnection);
 
-		notRegistedSocketChannelList.add(newSC);
+		notRegistedSocketChannelHash.put(newSC, newSC);
 
 		if (getState().equals(Thread.State.NEW)) {
 			return;
@@ -179,10 +182,16 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 				int numberOfKeys = selectorForReadEventOnly.select();
 
 				if (numberOfKeys > 0) {
+					
+					
+					
 					Set<SelectionKey> selectedKeySet = selectorForReadEventOnly.selectedKeys();
 					
 					for (SelectionKey selectedKey : selectedKeySet) {
 						SocketChannel selectedSocketChannel = (SocketChannel) selectedKey.channel();
+
+						// FIXME!
+						// log.info("{} OutputMessageReader[{}] selectedSocketChannel=[{}]", projectName, index, selectedSocketChannel.hashCode());
 
 						// log.info("11111111111111111");
 
@@ -302,5 +311,9 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 	 * log.warn("fail to close the socket[{}]", failedSocketChannel.hashCode()); }
 	 * failedAsynConnection.releaseResources(); } }
 	 */
+	
+	public void finalize() {
+		log.warn("{} OutputMessageReader[{}] finalize", projectName, index);
+	}
 
 }

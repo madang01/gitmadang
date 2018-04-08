@@ -22,9 +22,9 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +60,7 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 	private ClientMessageUtilityIF clientMessageUtility = null;
 	private long socketTimeOut;
 
-	private Hashtable<SocketChannel, IOEAsynConnectionIF> sc2AsynConnectionHash = new Hashtable<SocketChannel, IOEAsynConnectionIF>();
+	private ConcurrentHashMap<SocketChannel, IOEAsynConnectionIF> sc2AsynConnectionHash = new ConcurrentHashMap<SocketChannel, IOEAsynConnectionIF>();
 
 	public InputMessageWriter(String projectName, int index, ArrayBlockingQueue<ToLetter> inputMessageQueue,
 			ClientMessageUtilityIF clientMessageUtility) throws NoMoreDataPacketBufferException {
@@ -77,6 +77,9 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
 				ToLetter toLetter = inputMessageQueue.take();
+				// FIXME!
+				// log.info("{} InputMessageWriter[{}] toLetter=[{}]", projectName, index, toLetter.toString());
+				
 				SocketChannel toSC = toLetter.getToSC();
 				
 				List<WrapBuffer> warpBufferList = toLetter.getWrapBufferList();
@@ -190,6 +193,9 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 	}
 
 	public void putIntoQueue(ToLetter toLetter) throws InterruptedException {
+		// FIXME!
+		//log.info("toLetter={}", toLetter.toString());
+		
 		try {
 			inputMessageQueue.put(toLetter);
 		} catch(InterruptedException e) {
@@ -201,6 +207,6 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 	}
 
 	public void finalize() {
-		log.warn(String.format("%s InputMessageWriter[%d] 소멸::[%s]", projectName, index, toString()));
+		log.warn("{} InputMessageWriter[{}] finalize", projectName, index);
 	}
 }

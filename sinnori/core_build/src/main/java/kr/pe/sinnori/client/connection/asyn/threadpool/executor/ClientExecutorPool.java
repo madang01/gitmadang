@@ -3,7 +3,7 @@ package kr.pe.sinnori.client.connection.asyn.threadpool.executor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +60,7 @@ public class ClientExecutorPool implements ThreadPoolIF, ClientExecutorPoolIF {
 
 		int size = pool.size();
 
-		LinkedBlockingQueue<FromLetter> outputMessageQueue = new LinkedBlockingQueue<FromLetter>(
+		ArrayBlockingQueue<FromLetter> outputMessageQueue = new ArrayBlockingQueue<FromLetter>(
 				outputMessageQueueSize);
 
 		ClientExecutor clientExecutor = new ClientExecutor(projectName, size, outputMessageQueue, clientMessageUtility);

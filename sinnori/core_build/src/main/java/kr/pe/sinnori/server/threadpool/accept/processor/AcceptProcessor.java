@@ -19,7 +19,7 @@ package kr.pe.sinnori.server.threadpool.accept.processor;
 
 import java.net.StandardSocketOptions;
 import java.nio.channels.SocketChannel;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,13 +37,13 @@ public class AcceptProcessor extends Thread {
 	
 	private int index;
 	private String projectName;
-	private LinkedBlockingQueue<SocketChannel> acceptQueue;
+	private ArrayBlockingQueue<SocketChannel> acceptQueue;
 	private SocketResourceManagerIF socketResourceManager = null;
 
 
 	public AcceptProcessor(int index,
 			String projectName,
-			LinkedBlockingQueue<SocketChannel> acceptQueue,
+			ArrayBlockingQueue<SocketChannel> acceptQueue,
 			SocketResourceManagerIF socketResourceManager) {
 		this.index = index;
 		this.projectName = projectName;

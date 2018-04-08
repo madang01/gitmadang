@@ -22,11 +22,9 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +47,7 @@ public class OutputMessageWriter extends Thread implements OutputMessageWriterIF
 	private DataPacketBufferPoolIF dataPacketBufferPool;
 	private ArrayBlockingQueue<ToLetter> outputMessageQueue;	
 	
-	private final Set<SocketChannel> socketChannelSet = Collections.synchronizedSet(new HashSet<SocketChannel>());
+	private final ConcurrentHashMap<SocketChannel, SocketChannel> socketChannelHash = new ConcurrentHashMap<SocketChannel, SocketChannel>();
 
 	
 	public OutputMessageWriter(String projectName, int index, 
@@ -154,17 +152,17 @@ public class OutputMessageWriter extends Thread implements OutputMessageWriterIF
 	
 	@Override
 	public void addNewSocket(SocketChannel newSC) {
-		socketChannelSet.add(newSC);
+		socketChannelHash.put(newSC, newSC);
 	}
 	
 	public void removeSocket(SocketChannel sc) {
-		socketChannelSet.remove(sc);
+		socketChannelHash.remove(sc);
 	}
 
 
 	@Override
 	public int getNumberOfConnection() {
-		return socketChannelSet.size();
+		return socketChannelHash.size();
 	}
 	
 	@Override
@@ -178,5 +176,9 @@ public class OutputMessageWriter extends Thread implements OutputMessageWriterIF
 			}
 		}
 		
+	}
+	
+	public void finalize() {
+		log.warn("{} OutputMessageWriter[{}] finalize", projectName, index);
 	}
 }

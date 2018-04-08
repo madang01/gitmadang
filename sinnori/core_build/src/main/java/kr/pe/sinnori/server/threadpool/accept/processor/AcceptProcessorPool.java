@@ -20,7 +20,7 @@ package kr.pe.sinnori.server.threadpool.accept.processor;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,12 +44,12 @@ public class AcceptProcessorPool implements ThreadPoolIF {
 	
 	private int poolMaxSize;
 	private String projectName = null;
-	private LinkedBlockingQueue<SocketChannel> acceptQueue;
+	private ArrayBlockingQueue<SocketChannel> acceptQueue;
 	private SocketResourceManagerIF socketResourceManager = null;
 	
 	public AcceptProcessorPool(int poolSize, int poolMaxSize,
 			String projectName, 
-			LinkedBlockingQueue<SocketChannel> acceptQueue,
+			ArrayBlockingQueue<SocketChannel> acceptQueue,
 			SocketResourceManagerIF socketResourceManager) {
 		if (poolSize <= 0) {
 			String errorMessage = String.format("the parameter poolSize[%d] is less than or equal to zero", poolSize); 

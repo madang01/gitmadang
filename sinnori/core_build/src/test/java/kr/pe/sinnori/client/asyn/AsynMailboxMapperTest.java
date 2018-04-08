@@ -67,10 +67,7 @@ public class AsynMailboxMapperTest extends AbstractJunitTest {
 		
 		int totalNumberOfAsynMailbox = 10;
 		int socketTimeOut = 1000;
-		/*int outputMessageQueueSize = 5;
 		
-		LinkedBlockingQueue<WrapReadableMiddleObject> outputMessageQueue 
-			= new LinkedBlockingQueue<WrapReadableMiddleObject>(outputMessageQueueSize); */
 		
 		AsynPrivateMailboxMapper asynMailboxManager = new AsynPrivateMailboxMapper(totalNumberOfAsynMailbox, socketTimeOut);		
 		

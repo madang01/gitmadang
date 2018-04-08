@@ -1,10 +1,8 @@
 package kr.pe.sinnori.client.connection.asyn.threadpool.executor;
 
 import java.nio.channels.SocketChannel;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,14 +19,15 @@ public class ClientExecutor extends Thread implements ClientExecutorIF {
 	private String projectName = null;
 	private int index;
 
-	private LinkedBlockingQueue<FromLetter> outputMessageQueue;
+	private ArrayBlockingQueue<FromLetter> outputMessageQueue;
 
 	private ClientMessageUtilityIF clientMessageUtility = null;
 
-	private final Set<IOEAsynConnectionIF> socketChannelSet = Collections.synchronizedSet(new HashSet<IOEAsynConnectionIF>());
+	private final ConcurrentHashMap<IOEAsynConnectionIF, IOEAsynConnectionIF> ioeAsynConnectionHash = 
+			new ConcurrentHashMap<IOEAsynConnectionIF, IOEAsynConnectionIF>();
 
 	public ClientExecutor(String projectName, int index, 
-			LinkedBlockingQueue<FromLetter> outputMessageQueue,
+			ArrayBlockingQueue<FromLetter> outputMessageQueue,
 			ClientMessageUtilityIF clientMessageUtility) {
 		this.projectName = projectName;
 		this.index = index;
@@ -64,19 +63,19 @@ public class ClientExecutor extends Thread implements ClientExecutorIF {
 	@Override
 	public void registerAsynConnection(IOEAsynConnectionIF asynConnection) {
 		// log.info("add asynConnection[{}]", asynConnection.hashCode());
-		socketChannelSet.add(asynConnection);
+		ioeAsynConnectionHash.put(asynConnection, asynConnection);
 		
 		log.debug("{} ClientExecutor[{}] new AsynConnection[{}][{}] added", projectName, index, asynConnection.hashCode());
 	}
 
 	@Override
 	public int getNumberOfConnection() {
-		return socketChannelSet.size();
+		return ioeAsynConnectionHash.size();
 	}
 
 	@Override
 	public void removeAsynConnection(IOEAsynConnectionIF asynConnection) {
-		socketChannelSet.remove(asynConnection);
+		ioeAsynConnectionHash.remove(asynConnection);
 	}
 
 	@Override
@@ -84,4 +83,7 @@ public class ClientExecutor extends Thread implements ClientExecutorIF {
 		outputMessageQueue.put(fromLetter);
 	}	
 
+	public void finalize() {
+		log.warn("{} ClientExecutor[{}] finalize", projectName, index);
+	}
 }

@@ -20,7 +20,7 @@ package kr.pe.sinnori.server;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +55,7 @@ public class AnyProjectServer {
 	
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;
 	/** 접속 승인 큐 */
-	private LinkedBlockingQueue<SocketChannel> acceptQueue = null;
+	private ArrayBlockingQueue<SocketChannel> acceptQueue = null;
 
 	/** 클라이언트 접속 승인 쓰레드 */
 	private AcceptSelector acceptSelector = null;
@@ -120,7 +120,7 @@ public class AnyProjectServer {
 		
 		
 		
-		acceptQueue = new LinkedBlockingQueue<SocketChannel>(
+		acceptQueue = new ArrayBlockingQueue<SocketChannel>(
 				projectPartConfiguration.getServerAcceptQueueSize());
 		
 		

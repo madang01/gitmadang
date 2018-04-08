@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
@@ -16,7 +16,7 @@ import kr.pe.sinnori.common.util.JarFileFilter;
 
 public class JarUtil {
 	
-	public static Hashtable<String, JarClassEntryContents> getJarClassEntryContensHash(String jarLibrayPathString) throws FileNotFoundException {
+	public static ConcurrentHashMap<String, JarClassEntryContents> getJarClassEntryContensHash(String jarLibrayPathString) throws FileNotFoundException {
 		if (null == jarLibrayPathString) {
 			throw new IllegalArgumentException("parameter jarLibrayPathName is null");
 		}
@@ -30,7 +30,7 @@ public class JarUtil {
 			throw new RuntimeException(errorMessage);
 		}
 		
-		Hashtable<String, JarClassEntryContents> jarClassEntryContentsHash = new Hashtable<String, JarClassEntryContents>();
+		ConcurrentHashMap<String, JarClassEntryContents> jarClassEntryContentsHash = new ConcurrentHashMap<String, JarClassEntryContents>();
 		
 		for (File jarExtensionFile : jarExtensionFileList) {
 			JarFile jarFile = null;

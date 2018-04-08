@@ -45,7 +45,7 @@ public final class ObjectCacheManager {
 	protected Logger log = LoggerFactory.getLogger(ObjectCacheManager.class);
 	private final Object monitor = new Object();
 	@SuppressWarnings("rawtypes")
-	private MultiKeyMap objectCache = null;
+	private MultiKeyMap objectMultiKeyMap = null;
 	
 	// private int maxSize = 10;
 	// private long maxUpdateSeqInterval=5000;
@@ -62,7 +62,7 @@ public final class ObjectCacheManager {
 		CommonPartConfiguration commonPart = sinnoriRunningProjectConfiguration.getCommonPartConfiguration();
 		int cachedObjectMaxSize = commonPart.getCachedObjectMaxSize();
 		
-		objectCache = MultiKeyMap.multiKeyMap(new LRUMap(cachedObjectMaxSize));
+		objectMultiKeyMap = MultiKeyMap.multiKeyMap(new LRUMap(cachedObjectMaxSize));
 	}	
 	
 	/**
@@ -100,14 +100,17 @@ public final class ObjectCacheManager {
 		
 		int classLoaderHashCode = classLoader.hashCode();
 		
+		// FIXME!
+		//log.info("classLoaderHashCode={}, classFullName={}", classLoaderHashCode, classFullName);
+		
 		Object cachedObj = null;
 		synchronized (monitor) {
-			cachedObj = objectCache.get(classLoaderHashCode, classFullName);
+			cachedObj = objectMultiKeyMap.get(classLoaderHashCode, classFullName);
 			if (null == cachedObj) {
 				/** classLoader 미 등재 */
 				Class<?> cachedObjClass = classLoader.loadClass(classFullName);
 				cachedObj = cachedObjClass.getDeclaredConstructor().newInstance();
-				objectCache.put(classLoaderHashCode, classFullName, cachedObj);
+				objectMultiKeyMap.put(classLoaderHashCode, classFullName, cachedObj);
 			}
 		}		
 		

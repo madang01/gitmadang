@@ -18,10 +18,8 @@
 package kr.pe.sinnori.server.threadpool.executor;
 
 import java.nio.channels.SocketChannel;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +57,8 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 	private SocketResourceManagerIF socketResourceManager = null;
 	private ServerObjectCacheManagerIF serverObjectCacheManager = null;	
 	
-	private final Set<SocketChannel> socketChannelSet = Collections.synchronizedSet(new HashSet<SocketChannel>());
+	private final ConcurrentHashMap<SocketChannel, SocketChannel> socketChannelHash 
+		= new ConcurrentHashMap<SocketChannel, SocketChannel>();
 
 	public ServerExecutor(int index,
 			String projectName,
@@ -83,6 +82,9 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
 				FromLetter letterFromClient = inputMessageQueue.take();
+				
+				// FIXME!
+				// log.info("{} ServerExecutor[{}] letterFromClient=[{}]", projectName, index, letterFromClient.toString());
 				
 				SocketChannel fromSC = letterFromClient.getFromSocketChannel();
 				
@@ -173,17 +175,17 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 
 	@Override
 	public void addNewSocket(SocketChannel newSC) {
-		socketChannelSet.add(newSC);
+		socketChannelHash.put(newSC, newSC);
 	}
 	
 	public void removeSocket(SocketChannel sc) {
-		socketChannelSet.remove(sc);
+		socketChannelHash.remove(sc);
 	}
 
 
 	@Override
 	public int getNumberOfConnection() {
-		return socketChannelSet.size();
+		return socketChannelHash.size();
 	}
 	
 	@Override
@@ -195,5 +197,9 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 			log.info("drop the input message[{}] becase of InterruptedException", wrapReadableMiddleObject.toString());
 			throw e;
 		}
+	}
+	
+	public void finalize() {
+		log.warn("{} ServerExecutor[{}] finalize", projectName, index);
 	}
 }

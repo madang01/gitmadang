@@ -2,7 +2,7 @@ package kr.pe.sinnori.client.asyn;
 
 import java.nio.channels.SocketChannel;
 import java.util.Random;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,10 +18,10 @@ private Logger log = LoggerFactory.getLogger(AsynPrivateMailboxProducerThread.cl
 	
 	private int maxSleepingTime = 0;
 	private AsynPrivateMailboxMapper asynMailboxMapper = null;
-	private LinkedBlockingQueue<ToLetter> toLetterQueue = null;
+	private ArrayBlockingQueue<ToLetter> toLetterQueue = null;
 	
 	public AsynPrivateMailboxCustomerThread(int maxSleepingTime, AsynPrivateMailboxMapper asynMailboxMapper, 
-			LinkedBlockingQueue<ToLetter> toLetterQueue) {
+			ArrayBlockingQueue<ToLetter> toLetterQueue) {
 		if (maxSleepingTime < 0) {
 			String errorMessage = String.format("the parameter maxSleepingTime[%d] is less than zero", maxSleepingTime);
 			throw new IndexOutOfBoundsException(errorMessage);

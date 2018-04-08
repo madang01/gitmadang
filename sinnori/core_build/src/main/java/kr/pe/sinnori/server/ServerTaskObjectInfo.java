@@ -1,6 +1,7 @@
 package kr.pe.sinnori.server;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 import kr.pe.sinnori.server.task.AbstractServerTask;
 
@@ -15,7 +16,14 @@ public class ServerTaskObjectInfo {
 		this.loadedTime = serverTaskClassFile.lastModified();
 	}
 	
-	public boolean isModifed() {
+	public boolean isModifed() throws FileNotFoundException {
+		if (! serverTaskClassFile.exists()) {
+			String errorMessage = new StringBuilder("the server task file[")
+					.append(serverTaskClassFile.getAbsolutePath())
+					.append("] was not found").toString();
+			
+			throw new FileNotFoundException(errorMessage);
+		}
 		long lastModifedTime = serverTaskClassFile.lastModified();
 		return (loadedTime != lastModifedTime);
 	}

@@ -5,9 +5,9 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sql.DataSource;
 
@@ -33,8 +33,8 @@ import kr.pe.sinnori.common.exception.DBCPDataSourceNotFoundException;
  */
 public final class DBCPManager {
 	private Logger log = LoggerFactory.getLogger(DBCPManager.class);
-	private Hashtable<String, BasicDataSource> dbcpName2BasicDataSourceHash = new Hashtable<String, BasicDataSource>();
-	private Hashtable<BasicDataSource, String> basicDataSource2dbcpConnectionPoolNameHash = new Hashtable<BasicDataSource, String>();
+	private ConcurrentHashMap<String, BasicDataSource> dbcpName2BasicDataSourceHash = new ConcurrentHashMap<String, BasicDataSource>();
+	private ConcurrentHashMap<BasicDataSource, String> basicDataSource2dbcpConnectionPoolNameHash = new ConcurrentHashMap<BasicDataSource, String>();
 
 	/**
 	 * 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스

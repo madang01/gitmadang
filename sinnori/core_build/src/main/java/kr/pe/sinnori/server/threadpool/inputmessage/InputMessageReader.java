@@ -22,11 +22,11 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,10 +52,9 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 
 	private SocketResourceManagerIF socketResourceManager = null;
 
-	// private final ArrayDeque<SocketChannel> notRegistedSocketChannelList = new
-	// ArrayDeque<SocketChannel>();
-	private final Set<SocketChannel> notRegistedSocketChannelList = Collections
-			.synchronizedSet(new HashSet<SocketChannel>());
+	
+	private final ConcurrentHashMap<SocketChannel, SocketChannel> notRegistedSocketChannelHash 
+		= new ConcurrentHashMap<SocketChannel, SocketChannel>();
 
 	private Selector selectorForReadEventOnly = null;
 
@@ -83,7 +82,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 		
 		// clientResourceManager.addNewSocketChannel(newSocketChannelToRegisterWithReadOnlySelector);
 		// synchronized (monitor) {
-		notRegistedSocketChannelList.add(newSC);
+		notRegistedSocketChannelHash.put(newSC, newSC);
 		// }
 
 		// waitingSCQueue.put(sc);
@@ -123,18 +122,24 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 
 	@Override
 	public int getNumberOfConnection() {
-		return (notRegistedSocketChannelList.size() + selectorForReadEventOnly.keys().size());
+		return (notRegistedSocketChannelHash.size() + selectorForReadEventOnly.keys().size());
 	}
 
 	/**
 	 * 미 등록된 소켓 채널들을 selector 에 등록한다.
 	 */
 	private void processNewConnection() {
-		if (notRegistedSocketChannelList.isEmpty()) {
+		if (notRegistedSocketChannelHash.isEmpty()) {
 			return;
 		}
 		
-		for (SocketChannel notRegistedSocketChannel : notRegistedSocketChannelList) {
+		Enumeration<SocketChannel> notRegistedSocketChannelEnumeration = notRegistedSocketChannelHash.keys();
+		
+		while(notRegistedSocketChannelEnumeration.hasMoreElements()) {
+			SocketChannel notRegistedSocketChannel = notRegistedSocketChannelEnumeration.nextElement();
+			
+			notRegistedSocketChannelHash.remove(notRegistedSocketChannel);
+			
 			try {
 				notRegistedSocketChannel.register(selectorForReadEventOnly, SelectionKey.OP_READ);
 			} catch (ClosedChannelException e) {
@@ -151,13 +156,11 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 				
 			}
 		}
-		
-		notRegistedSocketChannelList.clear();
 	}
 
 	@Override
 	public void run() {
-		log.info(String.format("%s InputMessageReader[%d] start", projectName, index));
+		log.info("{} InputMessageReader[{}] start", projectName, index);
 
 		int numRead = 0;
 		try {
@@ -170,14 +173,18 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 					
 					for (SelectionKey selectedKey : selectedKeySet) {
 						SocketChannel selectedSocketChannel = (SocketChannel) selectedKey.channel();
+						
+						// FIXME!
+						// log.info("{} InputMessageReader[{}] selectedSocketChannel[{}]", projectName, index, selectedSocketChannel.hashCode());
+						
+						
 						// ByteBuffer lastInputStreamBuffer = null;
 						SocketResource fromSocketResource = socketResourceManager
 								.getSocketResource(selectedSocketChannel);
 
 						if (null == fromSocketResource) {
-							log.warn(String.format(
-									"%s InputMessageReader[%d] socket channel[%d] is no match for ClientResource",
-									projectName, index, selectedSocketChannel.hashCode()));
+							log.warn("{} InputMessageReader[{}] this socket channel[{}] resoruce was not found",
+									projectName, index, selectedSocketChannel.hashCode());
 							continue;
 						}
 						
@@ -281,5 +288,9 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 		fromSocketResource.close();
 
 		socketResourceManager.remove(selectedSocketChannel);
+	}
+	
+	public void finalize() {
+		log.warn("{} InputMessageReader[{}] finalize", projectName, index);
 	}
 }

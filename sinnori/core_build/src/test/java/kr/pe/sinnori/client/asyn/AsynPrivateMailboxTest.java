@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import org.junit.Test;
 
@@ -73,7 +73,7 @@ public class AsynPrivateMailboxTest extends AbstractJunitTest {
 		int totalNumberOfAsynMailbox = totalNumberOfAsynPrivateMailbox + 1;
 		
 		int toLetterQueueSize = 5;
-		LinkedBlockingQueue<ToLetter> toLetterQueue = new LinkedBlockingQueue<ToLetter>(toLetterQueueSize); 
+		ArrayBlockingQueue<ToLetter> toLetterQueue = new ArrayBlockingQueue<ToLetter>(toLetterQueueSize); 
 		
 		int socketTimeOut = 500;
 		
