@@ -21,9 +21,8 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayDeque;
 import java.util.NoSuchElementException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.ConnectionFixedParameter;
 import kr.pe.sinnori.client.connection.ConnectionPoolIF;
@@ -34,7 +33,7 @@ import kr.pe.sinnori.common.exception.ConnectionPoolException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 
 public class AsynPrivateConnectionPool implements ConnectionPoolIF {
-	private Logger log = LoggerFactory.getLogger(AsynPrivateConnectionPool.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(AsynPrivateConnectionPool.class);
 	private final Object monitor = new Object();
 	
 	private transient int poolSize = 0;

@@ -6,6 +6,12 @@ import static org.junit.Assert.fail;
 import java.nio.charset.Charset;
 import java.util.Properties;
 
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.config.AbstractDependencyValidator;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningCharset;
@@ -13,14 +19,8 @@ import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturnin
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningLongBetweenMinAndMax;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class MinDependOnMaxValidCheckerTest {
-	Logger log = LoggerFactory.getLogger(MinDependOnMaxValidCheckerTest.class);
+	private final InternalLogger log = InternalLoggerFactory.getInstance(MinDependOnMaxValidCheckerTest.class);
 
 	private final String prefixOfPart = "project.sample_base.";
 	private final Properties sinnoriConfigFileProperties = new Properties();

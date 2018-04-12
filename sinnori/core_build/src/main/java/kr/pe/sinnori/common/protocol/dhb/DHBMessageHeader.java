@@ -21,9 +21,8 @@ import java.nio.BufferOverflowException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.CharsetEncoderException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
@@ -55,7 +54,7 @@ import kr.pe.sinnori.common.util.HexUtil;
  * 
  */
 public class DHBMessageHeader {
-	private Logger log = LoggerFactory.getLogger(DHBMessageHeader.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(DHBMessageHeader.class);
 
 	/** messageID : String */
 	// public String messageID = null;

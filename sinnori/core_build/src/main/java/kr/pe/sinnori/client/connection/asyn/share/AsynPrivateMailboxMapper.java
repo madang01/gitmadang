@@ -1,14 +1,13 @@
 package kr.pe.sinnori.client.connection.asyn.share;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxIF;
 
 public class AsynPrivateMailboxMapper implements AsynPrivateMailboxMapperIF {
 	@SuppressWarnings("unused")
-	private Logger log = LoggerFactory.getLogger(AsynPrivateMailboxMapper.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(AsynPrivateMailboxMapper.class);
 	
 	private AsynPrivateMailboxIF[] asynPrivateMailboxs = null;
 	

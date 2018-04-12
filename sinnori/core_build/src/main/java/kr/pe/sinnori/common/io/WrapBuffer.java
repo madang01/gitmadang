@@ -20,8 +20,8 @@ package kr.pe.sinnori.common.io;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 
 /**
  * <pre>
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class WrapBuffer {
-	private Logger log = LoggerFactory.getLogger(WrapBuffer.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(WrapBuffer.class);
 	private boolean isDirect;
 	private ByteBuffer buffer = null;
 	private boolean isInQueue = true;

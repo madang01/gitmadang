@@ -13,14 +13,13 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.SymmetricException;
 
 public class ClientRSA implements ClientRSAIF {
-	private Logger log = LoggerFactory.getLogger(ClientRSA.class);	
+	private InternalLogger log = InternalLoggerFactory.getInstance(ClientRSA.class);	
 	
 	private byte[] publicKeyBytes = null;	
 	

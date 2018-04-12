@@ -5,16 +5,15 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
 import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.threadpool.ThreadPoolIF;
 
 public class ClientExecutorPool implements ThreadPoolIF, ClientExecutorPoolIF {
-	private Logger log = LoggerFactory.getLogger(ClientExecutorPool.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(ClientExecutorPool.class);
 	private final List<ClientExecutorIF> pool = new ArrayList<ClientExecutorIF>();
 	
 	private String projectName = null;

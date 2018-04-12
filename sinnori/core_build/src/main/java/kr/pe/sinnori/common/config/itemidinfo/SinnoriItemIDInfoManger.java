@@ -12,9 +12,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.config.AbstractDependOnInactiveChecker;
 import kr.pe.sinnori.common.config.AbstractDependencyValidator;
 import kr.pe.sinnori.common.config.dependoninactivechecker.RSAKeyFileDependOnSourceInActiveChecker;
@@ -53,7 +52,7 @@ import kr.pe.sinnori.common.util.SequencedProperties;
  * 
  */
 public class SinnoriItemIDInfoManger {
-	private Logger log = LoggerFactory.getLogger(SinnoriItemIDInfoManger.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(SinnoriItemIDInfoManger.class);
 	
 
 	private List<ItemIDInfo<?>> itemIDInfoList = new ArrayList<ItemIDInfo<?>>();

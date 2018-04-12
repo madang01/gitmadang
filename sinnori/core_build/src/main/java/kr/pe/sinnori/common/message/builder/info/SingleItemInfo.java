@@ -20,9 +20,8 @@ import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.UnknownItemTypeException;
 import kr.pe.sinnori.common.type.ItemInfoType;
@@ -36,7 +35,7 @@ import kr.pe.sinnori.common.util.CommonStaticUtil;
  * 
  */
 public class SingleItemInfo extends AbstractItemInfo {
-	private final Logger log = LoggerFactory.getLogger(SingleItemInfo.class);
+	private final InternalLogger log = InternalLoggerFactory.getInstance(SingleItemInfo.class);
 
 	private String itemName;
 	private SingleItemType itemType;

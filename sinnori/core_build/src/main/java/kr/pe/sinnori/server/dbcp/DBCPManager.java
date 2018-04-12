@@ -1,4 +1,4 @@
-package kr.pe.sinnori.common.etc;
+package kr.pe.sinnori.server.dbcp;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,9 +13,9 @@ import javax.sql.DataSource;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.dbcp2.BasicDataSourceFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.itemvalue.AllDBCPPartConfiguration;
@@ -32,7 +32,7 @@ import kr.pe.sinnori.common.exception.DBCPDataSourceNotFoundException;
  * 
  */
 public final class DBCPManager {
-	private Logger log = LoggerFactory.getLogger(DBCPManager.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(DBCPManager.class);
 	private ConcurrentHashMap<String, BasicDataSource> dbcpName2BasicDataSourceHash = new ConcurrentHashMap<String, BasicDataSource>();
 	private ConcurrentHashMap<BasicDataSource, String> basicDataSource2dbcpConnectionPoolNameHash = new ConcurrentHashMap<BasicDataSource, String>();
 

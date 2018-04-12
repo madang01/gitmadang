@@ -19,9 +19,8 @@ package kr.pe.sinnori.server;
 
 import java.nio.channels.SocketChannel;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.server.threadpool.executor.ServerExecutorIF;
 import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderIF;
@@ -35,7 +34,7 @@ import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterIF;
  */
 public class SocketResource {
 	@SuppressWarnings("unused")
-	private Logger log = LoggerFactory.getLogger(SocketResource.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(SocketResource.class);
 
 	private SocketChannel ownerSC = null;
 	private InputMessageReaderIF inputMessageReader = null;

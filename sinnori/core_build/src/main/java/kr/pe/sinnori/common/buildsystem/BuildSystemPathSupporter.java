@@ -367,6 +367,22 @@ public abstract class BuildSystemPathSupporter {
 		strBuilder.append("web_app_base");
 		return strBuilder.toString();
 	}
+	
+	/** <project path>/web_app_base/upload */
+	public static String getWebUploadPathString(String sinnoriInstalledPathString, String mainProjectName) {
+		StringBuilder strBuilder = new StringBuilder(getWebRootBasePathString(sinnoriInstalledPathString, mainProjectName));
+		strBuilder.append(File.separator);
+		strBuilder.append("upload");
+		return strBuilder.toString();
+	}	
+	
+	/** <project path>/web_app_base/upload */
+	public static String getWebTempPathString(String sinnoriInstalledPathString, String mainProjectName) {
+		StringBuilder strBuilder = new StringBuilder(getWebRootBasePathString(sinnoriInstalledPathString, mainProjectName));
+		strBuilder.append(File.separator);
+		strBuilder.append("temp");
+		return strBuilder.toString();
+	}	
 
 	/**
 	 * <project path>/web_app_base/ROOT

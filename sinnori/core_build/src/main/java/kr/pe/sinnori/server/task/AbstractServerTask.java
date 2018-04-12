@@ -19,9 +19,8 @@ package kr.pe.sinnori.server.task;
 
 import java.nio.channels.SocketChannel;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
@@ -48,7 +47,7 @@ import kr.pe.sinnori.server.SocketResourceManagerIF;
  * 
  */
 public abstract class AbstractServerTask {
-	protected Logger log = LoggerFactory.getLogger(AbstractServerTask.class);
+	protected InternalLogger log = InternalLoggerFactory.getInstance(AbstractServerTask.class);
 	
 	private final ClassLoader classLoaderOfSererTask = this.getClass().getClassLoader();
 	

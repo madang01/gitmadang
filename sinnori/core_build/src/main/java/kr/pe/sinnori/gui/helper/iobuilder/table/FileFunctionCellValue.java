@@ -9,10 +9,10 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.message.builder.info.MessageInfo;
 import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
 import kr.pe.sinnori.common.type.LineSeparatorType;
@@ -21,7 +21,7 @@ import kr.pe.sinnori.gui.helper.iobuilder.screen.FileFunctionManagerIF;
 
 @SuppressWarnings("serial")
 public class FileFunctionCellValue extends JPanel {
-	private Logger log = LoggerFactory.getLogger(FileFunctionCellValue.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(FileFunctionCellValue.class);
 	
 	private int row;
 	// private File messageInfoFile = null;

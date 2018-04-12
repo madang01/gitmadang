@@ -10,9 +10,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.config.fileorpathstringgetter.AbstractFileOrPathStringGetter;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDDefiner;
@@ -31,7 +30,7 @@ import kr.pe.sinnori.common.util.SequencedProperties;
 import kr.pe.sinnori.common.util.SequencedPropertiesUtil;
 
 public class SinnoriConfiguration {
-	private Logger log = LoggerFactory.getLogger(SinnoriConfiguration.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(SinnoriConfiguration.class);
 
 	private String mainProjectName = null;
 	private String sinnoriInstalledPathString = null;

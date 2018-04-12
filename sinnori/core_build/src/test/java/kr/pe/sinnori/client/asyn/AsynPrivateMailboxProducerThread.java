@@ -6,9 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxIF;
 import kr.pe.sinnori.client.connection.asyn.share.AsynPrivateMailboxPool;
 import kr.pe.sinnori.common.asyn.ToLetter;
@@ -16,7 +15,7 @@ import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
 public class AsynPrivateMailboxProducerThread extends Thread {
-	private Logger log = LoggerFactory.getLogger(AsynPrivateMailboxProducerThread.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(AsynPrivateMailboxProducerThread.class);
 
 	private int numberOfExecution;
 	private AsynPrivateMailboxPool asynPrivateMailboxPool = null;

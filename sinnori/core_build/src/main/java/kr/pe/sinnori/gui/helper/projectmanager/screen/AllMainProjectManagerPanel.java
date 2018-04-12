@@ -25,12 +25,11 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.buildsystem.BuildSystemSupporter;
 import kr.pe.sinnori.common.buildsystem.MainProjectBuildSystemState;
@@ -44,7 +43,7 @@ import kr.pe.sinnori.gui.helper.lib.ScreenManagerIF;
  */
 @SuppressWarnings("serial")
 public class AllMainProjectManagerPanel extends JPanel {
-	private Logger log = LoggerFactory.getLogger(AllMainProjectManagerPanel.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(AllMainProjectManagerPanel.class);
 
 	private Frame mainFrame = null;
 	private ScreenManagerIF screenManagerIF = null;
@@ -62,6 +61,10 @@ public class AllMainProjectManagerPanel extends JPanel {
 	}
 
 	public void setScreen(String sinnoriInstalledPathString) {
+		if (null == sinnoriInstalledPathString) {
+			throw new IllegalArgumentException("the parameter sinnoriInstalledPathString is null");
+		}
+		
 		String projectBasePathString = BuildSystemPathSupporter.getProjectBasePathString(sinnoriInstalledPathString);
 
 		File projectBasePath = new File(projectBasePathString);
@@ -97,8 +100,16 @@ public class AllMainProjectManagerPanel extends JPanel {
 		}
 
 		List<String> mainProjectNameList = new ArrayList<String>();
+		
+		File[] projectBasePathList = projectBasePath.listFiles();
+		
+		if (null == projectBasePathList) {
+			String errorMessage = "the var projectBasePathList is null";
+			showMessageDialog(errorMessage);
+			return;
+		}
 
-		for (File fileOfList : projectBasePath.listFiles()) {
+		for (File fileOfList : projectBasePathList) {
 			if (fileOfList.isDirectory()) {
 				if (!fileOfList.canRead()) {
 					String errorMessage = String.format(
@@ -293,6 +304,8 @@ public class AllMainProjectManagerPanel extends JPanel {
 		String sinnoriInstalledPathString = sinnoriInstalledPathInfoValueLabel.getText();
 		String projectBasePathString = BuildSystemPathSupporter.getProjectBasePathString(sinnoriInstalledPathString);
 
+		assert(null == projectBasePathString);
+		
 		File projectBasePath = new File(projectBasePathString);
 		if (!projectBasePath.exists()) {
 			String errorMessage = String.format(

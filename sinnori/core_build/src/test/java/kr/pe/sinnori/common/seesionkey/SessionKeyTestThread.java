@@ -3,9 +3,8 @@ package kr.pe.sinnori.common.seesionkey;
 import java.util.Date;
 import java.util.Random;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.sessionkey.ClientSessionKeyIF;
 import kr.pe.sinnori.common.sessionkey.ClientSymmetricKeyIF;
@@ -13,7 +12,7 @@ import kr.pe.sinnori.common.sessionkey.ServerSessionkeyIF;
 import kr.pe.sinnori.common.sessionkey.ServerSymmetricKeyIF;
 
 public class SessionKeyTestThread extends Thread {
-	private Logger log = LoggerFactory.getLogger(SessionKeyTestThread.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(SessionKeyTestThread.class);
 	private int threadID = -1;
 	
 	private ServerSessionkeyIF mainProjectServerSessionkey = null;

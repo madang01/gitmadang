@@ -3,14 +3,13 @@ package kr.pe.sinnori.common.seesionkey;
 import java.util.Date;
 import java.util.Random;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.sessionkey.SymmetricKeyManager;
 
 public class SymmetricKeyTestThread extends Thread {
-	private Logger log = LoggerFactory.getLogger(SymmetricKeyTestThread.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(SymmetricKeyTestThread.class);
 	
 	private int threadID = -1;
 	private SymmetricKeyInfo symmetricKeyInfo = null;

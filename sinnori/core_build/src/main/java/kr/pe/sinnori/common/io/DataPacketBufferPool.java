@@ -3,13 +3,12 @@ package kr.pe.sinnori.common.io;
 import java.nio.ByteOrder;
 import java.util.ArrayDeque;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 
 public class DataPacketBufferPool implements DataPacketBufferPoolIF {
-	private Logger log = LoggerFactory.getLogger(DataPacketBufferPool.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(DataPacketBufferPool.class);
 
 	private final Object monitor = new Object();
 

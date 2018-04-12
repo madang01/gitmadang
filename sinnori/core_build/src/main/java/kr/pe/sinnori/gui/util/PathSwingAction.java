@@ -24,9 +24,8 @@ import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 import javax.swing.JTextField;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.type.ReadWriteMode;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 
@@ -37,7 +36,7 @@ import kr.pe.sinnori.common.util.CommonStaticUtil;
  */
 @SuppressWarnings("serial")
 public class PathSwingAction extends AbstractAction {
-	private Logger log = LoggerFactory.getLogger(PathSwingAction.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(PathSwingAction.class);
 	
 	private Component parentComponent = null;
 	private JTextField pathTextField = null;

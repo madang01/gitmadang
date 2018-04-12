@@ -6,16 +6,16 @@ import java.io.File;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
+import kr.pe.sinnori.common.logback.SinnoriLogbackManger;
 import kr.pe.sinnori.common.type.LogType;
 
 public abstract class AbstractJunitTest {
-	protected static Logger log = null;
+	protected static InternalLogger log = null;
 	
 	protected final static String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
 	protected final static String mainProjectName = "sample_base";
@@ -54,7 +54,7 @@ public abstract class AbstractJunitTest {
 		LogType logType = LogType.SERVER;
 		SinnoriLogbackManger.getInstance().setup(sinnoriInstalledPathString, mainProjectName, logType);
 
-		log = LoggerFactory.getLogger(AbstractJunitTest.class);
+		log = InternalLoggerFactory.getInstance(AbstractJunitTest.class);
 	}
 
 	@AfterClass

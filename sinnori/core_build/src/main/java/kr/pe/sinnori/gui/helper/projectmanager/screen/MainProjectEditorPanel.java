@@ -7,7 +7,6 @@ package kr.pe.sinnori.gui.helper.projectmanager.screen;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,16 +30,14 @@ import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.buildsystem.BuildSystemSupporter;
 import kr.pe.sinnori.common.buildsystem.MainProjectBuildSystemState;
@@ -67,7 +64,7 @@ import kr.pe.sinnori.gui.util.PathSwingAction;
  */
 @SuppressWarnings("serial")
 public class MainProjectEditorPanel extends JPanel {
-	private Logger log = LoggerFactory.getLogger(MainProjectEditorPanel.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(MainProjectEditorPanel.class);
 	
 
 	private final String titlesOfPropertiesTableModel[] = { "key", "value" };
@@ -382,7 +379,7 @@ public class MainProjectEditorPanel extends JPanel {
 		mainProjectPartEditorScrollPane.repaint();
 		mainProjectPartEditorTable.setVisible(true);
 	}
-
+	
 	private class SinnoriConfigurationSequencedProperties extends
 			SequencedProperties {
 		/**
@@ -1082,6 +1079,8 @@ public class MainProjectEditorPanel extends JPanel {
 	private void popupProjectIOManagerScreenActionPerformed(ActionEvent e) {		
 		String projectBasePathString = BuildSystemPathSupporter.getProjectBasePathString(sinnoriInstalledPathString);
 		
+		assert(null == projectBasePathString);
+		
 		File projectBasePath = new File(projectBasePathString);
 		if (! projectBasePath.exists()) {
 			String errorMessage = String.format("the sinnori installed path(=parameter sinnoriInstalledPathString[%s])'s the project base path[%s] doesn't exist", 
@@ -1244,32 +1243,17 @@ public class MainProjectEditorPanel extends JPanel {
 
 			//---- mainProjectStateSaveButton ----
 			mainProjectStateSaveButton.setText("save");
-			mainProjectStateSaveButton.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					saveMainProjectState(e);
-				}
-			});
+			mainProjectStateSaveButton.addActionListener(e -> saveMainProjectState(e));
 			functionPanel.add(mainProjectStateSaveButton, CC.xy(3, 1));
 
 			//---- popupProjectIOManagerScreenButton ----
 			popupProjectIOManagerScreenButton.setText("popup 'project IO manager screen'");
-			popupProjectIOManagerScreenButton.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					popupProjectIOManagerScreenActionPerformed(e);
-				}
-			});
+			popupProjectIOManagerScreenButton.addActionListener(e -> popupProjectIOManagerScreenActionPerformed(e));
 			functionPanel.add(popupProjectIOManagerScreenButton, CC.xy(5, 1));
 
 			//---- prevButton ----
 			prevButton.setText("go back to 'all project manager screen'");
-			prevButton.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					goBack(e);
-				}
-			});
+			prevButton.addActionListener(e -> goBack(e));
 			functionPanel.add(prevButton, CC.xy(7, 1));
 		}
 		add(functionPanel, CC.xy(2, 2));
@@ -1333,12 +1317,7 @@ public class MainProjectEditorPanel extends JPanel {
 				//---- webClientCheckBox ----
 				webClientCheckBox.setText("web client");
 				webClientCheckBox.setSelected(true);
-				webClientCheckBox.addChangeListener(new ChangeListener() {
-					@Override
-					public void stateChanged(ChangeEvent e) {
-						webClientCheckBoxStateChanged(e);
-					}
-				});
+				webClientCheckBox.addChangeListener(e -> webClientCheckBoxStateChanged(e));
 				projectTypeChoicePanel.add(webClientCheckBox);
 			}
 			projectTypeChoiceLinePanel.add(projectTypeChoicePanel, CC.xy(3, 1));
@@ -1358,7 +1337,7 @@ public class MainProjectEditorPanel extends JPanel {
 			servletEnginLibinaryPathLinePanel.add(servletSystemLibraryPathTextField, CC.xy(3, 1));
 
 			//---- servletSystemLibraryPathButton ----
-			servletSystemLibraryPathButton.setText("Path");
+			servletSystemLibraryPathButton.setText("\uacbd\ub85c \uc120\ud0dd");
 			servletSystemLibraryPathButton.setEnabled(false);
 			servletEnginLibinaryPathLinePanel.add(servletSystemLibraryPathButton, CC.xy(5, 1));
 		}
@@ -1381,12 +1360,7 @@ public class MainProjectEditorPanel extends JPanel {
 
 			//---- newSubProjectAddButton ----
 			newSubProjectAddButton.setText("add");
-			newSubProjectAddButton.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					newSubProjectAddButtonActionPerformed(e);
-				}
-			});
+			newSubProjectAddButton.addActionListener(e -> newSubProjectAddButtonActionPerformed(e));
 			subProjectNameInputLinePanel.add(newSubProjectAddButton, CC.xy(5, 1));
 		}
 		add(subProjectNameInputLinePanel, CC.xy(2, 14));
@@ -1415,22 +1389,12 @@ public class MainProjectEditorPanel extends JPanel {
 
 				//---- subProjectEditButton ----
 				subProjectEditButton.setText("edit");
-				subProjectEditButton.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						subProjectNameEditButtonActionPerformed(e);
-					}
-				});
+				subProjectEditButton.addActionListener(e -> subProjectNameEditButtonActionPerformed(e));
 				subProjectNameListFuncPanel.add(subProjectEditButton);
 
 				//---- subProjectNameDeleteButton ----
 				subProjectNameDeleteButton.setText("remove");
-				subProjectNameDeleteButton.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						subProjectNameDeleteButtonActionPerformed(e);
-					}
-				});
+				subProjectNameDeleteButton.addActionListener(e -> subProjectNameDeleteButtonActionPerformed(e));
 				subProjectNameListFuncPanel.add(subProjectNameDeleteButton);
 			}
 			subProjectListLinePanel.add(subProjectNameListFuncPanel, CC.xy(5, 1));
@@ -1450,12 +1414,7 @@ public class MainProjectEditorPanel extends JPanel {
 
 			//---- newDBCPAddButton ----
 			newDBCPAddButton.setText("add");
-			newDBCPAddButton.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					addNewDBCP(e);
-				}
-			});
+			newDBCPAddButton.addActionListener(e -> addNewDBCP(e));
 			dbcpNameInputLinePanel.add(newDBCPAddButton, CC.xy(5, 1));
 		}
 		add(dbcpNameInputLinePanel, CC.xy(2, 18));
@@ -1483,22 +1442,12 @@ public class MainProjectEditorPanel extends JPanel {
 
 				//---- dbcpNameEditButton ----
 				dbcpNameEditButton.setText("edit");
-				dbcpNameEditButton.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						editDBCP(e);
-					}
-				});
+				dbcpNameEditButton.addActionListener(e -> editDBCP(e));
 				dbcpNameListFuncPanel.add(dbcpNameEditButton);
 
 				//---- dbcpNameDeleteButton ----
 				dbcpNameDeleteButton.setText("remove");
-				dbcpNameDeleteButton.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						deleteDBCP(e);
-					}
-				});
+				dbcpNameDeleteButton.addActionListener(e -> deleteDBCP(e));
 				dbcpNameListFuncPanel.add(dbcpNameDeleteButton);
 			}
 			dbcpNameListLinePanel.add(dbcpNameListFuncPanel, CC.xy(5, 1));

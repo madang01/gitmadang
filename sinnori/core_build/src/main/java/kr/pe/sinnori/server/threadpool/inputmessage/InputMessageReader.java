@@ -28,9 +28,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.SocketOutputStream;
@@ -41,7 +40,7 @@ import kr.pe.sinnori.server.SocketResourceManagerIF;
 import kr.pe.sinnori.server.threadpool.executor.ServerExecutorIF;
 
 public class InputMessageReader extends Thread implements InputMessageReaderIF {
-	private Logger log = LoggerFactory.getLogger(InputMessageReader.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(InputMessageReader.class);
 
 	// private final Object monitor = new Object();
 

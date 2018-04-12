@@ -29,11 +29,10 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.util.HexUtil;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 대칭키 관리자. 신놀이가 지원하는 대칭키에 대한 관리를 위한 클래스.
@@ -42,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public final class SymmetricKeyManager {
-	private Logger log = LoggerFactory.getLogger(SymmetricKeyManager.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(SymmetricKeyManager.class);
 
 	private Map<String, String> symmetricKeyTransformationHash = null;
 

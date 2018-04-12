@@ -16,9 +16,8 @@
  */
 package kr.pe.sinnori.common.protocol;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.io.FreeSizeInputStream;
 
 
@@ -28,7 +27,7 @@ import kr.pe.sinnori.common.io.FreeSizeInputStream;
  *
  */
 public class WrapReadableMiddleObject {
-	private Logger log = LoggerFactory.getLogger(WrapReadableMiddleObject.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(WrapReadableMiddleObject.class);
 	
 	private String messageID = null;
 	private int mailboxID;

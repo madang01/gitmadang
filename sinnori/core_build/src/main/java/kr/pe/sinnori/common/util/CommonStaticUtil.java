@@ -10,9 +10,9 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BuildSystemException;
 import kr.pe.sinnori.common.type.LineSeparatorType;
@@ -156,7 +156,7 @@ public abstract class CommonStaticUtil {
 				if (null != fos)
 					fos.close();
 			} catch (Exception e) {
-				Logger log = LoggerFactory.getLogger(CommonStaticUtil.class);
+				InternalLogger log = InternalLoggerFactory.getInstance(CommonStaticUtil.class);
 				log.warn("fail to close the file[{}] output stream", targetFile.getAbsolutePath());
 			}
 		}
@@ -237,7 +237,7 @@ public abstract class CommonStaticUtil {
 			} catch (IOException e) {
 				// log.warn("fail to close the file[{}][{}] output stream", fileNickname, targetFile.getAbsolutePath());
 				// e.printStackTrace();
-				Logger log = LoggerFactory.getLogger(CommonStaticUtil.class);
+				InternalLogger log = InternalLoggerFactory.getInstance(CommonStaticUtil.class);
 				log.warn("fail to close the file[{}] output stream", targetFile.getAbsolutePath());
 			}
 		}
@@ -284,7 +284,7 @@ public abstract class CommonStaticUtil {
 			} catch (IOException e) {
 				// log.warn("fail to close the file[{}][{}] output stream", fileNickname, targetFile.getAbsolutePath());
 				// e.printStackTrace();
-				Logger log = LoggerFactory.getLogger(CommonStaticUtil.class);
+				InternalLogger log = InternalLoggerFactory.getInstance(CommonStaticUtil.class);
 				log.warn("fail to close the file[{}] output stream", targetFile.getAbsolutePath());
 			}
 		}
@@ -310,7 +310,7 @@ public abstract class CommonStaticUtil {
 	
 	public static void createChildDirectoriesOfBasePath(String basePathStrig,
 			List<String> childRelativeDirectoryList) throws BuildSystemException {
-		Logger log = LoggerFactory.getLogger(CommonStaticUtil.class);
+		InternalLogger log = InternalLoggerFactory.getInstance(CommonStaticUtil.class);
 		
 		for (String childRelativedirectory : childRelativeDirectoryList) {
 			// String relativeDir = childDirectories[i];

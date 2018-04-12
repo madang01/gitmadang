@@ -3,18 +3,18 @@ package kr.pe.sinnori.common.config.nativevalueconverter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import kr.pe.sinnori.common.AbstractJunitTest;
-import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
-
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
+import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.config.NativeValueConverterTestIF;
 
 public class GeneralConverterReturningNoTrimStringTest extends AbstractJunitTest implements
 NativeValueConverterTestIF {
 	
-	Logger log = LoggerFactory.getLogger(GeneralConverterReturningNoTrimStringTest.class);
+	private final InternalLogger log = InternalLoggerFactory.getInstance(GeneralConverterReturningNoTrimStringTest.class);
 
 	private GeneralConverterReturningNoTrimString nativeValueConverter = null;
 	private String returnedValue = null;

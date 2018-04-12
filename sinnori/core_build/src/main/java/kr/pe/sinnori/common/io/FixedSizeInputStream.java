@@ -24,9 +24,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.Arrays;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.CharsetDecoderException;
 import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
@@ -40,7 +39,7 @@ import kr.pe.sinnori.common.util.HexUtil;
  * 
  */
 public class FixedSizeInputStream implements BinaryInputStreamIF {
-	private Logger log = LoggerFactory.getLogger(FixedSizeInputStream.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(FixedSizeInputStream.class);
 	/**
 	 * 입력받은 InputStream 처럼 동작 시킬 ByteBuffer
 	 */

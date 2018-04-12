@@ -5,9 +5,9 @@ import static org.junit.Assert.fail;
 import java.io.File;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 
@@ -19,7 +19,7 @@ public class RegularExpressTest extends AbstractJunitTest {
 			fail("this funciton depends on Windows OS");
 		}
 		
-		Logger log = LoggerFactory.getLogger(RegularExpressTest.class);
+		InternalLogger log = InternalLoggerFactory.getInstance(RegularExpressTest.class);
 		
 		String expectedFileContents="<!DOCTYPE configuration SYSTEM \"D:\\gitsinnori\\sinnori\\resouces\\mybatis\\mybatis-3-config.dtd\">";
 		
@@ -62,7 +62,7 @@ public class RegularExpressTest extends AbstractJunitTest {
 			fail("this funciton depends on Windows OS");
 		}
 		
-		Logger log = LoggerFactory.getLogger(RegularExpressTest.class);		
+		InternalLogger log = InternalLoggerFactory.getInstance(RegularExpressTest.class);		
 	
 		String expectedFileContents = "<!DOCTYPE mapper SYSTEM \"D:\\gitsinnori\\sinnori\\resouces\\mybatis\\mybatis-3-mapper.dtd\">";
 		

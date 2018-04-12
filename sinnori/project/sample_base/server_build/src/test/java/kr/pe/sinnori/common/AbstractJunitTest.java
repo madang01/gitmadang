@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.SinnoriLogbackManger;
+import kr.pe.sinnori.common.logback.SinnoriLogbackManger;
 import kr.pe.sinnori.common.type.LogType;
 import kr.pe.sinnori.server.lib.ServerDBEnvironment;
 

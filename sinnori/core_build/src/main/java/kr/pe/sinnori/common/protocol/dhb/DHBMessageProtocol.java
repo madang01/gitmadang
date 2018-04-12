@@ -27,9 +27,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
@@ -62,7 +61,7 @@ import kr.pe.sinnori.common.util.HexUtil;
  * 
  */
 public class DHBMessageProtocol implements MessageProtocolIF {
-	private Logger log = LoggerFactory.getLogger(DHBMessageProtocol.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(DHBMessageProtocol.class);
 	
 	private int dataPacketBufferMaxCntPerMessage;
 	// private Charset streamCharset = null;

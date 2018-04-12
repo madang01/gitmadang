@@ -20,15 +20,14 @@ import java.net.SocketTimeoutException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
 public final class AsynPrivateMailbox implements AsynPrivateMailboxIF {
-	private Logger log = LoggerFactory.getLogger(AsynPrivateMailbox.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(AsynPrivateMailbox.class);
 
 	private final Object monitor = new Object();
 

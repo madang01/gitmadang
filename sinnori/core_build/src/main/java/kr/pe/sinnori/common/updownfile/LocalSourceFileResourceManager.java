@@ -19,9 +19,8 @@ package kr.pe.sinnori.common.updownfile;
 
 import java.util.HashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.itemvalue.CommonPartConfiguration;
@@ -37,7 +36,7 @@ import kr.pe.sinnori.common.exception.UpDownFileException;
  *
  */
 public class LocalSourceFileResourceManager {
-	private Logger log = LoggerFactory.getLogger(LocalSourceFileResourceManager.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(LocalSourceFileResourceManager.class);
 
 	private final Object monitor = new Object();
 

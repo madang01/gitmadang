@@ -22,9 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.threadpool.ThreadPoolIF;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
@@ -36,7 +35,7 @@ import kr.pe.sinnori.server.SocketResourceManagerIF;
  * 
  */
 public class AcceptProcessorPool implements ThreadPoolIF {
-	private Logger log = LoggerFactory.getLogger(AcceptProcessorPool.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(AcceptProcessorPool.class);
 	private final Object monitor = new Object();		
 	private final List<AcceptProcessor> pool = new ArrayList<AcceptProcessor>();
 	
@@ -100,7 +99,11 @@ public class AcceptProcessorPool implements ThreadPoolIF {
 			int size = pool.size();
 			
 			if (size >= poolMaxSize) {
-				String errorMessage = String.format("can't add any more tasks becase the number of %s AcceptProcessorPool's tasks reached the maximum[%d] number", projectName, poolMaxSize); 
+				String errorMessage = new StringBuilder("can't add a AcceptProcessor in the project[")
+						.append(projectName)
+						.append("] becase the number of AcceptProcessor is maximum[")
+						.append(poolMaxSize)
+						.append("]").toString();
 				log.warn(errorMessage);
 				throw new IllegalStateException(errorMessage);
 			}
@@ -110,7 +113,10 @@ public class AcceptProcessorPool implements ThreadPoolIF {
 						acceptQueue, socketResourceManager);
 				pool.add(acceptProcessor);
 			} catch (Exception e) {
-				String errorMessage = String.format("failed to add a %s AcceptProcessorPool's task becase error occured::errmsg={}", projectName, e.getMessage()); 
+				String errorMessage = new StringBuilder("failed to add a AcceptProcessor in the project[")
+						.append(projectName)
+						.append("], errmsg=")
+						.append(e.getMessage()).toString(); 
 				log.warn(errorMessage, e);
 				throw new IllegalStateException(errorMessage);
 			}

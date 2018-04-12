@@ -22,9 +22,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.exception.NotSupportedException;
@@ -36,7 +35,7 @@ import kr.pe.sinnori.common.threadpool.ThreadPoolIF;
  * @author Won Jonghoon
  */
 public class InputMessageWriterPool implements ThreadPoolIF, InputMessageWriterPoolIF {
-	private Logger log = LoggerFactory.getLogger(InputMessageWriterPool.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(InputMessageWriterPool.class);
 	private final List<InputMessageWriterIF> pool = new ArrayList<InputMessageWriterIF>();
 	
 	

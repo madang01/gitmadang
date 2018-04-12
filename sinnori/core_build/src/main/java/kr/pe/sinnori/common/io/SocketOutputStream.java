@@ -8,13 +8,12 @@ import java.nio.charset.CharsetDecoder;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 
 public class SocketOutputStream {
-	private Logger log = LoggerFactory.getLogger(SocketOutputStream.class);	
+	private InternalLogger log = InternalLoggerFactory.getInstance(SocketOutputStream.class);	
 	
 	private CharsetDecoder streamCharsetDecoder = null;
 	private DataPacketBufferPoolIF dataPacketBufferPool = null;

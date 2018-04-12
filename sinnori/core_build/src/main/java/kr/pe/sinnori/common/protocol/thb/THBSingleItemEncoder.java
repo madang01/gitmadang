@@ -16,9 +16,8 @@
  */
 package kr.pe.sinnori.common.protocol.thb;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.BinaryOutputStreamIF;
@@ -31,7 +30,7 @@ import kr.pe.sinnori.common.type.SingleItemType;
  *
  */
 public class THBSingleItemEncoder implements SingleItemEncoderIF {
-	private Logger log = LoggerFactory.getLogger(THBSingleItemEncoder.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(THBSingleItemEncoder.class);
 	
 	private THBSingleItemEncoderMatcherIF thbSingleItemEncoderMatcher = null;
 	

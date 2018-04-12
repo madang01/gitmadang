@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite errors="0" failures="0" hostname="madang02-pc" name="kr.pe.sinnori.client.asyn.AsynPrivateMailboxTest" skipped="0" tests="2" time="15.817" timestamp="2018-04-03T10:17:14">
+<testsuite errors="0" failures="0" hostname="madang02-pc" name="kr.pe.sinnori.client.asyn.AsynPrivateMailboxTest" skipped="0" tests="2" time="16.787" timestamp="2018-04-11T08:55:28">
   <properties>
     <property name="java.vendor" value="Oracle Corporation" />
     <property name="dir.build" value="D:\gitsinnori\sinnori\core_build\build" />
@@ -54,8 +54,8 @@
     <property name="java.vm.vendor" value="Oracle Corporation" />
     <property name="dir.src" value="D:\gitsinnori\sinnori\core_build\src\main\java" />
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment" />
-    <property name="sun.java.command" value="org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner kr.pe.sinnori.client.asyn.AsynPrivateMailboxTest skipNonTests=false filtertrace=true haltOnError=true haltOnFailure=true formatter=org.apache.tools.ant.taskdefs.optional.junit.SummaryJUnitResultFormatter showoutput=true outputtoformatters=true logfailedtests=true threadid=0 logtestlistenerevents=false formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,D:\gitsinnori\sinnori\core_build\report\TEST-kr.pe.sinnori.client.asyn.AsynPrivateMailboxTest.xml crashfile=D:\gitsinnori\sinnori\core_build\junitvmwatcher5161248845761063774.properties propsfile=D:\gitsinnori\sinnori\core_build\junit1051587496946811348.properties" />
-    <property name="java.class.path" value="D:\gitsinnori\sinnori\core_build\dist\sinnori-core.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\commons-codec-1.9.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\commons-collections4-4.1.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\commons-dbcp2-2.0.1.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\commons-io-2.5.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\commons-lang3-3.7.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\commons-pool2-2.2.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\jcl-over-slf4j-1.7.7.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\jooq-3.10.6.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\jooq-checker-3.10.6.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\jooq-codegen-3.10.6.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\jooq-codegen-maven-3.10.6.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\jooq-meta-3.10.6.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\jooq-meta-extensions-3.10.6.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\jooq-scala_2.11-3.10.6.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\jooq-scala_2.12-3.10.6.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\json-simple-1.1.1.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\logback-classic-1.1.2.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\logback-core-1.1.2.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\mysql-connector-java-5.1.37-bin.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\slf4j-api-1.7.7.jar;D:\gitsinnori\sinnori\core_build\lib\test\byte-buddy-1.7.9.jar;D:\gitsinnori\sinnori\core_build\lib\test\byte-buddy-agent-1.7.9.jar;D:\gitsinnori\sinnori\core_build\lib\test\commons-exec-1.3.jar;D:\gitsinnori\sinnori\core_build\lib\test\hamcrest-core-1.3.jar;D:\gitsinnori\sinnori\core_build\lib\test\junit-4.12.jar;D:\gitsinnori\sinnori\core_build\lib\test\mockito-core-2.13.4.jar;D:\gitsinnori\sinnori\core_build\lib\test\objenesis-2.6.jar;D:\gitsinnori\sinnori\core_build\build\test;D:\apache-ant-1.10.0\lib\ant-launcher.jar;D:\apache-ant-1.10.0\lib\ant.jar;D:\apache-ant-1.10.0\lib\ant-junit.jar;D:\apache-ant-1.10.0\lib\ant-junit4.jar" />
+    <property name="sun.java.command" value="org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner kr.pe.sinnori.client.asyn.AsynPrivateMailboxTest skipNonTests=false filtertrace=true haltOnError=true haltOnFailure=true formatter=org.apache.tools.ant.taskdefs.optional.junit.SummaryJUnitResultFormatter showoutput=true outputtoformatters=true logfailedtests=true threadid=0 logtestlistenerevents=false formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,D:\gitsinnori\sinnori\core_build\report\TEST-kr.pe.sinnori.client.asyn.AsynPrivateMailboxTest.xml crashfile=D:\gitsinnori\sinnori\core_build\junitvmwatcher4455792160895159529.properties propsfile=D:\gitsinnori\sinnori\core_build\junit8604274203158775757.properties" />
+    <property name="java.class.path" value="D:\gitsinnori\sinnori\core_build\dist\sinnori-core.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\json-simple-1.1.1.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\commons-lang3-3.7.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\commons-io-2.6.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\commons-collections4-4.1.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\commons-codec-1.11.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\mysql-connector-java-5.1.37-bin.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\jooq-meta-3.10.6.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\jooq-codegen-3.10.6.jar;D:\gitsinnori\sinnori\core_build\lib\main\ex\jooq-3.10.6.jar;D:\gitsinnori\sinnori\core_build\lib\test\byte-buddy-1.7.9.jar;D:\gitsinnori\sinnori\core_build\lib\test\byte-buddy-agent-1.7.9.jar;D:\gitsinnori\sinnori\core_build\lib\test\commons-exec-1.3.jar;D:\gitsinnori\sinnori\core_build\lib\test\hamcrest-core-1.3.jar;D:\gitsinnori\sinnori\core_build\lib\test\junit-4.12.jar;D:\gitsinnori\sinnori\core_build\lib\test\mockito-core-2.13.4.jar;D:\gitsinnori\sinnori\core_build\lib\test\objenesis-2.6.jar;D:\gitsinnori\sinnori\core_build\build\test;D:\apache-ant-1.10.0\lib\ant-launcher.jar;D:\apache-ant-1.10.0\lib\ant.jar;D:\apache-ant-1.10.0\lib\ant-junit.jar;D:\apache-ant-1.10.0\lib\ant-junit4.jar" />
     <property name="ant.version" value="Apache Ant(TM) version 1.10.0 compiled on December 27 2016" />
     <property name="dir.testsrc" value="D:\gitsinnori\sinnori\core_build\src\test\java" />
     <property name="java.vm.specification.name" value="Java Virtual Machine Specification" />
@@ -81,115 +81,221 @@
     <property name="java.specification.version" value="1.8" />
     <property name="ant.project.invoked-targets" value="test" />
   </properties>
-  <testcase classname="kr.pe.sinnori.client.asyn.AsynPrivateMailboxTest" name="test_생산자소비자쓰레드테스트" time="15.592" />
+  <testcase classname="kr.pe.sinnori.client.asyn.AsynPrivateMailboxTest" name="test_생산자소비자쓰레드테스트" time="16.673" />
   <testcase classname="kr.pe.sinnori.client.asyn.AsynPrivateMailboxTest" name="testputToSyncOutputMessageQueue_2번연속호출하여큐를비우는로직테스트" time="0.001" />
-  <system-out><![CDATA[2018-04-03 19:17:14,418 INFO  [Thread-0] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=252521007, messageID=Echo, mailboxID=1, mailID=-2147483648, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:14,418 INFO  [Thread-4] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=1992933663, messageID=Echo, mailboxID=2, mailID=-2147483648, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:14,923 WARN  [Thread-0] mailboxID=1, mailID=-2147483648 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:14,923 WARN  [Thread-4] mailboxID=2, mailID=-2147483648 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:14,923 INFO  [Thread-0] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=1651010319, messageID=Echo, mailboxID=1, mailID=-2147483647, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:14,923 INFO  [Thread-4] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=138434179, messageID=Echo, mailboxID=2, mailID=-2147483647, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:14,959 WARN  [Thread-7] drop the received letter[FromLetter [fromSC=956751457, wrapReadableMiddleObject[messageID=Echo, mailboxID=2, mailID=-2147483648]]] because it's mail id is different form this mailbox's mail id[-2147483647] (AsynPrivateMailbox.java:111)
-2018-04-03 19:17:15,414 INFO  [Thread-2] 소켓 타임 아웃 발생 (AsynPrivateMailboxProducerThread.java:60)
-2018-04-03 19:17:15,414 INFO  [Thread-1] 소켓 타임 아웃 발생 (AsynPrivateMailboxProducerThread.java:60)
-2018-04-03 19:17:15,414 INFO  [Thread-3] 소켓 타임 아웃 발생 (AsynPrivateMailboxProducerThread.java:60)
-2018-04-03 19:17:15,424 WARN  [Thread-4] mailboxID=2, mailID=-2147483647 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:15,424 INFO  [Thread-4] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=2043934518, messageID=Echo, mailboxID=2, mailID=-2147483646, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:15,425 WARN  [Thread-0] mailboxID=1, mailID=-2147483647 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:15,425 INFO  [Thread-0] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=1382450637, messageID=Echo, mailboxID=1, mailID=-2147483646, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:15,925 WARN  [Thread-4] mailboxID=2, mailID=-2147483646 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:15,925 INFO  [Thread-4] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=1495061698, messageID=Echo, mailboxID=2, mailID=-2147483645, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:15,926 WARN  [Thread-0] mailboxID=1, mailID=-2147483646 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:15,926 INFO  [Thread-0] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=997300426, messageID=Echo, mailboxID=1, mailID=-2147483645, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:16,415 INFO  [Thread-2] 소켓 타임 아웃 발생 (AsynPrivateMailboxProducerThread.java:60)
-2018-04-03 19:17:16,415 INFO  [Thread-1] 소켓 타임 아웃 발생 (AsynPrivateMailboxProducerThread.java:60)
-2018-04-03 19:17:16,416 INFO  [Thread-3] 소켓 타임 아웃 발생 (AsynPrivateMailboxProducerThread.java:60)
-2018-04-03 19:17:16,426 WARN  [Thread-4] mailboxID=2, mailID=-2147483645 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:16,427 WARN  [Thread-0] mailboxID=1, mailID=-2147483645 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:16,427 INFO  [Thread-0] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=1032040408, messageID=Echo, mailboxID=1, mailID=-2147483644, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:16,428 INFO  [Thread-2] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=1512621580, messageID=Echo, mailboxID=2, mailID=-2147483644, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:16,833 WARN  [Thread-8] drop the received letter[FromLetter [fromSC=1631235217, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483647]]] because it's mail id is different form this mailbox's mail id[-2147483644] (AsynPrivateMailbox.java:111)
-2018-04-03 19:17:16,928 WARN  [Thread-0] mailboxID=1, mailID=-2147483644 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:16,929 INFO  [Thread-0] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=479370100, messageID=Echo, mailboxID=1, mailID=-2147483643, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:16,930 WARN  [Thread-2] mailboxID=2, mailID=-2147483644 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:16,930 INFO  [Thread-4] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=237346256, messageID=Echo, mailboxID=2, mailID=-2147483643, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:17,416 INFO  [Thread-1] 소켓 타임 아웃 발생 (AsynPrivateMailboxProducerThread.java:60)
-2018-04-03 19:17:17,418 INFO  [Thread-3] 소켓 타임 아웃 발생 (AsynPrivateMailboxProducerThread.java:60)
-2018-04-03 19:17:17,430 WARN  [Thread-0] mailboxID=1, mailID=-2147483643 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:17,430 INFO  [Thread-0] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=2050764230, messageID=Echo, mailboxID=1, mailID=-2147483642, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:17,431 WARN  [Thread-4] mailboxID=2, mailID=-2147483643 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:17,431 INFO  [Thread-4] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=73082585, messageID=Echo, mailboxID=2, mailID=-2147483642, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:17,931 INFO  [Thread-2] 소켓 타임 아웃 발생 (AsynPrivateMailboxProducerThread.java:60)
-2018-04-03 19:17:17,953 WARN  [Thread-6] drop the received letter[FromLetter [fromSC=779845296, wrapReadableMiddleObject[messageID=Echo, mailboxID=2, mailID=-2147483646]]] because it's mail id is different form this mailbox's mail id[-2147483642] (AsynPrivateMailbox.java:111)
-2018-04-03 19:17:18,282 WARN  [Thread-5] drop the received letter[FromLetter [fromSC=581036826, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483648]]] because it's mail id is different form this mailbox's mail id[-2147483642] (AsynPrivateMailbox.java:111)
-2018-04-03 19:17:18,418 INFO  [Thread-1] 소켓 타임 아웃 발생 (AsynPrivateMailboxProducerThread.java:60)
-2018-04-03 19:17:18,420 INFO  [Thread-3] 소켓 타임 아웃 발생 (AsynPrivateMailboxProducerThread.java:60)
-2018-04-03 19:17:18,454 WARN  [Thread-0] mailboxID=1, mailID=-2147483642 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:18,454 INFO  [Thread-2] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=1424962361, messageID=Echo, mailboxID=1, mailID=-2147483641, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:18,784 WARN  [Thread-4] mailboxID=2, mailID=-2147483642 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:18,784 INFO  [Thread-4] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=1658264355, messageID=Echo, mailboxID=2, mailID=-2147483641, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:18,977 WARN  [Thread-8] drop the received letter[FromLetter [fromSC=1878871750, wrapReadableMiddleObject[messageID=Echo, mailboxID=2, mailID=-2147483645]]] because it's mail id is different form this mailbox's mail id[-2147483641] (AsynPrivateMailbox.java:111)
-2018-04-03 19:17:19,419 INFO  [Thread-1] 소켓 타임 아웃 발생 (AsynPrivateMailboxProducerThread.java:60)
-2018-04-03 19:17:19,421 INFO  [Thread-3] 소켓 타임 아웃 발생 (AsynPrivateMailboxProducerThread.java:60)
-2018-04-03 19:17:19,454 INFO  [Thread-0] 소켓 타임 아웃 발생 (AsynPrivateMailboxProducerThread.java:60)
-2018-04-03 19:17:19,478 WARN  [Thread-2] mailboxID=1, mailID=-2147483641 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:19,478 INFO  [Thread-2] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=1355853180, messageID=Echo, mailboxID=1, mailID=-2147483640, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:19,733 WARN  [Thread-6] drop the received letter[FromLetter [fromSC=549229839, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483645]]] because it's mail id is different form this mailbox's mail id[-2147483640] (AsynPrivateMailbox.java:111)
-2018-04-03 19:17:19,798 WARN  [Thread-7] drop the received letter[FromLetter [fromSC=1507249861, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483646]]] because it's mail id is different form this mailbox's mail id[-2147483640] (AsynPrivateMailbox.java:111)
-2018-04-03 19:17:19,879 WARN  [Thread-9] drop the received letter[FromLetter [fromSC=1357720935, wrapReadableMiddleObject[messageID=Echo, mailboxID=2, mailID=-2147483647]]] because it's mail id is different form this mailbox's mail id[-2147483641] (AsynPrivateMailbox.java:111)
-2018-04-03 19:17:19,908 WARN  [Thread-7] drop the received letter[FromLetter [fromSC=1104046867, wrapReadableMiddleObject[messageID=Echo, mailboxID=2, mailID=-2147483643]]] because it's mail id is different form this mailbox's mail id[-2147483641] (AsynPrivateMailbox.java:111)
-2018-04-03 19:17:20,139 WARN  [Thread-6] drop the received letter[FromLetter [fromSC=612570560, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483643]]] because it's mail id is different form this mailbox's mail id[-2147483640] (AsynPrivateMailbox.java:111)
-2018-04-03 19:17:20,233 WARN  [Thread-4] mailboxID=2, mailID=-2147483641 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:20,234 INFO  [Thread-4] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=1565682047, messageID=Echo, mailboxID=2, mailID=-2147483640, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:20,300 WARN  [Thread-2] mailboxID=1, mailID=-2147483640 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:20,300 INFO  [Thread-2] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=366098690, messageID=Echo, mailboxID=1, mailID=-2147483639, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:20,419 INFO  [Thread-1] 소켓 타임 아웃 발생 (AsynPrivateMailboxProducerThread.java:60)
-2018-04-03 19:17:20,422 INFO  [Thread-3] 소켓 타임 아웃 발생 (AsynPrivateMailboxProducerThread.java:60)
-2018-04-03 19:17:20,433 WARN  [Thread-5] drop the received letter[FromLetter [fromSC=647920534, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483644]]] because it's mail id is different form this mailbox's mail id[-2147483639] (AsynPrivateMailbox.java:111)
-2018-04-03 19:17:20,455 INFO  [Thread-0] 소켓 타임 아웃 발생 (AsynPrivateMailboxProducerThread.java:60)
-2018-04-03 19:17:20,734 WARN  [Thread-4] mailboxID=2, mailID=-2147483640 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:20,735 INFO  [Thread-4] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=2143007768, messageID=Echo, mailboxID=2, mailID=-2147483639, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:20,802 WARN  [Thread-2] mailboxID=1, mailID=-2147483639 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:20,802 INFO  [Thread-2] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=165057810, messageID=Echo, mailboxID=1, mailID=-2147483638, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:20,804 WARN  [Thread-5] drop the received letter[FromLetter [fromSC=1671225633, wrapReadableMiddleObject[messageID=Echo, mailboxID=2, mailID=-2147483641]]] because it's mail id is different form this mailbox's mail id[-2147483639] (AsynPrivateMailbox.java:111)
-2018-04-03 19:17:21,230 WARN  [Thread-7] drop the received letter[FromLetter [fromSC=148625991, wrapReadableMiddleObject[messageID=Echo, mailboxID=2, mailID=-2147483642]]] because it's mail id is different form this mailbox's mail id[-2147483639] (AsynPrivateMailbox.java:111)
-2018-04-03 19:17:21,236 WARN  [Thread-4] mailboxID=2, mailID=-2147483639 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:21,236 INFO  [Thread-4] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=579549400, messageID=Echo, mailboxID=2, mailID=-2147483638, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:21,305 WARN  [Thread-2] mailboxID=1, mailID=-2147483638 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:21,305 INFO  [Thread-2] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=604834282, messageID=Echo, mailboxID=1, mailID=-2147483637, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:21,420 INFO  [Thread-1] 소켓 타임 아웃 발생 (AsynPrivateMailboxProducerThread.java:60)
-2018-04-03 19:17:21,423 INFO  [Thread-3] 소켓 타임 아웃 발생 (AsynPrivateMailboxProducerThread.java:60)
-2018-04-03 19:17:21,456 INFO  [Thread-0] 소켓 타임 아웃 발생 (AsynPrivateMailboxProducerThread.java:60)
-2018-04-03 19:17:21,737 WARN  [Thread-4] mailboxID=2, mailID=-2147483638 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:21,737 INFO  [Thread-1] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=1987563053, messageID=Echo, mailboxID=2, mailID=-2147483637, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:21,806 WARN  [Thread-2] mailboxID=1, mailID=-2147483637 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:21,807 INFO  [Thread-2] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=1910766426, messageID=Echo, mailboxID=1, mailID=-2147483636, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:22,424 INFO  [Thread-3] 소켓 타임 아웃 발생 (AsynPrivateMailboxProducerThread.java:60)
-2018-04-03 19:17:22,922 WARN  [Thread-8] drop the received letter[FromLetter [fromSC=1807927265, wrapReadableMiddleObject[messageID=Echo, mailboxID=2, mailID=-2147483644]]] because it's mail id is different form this mailbox's mail id[-2147483637] (AsynPrivateMailbox.java:111)
-2018-04-03 19:17:23,327 WARN  [Thread-6] drop the received letter[FromLetter [fromSC=1635884852, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483641]]] because it's mail id is different form this mailbox's mail id[-2147483636] (AsynPrivateMailbox.java:111)
-2018-04-03 19:17:23,423 WARN  [Thread-1] mailboxID=2, mailID=-2147483637 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:23,423 INFO  [Thread-1] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=2024816275, messageID=Echo, mailboxID=2, mailID=-2147483636, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:23,425 INFO  [Thread-3] 소켓 타임 아웃 발생 (AsynPrivateMailboxProducerThread.java:60)
-2018-04-03 19:17:23,656 WARN  [Thread-7] drop the received letter[FromLetter [fromSC=128051435, wrapReadableMiddleObject[messageID=Echo, mailboxID=2, mailID=-2147483640]]] because it's mail id is different form this mailbox's mail id[-2147483636] (AsynPrivateMailbox.java:111)
-2018-04-03 19:17:23,828 WARN  [Thread-2] mailboxID=1, mailID=-2147483636 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:23,828 INFO  [Thread-3] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=449354959, messageID=Echo, mailboxID=1, mailID=-2147483635, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:24,157 WARN  [Thread-1] mailboxID=2, mailID=-2147483636 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:24,157 INFO  [Thread-1] AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=2089788765, messageID=Echo, mailboxID=2, mailID=-2147483635, wrapBufferList size=0] (AsynPrivateMailboxProducerThread.java:75)
-2018-04-03 19:17:24,396 WARN  [Thread-7] drop the received letter[FromLetter [fromSC=1752084028, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483638]]] because it's mail id is different form this mailbox's mail id[-2147483635] (AsynPrivateMailbox.java:111)
-2018-04-03 19:17:24,499 WARN  [Thread-9] drop the received letter[FromLetter [fromSC=1579866378, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483642]]] because it's mail id is different form this mailbox's mail id[-2147483635] (AsynPrivateMailbox.java:111)
-2018-04-03 19:17:24,647 WARN  [Thread-6] drop the received letter[FromLetter [fromSC=343597898, wrapReadableMiddleObject[messageID=Echo, mailboxID=2, mailID=-2147483639]]] because it's mail id is different form this mailbox's mail id[-2147483635] (AsynPrivateMailbox.java:111)
-2018-04-03 19:17:24,667 WARN  [Thread-9] drop the received letter[FromLetter [fromSC=1511343639, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483637]]] because it's mail id is different form this mailbox's mail id[-2147483635] (AsynPrivateMailbox.java:111)
-2018-04-03 19:17:24,897 WARN  [Thread-3] mailboxID=1, mailID=-2147483635 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:25,000 WARN  [Thread-1] mailboxID=2, mailID=-2147483635 (AsynPrivateMailboxProducerThread.java:86)
-2018-04-03 19:17:25,000 INFO  [main] call sleep (AsynPrivateMailboxTest.java:116)
-2018-04-03 19:17:25,239 WARN  [Thread-5] drop the received letter[FromLetter [fromSC=2137078932, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483640]]] because it's mail id is different form this mailbox's mail id[-2147483634] (AsynPrivateMailbox.java:111)
-2018-04-03 19:17:25,841 WARN  [Thread-6] drop the received letter[FromLetter [fromSC=1353324583, wrapReadableMiddleObject[messageID=Echo, mailboxID=2, mailID=-2147483637]]] because it's mail id is different form this mailbox's mail id[-2147483634] (AsynPrivateMailbox.java:111)
-2018-04-03 19:17:26,305 WARN  [Thread-8] drop the received letter[FromLetter [fromSC=784352509, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483639]]] because it's mail id is different form this mailbox's mail id[-2147483634] (AsynPrivateMailbox.java:111)
-2018-04-03 19:17:26,343 WARN  [Thread-9] drop the received letter[FromLetter [fromSC=521655089, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483636]]] because it's mail id is different form this mailbox's mail id[-2147483634] (AsynPrivateMailbox.java:111)
-2018-04-03 19:17:28,954 WARN  [Thread-7] drop the received letter[FromLetter [fromSC=1523238609, wrapReadableMiddleObject[messageID=Echo, mailboxID=2, mailID=-2147483638]]] because it's mail id is different form this mailbox's mail id[-2147483634] (AsynPrivateMailbox.java:111)
-2018-04-03 19:17:28,981 WARN  [Thread-6] drop the received letter[FromLetter [fromSC=1824209639, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483635]]] because it's mail id is different form this mailbox's mail id[-2147483634] (AsynPrivateMailbox.java:111)
-2018-04-03 19:17:29,573 WARN  [Thread-5] drop the received letter[FromLetter [fromSC=1379262809, wrapReadableMiddleObject[messageID=Echo, mailboxID=2, mailID=-2147483636]]] because it's mail id is different form this mailbox's mail id[-2147483634] (AsynPrivateMailbox.java:111)
-2018-04-03 19:17:30,014 WARN  [main] clear the old received message[FromLetter [fromSC=1887813102, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483648]]] from the ouputmessage queue of this mailbox[mailID=-2147483648] becase new message recevied (AsynPrivateMailbox.java:122)
+  <system-out><![CDATA[the logback config file[D:\gitsinnori\sinnori\project\sample_base\resources\logback.xml] does not have read permissions
 ]]></system-out>
-  <system-err><![CDATA[]]></system-err>
+  <system-err><![CDATA[4월 11, 2018 5:55:28 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=743211127, messageID=Echo, mailboxID=2, mailID=-2147483648, wrapBufferList size=0]
+4월 11, 2018 5:55:28 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=1528036915, messageID=Echo, mailboxID=1, mailID=-2147483648, wrapBufferList size=0]
+4월 11, 2018 5:55:29 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=2, mailID=-2147483648
+4월 11, 2018 5:55:29 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=1, mailID=-2147483648
+4월 11, 2018 5:55:29 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=157410517, messageID=Echo, mailboxID=2, mailID=-2147483647, wrapBufferList size=0]
+4월 11, 2018 5:55:29 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=1439959841, messageID=Echo, mailboxID=1, mailID=-2147483647, wrapBufferList size=0]
+4월 11, 2018 5:55:29 오후 kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox putSyncOutputMessage
+경고: drop the received letter[FromLetter [fromSC=1906639287, wrapReadableMiddleObject[messageID=Echo, mailboxID=2, mailID=-2147483648]]] because it's mail id is different form this mailbox's mail id[-2147483647]
+4월 11, 2018 5:55:29 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: 소켓 타임 아웃 발생
+4월 11, 2018 5:55:29 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: 소켓 타임 아웃 발생
+4월 11, 2018 5:55:29 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: 소켓 타임 아웃 발생
+4월 11, 2018 5:55:29 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=2, mailID=-2147483647
+4월 11, 2018 5:55:29 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=1, mailID=-2147483647
+4월 11, 2018 5:55:29 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=2029522079, messageID=Echo, mailboxID=2, mailID=-2147483646, wrapBufferList size=0]
+4월 11, 2018 5:55:29 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=1374393667, messageID=Echo, mailboxID=1, mailID=-2147483646, wrapBufferList size=0]
+4월 11, 2018 5:55:29 오후 kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox putSyncOutputMessage
+경고: drop the received letter[FromLetter [fromSC=965866146, wrapReadableMiddleObject[messageID=Echo, mailboxID=2, mailID=-2147483647]]] because it's mail id is different form this mailbox's mail id[-2147483646]
+4월 11, 2018 5:55:30 오후 kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox putSyncOutputMessage
+경고: drop the received letter[FromLetter [fromSC=1974083430, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483648]]] because it's mail id is different form this mailbox's mail id[-2147483646]
+4월 11, 2018 5:55:30 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=2, mailID=-2147483646
+4월 11, 2018 5:55:30 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=1, mailID=-2147483646
+4월 11, 2018 5:55:30 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=350814490, messageID=Echo, mailboxID=2, mailID=-2147483645, wrapBufferList size=0]
+4월 11, 2018 5:55:30 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=12209089, messageID=Echo, mailboxID=1, mailID=-2147483645, wrapBufferList size=0]
+4월 11, 2018 5:55:30 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: 소켓 타임 아웃 발생
+4월 11, 2018 5:55:30 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: 소켓 타임 아웃 발생
+4월 11, 2018 5:55:30 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=2, mailID=-2147483645
+4월 11, 2018 5:55:30 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=1355782098, messageID=Echo, mailboxID=2, mailID=-2147483644, wrapBufferList size=0]
+4월 11, 2018 5:55:30 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=1, mailID=-2147483645
+4월 11, 2018 5:55:30 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=243119526, messageID=Echo, mailboxID=1, mailID=-2147483644, wrapBufferList size=0]
+4월 11, 2018 5:55:31 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: 소켓 타임 아웃 발생
+4월 11, 2018 5:55:31 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=2, mailID=-2147483644
+4월 11, 2018 5:55:31 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=624366569, messageID=Echo, mailboxID=2, mailID=-2147483643, wrapBufferList size=0]
+4월 11, 2018 5:55:31 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=1, mailID=-2147483644
+4월 11, 2018 5:55:31 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=172105905, messageID=Echo, mailboxID=1, mailID=-2147483643, wrapBufferList size=0]
+4월 11, 2018 5:55:31 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: 소켓 타임 아웃 발생
+4월 11, 2018 5:55:31 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: 소켓 타임 아웃 발생
+4월 11, 2018 5:55:31 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=2, mailID=-2147483643
+4월 11, 2018 5:55:31 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=687594369, messageID=Echo, mailboxID=2, mailID=-2147483642, wrapBufferList size=0]
+4월 11, 2018 5:55:31 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=1, mailID=-2147483643
+4월 11, 2018 5:55:31 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=386656111, messageID=Echo, mailboxID=1, mailID=-2147483642, wrapBufferList size=0]
+4월 11, 2018 5:55:32 오후 kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox putSyncOutputMessage
+경고: drop the received letter[FromLetter [fromSC=727832843, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483646]]] because it's mail id is different form this mailbox's mail id[-2147483642]
+4월 11, 2018 5:55:32 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: 소켓 타임 아웃 발생
+4월 11, 2018 5:55:32 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=2, mailID=-2147483642
+4월 11, 2018 5:55:32 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=1959198293, messageID=Echo, mailboxID=2, mailID=-2147483641, wrapBufferList size=0]
+4월 11, 2018 5:55:32 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=1, mailID=-2147483642
+4월 11, 2018 5:55:32 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=432802814, messageID=Echo, mailboxID=1, mailID=-2147483641, wrapBufferList size=0]
+4월 11, 2018 5:55:32 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: 소켓 타임 아웃 발생
+4월 11, 2018 5:55:32 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: 소켓 타임 아웃 발생
+4월 11, 2018 5:55:33 오후 kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox putSyncOutputMessage
+경고: drop the received letter[FromLetter [fromSC=1034838344, wrapReadableMiddleObject[messageID=Echo, mailboxID=2, mailID=-2147483645]]] because it's mail id is different form this mailbox's mail id[-2147483641]
+4월 11, 2018 5:55:33 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: 소켓 타임 아웃 발생
+4월 11, 2018 5:55:33 오후 kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox putSyncOutputMessage
+경고: drop the received letter[FromLetter [fromSC=69349151, wrapReadableMiddleObject[messageID=Echo, mailboxID=2, mailID=-2147483646]]] because it's mail id is different form this mailbox's mail id[-2147483641]
+4월 11, 2018 5:55:33 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: 소켓 타임 아웃 발생
+4월 11, 2018 5:55:33 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=2, mailID=-2147483641
+4월 11, 2018 5:55:33 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=1486587416, messageID=Echo, mailboxID=2, mailID=-2147483640, wrapBufferList size=0]
+4월 11, 2018 5:55:33 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: 소켓 타임 아웃 발생
+4월 11, 2018 5:55:33 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=1, mailID=-2147483641
+4월 11, 2018 5:55:33 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=502500383, messageID=Echo, mailboxID=1, mailID=-2147483640, wrapBufferList size=0]
+4월 11, 2018 5:55:34 오후 kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox putSyncOutputMessage
+경고: drop the received letter[FromLetter [fromSC=2070802339, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483645]]] because it's mail id is different form this mailbox's mail id[-2147483640]
+4월 11, 2018 5:55:34 오후 kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox putSyncOutputMessage
+경고: drop the received letter[FromLetter [fromSC=1983720761, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483647]]] because it's mail id is different form this mailbox's mail id[-2147483640]
+4월 11, 2018 5:55:34 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: 소켓 타임 아웃 발생
+4월 11, 2018 5:55:34 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=2, mailID=-2147483640
+4월 11, 2018 5:55:34 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=1169063609, messageID=Echo, mailboxID=2, mailID=-2147483639, wrapBufferList size=0]
+4월 11, 2018 5:55:34 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=1, mailID=-2147483640
+4월 11, 2018 5:55:34 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=1492189637, messageID=Echo, mailboxID=1, mailID=-2147483639, wrapBufferList size=0]
+4월 11, 2018 5:55:34 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: 소켓 타임 아웃 발생
+4월 11, 2018 5:55:34 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: 소켓 타임 아웃 발생
+4월 11, 2018 5:55:35 오후 kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox putSyncOutputMessage
+경고: drop the received letter[FromLetter [fromSC=154159225, wrapReadableMiddleObject[messageID=Echo, mailboxID=2, mailID=-2147483643]]] because it's mail id is different form this mailbox's mail id[-2147483639]
+4월 11, 2018 5:55:35 오후 kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox putSyncOutputMessage
+경고: drop the received letter[FromLetter [fromSC=631644695, wrapReadableMiddleObject[messageID=Echo, mailboxID=2, mailID=-2147483644]]] because it's mail id is different form this mailbox's mail id[-2147483639]
+4월 11, 2018 5:55:35 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: 소켓 타임 아웃 발생
+4월 11, 2018 5:55:35 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=2, mailID=-2147483639
+4월 11, 2018 5:55:35 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=273989525, messageID=Echo, mailboxID=2, mailID=-2147483638, wrapBufferList size=0]
+4월 11, 2018 5:55:35 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=1, mailID=-2147483639
+4월 11, 2018 5:55:35 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=269067563, messageID=Echo, mailboxID=1, mailID=-2147483638, wrapBufferList size=0]
+4월 11, 2018 5:55:35 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: 소켓 타임 아웃 발생
+4월 11, 2018 5:55:36 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: 소켓 타임 아웃 발생
+4월 11, 2018 5:55:36 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: 소켓 타임 아웃 발생
+4월 11, 2018 5:55:36 오후 kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox putSyncOutputMessage
+경고: drop the received letter[FromLetter [fromSC=2024601753, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483644]]] because it's mail id is different form this mailbox's mail id[-2147483638]
+4월 11, 2018 5:55:37 오후 kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox putSyncOutputMessage
+경고: drop the received letter[FromLetter [fromSC=2136110102, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483643]]] because it's mail id is different form this mailbox's mail id[-2147483638]
+4월 11, 2018 5:55:37 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: 소켓 타임 아웃 발생
+4월 11, 2018 5:55:37 오후 kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox putSyncOutputMessage
+경고: drop the received letter[FromLetter [fromSC=2029706638, wrapReadableMiddleObject[messageID=Echo, mailboxID=2, mailID=-2147483642]]] because it's mail id is different form this mailbox's mail id[-2147483638]
+4월 11, 2018 5:55:37 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=2, mailID=-2147483638
+4월 11, 2018 5:55:37 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=512967663, messageID=Echo, mailboxID=2, mailID=-2147483637, wrapBufferList size=0]
+4월 11, 2018 5:55:37 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=1, mailID=-2147483638
+4월 11, 2018 5:55:37 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=1329643421, messageID=Echo, mailboxID=1, mailID=-2147483637, wrapBufferList size=0]
+4월 11, 2018 5:55:37 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=2, mailID=-2147483637
+4월 11, 2018 5:55:37 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=447534309, messageID=Echo, mailboxID=2, mailID=-2147483636, wrapBufferList size=0]
+4월 11, 2018 5:55:38 오후 kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox putSyncOutputMessage
+경고: drop the received letter[FromLetter [fromSC=978380184, wrapReadableMiddleObject[messageID=Echo, mailboxID=2, mailID=-2147483640]]] because it's mail id is different form this mailbox's mail id[-2147483636]
+4월 11, 2018 5:55:38 오후 kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox putSyncOutputMessage
+경고: drop the received letter[FromLetter [fromSC=2093303369, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483640]]] because it's mail id is different form this mailbox's mail id[-2147483637]
+4월 11, 2018 5:55:38 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=1, mailID=-2147483637
+4월 11, 2018 5:55:38 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=1776541487, messageID=Echo, mailboxID=1, mailID=-2147483636, wrapBufferList size=0]
+4월 11, 2018 5:55:38 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=2, mailID=-2147483636
+4월 11, 2018 5:55:38 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=1605257684, messageID=Echo, mailboxID=2, mailID=-2147483635, wrapBufferList size=0]
+4월 11, 2018 5:55:39 오후 kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox putSyncOutputMessage
+경고: drop the received letter[FromLetter [fromSC=1433585450, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483642]]] because it's mail id is different form this mailbox's mail id[-2147483636]
+4월 11, 2018 5:55:39 오후 kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox putSyncOutputMessage
+경고: drop the received letter[FromLetter [fromSC=563720827, wrapReadableMiddleObject[messageID=Echo, mailboxID=2, mailID=-2147483641]]] because it's mail id is different form this mailbox's mail id[-2147483635]
+4월 11, 2018 5:55:39 오후 kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox putSyncOutputMessage
+경고: drop the received letter[FromLetter [fromSC=1687889964, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483638]]] because it's mail id is different form this mailbox's mail id[-2147483636]
+4월 11, 2018 5:55:39 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=1, mailID=-2147483636
+4월 11, 2018 5:55:39 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+정보: AsynPrivateMailboxProducerThread::toLetter=LetterToServer [toSC=1760634232, messageID=Echo, mailboxID=1, mailID=-2147483635, wrapBufferList size=0]
+4월 11, 2018 5:55:40 오후 kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox putSyncOutputMessage
+경고: drop the received letter[FromLetter [fromSC=969398197, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483639]]] because it's mail id is different form this mailbox's mail id[-2147483635]
+4월 11, 2018 5:55:40 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=2, mailID=-2147483635
+4월 11, 2018 5:55:40 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxProducerThread run
+경고: mailboxID=1, mailID=-2147483635
+4월 11, 2018 5:55:40 오후 kr.pe.sinnori.client.asyn.AsynPrivateMailboxTest test_생산자소비자쓰레드테스트
+정보: call sleep
+4월 11, 2018 5:55:41 오후 kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox putSyncOutputMessage
+경고: drop the received letter[FromLetter [fromSC=2133600894, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483641]]] because it's mail id is different form this mailbox's mail id[-2147483634]
+4월 11, 2018 5:55:42 오후 kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox putSyncOutputMessage
+경고: drop the received letter[FromLetter [fromSC=522488987, wrapReadableMiddleObject[messageID=Echo, mailboxID=2, mailID=-2147483639]]] because it's mail id is different form this mailbox's mail id[-2147483634]
+4월 11, 2018 5:55:42 오후 kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox putSyncOutputMessage
+경고: drop the received letter[FromLetter [fromSC=201575562, wrapReadableMiddleObject[messageID=Echo, mailboxID=2, mailID=-2147483638]]] because it's mail id is different form this mailbox's mail id[-2147483634]
+4월 11, 2018 5:55:43 오후 kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox putSyncOutputMessage
+경고: drop the received letter[FromLetter [fromSC=1092033589, wrapReadableMiddleObject[messageID=Echo, mailboxID=2, mailID=-2147483637]]] because it's mail id is different form this mailbox's mail id[-2147483634]
+4월 11, 2018 5:55:44 오후 kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox putSyncOutputMessage
+경고: drop the received letter[FromLetter [fromSC=638349649, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483637]]] because it's mail id is different form this mailbox's mail id[-2147483634]
+4월 11, 2018 5:55:45 오후 kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox putSyncOutputMessage
+경고: drop the received letter[FromLetter [fromSC=432816322, wrapReadableMiddleObject[messageID=Echo, mailboxID=2, mailID=-2147483635]]] because it's mail id is different form this mailbox's mail id[-2147483634]
+4월 11, 2018 5:55:45 오후 kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox putSyncOutputMessage
+경고: drop the received letter[FromLetter [fromSC=1429547162, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483635]]] because it's mail id is different form this mailbox's mail id[-2147483634]
+4월 11, 2018 5:55:45 오후 kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox putSyncOutputMessage
+경고: clear the old received message[FromLetter [fromSC=716083600, wrapReadableMiddleObject[messageID=Echo, mailboxID=1, mailID=-2147483648]]] from the ouputmessage queue of this mailbox[mailID=-2147483648] becase new message recevied
+]]></system-err>
 </testsuite>

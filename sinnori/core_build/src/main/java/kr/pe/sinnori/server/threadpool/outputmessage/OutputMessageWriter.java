@@ -26,9 +26,8 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
 import kr.pe.sinnori.common.io.WrapBuffer;
@@ -40,7 +39,7 @@ import kr.pe.sinnori.common.io.WrapBuffer;
  * 
  */
 public class OutputMessageWriter extends Thread implements OutputMessageWriterIF {
-	private Logger log = LoggerFactory.getLogger(OutputMessageWriter.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(OutputMessageWriter.class);
 	
 	private String projectName;
 	private int index;	

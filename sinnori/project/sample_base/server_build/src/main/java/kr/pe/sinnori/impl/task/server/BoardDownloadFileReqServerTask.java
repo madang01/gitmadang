@@ -13,12 +13,12 @@ import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import org.jooq.types.UInteger;
 
-import kr.pe.sinnori.common.etc.DBCPManager;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.BoardDownloadFileReq.BoardDownloadFileReq;
 import kr.pe.sinnori.impl.message.BoardDownloadFileRes.BoardDownloadFileRes;
 import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
+import kr.pe.sinnori.server.dbcp.DBCPManager;
 import kr.pe.sinnori.server.lib.ServerCommonStaticFinalVars;
 import kr.pe.sinnori.server.task.AbstractServerTask;
 import kr.pe.sinnori.server.task.ToLetterCarrier;

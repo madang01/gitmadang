@@ -18,12 +18,11 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.type.LineSeparatorType;
 import kr.pe.sinnori.common.type.ReadWriteMode;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
@@ -35,7 +34,7 @@ import kr.pe.sinnori.gui.util.PathSwingAction;
  */
 @SuppressWarnings("serial")
 public class SinnoriInstalledPathPanel extends JPanel {
-	private Logger log = LoggerFactory.getLogger(SinnoriInstalledPathPanel.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(SinnoriInstalledPathPanel.class);
 	private Frame mainFrame = null;
 	private ScreenManagerIF screenManagerIF = null;
 	private JFileChooser sinnoriInstalledPathChooser = null;

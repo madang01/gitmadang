@@ -16,7 +16,8 @@ public class PasswordWrapper {
 		
 		for (int i=0; i < passwordChars.length; i++) {
 			if (passwordChars[i] > 0xff) {
-				throw new IllegalArgumentException(String.format("the parameter passwordChars[%d][%04x] that consists of a password character ranging from 0x00 to 0xff is bad", i, passwordChars[i]));
+				String errorMessage = String.format("the parameter passwordChars[%d][%c] that consists of a password character ranging from 0x00 to 0xff is bad", i, passwordChars[i]);
+				throw new IllegalArgumentException(errorMessage);
 			}
 		}	
 		

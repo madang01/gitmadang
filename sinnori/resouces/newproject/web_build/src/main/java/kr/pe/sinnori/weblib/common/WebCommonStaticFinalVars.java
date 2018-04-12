@@ -1,7 +1,5 @@
 package kr.pe.sinnori.weblib.common;
 
-import java.io.File;
-
 public abstract class WebCommonStaticFinalVars {
 	public static final String WEBSITE_TITLE = "Sinnori Home";
 	
@@ -35,15 +33,9 @@ public abstract class WebCommonStaticFinalVars {
 	
 	/** 아파치 파일 업로드에서 메모리에서 직접 처리할 수 있는 최대 파일 크기, 단위 byte */
 	public static int APACHE_FILEUPLOAD_MAX_MEMORY_SIZE = 1024*1024;
-
-	/** 업로드 되는 파일들이 저장되는 임시 디렉토리 */
-	public static File WEBSITE_FILEUPLOAD_TEMP_DIR = new File("/home/madang01/gitsinnori/sinnori/project/sample_base/web_app_base/temp");
 	
 	/** 업로드 파일의 최대 크기 */
 	public static long WEBSITE_FILEUPLOAD_MAX_SIZE = 10*1024*1024;
-	
-	/** 업로드 되는 파일들이 저장되는 디렉토리 */
-	public static File WEBSITE_FILEUPLOAD_DIR = new File("/home/madang01/gitsinnori/sinnori/project/sample_base/web_app_base/upload");
 	
 	/** 업로드 되는 파일의 시스템 파일명의 접두어 */
 	public static String WEBSITE_FILEUPLOAD_PREFIX = "attach";

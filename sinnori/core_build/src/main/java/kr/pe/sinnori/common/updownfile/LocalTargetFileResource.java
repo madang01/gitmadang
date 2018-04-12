@@ -228,15 +228,15 @@ public class LocalTargetFileResource extends AbstractFileResource {
 	public void writeTargetFileData(int targetFileID, int fileBlockNo, byte[] fileData, boolean checkOver)
 			throws IllegalArgumentException, UpDownFileException {
 		if (fileBlockNo < 0) {
-			String errorMessage = String.format("targetFileID[%d]::parameter fileBlockNo[%d] less than zero",
-					targetFileID, fileBlockNo);
+			String errorMessage = String.format("the parameter fileBlockNo[%d] less than zero",
+					fileBlockNo);
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
 
 		if (fileBlockNo < startFileBlockNo) {
 			String errorMessage = String.format(
-					"targetFileID[%d]::parameter fileBlockNo[%d] is less than startFileBlockNo[%d]", targetFileID,
+					"the parameter fileBlockNo[%d] is less than the var startFileBlockNo[%d]", 
 					fileBlockNo, startFileBlockNo);
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
@@ -244,8 +244,8 @@ public class LocalTargetFileResource extends AbstractFileResource {
 
 		if (fileBlockNo > endFileBlockNo) {
 			String errorMessage = String.format(
-					"targetFileID[%d]::parameter fileBlockNo[%d] greater than maxFileBlockNo[%d]", targetFileID,
-					fileBlockNo);
+					"the parameter fileBlockNo[%d] is greater than the var endFileBlockNo[%d]", 
+					fileBlockNo, endFileBlockNo);
 			log.warn(errorMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}

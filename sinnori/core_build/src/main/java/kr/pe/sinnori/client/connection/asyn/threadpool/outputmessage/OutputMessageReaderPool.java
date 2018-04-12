@@ -21,9 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.threadpool.ThreadPoolIF;
@@ -35,7 +34,7 @@ import kr.pe.sinnori.common.threadpool.ThreadPoolIF;
  * @author Won Jonghoon
  */
 public class OutputMessageReaderPool implements ThreadPoolIF, OutputMessageReaderPoolIF {
-	private Logger log = LoggerFactory.getLogger(OutputMessageReaderPool.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(OutputMessageReaderPool.class);
 	private final List<OutputMessageReaderIF> pool = new ArrayList<OutputMessageReaderIF>();
 	
 	

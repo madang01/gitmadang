@@ -27,9 +27,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.CharsetEncoderException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
@@ -43,7 +42,7 @@ import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
  *
  */
 public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
-	private Logger log = LoggerFactory.getLogger(FreeSizeOutputStream.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(FreeSizeOutputStream.class);
 
 	private final ArrayList<WrapBuffer> outputStreamWrapBufferList = new ArrayList<WrapBuffer>();;
 	private ByteOrder streamByteOrder = null;
@@ -767,7 +766,7 @@ public final class FreeSizeOutputStream implements BinaryOutputStreamIF {
 	public void skip(long n) throws BufferOverflowException, IllegalArgumentException, NoMoreDataPacketBufferException,
 		SinnoriBufferOverflowException {
 		if (n < 0) {
-			throw new IllegalArgumentException(String.format("the parameter n is less than zero", n));
+			throw new IllegalArgumentException(String.format("the parameter n[%d] is less than zero", n));
 		}
 		if (0 == n)
 			return;

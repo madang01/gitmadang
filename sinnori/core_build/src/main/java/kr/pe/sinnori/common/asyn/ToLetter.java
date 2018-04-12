@@ -22,7 +22,6 @@ import java.util.List;
 
 import kr.pe.sinnori.common.io.WrapBuffer;
 
-
 public class ToLetter {
 	private SocketChannel toSC = null;
 	private String messageID = null;
@@ -51,20 +50,20 @@ public class ToLetter {
 		this.wrapBufferList = wrapBufferList;
 	}
 	
-	public SocketChannel getToSC() {
-		return toSC;
-	}
-	
-	public String getMessageID() {
-		return messageID;
-	}
-
 	public int getMailboxID() {
 		return mailboxID;
 	}
 	
 	public int getMailID() {
 		return mailID;
+	}
+
+	public String getMessageID() {
+		return messageID;
+	}
+	
+	public SocketChannel getToSC() {
+		return toSC;
 	}
 	
 	public List<WrapBuffer> getWrapBufferList() {

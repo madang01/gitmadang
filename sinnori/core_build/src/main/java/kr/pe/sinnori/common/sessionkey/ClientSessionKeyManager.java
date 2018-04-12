@@ -49,11 +49,15 @@ public final class ClientSessionKeyManager {
 		
 		if (null == subClientSessionKey) {
 			byte[] publicKeyBytes = clientRSAPublickeyGetter.getSubProjectPublickeyBytes(subProjectName);
-			subClientSessionKey = getNewClientSessionKey(publicKeyBytes);
-			
-			subProjectNameToClientSessionKeyHash.put(subProjectName, subClientSessionKey);
+			subClientSessionKey = buildNewSubClientSessionKey(subProjectName, publicKeyBytes);
 		}
 		 
+		return subClientSessionKey;
+	}
+	
+	private ClientSessionKeyIF buildNewSubClientSessionKey(String subProjectName, byte[] publicKeyBytes) throws SymmetricException {
+		ClientSessionKeyIF subClientSessionKey = getNewClientSessionKey(publicKeyBytes);	
+		subProjectNameToClientSessionKeyHash.put(subProjectName, subClientSessionKey);
 		return subClientSessionKey;
 	}
 	

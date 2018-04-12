@@ -5,7 +5,7 @@
 	<property name="dir.src" location="src/main/java" />
 	<property name="dir.build" location="build" />
 	<property name="dir.dist" location="dist" />
-	<property name="dir.mainlib" location="lib/main" />
+	<property name="dir.core.mainlib" location="lib/main" />
 	<property name="dir.appinf" location="APP-INF" />
 	<property name="dir.guilib" location="guilib" />
 	<property name="dir.testsrc" location="src/test/java" />
@@ -23,14 +23,58 @@
 	<target name="init.core">
 		<!-- Create the time stamp -->
 		<tstamp />
-		<mkdir dir="${dir.mainlib}/in" />
-		<mkdir dir="${dir.mainlib}/ex" />		
+		<mkdir dir="${dir.core.mainlib}/in" />
+		<mkdir dir="${dir.core.mainlib}/ex" />		
 		<echo message="java.complile.option.debug=${java.complile.option.debug}" />
 	</target>
-
 	
-
-	<target name="compile.common" depends="init.core">	  
+	<union id="logger.logback.jarlibs">
+		<fileset file="${dir.core.mainlib}/ex/slf4j-api-1.7.25.jar" />
+		<fileset file="${dir.core.mainlib}/ex/jcl-over-slf4j-1.7.25.jar" />
+		<fileset file="${dir.core.mainlib}/ex/logback-core-1.2.3.jar" />
+		<fileset file="${dir.core.mainlib}/ex/logback-classic-1.2.3.jar" />
+	</union>
+	
+	<union id="logger.jarlibs">
+		<union refid="logger.logback.jarlibs" />
+		
+		<fileset file="${dir.core.mainlib}/ex/commons-logging-1.2.jar" />
+		
+		<fileset file="${dir.core.mainlib}/ex/log4j-1.2.17.jar" />
+		
+		<fileset file="${dir.core.mainlib}/ex/log4j-core-2.11.0.jar" />
+		<fileset file="${dir.core.mainlib}/ex/log4j-api-2.11.0.jar" />
+	</union>
+	
+	<target name="compile.logger" depends="init.core">
+		<mkdir dir="${dir.build}/core_logger" />
+		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}/core_logger">
+			<include name="io/netty/util/internal/logging/*.java" />
+     
+			<classpath>
+				<union refid="logger.jarlibs" />
+			</classpath>
+		</javac>
+	</target>	
+	
+	<union id="core.common.jarlibs">
+		<fileset file="${dir.core.mainlib}/ex/json-simple-1.1.1.jar" />
+		<fileset file="${dir.core.mainlib}/ex/commons-io-2.6.jar" />
+		<fileset file="${dir.core.mainlib}/ex/commons-collections4-4.1.jar" />
+		<fileset file="${dir.core.mainlib}/ex/commons-codec-1.11.jar" />		
+	</union>
+	
+	<union id="core.jarlibs">
+		<union refid="core.common.jarlibs" />		
+		<fileset file="${dir.core.mainlib}/ex/mysql-connector-java-5.1.37-bin.jar" />		
+		<fileset file="${dir.core.mainlib}/ex/commons-pool2-2.5.0.jar" />
+		<fileset file="${dir.core.mainlib}/ex/commons-dbcp2-2.0.1.jar" />
+		<fileset file="${dir.core.mainlib}/ex/jooq-meta-3.10.6.jar" />
+		<fileset file="${dir.core.mainlib}/ex/jooq-codegen-3.10.6.jar" />
+		<fileset file="${dir.core.mainlib}/ex/jooq-3.10.6.jar" />
+	</union>
+	
+	<target name="compile.common" depends="compile.logger">	
 		<mkdir dir="${dir.build}/core_common" />
 		
 		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}/core_common">
@@ -40,12 +84,11 @@
 			<include name="kr/pe/sinnori/impl/task/**/Empty*" />
      
 			<classpath>
-				<fileset dir="${dir.mainlib}/in">
+				<pathelement location="${dir.build}/core_logger/"/>
+				<fileset dir="${dir.core.mainlib}/in">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${dir.mainlib}/ex">
-					<include name="**/*.jar" />
-				</fileset>
+				<union refid="core.common.jarlibs" />
 			</classpath>
 		</javac>
 	</target>
@@ -53,12 +96,15 @@
 	<target name="make.common" depends="compile.common">
 	  <mkdir dir="${dir.dist}" />
 	  
-		<jar jarfile="${dir.dist}/sinnori-core-common.jar" basedir="${dir.build}/core_common">
+		<jar jarfile="${dir.dist}/sinnori-core-common.jar">
+			<fileset dir="${dir.build}/core_logger" />
+			<fileset dir="${dir.build}/core_common" />
+			
 			<restrict>
 				<name name="**/*.class" />
 				<archives>
 					<zips>
-						<fileset dir="${dir.mainlib}/in" includes="**/*.jar" />
+						<fileset dir="${dir.core.mainlib}/in" includes="**/*.jar" />						
 					</zips>
 				</archives>
 			</restrict>
@@ -73,9 +119,7 @@
 			<include name="kr/pe/sinnori/server/**" />
 			<classpath>
 				<fileset file="${dir.dist}/sinnori-core-common.jar" />
-				<fileset dir="${dir.mainlib}/ex">
-					<include name="**/*.jar" />
-				</fileset>
+				<union refid="core.jarlibs" />
 			</classpath>
 		</javac>
 	</target>
@@ -89,15 +133,16 @@
 			<include name="kr/pe/sinnori/client/**" />
 			<classpath>
 				<fileset file="${dir.dist}/sinnori-core-common.jar" />
-				<fileset dir="${dir.mainlib}/ex">
-					<include name="**/*.jar" />
-				</fileset>
+				<union refid="core.common.jarlibs" />
 			</classpath>
 		</javac>
 	</target>
 
 	<target name="make.core" depends="make.common, compile.client, compile.server">
+		
+		
 		<jar jarfile="${dir.dist}/sinnori-core.jar">
+			<fileset dir="${dir.build}/core_logger" />
 			<fileset dir="${dir.build}/core_common" />
 			<fileset dir="${dir.build}/core_server" />
 			<fileset dir="${dir.build}/core_client" />
@@ -106,13 +151,14 @@
 				<name name="**/*.class" />
 				<archives>
 					<zips>
-						<fileset dir="${dir.mainlib}/in" includes="**/*.jar" />
+						<fileset dir="${dir.core.mainlib}/in" includes="**/*.jar" />
 					</zips>
 				</archives>
 			</restrict>
 		</jar>
 		
 		<jar jarfile="${dir.dist}/sinnori-core-client.jar">
+			<fileset dir="${dir.build}/core_logger" />
 			<fileset dir="${dir.build}/core_common" />
 			<fileset dir="${dir.build}/core_client" />
 			
@@ -120,20 +166,21 @@
 				<name name="**/*.class" />
 				<archives>
 					<zips>
-						<fileset dir="${dir.mainlib}/in" includes="**/*.jar" />
+						<fileset dir="${dir.core.mainlib}/in" includes="**/*.jar" />
 					</zips>
 				</archives>
 			</restrict>
 		</jar>
 		
 		<jar jarfile="${dir.dist}/sinnori-core-server.jar">
+			<fileset dir="${dir.build}/core_logger" />
 			<fileset dir="${dir.build}/core_common" />
 			<fileset dir="${dir.build}/core_server" />
 			<restrict>
 				<name name="**/*.class" />
 				<archives>
 					<zips>
-						<fileset dir="${dir.mainlib}/in" includes="**/*.jar" />
+						<fileset dir="${dir.core.mainlib}/in" includes="**/*.jar" />
 					</zips>
 				</archives>
 			</restrict>
@@ -153,9 +200,7 @@
 		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.testsrc}" destdir="${dir.build}/test">			
 			<classpath>				
 				<fileset file="${dir.dist}/sinnori-core.jar" />
-				<fileset dir="${dir.mainlib}/ex">
-					<include name="**/*.jar" />
-				</fileset>
+				<union refid="core.jarlibs" />
 				<fileset dir="${dir.testlib}">
 					<include name="**/*.jar" />
 				</fileset>
@@ -164,17 +209,11 @@
 	</target>
 	
 	<target name="test" depends="compile.test">
-	<!-- junit ??. printsummary: ??? ??? ???? ?? ??, 
-	 haltonerror: ??? ?? ??? ???? ? ?? ?? ??,
-	 haltonfailure: Test ??? ??? ???? ? ?? ?? ??,
-	 fork: ? ???? ??? ??????? ???? ??. -->
 		<junit printsummary="yes" haltonerror="yes" haltonfailure="yes" fork="yes" showoutput="true">
 			<formatter type="xml" />
 			<classpath>				
 				<fileset file="${dir.dist}/sinnori-core.jar" />
-				<fileset dir="${dir.mainlib}/ex">
-					<include name="**/*.jar" />
-				</fileset>
+				<union refid="core.jarlibs" />
 				<fileset dir="${dir.testlib}">
 					<include name="**/*.jar" />
 				</fileset>
@@ -200,18 +239,19 @@
 		<delete file="${dir.dist}/SinnoriHelper.jar" />
 	</target>
 	
-	<target name="compile.helper">
+	<target name="compile.helper" depends="compile.logger">
 		<mkdir dir="${dir.build}/helper" />
 	
 		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}/helper">
-			<include name="main/SinnoriHelperMain.java" />
+			<!-- compilerarg value="-proc:none"/ -->
+			<include name="main/SinnoriHelperMain.java" />			
 			<include name="kr/pe/sinnori/gui/**" />
-			<include name="kr/pe/sinnori/common/**" />
+			<include name="kr/pe/sinnori/common/**" />			
+			
 			<classpath>
+				<fileset file="${dir.dist}/sinnori-core-common.jar" />
 				<fileset file="${dir.guilib}/*.jar" />
-				<fileset dir="${dir.mainlib}/ex">
-					<include name="**/*.jar" />
-				</fileset>
+				<union refid="core.common.jarlibs" />
 			</classpath>
 		</javac>		
 	</target>
@@ -223,9 +263,11 @@
 				<name name="**/*.class" />
 				<archives>
 					<zips>
-						<fileset dir="${dir.guilib}" includes="**/*.jar" />
-						<fileset dir="${dir.mainlib}/ex" includes="**/*.jar" />
-						<fileset dir="${dir.mainlib}/in" includes="**/*.jar" />
+						<fileset file="${dir.dist}/sinnori-core-common.jar" />
+						<fileset dir="${dir.guilib}" includes="**/*.jar" />						
+						<union refid="core.common.jarlibs" />
+						<union refid="logger.logback.jarlibs" />
+						<fileset dir="${dir.core.mainlib}/in" includes="**/*.jar" />
 					</zips>
 				</archives>
 			</restrict>

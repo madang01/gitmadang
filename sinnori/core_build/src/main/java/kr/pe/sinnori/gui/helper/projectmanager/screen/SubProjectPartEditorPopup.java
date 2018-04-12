@@ -20,13 +20,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.config.itemidinfo.SinnoriItemIDInfoManger;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.type.LineSeparatorType;
@@ -43,7 +42,7 @@ import kr.pe.sinnori.gui.helper.projectmanager.table.configurationpart.ItemValue
  */
 @SuppressWarnings("serial")
 public class SubProjectPartEditorPopup extends JDialog {
-	private Logger log = LoggerFactory.getLogger(SubProjectPartEditorPopup.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(SubProjectPartEditorPopup.class);
 	
 	private String mainProjectName;
 	private String selectedSubProjectName;	

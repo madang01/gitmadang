@@ -17,6 +17,10 @@ public class ClientSymmetricKey implements ClientSymmetricKeyIF {
 	private byte[] ivBytes = null;
 	
 	public ClientSymmetricKey(byte ivBytes[]) throws SymmetricException {
+		if (null == ivBytes) {
+			throw new IllegalArgumentException("the parameter ivBytes is null");
+		}
+		
 		SinnoriConfiguration sinnoriRunningProjectConfiguration = 
 				SinnoriConfigurationManager.getInstance()
 				.getSinnoriRunningProjectConfiguration();		

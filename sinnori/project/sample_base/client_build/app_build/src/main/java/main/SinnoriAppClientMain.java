@@ -1,7 +1,6 @@
 package main;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.client.AnyProjectConnectionPoolIF;
 import kr.pe.sinnori.client.ConnectionPoolManager;
 import kr.pe.sinnori.common.message.AbstractMessage;
@@ -11,7 +10,7 @@ import kr.pe.sinnori.impl.message.Echo.Echo;
 public class SinnoriAppClientMain {
 
 	public static void main(String[] args) {
-		Logger log = LoggerFactory.getLogger("kr.pe.sinnori");
+		InternalLogger log = InternalLoggerFactory.getInstance("kr.pe.sinnori");
 		
 		log.info("start");
 		

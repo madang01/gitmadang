@@ -21,9 +21,8 @@ import java.nio.channels.SocketChannel;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
@@ -44,7 +43,7 @@ import kr.pe.sinnori.server.task.ToLetterCarrier;
  * @author Won Jonghoon
  */
 public class ServerExecutor extends Thread implements ServerExecutorIF {
-	private Logger log = LoggerFactory.getLogger(ServerExecutor.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(ServerExecutor.class);
 	
 	// private final Object monitor = new Object();
 	

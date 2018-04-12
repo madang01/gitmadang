@@ -7,6 +7,7 @@
 	<property name="dir.corelib" location="corelib" />
 	<property name="dir.mainlib" location="lib/main" />
 	<property name="dir.core.build" location="../../../../core_build" />
+	<property name="dir.core.mainlib" location="${dir.core.build}/lib/main" />
 	<property name="dir.webclass" location="../../web_app_base/ROOT/WEB-INF/classes" />
 	<property name="dir.weblib" location="../../web_app_base/ROOT/WEB-INF/lib" />
 	<property file="webAnt.properties" />
@@ -52,6 +53,13 @@
 
 	<target name="make.core" depends="make.doscore, make.unixcore" />
 	
+	<union id="core.common.jarlibs">
+		<fileset file="${dir.core.mainlib}/ex/json-simple-1.1.1.jar" />
+		<fileset file="${dir.core.mainlib}/ex/commons-io-2.6.jar" />
+		<fileset file="${dir.core.mainlib}/ex/commons-collections4-4.1.jar" />
+		<fileset file="${dir.core.mainlib}/ex/commons-codec-1.11.jar" />		
+	</union>
+	
 	<target name="copy.core" depends="make.core">
 	  <!-- core directory -->
 		<delete dir="${dir.corelib}" />
@@ -61,7 +69,7 @@
 			<fileset file="${dir.core.build}/dist/sinnori-core.jar" />
 		</copy>
 		<copy todir="${dir.corelib}/ex" verbose="true" overwrite="true">
-			<fileset dir="${dir.core.build}/lib/main/ex/" />
+			<union refid="core.common.jarlibs" />
 		</copy>		
 	</target>
 

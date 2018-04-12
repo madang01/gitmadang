@@ -19,7 +19,6 @@ import org.jooq.impl.DSL;
 import org.jooq.types.UByte;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-import kr.pe.sinnori.common.etc.DBCPManager;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.sessionkey.ServerSessionkeyIF;
@@ -28,6 +27,7 @@ import kr.pe.sinnori.common.sessionkey.ServerSymmetricKeyIF;
 import kr.pe.sinnori.impl.message.LoginReq.LoginReq;
 import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
+import kr.pe.sinnori.server.dbcp.DBCPManager;
 import kr.pe.sinnori.server.lib.JooqSqlUtil;
 import kr.pe.sinnori.server.lib.MemberStateType;
 import kr.pe.sinnori.server.lib.MembershipLevel;

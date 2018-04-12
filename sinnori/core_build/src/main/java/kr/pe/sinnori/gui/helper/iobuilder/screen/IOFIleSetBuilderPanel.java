@@ -32,13 +32,13 @@ import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableModel;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.builder.IOPartDynamicClassFileContentsBuilderManager;
 import kr.pe.sinnori.common.message.builder.info.MessageInfo;
@@ -64,7 +64,7 @@ import kr.pe.sinnori.gui.util.PathSwingAction;
  */
 @SuppressWarnings("serial")
 public class IOFIleSetBuilderPanel extends JPanel implements FileFunctionManagerIF, BuildFunctionManagerIF {
-	private Logger log = LoggerFactory.getLogger(IOFIleSetBuilderPanel.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(IOFIleSetBuilderPanel.class);
 	private Frame mainFrame = null;
 	private ScreenManagerIF screenManagerIF = null;
 	private JFileChooser messageInfoPathChooser = null;
@@ -186,8 +186,11 @@ public class IOFIleSetBuilderPanel extends JPanel implements FileFunctionManager
 
 			File messageInfoPath = getValidPathFromTextField(messageInfoPathTextField,  ReadWriteMode.ONLY_READ);
 			
-			
 			File messageInfoXMLFiles[] = messageInfoPath.listFiles(new XMLFileFilter());
+			
+			if (null == messageInfoXMLFiles) {
+				throw new RuntimeException("the var messageInfoXMLFiles is null");
+			}
 			
 			if (0 == messageInfoXMLFiles.length) {
 				String errorMessage = String.format("there is no XML file in the message information path[%s]", 

@@ -2,9 +2,8 @@ package kr.pe.sinnori.client.connection;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.client.ClientObjectCacheManagerIF;
 import kr.pe.sinnori.client.connection.asyn.task.AbstractClientTask;
 import kr.pe.sinnori.common.exception.BodyFormatException;
@@ -23,7 +22,7 @@ import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 
 public class ClientMessageUtility implements ClientMessageUtilityIF {
-	private Logger log = LoggerFactory.getLogger(ClientMessageUtility.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(ClientMessageUtility.class);
 
 	private MessageProtocolIF messageProtocol = null;
 	private ClientObjectCacheManagerIF clientObjectCacheManager = null;

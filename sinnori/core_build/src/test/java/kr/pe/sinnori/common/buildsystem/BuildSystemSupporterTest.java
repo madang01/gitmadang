@@ -3,16 +3,14 @@ package kr.pe.sinnori.common.buildsystem;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import kr.pe.sinnori.common.buildsystem.BuildSystemSupporter;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.exception.BuildSystemException;
 
 public class BuildSystemSupporterTest {
 	
-	private static Logger log = LoggerFactory
-			.getLogger(BuildSystemSupporterTest.class);
+	private static InternalLogger log = InternalLoggerFactory.getInstance(BuildSystemSupporterTest.class);
 	
 	private final String projectNameForTest = "sample_test";
 	private final String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";

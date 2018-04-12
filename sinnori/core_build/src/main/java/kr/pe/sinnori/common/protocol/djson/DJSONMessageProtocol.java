@@ -25,9 +25,9 @@ import java.util.List;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.CharsetDecoderException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
@@ -57,7 +57,7 @@ import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
  *
  */
 public class DJSONMessageProtocol implements MessageProtocolIF {
-	private Logger log = LoggerFactory.getLogger(DJSONMessageProtocol.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(DJSONMessageProtocol.class);
 	
 	
 	private int dataPacketBufferMaxCntPerMessage;

@@ -4,9 +4,8 @@ import java.nio.channels.SocketChannel;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
 import kr.pe.sinnori.client.connection.asyn.IOEAsynConnectionIF;
 import kr.pe.sinnori.client.connection.asyn.task.AbstractClientTask;
@@ -14,7 +13,7 @@ import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
 public class ClientExecutor extends Thread implements ClientExecutorIF {
-	private Logger log = LoggerFactory.getLogger(ClientExecutor.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(ClientExecutor.class);
 
 	private String projectName = null;
 	private int index;

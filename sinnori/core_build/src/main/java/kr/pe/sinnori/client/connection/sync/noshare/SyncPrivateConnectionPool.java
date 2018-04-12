@@ -20,9 +20,8 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayDeque;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.ConnectionFixedParameter;
 import kr.pe.sinnori.client.connection.ConnectionPoolIF;
@@ -31,7 +30,7 @@ import kr.pe.sinnori.common.exception.ConnectionPoolException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 
 public class SyncPrivateConnectionPool implements ConnectionPoolIF {
-	private Logger log = LoggerFactory.getLogger(SyncPrivateConnectionPool.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(SyncPrivateConnectionPool.class);
 	private final Object monitor = new Object();
 
 	private transient int poolSize;

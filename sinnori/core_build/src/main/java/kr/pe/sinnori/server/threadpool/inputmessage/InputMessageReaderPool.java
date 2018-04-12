@@ -21,9 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.threadpool.ThreadPoolIF;
@@ -37,7 +36,7 @@ import kr.pe.sinnori.server.threadpool.IEOServerThreadPoolSetManagerIF;
  * 
  */
 public class InputMessageReaderPool implements ThreadPoolIF, InputMessageReaderPoolIF {
-	private Logger log = LoggerFactory.getLogger(InputMessageReaderPool.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(InputMessageReaderPool.class);
 	private final Object monitor = new Object();
 	private final List<InputMessageReaderIF> pool = new ArrayList<InputMessageReaderIF>();
 	
@@ -117,7 +116,12 @@ public class InputMessageReaderPool implements ThreadPoolIF, InputMessageReaderP
 			int size = pool.size();
 			
 			if (size >= poolMaxSize) {
-				String errorMessage = String.format("can't add any more tasks becase the number of %s InputMessageReaderPool's tasks reached the maximum[%d] number", projectName, poolMaxSize); 
+				String errorMessage = new StringBuilder("can't add a InputMessageReader in the project[")
+						.append(projectName)
+						.append("] becase the number of InputMessageReader is maximum[")
+						.append(poolMaxSize)
+						.append("]").toString();
+				
 				log.warn(errorMessage);
 				throw new IllegalStateException(errorMessage);
 			}
@@ -130,7 +134,11 @@ public class InputMessageReaderPool implements ThreadPoolIF, InputMessageReaderP
 						socketResourceManager);
 				pool.add(handler);
 			} catch (Exception e) {
-				String errorMessage = String.format("failed to add a %s InputMessageReaderPool's task becase error occured::errmsg={}", projectName, e.getMessage()); 
+				String errorMessage = new StringBuilder("failed to add a InputMessageReader in the project[")
+						.append(projectName)
+						.append("], errmsg=")
+						.append(e.getMessage()).toString();  
+				
 				log.warn(errorMessage, e);
 				throw new IllegalStateException(errorMessage);
 			}

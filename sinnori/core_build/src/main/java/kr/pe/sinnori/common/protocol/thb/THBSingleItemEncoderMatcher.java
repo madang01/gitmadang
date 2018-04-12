@@ -6,9 +6,8 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 import java.util.Arrays;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
@@ -17,7 +16,7 @@ import kr.pe.sinnori.common.type.SelfExn;
 import kr.pe.sinnori.common.type.SingleItemType;
 
 public class THBSingleItemEncoderMatcher implements THBSingleItemEncoderMatcherIF {
-	private Logger log = LoggerFactory.getLogger(THBSingleItemEncoderMatcher.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(THBSingleItemEncoderMatcher.class);
 	
 	@SuppressWarnings("unused")
 	private CharsetEncoder streamCharsetEncoder;

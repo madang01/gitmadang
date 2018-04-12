@@ -2,9 +2,8 @@ package kr.pe.sinnori.client.connection.asyn.task;
 
 import java.nio.channels.SocketChannel;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
@@ -12,7 +11,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
 public abstract class AbstractClientTask {
-protected Logger log = LoggerFactory.getLogger(AbstractClientTask.class);
+protected InternalLogger log = InternalLoggerFactory.getInstance(AbstractClientTask.class);
 	
 	private ClassLoader classLoaderOfSererTask = this.getClass().getClassLoader();
 	

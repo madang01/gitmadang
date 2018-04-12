@@ -20,9 +20,9 @@ import java.nio.charset.Charset;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 import kr.pe.sinnori.common.type.SingleItemType;
@@ -34,7 +34,7 @@ import kr.pe.sinnori.common.type.SingleItemType;
  *
  */
 public class DJSONSingleItemDecoder implements SingleItemDecoderIF {
-	private Logger log = LoggerFactory.getLogger(DJSONSingleItemDecoder.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(DJSONSingleItemDecoder.class);
 	
 	
 	private DJSONSingleItemDecoderMatcherIF djsonSingleItemDecoderMatcher = null;

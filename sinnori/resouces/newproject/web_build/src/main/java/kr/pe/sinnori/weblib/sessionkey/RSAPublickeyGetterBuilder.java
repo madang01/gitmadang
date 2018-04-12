@@ -2,9 +2,8 @@ package kr.pe.sinnori.weblib.sessionkey;
 
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.client.AnyProjectConnectionPoolIF;
 import kr.pe.sinnori.client.ConnectionPoolManager;
 import kr.pe.sinnori.common.exception.AccessDeniedException;
@@ -20,6 +19,8 @@ import kr.pe.sinnori.impl.message.PublicKeyReq.PublicKeyReq;
 import kr.pe.sinnori.impl.message.PublicKeyRes.PublicKeyRes;
 
 public class RSAPublickeyGetterBuilder extends AbstractRSAPublickeyGetter {
+	InternalLogger log = InternalLoggerFactory.getInstance(RSAPublickeyGetterBuilder.class);
+	
 
 	/** 동기화 쓰지 않고 싱글턴 구현을 위한 비공개 클래스 */
 	private static final class RSAPublickeyGetterHolder {
@@ -35,7 +36,7 @@ public class RSAPublickeyGetterBuilder extends AbstractRSAPublickeyGetter {
 	}
 
 	protected byte[] getPublickeyBytesFromMainProjectServer() throws SymmetricException {
-		Logger log = LoggerFactory.getLogger(RSAPublickeyGetterBuilder.class);
+		
 
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
 
@@ -52,8 +53,6 @@ public class RSAPublickeyGetterBuilder extends AbstractRSAPublickeyGetter {
 	}
 
 	public byte[] getSubProjectPublickeyBytes(String subProjectName) throws SymmetricException {
-		Logger log = LoggerFactory.getLogger(RSAPublickeyGetterBuilder.class);
-
 		AnyProjectConnectionPoolIF subProjectConnectionPoo = null;
 		try {
 			subProjectConnectionPoo = ConnectionPoolManager.getInstance().getSubProjectConnectionPool(subProjectName);

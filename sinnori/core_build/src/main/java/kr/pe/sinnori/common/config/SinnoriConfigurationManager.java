@@ -21,13 +21,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 신놀이 환경 변수에 대응하는 값에 접근하기 위한 클래스
@@ -36,8 +35,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public final class SinnoriConfigurationManager {
-	private Logger log = LoggerFactory
-			.getLogger(SinnoriConfigurationManager.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(SinnoriConfigurationManager.class);
 
 	private SinnoriConfiguration sinnoriRunningProjectConfiguration = null;
 	

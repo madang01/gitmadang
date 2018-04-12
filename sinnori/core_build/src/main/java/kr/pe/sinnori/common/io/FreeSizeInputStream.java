@@ -26,9 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.CharsetDecoderException;
 import kr.pe.sinnori.common.exception.SinnoriBufferUnderflowException;
@@ -42,7 +41,7 @@ import kr.pe.sinnori.common.util.HexUtil;
  *
  */
 public class FreeSizeInputStream implements BinaryInputStreamIF {
-	protected Logger log = LoggerFactory.getLogger(FreeSizeInputStream.class);
+	protected InternalLogger log = InternalLoggerFactory.getInstance(FreeSizeInputStream.class);
 
 	private int dataPacketBufferMaxCount;
 	private List<WrapBuffer> readableWrapBufferList = null;
@@ -83,8 +82,8 @@ public class FreeSizeInputStream implements BinaryInputStreamIF {
 		
 		if (readableWrapBufferList.size() > dataPacketBufferMaxCount) {
 			String errorMessage = String.format(
-					"the parameter readableWrapBufferList's size is greater than The maximum number[%d] of buffers that can be assigned per one message",
-					streamBufferList.size(), dataPacketBufferMaxCount);
+					"the parameter readableWrapBufferList's size[%d] is greater than The maximum number[%d] of buffers that can be assigned per one message",
+					readableWrapBufferList.size(), dataPacketBufferMaxCount);
 			throw new IllegalArgumentException(errorMessage);
 		}
 

@@ -22,13 +22,12 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.config.itemidinfo.SinnoriItemIDInfoManger;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.type.LineSeparatorType;
@@ -45,7 +44,7 @@ import kr.pe.sinnori.gui.helper.projectmanager.table.configurationpart.ItemValue
  */
 @SuppressWarnings("serial")
 public class DBCPPartEditorPopup extends JDialog {
-	private Logger log = LoggerFactory.getLogger(DBCPPartEditorPopup.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(DBCPPartEditorPopup.class);
 	
 	private String mainProjectName;
 	private String selectedDBCPName;

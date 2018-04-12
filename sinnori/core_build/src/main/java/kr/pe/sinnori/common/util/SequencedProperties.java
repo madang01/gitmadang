@@ -21,13 +21,11 @@ public class SequencedProperties extends Properties {
 	private List keyList = new ArrayList();
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-	@Override
     public synchronized Enumeration keys() {
         return Collections.enumeration(keyList);
     }
 
     @SuppressWarnings("unchecked")
-	@Override
     public synchronized Object put(Object key, Object value) {
         if (! containsKey(key)) {
             keyList.add(key);
@@ -43,8 +41,9 @@ public class SequencedProperties extends Properties {
         return super.remove(key);
     }
 
-    @SuppressWarnings("unchecked")
+    
 	@Override
+	@SuppressWarnings("unchecked")
     public synchronized void putAll(@SuppressWarnings("rawtypes") Map values) {
         for (Object key : values.keySet()) {
             if (! containsKey(key)) {

@@ -26,9 +26,8 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.exception.AccessDeniedException;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
@@ -47,7 +46,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  * 
  */
 public abstract class AbstractConnection {
-	protected Logger log = LoggerFactory.getLogger(AbstractConnection.class);
+	protected InternalLogger log = InternalLoggerFactory.getInstance(AbstractConnection.class);
 	
 	/** 모니터 전용 오브젝트 */
 	protected final Object monitor = new Object();

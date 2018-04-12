@@ -1,14 +1,13 @@
 package kr.pe.sinnori.common.message.codec;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
 
 public abstract class AbstractMessageDecoder {	
-	protected Logger log = LoggerFactory.getLogger(AbstractMessageDecoder.class);
+	protected InternalLogger log = InternalLoggerFactory.getInstance(AbstractMessageDecoder.class);
 	
 	/**
 	 * <pre>

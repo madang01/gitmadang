@@ -22,9 +22,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
@@ -40,7 +39,7 @@ import kr.pe.sinnori.server.threadpool.IEOServerThreadPoolSetManagerIF;
  * @author Won Jonghoon
  */
 public class ServerExecutorPool implements ThreadPoolIF, ServerExecutorPoolIF {
-	private Logger log = LoggerFactory.getLogger(ServerExecutorPool.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(ServerExecutorPool.class);
 	private final Object monitor = new Object();
 	private final List<ServerExecutorIF> pool = new ArrayList<ServerExecutorIF>();
 	
@@ -130,7 +129,12 @@ public class ServerExecutorPool implements ThreadPoolIF, ServerExecutorPoolIF {
 			int size = pool.size();
 
 			if (size >= poolMaxSize) {
-				String errorMessage = String.format("can't add any more tasks becase the number of %s ServerExecutorPool's tasks reached the maximum[%d] number", projectName, poolMaxSize); 
+				String errorMessage = new StringBuilder("can't add a ServerExecutor in the project[")
+						.append(projectName)
+						.append("] becase the number of ServerExecutor is maximum[")
+						.append(poolMaxSize)
+						.append("]").toString();
+				
 				log.warn(errorMessage);
 				throw new IllegalStateException(errorMessage);
 			}
@@ -144,7 +148,10 @@ public class ServerExecutorPool implements ThreadPoolIF, ServerExecutorPoolIF {
 						serverObjectCacheManager);
 				pool.add(handler);
 			} catch (Exception e) {
-				String errorMessage = String.format("failed to add a %s ServerExecutorPool's task becase error occured::errmsg={}", projectName, e.getMessage()); 
+				String errorMessage = new StringBuilder("failed to add a ServerExecutor in the project[")
+						.append(projectName)
+						.append("], errmsg=")
+						.append(e.getMessage()).toString();  
 				log.warn(errorMessage, e);
 				throw new IllegalStateException(errorMessage);
 			}

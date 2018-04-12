@@ -22,9 +22,8 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.classloader.IOPartDynamicClassNameUtil;
 import kr.pe.sinnori.common.config.itemvalue.ProjectPartConfiguration;
 import kr.pe.sinnori.common.etc.CharsetUtil;
@@ -48,7 +47,7 @@ import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterPool;
 
 
 public class AnyProjectServer {
-	private Logger log = LoggerFactory.getLogger(AnyProjectServer.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(AnyProjectServer.class);
 	
 	private ProjectPartConfiguration projectPartConfiguration = null;
 	 

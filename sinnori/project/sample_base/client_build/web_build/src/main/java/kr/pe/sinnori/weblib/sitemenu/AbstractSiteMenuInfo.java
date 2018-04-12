@@ -3,11 +3,11 @@ package kr.pe.sinnori.weblib.sitemenu;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 
 public abstract class AbstractSiteMenuInfo {
-	private Logger log = LoggerFactory.getLogger(AbstractSiteMenuInfo.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(AbstractSiteMenuInfo.class);
 	
 	private final List<SiteTopMenuInfo > siteTopMenuInfoList =	new ArrayList<SiteTopMenuInfo>();	
 	

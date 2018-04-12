@@ -2,11 +2,11 @@ package kr.pe.sinnori.client.connection;
 
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 
 public class PersonalLoginManager {
-	private Logger log = LoggerFactory.getLogger(PersonalLoginManager.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(PersonalLoginManager.class);
 	
 	private AbstractConnection conn = null;
 	private SocketResoruceIF socketResoruce = null;

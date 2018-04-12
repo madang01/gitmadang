@@ -1,8 +1,7 @@
 package kr.pe.sinnori.client;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.client.connection.asyn.task.AbstractClientTask;
 import kr.pe.sinnori.common.classloader.IOPartDynamicClassNameUtil;
 import kr.pe.sinnori.common.etc.ObjectCacheManager;
@@ -10,7 +9,7 @@ import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.protocol.MessageCodecIF;
 
 public class ClientObjectCacheManager implements ClientObjectCacheManagerIF {
-	private Logger log = LoggerFactory.getLogger(ClientObjectCacheManager.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(ClientObjectCacheManager.class);
 	
 	private IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = null;
 	

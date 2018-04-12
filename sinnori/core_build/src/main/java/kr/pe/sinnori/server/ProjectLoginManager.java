@@ -3,11 +3,11 @@ package kr.pe.sinnori.server;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 
 public class ProjectLoginManager implements ProjectLoginManagerIF {
-	private Logger log = LoggerFactory.getLogger(ProjectLoginManager.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(ProjectLoginManager.class);
 	
 	private final Object monitor = new Object();
 	

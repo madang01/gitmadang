@@ -23,12 +23,12 @@ import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
 
-import kr.pe.sinnori.common.etc.DBCPManager;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.BoardListReq.BoardListReq;
 import kr.pe.sinnori.impl.message.BoardListRes.BoardListRes;
 import kr.pe.sinnori.impl.message.MessageResultRes.MessageResultRes;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
+import kr.pe.sinnori.server.dbcp.DBCPManager;
 import kr.pe.sinnori.server.lib.BoardStateType;
 import kr.pe.sinnori.server.lib.JooqSqlUtil;
 import kr.pe.sinnori.server.lib.MemberStateType;

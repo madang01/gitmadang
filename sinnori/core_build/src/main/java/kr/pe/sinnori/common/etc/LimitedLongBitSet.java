@@ -2,8 +2,8 @@ package kr.pe.sinnori.common.etc;
 
 import java.util.ArrayList;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 
 
 /**
@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class LimitedLongBitSet {
-	Logger log = LoggerFactory.getLogger(LimitedLongBitSet.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(LimitedLongBitSet.class);
 	
 	private final Object monitor = new Object();
 	private final int maxSizeOfFailedIndexList = 3;
@@ -226,6 +226,10 @@ public class LimitedLongBitSet {
 		}
 				
 		return true;
+	}
+	
+	public int hashCode() {
+		return monitor.hashCode();
 	}
 	
 	public long cardinality() {

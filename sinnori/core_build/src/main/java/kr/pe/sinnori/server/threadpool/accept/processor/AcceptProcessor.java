@@ -21,9 +21,8 @@ import java.net.StandardSocketOptions;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
 
 /**
@@ -33,7 +32,7 @@ import kr.pe.sinnori.server.SocketResourceManagerIF;
  * 
  */
 public class AcceptProcessor extends Thread {
-	private Logger log = LoggerFactory.getLogger(AcceptProcessor.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(AcceptProcessor.class);
 	
 	private int index;
 	private String projectName;

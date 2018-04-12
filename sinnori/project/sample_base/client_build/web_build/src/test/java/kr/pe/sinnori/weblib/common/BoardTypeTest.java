@@ -1,12 +1,12 @@
 package kr.pe.sinnori.weblib.common;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 
 public class BoardTypeTest {
-	private Logger log = LoggerFactory
-			.getLogger(BoardTypeTest.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(BoardTypeTest.class);
 	
 	@Test
 	public void test() {

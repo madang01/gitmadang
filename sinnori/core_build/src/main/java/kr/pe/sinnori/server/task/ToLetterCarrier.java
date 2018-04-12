@@ -21,9 +21,8 @@ import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BodyFormatException;
@@ -51,7 +50,7 @@ import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterIF;
  *
  */
 public class ToLetterCarrier {
-	private Logger log = LoggerFactory.getLogger(ToLetterCarrier.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(ToLetterCarrier.class);
 	
 	private SocketChannel fromSC = null;
 	private AbstractMessage inputMessage;
@@ -406,18 +405,17 @@ public class ToLetterCarrier {
 			
 			outputMessageWriterOfFromSC.putIntoQueue(toLetterOfSelfExn);
 		} catch (InterruptedException e) {
-			Logger log = LoggerFactory.getLogger(ToLetterCarrier.class);
+			InternalLogger log = InternalLoggerFactory.getInstance(ToLetterCarrier.class);
 			log.warn("the SelfExn output message[{}] discarded due to an InterruptedException, fromSC hashcode={}, inputMessage={}", 
 					toLetterOfSelfExn.toString(),
 					fromSC.hashCode(),
 					wrapReadableMiddleObject.toString());
 			throw e;
 		} catch (Exception e) {
-			String errorMessage = String.format("fail to put the SelfExn output message into the output message queue, fromSC hashcode={}, inputMessage={}", 
-					toLetterOfSelfExn.toString(),
+			String errorMessage = String.format("fail to put the SelfExn output message into the output message queue, fromSC hashcode=%d, inputMessage=%s",
 					fromSC.hashCode(),
 					wrapReadableMiddleObject.toString());
-			Logger log = LoggerFactory.getLogger(ToLetterCarrier.class);
+			InternalLogger log = InternalLoggerFactory.getInstance(ToLetterCarrier.class);
 			log.warn(errorMessage, e);
 		}
 	}

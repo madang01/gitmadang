@@ -9,9 +9,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.AbstractJunitTest;
 
 public class FileProtocolURL2FileTest extends AbstractJunitTest {
@@ -52,7 +52,7 @@ public class FileProtocolURL2FileTest extends AbstractJunitTest {
 	
 	@Test
 	public void fileProcolURL2FileTest_success() {
-		Logger log = LoggerFactory.getLogger(FileProtocolURL2FileTest.class);
+		InternalLogger log = InternalLoggerFactory.getInstance(FileProtocolURL2FileTest.class);
 		
 		URL urlOfMapper = null;
 		try {

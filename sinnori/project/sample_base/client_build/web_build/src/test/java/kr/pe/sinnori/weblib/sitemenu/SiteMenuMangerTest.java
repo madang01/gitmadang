@@ -1,12 +1,13 @@
 package kr.pe.sinnori.weblib.sitemenu;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 
 
 public class SiteMenuMangerTest {
-	private Logger log = LoggerFactory.getLogger(SiteMenuMangerTest.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(SiteMenuMangerTest.class);
 
 	@Test
 	public void testGetTopMenuPartString() {

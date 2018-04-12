@@ -23,13 +23,13 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.message.builder.IOPartDynamicClassFileContentsBuilderManager;
 import kr.pe.sinnori.common.message.builder.info.MessageInfo;
 import kr.pe.sinnori.common.message.builder.info.MessageInfoSAXParser;
@@ -42,7 +42,7 @@ import kr.pe.sinnori.gui.helper.lib.ScreenManagerIF;
  */
 @SuppressWarnings("serial")
 public class EachIOFileTypeBuilder extends JPanel {
-	private Logger log = LoggerFactory.getLogger(EachIOFileTypeBuilder.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(EachIOFileTypeBuilder.class);
 	private Frame mainFrame = null;
 	private ScreenManagerIF screenManagerIF = null;
 	

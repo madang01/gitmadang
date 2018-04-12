@@ -24,13 +24,12 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.HashSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 
 public class SimpleClassLoader extends ClassLoader {
-	private Logger log = LoggerFactory.getLogger(SimpleClassLoader.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(SimpleClassLoader.class);
 
 	// private final Object monitor = new Object();
 
@@ -253,7 +252,7 @@ public class SimpleClassLoader extends ClassLoader {
 
 		} catch (IOException e) {
 			String errorMessage = String.format(
-					"SinnoriClassLoader hashCode=[%d], classFullName=[%s], classFile=[{}]" + "::IOException %s",
+					"SinnoriClassLoader hashCode=[%d], classFullName=[%s], classFile=[%s]" + "::IOException %s",
 					this.hashCode(), classFullName, classFile.getAbsolutePath(), e.getMessage());
 
 			log.warn(errorMessage, e);
@@ -262,7 +261,7 @@ public class SimpleClassLoader extends ClassLoader {
 
 		} catch (ClassFormatError e) {
 			String errorMessage = String.format(
-					"SinnoriClassLoader hashCode=[%d], classFullName=[%s], classFile=[{}]" + "::ClassFormatError %s",
+					"SinnoriClassLoader hashCode=[%d], classFullName=[%s], classFile=[%s]" + "::ClassFormatError %s",
 					this.hashCode(), classFullName, classFile.getAbsolutePath(), e.getMessage());
 
 			log.warn(errorMessage, e);

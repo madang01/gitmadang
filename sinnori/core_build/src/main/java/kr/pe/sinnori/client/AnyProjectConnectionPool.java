@@ -23,9 +23,8 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.ClientMessageUtility;
 import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
@@ -96,7 +95,7 @@ import kr.pe.sinnori.common.type.ConnectionType;
  * 
  */
 public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
-	private Logger log = LoggerFactory.getLogger(AnyProjectConnectionPool.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(AnyProjectConnectionPool.class);
 
 	private ProjectPartConfiguration projectPartConfiguration = null;
 

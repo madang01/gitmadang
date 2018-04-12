@@ -33,13 +33,13 @@ private SymmetricKeyManager symmetricKeyManager = SymmetricKeyManager.getInstanc
 		// byte[] symmetricKeyBytes = serverRSA.decryptUsingPrivateKey(sessionkeyBytes);
 		
 		if (symmetricKeySize != symmetricKeyBytes.length) {
-			new SymmetricException(
+			throw new SymmetricException(
 					String.format("the paramter sessionkeyBytes.length[%d] is differenct from symmetric key size[%d]", 
 							symmetricKeyBytes.length, symmetricKeySize));
 		}
 		
 		if (symmetricIVSize != ivBytes.length) {
-			new SymmetricException(
+			throw new SymmetricException(
 					String.format("the paramter ivBytes.length[%d] is differenct from symmetric iv size[%d]", 
 							ivBytes.length, symmetricIVSize));
 		}
@@ -50,14 +50,14 @@ private SymmetricKeyManager symmetricKeyManager = SymmetricKeyManager.getInstanc
 	
 	public byte[] encrypt(byte[] plainTextBytes) throws IllegalArgumentException, SymmetricException {
 		if (null == symmetricKeyBytes) {
-			new SymmetricException("sessionkey not setting");
+			throw new SymmetricException("sessionkey not setting");
 		}
 		return symmetricKeyManager.encrypt(symmetricKeyAlgorithm, symmetricKeyBytes, plainTextBytes, ivBytes);
 	}
 	
 	public byte[] decrypt(byte[] encryptedBytes) throws IllegalArgumentException, SymmetricException {
 		if (null == symmetricKeyBytes) {
-			new SymmetricException("sessionkey not setting");
+			throw new SymmetricException("sessionkey not setting");
 		}
 		
 		return symmetricKeyManager.decrypt(symmetricKeyAlgorithm, symmetricKeyBytes, encryptedBytes, ivBytes);

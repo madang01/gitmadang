@@ -1,12 +1,11 @@
 package kr.pe.sinnori.common.message.builder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 
 public abstract class AbstractSourceFileBuildre {
-	protected final Logger log = LoggerFactory.getLogger(AbstractSourceFileBuildre.class);
+	protected final InternalLogger log = InternalLoggerFactory.getInstance(AbstractSourceFileBuildre.class);
 	
 	public static final String PACKAGE_FULL_NAME_PREFIX = "kr.pe.sinnori.impl.message.";
 	

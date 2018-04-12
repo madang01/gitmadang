@@ -21,7 +21,7 @@ import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.SymmetricException;
@@ -225,6 +225,8 @@ public abstract class AbstractSessionKeyServlet extends AbstractServlet {
 			String parmValue = req.getParameter(parmName);
 			
 			pageStrBuilder.append("<input type=hidden name=\"");
+			
+			
 			pageStrBuilder.append(StringEscapeUtils.escapeHtml4(parmName));
 			
 			

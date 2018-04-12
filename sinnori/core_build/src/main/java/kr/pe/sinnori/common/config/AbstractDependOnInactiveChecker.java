@@ -2,14 +2,13 @@ package kr.pe.sinnori.common.config;
 
 import java.util.Properties;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public abstract class AbstractDependOnInactiveChecker {
-	protected Logger log = LoggerFactory.getLogger(AbstractDependOnInactiveChecker.class);
+	protected InternalLogger log = InternalLoggerFactory.getInstance(AbstractDependOnInactiveChecker.class);
 	
 	protected ItemIDInfo<?> dependentSourceItemIDInfo  = null;
 	protected ItemIDInfo<?> dependentTargetItemIDInfo = null;

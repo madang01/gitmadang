@@ -5,9 +5,9 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 
 import org.json.simple.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.type.SelfExn;
@@ -15,7 +15,7 @@ import kr.pe.sinnori.common.type.SingleItemType;
 import kr.pe.sinnori.common.util.HexUtil;
 
 public class DJSONSingleItemDecoderMatcher implements DJSONSingleItemDecoderMatcherIF {
-	private Logger log = LoggerFactory.getLogger(DJSONSingleItemDecoderMatcher.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(DJSONSingleItemDecoderMatcher.class);
 	
 	private Charset streamCharset = null;
 	@SuppressWarnings("unused")

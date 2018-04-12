@@ -8,12 +8,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 
 public class FileTest {
-	Logger log = LoggerFactory
-			.getLogger(FileTest.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(FileTest.class);
 	
 	
 	/**

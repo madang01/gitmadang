@@ -6,9 +6,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.classloader.IOPartDynamicClassNameUtil;
 import kr.pe.sinnori.common.classloader.SimpleClassLoader;
 import kr.pe.sinnori.common.etc.ObjectCacheManager;
@@ -17,7 +16,7 @@ import kr.pe.sinnori.common.protocol.MessageCodecIF;
 import kr.pe.sinnori.server.task.AbstractServerTask;
 
 public class ServerObjectCacheManager implements ServerObjectCacheManagerIF {
-	private Logger log = LoggerFactory.getLogger(ServerObjectCacheManager.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(ServerObjectCacheManager.class);
 
 	// private final Object monitor = new Object();
 
@@ -38,7 +37,7 @@ public class ServerObjectCacheManager implements ServerObjectCacheManagerIF {
 		this.workBaseClassLoader = serverClassLoaderBuilder.build();
 	}
 
-	private ServerTaskObjectInfo getServerTaskFromWorkBaseClassload(String classFullName)
+	private ServerTaskObjectInfo getNewServerTaskFromWorkBaseClassload(String classFullName)
 			throws DynamicClassCallException {
 		Class<?> retClass = null;
 		AbstractServerTask serverTask = null;
@@ -133,21 +132,7 @@ public class ServerObjectCacheManager implements ServerObjectCacheManagerIF {
 					classLoader.hashCode(), messageID, classFullName);
 			log.warn(errorMessage, e);
 			throw new DynamicClassCallException(errorMessage);
-		}
-
-		/*
-		 * if (null == valueObj) { String errorMessage = String.format(
-		 * "ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::valueObj is null"
-		 * , classLoader.hashCode(), messageID, classFullName); log.warn(errorMessage);
-		 * new DynamicClassCallException(errorMessage); }
-		 * 
-		 * if (!(valueObj instanceof MessageCodecIF)) { String errorMessage =
-		 * String.format(
-		 * "ClassLoader hashCode=[%d], messageID=[%s], classFullName=[%s]::valueObj type[%s] is not  MessageCodecIF"
-		 * , classLoader.hashCode(), messageID, classFullName,
-		 * valueObj.getClass().getCanonicalName()); log.warn(errorMessage); new
-		 * DynamicClassCallException(errorMessage); }
-		 */
+		}	
 
 		messageCodec = (MessageCodecIF) valueObj;
 
@@ -165,15 +150,28 @@ public class ServerObjectCacheManager implements ServerObjectCacheManagerIF {
 
 		String classFullName = ioPartDynamicClassNameUtil.getServerTaskClassFullName(messageID);
 
+		ServerTaskObjectInfo serverTaskObjectInfo = getServerTaskInfo(classFullName);
+
+		return serverTaskObjectInfo.getServerTask();
+	}
+	
+	private ServerTaskObjectInfo buildNewServerTaskObjectInfo(String classFullName) throws DynamicClassCallException {
+		ServerTaskObjectInfo newServerTaskObjectInfo = getNewServerTaskFromWorkBaseClassload(classFullName);
+
+		className2ServerTaskObjectInfoHash.put(classFullName, newServerTaskObjectInfo);
+		
+		return newServerTaskObjectInfo;
+	}
+
+	private ServerTaskObjectInfo getServerTaskInfo(String classFullName)
+			throws DynamicClassCallException, FileNotFoundException {
 		ServerTaskObjectInfo serverTaskObjectInfo = className2ServerTaskObjectInfoHash.get(classFullName);
 		if (null == serverTaskObjectInfo) {
 			lock.lock();
 			try {
 				serverTaskObjectInfo = className2ServerTaskObjectInfoHash.get(classFullName);
 				if (null == serverTaskObjectInfo) {
-					serverTaskObjectInfo = getServerTaskFromWorkBaseClassload(classFullName);
-
-					className2ServerTaskObjectInfoHash.put(classFullName, serverTaskObjectInfo);
+					serverTaskObjectInfo = buildNewServerTaskObjectInfo(classFullName);
 				}
 			} finally {
 				lock.unlock();
@@ -186,7 +184,7 @@ public class ServerObjectCacheManager implements ServerObjectCacheManagerIF {
 					if (serverTaskObjectInfo.isModifed()) {
 						/** 새로운 서버 클래스 로더로 교체 */
 						workBaseClassLoader = serverClassLoaderBuilder.build();
-						serverTaskObjectInfo = getServerTaskFromWorkBaseClassload(classFullName);
+						serverTaskObjectInfo = getNewServerTaskFromWorkBaseClassload(classFullName);
 						className2ServerTaskObjectInfoHash.put(classFullName, serverTaskObjectInfo);
 					}
 				} finally {
@@ -194,7 +192,6 @@ public class ServerObjectCacheManager implements ServerObjectCacheManagerIF {
 				}
 			}
 		}
-
-		return serverTaskObjectInfo.getServerTask();
+		return serverTaskObjectInfo;
 	}
 }

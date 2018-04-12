@@ -20,9 +20,9 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.collections4.map.LRUMap;
 import org.apache.commons.collections4.map.MultiKeyMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.itemvalue.CommonPartConfiguration;
@@ -42,7 +42,7 @@ import kr.pe.sinnori.common.config.itemvalue.CommonPartConfiguration;
  * 
  */
 public final class ObjectCacheManager {
-	protected Logger log = LoggerFactory.getLogger(ObjectCacheManager.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(ObjectCacheManager.class);
 	private final Object monitor = new Object();
 	@SuppressWarnings("rawtypes")
 	private MultiKeyMap objectMultiKeyMap = null;

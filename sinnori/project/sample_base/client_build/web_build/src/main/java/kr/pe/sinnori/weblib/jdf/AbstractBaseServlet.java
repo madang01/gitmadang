@@ -6,16 +6,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
+import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
+import kr.pe.sinnori.common.config.SinnoriConfiguration;
+import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars;
 import kr.pe.sinnori.weblib.sitemenu.SiteTopMenuType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 @SuppressWarnings("serial")
 public abstract class AbstractBaseServlet extends HttpServlet {
-	protected Logger log = LoggerFactory
-			.getLogger(AbstractBaseServlet.class);
+	protected InternalLogger log = InternalLoggerFactory.getInstance(AbstractBaseServlet.class);
 
 	/**
 	 * 로그인 여부를 반환한다.
@@ -73,7 +74,15 @@ public abstract class AbstractBaseServlet extends HttpServlet {
 	 * @return 업로드 파일의 시스템 절대 경로 파일명
 	 */
 	public String getAttachSystemFullFileName(long uploadFileNameSeq) {
-		StringBuilder attachSystemFullFileNameBuilder = new StringBuilder(WebCommonStaticFinalVars.WEBSITE_FILEUPLOAD_DIR.getAbsolutePath());
+		SinnoriConfiguration sinnoriRunningProjectConfiguration = 
+				SinnoriConfigurationManager.getInstance()
+				.getSinnoriRunningProjectConfiguration();
+		
+		String mainProjectName = sinnoriRunningProjectConfiguration.getMainProjectName();
+		String sinnoriInstalledPathString = sinnoriRunningProjectConfiguration.getSinnoriInstalledPathString();
+		String webUploadPathString = BuildSystemPathSupporter.getWebUploadPathString(sinnoriInstalledPathString, mainProjectName);
+		
+		StringBuilder attachSystemFullFileNameBuilder = new StringBuilder(webUploadPathString);
 		attachSystemFullFileNameBuilder.append(File.separator);
 		attachSystemFullFileNameBuilder.append(WebCommonStaticFinalVars.WEBSITE_FILEUPLOAD_PREFIX);
 		attachSystemFullFileNameBuilder.append("_");

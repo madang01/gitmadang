@@ -3,13 +3,12 @@ package kr.pe.sinnori.common.config.itemidinfo;
 
 import java.util.Set;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.config.AbstractMinMaxConverter;
 import kr.pe.sinnori.common.config.AbstractNativeValueConverter;
 import kr.pe.sinnori.common.config.AbstractSetTypeNativeValueConverter;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 항목 식별자  환경 설정 정보 클래스
@@ -18,7 +17,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class ItemIDInfo<T> {
-	protected Logger log = LoggerFactory.getLogger(ItemIDInfo.class);
+	protected InternalLogger log = InternalLoggerFactory.getInstance(ItemIDInfo.class);
 	
 	public enum ConfigurationPart {
 		DBCP, COMMON, PROJECT

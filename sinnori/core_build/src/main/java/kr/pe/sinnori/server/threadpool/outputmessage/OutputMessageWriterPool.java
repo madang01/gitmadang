@@ -22,9 +22,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.io.DataPacketBufferPoolIF;
@@ -37,7 +36,7 @@ import kr.pe.sinnori.server.threadpool.IEOServerThreadPoolSetManagerIF;
  * @author Won Jonghoon
  */
 public class OutputMessageWriterPool implements ThreadPoolIF, OutputMessageWriterPoolIF {
-	private Logger log = LoggerFactory.getLogger(OutputMessageWriterPool.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(OutputMessageWriterPool.class);
 	private final Object monitor = new Object();
 	private final List<OutputMessageWriterIF> pool = new ArrayList<OutputMessageWriterIF>();
 	
@@ -106,12 +105,14 @@ public class OutputMessageWriterPool implements ThreadPoolIF, OutputMessageWrite
 			int size = pool.size();
 			
 			if (size >= poolMaxSize) {
-				if (size >= poolMaxSize) {
-					String errorMessage = String.format("can't add any more tasks becase the number of %s OutputMessageWriterPool's tasks reached the maximum[%d] number", projectName, poolMaxSize); 
-					log.warn(errorMessage);
-					throw new IllegalStateException(errorMessage);
-				}
+				String errorMessage = new StringBuilder("can't add a OutputMessageWriter in the project[")
+						.append(projectName)
+						.append("] becase the number of OutputMessageWriter is maximum[")
+						.append(poolMaxSize)
+						.append("]").toString();
 				
+				log.warn(errorMessage);
+				throw new IllegalStateException(errorMessage);
 			}
 			try {
 				OutputMessageWriterIF handler = new OutputMessageWriter(projectName, size,
@@ -120,7 +121,11 @@ public class OutputMessageWriterPool implements ThreadPoolIF, OutputMessageWrite
 				
 				pool.add(handler);
 			} catch (Exception e) {
-				String errorMessage = String.format("failed to add a %s OutputMessageWriterPool's task becase error occured::errmsg={}", projectName, e.getMessage()); 
+				String errorMessage = new StringBuilder("failed to add a OutputMessageWriter in the project[")
+						.append(projectName)
+						.append("], errmsg=")
+						.append(e.getMessage()).toString(); 
+				
 				log.warn(errorMessage, e);
 				throw new IllegalStateException(errorMessage);
 			}

@@ -29,9 +29,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.UnknownItemTypeException;
 import kr.pe.sinnori.common.type.SingleItemType;
@@ -49,7 +48,7 @@ import kr.pe.sinnori.common.type.SingleItemType;
  *
  */
 public class SingleItemTypeManger {
-	private final Logger log = LoggerFactory.getLogger(SingleItemTypeManger.class);
+	private final InternalLogger log = InternalLoggerFactory.getInstance(SingleItemTypeManger.class);
 	
 	private String messageXSLStr = null;
 	

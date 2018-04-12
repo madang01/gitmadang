@@ -13,9 +13,9 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.itemvalue.CommonPartConfiguration;
@@ -41,7 +41,7 @@ public abstract class ServerRSAKeypairGetter {
 		} else if (rsaKeyPairSoureOfSessionkey.equals(SessionKey.RSAKeypairSourceType.FILE)) {
 			rsaKeypair = getRSAKeyPairFromFile();
 		} else {
-			new SymmetricException(new StringBuilder("unknown rsa keypair source[")
+			throw new SymmetricException(new StringBuilder("unknown rsa keypair source[")
 					.append(rsaKeyPairSoureOfSessionkey.toString()).append("]").toString());
 		}
 		
@@ -49,7 +49,7 @@ public abstract class ServerRSAKeypairGetter {
 	}
 	
 	private static KeyPair getRSAKeyPairFromServer() throws SymmetricException {
-		Logger log = LoggerFactory.getLogger(ServerRSAKeypairGetter.class);
+		InternalLogger log = InternalLoggerFactory.getInstance(ServerRSAKeypairGetter.class);
 		
 		
 		SinnoriConfiguration sinnoriRunningProjectConfiguration = SinnoriConfigurationManager.getInstance()
@@ -74,7 +74,7 @@ public abstract class ServerRSAKeypairGetter {
 	}
 	
 	private static KeyPair getRSAKeyPairFromFile() throws SymmetricException {
-		Logger log = LoggerFactory.getLogger(ServerRSAKeypairGetter.class);
+		InternalLogger log = InternalLoggerFactory.getInstance(ServerRSAKeypairGetter.class);
 		
 		PrivateKey privateKey = null;
 		PublicKey publicKey = null;		

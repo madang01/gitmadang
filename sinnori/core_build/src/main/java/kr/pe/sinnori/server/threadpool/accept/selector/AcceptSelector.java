@@ -27,9 +27,8 @@ import java.nio.channels.SocketChannel;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
 
 /**
@@ -42,7 +41,7 @@ import kr.pe.sinnori.server.SocketResourceManagerIF;
  * 
  */
 public class AcceptSelector extends Thread {
-	private Logger log = LoggerFactory.getLogger(AcceptSelector.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(AcceptSelector.class);
 	
 	private Selector selector = null; // OP_ACCEPT 전용 selector
 	private ServerSocketChannel ssc = null;

@@ -23,9 +23,8 @@ import java.nio.charset.CharsetEncoder;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.HeaderFormatException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
@@ -50,7 +49,7 @@ import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
  *
  */
 public class THBMessageProtocol implements MessageProtocolIF {
-	private Logger log = LoggerFactory.getLogger(THBMessageProtocol.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(THBMessageProtocol.class);
 	
 	
 	private int dataPacketBufferMaxCntPerMessage;

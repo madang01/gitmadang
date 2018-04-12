@@ -24,9 +24,8 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.CharsetEncoderException;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
@@ -39,7 +38,7 @@ import kr.pe.sinnori.common.exception.SinnoriBufferOverflowException;
  * 
  */
 public class FixedSizeOutputStream implements BinaryOutputStreamIF {
-	private Logger log = LoggerFactory.getLogger(FixedSizeOutputStream.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(FixedSizeOutputStream.class);
 	/**
 	 * 출력을 담을 ByteBuffer.
 	 */
@@ -663,8 +662,9 @@ public class FixedSizeOutputStream implements BinaryOutputStreamIF {
 	public void skip(int n) throws BufferOverflowException,
 			IllegalArgumentException, NoMoreDataPacketBufferException {
 		if (n < 0) {
-			throw new IllegalArgumentException(String.format(
-					"the parameter n is less than zero", n));
+			String errorMessage = String.format(
+					"the parameter n[%d] is less than zero", n);
+			throw new IllegalArgumentException(errorMessage);
 		}
 
 		/*if (skipBytes >= CommonStaticFinalVars.UNSIGNED_BYTE_MAX) {

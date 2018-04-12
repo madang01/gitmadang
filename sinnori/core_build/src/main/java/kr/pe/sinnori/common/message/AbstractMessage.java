@@ -20,10 +20,9 @@ package kr.pe.sinnori.common.message;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 입출력 메시지 클래스의 부모 추상화 클래스.<br/>
@@ -33,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public abstract class AbstractMessage {
-	protected Logger log = LoggerFactory.getLogger(AbstractMessage.class);
+	protected InternalLogger log = InternalLoggerFactory.getInstance(AbstractMessage.class);
 	
 	protected String messageID = null;
 	

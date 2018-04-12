@@ -20,9 +20,8 @@ package kr.pe.sinnori.client;
 import java.util.HashMap;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.itemvalue.AllSubProjectPartConfiguration;
@@ -37,7 +36,7 @@ import kr.pe.sinnori.common.exception.NotFoundProjectException;
  * 
  */
 public final class ConnectionPoolManager {
-	private Logger log = LoggerFactory.getLogger(ConnectionPoolManager.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(ConnectionPoolManager.class);
 	
 	/** 모니터 객체 */
 	// private final Object monitor = new Object();

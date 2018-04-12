@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.config.itemvalue.CommonPartConfiguration;
@@ -30,7 +30,7 @@ public abstract class AbstractRSAPublickeyGetter {
 		} else if (rsaKeyPairSoureOfSessionkey.equals(SessionKey.RSAKeypairSourceType.FILE)) {
 			publicKeyBytes = getPublickeyBytesFromFile();
 		} else {
-			new SymmetricException(new StringBuilder("unknown rsa keypair source[")
+			throw new SymmetricException(new StringBuilder("unknown rsa keypair source[")
 					.append(rsaKeyPairSoureOfSessionkey.toString()).append("]").toString());
 		}
 		
@@ -94,7 +94,7 @@ public abstract class AbstractRSAPublickeyGetter {
 	}*/
 	
 	private final byte[] getPublickeyBytesFromFile() throws SymmetricException {
-		Logger log = LoggerFactory.getLogger(AbstractRSAPublickeyGetter.class);
+		InternalLogger log = InternalLoggerFactory.getInstance(AbstractRSAPublickeyGetter.class);
 		
 		byte[] publicKeyBytes = null;
 

@@ -4,9 +4,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.io.BinaryInputStreamIF;
@@ -14,7 +13,7 @@ import kr.pe.sinnori.common.type.SelfExn;
 import kr.pe.sinnori.common.type.SingleItemType;
 
 public class THBSingleItemDecoderMatcher implements THBSingleItemDecoderMatcherIF {
-	private Logger log = LoggerFactory.getLogger(THBSingleItemDecoderMatcher.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(THBSingleItemDecoderMatcher.class);
 	
 	private CharsetDecoder streamCharsetDecoder = null;
 	private CodingErrorAction streamCodingErrorActionOnMalformedInput = null;

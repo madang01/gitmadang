@@ -1,11 +1,11 @@
 package kr.pe.sinnori.common.config;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 
 public abstract class AbstractNativeValueConverter<T> {	
-	protected Logger log = LoggerFactory.getLogger(AbstractNativeValueConverter.class);
+	protected InternalLogger log = InternalLoggerFactory.getInstance(AbstractNativeValueConverter.class);
 	
 	public abstract T valueOf(String itemValue) throws IllegalArgumentException;
 	

@@ -8,11 +8,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 
 public class SocketChannelTest {
-protected Logger log = LoggerFactory.getLogger(SocketChannelTest.class);
+protected InternalLogger log = InternalLoggerFactory.getInstance(SocketChannelTest.class);
 	
 	@Test 
 	public void test_open할수있는SocketChannel최대갯수() {

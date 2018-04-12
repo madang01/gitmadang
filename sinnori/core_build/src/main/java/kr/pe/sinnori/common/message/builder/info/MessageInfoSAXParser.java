@@ -29,13 +29,13 @@ import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.type.ItemInfoType;
@@ -49,7 +49,7 @@ import kr.pe.sinnori.common.type.MessageTransferDirectionType;
  * 
  */
 public class MessageInfoSAXParser extends DefaultHandler {
-	private final Logger log = LoggerFactory.getLogger(MessageInfoSAXParser.class);
+	private final InternalLogger log = InternalLoggerFactory.getInstance(MessageInfoSAXParser.class);
 	
 	
 	public static final String XML_EXTENSION_SUFFIX = ".xml";

@@ -1,14 +1,12 @@
 package kr.pe.sinnori.common.buildsystem;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.exception.BuildSystemException;
 import kr.pe.sinnori.common.util.SequencedProperties;
 
 public abstract class BuildSystemSupporter {
-	private static Logger log = LoggerFactory
-			.getLogger(BuildSystemSupporter.class);
+	private static InternalLogger log = InternalLoggerFactory.getInstance(BuildSystemSupporter.class);
 
 	public static void createNewMainProjectBuildSystem(
 			String sinnoriInstalledPathString, String newMainProjectName, 

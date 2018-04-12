@@ -3,11 +3,11 @@ package kr.pe.sinnori.common.updownfile;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 
 public class FileTransferInformation {
-	private Logger log = LoggerFactory.getLogger(FileTransferInformation.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(FileTransferInformation.class);
 	
 	private int sourceFileID;			
 	private int targetFileID;

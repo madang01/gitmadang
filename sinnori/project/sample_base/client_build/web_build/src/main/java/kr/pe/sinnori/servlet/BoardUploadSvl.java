@@ -14,6 +14,9 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 import kr.pe.sinnori.client.AnyProjectConnectionPoolIF;
 import kr.pe.sinnori.client.ConnectionPoolManager;
+import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
+import kr.pe.sinnori.common.config.SinnoriConfiguration;
+import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.BoardUploadFileReq.BoardUploadFileReq;
@@ -61,7 +64,15 @@ public class BoardUploadSvl extends AbstractServlet {
 
 		// Set factory constraints
 		factory.setSizeThreshold(WebCommonStaticFinalVars.APACHE_FILEUPLOAD_MAX_MEMORY_SIZE);
-		factory.setRepository(WebCommonStaticFinalVars.WEBSITE_FILEUPLOAD_TEMP_DIR);
+		
+		SinnoriConfiguration sinnoriRunningProjectConfiguration = 
+				SinnoriConfigurationManager.getInstance()
+				.getSinnoriRunningProjectConfiguration();
+		String mainProjectName = sinnoriRunningProjectConfiguration.getMainProjectName();
+		String sinnoriInstalledPathString = sinnoriRunningProjectConfiguration.getSinnoriInstalledPathString();
+		String webTempPathString = BuildSystemPathSupporter.getWebTempPathString(sinnoriInstalledPathString, mainProjectName);
+		
+		factory.setRepository(new File(webTempPathString));
 
 		// Create a new file upload handler
 		ServletFileUpload upload = new ServletFileUpload(factory);

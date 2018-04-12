@@ -34,13 +34,13 @@ import javax.swing.ProgressMonitor;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.message.builder.IOPartDynamicClassFileContentsBuilderManager;
@@ -67,7 +67,7 @@ import kr.pe.sinnori.gui.helper.projectmanager.table.messageinfo.MessageInfoTabl
  */
 @SuppressWarnings("serial")
 public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctionManagerIF, BuildFunctionManagerIF {
-	private Logger log = LoggerFactory.getLogger(ProjectIOFileSetBuilderPopup.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(ProjectIOFileSetBuilderPopup.class);
 
 	private Frame ownerFrame = null;
 	private String sinnoriInstalledPathString;
@@ -470,6 +470,12 @@ public class ProjectIOFileSetBuilderPopup extends JDialog implements FileFunctio
 					ReadWriteMode.ONLY_READ);
 
 			File messageInfoXMLFiles[] = messageInfoPath.listFiles(new XMLFileFilter());
+			if (null == messageInfoXMLFiles) {
+				String errorMessage = "the var messageInfoXMLFiles is null";
+				throw new RuntimeException(errorMessage);
+			}
+			
+			
 			if (0 == messageInfoXMLFiles.length) {
 				String errorMessage = String.format("there is no XML file in the message information path[%s]",
 						messageInfoPath.getAbsolutePath());

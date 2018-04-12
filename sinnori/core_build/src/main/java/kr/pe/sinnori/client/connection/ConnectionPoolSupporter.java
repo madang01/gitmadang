@@ -3,11 +3,11 @@ package kr.pe.sinnori.client.connection;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 
 public class ConnectionPoolSupporter extends Thread implements ConnectionPoolSupporterIF {
-	protected Logger log = LoggerFactory.getLogger(ConnectionPoolSupporter.class);
+	protected InternalLogger log = InternalLoggerFactory.getInstance(ConnectionPoolSupporter.class);
 	
 	private long wakeupInterval;
 	

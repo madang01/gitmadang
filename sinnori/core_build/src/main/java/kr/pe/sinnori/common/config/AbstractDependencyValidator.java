@@ -2,11 +2,10 @@ package kr.pe.sinnori.common.config;
 
 import java.util.Properties;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -14,7 +13,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public abstract class AbstractDependencyValidator {
-	protected Logger log = LoggerFactory.getLogger(this.getClass());
+	protected InternalLogger log = InternalLoggerFactory.getInstance(this.getClass());
 
 
 	protected ItemIDInfo<?> dependentSourceItemIDInfo = null;

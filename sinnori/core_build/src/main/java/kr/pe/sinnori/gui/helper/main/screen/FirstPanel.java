@@ -5,15 +5,18 @@
 package kr.pe.sinnori.gui.helper.main.screen;
 
 import java.awt.Frame;
-import java.awt.event.*;
-import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
-import com.jgoodies.forms.factories.*;
-import com.jgoodies.forms.layout.*;
+import com.jgoodies.forms.factories.CC;
+import com.jgoodies.forms.layout.FormLayout;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.gui.helper.lib.ScreenManagerIF;
 import kr.pe.sinnori.gui.helper.projectmanager.screen.SinnoriInstalledPathPanel;
 
@@ -23,7 +26,7 @@ import kr.pe.sinnori.gui.helper.projectmanager.screen.SinnoriInstalledPathPanel;
 @SuppressWarnings("serial")
 public class FirstPanel extends JPanel {
 	@SuppressWarnings("unused")
-	private Logger log = LoggerFactory.getLogger(SinnoriInstalledPathPanel.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(SinnoriInstalledPathPanel.class);
 	@SuppressWarnings("unused")
 	private Frame mainFrame = null;
 	private ScreenManagerIF screenManagerIF = null;

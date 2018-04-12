@@ -63,4 +63,8 @@ public class MessageHeaderInfo {
 		
 		return true;
 	}
+	
+	public int hashCode() {
+		return (mailboxID << 16 | mailID);
+	}
 }

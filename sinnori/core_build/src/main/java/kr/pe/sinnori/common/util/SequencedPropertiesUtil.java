@@ -9,8 +9,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 
 public abstract class SequencedPropertiesUtil {
 	// private static Logger log = LoggerFactory.getLogger(SequencedPropertiesUtil.class);
@@ -31,7 +31,7 @@ public abstract class SequencedPropertiesUtil {
 				try {
 					isr.close();
 				} catch (Exception e) {
-					e.printStackTrace();
+					// e.printStackTrace();
 				}
 			}
 			
@@ -39,7 +39,7 @@ public abstract class SequencedPropertiesUtil {
 				try {
 					fis.close();
 				} catch (Exception e) {
-					e.printStackTrace();
+					// e.printStackTrace();
 				}
 			}
 		}
@@ -50,7 +50,7 @@ public abstract class SequencedPropertiesUtil {
 			SequencedProperties sourceProperties, String sourcePropertiesTitle,
 			String sourcePropertiesFilePathString,
 			Charset sourcePropertiesFileCharset) throws IOException {
-		Logger log = LoggerFactory.getLogger(SequencedPropertiesUtil.class);
+		InternalLogger log = InternalLoggerFactory.getInstance(SequencedPropertiesUtil.class);
 		
 		File sourcePropertiesFile = new File(sourcePropertiesFilePathString);
 				

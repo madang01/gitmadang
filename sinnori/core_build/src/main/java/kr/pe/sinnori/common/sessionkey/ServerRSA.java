@@ -14,15 +14,14 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.util.HexUtil;
 
 public class ServerRSA implements ServerRSAIF {
-	private Logger log = LoggerFactory.getLogger(ServerRSA.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(ServerRSA.class);
 
 	private KeyPair rsaKeypair = null;
 	private BigInteger modulusOfRSAPrivateCrtKeySpec = null;

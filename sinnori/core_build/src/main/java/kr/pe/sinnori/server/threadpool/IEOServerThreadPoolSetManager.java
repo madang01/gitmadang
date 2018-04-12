@@ -1,8 +1,7 @@
 package kr.pe.sinnori.server.threadpool;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.server.threadpool.executor.ServerExecutorIF;
 import kr.pe.sinnori.server.threadpool.executor.ServerExecutorPoolIF;
 import kr.pe.sinnori.server.threadpool.inputmessage.InputMessageReaderIF;
@@ -11,7 +10,7 @@ import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterIF;
 import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterPoolIF;
 
 public class IEOServerThreadPoolSetManager implements IEOServerThreadPoolSetManagerIF {
-	private Logger log = LoggerFactory.getLogger(IEOServerThreadPoolSetManager.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(IEOServerThreadPoolSetManager.class);
 	
 	private InputMessageReaderPoolIF inputMessageReaderPool = null;
 	private ServerExecutorPoolIF serverExecutorPool = null;

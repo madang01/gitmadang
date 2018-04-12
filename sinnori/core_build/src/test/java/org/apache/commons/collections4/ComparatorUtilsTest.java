@@ -3,11 +3,12 @@ package org.apache.commons.collections4;
 import java.util.Comparator;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 
 public class ComparatorUtilsTest {
-	Logger log = LoggerFactory.getLogger(ComparatorUtilsTest.class);
+	private final InternalLogger log = InternalLoggerFactory.getInstance(ComparatorUtilsTest.class);
 	
 	@Test
 	public void testNaturalComparator() {

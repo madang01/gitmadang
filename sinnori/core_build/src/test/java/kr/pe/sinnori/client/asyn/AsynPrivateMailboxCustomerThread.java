@@ -4,9 +4,8 @@ import java.nio.channels.SocketChannel;
 import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxIF;
 import kr.pe.sinnori.client.connection.asyn.share.AsynPrivateMailboxMapper;
 import kr.pe.sinnori.common.asyn.FromLetter;
@@ -14,7 +13,7 @@ import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
 public class AsynPrivateMailboxCustomerThread extends Thread {
-private Logger log = LoggerFactory.getLogger(AsynPrivateMailboxProducerThread.class);	
+private InternalLogger log = InternalLoggerFactory.getInstance(AsynPrivateMailboxProducerThread.class);	
 	
 	private int maxSleepingTime = 0;
 	private AsynPrivateMailboxMapper asynMailboxMapper = null;

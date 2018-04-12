@@ -1,14 +1,13 @@
 package kr.pe.sinnori.common.sessionkey;
 
 import org.apache.commons.codec.binary.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.exception.SymmetricException;
 
 public class ServerSessionkey implements ServerSessionkeyIF {
-	private Logger log = LoggerFactory
-			.getLogger(ServerSessionkey.class);
+	private InternalLogger log = InternalLoggerFactory.getInstance(ServerSessionkey.class);
 	
 	ServerSymmetricKeyIF serverSymmetricKey = null;
 	ServerRSAIF serverRSA = null;

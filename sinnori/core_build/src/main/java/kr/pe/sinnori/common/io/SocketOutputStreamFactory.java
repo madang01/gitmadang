@@ -17,7 +17,7 @@ public class SocketOutputStreamFactory implements SocketOutputStreamFactoryIF {
 		}
 		
 		if (dataPacketBufferMaxCntPerMessage <= 0) {
-			String errorMessage = String.format("the parameter dataPacketBufferMaxCntPerMessage is less than or equal to zero", dataPacketBufferMaxCntPerMessage);
+			String errorMessage = String.format("the parameter dataPacketBufferMaxCntPerMessage[%d] is less than or equal to zero", dataPacketBufferMaxCntPerMessage);
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
