@@ -1560,11 +1560,8 @@ log.info("main project[{}]'s web client ant properties file modification task st
 
 	private void applySinnoriInstalledPathToConfigFile() throws BuildSystemException {
 		String sinnoriConfigFilePathString = BuildSystemPathSupporter.getSinnoriConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
-
-		SinnoriConfiguration sinnoriConfiguration = null;
-		try {
-			sinnoriConfiguration = new SinnoriConfiguration(sinnoriInstalledPathString, mainProjectName);
-			sinnoriConfiguration.applySinnoriInstalledPath();
+		try {		
+			SinnoriConfiguration.applySinnoriInstalledPath(sinnoriInstalledPathString, mainProjectName);
 		} catch (IllegalArgumentException e) {
 			String errorMessage = new StringBuilder("fail to apply Sinnori installed path to the main project[")
 					.append(mainProjectName).append("] config file").toString();
@@ -1573,25 +1570,7 @@ log.info("main project[{}]'s web client ant properties file modification task st
 
 			throw new BuildSystemException(
 					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
-		} catch (FileNotFoundException e) {
-			String errorMessage = new StringBuilder(
-					"fail to apply Sinnori installed path to the main project config file[")
-							.append(sinnoriConfigFilePathString).append("]").toString();
-
-			log.warn(errorMessage, e);
-
-			throw new BuildSystemException(
-					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
-		} catch (IOException e) {
-			String errorMessage = new StringBuilder(
-					"fail to apply Sinnori installed path to the main project config file[")
-							.append(sinnoriConfigFilePathString).append("]").toString();
-
-			log.warn(errorMessage, e);
-
-			throw new BuildSystemException(
-					new StringBuilder(errorMessage).append(", errormessage=").append(e.getMessage()).toString());
-		} catch (SinnoriConfigurationException e) {
+		} catch (Exception e) {
 			String errorMessage = new StringBuilder(
 					"fail to apply Sinnori installed path to the main project config file[")
 							.append(sinnoriConfigFilePathString).append("]").toString();
