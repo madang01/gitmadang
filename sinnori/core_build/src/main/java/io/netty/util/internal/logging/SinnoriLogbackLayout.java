@@ -10,9 +10,6 @@ import ch.qos.logback.core.LayoutBase;
 import ch.qos.logback.core.helpers.Transform;
 
 public class SinnoriLogbackLayout extends LayoutBase<ILoggingEvent> {
-	private final static SimpleDateFormat  timestampSimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-	
-
 	@Override
 	public String doLayout(ILoggingEvent iLoggingEvent) {
 		String fileName = null;
@@ -34,6 +31,7 @@ public class SinnoriLogbackLayout extends LayoutBase<ILoggingEvent> {
 	    // logbackLayoutStringBuffer.append("]");	    
 	    logbackLayoutStringBuffer.append(" ");
 	    
+	    SimpleDateFormat  timestampSimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 	    logbackLayoutStringBuffer.append(timestampSimpleDateFormat.format(new java.util.Date(iLoggingEvent.getTimeStamp())));
 	    logbackLayoutStringBuffer.append(" [");
 	    logbackLayoutStringBuffer.append(iLoggingEvent.getThreadName());

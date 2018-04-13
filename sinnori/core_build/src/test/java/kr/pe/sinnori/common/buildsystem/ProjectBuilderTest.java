@@ -30,7 +30,7 @@ public class ProjectBuilderTest {
 	final int EXIT_SUCCESS = 0;
 	
 	@Test
-	public void test() {
+	public void testGetNewSinnoriConfigSequencedProperties() {
 		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori2";
 		String mainProjectName = "sample_test";
 		
@@ -42,13 +42,13 @@ public class ProjectBuilderTest {
 		log.info(newSinnoriConfigSequencedProperties.toString());
 	}
 
-	@SuppressWarnings("unused")
+	
 	@Test
 	public void testConstructor_badSinnoriInstalledPath_notExist() {
 		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori2";
 		String mainProjectName = "sample_test";
 		try {
-			ProjectBuilder projectBuilder = new ProjectBuilder(sinnoriInstalledPathString, mainProjectName);
+			new ProjectBuilder(sinnoriInstalledPathString, mainProjectName);
 			
 			fail("this test must throw BuildSystemException");
 		} catch (BuildSystemException e) {
@@ -61,14 +61,14 @@ public class ProjectBuilderTest {
 		}
 	}
 	
-	@SuppressWarnings("unused")
+	
 	@Test
 	public void testConstructor_badSinnoriInstalledPath_notDirecotry() {
 		String sinnoriInstalledPathString = "D:\\gitsinnori\\.gitignore";
 		String mainProjectName = "sample_test";
 
-		try {
-			ProjectBuilder projectBuilder = new ProjectBuilder(sinnoriInstalledPathString, mainProjectName);
+		try {			
+			new ProjectBuilder(sinnoriInstalledPathString, mainProjectName);
 			
 			fail("this test must throw BuildSystemException");
 		} catch (BuildSystemException e) {
@@ -81,13 +81,12 @@ public class ProjectBuilderTest {
 		}
 	}
 
-	@SuppressWarnings("unused")
 	@Test
 	public void testConstructor_badProjectBasePath_notExist() {
 		String sinnoriInstalledPathString = "D:\\gitsinnori";
 		String mainProjectName = "sample_test";
 		try {
-			ProjectBuilder projectBuilder = new ProjectBuilder(sinnoriInstalledPathString, mainProjectName);
+			new ProjectBuilder(sinnoriInstalledPathString, mainProjectName);
 
 			fail("this test must throw BuildSystemException");
 		} catch (BuildSystemException e) {
@@ -101,7 +100,6 @@ public class ProjectBuilderTest {
 		}
 	}
 
-	@SuppressWarnings("unused")
 	@Test
 	public void testConstructor_badProjectBasePath_notDirectory() {
 		String sinnoriInstalledPathStringForTest = "D:\\gitsinnori\\testsinnori2";
@@ -129,7 +127,7 @@ public class ProjectBuilderTest {
 
 		
 		try {
-			ProjectBuilder projectBuilder = new ProjectBuilder(sinnoriInstalledPathStringForTest, mainProjectName);
+			new ProjectBuilder(sinnoriInstalledPathStringForTest, mainProjectName);
 
 			fail("this test must throw BuildSystemException");
 		} catch (BuildSystemException e) {
@@ -143,7 +141,6 @@ public class ProjectBuilderTest {
 		}
 	}
 
-	@SuppressWarnings("unused")
 	@Test
 	public void testConstructor_badProjectName_notDirectory() {
 		String sinnoriInstalledPathStringForTest = "D:\\gitsinnori\\testsinnori";
@@ -181,7 +178,7 @@ public class ProjectBuilderTest {
 		projectPath.deleteOnExit();
 
 		try {
-			ProjectBuilder projectBuilder = new ProjectBuilder(sinnoriInstalledPathStringForTest, badMainProjectName);
+			new ProjectBuilder(sinnoriInstalledPathStringForTest, badMainProjectName);
 
 			fail("this test must throw BuildSystemException");
 		} catch (BuildSystemException e) {
