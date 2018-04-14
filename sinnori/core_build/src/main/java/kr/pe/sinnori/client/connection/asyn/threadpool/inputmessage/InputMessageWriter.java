@@ -74,7 +74,7 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 		log.info("{} InputMessageWriter[{}] start", projectName, index);
 
 		try {
-			while (!Thread.currentThread().isInterrupted()) {
+			while (! isInterrupted()) {
 				ToLetter toLetter = inputMessageQueue.take();
 				// FIXME!
 				// log.info("{} InputMessageWriter[{}] toLetter=[{}]", projectName, index, toLetter.toString());
@@ -172,9 +172,9 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 		} catch (Exception e) {
 			String errorMessage = String.format("%s InputMessageWriter[%d] unknown error::%s", projectName, index, e.getMessage());
 			log.warn(errorMessage,e);
-		} finally {
-			
 		}
+		
+		log.info("{} InputMessageWriter[{}] end", projectName, index);
 	}
 
 	public void registerAsynConnection(IOEAsynConnectionIF asynConnection) {

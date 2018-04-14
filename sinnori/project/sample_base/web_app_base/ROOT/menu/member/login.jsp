@@ -1,5 +1,6 @@
 <%@ page extends="kr.pe.sinnori.weblib.jdf.AbstractJSP" language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%><%
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
+%><%@page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
 %><jsp:useBean id="successURL" class="java.lang.String" scope="request" /><%
 %><!DOCTYPE html>
 <html>
@@ -199,7 +200,7 @@
 			}
 			
 			String parmValue = request.getParameter(parmName);			
-		%><input type=hidden name="<%=org.apache.commons.lang3.StringEscapeUtils.escapeHtml4(parmName)%>" value="<%=org.apache.commons.lang3.StringEscapeUtils.escapeHtml4(parmValue)%>" />
+		%><input type=hidden name="<%= HtmlStringUtil.toHtml4String(parmName) %>" value="<%= HtmlStringUtil.toHtml4String(parmValue)%>" />
 
 <%
 		

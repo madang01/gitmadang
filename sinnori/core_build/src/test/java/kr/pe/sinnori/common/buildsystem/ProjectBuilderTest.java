@@ -5,6 +5,7 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Random;
 
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecuteResultHandler;
@@ -13,24 +14,79 @@ import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.Executor;
 import org.apache.commons.exec.OS;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDDefiner;
-import kr.pe.sinnori.common.config.itemidinfo.SinnoriItemIDInfoManger;
 import kr.pe.sinnori.common.exception.BuildSystemException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.util.SequencedProperties;
 
 public class ProjectBuilderTest {
 	private InternalLogger log = InternalLoggerFactory.getInstance(ProjectBuilderTest.class);
+	private static File sinnoriInstalledBasePath = null;
+	private static File sinnoriInstalledPath = null;
+	private static File wasLibPath = null;
 
 	final int EXIT_SUCCESS = 0;
 	
-	@Test
-	public void testGetNewSinnoriConfigSequencedProperties() {
+	
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+		sinnoriInstalledBasePath = new File("D:\\gitsinnori");
+		
+		if (! sinnoriInstalledBasePath.exists()) {
+			fail("the sinnori installed path doesn't exist");
+		}
+		
+		if (! sinnoriInstalledBasePath.isDirectory()) {
+			fail("the sinnori installed path isn't a directory");
+		}
+		
+		String sinnoriInstalledPathString = new StringBuilder(sinnoriInstalledBasePath.getAbsolutePath())
+		.append(File.separator)
+		.append("sinnori").toString();
+				
+		sinnoriInstalledPath = new File(sinnoriInstalledPathString);
+		
+		if (! sinnoriInstalledPath.exists()) {
+			fail("the sinnori installed path doesn't exist");
+		}
+		
+		if (! sinnoriInstalledPath.isDirectory()) {
+			fail("the sinnori installed path isn't a directory");
+		}
+		
+		wasLibPath = new File("D:\\apache-tomcat-8.5.15\\lib");
+		if (! wasLibPath.exists()) {
+			fail("the was libaray path doesn't exist");
+		}
+		
+		if (! wasLibPath.isDirectory()) {
+			fail("the was libaray path isn't a directory");
+		}
+	}
+
+	@AfterClass
+	public static void tearDownAfterClass() throws Exception {
+	}
+
+	@Before
+	public void setUp() throws Exception {
+	}
+
+	@After
+	public void tearDown() throws Exception {
+	}
+	
+	
+	/*public void testGetNewSinnoriConfigSequencedProperties() {
 		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori2";
 		String mainProjectName = "sample_test";
 		
@@ -40,12 +96,18 @@ public class ProjectBuilderTest {
 				.getNewSinnoriConfigSequencedProperties(sinnoriInstalledPathString, mainProjectName);
 		
 		log.info(newSinnoriConfigSequencedProperties.toString());
-	}
+	}*/
 
 	
 	@Test
 	public void testConstructor_badSinnoriInstalledPath_notExist() {
-		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori2";
+		Random r = new Random();
+		
+		String sinnoriInstalledPathString = new StringBuilder("temp_directory_")
+				.append(r.nextInt())
+				.append("_")
+				.append(r.nextInt())
+				.append("_that_does_not_exit").toString();
 		String mainProjectName = "sample_test";
 		try {
 			new ProjectBuilder(sinnoriInstalledPathString, mainProjectName);
@@ -64,7 +126,16 @@ public class ProjectBuilderTest {
 	
 	@Test
 	public void testConstructor_badSinnoriInstalledPath_notDirecotry() {
-		String sinnoriInstalledPathString = "D:\\gitsinnori\\.gitignore";
+		File tempFile = null;		
+		try {
+			tempFile = File.createTempFile("temp", ".tmp");
+		} catch (IOException e) {
+			fail("fail to create a temp file");
+		}
+		
+		tempFile.deleteOnExit();
+		
+		String sinnoriInstalledPathString = tempFile.getAbsolutePath();;
 		String mainProjectName = "sample_test";
 
 		try {			
@@ -83,17 +154,20 @@ public class ProjectBuilderTest {
 
 	@Test
 	public void testConstructor_badProjectBasePath_notExist() {
-		String sinnoriInstalledPathString = "D:\\gitsinnori";
-		String mainProjectName = "sample_test";
+		Random r = new Random();
+		
+		String sinnoriInstalledBasePathString = sinnoriInstalledBasePath.getAbsolutePath();
+		String mainProjectName = new StringBuilder("sample_test_")
+				.append(r.nextInt()).toString();
 		try {
-			new ProjectBuilder(sinnoriInstalledPathString, mainProjectName);
+			new ProjectBuilder(sinnoriInstalledBasePathString, mainProjectName);
 
 			fail("this test must throw BuildSystemException");
 		} catch (BuildSystemException e) {
 			String errorMessage = e.getMessage();
 			// log.info(errorMessage, e);
 			if (!errorMessage.equals(String.format("the project base path[%s] does not exist",
-					BuildSystemPathSupporter.getProjectBasePathString(sinnoriInstalledPathString)))) {
+					BuildSystemPathSupporter.getProjectBasePathString(sinnoriInstalledBasePathString)))) {
 				log.warn(e.getMessage(), e);
 				fail(e.getMessage());
 			}
@@ -102,7 +176,12 @@ public class ProjectBuilderTest {
 
 	@Test
 	public void testConstructor_badProjectBasePath_notDirectory() {
-		String sinnoriInstalledPathStringForTest = "D:\\gitsinnori\\testsinnori2";
+		String sinnoriInstalledBasePathString = sinnoriInstalledBasePath.getAbsolutePath();
+		
+		String sinnoriInstalledPathStringForTest = new StringBuilder(sinnoriInstalledBasePathString)
+				.append(File.separator)
+				.append("testsinnori2").toString();
+		
 		String mainProjectName = "sample_test";
 		
 		File sinnoriInstalledPathForTest = new File(sinnoriInstalledPathStringForTest);
@@ -124,7 +203,6 @@ public class ProjectBuilderTest {
 		}
 
 		proejctBasePath.deleteOnExit();
-
 		
 		try {
 			new ProjectBuilder(sinnoriInstalledPathStringForTest, mainProjectName);
@@ -143,7 +221,12 @@ public class ProjectBuilderTest {
 
 	@Test
 	public void testConstructor_badProjectName_notDirectory() {
-		String sinnoriInstalledPathStringForTest = "D:\\gitsinnori\\testsinnori";
+		String sinnoriInstalledBasePathString = sinnoriInstalledBasePath.getAbsolutePath();
+		
+		String sinnoriInstalledPathStringForTest = new StringBuilder(sinnoriInstalledBasePathString)
+				.append(File.separator)
+				.append("testsinnori2").toString();
+		
 		String badMainProjectName = "sample_notdir";
 
 		File sinnoriInstalledPathForTest = new File(sinnoriInstalledPathStringForTest);
@@ -194,7 +277,7 @@ public class ProjectBuilderTest {
 
 	@Test
 	public void testWhetherOnlyProjectPathExists_projectPathExsitCase() {
-		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
+		String sinnoriInstalledPathString = sinnoriInstalledPath.getAbsolutePath();
 		String mainProjectName = "sample_base";
 		boolean expectedWhetherProjectPathExists = true;
 
@@ -214,7 +297,7 @@ public class ProjectBuilderTest {
 
 	@Test
 	public void testWhetherOnlyProjectPathExists_projectPathNotExsitCase() {
-		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
+		String sinnoriInstalledPathString = sinnoriInstalledPath.getAbsolutePath();
 		String mainProjectName = "sample_noproject";
 		boolean expectedWhetherOnlyProjectPathExists = false;
 
@@ -234,13 +317,13 @@ public class ProjectBuilderTest {
 
 	@Test
 	public void testCreateProject_AllTypeBuild() {
-		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
+		String sinnoriInstalledPathString = sinnoriInstalledPath.getAbsolutePath();
 		String mainProjectName = "sample_test";
 
 		boolean isServer = true;
 		boolean isAppClient = true;
 		boolean isWebClient = true;
-		String servletSystemLibraryPathString = "D:\\apache-tomcat-8.5.15\\lib";
+		String servletSystemLibraryPathString = wasLibPath.getAbsolutePath();
 
 		try {
 			ProjectBuilder projectBuilder = new ProjectBuilder(sinnoriInstalledPathString, mainProjectName);
@@ -430,33 +513,11 @@ public class ProjectBuilderTest {
 		log.info("success web-client ant build");
 	}
 
-	/*@Test
-	public void checkAntBuildForSever() {
-		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
-		String mainProjectName = "sample_test";
-
-		checkAntBuildForServer(sinnoriInstalledPathString, mainProjectName);
-	}
-
-	@Test
-	public void checkAntBuildForAppClient() {
-		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
-		String mainProjectName = "sample_test";
-
-		checkAntBuildForAppClient(sinnoriInstalledPathString, mainProjectName);
-	}
-
-	@Test
-	public void checkAntBuildForWebClient() {
-		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
-		String mainProjectName = "sample_test";
-
-		checkAntBuildForWebClient(sinnoriInstalledPathString, mainProjectName);
-	}*/
+	
 
 	@Test
 	public void testCreateProject_onlyServerBuild() {
-		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
+		String sinnoriInstalledPathString = sinnoriInstalledPath.getAbsolutePath();
 		String mainProjectName = "sample_test";
 
 		try {
@@ -469,7 +530,7 @@ public class ProjectBuilderTest {
 			boolean isServer = true;
 			boolean isAppClient = false;
 			boolean isWebClient = false;
-			String servletSystemLibraryPathString = "D:\\apache-tomcat-8.5.15\\lib";
+			String servletSystemLibraryPathString = wasLibPath.getAbsolutePath();
 
 			projectBuilder.createProject(isServer, isAppClient, isWebClient, servletSystemLibraryPathString);
 		} catch (BuildSystemException e) {
@@ -480,7 +541,7 @@ public class ProjectBuilderTest {
 
 	@Test
 	public void testCreateProject_onlyAppClientBuild() {
-		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
+		String sinnoriInstalledPathString = sinnoriInstalledPath.getAbsolutePath();
 		String mainProjectName = "sample_test";
 
 		try {
@@ -493,7 +554,7 @@ public class ProjectBuilderTest {
 			boolean isServer = false;
 			boolean isAppClient = true;
 			boolean isWebClient = false;
-			String servletSystemLibraryPathString = "D:\\apache-tomcat-8.5.15\\lib";
+			String servletSystemLibraryPathString = wasLibPath.getAbsolutePath();
 
 			projectBuilder.createProject(isServer, isAppClient, isWebClient, servletSystemLibraryPathString);
 		} catch (BuildSystemException e) {
@@ -504,7 +565,7 @@ public class ProjectBuilderTest {
 
 	@Test
 	public void testCreateProject_onlyWebClientBuild() {
-		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
+		String sinnoriInstalledPathString = sinnoriInstalledPath.getAbsolutePath();
 		String mainProjectName = "sample_test";
 
 		try {
@@ -517,7 +578,7 @@ public class ProjectBuilderTest {
 			boolean isServer = false;
 			boolean isAppClient = false;
 			boolean isWebClient = true;
-			String servletSystemLibraryPathString = "D:\\apache-tomcat-8.5.15\\lib";
+			String servletSystemLibraryPathString = wasLibPath.getAbsolutePath();
 
 			projectBuilder.createProject(isServer, isAppClient, isWebClient, servletSystemLibraryPathString);
 		} catch (BuildSystemException e) {
@@ -528,7 +589,7 @@ public class ProjectBuilderTest {
 
 	@Test
 	public void testIsValidSeverAntBuildXMLFile() {
-		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
+		String sinnoriInstalledPathString = sinnoriInstalledPath.getAbsolutePath();
 		String mainProjectName = "sample_test";
 
 		try {
@@ -542,7 +603,7 @@ public class ProjectBuilderTest {
 			boolean isServer = true;
 			boolean isAppClient = false;
 			boolean isWebClient = false;
-			String servletSystemLibraryPathString = "D:\\apache-tomcat-8.5.15\\lib";
+			String servletSystemLibraryPathString = wasLibPath.getAbsolutePath();
 			projectBuilder.createProject(isServer, isAppClient, isWebClient, servletSystemLibraryPathString);
 
 			boolean isValidSeverAntBuildXMLFile = projectBuilder.isValidServerAntBuildXMLFile();
@@ -558,13 +619,13 @@ public class ProjectBuilderTest {
 
 	@Test
 	public void testGetMainProjectBuildSystemState() {
-		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
+		String sinnoriInstalledPathString = sinnoriInstalledPath.getAbsolutePath();
 		String mainProjectName = "sample_test";
 
 		boolean isServer = true;
 		boolean isAppClient = true;
 		boolean isWebClient = true;
-		String servletSystemLibraryPathString = "D:\\apache-tomcat-8.5.15\\lib";
+		String servletSystemLibraryPathString = wasLibPath.getAbsolutePath();
 
 		try {
 			ProjectBuilder projectBuilder = new ProjectBuilder(sinnoriInstalledPathString, mainProjectName);
@@ -636,7 +697,7 @@ public class ProjectBuilderTest {
 
 	@Test
 	public void testChangeProjectState() {
-		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
+		String sinnoriInstalledPathString = sinnoriInstalledPath.getAbsolutePath();
 		String mainProjectName = "sample_test";
 
 		try {
@@ -645,7 +706,7 @@ public class ProjectBuilderTest {
 			boolean isServer = true;
 			boolean isAppClient = true;
 			boolean isWebClient = true;
-			String servletSystemLibraryPathString = "D:\\apache-tomcat-8.5.15\\lib";
+			String servletSystemLibraryPathString = wasLibPath.getAbsolutePath();
 			boolean[] isServerBooleanSet = { true, false };
 			boolean[] isAppClientBooleanSet = { true, false };
 			boolean[] isWebClientBooleanSet = { true, false };
@@ -751,12 +812,12 @@ public class ProjectBuilderTest {
 	
 	@Test
 	public void testApplySinnoriInstalledPath() {
-		String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
+		String sinnoriInstalledPathString = sinnoriInstalledPath.getAbsolutePath();
 		String mainProjectName = "sample_test";
 		boolean isServer = true;
 		boolean isAppClient = true;
 		boolean isWebClient = true;
-		String servletSystemLibraryPathString = "D:\\apache-tomcat-8.5.15\\lib";
+		String servletSystemLibraryPathString = wasLibPath.getAbsolutePath();
 		
 		try {
 			ProjectBuilder projectBuilder = new ProjectBuilder(sinnoriInstalledPathString, mainProjectName);

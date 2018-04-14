@@ -66,7 +66,7 @@ public class OutputMessageWriter extends Thread implements OutputMessageWriterIF
 		log.info(String.format("%s OutputMessageWriter[%d] start", projectName, index));
 		
 		try {
-			while (!Thread.currentThread().isInterrupted()) {
+			while (! isInterrupted()) {
 				ToLetter toLetter = null;
 				
 				toLetter = outputMessageQueue.take();

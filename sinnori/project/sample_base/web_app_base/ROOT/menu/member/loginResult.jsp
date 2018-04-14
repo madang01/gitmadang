@@ -104,7 +104,7 @@
 			
 			String parmValue = request.getParameter(parmName);			
 		%>
-			<input type=hidden name="<%=org.apache.commons.lang3.StringEscapeUtils.escapeHtml4(parmName)%>" value="<%=org.apache.commons.lang3.StringEscapeUtils.escapeHtml4(parmValue)%>" />
+			<input type=hidden name="<%= HtmlStringUtil.toHtml4String(parmName) %>" value="<%= HtmlStringUtil.toHtml4String(parmValue) %>" />
 <%		
 	}
 %>		</form>

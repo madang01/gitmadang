@@ -73,7 +73,7 @@
 		</copy>		
 	</target>
 
-	<target name="compile.weblib" depends="init.var">	
+	<target name="compile.weblib" depends="copy.core">	
 		<delete dir="${dir.build}/weblib" />		
 		<mkdir dir="${dir.build}/weblib" />
 				

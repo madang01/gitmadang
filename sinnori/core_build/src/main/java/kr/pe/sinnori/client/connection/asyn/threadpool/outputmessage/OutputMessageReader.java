@@ -169,13 +169,13 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 
 	@Override
 	public void run() {
-		log.info(String.format("%s OutputMessageReader[%d] start", projectName, index));
+		log.info("{} OutputMessageReader[{}] start", projectName, index);
 
 		// int numRead = 0;
 		// long totalRead = 0;
 
 		try {
-			while (!Thread.currentThread().isInterrupted()) {
+			while (! isInterrupted()) {
 				processNewConnection();
 
 				int numberOfKeys = selectorForReadEventOnly.select();
@@ -274,6 +274,7 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 
 		// log.warn(String.format("%s OutputMessageReader[%d] Thread end",
 		// clientProjectConfig.getProjectName(), index));
+		log.info("{} OutputMessageReader[{}] end", projectName, index);
 	}
 
 	/**

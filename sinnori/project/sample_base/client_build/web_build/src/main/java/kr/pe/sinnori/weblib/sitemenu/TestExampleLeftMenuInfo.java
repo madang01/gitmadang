@@ -58,6 +58,9 @@ public class TestExampleLeftMenuInfo extends AbstractLeftMenuInfoOfTopMenu {
 		siteLeftMenuInfo = addSiteLeftMenuInfo("Java GC", "/servlet/JavaGarbageCollection");
 		addSiteLeftMenuGroup(siteLeftMenuInfo, "/servlet/JavaGarbageCollection");
 		
+		siteLeftMenuInfo = addSiteLeftMenuInfo("자바 문자열 변환 도구", "/servlet/JavaStringConversionTool");
+		addSiteLeftMenuGroup(siteLeftMenuInfo, "/servlet/JavaStringConversionTool");
+		
 		siteLeftMenuInfo = addSiteLeftMenuInfo("동적 클래스 호출 실패", "#");
 	}
 }

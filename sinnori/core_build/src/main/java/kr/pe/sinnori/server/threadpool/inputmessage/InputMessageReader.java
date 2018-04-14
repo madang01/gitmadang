@@ -163,7 +163,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 
 		int numRead = 0;
 		try {
-			while (!Thread.currentThread().isInterrupted()) {
+			while (! isInterrupted()) {
 				processNewConnection();
 				int selectionKeyCount = selectorForReadEventOnly.select();
 

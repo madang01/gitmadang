@@ -114,7 +114,7 @@ public class BoardModifySvl extends AbstractLoginServlet {
 		
 		String parmBoardNo = req.getParameter("boardNo");
 		if (null == parmBoardNo) {
-			String errorMessage = "게시판 번호를 넣어주세요.";
+			String errorMessage = "게시판 번호를 넣어주세요";
 			String debugMessage = "the web parameter 'boardNo' is null";
 			printErrorMessagePage(req, res, errorMessage, debugMessage);	
 			return;

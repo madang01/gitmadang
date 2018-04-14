@@ -42,17 +42,15 @@ public class EchoTestSvl extends AbstractServlet {
 				kr.pe.sinnori.weblib.sitemenu.SiteTopMenuType.TEST_EXAMPLE);
 		
 		java.util.Random random = new java.util.Random();
-		Echo echoReq = new Echo();
-		
+		Echo echoReq = new Echo();		
 		echoReq.setRandomInt(random.nextInt());
 		echoReq.setStartTime(new java.util.Date().getTime());
 		
 		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
-
 		
 		AbstractMessage outputMessage = mainProjectConnectionPool.sendSyncInputMessage(echoReq);
-		
-		boolean isSame = false;
+
+		boolean isSame = false;		
 		long erraseTime=0;
 		
 		if (outputMessage instanceof Echo) {

@@ -201,6 +201,15 @@
 		<servlet-name>JavaGarbageCollection</servlet-name>
 		<url-pattern>/servlet/JavaGarbageCollection</url-pattern>
 	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>JavaStringConversionTool</servlet-name>
+		<servlet-class>kr.pe.sinnori.servlet.JavaStringConversionToolSvl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>JavaStringConversionTool</servlet-name>
+		<url-pattern>/servlet/JavaStringConversionTool</url-pattern>
+	</servlet-mapping>
 
 	<!-- Simple Captcha start -->
 	<servlet>

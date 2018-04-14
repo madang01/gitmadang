@@ -11,7 +11,7 @@ public abstract class BuildSystemFileContents {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("<project name=\"");
 		stringBuilder.append(mainProjectName);
-		stringBuilder.append("_server\" default=\"compile.appinf\" basedir=\".\">");
+		stringBuilder.append("\" default=\"compile.appinf\" basedir=\".\">");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<!-- set global properties for this build -->");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -28,6 +28,8 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append("\t<property name=\"dir.mainlib\" location=\"lib/main\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<property name=\"dir.core.build\" location=\"../../../core_build\" />");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t<property name=\"dir.core.mainlib\" location=\"${dir.core.build}/lib/main\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<property name=\"server.main.class\" value=\"");
 		stringBuilder.append(serverMainClassFullName);
@@ -103,6 +105,54 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t");
 		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t<union id=\"logger.logback.jarlibs\">");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<fileset file=\"${dir.core.mainlib}/ex/slf4j-api-1.7.25.jar\" />");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<fileset file=\"${dir.core.mainlib}/ex/jcl-over-slf4j-1.7.25.jar\" />");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<fileset file=\"${dir.core.mainlib}/ex/logback-core-1.2.3.jar\" />");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<fileset file=\"${dir.core.mainlib}/ex/logback-classic-1.2.3.jar\" />");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t</union>");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t<union id=\"core.common.jarlibs\">");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<fileset file=\"${dir.core.mainlib}/ex/json-simple-1.1.1.jar\" />");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<fileset file=\"${dir.core.mainlib}/ex/commons-io-2.6.jar\" />");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<fileset file=\"${dir.core.mainlib}/ex/commons-collections4-4.1.jar\" />");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<fileset file=\"${dir.core.mainlib}/ex/commons-codec-1.11.jar\" />\t\t");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t</union>");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t<union id=\"core.jarlibs\">");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<union refid=\"core.common.jarlibs\" />\t\t");
+		stringBuilder.append(System.getProperty("line.separator"));		
+		stringBuilder.append("\t\t<fileset file=\"${dir.core.mainlib}/ex/mysql-connector-java-5.1.37-bin.jar\" />\t\t");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<fileset file=\"${dir.core.mainlib}/ex/commons-pool2-2.5.0.jar\" />");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<fileset file=\"${dir.core.mainlib}/ex/commons-dbcp2-2.0.1.jar\" />");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<fileset file=\"${dir.core.mainlib}/ex/jooq-meta-3.10.6.jar\" />");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<fileset file=\"${dir.core.mainlib}/ex/jooq-codegen-3.10.6.jar\" />");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<fileset file=\"${dir.core.mainlib}/ex/jooq-3.10.6.jar\" />");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t</union>");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t");
+		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<target name=\"copy.core\" depends=\"make.core\">");
@@ -125,7 +175,9 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t<copy todir=\"${dir.corelib}/ex\" verbose=\"true\" overwrite=\"true\">");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t<fileset dir=\"${dir.core.build}/lib/main/ex/\" />");
+		stringBuilder.append("\t\t\t<union refid=\"core.jarlibs\" />");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t\t<union refid=\"logger.logback.jarlibs\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t</copy>\t\t");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -150,6 +202,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append("\t\t\t<fileset dir=\"${dir.core.build}/APP-INF/resources/\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t</copy>");
+		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t</target>");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t");
@@ -164,8 +217,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append(
-				"\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"lines,vars,source\" encoding=\"UTF-8\" includeantruntime=\"false\" srcdir=\"${dir.src}\" destdir=\"${dir.build}\" >");
+		stringBuilder.append("\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"lines,vars,source\" encoding=\"UTF-8\" includeantruntime=\"false\" srcdir=\"${dir.src}\" destdir=\"${dir.build}\" >");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t<exclude name=\"kr/pe/sinnori/impl/**\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -194,7 +246,8 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append("\t\t\t\t\t<include name=\"**/*.jar\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t\t</fileset>");
-		stringBuilder.append(System.getProperty("line.separator"));		
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t</classpath>");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -228,22 +281,18 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<path id=\"build.classpath\">");
 		stringBuilder.append(System.getProperty("line.separator"));
-		
-		
 		stringBuilder.append("\t\t<fileset dir=\"${dir.core.build}\">");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t<include name=\"lib/main/ex/*.jar\"/>");		
+		stringBuilder.append("\t\t\t<include name=\"lib/main/ex/*.jar\"/>");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t</fileset>");
 		stringBuilder.append(System.getProperty("line.separator"));
-		
 		stringBuilder.append("\t\t<fileset dir=\"${dir.mainlib}\">");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t<include name=\"ex/*.jar\"/>");		
+		stringBuilder.append("\t\t\t<include name=\"ex/*.jar\"/>");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t</fileset>");		
+		stringBuilder.append("\t\t</fileset>");
 		stringBuilder.append(System.getProperty("line.separator"));
-		
 		stringBuilder.append("\t</path>");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t");
@@ -316,8 +365,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<target name=\"compile.appinf\" depends=\"init.var\">");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append(
-				"\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"lines,vars,source\" encoding=\"UTF-8\" includeantruntime=\"false\" srcdir=\"${dir.src}\" destdir=\"${dir.appinf}/classes\" >");
+		stringBuilder.append("\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"lines,vars,source\" encoding=\"UTF-8\" includeantruntime=\"false\" srcdir=\"${dir.src}\" destdir=\"${dir.appinf}/classes\" >");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t<include name=\"kr/pe/sinnori/impl/**\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -360,7 +408,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append("");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("</project>");
-
+		stringBuilder.append(System.getProperty("line.separator"));
 		return stringBuilder.toString();
 	}
 
@@ -370,7 +418,7 @@ public abstract class BuildSystemFileContents {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("<project name=\"");
 		stringBuilder.append(mainProjectName);
-		stringBuilder.append("_appclient\" default=\"make.main.only\" basedir=\".\">");
+		stringBuilder.append("\" default=\"make.main.only\" basedir=\".\">");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<!-- set global properties for this build -->");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -385,6 +433,8 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append("\t<property name=\"dir.mainlib\" location=\"lib/main\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<property name=\"dir.core.build\" location=\"../../../../core_build\" />");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t<property name=\"dir.core.mainlib\" location=\"${dir.core.build}/lib/main\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<property name=\"appclient.main.class\" value=\"");
 		stringBuilder.append(appclientMainClassFullName);
@@ -452,6 +502,36 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<target name=\"make.core\" depends=\"make.doscore, make.unixcore\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t<union id=\"logger.logback.jarlibs\">");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<fileset file=\"${dir.core.mainlib}/ex/slf4j-api-1.7.25.jar\" />");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<fileset file=\"${dir.core.mainlib}/ex/jcl-over-slf4j-1.7.25.jar\" />");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<fileset file=\"${dir.core.mainlib}/ex/logback-core-1.2.3.jar\" />");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<fileset file=\"${dir.core.mainlib}/ex/logback-classic-1.2.3.jar\" />");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t</union>");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t<union id=\"core.common.jarlibs\">");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<fileset file=\"${dir.core.mainlib}/ex/json-simple-1.1.1.jar\" />\t\t\t");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<fileset file=\"${dir.core.mainlib}/ex/commons-lang3-3.7.jar\" />");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<fileset file=\"${dir.core.mainlib}/ex/commons-io-2.6.jar\" />");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<fileset file=\"${dir.core.mainlib}/ex/commons-collections4-4.1.jar\" />");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<fileset file=\"${dir.core.mainlib}/ex/commons-codec-1.11.jar\" />\t\t");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t</union>");
+		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<target name=\"copy.core\" depends=\"make.core\">");
@@ -474,7 +554,9 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t<copy todir=\"${dir.corelib}/ex\" verbose=\"true\" overwrite=\"true\">");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t<fileset dir=\"${dir.core.build}/lib/main/ex/\" />");
+		stringBuilder.append("\t\t\t<union refid=\"core.common.jarlibs\" />");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t\t<union refid=\"logger.logback.jarlibs\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t</copy>\t\t");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -500,8 +582,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append(
-				"\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"lines,vars,source\" encoding=\"UTF-8\" includeantruntime=\"false\" srcdir=\"${dir.src}\" destdir=\"${dir.build}\">");
+		stringBuilder.append("\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"lines,vars,source\" encoding=\"UTF-8\" includeantruntime=\"false\" srcdir=\"${dir.src}\" destdir=\"${dir.build}\">");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t<classpath>");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -560,31 +641,13 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append("\t");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<path id=\"build.classpath\">");
-		
-		
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t<fileset dir=\"${dir.core.build}\">");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t<include name=\"lib/main/ex/*.jar\"/>");		
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t</fileset>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t<fileset dir=\"${dir.mainlib}\">");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t<include name=\"ex/*.jar\"/>");
-		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t</fileset>");		
-		stringBuilder.append(System.getProperty("line.separator"));
-		
-		/*stringBuilder.append("\t\t<fileset dir=\"${basedir}\">");
+		stringBuilder.append("\t\t<fileset dir=\"${basedir}\">");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t<include name=\"dist/lib/*.jar\"/>");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t</fileset>");
-		stringBuilder.append(System.getProperty("line.separator"));*/
-		
-		
-		
+		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t</path>");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("");
@@ -651,8 +714,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<target name=\"compile.main.only\" depends=\"init.var\">");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append(
-				"\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"lines,vars,source\" encoding=\"UTF-8\" includeantruntime=\"false\" srcdir=\"${dir.src}\" destdir=\"${dir.build}\">");
+		stringBuilder.append("\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"lines,vars,source\" encoding=\"UTF-8\" includeantruntime=\"false\" srcdir=\"${dir.src}\" destdir=\"${dir.build}\">");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t<classpath>");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -725,17 +787,20 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append("\t</target>");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("</project>");
+		stringBuilder.append(System.getProperty("line.separator"));
 		return stringBuilder.toString();
 	}
 
 	/** client_build/web_build/build.xml */
 	public static String getWebClientAntBuildXMLFileContents(String mainProjectName) {
 		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder	.append("<project name=\"");
-		stringBuilder	.append(mainProjectName);
-		stringBuilder	.append("_webclient\" default=\"compile.webclass.only\" basedir=\".\">");
+		stringBuilder.append("<project name=\"");
+		stringBuilder.append(mainProjectName);
+		stringBuilder.append("\" default=\"compile.webclass.only\" basedir=\".\">");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<!-- set global properties for this build -->");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t<property name=\"debuglevel\" value=\"source,lines,vars\"/>");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<property name=\"dir.src\" location=\"src/main/java\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -749,8 +814,9 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<property name=\"dir.core.build\" location=\"../../../../core_build\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder
-				.append("\t<property name=\"dir.webclass\" location=\"../../web_app_base/ROOT/WEB-INF/classes\" />");
+		stringBuilder.append("\t<property name=\"dir.core.mainlib\" location=\"${dir.core.build}/lib/main\" />");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t<property name=\"dir.webclass\" location=\"../../web_app_base/ROOT/WEB-INF/classes\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<property name=\"dir.weblib\" location=\"../../web_app_base/ROOT/WEB-INF/lib\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -802,7 +868,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t  <echo message=\"is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t<echo message=\"servlet.systemlib.path=${servlet.systemlib.path}\"/>");
+		stringBuilder.append("\t\t<echo message=\"servlet.systemlib.path=${servlet.systemlib.path}\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -840,6 +906,20 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t");
 		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t<union id=\"core.common.jarlibs\">");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<fileset file=\"${dir.core.mainlib}/ex/json-simple-1.1.1.jar\" />");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<fileset file=\"${dir.core.mainlib}/ex/commons-io-2.6.jar\" />");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<fileset file=\"${dir.core.mainlib}/ex/commons-collections4-4.1.jar\" />");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t\t<fileset file=\"${dir.core.mainlib}/ex/commons-codec-1.11.jar\" />\t\t");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t</union>");
+		stringBuilder.append(System.getProperty("line.separator"));
+		stringBuilder.append("\t");
+		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<target name=\"copy.core\" depends=\"make.core\">");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t  <!-- core directory -->");
@@ -858,8 +938,10 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t<copy todir=\"${dir.corelib}/ex\" verbose=\"true\" overwrite=\"true\">");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t<fileset dir=\"${dir.core.build}/lib/main/ex/\" />");
+		
+		stringBuilder.append("\t\t\t<union refid=\"core.common.jarlibs\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
+		
 		stringBuilder.append("\t\t</copy>\t\t");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t</target>");
@@ -874,8 +956,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t\t");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append(
-				"\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"lines,vars,source\" encoding=\"UTF-8\" includeantruntime=\"false\" srcdir=\"${dir.src}\" destdir=\"${dir.build}/weblib\">");
+		stringBuilder.append("\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"${debuglevel}\" encoding=\"UTF-8\" includeantruntime=\"false\" srcdir=\"${dir.src}\" destdir=\"${dir.build}/weblib\">");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t<include name=\"kr/pe/sinnori/weblib/**\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -929,11 +1010,9 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t\t\twebclient.core.jar is loaded by tomcat dynamic classloader.");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append(
-				"\t\t\t\t\tsinnori core must not be loaded by tomcat dynamic classloader because of singleton pattern.");
+		stringBuilder.append("\t\t\t\t\tsinnori core must not be loaded by tomcat dynamic classloader because of singleton pattern.");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append(
-				"\t\t\t\t\tso webclient.core.jar doesn't inlucde sinnori core and sinnori core's extern libiary.");
+		stringBuilder.append("\t\t\t\t\tso webclient.core.jar doesn't inlucde sinnori core and sinnori core's extern libiary.");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t\t\ttomcat referes to them using setenv.sh or setenv.bat.");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -969,8 +1048,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<target name=\"compile.webclass\" depends=\"dist.weblib\">");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append(
-				"\t <!-- webclass directory is a user define directory that has the web-application dynamic classes -->");
+		stringBuilder.append("\t <!-- webclass directory is a user define directory that has the web-application dynamic classes -->");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t<delete dir=\"${dir.webclass}\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -978,8 +1056,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append(
-				"\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"lines,vars,source\" encoding=\"UTF-8\" ");
+		stringBuilder.append("\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"${debuglevel}\" encoding=\"UTF-8\" ");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\tincludeantruntime=\"false\" srcdir=\"${dir.src}\" destdir=\"${dir.webclass}\"");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -993,7 +1070,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t\t</fileset>");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\t<fileset dir=\"${servlet.systemlib.path}\">");
+		stringBuilder.append("\t\t\t\t<fileset dir=\"${servlet.systemlib.path}/\">");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t\t\t<include name=\"*-api.jar\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -1021,8 +1098,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t<target name=\"all\" depends=\"compile.webclass\">");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append(
-				"\t\t<echo message=\"is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}, java.debug=${java.complile.option.debug}\" />");
+		stringBuilder.append("\t\t<echo message=\"is.windows.yes=${is.windows.yes}, is.unix.yes=${is.unix.yes}, java.debug=${java.complile.option.debug}\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t</target>");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -1040,8 +1116,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("<target name=\"compile.webclass.only\" depends=\"init.var\">");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append(
-				"\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"lines,vars,source\" encoding=\"UTF-8\" ");
+		stringBuilder.append("\t\t<javac debug=\"${java.complile.option.debug}\" debuglevel=\"${debuglevel}\" encoding=\"UTF-8\" ");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\tincludeantruntime=\"false\" srcdir=\"${dir.src}\" destdir=\"${dir.webclass}\"");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -1055,7 +1130,7 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t\t</fileset>");
 		stringBuilder.append(System.getProperty("line.separator"));
-		stringBuilder.append("\t\t\t\t<fileset dir=\"${servlet.systemlib.path}\">");
+		stringBuilder.append("\t\t\t\t<fileset dir=\"${servlet.systemlib.path}/\">");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("\t\t\t\t\t<include name=\"*-api.jar\" />");
 		stringBuilder.append(System.getProperty("line.separator"));
@@ -1080,8 +1155,8 @@ public abstract class BuildSystemFileContents {
 		stringBuilder.append("\t</target>");
 		stringBuilder.append(System.getProperty("line.separator"));
 		stringBuilder.append("</project>");
+		stringBuilder.append(System.getProperty("line.separator"));
 		return stringBuilder.toString();
-
 	}
 
 	/**

@@ -1,5 +1,6 @@
 <%@ page language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
-%><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%!
+%><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%
+%><%@page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%!
 	public void errorPrint(javax.servlet.jsp.JspWriter out, String errorMessage) throws java.io.IOException {
 		out.println("<!DOCTYPE html>");
 		out.println("<html>");
@@ -7,7 +8,7 @@
 		out.println("<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />");
 		out.println("</head>");
 		out.println("<body>");
-		out.println(org.apache.commons.lang3.StringEscapeUtils.escapeHtml4(errorMessage));
+		out.println(HtmlStringUtil.toHtml4String(errorMessage));
 		out.println("</body>");
 		out.print("</html>");
 		out.flush();
@@ -93,8 +94,6 @@
 			String lines[] = parmCreatingTableSql.split("\\u000D\\u000A|[\\u000D\\u000A]");
 			for (int i=0; i < lines.length; i++) {
 				String escapeString = lines[i];
-				// String escapeString = org.apache.commons.lang3.StringEscapeUtils.escapeJava(lines[i]);
-
 
 				bodyStringBuffer.append(kr.pe.sinnori.common.etc.CommonStaticFinalVars.NEWLINE);
 				bodyStringBuffer.append("stringBuilder.append(\"");
@@ -170,15 +169,15 @@
 	<tbody>
 	<tr>
 		<td align="center">상단</td>
-		<td><textarea name="parmHeader" class="AXTextarea" style="width:95%;" rows="3"><%=org.apache.commons.lang3.StringEscapeUtils.escapeHtml4(headerString)%></textarea></td>
+		<td><textarea name="parmHeader" class="AXTextarea" style="width:95%;" rows="3"><%=HtmlStringUtil.toHtml4String(headerString)%></textarea></td>
 	</tr>
 	<tr>
 		<td align="center">본문</td>
-		<td><textarea name="parmBody" class="AXTextarea" style="width:95%;" rows="20"><%=org.apache.commons.lang3.StringEscapeUtils.escapeHtml4(bodyStringBuffer.toString())%></textarea></td>
+		<td><textarea name="parmBody" class="AXTextarea" style="width:95%;" rows="20"><%=HtmlStringUtil.toHtml4String(bodyStringBuffer.toString())%></textarea></td>
 	</tr>
 	<tr>
 		<td align="center">하단</td>
-		<td><textarea name="parmFooter" class="AXTextarea" style="width:95%;" rows="3"><%=org.apache.commons.lang3.StringEscapeUtils.escapeHtml4(footerString)%></textarea></td>
+		<td><textarea name="parmFooter" class="AXTextarea" style="width:95%;" rows="3"><%=HtmlStringUtil.toHtml4String(footerString)%></textarea></td>
 	</tr>
 	<tr><td colspan="2" align="center"><button type="submit" class="AXButton Classic"><i class="axi axi-hand-o-up"></i> 다음</button></td></tr>
 	</tbody>

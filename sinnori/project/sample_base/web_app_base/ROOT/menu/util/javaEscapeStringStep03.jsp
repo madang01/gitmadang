@@ -1,4 +1,5 @@
 <%@ page language="java" session="true" autoFlush="true" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %><%
+%><%@page import="kr.pe.sinnori.weblib.htmlstring.HtmlStringUtil"%><%
 %><%@ page import="kr.pe.sinnori.weblib.common.WebCommonStaticFinalVars" %><%!
 	public void errorPrint(javax.servlet.jsp.JspWriter out, String errorMessage) throws java.io.IOException {
 		out.println("<!DOCTYPE html>");
@@ -7,7 +8,7 @@
 		out.println("<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />");
 		out.println("</head>");
 		out.println("<body>");
-		out.println(org.apache.commons.lang3.StringEscapeUtils.escapeHtml4(errorMessage));
+		out.println(HtmlStringUtil.toHtml4String(errorMessage));
 		out.println("</body>");
 		out.print("</html>");
 		out.flush();
@@ -94,9 +95,9 @@
 	</tr>
 	<tr>
 		<td align="center">최 종<br/>결 과</td>
-		<td><textarea name="parmResult" class="AXTextarea" style="width:95%;" rows="20"><%=org.apache.commons.lang3.StringEscapeUtils.escapeHtml4(parmHeader)%>
-<%=	org.apache.commons.lang3.StringEscapeUtils.escapeHtml4(parmBody)%>
-<%=	org.apache.commons.lang3.StringEscapeUtils.escapeHtml4(parmFooter)%></textarea></td>
+		<td><textarea name="parmResult" class="AXTextarea" style="width:95%;" rows="20"><%=HtmlStringUtil.toHtml4String(parmHeader)%>
+<%=	HtmlStringUtil.toHtml4String(parmBody)%>
+<%=	HtmlStringUtil.toHtml4String(parmFooter)%></textarea></td>
 	</tr>
 	<tr><td colspan="2" align="center"><button type="submit" class="AXButton Classic"><i class="axi axi-check-circle"></i> 확인</button></td></tr>
 	</tbody>
