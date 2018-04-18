@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import kr.pe.sinnori.common.AbstractJunitTest;
+import kr.pe.sinnori.common.classloader.SimpleClassLoader;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.SymmetricException;
 import kr.pe.sinnori.common.message.AbstractMessage;
@@ -32,10 +33,9 @@ public class MemberRegisterReqServerTaskTest extends AbstractJunitTest {
 
 			public ToLetterCarrierMock(SocketChannel fromSC, AbstractMessage inputMessage,
 					SocketResourceManagerIF socketResourceManager, PersonalLoginManagerIF personalMemberManager,
-					MessageProtocolIF messageProtocol, ClassLoader classLoaderOfServerTask,
+					MessageProtocolIF messageProtocol, SimpleClassLoader classLoaderOfServerTask,
 					ServerObjectCacheManagerIF serverObjectCacheManager) {
-				super(fromSC, inputMessage, socketResourceManager, personalMemberManager, messageProtocol, classLoaderOfServerTask,
-						serverObjectCacheManager);
+				super(fromSC, inputMessage, socketResourceManager, personalMemberManager, messageProtocol, classLoaderOfServerTask);
 			}
 
 			public void addSyncOutputMessage(AbstractMessage syncOutputMessage) throws InterruptedException {

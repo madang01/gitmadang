@@ -21,10 +21,29 @@ public abstract class BuildSystemPathSupporter {
 
 		StringBuilder strBuilder = new StringBuilder(sinnoriInstalledPathString);
 		strBuilder.append(File.separator);
-		strBuilder.append("tmp");
+		strBuilder.append("temp");
 		return strBuilder.toString();
 	}
 	
+	
+	/** sinnori resources path : <sinnnori installed path>/log */
+	public static String getSinnoriLogPathString(
+			String sinnoriInstalledPathString) {
+		if (null == sinnoriInstalledPathString) {
+			throw new IllegalArgumentException(
+					"the parameter sinnoriInstalledPathString is null");
+		}
+
+		if (sinnoriInstalledPathString.equals("")) {
+			throw new IllegalArgumentException(
+					"the parameter sinnoriInstalledPathString is a empty string");
+		}
+
+		StringBuilder strBuilder = new StringBuilder(sinnoriInstalledPathString);
+		strBuilder.append(File.separator);
+		strBuilder.append("log");
+		return strBuilder.toString();
+	}
 
 	/** sinnori resources path : <sinnnori installed path>/resources */
 	public static String getSinnoriResourcesPathString(
@@ -41,42 +60,24 @@ public abstract class BuildSystemPathSupporter {
 
 		StringBuilder strBuilder = new StringBuilder(sinnoriInstalledPathString);
 		strBuilder.append(File.separator);
-		strBuilder.append("resouces");
+		strBuilder.append("resources");
 		return strBuilder.toString();
 	}
 	
 	/** message info path : <sinori resource path>/message_info */
-	public static String getMessageInfoFilesPathString(String sinnoriInstalledPathString) {
+	public static String getMessageInfoDirectoryPathStringFromSinnoriResources(String sinnoriInstalledPathString) {
 		StringBuilder strBuilder = new StringBuilder(getSinnoriResourcesPathString(sinnoriInstalledPathString))
 				.append(File.separator)
 				.append("message_info");
 		return strBuilder.toString();
 	}
 
-	/** message info path : <project path>/resources/message_info/<message id>.xml */
-	public static String getMessageInfoFilePathString(String sinnoriInstalledPathString, String messageID) {
-		StringBuilder strBuilder = new StringBuilder(getMessageInfoFilesPathString(sinnoriInstalledPathString))
+	/** message info path : <sinori resource path>/message_info/<message id>.xml */
+	public static String getMessageInfoFilePathStringFromSinnoriResources(String sinnoriInstalledPathString, String messageID) {
+		StringBuilder strBuilder = new StringBuilder(getMessageInfoDirectoryPathStringFromSinnoriResources(sinnoriInstalledPathString))
 				.append(File.separator)
 				.append(messageID)
 				.append(".xml");
-		return strBuilder.toString();
-	}
-	
-	public static String getMybatisConfigDTDFilePathString(String sinnoriInstalledPathString) {		
-		StringBuilder strBuilder = new StringBuilder(getSinnoriResourcesPathString(sinnoriInstalledPathString));
-		strBuilder.append(File.separator);
-		strBuilder.append("mybatis");
-		strBuilder.append(File.separator);
-		strBuilder.append("mybatis-3-config.dtd");
-		return strBuilder.toString();
-	}
-	
-	public static String getMybatisMapperDTDFilePathString(String sinnoriInstalledPathString) {		
-		StringBuilder strBuilder = new StringBuilder(getSinnoriResourcesPathString(sinnoriInstalledPathString));
-		strBuilder.append(File.separator);
-		strBuilder.append("mybatis");
-		strBuilder.append(File.separator);
-		strBuilder.append("mybatis-3-mapper.dtd");
 		return strBuilder.toString();
 	}
 	
@@ -120,7 +121,7 @@ public abstract class BuildSystemPathSupporter {
 	}
 	
 	/** log path : <project path>/log/<log type name> */
-	public static String getLogPathString(String sinnoriInstalledPathString, String mainProjectName, LogType logType) {		
+	public static String getProjectLogPathString(String sinnoriInstalledPathString, String mainProjectName, LogType logType) {		
 		if (null == logType) {
 			throw new IllegalArgumentException(
 					"the parameter logType is null");
@@ -137,7 +138,7 @@ public abstract class BuildSystemPathSupporter {
 	}
 
 	/** sinnori config path : <proejct path>/config */
-	public static String getSinnoriConfigPathString(String sinnoriInstalledPathString, String mainProjectName) {
+	public static String getProjectConfigDirectoryPathString(String sinnoriInstalledPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getProjectPathString(sinnoriInstalledPathString, mainProjectName));
 		strBuilder.append(File.separator);
 		strBuilder.append("config");
@@ -145,16 +146,16 @@ public abstract class BuildSystemPathSupporter {
 	}
 
 	/** sinnori config file path : <sinnori config path>/<sinnori config short file name> */
-	public static String getSinnoriConfigFilePathString(String sinnoriInstalledPathString, String mainProjectName) {
+	public static String getProejctConfigFilePathString(String sinnoriInstalledPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(
-				getSinnoriConfigPathString(sinnoriInstalledPathString, mainProjectName));
+				getProjectConfigDirectoryPathString(sinnoriInstalledPathString, mainProjectName));
 		strBuilder.append(File.separator);
 		strBuilder.append(CommonStaticFinalVars.SINNORI_CONFIG_FILE_NAME);
 		return strBuilder.toString();
 	}
 
 	/** project resources path : <project path>/resources */
-	public static String getProjectResourcesPathString(String sinnoriInstalledPathString, String mainProjectName) {
+	public static String getProjectResourcesDirectoryPathString(String sinnoriInstalledPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(
 				getProjectPathString(sinnoriInstalledPathString, mainProjectName));
 		strBuilder.append(File.separator);
@@ -164,17 +165,17 @@ public abstract class BuildSystemPathSupporter {
 	
 	
 	/** logback config file path : <project resources path>/<sinnori logack log file short name> */
-	public static String getLogbackConfigFilePathString(String sinnoriInstalledPathString, String mainProjectName) {
-		StringBuilder strBuilder = new StringBuilder(getProjectResourcesPathString(sinnoriInstalledPathString, mainProjectName));
+	public static String getProjectLogbackConfigFilePathString(String sinnoriInstalledPathString, String mainProjectName) {
+		StringBuilder strBuilder = new StringBuilder(getProjectResourcesDirectoryPathString(sinnoriInstalledPathString, mainProjectName));
 		strBuilder.append(File.separator);
 		strBuilder.append(CommonStaticFinalVars.SINNORI_LOGBACK_LOG_FILE_NAME);
 		return strBuilder.toString();
 	}
 	
 	/** DBCP configuration file path : <project path>/resources/dbcp/dbcp.<dbcp name>.properties  */
-	public static String getDBCPConfigFilePathString(String sinnoriInstalledPathString, String mainProjectName,
+	public static String getProjectDBCPConfigFilePathString(String sinnoriInstalledPathString, String mainProjectName,
 			 String dbcpName) {
-		StringBuilder strBuilder = new StringBuilder(getProjectResourcesPathString(sinnoriInstalledPathString, mainProjectName));
+		StringBuilder strBuilder = new StringBuilder(getProjectResourcesDirectoryPathString(sinnoriInstalledPathString, mainProjectName));
 		strBuilder.append(File.separator);
 		strBuilder.append("dbcp");
 		strBuilder.append(File.separator);		
@@ -186,8 +187,8 @@ public abstract class BuildSystemPathSupporter {
 	}
 
 	/** message info path : <project path>/resources/message_info */
-	public static String getMessageInfoFilesPathString(String sinnoriInstalledPathString, String mainProjectName) {
-		StringBuilder strBuilder = new StringBuilder(getProjectResourcesPathString(sinnoriInstalledPathString, mainProjectName))
+	public static String getProjectMessageInfoDirectoryPathString(String sinnoriInstalledPathString, String mainProjectName) {
+		StringBuilder strBuilder = new StringBuilder(getProjectResourcesDirectoryPathString(sinnoriInstalledPathString, mainProjectName))
 				.append(File.separator)
 				.append("message_info");
 		return strBuilder.toString();
@@ -196,8 +197,8 @@ public abstract class BuildSystemPathSupporter {
 	
 
 	/** message info path : <project path>/resources/message_info/<message id>.xml */
-	public static String getMessageInfoFilePathString(String sinnoriInstalledPathString, String mainProjectName, String messageID) {
-		StringBuilder strBuilder = new StringBuilder(getMessageInfoFilesPathString(sinnoriInstalledPathString, mainProjectName))
+	public static String getProjectMessageInfoFilePathString(String sinnoriInstalledPathString, String mainProjectName, String messageID) {
+		StringBuilder strBuilder = new StringBuilder(getProjectMessageInfoDirectoryPathString(sinnoriInstalledPathString, mainProjectName))
 				.append(File.separator)
 				.append(messageID)
 				.append(".xml");
@@ -207,7 +208,7 @@ public abstract class BuildSystemPathSupporter {
 
 	/** RSA keypair path : <project path>/resources/rsa_keypair */
 	public static String getSessionKeyRSAKeypairPathString(String sinnoriInstalledPathString, String mainProjectName) {
-		StringBuilder strBuilder = new StringBuilder(getProjectResourcesPathString(sinnoriInstalledPathString, mainProjectName));
+		StringBuilder strBuilder = new StringBuilder(getProjectResourcesDirectoryPathString(sinnoriInstalledPathString, mainProjectName));
 		strBuilder.append(File.separator);
 		strBuilder.append("rsa_keypair");
 		return strBuilder.toString();
@@ -260,8 +261,6 @@ public abstract class BuildSystemPathSupporter {
 		strBuilder.append("classes");		
 		return strBuilder.toString();
 	}
-	
-	
 	
 	
 	/**
@@ -376,7 +375,7 @@ public abstract class BuildSystemPathSupporter {
 		return strBuilder.toString();
 	}	
 	
-	/** <project path>/web_app_base/upload */
+	/** <project path>/web_app_base/temp */
 	public static String getWebTempPathString(String sinnoriInstalledPathString, String mainProjectName) {
 		StringBuilder strBuilder = new StringBuilder(getWebRootBasePathString(sinnoriInstalledPathString, mainProjectName));
 		strBuilder.append(File.separator);

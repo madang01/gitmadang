@@ -38,7 +38,7 @@ import kr.pe.sinnori.server.task.AbstractServerTask;
 import kr.pe.sinnori.server.task.ToLetterCarrier;
 
 public class BoardListReqServerTask extends AbstractServerTask {
-	
+
 	@SuppressWarnings("unused")
 	private void sendErrorOutputtMessageForCommit(String errorMessage,
 			Connection conn,			

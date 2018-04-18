@@ -154,7 +154,7 @@ public class SubProjectPartEditorPopup extends JDialog {
 			
 			boolean isInactive = true;
 			try {
-				isInactive = sinnoriItemIDInfoManger.isInactive(itemID, prefixOfItemID, subProjectPartSequencedProperties);
+				isInactive = sinnoriItemIDInfoManger.isDisabled(itemID, prefixOfItemID, subProjectPartSequencedProperties);
 				
 				if (isInactive) {
 					sinnoriItemIDInfoManger.getNativeValueAfterValidChecker(itemKey, subProjectPartSequencedProperties);

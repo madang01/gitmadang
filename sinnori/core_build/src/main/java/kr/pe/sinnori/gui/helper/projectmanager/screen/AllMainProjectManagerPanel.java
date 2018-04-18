@@ -31,8 +31,8 @@ import com.jgoodies.forms.layout.FormLayout;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
-import kr.pe.sinnori.common.buildsystem.BuildSystemSupporter;
 import kr.pe.sinnori.common.buildsystem.MainProjectBuildSystemState;
+import kr.pe.sinnori.common.buildsystem.ProjectBuilder;
 import kr.pe.sinnori.common.exception.BuildSystemException;
 import kr.pe.sinnori.common.type.LineSeparatorType;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
@@ -161,8 +161,8 @@ public class AllMainProjectManagerPanel extends JPanel {
 			MainProjectBuildSystemState selectedMainProjectBuildSystemState = null;
 
 			try {
-				
-				selectedMainProjectBuildSystemState = BuildSystemSupporter.getMainProjectBuildSystemState(sinnoriInstalledPathString, mainProjectName);
+				ProjectBuilder projectBuilder = new ProjectBuilder(	sinnoriInstalledPathString, mainProjectName);				
+				selectedMainProjectBuildSystemState = projectBuilder.getNewInstanceOfMainProjectBuildSystemState();
 				
 			} catch (BuildSystemException e1) {
 				log.warn("fail to load main project build system state", e1);
@@ -189,8 +189,10 @@ public class AllMainProjectManagerPanel extends JPanel {
 
 				MainProjectBuildSystemState mainProjectBuildSystemState = null;
 
-				try {					
-					mainProjectBuildSystemState = BuildSystemSupporter.getMainProjectBuildSystemState(sinnoriInstalledPathString, mainProjectName);
+				try {
+					ProjectBuilder projectBuilder = new ProjectBuilder(	sinnoriInstalledPathString, mainProjectName);
+					
+					mainProjectBuildSystemState = projectBuilder.getNewInstanceOfMainProjectBuildSystemState();
 				} catch (BuildSystemException e2) {
 					log.warn("fail to load main project build system state", e2);
 					mainProjectNameListComboBox.setSelectedIndex(0);
@@ -245,12 +247,12 @@ public class AllMainProjectManagerPanel extends JPanel {
 		boolean isServer = true;
 		boolean isAppClient = true;
 		boolean isWebClient = false;
-		String servletSystemLibrayPathString = "";
+		String servletSystemLibraryPathString = "";
 
 		try {
-			BuildSystemSupporter.createNewMainProjectBuildSystem(sinnoriInstalledPathString, newMainProjectName,
-					isServer,  isAppClient,
-					isWebClient, servletSystemLibrayPathString);
+			ProjectBuilder projectBuilder = new ProjectBuilder(	sinnoriInstalledPathString, newMainProjectName);
+			projectBuilder.createProject(isServer, isAppClient, isWebClient, servletSystemLibraryPathString);
+			
 		} catch (IllegalArgumentException | BuildSystemException e1) {
 			String errorMessage = "fail to create new main project build system";
 			log.warn(errorMessage, e1);
@@ -287,7 +289,8 @@ public class AllMainProjectManagerPanel extends JPanel {
 			
 			String sinnoriInstalledPathString = sinnoriInstalledPathInfoValueLabel.getText();
 			try {
-				BuildSystemSupporter.dropProject(sinnoriInstalledPathString, selectedProjectName);
+				ProjectBuilder projectBuilder = new ProjectBuilder(	sinnoriInstalledPathString, selectedProjectName);				
+				projectBuilder.dropProject();
 			} catch (BuildSystemException e1) {
 				log.warn("fail to delete main project directory", e1);
 				showMessageDialog(e1.getMessage());
@@ -356,8 +359,8 @@ public class AllMainProjectManagerPanel extends JPanel {
 			String mainProjectName = mainProjectNameListComboBox.getItemAt(i);
 			
 			try {
-				
-				BuildSystemSupporter.applySinnoriInstalledPath(sinnoriInstalledPathString, mainProjectName);
+				ProjectBuilder projectBuilder = new ProjectBuilder(	sinnoriInstalledPathString, mainProjectName);				
+				projectBuilder.applySinnoriInstalledPath();
 			} catch (BuildSystemException e1) {
 				log.warn(e1.getMessage(), e1);
 				showMessageDialog(e1.getMessage());

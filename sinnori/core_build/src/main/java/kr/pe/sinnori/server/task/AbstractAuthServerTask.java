@@ -25,14 +25,12 @@ import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.common.type.SelfExn;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
-import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.SocketResource;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
 
 
 public abstract class AbstractAuthServerTask extends AbstractServerTask {
-	
-	
+
 	@Override
 	public void execute(int index, 
 			String projectName,
@@ -41,8 +39,7 @@ public abstract class AbstractAuthServerTask extends AbstractServerTask {
 			SocketResource socketResourceOfFromSC,
 			PersonalLoginManagerIF personalLoginManagerOfFromSC,
 			WrapReadableMiddleObject wrapReadableMiddleObject,
-			MessageProtocolIF messageProtocol, 
-			ServerObjectCacheManagerIF serverObjectCacheManager) throws InterruptedException {		
+			MessageProtocolIF messageProtocol) throws InterruptedException {		
 		
 		if (! personalLoginManagerOfFromSC.isLogin()) {
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
@@ -57,7 +54,6 @@ public abstract class AbstractAuthServerTask extends AbstractServerTask {
 				socketResourceOfFromSC,
 				personalLoginManagerOfFromSC,
 				wrapReadableMiddleObject, 
-				messageProtocol, 
-				serverObjectCacheManager);
+				messageProtocol);
 	}
 }

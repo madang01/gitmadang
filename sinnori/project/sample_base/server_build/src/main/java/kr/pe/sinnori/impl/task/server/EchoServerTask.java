@@ -28,7 +28,6 @@ import kr.pe.sinnori.server.task.ToLetterCarrier;
  *
  */
 public final class EchoServerTask extends AbstractServerTask {	
-	
 	@Override
 	public void doTask(String projectName, 
 			PersonalLoginManagerIF personalLoginManager, 
@@ -41,15 +40,12 @@ public final class EchoServerTask extends AbstractServerTask {
 			ToLetterCarrier toLetterCarrier, Echo echoInObj)
 			throws Exception {		
 		Echo echoOutObj = new Echo();
-
 		echoOutObj.setRandomInt(echoInObj.getRandomInt());
 		echoOutObj.setStartTime(echoInObj.getStartTime());
 		
 		toLetterCarrier.addBypassOutputMessage(echoOutObj);
+		log.info("hello");
 	}	
 	
-	@Override
-	public void finalize() {
-		log.info("call finalize");
-	}
+	
 }

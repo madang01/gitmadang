@@ -15,6 +15,9 @@ import kr.pe.sinnori.impl.task.server.EmptyServerTask;
 
 public class IOPartDynamicClassNameUtilTest extends AbstractJunitTest {
 
+	/**
+	 * 테스트용 {@link EmptyServerTask} 와 {@link EmptyClientTask} 이용
+	 */
 	@Test
 	public void testAllIOPartDynamicClassFullNameIsValid() {
 		String classLoaderClassPackagePrefixName = "kr.pe.sinnori.impl.";

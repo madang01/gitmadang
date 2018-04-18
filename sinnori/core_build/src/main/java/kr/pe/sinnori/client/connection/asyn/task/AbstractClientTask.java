@@ -11,9 +11,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
 public abstract class AbstractClientTask {
-protected InternalLogger log = InternalLoggerFactory.getInstance(AbstractClientTask.class);
-	
-	private ClassLoader classLoaderOfSererTask = this.getClass().getClassLoader();
+	protected InternalLogger log = InternalLoggerFactory.getInstance(AbstractClientTask.class);
 	
 	public void execute(int index, String projectName,
 			SocketChannel fromSC,
@@ -22,7 +20,7 @@ protected InternalLogger log = InternalLoggerFactory.getInstance(AbstractClientT
 		
 		AbstractMessage outputMessage = null;	
 		try {
-			outputMessage = clientMessageUtility.buildOutputMessage(classLoaderOfSererTask, wrapReadableMiddleObject);
+			outputMessage = clientMessageUtility.buildOutputMessage(this.getClass().getClassLoader(), wrapReadableMiddleObject);
 		} catch (BodyFormatException | DynamicClassCallException e) {
 			return;
 		}

@@ -7,48 +7,48 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 
-public abstract class AbstractDependOnInactiveChecker {
-	protected InternalLogger log = InternalLoggerFactory.getInstance(AbstractDependOnInactiveChecker.class);
+public abstract class AbstractDisabledItemChecker {
+	protected InternalLogger log = InternalLoggerFactory.getInstance(AbstractDisabledItemChecker.class);
 	
-	protected ItemIDInfo<?> dependentSourceItemIDInfo  = null;
-	protected ItemIDInfo<?> dependentTargetItemIDInfo = null;
-	protected String inactiveStrings[] = null;
+	protected ItemIDInfo<?> disabeldTargetItemIDInfo  = null;
+	protected ItemIDInfo<?> dependentItemIDInfo = null;
+	protected String disabledConditionStrings[] = null;
 	
-	public AbstractDependOnInactiveChecker(ItemIDInfo<?> dependentSourceItemIDInfo, ItemIDInfo<?> dependentTargetItemIDInfo, String[] inactiveStrings) throws IllegalArgumentException {
-		if (null == dependentSourceItemIDInfo) {
-			String errorMessage = new StringBuilder("the parameter dependentSourceItemIDInfo is null").toString();
+	public AbstractDisabledItemChecker(ItemIDInfo<?> disabeldTargetItemIDInfo, ItemIDInfo<?> dependentItemIDInfo, String[] disabledConditionStrings) throws IllegalArgumentException {
+		if (null == disabeldTargetItemIDInfo) {
+			String errorMessage = new StringBuilder("the parameter disabeldTargetItemIDInfo is null").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		if (null == dependentTargetItemIDInfo) {
-			String errorMessage = new StringBuilder("the parameter dependentTargetItemIDInfo is null").toString();
+		if (null == dependentItemIDInfo) {
+			String errorMessage = new StringBuilder("the parameter dependentItemIDInfo is null").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		if (null == inactiveStrings) {
-			String errorMessage = new StringBuilder("the parameter inactiveStrings is null").toString();
+		if (null == disabledConditionStrings) {
+			String errorMessage = new StringBuilder("the parameter disabledConditionStrings is null").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		if (0 == inactiveStrings.length) {			
-			String errorMessage = new StringBuilder("the parameter inactiveStrings is a zero size string array").toString();
+		if (0 == disabledConditionStrings.length) {			
+			String errorMessage = new StringBuilder("the parameter disabledConditionStrings is a zero size string array").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		ItemIDInfo.ConfigurationPart configurationPartOfDependentSourceItemID = dependentSourceItemIDInfo.getConfigurationPart();
-		ItemIDInfo.ConfigurationPart configurationPartOfDependentTargetItemID = dependentTargetItemIDInfo.getConfigurationPart();
+		ItemIDInfo.ConfigurationPart configurationPartOfDependentSourceItemID = disabeldTargetItemIDInfo.getConfigurationPart();
+		ItemIDInfo.ConfigurationPart configurationPartOfDependentTargetItemID = dependentItemIDInfo.getConfigurationPart();
 		
 		if (!configurationPartOfDependentTargetItemID.equals(ItemIDInfo.ConfigurationPart.COMMON)) {
 			if (!configurationPartOfDependentTargetItemID.equals(configurationPartOfDependentSourceItemID)) {
 				String errorMessage = new StringBuilder(
 						"the dependent target item id[")
-				.append(dependentTargetItemIDInfo.getItemID())
+				.append(dependentItemIDInfo.getItemID())
 				.append("]'s configuration part[")
 				.append(configurationPartOfDependentTargetItemID)
 				.append("] must be one of common part")
 				.append(CommonStaticFinalVars.NEWLINE)
 				.append(" or equal to the dependent source item id[")
-				.append(dependentSourceItemIDInfo.getItemID())
+				.append(disabeldTargetItemIDInfo.getItemID())
 				.append("]'s configuration part[")
 				.append(configurationPartOfDependentSourceItemID)
 				.append("]").toString();
@@ -57,26 +57,26 @@ public abstract class AbstractDependOnInactiveChecker {
 		}
 		
 		
-		AbstractNativeValueConverter<?> dependentTargetItemValueConverter = dependentTargetItemIDInfo.getItemValueConverter();
+		AbstractNativeValueConverter<?> dependentTargetItemValueConverter = dependentItemIDInfo.getItemValueConverter();
 		
 		if (!(dependentTargetItemValueConverter instanceof AbstractSetTypeNativeValueConverter)) {
 			String errorMessage = new StringBuilder(
 					"parameter dependentTargetItemIDInfo[")
-			.append(dependentTargetItemIDInfo.getItemID()).append("]'s nativeValueConverter[")
+			.append(dependentItemIDInfo.getItemID()).append("]'s nativeValueConverter[")
 					.append(dependentTargetItemValueConverter.getClass().getName())
 					.append("] is not inherited by AbstractSetTypeNativeValueConverter")
 					.toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		for (int i=0; i < inactiveStrings.length; i++) {
+		for (int i=0; i < disabledConditionStrings.length; i++) {
 			try {
-				dependentTargetItemValueConverter.valueOf(inactiveStrings[i]);
+				dependentTargetItemValueConverter.valueOf(disabledConditionStrings[i]);
 			} catch(IllegalArgumentException e) {
 				String errorMessage = new StringBuilder("the parameter inactiveStrings[")
 				.append(i)
 				.append("]'s value[")
-				.append(inactiveStrings[i])
+				.append(disabledConditionStrings[i])
 				.append("] is bad, errrmessage=")
 				.append(e.getMessage()).toString();
 				throw new IllegalArgumentException(errorMessage);
@@ -84,12 +84,12 @@ public abstract class AbstractDependOnInactiveChecker {
 		}
 		
 		
-		this.dependentSourceItemIDInfo  = dependentSourceItemIDInfo;
-		this.dependentTargetItemIDInfo = dependentTargetItemIDInfo;		
-		this.inactiveStrings = inactiveStrings;
+		this.disabeldTargetItemIDInfo  = disabeldTargetItemIDInfo;
+		this.dependentItemIDInfo = dependentItemIDInfo;		
+		this.disabledConditionStrings = disabledConditionStrings;
 	}
 	
-	public boolean isInactive(Properties sourceProperties, String prefixOfItemID) throws IllegalArgumentException {
+	public boolean isDisabled(Properties sourceProperties, String prefixOfItemID) throws IllegalArgumentException {
 		
 		if (null == sourceProperties) {
 			String errorMessage = new StringBuilder("parameter sourceProperties is null").toString();
@@ -101,7 +101,7 @@ public abstract class AbstractDependOnInactiveChecker {
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		String dependentSoruceItemKey = new StringBuilder(prefixOfItemID).append(getDependentSourceItemID()).toString();
+		String dependentSoruceItemKey = new StringBuilder(prefixOfItemID).append(getDisabledItemID()).toString();
 		String dependentSoruceItemValue = 
 				sourceProperties.getProperty(dependentSoruceItemKey);
 		if (null == dependentSoruceItemValue) {
@@ -111,9 +111,9 @@ public abstract class AbstractDependOnInactiveChecker {
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		String dependentTargetItemID = getDependentTargetItemID();
+		String dependentTargetItemID = getDependentItemID();
 		String dependentTargetItemKey = null;		
-		if (dependentTargetItemIDInfo.getConfigurationPart().equals(ItemIDInfo.ConfigurationPart.COMMON)) {
+		if (dependentItemIDInfo.getConfigurationPart().equals(ItemIDInfo.ConfigurationPart.COMMON)) {
 			dependentTargetItemKey = dependentTargetItemID;
 		} else {
 			dependentTargetItemKey = new StringBuilder(prefixOfItemID).append(
@@ -127,8 +127,8 @@ public abstract class AbstractDependOnInactiveChecker {
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		for (int i=0; i < inactiveStrings.length; i++) {
-			if (inactiveStrings[i].equals(dependentTargetItemValue)) {
+		for (int i=0; i < disabledConditionStrings.length; i++) {
+			if (disabledConditionStrings[i].equals(dependentTargetItemValue)) {
 				return true;
 			}
 		}
@@ -138,15 +138,15 @@ public abstract class AbstractDependOnInactiveChecker {
 	}
 	
 	
-	public final String getDependentSourceItemID() {
-		return dependentSourceItemIDInfo.getItemID();
+	public final String getDisabledItemID() {
+		return disabeldTargetItemIDInfo.getItemID();
 	}
 
-	public final String getDependentTargetItemID() {
-		return dependentTargetItemIDInfo.getItemID();
+	public final String getDependentItemID() {
+		return dependentItemIDInfo.getItemID();
 	}
 
-	public final String[] getInactiveStrings() {
-		return inactiveStrings;
+	public final String[] getDisabledConditionStrings() {
+		return disabledConditionStrings;
 	}
 }

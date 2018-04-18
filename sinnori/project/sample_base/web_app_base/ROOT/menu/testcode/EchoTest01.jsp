@@ -100,7 +100,8 @@
 				<td style="text-align:right"><%=erraseTime%> ms</td>
 			</tr>
 			<tr>
-				<td style="text-align:left">출력 비교 결과</td><%= isSame %>
+				<td style="text-align:left">출력 비교 결과</td>
+				<td style="text-align:right"><%= isSame %></td>
 			</tr>
 		</table>
 		

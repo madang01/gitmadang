@@ -14,9 +14,9 @@ import java.util.StringTokenizer;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.sinnori.common.config.AbstractDependOnInactiveChecker;
+import kr.pe.sinnori.common.config.AbstractDisabledItemChecker;
 import kr.pe.sinnori.common.config.AbstractDependencyValidator;
-import kr.pe.sinnori.common.config.dependoninactivechecker.RSAKeyFileDependOnSourceInActiveChecker;
+import kr.pe.sinnori.common.config.dependoninactivechecker.RSAKeyFileDisabledItemChecker;
 import kr.pe.sinnori.common.config.dependonvalidchecker.MinAndMaxDependencyValidator;
 import kr.pe.sinnori.common.config.fileorpathstringgetter.AbstractFileOrPathStringGetter;
 import kr.pe.sinnori.common.config.fileorpathstringgetter.DBCPConfigFilePathStringGetter;
@@ -59,7 +59,7 @@ public class SinnoriItemIDInfoManger {
 
 	private Map<String, ItemIDInfo<?>> itemIDInfoHash = new HashMap<String, ItemIDInfo<?>>();
 
-	private Map<String, AbstractDependOnInactiveChecker> inactiveCheckerHash = new HashMap<String, AbstractDependOnInactiveChecker>();
+	private Map<String, AbstractDisabledItemChecker> diabledItemCheckerHash = new HashMap<String, AbstractDisabledItemChecker>();
 	private Map<String, AbstractDependencyValidator> dependencyValidationHash = new HashMap<String, AbstractDependencyValidator>();
 	private Map<String, AbstractFileOrPathStringGetter> fileOrPathStringGetterHash =
 			new HashMap<String, AbstractFileOrPathStringGetter>();
@@ -119,14 +119,14 @@ public class SinnoriItemIDInfoManger {
 			System.exit(1);
 		}
 		try {
-			addInactiveChecker();
+			addAllDisabledItemChecker();
 		} catch (IllegalArgumentException | SinnoriConfigurationException e) {
 			log.error("fail to add inactive checker", e);
 			System.exit(1);
 		}
 		
 		try {
-			addFileOrPathStringGetter();			
+			addAllFileOrPathStringGetter();			
 		} catch (IllegalArgumentException | SinnoriConfigurationException e) {
 			log.error("fail to add inactive checker", e);
 			System.exit(1);
@@ -136,7 +136,7 @@ public class SinnoriItemIDInfoManger {
 				.unmodifiableList(itemIDInfoList);		
 		itemIDInfoHash = Collections.unmodifiableMap(itemIDInfoHash);
 		
-		inactiveCheckerHash = Collections.unmodifiableMap(inactiveCheckerHash);
+		diabledItemCheckerHash = Collections.unmodifiableMap(diabledItemCheckerHash);
 		dependencyValidationHash = Collections.unmodifiableMap(dependencyValidationHash);
 		
 		dbcpPartItemIDInfoList = Collections
@@ -1097,75 +1097,83 @@ public class SinnoriItemIDInfoManger {
 		}
 	}
 
-	private void addInactiveChecker() throws IllegalArgumentException,
+	private void addAllDisabledItemChecker() throws IllegalArgumentException,
 			SinnoriConfigurationException {
 		{
-			String dependentSourceItemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_PUBLICKEY_FILE_ITEMID;
-			String dependentTargetItemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_SOURCE_ITEMID;
+			String disabledTargetItemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_PUBLICKEY_FILE_ITEMID;
+			String dependentItemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_SOURCE_ITEMID;
 	
-			ItemIDInfo<?> dependentSourceItemIDInfo = getItemIDInfo(dependentSourceItemID);
-			if (null == dependentSourceItemIDInfo) {
+			ItemIDInfo<?> disbaledTargetItemIDInfo = getItemIDInfo(disabledTargetItemID);
+			if (null == disbaledTargetItemIDInfo) {
 				String errorMessage = new StringBuilder(
-						"the dependent source item identification[")
-						.append(dependentSourceItemID)
-						.append("] information is not ready").toString();
+						"there is no RSA Public Key File item[")
+						.append(disabledTargetItemID)
+						.append("] identifier information, the RSA Public Key File item depends on RSA Keypair Source item[")
+						.append(dependentItemID)
+						.append("]").toString();
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 	
-			ItemIDInfo<?> dependentTargetItemIDInfo = getItemIDInfo(dependentTargetItemID);
-			if (null == dependentTargetItemIDInfo) {
+			ItemIDInfo<?> dependentItemIDInfo = getItemIDInfo(dependentItemID);
+			if (null == dependentItemIDInfo) {
 				String errorMessage = new StringBuilder(
-						"the dependent target item identification[")
-						.append(dependentTargetItemID)
-						.append("] information is not ready").toString();
+						"there is no RSA Keypair Source item[")
+						.append(dependentItemID)
+						.append("] identifier information, the RSA Public Key File item[")
+						.append(disabledTargetItemID)
+						.append("] depends on RSA Keypair Source item").toString();
 				// log.error(errorMessage);
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 	
-			inactiveCheckerHash
-					.put(dependentSourceItemID,
-							new RSAKeyFileDependOnSourceInActiveChecker(
-									dependentSourceItemIDInfo,
-									dependentTargetItemIDInfo,
+			diabledItemCheckerHash
+					.put(disabledTargetItemID,
+							new RSAKeyFileDisabledItemChecker(
+									disbaledTargetItemIDInfo,
+									dependentItemIDInfo,
 									new String[] { SessionKey.RSAKeypairSourceType.SERVER
 											.toString() }));
 		}
 		
 		{
-			String dependentSourceItemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_PRIVATEKEY_FILE_ITEMID;
-			String dependentTargetItemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_SOURCE_ITEMID;
+			String disabledTargetItemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_PRIVATEKEY_FILE_ITEMID;
+			String dependentItemID = ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_KEYPAIR_SOURCE_ITEMID;
 	
-			ItemIDInfo<?> dependentSourceItemIDInfo = getItemIDInfo(dependentSourceItemID);
-			if (null == dependentSourceItemIDInfo) {
+			ItemIDInfo<?> disbaledTargetItemIDInfo = getItemIDInfo(disabledTargetItemID);
+			if (null == disbaledTargetItemIDInfo) {
 				String errorMessage = new StringBuilder(
-						"the dependent source item identification[")
-						.append(dependentSourceItemID)
-						.append("] information is not ready").toString();
+						"there is no RSA Public Key File item[")
+						.append(disabledTargetItemID)
+						.append("] identifier information, the RSA Public Key File item depends on RSA Keypair Source item[")
+						.append(dependentItemID)
+						.append("]").toString();
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 	
-			ItemIDInfo<?> dependentTargetItemIDInfo = getItemIDInfo(dependentTargetItemID);
-			if (null == dependentTargetItemIDInfo) {
+			ItemIDInfo<?> dependentItemIDInfo = getItemIDInfo(dependentItemID);
+			if (null == dependentItemIDInfo) {
 				String errorMessage = new StringBuilder(
-						"the dependent target item identification[")
-						.append(dependentTargetItemID)
-						.append("] information is not ready").toString();
+						"there is no RSA Keypair Source item[")
+						.append(dependentItemID)
+						.append("] identifier information, the RSA Public Key File item[")
+						.append(disabledTargetItemID)
+						.append("] depends on RSA Keypair Source item").toString();
 				// log.error(errorMessage);
 				throw new SinnoriConfigurationException(errorMessage);
 			}
 	
-			inactiveCheckerHash
-					.put(dependentSourceItemID,
-							new RSAKeyFileDependOnSourceInActiveChecker(
-									dependentSourceItemIDInfo,
-									dependentTargetItemIDInfo,
+			diabledItemCheckerHash
+					.put(disabledTargetItemID,
+							new RSAKeyFileDisabledItemChecker(
+									disbaledTargetItemIDInfo,
+									dependentItemIDInfo,
 									new String[] { SessionKey.RSAKeypairSourceType.SERVER
 											.toString() }));
 		}
 	
 	}
 
-	private void addFileOrPathStringGetter() throws IllegalArgumentException,
+	private void addAllFileOrPathStringGetter() throws IllegalArgumentException,
 	SinnoriConfigurationException {
 		String itemID = null;
 		
@@ -1272,16 +1280,16 @@ public class SinnoriItemIDInfoManger {
 		return sinnoriConfigSequencedProperties;
 	}
 	
-	public boolean isInactive(String itemID, String prefixOfItemID, Properties sourceProperties) {
-		boolean isInactive = false;
-		AbstractDependOnInactiveChecker inactiveChecker = inactiveCheckerHash
+	public boolean isDisabled(String itemID, String prefixOfItemID, Properties sourceProperties) {
+		boolean isDisabled = false;
+		AbstractDisabledItemChecker disabledItemChecker = diabledItemCheckerHash
 				.get(itemID);
 
-		if (null != inactiveChecker) {
-			isInactive = inactiveChecker.isInactive(sourceProperties,
+		if (null != disabledItemChecker) {
+			isDisabled = disabledItemChecker.isDisabled(sourceProperties,
 					prefixOfItemID);
 		}
-		return isInactive;
+		return isDisabled;
 	}
 
 	public boolean isFileOrPathStringGetter(String itemID) {

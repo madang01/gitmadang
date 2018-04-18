@@ -36,7 +36,7 @@ import kr.pe.sinnori.server.task.AbstractServerTask;
 import kr.pe.sinnori.server.task.ToLetterCarrier;
 
 public class MemberRegisterReqServerTask extends AbstractServerTask {
-	
+
 	private void sendErrorOutputtMessageForCommit(String errorMessage,
 			Connection conn,			
 			ToLetterCarrier toLetterCarrier,

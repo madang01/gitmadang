@@ -8,7 +8,6 @@ import kr.pe.sinnori.server.task.AbstractServerTask;
 import kr.pe.sinnori.server.task.ToLetterCarrier;
 
 public class JavaGarbageCollectionReqServerTask extends AbstractServerTask {	
-	
 	@Override
 	public void doTask(String projectName, 
 			PersonalLoginManagerIF personalLoginManager, 
@@ -19,8 +18,7 @@ public class JavaGarbageCollectionReqServerTask extends AbstractServerTask {
 	
 	private void doWork(String projectName,
 			ToLetterCarrier toLetterCarrier, JavaGarbageCollectionReq javaGarbageCollectionReq)
-			throws Exception {
-		
+			throws Exception {		
 		System.gc();
 		
 		JavaGarbageCollectionRes javaGarbageCollectionRes = new JavaGarbageCollectionRes();

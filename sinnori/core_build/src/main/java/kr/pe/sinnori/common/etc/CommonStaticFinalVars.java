@@ -118,6 +118,8 @@ public abstract class CommonStaticFinalVars {
 	/** webclient build system start */
 	public static final String WEBCLIENT_CORE_JAR_SHORT_FILE_NAME_KEY = "webclient.core.jar";
 	public static final String WEBCLIENT_CORE_JAR_SHORT_FILE_NAME_VALUE = "SinnoriWebLib.jar";
+	public static final String WEBCLIENT_ANT_PROPRTEIS_FILE_NAME_VALUE = "webAnt.properties";
+	
 	/** webclient build system end */
 	
 	/*********** Sinnori Build System end **********/

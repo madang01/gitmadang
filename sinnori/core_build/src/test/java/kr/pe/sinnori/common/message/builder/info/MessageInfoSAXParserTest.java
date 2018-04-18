@@ -47,7 +47,7 @@ public class MessageInfoSAXParserTest extends AbstractJunitTest {
 	 * @return 테스트 대상 파일명 포함 전체 경로명
 	 */
 	private String getFilePathStringForJunitTestFile(String shortFileName) {
-		String testDataXmlFilePathString = new StringBuilder(sinnoriInstalledPathString)
+		String testDataXmlFilePathString = new StringBuilder(sinnoriInstalledPath.getAbsolutePath())
 				.append(File.separator)
 				.append("core_build")
 				.append(File.separator)

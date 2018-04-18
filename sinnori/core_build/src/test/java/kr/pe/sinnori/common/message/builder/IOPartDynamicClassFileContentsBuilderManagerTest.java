@@ -36,7 +36,7 @@ public class IOPartDynamicClassFileContentsBuilderManagerTest extends AbstractJu
 			fail(errorMessage);
 		}
 		
-		String tmpPathString = BuildSystemPathSupporter.getSinnoriTempPathString(sinnoriInstalledPathString);
+		String tmpPathString = BuildSystemPathSupporter.getSinnoriTempPathString(sinnoriInstalledPath.getAbsolutePath());
 		
 		log.info("the temp directory[{}] where the target messge's io file set will be saved", tmpPathString);
 		
@@ -45,7 +45,7 @@ public class IOPartDynamicClassFileContentsBuilderManagerTest extends AbstractJu
 					targetMessageID);
 			
 			String messageInfoFilePathString = BuildSystemPathSupporter
-					.getMessageInfoFilePathString(sinnoriInstalledPathString, targetMessageID);
+					.getMessageInfoFilePathStringFromSinnoriResources(sinnoriInstalledPath.getAbsolutePath(), targetMessageID);
 			File xmlFile = new File(messageInfoFilePathString);
 			
 			log.info("the message information file[{}]", 

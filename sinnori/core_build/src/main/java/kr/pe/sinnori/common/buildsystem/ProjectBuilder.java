@@ -456,7 +456,7 @@ public class ProjectBuilder {
 		String sinnoriResourcePathString = BuildSystemPathSupporter
 				.getSinnoriResourcesPathString(sinnoriInstalledPathString);
 		String projectResorucesPathString = BuildSystemPathSupporter
-				.getProjectResourcesPathString(sinnoriInstalledPathString, mainProjectName);
+				.getProjectResourcesDirectoryPathString(sinnoriInstalledPathString, mainProjectName);
 
 		String sourceDirectoryPathString = new StringBuilder(sinnoriResourcePathString).append(File.separator)
 				.append("newproject").append(File.separator).append("resources").toString();
@@ -980,7 +980,7 @@ public class ProjectBuilder {
 	private MessageInfo getMessageInfo(String messageID) throws BuildSystemException {
 
 		String echoMessageInfoFilePathString = new StringBuilder(
-				BuildSystemPathSupporter.getMessageInfoFilesPathString(sinnoriInstalledPathString, mainProjectName))
+				BuildSystemPathSupporter.getProjectMessageInfoDirectoryPathString(sinnoriInstalledPathString, mainProjectName))
 						.append(File.separator).append(messageID).append(".xml").toString();
 		File echoMessageInfoFile = new File(echoMessageInfoFilePathString);
 
@@ -1383,7 +1383,7 @@ public class ProjectBuilder {
 	private void createNewSinnoriConfigFile() throws BuildSystemException {
 		log.info("main project[{}]'s config file creation task start", mainProjectName);
 		
-		String sinnoriConfigFilePathString = BuildSystemPathSupporter.getSinnoriConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
+		String sinnoriConfigFilePathString = BuildSystemPathSupporter.getProejctConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
 
 		SinnoriItemIDInfoManger mainProjectItemIDInfo = SinnoriItemIDInfoManger.getInstance();
 
@@ -1559,7 +1559,7 @@ log.info("main project[{}]'s web client ant properties file modification task st
 	
 
 	private void applySinnoriInstalledPathToConfigFile() throws BuildSystemException {
-		String sinnoriConfigFilePathString = BuildSystemPathSupporter.getSinnoriConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
+		String sinnoriConfigFilePathString = BuildSystemPathSupporter.getProejctConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
 		try {		
 			SinnoriConfiguration.applySinnoriInstalledPath(sinnoriInstalledPathString, mainProjectName);
 		} catch (IllegalArgumentException e) {
@@ -1616,7 +1616,7 @@ log.info("main project[{}]'s web client ant properties file modification task st
 	public void overwriteSinnoriConfigFile(SequencedProperties modifiedSinnoriConfigSequencedProperties) throws BuildSystemException {
 		log.info("main project[{}]'s config file overwrite task start", mainProjectName);
 		
-		String sinnoriConfigFilePathString = BuildSystemPathSupporter.getSinnoriConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
+		String sinnoriConfigFilePathString = BuildSystemPathSupporter.getProejctConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
 		try {
 			
 			

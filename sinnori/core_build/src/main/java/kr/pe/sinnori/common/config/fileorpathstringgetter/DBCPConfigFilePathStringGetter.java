@@ -24,6 +24,6 @@ public class DBCPConfigFilePathStringGetter extends AbstractFileOrPathStringGett
 			throw new IllegalArgumentException("the paramter etcParamters must have only one paramter that is 'dbcp name' but two more paramters");
 		}
 		return BuildSystemPathSupporter
-				.getDBCPConfigFilePathString(sinnoriInstalledPathString, mainProjectName, etcParamters[0]);
+				.getProjectDBCPConfigFilePathString(sinnoriInstalledPathString, mainProjectName, etcParamters[0]);
 	}
 }

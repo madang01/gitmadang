@@ -4,6 +4,8 @@ import java.io.File;
 
 import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
 import kr.pe.sinnori.common.classloader.IOPartDynamicClassNameUtil;
+import kr.pe.sinnori.common.classloader.ServerSystemClassLoaderClassManager;
+import kr.pe.sinnori.common.classloader.ServerSystemClassLoaderClassManagerIF;
 import kr.pe.sinnori.common.classloader.SimpleClassLoader;
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.SinnoriConfigurationManager;
@@ -12,10 +14,10 @@ import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 public class ServerClassLoaderBuilder {
 	private String serverAPPINFClassPathString = null;
 	private String projectResourcesPathString = null;
-	private IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil = null;
+	private ServerSystemClassLoaderClassManagerIF serverSystemClassLoaderClassManager = null;
 	
 	public ServerClassLoaderBuilder(IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil) throws SinnoriConfigurationException {
-		this.ioPartDynamicClassNameUtil = ioPartDynamicClassNameUtil;		
+		serverSystemClassLoaderClassManager = new ServerSystemClassLoaderClassManager(ioPartDynamicClassNameUtil);		
 		
 		SinnoriConfiguration sinnoriRunningProjectConfiguration =  SinnoriConfigurationManager.getInstance().getSinnoriRunningProjectConfiguration();
 		
@@ -38,7 +40,7 @@ public class ServerClassLoaderBuilder {
 		 	throw new SinnoriConfigurationException(errorMessage);
 		}
 		
-		projectResourcesPathString = BuildSystemPathSupporter.getProjectResourcesPathString(sinnoriInstalledPathString, mainProjectName);
+		projectResourcesPathString = BuildSystemPathSupporter.getProjectResourcesDirectoryPathString(sinnoriInstalledPathString, mainProjectName);
 		
 		File projectResourcesPath = new File(projectResourcesPathString);
 		
@@ -55,6 +57,6 @@ public class ServerClassLoaderBuilder {
 	}
 	
 	public SimpleClassLoader build() {
-		return new SimpleClassLoader(serverAPPINFClassPathString, projectResourcesPathString, ioPartDynamicClassNameUtil);
+		return new SimpleClassLoader(serverAPPINFClassPathString, projectResourcesPathString, serverSystemClassLoaderClassManager);
 	}
 }

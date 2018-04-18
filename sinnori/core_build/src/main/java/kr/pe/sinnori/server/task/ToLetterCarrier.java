@@ -24,6 +24,7 @@ import java.util.List;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.asyn.ToLetter;
+import kr.pe.sinnori.common.classloader.ServerSimpleClassLoaderIF;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
@@ -39,7 +40,6 @@ import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.common.type.SelfExn;
 import kr.pe.sinnori.impl.message.SelfExnRes.SelfExnRes;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
-import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.SocketResource;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
 import kr.pe.sinnori.server.threadpool.outputmessage.OutputMessageWriterIF;
@@ -62,8 +62,7 @@ public class ToLetterCarrier {
 	private PersonalLoginManagerIF personalMemberManager = null;
 	
 	private MessageProtocolIF messageProtocol = null;
-	private ClassLoader classLoaderOfServerTask = null;
-	private ServerObjectCacheManagerIF serverObjectCacheManager = null;
+	private ServerSimpleClassLoaderIF serverSimpleClassLoader = null;
 	
 	private LinkedList<ToLetter> toLetterList = new LinkedList<ToLetter>();
 	
@@ -72,15 +71,13 @@ public class ToLetterCarrier {
 			SocketResourceManagerIF socketResourceManager,
 			PersonalLoginManagerIF personalMemberManager, 
 			MessageProtocolIF messageProtocol,
-			ClassLoader classLoaderOfServerTask,
-			ServerObjectCacheManagerIF serverObjectCacheManager) {
+			ServerSimpleClassLoaderIF serverSimpleClassLoader) {
 		this.fromSC = fromSC;		
 		this.inputMessage = inputMessage;
 		this.socketResourceManager = socketResourceManager;
 		this.personalMemberManager = personalMemberManager;
 		this.messageProtocol = messageProtocol;
-		this.classLoaderOfServerTask = classLoaderOfServerTask;
-		this.serverObjectCacheManager = serverObjectCacheManager;
+		this.serverSimpleClassLoader = serverSimpleClassLoader;
 	}
 
 	private static SelfExnRes buildSelfExn(SocketChannel toSC, 
@@ -127,7 +124,7 @@ public class ToLetterCarrier {
 		
 		MessageCodecIF messageServerCodec = null;
 		try {
-			messageServerCodec = serverObjectCacheManager.getServerMessageCodec(classLoaderOfServerTask, messageIDToClient);
+			messageServerCodec = serverSimpleClassLoader.getMessageCodec(messageIDToClient);
 		} catch (DynamicClassCallException e) {
 			String errorMessage = new StringBuilder("fail to get a server output message codec::").append(e.getMessage()).toString();
 			

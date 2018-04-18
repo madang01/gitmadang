@@ -15,68 +15,21 @@ import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.Executor;
 import org.apache.commons.exec.OS;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.config.SinnoriConfiguration;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDDefiner;
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.BuildSystemException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.util.SequencedProperties;
+import kr.pe.sinnori.common.util.SequencedPropertiesUtil;
 
-public class ProjectBuilderTest {
-	private InternalLogger log = InternalLoggerFactory.getInstance(ProjectBuilderTest.class);
-	private static File sinnoriInstalledBasePath = null;
-	private static File sinnoriInstalledPath = null;
-	private static File wasLibPath = null;
-
+public class ProjectBuilderTest extends AbstractJunitTest {
 	final int EXIT_SUCCESS = 0;
 	
-	
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-		sinnoriInstalledBasePath = new File("D:\\gitsinnori");
-		
-		if (! sinnoriInstalledBasePath.exists()) {
-			fail("the sinnori installed path doesn't exist");
-		}
-		
-		if (! sinnoriInstalledBasePath.isDirectory()) {
-			fail("the sinnori installed path isn't a directory");
-		}
-		
-		String sinnoriInstalledPathString = new StringBuilder(sinnoriInstalledBasePath.getAbsolutePath())
-		.append(File.separator)
-		.append("sinnori").toString();
-				
-		sinnoriInstalledPath = new File(sinnoriInstalledPathString);
-		
-		if (! sinnoriInstalledPath.exists()) {
-			fail("the sinnori installed path doesn't exist");
-		}
-		
-		if (! sinnoriInstalledPath.isDirectory()) {
-			fail("the sinnori installed path isn't a directory");
-		}
-		
-		wasLibPath = new File("D:\\apache-tomcat-8.5.15\\lib");
-		if (! wasLibPath.exists()) {
-			fail("the was libaray path doesn't exist");
-		}
-		
-		if (! wasLibPath.isDirectory()) {
-			fail("the was libaray path isn't a directory");
-		}
-	}
-
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-	}
-
 	@Before
 	public void setUp() throws Exception {
 	}
@@ -814,6 +767,7 @@ public class ProjectBuilderTest {
 	public void testApplySinnoriInstalledPath() {
 		String sinnoriInstalledPathString = sinnoriInstalledPath.getAbsolutePath();
 		String mainProjectName = "sample_test";
+		String sampleBaseDBCPName = "sample_base_db";
 		boolean isServer = true;
 		boolean isAppClient = true;
 		boolean isWebClient = true;
@@ -824,14 +778,37 @@ public class ProjectBuilderTest {
 			
 			if (projectBuilder.whetherOnlyProjectPathExists()) {
 				projectBuilder.dropProject();
-			}			
+			}
 
 			projectBuilder.createProject(isServer, isAppClient, isWebClient, servletSystemLibraryPathString);
+			
+			String projectResourcesDirectoryPathString = BuildSystemPathSupporter.getProjectResourcesDirectoryPathString(sinnoriInstalledPathString, mainProjectName);
+			String dbcpFilePathStringOfSampeTest = new StringBuilder(projectResourcesDirectoryPathString)
+					.append(File.separator)
+					.append("dbcp")
+					.append(File.separator)
+					.append("dbcp.")
+					.append(sampleBaseDBCPName)
+					.append(".properties")
+					.toString();
+			
+			// log.info("dbcpFilePathStringOfSampeTest={}", dbcpFilePathStringOfSampeTest);
+			
+			SequencedPropertiesUtil.createNewSequencedPropertiesFile(new SequencedProperties(), "the sampe_test's sample dbcp", 
+					dbcpFilePathStringOfSampeTest, CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 			
 			SequencedProperties sequencedPropertiesForModify = projectBuilder.loadSinnoriConfigPropertiesFile();
 			
 			sequencedPropertiesForModify.setProperty(ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_PRIVATEKEY_FILE_ITEMID, "aaaa");
 			sequencedPropertiesForModify.setProperty(ItemIDDefiner.CommonPartItemIDDefiner.SESSIONKEY_RSA_PUBLICKEY_FILE_ITEMID, "bbbb");
+			
+			
+			sequencedPropertiesForModify.setProperty("dbcp.name_list.value", sampleBaseDBCPName);
+			sequencedPropertiesForModify.setProperty(new StringBuilder("dbcp.")
+					.append(sampleBaseDBCPName)
+					.append(".")
+					.append(ItemIDDefiner.DBCPPartItemIDDefiner.DBCP_CONFIGE_FILE_ITEMID).toString(), "fjfjieifjf");
+			
 			
 			// log.info("sequencedPropertiesForModify={}", sequencedPropertiesForModify.toString());
 			
@@ -858,7 +835,7 @@ public class ProjectBuilderTest {
 		} catch (BuildSystemException e) {
 			log.warn(e.getMessage(), e);
 			fail(e.getMessage());
-		} catch (IllegalArgumentException e) {
+		} catch (Exception e) {
 			log.warn(e.getMessage(), e);
 			fail(e.getMessage());
 		}

@@ -30,7 +30,7 @@ public class GeneralConverterReturningRegularFile extends
 
 		File returnValue = new File(itemValue);
 
-		if (!returnValue.exists()) {
+		if (! returnValue.exists()) {
 			String errorMessage = new StringBuilder(
 					"the file that is the parameter itemValue[")
 					.append(itemValue).append("] does not exist").toString();

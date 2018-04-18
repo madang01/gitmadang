@@ -127,7 +127,7 @@ public final class SinnoriConfigurationManager {
 		}
 		
 		String sinnoriConfigFilePathString = BuildSystemPathSupporter
-				.getSinnoriConfigFilePathString(sinnoriInstalledPathString, sinnoriRunningProjectName);
+				.getProejctConfigFilePathString(sinnoriInstalledPathString, sinnoriRunningProjectName);
 		
 		try {
 			sinnoriRunningProjectConfiguration = new SinnoriConfiguration(sinnoriInstalledPathString, sinnoriRunningProjectName);

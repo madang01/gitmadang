@@ -21,6 +21,7 @@ import java.nio.channels.SocketChannel;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
+import kr.pe.sinnori.common.classloader.ServerSimpleClassLoaderIF;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
@@ -31,7 +32,6 @@ import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.common.type.SelfExn;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
-import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.SocketResource;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
 
@@ -49,7 +49,11 @@ import kr.pe.sinnori.server.SocketResourceManagerIF;
 public abstract class AbstractServerTask {
 	protected InternalLogger log = InternalLoggerFactory.getInstance(AbstractServerTask.class);
 	
-	private final ClassLoader classLoaderOfSererTask = this.getClass().getClassLoader();
+	private ServerSimpleClassLoaderIF serverSimpleClassLoader = null;
+	
+	public void setServerSimpleClassloader(ServerSimpleClassLoaderIF serverSimpleClassLoader) {
+		this.serverSimpleClassLoader = serverSimpleClassLoader;
+	}
 	
 	public void execute(int index, 
 			String projectName,
@@ -58,13 +62,13 @@ public abstract class AbstractServerTask {
 			SocketResource socketResourceOfFromSC,
 			PersonalLoginManagerIF personalLoginManagerOfFromSC,
 			WrapReadableMiddleObject wrapReadableMiddleObject,
-			MessageProtocolIF messageProtocol, 
-			ServerObjectCacheManagerIF serverObjectCacheManager) throws InterruptedException {
+			MessageProtocolIF messageProtocol) throws InterruptedException {
 		
 		MessageCodecIF serverInputMessageCodec = null;
 
 		try {
-			serverInputMessageCodec = serverObjectCacheManager.getServerMessageCodec(classLoaderOfSererTask, wrapReadableMiddleObject.getMessageID());
+			// serverInputMessageCodec = serverObjectCacheManager.getServerMessageCodec(classLoaderOfSererTask, wrapReadableMiddleObject.getMessageID());
+			serverInputMessageCodec = serverSimpleClassLoader.getMessageCodec(wrapReadableMiddleObject.getMessageID());
 		} catch (DynamicClassCallException e) {
 			String errorMessage = new StringBuilder("fail to get the server message codec of the input message[")
 					.append(wrapReadableMiddleObject.toSimpleInformation())
@@ -102,8 +106,8 @@ public abstract class AbstractServerTask {
 			inputMessageDecoder = serverInputMessageCodec.getMessageDecoder();
 		} catch (DynamicClassCallException e) {
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(DynamicClassCallException.class);
-			String errorReason = String.format("fail to get a input message[%s] decoder", 
-					wrapReadableMiddleObject.toSimpleInformation());
+			String errorReason = String.format("fail to get a input message[%s] decoder, errmsg=%s", 
+					wrapReadableMiddleObject.toSimpleInformation(), e.getMessage());
 			
 			log.warn(errorReason);
 			
@@ -142,7 +146,8 @@ public abstract class AbstractServerTask {
 			
 			
 			SelfExn.ErrorType errorType = SelfExn.ErrorType.valueOf(BodyFormatException.class);
-			String errorReason = errorMessage;
+			String errorReason = new StringBuilder(errorMessage)
+					.append(", errmsg=").append(e.getMessage()).toString();
 			
 			log.warn(errorReason);
 			
@@ -176,8 +181,7 @@ public abstract class AbstractServerTask {
 				socketResourceManager,
 				personalLoginManagerOfFromSC,
 				messageProtocol,
-				classLoaderOfSererTask,
-				serverObjectCacheManager);				
+				serverSimpleClassLoader);				
 
 		try {
 			doTask(projectName, personalLoginManagerOfFromSC, toLetterCarrier, inputMessage);
@@ -207,5 +211,8 @@ public abstract class AbstractServerTask {
 			AbstractMessage inputMessage) throws Exception;
 	
 	
-	
+	@Override
+	public void finalize() {
+		log.info("call finalize");
+	}
 }

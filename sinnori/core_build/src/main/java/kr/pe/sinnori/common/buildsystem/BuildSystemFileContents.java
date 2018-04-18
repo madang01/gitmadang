@@ -1224,14 +1224,14 @@ public abstract class BuildSystemFileContents {
 		commandPartBuilder.append("-D");
 		commandPartBuilder.append(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_LOGBACK_CONFIG_FILE);
 		commandPartBuilder.append("=").append(
-				BuildSystemPathSupporter.getLogbackConfigFilePathString(sinnoriInstalledPathString, mainProjectName));
+				BuildSystemPathSupporter.getProjectLogbackConfigFilePathString(sinnoriInstalledPathString, mainProjectName));
 
 		commandPartBuilder.append(" ").append(shellLineSeparator).append(System.getProperty("line.separator"));
 
 		commandPartBuilder.append("-D");
 		commandPartBuilder.append(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_LOG_PATH);
 		commandPartBuilder.append("=").append(
-				BuildSystemPathSupporter.getLogPathString(sinnoriInstalledPathString, mainProjectName, logType));
+				BuildSystemPathSupporter.getProjectLogPathString(sinnoriInstalledPathString, mainProjectName, logType));
 
 		commandPartBuilder.append(" ").append(shellLineSeparator).append(System.getProperty("line.separator"));
 
@@ -1251,28 +1251,5 @@ public abstract class BuildSystemFileContents {
 		commandPartBuilder.append("-jar ").append(relativeExecutabeJarFileName);
 
 		return commandPartBuilder.toString();
-	}
-	
-	
-	
-	public static String getSample1MybatisMapperFileContents(String sinnoriInstalledPathString, String nameSpace) {
-		StringBuilder mybatisConfigStringBuidler = new StringBuilder();
-		mybatisConfigStringBuidler.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-		mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
-		mybatisConfigStringBuidler.append("<!DOCTYPE mapper SYSTEM \"");
-		mybatisConfigStringBuidler.append(BuildSystemPathSupporter.getMybatisMapperDTDFilePathString(sinnoriInstalledPathString));
-		mybatisConfigStringBuidler.append("\">");
-		mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
-		
-		mybatisConfigStringBuidler.append("<mapper namespace=\"");
-		mybatisConfigStringBuidler.append(nameSpace);
-		mybatisConfigStringBuidler.append("\">");
-		mybatisConfigStringBuidler.append(CommonStaticFinalVars.NEWLINE);
-		
-		
-		
-		mybatisConfigStringBuidler.append("</mapper>");
-		
-		return mybatisConfigStringBuidler.toString();
 	}
 }

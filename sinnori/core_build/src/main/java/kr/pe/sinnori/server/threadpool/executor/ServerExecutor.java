@@ -135,8 +135,7 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 								socketResourceOfFromSC,
 								personalLoginManagerOfFromSC,
 								wrapReadableMiddleObject, 
-								messageProtocol, 
-								serverObjectCacheManager);
+								messageProtocol);
 					} catch (InterruptedException e) {
 						throw e;
 					} catch(Exception | Error e) {

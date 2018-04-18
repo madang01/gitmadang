@@ -24,6 +24,7 @@ import kr.pe.sinnori.server.task.AbstractServerTask;
 import kr.pe.sinnori.server.task.ToLetterCarrier;
 
 public class SeqValueReqServerTask extends AbstractServerTask {
+
 	@SuppressWarnings("unused")
 	private void sendErrorOutputMessageForCommit(String errorMessage,
 			Connection conn,			

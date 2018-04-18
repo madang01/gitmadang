@@ -93,7 +93,7 @@ public class SinnoriConfiguration {
 		this.mainProjectName = mainProjectName;
 		this.sinnoriInstalledPathString = sinnoriInstalledPathString;
 		this.sinnoriConfigFilePathString = BuildSystemPathSupporter
-				.getSinnoriConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
+				.getProejctConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
 
 		this.sinnoriConfigSequencedProperties = SequencedPropertiesUtil
 				.loadSequencedPropertiesFile(sinnoriConfigFilePathString, CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
@@ -113,10 +113,6 @@ public class SinnoriConfiguration {
 	public void convertSinnoriConfigSequencedPropertiesToAllPartItemsWithValidation(SequencedProperties sinnoriConfigSequencedProperties) throws SinnoriConfigurationException {		
 		List<String> subProjectNameList = new ArrayList<>();
 		Set<String> subProjectNameSet = new HashSet<>();
-
-		List<String> dbcpNameList = new ArrayList<>();
-		Set<String> dbcpNameSet = new HashSet<>();
-
 		{
 			String itemValue = sinnoriConfigSequencedProperties
 					.getProperty(CommonStaticFinalVars.SUBPROJECT_NAME_LIST_KEY_STRING);
@@ -152,6 +148,9 @@ public class SinnoriConfiguration {
 				}
 			}
 		}
+		
+		List<String> dbcpNameList = new ArrayList<>();
+		Set<String> dbcpNameSet = new HashSet<>();
 		{
 			String itemValue = sinnoriConfigSequencedProperties
 					.getProperty(CommonStaticFinalVars.DBCP_NAME_LIST_KEY_STRING);
@@ -248,7 +247,7 @@ public class SinnoriConfiguration {
 
 				
 
-				boolean isInactive = sinnoriItemIDInfoManger.isInactive(itemID,
+				boolean isInactive = sinnoriItemIDInfoManger.isDisabled(itemID,
 						prefixOfItemID, sinnoriConfigSequencedProperties);
 				if (!isInactive) {
 					Object nativeValue = sinnoriItemIDInfoManger
@@ -297,7 +296,7 @@ public class SinnoriConfiguration {
 
 			
 
-			boolean isInactive = sinnoriItemIDInfoManger.isInactive(itemID, "",
+			boolean isInactive = sinnoriItemIDInfoManger.isDisabled(itemID, "",
 					sinnoriConfigSequencedProperties);
 			if (!isInactive) {
 				Object nativeValue = sinnoriItemIDInfoManger
@@ -347,7 +346,7 @@ public class SinnoriConfiguration {
 
 			
 
-			boolean isInactive = sinnoriItemIDInfoManger.isInactive(itemID,
+			boolean isInactive = sinnoriItemIDInfoManger.isDisabled(itemID,
 					"mainproject.", sinnoriConfigSequencedProperties);
 			if (!isInactive) {
 				Object nativeValue = sinnoriItemIDInfoManger
@@ -396,7 +395,7 @@ public class SinnoriConfiguration {
 					throw new SinnoriConfigurationException(errorMessage);
 				}				
 
-				boolean isInactive = sinnoriItemIDInfoManger.isInactive(itemID,
+				boolean isInactive = sinnoriItemIDInfoManger.isDisabled(itemID,
 						prefixOfItemID, sinnoriConfigSequencedProperties);
 				if (!isInactive) {
 					Object nativeValue = sinnoriItemIDInfoManger
@@ -489,92 +488,15 @@ public class SinnoriConfiguration {
 	// FIXME!
 	public static void applySinnoriInstalledPath(String sinnoriInstalledPathString, String mainProjectName) throws IOException, SinnoriConfigurationException {
 		String sinnoriConfigFilePathString = BuildSystemPathSupporter
-				.getSinnoriConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
+				.getProejctConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
 		
 		SequencedProperties sinnoriConfigSequencedProperties = SequencedPropertiesUtil
 				.loadSequencedPropertiesFile(sinnoriConfigFilePathString, CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 		
-		List<String> subProjectNameList = new ArrayList<>();
-		Set<String> subProjectNameSet = new HashSet<>();
+		List<String> subProjectNameList = buildSubProjectNameList(sinnoriConfigFilePathString,
+				sinnoriConfigSequencedProperties);
 
-		List<String> dbcpNameList = new ArrayList<>();
-		Set<String> dbcpNameSet = new HashSet<>();
-
-		{
-			String itemValue = sinnoriConfigSequencedProperties
-					.getProperty(CommonStaticFinalVars.SUBPROJECT_NAME_LIST_KEY_STRING);
-			if (null == itemValue) {
-				String errorMessage = new StringBuilder(
-						"the sub project name list key(=")
-						.append(CommonStaticFinalVars.SUBPROJECT_NAME_LIST_KEY_STRING)
-						.append(") was not found in the sinnori conifg file[")
-						.append(sinnoriConfigFilePathString).append("]")
-						.toString();
-				throw new SinnoriConfigurationException(errorMessage);
-			}
-
-			itemValue = itemValue.trim();
-
-			if (!itemValue.equals("")) {
-				StringTokenizer tokens = new StringTokenizer(itemValue, ",");
-				while (tokens.hasMoreTokens()) {
-					String token = tokens.nextToken();
-					String subProjectName = token.trim();
-					if (subProjectNameSet.contains(subProjectName)) {
-						String errorMessage = new StringBuilder(
-								"sub project name[")
-								.append(subProjectName)
-								.append("] over at the project name list of the sinnori conifg file[")
-								.append(sinnoriConfigFilePathString)
-								.append("]").toString();
-						throw new SinnoriConfigurationException(errorMessage);
-					}
-
-					subProjectNameList.add(subProjectName);
-					subProjectNameSet.add(subProjectName);
-				}
-			}
-		}
-		{
-			String itemValue = sinnoriConfigSequencedProperties
-					.getProperty(CommonStaticFinalVars.DBCP_NAME_LIST_KEY_STRING);
-			if (null == itemValue) {
-				String errorMessage = new StringBuilder(
-						"the dbcp name list key(=")
-						.append(CommonStaticFinalVars.DBCP_NAME_LIST_KEY_STRING)
-						.append(") was not found in the sinnori conifg file[")
-						.append(sinnoriConfigFilePathString).append("]")
-						.toString();
-				throw new SinnoriConfigurationException(errorMessage);
-			}
-
-			itemValue = itemValue.trim();
-
-			if (!itemValue.equals("")) {
-				StringTokenizer tokens = new StringTokenizer(itemValue, ",");
-
-				while (tokens.hasMoreTokens()) {
-					String token = tokens.nextToken();
-					String dbcpName = token.trim();
-					if (dbcpNameSet.contains(dbcpName)) {
-						String errorMessage = new StringBuilder("dbcp name[")
-								.append(dbcpName)
-								.append("] over at the dbcp name list of the sinnori conifg file[")
-								.append(sinnoriConfigFilePathString)
-								.append("]").toString();
-						throw new SinnoriConfigurationException(errorMessage);
-					}
-
-					dbcpNameList.add(dbcpName);
-					dbcpNameSet.add(dbcpName);
-				}
-			}
-		}
-		
-		// AllDBCPPartConfiguration allDBCPPartConfiguration = new AllDBCPPartConfiguration();		
-		// AllSubProjectPartConfiguration allSubProjectPartConfiguration = new AllSubProjectPartConfiguration();
-
-		
+		List<String> dbcpNameList = buildDBCPNameList(sinnoriConfigFilePathString, sinnoriConfigSequencedProperties);
 		
 		
 		SinnoriItemIDInfoManger sinnoriItemIDInfoManger = SinnoriItemIDInfoManger
@@ -619,8 +541,8 @@ public class SinnoriConfiguration {
 					if (null != fileOrPathStringGetter) {
 						String itemValue = fileOrPathStringGetter
 								.getFileOrPathStringDependingOnSinnoriInstalledPath(
-										mainProjectName,
-										sinnoriInstalledPathString, dbcpName);
+										sinnoriInstalledPathString,
+										mainProjectName, dbcpName);
 						sinnoriConfigSequencedProperties
 								.put(itemKey, itemValue);
 					}
@@ -647,7 +569,8 @@ public class SinnoriConfiguration {
 				if (null != fileOrPathStringGetter) {
 					String itemValue = fileOrPathStringGetter
 							.getFileOrPathStringDependingOnSinnoriInstalledPath(
-									mainProjectName, sinnoriInstalledPathString);
+									sinnoriInstalledPathString,
+									mainProjectName);
 
 					sinnoriConfigSequencedProperties.put(itemKey, itemValue);
 				}
@@ -671,8 +594,8 @@ public class SinnoriConfiguration {
 					if (null != fileOrPathStringGetter) {
 						String itemValue = fileOrPathStringGetter
 								.getFileOrPathStringDependingOnSinnoriInstalledPath(
-										mainProjectName,
-										sinnoriInstalledPathString);
+										sinnoriInstalledPathString,
+										mainProjectName);
 
 						sinnoriConfigSequencedProperties
 								.put(itemKey, itemValue);
@@ -684,6 +607,90 @@ public class SinnoriConfiguration {
 		SequencedPropertiesUtil.overwriteSequencedPropertiesFile(sinnoriConfigSequencedProperties,
 				getSinnoriConfigPropertiesTitle(mainProjectName), sinnoriConfigFilePathString, CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET);
 		
+	}
+
+	private static List<String> buildDBCPNameList(String sinnoriConfigFilePathString,
+			SequencedProperties sinnoriConfigSequencedProperties) throws SinnoriConfigurationException {
+		List<String> dbcpNameList = new ArrayList<>();
+		Set<String> dbcpNameSet = new HashSet<>();		
+		{
+			String itemValue = sinnoriConfigSequencedProperties
+					.getProperty(CommonStaticFinalVars.DBCP_NAME_LIST_KEY_STRING);
+			if (null == itemValue) {
+				String errorMessage = new StringBuilder(
+						"the dbcp name list key(=")
+						.append(CommonStaticFinalVars.DBCP_NAME_LIST_KEY_STRING)
+						.append(") was not found in the sinnori conifg file[")
+						.append(sinnoriConfigFilePathString).append("]")
+						.toString();
+				throw new SinnoriConfigurationException(errorMessage);
+			}
+
+			itemValue = itemValue.trim();
+
+			if (!itemValue.equals("")) {
+				StringTokenizer tokens = new StringTokenizer(itemValue, ",");
+
+				while (tokens.hasMoreTokens()) {
+					String token = tokens.nextToken();
+					String dbcpName = token.trim();
+					if (dbcpNameSet.contains(dbcpName)) {
+						String errorMessage = new StringBuilder("dbcp name[")
+								.append(dbcpName)
+								.append("] over at the dbcp name list of the sinnori conifg file[")
+								.append(sinnoriConfigFilePathString)
+								.append("]").toString();
+						throw new SinnoriConfigurationException(errorMessage);
+					}
+
+					dbcpNameList.add(dbcpName);
+					dbcpNameSet.add(dbcpName);
+				}
+			}
+		}
+		return dbcpNameList;
+	}
+
+	private static List<String> buildSubProjectNameList(String sinnoriConfigFilePathString,
+			SequencedProperties sinnoriConfigSequencedProperties) throws SinnoriConfigurationException {
+		List<String> subProjectNameList = new ArrayList<>();
+		Set<String> subProjectNameSet = new HashSet<>();
+		{
+			String itemValue = sinnoriConfigSequencedProperties
+					.getProperty(CommonStaticFinalVars.SUBPROJECT_NAME_LIST_KEY_STRING);
+			if (null == itemValue) {
+				String errorMessage = new StringBuilder(
+						"the sub project name list key(=")
+						.append(CommonStaticFinalVars.SUBPROJECT_NAME_LIST_KEY_STRING)
+						.append(") was not found in the sinnori conifg file[")
+						.append(sinnoriConfigFilePathString).append("]")
+						.toString();
+				throw new SinnoriConfigurationException(errorMessage);
+			}
+
+			itemValue = itemValue.trim();
+
+			if (!itemValue.equals("")) {
+				StringTokenizer tokens = new StringTokenizer(itemValue, ",");
+				while (tokens.hasMoreTokens()) {
+					String token = tokens.nextToken();
+					String subProjectName = token.trim();
+					if (subProjectNameSet.contains(subProjectName)) {
+						String errorMessage = new StringBuilder(
+								"sub project name[")
+								.append(subProjectName)
+								.append("] over at the project name list of the sinnori conifg file[")
+								.append(sinnoriConfigFilePathString)
+								.append("]").toString();
+						throw new SinnoriConfigurationException(errorMessage);
+					}
+
+					subProjectNameList.add(subProjectName);
+					subProjectNameSet.add(subProjectName);
+				}
+			}
+		}
+		return subProjectNameList;
 	}
 	
 	public CommonPartConfiguration getCommonPartConfiguration() {

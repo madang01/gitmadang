@@ -19,7 +19,6 @@ package kr.pe.sinnori.server;
 import java.io.FileNotFoundException;
 
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
-import kr.pe.sinnori.common.protocol.MessageCodecIF;
 import kr.pe.sinnori.server.task.AbstractServerTask;
 
 /**
@@ -35,7 +34,7 @@ public interface ServerObjectCacheManagerIF {
 	 * @return 지정된 클래스 로더에서 메시지 식별자와 1:1 대응하는 서버 코덱 객체
 	 * @throws DynamicClassCallException 동적 클래스를 다룰때 에러 발생시 던지는 예외
 	 */
-	public MessageCodecIF getServerMessageCodec(ClassLoader classLoader, String messageID) throws DynamicClassCallException;
+	// public MessageCodecIF getServerMessageCodec(final ClassLoader classLoader, String messageID) throws DynamicClassCallException;
 	
 	/**
 	 * 지정된 메시지 식별자와 1:1 대응하는 서버 타스크를 얻어 반환한다.

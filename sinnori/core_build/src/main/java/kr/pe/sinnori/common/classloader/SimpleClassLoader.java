@@ -22,68 +22,38 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.HashSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
+import kr.pe.sinnori.common.exception.DynamicClassCallException;
+import kr.pe.sinnori.common.protocol.MessageCodecIF;
 import kr.pe.sinnori.common.util.CommonStaticUtil;
 
-public class SimpleClassLoader extends ClassLoader {
+public class SimpleClassLoader extends ClassLoader implements ServerSimpleClassLoaderIF {
 	private InternalLogger log = InternalLoggerFactory.getInstance(SimpleClassLoader.class);
 
 	// private final Object monitor = new Object();
 
 	private String classloaderClassPathString = null;
 	private String classloaderReousrcesPathString = null;
-
+	private ServerSystemClassLoaderClassManagerIF serverSystemClassLoaderClassManager = null;
+	
 	private String firstPrefixDynamicClassFullName = null;
-	private final ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
-	private HashSet<String> systemClassLoaderTargetClassFullNameSet = new HashSet<String>();
-
+	private final static ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
+	
+	private ConcurrentHashMap<String, MessageCodecIF> messageCodecHash = new  ConcurrentHashMap<String, MessageCodecIF>();
+	
+	
 	public SimpleClassLoader(String classloaderClassPathString, String classloaderReousrcesPathString,
-			IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil) {
-		super(ClassLoader.getSystemClassLoader());
-
+			ServerSystemClassLoaderClassManagerIF serverSystemClassLoaderClassManager) {
+		super(systemClassLoader);
+		
 		this.classloaderClassPathString = classloaderClassPathString;
 		this.classloaderReousrcesPathString = classloaderReousrcesPathString;
+		this.serverSystemClassLoaderClassManager = serverSystemClassLoaderClassManager;
 
-		this.firstPrefixDynamicClassFullName = ioPartDynamicClassNameUtil.getFirstPrefixDynamicClassFullName();
-
-		String[] noTaskSystemClassLoaderTargetMessageIDList = { "SelfExnRes" };
-
-		for (String systemClassLoaderTargetMessageID : noTaskSystemClassLoaderTargetMessageIDList) {
-			systemClassLoaderTargetClassFullNameSet
-					.add(ioPartDynamicClassNameUtil.getMessageClassFullName(systemClassLoaderTargetMessageID));
-			systemClassLoaderTargetClassFullNameSet.add(
-					ioPartDynamicClassNameUtil.getClientMessageCodecClassFullName(systemClassLoaderTargetMessageID));
-			systemClassLoaderTargetClassFullNameSet
-					.add(ioPartDynamicClassNameUtil.getMessageDecoderClassFullName(systemClassLoaderTargetMessageID));
-			systemClassLoaderTargetClassFullNameSet
-					.add(ioPartDynamicClassNameUtil.getMessageEncoderClassFullName(systemClassLoaderTargetMessageID));
-			systemClassLoaderTargetClassFullNameSet.add(
-					ioPartDynamicClassNameUtil.getServerMessageCodecClassFullName(systemClassLoaderTargetMessageID));
-		}
-
-		String[] taskSystemClassLoaderTargetMessageIDList = { "Empty" };
-
-		for (String systemClassLoaderTargetMessageID : taskSystemClassLoaderTargetMessageIDList) {
-			systemClassLoaderTargetClassFullNameSet
-					.add(ioPartDynamicClassNameUtil.getMessageClassFullName(systemClassLoaderTargetMessageID));
-			systemClassLoaderTargetClassFullNameSet.add(
-					ioPartDynamicClassNameUtil.getClientMessageCodecClassFullName(systemClassLoaderTargetMessageID));
-			systemClassLoaderTargetClassFullNameSet
-					.add(ioPartDynamicClassNameUtil.getMessageDecoderClassFullName(systemClassLoaderTargetMessageID));
-			systemClassLoaderTargetClassFullNameSet
-					.add(ioPartDynamicClassNameUtil.getMessageEncoderClassFullName(systemClassLoaderTargetMessageID));
-			systemClassLoaderTargetClassFullNameSet.add(
-					ioPartDynamicClassNameUtil.getServerMessageCodecClassFullName(systemClassLoaderTargetMessageID));
-
-			systemClassLoaderTargetClassFullNameSet
-					.add(ioPartDynamicClassNameUtil.getClientTaskClassFullName(systemClassLoaderTargetMessageID));
-
-			systemClassLoaderTargetClassFullNameSet
-					.add(ioPartDynamicClassNameUtil.getServerTaskClassFullName(systemClassLoaderTargetMessageID));
-		}
+		this.firstPrefixDynamicClassFullName = serverSystemClassLoaderClassManager.getFirstPrefixDynamicClassFullName();
 
 		log.info("SimpleClassLoader hashCode=[{}] create", this.hashCode());
 	}
@@ -123,7 +93,7 @@ public class SimpleClassLoader extends ClassLoader {
 				return systemClassLoader.loadClass(classFullName);
 			}
 
-			if (systemClassLoaderTargetClassFullNameSet.contains(classFullName)) {
+			if (serverSystemClassLoaderClassManager.isSystemClassLoader(classFullName)) {
 				return systemClassLoader.loadClass(classFullName);
 			}
 
@@ -232,7 +202,7 @@ public class SimpleClassLoader extends ClassLoader {
 			try {
 				fis = new FileInputStream(classFile);
 				FileChannel fc = fis.getChannel();
-
+				
 				fc.read(fileBuffer);
 			} finally {
 				if (null != fis) {
@@ -327,6 +297,68 @@ public class SimpleClassLoader extends ClassLoader {
 
 		return url;
 	}*/
+	
+	public MessageCodecIF getMessageCodec(String messageID) throws DynamicClassCallException {
+		MessageCodecIF messageCodec = messageCodecHash.get(messageID);
+		
+		if (null == messageCodec) {
+			String classFullName = serverSystemClassLoaderClassManager.getServerMessageCodecClassFullName(messageID);
+			
+			Class<?> messageCodecClass = null;
+			Object messageCodecInstance = null;
+			try {
+				messageCodecClass = loadClass(classFullName);
+			} catch (ClassNotFoundException e) {
+				String errorMessage = new StringBuilder("the parameter messageID[")
+						.append(messageID)
+						.append("]'s server message codec[")
+						.append(classFullName)
+						.append("] is not found").toString();
+				
+				log.warn(errorMessage, e);
+				throw new DynamicClassCallException(errorMessage);
+			} catch (Exception | Error e) {
+				String errorMessage = new StringBuilder("fail to load the parameter messageID[")
+						.append(messageID)
+						.append("]'s server message codec[")
+						.append(classFullName)
+						.append("] class, errmsg=")
+						.append(e.getMessage()).toString();
+				
+				log.warn(errorMessage, e);
+				throw new DynamicClassCallException(errorMessage);
+			}
+			
+			try {
+				messageCodecInstance = messageCodecClass.getDeclaredConstructor().newInstance();
+			} catch (Exception | Error e) {
+				String errorMessage = new StringBuilder("fail to create a new instance of the parameter messageID[")
+						.append(messageID)
+						.append("]'s server message codec[")
+						.append(classFullName)
+						.append("] class").toString();
+				
+				log.warn(errorMessage, e);
+				throw new DynamicClassCallException(errorMessage);
+			}
+			
+			if (! (messageCodecInstance instanceof MessageCodecIF)) {
+				String errorMessage = new StringBuilder("the new instance[")
+						.append(classFullName)
+						.append("] is not a server message codec class").toString();
+				
+				log.warn(errorMessage);
+				throw new DynamicClassCallException(errorMessage);
+			}
+			
+			messageCodec = (MessageCodecIF)messageCodecInstance;
+			
+			messageCodecHash.put(messageID, messageCodec);
+		}		
+		
+		return messageCodec;
+	}
+	
 	
 	
 

@@ -10,8 +10,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
+import kr.pe.sinnori.common.AbstractJunitTest;
 import kr.pe.sinnori.common.config.AbstractDependencyValidator;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningCharset;
@@ -19,17 +18,15 @@ import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturnin
 import kr.pe.sinnori.common.config.nativevalueconverter.GeneralConverterReturningLongBetweenMinAndMax;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 
-public class MinDependOnMaxValidCheckerTest {
-	private final InternalLogger log = InternalLoggerFactory.getInstance(MinDependOnMaxValidCheckerTest.class);
+public class MinDependOnMaxValidCheckerTest extends AbstractJunitTest {
 
-	private final String prefixOfPart = "project.sample_base.";
-	private final Properties sinnoriConfigFileProperties = new Properties();
+	private final static String prefixOfPart = "project.sample_base.";
+	private final static Properties sinnoriConfigFileProperties = new Properties();
 
 	private ItemIDInfo<Long> longTypeDependedItemIDInfo = null;
 	private ItemIDInfo<Long> longTypeDependentItemIDInfo = null;
 	private AbstractDependencyValidator longTypeMinDependOnMaxValidChecker = null;
 
-	
 	@Before
 	public void setup() {
 		try {

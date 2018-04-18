@@ -27,7 +27,7 @@ public class SinnoriLogbackManger {
 		return SinnoriLogbackMangerHolder.singleton;
 	}
 	
-	public void setup(String sinnoriInstalledPathString, String mainProjectName, LogType logType) {
+	public void setup(String sinnoriInstalledPathString, String mainProjectName, LogType logType) throws IllegalStateException {
 		if (null == sinnoriInstalledPathString) {
 			throw new IllegalArgumentException("the parameter sinnoriInstalledPathString is null");
 		}
@@ -41,8 +41,8 @@ public class SinnoriLogbackManger {
 		}
 		
 		
-		String logbackConfigFilePathString = BuildSystemPathSupporter.getLogbackConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
-		String sinnoriLogPathString = BuildSystemPathSupporter.getLogPathString(sinnoriInstalledPathString, mainProjectName, logType);
+		String logbackConfigFilePathString = BuildSystemPathSupporter.getProjectLogbackConfigFilePathString(sinnoriInstalledPathString, mainProjectName);
+		String sinnoriLogPathString = BuildSystemPathSupporter.getProjectLogPathString(sinnoriInstalledPathString, mainProjectName, logType);
 		
 		
 		{
@@ -54,7 +54,7 @@ public class SinnoriLogbackManger {
 						.append(logbackConfigFilePathString)
 						.append("] doesn't exist").toString();
 				System.out.println(errorMessage);
-				return;
+				throw new IllegalStateException(errorMessage);
 			}
 			
 			
@@ -63,7 +63,7 @@ public class SinnoriLogbackManger {
 						.append(logbackConfigFilePathString)
 						.append("] is not a normal file").toString();
 				System.out.println(errorMessage);
-				return;
+				throw new IllegalStateException(errorMessage);
 			}
 
 
@@ -72,7 +72,7 @@ public class SinnoriLogbackManger {
 						.append(logbackConfigFilePathString)
 						.append("] does not have read permissions").toString();
 				System.out.println(errorMessage);
-				return;
+				throw new IllegalStateException(errorMessage);
 			}
 		}
 		
@@ -85,7 +85,7 @@ public class SinnoriLogbackManger {
 						.append(logbackConfigFilePathString)
 						.append("] doesn't exist").toString();
 				System.out.println(errorMessage);
-				return;
+				throw new IllegalStateException(errorMessage);
 			}
 			
 			
@@ -94,7 +94,7 @@ public class SinnoriLogbackManger {
 						.append(logbackConfigFilePathString)
 						.append("] is not a directory").toString();
 				System.out.println(errorMessage);
-				return;
+				throw new IllegalStateException(errorMessage);
 			}
 
 
@@ -103,7 +103,84 @@ public class SinnoriLogbackManger {
 						.append(logbackConfigFilePathString)
 						.append("] is marked read-only").toString();
 				System.out.println(errorMessage);
-				return;
+				throw new IllegalStateException(errorMessage);
+			}
+		}
+		
+		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_LOG_PATH,
+				sinnoriLogPathString);
+		System.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_LOGBACK_CONFIG_FILE,
+				logbackConfigFilePathString);
+	}
+	
+	public void setup(String sinnoriInstalledPathString) throws IllegalStateException {
+		if (null == sinnoriInstalledPathString) {
+			throw new IllegalArgumentException("the parameter sinnoriInstalledPathString is null");
+		}
+		
+		String logbackConfigFilePathString = BuildSystemPathSupporter.getProjectLogbackConfigFilePathString(sinnoriInstalledPathString, "sample_base");
+		String sinnoriLogPathString = BuildSystemPathSupporter.getSinnoriLogPathString(sinnoriInstalledPathString);
+		
+		
+		{
+			File logbackConfigFile = new File(logbackConfigFilePathString);		
+			
+			
+			if (! logbackConfigFile.exists()) {
+				String errorMessage = new StringBuilder("the logback config file[")
+						.append(logbackConfigFilePathString)
+						.append("] doesn't exist").toString();
+				System.out.println(errorMessage);
+				throw new IllegalStateException(errorMessage);
+			}
+			
+			
+			if (! logbackConfigFile.isFile()) {
+				String errorMessage = new StringBuilder("the logback config file[")
+						.append(logbackConfigFilePathString)
+						.append("] is not a normal file").toString();
+				System.out.println(errorMessage);
+				throw new IllegalStateException(errorMessage);
+			}
+
+
+			if (! logbackConfigFile.canRead()) {
+				String errorMessage = new StringBuilder("the logback config file[")
+						.append(logbackConfigFilePathString)
+						.append("] does not have read permissions").toString();
+				System.out.println(errorMessage);
+				throw new IllegalStateException(errorMessage);
+			}
+		}
+		
+		
+		{
+			File sinnoriLogPath = new File(sinnoriLogPathString);
+			
+			if (! sinnoriLogPath.exists()) {
+				String errorMessage = new StringBuilder("the log path[")
+						.append(logbackConfigFilePathString)
+						.append("] doesn't exist").toString();
+				System.out.println(errorMessage);
+				throw new IllegalStateException(errorMessage);
+			}
+			
+			
+			if (! sinnoriLogPath.isDirectory()) {
+				String errorMessage = new StringBuilder("the log path[")
+						.append(logbackConfigFilePathString)
+						.append("] is not a directory").toString();
+				System.out.println(errorMessage);
+				throw new IllegalStateException(errorMessage);
+			}
+
+
+			if (! sinnoriLogPath.canWrite()) {
+				String errorMessage = new StringBuilder("the log path[")
+						.append(logbackConfigFilePathString)
+						.append("] is marked read-only").toString();
+				System.out.println(errorMessage);
+				throw new IllegalStateException(errorMessage);
 			}
 		}
 		

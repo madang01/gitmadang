@@ -1,11 +1,22 @@
 package kr.pe.sinnori.impl.task.server;
 
+import kr.pe.sinnori.common.classloader.IOPartDynamicClassNameUtilTest;
+import kr.pe.sinnori.common.classloader.ServerSimpleClassLoaderIF;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.server.PersonalLoginManagerIF;
 import kr.pe.sinnori.server.task.AbstractServerTask;
 import kr.pe.sinnori.server.task.ToLetterCarrier;
 
+/**
+ * {@link IOPartDynamicClassNameUtilTest#testAllIOPartDynamicClassFullNameIsValid} 에서 이용
+ * @author Won Jonghoon
+ *
+ */
 public class EmptyServerTask extends AbstractServerTask {
+
+	public EmptyServerTask(ServerSimpleClassLoaderIF serverSimpleClassLoader) {
+		super();
+	}
 
 	@Override
 	public void doTask(String projectName, 

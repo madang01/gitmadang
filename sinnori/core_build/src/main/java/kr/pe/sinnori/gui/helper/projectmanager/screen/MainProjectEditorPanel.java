@@ -6,8 +6,8 @@ package kr.pe.sinnori.gui.helper.projectmanager.screen;
 
 import java.awt.FlowLayout;
 import java.awt.Frame;
-import java.awt.event.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,8 +30,8 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
-import javax.swing.event.*;
 import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
@@ -41,8 +41,8 @@ import com.jgoodies.forms.layout.FormLayout;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.buildsystem.BuildSystemPathSupporter;
-import kr.pe.sinnori.common.buildsystem.BuildSystemSupporter;
 import kr.pe.sinnori.common.buildsystem.MainProjectBuildSystemState;
+import kr.pe.sinnori.common.buildsystem.ProjectBuilder;
 import kr.pe.sinnori.common.config.fileorpathstringgetter.AbstractFileOrPathStringGetter;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.config.itemidinfo.SinnoriItemIDInfoManger;
@@ -448,7 +448,7 @@ public class MainProjectEditorPanel extends JPanel {
 				this.put(itemDescriptionKey, itemDescriptionValue);
 				this.put(itemKey, itemValue);
 
-				boolean isInactive = sinnoriItemIDInfoManger.isInactive(
+				boolean isInactive = sinnoriItemIDInfoManger.isDisabled(
 						itemID, prefixOfItemID, this);
 				if (isInactive)
 					continue;
@@ -500,7 +500,7 @@ public class MainProjectEditorPanel extends JPanel {
 					this.put(itemDescriptionKey, itemDescriptionValue);
 					this.put(itemKey, itemValue);
 
-					boolean isInactive = sinnoriItemIDInfoManger.isInactive(
+					boolean isInactive = sinnoriItemIDInfoManger.isDisabled(
 							itemID, prefixOfItemID, this);
 					if (isInactive)
 						continue;
@@ -551,7 +551,7 @@ public class MainProjectEditorPanel extends JPanel {
 				this.put(itemDescriptionKey, itemDescriptionValue);				
 				this.put(itemKey, itemValue);
 
-				boolean isInactive = sinnoriItemIDInfoManger.isInactive(
+				boolean isInactive = sinnoriItemIDInfoManger.isDisabled(
 						itemID, prefixOfItemID, this);
 				if (isInactive)
 					continue;
@@ -600,7 +600,7 @@ public class MainProjectEditorPanel extends JPanel {
 
 					this.put(itemKey, itemValue);				
 
-					boolean isInactive = sinnoriItemIDInfoManger.isInactive(
+					boolean isInactive = sinnoriItemIDInfoManger.isDisabled(
 							itemID, prefixOfItemID, this);
 					if (isInactive)
 						continue;
@@ -708,10 +708,9 @@ public class MainProjectEditorPanel extends JPanel {
 			return;
 		
 		try {
-			BuildSystemSupporter.changeProjectState(
-					sinnoriInstalledPathString, mainProjectName, 
-					isServer, isAppClient, 
-					isWebClient, servletSystemLibraryPathString, modifiedSinnoriConfigSequencedProperties);
+			ProjectBuilder projectBuilder = new ProjectBuilder(	sinnoriInstalledPathString, mainProjectName);
+			projectBuilder.changeProjectState(isServer, isAppClient, isWebClient, servletSystemLibraryPathString, modifiedSinnoriConfigSequencedProperties);
+
 		} catch (BuildSystemException e1) {
 			log.warn(e1.getMessage(), e1);
 			showMessageDialog(e1.getMessage());
@@ -759,7 +758,7 @@ public class MainProjectEditorPanel extends JPanel {
 			if (null != fileOrPathStringGetter) {
 				fileOrPathStringGetter
 						.getFileOrPathStringDependingOnSinnoriInstalledPath(
-								mainProjectName, sinnoriInstalledPathString);
+								sinnoriInstalledPathString, mainProjectName);
 			}
 			ItemIDInfo.ViewType itemViewType = subProjectPartItemIDInfo.getViewType();
 			Set<String> itemSet = subProjectPartItemIDInfo.getItemSet();
@@ -930,7 +929,7 @@ public class MainProjectEditorPanel extends JPanel {
 			if (null != fileOrPathStringGetter) {
 				fileOrPathStringGetter
 						.getFileOrPathStringDependingOnSinnoriInstalledPath(
-								mainProjectName, sinnoriInstalledPathString,
+								sinnoriInstalledPathString, mainProjectName, 
 								newDBCPName);
 			}
 			ItemIDInfo.ViewType itemViewType = dbcpPartItemIDInfo.getViewType();

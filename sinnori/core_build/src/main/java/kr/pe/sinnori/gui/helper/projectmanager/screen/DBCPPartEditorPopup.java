@@ -91,7 +91,7 @@ public class DBCPPartEditorPopup extends JDialog {
 			
 			boolean isInactive = true;
 			try {
-				isInactive = sinnoriItemIDInfoManger.isInactive(itemID, prefixOfItemID, dbcpPartSequencedProperties);
+				isInactive = sinnoriItemIDInfoManger.isDisabled(itemID, prefixOfItemID, dbcpPartSequencedProperties);
 				
 				if (isInactive) {
 					sinnoriItemIDInfoManger.getNativeValueAfterValidChecker(itemKey, dbcpPartSequencedProperties);

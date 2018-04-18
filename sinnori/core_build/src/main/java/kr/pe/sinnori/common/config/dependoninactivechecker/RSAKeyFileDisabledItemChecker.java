@@ -2,7 +2,7 @@ package kr.pe.sinnori.common.config.dependoninactivechecker;
 
 import java.io.File;
 
-import kr.pe.sinnori.common.config.AbstractDependOnInactiveChecker;
+import kr.pe.sinnori.common.config.AbstractDisabledItemChecker;
 import kr.pe.sinnori.common.config.AbstractNativeValueConverter;
 import kr.pe.sinnori.common.config.itemidinfo.ItemIDInfo;
 import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterOfSessionKeyRSAKeypairSource;
@@ -19,39 +19,39 @@ import kr.pe.sinnori.common.config.nativevalueconverter.SetTypeConverterOfSessio
  * @author Won Jonghoon
  * 
  */
-public class RSAKeyFileDependOnSourceInActiveChecker extends
-		AbstractDependOnInactiveChecker {
+public class RSAKeyFileDisabledItemChecker extends
+		AbstractDisabledItemChecker {
 
-	public RSAKeyFileDependOnSourceInActiveChecker(
-			ItemIDInfo<?> dependentSourceItemIDInfo,
-			ItemIDInfo<?> dependentTargetItemIDInfo, String[] inactiveStrings)
+	public RSAKeyFileDisabledItemChecker(
+			ItemIDInfo<?> disabeldTargetItemIDInfo,
+			ItemIDInfo<?> dependentItemIDInfo, String[] disabledConditionStrings)
 			throws IllegalArgumentException {
-		super(dependentSourceItemIDInfo, dependentTargetItemIDInfo,
-				inactiveStrings);
+		super(disabeldTargetItemIDInfo, dependentItemIDInfo,
+				disabledConditionStrings);
 
-		AbstractNativeValueConverter<?> dependentSourceItemValueConverter = dependentSourceItemIDInfo
+		AbstractNativeValueConverter<?> disabledItemValueConverter = disabeldTargetItemIDInfo
 				.getItemValueConverter();
 
-		if (!dependentSourceItemValueConverter.getGenericType().getName().equals(
+		if (!disabledItemValueConverter.getGenericType().getName().equals(
 				File.class.getName())) {
 			String errorMessage = new StringBuilder(
-					"the parameter dependentSourceItemIDInfo[")
-					.append(dependentTargetItemIDInfo.getItemID())
+					"the parameter disabeldTargetItemIDInfo[")
+					.append(disabeldTargetItemIDInfo.getItemID())
 					.append("]'s nativeValueConverter generic type[")
-					.append(dependentSourceItemValueConverter
+					.append(disabledItemValueConverter
 							.getGenericType().getName())
 					.append("] is not java.io.File").toString();
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		AbstractNativeValueConverter<?> dependentTargetItemValueConverter = dependentTargetItemIDInfo
+		AbstractNativeValueConverter<?> dependentItemValueConverter = dependentItemIDInfo
 				.getItemValueConverter();
-		if (!(dependentTargetItemValueConverter instanceof SetTypeConverterOfSessionKeyRSAKeypairSource)) {
+		if (!(dependentItemValueConverter instanceof SetTypeConverterOfSessionKeyRSAKeypairSource)) {
 			String errorMessage = new StringBuilder(
-					"the parameter dependentTargetItemIDInfo[")
-					.append(dependentTargetItemIDInfo.getItemID())
+					"the parameter dependentItemIDInfo[")
+					.append(dependentItemIDInfo.getItemID())
 					.append("]'s nativeValueConverter[")
-					.append(dependentTargetItemValueConverter.getClass()
+					.append(dependentItemValueConverter.getClass()
 							.getName())
 					.append("] is not a instance of SetTypeConverterOfSessionKeyRSAKeypairSource")
 					.toString();
