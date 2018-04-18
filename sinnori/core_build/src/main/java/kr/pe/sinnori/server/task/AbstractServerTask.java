@@ -213,6 +213,6 @@ public abstract class AbstractServerTask {
 	
 	@Override
 	public void finalize() {
-		log.info("call finalize");
+		log.info("{} call finalize", this.getClass().getSimpleName());
 	}
 }

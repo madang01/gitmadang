@@ -44,7 +44,7 @@ public final class EchoServerTask extends AbstractServerTask {
 		echoOutObj.setStartTime(echoInObj.getStartTime());
 		
 		toLetterCarrier.addBypassOutputMessage(echoOutObj);
-		log.info("hello");
+		
 	}	
 	
 	

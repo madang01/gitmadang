@@ -44,7 +44,7 @@ public abstract class AbstractAuthServerTask extends AbstractServerTask {
 		if (! personalLoginManagerOfFromSC.isLogin()) {
 			ToLetterCarrier.putInputErrorMessageToOutputMessageQueue(fromSC, 
 					SelfExn.ErrorType.valueOf(AccessDeniedException.class),
-					"this service is a login service, you are not login state",
+					"you are not logged in. this service requires a login",
 					wrapReadableMiddleObject, socketResourceOfFromSC, messageProtocol);
 			
 			return;

@@ -20,8 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
+import java.nio.file.Files;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.netty.util.internal.logging.InternalLogger;
@@ -195,22 +194,10 @@ public class SimpleClassLoader extends ClassLoader implements ServerSimpleClassL
 			if (fileSize > Integer.MAX_VALUE) {
 				throw new ClassFormatError("over max size of file");
 			}
+			
+			byte[] dynamicClassfileBytes = Files.readAllBytes(classFile.toPath());			
 
-			ByteBuffer fileBuffer = ByteBuffer.allocate((int) fileSize);
-			// byte[] classData = new byte[(int)fileSize];
-			FileInputStream fis = null;
-			try {
-				fis = new FileInputStream(classFile);
-				FileChannel fc = fis.getChannel();
-				
-				fc.read(fileBuffer);
-			} finally {
-				if (null != fis) {
-					fis.close();
-				}
-			}
-
-			retClass = defineClass(classFullName, fileBuffer.array(), 0, fileBuffer.capacity());
+			retClass = defineClass(classFullName, dynamicClassfileBytes, 0, dynamicClassfileBytes.length);
 
 			/*
 			 * Message2ClassFileInfo messageClassGroupInfo =
