@@ -30,7 +30,7 @@
 	
 	<union id="logger.logback.jarlibs">
 		<fileset file="${dir.core.mainlib}/ex/slf4j-api-1.7.25.jar" />
-		<fileset file="${dir.core.mainlib}/ex/jcl-over-slf4j-1.7.25.jar" />
+		<!-- fileset file="${dir.core.mainlib}/ex/jcl-over-slf4j-1.7.25.jar" / -->
 		<fileset file="${dir.core.mainlib}/ex/logback-core-1.2.3.jar" />
 		<fileset file="${dir.core.mainlib}/ex/logback-classic-1.2.3.jar" />
 	</union>
@@ -58,7 +58,7 @@
 	</target>	
 	
 	<union id="core.common.jarlibs">
-		<fileset file="${dir.core.mainlib}/ex/json-simple-1.1.1.jar" />
+		<!-- fileset file="${dir.core.mainlib}/ex/json-simple-1.1.1.jar" / -->
 		<fileset file="${dir.core.mainlib}/ex/commons-io-2.6.jar" />
 		<fileset file="${dir.core.mainlib}/ex/commons-collections4-4.1.jar" />
 		<fileset file="${dir.core.mainlib}/ex/commons-codec-1.11.jar" />		

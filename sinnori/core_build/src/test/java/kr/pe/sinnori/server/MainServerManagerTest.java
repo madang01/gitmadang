@@ -257,7 +257,6 @@ public class MainServerManagerTest extends AbstractJunitTest {
 
 	@Test
 	public void testEmpty메시지송수신() {
-
 		AnyProjectServer anyProjectServer = null;
 
 		try {

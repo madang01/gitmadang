@@ -72,7 +72,6 @@ import kr.pe.sinnori.common.io.SocketOutputStreamFactoryIF;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
 import kr.pe.sinnori.common.protocol.dhb.DHBMessageProtocol;
-import kr.pe.sinnori.common.protocol.djson.DJSONMessageProtocol;
 import kr.pe.sinnori.common.protocol.thb.THBMessageProtocol;
 import kr.pe.sinnori.common.type.ConnectionType;
 
@@ -142,11 +141,11 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 
 			break;
 		}
-		case DJSON: {
+		/*case DJSON: {
 			messageProtocol = new DJSONMessageProtocol(projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(),
 					charsetEncoderOfProject, charsetDecoderOfProject, dataPacketBufferPool);
 			break;
-		}
+		}*/
 		case THB: {
 			messageProtocol = new THBMessageProtocol(projectPartConfiguration.getDataPacketBufferMaxCntPerMessage(), charsetEncoderOfProject,
 					charsetDecoderOfProject, dataPacketBufferPool);

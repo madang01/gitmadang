@@ -9,6 +9,7 @@ import org.junit.BeforeClass;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
+import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.logback.SinnoriLogbackManger;
 
 public abstract class AbstractJunitTest {
@@ -59,6 +60,15 @@ public abstract class AbstractJunitTest {
 		}
 
 		log = InternalLoggerFactory.getInstance(AbstractJunitTest.class);
+		
+		String sinnoriRunningProjectName = "sample_base";
+		
+		System
+				.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_RUNNING_PROJECT_NAME,
+						sinnoriRunningProjectName);
+		System
+				.setProperty(CommonStaticFinalVars.JAVA_SYSTEM_PROPERTIES_KEY_SINNORI_INSTALLED_PATH,
+						sinnoriInstalledPathString);
 	}
 
 	
