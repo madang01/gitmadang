@@ -543,7 +543,7 @@ public class SinnoriItemIDInfoManger {
 					"1",
 					isDefaultValueCheck,
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
-							1, Integer.MAX_VALUE));
+							0, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
 			
 			itemID = ItemIDDefiner.ProjectPartItemIDDefiner.CLIENT_CONNECTION_MAX_COUNT_ITEMID;
@@ -556,7 +556,7 @@ public class SinnoriItemIDInfoManger {
 					"5",
 					isDefaultValueCheck,
 					new GeneralConverterReturningIntegerBetweenMinAndMax(
-							1, Integer.MAX_VALUE));
+							0, Integer.MAX_VALUE));
 			addProjectPartItemIDInfo(itemIDInfo);
 								
 	

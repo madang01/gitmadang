@@ -25,7 +25,7 @@ import kr.pe.sinnori.common.message.AbstractMessage;
  */
 public class BinaryPublicKey extends AbstractMessage {
 	private byte[] publicKeyBytes;
-
+	
 	public byte[] getPublicKeyBytes() {
 		return publicKeyBytes;
 	}

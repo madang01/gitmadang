@@ -27,7 +27,6 @@ import kr.pe.sinnori.common.protocol.MessageCodecIF;
  *
  */
 public final class BinaryPublicKeyClientCodec implements MessageCodecIF {
-
 	@Override
 	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
 		return new BinaryPublicKeyDecoder();

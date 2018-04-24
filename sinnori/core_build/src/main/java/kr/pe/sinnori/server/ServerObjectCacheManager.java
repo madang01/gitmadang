@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
@@ -24,7 +25,7 @@ public class ServerObjectCacheManager implements ServerObjectCacheManagerIF {
 	private SimpleClassLoader workBaseClassLoader = null;
 
 	private final ConcurrentHashMap<String, ServerTaskObjectInfo> className2ServerTaskObjectInfoHash = new ConcurrentHashMap<String, ServerTaskObjectInfo>();
-	// private ReentrantLock lock = new ReentrantLock();
+	private ReentrantLock lock = new ReentrantLock();
 
 	public ServerObjectCacheManager(ServerClassLoaderBuilder serverClassLoaderBuilder,
 			IOPartDynamicClassNameUtil ioPartDynamicClassNameUtil) {
@@ -41,7 +42,7 @@ public class ServerObjectCacheManager implements ServerObjectCacheManagerIF {
 		String classFileName = null;
 
 		try {
-			retClass = workBaseClassLoader.loadClass(classFullName);
+			retClass = workBaseClassLoader.loadClass(classFullName);		
 		} catch (ClassNotFoundException e) {
 			// String errorMessage =
 			// String.format("ServerClassLoader hashCode=[%d],
@@ -149,7 +150,7 @@ public class ServerObjectCacheManager implements ServerObjectCacheManagerIF {
 			throws DynamicClassCallException, FileNotFoundException {
 		ServerTaskObjectInfo serverTaskObjectInfo = className2ServerTaskObjectInfoHash.get(classFullName);
 		if (null == serverTaskObjectInfo) {
-			/*lock.lock();
+			lock.lock();
 			try {
 				serverTaskObjectInfo = className2ServerTaskObjectInfoHash.get(classFullName);
 				if (null == serverTaskObjectInfo) {
@@ -157,24 +158,19 @@ public class ServerObjectCacheManager implements ServerObjectCacheManagerIF {
 				}
 			} finally {
 				lock.unlock();
-			}*/
-
-			serverTaskObjectInfo = buildNewServerTaskObjectInfo(classFullName);
-			
+			}			
 		} else {
 			if (serverTaskObjectInfo.isModifed()) {
-				/*lock.lock();
+				lock.lock();
 				try {
 					if (serverTaskObjectInfo.isModifed()) {
-						*//** 새로운 서버 클래스 로더로 교체 *//*
+						/** 새로운 서버 클래스 로더로 교체 */
 						workBaseClassLoader = serverClassLoaderBuilder.build();
 						serverTaskObjectInfo = buildNewServerTaskObjectInfo(classFullName);
 					}
 				} finally {
 					lock.unlock();
-				}*/
-				workBaseClassLoader = serverClassLoaderBuilder.build();
-				serverTaskObjectInfo = buildNewServerTaskObjectInfo(classFullName);
+				}
 			}
 		}
 		return serverTaskObjectInfo;

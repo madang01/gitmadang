@@ -1,10 +1,12 @@
 package main;
+import java.io.IOException;
 import java.util.Date;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.client.AnyProjectConnectionPoolIF;
 import kr.pe.sinnori.client.ConnectionPoolManager;
+import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.common.message.AbstractMessage;
 import kr.pe.sinnori.impl.message.Echo.Echo;
 
@@ -16,7 +18,23 @@ public class SinnoriAppClientMain {
 		
 		log.info("start");
 		
-		AnyProjectConnectionPoolIF mainProjectConnectionPool = ConnectionPoolManager.getInstance().getMainProjectConnectionPool();
+		ConnectionPoolManager connectionPoolManager = ConnectionPoolManager.getInstance();
+		
+		AnyProjectConnectionPoolIF mainProjectConnectionPool = connectionPoolManager.getMainProjectConnectionPool();
+		
+		
+		String host = "172.30.1.15";
+		int port=9090;
+		
+		AbstractConnection conn = null;
+		
+		try {
+			conn = mainProjectConnectionPool.createConnection(host, port);
+		} catch (Exception e) {
+			log.error("fail to create a connection", e);
+			System.exit(1);
+		}
+		
 		
 		java.util.Random random = new java.util.Random();
 		
@@ -24,10 +42,10 @@ public class SinnoriAppClientMain {
 		long afterTime = 0;
 		
 		
-		int retryCount = 1000;
+		int retryCount = 1;
 		
 		beforeTime= new Date().getTime();
-		
+		try {
 		for (int i=0; i < retryCount; i++) {	
 			Echo echoInObj = new Echo();
 			echoInObj.setRandomInt(random.nextInt());
@@ -35,7 +53,7 @@ public class SinnoriAppClientMain {
 					
 			AbstractMessage messageFromServer = null;
 			try {
-				messageFromServer = mainProjectConnectionPool.sendSyncInputMessage(echoInObj);
+				messageFromServer = conn.sendSyncInputMessage(echoInObj);
 				
 				if (messageFromServer instanceof Echo) {
 					Echo echoOutObj = (Echo)messageFromServer;
@@ -55,6 +73,14 @@ public class SinnoriAppClientMain {
 		afterTime= new Date().getTime();
 		
 		log.info("{} 번 시간차={} ms, 평균={} ms", retryCount, (afterTime-beforeTime), (double)(afterTime-beforeTime)/retryCount);
-				
+		} finally {
+			if (null != conn) {
+				try {
+					conn.close();
+				} catch (IOException e) {
+					log.error("fail to close the connection", e);
+				}
+			}
+		}
 	}
 }

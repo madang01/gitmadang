@@ -68,7 +68,7 @@ public class AnyProjectServer {
 	
 	private ServerObjectCacheManager serverObjectCacheManager = null;
 	
-	//private ServerProjectMonitor serverProjectMonitor = null;
+	private ServerProjectMonitor serverProjectMonitor = null;
 	
 	public AnyProjectServer(ProjectPartConfiguration projectPartConfiguration)
 			throws NoMoreDataPacketBufferException, SinnoriConfigurationException {
@@ -115,14 +115,8 @@ public class AnyProjectServer {
 			}
 		}
 		
-		
-		
-		
 		acceptQueue = new ArrayBlockingQueue<SocketChannel>(
 				projectPartConfiguration.getServerAcceptQueueSize());
-		
-		
-		
 		
 		IEOServerThreadPoolSetManagerIF ieoThreadPoolManager = new IEOServerThreadPoolSetManager();
 		
@@ -176,8 +170,9 @@ public class AnyProjectServer {
 				projectPartConfiguration.getServerOutputMessageQueueSize(), 
 				dataPacketBufferPool, ieoThreadPoolManager);
 
-		/*serverProjectMonitor = new ServerProjectMonitor(
-				projectPartConfiguration.getServerMonitorTimeInterval());*/
+		serverProjectMonitor = new ServerProjectMonitor(
+				projectPartConfiguration.getServerMonitorTimeInterval(), socketResourceManager);
+		serverProjectMonitor.start();
 
 	}
 
@@ -225,11 +220,7 @@ public class AnyProjectServer {
 		
 
 		outputMessageWriterPool.stopAll();
-	}
-
-	
-
-	
+	}	
 
 	/**
 	 * @return 서버 프로젝트 정보
@@ -251,58 +242,34 @@ public class AnyProjectServer {
 	 * @author Won Jonghoon
 	 * 
 	 */
-	/*private class ServerProjectMonitor extends Thread {
-
-		private long monitorInterval;
-
-		// private long requestTimeout;
-
-		public ServerProjectMonitor(long monitorInterval) {
-			this.monitorInterval = monitorInterval;
-			// this.requestTimeout = requestTimeout;
+	private class ServerProjectMonitor extends Thread {		
+		private SocketResourceManagerIF socketResourceManager = null;
+		private long serverMonitorTimeInterval;
+		
+		public ServerProjectMonitor(long serverMonitorTimeInterval, 
+				SocketResourceManagerIF socketResourceManager) {
+			this.serverMonitorTimeInterval = serverMonitorTimeInterval;
+			this.socketResourceManager = socketResourceManager;
 		}
 
 		@Override
 		public void run() {
+			log.info("ServerProjectMonitor start");
+			
 			try {
 				while (!Thread.currentThread().isInterrupted()) {
-
+					log.info("the number of socketResources[{}]", socketResourceManager.getNumberOfSocketResources());
 					
-					 * MonitorServerProjectInfo projectInfo =
-					 * getInfo(requestTimeout);
-					 * 
-					 * log.info(projectInfo.toString());
-					 
-
-					
-					 * int size = projectInfo.monitorClientInfoList.size();
-					 * 
-					 * for (int i=0; i < size; i++) { MonitorClientInfo
-					 * monitorClientInfo
-					 * =projectInfo.monitorClientInfoList.get(i); if (-1 !=
-					 * monitorClientInfo.timeout) { // 삭제 대상
-					 * log.info(String.format
-					 * ("server project[%s] ServerProjectMonitor 삭제 대상, %s",
-					 * projectName, monitorClientInfo.cr.toString())); //
-					 * monitorClientInfo.scHashCode
-					 * removeClient(monitorClientInfo.sc); } }
-					 
-
-					Thread.sleep(monitorInterval);
+					Thread.sleep(serverMonitorTimeInterval);
 				}
-				log.warn(String.format(
-						"server project[%s] ServerProjectMonitor loop exit",
-						projectPartConfiguration.getProjectName()));
-			} catch (InterruptedException e) {
-				log.warn(String.format(
-						"server project[%s] ServerProjectMonitor interrupt",
-						projectPartConfiguration.getProjectName()), e);
-			} catch (Exception e) {
-				log.warn(String.format(
-						"server project[%s] ServerProjectMonitor unknow error",
-						projectPartConfiguration.getProjectName()), e);
+			} catch(InterruptedException e) {
+				log.info("ServerProjectMonitor::interrupr");
+			} catch(Exception e) {
+				log.info("ServerProjectMonitor::unknow error", e);
 			}
+
+			log.info("ServerProjectMonitor end");
 		}
-	}*/
+	}
 
 }

@@ -7,13 +7,13 @@ public abstract class AbstractConnectionPoolParameter {
 	
 	public AbstractConnectionPoolParameter(int poolSize, int poolMaxSize,
 			ConnectionPoolSupporterIF connectionPoolSupporter) {
-		if (poolSize <= 0) {
-			String errorMessage = String.format("the parameter poolSize[%d] is less than or equal to zero", poolSize); 
+		if (poolSize < 0) {
+			String errorMessage = String.format("the parameter poolSize[%d] is less than zero", poolSize); 
 			throw new IllegalArgumentException(errorMessage);
 		}
 		
-		if (poolMaxSize <= 0) {
-			String errorMessage = String.format("the parameter poolMaxSize[%d] is less than or equal to zero", poolMaxSize); 
+		if (poolMaxSize < 0) {
+			String errorMessage = String.format("the parameter poolMaxSize[%d] is less than zero", poolMaxSize); 
 			throw new IllegalArgumentException(errorMessage);
 		}
 

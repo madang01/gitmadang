@@ -143,14 +143,14 @@ public class AsynPrivateConnection extends AbstractAsynConnection {
 				throw e;
 			}
 		} else {
-			if (isInQueue()) {
+			/*if (isInQueue()) {
 				String errorMessage = String.format(
 						"연결 클래스가 큐 대기중 상태입니다. fromLetter=[%s]",
 						fromLetter.toString());
 
 				log.warn(errorMessage);
 				return;
-			}
+			}*/
 
 			try {
 				asynPrivateMailbox.putSyncOutputMessage(fromLetter);

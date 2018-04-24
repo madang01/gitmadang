@@ -26,7 +26,6 @@ import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
  *
  */
 public final class BinaryPublicKeyDecoder extends AbstractMessageDecoder {
-
 	@Override
 	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object  middleReadableObject) throws BodyFormatException {
 		BinaryPublicKey binaryPublicKey = new BinaryPublicKey();
