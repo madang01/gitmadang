@@ -100,6 +100,8 @@ public final class AsynPrivateMailbox implements AsynPrivateMailboxIF {
 		if (mailboxID != fromMailboxID) {
 			log.warn("drop the received letter[{}] because it's mailbox id is different form this mailbox id[{}]",
 					fromLetter.toString(), mailboxID);
+			
+			wrapReadableMiddleObject.closeReadableMiddleObject();
 			return;
 		}
 
@@ -109,6 +111,8 @@ public final class AsynPrivateMailbox implements AsynPrivateMailboxIF {
 			if (mailID != fromMailID) {
 				log.warn("drop the received letter[{}] because it's mail id is different form this mailbox's mail id[{}]",
 						fromLetter.toString(), mailID);
+				
+				wrapReadableMiddleObject.closeReadableMiddleObject();
 				return;
 			}
 		}		
@@ -121,6 +125,9 @@ public final class AsynPrivateMailbox implements AsynPrivateMailboxIF {
 				log.warn(
 						"clear the old received message[{}] from the ouputmessage queue of this mailbox[mailID={}] becase new message recevied",
 						oldFromLetter.toString(), mailID);
+				
+				WrapReadableMiddleObject oldWrapReadableMiddleObject = oldFromLetter.getWrapReadableMiddleObject();
+				oldWrapReadableMiddleObject.closeReadableMiddleObject();
 			}
 		}
 		
@@ -157,6 +164,7 @@ public final class AsynPrivateMailbox implements AsynPrivateMailboxIF {
 					log.warn(
 							"drop the received message[{}] because it's mail id is different form this mailbox's mail id[{}]",
 							fromLetter.toString(), mailID);
+					wrapReadableMiddleObject.closeReadableMiddleObject();
 
 					workingTimeOut -= (startTime - System.currentTimeMillis());
 					if (workingTimeOut <= 0) {

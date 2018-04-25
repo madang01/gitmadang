@@ -63,11 +63,26 @@ System
 		String host = "172.30.1.15";
 		int port=9090;
 		
-		try {
-			conn = mainProjectConnectionPool.createConnection(host, port);
-		} catch (Exception e) {
-			log.error("fail to create a connection", e);
-			// System.exit(1);
+		int retryCount = 1;
+		long retryInterval = 5000;
+		
+		while(null == conn) {
+			try {
+				conn = mainProjectConnectionPool.createConnection(host, port);			
+			} catch (Exception e) {
+				log.warn("1.fail to create a connection", e);
+				// System.exit(1);
+			}
+			if (null != conn) {
+				break;
+			}
+			
+			try {
+				Thread.sleep(retryInterval);
+			} catch (InterruptedException e) {
+			}
+			retryCount++;
+			log.info("1.retry[{}] to connect", retryCount);
 		}		
 	}
 
@@ -81,17 +96,46 @@ System
 	
 	@Override
 	public SampleResult runTest(JavaSamplerContext arg0) {
-		SampleResult result = new SampleResult();		
-
-		result.sampleStart();
-		
-		
+		int maxRetry = 10;		
 
 		// Write your test code here.
-		if (null != conn) {
+		if (null == conn) {
+			int retryCount = 0;
+			long retryInterval = 5000;
 			
+			ConnectionPoolManager connectionPoolManager = ConnectionPoolManager.getInstance();
 			
+			AnyProjectConnectionPoolIF mainProjectConnectionPool = connectionPoolManager.getMainProjectConnectionPool();
 			
+			String host = "172.30.1.15";
+			int port=9090;
+			
+			while(null == conn && retryCount < maxRetry) {
+				retryCount++;
+				log.info("2.retry[{}] to connect", retryCount);
+				
+				try {
+					conn = mainProjectConnectionPool.createConnection(host, port);
+				} catch (Exception e) {
+					log.warn("2.fail to create a connection", e);
+					// System.exit(1);
+				}
+				if (null != conn) {
+					break;
+				}
+				
+				try {
+					Thread.sleep(retryInterval);
+				} catch (InterruptedException e) {
+				}
+				
+			}	
+		}		
+		
+		SampleResult result = new SampleResult();
+		result.sampleStart();
+		
+		if (null != conn) {			
 			java.util.Random random = new java.util.Random();
 
 			Echo echoInObj = new Echo();
@@ -135,7 +179,7 @@ System
 				try {
 					conn.close();
 				} catch (IOException e1) {
-					log.error("fail to close the connection", e1);
+					log.error("1.fail to close the connection", e1);
 				}
 				
 				conn = null;
@@ -147,10 +191,20 @@ System
 						.append(conn.hashCode())
 						.append(", errmsg=")
 						.append(e.getMessage()).toString(), e);
+				
+				try {
+					conn.close();
+				} catch (IOException e1) {
+					log.error("2.fail to close the connection", e1);
+				}
+				
+				conn = null;
 			}		
 		} else {
 			result.setSuccessful(false);
-			result.setSampleLabel("echo 메시지 입력/출력 환경 설정 실패");
+			result.setSampleLabel(new StringBuilder("서버 최대[")
+					.append(maxRetry)
+					.append("] 접속 연결 실패").toString());
 		}
 		
 		//

@@ -300,8 +300,13 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 		if (projectPartConfiguration.getConnectionType().equals(ConnectionType.SYNC_PRIVATE)) {
 			SyncPrivateSocketResource syncPrivateSocketResource = syncPrivateSocketResourceFactory.makeNewSyncPrivateSocketResource();
 
-			conn = new SyncPrivateConnection(connectionFixedParameter,
+			try {
+				conn = new SyncPrivateConnection(connectionFixedParameter,
 					syncPrivateSocketResource);
+			} catch(Exception | Error e) {
+				syncPrivateSocketResource.releaseSocketResources();
+				throw e;
+			}
 		} else {
 			AsynSocketResourceIF asynSocketResource = asynSocketResourceFactory.makeNewAsynSocketResource();
 
@@ -310,12 +315,22 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 				AsynPrivateMailboxPoolIF asynPrivateMailboxPool
 					=	asynPrivateMailboxPoolFactory.makeNewAsynPrivateMailboxPool();	
 				
+				try {
 				conn = new AsynPublicConnection(connectionFixedParameter,						
 						asynSocketResource,
 						asynPrivateMailboxPool);
-			} else {				
+				} catch(Exception | Error e) {
+					asynSocketResource.releaseSocketResources();
+					throw e;
+				}
+			} else {			
+				try {
 				conn = new AsynPrivateConnection(connectionFixedParameter, 
 						asynSocketResource);
+				} catch(Exception | Error e) {
+					asynSocketResource.releaseSocketResources();
+					throw e;
+				}
 			}
 		}
 

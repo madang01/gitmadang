@@ -106,10 +106,18 @@ public class WrapBuffer {
 	public void finalize() {
 		if (isPoolBuffer) {
 			if (! isInQueue) {
-				log.warn("this wrap buffer[hashcode={}] was destroyed outside the queue", hashCode());
+				String errorMessage = new StringBuilder("this wrap buffer[hashcode=")
+						.append(hashCode())
+						.append("] was destroyed outside the queue").toString();
+				
+				log.warn(errorMessage);
 			}
 		} else {
-			log.warn("this wrap buffer[hashcode={}] was destroyed", hashCode());
+			String errorMessage = new StringBuilder("this wrap buffer[hashcode=")
+					.append(hashCode())
+					.append("] was destroyed").toString();
+			
+			log.warn(errorMessage);
 		}
 		
 	}
