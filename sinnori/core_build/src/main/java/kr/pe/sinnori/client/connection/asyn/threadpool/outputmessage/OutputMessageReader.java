@@ -22,6 +22,7 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -191,6 +192,7 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 
 		// int numRead = 0;
 		// long totalRead = 0;
+		List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();
 
 		try {
 			while (! isInterrupted()) {
@@ -234,8 +236,7 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 
 							asynConnection.setFinalReadTime();
 
-							List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = messageProtocol
-									.S2MList(socketOutputStream);
+							messageProtocol.S2MList(socketOutputStream, wrapReadableMiddleObjectList);
 
 							
 							final int wrapReadableMiddleObjectListSize = wrapReadableMiddleObjectList.size();

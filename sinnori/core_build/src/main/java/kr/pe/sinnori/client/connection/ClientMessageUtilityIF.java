@@ -21,7 +21,7 @@ public interface ClientMessageUtilityIF {
 	public List<WrapBuffer> buildReadableWrapBufferList(ClassLoader classLoader, AbstractMessage inputMessage) 
 			throws DynamicClassCallException, NoMoreDataPacketBufferException, BodyFormatException, HeaderFormatException;
 	
-	public List<WrapReadableMiddleObject> getWrapReadableMiddleObjectList(SocketOutputStream socketOutputStream) throws HeaderFormatException, NoMoreDataPacketBufferException;
+	public void S2MList(SocketOutputStream socketOutputStream, List<WrapReadableMiddleObject> wrapReadableMiddleObjectList) throws HeaderFormatException, NoMoreDataPacketBufferException;
 	
 	public void releaseWrapBufferList(List<WrapBuffer> warpBufferList);
 }

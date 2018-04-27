@@ -10,6 +10,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -311,9 +312,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("4");
 
-			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
+			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();
 			try {
-				wrapReadableMiddleObjectList = messageProtocol.S2MList(sos);
+				messageProtocol.S2MList(sos, wrapReadableMiddleObjectList);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
@@ -605,9 +606,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("4");
 
-			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
+			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();
 			try {
-				wrapReadableMiddleObjectList = messageProtocol.S2MList(sos);
+				messageProtocol.S2MList(sos, wrapReadableMiddleObjectList);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
@@ -895,9 +896,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("4");
 
-			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
+			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();
 			try {
-				wrapReadableMiddleObjectList = messageProtocol.S2MList(sos);
+				messageProtocol.S2MList(sos, wrapReadableMiddleObjectList);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
@@ -1198,9 +1199,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("4");
 
-			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
+			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();
 			try {
-				wrapReadableMiddleObjectList = messageProtocol.S2MList(sos);
+				messageProtocol.S2MList(sos, wrapReadableMiddleObjectList);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
@@ -1500,9 +1501,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("4");
 
-			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
+			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();
 			try {
-				wrapReadableMiddleObjectList = messageProtocol.S2MList(sos);
+				messageProtocol.S2MList(sos, wrapReadableMiddleObjectList);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
@@ -1812,9 +1813,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("4");
 
-			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
+			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();
 			try {
-				wrapReadableMiddleObjectList = messageProtocol.S2MList(sos);
+				messageProtocol.S2MList(sos, wrapReadableMiddleObjectList);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
@@ -2128,9 +2129,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("4");
 
-			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
+			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();
 			try {
-				wrapReadableMiddleObjectList = messageProtocol.S2MList(sos);
+				messageProtocol.S2MList(sos, wrapReadableMiddleObjectList);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
@@ -2443,9 +2444,9 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("4");
 
-			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
+			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();
 			try {
-				wrapReadableMiddleObjectList = messageProtocol.S2MList(sos);
+				messageProtocol.S2MList(sos, wrapReadableMiddleObjectList);
 			} catch (Exception e) {
 				String errorMessage = "error::" + e.getMessage();
 				log.warn(errorMessage, e);
@@ -2469,10 +2470,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 				toLetterCarrier.addSyncOutputMessage(inputMessage);
 			}
-
 		}
-
-		
 
 		AbstractServerTask serverTaskMock = new AbstractServerTaskMock();
 		class ServerSimpleClassLoaderMock implements ServerSimpleClassLoaderIF {

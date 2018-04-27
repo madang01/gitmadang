@@ -128,7 +128,9 @@ public class AsynPublicConnection extends AbstractAsynConnection {
 			
 			asynSocketResource.getInputMessageWriter().putIntoQueue(toLetter);
 
+			
 			wrapReadableMiddleObject = asynPrivateMailbox.getSyncOutputMessage();
+			
 
 		} finally {
 			asynPrivateMailboxPool.offer(asynPrivateMailbox);

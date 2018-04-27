@@ -17,7 +17,6 @@
 package kr.pe.sinnori.client.connection.asyn.noshare;
 
 import java.io.IOException;
-import java.net.SocketTimeoutException;
 import java.util.List;
 
 import kr.pe.sinnori.client.connection.ConnectionFixedParameter;
@@ -103,14 +102,14 @@ public class AsynPrivateConnection extends AbstractAsynConnection {
 		InputMessageWriterIF  inputMessageWriter  = asynSocketResource.getInputMessageWriter();
 		inputMessageWriter.putIntoQueue(toLetter);
 		
-		try {
+		// try {
 			wrapReadableMiddleObject = asynPrivateMailbox.getSyncOutputMessage();
-		} catch(SocketTimeoutException e) {			
+		/*} catch(SocketTimeoutException e) {			
 			String errorMessage = new StringBuilder("timeout for the input message[")
 					.append(e.getMessage()).append("][")
 					.append(inObj.toString()).append("]").toString();
 			throw new SocketTimeoutException(errorMessage);
-		}		
+		}	*/	
 
 		AbstractMessage outObj = clientMessageUtility.buildOutputMessage(classLoader, wrapReadableMiddleObject);
 		if (outObj instanceof SelfExnRes) {

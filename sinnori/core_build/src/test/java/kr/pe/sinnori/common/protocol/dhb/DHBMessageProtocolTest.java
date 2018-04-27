@@ -8,6 +8,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -129,9 +130,9 @@ public class DHBMessageProtocolTest extends AbstractJunitTest {
 			
 			//log.info("4");
 			
-			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
+			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();
 			try {
-				wrapReadableMiddleObjectList = dhbMessageProtocol.S2MList(sos);
+				dhbMessageProtocol.S2MList(sos, wrapReadableMiddleObjectList);
 			} catch (Exception e) {
 				String errorMessage = "error::"+e.getMessage();
 				log.warn(errorMessage, e);

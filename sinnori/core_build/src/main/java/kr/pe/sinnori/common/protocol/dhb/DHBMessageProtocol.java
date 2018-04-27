@@ -24,7 +24,6 @@ import java.nio.charset.CharsetEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 
 import io.netty.util.internal.logging.InternalLogger;
@@ -318,7 +317,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 	}
 
 	@Override
-	public List<WrapReadableMiddleObject> S2MList(SocketOutputStream socketOutputStream)
+	public void S2MList(SocketOutputStream socketOutputStream, List<WrapReadableMiddleObject> wrapReadableMiddleObjectList)
 			throws HeaderFormatException, NoMoreDataPacketBufferException {
 		if (null == socketOutputStream) {
 			throw new IllegalArgumentException("the parameter socketOutputStream is null");
@@ -326,17 +325,10 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 
 		DHBMessageHeader workingDHBMessageHeader = (DHBMessageHeader) socketOutputStream.getUserDefObject();
 
-		List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new LinkedList<WrapReadableMiddleObject>();
 		boolean isMoreMessage = false;
 		long socketOutputStreamSize = socketOutputStream.size();
 		
-		java.security.MessageDigest md5 = null;
-		try {
-			md5 = MessageDigest.getInstance("MD5");
-		} catch (NoSuchAlgorithmException e) {
-			log.error("MD5 initialization failed");
-			System.exit(1);
-		}
+		
 
 		try {
 			do {
@@ -356,7 +348,14 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 					
 					byte[] actualHeaderBodyMD5Bytes = null;
 					{	
-						md5.reset();
+						java.security.MessageDigest md5 = null;
+						try {
+							md5 = MessageDigest.getInstance("MD5");
+						} catch (NoSuchAlgorithmException e) {
+							log.error("MD5 initialization failed");
+							System.exit(1);
+						}
+						// md5.reset();
 						md5.update(headerBytes, 0, headerBodySize);
 						actualHeaderBodyMD5Bytes = md5.digest();
 					}
@@ -461,8 +460,6 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 		} finally {
 			socketOutputStream.setUserDefObject(workingDHBMessageHeader);
 		}
-
-		return wrapReadableMiddleObjectList;
 	}
 
 	@Override

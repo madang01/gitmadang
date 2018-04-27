@@ -119,9 +119,9 @@ public class ClientMessageUtility implements ClientMessageUtilityIF {
 		return outputMessage;
 	}
 
-	public List<WrapReadableMiddleObject> getWrapReadableMiddleObjectList(SocketOutputStream socketOutputStream)
+	public void S2MList(SocketOutputStream socketOutputStream, List<WrapReadableMiddleObject> wrapReadableMiddleObjectList)
 			throws HeaderFormatException, NoMoreDataPacketBufferException {
-		return messageProtocol.S2MList(socketOutputStream);
+		messageProtocol.S2MList(socketOutputStream, wrapReadableMiddleObjectList);
 	}
 
 	public List<WrapBuffer> buildReadableWrapBufferList(ClassLoader classLoader, AbstractMessage inputMessage)

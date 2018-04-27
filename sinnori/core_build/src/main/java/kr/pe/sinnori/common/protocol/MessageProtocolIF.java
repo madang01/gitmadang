@@ -40,7 +40,7 @@ public interface MessageProtocolIF {
 	
 	
 	
-	public List<WrapReadableMiddleObject> S2MList(SocketOutputStream socketOutputStream) 
+	public void S2MList(SocketOutputStream socketOutputStream, List<WrapReadableMiddleObject> wrapReadableMiddleObjectList) 
 					throws HeaderFormatException, NoMoreDataPacketBufferException;
 	
 	public SingleItemDecoderIF getSingleItemDecoder();

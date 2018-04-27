@@ -257,8 +257,15 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 			outObj = conn.sendSyncInputMessage(inputMessage);
 		} catch (BodyFormatException e) {
 			throw e;
+		} catch (SocketTimeoutException e) {
+			/** 연결 종류 마다  각자 처리하며 이곳에서는 아무 행동하지 않음 */
+			throw e;
 		} catch (IOException e) {
-			// log.warn("IOException", e);
+			String errorMessage = new StringBuilder()
+					.append("this connection[")
+					.append(conn.hashCode())
+					.append("] was closed because of IOException").toString();
+			log.warn(errorMessage, e);
 			try {
 				conn.close();
 			} catch (IOException e1) {

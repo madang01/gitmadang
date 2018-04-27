@@ -22,6 +22,7 @@ import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.util.ArrayList;
 import java.util.List;
 
 import kr.pe.sinnori.client.connection.AbstractConnection;
@@ -131,9 +132,11 @@ public class SyncPrivateConnection extends AbstractConnection {
 					if (0 == numberOfKeys) {
 						String errorMessage = new StringBuilder("this sync private connection[")
 								.append(serverSC.hashCode())
-								.append("] timeout").toString();
+								.append("] timeout so closed").toString();
 						
 						log.info(errorMessage);
+						
+						close();
 						
 						throw new SocketTimeoutException(errorMessage);
 					}
@@ -183,16 +186,18 @@ public class SyncPrivateConnection extends AbstractConnection {
 				if (0 == numberOfKeys) {
 					String errorMessage = new StringBuilder("this sync private connection[")
 							.append(serverSC.hashCode())
-							.append("] timeout").toString();
+							.append("] timeout so closed").toString();
 					
 					log.info(errorMessage);
+					
+					close();
 					
 					throw new SocketTimeoutException(errorMessage);
 				}
 				
 				ioEventOnlySelector.selectedKeys().clear();
 				
-				List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = null;
+				List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();
 				
 				try {
 					int numRead = socketOutputStream.read(serverSC);
@@ -206,8 +211,8 @@ public class SyncPrivateConnection extends AbstractConnection {
 					
 					setFinalReadTime();					
 					
-					wrapReadableMiddleObjectList = clientMessageUtility
-							.getWrapReadableMiddleObjectList(socketOutputStream);
+					clientMessageUtility
+							.S2MList(socketOutputStream, wrapReadableMiddleObjectList);
 					
 					int wrapReadableMiddleObjectListSize = wrapReadableMiddleObjectList.size();
 					
