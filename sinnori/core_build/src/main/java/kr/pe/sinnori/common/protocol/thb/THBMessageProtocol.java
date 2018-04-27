@@ -293,6 +293,8 @@ public class THBMessageProtocol implements MessageProtocolIF {
 						socketOutputStreamSize = socketOutputStream.size();
 						if (socketOutputStreamSize > messageHeaderSize) {
 							isMoreMessage = true;
+						} else {
+							isMoreMessage = false;
 						}
 						
 						messageHeader = null;

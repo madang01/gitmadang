@@ -25,7 +25,7 @@ public class SinnoriAppClientMain {
 		long beforeTime = 0;
 		long afterTime = 0;
 
-		int retryCount = 1000000;
+		int retryCount = 1;
 
 		beforeTime = new Date().getTime();
 

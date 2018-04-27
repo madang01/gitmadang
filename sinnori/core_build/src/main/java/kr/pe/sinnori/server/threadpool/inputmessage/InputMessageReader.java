@@ -184,7 +184,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 		log.info("{} InputMessageReader[{}] start", projectName, index);
 
 		int numRead = 0;
-		ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayDeque<WrapReadableMiddleObject>();
+		ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue = new ArrayDeque<WrapReadableMiddleObject>();
 		
 		try {
 			while (!isInterrupted()) {
@@ -242,13 +242,13 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 							fromSocketResource.setFinalReadTime();
 
 							messageProtocol
-									.S2MList(fromSocketOutputStream, wrapReadableMiddleObjectList);
+									.S2MList(fromSocketOutputStream, wrapReadableMiddleObjectQueue);
 
 							// final int wrapReadableMiddleObjectListSize = wrapReadableMiddleObjectList.size();
 							
 							
-							while(! wrapReadableMiddleObjectList.isEmpty()) {
-								WrapReadableMiddleObject wrapReadableMiddleObject = wrapReadableMiddleObjectList.pollFirst();
+							while(! wrapReadableMiddleObjectQueue.isEmpty()) {
+								WrapReadableMiddleObject wrapReadableMiddleObject = wrapReadableMiddleObjectQueue.pollFirst();
 								wrapReadableMiddleObject.setFromSC(selectedSocketChannel);
 								
 								try {
@@ -261,17 +261,17 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 
 									// i++;
 
-									while(! wrapReadableMiddleObjectList.isEmpty()) {
-										WrapReadableMiddleObject nextWrapReadableMiddleObject = wrapReadableMiddleObjectList
+									while(! wrapReadableMiddleObjectQueue.isEmpty()) {
+										wrapReadableMiddleObject = wrapReadableMiddleObjectQueue
 												.pollFirst();
 
-										nextWrapReadableMiddleObject.setFromSC(selectedSocketChannel);
+										wrapReadableMiddleObject.setFromSC(selectedSocketChannel);
 
 										log.info(
 												"2.drop the input message[{}] becase of InterruptedException",
-												nextWrapReadableMiddleObject.toString());
+												wrapReadableMiddleObject.toString());
 
-										nextWrapReadableMiddleObject.closeReadableMiddleObject();
+										wrapReadableMiddleObject.closeReadableMiddleObject();
 									}
 									throw e;
 								}

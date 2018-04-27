@@ -454,6 +454,8 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 						socketOutputStreamSize = socketOutputStream.size();
 						if (socketOutputStreamSize > messageHeaderSize) {
 							isMoreMessage = true;
+						} else {
+							isMoreMessage = false;
 						}
 					}
 				}
