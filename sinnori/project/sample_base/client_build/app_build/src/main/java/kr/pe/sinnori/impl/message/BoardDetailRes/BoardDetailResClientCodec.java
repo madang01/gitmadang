@@ -32,7 +32,6 @@ public final class BoardDetailResClientCodec implements MessageCodecIF {
 	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
 		return new BoardDetailResDecoder();
 	}
-
 	@Override
 	public AbstractMessageEncoder getMessageEncoder() throws DynamicClassCallException {
 		throw new DynamicClassCallException("the client don't need a message encoder because it is a message[BoardDetailRes] that is not sent from client to server");

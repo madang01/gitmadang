@@ -16,6 +16,7 @@
  */
 package kr.pe.sinnori.common.protocol;
 
+import java.util.ArrayDeque;
 import java.util.List;
 
 import kr.pe.sinnori.common.exception.BodyFormatException;
@@ -40,7 +41,7 @@ public interface MessageProtocolIF {
 	
 	
 	
-	public void S2MList(SocketOutputStream socketOutputStream, List<WrapReadableMiddleObject> wrapReadableMiddleObjectList) 
+	public void S2MList(SocketOutputStream socketOutputStream, ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectList) 
 					throws HeaderFormatException, NoMoreDataPacketBufferException;
 	
 	public SingleItemDecoderIF getSingleItemDecoder();

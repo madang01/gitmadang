@@ -1,5 +1,6 @@
 package kr.pe.sinnori.client.connection;
 
+import java.util.ArrayDeque;
 import java.util.List;
 
 import kr.pe.sinnori.client.connection.asyn.task.AbstractClientTask;
@@ -21,7 +22,7 @@ public interface ClientMessageUtilityIF {
 	public List<WrapBuffer> buildReadableWrapBufferList(ClassLoader classLoader, AbstractMessage inputMessage) 
 			throws DynamicClassCallException, NoMoreDataPacketBufferException, BodyFormatException, HeaderFormatException;
 	
-	public void S2MList(SocketOutputStream socketOutputStream, List<WrapReadableMiddleObject> wrapReadableMiddleObjectList) throws HeaderFormatException, NoMoreDataPacketBufferException;
+	public void S2MList(SocketOutputStream socketOutputStream, ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectList) throws HeaderFormatException, NoMoreDataPacketBufferException;
 	
 	public void releaseWrapBufferList(List<WrapBuffer> warpBufferList);
 }

@@ -10,7 +10,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-import java.util.ArrayList;
+import java.util.ArrayDeque;
 import java.util.List;
 
 import org.junit.Test;
@@ -312,7 +312,8 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("4");
 
-			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();
+			ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectList = 
+					new ArrayDeque<WrapReadableMiddleObject>();
 			try {
 				messageProtocol.S2MList(sos, wrapReadableMiddleObjectList);
 			} catch (Exception e) {
@@ -325,7 +326,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("출력 메시지 갯수가 1이 아닙니다.");
 			}
 
-			wrapReadableMiddleObject = wrapReadableMiddleObjectList.get(0);
+			wrapReadableMiddleObject = wrapReadableMiddleObjectList.pollFirst();
 		}
 
 		class AbstractServerTaskMock extends AbstractServerTask {
@@ -606,7 +607,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("4");
 
-			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();
+			ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayDeque<WrapReadableMiddleObject>();
 			try {
 				messageProtocol.S2MList(sos, wrapReadableMiddleObjectList);
 			} catch (Exception e) {
@@ -619,7 +620,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("출력 메시지 갯수가 1이 아닙니다.");
 			}
 
-			wrapReadableMiddleObject = wrapReadableMiddleObjectList.get(0);
+			wrapReadableMiddleObject = wrapReadableMiddleObjectList.pollFirst();
 		}
 
 		class AbstractServerTaskMock extends AbstractServerTask {
@@ -896,7 +897,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("4");
 
-			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();
+			ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayDeque<WrapReadableMiddleObject>();
 			try {
 				messageProtocol.S2MList(sos, wrapReadableMiddleObjectList);
 			} catch (Exception e) {
@@ -909,7 +910,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("출력 메시지 갯수가 1이 아닙니다.");
 			}
 
-			wrapReadableMiddleObject = wrapReadableMiddleObjectList.get(0);
+			wrapReadableMiddleObject = wrapReadableMiddleObjectList.pollFirst();
 		}
 
 		class AbstractServerTaskMock extends AbstractServerTask {
@@ -1199,7 +1200,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("4");
 
-			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();
+			ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayDeque<WrapReadableMiddleObject>();
 			try {
 				messageProtocol.S2MList(sos, wrapReadableMiddleObjectList);
 			} catch (Exception e) {
@@ -1212,7 +1213,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("출력 메시지 갯수가 1이 아닙니다.");
 			}
 
-			wrapReadableMiddleObject = wrapReadableMiddleObjectList.get(0);
+			wrapReadableMiddleObject = wrapReadableMiddleObjectList.pollFirst();
 		}
 
 		class AbstractServerTaskMock extends AbstractServerTask {
@@ -1501,7 +1502,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("4");
 
-			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();
+			ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayDeque<WrapReadableMiddleObject>();
 			try {
 				messageProtocol.S2MList(sos, wrapReadableMiddleObjectList);
 			} catch (Exception e) {
@@ -1514,7 +1515,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("출력 메시지 갯수가 1이 아닙니다.");
 			}
 
-			wrapReadableMiddleObject = wrapReadableMiddleObjectList.get(0);
+			wrapReadableMiddleObject = wrapReadableMiddleObjectList.pollFirst();
 		}
 
 		class AbstractServerTaskMock extends AbstractServerTask {
@@ -1813,7 +1814,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("4");
 
-			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();
+			ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayDeque<WrapReadableMiddleObject>();
 			try {
 				messageProtocol.S2MList(sos, wrapReadableMiddleObjectList);
 			} catch (Exception e) {
@@ -1826,7 +1827,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("출력 메시지 갯수가 1이 아닙니다.");
 			}
 
-			wrapReadableMiddleObject = wrapReadableMiddleObjectList.get(0);
+			wrapReadableMiddleObject = wrapReadableMiddleObjectList.pollFirst();
 		}
 
 		class AbstractServerTaskMock extends AbstractServerTask {
@@ -2129,7 +2130,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("4");
 
-			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();
+			ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayDeque<WrapReadableMiddleObject>();
 			try {
 				messageProtocol.S2MList(sos, wrapReadableMiddleObjectList);
 			} catch (Exception e) {
@@ -2142,7 +2143,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("출력 메시지 갯수가 1이 아닙니다.");
 			}
 
-			wrapReadableMiddleObject = wrapReadableMiddleObjectList.get(0);
+			wrapReadableMiddleObject = wrapReadableMiddleObjectList.pollFirst();
 		}
 
 		class AbstractServerTaskMock extends AbstractServerTask {
@@ -2444,7 +2445,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 
 			// log.info("4");
 
-			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();
+			ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayDeque<WrapReadableMiddleObject>();
 			try {
 				messageProtocol.S2MList(sos, wrapReadableMiddleObjectList);
 			} catch (Exception e) {
@@ -2457,7 +2458,7 @@ public class ServerTaskTest extends AbstractJunitTest {
 				fail("출력 메시지 갯수가 1이 아닙니다.");
 			}
 
-			wrapReadableMiddleObject = wrapReadableMiddleObjectList.get(0);
+			wrapReadableMiddleObject = wrapReadableMiddleObjectList.pollFirst();
 		}
 
 		class AbstractServerTaskMock extends AbstractServerTask {

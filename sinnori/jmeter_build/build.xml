@@ -79,11 +79,19 @@
 		</jar>
 	</target>
 	
-	
+	<target name="dist.core" depends="make">
+        <copy todir="D:\apache-jmeter-4.0\lib" verbose="true" overwrite="true">
+            <fileset file="${dir.core.build}/dist/sinnori-core.jar" />
+        </copy>
+		
+		<!-- copy todir="D:\apache-jmeter-4.0\lib" verbose="true" overwrite="true">
+			<union refid="core.common.jarlibs" />
+		</copy -->
+	</target>
 	
 	<target name="dist" depends="make">
         <copy todir="D:\apache-jmeter-4.0\lib\ext" verbose="true" overwrite="true">
             <fileset file="${dir.dist}/EchoJavaRequest.jar" />
-        </copy> 
+        </copy>
 	</target>
 </project>

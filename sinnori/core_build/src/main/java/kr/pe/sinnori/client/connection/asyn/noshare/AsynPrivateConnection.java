@@ -100,6 +100,10 @@ public class AsynPrivateConnection extends AbstractAsynConnection {
 				inObj.messageHeaderInfo.mailID, 
 				wrapBufferListOfInputMessage);
 		InputMessageWriterIF  inputMessageWriter  = asynSocketResource.getInputMessageWriter();
+		
+		// FIXME!
+		// log.info("toLetter={}", toLetter.toString());
+		
 		inputMessageWriter.putIntoQueue(toLetter);
 		
 		// try {

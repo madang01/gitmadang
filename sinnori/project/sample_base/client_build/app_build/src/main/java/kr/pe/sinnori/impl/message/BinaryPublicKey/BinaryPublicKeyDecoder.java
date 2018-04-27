@@ -41,7 +41,6 @@ public final class BinaryPublicKeyDecoder extends AbstractMessageDecoder {
 			, middleReadableObject));
 
 		pathStack.pop();
-
 		return binaryPublicKey;
 	}
 }

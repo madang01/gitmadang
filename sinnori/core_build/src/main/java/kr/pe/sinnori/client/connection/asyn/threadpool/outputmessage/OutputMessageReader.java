@@ -22,8 +22,7 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayDeque;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -192,7 +191,7 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 
 		// int numRead = 0;
 		// long totalRead = 0;
-		List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();
+		ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue = new ArrayDeque<WrapReadableMiddleObject>();
 
 		try {
 			while (! isInterrupted()) {
@@ -236,45 +235,45 @@ public class OutputMessageReader extends Thread implements OutputMessageReaderIF
 
 							asynConnection.setFinalReadTime();
 
-							messageProtocol.S2MList(socketOutputStream, wrapReadableMiddleObjectList);
+							messageProtocol.S2MList(socketOutputStream, wrapReadableMiddleObjectQueue);
 
 							
-							final int wrapReadableMiddleObjectListSize = wrapReadableMiddleObjectList.size();
+							// final int wrapReadableMiddleObjectListSize = wrapReadableMiddleObjectList.size();
 							
-							for (int i=0; i < wrapReadableMiddleObjectListSize; i++) {
-								WrapReadableMiddleObject wrapReadableMiddleObject = 
-										wrapReadableMiddleObjectList.get(i);
-								
-								wrapReadableMiddleObject.setFromSC(selectedSocketChannel);
-								
-								/*FromLetter fromLetter = new FromLetter(selectedSocketChannel,
-										wrapReadableMiddleObject);*/
-								
-								try {
-									asynConnection.putToOutputMessageQueue(wrapReadableMiddleObject);
-								} catch(InterruptedException e) {
-									log.info("1.drop the input message[{}] of list[{}] becase of InterruptedException",
-											wrapReadableMiddleObject.toString(), i);
-
-									wrapReadableMiddleObject.closeReadableMiddleObject();
+							
+								while(! wrapReadableMiddleObjectQueue.isEmpty()) {
 									
-									i++;
+									WrapReadableMiddleObject wrapReadableMiddleObject =
+											wrapReadableMiddleObjectQueue.pollFirst();
+											
 									
-									for (;i < wrapReadableMiddleObjectListSize; i++) {
-										WrapReadableMiddleObject nextWrapReadableMiddleObject = 
-												wrapReadableMiddleObjectList.get(i);
-										
-										nextWrapReadableMiddleObject.setFromSC(selectedSocketChannel);
-										
-										log.info("2.drop the input message[{}] of list[{}] becase of InterruptedException",
-												nextWrapReadableMiddleObject.toString(), i);
+									wrapReadableMiddleObject.setFromSC(selectedSocketChannel);
+									
+									
+									try {
+										asynConnection.putToOutputMessageQueue(wrapReadableMiddleObject);
+									} catch(InterruptedException e) {
+										log.info("1.drop the input message[{}] becase of InterruptedException",
+												wrapReadableMiddleObject.toString());
 
-										nextWrapReadableMiddleObject.closeReadableMiddleObject();
+										wrapReadableMiddleObject.closeReadableMiddleObject();
+										
+										
+										while(! wrapReadableMiddleObjectQueue.isEmpty()) {
+											WrapReadableMiddleObject nextWrapReadableMiddleObject = 
+													wrapReadableMiddleObjectQueue.pollFirst();
+											
+											nextWrapReadableMiddleObject.setFromSC(selectedSocketChannel);
+											
+											log.info("2.drop the input message[{}] becase of InterruptedException",
+													nextWrapReadableMiddleObject.toString());
+
+											nextWrapReadableMiddleObject.closeReadableMiddleObject();
+										}
+										throw e;
 									}
-									throw e;
 								}
-							}
-							
+								
 						} catch (NoMoreDataPacketBufferException e) {
 							String errorMessage = String.format("%s OutputMessageReader[%d]::%s",
 									asynConnection.getSimpleConnectionInfo(), index, e.getMessage());

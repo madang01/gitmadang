@@ -29,7 +29,6 @@ public class BinaryPublicKey extends AbstractMessage {
 	public byte[] getPublicKeyBytes() {
 		return publicKeyBytes;
 	}
-
 	public void setPublicKeyBytes(byte[] publicKeyBytes) {
 		this.publicKeyBytes = publicKeyBytes;
 	}

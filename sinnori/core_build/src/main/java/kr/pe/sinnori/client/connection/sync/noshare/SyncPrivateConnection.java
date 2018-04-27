@@ -22,7 +22,7 @@ import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.util.ArrayList;
+import java.util.ArrayDeque;
 import java.util.List;
 
 import kr.pe.sinnori.client.connection.AbstractConnection;
@@ -197,7 +197,7 @@ public class SyncPrivateConnection extends AbstractConnection {
 				
 				ioEventOnlySelector.selectedKeys().clear();
 				
-				List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();
+				ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue = new ArrayDeque<WrapReadableMiddleObject>();
 				
 				try {
 					int numRead = socketOutputStream.read(serverSC);
@@ -212,12 +212,12 @@ public class SyncPrivateConnection extends AbstractConnection {
 					setFinalReadTime();					
 					
 					clientMessageUtility
-							.S2MList(socketOutputStream, wrapReadableMiddleObjectList);
-					
-					int wrapReadableMiddleObjectListSize = wrapReadableMiddleObjectList.size();
+							.S2MList(socketOutputStream, wrapReadableMiddleObjectQueue);
+										
+					int wrapReadableMiddleObjectListSize = wrapReadableMiddleObjectQueue.size();
 					
 					if (1 == wrapReadableMiddleObjectListSize) {
-						WrapReadableMiddleObject wrapReadableMiddleObject = wrapReadableMiddleObjectList.get(0);						
+						WrapReadableMiddleObject wrapReadableMiddleObject = wrapReadableMiddleObjectQueue.pollFirst();						
 						outObj = clientMessageUtility.buildOutputMessage(classLoader, wrapReadableMiddleObject);
 						break;						
 					} else if (wrapReadableMiddleObjectListSize > 1) {
@@ -225,7 +225,7 @@ public class SyncPrivateConnection extends AbstractConnection {
 								.append(serverSC.hashCode())
 								.append("] has recevied one more messages in this sendSyncInputMessage method").toString();
 						
-						for (WrapReadableMiddleObject wrapReadableMiddleObject : wrapReadableMiddleObjectList) {							
+						for (WrapReadableMiddleObject wrapReadableMiddleObject : wrapReadableMiddleObjectQueue) {							
 							log.warn("drop the output message[{}] becase {}",
 									wrapReadableMiddleObject.toString(), errorMessage);
 							
@@ -245,8 +245,8 @@ public class SyncPrivateConnection extends AbstractConnection {
 					log.warn("fail to read a output message for the input message[sc={}][{}]", 
 							serverSC.hashCode(), inObj.toString());
 					
-					if (null != wrapReadableMiddleObjectList) {
-						for (WrapReadableMiddleObject wrapReadableMiddleObject : wrapReadableMiddleObjectList) {							
+					if (null != wrapReadableMiddleObjectQueue) {
+						for (WrapReadableMiddleObject wrapReadableMiddleObject : wrapReadableMiddleObjectQueue) {							
 							log.warn("drop the output message[{}] becase {}",
 									wrapReadableMiddleObject.toString(), errorMessage);
 							

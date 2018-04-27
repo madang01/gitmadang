@@ -50,7 +50,6 @@ public class BoardDetailRes extends AbstractMessage {
 		public long getAttachSeq() {
 			return attachSeq;
 		}
-
 		public void setAttachSeq(long attachSeq) {
 			this.attachSeq = attachSeq;
 		}

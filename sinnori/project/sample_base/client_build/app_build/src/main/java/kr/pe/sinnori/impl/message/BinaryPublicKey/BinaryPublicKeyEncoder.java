@@ -36,7 +36,6 @@ public final class BinaryPublicKeyEncoder extends AbstractMessageEncoder {
 		java.util.LinkedList<String> pathStack = new java.util.LinkedList<String>();
 		pathStack.push("BinaryPublicKey");
 
-
 		singleItemEncoder.putValueToWritableMiddleObject(pathStack.peek(), "publicKeyBytes"
 			, kr.pe.sinnori.common.type.SingleItemType.SI_VARIABLE_LENGTH_BYTES // itemType
 			, binaryPublicKey.getPublicKeyBytes() // itemValue

@@ -26,7 +26,6 @@ import kr.pe.sinnori.common.protocol.SingleItemDecoderIF;
  *
  */
 public final class BoardDetailResDecoder extends AbstractMessageDecoder {
-
 	@Override
 	protected AbstractMessage decodeBody(SingleItemDecoderIF singleItemDecoder, Object  middleReadableObject) throws BodyFormatException {
 		BoardDetailRes boardDetailRes = new BoardDetailRes();

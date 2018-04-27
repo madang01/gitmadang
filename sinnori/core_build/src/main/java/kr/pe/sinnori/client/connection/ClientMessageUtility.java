@@ -1,5 +1,6 @@
 package kr.pe.sinnori.client.connection;
 
+import java.util.ArrayDeque;
 import java.util.List;
 
 import io.netty.util.internal.logging.InternalLogger;
@@ -119,9 +120,9 @@ public class ClientMessageUtility implements ClientMessageUtilityIF {
 		return outputMessage;
 	}
 
-	public void S2MList(SocketOutputStream socketOutputStream, List<WrapReadableMiddleObject> wrapReadableMiddleObjectList)
+	public void S2MList(SocketOutputStream socketOutputStream, ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue)
 			throws HeaderFormatException, NoMoreDataPacketBufferException {
-		messageProtocol.S2MList(socketOutputStream, wrapReadableMiddleObjectList);
+		messageProtocol.S2MList(socketOutputStream, wrapReadableMiddleObjectQueue);
 	}
 
 	public List<WrapBuffer> buildReadableWrapBufferList(ClassLoader classLoader, AbstractMessage inputMessage)

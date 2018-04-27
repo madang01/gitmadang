@@ -8,7 +8,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-import java.util.ArrayList;
+import java.util.ArrayDeque;
 import java.util.Date;
 import java.util.List;
 
@@ -139,7 +139,7 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 			
 			//log.info("4");
 			
-			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();
+			ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayDeque<WrapReadableMiddleObject>();
 			try {
 				thbMessageProtocol.S2MList(sos, wrapReadableMiddleObjectList);
 			} catch (Exception e) {
@@ -279,7 +279,7 @@ public class THBMessageProtocolTest extends AbstractJunitTest {
 			
 			//log.info("4");
 			
-			List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();
+			ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayDeque<WrapReadableMiddleObject>();
 			try {
 				thbMessageProtocol.S2MList(sos, wrapReadableMiddleObjectList);
 			} catch (Exception e) {

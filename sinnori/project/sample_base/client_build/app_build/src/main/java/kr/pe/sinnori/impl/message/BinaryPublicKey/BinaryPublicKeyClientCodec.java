@@ -31,7 +31,7 @@ public final class BinaryPublicKeyClientCodec implements MessageCodecIF {
 	public AbstractMessageDecoder getMessageDecoder() throws DynamicClassCallException {
 		return new BinaryPublicKeyDecoder();
 	}
-
+	
 	@Override
 	public AbstractMessageEncoder getMessageEncoder() throws DynamicClassCallException {
 		return new BinaryPublicKeyEncoder();

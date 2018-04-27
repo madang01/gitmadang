@@ -50,7 +50,6 @@ public final class BoardDetailReqDecoder extends AbstractMessageDecoder {
 			, middleReadableObject));
 
 		pathStack.pop();
-
 		return boardDetailReq;
 	}
 }

@@ -22,8 +22,7 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayDeque;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -185,7 +184,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 		log.info("{} InputMessageReader[{}] start", projectName, index);
 
 		int numRead = 0;
-		List<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayList<WrapReadableMiddleObject>();
+		ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectList = new ArrayDeque<WrapReadableMiddleObject>();
 		
 		try {
 			while (!isInterrupted()) {
@@ -245,31 +244,32 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 							messageProtocol
 									.S2MList(fromSocketOutputStream, wrapReadableMiddleObjectList);
 
-							final int wrapReadableMiddleObjectListSize = wrapReadableMiddleObjectList.size();
-
-							for (int i = 0; i < wrapReadableMiddleObjectListSize; i++) {
-								WrapReadableMiddleObject wrapReadableMiddleObject = wrapReadableMiddleObjectList.get(i);
+							// final int wrapReadableMiddleObjectListSize = wrapReadableMiddleObjectList.size();
+							
+							
+							while(! wrapReadableMiddleObjectList.isEmpty()) {
+								WrapReadableMiddleObject wrapReadableMiddleObject = wrapReadableMiddleObjectList.pollFirst();
 								wrapReadableMiddleObject.setFromSC(selectedSocketChannel);
 								
 								try {
 									fromExecutor.putIntoQueue(wrapReadableMiddleObject);
 								} catch (InterruptedException e) {
-									log.info("1.drop the input message[{}] of list[{}] becase of InterruptedException",
-											wrapReadableMiddleObject.toString(), i);
+									log.info("1.drop the input message[{}] becase of InterruptedException",
+											wrapReadableMiddleObject.toString());
 
 									wrapReadableMiddleObject.closeReadableMiddleObject();
 
-									i++;
+									// i++;
 
-									for (; i < wrapReadableMiddleObjectListSize; i++) {
+									while(! wrapReadableMiddleObjectList.isEmpty()) {
 										WrapReadableMiddleObject nextWrapReadableMiddleObject = wrapReadableMiddleObjectList
-												.get(i);
+												.pollFirst();
 
 										nextWrapReadableMiddleObject.setFromSC(selectedSocketChannel);
 
 										log.info(
-												"2.drop the input message[{}] of list[{}] becase of InterruptedException",
-												nextWrapReadableMiddleObject.toString(), i);
+												"2.drop the input message[{}] becase of InterruptedException",
+												nextWrapReadableMiddleObject.toString());
 
 										nextWrapReadableMiddleObject.closeReadableMiddleObject();
 									}
@@ -277,6 +277,7 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 								}
 
 							}
+													
 
 						} catch (NoMoreDataPacketBufferException e) {
 							String errorMessage = String.format(

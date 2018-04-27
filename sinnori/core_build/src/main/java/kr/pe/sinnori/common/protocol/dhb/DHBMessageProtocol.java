@@ -23,6 +23,7 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.List;
 
@@ -317,7 +318,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 	}
 
 	@Override
-	public void S2MList(SocketOutputStream socketOutputStream, List<WrapReadableMiddleObject> wrapReadableMiddleObjectList)
+	public void S2MList(SocketOutputStream socketOutputStream, ArrayDeque<WrapReadableMiddleObject> wrapReadableMiddleObjectQueue)
 			throws HeaderFormatException, NoMoreDataPacketBufferException {
 		if (null == socketOutputStream) {
 			throw new IllegalArgumentException("the parameter socketOutputStream is null");
@@ -447,7 +448,7 @@ public class DHBMessageProtocol implements MessageProtocolIF {
 						WrapReadableMiddleObject wrapReadableMiddleObject= new WrapReadableMiddleObject(messageID,
 								mailboxID, mailID, messageInputStream);
 
-						wrapReadableMiddleObjectList.add(wrapReadableMiddleObject);
+						wrapReadableMiddleObjectQueue.addLast(wrapReadableMiddleObject);
 
 						workingDHBMessageHeader = null;
 						socketOutputStreamSize = socketOutputStream.size();
