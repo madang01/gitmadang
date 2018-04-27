@@ -25,7 +25,6 @@ import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceIF;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailbox;
 import kr.pe.sinnori.client.connection.asyn.threadpool.inputmessage.InputMessageWriterIF;
-import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.AccessDeniedException;
@@ -123,19 +122,24 @@ public class AsynPrivateConnection extends AbstractAsynConnection {
 		return outObj;
 	}
 	
-	public void putToOutputMessageQueue(FromLetter fromLetter) throws InterruptedException {
+	public void putToOutputMessageQueue(WrapReadableMiddleObject wrapReadableMiddleObject) throws InterruptedException {
 		// FIXME!
 		// log.info("fromLetter={}", fromLetter.toString());
 		
 		
-		WrapReadableMiddleObject wrapReadableMiddleObject = fromLetter.getWrapReadableMiddleObject();
+		// WrapReadableMiddleObject wrapReadableMiddleObject = fromLetter.getWrapReadableMiddleObject();
 		
 		if (wrapReadableMiddleObject.getMailboxID() == CommonStaticFinalVars.ASYN_MAILBOX_ID) {
 			/** 서버에서 보내는 공지등 불특정 다수한테 보내는 출력 메시지 */
+			
+			/*FromLetter fromLetter = new FromLetter(serverSC,
+					wrapReadableMiddleObject);*/
+			
+			
 			try {
-				asynSocketResource.getClientExecutor().putAsynOutputMessage(fromLetter);
+				asynSocketResource.getClientExecutor().putAsynOutputMessage(wrapReadableMiddleObject);
 			} catch (InterruptedException e) {				
-				log.warn("인터럽트 발생에 의한 비동기 출력 메시지[{}] 버림", fromLetter.toString());
+				log.warn("인터럽트 발생에 의한 비동기 출력 메시지[{}] 버림", wrapReadableMiddleObject.toString());
 			
 				wrapReadableMiddleObject.closeReadableMiddleObject();
 			
@@ -153,9 +157,9 @@ public class AsynPrivateConnection extends AbstractAsynConnection {
 			}*/
 
 			try {
-				asynPrivateMailbox.putSyncOutputMessage(fromLetter);
+				asynPrivateMailbox.putSyncOutputMessage(wrapReadableMiddleObject);
 			} catch (InterruptedException e) {
-				log.warn("인터럽트 발생에 의한 동기 출력 메시지[{}] 버림", fromLetter.toString());
+				log.warn("인터럽트 발생에 의한 동기 출력 메시지[{}] 버림", wrapReadableMiddleObject.toString());
 				
 				wrapReadableMiddleObject.closeReadableMiddleObject();
 				

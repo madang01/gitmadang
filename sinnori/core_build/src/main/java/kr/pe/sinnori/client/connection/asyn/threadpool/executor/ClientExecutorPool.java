@@ -8,8 +8,8 @@ import java.util.concurrent.ArrayBlockingQueue;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
-import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.exception.NotSupportedException;
+import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.common.threadpool.ThreadPoolIF;
 
 public class ClientExecutorPool implements ThreadPoolIF, ClientExecutorPoolIF {
@@ -59,7 +59,7 @@ public class ClientExecutorPool implements ThreadPoolIF, ClientExecutorPoolIF {
 
 		int size = pool.size();
 
-		ArrayBlockingQueue<FromLetter> outputMessageQueue = new ArrayBlockingQueue<FromLetter>(
+		ArrayBlockingQueue<WrapReadableMiddleObject> outputMessageQueue = new ArrayBlockingQueue<WrapReadableMiddleObject>(
 				outputMessageQueueSize);
 
 		ClientExecutor clientExecutor = new ClientExecutor(projectName, size, outputMessageQueue, clientMessageUtility);

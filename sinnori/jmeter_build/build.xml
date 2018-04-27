@@ -6,16 +6,35 @@
 	<property name="dir.build" location="build" />
 	<property name="dir.dist" location="dist" />
 	<property name="dir.lib" location="lib" />
+	<property name="dir.corelib" location="corelib" />
 	<property name="dir.core.build" location="../core_build" />
+	<property name="dir.core.mainlib" location="${dir.core.build}/lib/main" />
 	<property name="java.complile.option.debug" value="on" />
+	
+	<union id="core.common.jarlibs">
+		<fileset file="${dir.core.mainlib}/ex/commons-io-2.6.jar" />
+		<fileset file="${dir.core.mainlib}/ex/commons-collections4-4.1.jar" />
+		<fileset file="${dir.core.mainlib}/ex/commons-codec-1.11.jar" />		
+	</union>
+	
+	<union id="jmeter.jarlibs">
+		<fileset file="${dir.lib}/ex/ApacheJMeter_core.jar" />
+		<fileset file="${dir.lib}/ex/ApacheJMeter_java.jar" />
+	</union>
 	
 	<target name="copy.core">
 	  <!-- core directory -->
-		<copy todir="${dir.lib}/in" verbose="true" overwrite="true">
+		<copy todir="${dir.corelib}/ex" verbose="true" overwrite="true">
 			<fileset file="${dir.core.build}/dist/sinnori-core.jar" />
+		</copy>
+		<copy todir="${dir.corelib}/ex" verbose="true" overwrite="true">
+			<union refid="core.common.jarlibs" />
 		</copy>
 	</target>
 	
+	<target name="clean.core">
+		<delete dir="${dir.corelib}" />
+	</target>
 	
 	<target name="clean">
 		<delete dir="${dir.build}" />
@@ -30,18 +49,18 @@
 		<echo message="java.complile.option.debug=${java.complile.option.debug}" />
 	</target>
 	
-	<union id="jmeter.jarlibs">
-		<fileset file="${dir.lib}/ex/ApacheJMeter_core.jar" />
-		<fileset file="${dir.lib}/ex/ApacheJMeter_java.jar" />
-	</union>
-	
 	<target name="compile" depends="init">		
 		<javac debug="${java.complile.option.debug}" debuglevel="lines,vars,source" encoding="UTF-8" includeantruntime="false" srcdir="${dir.src}" destdir="${dir.build}">
 			<classpath>
 				<fileset dir="${dir.lib}/in">
 					<include name="**/*.jar" />
 				</fileset>
-				<union refid="jmeter.jarlibs" />
+				<fileset dir="${dir.lib}/ex">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${dir.corelib}/ex">
+					<include name="**/*.jar" />
+				</fileset>
 			</classpath>
 		</javac>
 	</target>
@@ -53,7 +72,7 @@
 				<name name="**/*.class" />
 				<archives>
 					<zips>
-						<fileset dir="${dir.lib}/in" includes="**/*.jar" />						
+						<fileset dir="${dir.lib}/in" includes="**/*.jar" />
 					</zips>
 				</archives>
 			</restrict>

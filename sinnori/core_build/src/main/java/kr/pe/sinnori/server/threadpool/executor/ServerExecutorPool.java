@@ -24,10 +24,10 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.exception.SinnoriConfigurationException;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
+import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 import kr.pe.sinnori.common.threadpool.ThreadPoolIF;
 import kr.pe.sinnori.server.ServerObjectCacheManagerIF;
 import kr.pe.sinnori.server.SocketResourceManagerIF;
@@ -49,9 +49,7 @@ public class ServerExecutorPool implements ThreadPoolIF, ServerExecutorPoolIF {
 	private MessageProtocolIF messageProtocol= null;
 	private SocketResourceManagerIF socketResourceManager;
 	private ServerObjectCacheManagerIF serverObjectCacheManager = null;
-	
-	
-	
+
 	public ServerExecutorPool( 
 			int poolSize, 
 			int poolMaxSize,
@@ -122,8 +120,8 @@ public class ServerExecutorPool implements ThreadPoolIF, ServerExecutorPoolIF {
 
 	@Override
 	public void addTask() throws IllegalStateException, NotSupportedException {
-		ArrayBlockingQueue<FromLetter> inputMessageQueue = new
-				ArrayBlockingQueue<FromLetter>(inputMessageQueueSize);
+		ArrayBlockingQueue<WrapReadableMiddleObject> inputMessageQueue = new
+				ArrayBlockingQueue<WrapReadableMiddleObject>(inputMessageQueueSize);
 		
 		synchronized (monitor) {
 			int size = pool.size();

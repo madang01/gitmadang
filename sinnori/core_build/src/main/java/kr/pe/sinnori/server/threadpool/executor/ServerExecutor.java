@@ -23,7 +23,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
 import kr.pe.sinnori.common.exception.ServerTaskException;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
@@ -50,7 +49,7 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 	private int index;
 	private String projectName = null;
 	
-	private ArrayBlockingQueue<FromLetter> inputMessageQueue;
+	private ArrayBlockingQueue<WrapReadableMiddleObject> inputMessageQueue;
 	private MessageProtocolIF messageProtocol = null;
 	
 	private SocketResourceManagerIF socketResourceManager = null;
@@ -61,7 +60,7 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 
 	public ServerExecutor(int index,
 			String projectName,
-			ArrayBlockingQueue<FromLetter> inputMessageQueue,
+			ArrayBlockingQueue<WrapReadableMiddleObject> inputMessageQueue,
 			MessageProtocolIF messageProtocol, 
 			SocketResourceManagerIF socketResourceManager,
 			ServerObjectCacheManagerIF serverObjectCacheManager) {
@@ -80,14 +79,12 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 		
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
-				FromLetter letterFromClient = inputMessageQueue.take();
+				WrapReadableMiddleObject wrapReadableMiddleObject = inputMessageQueue.take();
 				
 				// FIXME!
 				// log.info("{} ServerExecutor[{}] letterFromClient=[{}]", projectName, index, letterFromClient.toString());
 				
-				SocketChannel fromSC = letterFromClient.getFromSocketChannel();
-				
-				WrapReadableMiddleObject wrapReadableMiddleObject = letterFromClient.getWrapReadableMiddleObject();
+				SocketChannel fromSC = wrapReadableMiddleObject.getFromSC();
 				String messageID = wrapReadableMiddleObject.getMessageID();
 				
 				SocketResource socketResourceOfFromSC = socketResourceManager.getSocketResource(fromSC);
@@ -187,11 +184,11 @@ public class ServerExecutor extends Thread implements ServerExecutorIF {
 	}
 	
 	@Override
-	public void putIntoQueue(FromLetter fromLetter) throws InterruptedException {
+	public void putIntoQueue(WrapReadableMiddleObject wrapReadableMiddleObject) throws InterruptedException {
 		try {
-		inputMessageQueue.put(fromLetter);
+		inputMessageQueue.put(wrapReadableMiddleObject);
 		} catch(InterruptedException e) {
-			WrapReadableMiddleObject wrapReadableMiddleObject = fromLetter.getWrapReadableMiddleObject();
+			// WrapReadableMiddleObject wrapReadableMiddleObject = fromLetter.getWrapReadableMiddleObject();
 			log.info("drop the input message[{}] becase of InterruptedException", wrapReadableMiddleObject.toString());
 			throw e;
 		}

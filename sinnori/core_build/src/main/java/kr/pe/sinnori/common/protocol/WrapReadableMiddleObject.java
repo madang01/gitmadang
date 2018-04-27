@@ -16,6 +16,8 @@
  */
 package kr.pe.sinnori.common.protocol;
 
+import java.nio.channels.SocketChannel;
+
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.common.io.FreeSizeInputStream;
@@ -33,6 +35,7 @@ public class WrapReadableMiddleObject {
 	private int mailboxID;
 	private int mailID;
 	private Object readableMiddleObject = null;
+	private SocketChannel fromSC = null;
 	
 	// private Date timestamp = new Date();
 	
@@ -63,6 +66,14 @@ public class WrapReadableMiddleObject {
 	/*public Date getTimestamp() {
 		return timestamp;
 	}*/
+	public SocketChannel getFromSC() {
+		return fromSC;
+	}
+
+	public void setFromSC(SocketChannel fromSC) {
+		this.fromSC = fromSC;
+	}
+	
 	
 	/**
 	 * <pre>
@@ -89,10 +100,19 @@ public class WrapReadableMiddleObject {
 		}
 	}
 
+	
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("ReceivedLetter [messageID=");
+		builder.append("ReceivedLetter [fromSC=");
+		if (null != fromSC) {
+			builder.append(fromSC.hashCode());
+		} else {
+			builder.append("null");
+		}
+		
+		builder.append(", messageID=");
 		builder.append(messageID);
 		builder.append(", mailboxID=");
 		builder.append(mailboxID);
@@ -107,6 +127,12 @@ public class WrapReadableMiddleObject {
 	
 	public String toSimpleInformation() {
 		StringBuilder builder = new StringBuilder();
+		builder.append("fromSC=");
+		if (null != fromSC) {
+			builder.append(fromSC.hashCode());
+		} else {
+			builder.append("null");
+		}
 		builder.append("messageID=");
 		builder.append(messageID);
 		builder.append(", mailboxID=");

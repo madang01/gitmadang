@@ -11,10 +11,10 @@ import org.mockito.Mockito;
 
 import kr.pe.sinnori.client.connection.asyn.IOEAsynConnectionIF;
 import kr.pe.sinnori.common.AbstractJunitTest;
-import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.protocol.MessageProtocolIF;
+import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
 public class OutputMessageReaderPoolTest extends AbstractJunitTest {
 
@@ -185,7 +185,7 @@ public class OutputMessageReaderPoolTest extends AbstractJunitTest {
 				
 
 				@Override
-				public void putToOutputMessageQueue(FromLetter fromLetter) throws InterruptedException {
+				public void putToOutputMessageQueue(WrapReadableMiddleObject wrapReadableMiddleObject) throws InterruptedException {
 				}
 
 				@Override

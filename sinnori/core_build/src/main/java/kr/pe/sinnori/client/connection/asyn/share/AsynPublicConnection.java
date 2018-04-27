@@ -24,7 +24,6 @@ import kr.pe.sinnori.client.connection.ConnectionFixedParameter;
 import kr.pe.sinnori.client.connection.asyn.AbstractAsynConnection;
 import kr.pe.sinnori.client.connection.asyn.AsynSocketResourceIF;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxIF;
-import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.etc.CommonStaticFinalVars;
 import kr.pe.sinnori.common.exception.AccessDeniedException;
@@ -67,14 +66,16 @@ public class AsynPublicConnection extends AbstractAsynConnection {
 	}
 
 	@Override
-	public void putToOutputMessageQueue(FromLetter fromLetter) throws InterruptedException {
-		WrapReadableMiddleObject wrapReadableMiddleObject = fromLetter.getWrapReadableMiddleObject();
+	public void putToOutputMessageQueue(WrapReadableMiddleObject wrapReadableMiddleObject) throws InterruptedException {
+		// WrapReadableMiddleObject wrapReadableMiddleObject = fromLetter.getWrapReadableMiddleObject();
 
 		if (wrapReadableMiddleObject.getMailboxID() == CommonStaticFinalVars.ASYN_MAILBOX_ID) {
+			
+			
 			try {
-				asynSocketResource.getClientExecutor().putAsynOutputMessage(fromLetter);
+				asynSocketResource.getClientExecutor().putAsynOutputMessage(wrapReadableMiddleObject);
 			} catch (InterruptedException e) {
-				log.warn("인터럽트 발생에 의한 비동기 출력 메시지[{}] 버림", fromLetter.toString());
+				log.warn("인터럽트 발생에 의한 비동기 출력 메시지[{}] 버림", wrapReadableMiddleObject.toString());
 				wrapReadableMiddleObject.closeReadableMiddleObject();
 				throw e;
 			}
@@ -85,14 +86,14 @@ public class AsynPublicConnection extends AbstractAsynConnection {
 			try {
 				asynPrivateMailbox = asynPrivateMailboxMapper.getAsynMailbox(mailboxID);
 			} catch (IndexOutOfBoundsException e) {
-				log.warn("동기 출력 메시지[{}]와 매치하는 메일 박스가 없어 버림", fromLetter.toString());
+				log.warn("동기 출력 메시지[{}]와 매치하는 메일 박스가 없어 버림", wrapReadableMiddleObject.toString());
 				return;
 			}
 
 			try {
-				asynPrivateMailbox.putSyncOutputMessage(fromLetter);
+				asynPrivateMailbox.putSyncOutputMessage(wrapReadableMiddleObject);
 			} catch (InterruptedException e) {
-				log.warn("인터럽트 발생에 의한 동기 출력 메시지[{}] 버림", fromLetter.toString());
+				log.warn("인터럽트 발생에 의한 동기 출력 메시지[{}] 버림", wrapReadableMiddleObject.toString());
 				wrapReadableMiddleObject.closeReadableMiddleObject();
 				throw e;
 			}

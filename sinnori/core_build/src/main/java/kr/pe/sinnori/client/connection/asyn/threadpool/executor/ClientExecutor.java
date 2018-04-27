@@ -9,7 +9,6 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
 import kr.pe.sinnori.client.connection.asyn.IOEAsynConnectionIF;
 import kr.pe.sinnori.client.connection.asyn.task.AbstractClientTask;
-import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
 public class ClientExecutor extends Thread implements ClientExecutorIF {
@@ -18,7 +17,7 @@ public class ClientExecutor extends Thread implements ClientExecutorIF {
 	private String projectName = null;
 	private int index;
 
-	private ArrayBlockingQueue<FromLetter> outputMessageQueue;
+	private ArrayBlockingQueue<WrapReadableMiddleObject> outputMessageQueue;
 
 	private ClientMessageUtilityIF clientMessageUtility = null;
 
@@ -26,7 +25,7 @@ public class ClientExecutor extends Thread implements ClientExecutorIF {
 			new ConcurrentHashMap<IOEAsynConnectionIF, IOEAsynConnectionIF>();
 
 	public ClientExecutor(String projectName, int index, 
-			ArrayBlockingQueue<FromLetter> outputMessageQueue,
+			ArrayBlockingQueue<WrapReadableMiddleObject> outputMessageQueue,
 			ClientMessageUtilityIF clientMessageUtility) {
 		this.projectName = projectName;
 		this.index = index;
@@ -39,10 +38,10 @@ public class ClientExecutor extends Thread implements ClientExecutorIF {
 
 		try {
 			while (!Thread.currentThread().isInterrupted()) {
-				FromLetter fromLetter = outputMessageQueue.take();
+				WrapReadableMiddleObject wrapReadableMiddleObject = outputMessageQueue.take();
 
-				SocketChannel fromSC = fromLetter.getFromSocketChannel();
-				WrapReadableMiddleObject wrapReadableMiddleObject = fromLetter.getWrapReadableMiddleObject();
+				SocketChannel fromSC = wrapReadableMiddleObject.getFromSC();
+				// WrapReadableMiddleObject wrapReadableMiddleObject = fromLetter.getWrapReadableMiddleObject();
 				String messageID = wrapReadableMiddleObject.getMessageID();
 
 				AbstractClientTask clientTask = clientMessageUtility.getClientTask(messageID);
@@ -78,8 +77,10 @@ public class ClientExecutor extends Thread implements ClientExecutorIF {
 	}
 
 	@Override
-	public void putAsynOutputMessage(FromLetter fromLetter) throws InterruptedException {
-		outputMessageQueue.put(fromLetter);
+	public void putAsynOutputMessage(WrapReadableMiddleObject wrapReadableMiddleObject) throws InterruptedException {
+		
+		
+		outputMessageQueue.put(wrapReadableMiddleObject);
 	}	
 
 	public void finalize() {

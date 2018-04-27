@@ -23,7 +23,6 @@ import kr.pe.sinnori.client.connection.AbstractConnection;
 import kr.pe.sinnori.client.connection.ConnectionFixedParameter;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPublicMailbox;
 import kr.pe.sinnori.client.connection.asyn.threadpool.outputmessage.OutputMessageReader;
-import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.exception.BodyFormatException;
 import kr.pe.sinnori.common.exception.DynamicClassCallException;
@@ -33,6 +32,7 @@ import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.io.SocketOutputStream;
 import kr.pe.sinnori.common.io.WrapBuffer;
 import kr.pe.sinnori.common.message.AbstractMessage;
+import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
 
 public abstract class AbstractAsynConnection extends AbstractConnection implements IOEAsynConnectionIF {
@@ -61,7 +61,7 @@ public abstract class AbstractAsynConnection extends AbstractConnection implemen
 
 	
 
-	abstract public void putToOutputMessageQueue(FromLetter fromLetter) throws InterruptedException;
+	abstract public void putToOutputMessageQueue(WrapReadableMiddleObject wrapReadableMiddleObject) throws InterruptedException;
 
 	public SocketOutputStream getSocketOutputStream() {
 		return asynSocketResource.getSocketOutputStream();

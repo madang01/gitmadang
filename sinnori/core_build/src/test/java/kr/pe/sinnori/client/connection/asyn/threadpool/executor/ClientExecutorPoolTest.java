@@ -12,9 +12,9 @@ import org.mockito.Mockito;
 import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
 import kr.pe.sinnori.client.connection.asyn.IOEAsynConnectionIF;
 import kr.pe.sinnori.common.AbstractJunitTest;
-import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.exception.NotSupportedException;
 import kr.pe.sinnori.common.io.SocketOutputStream;
+import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
 public class ClientExecutorPoolTest extends AbstractJunitTest {
 
@@ -183,9 +183,7 @@ public class ClientExecutorPoolTest extends AbstractJunitTest {
 				}
 				
 
-				@Override
-				public void putToOutputMessageQueue(FromLetter fromLetter) throws InterruptedException {
-				}
+				
 
 				@Override
 				public SocketChannel getSocketChannel() {
@@ -212,6 +210,15 @@ public class ClientExecutorPoolTest extends AbstractJunitTest {
 
 				@Override
 				public void noticeThisConnectionWasRemovedFromReadyOnleySelector() {
+				}
+
+
+
+
+				@Override
+				public void putToOutputMessageQueue(WrapReadableMiddleObject wrapReadableMiddleObject)
+						throws InterruptedException {
+					
 				}
 				
 			}

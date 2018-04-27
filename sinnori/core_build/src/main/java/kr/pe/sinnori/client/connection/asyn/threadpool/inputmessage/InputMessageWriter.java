@@ -30,7 +30,6 @@ import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.client.connection.ClientMessageUtilityIF;
 import kr.pe.sinnori.client.connection.asyn.IOEAsynConnectionIF;
-import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.exception.NoMoreDataPacketBufferException;
 import kr.pe.sinnori.common.io.WrapBuffer;
@@ -151,8 +150,8 @@ public class InputMessageWriter extends Thread implements InputMessageWriterIF {
 					= new WrapReadableMiddleObject(toLetter.getMessageID(), 
 							toLetter.getMailboxID(), toLetter.getMailID(), selfExnRes);
 					
-					FromLetter fromLetter = new FromLetter(toLetter.getToSC(), wrapReadableMiddleObject);
-					asynConnection.putToOutputMessageQueue(fromLetter);
+					// FromLetter fromLetter = new FromLetter(toLetter.getToSC(), wrapReadableMiddleObject);
+					asynConnection.putToOutputMessageQueue(wrapReadableMiddleObject);
 				} finally {
 					clientMessageUtility.releaseWrapBufferList(warpBufferList);
 					

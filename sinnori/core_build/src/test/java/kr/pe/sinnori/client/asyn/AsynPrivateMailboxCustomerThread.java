@@ -8,7 +8,6 @@ import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import kr.pe.sinnori.client.connection.asyn.mailbox.AsynPrivateMailboxIF;
 import kr.pe.sinnori.client.connection.asyn.share.AsynPrivateMailboxMapper;
-import kr.pe.sinnori.common.asyn.FromLetter;
 import kr.pe.sinnori.common.asyn.ToLetter;
 import kr.pe.sinnori.common.protocol.WrapReadableMiddleObject;
 
@@ -63,15 +62,17 @@ private InternalLogger log = InternalLoggerFactory.getInstance(AsynPrivateMailbo
 				WrapReadableMiddleObject wrapReadableMiddleObject = 
 						new WrapReadableMiddleObject(toLetter.getMessageID(), toLetter.getMailboxID(), toLetter.getMailID(), new Object());
 				
+				wrapReadableMiddleObject.setFromSC(SocketChannel.open());
+				
 				// log.info(wrapReadableMiddleObject.toString());
 				
 				Thread.sleep(random.nextInt(maxSleepingTime));
 				
-				FromLetter fromLetter = new FromLetter(SocketChannel.open(), wrapReadableMiddleObject);
+				// FromLetter fromLetter = new FromLetter(SocketChannel.open(), wrapReadableMiddleObject);
 				
 				//log.info("AsynPrivateMailboxCustomerThread::before putToSyncOutputMessageQueue, {}", wrapReadableMiddleObject.toString());
 				
-				asynMailbox.putSyncOutputMessage(fromLetter);
+				asynMailbox.putSyncOutputMessage(wrapReadableMiddleObject);
 			} catch (Exception e) {
 				String errorMessage = String.format("예외 발생하여 Thread 종료::errorMessage=%s", e.getMessage());
 				log.warn(errorMessage, e);

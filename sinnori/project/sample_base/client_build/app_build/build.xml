@@ -48,7 +48,7 @@
 	
 	<union id="core.common.jarlibs">
 		<!-- fileset file="${dir.core.mainlib}/ex/json-simple-1.1.1.jar" / -->			
-		<fileset file="${dir.core.mainlib}/ex/commons-lang3-3.7.jar" />
+		<!-- fileset file="${dir.core.mainlib}/ex/commons-lang3-3.7.jar" / -->
 		<fileset file="${dir.core.mainlib}/ex/commons-io-2.6.jar" />
 		<fileset file="${dir.core.mainlib}/ex/commons-collections4-4.1.jar" />
 		<fileset file="${dir.core.mainlib}/ex/commons-codec-1.11.jar" />		
