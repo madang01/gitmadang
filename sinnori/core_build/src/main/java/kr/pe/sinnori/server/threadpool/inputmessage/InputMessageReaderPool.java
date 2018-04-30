@@ -165,6 +165,17 @@ public class InputMessageReaderPool implements ThreadPoolIF, InputMessageReaderP
 		return minInputMessageReader;
 	}
 	
+	public int getSumOfInputMessageReaderPoolSocket() {
+		int sumOfInputMessageReaderPoolSocket = 0;
+				
+		for (InputMessageReaderIF handler : pool) {
+			int numberOfSocket = handler.getNumberOfConnection();
+			sumOfInputMessageReaderPoolSocket += numberOfSocket;
+		}
+		
+		return sumOfInputMessageReaderPoolSocket;
+	}
+	
 	@Override
 	public int getPoolSize() {
 		return pool.size();

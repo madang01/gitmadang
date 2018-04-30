@@ -268,7 +268,7 @@ public class AnyProjectServer {
 				while (!Thread.currentThread().isInterrupted()) {
 					log.info("the number of socketResources[{}]", socketResourceManager.getNumberOfSocketResources());
 					log.info("the size[{}] of DataPacketBufferPool[{}]", dataPacketBufferPool.size(), dataPacketBufferPool.getDataPacketBufferPoolSize());					
-					log.info("the number[{}] of inputMessageReaderPool's socket", inputMessageReaderPool.getInputMessageReaderWithMinimumNumberOfSockets());
+					log.info("the sum[{}] of inputMessageReaderPool's socket", inputMessageReaderPool.getSumOfInputMessageReaderPoolSocket());
 					
 					Thread.sleep(serverMonitorTimeInterval);
 				}
