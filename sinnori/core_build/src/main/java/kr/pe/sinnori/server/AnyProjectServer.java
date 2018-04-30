@@ -171,7 +171,9 @@ public class AnyProjectServer {
 				dataPacketBufferPool, ieoThreadPoolManager);
 
 		serverProjectMonitor = new ServerProjectMonitor(
-				projectPartConfiguration.getServerMonitorTimeInterval(), socketResourceManager);
+				projectPartConfiguration.getServerMonitorTimeInterval(), socketResourceManager, 
+				dataPacketBufferPool,
+				inputMessageReaderPool);
 		serverProjectMonitor.start();
 
 	}
@@ -244,12 +246,18 @@ public class AnyProjectServer {
 	 */
 	private class ServerProjectMonitor extends Thread {		
 		private SocketResourceManagerIF socketResourceManager = null;
+		private DataPacketBufferPoolIF dataPacketBufferPool = null;
+		private InputMessageReaderPool inputMessageReaderPool = null;
 		private long serverMonitorTimeInterval;
 		
 		public ServerProjectMonitor(long serverMonitorTimeInterval, 
-				SocketResourceManagerIF socketResourceManager) {
+				SocketResourceManagerIF socketResourceManager,
+				DataPacketBufferPoolIF dataPacketBufferPool,
+				InputMessageReaderPool inputMessageReaderPool) {
 			this.serverMonitorTimeInterval = serverMonitorTimeInterval;
 			this.socketResourceManager = socketResourceManager;
+			this.dataPacketBufferPool = dataPacketBufferPool;
+			this.inputMessageReaderPool = inputMessageReaderPool;
 		}
 
 		@Override
@@ -259,6 +267,8 @@ public class AnyProjectServer {
 			try {
 				while (!Thread.currentThread().isInterrupted()) {
 					log.info("the number of socketResources[{}]", socketResourceManager.getNumberOfSocketResources());
+					log.info("the size[{}] of DataPacketBufferPool[{}]", dataPacketBufferPool.size(), dataPacketBufferPool.getDataPacketBufferPoolSize());					
+					log.info("the number[{}] of inputMessageReaderPool's socket", inputMessageReaderPool.getInputMessageReaderWithMinimumNumberOfSockets());
 					
 					Thread.sleep(serverMonitorTimeInterval);
 				}

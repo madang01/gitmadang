@@ -75,8 +75,8 @@ public final class ConnectionPoolManager {
 		} catch (Exception e) {
 			String errorMessage = new StringBuilder("fail to initialize a main project connection pool[")
 					.append(mainPorjectName).append("]").toString();
-			log.warn(errorMessage, e);
-			// System.exit(1);
+			log.error(errorMessage, e);
+			System.exit(1);
 		}
 		
 		List<String> subProjectNamelist = allSubProjectPart.getSubProjectNamelist();
@@ -90,8 +90,8 @@ public final class ConnectionPoolManager {
 				String errorMessage = new StringBuilder("fail to initialize a sub project connection pool[")
 						.append(subProjectName).append("] of main project[").append(mainPorjectName)
 						.append("]").toString();
-				log.warn(errorMessage, e);
-				// System.exit(1);
+				log.error(errorMessage, e);
+				 System.exit(1);
 			}
 		}
 	}

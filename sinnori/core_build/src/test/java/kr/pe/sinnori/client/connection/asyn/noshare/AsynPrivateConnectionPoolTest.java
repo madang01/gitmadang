@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
@@ -48,7 +49,7 @@ public class AsynPrivateConnectionPoolTest extends AbstractJunitTest {
 		Charset charset = CommonStaticFinalVars.SINNORI_SOURCE_FILE_CHARSET;
 		int dataPacketBufferMaxCntPerMessage=50;
 		int dataPacketBufferSize=4096;
-		int dataPacketBufferPoolSize=1000;
+		int dataPacketBufferPoolSize=10000;
 		int messageIDFixedSize=20;
 		// MessageProtocolType messageProtocolType;
 		String firstPrefixDynamicClassFullName="kr.pe.sinnori.impl.";			
@@ -523,7 +524,7 @@ public class AsynPrivateConnectionPoolTest extends AbstractJunitTest {
 		host = "localhost";
 		port = 9193;
 		
-		int numberOfConnection = 2;
+		int numberOfConnection = 100;
 		
 		ConnectionPoolIF connectionPoolForTest = null;
 		
@@ -569,27 +570,37 @@ public class AsynPrivateConnectionPoolTest extends AbstractJunitTest {
 			
 			public void run() {
 				int countOfClosedConnection = 0;
+				long startTime=0, endTime=0;
 				
 				for (int i=0; i < retryCount; i++) {
 					AbstractConnection conn = null;
 					try {
+						startTime = System.currentTimeMillis();
 						conn = connectionPool.getConnection();
+						endTime = System.currentTimeMillis();
 						
-						log.info("conn[{}]={}", i, conn.hashCode());
+						long elapsedTime  = endTime - startTime;
+						
+						if (elapsedTime >= 5000) {
+							fail("timeout but fail to check timeout");
+						}
+						
+						log.info("conn[{}]={}, getConnection time={}", i, conn.hashCode(),
+								elapsedTime);
 						
 						
 						long sleepTime = ThreadLocalRandom.current().nextLong(0L, 5001L);						
 						
 						Thread.sleep(sleepTime);
 						
-						boolean isClosed = ThreadLocalRandom.current().nextBoolean();
+						/*boolean isClosed = ThreadLocalRandom.current().nextBoolean();
 						
 						// log.info("isClosed={}", isClosed);
 						
 						if (0 == countOfClosedConnection  && isClosed) {
 							conn.close();
 							countOfClosedConnection++;
-						}						 
+						}		*/				 
 					} catch(Exception e) {
 						log.warn(i+"::error", e);
 						
@@ -598,7 +609,13 @@ public class AsynPrivateConnectionPoolTest extends AbstractJunitTest {
 					} finally {
 						if (null != conn) {
 							try {
+								startTime = System.nanoTime();
 								connectionPool.release(conn);
+								endTime = System.nanoTime();
+								
+								log.info("conn[{}]={}, release time={}", i, conn.hashCode(),
+										TimeUnit.MICROSECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS));
+								
 							} catch (ConnectionPoolException e) {
 								log.warn("error", e);
 								//fail("fail to release connection");
@@ -610,8 +627,8 @@ public class AsynPrivateConnectionPoolTest extends AbstractJunitTest {
 		}
 		
 		
-		int randomWorkerListSize = 4;
-		int retryCount = 10;
+		int randomWorkerListSize = 1000;
+		int retryCount = 1000;
 		RandomWorker[] randomWorkerList = new RandomWorker[randomWorkerListSize];
 		
 		for (int i=0; i < randomWorkerList.length; i++) {

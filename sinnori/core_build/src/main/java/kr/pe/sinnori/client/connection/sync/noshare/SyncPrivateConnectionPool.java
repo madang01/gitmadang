@@ -146,25 +146,24 @@ public class SyncPrivateConnectionPool implements ConnectionPoolIF {
 		SyncPrivateConnection syncPrivateConnection = null;
 		boolean loop = false;
 
+		long currentSocketTimeOut = socketTimeOut;
+		long startTime = System.currentTimeMillis();
+		
 		synchronized (monitor) {
 			do {
 				if (0 == numberOfConnection) {
 					connectionPoolSupporter.notice("no more connection");
 					throw new ConnectionPoolException("check server is alive or something is bad");
-				}
+				}				
 
-				long startTime = System.currentTimeMillis();
-				while (connectionQueue.isEmpty()) {
-					monitor.wait(socketTimeOut);
-
-					long endTime = System.currentTimeMillis();
-
-					if ((endTime - startTime) >= socketTimeOut) {
-						throw new SocketTimeoutException("synchronized private connection pool timeout");
+				syncPrivateConnection = connectionQueue.peekFirst();
+				if (null == syncPrivateConnection) {
+					monitor.wait(currentSocketTimeOut);
+					syncPrivateConnection = connectionQueue.peekFirst();
+					if (null == syncPrivateConnection) {
+						throw new SocketTimeoutException("1.synchronized private connection pool timeout");
 					}
 				}
-
-				syncPrivateConnection = connectionQueue.removeFirst();
 
 				if (syncPrivateConnection.isConnected()) {
 					syncPrivateConnection.queueOut();
@@ -184,6 +183,11 @@ public class SyncPrivateConnectionPool implements ConnectionPoolIF {
 					log.warn("{} {}, 총 연결수[{}]", projectName, reasonForLoss, numberOfConnection);
 
 					connectionPoolSupporter.notice(reasonForLoss);
+					
+					currentSocketTimeOut -= (System.currentTimeMillis() - startTime);
+					if (currentSocketTimeOut <= 0) {
+						throw new SocketTimeoutException("2.synchronized private connection pool timeout");
+					}
 				}
 			} while (loop);
 
@@ -234,7 +238,7 @@ public class SyncPrivateConnectionPool implements ConnectionPoolIF {
 			}
 
 			connectionQueue.addLast(syncPrivateConnection);
-			monitor.notifyAll();
+			monitor.notify();
 		}
 	}
 

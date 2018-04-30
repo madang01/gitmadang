@@ -122,7 +122,13 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 
 	@Override
 	public int getNumberOfConnection() {
-		return (notRegistedSocketChannelQueue.size() + selectorForReadEventOnly.keys().size());
+		int selectorKeySize = 0;
+		try {
+			selectorKeySize = selectorForReadEventOnly.keys().size();
+		} catch(UnsupportedOperationException e) {
+			log.warn("fail to get a size of a read only selector");
+		}
+		return (notRegistedSocketChannelQueue.size() + selectorKeySize);
 	}
 
 	/**
@@ -280,15 +286,24 @@ public class InputMessageReader extends Thread implements InputMessageReaderIF {
 													
 
 						} catch (NoMoreDataPacketBufferException e) {
-							String errorMessage = String.format(
-									"%s InputMessageReader[%d] NoMoreDataPacketBufferException::%s", projectName, index,
-									e.getMessage());
+							String errorMessage = new StringBuilder()
+									.append(projectName)
+									.append(" InputMessageReader[")
+									.append(index)
+									.append("] NoMoreDataPacketBufferException::")
+									.append(e.getMessage()).toString();
+									
 							log.warn(errorMessage, e);
 							closeClient(selectedKey, fromSocketResource);
 							continue;
 						} catch (IOException e) {
-							String errorMessage = String.format("%s InputMessageReader[%d] IOException::%s",
-									projectName, index, e.getMessage());
+							String errorMessage = new StringBuilder()
+									.append(projectName)
+									.append(" InputMessageReader[")
+									.append(index)
+									.append("] IOException::")
+									.append(e.getMessage()).toString();
+							
 							log.warn(errorMessage, e);
 							closeClient(selectedKey, fromSocketResource);
 							continue;

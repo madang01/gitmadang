@@ -121,6 +121,8 @@ public class AnyProjectConnectionPool implements AnyProjectConnectionPoolIF {
 
 	public AnyProjectConnectionPool(ProjectPartConfiguration projectPartConfiguration)
 			throws NoMoreDataPacketBufferException, InterruptedException, IOException, ConnectionPoolException {
+		log.info("call AnyProjectConnectionPool constructor");
+		
 		this.projectPartConfiguration = projectPartConfiguration;
 
 		CharsetEncoder charsetEncoderOfProject = CharsetUtil.createCharsetEncoder(projectPartConfiguration.getCharset());

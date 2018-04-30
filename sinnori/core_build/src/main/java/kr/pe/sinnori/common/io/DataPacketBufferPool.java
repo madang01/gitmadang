@@ -65,27 +65,29 @@ public class DataPacketBufferPool implements DataPacketBufferPoolIF {
 
 	@Override
 	public WrapBuffer pollDataPacketBuffer() throws NoMoreDataPacketBufferException {
+		WrapBuffer dataPacketBuffer = null;
 		synchronized (monitor) {
-			WrapBuffer dataPacketBuffer = dataPacketBufferQueue.poll();
-			if (null == dataPacketBuffer) {
-				String errorMessage = "no more wrap buffer in the wrap buffer polling queue";
-				throw new NoMoreDataPacketBufferException(errorMessage);
-			}
-
-			dataPacketBuffer.queueOut();
-
-			// queueOutWrapBufferHashcodeSet.add(dataPacketBuffer.hashCode());
-
-			// FIXME!, 테스트후 삭제 필요
-			/*
-			 * { String infoMessage = String.
-			 * format("the WrapBuffer[%d] is removed from the wrap buffer polling queue",
-			 * dataPacketBuffer.hashCode()); log.info(infoMessage, new
-			 * Throwable(infoMessage)); }
-			 */
-
-			return dataPacketBuffer;
+			dataPacketBuffer = dataPacketBufferQueue.poll();
 		}
+		if (null == dataPacketBuffer) {
+			String errorMessage = "no more wrap buffer in the wrap buffer polling queue";
+			throw new NoMoreDataPacketBufferException(errorMessage);
+		}
+
+		dataPacketBuffer.queueOut();
+
+		// queueOutWrapBufferHashcodeSet.add(dataPacketBuffer.hashCode());
+
+		// FIXME!, 테스트후 삭제 필요
+		/*
+		 * { String infoMessage = String.
+		 * format("the WrapBuffer[%d] is removed from the wrap buffer polling queue",
+		 * dataPacketBuffer.hashCode()); log.info(infoMessage, new
+		 * Throwable(infoMessage)); }
+		 */
+
+		return dataPacketBuffer;
+		
 	}
 
 	@Override
@@ -93,18 +95,18 @@ public class DataPacketBufferPool implements DataPacketBufferPoolIF {
 		if (null == dataPacketBuffer) {
 			return;
 		}
+		
+		if (! dataPacketBuffer.isPoolBuffer()) {
+			String errorMessage = String.format("the parameter dataPacketBuffer[%d] is not a pool wrap buffer",
+					dataPacketBuffer.hashCode());
+			log.warn(errorMessage, new Throwable(errorMessage));
+			throw new IllegalArgumentException(errorMessage);
+		}
 
 		/**
 		 * 2번 연속 반환 막기
 		 */
 		synchronized (monitor) {
-			if (! dataPacketBuffer.isPoolBuffer()) {
-				String errorMessage = String.format("the parameter dataPacketBuffer[%d] is not a pool wrap buffer",
-						dataPacketBuffer.hashCode());
-				log.warn(errorMessage, new Throwable(errorMessage));
-				throw new IllegalArgumentException(errorMessage);
-			}
-
 			if (dataPacketBuffer.isInQueue()) {
 				String errorMessage = String.format(
 						"the parameter dataPacketBuffer[%d] was added to the wrap buffer polling queue",
@@ -158,4 +160,5 @@ public class DataPacketBufferPool implements DataPacketBufferPoolIF {
 	public int size() {
 		return dataPacketBufferQueue.size();
 	}
+		
 }

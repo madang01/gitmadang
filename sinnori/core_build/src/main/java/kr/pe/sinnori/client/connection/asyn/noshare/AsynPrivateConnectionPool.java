@@ -159,29 +159,26 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 
 		AsynPrivateConnection asynPrivateConnection = null;
 		boolean loop = false;
+		
+		long currentSocketTimeOut = socketTimeOut;
+		long startTime = System.currentTimeMillis();
 
 		synchronized (monitor) {
 			do {
-				// log.info("111111111");
-
 				if (0 == numberOfConnection) {
 					connectionPoolSupporter.notice("no more connection");
 					throw new ConnectionPoolException("check server is alive or something is bad");
 				}
-
-				long startTime = System.currentTimeMillis();
 				
-				while (connectionQueue.isEmpty()) {
-					monitor.wait(10L);
-					
-					long endTime = System.currentTimeMillis();
-					
-					if ( (endTime-startTime) >= socketTimeOut) {
-						throw new SocketTimeoutException("asynchronized private connection pool timeout");
+				asynPrivateConnection = connectionQueue.pollFirst();
+				
+				if (null == asynPrivateConnection) {
+					monitor.wait(currentSocketTimeOut);
+					asynPrivateConnection = connectionQueue.pollFirst();
+					if (null == asynPrivateConnection) {
+						throw new SocketTimeoutException("1.asynchronized private connection pool timeout");
 					}
 				}
-				
-				asynPrivateConnection = connectionQueue.removeFirst();
 
 				if (asynPrivateConnection.isConnected()) {
 					asynPrivateConnection.queueOut();
@@ -204,6 +201,11 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 					log.warn("{} {}, numberOfConnection[{}]", projectName, reasonForLoss, numberOfConnection);
 
 					connectionPoolSupporter.notice(reasonForLoss);
+					
+					currentSocketTimeOut -= (System.currentTimeMillis() - startTime);
+					if (currentSocketTimeOut <= 0) {
+						throw new SocketTimeoutException("2.synchronized private connection pool timeout");
+					}
 				}
 
 			} while (loop);
@@ -265,7 +267,7 @@ public class AsynPrivateConnectionPool implements ConnectionPoolIF {
 			}
 
 			connectionQueue.addLast(asynPrivateConnection);
-			monitor.notifyAll();
+			monitor.notify();
 		}
 		
 		// log.info("conn[{}] releaed", conn.hashCode());
