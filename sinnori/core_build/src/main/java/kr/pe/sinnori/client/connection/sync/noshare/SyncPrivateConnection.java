@@ -110,9 +110,11 @@ public class SyncPrivateConnection extends AbstractConnection {
 		
 		AbstractMessage outObj = null;
 		
-		Selector ioEventOnlySelector = Selector.open();
+		Selector ioEventOnlySelector = null;
+		
 		
 		try {
+			ioEventOnlySelector = Selector.open();
 			serverSC.register(ioEventOnlySelector, SelectionKey.OP_WRITE);
 			
 			ArrayDeque<WrapBuffer> warpBufferQueue = null;
@@ -171,9 +173,12 @@ public class SyncPrivateConnection extends AbstractConnection {
 				if (null != workingWrapBuffer) {
 					clientMessageUtility.releaseWrapBuffer(workingWrapBuffer);
 				}
-				while (! warpBufferQueue.isEmpty()) {
-					workingWrapBuffer = warpBufferQueue.removeFirst();
-					clientMessageUtility.releaseWrapBuffer(workingWrapBuffer);
+				
+				if (null != warpBufferQueue) {
+					while (! warpBufferQueue.isEmpty()) {
+						workingWrapBuffer = warpBufferQueue.removeFirst();
+						clientMessageUtility.releaseWrapBuffer(workingWrapBuffer);
+					}
 				}
 			}
 			
@@ -264,9 +269,11 @@ public class SyncPrivateConnection extends AbstractConnection {
 			} while (true);		
 			
 		} finally {
-			try {
-				ioEventOnlySelector.close();
-			} catch(IOException e) {
+			if (null != ioEventOnlySelector) {
+				try {
+					ioEventOnlySelector.close();
+				} catch(IOException e) {
+				}
 			}
 		}		
 		

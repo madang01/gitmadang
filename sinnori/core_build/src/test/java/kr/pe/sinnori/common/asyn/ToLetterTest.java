@@ -24,8 +24,7 @@ import kr.pe.sinnori.common.logback.SinnoriLogbackManger;
 import kr.pe.sinnori.common.type.LogType;
 
 public class ToLetterTest {
-	protected static InternalLogger log = null;
-	
+	protected static InternalLogger log = null;	
 	protected final static String sinnoriInstalledPathString = "D:\\gitsinnori\\sinnori";
 	protected final static String mainProjectName = "sample_base";
 
